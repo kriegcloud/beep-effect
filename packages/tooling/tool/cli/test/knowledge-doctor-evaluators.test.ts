@@ -7,6 +7,7 @@ import {
   KnowledgeSkillsLocalEvaluator,
   knowledgeCounterfactualVerdicts,
   knowledgeDomainLineSpans,
+  knowledgeGoalsDoctorCauseKey,
   LockEntryWitness,
   ManifestFieldWitness,
   makeKnowledgeDoctorMemoryTree,
@@ -337,6 +338,28 @@ describe("knowledge doctor domain evaluators", () => {
       })
     );
 
+    it.effect(
+      "keeps detailed packet causes distinct and reports an unspecified upstream revision",
+      Effect.fnUntraced(function* () {
+        const first = knowledgeGoalsDoctorCauseKey({ kind: "manifest-invalid", slug: "demo", detail: "first" });
+        const second = knowledgeGoalsDoctorCauseKey({ kind: "manifest-invalid", slug: "demo", detail: "second" });
+        assert.notStrictEqual(first, second);
+        const report = yield* scanKnowledgeDoctorTree(
+          makeKnowledgeDoctorMemoryTree({
+            files: {
+              "skills-lock.json":
+                '{"version":1,"skills":{"beta":{"source":"owner/repo","sourceType":"github","computedHash":"h","skillPath":"skills/beta"}}}',
+              ".claude/skills/beta/SKILL.md": "# beta",
+            },
+          })
+        );
+        const revision = A.findFirst(
+          report.findings,
+          (row) => row.finding.kind === "floating-github-skill-source"
+        ).pipe(O.getOrThrow);
+        assert.include(revision.finding.message, "(none)");
+      })
+    );
     it.effect(
       "evaluates v1 skills hermetically: coverage, floating sources, and missing licenses",
       Effect.fnUntraced(function* () {

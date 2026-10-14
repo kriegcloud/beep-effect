@@ -292,6 +292,59 @@ layer(TestLayer, { timeout: "60 seconds" })("skills replay", (it) => {
     })
   );
 
+  it.effect("reports missing, mode-mismatched, and non-text files without altering the tree", () =>
+    Effect.gen(function* () {
+      const wrongMode = SkillUpstreamContentFile.make({ ...file("SKILL.md", pristineSkill), mode: "100755" });
+      const binary = SkillUpstreamContentFile.make({ path: "SKILL.md", mode: "100644", bytes: new Uint8Array([255]) });
+      for (const tree of [[], [wrongMode], [binary]]) {
+        const result = yield* classifySkillPatchHunks(PATCH_PATH, patchText, tree);
+        expect(A.map(result.rows, (row) => row.status)).toEqual(["conflicted"]);
+        expect(result.tree).toEqual(tree);
+      }
+    })
+  );
+
+  it.effect("classifies mode-only, empty-file creation, and complete deletion sections", () =>
+    Effect.gen(function* () {
+      const modeOnly = A.join(["diff --git a/SKILL.md b/SKILL.md", "old mode 100644", "new mode 100755", ""], "\n");
+      const changed = yield* classifySkillPatchHunks(PATCH_PATH, modeOnly, [file("SKILL.md", "keep\n")]);
+      expect(A.map(changed.rows, (row) => [row.hunk, row.status])).toEqual([[0, "applied"]]);
+      expect(A.getUnsafe(changed.tree, 0).mode).toBe("100755");
+      const blocked = yield* classifySkillPatchHunks(PATCH_PATH, modeOnly, []);
+      expect(A.map(blocked.rows, (row) => [row.hunk, row.status])).toEqual([[0, "conflicted"]]);
+      const addition = A.join(["diff --git a/SKILL.md b/SKILL.md", "new file mode 100644", ""], "\n");
+      const created = yield* classifySkillPatchHunks(PATCH_PATH, addition, []);
+      expect(A.map(created.rows, (row) => [row.hunk, row.status])).toEqual([[0, "applied"]]);
+      expect(A.getUnsafe(created.tree, 0).bytes.length).toBe(0);
+      const deletion = A.join(["diff --git a/SKILL.md b/SKILL.md", "deleted file mode 100644", ""], "\n");
+      const deleted = yield* classifySkillPatchHunks(PATCH_PATH, deletion, [file("SKILL.md", "")]);
+      expect(A.map(deleted.rows, (row) => [row.hunk, row.status])).toEqual([[0, "applied"]]);
+      expect(deleted.tree).toEqual([]);
+    })
+  );
+
+  it.effect("refuses to delete a file when a classified deletion leaves content", () =>
+    Effect.gen(function* () {
+      const patch = A.join(
+        [
+          "diff --git a/SKILL.md b/SKILL.md",
+          "deleted file mode 100644",
+          "--- a/SKILL.md",
+          "+++ /dev/null",
+          "@@ -1 +0,0 @@",
+          "-old",
+          "",
+        ],
+        "\n"
+      );
+      const tree = [file("SKILL.md", "old\nkeep\n")];
+      const result = yield* classifySkillPatchHunks(PATCH_PATH, patch, tree);
+      expect(A.map(result.rows, (row) => row.status)).toEqual(["applied", "conflicted"]);
+      expect(A.getUnsafe(result.rows, 1).detail).toContain("leaves 1 line(s)");
+      expect(result.tree).toEqual(tree);
+    })
+  );
+
   it.effect("keeps a hunk's identity when upstream only shifts it", () =>
     Effect.gen(function* () {
       const exact = yield* classifySkillPatchHunks(PATCH_PATH, patchText, pristineFiles);

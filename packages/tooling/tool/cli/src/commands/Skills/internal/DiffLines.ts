@@ -20,7 +20,7 @@ const $I = $RepoCliId.create("commands/Skills/internal/DiffLines");
  * **Details**
  *
  * Only the last line of a file can lack its newline. Comparing the flag as
- * well as the text is what lets a patch carry Git's missing-newline marker.
+ * well as the text is what lets a patch carry Git's end-of-file newline marker.
  *
  * @internal
  * @category models
@@ -37,9 +37,13 @@ export class DiffLine extends S.Class<DiffLine>($I`DiffLine`)(
 /**
  * Splits text into lines; the last line has `eol: false` when the text does not end in a newline.
  *
+ * **Details**
+ *
+ * Preserves each line's terminating-newline state in the returned values.
+ *
  * @internal
- * @param content - Text to split into line records.
- * @returns Line records that retain each newline state.
+ * @param content - Text whose line endings should be preserved.
+ * @returns Lines carrying their text and terminating-newline state.
  * @category parsing
  * @since 0.0.0
  */
@@ -57,9 +61,13 @@ export const diffLines = (content: string): ReadonlyArray<DiffLine> => {
 /**
  * Joins lines back into text, the inverse of {@link diffLines}.
  *
+ * **Details**
+ *
+ * Appends a newline only for lines whose `eol` value is `true`.
+ *
  * @internal
- * @param lines - Line records to join.
- * @returns The reconstructed text.
+ * @param lines - Lines carrying their text and terminating-newline state.
+ * @returns Text reconstructed with the recorded line endings.
  * @category formatting
  * @since 0.0.0
  */

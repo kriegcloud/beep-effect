@@ -1855,6 +1855,17 @@ operation. Retry canonical publication without it; apply the runtime bound
 to the explicit detached readiness monitor. Conditional flag requirements
 should be rendered beside the option in command help.
 
+
+### Main skills train additions missed two existing quality contracts
+
+After integrating #1732/#1738 into #1726, canonical publication passed 16
+cheap gates but failed schema-first on exported PatchSeriesFile. Default CLI
+package audit then passed 6,276 tests and failed the hosted-job inventory
+contract on Skills Replay, Skills Relock, and Skills Train Batch Issue. The
+repair models the patch data with an annotated class and explicitly records
+the three domain automation jobs while preserving workflow security checks.
+Running these existing contracts before the train landed would have prevented
+the downstream integration delay. No coverage floor or security rule is relaxed.
 ### 2026-10-14 — H2 shared-ledger publication integration
 
 - Final publisher refuses four overlapping packet ledgers after main B
