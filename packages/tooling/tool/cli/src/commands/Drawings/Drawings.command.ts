@@ -155,6 +155,8 @@ const projectionNote = (figure: RenderManifest["figures"][number]): string =>
  * console.log(renderManifestSummary({ manifest, requested: SheetOptions.make({}) }).join("\n"))
  * ```
  *
+ * @param root0 - The completed manifest and requested sheet options used to identify spec overrides.
+ * @returns Summary lines in the order printed by the render command.
  * @category utilities
  * @since 0.0.0
  */
