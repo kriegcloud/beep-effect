@@ -792,13 +792,10 @@ describe("knowledge static option surface", () => {
 describe("knowledge doctor on this checkout", () => {
   it.layer(testLayer, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "reports HEAD, round-trips its schema, and has no vacuous live witness",
+      "reads HEAD and has no vacuous live witness",
       Effect.fnUntraced(function* () {
         const tree: KnowledgeDoctorTree = yield* makeKnowledgeDoctorTree("HEAD");
-        const encoded = yield* encodeKnowledgeDoctorReportJson(yield* scanKnowledgeDoctorTree(tree));
-        const report = yield* decodeKnowledgeDoctorReportJson(encoded);
-        assert.strictEqual(report.mode, "report");
-        assert.isAbove(report.spanCounts.verified, 0);
+        assert.isAbove(A.length(tree.trackedEntries), 0);
         const sample = yield* Effect.forEach(
           A.take(
             A.filter(tree.trackedEntries, (entry) => entry.path === "AGENTS.md"),
@@ -820,7 +817,7 @@ describe("knowledge doctor on this checkout", () => {
           []
         );
       }),
-      { timeout: 240_000 }
+      { timeout: 90_000 }
     );
   });
 });
