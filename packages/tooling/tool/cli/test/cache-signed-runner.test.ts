@@ -118,6 +118,9 @@ const fixture = Effect.fn("SignedRunnerTest.fixture")(function* (fault: typeof F
       expect(options.args).not.toContain(issuer);
       const worker = O.getOrThrow(A.last(options.args ?? []));
       const directory = path.dirname(worker);
+      const config = `--config=${path.join(directory, "bunfig.toml")}`;
+      expect(options.args).toContain(config);
+      expect(yield* fs.readFileString(path.join(directory, "bunfig.toml"))).toBe("");
       expect(yield* fs.readFileString(worker)).toContain("runCacheSignedPilotWorker");
       const protect = (pair: (typeof signedPilotInput.pairs)[number]) => ({
         ...pair,

@@ -306,6 +306,7 @@ describe("MailTagging attachment filer", () => {
           "too-large": 1,
           "no-folder": 0,
           "sender-not-routable": 0,
+          "name-held": 0,
         });
         expect(report.attachmentsFiled).toBe(1);
         expect(yield* Ref.get(state.downloads)).toBe(1);
@@ -571,16 +572,16 @@ describe("MailTagging two-phase filing", () => {
 
   it.layer(repeatedPdf(), { timeout: "30 seconds" })("foreign files holding both names", (it) => {
     it.effect(
-      "abandons both intents, fails with a typed error, and leaves nothing pending for the next run",
+      "abandons both intents and reports the held attachment without blocking later filing",
       Effect.fnUntraced(function* () {
         const state = yield* World;
         yield* state.holdName({ key: plainKey, bytes: [0] });
         yield* state.holdName({ key: shortHashKey, bytes: [0] });
-        const failure = yield* Effect.flip(file({ mode: "apply", message: usptoMail }));
+        const held = yield* file({ mode: "apply", message: usptoMail });
         const abandoned = A.filter(yield* Ref.get(state.filingRecords), FilingLedgerRecord.guards.FilingAbandoned);
 
-        assertInstanceOf(failure, MailTaggingPortError);
-        expect([failure.port, failure.operation]).toStrictEqual(["DocumentStore", "upload"]);
+        expect(held.attachmentsSkipped["name-held"]).toBe(1);
+        expect(held.attachmentsFiled).toBe(0);
         expect(A.map(abandoned, (line) => [line.fileName, line.reason])).toStrictEqual([
           ["2026-07-01 office-action.pdf", "name-taken"],
           ["2026-07-01 office-action (315d429b).pdf", "name-taken"],
@@ -594,12 +595,11 @@ describe("MailTagging two-phase filing", () => {
         });
 
         const preview = yield* file({ mode: "dry-run", message: usptoMail });
-        const again = yield* Effect.flip(file({ mode: "apply", message: usptoMail }));
+        const later = yield* file({ mode: "apply", message: clientMail });
 
         expect([preview.attachmentsFiled, preview.attachmentsReconciled]).toStrictEqual([1, 0]);
-        assertInstanceOf(again, MailTaggingPortError);
-        expect((yield* ledgerShape()).lines).toHaveLength(8);
-        expect((yield* ledgerShape()).completed).toStrictEqual([]);
+        expect(later.attachmentsFiled).toBe(1);
+        expect((yield* ledgerShape()).completed).toHaveLength(1);
       })
     );
   });
@@ -702,7 +702,7 @@ describe("MailTagging two-phase filing", () => {
 
   it.layer(repeatedPdf(), { timeout: "30 seconds" })("store reports a size and no hash", (it) => {
     it.effect(
-      "reconciles its own upload by size",
+      "refuses size-only adoption and files under the short-hash name",
       Effect.fnUntraced(function* () {
         const state = yield* World;
         yield* Ref.set(state.holderDetail, "size-only");
@@ -710,8 +710,11 @@ describe("MailTagging two-phase filing", () => {
         yield* Effect.flip(file({ mode: "apply", message: usptoMail }));
         const rerun = yield* file({ mode: "apply", message: usptoMail });
 
-        expect([rerun.attachmentsReconciled, rerun.attachmentsFiled]).toStrictEqual([1, 0]);
-        expect((yield* ledgerShape()).completed).toStrictEqual([["2026-07-01 office-action.pdf", "file-1", true]]);
+        expect([rerun.attachmentsReconciled, rerun.attachmentsFiled]).toStrictEqual([0, 1]);
+        expect(yield* abandonReasons()).toStrictEqual(["holder-mismatch"]);
+        expect((yield* ledgerShape()).completed).toStrictEqual([
+          ["2026-07-01 office-action (315d429b).pdf", "file-2", false],
+        ]);
       })
     );
   });
@@ -755,7 +758,7 @@ describe("MailTagging two-phase filing", () => {
 
   it.layer(sameNameTwice(), { timeout: "30 seconds" })("foreign holder under the short-hash name", (it) => {
     it.effect(
-      "abandons the intent and fails, because there is no other name to try",
+      "abandons the intent and reports a held name, because no other name remains",
       Effect.fnUntraced(function* () {
         const state = yield* World;
         yield* file({ mode: "apply", message: usptoMail });
@@ -768,10 +771,9 @@ describe("MailTagging two-phase filing", () => {
           key: "folder-acme-from-client/2026-07-01 office-action (31609426).pdf",
           bytes: [7],
         });
-        const failure = yield* Effect.flip(file({ mode: "apply", message: clientMail }));
+        const held = yield* file({ mode: "apply", message: clientMail });
 
-        assertInstanceOf(failure, MailTaggingPortError);
-        expect([failure.port, failure.operation]).toStrictEqual(["DocumentStore", "upload"]);
+        expect(held.attachmentsSkipped["name-held"]).toBe(1);
         expect(yield* abandonReasons()).toStrictEqual(["holder-mismatch"]);
         expect((yield* ledgerShape()).pending).toStrictEqual([]);
         expect((yield* ledgerShape()).completed).toHaveLength(1);

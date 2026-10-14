@@ -61,9 +61,10 @@ const notFound = M365Error.fromReason("response status", { status: 404 });
 export const throttled = M365Error.fromReason("throttled", { status: 429 });
 const preconditionFailed = M365Error.fromReason("response status", { status: 412 });
 
-type Categorised = { readonly categories: ReadonlyArray<string>; readonly id: string };
+type Categorised = { readonly categories: ReadonlyArray<string>; readonly id: string; readonly changeKey?: string };
 
-export const event = (input: Categorised) => GraphEvent.make({ categories: O.some(input.categories), id: input.id });
+export const event = (input: Categorised) =>
+  GraphEvent.make({ categories: O.some(input.categories), changeKey: O.some(input.changeKey ?? "ck-1"), id: input.id });
 
 export const mailMessage = (input: Categorised & { readonly changeKey?: string }) =>
   GraphMessage.make({
@@ -101,7 +102,11 @@ export const FakeGraphLayer = Layer.unwrap(
     return makeM365Stub({
       deleteEvent: Effect.fnUntraced(function* (request) {
         yield* call("deleteEvent", request.eventId);
-        yield* found(HashMap.get(yield* Ref.get(fake.events), request.eventId));
+        const current = yield* found(HashMap.get(yield* Ref.get(fake.events), request.eventId));
+        const expected = request.changeKey;
+        if (O.isSome(expected) && !O.exists(current.changeKey, (key) => key === expected.value)) {
+          return yield* preconditionFailed;
+        }
         yield* Ref.update(fake.events, HashMap.remove(request.eventId));
       }),
       getEvent: Effect.fnUntraced(function* (request) {

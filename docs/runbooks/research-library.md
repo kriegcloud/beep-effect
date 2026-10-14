@@ -67,8 +67,10 @@ receipt when exhausted limits prevent closure.
 
 Paper landing pages and abstracts are incomplete evidence until the PDF or other
 actual full text is retained. PDF signature and target status are checked even
-for query URLs. Explicit publisher PDF metadata and OpenReview PDF routes may
-locate the original. An arXiv version comes from the retained paper header or
+for query URLs. Publisher landing pages are retained without following HTML
+PDF locators, and direct requests do not follow redirects. Provide a vetted
+direct PDF URL as a separate source to acquire its full text. An arXiv version
+comes from the retained paper header or
 from official metadata plus identical bytes from an explicitly versioned PDF;
 never infer a version number.
 

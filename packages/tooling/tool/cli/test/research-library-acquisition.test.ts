@@ -214,17 +214,17 @@ it.layer(
       expect(error.message).toContain("does not prove operational qualification: alphaxiv");
     })
   );
-  it.effect("resolves legitimate quoted and unquoted publisher attributes without accepting lookalike names", () =>
+  it.effect("does not request PDF links found in publisher HTML", () =>
     Effect.gen(function* () {
       const fixture = yield* prepare();
       const cases = [
-        { html: '<meta content="https://publisher.example/paper.pdf" name=citation_pdf_url>', resolved: true },
-        { html: '<meta name="citation_pdf_url" content=https://publisher.example/paper.pdf>', resolved: true },
-        { html: "<a href=https://publisher.example/paper.pdf>PDF</a>", resolved: true },
-        { html: "<meta name=citation_pdf_url_suffix content=https://publisher.example/paper.pdf>", resolved: false },
-        { html: "<a data-href=https://publisher.example/paper.pdf>Not a link</a>", resolved: false },
+        '<meta content="https://publisher.example/paper.pdf" name=citation_pdf_url>',
+        '<meta name="citation_pdf_url" content=http://127.0.0.1/internal>',
+        "<a href=https://publisher.example/paper.pdf>PDF</a>",
+        "<meta name=citation_pdf_url_suffix content=https://publisher.example/paper.pdf>",
+        "<a data-href=https://publisher.example/paper.pdf>Not a link</a>",
       ];
-      for (const [index, item] of cases.entries()) {
+      for (const [index, html] of cases.entries()) {
         const paper = LibrarySource.make({
           ...source,
           kind: "paper",
@@ -236,7 +236,7 @@ it.layer(
           return Effect.succeed(
             HttpClientResponse.fromWeb(
               request,
-              new Response(request.url.endsWith(".pdf") ? headerlessPdf("Real full paper fixture") : item.html, {
+              new Response(request.url.endsWith(".pdf") ? headerlessPdf("Real full paper fixture") : html, {
                 status: 200,
               })
             )
@@ -245,8 +245,8 @@ it.layer(
         const result = yield* acquireLibraryPaper(fixture.root, paper, `captures/attribute-${index}`).pipe(
           Effect.provideService(HttpClient.HttpClient, client)
         );
-        expect(result.complete, result.reason).toBe(item.resolved);
-        expect(calls).toHaveLength(item.resolved ? 2 : 1);
+        expect(result.complete, result.reason).toBe(false);
+        expect(calls).toEqual(["https://publisher.example/article"]);
       }
     })
   );
@@ -466,7 +466,7 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
     })
   );
 
-  it.effect("follows explicit publisher PDF metadata and preserves a failing PDF response", () =>
+  it.effect("retains publisher landing metadata without making a follow-up request", () =>
     Effect.gen(function* () {
       const fixture = yield* prepare();
       const paper = LibrarySource.make({
@@ -492,10 +492,10 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
       const capture = yield* acquireLibraryPaper(fixture.root, paper, "captures/metadata").pipe(
         Effect.provideService(HttpClient.HttpClient, client)
       );
-      expect(requested).toEqual(["https://publisher.example/article", "https://publisher.example/pdf?id=paper"]);
+      expect(requested).toEqual(["https://publisher.example/article"]);
       expect(capture.complete).toBe(false);
-      expect(capture.reason).toContain("HTTP 403");
-      expect(A.some(capture.artifacts, (artifact) => artifact.role === "raw-response")).toBe(true);
+      expect(capture.reason).toContain("automatic PDF URL discovery is disabled");
+      expect(A.some(capture.artifacts, (artifact) => artifact.role === "raw-response")).toBe(false);
       expect(A.some(capture.artifacts, (artifact) => artifact.role === "publisher-landing-page")).toBe(true);
     })
   );

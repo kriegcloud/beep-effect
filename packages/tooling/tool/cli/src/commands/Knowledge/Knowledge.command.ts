@@ -42,7 +42,7 @@ import {
   KnowledgeProbePolicy,
 } from "./Knowledge.schemas.ts";
 import { KnowledgeService, KnowledgeServiceLive } from "./Knowledge.service.ts";
-import { knowledgeDoctorGateFailure } from "./KnowledgeDoctor.baseline.ts";
+import { isKnowledgeGovernanceKind, knowledgeDoctorGateFailure } from "./KnowledgeDoctor.baseline.ts";
 import { encodeKnowledgeLeasesReportJson, knowledgeLeaseWarnings } from "./KnowledgeDoctor.leases.ts";
 import { encodeKnowledgeDoctorReportJson, KnowledgeSpanClass } from "./KnowledgeDoctor.schemas.ts";
 import {
@@ -891,18 +891,7 @@ export const renderKnowledgeDoctorCheckReport = (report: KnowledgeDoctorReport):
   O.match(report.ratchet, {
     onNone: () => `knowledge doctor @ ${report.treeish} (${report.tree}): no ratchet (read-only report)`,
     onSome: (ratchet) => {
-      const governance = A.filter(report.findings, (row) =>
-        A.contains(
-          [
-            "baseline-tamper",
-            "lease-expired",
-            "lease-owner-unresolved",
-            "lease-lifetime-exceeded",
-            "lease-quota-exceeded",
-          ],
-          row.finding.kind
-        )
-      );
+      const governance = A.filter(report.findings, (row) => isKnowledgeGovernanceKind(row.finding.kind));
       return A.join(
         [
           `knowledge doctor @ ${report.tree} vs ${ratchet.baseRef} (merge-base ${ratchet.mergeBase}); baseline minted at ${ratchet.mintedAt}`,

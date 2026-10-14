@@ -181,6 +181,23 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
         })
       )
     );
+
+    it.effect("does not sweep staging names through a symlinked goals root", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const plan = yield* compileMaterializationPlan(input, []);
+          yield* writeProjectFile("outside/.staging-keep/data.txt", "keep\n");
+          yield* fs.symlink(`${process.cwd()}/outside`, "goals");
+
+          const exit = yield* Effect.exit(publishBootstrapPlan(plan));
+          exit.pipe(Exit.isFailure, assertTrue);
+          expect(String(exit)).toContain("symlinked goals root");
+          strictEqual(yield* fs.readFileString("outside/.staging-keep/data.txt"), "keep\n");
+        })
+      )
+    );
   });
 
   describe("goals adopt --write", { concurrent: false }, () => {
@@ -246,6 +263,24 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
           const exit = yield* Effect.exit(applyAdoptionPlan(plan));
           exit.pipe(Exit.isFailure, assertTrue);
           expect(String(exit)).toContain("changed since the plan was reviewed");
+        })
+      )
+    );
+
+    it.effect("refuses a reviewed adoption write through a symlinked packet ancestor", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* seedHandRolled;
+          yield* fs.makeDirectory("outside", { recursive: true });
+          yield* fs.symlink(`${process.cwd()}/outside`, "goals/hand-rolled/ops");
+          const plan = yield* compileAdoptionPlan(yield* readPacketSnapshot("hand-rolled"), O.none());
+
+          const exit = yield* Effect.exit(applyAdoptionPlan(plan));
+          exit.pipe(Exit.isFailure, assertTrue);
+          expect(String(exit)).toContain("Refusing to write");
+          expect(yield* fs.readDirectory("outside")).toEqual([]);
         })
       )
     );

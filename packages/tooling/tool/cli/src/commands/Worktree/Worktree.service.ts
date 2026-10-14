@@ -1458,6 +1458,20 @@ const assertQuiescentFence = Effect.fnUntraced(function* (
       message: `Refusing to retire ${request.targetPath}: the processes attached to it could not be enumerated, so the archive cannot be proven complete.`,
     });
   }
+  // A shell can write after capture and then leave the fenced directory (or
+  // exit) before this scan. It is no longer an attachment, but its earlier
+  // exemption still needs to be revalidated before the copy is removed.
+  if (O.isSome(earlier)) {
+    const table = yield* ProcessTable;
+    for (const [pid, before] of HashMap.toEntries(earlier.value)) {
+      const now = O.flatMap(yield* table.status(pid), (status) => status.contextSwitches);
+      if (!O.exists(now, (count) => count === before)) {
+        return yield* WorktreeCommandError.make({
+          message: `Refusing to retire ${request.targetPath}: an initially exempted desktop Terminal shell changed or departed during capture, so the archive cannot be proven complete.`,
+        });
+      }
+    }
+  }
   const holders = yield* setAsideIdleTerminalShells(
     request,
     yield* holdersOutsideInvoker(request, scan.value),

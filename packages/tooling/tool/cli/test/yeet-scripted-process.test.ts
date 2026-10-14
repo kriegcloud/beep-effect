@@ -988,7 +988,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
           O.some(createStep),
           O.none(),
           {},
-          O.some("fix: x")
+          O.some("fix: $(printf UNSAFE)")
         ).pipe(
           withProcesses(
             [
@@ -1002,7 +1002,8 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
         const rows = laneRows(yield* Ref.get(recorder));
         expect(rows).toHaveLength(1);
         expect(rows[0]?.[3]).toContain("could not replace the merge-commit subject on pull request #7");
-        expect(rows[0]?.[3]).toContain('gh pr edit 7 --title "fix: x"');
+        expect(rows[0]?.[3]).toContain("review and edit its title in GitHub");
+        expect(rows[0]?.[3]).not.toContain("$(printf UNSAFE)");
       })
     );
   });

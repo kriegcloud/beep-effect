@@ -1803,6 +1803,9 @@ export const materializeKnowledgeTree = Effect.fn("Knowledge.materializeTree")(f
     .pipe(KnowledgeOperationalError.mapError("Failed to create the reference-census archive root."));
   yield* writeGitArchive(repoRoot, commit, archivePath, gitAdapter);
   yield* extractArchive(archivePath, archiveRoot);
+  yield* fs
+    .remove(archivePath)
+    .pipe(KnowledgeOperationalError.mapError("Failed to release the extracted reference-census archive."));
   const tree = yield* readGitTree(repoRoot, commit, gitAdapter, () =>
     KnowledgeOperationalError.make({ message: "Malformed NUL-delimited census ls-tree output." })
   );

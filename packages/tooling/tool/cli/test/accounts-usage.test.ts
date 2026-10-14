@@ -29,6 +29,7 @@ import {
   JunieAuthTestBodyJson,
   JunieExchangeBody,
   JunieQuotaBody,
+  JunieQuotaBodyJson,
   JunieRefillBody,
   JunieRefreshBody,
   JunieRefreshBodyJson,
@@ -1198,7 +1199,12 @@ const junieTestLayer = (
   quotaStatus = 200,
   audienceRotated = false,
   delayedDetailed = false,
-  exchangeBody = '{"token":"synthetic-grazie"}'
+  overrides: {
+    readonly exchangeBody?: string;
+    readonly quotaBody?: string;
+    readonly status?: Readonly<Record<string, (call: number) => number>>;
+    readonly quotaDelay?: Duration.Duration;
+  } = {}
 ) => {
   const root = "/accounts-test";
   const requests = Layer.effect(JunieRequests, Ref.make<ReadonlyArray<ReadonlyArray<string | undefined>>>(A.empty()));
@@ -1206,6 +1212,7 @@ const junieTestLayer = (
     HttpClient.HttpClient,
     Effect.gen(function* () {
       const seen = yield* JunieRequests;
+      const calls = yield* Ref.make(HashMap.empty<string, number>());
       const oauthBody = (request: HttpClientRequest.HttpClientRequest) => {
         const switched =
           request.body._tag === "Uint8Array" &&
@@ -1218,10 +1225,14 @@ const junieTestLayer = (
       };
       const detailedBodies = HashMap.make(
         ["https://api.jetbrains.cloud/user-management/api/ai-access-options", optionsBody],
-        ["https://api.jetbrains.ai/auth/jetbrains-jwt/provide-access/license/v2", exchangeBody],
+        [
+          "https://api.jetbrains.ai/auth/jetbrains-jwt/provide-access/license/v2",
+          overrides.exchangeBody ?? '{"token":"synthetic-grazie"}',
+        ],
         [
           "https://api.jetbrains.ai/user/v5/quota/get",
-          '{"current":{"current":{"amount":120000},"maximum":{"amount":"1000000"},"tariffQuota":{"current":{"amount":"120000"},"maximum":{"amount":1000000},"available":{"amount":"880000"}},"topUpQuota":{"available":{"amount":"10000"}}}}',
+          overrides.quotaBody ??
+            '{"current":{"current":{"amount":120000},"maximum":{"amount":"1000000"},"tariffQuota":{"current":{"amount":"120000"},"maximum":{"amount":1000000},"available":{"amount":"880000"}},"topUpQuota":{"available":{"amount":"10000"}}}}',
         ],
         [
           "https://api.jetbrains.ai/user/v5/quota/metadata/refill",
@@ -1233,7 +1244,11 @@ const junieTestLayer = (
         const body = detailed ? HashMap.get(detailedBodies, request.url) : O.none<string>();
         return O.getOrElse(body, () => '{"active":true,"balanceLeft":12,"balanceUnit":"CREDITS","licenseType":"AIP"}');
       };
-      const responseStatus = (request: HttpClientRequest.HttpClientRequest) => {
+      const responseStatus = (request: HttpClientRequest.HttpClientRequest, call: number) => {
+        const overridden = A.findFirst(R.toEntries(overrides.status ?? {}), ([fragment]) =>
+          Str.includes(fragment)(request.url)
+        );
+        if (O.isSome(overridden)) return overridden.value[1](call);
         if (Str.includes("quota/")(request.url)) return quotaStatus;
         if (Str.includes("oauth2")(request.url)) return oauthStatus;
         if (
@@ -1245,16 +1260,25 @@ const junieTestLayer = (
         return request.headers.authorization === "Bearer synthetic-old" ? storedStatus : freshStatus;
       };
       return HttpClient.make((request) => {
-        const reply = Ref.update(
-          seen,
-          A.append([
-            request.method,
-            request.url,
-            request.headers.authorization,
-            request.headers["x-accept-eap-license"],
-            request.headers["x-accept-release-license"],
-          ])
-        ).pipe(Effect.as(respond(request, responseBody(request), responseStatus(request))));
+        const reply = Effect.gen(function* () {
+          yield* Ref.update(
+            seen,
+            A.append([
+              request.method,
+              request.url,
+              request.headers.authorization,
+              request.headers["x-accept-eap-license"],
+              request.headers["x-accept-release-license"],
+            ])
+          );
+          const call = yield* Ref.modify(calls, (counts) => {
+            const next = O.getOrElse(HashMap.get(counts, request.url), () => 0) + 1;
+            return [next, HashMap.set(counts, request.url, next)] as const;
+          });
+          return respond(request, responseBody(request), responseStatus(request, call));
+        });
+        if (overrides.quotaDelay !== undefined && Str.includes("quota/")(request.url))
+          return reply.pipe(Effect.delay(overrides.quotaDelay));
         const delay = Str.includes("quota/")(request.url)
           ? Duration.seconds(30)
           : request.headers.authorization === "Bearer synthetic-fresh"
@@ -1580,19 +1604,9 @@ describe("Junie detailed cycle quota", () => {
     }
   );
   it.layer(
-    junieTestLayer(
-      credential,
-      false,
-      401,
-      200,
-      200,
-      true,
-      undefined,
-      200,
-      false,
-      false,
-      `{"token":"synthetic.${Base64Url.encode('{"exp":120}')}.signature"}`
-    ),
+    junieTestLayer(credential, false, 401, 200, 200, true, undefined, 200, false, false, {
+      exchangeBody: `{"token":"synthetic.${Base64Url.encode('{"exp":120}')}.signature"}`,
+    }),
     { timeout: "30 seconds" }
   )("exchange token expiry", (it) => {
     it.effect(
@@ -1646,26 +1660,227 @@ describe("Junie detailed cycle quota", () => {
     ["no licenses", '{"aiAccessOptions":[]}', 200, false],
     ["quota 404", undefined, 404, false],
     ["quota 500", undefined, 500, false],
-    ["audience rotation", undefined, 200, true],
   ] as const) {
     it.layer(junieTestLayer(credential, false, 401, 200, 200, true, options, status, rotate), {
       timeout: "30 seconds",
     })(name, (it) => {
       it.effect(
-        "keeps the balance-only row without using a rotated token",
+        "keeps the balance-only row",
         Effect.fnUntraced(function* () {
           const outcome = (yield* pollAccounts)[0]?.outcome;
           assertTrue(outcome?._tag === "Ok");
           if (outcome?._tag !== "Ok") return;
           assertTrue(outcome.windows.length === 0);
           assertTrue(outcome.credits[0]?.remaining === 0.00012);
-          if (rotate) {
-            const seen = yield* Ref.get(yield* JunieRequests);
-            assertTrue(!A.some(seen, (request) => request[2] === "Bearer synthetic-rotated"));
-            assertTrue(!A.some(seen, (request) => request[1]?.includes("ai-access-options") ?? false));
-          }
         })
       );
     });
   }
+
+  const detailedLayer = (overrides: Parameters<typeof junieTestLayer>[10], audienceRotated = false) =>
+    junieTestLayer(credential, false, 401, 200, 200, true, undefined, 200, audienceRotated, false, overrides);
+  const countOf = Effect.fnUntraced(function* (fragment: string) {
+    const seen = yield* Ref.get(yield* JunieRequests);
+    return A.filter(seen, (request) => request[1]?.includes(fragment) ?? false).length;
+  });
+  const okOutcome = Effect.fnUntraced(function* () {
+    const outcome = (yield* pollAccounts)[0]?.outcome;
+    assertTrue(outcome?._tag === "Ok");
+    return outcome?._tag === "Ok" ? O.some(outcome) : O.none();
+  });
+
+  it.layer(detailedLayer({}, true), { timeout: "30 seconds" })("audience rotation", (it) => {
+    it.effect(
+      "reports a switch_audience rotation as NeedsLogin and never retries the grant for that credential",
+      Effect.fnUntraced(function* () {
+        const expected = AccountUsageOutcome.cases.NeedsLogin.make({
+          detail: "JetBrains rotated the refresh token during cycle lookup; run `junie` and sign in again",
+        });
+        assertSome(A.head(yield* pollAccounts).pipe(O.map((row) => row.outcome)), expected);
+        assertTrue((yield* countOf("oauth2")) === 2);
+        assertTrue((yield* countOf("ai-access-options")) === 0);
+        assertSome(A.head(yield* pollAccounts).pipe(O.map((row) => row.outcome)), expected);
+        assertTrue((yield* countOf("oauth2")) === 2);
+        const seen = yield* Ref.get(yield* JunieRequests);
+        assertTrue(!A.some(seen, (request) => request[2] === "Bearer synthetic-rotated"));
+      })
+    );
+  });
+
+  it.layer(detailedLayer({}), { timeout: "30 seconds" })("licence cache", (it) => {
+    it.effect(
+      "re-mints an expired Grazie token through provide-access alone, reusing the cached licence",
+      Effect.fnUntraced(function* () {
+        yield* TestClock.setTime(0);
+        yield* okOutcome();
+        yield* Duration.minutes(11).pipe(Duration.toMillis, TestClock.setTime);
+        const second = yield* okOutcome();
+        assertTrue(O.exists(second, (outcome) => outcome.windows.length === 1));
+        assertTrue((yield* countOf("provide-access")) === 2);
+        assertTrue((yield* countOf("ai-access-options")) === 1);
+        assertTrue((yield* countOf("oauth2")) === 2);
+      })
+    );
+  });
+
+  it.layer(detailedLayer({ status: { "provide-access": (call) => (call === 2 ? 403 : 200) } }), {
+    timeout: "30 seconds",
+  })("licence cache invalidation", (it) => {
+    it.effect(
+      "drops the cached licence only after provide-access answers 4xx",
+      Effect.fnUntraced(function* () {
+        yield* TestClock.setTime(0);
+        yield* okOutcome();
+        yield* Duration.minutes(11).pipe(Duration.toMillis, TestClock.setTime);
+        const rejected = yield* okOutcome();
+        assertTrue(O.exists(rejected, (outcome) => outcome.windows.length === 0));
+        assertTrue((yield* countOf("ai-access-options")) === 1);
+        const recovered = yield* okOutcome();
+        assertTrue(O.exists(recovered, (outcome) => outcome.windows.length === 1));
+        assertTrue((yield* countOf("ai-access-options")) === 2);
+        assertTrue((yield* countOf("provide-access")) === 3);
+      })
+    );
+  });
+
+  it.layer(detailedLayer({ status: { "quota/get": (call) => (call === 1 ? 407 : 200) } }), { timeout: "30 seconds" })(
+    "quota token rejection",
+    (it) => {
+      it.effect(
+        "drops a Grazie token that quota/get rejects and re-mints once in the same poll",
+        Effect.fnUntraced(function* () {
+          const outcome = yield* okOutcome();
+          assertTrue(O.exists(outcome, (value) => value.windows[0]?.usedPercent === 12));
+          assertTrue((yield* countOf("provide-access")) === 2);
+          assertTrue((yield* countOf("quota/get")) === 2);
+          assertTrue((yield* countOf("ai-access-options")) === 1);
+        })
+      );
+    }
+  );
+
+  it.layer(
+    detailedLayer({
+      status: { "quota/metadata/refill": () => 500 },
+      quotaBody:
+        '{"current":{"until":1792195200000,"tariffQuota":{"current":{"amount":"120000"},"maximum":{"amount":1000000},"available":{"amount":"880000"}}}}',
+    }),
+    { timeout: "30 seconds" }
+  )("refill failure with until", (it) => {
+    it.effect(
+      "keeps the quota reply when refill fails and resets at quota.current.until",
+      Effect.fnUntraced(function* () {
+        const outcome = yield* okOutcome();
+        assertSome(
+          O.flatMap(outcome, (value) => A.head(value.windows)),
+          UsageWindow.make({
+            kind: "cycle",
+            scope: O.none(),
+            usedPercent: 12,
+            resetsAt: O.some(DateTime.makeUnsafe("2026-10-17T00:00:00Z")),
+          })
+        );
+        assertTrue(O.exists(outcome, (value) => value.credits[0]?.remaining === 8.8));
+      })
+    );
+  });
+
+  it.layer(detailedLayer({ status: { "quota/metadata/refill": () => 500 } }), { timeout: "30 seconds" })(
+    "refill failure without until",
+    (it) => {
+      it.effect(
+        "keeps the cycle window without a reset when neither refill nor until is available",
+        Effect.fnUntraced(function* () {
+          const outcome = yield* okOutcome();
+          assertSome(
+            O.flatMap(outcome, (value) => A.head(value.windows)),
+            UsageWindow.make({ kind: "cycle", scope: O.none(), usedPercent: 12, resetsAt: O.none() })
+          );
+        })
+      );
+    }
+  );
+
+  it.layer(
+    detailedLayer({
+      quotaBody:
+        '{"current":{"tariffQuota":{"current":{"amount":"120000"},"maximum":{"amount":1000000}},"topUpQuota":{"available":{"amount":"10000"}}}}',
+    }),
+    { timeout: "30 seconds" }
+  )("partial tariff", (it) => {
+    it.effect(
+      "keeps the original balance credit when tariffQuota.available is absent",
+      Effect.fnUntraced(function* () {
+        const outcome = yield* okOutcome();
+        assertSome(
+          O.map(outcome, (value) => value.credits),
+          [
+            CreditBalance.make({
+              label: "JetBrains AI balance",
+              unit: "credits",
+              remaining: 0.00012,
+              limit: O.none(),
+              expiresAt: O.none(),
+            }),
+          ]
+        );
+        assertTrue(O.exists(outcome, (value) => value.windows[0]?.usedPercent === 12));
+      })
+    );
+  });
+
+  it("rejects empty, whitespace, hex, and exponent amount strings but accepts plain decimals", () => {
+    const quota = (amount: string) => JunieQuotaBodyJson.decodeOption(`{"current":{"current":{"amount":"${amount}"}}}`);
+    for (const amount of ["", "  ", "0x10", "1e5", "12abc"]) assertNone(quota(amount));
+    for (const [amount, value] of [
+      ["880000.5", 880000.5],
+      ["-3", -3],
+      ["0", 0],
+    ] as const) {
+      assertTrue(O.exists(quota(amount), (body) => O.exists(body.current.current, (pool) => pool.amount === value)));
+    }
+  });
+
+  it.layer(
+    detailedLayer({
+      exchangeBody: `{"token":"synthetic-header.${Base64Url.encode('{"exp":300}')}.synthetic-signature"}`,
+    }),
+    { timeout: "30 seconds" }
+  )("Grazie token skew", (it) => {
+    it.effect(
+      "re-mints the Grazie token 60 seconds before its JWT exp",
+      Effect.fnUntraced(function* () {
+        yield* TestClock.setTime(0);
+        yield* okOutcome();
+        yield* Duration.seconds(230).pipe(Duration.toMillis, TestClock.setTime);
+        yield* okOutcome();
+        assertTrue((yield* countOf("provide-access")) === 1);
+        yield* Duration.seconds(250).pipe(Duration.toMillis, TestClock.setTime);
+        yield* okOutcome();
+        assertTrue((yield* countOf("provide-access")) === 2);
+      })
+    );
+  });
+
+  it.layer(detailedLayer({ quotaDelay: Duration.seconds(5) }), { timeout: "30 seconds" })(
+    "concurrent quota calls",
+    (it) => {
+      it.effect(
+        "runs quota/get and refill concurrently inside the 8 second detail budget",
+        Effect.fnUntraced(function* () {
+          yield* TestClock.setTime(0);
+          const poll = yield* Effect.forkChild(pollAccounts);
+          yield* Duration.seconds(9).pipe(Duration.toMillis, TestClock.setTime);
+          const outcome = (yield* Fiber.join(poll))[0]?.outcome;
+          assertTrue(outcome?._tag === "Ok");
+          if (outcome?._tag !== "Ok") return;
+          assertTrue(outcome.windows[0]?.usedPercent === 12);
+          assertSome(
+            O.flatMap(A.head(outcome.windows), (window) => window.resetsAt),
+            DateTime.makeUnsafe("2026-10-18T00:00:00Z")
+          );
+        })
+      );
+    }
+  );
 });
