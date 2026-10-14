@@ -363,3 +363,36 @@ continuation after this reconciliation and main integration.
 Reversal: revert packet disposition decisions, retaining all immutable
 ledgers, outputs, claims and manifests. P2 remains in-progress; eighteen
 larger occurrences and estate/recycle/DOC gates stay open for P3.
+
+
+## Reboot-resume prerequisites and freeze stop
+
+| Check | Status | Measurement |
+| --- | --- | --- |
+| Lane and packet | met | recovery-run branch, packet exists; prior report retained |
+| P0 on disk | met | seal matches; 755 directory / 10,696 file passes; four losses; one preflight and seal |
+| Slice candidate | met | 53 PSTs, 23 eligible; original 56,140,800-byte selected identity unchanged |
+| Recovery membership | met | ordinals 7/8/9 source identities match archived metadata |
+| Existing transformation state | met | recovery 5 sealed failure; roots and stamps 7/8/9 absent; no live family unit |
+| Engines | met | OpenJDK 27 dated 2026-09-15; pffexport 20260917; bubblewrap 0.13.0; Tika digest unchanged |
+| Capacity | met | 338,880,876,544 bytes, above 100 GB floor |
+| Synthetic lanes and sandbox smokes | not re-run | prior proof retained; frozen source check blocks launch first |
+| Main integration | met | fetched and merged main; bun.lock moved; frozen-lockfile install succeeded |
+| Main source equality | met | Corpus/libpff match main |
+| Frozen source equality | not met | three JSDoc blocks in Corpus.service.ts differ; launcher would exit 71 |
+| Doctor baseline | met | 226 packets; zero blockers; six unrelated advisories before merge |
+| Probe and fixes | previously complete | no new probe, engine change or code fix permitted in this resume |
+
+The strict frozen launcher checks the complete Corpus source directory,
+including comments. Main integration imports a JSDoc-only change to
+Corpus.service.ts (33 additions, six deletions); libpff and restoration
+implementation files are unchanged. No runtime identity override is claimed.
+Do not invoke the launcher into a known exit-71 preflight. No ordinal-7
+started stamp, private live log, output or ledger is created.
+Decision: stop before launch and send the identity conflict to the
+orchestrator as the brief requires. Keep all frozen manifest fields and
+the launcher immutable. Reversal: a separately recorded orchestrator freeze
+amendment or an explicitly authorized execution route; retain every artifact.
+No new engine/parser repair is attempted. Remaining ordinals 7/8/9 await
+that resolution; no third ordinal-5 attempt. Eighteen larger occurrences
+and estate/recycle/DOC gates remain P3 open items.

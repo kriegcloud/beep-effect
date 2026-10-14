@@ -1014,3 +1014,18 @@ that integrated main commit. No fix or base merge inside the frozen launch.
 - Prevented by: write private-log locations relative to the declared corpus
   home, matching the packet's existing inventory. Correct the introduced
   row, commit, rerun; the orchestrator owns the inherited observations.
+
+
+## 2026-10-14 — Recovery source freeze includes unrelated JSDoc
+
+- Doing: reconcile the rebooted ordinal-5 recovery, then integrate main
+  before the successor-ruled ordinal-7 launch.
+- Evidence: three Corpus.service.ts JSDoc blocks differ from the committed
+  recovery codeHead (33 additions, six deletions). The frozen launcher checks
+  the entire Corpus directory with git diff --quiet and would exit 71.
+  Restoration implementation and libpff are unchanged; ordinal 7 unstarted.
+- Prevented by: define and record the exact frozen execution surface before
+  launch, or prescribe an execution route that survives mandatory main
+  integration without weakening an existing byte-identity contract.
+- Attribution: inherited source-comment changes from main; no local engine
+  edit. Orchestrator owns identity resolution; no manifest/launcher rewrite.

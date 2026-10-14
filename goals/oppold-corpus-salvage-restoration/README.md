@@ -9,15 +9,12 @@ digests while retaining the originals.
 
 ## Next action
 
-Recovery ordinal 5 is active in
-beep-heavy-corpus-restore-p2-recovery-2026-10-14-5.service, launched once
-after #1731 merged, source equality, committed new freeze records and
-admitted preflight. The driver waits for the unit to end, then this lane
-reconciles its result and seal before progressing sequentially to 7/8/9.
-No accepted recovery output is claimed yet. A repeated second-pass failure
-is unsupported with retained evidence, never accepted partial repairs or a
-third attempt. P2 stays in-progress; eighteen larger occurrences and
-estate/recycle/DOC gates remain open for P3.
+Recovery ordinal 5 sealed failure with TikaSecondPassFailure (exit 1,
+empty output, no truncation), retained as unsupported recovery evidence;
+never a third attempt. Main integration imports JSDoc-only Corpus source
+changes that fail the frozen launcher's byte comparison. Resolve execution
+identity before ordinals 7/8/9; all remain unstarted. See
+history/p2/2026-10-14-recovery-progress.md. No accepted recovery output.
 
 ## Launcher
 

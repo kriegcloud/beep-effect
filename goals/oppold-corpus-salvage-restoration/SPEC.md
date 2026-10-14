@@ -1346,3 +1346,17 @@ Successor 19:40Z ruling authorizes sequential recovery ordinals 7/8/9 after
 main integration and renewed preflight. Reversal: revert packet decisions,
 retaining every ledger, output, claim and freeze record. See
 history/p2/2026-10-14-recovery-progress.md for aggregate evidence.
+
+
+### 2026-10-14: recovery continuation stops at frozen-source preflight
+
+The successor reboot ruling requires main integration before ordinal 7.
+That merge imports three JSDoc-only changes in Corpus.service.ts; the
+frozen launcher compares every Corpus/libpff source byte with its manifest
+codeHead and would exit 71. Libpff and the restoration implementation
+remain unchanged. Stop before invoking the launcher; do not rewrite the
+manifest or claim source identity. Publish ordinal 5's unsupported recovery
+evidence and this preflight conflict. The orchestrator must resolve the
+execution identity before ordinals 7/8/9. Reversal: a separately recorded
+freeze amendment or authorized execution route, retaining all evidence.
+No other code or policy change; P2 in-progress, P3 open items unchanged.

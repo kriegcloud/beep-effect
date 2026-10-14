@@ -398,3 +398,12 @@ recovery family; archive re-verification active, result pending. The driver
 waits for this unit, then relaunches the lane to reconcile seal/children,
 fill the manifest policy digest once and progress to 7/8/9. No recovery
 accepted yet. All old families and their evidence remain immutable.
+
+
+**Recovery reboot resume 2026-10-14:** ordinal 5 sealed failure, result 1,
+TikaSecondPassFailure (exit 1, empty output, no truncation); unsupported
+recovery disposition, never a third attempt. Retained 354,621,761 bytes;
+family 1,264,398 ms; memory peak 30.1G. Main integration imports three
+JSDoc-only blocks in Corpus.service.ts, violating the frozen launcher's
+whole-directory byte comparison. Ordinals 7/8/9 remain unstarted pending
+orchestrator identity resolution; frozen manifests/launcher unchanged.
