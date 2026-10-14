@@ -884,3 +884,17 @@ family engine failure; no live family was launched before it was repaired.
   identity is separately frozen. Do not change an active execution checkout.
 - Action: retained this branch's newer packet records as the brief rules,
   preserving earlier family-5/7 evidence. No family unit was running.
+
+
+## 2026-10-14: GraphQL depletion obscures a successfully published stop PR
+
+- Doing: mark the new evidence PR ready after Yeet publication passed.
+- Evidence: PR #1696 exists at the exact pushed head by REST, but yeet ready
+  reported no open PR; a direct read exposed GraphQL rate exhaustion.
+- Prevention: distinguish an unavailable discovery read from an absent PR,
+  and retain the successfully created PR number for ready handling.
+- Action: explicit `beep yeet gh pr ready 1696` waited for the budget reset
+  and succeeded. Subsequent complete thread read has zero threads; REST
+  confirms ready at the exact published head. No readiness proof is claimed.
+  Cancelled the worker-owned monitor and observed its terminal inbox row
+  before the sealed-failure handoff. No running worker-owned gate remains.

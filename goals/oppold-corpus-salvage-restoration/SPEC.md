@@ -1213,3 +1213,25 @@ family 8 adds a PDF parser recovery item requiring a separate scope/freeze.
 Reversal: revert documentation decisions while retaining every ledger,
 output, claim and immutable manifest. Full record:
 history/p2/2026-10-14-family-08-stop.md.
+
+### 2026-10-14: ordinal 9 continues under the existing freeze amendment
+
+The orchestrator's 08:35:38Z ruling authorizes ordinal 9 immediately after
+family 8's sealed failure. Decision: launch only the ninth membership member
+with the unchanged launcher and the committed 06:25Z fallback amendment.
+The restoration source at preflight head 62c3d311bde9be5097b53438064e25be15a40146
+has no diff from the amendment's source. No engine, launcher, membership,
+ceiling or immutable manifest changes. No behavior equivalence to the
+original manifest codeHead is claimed. PR #1696 is merged; its branch is
+retained for local launch evidence, with a separate record PR after sealing.
+
+Eight existing seals remain immutable: five accepted and three failures
+(5, 7 and 8). P2 remains in-progress. After ordinal 9 seals, write one bounded
+recovery amendment for those three failed engine occurrences, naming the
+next fallback engine in the recorded chain. Commit the amendment and obtain
+the orchestrator's explicit approved reply before recovery launch. An
+occurrence that still fails on the input-sensitive PDF second pass receives
+an unsupported disposition with retained evidence; no third attempt.
+Eighteen larger occurrences and estate/recycle/DOC gates remain open for P3.
+Reversal: revert this documentation decision while retaining every ledger,
+output, claim and immutable manifest. No sealed family is retried here.

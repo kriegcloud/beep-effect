@@ -1426,3 +1426,72 @@ index, reflection-artifacts, whitespace and added-line hygiene pass.
 Doctor unchanged: zero blockers, three unrelated advisories. Gitleaks,
 typos, Biome and commitlint passed the stop-evidence commit a124c9d420.
 No package edited; package-verify and source hosted-parity not run (docs-only).
+
+
+## Family-8 sealed-failure publication final report
+
+lane: corpus-restore
+head: 62c3d311bde9be5097b53438064e25be15a40146 (exact published stop-evidence head)
+PR(s): #1696 OPEN, ready for review | #1683 MERGED | #1646 MERGED
+package-verify: not run (docs-only: no package source edited)
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet dedicated lane not run (docs-only); committed publication gate pass | knowledge refs pass at 89c7374764e204f3d83c74356bb146c73c3493db, zero live gated observations | fallow audit+health pass in exact-head publication gates | scoped coverage not run (docs-only: no package source changed)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+open items: Family 8 sealed failure, result 1, one unapproved engine-failure; ordinal 9 remains unstarted. Eight of nine sealed: five accepted (1-4 and 6), three failed (5/7/8). Unit beep-heavy-corpus-restore-p2-2026-10-13-8.service is inactive. Input 436,306,944 bytes; retained output 1,037,230,305 bytes (2.377294974x); family elapsed 2,996,198 ms, within retained ceilings. Zero store passes, child passes, warnings or interruptions. Partial dispositions: 109 repaired occurrences / 95 distinct digests, 95 unsupported, zero unchanged; 96 copies and 95 Tika files, one unmatched PDF copy. Child reconciliation and repair-pair acceptance are unproven.
+The unmatched 196,192-byte PDF repair copy reproduces the frozen extension-less Tika second pass at exit 1 with empty stdout, one TikaException and two IOException matches. Attribution is input-sensitive parser failure; input corruption and precise original cause remain unproven. Diagnosis ran read-only under beep-heavy with counts only. Ledger SHA-256 93e49e56ba8c4941ebaf4e33fd227340d5a31e3a8baa31b95cb2a7b8d9b1d60d; retained-attempt and family-output digests independently rehash to their ledger values. All seven earlier ledgers, all eight runtime policies, all nine source metadata identities, engine versions, launcher and membership digests match their recorded evidence. Capacity at diagnosis 407,991,721,984 bytes; pre-launch 407,447,691,264 bytes. No corpus artifact, manifest, engine or launcher was changed, and no sealed family was retried.
+Ordinal 8 executed at ce71e3cb88971dc0d2cfe9f7b0fd829164d859ac under the separately committed pre-launch 06:25Z fallback amendment. The immutable manifests retain original codeHead 6eb3d036771e868768846b3c56a5aafac69c3b2b. The launcher hardcodes this lane, so no execution-only worktree was created. No source equivalence is claimed. Main 96f1f5087beb2b937c640843d502ada843b82958 was integrated after the unit ended; four packet conflicts kept this branch's newer records as ruled. Publication does not change the execution identity.
+Decision: stop, retain all evidence and publish the family-8 record; reversal is reverting packet decisions while retaining every ledger, output, claim and immutable manifest. P2 stays in-progress, P0/P1/P4 complete, P3 pending. The orchestrator owns ordinal-9 continuation and family-8 recovery scope; separately ruled family-5/7 recovery, eighteen larger occurrences and estate/recycle/DOC gates remain open.
+All sixteen exact-head publication gates and the frozen head-install preflight passed; one push created #1696. Lane install passed after the merged lockfile changed. Packet doctor has zero blockers and the same three unrelated advisories; index, reflection-artifacts, launcher size, manifest JSON, whitespace and public-evidence hygiene pass. Explicit PR-ready operation succeeded after GraphQL budget reset; complete thread read has zero threads and REST confirms ready at the exact head. Hosted CI/review window and merge readiness are not claimed; no PR merge. The worker-owned readiness monitor was cancelled, confirmed terminated and its proof-job inbox row acknowledged. No worker-owned unit or gate remains running. Final report and the resolved GraphQL-discovery receipt are appended locally for the next evidence commit. Graft saved approximately 101,934 tokens across two retrievals.
+blocked: family 8 sealed failure — input-sensitive PDF second-pass parser failure; ordinal 9 unstarted
+
+
+## 2026-10-14 ordinal 9 authorized continuation preflight
+
+The 08:35:38Z orchestrator ruling supersedes the family-8 stop: launch
+ordinal 9 once, under the same committed 06:25Z fallback amendment.
+PR #1696 is confirmed MERGED at its reported head. Keep its published head
+unchanged; launch evidence is local and the ninth seal gets a separate PR.
+No wave unit is active. Eight prior result stamps, seals, policies and
+ledger hashes match this handoff: five accepted, families 5/7/8 failed.
+Ordinal 9 has no run directory, started stamp or result stamp.
+
+| Prerequisite | State | Measured evidence |
+| --- | --- | --- |
+| P0 | met | Seal unchanged; 755 directories, 10,696 files, four losses, one preflight, one seal; P0 complete |
+| Original candidate | met | 53 PSTs, 23 eligible, original 56,140,800-byte identity unchanged |
+| Nine source identities | met | All nine object/digest/size values match sealed archive metadata |
+| Prior seals | met | Eight ledger hashes and runtime policies match prior records; no retry |
+| Ordinal 9 | met | Unstarted; input 456,877,056 bytes, expected stores one |
+| Frozen engines | met | pffexport 20260917; bubblewrap 0.13.0; OpenJDK 27 dated 2026-09-15; Java real path and Tika digest unchanged |
+| Script/membership | met | All nine manifests match the unchanged script and membership digests |
+| Execution source | amended | Empty restoration/libpff source diff from ce71e3cb88 at preflight head 62c3d311bd |
+| Capacity | met | 404,017,901,568 free bytes at initial renewed preflight; 100 GB floor |
+| Admitted smokes | met | Tika 3.3.1 and pffexport sandbox smokes pass under beep-heavy |
+| Focused proof | met | Four restoration tests pass, 81 skipped, 5.13 seconds under beep-heavy |
+| Packet baseline | met | Adoption zero conflicts; doctor zero blockers and same three unrelated advisories |
+
+Ordinal-9 objectId:
+90fe1bba1664bb79ffe5b6bdca9b720f27ec1e001314cf8788cef57282a2f3f1.
+Source SHA-256:
+efa55f979cbcd6ca4f7e58880abce689645daba36a9058e2d36ba71f077a12bb.
+Frozen policy SHA-256:
+8e31b6b8b054267e41cbe4db098e5a201308accd882bdea2e8f3b91ba580f2ec.
+Launcher SHA-256:
+5b1d87cb5c420a53e56340bbc092c21826666c9e25ef210a421b8e20955e65e6.
+Membership SHA-256:
+00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+Freeze record: history/evidence/p2-first-wave-2026-10-13-family-09-run-manifest.json.
+Retained ceilings: ratio four; attempt 7,200,000 ms; family 43,200,000 ms;
+output 2,147,483,648 bytes; attempt output 1,827,508,224 bytes.
+Original codeHead remains 6eb3d036771e868768846b3c56a5aafac69c3b2b.
+No source equivalence is claimed. No execution-only worktree exists because
+the unchanged launcher hardcodes this lane, as the committed amendment records.
+
+After ordinal 9 seals, publish its aggregate wave record separately and
+write one bounded recovery amendment covering 5/7/8, with explicit next
+fallback engine identity and new freeze records. Recovery needs the
+orchestrator's approved reply before launch. A repeated input-sensitive PDF
+failure is dispositioned unsupported; no third attempt. Eighteen larger
+occurrences and estate/recycle/DOC gates stay open for P3. Reversal: revert
+packet decisions while retaining all corpus artifacts and immutable manifests.
+No package source edited; package-verify and source hosted-parity not run
+(docs-only). Preserve the prior uncommitted report and friction receipt.
