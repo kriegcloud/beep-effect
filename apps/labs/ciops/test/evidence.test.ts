@@ -5,6 +5,7 @@ import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import {
   decodeEvidenceMode,
@@ -89,7 +90,7 @@ describe("@beep/ciops replay evidence", () => {
         const paths = yield* scratchPaths(journalPath);
         const run = yield* generateReplayEvidence(EvidenceMode.Enum.check, paths);
 
-        expect(run).toBeInstanceOf(EvidenceRun);
+        expect(S.is(EvidenceRun)(run)).toBe(true);
         expect(EvidenceMode.is.check(run.mode)).toBe(true);
         expect(Str.includes("PASS")(run.rendered)).toBe(true);
         expect(yield* readEvidence(paths)).toBe(frozenRecord);

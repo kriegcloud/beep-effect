@@ -259,14 +259,15 @@ const MigrationBundleEntryName = S.String.check(
  * @category models
  * @since 0.0.0
  */
-export class MigrationBundleEntry extends S.Class<MigrationBundleEntry>($I`MigrationBundleEntry`)(
-  {
+export class MigrationBundleEntry extends S.Opaque<MigrationBundleEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: MigrationBundleEntryName,
     sql: S.String,
-  },
-  $I.annote("MigrationBundleEntry", {
-    description: "One timestamped Drizzle migration and its byte-exact SQL content.",
-  })
+  }).pipe(
+    $I.annoteSchema("MigrationBundleEntry", {
+      description: "One timestamped Drizzle migration and its byte-exact SQL content.",
+    })
+  )
 ) {}
 
 const migrationNameEquivalence = S.toEquivalence(MigrationBundleEntryName);
@@ -308,17 +309,19 @@ const MigrationBundleLegacyNames = S.NonEmptyArray(MigrationBundleEntryName)
  * @category models
  * @since 0.0.0
  */
-export class MigrationBundleLegacyNameSet extends S.Class<MigrationBundleLegacyNameSet>(
-  $I`MigrationBundleLegacyNameSet`
-)(
-  {
+export class MigrationBundleLegacyNameSet extends S.Opaque<
+  MigrationBundleLegacyNameSet,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     canonicalName: MigrationBundleEntryName,
     legacyNames: MigrationBundleLegacyNames,
-  },
-  $I.annote("MigrationBundleLegacyNameSet", {
-    description:
-      "Canonical migration name plus the complete legacy journal-name set required to skip its re-baselined SQL.",
-  })
+  }).pipe(
+    $I.annoteSchema("MigrationBundleLegacyNameSet", {
+      description:
+        "Canonical migration name plus the complete legacy journal-name set required to skip its re-baselined SQL.",
+    })
+  )
 ) {}
 
 /**
@@ -327,28 +330,29 @@ export class MigrationBundleLegacyNameSet extends S.Class<MigrationBundleLegacyN
  * **Example** (Bundle config with migrations)
  *
  * ```ts
- * import type { MigrationBundleConfig } from "@beep/postgres"
+ * import { MigrationBundleConfig, MigrationBundleEntry } from "@beep/postgres"
  *
- * const config: MigrationBundleConfig = {
- *   migrations: [{ name: "20260512000000_example", sql: "CREATE TABLE example (id TEXT);\n" }],
+ * const config = MigrationBundleConfig.make({
+ *   migrations: [MigrationBundleEntry.make({ name: "20260512000000_example", sql: "CREATE TABLE example (id TEXT);\n" })],
  *   migrationsSchema: "drizzle",
- * }
+ * })
  * console.log(config.migrations.length)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class MigrationBundleConfig extends S.Class<MigrationBundleConfig>($I`MigrationBundleConfig`)(
-  {
+export class MigrationBundleConfig extends S.Opaque<MigrationBundleConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     legacyNameSets: MigrationBundleLegacyNameSet.pipe(S.Array, S.optionalKey),
     migrations: S.Array(MigrationBundleEntry),
     migrationsSchema: S.optionalKey(S.String),
     migrationsTable: S.optionalKey(S.String),
-  },
-  $I.annote("MigrationBundleConfig", {
-    description: "An in-memory Drizzle migration bundle and optional journal location.",
-  })
+  }).pipe(
+    $I.annoteSchema("MigrationBundleConfig", {
+      description: "An in-memory Drizzle migration bundle and optional journal location.",
+    })
+  )
 ) {}
 
 const MigrationJournalShapeRow = S.Struct({ exists: S.Boolean, hasName: S.Boolean }).pipe(
@@ -587,13 +591,16 @@ const InMemoryBundleFolderSentinel = "<in-memory-bundle>";
  * **Example** (Run in-memory migrations)
  *
  * ```ts
- * import { migrateBundle } from "@beep/postgres"
+ * import { MigrationBundleConfig, MigrationBundleEntry, migrateBundle } from "@beep/postgres"
  * import type { PostgresDrizzleDatabase } from "@beep/postgres"
  *
+ * const config = MigrationBundleConfig.make({
+ *   migrations: [MigrationBundleEntry.make({ name: "20260512000000_example", sql: "CREATE TABLE example (id TEXT);\n" })]
+ * })
+ *
  * const runMigration = (db: PostgresDrizzleDatabase) => {
- *   const migrations = [{ name: "20260512000000_example", sql: "CREATE TABLE example (id TEXT);\n" }]
- *   const effect = migrateBundle(db, { migrations })
- *   const deferred = migrateBundle({ migrations })(db)
+ *   const effect = migrateBundle(db, config)
+ *   const deferred = migrateBundle(config)(db)
  *   return { deferred, effect }
  * }
  * console.log(runMigration)

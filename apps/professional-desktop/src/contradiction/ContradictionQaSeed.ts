@@ -13,6 +13,7 @@
  * @since 0.0.0
  */
 
+import { ContradictionProposalContent } from "@beep/epistemic-domain";
 import { EdgeVersion } from "@beep/epistemic-domain/entities/EdgeVersion";
 import { Evidence } from "@beep/epistemic-domain/entities/Evidence";
 import { EvidenceVerification, manifestationKeyFor } from "@beep/epistemic-domain/entities/EvidenceVerification";
@@ -53,6 +54,7 @@ import { PostgresDrizzle } from "@beep/postgres";
 import { SourceTextDigest, SourceTextExtractor, SourceTextIdentity } from "@beep/provenance/SourceTextIdentity";
 import { TextAnchor } from "@beep/provenance/TextAnchor";
 import {
+  TextAnchorVerificationReceipt,
   toTextAnchorVerificationReceipt,
   VerifyTextAnchorInput,
   verifyTextAnchor,
@@ -226,7 +228,10 @@ type ContradictionQaSeedErrorReason = typeof ContradictionQaSeedErrorReason.Type
  * @category errors
  * @since 0.0.0
  */
-export class ContradictionQaSeedError extends S.TaggedError<ContradictionQaSeedError>($I`ContradictionQaSeedError`)(
+export class ContradictionQaSeedError extends S.TaggedError<
+  ContradictionQaSeedError,
+  { readonly brand: unique symbol }
+>($I`ContradictionQaSeedError`)(
   "ContradictionQaSeedError",
   {
     message: S.NonEmptyString,
@@ -272,15 +277,16 @@ export class ContradictionQaSeedError extends S.TaggedError<ContradictionQaSeedE
   static readonly is = S.is(ContradictionQaSeedError);
 }
 
-class ContradictionQaFact extends S.Class<ContradictionQaFact>($I`ContradictionQaFact`)(
-  {
+class ContradictionQaFact extends S.Opaque<ContradictionQaFact, { readonly brand: unique symbol }>()(
+  S.Struct({
     issue: S.NonEmptyString,
     statement: S.NonEmptyString,
     value: S.NonEmptyString,
-  },
-  $I.annote("ContradictionQaFact", {
-    description: "Exact persisted fact used by one contradiction browser-QA belief or proposal.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionQaFact", {
+      description: "Exact persisted fact used by one contradiction browser-QA belief or proposal.",
+    })
+  )
 ) {
   static readonly equivalence = S.toEquivalence(ContradictionQaFact);
   static readonly decodeOption = S.decodeUnknownOption(ContradictionQaFact);
@@ -294,36 +300,34 @@ const evidenceSpecificationFields = {
   spanFixtureKey: S.String,
 };
 
-// Self-typed annotations (examples, toArbitrary, ...) must live in an explicitly
-// annotated const: inline in the extends clause they force TS to resolve the
-// class while its base type is still being computed (TS2310/TS2506).
+// Typed annotations (examples, toArbitrary, ...) live in an explicitly annotated
+// const typed by the struct, not the class: naming the class here forces TS to
+// resolve it while its base type is still being computed (TS2310/TS2506).
 const evidenceSpecificationAnnotations: S.Annotations.Declaration<
-  EvidenceSpecification,
-  readonly [S.Struct<typeof evidenceSpecificationFields>]
-> = $I.annoteClass<S.declare<EvidenceSpecification>, readonly [S.Struct<typeof evidenceSpecificationFields>]>(
-  "EvidenceSpecification",
-  {
-    description: "Deterministic evidence fixture specification consumed by the contradiction browser-QA seed.",
-    examples: [
-      {
-        artifactFixtureKey: "artifactFixtureKey",
-        createdAt: 1,
-        publicIdSuffix: Cuid.make("a123"),
-        span: {
-          confidence: 0.99,
-          endChar: Str.length("The renewal notice lists 15 July 2027."),
-          quote: "The renewal notice lists 15 July 2027.",
-          startChar: 0,
-        },
-        spanFixtureKey: "",
+  S.Struct.Type<typeof evidenceSpecificationFields>,
+  readonly []
+> = $I.annoteClass<S.Struct<typeof evidenceSpecificationFields>, readonly []>("EvidenceSpecification", {
+  description: "Deterministic evidence fixture specification consumed by the contradiction browser-QA seed.",
+  examples: [
+    {
+      artifactFixtureKey: "artifactFixtureKey",
+      createdAt: 1,
+      publicIdSuffix: Cuid.make("a123"),
+      span: {
+        confidence: 0.99,
+        endChar: Str.length("The renewal notice lists 15 July 2027."),
+        quote: "The renewal notice lists 15 July 2027.",
+        startChar: 0,
       },
-    ],
-  }
-);
+      spanFixtureKey: "",
+    },
+  ],
+});
 
-class EvidenceSpecification extends S.Class<EvidenceSpecification>($I`EvidenceSpecification`)(
-  evidenceSpecificationFields,
-  evidenceSpecificationAnnotations
+class EvidenceSpecification extends S.Opaque<EvidenceSpecification, { readonly brand: unique symbol }>()(
+  S.Struct(evidenceSpecificationFields)
+    .annotate({ identifier: $I`EvidenceSpecification` })
+    .annotate(evidenceSpecificationAnnotations)
 ) {
   static readonly deadlineVerified = EvidenceSpecification.make({
     artifactFixtureKey: "qa.contradiction.deadline.executed-amendment",
@@ -378,15 +382,16 @@ class EvidenceSpecification extends S.Class<EvidenceSpecification>($I`EvidenceSp
   });
 }
 
-class BeliefSpecification extends S.Class<BeliefSpecification>($I`BeliefSpecification`)(
-  {
+class BeliefSpecification extends S.Opaque<BeliefSpecification, { readonly brand: unique symbol }>()(
+  S.Struct({
     fact: ContradictionQaFact,
     identity: S.toEncoded(LogicalEdgeIdentity),
     recordedAt: S.Finite,
-  },
-  $I.annote("BeliefSpecification", {
-    description: "Deterministic belief fixture specification consumed by the contradiction browser-QA seed.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeliefSpecification", {
+      description: "Deterministic belief fixture specification consumed by the contradiction browser-QA seed.",
+    })
+  )
 ) {
   static readonly deadlineAmendment = BeliefSpecification.make({
     fact: ContradictionQaFact.make({
@@ -739,9 +744,9 @@ const ensureVerification = Effect.fn("ContradictionQaSeed.ensureVerification")(f
 ) {
   const db = yield* PostgresDrizzle;
   const createdAt = instant(1_767_225_600_500);
-  const manifestationKey = yield* Effect.fromResult(manifestationKeyFor(evidence.id, verifiedAnchor)).pipe(
-    storageUnavailable("encode evidence verification manifestation")
-  );
+  const manifestationKey = yield* Effect.fromResult(
+    manifestationKeyFor(evidence.id, TextAnchorVerificationReceipt.make(verifiedAnchor))
+  ).pipe(storageUnavailable("encode evidence verification manifestation"));
   const expected = EvidenceVerification.make({
     createdAt,
     createdByPrincipal: systemPrincipal,
@@ -855,7 +860,9 @@ const submitCandidate = Effect.fn("ContradictionQaSeed.submitCandidate")(functio
     validFrom: fixtureValidFrom,
     validTo: O.none<DateTime.Utc>(),
   };
-  const proposalDigest = yield* Effect.fromResult(contradictionProposalDigest(proposalContent)).pipe(
+  const proposalDigest = yield* Effect.fromResult(
+    contradictionProposalDigest(ContradictionProposalContent.make(proposalContent))
+  ).pipe(
     Effect.mapError(() => seedError("candidate-conflict", "The contradiction QA proposal digest could not be encoded."))
   );
   const proposal = ContradictionResolutionProposal.make({

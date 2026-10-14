@@ -55,7 +55,7 @@ const isYamlAlias = S.is(YamlAlias);
  * @category errors
  * @since 0.0.0
  */
-export class StringifyFailure extends S.TaggedError<StringifyFailure>($I`StringifyFailure`)(
+export class StringifyFailure extends S.TaggedError<StringifyFailure, { readonly brand: unique symbol }>($I`StringifyFailure`)(
 	"StringifyFailure",
 	{
 		message: S.String.annotateKey({ description: "The stringification failure message." }),
@@ -122,7 +122,7 @@ export class StringifyFailure extends S.TaggedError<StringifyFailure>($I`Stringi
  * @category errors
  * @since 0.0.0
  */
-export class StringifyDepthExceeded extends S.TaggedError<StringifyDepthExceeded>($I`StringifyDepthExceeded`)(
+export class StringifyDepthExceeded extends S.TaggedError<StringifyDepthExceeded, { readonly brand: unique symbol }>($I`StringifyDepthExceeded`)(
 	"StringifyDepthExceeded",
 	{
 		message: S.String.annotateKey({ description: "The nesting limit exceeded by the value or AST." }),

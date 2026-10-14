@@ -62,8 +62,8 @@ export const TextOffsetUnit = LiteralKit(["unicode-code-point", "utf16-code-unit
  */
 export type TextOffsetUnit = typeof TextOffsetUnit.Type;
 
-class TextOffsetRangeStruct extends S.Class<TextOffsetRangeStruct>($I`TextOffsetRangeStruct`)(
-  {
+class TextOffsetRangeStruct extends S.Opaque<TextOffsetRangeStruct, { readonly brand: unique symbol }>()(
+  S.Struct({
     end: S.Natural.annotateKey({
       description: "Exclusive end offset in unit.",
     }),
@@ -71,10 +71,11 @@ class TextOffsetRangeStruct extends S.Class<TextOffsetRangeStruct>($I`TextOffset
       description: "Inclusive start offset in unit.",
     }),
     unit: TextOffsetUnit,
-  },
-  $I.annote("TextOffsetRangeStruct", {
-    description: "Internal structural base for an explicitly unit-tagged half-open text range.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextOffsetRangeStruct", {
+      description: "Internal structural base for an explicitly unit-tagged half-open text range.",
+    })
+  )
 ) {}
 
 const TextOffsetRangeInvariant = TextOffsetRangeStruct.mapFields(identity).check(
@@ -106,7 +107,7 @@ const TextOffsetRangeInvariant = TextOffsetRangeStruct.mapFields(identity).check
  * @category models
  * @since 0.0.0
  */
-export class TextOffsetRange extends S.Class<TextOffsetRange>($I`TextOffsetRange`)(
+export class TextOffsetRange extends S.Class<TextOffsetRange, { readonly brand: unique symbol }>($I`TextOffsetRange`)(
   TextOffsetRangeInvariant,
   $I.annote("TextOffsetRange", {
     toCodecArbitrary: (): SchemaAST.Link =>
@@ -115,25 +116,26 @@ export class TextOffsetRange extends S.Class<TextOffsetRange>($I`TextOffsetRange
         SchemaTransformation.transform({
           decode: (value) =>
             TextOffsetRange.make({ ...value, end: S.Natural.make(value.start + 1 + (value.end % 10_000)) }),
-          encode: (value) => value,
+          encode: (value) => TextOffsetRangeStruct.make(value),
         })
       ),
     description: "A non-empty half-open incoming text range whose offset unit is declared explicitly.",
   })
 ) {}
 
-class Utf16TextRangeStruct extends S.Class<Utf16TextRangeStruct>($I`Utf16TextRangeStruct`)(
-  {
+class Utf16TextRangeStruct extends S.Opaque<Utf16TextRangeStruct, { readonly brand: unique symbol }>()(
+  S.Struct({
     endChar: S.Natural.annotateKey({
       description: "Exclusive UTF-16 code-unit offset.",
     }),
     startChar: S.Natural.annotateKey({
       description: "Inclusive UTF-16 code-unit offset.",
     }),
-  },
-  $I.annote("Utf16TextRangeStruct", {
-    description: "Internal structural base for a canonical half-open UTF-16 code-unit range.",
-  })
+  }).pipe(
+    $I.annoteSchema("Utf16TextRangeStruct", {
+      description: "Internal structural base for a canonical half-open UTF-16 code-unit range.",
+    })
+  )
 ) {}
 
 const Utf16TextRangeInvariant = Utf16TextRangeStruct.mapFields(identity).check(
@@ -164,7 +166,7 @@ const Utf16TextRangeInvariant = Utf16TextRangeStruct.mapFields(identity).check(
  * @category models
  * @since 0.0.0
  */
-export class Utf16TextRange extends S.Class<Utf16TextRange>($I`Utf16TextRange`)(
+export class Utf16TextRange extends S.Class<Utf16TextRange, { readonly brand: unique symbol }>($I`Utf16TextRange`)(
   Utf16TextRangeInvariant,
   $I.annote("Utf16TextRange", {
     toCodecArbitrary: (): SchemaAST.Link =>
@@ -176,7 +178,7 @@ export class Utf16TextRange extends S.Class<Utf16TextRange>($I`Utf16TextRange`)(
               ...value,
               endChar: S.Natural.make(value.startChar + 1 + (value.endChar % 10_000)),
             }),
-          encode: (value) => value,
+          encode: (value) => Utf16TextRangeStruct.make(value),
         })
       ),
     description: "Canonical non-empty half-open UTF-16 code-unit source-text range.",
@@ -206,18 +208,19 @@ export class Utf16TextRange extends S.Class<Utf16TextRange>($I`Utf16TextRange`)(
  * @category models
  * @since 0.0.0
  */
-export class RawTextChunk extends S.Class<RawTextChunk>($I`RawTextChunk`)(
-  {
+export class RawTextChunk extends S.Opaque<RawTextChunk, { readonly brand: unique symbol }>()(
+  S.Struct({
     startChar: S.Natural.annotateKey({
       description: "Global UTF-16 code-unit offset of the first code unit in text.",
     }),
     text: S.NonEmptyString.annotateKey({
       description: "Exact raw chunk text, including every separator after the preceding content.",
     }),
-  },
-  $I.annote("RawTextChunk", {
-    description: "An exact raw source chunk with an explicit global UTF-16 start offset.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawTextChunk", {
+      description: "An exact raw source chunk with an explicit global UTF-16 start offset.",
+    })
+  )
 ) {}
 
 /**
@@ -265,18 +268,19 @@ export type VerifiedSpanAttemptId = typeof VerifiedSpanAttemptId.Type;
  * @category models
  * @since 0.0.0
  */
-export class VerifiedSpanEngine extends S.Class<VerifiedSpanEngine>($I`VerifiedSpanEngine`)(
-  {
+export class VerifiedSpanEngine extends S.Opaque<VerifiedSpanEngine, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({
       description: "Stable extraction or verification engine name.",
     }),
     version: S.NonEmptyString.annotateKey({
       description: "Pinned engine version that produced the persisted candidates.",
     }),
-  },
-  $I.annote("VerifiedSpanEngine", {
-    description: "Named and versioned engine responsible for one raw grounded-extraction candidate batch.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifiedSpanEngine", {
+      description: "Named and versioned engine responsible for one raw grounded-extraction candidate batch.",
+    })
+  )
 ) {}
 
 /**
@@ -418,11 +422,15 @@ const VerifiedSpanAttemptFailureInvariant = VerifiedSpanAttemptFailureStruct.che
  * @category models
  * @since 0.0.0
  */
-export class VerifiedSpanAttemptFailure extends S.Class<VerifiedSpanAttemptFailure>($I`VerifiedSpanAttemptFailure`)(
-  VerifiedSpanAttemptFailureInvariant,
-  $I.annote("VerifiedSpanAttemptFailure", {
-    description: "Sanitized stage and reason retained when a source, locator, or anchor verification fails closed.",
-  })
+export class VerifiedSpanAttemptFailure extends S.Opaque<
+  VerifiedSpanAttemptFailure,
+  { readonly brand: unique symbol }
+>()(
+  VerifiedSpanAttemptFailureInvariant.pipe(
+    $I.annoteSchema("VerifiedSpanAttemptFailure", {
+      description: "Sanitized stage and reason retained when a source, locator, or anchor verification fails closed.",
+    })
+  )
 ) {}
 
 /**
@@ -445,51 +453,57 @@ export class VerifiedSpanAttemptFailure extends S.Class<VerifiedSpanAttemptFailu
  * @category models
  * @since 0.0.0
  */
-export class VerifiedSpanCandidateAnchorReceipt extends S.Class<VerifiedSpanCandidateAnchorReceipt>(
-  $I`VerifiedSpanCandidateAnchorReceipt`
-)(
-  {
+export class VerifiedSpanCandidateAnchorReceipt extends S.Opaque<
+  VerifiedSpanCandidateAnchorReceipt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidateIndex: S.Natural.annotateKey({
       description: "Zero-based position of the raw candidate associated with receipt.",
     }),
     receipt: TextAnchorVerificationReceipt,
-  },
-  $I.annote("VerifiedSpanCandidateAnchorReceipt", {
-    description: "Verified anchor receipt paired with its stable position in the retained raw candidate batch.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifiedSpanCandidateAnchorReceipt", {
+      description: "Verified anchor receipt paired with its stable position in the retained raw candidate batch.",
+    })
+  )
 ) {}
 
 const VerifiedSpanAttemptOutcomeStatus = LiteralKit(["verified", "failed", "no-candidates"]);
 
-class VerifiedSpanAttemptVerified extends S.Class<VerifiedSpanAttemptVerified>($I`VerifiedSpanAttemptVerified`)(
-  {
+class VerifiedSpanAttemptVerified extends S.Opaque<VerifiedSpanAttemptVerified, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("verified"),
     anchors: S.NonEmptyArray(VerifiedSpanCandidateAnchorReceipt),
-  },
-  $I.annote("VerifiedSpanAttemptVerified", {
-    description: "Successful attempt retaining one exact verified-anchor receipt for every raw candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifiedSpanAttemptVerified", {
+      description: "Successful attempt retaining one exact verified-anchor receipt for every raw candidate.",
+    })
+  )
 ) {}
 
-class VerifiedSpanAttemptFailed extends S.Class<VerifiedSpanAttemptFailed>($I`VerifiedSpanAttemptFailed`)(
-  {
+class VerifiedSpanAttemptFailed extends S.Opaque<VerifiedSpanAttemptFailed, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("failed"),
     failure: VerifiedSpanAttemptFailure,
-  },
-  $I.annote("VerifiedSpanAttemptFailed", {
-    description: "Fail-closed attempt retaining its typed sanitized failure and no verified anchors.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifiedSpanAttemptFailed", {
+      description: "Fail-closed attempt retaining its typed sanitized failure and no verified anchors.",
+    })
+  )
 ) {}
 
-class VerifiedSpanAttemptNoCandidates extends S.Class<VerifiedSpanAttemptNoCandidates>(
-  $I`VerifiedSpanAttemptNoCandidates`
-)(
-  {
+class VerifiedSpanAttemptNoCandidates extends S.Opaque<
+  VerifiedSpanAttemptNoCandidates,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag("no-candidates"),
-  },
-  $I.annote("VerifiedSpanAttemptNoCandidates", {
-    description: "Negative extraction attempt that produced no candidates and therefore no downstream entity.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifiedSpanAttemptNoCandidates", {
+      description: "Negative extraction attempt that produced no candidates and therefore no downstream entity.",
+    })
+  )
 ) {}
 
 /**
@@ -812,13 +826,14 @@ const hasLinkedAttemptHistory = (history: {
 
 const VerifiedSpanHistoryAttempts = S.NonEmptyArray(VerifiedSpanAttemptRecord);
 
-class VerifiedSpanHistoryStruct extends S.Class<VerifiedSpanHistoryStruct>($I`VerifiedSpanHistoryStruct`)(
-  {
+class VerifiedSpanHistoryStruct extends S.Opaque<VerifiedSpanHistoryStruct, { readonly brand: unique symbol }>()(
+  S.Struct({
     attempts: VerifiedSpanHistoryAttempts,
-  },
-  $I.annote("VerifiedSpanHistoryStruct", {
-    description: "Internal structural base for a non-empty linked verified-span attempt history.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifiedSpanHistoryStruct", {
+      description: "Internal structural base for a non-empty linked verified-span attempt history.",
+    })
+  )
 ) {}
 
 const VerifiedSpanHistoryInvariant = VerifiedSpanHistoryStruct.mapFields(identity).check(
@@ -852,12 +867,13 @@ const VerifiedSpanHistoryInvariant = VerifiedSpanHistoryStruct.mapFields(identit
  * @category models
  * @since 0.0.0
  */
-export class VerifiedSpanHistory extends S.Class<VerifiedSpanHistory>($I`VerifiedSpanHistory`)(
-  VerifiedSpanHistoryInvariant,
-  $I.annote("VerifiedSpanHistory", {
-    description:
-      "Append-only same-matter history linking source verification, fail-closed drift, and re-anchor attempts.",
-  })
+export class VerifiedSpanHistory extends S.Opaque<VerifiedSpanHistory, { readonly brand: unique symbol }>()(
+  VerifiedSpanHistoryInvariant.pipe(
+    $I.annoteSchema("VerifiedSpanHistory", {
+      description:
+        "Append-only same-matter history linking source verification, fail-closed drift, and re-anchor attempts.",
+    })
+  )
 ) {}
 
 type VerifiedSpanRunFields = {

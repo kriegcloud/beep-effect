@@ -50,8 +50,8 @@ const $I = $EpistemicUseCasesId.create("ContradictionTriage/ContradictionTriage.
  * @category protocols
  * @since 0.0.0
  */
-export class ContradictionListPayload extends S.Class<ContradictionListPayload>($I`ContradictionListPayload`)(
-  {
+export class ContradictionListPayload extends S.Opaque<ContradictionListPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     disposition: ContradictionDispositionFilter.annotateKey({
       description: "Disposition state included in the queue.",
     }),
@@ -67,10 +67,11 @@ export class ContradictionListPayload extends S.Class<ContradictionListPayload>(
     validAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "Valid-time instant at which contradiction applicability is requested.",
     }),
-  },
-  $I.annote("ContradictionListPayload", {
-    description: "Client-safe contradiction queue filters without renderer-controlled organization scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionListPayload", {
+      description: "Client-safe contradiction queue filters without renderer-controlled organization scope.",
+    })
+  )
 ) {}
 
 const EvidenceSourcePageSelectorBase = LiteralKit(["anchor", "page"]).toTaggedUnion("kind")({
@@ -148,8 +149,8 @@ export type EvidenceSourcePageSelector = typeof EvidenceSourcePageSelector.Type;
  * @category protocols
  * @since 0.0.0
  */
-export class EvidenceSourcePagePayload extends S.Class<EvidenceSourcePagePayload>($I`EvidenceSourcePagePayload`)(
-  {
+export class EvidenceSourcePagePayload extends S.Opaque<EvidenceSourcePagePayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidateId: Epistemic.ContradictionCandidateId.annotateKey({
       description: "Candidate establishing the authorized evidence set.",
     }),
@@ -165,10 +166,11 @@ export class EvidenceSourcePagePayload extends S.Class<EvidenceSourcePagePayload
     validAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "Valid-time instant at which contradiction applicability is requested.",
     }),
-  },
-  $I.annote("EvidenceSourcePagePayload", {
-    description: "Narrow source-page payload containing candidate, evidence, temporal view, and page selection.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceSourcePagePayload", {
+      description: "Narrow source-page payload containing candidate, evidence, temporal view, and page selection.",
+    })
+  )
 ) {}
 
 /**
@@ -190,18 +192,19 @@ export class EvidenceSourcePagePayload extends S.Class<EvidenceSourcePagePayload
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionEvidenceView extends S.Class<ContradictionEvidenceView>($I`ContradictionEvidenceView`)(
-  {
+export class ContradictionEvidenceView extends S.Opaque<ContradictionEvidenceView, { readonly brand: unique symbol }>()(
+  S.Struct({
     evidence: Evidence.annotateKey({
       description: "Persisted evidence row grounding this side of the contradiction.",
     }),
     verifiedAnchor: TextAnchorVerificationReceipt.pipe(S.OptionFromNullOr).annotateKey({
       description: "Persisted exact-anchor verification receipt when one is available for this evidence.",
     }),
-  },
-  $I.annote("ContradictionEvidenceView", {
-    description: "One evidence row paired with its optional persisted exact-anchor verification receipt.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionEvidenceView", {
+      description: "One evidence row paired with its optional persisted exact-anchor verification receipt.",
+    })
+  )
 ) {}
 
 /**
@@ -218,18 +221,19 @@ export class ContradictionEvidenceView extends S.Class<ContradictionEvidenceView
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionBeliefView extends S.Class<ContradictionBeliefView>($I`ContradictionBeliefView`)(
-  {
+export class ContradictionBeliefView extends S.Opaque<ContradictionBeliefView, { readonly brand: unique symbol }>()(
+  S.Struct({
     belief: EdgeVersion.annotateKey({
       description: "Exact immutable edge version observed by the contradiction detector.",
     }),
     evidence: S.Array(ContradictionEvidenceView).annotateKey({
       description: "Evidence rows bound to this canonical side of the contradiction.",
     }),
-  },
-  $I.annote("ContradictionBeliefView", {
-    description: "Exact immutable belief version with its side-bound evidence and verified anchors.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionBeliefView", {
+      description: "Exact immutable belief version with its side-bound evidence and verified anchors.",
+    })
+  )
 ) {}
 
 /**
@@ -251,10 +255,11 @@ export class ContradictionBeliefView extends S.Class<ContradictionBeliefView>($I
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionCandidateDetailView extends S.Class<ContradictionCandidateDetailView>(
-  $I`ContradictionCandidateDetailView`
-)(
-  {
+export class ContradictionCandidateDetailView extends S.Opaque<
+  ContradictionCandidateDetailView,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidate: ContradictionCandidate.annotateKey({
       description: "Immutable candidate applicable at validAt and recorded no later than knownAt.",
     }),
@@ -267,15 +272,19 @@ export class ContradictionCandidateDetailView extends S.Class<ContradictionCandi
     right: ContradictionBeliefView.annotateKey({
       description: "Second exact belief and evidence in canonical candidate order.",
     }),
-  },
-  $I.annote("ContradictionCandidateDetailView", {
-    description:
-      "Two-axis-visible candidate, optional disposition, and exact belief-and-evidence views without ranking.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionCandidateDetailView", {
+      description:
+        "Two-axis-visible candidate, optional disposition, and exact belief-and-evidence views without ranking.",
+    })
+  )
 ) {}
 
-class EvidenceSourceHighlightStruct extends S.Class<EvidenceSourceHighlightStruct>($I`EvidenceSourceHighlightStruct`)(
-  {
+class EvidenceSourceHighlightStruct extends S.Opaque<
+  EvidenceSourceHighlightStruct,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     endChar: S.Natural.annotateKey({
       description: "Exclusive absolute UTF-16 code-unit offset of the verified anchor.",
     }),
@@ -285,10 +294,11 @@ class EvidenceSourceHighlightStruct extends S.Class<EvidenceSourceHighlightStruc
     startChar: S.Natural.annotateKey({
       description: "Inclusive absolute UTF-16 code-unit offset of the verified anchor.",
     }),
-  },
-  $I.annote("EvidenceSourceHighlightStruct", {
-    description: "Structural base for a quote-free source highlight before its half-open range is checked.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceSourceHighlightStruct", {
+      description: "Structural base for a quote-free source highlight before its half-open range is checked.",
+    })
+  )
 ) {}
 
 const EvidenceSourceHighlightSchema = EvidenceSourceHighlightStruct.mapFields(identity).check(
@@ -321,15 +331,16 @@ const EvidenceSourceHighlightSchema = EvidenceSourceHighlightStruct.mapFields(id
  * @category read-models
  * @since 0.0.0
  */
-export class EvidenceSourceHighlight extends S.Class<EvidenceSourceHighlight>($I`EvidenceSourceHighlight`)(
-  EvidenceSourceHighlightSchema,
-  $I.annote("EvidenceSourceHighlight", {
-    description: "Quote-free verified non-empty half-open highlight offsets bound to one exact source manifestation.",
-  })
+export class EvidenceSourceHighlight extends S.Opaque<EvidenceSourceHighlight, { readonly brand: unique symbol }>()(
+  EvidenceSourceHighlightSchema.pipe(
+    $I.annoteSchema("EvidenceSourceHighlight", {
+      description: "Quote-free verified non-empty half-open highlight offsets bound to one exact source manifestation.",
+    })
+  )
 ) {}
 
-class EvidenceSourcePageStruct extends S.Class<EvidenceSourcePageStruct>($I`EvidenceSourcePageStruct`)(
-  {
+class EvidenceSourcePageStruct extends S.Opaque<EvidenceSourcePageStruct, { readonly brand: unique symbol }>()(
+  S.Struct({
     evidenceId: SharedEpistemic.EvidenceId.annotateKey({
       description: "Candidate-bound evidence represented by this source page.",
     }),
@@ -339,15 +350,17 @@ class EvidenceSourcePageStruct extends S.Class<EvidenceSourcePageStruct>($I`Evid
     page: SourceTextPage.annotateKey({
       description: "Bounded page of exact canonical extracted source text.",
     }),
-  },
-  $I.annote("EvidenceSourcePageStruct", {
-    description: "Structural base for an evidence source page before its shared source identity is checked.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceSourcePageStruct", {
+      description: "Structural base for an evidence source page before its shared source identity is checked.",
+    })
+  )
 ) {}
 
 const sourceTextIdentityEquivalence = S.toEquivalence(SourceTextIdentity);
 const EvidenceSourcePageIdentityCheck = S.makeFilter(
-  ({ highlight, page }: EvidenceSourcePageStruct) => sourceTextIdentityEquivalence(page.identity, highlight.source),
+  ({ highlight, page }: S.Struct.Type<typeof EvidenceSourcePageStruct.fields>) =>
+    sourceTextIdentityEquivalence(page.identity, highlight.source),
   {
     identifier: $I`EvidenceSourcePageIdentityCheck`,
     title: "Evidence Source Page Identity",
@@ -356,7 +369,8 @@ const EvidenceSourcePageIdentityCheck = S.makeFilter(
   }
 );
 const EvidenceSourcePageHighlightBoundsCheck = S.makeFilter(
-  ({ highlight, page }: EvidenceSourcePageStruct) => N.isLessThanOrEqualTo(highlight.endChar, page.totalCodeUnits),
+  ({ highlight, page }: S.Struct.Type<typeof EvidenceSourcePageStruct.fields>) =>
+    N.isLessThanOrEqualTo(highlight.endChar, page.totalCodeUnits),
   {
     identifier: $I`EvidenceSourcePageHighlightBoundsCheck`,
     title: "Evidence Source Page Highlight Bounds",
@@ -384,11 +398,12 @@ const EvidenceSourcePageSchema = EvidenceSourcePageStruct.mapFields(identity).ch
  * @category read-models
  * @since 0.0.0
  */
-export class EvidenceSourcePage extends S.Class<EvidenceSourcePage>($I`EvidenceSourcePage`)(
-  EvidenceSourcePageSchema,
-  $I.annote("EvidenceSourcePage", {
-    description: "Candidate-authorized canonical source page paired with quote-free verified highlight offsets.",
-  })
+export class EvidenceSourcePage extends S.Opaque<EvidenceSourcePage, { readonly brand: unique symbol }>()(
+  EvidenceSourcePageSchema.pipe(
+    $I.annoteSchema("EvidenceSourcePage", {
+      description: "Candidate-authorized canonical source page paired with quote-free verified highlight offsets.",
+    })
+  )
 ) {}
 
 const ContradictionActionErrorReasonBase = LiteralKit([
@@ -465,7 +480,10 @@ export type ContradictionActionErrorReason = typeof ContradictionActionErrorReas
  * @category errors
  * @since 0.0.0
  */
-export class ContradictionActionError extends S.TaggedError<ContradictionActionError>($I`ContradictionActionError`)(
+export class ContradictionActionError extends S.TaggedError<
+  ContradictionActionError,
+  { readonly brand: unique symbol }
+>($I`ContradictionActionError`)(
   "ContradictionActionError",
   {
     reason: ContradictionActionErrorReason.annotateKey({

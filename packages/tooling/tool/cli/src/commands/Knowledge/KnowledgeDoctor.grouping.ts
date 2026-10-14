@@ -71,16 +71,17 @@ const goalsDoctorDetail = (finding: GoalDoctorFinding): string =>
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDelegatedRow extends S.Class<KnowledgeDelegatedRow>($I`KnowledgeDelegatedRow`)(
-  {
+export class KnowledgeDelegatedRow extends S.Opaque<KnowledgeDelegatedRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidate: KnowledgeFindingCandidate,
     causeKey: S.String,
     severity: KnowledgeFindingSeverity,
-  },
-  $I.annote("KnowledgeDelegatedRow", {
-    description:
-      "A goals-doctor finding listed as a delegated knowledge-doctor candidate with its severity and cause key.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDelegatedRow", {
+      description:
+        "A goals-doctor finding listed as a delegated knowledge-doctor candidate with its severity and cause key.",
+    })
+  )
 ) {}
 
 /**

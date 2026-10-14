@@ -72,7 +72,7 @@ export type DiscordErrorReason = typeof DiscordErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class DiscordError extends S.TaggedError<DiscordError>($I`DiscordError`)(
+export class DiscordError extends S.TaggedError<DiscordError, { readonly brand: unique symbol }>($I`DiscordError`)(
   "DiscordError",
   {
     cause: S.OptionFromOptionalKey(S.String).pipe(

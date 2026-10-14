@@ -12,7 +12,15 @@ import {
   isExcludedFromReasoning,
   SessionId,
 } from "@beep/ontology-domain/aggregates/Session";
-import { makeBlankNode, makeDataset, makeLiteral, makeNamedNode, makeQuad, serializeQuad } from "@beep/rdf/Rdf";
+import {
+  MakeQuadOptionsInput,
+  makeBlankNode,
+  makeDataset,
+  makeLiteral,
+  makeNamedNode,
+  makeQuad,
+  serializeQuad,
+} from "@beep/rdf/Rdf";
 import { RDF_TYPE } from "@beep/rdf/Vocab/Rdf";
 import { XSD_STRING } from "@beep/rdf/Vocab/Xsd";
 import { it } from "@beep/test-runner";
@@ -43,10 +51,10 @@ const SH_NODE = makeNamedNode(`${SHACL_NAMESPACE}node`);
 const ontologyGraphQuad = makeQuad(
   makeNamedNode("https://example.test/alice"),
   makeNamedNode("https://example.test/knows"),
-  {
+  MakeQuadOptionsInput.make({
     object: makeNamedNode("https://example.test/bob"),
     graph: makeNamedNode(graphPartitionIri("ontologies")),
-  }
+  })
 );
 
 const expectSchemaMakeToFail = (run: () => unknown, messagePart: string): void => {
@@ -121,10 +129,14 @@ describe("Ontology Session aggregate", () => {
         ChangeOperation.make({
           kind: "addQuad",
           partition,
-          quad: makeQuad(makeNamedNode(`https://example.test/${partition}`), RDF_TYPE, {
-            object: makeNamedNode("https://example.test/Untouched"),
-            graph: makeNamedNode(graphPartitionIri(partition)),
-          }),
+          quad: makeQuad(
+            makeNamedNode(`https://example.test/${partition}`),
+            RDF_TYPE,
+            MakeQuadOptionsInput.make({
+              object: makeNamedNode("https://example.test/Untouched"),
+              graph: makeNamedNode(graphPartitionIri(partition)),
+            })
+          ),
         })
       )
     );

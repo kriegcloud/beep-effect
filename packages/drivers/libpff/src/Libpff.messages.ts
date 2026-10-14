@@ -82,19 +82,20 @@ export const PFFEXPORT_MESSAGES_SUFFIX = ".messages.jsonl";
  * @category models
  * @since 0.0.0
  */
-export class PffexportMessageRecord extends S.Class<PffexportMessageRecord>($I`PffexportMessageRecord`)(
-  {
+export class PffexportMessageRecord extends S.Opaque<PffexportMessageRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachments: S.Array(ArtifactReference),
     body: S.optionalKey(ArtifactReference),
     eml: S.optionalKey(ArtifactReference),
     folderPath: PosixPath,
     headers: S.Record(S.String, S.String),
     messagePath: PosixPath,
-  },
-  $I.annote("PffexportMessageRecord", {
-    description:
-      "JSONL-safe pffexport item record preserving folder, message, body, EML, and attachment relationships.",
-  })
+  }).pipe(
+    $I.annoteSchema("PffexportMessageRecord", {
+      description:
+        "JSONL-safe pffexport item record preserving folder, message, body, EML, and attachment relationships.",
+    })
+  )
 ) {
   static readonly encodeJson: JsonEncodeEffect<PffexportMessageRecord> = dual(
     SchemaUtils.isCodecDataFirst,

@@ -8,6 +8,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { createPortal } from "react-dom";
+import { DockPanelApi } from "../DockReact.types.ts";
 import type { Panel } from "@beep/dock";
 import type { DockAtomGraph, DockRenderer } from "../DockReact.types.ts";
 import type { AdapterState } from "./AdapterState.ts";
@@ -32,7 +33,9 @@ const PanelContent = (props: {
     component: ({ input, renderer }) =>
       O.match(R.get(props.components, renderer), {
         onNone: () => <div role="alert">Missing renderer: {renderer}</div>,
-        onSome: (Renderer) => <Renderer params={input} api={{ id: panel.id }} containerApi={state.api} />,
+        onSome: (Renderer) => (
+          <Renderer params={input} api={DockPanelApi.make({ id: panel.id })} containerApi={state.api} />
+        ),
       }),
   });
 };

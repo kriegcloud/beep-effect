@@ -78,9 +78,12 @@ type BeliefRef = {
 
 type MatchBasisKind = "independent-evidence" | "same-source-overlap";
 
-class CandidatePayloadConflict extends S.TaggedError<CandidatePayloadConflict>()("CandidatePayloadConflict", {
-  candidateKey: S.String,
-}) {}
+class CandidatePayloadConflict extends S.TaggedError<CandidatePayloadConflict, { readonly brand: unique symbol }>()(
+  "CandidatePayloadConflict",
+  {
+    candidateKey: S.String,
+  }
+) {}
 
 const sha256Hex = Effect.fnUntraced(function* (value: string) {
   const crypto = yield* Crypto.Crypto;

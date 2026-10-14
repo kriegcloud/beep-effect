@@ -56,7 +56,7 @@ const Json = S.fromJsonString(S.Unknown);
  * @category errors
  * @since 0.0.0
  */
-export class PackageJsonSyntaxError extends S.TaggedError<PackageJsonSyntaxError>($I`PackageJsonSyntaxError`)("PackageJsonSyntaxError", {
+export class PackageJsonSyntaxError extends S.TaggedError<PackageJsonSyntaxError, { readonly brand: unique symbol }>($I`PackageJsonSyntaxError`)("PackageJsonSyntaxError", {
 	/**
 	 * Which syntactic precondition failed.
 	 *
@@ -165,7 +165,7 @@ const isJsonObject: (value: unknown) => value is Record<string, unknown> = P.isO
  * @category errors
  * @since 0.0.0
  */
-export class PackageJsonModifyError extends S.TaggedError<PackageJsonModifyError>($I`PackageJsonModifyError`)("PackageJsonModifyError", {
+export class PackageJsonModifyError extends S.TaggedError<PackageJsonModifyError, { readonly brand: unique symbol }>($I`PackageJsonModifyError`)("PackageJsonModifyError", {
 	/**
 	 * The field path whose navigation failed.
 	 *

@@ -76,4 +76,16 @@ describe("canonical credential bank", () => {
     );
     expect(Bank.maskCredentialMatches(unfinished, Bank.detectCredentials(unfinished)) === "[REDACTED]").toBe(true);
   });
+  it("bounds scanning of long assignment-like tokens without dropping nested secrets", () => {
+    const nearMiss = Str.repeat(1024)("key-");
+    expect(Bank.detectCredentials(nearMiss)).toEqual([]);
+    expect(Bank.countCredentialCategory(nearMiss, "secret-assignment")).toBe(0);
+    expect(Bank.replaceCredentialCategory(nearMiss, "secret-assignment", "$1=[REDACTED]")).toBe(nearMiss);
+
+    const nested = "public=ok,TOKEN=canary";
+    expect(Bank.countCredentialCategory(nested, "secret-assignment")).toBe(1);
+    expect(Bank.replaceCredentialCategory(nested, "secret-assignment", "$1=[REDACTED]")).toBe(
+      "public=ok,TOKEN=[REDACTED]"
+    );
+  });
 });

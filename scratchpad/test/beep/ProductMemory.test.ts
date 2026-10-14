@@ -474,6 +474,19 @@ describe("MemoryItem access decisions", () => {
   const fresh = utc("2020-01-02T12:00:00Z");
   const later = utc("2020-02-01T00:00:00Z");
 
+  it.effect("denies noncanonical sensitivity labels through the raw model decoder", () =>
+    Effect.gen(function* () {
+      const decode = S.decodeUnknownEffect(MemoryItem);
+      const current = yield* decode({ ...baseItem, sensitivityLabels: [" HEALTH "] });
+      const archived = yield* decode({ ...longTerm, tier: "archive", sensitivityLabels: [" HeAlTh "] });
+      assert.strictEqual(isDefaultAccessEligible(current, omiChat, fresh).reason, "restricted_sensitivity");
+      assert.strictEqual(
+        isArchiveAccessEligible(archived, memoryAccessPolicyForOmiChat(true), fresh).reason,
+        "restricted_sensitivity"
+      );
+    })
+  );
+
   it.effect("isDefaultAccessEligible walks every branch", () =>
     Effect.gen(function* () {
       const reason = (patch: Record<string, unknown>, policy: MemoryAccessPolicy = omiChat, now: DateTime.Utc = fresh) =>

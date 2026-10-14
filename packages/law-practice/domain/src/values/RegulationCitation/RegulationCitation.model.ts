@@ -50,8 +50,8 @@ const $I = $LawPracticeDomainId.create("values/RegulationCitation/RegulationCita
  * @category models
  * @since 0.0.0
  */
-export class RegulationCitation extends S.Class<RegulationCitation>($I`RegulationCitation`)(
-  {
+export class RegulationCitation extends S.Opaque<RegulationCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("regulation"),
     title: S.Natural.pipe(
@@ -157,10 +157,11 @@ export class RegulationCitation extends S.Class<RegulationCitation>($I`Regulatio
         description: "Component spans locating the regulation's sub-parts within the source text.",
       })
     ),
-  },
-  $I.annote("RegulationCitation", {
-    description: "Regulation citation (CFR + state regulatory codes) issued by executive agencies (#637).",
-  })
+  }).pipe(
+    $I.annoteSchema("RegulationCitation", {
+      description: "Regulation citation (CFR + state regulatory codes) issued by executive agencies (#637).",
+    })
+  )
 ) {}
 
 /**

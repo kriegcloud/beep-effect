@@ -88,31 +88,34 @@ const alwaysBlockingGate = (id: QaJudgeGateId, predicateType: EvidencePredicateT
  * @category models
  * @since 0.0.0
  */
-export class CitedEventIdExistsInput extends S.Class<CitedEventIdExistsInput>($I`CitedEventIdExistsInput`)(
-  {
+export class CitedEventIdExistsInput extends S.Opaque<CitedEventIdExistsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     citedEventIds: S.Array(S.Int),
     knownEventIds: S.Array(S.Int),
-  },
-  $I.annote("CitedEventIdExistsInput", {
-    description: "Ordered event citations and known witness ids consumed by the event-existence gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("CitedEventIdExistsInput", {
+      description: "Ordered event citations and known witness ids consumed by the event-existence gate.",
+    })
+  )
 ) {}
 
-class CitedEventIdExistsAllowed extends S.Class<CitedEventIdExistsAllowed>($I`CitedEventIdExistsAllowed`)(
-  { checkedEventIds: S.Array(S.Int) },
-  $I.annote("CitedEventIdExistsAllowed", {
-    description: "Event citations inspected by an allowed event-existence evaluation.",
-  })
+class CitedEventIdExistsAllowed extends S.Opaque<CitedEventIdExistsAllowed, { readonly brand: unique symbol }>()(
+  S.Struct({ checkedEventIds: S.Array(S.Int) }).pipe(
+    $I.annoteSchema("CitedEventIdExistsAllowed", {
+      description: "Event citations inspected by an allowed event-existence evaluation.",
+    })
+  )
 ) {}
 
-class CitedEventIdExistsDenied extends S.Class<CitedEventIdExistsDenied>($I`CitedEventIdExistsDenied`)(
-  {
+class CitedEventIdExistsDenied extends S.Opaque<CitedEventIdExistsDenied, { readonly brand: unique symbol }>()(
+  S.Struct({
     checkedEventIds: S.Array(S.Int),
     missingEventIds: S.NonEmptyArray(S.Int),
-  },
-  $I.annote("CitedEventIdExistsDenied", {
-    description: "Event citations inspected by a denied evaluation and the ids absent from the witness log.",
-  })
+  }).pipe(
+    $I.annoteSchema("CitedEventIdExistsDenied", {
+      description: "Event citations inspected by a denied evaluation and the ids absent from the witness log.",
+    })
+  )
 ) {}
 
 /**
@@ -225,24 +228,29 @@ export const evaluateCitedEventIdExists: GateEvaluator<CitedEventIdExistsInput, 
  * @category models
  * @since 0.0.0
  */
-export class DeclaredRoundCoherentInput extends S.Class<DeclaredRoundCoherentInput>($I`DeclaredRoundCoherentInput`)(
-  {
+export class DeclaredRoundCoherentInput extends S.Opaque<
+  DeclaredRoundCoherentInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     declaredRound: RoundNumber,
     requestedRound: RoundNumber,
-  },
-  $I.annote("DeclaredRoundCoherentInput", {
-    description: "Requested and inventory-declared round numbers consumed by the coherence gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeclaredRoundCoherentInput", {
+      description: "Requested and inventory-declared round numbers consumed by the coherence gate.",
+    })
+  )
 ) {}
 
-class DeclaredRoundCoherenceDetail extends S.Class<DeclaredRoundCoherenceDetail>($I`DeclaredRoundCoherenceDetail`)(
-  {
+class DeclaredRoundCoherenceDetail extends S.Opaque<DeclaredRoundCoherenceDetail, { readonly brand: unique symbol }>()(
+  S.Struct({
     declaredRound: RoundNumber,
     requestedRound: RoundNumber,
-  },
-  $I.annote("DeclaredRoundCoherenceDetail", {
-    description: "Requested and declared round numbers recorded by a coherence verdict.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeclaredRoundCoherenceDetail", {
+      description: "Requested and declared round numbers recorded by a coherence verdict.",
+    })
+  )
 ) {}
 
 /**
@@ -354,25 +362,29 @@ export const evaluateDeclaredRoundCoherent: GateEvaluator<DeclaredRoundCoherentI
  * @category models
  * @since 0.0.0
  */
-export class EvidenceCrossCheckCleanInput extends S.Class<EvidenceCrossCheckCleanInput>(
-  $I`EvidenceCrossCheckCleanInput`
-)(
-  {
+export class EvidenceCrossCheckCleanInput extends S.Opaque<
+  EvidenceCrossCheckCleanInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     artifactVerdict: CitedArtifactExistsVerdict,
     eventIdVerdict: CitedEventIdExistsVerdict,
-  },
-  $I.annote("EvidenceCrossCheckCleanInput", {
-    description: "Artifact and event leaf verdicts consumed by the aggregate evidence consistency gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceCrossCheckCleanInput", {
+      description: "Artifact and event leaf verdicts consumed by the aggregate evidence consistency gate.",
+    })
+  )
 ) {}
 
-class EvidenceCrossCheckCleanAllowed extends S.Class<EvidenceCrossCheckCleanAllowed>(
-  $I`EvidenceCrossCheckCleanAllowed`
-)(
-  {},
-  $I.annote("EvidenceCrossCheckCleanAllowed", {
-    description: "Observation detail for an evidence cross-check with no missing citations.",
-  })
+class EvidenceCrossCheckCleanAllowed extends S.Opaque<
+  EvidenceCrossCheckCleanAllowed,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("EvidenceCrossCheckCleanAllowed", {
+      description: "Observation detail for an evidence cross-check with no missing citations.",
+    })
+  )
 ) {}
 
 const EvidenceCrossCheckCleanDeniedFields = S.Struct({
@@ -390,11 +402,15 @@ const EvidenceCrossCheckHasMissingCitation = S.makeFilter(
   }
 );
 
-class EvidenceCrossCheckCleanDenied extends S.Class<EvidenceCrossCheckCleanDenied>($I`EvidenceCrossCheckCleanDenied`)(
-  EvidenceCrossCheckCleanDeniedFields.check(EvidenceCrossCheckHasMissingCitation),
-  $I.annote("EvidenceCrossCheckCleanDenied", {
-    description: "Ordered missing artifact paths and event ids recorded by a denied aggregate cross-check.",
-  })
+class EvidenceCrossCheckCleanDenied extends S.Opaque<
+  EvidenceCrossCheckCleanDenied,
+  { readonly brand: unique symbol }
+>()(
+  EvidenceCrossCheckCleanDeniedFields.check(EvidenceCrossCheckHasMissingCitation).pipe(
+    $I.annoteSchema("EvidenceCrossCheckCleanDenied", {
+      description: "Ordered missing artifact paths and event ids recorded by a denied aggregate cross-check.",
+    })
+  )
 ) {}
 
 /**
@@ -535,22 +551,26 @@ export const evaluateEvidenceCrossCheckClean: GateEvaluator<
  * @category models
  * @since 0.0.0
  */
-export class JudgeOutputInventoryDecodesInput extends S.Class<JudgeOutputInventoryDecodesInput>(
-  $I`JudgeOutputInventoryDecodesInput`
-)(
-  { candidate: S.String },
-  $I.annote("JudgeOutputInventoryDecodesInput", {
-    description: "JSON candidate already extracted from judge output for inventory schema decoding.",
-  })
+export class JudgeOutputInventoryDecodesInput extends S.Opaque<
+  JudgeOutputInventoryDecodesInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ candidate: S.String }).pipe(
+    $I.annoteSchema("JudgeOutputInventoryDecodesInput", {
+      description: "JSON candidate already extracted from judge output for inventory schema decoding.",
+    })
+  )
 ) {}
 
-class JudgeOutputInventoryDecodesAllowed extends S.Class<JudgeOutputInventoryDecodesAllowed>(
-  $I`JudgeOutputInventoryDecodesAllowed`
-)(
-  { inventory: QaInventory },
-  $I.annote("JudgeOutputInventoryDecodesAllowed", {
-    description: "Schema-decoded QA inventory carried by an allowed judge-output verdict.",
-  })
+class JudgeOutputInventoryDecodesAllowed extends S.Opaque<
+  JudgeOutputInventoryDecodesAllowed,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ inventory: QaInventory }).pipe(
+    $I.annoteSchema("JudgeOutputInventoryDecodesAllowed", {
+      description: "Schema-decoded QA inventory carried by an allowed judge-output verdict.",
+    })
+  )
 ) {}
 
 /**
@@ -590,18 +610,20 @@ export const JudgeOutputDecodeFailure = LiteralKit(["malformed-json", "inventory
  */
 export type JudgeOutputDecodeFailure = typeof JudgeOutputDecodeFailure.Type;
 
-class JudgeOutputInventoryDecodesDenied extends S.Class<JudgeOutputInventoryDecodesDenied>(
-  $I`JudgeOutputInventoryDecodesDenied`
-)(
-  {
+class JudgeOutputInventoryDecodesDenied extends S.Opaque<
+  JudgeOutputInventoryDecodesDenied,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     failure: JudgeOutputDecodeFailure,
     issue: S.String.annotateKey({
       description: "Rendered parser or schema issue that denied the candidate, kept for diagnostics.",
     }),
-  },
-  $I.annote("JudgeOutputInventoryDecodesDenied", {
-    description: "Decode stage and rendered issue that denied an extracted judge-output inventory candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("JudgeOutputInventoryDecodesDenied", {
+      description: "Decode stage and rendered issue that denied an extracted judge-output inventory candidate.",
+    })
+  )
 ) {}
 
 /**

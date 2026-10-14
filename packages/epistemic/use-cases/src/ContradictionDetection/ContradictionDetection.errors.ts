@@ -20,9 +20,10 @@ const $I = $EpistemicUseCasesId.create("ContradictionDetection/ContradictionDete
  * @category errors
  * @since 0.0.0
  */
-export class ContradictionDetectionError extends S.TaggedError<ContradictionDetectionError>(
-  $I`ContradictionDetectionError`
-)(
+export class ContradictionDetectionError extends S.TaggedError<
+  ContradictionDetectionError,
+  { readonly brand: unique symbol }
+>($I`ContradictionDetectionError`)(
   "ContradictionDetectionError",
   { cause: S.Defect({ includeStack: true }) },
   $I.annote("ContradictionDetectionError", {

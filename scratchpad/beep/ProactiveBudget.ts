@@ -233,7 +233,7 @@ export declare namespace ProactiveBudgetState {
  * @category errors
  * @since 0.0.0
  */
-export class ProactiveBudgetExhausted extends S.TaggedError<ProactiveBudgetExhausted>()(
+export class ProactiveBudgetExhausted extends S.TaggedError<ProactiveBudgetExhausted, { readonly brand: unique symbol }>()(
   "ProactiveBudgetExhausted",
   {
     reason: S.String,

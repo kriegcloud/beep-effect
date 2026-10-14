@@ -161,8 +161,8 @@ export type SkillHunkDecisionOrigin = typeof SkillHunkDecisionOrigin.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillHunkLedgerRow extends S.Class<SkillHunkLedgerRow>($I`SkillHunkLedgerRow`)(
-  {
+export class SkillHunkLedgerRow extends S.Opaque<SkillHunkLedgerRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("skills-hunk-ledger/v1"),
     skill: S.String,
     oldRevision: SkillGitRevision,
@@ -178,10 +178,11 @@ export class SkillHunkLedgerRow extends S.Class<SkillHunkLedgerRow>($I`SkillHunk
     reviewer: S.NonEmptyString,
     decidedAt: S.DateTimeUtcFromString,
     origin: SkillHunkDecisionOrigin,
-  },
-  $I.annote("SkillHunkLedgerRow", {
-    description: "One append-only hunk decision keyed by old and new revision, patch-set hash, and hunk hash.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillHunkLedgerRow", {
+      description: "One append-only hunk decision keyed by old and new revision, patch-set hash, and hunk hash.",
+    })
+  )
 ) {}
 
 /**
@@ -248,8 +249,8 @@ export type SkillReviewItemKind = typeof SkillReviewItemKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillReviewItem extends S.Class<SkillReviewItem>($I`SkillReviewItem`)(
-  {
+export class SkillReviewItem extends S.Opaque<SkillReviewItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: SkillReviewItemKind,
     skill: S.String,
     oldRevision: SkillGitRevision,
@@ -265,10 +266,11 @@ export class SkillReviewItem extends S.Class<SkillReviewItem>($I`SkillReviewItem
     twoStrike: S.Boolean,
     ghost: S.OptionFromOptionalKey(SkillHunkLedgerRow),
     text: S.String,
-  },
-  $I.annote("SkillReviewItem", {
-    description: "One undecided hunk: its ledger key, replay outcome, two-strike flag, ghost proposal, and text.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillReviewItem", {
+      description: "One undecided hunk: its ledger key, replay outcome, two-strike flag, ghost proposal, and text.",
+    })
+  )
 ) {}
 
 /**
@@ -287,15 +289,15 @@ export class SkillReviewItem extends S.Class<SkillReviewItem>($I`SkillReviewItem
  * @category models
  * @since 0.0.0
  */
-export class SkillReviewDecide extends S.TaggedClass<SkillReviewDecide>($I`SkillReviewDecide`)(
-  "decide",
-  {
+export class SkillReviewDecide extends S.Opaque<SkillReviewDecide, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("decide", {
     decision: SkillHunkDecision,
     label: S.OptionFromOptionalKey(SkillPatchLabel),
-  },
-  $I.annote("SkillReviewDecide", {
-    description: "An answer that records a decision, with a patch label when it classifies.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillReviewDecide", {
+      description: "An answer that records a decision, with a patch label when it classifies.",
+    })
+  )
 ) {}
 
 /**
@@ -312,12 +314,12 @@ export class SkillReviewDecide extends S.TaggedClass<SkillReviewDecide>($I`Skill
  * @category models
  * @since 0.0.0
  */
-export class SkillReviewSkip extends S.TaggedClass<SkillReviewSkip>($I`SkillReviewSkip`)(
-  "skip",
-  {},
-  $I.annote("SkillReviewSkip", {
-    description: "An answer that leaves the hunk queued.",
-  })
+export class SkillReviewSkip extends S.Opaque<SkillReviewSkip, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("skip", {}).pipe(
+    $I.annoteSchema("SkillReviewSkip", {
+      description: "An answer that leaves the hunk queued.",
+    })
+  )
 ) {}
 
 /**
@@ -334,12 +336,12 @@ export class SkillReviewSkip extends S.TaggedClass<SkillReviewSkip>($I`SkillRevi
  * @category models
  * @since 0.0.0
  */
-export class SkillReviewQuit extends S.TaggedClass<SkillReviewQuit>($I`SkillReviewQuit`)(
-  "quit",
-  {},
-  $I.annote("SkillReviewQuit", {
-    description: "An answer that ends the session; decisions already recorded stay in the ledger.",
-  })
+export class SkillReviewQuit extends S.Opaque<SkillReviewQuit, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("quit", {}).pipe(
+    $I.annoteSchema("SkillReviewQuit", {
+      description: "An answer that ends the session; decisions already recorded stay in the ledger.",
+    })
+  )
 ) {}
 
 /**
@@ -397,15 +399,16 @@ export type SkillReviewAnswer = typeof SkillReviewAnswer.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillReviewScriptEntry extends S.Class<SkillReviewScriptEntry>($I`SkillReviewScriptEntry`)(
-  {
+export class SkillReviewScriptEntry extends S.Opaque<SkillReviewScriptEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     hunk: S.String.check(S.isPattern(/^[0-9a-f]{12,64}$/u)),
     decision: SkillHunkDecision,
     label: S.OptionFromOptionalKey(SkillPatchLabel),
-  },
-  $I.annote("SkillReviewScriptEntry", {
-    description: "A scripted review answer keyed by a hunk identity or a unique 12+ character prefix.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillReviewScriptEntry", {
+      description: "A scripted review answer keyed by a hunk identity or a unique 12+ character prefix.",
+    })
+  )
 ) {}
 
 /**
@@ -508,17 +511,18 @@ export type SkillReviewSkillState = typeof SkillReviewSkillState.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillReviewSkill extends S.Class<SkillReviewSkill>($I`SkillReviewSkill`)(
-  {
+export class SkillReviewSkill extends S.Opaque<SkillReviewSkill, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.String,
     oldRevision: SkillGitRevision,
     newRevision: SkillGitRevision,
     state: SkillReviewSkillState,
     unresolved: S.Natural,
-  },
-  $I.annote("SkillReviewSkill", {
-    description: "A reviewed skill's base and current pins, its state, and its undecided hunk count.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillReviewSkill", {
+      description: "A reviewed skill's base and current pins, its state, and its undecided hunk count.",
+    })
+  )
 ) {}
 
 /**
@@ -585,18 +589,19 @@ export type SkillReviewStop = typeof SkillReviewStop.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillReviewSession extends S.Class<SkillReviewSession>($I`SkillReviewSession`)(
-  {
+export class SkillReviewSession extends S.Opaque<SkillReviewSession, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("skills-review/v1"),
     stoppedBy: SkillReviewStop,
     budgetMinutes: S.Natural,
     recorded: S.Array(SkillHunkLedgerRow),
     queue: S.Array(SkillReviewItem),
     skills: S.Array(SkillReviewSkill),
-  },
-  $I.annote("SkillReviewSession", {
-    description: "One review run: rows it recorded, hunks still queued, and each skill's state.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillReviewSession", {
+      description: "One review run: rows it recorded, hunks still queued, and each skill's state.",
+    })
+  )
 ) {}
 
 /**
@@ -628,15 +633,60 @@ export class SkillReviewSession extends S.Class<SkillReviewSession>($I`SkillRevi
  * @category models
  * @since 0.0.0
  */
-export class SkillPatchHunk extends S.Class<SkillPatchHunk>($I`SkillPatchHunk`)(
-  {
+export class SkillPatchHunk extends S.Opaque<SkillPatchHunk, { readonly brand: unique symbol }>()(
+  S.Struct({
     patch: S.String,
     file: S.String,
     hunk: S.Natural,
     hunkHash: Sha256Hex,
     text: S.String,
-  },
-  $I.annote("SkillPatchHunk", {
-    description: "One hunk of a patch file with its position-free identity and its reviewable text.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillPatchHunk", {
+      description: "One hunk of a patch file with its position-free identity and its reviewable text.",
+    })
+  )
+) {}
+
+/**
+ * Options for one review run.
+ *
+ * **Details**
+ *
+ * `decide: false` only prepares the queue and writes nothing, ghost replays
+ * included. With `decide: true`, `ghost` first records the replayable earlier
+ * decisions, then the reviewer's decider answers the rest within `budget`,
+ * each answer recorded under `reviewer`.
+ *
+ * **Example** (Prepare a read-only review run)
+ *
+ * ```ts
+ * import { SkillReviewOptions } from "@beep/repo-cli/commands/Skills/SkillsReview.schemas"
+ * import * as Duration from "effect/Duration"
+ * import * as O from "effect/Option"
+ *
+ * const options = SkillReviewOptions.make({
+ *   skill: O.none(),
+ *   decide: false,
+ *   ghost: true,
+ *   reviewer: "kriegcloud",
+ *   budget: Duration.minutes(15),
+ * })
+ * console.log(options.decide) // false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SkillReviewOptions extends S.Opaque<SkillReviewOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    skill: S.Option(S.String),
+    decide: S.Boolean,
+    ghost: S.Boolean,
+    reviewer: S.String,
+    budget: S.Duration,
+  }).pipe(
+    $I.annoteSchema("SkillReviewOptions", {
+      description: "Options for one skills review run: scope, write mode, ghost replay, reviewer, and time budget.",
+    })
+  )
 ) {}

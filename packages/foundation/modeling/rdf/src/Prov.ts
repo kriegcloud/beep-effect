@@ -246,8 +246,8 @@ export type ProvDateTime = typeof ProvDateTime.Type;
  * @category models
  * @since 0.0.0
  */
-export class LifecycleTimes extends S.Class<LifecycleTimes>($I`LifecycleTimes`)(
-  {
+export class LifecycleTimes extends S.Opaque<LifecycleTimes, { readonly brand: unique symbol }>()(
+  S.Struct({
     observedAt: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
     publishedAt: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
     ingestedAt: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -255,21 +255,22 @@ export class LifecycleTimes extends S.Class<LifecycleTimes>($I`LifecycleTimes`)(
     derivedAt: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
     effectiveAt: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
     supersededAt: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("LifecycleTimes", {
-    description: "Explicit lifecycle time fields retained outside plain PROV activity timestamps.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "LifecycleTimes",
-      overview: "Explicit lifecycle time fields retained outside plain PROV activity timestamps.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", disposition: "informative" }],
-      equivalenceBasis: "UTC instant equality per lifecycle field.",
-      provenanceProfile: "minimal-core-v1",
-      timeSemantics:
-        "Lifecycle semantics remain explicit and are not collapsed into prov:startedAtTime or prov:endedAtTime.",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("LifecycleTimes", {
+      description: "Explicit lifecycle time fields retained outside plain PROV activity timestamps.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "LifecycleTimes",
+        overview: "Explicit lifecycle time fields retained outside plain PROV activity timestamps.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", disposition: "informative" }],
+        equivalenceBasis: "UTC instant equality per lifecycle field.",
+        provenanceProfile: "minimal-core-v1",
+        timeSemantics:
+          "Lifecycle semantics remain explicit and are not collapsed into prov:startedAtTime or prov:endedAtTime.",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -291,8 +292,8 @@ export class LifecycleTimes extends S.Class<LifecycleTimes>($I`LifecycleTimes`)(
  * @category models
  * @since 0.0.0
  */
-export class Entity extends S.Class<Entity>($I`Entity`)(
-  {
+export class Entity extends S.Opaque<Entity, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Entity"),
     id: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
     wasGeneratedBy: ObjectRef.pipe(S.Array, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -306,19 +307,20 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
     value: S.OptionFromOptionalKey(S.Union([S.String, S.Finite, S.Boolean])).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("Entity", {
-    description: "PROV entity.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "Entity",
-      overview: "PROV entity.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", section: "Entity", disposition: "normative" }],
-      equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
-      provenanceProfile: "minimal-core-v1",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("Entity", {
+      description: "PROV entity.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "Entity",
+        overview: "PROV entity.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", section: "Entity", disposition: "normative" }],
+        equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
+        provenanceProfile: "minimal-core-v1",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -340,27 +342,28 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
  * @category models
  * @since 0.0.0
  */
-export class Activity extends S.Class<Activity>($I`Activity`)(
-  {
+export class Activity extends S.Opaque<Activity, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Activity"),
     id: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
     used: ObjectRef.pipe(S.Array, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     wasAssociatedWith: ObjectRef.pipe(S.Array, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     startedAtTime: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
     endedAtTime: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Activity", {
-    description: "PROV activity.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "Activity",
-      overview: "PROV activity.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", section: "Activity", disposition: "normative" }],
-      equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
-      provenanceProfile: "minimal-core-v1",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("Activity", {
+      description: "PROV activity.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "Activity",
+        overview: "PROV activity.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", section: "Activity", disposition: "normative" }],
+        equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
+        provenanceProfile: "minimal-core-v1",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -382,24 +385,25 @@ export class Activity extends S.Class<Activity>($I`Activity`)(
  * @category models
  * @since 0.0.0
  */
-export class Agent extends S.Class<Agent>($I`Agent`)(
-  {
+export class Agent extends S.Opaque<Agent, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Agent"),
     id: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
     name: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Agent", {
-    description: "PROV agent.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "Agent",
-      overview: "PROV agent.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", section: "Agent", disposition: "normative" }],
-      equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
-      provenanceProfile: "minimal-core-v1",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("Agent", {
+      description: "PROV agent.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "Agent",
+        overview: "PROV agent.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", section: "Agent", disposition: "normative" }],
+        equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
+        provenanceProfile: "minimal-core-v1",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -422,24 +426,25 @@ export class Agent extends S.Class<Agent>($I`Agent`)(
  * @category models
  * @since 0.0.0
  */
-export class SoftwareAgent extends S.Class<SoftwareAgent>($I`SoftwareAgent`)(
-  {
+export class SoftwareAgent extends S.Opaque<SoftwareAgent, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("SoftwareAgent"),
     id: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
     name: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SoftwareAgent", {
-    description: "PROV software agent.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "SoftwareAgent",
-      overview: "PROV software agent.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", section: "SoftwareAgent", disposition: "normative" }],
-      equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
-      provenanceProfile: "minimal-core-v1",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("SoftwareAgent", {
+      description: "PROV software agent.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "SoftwareAgent",
+        overview: "PROV software agent.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", section: "SoftwareAgent", disposition: "normative" }],
+        equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
+        provenanceProfile: "minimal-core-v1",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -462,24 +467,25 @@ export class SoftwareAgent extends S.Class<SoftwareAgent>($I`SoftwareAgent`)(
  * @category models
  * @since 0.0.0
  */
-export class Plan extends S.Class<Plan>($I`Plan`)(
-  {
+export class Plan extends S.Opaque<Plan, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Plan"),
     id: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
     name: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Plan", {
-    description: "PROV plan in the early extension tier.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "Plan",
-      overview: "PROV plan in the early extension tier.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", section: "Plan", disposition: "normative" }],
-      equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
-      provenanceProfile: "extension-tier-v1",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("Plan", {
+      description: "PROV plan in the early extension tier.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "Plan",
+        overview: "PROV plan in the early extension tier.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", section: "Plan", disposition: "normative" }],
+        equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
+        provenanceProfile: "extension-tier-v1",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -502,24 +508,25 @@ export class Plan extends S.Class<Plan>($I`Plan`)(
  * @category models
  * @since 0.0.0
  */
-export class Collection extends S.Class<Collection>($I`Collection`)(
-  {
+export class Collection extends S.Opaque<Collection, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Collection"),
     id: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
     hadMember: S.Array(ObjectRef),
-  },
-  $I.annote("Collection", {
-    description: "PROV collection in the early extension tier.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "Collection",
-      overview: "PROV collection in the early extension tier.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", section: "Collection", disposition: "normative" }],
-      equivalenceBasis: "Identifier and member equality within a bounded provenance bundle.",
-      provenanceProfile: "extension-tier-v1",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("Collection", {
+      description: "PROV collection in the early extension tier.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "Collection",
+        overview: "PROV collection in the early extension tier.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", section: "Collection", disposition: "normative" }],
+        equivalenceBasis: "Identifier and member equality within a bounded provenance bundle.",
+        provenanceProfile: "extension-tier-v1",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -542,24 +549,25 @@ export class Collection extends S.Class<Collection>($I`Collection`)(
  * @category models
  * @since 0.0.0
  */
-export class Person extends S.Class<Person>($I`Person`)(
-  {
+export class Person extends S.Opaque<Person, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Person"),
     id: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
     name: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Person", {
-    description: "PROV person in the early extension tier.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "Person",
-      overview: "PROV person in the early extension tier.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", section: "Person", disposition: "normative" }],
-      equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
-      provenanceProfile: "extension-tier-v1",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("Person", {
+      description: "PROV person in the early extension tier.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "Person",
+        overview: "PROV person in the early extension tier.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", section: "Person", disposition: "normative" }],
+        equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
+        provenanceProfile: "extension-tier-v1",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -582,24 +590,25 @@ export class Person extends S.Class<Person>($I`Person`)(
  * @category models
  * @since 0.0.0
  */
-export class Organization extends S.Class<Organization>($I`Organization`)(
-  {
+export class Organization extends S.Opaque<Organization, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Organization"),
     id: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
     name: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Organization", {
-    description: "PROV organization in the early extension tier.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "Organization",
-      overview: "PROV organization in the early extension tier.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", section: "Organization", disposition: "normative" }],
-      equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
-      provenanceProfile: "extension-tier-v1",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("Organization", {
+      description: "PROV organization in the early extension tier.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "Organization",
+        overview: "PROV organization in the early extension tier.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", section: "Organization", disposition: "normative" }],
+        equivalenceBasis: "Identifier and field equality within a bounded provenance bundle.",
+        provenanceProfile: "extension-tier-v1",
+      }),
+    })
+  )
 ) {}
 
 const relationMetadata = (canonicalName: string, overview: string, profile: "minimal-core-v1" | "extension-tier-v1") =>
@@ -633,17 +642,18 @@ const relationMetadata = (canonicalName: string, overview: string, profile: "min
  * @category models
  * @since 0.0.0
  */
-export class Usage extends S.Class<Usage>($I`Usage`)(
-  {
+export class Usage extends S.Opaque<Usage, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Usage"),
     activity: ObjectRef,
     entity: ObjectRef,
     atTime: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Usage", {
-    description: "PROV usage relation.",
-    semanticSchemaMetadata: relationMetadata("Usage", "PROV usage relation.", "minimal-core-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("Usage", {
+      description: "PROV usage relation.",
+      semanticSchemaMetadata: relationMetadata("Usage", "PROV usage relation.", "minimal-core-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -666,17 +676,18 @@ export class Usage extends S.Class<Usage>($I`Usage`)(
  * @category models
  * @since 0.0.0
  */
-export class Generation extends S.Class<Generation>($I`Generation`)(
-  {
+export class Generation extends S.Opaque<Generation, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Generation"),
     entity: ObjectRef,
     activity: ObjectRef,
     atTime: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Generation", {
-    description: "PROV generation relation.",
-    semanticSchemaMetadata: relationMetadata("Generation", "PROV generation relation.", "minimal-core-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("Generation", {
+      description: "PROV generation relation.",
+      semanticSchemaMetadata: relationMetadata("Generation", "PROV generation relation.", "minimal-core-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -700,17 +711,18 @@ export class Generation extends S.Class<Generation>($I`Generation`)(
  * @category models
  * @since 0.0.0
  */
-export class Association extends S.Class<Association>($I`Association`)(
-  {
+export class Association extends S.Opaque<Association, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Association"),
     activity: ObjectRef,
     agent: ObjectRef,
     hadPlan: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Association", {
-    description: "PROV association relation.",
-    semanticSchemaMetadata: relationMetadata("Association", "PROV association relation.", "minimal-core-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("Association", {
+      description: "PROV association relation.",
+      semanticSchemaMetadata: relationMetadata("Association", "PROV association relation.", "minimal-core-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -733,16 +745,17 @@ export class Association extends S.Class<Association>($I`Association`)(
  * @category models
  * @since 0.0.0
  */
-export class Attribution extends S.Class<Attribution>($I`Attribution`)(
-  {
+export class Attribution extends S.Opaque<Attribution, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Attribution"),
     entity: ObjectRef,
     agent: ObjectRef,
-  },
-  $I.annote("Attribution", {
-    description: "PROV attribution relation.",
-    semanticSchemaMetadata: relationMetadata("Attribution", "PROV attribution relation.", "extension-tier-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("Attribution", {
+      description: "PROV attribution relation.",
+      semanticSchemaMetadata: relationMetadata("Attribution", "PROV attribution relation.", "extension-tier-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -766,17 +779,18 @@ export class Attribution extends S.Class<Attribution>($I`Attribution`)(
  * @category models
  * @since 0.0.0
  */
-export class Delegation extends S.Class<Delegation>($I`Delegation`)(
-  {
+export class Delegation extends S.Opaque<Delegation, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Delegation"),
     delegate: ObjectRef,
     responsible: ObjectRef,
     activity: S.OptionFromOptionalKey(ObjectRef).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Delegation", {
-    description: "PROV delegation relation.",
-    semanticSchemaMetadata: relationMetadata("Delegation", "PROV delegation relation.", "extension-tier-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("Delegation", {
+      description: "PROV delegation relation.",
+      semanticSchemaMetadata: relationMetadata("Delegation", "PROV delegation relation.", "extension-tier-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -799,16 +813,17 @@ export class Delegation extends S.Class<Delegation>($I`Delegation`)(
  * @category models
  * @since 0.0.0
  */
-export class Derivation extends S.Class<Derivation>($I`Derivation`)(
-  {
+export class Derivation extends S.Opaque<Derivation, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Derivation"),
     generatedEntity: ObjectRef,
     usedEntity: ObjectRef,
-  },
-  $I.annote("Derivation", {
-    description: "PROV derivation relation.",
-    semanticSchemaMetadata: relationMetadata("Derivation", "PROV derivation relation.", "extension-tier-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("Derivation", {
+      description: "PROV derivation relation.",
+      semanticSchemaMetadata: relationMetadata("Derivation", "PROV derivation relation.", "extension-tier-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -831,16 +846,17 @@ export class Derivation extends S.Class<Derivation>($I`Derivation`)(
  * @category models
  * @since 0.0.0
  */
-export class PrimarySource extends S.Class<PrimarySource>($I`PrimarySource`)(
-  {
+export class PrimarySource extends S.Opaque<PrimarySource, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("PrimarySource"),
     entity: ObjectRef,
     source: ObjectRef,
-  },
-  $I.annote("PrimarySource", {
-    description: "PROV primary-source relation.",
-    semanticSchemaMetadata: relationMetadata("PrimarySource", "PROV primary-source relation.", "extension-tier-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("PrimarySource", {
+      description: "PROV primary-source relation.",
+      semanticSchemaMetadata: relationMetadata("PrimarySource", "PROV primary-source relation.", "extension-tier-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -863,16 +879,17 @@ export class PrimarySource extends S.Class<PrimarySource>($I`PrimarySource`)(
  * @category models
  * @since 0.0.0
  */
-export class Quotation extends S.Class<Quotation>($I`Quotation`)(
-  {
+export class Quotation extends S.Opaque<Quotation, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Quotation"),
     entity: ObjectRef,
     source: ObjectRef,
-  },
-  $I.annote("Quotation", {
-    description: "PROV quotation relation.",
-    semanticSchemaMetadata: relationMetadata("Quotation", "PROV quotation relation.", "extension-tier-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("Quotation", {
+      description: "PROV quotation relation.",
+      semanticSchemaMetadata: relationMetadata("Quotation", "PROV quotation relation.", "extension-tier-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -895,16 +912,17 @@ export class Quotation extends S.Class<Quotation>($I`Quotation`)(
  * @category models
  * @since 0.0.0
  */
-export class Revision extends S.Class<Revision>($I`Revision`)(
-  {
+export class Revision extends S.Opaque<Revision, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Revision"),
     entity: ObjectRef,
     source: ObjectRef,
-  },
-  $I.annote("Revision", {
-    description: "PROV revision relation.",
-    semanticSchemaMetadata: relationMetadata("Revision", "PROV revision relation.", "extension-tier-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("Revision", {
+      description: "PROV revision relation.",
+      semanticSchemaMetadata: relationMetadata("Revision", "PROV revision relation.", "extension-tier-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -928,17 +946,18 @@ export class Revision extends S.Class<Revision>($I`Revision`)(
  * @category models
  * @since 0.0.0
  */
-export class Start extends S.Class<Start>($I`Start`)(
-  {
+export class Start extends S.Opaque<Start, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("Start"),
     activity: ObjectRef,
     trigger: ObjectRef,
     atTime: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Start", {
-    description: "PROV start relation.",
-    semanticSchemaMetadata: relationMetadata("Start", "PROV start relation.", "extension-tier-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("Start", {
+      description: "PROV start relation.",
+      semanticSchemaMetadata: relationMetadata("Start", "PROV start relation.", "extension-tier-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -962,17 +981,18 @@ export class Start extends S.Class<Start>($I`Start`)(
  * @category models
  * @since 0.0.0
  */
-export class End extends S.Class<End>($I`End`)(
-  {
+export class End extends S.Opaque<End, { readonly brand: unique symbol }>()(
+  S.Struct({
     provType: S.tag("End"),
     activity: ObjectRef,
     trigger: ObjectRef,
     atTime: S.OptionFromOptionalKey(ProvDateTime).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("End", {
-    description: "PROV end relation.",
-    semanticSchemaMetadata: relationMetadata("End", "PROV end relation.", "extension-tier-v1"),
-  })
+  }).pipe(
+    $I.annoteSchema("End", {
+      description: "PROV end relation.",
+      semanticSchemaMetadata: relationMetadata("End", "PROV end relation.", "extension-tier-v1"),
+    })
+  )
 ) {}
 
 /**
@@ -1063,25 +1083,26 @@ export type ProvRecord = typeof ProvRecord.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProvBundle extends S.Class<ProvBundle>($I`ProvBundle`)(
-  {
+export class ProvBundle extends S.Opaque<ProvBundle, { readonly brand: unique symbol }>()(
+  S.Struct({
     records: S.Array(ProvRecord),
     lifecycle: S.OptionFromOptionalKey(LifecycleTimes).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProvBundle", {
-    description: "Bounded provenance bundle exported by the semantic-web surface.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "ProvBundle",
-      overview: "Bounded provenance bundle exported by the semantic-web surface.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", disposition: "informative" }],
-      equivalenceBasis: "Record collection equality plus lifecycle equality.",
-      provenanceProfile: "minimal-core-v1",
-      evidenceAnchoring: "Bundle exports are expected to be paired with explicit evidence anchors.",
-      timeSemantics: "Lifecycle fields remain explicit adjuncts instead of being collapsed into activity timestamps.",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("ProvBundle", {
+      description: "Bounded provenance bundle exported by the semantic-web surface.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "ProvBundle",
+        overview: "Bounded provenance bundle exported by the semantic-web surface.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", disposition: "informative" }],
+        equivalenceBasis: "Record collection equality plus lifecycle equality.",
+        provenanceProfile: "minimal-core-v1",
+        evidenceAnchoring: "Bundle exports are expected to be paired with explicit evidence anchors.",
+        timeSemantics: "Lifecycle fields remain explicit adjuncts instead of being collapsed into activity timestamps.",
+      }),
+    })
+  )
 ) {
   static readonly decodeUnknownResult = S.decodeUnknownResult(this);
 

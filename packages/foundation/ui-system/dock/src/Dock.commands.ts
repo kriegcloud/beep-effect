@@ -31,14 +31,15 @@ const $I = $DockId.create("Dock.commands");
  * @category commands
  * @since 0.0.0
  */
-export class UserCommandOrigin extends S.Class<UserCommandOrigin>($I`UserCommandOrigin`)(
-  {
+export class UserCommandOrigin extends S.Opaque<UserCommandOrigin, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("user"),
     interactionId: S.NonEmptyString,
-  },
-  $I.annote("UserCommandOrigin", {
-    description: "Origin metadata for a user gesture compiled into a command.",
-  })
+  }).pipe(
+    $I.annoteSchema("UserCommandOrigin", {
+      description: "Origin metadata for a user gesture compiled into a command.",
+    })
+  )
 ) {}
 
 /**
@@ -56,14 +57,15 @@ export class UserCommandOrigin extends S.Class<UserCommandOrigin>($I`UserCommand
  * @category commands
  * @since 0.0.0
  */
-export class ApiCommandOrigin extends S.Class<ApiCommandOrigin>($I`ApiCommandOrigin`)(
-  {
+export class ApiCommandOrigin extends S.Opaque<ApiCommandOrigin, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("api"),
     requestId: S.NonEmptyString,
-  },
-  $I.annote("ApiCommandOrigin", {
-    description: "Origin metadata for a programmatic dock command.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApiCommandOrigin", {
+      description: "Origin metadata for a programmatic dock command.",
+    })
+  )
 ) {}
 
 const CommandOriginKind = LiteralKit(["user", "api"]);
@@ -124,15 +126,16 @@ export type CommandOrigin = typeof CommandOrigin.Type;
  * @category commands
  * @since 0.0.0
  */
-export class OpenPanelCommand extends S.Class<OpenPanelCommand>($I`OpenPanelCommand`)(
-  {
+export class OpenPanelCommand extends S.Opaque<OpenPanelCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("openPanel"),
     panel: Panel,
     placement: DockPlacement,
-  },
-  $I.annote("OpenPanelCommand", {
-    description: "Opens one unique panel at a semantic destination.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenPanelCommand", {
+      description: "Opens one unique panel at a semantic destination.",
+    })
+  )
 ) {}
 
 /**
@@ -150,14 +153,15 @@ export class OpenPanelCommand extends S.Class<OpenPanelCommand>($I`OpenPanelComm
  * @category commands
  * @since 0.0.0
  */
-export class ActivatePanelCommand extends S.Class<ActivatePanelCommand>($I`ActivatePanelCommand`)(
-  {
+export class ActivatePanelCommand extends S.Opaque<ActivatePanelCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("activatePanel"),
     panelId: PanelId,
-  },
-  $I.annote("ActivatePanelCommand", {
-    description: "Makes an existing panel active within its tab group.",
-  })
+  }).pipe(
+    $I.annoteSchema("ActivatePanelCommand", {
+      description: "Makes an existing panel active within its tab group.",
+    })
+  )
 ) {}
 
 /**
@@ -176,9 +180,10 @@ export class ActivatePanelCommand extends S.Class<ActivatePanelCommand>($I`Activ
  * @category commands
  * @since 0.0.0
  */
-export class UpdatePanelCommand extends S.Class<UpdatePanelCommand>($I`UpdatePanelCommand`)(
-  { kind: S.tag("updatePanel"), panelId: PanelId, patch: PanelPatch },
-  $I.annote("UpdatePanelCommand", { description: "Applies whole-value replacements to an existing panel." })
+export class UpdatePanelCommand extends S.Opaque<UpdatePanelCommand, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("updatePanel"), panelId: PanelId, patch: PanelPatch }).pipe(
+    $I.annoteSchema("UpdatePanelCommand", { description: "Applies whole-value replacements to an existing panel." })
+  )
 ) {}
 
 /**
@@ -196,15 +201,16 @@ export class UpdatePanelCommand extends S.Class<UpdatePanelCommand>($I`UpdatePan
  * @category commands
  * @since 0.0.0
  */
-export class MovePanelCommand extends S.Class<MovePanelCommand>($I`MovePanelCommand`)(
-  {
+export class MovePanelCommand extends S.Opaque<MovePanelCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("movePanel"),
     panelId: PanelId,
     target: DockMoveTarget,
-  },
-  $I.annote("MovePanelCommand", {
-    description: "Moves a panel to a semantic destination as one atomic tree transition.",
-  })
+  }).pipe(
+    $I.annoteSchema("MovePanelCommand", {
+      description: "Moves a panel to a semantic destination as one atomic tree transition.",
+    })
+  )
 ) {}
 
 /**
@@ -222,9 +228,12 @@ export class MovePanelCommand extends S.Class<MovePanelCommand>($I`MovePanelComm
  * @category commands
  * @since 0.0.0
  */
-export class MoveGroupCommand extends S.Class<MoveGroupCommand>($I`MoveGroupCommand`)(
-  { kind: S.tag("moveGroup"), groupId: GroupId, target: DockGroupMoveTarget },
-  $I.annote("MoveGroupCommand", { description: "Merges or relocates an entire tab group as one atomic transition." })
+export class MoveGroupCommand extends S.Opaque<MoveGroupCommand, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("moveGroup"), groupId: GroupId, target: DockGroupMoveTarget }).pipe(
+    $I.annoteSchema("MoveGroupCommand", {
+      description: "Merges or relocates an entire tab group as one atomic transition.",
+    })
+  )
 ) {}
 
 /**
@@ -243,9 +252,12 @@ export class MoveGroupCommand extends S.Class<MoveGroupCommand>($I`MoveGroupComm
  * @category commands
  * @since 0.0.0
  */
-export class UpdateGroupCommand extends S.Class<UpdateGroupCommand>($I`UpdateGroupCommand`)(
-  { kind: S.tag("updateGroup"), groupId: GroupId, patch: GroupPatch },
-  $I.annote("UpdateGroupCommand", { description: "Applies whole-value replacements to existing group metadata." })
+export class UpdateGroupCommand extends S.Opaque<UpdateGroupCommand, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("updateGroup"), groupId: GroupId, patch: GroupPatch }).pipe(
+    $I.annoteSchema("UpdateGroupCommand", {
+      description: "Applies whole-value replacements to existing group metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -263,14 +275,15 @@ export class UpdateGroupCommand extends S.Class<UpdateGroupCommand>($I`UpdateGro
  * @category commands
  * @since 0.0.0
  */
-export class ClosePanelCommand extends S.Class<ClosePanelCommand>($I`ClosePanelCommand`)(
-  {
+export class ClosePanelCommand extends S.Opaque<ClosePanelCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("closePanel"),
     panelId: PanelId,
-  },
-  $I.annote("ClosePanelCommand", {
-    description: "Closes one panel and canonically collapses empty topology.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClosePanelCommand", {
+      description: "Closes one panel and canonically collapses empty topology.",
+    })
+  )
 ) {}
 
 /**
@@ -288,15 +301,16 @@ export class ClosePanelCommand extends S.Class<ClosePanelCommand>($I`ClosePanelC
  * @category commands
  * @since 0.0.0
  */
-export class ResizeSplitCommand extends S.Class<ResizeSplitCommand>($I`ResizeSplitCommand`)(
-  {
+export class ResizeSplitCommand extends S.Opaque<ResizeSplitCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("resizeSplit"),
     splitId: SplitId,
     ratio: SplitRatio,
-  },
-  $I.annote("ResizeSplitCommand", {
-    description: "Changes one bounded binary split ratio.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResizeSplitCommand", {
+      description: "Changes one bounded binary split ratio.",
+    })
+  )
 ) {}
 
 /**
@@ -307,20 +321,21 @@ export class ResizeSplitCommand extends S.Class<ResizeSplitCommand>($I`ResizeSpl
  * ```ts
  * import { ClearWorkspaceCommand } from "@beep/dock"
  *
- * const command = ClearWorkspaceCommand.make()
+ * const command = ClearWorkspaceCommand.make({})
  * console.log(command.kind)
  * ```
  *
  * @category commands
  * @since 0.0.0
  */
-export class ClearWorkspaceCommand extends S.Class<ClearWorkspaceCommand>($I`ClearWorkspaceCommand`)(
-  {
+export class ClearWorkspaceCommand extends S.Opaque<ClearWorkspaceCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("clearWorkspace"),
-  },
-  $I.annote("ClearWorkspaceCommand", {
-    description: "Clears the docked tree and all floating members atomically.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClearWorkspaceCommand", {
+      description: "Clears the docked tree and all floating members atomically.",
+    })
+  )
 ) {}
 
 /**
@@ -338,9 +353,10 @@ export class ClearWorkspaceCommand extends S.Class<ClearWorkspaceCommand>($I`Cle
  * @category commands
  * @since 0.0.0
  */
-export class MaximizeGroupCommand extends S.Class<MaximizeGroupCommand>($I`MaximizeGroupCommand`)(
-  { kind: S.tag("maximizeGroup"), groupId: GroupId },
-  $I.annote("MaximizeGroupCommand", { description: "Reveals and maximizes one existing tab group." })
+export class MaximizeGroupCommand extends S.Opaque<MaximizeGroupCommand, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("maximizeGroup"), groupId: GroupId }).pipe(
+    $I.annoteSchema("MaximizeGroupCommand", { description: "Reveals and maximizes one existing tab group." })
+  )
 ) {}
 
 /**
@@ -351,16 +367,17 @@ export class MaximizeGroupCommand extends S.Class<MaximizeGroupCommand>($I`Maxim
  * ```ts
  * import { RestoreMaximizedCommand } from "@beep/dock"
  *
- * const command = RestoreMaximizedCommand.make()
+ * const command = RestoreMaximizedCommand.make({})
  * console.log(command.kind)
  * ```
  *
  * @category commands
  * @since 0.0.0
  */
-export class RestoreMaximizedCommand extends S.Class<RestoreMaximizedCommand>($I`RestoreMaximizedCommand`)(
-  { kind: S.tag("restoreMaximized") },
-  $I.annote("RestoreMaximizedCommand", { description: "Clears the currently maximized group." })
+export class RestoreMaximizedCommand extends S.Opaque<RestoreMaximizedCommand, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("restoreMaximized") }).pipe(
+    $I.annoteSchema("RestoreMaximizedCommand", { description: "Clears the currently maximized group." })
+  )
 ) {}
 
 /**
@@ -378,9 +395,10 @@ export class RestoreMaximizedCommand extends S.Class<RestoreMaximizedCommand>($I
  * @category commands
  * @since 0.0.0
  */
-export class FloatGroupCommand extends S.Class<FloatGroupCommand>($I`FloatGroupCommand`)(
-  { kind: S.tag("floatGroup"), groupId: GroupId, anchoredBox: AnchoredBox },
-  $I.annote("FloatGroupCommand", { description: "Moves one docked group into a new topmost floating member." })
+export class FloatGroupCommand extends S.Opaque<FloatGroupCommand, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("floatGroup"), groupId: GroupId, anchoredBox: AnchoredBox }).pipe(
+    $I.annoteSchema("FloatGroupCommand", { description: "Moves one docked group into a new topmost floating member." })
+  )
 ) {}
 /**
  * Command that docks a floating group into the tree.
@@ -397,9 +415,10 @@ export class FloatGroupCommand extends S.Class<FloatGroupCommand>($I`FloatGroupC
  * @category commands
  * @since 0.0.0
  */
-export class DockFloatingGroupCommand extends S.Class<DockFloatingGroupCommand>($I`DockFloatingGroupCommand`)(
-  { kind: S.tag("dockFloatingGroup"), groupId: GroupId, target: DockGroupMoveTarget },
-  $I.annote("DockFloatingGroupCommand", { description: "Moves a floating group back into the docked tree." })
+export class DockFloatingGroupCommand extends S.Opaque<DockFloatingGroupCommand, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("dockFloatingGroup"), groupId: GroupId, target: DockGroupMoveTarget }).pipe(
+    $I.annoteSchema("DockFloatingGroupCommand", { description: "Moves a floating group back into the docked tree." })
+  )
 ) {}
 /**
  * Command that repositions a floating group and raises its z-order.
@@ -416,9 +435,12 @@ export class DockFloatingGroupCommand extends S.Class<DockFloatingGroupCommand>(
  * @category commands
  * @since 0.0.0
  */
-export class MoveFloatingGroupCommand extends S.Class<MoveFloatingGroupCommand>($I`MoveFloatingGroupCommand`)(
-  { kind: S.tag("moveFloatingGroup"), groupId: GroupId, anchoredBox: AnchoredBox },
-  $I.annote("MoveFloatingGroupCommand", { description: "Updates a floating member box and brings it to front." })
+export class MoveFloatingGroupCommand extends S.Opaque<MoveFloatingGroupCommand, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("moveFloatingGroup"), groupId: GroupId, anchoredBox: AnchoredBox }).pipe(
+    $I.annoteSchema("MoveFloatingGroupCommand", {
+      description: "Updates a floating member box and brings it to front.",
+    })
+  )
 ) {}
 
 const DockCommandKind = LiteralKit([
@@ -446,7 +468,7 @@ const DockCommandKind = LiteralKit([
  * ```ts
  * import { ClearWorkspaceCommand, DockCommand } from "@beep/dock"
  *
- * const command = ClearWorkspaceCommand.make()
+ * const command = ClearWorkspaceCommand.make({})
  * console.log(command.kind)
  * ```
  *
@@ -485,7 +507,7 @@ export const DockCommand = DockCommandKind.mapMembers(
  * ```ts
  * import { ClearWorkspaceCommand, DockCommand } from "@beep/dock"
  *
- * const command: DockCommand = ClearWorkspaceCommand.make()
+ * const command: DockCommand = ClearWorkspaceCommand.make({})
  * console.log(command.kind)
  * ```
  *
@@ -502,22 +524,23 @@ export type DockCommand = typeof DockCommand.Type;
  * ```ts
  * import { ApiCommandOrigin, ClearWorkspaceCommand, CommandId, DockCommandEnvelope } from "@beep/dock"
  *
- * const command = DockCommandEnvelope.make({ commandId: CommandId.make("command-clear"), origin: ApiCommandOrigin.make({ requestId: "request-one" }), command: ClearWorkspaceCommand.make() })
+ * const command = DockCommandEnvelope.make({ commandId: CommandId.make("command-clear"), origin: ApiCommandOrigin.make({ requestId: "request-one" }), command: ClearWorkspaceCommand.make({}) })
  * console.log(command.commandId)
  * ```
  *
  * @category commands
  * @since 0.0.0
  */
-export class DockCommandEnvelope extends S.Class<DockCommandEnvelope>($I`DockCommandEnvelope`)(
-  {
+export class DockCommandEnvelope extends S.Opaque<DockCommandEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     commandId: CommandId,
     origin: CommandOrigin,
     command: DockCommand,
-  },
-  $I.annote("DockCommandEnvelope", {
-    description: "Top-level dock command with explicit causal origin.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockCommandEnvelope", {
+      description: "Top-level dock command with explicit causal origin.",
+    })
+  )
 ) {}
 
 /**
@@ -575,8 +598,8 @@ export type AllowedRenderers = typeof AllowedRenderers.Type;
  * @category commands
  * @since 0.0.0
  */
-export class RestoreSnapshotRequest extends S.Class<RestoreSnapshotRequest>($I`RestoreSnapshotRequest`)(
-  {
+export class RestoreSnapshotRequest extends S.Opaque<RestoreSnapshotRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     commandId: CommandId,
     origin: CommandOrigin,
     allowedRenderers: AllowedRenderers.pipe(
@@ -585,8 +608,9 @@ export class RestoreSnapshotRequest extends S.Class<RestoreSnapshotRequest>($I`R
     ).annotateKey({
       description: "Optional host renderer allowlist; absence preserves every decoded panel.",
     }),
-  },
-  $I.annote("RestoreSnapshotRequest", {
-    description: "Causal metadata attached to a validated snapshot installation.",
-  })
+  }).pipe(
+    $I.annoteSchema("RestoreSnapshotRequest", {
+      description: "Causal metadata attached to a validated snapshot installation.",
+    })
+  )
 ) {}

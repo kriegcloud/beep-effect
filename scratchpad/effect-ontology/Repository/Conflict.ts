@@ -127,8 +127,7 @@ type ConflictComparableClaim = {
   readonly validTo?: Date | null | undefined;
 };
 
-class ConflictUpdate extends S.Class<ConflictUpdate>($I`ConflictUpdate`)(
-  {
+class ConflictUpdate extends S.Opaque<ConflictUpdate, { readonly brand: unique symbol }>()(S.Struct({
     status: S.Literals(["ignored", "resolved"]),
     resolutionStrategy: S.NullOr(S.String),
     acceptedClaimId: S.NullOr(UUIDString),
@@ -136,11 +135,9 @@ class ConflictUpdate extends S.Class<ConflictUpdate>($I`ConflictUpdate`)(
     resolvedByFingerprint: S.NullOr(Sha256Hex.pipe(S.decodeTo(S.String))),
     resolvedAt: S.Date,
     resolutionNotes: S.NullOr(S.String),
-  },
-  $I.annote("ConflictUpdate", {
+  }).pipe($I.annoteSchema("ConflictUpdate", {
     description: "Validated terminal conflict-state columns written atomically by the repository.",
-  })
-) {}
+  }))) {}
 
 /**
  * Signals that a persisted claim was paired with itself.
@@ -160,7 +157,7 @@ class ConflictUpdate extends S.Class<ConflictUpdate>($I`ConflictUpdate`)(
  * @category errors
  * @since 0.0.0
  */
-export class EqualConflictPairError extends S.TaggedError<EqualConflictPairError>($I`EqualConflictPairError`)(
+export class EqualConflictPairError extends S.TaggedError<EqualConflictPairError, { readonly brand: unique symbol }>($I`EqualConflictPairError`)(
   "EqualConflictPairError",
   { claimId: UUIDString },
   $I.annote("EqualConflictPairError", {

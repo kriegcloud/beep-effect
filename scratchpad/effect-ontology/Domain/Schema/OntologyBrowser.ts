@@ -34,8 +34,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Schema/OntologyBrowser")
  * @category models
  * @since 0.0.0
  */
-export class VocabularyRef extends S.Class<VocabularyRef>($I`VocabularyRef`)(
-  {
+export class VocabularyRef extends S.Opaque<VocabularyRef, { readonly brand: unique symbol }>()(S.Struct({
     iri: AbsoluteIRI.annotateKey({
       description: "Absolute vocabulary namespace IRI.",
     }),
@@ -57,12 +56,10 @@ export class VocabularyRef extends S.Class<VocabularyRef>($I`VocabularyRef`)(
         description: "Optional absolute IRI of the vocabulary specification.",
       })
     ),
-  },
-  $I.annote("VocabularyRef", {
+  }).pipe($I.annoteSchema("VocabularyRef", {
     description:
       "Validated reference to a standards vocabulary, with Option-normalized publisher and specification IRI.",
-  })
-) {
+  }))) {
   static readonly is = S.is(VocabularyRef);
 }
 
@@ -91,8 +88,7 @@ export class VocabularyRef extends S.Class<VocabularyRef>($I`VocabularyRef`)(
  * @category models
  * @since 0.0.0
  */
-export class OntologySummary extends S.Class<OntologySummary>($I`OntologySummary`)(
-  {
+export class OntologySummary extends S.Opaque<OntologySummary, { readonly brand: unique symbol }>()(S.Struct({
     id: OntologyName.annotateKey({
       description: "Stable lowercase ontology registry identifier.",
     }),
@@ -120,11 +116,9 @@ export class OntologySummary extends S.Class<OntologySummary>($I`OntologySummary
     importCount: S.Natural.annotateKey({
       description: "Number of imported vocabularies.",
     }),
-  },
-  $I.annote("OntologySummary", {
+  }).pipe($I.annoteSchema("OntologySummary", {
     description: "List-view ontology metadata with validated identity, IRI, version, and resource counts.",
-  })
-) {
+  }))) {
   static readonly is = S.is(OntologySummary);
 }
 
@@ -142,19 +136,16 @@ const ontologyListResponseOntologiesDefault = A.empty<OntologySummary>();
  * @category dtos
  * @since 0.0.0
  */
-export class OntologyListResponse extends S.Class<OntologyListResponse>($I`OntologyListResponse`)(
-  {
+export class OntologyListResponse extends S.Opaque<OntologyListResponse, { readonly brand: unique symbol }>()(S.Struct({
     ontologies: S.Array(OntologySummary).pipe(
       S.withConstructorDefault(Effect.succeed(ontologyListResponseOntologiesDefault)), S.withDecodingDefaultType(Effect.succeed(ontologyListResponseOntologiesDefault)),
       S.annotateKey({
         description: "Visible ontology summaries; defaults to an empty collection.",
       })
     ),
-  },
-  $I.annote("OntologyListResponse", {
+  }).pipe($I.annoteSchema("OntologyListResponse", {
     description: "Ontology-list response with an always-present readonly summary collection.",
-  })
-) {}
+  }))) {}
 
 /**
  * Browser projection of an ontology class definition.
@@ -175,8 +166,7 @@ export class OntologyListResponse extends S.Class<OntologyListResponse>($I`Ontol
  * @category models
  * @since 0.0.0
  */
-export class ClassSummary extends S.Class<ClassSummary>($I`ClassSummary`)(
-  {
+export class ClassSummary extends S.Opaque<ClassSummary, { readonly brand: unique symbol }>()(S.Struct({
     iri: IRI.annotateKey({
       description: "IRI identifying the ontology class.",
     }),
@@ -201,11 +191,9 @@ export class ClassSummary extends S.Class<ClassSummary>($I`ClassSummary`)(
         description: "Optional direct superclass IRI.",
       })
     ),
-  },
-  $I.annote("ClassSummary", {
+  }).pipe($I.annoteSchema("ClassSummary", {
     description: "Ontology class projection with validated identity and Option-normalized annotations.",
-  })
-) {
+  }))) {
   static readonly is = S.is(ClassSummary);
 }
 
@@ -235,8 +223,7 @@ export class ClassSummary extends S.Class<ClassSummary>($I`ClassSummary`)(
  * @category models
  * @since 0.0.0
  */
-export class PropertySummary extends S.Class<PropertySummary>($I`PropertySummary`)(
-  {
+export class PropertySummary extends S.Opaque<PropertySummary, { readonly brand: unique symbol }>()(S.Struct({
     iri: IRI.annotateKey({
       description: "IRI identifying the ontology property.",
     }),
@@ -270,11 +257,9 @@ export class PropertySummary extends S.Class<PropertySummary>($I`PropertySummary
     isObjectProperty: S.Boolean.annotateKey({
       description: "Whether the property links RDF resources rather than literal values.",
     }),
-  },
-  $I.annote("PropertySummary", {
+  }).pipe($I.annoteSchema("PropertySummary", {
     description: "Ontology property projection with validated semantic IRIs and Option-normalized annotations.",
-  })
-) {
+  }))) {
   static readonly is = S.is(PropertySummary);
 }
 
@@ -300,8 +285,7 @@ const ontologyClassesResponseClassesDefault = A.empty<ClassSummary>();
  * @category dtos
  * @since 0.0.0
  */
-export class OntologyClassesResponse extends S.Class<OntologyClassesResponse>($I`OntologyClassesResponse`)(
-  {
+export class OntologyClassesResponse extends S.Opaque<OntologyClassesResponse, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: OntologyName.annotateKey({
       description: "Registry identifier of the ontology being browsed.",
     }),
@@ -314,11 +298,9 @@ export class OntologyClassesResponse extends S.Class<OntologyClassesResponse>($I
         description: "Class projections; defaults to an empty collection.",
       })
     ),
-  },
-  $I.annote("OntologyClassesResponse", {
+  }).pipe($I.annoteSchema("OntologyClassesResponse", {
     description: "Class-list response for one ontology with a non-negative total.",
-  })
-) {}
+  }))) {}
 
 const ontologyPropertiesResponsePropertiesDefault = A.empty<PropertySummary>();
 /**
@@ -342,8 +324,7 @@ const ontologyPropertiesResponsePropertiesDefault = A.empty<PropertySummary>();
  * @category dtos
  * @since 0.0.0
  */
-export class OntologyPropertiesResponse extends S.Class<OntologyPropertiesResponse>($I`OntologyPropertiesResponse`)(
-  {
+export class OntologyPropertiesResponse extends S.Opaque<OntologyPropertiesResponse, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: OntologyName.annotateKey({
       description: "Registry identifier of the ontology being browsed.",
     }),
@@ -356,11 +337,9 @@ export class OntologyPropertiesResponse extends S.Class<OntologyPropertiesRespon
         description: "Property projections; defaults to an empty collection.",
       })
     ),
-  },
-  $I.annote("OntologyPropertiesResponse", {
+  }).pipe($I.annoteSchema("OntologyPropertiesResponse", {
     description: "Property-list response for one ontology with a non-negative total.",
-  })
-) {}
+  }))) {}
 
 const ontologyDetailResponseImportsDefault = A.empty<VocabularyRef>();
 const ontologyDetailResponseClassesDefault = A.empty<ClassSummary>();
@@ -394,8 +373,7 @@ const ontologyDetailResponseSeeAlsoDefault = A.empty<IRI>();
  * @category dtos
  * @since 0.0.0
  */
-export class OntologyDetailResponse extends S.Class<OntologyDetailResponse>($I`OntologyDetailResponse`)(
-  {
+export class OntologyDetailResponse extends S.Opaque<OntologyDetailResponse, { readonly brand: unique symbol }>()(S.Struct({
     id: OntologyName.annotateKey({
       description: "Stable lowercase ontology registry identifier.",
     }),
@@ -453,10 +431,8 @@ export class OntologyDetailResponse extends S.Class<OntologyDetailResponse>($I`O
         description: "Related semantic resource IRIs; defaults to an empty collection.",
       })
     ),
-  },
-  $I.annote("OntologyDetailResponse", {
+  }).pipe($I.annoteSchema("OntologyDetailResponse", {
     description: "Detailed ontology browser projection with validated semantic identifiers and normalized collections.",
-  })
-) {
+  }))) {
   static readonly is = S.is(OntologyDetailResponse);
 }

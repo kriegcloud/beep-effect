@@ -240,18 +240,19 @@ export const CatalogDiffScopeOptions = CatalogDiffScopeKit.literals;
  * @category models
  * @since 0.0.0
  */
-export class DriftFinding extends S.Class<DriftFinding>($I`DriftFinding`)(
-  {
+export class DriftFinding extends S.Opaque<DriftFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     targetId: TargetId,
     path: S.NonEmptyString,
     locator: Locator,
     current: S.OptionFromOptionalKey(S.String),
     expected: S.NonEmptyString,
     kind: DriftKind,
-  },
-  $I.annote("DriftFinding", {
-    description: "One locator whose file value does not match the manifest, with the repair it needs.",
-  })
+  }).pipe(
+    $I.annoteSchema("DriftFinding", {
+      description: "One locator whose file value does not match the manifest, with the repair it needs.",
+    })
+  )
 ) {}
 
 /**
@@ -299,8 +300,8 @@ export class DriftFinding extends S.Class<DriftFinding>($I`DriftFinding`)(
  * @category models
  * @since 0.0.0
  */
-export class ModelsCheckReport extends S.Class<ModelsCheckReport>($I`ModelsCheckReport`)(
-  {
+export class ModelsCheckReport extends S.Opaque<ModelsCheckReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     catalog: CatalogSnapshotSummary,
     diff: CatalogDiff,
     diffScope: CatalogDiffScope.pipe(S.withDecodingDefaultKey(Effect.succeed<CatalogDiffScope>("full"))),
@@ -310,8 +311,9 @@ export class ModelsCheckReport extends S.Class<ModelsCheckReport>($I`ModelsCheck
       S.withConstructorDefault(Effect.succeed([]))
     ),
     hasDrift: S.Boolean,
-  },
-  $I.annote("ModelsCheckReport", {
-    description: "Catalog provenance, snapshot diff, and per-locator drift findings from one check run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsCheckReport", {
+      description: "Catalog provenance, snapshot diff, and per-locator drift findings from one check run.",
+    })
+  )
 ) {}

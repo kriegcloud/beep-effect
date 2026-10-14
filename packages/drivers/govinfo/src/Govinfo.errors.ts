@@ -113,8 +113,8 @@ export type GovinfoHttpStatus = typeof GovinfoHttpStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class GovinfoErrorOptions extends S.Class<GovinfoErrorOptions>($I`GovinfoErrorOptions`)(
-  {
+export class GovinfoErrorOptions extends S.Opaque<GovinfoErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.OptionFromOptionalKey(
       S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))
     ).pipe(
@@ -129,10 +129,11 @@ export class GovinfoErrorOptions extends S.Class<GovinfoErrorOptions>($I`Govinfo
         description: "HTTP response status associated with the GovInfo failure when one was available.",
       })
     ),
-  },
-  $I.annote("GovinfoErrorOptions", {
-    description: "Options for configuring GovinfoError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("GovinfoErrorOptions", {
+      description: "Options for configuring GovinfoError instances.",
+    })
+  )
 ) {}
 
 /**
@@ -150,7 +151,7 @@ export class GovinfoErrorOptions extends S.Class<GovinfoErrorOptions>($I`Govinfo
  * @category errors
  * @since 0.0.0
  */
-export class GovinfoError extends S.TaggedError<GovinfoError>($I`GovinfoError`)(
+export class GovinfoError extends S.TaggedError<GovinfoError, { readonly brand: unique symbol }>($I`GovinfoError`)(
   "GovinfoError",
   {
     cause: S.OptionFromOptionalKey(

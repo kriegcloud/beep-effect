@@ -269,12 +269,12 @@ class InlineParser implements InlineScanner {
 	 *
 	 * ```ts
 	 * import * as HashMap from "effect/HashMap";
-	 * import { Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
+	 * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
 	 * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
 	 *
 	 * const position = (start: number, end: number) => Position.make({
-	 *   start: { line: 1, column: start + 1, offset: start },
-	 *   end: { line: 1, column: end + 1, offset: end },
+	 *   start: Point.make({ line: 1, column: start + 1, offset: start }),
+	 *   end: Point.make({ line: 1, column: end + 1, offset: end }),
 	 * });
 	 * const text = "`code`";
 	 * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);
@@ -484,12 +484,12 @@ class InlineParser implements InlineScanner {
 	 *
 	 * ```ts
 	 * import * as HashMap from "effect/HashMap";
-	 * import { Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
+	 * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
 	 * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
 	 *
 	 * const position = (start: number, end: number) => Position.make({
-	 *   start: { line: 1, column: start + 1, offset: start },
-	 *   end: { line: 1, column: end + 1, offset: end },
+	 *   start: Point.make({ line: 1, column: start + 1, offset: start }),
+	 *   end: Point.make({ line: 1, column: end + 1, offset: end }),
 	 * });
 	 * const text = "*word*";
 	 * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);
@@ -632,12 +632,12 @@ class InlineParser implements InlineScanner {
 	 *
 	 * ```ts
 	 * import * as HashMap from "effect/HashMap";
-	 * import { Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
+	 * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
 	 * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
 	 *
 	 * const position = (start: number, end: number) => Position.make({
-	 *   start: { line: 1, column: start + 1, offset: start },
-	 *   end: { line: 1, column: end + 1, offset: end },
+	 *   start: Point.make({ line: 1, column: start + 1, offset: start }),
+	 *   end: Point.make({ line: 1, column: end + 1, offset: end }),
 	 * });
 	 * const text = "hello &amp; world";
 	 * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);
@@ -701,12 +701,12 @@ class InlineParser implements InlineScanner {
 	 *
 	 * ```ts
 	 * import * as HashMap from "effect/HashMap";
-	 * import { Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
+	 * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
 	 * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
 	 *
 	 * const position = (start: number, end: number) => Position.make({
-	 *   start: { line: 1, column: start + 1, offset: start },
-	 *   end: { line: 1, column: end + 1, offset: end },
+	 *   start: Point.make({ line: 1, column: start + 1, offset: start }),
+	 *   end: Point.make({ line: 1, column: end + 1, offset: end }),
 	 * });
 	 * const text = "]";
 	 * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);
@@ -768,12 +768,12 @@ class InlineParser implements InlineScanner {
  *
  * ```ts
  * import * as HashMap from "effect/HashMap";
- * import { Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
+ * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
  * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
  *
  * const position = (start: number, end: number) => Position.make({
- *   start: { line: 1, column: start + 1, offset: start },
- *   end: { line: 1, column: end + 1, offset: end },
+ *   start: Point.make({ line: 1, column: start + 1, offset: start }),
+ *   end: Point.make({ line: 1, column: end + 1, offset: end }),
  * });
  * const text = "[foo]";
  * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);

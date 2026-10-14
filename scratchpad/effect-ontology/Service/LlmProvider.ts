@@ -100,8 +100,7 @@ export type LlmProvider = typeof LlmProvider.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class LlmProviderParams extends S.Class<LlmProviderParams>($I`LlmProviderParams`)(
-  {
+export class LlmProviderParams extends S.Opaque<LlmProviderParams, { readonly brand: unique symbol }>()(S.Struct({
     provider: LlmProvider.annotateKey({ description: "Provider identifier." }),
     model: S.NonEmptyString.annotateKey({ description: "Provider-specific model identifier." }),
     contextWindow: PositiveInt.annotateKey({ description: "Context-window capacity in tokens." }),
@@ -113,8 +112,6 @@ export class LlmProviderParams extends S.Class<LlmProviderParams>($I`LlmProvider
     circuitBreaker: CircuitBreakerConfig.pipe(S.optionalKey).annotateKey({
       description: "Optional provider circuit-breaker configuration.",
     }),
-  },
-  $I.annote("LlmProviderParams", {
+  }).pipe($I.annoteSchema("LlmProviderParams", {
     description: "Model, token, timeout, retry, and circuit-breaker settings for an LLM provider.",
-  })
-) {}
+  }))) {}

@@ -92,7 +92,7 @@ const invalid = (input: string, message: string) => Effect.fail(new SchemaIssue.
  * @category models
  * @since 0.0.0
  */
-export class PackageManager extends S.Class<PackageManager>($I`PackageManager`)({
+export class PackageManager extends S.Class<PackageManager, { readonly brand: unique symbol }>($I`PackageManager`)({
 	/**
 	 * The package-manager name (e.g. `pnpm`). Any lowercase name — see the class remarks.
 	 *

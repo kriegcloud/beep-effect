@@ -78,9 +78,10 @@ export type CandorPromotionSubjectResolutionReason = typeof CandorPromotionSubje
  * @category errors
  * @since 0.0.0
  */
-export class CandorPromotionSubjectResolutionError extends S.TaggedError<CandorPromotionSubjectResolutionError>(
-  $I`CandorPromotionSubjectResolutionError`
-)(
+export class CandorPromotionSubjectResolutionError extends S.TaggedError<
+  CandorPromotionSubjectResolutionError,
+  { readonly brand: unique symbol }
+>($I`CandorPromotionSubjectResolutionError`)(
   "CandorPromotionSubjectResolutionError",
   {
     reason: CandorPromotionSubjectResolutionReason.annotateKey({

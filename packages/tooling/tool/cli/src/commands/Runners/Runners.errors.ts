@@ -29,7 +29,9 @@ const $I = $RepoCliId.create("commands/Runners/Runners.errors");
  * @category errors
  * @since 0.0.0
  */
-export class RunnersCommandError extends S.TaggedError<RunnersCommandError>($I`RunnersCommandError`)(
+export class RunnersCommandError extends S.TaggedError<RunnersCommandError, { readonly brand: unique symbol }>(
+  $I`RunnersCommandError`
+)(
   "RunnersCommandError",
   commandErrorFields,
   $I.annoteError<RunnersCommandError>("RunnersCommandError", {

@@ -96,7 +96,9 @@ const CheckedIdentityRdfBindingFields = IdentityRdfBindingFields.pipe(S.check(Id
  * @category models
  * @since 0.0.0
  */
-export class IdentityRdfBinding extends S.Class<IdentityRdfBinding>($I`IdentityRdfBinding`)(
+export class IdentityRdfBinding extends S.Class<IdentityRdfBinding, { readonly brand: unique symbol }>(
+  $I`IdentityRdfBinding`
+)(
   CheckedIdentityRdfBindingFields,
   $I.annote("IdentityRdfBinding", {
     description: "Explicit RDF predicates for identity registry fields and named string fibers.",
@@ -160,7 +162,9 @@ export const DefaultIdentityRdfBinding: IdentityRdfBinding = IdentityRdfBinding.
  * @category errors
  * @since 0.0.0
  */
-export class IdentityFiberPathError extends S.TaggedError<IdentityFiberPathError>($I`IdentityFiberPathError`)(
+export class IdentityFiberPathError extends S.TaggedError<IdentityFiberPathError, { readonly brand: unique symbol }>(
+  $I`IdentityFiberPathError`
+)(
   "IdentityFiberPathError",
   { fiber: S.String },
   $I.annoteError<IdentityFiberPathError>("IdentityFiberPathError", {
@@ -186,7 +190,9 @@ export class IdentityFiberPathError extends S.TaggedError<IdentityFiberPathError
  * @category errors
  * @since 0.0.0
  */
-export class IdentityEntryIriError extends S.TaggedError<IdentityEntryIriError>($I`IdentityEntryIriError`)(
+export class IdentityEntryIriError extends S.TaggedError<IdentityEntryIriError, { readonly brand: unique symbol }>(
+  $I`IdentityEntryIriError`
+)(
   "IdentityEntryIriError",
   { identity: S.String, iri: S.String },
   $I.annoteError<IdentityEntryIriError>("IdentityEntryIriError", {
@@ -212,9 +218,10 @@ export class IdentityEntryIriError extends S.TaggedError<IdentityEntryIriError>(
  * @category errors
  * @since 0.0.0
  */
-export class IdentityDatasetDecodeError extends S.TaggedError<IdentityDatasetDecodeError>(
-  $I`IdentityDatasetDecodeError`
-)(
+export class IdentityDatasetDecodeError extends S.TaggedError<
+  IdentityDatasetDecodeError,
+  { readonly brand: unique symbol }
+>($I`IdentityDatasetDecodeError`)(
   "IdentityDatasetDecodeError",
   { subject: S.String, message: S.String },
   $I.annoteError<IdentityDatasetDecodeError>("IdentityDatasetDecodeError", {

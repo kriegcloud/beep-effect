@@ -90,8 +90,8 @@ export type SensitiveTextCode = typeof SensitiveTextCode.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class SensitiveTextHit extends S.Class<SensitiveTextHit>($I`SensitiveTextHit`)(
-  {
+export class SensitiveTextHit extends S.Opaque<SensitiveTextHit, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: SensitiveTextCode.pipe(
       $I.annoteKey("SensitiveTextHit.code", {
         description: "Rule class that matched.",
@@ -102,10 +102,11 @@ export class SensitiveTextHit extends S.Class<SensitiveTextHit>($I`SensitiveText
         description: "Logical address of the offending field, never its contents.",
       })
     ),
-  },
-  $I.annote("SensitiveTextHit", {
-    description: "One refusal raised by the Codex findings reject-scan.",
-  })
+  }).pipe(
+    $I.annoteSchema("SensitiveTextHit", {
+      description: "One refusal raised by the Codex findings reject-scan.",
+    })
+  )
 ) {}
 
 const rules: ReadonlyArray<{ readonly code: SensitiveTextCode; readonly pattern: RegExp }> = [

@@ -37,8 +37,8 @@ const NonNegativeScanDepth = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
  * @category models
  * @since 0.0.0
  */
-export class ScanState extends S.Class<ScanState>($I`ScanState`)(
-  {
+export class ScanState extends S.Opaque<ScanState, { readonly brand: unique symbol }>()(
+  S.Struct({
     current: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefaultTypeKey(Effect.succeed(""))
@@ -69,10 +69,11 @@ export class ScanState extends S.Class<ScanState>($I`ScanState`)(
     ).annotateKey({
       description: "Whether the scanner is currently inside a JSON string literal.",
     }),
-  },
-  $I.annote("ScanState", {
-    description: "The carry state of the incremental block extractor between chunks.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScanState", {
+      description: "The carry state of the incremental block extractor between chunks.",
+    })
+  )
 ) {
   static readonly encodeResult = S.encodeResult(ScanState);
 }
@@ -92,14 +93,15 @@ export class ScanState extends S.Class<ScanState>($I`ScanState`)(
  * @category parsing
  * @since 0.0.0
  */
-export class ScanChunkInput extends S.Class<ScanChunkInput>($I`ScanChunkInput`)(
-  {
+export class ScanChunkInput extends S.Opaque<ScanChunkInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: ScanState.annotateKey({ description: "Scanner carry state before this chunk is folded." }),
     text: S.String.annotateKey({ description: "Next raw structured-output JSON text chunk." }),
-  },
-  $I.annote("ScanChunkInput", {
-    description: "Schema-backed input for one incremental scanner transition.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScanChunkInput", {
+      description: "Schema-backed input for one incremental scanner transition.",
+    })
+  )
 ) {}
 
 /**
@@ -117,16 +119,17 @@ export class ScanChunkInput extends S.Class<ScanChunkInput>($I`ScanChunkInput`)(
  * @category parsing
  * @since 0.0.0
  */
-export class ScanChunkResult extends S.Class<ScanChunkResult>($I`ScanChunkResult`)(
-  {
+export class ScanChunkResult extends S.Opaque<ScanChunkResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: ScanState.annotateKey({ description: "Scanner carry state after this chunk is folded." }),
     completed: S.String.pipe(S.Array, S.mutable).annotateKey({
       description: "Completed assistant-block JSON object slices emitted while folding this chunk.",
     }),
-  },
-  $I.annote("ScanChunkResult", {
-    description: "Schema-backed result for one incremental scanner transition.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScanChunkResult", {
+      description: "Schema-backed result for one incremental scanner transition.",
+    })
+  )
 ) {}
 
 /**
@@ -143,7 +146,7 @@ export class ScanChunkResult extends S.Class<ScanChunkResult>($I`ScanChunkResult
  * @category constructors
  * @since 0.0.0
  */
-export const initialScanState = ScanState.make();
+export const initialScanState = ScanState.make({});
 
 const ScanChunkTransition = Fn({
   input: ScanChunkInput,
@@ -234,13 +237,13 @@ export const scanChunk: {
 } = dual(2, (state: ScanState, text: string): [ScanState, Array<string>] => {
   const result = scanChunkResult({ state, text });
   return [
-    {
+    ScanState.make({
       inBlocksArray: result.state.inBlocksArray,
       depth: result.state.depth,
       inString: result.state.inString,
       escaped: result.state.escaped,
       current: result.state.current,
-    },
+    }),
     result.completed,
   ];
 });

@@ -91,7 +91,10 @@ const respondWithPayload = (
     Match.orElse((range) => Effect.die(`Unexpected fixture range: ${range ?? "missing"}`))
   );
 
-class FixtureDecodeFailure extends S.TaggedError<FixtureDecodeFailure>()("FixtureDecodeFailure", {}) {}
+class FixtureDecodeFailure extends S.TaggedError<FixtureDecodeFailure, { readonly brand: unique symbol }>()(
+  "FixtureDecodeFailure",
+  {}
+) {}
 
 const makeMidBodyFailureResponse = (
   request: HttpClientRequest.HttpClientRequest,

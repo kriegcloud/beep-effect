@@ -647,8 +647,8 @@ export { isProofJobUnitName } from "../../../internal/repo-run/RunScope.schemas.
  * @category models
  * @since 0.0.0
  */
-export class ProofJobRequest extends S.Class<ProofJobRequest>($I`ProofJobRequest`)(
-  {
+export class ProofJobRequest extends S.Opaque<ProofJobRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: YeetRunMode,
     argv: S.Array(S.String),
     checkout: S.NonEmptyString,
@@ -656,11 +656,12 @@ export class ProofJobRequest extends S.Class<ProofJobRequest>($I`ProofJobRequest
     base: S.String,
     head: S.NonEmptyString,
     forwardedEnvNames: S.Array(S.String),
-  },
-  $I.annote("ProofJobRequest", {
-    description:
-      "The yeet words replayed inside a job unit (submit-only flags removed), the checkout it runs in, its git coordinates, and the names (never values) of forwarded environment variables.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobRequest", {
+      description:
+        "The yeet words replayed inside a job unit (submit-only flags removed), the checkout it runs in, its git coordinates, and the names (never values) of forwarded environment variables.",
+    })
+  )
 ) {}
 
 /**
@@ -680,16 +681,18 @@ export class ProofJobRequest extends S.Class<ProofJobRequest>($I`ProofJobRequest
  * @category models
  * @since 0.0.0
  */
-export class ProofJobSubmitter extends S.Class<ProofJobSubmitter>($I`ProofJobSubmitter`)(
-  {
+export class ProofJobSubmitter extends S.Opaque<ProofJobSubmitter, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: S.Int,
     procStart: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     cwd: S.NonEmptyString,
     harness: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProofJobSubmitter", {
-    description: "Pid, process-start identity, working directory, and optional harness name of the submitting process.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobSubmitter", {
+      description:
+        "Pid, process-start identity, working directory, and optional harness name of the submitting process.",
+    })
+  )
 ) {}
 
 /**
@@ -718,8 +721,8 @@ export class ProofJobSubmitter extends S.Class<ProofJobSubmitter>($I`ProofJobSub
  * @category models
  * @since 0.0.0
  */
-export class ProofJobUnit extends S.Class<ProofJobUnit>($I`ProofJobUnit`)(
-  {
+export class ProofJobUnit extends S.Opaque<ProofJobUnit, { readonly brand: unique symbol }>()(
+  S.Struct({
     unitName: S.NonEmptyString,
     slice: S.Literal(PROOF_JOB_SLICE),
     description: S.NonEmptyString,
@@ -728,11 +731,12 @@ export class ProofJobUnit extends S.Class<ProofJobUnit>($I`ProofJobUnit`)(
     execStopPost: S.Array(S.String),
     maxRuntimeSeconds: S.Int.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     invocationId: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProofJobUnit", {
-    description:
-      "The transient systemd user service a job runs in: unit name, slice, description, log path, the exact ExecStart and ExecStopPost words, optional RuntimeMaxSec, and the invocation id once known.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobUnit", {
+      description:
+        "The transient systemd user service a job runs in: unit name, slice, description, log path, the exact ExecStart and ExecStopPost words, optional RuntimeMaxSec, and the invocation id once known.",
+    })
+  )
 ) {}
 
 /**
@@ -751,16 +755,17 @@ export class ProofJobUnit extends S.Class<ProofJobUnit>($I`ProofJobUnit`)(
  * @category models
  * @since 0.0.0
  */
-export class ProofJobRunner extends S.Class<ProofJobRunner>($I`ProofJobRunner`)(
-  {
+export class ProofJobRunner extends S.Opaque<ProofJobRunner, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: S.Int,
     procStart: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     attemptId: UUID.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     startedAt: S.String,
-  },
-  $I.annote("ProofJobRunner", {
-    description: "Pid, process-start identity, attempt id, and start time of the CLI running inside the job unit.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobRunner", {
+      description: "Pid, process-start identity, attempt id, and start time of the CLI running inside the job unit.",
+    })
+  )
 ) {}
 
 /**
@@ -784,17 +789,18 @@ export class ProofJobRunner extends S.Class<ProofJobRunner>($I`ProofJobRunner`)(
  * @category models
  * @since 0.0.0
  */
-export class ProofJobOutcome extends S.Class<ProofJobOutcome>($I`ProofJobOutcome`)(
-  {
+export class ProofJobOutcome extends S.Opaque<ProofJobOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     verdictOutcome: YeetOutcome,
     verdictPath: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     elapsedMs: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     endedAt: S.String,
-  },
-  $I.annote("ProofJobOutcome", {
-    description:
-      "The verdict outcome, verdict artifact path, elapsed time, and end time the job's CLI recorded at normal completion.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobOutcome", {
+      description:
+        "The verdict outcome, verdict artifact path, elapsed time, and end time the job's CLI recorded at normal completion.",
+    })
+  )
 ) {}
 
 /**
@@ -812,14 +818,15 @@ export class ProofJobOutcome extends S.Class<ProofJobOutcome>($I`ProofJobOutcome
  * @category models
  * @since 0.0.0
  */
-export class ProofJobCommandEnd extends S.Class<ProofJobCommandEnd>($I`ProofJobCommandEnd`)(
-  {
+export class ProofJobCommandEnd extends S.Opaque<ProofJobCommandEnd, { readonly brand: unique symbol }>()(
+  S.Struct({
     endedAt: S.String,
     elapsedMs: S.Finite,
-  },
-  $I.annote("ProofJobCommandEnd", {
-    description: "The end time and elapsed milliseconds of a command that ran inside a detached proof job.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobCommandEnd", {
+      description: "The end time and elapsed milliseconds of a command that ran inside a detached proof job.",
+    })
+  )
 ) {}
 
 /**
@@ -889,18 +896,19 @@ export const proofJobOutcomeForExit: {
  * @category models
  * @since 0.0.0
  */
-export class ProofJobSystemdResult extends S.Class<ProofJobSystemdResult>($I`ProofJobSystemdResult`)(
-  {
+export class ProofJobSystemdResult extends S.Opaque<ProofJobSystemdResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     serviceResult: ProofJobServiceResult,
     exitCode: ProofJobExitCode.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     exitStatus: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     invocationId: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     finalizedAt: S.String,
-  },
-  $I.annote("ProofJobSystemdResult", {
-    description:
-      "systemd's SERVICE_RESULT, EXIT_CODE, EXIT_STATUS and INVOCATION_ID as read by the finalizer, plus when it ran.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobSystemdResult", {
+      description:
+        "systemd's SERVICE_RESULT, EXIT_CODE, EXIT_STATUS and INVOCATION_ID as read by the finalizer, plus when it ran.",
+    })
+  )
 ) {}
 
 const proofJobRecordReturnedWaveRowIdsDefault = A.empty<string>();
@@ -957,8 +965,8 @@ const proofJobRecordReturnedWaveRowIdsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class ProofJobRecord extends S.Class<ProofJobRecord>($I`ProofJobRecord`)(
-  {
+export class ProofJobRecord extends S.Opaque<ProofJobRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(PROOF_JOB_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(PROOF_JOB_SCHEMA_VERSION))
     ),
@@ -983,11 +991,12 @@ export class ProofJobRecord extends S.Class<ProofJobRecord>($I`ProofJobRecord`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(proofJobRecordReturnedWaveRowIdsDefault))
     ),
     returnedWaveRedSetKey: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProofJobRecord", {
-    description:
-      "One detached proof job: identity, phase, request, submitter, unit, runner facts, recorded outcome, systemd result, termination reason, cancel request, the pull request a monitor job follows, and the inbox rows and required red set job wait already returned.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobRecord", {
+      description:
+        "One detached proof job: identity, phase, request, submitter, unit, runner facts, recorded outcome, systemd result, termination reason, cancel request, the pull request a monitor job follows, and the inbox rows and required red set job wait already returned.",
+    })
+  )
 ) {}
 
 /**
@@ -1026,14 +1035,15 @@ export const isSettledProofJob = (record: Pick<ProofJobRecord, "phase" | "system
  * @category models
  * @since 0.0.0
  */
-export class ReadyMonitorTarget extends S.Class<ReadyMonitorTarget>($I`ReadyMonitorTarget`)(
-  {
+export class ReadyMonitorTarget extends S.Opaque<ReadyMonitorTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     branch: S.NonEmptyString,
     prNumber: S.Finite,
-  },
-  $I.annote("ReadyMonitorTarget", {
-    description: "The branch and pull request number a publish would submit a readiness monitor for.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReadyMonitorTarget", {
+      description: "The branch and pull request number a publish would submit a readiness monitor for.",
+    })
+  )
 ) {}
 
 /**
@@ -1219,8 +1229,8 @@ export const proofJobRowSeverityFor: {
  * @category models
  * @since 0.0.0
  */
-export class YeetProofJobCapsule extends S.Class<YeetProofJobCapsule>($I`YeetProofJobCapsule`)(
-  {
+export class YeetProofJobCapsule extends S.Opaque<YeetProofJobCapsule, { readonly brand: unique symbol }>()(
+  S.Struct({
     jobId: UUID,
     mode: YeetRunMode,
     branch: S.NonEmptyString,
@@ -1233,11 +1243,12 @@ export class YeetProofJobCapsule extends S.Class<YeetProofJobCapsule>($I`YeetPro
     terminationReason: S.NullOr(ProofJobTerminationReason),
     elapsedMs: S.NullOr(S.Finite),
     logPath: S.NonEmptyString,
-  },
-  $I.annote("YeetProofJobCapsule", {
-    description:
-      "One finished or terminated detached proof job as delivered to the checkout inbox: job, unit, systemd result, verdict or termination reason, elapsed time, and log path.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetProofJobCapsule", {
+      description:
+        "One finished or terminated detached proof job as delivered to the checkout inbox: job, unit, systemd result, verdict or termination reason, elapsed time, and log path.",
+    })
+  )
 ) {}
 
 /**
@@ -1263,18 +1274,19 @@ export class YeetProofJobCapsule extends S.Class<YeetProofJobCapsule>($I`YeetPro
  * @category models
  * @since 0.0.0
  */
-export class ProofJobSubmission extends S.Class<ProofJobSubmission>($I`ProofJobSubmission`)(
-  {
+export class ProofJobSubmission extends S.Opaque<ProofJobSubmission, { readonly brand: unique symbol }>()(
+  S.Struct({
     request: ProofJobRequest,
     submitter: ProofJobSubmitter,
     execPath: S.NonEmptyString,
     entrypoint: S.NonEmptyString,
     maxRuntimeSeconds: S.Int.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProofJobSubmission", {
-    description:
-      "Inputs to submit one detached proof job: request, submitter, the bun binary and CLI entrypoint to replay, and an optional RuntimeMaxSec.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobSubmission", {
+      description:
+        "Inputs to submit one detached proof job: request, submitter, the bun binary and CLI entrypoint to replay, and an optional RuntimeMaxSec.",
+    })
+  )
 ) {}
 
 /**
@@ -1293,14 +1305,15 @@ export class ProofJobSubmission extends S.Class<ProofJobSubmission>($I`ProofJobS
  * @category models
  * @since 0.0.0
  */
-export class ProofJobWaitOptions extends S.Class<ProofJobWaitOptions>($I`ProofJobWaitOptions`)(
-  {
+export class ProofJobWaitOptions extends S.Opaque<ProofJobWaitOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     timeoutMs: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     pollIntervalMs: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(2000))),
-  },
-  $I.annote("ProofJobWaitOptions", {
-    description: "Optional overall timeout and poll interval for waiting on a detached proof job.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobWaitOptions", {
+      description: "Optional overall timeout and poll interval for waiting on a detached proof job.",
+    })
+  )
 ) {}
 
 /**
@@ -1346,15 +1359,16 @@ export type ProofJobWaitOutcome = typeof ProofJobWaitOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProofJobWaitExit extends S.Class<ProofJobWaitExit>($I`ProofJobWaitExit`)(
-  {
+export class ProofJobWaitExit extends S.Opaque<ProofJobWaitExit, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcome: ProofJobWaitOutcome,
     exitCode: S.Finite,
     summary: S.NonEmptyString,
-  },
-  $I.annote("ProofJobWaitExit", {
-    description: "Exit code and operator summary for one yeet job wait outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobWaitExit", {
+      description: "Exit code and operator summary for one yeet job wait outcome.",
+    })
+  )
 ) {}
 
 /**
@@ -1474,17 +1488,18 @@ export const proofJobSettledWaitOutcome = (record: Pick<ProofJobRecord, "phase" 
  * @category models
  * @since 0.0.0
  */
-export class ProofJobFinalization extends S.Class<ProofJobFinalization>($I`ProofJobFinalization`)(
-  {
+export class ProofJobFinalization extends S.Opaque<ProofJobFinalization, { readonly brand: unique symbol }>()(
+  S.Struct({
     record: ProofJobRecord,
     inboxRowId: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     attemptTerminated: S.Boolean,
     duplicate: S.Boolean,
-  },
-  $I.annote("ProofJobFinalization", {
-    description:
-      "Result of finalizing a job: the stamped record, the inbox row id, whether a journal row was appended, and whether the call was a duplicate.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobFinalization", {
+      description:
+        "Result of finalizing a job: the stamped record, the inbox row id, whether a journal row was appended, and whether the call was a duplicate.",
+    })
+  )
 ) {}
 
 /**

@@ -41,7 +41,7 @@ const $I = $ScratchpadId.create("effect-ontology/Runtime/LlmSemaphore");
  * @category errors
  * @since 0.0.0
  */
-export class SemaphoreTimeoutError extends S.TaggedError<SemaphoreTimeoutError>($I`SemaphoreTimeoutError`)(
+export class SemaphoreTimeoutError extends S.TaggedError<SemaphoreTimeoutError, { readonly brand: unique symbol }>($I`SemaphoreTimeoutError`)(
   "SemaphoreTimeoutError",
   {
     message: ErrorMessage.annotateKey({

@@ -24,7 +24,7 @@ const $I = $ScratchpadId.create("effected/markdown/internal/lineIndex");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidLineTableError extends S.TaggedError<InvalidLineTableError>($I`InvalidLineTableError`)(
+export class InvalidLineTableError extends S.TaggedError<InvalidLineTableError, { readonly brand: unique symbol }>($I`InvalidLineTableError`)(
 	"InvalidLineTableError",
 	{
 		message: S.String.annotateKey({

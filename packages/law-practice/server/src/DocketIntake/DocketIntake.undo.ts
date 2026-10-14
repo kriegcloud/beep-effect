@@ -142,12 +142,11 @@ export type DocketUndoMessageAction = typeof DocketUndoMessageAction.Type;
  * @category models
  * @since 0.0.0
  */
-export class DocketUndoEvent extends S.Class<DocketUndoEvent>($I`DocketUndoEvent`)(
-  {
+export class DocketUndoEvent extends S.Opaque<DocketUndoEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     action: DocketUndoEventAction.annotateKey({ description: "What the undo does with the event." }),
     eventId: S.NonEmptyString.annotateKey({ description: "Calendar event id." }),
-  },
-  $I.annote("DocketUndoEvent", { description: "One event a run created and what an undo does with it." })
+  }).pipe($I.annoteSchema("DocketUndoEvent", { description: "One event a run created and what an undo does with it." }))
 ) {}
 
 /**
@@ -166,16 +165,17 @@ export class DocketUndoEvent extends S.Class<DocketUndoEvent>($I`DocketUndoEvent
  * @category models
  * @since 0.0.0
  */
-export class DocketUndoMessage extends S.Class<DocketUndoMessage>($I`DocketUndoMessage`)(
-  {
+export class DocketUndoMessage extends S.Opaque<DocketUndoMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     action: DocketUndoMessageAction.annotateKey({ description: "What the undo does with the message." }),
     messageId: S.NonEmptyString.annotateKey({ description: "Message id." }),
     receivedAt: S.Option(S.NonEmptyString).annotateKey({ description: "UTC receipt time, when the journal has it." }),
     markedLaterBy: S.Option(DocketRunId)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "The later run that marked the message again, when it is kept for that run." }),
-  },
-  $I.annote("DocketUndoMessage", { description: "One message a run marked and what an undo does with it." })
+  }).pipe(
+    $I.annoteSchema("DocketUndoMessage", { description: "One message a run marked and what an undo does with it." })
+  )
 ) {}
 
 /**
@@ -193,13 +193,12 @@ export class DocketUndoMessage extends S.Class<DocketUndoMessage>($I`DocketUndoM
  * @category models
  * @since 0.0.0
  */
-export class DocketUndoPlan extends S.Class<DocketUndoPlan>($I`DocketUndoPlan`)(
-  {
+export class DocketUndoPlan extends S.Opaque<DocketUndoPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     events: S.Array(DocketUndoEvent).annotateKey({ description: "Events the run created." }),
     messages: S.Array(DocketUndoMessage).annotateKey({ description: "Messages the run marked." }),
     runId: DocketRunId.annotateKey({ description: "The run to undo." }),
-  },
-  $I.annote("DocketUndoPlan", { description: "What an undo of one docket intake run will do." })
+  }).pipe($I.annoteSchema("DocketUndoPlan", { description: "What an undo of one docket intake run will do." }))
 ) {}
 
 /**
@@ -217,8 +216,8 @@ export class DocketUndoPlan extends S.Class<DocketUndoPlan>($I`DocketUndoPlan`)(
  * @category models
  * @since 0.0.0
  */
-export class DocketUndoReport extends S.Class<DocketUndoReport>($I`DocketUndoReport`)(
-  {
+export class DocketUndoReport extends S.Opaque<DocketUndoReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: DocketRunId.annotateKey({ description: "The run undone." }),
     dryRun: S.Boolean.annotateKey({ description: "Whether nothing was written." }),
     deleted: S.Natural.annotateKey({ description: "Provisional events deleted." }),
@@ -231,8 +230,7 @@ export class DocketUndoReport extends S.Class<DocketUndoReport>($I`DocketUndoRep
     alreadyUndone: S.Natural.annotateKey({
       description: "Events and messages an earlier undo of the same run already handled.",
     }),
-  },
-  $I.annote("DocketUndoReport", { description: "Counts of one docket intake undo." })
+  }).pipe($I.annoteSchema("DocketUndoReport", { description: "Counts of one docket intake undo." }))
 ) {}
 
 const isGraphStatus = (status: number) => (error: M365Error) =>
@@ -419,12 +417,13 @@ export const planDocketUndo: (input: {
  * @category models
  * @since 0.0.0
  */
-export class DocketLedgerClearance extends S.Class<DocketLedgerClearance>($I`DocketLedgerClearance`)(
-  {
+export class DocketLedgerClearance extends S.Opaque<DocketLedgerClearance, { readonly brand: unique symbol }>()(
+  S.Struct({
     cleared: S.Natural.annotateKey({ description: "Ledger records removed." }),
     state: DocketIntakeState.annotateKey({ description: "The state without them." }),
-  },
-  $I.annote("DocketLedgerClearance", { description: "State after an undone run's ledger records are removed." })
+  }).pipe(
+    $I.annoteSchema("DocketLedgerClearance", { description: "State after an undone run's ledger records are removed." })
+  )
 ) {}
 
 /**
@@ -600,7 +599,7 @@ export const applyDocketUndo: (input: {
 
   const record = Effect.fnUntraced(function* (
     kind: O.Option<DocketJournalKind>,
-    fields: Pick<ConstructorParameters<typeof DocketJournalEntry>[0], "eventId" | "messageId">
+    fields: Pick<Parameters<typeof DocketJournalEntry.make>[0], "eventId" | "messageId">
   ) {
     if (O.isNone(kind)) {
       return;
@@ -609,19 +608,31 @@ export const applyDocketUndo: (input: {
     yield* journal.append([DocketJournalEntry.make({ ...fields, at, kind: kind.value, runId: plan.runId })]);
   });
 
+  const deleteIfStillProvisional = Effect.fnUntraced(function* (eventId: string) {
+    // Recheck eligibility immediately before deletion, and bind the delete
+    // to that version so a later Outlook edit fails closed.
+    const current = yield* orGone(m365.getEvent(M365GetEventRequest.make({ eventId, userId })), null, "calendar").pipe(
+      Effect.map(O.fromNullishOr)
+    );
+    if (O.isNone(current)) return DocketUndoEventAction.Enum.gone;
+    if (eventAction(O.getOrElse(current.value.categories, A.empty<string>)) !== "delete") {
+      return DocketUndoEventAction.Enum.keep;
+    }
+    const changeKey = O.filter(current.value.changeKey, Str.isNonEmpty);
+    if (O.isNone(changeKey)) return DocketUndoEventAction.Enum.keep;
+    return yield* orGone(
+      m365
+        .deleteEvent(M365DeleteEventRequest.make({ changeKey, eventId, userId }))
+        .pipe(Effect.as(DocketUndoEventAction.Enum.delete)),
+      DocketUndoEventAction.Enum.gone,
+      "calendar"
+    );
+  });
+
   const eventActions = yield* Effect.forEach(
     plan.events,
     Effect.fnUntraced(function* (target) {
-      const action =
-        target.action === "delete"
-          ? yield* orGone(
-              m365
-                .deleteEvent(M365DeleteEventRequest.make({ eventId: target.eventId, userId }))
-                .pipe(Effect.as(DocketUndoEventAction.Enum.delete)),
-              DocketUndoEventAction.Enum.gone,
-              "calendar"
-            )
-          : target.action;
+      const action = target.action === "delete" ? yield* deleteIfStillProvisional(target.eventId) : target.action;
       yield* record(eventLineKind(action), { eventId: O.some(target.eventId) });
       return action;
     })
@@ -648,6 +659,6 @@ export const applyDocketUndo: (input: {
   );
 
   const cleared = clearDocketRun(yield* store.load, plan);
-  yield* store.save(cleared.state);
+  yield* store.save(DocketIntakeState.make(cleared.state));
   return reportOf({ dryRun: false, eventActions, ledgerCleared: cleared.cleared, messageActions, runId: plan.runId });
 });

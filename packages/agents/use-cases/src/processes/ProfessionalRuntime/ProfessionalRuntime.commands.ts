@@ -62,15 +62,16 @@ const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalR
  * @category commands
  * @since 0.0.0
  */
-export class ProposeCandidateOutputSet extends S.Class<ProposeCandidateOutputSet>($I`ProposeCandidateOutputSet`)(
-  {
+export class ProposeCandidateOutputSet extends S.Opaque<ProposeCandidateOutputSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputSet: CandidateOutputSet.annotateKey({ description: "Candidate output set proposed through the SDK." }),
     producedByPrincipalId: S.NonEmptyString.annotateKey({
       description: "Principal identifier for the runtime producer proposing the output set.",
     }),
     scope: RuntimeScope.annotateKey({ description: "Runtime scope for the proposal command." }),
-  },
-  $I.annote("ProposeCandidateOutputSet", {
-    description: "Command proposing a candidate output set with producing-principal provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProposeCandidateOutputSet", {
+      description: "Command proposing a candidate output set with producing-principal provenance.",
+    })
+  )
 ) {}

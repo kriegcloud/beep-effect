@@ -40,9 +40,12 @@ const FrozenFixtureSourceId = LiteralKit([
  * @category fixtures
  * @since 0.0.0
  */
-export class FrozenSourceHash extends S.Class<FrozenSourceHash>($I`FrozenSourceHash`)(
-  { id: FrozenFixtureSourceId, sha256: Sha256Hex },
-  $I.annote("FrozenSourceHash", { description: "A committed source identifier and deterministic SHA-256 digest." })
+export class FrozenSourceHash extends S.Opaque<FrozenSourceHash, { readonly brand: unique symbol }>()(
+  S.Struct({ id: FrozenFixtureSourceId, sha256: Sha256Hex }).pipe(
+    $I.annoteSchema("FrozenSourceHash", {
+      description: "A committed source identifier and deterministic SHA-256 digest.",
+    })
+  )
 ) {}
 
 const CanonicalFixtureSources = A.flatMap(CanonicalNormalizedFixtures, (fixture) => fixture.sources);
@@ -126,9 +129,12 @@ const FrozenFixtureManifestChecks = S.makeFilterGroup(
  * @category fixtures
  * @since 0.0.0
  */
-export class FrozenFixtureManifest extends S.Class<FrozenFixtureManifest>($I`FrozenFixtureManifest`)(
-  FrozenFixtureManifestFields.mapFields(identity).check(FrozenFixtureManifestChecks),
-  $I.annote("FrozenFixtureManifest", {
-    description: "The committed acceptance oracle for fixture bytes, exact spans, and deliberate unknowns.",
-  })
+export class FrozenFixtureManifest extends S.Opaque<FrozenFixtureManifest, { readonly brand: unique symbol }>()(
+  FrozenFixtureManifestFields.mapFields(identity)
+    .check(FrozenFixtureManifestChecks)
+    .pipe(
+      $I.annoteSchema("FrozenFixtureManifest", {
+        description: "The committed acceptance oracle for fixture bytes, exact spans, and deliberate unknowns.",
+      })
+    )
 ) {}

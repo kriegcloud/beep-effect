@@ -87,8 +87,8 @@ export type SkillPatchPlanOutcome = typeof SkillPatchPlanOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillPatchAddReceipt extends S.Class<SkillPatchAddReceipt>($I`SkillPatchAddReceipt`)(
-  {
+export class SkillPatchAddReceipt extends S.Opaque<SkillPatchAddReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("skills-patch-add-plan/v1"),
     planDigest: Sha256Hex,
     lockSha256: Sha256Hex,
@@ -99,10 +99,11 @@ export class SkillPatchAddReceipt extends S.Class<SkillPatchAddReceipt>($I`Skill
     effective: SkillEffective,
     outcome: SkillPatchPlanOutcome,
     lock: S.OptionFromOptionalKey(SkillsLockWrittenFile),
-  },
-  $I.annote("SkillPatchAddReceipt", {
-    description: "A digest-sealed plan that turns a hand edit of vendored output into new patches, and its outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillPatchAddReceipt", {
+      description: "A digest-sealed plan that turns a hand edit of vendored output into new patches, and its outcome.",
+    })
+  )
 ) {}
 
 /**
@@ -124,15 +125,16 @@ export class SkillPatchAddReceipt extends S.Class<SkillPatchAddReceipt>($I`Skill
  * @category models
  * @since 0.0.0
  */
-export class SkillPatchLabelChange extends S.Class<SkillPatchLabelChange>($I`SkillPatchLabelChange`)(
-  {
+export class SkillPatchLabelChange extends S.Opaque<SkillPatchLabelChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     patch: S.String,
     from: SkillPatchLabel,
     to: SkillPatchLabel,
-  },
-  $I.annote("SkillPatchLabelChange", {
-    description: "A patch whose lock label moves to the label its ledger classifications agree on.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillPatchLabelChange", {
+      description: "A patch whose lock label moves to the label its ledger classifications agree on.",
+    })
+  )
 ) {}
 
 /**
@@ -197,14 +199,15 @@ export type SkillPatchLabelPendingReason = typeof SkillPatchLabelPendingReason.T
  * @category models
  * @since 0.0.0
  */
-export class SkillPatchLabelPending extends S.Class<SkillPatchLabelPending>($I`SkillPatchLabelPending`)(
-  {
+export class SkillPatchLabelPending extends S.Opaque<SkillPatchLabelPending, { readonly brand: unique symbol }>()(
+  S.Struct({
     patch: S.String,
     reason: SkillPatchLabelPendingReason,
-  },
-  $I.annote("SkillPatchLabelPending", {
-    description: "A patch that keeps its current label and why.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillPatchLabelPending", {
+      description: "A patch that keeps its current label and why.",
+    })
+  )
 ) {}
 
 /**
@@ -229,8 +232,8 @@ export class SkillPatchLabelPending extends S.Class<SkillPatchLabelPending>($I`S
  * @category models
  * @since 0.0.0
  */
-export class SkillPatchLabelReceipt extends S.Class<SkillPatchLabelReceipt>($I`SkillPatchLabelReceipt`)(
-  {
+export class SkillPatchLabelReceipt extends S.Opaque<SkillPatchLabelReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("skills-patch-label-plan/v1"),
     planDigest: Sha256Hex,
     lockSha256: Sha256Hex,
@@ -239,8 +242,9 @@ export class SkillPatchLabelReceipt extends S.Class<SkillPatchLabelReceipt>($I`S
     pending: S.Array(SkillPatchLabelPending),
     outcome: SkillPatchPlanOutcome,
     lock: S.OptionFromOptionalKey(SkillsLockWrittenFile),
-  },
-  $I.annote("SkillPatchLabelReceipt", {
-    description: "A digest-sealed plan that moves patch labels to the ledger's classifications, and its outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillPatchLabelReceipt", {
+      description: "A digest-sealed plan that moves patch labels to the ledger's classifications, and its outcome.",
+    })
+  )
 ) {}

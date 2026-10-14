@@ -43,11 +43,12 @@ const $I = $RepoConfigsId.create("cache/Cache.governance.policy");
  * @category models
  * @since 0.0.0
  */
-export class CacheReviewDecision extends S.Class<CacheReviewDecision>($I`CacheReviewDecision`)(
-  { reviewer: S.NonEmptyString, reason: S.NonEmptyString, basis: CacheEvidenceReference },
-  $I.annote("CacheReviewDecision", {
-    description: "Names the reviewer and the content-addressed basis for a state transition.",
-  })
+export class CacheReviewDecision extends S.Opaque<CacheReviewDecision, { readonly brand: unique symbol }>()(
+  S.Struct({ reviewer: S.NonEmptyString, reason: S.NonEmptyString, basis: CacheEvidenceReference }).pipe(
+    $I.annoteSchema("CacheReviewDecision", {
+      description: "Names the reviewer and the content-addressed basis for a state transition.",
+    })
+  )
 ) {}
 
 /**
@@ -102,11 +103,12 @@ export type CacheQualificationStatus = typeof CacheQualificationStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class CacheQualificationEntry extends S.Class<CacheQualificationEntry>($I`CacheQualificationEntry`)(
-  { key: CacheQualificationKey, status: CacheQualificationStatus },
-  $I.annote("CacheQualificationEntry", {
-    description: "One explicit assessment; omitted census tuples remain unassessed.",
-  })
+export class CacheQualificationEntry extends S.Opaque<CacheQualificationEntry, { readonly brand: unique symbol }>()(
+  S.Struct({ key: CacheQualificationKey, status: CacheQualificationStatus }).pipe(
+    $I.annoteSchema("CacheQualificationEntry", {
+      description: "One explicit assessment; omitted census tuples remain unassessed.",
+    })
+  )
 ) {}
 
 /**
@@ -123,11 +125,12 @@ export class CacheQualificationEntry extends S.Class<CacheQualificationEntry>($I
  * @category models
  * @since 0.0.0
  */
-export class CacheQualificationEvent extends S.Class<CacheQualificationEvent>($I`CacheQualificationEvent`)(
-  { revision: PosInt, entry: CacheQualificationEntry },
-  $I.annote("CacheQualificationEvent", {
-    description: "One retained review decision in the append-only qualification history.",
-  })
+export class CacheQualificationEvent extends S.Opaque<CacheQualificationEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ revision: PosInt, entry: CacheQualificationEntry }).pipe(
+    $I.annoteSchema("CacheQualificationEvent", {
+      description: "One retained review decision in the append-only qualification history.",
+    })
+  )
 ) {}
 
 /**
@@ -145,16 +148,17 @@ export class CacheQualificationEvent extends S.Class<CacheQualificationEvent>($I
  * @category models
  * @since 0.0.0
  */
-export class CacheQualificationStore extends S.Class<CacheQualificationStore>($I`CacheQualificationStore`)(
-  {
+export class CacheQualificationStore extends S.Opaque<CacheQualificationStore, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-qualification-store/v1"),
     revision: S.Natural,
     entries: S.Array(CacheQualificationEntry),
     history: S.Array(CacheQualificationEvent),
-  },
-  $I.annote("CacheQualificationStore", {
-    description: "Single-writer reviewed qualification ledger with optimistic revision checking.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheQualificationStore", {
+      description: "Single-writer reviewed qualification ledger with optimistic revision checking.",
+    })
+  )
 ) {}
 
 /**
@@ -171,17 +175,18 @@ export class CacheQualificationStore extends S.Class<CacheQualificationStore>($I
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyNode extends S.Class<CachePolicyNode>($I`CachePolicyNode`)(
-  {
+export class CachePolicyNode extends S.Opaque<CachePolicyNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     computation: CacheQualificationKey.fields.computation,
     command: S.NonEmptyString,
     commandDigest: Sha256Hex,
     dependencies: S.Array(S.String),
     configuration: CacheTaskConfiguration,
-  },
-  $I.annote("CachePolicyNode", {
-    description: "Reviewed command and effective configuration for an executable computation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePolicyNode", {
+      description: "Reviewed command and effective configuration for an executable computation.",
+    })
+  )
 ) {}
 
 /**
@@ -198,11 +203,12 @@ export class CachePolicyNode extends S.Class<CachePolicyNode>($I`CachePolicyNode
  * @category models
  * @since 0.0.0
  */
-export class CachePolicySource extends S.Class<CachePolicySource>($I`CachePolicySource`)(
-  { path: S.NonEmptyString, sha256: Sha256Hex },
-  $I.annote("CachePolicySource", {
-    description: "Configuration source digest retained for root and child drift attribution.",
-  })
+export class CachePolicySource extends S.Opaque<CachePolicySource, { readonly brand: unique symbol }>()(
+  S.Struct({ path: S.NonEmptyString, sha256: Sha256Hex }).pipe(
+    $I.annoteSchema("CachePolicySource", {
+      description: "Configuration source digest retained for root and child drift attribution.",
+    })
+  )
 ) {}
 
 /**
@@ -219,11 +225,12 @@ export class CachePolicySource extends S.Class<CachePolicySource>($I`CachePolicy
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyProjection extends S.Class<CachePolicyProjection>($I`CachePolicyProjection`)(
-  { globalConfiguration: S.Json, nodes: S.Array(CachePolicyNode), sources: S.Array(CachePolicySource) },
-  $I.annote("CachePolicyProjection", {
-    description: "Deterministic effective settings, independent of source-value task hashes.",
-  })
+export class CachePolicyProjection extends S.Opaque<CachePolicyProjection, { readonly brand: unique symbol }>()(
+  S.Struct({ globalConfiguration: S.Json, nodes: S.Array(CachePolicyNode), sources: S.Array(CachePolicySource) }).pipe(
+    $I.annoteSchema("CachePolicyProjection", {
+      description: "Deterministic effective settings, independent of source-value task hashes.",
+    })
+  )
 ) {}
 
 /**
@@ -344,18 +351,19 @@ export const cacheBaselineSubjects = (projection: CachePolicyProjection): Readon
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyBaseline extends S.Class<CachePolicyBaseline>($I`CachePolicyBaseline`)(
-  {
+export class CachePolicyBaseline extends S.Opaque<CachePolicyBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-qualification-baseline/v2"),
     profile: S.NonEmptyString,
     epoch: S.NonEmptyString,
     scope: S.NonEmptyArray(CacheQualificationKey.fields.computation),
     reviews: S.Record(CacheBaselineSubject, CacheReviewDecision),
     projection: CachePolicyProjection,
-  },
-  $I.annote("CachePolicyBaseline", {
-    description: "Explicitly reviewed legacy posture and the currently authorized implementation scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePolicyBaseline", {
+      description: "Explicitly reviewed legacy posture and the currently authorized implementation scope.",
+    })
+  )
 ) {}
 
 /**
@@ -378,17 +386,18 @@ export class CachePolicyBaseline extends S.Class<CachePolicyBaseline>($I`CachePo
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyBaselineReview extends S.Class<CachePolicyBaselineReview>($I`CachePolicyBaselineReview`)(
-  {
+export class CachePolicyBaselineReview extends S.Opaque<CachePolicyBaselineReview, { readonly brand: unique symbol }>()(
+  S.Struct({
     review: CacheReviewDecision,
     scope: CachePolicyBaseline.fields.scope,
     profile: CachePolicyBaseline.fields.profile,
     epoch: CachePolicyBaseline.fields.epoch,
     subjects: CacheBaselineSubject.pipe(S.Array, S.OptionFromOptionalKey),
-  },
-  $I.annote("CachePolicyBaselineReview", {
-    description: "One reviewed re-record of the baseline: the review decision and the posture it authorizes.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePolicyBaselineReview", {
+      description: "One reviewed re-record of the baseline: the review decision and the posture it authorizes.",
+    })
+  )
 ) {}
 
 /**
@@ -405,13 +414,19 @@ export class CachePolicyBaselineReview extends S.Class<CachePolicyBaselineReview
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyBaselineRecordRequest extends S.Class<CachePolicyBaselineRecordRequest>(
-  $I`CachePolicyBaselineRecordRequest`
-)(
-  { prior: S.Option(CachePolicyBaseline), projection: CachePolicyProjection, review: CachePolicyBaselineReview },
-  $I.annote("CachePolicyBaselineRecordRequest", {
-    description: "Inputs to one baseline re-record: the committed baseline, the observed projection and the review.",
-  })
+export class CachePolicyBaselineRecordRequest extends S.Opaque<
+  CachePolicyBaselineRecordRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    prior: S.Option(CachePolicyBaseline),
+    projection: CachePolicyProjection,
+    review: CachePolicyBaselineReview,
+  }).pipe(
+    $I.annoteSchema("CachePolicyBaselineRecordRequest", {
+      description: "Inputs to one baseline re-record: the committed baseline, the observed projection and the review.",
+    })
+  )
 ) {}
 
 /**
@@ -428,16 +443,17 @@ export class CachePolicyBaselineRecordRequest extends S.Class<CachePolicyBaselin
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyBaselineRecord extends S.Class<CachePolicyBaselineRecord>($I`CachePolicyBaselineRecord`)(
-  {
+export class CachePolicyBaselineRecord extends S.Opaque<CachePolicyBaselineRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseline: CachePolicyBaseline,
     stamped: S.Array(CacheBaselineSubject),
     carried: S.Array(CacheBaselineSubject),
     dropped: S.Array(CacheBaselineSubject),
-  },
-  $I.annote("CachePolicyBaselineRecord", {
-    description: "A recorded baseline with the subjects the new review stamped, carried forward or dropped.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePolicyBaselineRecord", {
+      description: "A recorded baseline with the subjects the new review stamped, carried forward or dropped.",
+    })
+  )
 ) {}
 
 /**
@@ -454,13 +470,15 @@ export class CachePolicyBaselineRecord extends S.Class<CachePolicyBaselineRecord
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyBaselineRejection extends S.Class<CachePolicyBaselineRejection>(
-  $I`CachePolicyBaselineRejection`
-)(
-  { unreviewed: S.Array(CacheBaselineSubject), unknown: S.Array(CacheBaselineSubject) },
-  $I.annote("CachePolicyBaselineRejection", {
-    description: "Changed subjects the review did not name, or named subjects that do not exist.",
-  })
+export class CachePolicyBaselineRejection extends S.Opaque<
+  CachePolicyBaselineRejection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ unreviewed: S.Array(CacheBaselineSubject), unknown: S.Array(CacheBaselineSubject) }).pipe(
+    $I.annoteSchema("CachePolicyBaselineRejection", {
+      description: "Changed subjects the review did not name, or named subjects that do not exist.",
+    })
+  )
 ) {}
 
 /**
@@ -477,17 +495,18 @@ export class CachePolicyBaselineRejection extends S.Class<CachePolicyBaselineRej
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyAuditRequest extends S.Class<CachePolicyAuditRequest>($I`CachePolicyAuditRequest`)(
-  {
+export class CachePolicyAuditRequest extends S.Opaque<CachePolicyAuditRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseline: CachePolicyBaseline,
     current: CachePolicyProjection,
     store: CacheQualificationStore,
     profile: S.NonEmptyString,
     epoch: S.NonEmptyString,
-  },
-  $I.annote("CachePolicyAuditRequest", {
-    description: "Inputs to the read-only audit for one named environment and epoch.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePolicyAuditRequest", {
+      description: "Inputs to the read-only audit for one named environment and epoch.",
+    })
+  )
 ) {}
 
 /**
@@ -537,9 +556,12 @@ export type CachePolicyFindingKind = typeof CachePolicyFindingKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyFinding extends S.Class<CachePolicyFinding>($I`CachePolicyFinding`)(
-  { kind: CachePolicyFindingKind, subject: S.NonEmptyString, blocking: S.Boolean },
-  $I.annote("CachePolicyFinding", { description: "An attributable policy finding with its enforcement severity." })
+export class CachePolicyFinding extends S.Opaque<CachePolicyFinding, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: CachePolicyFindingKind, subject: S.NonEmptyString, blocking: S.Boolean }).pipe(
+    $I.annoteSchema("CachePolicyFinding", {
+      description: "An attributable policy finding with its enforcement severity.",
+    })
+  )
 ) {}
 
 /**
@@ -556,15 +578,16 @@ export class CachePolicyFinding extends S.Class<CachePolicyFinding>($I`CachePoli
  * @category models
  * @since 0.0.0
  */
-export class CachePolicyAuditReport extends S.Class<CachePolicyAuditReport>($I`CachePolicyAuditReport`)(
-  {
+export class CachePolicyAuditReport extends S.Opaque<CachePolicyAuditReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-policy-audit/v1"),
     findings: S.Array(CachePolicyFinding),
     unassessed: S.Array(S.String),
-  },
-  $I.annote("CachePolicyAuditReport", {
-    description: "Blocking findings and honest unassessed legacy population for an audit.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePolicyAuditReport", {
+      description: "Blocking findings and honest unassessed legacy population for an audit.",
+    })
+  )
 ) {}
 
 const sameConfiguration = S.toEquivalence(CacheTaskConfiguration);

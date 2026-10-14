@@ -344,11 +344,13 @@ describe("@beep/ciops live replay", () => {
   it.layer(PlatformLive, { timeout: "20 seconds" })((it) => {
     it.effect("effect 4.0.0 keeps a class struct check through .extend but not through a .fields spread", () =>
       Effect.gen(function* () {
-        class Base extends S.Class<Base>("LiveReplayTest/Base")(
+        class Base extends S.Class<Base, { readonly brand: unique symbol }>("LiveReplayTest/Base")(
           S.Struct({ a: S.Finite }).check(S.makeFilter((base: { readonly a: number }) => base.a > 0))
         ) {}
         class Extended extends Base.extend<Extended>("LiveReplayTest/Extended")({ b: S.Finite }) {}
-        class Spread extends S.Class<Spread>("LiveReplayTest/Spread")({ ...Base.fields, b: S.Finite }) {}
+        class Spread extends S.Opaque<Spread, { readonly brand: unique symbol }>()(
+          S.Struct({ ...Base.fields, b: S.Finite }).annotate({ identifier: "LiveReplayTest/Spread" })
+        ) {}
 
         const extended = S.decodeOption(Extended)({ a: 0, b: 1 });
         const spreadDecoded = O.isSome(S.decodeOption(Spread)({ a: 0, b: 1 }));

@@ -624,7 +624,7 @@ export type L2DropReason = typeof L2DropReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class MemoryExtractionError extends S.TaggedError<MemoryExtractionError>()(
+export class MemoryExtractionError extends S.TaggedError<MemoryExtractionError, { readonly brand: unique symbol }>()(
   "MemoryExtractionError",
   { extractor: S.String, message: S.String },
   $I.annoteError<MemoryExtractionError>("MemoryExtractionError", {
@@ -709,7 +709,7 @@ export const memoryExtractionError: {
  * @category errors
  * @since 0.0.0
  */
-export class WorkingObservationExtractionError extends S.TaggedError<WorkingObservationExtractionError>()(
+export class WorkingObservationExtractionError extends S.TaggedError<WorkingObservationExtractionError, { readonly brand: unique symbol }>()(
   "WorkingObservationExtractionError",
   { stage: S.String, extractor: S.String, message: S.String },
   $I.annoteError<WorkingObservationExtractionError>("WorkingObservationExtractionError", {
@@ -764,7 +764,7 @@ export const workingObservationExtractionError = (stage: string): WorkingObserva
  * @category errors
  * @since 0.0.0
  */
-export class MemoryContractError extends S.TaggedError<MemoryContractError>()(
+export class MemoryContractError extends S.TaggedError<MemoryContractError, { readonly brand: unique symbol }>()(
   "MemoryContractError",
   { message: S.String },
   $I.annoteError<MemoryContractError>("MemoryContractError", {

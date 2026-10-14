@@ -56,8 +56,8 @@ export type ProcessFilesFailurePolicy = typeof ProcessFilesFailurePolicy.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProcessFilesOptions extends S.Class<ProcessFilesOptions>($I`ProcessFilesOptions`)(
-  {
+export class ProcessFilesOptions extends S.Opaque<ProcessFilesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     engine: FileProcessingEngineFamily,
     exportChildren: S.Boolean,
     failurePolicy: ProcessFilesFailurePolicy,
@@ -69,10 +69,11 @@ export class ProcessFilesOptions extends S.Class<ProcessFilesOptions>($I`Process
     pffexportPath: S.optionalKey(S.String),
     tikaJarPath: S.optionalKey(S.String),
     tikaUrl: S.optionalKey(S.String),
-  },
-  $I.annote("ProcessFilesOptions", {
-    description: "Validated options used by files process.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessFilesOptions", {
+      description: "Validated options used by files process.",
+    })
+  )
 ) {}
 
 /**
@@ -90,15 +91,16 @@ export class ProcessFilesOptions extends S.Class<ProcessFilesOptions>($I`Process
  * @category models
  * @since 0.0.0
  */
-export class ProcessFilesSummary extends S.Class<ProcessFilesSummary>($I`ProcessFilesSummary`)(
-  {
+export class ProcessFilesSummary extends S.Opaque<ProcessFilesSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     failedCount: S.Natural,
     skippedCount: S.Natural,
     sourceCount: S.Natural,
     succeededCount: S.Natural,
     textArtifactCount: S.Natural,
-  },
-  $I.annote("ProcessFilesSummary", {
-    description: "Summary counts returned by files process.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessFilesSummary", {
+      description: "Summary counts returned by files process.",
+    })
+  )
 ) {}

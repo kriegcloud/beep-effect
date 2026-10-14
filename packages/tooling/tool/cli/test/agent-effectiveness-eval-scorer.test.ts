@@ -14,6 +14,7 @@ import {
   evaluateSkillOptCompletion,
   LawEvaluation,
   lawComponentScore,
+  readSourceSnapshots,
   runAgentEffectivenessEvalScoreCommand,
   SkillOptTaskManifest,
 } from "@beep/repo-cli/test/AgentEffectiveness";
@@ -42,6 +43,8 @@ import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+import { RunAgentEffectivenessEvalScoreCommandOptions } from "../src/commands/AgentEffectiveness/internal/EvalScorer.ts";
+import { LawComponentScores } from "../src/commands/AgentEffectiveness/internal/EvalScoring.ts";
 
 const temporaryFixture = FileSystem.FileSystem.use((fs) =>
   Effect.acquireRelease(fs.makeTempDirectory(), (directory) =>
@@ -362,7 +365,7 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
     expect(lawComponentScore(0)).toBe(1);
     expect(lawComponentScore(1)).toBe(0.5);
     expect(lawComponentScore(2)).toBe(0.333333);
-    expect(aggregateLawFraction({ schemaFirst: 1, tsgo: 0.5, biome: 0.25 })).toBe(0.583333);
+    expect(aggregateLawFraction(LawComponentScores.make({ schemaFirst: 1, tsgo: 0.5, biome: 0.25 }))).toBe(0.583333);
   });
 
   it.effect.prop(
@@ -680,15 +683,17 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
     Effect.gen(function* () {
       const spawned = yield* Ref.make<ReadonlyArray<string>>([]);
       const configs = yield* Ref.make<ReadonlyArray<string>>([]);
-      const exit = yield* runAgentEffectivenessEvalScoreCommand({
-        dataRoot: O.none(),
-        dir: fixtureRoot,
-        json: false,
-        modelId: O.none(),
-        reasoningEffort: O.none(),
-        record: true,
-        taskPath,
-      }).pipe(
+      const exit = yield* runAgentEffectivenessEvalScoreCommand(
+        RunAgentEffectivenessEvalScoreCommandOptions.make({
+          dataRoot: O.none(),
+          dir: fixtureRoot,
+          json: false,
+          modelId: O.none(),
+          reasoningEffort: O.none(),
+          record: true,
+          taskPath,
+        })
+      ).pipe(
         Effect.provideServiceEffect(
           ChildProcessSpawner.ChildProcessSpawner,
           fakeLawSpawner(spawned, configs, { biome: {} })
@@ -702,6 +707,24 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
       expect(isScorerError(error) ? error.message : "").toContain(
         "Scorer law lanes could not measure the fixture: biome (Biome exited 0 without a JSON report"
       );
+    })
+  );
+
+  it.effect("refuses a backslash-normalized traversal before staging fixture sources", () =>
+    Effect.gen(function* () {
+      const fixtureDir = yield* temporaryFixture;
+      const path = yield* Path.Path;
+      const repoRoot = yield* findRepoRoot();
+      if (process.platform === "win32") return;
+      yield* writeText(path.join(fixtureDir, "..\\..\\outside.ts"), "export const outside = true;\n");
+      const paths = A.map(yield* readSourceSnapshots(fixtureDir), (snapshot) => snapshot.relativePath);
+      expect(paths).toEqual(["../../outside.ts"]);
+      const result = yield* evaluateLaw(fixtureDir, repoRoot, paths).pipe(Effect.result);
+
+      result.pipe(Result.isFailure, assertTrue);
+      if (Result.isFailure(result)) {
+        expect(result.failure.message).toContain("Fixture source escaped its root");
+      }
     })
   );
 

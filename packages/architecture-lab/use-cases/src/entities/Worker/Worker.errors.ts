@@ -54,7 +54,9 @@ export const WORKER_ACTION_UNAVAILABLE_REASON = "Worker service is unavailable."
  * @category errors
  * @since 0.0.0
  */
-export class WorkerNotFound extends S.TaggedError<WorkerNotFound>($I`WorkerNotFound`)(
+export class WorkerNotFound extends S.TaggedError<WorkerNotFound, { readonly brand: unique symbol }>(
+  $I`WorkerNotFound`
+)(
   "WorkerNotFound",
   {
     workerId: ArchitectureLabIdentity.WorkerId,
@@ -87,7 +89,9 @@ export class WorkerNotFound extends S.TaggedError<WorkerNotFound>($I`WorkerNotFo
  * @category errors
  * @since 0.0.0
  */
-export class WorkerConflict extends S.TaggedError<WorkerConflict>($I`WorkerConflict`)(
+export class WorkerConflict extends S.TaggedError<WorkerConflict, { readonly brand: unique symbol }>(
+  $I`WorkerConflict`
+)(
   "WorkerConflict",
   {
     workerId: ArchitectureLabIdentity.WorkerId.annotateKey({
@@ -119,7 +123,9 @@ export class WorkerConflict extends S.TaggedError<WorkerConflict>($I`WorkerConfl
  * @category errors
  * @since 0.0.0
  */
-export class WorkerActionFailed extends S.TaggedError<WorkerActionFailed>($I`WorkerActionFailed`)(
+export class WorkerActionFailed extends S.TaggedError<WorkerActionFailed, { readonly brand: unique symbol }>(
+  $I`WorkerActionFailed`
+)(
   "WorkerActionFailed",
   {
     reason: S.NonEmptyString.annotateKey({

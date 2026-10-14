@@ -25,12 +25,12 @@ import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { commandCounter } from "./AdapterState.ts";
-import { SectionPreview, TabInsertionPreview } from "./Gesture.models.ts";
+import { PointerPosition, SectionPreview, TabInsertionPreview } from "./Gesture.models.ts";
 import type { AnchoredBox, DockGeometry, MovePanelCommand, Panel, SplitNode } from "@beep/dock";
 import type { Dual2, Dual3 } from "@beep/dock/internal/Dual";
 import type { DockAtomGraph } from "../DockReact.types.ts";
 import type { AdapterState } from "./AdapterState.ts";
-import type { DropPreview, PointerPosition, TabDrag, TabRect } from "./Gesture.models.ts";
+import type { DropPreview, TabDrag, TabRect } from "./Gesture.models.ts";
 
 /**
  * Formats a kernel length as the CSS pixel string the dock stylesheet reads back
@@ -50,10 +50,11 @@ import type { DropPreview, PointerPosition, TabDrag, TabRect } from "./Gesture.m
  */
 export const px = (value: number): string => `${value}px`;
 
-export const positionOf = (event: PointerEvent): PointerPosition => ({
-  left: event.clientX,
-  top: event.clientY,
-});
+export const positionOf = (event: PointerEvent): PointerPosition =>
+  PointerPosition.make({
+    left: event.clientX,
+    top: event.clientY,
+  });
 
 // Drag pointers must live in the dock root's coordinate space: geometry
 // boxes are container-relative (the container box is measured 0-based), so
@@ -66,7 +67,7 @@ export const relativePositionOf: Dual2<AdapterState, PointerEvent, PointerPositi
     const root = state.rootNode.current;
     if (P.isNull(root)) return positionOf(event);
     const rect = root.getBoundingClientRect();
-    return { left: event.clientX - rect.left, top: event.clientY - rect.top };
+    return PointerPosition.make({ left: event.clientX - rect.left, top: event.clientY - rect.top });
   }
 );
 // Presses on chrome buttons inside a gesture surface must not start a

@@ -180,7 +180,7 @@ const probeFace =
     }
     const facts = factsOf(face);
     return FaceTreatment.match(treatmentFor({ face: facts, view, plan }), {
-      skipped: () => A.empty<Probe>(),
+      skipped: A.empty<Probe>,
       lines: (lines) => {
         const direction = unitV(cross(facts.normal, lines.step));
         const [low, high] = reachOf(facts, direction);

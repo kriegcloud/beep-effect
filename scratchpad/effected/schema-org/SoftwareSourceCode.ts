@@ -39,7 +39,7 @@ const $I = $ScratchpadId.create("effected/schema-org/SoftwareSourceCode");
  * @category models
  * @since 0.0.0
  */
-export class SoftwareSourceCode extends S.Class<SoftwareSourceCode>($I`SoftwareSourceCode`)({
+export class SoftwareSourceCode extends S.Class<SoftwareSourceCode, { readonly brand: unique symbol }>($I`SoftwareSourceCode`)({
 	...CreativeWorkFields,
 	/**
 	 * The JSON-LD type discriminator, populated automatically.

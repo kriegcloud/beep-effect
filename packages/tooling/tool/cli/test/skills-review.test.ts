@@ -21,6 +21,7 @@ import {
   SkillReviewBaseSource,
   SkillReviewDecide,
   SkillReviewDecider,
+  SkillReviewOptions,
   SkillReviewQuit,
   SkillReviewScriptEntry,
   SkillSnapshot,
@@ -59,7 +60,6 @@ import * as Str from "effect/String";
 import type {
   SkillReviewAnswer,
   SkillReviewItem,
-  SkillReviewOptions,
   SkillReviewScript,
   SkillReviewSession,
 } from "@beep/repo-cli/commands/Skills";
@@ -290,14 +290,15 @@ const reviewWith = Effect.fn("SkillsReviewTest.reviewWith")(function* (
   return Context.get(context, SkillHunkReview);
 });
 
-const options = (overrides: Partial<SkillReviewOptions> = {}): SkillReviewOptions => ({
-  skill: O.none(),
-  decide: false,
-  ghost: false,
-  reviewer: "@kriegcloud",
-  budget: Duration.minutes(20),
-  ...overrides,
-});
+const options = (overrides: Partial<SkillReviewOptions> = {}): SkillReviewOptions =>
+  SkillReviewOptions.make({
+    skill: O.none(),
+    decide: false,
+    ghost: false,
+    reviewer: "@kriegcloud",
+    budget: Duration.minutes(20),
+    ...overrides,
+  });
 
 type Reviewer = Effect.Success<ReturnType<typeof reviewWith>>;
 

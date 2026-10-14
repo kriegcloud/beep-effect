@@ -113,14 +113,15 @@ const AbsentByDefault = OptionalString.pipe(S.withConstructorDefault(Effect.succ
  * @category models
  * @since 0.0.0
  */
-export class EconomicsCountRow extends S.Class<EconomicsCountRow>($I`EconomicsCountRow`)(
-  {
+export class EconomicsCountRow extends S.Opaque<EconomicsCountRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: S.String,
     count: EconomicsCount,
-  },
-  $I.annote("EconomicsCountRow", {
-    description: "One key of a count mix and how many observations carried it; mixes sort by count desc, then key.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsCountRow", {
+      description: "One key of a count mix and how many observations carried it; mixes sort by count desc, then key.",
+    })
+  )
 ) {}
 
 /**
@@ -186,8 +187,8 @@ export type EconomicsLaneKind = typeof EconomicsLaneKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class EconomicsLaneRow extends S.Class<EconomicsLaneRow>($I`EconomicsLaneRow`)(
-  {
+export class EconomicsLaneRow extends S.Opaque<EconomicsLaneRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     label: S.String,
     phase: S.String,
@@ -198,11 +199,12 @@ export class EconomicsLaneRow extends S.Class<EconomicsLaneRow>($I`EconomicsLane
     totalDurationMs: EconomicsCount,
     sharePct: S.OptionFromNullOr(S.Finite),
     statusMix: S.Array(EconomicsCountRow),
-  },
-  $I.annote("EconomicsLaneRow", {
-    description:
-      "Nearest-rank p50/p95, total and population share of one lane identity's duration-bearing observations.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsLaneRow", {
+      description:
+        "Nearest-rank p50/p95, total and population share of one lane identity's duration-bearing observations.",
+    })
+  )
 ) {}
 
 /**
@@ -234,18 +236,19 @@ export class EconomicsLaneRow extends S.Class<EconomicsLaneRow>($I`EconomicsLane
  * @category models
  * @since 0.0.0
  */
-export class EconomicsLanePopulation extends S.Class<EconomicsLanePopulation>($I`EconomicsLanePopulation`)(
-  {
+export class EconomicsLanePopulation extends S.Opaque<EconomicsLanePopulation, { readonly brand: unique symbol }>()(
+  S.Struct({
     rows: S.Array(EconomicsLaneRow),
     executions: EconomicsCount,
     totalDurationMs: EconomicsCount,
     attemptElapsedMs: S.Int,
     accountedPct: S.OptionFromNullOr(S.Finite),
-  },
-  $I.annote("EconomicsLanePopulation", {
-    description:
-      "Lane rows of one population (total desc, then id, label) and that population's own totals and accounted share.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsLanePopulation", {
+      description:
+        "Lane rows of one population (total desc, then id, label) and that population's own totals and accounted share.",
+    })
+  )
 ) {}
 
 /**
@@ -268,16 +271,17 @@ export class EconomicsLanePopulation extends S.Class<EconomicsLanePopulation>($I
  * @category models
  * @since 0.0.0
  */
-export class EconomicsAttemptMix extends S.Class<EconomicsAttemptMix>($I`EconomicsAttemptMix`)(
-  {
+export class EconomicsAttemptMix extends S.Opaque<EconomicsAttemptMix, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcomeMix: S.Array(EconomicsCountRow),
     modeMix: S.Array(EconomicsCountRow),
     failureKindMix: S.Array(EconomicsCountRow),
-  },
-  $I.annote("EconomicsAttemptMix", {
-    description:
-      "Outcome, mode, and non-success failure-kind mixes over a set of attempts; missing values are unknown.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsAttemptMix", {
+      description:
+        "Outcome, mode, and non-success failure-kind mixes over a set of attempts; missing values are unknown.",
+    })
+  )
 ) {}
 
 /**
@@ -300,15 +304,16 @@ export class EconomicsAttemptMix extends S.Class<EconomicsAttemptMix>($I`Economi
  * @category models
  * @since 0.0.0
  */
-export class EconomicsAttempts extends S.Class<EconomicsAttempts>($I`EconomicsAttempts`)(
-  {
+export class EconomicsAttempts extends S.Opaque<EconomicsAttempts, { readonly brand: unique symbol }>()(
+  S.Struct({
     all: EconomicsAttemptMix,
     comparable: EconomicsAttemptMix,
-  },
-  $I.annote("EconomicsAttempts", {
-    description:
-      "Attempt mixes over the whole union and over the comparable (verify/repair/publish, no bounce) subset.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsAttempts", {
+      description:
+        "Attempt mixes over the whole union and over the comparable (verify/repair/publish, no bounce) subset.",
+    })
+  )
 ) {}
 
 /**
@@ -352,8 +357,8 @@ export class EconomicsAttempts extends S.Class<EconomicsAttempts>($I`EconomicsAt
  * @category models
  * @since 0.0.0
  */
-export class EconomicsFirstFailure extends S.Class<EconomicsFirstFailure>($I`EconomicsFirstFailure`)(
-  {
+export class EconomicsFirstFailure extends S.Opaque<EconomicsFirstFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
     redAttempts: EconomicsCount,
     attemptsWithReconstructableOuterFailure: EconomicsCount,
     attemptsWithoutReconstructableOuterFailure: EconomicsCount,
@@ -364,11 +369,12 @@ export class EconomicsFirstFailure extends S.Class<EconomicsFirstFailure>($I`Eco
     completionOffsetP95Ms: OptionalMs,
     actionableLaneMix: S.Array(EconomicsCountRow),
     receiptProxyMix: S.Array(EconomicsCountRow),
-  },
-  $I.annote("EconomicsFirstFailure", {
-    description:
-      "Red attempts, reconstructable first-failure offsets walked over one lane population, actionable lanes, and receipt-proxy classes.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsFirstFailure", {
+      description:
+        "Red attempts, reconstructable first-failure offsets walked over one lane population, actionable lanes, and receipt-proxy classes.",
+    })
+  )
 ) {}
 
 /**
@@ -412,8 +418,8 @@ export class EconomicsFirstFailure extends S.Class<EconomicsFirstFailure>($I`Eco
  * @category models
  * @since 0.0.0
  */
-export class EconomicsEpisodeSummary extends S.Class<EconomicsEpisodeSummary>($I`EconomicsEpisodeSummary`)(
-  {
+export class EconomicsEpisodeSummary extends S.Opaque<EconomicsEpisodeSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.String,
     closedEpisodes: EconomicsCount,
     p50Ms: OptionalMs,
@@ -426,11 +432,12 @@ export class EconomicsEpisodeSummary extends S.Class<EconomicsEpisodeSummary>($I
     rightCensoredRedAttempts: EconomicsCount,
     rightCensoredObservedSpanMinutes: S.Finite,
     closedEpisodesOver24hExcluded: S.OptionFromNullOr(EconomicsCount),
-  },
-  $I.annote("EconomicsEpisodeSummary", {
-    description:
-      "Closed red-to-green episode count, span percentiles and minute totals for one cut, plus the shared censoring counts and the open streaks' observed lower bound.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsEpisodeSummary", {
+      description:
+        "Closed red-to-green episode count, span percentiles and minute totals for one cut, plus the shared censoring counts and the open streaks' observed lower bound.",
+    })
+  )
 ) {}
 
 /**
@@ -464,14 +471,15 @@ export class EconomicsEpisodeSummary extends S.Class<EconomicsEpisodeSummary>($I
  * @category models
  * @since 0.0.0
  */
-export class EconomicsRedToGreen extends S.Class<EconomicsRedToGreen>($I`EconomicsRedToGreen`)(
-  {
+export class EconomicsRedToGreen extends S.Opaque<EconomicsRedToGreen, { readonly brand: unique symbol }>()(
+  S.Struct({
     comparable24h: EconomicsEpisodeSummary,
     uncut: EconomicsEpisodeSummary,
-  },
-  $I.annote("EconomicsRedToGreen", {
-    description: "Red-to-green episode summaries: closed episodes of at most 24 hours, and every closed episode.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsRedToGreen", {
+      description: "Red-to-green episode summaries: closed episodes of at most 24 hours, and every closed episode.",
+    })
+  )
 ) {}
 
 /**
@@ -488,15 +496,17 @@ export class EconomicsRedToGreen extends S.Class<EconomicsRedToGreen>($I`Economi
  * @category models
  * @since 0.0.0
  */
-export class EconomicsTerminations extends S.Class<EconomicsTerminations>($I`EconomicsTerminations`)(
-  {
+export class EconomicsTerminations extends S.Opaque<EconomicsTerminations, { readonly brand: unique symbol }>()(
+  S.Struct({
     starts: EconomicsCount,
     startsWithoutFinish: EconomicsCount,
     reasonMix: S.Array(EconomicsCountRow),
-  },
-  $I.annote("EconomicsTerminations", {
-    description: "Distinct started attempts, those with no terminal row, and the mix of abnormal termination reasons.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsTerminations", {
+      description:
+        "Distinct started attempts, those with no terminal row, and the mix of abnormal termination reasons.",
+    })
+  )
 ) {}
 
 /**
@@ -560,20 +570,22 @@ export type EconomicsFingerprintClassification = typeof EconomicsFingerprintClas
  * @category models
  * @since 0.0.0
  */
-export class EconomicsUnchangedFingerprint extends S.Class<EconomicsUnchangedFingerprint>(
-  $I`EconomicsUnchangedFingerprint`
-)(
-  {
+export class EconomicsUnchangedFingerprint extends S.Opaque<
+  EconomicsUnchangedFingerprint,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     classification: EconomicsFingerprintClassification,
     attemptsWithFingerprint: EconomicsCount,
     failedUnchangedFingerprintThenGreen: EconomicsCount,
     byActionableLane: S.Array(EconomicsCountRow),
     byReceiptProxy: S.Array(EconomicsCountRow),
-  },
-  $I.annote("EconomicsUnchangedFingerprint", {
-    description:
-      "Fingerprint-repeat proxy for M4: within one run's comparable sequence, verdict-bearing red attempts whose next attempt is green on the same diff fingerprint, keyed by actionable lane and receipt proxy; the ack-resolution join is not on this surface.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsUnchangedFingerprint", {
+      description:
+        "Fingerprint-repeat proxy for M4: within one run's comparable sequence, verdict-bearing red attempts whose next attempt is green on the same diff fingerprint, keyed by actionable lane and receipt proxy; the ack-resolution join is not on this surface.",
+    })
+  )
 ) {}
 
 /**
@@ -612,7 +624,10 @@ export class EconomicsUnchangedFingerprint extends S.Class<EconomicsUnchangedFin
  * @category models
  * @since 0.0.0
  */
-export class EconomicsJournalDiagnostics extends S.Class<EconomicsJournalDiagnostics>($I`EconomicsJournalDiagnostics`)(
+export class EconomicsJournalDiagnostics extends S.Class<
+  EconomicsJournalDiagnostics,
+  { readonly brand: unique symbol }
+>($I`EconomicsJournalDiagnostics`)(
   {
     journalsObserved: EconomicsCount,
     unreadableJournals: EconomicsCount,
@@ -717,18 +732,19 @@ export class EconomicsDiagnostics extends EconomicsJournalDiagnostics.extend<Eco
  * @category models
  * @since 0.0.0
  */
-export class EconomicsDataQuality extends S.Class<EconomicsDataQuality>($I`EconomicsDataQuality`)(
-  {
+export class EconomicsDataQuality extends S.Opaque<EconomicsDataQuality, { readonly brand: unique symbol }>()(
+  S.Struct({
     attemptWindowStartUtc: OptionalString,
     attemptWindowEndUtc: OptionalString,
     diagnostics: EconomicsDiagnostics,
     percentileEstimator: S.Literal(YEET_ECONOMICS_PERCENTILE_ESTIMATOR),
     rounding: S.Literal(YEET_ECONOMICS_ROUNDING),
-  },
-  $I.annote("EconomicsDataQuality", {
-    description:
-      "Attempt window, loader diagnostics, and the estimator: nearest rank at index clamp(ceil(p*n)-1, 0, n-1), Math.round rounding (not half-to-even).",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsDataQuality", {
+      description:
+        "Attempt window, loader diagnostics, and the estimator: nearest rank at index clamp(ceil(p*n)-1, 0, n-1), Math.round rounding (not half-to-even).",
+    })
+  )
 ) {}
 
 /**
@@ -777,16 +793,17 @@ export type EconomicsScopeKind = typeof EconomicsScopeKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class EconomicsScope extends S.Class<EconomicsScope>($I`EconomicsScope`)(
-  {
+export class EconomicsScope extends S.Opaque<EconomicsScope, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: EconomicsScopeKind,
     checkouts: S.Array(S.String),
     branch: OptionalString,
-  },
-  $I.annote("EconomicsScope", {
-    description:
-      "Report scope kind, the checkout labels read (relative to the projects root), and the narrowed branch.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsScope", {
+      description:
+        "Report scope kind, the checkout labels read (relative to the projects root), and the narrowed branch.",
+    })
+  )
 ) {}
 
 /**
@@ -811,8 +828,8 @@ export class EconomicsScope extends S.Class<EconomicsScope>($I`EconomicsScope`)(
  * @category models
  * @since 0.0.0
  */
-export class YeetEconomicsReport extends S.Class<YeetEconomicsReport>($I`YeetEconomicsReport`)(
-  {
+export class YeetEconomicsReport extends S.Opaque<YeetEconomicsReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(YEET_ECONOMICS_SCHEMA_VERSION),
     scope: EconomicsScope,
     measurementAsOf: S.String,
@@ -824,11 +841,12 @@ export class YeetEconomicsReport extends S.Class<YeetEconomicsReport>($I`YeetEco
     terminations: EconomicsTerminations,
     unchangedFingerprint: EconomicsUnchangedFingerprint,
     dataQuality: EconomicsDataQuality,
-  },
-  $I.annote("YeetEconomicsReport", {
-    description:
-      "Checkout economics over live attempt journals: attempt mixes, wrapper and inner lane populations, first failure (M2), red-to-green episodes (M1), unchanged fingerprint (M4), terminations (M5), and data quality.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetEconomicsReport", {
+      description:
+        "Checkout economics over live attempt journals: attempt mixes, wrapper and inner lane populations, first failure (M2), red-to-green episodes (M1), unchanged fingerprint (M4), terminations (M5), and data quality.",
+    })
+  )
 ) {}
 
 /**
@@ -870,17 +888,18 @@ export const YeetEconomicsReportJson = JsonStringCodec(YeetEconomicsReport);
  * @category models
  * @since 0.0.0
  */
-export class YeetEconomicsOptions extends S.Class<YeetEconomicsOptions>($I`YeetEconomicsOptions`)(
-  {
+export class YeetEconomicsOptions extends S.Opaque<YeetEconomicsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     json: S.Boolean,
     branch: OptionalString,
     fleet: S.Boolean,
     packetDir: S.String.pipe(S.withConstructorDefault(Effect.succeed(DEFAULT_YEET_PACKET_DIR))),
-  },
-  $I.annote("YeetEconomicsOptions", {
-    description:
-      "Parsed `yeet economics` flags: JSON output, an optional branch narrowing, the sibling fleet, and the packet directory.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetEconomicsOptions", {
+      description:
+        "Parsed `yeet economics` flags: JSON output, an optional branch narrowing, the sibling fleet, and the packet directory.",
+    })
+  )
 ) {}
 
 /**
@@ -915,8 +934,8 @@ export class YeetEconomicsOptions extends S.Class<YeetEconomicsOptions>($I`YeetE
  * @category models
  * @since 0.0.0
  */
-export class EconomicsLane extends S.Class<EconomicsLane>($I`EconomicsLane`)(
-  {
+export class EconomicsLane extends S.Opaque<EconomicsLane, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     label: S.String,
     phase: S.String,
@@ -925,11 +944,12 @@ export class EconomicsLane extends S.Class<EconomicsLane>($I`EconomicsLane`)(
     repairCommand: OptionalString,
     population: EconomicsLaneKind,
     parentLaneId: AbsentByDefault,
-  },
-  $I.annote("EconomicsLane", {
-    description:
-      "A verdict lane's identity, status, duration, repair command, wrapper/inner population, and parent wrapper.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsLane", {
+      description:
+        "A verdict lane's identity, status, duration, repair command, wrapper/inner population, and parent wrapper.",
+    })
+  )
 ) {}
 
 /**
@@ -977,8 +997,8 @@ export class EconomicsLane extends S.Class<EconomicsLane>($I`EconomicsLane`)(
  * @category models
  * @since 0.0.0
  */
-export class EconomicsAttempt extends S.Class<EconomicsAttempt>($I`EconomicsAttempt`)(
-  {
+export class EconomicsAttempt extends S.Opaque<EconomicsAttempt, { readonly brand: unique symbol }>()(
+  S.Struct({
     checkout: S.String,
     runId: S.String,
     attemptId: S.String,
@@ -995,11 +1015,12 @@ export class EconomicsAttempt extends S.Class<EconomicsAttempt>($I`EconomicsAtte
     terminationReason: S.OptionFromNullOr(YeetAttemptTerminationReason),
     verdictSchemaVersion: OptionalString,
     lanes: S.Array(EconomicsLane),
-  },
-  $I.annote("EconomicsAttempt", {
-    description:
-      "One terminal attempt keyed by checkout, run and attempt id, with its resolved timing, outcome, facts, and lanes.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsAttempt", {
+      description:
+        "One terminal attempt keyed by checkout, run and attempt id, with its resolved timing, outcome, facts, and lanes.",
+    })
+  )
 ) {}
 
 /**
@@ -1042,17 +1063,18 @@ export class EconomicsAttempt extends S.Class<EconomicsAttempt>($I`EconomicsAtte
  * @category models
  * @since 0.0.0
  */
-export class EconomicsJournal extends S.Class<EconomicsJournal>($I`EconomicsJournal`)(
-  {
+export class EconomicsJournal extends S.Opaque<EconomicsJournal, { readonly brand: unique symbol }>()(
+  S.Struct({
     checkout: S.String,
     runId: S.String,
     cutoff: OptionalString,
     attempts: S.Array(EconomicsAttempt),
     diagnostics: EconomicsJournalDiagnostics,
-  },
-  $I.annote("EconomicsJournal", {
-    description: "One run directory's normalized terminal attempts, compaction cutoff, and loader counts.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsJournal", {
+      description: "One run directory's normalized terminal attempts, compaction cutoff, and loader counts.",
+    })
+  )
 ) {}
 
 /**
@@ -1080,18 +1102,19 @@ export class EconomicsJournal extends S.Class<EconomicsJournal>($I`EconomicsJour
  * @category models
  * @since 0.0.0
  */
-export class EconomicsScopeRequest extends S.Class<EconomicsScopeRequest>($I`EconomicsScopeRequest`)(
-  {
+export class EconomicsScopeRequest extends S.Opaque<EconomicsScopeRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.String,
     branch: OptionalString,
     fleet: S.Boolean,
     packetDir: S.String.pipe(S.withConstructorDefault(Effect.succeed(DEFAULT_YEET_PACKET_DIR))),
     inFlightAttemptId: AbsentByDefault,
-  },
-  $I.annote("EconomicsScopeRequest", {
-    description:
-      "Checkout root, optional branch narrowing, fleet flag, packet directory, and the caller's in-flight attempt the economics source resolves journals from.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsScopeRequest", {
+      description:
+        "Checkout root, optional branch narrowing, fleet flag, packet directory, and the caller's in-flight attempt the economics source resolves journals from.",
+    })
+  )
 ) {}
 
 /**
@@ -1155,7 +1178,9 @@ export type YeetEconomicsErrorReason = typeof YeetEconomicsErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class YeetEconomicsError extends S.TaggedError<YeetEconomicsError>($I`YeetEconomicsError`)(
+export class YeetEconomicsError extends S.TaggedError<YeetEconomicsError, { readonly brand: unique symbol }>(
+  $I`YeetEconomicsError`
+)(
   "YeetEconomicsError",
   {
     reason: YeetEconomicsErrorReason,

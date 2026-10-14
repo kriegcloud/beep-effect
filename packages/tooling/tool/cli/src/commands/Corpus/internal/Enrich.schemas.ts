@@ -27,15 +27,16 @@ const $I = $RepoCliId.create("commands/Corpus/internal/Enrich.schemas");
  * @category models
  * @since 0.0.0
  */
-export class CorpusEnrichOptions extends S.Class<CorpusEnrichOptions>($I`CorpusEnrichOptions`)(
-  {
+export class CorpusEnrichOptions extends S.Opaque<CorpusEnrichOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.String,
     lookupDelayMillis: S.optionalKey(S.Finite),
     maxLookups: S.optionalKey(S.Finite),
-  },
-  $I.annote("CorpusEnrichOptions", {
-    description: "Validated options used by corpus enrich.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusEnrichOptions", {
+      description: "Validated options used by corpus enrich.",
+    })
+  )
 ) {}
 
 /**
@@ -62,8 +63,8 @@ export class CorpusEnrichOptions extends S.Class<CorpusEnrichOptions>($I`CorpusE
  * @category models
  * @since 0.0.0
  */
-export class CorpusEnrichmentRecord extends S.Class<CorpusEnrichmentRecord>($I`CorpusEnrichmentRecord`)(
-  {
+export class CorpusEnrichmentRecord extends S.Opaque<CorpusEnrichmentRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationNumber: S.optionalKey(S.String),
     candidate: S.NonEmptyString,
     candidateKind: LiteralKit(["application", "patent"]),
@@ -75,10 +76,11 @@ export class CorpusEnrichmentRecord extends S.Class<CorpusEnrichmentRecord>($I`C
     parentApplicationNumbers: S.Array(S.String),
     patentNumber: S.optionalKey(S.String),
     status: LiteralKit(["resolved", "not-found", "failed"]),
-  },
-  $I.annote("CorpusEnrichmentRecord", {
-    description: "JSONL-safe USPTO enrichment row for one corpus-derived identifier candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusEnrichmentRecord", {
+      description: "JSONL-safe USPTO enrichment row for one corpus-derived identifier candidate.",
+    })
+  )
 ) {}
 
 /**
@@ -130,18 +132,19 @@ export const encodeCorpusEnrichmentRecordJson = JsonStringCodec(CorpusEnrichment
  * @category models
  * @since 0.0.0
  */
-export class CorpusEnrichSummary extends S.Class<CorpusEnrichSummary>($I`CorpusEnrichSummary`)(
-  {
+export class CorpusEnrichSummary extends S.Opaque<CorpusEnrichSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationCandidates: S.Natural,
     failedLookups: S.Natural,
     familyAnchors: S.Natural,
     notFound: S.Natural,
     patentCandidates: S.Natural,
     resolved: S.Natural,
-  },
-  $I.annote("CorpusEnrichSummary", {
-    description: "Summary counts returned by corpus enrich.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusEnrichSummary", {
+      description: "Summary counts returned by corpus enrich.",
+    })
+  )
 ) {}
 
 /**

@@ -80,7 +80,7 @@ const MAX_EXTENDS_DEPTH = 32;
  * @category errors
  * @since 0.0.0
  */
-export class TsconfigExtendsError extends S.TaggedError<TsconfigExtendsError>($I`TsconfigExtendsError`)("TsconfigExtendsError", {
+export class TsconfigExtendsError extends S.TaggedError<TsconfigExtendsError, { readonly brand: unique symbol }>($I`TsconfigExtendsError`)("TsconfigExtendsError", {
 	/** The config whose `extends` could not be resolved. */
 	path: S.String.annotateKey({ description: "The config whose `extends` could not be resolved." }),
 	/** The target that failed: the spec, the re-entered path, or the refused path. */

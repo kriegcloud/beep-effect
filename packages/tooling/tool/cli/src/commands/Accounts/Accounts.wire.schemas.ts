@@ -22,6 +22,7 @@ import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { AccountLabel, CreditBalance, UsageWindow } from "./Accounts.schemas.ts";
@@ -43,16 +44,17 @@ const $I = $RepoCliId.create("commands/Accounts/Accounts.wire.schemas");
  * @category models
  * @since 0.0.0
  */
-export class ProxyAuthFile extends S.Class<ProxyAuthFile>($I`ProxyAuthFile`)(
-  {
+export class ProxyAuthFile extends S.Opaque<ProxyAuthFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     email: AccountLabel,
     access_token: S.RedactedFromValue(S.String, { label: "access_token" }),
     account_id: S.optionalKey(S.String),
     dca_token: S.RedactedFromValue(S.String, { label: "dca_token" }).pipe(S.optionalKey),
     disabled: S.optionalKey(S.Boolean),
-  },
-  $I.annote("ProxyAuthFile", { description: "Provider, identity, and access token of one proxy stored login." })
+  }).pipe(
+    $I.annoteSchema("ProxyAuthFile", { description: "Provider, identity, and access token of one proxy stored login." })
+  )
 ) {}
 
 /**
@@ -108,14 +110,17 @@ const ClaudeLegacyWindow = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class ClaudeUsageBody extends S.Class<ClaudeUsageBody>($I`ClaudeUsageBody`)(
-  {
+export class ClaudeUsageBody extends S.Opaque<ClaudeUsageBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     limits: ClaudeLimit.pipe(S.Array, S.optionalKey),
     five_hour: ClaudeLegacyWindow.pipe(S.NullOr, S.optionalKey),
     seven_day: ClaudeLegacyWindow.pipe(S.NullOr, S.optionalKey),
     error: S.optionalKey(S.Struct({ type: S.String, message: S.String })),
-  },
-  $I.annote("ClaudeUsageBody", { description: "Claude plan-limit windows, or the error an expired login returns." })
+  }).pipe(
+    $I.annoteSchema("ClaudeUsageBody", {
+      description: "Claude plan-limit windows, or the error an expired login returns.",
+    })
+  )
 ) {}
 
 /**
@@ -210,8 +215,8 @@ const CodexWindow = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class CodexUsageBody extends S.Class<CodexUsageBody>($I`CodexUsageBody`)(
-  {
+export class CodexUsageBody extends S.Opaque<CodexUsageBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     plan_type: S.String.pipe(S.NullOr, S.optionalKey),
     rate_limit: S.Struct({
       primary_window: CodexWindow.pipe(S.NullOr, S.optionalKey),
@@ -222,8 +227,7 @@ export class CodexUsageBody extends S.Class<CodexUsageBody>($I`CodexUsageBody`)(
       balance: S.FiniteFromString.pipe(S.NullOr, S.optionalKey),
     }).pipe(S.NullOr, S.optionalKey),
     rate_limit_reset_credits: S.Struct({ available_count: S.Finite }).pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("CodexUsageBody", { description: "Codex plan type and its rate-limit windows." })
+  }).pipe($I.annoteSchema("CodexUsageBody", { description: "Codex plan type and its rate-limit windows." }))
 ) {}
 
 /**
@@ -398,15 +402,14 @@ const MuseWindow = S.Struct({ used_percent: S.Finite, resets_at: S.Finite });
  * @category models
  * @since 0.0.0
  */
-export class MuseKeyBody extends S.Class<MuseKeyBody>($I`MuseKeyBody`)(
-  {
+export class MuseKeyBody extends S.Opaque<MuseKeyBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     subs_tier_name: S.String.pipe(S.NullOr, S.optionalKey),
     subs_usage: S.Struct({
       window: MuseWindow.pipe(S.NullOr, S.optionalKey),
       weekly: MuseWindow.pipe(S.NullOr, S.optionalKey),
     }).pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("MuseKeyBody", { description: "Muse Code subscription tier and its plan-limit usage." })
+  }).pipe($I.annoteSchema("MuseKeyBody", { description: "Muse Code subscription tier and its plan-limit usage." }))
 ) {}
 
 /**
@@ -608,9 +611,10 @@ export const grokUsageWindows = (body: Uint8Array): O.Option<ReadonlyArray<Usage
  * @category models
  * @since 0.0.0
  */
-export class ClaudeCliConfig extends S.Class<ClaudeCliConfig>($I`ClaudeCliConfig`)(
-  { oauthAccount: S.Struct({ emailAddress: AccountLabel }) },
-  $I.annote("ClaudeCliConfig", { description: "The account the Claude CLI is signed in to." })
+export class ClaudeCliConfig extends S.Opaque<ClaudeCliConfig, { readonly brand: unique symbol }>()(
+  S.Struct({ oauthAccount: S.Struct({ emailAddress: AccountLabel }) }).pipe(
+    $I.annoteSchema("ClaudeCliConfig", { description: "The account the Claude CLI is signed in to." })
+  )
 ) {}
 
 /**
@@ -652,9 +656,10 @@ export const ClaudeCliConfigJson = JsonStringCodec(ClaudeCliConfig);
  * @category models
  * @since 0.0.0
  */
-export class CodexCliAuth extends S.Class<CodexCliAuth>($I`CodexCliAuth`)(
-  { tokens: S.Struct({ id_token: S.RedactedFromValue(S.String, { label: "id_token" }) }) },
-  $I.annote("CodexCliAuth", { description: "The ID token of the account the Codex CLI is signed in to." })
+export class CodexCliAuth extends S.Opaque<CodexCliAuth, { readonly brand: unique symbol }>()(
+  S.Struct({ tokens: S.Struct({ id_token: S.RedactedFromValue(S.String, { label: "id_token" }) }) }).pipe(
+    $I.annoteSchema("CodexCliAuth", { description: "The ID token of the account the Codex CLI is signed in to." })
+  )
 ) {}
 
 /**
@@ -720,8 +725,8 @@ export const codexSignedInEmail = (auth: CodexCliAuth): O.Option<AccountLabel> =
  * @category models
  * @since 0.0.0
  */
-export class JunieStoredCredential extends S.Class<JunieStoredCredential>($I`JunieStoredCredential`)(
-  {
+export class JunieStoredCredential extends S.Opaque<JunieStoredCredential, { readonly brand: unique symbol }>()(
+  S.Struct({
     jbAccount: S.Struct({
       access_token: S.RedactedFromValue(S.NonEmptyString),
       refresh_token: S.RedactedFromValue(S.NonEmptyString),
@@ -730,8 +735,11 @@ export class JunieStoredCredential extends S.Class<JunieStoredCredential>($I`Jun
       name: S.OptionFromOptionalKey(S.NonEmptyString),
       id_token: S.NonEmptyString.pipe(S.RedactedFromValue, S.OptionFromOptionalKey),
     }),
-  },
-  $I.annote("JunieStoredCredential", { description: "JetBrains account credentials read from Junie secure storage." })
+  }).pipe(
+    $I.annoteSchema("JunieStoredCredential", {
+      description: "JetBrains account credentials read from Junie secure storage.",
+    })
+  )
 ) {}
 
 /**
@@ -766,14 +774,13 @@ export const JunieStoredCredentialJson = JsonStringCodec(JunieStoredCredential);
  * @category models
  * @since 0.0.0
  */
-export class JunieRefreshBody extends S.Class<JunieRefreshBody>($I`JunieRefreshBody`)(
-  {
+export class JunieRefreshBody extends S.Opaque<JunieRefreshBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     access_token: S.RedactedFromValue(S.NonEmptyString),
     refresh_token: S.NonEmptyString.pipe(S.RedactedFromValue, S.OptionFromOptionalKey),
     expires_in: S.Finite,
     id_token: S.NonEmptyString.pipe(S.RedactedFromValue, S.OptionFromOptionalKey),
-  },
-  $I.annote("JunieRefreshBody", { description: "An in-memory JetBrains OAuth refresh response." })
+  }).pipe($I.annoteSchema("JunieRefreshBody", { description: "An in-memory JetBrains OAuth refresh response." }))
 ) {}
 
 /**
@@ -808,16 +815,19 @@ export const JunieRefreshBodyJson = JsonStringCodec(JunieRefreshBody);
  * @category models
  * @since 0.0.0
  */
-export class JunieAuthTestBody extends S.Class<JunieAuthTestBody>($I`JunieAuthTestBody`)(
-  {
+export class JunieAuthTestBody extends S.Opaque<JunieAuthTestBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     active: S.OptionFromNullOr(S.Boolean).pipe(S.withDecodingDefaultKey(Effect.succeed(null))),
     authType: S.OptionFromNullOr(S.String).pipe(S.withDecodingDefaultKey(Effect.succeed(null))),
     balanceLeft: S.OptionFromNullOr(S.Finite).pipe(S.withDecodingDefaultKey(Effect.succeed(null))),
     balanceUnit: S.OptionFromNullOr(S.String).pipe(S.withDecodingDefaultKey(Effect.succeed(null))),
     licenseType: S.OptionFromNullOr(S.String).pipe(S.withDecodingDefaultKey(Effect.succeed(null))),
     meta: S.Record(S.String, S.Unknown).pipe(S.OptionFromNullOr, S.withDecodingDefaultKey(Effect.succeed(null))),
-  },
-  $I.annote("JunieAuthTestBody", { description: "The direct Junie balance response; absent fields do not imply zero." })
+  }).pipe(
+    $I.annoteSchema("JunieAuthTestBody", {
+      description: "The direct Junie balance response; absent fields do not imply zero.",
+    })
+  )
 ) {}
 
 /**
@@ -837,7 +847,11 @@ export class JunieAuthTestBody extends S.Class<JunieAuthTestBody>($I`JunieAuthTe
  */
 export const JunieAuthTestBodyJson = JsonStringCodec(JunieAuthTestBody);
 
-const JunieAmount = S.Struct({ amount: S.Union([S.Finite, S.FiniteFromString]) });
+// `Number(s)` reads "", whitespace, and hex as numbers, so only plain decimals may decode.
+const JunieDecimalString = S.String.check(S.isPattern(/^-?\d+(\.\d+)?$/)).pipe(
+  S.decodeTo(S.Finite, SchemaTransformation.numberFromString)
+);
+const JunieAmount = S.Struct({ amount: S.Union([S.Finite, JunieDecimalString]) });
 const JunieQuotaPool = S.Struct({
   current: JunieAmount.pipe(S.OptionFromOptionalKey),
   maximum: JunieAmount.pipe(S.OptionFromOptionalKey),
@@ -859,8 +873,8 @@ const JunieQuotaPool = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class JunieAccessOptionsBody extends S.Class<JunieAccessOptionsBody>($I`JunieAccessOptionsBody`)(
-  {
+export class JunieAccessOptionsBody extends S.Opaque<JunieAccessOptionsBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     aiAccessOptions: S.Array(
       S.Struct({
         type: S.String,
@@ -870,10 +884,11 @@ export class JunieAccessOptionsBody extends S.Class<JunieAccessOptionsBody>($I`J
         validThrough: S.String.pipe(S.OptionFromOptionalKey),
       })
     ),
-  },
-  $I.annote("JunieAccessOptionsBody", {
-    description: "Enabled JetBrains license options; identifiers remain redacted.",
-  })
+  }).pipe(
+    $I.annoteSchema("JunieAccessOptionsBody", {
+      description: "Enabled JetBrains license options; identifiers remain redacted.",
+    })
+  )
 ) {}
 
 /**
@@ -908,9 +923,10 @@ export const JunieAccessOptionsBodyJson = JsonStringCodec(JunieAccessOptionsBody
  * @category models
  * @since 0.0.0
  */
-export class JunieExchangeBody extends S.Class<JunieExchangeBody>($I`JunieExchangeBody`)(
-  { token: S.NonEmptyString.pipe(S.RedactedFromValue) },
-  $I.annote("JunieExchangeBody", { description: "The in-memory Grazie exchange token." })
+export class JunieExchangeBody extends S.Opaque<JunieExchangeBody, { readonly brand: unique symbol }>()(
+  S.Struct({ token: S.NonEmptyString.pipe(S.RedactedFromValue) }).pipe(
+    $I.annoteSchema("JunieExchangeBody", { description: "The in-memory Grazie exchange token." })
+  )
 ) {}
 
 /**
@@ -945,8 +961,8 @@ export const JunieExchangeBodyJson = JsonStringCodec(JunieExchangeBody);
  * @category models
  * @since 0.0.0
  */
-export class JunieQuotaBody extends S.Class<JunieQuotaBody>($I`JunieQuotaBody`)(
-  {
+export class JunieQuotaBody extends S.Opaque<JunieQuotaBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     current: S.Struct({
       current: JunieAmount.pipe(S.OptionFromOptionalKey),
       maximum: JunieAmount.pipe(S.OptionFromOptionalKey),
@@ -954,8 +970,9 @@ export class JunieQuotaBody extends S.Class<JunieQuotaBody>($I`JunieQuotaBody`)(
       tariffQuota: JunieQuotaPool.pipe(S.OptionFromOptionalKey),
       topUpQuota: JunieQuotaPool.pipe(S.OptionFromOptionalKey),
     }),
-  },
-  $I.annote("JunieQuotaBody", { description: "Tariff and top-up quota amounts in JetBrains wire units." })
+  }).pipe(
+    $I.annoteSchema("JunieQuotaBody", { description: "Tariff and top-up quota amounts in JetBrains wire units." })
+  )
 ) {}
 
 /**
@@ -990,15 +1007,18 @@ export const JunieQuotaBodyJson = JsonStringCodec(JunieQuotaBody);
  * @category models
  * @since 0.0.0
  */
-export class JunieRefillBody extends S.Class<JunieRefillBody>($I`JunieRefillBody`)(
-  {
+export class JunieRefillBody extends S.Opaque<JunieRefillBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     current: S.Struct({
       tariff: S.Struct({ amount: JunieAmount, period: S.Struct({ millis: S.Finite }) }).pipe(S.OptionFromOptionalKey),
       next: S.Finite.pipe(S.OptionFromOptionalKey),
       last: S.Finite.pipe(S.OptionFromOptionalKey),
     }),
-  },
-  $I.annote("JunieRefillBody", { description: "Cycle refill metadata; next is an epoch millisecond timestamp." })
+  }).pipe(
+    $I.annoteSchema("JunieRefillBody", {
+      description: "Cycle refill metadata; next is an epoch millisecond timestamp.",
+    })
+  )
 ) {}
 
 /**

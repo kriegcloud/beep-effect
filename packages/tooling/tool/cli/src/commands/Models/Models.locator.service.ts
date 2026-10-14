@@ -53,15 +53,15 @@ export interface ModelsLocatorReaderShape {
  * **Example** (Describe a locator read)
  *
  * ```ts
- * import { ModelsLocatorReader } from "@beep/repo-cli/commands/Models"
+ * import { LocatorBinding, ModelsLocatorReader, ModelsTargetFile } from "@beep/repo-cli/commands/Models"
  * import * as Effect from "effect/Effect"
  *
  * const program = ModelsLocatorReader.use((reader) =>
  *   reader.read(
- *     { root: "repo", absolutePath: "/repo/a.ts", content: 'export const x = "y";' },
+ *     ModelsTargetFile.make({ root: "repo", absolutePath: "/repo/a.ts", content: 'export const x = "y";' }),
  *     {
  *       _tag: "ts-literal",
- *       binding: { role: "qa.judge", surface: "codex-plugin", field: "model" },
+ *       binding: LocatorBinding.make({ role: "qa.judge", surface: "codex-plugin", field: "model" }),
  *       render: { _tag: "verbatim" },
  *       symbol: "x"
  *     }
@@ -155,13 +155,26 @@ const readTsLiteral = (content: string, symbol: string): O.Option<string> =>
 // and doctrine spellings (R9). Keep every distinct value, so a mixed file
 // cannot look current just because its first occurrence is current.
 const readLineValues = (content: string, linePrefix: string, before: string, after: string): O.Option<string> => {
-  const pattern = new RegExp(`${escapeRegExp(before)}(.*?)${escapeRegExp(after)}`, "g");
+  const valuesOnLine = (line: string): ReadonlyArray<string> => {
+    const values: Array<string> = [];
+    let cursor = 0;
+    while (cursor < Str.length(line)) {
+      // Effect String.indexOf has no start offset; the native offset form avoids
+      // copying each suffix and keeps missing closing delimiters linear.
+      const start = line.indexOf(before, cursor);
+      if (start < 0) break;
+      const valueStart = start + Str.length(before);
+      const end = line.indexOf(after, valueStart);
+      if (end < 0) break;
+      values.push(Str.slice(valueStart, end)(line));
+      cursor = end + Str.length(after);
+    }
+    return values;
+  };
   const values = pipe(
     Str.split(content, "\n"),
     A.filter(Str.startsWith(linePrefix)),
-    A.flatMap(flow(Str.matchAll(pattern), A.fromIterable)),
-    A.map((match) => O.fromNullishOr(match[1])),
-    A.getSomes,
+    A.flatMap(valuesOnLine),
     A.dedupe
   );
   return A.isReadonlyArrayNonEmpty(values) ? O.some(A.join(values, ", ")) : O.none();

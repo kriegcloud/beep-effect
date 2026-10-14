@@ -82,7 +82,7 @@ export type FrontmatterNewline = typeof FrontmatterNewline.Type;
  * @category models
  * @since 0.0.0
  */
-export class FrontmatterSourceBlock extends S.Class<FrontmatterSourceBlock>($I`FrontmatterSourceBlock`)({
+export class FrontmatterSourceBlock extends S.Class<FrontmatterSourceBlock, { readonly brand: unique symbol }>($I`FrontmatterSourceBlock`)({
 	format: FrontmatterFormat.annotateKey({ description: "Frontmatter encoding declared by the opening fence: YAML, TOML or JSON" }),
 	value: S.String.annotateKey({ description: "Exact source text between the fence lines, preserving every value line's terminator" }),
 	newline: S.optionalKey(FrontmatterNewline).annotateKey({ description: "Opening fence's line terminator, reused for both fences when joining; defaults to LF when omitted" }),
@@ -119,7 +119,7 @@ export class FrontmatterSourceBlock extends S.Class<FrontmatterSourceBlock>($I`F
  * @category models
  * @since 0.0.0
  */
-export class FrontmatterSourceSplit extends S.Class<FrontmatterSourceSplit>($I`FrontmatterSourceSplit`)({
+export class FrontmatterSourceSplit extends S.Class<FrontmatterSourceSplit, { readonly brand: unique symbol }>($I`FrontmatterSourceSplit`)({
 	frontmatter: S.optionalKey(FrontmatterSourceBlock).annotateKey({ description: "Closed frontmatter block captured at the start of the source, absent when no matching block exists" }),
 	body: S.String.annotateKey({ description: "Exact source remainder after the closing fence and its terminator, or the whole source when no block exists" }),
 	bodyOffset: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(0))).annotateKey({ description: "Zero-based UTF-16 source offset where the body begins, immediately after the closing fence and terminator, or zero without frontmatter" }),

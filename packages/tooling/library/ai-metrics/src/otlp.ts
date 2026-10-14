@@ -171,7 +171,10 @@ export type AiMetricsOtlpAttributeValue = typeof AiMetricsOtlpAttributeValue.Typ
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsOtlpExportError extends S.TaggedError<AiMetricsOtlpExportError>($I`AiMetricsOtlpExportError`)(
+export class AiMetricsOtlpExportError extends S.TaggedError<
+  AiMetricsOtlpExportError,
+  { readonly brand: unique symbol }
+>($I`AiMetricsOtlpExportError`)(
   "AiMetricsOtlpExportError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -207,15 +210,16 @@ export class AiMetricsOtlpExportError extends S.TaggedError<AiMetricsOtlpExportE
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsOtlpExportInput extends S.Class<AiMetricsOtlpExportInput>($I`AiMetricsOtlpExportInput`)(
-  {
+export class AiMetricsOtlpExportInput extends S.Opaque<AiMetricsOtlpExportInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     duckDbPath: S.String,
     endpoint: AiMetricsOtlpEndpointSpec,
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsOtlpExportInput", {
-    description: "DuckDB source and OTLP endpoint for one redacted AI metrics export run.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsOtlpExportInput", {
+      description: "DuckDB source and OTLP endpoint for one redacted AI metrics export run.",
+    })
+  )
 ) {}
 
 /**
@@ -249,8 +253,11 @@ export class AiMetricsOtlpExportInput extends S.Class<AiMetricsOtlpExportInput>(
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsOtlpSpanProjection extends S.Class<AiMetricsOtlpSpanProjection>($I`AiMetricsOtlpSpanProjection`)(
-  {
+export class AiMetricsOtlpSpanProjection extends S.Opaque<
+  AiMetricsOtlpSpanProjection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attributes: S.Record(S.String, AiMetricsOtlpAttributeValue),
     /**
      * Set on turn spans to the enclosing session span, absent on session spans
@@ -263,10 +270,11 @@ export class AiMetricsOtlpSpanProjection extends S.Class<AiMetricsOtlpSpanProjec
     traceId: OtlpTraceId,
     /** Turn watermark identity, absent only on synthetic session spans. */
     turnId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AiMetricsOtlpSpanProjection", {
-    description: "Redacted span identity, name, and bounded attributes derived from AI metrics DuckDB storage.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsOtlpSpanProjection", {
+      description: "Redacted span identity, name, and bounded attributes derived from AI metrics DuckDB storage.",
+    })
+  )
 ) {
   static readonly turnIdsFor: (projections: ReadonlyArray<AiMetricsOtlpSpanProjection>) => ReadonlyArray<string> = flow(
     A.map((projection) => projection.turnId),
@@ -304,10 +312,11 @@ export class AiMetricsOtlpSpanProjection extends S.Class<AiMetricsOtlpSpanProjec
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsOtlpSpanProjectionBatch extends S.Class<AiMetricsOtlpSpanProjectionBatch>(
-  $I`AiMetricsOtlpSpanProjectionBatch`
-)(
-  {
+export class AiMetricsOtlpSpanProjectionBatch extends S.Opaque<
+  AiMetricsOtlpSpanProjectionBatch,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     projections: S.Array(AiMetricsOtlpSpanProjection),
     sessionSpanCount: S.Natural,
     /**
@@ -317,10 +326,11 @@ export class AiMetricsOtlpSpanProjectionBatch extends S.Class<AiMetricsOtlpSpanP
      */
     turnIds: S.Array(S.String),
     turnSpanCount: S.Natural,
-  },
-  $I.annote("AiMetricsOtlpSpanProjectionBatch", {
-    description: "Redacted OTLP span projections for every AI metrics turn still awaiting export.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsOtlpSpanProjectionBatch", {
+      description: "Redacted OTLP span projections for every AI metrics turn still awaiting export.",
+    })
+  )
 ) {}
 
 /**
@@ -344,23 +354,30 @@ export class AiMetricsOtlpSpanProjectionBatch extends S.Class<AiMetricsOtlpSpanP
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsOtlpExportResult extends S.Class<AiMetricsOtlpExportResult>($I`AiMetricsOtlpExportResult`)(
-  {
+export class AiMetricsOtlpExportResult extends S.Opaque<AiMetricsOtlpExportResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     endpointTraceUrl: S.String,
     sessionSpanCount: S.Natural,
     spanCount: S.Natural,
     target: AiMetricsDeployTarget,
     turnSpanCount: S.Natural,
-  },
-  $I.annote("AiMetricsOtlpExportResult", {
-    description: "Safe counts returned after emitting redacted AI metrics spans to the active tracer.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsOtlpExportResult", {
+      description: "Safe counts returned after emitting redacted AI metrics spans to the active tracer.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsOtlpExportResult));
 }
 
-class AiMetricsOtlpTurnExportRow extends S.Class<AiMetricsOtlpTurnExportRow>($I`AiMetricsOtlpTurnExportRow`)(
-  {
+/**
+ * DuckDB turn row shape projected into redacted AI metrics OTLP spans.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class AiMetricsOtlpTurnExportRow extends S.Opaque<AiMetricsOtlpTurnExportRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentNicknameHash: S.OptionFromNullOr(S.String),
     agentRoleHash: S.OptionFromNullOr(S.String),
     agentSessionId: S.String,
@@ -379,10 +396,11 @@ class AiMetricsOtlpTurnExportRow extends S.Class<AiMetricsOtlpTurnExportRow>($I`
     threadSpawn: S.OptionFromNullOr(S.Boolean),
     timestamp: S.OptionFromNullOr(S.String),
     turnId: S.String,
-  },
-  $I.annote("AiMetricsOtlpTurnExportRow", {
-    description: "DuckDB turn row shape projected into redacted AI metrics OTLP spans.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsOtlpTurnExportRow", {
+      description: "DuckDB turn row shape projected into redacted AI metrics OTLP spans.",
+    })
+  )
 ) {}
 
 const decodeTurnRows = S.decodeUnknownEffect(S.Array(AiMetricsOtlpTurnExportRow));

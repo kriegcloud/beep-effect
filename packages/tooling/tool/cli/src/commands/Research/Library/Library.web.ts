@@ -8,7 +8,7 @@
 import { Firecrawl, FirecrawlScrapePayload } from "@beep/firecrawl";
 import { $RepoCliId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
-import { HttpClient, HttpClientResponse } from "effect/http";
+import { FetchHttpClient, HttpClient, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
@@ -23,44 +23,12 @@ import { LibraryArtifact } from "./Library.schemas.ts";
 import { hashBytes, saveImmutable } from "./Library.store.ts";
 import type { LibrarySource } from "./Library.schemas.ts";
 
-const publisherAttributes = (tag: string) => {
-  const attributes: Record<string, string> = {};
-  for (const attribute of tag.matchAll(/(?:^|\s)(name|content|href)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gi))
-    attributes[Str.toLowerCase(attribute[1] ?? "")] = attribute[2] ?? attribute[3] ?? attribute[4] ?? "";
-  return attributes;
-};
-const publisherTagPdf = (tag: string) => {
-  const attributes = publisherAttributes(tag);
-  const explicit = Str.toLowerCase(attributes.name ?? "") === "citation_pdf_url";
-  const content = attributes.content ?? "";
-  const href = attributes.href ?? "";
-  return { explicit, content, href: /\.pdf(?:\?[^\s]*)?$/i.test(href) ? href : "" };
-};
-const publisherPdfLocator = (html: string) => {
-  let locator = "";
-  for (const tag of html.matchAll(/<(?:meta|a)\b[^>]*>/gi)) {
-    const candidate = publisherTagPdf(tag[0]);
-    if (candidate.explicit) {
-      // An empty explicit meta resets the earlier anchor exactly as the original parser did.
-      locator = candidate.content;
-      if (Str.isNonEmpty(locator)) break;
-    }
-    if (Str.isEmpty(locator)) locator = candidate.href;
-  }
-  return locator;
-};
 const isPdf = (value: Uint8Array) => new TextDecoder().decode(value.subarray(0, 5)) === "%PDF-";
 const successfulPdf = (status: number, bytes: Uint8Array) =>
   status >= 200 && status < 300 && bytes.byteLength <= 50_000_000 && isPdf(bytes);
 const observedPaperMatches = (arxiv: O.Option<RegExpMatchArray>, actual: O.Option<RegExpMatchArray>) =>
   O.isNone(arxiv) || (O.isSome(actual) && Str.startsWith(actual.value[1] ?? "")(arxiv.value[1] ?? ""));
 
-const publisherCandidateAllowed = (candidate: URL | undefined, fetchedUrl: string) =>
-  candidate !== undefined &&
-  ["https:", "http:"].includes(candidate.protocol) &&
-  Str.isEmpty(candidate.username) &&
-  Str.isEmpty(candidate.password) &&
-  candidate.href !== fetchedUrl;
 const paperHeaderObservation = (text: string) => {
   const actual = Str.match(/arXiv:\s*(\d{4}\.\d{4,5})(v\d+)/i)(text);
   return {
@@ -301,10 +269,12 @@ export const acquireLibraryPaper = Effect.fn("Library.acquirePaper")(function* (
   const artifacts: Array<LibraryArtifact> = [];
   return yield* Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
-    let fetchedUrl = pdfUrl;
-    let response = yield* client.get(fetchedUrl).pipe(Effect.timeout("90 seconds"));
-    let bytes = yield* readBoundedPaperBody(response, true).pipe(Effect.timeout("90 seconds"));
-    const resolvePublisherPdf = Effect.fn("Library.paper.resolvePublisherPdf")(function* () {
+    const fetchedUrl = pdfUrl;
+    const response = yield* client
+      .get(fetchedUrl)
+      .pipe(Effect.provideService(FetchHttpClient.RequestInit, { redirect: "manual" }), Effect.timeout("90 seconds"));
+    const bytes = yield* readBoundedPaperBody(response, true).pipe(Effect.timeout("90 seconds"));
+    const retainPublisherLanding = Effect.fn("Library.paper.retainPublisherLanding")(function* () {
       const landing = yield* saveImmutable(root, `${prefix}/landing.html`, bytes);
       artifacts.push(LibraryArtifact.make({ ...landing, mediaType: "text/html", role: "publisher-landing-page" }));
       artifacts.push(
@@ -322,54 +292,19 @@ export const acquireLibraryPaper = Effect.fn("Library.acquirePaper")(function* (
           "publisher-target-metadata"
         )
       );
-      if (response.status < 200 || response.status >= 300 || bytes.byteLength > 5_000_000) {
-        return O.some(
-          LibraryAdapterResult.make({
-            artifacts,
-            revision: source.revision,
-            status: "blocked",
-            complete: false,
-            reason: `Publisher target returned HTTP ${response.status} without a supported PDF; original response retained.`,
-          })
-        );
-      }
-      const locator = publisherPdfLocator(new TextDecoder().decode(bytes));
-      const candidate = yield* Effect.try({
-        try: () => {
-          const page = new URL(response.url);
-          return Str.isNonEmpty(locator)
-            ? new URL(Str.replace(/&amp;/g, "&")(locator), page)
-            : page.hostname === "openreview.net" && page.pathname === "/forum" && page.searchParams.has("id")
-              ? new URL(`/pdf?id=${encodeURIComponent(page.searchParams.get("id") ?? "")}`, page)
-              : undefined;
-        },
-        catch: (cause) => LibraryError.make({ cause, message: "Publisher PDF locator was not a valid URL." }),
+      return LibraryAdapterResult.make({
+        artifacts,
+        revision: source.revision,
+        status: "blocked",
+        complete: false,
+        reason:
+          response.status < 200 || response.status >= 300 || bytes.byteLength > 5_000_000
+            ? `Publisher target returned HTTP ${response.status} without a supported PDF; original response retained.`
+            : "Publisher landing page retained; automatic PDF URL discovery is disabled. Abstract or portal text is incomplete evidence.",
       });
-      if (!publisherCandidateAllowed(candidate, fetchedUrl)) {
-        return O.some(
-          LibraryAdapterResult.make({
-            artifacts,
-            revision: source.revision,
-            status: "blocked",
-            complete: false,
-            reason:
-              "Publisher landing page retained; no explicit downloadable full-paper PDF located. Abstract or portal text is incomplete evidence.",
-          })
-        );
-      }
-      if (candidate === undefined)
-        return yield* LibraryError.make({
-          cause: "identity",
-          message: "Publisher PDF locator missing after validation.",
-        });
-      fetchedUrl = candidate.href;
-      response = yield* client.get(fetchedUrl).pipe(Effect.timeout("90 seconds"));
-      bytes = yield* readBoundedPaperBody(response, true).pipe(Effect.timeout("90 seconds"));
-      return O.none();
     });
     if (!isPdf(bytes)) {
-      const partial = yield* resolvePublisherPdf();
-      if (O.isSome(partial)) return partial.value;
+      return yield* retainPublisherLanding();
     }
     const retainFailedPdf = Effect.fn("Library.paper.retainFailedPdf")(function* () {
       const failed = yield* saveImmutable(root, `${prefix}/pdf-response.bin`, bytes);

@@ -138,7 +138,7 @@ describe("knowledge doctor classification rule table", () => {
             : span.surface === "live"
               ? "verified"
               : "unclassified";
-        const spanClass = classifyKnowledgeSpan({ span, validCitation });
+        const spanClass = classifyKnowledgeSpan({ span: KnowledgeSpan.make(span), validCitation });
         assert.strictEqual(spanClass, expected);
         assert.isTrue(KnowledgeSpanClass.is[spanClass](spanClass));
         assert.isTrue(A.some(KNOWLEDGE_SPAN_CLASSIFICATION_RULES, (row) => row.spanClass === spanClass));
@@ -486,6 +486,23 @@ describe("knowledge doctor scan", () => {
     );
 
     it.effect(
+      "refuses an unbounded fan-out of distinct historical commits before materialization",
+      Effect.fnUntraced(function* () {
+        const commits = A.map(["1", "2", "3", "4", "5"], (digit) => Str.repeat(40)(digit));
+        const tree = yield* memoryTree({
+          files: {
+            "goals/demo/research/notes.md": doc(
+              ...A.flatMap(commits, (commit) => [`<!-- beep:historical commit=${commit} -->`, "`package.json`"])
+            ),
+          },
+          ancestors: commits,
+        });
+        const error = yield* Effect.flip(scanKnowledgeDoctorTree(tree));
+        assert.include(error.message, "more than four distinct historical commits");
+      })
+    );
+
+    it.effect(
       "reports a non-ancestor citation and leaves its spans unclassified",
       Effect.fnUntraced(function* () {
         const tree = yield* memoryTree({
@@ -650,10 +667,12 @@ describe("knowledge doctor counterfactual harness", () => {
 
 const ROOT_MODULE_PATH = "packages/tooling/tool/cli/src/commands/Root.ts";
 
-class RuntimeCommandFlags extends S.Class<RuntimeCommandFlags>("RuntimeCommandFlags")({
-  path: S.String,
-  flags: S.Array(S.String),
-}) {}
+class RuntimeCommandFlags extends S.Opaque<RuntimeCommandFlags, { readonly brand: unique symbol }>()(
+  S.Struct({
+    path: S.String,
+    flags: S.Array(S.String),
+  }).annotate({ identifier: "RuntimeCommandFlags" })
+) {}
 
 const RuntimeCommandFlagsJson = RuntimeCommandFlags.pipe(S.Array, S.fromJsonString);
 const SHARED_FLAGS_PATH = "packages/tooling/tool/cli/src/internal/cli/Flags.ts";

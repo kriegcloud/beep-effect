@@ -518,6 +518,7 @@ const compareFamily = (
  * import {
  *   classifyCourtReporterArtifactCompatibility,
  *   CourtReporterArtifact,
+ *   CourtReporterArtifactComparison,
  * } from "@beep/law-practice-domain/values/CourtReporterVocabulary"
  * import * as Result from "effect/Result"
  *
@@ -525,10 +526,8 @@ const compareFamily = (
  *   throw new Error("expected court reporter artifact")
  * }
  *
- * const report = classifyCourtReporterArtifactCompatibility(
- *   CourtReporterArtifact.success,
- *   CourtReporterArtifact.success
- * )
+ * const current = CourtReporterArtifactComparison.make(CourtReporterArtifact.success)
+ * const report = classifyCourtReporterArtifactCompatibility(current, current)
  * console.log(report.compatibility) // "compatible"
  * ```
  *

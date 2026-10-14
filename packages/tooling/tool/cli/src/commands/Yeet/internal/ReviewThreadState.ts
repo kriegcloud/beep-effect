@@ -139,17 +139,19 @@ export const yeetReviewCommentAuthorKind = (typename: O.Option<string>): YeetRev
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewThreadNewestComment extends S.Class<YeetReviewThreadNewestComment>(
-  $I`YeetReviewThreadNewestComment`
-)(
-  {
+export class YeetReviewThreadNewestComment extends S.Opaque<
+  YeetReviewThreadNewestComment,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     authorLogin: S.String,
     authorKind: YeetReviewCommentAuthorKind,
     createdAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetReviewThreadNewestComment", {
-    description: "The newest comment on a review thread, reduced to its author and timestamp.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewThreadNewestComment", {
+      description: "The newest comment on a review thread, reduced to its author and timestamp.",
+    })
+  )
 ) {}
 
 /**
@@ -178,8 +180,11 @@ export class YeetReviewThreadNewestComment extends S.Class<YeetReviewThreadNewes
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewThreadStateInput extends S.Class<YeetReviewThreadStateInput>($I`YeetReviewThreadStateInput`)(
-  {
+export class YeetReviewThreadStateInput extends S.Opaque<
+  YeetReviewThreadStateInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     threadId: S.String,
     isResolved: S.Boolean,
     isOutdated: S.Boolean,
@@ -191,10 +196,11 @@ export class YeetReviewThreadStateInput extends S.Class<YeetReviewThreadStateInp
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("YeetReviewThreadStateInput", {
-    description: "The structural review-thread metadata the thread-state rule classifies.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewThreadStateInput", {
+      description: "The structural review-thread metadata the thread-state rule classifies.",
+    })
+  )
 ) {}
 
 /**
@@ -222,18 +228,22 @@ export class YeetReviewThreadStateInput extends S.Class<YeetReviewThreadStateInp
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewThreadStateSource extends S.Class<YeetReviewThreadStateSource>($I`YeetReviewThreadStateSource`)(
-  {
+export class YeetReviewThreadStateSource extends S.Opaque<
+  YeetReviewThreadStateSource,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: S.String,
     isResolved: S.Boolean,
     isOutdated: S.Boolean,
     path: S.NullOr(S.String),
     line: S.NullOr(S.Finite),
     resolvedBy: GhActor.pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("YeetReviewThreadStateSource", {
-    description: "The thread fields shared by every yeet surface's decoded review thread.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewThreadStateSource", {
+      description: "The thread fields shared by every yeet surface's decoded review thread.",
+    })
+  )
 ) {}
 
 /**
@@ -307,17 +317,18 @@ export const yeetReviewThreadStateInput: {
  * @category models
  * @since 0.0.0
  */
-export class ThreadUnresolved extends S.Class<ThreadUnresolved>($I`ThreadUnresolved`)(
-  {
+export class ThreadUnresolved extends S.Opaque<ThreadUnresolved, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("unresolved"),
     threadId: S.String,
     path: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     line: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     isOutdated: S.Boolean,
-  },
-  $I.annote("ThreadUnresolved", {
-    description: "A review thread still open on the pull request.",
-  })
+  }).pipe(
+    $I.annoteSchema("ThreadUnresolved", {
+      description: "A review thread still open on the pull request.",
+    })
+  )
 ) {}
 
 /**
@@ -334,17 +345,18 @@ export class ThreadUnresolved extends S.Class<ThreadUnresolved>($I`ThreadUnresol
  * @category models
  * @since 0.0.0
  */
-export class ThreadResolvedAnswered extends S.Class<ThreadResolvedAnswered>($I`ThreadResolvedAnswered`)(
-  {
+export class ThreadResolvedAnswered extends S.Opaque<ThreadResolvedAnswered, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("resolved-answered"),
     threadId: S.String,
     path: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     line: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     isOutdated: S.Boolean,
-  },
-  $I.annote("ThreadResolvedAnswered", {
-    description: "A resolved review thread with no unanswered reviewer comment.",
-  })
+  }).pipe(
+    $I.annoteSchema("ThreadResolvedAnswered", {
+      description: "A resolved review thread with no unanswered reviewer comment.",
+    })
+  )
 ) {}
 
 /**
@@ -360,8 +372,8 @@ export class ThreadResolvedAnswered extends S.Class<ThreadResolvedAnswered>($I`T
  * @category models
  * @since 0.0.0
  */
-export class ThreadResolvedFollowUp extends S.Class<ThreadResolvedFollowUp>($I`ThreadResolvedFollowUp`)(
-  {
+export class ThreadResolvedFollowUp extends S.Opaque<ThreadResolvedFollowUp, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("resolved-follow-up"),
     threadId: S.String,
     path: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -369,10 +381,11 @@ export class ThreadResolvedFollowUp extends S.Class<ThreadResolvedFollowUp>($I`T
     isOutdated: S.Boolean,
     followUpAuthor: S.String,
     followUpAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ThreadResolvedFollowUp", {
-    description: "A thread the pull request author resolved that a human reviewer has commented on since.",
-  })
+  }).pipe(
+    $I.annoteSchema("ThreadResolvedFollowUp", {
+      description: "A thread the pull request author resolved that a human reviewer has commented on since.",
+    })
+  )
 ) {}
 
 /**
@@ -387,8 +400,11 @@ export class ThreadResolvedFollowUp extends S.Class<ThreadResolvedFollowUp>($I`T
  * @category models
  * @since 0.0.0
  */
-export class ThreadResolvedAcknowledged extends S.Class<ThreadResolvedAcknowledged>($I`ThreadResolvedAcknowledged`)(
-  {
+export class ThreadResolvedAcknowledged extends S.Opaque<
+  ThreadResolvedAcknowledged,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     state: S.tag("resolved-acknowledged"),
     threadId: S.String,
     path: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -396,10 +412,11 @@ export class ThreadResolvedAcknowledged extends S.Class<ThreadResolvedAcknowledg
     isOutdated: S.Boolean,
     followUpAuthor: S.String,
     followUpAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ThreadResolvedAcknowledged", {
-    description: "A thread the pull request author resolved that a review bot has acknowledged since.",
-  })
+  }).pipe(
+    $I.annoteSchema("ThreadResolvedAcknowledged", {
+      description: "A thread the pull request author resolved that a review bot has acknowledged since.",
+    })
+  )
 ) {}
 
 /**
@@ -505,16 +522,20 @@ const isThreadResolvedAcknowledged = S.is(ThreadResolvedAcknowledged);
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewThreadStateCounts extends S.Class<YeetReviewThreadStateCounts>($I`YeetReviewThreadStateCounts`)(
-  {
+export class YeetReviewThreadStateCounts extends S.Opaque<
+  YeetReviewThreadStateCounts,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     unresolved: S.Finite,
     followUp: S.Finite,
     acknowledged: S.Finite,
     answered: S.Finite,
-  },
-  $I.annote("YeetReviewThreadStateCounts", {
-    description: "How many of a pull request's review threads occupy each thread state.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewThreadStateCounts", {
+      description: "How many of a pull request's review threads occupy each thread state.",
+    })
+  )
 ) {}
 
 /**

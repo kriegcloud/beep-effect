@@ -78,6 +78,7 @@ import type { SkillUpdateTrainFailure } from "./SkillsRelock.service.ts";
 import type {
   SkillPatchHunk,
   SkillReviewAnswer,
+  SkillReviewOptions,
   SkillReviewScript,
   SkillReviewScriptEntry,
   SkillReviewStop,
@@ -639,27 +640,6 @@ const skillStates = (
     });
   });
 
-/**
- * Options for one review run.
- *
- * **Details**
- *
- * `decide: false` only prepares the queue and writes nothing, ghost replays
- * included. With `decide: true`, `ghost` first records the replayable earlier
- * decisions, then the {@link SkillReviewDecider} answers the rest within
- * `budget`, each answer recorded under `reviewer`.
- *
- * @category models
- * @since 0.0.0
- */
-export type SkillReviewOptions = {
-  readonly skill: O.Option<string>;
-  readonly decide: boolean;
-  readonly ghost: boolean;
-  readonly reviewer: string;
-  readonly budget: Duration.Duration;
-};
-
 type ReviewRequirements = SkillUpdateTrain | SkillReviewBaseSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto;
 
 const runReview = Effect.fn("SkillsReview.runReview")(function* (
@@ -722,7 +702,7 @@ export interface SkillHunkReviewShape {
  * **Example** (Run against a substituted reviewer)
  *
  * ```ts
- * import { SkillReviewSession } from "@beep/repo-cli/commands/Skills/SkillsReview.schemas"
+ * import { SkillReviewOptions, SkillReviewSession } from "@beep/repo-cli/commands/Skills/SkillsReview.schemas"
  * import {
  *   SkillHunkReview,
  *   SkillReviewDecider,
@@ -743,13 +723,13 @@ export interface SkillHunkReviewShape {
  *
  * const program = Effect.gen(function* () {
  *   const review = yield* SkillHunkReview
- *   return yield* review.review("/workspace/beep-effect", {
+ *   return yield* review.review("/workspace/beep-effect", SkillReviewOptions.make({
  *     skill: O.none(),
  *     decide: false,
  *     ghost: false,
  *     reviewer: "@kriegcloud",
  *     budget: Duration.minutes(20),
- *   }).pipe(Effect.provideService(SkillReviewDecider, skillReviewDeciderFromScript([])))
+ *   })).pipe(Effect.provideService(SkillReviewDecider, skillReviewDeciderFromScript([])))
  * })
  *
  * console.log(Effect.runSync(Effect.provide(program, empty)).stoppedBy) // "listed"

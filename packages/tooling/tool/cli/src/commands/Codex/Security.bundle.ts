@@ -157,9 +157,9 @@ const decodeSealedManifest = Effect.fn("CodexSecurity.decodeSealedManifest")(fun
 ) {
   const manifestBytes = yield* readSealedArtifact(root, "scan-manifest.json", totalBytes);
   const { value: manifest } = yield* decodeManifestJson(manifestBytes);
-  if (isMockScan(manifest))
+  if (isMockScan(SecurityManifest.make(manifest)))
     return yield* CodexSecurityError.make({ message: "Synthetic mock scans cannot create remediation packets." });
-  if (!bindsRequiredArtifactsOnce(manifest))
+  if (!bindsRequiredArtifactsOnce(SecurityManifest.make(manifest)))
     return yield* CodexSecurityError.make({
       message: "Manifest must bind findings and coverage exactly once, without duplicate artifact paths.",
     });
@@ -247,7 +247,7 @@ const resolveScanIdentity = Effect.fn("CodexSecurity.resolveScanIdentity")(funct
 ) {
   const receipt = yield* readSourceReceipt(root, totalBytes);
   const remoteRepository = O.flatMap(manifest.scan.target.remote, remoteSlugOption);
-  if (O.exists(receipt, (value) => receiptDisagrees(manifest, remoteRepository, value)))
+  if (O.exists(receipt, (value) => receiptDisagrees(manifest, remoteRepository, SecuritySourceReceipt.make(value))))
     return yield* CodexSecurityError.make({ message: "Local source receipt disagrees with the sealed target." });
   const identity: O.Option<ScanIdentity> = O.orElse(
     O.map(receipt, (value) => ({ repository: value.repository, repositorySource: "local-source-receipt" as const })),
@@ -359,14 +359,18 @@ export const readSecurityBundle = Effect.fn("CodexSecurity.readBundle")(
     const artifacts = yield* verifySealedArtifacts(root, manifest.scan.artifacts, totalBytes);
     const findings = yield* decodeFindingsJson(yield* sealedArtifactBytes(artifacts, "findings.json"));
     const coverage = yield* decodeCoverageJson(yield* sealedArtifactBytes(artifacts, "coverage.json"));
-    yield* verifyScanConsistency(manifest, findings.value, coverage.value);
-    const identity = yield* resolveScanIdentity(root, manifest, totalBytes);
+    yield* verifyScanConsistency(
+      SecurityManifest.make(manifest),
+      SecurityFindings.make(findings.value),
+      SecurityCoverage.make(coverage.value)
+    );
+    const identity = yield* resolveScanIdentity(root, SecurityManifest.make(manifest), totalBytes);
     return yield* projectCapture({
-      manifest,
+      manifest: SecurityManifest.make(manifest),
       manifestBytes,
-      findings: findings.value,
+      findings: SecurityFindings.make(findings.value),
       findingsInput: findings.input,
-      coverage: coverage.value,
+      coverage: SecurityCoverage.make(coverage.value),
       coverageInput: coverage.input,
       identity,
     });

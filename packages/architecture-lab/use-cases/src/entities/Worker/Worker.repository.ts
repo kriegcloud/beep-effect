@@ -36,7 +36,10 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.repository"
  * @category repositories
  * @since 0.0.0
  */
-export class WorkerRepositoryNotFound extends S.TaggedError<WorkerRepositoryNotFound>($I`WorkerRepositoryNotFound`)(
+export class WorkerRepositoryNotFound extends S.TaggedError<
+  WorkerRepositoryNotFound,
+  { readonly brand: unique symbol }
+>($I`WorkerRepositoryNotFound`)(
   "WorkerRepositoryNotFound",
   {
     workerId: ArchitectureLabIdentity.WorkerId,
@@ -71,7 +74,10 @@ export class WorkerRepositoryNotFound extends S.TaggedError<WorkerRepositoryNotF
  * @category repositories
  * @since 0.0.0
  */
-export class WorkerRepositoryConflict extends S.TaggedError<WorkerRepositoryConflict>($I`WorkerRepositoryConflict`)(
+export class WorkerRepositoryConflict extends S.TaggedError<
+  WorkerRepositoryConflict,
+  { readonly brand: unique symbol }
+>($I`WorkerRepositoryConflict`)(
   "WorkerRepositoryConflict",
   {
     workerId: ArchitectureLabIdentity.WorkerId,
@@ -103,9 +109,10 @@ export class WorkerRepositoryConflict extends S.TaggedError<WorkerRepositoryConf
  * @category repositories
  * @since 0.0.0
  */
-export class WorkerRepositoryUnavailable extends S.TaggedError<WorkerRepositoryUnavailable>(
-  $I`WorkerRepositoryUnavailable`
-)(
+export class WorkerRepositoryUnavailable extends S.TaggedError<
+  WorkerRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`WorkerRepositoryUnavailable`)(
   "WorkerRepositoryUnavailable",
   {
     reason: S.NonEmptyString.annotateKey({

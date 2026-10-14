@@ -64,8 +64,8 @@ export type ReferenceTier = typeof ReferenceTier.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReferenceMember extends S.Class<ReferenceMember>($I`ReferenceMember`)(
-  {
+export class ReferenceMember extends S.Opaque<ReferenceMember, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: MemberName,
     url: S.NonEmptyString,
     branch: MemberBranch.pipe(
@@ -74,10 +74,11 @@ export class ReferenceMember extends S.Class<ReferenceMember>($I`ReferenceMember
     ),
     tier: ReferenceTier,
     onlyDir: RelativeDirectory.pipe(S.Array, S.OptionFromOptionalKey),
-  },
-  $I.annote("ReferenceMember", {
-    description: "Manifest member refreshed only when clean and on its configured branch.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReferenceMember", {
+      description: "Manifest member refreshed only when clean and on its configured branch.",
+    })
+  )
 ) {
   /**
    * Strict boundary decoder with a main branch default and unknown-key rejection.
@@ -108,8 +109,11 @@ export class ReferenceMember extends S.Class<ReferenceMember>($I`ReferenceMember
  * @category models
  * @since 0.0.0
  */
-export class ReferenceWorkspaceManifest extends S.Class<ReferenceWorkspaceManifest>($I`ReferenceWorkspaceManifest`)(
-  {
+export class ReferenceWorkspaceManifest extends S.Opaque<
+  ReferenceWorkspaceManifest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("beep-references/v1"),
     theme: S.Literal("effect"),
     rootDefault: S.NonEmptyString.check(
@@ -130,8 +134,7 @@ export class ReferenceWorkspaceManifest extends S.Class<ReferenceWorkspaceManife
       )
     ),
     workspaceLink: S.Literal(".repos/effect-workspace"),
-  },
-  $I.annote("ReferenceWorkspaceManifest", { description: "The on-disk beep-references/v1 manifest." })
+  }).pipe($I.annoteSchema("ReferenceWorkspaceManifest", { description: "The on-disk beep-references/v1 manifest." }))
 ) {
   /**
    * Decodes manifest input with unknown member and manifest fields rejected.
@@ -275,14 +278,17 @@ export type MemberRefreshDetail = typeof MemberRefreshDetail.Type;
  * @category models
  * @since 0.0.0
  */
-export class MemberRefreshReport extends S.Class<MemberRefreshReport>($I`MemberRefreshReport`)(
-  {
+export class MemberRefreshReport extends S.Opaque<MemberRefreshReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: MemberName,
     outcome: MemberRefreshOutcome,
     coverage: S.OptionFromOptionalKey(GraftDeepCoverage),
     detail: S.OptionFromOptionalKey(MemberRefreshDetail),
-  },
-  $I.annote("MemberRefreshReport", { description: "Member outcome, optional deep coverage, and failure detail." })
+  }).pipe(
+    $I.annoteSchema("MemberRefreshReport", {
+      description: "Member outcome, optional deep coverage, and failure detail.",
+    })
+  )
 ) {}
 
 /**
@@ -297,9 +303,10 @@ export class MemberRefreshReport extends S.Class<MemberRefreshReport>($I`MemberR
  * @category models
  * @since 0.0.0
  */
-export class ReferenceWorkspaceCheck extends S.Class<ReferenceWorkspaceCheck>($I`ReferenceWorkspaceCheck`)(
-  { buildExitCode: S.Int, exitCode: S.Int, output: S.String },
-  $I.annote("ReferenceWorkspaceCheck", { description: "Parent structural build and graft check results." })
+export class ReferenceWorkspaceCheck extends S.Opaque<ReferenceWorkspaceCheck, { readonly brand: unique symbol }>()(
+  S.Struct({ buildExitCode: S.Int, exitCode: S.Int, output: S.String }).pipe(
+    $I.annoteSchema("ReferenceWorkspaceCheck", { description: "Parent structural build and graft check results." })
+  )
 ) {}
 
 /**
@@ -349,12 +356,11 @@ export type PatchKitStatus = typeof PatchKitStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class RefsRefreshPreflight extends S.Class<RefsRefreshPreflight>($I`RefsRefreshPreflight`)(
-  {
+export class RefsRefreshPreflight extends S.Opaque<RefsRefreshPreflight, { readonly brand: unique symbol }>()(
+  S.Struct({
     patchKit: PatchKitStatus,
     detail: S.OptionFromOptionalKey(MemberRefreshDetail),
-  },
-  $I.annote("RefsRefreshPreflight", { description: "Run-level checks recorded before member work." })
+  }).pipe($I.annoteSchema("RefsRefreshPreflight", { description: "Run-level checks recorded before member work." }))
 ) {}
 
 /**
@@ -374,18 +380,19 @@ export class RefsRefreshPreflight extends S.Class<RefsRefreshPreflight>($I`RefsR
  * @category models
  * @since 0.0.0
  */
-export class RefsRefreshStatus extends S.Class<RefsRefreshStatus>($I`RefsRefreshStatus`)(
-  {
+export class RefsRefreshStatus extends S.Opaque<RefsRefreshStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("beep-refs-refresh/v1"),
     timestamp: S.String,
     root: S.NonEmptyString,
     members: S.Array(MemberRefreshReport),
     workspaceCheck: ReferenceWorkspaceCheck,
     preflight: S.OptionFromOptionalKey(RefsRefreshPreflight),
-  },
-  $I.annote("RefsRefreshStatus", {
-    description: "One report per manifest member, the workspace check, and the run preflight.",
-  })
+  }).pipe(
+    $I.annoteSchema("RefsRefreshStatus", {
+      description: "One report per manifest member, the workspace check, and the run preflight.",
+    })
+  )
 ) {
   /**
    * Decodes a saved reference refresh receipt.
@@ -431,15 +438,16 @@ export class RefsRefreshStatus extends S.Class<RefsRefreshStatus>($I`RefsRefresh
  * @category models
  * @since 0.0.0
  */
-export class RefsTimerOptions extends S.Class<RefsTimerOptions>($I`RefsTimerOptions`)(
-  {
+export class RefsTimerOptions extends S.Opaque<RefsTimerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     owner: SystemdUnitPath,
     root: SystemdUnitPath,
     home: SystemdUnitPath,
     calendar: SystemdUnitPath,
     bunPath: SystemdUnitPath,
-  },
-  $I.annote("RefsTimerOptions", { description: "Unit-safe owner, root, home, calendar and Bun executable." })
+  }).pipe(
+    $I.annoteSchema("RefsTimerOptions", { description: "Unit-safe owner, root, home, calendar and Bun executable." })
+  )
 ) {
   /**
    * Validates timer input before rendering systemd units.
@@ -469,7 +477,8 @@ export class RefsTimerOptions extends S.Class<RefsTimerOptions>($I`RefsTimerOpti
  * @category models
  * @since 0.0.0
  */
-export class RefsTimerUnit extends S.Class<RefsTimerUnit>($I`RefsTimerUnit`)(
-  { fileName: S.NonEmptyString, text: S.String },
-  $I.annote("RefsTimerUnit", { description: "Rendered unit filename and contents." })
+export class RefsTimerUnit extends S.Opaque<RefsTimerUnit, { readonly brand: unique symbol }>()(
+  S.Struct({ fileName: S.NonEmptyString, text: S.String }).pipe(
+    $I.annoteSchema("RefsTimerUnit", { description: "Rendered unit filename and contents." })
+  )
 ) {}

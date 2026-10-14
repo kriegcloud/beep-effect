@@ -95,11 +95,11 @@ describe("tikaOperationError", () => {
       const operation = yield* makeExtractOperationFixture("plain-text");
       const unsupported = tikaOperationError(
         operation,
-        makeTikaError("response-status", { statusCode: S.Natural.make(415) })
+        makeTikaError("response-status", TikaErrorOptions.make({ statusCode: S.Natural.make(415) }))
       );
       const failed = tikaOperationError(
         operation,
-        makeTikaError("response-status", { statusCode: S.Natural.make(500) })
+        makeTikaError("response-status", TikaErrorOptions.make({ statusCode: S.Natural.make(500) }))
       );
 
       expect(unsupported.reason).toBe("unsupported-file-format");
@@ -111,8 +111,14 @@ describe("tikaOperationError", () => {
     "carries the sanitized cause only on the file-extraction-failed arm",
     Effect.fnUntraced(function* () {
       const operation = yield* makeExtractOperationFixture("plain-text");
-      const extractionFailed = tikaOperationError(operation, makeTikaError("response-decoding", { cause: "bad json" }));
-      const budgetExceeded = tikaOperationError(operation, makeTikaError("output-budget", { cause: "9 bytes" }));
+      const extractionFailed = tikaOperationError(
+        operation,
+        makeTikaError("response-decoding", TikaErrorOptions.make({ cause: "bad json" }))
+      );
+      const budgetExceeded = tikaOperationError(
+        operation,
+        makeTikaError("output-budget", TikaErrorOptions.make({ cause: "9 bytes" }))
+      );
 
       expect(extractionFailed.details).toEqual({ cause: "bad json" });
       expect(budgetExceeded.details).toBeUndefined();

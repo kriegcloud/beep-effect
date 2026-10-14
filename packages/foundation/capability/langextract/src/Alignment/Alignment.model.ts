@@ -227,15 +227,16 @@ export declare namespace AlignedMatch {
  * @category models
  * @since 0.0.0
  */
-export class AlignmentSource extends S.Class<AlignmentSource>($I`AlignmentSource`)(
-  {
+export class AlignmentSource extends S.Opaque<AlignmentSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     fuzzyThreshold: UnitInterval.pipe(S.withConstructorDefault(Effect.succeed<number>(DEFAULT_FUZZY_THRESHOLD))),
     maxExtractions: S.Natural.pipe(S.withConstructorDefault(Effect.succeed<number>(DEFAULT_MAX_EXTRACTIONS))),
     sourceText: S.String,
-  },
-  $I.annote("AlignmentSource", {
-    description: "Source text plus resolved alignment options consumed by one deterministic alignment run.",
-  })
+  }).pipe(
+    $I.annoteSchema("AlignmentSource", {
+      description: "Source text plus resolved alignment options consumed by one deterministic alignment run.",
+    })
+  )
 ) {
   /**
    * Resolve an alignment source from source text and decoded extraction options.

@@ -400,6 +400,7 @@ describe("MailTagging ledgers", () => {
       "too-large",
       "no-folder",
       "sender-not-routable",
+      "name-held",
     ]);
     expect(emptyTaggingRunReport("apply", runId).attachmentsSkipped["no-folder"]).toBe(0);
   });
@@ -495,6 +496,7 @@ describe("MailTagging run report", () => {
         "too-large": 0,
         "no-folder": 0,
         "sender-not-routable": 0,
+        "name-held": 0,
       },
       wrote,
     });
@@ -525,6 +527,7 @@ describe("MailTagging run report", () => {
         "too-large": 0,
         "no-folder": 0,
         "sender-not-routable": 0,
+        "name-held": 0,
       },
       wrote: false,
     });
@@ -543,6 +546,7 @@ describe("MailTagging run report", () => {
       "too-large": 0,
       "no-folder": 0,
       "sender-not-routable": 0,
+      "name-held": 0,
     });
     expect(total.categoryAdds).toStrictEqual([count(matterCategoryName(acme), 1), count("P: USPTO", 3)]);
     expect(total.wrote).toBe(true);

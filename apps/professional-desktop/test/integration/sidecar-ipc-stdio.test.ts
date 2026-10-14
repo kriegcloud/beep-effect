@@ -38,12 +38,12 @@ import { SidecarReadyMarker } from "@/runtime/Migrations";
 const shouldRun = Bun.env.BEEP_TEST_SIDECAR_IPC === "1";
 const bootMarker = SidecarReadyMarker;
 
-class SidecarBinaryResolutionError extends S.TaggedError<SidecarBinaryResolutionError>()(
-  "SidecarBinaryResolutionError",
-  {
-    message: S.String,
-  }
-) {}
+class SidecarBinaryResolutionError extends S.TaggedError<
+  SidecarBinaryResolutionError,
+  { readonly brand: unique symbol }
+>()("SidecarBinaryResolutionError", {
+  message: S.String,
+}) {}
 
 const resolveSidecarBinaryPath = Effect.try({
   try: () => {

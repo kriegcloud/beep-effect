@@ -81,16 +81,17 @@ export type LicenseTier = typeof LicenseTier.Type;
  * @category models
  * @since 0.0.0
  */
-export class Settings extends S.Class<Settings>($I`Settings`)(
-  {
+export class Settings extends S.Opaque<Settings, { readonly brand: unique symbol }>()(
+  S.Struct({
     allowAgentActions: S.Boolean.annotateKey({
       description: "Whether this organization allows agent-driven actions.",
     }),
     defaultRetentionDays: PosInt.annotateKey({
       description: "Default retention period for organization-owned records, in days.",
     }),
-  },
-  $I.annote("Settings", {
-    description: "Compliance and audit settings owned by a shared-kernel organization.",
-  })
+  }).pipe(
+    $I.annoteSchema("Settings", {
+      description: "Compliance and audit settings owned by a shared-kernel organization.",
+    })
+  )
 ) {}

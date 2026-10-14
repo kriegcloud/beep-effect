@@ -52,8 +52,8 @@ const $I = $LawPracticeDomainId.create("values/StateRuleCitation/StateRuleCitati
  * @category models
  * @since 0.0.0
  */
-export class StateRuleCitation extends S.Class<StateRuleCitation>($I`StateRuleCitation`)(
-  {
+export class StateRuleCitation extends S.Opaque<StateRuleCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("stateRule"),
     jurisdiction: S.String.annotateKey({
@@ -79,10 +79,11 @@ export class StateRuleCitation extends S.Class<StateRuleCitation>($I`StateRuleCi
         description: "Component spans locating the sub-parts of this citation within the source text.",
       })
     ),
-  },
-  $I.annote("StateRuleCitation", {
-    description: "State court rule citation (#636).",
-  })
+  }).pipe(
+    $I.annoteSchema("StateRuleCitation", {
+      description: "State court rule citation (#636).",
+    })
+  )
 ) {}
 
 /**

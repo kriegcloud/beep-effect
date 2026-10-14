@@ -49,7 +49,9 @@ const makeSkillsCommandError = (cause: unknown, message: string, file?: string, 
  * @category utilities
  * @since 0.0.0
  */
-export class SkillsCommandError extends S.TaggedError<SkillsCommandError>($I`SkillsCommandError`)(
+export class SkillsCommandError extends S.TaggedError<SkillsCommandError, { readonly brand: unique symbol }>(
+  $I`SkillsCommandError`
+)(
   "SkillsCommandError",
   {
     message: S.String,
@@ -96,7 +98,9 @@ export class SkillsCommandError extends S.TaggedError<SkillsCommandError>($I`Ski
  * @category utilities
  * @since 0.0.0
  */
-export class SkillsDriftError extends S.TaggedError<SkillsDriftError>($I`SkillsDriftError`)(
+export class SkillsDriftError extends S.TaggedError<SkillsDriftError, { readonly brand: unique symbol }>(
+  $I`SkillsDriftError`
+)(
   "SkillsDriftError",
   {
     message: S.String,
@@ -187,7 +191,9 @@ export type SkillInstallStateReason = typeof SkillInstallStateReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SkillInstallStateError extends S.TaggedError<SkillInstallStateError>($I`SkillInstallStateError`)(
+export class SkillInstallStateError extends S.TaggedError<SkillInstallStateError, { readonly brand: unique symbol }>(
+  $I`SkillInstallStateError`
+)(
   "SkillInstallStateError",
   {
     skill: S.String,
@@ -268,7 +274,10 @@ export type SkillUpstreamContentErrorReason = typeof SkillUpstreamContentErrorRe
  * @category errors
  * @since 0.0.0
  */
-export class SkillUpstreamContentError extends S.TaggedError<SkillUpstreamContentError>($I`SkillUpstreamContentError`)(
+export class SkillUpstreamContentError extends S.TaggedError<
+  SkillUpstreamContentError,
+  { readonly brand: unique symbol }
+>($I`SkillUpstreamContentError`)(
   "SkillUpstreamContentError",
   {
     skill: S.String,
@@ -354,7 +363,9 @@ export type SkillsLockWriteRefusalReason = typeof SkillsLockWriteRefusalReason.T
  * @category errors
  * @since 0.0.0
  */
-export class SkillsLockWriteRefusal extends S.TaggedError<SkillsLockWriteRefusal>($I`SkillsLockWriteRefusal`)(
+export class SkillsLockWriteRefusal extends S.TaggedError<SkillsLockWriteRefusal, { readonly brand: unique symbol }>(
+  $I`SkillsLockWriteRefusal`
+)(
   "SkillsLockWriteRefusal",
   {
     reason: SkillsLockWriteRefusalReason,
@@ -392,7 +403,10 @@ export class SkillsLockWriteRefusal extends S.TaggedError<SkillsLockWriteRefusal
  * @category errors
  * @since 0.0.0
  */
-export class SkillVendoredRefetchError extends S.TaggedError<SkillVendoredRefetchError>($I`SkillVendoredRefetchError`)(
+export class SkillVendoredRefetchError extends S.TaggedError<
+  SkillVendoredRefetchError,
+  { readonly brand: unique symbol }
+>($I`SkillVendoredRefetchError`)(
   "SkillVendoredRefetchError",
   {
     skill: S.String,
@@ -431,7 +445,9 @@ export class SkillVendoredRefetchError extends S.TaggedError<SkillVendoredRefetc
  * @category errors
  * @since 0.0.0
  */
-export class SkillFrontmatterError extends S.TaggedError<SkillFrontmatterError>($I`SkillFrontmatterError`)(
+export class SkillFrontmatterError extends S.TaggedError<SkillFrontmatterError, { readonly brand: unique symbol }>(
+  $I`SkillFrontmatterError`
+)(
   "SkillFrontmatterError",
   {
     message: S.String,
@@ -541,7 +557,9 @@ export type SkillPatchApplyReason = typeof SkillPatchApplyReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SkillPatchApplyError extends S.TaggedError<SkillPatchApplyError>($I`SkillPatchApplyError`)(
+export class SkillPatchApplyError extends S.TaggedError<SkillPatchApplyError, { readonly brand: unique symbol }>(
+  $I`SkillPatchApplyError`
+)(
   "SkillPatchApplyError",
   {
     patch: S.String,
@@ -634,7 +652,9 @@ export type SkillMaterializeRefusalReason = typeof SkillMaterializeRefusalReason
  * @category errors
  * @since 0.0.0
  */
-export class SkillMaterializeRefusal extends S.TaggedError<SkillMaterializeRefusal>($I`SkillMaterializeRefusal`)(
+export class SkillMaterializeRefusal extends S.TaggedError<SkillMaterializeRefusal, { readonly brand: unique symbol }>(
+  $I`SkillMaterializeRefusal`
+)(
   "SkillMaterializeRefusal",
   {
     skill: S.String,
@@ -726,7 +746,9 @@ export type SkillRelockRefusalReason = typeof SkillRelockRefusalReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SkillRelockRefusal extends S.TaggedError<SkillRelockRefusal>($I`SkillRelockRefusal`)(
+export class SkillRelockRefusal extends S.TaggedError<SkillRelockRefusal, { readonly brand: unique symbol }>(
+  $I`SkillRelockRefusal`
+)(
   "SkillRelockRefusal",
   {
     skill: S.String,
@@ -820,7 +842,9 @@ export type SkillPatchRefusalReason = typeof SkillPatchRefusalReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SkillPatchRefusal extends S.TaggedError<SkillPatchRefusal>($I`SkillPatchRefusal`)(
+export class SkillPatchRefusal extends S.TaggedError<SkillPatchRefusal, { readonly brand: unique symbol }>(
+  $I`SkillPatchRefusal`
+)(
   "SkillPatchRefusal",
   {
     skill: S.String,
@@ -902,7 +926,9 @@ export type SkillReviewRefusalReason = typeof SkillReviewRefusalReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SkillReviewRefusal extends S.TaggedError<SkillReviewRefusal>($I`SkillReviewRefusal`)(
+export class SkillReviewRefusal extends S.TaggedError<SkillReviewRefusal, { readonly brand: unique symbol }>(
+  $I`SkillReviewRefusal`
+)(
   "SkillReviewRefusal",
   {
     reason: SkillReviewRefusalReason,

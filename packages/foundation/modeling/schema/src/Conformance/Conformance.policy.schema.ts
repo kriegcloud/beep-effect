@@ -15,38 +15,95 @@ const $I = $SchemaId.create("Conformance/policy");
 const ConformancePolicyMode = LiteralKit(["strict", "diagnostic", "lossless"]);
 const UnknownRepresentationPolicy = LiteralKit(["preserve", "wrap"]);
 
-class StrictPolicy extends S.Class<StrictPolicy>($I`StrictPolicy`)(
-  {
+/**
+ * Policy that rejects values violating configured conformance strengths.
+ *
+ * **Example** (Reject anything that breaks a MUST)
+ *
+ * ```ts
+ * import { Policy, StrictPolicy } from "@beep/schema/Conformance"
+ *
+ * const policy = StrictPolicy.make({ profileIds: ["commonmark-0.31.2"], rejectOn: ["must", "mustNot"] })
+ *
+ * console.log(policy.mode) // => "strict"
+ * console.log(Policy.guards.strict(policy)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StrictPolicy extends S.Opaque<StrictPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("strict"),
     profileIds: S.NonEmptyArray(S.NonEmptyString),
     rejectOn: S.NonEmptyArray(RequirementStrength),
-  },
-  $I.annote("StrictPolicy", {
-    description: "Policy that rejects values violating configured conformance strengths.",
-  })
+  }).pipe(
+    $I.annoteSchema("StrictPolicy", {
+      description: "Policy that rejects values violating configured conformance strengths.",
+    })
+  )
 ) {}
 
-class DiagnosticPolicy extends S.Class<DiagnosticPolicy>($I`DiagnosticPolicy`)(
-  {
+/**
+ * Policy that reports configured conformance strengths without rejecting values.
+ *
+ * **Example** (Report SHOULD-level findings without rejecting)
+ *
+ * ```ts
+ * import { DiagnosticPolicy } from "@beep/schema/Conformance"
+ *
+ * const policy = DiagnosticPolicy.make({ profileIds: ["gfm-0.29"], reportOn: ["should", "shouldNot"] })
+ *
+ * console.log(policy.reportOn) // => ["should", "shouldNot"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DiagnosticPolicy extends S.Opaque<DiagnosticPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("diagnostic"),
     profileIds: S.NonEmptyArray(S.NonEmptyString),
     reportOn: S.NonEmptyArray(RequirementStrength),
-  },
-  $I.annote("DiagnosticPolicy", {
-    description: "Policy that reports configured conformance strengths without rejecting values.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiagnosticPolicy", {
+      description: "Policy that reports configured conformance strengths without rejecting values.",
+    })
+  )
 ) {}
 
-class LosslessPolicy extends S.Class<LosslessPolicy>($I`LosslessPolicy`)(
-  {
+/**
+ * Policy that reports conformance while retaining unknown representations for round trips.
+ *
+ * **Example** (Preserve unknown nodes while reporting MUST findings)
+ *
+ * ```ts
+ * import { LosslessPolicy, Policy } from "@beep/schema/Conformance"
+ *
+ * const policy = LosslessPolicy.make({
+ *   profileIds: ["pandoc-ast-1.23"],
+ *   reportOn: ["must"],
+ *   unknownRepresentation: "preserve"
+ * })
+ *
+ * console.log(Policy.isAnyOf(["diagnostic", "lossless"])(policy)) // => true
+ * console.log(policy.unknownRepresentation) // => "preserve"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LosslessPolicy extends S.Opaque<LosslessPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("lossless"),
     profileIds: S.NonEmptyArray(S.NonEmptyString),
     reportOn: S.NonEmptyArray(RequirementStrength),
     unknownRepresentation: UnknownRepresentationPolicy,
-  },
-  $I.annote("LosslessPolicy", {
-    description: "Policy that reports conformance while retaining unknown representations for round trips.",
-  })
+  }).pipe(
+    $I.annoteSchema("LosslessPolicy", {
+      description: "Policy that reports conformance while retaining unknown representations for round trips.",
+    })
+  )
 ) {}
 
 /**

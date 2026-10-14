@@ -141,7 +141,7 @@ const catalogAssemblyFailure = flow(S.decodeUnknownResult(CatalogAssemblyFailure
  * @category errors
  * @since 0.0.0
  */
-export class CatalogAssemblyError extends S.TaggedError<CatalogAssemblyError>($I`CatalogAssemblyError`)("CatalogAssemblyError", CatalogAssemblyErrorPayload, $I.annote("CatalogAssemblyError", { description: "Raised when a workspace's catalogs cannot be assembled — a `pnpm-workspace.yaml` that is unreadable or not valid YAML, a root `package.json` `workspaces` field whose shape or catalog blocks are malformed in a way pnpm itself rejects (including the default catalog declared twice), or a config dependency whose `pnpmfile.cjs` cannot be loaded or replayed." })) {
+export class CatalogAssemblyError extends S.TaggedError<CatalogAssemblyError, { readonly brand: unique symbol }>($I`CatalogAssemblyError`)("CatalogAssemblyError", CatalogAssemblyErrorPayload, $I.annote("CatalogAssemblyError", { description: "Raised when a workspace's catalogs cannot be assembled — a `pnpm-workspace.yaml` that is unreadable or not valid YAML, a root `package.json` `workspaces` field whose shape or catalog blocks are malformed in a way pnpm itself rejects (including the default catalog declared twice), or a config dependency whose `pnpmfile.cjs` cannot be loaded or replayed." })) {
 	/**
 	 * Projects the compatible public fields into the source-specific internal failure.
 	 *

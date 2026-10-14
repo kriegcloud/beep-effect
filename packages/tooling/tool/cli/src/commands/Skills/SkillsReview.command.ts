@@ -28,7 +28,7 @@ import {
   renderSkillReviewSessionJson,
   renderSkillReviewSessionSummary,
 } from "./SkillsReview.render.ts";
-import { SkillReviewScript } from "./SkillsReview.schemas.ts";
+import { SkillReviewOptions, SkillReviewScript } from "./SkillsReview.schemas.ts";
 import {
   makeSkillReviewDeciderPrompt,
   SkillHunkReview,
@@ -98,13 +98,16 @@ const runReview = Effect.fn("Skills.runSkillsReviewCommand")(function* (flags: R
   const decider = yield* deciderFor(flags);
   const review = yield* SkillHunkReview;
   const session = yield* review
-    .review(repoRoot, {
-      skill: flags.skill,
-      decide,
-      ghost: flags.ghost,
-      reviewer,
-      budget: Duration.minutes(flags.budget),
-    })
+    .review(
+      repoRoot,
+      SkillReviewOptions.make({
+        skill: flags.skill,
+        decide,
+        ghost: flags.ghost,
+        reviewer,
+        budget: Duration.minutes(flags.budget),
+      })
+    )
     .pipe(Effect.provideService(SkillReviewDecider, decider));
   yield* Console.log(
     flags.json ? Str.trimEnd(renderSkillReviewSessionJson(session)) : renderSkillReviewSessionSummary(session)

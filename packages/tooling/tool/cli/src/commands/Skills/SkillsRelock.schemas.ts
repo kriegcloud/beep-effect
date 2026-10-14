@@ -159,8 +159,8 @@ export type SkillReplayStatus = typeof SkillReplayStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillHunkReport extends S.Class<SkillHunkReport>($I`SkillHunkReport`)(
-  {
+export class SkillHunkReport extends S.Opaque<SkillHunkReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     patch: S.String,
     file: S.String,
     hunk: S.Natural,
@@ -169,10 +169,11 @@ export class SkillHunkReport extends S.Class<SkillHunkReport>($I`SkillHunkReport
     status: SkillHunkStatus,
     shift: S.Int,
     detail: S.String,
-  },
-  $I.annote("SkillHunkReport", {
-    description: "One hunk's replay outcome keyed by its position-free identity hash.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillHunkReport", {
+      description: "One hunk's replay outcome keyed by its position-free identity hash.",
+    })
+  )
 ) {}
 
 /**
@@ -225,8 +226,8 @@ export class SkillHunkReport extends S.Class<SkillHunkReport>($I`SkillHunkReport
  * @category models
  * @since 0.0.0
  */
-export class SkillReplayReport extends S.Class<SkillReplayReport>($I`SkillReplayReport`)(
-  {
+export class SkillReplayReport extends S.Opaque<SkillReplayReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.String,
     repository: S.String,
     sourceRevision: SkillGitRevision,
@@ -242,10 +243,11 @@ export class SkillReplayReport extends S.Class<SkillReplayReport>($I`SkillReplay
       S.withConstructorDefault(Effect.succeed(A.empty<Sha256Hex>())),
       S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
-  },
-  $I.annote("SkillReplayReport", {
-    description: "One vendored skill's replay at its lock pin: verdict, per-hunk report, and upstream diff.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillReplayReport", {
+      description: "One vendored skill's replay at its lock pin: verdict, per-hunk report, and upstream diff.",
+    })
+  )
 ) {}
 
 /**
@@ -262,14 +264,15 @@ export class SkillReplayReport extends S.Class<SkillReplayReport>($I`SkillReplay
  * @category models
  * @since 0.0.0
  */
-export class SkillReplayBatch extends S.Class<SkillReplayBatch>($I`SkillReplayBatch`)(
-  {
+export class SkillReplayBatch extends S.Opaque<SkillReplayBatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("skills-replay/v1"),
     reports: S.Array(SkillReplayReport),
-  },
-  $I.annote("SkillReplayBatch", {
-    description: "Replay reports for the selected vendored skills, sorted by lock key.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillReplayBatch", {
+      description: "Replay reports for the selected vendored skills, sorted by lock key.",
+    })
+  )
 ) {}
 
 /**
@@ -338,8 +341,8 @@ export type SkillRelockOutcome = typeof SkillRelockOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillRelockReceipt extends S.Class<SkillRelockReceipt>($I`SkillRelockReceipt`)(
-  {
+export class SkillRelockReceipt extends S.Opaque<SkillRelockReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("skills-relock-plan/v1"),
     planDigest: Sha256Hex,
     lockSha256: Sha256Hex,
@@ -349,10 +352,11 @@ export class SkillRelockReceipt extends S.Class<SkillRelockReceipt>($I`SkillRelo
     effective: SkillEffective,
     outcome: SkillRelockOutcome,
     lock: S.OptionFromOptionalKey(SkillsLockWrittenFile),
-  },
-  $I.annote("SkillRelockReceipt", {
-    description: "A digest-sealed relock plan for one vendored skill and the outcome of the run.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillRelockReceipt", {
+      description: "A digest-sealed relock plan for one vendored skill and the outcome of the run.",
+    })
+  )
 ) {}
 
 /**
@@ -364,23 +368,28 @@ export class SkillRelockReceipt extends S.Class<SkillRelockReceipt>($I`SkillRelo
  * import { SkillTrainPullRequestComment } from "@beep/repo-cli/commands/Skills/SkillsRelock.schemas"
  * import * as S from "effect/Schema"
  *
- * const comment = S.decodeUnknownSync(SkillTrainPullRequestComment)({ body: "hi", createdAt: "2026-10-14T00:00:00Z" })
+ * const comment = S.decodeUnknownSync(SkillTrainPullRequestComment)({
+ *   author: { login: "github-actions" }, body: "hi", createdAt: "2026-10-14T00:00:00Z",
+ * })
  * console.log(comment.body) // "hi"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class SkillTrainPullRequestComment extends S.Class<SkillTrainPullRequestComment>(
-  $I`SkillTrainPullRequestComment`
-)(
-  {
+export class SkillTrainPullRequestComment extends S.Opaque<
+  SkillTrainPullRequestComment,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    author: S.NullOr(S.Struct({ login: S.String })),
     body: S.String,
     createdAt: S.String,
-  },
-  $I.annote("SkillTrainPullRequestComment", {
-    description: "A pull-request comment's body and creation time from gh pr list --json comments.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillTrainPullRequestComment", {
+      description: "A pull-request comment's author, body, and creation time from gh pr list --json comments.",
+    })
+  )
 ) {}
 
 /**
@@ -397,6 +406,7 @@ export class SkillTrainPullRequestComment extends S.Class<SkillTrainPullRequestC
  *   title: "chore(deps): update skill oracle",
  *   url: "https://github.com/beep-effect/beep-effect/pull/7",
  *   headRefName: "renovate/skill-oracle",
+ *   headRefOid: "a".repeat(40),
  *   comments: [],
  * })
  * console.log(pr.number) // 7
@@ -405,17 +415,19 @@ export class SkillTrainPullRequestComment extends S.Class<SkillTrainPullRequestC
  * @category models
  * @since 0.0.0
  */
-export class SkillTrainPullRequest extends S.Class<SkillTrainPullRequest>($I`SkillTrainPullRequest`)(
-  {
+export class SkillTrainPullRequest extends S.Opaque<SkillTrainPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     number: S.Int,
     title: S.String,
     url: S.String,
     headRefName: S.String,
+    headRefOid: S.String,
     comments: S.Array(SkillTrainPullRequestComment),
-  },
-  $I.annote("SkillTrainPullRequest", {
-    description: "An open skill-update pull request with the comments that carry its replay report.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillTrainPullRequest", {
+      description: "An open skill-update pull request with the comments that carry its replay report.",
+    })
+  )
 ) {}
 
 /**
@@ -477,13 +489,14 @@ export type SkillTrainPullRequests = typeof SkillTrainPullRequests.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillTrainBatchIssue extends S.Class<SkillTrainBatchIssue>($I`SkillTrainBatchIssue`)(
-  {
+export class SkillTrainBatchIssue extends S.Opaque<SkillTrainBatchIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     batch: S.String,
     title: S.String,
     body: S.String,
-  },
-  $I.annote("SkillTrainBatchIssue", {
-    description: "Stable title and rendered body of one update-train batch's parent tracking issue.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillTrainBatchIssue", {
+      description: "Stable title and rendered body of one update-train batch's parent tracking issue.",
+    })
+  )
 ) {}

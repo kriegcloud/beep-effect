@@ -16,17 +16,16 @@ import noOpaqueInstanceFields from "./no-opaque-instance-fields.ts";
 /**
  * Re-exported import-binding model used by individual lint-rule helpers.
  *
- * **Example** (Named ImportBinding shape)
+ * **Example** (Classify a namespace binding)
  *
  * ```ts
- * import type { ImportBinding } from "@beep/lint-rules/oxlint"
+ * import { strictEqual } from "node:assert/strict"
+ * import { ImportBinding } from "@beep/lint-rules/oxlint"
  *
- * const binding: ImportBinding = {
- *   kind: "named",
- *   imported: "Effect",
- *   local: "Effect"
- * }
- * console.log(binding.local)
+ * const binding = ImportBinding.cases.namespace.make({ local: "S" })
+ *
+ * strictEqual(ImportBinding.guards.namespace(binding), true)
+ * strictEqual(binding.local, "S")
  * ```
  *
  * @category models

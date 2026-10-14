@@ -65,7 +65,7 @@ const serialize: (node: SpdxNode) => string = Match.type<SpdxNode>().pipe(
  * @category models
  * @since 0.0.0
  */
-export class LicenseNode extends S.TaggedClass<LicenseNode>($I`LicenseNode`)("License", {
+export class LicenseNode extends S.TaggedClass<LicenseNode, { readonly brand: unique symbol }>($I`LicenseNode`)("License", {
 	/** The SPDX short identifier, e.g. `"MIT"` or `"Apache-2.0"`. */
 	id: S.String.annotateKey({ description: "The SPDX short identifier, e.g. `\"MIT\"` or `\"Apache-2.0\"`." }),
 	/** Whether the trailing `+` "or later" marker is present. */
@@ -110,7 +110,7 @@ export class LicenseNode extends S.TaggedClass<LicenseNode>($I`LicenseNode`)("Li
  * @category models
  * @since 0.0.0
  */
-export class LicenseRefNode extends S.TaggedClass<LicenseRefNode>($I`LicenseRefNode`)("LicenseRef", {
+export class LicenseRefNode extends S.TaggedClass<LicenseRefNode, { readonly brand: unique symbol }>($I`LicenseRefNode`)("LicenseRef", {
 	/** The `DocumentRef-` idstring when the reference is document-scoped; absent otherwise. */
 	documentRef: S.optionalKey(S.String).annotateKey({ description: "The `DocumentRef-` idstring when the reference is document-scoped; absent otherwise." }),
 	/** The `LicenseRef-` idstring. */
@@ -158,7 +158,7 @@ export class LicenseRefNode extends S.TaggedClass<LicenseRefNode>($I`LicenseRefN
  * @category models
  * @since 0.0.0
  */
-export class WithExceptionNode extends S.TaggedClass<WithExceptionNode>($I`WithExceptionNode`)("WithException", {
+export class WithExceptionNode extends S.TaggedClass<WithExceptionNode, { readonly brand: unique symbol }>($I`WithExceptionNode`)("WithException", {
 	/** The license the exception applies to: a simple license (which may carry the `+` marker) or a `LicenseRef` reference. */
 	license: S.Union([LicenseNode, LicenseRefNode]).annotateKey({ description: "The license the exception applies to: a simple license (which may carry the `+` marker) or a `LicenseRef` reference." }),
 	/** The SPDX exception short identifier, e.g. `"Bison-exception-2.2"`. */
@@ -207,7 +207,7 @@ export class WithExceptionNode extends S.TaggedClass<WithExceptionNode>($I`WithE
  * @category models
  * @since 0.0.0
  */
-export class AndNode extends S.TaggedClass<AndNode>($I`AndNode`)("And", {
+export class AndNode extends S.TaggedClass<AndNode, { readonly brand: unique symbol }>($I`AndNode`)("And", {
 	/** The left operand. */
 	left: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey({ description: "The left operand." }),
 	/** The right operand. */
@@ -256,7 +256,7 @@ export class AndNode extends S.TaggedClass<AndNode>($I`AndNode`)("And", {
  * @category models
  * @since 0.0.0
  */
-export class OrNode extends S.TaggedClass<OrNode>($I`OrNode`)("Or", {
+export class OrNode extends S.TaggedClass<OrNode, { readonly brand: unique symbol }>($I`OrNode`)("Or", {
 	/** The left operand. */
 	left: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey({ description: "The left operand." }),
 	/** The right operand. */

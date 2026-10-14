@@ -71,7 +71,9 @@ export type N3TurtleCodecErrorReason = typeof N3TurtleCodecErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class N3TurtleCodecError extends S.TaggedError<N3TurtleCodecError>($I`N3TurtleCodecError`)(
+export class N3TurtleCodecError extends S.TaggedError<N3TurtleCodecError, { readonly brand: unique symbol }>(
+  $I`N3TurtleCodecError`
+)(
   "N3TurtleCodecError",
   {
     reason: N3TurtleCodecErrorReason,

@@ -36,7 +36,7 @@ import * as Str from "effect/String";
 import { canonicalJsonText } from "../Goals/PacketCore/PacketDigest.ts";
 import { latestClassification, readHunkLedger } from "./internal/HunkLedger.ts";
 import { readSkillsLockDocument, requireVendoredEntry, SKILLS_LOCK_PATH } from "./internal/LockFile.ts";
-import { decodePatchText, readVerifiedPatchSeries } from "./internal/PatchSeries.ts";
+import { decodePatchText, PatchSeriesFile, readVerifiedPatchSeries } from "./internal/PatchSeries.ts";
 import {
   computeSkillTree,
   hashBytes,
@@ -188,7 +188,7 @@ const requireReplayReproduces = Effect.fn("SkillsPatch.requireReplayReproduces")
 ): Effect.fn.Return<void, SkillsCommandError | SkillPatchRefusal | SkillPatchApplyError, Crypto.Crypto> {
   let tree = effectiveFiles;
   for (const file of files) {
-    const text = yield* decodePatchText(skill, { path: file.path, bytes: file.bytes });
+    const text = yield* decodePatchText(skill, PatchSeriesFile.make({ path: file.path, bytes: file.bytes }));
     tree = yield* applySkillPatch(file.path, text, tree);
   }
   const replayed = yield* computeSkillTree(tree, `${skill}:patch-add`);
@@ -353,7 +353,10 @@ const classifyPatch = Effect.fn("SkillsPatch.classifyPatch")(function* (
   patch: SkillPatch,
   bytes: Uint8Array
 ) {
-  const hunks = yield* listSkillPatchHunks(patch.path, yield* decodePatchText(skill, { path: patch.path, bytes }));
+  const hunks = yield* listSkillPatchHunks(
+    patch.path,
+    yield* decodePatchText(skill, PatchSeriesFile.make({ path: patch.path, bytes }))
+  );
   return verdictOf(A.map(hunks, (hunk) => latestClassification(ledger, { skill, hunkHash: hunk.hunkHash })));
 });
 

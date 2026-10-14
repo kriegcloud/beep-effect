@@ -72,15 +72,16 @@ export type CorpusCopyMode = typeof CorpusCopyMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class CorpusCatalogDigestRow extends S.Class<CorpusCatalogDigestRow>($I`CorpusCatalogDigestRow`)(
-  {
+export class CorpusCatalogDigestRow extends S.Opaque<CorpusCatalogDigestRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     destPath: S.NonEmptyString,
     sha256: Sha256Hex,
-  },
-  $I.annote("CorpusCatalogDigestRow", {
-    title: "Corpus Catalog Digest Row",
-    description: "Digest-to-raw-path row loaded from the corpus DuckDB catalog or raw provenance manifests.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusCatalogDigestRow", {
+      title: "Corpus Catalog Digest Row",
+      description: "Digest-to-raw-path row loaded from the corpus DuckDB catalog or raw provenance manifests.",
+    })
+  )
 ) {}
 
 /**
@@ -109,8 +110,8 @@ export class CorpusCatalogDigestRow extends S.Class<CorpusCatalogDigestRow>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CorpusProvenanceRecord extends S.Class<CorpusProvenanceRecord>($I`CorpusProvenanceRecord`)(
-  {
+export class CorpusProvenanceRecord extends S.Opaque<CorpusProvenanceRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     copyMode: S.optionalKey(CorpusCopyMode),
     dedupeOfPath: S.optionalKey(S.NonEmptyString),
     destPath: S.NonEmptyString,
@@ -122,11 +123,12 @@ export class CorpusProvenanceRecord extends S.Class<CorpusProvenanceRecord>($I`C
     sha256: Sha256Hex,
     sizeBytes: S.Natural,
     sourceLabel: S.NonEmptyString,
-  },
-  $I.annote("CorpusProvenanceRecord", {
-    title: "Corpus Provenance Record",
-    description: "JSONL-safe provenance record written for one verified salvaged corpus file.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusProvenanceRecord", {
+      title: "Corpus Provenance Record",
+      description: "JSONL-safe provenance record written for one verified salvaged corpus file.",
+    })
+  )
 ) {}
 
 /**
@@ -203,16 +205,17 @@ export const encodeCorpusProvenanceRecordJson = JsonStringCodec(CorpusProvenance
  * @category models
  * @since 0.0.0
  */
-export class CorpusSalvageSourceSpec extends S.Class<CorpusSalvageSourceSpec>($I`CorpusSalvageSourceSpec`)(
-  {
+export class CorpusSalvageSourceSpec extends S.Opaque<CorpusSalvageSourceSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceLabel: S.NonEmptyString,
     sourcePath: S.NonEmptyString,
-  },
-  $I.annote("CorpusSalvageSourceSpec", {
-    title: "Corpus Salvage Source Spec",
-    description:
-      "Generic source label plus filesystem path for a salvage copy run; labels should be source-a/source-b style aliases.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusSalvageSourceSpec", {
+      title: "Corpus Salvage Source Spec",
+      description:
+        "Generic source label plus filesystem path for a salvage copy run; labels should be source-a/source-b style aliases.",
+    })
+  )
 ) {}
 
 /**
@@ -238,19 +241,20 @@ export class CorpusSalvageSourceSpec extends S.Class<CorpusSalvageSourceSpec>($I
  * @category models
  * @since 0.0.0
  */
-export class CorpusSalvageOriginFile extends S.Class<CorpusSalvageOriginFile>($I`CorpusSalvageOriginFile`)(
-  {
+export class CorpusSalvageOriginFile extends S.Opaque<CorpusSalvageOriginFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     mtimeEpoch: S.Int,
     mtimeIso: S.NonEmptyString,
     originPath: S.NonEmptyString,
     relativePath: S.NonEmptyString,
     sizeBytes: S.Natural,
     sourceLabel: S.NonEmptyString,
-  },
-  $I.annote("CorpusSalvageOriginFile", {
-    title: "Corpus Salvage Origin File",
-    description: "One source file selected for a corpus salvage copy run.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusSalvageOriginFile", {
+      title: "Corpus Salvage Origin File",
+      description: "One source file selected for a corpus salvage copy run.",
+    })
+  )
 ) {}
 
 /**
@@ -268,18 +272,19 @@ export class CorpusSalvageOriginFile extends S.Class<CorpusSalvageOriginFile>($I
  * @category models
  * @since 0.0.0
  */
-export class CorpusSalvageOptions extends S.Class<CorpusSalvageOptions>($I`CorpusSalvageOptions`)(
-  {
+export class CorpusSalvageOptions extends S.Opaque<CorpusSalvageOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.String,
     dedupe: S.optionalKey(S.Boolean),
     runLabel: S.optionalKey(S.NonEmptyString),
     sampleStride: S.optionalKey(S.Finite),
     sources: S.optionalKey(CorpusSalvageSourceSpec.pipe(S.Array)),
-  },
-  $I.annote("CorpusSalvageOptions", {
-    title: "Corpus Salvage Options",
-    description: "Validated options used by corpus salvage verification or copy runs.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusSalvageOptions", {
+      title: "Corpus Salvage Options",
+      description: "Validated options used by corpus salvage verification or copy runs.",
+    })
+  )
 ) {}
 
 /**
@@ -304,17 +309,18 @@ export class CorpusSalvageOptions extends S.Class<CorpusSalvageOptions>($I`Corpu
  * @category models
  * @since 0.0.0
  */
-export class CorpusSalvageSummary extends S.Class<CorpusSalvageSummary>($I`CorpusSalvageSummary`)(
-  {
+export class CorpusSalvageSummary extends S.Opaque<CorpusSalvageSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytesChecked: S.Natural,
     matched: S.Natural,
     mismatched: S.Natural,
     missing: S.Natural,
     recordsChecked: S.Natural,
-  },
-  $I.annote("CorpusSalvageSummary", {
-    description: "Summary counts returned by corpus salvage verification.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusSalvageSummary", {
+      description: "Summary counts returned by corpus salvage verification.",
+    })
+  )
 ) {}
 
 /**

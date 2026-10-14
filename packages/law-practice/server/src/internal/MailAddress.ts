@@ -16,7 +16,9 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const bracketedAddressPattern = /<([^<>]*)>/u;
+// Header form must consume the complete value. A quoted local part can contain
+// angle brackets without making its substring the sender's actual address.
+const bracketedAddressPattern = /^[^<>@]*<([^<>]*)>$/u;
 const surroundingQuotesPattern = /^['"\s]+|['"\s]+$/gu;
 
 const decodeAddress = S.decodeUnknownOption(EmailString);
@@ -51,6 +53,7 @@ const bracketedOrWhole = (raw: string): string =>
  * @since 0.0.0
  */
 export const mailAddressOf: (raw: string) => O.Option<EmailString> = flow(
+  Str.trim,
   bracketedOrWhole,
   Str.replaceAll(surroundingQuotesPattern, ""),
   decodeAddress

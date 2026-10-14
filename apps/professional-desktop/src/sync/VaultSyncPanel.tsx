@@ -339,7 +339,7 @@ export function VaultSyncPanel({ floating = true }: { readonly floating?: boolea
         <Button
           type="button"
           size="sm"
-          onClick={() => runCommand(VaultSyncCommand.cases.trigger.make())}
+          onClick={() => runCommand(VaultSyncCommand.cases.trigger.make({}))}
           disabled={busy || !connected}
           data-testid="vault-sync-trigger"
         >

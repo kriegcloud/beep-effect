@@ -30,7 +30,12 @@ import {
   SkillReplayReport,
   SkillTrainBatchIssue,
 } from "./SkillsRelock.schemas.ts";
-import type { SkillHunkReport, SkillHunkStatus, SkillTrainPullRequest } from "./SkillsRelock.schemas.ts";
+import type {
+  SkillHunkReport,
+  SkillHunkStatus,
+  SkillTrainPullRequest,
+  SkillTrainPullRequestComment,
+} from "./SkillsRelock.schemas.ts";
 
 const encodeReplayBatchJson = S.encodeResult(S.fromJsonString(SkillReplayBatch));
 const decodeReplayBatchJson = S.decodeUnknownResult(S.fromJsonString(SkillReplayBatch));
@@ -38,6 +43,7 @@ const encodeRelockReceiptJson = S.encodeResult(S.fromJsonString(SkillRelockRecei
 
 const MARKER_PREFIX = "beep-skills-replay/v1:";
 const MARKER_PATTERN = /<!-- beep-skills-replay\/v1:([A-Za-z0-9_-]+) -->/gu;
+const replayHeadMarker = (head: string): string => `<!-- beep-skills-replay-head:${head} -->`;
 const DIFF_BUDGET = 40_000;
 
 /**
@@ -311,7 +317,17 @@ const latestReplay = (pr: SkillTrainPullRequest): PullRequestReplay => ({
   pr,
   replay: A.findLast(
     A.map(
-      A.sortWith(pr.comments, (comment) => comment.createdAt, Str.Order),
+      A.sortWith(
+        A.filter(
+          pr.comments,
+          (comment) =>
+            comment.author !== null &&
+            comment.author.login === "github-actions" &&
+            Str.includes(replayHeadMarker(pr.headRefOid))(comment.body)
+        ),
+        (comment: SkillTrainPullRequestComment) => comment.createdAt,
+        Str.Order
+      ),
       (comment) => readSkillReplayMarker(comment.body)
     ),
     O.isSome

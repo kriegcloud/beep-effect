@@ -468,7 +468,7 @@ export const AiToken = AiTokenSource;
  * @category tools
  * @since 0.0.0
  */
-export const Analyze = AnalyzeSource;
+export const Analyze: typeof AnalyzeSource = AnalyzeSource;
 /**
  * Bag-of-words term-frequency tool contract.
  *
@@ -488,7 +488,7 @@ export const Analyze = AnalyzeSource;
  * @category tools
  * @since 0.0.0
  */
-export const BagOfWords = BagOfWordsSource;
+export const BagOfWords: typeof BagOfWordsSource = BagOfWordsSource;
 /**
  * Bag-of-words cosine similarity tool contract.
  *
@@ -509,7 +509,7 @@ export const BagOfWords = BagOfWordsSource;
  * @category tools
  * @since 0.0.0
  */
-export const BowCosineSimilarity = BowCosineSimilaritySource;
+export const BowCosineSimilarity: typeof BowCosineSimilaritySource = BowCosineSimilaritySource;
 /**
  * Sentence-boundary chunking tool contract.
  *
@@ -530,7 +530,7 @@ export const BowCosineSimilarity = BowCosineSimilaritySource;
  * @category tools
  * @since 0.0.0
  */
-export const ChunkBySentences = ChunkBySentencesSource;
+export const ChunkBySentences: typeof ChunkBySentencesSource = ChunkBySentencesSource;
 /**
  * Corpus diagnostics tool contract for vocabulary, IDF, and matrix inspection.
  *
@@ -553,7 +553,7 @@ export const ChunkBySentences = ChunkBySentencesSource;
  * @category tools
  * @since 0.0.0
  */
-export const CorpusStats = CorpusStatsSource;
+export const CorpusStats: typeof CorpusStatsSource = CorpusStatsSource;
 /**
  * Corpus creation tool contract for starting a reusable BM25 session.
  *
@@ -594,7 +594,7 @@ export const CreateCorpus: typeof CreateCorpusSource = CreateCorpusSource;
  * @category tools
  * @since 0.0.0
  */
-export const DeleteCorpus = DeleteCorpusSource;
+export const DeleteCorpus: typeof DeleteCorpusSource = DeleteCorpusSource;
 /**
  * Document statistics tool contract for sizing and routing text.
  *
@@ -614,7 +614,7 @@ export const DeleteCorpus = DeleteCorpusSource;
  * @category tools
  * @since 0.0.0
  */
-export const DocumentStats = DocumentStatsSource;
+export const DocumentStats: typeof DocumentStatsSource = DocumentStatsSource;
 /**
  * Entity extraction tool contract for built-in and learned custom entities.
  *
@@ -635,7 +635,7 @@ export const DocumentStats = DocumentStatsSource;
  * @category tools
  * @since 0.0.0
  */
-export const ExtractEntities = ExtractEntitiesSource;
+export const ExtractEntities: typeof ExtractEntitiesSource = ExtractEntitiesSource;
 /**
  * Keyword extraction tool contract for ranked topical terms.
  *
@@ -656,7 +656,7 @@ export const ExtractEntities = ExtractEntitiesSource;
  * @category tools
  * @since 0.0.0
  */
-export const ExtractKeywords = ExtractKeywordsSource;
+export const ExtractKeywords: typeof ExtractKeywordsSource = ExtractKeywordsSource;
 /**
  * Incremental corpus learning tool contract.
  *
@@ -678,7 +678,7 @@ export const ExtractKeywords = ExtractKeywordsSource;
  * @category tools
  * @since 0.0.0
  */
-export const LearnCorpus = LearnCorpusSource;
+export const LearnCorpus: typeof LearnCorpusSource = LearnCorpusSource;
 /**
  * Custom entity learning tool contract for bracket-token patterns.
  *
@@ -723,7 +723,7 @@ export const LearnCustomEntities: typeof LearnCustomEntitiesSource = LearnCustom
  * @category tools
  * @since 0.0.0
  */
-export const NGrams = NGramsSource;
+export const NGrams: typeof NGramsSource = NGramsSource;
 /**
  * Paragraph splitting tool contract.
  *
@@ -743,7 +743,7 @@ export const NGrams = NGramsSource;
  * @category tools
  * @since 0.0.0
  */
-export const Paragraphize = ParagraphizeSource;
+export const Paragraphize: typeof ParagraphizeSource = ParagraphizeSource;
 /**
  * Phonetic matching tool contract for similar-sounding text comparison.
  *
@@ -766,7 +766,7 @@ export const Paragraphize = ParagraphizeSource;
  * @category tools
  * @since 0.0.0
  */
-export const PhoneticMatch = PhoneticMatchSource;
+export const PhoneticMatch: typeof PhoneticMatchSource = PhoneticMatchSource;
 /**
  * Learned-corpus query tool contract.
  *
@@ -789,7 +789,7 @@ export const PhoneticMatch = PhoneticMatchSource;
  * @category tools
  * @since 0.0.0
  */
-export const QueryCorpus = QueryCorpusSource;
+export const QueryCorpus: typeof QueryCorpusSource = QueryCorpusSource;
 /**
  * One-shot text relevance ranking tool contract.
  *
@@ -811,7 +811,7 @@ export const QueryCorpus = QueryCorpusSource;
  * @category tools
  * @since 0.0.0
  */
-export const RankByRelevance = RankByRelevanceSource;
+export const RankByRelevance: typeof RankByRelevanceSource = RankByRelevanceSource;
 /**
  * Stop-word removal tool contract.
  *
@@ -831,7 +831,7 @@ export const RankByRelevance = RankByRelevanceSource;
  * @category tools
  * @since 0.0.0
  */
-export const RemoveStopWords = RemoveStopWordsSource;
+export const RemoveStopWords: typeof RemoveStopWordsSource = RemoveStopWordsSource;
 /**
  * Sentence segmentation tool contract.
  *
@@ -851,7 +851,7 @@ export const RemoveStopWords = RemoveStopWordsSource;
  * @category tools
  * @since 0.0.0
  */
-export const Sentences = SentencesSource;
+export const Sentences: typeof SentencesSource = SentencesSource;
 /**
  * Word stemming tool contract.
  *
@@ -871,7 +871,7 @@ export const Sentences = SentencesSource;
  * @category tools
  * @since 0.0.0
  */
-export const Stem = StemSource;
+export const Stem: typeof StemSource = StemSource;
 /**
  * BM25-vector text similarity tool contract.
  *
@@ -892,7 +892,7 @@ export const Stem = StemSource;
  * @category tools
  * @since 0.0.0
  */
-export const TextSimilarity = TextSimilaritySource;
+export const TextSimilarity: typeof TextSimilaritySource = TextSimilaritySource;
 /**
  * Linguistic tokenization tool contract.
  *
@@ -912,7 +912,7 @@ export const TextSimilarity = TextSimilaritySource;
  * @category tools
  * @since 0.0.0
  */
-export const Tokenize = TokenizeSource;
+export const Tokenize: typeof TokenizeSource = TokenizeSource;
 /**
  * Ordered text-normalization tool contract.
  *
@@ -933,7 +933,7 @@ export const Tokenize = TokenizeSource;
  * @category tools
  * @since 0.0.0
  */
-export const TransformText = TransformTextSource;
+export const TransformText: typeof TransformTextSource = TransformTextSource;
 /**
  * Asymmetric Tversky similarity tool contract.
  *
@@ -956,7 +956,7 @@ export const TransformText = TransformTextSource;
  * @category tools
  * @since 0.0.0
  */
-export const TverskySimilarity = TverskySimilaritySource;
+export const TverskySimilarity: typeof TverskySimilaritySource = TverskySimilaritySource;
 /**
  * Word and character counting tool contract.
  *
@@ -976,7 +976,7 @@ export const TverskySimilarity = TverskySimilaritySource;
  * @category tools
  * @since 0.0.0
  */
-export const WordCount = WordCountSource;
+export const WordCount: typeof WordCountSource = WordCountSource;
 
 /**
  * Effect AI toolkit containing the full driver-neutral NLP tool set.

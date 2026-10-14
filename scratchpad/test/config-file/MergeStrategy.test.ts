@@ -264,7 +264,7 @@ describe("MergeStrategy.layeredMerge", () => {
 });
 
 describe("MergeStrategy.layeredMerge — value identity", () => {
-	class Doc extends S.Class<Doc>("Doc")({ port: S.Finite, host: S.String }) {
+	class Doc extends S.Class<Doc, { readonly brand: unique symbol }>("Doc")({ port: S.Finite, host: S.String }) {
 		#secret = "ready";
 		get secret(): string { return this.#secret; }
 		get origin(): string {
@@ -318,7 +318,7 @@ describe("MergeStrategy.layeredMerge — value identity", () => {
 
 	it.effect("a nested class instance is atomic — higher priority wins it whole", () =>
 		Effect.gen(function* () {
-			class Section extends S.Class<Section>("Section")({ a: S.Finite, b: S.Finite }) {}
+			class Section extends S.Class<Section, { readonly brand: unique symbol }>("Section")({ a: S.Finite, b: S.Finite }) {}
 			const strategy = MergeStrategy.layeredMerge<{ db: Section }>();
 			const value = yield* strategy.resolve([
 				src("/a", "walk", { db: Section.make({ a: 1, b: 1 }) }),

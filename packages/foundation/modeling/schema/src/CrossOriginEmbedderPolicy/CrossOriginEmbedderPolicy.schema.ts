@@ -123,14 +123,15 @@ export type CrossOriginEmbedderPolicyOption = typeof CrossOriginEmbedderPolicyOp
  * @category models
  * @since 0.0.0
  */
-export class COEPResponseHeader extends S.Class<COEPResponseHeader>($I`COEPResponseHeader`)(
-  {
+export class COEPResponseHeader extends S.Opaque<COEPResponseHeader, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("COEPResponseHeader", {
-    description: "The `Cross-Origin-Embedder-Policy` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("COEPResponseHeader", {
+      description: "The `Cross-Origin-Embedder-Policy` response header.",
+    })
+  )
 ) {}
 
 type COEPResponseHeaderEncoded = typeof COEPResponseHeader.Encoded;
@@ -238,7 +239,7 @@ export const CrossOriginEmbedderPolicyHeader = S.Union([CrossOriginEmbedderPolic
  * import * as O from "effect/Option"
  * import { COEPResponseHeader, type CrossOriginEmbedderPolicyHeader } from "@beep/schema/CrossOriginEmbedderPolicy"
  *
- * const header: CrossOriginEmbedderPolicyHeader = new COEPResponseHeader({
+ * const header: CrossOriginEmbedderPolicyHeader = COEPResponseHeader.make({
  *   name: "Cross-Origin-Embedder-Policy",
  *   value: O.some("require-corp"),
  * })
@@ -285,7 +286,7 @@ export const Header = CrossOriginEmbedderPolicyHeader;
  * import * as O from "effect/Option"
  * import { COEPResponseHeader, type Header } from "@beep/schema/CrossOriginEmbedderPolicy"
  *
- * const header: Header = new COEPResponseHeader({
+ * const header: Header = COEPResponseHeader.make({
  *   name: "Cross-Origin-Embedder-Policy",
  *   value: O.some("require-corp"),
  * })

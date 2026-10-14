@@ -64,10 +64,11 @@ type JsonEncodeEffect<Input> = {
  * @category models
  * @since 0.0.0
  */
-export class SucceededSourceProcessingRecord extends S.Class<SucceededSourceProcessingRecord>(
-  $I`SucceededSourceProcessingRecord`
-)(
-  {
+export class SucceededSourceProcessingRecord extends S.Opaque<
+  SucceededSourceProcessingRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     artifactId: ArtifactId,
     digest: ContentDigest,
     engine: S.optionalKey(S.String),
@@ -77,10 +78,11 @@ export class SucceededSourceProcessingRecord extends S.Class<SucceededSourceProc
     sizeBytes: S.Natural,
     status: S.Literal("succeeded"),
     textPath: S.optionalKey(PosixPath),
-  },
-  $I.annote("SucceededSourceProcessingRecord", {
-    description: "JSONL-safe succeeded source processing record emitted by the CLI proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("SucceededSourceProcessingRecord", {
+      description: "JSONL-safe succeeded source processing record emitted by the CLI proof.",
+    })
+  )
 ) {}
 
 /**
@@ -120,10 +122,11 @@ export class SucceededSourceProcessingRecord extends S.Class<SucceededSourceProc
  * @category models
  * @since 0.0.0
  */
-export class SkippedSourceProcessingRecord extends S.Class<SkippedSourceProcessingRecord>(
-  $I`SkippedSourceProcessingRecord`
-)(
-  {
+export class SkippedSourceProcessingRecord extends S.Opaque<
+  SkippedSourceProcessingRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     artifactId: ArtifactId,
     digest: ContentDigest,
     engine: S.optionalKey(S.String),
@@ -133,10 +136,11 @@ export class SkippedSourceProcessingRecord extends S.Class<SkippedSourceProcessi
     sizeBytes: S.Natural,
     skipReason: FileProcessingSkipReason,
     status: S.Literal("skipped"),
-  },
-  $I.annote("SkippedSourceProcessingRecord", {
-    description: "JSONL-safe skipped source processing record emitted by the CLI proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkippedSourceProcessingRecord", {
+      description: "JSONL-safe skipped source processing record emitted by the CLI proof.",
+    })
+  )
 ) {}
 
 /**
@@ -174,10 +178,11 @@ export class SkippedSourceProcessingRecord extends S.Class<SkippedSourceProcessi
  * @category models
  * @since 0.0.0
  */
-export class FailedSourceProcessingRecord extends S.Class<FailedSourceProcessingRecord>(
-  $I`FailedSourceProcessingRecord`
-)(
-  {
+export class FailedSourceProcessingRecord extends S.Opaque<
+  FailedSourceProcessingRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     artifactId: ArtifactId,
     digest: ContentDigest,
     engine: S.optionalKey(S.String),
@@ -186,10 +191,11 @@ export class FailedSourceProcessingRecord extends S.Class<FailedSourceProcessing
     relativePath: PosixPath,
     sizeBytes: S.Natural,
     status: S.Literal("failed"),
-  },
-  $I.annote("FailedSourceProcessingRecord", {
-    description: "JSONL-safe failed source processing record emitted by the CLI proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("FailedSourceProcessingRecord", {
+      description: "JSONL-safe failed source processing record emitted by the CLI proof.",
+    })
+  )
 ) {}
 
 /**
@@ -342,10 +348,11 @@ export type FileProcessingFailureReason = typeof FileProcessingFailureReason.Typ
  * @category models
  * @since 0.0.0
  */
-export class SkippedFileProcessingFailureRecord extends S.Class<SkippedFileProcessingFailureRecord>(
-  $I`SkippedFileProcessingFailureRecord`
-)(
-  {
+export class SkippedFileProcessingFailureRecord extends S.Opaque<
+  SkippedFileProcessingFailureRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     artifactId: ArtifactId,
     engine: S.optionalKey(S.String),
     format: S.optionalKey(FileFormatFamily),
@@ -354,10 +361,11 @@ export class SkippedFileProcessingFailureRecord extends S.Class<SkippedFileProce
     reason: FileProcessingSkipReason,
     relativePath: PosixPath,
     status: S.Literal("skipped"),
-  },
-  $I.annote("SkippedFileProcessingFailureRecord", {
-    description: "JSONL-safe sanitized skipped or failed source record.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkippedFileProcessingFailureRecord", {
+      description: "JSONL-safe sanitized skipped or failed source record.",
+    })
+  )
 ) {}
 
 /**
@@ -394,10 +402,11 @@ export class SkippedFileProcessingFailureRecord extends S.Class<SkippedFileProce
  * @category models
  * @since 0.0.0
  */
-export class FailedFileProcessingFailureRecord extends S.Class<FailedFileProcessingFailureRecord>(
-  $I`FailedFileProcessingFailureRecord`
-)(
-  {
+export class FailedFileProcessingFailureRecord extends S.Opaque<
+  FailedFileProcessingFailureRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     artifactId: ArtifactId,
     engine: S.optionalKey(S.String),
     format: S.optionalKey(FileFormatFamily),
@@ -406,10 +415,11 @@ export class FailedFileProcessingFailureRecord extends S.Class<FailedFileProcess
     reason: FileProcessingOperationErrorReason,
     relativePath: PosixPath,
     status: S.Literal("failed"),
-  },
-  $I.annote("FailedFileProcessingFailureRecord", {
-    description: "JSONL-safe sanitized hard failure source record.",
-  })
+  }).pipe(
+    $I.annoteSchema("FailedFileProcessingFailureRecord", {
+      description: "JSONL-safe sanitized hard failure source record.",
+    })
+  )
 ) {}
 
 /**
@@ -504,14 +514,15 @@ export type FileProcessingFailureRecord = typeof FileProcessingFailureRecord.Typ
  * @category models
  * @since 0.0.0
  */
-export class ChildArtifactRecord extends S.Class<ChildArtifactRecord>($I`ChildArtifactRecord`)(
-  {
+export class ChildArtifactRecord extends S.Opaque<ChildArtifactRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     child: ArtifactReference,
     sourceArtifactId: ArtifactId,
-  },
-  $I.annote("ChildArtifactRecord", {
-    description: "JSONL-safe child artifact record emitted for archive exports.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChildArtifactRecord", {
+      description: "JSONL-safe child artifact record emitted for archive exports.",
+    })
+  )
 ) {
   static readonly encodeJson: JsonEncodeEffect<ChildArtifactRecord> = dual(
     SchemaUtils.isCodecDataFirst,
@@ -544,20 +555,22 @@ export class ChildArtifactRecord extends S.Class<ChildArtifactRecord>($I`ChildAr
  * @category models
  * @since 0.0.0
  */
-export class FileProcessingCoverageSummary extends S.Class<FileProcessingCoverageSummary>(
-  $I`FileProcessingCoverageSummary`
-)(
-  {
+export class FileProcessingCoverageSummary extends S.Opaque<
+  FileProcessingCoverageSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     byFormat: S.Record(FileFormatFamily, S.Record(SourceProcessingStatus, S.Natural)),
     failedCount: S.Natural,
     skippedCount: S.Natural,
     sourceCount: S.Natural,
     succeededCount: S.Natural,
     textArtifactCount: S.Natural,
-  },
-  $I.annote("FileProcessingCoverageSummary", {
-    description: "Aggregate processing coverage counts for the proof manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("FileProcessingCoverageSummary", {
+      description: "Aggregate processing coverage counts for the proof manifest.",
+    })
+  )
 ) {
   static readonly encodeJson: JsonEncodeEffect<FileProcessingCoverageSummary> = dual(
     SchemaUtils.isCodecDataFirst,
@@ -598,8 +611,8 @@ export class FileProcessingCoverageSummary extends S.Class<FileProcessingCoverag
  * @category models
  * @since 0.0.0
  */
-export class ProcessRunManifest extends S.Class<ProcessRunManifest>($I`ProcessRunManifest`)(
-  {
+export class ProcessRunManifest extends S.Opaque<ProcessRunManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     coverage: FileProcessingCoverageSummary,
     engine: S.String,
     manifestVersion: S.Literal("beep.file-processing.run.v1"),
@@ -607,10 +620,11 @@ export class ProcessRunManifest extends S.Class<ProcessRunManifest>($I`ProcessRu
     runId: OperationId,
     sourceRootLabel: S.String,
     strategies: S.Array(SelectedStrategy),
-  },
-  $I.annote("ProcessRunManifest", {
-    description: "JSON-safe root manifest for a file-processing proof run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessRunManifest", {
+      description: "JSON-safe root manifest for a file-processing proof run.",
+    })
+  )
 ) {
   static readonly encodeJson: JsonEncodeEffect<ProcessRunManifest> = dual(
     SchemaUtils.isCodecDataFirst,

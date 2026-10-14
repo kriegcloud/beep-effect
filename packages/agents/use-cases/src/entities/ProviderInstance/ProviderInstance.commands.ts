@@ -43,9 +43,13 @@ const configurationFields = {
  * @category commands
  * @since 0.0.0
  */
-export class AddProviderInstanceCommand extends S.Class<AddProviderInstanceCommand>($I`AddProviderInstanceCommand`)(
-  configurationFields,
-  $I.annote("AddProviderInstanceCommand", { description: "Command for adding a provider CLI instance." })
+export class AddProviderInstanceCommand extends S.Opaque<
+  AddProviderInstanceCommand,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(configurationFields).pipe(
+    $I.annoteSchema("AddProviderInstanceCommand", { description: "Command for adding a provider CLI instance." })
+  )
 ) {}
 
 /**
@@ -72,11 +76,15 @@ export class AddProviderInstanceCommand extends S.Class<AddProviderInstanceComma
  * @category commands
  * @since 0.0.0
  */
-export class UpdateProviderInstanceCommand extends S.Class<UpdateProviderInstanceCommand>(
-  $I`UpdateProviderInstanceCommand`
-)(
-  { id: Agents.ProviderInstanceId, ...configurationFields },
-  $I.annote("UpdateProviderInstanceCommand", { description: "Command for updating provider instance configuration." })
+export class UpdateProviderInstanceCommand extends S.Opaque<
+  UpdateProviderInstanceCommand,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ id: Agents.ProviderInstanceId, ...configurationFields }).pipe(
+    $I.annoteSchema("UpdateProviderInstanceCommand", {
+      description: "Command for updating provider instance configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -93,11 +101,13 @@ export class UpdateProviderInstanceCommand extends S.Class<UpdateProviderInstanc
  * @category commands
  * @since 0.0.0
  */
-export class RemoveProviderInstanceCommand extends S.Class<RemoveProviderInstanceCommand>(
-  $I`RemoveProviderInstanceCommand`
-)(
-  { id: Agents.ProviderInstanceId },
-  $I.annote("RemoveProviderInstanceCommand", { description: "Command for removing a provider instance." })
+export class RemoveProviderInstanceCommand extends S.Opaque<
+  RemoveProviderInstanceCommand,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ id: Agents.ProviderInstanceId }).pipe(
+    $I.annoteSchema("RemoveProviderInstanceCommand", { description: "Command for removing a provider instance." })
+  )
 ) {}
 
 /**
@@ -114,11 +124,13 @@ export class RemoveProviderInstanceCommand extends S.Class<RemoveProviderInstanc
  * @category commands
  * @since 0.0.0
  */
-export class ProbeProviderInstanceCommand extends S.Class<ProbeProviderInstanceCommand>(
-  $I`ProbeProviderInstanceCommand`
-)(
-  { id: Agents.ProviderInstanceId },
-  $I.annote("ProbeProviderInstanceCommand", { description: "Command for probing a provider instance." })
+export class ProbeProviderInstanceCommand extends S.Opaque<
+  ProbeProviderInstanceCommand,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ id: Agents.ProviderInstanceId }).pipe(
+    $I.annoteSchema("ProbeProviderInstanceCommand", { description: "Command for probing a provider instance." })
+  )
 ) {}
 
 /**
@@ -135,9 +147,10 @@ export class ProbeProviderInstanceCommand extends S.Class<ProbeProviderInstanceC
  * @category queries
  * @since 0.0.0
  */
-export class GetProviderInstanceQuery extends S.Class<GetProviderInstanceQuery>($I`GetProviderInstanceQuery`)(
-  { id: Agents.ProviderInstanceId },
-  $I.annote("GetProviderInstanceQuery", { description: "Query for loading one provider instance." })
+export class GetProviderInstanceQuery extends S.Opaque<GetProviderInstanceQuery, { readonly brand: unique symbol }>()(
+  S.Struct({ id: Agents.ProviderInstanceId }).pipe(
+    $I.annoteSchema("GetProviderInstanceQuery", { description: "Query for loading one provider instance." })
+  )
 ) {}
 
 /**
@@ -153,7 +166,11 @@ export class GetProviderInstanceQuery extends S.Class<GetProviderInstanceQuery>(
  * @category queries
  * @since 0.0.0
  */
-export class ListProviderInstancesQuery extends S.Class<ListProviderInstancesQuery>($I`ListProviderInstancesQuery`)(
-  {},
-  $I.annote("ListProviderInstancesQuery", { description: "Query for listing every provider instance." })
+export class ListProviderInstancesQuery extends S.Opaque<
+  ListProviderInstancesQuery,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("ListProviderInstancesQuery", { description: "Query for listing every provider instance." })
+  )
 ) {}

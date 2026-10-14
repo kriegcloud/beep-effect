@@ -24,10 +24,9 @@ import { compareBundleSize, formatBundleSizeLine, minimumBundleRawBytes } from "
 const baselinePath = new URL("./bundle-size.baseline.json", import.meta.url).pathname;
 const testBaselineArgumentPrefix = "--test-baseline-raw-bytes=";
 
-class BundleProbeError extends TaggedError<BundleProbeError>("@beep/effect-drizzle/test/BundleProbeError")(
-  "BundleProbeError",
-  { message: StringSchema, cause: Unknown }
-) {}
+class BundleProbeError extends TaggedError<BundleProbeError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/test/BundleProbeError"
+)("BundleProbeError", { message: StringSchema, cause: Unknown }) {}
 
 const measureBundleConsumer = fnUntraced(function* () {
   const artifact = yield* tryPromise({

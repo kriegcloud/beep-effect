@@ -638,10 +638,13 @@ const clearWorkspace = Effect.fn("DockReducer.clearWorkspace")(function* (
       A.match(workspace.floating, {
         onEmpty: () => reject(envelope, "workspace-empty", "The workspace is already empty."),
         onNonEmpty: () =>
-          changed(workspace, envelope, (revision) => [EmptyWorkspace.make({ revision }), WorkspaceClearedEvent.make()]),
+          changed(workspace, envelope, (revision) => [
+            EmptyWorkspace.make({ revision }),
+            WorkspaceClearedEvent.make({}),
+          ]),
       }),
     populated: (workspace) =>
-      changed(workspace, envelope, (revision) => [EmptyWorkspace.make({ revision }), WorkspaceClearedEvent.make()]),
+      changed(workspace, envelope, (revision) => [EmptyWorkspace.make({ revision }), WorkspaceClearedEvent.make({})]),
   });
 });
 
@@ -1058,7 +1061,7 @@ const moveGroupForest = Effect.fn("DockReducer.moveGroupForest")(function* (
  * import * as Effect from "effect/Effect";
  * const panel = Panel.make({ id: PanelId.make("panel-one"), title: "Panel One", view: TextPanelView.make({ text: "one" }) })
  * const workspace = PopulatedWorkspace.make({ root: TabsNode.make({ groupId: GroupId.make("group-one"), active: panel }) })
- * const envelope = DockCommandEnvelope.make({ commandId: CommandId.make("command-clear"), origin: ApiCommandOrigin.make({ requestId: "request-one" }), command: ClearWorkspaceCommand.make() })
+ * const envelope = DockCommandEnvelope.make({ commandId: CommandId.make("command-clear"), origin: ApiCommandOrigin.make({ requestId: "request-one" }), command: ClearWorkspaceCommand.make({}) })
  * const transition = Effect.runSync(reduceDockCommand(workspace, envelope))
  * console.log(transition.result._tag)
  * ```

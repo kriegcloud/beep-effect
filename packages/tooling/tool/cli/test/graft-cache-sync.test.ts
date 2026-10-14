@@ -115,7 +115,7 @@ const assertReportRoundTrip = Effect.fn("GraftCacheSyncTest.assertReportRoundTri
 it.effect.prop(
   "round-trips arbitrary reports without losing plan entries, reasons, or counters",
   [GraftCacheSyncReport],
-  ([report]) => Effect.map(assertReportRoundTrip(report), () => true)
+  ([report]) => Effect.map(assertReportRoundTrip(GraftCacheSyncReport.make(report)), () => true)
 );
 
 layer(testLayer)("Graft cache sync", (it) => {

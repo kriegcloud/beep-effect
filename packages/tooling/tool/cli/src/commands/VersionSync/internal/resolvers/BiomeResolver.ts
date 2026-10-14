@@ -86,13 +86,14 @@ const BiomeSchemaUrlToVersion = BiomeSchemaUrl.pipe(
 const buildSchemaUrl = (version: string): string => `${BIOME_SCHEMA_PREFIX}${version}${BIOME_SCHEMA_SUFFIX}`;
 const decodeSchemaVersion = S.decodeUnknownOption(BiomeSchemaUrlToVersion);
 
-class BiomeJsoncDocument extends S.Class<BiomeJsoncDocument>($I`BiomeJsoncDocument`)(
-  {
+class BiomeJsoncDocument extends S.Opaque<BiomeJsoncDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-  },
-  $I.annote("BiomeJsoncDocument", {
-    description: "Subset of biome.jsonc used to resolve current schema URL.",
-  })
+  }).pipe(
+    $I.annoteSchema("BiomeJsoncDocument", {
+      description: "Subset of biome.jsonc used to resolve current schema URL.",
+    })
+  )
 ) {}
 
 // ── Public API ──────────────────────────────────────────────────────────────
@@ -103,18 +104,19 @@ class BiomeJsoncDocument extends S.Class<BiomeJsoncDocument>($I`BiomeJsoncDocume
  * @category models
  * @since 0.0.0
  */
-export class BiomeSchemaState extends S.Class<BiomeSchemaState>($I`BiomeSchemaState`)(
-  {
+export class BiomeSchemaState extends S.Opaque<BiomeSchemaState, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaUrl: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
     schemaVersion: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     installedVersion: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefault(Effect.succeed(""))
     ),
-  },
-  $I.annote("BiomeSchemaState", {
-    description: "Resolved Biome schema state.",
-  })
+  }).pipe(
+    $I.annoteSchema("BiomeSchemaState", {
+      description: "Resolved Biome schema state.",
+    })
+  )
 ) {}
 
 /**

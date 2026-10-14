@@ -16,6 +16,10 @@ import {
   OpenAiCompatClientOptions,
   OpenAiCompatLanguageModelConfig,
   OpenAiCompatResponseFormat,
+  OpenAiCompatToolCall,
+  OpenAiCompatToolCallDelta,
+  OpenAiCompatToolCallFunction,
+  OpenAiCompatToolCallFunctionDelta,
   OpenAiCompatUsage,
   OpenAiCompatUserChatMessage,
 } from "@beep/openai-compat";
@@ -442,29 +446,33 @@ describe("OpenAiCompat language model", () => {
         moduleName: "OpenAiCompatLanguageModelTest",
         provider: {
           createChatCompletion: () =>
-            Effect.succeed({
-              choices: [
-                {
-                  finish_reason: O.some("tool_calls"),
-                  index: nonNegativeInt(0),
-                  message: O.some({
-                    content: O.none(),
-                    role: "assistant",
-                    tool_calls: O.some([
-                      {
-                        function: {
-                          arguments: '{"city":"Austin"}',
-                          name: "weather",
-                        },
-                        id: "call_1",
-                        type: "function",
-                      },
-                    ]),
+            Effect.succeed(
+              OpenAiCompatChatCompletionResponse.make({
+                choices: [
+                  OpenAiCompatChatCompletionChoice.make({
+                    finish_reason: O.some("tool_calls"),
+                    index: nonNegativeInt(0),
+                    message: O.some(
+                      OpenAiCompatAssistantMessage.make({
+                        content: O.none(),
+                        role: "assistant",
+                        tool_calls: O.some([
+                          OpenAiCompatToolCall.make({
+                            function: OpenAiCompatToolCallFunction.make({
+                              arguments: '{"city":"Austin"}',
+                              name: "weather",
+                            }),
+                            id: "call_1",
+                            type: "function",
+                          }),
+                        ]),
+                      })
+                    ),
                   }),
-                },
-              ],
-              usage: O.none(),
-            }),
+                ],
+                usage: O.none(),
+              })
+            ),
           streamChatCompletion: () => Stream.empty,
         },
       });
@@ -489,16 +497,19 @@ describe("OpenAiCompat language model", () => {
   it.effect(
     "streams chat completion chunks as Effect AI stream parts",
     Effect.fnUntraced(function* () {
-      const chunk = (content: string, finishReason?: string | null): OpenAiCompatChatCompletionChunk => ({
-        choices: [
-          {
-            delta: O.some({ content: O.some(content), role: "assistant", tool_calls: O.none() }),
-            finish_reason: O.fromNullishOr(finishReason),
-            index: nonNegativeInt(0),
-          },
-        ],
-        usage: O.none(),
-      });
+      const chunk = (content: string, finishReason?: string | null): OpenAiCompatChatCompletionChunk =>
+        OpenAiCompatChatCompletionChunk.make({
+          choices: [
+            OpenAiCompatChatCompletionChunkChoice.make({
+              delta: O.some(
+                OpenAiCompatAssistantDelta.make({ content: O.some(content), role: "assistant", tool_calls: O.none() })
+              ),
+              finish_reason: O.fromNullishOr(finishReason),
+              index: nonNegativeInt(0),
+            }),
+          ],
+          usage: O.none(),
+        });
       const languageModel = yield* makeFromProvider({
         model: "compat-model",
         moduleName: "OpenAiCompatLanguageModelTest",
@@ -535,35 +546,40 @@ describe("OpenAiCompat language model", () => {
   it.effect(
     "emits streamed finish after the trailing usage chunk",
     Effect.fnUntraced(function* () {
-      const textChunk = (content: string): OpenAiCompatChatCompletionChunk => ({
+      const textChunk = (content: string): OpenAiCompatChatCompletionChunk =>
+        OpenAiCompatChatCompletionChunk.make({
+          choices: [
+            OpenAiCompatChatCompletionChunkChoice.make({
+              delta: O.some(
+                OpenAiCompatAssistantDelta.make({ content: O.some(content), role: "assistant", tool_calls: O.none() })
+              ),
+              finish_reason: O.none(),
+              index: nonNegativeInt(0),
+            }),
+          ],
+          usage: O.none(),
+        });
+      const finishChunk = OpenAiCompatChatCompletionChunk.make({
         choices: [
-          {
-            delta: O.some({ content: O.some(content), role: "assistant", tool_calls: O.none() }),
-            finish_reason: O.none(),
+          OpenAiCompatChatCompletionChunkChoice.make({
+            delta: O.some(OpenAiCompatAssistantDelta.make({ content: O.none(), tool_calls: O.none() })),
+            finish_reason: O.some("stop"),
             index: nonNegativeInt(0),
-          },
+          }),
         ],
         usage: O.none(),
       });
-      const finishChunk: OpenAiCompatChatCompletionChunk = {
-        choices: [
-          {
-            delta: O.some({ content: O.none(), tool_calls: O.none() }),
-            finish_reason: O.some("stop"),
-            index: nonNegativeInt(0),
-          },
-        ],
-        usage: O.none(),
-      };
-      const usageChunk: OpenAiCompatChatCompletionChunk = {
+      const usageChunk = OpenAiCompatChatCompletionChunk.make({
         choices: [],
-        usage: O.some({
-          completion_tokens: O.some(nonNegativeInt(5)),
-          prompt_tokens: O.some(nonNegativeInt(3)),
-          prompt_tokens_details: O.none(),
-          total_tokens: O.some(nonNegativeInt(8)),
-        }),
-      };
+        usage: O.some(
+          OpenAiCompatUsage.make({
+            completion_tokens: O.some(nonNegativeInt(5)),
+            prompt_tokens: O.some(nonNegativeInt(3)),
+            prompt_tokens_details: O.none(),
+            total_tokens: O.some(nonNegativeInt(8)),
+          })
+        ),
+      });
       const languageModel = yield* makeFromProvider({
         model: "compat-model",
         moduleName: "OpenAiCompatLanguageModelTest",
@@ -633,17 +649,18 @@ describe("OpenAiCompat language model", () => {
       const chunk = (
         toolCalls: OpenAiCompatChatCompletionChunk["choices"][number]["delta"],
         finishReason?: string
-      ): OpenAiCompatChatCompletionChunk => ({
-        choices: [
-          {
-            delta: toolCalls,
-            finish_reason: O.fromUndefinedOr(finishReason),
-            index: nonNegativeInt(0),
-          },
-        ],
-        id: "chatcmpl_test",
-        usage: O.none(),
-      });
+      ): OpenAiCompatChatCompletionChunk =>
+        OpenAiCompatChatCompletionChunk.make({
+          choices: [
+            OpenAiCompatChatCompletionChunkChoice.make({
+              delta: toolCalls,
+              finish_reason: O.fromUndefinedOr(finishReason),
+              index: nonNegativeInt(0),
+            }),
+          ],
+          id: "chatcmpl_test",
+          usage: O.none(),
+        });
       const WeatherTool = Tool.make("weather", {
         parameters: S.Struct({ city: S.String }),
         success: S.String,
@@ -656,34 +673,38 @@ describe("OpenAiCompat language model", () => {
           streamChatCompletion: () =>
             Stream.make(
               chunk(
-                O.some({
-                  content: O.none(),
-                  role: "assistant",
-                  tool_calls: O.some([
-                    {
-                      function: {
-                        arguments: '{"city"',
-                        name: "weather",
-                      },
-                      id: "call_1",
-                      index: nonNegativeInt(0),
-                      type: "function",
-                    },
-                  ]),
-                })
+                O.some(
+                  OpenAiCompatAssistantDelta.make({
+                    content: O.none(),
+                    role: "assistant",
+                    tool_calls: O.some([
+                      OpenAiCompatToolCallDelta.make({
+                        function: OpenAiCompatToolCallFunctionDelta.make({
+                          arguments: '{"city"',
+                          name: "weather",
+                        }),
+                        id: "call_1",
+                        index: nonNegativeInt(0),
+                        type: "function",
+                      }),
+                    ]),
+                  })
+                )
               ),
               chunk(
-                O.some({
-                  content: O.none(),
-                  tool_calls: O.some([
-                    {
-                      function: {
-                        arguments: ':"Austin"}',
-                      },
-                      index: nonNegativeInt(0),
-                    },
-                  ]),
-                }),
+                O.some(
+                  OpenAiCompatAssistantDelta.make({
+                    content: O.none(),
+                    tool_calls: O.some([
+                      OpenAiCompatToolCallDelta.make({
+                        function: OpenAiCompatToolCallFunctionDelta.make({
+                          arguments: ':"Austin"}',
+                        }),
+                        index: nonNegativeInt(0),
+                      }),
+                    ]),
+                  })
+                ),
                 "tool_calls"
               )
             ),

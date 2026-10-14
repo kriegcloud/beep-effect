@@ -94,8 +94,8 @@ const nodeSdkServerOptionsShutdownTimeoutDefault = Duration.seconds(3);
  * @category models
  * @since 0.0.0
  */
-export class NodeSdkServerOptions extends S.Class<NodeSdkServerOptions>($I`NodeSdkServerOptions`)(
-  {
+export class NodeSdkServerOptions extends S.Opaque<NodeSdkServerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     loggerExportInterval: S.Duration.pipe(
       S.withConstructorDefault(Effect.succeed(nodeSdkServerOptionsLoggerExportIntervalDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(nodeSdkServerOptionsLoggerExportIntervalDefault))
@@ -119,10 +119,11 @@ export class NodeSdkServerOptions extends S.Class<NodeSdkServerOptions>($I`NodeS
       S.withDecodingDefaultTypeKey(Effect.succeed(nodeSdkServerOptionsShutdownTimeoutDefault))
     ),
     spanProcessor: S.optionalKey(NodeSdkSpanProcessorOption),
-  },
-  $I.annote("NodeSdkServerOptions", {
-    description: "Additional controls for the shared OpenTelemetry Node SDK server layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("NodeSdkServerOptions", {
+      description: "Additional controls for the shared OpenTelemetry Node SDK server layer.",
+    })
+  )
 ) {}
 
 /**

@@ -34,15 +34,16 @@ const $I = $LawPracticeDomainId.create("values/HistoryChain/HistoryChain.model")
  * @category models
  * @since 0.0.0
  */
-export class HistoryChain extends S.Class<HistoryChain>($I`HistoryChain`)(
-  {
+export class HistoryChain extends S.Opaque<HistoryChain, { readonly brand: unique symbol }>()(
+  S.Struct({
     links: S.Array(HistoryLink).annotateKey({
       description: "History links, ordered root → latest, referencing members by stable CitationId (#849).",
     }),
-  },
-  $I.annote("HistoryChain", {
-    description: "A subsequent-history chain (#849), ordered root → latest.",
-  })
+  }).pipe(
+    $I.annoteSchema("HistoryChain", {
+      description: "A subsequent-history chain (#849), ordered root → latest.",
+    })
+  )
 ) {}
 
 /**

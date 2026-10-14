@@ -77,8 +77,8 @@ const BEACON_HIGH_MIN_PAIRS = 4;
  * @category models
  * @since 0.0.0
  */
-export class BeaconEdge extends S.Class<BeaconEdge>($I`BeaconEdge`)(
-  {
+export class BeaconEdge extends S.Opaque<BeaconEdge, { readonly brand: unique symbol }>()(
+  S.Struct({
     timeSeconds: S.Finite.check(
       S.isGreaterThanOrEqualTo(0, {
         identifier: $I`BeaconEdgeTimeMinimumCheck`,
@@ -96,10 +96,11 @@ export class BeaconEdge extends S.Class<BeaconEdge>($I`BeaconEdge`)(
         description: "Whether the region transitioned to white.",
       })
     ),
-  },
-  $I.annote("BeaconEdge", {
-    description: "One luma transition detected in the beacon corner region.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeaconEdge", {
+      description: "One luma transition detected in the beacon corner region.",
+    })
+  )
 ) {}
 
 /**
@@ -251,8 +252,8 @@ const correlateClockRequestBeaconEventsDefault = A.empty();
  * @category models
  * @since 0.0.0
  */
-export class CorrelateClockRequest extends S.Class<CorrelateClockRequest>($I`CorrelateClockRequest`)(
-  {
+export class CorrelateClockRequest extends S.Opaque<CorrelateClockRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     assumedStartEpochMs: EpochMilliseconds.pipe(
       $I.annoteKey("CorrelateClockRequest.assumedStartEpochMs", {
         description: "Recording-start hint captured just before the context was created.",
@@ -310,10 +311,11 @@ export class CorrelateClockRequest extends S.Class<CorrelateClockRequest>($I`Cor
         description: "Writable directory for the normalized beacon probe clip.",
       })
     ),
-  },
-  $I.annote("CorrelateClockRequest", {
-    description: "Request accepted by ClockCorrelator.correlate.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorrelateClockRequest", {
+      description: "Request accepted by ClockCorrelator.correlate.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(CorrelateClockRequest);
 }

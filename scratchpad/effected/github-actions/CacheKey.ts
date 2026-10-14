@@ -30,7 +30,7 @@ const $I = $ScratchpadId.create("effected/github-actions/CacheKey");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidDigestLengthError extends S.TaggedError<InvalidDigestLengthError>($I`InvalidDigestLengthError`)("InvalidDigestLengthError", {
+export class InvalidDigestLengthError extends S.TaggedError<InvalidDigestLengthError, { readonly brand: unique symbol }>($I`InvalidDigestLengthError`)("InvalidDigestLengthError", {
 	message: S.String,
 }, $I.annote("InvalidDigestLengthError", { description: "A digest length outside the sha256 output range was requested." })) {}
 
@@ -51,7 +51,7 @@ export class InvalidDigestLengthError extends S.TaggedError<InvalidDigestLengthE
  * @category errors
  * @since 0.0.0
  */
-export class CacheKeyReadError extends S.TaggedError<CacheKeyReadError>($I`CacheKeyReadError`)("CacheKeyReadError", {
+export class CacheKeyReadError extends S.TaggedError<CacheKeyReadError, { readonly brand: unique symbol }>($I`CacheKeyReadError`)("CacheKeyReadError", {
 	/** The path being read when it went wrong. */
 	path: S.String.annotateKey({ description: "The path being read when it went wrong." }),
 	/** The underlying failure, preserved structurally. */
@@ -92,7 +92,7 @@ export class CacheKeyReadError extends S.TaggedError<CacheKeyReadError>($I`Cache
  * @category errors
  * @since 0.0.0
  */
-export class CacheKeyBadPatternError extends S.TaggedError<CacheKeyBadPatternError>($I`CacheKeyBadPatternError`)("CacheKeyBadPatternError", {
+export class CacheKeyBadPatternError extends S.TaggedError<CacheKeyBadPatternError, { readonly brand: unique symbol }>($I`CacheKeyBadPatternError`)("CacheKeyBadPatternError", {
 	/** The pattern that would not compile. */
 	pattern: S.String.annotateKey({ description: "The pattern that would not compile." }),
 	/** The underlying failure, preserved structurally. */
@@ -228,7 +228,7 @@ const RestoreDepths = S.Array(RestoreDepth);
  * @category models
  * @since 0.0.0
  */
-export class CacheKey extends S.Class<CacheKey>($I`CacheKey`)(
+export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol }>($I`CacheKey`)(
 	S.Struct({
 		/** The components, most general first. */
 		segments: Segments,

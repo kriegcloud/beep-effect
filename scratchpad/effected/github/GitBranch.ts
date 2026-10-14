@@ -16,7 +16,7 @@ const BranchRef = S.Struct({ object: S.Struct({ sha: S.String }) }).annotate(
   $I.annote("BranchRef", { description: "The commit SHA selected from a GitHub branch ref response." }),
 );
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 

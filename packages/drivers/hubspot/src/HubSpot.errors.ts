@@ -74,12 +74,15 @@ export type HubSpotErrorReason = typeof HubSpotErrorReason.Type;
  * **Example** (Create error with form context)
  *
  * ```ts
- * import { HubSpotError } from "@beep/hubspot"
+ * import { HubSpotError, HubSpotErrorOptions } from "@beep/hubspot"
  *
- * const error = HubSpotError.fromReason("transport", {
- *   formGuid: "form-guid",
- *   url: "https://api.hsforms.com/submissions/v3/integration/secure/submit/12345/form-guid"
- * })
+ * const error = HubSpotError.fromReason(
+ *   "transport",
+ *   HubSpotErrorOptions.make({
+ *     formGuid: "form-guid",
+ *     url: "https://api.hsforms.com/submissions/v3/integration/secure/submit/12345/form-guid"
+ *   })
+ * )
  *
  * console.log(error.reason) // "transport"
  * ```
@@ -87,7 +90,7 @@ export type HubSpotErrorReason = typeof HubSpotErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class HubSpotError extends S.TaggedError<HubSpotError>($I`HubSpotError`)(
+export class HubSpotError extends S.TaggedError<HubSpotError, { readonly brand: unique symbol }>($I`HubSpotError`)(
   "HubSpotError",
   {
     cause: S.optionalKey(S.String).annotateKey({
@@ -119,16 +122,19 @@ export class HubSpotError extends S.TaggedError<HubSpotError>($I`HubSpotError`)(
    * **Example** (Create error with status)
    *
    * ```ts
-   * import { HubSpotError } from "@beep/hubspot"
+   * import { HubSpotError, HubSpotErrorOptions } from "@beep/hubspot"
    *
-   * const error = HubSpotError.fromReason("response status", { status: 401 })
+   * const error = HubSpotError.fromReason("response status", HubSpotErrorOptions.make({ status: 401 }))
    * console.log(error.status) // 401
    * ```
    *
    * @category constructors
    * @since 0.0.0
    */
-  static readonly fromReason = (reason: HubSpotErrorReason, options: HubSpotErrorOptions = {}): HubSpotError =>
+  static readonly fromReason = (
+    reason: HubSpotErrorReason,
+    options: HubSpotErrorOptions = HubSpotErrorOptions.make({})
+  ): HubSpotError =>
     HubSpotError.make({
       reason,
       ...O.getSomesStruct({
@@ -194,8 +200,8 @@ export class HubSpotError extends S.TaggedError<HubSpotError>($I`HubSpotError`)(
  * @category errors
  * @since 0.0.0
  */
-export class HubSpotErrorOptions extends S.Class<HubSpotErrorOptions>($I`HubSpotErrorOptions`)(
-  {
+export class HubSpotErrorOptions extends S.Opaque<HubSpotErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.optionalKey(
       S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))
     ).annotateKey({
@@ -213,10 +219,11 @@ export class HubSpotErrorOptions extends S.Class<HubSpotErrorOptions>($I`HubSpot
     url: S.optionalKey(HubSpotUrl).annotateKey({
       description: "HubSpot API URL associated with the failure.",
     }),
-  },
-  $I.annote("HubSpotErrorOptions", {
-    description: "Options for configuring HubSpotError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("HubSpotErrorOptions", {
+      description: "Options for configuring HubSpotError instances.",
+    })
+  )
 ) {}
 
 // shared driver boundary idiom; no in-family home; future foundation capability candidate.
