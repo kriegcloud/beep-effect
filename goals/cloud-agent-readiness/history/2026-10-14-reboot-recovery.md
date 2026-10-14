@@ -1,7 +1,7 @@
 # Reboot recovery qualification — 2026-10-14
 
 Status: **boot/access and core services recovered after firmware correction;
-repeat machine boot and guarded proxy recovery pass; post-boot GitHub authentication gap remains open**.
+repeat machine boot and guarded proxy recovery pass; GitHub headless credential retrieval repaired**.
 The operator selected reboot recovery after the proxy route receipt. The
 worker readiness checkout was at
 `6d6cec22b5164ef9830b5171e7c7ad580b098d96` before reboot.
@@ -168,3 +168,11 @@ proof. The prior pre-reboot GitHub receipt remains historical. No raw token was
 printed, no credential was deleted, and no new login was started. Investigate
 credential storage/retrieval and validate authenticated GitHub access before
 closing unattended developer authentication across reboot.
+
+## GitHub gap resolved
+
+The follow-up [GitHub credential recovery receipt](2026-10-14-github-credential-recovery.md)
+confirms the login keyring was locked, not a revoked token. Existing-token
+migration to mode-0600 CLI file storage passes authenticated SSH and detached
+user-systemd checks with Secret Service inaccessible. That storage tradeoff and
+limits are recorded separately; no third full machine reboot was performed.
