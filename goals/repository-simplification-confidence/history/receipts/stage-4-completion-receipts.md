@@ -253,3 +253,59 @@ completion is unknown for each because `inventoryComplete=false`.
 sub-claim remains unknown. No clone completion receipt was written.
 Independent Opus review of this fix and the missing-snapshot follow-up
 concludes zero actionable findings; runtime/package gates remain separate proof.
+
+## October 14 resumed observations
+
+The resolved main integration was preserved and committed in `286a57de1d`;
+the latest retired-path command coverage repair #1710 was integrated in
+`da602cef45`. PR #1574 is reopened, unmerged, and ready. The new qualification
+results are recorded in
+[the October 14 handoff](../handoffs/rsc-h2-completion-2026-10-14.md).
+
+`bun run beep goals doctor` exits 0: packets=215, blocking_new=0,
+blocking_inherited=0, baseline_resolved=0, advisories=5. The three targeted
+packets report `completion-gate-unknown`; two unrelated legacy advisories
+(`ts7-tstyche8-type-tests`, `tsc-rs-gates`) remain untouched. The original
+three-unsatisfied baseline above remains the October 9 observation.
+
+A read-only three-packet call to `observeGoalCompletion` confirms these facts:
+
+| PR | Overall | Observed required contexts | Draft to ready | Review window | Head-bound merge-ready verdict |
+| --- | --- | --- | --- | --- | --- |
+| #1429 | unknown | 16 passing before merge | verified | verified | unknown |
+| #1462 | unknown | 16 passing before merge | verified | unsatisfied, seven seconds | unknown |
+| #1427 | unknown | 16 passing before merge | verified | verified | unknown |
+
+All three still bind the accepted heads and merge results listed in Known
+advisories. Each snapshot has `inventoryComplete=false`. No clone completion
+receipt or manifest was written by these observations. Historical red
+attributions above remain source-bound log comparisons; the adapter continues
+to report their automated attribution as unknown.
+
+The resumed scoped Node/V8 run passes 286 tests across 13 files. All existing
+touched-file percentage floors and uncovered-count ceilings are met or improved:
+
+| File | Lines | Statements | Branches | Functions | Comparison |
+| --- | --- | --- | --- | --- | --- |
+| Bootstrap.schemas.ts | 100% | 100% | 100% | 100% | unchanged, zero uncovered |
+| Doctor.ts | 83.5% | 83.43% | 72.79% | 89.65% | above all four floors; uncovered 49/52/37/9 below 81/83/57/12 |
+| Goals.command.ts | 50% | 50% | 100% | 0% | unchanged; uncovered 1/1/0/1 unchanged |
+| Goals.schemas.ts | 100% | 100% | 100% | 100% | unchanged, zero uncovered |
+| Completion.ts | 80.15% | 76.71% | 54.8% | 71.02% | new file, no existing baseline row |
+| MergeGate.schemas.ts | 100% | 100% | 100% | 100% | no existing baseline row |
+| MergeGate.ts | 100% | 100% | 100% | 100% | no existing baseline row |
+
+The scoped command selects goal schema/doctor/bootstrap/command/packet/status
+fixtures plus merge-gate/coherence fixtures; it uses V8 coverage and one worker.
+This is a scoped read, not repository-wide coverage qualification. No baseline
+was regenerated. Fallow audit/health and retired-effect-paths report zero
+findings. JSDoc ratchet reports zero non-generated legacy findings; knowledge
+references pass. The test compiler reports the inherited #1710 diagnostic
+documented in the new handoff.
+
+Full resumed `beep-heavy bun run beep quality package-verify @beep/repo-cli`
+returns exit 0 at integrated source `da602cef45`: audit 1076.5 seconds,
+docgen 30.3 seconds. This is new full-package evidence rather than reuse of
+the October 9 qualification. The report-only delivery update changes no source
+or fixtures. Publication and final-head hosted state are separately observed
+by the worker dispatch; no local pass is presented as a hosted pass.

@@ -1299,3 +1299,15 @@ on the new head if it appears.
   `Cannot find module '@beep/utils'` until `bun install` restored workspace links.
 - Prevention: restore dependencies before invoking the CLI in a resumed worktree;
   record source-bound qualification separately from prior delivery gates.
+
+### 2026-10-14 — H2 inherited test compiler diagnostic
+
+- Work: qualify resumed H2 integration through `beep-heavy bun run beep quality test-tsgo`.
+- Evidence: exit 1, `laws-retired-effect-paths-command.test.ts(51,9)` TS377050
+  (`effect(missedPipeableOpportunity)`). The file is identical to `origin/main`
+  and entered main in #1710 (`aeb2a85cc5`); H2 changes no line in it.
+- Attribution: inherited; route the single-main repair to the orchestrator.
+  The standing inherited Coverage Regression attribution also remains with
+  the orchestrator. Neither result is described as a passing gate.
+- Prevention: run the test compiler on added command coverage before merging
+  the coverage repair; preserve source-bound gate results across integration.

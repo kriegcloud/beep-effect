@@ -5,7 +5,8 @@
 Lifecycle: `active`
 
 Program resumed on October 14. H2 is integrating current main and requalifying
-reopened PR #1574; historical-inventory completeness remains explicitly unknown.
+reopened PR #1574; local qualification is complete with inherited compiler attribution.
+Historical inventory completeness remains explicitly unknown.
 Completed lane evidence and remaining program work are tracked in PLAN.md.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
@@ -63,7 +64,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-H2 implementation and historical reconciliation are in PR #1574: [stage-4 completion receipts](./history/receipts/stage-4-completion-receipts.md) and [lane handoff](./history/handoffs/rsc-h2-completion-2026-10-09.md). The resumed full package handoff gate passed (audit 989.2s, docgen 27.3s); run-3 delivery was pushed and marked ready; a subsequent hosted review found a deleted-ruleset inventory gap. The local fix requires explicit historical inventory completeness, so live overall outcomes are unknown while the merge/context facts remain verified. Independent review is clear and renewed package/parity qualification is pending. Post-merge refresh remains a clone-scoped closeout action owned by the orchestrator.
+H2 implementation and historical reconciliation are in reopened PR #1574: [stage-4 completion receipts](./history/receipts/stage-4-completion-receipts.md) and [October 14 handoff](./history/handoffs/rsc-h2-completion-2026-10-14.md). Integrated full package verification passes (audit 1076.5s, docgen 30.3s), as do docgen, JSDoc, knowledge references, Fallow, retired-path law and 286 scoped tests. The inherited #1710 test compiler diagnostic and standing Coverage red remain with the orchestrator. The deleted-ruleset review thread is answered and resolved; historical inventory incompleteness makes all three live overall outcomes unknown while preserving the observed merge/context facts. Delivery, hosted readiness and the exact published tip are recorded in the final worker dispatch. Post-merge refresh remains clone-scoped and orchestrator-owned.
 
 B's October 13 bounded baseline repair is published in
 [PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
