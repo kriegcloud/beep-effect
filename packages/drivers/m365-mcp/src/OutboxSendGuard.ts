@@ -49,8 +49,8 @@ const $I = $M365McpId.create("OutboxSendGuard");
  * @category models
  * @since 0.1.0
  */
-export class OutboxSendExpectation extends S.Class<OutboxSendExpectation>($I`OutboxSendExpectation`)(
-  {
+export class OutboxSendExpectation extends S.Opaque<OutboxSendExpectation, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachments: S.Array(OutboxAttachmentDigest).annotateKey({
       description:
         "Every attachment the message must carry: its name, size and sha256 exactly as create_draft or get_draft returned them.",
@@ -59,15 +59,16 @@ export class OutboxSendExpectation extends S.Class<OutboxSendExpectation>($I`Out
     cc: S.Array(S.String).annotateKey({ description: "Every carbon-copy address; empty when there is none." }),
     subject: S.String.annotateKey({ description: "The subject, compared after trimming." }),
     to: S.Array(S.String).annotateKey({ description: "Every primary recipient address." }),
-  },
-  $I.annote("OutboxSendExpectation", {
-    description: "The exact recipients, subject and attachments a send is expected to deliver.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutboxSendExpectation", {
+      description: "The exact recipients, subject and attachments a send is expected to deliver.",
+    })
+  )
 ) {}
 
 /**
  * A reason a send is refused: a part of the stored draft that differs from
- * the send expectation, or `not-created-here`.
+ * the send expectation, `not-created-here`, or `version-unbound`.
  *
  * **Details**
  *
@@ -89,6 +90,7 @@ export class OutboxSendExpectation extends S.Class<OutboxSendExpectation>($I`Out
  */
 export const OutboxSendMismatchField = LiteralKit([
   "not-created-here",
+  "version-unbound",
   "not-a-draft",
   "to",
   "cc",
@@ -99,7 +101,7 @@ export const OutboxSendMismatchField = LiteralKit([
 ]).pipe(
   $I.annoteSchema("OutboxSendMismatchField", {
     description:
-      "A reason a send is refused: a part of the stored draft that differs from the send expectation, or `not-created-here` when this server did not create the draft.",
+      "A reason a send is refused: a mismatched draft field, an unrecorded draft, or an unversioned Graph send operation.",
   })
 );
 
@@ -136,15 +138,16 @@ export type OutboxSendMismatchField = typeof OutboxSendMismatchField.Type;
  * @category models
  * @since 0.1.0
  */
-export class OutboxSendMismatch extends S.Class<OutboxSendMismatch>($I`OutboxSendMismatch`)(
-  {
+export class OutboxSendMismatch extends S.Opaque<OutboxSendMismatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     fields: S.NonEmptyArray(OutboxSendMismatchField).annotateKey({
       description: "The differing fields, in a fixed order, each at most once.",
     }),
-  },
-  $I.annote("OutboxSendMismatch", {
-    description: "Refusal of the send guard, naming the fields in which the stored draft differs.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutboxSendMismatch", {
+      description: "Refusal of the send guard, naming the fields in which the stored draft differs.",
+    })
+  )
 ) {}
 
 /**
@@ -170,15 +173,14 @@ export class OutboxSendMismatch extends S.Class<OutboxSendMismatch>($I`OutboxSen
  * @category models
  * @since 0.1.0
  */
-export class OutboxSendCheck extends S.Class<OutboxSendCheck>($I`OutboxSendCheck`)(
-  {
+export class OutboxSendCheck extends S.Opaque<OutboxSendCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     draft: GraphMessage.annotateKey({ description: "The draft as Graph stores it." }),
     expect: OutboxSendExpectation.annotateKey({ description: "What the caller expects to send." }),
     stored: S.Array(OutboxAttachmentDigest).annotateKey({
       description: "Name, byte length and digest of each stored attachment, computed from the stored bytes.",
     }),
-  },
-  $I.annote("OutboxSendCheck", { description: "Input of the send guard." })
+  }).pipe($I.annoteSchema("OutboxSendCheck", { description: "Input of the send guard." }))
 ) {}
 
 const sortStrings = A.sort(Order.String);

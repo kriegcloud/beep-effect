@@ -275,15 +275,16 @@ export type SchemaFirstOccurrenceAnchor = typeof SchemaFirstOccurrenceAnchor.Typ
  * @category models
  * @since 0.0.0
  */
-export class SchemaFirstBacklogRow extends S.Class<SchemaFirstBacklogRow>($I`SchemaFirstBacklogRow`)(
-  {
+export class SchemaFirstBacklogRow extends S.Opaque<SchemaFirstBacklogRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     ruleId: SchemaFirstParityRuleId,
     file: S.String,
     occurrences: S.Array(SchemaFirstOccurrenceAnchor),
-  },
-  $I.annote("SchemaFirstBacklogRow", {
-    description: "Committed parity-backlog membership for one source file and rule, one anchor per occurrence.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaFirstBacklogRow", {
+      description: "Committed parity-backlog membership for one source file and rule, one anchor per occurrence.",
+    })
+  )
 ) {}
 
 /**
@@ -305,7 +306,9 @@ export const SchemaFirstEntryKind = LiteralKit([
   "exported-interface",
   "exported-type-literal",
   "object-struct-schema",
+  "plain-data-schema-class",
   "schema-policy-advisory",
+  "unbranded-schema-class",
 ]).pipe(
   $I.annoteSchema("SchemaFirstEntryKind", {
     description: "Kinds of schema-first inventory findings.",
@@ -391,8 +394,8 @@ export type SchemaFirstEntryStatus = typeof SchemaFirstEntryStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class SchemaFirstInventoryEntry extends S.Class<SchemaFirstInventoryEntry>($I`SchemaFirstInventoryEntry`)(
-  {
+export class SchemaFirstInventoryEntry extends S.Opaque<SchemaFirstInventoryEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     symbol: S.String,
     kind: SchemaFirstEntryKind,
@@ -402,10 +405,11 @@ export class SchemaFirstInventoryEntry extends S.Class<SchemaFirstInventoryEntry
     occurrence: S.optionalKey(SchemaFirstOccurrenceAnchor),
     owner: S.String,
     reason: S.String,
-  },
-  $I.annote("SchemaFirstInventoryEntry", {
-    description: "Single tracked schema-first finding for a source file symbol.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaFirstInventoryEntry", {
+      description: "Single tracked schema-first finding for a source file symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -452,10 +456,11 @@ export declare namespace SchemaFirstInventoryEntry {
  * @category models
  * @since 0.0.0
  */
-export class SchemaFirstInventoryDocument extends S.Class<SchemaFirstInventoryDocument>(
-  $I`SchemaFirstInventoryDocument`
-)(
-  {
+export class SchemaFirstInventoryDocument extends S.Opaque<
+  SchemaFirstInventoryDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     version: S.Literal(1),
     generatedOn: S.String,
     scope: S.Array(S.String).pipe(
@@ -470,10 +475,11 @@ export class SchemaFirstInventoryDocument extends S.Class<SchemaFirstInventoryDo
       S.withConstructorDefault(Effect.succeed(A.empty<SchemaFirstBacklogRow>())),
       S.withDecodingDefault(Effect.succeed(A.empty<typeof SchemaFirstBacklogRow.Encoded>()))
     ),
-  },
-  $I.annote("SchemaFirstInventoryDocument", {
-    description: "Committed schema-first inventory baseline for repo-wide lint enforcement.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaFirstInventoryDocument", {
+      description: "Committed schema-first inventory baseline for repo-wide lint enforcement.",
+    })
+  )
 ) {}
 
 /**
@@ -499,8 +505,8 @@ export class SchemaFirstInventoryDocument extends S.Class<SchemaFirstInventoryDo
  * @category models
  * @since 0.0.0
  */
-export class SchemaFirstLintOptions extends S.Class<SchemaFirstLintOptions>($I`SchemaFirstLintOptions`)(
-  {
+export class SchemaFirstLintOptions extends S.Opaque<SchemaFirstLintOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -513,10 +519,11 @@ export class SchemaFirstLintOptions extends S.Class<SchemaFirstLintOptions>($I`S
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
     ),
-  },
-  $I.annote("SchemaFirstLintOptions", {
-    description: "CLI options for schema-first inventory verification.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaFirstLintOptions", {
+      description: "CLI options for schema-first inventory verification.",
+    })
+  )
 ) {}
 
 /**
@@ -546,19 +553,21 @@ export class SchemaFirstLintOptions extends S.Class<SchemaFirstLintOptions>($I`S
  * @category models
  * @since 0.0.0
  */
-export class SchemaFirstParityRuleSummary extends S.Class<SchemaFirstParityRuleSummary>(
-  $I`SchemaFirstParityRuleSummary`
-)(
-  {
+export class SchemaFirstParityRuleSummary extends S.Opaque<
+  SchemaFirstParityRuleSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ruleId: SchemaFirstParityRuleId,
     live: S.Finite,
     baseline: S.Finite,
     introduced: S.Finite,
     resolved: S.Finite,
-  },
-  $I.annote("SchemaFirstParityRuleSummary", {
-    description: "Occurrence-membership counts for one upstream-parity schema-first rule.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaFirstParityRuleSummary", {
+      description: "Occurrence-membership counts for one upstream-parity schema-first rule.",
+    })
+  )
 ) {}
 
 /**
@@ -588,17 +597,18 @@ export class SchemaFirstParityRuleSummary extends S.Class<SchemaFirstParityRuleS
  * @category models
  * @since 0.0.0
  */
-export class SchemaFirstParityFindings extends S.Class<SchemaFirstParityFindings>($I`SchemaFirstParityFindings`)(
-  {
+export class SchemaFirstParityFindings extends S.Opaque<SchemaFirstParityFindings, { readonly brand: unique symbol }>()(
+  S.Struct({
     introduced: S.Array(SchemaFirstInventoryEntry),
     resolved: S.Array(SchemaFirstBacklogRow),
     rules: S.Array(SchemaFirstParityRuleSummary),
     liveCount: S.Finite,
     baselineCount: S.Finite,
-  },
-  $I.annote("SchemaFirstParityFindings", {
-    description: "Parity-ratchet outcome: introduced live occurrences, resolved backlog rows, and per-rule counts.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaFirstParityFindings", {
+      description: "Parity-ratchet outcome: introduced live occurrences, resolved backlog rows, and per-rule counts.",
+    })
+  )
 ) {}
 
 /**
@@ -617,8 +627,8 @@ export class SchemaFirstParityFindings extends S.Class<SchemaFirstParityFindings
  * @category models
  * @since 0.0.0
  */
-export class SchemaFirstLintSummary extends S.Class<SchemaFirstLintSummary>($I`SchemaFirstLintSummary`)(
-  {
+export class SchemaFirstLintSummary extends S.Opaque<SchemaFirstLintSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     liveEntries: S.Finite,
     trackedEntries: S.Finite,
     missingEntries: S.Finite,
@@ -639,10 +649,11 @@ export class SchemaFirstLintSummary extends S.Class<SchemaFirstLintSummary>($I`S
     parityRules: S.Array(SchemaFirstParityRuleSummary),
     crispeningPolicyExempt: S.Finite,
     wroteInventory: S.Boolean,
-  },
-  $I.annote("SchemaFirstLintSummary", {
-    description: "Summary of schema-first inventory verification results.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaFirstLintSummary", {
+      description: "Summary of schema-first inventory verification results.",
+    })
+  )
 ) {}
 
 /**
@@ -700,15 +711,17 @@ export type SchemaCrispeningFamily = typeof SchemaCrispeningFamily.Type;
  * @category models
  * @since 0.0.0
  */
-export class SchemaCrispeningFamilyPolicy extends S.Class<SchemaCrispeningFamilyPolicy>(
-  $I`SchemaCrispeningFamilyPolicy`
-)(
-  {
+export class SchemaCrispeningFamilyPolicy extends S.Opaque<
+  SchemaCrispeningFamilyPolicy,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     blocking: S.Boolean,
-  },
-  $I.annote("SchemaCrispeningFamilyPolicy", {
-    description: "Blocking flag for a schema-crispening wave family or per-owner override.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaCrispeningFamilyPolicy", {
+      description: "Blocking flag for a schema-crispening wave family or per-owner override.",
+    })
+  )
 ) {}
 
 /**
@@ -729,10 +742,11 @@ export class SchemaCrispeningFamilyPolicy extends S.Class<SchemaCrispeningFamily
  * @category models
  * @since 0.0.0
  */
-export class SchemaCrispeningPolicyDocument extends S.Class<SchemaCrispeningPolicyDocument>(
-  $I`SchemaCrispeningPolicyDocument`
-)(
-  {
+export class SchemaCrispeningPolicyDocument extends S.Opaque<
+  SchemaCrispeningPolicyDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("schema-crispening-policy/v1"),
     cards: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
@@ -746,10 +760,11 @@ export class SchemaCrispeningPolicyDocument extends S.Class<SchemaCrispeningPoli
       S.withConstructorDefault(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>())),
       S.withDecodingDefault(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>()))
     ),
-  },
-  $I.annote("SchemaCrispeningPolicyDocument", {
-    description: "Schema-crispening policy ratchet: novel lint cards and per-family/per-owner blocking flags.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaCrispeningPolicyDocument", {
+      description: "Schema-crispening policy ratchet: novel lint cards and per-family/per-owner blocking flags.",
+    })
+  )
 ) {}
 
 /**
@@ -768,17 +783,19 @@ export class SchemaCrispeningPolicyDocument extends S.Class<SchemaCrispeningPoli
  * @category models
  * @since 0.0.0
  */
-export class LiteralKitConstAssertionViolation extends S.Class<LiteralKitConstAssertionViolation>(
-  $I`LiteralKitConstAssertionViolation`
-)(
-  {
+export class LiteralKitConstAssertionViolation extends S.Opaque<
+  LiteralKitConstAssertionViolation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     file: S.String,
     line: S.Finite,
     argument: S.Finite,
-  },
-  $I.annote("LiteralKitConstAssertionViolation", {
-    description: "Direct LiteralKit call argument that redundantly asserts an inline array as const.",
-  })
+  }).pipe(
+    $I.annoteSchema("LiteralKitConstAssertionViolation", {
+      description: "Direct LiteralKit call argument that redundantly asserts an inline array as const.",
+    })
+  )
 ) {}
 
 /**
@@ -823,17 +840,19 @@ const makeParityMembershipKey = (file: string, ruleId: string, occurrence: strin
  * **Example** (Build reconciliation entry key)
  *
  * ```ts
- * import { makeSchemaFirstEntryKey } from "@beep/repo-cli/commands/Lint"
+ * import { makeSchemaFirstEntryKey, SchemaFirstInventoryEntry } from "@beep/repo-cli/commands/Lint"
  *
- * const result = makeSchemaFirstEntryKey({
- *   file: "packages/example/src/Foo.ts",
- *   kind: "exported-interface",
- *   line: 12,
- *   owner: "@beep/example",
- *   reason: "exported schema carries annotations",
- *   status: "candidate",
- *   symbol: "Foo"
- * })
+ * const result = makeSchemaFirstEntryKey(
+ *   SchemaFirstInventoryEntry.make({
+ *     file: "packages/example/src/Foo.ts",
+ *     kind: "exported-interface",
+ *     line: 12,
+ *     owner: "@beep/example",
+ *     reason: "exported schema carries annotations",
+ *     status: "candidate",
+ *     symbol: "Foo"
+ *   })
+ * )
  * console.log(result) // rendered command output
  * ```
  *
@@ -1087,9 +1106,12 @@ const optionalText = S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDef
  * @category models
  * @since 0.0.0
  */
-export class EffectVitestReplacement extends S.Class<EffectVitestReplacement>($I`EffectVitestReplacement`)(
-  { primitive: S.NonEmptyString, sketch: S.NonEmptyString },
-  $I.annote("EffectVitestReplacement", { description: "Pinned primitive identifier and concise P0c remediation hint." })
+export class EffectVitestReplacement extends S.Opaque<EffectVitestReplacement, { readonly brand: unique symbol }>()(
+  S.Struct({ primitive: S.NonEmptyString, sketch: S.NonEmptyString }).pipe(
+    $I.annoteSchema("EffectVitestReplacement", {
+      description: "Pinned primitive identifier and concise P0c remediation hint.",
+    })
+  )
 ) {}
 
 const EffectVitestFindingLensRule = S.Union([
@@ -1193,11 +1215,12 @@ const EffectVitestFindingFields = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class EffectVitestFinding extends S.Class<EffectVitestFinding>($I`EffectVitestFinding`)(
-  EffectVitestFindingFields,
-  $I.annote("EffectVitestFinding", {
-    description: "Stable Effect Vitest detector or judgment finding persisted as encoded JSONL.",
-  })
+export class EffectVitestFinding extends S.Opaque<EffectVitestFinding, { readonly brand: unique symbol }>()(
+  EffectVitestFindingFields.pipe(
+    $I.annoteSchema("EffectVitestFinding", {
+      description: "Stable Effect Vitest detector or judgment finding persisted as encoded JSONL.",
+    })
+  )
 ) {}
 
 const EffectVitestPrimitiveKind = LiteralKit([
@@ -1278,11 +1301,12 @@ const EffectVitestPrimitiveFields = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class EffectVitestPrimitive extends S.Class<EffectVitestPrimitive>($I`EffectVitestPrimitive`)(
-  EffectVitestPrimitiveFields,
-  $I.annote("EffectVitestPrimitive", {
-    description: "Schema-validated pinned primitive, source anchor, usage guidance, and detector replacement edges.",
-  })
+export class EffectVitestPrimitive extends S.Opaque<EffectVitestPrimitive, { readonly brand: unique symbol }>()(
+  EffectVitestPrimitiveFields.pipe(
+    $I.annoteSchema("EffectVitestPrimitive", {
+      description: "Schema-validated pinned primitive, source anchor, usage guidance, and detector replacement edges.",
+    })
+  )
 ) {}
 
 /**
@@ -1305,17 +1329,19 @@ export class EffectVitestPrimitive extends S.Class<EffectVitestPrimitive>($I`Eff
  * @category models
  * @since 0.0.0
  */
-export class EffectVitestPrimitiveCoverage extends S.Class<EffectVitestPrimitiveCoverage>(
-  $I`EffectVitestPrimitiveCoverage`
-)(
-  {
+export class EffectVitestPrimitiveCoverage extends S.Opaque<
+  EffectVitestPrimitiveCoverage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     exportStarModule: S.Literal("vitest"),
     method: S.NonEmptyString,
     sourceFiles: S.Array(S.NonEmptyString),
-  },
-  $I.annote("EffectVitestPrimitiveCoverage", {
-    description: "Portable source inventory method and deliberate Vitest export-star boundary.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectVitestPrimitiveCoverage", {
+      description: "Portable source inventory method and deliberate Vitest export-star boundary.",
+    })
+  )
 ) {}
 
 const EffectVitestPrimitiveGraphFields = S.Struct({
@@ -1365,13 +1391,15 @@ const EffectVitestPrimitiveGraphFields = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class EffectVitestPrimitiveGraphDocument extends S.Class<EffectVitestPrimitiveGraphDocument>(
-  $I`EffectVitestPrimitiveGraphDocument`
-)(
-  EffectVitestPrimitiveGraphFields,
-  $I.annote("EffectVitestPrimitiveGraphDocument", {
-    description: "Complete primitive graph pinned to one Effect Vitest package version and tag commit.",
-  })
+export class EffectVitestPrimitiveGraphDocument extends S.Opaque<
+  EffectVitestPrimitiveGraphDocument,
+  { readonly brand: unique symbol }
+>()(
+  EffectVitestPrimitiveGraphFields.pipe(
+    $I.annoteSchema("EffectVitestPrimitiveGraphDocument", {
+      description: "Complete primitive graph pinned to one Effect Vitest package version and tag commit.",
+    })
+  )
 ) {}
 
 /**
@@ -1389,18 +1417,20 @@ export class EffectVitestPrimitiveGraphDocument extends S.Class<EffectVitestPrim
  * @category models
  * @since 0.0.0
  */
-export class EffectVitestInventoryDocument extends S.Class<EffectVitestInventoryDocument>(
-  $I`EffectVitestInventoryDocument`
-)(
-  {
+export class EffectVitestInventoryDocument extends S.Opaque<
+  EffectVitestInventoryDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("effect-vitest-inventory/v1"),
     effectVitestVersion: S.NonEmptyString,
     scope: S.Array(S.String),
     findings: S.Array(EffectVitestFinding),
-  },
-  $I.annote("EffectVitestInventoryDocument", {
-    description: "Tracked full-scan baseline for Effect Vitest detector findings.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectVitestInventoryDocument", {
+      description: "Tracked full-scan baseline for Effect Vitest detector findings.",
+    })
+  )
 ) {}
 
 const EffectVitestCensusKind = LiteralKit(["test", "support"]).pipe(
@@ -1421,17 +1451,18 @@ const EffectVitestCensusKind = LiteralKit(["test", "support"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class EffectVitestCensusRow extends S.Class<EffectVitestCensusRow>($I`EffectVitestCensusRow`)(
-  {
+export class EffectVitestCensusRow extends S.Opaque<EffectVitestCensusRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.NonEmptyString,
     package: S.NonEmptyString,
     kind: EffectVitestCensusKind,
     bytes: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     lines: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("EffectVitestCensusRow", {
-    description: "File path, actual workspace owner, kind, byte count, and line count in the D9 census.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectVitestCensusRow", {
+      description: "File path, actual workspace owner, kind, byte count, and line count in the D9 census.",
+    })
+  )
 ) {}
 
 /**
@@ -1449,28 +1480,42 @@ export class EffectVitestCensusRow extends S.Class<EffectVitestCensusRow>($I`Eff
  * @category observability
  * @since 0.0.0
  */
-export class EffectVitestScanTiming extends S.Class<EffectVitestScanTiming>($I`EffectVitestScanTiming`)(
-  {
+export class EffectVitestScanTiming extends S.Opaque<EffectVitestScanTiming, { readonly brand: unique symbol }>()(
+  S.Struct({
     scanMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     fileCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     findingCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("EffectVitestScanTiming", { description: "Measured syntax-only scan duration and result cardinalities." })
+  }).pipe(
+    $I.annoteSchema("EffectVitestScanTiming", {
+      description: "Measured syntax-only scan duration and result cardinalities.",
+    })
+  )
 ) {}
 
-class EffectVitestPackageFileTiming extends S.Class<EffectVitestPackageFileTiming>($I`EffectVitestPackageFileTiming`)(
-  {
+class EffectVitestPackageFileTiming extends S.Opaque<
+  EffectVitestPackageFileTiming,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     file: S.NonEmptyString,
     ms: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     tests: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("EffectVitestPackageFileTiming", {
-    description: "Reporter-derived duration and test count for one test file.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectVitestPackageFileTiming", {
+      description: "Reporter-derived duration and test count for one test file.",
+    })
+  )
 ) {}
-class EffectVitestSlowTestTiming extends S.Class<EffectVitestSlowTestTiming>($I`EffectVitestSlowTestTiming`)(
-  { file: S.NonEmptyString, testName: S.NonEmptyString, ms: S.Finite.check(S.isGreaterThanOrEqualTo(0)) },
-  $I.annote("EffectVitestSlowTestTiming", { description: "One slow test selected from a package reporter artifact." })
+class EffectVitestSlowTestTiming extends S.Opaque<EffectVitestSlowTestTiming, { readonly brand: unique symbol }>()(
+  S.Struct({
+    file: S.NonEmptyString,
+    testName: S.NonEmptyString,
+    ms: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
+  }).pipe(
+    $I.annoteSchema("EffectVitestSlowTestTiming", {
+      description: "One slow test selected from a package reporter artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -1488,8 +1533,8 @@ class EffectVitestSlowTestTiming extends S.Class<EffectVitestSlowTestTiming>($I`
  * @category models
  * @since 0.0.0
  */
-export class EffectVitestPackageTiming extends S.Class<EffectVitestPackageTiming>($I`EffectVitestPackageTiming`)(
-  {
+export class EffectVitestPackageTiming extends S.Opaque<EffectVitestPackageTiming, { readonly brand: unique symbol }>()(
+  S.Struct({
     package: S.NonEmptyString,
     runner: S.Literal("node-vitest"),
     capturedAt: S.NonEmptyString,
@@ -1497,10 +1542,11 @@ export class EffectVitestPackageTiming extends S.Class<EffectVitestPackageTiming
     testCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     files: S.Array(EffectVitestPackageFileTiming),
     slowest: S.Array(EffectVitestSlowTestTiming),
-  },
-  $I.annote("EffectVitestPackageTiming", {
-    description: "Reporter-derived package timing summary kept separate from command scan time.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectVitestPackageTiming", {
+      description: "Reporter-derived package timing summary kept separate from command scan time.",
+    })
+  )
 ) {}
 
 /**
@@ -1519,9 +1565,10 @@ export class EffectVitestPackageTiming extends S.Class<EffectVitestPackageTiming
  * @category models
  * @since 0.0.0
  */
-export class EffectVitestLintOptions extends S.Class<EffectVitestLintOptions>($I`EffectVitestLintOptions`)(
-  { census: S.Boolean, write: S.Boolean, rows: optionalText },
-  $I.annote("EffectVitestLintOptions", { description: "Validated Effect Vitest lint command operation flags." })
+export class EffectVitestLintOptions extends S.Opaque<EffectVitestLintOptions, { readonly brand: unique symbol }>()(
+  S.Struct({ census: S.Boolean, write: S.Boolean, rows: optionalText }).pipe(
+    $I.annoteSchema("EffectVitestLintOptions", { description: "Validated Effect Vitest lint command operation flags." })
+  )
 ) {}
 
 /**
@@ -1621,8 +1668,12 @@ export const EffectVitestSourceFileGlobs: ReadonlyArray<string> = A.fromIterable
  * **Details**
  *
  * Legacy rows without an anchor retain their original key. Scan comparison may
- * bridge a legacy fingerprint only when it is unique on both sides. Anchored
- * duplicates are never eligible for automatic exception inheritance.
+ * bridge a legacy fingerprint only when it is unique on both sides. An
+ * anchored occurrence inherits a reviewed exception on `--write` when it is
+ * unique on both sides, or when its duplicate group is unchanged: the same
+ * members by exact id (line, column and ordinal), each at its own line and
+ * column. A duplicate that was added, deleted or shifted, or members told
+ * apart only by ordinal, reopen the whole group for re-review.
  *
  * **Example** (Keep line numbers out of membership identity)
  *

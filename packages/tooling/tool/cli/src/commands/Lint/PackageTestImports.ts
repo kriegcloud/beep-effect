@@ -23,48 +23,52 @@ import type { SourceFile } from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Lint/PackageTestImports");
 
-class PackageSourceRoot extends S.Class<PackageSourceRoot>($I`PackageSourceRoot`)(
-  {
+class PackageSourceRoot extends S.Opaque<PackageSourceRoot, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     sourceRoot: S.String,
-  },
-  $I.annote("PackageSourceRoot", {
-    description: "Represents the source root of a package, including its name and source root path.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageSourceRoot", {
+      description: "Represents the source root of a package, including its name and source root path.",
+    })
+  )
 ) {}
 
-class ModuleSpecifierUse extends S.Class<ModuleSpecifierUse>($I`ModuleSpecifierUse`)(
-  {
+class ModuleSpecifierUse extends S.Opaque<ModuleSpecifierUse, { readonly brand: unique symbol }>()(
+  S.Struct({
     line: S.Finite,
     specifier: S.String,
-  },
-  $I.annote("ModuleSpecifierUse", {
-    description:
-      "Represents a module specifier use within a TypeScript file, including the line number and specifier string.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModuleSpecifierUse", {
+      description:
+        "Represents a module specifier use within a TypeScript file, including the line number and specifier string.",
+    })
+  )
 ) {}
 
-class PackageTestImportViolation extends S.Class<PackageTestImportViolation>($I`PackageTestImportViolation`)(
-  {
+class PackageTestImportViolation extends S.Opaque<PackageTestImportViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     line: S.Finite,
     replacement: S.String,
     specifier: S.String,
-  },
-  $I.annote("PackageTestImportViolation", {
-    description:
-      "Represents a violation of the package test import policy, including the file, line number, replacement, and specifier.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageTestImportViolation", {
+      description:
+        "Represents a violation of the package test import policy, including the file, line number, replacement, and specifier.",
+    })
+  )
 ) {}
 
-class PackageNameDocument extends S.Class<PackageNameDocument>($I`PackageNameDocument`)(
-  {
+class PackageNameDocument extends S.Opaque<PackageNameDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
-  },
-  $I.annote("PackageNameDocument", {
-    title: "Package Name Document",
-    description: "Minimal package.json shape used to discover the owning package name for test import policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageNameDocument", {
+      title: "Package Name Document",
+      description: "Minimal package.json shape used to discover the owning package name for test import policy.",
+    })
+  )
 ) {}
 
 const decodePackageNameDocument = S.decodeUnknownEffect(S.fromJsonString(PackageNameDocument));
@@ -145,10 +149,13 @@ const collectPackageSourceRoots = Effect.fn("PackageTestImports.collectPackageSo
     let roots = A.empty<PackageSourceRoot>();
 
     if (O.isSome(packageName) && Str.startsWith("@beep/")(packageName.value)) {
-      roots = A.append(roots, {
-        name: packageName.value,
-        sourceRoot: normalizePath(path.resolve(currentPath, "src")),
-      });
+      roots = A.append(
+        roots,
+        PackageSourceRoot.make({
+          name: packageName.value,
+          sourceRoot: normalizePath(path.resolve(currentPath, "src")),
+        })
+      );
     }
 
     const entries = yield* fs.readDirectory(currentPath).pipe(Effect.orElseSucceed(A.empty<string>));
@@ -225,20 +232,26 @@ const collectSourceModuleSpecifierUses = (sourceFile: SourceFile): ReadonlyArray
 
   for (const declaration of sourceFile.getImportDeclarations()) {
     const specifierNode = declaration.getModuleSpecifier();
-    uses = A.append(uses, {
-      line: specifierNode.getStartLineNumber(),
-      specifier: specifierNode.getLiteralText(),
-    });
+    uses = A.append(
+      uses,
+      ModuleSpecifierUse.make({
+        line: specifierNode.getStartLineNumber(),
+        specifier: specifierNode.getLiteralText(),
+      })
+    );
   }
 
   for (const declaration of sourceFile.getExportDeclarations()) {
     const specifierNode = declaration.getModuleSpecifier();
 
     if (specifierNode !== undefined) {
-      uses = A.append(uses, {
-        line: specifierNode.getStartLineNumber(),
-        specifier: specifierNode.getLiteralText(),
-      });
+      uses = A.append(
+        uses,
+        ModuleSpecifierUse.make({
+          line: specifierNode.getStartLineNumber(),
+          specifier: specifierNode.getLiteralText(),
+        })
+      );
     }
   }
 
@@ -250,10 +263,13 @@ const collectSourceModuleSpecifierUses = (sourceFile: SourceFile): ReadonlyArray
     const firstArg = pipe(node.getArguments(), A.head, O.getOrUndefined);
 
     if (firstArg !== undefined && Node.isStringLiteral(firstArg)) {
-      uses = A.append(uses, {
-        line: firstArg.getStartLineNumber(),
-        specifier: firstArg.getLiteralText(),
-      });
+      uses = A.append(
+        uses,
+        ModuleSpecifierUse.make({
+          line: firstArg.getStartLineNumber(),
+          specifier: firstArg.getLiteralText(),
+        })
+      );
     }
   });
 
@@ -282,12 +298,14 @@ const resolveViolation = (
       ? Str.empty
       : pipe(normalizePath(path.relative(source.value.sourceRoot, targetPath)), stripKnownModuleExtension);
 
-  return O.some({
-    file: filePath,
-    line: use.line,
-    replacement: toRootImportAlias(source.value, sourceSubpath),
-    specifier: use.specifier,
-  });
+  return O.some(
+    PackageTestImportViolation.make({
+      file: filePath,
+      line: use.line,
+      replacement: toRootImportAlias(source.value, sourceSubpath),
+      specifier: use.specifier,
+    })
+  );
 };
 
 const collectPackageTestImportViolations = Effect.fn("PackageTestImports.collectViolations")(function* (

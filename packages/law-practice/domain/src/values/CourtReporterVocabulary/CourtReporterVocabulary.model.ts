@@ -417,14 +417,15 @@ const ArtifactSubjectKind = LiteralKit(["artifact", "court", "reporter"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class ContextualAlias extends S.Class<ContextualAlias>($I`ContextualAlias`)(
-  {
+export class ContextualAlias extends S.Opaque<ContextualAlias, { readonly brand: unique symbol }>()(
+  S.Struct({
     alias: S.NonEmptyString,
     context: S.NonEmptyString,
-  },
-  $I.annote("ContextualAlias", {
-    description: "An alias whose text maps to more than one stable identity and therefore requires context.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContextualAlias", {
+      description: "An alias whose text maps to more than one stable identity and therefore requires context.",
+    })
+  )
 ) {}
 
 /**
@@ -442,14 +443,15 @@ export class ContextualAlias extends S.Class<ContextualAlias>($I`ContextualAlias
  * @category models
  * @since 0.0.0
  */
-export class EffectiveRange extends S.Class<EffectiveRange>($I`EffectiveRange`)(
-  {
+export class EffectiveRange extends S.Opaque<EffectiveRange, { readonly brand: unique symbol }>()(
+  S.Struct({
     start: S.OptionFromNullOr(S.String),
     end: S.OptionFromNullOr(S.String),
-  },
-  $I.annote("EffectiveRange", {
-    description: "Inclusive source effective range with independently optional endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectiveRange", {
+      description: "Inclusive source effective range with independently optional endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -466,8 +468,8 @@ export class EffectiveRange extends S.Class<EffectiveRange>($I`EffectiveRange`)(
  * @category models
  * @since 0.0.0
  */
-export class CourtVocabularyRecord extends S.Class<CourtVocabularyRecord>($I`CourtVocabularyRecord`)(
-  {
+export class CourtVocabularyRecord extends S.Opaque<CourtVocabularyRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CourtId,
     sourceId: S.NonEmptyString,
     semanticKey: S.NonEmptyString,
@@ -486,11 +488,12 @@ export class CourtVocabularyRecord extends S.Class<CourtVocabularyRecord>($I`Cou
     contextualAliases: S.Array(ContextualAlias),
     status: VocabularyEntryStatus,
     successorId: S.OptionFromNullOr(CourtId),
-  },
-  $I.annote("CourtVocabularyRecord", {
-    description:
-      "Public source-faithful court vocabulary record with stable identity, lifecycle, aliases, and resolver-private fields omitted.",
-  })
+  }).pipe(
+    $I.annoteSchema("CourtVocabularyRecord", {
+      description:
+        "Public source-faithful court vocabulary record with stable identity, lifecycle, aliases, and resolver-private fields omitted.",
+    })
+  )
 ) {}
 
 /**
@@ -507,15 +510,16 @@ export class CourtVocabularyRecord extends S.Class<CourtVocabularyRecord>($I`Cou
  * @category models
  * @since 0.0.0
  */
-export class ReporterEdition extends S.Class<ReporterEdition>($I`ReporterEdition`)(
-  {
+export class ReporterEdition extends S.Opaque<ReporterEdition, { readonly brand: unique symbol }>()(
+  S.Struct({
     abbreviation: S.NonEmptyString,
     start: S.OptionFromNullOr(S.String),
     end: S.OptionFromNullOr(S.String),
-  },
-  $I.annote("ReporterEdition", {
-    description: "One named reporters-db edition and its effective range.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReporterEdition", {
+      description: "One named reporters-db edition and its effective range.",
+    })
+  )
 ) {}
 
 /**
@@ -532,8 +536,8 @@ export class ReporterEdition extends S.Class<ReporterEdition>($I`ReporterEdition
  * @category models
  * @since 0.0.0
  */
-export class ReporterVocabularyRecord extends S.Class<ReporterVocabularyRecord>($I`ReporterVocabularyRecord`)(
-  {
+export class ReporterVocabularyRecord extends S.Opaque<ReporterVocabularyRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ReporterId,
     semanticKey: S.NonEmptyString,
     lineageKey: S.NonEmptyString,
@@ -546,11 +550,12 @@ export class ReporterVocabularyRecord extends S.Class<ReporterVocabularyRecord>(
     contextualAliases: S.Array(ContextualAlias),
     status: VocabularyEntryStatus,
     successorId: S.OptionFromNullOr(ReporterId),
-  },
-  $I.annote("ReporterVocabularyRecord", {
-    description:
-      "Public reporters-db vocabulary record with stable identity, canonical cite type, editions, aliases, and lifecycle.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReporterVocabularyRecord", {
+      description:
+        "Public reporters-db vocabulary record with stable identity, canonical cite type, editions, aliases, and lifecycle.",
+    })
+  )
 ) {}
 
 const SourceRepository = LiteralKit(["courts-db", "reporters-db"]).pipe(
@@ -573,8 +578,11 @@ const SourceRepository = LiteralKit(["courts-db", "reporters-db"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class VocabularySourceProvenance extends S.Class<VocabularySourceProvenance>($I`VocabularySourceProvenance`)(
-  {
+export class VocabularySourceProvenance extends S.Opaque<
+  VocabularySourceProvenance,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     repository: SourceRepository,
     release: S.NonEmptyString,
     commit: S.NonEmptyString,
@@ -583,10 +591,11 @@ export class VocabularySourceProvenance extends S.Class<VocabularySourceProvenan
     sha256: S.NonEmptyString,
     semanticSha256: S.OptionFromNullOr(S.NonEmptyString),
     refreshCommand: S.NonEmptyString,
-  },
-  $I.annote("VocabularySourceProvenance", {
-    description: "Pinned source identity and regeneration metadata for one court or reporter projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("VocabularySourceProvenance", {
+      description: "Pinned source identity and regeneration metadata for one court or reporter projection.",
+    })
+  )
 ) {}
 
 const schemaVersion = S.Literal("court-reporter-vocabulary/v1");
@@ -606,18 +615,19 @@ const projectionVersion = S.Literal(1);
  * @category models
  * @since 0.0.0
  */
-export class CourtVocabularyArtifact extends S.Class<CourtVocabularyArtifact>($I`CourtVocabularyArtifact`)(
-  {
+export class CourtVocabularyArtifact extends S.Opaque<CourtVocabularyArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion,
     projectionVersion,
     artifactVersion: CourtReporterArtifactVersion,
     source: VocabularySourceProvenance,
     stableIdCount: S.Natural,
     records: S.Array(CourtVocabularyRecord),
-  },
-  $I.annote("CourtVocabularyArtifact", {
-    description: "Machine-readable courts-db vocabulary projection with stable IDs and provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("CourtVocabularyArtifact", {
+      description: "Machine-readable courts-db vocabulary projection with stable IDs and provenance.",
+    })
+  )
 ) {}
 
 /**
@@ -634,18 +644,22 @@ export class CourtVocabularyArtifact extends S.Class<CourtVocabularyArtifact>($I
  * @category models
  * @since 0.0.0
  */
-export class ReporterVocabularyArtifact extends S.Class<ReporterVocabularyArtifact>($I`ReporterVocabularyArtifact`)(
-  {
+export class ReporterVocabularyArtifact extends S.Opaque<
+  ReporterVocabularyArtifact,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion,
     projectionVersion,
     artifactVersion: CourtReporterArtifactVersion,
     source: VocabularySourceProvenance,
     stableIdCount: S.Natural,
     records: S.Array(ReporterVocabularyRecord),
-  },
-  $I.annote("ReporterVocabularyArtifact", {
-    description: "Machine-readable reporters-db vocabulary projection with stable IDs and provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReporterVocabularyArtifact", {
+      description: "Machine-readable reporters-db vocabulary projection with stable IDs and provenance.",
+    })
+  )
 ) {}
 
 /**
@@ -662,14 +676,18 @@ export class ReporterVocabularyArtifact extends S.Class<ReporterVocabularyArtifa
  * @category policies
  * @since 0.0.0
  */
-export class ArtifactCompatibilityPolicy extends S.Class<ArtifactCompatibilityPolicy>($I`ArtifactCompatibilityPolicy`)(
-  {
+export class ArtifactCompatibilityPolicy extends S.Opaque<
+  ArtifactCompatibilityPolicy,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     compatibleChanges: S.Array(ArtifactDriftChangeKind),
     incompatibleChanges: S.Array(ArtifactDriftChangeKind),
-  },
-  $I.annote("ArtifactCompatibilityPolicy", {
-    description: "Machine-readable partition of additive-safe and identity/schema-breaking artifact changes.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArtifactCompatibilityPolicy", {
+      description: "Machine-readable partition of additive-safe and identity/schema-breaking artifact changes.",
+    })
+  )
 ) {}
 
 const CourtReporterArtifactVersionCoherenceCheck = S.makeFilter(
@@ -702,9 +720,10 @@ const CourtReporterArtifactVersionCoherenceCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class CourtReporterArtifactContract extends S.Class<CourtReporterArtifactContract>(
-  $I`CourtReporterArtifactContract`
-)(
+export class CourtReporterArtifactContract extends S.Opaque<
+  CourtReporterArtifactContract,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     schemaVersion,
     projectionVersion,
@@ -712,43 +731,50 @@ export class CourtReporterArtifactContract extends S.Class<CourtReporterArtifact
     policy: ArtifactCompatibilityPolicy,
     courts: CourtVocabularyArtifact,
     reporters: ReporterVocabularyArtifact,
-  }).check(CourtReporterArtifactVersionCoherenceCheck),
-  $I.annote("CourtReporterArtifactContract", {
-    description:
-      "Combined exact-version court/reporter artifact plus its machine-readable lifecycle compatibility policy.",
   })
+    .check(CourtReporterArtifactVersionCoherenceCheck)
+    .pipe(
+      $I.annoteSchema("CourtReporterArtifactContract", {
+        description:
+          "Combined exact-version court/reporter artifact plus its machine-readable lifecycle compatibility policy.",
+      })
+    )
 ) {}
 
-class CourtVocabularyArtifactComparison extends S.Class<CourtVocabularyArtifactComparison>(
-  $I`CourtVocabularyArtifactComparison`
-)(
-  {
+class CourtVocabularyArtifactComparison extends S.Opaque<
+  CourtVocabularyArtifactComparison,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.NonEmptyString,
     projectionVersion: S.Finite,
     artifactVersion: CourtReporterArtifactVersion,
     source: VocabularySourceProvenance,
     stableIdCount: S.Natural,
     records: S.Array(CourtVocabularyRecord),
-  },
-  $I.annote("CourtVocabularyArtifactComparison", {
-    description: "Court vocabulary accepted for cross-version review before compatibility classification.",
-  })
+  }).pipe(
+    $I.annoteSchema("CourtVocabularyArtifactComparison", {
+      description: "Court vocabulary accepted for cross-version review before compatibility classification.",
+    })
+  )
 ) {}
 
-class ReporterVocabularyArtifactComparison extends S.Class<ReporterVocabularyArtifactComparison>(
-  $I`ReporterVocabularyArtifactComparison`
-)(
-  {
+class ReporterVocabularyArtifactComparison extends S.Opaque<
+  ReporterVocabularyArtifactComparison,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.NonEmptyString,
     projectionVersion: S.Finite,
     artifactVersion: CourtReporterArtifactVersion,
     source: VocabularySourceProvenance,
     stableIdCount: S.Natural,
     records: S.Array(ReporterVocabularyRecord),
-  },
-  $I.annote("ReporterVocabularyArtifactComparison", {
-    description: "Reporter vocabulary accepted for cross-version review before compatibility classification.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReporterVocabularyArtifactComparison", {
+      description: "Reporter vocabulary accepted for cross-version review before compatibility classification.",
+    })
+  )
 ) {}
 
 /**
@@ -780,9 +806,10 @@ class ReporterVocabularyArtifactComparison extends S.Class<ReporterVocabularyArt
  * @category models
  * @since 0.0.0
  */
-export class CourtReporterArtifactComparison extends S.Class<CourtReporterArtifactComparison>(
-  $I`CourtReporterArtifactComparison`
-)(
+export class CourtReporterArtifactComparison extends S.Opaque<
+  CourtReporterArtifactComparison,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     schemaVersion: S.NonEmptyString,
     projectionVersion: S.Finite,
@@ -790,10 +817,13 @@ export class CourtReporterArtifactComparison extends S.Class<CourtReporterArtifa
     policy: ArtifactCompatibilityPolicy,
     courts: CourtVocabularyArtifactComparison,
     reporters: ReporterVocabularyArtifactComparison,
-  }).check(CourtReporterArtifactVersionCoherenceCheck),
-  $I.annote("CourtReporterArtifactComparison", {
-    description: "Cross-version comparison input with open schema and projection header fields.",
   })
+    .check(CourtReporterArtifactVersionCoherenceCheck)
+    .pipe(
+      $I.annoteSchema("CourtReporterArtifactComparison", {
+        description: "Cross-version comparison input with open schema and projection header fields.",
+      })
+    )
 ) {}
 
 /**
@@ -817,17 +847,18 @@ export class CourtReporterArtifactComparison extends S.Class<CourtReporterArtifa
  * @category models
  * @since 0.0.0
  */
-export class ArtifactDriftChange extends S.Class<ArtifactDriftChange>($I`ArtifactDriftChange`)(
-  {
+export class ArtifactDriftChange extends S.Opaque<ArtifactDriftChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: ArtifactDriftChangeKind,
     compatibility: ArtifactCompatibilityStatus,
     subjectKind: ArtifactSubjectKind,
     subjectIds: S.Array(S.NonEmptyString),
     detail: S.NonEmptyString,
-  },
-  $I.annote("ArtifactDriftChange", {
-    description: "One reviewable lifecycle or compatibility change between court/reporter artifacts.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArtifactDriftChange", {
+      description: "One reviewable lifecycle or compatibility change between court/reporter artifacts.",
+    })
+  )
 ) {}
 
 /**
@@ -844,14 +875,15 @@ export class ArtifactDriftChange extends S.Class<ArtifactDriftChange>($I`Artifac
  * @category models
  * @since 0.0.0
  */
-export class ArtifactDriftReport extends S.Class<ArtifactDriftReport>($I`ArtifactDriftReport`)(
-  {
+export class ArtifactDriftReport extends S.Opaque<ArtifactDriftReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     fromVersion: CourtReporterArtifactVersion,
     toVersion: CourtReporterArtifactVersion,
     compatibility: ArtifactCompatibilityStatus,
     changes: S.Array(ArtifactDriftChange),
-  },
-  $I.annote("ArtifactDriftReport", {
-    description: "Complete reviewable compatibility report between two exact court/reporter artifact versions.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArtifactDriftReport", {
+      description: "Complete reviewable compatibility report between two exact court/reporter artifact versions.",
+    })
+  )
 ) {}

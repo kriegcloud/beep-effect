@@ -16,7 +16,7 @@ import { Argument, Command, Flag } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
@@ -41,7 +41,7 @@ import { runYeet } from "./internal/Handler.ts";
 import { YeetInboxSeverity, yeetProofJobRowId } from "./internal/Inbox.ts";
 import { runYeetInboxAck, runYeetInboxAppend, runYeetInboxList } from "./internal/InboxPorcelain.ts";
 import { renderYeetPrWaveLine } from "./internal/InboxView.ts";
-import { runYeetMergeGate } from "./internal/MergeGate.ts";
+import { MergeGateCommandOptions, runYeetMergeGate } from "./internal/MergeGate.ts";
 import { YEET_SETTLE_TIMEOUT_DEFAULT_MILLIS, YeetUntilReadyPolicy } from "./internal/MonitorPolicy.ts";
 import { DEFAULT_YEET_PACKET_DIR, YeetProofTier } from "./internal/Planner.ts";
 import {
@@ -90,7 +90,7 @@ const baseFlag = Flag.String("base").pipe(
 const retireFlag = Flag.Boolean("retire").pipe(
   Flag.withDefault(false),
   Flag.withDescription(
-    "Inside a linked worktree whose PR is MERGED: archive-retire this worktree into its owning clone, delete the branch, then sweep the clone"
+    "Inside a linked worktree whose PR is MERGED (or whose never-PR'd tip origin/main already contains, with a clean tree): archive-retire this worktree into its owning clone, delete the branch, then sweep the clone"
   )
 );
 
@@ -591,8 +591,8 @@ const statusFlags = {
   remote: remoteFlag,
 } as const;
 
-class SharedOptions extends S.Class<SharedOptions>($I`SharedOptions`)(
-  {
+class SharedOptions extends S.Opaque<SharedOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     detach: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
@@ -696,10 +696,11 @@ class SharedOptions extends S.Class<SharedOptions>($I`SharedOptions`)(
       S.withConstructorDefault(Effect.succeed("full" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("full" as const))
     ),
-  },
-  $I.annote("SharedOptions", {
-    description: "CLI option bag shared by Yeet commands before handler defaults are applied.",
-  })
+  }).pipe(
+    $I.annoteSchema("SharedOptions", {
+      description: "CLI option bag shared by Yeet commands before handler defaults are applied.",
+    })
+  )
 ) {}
 type SharedOptionsInput = (typeof SharedOptions)["~type.make.in"];
 
@@ -1179,7 +1180,7 @@ const yeetMergeGateCommand = Command.make(
     relaxed: mergeGateRelaxedFlag,
     dryRun: mergeGateDryRunFlag,
   },
-  runYeetMergeGate
+  flow(MergeGateCommandOptions.make, runYeetMergeGate)
 ).pipe(
   Command.withDescription(
     "Orchestrator merge gate: re-verify one PR at a pinned head (required checks, attributed tolerances, 20-minute review window, re-read threads) and squash-merge it; --relaxed is the S11 merge over attributed reds"

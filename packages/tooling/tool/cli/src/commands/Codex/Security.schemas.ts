@@ -150,22 +150,27 @@ const ScanId = S.String.check(S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$/))
 const Timestamp = S.String.check(S.isPattern(/^\d{4}-\d{2}-\d{2}T.+(?:Z|[+-]\d{2}:\d{2})$/));
 const Text = S.String.check(S.isMinLength(1), S.isMaxLength(100000));
 
-class Artifact extends S.Class<Artifact>($I`Artifact`)(
-  { path: ArtifactPath, sha256: Digest, mediaType: S.NonEmptyString },
-  $I.annote("Artifact", { description: "Digest-bound file in a sealed scan." })
+class Artifact extends S.Opaque<Artifact, { readonly brand: unique symbol }>()(
+  S.Struct({ path: ArtifactPath, sha256: Digest, mediaType: S.NonEmptyString }).pipe(
+    $I.annoteSchema("Artifact", { description: "Digest-bound file in a sealed scan." })
+  )
 ) {}
-class Producer extends S.Class<Producer>($I`Producer`)(
-  { name: S.Literal("codex-security-plugin"), version: S.Literal(SECURITY_PLUGIN_VERSION) },
-  $I.annote("Producer", { description: `Bundled producer supported by SDK ${SECURITY_PACKAGE_VERSION}.` })
+class Producer extends S.Opaque<Producer, { readonly brand: unique symbol }>()(
+  S.Struct({ name: S.Literal("codex-security-plugin"), version: S.Literal(SECURITY_PLUGIN_VERSION) }).pipe(
+    $I.annoteSchema("Producer", { description: `Bundled producer supported by SDK ${SECURITY_PACKAGE_VERSION}.` })
+  )
 ) {}
-class Target extends S.Class<Target>($I`Target`)(
-  {
+class Target extends S.Opaque<Target, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.Literal("git_revision"),
     revision: GitCommitSha,
     remote: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     targetId: S.NonEmptyString,
-  },
-  $I.annote("Target", { description: "Immutable repository revision; snapshots are not accepted by packet ingestion." })
+  }).pipe(
+    $I.annoteSchema("Target", {
+      description: "Immutable repository revision; snapshots are not accepted by packet ingestion.",
+    })
+  )
 ) {}
 
 /**
@@ -185,15 +190,20 @@ class Target extends S.Class<Target>($I`Target`)(
  * @category schemas
  * @since 0.0.0
  */
-export class SecuritySourceReceipt extends S.Class<SecuritySourceReceipt>($I`SecuritySourceReceipt`)(
-  { schemaVersion: S.Literal("beep-security-source/v1"), repository: GitHubRepoSlug, revision: GitCommitSha },
-  $I.annote("SecuritySourceReceipt", {
-    description: "Local capture provenance used when upstream omits repository identity.",
-  })
+export class SecuritySourceReceipt extends S.Opaque<SecuritySourceReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
+    schemaVersion: S.Literal("beep-security-source/v1"),
+    repository: GitHubRepoSlug,
+    revision: GitCommitSha,
+  }).pipe(
+    $I.annoteSchema("SecuritySourceReceipt", {
+      description: "Local capture provenance used when upstream omits repository identity.",
+    })
+  )
 ) {}
 const scopeLimitationsDefault = A.empty();
-class Scope extends S.Class<Scope>($I`Scope`)(
-  {
+class Scope extends S.Opaque<Scope, { readonly brand: unique symbol }>()(
+  S.Struct({
     includePaths: S.Array(S.String),
     excludePaths: S.Array(S.String),
     limitations: S.Array(S.String).pipe(
@@ -204,20 +214,22 @@ class Scope extends S.Class<Scope>($I`Scope`)(
     summary: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     context: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     validationMode: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Scope", { description: "Declared included and excluded scan paths." })
+  }).pipe($I.annoteSchema("Scope", { description: "Declared included and excluded scan paths." }))
 ) {}
-class Extensions extends S.Class<Extensions>($I`Extensions`)(
-  {
+class Extensions extends S.Opaque<Extensions, { readonly brand: unique symbol }>()(
+  S.Struct({
     mock: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("Extensions", { description: "Synthetic-scan marker that cannot be promoted to a real findings packet." })
+  }).pipe(
+    $I.annoteSchema("Extensions", {
+      description: "Synthetic-scan marker that cannot be promoted to a real findings packet.",
+    })
+  )
 ) {}
-class Scan extends S.Class<Scan>($I`Scan`)(
-  {
+class Scan extends S.Opaque<Scan, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ScanId,
     producer: Producer,
     status: S.Literal("completed"),
@@ -230,8 +242,7 @@ class Scan extends S.Class<Scan>($I`Scan`)(
     coverageRef: S.Literal("coverage.json"),
     findingsRef: S.Literal("findings.json"),
     artifacts: S.Array(Artifact).check(S.isMinLength(2), S.isMaxLength(10000)),
-  },
-  $I.annote("Scan", { description: "Completed immutable scan with artifact integrity records." })
+  }).pipe($I.annoteSchema("Scan", { description: "Completed immutable scan with artifact integrity records." }))
 ) {}
 
 /**
@@ -247,9 +258,12 @@ class Scan extends S.Class<Scan>($I`Scan`)(
  * @category schemas
  * @since 0.0.0
  */
-export class SecurityManifest extends S.Class<SecurityManifest>($I`SecurityManifest`)(
-  { documentType: S.Literal("codex-security.scan-manifest"), schemaVersion: S.Literal("1.0"), scan: Scan },
-  $I.annote("SecurityManifest", { description: "Consumed fields of the sealed scan manifest." })
+export class SecurityManifest extends S.Opaque<SecurityManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    documentType: S.Literal("codex-security.scan-manifest"),
+    schemaVersion: S.Literal("1.0"),
+    scan: Scan,
+  }).pipe($I.annoteSchema("SecurityManifest", { description: "Consumed fields of the sealed scan manifest." }))
 ) {}
 
 /**
@@ -283,23 +297,24 @@ export const SecuritySeverityToPacket = MappedLiteralKit([
  */
 export type SecuritySeverityToPacket = typeof SecuritySeverityToPacket.Type;
 
-class Severity extends S.Class<Severity>($I`Severity`)(
-  { level: LiteralKit(A.map(SecuritySeverityToPacket.Pairs, ([level]) => level)) },
-  $I.annote("Severity", { description: "Severity reported by the scanner, before human triage." })
+class Severity extends S.Opaque<Severity, { readonly brand: unique symbol }>()(
+  S.Struct({ level: LiteralKit(A.map(SecuritySeverityToPacket.Pairs, ([level]) => level)) }).pipe(
+    $I.annoteSchema("Severity", { description: "Severity reported by the scanner, before human triage." })
+  )
 ) {}
-class Location extends S.Class<Location>($I`Location`)(
-  { path: ArtifactPath, startLine: S.Int.check(S.isGreaterThan(0)) },
-  $I.annote("Location", { description: "Repository-relative source evidence location." })
+class Location extends S.Opaque<Location, { readonly brand: unique symbol }>()(
+  S.Struct({ path: ArtifactPath, startLine: S.Int.check(S.isGreaterThan(0)) }).pipe(
+    $I.annoteSchema("Location", { description: "Repository-relative source evidence location." })
+  )
 ) {}
-class Fingerprints extends S.Class<Fingerprints>($I`Fingerprints`)(
-  {
+class Fingerprints extends S.Opaque<Fingerprints, { readonly brand: unique symbol }>()(
+  S.Struct({
     algorithm: S.Literal("codex-security/v1"),
     primary: S.String.check(S.isPattern(/^codex-security\/v1:sha256:[a-f0-9]{64}$/)),
-  },
-  $I.annote("Fingerprints", { description: "Producer's root-cause fingerprint." })
+  }).pipe($I.annoteSchema("Fingerprints", { description: "Producer's root-cause fingerprint." }))
 ) {}
-class Finding extends S.Class<Finding>($I`Finding`)(
-  {
+class Finding extends S.Opaque<Finding, { readonly brand: unique symbol }>()(
+  S.Struct({
     findingId: FindingId,
     occurrenceId: OccurrenceId,
     fingerprints: Fingerprints,
@@ -308,10 +323,11 @@ class Finding extends S.Class<Finding>($I`Finding`)(
     severity: Severity,
     locations: S.Array(Location).check(S.isMinLength(1), S.isMaxLength(500)),
     remediation: Text,
-  },
-  $I.annote("Finding", {
-    description: "Finding projection used to construct a private evidence report and public capture metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("Finding", {
+      description: "Finding projection used to construct a private evidence report and public capture metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -327,14 +343,13 @@ class Finding extends S.Class<Finding>($I`Finding`)(
  * @category schemas
  * @since 0.0.0
  */
-export class SecurityFindings extends S.Class<SecurityFindings>($I`SecurityFindings`)(
-  {
+export class SecurityFindings extends S.Opaque<SecurityFindings, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentType: S.Literal("codex-security.findings"),
     schemaVersion: S.Literal("1.0"),
     scanId: ScanId,
     findings: S.Array(Finding).check(S.isMaxLength(500)),
-  },
-  $I.annote("SecurityFindings", { description: "Finding capture projection from a sealed local scan." })
+  }).pipe($I.annoteSchema("SecurityFindings", { description: "Finding capture projection from a sealed local scan." }))
 ) {}
 
 /**
@@ -350,8 +365,8 @@ export class SecurityFindings extends S.Class<SecurityFindings>($I`SecurityFindi
  * @category schemas
  * @since 0.0.0
  */
-export class SecurityCoverage extends S.Class<SecurityCoverage>($I`SecurityCoverage`)(
-  {
+export class SecurityCoverage extends S.Opaque<SecurityCoverage, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentType: S.Literal("codex-security.coverage"),
     schemaVersion: S.Literal("1.0"),
     scanId: ScanId,
@@ -360,8 +375,9 @@ export class SecurityCoverage extends S.Class<SecurityCoverage>($I`SecurityCover
     excludePaths: S.Array(S.String),
     deferred: S.Array(S.Unknown),
     explicitExclusions: S.Array(S.Unknown),
-  },
-  $I.annote("SecurityCoverage", { description: "Coverage status and gaps accompanying captured findings." })
+  }).pipe(
+    $I.annoteSchema("SecurityCoverage", { description: "Coverage status and gaps accompanying captured findings." })
+  )
 ) {}
 
 /**
@@ -406,12 +422,13 @@ export type SecurityScanMode = typeof SecurityScanMode.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class SecurityScanOptions extends S.Class<SecurityScanOptions>($I`SecurityScanOptions`)(
-  {
+export class SecurityScanOptions extends S.Opaque<SecurityScanOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputDir: S.String,
     maxCost: S.Finite.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(100)),
     timeoutMinutes: S.Int.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(120)),
     target: S.OptionFromOptionalKey(RepoRelativePath).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SecurityScanOptions", { description: "Bounded operator inputs for a local Security CLI run." })
+  }).pipe(
+    $I.annoteSchema("SecurityScanOptions", { description: "Bounded operator inputs for a local Security CLI run." })
+  )
 ) {}

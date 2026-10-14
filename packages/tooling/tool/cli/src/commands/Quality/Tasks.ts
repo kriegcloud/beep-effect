@@ -2895,7 +2895,7 @@ const deprecatedApisTurboStep = (repoRoot: string, base?: string): QualityTaskSt
   policyLintTurboStep(repoRoot, "lint:deprecated-apis", ["lint:deprecated-apis"], base);
 
 const decodeLintPolicySweeps = decodeJsoncTextAs(LintPolicySweeps);
-const shardPolicySweeps = LintPolicySweeps.make({ schemaVersion: "lint-policy-sweeps/v1", deprecatedApis: "shards" });
+const oxlintPolicySweeps = LintPolicySweeps.make({ schemaVersion: "lint-policy-sweeps/v1", deprecatedApis: "oxlint" });
 
 /**
  * Read the required repository sweep selection, failing on missing or invalid JSONC.
@@ -3042,6 +3042,17 @@ export const rootDocsCacheKey = Effect.fn("QualityTasks.rootDocsCacheKey")(
   Effect.orElseSucceed(() => UNKEYED_ROOT_DOCS_CACHE)
 );
 
+// The Stage-2 knowledge doctor follows the semantic delta wherever that runs. `doctor ci` stays
+// report-only (exit 0 on findings) until the merge-base tracks the sealed baseline the CI mint
+// opens; a branch touching the baseline or promotions gets the gate and its seal guard even before
+// then. Under the gate only promoted kinds and governance findings block (K24). A local full-scope
+// plan leaves it to the hosted plan.
+const knowledgeDoctorPolicySteps = (repoRoot: string, base: string | undefined, hosted: boolean) =>
+  O.match(O.fromUndefinedOr(base), {
+    onNone: () => (hosted ? [repoCliStep(repoRoot, "knowledge:doctor", ["knowledge", "doctor", "ci"])] : []),
+    onSome: (ref) => [repoCliStep(repoRoot, "knowledge:doctor", ["knowledge", "doctor", "ci", "--base", ref])],
+  });
+
 // The overlay, test-typecheck, effect-vitest and JSDoc ratchet checks are root Turbo
 // tasks (cached, fingerprint-closed) inside the medium and state phases; the JSDoc ratchet
 // depends on the inventory task, so Turbo's `--continue=dependencies-successful` skips the
@@ -3065,10 +3076,11 @@ const rootRepoLintPolicySteps = (
         base
       ),
       ...(full ? [] : [policyLintTurboStep(repoRoot, "lint:policy:state", policyStateTasks)]),
+      ...knowledgeDoctorPolicySteps(repoRoot, base, hosted),
       // Ruling 31 retains the hosted root docs program independently of the
       // deprecated-API sweep switch. It has no Turbo summary of its own.
       ...(full ? [bunxStep(repoRoot, "lint:jsdoc", rootDocsArgs(docsCacheKey))] : []),
-      full && sweeps.deprecatedApis === "shards"
+      full && sweeps.deprecatedApis === "oxlint"
         ? repoCliStep(repoRoot, "lint:deprecated-apis", ["lint", "deprecated-apis", "--full"])
         : deprecatedApisTurboStep(repoRoot, base),
       // The test lane's own Turbo task is `package-test-typecheck` (uncached by tripwire
@@ -3123,9 +3135,10 @@ const runPolicySteps = Effect.fn("QualityTasks.runPolicySteps")(function* (
  * @param repoRoot - Repository root directory.
  * @param files - Compatibility input; Turbo now owns file selection from the caller base.
  * @param base - Caller base for affected Turbo tasks; omitted for full scope.
- * @param sweeps - Explicit sweep selection; pure test plans default to shards.
+ * @param sweeps - Explicit sweep selection; pure test plans default to oxlint.
  * @param hosted - Whether the plan is a hosted (CI) plan; a local full-scope plan leaves the
- *   git-delta knowledge checks to the hosted run. Defaults to the live CI detection.
+ *   git-delta knowledge checks and the report-only knowledge doctor to the hosted run. Defaults to
+ *   the live CI detection.
  * @param docsCacheKey - Documentation input digest; the runtime digests the docs
  *   configuration sources, a pure plan carries `unkeyed`.
  * @returns Planned subprocess steps for policy-only lint verification.
@@ -3154,7 +3167,7 @@ export const rootLintPolicyStepsForTesting: {
     repoRoot: string,
     files?: ReadonlyArray<string>,
     base?: string,
-    sweeps = shardPolicySweeps,
+    sweeps = oxlintPolicySweeps,
     hosted = isCi(),
     docsCacheKey = UNKEYED_ROOT_DOCS_CACHE
   ): ReadonlyArray<QualityTaskStep> => rootRepoLintPolicySteps(repoRoot, files, base, sweeps, hosted, docsCacheKey)
@@ -3262,7 +3275,7 @@ const rootLintPolicySteps = (
     return A.empty<QualityTaskStep>();
   }
 
-  return rootRepoLintPolicySteps(repoRoot, undefined, undefined, shardPolicySweeps, isCi(), docsCacheKey);
+  return rootRepoLintPolicySteps(repoRoot, undefined, undefined, oxlintPolicySweeps, isCi(), docsCacheKey);
 };
 
 // The one root lint plan: the aggregate Turbo lint (or lint:fix) followed by

@@ -35,7 +35,11 @@ import {
   SourceTextResolverErrorReason,
 } from "@beep/file-processing/SourceText";
 import { LogRedactedCauseOptions, logRedactedCause } from "@beep/observability";
-import { VerifyTextAnchorInput, verifyTextAnchor } from "@beep/provenance/VerifiedTextAnchor";
+import {
+  TextAnchorVerificationReceipt,
+  VerifyTextAnchorInput,
+  verifyTextAnchor,
+} from "@beep/provenance/VerifiedTextAnchor";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Crypto from "effect/Crypto";
@@ -113,7 +117,7 @@ const toEvidenceView =
       verifiedAnchor: pipe(
         detail.latestVerification,
         O.filter((verification) => Eq.equals(verification.verifiedAnchor.source.scopeRef, sourceScopeRef)),
-        O.map((verification) => verification.verifiedAnchor)
+        O.map((verification) => TextAnchorVerificationReceipt.make(verification.verifiedAnchor))
       ),
     });
 

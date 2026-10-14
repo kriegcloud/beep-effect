@@ -48,6 +48,7 @@
     "./commands/Laws": "./src/commands/Laws/index.ts",
     "./commands/Lint": "./src/commands/Lint/index.ts",
     "./commands/Models": "./src/commands/Models/index.ts",
+    "./commands/Observability": "./src/commands/Observability/index.ts",
     "./commands/Purge": "./src/commands/Purge/index.ts",
     "./commands/Qa": "./src/commands/Qa/index.ts",
     "./commands/Quality": "./src/commands/Quality/index.ts",
@@ -74,7 +75,8 @@
     "./test/*": "./src/test/*.test-kit.ts",
     "./test/DeletePackage": "./src/test/DeletePackage.test-kit.ts",
     "./test/Labs": "./src/test/Labs.test-kit.ts",
-    "./bin": null
+    "./bin": null,
+    "./commands/AgentMessage": "./src/commands/AgentMessage/index.ts"
   },
   "files": [
     "src/**/*.ts",
@@ -124,6 +126,7 @@
       "./commands/Laws": "./dist/commands/Laws/index.js",
       "./commands/Lint": "./dist/commands/Lint/index.js",
       "./commands/Models": "./dist/commands/Models/index.js",
+      "./commands/Observability": "./dist/commands/Observability/index.js",
       "./commands/Purge": "./dist/commands/Purge/index.js",
       "./commands/Qa": "./dist/commands/Qa/index.js",
       "./commands/Quality": "./dist/commands/Quality/index.js",
@@ -149,7 +152,8 @@
       "./test/*": null,
       "./test/DeletePackage": null,
       "./test/Labs": null,
-      "./bin": null
+      "./bin": null,
+      "./commands/AgentMessage": "./dist/commands/AgentMessage/index.js"
     }
   },
   "scripts": {
@@ -181,6 +185,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@beep/ai-provider-cli": "workspace:^",
     "@beep/ai-sync": "workspace:^",
     "@beep/chalk": "workspace:^",
     "@beep/colors": "workspace:^",
@@ -193,6 +198,7 @@
     "@beep/identity": "workspace:^",
     "@beep/libpff": "workspace:^",
     "@beep/m365": "workspace:^",
+    "@beep/mcp-kit": "workspace:^",
     "@beep/md": "workspace:^",
     "@beep/obs": "workspace:^",
     "@beep/observability": "workspace:^",
@@ -208,6 +214,7 @@
     "@beep/runpod": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/skill-contract": "workspace:^",
+    "@beep/t3-code": "workspace:^",
     "@beep/technical-drawing": "workspace:^",
     "@beep/tesseract": "workspace:^",
     "@beep/test-utils": "workspace:^",
@@ -221,12 +228,14 @@
     "@effect/sql-sqlite-node": "catalog:",
     "@effected/github": "catalog:",
     "@noble/hashes": "catalog:",
+    "@nodable/entities": "3.1.0",
     "@openai/codex-sdk": "catalog:",
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "fast-xml-validator": "catalog:",
     "handlebars": "catalog:",
     "image-size": "catalog:",
+    "is-unsafe": "2.0.2",
     "jsonc-parser": "catalog:",
     "madge": "catalog:",
     "sharp": "catalog:",

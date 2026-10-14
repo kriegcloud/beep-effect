@@ -253,46 +253,118 @@ const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling", "ecosy
   })
 );
 
-class BeepFoundationMetadata extends S.Class<BeepFoundationMetadata>($I`BeepFoundationMetadata`)(
-  {
+/**
+ * Repo-local package metadata for foundation packages.
+ *
+ * **Example** (Tag a modeling package in the foundation family)
+ *
+ * ```ts
+ * import { BeepFoundationMetadata } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const metadata = BeepFoundationMetadata.make({ family: "foundation", kind: "modeling" })
+ *
+ * console.log(`${metadata.family}/${metadata.kind}`) // => "foundation/modeling"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BeepFoundationMetadata extends S.Opaque<BeepFoundationMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: S.Literal("foundation"),
     kind: BeepFoundationKind,
-  },
-  $I.annote("BeepFoundationMetadata", {
-    title: "Beep Foundation Metadata",
-    description: "Repo-local package metadata for foundation packages.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepFoundationMetadata", {
+      title: "Beep Foundation Metadata",
+      description: "Repo-local package metadata for foundation packages.",
+    })
+  )
 ) {}
 
-class BeepDriverMetadata extends S.Class<BeepDriverMetadata>($I`BeepDriverMetadata`)(
-  {
+/**
+ * Repo-local package metadata for flat driver packages.
+ *
+ * **Example** (Tag a flat driver package)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { BeepDriverMetadata } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const metadata = S.decodeUnknownSync(BeepDriverMetadata)({ family: "drivers" })
+ *
+ * console.log(metadata.family) // => "drivers"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BeepDriverMetadata extends S.Opaque<BeepDriverMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: S.Literal("drivers"),
-  },
-  $I.annote("BeepDriverMetadata", {
-    title: "Beep Driver Metadata",
-    description: "Repo-local package metadata for flat driver packages.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepDriverMetadata", {
+      title: "Beep Driver Metadata",
+      description: "Repo-local package metadata for flat driver packages.",
+    })
+  )
 ) {}
 
-class BeepToolingMetadata extends S.Class<BeepToolingMetadata>($I`BeepToolingMetadata`)(
-  {
+/**
+ * Repo-local package metadata for tooling packages.
+ *
+ * **Example** (Reject an unknown tooling kind)
+ *
+ * ```ts
+ * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
+ * import { BeepToolingMetadata } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const decode = S.decodeUnknownExit(BeepToolingMetadata)
+ *
+ * console.log(Exit.isSuccess(decode({ family: "tooling", kind: "policy-pack" }))) // => true
+ * console.log(Exit.isSuccess(decode({ family: "tooling", kind: "plugin" }))) // => false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BeepToolingMetadata extends S.Opaque<BeepToolingMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: S.Literal("tooling"),
     kind: BeepToolingKind,
-  },
-  $I.annote("BeepToolingMetadata", {
-    title: "Beep Tooling Metadata",
-    description: "Repo-local package metadata for tooling packages.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepToolingMetadata", {
+      title: "Beep Tooling Metadata",
+      description: "Repo-local package metadata for tooling packages.",
+    })
+  )
 ) {}
 
-class BeepEcosystemMetadata extends S.Class<BeepEcosystemMetadata>($I`BeepEcosystemMetadata`)(
-  {
+/**
+ * Repo-local package metadata for flat ecosystem packages.
+ *
+ * **Example** (Tag an ecosystem package)
+ *
+ * ```ts
+ * import { BeepEcosystemMetadata } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const metadata = BeepEcosystemMetadata.make({ family: "ecosystem" })
+ *
+ * console.log(metadata.family) // => "ecosystem"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BeepEcosystemMetadata extends S.Opaque<BeepEcosystemMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: S.Literal("ecosystem"),
-  },
-  $I.annote("BeepEcosystemMetadata", {
-    title: "Beep Ecosystem Metadata",
-    description: "Repo-local package metadata for flat ecosystem packages.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepEcosystemMetadata", {
+      title: "Beep Ecosystem Metadata",
+      description: "Repo-local package metadata for flat ecosystem packages.",
+    })
+  )
 ) {}
 
 const BeepPackageMetadata = BeepPackageFamily.mapMembers(
@@ -335,50 +407,127 @@ const BrowserReplacement = S.Union([S.String, S.Literal(false)]).pipe(
   })
 );
 
-class PersonObject extends S.Class<PersonObject>($I`PersonObject`)(
-  {
+/**
+ * Structured package person metadata with a required name and optional contact fields.
+ *
+ * **Example** (Decode a structured author entry)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Person, PersonObject } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const author = S.decodeUnknownSync(PersonObject)({ name: "Ada Lovelace", email: "ada@example.com" })
+ *
+ * console.log(author.name) // => "Ada Lovelace"
+ * console.log(S.is(Person)("Ada Lovelace <ada@example.com>")) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PersonObject extends S.Opaque<PersonObject, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     email: S.optionalKey(EmailString),
     url: S.optionalKey(S.String),
-  },
-  $I.annote("PersonObject", {
-    title: "Person Object",
-    description: "Structured package person metadata with a required name and optional contact fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonObject", {
+      title: "Person Object",
+      description: "Structured package person metadata with a required name and optional contact fields.",
+    })
+  )
 ) {}
 
-class RepositoryObject extends S.Class<RepositoryObject>($I`RepositoryObject`)(
-  {
+/**
+ * Structured repository metadata with required type and url fields and an optional directory.
+ *
+ * **Example** (Point a monorepo package at its directory)
+ *
+ * ```ts
+ * import { RepositoryObject } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const repository = RepositoryObject.make({
+ *   type: "git",
+ *   url: "git+https://github.com/beep-effect/beep-effect.git",
+ *   directory: "packages/tooling/library/repo-utils"
+ * })
+ *
+ * console.log(repository.directory) // => "packages/tooling/library/repo-utils"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RepositoryObject extends S.Opaque<RepositoryObject, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     url: S.String,
     directory: S.optionalKey(S.String),
-  },
-  $I.annote("RepositoryObject", {
-    title: "Repository Object",
-    description: "Structured repository metadata with required type and url fields and an optional directory.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepositoryObject", {
+      title: "Repository Object",
+      description: "Structured repository metadata with required type and url fields and an optional directory.",
+    })
+  )
 ) {}
 
-class BugsObject extends S.Class<BugsObject>($I`BugsObject`)(
-  {
+/**
+ * Structured bug tracker metadata with optional URL and contact email fields.
+ *
+ * **Example** (Route bug reports to the issue tracker)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { BugsObject } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const bugs = S.decodeUnknownSync(BugsObject)({ url: "https://github.com/beep-effect/beep-effect/issues" })
+ *
+ * console.log(bugs.url) // => "https://github.com/beep-effect/beep-effect/issues"
+ * console.log(bugs.email) // => undefined
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BugsObject extends S.Opaque<BugsObject, { readonly brand: unique symbol }>()(
+  S.Struct({
     url: S.optionalKey(S.String),
     email: S.optionalKey(EmailString),
-  },
-  $I.annote("BugsObject", {
-    title: "Bugs Object",
-    description: "Structured bug tracker metadata with optional URL and contact email fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("BugsObject", {
+      title: "Bugs Object",
+      description: "Structured bug tracker metadata with optional URL and contact email fields.",
+    })
+  )
 ) {}
 
-class FundingEntry extends S.Class<FundingEntry>($I`FundingEntry`)(
-  {
+/**
+ * Structured funding metadata with a required URL and an optional funding type label.
+ *
+ * **Example** (Declare one funding link)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Funding, FundingEntry } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const entry = FundingEntry.make({ type: "github", url: "https://github.com/sponsors/beep-effect" })
+ *
+ * console.log(S.is(Funding)([entry, "https://opencollective.com/beep-effect"])) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FundingEntry extends S.Opaque<FundingEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     url: S.String,
     type: S.optionalKey(S.String),
-  },
-  $I.annote("FundingEntry", {
-    title: "Funding Entry",
-    description: "Structured funding metadata with a required URL and an optional funding type label.",
-  })
+  }).pipe(
+    $I.annoteSchema("FundingEntry", {
+      title: "Funding Entry",
+      description: "Structured funding metadata with a required URL and an optional funding type label.",
+    })
+  )
 ) {}
 
 /**
@@ -578,22 +727,33 @@ export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)
 /**
  * Schema for the `directories` field.
  *
+ * **Example** (Describe where docs and tests live)
+ *
+ * ```ts
+ * import { DirectoriesShape } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const directories = DirectoriesShape.make({ doc: "docs", test: "test", bin: "bin" })
+ *
+ * console.log(directories.test) // => "test"
+ * ```
+ *
  * @category validation
  * @since 0.0.0
  */
-class DirectoriesShape extends S.Class<DirectoriesShape>($I`Directories`)(
-  {
+export class DirectoriesShape extends S.Opaque<DirectoriesShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     bin: S.optionalKey(S.String),
     doc: S.optionalKey(S.String),
     example: S.optionalKey(S.String),
     lib: S.optionalKey(S.String),
     man: S.optionalKey(S.String),
     test: S.optionalKey(S.String),
-  },
-  $I.annote("Directories", {
-    title: "Directories",
-    description: "Directory metadata describing where package resources such as binaries, docs, and tests live.",
-  })
+  }).pipe(
+    $I.annoteSchema("Directories", {
+      title: "Directories",
+      description: "Directory metadata describing where package resources such as binaries, docs, and tests live.",
+    })
+  )
 ) {}
 
 /**
@@ -732,20 +892,31 @@ export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray))
 /**
  * Schema for a development environment requirement entry.
  *
+ * **Example** (Require Bun and fail when it is missing)
+ *
+ * ```ts
+ * import { DevEngineDependencyShape } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const bun = DevEngineDependencyShape.make({ name: "bun", version: ">=1.4.0", onFail: "error" })
+ *
+ * console.log(`${bun.name} ${bun.version}`) // => "bun >=1.4.0"
+ * ```
+ *
  * @category validation
  * @since 0.0.0
  */
-class DevEngineDependencyShape extends S.Class<DevEngineDependencyShape>($I`DevEngineDependency`)(
-  {
+export class DevEngineDependencyShape extends S.Opaque<DevEngineDependencyShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     version: S.optionalKey(S.String),
     onFail: S.optionalKey(S.Literals(["ignore", "warn", "error", "download"] as const)),
-  },
-  $I.annote("DevEngineDependency", {
-    title: "Dev Engine Dependency",
-    description:
-      "A development environment requirement such as a runtime, package manager, CPU, OS, or libc constraint.",
-  })
+  }).pipe(
+    $I.annoteSchema("DevEngineDependency", {
+      title: "Dev Engine Dependency",
+      description:
+        "A development environment requirement such as a runtime, package manager, CPU, OS, or libc constraint.",
+    })
+  )
 ) {}
 
 /**
@@ -777,21 +948,36 @@ const OptionalDevEngineRequirement = S.optionalKey(DevEngineRequirement);
 /**
  * Schema for the `devEngines` field.
  *
+ * **Example** (Pin the runtime and package manager for contributors)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DevEnginesShape } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const engines = S.decodeUnknownSync(DevEnginesShape)({
+ *   runtime: { name: "node", version: ">=24", onFail: "warn" },
+ *   packageManager: [{ name: "bun", version: ">=1.4.0", onFail: "error" }]
+ * })
+ *
+ * console.log(Array.isArray(engines.packageManager)) // => true
+ * ```
+ *
  * @category validation
  * @since 0.0.0
  */
-class DevEnginesShape extends S.Class<DevEnginesShape>($I`DevEngines`)(
-  {
+export class DevEnginesShape extends S.Opaque<DevEnginesShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     os: OptionalDevEngineRequirement,
     cpu: OptionalDevEngineRequirement,
     libc: OptionalDevEngineRequirement,
     runtime: OptionalDevEngineRequirement,
     packageManager: OptionalDevEngineRequirement,
-  },
-  $I.annote("DevEngines", {
-    title: "Dev Engines",
-    description: "Development environment constraints for OS, CPU, libc, runtime, and package manager.",
-  })
+  }).pipe(
+    $I.annoteSchema("DevEngines", {
+      title: "Dev Engines",
+      description: "Development environment constraints for OS, CPU, libc, runtime, and package manager.",
+    })
+  )
 ) {}
 
 /**
@@ -990,15 +1176,34 @@ const OverrideValue: S.Codec<OverrideValue, OverrideValue> = S.suspend(() =>
   })
 );
 
-class WorkspacesObject extends S.Class<WorkspacesObject>($I`WorkspacesObject`)(
-  {
+/**
+ * A Yarn-style workspaces object with package globs and optional nohoist rules.
+ *
+ * **Example** (Declare workspace globs with nohoist rules)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Workspaces, WorkspacesObject } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const workspaces = WorkspacesObject.make({ packages: ["packages/*", "apps/*"], nohoist: ["react-native"] })
+ *
+ * console.log(S.is(Workspaces)(workspaces)) // => true
+ * console.log(workspaces.packages) // => ["packages/*", "apps/*"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class WorkspacesObject extends S.Opaque<WorkspacesObject, { readonly brand: unique symbol }>()(
+  S.Struct({
     packages: S.optionalKey(StringArray),
     nohoist: S.optionalKey(StringArray),
-  },
-  $I.annote("WorkspacesObject", {
-    title: "Workspaces Object",
-    description: "A Yarn-style workspaces object with package globs and optional nohoist rules.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspacesObject", {
+      title: "Workspaces Object",
+      description: "A Yarn-style workspaces object with package globs and optional nohoist rules.",
+    })
+  )
 ) {}
 
 const PublishConfigBin = Bin.annotate({ identifier: $I`PublishConfigBin` });
@@ -1149,12 +1354,13 @@ const packageJsonFields = {
  * @category validation
  * @since 0.0.0
  */
-export class NpmPackageJson extends S.Class<NpmPackageJson>($I`NpmPackageJson`)(
-  npmPackageJsonFields,
-  $I.annote("NpmPackageJson", {
-    description: "A strict npm-oriented package.json schema derived from SchemaStore and npm documentation.",
-    messageUnexpectedKey: "Unexpected package.json key",
-  })
+export class NpmPackageJson extends S.Opaque<NpmPackageJson, { readonly brand: unique symbol }>()(
+  S.Struct(npmPackageJsonFields).pipe(
+    $I.annoteSchema("NpmPackageJson", {
+      description: "A strict npm-oriented package.json schema derived from SchemaStore and npm documentation.",
+      messageUnexpectedKey: "Unexpected package.json key",
+    })
+  )
 ) {}
 
 /**
@@ -1175,7 +1381,7 @@ export class NpmPackageJson extends S.Class<NpmPackageJson>($I`NpmPackageJson`)(
  * @category validation
  * @since 0.0.0
  */
-export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
+export class PackageJson extends S.Class<PackageJson, { readonly brand: unique symbol }>($I`PackageJson`)(
   packageJsonFields,
   $I.annote("PackageJson", {
     description: "A strict repo-aware package.json schema that extends the npm surface with monorepo-only metadata.",

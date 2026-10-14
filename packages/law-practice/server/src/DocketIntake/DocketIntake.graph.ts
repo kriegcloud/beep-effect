@@ -38,7 +38,7 @@ import {
   M365UpdateMessageCategoriesRequest,
   m365AllDayWindow,
 } from "@beep/m365";
-import { LocalDate } from "@beep/schema/LocalDate";
+import { isAfter, LocalDate } from "@beep/schema/LocalDate";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -95,8 +95,8 @@ const docketGraphConfigMaxTotalDocumentBytesDefault = 20_000_000;
  * @category models
  * @since 0.0.0
  */
-export class DocketGraphConfig extends S.Class<DocketGraphConfig>($I`DocketGraphConfig`)(
-  {
+export class DocketGraphConfig extends S.Opaque<DocketGraphConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     initialSince: S.NonEmptyString.annotateKey({
       description: "UTC ISO-8601 timestamp used as the listing floor when the pipeline passes no cursor.",
     }),
@@ -121,8 +121,7 @@ export class DocketGraphConfig extends S.Class<DocketGraphConfig>($I`DocketGraph
       S.withDecodingDefaultTypeKey(Effect.succeed(docketGraphConfigPageSizeDefault))
     ).annotateKey({ description: "Messages requested per Graph page." }),
     timeZone: S.TimeZoneNamedFromString.annotateKey({ description: "IANA time zone of the practice; required." }),
-  },
-  $I.annote("DocketGraphConfig", { description: "Settings of the docket intake Graph adapters." })
+  }).pipe($I.annoteSchema("DocketGraphConfig", { description: "Settings of the docket intake Graph adapters." }))
 ) {}
 
 const ENTERED_CATEGORY: DocketCategory = "Docket - entered";
@@ -283,6 +282,7 @@ const toDocketMessage =
             O.flatMap((body) => body.content),
             O.getOrElse(() => "")
           ),
+          conversationId: O.filter(message.conversationId, Str.isNonEmpty),
           internetMessageId: O.filter(message.internetMessageId, Str.isNonEmpty),
           messageId: message.id,
           // One timestamp format everywhere: the pipeline orders and compares these as strings.
@@ -418,6 +418,8 @@ const toEventDraft = (entry: DocketCalendarEntry, timeZone: string): M365EventDr
     subject: entry.subject,
   });
 
+const latestAllDayEventStart = LocalDate.make({ year: 9999, month: 12, day: 30 });
+
 const makeMailbox = (m365: M365Shape, config: DocketGraphConfig, folders: MailboxFolders) => {
   const userId = O.some(config.mailbox);
   const zone = config.timeZone;
@@ -474,6 +476,9 @@ const makeMailbox = (m365: M365Shape, config: DocketGraphConfig, folders: Mailbo
           bodyContentType: O.some("text"),
           filter: O.some(`receivedDateTime ge ${floor}`),
           orderby: O.some("receivedDateTime asc"),
+          select: O.some(
+            "id,conversationId,internetMessageId,receivedDateTime,body,from,sender,isDraft,parentFolderId,subject,webLink"
+          ),
           top: O.some(config.pageSize),
           userId,
         })
@@ -524,6 +529,9 @@ const makeCalendar = (m365: M365Shape, config: DocketGraphConfig) => {
   return DocketCalendar.of({
     create: Effect.fn("DocketGraph.create")(function* (entry) {
       yield* Effect.annotateCurrentSpan({ docket_entry_kind: entry.kind });
+      if (isAfter(entry.date, latestAllDayEventStart)) {
+        return yield* DocketIntakeError.make({ cause: "all-day-date-out-of-range", stage: "calendar" });
+      }
       const event = yield* m365
         .createEvent(
           M365CreateEventRequest.make({

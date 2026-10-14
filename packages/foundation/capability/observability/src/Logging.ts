@@ -177,14 +177,15 @@ export type BannerMode = typeof BannerMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class PrettyLoggerConfig extends S.Class<PrettyLoggerConfig>($I`PrettyLoggerConfig`)(
-  {
+export class PrettyLoggerConfig extends S.Opaque<PrettyLoggerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     theme: PrettyLogTheme.pipe(S.withConstructorDefault(Effect.succeed(PrettyLogTheme.Enum.ocean))),
     bannerMode: BannerMode.pipe(S.withConstructorDefault(Effect.succeed(BannerMode.Enum.off))),
-  },
-  $I.annote("PrettyLoggerConfig", {
-    description: "Extra configuration for the custom pretty logger.",
-  })
+  }).pipe(
+    $I.annoteSchema("PrettyLoggerConfig", {
+      description: "Extra configuration for the custom pretty logger.",
+    })
+  )
 ) {}
 
 /**
@@ -206,14 +207,15 @@ export class PrettyLoggerConfig extends S.Class<PrettyLoggerConfig>($I`PrettyLog
  * @category models
  * @since 0.0.0
  */
-export class LoggingConfig extends S.Class<LoggingConfig>($I`LoggingConfig`)(
-  {
+export class LoggingConfig extends S.Opaque<LoggingConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: LogFormat,
     minLogLevel: S.Literals(LogLevel.values),
-  },
-  $I.annote("LoggingConfig", {
-    description: "Shared logger configuration for browser-safe and server-safe console logging.",
-  })
+  }).pipe(
+    $I.annoteSchema("LoggingConfig", {
+      description: "Shared logger configuration for browser-safe and server-safe console logging.",
+    })
+  )
 ) {}
 
 /**
@@ -258,18 +260,19 @@ export const layerMinimumLogLevel = (minLogLevel: LogLevel.LogLevel): Layer.Laye
  * @category models
  * @since 0.0.0
  */
-export class RenderLogBannerOptions extends S.Class<RenderLogBannerOptions>($I`RenderLogBannerOptions`)(
-  {
+export class RenderLogBannerOptions extends S.Opaque<RenderLogBannerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.Literals(["phase", "startup"]).pipe(S.optionalKey).annotateKey({
       description: "Banner kind used to decide whether the configured banner mode applies.",
     }),
     pretty: S.optionalKey(PrettyLoggerConfig).annotateKey({
       description: "Pretty logger rendering configuration.",
     }),
-  },
-  $I.annote("RenderLogBannerOptions", {
-    description: "Options controlling startup and phase banner rendering.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderLogBannerOptions", {
+      description: "Options controlling startup and phase banner rendering.",
+    })
+  )
 ) {}
 
 type PaletteFn = (value: string) => string;
@@ -358,10 +361,10 @@ const renderBannerGlyph = (kind: "phase" | "startup"): string => (kind === "phas
  * **Example** (Render themed startup banner)
  *
  * ```typescript
- * import { renderLogBanner, PrettyLoggerConfig } from "@beep/observability"
+ * import { renderLogBanner, PrettyLoggerConfig, RenderLogBannerOptions } from "@beep/observability"
  *
  * const pretty = PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" })
- * const banner = renderLogBanner("Server Ready", { kind: "startup", pretty })
+ * const banner = renderLogBanner("Server Ready", RenderLogBannerOptions.make({ kind: "startup", pretty }))
  * console.log(banner)
  * ```
  *
@@ -421,6 +424,8 @@ const makePrettyConsoleLogger = (pretty: PrettyLoggerConfig): Logger.Logger<unkn
   );
 };
 
+const isLoggingConfig = S.is(LoggingConfig);
+
 const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
   Match.value(format).pipe(
     Match.when("pretty", () => makePrettyConsoleLogger(pretty)),
@@ -436,8 +441,11 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
  *
  * **Details**
  *
- * Returns a `Layer<never>` that replaces the default Effect logger with the
- * configured format and sets the minimum log level.
+ * Returns a `Layer<never>` that replaces the default Effect console logger
+ * with the configured format and sets the minimum log level. The tracer bridge
+ * (`Logger.tracerLogger`, which records log lines as events on the current
+ * span) is kept, so logs still reach traces; loggers installed by an earlier
+ * layer are dropped.
  *
  * **Example** (JSON console logger layer)
  *
@@ -448,9 +456,7 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
  * const config = LoggingConfig.make({ format: "json", minLogLevel: "Info" })
  * const layer = layerConsoleLogger(config)
  *
- * const program = Effect.log("structured output").pipe(
- *
- * )
+ * const program = Effect.log("structured output").pipe(Effect.provide(layer))
  *
  * console.log(Effect.runPromise(program))
  * ```
@@ -462,7 +468,10 @@ export const layerConsoleLogger: {
   (config: LoggingConfig, pretty?: PrettyLoggerConfig): Layer.Layer<never>;
   (pretty?: PrettyLoggerConfig): (config: LoggingConfig) => Layer.Layer<never>;
 } = dual(
-  2,
+  (args) => isLoggingConfig(args[0]),
   (config: LoggingConfig, pretty: PrettyLoggerConfig = defaultPrettyLoggerConfig): Layer.Layer<never> =>
-    Layer.mergeAll(Logger.layer([resolveLogger(config.format, pretty)]), layerMinimumLogLevel(config.minLogLevel))
+    Layer.mergeAll(
+      Logger.layer([resolveLogger(config.format, pretty), Logger.tracerLogger]),
+      layerMinimumLogLevel(config.minLogLevel)
+    )
 );

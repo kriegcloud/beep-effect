@@ -181,8 +181,9 @@ The fingerprint file records the input declaration, not a committed content dige
 The C3.5 consumer plan requests `--summarize` on every Turbo invocation: four
 summaries per completed local policy run (cheap, medium, non-reusable, typed), and
 three per completed hosted/full policy run (cheap, medium plus non-reusable, typed).
-The hosted eslint sweep exception from rulings 30–31 still applies: a selected
-legacy deprecated-API shard/root-oxlint documentation program produces no package-task summary. CLI aggregates
+The full deprecated-API sweep runs one bounded native Oxlint process and produces
+no package-task summary. The hosted root documentation sweep also runs Oxlint
+and produces no package-task summary. CLI aggregates
 and the JSDoc ratchet comparison remain subsequent checks. Stage C registers the
 root tasks; Stage D connects these invocations to the consumers. Registration alone
 does not mean the current consumer already produces those summaries.
@@ -200,7 +201,7 @@ Use the freshness protocol from the time-to-certainty task table §7.1.5:
    provide provenance, while the ledger input source remains `undeclared` because
    file hashes do not cover their Git, index, clock, event, or network state.
 
-Oxlint, typos, and knip also remain `cache: false`; no binary walk certification
+Oxlint and typos also remain `cache: false`; no binary walk certification
 is claimed by the root-task hash fixtures. Oxlint's ambient import-target existence
 reads keep it non-reusable under D14. Fallow summaries do not replace the hosted
 post-run envelope checks, and JSDoc inventory must succeed freshly before comparison.

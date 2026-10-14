@@ -53,8 +53,8 @@ const $I = $LawPracticeDomainId.create("values/SessionLawCitation/SessionLawCita
  * @category models
  * @since 0.0.0
  */
-export class SessionLawCitation extends S.Class<SessionLawCitation>($I`SessionLawCitation`)(
-  {
+export class SessionLawCitation extends S.Opaque<SessionLawCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("sessionLaw"),
     jurisdiction: S.String.annotateKey({
@@ -104,10 +104,11 @@ export class SessionLawCitation extends S.Class<SessionLawCitation>($I`SessionLa
         description: "Page range (pp. 3038-3039, at 2590-95).",
       })
     ),
-  },
-  $I.annote("SessionLawCitation", {
-    description: "Session-law citation cited by year and chapter (#350, #779).",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionLawCitation", {
+      description: "Session-law citation cited by year and chapter (#350, #779).",
+    })
+  )
 ) {}
 
 /**

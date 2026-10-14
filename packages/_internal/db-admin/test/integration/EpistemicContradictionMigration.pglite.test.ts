@@ -1,10 +1,11 @@
 import { fileURLToPath } from "node:url";
 import { inspect } from "node:util";
 import { Evidence } from "@beep/epistemic-domain/entities/Evidence";
+import { EvidenceVerification as EvidenceVerificationModel } from "@beep/epistemic-domain/entities/EvidenceVerification";
 import {
-  EvidenceVerification as EvidenceVerificationModel,
-  manifestationKeyFor,
-} from "@beep/epistemic-domain/entities/EvidenceVerification";
+  EvidenceVerificationManifestation,
+  evidenceVerificationManifestationKey,
+} from "@beep/epistemic-domain/values/EvidenceVerification";
 import { DbSchema as EpistemicDbSchema } from "@beep/epistemic-tables";
 import { fromEvidenceRow, toEvidenceInsert } from "@beep/epistemic-tables/entities/Evidence";
 import { toEvidenceVerificationInsert } from "@beep/epistemic-tables/entities/EvidenceVerification";
@@ -132,7 +133,12 @@ if (!shouldRunPgliteIntegration) {
             },
           });
           const manifestationKey = yield* Effect.fromResult(
-            manifestationKeyFor(uncheckedVerification.evidenceId, uncheckedVerification.verifiedAnchor)
+            evidenceVerificationManifestationKey(
+              EvidenceVerificationManifestation.make({
+                evidenceId: uncheckedVerification.evidenceId,
+                verifiedAnchor: uncheckedVerification.verifiedAnchor,
+              })
+            )
           );
           const verification = EvidenceVerificationModel.make({
             ...uncheckedVerification,

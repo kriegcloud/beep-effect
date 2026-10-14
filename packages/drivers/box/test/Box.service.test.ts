@@ -1,6 +1,21 @@
 import { Buffer } from "node:buffer";
 import { text as readableText } from "node:stream/consumers";
 import * as B from "@beep/box";
+import {
+  GetCollaborationsQueryParams,
+  GetDownloadFileUrlOptionalsInput,
+  GetMetadataCascadePoliciesQueryParams,
+  GetMetadataTemplatesByInstanceIdQueryParams,
+  UploadFileRequestBodyAttributesField,
+  UploadFileRequestBodyAttributesParentField,
+} from "@beep/box";
+import { BoxErrorOptionsInput } from "@beep/box/Box.errors";
+import {
+  BoxDownloadFilePayload,
+  BoxGetEventStreamPayload,
+  BoxUploadFilePayload,
+  BoxUploadFileRequestBody,
+} from "@beep/box/Box.streaming";
 import { HttpsUrl } from "@beep/schema";
 import { it } from "@beep/test-runner";
 import { fcRuns, provideScopedLayer } from "@beep/test-utils";
@@ -421,14 +436,17 @@ describe("@beep/box", () => {
   });
 
   it("keeps only the strict conflict projection from API failure context", () => {
-    const withContext = B.BoxError.fromReason("response status", {
-      context: B.BoxApiFailureContext.make({
-        values: {
-          conflictCount: S.Natural.make(1),
-          conflicts: [B.BoxApiFailureConflict.make({ id: "123", type: "file" })],
-        },
-      }),
-    });
+    const withContext = B.BoxError.fromReason(
+      "response status",
+      BoxErrorOptionsInput.make({
+        context: B.BoxApiFailureContext.make({
+          values: {
+            conflictCount: S.Natural.make(1),
+            conflicts: [B.BoxApiFailureConflict.make({ id: "123", type: "file" })],
+          },
+        }),
+      })
+    );
 
     expectRoundTrip(B.BoxError, withContext);
 
@@ -712,7 +730,9 @@ describe("@beep/box", () => {
       "bridges SDK byte downloads into Effect streams",
       Effect.fnUntraced(function* () {
         const box = yield* B.Box;
-        const chunks = yield* box.downloads.downloadFile({ fileId: "file-id" }).pipe(Stream.runCollect);
+        const chunks = yield* box.downloads
+          .downloadFile(BoxDownloadFilePayload.make({ fileId: "file-id" }))
+          .pipe(Stream.runCollect);
 
         expect(chunksToText(chunks)).toBe("downloaded");
       })
@@ -736,7 +756,9 @@ describe("@beep/box", () => {
           B.ListCollaborationsGetFolderCollaborationsPayload.make({ folderId: "folder-id" })
         );
         const pendingCollaborations = yield* box.listCollaborations.getCollaborations(
-          B.ListCollaborationsGetCollaborationsPayload.make({ queryParams: { status: "pending" } })
+          B.ListCollaborationsGetCollaborationsPayload.make({
+            queryParams: GetCollaborationsQueryParams.make({ status: "pending" }),
+          })
         );
         const fileCollaborations = yield* box.listCollaborations.getFileCollaborations(
           B.ListCollaborationsGetFileCollaborationsPayload.make({ fileId: "file-id" })
@@ -745,7 +767,9 @@ describe("@beep/box", () => {
           B.ListCollaborationsGetGroupCollaborationsPayload.make({ groupId: "group-id" })
         );
         const cascadePolicies = yield* box.metadataCascadePolicies.getMetadataCascadePolicies(
-          B.MetadataCascadePoliciesGetMetadataCascadePoliciesPayload.make({ queryParams: { folderId: "folder-id" } })
+          B.MetadataCascadePoliciesGetMetadataCascadePoliciesPayload.make({
+            queryParams: GetMetadataCascadePoliciesQueryParams.make({ folderId: "folder-id" }),
+          })
         );
         const metadataTemplates = yield* box.metadataTemplates.getEnterpriseMetadataTemplates(
           B.MetadataTemplatesGetEnterpriseMetadataTemplatesPayload.make({})
@@ -755,7 +779,7 @@ describe("@beep/box", () => {
         );
         const instanceMetadataTemplates = yield* box.metadataTemplates.getMetadataTemplatesByInstanceId(
           B.MetadataTemplatesGetMetadataTemplatesByInstanceIdPayload.make({
-            queryParams: { metadataInstanceId: "instance-id" },
+            queryParams: GetMetadataTemplatesByInstanceIdQueryParams.make({ metadataInstanceId: "instance-id" }),
           })
         );
         const retentionPolicies = yield* box.retentionPolicies.getRetentionPolicies(
@@ -822,7 +846,9 @@ describe("@beep/box", () => {
       "fails byte downloads when the SDK returns no stream",
       Effect.fnUntraced(function* () {
         const box = yield* B.Box;
-        const exit = yield* Effect.exit(box.downloads.downloadFile({ fileId: "file-id" }).pipe(Stream.runCollect));
+        const exit = yield* Effect.exit(
+          box.downloads.downloadFile(BoxDownloadFilePayload.make({ fileId: "file-id" })).pipe(Stream.runCollect)
+        );
 
         pipe(exit, Exit.isFailure, assertTrue);
         if (Exit.isFailure(exit)) {
@@ -869,7 +895,9 @@ describe("@beep/box", () => {
         byteAbortProbe.pending = undefined;
 
         const box = yield* B.Box;
-        const fiber = yield* box.downloads.downloadFile({ fileId: "file-id" }).pipe(Stream.runDrain, Effect.forkChild);
+        const fiber = yield* box.downloads
+          .downloadFile(BoxDownloadFilePayload.make({ fileId: "file-id" }))
+          .pipe(Stream.runDrain, Effect.forkChild);
 
         yield* Effect.promise(() => byteAbortProbe.entered?.promise ?? Promise.reject("download did not start"));
         expect(byteAbortProbe.cancellationToken).toBeInstanceOf(AbortSignal);
@@ -948,15 +976,17 @@ describe("@beep/box", () => {
       "bridges Effect byte streams into SDK upload readables",
       Effect.fnUntraced(function* () {
         const box = yield* B.Box;
-        const response = yield* box.uploads.uploadFile({
-          requestBody: {
-            attributes: {
-              name: "document.txt",
-              parent: { id: "0" },
-            },
-            file: Stream.make(new Uint8Array(Buffer.from("uploaded"))),
-          },
-        });
+        const response = yield* box.uploads.uploadFile(
+          BoxUploadFilePayload.make({
+            requestBody: BoxUploadFileRequestBody.make({
+              attributes: UploadFileRequestBodyAttributesField.make({
+                name: "document.txt",
+                parent: UploadFileRequestBodyAttributesParentField.make({ id: "0" }),
+              }),
+              file: Stream.make(new Uint8Array(Buffer.from("uploaded"))),
+            }),
+          })
+        );
 
         expect(response).toBeInstanceOf(B.Files);
         expect(uploaded.content).toBe("uploaded");
@@ -1061,7 +1091,7 @@ describe("@beep/box", () => {
           .getDownloadFileUrl(
             B.DownloadsGetDownloadFileUrlPayload.make({
               fileId: "file-id",
-              optionalsInput: { cancellationToken: callerController.signal },
+              optionalsInput: GetDownloadFileUrlOptionalsInput.make({ cancellationToken: callerController.signal }),
             })
           )
           .pipe(Effect.forkChild);
@@ -1091,7 +1121,7 @@ describe("@beep/box", () => {
       "streams SDK event objects and closes the SDK readable",
       Effect.fnUntraced(function* () {
         const box = yield* B.Box;
-        const events = yield* box.events.getEventStream({}).pipe(Stream.runCollect);
+        const events = yield* box.events.getEventStream(BoxGetEventStreamPayload.make({})).pipe(Stream.runCollect);
         const values = A.fromIterable(events);
 
         expect(A.map(values, (event) => event.eventType)).toEqual(["FUTURE_BOX_EVENT"]);
@@ -1108,7 +1138,7 @@ describe("@beep/box", () => {
         true
       );
       const events = yield* B.Box.use((box) =>
-        box.events.getEventStream({}).pipe(Stream.take(1), Stream.runCollect)
+        box.events.getEventStream(BoxGetEventStreamPayload.make({})).pipe(Stream.take(1), Stream.runCollect)
       ).pipe(
         provideScopedLayer(B.Box.makeLayerFromClient(makeFakeClient({ events: { getEventStream: () => source } })))
       );
@@ -1127,7 +1157,9 @@ describe("@beep/box", () => {
     Effect.fnUntraced(function* () {
       const entered = Promise.withResolvers<void>();
       const source = new FakeEventStream([], true, entered.resolve);
-      const fiber = yield* B.Box.use((box) => box.events.getEventStream({}).pipe(Stream.runCollect)).pipe(
+      const fiber = yield* B.Box.use((box) =>
+        box.events.getEventStream(BoxGetEventStreamPayload.make({})).pipe(Stream.runCollect)
+      ).pipe(
         provideScopedLayer(B.Box.makeLayerFromClient(makeFakeClient({ events: { getEventStream: () => source } }))),
         Effect.forkChild
       );
@@ -1161,7 +1193,9 @@ describe("@beep/box", () => {
       "fails event streams and closes the SDK readable when payloads cannot decode",
       Effect.fnUntraced(function* () {
         const box = yield* B.Box;
-        const exit = yield* Effect.exit(box.events.getEventStream({}).pipe(Stream.runCollect));
+        const exit = yield* Effect.exit(
+          box.events.getEventStream(BoxGetEventStreamPayload.make({})).pipe(Stream.runCollect)
+        );
 
         pipe(exit, Exit.isFailure, assertTrue);
         pipe(invalidEventStream.wasClosed, assertTrue);

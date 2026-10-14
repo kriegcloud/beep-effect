@@ -12,6 +12,11 @@
     // The `service` AppKind's entry point; peer of the labs-depth glob below.
     "apps/*/src/main.ts",
     "apps/*/src/index.ts",
+    // The builder is invoked by plugin:build; its generated entry imports
+    // these hooks, and Claude Code loads engine tests outside Vitest.
+    "apps/practice-claude-mod/src/build-plugin.ts",
+    "apps/practice-claude-mod/src/PracticeMod.hooks.ts",
+    "apps/practice-claude-mod/plugin-test/*.test.ts",
     "apps/*/next.config.ts",
     "apps/*/vite.config.ts",
     "apps/*/src/app/layout.tsx",
@@ -67,6 +72,11 @@
     // the stories glob in apps/storybook/.storybook/main.ts.
     "packages/foundation/ui-system/*/stories/**/*.stories.tsx",
     "packages/drivers/graph-3d/stories/**/*.stories.tsx",
+    // Instrument declaration files are tool-loaded roots: `beep observability catalog`
+    // discovers every `src/**/*.instruments.ts` by path and imports it dynamically,
+    // so their declaration exports have no static importer.
+    "packages/**/src/**/*.instruments.ts",
+    "apps/**/src/**/*.instruments.ts",
     // Ecosystem-member tool-loaded roots: tstyche discovers the typetests file,
     // drizzle-kit receives the sqlite schema module via --schema, the perf
     // consumer compiles out of band, and the bundle consumer is a Bun.build
@@ -82,6 +92,8 @@
     "syncpack.config.ts",
     "eslint.config.mjs",
     "scripts/changeset-changelog.cjs",
+    // Human-operated, memory-only GitHub App registration, invoked directly with Bun.
+    "scripts/github-app/create-beep-knowledge-mint.ts",
     "packages/tooling/tool/cli/test/global-cleanup.ts",
     // Standalone article builder, invoked by path rather than imported.
     "explorations/beep-ci-operational-ontology/assets/agentic-yoyo/build.mjs",
@@ -104,7 +116,7 @@
     "packages/ontology/ui/src/aggregates/Session/Session.validation.tsx",
     "packages/ontology/ui/src/aggregates/Session/Session.workbench.tsx"
   ],
-  // Approximates dead-code path suppression; Knip remains authoritative for unmigrated workspace/binary policy.
+  // Approximates dead-code path suppression; Knip retired in October 2026; narrower detection is accepted.
   "ignorePatterns": [
     // The GitHub Copilot Impeccable tree mirrors the analyzed Claude Code source.
     ".github/skills/impeccable/**",
@@ -205,6 +217,8 @@
     "**/plugins.ts"
   ],
   "ignoreDependencies": [
+    // The host engine supplies claude-code and claude-code/testing at runtime.
+    "claude-code",
     // brace-expansion, fast-uri, hono, nanoid: root `dependencies` entries that exist solely to
     // back the security-pin `overrides` in package.json; nothing imports them at root.
     "brace-expansion",
@@ -234,6 +248,7 @@
     "babel-plugin-transform-next-use-client",
     "@babel/plugin-transform-export-namespace-from",
     "@babel/plugin-transform-modules-commonjs",
+    // Docs profile still consumes this parser; lane B owns its retirement.
     "@typescript-eslint/parser",
     // tsgo >= 0.18 native TypeScript backend: consumed by the effect-tsgo patch
     // step at install time, never imported from source.
@@ -316,6 +331,12 @@
   // recognize it, and deleting it breaks `next build` (proven 2026-06-11 in
   // goals/fallow-zero-dead-code).
   "ignoreExports": [
+    // Knowledge mint App bootstrap: its test drives the handler from a Bun child
+    // (`bun --eval` with a dynamic import), which static analysis cannot follow.
+    {
+      "file": "packages/tooling/tool/cli/scripts/CreateKnowledgeMintApp.ts",
+      "exports": ["makeKnowledgeMintHandler"]
+    },
     // @beep/canvas command bridge: documented request/schema values kept as
     // public bridge contracts for typed host integrations.
     {

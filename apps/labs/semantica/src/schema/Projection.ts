@@ -17,15 +17,16 @@ import { PosInt } from "./PosInt.ts";
 const $I = $SemanticaId.create("schema/Projection");
 const ProjectionMode = LiteralKit(["live", "replay"]);
 
-class KnnExpectation extends S.Class<KnnExpectation>($I`KnnExpectation`)(
-  {
+class KnnExpectation extends S.Opaque<KnnExpectation, { readonly brand: unique symbol }>()(
+  S.Struct({
     neighborChunk: ChunkId,
     queryChunk: ChunkId,
     rank: PosInt,
-  },
-  $I.annote("KnnExpectation", {
-    description: "Known query and neighbour chunk ids with the expected exact-SQL rank.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnnExpectation", {
+      description: "Known query and neighbour chunk ids with the expected exact-SQL rank.",
+    })
+  )
 ) {}
 
 /**
@@ -42,15 +43,16 @@ class KnnExpectation extends S.Class<KnnExpectation>($I`KnnExpectation`)(
  * @category models
  * @since 0.0.0
  */
-export class SparqlExpectation extends S.Class<SparqlExpectation>($I`SparqlExpectation`)(
-  {
+export class SparqlExpectation extends S.Opaque<SparqlExpectation, { readonly brand: unique symbol }>()(
+  S.Struct({
     expectedCount: PosInt,
     id: S.NonEmptyString,
     query: S.NonEmptyString,
-  },
-  $I.annote("SparqlExpectation", {
-    description: "Named C1 SPARQL SELECT expectation whose binding count must match exactly and remain non-empty.",
-  })
+  }).pipe(
+    $I.annoteSchema("SparqlExpectation", {
+      description: "Named C1 SPARQL SELECT expectation whose binding count must match exactly and remain non-empty.",
+    })
+  )
 ) {}
 
 /**
@@ -73,17 +75,18 @@ export class SparqlExpectation extends S.Class<SparqlExpectation>($I`SparqlExpec
  * @category models
  * @since 0.0.0
  */
-export class GProjectionExpectation extends S.Class<GProjectionExpectation>($I`GProjectionExpectation`)(
-  {
+export class GProjectionExpectation extends S.Opaque<GProjectionExpectation, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("g-projection/v1"),
     model: ModelIdentity,
     paper: CorpusPaperId,
     knn: KnnExpectation,
     sparql: S.NonEmptyArray(SparqlExpectation),
-  },
-  $I.annote("GProjectionExpectation", {
-    description: "Frozen C1 projection expectations evaluated before any rebuild-identity assertion.",
-  })
+  }).pipe(
+    $I.annoteSchema("GProjectionExpectation", {
+      description: "Frozen C1 projection expectations evaluated before any rebuild-identity assertion.",
+    })
+  )
 ) {}
 
 /**
@@ -100,11 +103,12 @@ export class GProjectionExpectation extends S.Class<GProjectionExpectation>($I`G
  * @category models
  * @since 0.0.0
  */
-export class EmbeddingInput extends S.Class<EmbeddingInput>($I`EmbeddingInput`)(
-  { chunk: ChunkId, text: S.NonEmptyString },
-  $I.annote("EmbeddingInput", {
-    description: "Content-addressed chunk id and its exact non-empty canonical text slice.",
-  })
+export class EmbeddingInput extends S.Opaque<EmbeddingInput, { readonly brand: unique symbol }>()(
+  S.Struct({ chunk: ChunkId, text: S.NonEmptyString }).pipe(
+    $I.annoteSchema("EmbeddingInput", {
+      description: "Content-addressed chunk id and its exact non-empty canonical text slice.",
+    })
+  )
 ) {}
 
 const EmbeddingVectorFields = S.Struct({
@@ -139,11 +143,14 @@ const EmbeddingVectorDimensionCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class EmbeddingVector extends S.Class<EmbeddingVector>($I`EmbeddingVector`)(
-  EmbeddingVectorFields.mapFields(identity).check(EmbeddingVectorDimensionCheck),
-  $I.annote("EmbeddingVector", {
-    description: "Finite embedding values bound to a full chunk id and dimension-carrying model identity.",
-  })
+export class EmbeddingVector extends S.Opaque<EmbeddingVector, { readonly brand: unique symbol }>()(
+  EmbeddingVectorFields.mapFields(identity)
+    .check(EmbeddingVectorDimensionCheck)
+    .pipe(
+      $I.annoteSchema("EmbeddingVector", {
+        description: "Finite embedding values bound to a full chunk id and dimension-carrying model identity.",
+      })
+    )
 ) {}
 
 const DegradedEmbeddingReason = LiteralKit([
@@ -172,17 +179,17 @@ const DegradedEmbeddingReason = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class DegradedEmbedding extends S.TaggedClass<DegradedEmbedding>($I`DegradedEmbedding`)(
-  "DegradedEmbedding",
-  {
+export class DegradedEmbedding extends S.Opaque<DegradedEmbedding, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("DegradedEmbedding", {
     chunk: ChunkId,
     detail: S.NonEmptyString,
     model: ModelIdentity,
     reason: DegradedEmbeddingReason,
-  },
-  $I.annote("DegradedEmbedding", {
-    description: "Typed fail-closed embedding degradation that never carries substitute vector values.",
-  })
+  }).pipe(
+    $I.annoteSchema("DegradedEmbedding", {
+      description: "Typed fail-closed embedding degradation that never carries substitute vector values.",
+    })
+  )
 ) {}
 
 /**
@@ -199,14 +206,15 @@ export class DegradedEmbedding extends S.TaggedClass<DegradedEmbedding>($I`Degra
  * @category models
  * @since 0.0.0
  */
-export class EmbeddingBatch extends S.Class<EmbeddingBatch>($I`EmbeddingBatch`)(
-  {
+export class EmbeddingBatch extends S.Opaque<EmbeddingBatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     degraded: S.Array(DegradedEmbedding),
     vectors: S.Array(EmbeddingVector),
-  },
-  $I.annote("EmbeddingBatch", {
-    description: "Embedding results split into actual vectors and the sole legal typed degradation state.",
-  })
+  }).pipe(
+    $I.annoteSchema("EmbeddingBatch", {
+      description: "Embedding results split into actual vectors and the sole legal typed degradation state.",
+    })
+  )
 ) {}
 
 /**
@@ -223,11 +231,12 @@ export class EmbeddingBatch extends S.Class<EmbeddingBatch>($I`EmbeddingBatch`)(
  * @category models
  * @since 0.0.0
  */
-export class KnnNeighbor extends S.Class<KnnNeighbor>($I`KnnNeighbor`)(
-  { chunk: ChunkId, distance: S.Finite, rank: PosInt },
-  $I.annote("KnnNeighbor", {
-    description: "Chunk id, cosine distance, and one-based deterministic exact-kNN rank.",
-  })
+export class KnnNeighbor extends S.Opaque<KnnNeighbor, { readonly brand: unique symbol }>()(
+  S.Struct({ chunk: ChunkId, distance: S.Finite, rank: PosInt }).pipe(
+    $I.annoteSchema("KnnNeighbor", {
+      description: "Chunk id, cosine distance, and one-based deterministic exact-kNN rank.",
+    })
+  )
 ) {}
 
 /**
@@ -244,16 +253,17 @@ export class KnnNeighbor extends S.Class<KnnNeighbor>($I`KnnNeighbor`)(
  * @category models
  * @since 0.0.0
  */
-export class KnnQueryResult extends S.Class<KnnQueryResult>($I`KnnQueryResult`)(
-  {
+export class KnnQueryResult extends S.Opaque<KnnQueryResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     dimension: PosInt,
     modelKey: Sha256Hex,
     neighbors: S.Array(KnnNeighbor),
     queryChunk: ChunkId,
-  },
-  $I.annote("KnnQueryResult", {
-    description: "Dimension-keyed exact neighbour query result with stable distance and id ordering.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnnQueryResult", {
+      description: "Dimension-keyed exact neighbour query result with stable distance and id ordering.",
+    })
+  )
 ) {}
 
 const SparqlResultWitnessFields = S.Struct({
@@ -286,11 +296,14 @@ const SparqlResultWitnessCountCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class SparqlResultWitness extends S.Class<SparqlResultWitness>($I`SparqlResultWitness`)(
-  SparqlResultWitnessFields.mapFields(identity).check(SparqlResultWitnessCountCheck),
-  $I.annote("SparqlResultWitness", {
-    description: "Named SELECT result represented as canonical RDF-term strings and an exact row count.",
-  })
+export class SparqlResultWitness extends S.Opaque<SparqlResultWitness, { readonly brand: unique symbol }>()(
+  SparqlResultWitnessFields.mapFields(identity)
+    .check(SparqlResultWitnessCountCheck)
+    .pipe(
+      $I.annoteSchema("SparqlResultWitness", {
+        description: "Named SELECT result represented as canonical RDF-term strings and an exact row count.",
+      })
+    )
 ) {}
 
 /**
@@ -307,11 +320,12 @@ export class SparqlResultWitness extends S.Class<SparqlResultWitness>($I`SparqlR
  * @category models
  * @since 0.0.0
  */
-export class QuadDelta extends S.Class<QuadDelta>($I`QuadDelta`)(
-  { added: S.Array(S.NonEmptyString), removed: S.Array(S.NonEmptyString) },
-  $I.annote("QuadDelta", {
-    description: "Canonical quad additions and removals used solely as the C1 rebuild-identity witness.",
-  })
+export class QuadDelta extends S.Opaque<QuadDelta, { readonly brand: unique symbol }>()(
+  S.Struct({ added: S.Array(S.NonEmptyString), removed: S.Array(S.NonEmptyString) }).pipe(
+    $I.annoteSchema("QuadDelta", {
+      description: "Canonical quad additions and removals used solely as the C1 rebuild-identity witness.",
+    })
+  )
 ) {}
 
 /**
@@ -328,15 +342,16 @@ export class QuadDelta extends S.Class<QuadDelta>($I`QuadDelta`)(
  * @category models
  * @since 0.0.0
  */
-export class GProjectionWitness extends S.Class<GProjectionWitness>($I`GProjectionWitness`)(
-  {
+export class GProjectionWitness extends S.Opaque<GProjectionWitness, { readonly brand: unique symbol }>()(
+  S.Struct({
     expectationDigest: Sha256Hex,
     knn: KnnQueryResult,
     sparql: S.NonEmptyArray(SparqlResultWitness),
-  },
-  $I.annote("GProjectionWitness", {
-    description: "Exact kNN and non-empty SPARQL evidence checked against committed G-projection gold.",
-  })
+  }).pipe(
+    $I.annoteSchema("GProjectionWitness", {
+      description: "Exact kNN and non-empty SPARQL evidence checked against committed G-projection gold.",
+    })
+  )
 ) {}
 
 /**
@@ -353,15 +368,16 @@ export class GProjectionWitness extends S.Class<GProjectionWitness>($I`GProjecti
  * @category models
  * @since 0.0.0
  */
-export class RebuildIdentityWitness extends S.Class<RebuildIdentityWitness>($I`RebuildIdentityWitness`)(
-  {
+export class RebuildIdentityWitness extends S.Opaque<RebuildIdentityWitness, { readonly brand: unique symbol }>()(
+  S.Struct({
     knn: KnnQueryResult,
     quadDelta: QuadDelta,
     sparql: S.NonEmptyArray(SparqlResultWitness),
-  },
-  $I.annote("RebuildIdentityWitness", {
-    description: "Full-selection query results and empty quad delta retained after identical projection rebuild.",
-  })
+  }).pipe(
+    $I.annoteSchema("RebuildIdentityWitness", {
+      description: "Full-selection query results and empty quad delta retained after identical projection rebuild.",
+    })
+  )
 ) {}
 
 /**
@@ -378,18 +394,19 @@ export class RebuildIdentityWitness extends S.Class<RebuildIdentityWitness>($I`R
  * @category models
  * @since 0.0.0
  */
-export class ProjectionWitness extends S.Class<ProjectionWitness>($I`ProjectionWitness`)(
-  {
+export class ProjectionWitness extends S.Opaque<ProjectionWitness, { readonly brand: unique symbol }>()(
+  S.Struct({
     degraded: S.Array(DegradedEmbedding),
     embeddedCount: PosInt,
     gProjection: GProjectionWitness,
     model: ModelIdentity,
     quadCount: PosInt,
     rebuild: RebuildIdentityWitness,
-  },
-  $I.annote("ProjectionWitness", {
-    description: "Embedding, G-projection, RDF, and rebuild-identity evidence for one C1 execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectionWitness", {
+      description: "Embedding, G-projection, RDF, and rebuild-identity evidence for one C1 execution.",
+    })
+  )
 ) {}
 
 const C1EvalReportFields = S.Struct({
@@ -450,11 +467,14 @@ const C1EvalReportChecks = S.makeFilterGroup([
  * @category models
  * @since 0.0.0
  */
-export class C1EvalReport extends S.Class<C1EvalReport>($I`C1EvalReport`)(
-  C1EvalReportFields.mapFields(identity).check(C1EvalReportChecks),
-  $I.annote("C1EvalReport", {
-    description: "Replay-stable C1 evaluation report with base C0 evidence and rebuildable projection witnesses.",
-  })
+export class C1EvalReport extends S.Opaque<C1EvalReport, { readonly brand: unique symbol }>()(
+  C1EvalReportFields.mapFields(identity)
+    .check(C1EvalReportChecks)
+    .pipe(
+      $I.annoteSchema("C1EvalReport", {
+        description: "Replay-stable C1 evaluation report with base C0 evidence and rebuildable projection witnesses.",
+      })
+    )
 ) {}
 
 /**
@@ -471,8 +491,8 @@ export class C1EvalReport extends S.Class<C1EvalReport>($I`C1EvalReport`)(
  * @category models
  * @since 0.0.0
  */
-export class C1EvalTelemetry extends S.Class<C1EvalTelemetry>($I`C1EvalTelemetry`)(
-  {
+export class C1EvalTelemetry extends S.Opaque<C1EvalTelemetry, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("c1-eval-telemetry/v1"),
     embeddingMs: S.Natural,
     mode: ProjectionMode,
@@ -482,8 +502,9 @@ export class C1EvalTelemetry extends S.Class<C1EvalTelemetry>($I`C1EvalTelemetry
     startedAt: S.DateTimeUtcFromString,
     vectorRebuildMs: S.Natural,
     wallClockMs: S.Natural,
-  },
-  $I.annote("C1EvalTelemetry", {
-    description: "Embedding and rebuild costs kept outside the replay-stable C1 report digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("C1EvalTelemetry", {
+      description: "Embedding and rebuild costs kept outside the replay-stable C1 report digest.",
+    })
+  )
 ) {}

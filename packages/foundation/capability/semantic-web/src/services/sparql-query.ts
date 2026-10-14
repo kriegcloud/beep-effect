@@ -89,17 +89,18 @@ export type SparqlQueryProfile = typeof SparqlQueryProfile.Type;
  * @category models
  * @since 0.0.0
  */
-export class SparqlQueryRequest extends S.Class<SparqlQueryRequest>($I`SparqlQueryRequest`)(
-  {
+export class SparqlQueryRequest extends S.Opaque<SparqlQueryRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     query: S.NonEmptyString,
     profile: SparqlQueryProfile,
     dataset: Dataset,
     timeoutMs: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SparqlQueryRequest", {
-    description: "SPARQL query request.",
-    semanticSchemaMetadata: serviceContractMetadata("SparqlQueryRequest", "SPARQL query request."),
-  })
+  }).pipe(
+    $I.annoteSchema("SparqlQueryRequest", {
+      description: "SPARQL query request.",
+      semanticSchemaMetadata: serviceContractMetadata("SparqlQueryRequest", "SPARQL query request."),
+    })
+  )
 ) {}
 
 /**
@@ -118,15 +119,16 @@ export class SparqlQueryRequest extends S.Class<SparqlQueryRequest>($I`SparqlQue
  * @category models
  * @since 0.0.0
  */
-export class SparqlSelectResult extends S.Class<SparqlSelectResult>($I`SparqlSelectResult`)(
-  {
+export class SparqlSelectResult extends S.Opaque<SparqlSelectResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     profile: S.Literal("select"),
     rows: S.Array(S.Record(S.String, Term)),
-  },
-  $I.annote("SparqlSelectResult", {
-    description: "SPARQL select result.",
-    semanticSchemaMetadata: serviceContractMetadata("SparqlSelectResult", "SPARQL select result."),
-  })
+  }).pipe(
+    $I.annoteSchema("SparqlSelectResult", {
+      description: "SPARQL select result.",
+      semanticSchemaMetadata: serviceContractMetadata("SparqlSelectResult", "SPARQL select result."),
+    })
+  )
 ) {}
 
 /**
@@ -145,15 +147,16 @@ export class SparqlSelectResult extends S.Class<SparqlSelectResult>($I`SparqlSel
  * @category models
  * @since 0.0.0
  */
-export class SparqlAskResult extends S.Class<SparqlAskResult>($I`SparqlAskResult`)(
-  {
+export class SparqlAskResult extends S.Opaque<SparqlAskResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     profile: S.Literal("ask"),
     value: S.Boolean,
-  },
-  $I.annote("SparqlAskResult", {
-    description: "SPARQL ask result.",
-    semanticSchemaMetadata: serviceContractMetadata("SparqlAskResult", "SPARQL ask result."),
-  })
+  }).pipe(
+    $I.annoteSchema("SparqlAskResult", {
+      description: "SPARQL ask result.",
+      semanticSchemaMetadata: serviceContractMetadata("SparqlAskResult", "SPARQL ask result."),
+    })
+  )
 ) {}
 
 /**
@@ -176,15 +179,16 @@ export class SparqlAskResult extends S.Class<SparqlAskResult>($I`SparqlAskResult
  * @category models
  * @since 0.0.0
  */
-export class SparqlConstructResult extends S.Class<SparqlConstructResult>($I`SparqlConstructResult`)(
-  {
+export class SparqlConstructResult extends S.Opaque<SparqlConstructResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     profile: S.Literal("construct"),
     dataset: Dataset,
-  },
-  $I.annote("SparqlConstructResult", {
-    description: "SPARQL construct result.",
-    semanticSchemaMetadata: serviceContractMetadata("SparqlConstructResult", "SPARQL construct result."),
-  })
+  }).pipe(
+    $I.annoteSchema("SparqlConstructResult", {
+      description: "SPARQL construct result.",
+      semanticSchemaMetadata: serviceContractMetadata("SparqlConstructResult", "SPARQL construct result."),
+    })
+  )
 ) {}
 
 /**
@@ -289,7 +293,9 @@ export type SparqlQueryErrorReason = typeof SparqlQueryErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SparqlQueryError extends S.TaggedError<SparqlQueryError>($I`SparqlQueryError`)(
+export class SparqlQueryError extends S.TaggedError<SparqlQueryError, { readonly brand: unique symbol }>(
+  $I`SparqlQueryError`
+)(
   "SparqlQueryError",
   {
     reason: SparqlQueryErrorReason,
@@ -399,7 +405,7 @@ export class SparqlQueryService extends Context.Service<SparqlQueryService, Spar
 export const UnsupportedSparqlQueryServiceLive = Layer.succeed(
   SparqlQueryService,
   SparqlQueryService.of({
-    execute: Effect.fn("SparqlQueryService.execute")(() =>
+    execute: Effect.fn("UnsupportedSparqlQueryService.execute")(() =>
       Effect.fail(
         SparqlQueryError.make({
           reason: "unimplemented",

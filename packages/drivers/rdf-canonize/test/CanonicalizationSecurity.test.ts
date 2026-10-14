@@ -1,4 +1,4 @@
-import { Dataset, makeDataset, makeLiteral, makeNamedNode, makeQuad, Quad } from "@beep/rdf/Rdf";
+import { Dataset, MakeQuadOptionsInput, makeDataset, makeLiteral, makeNamedNode, makeQuad, Quad } from "@beep/rdf/Rdf";
 import { XSD_STRING } from "@beep/rdf/Vocab/Xsd";
 import { CanonicalizationServiceLive } from "@beep/rdf-canonize/adapters/canonicalization";
 import {
@@ -54,9 +54,13 @@ const dataset = makeDataset([
     makeNamedNode("https://schema.org/name"),
     makeLiteral("Alice", XSD_STRING.value)
   ),
-  makeQuad(makeNamedNode("https://example.com/people/alice"), makeNamedNode("https://schema.org/knows"), {
-    object: makeNamedNode("https://example.com/people/bob"),
-  }),
+  makeQuad(
+    makeNamedNode("https://example.com/people/alice"),
+    makeNamedNode("https://schema.org/knows"),
+    MakeQuadOptionsInput.make({
+      object: makeNamedNode("https://example.com/people/bob"),
+    })
+  ),
 ]);
 
 const expectSemanticBudgetFailure = Effect.fnUntraced(function* (error: Error) {

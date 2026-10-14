@@ -56,7 +56,7 @@ const parityEntries = (sourceLines: ReadonlyArray<string>) =>
 const schemaUtilsProject = () => {
   const project = new Project({
     useInMemoryFileSystem: true,
-    compilerOptions: { baseUrl: ".", paths: { "@beep/schema": ["packages/foundation/modeling/schema/src/index.ts"] } },
+    compilerOptions: { paths: { "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"] } },
   });
   const schemaSource = "packages/foundation/modeling/schema/src";
   project.createSourceFile(`${schemaSource}/index.ts`, 'export * as SchemaUtils from "./SchemaUtils/index.ts";');
@@ -132,12 +132,12 @@ const defaultWrapperSource = [
   'import * as S from "effect/Schema";',
   'import { SchemaUtils } from "@beep/schema";',
   'import { boolKeyWithDefault as emptyTags } from "@beep/schema/SchemaUtils/withKeyDefaults";',
-  'export class Widget extends S.Class<Widget>("Widget")({',
+  "export class Widget extends S.Opaque<Widget, { readonly brand: unique symbol }>()(S.Struct({",
   "  title: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withEncodeDefault),",
   "  count: S.Finite.pipe(SchemaUtils.optionalKeyWithDefault(0)),",
   '  label: S.String.pipe(SchemaUtils.optionalKeyWithDefault("none")),',
   "  tags: S.Array(S.String).pipe(emptyTags()),",
-  "}) {}",
+  "})) {}",
 ];
 
 // The same class after a formatter pass: wrapped arguments, trailing commas, comments, quote style.
@@ -148,7 +148,7 @@ const reformattedDefaultWrapperSource = [
   "import { SchemaUtils } from '@beep/schema';",
   'import { boolKeyWithDefault as emptyTags } from "@beep/schema/SchemaUtils/withKeyDefaults";',
   "export const unrelated = 1;",
-  'export class Widget extends S.Class<Widget>("Widget")({',
+  "export class Widget extends S.Opaque<Widget, { readonly brand: unique symbol }>()(S.Struct({",
   "  title: S.OptionFromOptionalKey(",
   "    S.String, // the displayed title",
   "  ).pipe(",
@@ -159,7 +159,7 @@ const reformattedDefaultWrapperSource = [
   "  tags: S.Array(S.String).pipe(",
   "    /* no tags by default */ emptyTags(),",
   "  ),",
-  "}) {}",
+  "})) {}",
 ];
 
 const unionSource = (arms: ReadonlyArray<string>) => [
@@ -980,9 +980,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("parity occurrence ident
       const base = yield* parityEntries(defaultWrapperSource);
       const grown = yield* parityEntries([
         ...defaultWrapperSource,
-        'export class Extra extends S.Class<Extra>("Extra")({',
+        "export class Extra extends S.Opaque<Extra, { readonly brand: unique symbol }>()(S.Struct({",
         "  note: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withEncodeDefault),",
-        "}) {}",
+        "})) {}",
       ]);
 
       const growth = diffSchemaFirstParity(grown, toSchemaFirstBacklog(base));
@@ -1051,9 +1051,9 @@ const backlogAnchors = Effect.gen(function* () {
 
 const grownDefaultWrapperSource = [
   ...defaultWrapperSource,
-  'export class Extra extends S.Class<Extra>("Extra")({',
+  "export class Extra extends S.Opaque<Extra, { readonly brand: unique symbol }>()(S.Struct({",
   "  note: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withEncodeDefault),",
-  "}) {}",
+  "})) {}",
 ];
 
 it.layer(testLayer, { timeout: "60 seconds" })("schema-first parity ratchet command", (it) => {

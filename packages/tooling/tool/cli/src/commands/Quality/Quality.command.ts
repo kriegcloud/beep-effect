@@ -87,8 +87,12 @@ import {
 } from "./internal/JSDocMigrateApply.ts";
 import { RunJSDocMigrateExtractOptions, runJSDocMigrateExtract } from "./internal/JSDocMigrateExtract.ts";
 import { RunJSDocMigrateTitlesOptions, runJSDocMigrateTitles } from "./internal/JSDocMigrateTitles.ts";
-import { defaultJSDocInventoryPath, defaultJSDocTotalsBaselinePath, runJSDocRatchet } from "./internal/JSDocRatchet.ts";
-import { defaultKnipBaselinePath, runKnipRatchet } from "./internal/KnipRatchet.ts";
+import {
+  defaultJSDocInventoryPath,
+  defaultJSDocTotalsBaselinePath,
+  RunJSDocRatchetOptions,
+  runJSDocRatchet,
+} from "./internal/JSDocRatchet.ts";
 import { runPackageVerifyCli } from "./internal/PackageVerify.ts";
 import { repoRelative } from "./internal/QualityArtifactSupport.ts";
 import { testTsgoSyntheticConfigTemplate } from "./internal/TestTsgoSyntheticConfig.ts";
@@ -96,6 +100,7 @@ import {
   renderTurboConfigProofReport,
   renderTurboConfigProofReportJson,
   runTurboConfigProof,
+  TurboConfigProofOptions,
 } from "./internal/TurboConfigProof.ts";
 import { QualityScriptCommandError } from "./Quality.errors.ts";
 import {
@@ -426,17 +431,19 @@ const EffectDiagnosticsExemptRule = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class EffectDiagnosticsDirectiveExemption extends S.Class<EffectDiagnosticsDirectiveExemption>(
-  $I`EffectDiagnosticsDirectiveExemption`
-)(
-  {
+export class EffectDiagnosticsDirectiveExemption extends S.Opaque<
+  EffectDiagnosticsDirectiveExemption,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: EffectDiagnosticsExemptPath,
     rules: S.NonEmptyArray(EffectDiagnosticsExemptRule),
     reason: S.NonEmptyString,
-  },
-  $I.annote("EffectDiagnosticsDirectiveExemption", {
-    description: "A repository path and the exact Effect diagnostics skip-file rules the quality gate admits there.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectDiagnosticsDirectiveExemption", {
+      description: "A repository path and the exact Effect diagnostics skip-file rules the quality gate admits there.",
+    })
+  )
 ) {}
 
 /**
@@ -516,14 +523,15 @@ const TsgoDisabledRuleName = LiteralKit(["apiStabilityLeak", "experimentalApiUsa
  * @category models
  * @since 0.0.0
  */
-export class TsgoDisabledRule extends S.Class<TsgoDisabledRule>($I`TsgoDisabledRule`)(
-  {
+export class TsgoDisabledRule extends S.Opaque<TsgoDisabledRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     rule: TsgoDisabledRuleName,
     reason: S.NonEmptyString,
-  },
-  $I.annote("TsgoDisabledRule", {
-    description: "An installed @effect/tsgo rule the root profile configures off, with the reason it is off.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsgoDisabledRule", {
+      description: "An installed @effect/tsgo rule the root profile configures off, with the reason it is off.",
+    })
+  )
 ) {}
 
 /**
@@ -619,69 +627,77 @@ export const isRejectedEffectDiagnosticsDirectiveForTesting: {
     !isExemptEffectDiagnosticsDirective(line, normalizedRepoRelativePath)
 );
 
-class EffectTsgoRuleCell extends S.Class<EffectTsgoRuleCell>($I`EffectTsgoRuleCell`)(
-  {
+class EffectTsgoRuleCell extends S.Opaque<EffectTsgoRuleCell, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.String,
-  },
-  $I.annote("EffectTsgoRuleCell", {
-    description: "Parsed diagnostics table cell containing an Effect tsgo rule code.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoRuleCell", {
+      description: "Parsed diagnostics table cell containing an Effect tsgo rule code.",
+    })
+  )
 ) {}
 
-class EffectTsgoLinkedRuleCell extends S.Class<EffectTsgoLinkedRuleCell>($I`EffectTsgoLinkedRuleCell`)(
-  {
+class EffectTsgoLinkedRuleCell extends S.Opaque<EffectTsgoLinkedRuleCell, { readonly brand: unique symbol }>()(
+  S.Struct({
     a: EffectTsgoRuleCell,
-  },
-  $I.annote("EffectTsgoLinkedRuleCell", {
-    description: "Diagnostics table cell whose rule code is wrapped in a link to that rule's doc page.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoLinkedRuleCell", {
+      description: "Diagnostics table cell whose rule code is wrapped in a link to that rule's doc page.",
+    })
+  )
 ) {}
 
-class EffectTsgoRuleRow extends S.Class<EffectTsgoRuleRow>($I`EffectTsgoRuleRow`)(
-  {
+class EffectTsgoRuleRow extends S.Opaque<EffectTsgoRuleRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     td: S.Array(S.Unknown),
-  },
-  $I.annote("EffectTsgoRuleRow", {
-    description: "Parsed diagnostics table row from the installed Effect tsgo README.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoRuleRow", {
+      description: "Parsed diagnostics table row from the installed Effect tsgo README.",
+    })
+  )
 ) {}
 
-class EffectTsgoDiagnosticsTbody extends S.Class<EffectTsgoDiagnosticsTbody>($I`EffectTsgoDiagnosticsTbody`)(
-  {
+class EffectTsgoDiagnosticsTbody extends S.Opaque<EffectTsgoDiagnosticsTbody, { readonly brand: unique symbol }>()(
+  S.Struct({
     tr: S.Array(S.Unknown),
-  },
-  $I.annote("EffectTsgoDiagnosticsTbody", {
-    description: "Parsed diagnostics table body containing Effect tsgo rule rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoDiagnosticsTbody", {
+      description: "Parsed diagnostics table body containing Effect tsgo rule rows.",
+    })
+  )
 ) {}
 
-class EffectTsgoDiagnosticsTableNode extends S.Class<EffectTsgoDiagnosticsTableNode>(
-  $I`EffectTsgoDiagnosticsTableNode`
-)(
-  {
+class EffectTsgoDiagnosticsTableNode extends S.Opaque<
+  EffectTsgoDiagnosticsTableNode,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     tbody: EffectTsgoDiagnosticsTbody,
-  },
-  $I.annote("EffectTsgoDiagnosticsTableNode", {
-    description: "Parsed diagnostics table node from the installed Effect tsgo README.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoDiagnosticsTableNode", {
+      description: "Parsed diagnostics table node from the installed Effect tsgo README.",
+    })
+  )
 ) {}
 
-class EffectTsgoDiagnosticsRoot extends S.Class<EffectTsgoDiagnosticsRoot>($I`EffectTsgoDiagnosticsRoot`)(
-  {
+class EffectTsgoDiagnosticsRoot extends S.Opaque<EffectTsgoDiagnosticsRoot, { readonly brand: unique symbol }>()(
+  S.Struct({
     table: EffectTsgoDiagnosticsTableNode,
-  },
-  $I.annote("EffectTsgoDiagnosticsRoot", {
-    description: "Root wrapper used to parse the Effect tsgo diagnostics table fragment.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoDiagnosticsRoot", {
+      description: "Root wrapper used to parse the Effect tsgo diagnostics table fragment.",
+    })
+  )
 ) {}
 
-class EffectTsgoDiagnosticsTable extends S.Class<EffectTsgoDiagnosticsTable>($I`EffectTsgoDiagnosticsTable`)(
-  {
+class EffectTsgoDiagnosticsTable extends S.Opaque<EffectTsgoDiagnosticsTable, { readonly brand: unique symbol }>()(
+  S.Struct({
     root: EffectTsgoDiagnosticsRoot,
-  },
-  $I.annote("EffectTsgoDiagnosticsTable", {
-    description: "Parsed diagnostics table fragment from the installed Effect tsgo README.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoDiagnosticsTable", {
+      description: "Parsed diagnostics table fragment from the installed Effect tsgo README.",
+    })
+  )
 ) {}
 
 const decodeEffectTsgoRuleCellOption = S.decodeUnknownOption(EffectTsgoRuleCell);
@@ -711,43 +727,50 @@ type TsgoDiagnosticOutput = {
 
 const TestTsgoPackageResultVersion = LiteralKit(["test-tsgo-package-result/v1"]);
 
-class TestTsgoPackageManifest extends S.Class<TestTsgoPackageManifest>($I`TestTsgoPackageManifest`)(
-  {
+class TestTsgoPackageManifest extends S.Opaque<TestTsgoPackageManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     scripts: S.optionalKey(S.Record(S.String, S.String)),
-  },
-  $I.annote("TestTsgoPackageManifest", {
-    description: "Package identity needed to address one package-owned Turbo task.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestTsgoPackageManifest", {
+      description: "Package identity needed to address one package-owned Turbo task.",
+    })
+  )
 ) {}
 
-class TestTsgoPackageResultArtifact extends S.Class<TestTsgoPackageResultArtifact>($I`TestTsgoPackageResultArtifact`)(
-  {
+class TestTsgoPackageResultArtifact extends S.Opaque<
+  TestTsgoPackageResultArtifact,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: TestTsgoPackageResultVersion,
     packageName: S.String,
     output: S.String,
     exitCode: S.Natural,
-  },
-  $I.annote("TestTsgoPackageResultArtifact", {
-    description: "One package worker result consumed by the repo-wide tsgo test renderer.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestTsgoPackageResultArtifact", {
+      description: "One package worker result consumed by the repo-wide tsgo test renderer.",
+    })
+  )
 ) {}
 
-class TestTsgoTurboTaskSummary extends S.Class<TestTsgoTurboTaskSummary>($I`TestTsgoTurboTaskSummary`)(
-  {
+class TestTsgoTurboTaskSummary extends S.Opaque<TestTsgoTurboTaskSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     taskId: S.String,
     hash: S.String,
-  },
-  $I.annote("TestTsgoTurboTaskSummary", {
-    description: "Task identity and hash recorded by the tsgo tests Turbo run.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestTsgoTurboTaskSummary", {
+      description: "Task identity and hash recorded by the tsgo tests Turbo run.",
+    })
+  )
 ) {}
 
-class TestTsgoTurboRunSummary extends S.Class<TestTsgoTurboRunSummary>($I`TestTsgoTurboRunSummary`)(
-  { tasks: S.Array(TestTsgoTurboTaskSummary) },
-  $I.annote("TestTsgoTurboRunSummary", {
-    description: "Turbo run-summary fields consumed by the tsgo tests aggregate lane.",
-  })
+class TestTsgoTurboRunSummary extends S.Opaque<TestTsgoTurboRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({ tasks: S.Array(TestTsgoTurboTaskSummary) }).pipe(
+    $I.annoteSchema("TestTsgoTurboRunSummary", {
+      description: "Turbo run-summary fields consumed by the tsgo tests aggregate lane.",
+    })
+  )
 ) {}
 
 const decodeTestTsgoPackageManifest = S.decodeUnknownEffect(S.fromJsonString(TestTsgoPackageManifest));
@@ -3397,7 +3420,7 @@ export const runJSDocModuleTagsCheck = Effect.fn("QualityScriptCommands.runJSDoc
  * @since 0.0.0
  */
 export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInventory")(function* (
-  options: JSDocDocumentationInventoryOptions = {}
+  options: JSDocDocumentationInventoryOptions = JSDocDocumentationInventoryOptions.make({})
 ): Effect.fn.Return<
   void,
   QualityScriptCommandError,
@@ -3660,11 +3683,13 @@ const jsdocRatchetCommand = Command.make(
   },
   ({ baseline, inventory, writeBaseline }) =>
     runQualityProgram(
-      runJSDocRatchet({
-        baselinePath: baseline,
-        inventoryPath: inventory,
-        writeBaseline,
-      })
+      runJSDocRatchet(
+        RunJSDocRatchetOptions.make({
+          baselinePath: baseline,
+          inventoryPath: inventory,
+          writeBaseline,
+        })
+      )
     )
 ).pipe(Command.withDescription("Run JSDoc inventory totals as a fail-on-growth regression-baseline gate"));
 
@@ -3781,27 +3806,6 @@ const jsdocMigrateCommand = Command.make("jsdoc-migrate", {}, () =>
   ])
 );
 
-const knipCommand = Command.make(
-  "knip",
-  {
-    baseline: Flag.String("baseline").pipe(
-      Flag.withDefault(defaultKnipBaselinePath),
-      Flag.withDescription("Committed Knip regression baseline JSONC path")
-    ),
-    writeBaseline: Flag.Boolean("write-baseline").pipe(
-      Flag.withDefault(false),
-      Flag.withDescription("Rewrite the Knip regression baseline from the current normalized finding set")
-    ),
-  },
-  ({ baseline, writeBaseline }) =>
-    runQualityProgram(
-      runKnipRatchet({
-        baselinePath: baseline,
-        writeBaseline,
-      })
-    )
-).pipe(Command.withDescription("Run Knip as a fail-on-growth regression-baseline gate"));
-
 const cachePolicyCommand = Command.make("cache-policy", {}, () =>
   findRepoRoot().pipe(Effect.flatMap((root) => runCachePolicyAudit(root, false)))
 ).pipe(
@@ -3835,12 +3839,15 @@ const turboConfigProofCommand = Command.make(
       findRepoRoot().pipe(
         QualityScriptCommandError.mapError("Failed to locate repository root."),
         Effect.flatMap((repoRoot) =>
-          runTurboConfigProof(repoRoot, {
-            base,
-            head,
-            selector,
-            tasks: variadicStrings(taskArgs),
-          }).pipe(
+          runTurboConfigProof(
+            repoRoot,
+            TurboConfigProofOptions.make({
+              base,
+              head,
+              selector,
+              tasks: variadicStrings(taskArgs),
+            })
+          ).pipe(
             Effect.mapError((error) =>
               QualityScriptCommandError.new(error, error.message, {
                 command: "bun run beep quality turbo-config-proof",
@@ -4475,8 +4482,6 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality jsdoc-ratchet --write-baseline",
     "- bun run beep quality jsdoc-migrate extract",
     "- bun run beep quality jsdoc-migrate apply --dry-run --synthetic-titles",
-    "- bun run beep quality knip",
-    "- bun run beep quality knip --write-baseline",
     "- bun run beep quality turbo-config-proof --base origin/main --head HEAD",
     "- bun run beep quality profile detect",
     "- bun run beep quality tmpfs-reap [--apply] [--json]",
@@ -4501,7 +4506,6 @@ export const qualityCommand = Command.make("quality", {}, () =>
     jsdocQualityCommand,
     jsdocRatchetCommand,
     jsdocMigrateCommand,
-    knipCommand,
     turboConfigProofCommand,
     cachePolicyCommand,
     qualityProfileCommand,

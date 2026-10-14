@@ -52,3 +52,23 @@
 
 - 2026-10-14: The final Knip rerun remained queued behind five admission holders after all
   owned package/docgen proofs finished. The admission budget and unrelated jobs were preserved.
+
+### 2026-10-14 merge recovery
+
+`git checkout --theirs` failed: `index.lock: Read-only file system`. Copied exact stage-3 bytes with `git show :3:<file>` instead, preserving the orchestrator-owned index. CLI startup initially failed on missing `@beep/t3-code`; `bun install --ignore-scripts` restored workspace links. Graft retrieval stalled after package parsing was repaired; targeted source reads were needed. A merge-aware read-only index fallback and install preflight would prevent this friction.
+
+### Inherited assignment ownership gap after main merge
+
+`beep lint deprecated-apis --full` exits 1: main adds `packages/tooling/tool/cli/scripts/CreateKnowledgeMintApp.ts` and `packages/tooling/tool/cli/test/fixtures/observability-catalog/sources.ts` without tsconfig ownership. The summary reports 204 programs and 17 unmatched paths, exactly matching its path list; only these two paths are TypeScript. Compiler configs are byte-identical to MERGE_HEAD. Main should repair ownership once; excluding these paths would weaken the law.
+
+### Merge cheap-gate repairs
+
+Sherif rejected docs dependencies in `@beep/lint-rules` because their keys were unordered; sorted only that dependency block. Config sync detected the missing alias for the lane's docs plugin export; regenerating aliases through `beep tsconfig-sync`. Running both cheap gates before handoff would catch these gaps earlier.
+
+### Schema law adoption on merge
+
+`beep lint schema-first` found lane-owned D1/D4 violations in DocsRuleSet and TSDocConfigurationError after main's schema-law migration. Converted the plain-data class to branded Opaque/Struct and branded the tagged error manually, without running the forbidden write mode. Checking the current schema skill immediately after merging main would catch this sooner.
+
+### Generated catalog catch-up
+
+The schema catalog owner regenerated 7812 entries after the schema-law repair. Main's catalog was stale across its schema migration, so this includes broad inherited kind changes in addition to the docs lane entries. Retained the owner-generated result instead of hand-editing generated rows. The closeout session note also exited 1 under the restricted environment; the external lane report remains the durable handoff.

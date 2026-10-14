@@ -24,10 +24,10 @@ const $I = $DockId.create("AnchoredBox");
  * @category value-objects
  * @since 0.0.0
  */
-export class TopLeft extends S.TaggedClass<TopLeft>($I`TopLeft`)(
-  "TopLeft",
-  { left: S.Finite, top: S.Finite },
-  $I.annote("TopLeft", { description: "Top-left anchored position." })
+export class TopLeft extends S.Opaque<TopLeft, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("TopLeft", { left: S.Finite, top: S.Finite }).pipe(
+    $I.annoteSchema("TopLeft", { description: "Top-left anchored position." })
+  )
 ) {}
 
 /**
@@ -45,10 +45,10 @@ export class TopLeft extends S.TaggedClass<TopLeft>($I`TopLeft`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class TopRight extends S.TaggedClass<TopRight>($I`TopRight`)(
-  "TopRight",
-  { right: S.Finite, top: S.Finite },
-  $I.annote("TopRight", { description: "Top-right anchored position." })
+export class TopRight extends S.Opaque<TopRight, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("TopRight", { right: S.Finite, top: S.Finite }).pipe(
+    $I.annoteSchema("TopRight", { description: "Top-right anchored position." })
+  )
 ) {}
 
 /**
@@ -66,10 +66,10 @@ export class TopRight extends S.TaggedClass<TopRight>($I`TopRight`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class BottomLeft extends S.TaggedClass<BottomLeft>($I`BottomLeft`)(
-  "BottomLeft",
-  { bottom: S.Finite, left: S.Finite },
-  $I.annote("BottomLeft", { description: "Bottom-left anchored position." })
+export class BottomLeft extends S.Opaque<BottomLeft, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("BottomLeft", { bottom: S.Finite, left: S.Finite }).pipe(
+    $I.annoteSchema("BottomLeft", { description: "Bottom-left anchored position." })
+  )
 ) {}
 
 /**
@@ -87,10 +87,10 @@ export class BottomLeft extends S.TaggedClass<BottomLeft>($I`BottomLeft`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class BottomRight extends S.TaggedClass<BottomRight>($I`BottomRight`)(
-  "BottomRight",
-  { bottom: S.Finite, right: S.Finite },
-  $I.annote("BottomRight", { description: "Bottom-right anchored position." })
+export class BottomRight extends S.Opaque<BottomRight, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("BottomRight", { bottom: S.Finite, right: S.Finite }).pipe(
+    $I.annoteSchema("BottomRight", { description: "Bottom-right anchored position." })
+  )
 ) {}
 
 /**
@@ -108,7 +108,7 @@ export class BottomRight extends S.TaggedClass<BottomRight>($I`BottomRight`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class AnchoredSize extends S.Class<AnchoredSize>($I`AnchoredSize`)(
+export class AnchoredSize extends S.Class<AnchoredSize, { readonly brand: unique symbol }>($I`AnchoredSize`)(
   { height: S.Finite, width: S.Finite },
   $I.annote("AnchoredSize", { description: "Floating box extent." })
 ) {}

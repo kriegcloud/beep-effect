@@ -138,7 +138,7 @@ jobs:
 
       - name: Upload trusted Turbo summaries
         if: github.event_name == 'push' && hashFiles('.turbo/runs/*.json') != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: turbo-summary-${{ github.job }}-${{ matrix.id || matrix.partition || 'single' }}
           path: .turbo/runs/*.json
@@ -148,7 +148,7 @@ jobs:
       - name: Upload Storybook static artifact
         # The affected lane can skip successfully; a build enforces index.html itself.
         if: steps.lane-gate.outputs.should_run == 'true' && hashFiles('apps/storybook/storybook-static/index.html') != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: storybook-static
           path: apps/storybook/storybook-static

@@ -316,14 +316,14 @@ export type LiteralPatternOption = typeof LiteralPatternOption.Type;
  * @category models
  * @since 0.0.0
  */
-export class POSPatternElement extends S.TaggedClass<POSPatternElement>($I`POSPatternElement`)(
-  "POSPatternElement",
-  {
+export class POSPatternElement extends S.Opaque<POSPatternElement, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("POSPatternElement", {
     value: POSPatternOption,
-  },
-  $I.annote("POSPatternElement", {
-    description: "Pattern element matching POS tag alternatives.",
-  })
+  }).pipe(
+    $I.annoteSchema("POSPatternElement", {
+      description: "Pattern element matching POS tag alternatives.",
+    })
+  )
 ) {}
 const decodeUnknownPOSPatternElementResult = S.decodeUnknownResult(POSPatternElement);
 const encodePOSPatternElementResult = S.encodeResult(POSPatternElement);
@@ -344,14 +344,14 @@ const isPOSPatternElement = S.is(POSPatternElement);
  * @category models
  * @since 0.0.0
  */
-export class EntityPatternElement extends S.TaggedClass<EntityPatternElement>($I`EntityPatternElement`)(
-  "EntityPatternElement",
-  {
+export class EntityPatternElement extends S.Opaque<EntityPatternElement, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("EntityPatternElement", {
     value: EntityPatternOption,
-  },
-  $I.annote("EntityPatternElement", {
-    description: "Pattern element matching entity-type alternatives.",
-  })
+  }).pipe(
+    $I.annoteSchema("EntityPatternElement", {
+      description: "Pattern element matching entity-type alternatives.",
+    })
+  )
 ) {}
 const decodeUnknownEntityPatternElementResult = S.decodeUnknownResult(EntityPatternElement);
 const encodeEntityPatternElementResult = S.encodeResult(EntityPatternElement);
@@ -372,14 +372,14 @@ const isEntityPatternElement = S.is(EntityPatternElement);
  * @category models
  * @since 0.0.0
  */
-export class LiteralPatternElement extends S.TaggedClass<LiteralPatternElement>($I`LiteralPatternElement`)(
-  "LiteralPatternElement",
-  {
+export class LiteralPatternElement extends S.Opaque<LiteralPatternElement, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("LiteralPatternElement", {
     value: LiteralPatternOption,
-  },
-  $I.annote("LiteralPatternElement", {
-    description: "Pattern element matching literal-text alternatives.",
-  })
+  }).pipe(
+    $I.annoteSchema("LiteralPatternElement", {
+      description: "Pattern element matching literal-text alternatives.",
+    })
+  )
 ) {}
 const decodeUnknownLiteralPatternElementResult = S.decodeUnknownResult(LiteralPatternElement);
 const encodeLiteralPatternElementResult = S.encodeResult(LiteralPatternElement);
@@ -532,16 +532,16 @@ export type MarkRange = typeof MarkRange.Type;
  * @category models
  * @since 0.0.0
  */
-export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
-  "Pattern",
-  {
+export class Pattern extends S.Opaque<Pattern, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Pattern", {
     elements: S.Chunk(PatternElement),
     id: PatternId,
     mark: S.OptionFromOptionalKey(MarkRange).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Pattern", {
-    description: "Ordered sequence of NLP pattern elements with optional marked span.",
-  })
+  }).pipe(
+    $I.annoteSchema("Pattern", {
+      description: "Ordered sequence of NLP pattern elements with optional marked span.",
+    })
+  )
 ) {
   /**
    * Pattern identifier constructor.

@@ -50,7 +50,7 @@ import * as R from "effect/Record";
 const $I = $ScratchpadId.create("effected/workspaces/internal/configDependencyResolution");
 
 /** The resolution failure retained as the cause of a catalog assembly error. */
-class ConfigDependencyResolutionError extends S.TaggedError<ConfigDependencyResolutionError>($I`ConfigDependencyResolutionError`)(
+class ConfigDependencyResolutionError extends S.TaggedError<ConfigDependencyResolutionError, { readonly brand: unique symbol }>($I`ConfigDependencyResolutionError`)(
 	"ConfigDependencyResolutionError",
 	{ message: S.String, cause: S.optionalKey(S.Defect({ includeStack: true })) },
 	$I.annote("ConfigDependencyResolutionError", { description: "Explains why a declared config dependency could not be resolved." }),

@@ -112,7 +112,8 @@ export const makeDocketRunId = (instant: DateTime.DateTime): DocketRunId =>
  * `event-created` and `message-marked` are the writes of a poll cycle.
  * `event-adopted` names an event a cycle found by its key that no earlier
  * line names, such as one created by a cycle that stopped before it could
- * journal the create; an undo treats it as created by the adopting run. The
+ * journal the create; an undo treats it as created by the adopting run.
+ * `event-reused` names an earlier run's event and never gives undo ownership. The
  * `undo-` kinds are what an undo of that run found and did: an event it
  * deleted, kept (the attorney had confirmed or recategorised it) or found
  * gone, and a message it unmarked or found gone. `run-completed` closes every
@@ -134,6 +135,7 @@ export const makeDocketRunId = (instant: DateTime.DateTime): DocketRunId =>
 export const DocketJournalKind = LiteralKit([
   "event-created",
   "event-adopted",
+  "event-reused",
   "message-marked",
   "undo-event-deleted",
   "undo-event-kept",
@@ -188,8 +190,8 @@ const optionalKey = <Value extends S.Top>(value: Value, description: string) =>
  * @category models
  * @since 0.0.0
  */
-export class DocketJournalEntry extends S.Class<DocketJournalEntry>($I`DocketJournalEntry`)(
-  {
+export class DocketJournalEntry extends S.Opaque<DocketJournalEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: DocketRunId.annotateKey({ description: "The run the line belongs to." }),
     kind: DocketJournalKind.annotateKey({ description: "What the line records." }),
     at: S.DateTimeUtcFromString.annotateKey({ description: "When it happened, as UTC ISO-8601." }),
@@ -199,8 +201,7 @@ export class DocketJournalEntry extends S.Class<DocketJournalEntry>($I`DocketJou
     idempotencyKey: optionalKey(S.NonEmptyString, "Idempotency key of a created event."),
     category: optionalKey(DocketCategory, "Docket category of a created event."),
     counts: optionalKey(DocketPollReport, "Counts of the cycle, on a run-completed line."),
-  },
-  $I.annote("DocketJournalEntry", { description: "One line of the docket intake write journal." })
+  }).pipe($I.annoteSchema("DocketJournalEntry", { description: "One line of the docket intake write journal." }))
 ) {}
 
 const JournalLine = S.fromJsonString(DocketJournalEntry);
@@ -386,7 +387,7 @@ export const readDocketJournal: (
 // not find, so the failure stops the cycle instead of being swallowed as a port failure.
 const recordWrite = Effect.fnUntraced(function* (
   journal: DocketIntakeJournalShape,
-  fields: Omit<ConstructorParameters<typeof DocketJournalEntry>[0], "at" | "runId">
+  fields: Omit<Parameters<typeof DocketJournalEntry.make>[0], "at" | "runId">
 ) {
   const runId = yield* journal.currentRun;
   const at = yield* DateTime.now;
@@ -401,11 +402,19 @@ const isEventLine = (line: DocketJournalEntry) =>
 const adopt = Effect.fnUntraced(function* (journal: DocketIntakeJournalShape, key: string, found: DocketWrittenEntry) {
   const lines = yield* journal.entries.pipe(Effect.orDie);
   const known = A.some(lines, (line) => isEventLine(line) && O.contains(line.eventId, found.eventId));
-  if (!known) {
+  const runId = yield* journal.currentRun;
+  const inRun = A.some(
+    lines,
+    (line) =>
+      (isEventLine(line) || line.kind === "event-reused") &&
+      line.runId === runId &&
+      O.contains(line.eventId, found.eventId)
+  );
+  if (!inRun) {
     yield* recordWrite(journal, {
       eventId: O.some(found.eventId),
       idempotencyKey: O.some(key),
-      kind: DocketJournalKind.Enum["event-adopted"],
+      kind: known ? DocketJournalKind.Enum["event-reused"] : DocketJournalKind.Enum["event-adopted"],
     });
   }
 });
@@ -426,7 +435,7 @@ const createdLine = (entry: DocketCalendarEntry, written: DocketWrittenEntry) =>
  * `create` records an `event-created` line after the event exists, and
  * `markEntered` a `message-marked` line after the message is marked. A failed
  * write records nothing. An entry the pipeline finds by its key is not a
- * write and records nothing when a journal line already names it; one no
+ * write and records `event-reused` when an earlier run owns it; one no
  * line names, which is what a cycle that stopped between a create and its
  * line leaves behind, gets an `event-adopted` line under the current run, so
  * undoing that run reaches it. When a create fails as an ambiguous write, the
@@ -546,8 +555,8 @@ export const recordDocketRunCompleted = Effect.fn("DocketJournal.runCompleted")(
  * @category models
  * @since 0.0.0
  */
-export class DocketRunSummary extends S.Class<DocketRunSummary>($I`DocketRunSummary`)(
-  {
+export class DocketRunSummary extends S.Opaque<DocketRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: DocketRunId.annotateKey({ description: "The run." }),
     startedAt: S.DateTimeUtcFromString.annotateKey({ description: "Time of the run's first journal line." }),
     eventsCreated: S.Natural.annotateKey({ description: "Calendar events the run created." }),
@@ -561,8 +570,7 @@ export class DocketRunSummary extends S.Class<DocketRunSummary>($I`DocketRunSumm
       description: "Events the run found by key that no earlier journal line named.",
     }),
     completed: optionalKey(DocketPollReport, "Counts of the cycle; absent for a run journaled before they were."),
-  },
-  $I.annote("DocketRunSummary", { description: "Counts of one docket intake run in the journal." })
+  }).pipe($I.annoteSchema("DocketRunSummary", { description: "Counts of one docket intake run in the journal." }))
 ) {}
 
 const newestFirst = Order.flip(Order.mapInput(Str.Order, (summary: DocketRunSummary) => summary.runId));

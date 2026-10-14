@@ -16,7 +16,7 @@ import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { makeTikaError } from "./Tika.errors.ts";
+import { makeTikaError, TikaErrorOptions } from "./Tika.errors.ts";
 import type { TikaError } from "./Tika.errors.ts";
 
 const $I = $TikaId.create("Tika.response");
@@ -101,7 +101,11 @@ export const decodeTikaResponseRecord = (
   decodeTikaJsonRows(payload).pipe(
     Effect.mapError(() => makeTikaError("response-decoding")),
     Effect.flatMap((rows) =>
-      A.head(rows).pipe(Effect.fromOption(() => makeTikaError("response-decoding", { cause: "empty tika -J array" })))
+      A.head(rows).pipe(
+        Effect.fromOption(() =>
+          makeTikaError("response-decoding", TikaErrorOptions.make({ cause: "empty tika -J array" }))
+        )
+      )
     )
   );
 

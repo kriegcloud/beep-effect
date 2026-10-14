@@ -37,11 +37,12 @@ const DuckDbVersion = "1.5.6-r.1";
 const WindowsBindingsSha512 =
   "5Rpn5WXEG5gY/u7Keh+c4kuwG/LiE31pCP9CoCohv+u0aFensk/yRIQVW/CXuIoITky9xFhdRzaWUtAnGTYxJQ==";
 const WindowsBindingsUrl = `https://registry.npmjs.org/@duckdb/node-bindings-win32-x64/-/node-bindings-win32-x64-${DuckDbVersion}.tgz`;
-class BindingsManifest extends S.Class<BindingsManifest>($I`BindingsManifest`)(
-  { version: S.String },
-  $I.annote("BindingsManifest", {
-    description: "Version field of an installed DuckDB bindings package manifest.",
-  })
+class BindingsManifest extends S.Opaque<BindingsManifest, { readonly brand: unique symbol }>()(
+  S.Struct({ version: S.String }).pipe(
+    $I.annoteSchema("BindingsManifest", {
+      description: "Version field of an installed DuckDB bindings package manifest.",
+    })
+  )
 ) {}
 const decodeBindingsPackageJson = S.decodeUnknownEffect(S.fromJsonString(BindingsManifest));
 const NativeAddonExternals = [

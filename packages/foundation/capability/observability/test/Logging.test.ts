@@ -1,4 +1,11 @@
-import { layerMinimumLogLevel, PrettyLoggerConfig, RenderLogBannerOptions, renderLogBanner } from "@beep/observability";
+import {
+  LoggingConfig,
+  layerConsoleLogger,
+  layerMinimumLogLevel,
+  PrettyLoggerConfig,
+  RenderLogBannerOptions,
+  renderLogBanner,
+} from "@beep/observability";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { describe, expect, it as loggerSubjectIt } from "@effect/vitest";
@@ -11,6 +18,7 @@ import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Tracer from "effect/Tracer";
 
 const decodeUnknownPrettyLoggerConfigOption = S.decodeUnknownOption(PrettyLoggerConfig);
 const decodeUnknownRenderLogBannerOptionsOption = S.decodeUnknownOption(RenderLogBannerOptions);
@@ -33,7 +41,62 @@ const capturedLevelsLayer = (minimumLevel: "Info" | "None"): Layer.Layer<Capture
   );
 };
 
+class CapturedSpanEvents extends Context.Service<CapturedSpanEvents, Array<string>>()(
+  "@beep/observability/test/Logging.test/CapturedSpanEvents"
+) {}
+
+const capturedSpanEventsLayer: Layer.Layer<CapturedSpanEvents> = Layer.unwrap(
+  Effect.sync(() => {
+    const events: Array<string> = [];
+    const recordingTracer = Layer.effect(
+      Tracer.Tracer,
+      Effect.map(Effect.tracer, (current) =>
+        Tracer.make({
+          span(options) {
+            const span = current.span(options);
+            const originalEvent = span.event;
+            span.event = function (this: Tracer.Span, name, startTime, attributes) {
+              events.push(name);
+              return originalEvent.call(this, name, startTime, attributes);
+            };
+            return span;
+          },
+          context: current.context,
+        })
+      )
+    );
+    return Layer.mergeAll(
+      Layer.succeed(CapturedSpanEvents, events),
+      recordingTracer,
+      layerConsoleLogger(LoggingConfig.make({ format: "string", minLogLevel: "Info" }))
+    );
+  })
+);
+
 describe("Logging", () => {
+  it("returns a layer from the one-argument data-first call", () => {
+    const config = LoggingConfig.make({ format: "json", minLogLevel: "Info" });
+
+    expect(Layer.isLayer(layerConsoleLogger(config))).toBe(true);
+    expect(Layer.isLayer(layerConsoleLogger(config, PrettyLoggerConfig.make({})))).toBe(true);
+    expect(Layer.isLayer(layerConsoleLogger()(config))).toBe(true);
+  });
+
+  // The console logger layer is the subject: runner lifecycle logs would add span events.
+  loggerSubjectIt.layer(capturedSpanEventsLayer, { timeout: "10 seconds" })(
+    "keeps the tracer bridge in the console logger layer",
+    (it) =>
+      it.effect(
+        "records log lines as events on the current span",
+        Effect.fnUntraced(function* () {
+          const events = yield* CapturedSpanEvents;
+          yield* Effect.logInfo("bridged to span").pipe(Effect.withSpan("console-logger"));
+
+          expect(events).toStrictEqual(["bridged to span"]);
+        })
+      )
+  );
+
   it("keeps pretty logger constructor defaults on the schema", () => {
     const pretty = PrettyLoggerConfig.make({});
 
@@ -70,22 +133,31 @@ describe("Logging", () => {
   );
 
   it("renders with default pretty config when options omit it", () => {
-    expect(renderLogBanner("Server Ready", { kind: "startup" })).toBe("Server Ready");
+    expect(renderLogBanner("Server Ready", RenderLogBannerOptions.make({ kind: "startup" }))).toBe("Server Ready");
   });
 
   it("renders a banner only for the configured kind", () => {
-    const shown = renderLogBanner("Ready", {
-      kind: "startup",
-      pretty: PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" }),
-    });
-    const startupSkipsPhase = renderLogBanner("Ready", {
-      kind: "phase",
-      pretty: PrettyLoggerConfig.make({ theme: "mono", bannerMode: "startup" }),
-    });
-    const phaseShown = renderLogBanner("Ready", {
-      kind: "phase",
-      pretty: PrettyLoggerConfig.make({ theme: "forest", bannerMode: "phase" }),
-    });
+    const shown = renderLogBanner(
+      "Ready",
+      RenderLogBannerOptions.make({
+        kind: "startup",
+        pretty: PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" }),
+      })
+    );
+    const startupSkipsPhase = renderLogBanner(
+      "Ready",
+      RenderLogBannerOptions.make({
+        kind: "phase",
+        pretty: PrettyLoggerConfig.make({ theme: "mono", bannerMode: "startup" }),
+      })
+    );
+    const phaseShown = renderLogBanner(
+      "Ready",
+      RenderLogBannerOptions.make({
+        kind: "phase",
+        pretty: PrettyLoggerConfig.make({ theme: "forest", bannerMode: "phase" }),
+      })
+    );
 
     expect(shown).toContain("READY");
     expect(startupSkipsPhase).toBe("Ready");

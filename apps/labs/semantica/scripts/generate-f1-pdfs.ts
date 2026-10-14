@@ -14,7 +14,9 @@ import type { PDFFont, PDFPage } from "pdf-lib";
 const $I = $SemanticaId.create("scripts/generate-f1-pdfs");
 const DEFAULT_OUTPUT_DIRECTORY = "fixtures/f1/documents";
 
-class F1PdfGenerationFailed extends S.TaggedError<F1PdfGenerationFailed>($I`F1PdfGenerationFailed`)(
+class F1PdfGenerationFailed extends S.TaggedError<F1PdfGenerationFailed, { readonly brand: unique symbol }>(
+  $I`F1PdfGenerationFailed`
+)(
   "F1PdfGenerationFailed",
   {
     message: S.NonEmptyString,

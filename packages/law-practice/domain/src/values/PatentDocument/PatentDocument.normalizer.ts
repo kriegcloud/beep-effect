@@ -71,9 +71,10 @@ const PatentDocumentNormalizationReason = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class PatentDocumentNormalizationError extends S.TaggedError<PatentDocumentNormalizationError>(
-  $I`PatentDocumentNormalizationError`
-)(
+export class PatentDocumentNormalizationError extends S.TaggedError<
+  PatentDocumentNormalizationError,
+  { readonly brand: unique symbol }
+>($I`PatentDocumentNormalizationError`)(
   "PatentDocumentNormalizationError",
   {
     message: S.NonEmptyString.annotateKey({

@@ -245,7 +245,9 @@ export const jsonPointerFromPath = (path: JsonPath): string => JsonPath.toPointe
  * @category models
  * @since 0.0.0
  */
-export class PandocMappingIssue extends S.Class<PandocMappingIssue>($I`PandocMappingIssue`)(
+export class PandocMappingIssue extends S.Class<PandocMappingIssue, { readonly brand: unique symbol }>(
+  $I`PandocMappingIssue`
+)(
   {
     construct: S.String.annotateKey({
       description: "Pandoc or Md construct that triggered the compatibility issue.",
@@ -345,7 +347,9 @@ export declare namespace PandocMappingIssue {
  * @category models
  * @since 0.0.0
  */
-export class PandocCompatibilityReport extends S.Class<PandocCompatibilityReport>($I`PandocCompatibilityReport`)(
+export class PandocCompatibilityReport extends S.Class<PandocCompatibilityReport, { readonly brand: unique symbol }>(
+  $I`PandocCompatibilityReport`
+)(
   {
     issues: S.Array(PandocMappingIssue).annotateKey({
       description: "Compatibility issues observed during mapping.",
@@ -358,7 +362,7 @@ export class PandocCompatibilityReport extends S.Class<PandocCompatibilityReport
   static readonly profileFromIssues = (issues: ReadonlyArray<PandocMappingIssue.Type>): PandocMappingProfile =>
     issues.length === 0 ? "supported" : "gap";
   static readonly fromIssues = (issues: ReadonlyArray<PandocMappingIssue.Type>): PandocCompatibilityReport =>
-    PandocCompatibilityReport.make({ issues });
+    PandocCompatibilityReport.make({ issues: A.map(issues, (issue) => PandocMappingIssue.make(issue)) });
 
   /**
    * Coarse compatibility profile derived from {@link issues}.

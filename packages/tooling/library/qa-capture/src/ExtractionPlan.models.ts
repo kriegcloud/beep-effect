@@ -170,8 +170,8 @@ export type DropReason = typeof DropReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExtractionRule extends S.Class<ExtractionRule>($I`ExtractionRule`)(
-  {
+export class ExtractionRule extends S.Opaque<ExtractionRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     enabled: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefault(Effect.succeed(true)),
@@ -274,10 +274,11 @@ export class ExtractionRule extends S.Class<ExtractionRule>($I`ExtractionRule`)(
         description: "Window-relative fractions (0..1) at which strip frames are extracted.",
       })
     ),
-  },
-  $I.annote("ExtractionRule", {
-    description: "One extraction rule with its priority, pads, and thresholds.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractionRule", {
+      description: "One extraction rule with its priority, pads, and thresholds.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ExtractionRule);
 }
@@ -421,8 +422,8 @@ export const defaultExtractionRules: ExtractionRuleSet = [
  * @category models
  * @since 0.0.0
  */
-export class ArtifactBudget extends S.Class<ArtifactBudget>($I`ArtifactBudget`)(
-  {
+export class ArtifactBudget extends S.Opaque<ArtifactBudget, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxGifSeconds: S.Finite.check(
       S.isGreaterThan(0, {
         identifier: $I`ArtifactBudgetMaxGifSecondsPositiveCheck`,
@@ -451,10 +452,11 @@ export class ArtifactBudget extends S.Class<ArtifactBudget>($I`ArtifactBudget`)(
         description: "Maximum estimated total artifact bytes per round; defaults to 20 MiB.",
       })
     ),
-  },
-  $I.annote("ArtifactBudget", {
-    description: "Byte and duration budget applied to one extraction round.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArtifactBudget", {
+      description: "Byte and duration budget applied to one extraction round.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ArtifactBudget);
 }
@@ -473,8 +475,8 @@ export class ArtifactBudget extends S.Class<ArtifactBudget>($I`ArtifactBudget`)(
  * @category models
  * @since 0.0.0
  */
-export class GifSpec extends S.Class<GifSpec>($I`GifSpec`)(
-  {
+export class GifSpec extends S.Opaque<GifSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     fps: S.Finite.check(
       S.isGreaterThan(0, {
         identifier: $I`GifSpecFpsPositiveCheck`,
@@ -499,10 +501,11 @@ export class GifSpec extends S.Class<GifSpec>($I`GifSpec`)(
         description: "GIF pixel width; height follows the source aspect ratio.",
       })
     ),
-  },
-  $I.annote("GifSpec", {
-    description: "GIF rendering parameters attached to a window.",
-  })
+  }).pipe(
+    $I.annoteSchema("GifSpec", {
+      description: "GIF rendering parameters attached to a window.",
+    })
+  )
 ) {}
 
 /**
@@ -529,8 +532,8 @@ export class GifSpec extends S.Class<GifSpec>($I`GifSpec`)(
  * @category models
  * @since 0.0.0
  */
-export class ExtractionWindow extends S.Class<ExtractionWindow>($I`ExtractionWindow`)(
-  {
+export class ExtractionWindow extends S.Opaque<ExtractionWindow, { readonly brand: unique symbol }>()(
+  S.Struct({
     endEpochMs: EpochMilliseconds.pipe(
       $I.annoteKey("ExtractionWindow.endEpochMs", {
         description: "Window end in epoch milliseconds.",
@@ -572,10 +575,11 @@ export class ExtractionWindow extends S.Class<ExtractionWindow>($I`ExtractionWin
         description: "Window start in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("ExtractionWindow", {
-    description: "One planned extraction window in the witness wall-clock domain.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractionWindow", {
+      description: "One planned extraction window in the witness wall-clock domain.",
+    })
+  )
 ) {}
 
 /**
@@ -600,8 +604,8 @@ export class ExtractionWindow extends S.Class<ExtractionWindow>($I`ExtractionWin
  * @category models
  * @since 0.0.0
  */
-export class DroppedWindow extends S.Class<DroppedWindow>($I`DroppedWindow`)(
-  {
+export class DroppedWindow extends S.Opaque<DroppedWindow, { readonly brand: unique symbol }>()(
+  S.Struct({
     detail: S.OptionFromOptionalKey(S.String).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("DroppedWindow.detail", {
@@ -633,10 +637,11 @@ export class DroppedWindow extends S.Class<DroppedWindow>($I`DroppedWindow`)(
         description: "Window start in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("DroppedWindow", {
-    description: "Record of a window that was merged, degraded, or dropped.",
-  })
+  }).pipe(
+    $I.annoteSchema("DroppedWindow", {
+      description: "Record of a window that was merged, degraded, or dropped.",
+    })
+  )
 ) {}
 
 /**
@@ -659,8 +664,8 @@ export class DroppedWindow extends S.Class<DroppedWindow>($I`DroppedWindow`)(
  * @category models
  * @since 0.0.0
  */
-export class ExtractionPlan extends S.Class<ExtractionPlan>($I`ExtractionPlan`)(
-  {
+export class ExtractionPlan extends S.Opaque<ExtractionPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     budget: ArtifactBudget.pipe(
       $I.annoteKey("ExtractionPlan.budget", {
         description: "Budget the plan was fitted under.",
@@ -693,10 +698,11 @@ export class ExtractionPlan extends S.Class<ExtractionPlan>($I`ExtractionPlan`)(
         description: "Windows kept by the plan, in start order.",
       })
     ),
-  },
-  $I.annote("ExtractionPlan", {
-    description: "Complete extraction plan for one round.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractionPlan", {
+      description: "Complete extraction plan for one round.",
+    })
+  )
 ) {}
 
 /**
@@ -725,8 +731,8 @@ export class ExtractionPlan extends S.Class<ExtractionPlan>($I`ExtractionPlan`)(
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesAtPlanned extends S.Class<ExtractFramesAtPlanned>($I`ExtractFramesAtPlanned`)(
-  {
+export class ExtractFramesAtPlanned extends S.Opaque<ExtractFramesAtPlanned, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("extract-frames-at").pipe(
       $I.annoteKey("ExtractFramesAtPlanned.kind", {
         description: "Discriminator for planned frame-strip extractions.",
@@ -737,10 +743,11 @@ export class ExtractFramesAtPlanned extends S.Class<ExtractFramesAtPlanned>($I`E
         description: "The ffmpeg extract-frames-at request to run.",
       })
     ),
-  },
-  $I.annote("ExtractFramesAtPlanned", {
-    description: "Planned frame-strip extraction wrapping an ffmpeg request.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesAtPlanned", {
+      description: "Planned frame-strip extraction wrapping an ffmpeg request.",
+    })
+  )
 ) {}
 
 /**
@@ -766,8 +773,8 @@ export class ExtractFramesAtPlanned extends S.Class<ExtractFramesAtPlanned>($I`E
  * @category models
  * @since 0.0.0
  */
-export class RenderGifPlanned extends S.Class<RenderGifPlanned>($I`RenderGifPlanned`)(
-  {
+export class RenderGifPlanned extends S.Opaque<RenderGifPlanned, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("render-gif").pipe(
       $I.annoteKey("RenderGifPlanned.kind", {
         description: "Discriminator for planned GIF renders.",
@@ -778,10 +785,11 @@ export class RenderGifPlanned extends S.Class<RenderGifPlanned>($I`RenderGifPlan
         description: "The ffmpeg render-gif request to run.",
       })
     ),
-  },
-  $I.annote("RenderGifPlanned", {
-    description: "Planned GIF rendering wrapping an ffmpeg request.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderGifPlanned", {
+      description: "Planned GIF rendering wrapping an ffmpeg request.",
+    })
+  )
 ) {}
 
 /**
@@ -805,8 +813,8 @@ export class RenderGifPlanned extends S.Class<RenderGifPlanned>($I`RenderGifPlan
  * @category models
  * @since 0.0.0
  */
-export class RenderContactSheetPlanned extends S.Class<RenderContactSheetPlanned>($I`RenderContactSheetPlanned`)(
-  {
+export class RenderContactSheetPlanned extends S.Opaque<RenderContactSheetPlanned, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("render-contact-sheet").pipe(
       $I.annoteKey("RenderContactSheetPlanned.kind", {
         description: "Discriminator for planned contact-sheet renders.",
@@ -817,10 +825,11 @@ export class RenderContactSheetPlanned extends S.Class<RenderContactSheetPlanned
         description: "The ffmpeg render-contact-sheet request to run.",
       })
     ),
-  },
-  $I.annote("RenderContactSheetPlanned", {
-    description: "Planned contact-sheet rendering wrapping an ffmpeg request.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderContactSheetPlanned", {
+      description: "Planned contact-sheet rendering wrapping an ffmpeg request.",
+    })
+  )
 ) {}
 
 /**
@@ -847,8 +856,8 @@ export class RenderContactSheetPlanned extends S.Class<RenderContactSheetPlanned
  * @category models
  * @since 0.0.0
  */
-export class ExtractClipPlanned extends S.Class<ExtractClipPlanned>($I`ExtractClipPlanned`)(
-  {
+export class ExtractClipPlanned extends S.Opaque<ExtractClipPlanned, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("extract-clip").pipe(
       $I.annoteKey("ExtractClipPlanned.kind", {
         description: "Discriminator for planned clip extractions.",
@@ -859,10 +868,11 @@ export class ExtractClipPlanned extends S.Class<ExtractClipPlanned>($I`ExtractCl
         description: "The ffmpeg extract-clip request to run.",
       })
     ),
-  },
-  $I.annote("ExtractClipPlanned", {
-    description: "Planned clip extraction wrapping an ffmpeg request.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractClipPlanned", {
+      description: "Planned clip extraction wrapping an ffmpeg request.",
+    })
+  )
 ) {}
 
 /**

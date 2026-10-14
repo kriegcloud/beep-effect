@@ -15,22 +15,25 @@ import {
   SvgToPdfRequest,
 } from "@beep/pdf-tools";
 import { it } from "@beep/test-runner";
-import { A } from "@beep/utils";
+import { Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
-import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
+import { assertInstanceOf, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import { TestClock } from "effect/testing";
-import { PDFDocument, PDFHexString, PDFString, StandardFonts } from "pdf-lib";
+import { PDFDict, PDFDocument, PDFHexString, PDFName, PDFString, StandardFonts } from "pdf-lib";
 import type * as PlatformError from "effect/PlatformError";
 
 const encoder = new TextEncoder();
@@ -88,6 +91,7 @@ const markedPpm = ppmOf(8, 4, [
   [7, 0],
 ]);
 const smallMarkedPpm = ppmOf(2, 2, [[1, 1]]);
+const blankPpm = ppmOf(8, 4, []);
 
 const bboxLayout = `<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><body><doc>
   <page width="612.000000" height="792.000000">
@@ -157,7 +161,9 @@ const fakeOutputs = (
     const source = A.get(command.args, A.length(command.args) - 2);
     const fixtureFor = (prefix: string) =>
       prefix.endsWith("/base")
-        ? basePpm
+        ? O.exists(source, Str.endsWith("blank.pdf"))
+          ? blankPpm
+          : basePpm
         : prefix.endsWith("/marked")
           ? O.exists(source, (pdf) => pdf.endsWith("small.pdf"))
             ? smallMarkedPpm
@@ -197,10 +203,14 @@ const makeFakeSpawnerLayer = (
             }
             yield* fakeOutputs(fs, command);
             if (command.command === "pdftotext" && A.contains(command.args, "-bbox-layout")) {
-              const broken = O.exists(A.get(command.args, A.length(command.args) - 2), (pdf) =>
-                pdf.endsWith("broken.pdf")
+              const output = Match.value(O.getOrElse(A.get(command.args, A.length(command.args) - 2), () => "")).pipe(
+                Match.when(Str.endsWith("broken.pdf"), () => "<html>no pages</html>"),
+                Match.when(Str.endsWith("invalid-coordinate.pdf"), () =>
+                  Str.replace('xMin="72.000000"', 'xMin="not-a-number"')(bboxLayout)
+                ),
+                Match.orElse(() => bboxLayout)
               );
-              return makeHandle(0, "", broken ? "<html>no pages</html>" : bboxLayout);
+              return makeHandle(0, "", output);
             }
             return makeHandle(0);
           })
@@ -430,6 +440,53 @@ describe("@beep/pdf-tools service", () => {
       );
 
       it.effect(
+        "inspects shared descendant-font graphs without exponential revisits",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const file = path.join(dir, "shared-font.pdf");
+          const doc = yield* Effect.promise(() => PDFDocument.create());
+          const font = yield* Effect.promise(() => doc.embedFont(StandardFonts.Helvetica));
+          doc.addPage([612, 792]).drawText("A", { font });
+          yield* Effect.promise(() => doc.save({ useObjectStreams: false }));
+          let child = doc.context.register(doc.context.obj({}));
+          for (let depth = 0; depth < 22; depth += 1) {
+            child = doc.context.register(doc.context.obj({ DescendantFonts: [child, child] }));
+          }
+          const root = doc.context.lookup(font.ref, PDFDict);
+          root.set(PDFName.of("DescendantFonts"), doc.context.obj([child, child]));
+          yield* fs.writeFile(file, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
+
+          const started = performance.now();
+          const structure = yield* (yield* PdfTools).inspect(file);
+          expect(A.map(structure.fonts, (entry) => entry.embedded)).toEqual([false]);
+          expect(performance.now() - started).toBeLessThan(2_000);
+        })
+      );
+
+      it.effect(
+        "rejects cyclic descendant-font graphs",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const file = path.join(dir, "cyclic-font.pdf");
+          const doc = yield* Effect.promise(() => PDFDocument.create());
+          const font = yield* Effect.promise(() => doc.embedFont(StandardFonts.Helvetica));
+          doc.addPage([612, 792]).drawText("A", { font });
+          yield* Effect.promise(() => doc.save({ useObjectStreams: false }));
+          doc.context.lookup(font.ref, PDFDict).set(PDFName.of("DescendantFonts"), doc.context.obj([font.ref]));
+          yield* fs.writeFile(file, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
+
+          const exit = yield* Effect.exit((yield* PdfTools).inspect(file));
+          const isFailure = exit.pipe(Exit.isFailure);
+          assertTrue(isFailure);
+          expect(String(exit)).toContain("Cyclic PDF descendant-font graph");
+        })
+      );
+
+      it.effect(
         "rejects an invalid raster request before spawning",
         Effect.fnUntraced(function* () {
           const tools = yield* PdfTools;
@@ -458,8 +515,8 @@ describe("@beep/pdf-tools service", () => {
         Effect.fnUntraced(function* () {
           const tools = yield* PdfTools;
           const blocks = yield* tools.pageWords(PageTextRequest.make({ pdfPath: "reviewed.pdf", page: 2 }));
-          expect(blocks.map((b) => b.text)).toEqual(["Rotate A&B\n<left> é—\"'", "(all sheets)"]);
-          expect(blocks.map((b) => [b.rect.xMin, b.rect.yMin, b.rect.xMax, b.rect.yMax])).toEqual([
+          expect(A.map(blocks, (b) => b.text)).toEqual(["Rotate A&B\n<left> é—\"'", "(all sheets)"]);
+          expect(A.map(blocks, (b) => [b.rect.xMin, b.rect.yMin, b.rect.xMax, b.rect.yMax])).toEqual([
             [72, 84.5, 238.25, 108],
             [72, 724.82, 208.16, 734.07],
           ]);
@@ -475,6 +532,19 @@ describe("@beep/pdf-tools service", () => {
           assertInstanceOf(error, PdfToolsError);
           expect(error.reason).toBe("parse");
           expect(error.message).toBe("pdftotext -bbox-layout output has no page.");
+        })
+      );
+
+      it.effect(
+        "refuses a block with a nonnumeric coordinate instead of returning a malformed rectangle",
+        Effect.fnUntraced(function* () {
+          const tools = yield* PdfTools;
+          const error = yield* Effect.flip(
+            tools.pageWords(PageTextRequest.make({ pdfPath: "invalid-coordinate.pdf", page: 1 }))
+          );
+          assertInstanceOf(error, PdfToolsError);
+          expect(error.reason).toBe("parse");
+          expect(error.message).toBe("A pdftotext block has no numeric xMin.");
         })
       );
     });
@@ -536,6 +606,23 @@ describe("@beep/pdf-tools service", () => {
           expect(commands.length).toBe(before);
         })
       );
+
+      it.effect(
+        "reports zero coverage for a blank base page without dividing by zero",
+        Effect.fnUntraced(function* () {
+          const tools = yield* PdfTools;
+          const coverage = yield* tools.inkCoverage(
+            InkCoverageRequest.make({
+              base: PdfPageRef.make({ pdfPath: "blank.pdf", page: 1 }),
+              marked: PdfPageRef.make({ pdfPath: "reviewed.pdf", page: 1 }),
+              dpi: 36,
+              dilatePx: 0,
+            })
+          );
+          expect([coverage.baseInkPixels, coverage.coveredPixels, coverage.markedInkPixels]).toEqual([0, 0, 3]);
+          expect(coverage.coverage).toBe(0);
+        })
+      );
     });
   });
 
@@ -567,7 +654,7 @@ describe("@beep/pdf-tools service", () => {
           yield* fs.writeFile(file, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
           const tools = yield* PdfTools;
           const annotations = yield* tools.annotations(file);
-          expect(annotations.map((a) => [a.page, a.subtype])).toEqual([
+          expect(A.map(annotations, (a) => [a.page, a.subtype])).toEqual([
             [2, "Text"],
             [2, "Highlight"],
           ]);

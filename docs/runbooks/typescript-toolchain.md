@@ -85,6 +85,29 @@ fail the gate. The planned severities and the deferred `schemaClassMissingBrand`
 decision are recorded beside the version hold in `syncpack.config.ts`. Include
 lab apps in the next rule sweep because `bun run check` filters them out.
 
+## Programmatic access
+
+Run sync API consumers with Node: the upstream transport requires Node private
+stdio handles and currently cannot run under Bun. Native-parser tests therefore
+run on Node after the remaining Bun test suite.
+
+First-party compiler tools use `TsNativeApi` from `@beep/repo-utils/TsNativeApi`.
+Provide `TsNativeApi.layer(TsNativeConfig.make({ cwd, tsconfig }))` with platform
+filesystem/path/child-process services at the entrypoint (for example,
+`NodeServices.layer`). The layer owns one Go API process
+and closes it when its scope ends. Its default executable is the installed
+`@effect/tsgo` artifact; `executable` accepts an explicit override.
+
+Call `program(tsconfig)` or `sourceFile(path)` inside `Effect.scoped`; native
+handles remain valid only within that scope. `parseSource(fileName, text)` uses
+a distinct virtual path per parse for syntax controls and research walkers.
+Walk nodes with `node.forEachChild` and guards from
+`@typescript/native/unstable/ast`. `diagnostics(tsconfig)` returns detached,
+schema-decoded diagnostics. Binary resolution, protocol and missing-file
+failures have typed errors. These unstable API calls are validated against the
+installed package declarations and require review when upgrading TypeScript.
+The programmatic API uses the Go compiler; check/build gates remain on tsc-rs.
+
 ## Why `typescript@6` cannot go yet
 
 TypeScript 7.0 shipped without the classic programmatic API that tools import
@@ -95,11 +118,13 @@ checked 2026-09-24:
 
 | Tool | Needs `typescript@6`? | Why |
 | --- | --- | --- |
-| typescript-eslint 8.70.x | yes | peer `>=4.8.4 <6.1.0` via typescript-estree and ts-api-utils; TS7 support tracked in typescript-eslint/typescript-eslint#10940 (open) |
+| typescript-eslint 8.70.x | yes, docs lane until lane B | peer `>=4.8.4 <6.1.0` via typescript-estree and ts-api-utils; TS7 support tracked in typescript-eslint/typescript-eslint#10940 (open) |
 | tstyche 8.0.0-beta.0 | no, for effect-drizzle's explicit targets | downloads `5.9.3` and `6.0.3` (hosted matrix) plus `next` (on demand) to its own store; TS7 backend uses the 7.1 sync/ast API. No root `typescript@6` API is loaded for this matrix. |
 | commitlint (`cosmiconfig-typescript-loader`) | no direct API use | declares a TypeScript peer; `commitlint.config.ts` is loaded through jiti |
 | ts-morph 28 | no | `@ts-morph/common` vendors its own TypeScript 6.0.2 |
-| knip 6 | no | parses with oxc-parser, no `typescript` dependency |
+
+Deprecated API scanning uses oxlint 1.88.0 + oxlint-tsgolint 7.0.2004 (bundled
+TypeScript 7.0.2), independently of the JS compiler API.
 
 The hold lives in `syncpack.config.ts` (the "Held back" update group) so
 `deps:update` cannot collapse the split. Reassess the root `typescript@6` hold

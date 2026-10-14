@@ -83,7 +83,7 @@ export type PredicateType = string;
  * @category errors
  * @since 0.0.0
  */
-export class InvalidSha256DigestError extends S.TaggedError<InvalidSha256DigestError>($I`InvalidSha256DigestError`)(
+export class InvalidSha256DigestError extends S.TaggedError<InvalidSha256DigestError, { readonly brand: unique symbol }>($I`InvalidSha256DigestError`)(
 	"InvalidSha256DigestError",
 	{
 		/** The offending input, preserved verbatim. */
@@ -294,7 +294,7 @@ export type Sha256Digest = string & Brand.Brand<"Sha256Digest">;
  * @category models
  * @since 0.0.0
  */
-export class InTotoSubject extends S.Class<InTotoSubject>($I`InTotoSubject`)({
+export class InTotoSubject extends S.Class<InTotoSubject, { readonly brand: unique symbol }>($I`InTotoSubject`)({
 	/** How the subject is identified — a purl for an npm package. */
 	name: S.String.annotateKey({ description: "How the subject is identified — a purl for an npm package." }),
 	/** Algorithm to hex digest. */
@@ -441,7 +441,7 @@ export type InTotoSubjectInput = typeof InTotoSubjectInput.Type;
  * @category models
  * @since 0.0.0
  */
-export class InTotoStatement extends S.Class<InTotoStatement>($I`InTotoStatement`)({
+export class InTotoStatement extends S.Class<InTotoStatement, { readonly brand: unique symbol }>($I`InTotoStatement`)({
 	/** Always the in-toto Statement v1 URI. */
 	_type: S.Literal(IN_TOTO_STATEMENT_V1).annotateKey({ description: "Always the in-toto Statement v1 URI." }),
 	/** The artifacts attested. */

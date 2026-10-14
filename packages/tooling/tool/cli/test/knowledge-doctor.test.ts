@@ -19,6 +19,7 @@ import {
   scanKnowledgeDoctorTree,
   TreeEntryWitness,
 } from "@beep/repo-cli/commands/Knowledge";
+import { knowledgeDoctorCommand } from "@beep/repo-cli/commands/Knowledge/Knowledge.command";
 import { KnowledgeCommandSurface, renderKnowledgeDoctorHumanReport } from "@beep/repo-cli/test/Knowledge";
 import { findRepoRoot } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
@@ -27,7 +28,10 @@ import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { assert, describe } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Console from "effect/Console";
+import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
@@ -37,6 +41,8 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as TestConsole from "effect/testing/TestConsole";
+import { temporaryWorkingDirectory } from "./support/CommandTest.ts";
 import type {
   KnowledgeCounterfactualVerdict,
   KnowledgeDoctorMemoryTreeInput,
@@ -54,6 +60,7 @@ const FENCE = "```";
 const TILDES = "~~~";
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
+const decodeConsoleLines = S.decodeUnknownEffect(S.Array(S.String));
 
 const commandTreeOf = (value: unknown) =>
   Effect.flatMap(encodeJson(value), KnowledgeCommandSurface.decodeCurrentCommandTree).pipe(Effect.asSome);
@@ -131,7 +138,7 @@ describe("knowledge doctor classification rule table", () => {
             : span.surface === "live"
               ? "verified"
               : "unclassified";
-        const spanClass = classifyKnowledgeSpan({ span, validCitation });
+        const spanClass = classifyKnowledgeSpan({ span: KnowledgeSpan.make(span), validCitation });
         assert.strictEqual(spanClass, expected);
         assert.isTrue(KnowledgeSpanClass.is[spanClass](spanClass));
         assert.isTrue(A.some(KNOWLEDGE_SPAN_CLASSIFICATION_RULES, (row) => row.spanClass === spanClass));
@@ -311,6 +318,29 @@ describe("knowledge doctor span extraction", () => {
   );
 
   it.effect(
+    "reads a spaced arrow inside a quoted argument as one command, and still drops real chains",
+    Effect.fnUntraced(function* () {
+      const spans = spansOf(
+        "docs/guide.md",
+        doc(
+          '`bun run beep create-package demo --description "Doc → KG"`',
+          "`bun run beep create-package demo --description 'Doc -> KG'`",
+          "`bun run beep yeet repair → verify → publish --pr`",
+          '`bun run beep yeet repair "a" → verify`',
+          '`bun run beep create-package demo --description "Doc → KG`'
+        )
+      );
+      assert.deepStrictEqual(
+        A.map(spans, (span) => [span.form, span.raw]),
+        [
+          ["command", 'bun run beep create-package demo --description "Doc → KG"'],
+          ["command", "bun run beep create-package demo --description 'Doc -> KG'"],
+        ]
+      );
+    })
+  );
+
+  it.effect(
     "never reads a span that exactly names a Git ref as a path",
     Effect.fnUntraced(function* () {
       const extraction = extractKnowledgeDocumentSpans(
@@ -456,6 +486,23 @@ describe("knowledge doctor scan", () => {
     );
 
     it.effect(
+      "refuses an unbounded fan-out of distinct historical commits before materialization",
+      Effect.fnUntraced(function* () {
+        const commits = A.map(["1", "2", "3", "4", "5"], (digit) => Str.repeat(40)(digit));
+        const tree = yield* memoryTree({
+          files: {
+            "goals/demo/research/notes.md": doc(
+              ...A.flatMap(commits, (commit) => [`<!-- beep:historical commit=${commit} -->`, "`package.json`"])
+            ),
+          },
+          ancestors: commits,
+        });
+        const error = yield* Effect.flip(scanKnowledgeDoctorTree(tree));
+        assert.include(error.message, "more than four distinct historical commits");
+      })
+    );
+
+    it.effect(
       "reports a non-ancestor citation and leaves its spans unclassified",
       Effect.fnUntraced(function* () {
         const tree = yield* memoryTree({
@@ -526,7 +573,8 @@ describe("knowledge doctor scan", () => {
         assert.strictEqual(first, second);
         const decoded = yield* decodeKnowledgeDoctorReportJson(first);
         assert.strictEqual(yield* encodeKnowledgeDoctorReportJson(decoded), first);
-        assert.include(renderKnowledgeDoctorHumanReport(decoded), "blocking findings (2)");
+        // goals/demo tracks a file but no manifest, so the goals doctor's manifest-missing is listed as delegated.
+        assert.include(renderKnowledgeDoctorHumanReport(decoded), "blocking findings (3) under 3 root(s):");
       })
     );
   });
@@ -619,10 +667,12 @@ describe("knowledge doctor counterfactual harness", () => {
 
 const ROOT_MODULE_PATH = "packages/tooling/tool/cli/src/commands/Root.ts";
 
-class RuntimeCommandFlags extends S.Class<RuntimeCommandFlags>("RuntimeCommandFlags")({
-  path: S.String,
-  flags: S.Array(S.String),
-}) {}
+class RuntimeCommandFlags extends S.Opaque<RuntimeCommandFlags, { readonly brand: unique symbol }>()(
+  S.Struct({
+    path: S.String,
+    flags: S.Array(S.String),
+  }).annotate({ identifier: "RuntimeCommandFlags" })
+) {}
 
 const RuntimeCommandFlagsJson = RuntimeCommandFlags.pipe(S.Array, S.fromJsonString);
 const SHARED_FLAGS_PATH = "packages/tooling/tool/cli/src/internal/cli/Flags.ts";
@@ -669,7 +719,8 @@ describe("knowledge static option surface", () => {
             ")",
             'const opaque = Command.make("opaque", { either: Flag.String("a").pipe(Flag.orElse(() => Flag.String("b"))) })',
             'const bare = Command.make("bare")',
-            'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands([derived, opaque, bare]))',
+            'const invalidAlias = Command.make("invalidAlias", { file: Argument.String("file").pipe(Flag.withAlias("v")) })',
+            'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands([derived, opaque, bare, invalidAlias]))',
             ""
           )
         );
@@ -691,6 +742,12 @@ describe("knowledge static option surface", () => {
           ]
         );
         assert.isNull(options("opaque"));
+        assert.isNull(options("invalidAlias"));
+        assert.deepStrictEqual(KnowledgeCommandSurface.resolveStaticCommand(tree, ["invalidAlias"]), [
+          "resolved",
+          ["invalidAlias"],
+        ]);
+        assert.strictEqual(KnowledgeCommandSurface.pruneStaticCommand(tree, []), tree);
         assert.deepStrictEqual(options("bare"), []);
       })
     );
@@ -754,15 +811,10 @@ describe("knowledge static option surface", () => {
 describe("knowledge doctor on this checkout", () => {
   it.layer(testLayer, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "reports HEAD deterministically, round-trips its schema, and has no vacuous live witness",
+      "reads HEAD and has no vacuous live witness",
       Effect.fnUntraced(function* () {
         const tree: KnowledgeDoctorTree = yield* makeKnowledgeDoctorTree("HEAD");
-        const first = yield* encodeKnowledgeDoctorReportJson(yield* scanKnowledgeDoctorTree(tree));
-        const second = yield* encodeKnowledgeDoctorReportJson(yield* scanKnowledgeDoctorTree(tree));
-        assert.strictEqual(first, second);
-        const report = yield* decodeKnowledgeDoctorReportJson(first);
-        assert.strictEqual(report.mode, "report");
-        assert.isAbove(report.spanCounts.verified, 0);
+        assert.isAbove(A.length(tree.trackedEntries), 0);
         const sample = yield* Effect.forEach(
           A.take(
             A.filter(tree.trackedEntries, (entry) => entry.path === "AGENTS.md"),
@@ -784,7 +836,76 @@ describe("knowledge doctor on this checkout", () => {
           []
         );
       }),
-      { timeout: 180_000 }
+      { timeout: 90_000 }
     );
   });
+});
+
+describe("knowledge doctor command boundary", () => {
+  it.layer(testLayer, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "refuses the unavailable gating form and emits human and JSON reports without gating findings",
+      Effect.fnUntraced(
+        function* () {
+          yield* temporaryWorkingDirectory;
+          const fs = yield* FileSystem.FileSystem;
+          const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+          const rootModule = "packages/tooling/tool/cli/src/commands/Root.ts";
+          yield* fs.makeDirectory("packages/tooling/tool/cli/src/commands", { recursive: true });
+          yield* fs.writeFileString(
+            rootModule,
+            doc(
+              'import { Command, Flag } from "effect/cli"',
+              'const doctor = Command.make("doctor", { report: Flag.Boolean("report"), tree: Flag.String("tree"), json: Flag.Boolean("json") })',
+              'const knowledge = Command.make("knowledge").pipe(Command.withSubcommands([doctor]))',
+              'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands([knowledge]))'
+            )
+          );
+          yield* fs.writeFileString(
+            "AGENTS.md",
+            `Read \`${rootModule}\` or run \`bun run beep knowledge doctor --report\`. Missing: \`goals/missing.md\`.\n`
+          );
+          yield* fs.makeDirectory("goals/demo/reviews", { recursive: true });
+          yield* fs.writeFileString("goals/demo/reviews/plain.md", "Old `goals/archived.md` reference.\n");
+          for (const args of [
+            ["init", "--initial-branch=main"],
+            ["add", "."],
+            ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-m", "fixture"],
+          ]) {
+            const code = yield* spawner.exitCode(ChildProcess.make("git", args, { extendEnv: true }));
+            assert.strictEqual(code, 0);
+          }
+          const run = Command.runWith(knowledgeDoctorCommand, { version: "0.0.0" });
+          const refused = yield* Effect.exit(run([]));
+          assert.isTrue(Exit.isFailure(refused));
+          yield* run(["--report", "--tree", "HEAD"]);
+          const human = yield* TestConsole.logLines.pipe(Effect.flatMap(decodeConsoleLines));
+          assert.isTrue(A.some(human, (line) => Str.includes("knowledge doctor --report @ HEAD")(line)));
+          yield* run(["--report", "--tree", "HEAD", "--json"]);
+          const lines = yield* TestConsole.logLines.pipe(Effect.flatMap(decodeConsoleLines));
+          const report = yield* A.last(lines).pipe(O.getOrThrow, decodeKnowledgeDoctorReportJson);
+          assert.strictEqual(report.mode, "report");
+          assert.isAbove(report.spanCounts.verified, 0);
+          assert.isTrue(A.some(report.findings, (row) => row.finding.severity === "blocking"));
+          assert.isTrue(A.some(report.findings, (row) => row.finding.severity === "advisory"));
+        },
+        Effect.provideServiceEffect(Console.Console, TestConsole.make)
+      )
+    );
+  });
+});
+
+describe("knowledge doctor branch-name spans", () => {
+  it.effect("reads a span the prose introduces as a branch as a ref, not a path", () =>
+    Effect.sync(() => {
+      const spans = spansOf(
+        "goals/demo/ops/RUNBOOK.md",
+        doc("Work on branch `goals/demo-lane`, then read `goals/INDEX.md`.", "Branches `docs/old` are gone.")
+      );
+      assert.deepStrictEqual(
+        A.map(spans, (span) => span.raw),
+        ["goals/INDEX.md"]
+      );
+    })
+  );
 });

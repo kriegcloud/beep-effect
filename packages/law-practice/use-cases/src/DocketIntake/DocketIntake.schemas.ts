@@ -51,14 +51,13 @@ const stringList = (description: string) =>
  * @category models
  * @since 0.0.0
  */
-export class DocketAttachmentRef extends S.Class<DocketAttachmentRef>($I`DocketAttachmentRef`)(
-  {
+export class DocketAttachmentRef extends S.Opaque<DocketAttachmentRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachmentId: S.NonEmptyString.annotateKey({ description: "Provider id of the attachment." }),
     contentType: opt(S.String, "MIME type reported by the mailbox."),
     name: opt(S.String, "File name reported by the mailbox."),
     sizeBytes: opt(S.Natural, "Size in bytes reported by the mailbox."),
-  },
-  $I.annote("DocketAttachmentRef", { description: "Metadata reference to one message attachment." })
+  }).pipe($I.annoteSchema("DocketAttachmentRef", { description: "Metadata reference to one message attachment." }))
 ) {}
 
 /**
@@ -126,12 +125,13 @@ const docketMessageSourceFolderDefault: DocketSourceFolder = "mailbox";
  * @category models
  * @since 0.0.0
  */
-export class DocketMessage extends S.Class<DocketMessage>($I`DocketMessage`)(
-  {
+export class DocketMessage extends S.Opaque<DocketMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachments: S.Array(DocketAttachmentRef)
       .pipe(S.withConstructorDefault(Effect.succeed([])), S.withDecodingDefaultTypeKey(Effect.succeed([])))
       .annotateKey({ description: "Attachment references, without bytes." }),
     bodyText: S.String.annotateKey({ description: "Plain-text body (never logged)." }),
+    conversationId: opt(S.NonEmptyString, "Provider thread id; dated entries share one identity per thread and date."),
     internetMessageId: opt(S.NonEmptyString, "RFC 5322 message id; stable across folders."),
     messageId: S.NonEmptyString.annotateKey({ description: "Provider id of the message." }),
     receivedAt: S.NonEmptyString.annotateKey({ description: "UTC receipt timestamp in ISO-8601 form." }),
@@ -145,8 +145,7 @@ export class DocketMessage extends S.Class<DocketMessage>($I`DocketMessage`)(
     ).annotateKey({ description: "Where in the mailbox the message was found; `mailbox` unless stated." }),
     subject: opt(S.String, "Subject line (never logged)."),
     webLink: opt(S.String, "Link that opens the message in Outlook."),
-  },
-  $I.annote("DocketMessage", { description: "A mailbox message as the docket intake pipeline sees it." })
+  }).pipe($I.annoteSchema("DocketMessage", { description: "A mailbox message as the docket intake pipeline sees it." }))
 ) {}
 
 /**
@@ -164,14 +163,13 @@ export class DocketMessage extends S.Class<DocketMessage>($I`DocketMessage`)(
  * @category models
  * @since 0.0.0
  */
-export class DocketSourceDocument extends S.Class<DocketSourceDocument>($I`DocketSourceDocument`)(
-  {
+export class DocketSourceDocument extends S.Opaque<DocketSourceDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytes: S.Uint8Array.annotateKey({ description: "Document bytes (never logged)." }),
     contentType: S.String.annotateKey({ description: "MIME type of the document." }),
     name: opt(S.String, "File name (never logged)."),
     text: opt(S.String, "Text of the document, when the adapter can supply it (never logged)."),
-  },
-  $I.annote("DocketSourceDocument", { description: "A source document attached to a message." })
+  }).pipe($I.annoteSchema("DocketSourceDocument", { description: "A source document attached to a message." }))
 ) {}
 
 /**
@@ -188,12 +186,10 @@ export class DocketSourceDocument extends S.Class<DocketSourceDocument>($I`Docke
  * @category models
  * @since 0.0.0
  */
-export class ParalegalNotDocketItem extends S.TaggedClass<ParalegalNotDocketItem>($I`ParalegalNotDocketItem`)(
-  "ParalegalNotDocketItem",
-  {
+export class ParalegalNotDocketItem extends S.Opaque<ParalegalNotDocketItem, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ParalegalNotDocketItem", {
     rationale: S.String.annotateKey({ description: "One sentence on why nothing needs docketing." }),
-  },
-  $I.annote("ParalegalNotDocketItem", { description: "Agent 1 found nothing to docket." })
+  }).pipe($I.annoteSchema("ParalegalNotDocketItem", { description: "Agent 1 found nothing to docket." }))
 ) {}
 
 /**
@@ -219,9 +215,8 @@ export class ParalegalNotDocketItem extends S.TaggedClass<ParalegalNotDocketItem
  * @category models
  * @since 0.0.0
  */
-export class ParalegalDocketEntry extends S.TaggedClass<ParalegalDocketEntry>($I`ParalegalDocketEntry`)(
-  "ParalegalDocketEntry",
-  {
+export class ParalegalDocketEntry extends S.Opaque<ParalegalDocketEntry, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ParalegalDocketEntry", {
     citedText: opt(S.String, "Exact source text the dates and the period were copied from (never logged)."),
     mailDate: opt(LocalDateFromString, "Trigger (mailing or notification) date the message states."),
     matterReferences: stringList("Docket, application, patent or matter numbers the message mentions, verbatim."),
@@ -229,8 +224,7 @@ export class ParalegalDocketEntry extends S.TaggedClass<ParalegalDocketEntry>($I
     responsePeriod: opt(DocketResponsePeriod, "Response period the message states."),
     statedDueDate: opt(LocalDateFromString, "Due date the message states outright."),
     title: S.NonEmptyString.annotateKey({ description: "Short calendar title for the item." }),
-  },
-  $I.annote("ParalegalDocketEntry", { description: "Agent 1 entered the message as a docket item." })
+  }).pipe($I.annoteSchema("ParalegalDocketEntry", { description: "Agent 1 entered the message as a docket item." }))
 ) {}
 
 /**
@@ -296,8 +290,8 @@ export type ParalegalEntry = typeof ParalegalEntry.Type;
  * @category models
  * @since 0.0.0
  */
-export class SecretaryReview extends S.Class<SecretaryReview>($I`SecretaryReview`)(
-  {
+export class SecretaryReview extends S.Opaque<SecretaryReview, { readonly brand: unique symbol }>()(
+  S.Struct({
     citedText: opt(S.String, "Exact source text the reviewer read its dates and period from (never logged)."),
     isDocketItem: S.Boolean.annotateKey({ description: "Whether the reviewer finds a deadline or required action." }),
     mailDate: opt(LocalDateFromString, "Trigger date the reviewer read for itself."),
@@ -309,8 +303,7 @@ export class SecretaryReview extends S.Class<SecretaryReview>($I`SecretaryReview
     ).annotateKey({ description: "Whether the date and period came from an attached document." }),
     responsePeriod: opt(DocketResponsePeriod, "Response period the reviewer read for itself."),
     statedDueDate: opt(LocalDateFromString, "Due date the source states outright, read by the reviewer for itself."),
-  },
-  $I.annote("SecretaryReview", { description: "Agent 2 review of one entry." })
+  }).pipe($I.annoteSchema("SecretaryReview", { description: "Agent 2 review of one entry." }))
 ) {}
 
 /**
@@ -334,15 +327,14 @@ export class SecretaryReview extends S.Class<SecretaryReview>($I`SecretaryReview
  * @category models
  * @since 0.0.0
  */
-export class ParalegalRevision extends S.Class<ParalegalRevision>($I`ParalegalRevision`)(
-  {
+export class ParalegalRevision extends S.Opaque<ParalegalRevision, { readonly brand: unique symbol }>()(
+  S.Struct({
     entry: ParalegalEntry.annotateKey({ description: "The entry after the revision." }),
     responses: S.Array(ExtractorFieldResponse)
       .pipe(S.withConstructorDefault(Effect.succeed([])), S.withDecodingDefaultTypeKey(Effect.succeed([])))
       .annotateKey({ description: "What the extractor did with each disputed field." }),
     selfReportedConfidence: opt(UnitInterval, "The model's own confidence; recorded, never scored."),
-  },
-  $I.annote("ParalegalRevision", { description: "Agent 1 answer to a set of disputed fields." })
+  }).pipe($I.annoteSchema("ParalegalRevision", { description: "Agent 1 answer to a set of disputed fields." }))
 ) {}
 
 /**
@@ -366,8 +358,8 @@ export class ParalegalRevision extends S.Class<ParalegalRevision>($I`ParalegalRe
  * @category models
  * @since 0.0.0
  */
-export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
-  {
+export class ReviewRound extends S.Opaque<ReviewRound, { readonly brand: unique symbol }>()(
+  S.Struct({
     agreement: S.Array(FieldAgreement).annotateKey({ description: "Agreement per compared field." }),
     checks: S.Array(DeterministicCheck).annotateKey({ description: "Results of the deterministic checks." }),
     entry: ParalegalEntry.annotateKey({ description: "The extractor's entry for this round." }),
@@ -379,8 +371,7 @@ export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
     index: S.Int.check(S.isGreaterThan(0)).annotateKey({ description: "1-based number of the round." }),
     reading: SecretaryReview.annotateKey({ description: "The critic's own reading for this round." }),
     score: UnitInterval.annotateKey({ description: "Confidence score of the round." }),
-  },
-  $I.annote("ReviewRound", { description: "One completed round of the docket review loop." })
+  }).pipe($I.annoteSchema("ReviewRound", { description: "One completed round of the docket review loop." }))
 ) {}
 
 /**
@@ -397,11 +388,12 @@ export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
  * @category models
  * @since 0.0.0
  */
-export class DocketReviewProgress extends S.Class<DocketReviewProgress>($I`DocketReviewProgress`)(
-  {
+export class DocketReviewProgress extends S.Opaque<DocketReviewProgress, { readonly brand: unique symbol }>()(
+  S.Struct({
     rounds: S.Array(ReviewRound).annotateKey({ description: "Completed rounds, oldest first." }),
-  },
-  $I.annote("DocketReviewProgress", { description: "The rounds of a docket review that has not settled yet." })
+  }).pipe(
+    $I.annoteSchema("DocketReviewProgress", { description: "The rounds of a docket review that has not settled yet." })
+  )
 ) {}
 
 /**
@@ -418,9 +410,8 @@ export class DocketReviewProgress extends S.Class<DocketReviewProgress>($I`Docke
  * @category models
  * @since 0.0.0
  */
-export class MatterUnique extends S.TaggedClass<MatterUnique>($I`MatterUnique`)(
-  "MatterUnique",
-  {
+export class MatterUnique extends S.Opaque<MatterUnique, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("MatterUnique", {
     applications: stringList("Application numbers of the matter."),
     client: opt(S.String, "Client number, when the matter is attributed."),
     clientName: opt(S.String, "Client name from the attorney's docket register, when it gives one."),
@@ -431,8 +422,7 @@ export class MatterUnique extends S.TaggedClass<MatterUnique>($I`MatterUnique`)(
     verified: S.Boolean.annotateKey({
       description: "False when the match is unattributed or its family number is recycled and unverified.",
     }),
-  },
-  $I.annote("MatterUnique", { description: "A reference resolved to exactly one matter." })
+  }).pipe($I.annoteSchema("MatterUnique", { description: "A reference resolved to exactly one matter." }))
 ) {}
 
 /**
@@ -449,12 +439,10 @@ export class MatterUnique extends S.TaggedClass<MatterUnique>($I`MatterUnique`)(
  * @category models
  * @since 0.0.0
  */
-export class MatterAmbiguous extends S.TaggedClass<MatterAmbiguous>($I`MatterAmbiguous`)(
-  "MatterAmbiguous",
-  {
+export class MatterAmbiguous extends S.Opaque<MatterAmbiguous, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("MatterAmbiguous", {
     familyKeys: stringList("Family keys of the candidate matters."),
-  },
-  $I.annote("MatterAmbiguous", { description: "A reference resolved to several matters." })
+  }).pipe($I.annoteSchema("MatterAmbiguous", { description: "A reference resolved to several matters." }))
 ) {}
 
 /**
@@ -480,14 +468,14 @@ export class MatterAmbiguous extends S.TaggedClass<MatterAmbiguous>($I`MatterAmb
  * @category models
  * @since 0.0.0
  */
-export class MatterSuggested extends S.TaggedClass<MatterSuggested>($I`MatterSuggested`)(
-  "MatterSuggested",
-  {
+export class MatterSuggested extends S.Opaque<MatterSuggested, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("MatterSuggested", {
     familyKeys: stringList("Family keys of the matters whose documents mention a reference."),
-  },
-  $I.annote("MatterSuggested", {
-    description: "No matter owns the references; matters whose documents mention one are suggested.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterSuggested", {
+      description: "No matter owns the references; matters whose documents mention one are suggested.",
+    })
+  )
 ) {}
 
 /**
@@ -505,10 +493,8 @@ export class MatterSuggested extends S.TaggedClass<MatterSuggested>($I`MatterSug
  * @category models
  * @since 0.0.0
  */
-export class MatterNotFound extends S.TaggedClass<MatterNotFound>($I`MatterNotFound`)(
-  "MatterNotFound",
-  {},
-  $I.annote("MatterNotFound", { description: "No matter was found." })
+export class MatterNotFound extends S.Opaque<MatterNotFound, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("MatterNotFound", {}).pipe($I.annoteSchema("MatterNotFound", { description: "No matter was found." }))
 ) {}
 
 /**
@@ -654,8 +640,8 @@ export type DocketEntryKind = typeof DocketEntryKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class DocketCalendarEntry extends S.Class<DocketCalendarEntry>($I`DocketCalendarEntry`)(
-  {
+export class DocketCalendarEntry extends S.Opaque<DocketCalendarEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     bodyText: S.String.annotateKey({ description: "Plain-text body of the entry (never logged)." }),
     category: DocketCategory.annotateKey({ description: "The one docket category the entry carries." }),
     date: LocalDateFromString.annotateKey({ description: "The day the all-day entry falls on." }),
@@ -663,8 +649,9 @@ export class DocketCalendarEntry extends S.Class<DocketCalendarEntry>($I`DocketC
     kind: DocketEntryKind.annotateKey({ description: "Kind of entry." }),
     subject: S.NonEmptyString.annotateKey({ description: "Subject of the entry (never logged)." }),
     tentative: S.Boolean.annotateKey({ description: "Shown as tentative when true, as free otherwise." }),
-  },
-  $I.annote("DocketCalendarEntry", { description: "One all-day calendar entry the pipeline wants to exist." })
+  }).pipe(
+    $I.annoteSchema("DocketCalendarEntry", { description: "One all-day calendar entry the pipeline wants to exist." })
+  )
 ) {}
 
 /**
@@ -681,12 +668,11 @@ export class DocketCalendarEntry extends S.Class<DocketCalendarEntry>($I`DocketC
  * @category models
  * @since 0.0.0
  */
-export class DocketWrittenEntry extends S.Class<DocketWrittenEntry>($I`DocketWrittenEntry`)(
-  {
+export class DocketWrittenEntry extends S.Opaque<DocketWrittenEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventId: S.NonEmptyString.annotateKey({ description: "Provider id of the calendar event." }),
     webLink: opt(S.String, "Link that opens the event in Outlook."),
-  },
-  $I.annote("DocketWrittenEntry", { description: "A calendar entry that exists in the mailbox." })
+  }).pipe($I.annoteSchema("DocketWrittenEntry", { description: "A calendar entry that exists in the mailbox." }))
 ) {}
 
 /**
@@ -710,6 +696,7 @@ export class DocketWrittenEntry extends S.Class<DocketWrittenEntry>($I`DocketWri
  */
 export const DocketNeedsReviewReason = LiteralKit([
   "no-usable-date",
+  "due-date-past",
   "agents-disagree",
   "processing-failed",
   "flagged-low-confidence",
@@ -837,14 +824,15 @@ export type TrackedDateType = typeof TrackedDateType.Type;
  * @category models
  * @since 0.0.0
  */
-export class TrackedDate extends S.Class<TrackedDate>($I`TrackedDate`)(
-  {
+export class TrackedDate extends S.Opaque<TrackedDate, { readonly brand: unique symbol }>()(
+  S.Struct({
     date: LocalDateFromString.annotateKey({ description: "The tracked date." }),
     dateType: TrackedDateType.annotateKey({ description: "Kind of tracked date." }),
     docket: S.NonEmptyString.annotateKey({ description: "The docket the row belongs to, as asked for." }),
     name: S.String.annotateKey({ description: "What the date is for, as the sheet names it." }),
-  },
-  $I.annote("TrackedDate", { description: "One tracked date of one docket on the attorney's docket sheet." })
+  }).pipe(
+    $I.annoteSchema("TrackedDate", { description: "One tracked date of one docket on the attorney's docket sheet." })
+  )
 ) {}
 
 /**
@@ -861,12 +849,10 @@ export class TrackedDate extends S.Class<TrackedDate>($I`TrackedDate`)(
  * @category models
  * @since 0.0.0
  */
-export class NotDocketItem extends S.TaggedClass<NotDocketItem>($I`NotDocketItem`)(
-  "NotDocketItem",
-  {
+export class NotDocketItem extends S.Opaque<NotDocketItem, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("NotDocketItem", {
     messageId: S.NonEmptyString.annotateKey({ description: "Provider id of the message." }),
-  },
-  $I.annote("NotDocketItem", { description: "The message needs no docket entry." })
+  }).pipe($I.annoteSchema("NotDocketItem", { description: "The message needs no docket entry." }))
 ) {}
 
 /**
@@ -884,17 +870,15 @@ export class NotDocketItem extends S.TaggedClass<NotDocketItem>($I`NotDocketItem
  * @category models
  * @since 0.0.0
  */
-export class DocketEntered extends S.TaggedClass<DocketEntered>($I`DocketEntered`)(
-  "DocketEntered",
-  {
+export class DocketEntered extends S.Opaque<DocketEntered, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("DocketEntered", {
     dueDate: DocketDueDate.annotateKey({ description: "The date the entry is on, with both candidates." }),
     entry: DocketWrittenEntry.annotateKey({ description: "The due-date entry." }),
     flags: S.Array(DocketEntryFlag).annotateKey({ description: "Things the attorney should check." }),
     messageId: S.NonEmptyString.annotateKey({ description: "Provider id of the message." }),
     reminders: S.Array(DocketWrittenEntry).annotateKey({ description: "The reminder entries." }),
     review: opt(ReviewVerdict, "Verdict of the review that accepted the item."),
-  },
-  $I.annote("DocketEntered", { description: "A dated tentative docket entry exists." })
+  }).pipe($I.annoteSchema("DocketEntered", { description: "A dated tentative docket entry exists." }))
 ) {}
 
 /**
@@ -913,16 +897,14 @@ export class DocketEntered extends S.TaggedClass<DocketEntered>($I`DocketEntered
  * @category models
  * @since 0.0.0
  */
-export class DocketNeedsReview extends S.TaggedClass<DocketNeedsReview>($I`DocketNeedsReview`)(
-  "DocketNeedsReview",
-  {
+export class DocketNeedsReview extends S.Opaque<DocketNeedsReview, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("DocketNeedsReview", {
     entry: DocketWrittenEntry.annotateKey({ description: "The needs-review entry." }),
     flags: S.Array(DocketEntryFlag).annotateKey({ description: "Things the attorney should check." }),
     messageId: S.NonEmptyString.annotateKey({ description: "Provider id of the message." }),
     reason: DocketNeedsReviewReason.annotateKey({ description: "Why no dated entry was written." }),
     review: opt(ReviewVerdict, "Verdict of the review, when the item went through one."),
-  },
-  $I.annote("DocketNeedsReview", { description: "A docket item needs the attorney's review." })
+  }).pipe($I.annoteSchema("DocketNeedsReview", { description: "A docket item needs the attorney's review." }))
 ) {}
 
 /**
@@ -940,13 +922,11 @@ export class DocketNeedsReview extends S.TaggedClass<DocketNeedsReview>($I`Docke
  * @category models
  * @since 0.0.0
  */
-export class IntakeFailed extends S.TaggedClass<IntakeFailed>($I`IntakeFailed`)(
-  "IntakeFailed",
-  {
+export class IntakeFailed extends S.Opaque<IntakeFailed, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("IntakeFailed", {
     messageId: S.NonEmptyString.annotateKey({ description: "Provider id of the message." }),
     stage: DocketIntakeStage.annotateKey({ description: "Stage that failed." }),
-  },
-  $I.annote("IntakeFailed", { description: "A pipeline step failed for the message." })
+  }).pipe($I.annoteSchema("IntakeFailed", { description: "A pipeline step failed for the message." }))
 ) {}
 
 /**
@@ -1015,15 +995,14 @@ export type DocketIntakeOutcome = typeof DocketIntakeOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class DocketLedgerRecord extends S.Class<DocketLedgerRecord>($I`DocketLedgerRecord`)(
-  {
+export class DocketLedgerRecord extends S.Opaque<DocketLedgerRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     attempts: S.Natural.annotateKey({ description: "How many times the message has been processed." }),
     outcome: DocketIntakeOutcome.annotateKey({ description: "Latest outcome." }),
     processedOn: LocalDateFromString.annotateKey({ description: "Day of the latest attempt." }),
     receivedAt: S.NonEmptyString.annotateKey({ description: "UTC receipt timestamp of the message." }),
     review: opt(DocketReviewProgress, "Completed rounds of a review that has not settled yet."),
-  },
-  $I.annote("DocketLedgerRecord", { description: "Ledger record of one processed message." })
+  }).pipe($I.annoteSchema("DocketLedgerRecord", { description: "Ledger record of one processed message." }))
 ) {}
 
 /**
@@ -1041,13 +1020,12 @@ export class DocketLedgerRecord extends S.Class<DocketLedgerRecord>($I`DocketLed
  * @category models
  * @since 0.0.0
  */
-export class DocketIntakeState extends S.Class<DocketIntakeState>($I`DocketIntakeState`)(
-  {
+export class DocketIntakeState extends S.Opaque<DocketIntakeState, { readonly brand: unique symbol }>()(
+  S.Struct({
     cursor: opt(S.NonEmptyString, "UTC receipt timestamp up to which every message is settled."),
     digestedThrough: opt(LocalDateFromString, "Last day a digest was written for."),
     ledger: S.Record(S.String, DocketLedgerRecord)
       .pipe(S.withConstructorDefault(Effect.succeed({})), S.withDecodingDefaultTypeKey(Effect.succeed({})))
       .annotateKey({ description: "Ledger records keyed by message id." }),
-  },
-  $I.annote("DocketIntakeState", { description: "Durable state of the docket intake service." })
+  }).pipe($I.annoteSchema("DocketIntakeState", { description: "Durable state of the docket intake service." }))
 ) {}

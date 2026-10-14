@@ -140,7 +140,7 @@ describe("Document Monoids", () => {
       wordCount: Arbitrary.schema(S.Int.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1000))),
       sentenceCount: Arbitrary.schema(S.Int.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(100))),
       charCount: Arbitrary.schema(S.Int.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(10000))),
-    });
+    }).pipe(Arbitrary.map((stats) => NLP.DocumentStatistics.make(stats)));
     const statsEquals = S.toEquivalence(NLP.DocumentStatistics);
     testMonoidLaws("DocumentStats", NLP.DocumentStats, statsArbitrary, statsEquals);
 

@@ -29,7 +29,9 @@ const $I = $SharedDomainId.create("entity/EntityRef.errors");
  * @category errors
  * @since 0.0.0
  */
-export class EntityRefInvariantError extends S.TaggedError<EntityRefInvariantError>($I`EntityRefInvariantError`)(
+export class EntityRefInvariantError extends S.TaggedError<EntityRefInvariantError, { readonly brand: unique symbol }>(
+  $I`EntityRefInvariantError`
+)(
   "EntityRefInvariantError",
   {
     actualEntityType: S.String,

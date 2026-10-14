@@ -28,12 +28,13 @@ const $I = $BrandId.create("Brand.assets");
  * @category models
  * @since 0.0.0
  */
-export class RenderedAsset extends S.Class<RenderedAsset>($I`RenderedAsset`)(
-  {
+export class RenderedAsset extends S.Opaque<RenderedAsset, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString.annotateKey({ description: "Path relative to the package root." }),
     content: S.String.annotateKey({ description: "Full file text." }),
-  },
-  $I.annote("RenderedAsset", { description: "A generated file: package-relative path and text content." })
+  }).pipe(
+    $I.annoteSchema("RenderedAsset", { description: "A generated file: package-relative path and text content." })
+  )
 ) {}
 
 const accentOnDark = (identity: BrandIdentity): MarkPaint =>

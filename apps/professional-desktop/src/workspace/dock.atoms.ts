@@ -413,7 +413,7 @@ const DockSnapshotStoreLocalStorage = Layer.succeed(
       try: () => O.fromNullishOr(globalThis.localStorage.getItem(DOCK_SNAPSHOT_KEY)),
       catch: () => storageFailure("load"),
     }),
-    save: Effect.fn("DockSnapshotStore.save")((snapshot) =>
+    save: Effect.fn("LocalStorageDockSnapshotStore.save")((snapshot) =>
       Effect.try({
         try: () => globalThis.localStorage.setItem(DOCK_SNAPSHOT_KEY, snapshot),
         catch: () => storageFailure("save"),
@@ -431,7 +431,7 @@ const restoreOperation = (): DockAtomOperation =>
     }),
   });
 
-const saveOperation = (): DockAtomOperation => SaveDockSnapshot.make();
+const saveOperation = (): DockAtomOperation => SaveDockSnapshot.make({});
 
 /**
  * Builds the desktop dock graph: validated default workspace, live engine,

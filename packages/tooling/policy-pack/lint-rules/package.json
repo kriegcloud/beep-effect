@@ -36,14 +36,14 @@
     "@beep/utils": "workspace:^",
     "@biomejs/biome": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@microsoft/tsdoc": "catalog:",
+    "@microsoft/tsdoc-config": "catalog:",
     "@oxlint/plugins": "catalog:",
     "@types/node": "catalog:",
-    "effect": "catalog:",
-    "oxlint": "catalog:",
-    "comment-parser": "catalog:",
     "are-docs-informative": "catalog:",
-    "@microsoft/tsdoc": "catalog:",
-    "@microsoft/tsdoc-config": "catalog:"
+    "comment-parser": "catalog:",
+    "effect": "catalog:",
+    "oxlint": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",

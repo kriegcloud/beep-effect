@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $LintRulesId.create("rules/tsdoc-syntax");
-class TSDocConfigurationError extends S.TaggedError<TSDocConfigurationError>()(
+class TSDocConfigurationError extends S.TaggedError<TSDocConfigurationError, { readonly brand: unique symbol }>()(
   "TSDocConfigurationError",
   {
     message: S.NonEmptyString,

@@ -13,7 +13,7 @@ import type { PageOptions } from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/PullRequestComment");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -39,7 +39,7 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
  * @category models
  * @since 0.0.0
  */
-export class CommentMarker extends S.Class<CommentMarker>($I`CommentMarker`)({
+export class CommentMarker extends S.Class<CommentMarker, { readonly brand: unique symbol }>($I`CommentMarker`)({
 	/**
 	 * Whose comments these are, e.g. your action's name.
 	 *
@@ -108,7 +108,7 @@ export class CommentMarker extends S.Class<CommentMarker>($I`CommentMarker`)({
  * @category models
  * @since 0.0.0
  */
-export class CommentRecord extends S.Class<CommentRecord>($I`CommentRecord`)({
+export class CommentRecord extends S.Class<CommentRecord, { readonly brand: unique symbol }>($I`CommentRecord`)({
 	id: S.Int.annotateKey({ description: "GitHub-assigned comment identifier used to update or delete the comment" }),
 	body: S.String.annotateKey({ description: "Comment text returned by GitHub, including any hidden marker, or empty when GitHub supplies none" }),
 	url: S.String.annotateKey({ description: "Web URL for viewing the comment on GitHub" }),

@@ -120,15 +120,16 @@ export type RgbChannel = typeof RgbChannel.Type;
  * @category validation
  * @since 0.0.0
  */
-export class RgbInput extends S.Class<RgbInput>($I`RgbInput`)(
-  {
+export class RgbInput extends S.Opaque<RgbInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     r: RgbInputChannel.annotateKey({ description: "Red input channel." }),
     g: RgbInputChannel.annotateKey({ description: "Green input channel." }),
     b: RgbInputChannel.annotateKey({ description: "Blue input channel." }),
-  },
-  $I.annote("RgbInput", {
-    description: "An RGB color object with finite input channels.",
-  })
+  }).pipe(
+    $I.annoteSchema("RgbInput", {
+      description: "An RGB color object with finite input channels.",
+    })
+  )
 ) {}
 
 /**
@@ -147,13 +148,14 @@ export class RgbInput extends S.Class<RgbInput>($I`RgbInput`)(
  * @category validation
  * @since 0.0.0
  */
-export class Rgb extends S.Class<Rgb>($I`Rgb`)(
-  {
+export class Rgb extends S.Opaque<Rgb, { readonly brand: unique symbol }>()(
+  S.Struct({
     r: RgbChannel.annotateKey({ description: "Normalized red channel." }),
     g: RgbChannel.annotateKey({ description: "Normalized green channel." }),
     b: RgbChannel.annotateKey({ description: "Normalized blue channel." }),
-  },
-  $I.annote("Rgb", {
-    description: "A normalized RGB color object.",
-  })
+  }).pipe(
+    $I.annoteSchema("Rgb", {
+      description: "A normalized RGB color object.",
+    })
+  )
 ) {}

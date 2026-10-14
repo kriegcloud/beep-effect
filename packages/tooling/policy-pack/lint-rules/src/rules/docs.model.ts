@@ -68,9 +68,8 @@ const DocsSeverity = LiteralKit(["off", "warn", "error"]).pipe(
  * @category configuration
  * @since 0.1.0
  */
-export class DocsRuleSet extends S.Class<DocsRuleSet>($I`DocsRuleSet`)(
-  {
+export class DocsRuleSet extends S.Opaque<DocsRuleSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     rules: S.Record(DocsRuleId, DocsSeverity),
-  },
-  $I.annote("DocsRuleSet", { description: "Validated severities for every documentation rule." })
+  }).pipe($I.annoteSchema("DocsRuleSet", { description: "Validated severities for every documentation rule." }))
 ) {}

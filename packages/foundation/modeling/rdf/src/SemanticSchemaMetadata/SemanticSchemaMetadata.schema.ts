@@ -208,8 +208,11 @@ export type SemanticRepresentationKind = typeof SemanticRepresentationKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class SemanticSchemaSpecification extends S.Class<SemanticSchemaSpecification>($I`SemanticSchemaSpecification`)(
-  {
+export class SemanticSchemaSpecification extends S.Opaque<
+  SemanticSchemaSpecification,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.NonEmptyString,
     version: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     section: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -224,11 +227,12 @@ export class SemanticSchemaSpecification extends S.Class<SemanticSchemaSpecifica
     contentSha256: S.OptionFromOptionalKey(Sha256.Sha256Hex).pipe(S.withConstructorDefault(Effect.succeedNone)),
     license: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     scope: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SemanticSchemaSpecification", {
-    description:
-      "Single specification reference with optional lossless provenance attached to public semantic-web schemas.",
-  })
+  }).pipe(
+    $I.annoteSchema("SemanticSchemaSpecification", {
+      description:
+        "Single specification reference with optional lossless provenance attached to public semantic-web schemas.",
+    })
+  )
 ) {}
 
 /**
@@ -250,14 +254,15 @@ export class SemanticSchemaSpecification extends S.Class<SemanticSchemaSpecifica
  * @category models
  * @since 0.0.0
  */
-export class SemanticRepresentation extends S.Class<SemanticRepresentation>($I`SemanticRepresentation`)(
-  {
+export class SemanticRepresentation extends S.Opaque<SemanticRepresentation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: SemanticRepresentationKind,
     note: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SemanticRepresentation", {
-    description: "Single representation note attached to semantic-web schemas.",
-  })
+  }).pipe(
+    $I.annoteSchema("SemanticRepresentation", {
+      description: "Single representation note attached to semantic-web schemas.",
+    })
+  )
 ) {}
 
 /**
@@ -283,8 +288,8 @@ export class SemanticRepresentation extends S.Class<SemanticRepresentation>($I`S
  * @category models
  * @since 0.0.0
  */
-export class SemanticSchemaMetadata extends S.Class<SemanticSchemaMetadata>($I`SemanticSchemaMetadata`)(
-  {
+export class SemanticSchemaMetadata extends S.Opaque<SemanticSchemaMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: SemanticSchemaMetadataKind,
     canonicalName: S.NonEmptyString,
     overview: S.NonEmptyString,
@@ -323,10 +328,11 @@ export class SemanticSchemaMetadata extends S.Class<SemanticSchemaMetadata>($I`S
       S.withConstructorDefault(Effect.succeedNone)
     ),
     nonGoals: S.NonEmptyString.pipe(S.Array, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SemanticSchemaMetadata", {
-    description: "Typed metadata payload stored in the semanticSchemaMetadata annotation key.",
-  })
+  }).pipe(
+    $I.annoteSchema("SemanticSchemaMetadata", {
+      description: "Typed metadata payload stored in the semanticSchemaMetadata annotation key.",
+    })
+  )
 ) {
   static readonly decodeUnknownResult: (
     input: unknown,

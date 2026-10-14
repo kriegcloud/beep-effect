@@ -48,8 +48,8 @@ const $I = $LawPracticeDomainId.create("values/TreatyCitation/TreatyCitation.mod
  * @category models
  * @since 0.0.0
  */
-export class TreatyCitation extends S.Class<TreatyCitation>($I`TreatyCitation`)(
-  {
+export class TreatyCitation extends S.Opaque<TreatyCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("treaty"),
     series: S.String.pipe(
@@ -108,10 +108,11 @@ export class TreatyCitation extends S.Class<TreatyCitation>($I`TreatyCitation`)(
         description: "Publication year (reserved).",
       })
     ),
-  },
-  $I.annote("TreatyCitation", {
-    description: "Treaty-series citation (#309): T.I.A.S. No. 1502, 1155 U.N.T.S. 331.",
-  })
+  }).pipe(
+    $I.annoteSchema("TreatyCitation", {
+      description: "Treaty-series citation (#309): T.I.A.S. No. 1502, 1155 U.N.T.S. 331.",
+    })
+  )
 ) {}
 
 /**

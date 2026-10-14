@@ -142,7 +142,10 @@ const detectPair = Effect.fnUntraced(function* (
     validFrom: DateTime.toEpochMillis(validFrom),
     validTo: O.getOrNull(O.map(validTo, DateTime.toEpochMillis)),
   });
-  const candidateKey = contradictionCandidateKey(content.pair, content.matchBasis);
+  const candidateKey = contradictionCandidateKey(
+    ContradictionBeliefPair.make(content.pair),
+    ContradictionMatchBasis.make(content.matchBasis)
+  );
   const candidateDigest = yield* Effect.fromResult(contradictionCandidateDigest(content));
   return O.some(
     yield* S.decodeEffect(DetectedContradiction)({

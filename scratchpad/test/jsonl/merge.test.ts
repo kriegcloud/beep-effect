@@ -90,7 +90,7 @@ describe("shallowMerge", () => {
   });
 
   it("preserves the base's prototype for non-plain bases", () => {
-    class Payload extends S.Class<Payload>($I`Payload`)({ round: S.Finite }) {}
+    class Payload extends S.Class<Payload, { readonly brand: unique symbol }>($I`Payload`)({ round: S.Finite }) {}
     const base = Payload.make({ round: 1 });
     assert.isTrue(isRecordLike(base));
     if (!isRecordLike(base)) return assert.fail("class payload must be record-like");

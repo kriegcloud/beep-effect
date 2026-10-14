@@ -250,14 +250,15 @@ export type ArtifactLocatorKind = typeof ArtifactLocatorKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class ArtifactLocator extends S.Class<ArtifactLocator>($I`ArtifactLocator`)(
-  {
+export class ArtifactLocator extends S.Opaque<ArtifactLocator, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: ArtifactLocatorKind,
     value: PosixPath,
-  },
-  $I.annote("ArtifactLocator", {
-    description: "Runtime-neutral locator for a source artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArtifactLocator", {
+      description: "Runtime-neutral locator for a source artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -294,8 +295,8 @@ export class ArtifactLocator extends S.Class<ArtifactLocator>($I`ArtifactLocator
  * @category models
  * @since 0.0.0
  */
-export class SourceArtifact extends S.Class<SourceArtifact>($I`SourceArtifact`)(
-  {
+export class SourceArtifact extends S.Opaque<SourceArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytes: S.optionalKey(S.Uint8Array),
     digest: ContentDigest,
     extension: S.optionalKey(ArtifactExtension),
@@ -306,10 +307,11 @@ export class SourceArtifact extends S.Class<SourceArtifact>($I`SourceArtifact`)(
     relativePath: PosixPath,
     sizeBytes: S.Natural,
     text: S.optionalKey(S.String),
-  },
-  $I.annote("SourceArtifact", {
-    description: "Runtime-neutral source artifact metadata and optional in-memory bytes or text.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceArtifact", {
+      description: "Runtime-neutral source artifact metadata and optional in-memory bytes or text.",
+    })
+  )
 ) {}
 
 /**
@@ -340,15 +342,16 @@ export class SourceArtifact extends S.Class<SourceArtifact>($I`SourceArtifact`)(
  * @category models
  * @since 0.0.0
  */
-export class ArtifactReference extends S.Class<ArtifactReference>($I`ArtifactReference`)(
-  {
+export class ArtifactReference extends S.Opaque<ArtifactReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     digest: S.optionalKey(ContentDigest),
     id: ArtifactId,
     mediaType: S.optionalKey(MimeType),
     relativePath: PosixPath,
     sizeBytes: S.optionalKey(S.Natural),
-  },
-  $I.annote("ArtifactReference", {
-    description: "Reference to an artifact materialized by an operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArtifactReference", {
+      description: "Reference to an artifact materialized by an operation.",
+    })
+  )
 ) {}

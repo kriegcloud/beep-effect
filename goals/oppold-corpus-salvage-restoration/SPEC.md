@@ -1213,3 +1213,150 @@ family 8 adds a PDF parser recovery item requiring a separate scope/freeze.
 Reversal: revert documentation decisions while retaining every ledger,
 output, claim and immutable manifest. Full record:
 history/p2/2026-10-14-family-08-stop.md.
+
+### 2026-10-14: ordinal 9 continues under the existing freeze amendment
+
+The orchestrator's 08:35:38Z ruling authorizes ordinal 9 immediately after
+family 8's sealed failure. Decision: launch only the ninth membership member
+with the unchanged launcher and the committed 06:25Z fallback amendment.
+The restoration source at preflight head 62c3d311bde9be5097b53438064e25be15a40146
+has no diff from the amendment's source. No engine, launcher, membership,
+ceiling or immutable manifest changes. No behavior equivalence to the
+original manifest codeHead is claimed. PR #1696 is merged; its branch is
+retained for local launch evidence, with a separate record PR after sealing.
+
+Eight existing seals remain immutable: five accepted and three failures
+(5, 7 and 8). P2 remains in-progress. After ordinal 9 seals, write one bounded
+recovery amendment for those three failed engine occurrences, naming the
+next fallback engine in the recorded chain. Commit the amendment and obtain
+the orchestrator's explicit approved reply before recovery launch. An
+occurrence that still fails on the input-sensitive PDF second pass receives
+an unsupported disposition with retained evidence; no third attempt.
+Eighteen larger occurrences and estate/recycle/DOC gates remain open for P3.
+Reversal: revert this documentation decision while retaining every ledger,
+output, claim and immutable manifest. No sealed family is retried here.
+
+
+### 2026-10-14: ninth seal ends the first bounded wave
+
+Nine sealed: five accepted, failures 5/7/8/9. Ordinal 9 result one,
+one unapproved engine-failure, zero store/child passes or warnings.
+Input 456,877,056 bytes; retained output 1,177,728,174 bytes; family
+elapsed 7,222,485 ms. Timing supports attachment-repair elapsed-budget
+exhaustion; exact cause unresolved. All runtime policies, source metadata
+and frozen engine/launcher identities match. Accepted families reconcile
+19,438 children. P2 stays in-progress. See the terminal wave record.
+Decision: publish the ninth record separately; no sealed-family retry.
+The bounded recovery amendment covers only 5/7/8 and remains blocked: no
+recorded next extraction-engine chain was found, so the orchestrator must
+bind it and approve before launch. Family 9 needs a scope decision.
+Reversal: revert decisions while retaining all corpus artifacts/manifests.
+
+
+### 2026-10-14: approved recovery engine binding and bounded elapsed budget
+
+The 11:14Z orchestrator ruling supersedes the missing engine/scope decisions
+in the terminal-wave record: recovery covers failed ordinals 5/7/8/9 through
+the same libpff → byte-signature repair → Java/Tika chain. Exactly two changes:
+raise the separately frozen recovery attempt budget to 22,320,000 ms through
+the existing max-elapsed-millis option, and preserve message-free original
+cause classes/stable fields in terminal exception rows. Budget derivation:
+3 × family-9 observed 7,222,485 ms + 600,000 = 22,267,455 ms, rounded up to
+22,320,000 ms. Retain family 43,200,000 ms, ratio 4, output 2,147,483,648
+bytes and 100 GB floor. The larger attempt bound fits the family ceiling;
+there is no change to defaults or acceptance policy. Timing remains qualified,
+not proof of an original parser cause or guaranteed completion.
+
+The existing selector enforces one occurrence per tool family; the one
+bounded recovery batch therefore comprises four sequential fresh families,
+one attempt for each approved failed occurrence. New freeze records bind
+the engine PR's merged main commit and measured engine identities before
+launch. No identity with the first wave's codeHead is claimed, no sealed
+ledger is reopened, and partial first-wave repairs remain evidence only.
+A repeated second-pass failure gets an explicit unsupported occurrence
+recovery disposition backed by its new retained diagnostic evidence, never
+a third attempt. The underlying failure remains unapproved; unsupported is
+an external recovery disposition, not an acceptance override. No launch
+until the engine PR merges and new manifests are committed.
+
+The optional failureCause schema is additive and old rows still decode.
+It retains only fixed classes, numeric budgets, capture status and operation
+reasons; messages, paths, tool output, stacks and arbitrary details are
+excluded. Real engine failures, warnings and child/source/output/family
+checks retain their existing acceptance laws. See
+history/p2/2026-10-14-bounded-recovery-amendment.md for the launch contract.
+Reversal: revert the engine PR and packet decisions while retaining all
+ledgers, outputs, claims and freeze records. Release notes without changesets:
+@beep/repo-cli is private and ignored (#1566); additive optional evidence
+requires no major release and receives no changeset. P2 remains in-progress;
+eighteen larger occurrences and estate/recycle/DOC gates stay open for P3.
+
+
+### 2026-10-14: recovery freeze after the engine PR merged
+
+PR #1731 merged at 226087bfda2c5162679ea5262ffd1b62fe523434. Integrate
+main once, preserving the prior final-proof receipts through the handoff
+conflict, then use the fresh recovery-run branch. The execution-source
+snapshot is 08afe6715d2715713618b2d9f2ea64c8aba6b6b7; Corpus and libpff
+source match merged main byte-for-byte. Subsequent freeze/evidence commits
+change only this packet. No execution identity with the first wave is claimed.
+
+Commit four new manifests before any recovery family-run-start. They cover
+only failed ordinals 5/7/8/9, one occurrence per fresh family and one attempt
+each, using the original membership digest. Launcher digest:
+9c39a78e1b143f7b6d0df48bb680eee8e723db3c41b179ffd48c36308ff5c98d.
+The launcher checks frozen source equality, engine identities, membership
+and its own digest before invoking restore-mail. These are fail-closed
+preflight checks; the only execution-budget delta is the approved attempt
+ceiling 22,320,000 ms. Family 43,200,000 ms, ratio 4, output
+2,147,483,648 bytes and the 100,000,000,000-byte floor remain unchanged.
+The derivation and repeated-failure unsupported disposition remain those
+of the approved bounded-recovery amendment; real failures stay unapproved.
+
+Run roots, relative to corpus home, are
+staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-14-recovery-05,
+-07, -08 and -09, each with ledgers/mail/slice.jsonl, output/mail/slice
+and writer-claims. Only restore-mail creates them. The recovery launcher
+is ~/.cache/beep/corpus-restore/p2-recovery-2026-10-14.sh; private logs
+remain under logs/corpus-restore, relative to corpus home. Only counts and
+exit codes leave those logs. Fill each manifest policySha256 once from its
+family-run-start; every other freeze field stays immutable.
+
+Re-measured engines remain pffexport 20260917, bubblewrap 0.13.0,
+OpenJDK 27 (2026-09-15) at /usr/lib/jvm/java-27-openjdk/bin/java and
+Tika 3.3.1 jar digest
+0e8ee9795ac4244feab466f4a5a9c3b94675af392848243842cb6e1e69d27103.
+Both admitted sandbox smokes and the four focused restoration cases pass.
+Initial free space is 340,800,180,224 bytes. Launch sequentially, never a
+third attempt; the driver resumes the next occurrence after seal review.
+P2 remains in-progress, with eighteen larger occurrences and the
+estate/recycle/DOC gates open for P3. Reversal: revert packet decisions
+before launch; afterward retain every ledger, output, claim and manifest.
+
+
+### 2026-10-14: recovery ordinal 5 unsupported; continue approved remainder
+
+The recovery family sealed failure with TikaSecondPassFailure: exitCode 1,
+emptyOutput true, truncated false. Retain 354,621,761 bytes and the 30.1G
+memory peak; no memory-kill claim. Family elapsed 1,264,398 ms; no accepted
+children. Disposition unsupported under the 11:14Z ruling; engine-failure
+stays unapproved and ordinal 5 never gets a third attempt. Existing tool
+seal is unchanged. Fill its manifest policy digest once from run-start.
+Successor 19:40Z ruling authorizes sequential recovery ordinals 7/8/9 after
+main integration and renewed preflight. Reversal: revert packet decisions,
+retaining every ledger, output, claim and freeze record. See
+history/p2/2026-10-14-recovery-progress.md for aggregate evidence.
+
+
+### 2026-10-14: recovery continuation stops at frozen-source preflight
+
+The successor reboot ruling requires main integration before ordinal 7.
+That merge imports three JSDoc-only changes in Corpus.service.ts; the
+frozen launcher compares every Corpus/libpff source byte with its manifest
+codeHead and would exit 71. Libpff and the restoration implementation
+remain unchanged. Stop before invoking the launcher; do not rewrite the
+manifest or claim source identity. Publish ordinal 5's unsupported recovery
+evidence and this preflight conflict. The orchestrator must resolve the
+execution identity before ordinals 7/8/9. Reversal: a separately recorded
+freeze amendment or authorized execution route, retaining all evidence.
+No other code or policy change; P2 in-progress, P3 open items unchanged.

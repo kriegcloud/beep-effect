@@ -30,12 +30,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/OrganizationalTagValues"
  * @category models
  * @since 0.0.0
  */
-export class ModuleValue extends S.TaggedClass<ModuleValue>($I`ModuleValue`)(
-  "module",
-  { ...optionalType, ...optionalName },
-  $I.annote("ModuleValue", {
-    description: "Occurrence shape for @module — declares a module.",
-  })
+export class ModuleValue extends S.Opaque<ModuleValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("module", { ...optionalType, ...optionalName }).pipe(
+    $I.annoteSchema("ModuleValue", {
+      description: "Occurrence shape for @module — declares a module.",
+    })
+  )
 ) {}
 
 /**
@@ -57,12 +57,12 @@ export class ModuleValue extends S.TaggedClass<ModuleValue>($I`ModuleValue`)(
  * @category models
  * @since 0.0.0
  */
-export class NamespaceValue extends S.TaggedClass<NamespaceValue>($I`NamespaceValue`)(
-  "namespace",
-  { ...optionalType, ...optionalName },
-  $I.annote("NamespaceValue", {
-    description: "Occurrence shape for @namespace — declares a namespace.",
-  })
+export class NamespaceValue extends S.Opaque<NamespaceValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("namespace", { ...optionalType, ...optionalName }).pipe(
+    $I.annoteSchema("NamespaceValue", {
+      description: "Occurrence shape for @namespace — declares a namespace.",
+    })
+  )
 ) {}
 
 /**
@@ -81,12 +81,12 @@ export class NamespaceValue extends S.TaggedClass<NamespaceValue>($I`NamespaceVa
  * @category models
  * @since 0.0.0
  */
-export class MemberofValue extends S.TaggedClass<MemberofValue>($I`MemberofValue`)(
-  "memberof",
-  { ...nameField },
-  $I.annote("MemberofValue", {
-    description: "Occurrence shape for @memberof — specifies parent membership.",
-  })
+export class MemberofValue extends S.Opaque<MemberofValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("memberof", { ...nameField }).pipe(
+    $I.annoteSchema("MemberofValue", {
+      description: "Occurrence shape for @memberof — specifies parent membership.",
+    })
+  )
 ) {}
 
 /**
@@ -108,12 +108,12 @@ export class MemberofValue extends S.TaggedClass<MemberofValue>($I`MemberofValue
  * @category models
  * @since 0.0.0
  */
-export class MemberValue extends S.TaggedClass<MemberValue>($I`MemberValue`)(
-  "member",
-  { ...optionalType, ...optionalName },
-  $I.annote("MemberValue", {
-    description: "Occurrence shape for @member — documents a member property.",
-  })
+export class MemberValue extends S.Opaque<MemberValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("member", { ...optionalType, ...optionalName }).pipe(
+    $I.annoteSchema("MemberValue", {
+      description: "Occurrence shape for @member — documents a member property.",
+    })
+  )
 ) {}
 
 /**
@@ -136,12 +136,12 @@ export class MemberValue extends S.TaggedClass<MemberValue>($I`MemberValue`)(
  * @category models
  * @since 0.0.0
  */
-export class PropertyValue extends S.TaggedClass<PropertyValue>($I`PropertyValue`)(
-  "property",
-  { ...optionalType, ...nameField, ...optionalDesc },
-  $I.annote("PropertyValue", {
-    description: "Occurrence shape for @property — documents a property of an object.",
-  })
+export class PropertyValue extends S.Opaque<PropertyValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("property", { ...optionalType, ...nameField, ...optionalDesc }).pipe(
+    $I.annoteSchema("PropertyValue", {
+      description: "Occurrence shape for @property — documents a property of an object.",
+    })
+  )
 ) {}
 
 /**
@@ -160,12 +160,12 @@ export class PropertyValue extends S.TaggedClass<PropertyValue>($I`PropertyValue
  * @category models
  * @since 0.0.0
  */
-export class InterfaceValue extends S.TaggedClass<InterfaceValue>($I`InterfaceValue`)(
-  "interface",
-  { ...optionalName },
-  $I.annote("InterfaceValue", {
-    description: "Occurrence shape for @interface — marks a symbol as an interface.",
-  })
+export class InterfaceValue extends S.Opaque<InterfaceValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("interface", { ...optionalName }).pipe(
+    $I.annoteSchema("InterfaceValue", {
+      description: "Occurrence shape for @interface — marks a symbol as an interface.",
+    })
+  )
 ) {}
 
 /**
@@ -184,10 +184,10 @@ export class InterfaceValue extends S.TaggedClass<InterfaceValue>($I`InterfaceVa
  * @category models
  * @since 0.0.0
  */
-export class FunctionValue extends S.TaggedClass<FunctionValue>($I`FunctionValue`)(
-  "function",
-  { ...optionalName },
-  $I.annote("FunctionValue", {
-    description: "Occurrence shape for @function — marks a symbol as a function.",
-  })
+export class FunctionValue extends S.Opaque<FunctionValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("function", { ...optionalName }).pipe(
+    $I.annoteSchema("FunctionValue", {
+      description: "Occurrence shape for @function — marks a symbol as a function.",
+    })
+  )
 ) {}

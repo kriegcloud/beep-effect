@@ -217,7 +217,7 @@ export type ScalarChomp = typeof ScalarChomp.Type;
  * @category models
  * @since 0.0.0
  */
-export class YamlScalar extends S.TaggedClass<YamlScalar>($I`YamlScalar`)("YamlScalar", {
+export class YamlScalar extends S.TaggedClass<YamlScalar, { readonly brand: unique symbol }>($I`YamlScalar`)("YamlScalar", {
 	value: S.Unknown.annotateKey({ description: "Resolved scalar content used when reconstructing the document's plain JavaScript value" }),
 	tag: S.optionalKey(S.String).annotateKey({ description: "Explicit YAML tag attached to the scalar, such as `!!str` or `!!int`" }),
 	style: ScalarStyle.annotateKey({ description: "Scalar presentation in YAML: plain, single-quoted, double-quoted, literal block, or folded block" }),
@@ -355,7 +355,7 @@ export class YamlScalar extends S.TaggedClass<YamlScalar>($I`YamlScalar`)("YamlS
  * @category models
  * @since 0.0.0
  */
-export class YamlAlias extends S.TaggedClass<YamlAlias>($I`YamlAlias`)("YamlAlias", {
+export class YamlAlias extends S.TaggedClass<YamlAlias, { readonly brand: unique symbol }>($I`YamlAlias`)("YamlAlias", {
 	name: S.String.annotateKey({ description: "Identifier of the previously defined anchor referenced by this alias, without the leading `*`" }),
 	offset: S.Finite.annotateKey({ description: "Zero-based start of the alias's source span, measured in UTF-16 code units" }),
 	length: S.Finite.annotateKey({ description: "Extent of the alias's source span, measured in UTF-16 code units" }),
@@ -617,7 +617,7 @@ export type YamlNode = YamlScalar | YamlMap | YamlSeq | YamlAlias;
  * @category models
  * @since 0.0.0
  */
-export class YamlPair extends S.TaggedClass<YamlPair>($I`YamlPair`)("YamlPair", {
+export class YamlPair extends S.TaggedClass<YamlPair, { readonly brand: unique symbol }>($I`YamlPair`)("YamlPair", {
 	key: S.suspend((): typeof YamlNode => YamlNode).annotateKey({ description: "Node identifying the mapping entry, carrying any own-line comments above that entry" }),
 	value: S.NullOr(S.suspend((): typeof YamlNode => YamlNode)).annotateKey({ description: "Node containing the mapping entry's content, or `null` when no value follows the key" }),
 }, $I.annote("YamlPair", { description: "A YAML key-value pair AST node, representing one entry within a mapping. `value` is `null` when absent (e.g. `key:` with no value)." })) {}
@@ -650,7 +650,7 @@ export class YamlPair extends S.TaggedClass<YamlPair>($I`YamlPair`)("YamlPair", 
  * @category models
  * @since 0.0.0
  */
-export class YamlMap extends S.TaggedClass<YamlMap>($I`YamlMap`)("YamlMap", {
+export class YamlMap extends S.TaggedClass<YamlMap, { readonly brand: unique symbol }>($I`YamlMap`)("YamlMap", {
 	items: S.Array(S.suspend((): typeof YamlPair => YamlPair)).annotateKey({ description: "Key-value entries in their stored order within the YAML mapping" }),
 	tag: S.optionalKey(S.String).annotateKey({ description: "Explicit YAML tag attached to the mapping and retained when emitting it" }),
 	anchor: S.optionalKey(S.String).annotateKey({ description: "Anchor identifier used by aliases to reference this mapping, without the leading `&`" }),
@@ -793,7 +793,7 @@ export class YamlMap extends S.TaggedClass<YamlMap>($I`YamlMap`)("YamlMap", {
  * @category models
  * @since 0.0.0
  */
-export class YamlSeq extends S.TaggedClass<YamlSeq>($I`YamlSeq`)("YamlSeq", {
+export class YamlSeq extends S.TaggedClass<YamlSeq, { readonly brand: unique symbol }>($I`YamlSeq`)("YamlSeq", {
 	items: S.Array(S.suspend((): typeof YamlNode => YamlNode)).annotateKey({ description: "Child nodes in YAML sequence order, addressed by their zero-based positions" }),
 	tag: S.optionalKey(S.String).annotateKey({ description: "Explicit YAML tag attached to the sequence and retained when emitting it" }),
 	anchor: S.optionalKey(S.String).annotateKey({ description: "Anchor identifier used by aliases to reference this sequence, without the leading `&`" }),
@@ -1063,7 +1063,7 @@ function setOwnProperty(obj: Record<string, unknown>, key: string, value: unknow
  * @category errors
  * @since 0.0.0
  */
-export class AliasExpansionBudgetExceeded extends S.TaggedError<AliasExpansionBudgetExceeded>($I`AliasExpansionBudgetExceeded`)("AliasExpansionBudgetExceeded", {
+export class AliasExpansionBudgetExceeded extends S.TaggedError<AliasExpansionBudgetExceeded, { readonly brand: unique symbol }>($I`AliasExpansionBudgetExceeded`)("AliasExpansionBudgetExceeded", {
 	message: S.String.annotateKey({ description: "Alias expansion budget failure message, including the output-node limit." }),
 }, $I.annote("AliasExpansionBudgetExceeded", { description: "Value extraction exceeded its alias-expanded output-node budget." })) {
 	/**

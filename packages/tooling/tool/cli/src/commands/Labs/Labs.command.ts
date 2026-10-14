@@ -60,17 +60,18 @@ const $I = $RepoCliId.create("commands/Labs/Labs.command");
  * @category schemas
  * @since 0.0.0
  */
-export class LabsListRow extends S.Class<LabsListRow>($I`LabsListRow`)(
-  {
+export class LabsListRow extends S.Opaque<LabsListRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     directory: S.NonEmptyString,
     manifest: S.OptionFromOptionalKey(LabManifest),
     issue: S.OptionFromOptionalKey(S.NonEmptyString),
-  },
-  $I.annote("LabsListRow", {
-    description:
-      "One labs-list row: workspace name, repo-relative directory, and the decoded lab manifest or the manifest issue.",
-  })
+  }).pipe(
+    $I.annoteSchema("LabsListRow", {
+      description:
+        "One labs-list row: workspace name, repo-relative directory, and the decoded lab manifest or the manifest issue.",
+    })
+  )
 ) {}
 
 const encodeLabsListRows = S.encodeEffect(S.Array(LabsListRow));

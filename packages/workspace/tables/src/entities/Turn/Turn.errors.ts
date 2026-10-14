@@ -26,7 +26,9 @@ const $I = $WorkspaceTablesId.create("entities/Turn/Turn.errors");
  * @category errors
  * @since 0.0.0
  */
-export class TurnConverterError extends S.TaggedError<TurnConverterError>($I`TurnConverterError`)(
+export class TurnConverterError extends S.TaggedError<TurnConverterError, { readonly brand: unique symbol }>(
+  $I`TurnConverterError`
+)(
   "TurnConverterError",
   {
     message: S.String.annotateKey({

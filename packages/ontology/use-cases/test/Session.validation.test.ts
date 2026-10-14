@@ -417,7 +417,7 @@ describe("Ontology validation and provenance", () => {
             datasetPath: OntologyFilePath.make("tmp/session-validation.dataset.ttl"),
           })
         );
-        expect(exported).toBeInstanceOf(ExportOntologyProvenanceResult);
+        expect(S.is(ExportOntologyProvenanceResult)(exported)).toBe(true);
         expect(writes.get(exported.provPath)).toContain("http://www.w3.org/ns/prov#Activity");
         expect(writes.get(exported.datasetPath)).toContain("http://rdfs.org/ns/void#triples");
       }),

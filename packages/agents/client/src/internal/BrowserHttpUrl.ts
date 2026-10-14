@@ -14,27 +14,35 @@ import * as S from "effect/Schema";
 
 const $I = $AgentsClientId.create("internal/BrowserHttpUrl");
 
-class BrowserHttpLocation extends S.Class<BrowserHttpLocation>($I`BrowserHttpLocation`)(
-  {
+class BrowserHttpLocation extends S.Opaque<BrowserHttpLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     origin: S.String,
-  },
-  $I.annote("BrowserHttpLocation", {
-    description: "Browser location fields required for HTTP URL resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserHttpLocation", {
+      description: "Browser location fields required for HTTP URL resolution.",
+    })
+  )
 ) {}
 
-class BrowserHttpRuntime extends S.Class<BrowserHttpRuntime>($I`BrowserHttpRuntime`)(
-  {
+/**
+ * Browser http runtime.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class BrowserHttpRuntime extends S.Opaque<BrowserHttpRuntime, { readonly brand: unique symbol }>()(
+  S.Struct({
     location: BrowserHttpLocation,
-  },
-  $I.annote("BrowserHttpRuntime", {
-    description: "Browser http runtime.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserHttpRuntime", {
+      description: "Browser http runtime.",
+    })
+  )
 ) {}
 
 interface ResolveBrowserHttpUrl {
-  (runtime: BrowserHttpRuntime | undefined, path: `/${string}`): O.Option<string>;
-  (path: `/${string}`): (runtime: BrowserHttpRuntime | undefined) => O.Option<string>;
+  (runtime: typeof BrowserHttpRuntime.Encoded | undefined, path: `/${string}`): O.Option<string>;
+  (path: `/${string}`): (runtime: typeof BrowserHttpRuntime.Encoded | undefined) => O.Option<string>;
 }
 
 /**

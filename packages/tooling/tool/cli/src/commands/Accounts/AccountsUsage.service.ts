@@ -4,32 +4,43 @@
  *
  * **Details**
  *
- * The poller never writes a login and never refreshes one. The proxy owns the
- * files under its auth directory and keeps their access tokens fresh; reading
- * them leaves no second copy of a refresh token that could invalidate the
- * proxy's own.
+ * Proxy logins are never refreshed or written. Junie is refreshed in memory
+ * only; JetBrains refresh tokens are not rotated on the proven route. A
+ * rotation guard rejects any changed refresh token, and nothing is persisted.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
+
+import { userInfo } from "node:os";
 import { $RepoCliId } from "@beep/identity/packages";
+import { sha256Hex } from "@beep/repo-utils/Sha256Hex";
 import * as A from "effect/Array";
+import * as Clock from "effect/Clock";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
+import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import { Base64Url } from "effect/encoding";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Redacted from "effect/Redacted";
+import * as Ref from "effect/Ref";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { resolveWorkstationStateDir } from "../../internal/state/WorkstationState.ts";
 import { AccountsError } from "./Accounts.errors.ts";
 import {
@@ -39,9 +50,11 @@ import {
   AccountsStatusReport,
   AccountUsage,
   AccountUsageOutcome,
+  CreditBalance,
   groupAccounts,
   rankAccounts,
   SignedInLogin,
+  UsageWindow,
 } from "./Accounts.schemas.ts";
 import {
   ClaudeCliConfigJson,
@@ -55,13 +68,27 @@ import {
   codexSignedInEmail,
   codexUsageWindows,
   grokUsageWindows,
+  JunieAccessOptionsBodyJson,
+  JunieAuthTestBodyJson,
+  JunieExchangeBodyJson,
+  JunieQuotaBodyJson,
+  JunieRefillBodyJson,
+  JunieRefreshBodyJson,
+  JunieStoredCredential,
+  JunieStoredCredentialJson,
   MuseKeyBodyJson,
   museUsageWindows,
   ProxyAuthFileJson,
 } from "./Accounts.wire.schemas.ts";
 import type * as PlatformError from "effect/PlatformError";
 import type { AccountSnapshot } from "./Accounts.schemas.ts";
-import type { ProxyAuthFile } from "./Accounts.wire.schemas.ts";
+import type {
+  JunieAccessOptionsBody,
+  JunieQuotaBody,
+  JunieRefillBody,
+  JunieRefreshBody,
+  ProxyAuthFile,
+} from "./Accounts.wire.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Accounts/AccountsUsage.service");
 
@@ -155,6 +182,25 @@ const loginRejected = AccountUsageOutcome.cases.NeedsLogin.make({
 const failed = (detail: string) => AccountUsageOutcome.cases.Failed.make({ detail });
 
 const isRejectedStatus = (status: number): boolean => status === 401 || status === 403;
+
+// JetBrains' ingrazzio gateway answers an expired or revoked bearer token with
+// HTTP 407 rather than 401, so the Junie poller treats 407 as a token rejection
+// too (verified live 2026-10-14 against the stale stored Junie access token).
+const isJunieTokenRejected = (status: number): boolean => isRejectedStatus(status) || status === 407;
+
+class JunieRefreshResponse extends S.Opaque<JunieRefreshResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ stored: S.String.pipe(S.Redacted), status: S.Finite, body: S.String }).pipe(
+    $I.annoteSchema("JunieRefreshResponse", {
+      description: "Stored token and JetBrains OAuth response to validate without persisting.",
+    })
+  )
+) {}
+
+class GrokUsageResponse extends S.Opaque<GrokUsageResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ identity: S.Option(S.String), status: S.Finite, body: S.Uint8Array }).pipe(
+    $I.annoteSchema("GrokUsageResponse", { description: "Account identity and binary Grok billing response." })
+  )
+) {}
 
 type UsageTextResponse = {
   readonly identity: O.Option<string>;
@@ -286,6 +332,251 @@ export const museUsageOutcome: (response: UsageTextResponse) => AccountUsageOutc
     })
 );
 
+// Proven AI Pro tariff: 1,000,000 wire units = 10 JetBrains credits.
+// Evidence: goals/agent-pool-doctrine/history/2026-10-14-routing-refresh.md R9.
+const JUNIE_UNITS_PER_CREDIT = 100000;
+const JUNIE_GRAZIE_AGENT = '{"name":"junie:cli","version":"3659.4"}';
+const JunieJwtClaimsJson = JsonStringCodec(S.Struct({ exp: S.Finite.pipe(S.OptionFromOptionalKey) }));
+const JUNIE_TOKEN_SKEW = Duration.seconds(60);
+const junieAudienceRotated = AccountUsageOutcome.cases.NeedsLogin.make({
+  detail: "JetBrains rotated the refresh token during cycle lookup; run `junie` and sign in again",
+});
+
+type JunieOkOutcome = (typeof AccountUsageOutcome.cases.Ok)["Type"];
+
+class JunieQuotaReply extends S.Opaque<JunieQuotaReply, { readonly brand: unique symbol }>()(
+  S.Struct({ status: S.Finite, body: S.String }).pipe(
+    $I.annoteSchema("JunieQuotaReply", { description: "One Grazie quota endpoint's HTTP status and body text." })
+  )
+) {}
+
+const isJunieAudienceRotation = (status: number, body: string, stored: Redacted.Redacted<string>): boolean =>
+  status === 200 &&
+  O.exists(JunieRefreshBodyJson.decodeOption(body), (decoded) =>
+    O.exists(decoded.refresh_token, (next) => Redacted.value(next) !== Redacted.value(stored))
+  );
+
+const isJunieLicenseCurrent = (validThrough: O.Option<string>, time: number): boolean =>
+  !O.exists(
+    validThrough,
+    (date) =>
+      !O.exists(DateTime.make(date), (at) => DateTime.toEpochMillis(at) + Duration.toMillis(Duration.days(1)) > time)
+  );
+
+const selectJunieLicense = (
+  options: JunieAccessOptionsBody,
+  licenseType: O.Option<string>,
+  time: number
+): O.Option<Redacted.Redacted<string>> => {
+  const eligible = A.filter(
+    options.aiAccessOptions,
+    (option) =>
+      option.aiAccessEnabled &&
+      Str.toLowerCase(option.type) === "license" &&
+      isJunieLicenseCurrent(option.validThrough, time)
+  );
+  const preferred = A.filter(eligible, (option) => O.exists(licenseType, (type) => O.contains(option.code, type)));
+  // Fail closed: several equally eligible licences (personal plus organisation) or only
+  // non-`license` tiers select nothing, so the row stays balance-only rather than guessing.
+  const selected = preferred.length === 1 ? A.head(preferred) : eligible.length === 1 ? A.head(eligible) : O.none();
+  return O.map(selected, (option) => option.licenseId);
+};
+
+// Without a decoded tariff `available`, balanceLeft may already include top-up, so the
+// original balance credit stays as it is and no separate top-up row is added.
+const junieCycleCredits = (balance: JunieOkOutcome, quota: JunieQuotaBody): O.Option<ReadonlyArray<CreditBalance>> => {
+  const tariff = quota.current.tariffQuota;
+  const maximum = O.flatMap(tariff, (pool) => pool.maximum);
+  const topUp = O.filter(
+    O.flatMap(quota.current.topUpQuota, (pool) => pool.available),
+    (amount) => amount.amount > 0
+  );
+  return O.map(
+    O.flatMap(tariff, (pool) => pool.available),
+    (available) => [
+      ...A.map(balance.credits, (credit) =>
+        CreditBalance.make({
+          ...credit,
+          label: "JetBrains AI cycle",
+          unit: "credits",
+          remaining: available.amount / JUNIE_UNITS_PER_CREDIT,
+          limit: O.map(maximum, (amount) => amount.amount / JUNIE_UNITS_PER_CREDIT),
+          expiresAt: O.none(),
+        })
+      ),
+      ...A.map(A.fromOption(topUp), (amount) =>
+        CreditBalance.make({
+          label: "JetBrains AI top-up",
+          unit: "credits",
+          remaining: amount.amount / JUNIE_UNITS_PER_CREDIT,
+          limit: O.none(),
+          expiresAt: O.none(),
+        })
+      ),
+    ]
+  );
+};
+
+const junieCycleWindows = (quota: JunieQuotaBody, refill: O.Option<JunieRefillBody>): ReadonlyArray<UsageWindow> => {
+  const tariff = quota.current.tariffQuota;
+  const resetsAt = pipe(
+    O.flatMap(refill, (body) => body.current.next),
+    O.orElse(() => quota.current.until),
+    O.flatMap(DateTime.make)
+  );
+  return pipe(
+    O.zipWith(
+      O.flatMap(tariff, (pool) => pool.current),
+      O.filter(
+        O.flatMap(tariff, (pool) => pool.maximum),
+        (max) => max.amount > 0
+      ),
+      (used, max) => (100 * used.amount) / max.amount
+    ),
+    O.filter(S.is(S.Finite)),
+    O.map((usedPercent) => UsageWindow.make({ kind: "cycle", scope: O.none(), usedPercent, resetsAt })),
+    A.fromOption
+  );
+};
+
+const junieReplyBody = <A>(reply: JunieQuotaReply, decode: (text: string) => O.Option<A>): O.Option<A> =>
+  reply.status === 200 ? decode(reply.body) : O.none();
+
+// Only quota/get is required; a failed refill only loses the refill reset time.
+const junieCycleOutcome = (
+  balance: JunieOkOutcome,
+  quotaReply: JunieQuotaReply,
+  refillReply: JunieQuotaReply
+): AccountUsageOutcome =>
+  O.match(junieReplyBody(quotaReply, JunieQuotaBodyJson.decodeOption), {
+    onNone: () => balance,
+    onSome: (quota) =>
+      AccountUsageOutcome.cases.Ok.make({
+        ...balance,
+        windows: junieCycleWindows(quota, junieReplyBody(refillReply, JunieRefillBodyJson.decodeOption)),
+        credits: O.getOrElse(junieCycleCredits(balance, quota), () => balance.credits),
+      }),
+  });
+
+const decodedJunieUsageOutcome: (response: UsageTextResponse) => AccountUsageOutcome = decodedOutcome(
+  "JetBrains AI",
+  JunieAuthTestBodyJson.decodeOption,
+  (body, response) => {
+    if (O.isNone(body.active)) return failed("JetBrains AI activity is unavailable");
+    if (O.contains(body.active, false))
+      return AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: "JetBrains AI is inactive; run `junie` and sign in again",
+      });
+    if (O.isNone(body.balanceLeft) || !O.contains(body.balanceUnit, "CREDITS") || O.isNone(body.licenseType)) {
+      return failed("JetBrains AI balance, unit, or license is unavailable");
+    }
+    return AccountUsageOutcome.cases.Ok.make({
+      identity: response.identity,
+      plan: O.map(body.licenseType, (license) => (license === "AIP" ? "JetBrains AI Pro" : license)),
+      windows: [],
+      credits: [
+        CreditBalance.make({
+          label: "JetBrains AI balance",
+          unit: "credits",
+          remaining: body.balanceLeft.value / JUNIE_UNITS_PER_CREDIT,
+          limit: O.none(),
+          expiresAt: O.none(),
+        }),
+      ],
+      limitResets: O.none(),
+      asOf: O.none(),
+    });
+  }
+);
+
+/**
+ * Read Junie's direct credit balance without inventing a cycle limit.
+ *
+ * **Example** (Reject a missing balance)
+ *
+ * ```ts
+ * import { junieUsageOutcome } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(junieUsageOutcome({ identity: O.none(), status: 200, body: "{}" })._tag) // "Failed"
+ * ```
+ *
+ * @param response - The account identity, HTTP status, and auth/test body text.
+ * @returns The credit balance, a definitive login rejection, or a transient failure.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const junieUsageOutcome = (response: UsageTextResponse): AccountUsageOutcome =>
+  isJunieTokenRejected(response.status)
+    ? AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: "JetBrains rejected the Junie login; run `junie` and sign in again",
+      })
+    : decodedJunieUsageOutcome(response);
+
+/**
+ * Reject an OAuth response that would strand Junie's stored refresh token.
+ *
+ * **Example** (Detect rotation using synthetic tokens)
+ *
+ * ```ts
+ * import { junieRefreshOutcome } from "@beep/repo-cli/test/Accounts"
+ * import * as Redacted from "effect/Redacted"
+ *
+ * console.log(junieRefreshOutcome({ stored: Redacted.make("stored"), status: 200,
+ *   body: '{"access_token":"synthetic","refresh_token":"changed","expires_in":3600}' })._tag) // "Failure"
+ * ```
+ *
+ * @param response - The stored refresh token, the HTTP status, and the OAuth body text.
+ * @returns The decoded refresh body, or the failure outcome to report.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const junieRefreshOutcome = (
+  response: S.Struct.Type<typeof JunieRefreshResponse.fields>
+): Result.Result<JunieRefreshBody, AccountUsageOutcome> => {
+  const { stored, status, body } = response;
+  if (status !== 200)
+    return Result.fail(
+      status === 400 || status === 401
+        ? AccountUsageOutcome.cases.NeedsLogin.make({
+            detail: `JetBrains OAuth refresh answered HTTP ${status}; run \`junie\` and sign in again`,
+          })
+        : failed(`JetBrains OAuth refresh answered HTTP ${status}`)
+    );
+  const decoded = JunieRefreshBodyJson.decodeOption(body);
+  if (O.isNone(decoded)) return Result.fail(failed("JetBrains OAuth refresh is unavailable"));
+  if (O.exists(decoded.value.refresh_token, (token) => Redacted.value(token) !== Redacted.value(stored))) {
+    return Result.fail(
+      AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: "JetBrains rotated the refresh token; run `junie` and sign in again",
+      })
+    );
+  }
+  return Result.succeed(decoded.value);
+};
+
+class JunieAccessToken extends S.Opaque<JunieAccessToken, { readonly brand: unique symbol }>()(
+  S.Struct({
+    access_token: S.String.pipe(S.Redacted),
+    id_token: S.String.pipe(S.Redacted, S.Option),
+    expiresAt: S.Finite,
+    credentialFingerprint: S.String,
+  }).pipe(
+    $I.annoteSchema("JunieAccessToken", {
+      description:
+        "A service-local Junie access token, its expiry in milliseconds, and the stored credential fingerprint.",
+    })
+  )
+) {}
+
+class JunieExchangeToken extends S.Opaque<JunieExchangeToken, { readonly brand: unique symbol }>()(
+  S.Struct({ token: S.String.pipe(S.Redacted), expiresAt: S.Finite, credentialFingerprint: S.String }).pipe(
+    $I.annoteSchema("JunieExchangeToken", { description: "A credential-bound, memory-only Grazie token." })
+  )
+) {}
+
+const JunieFallbackJson = JsonStringCodec(S.Struct({ "jb-account-stored": JunieStoredCredential }));
+
 /**
  * Turn a Grok Build billing reply into an outcome.
  *
@@ -303,11 +594,7 @@ export const museUsageOutcome: (response: UsageTextResponse) => AccountUsageOutc
  * @category utilities
  * @since 0.0.0
  */
-export const grokUsageOutcome = (response: {
-  readonly identity: O.Option<string>;
-  readonly status: number;
-  readonly body: Uint8Array;
-}): AccountUsageOutcome => {
+export const grokUsageOutcome = (response: S.Struct.Type<typeof GrokUsageResponse.fields>): AccountUsageOutcome => {
   if (isRejectedStatus(response.status)) return loginRejected;
   if (response.status !== 200) return failed(`Grok billing answered HTTP ${response.status}`);
   return O.match(grokUsageWindows(response.body), {
@@ -402,6 +689,301 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
   const path = yield* Path.Path;
   const client = yield* HttpClient.HttpClient;
   const directory = yield* resolveAccountsAuthDir;
+  const junieAccessToken = yield* Ref.make(O.none<JunieAccessToken>());
+  const junieExchangeToken = yield* Ref.make(O.none<JunieExchangeToken>());
+  // Both caches are keyed by the refresh-token fingerprint and live for the process lifetime.
+  const junieLicenses = yield* Ref.make(HashMap.empty<string, Redacted.Redacted<string>>());
+  const junieRotatedCredentials = yield* Ref.make(HashSet.empty<string>());
+
+  const crypto = yield* Crypto.Crypto;
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const junieHome = yield* Config.String("JUNIE_HOME").pipe(
+    Config.withDefault(path.join(yield* Config.String("HOME"), ".junie"))
+  );
+  const bus = yield* Config.String("DBUS_SESSION_BUS_ADDRESS").pipe(
+    Config.withDefault(
+      `unix:path=/run/user/${yield* Config.String("UID").pipe(Config.withDefault(`${userInfo().uid}`))}/bus`
+    )
+  );
+  const readJunie = Effect.fn("AccountsUsage.readJunie")(
+    function* () {
+      // Realpath also keeps synthetic HOME fixtures isolated from the real keyring.
+      const realHome = yield* fs.realPath(junieHome);
+      const key = `${yield* sha256Hex(Str.toLowerCase(realHome)).pipe(Effect.provideService(Crypto.Crypto, crypto))}jb-account-stored`;
+      const stored = yield* spawner
+        .string(
+          ChildProcess.make("secret-tool", ["lookup", "service", "junie-cli", "account", key], {
+            env: { DBUS_SESSION_BUS_ADDRESS: bus },
+            extendEnv: true,
+            stdin: "ignore",
+            stderr: "ignore",
+          })
+        )
+        .pipe(Effect.option);
+      if (O.isSome(stored) && Str.isNonEmpty(Str.trim(stored.value))) {
+        return O.some(JunieStoredCredentialJson.decodeOption(stored.value));
+      }
+      const fallback = yield* fs.readFileString(path.join(realHome, "secure_credentials.json")).pipe(Effect.option);
+      return O.map(fallback, (text) =>
+        O.map(JunieFallbackJson.decodeOption(text), (value) => value["jb-account-stored"])
+      );
+    },
+    Effect.timeoutOption(REQUEST_TIMEOUT),
+    Effect.map(O.flatten),
+    Effect.orElseSucceed(() => O.none<O.Option<JunieStoredCredential>>())
+  );
+
+  const junieAccount = readJunie().pipe(
+    Effect.map(
+      O.map((credential) => {
+        const identity = O.flatMap(credential, (value) => O.orElse(value.jbAccount.email, () => value.jbAccount.name));
+        return AccountRef.make({
+          provider: "junie",
+          label: O.getOrElse(identity, () => "Junie"),
+          source: junieHome,
+        });
+      })
+    )
+  );
+
+  const pollJunie = Effect.fn("AccountsUsage.pollJunie")(function* () {
+    const lastBalance = yield* Ref.make(O.none<AccountUsageOutcome>());
+    const attempt = Effect.fnUntraced(function* () {
+      const stored = yield* readJunie();
+      if (O.isNone(stored)) return failed("Junie credential storage is unavailable");
+      if (O.isNone(stored.value))
+        return failed("Junie credential variant is unsupported; a JetBrains account login is required");
+      const account = stored.value.value.jbAccount;
+      const credentialFingerprint = yield* account.refresh_token.pipe(
+        Redacted.value,
+        sha256Hex,
+        Effect.provideService(Crypto.Crypto, crypto)
+      );
+      // A credential whose refresh token rotated during cycle lookup is never sent to switch_audience again.
+      if (HashSet.has(yield* Ref.get(junieRotatedCredentials), credentialFingerprint)) return junieAudienceRotated;
+      const cached = yield* Ref.get(junieAccessToken);
+      if (O.exists(cached, (value) => value.credentialFingerprint !== credentialFingerprint)) {
+        yield* Ref.set(junieAccessToken, O.none());
+        yield* Ref.set(junieExchangeToken, O.none());
+      }
+      const matching = O.filter(cached, (value) => value.credentialFingerprint === credentialFingerprint);
+      const now = yield* Clock.currentTimeMillis;
+      const token = O.match(matching, {
+        onNone: () => account.access_token,
+        onSome: (value) =>
+          value.expiresAt - Duration.toMillis(JUNIE_TOKEN_SKEW) > now ? value.access_token : account.access_token,
+      });
+      const authTest = Effect.fnUntraced(function* (accessToken: Redacted.Redacted<string>) {
+        const response = yield* client.execute(
+          HttpClientRequest.get("https://ingrazzio-cloud-prod.labs.jb.gg/auth/test").pipe(
+            HttpClientRequest.bearerToken(Redacted.value(accessToken)),
+            HttpClientRequest.setHeaders({ "X-Accept-EAP-License": "true", "X-Accept-Release-License": "true" })
+          )
+        );
+        return {
+          identity: O.orElse(account.email, () => account.name),
+          status: response.status,
+          body: yield* response.text,
+        } satisfies UsageTextResponse;
+      });
+      const enrich = Effect.fnUntraced(function* (
+        response: UsageTextResponse,
+        idToken: O.Option<Redacted.Redacted<string>>
+      ) {
+        const balance = junieUsageOutcome(response);
+        if (balance._tag !== "Ok") return balance;
+        yield* Ref.set(lastBalance, O.some(balance));
+        if (O.isNone(idToken)) return balance;
+        const loadLicense = Effect.fnUntraced(function* (time: number) {
+          const switched = yield* client.execute(
+            HttpClientRequest.post("https://oauth.account.jetbrains.com/oauth2/token").pipe(
+              HttpClientRequest.bodyUrlParams({
+                grant_type: "switch_audience",
+                refresh_token: Redacted.value(account.refresh_token),
+                client_id: "junie-cli",
+                audience: "jcp-user-management",
+              })
+            )
+          );
+          const switchedBody = yield* switched.text;
+          if (isJunieAudienceRotation(switched.status, switchedBody, account.refresh_token)) {
+            yield* Ref.update(junieRotatedCredentials, HashSet.add(credentialFingerprint));
+            return Result.fail(junieAudienceRotated);
+          }
+          const audience = junieRefreshOutcome({
+            stored: account.refresh_token,
+            status: switched.status,
+            body: switchedBody,
+          });
+          if (Result.isFailure(audience)) return Result.succeed(O.none<Redacted.Redacted<string>>());
+          const listing = yield* client.execute(
+            HttpClientRequest.get("https://api.jetbrains.cloud/user-management/api/ai-access-options").pipe(
+              HttpClientRequest.bearerToken(Redacted.value(audience.success.access_token)),
+              HttpClientRequest.setHeader("Accept", "application/json")
+            )
+          );
+          if (listing.status !== 200) return Result.succeed(O.none<Redacted.Redacted<string>>());
+          const options = JunieAccessOptionsBodyJson.decodeOption(yield* listing.text);
+          if (O.isNone(options)) return Result.succeed(O.none<Redacted.Redacted<string>>());
+          const licenseId = selectJunieLicense(
+            options.value,
+            O.flatMap(JunieAuthTestBodyJson.decodeOption(response.body), (body) => body.licenseType),
+            time
+          );
+          if (O.isSome(licenseId))
+            yield* Ref.update(junieLicenses, HashMap.set(credentialFingerprint, licenseId.value));
+          return Result.succeed(licenseId);
+        });
+        const mintExchange = Effect.fnUntraced(function* (time: number) {
+          const cachedLicense = HashMap.get(yield* Ref.get(junieLicenses), credentialFingerprint);
+          const loaded = O.isSome(cachedLicense) ? Result.succeed(cachedLicense) : yield* loadLicense(time);
+          if (Result.isFailure(loaded)) return loaded;
+          const selected = loaded.success;
+          if (O.isNone(selected)) return Result.succeed(O.none<Redacted.Redacted<string>>());
+          const provided = yield* client.execute(
+            yield* HttpClientRequest.post("https://api.jetbrains.ai/auth/jetbrains-jwt/provide-access/license/v2").pipe(
+              HttpClientRequest.bearerToken(Redacted.value(idToken.value)),
+              HttpClientRequest.bodyJson({ licenseId: Redacted.value(selected.value) })
+            )
+          );
+          if (provided.status >= 400 && provided.status < 500)
+            yield* Ref.update(junieLicenses, HashMap.remove(credentialFingerprint));
+          if (provided.status !== 200) return Result.succeed(O.none<Redacted.Redacted<string>>());
+          const decoded = JunieExchangeBodyJson.decodeOption(yield* provided.text);
+          if (O.isNone(decoded)) return Result.succeed(O.none<Redacted.Redacted<string>>());
+
+          const exp = pipe(
+            Redacted.value(decoded.value.token),
+            Str.split("."),
+            A.get(1),
+            O.flatMap((segment) => Result.getSuccess(Base64Url.decodeString(segment))),
+            O.flatMap(JunieJwtClaimsJson.decodeOption),
+            O.flatMap((claims) => claims.exp)
+          );
+          yield* Ref.set(
+            junieExchangeToken,
+            O.some(
+              JunieExchangeToken.make({
+                token: decoded.value.token,
+                credentialFingerprint,
+                expiresAt: O.match(exp, {
+                  onNone: () => time + Duration.toMillis(Duration.minutes(10)),
+                  onSome: (seconds) =>
+                    Math.min(
+                      seconds * 1000 - Duration.toMillis(JUNIE_TOKEN_SKEW),
+                      time + Duration.toMillis(Duration.minutes(10))
+                    ),
+                }),
+              })
+            )
+          );
+          return decoded.value.token.pipe(O.some, Result.succeed);
+        });
+        const currentExchange = Effect.fnUntraced(function* (time: number) {
+          const cachedExchange = O.filter(
+            yield* Ref.get(junieExchangeToken),
+            (value) => value.credentialFingerprint === credentialFingerprint && value.expiresAt > time
+          );
+          return O.isSome(cachedExchange)
+            ? cachedExchange.value.token.pipe(O.some, Result.succeed)
+            : yield* mintExchange(time);
+        });
+        const quotaRequest = Effect.fnUntraced(function* (exchange: Redacted.Redacted<string>, suffix: string) {
+          const result = yield* client.execute(
+            yield* HttpClientRequest.post(`https://api.jetbrains.ai/user/v5/quota/${suffix}`).pipe(
+              HttpClientRequest.setHeaders({
+                "Grazie-Authenticate-JWT": Redacted.value(exchange),
+                "Grazie-Agent": JUNIE_GRAZIE_AGENT,
+              }),
+              HttpClientRequest.bodyJson({})
+            )
+          );
+          return JunieQuotaReply.make({ status: result.status, body: yield* result.text });
+        });
+        const quotaReplies = (exchange: Redacted.Redacted<string>) =>
+          Effect.all([quotaRequest(exchange, "get"), quotaRequest(exchange, "metadata/refill")], { concurrency: 2 });
+        const withExchange = <E, R>(
+          minted: Result.Result<O.Option<Redacted.Redacted<string>>, AccountUsageOutcome>,
+          use: (exchange: Redacted.Redacted<string>) => Effect.Effect<AccountUsageOutcome, E, R>
+        ): Effect.Effect<AccountUsageOutcome, E, R> =>
+          Result.isFailure(minted)
+            ? Effect.succeed(minted.failure)
+            : O.match(minted.success, { onNone: () => Effect.succeed<AccountUsageOutcome>(balance), onSome: use });
+        const cycleFrom = (exchange: Redacted.Redacted<string>) =>
+          quotaReplies(exchange).pipe(Effect.map(([quota, refill]) => junieCycleOutcome(balance, quota, refill)));
+        const detail = Effect.fnUntraced(function* () {
+          const time = yield* Clock.currentTimeMillis;
+          return yield* withExchange(
+            yield* currentExchange(time),
+            Effect.fnUntraced(function* (exchange) {
+              const [quota, refill] = yield* quotaReplies(exchange);
+              if (!isJunieTokenRejected(quota.status) && !isJunieTokenRejected(refill.status))
+                return junieCycleOutcome(balance, quota, refill);
+              // A rejected Grazie token is dropped and re-minted once within this poll.
+              yield* Ref.set(junieExchangeToken, O.none());
+              return yield* withExchange(yield* mintExchange(time), cycleFrom);
+            })
+          );
+        });
+        return yield* detail().pipe(
+          Effect.timeoutOption(Duration.seconds(8)),
+          Effect.map(O.getOrElse(() => balance)),
+          Effect.orElseSucceed(() => balance)
+        );
+      });
+      const initial = yield* authTest(token);
+      if (!isJunieTokenRejected(initial.status))
+        return yield* enrich(
+          initial,
+          O.flatMap(
+            O.filter(matching, (value) => value.expiresAt - Duration.toMillis(JUNIE_TOKEN_SKEW) > now),
+            (value) => value.id_token
+          )
+        );
+      yield* Ref.set(junieAccessToken, O.none());
+      const refreshed = yield* client.execute(
+        HttpClientRequest.post("https://oauth.account.jetbrains.com/oauth2/token").pipe(
+          HttpClientRequest.bodyUrlParams({
+            grant_type: "refresh_token",
+            refresh_token: Redacted.value(account.refresh_token),
+            client_id: "junie-cli",
+          })
+        )
+      );
+      const refresh = junieRefreshOutcome({
+        stored: account.refresh_token,
+        status: refreshed.status,
+        body: yield* refreshed.text,
+      });
+      if (Result.isFailure(refresh)) return refresh.failure;
+      yield* Ref.set(
+        junieAccessToken,
+        O.some(
+          JunieAccessToken.make({
+            access_token: refresh.success.access_token,
+            id_token: refresh.success.id_token,
+            credentialFingerprint,
+            expiresAt:
+              (yield* Clock.currentTimeMillis) + Duration.toMillis(Duration.seconds(refresh.success.expires_in)),
+          })
+        )
+      );
+      return yield* enrich(yield* authTest(refresh.success.access_token), refresh.success.id_token);
+    });
+    return yield* attempt().pipe(
+      Effect.timeoutOption(REQUEST_TIMEOUT),
+      Effect.flatMap((result) =>
+        O.match(result, {
+          onSome: Effect.succeed,
+          onNone: () => Ref.get(lastBalance).pipe(Effect.map(O.getOrElse(() => failed("JetBrains AI poll timed out")))),
+        })
+      ),
+      Effect.catchTags({
+        HttpClientError: () => Effect.succeed(failed("JetBrains AI request is unavailable")),
+        PlatformError: () => Effect.succeed(failed("Junie credential fingerprint is unavailable")),
+      })
+    );
+  });
 
   const readLogin = (source: string) =>
     fs
@@ -465,6 +1047,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
               museUsageOutcome
             ),
         }),
+      junie: () => pollJunie(),
       grok: () =>
         Effect.flatMap(
           client.execute(
@@ -498,11 +1081,20 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
     Effect.map(A.filter(Str.endsWith(".json"))),
     Effect.flatMap(Effect.forEach((name) => accountAt(path.join(directory, name)), { concurrency: POLL_CONCURRENCY })),
     Effect.map(A.getSomes),
+    Effect.flatMap((proxyAccounts) =>
+      Effect.map(junieAccount, (account) =>
+        O.match(account, {
+          onNone: () => proxyAccounts,
+          onSome: (value) => A.append(proxyAccounts, value),
+        })
+      )
+    ),
     Effect.map(A.sort(byProviderThenLabel)),
     Effect.withSpan("AccountsUsage.accounts")
   );
 
   const poll = Effect.fn("AccountsUsage.poll")(function* (account: AccountRef) {
+    if (account.provider === "junie") return AccountUsage.make({ account, outcome: yield* pollJunie() });
     const login = yield* readLogin(account.source);
     if (O.isNone(login)) {
       return AccountUsage.make({
@@ -639,7 +1231,10 @@ export const pollAccounts = Effect.gen(function* () {
  * instead, stamped with the time it was taken so the row shows its age; a
  * reading that was already old keeps its original stamp. Only a `Failed`
  * outcome falls back: a rejected login (`NeedsLogin`) is a definite answer and
- * shows at once, so a revoked login is never advertised as ready.
+ * shows at once, so a revoked login is never advertised as ready. Junie
+ * rotation, a rejected refresh grant and an inactive licence are `NeedsLogin`
+ * and show at once; Junie timeouts keep the last reading like any provider.
+ * A 429/5xx refresh or unknown `active` is `Failed` and keeps the last reading.
  *
  * **Example** (Nothing to keep)
  *

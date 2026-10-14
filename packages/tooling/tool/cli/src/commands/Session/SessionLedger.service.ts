@@ -77,9 +77,12 @@ export interface SessionLedgerShape {
  */
 export class SessionLedger extends Context.Service<SessionLedger, SessionLedgerShape>()($I`SessionLedger`) {}
 
-class DecodedSessionLedger extends S.Class<DecodedSessionLedger>($I`DecodedSessionLedger`)(
-  { rows: S.Array(SessionLedgerRow), corruptLineCount: S.Finite },
-  $I.annote("DecodedSessionLedger", { description: "Decoded session rows and count of corrupt JSON Lines entries." })
+class DecodedSessionLedger extends S.Opaque<DecodedSessionLedger, { readonly brand: unique symbol }>()(
+  S.Struct({ rows: S.Array(SessionLedgerRow), corruptLineCount: S.Finite }).pipe(
+    $I.annoteSchema("DecodedSessionLedger", {
+      description: "Decoded session rows and count of corrupt JSON Lines entries.",
+    })
+  )
 ) {}
 
 /**

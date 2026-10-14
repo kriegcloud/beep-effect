@@ -88,35 +88,37 @@ export interface UsptoShape {
   readonly searchApplications: (query: string) => Effect.Effect<ReadonlyArray<UsptoApplicationMetadata>, UsptoError>;
 }
 
-class MetadataEnvelopeWrapper extends S.Class<MetadataEnvelopeWrapper>($I`MetadataEnvelopeWrapper`)(
-  {
+class MetadataEnvelopeWrapper extends S.Opaque<MetadataEnvelopeWrapper, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationMetaData: S.Record(S.String, S.Unknown).pipe(S.optionalKey),
     applicationNumberText: S.optionalKey(S.String),
-  },
-  $I.annote("MetadataEnvelopeWrapper", {
-    description: "USPTO file-wrapper metadata row carried inside an application response envelope.",
-  })
+  }).pipe(
+    $I.annoteSchema("MetadataEnvelopeWrapper", {
+      description: "USPTO file-wrapper metadata row carried inside an application response envelope.",
+    })
+  )
 ) {}
 
 const metadataEnvelopePatentFileWrapperDataBagDefault = A.empty();
-class MetadataEnvelope extends S.Class<MetadataEnvelope>($I`MetadataEnvelope`)(
-  {
+class MetadataEnvelope extends S.Opaque<MetadataEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     patentFileWrapperDataBag: S.Array(MetadataEnvelopeWrapper).pipe(
       S.withConstructorDefault(Effect.succeed(metadataEnvelopePatentFileWrapperDataBagDefault)),
       S.withDecodingDefaultType(Effect.succeed(metadataEnvelopePatentFileWrapperDataBagDefault))
     ),
-  },
-  $I.annote("MetadataEnvelope", {
-    description: "USPTO file-wrapper response envelope containing application metadata records.",
-  })
+  }).pipe(
+    $I.annoteSchema("MetadataEnvelope", {
+      description: "USPTO file-wrapper response envelope containing application metadata records.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(this));
 }
 
 const continuityEnvelopeWrapperChildContinuityBagDefault = A.empty();
 const continuityEnvelopeWrapperParentContinuityBagDefault = A.empty();
-class ContinuityEnvelopeWrapper extends S.Class<ContinuityEnvelopeWrapper>($I`ContinuityEnvelopeWrapper`)(
-  {
+class ContinuityEnvelopeWrapper extends S.Opaque<ContinuityEnvelopeWrapper, { readonly brand: unique symbol }>()(
+  S.Struct({
     childContinuityBag: S.Array(S.Record(S.String, S.Unknown)).pipe(
       S.withConstructorDefault(Effect.succeed(continuityEnvelopeWrapperChildContinuityBagDefault)),
       S.withDecodingDefaultType(Effect.succeed(continuityEnvelopeWrapperChildContinuityBagDefault))
@@ -125,38 +127,41 @@ class ContinuityEnvelopeWrapper extends S.Class<ContinuityEnvelopeWrapper>($I`Co
       S.withConstructorDefault(Effect.succeed(continuityEnvelopeWrapperParentContinuityBagDefault)),
       S.withDecodingDefaultType(Effect.succeed(continuityEnvelopeWrapperParentContinuityBagDefault))
     ),
-  },
-  $I.annote("ContinuityEnvelopeWrapper", {
-    description: "USPTO continuity row carried inside a continuity response envelope.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContinuityEnvelopeWrapper", {
+      description: "USPTO continuity row carried inside a continuity response envelope.",
+    })
+  )
 ) {}
 
 const continuityEnvelopePatentFileWrapperDataBagDefault = A.empty();
-class ContinuityEnvelope extends S.Class<ContinuityEnvelope>($I`ContinuityEnvelope`)(
-  {
+class ContinuityEnvelope extends S.Opaque<ContinuityEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     patentFileWrapperDataBag: S.Array(ContinuityEnvelopeWrapper).pipe(
       S.withConstructorDefault(Effect.succeed(continuityEnvelopePatentFileWrapperDataBagDefault)),
       S.withDecodingDefaultType(Effect.succeed(continuityEnvelopePatentFileWrapperDataBagDefault))
     ),
-  },
-  $I.annote("ContinuityEnvelope", {
-    description: "USPTO continuity response envelope containing parent and child continuity records.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContinuityEnvelope", {
+      description: "USPTO continuity response envelope containing parent and child continuity records.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(this));
 }
 
 const documentsEnvelopeDocumentBagDefault = A.empty();
-class DocumentsEnvelope extends S.Class<DocumentsEnvelope>($I`DocumentsEnvelope`)(
-  {
+class DocumentsEnvelope extends S.Opaque<DocumentsEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentBag: S.Array(S.Record(S.String, S.Unknown)).pipe(
       S.withConstructorDefault(Effect.succeed(documentsEnvelopeDocumentBagDefault)),
       S.withDecodingDefaultType(Effect.succeed(documentsEnvelopeDocumentBagDefault))
     ),
-  },
-  $I.annote("DocumentsEnvelope", {
-    description: "USPTO file-wrapper response envelope containing document records.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentsEnvelope", {
+      description: "USPTO file-wrapper response envelope containing document records.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(this));
 }

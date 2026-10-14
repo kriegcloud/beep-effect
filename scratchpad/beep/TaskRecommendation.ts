@@ -83,7 +83,7 @@ const unique = <A>(items: ReadonlyArray<A>): boolean => HashSet.size(HashSet.fro
  * @category errors
  * @since 0.0.0
  */
-export class TaskRecommendationError extends S.TaggedError<TaskRecommendationError>()(
+export class TaskRecommendationError extends S.TaggedError<TaskRecommendationError, { readonly brand: unique symbol }>()(
   "TaskRecommendationError",
   { message: S.String },
   $I.annoteError("TaskRecommendationError", { description: "A recommendation or feedback rule failed." }),

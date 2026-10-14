@@ -36,17 +36,18 @@ const $I = $EpistemicDomainId.create("values/ClaimEvidenceReview/ClaimEvidenceRe
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimEvidenceBasis extends S.Class<ClaimEvidenceBasis>($I`ClaimEvidenceBasis`)(
-  {
+export class ClaimEvidenceBasis extends S.Opaque<ClaimEvidenceBasis, { readonly brand: unique symbol }>()(
+  S.Struct({
     claimRef: EpistemicFixtureKey,
     assertion: S.NonEmptyString,
     subject: S.NonEmptyString,
     evidence: EvidenceSpan,
     source: SourceTextIdentity,
-  },
-  $I.annote("ClaimEvidenceBasis", {
-    description: "Exact assertion, subject, evidence span, and scoped source identity presented for human review.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimEvidenceBasis", {
+      description: "Exact assertion, subject, evidence span, and scoped source identity presented for human review.",
+    })
+  )
 ) {}
 
 /**
@@ -70,15 +71,16 @@ export class ClaimEvidenceBasis extends S.Class<ClaimEvidenceBasis>($I`ClaimEvid
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimEvidenceReview extends S.Class<ClaimEvidenceReview>($I`ClaimEvidenceReview`)(
-  {
+export class ClaimEvidenceReview extends S.Opaque<ClaimEvidenceReview, { readonly brand: unique symbol }>()(
+  S.Struct({
     basis: ClaimEvidenceBasis,
     reviewedBy: UserPrincipal,
     reviewedAt: S.DateTimeUtcFromMillis,
-  },
-  $I.annote("ClaimEvidenceReview", {
-    description: "Human approval of one exact claim and evidence basis; retained as history when that basis changes.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimEvidenceReview", {
+      description: "Human approval of one exact claim and evidence basis; retained as history when that basis changes.",
+    })
+  )
 ) {}
 
 /**
@@ -190,16 +192,17 @@ export type ClaimEvidenceReviewStatus = typeof ClaimEvidenceReviewStatus.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimEvidenceExplanation extends S.Class<ClaimEvidenceExplanation>($I`ClaimEvidenceExplanation`)(
-  {
+export class ClaimEvidenceExplanation extends S.Opaque<ClaimEvidenceExplanation, { readonly brand: unique symbol }>()(
+  S.Struct({
     basis: ClaimEvidenceBasis,
     currentSource: SourceTextIdentity,
     sourceText: S.String,
     verification: ClaimEvidenceVerification,
     review: ClaimEvidenceReviewStatus,
-  },
-  $I.annote("ClaimEvidenceExplanation", {
-    description:
-      "Read model explaining an assertion, its exact source evidence, and the applicability of human review.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimEvidenceExplanation", {
+      description:
+        "Read model explaining an assertion, its exact source evidence, and the applicability of human review.",
+    })
+  )
 ) {}

@@ -67,8 +67,12 @@ export {
  * @category schemas
  * @since 0.0.0
  */
+export * from "./KnowledgeDoctor.baseline.ts";
 export * from "./KnowledgeDoctor.domain.ts";
 export * from "./KnowledgeDoctor.evaluators.ts";
+export * from "./KnowledgeDoctor.grouping.ts";
+export * from "./KnowledgeDoctor.leases.ts";
+export * from "./KnowledgeDoctor.mint.ts";
 export * from "./KnowledgeDoctor.schemas.ts";
 /**
  * Stage-2 knowledge doctor: extraction, classification, evaluators, overlay, and service.

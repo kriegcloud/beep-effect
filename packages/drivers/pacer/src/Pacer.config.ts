@@ -101,7 +101,7 @@ export const PACER_ENV = {
  * @category configuration
  * @since 0.0.0
  */
-export class PacerConfigBase extends S.Class<PacerConfigBase>($I`PacerConfigBase`)(
+export class PacerConfigBase extends S.Class<PacerConfigBase, { readonly brand: unique symbol }>($I`PacerConfigBase`)(
   {
     authBaseUrl: S.String,
     pclBaseUrl: S.String,
@@ -223,14 +223,15 @@ export type PacerConfig = typeof PacerConfig.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class PacerConfigLoadOptions extends S.Class<PacerConfigLoadOptions>($I`PacerConfigLoadOptions`)(
-  {
+export class PacerConfigLoadOptions extends S.Opaque<PacerConfigLoadOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     environment: PacerEnvironment,
     otpCode: S.String.pipe(S.Redacted, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PacerConfigLoadOptions", {
-    description: "Options used when loading PACER config from an Effect ConfigProvider.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacerConfigLoadOptions", {
+      description: "Options used when loading PACER config from an Effect ConfigProvider.",
+    })
+  )
 ) {}
 const decodePacerConfigLoadOptions = S.decodeEffect(PacerConfigLoadOptions);
 
@@ -283,8 +284,7 @@ export const loadPacerConfig = Effect.fn("Pacer.loadPacerConfig")((rawOptions: P
     const clientCode = yield* Config.String(PACER_ENV.clientCode).pipe(Config.option);
     const otpFromEnv = yield* Config.Redacted(PACER_ENV.otp).pipe(Config.option);
     const isFiler = yield* Config.Boolean(PACER_ENV.isFiler).pipe(Config.option);
-    return PacerConfig.make({
-      environment: options.environment,
+    return PacerConfig.cases[options.environment].make({
       authBaseUrl: PACER_AUTH_BASE_URL[options.environment],
       pclBaseUrl: PACER_PCL_BASE_URL[options.environment],
       loginId,

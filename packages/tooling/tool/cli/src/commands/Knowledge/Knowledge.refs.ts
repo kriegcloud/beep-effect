@@ -592,15 +592,16 @@ export type KnowledgeRefId = typeof KnowledgeRefId.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRepoPathRef extends S.Class<KnowledgeRepoPathRef>($I`KnowledgeRepoPathRef`)(
-  {
+export class KnowledgeRepoPathRef extends S.Opaque<KnowledgeRepoPathRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("repo-path"),
     raw: S.String,
     normalized: S.String,
-  },
-  $I.annote("KnowledgeRepoPathRef", {
-    description: "Repo-root-relative target after governed normalization.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRepoPathRef", {
+      description: "Repo-root-relative target after governed normalization.",
+    })
+  )
 ) {}
 
 /**
@@ -619,15 +620,16 @@ export class KnowledgeRepoPathRef extends S.Class<KnowledgeRepoPathRef>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeHostPathRef extends S.Class<KnowledgeHostPathRef>($I`KnowledgeHostPathRef`)(
-  {
+export class KnowledgeHostPathRef extends S.Opaque<KnowledgeHostPathRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("host-path"),
     raw: S.String,
     anchor: KnowledgeHostAnchor,
-  },
-  $I.annote("KnowledgeHostPathRef", {
-    description: "Machine-local span; never resolvable inside a tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeHostPathRef", {
+      description: "Machine-local span; never resolvable inside a tree.",
+    })
+  )
 ) {}
 
 /**
@@ -654,16 +656,17 @@ export class KnowledgeHostPathRef extends S.Class<KnowledgeHostPathRef>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeGoalUriRef extends S.Class<KnowledgeGoalUriRef>($I`KnowledgeGoalUriRef`)(
-  {
+export class KnowledgeGoalUriRef extends S.Opaque<KnowledgeGoalUriRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("goal-uri"),
     raw: S.String,
     slug: S.String,
     displayPath: S.optionalKey(S.String),
-  },
-  $I.annote("KnowledgeGoalUriRef", {
-    description: "repo://goal/<slug> identity plus its paired display path.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeGoalUriRef", {
+      description: "repo://goal/<slug> identity plus its paired display path.",
+    })
+  )
 ) {}
 
 /**
@@ -726,16 +729,17 @@ export type KnowledgeRef = typeof KnowledgeRef.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRefResolved extends S.Class<KnowledgeRefResolved>($I`KnowledgeRefResolved`)(
-  {
+export class KnowledgeRefResolved extends S.Opaque<KnowledgeRefResolved, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("resolved"),
     targetPath: S.String,
     mode: S.optionalKey(S.String),
     objectId: S.optionalKey(S.String),
-  },
-  $I.annote("KnowledgeRefResolved", {
-    description: "Reference target found in the scanned tree, with blob identity for file targets.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRefResolved", {
+      description: "Reference target found in the scanned tree, with blob identity for file targets.",
+    })
+  )
 ) {}
 
 /**
@@ -752,13 +756,14 @@ export class KnowledgeRefResolved extends S.Class<KnowledgeRefResolved>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRefMissing extends S.Class<KnowledgeRefMissing>($I`KnowledgeRefMissing`)(
-  {
+export class KnowledgeRefMissing extends S.Opaque<KnowledgeRefMissing, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("missing"),
-  },
-  $I.annote("KnowledgeRefMissing", {
-    description: "Reference target absent from the scanned tree and owned by no producer.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRefMissing", {
+      description: "Reference target absent from the scanned tree and owned by no producer.",
+    })
+  )
 ) {}
 
 /**
@@ -782,16 +787,18 @@ export class KnowledgeRefMissing extends S.Class<KnowledgeRefMissing>($I`Knowled
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRefIdentityMismatch extends S.Class<KnowledgeRefIdentityMismatch>(
-  $I`KnowledgeRefIdentityMismatch`
-)(
-  {
+export class KnowledgeRefIdentityMismatch extends S.Opaque<
+  KnowledgeRefIdentityMismatch,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag("identity-mismatch"),
     declaredId: S.String,
-  },
-  $I.annote("KnowledgeRefIdentityMismatch", {
-    description: "Tracked goal manifest whose declared initiative id disagrees with the referenced slug.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRefIdentityMismatch", {
+      description: "Tracked goal manifest whose declared initiative id disagrees with the referenced slug.",
+    })
+  )
 ) {}
 
 /**
@@ -818,15 +825,16 @@ export class KnowledgeRefIdentityMismatch extends S.Class<KnowledgeRefIdentityMi
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRefProducerOwned extends S.Class<KnowledgeRefProducerOwned>($I`KnowledgeRefProducerOwned`)(
-  {
+export class KnowledgeRefProducerOwned extends S.Opaque<KnowledgeRefProducerOwned, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("producer-owned"),
     producerId: S.String,
     command: S.String,
-  },
-  $I.annote("KnowledgeRefProducerOwned", {
-    description: "Absent target that a registered producer regenerates, carrying its exact command.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRefProducerOwned", {
+      description: "Absent target that a registered producer regenerates, carrying its exact command.",
+    })
+  )
 ) {}
 
 /**
@@ -843,13 +851,14 @@ export class KnowledgeRefProducerOwned extends S.Class<KnowledgeRefProducerOwned
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRefNotApplicable extends S.Class<KnowledgeRefNotApplicable>($I`KnowledgeRefNotApplicable`)(
-  {
+export class KnowledgeRefNotApplicable extends S.Opaque<KnowledgeRefNotApplicable, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("not-applicable"),
-  },
-  $I.annote("KnowledgeRefNotApplicable", {
-    description: "Reference unresolvable by construction rather than broken.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRefNotApplicable", {
+      description: "Reference unresolvable by construction rather than broken.",
+    })
+  )
 ) {}
 
 /**
@@ -912,15 +921,16 @@ export type KnowledgeRefResolution = typeof KnowledgeRefResolution.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSkippedBlob extends S.Class<KnowledgeSkippedBlob>($I`KnowledgeSkippedBlob`)(
-  {
+export class KnowledgeSkippedBlob extends S.Opaque<KnowledgeSkippedBlob, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mode: S.String,
     reason: KnowledgeSkipReason,
-  },
-  $I.annote("KnowledgeSkippedBlob", {
-    description: "A scoped tracked blob recorded with a reason rather than scanned.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSkippedBlob", {
+      description: "A scoped tracked blob recorded with a reason rather than scanned.",
+    })
+  )
 ) {}
 
 /**
@@ -964,8 +974,8 @@ export class KnowledgeSkippedBlob extends S.Class<KnowledgeSkippedBlob>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRefObservation extends S.Class<KnowledgeRefObservation>($I`KnowledgeRefObservation`)(
-  {
+export class KnowledgeRefObservation extends S.Opaque<KnowledgeRefObservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     refId: KnowledgeRefId,
     ref: KnowledgeRef,
     documentId: S.String,
@@ -975,10 +985,11 @@ export class KnowledgeRefObservation extends S.Class<KnowledgeRefObservation>($I
     resolution: KnowledgeRefResolution,
     location: KnowledgeFindingLocation,
     remediation: S.String,
-  },
-  $I.annote("KnowledgeRefObservation", {
-    description: "One resolved, classified reference occurrence.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRefObservation", {
+      description: "One resolved, classified reference occurrence.",
+    })
+  )
 ) {}
 
 /**
@@ -1008,18 +1019,19 @@ export class KnowledgeRefObservation extends S.Class<KnowledgeRefObservation>($I
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRefsReport extends S.Class<KnowledgeRefsReport>($I`KnowledgeRefsReport`)(
-  {
+export class KnowledgeRefsReport extends S.Opaque<KnowledgeRefsReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("knowledge-refs/v1"),
     normalizationVersion: S.tag("knowledge-ref-normalization/v1"),
     treeish: S.String,
     commit: KnowledgeCommitSha,
     observations: S.Array(KnowledgeRefObservation),
     skipped: S.Array(KnowledgeSkippedBlob),
-  },
-  $I.annote("KnowledgeRefsReport", {
-    description: "Versioned reference census for one Git tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRefsReport", {
+      description: "Versioned reference census for one Git tree.",
+    })
+  )
 ) {}
 
 /**
@@ -1562,6 +1574,9 @@ const inlineSpanOf = (match: RegExpExecArray): O.Option<KnowledgeInlineSpan> => 
 export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeInlineSpan> =>
   A.getSomes(A.map(knowledgeLineMatches(/(^|[^`\\])(`+)([^\r\n]*?)\2(?!`)/gu, lineText), inlineSpanOf));
 
+// A complete single- or double-quoted shell argument; an unterminated quote never matches.
+const QUOTED_ARGUMENT_PATTERN = /"[^"]*"|'[^']*'/gu;
+
 /**
  * Whether an inline span documents a `bun run beep` invocation rather than a path.
  *
@@ -1575,6 +1590,10 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  * Everything else is read by the path bus instead, which is why the two readers share this one
  * predicate.
  *
+ * Composition characters and arrows count only outside single- and double-quoted arguments, so
+ * `--description "Doc → KG"` stays one command; command substitution (`$(`) counts anywhere, because
+ * the shell expands it inside double quotes too.
+ *
  * **Example** (Separate a documented command from a path)
  *
  * ```ts
@@ -1584,6 +1603,7 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  * console.log(isKnowledgeCommandSpan("goals/INDEX.md")) // false
  * console.log(isKnowledgeCommandSpan("bun run beep yeet repair → verify → publish --pr")) // false
  * console.log(isKnowledgeCommandSpan('bun run beep create-package demo --description "Doc→KG"')) // true
+ * console.log(isKnowledgeCommandSpan('bun run beep create-package demo --description "Doc → KG"')) // true
  * ```
  *
  * @param span - Inline code span content, with CommonMark padding already stripped.
@@ -1592,7 +1612,9 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  * @since 0.0.0
  */
 export const isKnowledgeCommandSpan = (span: string): boolean =>
-  /^bun run beep(?:$|[ \t])/u.test(span) && !/[|;&<>]|[ \t]→[ \t]|\$\(|(?:^|[ \t])#/u.test(span);
+  /^bun run beep(?:$|[ \t])/u.test(span) &&
+  !/\$\(/u.test(span) &&
+  !/[|;&<>]|[ \t]→[ \t]|(?:^|[ \t])#/u.test(Str.replace(QUOTED_ARGUMENT_PATTERN, "")(span));
 
 // CommonMark starts an HTML block at up to three spaces of indentation; four spaces or a
 // tab make the line an indented code block, which is literal syntax and asserts nothing.
@@ -1614,14 +1636,15 @@ const PATH_ASSERTION_LINE_PATTERN = /^( {0,3})<!-- beep:assert path-exists (\S+)
  * @category models
  * @since 0.0.0
  */
-export class KnowledgePathAssertion extends S.Class<KnowledgePathAssertion>($I`KnowledgePathAssertion`)(
-  {
+export class KnowledgePathAssertion extends S.Opaque<KnowledgePathAssertion, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     column: S.Int,
-  },
-  $I.annote("KnowledgePathAssertion", {
-    description: "A whole-line path-exists assertion marker and the 1-based column its comment opens at.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgePathAssertion", {
+      description: "A whole-line path-exists assertion marker and the 1-based column its comment opens at.",
+    })
+  )
 ) {}
 
 /**

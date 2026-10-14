@@ -140,7 +140,7 @@ export type TierGateOutcome = typeof TierGateOutcome.Type;
  *
  * ```ts
  * import * as O from "effect/Option"
- * import { TierGateAuditRecord } from "@beep/mcp-kit"
+ * import { TierGateAuditRecord } from "@beep/mcp-kit/TierGate"
  *
  * const audit = TierGateAuditRecord.make({
  *   tool: "delete_document",
@@ -157,8 +157,8 @@ export type TierGateOutcome = typeof TierGateOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class TierGateAuditRecord extends S.Class<TierGateAuditRecord>($I`TierGateAuditRecord`)(
-  {
+export class TierGateAuditRecord extends S.Opaque<TierGateAuditRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     tool: S.NonEmptyString.annotateKey({
       description: "Name of the dispatched or refused tool.",
     }),
@@ -180,10 +180,11 @@ export class TierGateAuditRecord extends S.Class<TierGateAuditRecord>($I`TierGat
     occurredAt: S.NonEmptyString.annotateKey({
       description: "ISO-8601 timestamp at which the outcome was decided.",
     }),
-  },
-  $I.annote("TierGateAuditRecord", {
-    description: "Sanitized audit record written for every gated tools/call dispatch, approved or refused.",
-  })
+  }).pipe(
+    $I.annoteSchema("TierGateAuditRecord", {
+      description: "Sanitized audit record written for every gated tools/call dispatch, approved or refused.",
+    })
+  )
 ) {
   static readonly is = S.is(TierGateAuditRecord);
 }
@@ -233,18 +234,19 @@ export const TierGateVerdict = TierGateOutcomeTag.toTaggedUnion("verdict")({
  *
  * ```ts
  * import * as O from "effect/Option"
- * import type { TierGateVerdict } from "@beep/mcp-kit"
+ * import { TierGateAuditRecord } from "@beep/mcp-kit/TierGate"
+ * import type { TierGateVerdict } from "@beep/mcp-kit/TierGate"
  *
  * const approved: TierGateVerdict = {
  *   verdict: "approved",
- *   audit: {
+ *   audit: TierGateAuditRecord.make({
  *     tool: "search_documents",
  *     outcome: "approved",
  *     reason: "Tool is read-only and non-destructive; no approval required.",
  *     destructive: false,
  *     toolCallId: O.none(),
  *     occurredAt: "2026-07-01T00:00:00.000Z"
- *   }
+ *   })
  * }
  * console.log(approved.verdict)
  * ```
@@ -393,15 +395,16 @@ export class TierGate extends Context.Service<TierGate, TierGateShape>()($I`Tier
  * @category models
  * @since 0.0.0
  */
-export class TierGatePolicy extends S.Class<TierGatePolicy>($I`TierGatePolicy`)(
-  {
+export class TierGatePolicy extends S.Opaque<TierGatePolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     approvedTools: S.Array(S.NonEmptyString).annotateKey({
       description: "Tool names explicitly approved to dispatch regardless of their destructive annotation.",
     }),
-  },
-  $I.annote("TierGatePolicy", {
-    description: "Policy consulted by fromApprovedToolsPolicy: tool names explicitly approved to dispatch.",
-  })
+  }).pipe(
+    $I.annoteSchema("TierGatePolicy", {
+      description: "Policy consulted by fromApprovedToolsPolicy: tool names explicitly approved to dispatch.",
+    })
+  )
 ) {}
 
 // `Tool.Destructive` is a `Context.Reference` (default `constTrue`), so
@@ -450,10 +453,10 @@ const auditReason = (approved: boolean, destructive: boolean, readOnly: boolean)
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  * import { Tool } from "effect/ai"
- * import { fromApprovedToolsPolicy } from "@beep/mcp-kit"
+ * import { fromApprovedToolsPolicy, TierGatePolicy } from "@beep/mcp-kit"
  *
  * const writeTool = Tool.make("delete_document").annotate(Tool.Destructive, true)
- * const gate = fromApprovedToolsPolicy({ approvedTools: [] })
+ * const gate = fromApprovedToolsPolicy(TierGatePolicy.make({ approvedTools: [] }))
  *
  * const verdict = Effect.runSync(gate.evaluate({ tool: writeTool, toolCallId: O.none() }))
  * console.log(verdict.verdict)
@@ -581,10 +584,10 @@ const settlementOf = <A, E>(exit: Exit.Exit<A, E>): TierGateSettlement => {
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  * import { Tool } from "effect/ai"
- * import { dispatchWithTierGate, fromApprovedToolsPolicy, TierGate } from "@beep/mcp-kit"
+ * import { dispatchWithTierGate, fromApprovedToolsPolicy, TierGate, TierGatePolicy } from "@beep/mcp-kit"
  *
  * const writeTool = Tool.make("delete_document").annotate(Tool.Destructive, true)
- * const gate = fromApprovedToolsPolicy({ approvedTools: [] })
+ * const gate = fromApprovedToolsPolicy(TierGatePolicy.make({ approvedTools: [] }))
  *
  * const program = dispatchWithTierGate(
  *   { tool: writeTool, toolCallId: O.none() },
@@ -626,10 +629,10 @@ export const dispatchWithTierGate = Effect.fn("dispatchWithTierGate")(function* 
  *
  * ```ts
  * import { Tool } from "effect/ai"
- * import { withEnabledWhenApprovedTool } from "@beep/mcp-kit"
+ * import { TierGatePolicy, withEnabledWhenApprovedTool } from "@beep/mcp-kit"
  *
  * const writeTool = Tool.make("delete_document").annotate(Tool.Destructive, true)
- * const listed = withEnabledWhenApprovedTool(writeTool, { approvedTools: [] })
+ * const listed = withEnabledWhenApprovedTool(writeTool, TierGatePolicy.make({ approvedTools: [] }))
  * console.log(listed.name)
  * // "delete_document"
  * ```

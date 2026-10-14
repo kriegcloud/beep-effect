@@ -15,3 +15,5 @@ Build package dependencies first. Admit heavy work with beep-heavy; record every
 command and exit code, attribution, decisions and reversal routes. Keep packet lifecycle active.
 When done or blocked, write the orchestrator lane report to its assigned report-B.md path.
 The orchestrator performs the publishing and post-merge completion/reflection phases.
+
+2026-10-14 merge recovery: preserve merged lane A and docs Oxlint workers; require positive tsgolint assignment-summary evidence (comment 4276915577). Verification logs and merge-resolution report are held externally by the orchestrator. ESLint deletion remains PR B2 after this merge. Packet remains active until orchestrator merge closeout.

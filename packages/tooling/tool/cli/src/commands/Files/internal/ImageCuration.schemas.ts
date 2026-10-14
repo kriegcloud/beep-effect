@@ -52,16 +52,17 @@ export type ImageCurationDisposition = typeof ImageCurationDisposition.Type;
  * @category models
  * @since 0.0.0
  */
-export class ImageCurationCrop extends S.Class<ImageCurationCrop>($I`ImageCurationCrop`)(
-  {
+export class ImageCurationCrop extends S.Opaque<ImageCurationCrop, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: PositiveMediaDimension,
     left: NonNegativePixelOffset,
     top: NonNegativePixelOffset,
     width: PositiveMediaDimension,
-  },
-  $I.annote("ImageCurationCrop", {
-    description: "A reviewed natural crop expressed in pixels after EXIF orientation is applied.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageCurationCrop", {
+      description: "A reviewed natural crop expressed in pixels after EXIF orientation is applied.",
+    })
+  )
 ) {}
 
 /**
@@ -70,8 +71,8 @@ export class ImageCurationCrop extends S.Class<ImageCurationCrop>($I`ImageCurati
  * @category models
  * @since 0.0.0
  */
-export class ImageCurationDecision extends S.Class<ImageCurationDecision>($I`ImageCurationDecision`)(
-  {
+export class ImageCurationDecision extends S.Opaque<ImageCurationDecision, { readonly brand: unique symbol }>()(
+  S.Struct({
     crop: S.optionalKey(ImageCurationCrop),
     disposition: ImageCurationDisposition,
     duplicateClusterId: S.optionalKey(S.String),
@@ -79,10 +80,11 @@ export class ImageCurationDecision extends S.Class<ImageCurationDecision>($I`Ima
     sessionId: S.optionalKey(S.String),
     sourceName: S.String,
     sourceSha256: FileSha256Hash,
-  },
-  $I.annote("ImageCurationDecision", {
-    description: "A human-reviewable source decision pinned to exact source bytes.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageCurationDecision", {
+      description: "A human-reviewable source decision pinned to exact source bytes.",
+    })
+  )
 ) {}
 
 /**
@@ -91,17 +93,19 @@ export class ImageCurationDecision extends S.Class<ImageCurationDecision>($I`Ima
  * @category models
  * @since 0.0.0
  */
-export class ImageCurationDecisionDocument extends S.Class<ImageCurationDecisionDocument>(
-  $I`ImageCurationDecisionDocument`
-)(
-  {
+export class ImageCurationDecisionDocument extends S.Opaque<
+  ImageCurationDecisionDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     decisions: S.Array(ImageCurationDecision),
     schemaVersion: S.Literal("beep.files.image-curation-decisions.v1"),
     sourceDirectory: S.String,
-  },
-  $I.annote("ImageCurationDecisionDocument", {
-    description: "A complete one-decision-per-source ledger for deterministic image curation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageCurationDecisionDocument", {
+      description: "A complete one-decision-per-source ledger for deterministic image curation.",
+    })
+  )
 ) {}
 
 /**
@@ -110,18 +114,19 @@ export class ImageCurationDecisionDocument extends S.Class<ImageCurationDecision
  * @category models
  * @since 0.0.0
  */
-export class ImageCurationOptions extends S.Class<ImageCurationOptions>($I`ImageCurationOptions`)(
-  {
+export class ImageCurationOptions extends S.Opaque<ImageCurationOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     decisionsPath: S.String,
     dir: S.String,
     dryRun: S.Boolean,
     manifest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     outDir: S.String,
     overwrite: S.Boolean,
-  },
-  $I.annote("ImageCurationOptions", {
-    description: "Validated source, ledger, output, dry-run, and overwrite inputs for image curation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageCurationOptions", {
+      description: "Validated source, ledger, output, dry-run, and overwrite inputs for image curation.",
+    })
+  )
 ) {}
 
 /**
@@ -130,8 +135,11 @@ export class ImageCurationOptions extends S.Class<ImageCurationOptions>($I`Image
  * @category models
  * @since 0.0.0
  */
-export class ImageCurationManifestEntry extends S.Class<ImageCurationManifestEntry>($I`ImageCurationManifestEntry`)(
-  {
+export class ImageCurationManifestEntry extends S.Opaque<
+  ImageCurationManifestEntry,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     crop: S.optionalKey(ImageCurationCrop),
     disposition: ImageCurationDisposition,
     duplicateClusterId: S.optionalKey(S.String),
@@ -148,10 +156,11 @@ export class ImageCurationManifestEntry extends S.Class<ImageCurationManifestEnt
     sourcePath: S.String,
     sourceRelativePath: S.String,
     sourceSha256: FileSha256Hash,
-  },
-  $I.annote("ImageCurationManifestEntry", {
-    description: "Verified mapping from immutable source bytes to a metadata-free orientation-corrected PNG.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageCurationManifestEntry", {
+      description: "Verified mapping from immutable source bytes to a metadata-free orientation-corrected PNG.",
+    })
+  )
 ) {}
 
 /**
@@ -160,8 +169,8 @@ export class ImageCurationManifestEntry extends S.Class<ImageCurationManifestEnt
  * @category models
  * @since 0.0.0
  */
-export class ImageCurationSummary extends S.Class<ImageCurationSummary>($I`ImageCurationSummary`)(
-  {
+export class ImageCurationSummary extends S.Opaque<ImageCurationSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     archiveCount: S.Int,
     coreCount: S.Int,
     dryRun: S.Boolean,
@@ -170,10 +179,11 @@ export class ImageCurationSummary extends S.Class<ImageCurationSummary>($I`Image
     materializedCount: S.Int,
     plannedCount: S.Int,
     reserveCount: S.Int,
-  },
-  $I.annote("ImageCurationSummary", {
-    description: "Counts by final disposition for a ledger validation or materialization run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageCurationSummary", {
+      description: "Counts by final disposition for a ledger validation or materialization run.",
+    })
+  )
 ) {}
 
 /**
@@ -182,8 +192,8 @@ export class ImageCurationSummary extends S.Class<ImageCurationSummary>($I`Image
  * @category models
  * @since 0.0.0
  */
-export class ImageCurationManifest extends S.Class<ImageCurationManifest>($I`ImageCurationManifest`)(
-  {
+export class ImageCurationManifest extends S.Opaque<ImageCurationManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     decisionDocumentPath: S.String,
     entries: S.Array(ImageCurationManifestEntry),
     manifestPath: S.String,
@@ -191,10 +201,11 @@ export class ImageCurationManifest extends S.Class<ImageCurationManifest>($I`Ima
     schemaVersion: S.Literal("beep.files.image-curation.v1"),
     sourceDirectory: S.String,
     summary: ImageCurationSummary,
-  },
-  $I.annote("ImageCurationManifest", {
-    description: "Complete provenance map for canonical PNG derivatives and all archived or reserved derivatives.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageCurationManifest", {
+      description: "Complete provenance map for canonical PNG derivatives and all archived or reserved derivatives.",
+    })
+  )
 ) {}
 
 /**

@@ -145,6 +145,9 @@ BunRuntime.runMain(Effect.gen(function* () {
 }).pipe(Effect.provide(CacheQualificationLive), Effect.provide(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FsUtilsLive.pipe(Layer.provide(NodeServices.layer))))));
 `;
         yield* writeContainedFileString(directory, "worker.ts", worker);
+        // Bun otherwise discovers sourceRoot/bunfig.toml from the untrusted cwd,
+        // including preloads that run before this trusted worker.
+        yield* writeContainedFileString(directory, "bunfig.toml", "");
         const mounts = yield* Effect.forEach(
           [
             root,
@@ -207,6 +210,7 @@ BunRuntime.runMain(Effect.gen(function* () {
             bun,
             "--no-env-file",
             "--no-install",
+            `--config=${path.join(directory, "bunfig.toml")}`,
             path.join(directory, "worker.ts"),
           ],
           cwd: root,

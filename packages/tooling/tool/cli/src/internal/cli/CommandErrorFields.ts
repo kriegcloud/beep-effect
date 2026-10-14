@@ -53,7 +53,7 @@ const causeMessage = (cause: unknown): string => {
  *
  * const $I = $RepoCliId.create("commands/Example/Example.errors")
  *
- * class ExampleCommandError extends S.TaggedError<ExampleCommandError>($I`ExampleCommandError`)(
+ * class ExampleCommandError extends S.TaggedError<ExampleCommandError, { readonly brand: unique symbol }>($I`ExampleCommandError`)(
  *   "ExampleCommandError",
  *   { ...commandErrorFields, path: S.optionalKey(S.String) },
  *   $I.annoteError<ExampleCommandError>("ExampleCommandError", { description: "Example failure." })

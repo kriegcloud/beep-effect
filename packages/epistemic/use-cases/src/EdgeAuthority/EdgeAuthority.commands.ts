@@ -81,7 +81,7 @@ const edgeFactAuditFields = {
  * component the caller derived rather than the id it was given.
  */
 const OrgScopeAgreementCheck = S.makeFilter(
-  (command: { readonly identity: LogicalEdgeIdentity; readonly orgId: Shared.OrganizationId }) =>
+  (command: { readonly identity: Pick<LogicalEdgeIdentity, "orgScope">; readonly orgId: Shared.OrganizationId }) =>
     Equal.equals(command.identity.orgScope, `${command.orgId}`)
       ? undefined
       : {
@@ -160,7 +160,7 @@ const RecordEdgeFactFields = S.Struct({
  * @category commands
  * @since 0.0.0
  */
-export class RecordEdgeFact extends S.Class<RecordEdgeFact>($I`RecordEdgeFact`)(
+export class RecordEdgeFact extends S.Class<RecordEdgeFact, { readonly brand: unique symbol }>($I`RecordEdgeFact`)(
   RecordEdgeFactFields,
   $I.annote("RecordEdgeFact", {
     description: "Command asserting one fact about a logical epistemic edge over a known valid-time interval.",
@@ -239,7 +239,9 @@ const SupersedeEdgeFactFields = S.Struct({
  * @category commands
  * @since 0.0.0
  */
-export class SupersedeEdgeFact extends S.Class<SupersedeEdgeFact>($I`SupersedeEdgeFact`)(
+export class SupersedeEdgeFact extends S.Class<SupersedeEdgeFact, { readonly brand: unique symbol }>(
+  $I`SupersedeEdgeFact`
+)(
   SupersedeEdgeFactFields,
   $I.annote("SupersedeEdgeFact", {
     description: "Command replacing the open head of a logical epistemic edge with a new version.",
@@ -274,8 +276,8 @@ export class SupersedeEdgeFact extends S.Class<SupersedeEdgeFact>($I`SupersedeEd
  * @category commands
  * @since 0.0.0
  */
-export class EdgeAsOfQuery extends S.Class<EdgeAsOfQuery>($I`EdgeAsOfQuery`)(
-  {
+export class EdgeAsOfQuery extends S.Opaque<EdgeAsOfQuery, { readonly brand: unique symbol }>()(
+  S.Struct({
     knownAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "Transaction-time instant the answer is asked as-of: what was known then.",
     }),
@@ -285,8 +287,9 @@ export class EdgeAsOfQuery extends S.Class<EdgeAsOfQuery>($I`EdgeAsOfQuery`)(
     validAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "Valid-time instant the answer is asked about: what was true then.",
     }),
-  },
-  $I.annote("EdgeAsOfQuery", {
-    description: "Two-axis read contract for one logical epistemic edge.",
-  })
+  }).pipe(
+    $I.annoteSchema("EdgeAsOfQuery", {
+      description: "Two-axis read contract for one logical epistemic edge.",
+    })
+  )
 ) {}

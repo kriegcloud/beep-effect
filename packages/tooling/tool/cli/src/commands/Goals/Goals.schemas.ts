@@ -20,6 +20,7 @@ import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 
@@ -193,6 +194,373 @@ export const GoalManifestSchemaVersion = LiteralKit(["initiative-manifest/v2", "
 export type GoalManifestSchemaVersion = typeof GoalManifestSchemaVersion.Type;
 
 /**
+ * Distinguishes the final delivery PR from supporting work.
+ *
+ * **Example** (GoalPullRequestRole boundary)
+ *
+ * ```ts
+ * import { GoalPullRequestRole } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalPullRequestRole.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalPullRequestRole = LiteralKit(["final", "supporting"]).pipe(
+  $I.annoteSchema("GoalPullRequestRole", { description: "Distinguishes the final delivery PR from supporting work." })
+);
+/**
+ * Distinguishes the final delivery PR from supporting work.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalPullRequestRole = typeof GoalPullRequestRole.Type;
+
+/**
+ * Names the evidence provider used to accept a goal.
+ *
+ * **Example** (GoalAcceptanceEvidenceKind boundary)
+ *
+ * ```ts
+ * import { GoalAcceptanceEvidenceKind } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalAcceptanceEvidenceKind.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalAcceptanceEvidenceKind = LiteralKit([
+  "hosted-required-checks",
+  "yeet-verdict",
+  "proof-fact",
+  "packet-history",
+]).pipe(
+  $I.annoteSchema("GoalAcceptanceEvidenceKind", { description: "Names the evidence provider used to accept a goal." })
+);
+/**
+ * Names the evidence provider used to accept a goal.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalAcceptanceEvidenceKind = typeof GoalAcceptanceEvidenceKind.Type;
+
+/**
+ * Names the independently observed GitHub merge workflow.
+ *
+ * **Example** (GoalMergeMethod boundary)
+ *
+ * ```ts
+ * import { GoalMergeMethod } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalMergeMethod.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalMergeMethod = LiteralKit(["squash", "merge", "rebase"]).pipe(
+  $I.annoteSchema("GoalMergeMethod", { description: "Names the independently observed GitHub merge workflow." })
+);
+/**
+ * Names the independently observed GitHub merge workflow.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalMergeMethod = typeof GoalMergeMethod.Type;
+
+/**
+ * Separates affirmative completion, contrary facts, and missing observations.
+ *
+ * **Example** (GoalCompletionOutcome boundary)
+ *
+ * ```ts
+ * import { GoalCompletionOutcome } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalCompletionOutcome.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalCompletionOutcome = LiteralKit(["verified", "unsatisfied", "unknown"]).pipe(
+  $I.annoteSchema("GoalCompletionOutcome", {
+    description: "Separates affirmative completion, contrary facts, and missing observations.",
+  })
+);
+/**
+ * Separates affirmative completion, contrary facts, and missing observations.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalCompletionOutcome = typeof GoalCompletionOutcome.Type;
+
+/**
+ * Attributes non-required failures without treating their conclusion as a waiver.
+ *
+ * **Example** (GoalRedAttribution boundary)
+ *
+ * ```ts
+ * import { GoalRedAttribution } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalRedAttribution.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalRedAttribution = LiteralKit(["inherited", "introduced", "mixed", "unknown"]).pipe(
+  $I.annoteSchema("GoalRedAttribution", {
+    description: "Attributes non-required failures without treating their conclusion as a waiver.",
+  })
+);
+/**
+ * Attributes non-required failures without treating their conclusion as a waiver.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalRedAttribution = typeof GoalRedAttribution.Type;
+
+/**
+ * Declares one pull request by number and delivery role.
+ *
+ * **Example** (GoalPullRequestRef boundary)
+ *
+ * ```ts
+ * import { GoalPullRequestRef } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalPullRequestRef.make({ number: 1429, role: "final" }).number)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalPullRequestRef extends S.Opaque<GoalPullRequestRef, { readonly brand: unique symbol }>()(
+  S.Struct({ number: S.Int.check(S.isGreaterThan(0)), role: GoalPullRequestRole }).pipe(
+    $I.annoteSchema("GoalPullRequestRef", { description: "Declares one pull request by number and delivery role." })
+  )
+) {}
+
+/**
+ * Points to acceptance evidence bound to a commit, with an explicit gating policy.
+ *
+ * **Example** (GoalAcceptanceEvidenceRef boundary)
+ *
+ * ```ts
+ * import { GoalAcceptanceEvidenceRef } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalAcceptanceEvidenceRef.make({ kind: "hosted-required-checks", ref: "required", gating: true }).gating)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalAcceptanceEvidenceRef extends S.Opaque<GoalAcceptanceEvidenceRef, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: GoalAcceptanceEvidenceKind,
+    ref: S.NonEmptyString,
+    gating: S.Boolean.pipe(S.withDecodingDefault(Effect.succeed(true))),
+  }).pipe(
+    $I.annoteSchema("GoalAcceptanceEvidenceRef", {
+      description: "Points to acceptance evidence bound to a commit, with an explicit gating policy.",
+    })
+  )
+) {}
+
+/**
+ * Records GitHub merge identity and tree without requiring squash-head ancestry.
+ *
+ * **Example** (GoalMergeResult boundary)
+ *
+ * ```ts
+ * import { GoalMergeResult } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalMergeResult.fields.baseRef)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalMergeResult extends S.Opaque<GoalMergeResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    mergeCommit: S.NonEmptyString,
+    tree: S.NonEmptyString,
+    mergedAt: S.DateTimeUtcFromString,
+    method: S.OptionFromNullOr(GoalMergeMethod),
+    baseRef: S.NonEmptyString,
+  }).pipe(
+    $I.annoteSchema("GoalMergeResult", {
+      description: "Records GitHub merge identity and tree without requiring squash-head ancestry.",
+    })
+  )
+) {}
+
+/**
+ * Records the outcome and observed head of one acceptance reference.
+ *
+ * **Example** (GoalEvidenceCheck boundary)
+ *
+ * ```ts
+ * import { GoalEvidenceCheck } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalEvidenceCheck.fields.outcome)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalEvidenceCheck extends S.Opaque<GoalEvidenceCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
+    ref: GoalAcceptanceEvidenceRef,
+    outcome: GoalCompletionOutcome,
+    observedHead: S.OptionFromNullOr(S.NonEmptyString),
+    detail: S.String,
+  }).pipe(
+    $I.annoteSchema("GoalEvidenceCheck", {
+      description: "Records the outcome and observed head of one acceptance reference.",
+    })
+  )
+) {}
+
+/**
+ * Names check conclusions without conflating pending observations and terminal failures.
+ *
+ * **Example** (Recognize pending checks)
+ *
+ * ```ts
+ * import { GoalCheckConclusion } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalCheckConclusion.is.pending("pending"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalCheckConclusion = LiteralKit([
+  "pending",
+  "success",
+  "failure",
+  "neutral",
+  "skipped",
+  "cancelled",
+  "timed_out",
+  "action_required",
+  "stale",
+  "startup_failure",
+  "unknown",
+]).pipe(
+  $I.annoteSchema("GoalCheckConclusion", {
+    description: "GitHub check conclusion or explicit pending/unknown observation.",
+  })
+);
+/**
+ * A GitHub conclusion or explicit pending/unknown observation.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalCheckConclusion = typeof GoalCheckConclusion.Type;
+
+/**
+ * Records historical required contexts, their ruleset versions and merge-time inventory completeness.
+ *
+ * **Details**
+ *
+ * Current ruleset enumeration omits rulesets deleted since merge. Its inventory
+ * is incomplete; absent completeness on older receipts also decodes to false.
+ * Legacy snapshots used an all-or-nothing ruleset reader, so an omitted
+ * `rulesetReadsComplete` defaults to true. Missing inventory completeness
+ * still defaults to false; successful reads cannot prove deleted rulesets absent.
+ *
+ * **Example** (Inspect required-check provenance)
+ *
+ * ```ts
+ * import { GoalRequiredCheckSnapshot } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalRequiredCheckSnapshot.fields.sources)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalRequiredCheckSnapshot extends S.Opaque<GoalRequiredCheckSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
+    contexts: S.Array(S.NonEmptyString),
+    sources: S.Array(S.NonEmptyString),
+    effectiveAt: S.DateTimeUtcFromString,
+    inventoryComplete: S.Boolean.pipe(S.withDecodingDefaultKey(Effect.succeed(false))),
+    rulesetReadsComplete: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(true)),
+      S.withDecodingDefaultKey(Effect.succeed(true))
+    ),
+  }).pipe(
+    $I.annoteSchema("GoalRequiredCheckSnapshot", {
+      description: "Historical required-context list with source version references and merge-time applicability.",
+    })
+  )
+) {}
+
+/**
+ * Retains merge-time and final conclusions alongside independently attributed failures.
+ *
+ * **Example** (GoalNonRequiredRed boundary)
+ *
+ * ```ts
+ * import { GoalNonRequiredRed } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalNonRequiredRed.fields.attribution)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalNonRequiredRed extends S.Opaque<GoalNonRequiredRed, { readonly brand: unique symbol }>()(
+  S.Struct({
+    lane: S.NonEmptyString,
+    conclusionAtMerge: GoalCheckConclusion,
+    conclusionFinal: GoalCheckConclusion,
+    attribution: GoalRedAttribution,
+  }).pipe(
+    $I.annoteSchema("GoalNonRequiredRed", {
+      description: "Retains merge-time and final conclusions alongside independently attributed failures.",
+    })
+  )
+) {}
+
+/**
+ * Binds a derived completion observation to the repository, packet, declaration and accepted head.
+ *
+ * **Example** (GoalCompletionReceipt boundary)
+ *
+ * ```ts
+ * import { GoalCompletionReceipt } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalCompletionReceipt.fields.schemaVersion)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalCompletionReceipt extends S.Opaque<GoalCompletionReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
+    schemaVersion: S.Literal("goal-completion-receipt/v1"),
+    repository: S.NonEmptyString,
+    packet: S.NonEmptyString,
+    declarationDigest: S.NonEmptyString,
+    acceptedDeclarationDigest: S.OptionFromNullOr(S.NonEmptyString),
+    requiredChecks: S.OptionFromNullOr(GoalRequiredCheckSnapshot).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.withDecodingDefault(Effect.succeed(null))
+    ),
+    finalPullRequest: S.Int.check(S.isGreaterThan(0)),
+    acceptedHead: S.OptionFromNullOr(S.NonEmptyString),
+    merge: S.OptionFromNullOr(GoalMergeResult),
+    evidence: S.Array(GoalEvidenceCheck),
+    nonRequiredReds: S.Array(GoalNonRequiredRed),
+    subClaims: S.Array(GoalEvidenceCheck),
+    outcome: GoalCompletionOutcome,
+    verifiedAt: S.DateTimeUtcFromString,
+  }).pipe(
+    $I.annoteSchema("GoalCompletionReceipt", {
+      description: "Binds a derived completion observation to the repository, packet, declaration and accepted head.",
+    })
+  )
+) {}
+
+/**
  * The declared completion gate of a goal packet.
  *
  * **Details**
@@ -219,18 +587,30 @@ export type GoalManifestSchemaVersion = typeof GoalManifestSchemaVersion.Type;
  * @category models
  * @since 0.0.0
  */
-export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompletionGate`)(
-  {
+export class GoalCompletionGate extends S.Opaque<GoalCompletionGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     operator: S.String,
     requiresPullRequest: S.Boolean,
     requiresMergeable: S.Boolean,
     statement: S.String,
     grandfathered: S.Boolean,
     grandfatheredNote: S.optionalKey(S.String),
-  },
-  $I.annote("GoalCompletionGate", {
-    description: "Declared completion gate of a goal packet (yeet PR-to-mergeable unless grandfathered).",
-  })
+    pullRequests: S.optionalKey(
+      S.Array(GoalPullRequestRef).check(
+        S.makeFilter((refs) => A.length(A.filter(refs, (ref) => ref.role === "final")) <= 1, {
+          identifier: $I`OneFinalPullRequest`,
+          title: "One final PR",
+          description: "A goal declares at most one final delivery PR.",
+          message: "At most one final PR is allowed",
+        })
+      )
+    ),
+    acceptanceEvidence: GoalAcceptanceEvidenceRef.pipe(S.Array, S.optionalKey),
+  }).pipe(
+    $I.annoteSchema("GoalCompletionGate", {
+      description: "Declared completion gate of a goal packet (yeet PR-to-mergeable unless grandfathered).",
+    })
+  )
 ) {}
 
 /**
@@ -254,18 +634,20 @@ export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompl
  * @category models
  * @since 0.0.0
  */
-export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
-  {
+export class GoalInitiative extends S.Opaque<GoalInitiative, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
+    packetId: S.optionalKey(S.String),
     status: GoalStatus,
     title: S.optionalKey(S.String),
     created: S.optionalKey(S.String),
     updated: S.optionalKey(S.String),
     packetAnchorDocument: S.optionalKey(S.String),
-  },
-  $I.annote("GoalInitiative", {
-    description: "Goal-manifest identity block: required id and canonical status plus optional metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalInitiative", {
+      description: "Goal-manifest identity block: required id and canonical status plus optional metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -288,16 +670,17 @@ export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
  * @category models
  * @since 0.0.0
  */
-export class GoalPhase extends S.Class<GoalPhase>($I`GoalPhase`)(
-  {
+export class GoalPhase extends S.Opaque<GoalPhase, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: GoalPhaseStatus,
     id: S.optionalKey(S.String),
     name: S.optionalKey(S.String),
     exit: S.optionalKey(S.String),
-  },
-  $I.annote("GoalPhase", {
-    description: "One goal-manifest phase entry with a normalized status.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalPhase", {
+      description: "One goal-manifest phase entry with a normalized status.",
+    })
+  )
 ) {}
 
 const CapabilitySegment = S.String.check(
@@ -445,12 +828,14 @@ const GoalManifestCapabilitySelfCycleCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GoalManifest extends S.Class<GoalManifest>($I`GoalManifest`)(
+export class GoalManifest extends S.Opaque<GoalManifest, { readonly brand: unique symbol }>()(
   S.Struct({
     initiative: GoalInitiative,
     completionGate: GoalCompletionGate,
     schemaVersion: S.optionalKey(GoalManifestSchemaVersion),
     lifecycle: S.optionalKey(GoalStatus),
+    mergedPullRequest: S.optionalKey(S.Int.check(S.isGreaterThan(0))),
+    mergedPullRequests: S.Int.check(S.isGreaterThan(0)).pipe(S.Array, S.optionalKey),
     packetPath: S.optionalKey(S.String),
     executionCapable: S.optionalKey(S.Boolean),
     reflectionRequired: S.optionalKey(S.Boolean),
@@ -465,10 +850,13 @@ export class GoalManifest extends S.Class<GoalManifest>($I`GoalManifest`)(
     phases: S.Union([S.Array(GoalPhase), S.Record(S.String, GoalPhase)]).pipe(S.optionalKey),
     provides: CapabilitySlugList,
     requires: CapabilitySlugList,
-  }).check(GoalManifestCapabilitySelfCycleCheck),
-  $I.annote("GoalManifest", {
-    description: "Canonical goal-packet manifest with defaulted capability edges and legacy wire compatibility.",
   })
+    .check(GoalManifestCapabilitySelfCycleCheck)
+    .pipe(
+      $I.annoteSchema("GoalManifest", {
+        description: "Canonical goal-packet manifest with defaulted capability edges and legacy wire compatibility.",
+      })
+    )
 ) {}
 
 /**
@@ -489,3 +877,35 @@ export const decodeGoalManifest: {
   (input: unknown, options?: AST.ParseOptions): Effect.Effect<GoalManifest, S.SchemaError>;
   (options?: AST.ParseOptions): (input: unknown) => Effect.Effect<GoalManifest, S.SchemaError>;
 } = dual(SchemaUtils.isCodecDataFirst, S.decodeUnknownEffect(GoalManifest));
+
+/**
+ * Normalizes legacy PR references in memory while preserving every manifest on disk.
+ *
+ * **Example** (Use the normalizer)
+ *
+ * ```ts
+ * import { goalPullRequestRefs } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(typeof goalPullRequestRefs)
+ * ```
+ *
+ * @param manifest - Decoded manifest whose optional legacy PR fields are retained.
+ * @returns Declared references, or a legacy final reference with supporting PRs.
+ * @category normalization
+ * @since 0.0.0
+ */
+export const goalPullRequestRefs = (manifest: GoalManifest): ReadonlyArray<GoalPullRequestRef> => {
+  if (manifest.completionGate.pullRequests !== undefined) return manifest.completionGate.pullRequests;
+  const numbers = manifest.mergedPullRequests ?? [];
+  const final = O.orElse(O.fromUndefinedOr(manifest.mergedPullRequest), () => A.last(numbers));
+  return O.match(final, {
+    onNone: A.empty<GoalPullRequestRef>,
+    onSome: (number) =>
+      A.prepend(
+        A.map(
+          A.filter(numbers, (value) => value !== number),
+          (value) => GoalPullRequestRef.make({ number: value, role: "supporting" })
+        ),
+        GoalPullRequestRef.make({ number, role: "final" })
+      ),
+  });
+};

@@ -366,8 +366,8 @@ export type PhoenixPromptModelProvider = typeof PhoenixPromptModelProvider.Type;
  * @category models
  * @since 0.0.0
  */
-export class PhoenixDoctorResult extends S.Class<PhoenixDoctorResult>($I`PhoenixDoctorResult`)(
-  {
+export class PhoenixDoctorResult extends S.Opaque<PhoenixDoctorResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseUrl: S.String.annotateKey({
       description: "Phoenix API base URL checked by the doctor operation.",
     }),
@@ -380,10 +380,11 @@ export class PhoenixDoctorResult extends S.Class<PhoenixDoctorResult>($I`Phoenix
     version: S.NullOr(S.String).annotateKey({
       description: "Phoenix server version when it is available.",
     }),
-  },
-  $I.annote("PhoenixDoctorResult", {
-    description: "Phoenix driver doctor result with sanitized connectivity status.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixDoctorResult", {
+      description: "Phoenix driver doctor result with sanitized connectivity status.",
+    })
+  )
 ) {}
 
 /**
@@ -401,8 +402,8 @@ export class PhoenixDoctorResult extends S.Class<PhoenixDoctorResult>($I`Phoenix
  * @category models
  * @since 0.0.0
  */
-export class PhoenixDatasetSelector extends S.Class<PhoenixDatasetSelector>($I`PhoenixDatasetSelector`)(
-  {
+export class PhoenixDatasetSelector extends S.Opaque<PhoenixDatasetSelector, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: PhoenixDatasetSelectorKind.annotateKey({
       description: "Dataset selector mode used by the Phoenix SDK.",
     }),
@@ -415,10 +416,11 @@ export class PhoenixDatasetSelector extends S.Class<PhoenixDatasetSelector>($I`P
     versionId: S.optionalKey(S.String).annotateKey({
       description: "Optional Phoenix dataset version identifier.",
     }),
-  },
-  $I.annote("PhoenixDatasetSelector", {
-    description: "Phoenix dataset selector by dataset id or dataset name.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixDatasetSelector", {
+      description: "Phoenix dataset selector by dataset id or dataset name.",
+    })
+  )
 ) {}
 
 /**
@@ -439,8 +441,8 @@ export class PhoenixDatasetSelector extends S.Class<PhoenixDatasetSelector>($I`P
  * @category models
  * @since 0.0.0
  */
-export class PhoenixDatasetExample extends S.Class<PhoenixDatasetExample>($I`PhoenixDatasetExample`)(
-  {
+export class PhoenixDatasetExample extends S.Opaque<PhoenixDatasetExample, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.optionalKey(S.String).annotateKey({
       description: "Optional Phoenix dataset example identifier.",
     }),
@@ -463,10 +465,11 @@ export class PhoenixDatasetExample extends S.Class<PhoenixDatasetExample>($I`Pho
       .annotateKey({
         description: "Optional nullable Phoenix split assignment for the example.",
       }),
-  },
-  $I.annote("PhoenixDatasetExample", {
-    description: "Phoenix dataset example with sanitized input, output, metadata, and optional span linkage.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixDatasetExample", {
+      description: "Phoenix dataset example with sanitized input, output, metadata, and optional span linkage.",
+    })
+  )
 ) {}
 
 /**
@@ -488,8 +491,8 @@ export class PhoenixDatasetExample extends S.Class<PhoenixDatasetExample>($I`Pho
  * @category models
  * @since 0.0.0
  */
-export class PhoenixDatasetCreateInput extends S.Class<PhoenixDatasetCreateInput>($I`PhoenixDatasetCreateInput`)(
-  {
+export class PhoenixDatasetCreateInput extends S.Opaque<PhoenixDatasetCreateInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     description: S.String.annotateKey({
       description: "Human-readable Phoenix dataset description.",
     }),
@@ -499,10 +502,11 @@ export class PhoenixDatasetCreateInput extends S.Class<PhoenixDatasetCreateInput
     name: S.String.annotateKey({
       description: "Phoenix dataset name.",
     }),
-  },
-  $I.annote("PhoenixDatasetCreateInput", {
-    description: "Input for creating or idempotently replacing a Phoenix dataset.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixDatasetCreateInput", {
+      description: "Input for creating or idempotently replacing a Phoenix dataset.",
+    })
+  )
 ) {}
 
 /**
@@ -520,15 +524,19 @@ export class PhoenixDatasetCreateInput extends S.Class<PhoenixDatasetCreateInput
  * @category models
  * @since 0.0.0
  */
-export class PhoenixDatasetCreateResult extends S.Class<PhoenixDatasetCreateResult>($I`PhoenixDatasetCreateResult`)(
-  {
+export class PhoenixDatasetCreateResult extends S.Opaque<
+  PhoenixDatasetCreateResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     datasetId: S.String.annotateKey({
       description: "Phoenix dataset identifier returned after creation.",
     }),
-  },
-  $I.annote("PhoenixDatasetCreateResult", {
-    description: "Result from creating or replacing a Phoenix dataset.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixDatasetCreateResult", {
+      description: "Result from creating or replacing a Phoenix dataset.",
+    })
+  )
 ) {}
 
 /**
@@ -549,18 +557,19 @@ export class PhoenixDatasetCreateResult extends S.Class<PhoenixDatasetCreateResu
  * @category models
  * @since 0.0.0
  */
-export class PhoenixDatasetAppendInput extends S.Class<PhoenixDatasetAppendInput>($I`PhoenixDatasetAppendInput`)(
-  {
+export class PhoenixDatasetAppendInput extends S.Opaque<PhoenixDatasetAppendInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataset: PhoenixDatasetSelector.annotateKey({
       description: "Phoenix dataset receiving appended examples.",
     }),
     examples: S.Array(PhoenixDatasetExample).annotateKey({
       description: "Examples appended to the Phoenix dataset.",
     }),
-  },
-  $I.annote("PhoenixDatasetAppendInput", {
-    description: "Input for appending examples to an existing Phoenix dataset.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixDatasetAppendInput", {
+      description: "Input for appending examples to an existing Phoenix dataset.",
+    })
+  )
 ) {}
 
 /**
@@ -578,18 +587,22 @@ export class PhoenixDatasetAppendInput extends S.Class<PhoenixDatasetAppendInput
  * @category models
  * @since 0.0.0
  */
-export class PhoenixDatasetAppendResult extends S.Class<PhoenixDatasetAppendResult>($I`PhoenixDatasetAppendResult`)(
-  {
+export class PhoenixDatasetAppendResult extends S.Opaque<
+  PhoenixDatasetAppendResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     datasetId: S.String.annotateKey({
       description: "Phoenix dataset identifier receiving appended examples.",
     }),
     versionId: S.String.annotateKey({
       description: "Phoenix dataset version identifier after append.",
     }),
-  },
-  $I.annote("PhoenixDatasetAppendResult", {
-    description: "Result from appending examples to a Phoenix dataset.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixDatasetAppendResult", {
+      description: "Result from appending examples to a Phoenix dataset.",
+    })
+  )
 ) {}
 
 const phoenixDatasetInfoResultMetadataDefault = R.empty();
@@ -608,8 +621,8 @@ const phoenixDatasetInfoResultMetadataDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class PhoenixDatasetInfoResult extends S.Class<PhoenixDatasetInfoResult>($I`PhoenixDatasetInfoResult`)(
-  {
+export class PhoenixDatasetInfoResult extends S.Opaque<PhoenixDatasetInfoResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     datasetId: S.String.annotateKey({
       description: "Phoenix dataset identifier.",
     }),
@@ -629,10 +642,11 @@ export class PhoenixDatasetInfoResult extends S.Class<PhoenixDatasetInfoResult>(
     name: S.String.annotateKey({
       description: "Phoenix dataset name.",
     }),
-  },
-  $I.annote("PhoenixDatasetInfoResult", {
-    description: "Readback summary for a Phoenix dataset.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixDatasetInfoResult", {
+      description: "Readback summary for a Phoenix dataset.",
+    })
+  )
 ) {}
 
 /**
@@ -650,20 +664,22 @@ export class PhoenixDatasetInfoResult extends S.Class<PhoenixDatasetInfoResult>(
  * @category models
  * @since 0.0.0
  */
-export class PhoenixDatasetExamplesResult extends S.Class<PhoenixDatasetExamplesResult>(
-  $I`PhoenixDatasetExamplesResult`
-)(
-  {
+export class PhoenixDatasetExamplesResult extends S.Opaque<
+  PhoenixDatasetExamplesResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     examples: S.Array(PhoenixDatasetExample).annotateKey({
       description: "Phoenix dataset examples returned for the selected version.",
     }),
     versionId: S.String.annotateKey({
       description: "Phoenix dataset version identifier used for the readback.",
     }),
-  },
-  $I.annote("PhoenixDatasetExamplesResult", {
-    description: "Readback result for Phoenix dataset examples.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixDatasetExamplesResult", {
+      description: "Readback result for Phoenix dataset examples.",
+    })
+  )
 ) {}
 
 /**
@@ -681,18 +697,19 @@ export class PhoenixDatasetExamplesResult extends S.Class<PhoenixDatasetExamples
  * @category models
  * @since 0.0.0
  */
-export class PhoenixPromptChatMessage extends S.Class<PhoenixPromptChatMessage>($I`PhoenixPromptChatMessage`)(
-  {
+export class PhoenixPromptChatMessage extends S.Opaque<PhoenixPromptChatMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.String.annotateKey({
       description: "Prompt chat message content.",
     }),
     role: PhoenixPromptChatRole.annotateKey({
       description: "Prompt chat message role.",
     }),
-  },
-  $I.annote("PhoenixPromptChatMessage", {
-    description: "Phoenix prompt chat message used by repo-owned prompt templates.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixPromptChatMessage", {
+      description: "Phoenix prompt chat message used by repo-owned prompt templates.",
+    })
+  )
 ) {}
 
 const phoenixPromptCreateInputMetadataDefault = R.empty();
@@ -716,8 +733,8 @@ const phoenixPromptCreateInputMetadataDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class PhoenixPromptCreateInput extends S.Class<PhoenixPromptCreateInput>($I`PhoenixPromptCreateInput`)(
-  {
+export class PhoenixPromptCreateInput extends S.Opaque<PhoenixPromptCreateInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     description: S.optionalKey(S.String).annotateKey({
       description: "Optional Phoenix prompt description.",
     }),
@@ -753,10 +770,11 @@ export class PhoenixPromptCreateInput extends S.Class<PhoenixPromptCreateInput>(
     versionDescription: S.optionalKey(S.String).annotateKey({
       description: "Optional Phoenix prompt version description.",
     }),
-  },
-  $I.annote("PhoenixPromptCreateInput", {
-    description: "Input for creating a repo-owned Phoenix prompt version.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixPromptCreateInput", {
+      description: "Input for creating a repo-owned Phoenix prompt version.",
+    })
+  )
 ) {}
 
 /**
@@ -774,18 +792,19 @@ export class PhoenixPromptCreateInput extends S.Class<PhoenixPromptCreateInput>(
  * @category models
  * @since 0.0.0
  */
-export class PhoenixPromptWriteResult extends S.Class<PhoenixPromptWriteResult>($I`PhoenixPromptWriteResult`)(
-  {
+export class PhoenixPromptWriteResult extends S.Opaque<PhoenixPromptWriteResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String.annotateKey({
       description: "Phoenix prompt name.",
     }),
     promptVersionId: S.String.annotateKey({
       description: "Phoenix prompt version identifier.",
     }),
-  },
-  $I.annote("PhoenixPromptWriteResult", {
-    description: "Result from creating a Phoenix prompt version.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixPromptWriteResult", {
+      description: "Result from creating a Phoenix prompt version.",
+    })
+  )
 ) {}
 
 /**
@@ -803,8 +822,8 @@ export class PhoenixPromptWriteResult extends S.Class<PhoenixPromptWriteResult>(
  * @category models
  * @since 0.0.0
  */
-export class PhoenixPromptSelector extends S.Class<PhoenixPromptSelector>($I`PhoenixPromptSelector`)(
-  {
+export class PhoenixPromptSelector extends S.Opaque<PhoenixPromptSelector, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.optionalKey(S.String).annotateKey({
       description: "Optional Phoenix prompt name.",
     }),
@@ -817,10 +836,11 @@ export class PhoenixPromptSelector extends S.Class<PhoenixPromptSelector>($I`Pho
     versionId: S.optionalKey(S.String).annotateKey({
       description: "Optional Phoenix prompt version identifier.",
     }),
-  },
-  $I.annote("PhoenixPromptSelector", {
-    description: "Phoenix prompt selector by prompt id, name, version id, or name plus tag.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixPromptSelector", {
+      description: "Phoenix prompt selector by prompt id, name, version id, or name plus tag.",
+    })
+  )
 ) {}
 
 /**
@@ -838,18 +858,19 @@ export class PhoenixPromptSelector extends S.Class<PhoenixPromptSelector>($I`Pho
  * @category models
  * @since 0.0.0
  */
-export class PhoenixPromptReadResult extends S.Class<PhoenixPromptReadResult>($I`PhoenixPromptReadResult`)(
-  {
+export class PhoenixPromptReadResult extends S.Opaque<PhoenixPromptReadResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     exists: S.Boolean.annotateKey({
       description: "Whether the Phoenix prompt selector resolved to a prompt.",
     }),
     promptVersionId: S.NullOr(S.String).annotateKey({
       description: "Nullable Phoenix prompt version identifier.",
     }),
-  },
-  $I.annote("PhoenixPromptReadResult", {
-    description: "Readback result for a Phoenix prompt selector.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixPromptReadResult", {
+      description: "Readback result for a Phoenix prompt selector.",
+    })
+  )
 ) {}
 
 const phoenixExperimentCreateInputExperimentMetadataDefault = R.empty();
@@ -871,10 +892,11 @@ const phoenixExperimentCreateInputExperimentMetadataDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class PhoenixExperimentCreateInput extends S.Class<PhoenixExperimentCreateInput>(
-  $I`PhoenixExperimentCreateInput`
-)(
-  {
+export class PhoenixExperimentCreateInput extends S.Opaque<
+  PhoenixExperimentCreateInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     datasetId: S.String.annotateKey({
       description: "Phoenix dataset identifier used by the experiment.",
     }),
@@ -904,10 +926,11 @@ export class PhoenixExperimentCreateInput extends S.Class<PhoenixExperimentCreat
     splits: S.Array(S.String).pipe(S.optionalKey).annotateKey({
       description: "Optional Phoenix dataset splits used by the experiment.",
     }),
-  },
-  $I.annote("PhoenixExperimentCreateInput", {
-    description: "Input for creating a Phoenix experiment record without running billable model work.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixExperimentCreateInput", {
+      description: "Input for creating a Phoenix experiment record without running billable model work.",
+    })
+  )
 ) {}
 
 const phoenixExperimentInfoResultMetadataDefault = R.empty();
@@ -935,8 +958,11 @@ const phoenixExperimentInfoResultMetadataDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class PhoenixExperimentInfoResult extends S.Class<PhoenixExperimentInfoResult>($I`PhoenixExperimentInfoResult`)(
-  {
+export class PhoenixExperimentInfoResult extends S.Opaque<
+  PhoenixExperimentInfoResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     datasetId: S.String.annotateKey({
       description: "Phoenix dataset identifier used by the experiment.",
     }),
@@ -974,10 +1000,11 @@ export class PhoenixExperimentInfoResult extends S.Class<PhoenixExperimentInfoRe
     successfulRunCount: PhoenixCount.annotateKey({
       description: "Non-negative count of successful experiment runs.",
     }),
-  },
-  $I.annote("PhoenixExperimentInfoResult", {
-    description: "Readback summary for a Phoenix experiment record.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixExperimentInfoResult", {
+      description: "Readback summary for a Phoenix experiment record.",
+    })
+  )
 ) {}
 
 const phoenixAnnotationInputMetadataDefault = R.empty();
@@ -1001,8 +1028,8 @@ const phoenixAnnotationInputMetadataDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class PhoenixAnnotationInput extends S.Class<PhoenixAnnotationInput>($I`PhoenixAnnotationInput`)(
-  {
+export class PhoenixAnnotationInput extends S.Opaque<PhoenixAnnotationInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     annotatorKind: PhoenixAnnotatorKind.pipe(
       S.withConstructorDefault(Effect.succeed(PhoenixAnnotatorKind.Enum.CODE)),
       S.withDecodingDefaultTypeKey(Effect.succeed(PhoenixAnnotatorKind.Enum.CODE))
@@ -1044,10 +1071,11 @@ export class PhoenixAnnotationInput extends S.Class<PhoenixAnnotationInput>($I`P
     targetKind: PhoenixAnnotationTargetKind.annotateKey({
       description: "Phoenix annotation target kind.",
     }),
-  },
-  $I.annote("PhoenixAnnotationInput", {
-    description: "Input for writing one Phoenix span, session, or trace annotation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixAnnotationInput", {
+      description: "Input for writing one Phoenix span, session, or trace annotation.",
+    })
+  )
 ) {}
 
 /**
@@ -1070,10 +1098,11 @@ export class PhoenixAnnotationInput extends S.Class<PhoenixAnnotationInput>($I`P
  * @category models
  * @since 0.0.0
  */
-export class PhoenixAnnotationWriteResult extends S.Class<PhoenixAnnotationWriteResult>(
-  $I`PhoenixAnnotationWriteResult`
-)(
-  {
+export class PhoenixAnnotationWriteResult extends S.Opaque<
+  PhoenixAnnotationWriteResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     annotationId: S.NullOr(S.String).annotateKey({
       description: "Nullable Phoenix annotation identifier returned by the SDK.",
     }),
@@ -1086,8 +1115,9 @@ export class PhoenixAnnotationWriteResult extends S.Class<PhoenixAnnotationWrite
     targetKind: PhoenixAnnotationTargetKind.annotateKey({
       description: "Phoenix annotation target kind.",
     }),
-  },
-  $I.annote("PhoenixAnnotationWriteResult", {
-    description: "Result from writing one Phoenix annotation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixAnnotationWriteResult", {
+      description: "Result from writing one Phoenix annotation.",
+    })
+  )
 ) {}

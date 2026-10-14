@@ -78,7 +78,11 @@
     "jq . goals/docs-lint-oxlint-rules/ops/manifest.json",
     "rg -n \"docs-lint-oxlint-rules|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/docs-lint-oxlint-rules",
     "git diff --check -- goals/docs-lint-oxlint-rules",
-    "bun run beep lint reflection-artifacts"
+    "bun run beep lint reflection-artifacts",
+    "bun run beep lint deprecated-apis --full",
+    "bun run beep lint jsdoc --root-only",
+    "bun run fallow:dead-code",
+    "bun run beep laws retired-effect-paths --check"
   ],
   "stopConditions": [
     "Required source files are missing or materially contradictory.",

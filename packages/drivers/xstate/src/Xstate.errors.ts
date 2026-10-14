@@ -58,7 +58,9 @@ export type StatelyInspectorOperation = typeof StatelyInspectorOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class StatelyInspectorError extends S.TaggedError<StatelyInspectorError>($I`StatelyInspectorError`)(
+export class StatelyInspectorError extends S.TaggedError<StatelyInspectorError, { readonly brand: unique symbol }>(
+  $I`StatelyInspectorError`
+)(
   "StatelyInspectorError",
   {
     operation: StatelyInspectorOperation,
@@ -89,7 +91,9 @@ export class StatelyInspectorError extends S.TaggedError<StatelyInspectorError>(
  * @category errors
  * @since 0.0.0
  */
-export class MachineExportError extends S.TaggedError<MachineExportError>($I`MachineExportError`)(
+export class MachineExportError extends S.TaggedError<MachineExportError, { readonly brand: unique symbol }>(
+  $I`MachineExportError`
+)(
   "MachineExportError",
   {
     machineId: S.String,

@@ -422,7 +422,7 @@ const webhookAction = Effect.fnUntraced(function* (
   );
 });
 
-const blockedCapabilityAction = Effect.fnUntraced(function* <A extends BoxMetadataIntent | BoxRetentionIntent, I>(
+const blockedCapabilityAction = Effect.fnUntraced(function* <A extends { readonly logicalKey: BoxLogicalKey }, I>(
   desired: A,
   schema: S.Codec<A, I>,
   resourceKind: "metadata" | "retention",

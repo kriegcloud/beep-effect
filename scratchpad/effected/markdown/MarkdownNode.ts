@@ -56,7 +56,7 @@ const $I = $ScratchpadId.create("effected/markdown/MarkdownNode");
  * @category models
  * @since 0.0.0
  */
-export class Point extends S.Class<Point>($I`Point`)({
+export class Point extends S.Class<Point, {}>($I`Point`)({
 	line: S.Finite.annotateKey({ description: "1-based line number in the source document" }),
 	column: S.Finite.annotateKey({ description: "1-based column in the source line, measured in UTF-16 code units" }),
 	offset: S.Finite.annotateKey({ description: "0-based index into the source string, measured in UTF-16 code units for offset-splice editing" }),
@@ -68,11 +68,11 @@ export class Point extends S.Class<Point>($I`Point`)({
  * **Example** (Construct an exclusive source span)
  *
  * ```ts
- * import { Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
+ * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
  *
  * const position = Position.make({
- *   start: { line: 1, column: 1, offset: 0 },
- *   end: { line: 1, column: 4, offset: 3 },
+ *   start: Point.make({ line: 1, column: 1, offset: 0 }),
+ *   end: Point.make({ line: 1, column: 4, offset: 3 }),
  * });
  * console.log(position.end.offset - position.start.offset) // 3
  * ```
@@ -81,7 +81,7 @@ export class Point extends S.Class<Point>($I`Point`)({
  * @category models
  * @since 0.0.0
  */
-export class Position extends S.Class<Position>($I`Position`)({
+export class Position extends S.Class<Position, {}>($I`Position`)({
 	start: Point.annotateKey({ description: "Inclusive source point where the node begins" }),
 	end: Point.annotateKey({ description: "Exclusive source point immediately after the node" }),
 }, $I.annote("Position", { description: "The source span of a node: `start` inclusive, `end` exclusive." })) {
@@ -482,7 +482,7 @@ export type TableAlign = typeof TableAlign.Type;
  * @category models
  * @since 0.0.0
  */
-export class Text extends S.Class<Text>($I`Text`)({
+export class Text extends S.Class<Text, {}>($I`Text`)({
 	type: S.tag("text").annotateKey({ description: "The `text` discriminator identifying a run of literal characters" }),
 	value: S.String.annotateKey({ description: "Literal text content with entity references and backslash escapes already resolved" }),
 	escapeStyle: S.optionalKey(S.Literals(["canonical", "literal"])).annotateKey({ description: "Emitter instruction selecting canonical inline escaping or literal output, while retaining escapes that protect surrounding block structure" }),
@@ -507,7 +507,7 @@ export class Text extends S.Class<Text>($I`Text`)({
  * @category models
  * @since 0.0.0
  */
-export class InlineCode extends S.Class<InlineCode>($I`InlineCode`)({
+export class InlineCode extends S.Class<InlineCode, {}>($I`InlineCode`)({
 	type: S.tag("inlineCode").annotateKey({ description: "The `inlineCode` discriminator identifying an inline code span" }),
 	value: S.String.annotateKey({ description: "Code span content with backtick fences removed and CommonMark space stripping applied" }),
 	position: NodePosition.annotateKey({ description: "Source span of the code span, constructor-defaulted to the zero-width synthetic position" }),
@@ -531,7 +531,7 @@ export class InlineCode extends S.Class<InlineCode>($I`InlineCode`)({
  * @category models
  * @since 0.0.0
  */
-export class Html extends S.Class<Html>($I`Html`)({
+export class Html extends S.Class<Html, {}>($I`Html`)({
 	type: S.tag("html").annotateKey({ description: "The `html` discriminator identifying raw HTML in block or inline position" }),
 	value: S.String.annotateKey({ description: "Raw HTML source preserved verbatim" }),
 	position: NodePosition.annotateKey({ description: "Source span of the HTML fragment, constructor-defaulted to the zero-width synthetic position" }),
@@ -558,7 +558,7 @@ export class Html extends S.Class<Html>($I`Html`)({
  * @category models
  * @since 0.0.0
  */
-export class Break extends S.Class<Break>($I`Break`)({
+export class Break extends S.Class<Break, {}>($I`Break`)({
 	type: S.tag("break").annotateKey({ description: "The `break` discriminator identifying a hard line break" }),
 	position: NodePosition.annotateKey({ description: "Source span of the hard break, constructor-defaulted to the zero-width synthetic position" }),
 	breakStyle: S.optionalKey(BreakStyle).annotateKey({ description: "Source spelling of the hard break: a trailing backslash or two or more trailing spaces" }),
@@ -580,7 +580,7 @@ export class Break extends S.Class<Break>($I`Break`)({
  * @category models
  * @since 0.0.0
  */
-export class Image extends S.Class<Image>($I`Image`)({
+export class Image extends S.Class<Image, {}>($I`Image`)({
 	type: S.tag("image").annotateKey({ description: "The `image` discriminator identifying an inline image with a direct destination" }),
 	url: S.String.annotateKey({ description: "Image destination with source escapes resolved, without URI percent encoding" }),
 	title: S.optionalKey(S.String).annotateKey({ description: "Optional image title with enclosing delimiters removed and source escapes resolved" }),
@@ -610,7 +610,7 @@ export class Image extends S.Class<Image>($I`Image`)({
  * @category models
  * @since 0.0.0
  */
-export class ImageReference extends S.Class<ImageReference>($I`ImageReference`)({
+export class ImageReference extends S.Class<ImageReference, {}>($I`ImageReference`)({
 	type: S.tag("imageReference").annotateKey({ description: "The `imageReference` discriminator identifying an image associated with a link reference definition" }),
 	identifier: S.String.annotateKey({ description: "Normalized, lowercased reference label used to associate the image with a definition" }),
 	label: S.optionalKey(S.String).annotateKey({ description: "Original reference label text with surrounding brackets removed" }),
@@ -639,7 +639,7 @@ export class ImageReference extends S.Class<ImageReference>($I`ImageReference`)(
  * @category models
  * @since 0.0.0
  */
-export class Emphasis extends S.Class<Emphasis>($I`Emphasis`)({
+export class Emphasis extends S.Class<Emphasis, {}>($I`Emphasis`)({
 	type: S.tag("emphasis").annotateKey({ description: "The `emphasis` discriminator identifying emphasized inline content" }),
 	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content enclosed by emphasis markers, in document order" }),
 	position: NodePosition.annotateKey({ description: "Source span of the emphasis, constructor-defaulted to the zero-width synthetic position" }),
@@ -666,7 +666,7 @@ export class Emphasis extends S.Class<Emphasis>($I`Emphasis`)({
  * @category models
  * @since 0.0.0
  */
-export class Strong extends S.Class<Strong>($I`Strong`)({
+export class Strong extends S.Class<Strong, {}>($I`Strong`)({
 	type: S.tag("strong").annotateKey({ description: "The `strong` discriminator identifying strongly emphasized inline content" }),
 	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content enclosed by strong emphasis markers, in document order" }),
 	position: NodePosition.annotateKey({ description: "Source span of the strong emphasis, constructor-defaulted to the zero-width synthetic position" }),
@@ -696,7 +696,7 @@ export class Strong extends S.Class<Strong>($I`Strong`)({
  * @category models
  * @since 0.0.0
  */
-export class Delete extends S.Class<Delete>($I`Delete`)({
+export class Delete extends S.Class<Delete, {}>($I`Delete`)({
 	type: S.tag("delete").annotateKey({ description: "The `delete` discriminator identifying GFM strikethrough content" }),
 	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content marked as no longer accurate or relevant by strikethrough, in document order" }),
 	position: NodePosition.annotateKey({ description: "Source span of the strikethrough, constructor-defaulted to the zero-width synthetic position" }),
@@ -718,7 +718,7 @@ export class Delete extends S.Class<Delete>($I`Delete`)({
  * @category models
  * @since 0.0.0
  */
-export class Link extends S.Class<Link>($I`Link`)({
+export class Link extends S.Class<Link, {}>($I`Link`)({
 	type: S.tag("link").annotateKey({ description: "The `link` discriminator identifying an inline link or autolink with a direct destination" }),
 	url: S.String.annotateKey({ description: "Link destination with source escapes resolved, without URI percent encoding" }),
 	title: S.optionalKey(S.String).annotateKey({ description: "Optional link title with enclosing delimiters removed and source escapes resolved" }),
@@ -747,7 +747,7 @@ export class Link extends S.Class<Link>($I`Link`)({
  * @category models
  * @since 0.0.0
  */
-export class LinkReference extends S.Class<LinkReference>($I`LinkReference`)({
+export class LinkReference extends S.Class<LinkReference, {}>($I`LinkReference`)({
 	type: S.tag("linkReference").annotateKey({ description: "The `linkReference` discriminator identifying a link associated with a reference definition" }),
 	identifier: S.String.annotateKey({ description: "Normalized, lowercased reference label used to associate the link with a definition" }),
 	label: S.optionalKey(S.String).annotateKey({ description: "Original reference label text with surrounding brackets removed" }),
@@ -780,7 +780,7 @@ export class LinkReference extends S.Class<LinkReference>($I`LinkReference`)({
  * @category models
  * @since 0.0.0
  */
-export class FootnoteReference extends S.Class<FootnoteReference>($I`FootnoteReference`)({
+export class FootnoteReference extends S.Class<FootnoteReference, {}>($I`FootnoteReference`)({
 	type: S.tag("footnoteReference").annotateKey({ description: "The `footnoteReference` discriminator identifying a GFM footnote marker" }),
 	identifier: S.String.annotateKey({ description: "Normalized, lowercased footnote label used to associate the marker with a footnote definition" }),
 	label: S.optionalKey(S.String).annotateKey({ description: "Original footnote label text without the surrounding brackets and leading caret" }),
@@ -877,7 +877,7 @@ export type PhrasingContent =
  * @category models
  * @since 0.0.0
  */
-export class ThematicBreak extends S.Class<ThematicBreak>($I`ThematicBreak`)({
+export class ThematicBreak extends S.Class<ThematicBreak, {}>($I`ThematicBreak`)({
 	type: S.tag("thematicBreak").annotateKey({ description: "The `thematicBreak` discriminator identifying a horizontal rule" }),
 	position: NodePosition.annotateKey({ description: "Source span of the horizontal rule, constructor-defaulted to the zero-width synthetic position" }),
 	markerChar: S.optionalKey(ThematicBreakChar).annotateKey({ description: "Source character used to draw the horizontal rule: `-`, `_`, or `*`" }),
@@ -914,7 +914,7 @@ export class ThematicBreak extends S.Class<ThematicBreak>($I`ThematicBreak`)({
  * @category models
  * @since 0.0.0
  */
-export class Code extends S.Class<Code>($I`Code`)({
+export class Code extends S.Class<Code, {}>($I`Code`)({
 	type: S.tag("code").annotateKey({ description: "The `code` discriminator identifying a fenced or indented code block" }),
 	value: S.String.annotateKey({ description: "Code block content with fence lines or code indentation removed" }),
 	lang: S.optionalKey(S.String).annotateKey({ description: "Language token preceding the first whitespace run in a fenced code block's info string" }),
@@ -946,7 +946,7 @@ export class Code extends S.Class<Code>($I`Code`)({
  * @category models
  * @since 0.0.0
  */
-export class Definition extends S.Class<Definition>($I`Definition`)({
+export class Definition extends S.Class<Definition, {}>($I`Definition`)({
 	type: S.tag("definition").annotateKey({ description: "The `definition` discriminator identifying a link reference definition" }),
 	identifier: S.String.annotateKey({ description: "Normalized, lowercased label used to associate links and images with this definition" }),
 	label: S.optionalKey(S.String).annotateKey({ description: "Original definition label text with surrounding brackets removed" }),
@@ -978,7 +978,7 @@ export class Definition extends S.Class<Definition>($I`Definition`)({
  * @category models
  * @since 0.0.0
  */
-export class FootnoteDefinition extends S.Class<FootnoteDefinition>($I`FootnoteDefinition`)({
+export class FootnoteDefinition extends S.Class<FootnoteDefinition, {}>($I`FootnoteDefinition`)({
 	type: S.tag("footnoteDefinition").annotateKey({ description: "The `footnoteDefinition` discriminator identifying a GFM footnote definition" }),
 	identifier: S.String.annotateKey({ description: "Normalized, lowercased label used to associate footnote markers with this definition" }),
 	label: S.optionalKey(S.String).annotateKey({ description: "Original footnote label text without the surrounding brackets and leading caret" }),
@@ -1002,7 +1002,7 @@ export class FootnoteDefinition extends S.Class<FootnoteDefinition>($I`FootnoteD
  * @category models
  * @since 0.0.0
  */
-export class Paragraph extends S.Class<Paragraph>($I`Paragraph`)({
+export class Paragraph extends S.Class<Paragraph, {}>($I`Paragraph`)({
 	type: S.tag("paragraph").annotateKey({ description: "The `paragraph` discriminator identifying a paragraph of inline content" }),
 	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content forming the paragraph, in document order" }),
 	position: NodePosition.annotateKey({ description: "Source span of the paragraph, constructor-defaulted to the zero-width synthetic position" }),
@@ -1029,7 +1029,7 @@ export class Paragraph extends S.Class<Paragraph>($I`Paragraph`)({
  * @category models
  * @since 0.0.0
  */
-export class Heading extends S.Class<Heading>($I`Heading`)({
+export class Heading extends S.Class<Heading, {}>($I`Heading`)({
 	type: S.tag("heading").annotateKey({ description: "The `heading` discriminator identifying an ATX or setext heading" }),
 	depth: HeadingDepth.annotateKey({ description: "Heading level from 1 to 6, with 1 representing the highest level" }),
 	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content forming the heading text, in document order" }),
@@ -1063,7 +1063,7 @@ export class Heading extends S.Class<Heading>($I`Heading`)({
  * @category models
  * @since 0.0.0
  */
-export class ListItem extends S.Class<ListItem>($I`ListItem`)({
+export class ListItem extends S.Class<ListItem, {}>($I`ListItem`)({
 	type: S.tag("listItem").annotateKey({ description: "The `listItem` discriminator identifying one item in a list" }),
 	spread: S.optionalKey(S.Boolean).annotateKey({ description: "Whether blank lines separate the item's child blocks; absent means unknown" }),
 	children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).annotateKey({ description: "Block content belonging to the list item, in document order" }),
@@ -1096,7 +1096,7 @@ export class ListItem extends S.Class<ListItem>($I`ListItem`)({
  * @category models
  * @since 0.0.0
  */
-export class List extends S.Class<List>($I`List`)({
+export class List extends S.Class<List, {}>($I`List`)({
 	type: S.tag("list").annotateKey({ description: "The `list` discriminator identifying an ordered or unordered list" }),
 	ordered: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the list uses numbered markers rather than bullets; absent means unknown" }),
 	start: S.optionalKey(S.Finite).annotateKey({ description: "Starting number from an ordered list's first marker; absent on parsed unordered lists" }),
@@ -1123,7 +1123,7 @@ export class List extends S.Class<List>($I`List`)({
  * @category models
  * @since 0.0.0
  */
-export class Blockquote extends S.Class<Blockquote>($I`Blockquote`)({
+export class Blockquote extends S.Class<Blockquote, {}>($I`Blockquote`)({
 	type: S.tag("blockquote").annotateKey({ description: "The `blockquote` discriminator identifying a quoted section" }),
 	children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).annotateKey({ description: "Block content contained in the quoted section, in document order" }),
 	position: NodePosition.annotateKey({ description: "Source span of the blockquote, constructor-defaulted to the zero-width synthetic position" }),
@@ -1156,7 +1156,7 @@ export class Blockquote extends S.Class<Blockquote>($I`Blockquote`)({
  * @category models
  * @since 0.0.0
  */
-export class TableCell extends S.Class<TableCell>($I`TableCell`)({
+export class TableCell extends S.Class<TableCell, {}>($I`TableCell`)({
 	type: S.tag("tableCell").annotateKey({ description: "The `tableCell` discriminator identifying a header or data cell in a GFM table" }),
 	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content forming the table cell, in document order" }),
 	position: NodePosition.annotateKey({ description: "Source span of the trimmed cell content, constructor-defaulted to the zero-width synthetic position" }),
@@ -1220,7 +1220,7 @@ export type RowContent = TableCell;
  * @category models
  * @since 0.0.0
  */
-export class TableRow extends S.Class<TableRow>($I`TableRow`)({
+export class TableRow extends S.Class<TableRow, {}>($I`TableRow`)({
 	type: S.tag("tableRow").annotateKey({ description: "The `tableRow` discriminator identifying a header or data row in a GFM table" }),
 	children: S.Array(S.suspend((): S.Codec<RowContent> => RowContent)).annotateKey({ description: "Table cells in column order" }),
 	position: NodePosition.annotateKey({ description: "Source span of the table row, constructor-defaulted to the zero-width synthetic position" }),
@@ -1280,7 +1280,7 @@ export type TableContent = TableRow;
  * @category models
  * @since 0.0.0
  */
-export class Table extends S.Class<Table>($I`Table`)({
+export class Table extends S.Class<Table, {}>($I`Table`)({
 	type: S.tag("table").annotateKey({ description: "The `table` discriminator identifying a GFM table" }),
 	align: TableAlign.pipe(S.NullOr, S.Array, S.optionalKey).annotateKey({ description: "Declared alignment per column; `null` means no declared alignment, while an absent array means unknown" }),
 	children: S.Array(S.suspend((): S.Codec<TableContent> => TableContent)).annotateKey({ description: "Table rows in document order, with the first row supplying column labels" }),
@@ -1423,7 +1423,7 @@ export type ListContent = ListItem;
  * @category models
  * @since 0.0.0
  */
-export class MdxJsxAttributeValueExpression extends S.Class<MdxJsxAttributeValueExpression>(
+export class MdxJsxAttributeValueExpression extends S.Class<MdxJsxAttributeValueExpression, {}>(
 	$I`MdxJsxAttributeValueExpression`,
 )({
 	type: S.tag("mdxJsxAttributeValueExpression").annotateKey({ description: "The `mdxJsxAttributeValueExpression` discriminator identifying an expression used as a JSX attribute value" }),
@@ -1461,7 +1461,7 @@ const MdxJsxName = S.NonEmptyString.annotate(
  * @category models
  * @since 0.0.0
  */
-export class MdxJsxAttribute extends S.Class<MdxJsxAttribute>($I`MdxJsxAttribute`)(
+export class MdxJsxAttribute extends S.Class<MdxJsxAttribute, {}>($I`MdxJsxAttribute`)(
 	S.Struct({
 		type: S.tag("mdxJsxAttribute").annotateKey({ description: "The `mdxJsxAttribute` discriminator identifying a named JSX attribute" }),
 		name: MdxJsxName.annotateKey({ description: "Non-empty JSX attribute name, including namespace spelling when present" }),
@@ -1488,7 +1488,7 @@ export class MdxJsxAttribute extends S.Class<MdxJsxAttribute>($I`MdxJsxAttribute
  * @category models
  * @since 0.0.0
  */
-export class MdxJsxExpressionAttribute extends S.Class<MdxJsxExpressionAttribute>($I`MdxJsxExpressionAttribute`)({
+export class MdxJsxExpressionAttribute extends S.Class<MdxJsxExpressionAttribute, {}>($I`MdxJsxExpressionAttribute`)({
 	type: S.tag("mdxJsxExpressionAttribute").annotateKey({ description: "The `mdxJsxExpressionAttribute` discriminator identifying a JSX attribute written wholly as an expression" }),
 	value: S.String.annotateKey({ description: "Expression source between the braces of a JSX expression attribute, including spread syntax when present" }),
 	position: NodePosition.annotateKey({ description: "Source span of the expression attribute, constructor-defaulted to the zero-width synthetic position" }),
@@ -1572,7 +1572,7 @@ const mdxFragmentAttributes = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class MdxJsxFlowElement extends S.Class<MdxJsxFlowElement>($I`MdxJsxFlowElement`)(
+export class MdxJsxFlowElement extends S.Class<MdxJsxFlowElement, {}>($I`MdxJsxFlowElement`)(
 	S.Struct({
 		type: S.tag("mdxJsxFlowElement").annotateKey({ description: "The `mdxJsxFlowElement` discriminator identifying a JSX element in block position" }),
 		name: S.NullOr(MdxJsxName).annotateKey({ description: "Non-empty JSX element name, or null for a fragment that cannot carry attributes" }),
@@ -1603,7 +1603,7 @@ export class MdxJsxFlowElement extends S.Class<MdxJsxFlowElement>($I`MdxJsxFlowE
  * @category models
  * @since 0.0.0
  */
-export class MdxJsxTextElement extends S.Class<MdxJsxTextElement>($I`MdxJsxTextElement`)(
+export class MdxJsxTextElement extends S.Class<MdxJsxTextElement, {}>($I`MdxJsxTextElement`)(
 	S.Struct({
 		type: S.tag("mdxJsxTextElement").annotateKey({ description: "The `mdxJsxTextElement` discriminator identifying a JSX element in inline position" }),
 		name: S.NullOr(MdxJsxName).annotateKey({ description: "Non-empty JSX element name, or null for a fragment that cannot carry attributes" }),
@@ -1633,7 +1633,7 @@ export class MdxJsxTextElement extends S.Class<MdxJsxTextElement>($I`MdxJsxTextE
  * @category models
  * @since 0.0.0
  */
-export class MdxFlowExpression extends S.Class<MdxFlowExpression>($I`MdxFlowExpression`)({
+export class MdxFlowExpression extends S.Class<MdxFlowExpression, {}>($I`MdxFlowExpression`)({
 	type: S.tag("mdxFlowExpression").annotateKey({ description: "The `mdxFlowExpression` discriminator identifying an MDX expression in block position" }),
 	value: S.String.annotateKey({ description: "Expression source between braces in an MDX block expression" }),
 	position: NodePosition.annotateKey({ description: "Source span of the block expression, constructor-defaulted to the zero-width synthetic position" }),
@@ -1656,7 +1656,7 @@ export class MdxFlowExpression extends S.Class<MdxFlowExpression>($I`MdxFlowExpr
  * @category models
  * @since 0.0.0
  */
-export class MdxTextExpression extends S.Class<MdxTextExpression>($I`MdxTextExpression`)({
+export class MdxTextExpression extends S.Class<MdxTextExpression, {}>($I`MdxTextExpression`)({
 	type: S.tag("mdxTextExpression").annotateKey({ description: "The `mdxTextExpression` discriminator identifying an MDX expression within inline content" }),
 	value: S.String.annotateKey({ description: "Expression source between braces in an inline MDX expression" }),
 	position: NodePosition.annotateKey({ description: "Source span of the inline expression, constructor-defaulted to the zero-width synthetic position" }),
@@ -1686,7 +1686,7 @@ export class MdxTextExpression extends S.Class<MdxTextExpression>($I`MdxTextExpr
  * @category models
  * @since 0.0.0
  */
-export class MdxjsEsm extends S.Class<MdxjsEsm>($I`MdxjsEsm`)({
+export class MdxjsEsm extends S.Class<MdxjsEsm, {}>($I`MdxjsEsm`)({
 	type: S.tag("mdxjsEsm").annotateKey({ description: "The `mdxjsEsm` discriminator identifying an MDX import or export block" }),
 	value: S.String.annotateKey({ description: "Import or export statement source preserved verbatim" }),
 	position: NodePosition.annotateKey({ description: "Source span of the ESM block, constructor-defaulted to the zero-width synthetic position" }),
@@ -1755,7 +1755,7 @@ export type FrontmatterFormat = typeof FrontmatterFormat.Type;
  * @category models
  * @since 0.0.0
  */
-export class Frontmatter extends S.Class<Frontmatter>($I`Frontmatter`)({
+export class Frontmatter extends S.Class<Frontmatter, {}>($I`Frontmatter`)({
 	type: S.tag("frontmatter").annotateKey({ description: "The `frontmatter` discriminator identifying a captured document metadata block" }),
 	format: FrontmatterFormat.annotateKey({ description: "Metadata format selected by the opening fence: `yaml`, `toml`, or `json`" }),
 	value: S.String.annotateKey({ description: "Raw metadata source between the fence lines, preserved without parsing or decoding" }),
@@ -1818,7 +1818,7 @@ export type FrontmatterContent = Frontmatter;
  * @category models
  * @since 0.0.0
  */
-export class Root extends S.Class<Root>($I`Root`)({
+export class Root extends S.Class<Root, {}>($I`Root`)({
 	type: S.tag("root").annotateKey({ description: "The `root` discriminator identifying the whole document" }),
 	children: S.Array(
 		S.suspend(

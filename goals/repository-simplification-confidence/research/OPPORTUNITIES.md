@@ -111,6 +111,147 @@
   defects from wording findings up front, and a mechanical verbatim-section
   checker against the brief so copy drift is caught by a validator.
 
+### A admission environment (2026-10-09)
+
+- Task: regenerate the schema catalog and refresh the FreshBooks dependency lock through `beep-heavy`.
+- Evidence: wrapper exited 1 before executing either command: `Failed to connect to user scope bus`; runtime directory and session bus variables were absent in the worker shell.
+- Prevention: worker launcher exports the existing user-manager environment. Retry uses `/run/user/1000` and its bus, preserving admission rather than bypassing it.
+
+### A admission capacity receipt (2026-10-09)
+
+- Task: post-transfer dependency refresh and catalog/JSDoc regeneration.
+- Evidence: `beep-heavy: all 3 slots busy, waiting`; `lslocks` identified two finite proof commands and an orchestrator `gate.sh` polling loop holding a heavy slot for over two hours. Slot receipt files were empty while waiters were active.
+- Prevention: finite proofs own heavy slots; a persistent polling daemon should release admission between heavy operations. The lane leaves the existing owner's daemon untouched and keeps its commands queued.
+
+### A orphaned gate runner recovery (2026-10-09, run 2)
+
+- Task: read the resumed lane's package results before launching any duplicate gate.
+- Evidence: the package loop parent had exited; only the completed Box provisioning row remained in `package-results.tsv`. Its Box admission child and the schema writer were still queued. A background shell launched through the worker tool also exited while its user-manager child survived.
+- Recovery: terminated only A's confirmed queued children, then placed the sequential runner in `rsc-a-run2-gates.service`. It logs each command and appends terminal exit codes to `.beep/rsc-a/run2-results.tsv`. No other lane's process was stopped.
+- Prevention: launch the coordinator itself as a user service, not merely each admitted child. A polling coordinator takes no heavy slot; each finite command still uses `beep-heavy`.
+
+## 2026-10-09: inventory writer spelling selected the broad lint pipeline
+
+- Doing: regenerating the JSDoc inventory after narrowing private exports.
+- Evidence: `beep lint jsdoc-documentation --write` ran `lint:policy` and
+  failed with `Census subprocess failed or exceeded its 512 MiB capture bound`;
+  the actual owner is `beep quality jsdoc-inventory`.
+- Would have prevented it: rejecting unknown lint subcommands instead of
+  forwarding them into the root lint battery. Run 3 uses the owner command.
+
+## 2026-10-09: Knip retirement relocates shared lock hoisting
+
+- Doing: owner-generated `bun install` after removing only Knip declarations.
+- Evidence: 27 added / 128 removed lock lines; surviving `oxc-resolver` moves
+  from 11.24.2 to 11.21.2, `strip-json-comments` from 5.0.3 to 2.0.1, and
+  `@emnapi` package keys relocate. No other manifest version was changed.
+  The lane handoff records every changed/added/removed package key.
+- Would have prevented it: a lock regeneration receipt that separates
+  deleted dependency closure from shared-hoisting relocation, allowing the
+  orchestrator to approve the exact generated graph under S5 before push.
+  Publication is held as resume ruling 2 requires.
+
+## 2026-10-09: cache-baseline review request rejected its subject selection
+
+- Doing: re-recording cache posture after Knip retirement and FreshBooks transfer.
+- Evidence: `beep cache baseline --request` returned `Unreviewed: @beep/freshbooks. Unknown: .` for the request naming `//`.
+- Resolution: use the owner's documented changed-subject mode and include FreshBooks in the review basis; inspect the stamped subjects and resulting diff before publication.
+- Prevention: validate review subject selection against the current census when constructing the request, and keep its basis content-addressed.
+
+## 2026-10-09: retirement cheap gates exposed dependent artifacts
+
+- Doing: wave-1 Yeet draft publication.
+- Evidence: `config-sync:check` found two FreshBooks project-reference changes and Fallow boundary drift; `lint:effect-vitest` found three callback occurrences after fixture edits; Fallow audit/dead-code found only the Knip-only `smol-toml` override. Nothing was pushed.
+- Resolution: owner `tsconfig-sync`; shared `it.layer` for touched gate-order tests and removal of a redundant per-test layer in the already layered publish-gate test; retire the orphan override under the cleared Knip lock notice. Preserve the Effect Vitest inventory for V.
+- Prevention: include project-reference regeneration, override-consumer review and callback-fingerprint ratchets in dependency-removal preparation.
+
+## 2026-10-09: focused retirement repair waits behind shared heavy work
+
+- Doing: FreshBooks generated-reference check and current gate-order snapshot owner regeneration after the full CLI audit exposed stale retirement assertions.
+- Evidence: lane logs repeatedly contain `beep-heavy: all 3 slots busy, waiting`; FreshBooks has waited more than ten minutes without executing. The completed full audit ran 711.31 seconds and reported five precise fixture/assertion failures.
+- Prevention: an admission receipt with queue age and FIFO position would make focused repair scheduling observable. Keep the three-slot limit and other owners' proofs intact. This lane records the delay and waits; it does not bypass admission.
+
+## 2026-10-09: reference check missed before a String helper call
+
+- Doing: preserving the historical status byte fixture while projecting out its retired Knip gate.
+- Evidence: the focused assertion received a function as its expected value. `effect/String.replace` in the Effect v4 reference is curried-only: `replace(search, replacement)(self)`.
+- Resolution: corrected the call against `.repos/effect/packages/effect/src/String.ts` and reran the failed fixture group. The normalized historical placeholders are comparison text and are not decoded as a live DTO.
+- Prevention: inspect the current reference signature before writing each newly used Effect helper call; the data-first form cannot be assumed.
+## H2: heavy proof entrypoint and read-only command cycle (2026-10-09)
+
+- Work: qualify structured goal completion in `rsc-h2-completion`.
+- Evidence: initial `beep-heavy bunx tsgo --noEmit -p packages/tooling/tool/cli/tsconfig.json`
+  could not connect to the user bus; setting the real user-session runtime/bus variables
+  restored admission. The direct package config then reported TS6305 for unbuilt
+  workspace declarations. Use package-verify's owning build/config path for proof.
+- Evidence: the first doctor smoke reported `Cannot access GOALS_DOCTOR_BASELINE_PATH
+  before initialization` after its completion adapter imported Yeet readers. Doctor
+  initially loaded the IO adapter at execution; the later schema-only extraction
+  below supersedes that runtime workaround. Normalization remains in goal schemas.
+- Prevention: document the bus environment at the admission entrypoint and retain a
+  CLI smoke fixture for command-family import cycles. No gate bypass or baseline write.
+
+## 2026-10-09: H2 historical coverage log is incomplete
+
+- Doing: comparing #1429 non-required coverage failures with the nearest completed
+  main ancestor before its merge-base, walking past cancelled runs.
+- Evidence: main run `37385597353`, job `112020340159`, completed at
+  `2026-10-06T00:05:53Z`; its fetched log ends during tests at `23:44:18Z`
+  and contains no terminal coverage-ratchet rows.
+- Disposition: full-lane coverage attribution is unknown; the new PatternOntology
+  row can be identified independently, but missing baseline rows cannot prove equality.
+- Would have prevented it: retained complete job logs or a separate immutable
+  coverage-row artifact linked to the job.
+
+## 2026-10-09: source qualification does not cover test Effect diagnostics
+
+- Doing: qualifying H2 completion fixtures after the source compiler passed.
+- Evidence: `beep quality test-tsgo` found 11 introduced test diagnostics:
+  `preferTypedSchemaDecoder`, `effectFnOpportunity`, and `missedPipeableOpportunity`.
+- Disposition: use typed decoders for typed fixture input and reusable Effect.fn
+  helpers; repeat the test compiler before publication. No suppression was added.
+- Would have prevented it: running the dedicated test compiler immediately after
+  authoring fixtures, alongside their runtime assertions.
+
+## 2026-10-09: H2 parity exposes static graph and packet-literal failures
+
+- Doing: the required Fallow audit/health and CI knowledge-reference qualification.
+- Evidence: Fallow identifies a six-file cycle from Completion through MergeGate,
+  Handler, Status and GateStaleness back to Doctor, plus eight introduced complexity
+  findings. Runtime lazy import avoided initialization failure but retained the
+  static cycle. The existing shared check-run schema is moved into a schema-only
+  role, preserving its identifier and re-export. Observation and refresh boundaries
+  are separated without suppressions.
+- Additional evidence: knowledge refs reports the inherited literal home-directory
+  prefix in SPEC's path-policy sentence (line 374), identical on origin/main.
+  It is a statement about prohibited paths, not a client location. Main owns its
+  single repair; H2 records the inherited red rather than copying a lane-local fix.
+- Would have prevented it: early static graph qualification after adding cross-command
+  schema reuse, and audit-pattern classification for path-policy literals.
+
+## 2026-10-09: H2 requalification waits behind the program's heavy admissions
+
+- Doing: repeating Fallow and the stable-head qualification bundle after remediation.
+- Evidence: both wrapper logs remain at `beep-heavy: all 3 slots busy, waiting`
+  for more than ten minutes. The later fixture-law repeat remained queued from
+  18:38Z through 19:03Z while a read-only lock check observed slot ownership change.
+  The wrapper polls available locks without FIFO ordering. The lane respects its
+  two-admission limit and does not stop another lane's work.
+- Would have prevented it: FIFO admission or program scheduling that reserves a
+  short remediation slot, or shared immutable proof reuse where inputs match. The
+  admission cap itself is retained; no bypass is used.
+
+## 2026-10-09: publish runtime flag is not the default monitor's runtime flag
+
+- Doing: publishing H2 with a bounded readiness monitor.
+- Evidence: `yeet publish --job-max-runtime` exits before publication with
+  `--job-max-runtime requires --detach`, although ordinary publish submits a
+  detached readiness monitor itself.
+- Disposition: use the canonical publish invocation and manage the resulting
+  monitor job explicitly; no branch push occurred during the rejected invocation.
+- Would have prevented it: command help distinguishing the detached publication
+  runner's runtime from the readiness monitor that ordinary publish submits.
+
 ## 2026-10-09: heavy admission needs the user-session bus environment
 
 - Doing: running retained-script fixtures through `beep-heavy`.
@@ -514,6 +655,9 @@ The final CLI package check remains queued for more than fifteen minutes while o
 - Prevention: help should distinguish the publish job ceiling from the
   automatically submitted monitor's lifetime, or expose a monitor ceiling.
 
+## 2026-10-09 — D final documentation verification
+
+
 
 ## 2026-10-09: C CI port qualification catches pinned/reference API drift
 
@@ -733,6 +877,138 @@ and parity remain required before final handoff. No other lane unit was stopped.
   unpredictable wait time. A fair queue with observable position would prevent
   this delay; this lane does not alter the workstation wrapper or other jobs.
 
+## 2026-10-09: run-5 owner regeneration waits for shared admission
+
+- Doing: integrated-tree regeneration before the Knip retirement publication.
+- Evidence: the first command still has no terminal result after several
+  minutes; its log contains `beep-heavy: all 3 slots busy, waiting`. Slot
+  holders change while this waiter remains queued.
+- Prevention: a visible FIFO admission position and queue-age receipt would
+  distinguish normal capacity delay from starvation. The lane preserves the
+  shared three-slot limit and leaves other owners' processes intact.
+
+## 2026-10-09: local docgen requires a full proof for retirement inputs
+
+- Doing: run the brief's `beep docgen local --base origin/main` parity gate.
+- Evidence: exit 1 with `full docgen proof required; re-run with "--full"`.
+  Root manifest, lockfile, Turbo and Docgen tooling changes trigger this
+  planner refusal before execution. All eleven package docgen gates pass.
+- Resolution: run the required full proof under a second admitted command;
+  preserve the original refusal and report the full execution separately.
+- Prevention: lane plans with global input changes select the full mode
+  explicitly rather than treating local mode's planning refusal as a source red.
+
+## 2026-10-09: full docgen has no authenticated remote cache
+
+- Doing: required full docgen proof after global retirement inputs changed.
+- Evidence: Turbo warns `Remote caching unavailable (Authentication failed)`
+  and continues with local compilation.
+- Prevention: G's approved read-only cache credential route would avoid
+  repeated package compilation. This lane continues locally and leaves
+  cache credentials with their owner; no secret value or new endpoint used.
+
+## 2026-10-09: final-main advancement requires another CLI proof
+
+- Doing: final merge and artifact regeneration before A publication.
+- Evidence: D #1566 lands while the initial integrated package/parity/coverage
+  sequence runs. The merge is blocked first by dirty packet documents, then
+  has four documentation conflicts; source merges without conflict.
+- Recovery: retained recovery stash; preserve both lanes' documents; refresh
+  CLI source proofs and generated artifacts on merge `c65a49116c`. The ten
+  other package sources stay unchanged and their completed gates are retained.
+- Prevention: a serialized final-source integration window would avoid
+  repeating the 740-second CLI audit and 748-second coverage run. This lane
+  follows S4 and does not claim old source proof on the new integrated tree.
+
+## 2026-10-09: cache review CAS input became stale after D merge
+
+- Doing: regenerate the shared qualification baseline after final main merge.
+- Evidence: `Reviewed baseline changed; refresh its digest before replacing it.`
+- Resolution: read the owner's byte-hash CAS contract and refresh only the
+  request's previous digest from the actual merged baseline. Preserve scope,
+  profile, epoch, review basis and existing D evidence references. The failed
+  log remains; only this failed step and unrun steps are resumed.
+- Prevention: calculate the review CAS digest after the main merge, just before
+  the owner command. Saved pre-merge requests are evidence, not current inputs.
+## 2026-10-09 — H2 test-law discovery during publication
+
+- Task: publish structured completion evidence after compiler, docgen and focused tests passed.
+- Evidence: cheap gates rejected two new fixture files with 15 Effect Vitest findings and
+  two schema-codec property-coverage advisories; publication stopped before push.
+- Recovery: preserve fixture assertions with canonical Option helpers, bound the platform
+  test layer, and add schema-derived declaration properties; rerun the affected checks.
+- Prevention: run schema-first and Effect Vitest laws with new schema fixture files before
+  the final publication admission, alongside test-tsgo. No baseline refresh is needed.
+
+## 2026-10-09 — H2 isolates concurrent fixture verification cache
+
+- Task: run full package audit and scoped completion coverage in the two allowed admissions.
+- Evidence: D's merged friction receipt records an `ENOTEMPTY` collision in the shared
+  package `.vitest-cache`; the installed Vitest help provides `--fsModuleCachePath`.
+- Recovery: give the scoped run its own ignored lane-local module-cache path before
+  admission; the test set, instrumentation and coverage baseline stay unchanged.
+- Prevention: verification commands should allocate separate module-cache directories
+  when the full package audit and scoped coverage can overlap.
+
+## 2026-10-09 — H2 property-generator import provenance
+
+- Task: qualify the added schema-derived fixture properties after publication.
+- Evidence: test-tsgo rejects `effect/testing/Arbitrary` in both new fixture files.
+  The pinned Effect source and existing goal properties import `effect/Arbitrary`.
+  A separate review missed the invalid module path; its API assurance does not replace
+  the compiler result.
+- Recovery: correct both imports and repeat test-tsgo and scoped fixtures before the
+  addressed publication wave. No suppression or baseline update.
+- Prevention: inspect the import line in the reference example, not only the generator
+  call, and require the dedicated test compiler alongside schema-property review.
+
+## 2026-10-09 — H2 hosted markerless doctor regression
+
+- Task: read the first published head's completed red jobs immediately.
+- Evidence: Property Laws fails only the invalid Arbitrary imports; Test Unit
+  additionally fails the existing hidden-editor and inherited-baseline doctor fixtures.
+  H2 had added unconditional root discovery even when no completion evidence is eligible.
+- Recovery: move discovery into the eligible evidence reader, preserve markerless
+  read-only fallback, and assert that the hidden-editor fixture performs no root probes.
+  Retain the existing baseline and success assertions. Repeat local and hosted proof.
+- Prevention: test fixtures should observe optional evidence dependencies explicitly;
+  local temporary directories can inherit a repository marker from an ancestor and
+  hide a CI-only root-discovery regression.
+
+## 2026-10-09 — H2 restarts its unstarted package admission
+
+- Task: complete the required full package handoff gate.
+- Evidence: the lane-owned package wrapper stayed queued for over an hour, with
+  no package log or command start; other lock holders changed during the wait.
+- Recovery: verify the queued wrapper's lane and process, stop only that unstarted
+  unit, and resubmit the same command through the canonical wrapper. H2 retains
+  its two-admission limit and changes no other unit, slot count or wrapper.
+- Prevention: ordered admission with observable queue position; restarting is a
+  retry, not a proven remedy for lock-poll scheduling.
+
+## 2026-10-09 — H2 hands off an unstarted full package gate
+
+- Task: complete the required full package gate after repairing hosted fixture failures.
+- Evidence: canonical admission remained full after an hour-long wait and a retry;
+  the repaired-head package command produced neither a log nor an exit file.
+  Read-only lock observations showed turnover among other active jobs.
+- Recovery: commit completed parity and historical evidence, stop only the owned
+  unstarted command, cancel the owned readiness monitor, and mark the handoff
+  capacity-blocked. Resume the full gate through the same wrapper, then publish
+  delivery metadata and restart bounded readiness monitoring. No other job,
+  wrapper, slot count, baseline or suppression changed.
+- Prevention: ordered admission and visible queue position, with a bounded wait
+  disposition distinct from a completed gate. A stopped wrapper is not proof.
+
+## 2026-10-09 — H2 final GraphQL quota block
+
+- Task: update the PR description and re-read review-thread state for handoff.
+- Evidence: GitHub GraphQL returned `API rate limit already exceeded`.
+- Recovery: REST updated the PR body and confirmed its published head/draft state.
+  Keep current review-thread state unknown; the last successful snapshot had zero
+  threads. Re-read through GraphQL after quota recovers before merge.
+- Prevention: shared API-budget admission and observable reset times across lanes.
+
 - C publication boundary: normal `beep yeet publish` at `bc176b61fa` exits 1
   before push because collected cheap gates enforce schema-first / effect-vitest
   exception candidates delegated to B, plus the H1-owned root ONNX declaration.
@@ -830,6 +1106,60 @@ Human review on PR #1568 identified that Repo Sanity's push-only hosted checks u
 
 While verifying the report push for #1568, both `gh pr view` and the complete review-thread query failed with `API rate limit already exceeded`. REST still verified the published head, ready state and existing comment history, but cannot establish thread-resolution state. Preserve unknown status and require a fresh complete GraphQL read at the orchestrator gate. A quota-aware final-read reservation would prevent publication verification from depending on an exhausted shared account budget.
 
+### A run 5: GitHub GraphQL rate limit at draft publication
+
+- Action: Yeet draft publication for PR #1584 at `b403cd2b9b`.
+- Evidence: body-history read returned `graphql_rate_limit`; Yeet verified
+  the provenance footer through REST readback and completed publication.
+- Effect: review-thread/window state remains unknown until a successful read;
+  no merge-readiness claim follows from the structural PR state.
+- Prevention: share API budget across fleet monitors and retain REST fallbacks
+  where they preserve the exact required evidence.
+
+### A run 5: integrated proof superseded by E landing
+
+- Action: finish wave-1 parity after draft publication.
+- Evidence: E #1568 adds CLI source while A's parity runs; GitHub reports
+  `base-conflict-14be9381b53c`.
+- Recovery: cancel superseded pending proof, retain terminal evidence, merge
+  E, refresh affected owners and CLI/package/parity/coverage once.
+- Prevention: serialize final shared-file integration before long package
+  proof; do not count an earlier tree's proof as a later integrated pass.
+
+### A run 5: owner regeneration delayed by fleet admission
+
+- Action: refresh JSDoc inventory after integrating E #1568.
+- Evidence: the admitted owner request waits over 15 minutes while fleet
+  package proofs hold all of its configured slots. No duplicate writer or
+  dead local coordinator is present.
+- Effect: a completed source merge cannot progress to its fresh package and
+  parity proof; completed prior-head proof remains explicitly historical.
+- Prevention: classify owner regeneration separately from long full-package
+  proofs while preserving admission and the workstation memory budget.
+
+The live overrides file now raises the slot floor to five, while A's queued
+JSDoc request captured four. Stopped only that not-started admitted request
+and resubmitted through the unchanged wrapper to inherit the operator's
+approved floor. Its cancellation row is not a source failure or a pass.
+Completed owners are skipped on resumption. No capacity setting was edited.
+
+The stopped queued systemd child returned zero to `systemd-run --wait`,
+so the naive coordinator wrote a zero row without command execution.
+Preserved the raw results, marked that row `cancelled-before-start`, then
+stopped the coordinator and its not-started schema child. Resume starts at
+JSDoc. A terminal wrapper status alone is not command-success proof.
+
+### A run 5: retirement breaks historical bare path references
+
+- Action: publish Knip retirement; read Heavy / Lint Policy job `114017372140`.
+- Evidence: knowledge semantic delta introduces five broken references to
+  the deleted baseline in historical KN-1 records and recovery documentation.
+- Repair: bind each affected span to the verified pre-retirement revision;
+  preserve the record's claims and avoid suppression/baseline refresh.
+- Prevention: audit historical documentation for revision-bound references
+  during tracked artifact retirement, including the semantic-delta lane in
+  focused parity rather than refs alone.
+
 ## C Run 8 integration proof admission
 
 The five required integration checks wait at `beep-heavy: all 4 slots busy, waiting`
@@ -884,6 +1214,62 @@ unchanged wrapper to observe the live budget. Dynamic configuration refresh
 while queued would prevent this stale-admission window. No running payload or
 peer service was stopped, and the worker changed no admission setting.
 
+## 2026-10-09 — H2 publication queue invalidates packet integration
+
+- Work: publish the resumed package-qualified H2 delivery wave.
+- Evidence: the first invocation rejected unstaged delivery records; the staged
+  retry acquired admission only after main advanced and rejected overlapping
+  packet files as a stale base. Both attempts stopped before pushing.
+- Recovery: stage reviewed records, integrate main while retaining both lanes'
+  append-only evidence, and use standing S12 amendment 2's permitted publication
+  path in the existing lane cgroup with `TURBO_CONCURRENCY=2`. Package verification
+  remains admission-wrapped and already passed. No peer job or global limit changes.
+- Prevention: stage-preflight before admission and a publication reservation that
+  avoids repeated packet integration invalidation during an unordered queue wait.
+
+## 2026-10-09 — H2 publication inherits the new main test-policy red
+
+- Work: publish the package-qualified H2 delivery update after integrating main.
+- Evidence: collected cheap gates passed 15 lanes but Effect-Vitest reported one
+  new finding in `packages/epistemic/use-cases/test/ContradictionDetection.golden.test.ts`.
+  The file is identical to origin/main and last changed in #1572.
+- Recovery: acknowledge the local P0 with inherited attribution, route one repair
+  to main through the orchestrator, then integrate and retry publication. No H2
+  baseline refresh, copied repair, suppression, waiver or push occurred.
+- Prevention: shared-main policy proof at the merge gate and a fast inherited-red
+  routing path distinguish lane delivery failures from new program integration reds.
+
+## 2026-10-09 — H2 deleted-ruleset inventory gap
+
+- Work: close out ready PR #1574 after authorized inherited-red fallback.
+- Evidence: reviewer thread `discussion_r4234859239` identifies that current
+  ruleset enumeration cannot include rulesets deleted since historical merge.
+  Per-ruleset version history proves surviving contexts, not inventory completeness.
+- Recovery: record completeness explicitly and resolve incomplete inventories as
+  unknown, including previously stored receipts; keep observed PR-merge and
+  surviving-context sub-facts without resetting lifecycle state.
+- Prevention: require an independently complete merge-time ruleset inventory
+  before promoting historical required-check success to overall verification.
+
+## 2026-10-09 — H2 detached monitor user-bus environment
+
+- Work: submit bounded readiness monitor after marking #1574 ready.
+- Evidence: initial submission reported `Detached proof jobs require an active
+  systemd user manager`; the existing user bus was reachable after supplying
+  its runtime directory and bus address explicitly. Retry submitted successfully.
+- Prevention: inherit the user-manager environment in detached lane launches.
+
+## 2026-10-09 — H2 typed fixture decoder diagnostic
+
+- Work: qualify the historical-inventory review fix.
+- Evidence: targeted regressions passed; test-tsgo emitted TS377112 because
+  the new legacy-snapshot fixture used `decodeUnknownEffect` for a known
+  encoded value. This diagnostic is introduced by H2.
+- Recovery: use `decodeEffect` for the typed fixture and rerun test-tsgo through
+  admission; retain the runtime legacy-default assertion.
+- Prevention: select typed versus unknown decoding from the actual boundary
+  input, including synthetic fixtures. Source review does not replace compiler proof.
+
 ## C Run 9 integration admission
 
 The merge-only refresh for #1583 waits at `beep-heavy: all 5 slots busy,
@@ -902,6 +1288,85 @@ assertions; rerun the affected fixtures, type and package checks. Checking
 the canonical process API before choosing the native boundary would have
 prevented this extra qualification wave. No suppression or inventory edit.
 
+### A run 5: scoped writer success differs from hosted floor proof
+
+- Action: read Coverage Regression job `114017372187` after local CLI
+  baseline generation.
+- Evidence: hosted reports stale deleted Data rows, unchanged Accounts and
+  EffectImports base-floor gaps, and minted Corpus/ProvenanceIndex/Drawings
+  floors above its measurements.
+- Effect: the writer's zero exit cannot prove hosted acceptance; package-level
+  adoption can move file rows the source retirement never touched.
+- Prevention: distinguish generation from verification and support bounded
+  changed-file baseline adoption plus explicit hosted measurement input.
+
+### A run 5: live workflow contract blocks staged Knip retirement
+
+- Action: verify CLI after E #1568 integration.
+- Evidence: only `ci-runner-security.test.ts:1169` fails, seeing the retained
+  Knip workflow job absent from the retired descriptor set; 5,801 tests pass.
+- Ownership: E's separate S3 job-removal window and orchestrator ruleset gate.
+- Recovery: retain the contract, publish blocked draft evidence, then rerun
+  package/parity/coverage after the owning workflow change lands.
+- Prevention: distinguish E governance completion from the separate Knip
+  retirement window before launching a long integrated package audit.
+
+### A run 5: publish preflight catches another main advancement
+
+- Action: publish integrated blocked receipts for PR #1584.
+- Evidence: Yeet refuses stale base after V #1575 and epistemic #1572 land;
+  eleven overlapping paths are named. No follow-up commit or push occurs.
+- Recovery: preserve dirt, merge current main, retain both packet
+  contributions and re-run shared owners; independent source review is zero.
+- Prevention: serialize the final shared-file window before expensive proof
+  and publication; do not bypass the stale-base guard.
+
+### A run 5: global owner regeneration exposes inherited package drift
+
+- Evidence: package-scripts writes missing doctest keys in two epistemic
+  packages from #1572; cache regeneration stamps those subjects under A's
+  narrower Knip basis.
+- Recovery: archive generated output and restore those unrelated manifests
+  and cache output from HEAD; route one main repair with matching evidence.
+- Prevention: have new source packages run their generated-script owner
+  before landing; reject unrelated subject stamps under a lane-scoped basis.
+
+### A run 5: new-main test consumer outlives retired helper
+
+- Evidence: current test-tsgo finds V #1575 importing/re-exporting deleted
+  parseCard through the Research test kit; source merge alone was clean.
+- Recovery: remove the stale test export and assert captured YAML metadata,
+  date, hash and body through the existing TextCodec decoder.
+- Prevention: run the test compiler after cross-lane source integration;
+  review retirement consumers as well as merge-conflict markers.
+
+### A run 5: proof admission dominates final integration repair
+
+- Evidence: finite Research/test-compiler/inventory batch remains queued for
+  more than ten minutes before its first result; main advances during wait.
+- Recovery: retain the admitted request, avoid duplicate writers and refresh
+  integrated provenance before publication. No shared capacity change.
+- Prevention: serialize final shared-file integration and publish windows
+  with visible admission ownership and bounded queue-age reporting.
+
+### A run 5: finite runner omits Fallow base environment
+
+- Evidence: audit exits 128 with base-resolution-failed and an empty base ref;
+  no finding is analyzed. The coordinator omitted BEEP_PROOF_BASE.
+- Recovery: use explicit origin/main for audit/health and resume only those
+  uncompleted steps plus publication. Source/proof inputs remain unchanged.
+- Prevention: centralize admission runner environment, and record the actual
+  merge parent after fetch rather than an earlier remote-ref snapshot.
+
+### A run 5: changed Research provider gains a detector occurrence
+
+- Evidence: cheap gates fail schema-first on main's Accounts schema file and
+  effect-vitest on 13 main rows plus one changed Research provider candidate.
+- Recovery: move the changed card-output test into native it.layer; retain
+  capture/date/hash/body assertions. Do not refresh the global detector
+  baseline or copy C/epistemic repairs into A.
+- Prevention: run the full test-policy detector after test-body/name changes;
+  inherited call shapes can receive new occurrence identities.
 ## 2026-10-09: burn-down qualification waits behind the shared heavy slots
 
 - Doing: running the inherited-red attribution scan, full docgen, and focused
@@ -1079,3 +1544,568 @@ on the new head if it appears.
 
 - 2026-10-14: Documentation lint migration is owned by `goals/docs-lint-oxlint-rules`
   (TS7 lane B). The orchestrator attaches the publishing PR; ESLint removal waits for lane A.
+### 2026-10-14 — A resumed integration reveals a new internal consumer
+
+The first `beep session open` failed with `Export named parseP6Header not found`. Main added `packages/drivers/pdf-tools/src/internal/coverage.ts` after the saved Knip scan. The lane restored the internal export during merge resolution rather than removing the live consumer. A consumer check at integration would have prevented this failure. The recorded October 9 scan remains historical evidence.
+
+### 2026-10-14 — A focused Vitest command used the wrong root
+
+Running the CLI Vitest config from the repository root returned `No test files found`, exit 1. The shared include is package-relative `test/**/*.test.{ts,tsx}`. The corrected invocation is `bun run --cwd packages/tooling/tool/cli beep:test -- test/yeet-merge-gate.test.ts test/research-command.test.ts`, through admission. A package-local invocation helper or the existing package script would have prevented the root mismatch; the first attempt is not test proof.
+
+### 2026-10-14 — A pre-final integration supersedes queued proof
+
+A fresh fetch advanced main from `aeb2a85cc5` to `3749e7ca4a` while the CLI audit ran and test-tsgo waited for admission. Main modified the retired `knip.jsonc`; the lane kept it deleted, and regenerated the conflicted Fallow boundary snapshot through tsconfig-sync. The queued parity coordinator and its owned admission unit were stopped before test execution; the owned CLI unit was stopped at exit 130 because incoming main changed CLI source. Neither is a pass. Main also changes OCCT source and PDF tests, so those package gates need fresh proof; eight unchanged A packages retain their prior terminal results. Integrating before submitting commit-bound proof would have prevented this discarded work.
+
+### 2026-10-14 — FQE archived validator rejects the current manifest version
+
+The admitted FQE validator exits 1 before its retirement assertions: the local manifest decoder accepts `initiative-manifest/v1`, while current main's manifest is v2. Both values are verified on `origin/main`, so the mismatch is inherited. Broaden the existing schema to the two supported literal versions, preserving v1 compatibility and rejection of other versions. A canonical manifest-version domain reused by archived validators would have prevented this drift. The initial red is not proof of the retired helper fix; validation must rerun.
+
+### 2026-10-14 — moving base obscured inherited path attribution
+
+The commit-bound `beep laws retired-effect-paths --check` reported 19 stale references in six Observability Palantiri documents. All six files exactly matched integrated main `3749e7ca4a` at source head `917daff5`; the failure is inherited. The shared `origin/main` ref had advanced to include the later fix #1721 (`9414d93e7e`), which initially obscured that attribution. Restored the exact corrected main lines and retained other lane text; the next merge carries the complete main fix. Attribution should compare immutable integration SHAs before moving remote refs. The original red log remains in the ignored lane evidence directory.
+
+### 2026-10-14 — concurrent CLI proof hit the cache fixture port
+
+Scoped coverage failed after 23 minutes when the unchanged cache-protocol fixture raised `EADDRINUSE` on port 49312, followed by test and hook timeouts. Its other 6,170 CLI tests and all nine non-CLI shards passed; the default CLI audit passed separately. The source fixture matches main and the port was free after termination. This is environment-only; the failed run wrote no coverage baseline. Serializing this lane's next full CLI audit and coverage avoids overlap between its own fixture users. The fixture already requests ephemeral port 0. Better bind-race diagnostics in the test runtime would shorten attribution; changing the main fixture is outside A retirement scope. The exact cause of the port race remains unproven.
+
+### 2026-10-14 — coverage owner refresh is too broad for retirement rows
+
+The serial 11-package scoped coverage run passed on `b50dce625c`, but `--write-baseline` adopted whole measured package blocks: 4,056 changed lines, 38 lower percentages, 33 with unchanged or higher uncovered counts. Its five deleted-source row removals are the four retired Data files and KnipRatchet. The generated output, patch and delta census are archived in ignored lane evidence. Restored the committed baseline rather than lowering live floors or hand-editing generated rows. A deleted-source-only owner operation would permit retirement cleanup without coupling it to inherited coverage debt; the standing consolidated row splice belongs to the orchestrator.
+
+### 2026-10-14 — final prep admission has no elapsed-wait evidence
+
+After the baseline-owner hold was recorded, the latest owner and targeted-test jobs waited more than ten minutes with only `beep-heavy: all 5 slots busy, waiting` and no terminal result rows. Existing requests are retained; no duplicate or bypass is started. The wrapper polls nonblocking slot locks every five seconds rather than using a FIFO queue. Admission receipts with enqueue/admit times and visible ordering would distinguish wait from runtime and prevent unnecessary diagnostic polling.
+### 2026-10-14 — H2 resume integration
+
+- Work: resume closed-unmerged #1574 against current main. Four merge conflicts
+  overlap packet ledgers and doctor capability/completion integration. Preserve
+  both ledgers and both doctor checks; focused tests qualify the composition.
+- Evidence: `git merge origin/main`; `session open` initially failed with
+  `Cannot find module '@beep/utils'` until `bun install` restored workspace links.
+- Prevention: restore dependencies before invoking the CLI in a resumed worktree;
+  record source-bound qualification separately from prior delivery gates.
+
+### 2026-10-14 — H2 inherited test compiler diagnostic
+
+- Work: qualify resumed H2 integration through `beep-heavy bun run beep quality test-tsgo`.
+- Evidence: exit 1, `laws-retired-effect-paths-command.test.ts(51,9)` TS377050
+  (`effect(missedPipeableOpportunity)`). The file is identical to `origin/main`
+  and entered main in #1710 (`aeb2a85cc5`); H2 changes no line in it.
+- Attribution: inherited; route the single-main repair to the orchestrator.
+  The standing inherited Coverage Regression attribution also remains with
+  the orchestrator. Neither result is described as a passing gate.
+- Prevention: run the test compiler on added command coverage before merging
+  the coverage repair; preserve source-bound gate results across integration.
+
+### 2026-10-14 — H2 publisher runtime flag
+
+- Work: publish the qualified H2 delivery with a bounded readiness monitor.
+- Evidence: `yeet publish --job-max-runtime "40 minutes"` exits before mutation:
+  `--job-max-runtime requires --detach.` No commit or push occurs.
+- Prevention: use the canonical publisher invocation; configure the detached
+  readiness monitor through its own job options. Shared help lists job flags
+  without distinguishing the publisher's automatically detached monitor.
+
+### 2026-10-14 — H2 long-lived branch path capture
+
+- Work: publish the integrated October 14 wave to reopened #1574.
+- Evidence: publisher exits before pushing: `git diff --name-only -z
+  origin/chore/rsc-h2-completion..HEAD output exceeded the repo-run capture limit.`
+  The remote lane tip predates the five-day main integration.
+- Prevention: size or stream NUL-delimited path inventories independently of
+  bounded diagnostic output. H2 does not widen the shared command runner here;
+  preserve qualification and use the lane's authorized publication fallback.
+
+### 2026-10-14 — H2 inherited hosted Repo Sanity ordering
+
+- Work: monitor reopened #1574 at `7912fecf03`.
+- Evidence: completed Repo Sanity job `115818260298` fails Sherif's
+  `unordered-dependencies` on `scratchpad/package.json`,
+  `packages/ecosystem/effect-drizzle/package.json`,
+  `packages/tooling/library/repo-utils/package.json`, and
+  `packages/tooling/policy-pack/repo-configs/package.json`.
+  All four manifests and the lockfile are identical to integrated `origin/main`.
+- Attribution: inherited. Inbox row `Repo_Sanity-d7557a709d78` is acknowledged
+  with the program orchestrator owning one consolidated main repair under S11;
+  the acknowledgement is not a passing gate or waiver.
+- Prevention: run the hosted Sherif lane when main changes dependency keys;
+  keep generated script ownership separate from dependency-key ordering.
+
+### 2026-10-14 — H2 hint review and newly integrated packet failures
+
+- Review `discussion_r4270037982` identifies a misleading doctor hint: online
+  reads and refresh cannot prove deleted-ruleset inventory completeness.
+  Name that blocker in absent/incomplete receipt advisories and explain that
+  refresh records observed facts; preserve unknown outcomes and lifecycle.
+  Add a stored incomplete-inventory regression using the existing doctor
+  console-capture fixture.
+- Test Unit aggregate `115823367350` points to repo-cli-2 `115818260229`:
+  2947 tests pass; repository-wide retired-path command coverage fails on
+  the newly integrated main packet. Main #1721 owns the path repair. Both
+  inbox rows are acknowledged with attribution, without weakening the fixture.
+- Lint Policy job `115818622663` log fetch returns HTTP 404 twice. Its entire
+  attribution remains unknown. The local knowledge-reference check separately
+  identifies 11 inherited host-path observations in main #1713 packets;
+  H2 changes none of those paths relative to its integrated base `3749e7ca4a`.
+  Route the main repair and log investigation to the program orchestrator.
+
+### 2026-10-14 — H2 typed fixture decoder and bounded monitor
+
+- Final test compiler reports TS377112 at `goals-doctor.test.ts:194`:
+  statically known encoded input must use `decodeEffect`. `ea4041cdb6`
+  corrects the fixture without changing runtime validation; retain the failed
+  compiler attempt until the corrected lane completes.
+- Independent Opus review finds ambiguous "record" wording for online reads.
+  `959c533ed9` distinguishes online inspection from refresh persistence.
+  Follow-up review returns zero actionable findings.
+- The first readiness monitor ends at its 40-minute ceiling with no readiness
+  verdict. Treat it as terminated, not merge-ready; submit a new bounded monitor
+  after the complete review-fix wave publishes. Canonical heavy admission delayed
+  the second package command for over 30 minutes before it ran and passed.
+
+### 2026-10-14 — H2 schema-derived property gate
+
+- The complete publisher collects 16 green lanes and one introduced
+  `SFV4-arbitrary-tests` finding: the added doctor regression crosses the
+  schema-codec threshold without schema-derived property coverage. No push occurs.
+- Add a property derived from `GoalRequiredCheckSnapshot`: with all other
+  acceptance evidence satisfied, completeness true verifies and false is unknown.
+  Keep the regression's filesystem fixture and offline network refusal.
+- Current Effect source requires a boolean callback, `CheckOptions.runs`, and
+  explicit inspection of the returned `CheckResult`; a falsification does not fail
+  the effect's error channel. Correct the callback and assert `Passed`, with
+  `formatCheckFailure` for shrunk failure context. Retain both compiler failures.
+- Independent Opus review catches the ignored property result; the follow-up
+  on `4178066e62` returns zero actionable findings. Do not add an inventory
+  exception, waiver or baseline change to bypass the finding.
+
+### 2026-10-14 — H2 current-main reader overlap
+
+- Publisher refuses Doctor.ts overlap after main #1714 lands while the lane's
+  validation runs. Preserve both the main packet-reader core and H2 completion
+  reads through a clean merge; requalify the combined tree. The refusal pushes
+  nothing and is not a source-regression result.
+- Combined parity passes except 15 inherited knowledge host paths. Keep the
+  prior 11-row observation at its own head; the four additional main paths
+  belong to the consolidated main repair, not an H2 baseline reset.
+
+### 2026-10-14 — H2 native property registration and interruption
+
+- Structured detector row EV007 identifies the direct property-check candidate.
+  Register the same fixture with `it.effect.prop`; preserve 20 runs, expected
+  outcomes, filesystem scope and offline network refusal. `d42750855e` is the
+  correction, not an inventory exception. Fresh detector/compiler/runtime checks
+  all pass.
+- Audit and publisher terminate with `All fibers interrupted without error`,
+  exit 130. No agent cancellation was requested; cause is unknown. Confirm both
+  calls ended and PR head stayed `7912fecf03` before retrying. Preserve interrupted
+  attempts without substituting earlier proof or replaying an uncertain push.
+
+### 2026-10-14 — H2 publisher monitor runtime
+
+- Standard publication succeeds at `0f57cb043f`, including all cheap gates and
+  isolated frozen-lockfile installation, but submits an unbounded monitor.
+  The publisher rejects a job-runtime flag without detached publication;
+  changing the running service runtime property is unsupported.
+- Cancel only that owned monitor through `yeet job cancel`, observe terminal
+  exit 3, and replace it after the final evidence update with the brief's
+  explicit `monitor --until-ready --detach --job-max-runtime "40 minutes"`.
+  The package gate remains running. A publisher runtime option for its
+  automatic monitor would prevent this cleanup step.
+
+### 2026-10-14 — H2 synthetic-merge compiler red and supplemental review limit
+
+- Completed Heavy / Check job `115896273082` reports TS377112 in
+  `skills-relock.test.ts:507`. The file is absent from H2's head; the log
+  checks out synthetic merge `ec67d2347` against main #1732 (`8858e31070`).
+  Route the single-main decoder repair to the program orchestrator, retaining
+  exact local versus hosted provenance.
+- Supplementary pinned Opus review reports its weekly limit before any review
+  evidence. Retain earlier completed reviews at their recorded heads and four
+  passing native-property checks; no quota purchase or substituted review claim.
+
+### 2026-10-14 — H2 successful unknown receipt freshness
+
+- Review identifies that definite-only receipt precedence preserves a stale
+  required-red verdict even after a newer successful merged observation.
+  Historical inventory incompleteness makes that successful observation
+  unknown, unlike a transient lookup failure without merge facts.
+- Treat unknown receipts carrying merge facts as candidates for newest-first
+  selection; retain older evidence for factless transient failures. Cover both
+  required-red and pre-merge-pending cases, and correct the fixture table's
+  synthetic versus live inventory qualifications. No completeness is inferred.
+
+### 2026-10-14 — H2 review fallback effort drift
+
+- Direct Opus weekly-limit failure permits the approved Cursor fallback, but
+  its init event identifies `Claude Opus 5.5 300K High`, despite the configured
+  medium binding. Stop only that owned read-only review process; exit 143.
+  Do not accept it as brief-pinned medium review evidence or change the model
+  to seek a favorable review. Route pin drift and unavailable review to the
+  orchestrator alongside source-bound completed prior reviews.
+
+### 2026-10-14 — H2 independent freshness-review corrections
+
+- Approved Cursor model `claude-opus-5-5-medium` confirms Medium in its init
+  event and completes the independent review. Fix every finding: pending
+  at merge is unknown rather than unsatisfied, and a degraded merged lookup
+  must not clear an earlier positively observed required red.
+- Require merge facts, a required-check snapshot and definite hosted check
+  evidence before an unknown receipt joins the newest-first candidate set.
+  Add missing-history and pending-check preservation regressions, correct the
+  pending fixture expectation and receipt table, then requalify the source.
+
+### 2026-10-14 — H2 compiler pipeline assertion
+
+- Fresh test-tsgo finds TS377050 on the two canonical Boolean assertions.
+  Use each Option's `pipe(O.isSome, assertTrue)` form, preserving assertion
+  polarity and values. Runtime regressions pass; retain the compiler failure
+  until the corrected compiler run completes. No suppression is introduced.
+
+### 2026-10-14 — H2 full audit crossed a source correction
+
+- Full audit started before the freshness review completed and ends with
+  6265 passing tests and the new degraded-refresh preservation regression red.
+  Its actual result selects the missing-history unknown receipt, the behavior
+  corrected by `6fe60c8bf8`; a cold scoped run after that fix passes all
+  289 tests and existing coverage rows. The audit is failed evidence, not
+  current-source qualification.
+- Acknowledge the precise fix SHA and rerun the full package gate with source
+  frozen. Do not edit implementation during the admitted full suite; this
+  prevents old transformed modules and newer tests sharing one proof run.
+
+### B resume admission environment, 2026-10-14
+
+- Work: qualify the landed Sherif and JSDoc traversal repairs, then reproduce
+  the current detector baseline through the required heavy wrapper.
+- Evidence: `beep-heavy bunx sherif@1.10.0 -r non-existent-packages` exits
+  before admission with `Failed to connect to user scope bus` because this
+  headless worker lacks the user-manager environment.
+- Action: use `XDG_RUNTIME_DIR=/run/user/1000` and the matching user bus
+  address on the wrapper. The admitted Sherif replay passes. No wrapper,
+  concurrency cap or authentication setting changed.
+- Prevention: the worker launcher should supply the user-manager environment
+  before invoking the canonical heavy wrapper.
+
+
+### B shared snapshot qualification follows moving main, 2026-10-14
+
+- Work: reproduce the R20 baseline and review the dedicated generated chore.
+- Evidence: during the first admitted reproduction, main advanced through
+  #1707, #1666, #1711 and #1713. Independent review had to pin its verdict to
+  `7878eb9238`; it could not extend it to merge `aeaa911d51`.
+- Action: preserve the completed raw observations, integrate main, install
+  the moved lockfile and regenerate all touched snapshots through owners.
+- Prevention: coordinate the serialized snapshot wave with a bounded base
+  window, or qualify owner outputs against their precise source inputs, so
+  unrelated publication does not force repeated whole-tree scans.
+
+
+### B regeneration queue outlives source-base movement, 2026-10-14
+
+- Work: requalify the shared generated snapshots after main integration.
+- Evidence: the first replay remained unstarted in `beep-heavy` while main
+  gained #1720, #1721 and #1716. No replay head or command-result file existed.
+- Action: stop only that owned queued unit, confirm it ran no commands,
+  preserve the first measured candidate, merge main and re-submit. No other
+  heavy job or capacity setting is changed.
+- Prevention: give a serialized snapshot wave a source-input-bound admission
+  or bounded main window. A static slot race offers no stable source window
+  for whole-tree owner regeneration while other branches continue landing.
+
+
+### B qualification displaced by a landed source change
+
+During the first generated wave, main landed Skills materialization (#1709)
+after the pinned candidate's JSDoc qualification started. The completed
+candidate checks remain historical; new schema/catalog inputs require another
+owner replay. Only B's queued, unstarted named review was withdrawn. Preserve
+source-head and base provenance for every run so moving shared refs cannot
+turn an earlier pass into current-head proof. Knowledge refs also reported
+fourteen inherited host-path observations; exact byte comparisons establish
+attribution before any repair.
+
+
+### B pinned history needs explicit archive paths and current status
+
+The named first-wave review found stale current-tense packet lines after
+repeated main integrations, and an older review referenced `integrated/`
+logs that newer owner passes reused. Corrections preserve the pinned review,
+name its immutable private archive, retitle historical parity and update
+current status together. A qualification record should distinguish owner
+source head, generated candidate and final packet head instead of appending
+new evidence beneath an unchanged current-status sentence.
+
+
+### B final publication snapshot and pre-final proof boundary
+
+The final publication fetch imported #1727 observability, #1714 knowledge
+cause grouping and #1712 packets after #1715 model routing. Repeated global
+source movement displaced earlier full local proofs. Preserve each archive,
+regenerate the fresh publication snapshot, and use Yeet's prescribed cheap
+push preflight while pre-final parity qualifies the exact published head.
+Hosted proof remains authoritative. Candidate counts remain source-pinned;
+new source findings are shown rather than presented as B repairs.
+
+
+### B publish runtime flag rejected before execution
+
+`yeet publish --job-max-runtime "40 minutes"` returned
+`--job-max-runtime requires --detach.` Argument validation stopped before
+any push. The flag is general in help but requires an explicit detached
+operation. Retry canonical publication without it; apply the runtime bound
+to the explicit detached readiness monitor. Conditional flag requirements
+should be rendered beside the option in command help.
+
+
+### Main skills train additions missed two existing quality contracts
+
+After integrating #1732/#1738 into #1726, canonical publication passed 16
+cheap gates but failed schema-first on exported PatchSeriesFile. Default CLI
+package audit then passed 6,276 tests and failed the hosted-job inventory
+contract on Skills Replay, Skills Relock, and Skills Train Batch Issue. The
+repair models the patch data with an annotated class and explicitly records
+the three domain automation jobs while preserving workflow security checks.
+Running these existing contracts before the train landed would have prevented
+the downstream integration delay. No coverage floor or security rule is relaxed.
+### 2026-10-14 — H2 shared-ledger publication integration
+
+- Final publisher refuses four overlapping packet ledgers after main B
+  advances. It pushes nothing and changes no package source. Commit the
+  reviewed delivery evidence, merge main `6cf44a7678`, preserve both ledgers
+  and fix only README's union conflict.
+- H2 Goals/Completion, doctor, schemas, tests and MergeGate surfaces are
+  byte-identical to qualified source `075a4d7908`. Carry main's unrelated
+  code and owner-generated snapshots without authoring or regenerating them.
+  Requalify integrated lint/type, hosted parity and scoped runtime/coverage;
+  keep the full 890.6s/26.5s proof bound to its source head.
+
+### 2026-10-14 — H2 integrated inherited parity
+
+- Integrated quick CLI and identity package checks pass; H2 implementation is
+  unchanged. Main skills decoder and PatchSeriesFile remain compiler/schema
+  reds. JSDoc inventory identifies four new missing-example rows in main
+  knowledge-baseline/practice verdict inputs, plus the main skills replay
+  declaration-stub example. Every offending source file is byte-identical to
+  main. Route the consolidated repair to the program orchestrator.
+- References now has one gated claim-element external-mirror path after main
+  #1729, rather than the earlier 15. Preserve both results at their own heads.
+  Docgen, Fallow, retired paths and 289 scoped tests pass on the integration.
+
+### 2026-10-14 — H2 inherited schema-first publication fence
+
+- Publisher collects 16 passing cheap lanes and one inherited main
+  PatchSeriesFile schema-first red, then pushes nothing. Acknowledge the
+  exact local shard with main attribution; do not add a suppression.
+- Apply the resume-authorized direct-push fallback to the complete qualified
+  wave, followed by explicit bounded readiness. Workspace frozen install
+  passes; the refused isolated head-install step is not claimed as run.
+  Program orchestrator owns the single-main repair and S11 gate.
+
+### 2026-10-14 — H2 partial historical ruleset reads
+
+- New P1 review shows one unsupported parent or failed ruleset discards
+  readable Repository siblings, hiding a known required red as unknown.
+  Isolate failures per ruleset, flatten nested Options and retain successes.
+  Keep inventoryComplete false and the all-failed unknown path unchanged.
+- Cover organization, glob and unreadable-history siblings with both green
+  and red repository checks. Cancel only the owned readiness monitor for the
+  new implementation wave; confirm termination before requalification.
+
+### 2026-10-14 — H2 partial-read freshness interaction
+
+- Independent medium Opus review finds a newer partial green snapshot could
+  lose a required context held only by an unreadable sibling and clear the
+  older red. Distinguish ruleset read completeness from historical inventory
+  completeness, gate unknown-receipt candidacy on complete reads, and add
+  a distinct Security-context storage regression.
+- Stop the two isolated, owned superseded validation process groups (exit
+  143) before editing; do not stop the parent lane or another admission.
+  Freeze corrected source before fresh full/package/parity qualification.
+
+### 2026-10-14 — H2 final partial-read qualification
+
+- The composition cleanup omitted its pipe import. Audit and docgen report
+  TS2304; add the canonical effect/Function import, retain failed attempts
+  and acknowledge both against `d7e254ba48`. Corrected compiler has only
+  the unchanged main skills decoder finding.
+- Frozen full package audit has 6313 pass/one inherited main descriptor
+  failure; docgen passes 26.3s. Exact diagnostics are emitted after the
+  verifier completes, while inbox rows can already exist. Early shard
+  diagnostics would avoid waiting to attribute the buffered failure.
+- All 291 scoped tests pass with complete-read semantics; medium Opus
+  follow-up is zero actionable findings. Keep the inherited repair on main
+  and publish the fully addressed P1 wave without weakening any baseline.
+
+### 2026-10-14 — H2 duplicate documentation section
+
+- Repaired-main JSDoc parity identifies one introduced duplicate Details
+  heading in GoalRequiredCheckSnapshot. Combine the existing and new
+  completeness paragraphs under one heading; preserve examples and behavior.
+  Rerun the JSDoc lane, retaining the failed observation rather than resetting
+  its baseline. Main's earlier compiler/schema/reference repairs now pass.
+
+### 2026-10-14 — H2 unresolved default-branch rule
+
+- New review identifies non-main DEFAULT_BRANCH applicability silently skipped
+  as a successful non-match. Fail that unsupported per-ruleset read, covering
+  include and exclude tokens; preserve ALL and explicit branch matching.
+- Stop only the owned readiness monitor for the new wave, requalify frozen
+  source, answer and resolve the thread. No default-branch history is inferred.
+
+### 2026-10-14 — H2 parallel publication continuity
+
+- Another checkout incorporates and publishes `8c00bdb927` in `c6e855d8b9`,
+  then answers/resolves the default-branch thread for a pre-reboot push. Fetch
+  and prove ancestry/source equality; fast-forward this lane rather than
+  replacing the remote head. Our prepared reply is stale and posts nothing.
+- Retain our full 868.0s/27.1s and 293-test proof independently of that
+  checkout's verification waiver. Shared publication ownership needs a
+  source/head receipt; commit hashes alone do not authorize overwriting it.
+
+### 2026-10-14 — H2 merge during publisher preflight
+
+- Original #1574 merged while the report-only publisher was running. That run
+  completed cheap gates and isolated head-install before opening redundant
+  draft #1743 from the old
+  implementation branch. Observe merged state again before branch publication
+  and apply the standing fresh-follow-up rule. Preserve the prepared evidence
+  on a fresh main branch, cancel the owned redundant monitor to terminal, and
+  close the redundant draft after its replacement is concrete.
+
+### 2026-10-14 — H2 inherited Knip cache-evidence digest fence
+
+- Evidence-only follow-up cheap gates: 15 pass; cache policy reports
+  `Qualification evidence digest mismatch.` The Knip review reference expects
+  `f963ef8f`, while both lane and main file bytes hash `aa3b4096`. H2 changes
+  neither input. Preserve provenance, attribute the main red, and use the
+  already-authorized publication fallback. Owner commands should reconcile
+  evidence references when a reviewed document changes in a main repair.
+
+### 2026-10-14 — H2 evidence follow-up main integration reds
+
+- On #1744, completed Repo Sanity job `116013475052` reproduces the inherited
+  Knip cache-policy digest mismatch after eight passing sanity subcommands.
+- Completed Heavy Check job `116014042085` reports TS377004/TS2345 at
+  `skills-command.test.ts:634`: missing `HttpClient`. That file is identical
+  to main `730348fc1f` and was last changed by that main repair. The five-file
+  H2 evidence diff changes neither source input. A main-repair test must
+  provide its newly required service before declaring the repair green.
+- Acknowledge both with log-bound attribution and route the main-red episode
+  to the orchestrator; do not duplicate unrelated fixes in an evidence PR.
+
+### 2026-10-14 — H2 evidence review consistency
+
+- #1744 review found the README Status block still describing reopened #1574
+  and four fixes while the lane evidence correctly recorded its merge and six
+  original review resolutions. Update both status locations together.
+- A second finding conflated two publisher runs: the original report-only run
+  completed cheap gates and isolated install before opening #1743; the fresh
+  main follow-up stopped on the cache-policy cheap gate before isolated install.
+  Name each run explicitly; do not infer the exact in-flight phase at merge.
+### H4 — heavy admission needs the user bus (2026-10-14)
+
+While starting `beep-heavy bun run beep quality test-tsgo`, admission exited
+before running the check: `Failed to connect to user scope bus` because
+`DBUS_SESSION_BUS_ADDRESS` and `XDG_RUNTIME_DIR` were absent. Retry the same
+admission command with the workstation's existing user-bus environment.
+Prevent recurrence by having the launcher export those two user-manager
+variables; no bypass, service restart or permission grant is needed.
+
+### H4 — test entry point lost a fixture run (2026-10-14)
+
+The first focused command passed a package config from the repository root,
+but its package-relative include found no test files. Running from the CLI
+package fixed discovery. The subsequent Node-based run exited 143 before
+reporting cases; the canonical package Bun Vitest route completed all 13
+synthetic cases in 5.07 seconds. Keep the package cwd and its Bun runner in
+copied commands. The failed attempts are not passing evidence.
+
+### H4 — package verifier buffers long-running audit progress (2026-10-14)
+
+`beep-heavy bun run beep quality package-verify @beep/repo-cli` emitted only
+its invocation for more than 20 minutes while CPU usage and child-process
+changes showed ongoing work. The lane had to inspect its own process tree
+to distinguish a progressing audit from a silent stall. Emit a step-start
+line and periodic progress summary, or persist the active step's output to
+a named receipt, while preserving the final collected report. This is a
+usability observation, not a passing or failing package-gate result.
+
+### H4 — integration and coverage reporting corrections (2026-10-14)
+
+After merging main's native/T3 messaging work, the post-merge version hook
+could not resolve the new `@beep/t3-code` workspace. A frozen-lockfile install
+restored workspace wiring; no manifest or lock edit was needed. The first
+scoped V8 run passed 38 cases, but repeated coverage include flags selected
+only the last pattern. The reporting helper also rejected JSONC trailing
+commas. Use one brace-glob for the touched files and the existing JSONC parser
+for the read-only baseline comparison. These were setup/reporting failures;
+no coverage floor was weakened and no production failure was attributed to them.
+
+### H4 — publication found test-harness canon drift (2026-10-14)
+
+The publish preflight rejected 15 newly introduced Effect Vitest findings:
+13 redundant whole-body scopes, an incidental Node-services import and a
+missing resource-layer timeout. The earlier package/parity commands did not
+include this full-scan ratchet. Use the existing in-memory filesystem, rely
+on the harness's per-test scope and set the layer hook budget. No inventory
+refresh or exception was used; rerun the canon ratchet before publication.
+The dedicated test typecheck then caught the wired CLI command's remaining
+static platform requirements, which the normal package audit does not check.
+Keep test-tsgo separate: its correction supplies test stdio/terminal/spawner
+and narrow crypto while retaining virtual files and fail-on-input/spawn.
+
+### H4 — hosted Security blocked by shared ruleset drift (2026-10-14)
+
+PR #1770 job 116095380764 passed OSV and dependency review, then failed
+`ci ruleset --check`: the live required-check set differs from the declared
+set, including an extra `beep-reviewer`. The same command reproduces the
+drift locally; the lane has no diff in CI/ruleset source or workflows against
+main. Route reconciliation to the shared owner and rerun Security after it
+lands. A shared settings/declaration preflight would expose this before
+spending a full hosted run. No lane-local ruleset or workflow repair was made.
+
+### H4 — S25 integration requires branded constructor inputs (2026-10-14)
+
+After #1758 merged, H4 integrated main cleanly. The first package check then
+reported two missing `brand` fields in its reused Models locator inputs.
+Constructing `ModelsTargetFile` and `LocatorBinding` through their existing
+`.make` methods preserves the codemod's opaque schema shape; no cast or
+upstream rollback was needed. A consumer inventory for newly opaque models
+would expose these two lane-only call sites before integration. The fix is
+independently reviewed; the package check rerun passes.
+
+### H4 — review exposed incomplete-evidence gaps (2026-10-14)
+
+PR #1770 discussions 4276306627 and 4276306638 showed two false-safe
+assumptions: unidentified segments discarded known tuples, and equal-time
+turns from another segment could close a settings boundary by manifest order.
+Project policy payloads independently of identity/time, retain mismatches,
+and use only timestamp order or same-file position as boundary evidence.
+Regressions now cover orphan downgrades, invalid/missing times, both manifest
+permutations and a genuinely later supporting turn. Independent review also
+caught tuple rendering order changing during that fix; chronological rendering
+is restored. A generated missing-metadata and permutation test matrix would
+have exposed these cases before hosted review.
+
+### H4 — inherited hosted examples and Skills property (2026-10-14)
+
+On published pre-S25 head `9a1b342f05`, JSDoc job 116103973155 reports
+`no-root-package-import: 1345 > 1343`. The inventory diff identifies exactly
+`TierGate.ts:TierGateVerdict` and `UsptoDocumentTiers.ts:MintFetchableHandle`;
+both files match main, and H4 adds zero root-import examples. Property Laws
+job 116103972723 and Unit shard 116103972739 fail the same unchanged Skills
+codec property at `skills-provenance.test.ts:388`; the Unit parent merely
+aggregates it. Route these findings to the shared owner. Do not copy fixes
+or rewrite baselines in H4. The final post-S25 sequence includes a bounded
+recheck of the Skills property.
+
+### H4 — latest main exposes a separate test-entry diagnostic (2026-10-14)
+
+After the completed audit, freshness found main #1773's shared-red fix and
+#1766's receiver grant. Merge `7f55eeca0d` preserves H4 source unchanged.
+The repeated test-tsgo fails only `AgentMessage.runtime.test.ts:322` with
+TS377032 `strictEffectProvide`. The file matches main; blame binds the call
+to #1766 (`55b1836e40`). Route this to its owner instead of inserting a
+suppression or copying a fix into H4. Main-owned test entry points need the
+same dedicated test typecheck before their publication.

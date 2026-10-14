@@ -12,6 +12,7 @@ import {
   GraphPathSegment,
   loadM365AppOnlyEnv,
   M365,
+  M365AppOnlyConfigInput,
   M365DownloadMessageAttachmentRequest,
   M365GetMessageRequest,
   M365ListMessageAttachmentsRequest,
@@ -48,14 +49,7 @@ import {
   IntakeResult,
   MessageFacts,
 } from "./Drawings.intake.schemas.ts";
-import type {
-  GraphAttachment,
-  GraphMessage,
-  GraphRecipient,
-  M365AppOnlyConfigInput,
-  M365AppOnlyEnvSettings,
-  M365Error,
-} from "@beep/m365";
+import type { GraphAttachment, GraphMessage, GraphRecipient, M365AppOnlyEnvSettings, M365Error } from "@beep/m365";
 import type { Sha256Hex } from "@beep/schema/Sha256";
 import type { IntakeAttachmentOutcome, IntakePick } from "./Drawings.intake.schemas.ts";
 
@@ -203,7 +197,7 @@ const skipOutcomeOf = (maxBytes: number): ((attachment: GraphAttachment) => O.Op
       (attachment: GraphAttachment) => declaredBytesOf(attachment) > maxBytes,
       () => O.some<IntakeAttachmentOutcome>("skipped-oversize")
     ),
-    Match.orElse(() => O.none<IntakeAttachmentOutcome>())
+    Match.orElse(O.none<IntakeAttachmentOutcome>)
   );
 
 // Content already in the directory: unchanged when it holds the wanted name, otherwise a duplicate of its holder.
@@ -575,11 +569,16 @@ const decodePick = S.decodeUnknownEffect(IntakePickFromString);
 const decodeMailbox = S.decodeUnknownEffect(GraphPathSegment);
 
 const OUTCOME_WIDTH = 17;
+const TERMINAL_CONTROL_PATTERN = /[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu;
+const displayName = Str.replace(TERMINAL_CONTROL_PATTERN, "�");
 
 const attachmentLine = (row: IntakeAttachment): string => {
-  const shown = O.getOrElse(row.savedAs, () => row.name);
+  const shown = displayName(O.getOrElse(row.savedAs, () => row.name));
   const sha256 = O.match(row.sha256, { onNone: () => "", onSome: (hex) => `  sha256 ${hex}` });
-  const duplicate = O.match(row.duplicateOf, { onNone: () => "", onSome: (name) => `  same bytes as ${name}` });
+  const duplicate = O.match(row.duplicateOf, {
+    onNone: () => "",
+    onSome: (name) => `  same bytes as ${displayName(name)}`,
+  });
   return `  ${Str.padEnd(OUTCOME_WIDTH)(row.outcome)}${shown}  ${row.bytes} bytes${sha256}${duplicate}`;
 };
 
@@ -589,7 +588,8 @@ const attachmentLine = (row: IntakeAttachment): string => {
  * **Details**
  *
  * The subject, sender and body of the message are never printed; they stay in
- * the record under the corpus root.
+ * the record under the corpus root. Attachment display names replace terminal
+ * controls while the record retains their original values.
  *
  * **Example** (Summarise an empty intake)
  *
@@ -695,7 +695,7 @@ export const drawingIntakeLaneLayer = <E>(options: {
       Effect.mapError((cause) => DrawingsCommandError.new(cause, cause.message)),
       Effect.map((settings) =>
         Layer.merge(
-          DrawingIntake.layer.pipe(Layer.provide(options.mailLayer(settings.appOnly))),
+          DrawingIntake.layer.pipe(Layer.provide(options.mailLayer(M365AppOnlyConfigInput.make(settings.appOnly)))),
           Layer.succeed(DrawingIntakeLane, settings)
         )
       )

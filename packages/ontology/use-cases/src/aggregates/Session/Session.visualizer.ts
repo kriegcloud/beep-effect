@@ -152,15 +152,16 @@ export type OntologyLabelLevelOfDetail = typeof OntologyLabelLevelOfDetail.Type;
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyPinnedNode extends S.Class<OntologyPinnedNode>($I`OntologyPinnedNode`)(
-  {
+export class OntologyPinnedNode extends S.Opaque<OntologyPinnedNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     iri: S.String,
     x: S.Finite,
     y: S.Finite,
-  },
-  $I.annote("OntologyPinnedNode", {
-    description: "Pinned node position preserved by worker-side graph projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyPinnedNode", {
+      description: "Pinned node position preserved by worker-side graph projection.",
+    })
+  )
 ) {}
 
 /**
@@ -179,10 +180,11 @@ export class OntologyPinnedNode extends S.Class<OntologyPinnedNode>($I`OntologyP
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyGraphProjectionOptions extends S.Class<OntologyGraphProjectionOptions>(
-  $I`OntologyGraphProjectionOptions`
-)(
-  {
+export class OntologyGraphProjectionOptions extends S.Opaque<
+  OntologyGraphProjectionOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     viewMode: OntologyViewMode,
     foldLevel: OntologyFoldLevel,
     focusIri: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -193,10 +195,11 @@ export class OntologyGraphProjectionOptions extends S.Class<OntologyGraphProject
     communityBucketSize: S.Int,
     fullLabelThreshold: S.Int,
     keyLabelThreshold: S.Int,
-  },
-  $I.annote("OntologyGraphProjectionOptions", {
-    description: "Fold, focus, filter, label, and pinning options for worker graph projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyGraphProjectionOptions", {
+      description: "Fold, focus, filter, label, and pinning options for worker graph projection.",
+    })
+  )
 ) {}
 
 /**
@@ -255,8 +258,8 @@ export const defaultOntologyGraphProjectionOptions = (): OntologyGraphProjection
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyGraphNode extends S.Class<OntologyGraphNode>($I`OntologyGraphNode`)(
-  {
+export class OntologyGraphNode extends S.Opaque<OntologyGraphNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Int,
     iri: S.String,
     label: S.String,
@@ -266,10 +269,11 @@ export class OntologyGraphNode extends S.Class<OntologyGraphNode>($I`OntologyGra
     memberCount: S.Int,
     x: S.Finite,
     y: S.Finite,
-  },
-  $I.annote("OntologyGraphNode", {
-    description: "Graph node metadata paired with worker-produced typed arrays.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyGraphNode", {
+      description: "Graph node metadata paired with worker-produced typed arrays.",
+    })
+  )
 ) {}
 
 /**
@@ -297,8 +301,8 @@ export class OntologyGraphNode extends S.Class<OntologyGraphNode>($I`OntologyGra
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyGraphEdge extends S.Class<OntologyGraphEdge>($I`OntologyGraphEdge`)(
-  {
+export class OntologyGraphEdge extends S.Opaque<OntologyGraphEdge, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Int,
     sourceId: S.Int,
     targetId: S.Int,
@@ -307,10 +311,11 @@ export class OntologyGraphEdge extends S.Class<OntologyGraphEdge>($I`OntologyGra
     predicateIri: S.String,
     label: S.String,
     folded: S.Boolean,
-  },
-  $I.annote("OntologyGraphEdge", {
-    description: "Graph edge metadata paired with worker-produced link buffers.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyGraphEdge", {
+      description: "Graph edge metadata paired with worker-produced link buffers.",
+    })
+  )
 ) {}
 
 /**
@@ -335,17 +340,18 @@ export class OntologyGraphEdge extends S.Class<OntologyGraphEdge>($I`OntologyGra
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyGraphCluster extends S.Class<OntologyGraphCluster>($I`OntologyGraphCluster`)(
-  {
+export class OntologyGraphCluster extends S.Opaque<OntologyGraphCluster, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Int,
     iri: S.String,
     label: S.String,
     foldLevel: OntologyFoldLevel,
     memberCount: S.Int,
-  },
-  $I.annote("OntologyGraphCluster", {
-    description: "Worker-computed folded cluster summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyGraphCluster", {
+      description: "Worker-computed folded cluster summary.",
+    })
+  )
 ) {}
 
 /**
@@ -369,18 +375,20 @@ export class OntologyGraphCluster extends S.Class<OntologyGraphCluster>($I`Ontol
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyGraphProjectionStats extends S.Class<OntologyGraphProjectionStats>(
-  $I`OntologyGraphProjectionStats`
-)(
-  {
+export class OntologyGraphProjectionStats extends S.Opaque<
+  OntologyGraphProjectionStats,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     visibleResourceCount: S.Int,
     projectedNodeCount: S.Int,
     projectedEdgeCount: S.Int,
     foldedResourceCount: S.Int,
-  },
-  $I.annote("OntologyGraphProjectionStats", {
-    description: "Worker-computed graph projection counts for benchmark and UI readouts.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyGraphProjectionStats", {
+      description: "Worker-computed graph projection counts for benchmark and UI readouts.",
+    })
+  )
 ) {}
 
 /**
@@ -424,8 +432,8 @@ export class OntologyGraphProjectionStats extends S.Class<OntologyGraphProjectio
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyGraphProjection extends S.Class<OntologyGraphProjection>($I`OntologyGraphProjection`)(
-  {
+export class OntologyGraphProjection extends S.Opaque<OntologyGraphProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     revision: S.Int,
     foldLevel: OntologyFoldLevel,
     labelDetail: OntologyLabelLevelOfDetail,
@@ -448,10 +456,11 @@ export class OntologyGraphProjection extends S.Class<OntologyGraphProjection>($I
     changedNodeIds: S.Array(S.Int),
     changedEdgeIds: S.Array(S.Int),
     stats: OntologyGraphProjectionStats,
-  },
-  $I.annote("OntologyGraphProjection", {
-    description: "Worker-owned ontology graph projection with typed node and edge buffers.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyGraphProjection", {
+      description: "Worker-owned ontology graph projection with typed node and edge buffers.",
+    })
+  )
 ) {}
 
 /**
@@ -545,15 +554,19 @@ export type OntologyGraphGesture = typeof OntologyGraphGesture.Type;
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyPredicateSuggestion extends S.Class<OntologyPredicateSuggestion>($I`OntologyPredicateSuggestion`)(
-  {
+export class OntologyPredicateSuggestion extends S.Opaque<
+  OntologyPredicateSuggestion,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     iri: S.String,
     label: S.String,
     weight: S.Int,
-  },
-  $I.annote("OntologyPredicateSuggestion", {
-    description: "Predicate autocomplete suggestion for graph halo gestures.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyPredicateSuggestion", {
+      description: "Predicate autocomplete suggestion for graph halo gestures.",
+    })
+  )
 ) {}
 
 type Relationship = {
@@ -1530,18 +1543,20 @@ export const buildOntologyGraphProjection: {
  * @category read-models
  * @since 0.0.0
  */
-export class ApplyOntologyGraphProjectionDeltaInput extends S.Class<ApplyOntologyGraphProjectionDeltaInput>(
-  $I`ApplyOntologyGraphProjectionDeltaInput`
-)(
-  {
+export class ApplyOntologyGraphProjectionDeltaInput extends S.Opaque<
+  ApplyOntologyGraphProjectionDeltaInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     previous: OntologyGraphProjection,
     snapshot: OntologySnapshot,
     delta: SessionChangeDelta,
     options: OntologyGraphProjectionOptions,
-  },
-  $I.annote("ApplyOntologyGraphProjectionDeltaInput", {
-    description: "Worker-safe input for applying a session delta to a graph projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApplyOntologyGraphProjectionDeltaInput", {
+      description: "Worker-safe input for applying a session delta to a graph projection.",
+    })
+  )
 ) {}
 
 /**

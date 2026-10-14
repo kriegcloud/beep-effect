@@ -28,9 +28,9 @@ const decodeCodeFenceLanguageOption = S.decodeOption(Md.CodeFenceLanguage);
  * **Example** (Bold text becomes Strong)
  *
  * ```ts
- * import { inlineToMd } from "@beep/agents-domain/values/AssistantContent"
+ * import { inlineToMd, TextInline } from "@beep/agents-domain/values/AssistantContent"
  *
- * const node = inlineToMd({ type: "text", text: "Hello", bold: true })
+ * const node = inlineToMd(TextInline.make({ text: "Hello", bold: true }))
  * console.log(node._tag) // "strong"
  * ```
  *
@@ -74,9 +74,9 @@ const inlinesToMd = (inlines: ReadonlyArray<InlineNode>): ReadonlyArray<Md.Inlin
  * **Example** (Heading maps to Heading)
  *
  * ```ts
- * import { blockToMd } from "@beep/agents-domain/values/AssistantContent"
+ * import { blockToMd, HeadingBlock, TextInline } from "@beep/agents-domain/values/AssistantContent"
  *
- * const node = blockToMd({ type: "heading", level: "h2", children: [{ type: "text", text: "Install" }] })
+ * const node = blockToMd(HeadingBlock.make({ level: "h2", children: [TextInline.make({ text: "Install" })] }))
  * console.log(node._tag) // "heading"
  * ```
  *
@@ -133,10 +133,10 @@ export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
  * **Example** (Blocks become a Document)
  *
  * ```ts
- * import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent"
+ * import { assistantContentToDocument, ParagraphBlock, TextInline } from "@beep/agents-domain/values/AssistantContent"
  *
  * const document = assistantContentToDocument([
- *   { type: "paragraph", children: [{ type: "text", text: "Hello" }] },
+ *   ParagraphBlock.make({ children: [TextInline.make({ text: "Hello" })] }),
  * ])
  * console.log(document._tag) // "document"
  * ```

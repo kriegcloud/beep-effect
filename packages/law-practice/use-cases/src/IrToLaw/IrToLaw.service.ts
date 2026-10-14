@@ -30,8 +30,9 @@ import * as S from "effect/Schema";
 import { spikeEntityInput } from "../internal/spikeEntity.ts";
 import { OfficeActionExtractionLabel } from "../OfficeActionReview/OfficeActionExtractionLabel.ts";
 import { IrToLawExtractionError } from "./IrToLaw.errors.ts";
+import { IrToLawShape } from "./IrToLaw.ports.ts";
 import type { OfficeActionExtractionLabel as OfficeActionExtractionLabelValue } from "../OfficeActionReview/OfficeActionExtractionLabel.ts";
-import type { IrToLawShape, LawEntities } from "./IrToLaw.ports.ts";
+import type { LawEntities } from "./IrToLaw.ports.ts";
 
 // The spike builds these entities from statically known-good shapes (fixed
 // fixture keys/literals + unconstrained extraction strings), so a decode failure
@@ -174,7 +175,8 @@ const buildLawEntities = Effect.fn("law_practice.ir_to_law.build_entities")(func
  * @category constructors
  * @since 0.0.0
  */
-export const makeIrToLaw = (): IrToLawShape => ({
-  toLaw: (extractions: ReadonlyArray<GroundedExtraction>): Effect.Effect<LawEntities, IrToLawExtractionError> =>
-    buildLawEntities(extractions),
-});
+export const makeIrToLaw = (): IrToLawShape =>
+  IrToLawShape.make({
+    toLaw: (extractions: ReadonlyArray<GroundedExtraction>): Effect.Effect<LawEntities, IrToLawExtractionError> =>
+      buildLawEntities(extractions),
+  });

@@ -592,6 +592,15 @@ type CiFleetControllerPulumiConfigValuesFields = {
 /**
  * Pulumi config values accepted by the CI fleet controller.
  *
+ * **Example** (Validate a runner label)
+ *
+ * ```ts
+ * import { CiFleetControllerPulumiConfigValues } from "@beep/infra"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(CiFleetControllerPulumiConfigValues.fields.runnerLabel)("beep-ci-heavy"))
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -631,8 +640,8 @@ export type CiFleetControllerPulumiConfigValues = typeof CiFleetControllerPulumi
  * @category models
  * @since 0.0.0
  */
-export class CiFleetControllerConfig extends S.Class<CiFleetControllerConfig>($I`CiFleetControllerConfig`)(
-  {
+export class CiFleetControllerConfig extends S.Opaque<CiFleetControllerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     amiId: S.OptionFromOptionalKey(AmiId).pipe(S.withConstructorDefault(Effect.succeedNone)),
     amiSsmParameterName: SsmParameterName.pipe(
       S.withConstructorDefault(Effect.succeed(defaultAmiSsmParameterName)),
@@ -651,10 +660,11 @@ export class CiFleetControllerConfig extends S.Class<CiFleetControllerConfig>($I
     runnersLambdaZip: AbsoluteZipPath,
     terminationWatcherLambdaZip: AbsoluteZipPath,
     webhookLambdaZip: AbsoluteZipPath,
-  },
-  $I.annote("CiFleetControllerConfig", {
-    description: "Fully validated CI fleet controller configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiFleetControllerConfig", {
+      description: "Fully validated CI fleet controller configuration.",
+    })
+  )
 ) {}
 
 /**

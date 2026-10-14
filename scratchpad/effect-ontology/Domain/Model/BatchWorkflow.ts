@@ -17,15 +17,12 @@ import { BatchId, DocumentId, GcsUri, OntologyVersion } from "../Identity.ts";
 
 const $I = $ScratchpadId.create("effect-ontology/Domain/Model/BatchWorkflow");
 
-class DocumentFailure extends S.Class<DocumentFailure>($I`DocumentFailure`)(
-  {
+class DocumentFailure extends S.Opaque<DocumentFailure, { readonly brand: unique symbol }>()(S.Struct({
     code: S.NonEmptyString,
     message: S.NonEmptyString,
-  },
-  $I.annote("DocumentFailure", {
+  }).pipe($I.annoteSchema("DocumentFailure", {
     description: "Stable code and diagnostic for one failed batch document.",
-  })
-) {}
+  }))) {}
 
 const DocumentStatusDefinition = S.Union([
   S.Struct({
@@ -141,26 +138,19 @@ const BatchIdentityFields = {
  * @category value-objects
  * @since 0.0.0
  */
-export class BatchIdentity extends S.Class<BatchIdentity>($I`BatchIdentity`)(
-  BatchIdentityFields,
-  $I.annote("BatchIdentity", {
+export class BatchIdentity extends S.Opaque<BatchIdentity, { readonly brand: unique symbol }>()(S.Struct(BatchIdentityFields).pipe($I.annoteSchema("BatchIdentity", {
     description: "Stable identity, ontology scope, manifest, and timestamps shared by a batch.",
-  })
-) {}
+  }))) {}
 
-class BatchFailure extends S.Class<BatchFailure>($I`BatchFailure`)(
-  {
+class BatchFailure extends S.Opaque<BatchFailure, { readonly brand: unique symbol }>()(S.Struct({
     code: S.NonEmptyString,
     message: S.NonEmptyString,
     cause: S.OptionFromOptionalKey(S.Defect({ includeStack: false })).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BatchFailure", {
+  }).pipe($I.annoteSchema("BatchFailure", {
     description: "Stable failure code, user-facing diagnostic, and optional defect cause.",
-  })
-) {}
+  }))) {}
 
-class BatchCompletionStats extends S.Class<BatchCompletionStats>($I`BatchCompletionStats`)(
-  {
+class BatchCompletionStats extends S.Opaque<BatchCompletionStats, { readonly brand: unique symbol }>()(S.Struct({
     documentsProcessed: S.Natural,
     documentsSucceeded: S.Natural,
     documentsFailed: S.Natural,
@@ -170,11 +160,9 @@ class BatchCompletionStats extends S.Class<BatchCompletionStats>($I`BatchComplet
     clustersResolved: S.Natural,
     triplesIngested: S.Natural,
     totalDurationMs: S.DurationFromMillis,
-  },
-  $I.annote("BatchCompletionStats", {
+  }).pipe($I.annoteSchema("BatchCompletionStats", {
     description: "Non-negative completion counts and elapsed duration for a batch.",
-  })
-) {}
+  }))) {}
 
 /**
  * Batch lifecycle discriminator used by transition policy.

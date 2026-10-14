@@ -59,20 +59,22 @@ const $I = $LawPracticeServerId.create("PracticeKg.mail-index");
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMailIndexInternetHeaders extends S.Class<PracticeKgMailIndexInternetHeaders>(
-  $I`PracticeKgMailIndexInternetHeaders`
-)(
-  {
+export class PracticeKgMailIndexInternetHeaders extends S.Opaque<
+  PracticeKgMailIndexInternetHeaders,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cc: S.Array(S.String),
     date: S.optionalKey(S.String),
     from: S.optionalKey(S.String),
     messageId: S.optionalKey(S.String),
     subject: S.optionalKey(S.String),
     to: S.Array(S.String),
-  },
-  $I.annote("PracticeKgMailIndexInternetHeaders", {
-    description: "RFC 5322 identity, addressing, date, and subject of one indexed archive message.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMailIndexInternetHeaders", {
+      description: "RFC 5322 identity, addressing, date, and subject of one indexed archive message.",
+    })
+  )
 ) {}
 
 /**
@@ -90,20 +92,22 @@ export class PracticeKgMailIndexInternetHeaders extends S.Class<PracticeKgMailIn
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMailIndexOutlookHeaders extends S.Class<PracticeKgMailIndexOutlookHeaders>(
-  $I`PracticeKgMailIndexOutlookHeaders`
-)(
-  {
+export class PracticeKgMailIndexOutlookHeaders extends S.Opaque<
+  PracticeKgMailIndexOutlookHeaders,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     clientSubmitTime: S.optionalKey(S.String),
     conversationTopic: S.optionalKey(S.String),
     deliveryTime: S.optionalKey(S.String),
     senderEmailAddress: S.optionalKey(S.String),
     sentRepresentingEmailAddress: S.optionalKey(S.String),
     subject: S.optionalKey(S.String),
-  },
-  $I.annote("PracticeKgMailIndexOutlookHeaders", {
-    description: "MAPI subject, conversation topic, sender, and times of one indexed archive message.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMailIndexOutlookHeaders", {
+      description: "MAPI subject, conversation topic, sender, and times of one indexed archive message.",
+    })
+  )
 ) {}
 
 /**
@@ -122,16 +126,18 @@ export class PracticeKgMailIndexOutlookHeaders extends S.Class<PracticeKgMailInd
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMailIndexRecipient extends S.Class<PracticeKgMailIndexRecipient>(
-  $I`PracticeKgMailIndexRecipient`
-)(
-  {
+export class PracticeKgMailIndexRecipient extends S.Opaque<
+  PracticeKgMailIndexRecipient,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     emailAddress: S.optionalKey(S.String),
     kind: S.String,
-  },
-  $I.annote("PracticeKgMailIndexRecipient", {
-    description: "Kind (to, cc, bcc, unknown) and address of one recipient as the mail export listed it.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMailIndexRecipient", {
+      description: "Kind (to, cc, bcc, unknown) and address of one recipient as the mail export listed it.",
+    })
+  )
 ) {}
 
 /**
@@ -167,17 +173,18 @@ export class PracticeKgMailIndexRecipient extends S.Class<PracticeKgMailIndexRec
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMailIndexRow extends S.Class<PracticeKgMailIndexRow>($I`PracticeKgMailIndexRow`)(
-  {
+export class PracticeKgMailIndexRow extends S.Opaque<PracticeKgMailIndexRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     internet: S.optionalKey(PracticeKgMailIndexInternetHeaders),
     messagePath: S.NonEmptyString,
     outlook: PracticeKgMailIndexOutlookHeaders,
     recipients: S.Array(PracticeKgMailIndexRecipient),
     tree: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgMailIndexRow", {
-    description: "The identity, headers, and recipients of one indexed archive message.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMailIndexRow", {
+      description: "The identity, headers, and recipients of one indexed archive message.",
+    })
+  )
 ) {}
 
 /**
@@ -205,8 +212,8 @@ export class PracticeKgMailIndexRow extends S.Class<PracticeKgMailIndexRow>($I`P
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMailIndexCounts extends S.Class<PracticeKgMailIndexCounts>($I`PracticeKgMailIndexCounts`)(
-  {
+export class PracticeKgMailIndexCounts extends S.Opaque<PracticeKgMailIndexCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     ambiguousMessages: S.Natural,
     attributedMessages: S.Natural,
     attributedWithoutAddress: S.Natural,
@@ -214,11 +221,12 @@ export class PracticeKgMailIndexCounts extends S.Class<PracticeKgMailIndexCounts
     exchangeAddressesDropped: S.Natural,
     rows: S.Natural,
     unreferencedMessages: S.Natural,
-  },
-  $I.annote("PracticeKgMailIndexCounts", {
-    description:
-      "Rows read, distinct messages, messages placed on one matter, ambiguous and unreferenced ones, attributed messages without an address, and Exchange-only addresses dropped.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMailIndexCounts", {
+      description:
+        "Rows read, distinct messages, messages placed on one matter, ambiguous and unreferenced ones, attributed messages without an address, and Exchange-only addresses dropped.",
+    })
+  )
 ) {}
 
 /**
@@ -251,15 +259,19 @@ export class PracticeKgMailIndexCounts extends S.Class<PracticeKgMailIndexCounts
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMailIndexMessages extends S.Class<PracticeKgMailIndexMessages>($I`PracticeKgMailIndexMessages`)(
-  {
+export class PracticeKgMailIndexMessages extends S.Opaque<
+  PracticeKgMailIndexMessages,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attributions: S.Array(PracticeKgDocumentAttribution),
     counts: PracticeKgMailIndexCounts,
     messages: S.Array(PracticeKgEmailMessage),
-  },
-  $I.annote("PracticeKgMailIndexMessages", {
-    description: "Attributed archive messages, their subject-reference attributions, and the counts of the pass.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMailIndexMessages", {
+      description: "Attributed archive messages, their subject-reference attributions, and the counts of the pass.",
+    })
+  )
 ) {}
 
 /**
@@ -280,14 +292,15 @@ export class PracticeKgMailIndexMessages extends S.Class<PracticeKgMailIndexMess
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMailIndexInput extends S.Class<PracticeKgMailIndexInput>($I`PracticeKgMailIndexInput`)(
-  {
+export class PracticeKgMailIndexInput extends S.Opaque<PracticeKgMailIndexInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     paths: S.Array(S.NonEmptyString),
     tables: PracticeKgMatterTables,
-  },
-  $I.annote("PracticeKgMailIndexInput", {
-    description: "Message index files, in the order their duplicates are resolved, and the bundle's matter tables.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMailIndexInput", {
+      description: "Message index files, in the order their duplicates are resolved, and the bundle's matter tables.",
+    })
+  )
 ) {}
 
 const nonEmpty = (value: string | undefined): O.Option<string> =>

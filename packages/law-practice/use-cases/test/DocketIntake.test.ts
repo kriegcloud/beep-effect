@@ -120,7 +120,7 @@ const threeMonths = DocketResponsePeriod.make({ amount: 3, unit: "months" });
 const mailDate = LocalDate.make({ year: 2030, month: 1, day: 8 });
 const computedDue = LocalDate.make({ year: 2030, month: 4, day: 8 });
 
-const docketEntry = (overrides: Partial<ConstructorParameters<typeof ParalegalDocketEntry>[0]> = {}) =>
+const docketEntry = (overrides: Partial<Parameters<typeof ParalegalDocketEntry.make>[0]> = {}) =>
   ParalegalDocketEntry.make({
     matterReferences: ["FIX-0001"],
     rationale: "States a response period.",
@@ -128,7 +128,7 @@ const docketEntry = (overrides: Partial<ConstructorParameters<typeof ParalegalDo
     ...overrides,
   });
 
-const datedEntry = (overrides: Partial<ConstructorParameters<typeof ParalegalDocketEntry>[0]> = {}) =>
+const datedEntry = (overrides: Partial<Parameters<typeof ParalegalDocketEntry.make>[0]> = {}) =>
   docketEntry({
     citedText: O.some(CITED),
     mailDate: O.some(mailDate),
@@ -175,7 +175,7 @@ const statedMessage = DocketMessage.make({
 });
 const statedEntry = () =>
   Effect.succeed(docketEntry({ citedText: O.some(STATED_CITED), statedDueDate: O.some(statedDue) }));
-const statedReview = (overrides: Partial<ConstructorParameters<typeof SecretaryReview>[0]> = {}) =>
+const statedReview = (overrides: Partial<Parameters<typeof SecretaryReview.make>[0]> = {}) =>
   SecretaryReview.make({
     citedText: O.some(STATED_CITED),
     isDocketItem: true,
@@ -481,7 +481,7 @@ const messageAt = (id: string, receivedAt: string): DocketMessage =>
 
 const testLayer = (
   script: Partial<Script> = {},
-  config: Partial<ConstructorParameters<typeof DocketIntakeConfig>[0]> = {},
+  config: Partial<Parameters<typeof DocketIntakeConfig.make>[0]> = {},
   crypto: Layer.Layer<Crypto.Crypto> = TestCrypto
 ) =>
   makeDocketIntakeLayer(DocketIntakeConfig.make({ mailbox: "fixture-mailbox", ...config })).pipe(
@@ -591,6 +591,186 @@ describe("@beep/law-practice-use-cases DocketIntake", () => {
     );
   });
 
+  it.layer(testLayer(), { timeout: "5 seconds" })((it) => {
+    it.effect(
+      "shares one due entry and reminder set for replies with the same thread and date",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+        const first = yield* intake.processMessage(
+          DocketMessage.make({ ...message("thread-1"), conversationId: O.some("thread") }),
+          TODAY
+        );
+        const second = yield* intake.processMessage(
+          DocketMessage.make({ ...message("thread-2"), conversationId: O.some("thread") }),
+          TODAY
+        );
+        expect(kinds(yield* entriesOf, "due")).toHaveLength(1);
+        expect(kinds(yield* entriesOf, "reminder")).toHaveLength(4);
+        assertTrue(
+          first._tag === "DocketEntered" &&
+            second._tag === "DocketEntered" &&
+            first.entry.eventId === second.entry.eventId
+        );
+        if (first._tag === "DocketEntered" && second._tag === "DocketEntered") {
+          expect(second.reminders).toStrictEqual(first.reminders);
+        }
+      })
+    );
+  });
+
+  it.layer(testLayer(), { timeout: "5 seconds" })((it) => {
+    it.effect(
+      "preserves different dates within a thread",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+        const harness = yield* Harness;
+        yield* intake.processMessage(
+          DocketMessage.make({ ...message("dates-1"), conversationId: O.some("dates") }),
+          TODAY
+        );
+        yield* Ref.update(harness.script, (script) => ({
+          ...script,
+          enter: statedEntry,
+          review: () => Effect.succeed(statedReview()),
+        }));
+        yield* intake.processMessage(
+          DocketMessage.make({ ...statedMessage, messageId: "dates-2", conversationId: O.some("dates") }),
+          TODAY
+        );
+        expect(A.map(kinds(yield* entriesOf, "due"), (entry) => entry.date.toISOString())).toStrictEqual([
+          "2030-04-08",
+          "2030-04-15",
+        ]);
+        expect(kinds(yield* entriesOf, "reminder")).toHaveLength(8);
+      })
+    );
+  });
+
+  it.layer(testLayer(), { timeout: "5 seconds" })((it) => {
+    it.effect(
+      "keeps per-message keys when there is no conversation id",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+        yield* intake.processMessage(message("no-thread-1"), TODAY);
+        yield* intake.processMessage(message("no-thread-2"), TODAY);
+        expect(kinds(yield* entriesOf, "due")).toHaveLength(2);
+        expect(kinds(yield* entriesOf, "reminder")).toHaveLength(8);
+        assertTrue(A.every(yield* entriesOf, (entry) => Str.length(entry.key) === 47));
+      })
+    );
+  });
+
+  it.layer(testLayer(), { timeout: "5 seconds" })((it) => {
+    it.effect(
+      "routes an accepted past date to today once per thread, without reminders",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+        const afterDue = addDays(computedDue, 1);
+        const first = yield* intake.processMessage(
+          DocketMessage.make({ ...message("past-1"), conversationId: O.some("past") }),
+          afterDue
+        );
+        const second = yield* intake.processMessage(
+          DocketMessage.make({ ...message("past-2"), conversationId: O.some("past") }),
+          addDays(afterDue, 1)
+        );
+        expect(reasonOf(first)).toBe("due-date-past");
+        expect(reasonOf(second)).toBe("due-date-past");
+        const entries = yield* entriesOf;
+        expect(entries).toHaveLength(1);
+        assertTrue(
+          A.every(
+            entries,
+            (entry) =>
+              entry.kind === "needs-review" &&
+              sameDate(entry.date, afterDue) &&
+              Str.startsWith("[PAST DUE 2030-04-08]")(entry.subject) &&
+              Str.includes("Date recomputed by the reviewer")(entry.bodyText)
+          )
+        );
+        expect(flagsOf(first)).toContain("due-date-past");
+      })
+    );
+  });
+
+  it.layer(testLayer({ enter: () => Effect.succeed(docketEntry()), review: () => Effect.succeed(undatedReview) }), {
+    timeout: "5 seconds",
+  })((it) => {
+    it.effect(
+      "keeps undated replies separate within one thread",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+        yield* intake.processMessage(
+          DocketMessage.make({ ...message("undated-1"), conversationId: O.some("undated") }),
+          TODAY
+        );
+        yield* intake.processMessage(
+          DocketMessage.make({ ...message("undated-2"), conversationId: O.some("undated") }),
+          TODAY
+        );
+        expect(yield* entriesOf).toHaveLength(2);
+        assertTrue(A.every(yield* entriesOf, (entry) => Str.startsWith("[NO DUE DATE FOUND]")(entry.subject)));
+      })
+    );
+  });
+
+  it.layer(
+    testLayer({ enter: () => Effect.succeed(ParalegalNotDocketItem.make({ rationale: "Fixture newsletter." })) }),
+    { timeout: "5 seconds" }
+  )((it) => {
+    it.effect(
+      "deduplicates dated needs-review replies within one thread",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+        yield* intake.processMessage(
+          DocketMessage.make({ ...message("flagged-1"), conversationId: O.some("flagged") }),
+          TODAY
+        );
+        yield* intake.processMessage(
+          DocketMessage.make({ ...message("flagged-2"), conversationId: O.some("flagged") }),
+          TODAY
+        );
+        expect(yield* entriesOf).toHaveLength(1);
+        assertTrue(
+          A.every(yield* entriesOf, (entry) => entry.kind === "needs-review" && sameDate(entry.date, computedDue))
+        );
+      })
+    );
+  });
+
+  it.layer(
+    testLayer({
+      enter: () => Effect.succeed(docketEntry()),
+      review: () => Effect.succeed(undatedReview),
+      sheet: true,
+      tracked: () =>
+        Effect.succeed([
+          TrackedDate.make({
+            date: computedDue,
+            dateType: "due-date",
+            docket: "0000.00001US01",
+            name: "Later sheet date",
+          }),
+        ]),
+    }),
+    { timeout: "5 seconds" }
+  )((it) => {
+    it.effect(
+      "labels fallback placement when a later sheet date did not move it",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+        const outcome = yield* intake.processMessage(message("later-sheet"), TODAY);
+        expect(reasonOf(outcome)).toBe("no-usable-date");
+        assertTrue(
+          A.every(
+            yield* entriesOf,
+            (entry) => sameDate(entry.date, TODAY) && Str.startsWith("[NO DUE DATE FOUND]")(entry.subject)
+          )
+        );
+      })
+    );
+  });
+
   it.layer(testLayer({ ambiguousCreates: 1 }), { timeout: "5 seconds" })((it) => {
     it.effect(
       "reconciles an ambiguous create by key instead of creating twice",
@@ -689,12 +869,19 @@ describe("@beep/law-practice-use-cases DocketIntake", () => {
           O.map(reviewOf(outcome), (review) => review.status),
           "accepted"
         );
-        assertTrue(A.every(entries, (entry) => Str.startsWith("[NEEDS REVIEW] ")(entry.subject)));
+        assertTrue(A.every(entries, (entry) => Str.startsWith("[NO DUE DATE FOUND] [NEEDS REVIEW] ")(entry.subject)));
         expect(outcome._tag === "DocketNeedsReview" ? outcome.flags : []).toStrictEqual([
           "matter-ambiguous",
           "source-document-missing",
         ]);
         expect(entries).toHaveLength(1);
+        assertTrue(
+          A.every(entries, (entry) =>
+            Str.includes(
+              "This is not a due date. It is placed on 2030-01-10 so you see it soon after the email arrived."
+            )(entry.bodyText)
+          )
+        );
         assertTrue(
           A.every(
             entries,
@@ -771,7 +958,7 @@ describe("@beep/law-practice-use-cases DocketIntake", () => {
         expect(reasonOf(outcome)).toBe("agents-disagree");
         assertSome(
           O.map(entry, (value) => value.subject),
-          "[NEEDS REVIEW] Possible docket item"
+          "[NO DUE DATE FOUND] [NEEDS REVIEW] Possible docket item"
         );
         assertTrue(O.exists(entry, (value) => sameDate(value.date, addDays(RECEIVED, 1))));
       })
@@ -1446,12 +1633,17 @@ describe("@beep/law-practice-use-cases DocketIntake", () => {
         const outcome = yield* intake.processMessage(message("m1"), TODAY);
         const flagged = A.head(yield* entriesOf);
 
-        expect(reasonOf(outcome)).toBe("deterministic-failure");
+        expect(reasonOf(outcome)).toBe("due-date-past");
         expect(outcome._tag === "DocketNeedsReview" ? outcome.flags : ["unexpected"]).toStrictEqual([
           "source-document-missing",
           "due-date-past",
         ]);
-        assertTrue(O.exists(flagged, (entry) => entry.date.toISOString() === "2030-01-02"));
+        assertTrue(
+          O.exists(
+            flagged,
+            (entry) => sameDate(entry.date, TODAY) && Str.startsWith("[PAST DUE 2030-01-02]")(entry.subject)
+          )
+        );
       })
     );
   });
@@ -2085,14 +2277,14 @@ describe("@beep/law-practice-use-cases DocketIntake docket sheet cross-check", (
         const outcome = yield* intake.processMessage(message("m1"), TODAY);
         const review = A.head(kinds(yield* entriesOf, "needs-review"));
 
-        expect(reasonOf(outcome)).toBe("no-usable-date");
+        expect(reasonOf(outcome)).toBe("due-date-past");
         expect(flagsOf(outcome)).toStrictEqual([
           "tracked-date-differs",
           "matter-not-found",
           "source-document-missing",
           "due-date-past",
         ]);
-        assertTrue(O.exists(review, (entry) => sameDate(entry.date, RECEIVED)));
+        assertTrue(O.exists(review, (entry) => sameDate(entry.date, TODAY)));
         expect(yield* Ref.get(harness.trackedAsked)).toStrictEqual([["0000.00001WO01-CA1"]]);
       })
     );
@@ -2116,9 +2308,9 @@ describe("@beep/law-practice-use-cases DocketIntake docket sheet cross-check", (
         const outcome = yield* intake.processMessage(message("m1"), TODAY);
         const flagged = A.head(yield* entriesOf);
 
-        expect(reasonOf(outcome)).toBe("flagged-max-rounds");
+        expect(reasonOf(outcome)).toBe("due-date-past");
         expect(flagsOf(outcome)).toStrictEqual(["tracked-date-differs", "source-document-missing", "due-date-past"]);
-        assertTrue(O.exists(flagged, (entry) => sameDate(entry.date, RECEIVED)));
+        assertTrue(O.exists(flagged, (entry) => sameDate(entry.date, TODAY)));
       })
     );
   });

@@ -33,7 +33,9 @@ const $I = $DocumentsUseCasesId.create("aggregates/Sync/Sync.errors");
  * @category errors
  * @since 0.0.0
  */
-export class DmsMirrorUnavailable extends S.TaggedError<DmsMirrorUnavailable>($I`DmsMirrorUnavailable`)(
+export class DmsMirrorUnavailable extends S.TaggedError<DmsMirrorUnavailable, { readonly brand: unique symbol }>(
+  $I`DmsMirrorUnavailable`
+)(
   "DmsMirrorUnavailable",
   {
     // Optional-key so encodings from peers that predate the field still decode
@@ -73,7 +75,9 @@ export class DmsMirrorUnavailable extends S.TaggedError<DmsMirrorUnavailable>($I
  * @category errors
  * @since 0.0.0
  */
-export class VaultScanFailed extends S.TaggedError<VaultScanFailed>($I`VaultScanFailed`)(
+export class VaultScanFailed extends S.TaggedError<VaultScanFailed, { readonly brand: unique symbol }>(
+  $I`VaultScanFailed`
+)(
   "VaultScanFailed",
   {
     reason: S.NonEmptyString.annotateKey({
@@ -100,7 +104,9 @@ export class VaultScanFailed extends S.TaggedError<VaultScanFailed>($I`VaultScan
  * @category errors
  * @since 0.0.0
  */
-export class VaultSyncActionError extends S.TaggedError<VaultSyncActionError>($I`VaultSyncActionError`)(
+export class VaultSyncActionError extends S.TaggedError<VaultSyncActionError, { readonly brand: unique symbol }>(
+  $I`VaultSyncActionError`
+)(
   "VaultSyncActionError",
   {
     message: S.String,

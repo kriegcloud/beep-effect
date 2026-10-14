@@ -31,3 +31,5 @@ for attribution. The workstation lane report is written to the assigned report-B
 At handoff, the last Knip rerun was behind the shared five-slot admission budget. Its existing
 command records the terminal exit in verification.tsv; a bounded report watcher refreshes
 report-B.md after that receipt arrives. Earlier Knip proof passed with zero introduced findings.
+
+2026-10-14 merge recovery: preserve merged lane A and docs Oxlint workers; require positive tsgolint assignment-summary evidence (comment 4276915577). Verification logs and merge-resolution report are held externally by the orchestrator. ESLint deletion remains PR B2 after this merge. Packet remains active until orchestrator merge closeout.

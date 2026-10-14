@@ -55,3 +55,20 @@ length checks remain in oxlint. File overviews and category tags retain their ad
 Tooling public declaration checks remain under `packages/tooling/*/*/src/**/*.ts`.
 TSDoc syntax spans apps, packages and infra; lab apps, generated SDK output, declarations,
 tests, stories, internal tooling source and build artifacts are excluded by the docs config.
+
+### 2026-10-14 merge and review follow-up
+
+- Preserve both oxlint workers, main knowledge-doctor steps and Knip retirement while resolving all nine conflicts. Reason: both merged initiatives remain authoritative. Reverse by reverting this merge resolution and follow-up together.
+- Require the tsgolint assignment summary and compare its unmatched count with every listed path before filtering TypeScript extensions. Missing or inconsistent evidence fails LintProgramAssignmentError (review comment 4276915577). Reason: silence cannot prove coverage. Reverse by reverting the guard and its two regression tests.
+- Take main generated baselines and regenerate with their owners; preserve main qualification scope/profile/epoch and union baseline subjects. Reason: avoid overwriting new main review receipts. Reverse with the previous baseline/request/basis as one unit.
+- ESLint config, docs profile, parser/plugins, shared BEEP_ESLINT_PROFILE and laws directory moves stay out of this PR. PR B2 follows immediately after this PR merges. Reason: keep this merge and positive-evidence fix reviewable. Reverse by explicitly moving B2 scope into a separately reviewed change.
+
+- Remove the now-uncalled ESLint worker and its private heap constants as part of runner replacement; retain all repository ESLint surfaces reserved for B2. Reason: both commands now use Oxlint, so the private runner is dead code. Reverse by restoring the runner only with a caller.
+
+- Alphabetize the docs dependency block and regenerate the docs plugin alias through tsconfig-sync. Reason: repair lane-owned Sherif and config-sync findings without hand-editing generated aliases. Reverse by restoring the manifest and regenerated alias files together, at the cost of the same cheap-gate findings.
+
+- Migrate plain-data DocsRuleSet to branded S.Opaque over annotated S.Struct and brand TSDocConfigurationError. Reason: main now enforces D1/D4; preserve decode and .make semantics while satisfying the current schema law. Reverse by restoring the two declarations together, which restores the schema-first red.
+
+- Keep the previously accepted EV010 platform-filesystem-candidate review row for docs-rules.test.ts; normalized inventory ID diff adds that single judgment row and removes none. Reason: the filesystem is provided through it.layer and this is a review candidate, not a new detector finding. Reverse by removing the source dependency only if the fixture no longer exercises filesystem behavior.
+
+- Regenerate the schema catalog after the Opaque migration and retain its complete owner-generated catch-up. Reason: main catalog kind metadata was stale after its schema migration; hand-editing generated rows is forbidden. Reverse by restoring the prior catalog and rerunning the owner command against the reverted sources.

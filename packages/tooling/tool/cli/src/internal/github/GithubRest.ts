@@ -8,8 +8,8 @@
  * all use under the hood) runs dry several times a day. {@link GithubRest}
  * covers every pull-request read and write that has a REST endpoint: the pull
  * request itself, labels, issue comments, check runs, the base ruleset's
- * required contexts, the ready-for-review timeline event, the head commit
- * time, the squash merge, workflow re-runs and cancels, and the rate limit.
+ * required contexts, the review timeline, the head's first check-suite receipt,
+ * the squash merge, workflow re-runs and cancels, and the rate limit.
  * The GraphQL-only operations (review-thread resolution state, the
  * draft-to-ready flip) live behind `GraphqlBudget`.
  *
@@ -69,8 +69,8 @@ const $I = $RepoCliId.create("internal/github/GithubRest");
  * @category models
  * @since 0.0.0
  */
-export class GithubPullRequestRecord extends S.Class<GithubPullRequestRecord>($I`GithubPullRequestRecord`)(
-  {
+export class GithubPullRequestRecord extends S.Opaque<GithubPullRequestRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     number: S.Int,
     nodeId: S.String,
     title: S.String,
@@ -87,8 +87,7 @@ export class GithubPullRequestRecord extends S.Class<GithubPullRequestRecord>($I
     labels: S.Array(S.String),
     createdAt: S.DateTimeUtc,
     updatedAt: S.DateTimeUtc,
-  },
-  $I.annote("GithubPullRequestRecord", { description: "A pull request read over GitHub REST." })
+  }).pipe($I.annoteSchema("GithubPullRequestRecord", { description: "A pull request read over GitHub REST." }))
 ) {}
 
 const PullWire = S.Struct({
@@ -146,9 +145,10 @@ const toPullRequestRecord = (wire: typeof PullWire.Type): GithubPullRequestRecor
  * @category models
  * @since 0.0.0
  */
-export class GithubCheckRunRecord extends S.Class<GithubCheckRunRecord>($I`GithubCheckRunRecord`)(
-  { id: S.Int, name: S.String, status: S.String, conclusion: S.Option(S.String) },
-  $I.annote("GithubCheckRunRecord", { description: "One check run on a commit, read over GitHub REST." })
+export class GithubCheckRunRecord extends S.Opaque<GithubCheckRunRecord, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Int, name: S.String, status: S.String, conclusion: S.Option(S.String) }).pipe(
+    $I.annoteSchema("GithubCheckRunRecord", { description: "One check run on a commit, read over GitHub REST." })
+  )
 ) {}
 
 const CheckRunWire = S.Struct({ id: S.Int, name: S.String, status: S.String, conclusion: S.NullOr(S.String) });
@@ -169,9 +169,10 @@ const CheckRunWire = S.Struct({ id: S.Int, name: S.String, status: S.String, con
  * @category models
  * @since 0.0.0
  */
-export class GithubWorkflowRunRecord extends S.Class<GithubWorkflowRunRecord>($I`GithubWorkflowRunRecord`)(
-  { id: S.Int, name: S.String, status: S.String, conclusion: S.Option(S.String), headSha: S.String },
-  $I.annote("GithubWorkflowRunRecord", { description: "One workflow run, read over GitHub REST." })
+export class GithubWorkflowRunRecord extends S.Opaque<GithubWorkflowRunRecord, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Int, name: S.String, status: S.String, conclusion: S.Option(S.String), headSha: S.String }).pipe(
+    $I.annoteSchema("GithubWorkflowRunRecord", { description: "One workflow run, read over GitHub REST." })
+  )
 ) {}
 
 const WorkflowRunWire = S.Struct({
@@ -188,9 +189,10 @@ const WorkflowRunWire = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class GithubMergeRecord extends S.Class<GithubMergeRecord>($I`GithubMergeRecord`)(
-  { merged: S.Boolean, sha: S.String, message: S.String },
-  $I.annote("GithubMergeRecord", { description: "The REST merge response." })
+export class GithubMergeRecord extends S.Opaque<GithubMergeRecord, { readonly brand: unique symbol }>()(
+  S.Struct({ merged: S.Boolean, sha: S.String, message: S.String }).pipe(
+    $I.annoteSchema("GithubMergeRecord", { description: "The REST merge response." })
+  )
 ) {}
 
 /**
@@ -205,9 +207,10 @@ export class GithubMergeRecord extends S.Class<GithubMergeRecord>($I`GithubMerge
  * @category models
  * @since 0.0.0
  */
-export class GithubRateLimitBucket extends S.Class<GithubRateLimitBucket>($I`GithubRateLimitBucket`)(
-  { limit: S.Int, remaining: S.Int, resetAt: S.DateTimeUtc },
-  $I.annote("GithubRateLimitBucket", { description: "One REST rate-limit bucket." })
+export class GithubRateLimitBucket extends S.Opaque<GithubRateLimitBucket, { readonly brand: unique symbol }>()(
+  S.Struct({ limit: S.Int, remaining: S.Int, resetAt: S.DateTimeUtc }).pipe(
+    $I.annoteSchema("GithubRateLimitBucket", { description: "One REST rate-limit bucket." })
+  )
 ) {}
 
 /**
@@ -216,9 +219,10 @@ export class GithubRateLimitBucket extends S.Class<GithubRateLimitBucket>($I`Git
  * @category models
  * @since 0.0.0
  */
-export class GithubRateLimitRecord extends S.Class<GithubRateLimitRecord>($I`GithubRateLimitRecord`)(
-  { core: GithubRateLimitBucket, graphql: GithubRateLimitBucket },
-  $I.annote("GithubRateLimitRecord", { description: "REST rate-limit buckets." })
+export class GithubRateLimitRecord extends S.Opaque<GithubRateLimitRecord, { readonly brand: unique symbol }>()(
+  S.Struct({ core: GithubRateLimitBucket, graphql: GithubRateLimitBucket }).pipe(
+    $I.annoteSchema("GithubRateLimitRecord", { description: "REST rate-limit buckets." })
+  )
 ) {}
 
 const BucketWire = S.Struct({ limit: S.Int, remaining: S.Int, reset: S.Int });
@@ -245,7 +249,7 @@ const TimelineEventWire = S.Struct({
   created_at: S.String.pipe(S.NullOr, S.optionalKey),
 });
 
-const CommitWire = S.Struct({ commit: S.Struct({ committer: S.NullOr(S.Struct({ date: S.String })) }) });
+const CheckSuitesWire = S.Struct({ check_suites: S.Array(S.Struct({ created_at: S.String })) });
 const CommentWire = S.Struct({ id: S.Int, html_url: S.String });
 const LabelWire = S.Struct({ name: S.String });
 const MergeWire = S.Struct({ merged: S.Boolean, sha: S.String, message: S.String });
@@ -266,8 +270,6 @@ export interface GithubRestShape {
   readonly cancelWorkflowRun: (runId: number) => Effect.Effect<void, GitHubError>;
   /** Every check run on a commit (all pages). */
   readonly checkRuns: (sha: string) => Effect.Effect<ReadonlyArray<GithubCheckRunRecord>, GitHubError>;
-  /** The committer time of a commit. */
-  readonly commitCommittedAt: (sha: string) => Effect.Effect<DateTime.Utc, GitHubError>;
   /** Post an issue comment on a pull request; returns its URL. */
   readonly createIssueComment: (number: number, body: string) => Effect.Effect<string, GitHubError>;
   /**
@@ -276,6 +278,8 @@ export interface GithubRestShape {
    * resolution, which only GraphQL reports.
    */
   readonly hasReviewComments: (number: number) => Effect.Effect<boolean, GitHubError>;
+  /** First GitHub check-suite receipt for the head, unknown when none exists. */
+  readonly headFirstReceivedAt: (sha: string) => Effect.Effect<O.Option<DateTime.Utc>, GitHubError>;
   /** Squash-merge (or another method) pinned to a head sha. */
   readonly mergePullRequest: (
     number: number,
@@ -295,14 +299,20 @@ export interface GithubRestShape {
   readonly pullRequest: (number: number) => Effect.Effect<GithubPullRequestRecord, GitHubError>;
   /** The REST rate-limit buckets. */
   readonly rateLimit: Effect.Effect<GithubRateLimitRecord, GitHubError>;
-  /** When the pull request was last marked ready for review, if ever. */
-  readonly readyForReviewAt: (number: number) => Effect.Effect<O.Option<DateTime.Utc>, GitHubError>;
   /** Remove one label; a label that is not there is not an error. */
   readonly removeLabel: (number: number, label: string) => Effect.Effect<void, GitHubError>;
   /** The required status-check contexts the branch's rulesets declare. */
   readonly requiredStatusContexts: (branch: string) => Effect.Effect<ReadonlyArray<string>, GitHubError>;
   /** Re-run the failed jobs of one workflow run. */
   readonly rerunFailedJobs: (runId: number) => Effect.Effect<void, GitHubError>;
+  /** GitHub-owned ready and force-push timeline instants for the pull request. */
+  readonly reviewTimeline: (number: number) => Effect.Effect<
+    {
+      readonly readyAt: O.Option<DateTime.Utc>;
+      readonly forcedAt: O.Option<DateTime.Utc>;
+    },
+    GitHubError
+  >;
   /** Replace the title and/or body. */
   readonly updatePullRequest: (
     number: number,
@@ -449,29 +459,36 @@ const makeGithubRest = Effect.gen(function* () {
       )
     );
 
-  const readyForReviewAt = (number: number) =>
+  const reviewTimeline = (number: number) =>
     client.paginate("GET /repos/{owner}/{repo}/issues/{issue_number}/timeline", { ...at, issue_number: number }).pipe(
       Effect.flatMap(
         decodeWith(S.Array(TimelineEventWire), "GET /repos/{owner}/{repo}/issues/{issue_number}/timeline")
       ),
-      Effect.map((events) =>
-        pipe(
-          events,
-          A.filter((event) => event.event === "ready_for_review"),
-          A.map((event) => utcFromIso(event.created_at)),
-          A.getSomes,
-          A.last
-        )
-      )
+      Effect.map((events) => {
+        const latest = (eventName: string) =>
+          pipe(
+            events,
+            A.filter((event) => event.event === eventName),
+            A.map((event) => utcFromIso(event.created_at)),
+            A.getSomes,
+            A.sort(DateTime.Order),
+            A.last
+          );
+        return { readyAt: latest("ready_for_review"), forcedAt: latest("head_ref_force_pushed") };
+      })
     );
 
-  const commitCommittedAt = (sha: string) =>
+  const headFirstReceivedAt = (sha: string) =>
     client
-      .requestDecoded("GET /repos/{owner}/{repo}/commits/{ref}", { ...at, ref: sha }, CommitWire)
+      .requestDecoded("GET /repos/{owner}/{repo}/commits/{ref}/check-suites", { ...at, ref: sha }, CheckSuitesWire)
       .pipe(
-        Effect.flatMap((commit) =>
-          Effect.fromOption(utcFromIso(commit.commit.committer?.date), () =>
-            GitHubError.decode("GET /repos/{owner}/{repo}/commits/{ref}", "commit has no committer date")
+        Effect.map((response) =>
+          pipe(
+            response.check_suites,
+            A.map((suite) => utcFromIso(suite.created_at)),
+            A.getSomes,
+            A.sort(DateTime.Order),
+            A.head
           )
         )
       );
@@ -543,13 +560,13 @@ const makeGithubRest = Effect.gen(function* () {
     addLabels,
     cancelWorkflowRun,
     checkRuns,
-    commitCommittedAt,
+    headFirstReceivedAt,
     createIssueComment,
     mergePullRequest,
     openPullRequestForBranch,
     pullRequest,
     rateLimit,
-    readyForReviewAt,
+    reviewTimeline,
     hasReviewComments,
     removeLabel,
     rerunFailedJobs,

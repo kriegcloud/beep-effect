@@ -55,7 +55,7 @@ export type GateName = typeof GateName.Type;
  * @category errors
  * @since 0.0.0
  */
-export class GateFailed extends S.TaggedError<GateFailed>($I`GateFailed`)(
+export class GateFailed extends S.TaggedError<GateFailed, { readonly brand: unique symbol }>($I`GateFailed`)(
   "GateFailed",
   {
     target: AuditTarget,
@@ -97,7 +97,7 @@ export class GateFailed extends S.TaggedError<GateFailed>($I`GateFailed`)(
  * @category errors
  * @since 0.0.0
  */
-export class CommandFailed extends S.TaggedError<CommandFailed>($I`CommandFailed`)(
+export class CommandFailed extends S.TaggedError<CommandFailed, { readonly brand: unique symbol }>($I`CommandFailed`)(
   "CommandFailed",
   {
     command: S.String,
@@ -135,7 +135,7 @@ export class CommandFailed extends S.TaggedError<CommandFailed>($I`CommandFailed
  * @category errors
  * @since 0.0.0
  */
-export class LedgerMissing extends S.TaggedError<LedgerMissing>($I`LedgerMissing`)(
+export class LedgerMissing extends S.TaggedError<LedgerMissing, { readonly brand: unique symbol }>($I`LedgerMissing`)(
   "LedgerMissing",
   { path: S.String },
   $I.annoteError<LedgerMissing>("LedgerMissing", { description: "No ledger file exists at the expected path." })
@@ -170,7 +170,7 @@ export class LedgerMissing extends S.TaggedError<LedgerMissing>($I`LedgerMissing
  * @category errors
  * @since 0.0.0
  */
-export class LedgerInvalid extends S.TaggedError<LedgerInvalid>($I`LedgerInvalid`)(
+export class LedgerInvalid extends S.TaggedError<LedgerInvalid, { readonly brand: unique symbol }>($I`LedgerInvalid`)(
   "LedgerInvalid",
   { path: S.String, detail: S.String },
   $I.annoteError<LedgerInvalid>("LedgerInvalid", { description: "The ledger file failed schema validation." })
@@ -205,7 +205,7 @@ export class LedgerInvalid extends S.TaggedError<LedgerInvalid>($I`LedgerInvalid
  * @category errors
  * @since 0.0.0
  */
-export class LedgerRowMissing extends S.TaggedError<LedgerRowMissing>($I`LedgerRowMissing`)(
+export class LedgerRowMissing extends S.TaggedError<LedgerRowMissing, { readonly brand: unique symbol }>($I`LedgerRowMissing`)(
   "LedgerRowMissing",
   { module: ModuleName },
   $I.annoteError<LedgerRowMissing>("LedgerRowMissing", { description: "No ledger row exists for the module." })
@@ -240,7 +240,7 @@ export class LedgerRowMissing extends S.TaggedError<LedgerRowMissing>($I`LedgerR
  * @category errors
  * @since 0.0.0
  */
-export class LedgerStageSkip extends S.TaggedError<LedgerStageSkip>($I`LedgerStageSkip`)(
+export class LedgerStageSkip extends S.TaggedError<LedgerStageSkip, { readonly brand: unique symbol }>($I`LedgerStageSkip`)(
   "LedgerStageSkip",
   { module: ModuleName, from: Stage, to: Stage },
   $I.annoteError<LedgerStageSkip>("LedgerStageSkip", { description: "A stage transition skipped a stage." })
@@ -275,7 +275,7 @@ export class LedgerStageSkip extends S.TaggedError<LedgerStageSkip>($I`LedgerSta
  * @category errors
  * @since 0.0.0
  */
-export class UpstreamMissing extends S.TaggedError<UpstreamMissing>($I`UpstreamMissing`)(
+export class UpstreamMissing extends S.TaggedError<UpstreamMissing, { readonly brand: unique symbol }>($I`UpstreamMissing`)(
   "UpstreamMissing",
   { path: S.String },
   $I.annoteError<UpstreamMissing>("UpstreamMissing", { description: "An expected upstream path does not exist." })
@@ -311,7 +311,7 @@ export class UpstreamMissing extends S.TaggedError<UpstreamMissing>($I`UpstreamM
  * @category errors
  * @since 0.0.0
  */
-export class AlreadyCopied extends S.TaggedError<AlreadyCopied>($I`AlreadyCopied`)(
+export class AlreadyCopied extends S.TaggedError<AlreadyCopied, { readonly brand: unique symbol }>($I`AlreadyCopied`)(
   "AlreadyCopied",
   { module: ModuleName, path: S.String },
   $I.annoteError<AlreadyCopied>("AlreadyCopied", { description: "The module's lab directory already exists." })
@@ -346,7 +346,7 @@ export class AlreadyCopied extends S.TaggedError<AlreadyCopied>($I`AlreadyCopied
  * @category errors
  * @since 0.0.0
  */
-export class UnexpectedDependency extends S.TaggedError<UnexpectedDependency>($I`UnexpectedDependency`)(
+export class UnexpectedDependency extends S.TaggedError<UnexpectedDependency, { readonly brand: unique symbol }>($I`UnexpectedDependency`)(
   "UnexpectedDependency",
   { module: ModuleName, name: S.String, field: S.String },
   $I.annoteError<UnexpectedDependency>("UnexpectedDependency", {
@@ -384,7 +384,7 @@ export class UnexpectedDependency extends S.TaggedError<UnexpectedDependency>($I
  * @category errors
  * @since 0.0.0
  */
-export class ManifestInvalid extends S.TaggedError<ManifestInvalid>($I`ManifestInvalid`)(
+export class ManifestInvalid extends S.TaggedError<ManifestInvalid, { readonly brand: unique symbol }>($I`ManifestInvalid`)(
   "ManifestInvalid",
   { path: S.String, detail: S.String },
   $I.annoteError<ManifestInvalid>("ManifestInvalid", { description: "A JSON manifest failed to decode." })
@@ -419,7 +419,7 @@ export class ManifestInvalid extends S.TaggedError<ManifestInvalid>($I`ManifestI
  * @category errors
  * @since 0.0.0
  */
-export class CliUsageError extends S.TaggedError<CliUsageError>($I`CliUsageError`)(
+export class CliUsageError extends S.TaggedError<CliUsageError, { readonly brand: unique symbol }>($I`CliUsageError`)(
   "CliUsageError",
   { detail: S.String },
   $I.annoteError<CliUsageError>("CliUsageError", { description: "The command line was missing or malformed." })
@@ -454,7 +454,7 @@ export class CliUsageError extends S.TaggedError<CliUsageError>($I`CliUsageError
  * @category errors
  * @since 0.0.0
  */
-export class LedgerIncomplete extends S.TaggedError<LedgerIncomplete>($I`LedgerIncomplete`)(
+export class LedgerIncomplete extends S.TaggedError<LedgerIncomplete, { readonly brand: unique symbol }>($I`LedgerIncomplete`)(
   "LedgerIncomplete",
   { done: S.Int, total: S.Int },
   $I.annoteError<LedgerIncomplete>("LedgerIncomplete", { description: "The ledger is not fully done." })

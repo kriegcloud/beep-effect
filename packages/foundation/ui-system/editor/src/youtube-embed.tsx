@@ -141,13 +141,14 @@ export const YOUTUBE_WATCH_EVENT = "beep:youtube-watch";
  * @category models
  * @since 0.0.0
  */
-export class YouTubeWatchRequest extends S.Class<YouTubeWatchRequest>($I`YouTubeWatchRequest`)(
-  {
+export class YouTubeWatchRequest extends S.Opaque<YouTubeWatchRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     url: YouTubeWatchUrl.annotateKey({ description: "Canonical YouTube watch URL." }),
-  },
-  $I.annote("YouTubeWatchRequest", {
-    description: "Typed request emitted when a user activates the YouTube watch fallback.",
-  })
+  }).pipe(
+    $I.annoteSchema("YouTubeWatchRequest", {
+      description: "Typed request emitted when a user activates the YouTube watch fallback.",
+    })
+  )
 ) {}
 
 /**

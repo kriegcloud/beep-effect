@@ -267,8 +267,11 @@ const renderIssuePath = (path: StandardSchemaV1.Issue["path"]): ReadonlyArray<st
  * @category models
  * @since 0.0.0
  */
-export class PackageJsonValidationIssue extends S.Class<PackageJsonValidationIssue>($I`PackageJsonValidationIssue`)(
-  {
+export class PackageJsonValidationIssue extends S.Opaque<
+  PackageJsonValidationIssue,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: S.Array(S.String).annotateKey({
       description: "Path segments identifying the invalid package.json location.",
     }),
@@ -278,10 +281,11 @@ export class PackageJsonValidationIssue extends S.Class<PackageJsonValidationIss
     message: S.NonEmptyString.annotateKey({
       description: "Human-readable validation message returned by Effect Schema.",
     }),
-  },
-  $I.annote("PackageJsonValidationIssue", {
-    description: "A formatted package.json validation issue with both path segments and a JSON Pointer.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageJsonValidationIssue", {
+      description: "A formatted package.json validation issue with both path segments and a JSON Pointer.",
+    })
+  )
 ) {}
 
 /**

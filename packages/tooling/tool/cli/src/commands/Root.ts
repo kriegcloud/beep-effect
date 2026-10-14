@@ -9,6 +9,7 @@
 import { Command } from "effect/cli";
 import { accountsCommand } from "./Accounts/index.ts";
 import { agentEffectivenessCommand } from "./AgentEffectiveness/index.ts";
+import { agentMessageCommand } from "./AgentMessage/index.ts";
 import { aiMetricsCommand } from "./AIMetrics/index.ts";
 import { architectureCommand } from "./Architecture/index.ts";
 import { cacheCommand } from "./Cache/index.ts";
@@ -33,6 +34,7 @@ import { labsCommand } from "./Labs/index.ts";
 import { lawsCommand } from "./Laws/index.ts";
 import { lintCommand } from "./Lint/index.ts";
 import { modelsCommand } from "./Models/index.ts";
+import { observabilityCommand } from "./Observability/index.ts";
 import { purgeCommand } from "./Purge/index.ts";
 import { qaCommand } from "./Qa/index.ts";
 import { qualityCommand } from "./Quality/index.ts";
@@ -77,6 +79,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
   Command.withSubcommands([
     topoSortCommand,
     agentEffectivenessCommand,
+    agentMessageCommand,
     aiMetricsCommand,
     architectureCommand,
     cacheCommand,
@@ -99,6 +102,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
     lintCommand,
     lawsCommand,
     modelsCommand,
+    observabilityCommand,
     qualityCommand,
     researchCommand,
     runnersCommand,

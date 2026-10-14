@@ -19,7 +19,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as M from "./_generated/Box.models.gen.ts";
-import { BoxError } from "./Box.errors.ts";
+import { BoxError, BoxErrorOptionsInput } from "./Box.errors.ts";
 import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
 import { acquireSdkCallController, decodeWith, logDriverFailure } from "./internal/Box.runtime.ts";
 import type { BoxMethodName } from "./_generated/Box.models.gen.ts";
@@ -127,70 +127,102 @@ export type BoxByteStream = Stream.Stream<Uint8Array, BoxError, never>;
  * @category models
  * @since 0.0.0
  */
-export class BoxPartAccumulator extends S.Class<BoxPartAccumulator>($I`BoxPartAccumulator`)(
-  {
+export class BoxPartAccumulator extends S.Opaque<BoxPartAccumulator, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileHash: S.Unknown,
     fileSize: S.Natural,
     lastIndex: LastPartIndex,
     parts: M.UploadPart.pipe(S.Array),
     uploadPartUrl: S.String,
-  },
-  $I.annote("BoxPartAccumulator", {
-    description: "Technical accumulator used by the Box chunked-upload reducer helper.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxPartAccumulator", {
+      description: "Technical accumulator used by the Box chunked-upload reducer helper.",
+    })
+  )
 ) {}
 
-class BoxCreateUserAvatarRequestBody extends S.Class<BoxCreateUserAvatarRequestBody>(
-  $I`BoxCreateUserAvatarRequestBody`
-)(
-  {
+class BoxCreateUserAvatarRequestBody extends S.Opaque<
+  BoxCreateUserAvatarRequestBody,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     pic: BoxByteInputValue,
     picContentType: S.String.pipe(S.optionalKey),
     picFileName: S.String.pipe(S.optionalKey),
-  },
-  $I.annote("BoxCreateUserAvatarRequestBody", {
-    description: "Create-user-avatar request body with a runtime byte input.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxCreateUserAvatarRequestBody", {
+      description: "Create-user-avatar request body with a runtime byte input.",
+    })
+  )
 ) {}
 
-class BoxUploadFileVersionRequestBody extends S.Class<BoxUploadFileVersionRequestBody>(
-  $I`BoxUploadFileVersionRequestBody`
-)(
-  {
+class BoxUploadFileVersionRequestBody extends S.Opaque<
+  BoxUploadFileVersionRequestBody,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attributes: M.UploadFileVersionRequestBodyAttributesField,
     file: BoxByteInputValue,
     fileContentType: S.String.pipe(S.optionalKey),
     fileFileName: S.String.pipe(S.optionalKey),
-  },
-  $I.annote("BoxUploadFileVersionRequestBody", {
-    description: "Upload-file-version request body with a runtime byte input.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxUploadFileVersionRequestBody", {
+      description: "Upload-file-version request body with a runtime byte input.",
+    })
+  )
 ) {}
 
-class BoxUploadFileRequestBody extends S.Class<BoxUploadFileRequestBody>($I`BoxUploadFileRequestBody`)(
-  {
+/**
+ * Upload-file request body with a runtime byte input.
+ *
+ * **Example** (Describe an in-memory upload into the root folder)
+ *
+ * ```ts
+ * import { UploadFileRequestBodyAttributesField, UploadFileRequestBodyAttributesParentField } from "@beep/box"
+ * import { BoxUploadFileRequestBody } from "@beep/box/Box.streaming"
+ *
+ * const body = BoxUploadFileRequestBody.make({
+ *   attributes: UploadFileRequestBodyAttributesField.make({
+ *     name: "engagement-letter.txt",
+ *     parent: UploadFileRequestBodyAttributesParentField.make({ id: "0" })
+ *   }),
+ *   file: new TextEncoder().encode("Signed engagement letter"),
+ *   fileContentType: "text/plain"
+ * })
+ *
+ * console.log(body.attributes.name) // => "engagement-letter.txt"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BoxUploadFileRequestBody extends S.Opaque<BoxUploadFileRequestBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributes: M.UploadFileRequestBodyAttributesField,
     file: BoxByteInputValue,
     fileContentType: S.String.pipe(S.optionalKey),
     fileFileName: S.String.pipe(S.optionalKey),
-  },
-  $I.annote("BoxUploadFileRequestBody", {
-    description: "Upload-file request body with a runtime byte input.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxUploadFileRequestBody", {
+      description: "Upload-file request body with a runtime byte input.",
+    })
+  )
 ) {}
 
-class BoxUploadWithPreflightCheckRequestBody extends S.Class<BoxUploadWithPreflightCheckRequestBody>(
-  $I`BoxUploadWithPreflightCheckRequestBody`
-)(
-  {
+class BoxUploadWithPreflightCheckRequestBody extends S.Opaque<
+  BoxUploadWithPreflightCheckRequestBody,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attributes: M.UploadWithPreflightCheckRequestBodyAttributesField,
     file: BoxByteInputValue,
     fileContentType: S.String.pipe(S.optionalKey),
     fileFileName: S.String.pipe(S.optionalKey),
-  },
-  $I.annote("BoxUploadWithPreflightCheckRequestBody", {
-    description: "Upload-with-preflight-check request body with a runtime byte input.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxUploadWithPreflightCheckRequestBody", {
+      description: "Upload-with-preflight-check request body with a runtime byte input.",
+    })
+  )
 ) {}
 
 /**
@@ -199,31 +231,36 @@ class BoxUploadWithPreflightCheckRequestBody extends S.Class<BoxUploadWithPrefli
  * **Example** (Create avatar payload)
  *
  * ```ts
- * import type { BoxCreateUserAvatarPayload } from "@beep/box"
+ * import { BoxCreateUserAvatarPayload } from "@beep/box"
  *
- * const payload = {
+ * const pic = new Uint8Array([137, 80, 78, 71])
+ * const payload = BoxCreateUserAvatarPayload.make({
  *   requestBody: {
- *     pic: new Uint8Array([137, 80, 78, 71]),
+ *     pic,
  *     picContentType: "image/png",
  *     picFileName: "avatar.png"
  *   },
  *   userId: "12345"
- * } satisfies BoxCreateUserAvatarPayload
- * console.log(payload.requestBody.pic.byteLength)
+ * })
+ * console.log(payload.requestBody.picFileName, pic.byteLength)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxCreateUserAvatarPayload extends S.Class<BoxCreateUserAvatarPayload>($I`BoxCreateUserAvatarPayload`)(
-  {
+export class BoxCreateUserAvatarPayload extends S.Opaque<
+  BoxCreateUserAvatarPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     optionalsInput: M.CreateUserAvatarOptionalsInput.pipe(S.optionalKey),
     requestBody: BoxCreateUserAvatarRequestBody,
     userId: S.String,
-  },
-  $I.annote("BoxCreateUserAvatarPayload", {
-    description: "Payload for avatars.createUserAvatar.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxCreateUserAvatarPayload", {
+      description: "Payload for avatars.createUserAvatar.",
+    })
+  )
 ) {}
 
 /**
@@ -232,23 +269,24 @@ export class BoxCreateUserAvatarPayload extends S.Class<BoxCreateUserAvatarPaylo
  * **Example** (Get avatar payload)
  *
  * ```ts
- * import type { BoxGetUserAvatarPayload } from "@beep/box"
+ * import { BoxGetUserAvatarPayload } from "@beep/box"
  *
- * const payload: BoxGetUserAvatarPayload = { userId: "12345" }
+ * const payload = BoxGetUserAvatarPayload.make({ userId: "12345" })
  * console.log(payload.userId)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxGetUserAvatarPayload extends S.Class<BoxGetUserAvatarPayload>($I`BoxGetUserAvatarPayload`)(
-  {
+export class BoxGetUserAvatarPayload extends S.Opaque<BoxGetUserAvatarPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     optionalsInput: M.GetUserAvatarOptionalsInput.pipe(S.optionalKey),
     userId: S.String,
-  },
-  $I.annote("BoxGetUserAvatarPayload", {
-    description: "Payload for avatars.getUserAvatar.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxGetUserAvatarPayload", {
+      description: "Payload for avatars.getUserAvatar.",
+    })
+  )
 ) {}
 
 /**
@@ -257,23 +295,24 @@ export class BoxGetUserAvatarPayload extends S.Class<BoxGetUserAvatarPayload>($I
  * **Example** (Download file payload)
  *
  * ```ts
- * import type { BoxDownloadFilePayload } from "@beep/box"
+ * import { BoxDownloadFilePayload } from "@beep/box"
  *
- * const payload: BoxDownloadFilePayload = { fileId: "12345" }
+ * const payload = BoxDownloadFilePayload.make({ fileId: "12345" })
  * console.log(payload.fileId)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxDownloadFilePayload extends S.Class<BoxDownloadFilePayload>($I`BoxDownloadFilePayload`)(
-  {
+export class BoxDownloadFilePayload extends S.Opaque<BoxDownloadFilePayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileId: S.String,
     optionalsInput: M.DownloadFileOptionalsInput.pipe(S.optionalKey),
-  },
-  $I.annote("BoxDownloadFilePayload", {
-    description: "Payload for downloads.downloadFile.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxDownloadFilePayload", {
+      description: "Payload for downloads.downloadFile.",
+    })
+  )
 ) {}
 
 /**
@@ -282,26 +321,28 @@ export class BoxDownloadFilePayload extends S.Class<BoxDownloadFilePayload>($I`B
  * **Example** (Thumbnail by id payload)
  *
  * ```ts
- * import type { BoxGetFileThumbnailByIdPayload } from "@beep/box"
+ * import { BoxGetFileThumbnailByIdPayload } from "@beep/box"
  *
- * const payload: BoxGetFileThumbnailByIdPayload = { extension: "png", fileId: "12345" }
+ * const payload = BoxGetFileThumbnailByIdPayload.make({ extension: "png", fileId: "12345" })
  * console.log(payload.extension)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxGetFileThumbnailByIdPayload extends S.Class<BoxGetFileThumbnailByIdPayload>(
-  $I`BoxGetFileThumbnailByIdPayload`
-)(
-  {
+export class BoxGetFileThumbnailByIdPayload extends S.Opaque<
+  BoxGetFileThumbnailByIdPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     extension: M.GetFileThumbnailByIdExtension,
     fileId: S.String,
     optionalsInput: M.GetFileThumbnailByIdOptionalsInput.pipe(S.optionalKey),
-  },
-  $I.annote("BoxGetFileThumbnailByIdPayload", {
-    description: "Payload for files.getFileThumbnailById.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxGetFileThumbnailByIdPayload", {
+      description: "Payload for files.getFileThumbnailById.",
+    })
+  )
 ) {}
 
 /**
@@ -310,32 +351,36 @@ export class BoxGetFileThumbnailByIdPayload extends S.Class<BoxGetFileThumbnailB
  * **Example** (Upload file version payload)
  *
  * ```ts
- * import type { BoxUploadFileVersionPayload } from "@beep/box"
+ * import { BoxUploadFileVersionPayload, UploadFileVersionRequestBodyAttributesField } from "@beep/box"
  *
- * const payload = {
+ * const payload = BoxUploadFileVersionPayload.make({
  *   fileId: "12345",
  *   requestBody: {
- *     attributes: { name: "document-v2.txt" },
+ *     attributes: UploadFileVersionRequestBodyAttributesField.make({ name: "document-v2.txt" }),
  *     file: new Uint8Array([118, 50]),
  *     fileContentType: "text/plain",
  *     fileFileName: "document-v2.txt"
  *   }
- * } satisfies BoxUploadFileVersionPayload
+ * })
  * console.log(payload.requestBody.attributes.name)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxUploadFileVersionPayload extends S.Class<BoxUploadFileVersionPayload>($I`BoxUploadFileVersionPayload`)(
-  {
+export class BoxUploadFileVersionPayload extends S.Opaque<
+  BoxUploadFileVersionPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     fileId: S.String,
     optionalsInput: M.UploadFileVersionOptionalsInput.pipe(S.optionalKey),
     requestBody: BoxUploadFileVersionRequestBody,
-  },
-  $I.annote("BoxUploadFileVersionPayload", {
-    description: "Payload for uploads.uploadFileVersion.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxUploadFileVersionPayload", {
+      description: "Payload for uploads.uploadFileVersion.",
+    })
+  )
 ) {}
 
 /**
@@ -344,33 +389,38 @@ export class BoxUploadFileVersionPayload extends S.Class<BoxUploadFileVersionPay
  * **Example** (Upload file payload)
  *
  * ```ts
- * import type { BoxUploadFilePayload } from "@beep/box"
+ * import {
+ *   BoxUploadFilePayload,
+ *   UploadFileRequestBodyAttributesField,
+ *   UploadFileRequestBodyAttributesParentField
+ * } from "@beep/box"
  *
- * const payload = {
+ * const payload = BoxUploadFilePayload.make({
  *   requestBody: {
- *     attributes: {
+ *     attributes: UploadFileRequestBodyAttributesField.make({
  *       name: "document.txt",
- *       parent: { id: "0" }
- *     },
+ *       parent: UploadFileRequestBodyAttributesParentField.make({ id: "0" })
+ *     }),
  *     file: new Uint8Array([104, 105]),
  *     fileContentType: "text/plain",
  *     fileFileName: "document.txt"
  *   }
- * } satisfies BoxUploadFilePayload
+ * })
  * console.log(payload.requestBody.attributes.parent.id)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxUploadFilePayload extends S.Class<BoxUploadFilePayload>($I`BoxUploadFilePayload`)(
-  {
+export class BoxUploadFilePayload extends S.Opaque<BoxUploadFilePayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     optionalsInput: M.UploadFileOptionalsInput.pipe(S.optionalKey),
     requestBody: BoxUploadFileRequestBody,
-  },
-  $I.annote("BoxUploadFilePayload", {
-    description: "Payload for uploads.uploadFile.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxUploadFilePayload", {
+      description: "Payload for uploads.uploadFile.",
+    })
+  )
 ) {}
 
 /**
@@ -379,36 +429,42 @@ export class BoxUploadFilePayload extends S.Class<BoxUploadFilePayload>($I`BoxUp
  * **Example** (Preflight upload payload)
  *
  * ```ts
- * import type { BoxUploadWithPreflightCheckPayload } from "@beep/box"
+ * import {
+ *   BoxUploadWithPreflightCheckPayload,
+ *   UploadWithPreflightCheckRequestBodyAttributesField,
+ *   UploadWithPreflightCheckRequestBodyAttributesParentField
+ * } from "@beep/box"
  *
- * const payload = {
+ * const payload = BoxUploadWithPreflightCheckPayload.make({
  *   requestBody: {
- *     attributes: {
+ *     attributes: UploadWithPreflightCheckRequestBodyAttributesField.make({
  *       name: "document.txt",
- *       parent: { id: "0" },
+ *       parent: UploadWithPreflightCheckRequestBodyAttributesParentField.make({ id: "0" }),
  *       size: 2
- *     },
+ *     }),
  *     file: new Uint8Array([104, 105]),
  *     fileContentType: "text/plain",
  *     fileFileName: "document.txt"
  *   }
- * } satisfies BoxUploadWithPreflightCheckPayload
+ * })
  * console.log(payload.requestBody.attributes.size)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxUploadWithPreflightCheckPayload extends S.Class<BoxUploadWithPreflightCheckPayload>(
-  $I`BoxUploadWithPreflightCheckPayload`
-)(
-  {
+export class BoxUploadWithPreflightCheckPayload extends S.Opaque<
+  BoxUploadWithPreflightCheckPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     optionalsInput: M.UploadWithPreflightCheckOptionalsInput.pipe(S.optionalKey),
     requestBody: BoxUploadWithPreflightCheckRequestBody,
-  },
-  $I.annote("BoxUploadWithPreflightCheckPayload", {
-    description: "Payload for uploads.uploadWithPreflightCheck.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxUploadWithPreflightCheckPayload", {
+      description: "Payload for uploads.uploadWithPreflightCheck.",
+    })
+  )
 ) {}
 
 /**
@@ -418,34 +474,36 @@ export class BoxUploadWithPreflightCheckPayload extends S.Class<BoxUploadWithPre
  *
  * ```ts
  * import { HttpsUrl } from "@beep/schema"
- * import type { BoxUploadFilePartByUrlPayload } from "@beep/box"
+ * import { BoxUploadFilePartByUrlPayload, UploadFilePartByUrlHeadersInput } from "@beep/box"
  *
- * const payload = {
- *   headersInput: {
+ * const payload = BoxUploadFilePartByUrlPayload.make({
+ *   headersInput: UploadFilePartByUrlHeadersInput.make({
  *     contentRange: "bytes 0-1/2",
  *     digest: "sha=abc123"
- *   },
+ *   }),
  *   requestBody: new Uint8Array([104, 105]),
  *   url: HttpsUrl.make("https://upload.box.com/api/2.0/files/upload_sessions/abc/parts")
- * } satisfies BoxUploadFilePartByUrlPayload
+ * })
  * console.log(new URL(payload.url).hostname)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxUploadFilePartByUrlPayload extends S.Class<BoxUploadFilePartByUrlPayload>(
-  $I`BoxUploadFilePartByUrlPayload`
-)(
-  {
+export class BoxUploadFilePartByUrlPayload extends S.Opaque<
+  BoxUploadFilePartByUrlPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     headersInput: M.UploadFilePartByUrlHeadersInput,
     optionalsInput: M.UploadFilePartByUrlOptionalsInput.pipe(S.optionalKey),
     requestBody: BoxByteInputValue,
     url: HttpsUrl,
-  },
-  $I.annote("BoxUploadFilePartByUrlPayload", {
-    description: "Payload for chunkedUploads.uploadFilePartByUrl.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxUploadFilePartByUrlPayload", {
+      description: "Payload for chunkedUploads.uploadFilePartByUrl.",
+    })
+  )
 ) {}
 
 /**
@@ -454,32 +512,33 @@ export class BoxUploadFilePartByUrlPayload extends S.Class<BoxUploadFilePartByUr
  * **Example** (Upload file part payload)
  *
  * ```ts
- * import type { BoxUploadFilePartPayload } from "@beep/box"
+ * import { BoxUploadFilePartPayload, UploadFilePartHeadersInput } from "@beep/box"
  *
- * const payload = {
- *   headersInput: {
+ * const payload = BoxUploadFilePartPayload.make({
+ *   headersInput: UploadFilePartHeadersInput.make({
  *     contentRange: "bytes 0-1/2",
  *     digest: "sha=abc123"
- *   },
+ *   }),
  *   requestBody: new Uint8Array([104, 105]),
  *   uploadSessionId: "upload-session-id"
- * } satisfies BoxUploadFilePartPayload
+ * })
  * console.log(payload.headersInput.contentRange)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxUploadFilePartPayload extends S.Class<BoxUploadFilePartPayload>($I`BoxUploadFilePartPayload`)(
-  {
+export class BoxUploadFilePartPayload extends S.Opaque<BoxUploadFilePartPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     headersInput: M.UploadFilePartHeadersInput,
     optionalsInput: M.UploadFilePartOptionalsInput.pipe(S.optionalKey),
     requestBody: BoxByteInputValue,
     uploadSessionId: S.String,
-  },
-  $I.annote("BoxUploadFilePartPayload", {
-    description: "Payload for chunkedUploads.uploadFilePart.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxUploadFilePartPayload", {
+      description: "Payload for chunkedUploads.uploadFilePart.",
+    })
+  )
 ) {}
 
 /**
@@ -489,35 +548,37 @@ export class BoxUploadFilePartPayload extends S.Class<BoxUploadFilePartPayload>(
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { BoxPartAccumulator } from "@beep/box"
- * import type { BoxChunkedUploadReducerPayload } from "@beep/box"
+ * import { BoxChunkedUploadReducerPayload, BoxPartAccumulator } from "@beep/box"
  *
- * const payload = {
+ * const chunk = new Uint8Array([104, 105])
+ * const payload = BoxChunkedUploadReducerPayload.make({
  *   acc: BoxPartAccumulator.make({
  *     fileHash: "sha1-empty",
- *     fileSize: S.Natural.make(2),
+ *     fileSize: S.Natural.make(chunk.byteLength),
  *     lastIndex: -1,
  *     parts: [],
  *     uploadPartUrl: "https://upload.box.com/session"
  *   }),
- *   chunk: new Uint8Array([104, 105])
- * } satisfies BoxChunkedUploadReducerPayload
- * console.log(payload.acc.lastIndex + payload.chunk.byteLength)
+ *   chunk
+ * })
+ * console.log(payload.acc.lastIndex + 1)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxChunkedUploadReducerPayload extends S.Class<BoxChunkedUploadReducerPayload>(
-  $I`BoxChunkedUploadReducerPayload`
-)(
-  {
+export class BoxChunkedUploadReducerPayload extends S.Opaque<
+  BoxChunkedUploadReducerPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     acc: BoxPartAccumulator,
     chunk: BoxByteInputValue,
-  },
-  $I.annote("BoxChunkedUploadReducerPayload", {
-    description: "Payload for chunkedUploads.reducer.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxChunkedUploadReducerPayload", {
+      description: "Payload for chunkedUploads.reducer.",
+    })
+  )
 ) {}
 
 /**
@@ -527,30 +588,31 @@ export class BoxChunkedUploadReducerPayload extends S.Class<BoxChunkedUploadRedu
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import type { BoxUploadBigFilePayload } from "@beep/box"
+ * import { BoxUploadBigFilePayload } from "@beep/box"
  *
- * const payload = {
+ * const payload = BoxUploadBigFilePayload.make({
  *   file: new Uint8Array([104, 105]),
  *   fileName: "large-document.txt",
  *   fileSize: S.Natural.make(2),
  *   parentFolderId: "0"
- * } satisfies BoxUploadBigFilePayload
+ * })
  * console.log(`${payload.fileName}:${payload.fileSize}`)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxUploadBigFilePayload extends S.Class<BoxUploadBigFilePayload>($I`BoxUploadBigFilePayload`)(
-  {
+export class BoxUploadBigFilePayload extends S.Opaque<BoxUploadBigFilePayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: BoxByteInputValue,
     fileName: S.String,
     fileSize: S.Natural,
     parentFolderId: S.String,
-  },
-  $I.annote("BoxUploadBigFilePayload", {
-    description: "Payload for chunkedUploads.uploadBigFile.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxUploadBigFilePayload", {
+      description: "Payload for chunkedUploads.uploadBigFile.",
+    })
+  )
 ) {}
 
 /**
@@ -559,23 +621,24 @@ export class BoxUploadBigFilePayload extends S.Class<BoxUploadBigFilePayload>($I
  * **Example** (Empty event stream payload)
  *
  * ```ts
- * import type { BoxGetEventStreamPayload } from "@beep/box"
+ * import { BoxGetEventStreamPayload } from "@beep/box"
  *
- * const payload: BoxGetEventStreamPayload = {}
+ * const payload = BoxGetEventStreamPayload.make({})
  * console.log(payload)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxGetEventStreamPayload extends S.Class<BoxGetEventStreamPayload>($I`BoxGetEventStreamPayload`)(
-  {
+export class BoxGetEventStreamPayload extends S.Opaque<BoxGetEventStreamPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     headersInput: M.GetEventStreamHeadersInput.pipe(S.optionalKey),
     queryParams: M.GetEventStreamQueryParams.pipe(S.optionalKey),
-  },
-  $I.annote("BoxGetEventStreamPayload", {
-    description: "Payload for events.getEventStream.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxGetEventStreamPayload", {
+      description: "Payload for events.getEventStream.",
+    })
+  )
 ) {}
 
 /**
@@ -585,25 +648,27 @@ export class BoxGetEventStreamPayload extends S.Class<BoxGetEventStreamPayload>(
  *
  * ```ts
  * import { HttpsUrl } from "@beep/schema"
- * import type { BoxGetZipDownloadContentPayload } from "@beep/box"
+ * import { BoxGetZipDownloadContentPayload } from "@beep/box"
  *
- * const payload: BoxGetZipDownloadContentPayload = { downloadUrl: HttpsUrl.make("https://example.com/content") }
+ * const payload = BoxGetZipDownloadContentPayload.make({ downloadUrl: HttpsUrl.make("https://example.com/content") })
  * console.log(payload.downloadUrl)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxGetZipDownloadContentPayload extends S.Class<BoxGetZipDownloadContentPayload>(
-  $I`BoxGetZipDownloadContentPayload`
-)(
-  {
+export class BoxGetZipDownloadContentPayload extends S.Opaque<
+  BoxGetZipDownloadContentPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     downloadUrl: HttpsUrl,
     optionalsInput: M.GetZipDownloadContentOptionalsInput.pipe(S.optionalKey),
-  },
-  $I.annote("BoxGetZipDownloadContentPayload", {
-    description: "Payload for zipDownloads.getZipDownloadContent.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxGetZipDownloadContentPayload", {
+      description: "Payload for zipDownloads.getZipDownloadContent.",
+    })
+  )
 ) {}
 
 /**
@@ -612,28 +677,29 @@ export class BoxGetZipDownloadContentPayload extends S.Class<BoxGetZipDownloadCo
  * **Example** (Download zip payload)
  *
  * ```ts
- * import type { BoxDownloadZipPayload } from "@beep/box"
+ * import { BoxDownloadZipPayload, ZipDownloadRequest, ZipDownloadRequestItemsField } from "@beep/box"
  *
- * const payload = {
- *   requestBody: {
+ * const payload = BoxDownloadZipPayload.make({
+ *   requestBody: ZipDownloadRequest.make({
  *     downloadFileName: "case-files.zip",
- *     items: [{ id: "12345", type: "file" }]
- *   }
- * } satisfies BoxDownloadZipPayload
+ *     items: [ZipDownloadRequestItemsField.make({ id: "12345", type: "file" })]
+ *   })
+ * })
  * console.log(payload.requestBody.items.length)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxDownloadZipPayload extends S.Class<BoxDownloadZipPayload>($I`BoxDownloadZipPayload`)(
-  {
+export class BoxDownloadZipPayload extends S.Opaque<BoxDownloadZipPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     optionalsInput: M.DownloadZipOptionalsInput.pipe(S.optionalKey),
     requestBody: M.ZipDownloadRequest,
-  },
-  $I.annote("BoxDownloadZipPayload", {
-    description: "Payload for zipDownloads.downloadZip.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxDownloadZipPayload", {
+      description: "Payload for zipDownloads.downloadZip.",
+    })
+  )
 ) {}
 
 /**
@@ -802,20 +868,26 @@ const resolveRemoteHost = (hostname: string): Effect.Effect<ReadonlyArray<string
 const assertBoxUrlAllowed = (method: BoxMethodName, url: string): Effect.Effect<void, BoxError> =>
   assertAllowedRemoteUrl(url, { resolve: resolveRemoteHost }).pipe(
     Effect.mapError((error: BlockedHostError) =>
-      BoxError.fromReason("transport", {
-        cause: error.message,
-        method,
-      })
+      BoxError.fromReason(
+        "transport",
+        BoxErrorOptionsInput.make({
+          cause: error.message,
+          method,
+        })
+      )
     )
   );
 
 const byteInputToReadable = (method: BoxMethodName, value: unknown): Effect.Effect<NodeJS.ReadableStream, BoxError> => {
   if (!isBoxByteInputValue(value)) {
     return Effect.fail(
-      BoxError.fromReason("stream", {
-        cause: "Expected Uint8Array, Node Readable, or Effect Stream byte input",
-        method,
-      })
+      BoxError.fromReason(
+        "stream",
+        BoxErrorOptionsInput.make({
+          cause: "Expected Uint8Array, Node Readable, or Effect Stream byte input",
+          method,
+        })
+      )
     );
   }
   if (value instanceof Uint8Array) {
@@ -837,10 +909,13 @@ const chunkToBytes =
       return Effect.succeed(Buffer.from(chunk));
     }
     return Effect.fail(
-      BoxError.fromReason("stream", {
-        cause: "Box SDK byte stream emitted a non-byte chunk",
-        method,
-      })
+      BoxError.fromReason(
+        "stream",
+        BoxErrorOptionsInput.make({
+          cause: "Box SDK byte stream emitted a non-byte chunk",
+          method,
+        })
+      )
     );
   };
 
@@ -851,10 +926,13 @@ const byteStreamFromSdkValue = (method: BoxMethodName, value: unknown, controlle
 
   if (!isNodeReadable(value)) {
     return Stream.fail(
-      BoxError.fromReason("stream", {
-        cause: "Box SDK did not return a readable byte stream",
-        method,
-      })
+      BoxError.fromReason(
+        "stream",
+        BoxErrorOptionsInput.make({
+          cause: "Box SDK did not return a readable byte stream",
+          method,
+        })
+      )
     ).pipe(Stream.ensuring(finalizer));
   }
 
@@ -881,7 +959,7 @@ const runJsonSdkCall = <Payload, Success>(
           decodeWith(successSchema, result, { method: methodName, reason: "response decoding" })
         ),
         Effect.tapError(logDriverFailure("box.streaming_json_failure")),
-        Effect.withSpan(`box.${methodName}`, {
+        Effect.withSpan("Box.streamJson", {
           attributes: {
             "box.method": methodName,
             "box.sdk.version": BOX_SDK_VERSION,
@@ -906,7 +984,7 @@ const runByteStreamSdkCall = <Payload>(
         invoke(decoded, controller.signal).pipe(
           Effect.map((result) => byteStreamFromSdkValue(methodName, result, controller)),
           Effect.tapError(logDriverFailure("box.streaming_byte_failure")),
-          Effect.withSpan(`box.${methodName}`, {
+          Effect.withSpan("Box.streamBytes", {
             attributes: {
               "box.method": methodName,
               "box.sdk.version": BOX_SDK_VERSION,
@@ -927,10 +1005,13 @@ const runByteStreamSdkCall = <Payload>(
 const eventStreamFromSdkValue = (method: BoxMethodName, value: unknown): Stream.Stream<M.Event, BoxError> => {
   if (!isNodeReadable(value)) {
     return Stream.fail(
-      BoxError.fromReason("stream", {
-        cause: "Box SDK did not return a readable event stream",
-        method,
-      })
+      BoxError.fromReason(
+        "stream",
+        BoxErrorOptionsInput.make({
+          cause: "Box SDK did not return a readable event stream",
+          method,
+        })
+      )
     );
   }
 
@@ -943,10 +1024,13 @@ const eventStreamFromSdkValue = (method: BoxMethodName, value: unknown): Stream.
       return Result.isSuccess(result)
         ? Effect.succeed(result.success)
         : Effect.fail(
-            BoxError.fromReason("response decoding", {
-              cause: result.failure,
-              method,
-            })
+            BoxError.fromReason(
+              "response decoding",
+              BoxErrorOptionsInput.make({
+                cause: result.failure,
+                method,
+              })
+            )
           );
     }),
     Stream.withSpan(`box.${method}.stream`, {
@@ -969,7 +1053,7 @@ const runEventStreamSdkCall = <Payload>(
       Effect.flatMap(invoke),
       Effect.map((value) => eventStreamFromSdkValue(methodName, value)),
       Effect.tapError(logDriverFailure("box.event_stream_failure")),
-      Effect.withSpan(`box.${methodName}`, {
+      Effect.withSpan("Box.streamEvents", {
         attributes: {
           "box.method": methodName,
           "box.sdk.version": BOX_SDK_VERSION,
@@ -984,23 +1068,29 @@ const runEventStreamSdkCall = <Payload>(
  * **Example** (Build streaming operations)
  *
  * ```ts
- * import { makeStreamingOperations } from "@beep/box"
- * import * as Effect from "effect/Effect";
+ * import {
+ *   BoxUploadFilePayload,
+ *   makeStreamingOperations,
+ *   UploadFileRequestBodyAttributesField,
+ *   UploadFileRequestBodyAttributesParentField
+ * } from "@beep/box"
+ * import * as Effect from "effect/Effect"
+ *
  * const operations = makeStreamingOperations({
  *   uploads: {
  *     uploadFile: () => Promise.resolve({ entries: [], totalCount: 1 })
  *   }
  * })
  *
- * const program = operations.uploads.uploadFile({
+ * const program = operations.uploads.uploadFile(BoxUploadFilePayload.make({
  *   requestBody: {
- *     attributes: {
+ *     attributes: UploadFileRequestBodyAttributesField.make({
  *       name: "document.txt",
- *       parent: { id: "0" }
- *     },
+ *       parent: UploadFileRequestBodyAttributesParentField.make({ id: "0" })
+ *     }),
  *     file: new Uint8Array([104, 105])
  *   }
- * })
+ * }))
  *
  * Effect.runPromise(program).then((files) => console.log(files.totalCount))
  * ```

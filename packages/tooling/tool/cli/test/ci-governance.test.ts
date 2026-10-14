@@ -2,8 +2,11 @@ import {
   decideHeavyAdmission,
   desktopEnvironmentApproved,
   HeavyAdmissionEvent,
+  HeldRun,
   heldGroupRunIds,
   prSizeLabelDiff,
+  reviewerAppIntegrationMatches,
+  SettingsEnvironment,
   setupCacheWriteDisabled,
   workflowPolicyDiagnostics,
 } from "@beep/repo-cli/commands/Ci";
@@ -89,26 +92,39 @@ describe("CI governance policy", () => {
   );
   it.effect("requires a nonempty reviewer rule", () =>
     Effect.sync(() => {
-      expect(desktopEnvironmentApproved({ protection_rules: [] })).toBe(false);
-      expect(desktopEnvironmentApproved({ protection_rules: [{ type: "required_reviewers", reviewers: [] }] })).toBe(
-        false
-      );
+      expect(desktopEnvironmentApproved(SettingsEnvironment.make({ protection_rules: [] }))).toBe(false);
       expect(
-        desktopEnvironmentApproved({
-          protection_rules: [{ type: "required_reviewers", reviewers: [{ type: "User" }] }],
-        })
+        desktopEnvironmentApproved(
+          SettingsEnvironment.make({ protection_rules: [{ type: "required_reviewers", reviewers: [] }] })
+        )
+      ).toBe(false);
+      expect(
+        desktopEnvironmentApproved(
+          SettingsEnvironment.make({
+            protection_rules: [{ type: "required_reviewers", reviewers: [{ type: "User" }] }],
+          })
+        )
       ).toBe(true);
     })
   );
+  it("requires the reviewer context to be pinned to the expected GitHub App", () => {
+    const pinned = { context: "beep-reviewer", integration_id: 5321138 };
+    expect(reviewerAppIntegrationMatches([pinned])).toBe(true);
+    expect(reviewerAppIntegrationMatches([{ context: "beep-reviewer" }])).toBe(false);
+    expect(reviewerAppIntegrationMatches([{ context: "beep-reviewer", integration_id: null }])).toBe(false);
+    expect(reviewerAppIntegrationMatches([{ context: "beep-reviewer", integration_id: 1 }])).toBe(false);
+    expect(reviewerAppIntegrationMatches([pinned, pinned])).toBe(false);
+    expect(reviewerAppIntegrationMatches([{ context: "Security", integration_id: 5321138 }])).toBe(false);
+  });
   it.effect("detects the old waiting main run and pending successor", () =>
     Effect.sync(() => {
       const old = { id: 1, status: "waiting", created_at: "2026-10-09T12:00:00Z", head_branch: "main" };
       const next = { id: 2, status: "pending", created_at: "2026-10-09T13:00:00Z", head_branch: "main" };
       const now = 1791554400000;
-      expect(heldGroupRunIds([old, next], now)).toEqual([1]);
-      expect(heldGroupRunIds([next], now)).toEqual([]);
-      expect(heldGroupRunIds([{ ...old, status: "completed" }, next], now)).toEqual([]);
-      expect(heldGroupRunIds([old, next], 1791547200000)).toEqual([]);
+      expect(heldGroupRunIds([HeldRun.make(old), HeldRun.make(next)], now)).toEqual([1]);
+      expect(heldGroupRunIds([HeldRun.make(next)], now)).toEqual([]);
+      expect(heldGroupRunIds([HeldRun.make({ ...old, status: "completed" }), HeldRun.make(next)], now)).toEqual([]);
+      expect(heldGroupRunIds([HeldRun.make(old), HeldRun.make(next)], 1791547200000)).toEqual([]);
     })
   );
   it.effect("holds forks even when docs-only until distinctly approved", () =>

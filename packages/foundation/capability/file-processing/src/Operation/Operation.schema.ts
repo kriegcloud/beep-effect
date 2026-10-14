@@ -45,16 +45,17 @@ const $I = $FileProcessingId.create("Operation");
  * @category models
  * @since 0.0.0
  */
-export class DetectFileOperation extends S.Class<DetectFileOperation>($I`DetectFileOperation`)(
-  {
+export class DetectFileOperation extends S.Opaque<DetectFileOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     operationId: OperationId,
     operationKind: S.Literal("detect"),
     preference: StrategyPreference,
     source: SourceArtifact,
-  },
-  $I.annote("DetectFileOperation", {
-    description: "Runtime-neutral request to detect a source artifact format.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectFileOperation", {
+      description: "Runtime-neutral request to detect a source artifact format.",
+    })
+  )
 ) {}
 
 /**
@@ -80,18 +81,19 @@ export class DetectFileOperation extends S.Class<DetectFileOperation>($I`DetectF
  * @category models
  * @since 0.0.0
  */
-export class DetectionResult extends S.Class<DetectionResult>($I`DetectionResult`)(
-  {
+export class DetectionResult extends S.Opaque<DetectionResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     confidence: S.optionalKey(S.Finite),
     engine: S.String,
     format: FileFormatFamily,
     mediaType: S.optionalKey(MimeType),
     operationId: OperationId,
     sourceArtifactId: ArtifactId,
-  },
-  $I.annote("DetectionResult", {
-    description: "Detected format for a source artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectionResult", {
+      description: "Detected format for a source artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -127,18 +129,19 @@ export class DetectionResult extends S.Class<DetectionResult>($I`DetectionResult
  * @category models
  * @since 0.0.0
  */
-export class ExtractFileOperation extends S.Class<ExtractFileOperation>($I`ExtractFileOperation`)(
-  {
+export class ExtractFileOperation extends S.Opaque<ExtractFileOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: FileFormatFamily,
     maxMaterializedBytes: S.optionalKey(S.Finite),
     operationId: OperationId,
     operationKind: S.Literal("extract"),
     preference: StrategyPreference,
     source: SourceArtifact,
-  },
-  $I.annote("ExtractFileOperation", {
-    description: "Runtime-neutral request to extract text and metadata from a source artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFileOperation", {
+      description: "Runtime-neutral request to extract text and metadata from a source artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -173,18 +176,19 @@ export class ExtractFileOperation extends S.Class<ExtractFileOperation>($I`Extra
  * @category models
  * @since 0.0.0
  */
-export class ExportArchiveOperation extends S.Class<ExportArchiveOperation>($I`ExportArchiveOperation`)(
-  {
+export class ExportArchiveOperation extends S.Opaque<ExportArchiveOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: FileFormatFamily,
     maxMaterializedBytes: S.optionalKey(S.Finite),
     operationId: OperationId,
     operationKind: S.Literal("export-archive"),
     preference: StrategyPreference,
     source: SourceArtifact,
-  },
-  $I.annote("ExportArchiveOperation", {
-    description: "Runtime-neutral request to export child artifacts from an archive source.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExportArchiveOperation", {
+      description: "Runtime-neutral request to export child artifacts from an archive source.",
+    })
+  )
 ) {}
 
 /**
@@ -220,16 +224,17 @@ export class ExportArchiveOperation extends S.Class<ExportArchiveOperation>($I`E
  * @category models
  * @since 0.0.0
  */
-export class ProcessFileOperation extends S.Class<ProcessFileOperation>($I`ProcessFileOperation`)(
-  {
+export class ProcessFileOperation extends S.Opaque<ProcessFileOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     exportChildren: S.Boolean,
     maxMaterializedBytes: S.optionalKey(S.Finite),
     operationId: OperationId,
     operationKind: S.Literal("process"),
     preference: StrategyPreference,
     source: SourceArtifact,
-  },
-  $I.annote("ProcessFileOperation", {
-    description: "Runtime-neutral request to run the minimum file-processing vertical slice for one source.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessFileOperation", {
+      description: "Runtime-neutral request to run the minimum file-processing vertical slice for one source.",
+    })
+  )
 ) {}

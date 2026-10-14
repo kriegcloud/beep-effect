@@ -46,28 +46,33 @@ const decodeCodexToml = decodeTomlTextWith(S.decodeUnknownEffect(CodexConfig));
 const decodeClaudeMcpJson = decodeJsonTextAs(ClaudeMcpJson);
 const decodeClaudeSettingsJson = decodeJsonTextAs(ClaudeSettings);
 
-class CodexRepoWorkspaceWritePolicy extends S.Class<CodexRepoWorkspaceWritePolicy>($I`CodexRepoWorkspaceWritePolicy`)(
-  {
+class CodexRepoWorkspaceWritePolicy extends S.Opaque<
+  CodexRepoWorkspaceWritePolicy,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     network_access: S.Boolean.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     writable_roots: S.Array(S.String).pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CodexRepoWorkspaceWritePolicy", {
-    description: "Checked-in Codex workspace-write egress and external writable-root policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexRepoWorkspaceWritePolicy", {
+      description: "Checked-in Codex workspace-write egress and external writable-root policy.",
+    })
+  )
 ) {}
 
-class CodexRepoSafetyPolicy extends S.Class<CodexRepoSafetyPolicy>($I`CodexRepoSafetyPolicy`)(
-  {
+class CodexRepoSafetyPolicy extends S.Opaque<CodexRepoSafetyPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     approval_policy: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     sandbox_mode: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     sandbox_workspace_write: CodexRepoWorkspaceWritePolicy.pipe(
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("CodexRepoSafetyPolicy", {
-    description: "Repository safety-policy projection of Codex config, separate from native schema validation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexRepoSafetyPolicy", {
+      description: "Repository safety-policy projection of Codex config, separate from native schema validation.",
+    })
+  )
 ) {}
 
 const decodeCodexRepoSafetyPolicy = decodeTomlTextWith(S.decodeUnknownEffect(CodexRepoSafetyPolicy));
@@ -85,24 +90,26 @@ const ClaudeRepoPermissionMode = LiteralKit([
   })
 );
 
-class ClaudeRepoPermissions extends S.Class<ClaudeRepoPermissions>($I`ClaudeRepoPermissions`)(
-  {
+class ClaudeRepoPermissions extends S.Opaque<ClaudeRepoPermissions, { readonly brand: unique symbol }>()(
+  S.Struct({
     allow: S.Array(S.String).pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     defaultMode: ClaudeRepoPermissionMode.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     deny: S.Array(S.String).pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ClaudeRepoPermissions", {
-    description: "Checked-in Claude approval mode, Bash allowlist, and deny rules inspected by the repo policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaudeRepoPermissions", {
+      description: "Checked-in Claude approval mode, Bash allowlist, and deny rules inspected by the repo policy.",
+    })
+  )
 ) {}
 
-class ClaudeRepoPermissionPolicy extends S.Class<ClaudeRepoPermissionPolicy>($I`ClaudeRepoPermissionPolicy`)(
-  {
+class ClaudeRepoPermissionPolicy extends S.Opaque<ClaudeRepoPermissionPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     permissions: ClaudeRepoPermissions.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ClaudeRepoPermissionPolicy", {
-    description: "Repository safety-policy projection of Claude settings, separate from native schema validation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaudeRepoPermissionPolicy", {
+      description: "Repository safety-policy projection of Claude settings, separate from native schema validation.",
+    })
+  )
 ) {}
 
 const decodeClaudeRepoPermissionPolicy = decodeJsonTextAs(ClaudeRepoPermissionPolicy);
@@ -159,8 +166,6 @@ const ApprovedClaudeRepoBashPermission = LiteralKit([
   "Bash(bun run beep refs plan:*)",
   "Bash(bun run beep refs install-timer --refresh:*)",
   "Bash(systemctl --user list-timers:*)",
-  "Bash(systemctl --user status beep-:*)",
-  "Bash(journalctl --user -u beep-:*)",
   "Bash(rm -rf .beep/fallow)",
   "Bash(bunx commitlint:*)",
   "Bash(bun install:*)",
@@ -175,7 +180,7 @@ const ApprovedClaudeRepoBashPermission = LiteralKit([
 ]).pipe(
   $I.annoteSchema("ApprovedClaudeRepoBashPermission", {
     description:
-      "Exact 64-value Bash grant domain approved for this repository, including named read-only GitHub queries, intentional Yeet publication commands, archive refs under refs/archive/, and Yeet sweep; worktree removal only through the Beep CLI, plus the read-only Graft code-graph query subcommands and the exact structural `graft build` (never `--deep`, which spends model quota, nor `init`/`uninstall`/`upgrade`, which rewrite tracked agent wiring and are denied outright).",
+      "Exact 62-value Bash grant domain approved for this repository, including named read-only GitHub queries, intentional Yeet publication commands, archive refs under refs/archive/, and Yeet sweep; worktree removal only through the Beep CLI, plus the read-only Graft code-graph query subcommands and the exact structural `graft build` (never `--deep`, which spends model quota, nor `init`/`uninstall`/`upgrade`, which rewrite tracked agent wiring and are denied outright).",
   })
 );
 

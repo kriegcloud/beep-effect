@@ -11,8 +11,7 @@ import * as Num from "effect/Number";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
-import { $I, schemaIssueToError } from "./Color.shared.ts";
-import type { RgbEncoded } from "./Color.shared.ts";
+import { $I, RgbEncoded, schemaIssueToError } from "./Color.shared.ts";
 
 const hexColorInputPattern = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 const hexColorPattern = /^#[0-9a-f]{6}$/;
@@ -77,11 +76,11 @@ export const hexToRgbValue = (hex: string): RgbEncoded => {
   const canonical = normalizeHexColorValue(hex);
   const body = pipe(canonical, Str.substring(1));
 
-  return {
+  return RgbEncoded.make({
     r: parseHexChannel(body, 0),
     g: parseHexChannel(body, 2),
     b: parseHexChannel(body, 4),
-  };
+  });
 };
 
 const toHexChannel = (value: number): string =>
@@ -111,7 +110,7 @@ const toHexChannel = (value: number): string =>
  * @category utilities
  * @since 0.0.0
  */
-export const rgbToHexValue = ({ r, g, b }: RgbEncoded): HexColor =>
+export const rgbToHexValue = ({ r, g, b }: typeof RgbEncoded.Encoded): HexColor =>
   Result.getOrThrowWith(
     S.decodeResult(HexColor)(`#${toHexChannel(r)}${toHexChannel(g)}${toHexChannel(b)}`),
     schemaIssueToError

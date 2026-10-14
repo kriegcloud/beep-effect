@@ -48,18 +48,19 @@ const $I = $WorkspaceUseCasesId.create("aggregates/Thread/ThreadStore");
  * @category repositories
  * @since 0.0.0
  */
-export class CreateThreadInput extends S.Class<CreateThreadInput>($I`CreateThreadInput`)(
-  {
+export class CreateThreadInput extends S.Opaque<CreateThreadInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     title: S.NonEmptyString.annotateKey({
       description: "Initial non-empty title for the thread.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace that owns the new thread.",
     }),
-  },
-  $I.annote("CreateThreadInput", {
-    description: "Input accepted by {@link ThreadStoreShape.createThread}.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateThreadInput", {
+      description: "Input accepted by {@link ThreadStoreShape.createThread}.",
+    })
+  )
 ) {}
 
 /**
@@ -91,8 +92,8 @@ export class CreateThreadInput extends S.Class<CreateThreadInput>($I`CreateThrea
  * @category repositories
  * @since 0.0.0
  */
-export class AppendTurnInput extends S.Class<AppendTurnInput>($I`AppendTurnInput`)(
-  {
+export class AppendTurnInput extends S.Opaque<AppendTurnInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: Document.annotateKey({
       description: "Message content appended as the turn's first visible message.",
     }),
@@ -105,10 +106,11 @@ export class AppendTurnInput extends S.Class<AppendTurnInput>($I`AppendTurnInput
     threadId: WorkspaceIdentity.ThreadId.annotateKey({
       description: "Thread that receives the appended turn.",
     }),
-  },
-  $I.annote("AppendTurnInput", {
-    description: "Input for {@link ThreadStoreShape.appendTurn}.",
-  })
+  }).pipe(
+    $I.annoteSchema("AppendTurnInput", {
+      description: "Input for {@link ThreadStoreShape.appendTurn}.",
+    })
+  )
 ) {}
 
 /**
@@ -128,18 +130,19 @@ export class AppendTurnInput extends S.Class<AppendTurnInput>($I`AppendTurnInput
  * @category repositories
  * @since 0.0.0
  */
-export class AppendTurnResult extends S.Class<AppendTurnResult>($I`AppendTurnResult`)(
-  {
+export class AppendTurnResult extends S.Opaque<AppendTurnResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: Message.annotateKey({
       description: "Persisted message created for the appended turn.",
     }),
     turn: Turn.annotateKey({
       description: "Persisted turn created by the append operation.",
     }),
-  },
-  $I.annote("AppendTurnResult", {
-    description: "Result returned by {@link ThreadStoreShape.appendTurn}.",
-  })
+  }).pipe(
+    $I.annoteSchema("AppendTurnResult", {
+      description: "Result returned by {@link ThreadStoreShape.appendTurn}.",
+    })
+  )
 ) {}
 
 /**
@@ -168,8 +171,11 @@ export class AppendTurnResult extends S.Class<AppendTurnResult>($I`AppendTurnRes
  * @category repositories
  * @since 0.0.0
  */
-export class SetThreadTitleIfEmptyInput extends S.Class<SetThreadTitleIfEmptyInput>($I`SetThreadTitleIfEmptyInput`)(
-  {
+export class SetThreadTitleIfEmptyInput extends S.Opaque<
+  SetThreadTitleIfEmptyInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     emptyTitle: S.NonEmptyString.annotateKey({
       description: "Expected current title that still represents the empty/new-thread placeholder.",
     }),
@@ -179,10 +185,11 @@ export class SetThreadTitleIfEmptyInput extends S.Class<SetThreadTitleIfEmptyInp
     title: S.NonEmptyString.annotateKey({
       description: "Replacement title derived from user-visible content.",
     }),
-  },
-  $I.annote("SetThreadTitleIfEmptyInput", {
-    description: "Compare-and-set title update accepted by the ThreadStore when a thread still has its empty title.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetThreadTitleIfEmptyInput", {
+      description: "Compare-and-set title update accepted by the ThreadStore when a thread still has its empty title.",
+    })
+  )
 ) {}
 
 /**

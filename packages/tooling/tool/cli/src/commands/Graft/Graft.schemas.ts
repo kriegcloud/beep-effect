@@ -98,9 +98,12 @@ export type GraftCacheSyncAction = typeof GraftCacheSyncAction.Type;
  * @category models
  * @since 0.0.0
  */
-export class GraftCacheSyncTarget extends S.Class<GraftCacheSyncTarget>($I`GraftCacheSyncTarget`)(
-  { root: S.String, graftDir: S.String },
-  $I.annote("GraftCacheSyncTarget", { description: "Clone root and the Graft directory that bounds all writes." })
+export class GraftCacheSyncTarget extends S.Opaque<GraftCacheSyncTarget, { readonly brand: unique symbol }>()(
+  S.Struct({ root: S.String, graftDir: S.String }).pipe(
+    $I.annoteSchema("GraftCacheSyncTarget", {
+      description: "Clone root and the Graft directory that bounds all writes.",
+    })
+  )
 ) {}
 
 /**
@@ -125,16 +128,19 @@ export class GraftCacheSyncTarget extends S.Class<GraftCacheSyncTarget>($I`Graft
  * @category models
  * @since 0.0.0
  */
-export class GraftCacheSyncPlanEntry extends S.Class<GraftCacheSyncPlanEntry>($I`GraftCacheSyncPlanEntry`)(
-  {
+export class GraftCacheSyncPlanEntry extends S.Opaque<GraftCacheSyncPlanEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     target: GraftCacheSyncTarget,
     artifact: GraftCacheArtifact,
     action: GraftCacheSyncAction,
     reason: S.optional(S.String),
     sourcePath: S.String,
     targetPath: S.String,
-  },
-  $I.annote("GraftCacheSyncPlanEntry", { description: "A copy, skip, or refusal for one artifact file and clone." })
+  }).pipe(
+    $I.annoteSchema("GraftCacheSyncPlanEntry", {
+      description: "A copy, skip, or refusal for one artifact file and clone.",
+    })
+  )
 ) {}
 
 /**
@@ -154,9 +160,12 @@ export class GraftCacheSyncPlanEntry extends S.Class<GraftCacheSyncPlanEntry>($I
  * @category models
  * @since 0.0.0
  */
-export class GraftCacheSyncPlan extends S.Class<GraftCacheSyncPlan>($I`GraftCacheSyncPlan`)(
-  { source: S.String, entries: S.Array(GraftCacheSyncPlanEntry) },
-  $I.annote("GraftCacheSyncPlan", { description: "Source clone and ordered artifact operations for selected targets." })
+export class GraftCacheSyncPlan extends S.Opaque<GraftCacheSyncPlan, { readonly brand: unique symbol }>()(
+  S.Struct({ source: S.String, entries: S.Array(GraftCacheSyncPlanEntry) }).pipe(
+    $I.annoteSchema("GraftCacheSyncPlan", {
+      description: "Source clone and ordered artifact operations for selected targets.",
+    })
+  )
 ) {}
 
 /**
@@ -184,18 +193,19 @@ export class GraftCacheSyncPlan extends S.Class<GraftCacheSyncPlan>($I`GraftCach
  * @category models
  * @since 0.0.0
  */
-export class GraftCacheSyncReport extends S.Class<GraftCacheSyncReport>($I`GraftCacheSyncReport`)(
-  {
+export class GraftCacheSyncReport extends S.Opaque<GraftCacheSyncReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     plan: GraftCacheSyncPlan,
     copied: S.Natural,
     removed: S.Natural,
     skipped: S.Natural,
     refused: S.Natural,
     bytes: S.Natural,
-  },
-  $I.annote("GraftCacheSyncReport", {
-    description: "Applied sync plan with copy, removal, skip, and refusal counts and exact bytes copied.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraftCacheSyncReport", {
+      description: "Applied sync plan with copy, removal, skip, and refusal counts and exact bytes copied.",
+    })
+  )
 ) {}
 
 /**
@@ -297,11 +307,12 @@ export type GraftDeepRefreshOutcome = typeof GraftDeepRefreshOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class GraftDeepCoverage extends S.Class<GraftDeepCoverage>($I`GraftDeepCoverage`)(
-  { covered: S.Natural, total: S.Natural, failedFiles: S.Natural },
-  $I.annote("GraftDeepCoverage", {
-    description: "Symbol coverage and failed-summary counts parsed from a deep build's output.",
-  })
+export class GraftDeepCoverage extends S.Opaque<GraftDeepCoverage, { readonly brand: unique symbol }>()(
+  S.Struct({ covered: S.Natural, total: S.Natural, failedFiles: S.Natural }).pipe(
+    $I.annoteSchema("GraftDeepCoverage", {
+      description: "Symbol coverage and failed-summary counts parsed from a deep build's output.",
+    })
+  )
 ) {}
 
 // Graft prints its progress with carriage returns, so a coverage line can share
@@ -427,8 +438,8 @@ export const parseDeepCoverage = (text: string): O.Option<GraftDeepCoverage> => 
  * @category models
  * @since 0.0.0
  */
-export class GraftDeepRefreshOptions extends S.Class<GraftDeepRefreshOptions>($I`GraftDeepRefreshOptions`)(
-  {
+export class GraftDeepRefreshOptions extends S.Opaque<GraftDeepRefreshOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     owner: S.String,
     model: S.optional(S.String),
     jobs: PosInt,
@@ -437,10 +448,11 @@ export class GraftDeepRefreshOptions extends S.Class<GraftDeepRefreshOptions>($I
     rebuild: S.Boolean,
     rebuildConcurrency: PosInt,
     stateDir: S.String,
-  },
-  $I.annote("GraftDeepRefreshOptions", {
-    description: "Resolved inputs of one nightly meaning-tier refresh run.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraftDeepRefreshOptions", {
+      description: "Resolved inputs of one nightly meaning-tier refresh run.",
+    })
+  )
 ) {}
 
 /**
@@ -467,11 +479,12 @@ export class GraftDeepRefreshOptions extends S.Class<GraftDeepRefreshOptions>($I
  * @category models
  * @since 0.0.0
  */
-export class GraftDeepSiblingRebuild extends S.Class<GraftDeepSiblingRebuild>($I`GraftDeepSiblingRebuild`)(
-  { root: S.String, exitCode: S.Int, seconds: S.Natural },
-  $I.annote("GraftDeepSiblingRebuild", {
-    description: "Exit status and wall time of one seeded clone's structural rebuild.",
-  })
+export class GraftDeepSiblingRebuild extends S.Opaque<GraftDeepSiblingRebuild, { readonly brand: unique symbol }>()(
+  S.Struct({ root: S.String, exitCode: S.Int, seconds: S.Natural }).pipe(
+    $I.annoteSchema("GraftDeepSiblingRebuild", {
+      description: "Exit status and wall time of one seeded clone's structural rebuild.",
+    })
+  )
 ) {}
 
 /**
@@ -506,8 +519,8 @@ export class GraftDeepSiblingRebuild extends S.Class<GraftDeepSiblingRebuild>($I
  * @category models
  * @since 0.0.0
  */
-export class GraftDeepRefreshStatus extends S.Class<GraftDeepRefreshStatus>($I`GraftDeepRefreshStatus`)(
-  {
+export class GraftDeepRefreshStatus extends S.Opaque<GraftDeepRefreshStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("beep-graft-deep-refresh/v1"),
     owner: S.String,
     head: S.optional(S.String),
@@ -522,10 +535,11 @@ export class GraftDeepRefreshStatus extends S.Class<GraftDeepRefreshStatus>($I`G
     rebuilt: S.Array(GraftDeepSiblingRebuild),
     log: S.String,
     message: S.optional(S.String),
-  },
-  $I.annote("GraftDeepRefreshStatus", {
-    description: "Phase, coverage, seed receipt, and rebuild results of the most recent refresh run.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraftDeepRefreshStatus", {
+      description: "Phase, coverage, seed receipt, and rebuild results of the most recent refresh run.",
+    })
+  )
 ) {}
 
 /**
@@ -547,9 +561,10 @@ export class GraftDeepRefreshStatus extends S.Class<GraftDeepRefreshStatus>($I`G
  * @category models
  * @since 0.0.0
  */
-export class GraftDeepLock extends S.Class<GraftDeepLock>($I`GraftDeepLock`)(
-  { pid: S.Int, startedAt: S.String },
-  $I.annote("GraftDeepLock", { description: "Process id and start time of the run holding the refresh lock." })
+export class GraftDeepLock extends S.Opaque<GraftDeepLock, { readonly brand: unique symbol }>()(
+  S.Struct({ pid: S.Int, startedAt: S.String }).pipe(
+    $I.annoteSchema("GraftDeepLock", { description: "Process id and start time of the run holding the refresh lock." })
+  )
 ) {}
 
 /**
@@ -577,16 +592,17 @@ export class GraftDeepLock extends S.Class<GraftDeepLock>($I`GraftDeepLock`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraftDeepRecordedTimer extends S.Class<GraftDeepRecordedTimer>($I`GraftDeepRecordedTimer`)(
-  {
+export class GraftDeepRecordedTimer extends S.Opaque<GraftDeepRecordedTimer, { readonly brand: unique symbol }>()(
+  S.Struct({
     owner: S.Option(S.String),
     envFile: S.Option(S.String),
     onCalendar: S.Option(S.String),
-  },
-  $I.annote("GraftDeepRecordedTimer", {
-    description:
-      "Owner clone, environment file, and calendar an installed refresh unit runs with, read back for a refresh.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraftDeepRecordedTimer", {
+      description:
+        "Owner clone, environment file, and calendar an installed refresh unit runs with, read back for a refresh.",
+    })
+  )
 ) {}
 
 /**
@@ -620,16 +636,17 @@ export class GraftDeepRecordedTimer extends S.Class<GraftDeepRecordedTimer>($I`G
  * @category models
  * @since 0.0.0
  */
-export class GraftDeepTimerOptions extends S.Class<GraftDeepTimerOptions>($I`GraftDeepTimerOptions`)(
-  {
+export class GraftDeepTimerOptions extends S.Opaque<GraftDeepTimerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     owner: SystemdUnitPath,
     bunPath: SystemdUnitPath,
     onCalendar: S.String,
     envFile: SystemdUnitPath,
-  },
-  $I.annote("GraftDeepTimerOptions", {
-    description: "Owner clone, Bun executable, calendar expression, and environment file of the refresh timer.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraftDeepTimerOptions", {
+      description: "Owner clone, Bun executable, calendar expression, and environment file of the refresh timer.",
+    })
+  )
 ) {}
 
 /**
@@ -719,8 +736,8 @@ const DurationExpression = S.TemplateLiteral([
  * @category models
  * @since 0.0.0
  */
-export class GraftDeepRunnerStep extends S.Class<GraftDeepRunnerStep>($I`GraftDeepRunnerStep`)(
-  {
+export class GraftDeepRunnerStep extends S.Opaque<GraftDeepRunnerStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.String,
     args: S.Array(S.String),
     cwd: S.String,
@@ -729,8 +746,9 @@ export class GraftDeepRunnerStep extends S.Class<GraftDeepRunnerStep>($I`GraftDe
     phase: GraftDeepRefreshPhase,
     source: S.optional(GraftDeepCaptureSource),
     timeout: S.optional(DurationExpression),
-  },
-  $I.annote("GraftDeepRunnerStep", {
-    description: "Command, working directory, environment, and bound of one refresh subprocess.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraftDeepRunnerStep", {
+      description: "Command, working directory, environment, and bound of one refresh subprocess.",
+    })
+  )
 ) {}

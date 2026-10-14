@@ -48,7 +48,7 @@ const Json = S.fromJsonString(S.Unknown);
  * @category errors
  * @since 0.0.0
  */
-export class ArtifactError extends S.TaggedError<ArtifactError>($I`ArtifactError`)("ArtifactError", {
+export class ArtifactError extends S.TaggedError<ArtifactError, { readonly brand: unique symbol }>($I`ArtifactError`)("ArtifactError", {
 	/**
 	 * `misconfigured` — the results backend is not reachable from here (see
 	 * {@link Artifact}). `unreachable` — it could not be contacted, or answered

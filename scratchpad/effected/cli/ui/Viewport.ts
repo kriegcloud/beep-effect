@@ -25,7 +25,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/Viewport");
  * @category errors
  * @since 0.0.0
  */
-export class DuplicateViewportKeyError extends S.TaggedError<DuplicateViewportKeyError>(
+export class DuplicateViewportKeyError extends S.TaggedError<DuplicateViewportKeyError, { readonly brand: unique symbol }>(
 	$I`DuplicateViewportKeyError`,
 )("DuplicateViewportKeyError", {
 	message: S.String.annotate($I.annote("DuplicateViewportKeyError.message", { description: "The repeated item key and the unique-key invariant it violates." })),

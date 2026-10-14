@@ -34,7 +34,7 @@ type PlatformErrorType = PlatformErrorNs.PlatformError;
 
 const $I = $ScratchpadId.create("effected/memfs/NodeSyncFileSystem");
 
-class UnsafeIntegerError extends S.TaggedError<UnsafeIntegerError>($I`UnsafeIntegerError`)(
+class UnsafeIntegerError extends S.TaggedError<UnsafeIntegerError, { readonly brand: unique symbol }>($I`UnsafeIntegerError`)(
 	"UnsafeIntegerError",
 	{
 		message: S.String.pipe($I.annoteKey("UnsafeIntegerError.message", {
@@ -46,7 +46,7 @@ class UnsafeIntegerError extends S.TaggedError<UnsafeIntegerError>($I`UnsafeInte
 	}),
 ) {}
 
-class ReadOnlyFileSystemError extends S.TaggedError<ReadOnlyFileSystemError>($I`ReadOnlyFileSystemError`)(
+class ReadOnlyFileSystemError extends S.TaggedError<ReadOnlyFileSystemError, { readonly brand: unique symbol }>($I`ReadOnlyFileSystemError`)(
 	"ReadOnlyFileSystemError",
 	{
 		message: S.String.pipe($I.annoteKey("ReadOnlyFileSystemError.message", {
@@ -58,7 +58,7 @@ class ReadOnlyFileSystemError extends S.TaggedError<ReadOnlyFileSystemError>($I`
 	}),
 ) {}
 
-class InvalidPathArgumentError extends S.TaggedError<InvalidPathArgumentError>($I`InvalidPathArgumentError`)(
+class InvalidPathArgumentError extends S.TaggedError<InvalidPathArgumentError, { readonly brand: unique symbol }>($I`InvalidPathArgumentError`)(
 	"InvalidPathArgumentError",
 	{
 		message: S.String.pipe($I.annoteKey("InvalidPathArgumentError.message", {

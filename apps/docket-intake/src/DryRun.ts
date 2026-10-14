@@ -144,8 +144,8 @@ export const DocketDryRunPortsLive: Layer.Layer<
 
 // One calendar entry a dry run would have created. It carries the subject the service would write
 // on the entry, never the text, sender or subject of a message.
-class DocketDryRunEntry extends S.Class<DocketDryRunEntry>($I`DocketDryRunEntry`)(
-  {
+class DocketDryRunEntry extends S.Opaque<DocketDryRunEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     messageId: S.OptionFromOptionalKey(S.NonEmptyString).annotateKey({
       description: "The message the entry is for; absent for an entry no outcome claims.",
     }),
@@ -154,8 +154,9 @@ class DocketDryRunEntry extends S.Class<DocketDryRunEntry>($I`DocketDryRunEntry`
     date: LocalDateFromString.annotateKey({ description: "The day it would fall on." }),
     flags: S.Array(DocketEntryFlag).annotateKey({ description: "Things the attorney should check." }),
     subject: S.NonEmptyString.annotateKey({ description: "The subject the service would write on the entry." }),
-  },
-  $I.annote("DocketDryRunEntry", { description: "One calendar entry a docket intake dry run would create." })
+  }).pipe(
+    $I.annoteSchema("DocketDryRunEntry", { description: "One calendar entry a docket intake dry run would create." })
+  )
 ) {}
 
 /**
@@ -173,14 +174,13 @@ class DocketDryRunEntry extends S.Class<DocketDryRunEntry>($I`DocketDryRunEntry`
  * @category models
  * @since 0.0.0
  */
-export class DocketDryRunReport extends S.Class<DocketDryRunReport>($I`DocketDryRunReport`)(
-  {
+export class DocketDryRunReport extends S.Opaque<DocketDryRunReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: DocketRunId.annotateKey({ description: "Id of the dry run; nothing is journaled under it." }),
     dryRun: S.Literal(true).annotateKey({ description: "Always true: nothing was written." }),
     ...DocketPollReport.fields,
     entries: S.Array(DocketDryRunEntry).annotateKey({ description: "Entries the pass would have created." }),
-  },
-  $I.annote("DocketDryRunReport", { description: "What a docket intake dry run would have written." })
+  }).pipe($I.annoteSchema("DocketDryRunReport", { description: "What a docket intake dry run would have written." }))
 ) {}
 
 type Owner = { readonly flags: ReadonlyArray<DocketEntryFlag>; readonly messageId: string };

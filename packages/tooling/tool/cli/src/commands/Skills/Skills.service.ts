@@ -6,13 +6,13 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { flow, pipe } from "effect/Function";
+import { dual, flow } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import { Headers, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http";
@@ -25,9 +25,18 @@ import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
+import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
 import { canonicalJsonText } from "../Goals/PacketCore/PacketDigest.ts";
+import { readSkillsLockText, SKILLS_LOCK_PATH } from "./internal/LockFile.ts";
 import { PATCH_ROOT } from "./internal/PatchStaging.ts";
+import {
+  computeSkillTree,
+  hashBytes,
+  installedTargetsHash,
+  patchSetHashOf,
+  readLocalSkillFiles,
+  validateRelativePath,
+} from "./internal/SkillTree.ts";
 import {
   SkillInstallStateError,
   SkillsCommandError,
@@ -43,7 +52,6 @@ import {
   SkillPathHistory,
   SkillProvenanceReport,
   SkillProvenanceResolution,
-  SkillSnapshotFile,
   SkillTreeMode,
   SkillUpstream,
   SkillUpstreamContent,
@@ -67,242 +75,46 @@ import {
   VendoredMigrationRow,
   VendoredSkillLockEntry,
 } from "./SkillsLock.schemas.ts";
+import type { Sha256Hex } from "@beep/schema";
 import type * as Crypto from "effect/Crypto";
+import type { ComputedSkillTree, HashedSkillFile } from "./internal/SkillTree.ts";
 import type { SkillDriftRow, SkillPinProposal, SkillsLockDocument } from "./SkillsLock.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.service");
 
 const CLAUDE_SKILLS_DIR = ".claude/skills";
-const textDecoder = new TextDecoder("utf-8", { fatal: true });
+const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 const textEncoder = new TextEncoder();
-const decodeSha256HexFromBytes = S.decodeUnknownEffect(Sha256HexFromBytes);
 const decodeSkillTreeMode = S.decodeUnknownEffect(SkillTreeMode);
 
 const GitHubTreeEntryType = LiteralKit(["blob", "tree", "commit"]);
 const GitHubTreeMode = LiteralKit(["100644", "100755", "120000", "040000", "160000"]);
 
-class GitHubTreeEntry extends S.Class<GitHubTreeEntry>($I`GitHubTreeEntry`)(
-  {
+class GitHubTreeEntry extends S.Opaque<GitHubTreeEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mode: GitHubTreeMode,
     type: GitHubTreeEntryType,
     sha: S.String,
-  },
-  $I.annote("GitHubTreeEntry", {
-    description: "Mode-aware entry returned by the GitHub recursive tree API.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTreeEntry", {
+      description: "Mode-aware entry returned by the GitHub recursive tree API.",
+    })
+  )
 ) {}
 
-class GitHubTree extends S.Class<GitHubTree>($I`GitHubTree`)(
-  {
+class GitHubTree extends S.Opaque<GitHubTree, { readonly brand: unique symbol }>()(
+  S.Struct({
     tree: S.Array(GitHubTreeEntry),
     truncated: S.Boolean,
-  },
-  $I.annote("GitHubTree", {
-    description: "GitHub recursive tree response used by the pinned upstream content source.",
-  })
-) {}
-
-class HashedSkillFile extends S.Class<HashedSkillFile>($I`HashedSkillFile`)(
-  {
-    path: S.String,
-    mode: SkillTreeMode,
-    bytes: S.Uint8Array,
-    sha256: Sha256Hex,
-  },
-  $I.annote("HashedSkillFile", {
-    description: "Binary-safe skill file paired with its canonical content digest.",
-  })
-) {}
-
-class ComputedSkillTree extends S.Class<ComputedSkillTree>($I`ComputedSkillTree`)(
-  {
-    files: S.Array(HashedSkillFile),
-    manifest: S.Array(SkillSnapshotFile),
-    treeHash: Sha256Hex,
-    manifestHash: Sha256Hex,
-  },
-  $I.annote("ComputedSkillTree", {
-    description: "Ordered mode-aware manifest plus pristine or effective aggregate hashes.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTree", {
+      description: "GitHub recursive tree response used by the pinned upstream content source.",
+    })
+  )
 ) {}
 
 const decodeGitHubTree = S.decodeUnknownEffect(S.fromJsonString(S.suspend(() => GitHubTree)));
-
-const normalizeSlashes = Str.replaceAll("\\", "/");
-
-const isSafeRelativePath = (filePath: string): boolean =>
-  Str.isNonEmpty(filePath) &&
-  !Str.includes("\0")(filePath) &&
-  !Str.startsWith("/")(filePath) &&
-  !Str.Equivalence(filePath, ".") &&
-  !Str.Equivalence(filePath, "..") &&
-  !Str.startsWith("../")(filePath) &&
-  !Str.includes("/../")(filePath);
-
-const validateRelativePath = Effect.fn("SkillsProvenance.validateRelativePath")(function* (
-  filePath: string,
-  skill: string
-): Effect.fn.Return<string, SkillsCommandError> {
-  const normalized = normalizeSlashes(filePath);
-  if (!isSafeRelativePath(normalized)) {
-    return yield* SkillsCommandError.make({
-      message: `Upstream skill "${skill}" contains an unsafe file path: ${filePath}`,
-      file: filePath,
-      skill,
-    });
-  }
-  return normalized;
-});
-
-const hashBytes = Effect.fn("SkillsProvenance.hashBytes")(function* (
-  bytes: Uint8Array,
-  label: string
-): Effect.fn.Return<Sha256Hex, SkillsCommandError, Crypto.Crypto> {
-  return yield* decodeSha256HexFromBytes(bytes).pipe(
-    SkillsCommandError.mapError(`Failed to compute SHA-256 digest for ${label}.`, label)
-  );
-});
-
-const appendFramedText = (chunks: ReadonlyArray<Uint8Array>, value: string): ReadonlyArray<Uint8Array> =>
-  A.append(A.append(chunks, textEncoder.encode(value)), textEncoder.encode("\0"));
-
-const computeSkillTree = Effect.fn("SkillsProvenance.computeSkillTree")(function* (
-  files: ReadonlyArray<SkillUpstreamContentFile>,
-  label: string
-): Effect.fn.Return<ComputedSkillTree, SkillsCommandError, Crypto.Crypto> {
-  const sorted = A.sortWith(files, (file) => file.path, Str.Order);
-  let treeChunks: ReadonlyArray<Uint8Array> = A.empty<Uint8Array>();
-  let manifestChunks: ReadonlyArray<Uint8Array> = A.empty<Uint8Array>();
-  let hashedFiles: ReadonlyArray<HashedSkillFile> = A.empty<HashedSkillFile>();
-  let manifest: ReadonlyArray<SkillSnapshotFile> = A.empty<SkillSnapshotFile>();
-
-  for (const file of sorted) {
-    const sha256 = yield* hashBytes(file.bytes, `${label}:${file.path}`);
-    const hashedFile = HashedSkillFile.make({
-      path: file.path,
-      mode: file.mode,
-      bytes: file.bytes,
-      sha256,
-    });
-    hashedFiles = A.append(hashedFiles, hashedFile);
-    manifest = A.append(
-      manifest,
-      SkillSnapshotFile.make({
-        path: file.path,
-        mode: file.mode,
-        sha256,
-      })
-    );
-
-    treeChunks = appendFramedText(treeChunks, file.path);
-    treeChunks = appendFramedText(treeChunks, file.mode);
-    treeChunks = appendFramedText(treeChunks, `${file.bytes.byteLength}`);
-    treeChunks = A.append(A.append(treeChunks, file.bytes), textEncoder.encode("\0"));
-
-    manifestChunks = appendFramedText(manifestChunks, file.path);
-    manifestChunks = appendFramedText(manifestChunks, file.mode);
-    manifestChunks = appendFramedText(manifestChunks, sha256);
-  }
-
-  return ComputedSkillTree.make({
-    files: hashedFiles,
-    manifest,
-    treeHash: yield* hashBytes(concatBytes(treeChunks), `${label}:tree`),
-    manifestHash: yield* hashBytes(concatBytes(manifestChunks), `${label}:manifest`),
-  });
-});
-
-const readLocalSkillFiles = Effect.fn("SkillsProvenance.readLocalSkillFiles")(function* (
-  absoluteSkillDir: string,
-  skill: string
-): Effect.fn.Return<ReadonlyArray<SkillUpstreamContentFile>, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const exists = yield* fs
-    .exists(absoluteSkillDir)
-    .pipe(
-      SkillsCommandError.mapError(`Failed to inspect installed skill ${absoluteSkillDir}.`, absoluteSkillDir, skill)
-    );
-  if (!exists) {
-    return yield* SkillsCommandError.make({
-      message: `Installed skill "${skill}" does not exist at ${absoluteSkillDir}.`,
-      file: absoluteSkillDir,
-      skill,
-    });
-  }
-
-  // `stat` resolves links and the FileSystem service exposes no `lstat`, so a successful
-  // `readLink` is the only way to see the link itself. Recording it the way Git does —
-  // mode 120000 over the target text — keeps a correct local symlink equal to its upstream
-  // entry. A real I/O failure is not swallowed here; it resurfaces from the caller's `stat`.
-  const readSymlinkEntry = Effect.fn("SkillsProvenance.readLocalSkillFiles.readSymlinkEntry")(function* (
-    absoluteEntry: string
-  ): Effect.fn.Return<O.Option<SkillUpstreamContentFile>, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-    const linkTarget = yield* Effect.option(fs.readLink(absoluteEntry));
-    if (O.isNone(linkTarget)) {
-      return O.none();
-    }
-    const linkPath = yield* validateRelativePath(path.relative(absoluteSkillDir, absoluteEntry), skill);
-    return O.some(
-      SkillUpstreamContentFile.make({
-        path: linkPath,
-        mode: "120000",
-        bytes: textEncoder.encode(linkTarget.value),
-      })
-    );
-  });
-
-  const readLeafEntries = Effect.fn("SkillsProvenance.readLocalSkillFiles.readLeafEntries")(function* (
-    absoluteEntry: string,
-    stat: FileSystem.File.Info
-  ): Effect.fn.Return<ReadonlyArray<SkillUpstreamContentFile>, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-    if (!Str.Equivalence(stat.type, "File")) {
-      return A.empty<SkillUpstreamContentFile>();
-    }
-    const relativePath = yield* validateRelativePath(path.relative(absoluteSkillDir, absoluteEntry), skill);
-    const bytes = yield* fs
-      .readFile(absoluteEntry)
-      .pipe(SkillsCommandError.mapError(`Failed to read installed skill file ${absoluteEntry}.`, absoluteEntry, skill));
-    return A.of(
-      SkillUpstreamContentFile.make({
-        path: relativePath,
-        mode: (stat.mode & 0o111) === 0 ? "100644" : "100755",
-        bytes,
-      })
-    );
-  });
-
-  const walk = Effect.fn("SkillsProvenance.readLocalSkillFiles.walk")(function* (
-    currentDir: string
-  ): Effect.fn.Return<ReadonlyArray<SkillUpstreamContentFile>, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-    const entries = yield* fs
-      .readDirectory(currentDir)
-      .pipe(SkillsCommandError.mapError(`Failed to read installed skill directory ${currentDir}.`, currentDir, skill));
-    let files = A.empty<SkillUpstreamContentFile>();
-
-    for (const entry of A.sort(entries, Str.Order)) {
-      const absoluteEntry = path.join(currentDir, entry);
-      const symlink = yield* readSymlinkEntry(absoluteEntry);
-      if (O.isSome(symlink)) {
-        files = A.append(files, symlink.value);
-        continue;
-      }
-
-      const stat = yield* fs
-        .stat(absoluteEntry)
-        .pipe(
-          SkillsCommandError.mapError(`Failed to stat installed skill path ${absoluteEntry}.`, absoluteEntry, skill)
-        );
-      files = Str.Equivalence(stat.type, "Directory")
-        ? A.appendAll(files, yield* walk(absoluteEntry))
-        : A.appendAll(files, yield* readLeafEntries(absoluteEntry, stat));
-    }
-    return files;
-  });
-
-  return yield* walk(absoluteSkillDir);
-});
 
 const findFile = (files: ReadonlyArray<HashedSkillFile>, filePath: string): O.Option<HashedSkillFile> =>
   A.findFirst(files, (file) => Str.Equivalence(file.path, filePath));
@@ -330,12 +142,42 @@ const patchHeader = (filePath: string): string => `diff --git a/${filePath} b/${
 
 const abbreviatedSha = Str.slice(0, 12);
 
+const MAX_PATCH_LINES = 100_000;
+
+const countPatchLines = (content: string): number => {
+  if (Str.isEmpty(content)) {
+    return 0;
+  }
+  let lines = 1;
+  for (const character of content) {
+    if (character === "\n") {
+      lines++;
+    }
+    if (lines > MAX_PATCH_LINES) {
+      break;
+    }
+  }
+  return lines;
+};
+
+const ensurePatchLineBudget = (skill: string, filePath: string, before: string, after: string) =>
+  countPatchLines(before) + countPatchLines(after) > MAX_PATCH_LINES
+    ? Effect.fail(
+        SkillsCommandError.make({
+          message: `Skill patch exceeds the ${MAX_PATCH_LINES} line review limit`,
+          skill,
+          file: filePath,
+        })
+      )
+    : Effect.void;
+
 const renderAddedFilePatch = Effect.fn("SkillsProvenance.renderAddedFilePatch")(function* (
   skill: string,
   filePath: string,
   local: HashedSkillFile
 ): Effect.fn.Return<string, SkillsCommandError> {
   const after = yield* decodeTextFile(local, skill);
+  yield* ensurePatchLineBudget(skill, filePath, "", after);
   const headerLines = [
     patchHeader(filePath),
     `new file mode ${local.mode}`,
@@ -355,6 +197,7 @@ const renderDeletedFilePatch = Effect.fn("SkillsProvenance.renderDeletedFilePatc
   upstream: HashedSkillFile
 ): Effect.fn.Return<string, SkillsCommandError> {
   const before = yield* decodeTextFile(upstream, skill);
+  yield* ensurePatchLineBudget(skill, filePath, before, "");
   const headerLines = [
     patchHeader(filePath),
     `deleted file mode ${upstream.mode}`,
@@ -380,6 +223,7 @@ const renderModifiedFilePatch = Effect.fn("SkillsProvenance.renderModifiedFilePa
   }
   const before = yield* decodeTextFile(upstream, skill);
   const after = yield* decodeTextFile(local, skill);
+  yield* ensurePatchLineBudget(skill, filePath, before, after);
   return A.join(
     [
       patchHeader(filePath),
@@ -407,6 +251,64 @@ const renderFilePatch = Effect.fn("SkillsProvenance.renderFilePatch")(function* 
     return yield* renderDeletedFilePatch(skill, filePath, upstream.value);
   }
   return yield* renderModifiedFilePatch(skill, filePath, upstream.value, local.value);
+});
+
+/**
+ * Renders the unified diff that turns one skill tree into another, one Git file section per changed path.
+ *
+ * **Details**
+ *
+ * Paths are visited in sorted order; a path whose bytes and mode are equal on
+ * both sides is skipped. Each changed path renders exactly as a generated
+ * patch would (new file, deleted file, mode change, or modified file with
+ * three lines of context), so the update train's upstream-vs-effective diff
+ * reads like the patch series it summarizes. Binary content fails typed.
+ *
+ * **Example** (Diff a one-line change)
+ *
+ * ```ts
+ * import { SkillUpstreamContentFile } from "@beep/repo-cli/commands/Skills/Skills.schemas"
+ * import { renderSkillTreeDiff } from "@beep/repo-cli/commands/Skills/Skills.service"
+ * import { NodeCrypto } from "@effect/platform-node"
+ * import * as Effect from "effect/Effect"
+ *
+ * const encoder = new TextEncoder()
+ * const file = (text: string) => SkillUpstreamContentFile.make({ path: "SKILL.md", mode: "100644", bytes: encoder.encode(text) })
+ * const diff = Effect.runSync(
+ *   renderSkillTreeDiff("demo", [file("a\n")], [file("b\n")]).pipe(Effect.provide(NodeCrypto.layer))
+ * )
+ * console.log(diff.startsWith("diff --git a/SKILL.md b/SKILL.md")) // true
+ * ```
+ *
+ * @param skill - The skill name, used in error messages.
+ * @param before - The tree the diff starts from, such as the pristine upstream tree.
+ * @param after - The tree the diff ends at, such as the replayed effective tree.
+ * @returns The concatenated file sections; empty when the trees are equal.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderSkillTreeDiff = Effect.fn("SkillsProvenance.renderSkillTreeDiff")(function* (
+  skill: string,
+  before: ReadonlyArray<SkillUpstreamContentFile>,
+  after: ReadonlyArray<SkillUpstreamContentFile>
+): Effect.fn.Return<string, SkillsCommandError, Crypto.Crypto> {
+  const left = yield* computeSkillTree(before, `${skill}:diff-before`);
+  const right = yield* computeSkillTree(after, `${skill}:diff-after`);
+  const paths = A.dedupe(
+    A.sort(
+      A.map(A.appendAll(left.files, right.files), (file) => file.path),
+      Str.Order
+    )
+  );
+  const changed = A.filter(paths, (filePath) => {
+    const leftFile = findFile(left.files, filePath);
+    const rightFile = findFile(right.files, filePath);
+    return !(O.isSome(leftFile) && O.isSome(rightFile) && filesMatch(leftFile.value, rightFile.value));
+  });
+  const sections = yield* Effect.forEach(changed, (filePath) =>
+    renderFilePatch(skill, filePath, findFile(left.files, filePath), findFile(right.files, filePath))
+  );
+  return A.join(sections, "");
 });
 
 const PATCH_DROP_CONDITION = "Drop when upstream contains an equivalent change.";
@@ -479,16 +381,11 @@ const buildPatchSeries = Effect.fn("SkillsProvenance.buildPatchSeries")(function
   const built = yield* Effect.forEach(driftPaths, (filePath, index) =>
     buildPatch(skill, repoRoot, upstream, local, filePath, index)
   );
-  const chunks = A.flatMap(built, ({ file }) =>
-    A.append(
-      appendFramedText(appendFramedText(A.empty<Uint8Array>(), file.path), `${file.bytes.byteLength}`),
-      file.bytes
-    )
-  );
+  const files = A.map(built, ({ file }) => file);
   return {
     series: A.map(built, ({ patch }) => patch),
-    patchSetHash: yield* hashBytes(concatBytes(chunks), `${skill}:patch-set`),
-    files: A.map(built, ({ file }) => file),
+    patchSetHash: yield* patchSetHashOf(files, skill),
+    files,
   };
 });
 
@@ -822,8 +719,6 @@ const makeSkillUpstreamContentSource = Effect.gen(function* () {
  */
 export const SkillUpstreamContentSourceLive = Layer.effect(SkillUpstreamContentSource, makeSkillUpstreamContentSource);
 
-const SKILLS_LOCK_PATH = "skills-lock.json";
-
 const V1LockSkills = S.fromJsonString(
   S.Struct({
     version: S.Literal(1),
@@ -838,18 +733,53 @@ type SkillsLockReading = {
   readonly vendored: HashMap.HashMap<string, SkillProvenanceResolution>;
 };
 
-// After the flip the lock is the ratified resolution record (contract 2): a vendored entry's
-// upstream, license, and provenance blocks are exactly a resolution pinned at its revision.
-const resolutionFromEntry = (name: string, entry: VendoredSkillLockEntry): SkillProvenanceResolution =>
-  SkillProvenanceResolution.make({
-    name,
-    sourceType: entry.sourceType,
-    upstream: entry.upstream,
-    license: entry.license,
-    provenanceStatus: entry.provenance.status,
-    provenanceConfidence: entry.provenance.confidence,
-    provenanceEvidence: entry.provenance.evidence,
-  });
+/**
+ * The provenance resolution a vendored lock entry records, pinned at its `upstream.sourceRevision`.
+ *
+ * **Details**
+ *
+ * After the v2 flip the lock is the ratified resolution record (contract 2):
+ * a vendored entry's upstream, license, and provenance blocks are exactly a
+ * resolution pinned at its revision, which is what
+ * {@link SkillUpstreamContentSource} loads.
+ *
+ * **Example** (Inspect the pinned revision of a lock entry)
+ *
+ * ```ts
+ * import { decodeSkillsLockDocumentJson } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import { skillResolutionOfEntry } from "@beep/repo-cli/commands/Skills/Skills.service"
+ * import * as Effect from "effect/Effect"
+ * import * as R from "effect/Record"
+ *
+ * const lock = Effect.runSync(decodeSkillsLockDocumentJson(`{"version": 2, "skills": {}}`))
+ * const resolutions = R.collect(lock.skills, (name, entry) =>
+ *   entry._tag === "vendored" ? skillResolutionOfEntry(name, entry).upstream.sourceRevision : name
+ * )
+ * console.log(resolutions.length) // 0
+ * ```
+ *
+ * @param name - The lock key of the entry.
+ * @param entry - The vendored lock entry.
+ * @returns The resolution pinned at the entry's source revision.
+ * @category constructors
+ * @since 0.0.0
+ */
+export const skillResolutionOfEntry: {
+  (entry: VendoredSkillLockEntry): (name: string) => SkillProvenanceResolution;
+  (name: string, entry: VendoredSkillLockEntry): SkillProvenanceResolution;
+} = dual(
+  2,
+  (name: string, entry: VendoredSkillLockEntry): SkillProvenanceResolution =>
+    SkillProvenanceResolution.make({
+      name,
+      sourceType: entry.sourceType,
+      upstream: entry.upstream,
+      license: entry.license,
+      provenanceStatus: entry.provenance.status,
+      provenanceConfidence: entry.provenance.confidence,
+      provenanceEvidence: entry.provenance.evidence,
+    })
+);
 
 const readingOfV2 = (sha256: Sha256Hex, document: SkillsLockDocument): SkillsLockReading => {
   const entries = R.toEntries(document.skills);
@@ -858,7 +788,7 @@ const readingOfV2 = (sha256: Sha256Hex, document: SkillsLockDocument): SkillsLoc
     skills: A.map(entries, ([name, entry]) => [name, entry._tag === "vendored" ? "github" : "local"] as const),
     vendored: HashMap.fromIterable(
       A.flatMap(entries, ([name, entry]) =>
-        entry._tag === "vendored" ? [[name, resolutionFromEntry(name, entry)] as const] : []
+        entry._tag === "vendored" ? [[name, skillResolutionOfEntry(name, entry)] as const] : []
       )
     ),
   };
@@ -867,12 +797,7 @@ const readingOfV2 = (sha256: Sha256Hex, document: SkillsLockDocument): SkillsLoc
 const readSkillsLock = Effect.fn("SkillsLock.readSkillsLock")(function* (
   repoRoot: string
 ): Effect.fn.Return<SkillsLockReading, SkillsCommandError, FileSystem.FileSystem | Path.Path | Crypto.Crypto> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const lockPath = path.join(repoRoot, SKILLS_LOCK_PATH);
-  const text = yield* fs
-    .readFileString(lockPath)
-    .pipe(SkillsCommandError.mapError(`Failed to read ${SKILLS_LOCK_PATH}.`, lockPath));
+  const { lockPath, text } = yield* readSkillsLockText(repoRoot);
   const sha256 = yield* hashBytes(textEncoder.encode(text), SKILLS_LOCK_PATH);
   const v2 = yield* Effect.option(decodeSkillsLockDocumentJson(text));
   if (O.isSome(v2)) {
@@ -983,14 +908,13 @@ const readInstalledTargets = Effect.fn("SkillsProvenance.readInstalledTargets")(
       message: `Installed skill targets disagree for ${skill}; refusing to report cross-target provenance.`,
     });
   }
-  const installedHashChunks = pipe(
-    A.empty<Uint8Array>(),
-    (chunks) => appendFramedText(chunks, claudeTarget),
-    (chunks) => appendFramedText(chunks, localTree.treeHash),
-    (chunks) => appendFramedText(chunks, agentsTarget),
-    (chunks) => appendFramedText(chunks, agentsTree.treeHash)
+  const installedTreeHash = yield* installedTargetsHash(
+    [
+      [claudeTarget, localTree.treeHash],
+      [agentsTarget, agentsTree.treeHash],
+    ],
+    skill
   );
-  const installedTreeHash = yield* hashBytes(concatBytes(installedHashChunks), `${skill}:installed-targets`);
   return { localTree, installedTargets: [claudeTarget, agentsTarget], installedTreeHash };
 });
 

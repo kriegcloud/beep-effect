@@ -157,15 +157,16 @@ export type PanelParameters = typeof PanelParameters.Type;
  * @category models
  * @since 0.0.0
  */
-export class ComponentPanelView extends S.Class<ComponentPanelView>($I`ComponentPanelView`)(
-  {
+export class ComponentPanelView extends S.Opaque<ComponentPanelView, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("component"),
     renderer: S.toType(RendererKey),
     input: PanelParameters.pipe(S.withConstructorDefault(Effect.succeed<PanelParameters>({}))),
-  },
-  $I.annote("ComponentPanelView", {
-    description: "Panel content resolved by a host renderer registry.",
-  })
+  }).pipe(
+    $I.annoteSchema("ComponentPanelView", {
+      description: "Panel content resolved by a host renderer registry.",
+    })
+  )
 ) {}
 
 /**
@@ -183,14 +184,15 @@ export class ComponentPanelView extends S.Class<ComponentPanelView>($I`Component
  * @category models
  * @since 0.0.0
  */
-export class TextPanelView extends S.Class<TextPanelView>($I`TextPanelView`)(
-  {
+export class TextPanelView extends S.Opaque<TextPanelView, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("text"),
     text: S.String,
-  },
-  $I.annote("TextPanelView", {
-    description: "Renderer-independent text panel content.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextPanelView", {
+      description: "Renderer-independent text panel content.",
+    })
+  )
 ) {}
 
 /**
@@ -259,16 +261,17 @@ const PositiveFiniteExtent = S.Finite.check(S.isGreaterThan(0)).pipe(
  * @category models
  * @since 0.0.0
  */
-export class PanelConstraints extends S.Class<PanelConstraints>($I`PanelConstraints`)(
-  {
+export class PanelConstraints extends S.Opaque<PanelConstraints, { readonly brand: unique symbol }>()(
+  S.Struct({
     minWidth: PositiveFiniteExtent.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     minHeight: PositiveFiniteExtent.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     maxWidth: PositiveFiniteExtent.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     maxHeight: PositiveFiniteExtent.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PanelConstraints", {
-    description: "Optional positive finite minimum and maximum pixel extents for one panel.",
-  })
+  }).pipe(
+    $I.annoteSchema("PanelConstraints", {
+      description: "Optional positive finite minimum and maximum pixel extents for one panel.",
+    })
+  )
 ) {}
 
 /**
@@ -286,18 +289,19 @@ export class PanelConstraints extends S.Class<PanelConstraints>($I`PanelConstrai
  * @category models
  * @since 0.0.0
  */
-export class Panel extends S.Class<Panel>($I`Panel`)(
-  {
+export class Panel extends S.Opaque<Panel, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.toType(PanelId),
     title: S.NonEmptyString,
     view: PanelView,
     renderMode: PanelRenderMode.pipe(S.withConstructorDefault(Effect.succeed<PanelRenderMode>("onlyWhenVisible"))),
     tabComponent: S.toType(RendererKey).pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     constraints: PanelConstraints.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Panel", {
-    description: "A renderer-neutral panel owned directly by one tab group.",
-  })
+  }).pipe(
+    $I.annoteSchema("Panel", {
+      description: "A renderer-neutral panel owned directly by one tab group.",
+    })
+  )
 ) {
   static readonly equals = S.toEquivalence(Panel);
   static readonly findInNode: Dual2<DockNode.Type, PanelId, O.Option<Panel>> = dual(
@@ -337,8 +341,8 @@ export class Panel extends S.Class<Panel>($I`Panel`)(
  * @category models
  * @since 0.0.0
  */
-export class PanelPatch extends S.Class<PanelPatch>($I`PanelPatch`)(
-  {
+export class PanelPatch extends S.Opaque<PanelPatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     title: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     view: S.OptionFromOptionalKey(PanelView).pipe(S.withConstructorDefault(Effect.succeedNone)),
     renderMode: S.OptionFromOptionalKey(PanelRenderMode).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -348,10 +352,11 @@ export class PanelPatch extends S.Class<PanelPatch>($I`PanelPatch`)(
       S.withConstructorDefault(Effect.succeedNone)
     ),
     constraints: PanelConstraints.pipe(S.Option, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PanelPatch", {
-    description: "Optional whole-value replacements for persistable panel facets.",
-  })
+  }).pipe(
+    $I.annoteSchema("PanelPatch", {
+      description: "Optional whole-value replacements for persistable panel facets.",
+    })
+  )
 ) {}
 
 /**
@@ -439,16 +444,17 @@ export type GroupHeaderPosition = typeof GroupHeaderPosition.Type;
  * @category models
  * @since 0.0.0
  */
-export class GroupMetadata extends S.Class<GroupMetadata>($I`GroupMetadata`)(
-  {
+export class GroupMetadata extends S.Opaque<GroupMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     visible: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed<boolean>(true))),
     locked: GroupLockedMode.pipe(S.withConstructorDefault(Effect.succeed<GroupLockedMode>("unlocked"))),
     hideHeader: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed<boolean>(false))),
     headerPosition: GroupHeaderPosition.pipe(S.withConstructorDefault(Effect.succeed<GroupHeaderPosition>("top"))),
-  },
-  $I.annote("GroupMetadata", {
-    description: "Serializable display and future policy metadata for one tab group.",
-  })
+  }).pipe(
+    $I.annoteSchema("GroupMetadata", {
+      description: "Serializable display and future policy metadata for one tab group.",
+    })
+  )
 ) {
   static readonly equals = S.toEquivalence(GroupMetadata);
 }
@@ -469,16 +475,17 @@ export class GroupMetadata extends S.Class<GroupMetadata>($I`GroupMetadata`)(
  * @category models
  * @since 0.0.0
  */
-export class GroupPatch extends S.Class<GroupPatch>($I`GroupPatch`)(
-  {
+export class GroupPatch extends S.Opaque<GroupPatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     visible: S.OptionFromOptionalKey(S.Boolean).pipe(S.withConstructorDefault(Effect.succeedNone)),
     locked: S.OptionFromOptionalKey(GroupLockedMode).pipe(S.withConstructorDefault(Effect.succeedNone)),
     hideHeader: S.OptionFromOptionalKey(S.Boolean).pipe(S.withConstructorDefault(Effect.succeedNone)),
     headerPosition: S.OptionFromOptionalKey(GroupHeaderPosition).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("GroupPatch", {
-    description: "Optional whole-value replacements for persistable group metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("GroupPatch", {
+      description: "Optional whole-value replacements for persistable group metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -506,18 +513,18 @@ type SplitPosition = Pick<SplitPlacement, "side" | "splitId" | "newGroupRatio">;
  * @category models
  * @since 0.0.0
  */
-export class TabsNode extends S.TaggedClass<TabsNode>($I`TabsNode`)(
-  "Tabs",
-  {
+export class TabsNode extends S.Opaque<TabsNode, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Tabs", {
     groupId: S.toType(GroupId),
     before: S.Array(Panel).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<Panel>>([]))),
     active: Panel,
     after: S.Array(Panel).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<Panel>>([]))),
-    metadata: GroupMetadata.pipe(S.withConstructorDefault(Effect.succeed(GroupMetadata.make()))),
-  },
-  $I.annote("TabsNode", {
-    description: "A non-empty ordered tab zipper with one structurally active panel.",
-  })
+    metadata: GroupMetadata.pipe(S.withConstructorDefault(Effect.succeed(GroupMetadata.make({})))),
+  }).pipe(
+    $I.annoteSchema("TabsNode", {
+      description: "A non-empty ordered tab zipper with one structurally active panel.",
+    })
+  )
 ) {
   /**
    * Constructs a tab zipper from an ordered non-empty panel collection.
@@ -672,16 +679,17 @@ const DefaultSplitRatio = S.toType(SplitRatio).pipe(S.withConstructorDefault(Eff
  * @category models
  * @since 0.0.0
  */
-export class HorizontalSplitLayout extends S.Class<HorizontalSplitLayout>($I`HorizontalSplitLayout`)(
-  {
+export class HorizontalSplitLayout extends S.Opaque<HorizontalSplitLayout, { readonly brand: unique symbol }>()(
+  S.Struct({
     axis: S.tag("horizontal"),
     leftRatio: DefaultSplitRatio,
     left: DockNodeRef,
     right: DockNodeRef,
-  },
-  $I.annote("HorizontalSplitLayout", {
-    description: "Horizontal split geometry whose ratio describes the left child share.",
-  })
+  }).pipe(
+    $I.annoteSchema("HorizontalSplitLayout", {
+      description: "Horizontal split geometry whose ratio describes the left child share.",
+    })
+  )
 ) {}
 
 /**
@@ -701,16 +709,17 @@ export class HorizontalSplitLayout extends S.Class<HorizontalSplitLayout>($I`Hor
  * @category models
  * @since 0.0.0
  */
-export class VerticalSplitLayout extends S.Class<VerticalSplitLayout>($I`VerticalSplitLayout`)(
-  {
+export class VerticalSplitLayout extends S.Opaque<VerticalSplitLayout, { readonly brand: unique symbol }>()(
+  S.Struct({
     axis: S.tag("vertical"),
     topRatio: DefaultSplitRatio,
     top: DockNodeRef,
     bottom: DockNodeRef,
-  },
-  $I.annote("VerticalSplitLayout", {
-    description: "Vertical split geometry whose ratio describes the top child share.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerticalSplitLayout", {
+      description: "Vertical split geometry whose ratio describes the top child share.",
+    })
+  )
 ) {}
 
 type SplitLayoutShape = HorizontalSplitLayout | VerticalSplitLayout;
@@ -818,15 +827,15 @@ export type SplitLayout = typeof SplitLayout.Type;
  * @category models
  * @since 0.0.0
  */
-export class SplitNode extends S.TaggedClass<SplitNode>($I`SplitNode`)(
-  "Split",
-  {
+export class SplitNode extends S.Opaque<SplitNode, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Split", {
     splitId: S.toType(SplitId),
     layout: SplitLayout,
-  },
-  $I.annote("SplitNode", {
-    description: "A recursive binary split with axis-specific geometry and exactly two children.",
-  })
+  }).pipe(
+    $I.annoteSchema("SplitNode", {
+      description: "A recursive binary split with axis-specific geometry and exactly two children.",
+    })
+  )
 ) {
   static readonly fromNodes: Dual3<DockNode.Type, DockNode.Type, SplitPosition, SplitNode> = dual(
     3,
@@ -1059,26 +1068,26 @@ export const DockNode = DockNodeBase.pipe(
  */
 export type DockNode = typeof DockNode.Type;
 
-interface TabsNodeEncoded extends Omit<TabsNode, "before" | "active" | "after" | "metadata"> {
+interface TabsNodeEncoded extends Omit<TabsNode, "before" | "active" | "after" | "metadata" | "brand"> {
   readonly active: typeof Panel.Encoded;
   readonly after: ReadonlyArray<typeof Panel.Encoded>;
   readonly before: ReadonlyArray<typeof Panel.Encoded>;
   readonly metadata: typeof GroupMetadata.Encoded;
 }
 
-interface HorizontalSplitLayoutEncoded extends Omit<HorizontalSplitLayout, "left" | "right"> {
+interface HorizontalSplitLayoutEncoded extends Omit<HorizontalSplitLayout, "left" | "right" | "brand"> {
   readonly left: DockNodeEncoded;
   readonly right: DockNodeEncoded;
 }
 
-interface VerticalSplitLayoutEncoded extends Omit<VerticalSplitLayout, "top" | "bottom"> {
+interface VerticalSplitLayoutEncoded extends Omit<VerticalSplitLayout, "top" | "bottom" | "brand"> {
   readonly bottom: DockNodeEncoded;
   readonly top: DockNodeEncoded;
 }
 
 type SplitLayoutEncoded = HorizontalSplitLayoutEncoded | VerticalSplitLayoutEncoded;
 
-interface SplitNodeEncoded extends Omit<SplitNode, "layout"> {
+interface SplitNodeEncoded extends Omit<SplitNode, "layout" | "brand"> {
   readonly layout: SplitLayoutEncoded;
 }
 
@@ -1170,9 +1179,10 @@ export declare namespace DockNode {
  * @category models
  * @since 0.0.0
  */
-export class FloatingMember extends S.Class<FloatingMember>($I`FloatingMember`)(
-  { anchoredBox: AnchoredBox, root: DockNode },
-  $I.annote("FloatingMember", { description: "A floating dock subtree and its anchored container geometry." })
+export class FloatingMember extends S.Opaque<FloatingMember, { readonly brand: unique symbol }>()(
+  S.Struct({ anchoredBox: AnchoredBox, root: DockNode }).pipe(
+    $I.annoteSchema("FloatingMember", { description: "A floating dock subtree and its anchored container geometry." })
+  )
 ) {}
 
 /**
@@ -1183,22 +1193,23 @@ export class FloatingMember extends S.Class<FloatingMember>($I`FloatingMember`)(
  * ```ts
  * import { EmptyWorkspace } from "@beep/dock"
  *
- * const workspace = EmptyWorkspace.make()
+ * const workspace = EmptyWorkspace.make({})
  * console.log(workspace.kind)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class EmptyWorkspace extends S.Class<EmptyWorkspace>($I`EmptyWorkspace`)(
-  {
+export class EmptyWorkspace extends S.Opaque<EmptyWorkspace, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("empty"),
     revision: S.Natural.pipe(S.withConstructorDefault(Effect.succeed<number>(0))),
     floating: S.Array(FloatingMember).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<FloatingMember>>([]))),
-  },
-  $I.annote("EmptyWorkspace", {
-    description: "A dock workspace with no docked tree; floating subtrees may still exist.",
-  })
+  }).pipe(
+    $I.annoteSchema("EmptyWorkspace", {
+      description: "A dock workspace with no docked tree; floating subtrees may still exist.",
+    })
+  )
 ) {}
 
 /**
@@ -1218,17 +1229,18 @@ export class EmptyWorkspace extends S.Class<EmptyWorkspace>($I`EmptyWorkspace`)(
  * @category models
  * @since 0.0.0
  */
-export class PopulatedWorkspace extends S.Class<PopulatedWorkspace>($I`PopulatedWorkspace`)(
-  {
+export class PopulatedWorkspace extends S.Opaque<PopulatedWorkspace, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("populated"),
     revision: S.Natural.pipe(S.withConstructorDefault(Effect.succeed<number>(0))),
     root: DockNode,
     maximized: S.toType(GroupId).pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     floating: S.Array(FloatingMember).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<FloatingMember>>([]))),
-  },
-  $I.annote("PopulatedWorkspace", {
-    description: "A dock workspace containing a non-empty binary layout tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("PopulatedWorkspace", {
+      description: "A dock workspace containing a non-empty binary layout tree.",
+    })
+  )
 ) {}
 
 const DockWorkspaceKind = LiteralKit(["empty", "populated"]);
@@ -1306,7 +1318,7 @@ export const DockWorkspace = DockWorkspaceBase.pipe(
   }),
   SchemaUtils.withStatics(() => {
     const asPopulated = O.liftPredicate(DockWorkspaceBase.guards.populated);
-    const empty: DockWorkspaceShape = EmptyWorkspace.make();
+    const empty: DockWorkspaceShape = EmptyWorkspace.make({});
 
     const roots = (workspace: DockWorkspaceShape): ReadonlyArray<DockNodeShape> =>
       DockWorkspaceBase.match(workspace, {
@@ -1534,12 +1546,13 @@ export type DockWorkspace = typeof DockWorkspace.Type;
  * @category models
  * @since 0.0.0
  */
-export class DockSnapshot extends S.Class<DockSnapshot>($I`DockSnapshot`)(
-  {
+export class DockSnapshot extends S.Opaque<DockSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.tag(1),
     workspace: DockWorkspace,
-  },
-  $I.annote("DockSnapshot", {
-    description: "Version one persisted snapshot envelope containing one complete dock workspace.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockSnapshot", {
+      description: "Version one persisted snapshot envelope containing one complete dock workspace.",
+    })
+  )
 ) {}

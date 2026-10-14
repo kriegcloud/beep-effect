@@ -74,7 +74,7 @@ const isPdfToolsError = (cause: unknown): cause is PdfToolsError => S.is(PdfTool
  * @category errors
  * @since 0.0.0
  */
-export class PdfToolsError extends S.TaggedError<PdfToolsError>($I`PdfToolsError`)(
+export class PdfToolsError extends S.TaggedError<PdfToolsError, { readonly brand: unique symbol }>($I`PdfToolsError`)(
   "PdfToolsError",
   {
     reason: PdfToolsErrorReason.annotateKey({ description: "Where the call failed." }),

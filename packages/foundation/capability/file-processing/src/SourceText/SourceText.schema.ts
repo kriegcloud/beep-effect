@@ -95,13 +95,14 @@ export const UTF8_SOURCE_TEXT_EXTRACTOR_VERSION = "1";
  * @category models
  * @since 0.0.0
  */
-export class ResolveSourceTextRequest extends S.Class<ResolveSourceTextRequest>($I`ResolveSourceTextRequest`)(
-  {
+export class ResolveSourceTextRequest extends S.Opaque<ResolveSourceTextRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     identity: SourceTextIdentity,
-  },
-  $I.annote("ResolveSourceTextRequest", {
-    description: "Request to resolve complete canonical text from an immutable provenance source identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolveSourceTextRequest", {
+      description: "Request to resolve complete canonical text from an immutable provenance source identity.",
+    })
+  )
 ) {}
 
 /**
@@ -118,18 +119,19 @@ export class ResolveSourceTextRequest extends S.Class<ResolveSourceTextRequest>(
  * @category models
  * @since 0.0.0
  */
-export class ResolvedSourceText extends S.Class<ResolvedSourceText>($I`ResolvedSourceText`)(
-  {
+export class ResolvedSourceText extends S.Opaque<ResolvedSourceText, { readonly brand: unique symbol }>()(
+  S.Struct({
     identity: SourceTextIdentity,
     text: S.String,
-  },
-  $I.annote("ResolvedSourceText", {
-    description: "Complete canonical source text whose source, extractor, and text digests have been verified.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedSourceText", {
+      description: "Complete canonical source text whose source, extractor, and text digests have been verified.",
+    })
+  )
 ) {}
 
-class SourceTextPageStruct extends S.Class<SourceTextPageStruct>($I`SourceTextPageStruct`)(
-  {
+class SourceTextPageStruct extends S.Opaque<SourceTextPageStruct, { readonly brand: unique symbol }>()(
+  S.Struct({
     endOffset: S.Natural,
     hasNextPage: S.Boolean,
     hasPreviousPage: S.Boolean,
@@ -140,21 +142,25 @@ class SourceTextPageStruct extends S.Class<SourceTextPageStruct>($I`SourceTextPa
     startOffset: S.Natural,
     text: S.String,
     totalCodeUnits: S.Natural,
-  },
-  $I.annote("SourceTextPageStruct", {
-    description: "Structural base for a bounded canonical source-text page.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceTextPageStruct", {
+      description: "Structural base for a bounded canonical source-text page.",
+    })
+  )
 ) {}
 
+const SourceTextPageFieldsSchema = SourceTextPageStruct.mapFields(identity);
+type SourceTextPageFields = typeof SourceTextPageFieldsSchema.Type;
+
 const SourceTextPageChecks = S.makeFilterGroup([
-  S.makeFilter(({ pageCount, pageIndex }: SourceTextPageStruct) => pageIndex < pageCount, {
+  S.makeFilter(({ pageCount, pageIndex }: SourceTextPageFields) => pageIndex < pageCount, {
     identifier: $I`SourceTextPageIndexCheck`,
     title: "Source Text Page Index",
     description: "Checks that a zero-based page index identifies a page within the declared page count.",
     message: "Expected pageIndex to be less than pageCount.",
   }),
   S.makeFilter(
-    ({ endOffset, startOffset, totalCodeUnits }: SourceTextPageStruct) =>
+    ({ endOffset, startOffset, totalCodeUnits }: SourceTextPageFields) =>
       startOffset <= endOffset && endOffset <= totalCodeUnits,
     {
       identifier: $I`SourceTextPageOffsetBoundsCheck`,
@@ -164,7 +170,7 @@ const SourceTextPageChecks = S.makeFilterGroup([
     }
   ),
   S.makeFilter(
-    ({ endOffset, startOffset, text }: SourceTextPageStruct) => endOffset - startOffset === Str.length(text),
+    ({ endOffset, startOffset, text }: SourceTextPageFields) => endOffset - startOffset === Str.length(text),
     {
       identifier: $I`SourceTextPageTextWidthCheck`,
       title: "Source Text Page Width",
@@ -172,14 +178,14 @@ const SourceTextPageChecks = S.makeFilterGroup([
       message: "Expected endOffset - startOffset to equal the page text's UTF-16 code-unit length.",
     }
   ),
-  S.makeFilter(({ hasPreviousPage, pageIndex }: SourceTextPageStruct) => hasPreviousPage === pageIndex > 0, {
+  S.makeFilter(({ hasPreviousPage, pageIndex }: SourceTextPageFields) => hasPreviousPage === pageIndex > 0, {
     identifier: $I`SourceTextPagePreviousFlagCheck`,
     title: "Source Text Page Previous Flag",
     description: "Checks that hasPreviousPage agrees with the zero-based page index.",
     message: "Expected hasPreviousPage to be true exactly when pageIndex is greater than zero.",
   }),
   S.makeFilter(
-    ({ hasNextPage, pageCount, pageIndex }: SourceTextPageStruct) => hasNextPage === pageIndex + 1 < pageCount,
+    ({ hasNextPage, pageCount, pageIndex }: SourceTextPageFields) => hasNextPage === pageIndex + 1 < pageCount,
     {
       identifier: $I`SourceTextPageNextFlagCheck`,
       title: "Source Text Page Next Flag",
@@ -189,7 +195,7 @@ const SourceTextPageChecks = S.makeFilterGroup([
   ),
 ]);
 
-const SourceTextPageSchema = SourceTextPageStruct.mapFields(identity).check(SourceTextPageChecks);
+const SourceTextPageSchema = SourceTextPageFieldsSchema.check(SourceTextPageChecks);
 
 /**
  * Bounded, surrogate-safe page from a complete canonical source.
@@ -211,7 +217,7 @@ const SourceTextPageSchema = SourceTextPageStruct.mapFields(identity).check(Sour
  * @category models
  * @since 0.0.0
  */
-export class SourceTextPage extends S.Class<SourceTextPage>($I`SourceTextPage`)(
+export class SourceTextPage extends S.Class<SourceTextPage, { readonly brand: unique symbol }>($I`SourceTextPage`)(
   SourceTextPageSchema,
   $I.annote("SourceTextPage", {
     toCodecArbitrary: (): SchemaAST.Link =>

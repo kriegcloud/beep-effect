@@ -116,16 +116,17 @@ export * from "./Models.paths.ts";
  * @category models
  * @since 0.0.0
  */
-export class ModelsCheckOptions extends S.Class<ModelsCheckOptions>($I`ModelsCheckOptions`)(
-  {
+export class ModelsCheckOptions extends S.Opaque<ModelsCheckOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     home: S.NonEmptyString,
     repo: S.NonEmptyString,
     manifestPath: S.NonEmptyString,
     offline: S.Boolean,
-  },
-  $I.annote("ModelsCheckOptions", {
-    description: "Both trees, the manifest path, and the offline flag one check run executes under.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsCheckOptions", {
+      description: "Both trees, the manifest path, and the offline flag one check run executes under.",
+    })
+  )
 ) {}
 
 /**
@@ -164,11 +165,11 @@ export interface ModelsCheckShape {
  * **Example** (Describe a check run)
  *
  * ```ts
- * import { ModelsCheck } from "@beep/repo-cli/commands/Models"
+ * import { ModelsCheck, ModelsCheckOptions } from "@beep/repo-cli/commands/Models"
  * import * as Effect from "effect/Effect"
  *
  * const program = ModelsCheck.use((check) =>
- *   check.run({ home: "/home/op", repo: "/repo", manifestPath: "/home/op/models.yaml", offline: true })
+ *   check.run(ModelsCheckOptions.make({ home: "/home/op", repo: "/repo", manifestPath: "/home/op/models.yaml", offline: true }))
  * )
  * console.log(Effect.isEffect(program)) // true
  * ```
@@ -186,10 +187,8 @@ const surfaceOverlay = (surface: RoutingSurface): O.Option<CatalogSource> =>
     Match.when("grok-cli", () => O.some<CatalogSource>("grok-cache")),
     Match.when("cursor-seat", () => O.some<CatalogSource>("cursor-agent")),
     Match.when("proxy-workflow", () => O.some<CatalogSource>("proxy-v1-models")),
-    // `claude-code` is the one ungated surface: no overlay enumerates the
-    // models a direct Anthropic session may select, so availability there is
-    // never asserted.
-    Match.when("claude-code", O.none<CatalogSource>),
+    // No overlay enumerates direct Anthropic or Junie JetBrains-route models.
+    Match.whenOr("claude-code", "junie-cli", O.none<CatalogSource>),
     Match.exhaustive
   );
 
@@ -199,7 +198,7 @@ const availableOnSurface = (model: CatalogModel, surface: RoutingSurface): boole
     Match.when("grok-cli", () => model.availability.grokCli),
     Match.when("cursor-seat", () => model.availability.cursor),
     Match.when("proxy-workflow", () => model.availability.proxy),
-    Match.when("claude-code", () => true),
+    Match.whenOr("claude-code", "junie-cli", () => true),
     Match.exhaustive
   );
 
@@ -231,6 +230,24 @@ const filterBindings = (
       (A.isReadonlyArrayEmpty(surfaces) || A.contains(surfaces, candidate.surface))
   );
 
+const absentModelProblem = (
+  binding: ModelBinding,
+  reference: LocatorBinding,
+  answered: ReadonlyArray<CatalogSource>
+): O.Option<DriftKind> => {
+  // Junie has no catalog overlay; only an answering catalog for this surface
+  // supplies evidence that an absent id is unknown.
+  const catalogAnswered =
+    binding.surface !== "junie-cli" &&
+    (A.contains(answered, "router-for-me") ||
+      O.exists(surfaceOverlay(binding.surface), (source) => A.contains(answered, source)));
+  if (catalogAnswered) return O.some<DriftKind>("unknown-model");
+  const invalidEffort = O.exists(binding.effort, (effort) => !isEffortAllowedOnSurface(binding.surface, effort));
+  return invalidEffort || (reference.field !== "model" && O.isNone(binding.effort))
+    ? O.some<DriftKind>("invalid-effort")
+    : O.none<DriftKind>();
+};
+
 const bindingProblem = (
   binding: ModelBinding,
   reference: LocatorBinding,
@@ -238,12 +255,7 @@ const bindingProblem = (
   answered: ReadonlyArray<CatalogSource>
 ): O.Option<DriftKind> => {
   const model = HashMap.get(models, binding.modelId);
-  if (O.isNone(model)) {
-    // Every layer being absent is "no catalog", not a retirement; an id absent
-    // from a catalog that *did* answer is the only retirement signal upstream
-    // gives, because removals are hard deletes.
-    return A.isReadonlyArrayEmpty(answered) ? O.none<DriftKind>() : O.some<DriftKind>("unknown-model");
-  }
+  if (O.isNone(model)) return absentModelProblem(binding, reference, answered);
 
   const overlayAnswered = O.exists(surfaceOverlay(binding.surface), (source) => A.contains(answered, source));
   if (overlayAnswered && !availableOnSurface(model.value, binding.surface)) {
@@ -254,7 +266,7 @@ const bindingProblem = (
     Match.whenOr("codex-cli", "codex-plugin", "jetbrains-codex", () => model.value.codexLevels),
     Match.when("grok-cli", () => model.value.grokLevels),
     Match.when("proxy-workflow", () => model.value.upstreamLevels),
-    Match.whenOr("claude-code", "cursor-seat", () => []),
+    Match.whenOr("claude-code", "cursor-seat", "junie-cli", () => []),
     Match.exhaustive
   );
   const effortInvalid = O.exists(

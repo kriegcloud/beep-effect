@@ -375,18 +375,19 @@ export type WipoSt13OfficeCode = typeof WipoSt13OfficeCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class UsptoCitingApplication extends S.Class<UsptoCitingApplication>($I`UsptoCitingApplication`)(
-  {
+export class UsptoCitingApplication extends S.Opaque<UsptoCitingApplication, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationNumber: UsptoNormalizedApplicationNumber.annotateKey({
       description: "Normalized eight-digit USPTO application number for the citing filing.",
     }),
     kind: S.tag("UsptoNormalized").annotateKey({
       description: "Citing-application discriminator for the USPTO normalized representation.",
     }),
-  },
-  $I.annote("UsptoCitingApplication", {
-    description: "Citing application identified by a normalized eight-digit USPTO application number.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoCitingApplication", {
+      description: "Citing application identified by a normalized eight-digit USPTO application number.",
+    })
+  )
 ) {}
 
 /**
@@ -407,8 +408,8 @@ export class UsptoCitingApplication extends S.Class<UsptoCitingApplication>($I`U
  * @category models
  * @since 0.0.0
  */
-export class WipoCitingApplication extends S.Class<WipoCitingApplication>($I`WipoCitingApplication`)(
-  {
+export class WipoCitingApplication extends S.Opaque<WipoCitingApplication, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationNumber: ApplicationNumber.annotateKey({
       description: "Canonical WIPO ST.13 application number for the citing filing.",
     }),
@@ -418,10 +419,11 @@ export class WipoCitingApplication extends S.Class<WipoCitingApplication>($I`Wip
     kind: S.tag("WipoSt13").annotateKey({
       description: "Citing-application discriminator for the WIPO ST.13 representation.",
     }),
-  },
-  $I.annote("WipoCitingApplication", {
-    description: "Citing application identified by a canonical WIPO ST.13 patent application number.",
-  })
+  }).pipe(
+    $I.annoteSchema("WipoCitingApplication", {
+      description: "Citing application identified by a canonical WIPO ST.13 patent application number.",
+    })
+  )
 ) {}
 
 /**

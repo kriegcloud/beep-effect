@@ -32,7 +32,7 @@ const capturedAnnotationsLayer = (): Layer.Layer<CapturedAnnotations> => {
   return Layer.merge(Layer.succeed(CapturedAnnotations, annotations), Logger.layer([logger]));
 };
 
-class TestPhaseError extends S.TaggedError<TestPhaseError>()("TestPhaseError", {
+class TestPhaseError extends S.TaggedError<TestPhaseError, { readonly brand: unique symbol }>()("TestPhaseError", {
   message: S.String,
 }) {}
 

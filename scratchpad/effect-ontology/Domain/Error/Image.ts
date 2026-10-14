@@ -38,7 +38,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Error/Image");
  * @category errors
  * @since 0.0.0
  */
-export class ImageFetchError extends S.TaggedError<ImageFetchError>($I`ImageFetchError`)(
+export class ImageFetchError extends S.TaggedError<ImageFetchError, { readonly brand: unique symbol }>($I`ImageFetchError`)(
   "ImageFetchError",
   {
     message: ErrorMessage.annotateKey({
@@ -93,7 +93,7 @@ const ImageTimeoutErrorFields = {
  * @category errors
  * @since 0.0.0
  */
-export class ImageTimeoutError extends S.TaggedError<ImageTimeoutError>($I`ImageTimeoutError`)(
+export class ImageTimeoutError extends S.TaggedError<ImageTimeoutError, { readonly brand: unique symbol }>($I`ImageTimeoutError`)(
   "ImageTimeoutError",
   ImageTimeoutErrorFields,
   {
@@ -151,7 +151,7 @@ export class ImageTimeoutError extends S.TaggedError<ImageTimeoutError>($I`Image
  * @category errors
  * @since 0.0.0
  */
-export class ImageTooLargeError extends S.TaggedError<ImageTooLargeError>($I`ImageTooLargeError`)(
+export class ImageTooLargeError extends S.TaggedError<ImageTooLargeError, { readonly brand: unique symbol }>($I`ImageTooLargeError`)(
   "ImageTooLargeError",
   {
     url: URLStr.annotateKey({
@@ -196,7 +196,7 @@ export class ImageTooLargeError extends S.TaggedError<ImageTooLargeError>($I`Ima
  * @category errors
  * @since 0.0.0
  */
-export class ImageInvalidTypeError extends S.TaggedError<ImageInvalidTypeError>($I`ImageInvalidTypeError`)(
+export class ImageInvalidTypeError extends S.TaggedError<ImageInvalidTypeError, { readonly brand: unique symbol }>($I`ImageInvalidTypeError`)(
   "ImageInvalidTypeError",
   {
     url: URLStr.annotateKey({

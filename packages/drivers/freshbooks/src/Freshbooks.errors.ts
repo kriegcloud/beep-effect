@@ -119,7 +119,9 @@ export type FreshbooksErrorReason = typeof FreshbooksErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class FreshbooksError extends S.TaggedError<FreshbooksError>($I`FreshbooksError`)(
+export class FreshbooksError extends S.TaggedError<FreshbooksError, { readonly brand: unique symbol }>(
+  $I`FreshbooksError`
+)(
   "FreshbooksError",
   {
     cause: S.optionalKey(S.String).annotateKey({

@@ -27,16 +27,18 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { runCapturedStreams } from "../../internal/process/StepExec.ts";
+import { diffLines, sameDiffLine } from "./internal/DiffLines.ts";
 import { SkillsCommandError } from "./Skills.errors.ts";
 import type * as Crypto from "effect/Crypto";
 import type { ChildProcessSpawner } from "effect/process";
+import type { DiffLine } from "./internal/DiffLines.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.patches");
 
 const UNIFIED_CONTEXT = 3;
+const MAX_LCS_CELLS = 4_000_000;
 const NO_NEWLINE_MARKER = "\\ No newline at end of file";
 
-type DiffLine = { readonly text: string; readonly eol: boolean };
 type DiffOpKind = "equal" | "delete" | "insert";
 type DiffOp = {
   readonly kind: DiffOpKind;
@@ -46,20 +48,6 @@ type DiffOp = {
 };
 type HunkSpan = { readonly from: number; to: number };
 
-const diffLines = (content: string): ReadonlyArray<DiffLine> => {
-  if (Str.isEmpty(content)) {
-    return A.empty<DiffLine>();
-  }
-  const terminated = Str.endsWith("\n")(content);
-  const parts = Str.split(content, "\n");
-  const lines = terminated ? A.dropRight(parts, 1) : parts;
-  const lastIndex = A.length(lines) - 1;
-  return A.map(lines, (text, index) => ({ text, eol: terminated || index < lastIndex }));
-};
-
-const sameLine = (left: DiffLine, right: DiffLine): boolean =>
-  Str.Equivalence(left.text, right.text) && left.eol === right.eol;
-
 const cell = (table: Uint32Array, index: number): number => table[index] ?? 0;
 
 // Longest-common-subsequence lengths of every suffix pair, row-major with width |after| + 1.
@@ -68,13 +56,16 @@ const lcsTable = (before: ReadonlyArray<DiffLine>, after: ReadonlyArray<DiffLine
   const table = new Uint32Array((A.length(before) + 1) * width);
   for (let i = A.length(before) - 1; i >= 0; i--) {
     for (let j = A.length(after) - 1; j >= 0; j--) {
-      table[i * width + j] = sameLine(A.getUnsafe(before, i), A.getUnsafe(after, j))
+      table[i * width + j] = sameDiffLine(A.getUnsafe(before, i), A.getUnsafe(after, j))
         ? cell(table, (i + 1) * width + j + 1) + 1
         : Math.max(cell(table, (i + 1) * width + j), cell(table, i * width + j + 1));
     }
   }
   return table;
 };
+
+const boundedLcsTable = (before: ReadonlyArray<DiffLine>, after: ReadonlyArray<DiffLine>): Uint32Array | undefined =>
+  (A.length(before) + 1) * (A.length(after) + 1) <= MAX_LCS_CELLS ? lcsTable(before, after) : undefined;
 
 // Deletions win ties, so a changed block renders its `-` lines before its `+` lines, as Git does.
 const nextOpKind = (
@@ -90,20 +81,74 @@ const nextOpKind = (
   if (j >= A.length(after)) {
     return "delete";
   }
-  if (sameLine(A.getUnsafe(before, i), A.getUnsafe(after, j))) {
+  if (sameDiffLine(A.getUnsafe(before, i), A.getUnsafe(after, j))) {
     return "equal";
   }
   const width = A.length(after) + 1;
   return cell(table, (i + 1) * width + j) >= cell(table, i * width + j + 1) ? "delete" : "insert";
 };
 
+const commonPrefixLength = (before: ReadonlyArray<DiffLine>, after: ReadonlyArray<DiffLine>): number => {
+  let prefix = 0;
+  while (
+    prefix < A.length(before) &&
+    prefix < A.length(after) &&
+    sameDiffLine(A.getUnsafe(before, prefix), A.getUnsafe(after, prefix))
+  ) {
+    prefix++;
+  }
+  return prefix;
+};
+
+const commonSuffixLength = (
+  before: ReadonlyArray<DiffLine>,
+  after: ReadonlyArray<DiffLine>,
+  prefix: number
+): number => {
+  let suffix = 0;
+  while (
+    suffix < A.length(before) - prefix &&
+    suffix < A.length(after) - prefix &&
+    sameDiffLine(A.getUnsafe(before, A.length(before) - suffix - 1), A.getUnsafe(after, A.length(after) - suffix - 1))
+  ) {
+    suffix++;
+  }
+  return suffix;
+};
+
+const scriptKind = (
+  before: ReadonlyArray<DiffLine>,
+  after: ReadonlyArray<DiffLine>,
+  changedBefore: ReadonlyArray<DiffLine>,
+  changedAfter: ReadonlyArray<DiffLine>,
+  table: Uint32Array | undefined,
+  prefix: number,
+  suffix: number,
+  i: number,
+  j: number
+): DiffOpKind => {
+  if (i < prefix || (i >= A.length(before) - suffix && j >= A.length(after) - suffix)) {
+    return "equal";
+  }
+  if (table === undefined) {
+    return i < A.length(before) - suffix ? "delete" : "insert";
+  }
+  return nextOpKind(changedBefore, changedAfter, table, i - prefix, j - prefix);
+};
+
 const editScript = (before: ReadonlyArray<DiffLine>, after: ReadonlyArray<DiffLine>): ReadonlyArray<DiffOp> => {
-  const table = lcsTable(before, after);
+  // A large changed region gets a valid whole-region replacement instead of a
+  // quadratic LCS table. Equal prefixes and suffixes still retain their context.
+  const prefix = commonPrefixLength(before, after);
+  const suffix = commonSuffixLength(before, after, prefix);
+  const changedBefore = A.take(A.drop(before, prefix), A.length(before) - prefix - suffix);
+  const changedAfter = A.take(A.drop(after, prefix), A.length(after) - prefix - suffix);
+  const table = boundedLcsTable(changedBefore, changedAfter);
   const ops: Array<DiffOp> = [];
   let i = 0;
   let j = 0;
   while (i < A.length(before) || j < A.length(after)) {
-    const kind = nextOpKind(before, after, table, i, j);
+    const kind = scriptKind(before, after, changedBefore, changedAfter, table, prefix, suffix, i, j);
     const line = kind === "insert" ? A.getUnsafe(after, j) : A.getUnsafe(before, i);
     ops.push({ kind, line, oldBefore: i, newBefore: j });
     i += kind === "insert" ? 0 : 1;

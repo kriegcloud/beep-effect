@@ -14,3 +14,7 @@ this review records the existing posture against the new docs configuration byte
 `research/cache-audit.log` identifies 148 changed computations and turbo.json source drift.
 This request covers only subjects owning those computations plus the root configuration.
 Reversal: restore the previous docs Turbo inputs and generate a reviewed reverse baseline.
+
+## Main merge refresh (2026-10-14)
+
+Preserve main scope, profile, epoch and all existing subjects. Added subjects from main: @beep/api-docs, @beep/ciops, @beep/lejeune-bolt-workbench, @beep/practice-claude-mod, @beep/scratchpad, @beep/semantica, @beep/t3-code, @beep/trustgraph-workbench. Both native deprecated-API and docs configs remain keyed. Knip retirement follows main. Reverse by restoring the pre-merge request and baseline together.

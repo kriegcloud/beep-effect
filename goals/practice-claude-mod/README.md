@@ -1,0 +1,45 @@
+# Practice Claude Code Mod
+
+## Status
+
+Lifecycle: `active`
+
+Source: [`ops/manifest.json`](./ops/manifest.json)
+
+## Mission
+
+Ship one Claude Code plugin from apps/practice-claude-mod that gives the attorney's sessions plain-language practice-kg tool rows, Right/Wrong verdict capture, a current-matter band with a visible timer, and five ported firm skills, tested on the operator machine and delivered to the attorney's PC by directory marketplace.
+
+## Launch
+
+Use this command for execution-capable sessions:
+
+```text
+/goal follow the instructions in goals/practice-claude-mod/GOAL.md
+```
+
+`GOAL.md` is the compact launcher. `SPEC.md` remains the normative contract.
+
+## Read This First
+
+1. [`GOAL.md`](./GOAL.md) - compact `/goal` launcher.
+2. [`SPEC.md`](./SPEC.md) - normative source of truth.
+3. [`PLAN.md`](./PLAN.md) - active execution plan.
+4. [`ops/manifest.json`](./ops/manifest.json) - machine-readable routing.
+5. [`research/SOURCES.md`](./research/SOURCES.md) - provenance; the exploration ledger is primary.
+6. [`history/`](./history/) - evidence and closeouts, if present.
+
+## Current Phase
+
+P1 Implement. The first slice (plain-language rows + verdict capture) is installed on the attorney's PC. The matter band and explicit timer are implemented locally, with 22 unit tests and 13 engine tests including terminal/desktop band checks. The changes remain uncommitted. The five firm skills are now ported with Apache-2.0 attribution and included by the plugin build. Next: validate and load the combined matter/timer and skills build on the operator machine.
+
+## Latest Evidence
+
+- [`history/2026-10-14-engine-contract.md`](./history/2026-10-14-engine-contract.md)
+- [`history/2026-10-14-operator-machine-proof.md`](./history/2026-10-14-operator-machine-proof.md)
+
+## Notes
+
+- Shaped in `explorations/claude-mods-law-practice` (BRIEF, DECISIONS D1–D12, MAP).
+- An Effect + Schema bundle was proven to load and run in the mod engine (exploration RESEARCH, 2026-10-14 spike).
+- Gated follow-on: `practice-claude-mod-time-entries`, after law-time-capture-spine P0.

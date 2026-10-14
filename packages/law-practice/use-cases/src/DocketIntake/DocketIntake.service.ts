@@ -25,6 +25,7 @@ import {
   docketReminderLadder,
   resolveDocketDueDate,
 } from "@beep/law-practice-domain/values/DocketDeadline";
+import { LiteralKit } from "@beep/schema";
 import {
   addDays,
   isAfter,
@@ -39,7 +40,7 @@ import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
-import { pipe } from "effect/Function";
+import { identity, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
@@ -69,10 +70,12 @@ import {
   DocketNeedsReviewReason,
   DocketReviewProgress,
   DocketSourceFolder,
+  DocketWrittenEntry,
   IntakeFailed,
   MatterLookupResult,
   NotDocketItem,
   ParalegalEntry,
+  SecretaryReview,
   TrackedDateType,
 } from "./DocketIntake.schemas.ts";
 import {
@@ -111,10 +114,8 @@ import type {
   DocketEntryKind,
   DocketMessage,
   DocketSourceDocument,
-  DocketWrittenEntry,
   ParalegalDocketEntry,
   ReviewRound,
-  SecretaryReview,
   TrackedDate,
 } from "./DocketIntake.schemas.ts";
 import type {
@@ -149,8 +150,8 @@ const docketIntakeConfigReviewDefault = DocketReviewConfig.make({});
  * @category models
  * @since 0.0.0
  */
-export class DocketIntakeConfig extends S.Class<DocketIntakeConfig>($I`DocketIntakeConfig`)(
-  {
+export class DocketIntakeConfig extends S.Opaque<DocketIntakeConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     mailbox: S.NonEmptyString.annotateKey({
       description: "Mailbox identity; part of every idempotency key and never logged.",
     }),
@@ -172,8 +173,7 @@ export class DocketIntakeConfig extends S.Class<DocketIntakeConfig>($I`DocketInt
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
     ).annotateKey({ description: "Whether agent 2 also reviews messages agent 1 found nothing to docket in." }),
-  },
-  $I.annote("DocketIntakeConfig", { description: "Settings of the docket intake pipeline." })
+  }).pipe($I.annoteSchema("DocketIntakeConfig", { description: "Settings of the docket intake pipeline." }))
 ) {}
 
 const PositiveMessageCount = S.Int.check(S.isGreaterThan(0));
@@ -201,13 +201,12 @@ const PositiveMessageCount = S.Int.check(S.isGreaterThan(0));
  * @category models
  * @since 0.0.0
  */
-export class DocketPollOptions extends S.Class<DocketPollOptions>($I`DocketPollOptions`)(
-  {
+export class DocketPollOptions extends S.Opaque<DocketPollOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxMessages: S.OptionFromOptionalKey(PositiveMessageCount)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Most pending messages one cycle processes, oldest first; all when absent." }),
-  },
-  $I.annote("DocketPollOptions", { description: "Options of one docket intake poll cycle." })
+  }).pipe($I.annoteSchema("DocketPollOptions", { description: "Options of one docket intake poll cycle." }))
 ) {}
 
 const unboundedPoll = DocketPollOptions.make({});
@@ -227,16 +226,15 @@ const unboundedPoll = DocketPollOptions.make({});
  * @category models
  * @since 0.0.0
  */
-export class DocketPollReport extends S.Class<DocketPollReport>($I`DocketPollReport`)(
-  {
+export class DocketPollReport extends S.Opaque<DocketPollReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     entered: S.Natural.annotateKey({ description: "Messages that got a dated entry this cycle." }),
     failed: S.Natural.annotateKey({ description: "Messages that failed this cycle and will be retried." }),
     needsReview: S.Natural.annotateKey({ description: "Messages that got a needs-review entry this cycle." }),
     notDocket: S.Natural.annotateKey({ description: "Messages found to need no entry this cycle." }),
     processed: S.Natural.annotateKey({ description: "Messages processed this cycle." }),
     seen: S.Natural.annotateKey({ description: "Messages the mailbox returned for the poll window." }),
-  },
-  $I.annote("DocketPollReport", { description: "Counts of one docket intake poll cycle." })
+  }).pipe($I.annoteSchema("DocketPollReport", { description: "Counts of one docket intake poll cycle." }))
 ) {}
 
 /**
@@ -255,8 +253,8 @@ export class DocketPollReport extends S.Class<DocketPollReport>($I`DocketPollRep
  * @category models
  * @since 0.0.0
  */
-export class DocketDigest extends S.Class<DocketDigest>($I`DocketDigest`)(
-  {
+export class DocketDigest extends S.Opaque<DocketDigest, { readonly brand: unique symbol }>()(
+  S.Struct({
     bodyText: S.String.annotateKey({ description: "Digest text: dates, flags and links, no message content." }),
     day: LocalDateFromString.annotateKey({ description: "The day the digest covers." }),
     entered: S.Natural.annotateKey({ description: "Dated entries created that day." }),
@@ -266,8 +264,7 @@ export class DocketDigest extends S.Class<DocketDigest>($I`DocketDigest`)(
     written: S.Option(S.NonEmptyString).annotateKey({
       description: "Event id of the digest entry, when one was written.",
     }),
-  },
-  $I.annote("DocketDigest", { description: "The docket intake digest of one day." })
+  }).pipe($I.annoteSchema("DocketDigest", { description: "The docket intake digest of one day." }))
 ) {}
 
 /**
@@ -335,8 +332,7 @@ type Ports = {
 const textEncoder = new TextEncoder();
 const KEY_HEX_LENGTH = 40;
 
-// One key per (mailbox, message, kind, rung). The date is deliberately not part of it:
-// a message that is re-read with a different date must not produce a second entry.
+// Dated entries share a thread/date identity; messages without a thread retain their identity.
 const entryKey = Effect.fnUntraced(function* (
   ports: Ports,
   identity: string,
@@ -351,6 +347,19 @@ const entryKey = Effect.fnUntraced(function* (
 
 const messageIdentity = (message: DocketMessage): string =>
   O.getOrElse(message.internetMessageId, () => message.messageId);
+
+const datedIdentity = (message: DocketMessage, date: LocalDate): string =>
+  O.getOrElse(
+    O.map(message.conversationId, (thread) => `thread:${thread}:${iso(date)}`),
+    () => messageIdentity(message)
+  );
+
+const NeedsReviewPlacement = LiteralKit(["resolved", "fallback", "past-due"]).pipe(
+  $I.annoteSchema("NeedsReviewPlacement", {
+    description: "Whether review placement names a real date or a visibility fallback.",
+  })
+);
+type NeedsReviewPlacement = typeof NeedsReviewPlacement.Type;
 
 const ensureEntry = Effect.fnUntraced(function* (
   ports: Ports,
@@ -615,6 +624,10 @@ const FLAGGED_INTRO =
 // What the attorney sees first: the subject prefix and the opening line say why the entry exists.
 const reasonText: (reason: DocketNeedsReviewReason) => ReasonText = DocketNeedsReviewReason.$match({
   "agents-disagree": () => UNDATED,
+  "due-date-past": () => ({
+    intro: "The resolved due date has passed. Please review the message.",
+    prefix: "[NEEDS REVIEW]",
+  }),
   "deterministic-failure": (): ReasonText => ({ intro: FLAGGED_INTRO, prefix: "[CHECK FAILED]" }),
   "flagged-low-confidence": (): ReasonText => ({ intro: FLAGGED_INTRO, prefix: "[LOW CONFIDENCE]" }),
   "flagged-max-rounds": (): ReasonText => ({ intro: FLAGGED_INTRO, prefix: "[REVIEW LIMIT REACHED]" }),
@@ -622,12 +635,59 @@ const reasonText: (reason: DocketNeedsReviewReason) => ReasonText = DocketNeedsR
   "processing-failed": () => UNDATED,
 });
 
+// Where a needs-review entry goes and how it is labelled, by placement. A resolved date that has
+// already passed is moved to today (D-48); a fallback date is labelled as not a due date (D-49).
+type NeedsReviewPlaced = {
+  readonly date: LocalDate;
+  readonly identity: string;
+  readonly lines: ReadonlyArray<string>;
+  readonly prefix: (reasonPrefix: string) => string;
+  readonly reason: DocketNeedsReviewReason;
+};
+
+const placeNeedsReview = (
+  message: DocketMessage,
+  today: LocalDate,
+  sourceDate: LocalDate,
+  reason: DocketNeedsReviewReason
+): ((placement: NeedsReviewPlacement) => NeedsReviewPlaced) =>
+  NeedsReviewPlacement.$match({
+    fallback: (): NeedsReviewPlaced => ({
+      date: sourceDate,
+      identity: messageIdentity(message),
+      lines: [`This is not a due date. It is placed on ${iso(sourceDate)} so you see it soon after the email arrived.`],
+      prefix: (reasonPrefix) => `[NO DUE DATE FOUND] ${reasonPrefix}`,
+      reason,
+    }),
+    "past-due": (): NeedsReviewPlaced => ({
+      date: today,
+      identity: datedIdentity(message, sourceDate),
+      lines: [
+        `Past due date: ${iso(sourceDate)}. Placed on ${iso(today)} for review.`,
+        ...A.map(
+          A.filter([reason], (original) => original !== "due-date-past"),
+          (original) => `Review result: ${original}`
+        ),
+      ],
+      prefix: () => `[PAST DUE ${iso(sourceDate)}]`,
+      reason: "due-date-past",
+    }),
+    resolved: (): NeedsReviewPlaced => ({
+      date: sourceDate,
+      identity: datedIdentity(message, sourceDate),
+      lines: [],
+      prefix: identity,
+      reason,
+    }),
+  });
+
 const writeNeedsReview = Effect.fnUntraced(function* (
   ports: Ports,
   message: DocketMessage,
   today: LocalDate,
   input: {
     readonly date: O.Option<LocalDate>;
+    readonly placement: NeedsReviewPlacement;
     readonly flags: ReadonlyArray<DocketEntryFlag>;
     readonly lines: ReadonlyArray<string>;
     readonly reason: DocketNeedsReviewReason;
@@ -635,25 +695,37 @@ const writeNeedsReview = Effect.fnUntraced(function* (
     readonly title: string;
   }
 ): Effect.fn.Return<DocketIntakeOutcome, DocketIntakeError> {
-  const key = yield* entryKey(ports, messageIdentity(message), "needs-review", "0");
-  const flags = A.appendAll(input.flags, folderFlags(message.sourceFolder));
-  const text = reasonText(input.reason);
+  const sourceDate = O.getOrElse(input.date, () => needsReviewDate(message, today));
+  const placement =
+    input.placement === "resolved" && isBefore(sourceDate, today)
+      ? NeedsReviewPlacement.Enum["past-due"]
+      : input.placement;
+  const placed = placeNeedsReview(message, today, sourceDate, input.reason)(placement);
+  const reason = placed.reason;
+  const key = yield* entryKey(ports, placed.identity, "needs-review", "0");
+  const flags = A.dedupe([
+    ...input.flags,
+    ...folderFlags(message.sourceFolder),
+    ...whenFlag(placement === "past-due", "due-date-past"),
+  ]);
+  const text = reasonText(reason);
   const entry = yield* ensureEntry(
     ports,
     DocketCalendarEntry.make({
       bodyText: bodyOf([
         text.intro,
-        `Reason: ${input.reason}`,
+        `Reason: ${reason}`,
+        ...placed.lines,
         ...input.lines,
         flagsLine(flags),
         ...folderLines(message.sourceFolder),
         sourceLine(message),
       ]),
       category: "Docket - needs review",
-      date: O.getOrElse(input.date, () => needsReviewDate(message, today)),
+      date: placed.date,
       key,
       kind: "needs-review",
-      subject: S.NonEmptyString.make(`${text.prefix} ${input.title}`),
+      subject: S.NonEmptyString.make(`${placed.prefix(text.prefix)} ${input.title}`),
       tentative: true,
     })
   );
@@ -662,7 +734,7 @@ const writeNeedsReview = Effect.fnUntraced(function* (
     entry,
     flags,
     messageId: message.messageId,
-    reason: input.reason,
+    reason,
     review: input.review,
   });
 });
@@ -674,7 +746,7 @@ const reminderEntry = Effect.fnUntraced(function* (
   dueDate: LocalDate,
   rung: DocketReminderRung
 ): Effect.fn.Return<DocketWrittenEntry, DocketIntakeError> {
-  const key = yield* entryKey(ports, messageIdentity(message), "reminder", `${rung.daysBefore}`);
+  const key = yield* entryKey(ports, datedIdentity(message, dueDate), "reminder", `${rung.daysBefore}`);
   return yield* ensureEntry(
     ports,
     DocketCalendarEntry.make({
@@ -744,6 +816,7 @@ const enterDocketItem = Effect.fnUntraced(function* (
     const placed = placeWithSheet(needsReviewDate(message, today), tracked);
     return yield* writeNeedsReview(ports, message, today, {
       date: O.some(placed.date),
+      placement: O.exists(tracked.row, (row) => sameDate(row.date, placed.date)) ? "resolved" : "fallback",
       flags: [
         ...placed.flags,
         ...matterFlags(matter),
@@ -758,6 +831,22 @@ const enterDocketItem = Effect.fnUntraced(function* (
   }
 
   const placed = placeWithSheet(resolved.value.date, tracked);
+  if (isBefore(placed.date, today)) {
+    return yield* writeNeedsReview(ports, message, today, {
+      date: O.some(placed.date),
+      placement: "past-due",
+      flags: [
+        ...whenFlag(docketDatesDiffer(resolved.value), "dates-differ"),
+        ...placed.flags,
+        ...matterFlags(matter),
+        ...missingSource,
+      ],
+      lines: [...dateLines(entry, review), ...placed.lines, matterLine(matter), ...noteLines(entry, review)],
+      reason: "due-date-past",
+      review: O.some(verdict),
+      title: entry.title,
+    });
+  }
   const movedBySheet = !sameDate(placed.date, resolved.value.date);
   const dueDate = DocketDueDate.make({
     basis: resolved.value.basis,
@@ -775,7 +864,7 @@ const enterDocketItem = Effect.fnUntraced(function* (
     ...whenFlag(isBefore(dueDate.date, today), "due-date-past"),
     ...folderFlags(message.sourceFolder),
   ]);
-  const key = yield* entryKey(ports, messageIdentity(message), "due", "0");
+  const key = yield* entryKey(ports, datedIdentity(message, dueDate.date), "due", "0");
   const written = yield* ensureEntry(
     ports,
     DocketCalendarEntry.make({
@@ -839,6 +928,7 @@ const escalateDisagreement = (
 ): Effect.Effect<DocketIntakeOutcome, DocketIntakeError> =>
   writeNeedsReview(ports, message, today, {
     date: O.none(),
+    placement: "fallback",
     flags: [],
     lines: [
       `Paralegal: ${verdictText(isDocketEntry(round.entry))} (${round.entry.rationale})`,
@@ -924,7 +1014,7 @@ const nextRound = Effect.fnUntraced(function* (
   const disputes = reviewDisputes(previous);
   const revision = yield* ports.paralegal.revise({ disputes, message, previous: previous.entry });
   const reading = yield* A.match(rereadFields(disputes), {
-    onEmpty: () => Effect.succeed(previous.reading),
+    onEmpty: () => Effect.succeed(SecretaryReview.make(previous.reading)),
     onNonEmpty: (fields) =>
       ports.secretary
         .reread({
@@ -1002,7 +1092,7 @@ type ReviewEnd = O.Option<ReviewTerminalStatus>;
 
 const reviewEnd = (config: DocketReviewConfig, rounds: A.NonEmptyReadonlyArray<ReviewRound>): O.Option<ReviewEnd> => {
   const round = A.lastNonEmpty(rounds);
-  return bothDismiss(round.entry, round.reading)
+  return bothDismiss(round.entry, SecretaryReview.make(round.reading))
     ? O.some(O.none())
     : O.map(
         terminalStatus(
@@ -1050,8 +1140,8 @@ const writeFlagged = Effect.fnUntraced(function* (
 ): Effect.fn.Return<DocketIntakeOutcome, DocketIntakeError> {
   const { message, ports, today } = context;
   const { entry, reading } = round;
-  const candidates = [...A.fromOption(extractorDueDate(entry)), ...criticDates(reading)];
-  const references = matterReferences(entry, reading);
+  const candidates = [...A.fromOption(extractorDueDate(entry)), ...criticDates(SecretaryReview.make(reading))];
+  const references = matterReferences(entry, SecretaryReview.make(reading));
   const matter = yield* lookupMatter(ports, references);
   const tracked = yield* checkTrackedDates(ports, message, matter, references);
   const placed = placeWithSheet(
@@ -1060,11 +1150,15 @@ const writeFlagged = Effect.fnUntraced(function* (
   );
   return yield* writeNeedsReview(ports, message, today, {
     date: O.some(placed.date),
+    placement:
+      A.isReadonlyArrayNonEmpty(candidates) || O.exists(tracked.row, (row) => sameDate(row.date, placed.date))
+        ? "resolved"
+        : "fallback",
     flags: [
       ...whenFlag(A.length(A.dedupeWith(candidates, sameDate)) > 1, "dates-differ"),
       ...placed.flags,
       ...matterFlags(matter),
-      ...sourceFlags(reading, A.isReadonlyArrayNonEmpty(context.documents)),
+      ...sourceFlags(SecretaryReview.make(reading), A.isReadonlyArrayNonEmpty(context.documents)),
       ...whenFlag(isBefore(placed.date, today), "due-date-past"),
     ],
     lines: [
@@ -1075,11 +1169,11 @@ const writeFlagged = Effect.fnUntraced(function* (
       ),
       "Open findings:",
       ...openLines(round),
-      ...dateLines(entry, reading),
+      ...dateLines(entry, SecretaryReview.make(reading)),
       ...placed.lines,
       NOMINAL_NOTE,
       matterLine(matter),
-      ...noteLines(entry, reading),
+      ...noteLines(entry, SecretaryReview.make(reading)),
     ],
     reason,
     review: O.some(verdict),
@@ -1096,7 +1190,7 @@ const settleAccepted = (
     ? enterDocketItem(context.ports, context.message, context.today, {
         entry: round.entry,
         hasDocuments: A.isReadonlyArrayNonEmpty(context.documents),
-        review: round.reading,
+        review: SecretaryReview.make(round.reading),
         verdict,
       })
     : escalateDisagreement(context.ports, context.message, context.today, round, verdict);
@@ -1233,6 +1327,7 @@ const settleExhausted = (
   isFailed(outcome) && attempts >= ports.config.maxAttempts && outcome.stage !== "calendar"
     ? writeNeedsReview(ports, message, today, {
         date: O.none(),
+        placement: "fallback",
         flags: [],
         lines: [`The message could not be processed automatically (stage: ${outcome.stage}, ${attempts} attempts).`],
         reason: "processing-failed",
@@ -1267,12 +1362,18 @@ const digestLine: (outcome: DocketIntakeOutcome) => O.Option<string> = DocketInt
   DocketEntered: (outcome) =>
     O.some(
       A.join(
-        [`- ${iso(outcome.dueDate.date)} tentative entry`, flagsLine(outcome.flags), entryReference(outcome.entry)],
+        [
+          `- ${iso(outcome.dueDate.date)} tentative entry`,
+          flagsLine(outcome.flags),
+          entryReference(DocketWrittenEntry.make(outcome.entry)),
+        ],
         " · "
       )
     ),
   DocketNeedsReview: (outcome) =>
-    O.some(A.join([`- NEEDS REVIEW (${outcome.reason})`, entryReference(outcome.entry)], " · ")),
+    O.some(
+      A.join([`- NEEDS REVIEW (${outcome.reason})`, entryReference(DocketWrittenEntry.make(outcome.entry))], " · ")
+    ),
   IntakeFailed: (outcome) => O.some(`- still failing at stage ${outcome.stage}; will be retried`),
   NotDocketItem: () => O.none(),
 });
