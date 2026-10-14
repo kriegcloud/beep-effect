@@ -436,3 +436,18 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
 - Action: route the exact diagnostic to the existing owner for an informative
   description. Preserve runtime code, coverage measurements and all baselines;
   a rerun cannot repair the source text.
+
+## 2026-10-14: moving main expands the consolidated coverage repair
+
+- Work: inspect the completed shared coverage comparator before integration.
+- Evidence: #1640 at `4c185d83ca` completes its tests and accepts the restored
+  Adopt coverage and four new identities. It then rejects existing floors for
+  the NLP MCP package, Knowledge command surfaces, and the IANA timezone target.
+  The shared lane already has another main integration and documentation
+  correction publishing while these numerical failures become visible.
+- Prevention: prioritize the consolidated unblocker before further feature
+  merges, and verify existing coverage floors in the owning feature's full
+  package measurement. Successful tests alone do not prove those floors.
+- Action: route the completed comparator diagnostics to the shared owner and
+  coordinator for source attribution and focused tests. Preserve every floor;
+  dependent lanes must not duplicate repairs or lower the failing rows.
