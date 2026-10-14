@@ -70,6 +70,10 @@ const shadeFlag = Flag.Boolean("shade").pipe(
   Flag.withDefault(false),
   Flag.withDescription("Add procedural 37 CFR 1.152 straight-line surface shading")
 );
+const allowPartOverlapsFlag = Flag.Boolean("allow-part-overlaps").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Render even when parts of the model interpenetrate (the default refuses)")
+);
 const pagesFlag = Flag.Int("pages").pipe(Flag.optional, Flag.withDescription("Expected page count"));
 const pdfArgument = Argument.File("pdf", { mustExist: true }).pipe(
   Argument.withDescription("Sheet-set PDF to validate")
@@ -169,6 +173,9 @@ export const renderManifestSummary = ({
 }): ReadonlyArray<string> => [
   `rendered "${manifest.title}": ${A.length(manifest.figures)} ${manifest.shaded ? "shaded" : "unshaded"} sheet(s) at ${manifest.scale} pt/unit → ${manifest.pdfFile}`,
   `sheet-set sha256 ${manifest.pdfSha256}`,
+  ...(manifest.model.partOverlaps > 0
+    ? [`warning: ${manifest.model.partOverlaps} pair(s) of parts overlap (rendered under --allow-part-overlaps)`]
+    : []),
   ...sheetSummary(manifest, requested),
   ...A.map(manifest.fonts, (pin) => `label font: ${pin.family} → ${pin.file} (sha256 ${pin.sha256})`),
   ...A.map(
@@ -205,6 +212,7 @@ const runRender = Effect.fn("DrawingsCommand.render")(function* (options: {
   readonly format: SheetFormat;
   readonly noValidate: boolean;
   readonly shade: boolean;
+  readonly allowPartOverlaps: boolean;
 }) {
   const figureSet = yield* FigureSet;
   const requested = SheetOptions.make({ format: options.format });
@@ -216,6 +224,7 @@ const runRender = Effect.fn("DrawingsCommand.render")(function* (options: {
         sheet: requested,
         validate: !options.noValidate,
         shade: options.shade,
+        allowPartOverlaps: options.allowPartOverlaps,
       })
     )
     .pipe(
@@ -243,7 +252,14 @@ const runValidate = Effect.fn("DrawingsCommand.validate")(function* (options: {
 
 const drawingsRenderCommand = Command.make(
   "render",
-  { spec: specFlag, out: outFlag, format: formatFlag, noValidate: noValidateFlag, shade: shadeFlag },
+  {
+    spec: specFlag,
+    out: outFlag,
+    format: formatFlag,
+    noValidate: noValidateFlag,
+    shade: shadeFlag,
+    allowPartOverlaps: allowPartOverlapsFlag,
+  },
   runRender
 ).pipe(
   Command.withDescription("Render a figure-set spec into 37 CFR 1.84 sheets and a PDF"),

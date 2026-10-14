@@ -19,6 +19,7 @@ import { HttpClient, HttpClientError, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
+import * as P from "effect/Predicate";
 import * as Ref from "effect/Ref";
 import * as TestConsole from "effect/testing/TestConsole";
 import { temporaryWorkingDirectory } from "./support/CommandTest.ts";
@@ -97,7 +98,12 @@ const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) 
     })
   );
 
-const makeSkillsClient = () =>
+const remoteGrillMeSkillWithVersion = remoteGrillMeSkill.replace(
+  "---\n\n# Grill Me",
+  "version: 1.0\n---\n\n# Grill Me"
+);
+
+const makeSkillsClient = (skillText: string = remoteGrillMeSkill) =>
   makeWebHandlerClient((request) =>
     Effect.runPromise(
       Effect.gen(function* () {
@@ -112,7 +118,7 @@ const makeSkillsClient = () =>
           request.url ===
           "https://raw.githubusercontent.com/mattpocock/skills/main/skills/productivity/grill-me/SKILL.md"
         ) {
-          return new Response(remoteGrillMeSkill, {
+          return new Response(skillText, {
             status: 200,
             headers: { "content-type": "text/markdown" },
           });
@@ -254,6 +260,62 @@ describe("skills command", () => {
         const currentDrift = yield* runSkillsUpdate({ mode: "check", skill: O.some("grill-me") });
         expect(currentDrift).toEqual([]);
       }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+    );
+  });
+
+  it.layer(CommandTestLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("fails on frontmatter outside the Agent Skills format and advises on oversized skill files", () =>
+      Effect.gen(function* () {
+        yield* temporaryRepository;
+        yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", remoteGrillMeSkill);
+        yield* writeProjectFile(
+          ".claude/skills/local-only/SKILL.md",
+          "---\nname: local-only\ndescription: Local test skill.\nversion: 0.1.0\n---\n\n# Local\n"
+        );
+        yield* writeProjectFile(
+          ".claude/skills/misnamed/SKILL.md",
+          "---\nname: other-name\ndescription: Misnamed test skill.\n---\n\n# Misnamed\n"
+        );
+        yield* writeProjectFile(
+          ".claude/skills/long-one/SKILL.md",
+          `---\nname: long-one\ndescription: Long test skill.\n---\n${"line\n".repeat(600)}`
+        );
+        yield* writeProjectFile(".codex/config.toml", "[skills]\n  include_instructions = true\n");
+
+        const error = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") }).pipe(Effect.flip);
+        const logs = A.filter(yield* TestConsole.logLines, P.isString);
+
+        expect(error._tag).toBe("SkillFrontmatterError");
+        assert(error._tag === "SkillFrontmatterError");
+        expect(A.map(error.issues, (issue) => issue.skill)).toEqual(["local-only", "misnamed"]);
+        expect(logs).toContain("skills:update: frontmatter issues (2)");
+        expect(A.some(logs, (line) => line.startsWith("- local-only:") && line.includes("version"))).toBe(true);
+        expect(A.some(logs, (line) => line.startsWith("- misnamed:") && line.includes("other-name"))).toBe(true);
+        expect(A.some(logs, (line) => line.includes("advisory long-one/SKILL.md has 604 lines"))).toBe(true);
+      }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+    );
+  });
+
+  it.layer(CommandTestLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("reports a non-spec key on an upstream mirror as an advisory instead of failing", () =>
+      Effect.gen(function* () {
+        yield* temporaryRepository;
+        yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", "old skill\n");
+        yield* writeProjectFile(".codex/config.toml", "[skills]\n  include_instructions = true\n");
+
+        const drift = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") });
+        const logs = A.filter(yield* TestConsole.logLines, P.isString);
+
+        expect(A.some(drift, (entry) => entry._tag === "RemoteSkillDrift")).toBe(true);
+        expect(yield* readProjectFile(".claude/skills/grill-me/SKILL.md")).toBe(remoteGrillMeSkillWithVersion);
+        expect(
+          A.some(
+            logs,
+            (line) => line.startsWith("skills:update: advisory upstream skill grill-me:") && line.includes("version")
+          )
+        ).toBe(true);
+        expect(A.some(logs, (line) => line.startsWith("skills:update: frontmatter issues"))).toBe(false);
+      }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient(remoteGrillMeSkillWithVersion)))
     );
   });
 
