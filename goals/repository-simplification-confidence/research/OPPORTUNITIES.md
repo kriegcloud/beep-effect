@@ -1960,3 +1960,12 @@ the downstream integration delay. No coverage floor or security rule is relaxed.
 - Retain our full 868.0s/27.1s and 293-test proof independently of that
   checkout's verification waiver. Shared publication ownership needs a
   source/head receipt; commit hashes alone do not authorize overwriting it.
+
+### 2026-10-14 — H2 merge during publisher preflight
+
+- Original #1574 merged while the report-only publisher was running its cheap
+  gates and isolated install. It opened redundant draft #1743 from the old
+  implementation branch. Observe merged state again before branch publication
+  and apply the standing fresh-follow-up rule. Preserve the prepared evidence
+  on a fresh main branch, cancel the owned redundant monitor to terminal, and
+  close the redundant draft after its replacement is concrete.

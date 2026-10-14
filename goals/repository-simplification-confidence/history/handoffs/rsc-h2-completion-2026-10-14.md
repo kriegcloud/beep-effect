@@ -2,14 +2,14 @@
 
 ```text
 lane: rsc-h2-completion
-head: 8c00bdb927 (qualified source; accepted publication c6e855d8b9; report-only delivery tip in final dispatch)   PR: #1574
+head: 8c00bdb9275e31e6eb9567e00ca703f05b310dc5 (qualified source; accepted publication c6e855d8b9; report-only delivery tip in final dispatch)   PR: #1574 merged; evidence follow-up in final dispatch
 package-verify @beep/repo-cli: pass (final repaired integration audit 868.0s/docgen 27.1s)
 hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=pass fallow=pass coverage=pass (293 tests; existing touched floors/ceilings met)
 doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
 advisories: #1429=unknown (draft-ready/window verified) #1462=unknown (window unsatisfied, seven seconds) #1427=unknown (draft-ready/window verified; merge-ready verdict unknown)
-post-merge refresh: pending merge; orchestrator owns three-packet refresh
+post-merge refresh: pending orchestrator action; #1574 merged at 2026-10-14T17:15:59Z
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h2-completion-2026-10-14.md
-open items: final-head hosted readiness/S11 gate and inherited main repairs; orchestrator merge, three-packet refresh, retirement; complete historical inventory/verdict provider remains tracked follow-up
+open items: evidence follow-up readiness/S11 gate; orchestrator three-packet refresh and retirement; complete historical inventory/verdict provider remains tracked follow-up
 
 ```
 
@@ -511,3 +511,26 @@ The prior bounded monitor is cancelled for the source wave, not counted
 ready. Final evidence publication and dispatch bind the actual report-only
 head, fresh thread read and a new bounded readiness result. H2 does not merge;
 post-merge three-packet refresh and retirement stay orchestrator-owned.
+
+## Original merge and evidence publication correction
+
+PR #1574 merged at 2026-10-14T17:15:59Z as
+`4ec5e74a89d3b15e66c63b63b7192ac2a31b2b10`, accepting
+`c6e855d8b97fa3a29ede6b4a92c34ab0865be93a`. All H2 source and test
+surfaces match the qualified source above. The external merge occurred during
+the report-only Yeet publication preflight; the publisher created redundant
+draft #1743 from the old implementation branch. Its owned automatic monitor
+was cancelled and reached terminal exit 3; no readiness pass is claimed.
+
+Following the standing merged-PR ruling, create
+`chore/rsc-h2-completion-followup` from `origin/main` (`730348fc1f`),
+cherry-pick only the five packet evidence files, and preserve main's other lane
+progress while resolving PLAN/README. Publish this evidence follow-up through
+Yeet, then close redundant #1743 after the replacement is concrete. The
+follow-up delivery SHA and PR are recorded in the final dispatch: a committed
+report cannot contain its own future commit SHA. Source qualification remains
+bound to the explicitly identified source, rather than claiming a new source
+proof for this documentation-only delivery. The three historical packet
+refreshes and lane retirement remain assigned to the orchestrator by the
+resume ruling. Reversal: close the evidence follow-up or revert its five
+documentation files; the merged implementation is unaffected.
