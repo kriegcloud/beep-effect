@@ -6,6 +6,13 @@
  */
 
 /**
+ * Report models for the Agent Skills frontmatter check.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./SkillFrontmatter.schemas.ts";
+/**
  * Command definitions for repo-local skills management.
  *
  * @category commands

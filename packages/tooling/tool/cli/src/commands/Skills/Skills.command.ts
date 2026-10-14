@@ -16,6 +16,7 @@ import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -26,7 +27,8 @@ import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
-import { SkillsCommandError, SkillsDriftError } from "./Skills.errors.ts";
+import { checkInstalledSkills } from "./internal/SkillFrontmatterCheck.ts";
+import { SkillFrontmatterError, SkillsCommandError, SkillsDriftError } from "./Skills.errors.ts";
 import {
   renderSkillProvenanceJson,
   renderSkillProvenanceSummary,
@@ -39,6 +41,7 @@ import {
   SkillProvenanceServiceLive,
   SkillUpstreamContentSourceLive,
 } from "./Skills.service.ts";
+import type { SkillFrontmatterReport } from "./SkillFrontmatter.schemas.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
 
 // cspell:ignore mattpocock Gebert
@@ -894,6 +897,32 @@ const printDriftReport = Effect.fn("Skills.printDriftReport")(function* (
   }
 });
 
+const frontmatterIssueLine = (skill: string, message: string): string =>
+  `- ${skill}: ${Str.replace(/\n\s*/g, " ")(message)}`;
+
+const printFrontmatterReport = Effect.fn("Skills.printFrontmatterReport")(function* (report: SkillFrontmatterReport) {
+  for (const advisory of report.advisories) {
+    yield* Console.log(
+      `skills:update: advisory ${advisory.skill}/SKILL.md has ${advisory.lines} lines; the Agent Skills format recommends at most ${advisory.limit}. Move detail into references/.`
+    );
+  }
+  for (const issue of report.upstreamIssues) {
+    yield* Console.log(
+      `skills:update: advisory upstream skill ${frontmatterIssueLine(issue.skill, issue.message).slice(2)}; fix it upstream or patch it through skills-lock, never by editing the mirror.`
+    );
+  }
+  if (report.issues.length === 0) {
+    return;
+  }
+  yield* Console.log(`skills:update: frontmatter issues (${report.issues.length})`);
+  for (const issue of report.issues) {
+    yield* Console.log(frontmatterIssueLine(issue.skill, issue.message));
+  }
+  yield* Console.log(
+    "Agent Skills frontmatter allows name, description, license, compatibility, metadata, and allowed-tools, plus Claude Code's native keys; put repo extras such as version and status under metadata."
+  );
+});
+
 const resolveMode = (check: boolean, dryRun: boolean): Effect.Effect<SkillsRunMode, SkillsCommandError> => {
   if (check && dryRun) {
     return Effect.fail(
@@ -994,9 +1023,10 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
   readonly skill: O.Option<string>;
 }): Effect.fn.Return<
   ReadonlyArray<SkillDrift>,
-  SkillsCommandError | SkillsDriftError,
+  SkillsCommandError | SkillsDriftError | SkillFrontmatterError,
   FileSystem.FileSystem | Path.Path | Crypto.Crypto | HttpClient.HttpClient
 > {
+  const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Failed to locate repository root."));
   const sources = yield* resolveSourcesToFetch(options.skill);
   const fetchedSnapshots = yield* Effect.forEach(sources, fetchRemoteSkillSnapshot, {
@@ -1008,12 +1038,22 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
     R.fromEntries
   );
   const remoteDrift = yield* evaluateRemoteSkillDrift(repoRoot, fetchedSnapshots, options.mode);
+  const frontmatterReport = yield* checkInstalledSkills(
+    path.join(repoRoot, CLAUDE_SKILLS_DIR),
+    yield* readInstalledSkillNames(repoRoot),
+    HashSet.fromIterable(A.map(remoteSkillSources, (source) => source.name))
+  );
   const lockDrift = yield* evaluateLockDrift(repoRoot, snapshotsByName, options.mode);
   const configDrift = yield* evaluateCodexConfigDrift(repoRoot, options.mode);
   const mirrorDrift = yield* evaluateAgentsMirrorDrift(repoRoot, options.mode);
   const drift = A.appendAll(remoteDrift, A.getSomes([lockDrift, configDrift, mirrorDrift]));
 
   yield* printDriftReport(options.mode, drift);
+  yield* printFrontmatterReport(frontmatterReport);
+
+  if (frontmatterReport.issues.length > 0) {
+    return yield* SkillFrontmatterError.new(frontmatterReport.issues);
+  }
 
   if (options.mode === "check" && drift.length > 0) {
     return yield* SkillsDriftError.new(drift.length, "Repo-local skills are stale.");
@@ -1033,6 +1073,10 @@ const skillsUpdateCommand = Command.make(
     const mode = yield* resolveMode(check, dryRun);
     yield* runSkillsUpdate({ mode, skill }).pipe(
       Effect.catchTags({
+        SkillFrontmatterError: Effect.fn(function* (error) {
+          yield* Console.error(`skills:update: ${error.message}`);
+          return yield* failWithReportedExit(`skills:update: ${error.message}`);
+        }),
         SkillsDriftError: Effect.fn(function* (error) {
           yield* Console.error(`skills:update: ${error.message}`);
           return yield* failWithReportedExit(`skills:update: ${error.message}`);

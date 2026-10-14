@@ -9,8 +9,9 @@ description: >
   until zero required findings. Use for any milestone that changes pointer
   gestures, layout, animation, or user-facing UI — jsdom green is not
   click-works green, and a post-gesture screenshot is not a mid-gesture proof.
-version: 0.3.0
-status: active
+metadata:
+  version: "0.3.0"
+  status: active
 ---
 
 # Browser QA Loop
