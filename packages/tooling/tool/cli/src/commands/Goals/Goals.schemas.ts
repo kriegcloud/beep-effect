@@ -459,6 +459,12 @@ export type GoalCheckConclusion = typeof GoalCheckConclusion.Type;
  * Current ruleset enumeration omits rulesets deleted since merge. Its inventory
  * is incomplete; absent completeness on older receipts also decodes to false.
  *
+ * **Details**
+ *
+ * Legacy snapshots used an all-or-nothing ruleset reader, so an omitted
+ * `rulesetReadsComplete` defaults to true. Missing inventory completeness
+ * still defaults to false; successful reads cannot prove deleted rulesets absent.
+ *
  * **Example** (Inspect required-check provenance)
  *
  * ```ts
@@ -475,6 +481,10 @@ export class GoalRequiredCheckSnapshot extends S.Class<GoalRequiredCheckSnapshot
     sources: S.Array(S.NonEmptyString),
     effectiveAt: S.DateTimeUtcFromString,
     inventoryComplete: S.Boolean.pipe(S.withDecodingDefaultKey(Effect.succeed(false))),
+    rulesetReadsComplete: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(true)),
+      S.withDecodingDefaultKey(Effect.succeed(true))
+    ),
   },
   $I.annote("GoalRequiredCheckSnapshot", {
     description: "Historical required-context list with source version references and merge-time applicability.",

@@ -38,6 +38,7 @@ const encode = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.g
 const HistoricalRulesetFailure = LiteralKit(["organization", "glob", "unreadable"]);
 const Scenario = S.Struct({
   partialRuleset: S.optionalKey(HistoricalRulesetFailure),
+  distinctSiblingRed: S.optionalKey(S.Boolean),
   failure: S.optionalKey(S.Boolean),
   merged: S.optionalKey(S.Boolean),
   postMergeRerun: S.optionalKey(S.Boolean),
@@ -99,6 +100,9 @@ const fixtureIo = (acceptedText: string, scenario: typeof Scenario.Type = {}) =>
               {
                 check_runs: [
                   check(1, "2026-10-06T00:10:00Z", scenario.red === true ? "failure" : "success"),
+                  ...(scenario.distinctSiblingRed === true
+                    ? [{ ...check(4, "2026-10-06T00:10:00Z", "failure"), name: "Security" }]
+                    : []),
                   ...(scenario.postMergeRerun === true
                     ? [{ ...check(2, "2026-10-06T02:00:00Z", "failure"), started_at: "2026-10-06T01:30:00Z" }]
                     : []),
@@ -146,7 +150,14 @@ const fixtureIo = (acceptedText: string, scenario: typeof Scenario.Type = {}) =>
                     type: "required_status_checks",
                     parameters: {
                       strict_required_status_checks_policy: false,
-                      required_status_checks: [{ context: "Lint" }],
+                      required_status_checks: [
+                        {
+                          context:
+                            scenario.distinctSiblingRed === true && Str.includes("/rulesets/43/")(endpoint)
+                              ? "Security"
+                              : "Lint",
+                        },
+                      ],
                     },
                   },
                 ],
@@ -172,7 +183,7 @@ const fixtureIo = (acceptedText: string, scenario: typeof Scenario.Type = {}) =>
             encode([
               [
                 { id: 42, source_type: "Repository", created_at: "2026-09-01T00:00:00Z" },
-                ...(scenario.partialRuleset === undefined
+                ...(scenario.partialRuleset === undefined && scenario.distinctSiblingRed !== true
                   ? []
                   : [
                       {
@@ -527,6 +538,47 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
             stale
           );
         })
+      );
+    })
+  );
+  it.effect("partial history cannot clear a red required only by the unreadable sibling", () =>
+    Effect.gen(function* () {
+      yield* temporaryWorkingDirectory;
+      const value = yield* manifest();
+      const stale = yield* observe({ distinctSiblingRed: true });
+      expect(stale.outcome).toBe("unsatisfied");
+      assertSome(
+        O.map(stale.requiredChecks, (snapshot) => snapshot.contexts),
+        ["Lint", "Security"]
+      );
+      assertSome(
+        O.map(stale.requiredChecks, (snapshot) => snapshot.rulesetReadsComplete),
+        true
+      );
+      const observed = yield* observe({ distinctSiblingRed: true, partialRuleset: "unreadable" });
+      const partial = GoalCompletionReceipt.make({
+        ...observed,
+        verifiedAt: DateTime.add(stale.verifiedAt, { seconds: 1 }),
+      });
+      expect(partial.outcome).toBe("unknown");
+      assertSome(
+        O.map(partial.requiredChecks, (snapshot) => snapshot.contexts),
+        ["Lint"]
+      );
+      assertSome(
+        O.map(partial.requiredChecks, (snapshot) => snapshot.rulesetReadsComplete),
+        false
+      );
+      const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
+      const staleText = yield* encodeReceipt(stale);
+      const partialText = yield* encodeReceipt(partial);
+      yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${staleText}\n${partialText}\n`);
+      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      assertSome(
+        yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
+          Effect.provideService(GoalCompletionIo, io)
+        ),
+        stale
       );
     })
   );

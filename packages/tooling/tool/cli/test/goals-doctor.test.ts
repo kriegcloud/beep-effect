@@ -255,7 +255,9 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
           grandfathered: false,
         })
       );
-      expect(resolved.outcome).toBe(snapshot.inventoryComplete ? "verified" : "unknown");
+      expect(resolved.outcome).toBe(
+        snapshot.inventoryComplete && snapshot.rulesetReadsComplete ? "verified" : "unknown"
+      );
       const text = yield* S.encodeEffect(S.fromJsonString(GoalCompletionReceipt))(receipt);
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
       const output = yield* captureOutput(

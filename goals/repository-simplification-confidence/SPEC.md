@@ -1087,3 +1087,13 @@ parent, glob or history read is unsupported or unavailable. A known required
 red remains unsatisfied even though incomplete inventory still blocks verified.
 All-failed or non-applicable reads remain unknown. Reverse by reverting this
 adapter fix and deleting derived receipts before refresh; no lifecycle changes.
+
+### 2026-10-14 — H2 distinguishes read completeness from inventory completeness
+
+Add optional-defaulted rulesetReadsComplete to the snapshot. Historical
+read failures retain readable siblings, but a partial green snapshot cannot
+displace an older definite receipt. Known required reds remain unsatisfied.
+Missing legacy read completeness defaults true because the old reader was
+all-or-nothing; inventory completeness still defaults false. Verification
+requires both dimensions. Reverse the adapter/schema/reader change together
+and rebuild derived receipts; old manifests and receipts remain decodable.

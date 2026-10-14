@@ -1615,3 +1615,14 @@ should be rendered beside the option in command help.
 - Cover organization, glob and unreadable-history siblings with both green
   and red repository checks. Cancel only the owned readiness monitor for the
   new implementation wave; confirm termination before requalification.
+
+### 2026-10-14 — H2 partial-read freshness interaction
+
+- Independent medium Opus review finds a newer partial green snapshot could
+  lose a required context held only by an unreadable sibling and clear the
+  older red. Distinguish ruleset read completeness from historical inventory
+  completeness, gate unknown-receipt candidacy on complete reads, and add
+  a distinct Security-context storage regression.
+- Stop the two isolated, owned superseded validation process groups (exit
+  143) before editing; do not stop the parent lane or another admission.
+  Freeze corrected source before fresh full/package/parity qualification.

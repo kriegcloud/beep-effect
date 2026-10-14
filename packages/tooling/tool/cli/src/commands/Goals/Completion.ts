@@ -110,7 +110,7 @@ const overallOutcome = (observation: GoalCompletionObservation): GoalCompletionO
       })
     ) ||
     A.isReadonlyArrayEmpty(gating) ||
-    !O.exists(observation.requiredChecks, (snapshot) => snapshot.inventoryComplete) ||
+    !O.exists(observation.requiredChecks, (snapshot) => snapshot.inventoryComplete && snapshot.rulesetReadsComplete) ||
     A.some(gating, (check) => check.outcome === "unknown" || O.isNone(check.observedHead))
   )
     return "unknown";
@@ -323,11 +323,10 @@ const readHistoricalRequiredChecks = Effect.fn("Goals.Completion.historicalRequi
       RulesetList
     )
   );
-  const snapshots = A.getSomes(
-    yield* Effect.forEach(inventory, (ruleset) =>
-      readHistoricalRuleset(root, ruleset, base, mergedAt).pipe(Effect.option, Effect.map(O.flatten))
-    )
+  const reads = yield* Effect.forEach(inventory, (ruleset) =>
+    readHistoricalRuleset(root, ruleset, base, mergedAt).pipe(Effect.option)
   );
+  const snapshots = A.getSomes(A.getSomes(reads));
   if (A.isReadonlyArrayEmpty(snapshots))
     return yield* YeetCommandError.make({ message: "No historical applicable ruleset observed" });
   return GoalRequiredCheckSnapshot.make({
@@ -337,6 +336,7 @@ const readHistoricalRequiredChecks = Effect.fn("Goals.Completion.historicalRequi
     // Version history covers only surviving rulesets. Deleted rulesets cannot
     // be discovered through current enumeration; no complete historical inventory is inferred.
     inventoryComplete: false,
+    rulesetReadsComplete: A.every(reads, O.isSome),
   });
 });
 /**
@@ -783,7 +783,7 @@ export const storedGoalCompletion = Effect.fn("Goals.Completion.stored")(functio
     (receipt) =>
       receipt.outcome !== "unknown" ||
       (O.isSome(receipt.merge) &&
-        O.isSome(receipt.requiredChecks) &&
+        O.exists(receipt.requiredChecks, (snapshot) => snapshot.rulesetReadsComplete) &&
         A.some(
           receipt.evidence,
           (check) => check.ref.kind === "hosted-required-checks" && check.ref.gating && check.outcome !== "unknown"

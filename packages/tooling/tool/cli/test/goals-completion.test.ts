@@ -194,6 +194,17 @@ describe("pure goal completion resolver", () => {
         effectiveAt: "2026-10-06T00:55:25Z",
       });
       expect(legacy.inventoryComplete).toBe(false);
+      expect(legacy.rulesetReadsComplete).toBe(true);
+      expect(
+        (yield* GoalCompletionVerifier.resolve(
+          GoalCompletionObservation.make({
+            ...observation,
+            requiredChecks: O.some(
+              GoalRequiredCheckSnapshot.make({ ...snapshot, inventoryComplete: true, rulesetReadsComplete: false })
+            ),
+          })
+        )).outcome
+      ).toBe("unknown");
     })
   );
   it.effect("round-trips the persisted JSON boundary including optional head and merge facts", () =>
