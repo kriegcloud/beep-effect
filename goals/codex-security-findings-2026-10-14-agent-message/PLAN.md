@@ -2,8 +2,8 @@
 
 ## Status
 
-Status: `active`. The finding is validated and repaired on PR #1766; hosted
-proof and review are active before merge and Cloud closure.
+Status: `completed-retained`. PR #1766 merged under the documented S11 gate;
+the captured Cloud finding is Fixed and the filtered open view is empty.
 
 ## Phases
 
@@ -14,11 +14,11 @@ proof and review are active before merge and Cloud closure.
 | P2 validate | complete | Reproduce each report at current HEAD. | Every item has strict verdict, disposition, rationale, and owner surface. |
 | P3 lane-partition | complete | Group shared root causes and disjoint paths. | One receiver lane owns the finding. |
 | P4 remediate | complete | Fix all real findings with focused checks. | Changed files and passing targeted proof recorded per finding. |
-| P5 repo-proof | complete | Run packet validation and Yeet checks. | Focused managed and attached tests, scoped docgen and cheap gates passed; package quick check had worktree dependency-build limits. |
-| P6 publish | complete | Publish one intentional PR through Yeet. | PR #1766 opened and review fixes pushed. |
-| P7 monitor | in progress | Close hosted checks and actionable reviews. | Three review threads resolved; exact-head checks and review window pending. |
-| P8 merge-and-close | pending | Merge and close captured findings. | PR merged; all 1 IDs resolved. |
-| P9 close | pending | Record evidence, reflection, and lifecycle. | Packet set to `completed-retained` in the same closeout PR state. |
+| P5 repo-proof | complete | Run packet validation and Yeet checks. | Package build, quick verification, and 22 focused tests passed. |
+| P6 publish | complete | Publish one intentional PR through Yeet. | PR #1766 reached final head `e35e4220bd`. |
+| P7 monitor | complete | Close hosted checks and actionable reviews. | All threads answered and resolved; the 20-minute window elapsed. Hosted reds and queued jobs were recorded at the S11 merge. |
+| P8 merge-and-close | complete | Merge and close captured findings. | PR #1766 merged at `55b1836e40`; its exact Cloud ID is Fixed and the open view shows 0 of 0. |
+| P9 close | complete | Record evidence, reflection, and lifecycle. | Reflection and `completed-retained` state land together in this closeout PR. |
 
 ## Execution Rules
 

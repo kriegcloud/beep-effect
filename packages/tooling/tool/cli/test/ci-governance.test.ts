@@ -1,14 +1,13 @@
 import {
-  CI_LANE_DESCRIPTORS,
   decideHeavyAdmission,
   desktopEnvironmentApproved,
   HeavyAdmissionEvent,
   HeldRun,
   heldGroupRunIds,
   prSizeLabelDiff,
+  reviewerAppIntegrationMatches,
   SettingsEnvironment,
   setupCacheWriteDisabled,
-  validateRequiredContexts,
   workflowPolicyDiagnostics,
 } from "@beep/repo-cli/commands/Ci";
 import { describe, expect, it } from "@effect/vitest";
@@ -18,21 +17,6 @@ import * as Effect from "effect/Effect";
 const writer = (environment: string, token = "${{ github.event_name == 'push' && secrets.TURBO_TOKEN || '' }}") =>
   `on: push\njobs:\n  writer:\n    environment: "${environment}"\n    steps:\n      - uses: ./.github/actions/setup-monorepo-ci\n        with:\n          turbo-token: "${token}"\n`;
 describe("CI governance policy", () => {
-  it.effect("requires the external reviewer alongside every required workflow context", () =>
-    Effect.gen(function* () {
-      const workflowContexts = A.map(
-        A.filter(CI_LANE_DESCRIPTORS, (lane) => lane.required),
-        (lane) => lane.contextName
-      );
-      const complete = A.append(workflowContexts, "beep-reviewer");
-      expect(yield* validateRequiredContexts(A.reverse(complete)).pipe(Effect.isSuccess)).toBe(true);
-      expect(yield* validateRequiredContexts(workflowContexts).pipe(Effect.isFailure)).toBe(true);
-      expect(
-        yield* validateRequiredContexts(A.filter(complete, (context) => context !== "Security")).pipe(Effect.isFailure)
-      ).toBe(true);
-      expect(yield* validateRequiredContexts(A.append(complete, "unexpected-check")).pipe(Effect.isFailure)).toBe(true);
-    })
-  );
   it.effect("requires a writer environment and trusted caller expression", () =>
     Effect.gen(function* () {
       expect(
@@ -123,6 +107,15 @@ describe("CI governance policy", () => {
       ).toBe(true);
     })
   );
+  it("requires the reviewer context to be pinned to the expected GitHub App", () => {
+    const pinned = { context: "beep-reviewer", integration_id: 5321138 };
+    expect(reviewerAppIntegrationMatches([pinned])).toBe(true);
+    expect(reviewerAppIntegrationMatches([{ context: "beep-reviewer" }])).toBe(false);
+    expect(reviewerAppIntegrationMatches([{ context: "beep-reviewer", integration_id: null }])).toBe(false);
+    expect(reviewerAppIntegrationMatches([{ context: "beep-reviewer", integration_id: 1 }])).toBe(false);
+    expect(reviewerAppIntegrationMatches([pinned, pinned])).toBe(false);
+    expect(reviewerAppIntegrationMatches([{ context: "Security", integration_id: 5321138 }])).toBe(false);
+  });
   it.effect("detects the old waiting main run and pending successor", () =>
     Effect.sync(() => {
       const old = { id: 1, status: "waiting", created_at: "2026-10-09T12:00:00Z", head_branch: "main" };

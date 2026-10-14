@@ -1,6 +1,6 @@
 {
   "schemaVersion": "branch-protection-contexts/v1",
-  "capturedAt": "2026-10-09T20:27:59.708Z",
+  "capturedAt": "2026-10-14T21:34:08.053Z",
   "repository": "beep-effect/beep-effect",
   "branch": "main",
   "rulesetId": 10240248,
@@ -15,7 +15,6 @@
     "Heavy / Doctest",
     "Heavy / Test Integration",
     "JSDoc Ratchet",
-    "Knip",
     "Lint",
     "Nix Shell",
     "Professional Desktop IPC Stdio",
@@ -23,6 +22,7 @@
     "SAST",
     "Secret Scanning",
     "Security",
-    "Test Unit"
+    "Test Unit",
+    "beep-reviewer"
   ]
 }

@@ -202,7 +202,7 @@ export const MintFetchableHandle = Fn({
  * **Example** (Satisfy mint handle type)
  *
  * ```ts
- * import { FetchableHandle } from "@beep/mcp-kit"
+ * import { FetchableHandle } from "@beep/mcp-kit/FieldTier"
  * import type { MintFetchableHandle } from "@beep/uspto-mcp/UsptoDocumentTiers"
  *
  * const mint = ((oversized) =>
@@ -227,7 +227,7 @@ export type MintFetchableHandle = typeof MintFetchableHandle.Type;
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { FetchableHandle } from "@beep/mcp-kit"
+ * import { FetchableHandle } from "@beep/mcp-kit/FieldTier"
  * import { MintFetchableHandle, ProjectDocumentsWithinBudgetOptions } from "@beep/uspto-mcp/UsptoDocumentTiers"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
@@ -283,7 +283,7 @@ export class ProjectDocumentsWithinBudgetOptions extends S.Opaque<
  * ```ts
  * import * as S from "effect/Schema"
  * import { UsptoDocumentReference } from "@beep/uspto"
- * import { FetchableHandle } from "@beep/mcp-kit"
+ * import { FetchableHandle } from "@beep/mcp-kit/FieldTier"
  * import {
  *   MintFetchableHandle,
  *   ProjectDocumentsWithinBudgetOptions,

@@ -1668,8 +1668,12 @@ export const EffectVitestSourceFileGlobs: ReadonlyArray<string> = A.fromIterable
  * **Details**
  *
  * Legacy rows without an anchor retain their original key. Scan comparison may
- * bridge a legacy fingerprint only when it is unique on both sides. Anchored
- * duplicates are never eligible for automatic exception inheritance.
+ * bridge a legacy fingerprint only when it is unique on both sides. An
+ * anchored occurrence inherits a reviewed exception on `--write` when it is
+ * unique on both sides, or when its duplicate group is unchanged: the same
+ * members by exact id (line, column and ordinal), each at its own line and
+ * column. A duplicate that was added, deleted or shifted, or members told
+ * apart only by ordinal, reopen the whole group for re-review.
  *
  * **Example** (Keep line numbers out of membership identity)
  *

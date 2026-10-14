@@ -3,13 +3,14 @@
   "initiative": {
     "id": "codex-security-findings-2026-10-14-agent-message",
     "title": "Codex Security Findings (2026-10-14)",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/codex-security-findings-2026-10-14-agent-message",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
+  "mergedPullRequest": 1766,
   "mission": "Remediate and close the 1 Codex security findings captured on 2026-10-14.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -63,7 +64,7 @@
       "out-of-scope": 0,
       "untriaged": 0
     },
-    "note": "Validated at current base; one managed receiver authorization flaw is being remediated."
+    "note": "The captured Medium finding was remediated by PR #1766 at 55b1836e406d1259259c6eb7d1db00b23d9dbdc7 and marked Fixed in Security Cloud. The live detail showed Low after severity recalibration; the catalog preserves capture severity. The open findings view showed 0 of 0 after closure."
   },
   "closeoutPolicy": {
     "fixed": "Fixed",
@@ -124,17 +125,17 @@
     {
       "id": "P7",
       "name": "Monitor",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P8",
       "name": "Merge and close findings",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P9",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

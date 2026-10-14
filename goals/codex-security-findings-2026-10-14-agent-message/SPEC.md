@@ -50,18 +50,20 @@ exact captured findings until no packet-applicable finding remains open.
 
 ## Acceptance Criteria
 
-- [ ] All 1 findings have sanitized tracked CSF records with Codex ID, severity,
+- [x] All 1 findings have sanitized tracked CSF records with Codex ID, severity,
       title, source commit, and public summary.
-- [ ] Every finding has a current-HEAD verdict, disposition, lane, rationale,
+- [x] Every finding has a current-HEAD verdict, disposition, lane, rationale,
       remediation state, changed-file set, and verification evidence.
-- [ ] Every real finding is fixed at the shared root cause with a focused
+- [x] Every real finding is fixed at the shared root cause with a focused
       regression check where executable behavior changes.
-- [ ] Packet counts, manifest, triage ledger, launcher size, sanitation, and
+- [x] Packet counts, manifest, triage ledger, launcher size, sanitation, and
       whitespace checks pass.
-- [ ] Yeet repair and verify are green on the complete remediation scope.
-- [ ] The branch is published, hosted checks and reviews are closed, and the PR
-      is mergeable and merged.
-- [ ] All 1 captured Codex findings are resolved after merge and the live view
+- [x] Yeet repair and verify passed on the remediation scope; the package build,
+      quick verification and 22 focused tests passed at final head.
+- [x] The branch was published, all review threads were answered and resolved,
+      the review window elapsed, and PR #1766 merged under the S11 gate with
+      hosted reds and queued jobs attributed below.
+- [x] All 1 captured Codex findings are resolved after merge and the live view
       shows zero packet-applicable open findings.
 
 ## Verification Matrix
@@ -76,7 +78,7 @@ exact captured findings until no packet-applicable finding remains open.
 | Sanitization | tracked packet secret/path pattern scan | No matches |
 | Per-finding proof | command recorded in finding and triage ledger | Pass |
 | Repo proof | `bun run beep yeet verify` | Green |
-| Hosted proof | Yeet monitor and review closeout | Green and mergeable |
+| Hosted proof | Yeet monitor, review closeout and S11 merge gate | Threads and window passed; reds attributed at merge |
 | Final closure | supported connector or signed-in in-app findings view | Zero packet-open |
 
 ## Stop Conditions
@@ -101,3 +103,5 @@ exact captured findings until no packet-applicable finding remains open.
 | Require a private receiving `--grant-file` for managed `serve` | A managed native worker must never consume a queued envelope outside its own persisted conversation grant. The CLI package is private and the command has no published compatibility promise. | Restore the prior invocation only after a replacement host-issued receiving-grant channel is implemented and tested; update launchers and runbook together. |
 | Treat missing dependency declaration output in the fresh worktree as an environment-only local check failure | The package check emits TS6305 for many untouched dependency packages; focused native tests and package lint pass. | Build dependencies in this worktree, rerun package check, and remove this exception when proof is available. |
 | Stop managed `serve` after a receiving grant becomes invalid. | The grant ID is pinned at startup and cannot be refreshed in that process. Settling the current claim as failed with a detail, logging its receipt, then exiting keeps later queued messages from being silently consumed. | Resume a worker only through a new validated enrollment; preserve the failed receipt and normal generation replacement rules. |
+| Merge PR #1766 under S11 after the full review window. | The exact head had zero unresolved threads and no base conflict. The required Security red was live ruleset drift over `beep-reviewer`; JSDoc Ratchet gained two root imports only in the merged base (the branch inventory stayed at the 1,343 baseline and passed locally); Property Laws and Test Unit failed the same `skills-provenance` property on the merged base while the branch test passed 30/30. Heavy jobs remained queued on shared runners. The gate recorded each red and pending job; Vercel deployments were rate limited. | A named main-line fix PR must address every required red that reaches `main` the same working day; reopen this finding only if a merged-revision regression demonstrates the receiving-grant repair failed. |
+| Track the final reviewer P2 in issue #1772. | Round-five review found a lock-exhaustion availability edge after the receiving grant was already invalid. The grant fence still prevents a later native prompt. Repository review policy routes P2 findings after round two to a tracked follow-up instead of another push. | Resolve #1772 with fail-stop and storage-failure proof; reopen this packet only if it reveals that the scoped recipient authorization repair did not hold. |
