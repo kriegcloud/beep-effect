@@ -37,6 +37,10 @@ export class DiffLine extends S.Class<DiffLine>($I`DiffLine`)(
 /**
  * Splits text into lines; the last line has `eol: false` when the text does not end in a newline.
  *
+ * **Details**
+ *
+ * Preserves each line's terminating-newline state in the returned values.
+ *
  * @internal
  * @param content - Text whose line endings should be preserved.
  * @returns Lines carrying their text and terminating-newline state.
@@ -56,6 +60,10 @@ export const diffLines = (content: string): ReadonlyArray<DiffLine> => {
 
 /**
  * Joins lines back into text, the inverse of {@link diffLines}.
+ *
+ * **Details**
+ *
+ * Appends a newline only for lines whose `eol` value is `true`.
  *
  * @internal
  * @param lines - Lines carrying their text and terminating-newline state.

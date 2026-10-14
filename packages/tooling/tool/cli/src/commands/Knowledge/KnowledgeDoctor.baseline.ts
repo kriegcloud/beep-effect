@@ -939,6 +939,16 @@ export const knowledgeRemovedPackageNames = (removals: ReadonlyArray<KnowledgePa
  * `line` is the finding's source line, `attributed` whether its cause group has an authoring
  * commit, and `removedPackages` the package short names the history retired.
  *
+ * **Example** (Validate an absent source line)
+ *
+ * ```ts
+ * import { KnowledgeBaselineGroupInput } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.baseline"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(KnowledgeBaselineGroupInput.fields.line)(O.none())) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -1321,6 +1331,15 @@ export class KnowledgeMintAcceptance extends S.Class<KnowledgeMintAcceptance>($I
  * `acceptMint` is present only when CI passed `--accept-mint` for the mint App's branch;
  * `changedPaths` are the paths the branch changes relative to the merge-base.
  *
+ * **Example** (Validate changed paths)
+ *
+ * ```ts
+ * import { KnowledgeSealGuardInput } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.baseline"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(KnowledgeSealGuardInput.fields.changedPaths)(["docs/guide.md"])) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -1559,6 +1578,15 @@ export const knowledgeSealGuard = (input: KnowledgeSealGuardInput): ReadonlyArra
  * `mintedAt` (only the identity sidecar reads them). `renames` is the rename lineage from `mintedAt`
  * as `[path at mintedAt, current path]`, `report` the read-only scan of the tree under check, and
  * `removals` the tree's path removals, for regrouping with the governance findings.
+ *
+ * **Example** (Validate rename lineage)
+ *
+ * ```ts
+ * import { KnowledgeDoctorCheckInput } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.baseline"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(KnowledgeDoctorCheckInput.fields.renames)([["docs/old.md", "docs/new.md"]])) // true
+ * ```
  *
  * @category models
  * @since 0.0.0

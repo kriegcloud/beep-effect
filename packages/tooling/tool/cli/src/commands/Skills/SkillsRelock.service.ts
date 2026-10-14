@@ -251,11 +251,30 @@ const replayEntry = Effect.fn("SkillsRelock.replayEntry")(function* (
  * **Example** (Check a replay report)
  *
  * ```ts
- * import { isSkillReplayClean } from "@beep/repo-cli/commands/Skills"
- * import type { SkillReplayReport } from "@beep/repo-cli/commands/Skills"
+ * import { SkillGitRevision } from "@beep/repo-cli/commands/Skills/Skills.schemas"
+ * import { SkillReplayReport } from "@beep/repo-cli/commands/Skills/SkillsRelock.schemas"
+ * import { isSkillReplayClean } from "@beep/repo-cli/commands/Skills/SkillsRelock.service"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * declare const report: SkillReplayReport
- * console.log(isSkillReplayClean(report))
+ * const digest = Sha256Hex.make("0".repeat(64))
+ * const revision = await Effect.runPromise(S.decodeEffect(SkillGitRevision)("d6e773a562dc85c2a81b7c571f40ca2d81896679"))
+ * const report = SkillReplayReport.make({
+ *   skill: "oracle",
+ *   repository: "steipete/oracle",
+ *   sourceRevision: revision,
+ *   pristineTreeHash: digest,
+ *   patchSetHash: digest,
+ *   status: "clean",
+ *   recorded: true,
+ *   licenseMatches: true,
+ *   effectiveTreeHash: O.some(digest),
+ *   hunks: [],
+ *   diff: "",
+ * })
+ * console.log(isSkillReplayClean(report)) // true
  * ```
  *
  * @param report - One skill's replay outcome.

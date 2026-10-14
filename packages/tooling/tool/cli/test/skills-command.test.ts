@@ -588,6 +588,68 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills fixture ownership"
 
 it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills command boundary reports", (it) => {
   it.effect(
+    "renders an empty replay in both formats and refuses an unknown skill without changing the lock",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = yield* encodeSkillsLockDocumentJson(emptyLockV2);
+        yield* writeProjectFile("skills-lock.json", lock);
+        yield* runSkillsCommand(["replay", "--json", "--markdown", "replay.md"]);
+        expect(yield* TestConsole.logLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills-replay/v1")])
+        );
+        expect(yield* readProjectFile("replay.md")).toContain("<!-- beep-skills-replay -->");
+        yield* runSkillsCommand(["replay"]);
+        const refused = yield* Effect.exit(runSkillsCommand(["replay", "--skill", "not-registered"]));
+        refused.pipe(Exit.isFailure, assertTrue);
+        expect(yield* TestConsole.errorLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:replay:")])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "reports an unknown relock entry and leaves the lock unchanged",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = yield* encodeSkillsLockDocumentJson(emptyLockV2);
+        yield* writeProjectFile("skills-lock.json", lock);
+        const refused = yield* Effect.exit(runSkillsCommand(["relock", "--skill", "not-registered", "--json"]));
+        refused.pipe(Exit.isFailure, assertTrue);
+        expect(yield* TestConsole.errorLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:relock:")])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "writes an empty train issue and preserves that output when pull-request input is malformed",
+    Effect.fnUntraced(function* () {
+      yield* temporaryRepository;
+      yield* writeProjectFile("prs.json", "[]");
+      const args = ["train-issue", "--batch", "2026-W42", "--prs", "prs.json", "--body-out", "issue.md"];
+      yield* runSkillsCommand(args);
+      expect(yield* TestConsole.logLines).toEqual(expect.arrayContaining([expect.stringContaining("2026-W42")]));
+      const body = yield* readProjectFile("issue.md");
+      expect(body).toContain("_No open skill update pull requests");
+      yield* writeProjectFile("prs.json", "not-json");
+      const refused = yield* Effect.exit(runSkillsCommand(args));
+      refused.pipe(Exit.isFailure, assertTrue);
+      expect(yield* TestConsole.errorLines).toEqual(
+        expect.arrayContaining([expect.stringContaining("skills:train-issue:")])
+      );
+      expect(yield* readProjectFile("issue.md")).toBe(body);
+    })
+  );
+
+  it.effect(
     "reports materialization refusal for a legacy lock without changing it",
     Effect.fnUntraced(
       function* () {

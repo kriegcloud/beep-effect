@@ -63,6 +63,16 @@ type VerdictLogError = VerdictLocked | VerdictStoreUnreadable | ModHostError;
 /**
  * One verdict to record on one answer.
  *
+ * **Example** (Validate an undo verdict)
+ *
+ * ```ts
+ * import { VerdictInput } from "@/PracticeMod.verdicts"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(VerdictInput.fields.verdict)(O.none())) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
