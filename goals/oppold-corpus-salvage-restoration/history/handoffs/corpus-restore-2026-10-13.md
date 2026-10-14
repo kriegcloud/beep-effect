@@ -789,3 +789,316 @@ historical evidence, not a claim that family 5 accepted.
 
 Publication uses Yeet through beep-heavy. P2 remains in-progress and the
 wave remains stopped irrespective of publication state. No merge is authorized.
+
+
+## Terminal wave failure final report
+
+lane: corpus-restore
+
+head: 6412bf26c0f7a63e1eb9888a739e427dfe17ef14 (exact published PR head)
+
+PR(s): #1646 OPEN, ready for review, content-final failure evidence | #1611 MERGED at 6eb3d03677
+
+package-verify: not run (docs-only; no package edited). Four focused restoration tests passed, 78 skipped, 4.41 seconds through beep-heavy; real frozen Tika/pffexport sandbox version smokes passed.
+
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet pass through Yeet's committed cheap gate | knowledge refs pass through beep-heavy at merged head 3b852097704bbdd3a4da617b94ac1d33e1490e1c, zero live gated observations | fallow audit+health pass through Yeet cheap gates | scoped coverage not run (docs-only: no package source changed)
+
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+
+open items: The bounded wave is stopped: four accepted families, family 5 sealed failure, ordinals 6-9 unstarted. Family 5 result is 1; one unapproved engine-failure, expected/terminal one, unapproved one, zero store passes or terminal child rows, zero warnings or interruptions. Input 157,975,552 bytes; retained output/family disk usage 354,621,626 bytes, amplification 2.244788016x; family elapsed 1,491,085 ms and archive verification 420,681 ms. Partial dispositions are 108 repaired occurrences / 98 distinct digests, 217 unsupported, zero unchanged. Retained copies/Tika files are 99/98. The sole unmatched 3,020-byte GIF repair copy reproduces Tika exit 1, empty stdout and TikaException in the frozen read-only sandbox. Attribution is an input-sensitive Tika/parser failure; the precise parser cause and whether the input is corrupt remain unresolved. Ledger SHA-256 dda98f8c7088589dffdc463935455b7474fad7ab4738cf8feaab749dd1d3031c. All nine frozen identities and ceilings hold; earlier accepted ledger hashes are unchanged. Capacity after failure was 418,243,366,912 free bytes. No ordinal 6 launch, sealed-family retry, engine/launcher change, artifact mutation or merge occurred. P2 remains in-progress; P0/P1/P4 complete, P3 pending. Decision: retain every family, ledger, output, claim and freeze record, publish aggregate failure evidence, and stop under the standing ruling. Reversal: revert packet decisions while retaining all evidence. Any recovery execution or exception approval needs an orchestrator ruling and a new freeze record. Follow-ups are sanitized failure-stage/exception-class preservation, a failing-GIF synthetic fixture, eighteen larger occurrences and remaining estate/recycle/DOC gates. Terminal record: history/p2/2026-10-14-first-wave-stop.md. Yeet passed all 16 cheap gates and the exact-head install preflight; one push, ready flip, zero unresolved review threads at the final read. Hosted CI and the review window are pending; merge readiness is not claimed. The two Vercel deployment failures are verified build-rate limits and acknowledged environment-only. The worker-owned readiness monitor was cancelled and its proof inbox row acknowledged; no worker-owned unit or gate remains active. The orchestrator owns subsequent PR handling. Packet checks and commit hooks passed with zero new doctor blockers. This exact-head report is appended locally to the handoff for the next evidence commit, preserving the prior report append. Graft saved approximately 124,561 tokens across three retrievals.
+
+blocked: family 5 sealed failure — frozen Tika second pass exits 1 with empty output on the unmatched GIF repair copy; wave stopped, PR #1646 ready
+
+
+## Run 17: authorized continuation after family 5 sealed-failure
+
+The preceding final-report append is retained. Run 17 supersedes the stop
+on further ordinals while preserving family 5 sealed-failure. PR #1646 is
+OPEN at 6412bf26c0f7a63e1eb9888a739e427dfe17ef14, orchestrator-owned.
+No push to it in this continuation. Four accepted, one failed, four unstarted.
+
+| Prerequisite | State | Measured evidence |
+| --- | --- | --- |
+| P0 sealed | met | 755 directory passes, 10,696 file passes, four losses, one preflight, one seal |
+| Existing transformation state | met | Results 0/0/0/0/1; accepted seals 1-4, failure seal 5; all five ledger hashes unchanged |
+| Source identities | met | All nine object/digest/input-byte records match archive and membership |
+| Frozen identities | met | All nine engine, launcher, membership and twelve-field policy digests match |
+| Code parity | met | Corpus/libpff source identical to all nine frozen code heads |
+| Capacity | met | 417,086,545,920 bytes free, above 100,000,000,000 floor |
+| Admitted engine smokes | met | Real frozen Tika and pffexport sandbox invocations exit zero |
+| Focused synthetic proof | met | Four passed, 78 skipped, 4.93 seconds through beep-heavy |
+| Packet health | met | Adoption passes, doctor zero blockers and same three unrelated advisories; index matches |
+| Next ordinal | met | 6-9 run roots and stamps absent; no active wave family unit |
+
+User-manager variables were absent in this API shell. Restored the standard
+user-bus environment for commands; manager and admitted smokes work. No
+configuration or systemd unit changed. No probe or code fix runs again.
+Frozen script digest 5b1d87cb5c420a53e56340bbc092c21826666c9e25ef210a421b8e20955e65e6.
+Membership digest 00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+Ordinal 6 freeze record: history/evidence/p2-first-wave-2026-10-13-family-06-run-manifest.json.
+Expected policy: 0c5decece1493a3948b13315444251763a15a7552366c0a364f20602052965b9.
+A full sixty-second interval follows renewed preflight. Retained ceilings:
+ratio 4, attempt 7,200,000 ms, family 43,200,000 ms, total 2,147,483,648 bytes.
+Decision and reversal are recorded in SPEC. Separate family-5 recovery waits
+until after this wave; eighteen larger occurrences and other family gates stay open.
+Graft saved approximately 99,936 tokens across two retrievals.
+
+
+## Run 17: ordinal 6 submitted
+
+Full interval: 2026-10-14T01:06:25Z to 01:07:25Z.
+Final capacity recheck: 417,793,134,592 free bytes.
+Submitted 2026-10-14T01:07:39Z with the SAME frozen script, ordinal 6.
+Started stamp: 2026-10-14T01:07:39.216Z.
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-6.service.
+Active/running at initial observation, sole wave family unit. MemoryMax
+34,359,738,368 bytes, MemorySwapMax zero, agent-runs.slice. Result absent;
+private log one line, no content read. Runtime policy comparison awaits
+family-run-start after archive re-verification.
+
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-06/ledgers/mail/slice.jsonl`.
+Five of nine sealed: four accepted, family 5 sealed-failure. Ordinal 6 active;
+7-9 unstarted. The orchestrator driver owns the explicit mid-wave handoff.
+After unit 6 ends, reconcile result, acceptance, source/policy identity,
+children and repair pairs, ceilings and capacity. If accepted, renew admitted
+preflight and full sixty-second interval before ordinal 7; stop and diagnose
+any further failure. Never retry family 5 or change frozen engines/launcher.
+
+Knowledge refs passes through beep-heavy with zero live gated observations.
+Packet doctor zero new blockers, same three unrelated advisories; index matches.
+Launcher size and JSON checks, whitespace, gitleaks, typos, Biome and commitlint
+pass. Original candidate remains 53 PST occurrences, 23 eligible, input
+56,140,800 bytes and original object/digest unchanged. No package source
+edited; package-verify and source hosted-parity lanes are not run (docs-only).
+No push, main integration, retry, engine fix or worker-owned gate started.
+PR #1646 remains orchestrator-owned; terminal wave PR follows all remaining
+seals. Run-17 decision reversal retains all immutable evidence.
+
+
+## Run 17 mid-wave final report — ordinal 6
+
+lane: corpus-restore
+head: e471c677116b0f8dfb121635013cbf32b14b8ba3 (local committed continuation-evidence head)
+PR(s): #1646 OPEN, orchestrator-owned failure-evidence PR | PR7 none (bounded wave running; no push or merge)
+package-verify: not run (docs-only; no package edited). Renewed admitted real Tika/pffexport sandbox smokes pass; four focused restoration tests pass, 78 skipped, 4.93 seconds.
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet not run (docs-only: no package source changed) | knowledge refs pass through beep-heavy, zero live gated observations | fallow audit+health not run (docs-only: no package source changed) | scoped coverage not run (docs-only: no package source changed)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+open items: Run 17 authorizes continuing ordinals 6-9 with the SAME frozen launcher. Five of nine sealed: four accepted, family 5 sealed-failure; no retry or acceptance of family 5. All five ledger hashes unchanged. All nine source, engine, launcher, membership, twelve-field policy and frozen-code identities match. P0 seal and counts unchanged; original candidate remains 53 PST occurrences, 23 eligible, 56,140,800 input bytes and original object/digest unchanged. Both renewed admitted sandbox smokes and four focused tests passed; full sixty-second interval elapsed from 01:06:25Z to 01:07:25Z. Capacity immediately before submission 417,793,134,592 free bytes, above 100 GB floor. Ordinal 6 submitted 2026-10-14T01:07:39Z, started 01:07:39.216Z; sole active wave unit beep-heavy-corpus-restore-p2-2026-10-13-6.service, MemoryMax 34,359,738,368 bytes, MemorySwapMax zero. Result and runtime policy comparison await archive verification and seal. Ledger relative to corpus home: staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-06/ledgers/mail/slice.jsonl. Frozen family-6 manifest: history/evidence/p2-first-wave-2026-10-13-family-06-run-manifest.json; policy 0c5decece1493a3948b13315444251763a15a7552366c0a364f20602052965b9. Ordinals 7-9 unstarted. Driver resumes after unit 6 ends, reconciles result, accepted seal, source/policy identities, child and repair digest pairs, ceilings and capacity before renewed admitted preflight, full sixty seconds and ordinal 7. Stop and diagnose any further sealed failure. Retained ceilings: ratio 4, attempt 7,200,000 ms, family 43,200,000 ms, total output 2,147,483,648 bytes. P2 incomplete; eighteen larger occurrences and estate/recycle/DOC obligations remain open. Separate family-5 parser-exception engine PR and freshly frozen recovery follow the wave under Run 17; no recovery code changed here. Decision: continue remaining authorized ordinals while retaining family 5 failed; reversal is reverting packet decisions while retaining every ledger, output, claim and immutable manifest. Prior final-report append preserved. Public packet checks and commit hooks pass; doctor zero new blockers and same three unrelated advisories; index matches. User-bus shell precondition repaired by standard command environment, no configuration change. Continuation and launch evidence committed locally at 15ac37a5fc and e471c67711; this exact-head report is appended for the next evidence commit. No push, merge, engine/launcher change, source mutation or worker-owned gate. The sole family unit transfers to the orchestrator driver under the standing mid-wave ruling. Graft saved approximately 99,936 tokens across two retrievals.
+blocked: wave running — 5 of 9 sealed, unit beep-heavy-corpus-restore-p2-2026-10-13-6.service
+
+
+## Standing continuation: family 6 accepted
+
+Previous final-report append retained. Family 6 result 0, accepted seal,
+expected/terminal one and unapproved zero. Unit:
+beep-heavy-corpus-restore-p2-2026-10-13-6.service.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-06/ledgers/mail/slice.jsonl`.
+Freeze record: history/evidence/p2-first-wave-2026-10-13-family-06-run-manifest.json.
+Attempt: mail:ecf3145ddfc6be0fe2f82ec5:r0.
+Object: fa64112f2a788933cc33f970f51bebe2135ab410bc43089164a3e78869a870a4.
+Source: 2b8108bc1db6feef777023648cd55c200ff838ad43e0e8ea5afe508bb93f5264.
+Policy: 0c5decece1493a3948b13315444251763a15a7552366c0a364f20602052965b9.
+Ledger: e96d312026220df728ebbb6d242b360ce1521015805e1fdd33888066c4e5c14e.
+
+Record counts: 437 attachment-type-repair, 6,091 mail-child-pass, one each
+family-run-start, family-attempt-start, mail-store-pass, family-run-summary,
+family-acceptance-pass. Zero warnings, exceptions or interruptions.
+All 6,091 children reconcile: 5,735 engine children, 178 repair copies,
+178 Tika children, zero other derived children. Both digest sets equal all
+178 distinct repaired digests. Dispositions: 217 repaired occurrences,
+220 unsupported, zero unchanged. Zero unaccounted children.
+Input 190,989,312 bytes; output and family disk usage 496,830,967 bytes;
+amplification 2.601354818x. Attempt 5,724,191 ms, family 5,756,397 ms;
+31,427.148 ms per MiB. Started 2026-10-14T01:07:39.216Z, family start
+01:12:34.998Z, seal 02:48:31.401Z; verification 295,782 ms.
+Before submission free bytes 417,793,134,592; current 407,672,446,976.
+All attempt and cumulative ceilings hold. Six of nine sealed: five accepted,
+family 5 sealed-failure retained. Ordinals 7-9 unstarted; no active family unit.
+
+| Prerequisite | State | Current evidence |
+| --- | --- | --- |
+| P0 seal | met | 755 directory passes, 10,696 file passes, four losses, one preflight and one seal |
+| Original candidate | met | 53 PST occurrences, 23 eligible; original identity and 56,140,800 bytes unchanged |
+| Existing ledgers | met | Six seals, five accepted and one failed; earlier ledger digests unchanged |
+| Frozen identities | met | All nine source, engine, script, membership, policy and frozen-code identities match |
+| Capacity | met | 407,672,446,976 free bytes, above 100,000,000,000 floor |
+| Real engine smokes | met | Admitted frozen Tika and pffexport sandbox version checks exited zero |
+| Focused proof | pending | Shared beep-heavy admission; no slot bypass |
+| Packet health | met | Adoption passed; doctor zero blockers, same three unrelated advisories; index matches |
+| Next ordinal | met | 7-9 run roots and stamps absent; no active family unit |
+
+Frozen script digest:
+5b1d87cb5c420a53e56340bbc092c21826666c9e25ef210a421b8e20955e65e6.
+Membership digest:
+00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+All nine twelve-field policy digests recomputed and matched.
+The lane source matches the immutable code head; newer main source differs,
+so no main integration occurs while this frozen wave is executing. Main is
+merged before terminal PR7 as ruled. No code, engine or launcher change.
+Decision: accept family 6 and continue ordinal 7 only after renewed admitted
+proof, the full sixty-second interval, and final capacity/state recheck.
+Reversal: revert packet decisions while retaining all immutable evidence.
+Family 5 recovery remains a separate run after this wave. Eighteen larger
+occurrences and estate/recycle/DOC gates remain open; P2 stays in-progress.
+
+
+Renewed focused restoration proof: four passed, 78 skipped, 3.04 seconds
+through beep-heavy. The admitted wrapper ended; brief shared queue wait
+resolved without bypass or outside-job changes. Both real engine smokes pass.
+Full sixty-second interval begins after this proof. No new probe or fix.
+
+
+## Standing continuation: ordinal 7 submitted
+
+Full interval: 2026-10-14T02:52:32Z to 02:53:32Z.
+Final capacity recheck: 407,244,369,920 free bytes, above the 100 GB floor.
+Submitted 2026-10-14T02:53:40Z with the SAME frozen script and ordinal 7.
+Started stamp: 2026-10-14T02:53:40.233Z.
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-7.service.
+Active/running, sole wave family unit. MemoryMax 34,359,738,368 bytes,
+MemorySwapMax zero, agent-runs.slice. Result absent, private log one line.
+Runtime policy comparison awaits family-run-start after archive verification.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-07/ledgers/mail/slice.jsonl`.
+Freeze record: history/evidence/p2-first-wave-2026-10-13-family-07-run-manifest.json.
+Expected policy:
+d83ec6f1f2dfc1db153b9b0c36bab3274e9aca6a57449e29060c34825b29fc8e.
+
+Six of nine sealed, five accepted and family 5 failed; ordinals 8-9 unstarted.
+The driver resumes only after unit 7 ends. Reconcile result, seal, source and
+policy identities, children/repair digest pairs and ceilings before renewed
+admitted preflight, the full sixty-second interval and ordinal 8. Stop and
+diagnose any further failure; never retry a sealed family. Family 5 recovery
+remains separate after the wave. P2 stays incomplete; eighteen larger inputs
+and estate/recycle/DOC obligations remain open.
+
+Knowledge refs passed through beep-heavy at pre-commit head e471c67711,
+zero live gated observations. Packet adoption and doctor pass; zero blockers,
+same three unrelated advisories; index matches. Launcher size, manifest JSON,
+whitespace, added-line public hygiene, gitleaks, typos and commitlint pass.
+No package source edited; package-verify and other source hosted-parity lanes
+not run (docs-only). No push, main integration, engine/launcher change,
+sealed-family retry or worker-owned gate. The sole live family unit transfers
+to the driver under standing Runs 12+/13+ and Run 17. Reversal retains every
+ledger, output, claim and immutable freeze record. PR #1646 merged per the
+orchestrator note; terminal PR7 follows the remaining seals and one main merge.
+Graft saved approximately 93,246 tokens across two retrievals.
+
+
+## Standing continuation mid-wave final report — ordinal 7
+
+lane: corpus-restore
+head: 9b7460a4c0d5dae11a5fdf50b3330d08c5c42a6c (local committed continuation-evidence head)
+PR(s): #1646 MERGED at 06eef79feb per orchestrator ruling | PR7 none (bounded wave running; no push or merge)
+package-verify: not run (docs-only; no package edited). Renewed admitted Tika/pffexport sandbox smokes passed; four focused restoration tests passed, 78 skipped, 3.04 seconds.
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet not run (docs-only: no package source changed) | knowledge refs pass through beep-heavy at pre-commit head e471c67711, zero live gated observations | fallow audit+health not run (docs-only: no package source changed) | scoped coverage not run (docs-only: no package source changed)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+open items: Family 6 result zero and accepted seal fully reconcile 6,091 children: 5,735 engine, 178 repair copies, 178 Tika outputs; both digest sets match 178 distinct repaired digests. Dispositions: 217 repaired occurrences, 220 unsupported, zero unchanged. Zero warnings, exceptions, interruptions or unaccounted children. Input 190,989,312 bytes; output/family disk usage 496,830,967 bytes; amplification 2.601354818x; attempt 5,724,191 ms, family 5,756,397 ms, archive verification 295,782 ms. Ledger SHA-256 e96d312026220df728ebbb6d242b360ce1521015805e1fdd33888066c4e5c14e. All nine source, engine, launcher, membership, recomputed twelve-field policy and frozen-code identities match; previous ledger digests unchanged. Six of nine sealed: five accepted, family 5 retained sealed-failure. Renewed admitted preflight passed; full sixty-second interval elapsed from 02:52:32Z to 02:53:32Z. Free bytes immediately before submission 407,244,369,920, above the 100 GB floor. Ordinal 7 submitted at 2026-10-14T02:53:40Z with the SAME frozen launcher, started 02:53:40.233Z; sole active family unit beep-heavy-corpus-restore-p2-2026-10-13-7.service, MemoryMax 34,359,738,368 bytes, MemorySwapMax zero. Result and runtime policy comparison await archive verification and seal. Ledger relative to corpus home: staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-07/ledgers/mail/slice.jsonl. Frozen family-7 policy d83ec6f1f2dfc1db153b9b0c36bab3274e9aca6a57449e29060c34825b29fc8e. Ordinals 8-9 unstarted. Driver resumes after unit 7 ends; reconcile result, seal, identities, children/repair pairs and ceilings before renewed admitted preflight, sixty seconds and ordinal 8. Stop and diagnose any further sealed failure; never retry a sealed family. Decision: accept family 6 and continue the unchanged authorized wave; reversal is reverting packet decisions while retaining every ledger, output, claim and immutable manifest. Family-5 parser-exception engine PR and separately frozen recovery follow the wave. P2 remains incomplete; eighteen larger occurrences and estate/recycle/DOC obligations remain open. Newer main source differs from the frozen code; no integration during execution, one main merge before terminal PR7 as ruled. No source, engine, launcher, artifact mutation, push, merge or worker-owned gate. Packet checks and commit hooks passed; doctor zero new blockers and the same three unrelated advisories; index matches. Evidence committed at 2087bdf25a and 9b7460a4c0; this exact-head report is appended for the next evidence commit. Session ledger records the explicit driver handoff. Graft saved approximately 93,246 tokens across two retrievals.
+blocked: wave running — 6 of 9 sealed, unit beep-heavy-corpus-restore-p2-2026-10-13-7.service
+
+
+## Standing continuation stop: family 7 sealed failure
+
+Seven of nine families are sealed: five accepted (1-4 and 6), two failed
+(5 and 7). Ordinals 8-9 are unstarted; no family unit is active. The prior
+ordinal-7 final-report append is preserved. No retry or next launch occurred.
+
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-7.service.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-07/ledgers/mail/slice.jsonl`.
+Freeze record: history/evidence/p2-first-wave-2026-10-13-family-07-run-manifest.json.
+Attempt: mail:6b3d96d77df85b9358314c88:r0.
+Object: 9a7fab20677805c46b25d8953cecbafb4eacf082e02d7f603fd720add1f76df3.
+Source: 77b95a03291e7fd49496b88c7d7b052f723abc3d6176a2c1492033c4d776d2a5.
+Runtime/frozen policy: d83ec6f1f2dfc1db153b9b0c36bab3274e9aca6a57449e29060c34825b29fc8e.
+Ledger: fca75d67a121ef972f807acd099ad56e4cb9d3f4bc706959c1de187f5c572e35.
+Retained-output digest: 12e0992fea8cc572f7f104fdb7f68c1badb7ff87c12859547370d1ec4cad343c.
+
+Result 1. One each family-run-start, family-attempt-start, mail-store-exception,
+family-run-summary and family-acceptance-failure; 505 attachment-type-repair
+rows. Expected/terminal one, unapproved one, engine-failure approved false.
+Zero store passes, terminal child rows, warnings or interruptions. Partial
+dispositions: 288 repaired occurrences / 245 distinct digests, 217 unsupported,
+zero unchanged. The 15,003 retained files total 910,603,343 bytes, including
+246 repair copies and 245 Tika files. One unmatched PDF copy, zero unmatched
+Tika files. No accepted child reconciliation or atomic promotion is claimed.
+
+Input 354,026,496 bytes; retained output 910,603,343 bytes, amplification
+2.572133310x. Output fits the 1,416,105,984-byte attempt cap and
+2,147,483,648-byte family cap. Family elapsed 7,211,513 ms fits the
+43,200,000-ms family cap but exceeds the 7,200,000-ms attempt cap.
+No terminal attempt-duration field exists, so the family duration alone
+does not establish exact attempt timing.
+
+Started 2026-10-14T02:53:40.233Z, family start 02:58:07.256Z,
+attempt-start row 02:58:07.279Z, failure seal 04:58:18.773Z.
+Archive re-verification: 267,023 ms. Queue delay approximately 233 ms
+from the second-resolution submission recorded in the previous handoff.
+The unmatched 2,280,873-byte PDF copy was modified at 04:58:11.685Z,
+7,204,429 ms after family start. Its digest:
+af2d876b6c29e9c96f00a7d085ad0ad5e40f87a0b842fa13350e469739317440.
+The code checks remaining attempt/family time before the Tika second pass
+and bounds that subprocess by the remaining time. Timing and the missing
+second-pass output strongly support elapsed-budget exhaustion during
+attachment repair. Exact underlying exception and parser status are
+unresolved: the terminal catch discards the original cause and writes a
+generic engine-failure. No parser-failure approval is inferred from this
+timing, and no expensive reproduction or sealed-family retry was performed.
+
+Private log counts: four lines, 990 bytes. Journal counts: killed zero,
+oom-kill/signal failure zero, code=exited one, four lines. No private lines
+were printed. The collected transient unit's default Result=success is
+not execution evidence; the result stamp and sealed ledger are authoritative.
+
+| Prerequisite | State | Measured evidence |
+| --- | --- | --- |
+| P0 seal | met | 755 directory passes, 10,696 file passes, four losses, one preflight and one seal |
+| Original candidate | met | 53 PST occurrences, 23 eligible, original object/digest and 56,140,800 bytes unchanged |
+| Existing transformation state | not met for continuation | Seven seals, five accepted and two failed; ordinals 8-9 absent |
+| Source metadata | met | All nine manifest object/digest/input-byte identities match archive metadata |
+| Frozen engines | met | pffexport 20260917, bubblewrap 0.13.0, OpenJDK 27 dated 2026-09-15; Java real path and Tika digest unchanged |
+| Frozen script/membership | met | All nine script and membership digests match |
+| Runtime policy | met | All seven started-family policies match their immutable manifests |
+| Frozen code | met | Corpus/libpff source diff from frozen code head empty at diagnosis |
+| Capacity | met | 407,601,733,632 free bytes, above 100,000,000,000 floor |
+| Renewed smokes/focused proof | not run | No next launch after sealed failure; prior ordinal-7 preflight retained as historical proof |
+| Packet baseline | met | Adoption zero conflicts; doctor zero blockers and same three unrelated advisories |
+
+All six earlier ledger hashes match the previous handoffs. Script:
+5b1d87cb5c420a53e56340bbc092c21826666c9e25ef210a421b8e20955e65e6.
+Membership:
+00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+Before ordinal 7 submission: 407,244,369,920 free bytes.
+Decision: stop under Run 17 at the further sealed failure, retain every
+artifact, and publish aggregate evidence. Reversal: revert packet decisions
+while retaining every ledger, output, claim and immutable freeze record.
+P2 remains in-progress; P0/P1/P4 complete, P3 pending. Family-5 recovery,
+family-7 diagnosis/recovery, two unstarted bounded members, eighteen larger
+occurrences and estate/recycle/DOC obligations remain open. The orchestrator
+decides continuation; no new execution is authorized by this failure report.
+Graft saved approximately 65,334 tokens across two retrievals.
+
+Post-stop publication integration: merged origin/main 9b21df9738 after
+every wave family unit ended. Four packet conflicts were resolved to this
+branch's newer records as the orchestrator note permits; upstream's earlier
+family-5 stop evidence remains present. Manifest status now records family 7.
+This is publication integration only, not a change to any completed execution.
+The newer main may change engine source; any later execution must prove its
+code identity against its governing freeze record before launch.
+
+Publication checks: default frozen-lockfile install passed after main integration,
+with no tracked lockfile change. Complete diff against main is seven packet
+files only. Launcher size, manifest JSON, required reference-pattern search,
+whitespace, doctor and index checks pass. Doctor has zero new blockers and
+the same three unrelated advisories. Merge hooks pass with inherited
+large-file Biome warnings and JSDoc warnings from main; no package edited.
+Knowledge refs is awaiting shared beep-heavy admission; no bypass.
+
+Shared admission cleared without bypass. Knowledge refs passed through
+beep-heavy at head 2502411929 with zero live gated observations. No package
+source changed in the PR; package-verify and source hosted-parity lanes are
+not run (docs-only). Publication uses the Yeet skill under admitted heavy
+execution. The sealed family failure remains the blocker regardless of PR
+readiness; the orchestrator owns any next execution decision.
