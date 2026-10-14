@@ -269,3 +269,11 @@ managed boundary/cache projections. The second immutable basis is
 `research/MAIN-CONFLICT-INTEGRATION-20261014-2.md`; recovery uses
 `codex/pr1571-before-second-conflict-push-20261014` or a revert of the merge.
 Hosted checks and the complete green merge gate remain required.
+
+### 2026-10-14: repair the carried FreshBooks evidence reference
+
+Canonical publication stopped on a stale inherited FreshBooks review basis.
+Independently re-review only that unchanged subject against a new immutable
+source-bound correction basis; retain the other154 reviews and every
+qualification tuple, executable contract and floor. The original main owner
+was notified on PR1584. Revert this correction to recover the carried reference.
