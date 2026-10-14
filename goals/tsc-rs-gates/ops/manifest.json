@@ -4,13 +4,13 @@
     "id": "tsc-rs-gates",
     "packetId": "goal-packet/v1:70c676808d32ed2581490782001925dd5ec183b424f944cfbfd381be9581a6c2",
     "title": "Run the typecheck and build gates on tsc-rs",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/tsc-rs-gates",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Move beep-effect's typecheck and build gates from the Effect-patched tsgo to tsc-rs (pingdotgg/ts-rust), keeping @effect/tsgo for editors; measured 3.7x faster at half the peak RSS with identical diagnostics on 2026-10-13.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -51,22 +51,22 @@
     {
       "id": "P1",
       "name": "Implement",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
