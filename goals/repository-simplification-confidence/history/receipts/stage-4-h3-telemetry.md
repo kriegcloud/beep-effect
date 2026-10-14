@@ -394,3 +394,5 @@ and receives these limits before its final panel. A's hook retirement is already
 integrated, so H3 lands after it. The orchestrator owns the S11 merge gate and
 post-merge retirement. Remote Prometheus/Phoenix and restored forwarder export
 remain unknown; no scheduling or home changes were performed by this lane.
+
+The first normal resumed publication returned exit 1 before any push despite green cheap gates. Yeet's clean-existing-commit intent captured the old remote lane-to-HEAD filename diff and exceeded its 512 KiB bound. The subsequent normal staged publication includes this actual friction receipt; its existing staged-path route preserves the complete preflight and push gates. No source/tooling guard or Git ref is changed to bypass the bound.
