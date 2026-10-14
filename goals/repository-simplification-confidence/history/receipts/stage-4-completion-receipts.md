@@ -51,6 +51,8 @@ two H2 admissions run concurrently. Scratch command logs remain lane-local.
 | Changed nested initiative.packetId | different declaration digest |
 | Partial append or stale digest/PR | ignored |
 | Transient unknown refresh with no merge facts following definite receipt | definite evidence retained |
+| Mixed readable Repository and unsupported/unreadable sibling | known required red unsatisfied; green subset unknown, incomplete inventory and reads |
+| Partial green refresh omits a context previously observed red | older definite red retained |
 | Newer successful merged receipt following required-red or pending-rerun receipt | newest check facts retained; red unsatisfaction becomes unknown, pending overall stays unknown |
 | Degraded merged refresh with missing history or pending checks after required red | older positively observed red retained |
 | Doctor online versus explicit refresh | read-only versus append |
@@ -441,3 +443,21 @@ are identified in unchanged main knowledge-baseline, practice verdict and
 skills replay files. Knowledge refs now has one gated unchanged claim-element
 external-mirror path. The handoff lists exact rows and preserves old proofs
 at their real heads. No baseline or inventory exception is written.
+
+### Partial ruleset reads and independent read completeness
+
+Final source `d7e254ba48` keeps successful applicable Repository snapshots when
+sibling reads fail, preserving a known required red rather than hiding it as
+unknown. A separate defaulted rulesetReadsComplete flag prevents partial green
+observations from replacing older definite evidence. Legacy Some snapshots
+were all-or-nothing reads, so absent read completeness defaults true; missing
+inventory completeness still defaults false. Pure verification requires both.
+
+All 291 scoped tests and existing coverage floors/ceilings pass. A distinct
+Security context, required only by the unreadable sibling, proves old red
+evidence survives a partial green Lint-only refresh. Independent medium Opus
+follow-up returns zero actionable findings. Full package audit has 6313 pass
+and one inherited main workflow-descriptor failure (866.0s); docgen passes
+26.3s. Final compiler has only the inherited skills decoder red. No baseline,
+inventory exception, false verified result or lifecycle reset is introduced.
+Thread `PRRT_kwDOPbO_N86sZH0s` is resolved with REST reply `4273346327`.

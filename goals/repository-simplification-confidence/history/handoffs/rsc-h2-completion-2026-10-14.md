@@ -2,9 +2,9 @@
 
 ```text
 lane: rsc-h2-completion
-head: 99829f4ccb800ac9222783e61779694eb28b4406 (qualified integration; full H2 source 075a4d7908; report-only delivery tip in final dispatch)   PR: #1574
-package-verify @beep/repo-cli: pass (full H2 source 075a4d7908 audit 890.6s/docgen 26.5s; integrated quick lint 3.9s/check 4.2s)
-hosted-parity: test-tsgo=fail inherited skills-relock TS377112 docgen=pass (135 outputs) jsdoc-ratchet=fail inherited 4 missing examples/1 unsafe example knowledge-refs=fail inherited 1 external mirror fallow=pass coverage=pass (289 tests; existing touched floors/ceilings met)
+head: d7e254ba48333994841e39fd31980d61979381a0 (qualified source; report-only delivery tip in final dispatch)   PR: #1574
+package-verify @beep/repo-cli: fail inherited (audit 866.0s; 6313 pass, one unchanged main descriptor test fails; docgen passes 26.3s)
+hosted-parity: test-tsgo=fail inherited skills-relock TS377112 docgen=pass (135 outputs) jsdoc-ratchet=fail inherited 4 missing examples/1 unsafe example knowledge-refs=fail inherited 1 external mirror fallow=pass coverage=pass (291 tests; existing touched floors/ceilings met)
 doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
 advisories: #1429=unknown (draft-ready/window verified) #1462=unknown (window unsatisfied, seven seconds) #1427=unknown (draft-ready/window verified; merge-ready verdict unknown)
 post-merge refresh: pending merge; orchestrator owns three-packet refresh
@@ -404,3 +404,45 @@ publisher did not reach its isolated head-install preflight. The earlier
 normal isolated-install pass remains bound to `0f57cb043f`, not this tip.
 Hosted installation and acceptance remain authoritative. Final dispatch
 records the actual tip and terminal bounded-monitor result. H2 never merges.
+
+## Final P1 wave: retain partial ruleset facts without discarding an older red
+
+Thread `PRRT_kwDOPbO_N86sZH0s`, comment `4272856479`, identifies a valid
+P1: one unsupported parent, glob or unreadable history discarded all readable
+Repository siblings. Read errors are now isolated per ruleset, with successful
+applicable snapshots retained and inventoryComplete still false. All failed
+or non-applicable reads remain unknown.
+
+Independent medium Opus review catches the freshness interaction: partial
+green facts must not discard an old red from a context required only by an
+unreadable sibling. Add rulesetReadsComplete to the snapshot, defaulted true
+for old all-or-nothing snapshots. Missing inventory completeness still defaults
+false. Both dimensions are required for verification. Unknown partial reads
+are excluded from definite receipt candidates; partial known reds remain
+unsatisfied. A distinct Security context proves a later missing sibling cannot
+clear the old Security red. Mixed organization/glob/unreadable fixtures cover
+both green and red surviving repository checks. No real receipt is written.
+
+Semantic source `745a994751` plus the composition/import cleanup
+`d7e254ba48` receives ZERO ACTIONABLE FINDINGS from the same independent
+Cursor Opus 5.5 Medium reviewer. All 291 scoped tests pass. Completion coverage
+is 86.48% lines, 82.93% statements, 67.4% branches, 77.57% functions; every
+existing touched floor and uncovered ceiling passes, with no baseline change.
+Current Effect/Vitest, bounded docgen, Fallow audit/health and retired paths pass.
+Corrected test-tsgo has only the unchanged main skills decoder diagnostic.
+Schema-first, JSDoc and the one external-mirror reference remain attributed
+main reds from the integrated qualification above.
+
+Full frozen package verification completes: audit 866.0s, 6313 pass and one
+unchanged main CI runner descriptor fixture failure; docgen passes 26.3s.
+This final full gate is failed inherited evidence, not a package pass.
+Inbox `local-shard-f7c6b1c9b74c` is acknowledged with main ownership. The
+missing pipe import had separately caused audit/docgen failure; it is corrected
+in `d7e254ba48` and both old rows are acknowledged against that fix.
+Superseded validation attempts are retained as interrupted, never counted green.
+
+The P1 thread is answered/resolved through Yeet, REST reply `4273346327`,
+one resolved and zero failed. Five hosted threads are now addressed. The
+prior bounded monitor `7654872d-b7b3-4aa4-8ba0-09df95fc72e8` is terminated
+for this implementation wave, not a readiness pass. Final dispatch binds the
+complete next publication and its fresh bounded monitor.

@@ -1626,3 +1626,17 @@ should be rendered beside the option in command help.
 - Stop the two isolated, owned superseded validation process groups (exit
   143) before editing; do not stop the parent lane or another admission.
   Freeze corrected source before fresh full/package/parity qualification.
+
+### 2026-10-14 — H2 final partial-read qualification
+
+- The composition cleanup omitted its pipe import. Audit and docgen report
+  TS2304; add the canonical effect/Function import, retain failed attempts
+  and acknowledge both against `d7e254ba48`. Corrected compiler has only
+  the unchanged main skills decoder finding.
+- Frozen full package audit has 6313 pass/one inherited main descriptor
+  failure; docgen passes 26.3s. Exact diagnostics are emitted after the
+  verifier completes, while inbox rows can already exist. Early shard
+  diagnostics would avoid waiting to attribute the buffered failure.
+- All 291 scoped tests pass with complete-read semantics; medium Opus
+  follow-up is zero actionable findings. Keep the inherited repair on main
+  and publish the fully addressed P1 wave without weakening any baseline.
