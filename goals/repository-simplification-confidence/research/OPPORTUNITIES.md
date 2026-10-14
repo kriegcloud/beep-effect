@@ -2001,3 +2001,109 @@ the downstream integration delay. No coverage floor or security rule is relaxed.
   completed cheap gates and isolated install before opening #1743; the fresh
   main follow-up stopped on the cache-policy cheap gate before isolated install.
   Name each run explicitly; do not infer the exact in-flight phase at merge.
+### H4 — heavy admission needs the user bus (2026-10-14)
+
+While starting `beep-heavy bun run beep quality test-tsgo`, admission exited
+before running the check: `Failed to connect to user scope bus` because
+`DBUS_SESSION_BUS_ADDRESS` and `XDG_RUNTIME_DIR` were absent. Retry the same
+admission command with the workstation's existing user-bus environment.
+Prevent recurrence by having the launcher export those two user-manager
+variables; no bypass, service restart or permission grant is needed.
+
+### H4 — test entry point lost a fixture run (2026-10-14)
+
+The first focused command passed a package config from the repository root,
+but its package-relative include found no test files. Running from the CLI
+package fixed discovery. The subsequent Node-based run exited 143 before
+reporting cases; the canonical package Bun Vitest route completed all 13
+synthetic cases in 5.07 seconds. Keep the package cwd and its Bun runner in
+copied commands. The failed attempts are not passing evidence.
+
+### H4 — package verifier buffers long-running audit progress (2026-10-14)
+
+`beep-heavy bun run beep quality package-verify @beep/repo-cli` emitted only
+its invocation for more than 20 minutes while CPU usage and child-process
+changes showed ongoing work. The lane had to inspect its own process tree
+to distinguish a progressing audit from a silent stall. Emit a step-start
+line and periodic progress summary, or persist the active step's output to
+a named receipt, while preserving the final collected report. This is a
+usability observation, not a passing or failing package-gate result.
+
+### H4 — integration and coverage reporting corrections (2026-10-14)
+
+After merging main's native/T3 messaging work, the post-merge version hook
+could not resolve the new `@beep/t3-code` workspace. A frozen-lockfile install
+restored workspace wiring; no manifest or lock edit was needed. The first
+scoped V8 run passed 38 cases, but repeated coverage include flags selected
+only the last pattern. The reporting helper also rejected JSONC trailing
+commas. Use one brace-glob for the touched files and the existing JSONC parser
+for the read-only baseline comparison. These were setup/reporting failures;
+no coverage floor was weakened and no production failure was attributed to them.
+
+### H4 — publication found test-harness canon drift (2026-10-14)
+
+The publish preflight rejected 15 newly introduced Effect Vitest findings:
+13 redundant whole-body scopes, an incidental Node-services import and a
+missing resource-layer timeout. The earlier package/parity commands did not
+include this full-scan ratchet. Use the existing in-memory filesystem, rely
+on the harness's per-test scope and set the layer hook budget. No inventory
+refresh or exception was used; rerun the canon ratchet before publication.
+The dedicated test typecheck then caught the wired CLI command's remaining
+static platform requirements, which the normal package audit does not check.
+Keep test-tsgo separate: its correction supplies test stdio/terminal/spawner
+and narrow crypto while retaining virtual files and fail-on-input/spawn.
+
+### H4 — hosted Security blocked by shared ruleset drift (2026-10-14)
+
+PR #1770 job 116095380764 passed OSV and dependency review, then failed
+`ci ruleset --check`: the live required-check set differs from the declared
+set, including an extra `beep-reviewer`. The same command reproduces the
+drift locally; the lane has no diff in CI/ruleset source or workflows against
+main. Route reconciliation to the shared owner and rerun Security after it
+lands. A shared settings/declaration preflight would expose this before
+spending a full hosted run. No lane-local ruleset or workflow repair was made.
+
+### H4 — S25 integration requires branded constructor inputs (2026-10-14)
+
+After #1758 merged, H4 integrated main cleanly. The first package check then
+reported two missing `brand` fields in its reused Models locator inputs.
+Constructing `ModelsTargetFile` and `LocatorBinding` through their existing
+`.make` methods preserves the codemod's opaque schema shape; no cast or
+upstream rollback was needed. A consumer inventory for newly opaque models
+would expose these two lane-only call sites before integration. The fix is
+independently reviewed; the package check rerun passes.
+
+### H4 — review exposed incomplete-evidence gaps (2026-10-14)
+
+PR #1770 discussions 4276306627 and 4276306638 showed two false-safe
+assumptions: unidentified segments discarded known tuples, and equal-time
+turns from another segment could close a settings boundary by manifest order.
+Project policy payloads independently of identity/time, retain mismatches,
+and use only timestamp order or same-file position as boundary evidence.
+Regressions now cover orphan downgrades, invalid/missing times, both manifest
+permutations and a genuinely later supporting turn. Independent review also
+caught tuple rendering order changing during that fix; chronological rendering
+is restored. A generated missing-metadata and permutation test matrix would
+have exposed these cases before hosted review.
+
+### H4 — inherited hosted examples and Skills property (2026-10-14)
+
+On published pre-S25 head `9a1b342f05`, JSDoc job 116103973155 reports
+`no-root-package-import: 1345 > 1343`. The inventory diff identifies exactly
+`TierGate.ts:TierGateVerdict` and `UsptoDocumentTiers.ts:MintFetchableHandle`;
+both files match main, and H4 adds zero root-import examples. Property Laws
+job 116103972723 and Unit shard 116103972739 fail the same unchanged Skills
+codec property at `skills-provenance.test.ts:388`; the Unit parent merely
+aggregates it. Route these findings to the shared owner. Do not copy fixes
+or rewrite baselines in H4. The final post-S25 sequence includes a bounded
+recheck of the Skills property.
+
+### H4 — latest main exposes a separate test-entry diagnostic (2026-10-14)
+
+After the completed audit, freshness found main #1773's shared-red fix and
+#1766's receiver grant. Merge `7f55eeca0d` preserves H4 source unchanged.
+The repeated test-tsgo fails only `AgentMessage.runtime.test.ts:322` with
+TS377032 `strictEffectProvide`. The file matches main; blame binds the call
+to #1766 (`55b1836e40`). Route this to its owner instead of inserting a
+suppression or copying a fix into H4. Main-owned test entry points need the
+same dedicated test typecheck before their publication.
