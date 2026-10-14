@@ -36,7 +36,7 @@ const $I = $ScratchpadId.create("effected/workspaces/WorkspaceLayering");
  * @category models
  * @since 0.0.0
  */
-export class LayerEdge extends S.Class<LayerEdge>($I`LayerEdge`)({
+export class LayerEdge extends S.Class<LayerEdge, { readonly brand: unique symbol }>($I`LayerEdge`)({
 	/** The dependent package. */
 	from: S.String.annotateKey({ description: "The dependent package." }),
 	/** The package depended on. */
@@ -117,7 +117,7 @@ type OffenceReason = typeof OffenceReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class LayeringReport extends S.Class<LayeringReport>($I`LayeringReport`)({
+export class LayeringReport extends S.Class<LayeringReport, { readonly brand: unique symbol }>($I`LayeringReport`)({
 	/** Packages the policy declares more than once, or declares and also matches with an unconstrained glob. */
 	duplicates: S.Array(S.String).annotateKey({ description: "Packages the policy declares more than once, or declares and also matches with an unconstrained glob." }),
 	/** Workspace packages the policy does not classify. */

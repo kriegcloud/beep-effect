@@ -31,7 +31,10 @@ const EdgeVersionConverterOperation = LiteralKit(["toInsert", "fromRow"]);
  * @category errors
  * @since 0.0.0
  */
-export class EdgeVersionConverterError extends S.TaggedError<EdgeVersionConverterError>($I`EdgeVersionConverterError`)(
+export class EdgeVersionConverterError extends S.TaggedError<
+  EdgeVersionConverterError,
+  { readonly brand: unique symbol }
+>($I`EdgeVersionConverterError`)(
   "EdgeVersionConverterError",
   {
     operation: EdgeVersionConverterOperation.annotateKey({

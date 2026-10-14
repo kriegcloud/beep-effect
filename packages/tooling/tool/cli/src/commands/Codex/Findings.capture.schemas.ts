@@ -504,8 +504,8 @@ export type CodexFindingTitle = typeof CodexFindingTitle.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class CodexCaptureFinding extends S.Class<CodexCaptureFinding>($I`CodexCaptureFinding`)(
-  {
+export class CodexCaptureFinding extends S.Opaque<CodexCaptureFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     codexId: CapturedFindingId.pipe(
       $I.annoteKey("CodexCaptureFinding.codexId", {
         description: "Cloud identifier or namespaced local identity used to reconcile reruns and closure.",
@@ -531,10 +531,11 @@ export class CodexCaptureFinding extends S.Class<CodexCaptureFinding>($I`CodexCa
         description: "Source commit the finding was reported against.",
       })
     ),
-  },
-  $I.annote("CodexCaptureFinding", {
-    description: "One normalized finding row decoded from the findings export.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexCaptureFinding", {
+      description: "One normalized finding row decoded from the findings export.",
+    })
+  )
 ) {}
 
 /**
@@ -567,8 +568,8 @@ export class CodexCaptureFinding extends S.Class<CodexCaptureFinding>($I`CodexCa
  * @category schemas
  * @since 0.0.0
  */
-export class CodexCaptureMeta extends S.Class<CodexCaptureMeta>($I`CodexCaptureMeta`)(
-  {
+export class CodexCaptureMeta extends S.Opaque<CodexCaptureMeta, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: CodexCaptureSource.pipe(
       S.withConstructorDefault(Effect.succeed("cloud-csv" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("cloud-csv" as const))
@@ -624,10 +625,11 @@ export class CodexCaptureMeta extends S.Class<CodexCaptureMeta>($I`CodexCaptureM
         description: "Session state observed while capturing.",
       })
     ),
-  },
-  $I.annote("CodexCaptureMeta", {
-    description: "Provenance describing one capture run of the Codex Cloud findings view.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexCaptureMeta", {
+      description: "Provenance describing one capture run of the Codex Cloud findings view.",
+    })
+  )
 ) {}
 
 const CodexCaptureFindingListChecks = S.makeFilterGroup([
@@ -679,8 +681,11 @@ const CodexCaptureFindingListChecks = S.makeFilterGroup([
  * @category schemas
  * @since 0.0.0
  */
-export class CodexFindingsCapturePayload extends S.Class<CodexFindingsCapturePayload>($I`CodexFindingsCapturePayload`)(
-  {
+export class CodexFindingsCapturePayload extends S.Opaque<
+  CodexFindingsCapturePayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("codex-findings-capture/v1").pipe(
       $I.annoteKey("CodexFindingsCapturePayload.schemaVersion", {
         description: "Payload contract discriminator.",
@@ -706,10 +711,11 @@ export class CodexFindingsCapturePayload extends S.Class<CodexFindingsCapturePay
           description: "Every finding row the export carried, in export order.",
         })
       ),
-  },
-  $I.annote("CodexFindingsCapturePayload", {
-    description: "Complete normalized capture document decoded from a Codex findings export.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexFindingsCapturePayload", {
+      description: "Complete normalized capture document decoded from a Codex findings export.",
+    })
+  )
 ) {}
 
 /**

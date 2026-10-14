@@ -81,11 +81,17 @@ const optionalIri = S.OptionFromOptionalKey(IRIReference).pipe(S.withConstructor
  * @category models
  * @since 0.0.0
  */
-export class DocumentCitation extends S.Class<DocumentCitation>($I`DocumentCitation`)(
-  { type: S.tag("rdf:Statement"), subject: IRIReference, predicate: CitationPredicate, object: IRIReference },
-  $I.annote("DocumentCitation", {
-    description: "RDF statement carrying an optional citation intent without inference.",
-  })
+export class DocumentCitation extends S.Opaque<DocumentCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
+    type: S.tag("rdf:Statement"),
+    subject: IRIReference,
+    predicate: CitationPredicate,
+    object: IRIReference,
+  }).pipe(
+    $I.annoteSchema("DocumentCitation", {
+      description: "RDF statement carrying an optional citation intent without inference.",
+    })
+  )
 ) {}
 
 /**
@@ -109,18 +115,19 @@ export class DocumentCitation extends S.Class<DocumentCitation>($I`DocumentCitat
  * @category models
  * @since 0.0.0
  */
-export class DocumentAnnotationBody extends S.Class<DocumentAnnotationBody>($I`DocumentAnnotationBody`)(
-  {
+export class DocumentAnnotationBody extends S.Opaque<DocumentAnnotationBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Tuple([StructuralType, DocumentType]),
     discourseType: S.OptionFromOptionalKey(DeoType).pipe(S.withConstructorDefault(Effect.succeedNone)),
     pattern: S.OptionFromOptionalKey(PoPattern).pipe(S.withConstructorDefault(Effect.succeedNone)),
     citation: S.OptionFromOptionalKey(DocumentCitation).pipe(S.withConstructorDefault(Effect.succeedNone)),
     wasAttributedTo: optionalIri,
     wasGeneratedBy: optionalIri,
-  },
-  $I.annote("DocumentAnnotationBody", {
-    description: "SPAR structural/document typing with per-instance refinement and PROV.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentAnnotationBody", {
+      description: "SPAR structural/document typing with per-instance refinement and PROV.",
+    })
+  )
 ) {}
 
 const NodeSelector = S.Struct({ ...WebAnnotationFragmentSelector.fields, value: MdNodeId });
@@ -152,8 +159,8 @@ const NodeTarget = S.Struct({ ...WebAnnotationTarget.fields, type: S.tag("Specif
  * @category models
  * @since 0.0.0
  */
-export class DocumentAnnotation extends S.Class<DocumentAnnotation>($I`DocumentAnnotation`)(
-  {
+export class DocumentAnnotation extends S.Opaque<DocumentAnnotation, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@context": S.Tuple([
       S.Literal("http://www.w3.org/ns/anno.jsonld"),
       S.Struct({
@@ -176,10 +183,11 @@ export class DocumentAnnotation extends S.Class<DocumentAnnotation>($I`DocumentA
     type: S.tag("Annotation"),
     target: NodeTarget,
     body: DocumentAnnotationBody,
-  },
-  $I.annote("DocumentAnnotation", {
-    description: "OA document annotation with stable node selector and SPAR/PROV body.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentAnnotation", {
+      description: "OA document annotation with stable node selector and SPAR/PROV body.",
+    })
+  )
 ) {}
 
 /**

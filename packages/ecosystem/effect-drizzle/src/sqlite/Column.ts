@@ -44,7 +44,7 @@ import type * as Meta from "../core/Meta.ts";
 
 /** Failure raised when a SQLite descriptor violates its closed shape. */
 /** @internal */
-class ColumnInvariantError extends TaggedError<ColumnInvariantError>(
+class ColumnInvariantError extends TaggedError<ColumnInvariantError, { readonly brand: unique symbol }>(
   "@beep/effect-drizzle/sqlite/ColumnInvariantError"
 )(
   "ColumnInvariantError",

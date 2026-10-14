@@ -21,10 +21,9 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-class ReadmeAssemblyError extends S.TaggedError<ReadmeAssemblyError>("@beep/effect-drizzle/ReadmeAssemblyError")(
-  "ReadmeAssemblyError",
-  { message: S.String }
-) {}
+class ReadmeAssemblyError extends S.TaggedError<ReadmeAssemblyError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/ReadmeAssemblyError"
+)("ReadmeAssemblyError", { message: S.String }) {}
 
 const START_MARKER = "<!-- docgen:api-reference:start -->";
 const END_MARKER = "<!-- docgen:api-reference:end -->";

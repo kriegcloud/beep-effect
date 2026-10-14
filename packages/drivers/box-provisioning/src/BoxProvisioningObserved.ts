@@ -122,15 +122,15 @@ export type BoxDiscoveryKind = typeof BoxDiscoveryKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxDiscoveryAvailable extends S.TaggedClass<BoxDiscoveryAvailable>($I`BoxDiscoveryAvailable`)(
-  "Available",
-  {
+export class BoxDiscoveryAvailable extends S.Opaque<BoxDiscoveryAvailable, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Available", {
     kind: BoxDiscoveryKind,
     count: S.Natural,
-  },
-  $I.annote("BoxDiscoveryAvailable", {
-    description: "Successful read-only inventory result for a Box capability family.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxDiscoveryAvailable", {
+      description: "Successful read-only inventory result for a Box capability family.",
+    })
+  )
 ) {}
 
 /**
@@ -148,15 +148,15 @@ export class BoxDiscoveryAvailable extends S.TaggedClass<BoxDiscoveryAvailable>(
  * @category models
  * @since 0.0.0
  */
-export class BoxDiscoveryBlocked extends S.TaggedClass<BoxDiscoveryBlocked>($I`BoxDiscoveryBlocked`)(
-  "BlockedByEntitlement",
-  {
+export class BoxDiscoveryBlocked extends S.Opaque<BoxDiscoveryBlocked, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("BlockedByEntitlement", {
     kind: BoxDiscoveryKind,
     status: S.Int.check(S.isBetween({ minimum: 400, maximum: 499 })),
-  },
-  $I.annote("BoxDiscoveryBlocked", {
-    description: "Read-only inventory result denied by the current Box entitlement posture.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxDiscoveryBlocked", {
+      description: "Read-only inventory result denied by the current Box entitlement posture.",
+    })
+  )
 ) {}
 
 /**
@@ -179,18 +179,19 @@ export class BoxDiscoveryBlocked extends S.TaggedClass<BoxDiscoveryBlocked>($I`B
  * @category models
  * @since 0.0.0
  */
-export class BoxDiscoveryPermissionBlocked extends S.TaggedClass<BoxDiscoveryPermissionBlocked>(
-  $I`BoxDiscoveryPermissionBlocked`
-)(
-  "BlockedByPermission",
-  {
+export class BoxDiscoveryPermissionBlocked extends S.Opaque<
+  BoxDiscoveryPermissionBlocked,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("BlockedByPermission", {
     kind: BoxDiscoveryKind,
     status: S.Int.check(S.isBetween({ minimum: 400, maximum: 499 })),
     code: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BoxDiscoveryPermissionBlocked", {
-    description: "Read-only inventory result denied by Box permissions or application scopes.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxDiscoveryPermissionBlocked", {
+      description: "Read-only inventory result denied by Box permissions or application scopes.",
+    })
+  )
 ) {}
 
 /**
@@ -242,16 +243,17 @@ export type BoxDiscovery = typeof BoxDiscovery.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxObservedFolder extends S.Class<BoxObservedFolder>($I`BoxObservedFolder`)(
-  {
+export class BoxObservedFolder extends S.Opaque<BoxObservedFolder, { readonly brand: unique symbol }>()(
+  S.Struct({
     providerId: BoxProviderId,
     parentProviderId: S.OptionFromOptionalKey(BoxProviderId).pipe(S.withConstructorDefault(Effect.succeedNone)),
     name: S.NonEmptyString,
     etag: S.OptionFromOptionalKey(BoxProviderRevision).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BoxObservedFolder", {
-    description: "Normalized folder identity, parent, exact name, and optional etag from Box.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxObservedFolder", {
+      description: "Normalized folder identity, parent, exact name, and optional etag from Box.",
+    })
+  )
 ) {}
 
 /**
@@ -280,18 +282,19 @@ export class BoxObservedFolder extends S.Class<BoxObservedFolder>($I`BoxObserved
  * @category models
  * @since 0.0.0
  */
-export class BoxObservedCollaboration extends S.Class<BoxObservedCollaboration>($I`BoxObservedCollaboration`)(
-  {
+export class BoxObservedCollaboration extends S.Opaque<BoxObservedCollaboration, { readonly brand: unique symbol }>()(
+  S.Struct({
     providerId: BoxProviderId,
     folderProviderId: BoxProviderId,
     principalType: LiteralKit(["user", "group"]),
     principal: S.NonEmptyString,
     principalProviderId: S.OptionFromOptionalKey(BoxProviderId).pipe(S.withConstructorDefault(Effect.succeedNone)),
     role: S.NonEmptyString,
-  },
-  $I.annote("BoxObservedCollaboration", {
-    description: "Normalized Box collaboration keyed by item, principal, and role.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxObservedCollaboration", {
+      description: "Normalized Box collaboration keyed by item, principal, and role.",
+    })
+  )
 ) {}
 
 /**
@@ -320,16 +323,17 @@ export class BoxObservedCollaboration extends S.Class<BoxObservedCollaboration>(
  * @category models
  * @since 0.0.0
  */
-export class BoxObservedWebhook extends S.Class<BoxObservedWebhook>($I`BoxObservedWebhook`)(
-  {
+export class BoxObservedWebhook extends S.Opaque<BoxObservedWebhook, { readonly brand: unique symbol }>()(
+  S.Struct({
     providerId: BoxProviderId,
     targetProviderId: BoxProviderId,
     address: HttpsUrl,
     triggers: S.Array(S.NonEmptyString).check(S.isUnique()),
-  },
-  $I.annote("BoxObservedWebhook", {
-    description: "Normalized Box V2 webhook identity, target, callback, and trigger set.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxObservedWebhook", {
+      description: "Normalized Box V2 webhook identity, target, callback, and trigger set.",
+    })
+  )
 ) {}
 
 /**
@@ -362,8 +366,8 @@ export class BoxObservedWebhook extends S.Class<BoxObservedWebhook>($I`BoxObserv
  * @category models
  * @since 0.0.0
  */
-export class BoxObservedState extends S.Class<BoxObservedState>($I`BoxObservedState`)(
-  {
+export class BoxObservedState extends S.Opaque<BoxObservedState, { readonly brand: unique symbol }>()(
+  S.Struct({
     enterpriseId: BoxProviderId,
     subjectId: BoxProviderId,
     rootFolderId: BoxProviderId,
@@ -374,8 +378,9 @@ export class BoxObservedState extends S.Class<BoxObservedState>($I`BoxObservedSt
     retention: BoxDiscovery,
     signRequests: BoxDiscovery,
     signTemplates: BoxDiscovery,
-  },
-  $I.annote("BoxObservedState", {
-    description: "Normalized confidential Box inventory used only inside the secure runner.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxObservedState", {
+      description: "Normalized confidential Box inventory used only inside the secure runner.",
+    })
+  )
 ) {}

@@ -14,7 +14,7 @@
 
 import { $ProfessionalDesktopId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability/PhaseProfiler";
-import { MigrationBundleLegacyNameSet, migrateBundle, PostgresDrizzle } from "@beep/postgres";
+import { MigrationBundleConfig, MigrationBundleLegacyNameSet, migrateBundle, PostgresDrizzle } from "@beep/postgres";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -86,20 +86,22 @@ const PostgresSchemaName = S.NonEmptyString.pipe(
  * @category models
  * @since 0.0.0
  */
-export class ProfessionalDesktopMigrationOptions extends S.Class<ProfessionalDesktopMigrationOptions>(
-  $I`ProfessionalDesktopMigrationOptions`
-)(
-  {
+export class ProfessionalDesktopMigrationOptions extends S.Opaque<
+  ProfessionalDesktopMigrationOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     migrationsSchema: PostgresSchemaName.pipe(
       S.withConstructorDefault(Effect.succeed(migrationsSchema)),
       S.withDecodingDefaultTypeKey(Effect.succeed(migrationsSchema))
     ).annotateKey({
       description: "Drizzle migration journal schema used by the Professional Desktop sidecar database.",
     }),
-  },
-  $I.annote("ProfessionalDesktopMigrationOptions", {
-    description: "Options accepted when applying the Professional Desktop runtime migrations.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProfessionalDesktopMigrationOptions", {
+      description: "Options accepted when applying the Professional Desktop runtime migrations.",
+    })
+  )
 ) {}
 
 /**
@@ -124,7 +126,10 @@ export const migrateProfessionalDesktopDatabase = Effect.fn("professional_deskto
   const db = yield* PostgresDrizzle;
   const schema = ProfessionalDesktopMigrationOptions.make(options).migrationsSchema;
 
-  yield* migrateBundle(db, { legacyNameSets, migrations: migrationBundle, migrationsSchema: schema });
+  yield* migrateBundle(
+    db,
+    MigrationBundleConfig.make({ legacyNameSets, migrations: migrationBundle, migrationsSchema: schema })
+  );
 });
 
 /**

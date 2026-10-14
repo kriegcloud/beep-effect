@@ -119,16 +119,17 @@ export type PhaseOutcome = typeof PhaseOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class PhaseProfile extends S.Class<PhaseProfile>($I`PhaseProfile`)(
-  {
+export class PhaseProfile extends S.Opaque<PhaseProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     phase: S.NonEmptyString,
     outcome: PhaseOutcome,
     durationMs: S.Natural,
     attributes: S.Record(S.String, S.String),
-  },
-  $I.annote("PhaseProfile", {
-    description: "Deterministic summary of one profiled phase.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhaseProfile", {
+      description: "Deterministic summary of one profiled phase.",
+    })
+  )
 ) {}
 
 const metricWithAttributes = <Input, State>(

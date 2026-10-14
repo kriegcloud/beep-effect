@@ -46,15 +46,16 @@ const PositiveDollars = S.Finite.check(S.isGreaterThan(0)).pipe(
  * @category configuration
  * @since 0.0.0
  */
-export class AccountCostControlsConfig extends S.Class<AccountCostControlsConfig>($I`AccountCostControlsConfig`)(
-  {
+export class AccountCostControlsConfig extends S.Opaque<AccountCostControlsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     expectedAccountId: AccountId,
     monthlyBudgetUsd: PositiveDollars.pipe(S.withDecodingDefault(Effect.succeed(500))),
     anomalyImpactUsd: PositiveDollars.pipe(S.withDecodingDefault(Effect.succeed(10))),
-  },
-  $I.annote("AccountCostControlsConfig", {
-    description: "Account-scoped cost controls that never stop or resize workloads.",
-  })
+  }).pipe(
+    $I.annoteSchema("AccountCostControlsConfig", {
+      description: "Account-scoped cost controls that never stop or resize workloads.",
+    })
+  )
 ) {}
 
 const NotificationEmails = S.NonEmptyArray(EmailString).pipe(

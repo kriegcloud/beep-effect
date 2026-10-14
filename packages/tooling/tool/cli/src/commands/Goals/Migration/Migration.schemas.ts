@@ -89,8 +89,8 @@ export type DriftClassification = typeof DriftClassification.Type;
  * @category models
  * @since 0.0.0
  */
-export class ManifestShapeProbe extends S.Class<ManifestShapeProbe>($I`ManifestShapeProbe`)(
-  {
+export class ManifestShapeProbe extends S.Opaque<ManifestShapeProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     declaredVersion: S.optionalKey(S.String),
     hasInitiative: S.Boolean,
@@ -98,10 +98,11 @@ export class ManifestShapeProbe extends S.Class<ManifestShapeProbe>($I`ManifestS
     hasPacketPath: S.Boolean,
     hasCompletionGate: S.Boolean,
     phaseShape: LiteralKit(["array", "record", "absent", "invalid"]),
-  },
-  $I.annote("ManifestShapeProbe", {
-    description: "Observed goal-manifest field shape; declared version is evidence rather than dispatch authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManifestShapeProbe", {
+      description: "Observed goal-manifest field shape; declared version is evidence rather than dispatch authority.",
+    })
+  )
 ) {}
 
 /**
@@ -119,9 +120,10 @@ export class ManifestShapeProbe extends S.Class<ManifestShapeProbe>($I`ManifestS
  * @category models
  * @since 0.0.0
  */
-export class TranslationAssumption extends S.Class<TranslationAssumption>($I`TranslationAssumption`)(
-  { slug: S.String, message: S.String },
-  $I.annote("TranslationAssumption", { description: "One named assumption used by manifest translation." })
+export class TranslationAssumption extends S.Opaque<TranslationAssumption, { readonly brand: unique symbol }>()(
+  S.Struct({ slug: S.String, message: S.String }).pipe(
+    $I.annoteSchema("TranslationAssumption", { description: "One named assumption used by manifest translation." })
+  )
 ) {}
 
 /**
@@ -139,9 +141,10 @@ export class TranslationAssumption extends S.Class<TranslationAssumption>($I`Tra
  * @category models
  * @since 0.0.0
  */
-export class TranslationIssue extends S.Class<TranslationIssue>($I`TranslationIssue`)(
-  { slug: S.String, severity: MigrationSeverity, message: S.String },
-  $I.annote("TranslationIssue", { description: "Manifest-translation issue with blocking severity." })
+export class TranslationIssue extends S.Opaque<TranslationIssue, { readonly brand: unique symbol }>()(
+  S.Struct({ slug: S.String, severity: MigrationSeverity, message: S.String }).pipe(
+    $I.annoteSchema("TranslationIssue", { description: "Manifest-translation issue with blocking severity." })
+  )
 ) {}
 
 /**
@@ -166,8 +169,8 @@ export class TranslationIssue extends S.Class<TranslationIssue>($I`TranslationIs
  * @category models
  * @since 0.0.0
  */
-export class ManifestTranslation extends S.Class<ManifestTranslation>($I`ManifestTranslation`)(
-  {
+export class ManifestTranslation extends S.Opaque<ManifestTranslation, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     manifestPath: S.String,
     beforeVersion: S.optionalKey(S.String),
@@ -175,8 +178,7 @@ export class ManifestTranslation extends S.Class<ManifestTranslation>($I`Manifes
     drift: S.Array(DriftClassification),
     edits: S.Array(S.String),
     content: S.String,
-  },
-  $I.annote("ManifestTranslation", { description: "One surgical v2 goal-manifest translation plan." })
+  }).pipe($I.annoteSchema("ManifestTranslation", { description: "One surgical v2 goal-manifest translation plan." }))
 ) {}
 
 /**
@@ -210,16 +212,17 @@ export class ManifestTranslation extends S.Class<ManifestTranslation>($I`Manifes
  * @category models
  * @since 0.0.0
  */
-export class ManifestTranslationPlan extends S.Class<ManifestTranslationPlan>($I`ManifestTranslationPlan`)(
-  {
+export class ManifestTranslationPlan extends S.Opaque<ManifestTranslationPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     probe: ManifestShapeProbe,
     translation: S.Option(ManifestTranslation),
     issues: S.Array(TranslationIssue),
     assumptions: S.Array(TranslationAssumption),
-  },
-  $I.annote("ManifestTranslationPlan", {
-    description: "Actual-shape probe, optional surgical translation, and explicit issues and assumptions.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManifestTranslationPlan", {
+      description: "Actual-shape probe, optional surgical translation, and explicit issues and assumptions.",
+    })
+  )
 ) {}
 
 /**
@@ -272,15 +275,14 @@ export type FleetLintFindingKind = typeof FleetLintFindingKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class FleetLintFinding extends S.Class<FleetLintFinding>($I`FleetLintFinding`)(
-  {
+export class FleetLintFinding extends S.Opaque<FleetLintFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     kind: FleetLintFindingKind,
     severity: MigrationSeverity,
     related: S.Array(S.String),
     message: S.String,
-  },
-  $I.annote("FleetLintFinding", { description: "One sorted cross-packet graph integrity finding." })
+  }).pipe($I.annoteSchema("FleetLintFinding", { description: "One sorted cross-packet graph integrity finding." }))
 ) {}
 
 /**
@@ -305,16 +307,17 @@ export class FleetLintFinding extends S.Class<FleetLintFinding>($I`FleetLintFind
  * @category models
  * @since 0.0.0
  */
-export class PacketGenesisSeed extends S.Class<PacketGenesisSeed>($I`PacketGenesisSeed`)(
-  {
+export class PacketGenesisSeed extends S.Opaque<PacketGenesisSeed, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     eventsDirectory: S.String,
     eventFileName: S.String,
     eventText: S.String,
     tracePath: S.String,
     traceText: S.String,
-  },
-  $I.annote("PacketGenesisSeed", { description: "One honest current-snapshot genesis event and trace plan." })
+  }).pipe(
+    $I.annoteSchema("PacketGenesisSeed", { description: "One honest current-snapshot genesis event and trace plan." })
+  )
 ) {}
 
 /**
@@ -341,8 +344,8 @@ export class PacketGenesisSeed extends S.Class<PacketGenesisSeed>($I`PacketGenes
  * @category models
  * @since 0.0.0
  */
-export class TranslationReport extends S.Class<TranslationReport>($I`TranslationReport`)(
-  {
+export class TranslationReport extends S.Opaque<TranslationReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("packet-convention-report/v1"),
     mode: LiteralKit(["preview", "apply"]),
     probes: S.Array(ManifestShapeProbe),
@@ -351,8 +354,9 @@ export class TranslationReport extends S.Class<TranslationReport>($I`Translation
     assumptions: S.Array(TranslationAssumption),
     fleetFindings: S.Array(FleetLintFinding),
     seeds: S.Array(PacketGenesisSeed),
-  },
-  $I.annote("TranslationReport", {
-    description: "Deterministic packet-convention migration report with explicit issues and assumptions.",
-  })
+  }).pipe(
+    $I.annoteSchema("TranslationReport", {
+      description: "Deterministic packet-convention migration report with explicit issues and assumptions.",
+    })
+  )
 ) {}

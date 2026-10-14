@@ -99,16 +99,17 @@ export type RepoProofSurface = typeof RepoProofSurface.Type;
  * @category models
  * @since 0.0.0
  */
-export class RepoProofStepDefinition extends S.Class<RepoProofStepDefinition>($I`RepoProofStepDefinition`)(
-  {
+export class RepoProofStepDefinition extends S.Opaque<RepoProofStepDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
     surface: RepoProofSurface,
     id: S.String,
     label: S.String,
     args: S.Array(S.String),
-  },
-  $I.annote("RepoProofStepDefinition", {
-    description: "Planned command metadata for a repository proof surface.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepoProofStepDefinition", {
+      description: "Planned command metadata for a repository proof surface.",
+    })
+  )
 ) {}
 
 /**

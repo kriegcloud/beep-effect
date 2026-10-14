@@ -74,8 +74,8 @@ export type LibpffErrorReason = typeof LibpffErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class LibpffErrorOptions extends S.Class<LibpffErrorOptions>($I`LibpffErrorOptions`)(
-  {
+export class LibpffErrorOptions extends S.Opaque<LibpffErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.optionalKey(S.String).annotateKey({
       description: "Sanitized technical cause string when one is safe to retain.",
     }),
@@ -85,10 +85,11 @@ export class LibpffErrorOptions extends S.Class<LibpffErrorOptions>($I`LibpffErr
     processClassification: S.optionalKey(LibpffProcessClassification).annotateKey({
       description: "Sanitized process-failure classification derived from bounded stderr without retaining raw output.",
     }),
-  },
-  $I.annote("LibpffErrorOptions", {
-    description: "Options for configuring LibpffError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibpffErrorOptions", {
+      description: "Options for configuring LibpffError instances.",
+    })
+  )
 ) {}
 
 /**
@@ -106,7 +107,7 @@ export class LibpffErrorOptions extends S.Class<LibpffErrorOptions>($I`LibpffErr
  * @category errors
  * @since 0.0.0
  */
-export class LibpffError extends S.TaggedError<LibpffError>($I`LibpffError`)(
+export class LibpffError extends S.TaggedError<LibpffError, { readonly brand: unique symbol }>($I`LibpffError`)(
   "LibpffError",
   {
     cause: S.OptionFromOptionalKey(S.String).pipe(

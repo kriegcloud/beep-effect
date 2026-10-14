@@ -22,7 +22,7 @@ The fast triage questions:
 1. Can it fail? Typed tagged error in `Effect`. Can it be missing? `Option`.
 2. Is input external? Decode with `Schema` at the boundary; schema is the source of truth for data shapes.
 3. Touching arrays/objects/strings/booleans or branching on shape? Effect modules (`A`/`R`/`Str`/`Bool`), `Predicate`, `Match`, `A.match` — never native helpers or `switch`. Prefer the flattest equivalent form first. Before I keep an `O.match(...)`, can `O.map`/`O.flatMap`/`O.liftPredicate`/`O.getOrElse` express it more flatly?
-4. Defining services, schemas, unions, or Effect-returning functions? Identity composer + `Context.Service`/`Layer`, `S.Class`, `LiteralKit`/`S.toTaggedUnion`, named `Effect.fn`.
+4. Defining services, schemas, unions, or Effect-returning functions? Identity composer + `Context.Service`/`Layer`, branded `S.Opaque` for data, `LiteralKit`/`S.toTaggedUnion`, named `Effect.fn`.
 5. At a runtime boundary? `Effect.run*` only at entrypoints/tests, `runMain` owns process exit, `Effect.tryPromise` for promises, `Effect.scoped`/`acquireUseRelease` for resources.
 6. Resilience/observability? `Effect.retry` + `Schedule`, `timeoutOption`/`timeoutOrElse`, explicit concurrency, spans + structured logs from the start, `Config`/`Redacted` for env + secrets.
 7. Recovery? Precise `catchTag`/`catchFilter` in domain, `catchCause`/`matchCauseEffect` at boundaries, `Cause.pretty` for rendering, `fail` for expected vs `die` for invariants.
@@ -63,7 +63,7 @@ Additional checks with no law counterpart below:
 21. Exported helper utilities should expose dual data-first/data-last forms via `dual` from `effect/Function`.
 22. Never use `JSON.parse` / `JSON.stringify` in Effect-first code, tests, or fixtures; use `S.fromJsonString(S.Unknown)` / `S.fromJsonString` + `S.decodeUnknownEffect` / `S.encodeUnknownEffect` or explicit Result/Option codecs for non-throwing sync helpers.
 23. Do not use `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync` by default. Prefer Effect codecs, and map schema errors with `Effect.mapError(...)` before returning them across module, service, CLI, HTTP, or test-helper boundaries. If a legacy sync API must remain throwing, use Result codecs plus `Result.getOrThrowWith(...)` to preserve an `Error` or typed boundary error.
-24. Prefer `S.Class` over `S.Struct` for domain object schemas; use `S.Struct` only when a concrete boundary exception is required.
+24. Plain data schemas are `class X extends S.Opaque<X, { readonly brand: unique symbol }>()(S.Struct({...}).pipe($I.annoteSchema("X", {...}))) {}` (`S.TaggedStruct` for `_tag` data); construct with `X.make(...)`. Keep `S.Class` / `S.TaggedClass` / `S.Error` / `S.TaggedError` for errors, persisted entities, schemas with instance members, and `.extend` chains. Every schema class and Opaque carries `{ readonly brand: unique symbol }`; a `{}` brand needs a schema-first inventory exception. `S.Class` checks `instanceof`, so plain objects fail `S.is` and encoding against it.
 25. Only runtime boundaries (app entrypoints/tests) may call `Effect.runSync` / `Effect.runPromise` / `Effect.runFork`; libraries return `Effect`.
 26. Process entrypoints must not recover the root cause merely to set `process.exitCode` and print `Cause.pretty(...)`. Pass the failing root effect directly to `BunRuntime.runMain` / `NodeRuntime.runMain`; use `runMain(..., { teardown })` plus `Runtime.defaultTeardown` for custom terminal rendering.
 27. Promise-returning APIs must be lifted with `Effect.tryPromise` at boundaries.

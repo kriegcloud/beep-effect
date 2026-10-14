@@ -33,6 +33,7 @@ import {
   validateRepoConfig,
   validateRepoSafetyPolicy,
 } from "@beep/ai-sync";
+import { CodexMcpServer, McpJsonServer } from "@beep/ai-sync/_generated/schemas.gen";
 import { renderGeneratedSchemas } from "@beep/ai-sync/generator";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
@@ -299,35 +300,35 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
   it.effect.prop(
     "round-trips AiSyncSourceMetadata through its encoded shape",
     [AiSyncSourceMetadata],
-    ([value]) => expectSchemaRoundTrip(AiSyncSourceMetadata, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncSourceMetadata, AiSyncSourceMetadata.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AiSyncSchemaCell through its encoded shape",
     [AiSyncSchemaCell],
-    ([value]) => expectSchemaRoundTrip(AiSyncSchemaCell, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncSchemaCell, AiSyncSchemaCell.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AiSyncDriftFinding through its encoded shape",
     [AiSyncDriftFinding],
-    ([value]) => expectSchemaRoundTrip(AiSyncDriftFinding, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncDriftFinding, AiSyncDriftFinding.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AiSyncDriftReport through its encoded shape",
     [AiSyncDriftReport],
-    ([value]) => expectSchemaRoundTrip(AiSyncDriftReport, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncDriftReport, AiSyncDriftReport.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AiSyncValidationResult through its encoded shape",
     [AiSyncValidationResult],
-    ([value]) => expectSchemaRoundTrip(AiSyncValidationResult, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncValidationResult, AiSyncValidationResult.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
@@ -345,21 +346,21 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
   it.effect.prop(
     "round-trips AgentCommandMetadata through its encoded shape",
     [AgentCommandMetadata],
-    ([value]) => expectSchemaRoundTrip(AgentCommandMetadata, value),
+    ([value]) => expectSchemaRoundTrip(AgentCommandMetadata, AgentCommandMetadata.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AgentPluginManifestMetadata through its encoded shape",
     [AgentPluginManifestMetadata],
-    ([value]) => expectSchemaRoundTrip(AgentPluginManifestMetadata, value),
+    ([value]) => expectSchemaRoundTrip(AgentPluginManifestMetadata, AgentPluginManifestMetadata.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips UnknownNativeSchemaCell through its encoded shape",
     [UnknownNativeSchemaCell],
-    ([value]) => expectSchemaRoundTrip(UnknownNativeSchemaCell, value),
+    ([value]) => expectSchemaRoundTrip(UnknownNativeSchemaCell, UnknownNativeSchemaCell.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
@@ -403,7 +404,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
   );
 
   it.effect(
-    "keeps checked-in Claude grants inside the exact 64-value allow domain",
+    "keeps checked-in Claude grants inside the exact 62-value allow domain",
     Effect.fn(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -411,7 +412,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
       const settingsText = yield* fs.readFileString(path.join(repoRoot, ".claude/settings.json"));
       const settings = yield* decodeStructInlineSchemaJson(settingsText);
 
-      assert.lengthOf(settings.permissions.allow, 64);
+      assert.lengthOf(settings.permissions.allow, 62);
       assert.include(settings.permissions.allow, "Bash(graft ask:*)");
       assert.include(settings.permissions.allow, "Bash(graft grep:*)");
       assert.include(settings.permissions.allow, "Bash(graft skeleton:*)");
@@ -431,8 +432,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
       assert.include(settings.permissions.deny, "Bash(bun run beep refs install-timer)");
       assert.notInclude(settings.permissions.allow, "Bash(bun run beep graft deep install-timer:*)");
       assert.include(settings.permissions.allow, "Bash(systemctl --user list-timers:*)");
-      assert.include(settings.permissions.allow, "Bash(systemctl --user status beep-:*)");
-      assert.include(settings.permissions.allow, "Bash(journalctl --user -u beep-:*)");
+      assert.notInclude(settings.permissions.allow, "Bash(systemctl --user status beep-:*)");
+      assert.notInclude(settings.permissions.allow, "Bash(journalctl --user -u beep-:*)");
       assert.notInclude(settings.permissions.allow, "Bash(systemctl:*)");
       assert.notInclude(settings.permissions.allow, "Bash(systemctl --user:*)");
       assert.notInclude(settings.permissions.allow, "Bash(journalctl:*)");
@@ -481,10 +482,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
       const transformed = codexMcpServersToClaudeMcpJson(
         CodexConfig.make({
           mcp_servers: {
-            shadcn: {
+            shadcn: CodexMcpServer.make({
               command: "npx",
               args: ["-y", "shadcn@4.7.0", "mcp"],
-            },
+            }),
           },
         })
       );
@@ -504,11 +505,11 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
     Effect.fn(function* () {
       const config = ClaudeMcpJson.make({
         mcpServers: {
-          local: {
+          local: McpJsonServer.make({
             type: "stdio",
             command: "node",
             args: ["mcp.js"],
-          },
+          }),
         },
       });
 

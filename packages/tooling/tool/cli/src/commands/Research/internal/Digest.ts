@@ -24,17 +24,18 @@ import type { ResearchCommandServiceRequirements } from "../Research.service.ts"
 
 const $I = $RepoCliId.create("commands/Research/internal/Digest");
 
-class DigestCardRow extends S.Class<DigestCardRow>($I`DigestCardRow`)(
-  {
+class DigestCardRow extends S.Opaque<DigestCardRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     capturedAt: S.String,
     path: S.String,
     sourceType: S.String,
     title: S.NullOr(S.String),
-  },
-  $I.annote("DigestCardRow", {
-    title: "Digest Card Row",
-    description: "Research catalog card row used to render the daily digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("DigestCardRow", {
+      title: "Digest Card Row",
+      description: "Research catalog card row used to render the daily digest.",
+    })
+  )
 ) {}
 const decodeDigestCardRows = S.decodeUnknownEffect(S.Array(DigestCardRow));
 const decodeDigestSummary = S.decodeUnknownEffect(ResearchDigestSummary);

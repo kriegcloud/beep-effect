@@ -27,8 +27,8 @@ const EvaluationMode = LiteralKit(["live", "replay"]);
  * @category models
  * @since 0.0.0
  */
-export class EvalRunTelemetry extends S.Class<EvalRunTelemetry>($I`EvalRunTelemetry`)(
-  {
+export class EvalRunTelemetry extends S.Opaque<EvalRunTelemetry, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("eval-telemetry/v1"),
     reportDigest: Sha256Hex,
     runId: RunId,
@@ -41,9 +41,10 @@ export class EvalRunTelemetry extends S.Class<EvalRunTelemetry>($I`EvalRunTeleme
     diskGrowthBytes: S.Natural,
     dependencyBytes: S.OptionFromNullOr(S.Natural),
     modelBytes: S.OptionFromNullOr(S.Natural),
-  },
-  $I.annote("EvalRunTelemetry", {
-    description:
-      "Live-or-replay timing and available byte measurements kept outside every replay-stable digest preimage.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvalRunTelemetry", {
+      description:
+        "Live-or-replay timing and available byte measurements kept outside every replay-stable digest preimage.",
+    })
+  )
 ) {}

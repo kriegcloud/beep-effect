@@ -14,6 +14,7 @@ Wants=network-online.target
 
 [Service]
 Type=exec
+UMask=0077
 # PLACEHOLDER: absolute path of the deploy checkout the job runs from.
 WorkingDirectory=/REPLACE_WITH_CHECKOUT_PATH
 # The op shim must come before /usr/bin on PATH.

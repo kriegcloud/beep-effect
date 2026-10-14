@@ -204,9 +204,10 @@ export const parseVcards = (text: string): Effect.Effect<ReadonlyArray<RawContac
  * @category configuration
  * @since 0.0.0
  */
-export class ContactFilesConfig extends S.Class<ContactFilesConfig>($I`ContactFilesConfig`)(
-  { csvPath: S.NonEmptyString, vcardPath: S.NonEmptyString },
-  $I.annote("ContactFilesConfig", { description: "Explicit contact input path pair." })
+export class ContactFilesConfig extends S.Opaque<ContactFilesConfig, { readonly brand: unique symbol }>()(
+  S.Struct({ csvPath: S.NonEmptyString, vcardPath: S.NonEmptyString }).pipe(
+    $I.annoteSchema("ContactFilesConfig", { description: "Explicit contact input path pair." })
+  )
 ) {}
 /**
  * Contact file configuration tag.

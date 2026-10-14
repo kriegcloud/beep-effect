@@ -35,14 +35,15 @@ const makeError = (
   return [message(source.sourceFile.getFilePath(), frame)];
 };
 
-class Entry extends S.Class<Entry>($I`Entry`)(
-  {
+class Entry extends S.Opaque<Entry, { readonly brand: unique symbol }>()(
+  S.Struct({
     doc: Domain.Doc,
     position: Domain.Position,
-  },
-  $I.annote("Entry", {
-    description: "Represents a documentation entry with associated position information",
-  })
+  }).pipe(
+    $I.annoteSchema("Entry", {
+      description: "Represents a documentation entry with associated position information",
+    })
+  )
 ) {}
 
 const checkEntry = Effect.fn("checkEntry")(function* (
@@ -81,17 +82,17 @@ const checkEntry = Effect.fn("checkEntry")(function* (
 });
 
 function checkEntries(
-  models: ReadonlyArray<Entry>,
+  models: ReadonlyArray<Domain.DocEntry>,
   options: {
     readonly enforceExample: boolean;
     readonly enforceVersion: boolean;
   }
 ) {
-  return Effect.forEach(models, (model) => checkEntry(model, options)).pipe(Effect.map(A.flatten));
+  return Effect.forEach(models, (model) => checkEntry(Entry.make(model), options)).pipe(Effect.map(A.flatten));
 }
 
 function checkFunction(model: Domain.Function) {
-  return checkEntry(model, { enforceExample: true, enforceVersion: true });
+  return checkEntry(Entry.make(model), { enforceExample: true, enforceVersion: true });
 }
 
 /**
@@ -115,7 +116,7 @@ export function checkFunctions(models: ReadonlyArray<Domain.Function>) {
 }
 
 const checkClass = Effect.fn("checkClass")(function* (model: Domain.Class) {
-  const docErrors = yield* checkEntry(model, { enforceExample: true, enforceVersion: true });
+  const docErrors = yield* checkEntry(Entry.make(model), { enforceExample: true, enforceVersion: true });
   const staticMethodsErrors = yield* checkEntries(model.staticMethods, { enforceExample: true, enforceVersion: false });
   const methodsErrors = yield* checkEntries(model.methods, { enforceExample: true, enforceVersion: false });
   const propertiesErrors = yield* checkEntries(model.properties, { enforceExample: true, enforceVersion: false });
@@ -143,7 +144,7 @@ export function checkClasses(models: ReadonlyArray<Domain.Class>) {
 }
 
 function checkConstant(model: Domain.Constant) {
-  return checkEntry(model, { enforceExample: true, enforceVersion: true });
+  return checkEntry(Entry.make(model), { enforceExample: true, enforceVersion: true });
 }
 
 /**
@@ -167,7 +168,7 @@ export function checkConstants(models: ReadonlyArray<Domain.Constant>) {
 }
 
 function checkInterface(model: Domain.Interface) {
-  return checkEntry(model, { enforceExample: false, enforceVersion: true });
+  return checkEntry(Entry.make(model), { enforceExample: false, enforceVersion: true });
 }
 
 /**
@@ -191,7 +192,7 @@ export function checkInterfaces(models: ReadonlyArray<Domain.Interface>) {
 }
 
 function checkTypeAlias(model: Domain.TypeAlias) {
-  return checkEntry(model, { enforceExample: false, enforceVersion: true });
+  return checkEntry(Entry.make(model), { enforceExample: false, enforceVersion: true });
 }
 
 /**
@@ -217,7 +218,7 @@ export function checkTypeAliases(models: ReadonlyArray<Domain.TypeAlias>) {
 const checkNamespace = Effect.fn("checkNamespace")(function* (
   model: Domain.Namespace
 ): Effect.fn.Return<Array<string>, never, Parser.Source | Configuration.Configuration> {
-  const docErrors = yield* checkEntry(model, { enforceExample: false, enforceVersion: true });
+  const docErrors = yield* checkEntry(Entry.make(model), { enforceExample: false, enforceVersion: true });
   const interfacesErrors = yield* checkInterfaces(model.interfaces);
   const typeAliasesErrors = yield* checkTypeAliases(model.typeAliases);
   const namespacesErrors = yield* checkNamespaces(model.namespaces);

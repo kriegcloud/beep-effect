@@ -269,14 +269,15 @@ export type ResidueReapKeepCount = typeof ResidueReapKeepCount.Type;
  * @category models
  * @since 0.0.0
  */
-export class QualificationViewReceipt extends S.Class<QualificationViewReceipt>($I`QualificationViewReceipt`)(
-  {
+export class QualificationViewReceipt extends S.Opaque<QualificationViewReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("cache-dependency-materialization/v1"),
     directory: S.String,
-  },
-  $I.annote("QualificationViewReceipt", {
-    description: "Dependency-view citation read from a qualification evidence receipt.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualificationViewReceipt", {
+      description: "Dependency-view citation read from a qualification evidence receipt.",
+    })
+  )
 ) {}
 
 /**
@@ -347,8 +348,8 @@ export type ResidueReapHomeRoot = typeof ResidueReapHomeRoot.Type;
  * @category models
  * @since 0.0.0
  */
-export class ResidueReapCandidate extends S.Class<ResidueReapCandidate>($I`ResidueReapCandidate`)(
-  {
+export class ResidueReapCandidate extends S.Opaque<ResidueReapCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     root: S.String,
     path: S.String,
     reapClass: ResidueReapClass,
@@ -365,10 +366,11 @@ export class ResidueReapCandidate extends S.Class<ResidueReapCandidate>($I`Resid
     recoveryDestination: S.optional(S.String),
     retentionReason: S.optional(S.String),
     bytesExclusive: S.optional(ResidueReapByteCap),
-  },
-  $I.annote("ResidueReapCandidate", {
-    description: "One home-residue candidate with age, census, action, and fail-closed skip evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResidueReapCandidate", {
+      description: "One home-residue candidate with age, census, action, and fail-closed skip evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -411,8 +413,8 @@ export class ResidueReapCandidate extends S.Class<ResidueReapCandidate>($I`Resid
  * @category models
  * @since 0.0.0
  */
-export class ResidueReapReport extends S.Class<ResidueReapReport>($I`ResidueReapReport`)(
-  {
+export class ResidueReapReport extends S.Opaque<ResidueReapReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("residue-reap/v3"),
     runId: S.optional(S.String),
     reportPath: S.optional(S.String),
@@ -435,10 +437,11 @@ export class ResidueReapReport extends S.Class<ResidueReapReport>($I`ResidueReap
     reapedCount: S.Int,
     reclaimedBytes: S.Finite,
     warnings: S.Array(S.String),
-  },
-  $I.annote("ResidueReapReport", {
-    description: "Versioned report for a dry-run or applied home-residue cleanup pass.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResidueReapReport", {
+      description: "Versioned report for a dry-run or applied home-residue cleanup pass.",
+    })
+  )
 ) {}
 
 /**
@@ -468,8 +471,8 @@ export class ResidueReapReport extends S.Class<ResidueReapReport>($I`ResidueReap
  * @category models
  * @since 0.0.0
  */
-export class ResidueRetentionRuling extends S.Class<ResidueRetentionRuling>($I`ResidueRetentionRuling`)(
-  {
+export class ResidueRetentionRuling extends S.Opaque<ResidueRetentionRuling, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("residue-retention/v1"),
     path: S.NonEmptyString,
     owner: S.NonEmptyString,
@@ -478,10 +481,11 @@ export class ResidueRetentionRuling extends S.Class<ResidueRetentionRuling>($I`R
     evidence: S.NonEmptyString,
     regeneration: S.NonEmptyString,
     reason: S.NonEmptyString,
-  },
-  $I.annote("ResidueRetentionRuling", {
-    description: "Explicit owner, terminal state, and recovery policy for checkout residue.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResidueRetentionRuling", {
+      description: "Explicit owner, terminal state, and recovery policy for checkout residue.",
+    })
+  )
 ) {}
 
 /**
@@ -501,18 +505,19 @@ export class ResidueRetentionRuling extends S.Class<ResidueRetentionRuling>($I`R
  * @category models
  * @since 0.0.0
  */
-export class ResidueArchiveIntent extends S.Class<ResidueArchiveIntent>($I`ResidueArchiveIntent`)(
-  {
+export class ResidueArchiveIntent extends S.Opaque<ResidueArchiveIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: S.String,
     lexicalSource: S.String,
     destination: S.String,
     dev: S.Int,
     ino: S.Int,
     phase: ResidueArchivePhase,
-  },
-  $I.annote("ResidueArchiveIntent", {
-    description: "Inode-bound archive journal row supporting interruption recovery.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResidueArchiveIntent", {
+      description: "Inode-bound archive journal row supporting interruption recovery.",
+    })
+  )
 ) {}
 
 /**
@@ -529,7 +534,9 @@ export class ResidueArchiveIntent extends S.Class<ResidueArchiveIntent>($I`Resid
  * @category errors
  * @since 0.0.0
  */
-export class ResidueArchiveError extends S.TaggedError<ResidueArchiveError>($I`ResidueArchiveError`)(
+export class ResidueArchiveError extends S.TaggedError<ResidueArchiveError, { readonly brand: unique symbol }>(
+  $I`ResidueArchiveError`
+)(
   "ResidueArchiveError",
   { message: S.String, skipReason: S.optional(ResidueReapSkipReason) },
   $I.annoteError<ResidueArchiveError>("ResidueArchiveError", {

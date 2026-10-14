@@ -1,4 +1,5 @@
 import {
+  BuildExtractFramesArgsOptions,
   buildExtractFramesArgs,
   buildFfprobeArgs,
   ExtractFramesManifest,
@@ -10,6 +11,7 @@ import {
   FFmpegEvent,
   FFmpegProgressEvent,
   FFmpegProgressPercent,
+  FormatFrameFileNameOptions,
   FrameCount,
   FrameIndex,
   formatFrameFileName,
@@ -267,19 +269,23 @@ describe("@beep/ffmpeg", () => {
 
   it("formats frame names and command arguments", () => {
     expect(
-      formatFrameFileName({
-        index: 7,
-        padding: 5,
-        prefix: "clip_frame",
-      })
+      formatFrameFileName(
+        FormatFrameFileNameOptions.make({
+          index: 7,
+          padding: 5,
+          prefix: "clip_frame",
+        })
+      )
     ).toBe("clip_frame_00007.png");
     expect(buildFfprobeArgs(ProbeVideoRequest.make({ videoPath: "./clip.mp4" }))).toContain("./clip.mp4");
     expect(
-      buildExtractFramesArgs({
-        fps: "1",
-        outputPattern: "./frames/frame_%05d.png",
-        videoPath: "./clip.mp4",
-      })
+      buildExtractFramesArgs(
+        BuildExtractFramesArgsOptions.make({
+          fps: "1",
+          outputPattern: "./frames/frame_%05d.png",
+          videoPath: "./clip.mp4",
+        })
+      )
     ).toEqual([
       "-hide_banner",
       "-nostdin",

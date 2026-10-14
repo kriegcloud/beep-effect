@@ -57,8 +57,8 @@ type ResolvedHeader = {
  * @category models
  * @since 0.0.0
  */
-export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureHeaderOptions`)(
-  {
+export class SecureHeaderOptions extends S.Opaque<SecureHeaderOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentSecurityPolicy: S.optionalKey(ContentSecurityPolicyOption),
     crossOriginEmbedderPolicy: S.optionalKey(CrossOriginEmbedderPolicyOption),
     crossOriginOpenerPolicy: S.optionalKey(CrossOriginOpenerPolicyOption),
@@ -72,10 +72,11 @@ export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureH
     permittedCrossDomainPolicies: S.optionalKey(PermittedCrossDomainPoliciesOption),
     referrerPolicy: S.optionalKey(ReferrerPolicyOption),
     xssProtection: S.optionalKey(XSSProtectionOption),
-  },
-  $I.annote("SecureHeaderOptions", {
-    description: "Aggregate input options for secure response-header creation.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecureHeaderOptions", {
+      description: "Aggregate input options for secure response-header creation.",
+    })
+  )
 ) {}
 
 /**
@@ -93,18 +94,19 @@ export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureH
  * @category models
  * @since 0.0.0
  */
-export class SecureHeaderEntry extends S.Class<SecureHeaderEntry>($I`SecureHeaderEntry`)(
-  {
+export class SecureHeaderEntry extends S.Opaque<SecureHeaderEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: S.String,
     value: S.String,
-  },
-  $I.annote("SecureHeaderEntry", {
-    description: "A rendered secure header pair in `{ key, value }` format.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecureHeaderEntry", {
+      description: "A rendered secure header pair in `{ key, value }` format.",
+    })
+  )
 ) {}
 
 const resolveHeaders = Effect.fnUntraced(function* (
-  options: SecureHeaderOptions = {}
+  options: SecureHeaderOptions = SecureHeaderOptions.make({})
 ): Effect.fn.Return<ReadonlyArray<ResolvedHeader>, SecureHeaderError> {
   const headerEffects = A.make(
     ContentSecurityPolicyHeader.create(options.contentSecurityPolicy),
@@ -155,9 +157,9 @@ const resolveHeaders = Effect.fnUntraced(function* (
  *
  * ```ts import.meta.vitest name="Create headers record object"
  * import * as Effect from "effect/Effect";
- * import { createHeadersObject } from "@beep/schema/SecureHeaderOptions"
+ * import { createHeadersObject, SecureHeaderOptions } from "@beep/schema/SecureHeaderOptions"
  *
- * const headers = Effect.runSync(createHeadersObject({ nosniff: "nosniff" }))
+ * const headers = Effect.runSync(createHeadersObject(SecureHeaderOptions.make({ nosniff: "nosniff" })))
  * headers["X-Content-Type-Options"] // => "nosniff"
  * ```
  *
@@ -167,7 +169,7 @@ const resolveHeaders = Effect.fnUntraced(function* (
  * @since 0.0.0
  */
 export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersObject")(function* (
-  options: SecureHeaderOptions = {}
+  options: SecureHeaderOptions = SecureHeaderOptions.make({})
 ): Effect.fn.Return<Record<string, string>, SecureHeaderError> {
   const headers = yield* resolveHeaders(options);
 
@@ -187,9 +189,9 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
  *
  * ```ts import.meta.vitest name="Create SecureHeaderEntry array"
  * import * as Effect from "effect/Effect";
- * import { createSecureHeaders } from "@beep/schema/SecureHeaderOptions"
+ * import { createSecureHeaders, SecureHeaderOptions } from "@beep/schema/SecureHeaderOptions"
  *
- * const headers = Effect.runSync(createSecureHeaders({ nosniff: "nosniff" }))
+ * const headers = Effect.runSync(createSecureHeaders(SecureHeaderOptions.make({ nosniff: "nosniff" })))
  * headers[3]?.key // => "X-Content-Type-Options"
  * ```
  *
@@ -199,7 +201,7 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
  * @since 0.0.0
  */
 export const createSecureHeaders = Effect.fn("SecureHeaderOptions.createSecureHeaders")(function* (
-  options: SecureHeaderOptions = {}
+  options: SecureHeaderOptions = SecureHeaderOptions.make({})
 ): Effect.fn.Return<ReadonlyArray<SecureHeaderEntry>, SecureHeaderError> {
   const headers = yield* resolveHeaders(options);
 

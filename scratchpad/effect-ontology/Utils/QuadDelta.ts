@@ -71,17 +71,14 @@ const serializeQuad = (quad: Quad): string => {
  * @category models
  * @since 0.0.0
  */
-export class QuadDelta extends S.Class<QuadDelta>($I`QuadDelta`)(
-  {
+export class QuadDelta extends S.Opaque<QuadDelta, { readonly brand: unique symbol }>()(S.Struct({
     newQuads: S.Array(Quad).annotateKey({ description: "Quads present in the enriched graph only." }),
     originalCount: S.Natural.annotateKey({ description: "Number of quads in the original graph." }),
     enrichedCount: S.Natural.annotateKey({ description: "Number of quads in the enriched graph." }),
     deltaCount: S.Natural.annotateKey({ description: "Number of newly inferred quads." }),
-  },
-  $I.annote("QuadDelta", {
+  }).pipe($I.annoteSchema("QuadDelta", {
     description: "New RDF quads and non-negative graph-size statistics for one enrichment delta.",
-  })
-) {}
+  }))) {}
 
 /**
  * Computes the delta between two RDF stores.

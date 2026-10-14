@@ -72,9 +72,12 @@ export type ProcessStreamName = typeof ProcessStreamName.Type;
  * @category models
  * @since 0.0.0
  */
-export class StreamWriteFailure extends S.Class<StreamWriteFailure>($I`StreamWriteFailure`)(
-  { stream: ProcessStreamName, message: S.String, droppedLines: S.Int.check(S.isGreaterThan(0)) },
-  $I.annote("StreamWriteFailure", { description: "First process stream write error and count of abandoned lines." })
+export class StreamWriteFailure extends S.Opaque<StreamWriteFailure, { readonly brand: unique symbol }>()(
+  S.Struct({ stream: ProcessStreamName, message: S.String, droppedLines: S.Int.check(S.isGreaterThan(0)) }).pipe(
+    $I.annoteSchema("StreamWriteFailure", {
+      description: "First process stream write error and count of abandoned lines.",
+    })
+  )
 ) {}
 
 const formatArgs = (args: ReadonlyArray<unknown>): string =>

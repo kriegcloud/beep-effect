@@ -43,8 +43,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Schema/BatchRequest");
  * @category dtos
  * @since 0.0.0
  */
-export class BatchRequestDocument extends S.Class<BatchRequestDocument>($I`BatchRequestDocument`)(
-  {
+export class BatchRequestDocument extends S.Opaque<BatchRequestDocument, { readonly brand: unique symbol }>()(S.Struct({
     sourceUri: GcsUri.annotateKey({
       description: "Canonical Google Cloud Storage URI of the source document.",
     }),
@@ -79,11 +78,9 @@ export class BatchRequestDocument extends S.Class<BatchRequestDocument>($I`Batch
         description: "Optional UTC instant at which the original source was published.",
       })
     ),
-  },
-  $I.annote("BatchRequestDocument", {
+  }).pipe($I.annoteSchema("BatchRequestDocument", {
     description: "Validated stored source document with Option-normalized identity, size, and provenance timestamps.",
-  })
-) {
+  }))) {
   /** Derived runtime guard for validated request documents. */
   static readonly is = S.is(BatchRequestDocument);
 }
@@ -124,8 +121,7 @@ export class BatchRequestDocument extends S.Class<BatchRequestDocument>($I`Batch
  * @category dtos
  * @since 0.0.0
  */
-export class BatchRequest extends S.Class<BatchRequest>($I`BatchRequest`)(
-  {
+export class BatchRequest extends S.Opaque<BatchRequest, { readonly brand: unique symbol }>()(S.Struct({
     batchId: S.OptionFromOptionalKey(BatchId).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
@@ -165,11 +161,9 @@ export class BatchRequest extends S.Class<BatchRequest>($I`BatchRequest`)(
         description: "Complete preprocessing policy; omission enables canonical defaults.",
       })
     ),
-  },
-  $I.annote("BatchRequest", {
+  }).pipe($I.annoteSchema("BatchRequest", {
     description: "Non-empty ontology-scoped batch submission with schema-defaulted preprocessing.",
-  })
-) {
+  }))) {
   /**
    * Decodes an untrusted batch request.
    *

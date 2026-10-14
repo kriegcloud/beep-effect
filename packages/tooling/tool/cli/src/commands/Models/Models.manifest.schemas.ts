@@ -351,18 +351,19 @@ export const isEffortAllowedOnSurface: {
  * @category models
  * @since 0.0.0
  */
-export class ModelBinding extends S.Class<ModelBinding>($I`ModelBinding`)(
-  {
+export class ModelBinding extends S.Opaque<ModelBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: RoutingRole,
     surface: RoutingSurface,
     modelId: ModelId,
     effort: S.OptionFromOptionalKey(EffortLevel),
     supersedes: S.Array(ModelId).pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
     note: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("ModelBinding", {
-    description: "One role-by-surface pin naming a model and, where the surface expresses one, an effort.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelBinding", {
+      description: "One role-by-surface pin naming a model and, where the surface expresses one, an effort.",
+    })
+  )
 ) {}
 
 // ── Projection targets ──────────────────────────────────────────────────────
@@ -537,15 +538,16 @@ export const LocatorFieldIs = LocatorFieldKit.is;
  * @category models
  * @since 0.0.0
  */
-export class LocatorBinding extends S.Class<LocatorBinding>($I`LocatorBinding`)(
-  {
+export class LocatorBinding extends S.Opaque<LocatorBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: RoutingRole,
     surface: RoutingSurface,
     field: LocatorField,
-  },
-  $I.annote("LocatorBinding", {
-    description: "The role-by-surface binding, and which of its values, a locator writes.",
-  })
+  }).pipe(
+    $I.annoteSchema("LocatorBinding", {
+      description: "The role-by-surface binding, and which of its values, a locator writes.",
+    })
+  )
 ) {}
 
 /**
@@ -571,14 +573,15 @@ export class LocatorBinding extends S.Class<LocatorBinding>($I`LocatorBinding`)(
  * @category models
  * @since 0.0.0
  */
-export class BindingFilter extends S.Class<BindingFilter>($I`BindingFilter`)(
-  {
+export class BindingFilter extends S.Opaque<BindingFilter, { readonly brand: unique symbol }>()(
+  S.Struct({
     roles: S.Array(RoutingRole).pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
     surfaces: S.Array(RoutingSurface).pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
-  },
-  $I.annote("BindingFilter", {
-    description: "Which bindings a generated block renders; an empty list on either axis means all of them.",
-  })
+  }).pipe(
+    $I.annoteSchema("BindingFilter", {
+      description: "Which bindings a generated block renders; an empty list on either axis means all of them.",
+    })
+  )
 ) {}
 
 /**
@@ -596,14 +599,15 @@ export class BindingFilter extends S.Class<BindingFilter>($I`BindingFilter`)(
  * @category models
  * @since 0.0.0
  */
-export class EffortDisplayLabel extends S.Class<EffortDisplayLabel>($I`EffortDisplayLabel`)(
-  {
+export class EffortDisplayLabel extends S.Opaque<EffortDisplayLabel, { readonly brand: unique symbol }>()(
+  S.Struct({
     effort: EffortLevel,
     label: S.NonEmptyString,
-  },
-  $I.annote("EffortDisplayLabel", {
-    description: "How one effort level is spelled in a surface that stores display labels.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffortDisplayLabel", {
+      description: "How one effort level is spelled in a surface that stores display labels.",
+    })
+  )
 ) {}
 
 /**
@@ -907,17 +911,18 @@ export class ModelsApplyJournal extends S.Class<ModelsApplyJournal>($I`ModelsApp
  * @category models
  * @since 0.0.0
  */
-export class ModelSyncTarget extends S.Class<ModelSyncTarget>($I`ModelSyncTarget`)(
-  {
+export class ModelSyncTarget extends S.Opaque<ModelSyncTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TargetId,
     root: TargetRoot,
     path: S.NonEmptyString,
     optional: S.Boolean.pipe(S.withDecodingDefaultKey(Effect.succeed(false))),
     locators: S.Array(Locator),
-  },
-  $I.annote("ModelSyncTarget", {
-    description: "One projection target file, its root, and the locators the projection writes inside it.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelSyncTarget", {
+      description: "One projection target file, its root, and the locators the projection writes inside it.",
+    })
+  )
 ) {}
 
 /**
@@ -953,16 +958,17 @@ export class ModelSyncTarget extends S.Class<ModelSyncTarget>($I`ModelSyncTarget
  * @category models
  * @since 0.0.0
  */
-export class SupersededModel extends S.Class<SupersededModel>($I`SupersededModel`)(
-  {
+export class SupersededModel extends S.Opaque<SupersededModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ModelId,
     retiredAt: S.DateTimeUtcFromString,
     replacedBy: S.OptionFromOptionalKey(ModelId),
     note: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("SupersededModel", {
-    description: "A retired model id, when it was retired, and what replaced it.",
-  })
+  }).pipe(
+    $I.annoteSchema("SupersededModel", {
+      description: "A retired model id, when it was retired, and what replaced it.",
+    })
+  )
 ) {}
 
 /**
@@ -992,14 +998,15 @@ export class SupersededModel extends S.Class<SupersededModel>($I`SupersededModel
  * @category models
  * @since 0.0.0
  */
-export class ModelsManifest extends S.Class<ModelsManifest>($I`ModelsManifest`)(
-  {
+export class ModelsManifest extends S.Opaque<ModelsManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("beep-models/v1"),
     bindings: S.Array(ModelBinding),
     targets: S.Array(ModelSyncTarget),
     superseded: S.Array(SupersededModel).pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
-  },
-  $I.annote("ModelsManifest", {
-    description: "The operator's routing manifest: bindings, projection targets, and the superseded ledger.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsManifest", {
+      description: "The operator's routing manifest: bindings, projection targets, and the superseded ledger.",
+    })
+  )
 ) {}

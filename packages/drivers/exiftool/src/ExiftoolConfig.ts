@@ -278,8 +278,8 @@ export type XmpNamespaceUri = typeof XmpNamespaceUri.Type;
  * @category models
  * @since 0.0.0
  */
-export class RenderBeepQaConfigOptions extends S.Class<RenderBeepQaConfigOptions>($I`RenderBeepQaConfigOptions`)(
-  {
+export class RenderBeepQaConfigOptions extends S.Opaque<RenderBeepQaConfigOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     namespacePrefix: XmpNamespacePrefix.pipe(
       S.withConstructorDefault(Effect.succeed(BEEP_QA_XMP_NAMESPACE_PREFIX)),
       S.withDecodingDefaultTypeKey(Effect.succeed(BEEP_QA_XMP_NAMESPACE_PREFIX)),
@@ -301,10 +301,11 @@ export class RenderBeepQaConfigOptions extends S.Class<RenderBeepQaConfigOptions
         description: "String-writable property names declared inside the namespace.",
       })
     ),
-  },
-  $I.annote("RenderBeepQaConfigOptions", {
-    description: "Options for rendering the exiftool user-defined XMP namespace config.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderBeepQaConfigOptions", {
+      description: "Options for rendering the exiftool user-defined XMP namespace config.",
+    })
+  )
 ) {}
 
 const RenderBeepQaExiftoolConfig = Fn({

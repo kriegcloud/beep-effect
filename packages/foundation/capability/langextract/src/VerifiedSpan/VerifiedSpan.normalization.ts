@@ -48,17 +48,19 @@ const WhitespaceCodePoint = S.String.check(
  * @since 0.0.0
  * @internal
  */
-export class NormalizedTextWithRawOffsets extends S.Class<NormalizedTextWithRawOffsets>(
-  $I`NormalizedTextWithRawOffsets`
-)(
-  {
+export class NormalizedTextWithRawOffsets extends S.Opaque<
+  NormalizedTextWithRawOffsets,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ends: S.Array(S.Natural),
     starts: S.Array(S.Natural),
     text: S.String,
-  },
-  $I.annote("NormalizedTextWithRawOffsets", {
-    description: "Normalized locator text paired with the raw UTF-16 source range behind each normalized code unit.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizedTextWithRawOffsets", {
+      description: "Normalized locator text paired with the raw UTF-16 source range behind each normalized code unit.",
+    })
+  )
 ) {}
 
 const RawCluster = S.Tuple([S.Natural, S.Natural]).pipe(

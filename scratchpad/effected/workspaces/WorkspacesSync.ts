@@ -44,7 +44,7 @@ const decodeJson = S.decodeResult(JsonValue);
 /**
  * A malformed synchronous workspace manifest, preserving its diagnostic message.
  */
-class WorkspaceSyncManifestError extends S.TaggedError<WorkspaceSyncManifestError>($I`WorkspaceSyncManifestError`)(
+class WorkspaceSyncManifestError extends S.TaggedError<WorkspaceSyncManifestError, { readonly brand: unique symbol }>($I`WorkspaceSyncManifestError`)(
 	"WorkspaceSyncManifestError",
 	{ message: S.String },
 	$I.annote("WorkspaceSyncManifestError", { description: "A malformed synchronous workspace manifest." }),
@@ -68,7 +68,7 @@ class WorkspaceSyncManifestError extends S.TaggedError<WorkspaceSyncManifestErro
  * @category errors
  * @since 0.0.0
  */
-export class WorkspaceEnumerationDepthError extends S.TaggedError<WorkspaceEnumerationDepthError>($I`WorkspaceEnumerationDepthError`)(
+export class WorkspaceEnumerationDepthError extends S.TaggedError<WorkspaceEnumerationDepthError, { readonly brand: unique symbol }>($I`WorkspaceEnumerationDepthError`)(
 	"WorkspaceEnumerationDepthError",
 	{ message: S.String },
 	$I.annote("WorkspaceEnumerationDepthError", { description: "An invalid synchronous workspace enumeration depth bound." }),

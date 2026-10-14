@@ -30,13 +30,12 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { OpenclawSchemaPlaceholderFinding } from "./Openclaw.models.ts";
-import { OpenclawTargetVersion } from "./OpenclawIntent.models.ts";
+import { OpenclawSecretsResolverIntent, OpenclawTargetVersion } from "./OpenclawIntent.models.ts";
 import type { OpenclawSchemaPlaceholderReason } from "./Openclaw.models.ts";
 import type {
   OpenclawDeploymentIntent,
   OpenclawModelProviderIntent,
   OpenclawSecretReference,
-  OpenclawSecretsResolverIntent,
   OpenclawTelegramIntent,
 } from "./OpenclawIntent.models.ts";
 
@@ -136,7 +135,10 @@ const telegramChannelDocument = (telegram: OpenclawTelegramIntent) => ({
 });
 
 const secretsProvidersDocument = (intent: OpenclawDeploymentIntent) => ({
-  [gatewaySecretsProviderName]: execSecretsProviderDocument(intent.secretsResolver, intent.gateway.authTokenRef),
+  [gatewaySecretsProviderName]: execSecretsProviderDocument(
+    OpenclawSecretsResolverIntent.make(intent.secretsResolver),
+    intent.gateway.authTokenRef
+  ),
   ...R.fromEntries(
     A.getSomes(
       A.map(intent.providers, (provider) =>
@@ -145,7 +147,7 @@ const secretsProvidersDocument = (intent: OpenclawDeploymentIntent) => ({
           (reference) =>
             [
               modelProviderSecretsName(provider.id),
-              execSecretsProviderDocument(intent.secretsResolver, reference),
+              execSecretsProviderDocument(OpenclawSecretsResolverIntent.make(intent.secretsResolver), reference),
             ] as const
         )
       )
@@ -153,7 +155,7 @@ const secretsProvidersDocument = (intent: OpenclawDeploymentIntent) => ({
   ),
   ...O.getSomesStruct({
     [telegramSecretsProviderName]: O.map(intent.telegram, (telegram) =>
-      execSecretsProviderDocument(intent.secretsResolver, telegram.botTokenRef)
+      execSecretsProviderDocument(OpenclawSecretsResolverIntent.make(intent.secretsResolver), telegram.botTokenRef)
     ),
   }),
 });
@@ -323,8 +325,8 @@ export type OpenclawSha256Hex = typeof OpenclawSha256Hex.Type;
  * @category models
  * @since 0.0.0
  */
-export class RenderedOpenclawConfig extends S.Class<RenderedOpenclawConfig>($I`RenderedOpenclawConfig`)(
-  {
+export class RenderedOpenclawConfig extends S.Opaque<RenderedOpenclawConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalJson: S.String.annotateKey({
       description: "Canonical jq -S-equivalent JSON document with a trailing newline.",
     }),
@@ -334,10 +336,11 @@ export class RenderedOpenclawConfig extends S.Class<RenderedOpenclawConfig>($I`R
     targetVersion: OpenclawTargetVersion.annotateKey({
       description: "Pinned OpenClaw version the document was rendered for.",
     }),
-  },
-  $I.annote("RenderedOpenclawConfig", {
-    description: "Canonical rendered openclaw.json document with its content hash.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderedOpenclawConfig", {
+      description: "Canonical rendered openclaw.json document with its content hash.",
+    })
+  )
 ) {}
 
 const utf8 = new TextEncoder();

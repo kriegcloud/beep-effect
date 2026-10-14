@@ -60,7 +60,7 @@ const citationBaseWarningsDefault = A.empty<CitationWarning>();
  * @category models
  * @since 0.0.0
  */
-export class CitationBase extends S.Class<CitationBase>($I`CitationBase`)(
+export class CitationBase extends S.Class<CitationBase, { readonly brand: unique symbol }>($I`CitationBase`)(
   {
     id: CitationId.pipe(
       S.OptionFromOptionalKey,

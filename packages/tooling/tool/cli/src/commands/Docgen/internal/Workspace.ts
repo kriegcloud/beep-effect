@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { DomainError, FsUtils, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
+import { DomainError, FsUtils, findRepoRoot, GlobOptions, resolveWorkspaceDirs } from "@beep/repo-utils";
 import {
   CanonicalDocgenConfigInput,
   createCanonicalDocgenConfig,
@@ -106,11 +106,14 @@ export const discoverOrphanDocgenConfigPaths: (
       MutableHashSet.add(canonicalWorkspaceDirs, normalizeSlashes(absolutePath));
     }
 
-    const configPaths = yield* fsUtils.globFiles(DOCGEN_CONFIG_SCAN_GLOBS, {
-      cwd: repoRoot,
-      absolute: true,
-      ignore: DOCGEN_CONFIG_SCAN_IGNORES,
-    });
+    const configPaths = yield* fsUtils.globFiles(
+      DOCGEN_CONFIG_SCAN_GLOBS,
+      GlobOptions.make({
+        cwd: repoRoot,
+        absolute: true,
+        ignore: DOCGEN_CONFIG_SCAN_IGNORES,
+      })
+    );
     const orphanedPaths = A.empty<string>();
 
     for (const configPath of configPaths) {

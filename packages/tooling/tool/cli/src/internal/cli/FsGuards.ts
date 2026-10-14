@@ -51,15 +51,22 @@ const FsGuardFailureReason = LiteralKit([
   })
 );
 
-class ContainedTarget extends S.Class<ContainedTarget>($I`ContainedTarget`)(
-  {
+/**
+ * Resolved root, parent, and target paths for one contained filesystem operation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ContainedTarget extends S.Opaque<ContainedTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     parent: S.NonEmptyString,
     root: S.NonEmptyString,
     target: S.NonEmptyString,
-  },
-  $I.annote("ContainedTarget", {
-    description: "Resolved root, parent, and target paths for one contained filesystem operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContainedTarget", {
+      description: "Resolved root, parent, and target paths for one contained filesystem operation.",
+    })
+  )
 ) {}
 
 /**
@@ -91,7 +98,7 @@ class ContainedTarget extends S.Class<ContainedTarget>($I`ContainedTarget`)(
  * @category errors
  * @since 0.0.0
  */
-export class FsGuardError extends S.TaggedError<FsGuardError>($I`FsGuardError`)(
+export class FsGuardError extends S.TaggedError<FsGuardError, { readonly brand: unique symbol }>($I`FsGuardError`)(
   "FsGuardError",
   {
     cause: S.OptionFromOptionalKey(OpaqueDefect),
@@ -127,14 +134,15 @@ export class FsGuardError extends S.TaggedError<FsGuardError>($I`FsGuardError`)(
  * @category models
  * @since 0.0.0
  */
-export class ContainedFileRead extends S.Class<ContainedFileRead>($I`ContainedFileRead`)(
-  {
+export class ContainedFileRead extends S.Opaque<ContainedFileRead, { readonly brand: unique symbol }>()(
+  S.Struct({
     contents: S.Option(S.String),
     exists: S.Boolean,
-  },
-  $I.annote("ContainedFileRead", {
-    description: "Existence and optional text content from a contained no-follow file read.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContainedFileRead", {
+      description: "Existence and optional text content from a contained no-follow file read.",
+    })
+  )
 ) {}
 
 /**
@@ -152,11 +160,12 @@ export class ContainedFileRead extends S.Class<ContainedFileRead>($I`ContainedFi
  * @category models
  * @since 0.0.0
  */
-export class ContainedBytesRead extends S.Class<ContainedBytesRead>($I`ContainedBytesRead`)(
-  { contents: S.Option(S.Uint8Array), exists: S.Boolean },
-  $I.annote("ContainedBytesRead", {
-    description: "Existence and bounded original bytes from a contained no-follow file read.",
-  })
+export class ContainedBytesRead extends S.Opaque<ContainedBytesRead, { readonly brand: unique symbol }>()(
+  S.Struct({ contents: S.Option(S.Uint8Array), exists: S.Boolean }).pipe(
+    $I.annoteSchema("ContainedBytesRead", {
+      description: "Existence and bounded original bytes from a contained no-follow file read.",
+    })
+  )
 ) {}
 
 const fsGuardError = (
@@ -409,6 +418,27 @@ const requireWritableTarget = Effect.fnUntraced(function* (
   );
 });
 
+const recheckContainedTarget = Effect.fnUntraced(function* (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  prepared: ContainedTarget,
+  operation: string,
+  requireWritable: boolean
+): Effect.fn.Return<ContainedTarget, FsGuardError> {
+  const checked = yield* prepareContainedTarget(fs, path, prepared.root, prepared.target, false);
+  if (O.isNone(checked)) {
+    return yield* fsGuardError(
+      prepared.root,
+      prepared.target,
+      prepared.parent,
+      "parent-not-directory",
+      `Target parent "${prepared.parent}" disappeared before the ${operation}.`
+    );
+  }
+  if (requireWritable) yield* requireWritableTarget(fs, checked.value);
+  return checked.value;
+});
+
 const writePreparedFileString = Effect.fnUntraced(function* (
   fs: FileSystem.FileSystem,
   path: Path.Path,
@@ -447,32 +477,22 @@ const writePreparedFileString = Effect.fnUntraced(function* (
         )
       );
 
-      const checked = yield* prepareContainedTarget(fs, path, prepared.root, prepared.target, false);
-      if (O.isNone(checked)) {
-        return yield* fsGuardError(
-          prepared.root,
-          prepared.target,
-          prepared.parent,
-          "parent-not-directory",
-          `Target parent "${prepared.parent}" disappeared before the guarded write could commit.`
-        );
-      }
-      yield* requireWritableTarget(fs, checked.value);
+      const checked = yield* recheckContainedTarget(fs, path, prepared, "guarded write could commit", true);
       yield* fs
-        .rename(temporaryPath, checked.value.target)
+        .rename(temporaryPath, checked.target)
         .pipe(
           Effect.mapError((cause) =>
             fsGuardError(
-              checked.value.root,
-              checked.value.target,
-              checked.value.target,
+              checked.root,
+              checked.target,
+              checked.target,
               "filesystem-failure",
-              `Failed to atomically replace contained target "${checked.value.target}".`,
+              `Failed to atomically replace contained target "${checked.target}".`,
               cause
             )
           )
         );
-      return checked.value.target;
+      return checked.target;
     })
   );
 });
@@ -532,6 +552,50 @@ const makeContainedFileStringOperation = (
 export const writeContainedFileString = makeContainedFileStringOperation(
   "RepoCli.FsGuards.writeContainedFileString",
   writePreparedFileString
+);
+
+/**
+ * Exclusively create a text file beneath a symlink-free root.
+ *
+ * **Details**
+ *
+ * Each ancestor is checked without following links and the final write uses
+ * `wx`, so an existing file or final-component symlink is never replaced.
+ * The parent is checked again immediately before creation. Callers must keep
+ * concurrent writers away from the root when stronger directory-handle
+ * guarantees are required.
+ *
+ * **Example** (Build an exclusive contained write)
+ *
+ * ```ts
+ * import { createContainedFileString } from "@beep/repo-cli/test/Cli"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(createContainedFileString("/repo", "/repo/new.txt", "ready")))
+ * ```
+ *
+ * @category filesystem
+ * @since 0.0.0
+ */
+export const createContainedFileString = makeContainedFileStringOperation(
+  "RepoCli.FsGuards.createContainedFileString",
+  Effect.fnUntraced(function* (fs, path, prepared, contents) {
+    const checked = yield* recheckContainedTarget(fs, path, prepared, "exclusive write", false);
+    yield* fs
+      .writeFileString(checked.target, contents, { flag: "wx" })
+      .pipe(
+        Effect.mapError((cause) =>
+          fsGuardError(
+            checked.root,
+            checked.target,
+            checked.target,
+            "filesystem-failure",
+            `Refused exclusive creation of "${checked.target}".`,
+            cause
+          )
+        )
+      );
+    return checked.target;
+  })
 );
 
 const appendPreparedFileString = Effect.fnUntraced(function* (
@@ -596,37 +660,27 @@ const appendPreparedFileString = Effect.fnUntraced(function* (
             )
           )
         );
-      const checked = yield* prepareContainedTarget(fs, path, prepared.root, prepared.target, false);
-      if (O.isNone(checked)) {
-        return yield* fsGuardError(
-          prepared.root,
-          prepared.target,
-          prepared.parent,
-          "parent-not-directory",
-          `Target parent "${prepared.parent}" disappeared before the guarded append could commit.`
-        );
-      }
-      yield* requireWritableTarget(fs, checked.value);
+      const checked = yield* recheckContainedTarget(fs, path, prepared, "guarded append could commit", true);
       const aliasPath = path.join(temporaryDirectory, "target");
       yield* fs
-        .link(checked.value.target, aliasPath)
+        .link(checked.target, aliasPath)
         .pipe(
           Effect.mapError((cause) =>
             fsGuardError(
-              checked.value.root,
-              checked.value.target,
+              checked.root,
+              checked.target,
               aliasPath,
               "filesystem-failure",
-              `Failed to create a no-follow alias for append target "${checked.value.target}".`,
+              `Failed to create a no-follow alias for append target "${checked.target}".`,
               cause
             )
           )
         );
-      const aliasKind = yield* inspectEntryNoFollow(fs, checked.value.root, checked.value.target, aliasPath);
+      const aliasKind = yield* inspectEntryNoFollow(fs, checked.root, checked.target, aliasPath);
       if (O.isNone(aliasKind) || !Eq.equals(aliasKind.value, "File")) {
         return yield* fsGuardError(
-          checked.value.root,
-          checked.value.target,
+          checked.root,
+          checked.target,
           aliasPath,
           O.exists(aliasKind, (entryKind) => Eq.equals(entryKind, "SymbolicLink")) ? "symlink" : "target-not-file",
           `Refused filesystem append because alias "${aliasPath}" is not a regular file.`
@@ -637,8 +691,8 @@ const appendPreparedFileString = Effect.fnUntraced(function* (
         .pipe(
           Effect.mapError((cause) =>
             fsGuardError(
-              checked.value.root,
-              checked.value.target,
+              checked.root,
+              checked.target,
               aliasPath,
               "filesystem-failure",
               `Failed to append through no-follow alias "${aliasPath}".`,
@@ -646,7 +700,7 @@ const appendPreparedFileString = Effect.fnUntraced(function* (
             )
           )
         );
-      return checked.value.target;
+      return checked.target;
     })
   );
 });

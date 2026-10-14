@@ -75,7 +75,9 @@ const RecordingTargetKind = LiteralKit(["frozen", "review-candidate"]);
  * @category errors
  * @since 0.0.0
  */
-export class ProviderSmokeError extends S.TaggedError<ProviderSmokeError>($I`ProviderSmokeError`)(
+export class ProviderSmokeError extends S.TaggedError<ProviderSmokeError, { readonly brand: unique symbol }>(
+  $I`ProviderSmokeError`
+)(
   "ProviderSmokeError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
@@ -88,15 +90,16 @@ export class ProviderSmokeError extends S.TaggedError<ProviderSmokeError>($I`Pro
   })
 ) {}
 
-class RecordingTarget extends S.Class<RecordingTarget>($I`RecordingTarget`)(
-  {
+class RecordingTarget extends S.Opaque<RecordingTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: RecordingTargetKind,
     mode: RecordingMode,
     path: S.NonEmptyString,
-  },
-  $I.annote("RecordingTarget", {
-    description: "A preflighted write-once destination for a frozen recording or review candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecordingTarget", {
+      description: "A preflighted write-once destination for a frozen recording or review candidate.",
+    })
+  )
 ) {}
 
 const providerSmokeError = (stage: string, message: string): ProviderSmokeError =>

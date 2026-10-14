@@ -77,7 +77,7 @@ const decodeIngestedLinkRows = (rows: unknown) =>
  * @category errors
  * @since 0.0.0
  */
-export class LinkIngestionError extends S.TaggedError<LinkIngestionError>($I`LinkIngestionError`)(
+export class LinkIngestionError extends S.TaggedError<LinkIngestionError, { readonly brand: unique symbol }>($I`LinkIngestionError`)(
   "LinkIngestionError",
   {
     message: S.String,
@@ -111,8 +111,7 @@ export class LinkIngestionError extends S.TaggedError<LinkIngestionError>($I`Lin
  * @category configuration
  * @since 0.0.0
  */
-export class IngestOptions extends S.Class<IngestOptions>($I`IngestOptions`)(
-  {
+export class IngestOptions extends S.Opaque<IngestOptions, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString.annotateKey({ description: "Ontology identifier used for namespace scoping." }),
     enrich: S.Boolean.pipe(S.optionalKey).annotateKey({ description: "Whether to run AI enrichment." }),
     extractImages: S.Boolean.pipe(S.optionalKey).annotateKey({ description: "Whether to extract and store images." }),
@@ -123,11 +122,9 @@ export class IngestOptions extends S.Class<IngestOptions>($I`IngestOptions`)(
     skipDuplicates: S.Boolean.pipe(S.optionalKey).annotateKey({
       description: "Whether content hashes already present in the ontology are skipped.",
     }),
-  },
-  $I.annote("IngestOptions", {
+  }).pipe($I.annoteSchema("IngestOptions", {
     description: "Ontology scope, enrichment, image extraction, metadata, and duplicate handling for URL ingestion.",
-  })
-) {}
+  }))) {}
 
 /**
  * Result of ingesting a URL
@@ -149,8 +146,7 @@ export class IngestOptions extends S.Class<IngestOptions>($I`IngestOptions`)(
  * @category models
  * @since 0.0.0
  */
-export class IngestResult extends S.Class<IngestResult>($I`IngestResult`)(
-  {
+export class IngestResult extends S.Opaque<IngestResult, { readonly brand: unique symbol }>()(S.Struct({
     id: S.NonEmptyString.annotateKey({ description: "Database identifier of the ingested link." }),
     contentHash: S.NonEmptyString.annotateKey({ description: "SHA-256 content hash." }),
     storageUri: S.NonEmptyString.annotateKey({ description: "Storage URI of the persisted content." }),
@@ -158,11 +154,9 @@ export class IngestResult extends S.Class<IngestResult>($I`IngestResult`)(
     duplicate: S.Boolean.annotateKey({ description: "Whether ingestion skipped an existing content hash." }),
     wordCount: S.Natural.pipe(S.optionalKey).annotateKey({ description: "Content word count when available." }),
     imageCount: S.Natural.pipe(S.optionalKey).annotateKey({ description: "Number of extracted images stored." }),
-  },
-  $I.annote("IngestResult", {
+  }).pipe($I.annoteSchema("IngestResult", {
     description: "Stored link identity, content location, enrichment metadata, and duplicate outcome.",
-  })
-) {}
+  }))) {}
 
 /**
  * Options for bulk ingestion
@@ -179,8 +173,7 @@ export class IngestResult extends S.Class<IngestResult>($I`IngestResult`)(
  * @category configuration
  * @since 0.0.0
  */
-export class BulkIngestOptions extends S.Class<BulkIngestOptions>($I`BulkIngestOptions`)(
-  {
+export class BulkIngestOptions extends S.Opaque<BulkIngestOptions, { readonly brand: unique symbol }>()(S.Struct({
     ...IngestOptions.fields,
     concurrency: S.Int.check(S.isGreaterThan(0)).pipe(S.optionalKey).annotateKey({
       description: "Maximum concurrent URL ingestions.",
@@ -188,11 +181,9 @@ export class BulkIngestOptions extends S.Class<BulkIngestOptions>($I`BulkIngestO
     continueOnError: S.Boolean.pipe(S.optionalKey).annotateKey({
       description: "Whether individual failures are retained while remaining URLs continue.",
     }),
-  },
-  $I.annote("BulkIngestOptions", {
+  }).pipe($I.annoteSchema("BulkIngestOptions", {
     description: "URL-ingestion options extended with concurrency and failure-continuation controls.",
-  })
-) {}
+  }))) {}
 
 /**
  * Filter for listing ingested links
@@ -209,19 +200,16 @@ export class BulkIngestOptions extends S.Class<BulkIngestOptions>($I`BulkIngestO
  * @category configuration
  * @since 0.0.0
  */
-export class IngestedLinkFilter extends S.Class<IngestedLinkFilter>($I`IngestedLinkFilter`)(
-  {
+export class IngestedLinkFilter extends S.Opaque<IngestedLinkFilter, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString.pipe(S.optionalKey),
     status: LinkStatus.pipe(S.optionalKey),
     sourceType: S.NonEmptyString.pipe(S.optionalKey),
     organization: S.NonEmptyString.pipe(S.optionalKey),
     limit: S.Natural.pipe(S.optionalKey),
     offset: S.Natural.pipe(S.optionalKey),
-  },
-  $I.annote("IngestedLinkFilter", {
+  }).pipe($I.annoteSchema("IngestedLinkFilter", {
     description: "Ontology, lifecycle, source, organization, limit, and offset filters for ingested links.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Helpers
@@ -243,10 +231,10 @@ const buildStoragePath = (contentHash: string): string => `documents/${contentHa
 const CONTENT_HASH_CACHE_CAPACITY = 50_000;
 const CONTENT_HASH_CACHE_TTL = Duration.days(7); // Content hashes are immutable
 
-class ContentHashCacheKey extends S.Class<ContentHashCacheKey>($I`ContentHashCacheKey`)({
+class ContentHashCacheKey extends S.Opaque<ContentHashCacheKey, { readonly brand: unique symbol }>()(S.Struct({
   ontologyId: S.NonEmptyString,
   hash: S.NonEmptyString,
-}) {}
+}).pipe($I.annoteSchema("ContentHashCacheKey"))) {}
 
 /**
  * Provides the link ingestion service service capability.

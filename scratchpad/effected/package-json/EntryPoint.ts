@@ -60,7 +60,7 @@ export interface ResolveEntryPointOptions {
  * @category errors
  * @since 0.0.0
  */
-export class UnresolvedEntryPointError extends S.TaggedError<UnresolvedEntryPointError>($I`UnresolvedEntryPointError`)(
+export class UnresolvedEntryPointError extends S.TaggedError<UnresolvedEntryPointError, { readonly brand: unique symbol }>($I`UnresolvedEntryPointError`)(
 	"UnresolvedEntryPointError",
 	{
 		/**

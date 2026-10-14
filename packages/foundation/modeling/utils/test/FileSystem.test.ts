@@ -2,6 +2,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { it } from "@beep/test-runner";
 import { FileSystem, Path } from "@beep/utils";
+import { AppendFileSyncOptions, RmSyncOptions } from "@beep/utils/FileSystem";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
@@ -34,7 +35,7 @@ it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers",
       const file = Path.join(dir, "log.txt");
       yield* FileSystem.appendFileSync(file, "a");
       yield* FileSystem.appendFileSync(file, "b");
-      yield* pipe(file, FileSystem.appendFileSync("c", { flag: "a" }));
+      yield* pipe(file, FileSystem.appendFileSync("c", AppendFileSyncOptions.make({ flag: "a" })));
       expect(NFS.readFileSync(file, "utf8")).toBe("abc");
     })
   );
@@ -112,7 +113,7 @@ it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers",
       const target = Path.join(dir, "tree");
       NFS.mkdirSync(target);
       yield* FileSystem.appendFileSync(Path.join(target, "leaf.txt"), "x");
-      yield* FileSystem.rmSync(target, { recursive: true, force: true });
+      yield* FileSystem.rmSync(target, RmSyncOptions.make({ recursive: true, force: true }));
       expect(yield* FileSystem.existsSync(target)).toBe(false);
     })
   );

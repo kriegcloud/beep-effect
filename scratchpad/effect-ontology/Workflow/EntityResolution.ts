@@ -47,16 +47,13 @@ const entityResolutionConfigTypeOverlapRatioDefault = UnitInterval.make(0.5);
  * @category models
  * @since 0.0.0
  */
-export class EntityResolutionConfig extends S.Class<EntityResolutionConfig>($I`EntityResolutionConfig`)(
-  {
+export class EntityResolutionConfig extends S.Opaque<EntityResolutionConfig, { readonly brand: unique symbol }>()(S.Struct({
     mentionSimilarityThreshold: UnitInterval.pipe(S.withConstructorDefault(Effect.succeed(entityResolutionConfigMentionSimilarityThresholdDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(entityResolutionConfigMentionSimilarityThresholdDefault))),
     requireTypeOverlap: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true))),
     typeOverlapRatio: UnitInterval.pipe(S.withConstructorDefault(Effect.succeed(entityResolutionConfigTypeOverlapRatioDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(entityResolutionConfigTypeOverlapRatioDefault))),
-  },
-  $I.annote("EntityResolutionConfig", {
+  }).pipe($I.annoteSchema("EntityResolutionConfig", {
     description: "Mention similarity and type-overlap thresholds used by the legacy graph merge workflow.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link EntityResolutionConfig}.

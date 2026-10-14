@@ -19,7 +19,7 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.errors");
  * @category errors
  * @since 0.0.0
  */
-export class LibraryError extends S.TaggedError<LibraryError>($I`LibraryError`)(
+export class LibraryError extends S.TaggedError<LibraryError, { readonly brand: unique symbol }>($I`LibraryError`)(
   "LibraryError",
   {
     message: S.String,

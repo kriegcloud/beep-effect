@@ -210,7 +210,7 @@ const OntologyRefFields = {
  * @category value-objects
  * @since 0.0.0
  */
-export class OntologyRef extends S.Class<OntologyRef>($I`OntologyRef`)(
+export class OntologyRef extends S.Class<OntologyRef, { readonly brand: unique symbol }>($I`OntologyRef`)(
   OntologyRefFields,
   $I.annote("OntologyRef", {
     description: "Content-addressed reference to one immutable ontology version.",
@@ -323,7 +323,7 @@ const ClassDefinitionFields = {
   ),
 };
 
-class ClassDefinitionModel extends S.Class<ClassDefinitionModel>($I`ClassDefinition`)(
+class ClassDefinitionModel extends S.Class<ClassDefinitionModel, { readonly brand: unique symbol }>($I`ClassDefinition`)(
   ClassDefinitionFields,
   $I.annote("ClassDefinition", {
     description: "OWL or RDFS class metadata normalized for lookup and semantic search.",
@@ -433,7 +433,7 @@ const PropertyDefinitionFields = {
   ...SkosFields,
 };
 
-class PropertyDefinitionModel extends S.Class<PropertyDefinitionModel>($I`PropertyDefinition`)(
+class PropertyDefinitionModel extends S.Class<PropertyDefinitionModel, { readonly brand: unique symbol }>($I`PropertyDefinition`)(
   PropertyDefinitionFields,
   $I.annote("PropertyDefinition", {
     description: "RDF or OWL property metadata normalized for validation and semantic search.",
@@ -708,7 +708,7 @@ const OntologyContextFields = {
  * @category aggregates
  * @since 0.0.0
  */
-export class OntologyContext extends S.Class<OntologyContext>($I`OntologyContext`)(
+export class OntologyContext extends S.Class<OntologyContext, { readonly brand: unique symbol }>($I`OntologyContext`)(
   OntologyContextFields,
   $I.annote("OntologyContext", {
     description: "Immutable ontology snapshot with cycle-safe class and property hierarchy traversal.",

@@ -24,9 +24,10 @@ import {
   COURT_REPORTER_VOCABULARY_SCHEMA_VERSION,
   classifyVocabularyAliases,
   preserveIssuedVocabularyRecords,
+  VocabularyContextualAlias,
 } from "../internal/FreeLawProjectVocabulary.ts";
 import { fetchSource, formatJson, normalizeJson, outputFile, sourceMetadata } from "../internal/Source.ts";
-import { SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
+import { SyncDataTargetMetadata, SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
 import type { SyncDataTarget } from "../SyncDataToTs.schemas.ts";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/targets/ReportersDb");
@@ -88,29 +89,31 @@ const reportersDbArchivePaths = [
   stateAbbreviationsPath,
 ] as const;
 
-class ReporterDateRange extends S.Class<ReporterDateRange>($I`ReporterDateRange`)(
-  {
+class ReporterDateRange extends S.Opaque<ReporterDateRange, { readonly brand: unique symbol }>()(
+  S.Struct({
     end: S.NullOr(S.String),
     start: S.NullOr(S.String),
-  },
-  $I.annote("ReporterDateRange", {
-    description: "Date range attached to one reporters-db edition.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReporterDateRange", {
+      description: "Date range attached to one reporters-db edition.",
+    })
+  )
 ) {}
 
-class ReporterEdition extends S.Class<ReporterEdition>($I`ReporterEdition`)(
-  {
+class ReporterEdition extends S.Opaque<ReporterEdition, { readonly brand: unique symbol }>()(
+  S.Struct({
     end: S.NullOr(S.String),
     regexes: S.Array(S.String).pipe(S.optionalKey),
     start: S.NullOr(S.String),
-  },
-  $I.annote("ReporterEdition", {
-    description: "Edition metadata nested within a reporters-db reporter record.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReporterEdition", {
+      description: "Edition metadata nested within a reporters-db reporter record.",
+    })
+  )
 ) {}
 
-class ReporterRecord extends S.Class<ReporterRecord>($I`ReporterRecord`)(
-  {
+class ReporterRecord extends S.Opaque<ReporterRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     cite_format: S.optionalKey(S.String),
     cite_type: S.String,
     editions: S.Record(S.String, ReporterEdition),
@@ -121,37 +124,30 @@ class ReporterRecord extends S.Class<ReporterRecord>($I`ReporterRecord`)(
     notes: S.optionalKey(S.String),
     publisher: S.optionalKey(S.String),
     variations: S.Record(S.String, S.String),
-  },
-  $I.annote("ReporterRecord", {
-    description: "One official reporters-db reporter record.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReporterRecord", {
+      description: "One official reporters-db reporter record.",
+    })
+  )
 ) {}
 
-class ReporterVocabularyEdition extends S.Class<ReporterVocabularyEdition>($I`ReporterVocabularyEdition`)(
-  {
+class ReporterVocabularyEdition extends S.Opaque<ReporterVocabularyEdition, { readonly brand: unique symbol }>()(
+  S.Struct({
     abbreviation: S.NonEmptyString,
     start: S.NullOr(S.String),
     end: S.NullOr(S.String),
-  },
-  $I.annote("ReporterVocabularyEdition", {
-    description: "Source-faithful reporter edition retained in the published vocabulary.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReporterVocabularyEdition", {
+      description: "Source-faithful reporter edition retained in the published vocabulary.",
+    })
+  )
 ) {}
 
-class VocabularyContextualAlias extends S.Class<VocabularyContextualAlias>($I`VocabularyContextualAlias`)(
-  {
-    alias: S.NonEmptyString,
-    context: S.NonEmptyString,
-  },
-  $I.annote("VocabularyContextualAlias", {
-    description: "Context-bearing alias retained in a generated court or reporter vocabulary.",
-  })
-) {}
-
-class ReporterVocabularyOutputRecord extends S.Class<ReporterVocabularyOutputRecord>(
-  $I`ReporterVocabularyOutputRecord`
-)(
-  {
+class ReporterVocabularyOutputRecord extends S.Opaque<
+  ReporterVocabularyOutputRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: S.NonEmptyString,
     semanticKey: S.NonEmptyString,
     lineageKey: S.NonEmptyString,
@@ -164,10 +160,11 @@ class ReporterVocabularyOutputRecord extends S.Class<ReporterVocabularyOutputRec
     contextualAliases: S.Array(VocabularyContextualAlias),
     status: S.Literals(["active", "tombstone"]),
     successorId: S.NullOr(S.NonEmptyString),
-  },
-  $I.annote("ReporterVocabularyOutputRecord", {
-    description: "Generated reporter vocabulary row used to preserve previously issued identities across refreshes.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReporterVocabularyOutputRecord", {
+      description: "Generated reporter vocabulary row used to preserve previously issued identities across refreshes.",
+    })
+  )
 ) {}
 
 const PreviousReporterVocabularyArtifact = S.Struct({
@@ -178,8 +175,8 @@ const PreviousReporterVocabularyArtifact = S.Struct({
   })
 );
 
-class JournalRecord extends S.Class<JournalRecord>($I`JournalRecord`)(
-  {
+class JournalRecord extends S.Opaque<JournalRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     cite_type: S.String,
     end: ReporterDateRange.fields.end,
     examples: S.Array(S.String),
@@ -188,14 +185,15 @@ class JournalRecord extends S.Class<JournalRecord>($I`JournalRecord`)(
     regexes: S.Array(S.String),
     start: ReporterDateRange.fields.start,
     variations: S.Array(S.String),
-  },
-  $I.annote("JournalRecord", {
-    description: "One official reporters-db journal record.",
-  })
+  }).pipe(
+    $I.annoteSchema("JournalRecord", {
+      description: "One official reporters-db journal record.",
+    })
+  )
 ) {}
 
-class LawRecord extends S.Class<LawRecord>($I`LawRecord`)(
-  {
+class LawRecord extends S.Opaque<LawRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     cite_type: S.String,
     end: S.Null,
     examples: S.Array(S.String),
@@ -206,10 +204,11 @@ class LawRecord extends S.Class<LawRecord>($I`LawRecord`)(
     regexes: S.Array(S.String),
     start: S.Null,
     variations: S.Array(S.String),
-  },
-  $I.annote("LawRecord", {
-    description: "One official reporters-db law record.",
-  })
+  }).pipe(
+    $I.annoteSchema("LawRecord", {
+      description: "One official reporters-db law record.",
+    })
+  )
 ) {}
 
 const CaseNameAbbreviations = S.Record(S.String, S.NonEmptyArray(S.String)).pipe(
@@ -617,9 +616,11 @@ export const projectReporterVocabulary = Effect.fn("SyncDataToTs.ReportersDb.pro
  * @since 0.0.0
  */
 export const reportersDbTarget: SyncDataTarget = {
-  id: targetId,
-  access: "public",
-  description: "Sync all six official citation datasets from a pinned reporters-db release.",
-  sourceUrls: [REPORTERS_DB_SOURCE_URL],
+  ...SyncDataTargetMetadata.make({
+    id: targetId,
+    access: "public",
+    description: "Sync all six official citation datasets from a pinned reporters-db release.",
+    sourceUrls: [REPORTERS_DB_SOURCE_URL],
+  }),
   acquire: acquireReportersDbProjection(),
 };

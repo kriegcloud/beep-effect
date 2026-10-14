@@ -44,7 +44,9 @@ const $I = $RepoCliId.create("commands/AIMetrics/AIMetrics.errors");
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsCommandError extends S.TaggedError<AiMetricsCommandError>($I`AiMetricsCommandError`)(
+export class AiMetricsCommandError extends S.TaggedError<AiMetricsCommandError, { readonly brand: unique symbol }>(
+  $I`AiMetricsCommandError`
+)(
   "AiMetricsCommandError",
   {
     message: S.String,
@@ -70,7 +72,9 @@ export class AiMetricsCommandError extends S.TaggedError<AiMetricsCommandError>(
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsStatusExit extends S.TaggedError<AiMetricsStatusExit>($I`AiMetricsStatusExit`)(
+export class AiMetricsStatusExit extends S.TaggedError<AiMetricsStatusExit, { readonly brand: unique symbol }>(
+  $I`AiMetricsStatusExit`
+)(
   "AiMetricsStatusExit",
   {
     message: S.String,

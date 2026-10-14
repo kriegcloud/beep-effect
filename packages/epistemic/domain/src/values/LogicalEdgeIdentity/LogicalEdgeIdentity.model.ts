@@ -271,8 +271,8 @@ export type LogicalEdgeKey = typeof LogicalEdgeKey.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class LogicalEdgeIdentity extends S.Class<LogicalEdgeIdentity>($I`LogicalEdgeIdentity`)(
-  {
+export class LogicalEdgeIdentity extends S.Opaque<LogicalEdgeIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     evidenceScope: EdgeEvidenceScope.pipe(S.OptionFromNullOr).annotateKey({
       description: "Optional evidence-set scope the edge was asserted under.",
     }),
@@ -284,10 +284,11 @@ export class LogicalEdgeIdentity extends S.Class<LogicalEdgeIdentity>($I`Logical
     relation: EdgeRelation.annotateKey({ description: "Relation the source endpoint bears to the target." }),
     source: EdgeEndpoint.annotateKey({ description: "Endpoint recorded as the source of the edge." }),
     target: EdgeEndpoint.annotateKey({ description: "Endpoint recorded as the target of the edge." }),
-  },
-  $I.annote("LogicalEdgeIdentity", {
-    description: "Time-independent identity of a bitemporal epistemic edge.",
-  })
+  }).pipe(
+    $I.annoteSchema("LogicalEdgeIdentity", {
+      description: "Time-independent identity of a bitemporal epistemic edge.",
+    })
+  )
 ) {}
 
 /**

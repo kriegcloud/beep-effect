@@ -307,34 +307,37 @@ const echoClassForEvent = (eventType: DmsEventType): O.Option<EchoClass> =>
  * One successful push recorded during the current pass; polled events consume
  * these to suppress the provider echoing our own verbs.
  */
-class ContentPushRecord extends S.Class<ContentPushRecord>($I`ContentPushRecord`)(
-  {
+class ContentPushRecord extends S.Opaque<ContentPushRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     echoClass: S.tag("content"),
     remoteId: RemoteItemId,
-  },
-  $I.annote("ContentPushRecord", {
-    description: "A successful content push awaiting its provider echo.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContentPushRecord", {
+      description: "A successful content push awaiting its provider echo.",
+    })
+  )
 ) {}
 
-class MovedPushRecord extends S.Class<MovedPushRecord>($I`MovedPushRecord`)(
-  {
+class MovedPushRecord extends S.Opaque<MovedPushRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     echoClass: S.tag("moved"),
     remoteId: RemoteItemId,
-  },
-  $I.annote("MovedPushRecord", {
-    description: "A successful move awaiting its provider echo.",
-  })
+  }).pipe(
+    $I.annoteSchema("MovedPushRecord", {
+      description: "A successful move awaiting its provider echo.",
+    })
+  )
 ) {}
 
-class RenamedPushRecord extends S.Class<RenamedPushRecord>($I`RenamedPushRecord`)(
-  {
+class RenamedPushRecord extends S.Opaque<RenamedPushRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     echoClass: S.tag("renamed"),
     remoteId: RemoteItemId,
-  },
-  $I.annote("RenamedPushRecord", {
-    description: "A successful rename awaiting its provider echo.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenamedPushRecord", {
+      description: "A successful rename awaiting its provider echo.",
+    })
+  )
 ) {}
 
 const PushRecord = S.Union([ContentPushRecord, MovedPushRecord, RenamedPushRecord]).pipe(

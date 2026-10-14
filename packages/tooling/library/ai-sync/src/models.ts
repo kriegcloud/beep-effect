@@ -424,8 +424,8 @@ export const AiSyncContentHash = Sha256Hex.pipe(
  */
 export type AiSyncContentHash = typeof AiSyncContentHash.Type;
 
-class AiSyncSourceMetadataIdentity extends S.Class<AiSyncSourceMetadataIdentity>($I`AiSyncSourceMetadataIdentity`)(
-  {
+class AiSyncSourceMetadataIdentity extends S.Opaque<AiSyncSourceMetadataIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: AiSyncSourceId,
     agent: AiSyncAgentId,
     domain: AiSyncDomainId,
@@ -434,10 +434,11 @@ class AiSyncSourceMetadataIdentity extends S.Class<AiSyncSourceMetadataIdentity>
     versionPin: S.Option(AiSyncVersionPin),
     isOfficial: S.Boolean,
     driftMechanism: AiSyncDriftMechanism,
-  },
-  $I.annote("AiSyncSourceMetadataIdentity", {
-    description: "Comparable source identity fields excluding the generated content hash.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiSyncSourceMetadataIdentity", {
+      description: "Comparable source identity fields excluding the generated content hash.",
+    })
+  )
 ) {}
 
 /**
@@ -464,8 +465,8 @@ class AiSyncSourceMetadataIdentity extends S.Class<AiSyncSourceMetadataIdentity>
  * @category models
  * @since 0.0.0
  */
-export class AiSyncSourceMetadata extends S.Class<AiSyncSourceMetadata>($I`AiSyncSourceMetadata`)(
-  {
+export class AiSyncSourceMetadata extends S.Opaque<AiSyncSourceMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: AiSyncSourceId,
     agent: AiSyncAgentId,
     domain: AiSyncDomainId,
@@ -475,10 +476,11 @@ export class AiSyncSourceMetadata extends S.Class<AiSyncSourceMetadata>($I`AiSyn
     contentHash: AiSyncContentHash.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     isOfficial: S.Boolean,
     driftMechanism: AiSyncDriftMechanism,
-  },
-  $I.annote("AiSyncSourceMetadata", {
-    description: "Source tier, pin, and drift metadata for one upstream evidence item.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiSyncSourceMetadata", {
+      description: "Source tier, pin, and drift metadata for one upstream evidence item.",
+    })
+  )
 ) {
   static readonly decodeArrayEffect = S.decodeUnknownEffect(S.Array(AiSyncSourceMetadata));
   static readonly identityEquivalence = S.toEquivalence(AiSyncSourceMetadataIdentity);
@@ -525,17 +527,18 @@ export class AiSyncSourceMetadata extends S.Class<AiSyncSourceMetadata>($I`AiSyn
  * @category models
  * @since 0.0.0
  */
-export class AiSyncSchemaCell extends S.Class<AiSyncSchemaCell>($I`AiSyncSchemaCell`)(
-  {
+export class AiSyncSchemaCell extends S.Opaque<AiSyncSchemaCell, { readonly brand: unique symbol }>()(
+  S.Struct({
     agent: AiSyncAgentId,
     domain: AiSyncDomainId,
     status: AiSyncSupportStatus,
     sourceId: AiSyncSourceId.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     rationale: S.String,
-  },
-  $I.annote("AiSyncSchemaCell", {
-    description: "Agent/domain support status and rationale.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiSyncSchemaCell", {
+      description: "Agent/domain support status and rationale.",
+    })
+  )
 ) {}
 
 /**
@@ -560,16 +563,17 @@ export class AiSyncSchemaCell extends S.Class<AiSyncSchemaCell>($I`AiSyncSchemaC
  * @category models
  * @since 0.0.0
  */
-export class AiSyncDriftFinding extends S.Class<AiSyncDriftFinding>($I`AiSyncDriftFinding`)(
-  {
+export class AiSyncDriftFinding extends S.Opaque<AiSyncDriftFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceId: AiSyncSourceId,
     expectedHash: AiSyncContentHash.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     actualHash: AiSyncContentHash,
     message: S.String,
-  },
-  $I.annote("AiSyncDriftFinding", {
-    description: "Structured drift finding for a source whose current content differs from the committed pin.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiSyncDriftFinding", {
+      description: "Structured drift finding for a source whose current content differs from the committed pin.",
+    })
+  )
 ) {}
 
 /**
@@ -675,14 +679,15 @@ export type AiSyncValidationSchemaId = typeof AiSyncValidationSchemaId.Type;
  * @category validation
  * @since 0.0.0
  */
-export class ValidateRepoConfigInput extends S.Class<ValidateRepoConfigInput>($I`ValidateRepoConfigInput`)(
-  {
+export class ValidateRepoConfigInput extends S.Opaque<ValidateRepoConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.NonEmptyString,
     config: S.NonEmptyString,
-  },
-  $I.annote("ValidateRepoConfigInput", {
-    description: "Input accepted by the schema contract for repo-local AI sync config validation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ValidateRepoConfigInput", {
+      description: "Input accepted by the schema contract for repo-local AI sync config validation.",
+    })
+  )
 ) {}
 
 /**
@@ -699,14 +704,15 @@ export class ValidateRepoConfigInput extends S.Class<ValidateRepoConfigInput>($I
  * @category models
  * @since 0.0.0
  */
-export class AiSyncDriftReport extends S.Class<AiSyncDriftReport>($I`AiSyncDriftReport`)(
-  {
+export class AiSyncDriftReport extends S.Opaque<AiSyncDriftReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: LiteralKit(["local", "strict", "refresh"]),
     findings: S.Array(AiSyncDriftFinding),
-  },
-  $I.annote("AiSyncDriftReport", {
-    description: "Result of a local, strict, or refresh-oriented drift check.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiSyncDriftReport", {
+      description: "Result of a local, strict, or refresh-oriented drift check.",
+    })
+  )
 ) {}
 
 /**
@@ -730,18 +736,19 @@ export class AiSyncDriftReport extends S.Class<AiSyncDriftReport>($I`AiSyncDrift
  * @category models
  * @since 0.0.0
  */
-export class AiSyncTransformEvidence extends S.Class<AiSyncTransformEvidence>($I`AiSyncTransformEvidence`)(
-  {
+export class AiSyncTransformEvidence extends S.Opaque<AiSyncTransformEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     status: AiSyncTransformStatus,
     sourceAgent: AiSyncAgentId,
     targetAgent: AiSyncAgentId,
     domain: AiSyncDomainId,
     rationale: S.String,
-  },
-  $I.annote("AiSyncTransformEvidence", {
-    description: "Evidence ledger entry for a V1 transform candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiSyncTransformEvidence", {
+      description: "Evidence ledger entry for a V1 transform candidate.",
+    })
+  )
 ) {}
 
 /**
@@ -761,14 +768,15 @@ export class AiSyncTransformEvidence extends S.Class<AiSyncTransformEvidence>($I
  * @category validation
  * @since 0.0.0
  */
-export class AiSyncValidationResult extends S.Class<AiSyncValidationResult>($I`AiSyncValidationResult`)(
-  {
+export class AiSyncValidationResult extends S.Opaque<AiSyncValidationResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     relativePath: AiSyncValidatedConfigPath,
     schemaId: AiSyncValidationSchemaId,
-  },
-  $I.annote("AiSyncValidationResult", {
-    description: "Successful validation result for a repo-local agent config file.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiSyncValidationResult", {
+      description: "Successful validation result for a repo-local agent config file.",
+    })
+  )
 ) {}
 
 /**
@@ -785,7 +793,7 @@ export class AiSyncValidationResult extends S.Class<AiSyncValidationResult>($I`A
  * @category errors
  * @since 0.0.0
  */
-export class AiSyncError extends S.TaggedError<AiSyncError>($I`AiSyncError`)(
+export class AiSyncError extends S.TaggedError<AiSyncError, { readonly brand: unique symbol }>($I`AiSyncError`)(
   "AiSyncError",
   {
     message: S.String,

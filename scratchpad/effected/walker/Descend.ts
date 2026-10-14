@@ -76,7 +76,7 @@ const JsonString = S.fromJsonString(S.String);
 const encodeJsonString = S.encodeResult(JsonString);
 
 /** Invalid descent wiring, raised as a defect rather than a recoverable failure. */
-class DescendDefect extends S.TaggedError<DescendDefect>($I`DescendDefect`)(
+class DescendDefect extends S.TaggedError<DescendDefect, { readonly brand: unique symbol }>($I`DescendDefect`)(
 	"DescendDefect",
 	{ message: S.String },
 	$I.annote("DescendDefect", { description: "Invalid downward traversal wiring." }),
@@ -252,7 +252,7 @@ export type DescendResult = typeof DescendResult.Type;
 * @category errors
 * @since 0.0.0
 */
-export class DescendError extends S.TaggedError<DescendError>($I`DescendError`)("DescendError", {
+export class DescendError extends S.TaggedError<DescendError, { readonly brand: unique symbol }>($I`DescendError`)("DescendError", {
 	/** The glob pattern's source text. */
 	pattern: S.String.annotateKey({ description: "The glob pattern's source text." }),
 	/** Why the walk failed: a directory could not be read, or the walk went past `maxDepth`. */

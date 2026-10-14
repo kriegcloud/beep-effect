@@ -26,7 +26,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/DocView");
  * @category errors
  * @since 0.0.0
  */
-export class MissingDocViewThemeError extends S.TaggedError<MissingDocViewThemeError>($I`MissingDocViewThemeError`)(
+export class MissingDocViewThemeError extends S.TaggedError<MissingDocViewThemeError, { readonly brand: unique symbol }>($I`MissingDocViewThemeError`)(
 	"MissingDocViewThemeError",
 	{
 		message: S.String.annotate($I.annote("MissingDocViewThemeError.message", {

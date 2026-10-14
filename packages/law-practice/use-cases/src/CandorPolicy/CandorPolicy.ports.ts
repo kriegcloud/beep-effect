@@ -42,18 +42,19 @@ const $I = $LawPracticeUseCasesId.create("CandorPolicy/CandorPolicy.ports");
  * @category models
  * @since 0.0.0
  */
-export class CandorRecordSnapshot extends S.Class<CandorRecordSnapshot>($I`CandorRecordSnapshot`)(
-  {
+export class CandorRecordSnapshot extends S.Opaque<CandorRecordSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     dispositions: S.Array(CandorDisposition).annotateKey({
       description: "Attorney dispositions visible in the same protected read snapshot as the events.",
     }),
     events: S.Array(PatentCitationEvent).annotateKey({
       description: "Patent citation events visible in the same protected read snapshot as the dispositions.",
     }),
-  },
-  $I.annote("CandorRecordSnapshot", {
-    description: "Transactionally consistent candor events and dispositions for one filing.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandorRecordSnapshot", {
+      description: "Transactionally consistent candor events and dispositions for one filing.",
+    })
+  )
 ) {}
 
 /**
@@ -98,18 +99,19 @@ export class CandorRecordSnapshot extends S.Class<CandorRecordSnapshot>($I`Cando
  * @category services
  * @since 0.0.0
  */
-export class CandorRecordReaderShape extends S.Class<CandorRecordReaderShape>($I`CandorRecordReaderShape`)(
-  {
+export class CandorRecordReaderShape extends S.Opaque<CandorRecordReaderShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     snapshotForFiling: Fn({
       input: CandorFilingScope,
       output: EffectOutput<CandorRecordSnapshot, CandorRecordReadError>(),
     }).annotateKey({
       description: "Read events and dispositions for one filing from one protected snapshot.",
     }),
-  },
-  $I.annote("CandorRecordReaderShape", {
-    description: "Append-and-read-only service shape over the recorded candor material of one filing.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandorRecordReaderShape", {
+      description: "Append-and-read-only service shape over the recorded candor material of one filing.",
+    })
+  )
 ) {}
 
 /**
@@ -205,8 +207,8 @@ export class CandorRecordReader extends Context.Service<CandorRecordReader, Cand
  * @category services
  * @since 0.0.0
  */
-export class CandorPolicyShape extends S.Class<CandorPolicyShape>($I`CandorPolicyShape`)(
-  {
+export class CandorPolicyShape extends S.Opaque<CandorPolicyShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     evaluate: Fn({
       input: CandorFilingScope,
       output: EffectOutput<
@@ -217,10 +219,11 @@ export class CandorPolicyShape extends S.Class<CandorPolicyShape>($I`CandorPolic
     }).annotateKey({
       description: "Recompute the candor verdict for one filing from its recorded events and dispositions.",
     }),
-  },
-  $I.annote("CandorPolicyShape", {
-    description: "Service shape for the derived, fail-closed candor gate over one filing.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandorPolicyShape", {
+      description: "Service shape for the derived, fail-closed candor gate over one filing.",
+    })
+  )
 ) {}
 
 /**

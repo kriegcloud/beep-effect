@@ -23,8 +23,31 @@ const ConformancePathSegment = S.Union([S.String, S.Natural]).pipe(
 );
 
 const violationIssuePathDefault = A.empty<string | number>();
-class ViolationIssue extends S.Class<ViolationIssue>($I`ViolationIssue`)(
-  {
+/**
+ * Definite violation of a mechanically decidable conformance invariant.
+ *
+ * **Example** (Report a heading level that skips a step)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { Issue, ViolationIssue } from "@beep/schema/Conformance"
+ *
+ * const issue = ViolationIssue.make({
+ *   invariantId: "md.heading.no-skipped-levels",
+ *   strength: "should",
+ *   path: ["children", 4],
+ *   message: "Heading jumps from level 1 to level 3."
+ * })
+ *
+ * console.log(Issue.guards.violation(issue)) // => true
+ * console.log(O.isNone(issue.reference)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ViolationIssue extends S.Opaque<ViolationIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("violation"),
     invariantId: S.NonEmptyString,
     strength: RequirementStrength,
@@ -34,15 +57,36 @@ class ViolationIssue extends S.Class<ViolationIssue>($I`ViolationIssue`)(
     ),
     message: S.NonEmptyString,
     reference: S.OptionFromOptionalKey(SpecificationReference).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ViolationIssue", {
-    description: "Definite violation of a mechanically decidable conformance invariant.",
-  })
+  }).pipe(
+    $I.annoteSchema("ViolationIssue", {
+      description: "Definite violation of a mechanically decidable conformance invariant.",
+    })
+  )
 ) {}
 
 const indeterminateIssuePathDefault = A.empty<string | number>();
-class IndeterminateIssue extends S.Class<IndeterminateIssue>($I`IndeterminateIssue`)(
-  {
+/**
+ * Invariant outcome that requires context or authority unavailable to the validator.
+ *
+ * **Example** (Report an invariant that needs the whole document)
+ *
+ * ```ts
+ * import { IndeterminateIssue } from "@beep/schema/Conformance"
+ *
+ * const issue = IndeterminateIssue.make({
+ *   invariantId: "md.link.reference-defined",
+ *   message: "Cannot tell whether [spec] resolves.",
+ *   reason: "Link reference definitions live outside the checked node."
+ * })
+ *
+ * console.log(issue.path) // => []
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class IndeterminateIssue extends S.Opaque<IndeterminateIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("indeterminate"),
     invariantId: S.NonEmptyString,
     path: S.Array(ConformancePathSegment).pipe(
@@ -52,10 +96,11 @@ class IndeterminateIssue extends S.Class<IndeterminateIssue>($I`IndeterminateIss
     message: S.NonEmptyString,
     reason: S.NonEmptyString,
     reference: S.OptionFromOptionalKey(SpecificationReference).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("IndeterminateIssue", {
-    description: "Invariant outcome that requires context or authority unavailable to the validator.",
-  })
+  }).pipe(
+    $I.annoteSchema("IndeterminateIssue", {
+      description: "Invariant outcome that requires context or authority unavailable to the validator.",
+    })
+  )
 ) {}
 
 /**
@@ -133,11 +178,31 @@ const ConformingReportConsistency = S.makeFilter(hasUniqueReportIdentifiers, {
 
 const ConformingReportValue = ConformingReportFields.check(ConformingReportConsistency);
 
-class ConformingReport extends S.Class<ConformingReport>($I`ConformingReport`)(
-  ConformingReportValue,
-  $I.annote("ConformingReport", {
-    description: "Report asserting conformance for the declared checked-invariant set.",
-  })
+/**
+ * Report asserting conformance for the declared checked-invariant set.
+ *
+ * **Example** (Record a clean run against one profile)
+ *
+ * ```ts
+ * import { ConformingReport, Report } from "@beep/schema/Conformance"
+ *
+ * const report = ConformingReport.make({
+ *   profileIds: ["commonmark-0.31.2"],
+ *   checkedInvariantIds: ["md.heading.no-skipped-levels", "md.list.consistent-markers"]
+ * })
+ *
+ * console.log(Report.guards.conforming(report)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ConformingReport extends S.Opaque<ConformingReport, { readonly brand: unique symbol }>()(
+  ConformingReportValue.pipe(
+    $I.annoteSchema("ConformingReport", {
+      description: "Report asserting conformance for the declared checked-invariant set.",
+    })
+  )
 ) {}
 
 const nonConformingReportFieldsIndeterminateIssuesDefault = A.empty<IndeterminateIssue>();
@@ -166,12 +231,42 @@ const NonConformingReportConsistency = S.makeFilter(
 
 const NonConformingReportValue = NonConformingReportFields.check(NonConformingReportConsistency);
 
-class NonConformingReport extends S.Class<NonConformingReport>($I`NonConformingReport`)(
-  NonConformingReportValue,
-  $I.annote("NonConformingReport", {
-    description:
-      "Report containing one or more definite invariant violations plus any independently indeterminate outcomes.",
-  })
+/**
+ * Report containing one or more definite invariant violations plus any independently indeterminate outcomes.
+ *
+ * **Example** (Record a run with one definite violation)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NonConformingReport } from "@beep/schema/Conformance"
+ *
+ * const report = S.decodeUnknownSync(NonConformingReport)({
+ *   status: "nonConforming",
+ *   profileIds: ["commonmark-0.31.2"],
+ *   checkedInvariantIds: ["md.heading.no-skipped-levels"],
+ *   issues: [{
+ *     kind: "violation",
+ *     invariantId: "md.heading.no-skipped-levels",
+ *     strength: "should",
+ *     path: ["children", 4],
+ *     message: "Heading jumps from level 1 to level 3."
+ *   }]
+ * })
+ *
+ * console.log(report.issues.length) // => 1
+ * console.log(report.indeterminateIssues.length) // => 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NonConformingReport extends S.Opaque<NonConformingReport, { readonly brand: unique symbol }>()(
+  NonConformingReportValue.pipe(
+    $I.annoteSchema("NonConformingReport", {
+      description:
+        "Report containing one or more definite invariant violations plus any independently indeterminate outcomes.",
+    })
+  )
 ) {}
 
 const IndeterminateReportFields = S.Struct({
@@ -193,11 +288,32 @@ const IndeterminateReportConsistency = S.makeFilter(
 
 const IndeterminateReportValue = IndeterminateReportFields.check(IndeterminateReportConsistency);
 
-class IndeterminateReport extends S.Class<IndeterminateReport>($I`IndeterminateReport`)(
-  IndeterminateReportValue,
-  $I.annote("IndeterminateReport", {
-    description: "Report containing outcomes that the available validator could not decide.",
-  })
+/**
+ * Report containing outcomes that the available validator could not decide.
+ *
+ * **Example** (Reject an issue for an invariant that was never checked)
+ *
+ * ```ts
+ * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
+ * import { IndeterminateReport } from "@beep/schema/Conformance"
+ *
+ * const decode = S.decodeUnknownExit(IndeterminateReport)
+ * const issue = { kind: "indeterminate", invariantId: "md.link.reference-defined", path: [], message: "Unresolved [spec].", reason: "Needs the whole document." }
+ *
+ * console.log(Exit.isSuccess(decode({ status: "indeterminate", profileIds: ["gfm-0.29"], checkedInvariantIds: ["md.link.reference-defined"], issues: [issue] }))) // => true
+ * console.log(Exit.isSuccess(decode({ status: "indeterminate", profileIds: ["gfm-0.29"], checkedInvariantIds: ["md.heading.no-skipped-levels"], issues: [issue] }))) // => false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class IndeterminateReport extends S.Opaque<IndeterminateReport, { readonly brand: unique symbol }>()(
+  IndeterminateReportValue.pipe(
+    $I.annoteSchema("IndeterminateReport", {
+      description: "Report containing outcomes that the available validator could not decide.",
+    })
+  )
 ) {}
 
 /**

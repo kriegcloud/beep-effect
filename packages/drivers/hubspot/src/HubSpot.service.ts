@@ -17,7 +17,7 @@ import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { HubSpotAccountId, HubSpotBaseUrl, HubSpotConfigInput, HubSpotUrl } from "./HubSpot.config.ts";
-import { HubSpotError } from "./HubSpot.errors.ts";
+import { HubSpotError, HubSpotErrorOptions } from "./HubSpot.errors.ts";
 import type * as HttpClientError from "effect/http/HttpClientError";
 import type * as HttpClientResponse from "effect/http/HttpClientResponse";
 import type * as RedactedType from "effect/Redacted";
@@ -92,18 +92,19 @@ const HubSpotUpsertStatus = S.NonEmptyString.pipe(
  * @category models
  * @since 0.0.0
  */
-export class HubSpotFormField extends S.Class<HubSpotFormField>($I`HubSpotFormField`)(
-  {
+export class HubSpotFormField extends S.Opaque<HubSpotFormField, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: HubSpotFieldName.annotateKey({
       description: "HubSpot form field or CRM property name.",
     }),
     value: S.String.annotateKey({
       description: "HubSpot form field value forwarded unchanged to the API.",
     }),
-  },
-  $I.annote("HubSpotFormField", {
-    description: "HubSpot form field submission value.",
-  })
+  }).pipe(
+    $I.annoteSchema("HubSpotFormField", {
+      description: "HubSpot form field submission value.",
+    })
+  )
 ) {}
 
 /**
@@ -125,8 +126,8 @@ export class HubSpotFormField extends S.Class<HubSpotFormField>($I`HubSpotFormFi
  * @category models
  * @since 0.0.0
  */
-export class HubSpotFormContext extends S.Class<HubSpotFormContext>($I`HubSpotFormContext`)(
-  {
+export class HubSpotFormContext extends S.Opaque<HubSpotFormContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     ipAddress: S.optionalKey(S.String).annotateKey({
       description: "Optional visitor IP address supplied to HubSpot Forms context.",
     }),
@@ -136,10 +137,11 @@ export class HubSpotFormContext extends S.Class<HubSpotFormContext>($I`HubSpotFo
     pageUri: S.optionalKey(HubSpotUrl).annotateKey({
       description: "Optional absolute page URL supplied to HubSpot Forms context.",
     }),
-  },
-  $I.annote("HubSpotFormContext", {
-    description: "HubSpot form submission context.",
-  })
+  }).pipe(
+    $I.annoteSchema("HubSpotFormContext", {
+      description: "HubSpot form submission context.",
+    })
+  )
 ) {}
 
 /**
@@ -161,8 +163,8 @@ export class HubSpotFormContext extends S.Class<HubSpotFormContext>($I`HubSpotFo
  * @category models
  * @since 0.0.0
  */
-export class HubSpotSubmitFormRequest extends S.Class<HubSpotSubmitFormRequest>($I`HubSpotSubmitFormRequest`)(
-  {
+export class HubSpotSubmitFormRequest extends S.Opaque<HubSpotSubmitFormRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     context: S.optionalKey(HubSpotFormContext).annotateKey({
       description: "Optional HubSpot form submission context.",
     }),
@@ -175,10 +177,11 @@ export class HubSpotSubmitFormRequest extends S.Class<HubSpotSubmitFormRequest>(
     submittedAt: S.optionalKey(HubSpotSubmittedAtEpochMillis).annotateKey({
       description: "Optional form submission timestamp as epoch milliseconds.",
     }),
-  },
-  $I.annote("HubSpotSubmitFormRequest", {
-    description: "HubSpot form submission request.",
-  })
+  }).pipe(
+    $I.annoteSchema("HubSpotSubmitFormRequest", {
+      description: "HubSpot form submission request.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(HubSpotSubmitFormRequest);
 }
@@ -201,18 +204,19 @@ export class HubSpotSubmitFormRequest extends S.Class<HubSpotSubmitFormRequest>(
  * @category models
  * @since 0.0.0
  */
-export class HubSpotSubmitFormResponse extends S.Class<HubSpotSubmitFormResponse>($I`HubSpotSubmitFormResponse`)(
-  {
+export class HubSpotSubmitFormResponse extends S.Opaque<HubSpotSubmitFormResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     inlineMessage: S.optionalKey(S.String).annotateKey({
       description: "Optional inline message returned by HubSpot after form submission.",
     }),
     redirectUri: S.optionalKey(HubSpotUrl).annotateKey({
       description: "Optional absolute redirect URL returned by HubSpot after form submission.",
     }),
-  },
-  $I.annote("HubSpotSubmitFormResponse", {
-    description: "HubSpot form submission response.",
-  })
+  }).pipe(
+    $I.annoteSchema("HubSpotSubmitFormResponse", {
+      description: "HubSpot form submission response.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(HubSpotSubmitFormResponse);
 }
@@ -238,8 +242,11 @@ export class HubSpotSubmitFormResponse extends S.Class<HubSpotSubmitFormResponse
  * @category models
  * @since 0.0.0
  */
-export class HubSpotUpsertContactRequest extends S.Class<HubSpotUpsertContactRequest>($I`HubSpotUpsertContactRequest`)(
-  {
+export class HubSpotUpsertContactRequest extends S.Opaque<
+  HubSpotUpsertContactRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     email: HubSpotContactEmail.annotateKey({
       description: "HubSpot contact email used as the upsert identity.",
     }),
@@ -249,10 +256,11 @@ export class HubSpotUpsertContactRequest extends S.Class<HubSpotUpsertContactReq
     properties: S.Record(HubSpotFieldName, S.String).annotateKey({
       description: "HubSpot CRM contact properties forwarded unchanged to the API.",
     }),
-  },
-  $I.annote("HubSpotUpsertContactRequest", {
-    description: "HubSpot contact upsert request using email as the stable identifier.",
-  })
+  }).pipe(
+    $I.annoteSchema("HubSpotUpsertContactRequest", {
+      description: "HubSpot contact upsert request using email as the stable identifier.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(HubSpotUpsertContactRequest);
 }
@@ -275,15 +283,19 @@ export class HubSpotUpsertContactRequest extends S.Class<HubSpotUpsertContactReq
  * @category models
  * @since 0.0.0
  */
-export class HubSpotUpsertContactResult extends S.Class<HubSpotUpsertContactResult>($I`HubSpotUpsertContactResult`)(
-  {
+export class HubSpotUpsertContactResult extends S.Opaque<
+  HubSpotUpsertContactResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: HubSpotContactId.annotateKey({
       description: "HubSpot CRM contact identifier returned by the batch upsert API.",
     }),
-  },
-  $I.annote("HubSpotUpsertContactResult", {
-    description: "HubSpot contact upsert result.",
-  })
+  }).pipe(
+    $I.annoteSchema("HubSpotUpsertContactResult", {
+      description: "HubSpot contact upsert result.",
+    })
+  )
 ) {}
 
 /**
@@ -305,20 +317,22 @@ export class HubSpotUpsertContactResult extends S.Class<HubSpotUpsertContactResu
  * @category models
  * @since 0.0.0
  */
-export class HubSpotUpsertContactResponse extends S.Class<HubSpotUpsertContactResponse>(
-  $I`HubSpotUpsertContactResponse`
-)(
-  {
+export class HubSpotUpsertContactResponse extends S.Opaque<
+  HubSpotUpsertContactResponse,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     results: S.Array(HubSpotUpsertContactResult).annotateKey({
       description: "HubSpot CRM contact upsert result rows.",
     }),
     status: S.optionalKey(HubSpotUpsertStatus).annotateKey({
       description: "Optional non-empty HubSpot CRM batch upsert status.",
     }),
-  },
-  $I.annote("HubSpotUpsertContactResponse", {
-    description: "HubSpot contact upsert response.",
-  })
+  }).pipe(
+    $I.annoteSchema("HubSpotUpsertContactResponse", {
+      description: "HubSpot contact upsert response.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(HubSpotUpsertContactResponse);
 }
@@ -354,17 +368,18 @@ export type HubSpotShape = {
   ) => Effect.Effect<HubSpotUpsertContactResponse, HubSpotError>;
 };
 
-class ResolvedHubSpotConfig extends S.Class<ResolvedHubSpotConfig>($I`ResolvedHubSpotConfig`)(
-  {
+class ResolvedHubSpotConfig extends S.Opaque<ResolvedHubSpotConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     accountId: S.String,
     accessToken: S.String.pipe(S.Redacted, S.Option),
     crmApiUrl: HubSpotBaseUrl,
     formsApiUrl: HubSpotBaseUrl,
     headers: S.Record(S.String, S.String),
-  },
-  $I.annote("ResolvedHubSpotConfig", {
-    description: "Resolved runtime configuration for the HubSpot service.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedHubSpotConfig", {
+      description: "Resolved runtime configuration for the HubSpot service.",
+    })
+  )
 ) {}
 
 const resolveConfig = Effect.fn("HubSpot.resolveConfig")(function* (
@@ -375,14 +390,16 @@ const resolveConfig = Effect.fn("HubSpot.resolveConfig")(function* (
     O.match({
       onNone: HubSpotError.failEffectFromReasonThunk("config"),
       onSome: (value) =>
-        decodeHubSpotAccountId(value).pipe(Effect.mapError((cause) => HubSpotError.fromReason("config", { cause }))),
+        decodeHubSpotAccountId(value).pipe(
+          Effect.mapError((cause) => HubSpotError.fromReason("config", HubSpotErrorOptions.make({ cause })))
+        ),
     })
   );
   const crmApiUrl = yield* decodeHubSpotBaseUrl(input.crmApiUrl).pipe(
-    Effect.mapError((cause) => HubSpotError.fromReason("config", { cause }))
+    Effect.mapError((cause) => HubSpotError.fromReason("config", HubSpotErrorOptions.make({ cause })))
   );
   const formsApiUrl = yield* decodeHubSpotBaseUrl(input.formsApiUrl).pipe(
-    Effect.mapError((cause) => HubSpotError.fromReason("config", { cause }))
+    Effect.mapError((cause) => HubSpotError.fromReason("config", HubSpotErrorOptions.make({ cause })))
   );
 
   return ResolvedHubSpotConfig.make({
@@ -419,7 +436,9 @@ const makeRequest = Effect.fn("HubSpot.makeSubmitFormRequest")(function* (
 ) {
   const decoded = yield* pipe(
     HubSpotSubmitFormRequest.decodeEffect(request),
-    Effect.mapError((cause) => HubSpotError.fromReason("request encoding", { cause, formGuid: request.formGuid }))
+    Effect.mapError((cause) =>
+      HubSpotError.fromReason("request encoding", HubSpotErrorOptions.make({ cause, formGuid: request.formGuid }))
+    )
   );
   const url = submitFormUrl(config, decoded.formGuid);
 
@@ -432,7 +451,9 @@ const makeRequest = Effect.fn("HubSpot.makeSubmitFormRequest")(function* (
         context: decoded.context,
         submittedAt: decoded.submittedAt,
       }),
-    Effect.mapError((cause) => HubSpotError.fromReason("request encoding", { cause, formGuid: decoded.formGuid, url }))
+    Effect.mapError((cause) =>
+      HubSpotError.fromReason("request encoding", HubSpotErrorOptions.make({ cause, formGuid: decoded.formGuid, url }))
+    )
   );
 });
 
@@ -442,7 +463,9 @@ const makeUpsertContactRequest = Effect.fn("HubSpot.makeUpsertContactRequest")(f
 ) {
   const decoded = yield* pipe(
     HubSpotUpsertContactRequest.decodeEffect(request),
-    Effect.mapError((cause) => HubSpotError.fromReason("request encoding", { cause, email: request.email }))
+    Effect.mapError((cause) =>
+      HubSpotError.fromReason("request encoding", HubSpotErrorOptions.make({ cause, email: request.email }))
+    )
   );
   const url = upsertContactUrl(config);
 
@@ -460,7 +483,9 @@ const makeUpsertContactRequest = Effect.fn("HubSpot.makeUpsertContactRequest")(f
           },
         ],
       }),
-    Effect.mapError((cause) => HubSpotError.fromReason("request encoding", { cause, email: decoded.email, url }))
+    Effect.mapError((cause) =>
+      HubSpotError.fromReason("request encoding", HubSpotErrorOptions.make({ cause, email: decoded.email, url }))
+    )
   );
 });
 
@@ -473,7 +498,10 @@ const ensureSubmitFormSuccess = Effect.fnUntraced(function* (
     return response;
   }
 
-  return yield* HubSpotError.fromReason("response status", { formGuid, status: response.status, url });
+  return yield* HubSpotError.fromReason(
+    "response status",
+    HubSpotErrorOptions.make({ formGuid, status: response.status, url })
+  );
 });
 
 const ensureUpsertContactSuccess = Effect.fnUntraced(function* (
@@ -485,7 +513,10 @@ const ensureUpsertContactSuccess = Effect.fnUntraced(function* (
     return response;
   }
 
-  return yield* HubSpotError.fromReason("response status", { email, status: response.status, url });
+  return yield* HubSpotError.fromReason(
+    "response status",
+    HubSpotErrorOptions.make({ email, status: response.status, url })
+  );
 });
 
 const decodeResponse = Effect.fnUntraced(
@@ -505,7 +536,11 @@ const decodeResponse = Effect.fnUntraced(
     return yield* HubSpotSubmitFormResponse.decodeEffect(body);
   },
   (effect, formGuid, url) =>
-    effect.pipe(Effect.mapError((cause) => HubSpotError.fromReason("response decoding", { cause, formGuid, url })))
+    effect.pipe(
+      Effect.mapError((cause) =>
+        HubSpotError.fromReason("response decoding", HubSpotErrorOptions.make({ cause, formGuid, url }))
+      )
+    )
 );
 
 const decodeUpsertContact = Effect.fnUntraced(
@@ -519,7 +554,11 @@ const decodeUpsertContact = Effect.fnUntraced(
     return yield* HubSpotUpsertContactResponse.decodeEffect(body);
   },
   (effect, email, url) =>
-    effect.pipe(Effect.mapError((cause) => HubSpotError.fromReason("response decoding", { cause, email, url })))
+    effect.pipe(
+      Effect.mapError((cause) =>
+        HubSpotError.fromReason("response decoding", HubSpotErrorOptions.make({ cause, email, url }))
+      )
+    )
 );
 
 const makeService = (client: HttpClient.HttpClient, config: ResolvedHubSpotConfig): HubSpotShape => ({
@@ -529,7 +568,9 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedHubSpotConfi
     const response = yield* client
       .execute(httpRequest)
       .pipe(
-        Effect.mapError((cause) => HubSpotError.fromReason("transport", { cause, formGuid: request.formGuid, url }))
+        Effect.mapError((cause) =>
+          HubSpotError.fromReason("transport", HubSpotErrorOptions.make({ cause, formGuid: request.formGuid, url }))
+        )
       );
     const success = yield* ensureSubmitFormSuccess(request.formGuid, url, response);
     return yield* decodeResponse(request.formGuid, url, success);
@@ -539,7 +580,11 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedHubSpotConfi
     const url = upsertContactUrl(config);
     const response = yield* client
       .execute(httpRequest)
-      .pipe(Effect.mapError((cause) => HubSpotError.fromReason("transport", { cause, email: request.email, url })));
+      .pipe(
+        Effect.mapError((cause) =>
+          HubSpotError.fromReason("transport", HubSpotErrorOptions.make({ cause, email: request.email, url }))
+        )
+      );
     const success = yield* ensureUpsertContactSuccess(request.email, url, response);
     return yield* decodeUpsertContact(request.email, url, success);
   }),
@@ -625,6 +670,6 @@ export class HubSpot extends Context.Service<HubSpot, HubSpotShape>()($I`HubSpot
       );
 
       return HubSpot.of(makeService(client, resolved));
-    }).pipe(Effect.mapError((cause) => HubSpotError.fromReason("config", { cause })))
+    }).pipe(Effect.mapError((cause) => HubSpotError.fromReason("config", HubSpotErrorOptions.make({ cause }))))
   ).pipe(Layer.provide(FetchHttpClient.layer));
 }

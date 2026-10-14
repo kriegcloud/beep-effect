@@ -109,9 +109,10 @@ export type OutboxStoredAttachmentErrorReason = typeof OutboxStoredAttachmentErr
  * @category errors
  * @since 0.1.0
  */
-export class OutboxStoredAttachmentError extends S.TaggedError<OutboxStoredAttachmentError>(
-  $I`OutboxStoredAttachmentError`
-)(
+export class OutboxStoredAttachmentError extends S.TaggedError<
+  OutboxStoredAttachmentError,
+  { readonly brand: unique symbol }
+>($I`OutboxStoredAttachmentError`)(
   "OutboxStoredAttachmentError",
   {
     count: S.Natural.annotateKey({ description: "Number of attachments at fault." }),
@@ -144,20 +145,22 @@ export class OutboxStoredAttachmentError extends S.TaggedError<OutboxStoredAttac
  * @category models
  * @since 0.1.0
  */
-export class OutboxStoredAttachmentsRequest extends S.Class<OutboxStoredAttachmentsRequest>(
-  $I`OutboxStoredAttachmentsRequest`
-)(
-  {
+export class OutboxStoredAttachmentsRequest extends S.Opaque<
+  OutboxStoredAttachmentsRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     draftId: GraphPathSegment.annotateKey({ description: "Graph id of the draft." }),
     mailbox: GraphPathSegment.annotateKey({ description: "The configured mailbox." }),
     maxAttachments: PosInt.annotateKey({ description: "Largest number of stored attachments to download." }),
     maxReportedBytes: PosInt.annotateKey({
       description: "Largest sum of the sizes Graph reports for the stored attachments; checked before any download.",
     }),
-  },
-  $I.annote("OutboxStoredAttachmentsRequest", {
-    description: "A draft whose stored attachments are to be downloaded and hashed, with download limits.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutboxStoredAttachmentsRequest", {
+      description: "A draft whose stored attachments are to be downloaded and hashed, with download limits.",
+    })
+  )
 ) {}
 
 const isGraphId = S.is(GraphPathSegment);

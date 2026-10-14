@@ -602,7 +602,9 @@ const cacheCensusCommand = Command.make(
           onNone: () => Effect.succeed(census),
           onSome: (request) =>
             readCacheRequest(request, CacheEntrypointReviewRequest, S.Natural.make(256 * 1024)).pipe(
-              Effect.flatMap((review) => attachCacheEntrypointReview(process.cwd(), census, review))
+              Effect.flatMap((review) =>
+                attachCacheEntrypointReview(process.cwd(), census, CacheEntrypointReviewRequest.make(review))
+              )
             ),
         })
       ),
@@ -779,7 +781,7 @@ const cacheActivationCommand = Command.make(
     Effect.gen(function* () {
       const cache = yield* CacheQualificationService;
       const input = yield* readCacheRequest(request, CacheActivationRequest);
-      const report = yield* cache.activation(process.cwd(), input);
+      const report = yield* cache.activation(process.cwd(), CacheActivationRequest.make(input));
       yield* writeEncoded(report, JsonStringCodec(CacheActivationPreview), output);
     }).pipe(renderCacheFailure)
 ).pipe(Command.withDescription("Preview an exact reviewed single-task cache activation without enabling reuse"));
@@ -790,7 +792,7 @@ const cacheSyntheticCommand = Command.make(
   ({ request, output }) =>
     Effect.gen(function* () {
       const input = yield* readCacheRequest(request, CacheSyntheticRequest);
-      const report = yield* runCacheSyntheticExperiment(process.cwd(), input);
+      const report = yield* runCacheSyntheticExperiment(process.cwd(), CacheSyntheticRequest.make(input));
       yield* writeEncoded(report, JsonStringCodec(CacheSyntheticReceipt), output);
       if (A.some(report.checks, (check) => !check.passed))
         return yield* CacheCommandError.new("The local synthetic experiment reported a failed assertion.");
@@ -816,7 +818,7 @@ const cachePilotCommand = Command.make(
   ({ request, output }) =>
     Effect.gen(function* () {
       const input = yield* readCacheRequest(request, CachePilotRequest);
-      const report = yield* runCachePilotExperiment(process.cwd(), input);
+      const report = yield* runCachePilotExperiment(process.cwd(), CachePilotRequest.make(input));
       yield* writeEncoded(report, JsonStringCodec(CachePilotReceipt), output);
       if (A.some(report.checks, (check) => !check.passed))
         return yield* CacheCommandError.new("The local real-pilot experiment reported a failed assertion.");
@@ -832,7 +834,7 @@ const cacheSignedPilotCommand = Command.make(
   ({ request, output }) =>
     Effect.gen(function* () {
       const input = yield* readCacheRequest(request, CacheSignedPilotRequest);
-      const report = yield* runCacheSignedPilotExperiment(process.cwd(), input);
+      const report = yield* runCacheSignedPilotExperiment(process.cwd(), CacheSignedPilotRequest.make(input));
       yield* writeEncoded(report, JsonStringCodec(CacheSignedPilotReceipt), output);
     }).pipe(renderCacheFailure)
 ).pipe(
@@ -847,7 +849,11 @@ const cacheAcceptCommand = Command.make(
     Effect.gen(function* () {
       const input = yield* readCacheRequest(request, CacheProducerImportRequest, S.Natural.make(8 * 1024 * 1024));
       const configuration = yield* loadCacheProducerStoreConfiguration();
-      const reference = yield* persistCacheProducerAcceptance(configuration.directory, input, configuration.trust);
+      const reference = yield* persistCacheProducerAcceptance(
+        configuration.directory,
+        CacheProducerImportRequest.make(input),
+        configuration.trust
+      );
       yield* writeEncoded(reference, JsonStringCodec(CacheProducerAcceptanceReference), output);
     }).pipe(renderCacheFailure)
 ).pipe(
@@ -860,7 +866,7 @@ const cacheProtocolRunCommand = Command.make(
   ({ request, output }) =>
     Effect.gen(function* () {
       const input = yield* readCacheRequest(request, CacheProtocolRequest);
-      const report = yield* runCacheProtocolExperiment(process.cwd(), input);
+      const report = yield* runCacheProtocolExperiment(process.cwd(), CacheProtocolRequest.make(input));
       yield* writeEncoded(report, JsonStringCodec(CacheProtocolExecution), output);
     }).pipe(renderCacheFailure)
 ).pipe(
@@ -874,7 +880,7 @@ const cacheProtocolReviewCommand = Command.make(
   ({ request, output }) =>
     Effect.gen(function* () {
       const observation = yield* readCacheRequest(request, CacheProtocolObservation);
-      const reviewed = yield* validateCacheProtocolObservation(observation);
+      const reviewed = yield* validateCacheProtocolObservation(CacheProtocolObservation.make(observation));
       yield* writeEncoded(reviewed, JsonStringCodec(CacheProtocolObservation), output);
     }).pipe(renderCacheFailure)
 ).pipe(Command.withDescription("Validate bounded synthetic protocol observations without granting qualification"));

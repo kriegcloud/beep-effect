@@ -59,18 +59,19 @@ const UniqueNpmPackageNames = S.Array(NpmPackageName)
  * @category models
  * @since 0.0.0
  */
-export class UniqueNpmDeps extends S.Class<UniqueNpmDeps>($I`UniqueNpmDeps`)(
-  {
+export class UniqueNpmDeps extends S.Opaque<UniqueNpmDeps, { readonly brand: unique symbol }>()(
+  S.Struct({
     dependencies: UniqueNpmPackageNames.annotateKey({
       description: "Sorted unique runtime npm dependency names.",
     }),
     devDependencies: UniqueNpmPackageNames.annotateKey({
       description: "Sorted unique development npm dependency names.",
     }),
-  },
-  $I.annote("UniqueNpmDeps", {
-    description: "Sorted runtime and development dependency names aggregated across the monorepo.",
-  })
+  }).pipe(
+    $I.annoteSchema("UniqueNpmDeps", {
+      description: "Sorted runtime and development dependency names aggregated across the monorepo.",
+    })
+  )
 ) {}
 
 /**

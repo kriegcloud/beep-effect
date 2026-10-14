@@ -8,21 +8,20 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import { ModHost } from "@/PracticeMod.host";
 import { KgAnswerItem, VerdictRow } from "@/PracticeMod.values";
 import { VerdictInput, VerdictLog, verdictLogLayer } from "@/PracticeMod.verdicts";
 
-type Written = { readonly path: string; readonly text: string };
-
-// What the fake host stored and wrote, so a test can seed and inspect it.
+// What the fake host stored, so a test can seed and inspect it.
 class FakeHostState extends Context.Service<
   FakeHostState,
-  { readonly store: MutableHashMap.MutableHashMap<string, unknown>; readonly written: Array<Written> }
+  { readonly store: MutableHashMap.MutableHashMap<string, unknown> }
 >()("@beep/practice-claude-mod/test/PracticeMod.verdicts.test/FakeHostState") {}
 
 const fakeHost = Layer.effect(ModHost)(
-  Effect.map(FakeHostState, ({ store, written }) =>
+  Effect.map(FakeHostState, ({ store }) =>
     ModHost.of({
       // Yield after each read so concurrent records interleave between read and write.
       storeGet: Effect.fn("FakeHost.storeGet")((key: string) =>
@@ -30,9 +29,6 @@ const fakeHost = Layer.effect(ModHost)(
       ),
       storeSet: Effect.fn("FakeHost.storeSet")((key: string, value: unknown) =>
         Effect.sync(() => void MutableHashMap.set(store, key, value))
-      ),
-      writeText: Effect.fn("FakeHost.writeText")((path: string, text: string) =>
-        Effect.sync(() => void written.push({ path, text }))
       ),
       toast: Effect.fn("FakeHost.toast")((_text: string) => Effect.void),
       sessionId: Effect.succeed("s-1"),
@@ -42,7 +38,7 @@ const fakeHost = Layer.effect(ModHost)(
 );
 
 const testLayer = () => {
-  const state = Layer.sync(FakeHostState)(() => ({ store: MutableHashMap.empty<string, unknown>(), written: [] }));
+  const state = Layer.sync(FakeHostState)(() => ({ store: MutableHashMap.empty<string, unknown>() }));
   return verdictLogLayer.pipe(Layer.provide(fakeHost), Layer.provideMerge(state));
 };
 
@@ -106,23 +102,13 @@ describe("VerdictLog", () => {
     it.effect(
       "exports one JSON line per revision",
       Effect.fnUntraced(function* () {
-        const { written } = yield* FakeHostState;
         const log = yield* VerdictLog;
         yield* log.record(verdict(O.some("right")));
         yield* log.record(verdict(O.some("partly"), O.some("Right family, wrong docket.")));
-        const count = yield* log.exportJsonl("practice-verdicts.jsonl");
-        const file = A.head(written);
+        const jsonl = yield* log.exportJsonl;
 
-        expect(count).toBe(2);
-        assertSome(
-          O.map(file, (entry) => entry.path),
-          "practice-verdicts.jsonl"
-        );
-        assertSome(
-          O.map(file, (entry) => entry.text.trim().split("\n").length),
-          2
-        );
-        expect(O.exists(file, (entry) => entry.text.includes('"verdict":"partly"'))).toBe(true);
+        expect(jsonl.trim().split("\n").length).toBe(2);
+        expect(jsonl.includes('"verdict":"partly"')).toBe(true);
       })
     );
   });
@@ -136,7 +122,12 @@ describe("VerdictLog", () => {
           concurrency: 2,
         });
 
-        expect(A.map(rows, (row) => row.revision).toSorted()).toEqual([0, 1]);
+        expect(
+          A.sort(
+            A.map(rows, (row) => row.revision),
+            Order.Number
+          )
+        ).toEqual([0, 1]);
         const { store } = yield* FakeHostState;
         const stored = yield* store.pipe(
           MutableHashMap.get("verdict-rows"),

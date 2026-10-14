@@ -103,11 +103,12 @@ const decodeStringArray = S.decodeUnknownOption(S.Array(S.String));
 
 const GRADUATE_ACTOR = "explore-graduate";
 
-class GoalProvenanceProbe extends S.Class<GoalProvenanceProbe>($I`GoalProvenanceProbe`)(
-  { provenance: S.Struct({ exploration: S.String }) },
-  $I.annote("GoalProvenanceProbe", {
-    description: "The provenance.exploration field a graduated goal manifest records.",
-  })
+class GoalProvenanceProbe extends S.Opaque<GoalProvenanceProbe, { readonly brand: unique symbol }>()(
+  S.Struct({ provenance: S.Struct({ exploration: S.String }) }).pipe(
+    $I.annoteSchema("GoalProvenanceProbe", {
+      description: "The provenance.exploration field a graduated goal manifest records.",
+    })
+  )
 ) {}
 
 const decodeProvenance = S.decodeUnknownOption(GoalProvenanceProbe);

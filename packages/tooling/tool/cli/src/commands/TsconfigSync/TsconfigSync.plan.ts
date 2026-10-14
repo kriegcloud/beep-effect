@@ -40,7 +40,11 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { applyJsoncModification as applySharedJsoncModification, decodeJsoncTextAs } from "../../internal/cli/Jsonc.ts";
+import {
+  applyJsoncModification as applySharedJsoncModification,
+  decodeJsoncTextAs,
+  JsoncModification,
+} from "../../internal/cli/Jsonc.ts";
 import { isLabsWorkspaceDir } from "../../internal/cli/Labs/index.ts";
 import { FALLOW_BOUNDARY_CONFIG_PATH, renderFallowBoundaryConfig } from "../Fallow/Fallow.command.ts";
 import { TsconfigSyncFilterError } from "./TsconfigSync.errors.ts";
@@ -151,12 +155,14 @@ const applyJsoncModification = (
   value: unknown,
   options?: { readonly isArrayInsertion?: boolean }
 ): string =>
-  applySharedJsoncModification({
-    content,
-    path,
-    value,
-    ...(options?.isArrayInsertion === true ? { isArrayInsertion: true } : {}),
-  });
+  applySharedJsoncModification(
+    JsoncModification.make({
+      content,
+      path,
+      value,
+      ...(options?.isArrayInsertion === true ? { isArrayInsertion: true } : {}),
+    })
+  );
 
 /**
  * Render a file path relative to the repository root.

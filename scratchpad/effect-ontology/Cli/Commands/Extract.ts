@@ -84,7 +84,7 @@ const concurrencyOption = Flag.Int("concurrency").pipe(
 // Helpers
 // =============================================================================
 
-class ExtractInputError extends S.TaggedError<ExtractInputError>($I`ExtractInputError`)(
+class ExtractInputError extends S.TaggedError<ExtractInputError, { readonly brand: unique symbol }>($I`ExtractInputError`)(
   "ExtractInputError",
   {
     message: ErrorMessage.annotateKey({

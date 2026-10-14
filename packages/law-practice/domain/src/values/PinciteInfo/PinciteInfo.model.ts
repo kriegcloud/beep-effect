@@ -149,8 +149,8 @@ const AdditionalPincites = S.Array(S.suspend((): S.Codec<PinciteInfo.Type, Pinci
  * @category models
  * @since 0.0.0
  */
-export class PinciteInfo extends S.Class<PinciteInfo>($I`PinciteInfo`)(
-  {
+export class PinciteInfo extends S.Opaque<PinciteInfo, {}>()(
+  S.Struct({
     page: S.Natural.pipe(
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone),
@@ -207,9 +207,10 @@ export class PinciteInfo extends S.Class<PinciteInfo>($I`PinciteInfo`)(
     raw: S.String.annotateKey({
       description: "Original text before parsing",
     }),
-  },
-  $I.annote("PinciteInfo", {
-    description:
-      "Structured pincite information parsed from citation text; page and paragraph are mutually exclusive (#204).",
-  })
+  }).pipe(
+    $I.annoteSchema("PinciteInfo", {
+      description:
+        "Structured pincite information parsed from citation text; page and paragraph are mutually exclusive (#204).",
+    })
+  )
 ) {}

@@ -236,7 +236,7 @@ export type PeerCheckOptions = typeof PeerCheckOptions.Type;
  * @category models
  * @since 0.0.0
  */
-export class PeerParent extends S.Class<PeerParent>($I`PeerParent`)({
+export class PeerParent extends S.Class<PeerParent, { readonly brand: unique symbol }>($I`PeerParent`)({
 	/**
 	 * The package name.
 	 */
@@ -284,7 +284,7 @@ export class PeerParent extends S.Class<PeerParent>($I`PeerParent`)({
  * @category models
  * @since 0.0.0
  */
-export class UnsatisfiedPeer extends S.Class<UnsatisfiedPeer>($I`UnsatisfiedPeer`)({
+export class UnsatisfiedPeer extends S.Class<UnsatisfiedPeer, { readonly brand: unique symbol }>($I`UnsatisfiedPeer`)({
 	/**
 	 * The importer path the problem belongs to (`"."` for the root).
 	 */
@@ -817,7 +817,7 @@ interface Policy {
  * @category models
  * @since 0.0.0
  */
-export class PeerCheck extends S.Class<PeerCheck>($I`PeerCheck`)({
+export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbol }>($I`PeerCheck`)({
 	/**
 	 * Whether the lockfile's format records peer resolution at all.
 	 *

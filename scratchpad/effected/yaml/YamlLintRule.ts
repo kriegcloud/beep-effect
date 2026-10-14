@@ -78,7 +78,7 @@ export type YamlLintSeverity = typeof YamlLintSeverity.Type;
  * @category models
  * @since 0.0.0
  */
-export class YamlLintDiagnostic extends S.Class<YamlLintDiagnostic>($I`YamlLintDiagnostic`)({
+export class YamlLintDiagnostic extends S.Class<YamlLintDiagnostic, { readonly brand: unique symbol }>($I`YamlLintDiagnostic`)({
 	rule: S.String.annotateKey({ description: "Identifier of the lint rule reporting the finding" }),
 	severity: YamlLintSeverity.annotateKey({ description: "Effective reporting level, either `error` or `warning`; disabled rules produce no findings" }),
 	message: S.String.annotateKey({ description: "Human-readable explanation of the reported lint finding" }),
@@ -214,7 +214,7 @@ export type LintContext = typeof LintContext.Type;
  * @category models
  * @since 0.0.0
  */
-export class StyleVote extends S.TaggedClass<StyleVote>($I`StyleVote`)("StyleVote", {
+export class StyleVote extends S.TaggedClass<StyleVote, { readonly brand: unique symbol }>($I`StyleVote`)("StyleVote", {
 	dimension: S.String.annotateKey({ description: "Rule option key supported by this source observation, such as `quoteType`, `spaces`, or `present`" }),
 	value: S.Union([S.String, S.Finite, S.Boolean]).annotateKey({ description: "Option choice supported by this source occurrence, used when resolving inferred configuration" }),
 	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 source offset of the occurrence supporting this option choice" }),
@@ -254,7 +254,7 @@ export class StyleVote extends S.TaggedClass<StyleVote>($I`StyleVote`)("StyleVot
  * @category models
  * @since 0.0.0
  */
-export class StyleFloor extends S.TaggedClass<StyleFloor>($I`StyleFloor`)("StyleFloor", {
+export class StyleFloor extends S.TaggedClass<StyleFloor, { readonly brand: unique symbol }>($I`StyleFloor`)("StyleFloor", {
 	dimension: S.String.annotateKey({ description: "Rule option key for which the source establishes a measured lower bound" }),
 	value: S.Finite.annotateKey({ description: "Measured lower bound established by the source, such as longest line length; never resolved into a configured limit" }),
 }, $I.annote("StyleFloor", { description: "One measured style floor: a value the source PROVES is at least `value`, without proving what the configured limit should be — the longest observed line proves `line-length.max` is at least that long, not what it is. Floors are carried in the evidence for callers that want them and are never resolved into config options; fabricating a max from the largest value one happened to see would be lying with a straight face." })) {}

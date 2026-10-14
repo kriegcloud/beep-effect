@@ -118,16 +118,17 @@ export * from "./Models.paths.ts";
  * @category models
  * @since 0.0.0
  */
-export class ModelsCheckOptions extends S.Class<ModelsCheckOptions>($I`ModelsCheckOptions`)(
-  {
+export class ModelsCheckOptions extends S.Opaque<ModelsCheckOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     home: S.NonEmptyString,
     repo: S.NonEmptyString,
     manifestPath: S.NonEmptyString,
     offline: S.Boolean,
-  },
-  $I.annote("ModelsCheckOptions", {
-    description: "Both trees, the manifest path, and the offline flag one check run executes under.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsCheckOptions", {
+      description: "Both trees, the manifest path, and the offline flag one check run executes under.",
+    })
+  )
 ) {}
 
 /**
@@ -166,11 +167,11 @@ export interface ModelsCheckShape {
  * **Example** (Describe a check run)
  *
  * ```ts
- * import { ModelsCheck } from "@beep/repo-cli/commands/Models"
+ * import { ModelsCheck, ModelsCheckOptions } from "@beep/repo-cli/commands/Models"
  * import * as Effect from "effect/Effect"
  *
  * const program = ModelsCheck.use((check) =>
- *   check.run({ home: "/home/op", repo: "/repo", manifestPath: "/home/op/models.yaml", offline: true })
+ *   check.run(ModelsCheckOptions.make({ home: "/home/op", repo: "/repo", manifestPath: "/home/op/models.yaml", offline: true }))
  * )
  * console.log(Effect.isEffect(program)) // true
  * ```

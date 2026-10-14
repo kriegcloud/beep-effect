@@ -59,8 +59,8 @@ const $I = $LawPracticeServerId.create("PracticeKg.matters");
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgMatterRow extends S.Class<PracticeKgMatterRow>($I`PracticeKgMatterRow`)(
-  {
+export class PracticeKgMatterRow extends S.Opaque<PracticeKgMatterRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributionSource: KgAttributionSource,
     client: S.NullOr(S.String),
     clientName: S.NullOr(S.String),
@@ -69,10 +69,11 @@ export class PracticeKgMatterRow extends S.Class<PracticeKgMatterRow>($I`Practic
     epistemicStatus: PracticeKgEpistemicStatus,
     family: S.NonEmptyString,
     familyKey: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgMatterRow", {
-    description: "Client-keyed docket family as persisted in the bundle DuckDB matters table.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterRow", {
+      description: "Client-keyed docket family as persisted in the bundle DuckDB matters table.",
+    })
+  )
 ) {}
 
 /**
@@ -99,8 +100,8 @@ export class PracticeKgMatterRow extends S.Class<PracticeKgMatterRow>($I`Practic
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgMatterDocketRow extends S.Class<PracticeKgMatterDocketRow>($I`PracticeKgMatterDocketRow`)(
-  {
+export class PracticeKgMatterDocketRow extends S.Opaque<PracticeKgMatterDocketRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationNumbers: S.Array(S.String),
     docket: S.NonEmptyString,
     docketKey: S.NonEmptyString,
@@ -108,10 +109,11 @@ export class PracticeKgMatterDocketRow extends S.Class<PracticeKgMatterDocketRow
     epistemicStatus: PracticeKgEpistemicStatus,
     familyKey: S.NonEmptyString,
     patentNumbers: S.Array(S.String),
-  },
-  $I.annote("PracticeKgMatterDocketRow", {
-    description: "Docket of a matter with its application and patent numbers, as persisted in matter_dockets.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterDocketRow", {
+      description: "Docket of a matter with its application and patent numbers, as persisted in matter_dockets.",
+    })
+  )
 ) {}
 
 /**
@@ -129,14 +131,15 @@ export class PracticeKgMatterDocketRow extends S.Class<PracticeKgMatterDocketRow
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgMatterTables extends S.Class<PracticeKgMatterTables>($I`PracticeKgMatterTables`)(
-  {
+export class PracticeKgMatterTables extends S.Opaque<PracticeKgMatterTables, { readonly brand: unique symbol }>()(
+  S.Struct({
     dockets: S.Array(PracticeKgMatterDocketRow),
     matters: S.Array(PracticeKgMatterRow),
-  },
-  $I.annote("PracticeKgMatterTables", {
-    description: "Rows for the bundle's matters and matter_dockets tables.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterTables", {
+      description: "Rows for the bundle's matters and matter_dockets tables.",
+    })
+  )
 ) {}
 
 /**
@@ -155,17 +158,18 @@ export class PracticeKgMatterTables extends S.Class<PracticeKgMatterTables>($I`P
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgMatterGraph extends S.Class<PracticeKgMatterGraph>($I`PracticeKgMatterGraph`)(
-  {
+export class PracticeKgMatterGraph extends S.Opaque<PracticeKgMatterGraph, { readonly brand: unique symbol }>()(
+  S.Struct({
     edges: S.Array(PracticeKgEdgeRow),
     nodes: S.Array(PracticeKgNodeRow),
     registerRows: S.Array(PracticeKgDocketRegisterRow).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<PracticeKgDocketRegisterRow>()))
     ),
-  },
-  $I.annote("PracticeKgMatterGraph", {
-    description: "Projected graph nodes and edges, plus docket-register rows, used to derive the matter tables.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterGraph", {
+      description: "Projected graph nodes and edges, plus docket-register rows, used to derive the matter tables.",
+    })
+  )
 ) {}
 
 const listSeparator = " | ";
@@ -389,32 +393,38 @@ export const writeMatterTables = (databasePath: string) =>
     );
   });
 
-class MatterHitRow extends S.Class<MatterHitRow>($I`MatterHitRow`)({
-  docketKey: S.NullOr(S.String),
-  familyKey: S.NonEmptyString,
-  matchedOn: PracticeKgMatterMatchedOn,
-}) {}
+class MatterHitRow extends S.Opaque<MatterHitRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    docketKey: S.NullOr(S.String),
+    familyKey: S.NonEmptyString,
+    matchedOn: PracticeKgMatterMatchedOn,
+  }).pipe($I.annoteSchema("MatterHitRow"))
+) {}
 
-class MatterQueryRow extends S.Class<MatterQueryRow>($I`MatterQueryRow`)({
-  attributionSource: KgAttributionSource,
-  client: S.NullOr(S.String),
-  clientName: S.NullOr(S.String),
-  docketCount: S.Finite,
-  documentCount: S.Finite,
-  epistemicStatus: PracticeKgEpistemicStatus,
-  family: S.NonEmptyString,
-  familyKey: S.NonEmptyString,
-}) {}
+class MatterQueryRow extends S.Opaque<MatterQueryRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    attributionSource: KgAttributionSource,
+    client: S.NullOr(S.String),
+    clientName: S.NullOr(S.String),
+    docketCount: S.Finite,
+    documentCount: S.Finite,
+    epistemicStatus: PracticeKgEpistemicStatus,
+    family: S.NonEmptyString,
+    familyKey: S.NonEmptyString,
+  }).pipe($I.annoteSchema("MatterQueryRow"))
+) {}
 
-class MatterDocketQueryRow extends S.Class<MatterDocketQueryRow>($I`MatterDocketQueryRow`)({
-  applicationNumbers: S.String,
-  docket: S.NonEmptyString,
-  docketKey: S.NonEmptyString,
-  documentCount: S.Finite,
-  epistemicStatus: PracticeKgEpistemicStatus,
-  familyKey: S.NonEmptyString,
-  patentNumbers: S.String,
-}) {}
+class MatterDocketQueryRow extends S.Opaque<MatterDocketQueryRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    applicationNumbers: S.String,
+    docket: S.NonEmptyString,
+    docketKey: S.NonEmptyString,
+    documentCount: S.Finite,
+    epistemicStatus: PracticeKgEpistemicStatus,
+    familyKey: S.NonEmptyString,
+    patentNumbers: S.String,
+  }).pipe($I.annoteSchema("MatterDocketQueryRow"))
+) {}
 
 const decodeHitRows = S.decodeUnknownEffect(S.Array(MatterHitRow));
 const decodeMatterRows = S.decodeUnknownEffect(S.Array(MatterQueryRow));
@@ -736,16 +746,18 @@ export const readPracticeKgMatterTables: Effect.Effect<PracticeKgMatterTables, P
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMatterReferenceHit extends S.Class<PracticeKgMatterReferenceHit>(
-  $I`PracticeKgMatterReferenceHit`
-)(
-  {
+export class PracticeKgMatterReferenceHit extends S.Opaque<
+  PracticeKgMatterReferenceHit,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     familyKey: S.NonEmptyString,
     matchedOn: PracticeKgMatterMatchedOn,
-  },
-  $I.annote("PracticeKgMatterReferenceHit", {
-    description: "A matter named by one reference found in free text, with the matter field it matched.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterReferenceHit", {
+      description: "A matter named by one reference found in free text, with the matter field it matched.",
+    })
+  )
 ) {}
 
 const digitsOf = (value: string): string =>

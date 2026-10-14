@@ -416,7 +416,7 @@ export type ProvisionalHome = typeof ProvisionalHome.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExportEntry extends S.Class<ExportEntry>($I`ExportEntry`)(
+export class ExportEntry extends S.Class<ExportEntry, { readonly brand: unique symbol }>($I`ExportEntry`)(
   {
     name: S.NonEmptyString,
     kind: ExportKind,
@@ -441,7 +441,7 @@ export class ExportEntry extends S.Class<ExportEntry>($I`ExportEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class NewDep extends S.Class<NewDep>($I`NewDep`)(
+export class NewDep extends S.Class<NewDep, { readonly brand: unique symbol }>($I`NewDep`)(
   {
     name: S.NonEmptyString,
     kind: DepKind,
@@ -472,7 +472,7 @@ export class NewDep extends S.Class<NewDep>($I`NewDep`)(
  * @category models
  * @since 0.0.0
  */
-export class Deviation extends S.Class<Deviation>($I`Deviation`)(
+export class Deviation extends S.Class<Deviation, { readonly brand: unique symbol }>($I`Deviation`)(
   {
     test: S.NonEmptyString,
     upstreamBehaviour: S.NonEmptyString,
@@ -497,7 +497,7 @@ export class Deviation extends S.Class<Deviation>($I`Deviation`)(
  * @category models
  * @since 0.0.0
  */
-export class BacklogItem extends S.Class<BacklogItem>($I`BacklogItem`)(
+export class BacklogItem extends S.Class<BacklogItem, { readonly brand: unique symbol }>($I`BacklogItem`)(
   {
     seat: ReviewSeat,
     round: S.Int,
@@ -522,7 +522,7 @@ export class BacklogItem extends S.Class<BacklogItem>($I`BacklogItem`)(
  * @category models
  * @since 0.0.0
  */
-export class SeatCounts extends S.Class<SeatCounts>($I`SeatCounts`)(
+export class SeatCounts extends S.Class<SeatCounts, { readonly brand: unique symbol }>($I`SeatCounts`)(
   {
     required: S.Int,
     backlog: S.Int,
@@ -565,20 +565,24 @@ export type SeatVerdict = typeof SeatVerdict.Type;
  * **Example** (Record a closing round)
  *
  * ```ts
- * import { ReviewRound } from "@beep/scratchpad/effected/runner/Ledger.schema"
+ * import { ReviewRound, SeatCounts } from "@beep/scratchpad/effected/runner/Ledger.schema"
  *
  * const round = ReviewRound.make({
  *   round: 1,
  *   commit: "abc123",
- *   seats: { grok: { required: 0, backlog: 1 }, sol: { required: 0, backlog: 0 }, fable: { required: 0, backlog: 2 } },
+ *   seats: {
+ *     grok: SeatCounts.make({ required: 0, backlog: 1 }),
+ *     sol: SeatCounts.make({ required: 0, backlog: 0 }),
+ *     fable: "unavailable",
+ *   },
  * })
- * console.log(round.seats.grok) // { required: 0, backlog: 1 }
+ * console.log(round.seats.fable) // unavailable
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
+export class ReviewRound extends S.Class<ReviewRound, { readonly brand: unique symbol }>($I`ReviewRound`)(
   {
     round: S.Int,
     commit: S.NonEmptyString,
@@ -603,7 +607,7 @@ export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
  * @category models
  * @since 0.0.0
  */
-export class StageCommit extends S.Class<StageCommit>($I`StageCommit`)(
+export class StageCommit extends S.Class<StageCommit, { readonly brand: unique symbol }>($I`StageCommit`)(
   {
     stage: Stage,
     sha: S.NullOr(S.NonEmptyString),
@@ -626,7 +630,7 @@ export class StageCommit extends S.Class<StageCommit>($I`StageCommit`)(
  * @category models
  * @since 0.0.0
  */
-export class BlockedState extends S.Class<BlockedState>($I`BlockedState`)(
+export class BlockedState extends S.Class<BlockedState, { readonly brand: unique symbol }>($I`BlockedState`)(
   {
     stage: Stage,
     reason: S.NonEmptyString,
@@ -650,7 +654,7 @@ export class BlockedState extends S.Class<BlockedState>($I`BlockedState`)(
  * @category models
  * @since 0.0.0
  */
-export class UpstreamPaths extends S.Class<UpstreamPaths>($I`UpstreamPaths`)(
+export class UpstreamPaths extends S.Class<UpstreamPaths, { readonly brand: unique symbol }>($I`UpstreamPaths`)(
   {
     src: S.NonEmptyString,
     test: S.NonEmptyString,
@@ -665,7 +669,7 @@ export class UpstreamPaths extends S.Class<UpstreamPaths>($I`UpstreamPaths`)(
  * **Example** (Build a pending row)
  *
  * ```ts
- * import { LedgerRow } from "@beep/scratchpad/effected/runner/Ledger.schema"
+ * import { LedgerRow, UpstreamPaths } from "@beep/scratchpad/effected/runner/Ledger.schema"
  *
  * const row = LedgerRow.make({
  *   id: "w1-memfs",
@@ -675,7 +679,7 @@ export class UpstreamPaths extends S.Class<UpstreamPaths>($I`UpstreamPaths`)(
  *   stage: 0,
  *   status: "pending",
  *   provisionalHome: "tooling/test-kit",
- *   upstreamPaths: { src: "packages/memfs/src", test: "packages/memfs/__test__" },
+ *   upstreamPaths: UpstreamPaths.make({ src: "packages/memfs/src", test: "packages/memfs/__test__" }),
  *   exportsExpected: [],
  *   exportsAdded: [],
  *   newDeps: [],
@@ -694,7 +698,7 @@ export class UpstreamPaths extends S.Class<UpstreamPaths>($I`UpstreamPaths`)(
  * @category models
  * @since 0.0.0
  */
-export class LedgerRow extends S.Class<LedgerRow>($I`LedgerRow`)(
+export class LedgerRow extends S.Class<LedgerRow, { readonly brand: unique symbol }>($I`LedgerRow`)(
   {
     id: S.NonEmptyString,
     module: ModuleName,
@@ -734,7 +738,7 @@ export class LedgerRow extends S.Class<LedgerRow>($I`LedgerRow`)(
  * @category models
  * @since 0.0.0
  */
-export class LedgerCheckpoint extends S.Class<LedgerCheckpoint>($I`LedgerCheckpoint`)(
+export class LedgerCheckpoint extends S.Class<LedgerCheckpoint, { readonly brand: unique symbol }>($I`LedgerCheckpoint`)(
   {
     module: ModuleName,
     stage: Stage,
@@ -766,7 +770,7 @@ export class LedgerCheckpoint extends S.Class<LedgerCheckpoint>($I`LedgerCheckpo
  * @category models
  * @since 0.0.0
  */
-export class Ledger extends S.Class<Ledger>($I`Ledger`)(
+export class Ledger extends S.Class<Ledger, { readonly brand: unique symbol }>($I`Ledger`)(
   {
     version: S.Literal(1),
     effectedCommit: S.NonEmptyString,

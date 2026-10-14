@@ -770,7 +770,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("residue reap", (it) => 
           expect(decoded.schemaVersion).toBe("residue-reap/v3");
           expect(decoded.classes).toEqual(["turbo-cache"]);
           expect(decoded.candidates).toHaveLength(1);
-          expect(decoded.candidates[0]).toBeInstanceOf(ResidueReapCandidate);
+          expect(S.is(ResidueReapCandidate)(decoded.candidates[0])).toBe(true);
           // Earlier report tags must not decode as v3 archive reports.
           const v1Payload = Str.replace("residue-reap/v3", "residue-reap/v1")(encoded);
           expect(S.isSchemaError(yield* Effect.flip(decodeResidueReapReportJson(v1Payload)))).toBe(true);
@@ -1325,6 +1325,56 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("residue reap", (it) => 
             expect(candidateByPath(report, entry).checkoutRoot).toBe(second);
             expect(yield* fs.readFileString(payload)).toBe("unrelated work\n");
             expect(yield* fs.readFileString(path.join(moved, "old-directory", "payload.txt"))).toBe("original cache\n");
+          }),
+        removeTempDirectory
+      )
+    );
+
+    it.effect("keeps the discovery boundary when a checkout root is replaced before apply", () =>
+      Effect.acquireUseRelease(
+        makeTempDirectory,
+        (root) =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const homeRoot = path.join(root, "home");
+            const first = path.join(root, "first");
+            const second = path.join(root, "second");
+            const moved = path.join(root, "moved-checkout");
+            const external = path.join(root, "external-checkout");
+            const entry = path.join(second, ".turbo", "cache", "old-directory");
+            const externalData = path.join(external, ".turbo", "cache", "old-directory", "keep.txt");
+            yield* fs.makeDirectory(homeRoot, { recursive: true });
+            yield* fs.makeDirectory(first, { recursive: true });
+            yield* fs.makeDirectory(entry, { recursive: true });
+            yield* fs.writeFileString(path.join(entry, "cache.txt"), "old cache\n");
+            yield* fs.makeDirectory(path.dirname(externalData), { recursive: true });
+            yield* fs.writeFileString(externalData, "unrelated work\n");
+            yield* touchTreeDaysAgo(root, entry, 60);
+            yield* touchTreeDaysAgo(root, path.dirname(externalData), 60);
+            let inspections = 0;
+            const swappingProbe = Effect.fn("checkoutRootSwappingProbe")(function* (target: string) {
+              if (Str.Equivalence(target, entry) && ++inspections === 2) {
+                yield* fs.rename(second, moved);
+                yield* fs.symlink(external, second);
+              }
+              return O.some(false);
+            }, Effect.orDie);
+
+            const report = yield* runResidueReap({
+              apply: true,
+              checkoutRoots: [first, second],
+              classes: ["turbo-cache"],
+              fleet: true,
+              homeRoot,
+              nowMillis: FIXTURE_NOW_MILLIS,
+              probeLiveCwd: swappingProbe,
+              repoRoot: first,
+            });
+            expect(inspections).toBeGreaterThanOrEqual(2);
+            expect(report.reapedCount).toBe(0);
+            expect(candidateByPath(report, entry).skipReason).toBe("path-changed");
+            expect(yield* fs.readFileString(externalData)).toBe("unrelated work\n");
           }),
         removeTempDirectory
       )

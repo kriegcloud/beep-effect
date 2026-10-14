@@ -302,17 +302,18 @@ const hasPrefix = (prefixes: ReadonlyArray<string>, filePath: string): boolean =
  * @category models
  * @since 0.0.0
  */
-export class CoverageScopeOwner extends S.Class<CoverageScopeOwner>($I`CoverageScopeOwner`)(
-  {
+export class CoverageScopeOwner extends S.Opaque<CoverageScopeOwner, { readonly brand: unique symbol }>()(
+  S.Struct({
     hasCoverage: S.Boolean,
     packageName: S.String,
     packagePath: S.String,
     workspaceDependencies: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
-  },
-  $I.annote("CoverageScopeOwner", {
-    description:
-      "Workspace path, coverage capability, and workspace-internal dependencies used by pull-request scope planning.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageScopeOwner", {
+      description:
+        "Workspace path, coverage capability, and workspace-internal dependencies used by pull-request scope planning.",
+    })
+  )
 ) {}
 
 const workspacePackageHasCoverage = (scripts: Readonly<Record<string, string>> | undefined): boolean =>
@@ -397,32 +398,50 @@ export const workspaceCoverageScopeOwners = Effect.fn("CoverageScope.workspaceCo
   );
 });
 
-class CoverageFullScope extends S.TaggedClass<CoverageFullScope>($I`CoverageFullScope`)(
-  "full",
-  { reasons: S.Array(S.String) },
-  $I.annote("CoverageFullScope", {
-    description: "Coverage plan that falls back to the complete workspace because a global or unknown input changed.",
-  })
+/**
+ * Coverage plan that falls back to the complete workspace because a global or unknown input changed.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageFullScope extends S.Opaque<CoverageFullScope, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("full", { reasons: S.Array(S.String) }).pipe(
+    $I.annoteSchema("CoverageFullScope", {
+      description: "Coverage plan that falls back to the complete workspace because a global or unknown input changed.",
+    })
+  )
 ) {}
 
-class CoverageSelectedScope extends S.TaggedClass<CoverageSelectedScope>($I`CoverageSelectedScope`)(
-  "selected",
-  {
+/**
+ * Coverage plan containing every coverage owner to measure: the directly changed owners plus the coverage-bearing workspace dependents listed in dependentPackageNames.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageSelectedScope extends S.Opaque<CoverageSelectedScope, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("selected", {
     packageNames: S.Array(S.String),
     dependentPackageNames: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
-  },
-  $I.annote("CoverageSelectedScope", {
-    description:
-      "Coverage plan containing every coverage owner to measure: the directly changed owners plus the coverage-bearing workspace dependents listed in dependentPackageNames.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageSelectedScope", {
+      description:
+        "Coverage plan containing every coverage owner to measure: the directly changed owners plus the coverage-bearing workspace dependents listed in dependentPackageNames.",
+    })
+  )
 ) {}
 
-class CoverageNoopScope extends S.TaggedClass<CoverageNoopScope>($I`CoverageNoopScope`)(
-  "noop",
-  {},
-  $I.annote("CoverageNoopScope", {
-    description: "Coverage plan for a change set with no coverage-bearing or global inputs.",
-  })
+/**
+ * Coverage plan for a change set with no coverage-bearing or global inputs.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageNoopScope extends S.Opaque<CoverageNoopScope, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("noop", {}).pipe(
+    $I.annoteSchema("CoverageNoopScope", {
+      description: "Coverage plan for a change set with no coverage-bearing or global inputs.",
+    })
+  )
 ) {}
 
 /**
@@ -471,15 +490,16 @@ export type CoverageAffectedScope = typeof CoverageAffectedScope.Type;
  * @category models
  * @since 0.0.0
  */
-export class CoverageFullShard extends S.Class<CoverageFullShard>($I`CoverageFullShard`)(
-  {
+export class CoverageFullShard extends S.Opaque<CoverageFullShard, { readonly brand: unique symbol }>()(
+  S.Struct({
     index: S.Int,
     packageNames: S.Array(S.String),
     weightSeconds: S.Finite,
-  },
-  $I.annote("CoverageFullShard", {
-    description: "Deterministic least-loaded coverage shard derived from hosted task weights.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageFullShard", {
+      description: "Deterministic least-loaded coverage shard derived from hosted task weights.",
+    })
+  )
 ) {}
 
 type MutableCoverageShard = {
@@ -874,34 +894,55 @@ export const dependentSeedOwners: {
     )
 );
 
-class CoverageSelfJudgeChangedFileExclusion extends S.TaggedClass<CoverageSelfJudgeChangedFileExclusion>(
-  $I`CoverageSelfJudgeChangedFileExclusion`
-)(
-  "owns-changed-file",
-  { filePath: S.String },
-  $I.annote("CoverageSelfJudgeChangedFileExclusion", {
-    description: "The package owns a file the change set touched, so the change set could have moved its rows.",
-  })
+/**
+ * The package owns a file the change set touched, so the change set could have moved its rows.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageSelfJudgeChangedFileExclusion extends S.Opaque<
+  CoverageSelfJudgeChangedFileExclusion,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("owns-changed-file", { filePath: S.String }).pipe(
+    $I.annoteSchema("CoverageSelfJudgeChangedFileExclusion", {
+      description: "The package owns a file the change set touched, so the change set could have moved its rows.",
+    })
+  )
 ) {}
 
-class CoverageSelfJudgeDependentExclusion extends S.TaggedClass<CoverageSelfJudgeDependentExclusion>(
-  $I`CoverageSelfJudgeDependentExclusion`
-)(
-  "dependent-of-changed-package",
-  { packageName: S.String },
-  $I.annote("CoverageSelfJudgeDependentExclusion", {
-    description: "The package depends on a workspace package the change set touched.",
-  })
+/**
+ * The package depends on a workspace package the change set touched.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageSelfJudgeDependentExclusion extends S.Opaque<
+  CoverageSelfJudgeDependentExclusion,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("dependent-of-changed-package", { packageName: S.String }).pipe(
+    $I.annoteSchema("CoverageSelfJudgeDependentExclusion", {
+      description: "The package depends on a workspace package the change set touched.",
+    })
+  )
 ) {}
 
-class CoverageSelfJudgeGlobalInputExclusion extends S.TaggedClass<CoverageSelfJudgeGlobalInputExclusion>(
-  $I`CoverageSelfJudgeGlobalInputExclusion`
-)(
-  "global-input-changed",
-  { filePath: S.String, reason: S.String },
-  $I.annote("CoverageSelfJudgeGlobalInputExclusion", {
-    description: "A changed path that forces the full run, which can move every measured row.",
-  })
+/**
+ * A changed path that forces the full run, which can move every measured row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageSelfJudgeGlobalInputExclusion extends S.Opaque<
+  CoverageSelfJudgeGlobalInputExclusion,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("global-input-changed", { filePath: S.String, reason: S.String }).pipe(
+    $I.annoteSchema("CoverageSelfJudgeGlobalInputExclusion", {
+      description: "A changed path that forces the full run, which can move every measured row.",
+    })
+  )
 ) {}
 
 /**
@@ -973,8 +1014,8 @@ export type CoverageSelfJudgeExclusion = typeof CoverageSelfJudgeExclusion.Type;
  * @category models
  * @since 0.0.0
  */
-export class CoverageSelfJudgeScope extends S.Class<CoverageSelfJudgeScope>($I`CoverageSelfJudgeScope`)(
-  {
+export class CoverageSelfJudgeScope extends S.Opaque<CoverageSelfJudgeScope, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageExclusions: S.Record(S.String, CoverageSelfJudgeExclusion).pipe(
       S.withConstructorDefault(Effect.succeed<Record<string, CoverageSelfJudgeExclusion>>({}))
     ),
@@ -982,10 +1023,11 @@ export class CoverageSelfJudgeScope extends S.Class<CoverageSelfJudgeScope>($I`C
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("CoverageSelfJudgeScope", {
-    description: "Packages whose coverage rows a change set could have moved, keyed by the witness that says so.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageSelfJudgeScope", {
+      description: "Packages whose coverage rows a change set could have moved, keyed by the witness that says so.",
+    })
+  )
 ) {}
 
 /**
@@ -1175,14 +1217,15 @@ const isCoverageBaselinePath = (filePath: string): boolean => filePath === COVER
  * @category models
  * @since 0.0.0
  */
-export class CoverageBaselineRowDelta extends S.Class<CoverageBaselineRowDelta>($I`CoverageBaselineRowDelta`)(
-  {
+export class CoverageBaselineRowDelta extends S.Opaque<CoverageBaselineRowDelta, { readonly brand: unique symbol }>()(
+  S.Struct({
     present: S.Array(S.String),
     removed: S.Array(S.String),
-  },
-  $I.annote("CoverageBaselineRowDelta", {
-    description: "Coverage baseline package rows added or changed (present) and deleted (removed) by a change set.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageBaselineRowDelta", {
+      description: "Coverage baseline package rows added or changed (present) and deleted (removed) by a change set.",
+    })
+  )
 ) {}
 
 // A present row names a package the run must measure. No owner at all is a
@@ -1314,7 +1357,7 @@ export const planCoverageAffectedScopeWithBaseline: {
     const packageNames = pipe(A.union(directPackageNames, dependentPackageNames), A.sort(Order.String));
     return A.isReadonlyArrayNonEmpty(packageNames)
       ? CoverageSelectedScope.make({ packageNames, dependentPackageNames })
-      : CoverageNoopScope.make();
+      : CoverageNoopScope.make({});
   }
 );
 

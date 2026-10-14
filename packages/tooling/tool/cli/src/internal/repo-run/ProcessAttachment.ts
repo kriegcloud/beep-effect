@@ -67,15 +67,16 @@ export type ProcessAttachmentKind = typeof ProcessAttachmentKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProcessAttachment extends S.Class<ProcessAttachment>($I`ProcessAttachment`)(
-  {
+export class ProcessAttachment extends S.Opaque<ProcessAttachment, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: ProcessPid,
     kind: ProcessAttachmentKind,
     target: S.String,
-  },
-  $I.annote("ProcessAttachment", {
-    description: "A process id, the /proc link family it was found through, and the resolved path it holds.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessAttachment", {
+      description: "A process id, the /proc link family it was found through, and the resolved path it holds.",
+    })
+  )
 ) {}
 
 // Internal call-argument shape (never decoded or serialized), so it stays a private

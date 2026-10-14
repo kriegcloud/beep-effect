@@ -163,8 +163,8 @@ export type ExecutionStrategy = typeof ExecutionStrategy.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExecutionMetrics extends S.Class<ExecutionMetrics>($I`ExecutionMetrics`)(
-  {
+export class ExecutionMetrics extends S.Opaque<ExecutionMetrics, { readonly brand: unique symbol }>()(
+  S.Struct({
     cacheHits: S.Natural,
     cacheMisses: S.Natural,
     duration: S.Duration,
@@ -174,10 +174,11 @@ export class ExecutionMetrics extends S.Class<ExecutionMetrics>($I`ExecutionMetr
     tokensConsumed: S.Natural.annotateKey({
       description: "Tokens consumed by LLM-backed operations.",
     }),
-  },
-  $I.annote("ExecutionMetrics", {
-    description: "Monoid of metrics accumulated while applying an operation to graph leaves.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExecutionMetrics", {
+      description: "Monoid of metrics accumulated while applying an operation to graph leaves.",
+    })
+  )
 ) {
   static readonly empty = () =>
     ExecutionMetrics.make({
@@ -269,8 +270,8 @@ export type Complexity = typeof Complexity.Type;
  * @category models
  * @since 0.0.0
  */
-export class ConstantOperationCost extends S.Class<ConstantOperationCost>($I`ConstantOperationCost`)(
-  {
+export class ConstantOperationCost extends S.Opaque<ConstantOperationCost, { readonly brand: unique symbol }>()(
+  S.Struct({
     complexity: S.tag("O(1)"),
     estimatedTime: S.Duration,
     /** Memory cost in bytes. */
@@ -281,10 +282,11 @@ export class ConstantOperationCost extends S.Class<ConstantOperationCost>($I`Con
     tokenCost: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
       description: "LLM token cost in tokens.",
     }),
-  },
-  $I.annote("ConstantOperationCost", {
-    description: "Cost estimate for an operation whose time complexity is constant.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConstantOperationCost", {
+      description: "Cost estimate for an operation whose time complexity is constant.",
+    })
+  )
 ) {}
 
 /**
@@ -309,8 +311,8 @@ export class ConstantOperationCost extends S.Class<ConstantOperationCost>($I`Con
  * @category models
  * @since 0.0.0
  */
-export class LinearOperationCost extends S.Class<LinearOperationCost>($I`LinearOperationCost`)(
-  {
+export class LinearOperationCost extends S.Opaque<LinearOperationCost, { readonly brand: unique symbol }>()(
+  S.Struct({
     complexity: S.tag("O(n)"),
     estimatedTime: S.Duration,
     /** Memory cost in bytes. */
@@ -321,10 +323,11 @@ export class LinearOperationCost extends S.Class<LinearOperationCost>($I`LinearO
     tokenCost: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
       description: "LLM token cost in tokens.",
     }),
-  },
-  $I.annote("LinearOperationCost", {
-    description: "Cost estimate for an operation whose time complexity is linear.",
-  })
+  }).pipe(
+    $I.annoteSchema("LinearOperationCost", {
+      description: "Cost estimate for an operation whose time complexity is linear.",
+    })
+  )
 ) {}
 
 /**
@@ -349,8 +352,8 @@ export class LinearOperationCost extends S.Class<LinearOperationCost>($I`LinearO
  * @category models
  * @since 0.0.0
  */
-export class LinearithmicOperationCost extends S.Class<LinearithmicOperationCost>($I`LinearithmicOperationCost`)(
-  {
+export class LinearithmicOperationCost extends S.Opaque<LinearithmicOperationCost, { readonly brand: unique symbol }>()(
+  S.Struct({
     complexity: S.tag("O(n log n)"),
     estimatedTime: S.Duration,
     /** Memory cost in bytes. */
@@ -361,10 +364,11 @@ export class LinearithmicOperationCost extends S.Class<LinearithmicOperationCost
     tokenCost: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
       description: "LLM token cost in tokens.",
     }),
-  },
-  $I.annote("LinearithmicOperationCost", {
-    description: "Cost estimate for an operation whose time complexity is linearithmic.",
-  })
+  }).pipe(
+    $I.annoteSchema("LinearithmicOperationCost", {
+      description: "Cost estimate for an operation whose time complexity is linearithmic.",
+    })
+  )
 ) {}
 
 /**
@@ -389,8 +393,8 @@ export class LinearithmicOperationCost extends S.Class<LinearithmicOperationCost
  * @category models
  * @since 0.0.0
  */
-export class QuadraticOperationCost extends S.Class<QuadraticOperationCost>($I`QuadraticOperationCost`)(
-  {
+export class QuadraticOperationCost extends S.Opaque<QuadraticOperationCost, { readonly brand: unique symbol }>()(
+  S.Struct({
     complexity: S.tag("O(n^2)"),
     estimatedTime: S.Duration,
     /** Memory cost in bytes. */
@@ -401,10 +405,11 @@ export class QuadraticOperationCost extends S.Class<QuadraticOperationCost>($I`Q
     tokenCost: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
       description: "LLM token cost in tokens.",
     }),
-  },
-  $I.annote("QuadraticOperationCost", {
-    description: "Cost estimate for an operation whose time complexity is quadratic.",
-  })
+  }).pipe(
+    $I.annoteSchema("QuadraticOperationCost", {
+      description: "Cost estimate for an operation whose time complexity is quadratic.",
+    })
+  )
 ) {}
 
 /**
@@ -454,8 +459,9 @@ export const OperationCost = Complexity.mapMembers(
         "O(n log n)": () => nodeCount * Math.log2(nodeCount),
         "O(n^2)": () => nodeCount * nodeCount,
       });
+      // Spreading keeps the member (and its brand) that `cost.complexity` selects.
       return {
-        complexity: cost.complexity,
+        ...cost,
         estimatedTime: Duration.times(cost.estimatedTime, timeMultiplier),
         memoryCost: S.Finite.check(S.isGreaterThanOrEqualTo(0)).make(cost.memoryCost * nodeCount),
         tokenCost: S.Finite.check(S.isGreaterThanOrEqualTo(0)).make(cost.tokenCost * nodeCount),
@@ -528,27 +534,30 @@ export type OperationCost = typeof OperationCost.Type;
  * @category models
  * @since 0.0.0
  */
-export class ValidationResult extends S.Class<ValidationResult>($I`ValidationResult`)(
-  {
+export class ValidationResult extends S.Opaque<ValidationResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     errors: S.Array(S.String),
     valid: S.Boolean,
     warnings: S.Array(S.String),
-  },
-  $I.annote("ValidationResult", {
-    description: "Result of validating that an operation can be applied",
-  })
+  }).pipe(
+    $I.annoteSchema("ValidationResult", {
+      description: "Result of validating that an operation can be applied",
+    })
+  )
 ) {
-  static readonly valid = () => ({
-    errors: A.empty<string>(),
-    valid: true,
-    warnings: A.empty<string>(),
-  });
+  static readonly valid = (): ValidationResult =>
+    ValidationResult.make({
+      errors: A.empty<string>(),
+      valid: true,
+      warnings: A.empty<string>(),
+    });
 
-  static invalid = (errors: ReadonlyArray<string>): ValidationResult => ({
-    errors,
-    valid: false,
-    warnings: A.empty<string>(),
-  });
+  static invalid = (errors: ReadonlyArray<string>): ValidationResult =>
+    ValidationResult.make({
+      errors,
+      valid: false,
+      warnings: A.empty<string>(),
+    });
   static readonly withWarnings: {
     (result: ValidationResult, warnings: ReadonlyArray<string>): ValidationResult;
     (warnings: ReadonlyArray<string>): (result: ValidationResult) => ValidationResult;
@@ -638,8 +647,8 @@ const executionOptionsTimeoutDefault = O.none();
  * @category models
  * @since 0.0.0
  */
-export class ExecutionOptions extends S.Class<ExecutionOptions>($I`ExecutionOptions`)(
-  {
+export class ExecutionOptions extends S.Opaque<ExecutionOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cache: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
@@ -656,10 +665,11 @@ export class ExecutionOptions extends S.Class<ExecutionOptions>($I`ExecutionOpti
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("ExecutionOptions", {
-    description: "Options controlling a single execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExecutionOptions", {
+      description: "Options controlling a single execution.",
+    })
+  )
 ) {
   static readonly default = () => ExecutionOptions.make({});
   static readonly sequential = () =>

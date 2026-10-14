@@ -37,8 +37,8 @@ const $I = $WorkspaceUseCasesId.create("aggregates/Workspace/WorkspaceVault");
  * @category use-cases
  * @since 0.0.0
  */
-export class WorkspaceVaultConfig extends S.Class<WorkspaceVaultConfig>($I`WorkspaceVaultConfig`)(
-  {
+export class WorkspaceVaultConfig extends S.Opaque<WorkspaceVaultConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     vaultRootPath: S.OptionFromNullOr(WorkspaceVaultRootPath)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -47,10 +47,11 @@ export class WorkspaceVaultConfig extends S.Class<WorkspaceVaultConfig>($I`Works
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace owning the vault configuration.",
     }),
-  },
-  $I.annote("WorkspaceVaultConfig", {
-    description: "Workspace vault configuration read model.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceVaultConfig", {
+      description: "Workspace vault configuration read model.",
+    })
+  )
 ) {}
 
 /**
@@ -74,18 +75,19 @@ export class WorkspaceVaultConfig extends S.Class<WorkspaceVaultConfig>($I`Works
  * @category use-cases
  * @since 0.0.0
  */
-export class SetWorkspaceVaultInput extends S.Class<SetWorkspaceVaultInput>($I`SetWorkspaceVaultInput`)(
-  {
+export class SetWorkspaceVaultInput extends S.Opaque<SetWorkspaceVaultInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     vaultRootPath: WorkspaceVaultRootPath.annotateKey({
       description: "Absolute local filesystem path selected as the workspace vault root.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace owning the vault configuration.",
     }),
-  },
-  $I.annote("SetWorkspaceVaultInput", {
-    description: "Input accepted when persisting a workspace vault root.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetWorkspaceVaultInput", {
+      description: "Input accepted when persisting a workspace vault root.",
+    })
+  )
 ) {}
 
 /**
@@ -103,9 +105,10 @@ export class SetWorkspaceVaultInput extends S.Class<SetWorkspaceVaultInput>($I`S
  * @category errors
  * @since 0.0.0
  */
-export class WorkspaceVaultStoreUnavailable extends S.TaggedError<WorkspaceVaultStoreUnavailable>(
-  $I`WorkspaceVaultStoreUnavailable`
-)(
+export class WorkspaceVaultStoreUnavailable extends S.TaggedError<
+  WorkspaceVaultStoreUnavailable,
+  { readonly brand: unique symbol }
+>($I`WorkspaceVaultStoreUnavailable`)(
   "WorkspaceVaultStoreUnavailable",
   {
     reason: S.NonEmptyString,
@@ -133,7 +136,10 @@ export class WorkspaceVaultStoreUnavailable extends S.TaggedError<WorkspaceVault
  * @category errors
  * @since 0.0.0
  */
-export class WorkspaceVaultRootInvalid extends S.TaggedError<WorkspaceVaultRootInvalid>($I`WorkspaceVaultRootInvalid`)(
+export class WorkspaceVaultRootInvalid extends S.TaggedError<
+  WorkspaceVaultRootInvalid,
+  { readonly brand: unique symbol }
+>($I`WorkspaceVaultRootInvalid`)(
   "WorkspaceVaultRootInvalid",
   {
     path: S.String,
@@ -194,7 +200,10 @@ export type WorkspaceVaultStoreError = typeof WorkspaceVaultStoreError.Type;
  * @category errors
  * @since 0.0.0
  */
-export class WorkspaceVaultActionError extends S.TaggedError<WorkspaceVaultActionError>($I`WorkspaceVaultActionError`)(
+export class WorkspaceVaultActionError extends S.TaggedError<
+  WorkspaceVaultActionError,
+  { readonly brand: unique symbol }
+>($I`WorkspaceVaultActionError`)(
   "WorkspaceVaultActionError",
   {
     message: S.String,

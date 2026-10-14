@@ -1,3 +1,4 @@
+import { ContradictionBeliefPair } from "@beep/epistemic-domain";
 import {
   ContradictionCandidate,
   ContradictionDisposition,
@@ -126,7 +127,7 @@ const candidate = Result.getOrThrow(
     ...productEntityFixtureInput("EpistemicContradictionCandidate", 1),
     assessment: encodedAssessment,
     candidateDigest,
-    candidateKey: contradictionCandidateKey(pair, matchBasis),
+    candidateKey: contradictionCandidateKey(ContradictionBeliefPair.make(pair), matchBasis),
     matchBasis: encodedMatchBasis,
     pair: encodedPair,
     recordedAt: 0,

@@ -28,12 +28,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TypeDocTagValues");
  * @category models
  * @since 0.0.0
  */
-export class CategoryValue extends S.TaggedClass<CategoryValue>($I`CategoryValue`)(
-  "category",
-  { name: TSCategoryTag },
-  $I.annote("CategoryValue", {
-    description: "Occurrence shape for @category — assigns a documentation category.",
-  })
+export class CategoryValue extends S.Opaque<CategoryValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("category", { name: TSCategoryTag }).pipe(
+    $I.annoteSchema("CategoryValue", {
+      description: "Occurrence shape for @category — assigns a documentation category.",
+    })
+  )
 ) {}
 
 /**
@@ -52,12 +52,12 @@ export class CategoryValue extends S.TaggedClass<CategoryValue>($I`CategoryValue
  * @category models
  * @since 0.0.0
  */
-export class DocumentValue extends S.TaggedClass<DocumentValue>($I`DocumentValue`)(
-  "document",
-  empty,
-  $I.annote("DocumentValue", {
-    description: "Occurrence shape for @document — marks for documentation generation.",
-  })
+export class DocumentValue extends S.Opaque<DocumentValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("document", empty).pipe(
+    $I.annoteSchema("DocumentValue", {
+      description: "Occurrence shape for @document — marks for documentation generation.",
+    })
+  )
 ) {}
 
 /**
@@ -76,12 +76,12 @@ export class DocumentValue extends S.TaggedClass<DocumentValue>($I`DocumentValue
  * @category models
  * @since 0.0.0
  */
-export class GroupValue extends S.TaggedClass<GroupValue>($I`GroupValue`)(
-  "group",
-  { ...nameField },
-  $I.annote("GroupValue", {
-    description: "Occurrence shape for @group — assigns a documentation group.",
-  })
+export class GroupValue extends S.Opaque<GroupValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("group", { ...nameField }).pipe(
+    $I.annoteSchema("GroupValue", {
+      description: "Occurrence shape for @group — assigns a documentation group.",
+    })
+  )
 ) {}
 
 /**
@@ -100,12 +100,12 @@ export class GroupValue extends S.TaggedClass<GroupValue>($I`GroupValue`)(
  * @category models
  * @since 0.0.0
  */
-export class HiddenValue extends S.TaggedClass<HiddenValue>($I`HiddenValue`)(
-  "hidden",
-  empty,
-  $I.annote("HiddenValue", {
-    description: "Occurrence shape for @hidden — hides the symbol from documentation.",
-  })
+export class HiddenValue extends S.Opaque<HiddenValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("hidden", empty).pipe(
+    $I.annoteSchema("HiddenValue", {
+      description: "Occurrence shape for @hidden — hides the symbol from documentation.",
+    })
+  )
 ) {}
 
 /**
@@ -124,12 +124,12 @@ export class HiddenValue extends S.TaggedClass<HiddenValue>($I`HiddenValue`)(
  * @category models
  * @since 0.0.0
  */
-export class ExpandValue extends S.TaggedClass<ExpandValue>($I`ExpandValue`)(
-  "expand",
-  empty,
-  $I.annote("ExpandValue", {
-    description: "Occurrence shape for @expand — expands type aliases in documentation.",
-  })
+export class ExpandValue extends S.Opaque<ExpandValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("expand", empty).pipe(
+    $I.annoteSchema("ExpandValue", {
+      description: "Occurrence shape for @expand — expands type aliases in documentation.",
+    })
+  )
 ) {}
 
 /**
@@ -148,12 +148,12 @@ export class ExpandValue extends S.TaggedClass<ExpandValue>($I`ExpandValue`)(
  * @category models
  * @since 0.0.0
  */
-export class InlineValue extends S.TaggedClass<InlineValue>($I`InlineValue`)(
-  "inline",
-  empty,
-  $I.annote("InlineValue", {
-    description: "Occurrence shape for @inline — inlines a type in documentation.",
-  })
+export class InlineValue extends S.Opaque<InlineValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("inline", empty).pipe(
+    $I.annoteSchema("InlineValue", {
+      description: "Occurrence shape for @inline — inlines a type in documentation.",
+    })
+  )
 ) {}
 
 /**
@@ -172,12 +172,12 @@ export class InlineValue extends S.TaggedClass<InlineValue>($I`InlineValue`)(
  * @category models
  * @since 0.0.0
  */
-export class MergeModuleWithValue extends S.TaggedClass<MergeModuleWithValue>($I`MergeModuleWithValue`)(
-  "mergeModuleWith",
-  { ...nameField },
-  $I.annote("MergeModuleWithValue", {
-    description: "Occurrence shape for @mergeModuleWith — merges module documentation.",
-  })
+export class MergeModuleWithValue extends S.Opaque<MergeModuleWithValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("mergeModuleWith", { ...nameField }).pipe(
+    $I.annoteSchema("MergeModuleWithValue", {
+      description: "Occurrence shape for @mergeModuleWith — merges module documentation.",
+    })
+  )
 ) {}
 
 /**
@@ -196,12 +196,12 @@ export class MergeModuleWithValue extends S.TaggedClass<MergeModuleWithValue>($I
  * @category models
  * @since 0.0.0
  */
-export class PrimaryExportValue extends S.TaggedClass<PrimaryExportValue>($I`PrimaryExportValue`)(
-  "primaryExport",
-  empty,
-  $I.annote("PrimaryExportValue", {
-    description: "Occurrence shape for @primaryExport — marks the primary export.",
-  })
+export class PrimaryExportValue extends S.Opaque<PrimaryExportValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("primaryExport", empty).pipe(
+    $I.annoteSchema("PrimaryExportValue", {
+      description: "Occurrence shape for @primaryExport — marks the primary export.",
+    })
+  )
 ) {}
 
 /**
@@ -220,12 +220,12 @@ export class PrimaryExportValue extends S.TaggedClass<PrimaryExportValue>($I`Pri
  * @category models
  * @since 0.0.0
  */
-export class SortStrategyValue extends S.TaggedClass<SortStrategyValue>($I`SortStrategyValue`)(
-  "sortStrategy",
-  { ...nameField },
-  $I.annote("SortStrategyValue", {
-    description: "Occurrence shape for @sortStrategy — specifies documentation sort order.",
-  })
+export class SortStrategyValue extends S.Opaque<SortStrategyValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("sortStrategy", { ...nameField }).pipe(
+    $I.annoteSchema("SortStrategyValue", {
+      description: "Occurrence shape for @sortStrategy — specifies documentation sort order.",
+    })
+  )
 ) {}
 
 /**
@@ -244,10 +244,10 @@ export class SortStrategyValue extends S.TaggedClass<SortStrategyValue>($I`SortS
  * @category models
  * @since 0.0.0
  */
-export class UseDeclaredTypeValue extends S.TaggedClass<UseDeclaredTypeValue>($I`UseDeclaredTypeValue`)(
-  "useDeclaredType",
-  empty,
-  $I.annote("UseDeclaredTypeValue", {
-    description: "Occurrence shape for @useDeclaredType — uses declared type in docs.",
-  })
+export class UseDeclaredTypeValue extends S.Opaque<UseDeclaredTypeValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("useDeclaredType", empty).pipe(
+    $I.annoteSchema("UseDeclaredTypeValue", {
+      description: "Occurrence shape for @useDeclaredType — uses declared type in docs.",
+    })
+  )
 ) {}

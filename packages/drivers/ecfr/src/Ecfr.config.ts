@@ -74,8 +74,8 @@ export const ECFR_RATE_LIMIT_WINDOW = "1 minute";
  * @category models
  * @since 0.0.0
  */
-export class EcfrConfigInput extends S.Class<EcfrConfigInput>($I`EcfrConfigInput`)(
-  {
+export class EcfrConfigInput extends S.Opaque<EcfrConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiUrl: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(ECFR_API_URL)),
       S.withDecodingDefaultTypeKey(Effect.succeed(ECFR_API_URL)),
@@ -83,8 +83,9 @@ export class EcfrConfigInput extends S.Class<EcfrConfigInput>($I`EcfrConfigInput
         description: "Base origin for the eCFR admin, search, and versioner API families.",
       })
     ),
-  },
-  $I.annote("EcfrConfigInput", {
-    description: "Runtime configuration accepted by the keyless eCFR driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcfrConfigInput", {
+      description: "Runtime configuration accepted by the keyless eCFR driver layer.",
+    })
+  )
 ) {}

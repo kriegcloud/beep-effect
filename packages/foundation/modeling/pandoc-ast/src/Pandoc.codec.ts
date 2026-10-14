@@ -139,8 +139,8 @@ export type PandocConstructorWire = typeof PandocConstructorWire.Type;
  * @category models
  * @since 0.0.0
  */
-export class PandocJsonWire extends S.Class<PandocJsonWire>($I`PandocJsonWire`)(
-  {
+export class PandocJsonWire extends S.Opaque<PandocJsonWire, { readonly brand: unique symbol }>()(
+  S.Struct({
     "pandoc-api-version": PandocApiVersion.annotateKey({
       description: "Pandoc API version tuple.",
     }),
@@ -150,10 +150,11 @@ export class PandocJsonWire extends S.Class<PandocJsonWire>($I`PandocJsonWire`)(
     meta: S.Record(S.String, S.Json).annotateKey({
       description: "Pandoc metadata map.",
     }),
-  },
-  $I.annote("PandocJsonWire", {
-    description: "Pandoc JSON document wire shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("PandocJsonWire", {
+      description: "Pandoc JSON document wire shape.",
+    })
+  )
 ) {}
 
 /**
@@ -220,13 +221,14 @@ export const PandocJsonFromString = S.fromJsonString(PandocJsonWire).pipe(
  * **Example** (Annotate wire type)
  *
  * ```ts import.meta.vitest name="Annotate wire type"
+ * import { PandocJsonWire } from "@beep/pandoc-ast/Pandoc.codec"
  * import type { PandocJsonFromString } from "@beep/pandoc-ast/Pandoc.codec"
  *
- * const wire: PandocJsonFromString = {
+ * const wire: PandocJsonFromString = PandocJsonWire.make({
  *   "pandoc-api-version": [1, 23, 1],
  *   blocks: [],
  *   meta: {},
- * }
+ * })
  * wire.blocks.length // => 0
  * ```
  *
@@ -256,7 +258,9 @@ const PandocJsonObjectFromString = S.fromJsonString(PandocJsonObject);
  * @category errors
  * @since 0.0.0
  */
-export class PandocDecodeError extends S.TaggedError<PandocDecodeError>($I`PandocDecodeError`)(
+export class PandocDecodeError extends S.TaggedError<PandocDecodeError, { readonly brand: unique symbol }>(
+  $I`PandocDecodeError`
+)(
   "PandocDecodeError",
   {
     message: S.String,
@@ -287,7 +291,9 @@ export class PandocDecodeError extends S.TaggedError<PandocDecodeError>($I`Pando
  * @category diagnostics
  * @since 0.0.0
  */
-export class PandocLosslessIssue extends S.Class<PandocLosslessIssue>($I`PandocLosslessIssue`)(
+export class PandocLosslessIssue extends S.Class<PandocLosslessIssue, { readonly brand: unique symbol }>(
+  $I`PandocLosslessIssue`
+)(
   {
     constructor: S.String,
     context: S.Literals(["block", "inline", "meta"]),
@@ -820,9 +826,9 @@ const decodeInline = (input: unknown): Effect.Effect<PandocInline.Type, S.Schema
   Effect.flatMap(decodeConstructor(input), (wire) =>
     Match.value(wire.t).pipe(
       Match.when("Str", () => Effect.map(decodeString(wire.c), (text) => Str.make({ text }))),
-      Match.when("Space", () => Effect.as(decodeAbsentPayload(wire.c), Space.make())),
-      Match.when("SoftBreak", () => Effect.as(decodeAbsentPayload(wire.c), SoftBreak.make())),
-      Match.when("LineBreak", () => Effect.as(decodeAbsentPayload(wire.c), LineBreak.make())),
+      Match.when("Space", () => Effect.as(decodeAbsentPayload(wire.c), Space.make({}))),
+      Match.when("SoftBreak", () => Effect.as(decodeAbsentPayload(wire.c), SoftBreak.make({}))),
+      Match.when("LineBreak", () => Effect.as(decodeAbsentPayload(wire.c), LineBreak.make({}))),
       Match.whenOr("Emph", "Underline", "Strong", "Strikeout", "Superscript", "Subscript", "SmallCaps", (constructor) =>
         decodeChildInline(wire.c, (children) =>
           Match.value(constructor).pipe(
@@ -1211,7 +1217,7 @@ const encodeBlock: (block: PandocBlock.Type) => S.Json = Match.typeTags<PandocBl
   unknownBlock: (block) => block.wire,
 });
 
-const encodeMetaValue: (value: PandocMetaValue) => S.Json = Match.typeTags<PandocMetaValue>()({
+const encodeMetaValue: (value: PandocMetaValue.Type) => S.Json = Match.typeTags<PandocMetaValue.Type>()({
   metaBool: (value) => ({ c: value.value, t: "MetaBool" }),
   metaString: (value) => ({ c: value.value, t: "MetaString" }),
   metaInlines: (value) => ({ c: encodeInlines(value.children), t: "MetaInlines" }),

@@ -38,7 +38,7 @@ const identity: FormatterType = String;
  * @category models
  * @since 0.0.0
  */
-export class Colors extends S.Class<Colors>($I`Colors`)(
+export class Colors extends S.Class<Colors, { readonly brand: unique symbol }>($I`Colors`)(
   ColorsFields,
   $I.annote("Colors", {
     description: "The browser-safe Colors configuration object.",

@@ -55,7 +55,7 @@ const isFiniteIndex = S.is(S.Finite);
 const isStringifyDepthExceeded = S.is(StringifyDepthExceeded);
 
 /** A defect raised when a YAML helper invariant is violated. */
-class YamlFormatInvariantFailure extends S.TaggedError<YamlFormatInvariantFailure>($I`YamlFormatInvariantFailure`)(
+class YamlFormatInvariantFailure extends S.TaggedError<YamlFormatInvariantFailure, { readonly brand: unique symbol }>($I`YamlFormatInvariantFailure`)(
 	"YamlFormatInvariantFailure",
 	{
 		message: S.String.annotateKey({ description: "The failed invariant encountered while navigating the YAML tree." }),
@@ -120,7 +120,7 @@ export type YamlRangeLike = YamlRange | { readonly offset: number; readonly leng
  * @category configuration
  * @since 0.0.0
  */
-export class YamlFormattingOptions extends S.Class<YamlFormattingOptions>($I`YamlFormattingOptions`)({
+export class YamlFormattingOptions extends S.Class<YamlFormattingOptions, { readonly brand: unique symbol }>($I`YamlFormattingOptions`)({
 	...YamlStringifyOptions.fields,
 	preserveComments: S.optionalKey(S.Boolean).annotateKey({ description: "Whether formatting retains node and document comments; defaults to true" }),
 	range: S.optionalKey(YamlRange).annotateKey({ description: "Source region in UTF-16 code units containing permitted formatting edits; a positional range takes precedence" }),
@@ -132,7 +132,7 @@ const NonFiniteIndexKind = LiteralKit(["NaN", "PositiveInfinity", "NegativeInfin
 );
 
 /** A schema-safe echo of a non-finite path segment; navigation still receives the original number. */
-class NonFiniteIndex extends S.TaggedClass<NonFiniteIndex>($I`NonFiniteIndex`)("NonFiniteIndex", {
+class NonFiniteIndex extends S.TaggedClass<NonFiniteIndex, { readonly brand: unique symbol }>($I`NonFiniteIndex`)("NonFiniteIndex", {
 	kind: NonFiniteIndexKind.annotateKey({ description: "The original non-finite numeric index's IEEE kind" }),
 }, $I.annote("NonFiniteIndex", { description: "Tagged representation of NaN or signed infinity in a failed modification's echoed path." })) {
 	override toString(): string {
@@ -192,7 +192,7 @@ const echoErrorPath = (path: YamlPath) => A.map(path, (segment) =>
  * @category errors
  * @since 0.0.0
  */
-export class YamlModificationError extends S.TaggedError<YamlModificationError>($I`YamlModificationError`)("YamlModificationError", {
+export class YamlModificationError extends S.TaggedError<YamlModificationError, { readonly brand: unique symbol }>($I`YamlModificationError`)("YamlModificationError", {
 	path: S.Array(S.Union([S.String, S.Finite, NonFiniteIndex])).annotateKey({ description: "Requested modification location, expressed as mapping keys, finite sequence indices, or tagged non-finite indices" }),
 	diagnostics: S.Array(YamlDiagnostic).annotateKey({ description: "Structured failure details explaining why modification failed; the first diagnostic identifies the primary failure" }),
 }, $I.annote("YamlModificationError", { description: "Raised when `YamlFormat.modify` cannot navigate the requested path against the composed AST (a structural mismatch), the source fails to parse, the source is a multi-document stream (`MultiDocumentStream` — a path names no particular document of a stream, so modify refuses rather than guessing), or the document carries `%YAML`/`%TAG` directives (`DirectiveCarryingDocument` — modify does not re-emit directive lines, and dropping a `%TAG` would orphan the shorthand tags that depend on it). Carries structured YamlDiagnostic entries — never a collapsed `reason` string (the structure-preserving-errors house rule). The error itself has no `code` field: read the code from the diagnostics — `error.diagnostics[0].code` is the primary failure." })) {
@@ -228,7 +228,7 @@ const ModifyFailureCode = LiteralKit([
  * Thrown by the pure AST-navigation helpers on a structural mismatch.
  * `modify` catches this and materializes {@link YamlModificationError}.
  */
-class ModifyFailure extends S.TaggedError<ModifyFailure>($I`ModifyFailure`)("ModifyFailure", {
+class ModifyFailure extends S.TaggedError<ModifyFailure, { readonly brand: unique symbol }>($I`ModifyFailure`)("ModifyFailure", {
 	code: ModifyFailureCode.annotateKey({ description: "The structural or replacement-value failure category" }),
 	message: S.String.annotateKey({ description: "The original navigation or replacement-value failure explanation" }),
 	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 offset of the affected node, or zero for replacement values" }),
@@ -239,7 +239,7 @@ const isModifyFailure = S.is(ModifyFailure);
 
 // ── Internal: options bridging ──────────────────────────────────────────────
 
-const toStringifyInput = (options?: YamlStringifyOptions) =>
+const toStringifyInput = (options?: YamlStringifyOptions | YamlFormattingOptions) =>
 	options === undefined
 		? {}
 		: {

@@ -220,16 +220,17 @@ export type CodexCsvStatus = typeof CodexCsvStatus.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class CodexRawReport extends S.Class<CodexRawReport>($I`CodexRawReport`)(
-  {
+export class CodexRawReport extends S.Opaque<CodexRawReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     codexId: S.String,
     description: S.String,
     relevantPaths: S.String,
     detectedAt: S.String,
-  },
-  $I.annote("CodexRawReport", {
-    description: "One finding's unsanitized report body, written only to ignored raw evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexRawReport", {
+      description: "One finding's unsanitized report body, written only to ignored raw evidence.",
+    })
+  )
 ) {}
 
 const FINDING_URL_PREFIX = "https://chatgpt.com/codex/cloud/security/findings/";
@@ -283,8 +284,8 @@ const decodeStatus = S.decodeUnknownOption(CodexCsvStatus);
 
 // Only the source-qualified Diff scan identity is verified by a real export.
 // A new source namespace must be admitted with its own fixture, never stripped.
-class SecurityCloudCsvRow extends S.Class<SecurityCloudCsvRow>($I`SecurityCloudCsvRow`)(
-  {
+class SecurityCloudCsvRow extends S.Opaque<SecurityCloudCsvRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     "Finding ID": SecurityCloudFindingId,
     Source: S.Literals(["Diff scan"]),
     Repository: S.String.check(
@@ -301,10 +302,11 @@ class SecurityCloudCsvRow extends S.Class<SecurityCloudCsvRow>($I`SecurityCloudC
     Paths: S.String,
     "Observed revision": S.String,
     "Detected at": S.String,
-  },
-  $I.annote("SecurityCloudCsvRow", {
-    description: "Verified Security Cloud summary export row; the full detail evidence is not exported.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecurityCloudCsvRow", {
+      description: "Verified Security Cloud summary export row; the full detail evidence is not exported.",
+    })
+  )
 ) {}
 
 const decodeSecurityCloudRow = Effect.fn("CodexFindings.decodeSecurityCloudRow")(function* (

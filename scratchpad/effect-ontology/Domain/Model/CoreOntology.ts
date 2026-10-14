@@ -306,19 +306,16 @@ export type MentionEvidence = typeof MentionEvidence.Type;
  * @category entities
  * @since 0.0.0
  */
-export class Mention extends S.Class<Mention>($I`Mention`)(
-  {
+export class Mention extends S.Opaque<Mention, { readonly brand: unique symbol }>()(S.Struct({
     id: MentionId,
     evidence: MentionEvidence,
     confidence: Confidence,
     mentionsEntity: IRI,
     sourceDocument: S.OptionFromOptionalKey(IRI).pipe(S.withConstructorDefault(Effect.succeedNone)),
     extractedAt: S.OptionFromOptionalKey(S.DateTimeUtcFromString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Mention", {
+  }).pipe($I.annoteSchema("Mention", {
     description: "Confidence-scored source evidence referring to a tracked entity or event.",
-  })
-) {}
+  }))) {}
 
 /**
  * Stable canonical identifier for a persistent resolved entity.
@@ -393,7 +390,7 @@ const trackedEntityExternalIdsDefault = {};
  * @category entities
  * @since 0.0.0
  */
-export class TrackedEntity extends S.Class<TrackedEntity>($I`TrackedEntity`)(
+export class TrackedEntity extends S.Class<TrackedEntity, { readonly brand: unique symbol }>($I`TrackedEntity`)(
   {
     id: CanonicalEntityId,
     iri: IRI,
@@ -503,25 +500,19 @@ export type EventId = typeof EventId.Type;
  * @category models
  * @since 0.0.0
  */
-export class Participant extends S.Class<Participant>($I`Participant`)(
-  {
+export class Participant extends S.Opaque<Participant, { readonly brand: unique symbol }>()(S.Struct({
     entityIri: IRI,
     role: S.OptionFromOptionalKey(IRI).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Participant", {
+  }).pipe($I.annoteSchema("Participant", {
     description: "Entity participation in an event with an optional ontology-defined role.",
-  })
-) {}
+  }))) {}
 
-class EventIntervalFieldsModel extends S.Class<EventIntervalFieldsModel>($I`EventIntervalFieldsModel`)(
-  {
+class EventIntervalFieldsModel extends S.Opaque<EventIntervalFieldsModel, { readonly brand: unique symbol }>()(S.Struct({
     start: S.DateTimeUtcFromString,
     end: S.OptionFromOptionalKey(S.DateTimeUtcFromString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("EventIntervalFieldsModel", {
+  }).pipe($I.annoteSchema("EventIntervalFieldsModel", {
     description: "Internal field model for a start and optional end instant.",
-  })
-) {}
+  }))) {}
 
 const isNotAfter = Order.isLessThanOrEqualTo(DateTime.Order);
 
@@ -646,7 +637,7 @@ const trackedEventAttributesDefault = {};
  * @category entities
  * @since 0.0.0
  */
-export class TrackedEvent extends S.Class<TrackedEvent>($I`TrackedEvent`)(
+export class TrackedEvent extends S.Class<TrackedEvent, { readonly brand: unique symbol }>($I`TrackedEvent`)(
   {
     id: EventId,
     iri: IRI,
@@ -704,7 +695,7 @@ const CoreOperationErrorFields = {
  * @category errors
  * @since 0.0.0
  */
-export class MentionError extends S.TaggedError<MentionError>($I`MentionError`)(
+export class MentionError extends S.TaggedError<MentionError, { readonly brand: unique symbol }>($I`MentionError`)(
   "MentionError",
   CoreOperationErrorFields,
   $I.annote("MentionError", {
@@ -726,7 +717,7 @@ export class MentionError extends S.TaggedError<MentionError>($I`MentionError`)(
  * @category errors
  * @since 0.0.0
  */
-export class TrackedEntityError extends S.TaggedError<TrackedEntityError>($I`TrackedEntityError`)(
+export class TrackedEntityError extends S.TaggedError<TrackedEntityError, { readonly brand: unique symbol }>($I`TrackedEntityError`)(
   "TrackedEntityError",
   CoreOperationErrorFields,
   $I.annote("TrackedEntityError", {
@@ -748,7 +739,7 @@ export class TrackedEntityError extends S.TaggedError<TrackedEntityError>($I`Tra
  * @category errors
  * @since 0.0.0
  */
-export class TrackedEventError extends S.TaggedError<TrackedEventError>($I`TrackedEventError`)(
+export class TrackedEventError extends S.TaggedError<TrackedEventError, { readonly brand: unique symbol }>($I`TrackedEventError`)(
   "TrackedEventError",
   CoreOperationErrorFields,
   $I.annote("TrackedEventError", {

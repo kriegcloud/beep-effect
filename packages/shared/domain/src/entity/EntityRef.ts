@@ -92,14 +92,15 @@ export type EntityType = typeof EntityType.Type;
  * @category models
  * @since 0.0.0
  */
-export class EntityRef extends S.Class<EntityRef>($I`EntityRef`)(
-  {
+export class EntityRef extends S.Opaque<EntityRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     entityType: EntityType.annotateKey({ description: "PascalCase entity type token for the referenced entity." }),
     id: EntityId.EntityIdValue.annotateKey({ description: "Storage-neutral numeric id for the referenced entity." }),
-  },
-  $I.annote("EntityRef", {
-    description: "Storage-neutral polymorphic entity reference.",
-  })
+  }).pipe(
+    $I.annoteSchema("EntityRef", {
+      description: "Storage-neutral polymorphic entity reference.",
+    })
+  )
 ) {}
 
 /**
