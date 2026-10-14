@@ -34,12 +34,14 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import type { M365Error } from "@beep/m365";
 
-class Capture extends S.Class<Capture>("@beep/m365/test/contacts/Capture")({
-  method: S.String,
-  url: S.String,
-  headers: S.Record(S.String, S.String),
-  body: S.Option(S.Unknown),
-}) {}
+class Capture extends S.Opaque<Capture, { readonly brand: unique symbol }>()(
+  S.Struct({
+    method: S.String,
+    url: S.String,
+    headers: S.Record(S.String, S.String),
+    body: S.Option(S.Unknown),
+  }).annotate({ identifier: "@beep/m365/test/contacts/Capture" })
+) {}
 class Captures extends Context.Service<Captures, Ref.Ref<ReadonlyArray<Capture>>>()(
   "@beep/m365/test/M365.contacts.test/Captures"
 ) {}

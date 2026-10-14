@@ -41,7 +41,7 @@ import type { BlockConstruct, BlockDialect, BlockType } from "./blockTypes.ts";
 
 const $I = $ScratchpadId.create("effected/markdown/internal/blockRegistry");
 
-class UnknownBlockDialectError extends S.TaggedError<UnknownBlockDialectError>($I`UnknownBlockDialectError`)("UnknownBlockDialectError", {
+class UnknownBlockDialectError extends S.TaggedError<UnknownBlockDialectError, { readonly brand: unique symbol }>($I`UnknownBlockDialectError`)("UnknownBlockDialectError", {
 	message: S.String.annotateKey({ description: "The unknown-dialect invariant failure message." }),
 }, $I.annote("UnknownBlockDialectError", { description: "An unrecognized block registry dialect was requested." })) {}
 

@@ -48,10 +48,17 @@ const normalizeRelativePath: (value: string) => string = flow(normalizePathSepar
 const recordNote = (report: AgentEffectivenessEvalScoreReport): string =>
   `skillopt scorer score=${report.score} completion=${report.breakdown.completion} schemaFirst=${report.breakdown.schemaFirst} tsgo=${report.breakdown.tsgo} biome=${report.breakdown.biome}`;
 
-class RecordAgentEffectivenessEvalScoreOptions extends S.Class<RecordAgentEffectivenessEvalScoreOptions>(
-  $I`RecordAgentEffectivenessEvalScoreOptions`
-)(
-  {
+/**
+ * Options for recording an agent effectiveness eval score.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RecordAgentEffectivenessEvalScoreOptions extends S.Opaque<
+  RecordAgentEffectivenessEvalScoreOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dataRoot: S.String,
     dir: S.String,
     elapsedMs: S.Finite,
@@ -60,10 +67,11 @@ class RecordAgentEffectivenessEvalScoreOptions extends S.Class<RecordAgentEffect
     report: AgentEffectivenessEvalScoreReport,
     task: SkillOptTaskManifest,
     taskPath: S.String,
-  },
-  $I.annote("RecordAgentEffectivenessEvalScoreOptions", {
-    description: "Options for recording an agent effectiveness eval score.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecordAgentEffectivenessEvalScoreOptions", {
+      description: "Options for recording an agent effectiveness eval score.",
+    })
+  )
 ) {}
 
 const candidateSkillRoots = [".agents", ".claude"];

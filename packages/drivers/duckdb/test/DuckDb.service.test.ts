@@ -217,14 +217,14 @@ describe("@beep/duckdb", { concurrent: false }, () => {
   it.effect.prop(
     "round-trips DuckDbConnectionOptions through encoded form",
     [DuckDbConnectionOptions],
-    ([value]) => assertSchemaRoundTrip(DuckDbConnectionOptions, value),
+    ([value]) => assertSchemaRoundTrip(DuckDbConnectionOptions, DuckDbConnectionOptions.make(value)),
     { arbitrary: fcRuns(20) }
   );
 
   it.effect.prop(
     "round-trips DuckDbParquetExport through encoded form",
     [DuckDbParquetExport],
-    ([value]) => assertSchemaRoundTrip(DuckDbParquetExport, value),
+    ([value]) => assertSchemaRoundTrip(DuckDbParquetExport, DuckDbParquetExport.make(value)),
     { arbitrary: fcRuns(20) }
   );
 

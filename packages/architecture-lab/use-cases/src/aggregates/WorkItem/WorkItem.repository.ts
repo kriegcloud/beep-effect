@@ -34,9 +34,10 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.repos
  * @category repositories
  * @since 0.0.0
  */
-export class WorkItemRepositoryNotFound extends S.TaggedError<WorkItemRepositoryNotFound>(
-  $I`WorkItemRepositoryNotFound`
-)(
+export class WorkItemRepositoryNotFound extends S.TaggedError<
+  WorkItemRepositoryNotFound,
+  { readonly brand: unique symbol }
+>($I`WorkItemRepositoryNotFound`)(
   "WorkItemRepositoryNotFound",
   {
     workItemId: DomainWorkItem.WorkItemId,
@@ -70,9 +71,10 @@ export class WorkItemRepositoryNotFound extends S.TaggedError<WorkItemRepository
  * @category repositories
  * @since 0.0.0
  */
-export class WorkItemRepositoryConflict extends S.TaggedError<WorkItemRepositoryConflict>(
-  $I`WorkItemRepositoryConflict`
-)(
+export class WorkItemRepositoryConflict extends S.TaggedError<
+  WorkItemRepositoryConflict,
+  { readonly brand: unique symbol }
+>($I`WorkItemRepositoryConflict`)(
   "WorkItemRepositoryConflict",
   {
     workItemId: DomainWorkItem.WorkItemId,
@@ -104,9 +106,10 @@ export class WorkItemRepositoryConflict extends S.TaggedError<WorkItemRepository
  * @category repositories
  * @since 0.0.0
  */
-export class WorkItemRepositoryUnavailable extends S.TaggedError<WorkItemRepositoryUnavailable>(
-  $I`WorkItemRepositoryUnavailable`
-)(
+export class WorkItemRepositoryUnavailable extends S.TaggedError<
+  WorkItemRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`WorkItemRepositoryUnavailable`)(
   "WorkItemRepositoryUnavailable",
   {
     reason: S.NonEmptyString.annotateKey({

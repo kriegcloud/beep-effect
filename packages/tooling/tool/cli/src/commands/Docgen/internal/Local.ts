@@ -95,48 +95,52 @@ const DOCGEN_LOCAL_FULL_INPUT_PREFIXES = [
   "packages/tooling/tool/cli/src/commands/Docgen/",
 ] as const;
 
-class TurboDryRunTaskCache extends S.Class<TurboDryRunTaskCache>($I`TurboDryRunTaskCache`)(
-  {
+class TurboDryRunTaskCache extends S.Opaque<TurboDryRunTaskCache, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: S.optionalKey(S.String),
     status: S.optionalKey(S.String),
-  },
-  $I.annote("TurboDryRunTaskCache", {
-    description: "Turbo dry-run cache metadata for one task.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboDryRunTaskCache", {
+      description: "Turbo dry-run cache metadata for one task.",
+    })
+  )
 ) {}
 
-class TurboDryRunTask extends S.Class<TurboDryRunTask>($I`TurboDryRunTask`)(
-  {
+class TurboDryRunTask extends S.Opaque<TurboDryRunTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     cache: S.optionalKey(TurboDryRunTaskCache),
     package: S.optionalKey(S.String),
     task: S.optionalKey(S.String),
     taskId: S.optionalKey(S.String),
-  },
-  $I.annote("TurboDryRunTask", {
-    description: "Turbo dry-run task record decoded from JSON output.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboDryRunTask", {
+      description: "Turbo dry-run task record decoded from JSON output.",
+    })
+  )
 ) {}
 
-class TurboDryRunDocument extends S.Class<TurboDryRunDocument>($I`TurboDryRunDocument`)(
-  {
+class TurboDryRunDocument extends S.Opaque<TurboDryRunDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     tasks: S.Array(TurboDryRunTask),
-  },
-  $I.annote("TurboDryRunDocument", {
-    description: "Turbo dry-run JSON document.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboDryRunDocument", {
+      description: "Turbo dry-run JSON document.",
+    })
+  )
 ) {}
 
-class DocgenProcessDiagnostic extends S.Class<DocgenProcessDiagnostic>($I`DocgenProcessDiagnostic`)(
-  {
+class DocgenProcessDiagnostic extends S.Opaque<DocgenProcessDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: S.FiniteFromString.check(S.isInt(), S.isGreaterThan(0)),
     parentPid: S.FiniteFromString.check(S.isInt(), S.isGreaterThanOrEqualTo(0)),
     elapsedSeconds: S.FiniteFromString.check(S.isInt(), S.isGreaterThanOrEqualTo(0)),
     state: S.NonEmptyString,
     executable: S.NonEmptyString,
-  },
-  $I.annote("DocgenProcessDiagnostic", {
-    description: "Sanitized process identity and state for one member of a stalled docgen child tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenProcessDiagnostic", {
+      description: "Sanitized process identity and state for one member of a stalled docgen child tree.",
+    })
+  )
 ) {}
 
 const decodeTurboDryRunDocument = S.decodeUnknownEffect(S.fromJsonString(TurboDryRunDocument));
@@ -239,15 +243,19 @@ export type DocgenLocalMode = typeof DocgenLocalMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class DocgenLocalSelectedPackage extends S.Class<DocgenLocalSelectedPackage>($I`DocgenLocalSelectedPackage`)(
-  {
+export class DocgenLocalSelectedPackage extends S.Opaque<
+  DocgenLocalSelectedPackage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.String,
     path: S.String,
     reasons: S.Array(S.String),
-  },
-  $I.annote("DocgenLocalSelectedPackage", {
-    description: "Package selected for a local docgen run.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenLocalSelectedPackage", {
+      description: "Package selected for a local docgen run.",
+    })
+  )
 ) {}
 
 /**
@@ -268,14 +276,15 @@ export class DocgenLocalSelectedPackage extends S.Class<DocgenLocalSelectedPacka
  * @category models
  * @since 0.0.0
  */
-export class DocgenLocalFullReason extends S.Class<DocgenLocalFullReason>($I`DocgenLocalFullReason`)(
-  {
+export class DocgenLocalFullReason extends S.Opaque<DocgenLocalFullReason, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     message: S.String,
-  },
-  $I.annote("DocgenLocalFullReason", {
-    description: "Reason local docgen must escalate to the full proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenLocalFullReason", {
+      description: "Reason local docgen must escalate to the full proof.",
+    })
+  )
 ) {}
 
 /**
@@ -303,8 +312,8 @@ export class DocgenLocalFullReason extends S.Class<DocgenLocalFullReason>($I`Doc
  * @category models
  * @since 0.0.0
  */
-export class DocgenLocalPlan extends S.Class<DocgenLocalPlan>($I`DocgenLocalPlan`)(
-  {
+export class DocgenLocalPlan extends S.Opaque<DocgenLocalPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.String,
     changedFiles: S.Array(S.String),
     fallbackCommand: S.String,
@@ -314,10 +323,11 @@ export class DocgenLocalPlan extends S.Class<DocgenLocalPlan>($I`DocgenLocalPlan
     parallel: S.Finite,
     selectedPackages: S.Array(DocgenLocalSelectedPackage),
     turboArgs: S.Array(S.String),
-  },
-  $I.annote("DocgenLocalPlan", {
-    description: "Planned local docgen proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenLocalPlan", {
+      description: "Planned local docgen proof.",
+    })
+  )
 ) {}
 
 /**
@@ -340,16 +350,17 @@ export class DocgenLocalPlan extends S.Class<DocgenLocalPlan>($I`DocgenLocalPlan
  * @category models
  * @since 0.0.0
  */
-export class DocgenLocalTurboTask extends S.Class<DocgenLocalTurboTask>($I`DocgenLocalTurboTask`)(
-  {
+export class DocgenLocalTurboTask extends S.Opaque<DocgenLocalTurboTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     cacheSource: S.optionalKey(S.String),
     cacheStatus: S.optionalKey(S.String),
     packageName: S.String,
     taskId: S.String,
-  },
-  $I.annote("DocgenLocalTurboTask", {
-    description: "Turbo dry-run package summary used by local docgen.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenLocalTurboTask", {
+      description: "Turbo dry-run package summary used by local docgen.",
+    })
+  )
 ) {}
 
 const packageRelativeInput = (pkg: DocgenWorkspacePackage, filePath: string): O.Option<string> =>

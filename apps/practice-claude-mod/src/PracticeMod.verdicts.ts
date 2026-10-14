@@ -34,7 +34,7 @@ const RowLine = S.fromJsonString(VerdictRow);
  * @category errors
  * @since 0.0.0
  */
-class VerdictLocked extends S.TaggedError<VerdictLocked>($I`VerdictLocked`)(
+class VerdictLocked extends S.TaggedError<VerdictLocked, { readonly brand: unique symbol }>($I`VerdictLocked`)(
   "VerdictLocked",
   { itemId: S.NonEmptyString },
   $I.annote("VerdictLocked", { description: "A verdict was refused because its item is locked." })
@@ -46,7 +46,9 @@ class VerdictLocked extends S.TaggedError<VerdictLocked>($I`VerdictLocked`)(
  * @category errors
  * @since 0.0.0
  */
-class VerdictStoreUnreadable extends S.TaggedError<VerdictStoreUnreadable>($I`VerdictStoreUnreadable`)(
+class VerdictStoreUnreadable extends S.TaggedError<VerdictStoreUnreadable, { readonly brand: unique symbol }>(
+  $I`VerdictStoreUnreadable`
+)(
   "VerdictStoreUnreadable",
   { key: S.NonEmptyString, message: S.String },
   $I.annote("VerdictStoreUnreadable", { description: "The plugin store held verdict data that did not decode." })
@@ -84,13 +86,16 @@ type VerdictLogError = VerdictLocked | VerdictStoreUnreadable | ModHostError;
  * @category models
  * @since 0.0.0
  */
-export class VerdictInput extends S.Class<VerdictInput>($I`VerdictInput`)(
-  {
+export class VerdictInput extends S.Opaque<VerdictInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     item: KgAnswerItem,
     verdict: S.Option(Verdict),
     note: S.Option(S.NonEmptyString),
-  },
-  $I.annote("VerdictInput", { description: "A verdict (or an undo when none) and an optional note on one answer." })
+  }).pipe(
+    $I.annoteSchema("VerdictInput", {
+      description: "A verdict (or an undo when none) and an optional note on one answer.",
+    })
+  )
 ) {}
 
 /**

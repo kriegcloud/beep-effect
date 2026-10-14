@@ -47,13 +47,35 @@ const ContentEditableVariant = LiteralKit(["document", "compact"]).pipe(
 
 type ContentEditableVariant = typeof ContentEditableVariant.Type;
 
-class Props extends S.Class<Props>($I`Props`)({
-  placeholder: S.String,
-  ariaLabel: S.optionalKey(S.String),
-  variant: S.optionalKey(ContentEditableVariant),
-  className: S.optionalKey(S.String),
-  placeholderClassName: S.optionalKey(S.String),
-}) {
+/**
+ * Props for the Lexical content-editable surface and its padding-aligned placeholder.
+ *
+ * **Example** (Configure a compact composer surface)
+ *
+ * ```ts
+ * import { Props } from "@beep/ui/components/editor/editor-ui/content-editable"
+ *
+ * const props = Props.make({ placeholder: "Reply to the examiner...", ariaLabel: "Reply", variant: "compact" })
+ *
+ * console.log(props.variant) // => "compact"
+ * console.log(props.className) // => undefined
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class Props extends S.Class<Props, { readonly brand: unique symbol }>($I`Props`)(
+  {
+    placeholder: S.String,
+    ariaLabel: S.optionalKey(S.String),
+    variant: S.optionalKey(ContentEditableVariant),
+    className: S.optionalKey(S.String),
+    placeholderClassName: S.optionalKey(S.String),
+  },
+  $I.annote("Props", {
+    description: "Props for the Lexical content-editable surface and its padding-aligned placeholder.",
+  })
+) {
   declare readonly placeholder: string;
   declare readonly ariaLabel?: string;
   declare readonly variant?: ContentEditableVariant;
@@ -117,7 +139,7 @@ export function ContentEditable({
   variant = "document",
   className,
   placeholderClassName,
-}: Props): JSX.Element {
+}: typeof Props.Encoded): JSX.Element {
   return (
     <LexicalContentEditable
       className={className ?? (variant === "compact" ? COMPACT_EDITABLE_CLASS_NAME : DEFAULT_EDITABLE_CLASS_NAME)}

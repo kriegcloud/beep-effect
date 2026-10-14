@@ -9,7 +9,7 @@
  */
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
-import { FsUtils } from "./FsUtils.ts";
+import { FsUtils, GlobOptions } from "./FsUtils.ts";
 import { resolveWorkspaceDirs } from "./Workspaces.ts";
 import type { DomainError, NoSuchFileError } from "./errors/index.ts";
 
@@ -59,22 +59,28 @@ export const collectTsConfigPaths: (
     let result = HashMap.empty<string, ReadonlyArray<string>>();
 
     // Collect tsconfig files for root
-    const rootConfigs = yield* fsUtils.globFiles("tsconfig*.json", {
-      cwd: rootDir,
-      absolute: true,
-      ignore: IGNORED_TSCONFIG_DIRS,
-    });
+    const rootConfigs = yield* fsUtils.globFiles(
+      "tsconfig*.json",
+      GlobOptions.make({
+        cwd: rootDir,
+        absolute: true,
+        ignore: IGNORED_TSCONFIG_DIRS,
+      })
+    );
     if (rootConfigs.length > 0) {
       result = HashMap.set(result, ROOT_KEY, rootConfigs);
     }
 
     // Collect tsconfig files for each workspace
     for (const [name, dir] of workspaces) {
-      const configs = yield* fsUtils.globFiles("tsconfig*.json", {
-        cwd: dir,
-        absolute: true,
-        ignore: IGNORED_TSCONFIG_DIRS,
-      });
+      const configs = yield* fsUtils.globFiles(
+        "tsconfig*.json",
+        GlobOptions.make({
+          cwd: dir,
+          absolute: true,
+          ignore: IGNORED_TSCONFIG_DIRS,
+        })
+      );
       if (configs.length > 0) {
         result = HashMap.set(result, name, configs);
       }

@@ -104,17 +104,18 @@ const InteractiveAuthorizerFromSelf = S.declare((u: unknown): u is M365Interacti
   })
 );
 
-class M365AuthRuntime extends S.Class<M365AuthRuntime>($I`M365AuthRuntime`)(
-  {
+class M365AuthRuntime extends S.Opaque<M365AuthRuntime, { readonly brand: unique symbol }>()(
+  S.Struct({
     crypto: CryptoProviderFromSelf,
     interactiveAuthorizer: S.Option(InteractiveAuthorizerFromSelf),
     pca: PublicClientApplicationFromSelf,
     resolved: ResolvedM365Config,
-  },
-  $I.annote("M365AuthRuntime", {
-    description:
-      "In-process MSAL auth runtime: crypto provider, public client, resolved config, and optional host authorizer.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365AuthRuntime", {
+      description:
+        "In-process MSAL auth runtime: crypto provider, public client, resolved config, and optional host authorizer.",
+    })
+  )
 ) {}
 
 /**
@@ -137,18 +138,19 @@ class M365AuthRuntime extends S.Class<M365AuthRuntime>($I`M365AuthRuntime`)(
  * @category models
  * @since 0.0.0
  */
-export class M365AuthorizationRequest extends S.Class<M365AuthorizationRequest>($I`M365AuthorizationRequest`)(
-  {
+export class M365AuthorizationRequest extends S.Opaque<M365AuthorizationRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     authUrl: S.String.annotateKey({
       description: "MSAL authorization URL the host should open for the user.",
     }),
     redirectUri: S.String.annotateKey({
       description: "Redirect URI registered with Entra and captured by the host-owned authorizer.",
     }),
-  },
-  $I.annote("M365AuthorizationRequest", {
-    description: "Interactive authorization request handed to the host-owned redirect-capture flow.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365AuthorizationRequest", {
+      description: "Interactive authorization request handed to the host-owned redirect-capture flow.",
+    })
+  )
 ) {}
 
 /**

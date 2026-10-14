@@ -41,7 +41,7 @@ describe("@beep/agents-use-cases AssistantTurn", () => {
     const user = userItem("hello");
     const assistant = assistantItem("hi");
 
-    expect(decoded).toBeInstanceOf(UserTurnHistoryItem);
+    expect(S.is(UserTurnHistoryItem)(decoded)).toBe(true);
     expect(user.role).toBe("user");
     expect(assistant.role).toBe("assistant");
     expect(
@@ -82,8 +82,12 @@ describe("@beep/agents-use-cases AssistantTurn", () => {
     (values) =>
       Effect.sync(() => {
         roundTrip(TurnHistoryItem, values.TurnHistoryItem, "TurnHistoryItem");
-        roundTrip(IndexedBlock, values.IndexedBlock, "IndexedBlock");
-        roundTrip(ProviderUsageMetadata, values.ProviderUsageMetadata, "ProviderUsageMetadata");
+        roundTrip(IndexedBlock, IndexedBlock.make(values.IndexedBlock), "IndexedBlock");
+        roundTrip(
+          ProviderUsageMetadata,
+          ProviderUsageMetadata.make(values.ProviderUsageMetadata),
+          "ProviderUsageMetadata"
+        );
         roundTrip(AssistantTurnEvent, values.AssistantTurnEvent, "AssistantTurnEvent");
       }),
     { arbitrary: fcRuns(10) }

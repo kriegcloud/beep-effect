@@ -51,8 +51,8 @@ const $I = $LawPracticeDomainId.create("values/PublicLawCitation/PublicLawCitati
  * @category models
  * @since 0.0.0
  */
-export class PublicLawCitation extends S.Class<PublicLawCitation>($I`PublicLawCitation`)(
-  {
+export class PublicLawCitation extends S.Opaque<PublicLawCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("publicLaw"),
     congress: S.Natural.annotateKey({
@@ -75,10 +75,11 @@ export class PublicLawCitation extends S.Class<PublicLawCitation>($I`PublicLawCi
         description: "Component spans locating each recognized sub-part within the source text.",
       })
     ),
-  },
-  $I.annote("PublicLawCitation", {
-    description: "A parsed public law citation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PublicLawCitation", {
+      description: "A parsed public law citation.",
+    })
+  )
 ) {}
 
 /**

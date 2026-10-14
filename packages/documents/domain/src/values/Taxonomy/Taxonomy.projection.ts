@@ -39,7 +39,9 @@ const SHORT_DIGEST_LENGTH = 12;
  * @category errors
  * @since 0.0.0
  */
-export class TaxonomyProjectionError extends S.TaggedError<TaxonomyProjectionError>($I`TaxonomyProjectionError`)(
+export class TaxonomyProjectionError extends S.TaggedError<TaxonomyProjectionError, { readonly brand: unique symbol }>(
+  $I`TaxonomyProjectionError`
+)(
   "TaxonomyProjectionError",
   {
     reason: S.NonEmptyString.annotateKey({
@@ -76,10 +78,11 @@ export class TaxonomyProjectionError extends S.TaggedError<TaxonomyProjectionErr
  * @category models
  * @since 0.0.0
  */
-export class ProjectFiledDocumentPathInput extends S.Class<ProjectFiledDocumentPathInput>(
-  $I`ProjectFiledDocumentPathInput`
-)(
-  {
+export class ProjectFiledDocumentPathInput extends S.Opaque<
+  ProjectFiledDocumentPathInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     contentDigest: S.NonEmptyString.annotateKey({
       description: "Full deterministic content digest for filename disambiguation.",
     }),
@@ -95,10 +98,11 @@ export class ProjectFiledDocumentPathInput extends S.Class<ProjectFiledDocumentP
     taxonomyConceptId: LegalDocumentConceptId.annotateKey({
       description: "Leaf taxonomy concept selected by the filing decision.",
     }),
-  },
-  $I.annote("ProjectFiledDocumentPathInput", {
-    description: "Input accepted by deterministic filed-document path projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectFiledDocumentPathInput", {
+      description: "Input accepted by deterministic filed-document path projection.",
+    })
+  )
 ) {}
 
 /**
@@ -122,8 +126,8 @@ export class ProjectFiledDocumentPathInput extends S.Class<ProjectFiledDocumentP
  * @category models
  * @since 0.0.0
  */
-export class ProjectedVaultPath extends S.Class<ProjectedVaultPath>($I`ProjectedVaultPath`)(
-  {
+export class ProjectedVaultPath extends S.Opaque<ProjectedVaultPath, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileName: ValidWindowsPlainPathSegment.annotateKey({
       description: "Deterministic vault filename.",
     }),
@@ -136,10 +140,11 @@ export class ProjectedVaultPath extends S.Class<ProjectedVaultPath>($I`Projected
     taxonomySegments: S.Array(ValidWindowsPlainPathSegment).annotateKey({
       description: "Ancestor-to-leaf taxonomy folder segments.",
     }),
-  },
-  $I.annote("ProjectedVaultPath", {
-    description: "Deterministic relative vault path for a filed document.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectedVaultPath", {
+      description: "Deterministic relative vault path for a filed document.",
+    })
+  )
 ) {}
 
 const decodeSegment = (value: string): Effect.Effect<ValidWindowsPlainPathSegment, TaxonomyProjectionError> =>
@@ -234,8 +239,8 @@ const projectedFileName = (
 export const projectFiledDocumentPath = Effect.fn("Documents.Taxonomy.projectFiledDocumentPath")(function* (
   input: ProjectFiledDocumentPathInput
 ) {
-  const leaf = yield* conceptById(input.taxonomy, input.taxonomyConceptId);
-  const concepts = yield* conceptPath(input.taxonomy, leaf);
+  const leaf = yield* conceptById(LegalDocumentTaxonomy.make(input.taxonomy), input.taxonomyConceptId);
+  const concepts = yield* conceptPath(LegalDocumentTaxonomy.make(input.taxonomy), leaf);
   const rootSegment = yield* decodeSegment(ROOT_SEGMENT);
   const clientSegment = yield* stableDisplaySegment(input.context.clientStableKey, input.context.clientDisplayName);
   const matterSegment = yield* stableDisplaySegment(input.context.matterStableKey, input.context.matterDisplayName);
@@ -269,10 +274,11 @@ export const projectFiledDocumentPath = Effect.fn("Documents.Taxonomy.projectFil
  * @category models
  * @since 0.0.0
  */
-export class ProjectInboxDocumentPathInput extends S.Class<ProjectInboxDocumentPathInput>(
-  $I`ProjectInboxDocumentPathInput`
-)(
-  {
+export class ProjectInboxDocumentPathInput extends S.Opaque<
+  ProjectInboxDocumentPathInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     contentDigest: S.NonEmptyString.annotateKey({
       description: "Full deterministic content digest for filename disambiguation.",
     }),
@@ -282,10 +288,11 @@ export class ProjectInboxDocumentPathInput extends S.Class<ProjectInboxDocumentP
     originalFileName: S.NonEmptyString.annotateKey({
       description: "Original source filename.",
     }),
-  },
-  $I.annote("ProjectInboxDocumentPathInput", {
-    description: "Input accepted by deterministic inbox document path projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectInboxDocumentPathInput", {
+      description: "Input accepted by deterministic inbox document path projection.",
+    })
+  )
 ) {}
 
 /**

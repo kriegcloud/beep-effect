@@ -163,14 +163,15 @@ export type HarnessLedgerMonth = typeof HarnessLedgerMonth.Type;
  * @category models
  * @since 0.0.0
  */
-export class HarnessLedgerSurfaceRef extends S.Class<HarnessLedgerSurfaceRef>($I`HarnessLedgerSurfaceRef`)(
-  {
+export class HarnessLedgerSurfaceRef extends S.Opaque<HarnessLedgerSurfaceRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: ContextSurfaceKind,
     name: S.NonEmptyString,
-  },
-  $I.annote("HarnessLedgerSurfaceRef", {
-    description: "A context surface named by kind and bare name, hashed before it enters a row.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessLedgerSurfaceRef", {
+      description: "A context surface named by kind and bare name, hashed before it enters a row.",
+    })
+  )
 ) {}
 
 const EditSpecPrefix = LiteralKit(["commit", "diff"]);
@@ -265,8 +266,11 @@ export const parseHarnessSurfaceSpec = Effect.fn("HarnessLedger.parseHarnessSurf
  * @category models
  * @since 0.0.0
  */
-export class HarnessLedgerProposeOptions extends S.Class<HarnessLedgerProposeOptions>($I`HarnessLedgerProposeOptions`)(
-  {
+export class HarnessLedgerProposeOptions extends S.Opaque<
+  HarnessLedgerProposeOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     repoRoot: S.String,
     mechanismClass: MechanismClass,
     edit: HarnessEditRef,
@@ -274,10 +278,11 @@ export class HarnessLedgerProposeOptions extends S.Class<HarnessLedgerProposeOpt
     modelId: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     reasoningEffort: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     repoRevision: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("HarnessLedgerProposeOptions", {
-    description: "Inputs for proposing one harness edit and capturing its fingerprint.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessLedgerProposeOptions", {
+      description: "Inputs for proposing one harness edit and capturing its fingerprint.",
+    })
+  )
 ) {}
 
 const harnessLedgerDispositionOptionsTouchedDefault = A.empty();
@@ -301,10 +306,11 @@ const harnessLedgerDispositionOptionsTouchedDefault = A.empty();
  * @category models
  * @since 0.0.0
  */
-export class HarnessLedgerDispositionOptions extends S.Class<HarnessLedgerDispositionOptions>(
-  $I`HarnessLedgerDispositionOptions`
-)(
-  {
+export class HarnessLedgerDispositionOptions extends S.Opaque<
+  HarnessLedgerDispositionOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     repoRoot: S.String,
     rowId: HarnessLedgerRowId,
     to: HarnessLedgerAdmission,
@@ -315,10 +321,11 @@ export class HarnessLedgerDispositionOptions extends S.Class<HarnessLedgerDispos
       S.withConstructorDefault(Effect.succeed(harnessLedgerDispositionOptionsTouchedDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(harnessLedgerDispositionOptionsTouchedDefault))
     ),
-  },
-  $I.annote("HarnessLedgerDispositionOptions", {
-    description: "Inputs for appending a disposition row that supersedes the latest row of a chain.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessLedgerDispositionOptions", {
+      description: "Inputs for appending a disposition row that supersedes the latest row of a chain.",
+    })
+  )
 ) {}
 
 /**
@@ -335,8 +342,8 @@ export class HarnessLedgerDispositionOptions extends S.Class<HarnessLedgerDispos
  * @category models
  * @since 0.0.0
  */
-export class HarnessLedgerListOptions extends S.Class<HarnessLedgerListOptions>($I`HarnessLedgerListOptions`)(
-  {
+export class HarnessLedgerListOptions extends S.Opaque<HarnessLedgerListOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.String,
     staleOnly: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
@@ -346,10 +353,11 @@ export class HarnessLedgerListOptions extends S.Class<HarnessLedgerListOptions>(
     month: S.OptionFromOptionalKey(HarnessLedgerMonth).pipe(S.withConstructorDefault(Effect.succeedNone)),
     modelId: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     reasoningEffort: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("HarnessLedgerListOptions", {
-    description: "Filters for listing the latest row of every ledger chain.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessLedgerListOptions", {
+      description: "Filters for listing the latest row of every ledger chain.",
+    })
+  )
 ) {}
 
 /**
@@ -366,15 +374,16 @@ export class HarnessLedgerListOptions extends S.Class<HarnessLedgerListOptions>(
  * @category models
  * @since 0.0.0
  */
-export class HarnessLedgerListEntry extends S.Class<HarnessLedgerListEntry>($I`HarnessLedgerListEntry`)(
-  {
+export class HarnessLedgerListEntry extends S.Opaque<HarnessLedgerListEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     row: HarnessLedgerRow,
     stale: S.Boolean,
     chainLength: WindowSessions,
-  },
-  $I.annote("HarnessLedgerListEntry", {
-    description: "Latest row of a ledger chain plus whether its fingerprint is stale.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessLedgerListEntry", {
+      description: "Latest row of a ledger chain plus whether its fingerprint is stale.",
+    })
+  )
 ) {}
 
 /**
@@ -392,8 +401,8 @@ export class HarnessLedgerListEntry extends S.Class<HarnessLedgerListEntry>($I`H
  * @category models
  * @since 0.0.0
  */
-export class HarnessLedgerPruneOptions extends S.Class<HarnessLedgerPruneOptions>($I`HarnessLedgerPruneOptions`)(
-  {
+export class HarnessLedgerPruneOptions extends S.Opaque<HarnessLedgerPruneOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.String,
     stateDir: S.String,
     windowSessions: WindowSessions,
@@ -407,10 +416,11 @@ export class HarnessLedgerPruneOptions extends S.Class<HarnessLedgerPruneOptions
     ),
     modelId: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     reasoningEffort: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("HarnessLedgerPruneOptions", {
-    description: "Repo root, hook-pulse state dir, session window, and write mode for pruning proposals.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessLedgerPruneOptions", {
+      description: "Repo root, hook-pulse state dir, session window, and write mode for pruning proposals.",
+    })
+  )
 ) {}
 
 /**
@@ -429,15 +439,16 @@ export class HarnessLedgerPruneOptions extends S.Class<HarnessLedgerPruneOptions
  * @category models
  * @since 0.0.0
  */
-export class PruneSurfaceCandidate extends S.Class<PruneSurfaceCandidate>($I`PruneSurfaceCandidate`)(
-  {
+export class PruneSurfaceCandidate extends S.Opaque<PruneSurfaceCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: PrunableSurfaceKind,
     name: S.NonEmptyString,
     surfaceId: ContextSurfaceId,
-  },
-  $I.annote("PruneSurfaceCandidate", {
-    description: "A skill, hook, or MCP server found in the repo, keyed by its hashed surface id.",
-  })
+  }).pipe(
+    $I.annoteSchema("PruneSurfaceCandidate", {
+      description: "A skill, hook, or MCP server found in the repo, keyed by its hashed surface id.",
+    })
+  )
 ) {}
 
 /**
@@ -454,14 +465,15 @@ export class PruneSurfaceCandidate extends S.Class<PruneSurfaceCandidate>($I`Pru
  * @category models
  * @since 0.0.0
  */
-export class PruneProposal extends S.Class<PruneProposal>($I`PruneProposal`)(
-  {
+export class PruneProposal extends S.Opaque<PruneProposal, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidate: PruneSurfaceCandidate,
     row: HarnessLedgerRow,
-  },
-  $I.annote("PruneProposal", {
-    description: "A zero-touch surface paired with the proposed ledger row.",
-  })
+  }).pipe(
+    $I.annoteSchema("PruneProposal", {
+      description: "A zero-touch surface paired with the proposed ledger row.",
+    })
+  )
 ) {}
 
 /**
@@ -504,8 +516,8 @@ export class PruneProposal extends S.Class<PruneProposal>($I`PruneProposal`)(
  * @category models
  * @since 0.0.0
  */
-export class ObservedSessionWindow extends S.Class<ObservedSessionWindow>($I`ObservedSessionWindow`)(
-  {
+export class ObservedSessionWindow extends S.Opaque<ObservedSessionWindow, { readonly brand: unique symbol }>()(
+  S.Struct({
     harnessHash: HarnessHash,
     sessionsObserved: S.Finite,
     sessionsSkippedOutOfRegime: S.Finite,
@@ -538,11 +550,12 @@ export class ObservedSessionWindow extends S.Class<ObservedSessionWindow>($I`Obs
     touched: S.HashSet(S.String),
     shardsRead: S.Finite,
     undecodableLines: S.Finite,
-  },
-  $I.annote("ObservedSessionWindow", {
-    description:
-      "Last N hook-pulse sessions under the current harness hash, positive surface use across scanned history, skip counts, and shard decode tallies.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObservedSessionWindow", {
+      description:
+        "Last N hook-pulse sessions under the current harness hash, positive surface use across scanned history, skip counts, and shard decode tallies.",
+    })
+  )
 ) {}
 
 /**
@@ -578,8 +591,8 @@ export class ObservedSessionWindow extends S.Class<ObservedSessionWindow>($I`Obs
  * @category models
  * @since 0.0.0
  */
-export class HarnessLedgerPruneReport extends S.Class<HarnessLedgerPruneReport>($I`HarnessLedgerPruneReport`)(
-  {
+export class HarnessLedgerPruneReport extends S.Opaque<HarnessLedgerPruneReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     windowSessions: WindowSessions,
     harnessHash: HarnessHash,
     sessionsObserved: S.Finite,
@@ -621,11 +634,12 @@ export class HarnessLedgerPruneReport extends S.Class<HarnessLedgerPruneReport>(
     decidedUnderHarness: S.Finite,
     proposals: S.Array(PruneProposal),
     written: S.Boolean,
-  },
-  $I.annote("HarnessLedgerPruneReport", {
-    description:
-      "Current-harness session window, skip and decode tallies, the zero-touch proposals of one pruning scan, and whether they were appended.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessLedgerPruneReport", {
+      description:
+        "Current-harness session window, skip and decode tallies, the zero-touch proposals of one pruning scan, and whether they were appended.",
+    })
+  )
 ) {}
 
 /**
@@ -641,10 +655,11 @@ export class HarnessLedgerPruneReport extends S.Class<HarnessLedgerPruneReport>(
  * @category models
  * @since 0.0.0
  */
-export class HarnessTelemetryReconciliation extends S.Class<HarnessTelemetryReconciliation>(
-  $I`HarnessTelemetryReconciliation`
-)(
-  {
+export class HarnessTelemetryReconciliation extends S.Opaque<
+  HarnessTelemetryReconciliation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     agentKind: HookPulseAgentKind,
     transcriptFiles: S.Natural,
     transcriptToolEvents: S.Natural,
@@ -654,9 +669,10 @@ export class HarnessTelemetryReconciliation extends S.Class<HarnessTelemetryReco
     ratio: S.OptionFromOptionalKey(S.Finite),
     qualifiedForNonUse: S.Boolean,
     basis: S.NonEmptyString,
-  },
-  $I.annote("HarnessTelemetryReconciliation", {
-    description:
-      "Read-only transcript versus hook counts, including nested child transcripts; no payload or digest is returned.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessTelemetryReconciliation", {
+      description:
+        "Read-only transcript versus hook counts, including nested child transcripts; no payload or digest is returned.",
+    })
+  )
 ) {}

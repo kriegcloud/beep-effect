@@ -25,18 +25,23 @@ const mode = Match.value(Bun.argv.includes("--check")).pipe(
   Match.orElse(() => "write" as const)
 );
 
-class StaleMigrationBundle extends S.TaggedError<StaleMigrationBundle>()("StaleMigrationBundle", {
-  message: S.String,
-  command: S.String,
-}) {}
+class StaleMigrationBundle extends S.TaggedError<StaleMigrationBundle, { readonly brand: unique symbol }>()(
+  "StaleMigrationBundle",
+  {
+    message: S.String,
+    command: S.String,
+  }
+) {}
 
 const quoteTemplateLiteral = (value: string): string =>
   `\`${value.replaceAll("\\", "\\\\").replaceAll("`", "\\`").replaceAll("${", "\\${")}\``;
 
-class MigrationBundleEntry extends S.Class<MigrationBundleEntry>("MigrationBundleEntry")({
-  name: S.String,
-  sql: S.String,
-}) {}
+class MigrationBundleEntry extends S.Opaque<MigrationBundleEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
+    name: S.String,
+    sql: S.String,
+  }).annotate({ identifier: "MigrationBundleEntry" })
+) {}
 
 const readMigrationBundleEntry = Effect.fnUntraced(function* (sourceFolder: string, entry: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -77,7 +82,7 @@ const renderMigrationsGenModule = Effect.fn("ProfessionalDesktop.syncMigrationBu
       " * @packageDocumentation",
       " * @since 0.0.0",
       " */",
-      'import type { MigrationBundleEntry } from "@beep/postgres";',
+      'import { MigrationBundleEntry } from "@beep/postgres";',
       "",
       "/**",
       " * Professional Desktop sidecar migration bundle, synced byte-exactly from",
@@ -96,10 +101,10 @@ const renderMigrationsGenModule = Effect.fn("ProfessionalDesktop.syncMigrationBu
       " */",
       "export const migrationBundle: ReadonlyArray<MigrationBundleEntry> = [",
       ...A.flatMap(sortedMigrations, (migration) => [
-        "  {",
+        "  MigrationBundleEntry.make({",
         `    name: ${JSON.stringify(migration.name)},`,
         `    sql: ${quoteTemplateLiteral(migration.sql)},`,
-        "  },",
+        "  }),",
       ]),
       "];",
       "",

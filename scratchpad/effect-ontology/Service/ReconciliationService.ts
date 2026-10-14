@@ -52,7 +52,7 @@ const $I = $ScratchpadId.create("effect-ontology/Service/ReconciliationService")
  * @category errors
  * @since 0.0.0
  */
-export class ReconciliationError extends S.TaggedError<ReconciliationError>($I`ReconciliationError`)(
+export class ReconciliationError extends S.TaggedError<ReconciliationError, { readonly brand: unique symbol }>($I`ReconciliationError`)(
   "ReconciliationError",
   {
     message: ErrorMessage.annotateKey({
@@ -94,7 +94,7 @@ const reconciliationConfigMaxCandidatesDefault = PosInt.make(5);
  * @category schemas
  * @since 0.0.0
  */
-export class ReconciliationConfig extends S.Class<ReconciliationConfig>($I`ReconciliationConfig`)({
+export class ReconciliationConfig extends S.Opaque<ReconciliationConfig, { readonly brand: unique symbol }>()(S.Struct({
   /** Minimum score for automatic linking (default: 90) */
   autoLinkThreshold: Percentage.pipe(S.withConstructorDefault(Effect.succeed(reconciliationConfigAutoLinkThresholdDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(reconciliationConfigAutoLinkThresholdDefault))),
 
@@ -106,11 +106,9 @@ export class ReconciliationConfig extends S.Class<ReconciliationConfig>($I`Recon
 
   /** Language for Wikidata search (default: "en") */
   language: S.String.pipe(S.withConstructorDefault(Effect.succeed("en")), S.withDecodingDefaultTypeKey(Effect.succeed("en"))),
-  },
-  $I.annote("ReconciliationConfig", {
+  }).pipe($I.annoteSchema("ReconciliationConfig", {
     description: "Auto-link and queue score thresholds plus candidate and language bounds.",
-  })
-) {}
+  }))) {}
 
 const DEFAULT_CONFIG = ReconciliationConfig.make({});
 

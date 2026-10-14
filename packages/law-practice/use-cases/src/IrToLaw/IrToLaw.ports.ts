@@ -149,13 +149,14 @@ export class LawEntities extends LawEntitiesBase {}
  * @category services
  * @since 0.0.0
  */
-export class IrToLawShape extends S.Class<IrToLawShape>($I`IrToLawShape`)(
-  {
+export class IrToLawShape extends S.Opaque<IrToLawShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     toLaw: IrToLawToLaw,
-  },
-  $I.annote("IrToLawShape", {
-    description: "Service shape for mapping grounded extraction output into law-practice entities.",
-  })
+  }).pipe(
+    $I.annoteSchema("IrToLawShape", {
+      description: "Service shape for mapping grounded extraction output into law-practice entities.",
+    })
+  )
 ) {}
 
 /**

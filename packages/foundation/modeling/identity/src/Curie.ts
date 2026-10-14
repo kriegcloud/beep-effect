@@ -25,7 +25,7 @@ const $I = $IdentityId.create("Curie");
 // unresolved branch is type-level unreachable. Modeled as a S.TaggedError
 // (not a native Error) to satisfy the native-runtime law without an allowlist
 // entry; intentionally not exported (never a caught public failure).
-class CurieCodecInvariantError extends S.TaggedError<CurieCodecInvariantError>(
+class CurieCodecInvariantError extends S.TaggedError<CurieCodecInvariantError, { readonly brand: unique symbol }>(
   "@beep/identity/errors/CurieCodecInvariantError"
 )(
   "CurieCodecInvariantError",

@@ -73,7 +73,7 @@ export type TermKind = typeof TermKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class UnknownTerm extends S.TaggedClass<UnknownTerm>($I`UnknownTerm`)("UnknownTerm", {
+export class UnknownTerm extends S.TaggedClass<UnknownTerm, { readonly brand: unique symbol }>($I`UnknownTerm`)("UnknownTerm", {
 	/** The `@id` of the node carrying the term. */
 	nodeId: S.String.annotateKey({ description: "The `@id` of the node carrying the term." }),
 	/** The `@type` of the node carrying the term. */
@@ -131,7 +131,7 @@ export class UnknownTerm extends S.TaggedClass<UnknownTerm>($I`UnknownTerm`)("Un
  * @category models
  * @since 0.0.0
  */
-export class PropertyNotOnType extends S.TaggedClass<PropertyNotOnType>($I`PropertyNotOnType`)("PropertyNotOnType", {
+export class PropertyNotOnType extends S.TaggedClass<PropertyNotOnType, { readonly brand: unique symbol }>($I`PropertyNotOnType`)("PropertyNotOnType", {
 	/** The `@id` of the node carrying the property. */
 	nodeId: S.String.annotateKey({ description: "The `@id` of the node carrying the property." }),
 	/** The `@type` of the node carrying the property. */
@@ -180,7 +180,7 @@ export class PropertyNotOnType extends S.TaggedClass<PropertyNotOnType>($I`Prope
  * @category models
  * @since 0.0.0
  */
-export class DeprecatedType extends S.TaggedClass<DeprecatedType>($I`DeprecatedType`)("DeprecatedType", {
+export class DeprecatedType extends S.TaggedClass<DeprecatedType, { readonly brand: unique symbol }>($I`DeprecatedType`)("DeprecatedType", {
 	/** The `@id` of the node. */
 	nodeId: S.String.annotateKey({ description: "The `@id` of the node." }),
 	/** The deprecated `@type`. */
@@ -225,7 +225,7 @@ export class DeprecatedType extends S.TaggedClass<DeprecatedType>($I`DeprecatedT
  * @category models
  * @since 0.0.0
  */
-export class DeprecatedProperty extends S.TaggedClass<DeprecatedProperty>($I`DeprecatedProperty`)("DeprecatedProperty", {
+export class DeprecatedProperty extends S.TaggedClass<DeprecatedProperty, { readonly brand: unique symbol }>($I`DeprecatedProperty`)("DeprecatedProperty", {
 	/** The `@id` of the node carrying the property. */
 	nodeId: S.String.annotateKey({ description: "The `@id` of the node carrying the property." }),
 	/** The `@type` of the node carrying the property. */
@@ -277,7 +277,7 @@ export class DeprecatedProperty extends S.TaggedClass<DeprecatedProperty>($I`Dep
  * @category models
  * @since 0.0.0
  */
-export class DanglingReference extends S.TaggedClass<DanglingReference>($I`DanglingReference`)("DanglingReference", {
+export class DanglingReference extends S.TaggedClass<DanglingReference, { readonly brand: unique symbol }>($I`DanglingReference`)("DanglingReference", {
 	/** The `@id` of the node holding the reference. */
 	nodeId: S.String.annotateKey({ description: "The `@id` of the node holding the reference." }),
 	/** The `@type` of the node holding the reference. */
@@ -371,7 +371,7 @@ export type ConformanceIssue = typeof ConformanceIssue.Type;
  * @category errors
  * @since 0.0.0
  */
-export class NonConformantGraphError extends S.TaggedError<NonConformantGraphError>($I`NonConformantGraphError`)("NonConformantGraphError", {
+export class NonConformantGraphError extends S.TaggedError<NonConformantGraphError, { readonly brand: unique symbol }>($I`NonConformantGraphError`)("NonConformantGraphError", {
 	/** Every issue found in the graph, failing or not. */
 	issues: S.Array(ConformanceIssue).annotateKey({ description: "Every issue found in the graph, failing or not." }),
 }, $I.annote("NonConformantGraphError", { description: "Indicates that a graph carries at least one conformance issue of a kind the gate was configured to fail on." })) {

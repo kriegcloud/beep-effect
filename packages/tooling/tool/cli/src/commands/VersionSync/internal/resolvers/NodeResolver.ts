@@ -36,17 +36,18 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/NodeResolv
  * @category models
  * @since 0.0.0
  */
-export class NodeVersionLocation extends S.Class<NodeVersionLocation>($I`NodeVersionLocation`)(
-  {
+export class NodeVersionLocation extends S.Opaque<NodeVersionLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     jobName: S.String,
     stepIndex: S.Natural,
     currentValue: S.String,
     yamlPath: S.Array(S.Union([S.String, S.Finite])),
-  },
-  $I.annote("NodeVersionLocation", {
-    description: "A workflow file location with a node-version field.",
-  })
+  }).pipe(
+    $I.annoteSchema("NodeVersionLocation", {
+      description: "A workflow file location with a node-version field.",
+    })
+  )
 ) {}
 
 /**
@@ -55,57 +56,62 @@ export class NodeVersionLocation extends S.Class<NodeVersionLocation>($I`NodeVer
  * @category models
  * @since 0.0.0
  */
-export class NodeVersionState extends S.Class<NodeVersionState>($I`NodeVersionState`)(
-  {
+export class NodeVersionState extends S.Opaque<NodeVersionState, { readonly brand: unique symbol }>()(
+  S.Struct({
     nvmrc: S.String,
     workflowLocations: S.Array(NodeVersionLocation),
-  },
-  $I.annote("NodeVersionState", {
-    description: "Resolved Node version state.",
-  })
+  }).pipe(
+    $I.annoteSchema("NodeVersionState", {
+      description: "Resolved Node version state.",
+    })
+  )
 ) {}
 
-class WorkflowSetupNodeWith extends S.Class<WorkflowSetupNodeWith>($I`WorkflowSetupNodeWith`)(
-  {
+class WorkflowSetupNodeWith extends S.Opaque<WorkflowSetupNodeWith, { readonly brand: unique symbol }>()(
+  S.Struct({
     "node-version": S.optionalKey(S.Unknown),
     "node-version-file": S.optionalKey(S.Unknown),
-  },
-  $I.annote("WorkflowSetupNodeWith", {
-    description: "Subset of a workflow step with-block relevant to Node version pinning.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkflowSetupNodeWith", {
+      description: "Subset of a workflow step with-block relevant to Node version pinning.",
+    })
+  )
 ) {}
 
-class WorkflowStep extends S.Class<WorkflowStep>($I`WorkflowStep`)(
-  {
+class WorkflowStep extends S.Opaque<WorkflowStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     with: S.optionalKey(WorkflowSetupNodeWith),
-  },
-  $I.annote("WorkflowStep", {
-    description: "Subset of GitHub workflow step fields required for node-version discovery.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkflowStep", {
+      description: "Subset of GitHub workflow step fields required for node-version discovery.",
+    })
+  )
 ) {}
 
-class WorkflowJob extends S.Class<WorkflowJob>($I`WorkflowJob`)(
-  {
+class WorkflowJob extends S.Opaque<WorkflowJob, { readonly brand: unique symbol }>()(
+  S.Struct({
     steps: S.Array(WorkflowStep).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<WorkflowStep>())),
       S.withDecodingDefault(Effect.succeed(A.empty<WorkflowStep>()))
     ),
-  },
-  $I.annote("WorkflowJob", {
-    description: "Subset of GitHub workflow job fields required for node-version discovery.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkflowJob", {
+      description: "Subset of GitHub workflow job fields required for node-version discovery.",
+    })
+  )
 ) {}
 
-class WorkflowDocument extends S.Class<WorkflowDocument>($I`WorkflowDocument`)(
-  {
+class WorkflowDocument extends S.Opaque<WorkflowDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     jobs: S.Record(S.String, WorkflowJob).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, WorkflowJob>())),
       S.withDecodingDefault(Effect.succeed(R.empty<string, WorkflowJob>()))
     ),
-  },
-  $I.annote("WorkflowDocument", {
-    description: "Subset of GitHub workflow YAML fields required for node-version discovery.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkflowDocument", {
+      description: "Subset of GitHub workflow YAML fields required for node-version discovery.",
+    })
+  )
 ) {}
 
 const decodeWorkflowDocument = decodeYamlTextWith(S.decodeUnknownEffect(WorkflowDocument));

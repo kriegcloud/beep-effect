@@ -28,15 +28,16 @@ const $I = $DockId.create("Dock.events");
  * @category events
  * @since 0.0.0
  */
-export class PanelOpenedEvent extends S.Class<PanelOpenedEvent>($I`PanelOpenedEvent`)(
-  {
+export class PanelOpenedEvent extends S.Opaque<PanelOpenedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("panelOpened"),
     panelId: PanelId,
     groupId: GroupId,
-  },
-  $I.annote("PanelOpenedEvent", {
-    description: "A panel was installed into a tab group.",
-  })
+  }).pipe(
+    $I.annoteSchema("PanelOpenedEvent", {
+      description: "A panel was installed into a tab group.",
+    })
+  )
 ) {}
 
 /**
@@ -54,15 +55,16 @@ export class PanelOpenedEvent extends S.Class<PanelOpenedEvent>($I`PanelOpenedEv
  * @category events
  * @since 0.0.0
  */
-export class PanelActivatedEvent extends S.Class<PanelActivatedEvent>($I`PanelActivatedEvent`)(
-  {
+export class PanelActivatedEvent extends S.Opaque<PanelActivatedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("panelActivated"),
     panelId: PanelId,
     groupId: GroupId,
-  },
-  $I.annote("PanelActivatedEvent", {
-    description: "A panel became the active member of its tab zipper.",
-  })
+  }).pipe(
+    $I.annoteSchema("PanelActivatedEvent", {
+      description: "A panel became the active member of its tab zipper.",
+    })
+  )
 ) {}
 
 /**
@@ -80,9 +82,10 @@ export class PanelActivatedEvent extends S.Class<PanelActivatedEvent>($I`PanelAc
  * @category events
  * @since 0.0.0
  */
-export class PanelTitleChangedEvent extends S.Class<PanelTitleChangedEvent>($I`PanelTitleChangedEvent`)(
-  { kind: S.tag("panelTitleChanged"), panelId: PanelId, groupId: GroupId, title: S.NonEmptyString },
-  $I.annote("PanelTitleChangedEvent", { description: "A panel title was replaced." })
+export class PanelTitleChangedEvent extends S.Opaque<PanelTitleChangedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("panelTitleChanged"), panelId: PanelId, groupId: GroupId, title: S.NonEmptyString }).pipe(
+    $I.annoteSchema("PanelTitleChangedEvent", { description: "A panel title was replaced." })
+  )
 ) {}
 
 /**
@@ -100,9 +103,10 @@ export class PanelTitleChangedEvent extends S.Class<PanelTitleChangedEvent>($I`P
  * @category events
  * @since 0.0.0
  */
-export class PanelViewChangedEvent extends S.Class<PanelViewChangedEvent>($I`PanelViewChangedEvent`)(
-  { kind: S.tag("panelViewChanged"), panelId: PanelId, groupId: GroupId, view: PanelView },
-  $I.annote("PanelViewChangedEvent", { description: "A panel view contract was replaced." })
+export class PanelViewChangedEvent extends S.Opaque<PanelViewChangedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("panelViewChanged"), panelId: PanelId, groupId: GroupId, view: PanelView }).pipe(
+    $I.annoteSchema("PanelViewChangedEvent", { description: "A panel view contract was replaced." })
+  )
 ) {}
 
 /**
@@ -120,9 +124,16 @@ export class PanelViewChangedEvent extends S.Class<PanelViewChangedEvent>($I`Pan
  * @category events
  * @since 0.0.0
  */
-export class PanelRenderModeChangedEvent extends S.Class<PanelRenderModeChangedEvent>($I`PanelRenderModeChangedEvent`)(
-  { kind: S.tag("panelRenderModeChanged"), panelId: PanelId, groupId: GroupId, renderMode: PanelRenderMode },
-  $I.annote("PanelRenderModeChangedEvent", { description: "A panel rendering policy was replaced." })
+export class PanelRenderModeChangedEvent extends S.Opaque<
+  PanelRenderModeChangedEvent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    kind: S.tag("panelRenderModeChanged"),
+    panelId: PanelId,
+    groupId: GroupId,
+    renderMode: PanelRenderMode,
+  }).pipe($I.annoteSchema("PanelRenderModeChangedEvent", { description: "A panel rendering policy was replaced." }))
 ) {}
 
 /**
@@ -141,13 +152,20 @@ export class PanelRenderModeChangedEvent extends S.Class<PanelRenderModeChangedE
  * @category events
  * @since 0.0.0
  */
-export class PanelTabComponentChangedEvent extends S.Class<PanelTabComponentChangedEvent>(
-  $I`PanelTabComponentChangedEvent`
-)(
-  { kind: S.tag("panelTabComponentChanged"), panelId: PanelId, groupId: GroupId, tabComponent: S.Option(RendererKey) },
-  $I.annote("PanelTabComponentChangedEvent", {
-    description: "A panel custom tab renderer key was replaced or cleared.",
-  })
+export class PanelTabComponentChangedEvent extends S.Opaque<
+  PanelTabComponentChangedEvent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    kind: S.tag("panelTabComponentChanged"),
+    panelId: PanelId,
+    groupId: GroupId,
+    tabComponent: S.Option(RendererKey),
+  }).pipe(
+    $I.annoteSchema("PanelTabComponentChangedEvent", {
+      description: "A panel custom tab renderer key was replaced or cleared.",
+    })
+  )
 ) {}
 
 /**
@@ -170,18 +188,20 @@ export class PanelTabComponentChangedEvent extends S.Class<PanelTabComponentChan
  * @category events
  * @since 0.0.0
  */
-export class PanelConstraintsChangedEvent extends S.Class<PanelConstraintsChangedEvent>(
-  $I`PanelConstraintsChangedEvent`
-)(
-  {
+export class PanelConstraintsChangedEvent extends S.Opaque<
+  PanelConstraintsChangedEvent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("panelConstraintsChanged"),
     panelId: PanelId,
     groupId: GroupId,
     constraints: S.Option(PanelConstraints),
-  },
-  $I.annote("PanelConstraintsChangedEvent", {
-    description: "A panel size-constraint contract was replaced or cleared.",
-  })
+  }).pipe(
+    $I.annoteSchema("PanelConstraintsChangedEvent", {
+      description: "A panel size-constraint contract was replaced or cleared.",
+    })
+  )
 ) {}
 
 /**
@@ -199,16 +219,17 @@ export class PanelConstraintsChangedEvent extends S.Class<PanelConstraintsChange
  * @category events
  * @since 0.0.0
  */
-export class PanelMovedEvent extends S.Class<PanelMovedEvent>($I`PanelMovedEvent`)(
-  {
+export class PanelMovedEvent extends S.Opaque<PanelMovedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("panelMoved"),
     panelId: PanelId,
     fromGroupId: GroupId,
     toGroupId: GroupId,
-  },
-  $I.annote("PanelMovedEvent", {
-    description: "A panel moved between tab groups in one tree publication.",
-  })
+  }).pipe(
+    $I.annoteSchema("PanelMovedEvent", {
+      description: "A panel moved between tab groups in one tree publication.",
+    })
+  )
 ) {}
 
 /**
@@ -227,9 +248,10 @@ export class PanelMovedEvent extends S.Class<PanelMovedEvent>($I`PanelMovedEvent
  * @category events
  * @since 0.0.0
  */
-export class PanelReorderedEvent extends S.Class<PanelReorderedEvent>($I`PanelReorderedEvent`)(
-  { kind: S.tag("panelReordered"), panelId: PanelId, groupId: GroupId, index: S.Natural },
-  $I.annote("PanelReorderedEvent", { description: "A panel changed position within its existing tab group." })
+export class PanelReorderedEvent extends S.Opaque<PanelReorderedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("panelReordered"), panelId: PanelId, groupId: GroupId, index: S.Natural }).pipe(
+    $I.annoteSchema("PanelReorderedEvent", { description: "A panel changed position within its existing tab group." })
+  )
 ) {}
 
 /**
@@ -247,11 +269,17 @@ export class PanelReorderedEvent extends S.Class<PanelReorderedEvent>($I`PanelRe
  * @category events
  * @since 0.0.0
  */
-export class GroupMergedEvent extends S.Class<GroupMergedEvent>($I`GroupMergedEvent`)(
-  { kind: S.tag("groupMerged"), fromGroupId: GroupId, toGroupId: GroupId, panelIds: S.NonEmptyArray(PanelId) },
-  $I.annote("GroupMergedEvent", {
-    description: "A complete source group was merged into a destination group in source order.",
-  })
+export class GroupMergedEvent extends S.Opaque<GroupMergedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("groupMerged"),
+    fromGroupId: GroupId,
+    toGroupId: GroupId,
+    panelIds: S.NonEmptyArray(PanelId),
+  }).pipe(
+    $I.annoteSchema("GroupMergedEvent", {
+      description: "A complete source group was merged into a destination group in source order.",
+    })
+  )
 ) {}
 
 /**
@@ -269,9 +297,12 @@ export class GroupMergedEvent extends S.Class<GroupMergedEvent>($I`GroupMergedEv
  * @category events
  * @since 0.0.0
  */
-export class GroupMovedEvent extends S.Class<GroupMovedEvent>($I`GroupMovedEvent`)(
-  { kind: S.tag("groupMoved"), groupId: GroupId, splitId: SplitId },
-  $I.annote("GroupMovedEvent", { description: "A complete tab group was relocated through a newly created split." })
+export class GroupMovedEvent extends S.Opaque<GroupMovedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("groupMoved"), groupId: GroupId, splitId: SplitId }).pipe(
+    $I.annoteSchema("GroupMovedEvent", {
+      description: "A complete tab group was relocated through a newly created split.",
+    })
+  )
 ) {}
 
 /**
@@ -289,9 +320,10 @@ export class GroupMovedEvent extends S.Class<GroupMovedEvent>($I`GroupMovedEvent
  * @category events
  * @since 0.0.0
  */
-export class GroupUpdatedEvent extends S.Class<GroupUpdatedEvent>($I`GroupUpdatedEvent`)(
-  { kind: S.tag("groupUpdated"), groupId: GroupId },
-  $I.annote("GroupUpdatedEvent", { description: "Persistable metadata for a tab group changed." })
+export class GroupUpdatedEvent extends S.Opaque<GroupUpdatedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("groupUpdated"), groupId: GroupId }).pipe(
+    $I.annoteSchema("GroupUpdatedEvent", { description: "Persistable metadata for a tab group changed." })
+  )
 ) {}
 
 /**
@@ -309,15 +341,16 @@ export class GroupUpdatedEvent extends S.Class<GroupUpdatedEvent>($I`GroupUpdate
  * @category events
  * @since 0.0.0
  */
-export class PanelClosedEvent extends S.Class<PanelClosedEvent>($I`PanelClosedEvent`)(
-  {
+export class PanelClosedEvent extends S.Opaque<PanelClosedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("panelClosed"),
     panelId: PanelId,
     groupId: GroupId,
-  },
-  $I.annote("PanelClosedEvent", {
-    description: "A panel was removed and empty topology was collapsed.",
-  })
+  }).pipe(
+    $I.annoteSchema("PanelClosedEvent", {
+      description: "A panel was removed and empty topology was collapsed.",
+    })
+  )
 ) {}
 
 /**
@@ -335,15 +368,16 @@ export class PanelClosedEvent extends S.Class<PanelClosedEvent>($I`PanelClosedEv
  * @category events
  * @since 0.0.0
  */
-export class SplitResizedEvent extends S.Class<SplitResizedEvent>($I`SplitResizedEvent`)(
-  {
+export class SplitResizedEvent extends S.Opaque<SplitResizedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("splitResized"),
     splitId: SplitId,
     ratio: SplitRatio,
-  },
-  $I.annote("SplitResizedEvent", {
-    description: "A binary split ratio changed.",
-  })
+  }).pipe(
+    $I.annoteSchema("SplitResizedEvent", {
+      description: "A binary split ratio changed.",
+    })
+  )
 ) {}
 
 /**
@@ -354,20 +388,21 @@ export class SplitResizedEvent extends S.Class<SplitResizedEvent>($I`SplitResize
  * ```ts
  * import { WorkspaceClearedEvent } from "@beep/dock"
  *
- * const event = WorkspaceClearedEvent.make()
+ * const event = WorkspaceClearedEvent.make({})
  * console.log(event.kind)
  * ```
  *
  * @category events
  * @since 0.0.0
  */
-export class WorkspaceClearedEvent extends S.Class<WorkspaceClearedEvent>($I`WorkspaceClearedEvent`)(
-  {
+export class WorkspaceClearedEvent extends S.Opaque<WorkspaceClearedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("workspaceCleared"),
-  },
-  $I.annote("WorkspaceClearedEvent", {
-    description: "The complete workspace was cleared atomically.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceClearedEvent", {
+      description: "The complete workspace was cleared atomically.",
+    })
+  )
 ) {}
 
 /**
@@ -386,15 +421,17 @@ export class WorkspaceClearedEvent extends S.Class<WorkspaceClearedEvent>($I`Wor
  * @category events
  * @since 0.0.0
  */
-export class WorkspaceRestoredEvent extends S.Class<WorkspaceRestoredEvent>($I`WorkspaceRestoredEvent`)(
-  {
+export class WorkspaceRestoredEvent extends S.Opaque<WorkspaceRestoredEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("workspaceRestored"),
     sourceRevision: S.Natural,
     installedRevision: S.Natural,
-  },
-  $I.annote("WorkspaceRestoredEvent", {
-    description: "A fully decoded and validated snapshot replaced live content without rewinding live revision order.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceRestoredEvent", {
+      description:
+        "A fully decoded and validated snapshot replaced live content without rewinding live revision order.",
+    })
+  )
 ) {}
 
 /**
@@ -412,9 +449,10 @@ export class WorkspaceRestoredEvent extends S.Class<WorkspaceRestoredEvent>($I`W
  * @category events
  * @since 0.0.0
  */
-export class GroupMaximizedEvent extends S.Class<GroupMaximizedEvent>($I`GroupMaximizedEvent`)(
-  { kind: S.tag("groupMaximized"), groupId: GroupId },
-  $I.annote("GroupMaximizedEvent", { description: "A visible group became the exclusive geometry projection." })
+export class GroupMaximizedEvent extends S.Opaque<GroupMaximizedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("groupMaximized"), groupId: GroupId }).pipe(
+    $I.annoteSchema("GroupMaximizedEvent", { description: "A visible group became the exclusive geometry projection." })
+  )
 ) {}
 
 /**
@@ -432,9 +470,10 @@ export class GroupMaximizedEvent extends S.Class<GroupMaximizedEvent>($I`GroupMa
  * @category events
  * @since 0.0.0
  */
-export class GroupRestoredEvent extends S.Class<GroupRestoredEvent>($I`GroupRestoredEvent`)(
-  { kind: S.tag("groupRestored"), groupId: GroupId },
-  $I.annote("GroupRestoredEvent", { description: "A group left maximized mode." })
+export class GroupRestoredEvent extends S.Opaque<GroupRestoredEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("groupRestored"), groupId: GroupId }).pipe(
+    $I.annoteSchema("GroupRestoredEvent", { description: "A group left maximized mode." })
+  )
 ) {}
 /**
  * Event recording a docked group becoming floating.
@@ -451,9 +490,10 @@ export class GroupRestoredEvent extends S.Class<GroupRestoredEvent>($I`GroupRest
  * @category events
  * @since 0.0.0
  */
-export class GroupFloatedEvent extends S.Class<GroupFloatedEvent>($I`GroupFloatedEvent`)(
-  { kind: S.tag("groupFloated"), groupId: GroupId },
-  $I.annote("GroupFloatedEvent", { description: "A docked group became floating." })
+export class GroupFloatedEvent extends S.Opaque<GroupFloatedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("groupFloated"), groupId: GroupId }).pipe(
+    $I.annoteSchema("GroupFloatedEvent", { description: "A docked group became floating." })
+  )
 ) {}
 /**
  * Event recording a floating group returning to the dock tree.
@@ -470,9 +510,10 @@ export class GroupFloatedEvent extends S.Class<GroupFloatedEvent>($I`GroupFloate
  * @category events
  * @since 0.0.0
  */
-export class GroupDockedEvent extends S.Class<GroupDockedEvent>($I`GroupDockedEvent`)(
-  { kind: S.tag("groupDocked"), groupId: GroupId },
-  $I.annote("GroupDockedEvent", { description: "A floating group returned to the docked tree." })
+export class GroupDockedEvent extends S.Opaque<GroupDockedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("groupDocked"), groupId: GroupId }).pipe(
+    $I.annoteSchema("GroupDockedEvent", { description: "A floating group returned to the docked tree." })
+  )
 ) {}
 /**
  * Event recording a floating member move or z-order change.
@@ -489,9 +530,10 @@ export class GroupDockedEvent extends S.Class<GroupDockedEvent>($I`GroupDockedEv
  * @category events
  * @since 0.0.0
  */
-export class FloatingGroupMovedEvent extends S.Class<FloatingGroupMovedEvent>($I`FloatingGroupMovedEvent`)(
-  { kind: S.tag("floatingGroupMoved"), groupId: GroupId },
-  $I.annote("FloatingGroupMovedEvent", { description: "A floating member moved or changed z-order." })
+export class FloatingGroupMovedEvent extends S.Opaque<FloatingGroupMovedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("floatingGroupMoved"), groupId: GroupId }).pipe(
+    $I.annoteSchema("FloatingGroupMovedEvent", { description: "A floating member moved or changed z-order." })
+  )
 ) {}
 
 const DockEventKind = LiteralKit([
@@ -526,7 +568,7 @@ const DockEventKind = LiteralKit([
  * ```ts
  * import { DockEvent, WorkspaceClearedEvent } from "@beep/dock"
  *
- * const event = WorkspaceClearedEvent.make()
+ * const event = WorkspaceClearedEvent.make({})
  * console.log(event.kind)
  * ```
  *
@@ -572,7 +614,7 @@ export const DockEvent = DockEventKind.mapMembers(
  * ```ts
  * import { DockEvent, WorkspaceClearedEvent } from "@beep/dock"
  *
- * const event: DockEvent = WorkspaceClearedEvent.make()
+ * const event: DockEvent = WorkspaceClearedEvent.make({})
  * console.log(event.kind)
  * ```
  *

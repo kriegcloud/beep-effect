@@ -69,16 +69,13 @@ export type JobProcessorError = DrizzleError | AnyEmbeddingError | EventBusError
  * @category models
  * @since 0.0.0
  */
-export class JobProcessingStats extends S.Class<JobProcessingStats>($I`JobProcessingStats`)(
-  {
+export class JobProcessingStats extends S.Opaque<JobProcessingStats, { readonly brand: unique symbol }>()(S.Struct({
     jobsProcessed: S.Int.check(S.isGreaterThanOrEqualTo(0, { message: "Processed jobs must be non-negative." })),
     errors: S.Int.check(S.isGreaterThanOrEqualTo(0, { message: "Job errors must be non-negative." })),
     durationMs: S.Finite.check(S.isGreaterThanOrEqualTo(0, { message: "Job duration must be non-negative." })),
-  },
-  $I.annote("JobProcessingStats", {
+  }).pipe($I.annoteSchema("JobProcessingStats", {
     description: "Non-negative processed-job, error, and elapsed-millisecond counters.",
-  })
-) {}
+  }))) {}
 
 type JobMeta = { readonly id: string; readonly attempts: number };
 

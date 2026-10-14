@@ -21,7 +21,9 @@ const $I = $RepoCliId.create("commands/Refs/Refs.errors");
  * @category errors
  * @since 0.0.0
  */
-export class ReferenceWorkspaceError extends S.TaggedError<ReferenceWorkspaceError>($I`ReferenceWorkspaceError`)(
+export class ReferenceWorkspaceError extends S.TaggedError<ReferenceWorkspaceError, { readonly brand: unique symbol }>(
+  $I`ReferenceWorkspaceError`
+)(
   "ReferenceWorkspaceError",
   { path: S.String, message: S.String, cause: S.optionalKey(S.Defect({ includeStack: true })) },
   $I.annoteError<ReferenceWorkspaceError>("ReferenceWorkspaceError", {

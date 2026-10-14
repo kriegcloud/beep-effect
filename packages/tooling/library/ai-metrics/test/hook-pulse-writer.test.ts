@@ -780,7 +780,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
         const row = expectSingleRow(run);
         const decoded = yield* decodeHookPulseRow(row);
 
-        expect(decoded).toBeInstanceOf(HookPulseV1);
+        expect(S.is(HookPulseV1)(decoded)).toBe(true);
         expect(decoded.schemaVersion).toBe(HookPulseSchemaVersion.Enum["hook-pulse/v1"]);
         expect(decoded.agentKind).toBe(HookPulseAgentKind.Enum["claude-code"]);
         expect(decoded.instrumentClass).toBe(HookPulseInstrumentClass.Enum.production);

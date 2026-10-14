@@ -28,14 +28,15 @@ const $I = $DockId.create("Dock.placement");
  * @category models
  * @since 0.0.0
  */
-export class RootPlacement extends S.Class<RootPlacement>($I`RootPlacement`)(
-  {
+export class RootPlacement extends S.Opaque<RootPlacement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("root"),
     groupId: GroupId,
-  },
-  $I.annote("RootPlacement", {
-    description: "Creates the root tab group in an empty workspace.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootPlacement", {
+      description: "Creates the root tab group in an empty workspace.",
+    })
+  )
 ) {}
 
 /**
@@ -53,16 +54,17 @@ export class RootPlacement extends S.Class<RootPlacement>($I`RootPlacement`)(
  * @category models
  * @since 0.0.0
  */
-export class TabPlacement extends S.Class<TabPlacement>($I`TabPlacement`)(
-  {
+export class TabPlacement extends S.Opaque<TabPlacement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("tab"),
     groupId: GroupId,
     index: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
     activate: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed<boolean>(true))),
-  },
-  $I.annote("TabPlacement", {
-    description: "Inserts a panel into an existing tab group, optionally without changing its active panel.",
-  })
+  }).pipe(
+    $I.annoteSchema("TabPlacement", {
+      description: "Inserts a panel into an existing tab group, optionally without changing its active panel.",
+    })
+  )
 ) {}
 
 /**
@@ -117,18 +119,19 @@ export type DockSide = typeof DockSide.Type;
  * @category models
  * @since 0.0.0
  */
-export class SplitPlacement extends S.Class<SplitPlacement>($I`SplitPlacement`)(
-  {
+export class SplitPlacement extends S.Opaque<SplitPlacement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("split"),
     referenceGroupId: GroupId,
     newGroupId: GroupId,
     splitId: SplitId,
     side: DockSide,
     newGroupRatio: SplitRatio.pipe(S.withConstructorDefault(Effect.succeed<number>(5_000))),
-  },
-  $I.annote("SplitPlacement", {
-    description: "Creates a new tab group beside an existing group with an explicit share for the new group.",
-  })
+  }).pipe(
+    $I.annoteSchema("SplitPlacement", {
+      description: "Creates a new tab group beside an existing group with an explicit share for the new group.",
+    })
+  )
 ) {}
 
 /**
@@ -151,17 +154,18 @@ export class SplitPlacement extends S.Class<SplitPlacement>($I`SplitPlacement`)(
  * @category models
  * @since 0.0.0
  */
-export class RootSplitPlacement extends S.Class<RootSplitPlacement>($I`RootSplitPlacement`)(
-  {
+export class RootSplitPlacement extends S.Opaque<RootSplitPlacement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("rootSplit"),
     side: DockSide,
     splitId: SplitId,
     newGroupId: GroupId,
     newGroupRatio: SplitRatio.pipe(S.withConstructorDefault(Effect.succeed<number>(5_000))),
-  },
-  $I.annote("RootSplitPlacement", {
-    description: "Creates a new tab group against one semantic edge of an existing docked workspace root.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootSplitPlacement", {
+      description: "Creates a new tab group against one semantic edge of an existing docked workspace root.",
+    })
+  )
 ) {}
 
 /**
@@ -179,17 +183,18 @@ export class RootSplitPlacement extends S.Class<RootSplitPlacement>($I`RootSplit
  * @category models
  * @since 0.0.0
  */
-export class GroupSplitPlacement extends S.Class<GroupSplitPlacement>($I`GroupSplitPlacement`)(
-  {
+export class GroupSplitPlacement extends S.Opaque<GroupSplitPlacement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("groupSplit"),
     referenceGroupId: GroupId,
     splitId: SplitId,
     side: DockSide,
     newGroupRatio: SplitRatio.pipe(S.withConstructorDefault(Effect.succeed<number>(5_000))),
-  },
-  $I.annote("GroupSplitPlacement", {
-    description: "Relocates an existing group beside a reference group using a new split.",
-  })
+  }).pipe(
+    $I.annoteSchema("GroupSplitPlacement", {
+      description: "Relocates an existing group beside a reference group using a new split.",
+    })
+  )
 ) {}
 
 /**
@@ -207,16 +212,17 @@ export class GroupSplitPlacement extends S.Class<GroupSplitPlacement>($I`GroupSp
  * @category models
  * @since 0.0.0
  */
-export class GroupRootSplitPlacement extends S.Class<GroupRootSplitPlacement>($I`GroupRootSplitPlacement`)(
-  {
+export class GroupRootSplitPlacement extends S.Opaque<GroupRootSplitPlacement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("groupRootSplit"),
     side: DockSide,
     splitId: SplitId,
     newGroupRatio: SplitRatio.pipe(S.withConstructorDefault(Effect.succeed<number>(5_000))),
-  },
-  $I.annote("GroupRootSplitPlacement", {
-    description: "Relocates an existing group against one semantic edge of the workspace root.",
-  })
+  }).pipe(
+    $I.annoteSchema("GroupRootSplitPlacement", {
+      description: "Relocates an existing group against one semantic edge of the workspace root.",
+    })
+  )
 ) {}
 
 const DockPlacementKind = LiteralKit(["root", "tab", "split", "rootSplit"]);

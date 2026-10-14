@@ -138,7 +138,7 @@ export const TerminalFrameRequestStates = HashSet.fromIterable([
  * @category errors
  * @since 0.0.0
  */
-export class FrameRequestContractError extends S.TaggedError<FrameRequestContractError>()(
+export class FrameRequestContractError extends S.TaggedError<FrameRequestContractError, { readonly brand: unique symbol }>()(
   "FrameRequestContractError",
   { message: S.String },
   $I.annoteError<FrameRequestContractError>("FrameRequestContractError", {

@@ -41,7 +41,9 @@ const $I = $OntologyUseCasesId.create("aggregates/Session/Session.rpc");
  * @category errors
  * @since 0.0.0
  */
-export class OntologyActionError extends S.TaggedError<OntologyActionError>($I`OntologyActionError`)(
+export class OntologyActionError extends S.TaggedError<OntologyActionError, { readonly brand: unique symbol }>(
+  $I`OntologyActionError`
+)(
   "OntologyActionError",
   {
     message: S.String,
@@ -99,16 +101,20 @@ export class OntologyActionError extends S.TaggedError<OntologyActionError>($I`O
  * @category protocols
  * @since 0.0.0
  */
-export class OpenOntologyDocumentResult extends S.Class<OpenOntologyDocumentResult>($I`OpenOntologyDocumentResult`)(
-  {
+export class OpenOntologyDocumentResult extends S.Opaque<
+  OpenOntologyDocumentResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     session: Session,
     path: OntologyFilePath,
     source: TurtleDocumentText,
     snapshot: OntologySnapshot,
-  },
-  $I.annote("OpenOntologyDocumentResult", {
-    description: "Result returned after opening a Turtle document through the sidecar.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenOntologyDocumentResult", {
+      description: "Result returned after opening a Turtle document through the sidecar.",
+    })
+  )
 ) {}
 
 /**
@@ -131,14 +137,18 @@ export class OpenOntologyDocumentResult extends S.Class<OpenOntologyDocumentResu
  * @category protocols
  * @since 0.0.0
  */
-export class SaveOntologyDocumentResult extends S.Class<SaveOntologyDocumentResult>($I`SaveOntologyDocumentResult`)(
-  {
+export class SaveOntologyDocumentResult extends S.Opaque<
+  SaveOntologyDocumentResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: OntologyFilePath,
     source: TurtleDocumentText,
-  },
-  $I.annote("SaveOntologyDocumentResult", {
-    description: "Result returned after saving a Turtle document through the sidecar.",
-  })
+  }).pipe(
+    $I.annoteSchema("SaveOntologyDocumentResult", {
+      description: "Result returned after saving a Turtle document through the sidecar.",
+    })
+  )
 ) {}
 
 /**
@@ -159,13 +169,17 @@ export class SaveOntologyDocumentResult extends S.Class<SaveOntologyDocumentResu
  * @category protocols
  * @since 0.0.0
  */
-export class PreviewOntologyTurtleResult extends S.Class<PreviewOntologyTurtleResult>($I`PreviewOntologyTurtleResult`)(
-  {
+export class PreviewOntologyTurtleResult extends S.Opaque<
+  PreviewOntologyTurtleResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     source: TurtleDocumentText,
-  },
-  $I.annote("PreviewOntologyTurtleResult", {
-    description: "Result returned after previewing Turtle serialization.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreviewOntologyTurtleResult", {
+      description: "Result returned after previewing Turtle serialization.",
+    })
+  )
 ) {}
 
 /**
@@ -205,14 +219,15 @@ export class PreviewOntologyTurtleResult extends S.Class<PreviewOntologyTurtleRe
  * @category protocols
  * @since 0.0.0
  */
-export class ApplyOntologyBatchCommand extends S.Class<ApplyOntologyBatchCommand>($I`ApplyOntologyBatchCommand`)(
-  {
+export class ApplyOntologyBatchCommand extends S.Opaque<ApplyOntologyBatchCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     session: Session,
     operations: S.Array(ChangeOperation),
-  },
-  $I.annote("ApplyOntologyBatchCommand", {
-    description: "Batch operation payload accepted by the ontology sidecar.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApplyOntologyBatchCommand", {
+      description: "Batch operation payload accepted by the ontology sidecar.",
+    })
+  )
 ) {}
 
 /**
@@ -243,54 +258,170 @@ export class ApplyOntologyBatchCommand extends S.Class<ApplyOntologyBatchCommand
  * @category protocols
  * @since 0.0.0
  */
-export class ApplyOntologyBatchResult extends S.Class<ApplyOntologyBatchResult>($I`ApplyOntologyBatchResult`)(
-  {
+export class ApplyOntologyBatchResult extends S.Opaque<ApplyOntologyBatchResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     session: Session,
     delta: SessionChangeDelta,
     operations: S.Array(ChangeOperation),
-  },
-  $I.annote("ApplyOntologyBatchResult", {
-    description: "Batch operation result carrying the updated session and real RDF delta.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApplyOntologyBatchResult", {
+      description: "Batch operation result carrying the updated session and real RDF delta.",
+    })
+  )
 ) {}
 
-class OpenOntologyDocumentPayload extends S.Class<OpenOntologyDocumentPayload>($I`OpenOntologyDocumentPayload`)(
-  {
+/**
+ * Wire payload for opening an ontology document from the desktop sidecar.
+ *
+ * **Example** (Open a Turtle file with a base IRI)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { OpenOntologyDocumentPayload } from "@beep/ontology-use-cases/aggregates/Session"
+ *
+ * const payload = S.decodeUnknownSync(OpenOntologyDocumentPayload)({
+ *   sessionId: "session-1",
+ *   path: "ontologies/patent-claims.ttl",
+ *   baseIri: "https://oip.law/ontology/claims#"
+ * })
+ *
+ * console.log(payload.path) // => "ontologies/patent-claims.ttl"
+ * console.log(O.getOrUndefined(payload.baseIri)) // => "https://oip.law/ontology/claims#"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenOntologyDocumentPayload extends S.Opaque<
+  OpenOntologyDocumentPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     sessionId: SessionId,
     path: OntologyFilePath,
     baseIri: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("OpenOntologyDocumentPayload", {
-    description: "Wire payload for opening an ontology document from the desktop sidecar.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenOntologyDocumentPayload", {
+      description: "Wire payload for opening an ontology document from the desktop sidecar.",
+    })
+  )
 ) {}
 
-class SaveOntologyDocumentPayload extends S.Class<SaveOntologyDocumentPayload>($I`SaveOntologyDocumentPayload`)(
-  {
+/**
+ * Wire payload for saving an ontology document from the desktop sidecar.
+ *
+ * **Example** (Save an empty session to a Turtle file)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Session, SessionId } from "@beep/ontology-domain/aggregates/Session"
+ * import { OntologyFilePath, SaveOntologyDocumentPayload } from "@beep/ontology-use-cases/aggregates/Session"
+ * import { makeDataset } from "@beep/rdf/Rdf"
+ *
+ * const session = Session.make({
+ *   id: S.decodeUnknownSync(SessionId)("session-1"),
+ *   baseDataset: makeDataset([]),
+ *   changeLog: []
+ * })
+ * const payload = SaveOntologyDocumentPayload.make({
+ *   path: S.decodeUnknownSync(OntologyFilePath)("ontologies/patent-claims.ttl"),
+ *   session
+ * })
+ *
+ * console.log(payload.session.id) // => "session-1"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SaveOntologyDocumentPayload extends S.Opaque<
+  SaveOntologyDocumentPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: OntologyFilePath,
     session: Session,
-  },
-  $I.annote("SaveOntologyDocumentPayload", {
-    description: "Wire payload for saving an ontology document from the desktop sidecar.",
-  })
+  }).pipe(
+    $I.annoteSchema("SaveOntologyDocumentPayload", {
+      description: "Wire payload for saving an ontology document from the desktop sidecar.",
+    })
+  )
 ) {}
 
-class PreviewOntologyTurtlePayload extends S.Class<PreviewOntologyTurtlePayload>($I`PreviewOntologyTurtlePayload`)(
-  {
+/**
+ * Wire payload for previewing Turtle serialization in the desktop sidecar.
+ *
+ * **Example** (Preview Turtle for a session without writing it)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Session, SessionId } from "@beep/ontology-domain/aggregates/Session"
+ * import { PreviewOntologyTurtlePayload } from "@beep/ontology-use-cases/aggregates/Session"
+ * import { makeDataset } from "@beep/rdf/Rdf"
+ *
+ * const payload = PreviewOntologyTurtlePayload.make({
+ *   session: Session.make({
+ *     id: S.decodeUnknownSync(SessionId)("session-2"),
+ *     baseDataset: makeDataset([]),
+ *     changeLog: []
+ *   })
+ * })
+ *
+ * console.log(payload.session.changeLog.length) // => 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PreviewOntologyTurtlePayload extends S.Opaque<
+  PreviewOntologyTurtlePayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     session: Session,
-  },
-  $I.annote("PreviewOntologyTurtlePayload", {
-    description: "Wire payload for previewing Turtle serialization in the desktop sidecar.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreviewOntologyTurtlePayload", {
+      description: "Wire payload for previewing Turtle serialization in the desktop sidecar.",
+    })
+  )
 ) {}
 
-class GetOntologySnapshotPayload extends S.Class<GetOntologySnapshotPayload>($I`GetOntologySnapshotPayload`)(
-  {
+/**
+ * Wire payload for building the current ontology explorer snapshot.
+ *
+ * **Example** (Request the explorer snapshot for a session)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Session, SessionId } from "@beep/ontology-domain/aggregates/Session"
+ * import { GetOntologySnapshotPayload } from "@beep/ontology-use-cases/aggregates/Session"
+ * import { makeDataset } from "@beep/rdf/Rdf"
+ *
+ * const session = Session.make({
+ *   id: S.decodeUnknownSync(SessionId)("session-3"),
+ *   baseDataset: makeDataset([]),
+ *   changeLog: []
+ * })
+ * const payload = GetOntologySnapshotPayload.make({ session })
+ *
+ * console.log(payload.session === session) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GetOntologySnapshotPayload extends S.Opaque<
+  GetOntologySnapshotPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     session: Session,
-  },
-  $I.annote("GetOntologySnapshotPayload", {
-    description: "Wire payload for building the current ontology explorer snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("GetOntologySnapshotPayload", {
+      description: "Wire payload for building the current ontology explorer snapshot.",
+    })
+  )
 ) {}
 
 /**

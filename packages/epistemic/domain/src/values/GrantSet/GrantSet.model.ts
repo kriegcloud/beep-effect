@@ -103,8 +103,8 @@ export type GrantSetDigest = typeof GrantSetDigest.Type;
  * @category models
  * @since 0.0.0
  */
-export class DraftGrantSet extends S.Class<DraftGrantSet>($I`DraftGrantSet`)(
-  {
+export class DraftGrantSet extends S.Opaque<DraftGrantSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("draft"),
     grants: S.Array(ExecutionGrant).annotateKey({
       description: "Grants accumulated so far; still widenable.",
@@ -112,10 +112,11 @@ export class DraftGrantSet extends S.Class<DraftGrantSet>($I`DraftGrantSet`)(
     policyRevision: PolicyRevision.annotateKey({
       description: "Policy revision every grant in this set is pinned to.",
     }),
-  },
-  $I.annote("DraftGrantSet", {
-    description: "Grant set under construction; the only state addGrant accepts.",
-  })
+  }).pipe(
+    $I.annoteSchema("DraftGrantSet", {
+      description: "Grant set under construction; the only state addGrant accepts.",
+    })
+  )
 ) {
   static readonly is = S.is(DraftGrantSet);
 }
@@ -146,8 +147,8 @@ export class DraftGrantSet extends S.Class<DraftGrantSet>($I`DraftGrantSet`)(
  * @category models
  * @since 0.0.0
  */
-export class FrozenGrantSet extends S.Class<FrozenGrantSet>($I`FrozenGrantSet`)(
-  {
+export class FrozenGrantSet extends S.Opaque<FrozenGrantSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("frozen"),
     grants: S.Array(ExecutionGrant).annotateKey({
       description: "The fixed grant contents this set was sealed with.",
@@ -161,10 +162,11 @@ export class FrozenGrantSet extends S.Class<FrozenGrantSet>($I`FrozenGrantSet`)(
     digest: GrantSetDigest.annotateKey({
       description: "Seal over (grants, policyRevision, frozenAt); re-verify after any boundary crossing.",
     }),
-  },
-  $I.annote("FrozenGrantSet", {
-    description: "Sealed grant set; construct only via freezeGrantSet, verify via verifyFrozenGrantSetDigest.",
-  })
+  }).pipe(
+    $I.annoteSchema("FrozenGrantSet", {
+      description: "Sealed grant set; construct only via freezeGrantSet, verify via verifyFrozenGrantSetDigest.",
+    })
+  )
 ) {
   static readonly is = S.is(FrozenGrantSet);
 }
@@ -313,8 +315,8 @@ export const addGrant: {
  * @category models
  * @since 0.0.0
  */
-export class GrantSetDigestInput extends S.Class<GrantSetDigestInput>($I`GrantSetDigestInput`)(
-  {
+export class GrantSetDigestInput extends S.Opaque<GrantSetDigestInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     frozenAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "Instant the set was sealed.",
     }),
@@ -324,10 +326,11 @@ export class GrantSetDigestInput extends S.Class<GrantSetDigestInput>($I`GrantSe
     policyRevision: PolicyRevision.annotateKey({
       description: "Policy revision the set was frozen under.",
     }),
-  },
-  $I.annote("GrantSetDigestInput", {
-    description: "The committed-to input of a grant-set seal.",
-  })
+  }).pipe(
+    $I.annoteSchema("GrantSetDigestInput", {
+      description: "The committed-to input of a grant-set seal.",
+    })
+  )
 ) {
   static readonly is = S.is(GrantSetDigestInput);
 }
@@ -438,16 +441,18 @@ export const verifyFrozenGrantSetDigest = (frozen: FrozenGrantSet): boolean =>
  * @category models
  * @since 0.0.0
  */
-export class ExecutionRequestEvaluationOptions extends S.Class<ExecutionRequestEvaluationOptions>(
-  $I`ExecutionRequestEvaluationOptions`
-)(
-  {
+export class ExecutionRequestEvaluationOptions extends S.Opaque<
+  ExecutionRequestEvaluationOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     currentPolicyRevision: PolicyRevision,
     now: S.DateTimeUtc,
-  },
-  $I.annote("ExecutionRequestEvaluationOptions", {
-    description: "Time and current policy revision used to evaluate one execution request.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExecutionRequestEvaluationOptions", {
+      description: "Time and current policy revision used to evaluate one execution request.",
+    })
+  )
 ) {}
 
 const denied = (reason: DenialReason): ExecutionVerdict => ExecutionVerdict.make({ verdict: "denied", reason });

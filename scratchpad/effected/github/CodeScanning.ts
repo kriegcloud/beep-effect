@@ -10,7 +10,7 @@ import * as R from "effect/Record";
 
 const $I = $ScratchpadId.create("effected/github/CodeScanning");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 

@@ -65,8 +65,8 @@ const $I = $LawPracticeServerId.create("PracticeKg.verify");
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgVerifySummary extends S.Class<PracticeKgVerifySummary>($I`PracticeKgVerifySummary`)(
-  {
+export class PracticeKgVerifySummary extends S.Opaque<PracticeKgVerifySummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     anchorReferencesUnresolved: S.Finite,
     catalogReferencesUnresolved: S.Finite,
     claims: S.Finite,
@@ -84,15 +84,22 @@ export class PracticeKgVerifySummary extends S.Class<PracticeKgVerifySummary>($I
     nodes: S.Finite,
     nodesResolved: S.Finite,
     ok: S.Boolean,
-  },
-  $I.annote("PracticeKgVerifySummary", {
-    description: "Provenance-resolution and consistency counts for one built bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgVerifySummary", {
+      description: "Provenance-resolution and consistency counts for one built bundle.",
+    })
+  )
 ) {}
 
-class CountRow extends S.Class<CountRow>($I`CountRow`)({ count: S.Finite }) {}
-class RefRow extends S.Class<RefRow>($I`RefRow`)({ ref: S.String }) {}
-class TableRow extends S.Class<TableRow>($I`TableRow`)({ tableName: S.String }) {}
+class CountRow extends S.Opaque<CountRow, { readonly brand: unique symbol }>()(
+  S.Struct({ count: S.Finite }).pipe($I.annoteSchema("CountRow"))
+) {}
+class RefRow extends S.Opaque<RefRow, { readonly brand: unique symbol }>()(
+  S.Struct({ ref: S.String }).pipe($I.annoteSchema("RefRow"))
+) {}
+class TableRow extends S.Opaque<TableRow, { readonly brand: unique symbol }>()(
+  S.Struct({ tableName: S.String }).pipe($I.annoteSchema("TableRow"))
+) {}
 
 const decodeCountRows = S.decodeUnknownEffect(S.NonEmptyArray(CountRow));
 const decodeRefRows = S.decodeUnknownEffect(S.Array(RefRow));

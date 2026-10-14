@@ -24,7 +24,10 @@ const $I = $AgentsUseCasesId.create("entities/ProviderInstance/ProviderInstance.
  * @category errors
  * @since 0.0.0
  */
-export class ProviderInstanceNotFound extends S.TaggedError<ProviderInstanceNotFound>($I`ProviderInstanceNotFound`)(
+export class ProviderInstanceNotFound extends S.TaggedError<
+  ProviderInstanceNotFound,
+  { readonly brand: unique symbol }
+>($I`ProviderInstanceNotFound`)(
   "ProviderInstanceNotFound",
   { providerInstanceId: Agents.ProviderInstanceId },
   $I.annoteError<ProviderInstanceNotFound>("ProviderInstanceNotFound", {
@@ -47,7 +50,9 @@ export class ProviderInstanceNotFound extends S.TaggedError<ProviderInstanceNotF
  * @category errors
  * @since 0.0.0
  */
-export class ProviderUnauthenticated extends S.TaggedError<ProviderUnauthenticated>($I`ProviderUnauthenticated`)(
+export class ProviderUnauthenticated extends S.TaggedError<ProviderUnauthenticated, { readonly brand: unique symbol }>(
+  $I`ProviderUnauthenticated`
+)(
   "ProviderUnauthenticated",
   {
     providerInstanceId: Agents.ProviderInstanceId,
@@ -72,7 +77,10 @@ export class ProviderUnauthenticated extends S.TaggedError<ProviderUnauthenticat
  * @category errors
  * @since 0.0.0
  */
-export class ProviderProbeUnavailable extends S.TaggedError<ProviderProbeUnavailable>($I`ProviderProbeUnavailable`)(
+export class ProviderProbeUnavailable extends S.TaggedError<
+  ProviderProbeUnavailable,
+  { readonly brand: unique symbol }
+>($I`ProviderProbeUnavailable`)(
   "ProviderProbeUnavailable",
   { guidance: S.NonEmptyString },
   $I.annoteError<ProviderProbeUnavailable>("ProviderProbeUnavailable", {

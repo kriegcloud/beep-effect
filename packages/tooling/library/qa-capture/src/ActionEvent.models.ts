@@ -431,8 +431,8 @@ export type TransitionPhase = typeof TransitionPhase.Type;
  * @category models
  * @since 0.0.0
  */
-export class DomRect extends S.Class<DomRect>($I`DomRect`)(
-  {
+export class DomRect extends S.Opaque<DomRect, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: NonNegativePixels.pipe(
       $I.annoteKey("DomRect.height", {
         description: "Rectangle height in CSS pixels.",
@@ -453,10 +453,11 @@ export class DomRect extends S.Class<DomRect>($I`DomRect`)(
         description: "Rectangle top edge in viewport CSS pixels.",
       })
     ),
-  },
-  $I.annote("DomRect", {
-    description: "Bounding rectangle of the event target in viewport CSS pixels.",
-  })
+  }).pipe(
+    $I.annoteSchema("DomRect", {
+      description: "Bounding rectangle of the event target in viewport CSS pixels.",
+    })
+  )
 ) {}
 
 /**
@@ -482,8 +483,8 @@ export class DomRect extends S.Class<DomRect>($I`DomRect`)(
  * @category events
  * @since 0.0.0
  */
-export class PointerDownEvent extends S.Class<PointerDownEvent>($I`PointerDownEvent`)(
-  {
+export class PointerDownEvent extends S.Opaque<PointerDownEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     button: S.Int.pipe(
       $I.annoteKey("PointerDownEvent.button", {
         description: "Pressed pointer button index.",
@@ -530,10 +531,11 @@ export class PointerDownEvent extends S.Class<PointerDownEvent>($I`PointerDownEv
         description: "Pointer y position in viewport CSS pixels.",
       })
     ),
-  },
-  $I.annote("PointerDownEvent", {
-    description: "Pointer pressed on an element.",
-  })
+  }).pipe(
+    $I.annoteSchema("PointerDownEvent", {
+      description: "Pointer pressed on an element.",
+    })
+  )
 ) {}
 
 /**
@@ -559,8 +561,8 @@ export class PointerDownEvent extends S.Class<PointerDownEvent>($I`PointerDownEv
  * @category events
  * @since 0.0.0
  */
-export class PointerUpEvent extends S.Class<PointerUpEvent>($I`PointerUpEvent`)(
-  {
+export class PointerUpEvent extends S.Opaque<PointerUpEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     button: S.Int.pipe(
       $I.annoteKey("PointerUpEvent.button", {
         description: "Released pointer button index.",
@@ -607,10 +609,11 @@ export class PointerUpEvent extends S.Class<PointerUpEvent>($I`PointerUpEvent`)(
         description: "Pointer y position in viewport CSS pixels.",
       })
     ),
-  },
-  $I.annote("PointerUpEvent", {
-    description: "Pointer released after a press.",
-  })
+  }).pipe(
+    $I.annoteSchema("PointerUpEvent", {
+      description: "Pointer released after a press.",
+    })
+  )
 ) {}
 
 /**
@@ -636,8 +639,8 @@ export class PointerUpEvent extends S.Class<PointerUpEvent>($I`PointerUpEvent`)(
  * @category events
  * @since 0.0.0
  */
-export class PointerCancelEvent extends S.Class<PointerCancelEvent>($I`PointerCancelEvent`)(
-  {
+export class PointerCancelEvent extends S.Opaque<PointerCancelEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("pointer-cancel").pipe(
       $I.annoteKey("PointerCancelEvent.kind", {
         description: "Discriminator for pointer-cancel events.",
@@ -679,10 +682,11 @@ export class PointerCancelEvent extends S.Class<PointerCancelEvent>($I`PointerCa
         description: "Pointer y position in viewport CSS pixels.",
       })
     ),
-  },
-  $I.annote("PointerCancelEvent", {
-    description: "Pointer gesture cancelled before release.",
-  })
+  }).pipe(
+    $I.annoteSchema("PointerCancelEvent", {
+      description: "Pointer gesture cancelled before release.",
+    })
+  )
 ) {}
 
 /**
@@ -706,8 +710,8 @@ export class PointerCancelEvent extends S.Class<PointerCancelEvent>($I`PointerCa
  * @category events
  * @since 0.0.0
  */
-export class PointerMoveEvent extends S.Class<PointerMoveEvent>($I`PointerMoveEvent`)(
-  {
+export class PointerMoveEvent extends S.Opaque<PointerMoveEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("pointer-move").pipe(
       $I.annoteKey("PointerMoveEvent.kind", {
         description: "Discriminator for pointer-move events.",
@@ -738,10 +742,11 @@ export class PointerMoveEvent extends S.Class<PointerMoveEvent>($I`PointerMoveEv
         description: "Pointer y position in viewport CSS pixels.",
       })
     ),
-  },
-  $I.annote("PointerMoveEvent", {
-    description: "Throttled pointer movement sample.",
-  })
+  }).pipe(
+    $I.annoteSchema("PointerMoveEvent", {
+      description: "Throttled pointer movement sample.",
+    })
+  )
 ) {}
 
 /**
@@ -763,8 +768,8 @@ export class PointerMoveEvent extends S.Class<PointerMoveEvent>($I`PointerMoveEv
  * @category events
  * @since 0.0.0
  */
-export class PointerEnterEvent extends S.Class<PointerEnterEvent>($I`PointerEnterEvent`)(
-  {
+export class PointerEnterEvent extends S.Opaque<PointerEnterEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("pointer-enter").pipe(
       $I.annoteKey("PointerEnterEvent.kind", {
         description: "Discriminator for pointer-enter events.",
@@ -791,10 +796,11 @@ export class PointerEnterEvent extends S.Class<PointerEnterEvent>($I`PointerEnte
         description: "Event wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("PointerEnterEvent", {
-    description: "Pointer entered an interactive element.",
-  })
+  }).pipe(
+    $I.annoteSchema("PointerEnterEvent", {
+      description: "Pointer entered an interactive element.",
+    })
+  )
 ) {}
 
 /**
@@ -816,8 +822,8 @@ export class PointerEnterEvent extends S.Class<PointerEnterEvent>($I`PointerEnte
  * @category events
  * @since 0.0.0
  */
-export class PointerLeaveEvent extends S.Class<PointerLeaveEvent>($I`PointerLeaveEvent`)(
-  {
+export class PointerLeaveEvent extends S.Opaque<PointerLeaveEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("pointer-leave").pipe(
       $I.annoteKey("PointerLeaveEvent.kind", {
         description: "Discriminator for pointer-leave events.",
@@ -838,10 +844,11 @@ export class PointerLeaveEvent extends S.Class<PointerLeaveEvent>($I`PointerLeav
         description: "Event wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("PointerLeaveEvent", {
-    description: "Pointer left an interactive element.",
-  })
+  }).pipe(
+    $I.annoteSchema("PointerLeaveEvent", {
+      description: "Pointer left an interactive element.",
+    })
+  )
 ) {}
 
 /**
@@ -863,8 +870,8 @@ export class PointerLeaveEvent extends S.Class<PointerLeaveEvent>($I`PointerLeav
  * @category events
  * @since 0.0.0
  */
-export class FocusInEvent extends S.Class<FocusInEvent>($I`FocusInEvent`)(
-  {
+export class FocusInEvent extends S.Opaque<FocusInEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("focus-in").pipe(
       $I.annoteKey("FocusInEvent.kind", {
         description: "Discriminator for focus-in events.",
@@ -885,10 +892,11 @@ export class FocusInEvent extends S.Class<FocusInEvent>($I`FocusInEvent`)(
         description: "Event wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("FocusInEvent", {
-    description: "Focus entered an element.",
-  })
+  }).pipe(
+    $I.annoteSchema("FocusInEvent", {
+      description: "Focus entered an element.",
+    })
+  )
 ) {}
 
 /**
@@ -910,8 +918,8 @@ export class FocusInEvent extends S.Class<FocusInEvent>($I`FocusInEvent`)(
  * @category events
  * @since 0.0.0
  */
-export class FocusOutEvent extends S.Class<FocusOutEvent>($I`FocusOutEvent`)(
-  {
+export class FocusOutEvent extends S.Opaque<FocusOutEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("focus-out").pipe(
       $I.annoteKey("FocusOutEvent.kind", {
         description: "Discriminator for focus-out events.",
@@ -932,10 +940,11 @@ export class FocusOutEvent extends S.Class<FocusOutEvent>($I`FocusOutEvent`)(
         description: "Event wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("FocusOutEvent", {
-    description: "Focus left an element.",
-  })
+  }).pipe(
+    $I.annoteSchema("FocusOutEvent", {
+      description: "Focus left an element.",
+    })
+  )
 ) {}
 
 /**
@@ -958,8 +967,8 @@ export class FocusOutEvent extends S.Class<FocusOutEvent>($I`FocusOutEvent`)(
  * @category events
  * @since 0.0.0
  */
-export class KeyDownEvent extends S.Class<KeyDownEvent>($I`KeyDownEvent`)(
-  {
+export class KeyDownEvent extends S.Opaque<KeyDownEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: NonPrintableKey.pipe(
       $I.annoteKey("KeyDownEvent.key", {
         description: "Non-printable key identity; printable keys are never recorded.",
@@ -991,10 +1000,11 @@ export class KeyDownEvent extends S.Class<KeyDownEvent>($I`KeyDownEvent`)(
         description: "Event wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("KeyDownEvent", {
-    description: "Non-printable key pressed.",
-  })
+  }).pipe(
+    $I.annoteSchema("KeyDownEvent", {
+      description: "Non-printable key pressed.",
+    })
+  )
 ) {}
 
 /**
@@ -1019,8 +1029,8 @@ export class KeyDownEvent extends S.Class<KeyDownEvent>($I`KeyDownEvent`)(
  * @category events
  * @since 0.0.0
  */
-export class CssTransitionEvent extends S.Class<CssTransitionEvent>($I`CssTransitionEvent`)(
-  {
+export class CssTransitionEvent extends S.Opaque<CssTransitionEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     durationMs: DurationMilliseconds.pipe(
       $I.annoteKey("CssTransitionEvent.durationMs", {
         description: "Computed transition duration in milliseconds.",
@@ -1056,10 +1066,11 @@ export class CssTransitionEvent extends S.Class<CssTransitionEvent>($I`CssTransi
         description: "Event wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("CssTransitionEvent", {
-    description: "CSS transition lifecycle observation with its computed duration.",
-  })
+  }).pipe(
+    $I.annoteSchema("CssTransitionEvent", {
+      description: "CSS transition lifecycle observation with its computed duration.",
+    })
+  )
 ) {}
 
 /**
@@ -1084,8 +1095,8 @@ export class CssTransitionEvent extends S.Class<CssTransitionEvent>($I`CssTransi
  * @category events
  * @since 0.0.0
  */
-export class CssAnimationEvent extends S.Class<CssAnimationEvent>($I`CssAnimationEvent`)(
-  {
+export class CssAnimationEvent extends S.Opaque<CssAnimationEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     animationName: S.String.pipe(
       $I.annoteKey("CssAnimationEvent.animationName", {
         description: "CSS animation name reported by the animation event.",
@@ -1121,10 +1132,11 @@ export class CssAnimationEvent extends S.Class<CssAnimationEvent>($I`CssAnimatio
         description: "Event wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("CssAnimationEvent", {
-    description: "CSS animation lifecycle observation with its computed duration.",
-  })
+  }).pipe(
+    $I.annoteSchema("CssAnimationEvent", {
+      description: "CSS animation lifecycle observation with its computed duration.",
+    })
+  )
 ) {}
 
 /**
@@ -1149,8 +1161,8 @@ export class CssAnimationEvent extends S.Class<CssAnimationEvent>($I`CssAnimatio
  * @category events
  * @since 0.0.0
  */
-export class ScrollEvent extends S.Class<ScrollEvent>($I`ScrollEvent`)(
-  {
+export class ScrollEvent extends S.Opaque<ScrollEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("scroll").pipe(
       $I.annoteKey("ScrollEvent.kind", {
         description: "Discriminator for scroll events.",
@@ -1182,10 +1194,11 @@ export class ScrollEvent extends S.Class<ScrollEvent>($I`ScrollEvent`)(
         description: "Event wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("ScrollEvent", {
-    description: "Throttled scroll position sample.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScrollEvent", {
+      description: "Throttled scroll position sample.",
+    })
+  )
 ) {}
 
 /**
@@ -1207,8 +1220,8 @@ export class ScrollEvent extends S.Class<ScrollEvent>($I`ScrollEvent`)(
  * @category events
  * @since 0.0.0
  */
-export class MarkerEvent extends S.Class<MarkerEvent>($I`MarkerEvent`)(
-  {
+export class MarkerEvent extends S.Opaque<MarkerEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("marker").pipe(
       $I.annoteKey("MarkerEvent.kind", {
         description: "Discriminator for marker events.",
@@ -1236,10 +1249,11 @@ export class MarkerEvent extends S.Class<MarkerEvent>($I`MarkerEvent`)(
         description: "Event wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("MarkerEvent", {
-    description: "Semantic marker injected by the harness or `beep qa mark`.",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkerEvent", {
+      description: "Semantic marker injected by the harness or `beep qa mark`.",
+    })
+  )
 ) {}
 
 /**
@@ -1268,8 +1282,8 @@ export class MarkerEvent extends S.Class<MarkerEvent>($I`MarkerEvent`)(
  * @category events
  * @since 0.0.0
  */
-export class BeaconEvent extends S.Class<BeaconEvent>($I`BeaconEvent`)(
-  {
+export class BeaconEvent extends S.Opaque<BeaconEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     flipIndex: S.Int.check(
       S.isGreaterThanOrEqualTo(0, {
         identifier: $I`BeaconEventFlipIndexMinimumCheck`,
@@ -1307,10 +1321,11 @@ export class BeaconEvent extends S.Class<BeaconEvent>($I`BeaconEvent`)(
         description: "rAF-adjacent paint wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("BeaconEvent", {
-    description: "One flip of the visual clock-sync beacon overlay.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeaconEvent", {
+      description: "One flip of the visual clock-sync beacon overlay.",
+    })
+  )
 ) {}
 
 /**

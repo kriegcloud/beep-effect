@@ -38,7 +38,7 @@ const $I = $ScratchpadId.create("effected/jsonc/JsoncEdit");
  * @category models
  * @since 0.0.0
  */
-export class JsoncRange extends S.Class<JsoncRange>($I`JsoncRange`)(
+export class JsoncRange extends S.Class<JsoncRange, { readonly brand: unique symbol }>($I`JsoncRange`)(
   {
     offset: S.Finite,
     length: S.Finite,
@@ -80,7 +80,7 @@ export class JsoncRange extends S.Class<JsoncRange>($I`JsoncRange`)(
  * @category models
  * @since 0.0.0
  */
-export class JsoncFormattingOptions extends S.Class<JsoncFormattingOptions>($I`JsoncFormattingOptions`)(
+export class JsoncFormattingOptions extends S.Class<JsoncFormattingOptions, { readonly brand: unique symbol }>($I`JsoncFormattingOptions`)(
   {
     tabSize: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(2)), S.withDecodingDefaultKey(Effect.succeed(2))),
     insertSpaces: S.Boolean.pipe(
@@ -156,7 +156,7 @@ export type JsoncFormattingOptionsLike = typeof JsoncFormattingOptionsLike.Type;
  * @category errors
  * @since 0.0.0
  */
-export class JsoncEditOverlapError extends S.TaggedError<JsoncEditOverlapError>($I.make("JsoncEditOverlapError"))(
+export class JsoncEditOverlapError extends S.TaggedError<JsoncEditOverlapError, { readonly brand: unique symbol }>($I.make("JsoncEditOverlapError"))(
   "JsoncEditOverlapError",
   {
     lower: S.Finite,
@@ -201,7 +201,7 @@ const byOffsetDescending = Order.flip(Order.mapInput(Order.Number, (edit: JsoncE
  * @category models
  * @since 0.0.0
  */
-export class JsoncEdit extends S.Class<JsoncEdit>($I`JsoncEdit`)(
+export class JsoncEdit extends S.Class<JsoncEdit, { readonly brand: unique symbol }>($I`JsoncEdit`)(
   {
     offset: S.Finite,
     length: S.Finite,

@@ -56,16 +56,17 @@ const $I = $LawPracticeDomainId.create("values/ObservationVersionRef/Observation
  * @category models
  * @since 0.0.0
  */
-export class ObservationVersionRef extends S.Class<ObservationVersionRef>($I`ObservationVersionRef`)(
-  {
+export class ObservationVersionRef extends S.Opaque<ObservationVersionRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventId: LawPractice.PatentCitationEventId.annotateKey({
       description: "Identifier of the exact patent citation event being referenced.",
     }),
     textDigest: SourceTextDigest.annotateKey({
       description: "Extracted-text digest naming the exact observation version that event carried.",
     }),
-  },
-  $I.annote("ObservationVersionRef", {
-    description: "Version-exact reference naming both the referenced event and the observation version it carried.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObservationVersionRef", {
+      description: "Version-exact reference naming both the referenced event and the observation version it carried.",
+    })
+  )
 ) {}

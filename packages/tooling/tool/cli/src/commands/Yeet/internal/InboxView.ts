@@ -235,15 +235,16 @@ export const yeetInboxRowLiveness: {
  * @category models
  * @since 0.0.0
  */
-export class YeetInboxEntry extends S.Class<YeetInboxEntry>($I`YeetInboxEntry`)(
-  {
+export class YeetInboxEntry extends S.Opaque<YeetInboxEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     row: YeetInboxRow,
     ack: YeetAckState,
     liveness: YeetInboxLiveness,
-  },
-  $I.annote("YeetInboxEntry", {
-    description: "One inbox row joined with its ack state and its liveness against the current wave.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetInboxEntry", {
+      description: "One inbox row joined with its ack state and its liveness against the current wave.",
+    })
+  )
 ) {}
 
 /**
@@ -269,19 +270,20 @@ export class YeetInboxEntry extends S.Class<YeetInboxEntry>($I`YeetInboxEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class YeetInboxView extends S.Class<YeetInboxView>($I`YeetInboxView`)(
-  {
+export class YeetInboxView extends S.Opaque<YeetInboxView, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(YEET_INBOX_VIEW_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_VIEW_SCHEMA_VERSION))
     ),
     entries: S.Array(YeetInboxEntry),
     skippedLines: S.Finite,
     unreadable: S.Boolean,
-  },
-  $I.annote("YeetInboxView", {
-    description:
-      "Every deduplicated inbox entry, the count of skipped lines, and whether the failures file was unreadable.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetInboxView", {
+      description:
+        "Every deduplicated inbox entry, the count of skipped lines, and whether the failures file was unreadable.",
+    })
+  )
 ) {}
 
 /**
@@ -425,16 +427,17 @@ export const loadYeetInboxView = Effect.fn("Yeet.loadYeetInboxView")(function* (
  * @category models
  * @since 0.0.0
  */
-export class YeetPrWave extends S.Class<YeetPrWave>($I`YeetPrWave`)(
-  {
+export class YeetPrWave extends S.Opaque<YeetPrWave, { readonly brand: unique symbol }>()(
+  S.Struct({
     prNumber: S.Finite,
     entries: S.NonEmptyArray(YeetInboxEntry),
     redSetKey: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetPrWave", {
-    description:
-      "The unacknowledged, not superseded wake-set inbox rows on one pull request that a job wait returns on, with the head's required red set.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrWave", {
+      description:
+        "The unacknowledged, not superseded wake-set inbox rows on one pull request that a job wait returns on, with the head's required red set.",
+    })
+  )
 ) {}
 
 // Content-only half of the wave rule: everything decidable from the row
@@ -750,8 +753,8 @@ const yeetHookSessionStateFirstSeenAtDefault = {};
  * @category models
  * @since 0.0.0
  */
-export class YeetHookSessionState extends S.Class<YeetHookSessionState>($I`YeetHookSessionState`)(
-  {
+export class YeetHookSessionState extends S.Opaque<YeetHookSessionState, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(YEET_HOOK_SESSION_SCHEMA_VERSION),
     seenIds: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(yeetHookSessionStateSeenIdsDefault)),
@@ -761,10 +764,11 @@ export class YeetHookSessionState extends S.Class<YeetHookSessionState>($I`YeetH
       S.withConstructorDefault(Effect.succeed(yeetHookSessionStateFirstSeenAtDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(yeetHookSessionStateFirstSeenAtDefault))
     ),
-  },
-  $I.annote("YeetHookSessionState", {
-    description: "One harness session's inbox-hook state: rows already handed to it and when each was first handed.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetHookSessionState", {
+      description: "One harness session's inbox-hook state: rows already handed to it and when each was first handed.",
+    })
+  )
 ) {}
 
 /**

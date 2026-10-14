@@ -54,8 +54,8 @@ const $I = $LawPracticeDomainId.create("values/NeutralCitation/NeutralCitation.m
  * @category models
  * @since 0.0.0
  */
-export class NeutralCitation extends S.Class<NeutralCitation>($I`NeutralCitation`)(
-  {
+export class NeutralCitation extends S.Opaque<NeutralCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("neutral"),
     year: S.Natural.annotateKey({
@@ -120,10 +120,11 @@ export class NeutralCitation extends S.Class<NeutralCitation>($I`NeutralCitation
         description: "Component spans locating the sub-parts of this neutral citation within the source text.",
       })
     ),
-  },
-  $I.annote("NeutralCitation", {
-    description: 'A vendor-neutral court citation (type: "neutral").',
-  })
+  }).pipe(
+    $I.annoteSchema("NeutralCitation", {
+      description: 'A vendor-neutral court citation (type: "neutral").',
+    })
+  )
 ) {}
 
 /**

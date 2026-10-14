@@ -725,9 +725,10 @@ const derivedStorageMigrations = [
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsDerivedStorageError extends S.TaggedError<AiMetricsDerivedStorageError>(
-  $I`AiMetricsDerivedStorageError`
-)(
+export class AiMetricsDerivedStorageError extends S.TaggedError<
+  AiMetricsDerivedStorageError,
+  { readonly brand: unique symbol }
+>($I`AiMetricsDerivedStorageError`)(
   "AiMetricsDerivedStorageError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -792,17 +793,19 @@ export class AiMetricsDerivedStorageError extends S.TaggedError<AiMetricsDerived
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsDerivedTranscriptRecord extends S.Class<AiMetricsDerivedTranscriptRecord>(
-  $I`AiMetricsDerivedTranscriptRecord`
-)(
-  {
+export class AiMetricsDerivedTranscriptRecord extends S.Opaque<
+  AiMetricsDerivedTranscriptRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archiveObject: AiMetricsRawArchiveObject,
     sessionHarnessHash: S.OptionFromOptionalKey(HarnessHash).pipe(S.withConstructorDefault(Effect.succeedNone)),
     privacy: AiMetricsPrivacyCheckResult,
-  },
-  $I.annote("AiMetricsDerivedTranscriptRecord", {
-    description: "Sanitized transcript projection plus encrypted raw archive metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsDerivedTranscriptRecord", {
+      description: "Sanitized transcript projection plus encrypted raw archive metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -843,10 +846,11 @@ export class AiMetricsDerivedTranscriptRecord extends S.Class<AiMetricsDerivedTr
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsDerivedStorageWriteInput extends S.Class<AiMetricsDerivedStorageWriteInput>(
-  $I`AiMetricsDerivedStorageWriteInput`
-)(
-  {
+export class AiMetricsDerivedStorageWriteInput extends S.Opaque<
+  AiMetricsDerivedStorageWriteInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     configSnapshot: ConfigSnapshot,
     ingestRunId: S.String,
     parquetExportMode: AiMetricsParquetExportMode.pipe(
@@ -858,10 +862,11 @@ export class AiMetricsDerivedStorageWriteInput extends S.Class<AiMetricsDerivedS
     startedAtEpochMillis: S.Natural,
     storage: AiMetricsStorageLayout,
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsDerivedStorageWriteInput", {
-    description: "DuckDB derived storage write request for one AI metrics forwarder run.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsDerivedStorageWriteInput", {
+      description: "DuckDB derived storage write request for one AI metrics forwarder run.",
+    })
+  )
 ) {}
 
 /**
@@ -887,10 +892,11 @@ export class AiMetricsDerivedStorageWriteInput extends S.Class<AiMetricsDerivedS
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsDerivedStorageWriteResult extends S.Class<AiMetricsDerivedStorageWriteResult>(
-  $I`AiMetricsDerivedStorageWriteResult`
-)(
-  {
+export class AiMetricsDerivedStorageWriteResult extends S.Opaque<
+  AiMetricsDerivedStorageWriteResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archiveObjectCount: S.Natural,
     duckDbPath: S.String,
     ingestRunId: S.String,
@@ -899,10 +905,11 @@ export class AiMetricsDerivedStorageWriteResult extends S.Class<AiMetricsDerived
     parquetTables: S.Array(AiMetricsDerivedTable),
     sourceFileCount: S.Natural,
     turnCount: S.Natural,
-  },
-  $I.annote("AiMetricsDerivedStorageWriteResult", {
-    description: "Safe counts and export paths produced by one DuckDB derived storage write.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsDerivedStorageWriteResult", {
+      description: "Safe counts and export paths produced by one DuckDB derived storage write.",
+    })
+  )
 ) {}
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));

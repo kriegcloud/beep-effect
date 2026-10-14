@@ -10,7 +10,7 @@ import * as O from "@beep/utils/Option";
 
 const $I = $ScratchpadId.create("effected/github/Attestation");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -44,7 +44,7 @@ const API_VERSION = "2026-03-10";
  * @category models
  * @since 0.0.0
  */
-export class AttestationRecord extends S.Class<AttestationRecord>($I`AttestationRecord`)({
+export class AttestationRecord extends S.Class<AttestationRecord, { readonly brand: unique symbol }>($I`AttestationRecord`)({
 	/**
 	 * GitHub's id for it, when the response carried one.
 	 *
@@ -78,7 +78,7 @@ export class AttestationRecord extends S.Class<AttestationRecord>($I`Attestation
  * @category models
  * @since 0.0.0
  */
-export class AttestationListEntry extends S.Class<AttestationListEntry>($I`AttestationListEntry`)({
+export class AttestationListEntry extends S.Class<AttestationListEntry, { readonly brand: unique symbol }>($I`AttestationListEntry`)({
 	/**
 	 * Where the bundle lives.
 	 *

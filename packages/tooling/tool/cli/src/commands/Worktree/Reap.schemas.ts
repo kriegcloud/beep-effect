@@ -120,8 +120,8 @@ export type WorktreeReapSkipReason = typeof WorktreeReapSkipReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class WorktreeReapCandidate extends S.Class<WorktreeReapCandidate>($I`WorktreeReapCandidate`)(
-  {
+export class WorktreeReapCandidate extends S.Opaque<WorktreeReapCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     branch: S.OptionFromNullOr(S.String),
     reapClass: WorktreeReapClass,
@@ -130,10 +130,11 @@ export class WorktreeReapCandidate extends S.Class<WorktreeReapCandidate>($I`Wor
     idleHours: S.OptionFromNullOr(S.Finite),
     bytes: S.OptionFromNullOr(S.Finite),
     retired: S.Boolean,
-  },
-  $I.annote("WorktreeReapCandidate", {
-    description: "One registered worktree with PR, cleanliness, idleness, size, and retirement evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeReapCandidate", {
+      description: "One registered worktree with PR, cleanliness, idleness, size, and retirement evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -162,8 +163,8 @@ export class WorktreeReapCandidate extends S.Class<WorktreeReapCandidate>($I`Wor
  * @category models
  * @since 0.0.0
  */
-export class WorktreeReapReport extends S.Class<WorktreeReapReport>($I`WorktreeReapReport`)(
-  {
+export class WorktreeReapReport extends S.Opaque<WorktreeReapReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("worktree-reap/v1"),
     scannedAt: S.String,
     mainCheckout: S.String,
@@ -175,8 +176,9 @@ export class WorktreeReapReport extends S.Class<WorktreeReapReport>($I`WorktreeR
     reclaimableBytes: S.Finite,
     reclaimedBytes: S.Finite,
     warnings: S.Array(S.String),
-  },
-  $I.annote("WorktreeReapReport", {
-    description: "Versioned report for one dry-run or applied registered-worktree janitor pass.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeReapReport", {
+      description: "Versioned report for one dry-run or applied registered-worktree janitor pass.",
+    })
+  )
 ) {}

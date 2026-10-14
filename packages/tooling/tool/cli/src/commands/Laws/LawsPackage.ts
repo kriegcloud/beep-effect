@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { FsUtils } from "@beep/repo-utils/FsUtils";
+import { FsUtils, GlobOptions } from "@beep/repo-utils/FsUtils";
 import { TSMorphService, TsMorphProjectInspectionRequest } from "@beep/repo-utils/TSMorph/index";
 import { normalizePath } from "@beep/schema";
 import * as A from "effect/Array";
@@ -77,18 +77,21 @@ export const scanLawsPackage = Effect.fn("LawsPackage.scan")(function* (scope: L
   const path = yield* Path.Path;
   const service = yield* TSMorphService;
   const files = A.sort(
-    yield* fsUtils.globFiles([`${scope.packageDir}/**/*.{ts,tsx}`], {
-      cwd: scope.repoRoot,
-      ignore: [
-        "**/node_modules/**",
-        "**/dist/**",
-        "**/build/**",
-        "**/.turbo/**",
-        "**/coverage/**",
-        "**/*.d.ts",
-        "**/*.d.tsx",
-      ],
-    }),
+    yield* fsUtils.globFiles(
+      [`${scope.packageDir}/**/*.{ts,tsx}`],
+      GlobOptions.make({
+        cwd: scope.repoRoot,
+        ignore: [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.turbo/**",
+          "**/coverage/**",
+          "**/*.d.ts",
+          "**/*.d.tsx",
+        ],
+      })
+    ),
     Order.String
   );
   if (A.isReadonlyArrayEmpty(files)) {

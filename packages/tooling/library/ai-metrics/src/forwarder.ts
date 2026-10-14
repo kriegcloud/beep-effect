@@ -48,7 +48,7 @@ import {
   hookPulseLedgerDir,
 } from "./hook-pulse.ts";
 import { AiMetricsIdentityRegistryUpsertInput, upsertAiMetricsIdentityRegistry } from "./identity-registry.ts";
-import { summarizeTranscriptText } from "./ingest.ts";
+import { AiMetricsTranscriptTextSummaryInput, summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
 import { fileSizeBytes, modifiedAtMillis } from "./internal/file-info.ts";
 import { collectJsonlFiles, statOption } from "./internal/jsonl-discovery.ts";
@@ -85,11 +85,17 @@ const AiMetricsForwarderTimerCommand = AiMetricsForwarderTimerCommandBase.pipe(
   })
 );
 
-class ProcessedForwarderSource extends S.Class<ProcessedForwarderSource>($I`ProcessedForwarderSource`)({
-  record: AiMetricsDerivedTranscriptRecord,
-  hookPathHash: Sha256Hex.pipe(S.toEncoded),
-  sessionIdentityHash: S.OptionFromOptionalKey(Sha256Hex.pipe(S.toEncoded)),
-}) {}
+class ProcessedForwarderSource extends S.Opaque<ProcessedForwarderSource, { readonly brand: unique symbol }>()(
+  S.Struct({
+    record: AiMetricsDerivedTranscriptRecord,
+    hookPathHash: Sha256Hex.pipe(S.toEncoded),
+    sessionIdentityHash: S.OptionFromOptionalKey(Sha256Hex.pipe(S.toEncoded)),
+  }).pipe(
+    $I.annoteSchema("ProcessedForwarderSource", {
+      description: "Processed transcript source and its optional qualified session-time stamp.",
+    })
+  )
+) {}
 
 const SessionIdentityRow = S.fromJsonString(
   S.Struct({
@@ -134,12 +140,18 @@ const readSessionIdentityHash = Effect.fnUntraced(function* (
   });
 });
 
-class SessionStampGap extends S.Class<SessionStampGap>($I`SessionStampGap`)({
-  start: S.OptionFromOptionalKey(S.Finite),
-  end: S.OptionFromOptionalKey(S.Finite),
-  client: S.OptionFromOptionalKey(HookPulseAgentKind),
-  eventLoss: S.Boolean,
-}) {}
+class SessionStampGap extends S.Opaque<SessionStampGap, { readonly brand: unique symbol }>()(
+  S.Struct({
+    start: S.OptionFromOptionalKey(S.Finite),
+    end: S.OptionFromOptionalKey(S.Finite),
+    client: S.OptionFromOptionalKey(HookPulseAgentKind),
+    eventLoss: S.Boolean,
+  }).pipe(
+    $I.annoteSchema("SessionStampGap", {
+      description: "Closed collection gap used to exclude uncertain forwarder session stamps.",
+    })
+  )
+) {}
 const timestampEpoch = flow(S.decodeOption(S.DateTimeUtcFromString), O.map(DateTime.toEpochMillis));
 const readOptionalEvidence = Effect.fnUntraced(function* (file: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -343,7 +355,9 @@ const collectSessionStamp = (index: SessionStampIndex, pulse: HookPulseV1): void
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsForwarderError extends S.TaggedError<AiMetricsForwarderError>($I`AiMetricsForwarderError`)(
+export class AiMetricsForwarderError extends S.TaggedError<AiMetricsForwarderError, { readonly brand: unique symbol }>(
+  $I`AiMetricsForwarderError`
+)(
   "AiMetricsForwarderError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -387,8 +401,8 @@ export class AiMetricsForwarderError extends S.TaggedError<AiMetricsForwarderErr
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsForwarderInput extends S.Class<AiMetricsForwarderInput>($I`AiMetricsForwarderInput`)(
-  {
+export class AiMetricsForwarderInput extends S.Opaque<AiMetricsForwarderInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     claudeProjectsRoot: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     codexSessionsRoot: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     dataRoot: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -417,10 +431,11 @@ export class AiMetricsForwarderInput extends S.Class<AiMetricsForwarderInput>($I
       S.withConstructorDefault(Effect.succeed(AiMetricsDeployTarget.Enum.local)),
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsDeployTarget.Enum.local))
     ),
-  },
-  $I.annote("AiMetricsForwarderInput", {
-    description: "Configurable roots, target, and archive key for one durable AI metrics forwarder run.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsForwarderInput", {
+      description: "Configurable roots, target, and archive key for one durable AI metrics forwarder run.",
+    })
+  )
 ) {}
 
 /**
@@ -453,10 +468,11 @@ export class AiMetricsForwarderInput extends S.Class<AiMetricsForwarderInput>($I
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsForwarderSourceCoverage extends S.Class<AiMetricsForwarderSourceCoverage>(
-  $I`AiMetricsForwarderSourceCoverage`
-)(
-  {
+export class AiMetricsForwarderSourceCoverage extends S.Opaque<
+  AiMetricsForwarderSourceCoverage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidateFileCount: S.Natural,
     includedFileCount: S.Natural,
     limitedByMaxFiles: S.Boolean,
@@ -465,10 +481,11 @@ export class AiMetricsForwarderSourceCoverage extends S.Class<AiMetricsForwarder
       S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     sourceKind: AiMetricsTranscriptSource,
-  },
-  $I.annote("AiMetricsForwarderSourceCoverage", {
-    description: "Source-aware file selection counts used to detect maxFiles and maxFileBytes starvation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsForwarderSourceCoverage", {
+      description: "Source-aware file selection counts used to detect maxFiles and maxFileBytes starvation.",
+    })
+  )
 ) {}
 
 /**
@@ -504,10 +521,11 @@ export class AiMetricsForwarderSourceCoverage extends S.Class<AiMetricsForwarder
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsForwarderOtlpExported extends S.Class<AiMetricsForwarderOtlpExported>(
-  $I`AiMetricsForwarderOtlpExported`
-)(
-  {
+export class AiMetricsForwarderOtlpExported extends S.Opaque<
+  AiMetricsForwarderOtlpExported,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     endpointTraceUrl: S.String,
     ingestRunId: S.String,
     sessionSpanCount: S.Natural,
@@ -515,10 +533,11 @@ export class AiMetricsForwarderOtlpExported extends S.Class<AiMetricsForwarderOt
     status: S.Literal("exported").pipe(S.withConstructorDefault(Effect.succeed("exported"))),
     target: AiMetricsDeployTarget,
     turnSpanCount: S.Natural,
-  },
-  $I.annote("AiMetricsForwarderOtlpExported", {
-    description: "Safe counts recorded when a forwarder run also exports derived AI metrics spans through OTLP.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsForwarderOtlpExported", {
+      description: "Safe counts recorded when a forwarder run also exports derived AI metrics spans through OTLP.",
+    })
+  )
 ) {}
 
 /**
@@ -557,19 +576,21 @@ export class AiMetricsForwarderOtlpExported extends S.Class<AiMetricsForwarderOt
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsForwarderOtlpExportFailed extends S.Class<AiMetricsForwarderOtlpExportFailed>(
-  $I`AiMetricsForwarderOtlpExportFailed`
-)(
-  {
+export class AiMetricsForwarderOtlpExportFailed extends S.Opaque<
+  AiMetricsForwarderOtlpExportFailed,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     endpointTraceUrl: S.String,
     ingestRunId: S.String,
     message: S.String,
     status: S.Literal("failed").pipe(S.withConstructorDefault(Effect.succeed("failed"))),
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsForwarderOtlpExportFailed", {
-    description: "Sanitized failure recorded when post-forwarder derived OTLP export does not complete.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsForwarderOtlpExportFailed", {
+      description: "Sanitized failure recorded when post-forwarder derived OTLP export does not complete.",
+    })
+  )
 ) {}
 
 /**
@@ -669,8 +690,11 @@ export type AiMetricsForwarderOtlpExport = typeof AiMetricsForwarderOtlpExport.T
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsForwarderRunResult extends S.Class<AiMetricsForwarderRunResult>($I`AiMetricsForwarderRunResult`)(
-  {
+export class AiMetricsForwarderRunResult extends S.Opaque<
+  AiMetricsForwarderRunResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archiveObjectCount: S.Natural,
     configSnapshotId: S.String,
     duckDbPath: S.String,
@@ -689,10 +713,11 @@ export class AiMetricsForwarderRunResult extends S.Class<AiMetricsForwarderRunRe
     sourceFileCount: S.Natural,
     target: AiMetricsDeployTarget,
     turnCount: S.Natural,
-  },
-  $I.annote("AiMetricsForwarderRunResult", {
-    description: "Safe counts and storage paths returned by one durable AI metrics forwarder run.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsForwarderRunResult", {
+      description: "Safe counts and storage paths returned by one durable AI metrics forwarder run.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsForwarderRunResult));
 }
@@ -733,10 +758,11 @@ export class AiMetricsForwarderRunResult extends S.Class<AiMetricsForwarderRunRe
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsForwarderTimerInput extends S.Class<AiMetricsForwarderTimerInput>(
-  $I`AiMetricsForwarderTimerInput`
-)(
-  {
+export class AiMetricsForwarderTimerInput extends S.Opaque<
+  AiMetricsForwarderTimerInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     command: AiMetricsForwarderTimerCommand,
     hashSaltSecretRef: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     intervalMinutes: S.Int.check(S.isGreaterThan(0)).pipe(
@@ -751,10 +777,11 @@ export class AiMetricsForwarderTimerInput extends S.Class<AiMetricsForwarderTime
     ),
     statusPath: S.String,
     workingDirectory: S.String,
-  },
-  $I.annote("AiMetricsForwarderTimerInput", {
-    description: "Workstation timer parameters for scheduled AI metrics forwarder collection.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsForwarderTimerInput", {
+      description: "Workstation timer parameters for scheduled AI metrics forwarder collection.",
+    })
+  )
 ) {}
 
 /**
@@ -795,8 +822,11 @@ export class AiMetricsForwarderTimerInput extends S.Class<AiMetricsForwarderTime
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsForwarderTimerPlan extends S.Class<AiMetricsForwarderTimerPlan>($I`AiMetricsForwarderTimerPlan`)(
-  {
+export class AiMetricsForwarderTimerPlan extends S.Opaque<
+  AiMetricsForwarderTimerPlan,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     installCommands: S.Array(S.String),
     lockPath: S.String,
     serviceUnit: S.String,
@@ -804,10 +834,11 @@ export class AiMetricsForwarderTimerPlan extends S.Class<AiMetricsForwarderTimer
     statusPath: S.String,
     timerUnit: S.String,
     timerUnitName: S.String,
-  },
-  $I.annote("AiMetricsForwarderTimerPlan", {
-    description: "Systemd user timer artifacts that own P6a live collection on the workstation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsForwarderTimerPlan", {
+      description: "Systemd user timer artifacts that own P6a live collection on the workstation.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsForwarderTimerPlan));
 }
@@ -1179,12 +1210,14 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
         })
       )
     );
-    const summary = yield* summarizeTranscriptText({
-      content,
-      hashSalt: input.hashSalt,
-      sourceKind: sourceFile.sourceKind,
-      sourcePath: sourceFile.sourcePath,
-    }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to summarize AI metrics source file.", cause)));
+    const summary = yield* summarizeTranscriptText(
+      AiMetricsTranscriptTextSummaryInput.make({
+        content,
+        hashSalt: input.hashSalt,
+        sourceKind: sourceFile.sourceKind,
+        sourcePath: sourceFile.sourcePath,
+      })
+    ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to summarize AI metrics source file.", cause)));
     const archiveObject = yield* writeEncryptedRawArchiveObject({
       content,
       hashSalt: input.hashSalt,

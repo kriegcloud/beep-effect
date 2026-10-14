@@ -13,10 +13,10 @@ vi.mock("@beep/repo-cli/commands/Codex/Findings.triage.schemas", (importOriginal
     import("effect/Effect"),
     import("effect/Schema"),
   ]).then(([schemas, EffectModule, SchemaModule]) => {
-    class ForcedTriageLedgerEncodeFailure extends SchemaModule.TaggedError<ForcedTriageLedgerEncodeFailure>()(
-      "ForcedTriageLedgerEncodeFailure",
-      { message: SchemaModule.String }
-    ) {}
+    class ForcedTriageLedgerEncodeFailure extends SchemaModule.TaggedError<
+      ForcedTriageLedgerEncodeFailure,
+      { readonly brand: unique symbol }
+    >()("ForcedTriageLedgerEncodeFailure", { message: SchemaModule.String }) {}
     return {
       ...schemas,
       encodeCodexTriageLedger: () =>

@@ -1,5 +1,11 @@
 import { renderTruncatedLines } from "@beep/repo-cli/test/Artifacts";
-import { diffMembership, diffTotals, enforceRatchet, RatchetTotalsDiff } from "@beep/repo-cli/test/Ratchet";
+import {
+  DiffTotalsInput,
+  diffMembership,
+  diffTotals,
+  enforceRatchet,
+  RatchetTotalsDiff,
+} from "@beep/repo-cli/test/Ratchet";
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
@@ -13,7 +19,10 @@ import * as TestConsole from "effect/testing/TestConsole";
 
 const stringEquivalence = (left: string, right: string): boolean => left === right;
 
-class RatchetTestError extends S.TaggedError<RatchetTestError>()("RatchetTestError", { message: S.String }) {}
+class RatchetTestError extends S.TaggedError<RatchetTestError, { readonly brand: unique symbol }>()(
+  "RatchetTestError",
+  { message: S.String }
+) {}
 
 describe("internal/ratchet/RatchetDiff diffMembership", () => {
   it("classifies introduced and resolved findings against the baseline", () => {
@@ -57,10 +66,12 @@ describe("internal/ratchet/RatchetDiff diffMembership", () => {
 
 describe("internal/ratchet/RatchetDiff diffTotals", () => {
   it("classifies increased, decreased, and missing metrics", () => {
-    const diff = diffTotals({
-      current: { grew: 5, shrank: 1, steady: 3 },
-      baseline: { grew: 2, shrank: 4, steady: 3, gone: 7 },
-    });
+    const diff = diffTotals(
+      DiffTotalsInput.make({
+        current: { grew: 5, shrank: 1, steady: 3 },
+        baseline: { grew: 2, shrank: 4, steady: 3, gone: 7 },
+      })
+    );
 
     expect(A.map(diff.increased, (delta) => delta.metric)).toEqual(["grew"]);
     expect(diff.increased[0]?.delta).toBe(3);
@@ -72,10 +83,12 @@ describe("internal/ratchet/RatchetDiff diffTotals", () => {
   });
 
   it("treats an explicit zero baseline metric as growth when the current metric increases", () => {
-    const diff = diffTotals({
-      current: { fresh: 4 },
-      baseline: { fresh: 0 },
-    });
+    const diff = diffTotals(
+      DiffTotalsInput.make({
+        current: { fresh: 4 },
+        baseline: { fresh: 0 },
+      })
+    );
 
     expect(A.map(diff.increased, (delta) => [delta.metric, delta.baseline, delta.current, delta.delta])).toEqual([
       ["fresh", 0, 4, 4],
@@ -83,10 +96,12 @@ describe("internal/ratchet/RatchetDiff diffTotals", () => {
   });
 
   it("counts an untracked current metric without producing tracked deltas or missing metrics", () => {
-    const diff = diffTotals({
-      current: { fresh: 4 },
-      baseline: {},
-    });
+    const diff = diffTotals(
+      DiffTotalsInput.make({
+        current: { fresh: 4 },
+        baseline: {},
+      })
+    );
 
     expect(diff.currentTotalCount).toBe(1);
     expect(diff.baselineTotalCount).toBe(0);
@@ -96,10 +111,12 @@ describe("internal/ratchet/RatchetDiff diffTotals", () => {
   });
 
   it("enforces tracked growth, decreases, and missing metrics alongside untracked current totals", () => {
-    const diff = diffTotals({
-      current: { grew: 5, shrank: 1, untracked: 1000 },
-      baseline: { grew: 2, shrank: 4, gone: 7 },
-    });
+    const diff = diffTotals(
+      DiffTotalsInput.make({
+        current: { grew: 5, shrank: 1, untracked: 1000 },
+        baseline: { grew: 2, shrank: 4, gone: 7 },
+      })
+    );
 
     expect(A.map(diff.increased, (delta) => [delta.metric, delta.baseline, delta.current, delta.delta])).toEqual([
       ["grew", 2, 5, 3],
@@ -113,8 +130,8 @@ describe("internal/ratchet/RatchetDiff diffTotals", () => {
   });
 
   it("is a decodable schema value", () => {
-    const diff = diffTotals({ current: {}, baseline: {} });
-    expect(diff).toBeInstanceOf(RatchetTotalsDiff);
+    const diff = diffTotals(DiffTotalsInput.make({ current: {}, baseline: {} }));
+    expect(S.is(RatchetTotalsDiff)(diff)).toBe(true);
     expect(diff.increased).toEqual([]);
     expect(diff.missing).toEqual([]);
   });

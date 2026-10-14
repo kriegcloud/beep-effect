@@ -19,7 +19,7 @@ import * as S from "effect/Schema";
 const $I = $ScratchpadId.create("effected/yaml/YamlEdit");
 
 /** A defect raised when a YAML helper invariant is violated. */
-class YamlEditFailure extends S.TaggedError<YamlEditFailure>($I`YamlEditFailure`)(
+class YamlEditFailure extends S.TaggedError<YamlEditFailure, { readonly brand: unique symbol }>($I`YamlEditFailure`)(
 	"YamlEditFailure",
 	{
 		message: S.String.annotateKey({ description: "The overlapping edit ranges that prevent applying the YAML edits." }),
@@ -67,7 +67,7 @@ export type YamlPath = ReadonlyArray<YamlSegment>;
  * @category models
  * @since 0.0.0
  */
-export class YamlRange extends S.Class<YamlRange>($I`YamlRange`)({
+export class YamlRange extends S.Class<YamlRange, { readonly brand: unique symbol }>($I`YamlRange`)({
 	offset: S.Finite.annotateKey({ description: "Zero-based start of the source region to format, measured in UTF-16 code units" }),
 	length: S.Finite.annotateKey({ description: "Extent of the source region to format, measured in UTF-16 code units" }),
 }, $I.annote("YamlRange", { description: "A range within a YAML document, expressed as a zero-based character `offset` and a `length` in UTF-16 code units. Pass to `YamlFormat.format` to restrict formatting to a region." })) {}
@@ -96,7 +96,7 @@ export class YamlRange extends S.Class<YamlRange>($I`YamlRange`)({
  * @category models
  * @since 0.0.0
  */
-export class YamlEdit extends S.Class<YamlEdit>($I`YamlEdit`)({
+export class YamlEdit extends S.Class<YamlEdit, { readonly brand: unique symbol }>($I`YamlEdit`)({
 	offset: S.Finite.annotateKey({ description: "Zero-based start of the replacement span in the original source, measured in UTF-16 code units" }),
 	length: S.Finite.annotateKey({ description: "Number of source UTF-16 code units to replace; `0` inserts without removing text" }),
 	content: S.String.annotateKey({ description: "Replacement text for the selected source span; an empty string deletes the span" }),

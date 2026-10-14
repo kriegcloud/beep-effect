@@ -78,7 +78,7 @@ describe("rule registry", () => {
   it.effect(
     "preserves the encoded rule registry wire shape",
     Effect.fnUntraced(function* () {
-      expect(yield* encodeRuleRegistry(RULES)).toEqual({
+      expect(yield* encodeRuleRegistry(RuleRegistrySchema.make(RULES))).toEqual({
         "no-native-error": {
           name: "no-native-error",
           severity: "error",

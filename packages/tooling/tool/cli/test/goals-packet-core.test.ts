@@ -3,6 +3,7 @@ import {
   canonicalJsonTextPretty,
   foldPacketEvents,
   PACKET_EVENT_UPCASTERS,
+  PacketCreatedBody,
   PacketDerivedState,
   PacketEvent,
   PacketEventStore,
@@ -16,8 +17,11 @@ import {
   parsePacketEventFileName,
   planForkRepair,
   projectPacketTrace,
+  RiskTierOverriddenBody,
   renderPacketEventFile,
   renderPacketTraceFile,
+  StageEnteredBody,
+  StatusSetBody,
   StoredPacketEvent,
   upcastPacketEventJson,
 } from "@beep/repo-cli/test/Goals";
@@ -187,11 +191,17 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
         Effect.gen(function* () {
           const events = yield* chainEvents("demo", [
             {
-              body: { type: "packet-created", status: "active", stage: "capture", ordinal: 0 },
+              body: PacketCreatedBody.make({ type: "packet-created", status: "active", stage: "capture", ordinal: 0 }),
               at: "2026-08-17T00:00:00.000Z",
             },
-            { body: { type: "stage-entered", stage: "decompose", ordinal: 4 }, at: "2026-08-17T00:01:00.000Z" },
-            { body: { type: "stage-entered", stage: "align", ordinal: 2 }, at: "2026-08-17T00:02:00.000Z" },
+            {
+              body: StageEnteredBody.make({ type: "stage-entered", stage: "decompose", ordinal: 4 }),
+              at: "2026-08-17T00:01:00.000Z",
+            },
+            {
+              body: StageEnteredBody.make({ type: "stage-entered", stage: "align", ordinal: 2 }),
+              at: "2026-08-17T00:02:00.000Z",
+            },
           ]);
           const derived = foldPacketEvents({ packet: "demo", root: "goals", events });
           expect(derived.revision).toBe(3);
@@ -208,13 +218,25 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       () =>
         Effect.gen(function* () {
           const events = yield* chainEvents("demo", [
-            { body: { type: "packet-created", status: "active" }, at: "2026-08-17T00:00:00.000Z" },
             {
-              body: { type: "risk-tier-overridden", tier: "standard", reason: "initial routing" },
+              body: PacketCreatedBody.make({ type: "packet-created", status: "active" }),
+              at: "2026-08-17T00:00:00.000Z",
+            },
+            {
+              body: RiskTierOverriddenBody.make({
+                type: "risk-tier-overridden",
+                tier: "standard",
+                reason: "initial routing",
+              }),
               at: "2026-08-17T00:01:00.000Z",
             },
             {
-              body: { type: "risk-tier-overridden", tier: "full", previous: "standard", reason: "scope grew" },
+              body: RiskTierOverriddenBody.make({
+                type: "risk-tier-overridden",
+                tier: "full",
+                previous: "standard",
+                reason: "scope grew",
+              }),
               at: "2026-08-17T00:02:00.000Z",
             },
           ]);
@@ -232,13 +254,25 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       () =>
         Effect.gen(function* () {
           const events = yield* chainEvents("demo", [
-            { body: { type: "packet-created", status: "active" }, at: "2026-08-17T00:00:00.000Z" },
             {
-              body: { type: "risk-tier-overridden", tier: "standard", reason: "initial routing" },
+              body: PacketCreatedBody.make({ type: "packet-created", status: "active" }),
+              at: "2026-08-17T00:00:00.000Z",
+            },
+            {
+              body: RiskTierOverriddenBody.make({
+                type: "risk-tier-overridden",
+                tier: "standard",
+                reason: "initial routing",
+              }),
               at: "2026-08-17T00:01:00.000Z",
             },
             {
-              body: { type: "risk-tier-overridden", tier: "full", previous: "standard", reason: "post-fork claim" },
+              body: RiskTierOverriddenBody.make({
+                type: "risk-tier-overridden",
+                tier: "full",
+                previous: "standard",
+                reason: "post-fork claim",
+              }),
               at: "2026-08-17T00:02:00.000Z",
             },
           ]);
@@ -280,8 +314,14 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       () =>
         Effect.gen(function* () {
           const events = yield* chainEvents("demo", [
-            { body: { type: "packet-created", status: "active" }, at: "2026-08-17T00:00:00.000Z" },
-            { body: { type: "stage-entered", stage: "align", ordinal: 2 }, at: "2026-08-17T00:01:00.000Z" },
+            {
+              body: PacketCreatedBody.make({ type: "packet-created", status: "active" }),
+              at: "2026-08-17T00:00:00.000Z",
+            },
+            {
+              body: StageEnteredBody.make({ type: "stage-entered", stage: "align", ordinal: 2 }),
+              at: "2026-08-17T00:01:00.000Z",
+            },
           ]);
           const parentId = storedIdAt(events, 0);
           const sibling = PacketEvent.make({
@@ -321,7 +361,10 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       () =>
         Effect.gen(function* () {
           const events = yield* chainEvents("demo", [
-            { body: { type: "packet-created", status: "active" }, at: "2026-08-17T00:00:00.000Z" },
+            {
+              body: PacketCreatedBody.make({ type: "packet-created", status: "active" }),
+              at: "2026-08-17T00:00:00.000Z",
+            },
           ]);
           // A second parentless root: the fork's parent key falls back to the genesis sentinel.
           const rival = PacketEvent.make({
@@ -565,7 +608,10 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       () =>
         Effect.gen(function* () {
           const events = yield* chainEvents("demo", [
-            { body: { type: "packet-created", status: "active" }, at: "2026-08-17T00:00:00.000Z" },
+            {
+              body: PacketCreatedBody.make({ type: "packet-created", status: "active" }),
+              at: "2026-08-17T00:00:00.000Z",
+            },
           ]);
           const plan = yield* planForkRepair({ packet: "demo", root: "goals", events });
           plan.pipe(assertNone);
@@ -696,35 +742,61 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       () =>
         Effect.gen(function* () {
           const base = yield* chainEvents("demo", [
-            { body: { type: "packet-created", status: "active" }, at: "2026-08-17T00:00:00.000Z" },
-            { body: { type: "stage-entered", stage: "align", ordinal: 2 }, at: "2026-08-17T00:01:00.000Z" },
+            {
+              body: PacketCreatedBody.make({ type: "packet-created", status: "active" }),
+              at: "2026-08-17T00:00:00.000Z",
+            },
+            {
+              body: StageEnteredBody.make({ type: "stage-entered", stage: "align", ordinal: 2 }),
+              at: "2026-08-17T00:01:00.000Z",
+            },
           ]);
           const parentId = storedIdAt(base, 1);
           // Outer fork: two seq-3 children of the seq-2 event.
-          const outerA = yield* siblingOf(parentId, 3, "2026-08-17T00:02:00.000Z", {
-            type: "status-set",
-            status: "paused",
-            previous: "active",
-          });
-          const outerB = yield* siblingOf(parentId, 3, "2026-08-17T00:02:30.000Z", {
-            type: "status-set",
-            status: "reference",
-            previous: "active",
-          });
+          const outerA = yield* siblingOf(
+            parentId,
+            3,
+            "2026-08-17T00:02:00.000Z",
+            StatusSetBody.make({
+              type: "status-set",
+              status: "paused",
+              previous: "active",
+            })
+          );
+          const outerB = yield* siblingOf(
+            parentId,
+            3,
+            "2026-08-17T00:02:30.000Z",
+            StatusSetBody.make({
+              type: "status-set",
+              status: "reference",
+              previous: "active",
+            })
+          );
           // Nested forks: two seq-4 children under EACH seq-3 branch, so the
           // surviving path always ends at a nested fork.
           let all = A.appendAll(base, [outerA, outerB]);
           for (const branch of [outerA, outerB]) {
-            const childA = yield* siblingOf(branch.id, 4, "2026-08-17T00:03:00.000Z", {
-              type: "status-set",
-              status: "active",
-              previous: "paused",
-            });
-            const childB = yield* siblingOf(branch.id, 4, "2026-08-17T00:03:30.000Z", {
-              type: "status-set",
-              status: "paused",
-              previous: "active",
-            });
+            const childA = yield* siblingOf(
+              branch.id,
+              4,
+              "2026-08-17T00:03:00.000Z",
+              StatusSetBody.make({
+                type: "status-set",
+                status: "active",
+                previous: "paused",
+              })
+            );
+            const childB = yield* siblingOf(
+              branch.id,
+              4,
+              "2026-08-17T00:03:30.000Z",
+              StatusSetBody.make({
+                type: "status-set",
+                status: "paused",
+                previous: "active",
+              })
+            );
             all = A.appendAll(all, [childA, childB]);
           }
           const before = foldPacketEvents({ packet: "demo", root: "goals", events: all });
@@ -938,7 +1010,10 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       () =>
         Effect.gen(function* () {
           const events = yield* chainEvents("demo", [
-            { body: { type: "packet-created", status: "active" }, at: "2026-08-17T00:00:00.000Z" },
+            {
+              body: PacketCreatedBody.make({ type: "packet-created", status: "active" }),
+              at: "2026-08-17T00:00:00.000Z",
+            },
           ]);
           const derived = foldPacketEvents({ packet: "demo", root: "goals", events });
           const fresh = projectPacketTrace(derived, events);

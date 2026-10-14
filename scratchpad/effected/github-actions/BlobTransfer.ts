@@ -20,7 +20,7 @@ const $I = $ScratchpadId.create("effected/github-actions/BlobTransfer");
  * @category errors
  * @since 0.0.0
  */
-export class BlobTransferError extends S.TaggedError<BlobTransferError>($I`BlobTransferError`)("BlobTransferError", {
+export class BlobTransferError extends S.TaggedError<BlobTransferError, { readonly brand: unique symbol }>($I`BlobTransferError`)("BlobTransferError", {
 	/** Which direction failed. */
 	reason: S.Literals(["uploadFailed", "downloadFailed"]).annotateKey({ description: "Which direction failed." }),
 	/** The underlying failure, preserved structurally. */

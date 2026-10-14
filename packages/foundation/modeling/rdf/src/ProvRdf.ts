@@ -98,7 +98,9 @@ const defaultGraph = DefaultGraph.make({ termType: "DefaultGraph", value: "" });
  * @category errors
  * @since 0.0.0
  */
-export class ProvRdfCodecError extends S.TaggedError<ProvRdfCodecError>($I`ProvRdfCodecError`)(
+export class ProvRdfCodecError extends S.TaggedError<ProvRdfCodecError, { readonly brand: unique symbol }>(
+  $I`ProvRdfCodecError`
+)(
   "ProvRdfCodecError",
   { message: S.String },
   $I.annoteError<ProvRdfCodecError>("ProvRdfCodecError", {
@@ -125,13 +127,14 @@ export class ProvRdfCodecError extends S.TaggedError<ProvRdfCodecError>($I`ProvR
  * @category configuration
  * @since 0.0.0
  */
-export class ProvRdfCodecOptions extends S.Class<ProvRdfCodecOptions>($I`ProvRdfCodecOptions`)(
-  {
+export class ProvRdfCodecOptions extends S.Opaque<ProvRdfCodecOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     graph: S.OptionFromOptionalKey(NamedNode).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProvRdfCodecOptions", {
-    description: "Selects the RDF graph that owns the projected provenance quads.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProvRdfCodecOptions", {
+      description: "Selects the RDF graph that owns the projected provenance quads.",
+    })
+  )
 ) {}
 
 const defaultOptions = ProvRdfCodecOptions.make({});

@@ -44,7 +44,7 @@ const $I = $ScratchpadId.create("effected/spdx/LicenseException");
  * @category models
  * @since 0.0.0
  */
-export class LicenseException extends S.Class<LicenseException>($I`LicenseException`)({
+export class LicenseException extends S.Class<LicenseException, { readonly brand: unique symbol }>($I`LicenseException`)({
 	/**
 	 * The SPDX exception short identifier (e.g. `"Classpath-exception-2.0"`).
 	 *

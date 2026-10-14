@@ -77,15 +77,16 @@ export type PatentCitationActor = typeof PatentCitationActor.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExaminerObservedDiscovery extends S.Class<ExaminerObservedDiscovery>($I`ExaminerObservedDiscovery`)(
-  {
+export class ExaminerObservedDiscovery extends S.Opaque<ExaminerObservedDiscovery, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("ExaminerObserved").annotateKey({
       description: "Discovery discriminator for an occurrence read from an examiner-authored record.",
     }),
-  },
-  $I.annote("ExaminerObservedDiscovery", {
-    description: "Occurrence observed directly in an examiner-authored prosecution record.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExaminerObservedDiscovery", {
+      description: "Occurrence observed directly in an examiner-authored prosecution record.",
+    })
+  )
 ) {}
 
 /**
@@ -103,18 +104,19 @@ export class ExaminerObservedDiscovery extends S.Class<ExaminerObservedDiscovery
  * @category models
  * @since 0.0.0
  */
-export class DiscoveryModel extends S.Class<DiscoveryModel>($I`DiscoveryModel`)(
-  {
+export class DiscoveryModel extends S.Opaque<DiscoveryModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({
       description: "Stable model implementation name credited with the discovery.",
     }),
     version: S.NonEmptyString.annotateKey({
       description: "Pinned model implementation version credited with the discovery.",
     }),
-  },
-  $I.annote("DiscoveryModel", {
-    description: "Named and versioned model implementation credited with discovering an occurrence.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiscoveryModel", {
+      description: "Named and versioned model implementation credited with discovering an occurrence.",
+    })
+  )
 ) {}
 
 /**
@@ -142,18 +144,19 @@ export class DiscoveryModel extends S.Class<DiscoveryModel>($I`DiscoveryModel`)(
  * @category models
  * @since 0.0.0
  */
-export class AiDiscovery extends S.Class<AiDiscovery>($I`AiDiscovery`)(
-  {
+export class AiDiscovery extends S.Opaque<AiDiscovery, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("AiDiscovered").annotateKey({
       description: "Discovery discriminator for an occurrence surfaced by a model.",
     }),
     model: DiscoveryModel.annotateKey({
       description: "Named and versioned model credited with surfacing the occurrence.",
     }),
-  },
-  $I.annote("AiDiscovery", {
-    description: "Occurrence surfaced by a named and versioned model rather than read from an examiner record.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiDiscovery", {
+      description: "Occurrence surfaced by a named and versioned model rather than read from an examiner record.",
+    })
+  )
 ) {}
 
 /**
@@ -269,16 +272,17 @@ export type PatentCitationQuarantineReason = typeof PatentCitationQuarantineReas
  * @category models
  * @since 0.0.0
  */
-export class PatentCitationQuarantine extends S.Class<PatentCitationQuarantine>($I`PatentCitationQuarantine`)(
-  {
+export class PatentCitationQuarantine extends S.Opaque<PatentCitationQuarantine, { readonly brand: unique symbol }>()(
+  S.Struct({
     rawDetail: S.NonEmptyString.annotateKey({
       description: "Raw, unnormalized detail preserved verbatim from the producer that quarantined the observation.",
     }),
     reason: PatentCitationQuarantineReason.annotateKey({
       description: "Machine-readable quarantine reason.",
     }),
-  },
-  $I.annote("PatentCitationQuarantine", {
-    description: "Explicit quarantine marker recording why an observation cannot be trusted as recorded.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentCitationQuarantine", {
+      description: "Explicit quarantine marker recording why an observation cannot be trusted as recorded.",
+    })
+  )
 ) {}

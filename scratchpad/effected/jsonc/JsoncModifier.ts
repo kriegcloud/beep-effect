@@ -48,7 +48,7 @@ const $I = $ScratchpadId.create("effected/jsonc/JsoncModifier");
  * @category errors
  * @since 0.0.0
  */
-export class JsoncModificationError extends S.TaggedError<JsoncModificationError>($I.make("JsoncModificationError"))(
+export class JsoncModificationError extends S.TaggedError<JsoncModificationError, { readonly brand: unique symbol }>($I.make("JsoncModificationError"))(
   "JsoncModificationError",
   {
     path: S.Array(S.Union([S.String, S.Finite])),

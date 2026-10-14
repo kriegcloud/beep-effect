@@ -89,11 +89,12 @@ describe("composer ontology entrypoints", () => {
     });
 
     it("resolves through schema annotations on an S.Class", () => {
-      class Claim extends S.Class<Claim>($I`Claim`)(
-        {
+      class Claim extends S.Opaque<Claim, { readonly brand: unique symbol }>()(
+        S.Struct({
           text: S.String,
-        },
-        $I.class("Claim", { description: "A patent claim.", skos: "concept" })
+        })
+          .annotate({ identifier: $I`Claim` })
+          .annotate($I.class("Claim", { description: "A patent claim.", skos: "concept" }))
       ) {}
 
       const annotations = S.resolveAnnotations(Claim);

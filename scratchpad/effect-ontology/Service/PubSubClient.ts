@@ -64,15 +64,12 @@ const encodeUnknownDeadLetterMessageJson = S.encodeUnknownEffect(S.fromJsonStrin
  * @category models
  * @since 0.0.0
  */
-export class PublishResult extends S.Class<PublishResult>($I`PublishResult`)(
-  {
+export class PublishResult extends S.Opaque<PublishResult, { readonly brand: unique symbol }>()(S.Struct({
     messageId: S.NonEmptyString,
     topicName: S.NonEmptyString,
-  },
-  $I.annote("PublishResult", {
+  }).pipe($I.annoteSchema("PublishResult", {
     description: "Cloud Pub/Sub acknowledgement identifying the published message and topic.",
-  })
-) {}
+  }))) {}
 
 /**
  * Received message handle from a subscription.

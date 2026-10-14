@@ -47,8 +47,8 @@ const $I = $RepoCliId.create("commands/DeletePackage/schemas");
  * @category models
  * @since 0.0.0
  */
-export class DeletePackagePolicy extends S.Class<DeletePackagePolicy>($I`DeletePackagePolicy`)(
-  {
+export class DeletePackagePolicy extends S.Opaque<DeletePackagePolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     allowPublished: S.Boolean,
     allowStalePackets: S.Boolean,
     cascade: S.Boolean,
@@ -66,10 +66,11 @@ export class DeletePackagePolicy extends S.Class<DeletePackagePolicy>($I`DeleteP
     dataResourceDeclared: S.Boolean,
     dataConnectionNonLocal: S.Boolean,
     dataOwnershipProven: S.Boolean,
-  },
-  $I.annote("DeletePackagePolicy", {
-    description: "Decoded delete-package flags and preflight facts consumed by refusal policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeletePackagePolicy", {
+      description: "Decoded delete-package flags and preflight facts consumed by refusal policy.",
+    })
+  )
 ) {}
 
 /**
@@ -112,26 +113,28 @@ export const DeletePackageRefusalKind = LiteralKit([
  */
 export type DeletePackageRefusalKind = typeof DeletePackageRefusalKind.Type;
 
-class HardDeletePackageRefusal extends S.Class<HardDeletePackageRefusal>($I`HardDeletePackageRefusal`)(
-  {
+class HardDeletePackageRefusal extends S.Opaque<HardDeletePackageRefusal, { readonly brand: unique symbol }>()(
+  S.Struct({
     severity: S.tag("hard"),
     kind: DeletePackageRefusalKind,
     detail: S.NonEmptyString,
-  },
-  $I.annote("HardDeletePackageRefusal", {
-    description: "A deletion refusal that no force flag can bypass.",
-  })
+  }).pipe(
+    $I.annoteSchema("HardDeletePackageRefusal", {
+      description: "A deletion refusal that no force flag can bypass.",
+    })
+  )
 ) {}
 
-class SoftDeletePackageRefusal extends S.Class<SoftDeletePackageRefusal>($I`SoftDeletePackageRefusal`)(
-  {
+class SoftDeletePackageRefusal extends S.Opaque<SoftDeletePackageRefusal, { readonly brand: unique symbol }>()(
+  S.Struct({
     severity: S.tag("soft"),
     kind: DeletePackageRefusalKind,
     detail: S.NonEmptyString,
-  },
-  $I.annote("SoftDeletePackageRefusal", {
-    description: "A deletion refusal cleared only by its dedicated explicit policy flag.",
-  })
+  }).pipe(
+    $I.annoteSchema("SoftDeletePackageRefusal", {
+      description: "A deletion refusal cleared only by its dedicated explicit policy flag.",
+    })
+  )
 ) {}
 
 /**
@@ -184,15 +187,16 @@ export type DeletePackageRefusal = typeof DeletePackageRefusal.Type;
  * @category models
  * @since 0.0.0
  */
-export class DeletePackageManifest extends S.Class<DeletePackageManifest>($I`DeletePackageManifest`)(
-  {
+export class DeletePackageManifest extends S.Opaque<DeletePackageManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     private: S.Boolean.pipe(S.optionalKey),
     version: S.String.pipe(S.optionalKey),
-  },
-  $I.annote("DeletePackageManifest", {
-    description: "Minimal package manifest fields required by deletion preflight.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeletePackageManifest", {
+      description: "Minimal package manifest fields required by deletion preflight.",
+    })
+  )
 ) {}
 
 /**
@@ -279,14 +283,15 @@ export type BaselineStepOutcome = typeof BaselineStepOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class BaselineOutputStamp extends S.Class<BaselineOutputStamp>($I`BaselineOutputStamp`)(
-  {
+export class BaselineOutputStamp extends S.Opaque<BaselineOutputStamp, { readonly brand: unique symbol }>()(
+  S.Struct({
     mtimeMillis: S.Finite,
     size: S.Finite,
-  },
-  $I.annote("BaselineOutputStamp", {
-    description: "(mtime, size) stamp of a baseline output file proving a write happened.",
-  })
+  }).pipe(
+    $I.annoteSchema("BaselineOutputStamp", {
+      description: "(mtime, size) stamp of a baseline output file proving a write happened.",
+    })
+  )
 ) {}
 
 /**
@@ -311,16 +316,17 @@ export class BaselineOutputStamp extends S.Class<BaselineOutputStamp>($I`Baselin
  * @category models
  * @since 0.0.0
  */
-export class BaselineWriterStep extends S.Class<BaselineWriterStep>($I`BaselineWriterStep`)(
-  {
+export class BaselineWriterStep extends S.Opaque<BaselineWriterStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.NonEmptyString,
     args: S.Array(S.NonEmptyString),
     exitPolicy: BaselineWriterExitPolicy.pipe(
       S.withConstructorDefault(Effect.succeed<BaselineWriterExitPolicy>("zero-only"))
     ),
     verifiedOutput: S.OptionFromOptionalKey(PosixPath).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BaselineWriterStep", {
-    description: "One delete-package baseline writer step with exit policy and optional verified output file.",
-  })
+  }).pipe(
+    $I.annoteSchema("BaselineWriterStep", {
+      description: "One delete-package baseline writer step with exit policy and optional verified output file.",
+    })
+  )
 ) {}

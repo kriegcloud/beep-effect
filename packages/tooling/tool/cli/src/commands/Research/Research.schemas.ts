@@ -160,8 +160,8 @@ export type CardVia = typeof CardVia.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeCardFrontmatter extends S.Class<KnowledgeCardFrontmatter>($I`KnowledgeCardFrontmatter`)(
-  {
+export class KnowledgeCardFrontmatter extends S.Opaque<KnowledgeCardFrontmatter, { readonly brand: unique symbol }>()(
+  S.Struct({
     capturedAt: S.String,
     cognifiedAt: S.optionalKey(S.String),
     contentHash: S.optionalKey(S.String),
@@ -173,11 +173,12 @@ export class KnowledgeCardFrontmatter extends S.Class<KnowledgeCardFrontmatter>(
     title: S.NonEmptyString,
     url: S.optionalKey(S.String),
     via: CardVia,
-  },
-  $I.annote("KnowledgeCardFrontmatter", {
-    title: "Knowledge Card Frontmatter",
-    description: "Structured YAML frontmatter carried by every markdown knowledge card in the research vault.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeCardFrontmatter", {
+      title: "Knowledge Card Frontmatter",
+      description: "Structured YAML frontmatter carried by every markdown knowledge card in the research vault.",
+    })
+  )
 ) {}
 
 /**
@@ -240,15 +241,19 @@ export type BrowserKind = typeof BrowserKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class ResearchHistorySiftOptions extends S.Class<ResearchHistorySiftOptions>($I`ResearchHistorySiftOptions`)(
-  {
+export class ResearchHistorySiftOptions extends S.Opaque<
+  ResearchHistorySiftOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     browser: BrowserKind,
     sinceDays: S.Natural,
     vaultRoot: S.String,
-  },
-  $I.annote("ResearchHistorySiftOptions", {
-    description: "Validated options used by research history-sift.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchHistorySiftOptions", {
+      description: "Validated options used by research history-sift.",
+    })
+  )
 ) {}
 
 /**
@@ -273,17 +278,21 @@ export class ResearchHistorySiftOptions extends S.Class<ResearchHistorySiftOptio
  * @category models
  * @since 0.0.0
  */
-export class ResearchHistorySiftSummary extends S.Class<ResearchHistorySiftSummary>($I`ResearchHistorySiftSummary`)(
-  {
+export class ResearchHistorySiftSummary extends S.Opaque<
+  ResearchHistorySiftSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     profilesScanned: S.Natural,
     skippedFiltered: S.Natural,
     skippedSeen: S.Natural,
     stubsWritten: S.Natural,
     urlsScanned: S.Natural,
-  },
-  $I.annote("ResearchHistorySiftSummary", {
-    description: "Counts describing one research history-sift run across browser profiles.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchHistorySiftSummary", {
+      description: "Counts describing one research history-sift run across browser profiles.",
+    })
+  )
 ) {}
 
 /**
@@ -306,17 +315,18 @@ export class ResearchHistorySiftSummary extends S.Class<ResearchHistorySiftSumma
  * @category models
  * @since 0.0.0
  */
-export class ResearchRepoCardOptions extends S.Class<ResearchRepoCardOptions>($I`ResearchRepoCardOptions`)(
-  {
+export class ResearchRepoCardOptions extends S.Opaque<ResearchRepoCardOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     force: S.Boolean,
     includeStars: S.Boolean,
     only: S.optionalKey(S.String),
     researchRoot: S.String,
     vaultRoot: S.String,
-  },
-  $I.annote("ResearchRepoCardOptions", {
-    description: "Validated options used by research repo-card.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchRepoCardOptions", {
+      description: "Validated options used by research repo-card.",
+    })
+  )
 ) {}
 
 /**
@@ -340,16 +350,17 @@ export class ResearchRepoCardOptions extends S.Class<ResearchRepoCardOptions>($I
  * @category models
  * @since 0.0.0
  */
-export class ResearchRepoCardSummary extends S.Class<ResearchRepoCardSummary>($I`ResearchRepoCardSummary`)(
-  {
+export class ResearchRepoCardSummary extends S.Opaque<ResearchRepoCardSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     cardsSkipped: S.Natural,
     cardsWritten: S.Natural,
     reposScanned: S.Natural,
     starsScanned: S.Natural,
-  },
-  $I.annote("ResearchRepoCardSummary", {
-    description: "Counts describing one research repo-card run over cloned and starred repositories.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchRepoCardSummary", {
+      description: "Counts describing one research repo-card run over cloned and starred repositories.",
+    })
+  )
 ) {}
 
 /**
@@ -370,17 +381,18 @@ export class ResearchRepoCardSummary extends S.Class<ResearchRepoCardSummary>($I
  * @category models
  * @since 0.0.0
  */
-export class ResearchNotionPullOptions extends S.Class<ResearchNotionPullOptions>($I`ResearchNotionPullOptions`)(
-  {
+export class ResearchNotionPullOptions extends S.Opaque<ResearchNotionPullOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     database: S.NonEmptyString,
     linksFile: S.String.pipe(S.optionalKey),
     pageId: S.String.pipe(S.optionalKey),
     vaultRoot: S.String,
-  },
-  $I.annote("ResearchNotionPullOptions", {
-    description:
-      "Validated options used by research notion-pull; pageId reads a plain page's bulleted links, linksFile reads a local JSON backfill, and database falls back to a database query.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchNotionPullOptions", {
+      description:
+        "Validated options used by research notion-pull; pageId reads a plain page's bulleted links, linksFile reads a local JSON backfill, and database falls back to a database query.",
+    })
+  )
 ) {}
 
 /**
@@ -403,15 +415,16 @@ export class ResearchNotionPullOptions extends S.Class<ResearchNotionPullOptions
  * @category models
  * @since 0.0.0
  */
-export class ResearchNotionPullSummary extends S.Class<ResearchNotionPullSummary>($I`ResearchNotionPullSummary`)(
-  {
+export class ResearchNotionPullSummary extends S.Opaque<ResearchNotionPullSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     cardsWritten: S.Natural,
     pagesSeen: S.Natural,
     skippedSeen: S.Natural,
-  },
-  $I.annote("ResearchNotionPullSummary", {
-    description: "Counts describing one research notion-pull run over the saved-links database.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchNotionPullSummary", {
+      description: "Counts describing one research notion-pull run over the saved-links database.",
+    })
+  )
 ) {}
 
 /**
@@ -435,17 +448,18 @@ export class ResearchNotionPullSummary extends S.Class<ResearchNotionPullSummary
  * @category models
  * @since 0.0.0
  */
-export class ResearchDailyOptions extends S.Class<ResearchDailyOptions>($I`ResearchDailyOptions`)(
-  {
+export class ResearchDailyOptions extends S.Opaque<ResearchDailyOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     browser: BrowserKind,
     commit: S.Boolean,
     notionPage: S.String.pipe(S.optionalKey),
     sinceDays: S.Natural,
     vaultRoot: S.String,
-  },
-  $I.annote("ResearchDailyOptions", {
-    description: "Validated options used by research daily (sift, notion-pull, cognify, digest, optional commit).",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchDailyOptions", {
+      description: "Validated options used by research daily (sift, notion-pull, cognify, digest, optional commit).",
+    })
+  )
 ) {}
 
 /**
@@ -463,15 +477,16 @@ export class ResearchDailyOptions extends S.Class<ResearchDailyOptions>($I`Resea
  * @category models
  * @since 0.0.0
  */
-export class ResearchDailySummary extends S.Class<ResearchDailySummary>($I`ResearchDailySummary`)(
-  {
+export class ResearchDailySummary extends S.Opaque<ResearchDailySummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     failed: S.Array(S.String),
     ran: S.Array(S.String),
     skipped: S.Array(S.String),
-  },
-  $I.annote("ResearchDailySummary", {
-    description: "Step outcomes for one research daily pipeline run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchDailySummary", {
+      description: "Step outcomes for one research daily pipeline run.",
+    })
+  )
 ) {}
 
 /**
@@ -489,14 +504,15 @@ export class ResearchDailySummary extends S.Class<ResearchDailySummary>($I`Resea
  * @category models
  * @since 0.0.0
  */
-export class ResearchCognifyOptions extends S.Class<ResearchCognifyOptions>($I`ResearchCognifyOptions`)(
-  {
+export class ResearchCognifyOptions extends S.Opaque<ResearchCognifyOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dryRun: S.Boolean,
     vaultRoot: S.String,
-  },
-  $I.annote("ResearchCognifyOptions", {
-    description: "Validated options used by research cognify.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchCognifyOptions", {
+      description: "Validated options used by research cognify.",
+    })
+  )
 ) {}
 
 /**
@@ -519,15 +535,16 @@ export class ResearchCognifyOptions extends S.Class<ResearchCognifyOptions>($I`R
  * @category models
  * @since 0.0.0
  */
-export class ResearchCognifySummary extends S.Class<ResearchCognifySummary>($I`ResearchCognifySummary`)(
-  {
+export class ResearchCognifySummary extends S.Opaque<ResearchCognifySummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     cardsPushed: S.Natural,
     datasets: S.Array(S.String),
     dryRun: S.Boolean,
-  },
-  $I.annote("ResearchCognifySummary", {
-    description: "Counts describing one research cognify push into Cognee datasets.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchCognifySummary", {
+      description: "Counts describing one research cognify push into Cognee datasets.",
+    })
+  )
 ) {}
 
 /**
@@ -545,14 +562,15 @@ export class ResearchCognifySummary extends S.Class<ResearchCognifySummary>($I`R
  * @category models
  * @since 0.0.0
  */
-export class ResearchDigestOptions extends S.Class<ResearchDigestOptions>($I`ResearchDigestOptions`)(
-  {
+export class ResearchDigestOptions extends S.Opaque<ResearchDigestOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     date: S.String.pipe(S.optionalKey),
     vaultRoot: S.String,
-  },
-  $I.annote("ResearchDigestOptions", {
-    description: "Validated options used by research digest; date defaults to today (YYYY-MM-DD).",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchDigestOptions", {
+      description: "Validated options used by research digest; date defaults to today (YYYY-MM-DD).",
+    })
+  )
 ) {}
 
 /**
@@ -575,15 +593,16 @@ export class ResearchDigestOptions extends S.Class<ResearchDigestOptions>($I`Res
  * @category models
  * @since 0.0.0
  */
-export class ResearchDigestSummary extends S.Class<ResearchDigestSummary>($I`ResearchDigestSummary`)(
-  {
+export class ResearchDigestSummary extends S.Opaque<ResearchDigestSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     digestPath: S.String,
     inboxBacklog: S.Natural,
     newCards: S.Natural,
-  },
-  $I.annote("ResearchDigestSummary", {
-    description: "Counts describing one research digest note.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchDigestSummary", {
+      description: "Counts describing one research digest note.",
+    })
+  )
 ) {}
 
 /**
@@ -605,15 +624,16 @@ export class ResearchDigestSummary extends S.Class<ResearchDigestSummary>($I`Res
  * @category models
  * @since 0.0.0
  */
-export class ResearchCaptureOptions extends S.Class<ResearchCaptureOptions>($I`ResearchCaptureOptions`)(
-  {
+export class ResearchCaptureOptions extends S.Opaque<ResearchCaptureOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     tags: S.Array(S.String),
     url: S.NonEmptyString,
     vaultRoot: S.String,
-  },
-  $I.annote("ResearchCaptureOptions", {
-    description: "Validated options used by research capture.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchCaptureOptions", {
+      description: "Validated options used by research capture.",
+    })
+  )
 ) {}
 
 /**
@@ -636,16 +656,17 @@ export class ResearchCaptureOptions extends S.Class<ResearchCaptureOptions>($I`R
  * @category models
  * @since 0.0.0
  */
-export class ResearchCaptureSummary extends S.Class<ResearchCaptureSummary>($I`ResearchCaptureSummary`)(
-  {
+export class ResearchCaptureSummary extends S.Opaque<ResearchCaptureSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     cardPath: S.String,
     id: S.String,
     skipped: S.Boolean,
     title: S.String,
-  },
-  $I.annote("ResearchCaptureSummary", {
-    description: "Summary describing where research capture wrote (or skipped) a knowledge card.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchCaptureSummary", {
+      description: "Summary describing where research capture wrote (or skipped) a knowledge card.",
+    })
+  )
 ) {}
 
 /**
@@ -663,13 +684,14 @@ export class ResearchCaptureSummary extends S.Class<ResearchCaptureSummary>($I`R
  * @category models
  * @since 0.0.0
  */
-export class ResearchStatusOptions extends S.Class<ResearchStatusOptions>($I`ResearchStatusOptions`)(
-  {
+export class ResearchStatusOptions extends S.Opaque<ResearchStatusOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     vaultRoot: S.String,
-  },
-  $I.annote("ResearchStatusOptions", {
-    description: "Validated options used by research status.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchStatusOptions", {
+      description: "Validated options used by research status.",
+    })
+  )
 ) {}
 
 /**
@@ -688,14 +710,15 @@ export class ResearchStatusOptions extends S.Class<ResearchStatusOptions>($I`Res
  * @category models
  * @since 0.0.0
  */
-export class ResearchSourceTypeCount extends S.Class<ResearchSourceTypeCount>($I`ResearchSourceTypeCount`)(
-  {
+export class ResearchSourceTypeCount extends S.Opaque<ResearchSourceTypeCount, { readonly brand: unique symbol }>()(
+  S.Struct({
     cards: S.Natural,
     sourceType: CardSourceType,
-  },
-  $I.annote("ResearchSourceTypeCount", {
-    description: "Card count for one source type queried from the research catalog.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchSourceTypeCount", {
+      description: "Card count for one source type queried from the research catalog.",
+    })
+  )
 ) {}
 
 /**
@@ -720,17 +743,18 @@ export class ResearchSourceTypeCount extends S.Class<ResearchSourceTypeCount>($I
  * @category models
  * @since 0.0.0
  */
-export class ResearchStatusSummary extends S.Class<ResearchStatusSummary>($I`ResearchStatusSummary`)(
-  {
+export class ResearchStatusSummary extends S.Opaque<ResearchStatusSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     bySourceType: S.Array(ResearchSourceTypeCount),
     inboxCards: S.Natural,
     pendingCognify: S.Natural,
     seenUrls: S.Natural,
     totalCards: S.Natural,
-  },
-  $I.annote("ResearchStatusSummary", {
-    description: "Aggregate vault and catalog counts reported by research status.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchStatusSummary", {
+      description: "Aggregate vault and catalog counts reported by research status.",
+    })
+  )
 ) {}
 
 /**
@@ -809,16 +833,17 @@ export type ResearchNotionPageId = typeof ResearchNotionPageId.Type;
  * @category models
  * @since 0.0.0
  */
-export class ResearchTimerOptions extends S.Class<ResearchTimerOptions>($I`ResearchTimerOptions`)(
-  {
+export class ResearchTimerOptions extends S.Opaque<ResearchTimerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     bunPath: SystemdUnitPath,
     notionPage: ResearchNotionPageId.pipe(S.optionalKey),
     repoRoot: SystemdUnitPath,
-  },
-  $I.annote("ResearchTimerOptions", {
-    description:
-      "Validated options used by research install-timers: the repo root the units run in, the Bun executable they invoke, and the optional Notion page the daily run pulls.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchTimerOptions", {
+      description:
+        "Validated options used by research install-timers: the repo root the units run in, the Bun executable they invoke, and the optional Notion page the daily run pulls.",
+    })
+  )
 ) {}
 
 /**
@@ -842,12 +867,13 @@ export class ResearchTimerOptions extends S.Class<ResearchTimerOptions>($I`Resea
  * @category models
  * @since 0.0.0
  */
-export class ResearchRecordedTimer extends S.Class<ResearchRecordedTimer>($I`ResearchRecordedTimer`)(
-  {
+export class ResearchRecordedTimer extends S.Opaque<ResearchRecordedTimer, { readonly brand: unique symbol }>()(
+  S.Struct({
     notionPage: S.Option(S.String),
     repoRoot: S.Option(S.String),
-  },
-  $I.annote("ResearchRecordedTimer", {
-    description: "The repo root and Notion page an installed research daily unit runs with, read back for a refresh.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResearchRecordedTimer", {
+      description: "The repo root and Notion page an installed research daily unit runs with, read back for a refresh.",
+    })
+  )
 ) {}

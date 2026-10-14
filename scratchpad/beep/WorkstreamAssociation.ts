@@ -67,7 +67,7 @@ const stableIdList = (column: string, maximum: number, description: string) =>
  * @category errors
  * @since 0.0.0
  */
-export class WorkstreamAssociationError extends S.TaggedError<WorkstreamAssociationError>()(
+export class WorkstreamAssociationError extends S.TaggedError<WorkstreamAssociationError, { readonly brand: unique symbol }>()(
   "WorkstreamAssociationError",
   { message: S.String },
   $I.annoteError("WorkstreamAssociationError", { description: "An association or recurrence rule failed." }),
