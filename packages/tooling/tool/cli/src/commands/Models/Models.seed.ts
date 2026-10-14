@@ -219,7 +219,7 @@ const seedBindings: ReadonlyArray<ModelBinding> = [
   binding("review.panel", "codex-cli", "gpt-6-astra", O.some("xhigh"), [], reviewPanel),
   binding("review.panel", "claude-code", "claude-fable-5-1", O.some("xhigh"), [], reviewPanel),
   binding("review.panel", "grok-cli", "grok-4.7", O.some("xhigh"), [], reviewPanel),
-  binding("muse.optin", "proxy-workflow", "muse-wonder-1.0", O.some("medium"), ["muse-spark-1.3"], museOptIn),
+  binding("muse.opt-in", "proxy-workflow", "muse-wonder-1.0", O.some("medium"), ["muse-spark-1.3"], museOptIn),
   binding("junie.default", "junie-cli", "gemini-3-flash-preview", O.none(), [], junieDefault),
   binding("junie.volume", "junie-cli", "claude-opus-5-5", O.none(), [], junieVolume),
   binding("cursor.volume", "cursor-seat", "composer-2.5", O.none()),
@@ -456,7 +456,7 @@ const seedTargets: ReadonlyArray<ModelSyncTarget> = [
     },
     {
       _tag: "shell-assign",
-      binding: at("muse.optin", "proxy-workflow", "model-effort-suffix"),
+      binding: at("muse.opt-in", "proxy-workflow", "model-effort-suffix"),
       render: verbatim,
       variable: "--model",
       within: O.some("claudem"),

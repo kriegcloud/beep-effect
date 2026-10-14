@@ -8,23 +8,29 @@ signatures. Goal B (`beep agent-pool pick`) automates the picker; until then, ch
 
 ## Pool order
 
-The 2026-10-14 operator policy keeps Codex substantive work on gpt-6.1-sol
-medium. Claude's orchestrator is claude-fable-5-1 medium; children, Workflow
-workers and QA judges remain claude-opus-5-5 medium. The same-provider default
-must not be silently replaced. Named review panels use Astra/Fable/Grok xhigh
-only when the task assigns that role.
+The approved model defaults and delegation policy (operator, 2026-10-01, amended 2026-10-14) replaced the
+three-step pool order of 2026-09-24 (Opus only → authorized Cursor → hold). Two chains now
+exist, keyed by the orchestrator that started the work, and each step runs at medium effort
+where the route supports it:
 
 | Originator | 1 | 2 | 3 |
 | --- | --- | --- | --- |
-| Codex | gpt-6.1-sol medium through CLI, plugin or claudex | cursor-agent --model claude-opus-5-5-medium | grok -m grok-4.7 --effort medium |
-| Claude Code | claude-opus-5-5 medium child | cursor-agent --model claude-opus-5-5-medium | grok -m grok-4.7 --effort medium |
+| Codex | `gpt-6.1-sol` medium through the Codex CLI, plugin, or `claudex` proxy | `cursor-agent --model claude-opus-5-5-medium` | grok-build (`grok -m grok-4.7 --effort medium`) |
+| Claude Code | `claude-opus-5-5` medium child (Agent tool, Workflow child, `claude -p`) | `cursor-agent --model claude-opus-5-5-medium` | grok-build (`grok -m grok-4.7 --effort medium`) |
 
-Only confirmed quota, availability and unsupported-model failures permit a step
-down the chain. Direct Claude never appears in the Codex chain; direct Codex
-never appears in the Claude chain. Cursor, grok-build and Junie never delegate
-onward. Ordinary failures and unfavorable reviews require remediation on the
-same route, with source evidence and reviewer separation retained. Use existing
-subscriptions and authorized billing; hold when all approved routes are blocked.
+Defaults: Codex `gpt-6.1-sol` medium (`$HOME/.codex/config.toml`); the Claude Code orchestrator
+runs `claude-fable-5-1` medium (`$HOME/.claude/settings.json`) and every Claude child runs
+`claude-opus-5-5` medium. Within these routes same-provider substitution (`gpt-6-sol`,
+`claude-opus-5`, the `fable`/`opus` aliases) is a drift, not a fallback. Named roles are not
+substitutions: the `review.panel` members (`gpt-6-astra`, `claude-fable-5-1`, `grok-4.7`, all
+xhigh) and the Junie volume pool below. The lightweight route (`gpt-6-luna` default children)
+keeps its lightweight tasks.
+
+**Junie volume pool (2026-10-14).** JetBrains AI Pro credits are a separate, chronically
+unspent pool. While `bun run beep accounts` shows JetBrains credits left in the cycle, route
+bounded implementation, exploration and second-opinion review lanes to Junie first (recipe
+below). Junie is not a chain step: a quota failure elsewhere still steps the originating chain
+down, and a Junie worker never delegates onward.
 
 Keep GPT-6 Luna lightweight routes and Grok 4.7 web research. Graft deep uses
 Opus 5.5 through the proxy. Junie is a bounded spend-down pool when JetBrains
@@ -126,9 +132,9 @@ https://cursor.com/help/models-and-usage/usage-limits):
 
 | Tier | Primary | Fallback | Bucket | Input / output ($/1M) |
 | --- | --- | --- | --- | --- |
-| Volume implementation | `composer-2.5` | `cursor-grok-4.7-xhigh` | Cursor Models | $0.50 / $2.50; $2 / $6 |
-| Fallback (policy 2026-10-14) | `claude-opus-5-5-medium` | — | Other Models | Opus 5.5 list price |
-| Review / adversarial | `claude-opus-5-5-high` | `gpt-5.6-sol-xhigh` | Other Models | $5 / $25; $4 / $20 |
+| Volume implementation | `composer-2.5` | `cursor-grok-4.6-xhigh` | Cursor Models | $0.50 / $2.50; $2 / $6 |
+| Fallback (policy 2026-10-01, id 2026-10-14) | `claude-opus-5-5-medium` | — | Other Models | Opus 5.5 list price |
+| Review / adversarial | `claude-opus-5-5-high` | `gpt-5.6-sol-xhigh` | Other Models | Opus 5.5 list price; $4 / $20 |
 | Lightweight mechanical | `composer-2.5` | `gpt-5.6-luna-high` | Cursor Models → Other | $0.50 / $2.50; $0.20 / $1.20 |
 
 Manifest projection of the Cursor seats (tool-owned block):
@@ -378,16 +384,20 @@ Workflow child:
 await agent("<bounded task>", { model: "claude-opus-5-5", phase: "Implement" })
 ```
 
-Cursor fallback (step 2 of either chain), verified 2026-10-01:
+Cursor fallback (step 2 of either chain), verified 2026-10-14:
 
 ```sh
 timeout 1800 cursor-agent -p --trust --force --sandbox enabled --workspace "$PWD" \
   --model claude-opus-5-5-medium --output-format stream-json "<bounded task>" </dev/null
 ```
 
-`claude-opus-5-5-medium` is present in the verified Cursor CLI catalog; the stream-json
-init event reports `"model":"Claude Opus 5.5 300K Medium"`, so medium effort is baked into the
-seat and `claude-opus-5-5[effort=medium]` is rejected. grok-build fallback (step 3):
+`cursor-agent --list-models` lists `claude-opus-5-5-{low,medium,high,xhigh,max}` since
+2026-10-14 (the bare `claude-opus-5-5` is still accepted and is the same seat). The stream-json
+init event reports `"model":"Claude Opus 5.5 300K Medium"` for `-medium` and `… High` for
+`-high`; the list's "1M" label is cosmetic, and `claude-opus-5-5[effort=medium]` is rejected.
+On 2026-10-14 `--sandbox enabled` failed on the workstation (AppArmor: "Sandbox mode is enabled
+but not available on this system"); fix the host profile before running real lanes rather than
+dropping the sandbox. grok-build fallback (step 3):
 
 ```sh
 grok -m grok-4.7 --effort medium --always-approve --no-subagents --max-turns 60 \
@@ -401,12 +411,29 @@ Bounded scope, files written early and refined in place, and the orchestrator st
 the same prompt contract as the Cursor lane. Continue related follow-ups on the same subagent
 (SendMessage) instead of spawning fresh ones.
 
-**Proxy sessions.** Current children use `claude-opus-5-5`; the October 14
-registry includes that id. The September 27 probe listed only `claude-opus-5`
-and rejected Opus 5.5 with `unknown provider for model`; that historical gap
-is superseded. Verify the live registry on each worker rather than treating
-one host's catalog as fleet proof. Do not set `CLAUDE_CODE_SUBAGENT_MODEL` in
-proxy wrappers.
+**Proxy sessions.** `claudex`, `claudeg`, `claudep`, and `claudem` children use the same id.
+CLIProxyAPI did not route `claude-opus-5-5` on 2026-09-27 (`unknown provider for model`); its
+`GET /v1/models` lists the id since 2026-10-14, so proxy Workflow children can take the Opus pin.
+Do not set `CLAUDE_CODE_SUBAGENT_MODEL` in proxy wrappers.
+
+## Junie lane recipe
+
+Junie (`junie` CLI, JetBrains AI Pro) is the spend-down volume pool. Check the meter first:
+`bun run beep accounts status` shows the JetBrains row with credits left. Then run one bounded
+lane per invocation, verified 2026-10-14:
+
+```sh
+timeout 1800 junie --model=claude-opus-5-5 --effort=medium --output-format json \
+  --skip-update-check -p "$PWD" "<bounded task>" </dev/null > junie-result.json
+```
+
+`--effort` accepts `low|medium|high`. The JSON `llmUsage[]` array is the identity evidence:
+the primary entry reports `model: claude-opus-5-5` with a `cost`; Junie also bills small helper
+models there (title, routing), so sum `cost` for the lane. A trivial lane cost about $0.15,
+mostly a one-time 26k-token cache write. The JetBrains route also accepts `claude-fable-5-1`,
+`gpt-6.1-sol`, `gpt-6-astra` and `grok-4.7` (bundled catalogue); keep `claude-opus-5-5`
+unless a task names another. Junie lanes leave the tree dirty; the orchestrator stages by name
+and commits. Junie never delegates onward and follows the Cursor data boundary (D11).
 
 ## Codex lane recipe
 
@@ -441,7 +468,7 @@ interactive picker may lag while `-m gpt-6.1-sol` works.
 | Sudo / YubiKey prompt hang | `Shell(sudo)` and `Shell(pkexec)` in deny list (D21). |
 | Workspace trust hang | `--trust` on every headless lane. |
 | Missing `result/success` + exit 0 | Treat as failure; inspect stderr. |
-| `GraphQL: API rate limit exceeded` from `gh pr view\|edit\|ready\|merge\|checks` | GitHub GraphQL is one 5,000-point hourly budget shared by every session on the account (resets at the hour's `resetAt`). Use `bun run beep yeet gh …` (REST for PR status, labels, comments, checks, and merge; the ready flip and thread read go through a budget guard that waits for the reset, or exits 75 with `--no-wait`). `bun run beep yeet gh rate-limit` shows both budgets. An identity with its own budget: `--token-ref op://…` / `BEEP_GH_TOKEN_REF`, or a GitHub App via `BEEP_GH_APP_ID`, `BEEP_GH_APP_INSTALLATION_ID`, `BEEP_GH_APP_KEY_REF`. |
+| `GraphQL: API rate limit exceeded` from `gh pr view\|edit\|ready\|merge\|checks` | GitHub GraphQL is one 5,000-point hourly budget shared by every session on the account (resets at the hour's `resetAt`). Use `bun run beep yeet gh <command>` (REST for PR status, labels, comments, checks, and merge; the ready flip and thread read go through a budget guard that waits for the reset, or exits 75 with `--no-wait`). `bun run beep yeet gh rate-limit` shows both budgets. An identity with its own budget: `--token-ref op://…` / `BEEP_GH_TOKEN_REF`, or a GitHub App via `BEEP_GH_APP_ID`, `BEEP_GH_APP_INSTALLATION_ID`, `BEEP_GH_APP_KEY_REF`. |
 | Linux sandbox `unshare EPERM` | Host fix `sysctl kernel.apparmor_restrict_unprivileged_userns=0`; if the lane still cannot run, stop and report the blocked path — never `--sandbox disabled` (https://forum.cursor.com/t/agent-cli-linux-sandbox-preflight-fails-unshare-eperm-unless-run-under-strace-apparmor-restrict-unprivileged-userns-1/160039). |
 
 ## Sources

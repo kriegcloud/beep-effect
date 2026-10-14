@@ -53,7 +53,7 @@ const RoutingRoleKit = LiteralKit([
   "jsdoc.migrate-titles",
   "deprecated.routable",
   "review.panel",
-  "muse.optin",
+  "muse.opt-in",
   "junie.default",
   "junie.volume",
 ]);
@@ -71,7 +71,7 @@ const RoutingRoleKit = LiteralKit([
  * and `deprecated.routable` names ids kept routable by local alias config that
  * the upstream catalog cannot see. `review.panel` runs an independent
  * three-model review panel in sessions separate from the orchestrator.
- * `muse.optin` routes Meta Muse through CLIProxyAPI by explicit opt-in only,
+ * `muse.opt-in` routes Meta Muse through CLIProxyAPI by explicit opt-in only,
  * never in a fallback chain. `junie.default` is the interactive launch default;
  * `junie.volume` spends down the JetBrains AI Pro pool outside quota-failure
  * fallback chains.
