@@ -107,3 +107,29 @@ an inherited engine defect or grounds to bypass proof. Package verification
 is not yet green. Its inbox row will cite the corrective commit; scoped
 coverage's first run likewise began on the dirty packet and must be
 attributed before any readiness claim.
+
+
+## Committed-head package result and publication preparation
+
+Default package-verify passed against corrective commit
+ba5997158c566074061a337aa920df240ccd88d0: audit 1,257.9 seconds and
+docgen 45.4 seconds. The audit inbox row cites that corrective commit.
+The eight focused restoration/recovery cases pass; the previously failing
+checkout-integrity case passes after commit. The transformation cause
+allowlist tests also pass, including nested wrappers and message/path
+exclusion. No package default or real-engine acceptance law changed.
+
+The first coverage run completed 6,184 tests: 6,183 passed and one failed,
+the dirty-packet checkout comparison already fixed by committing. Its
+unit is inactive. No accepted coverage result or regression-baseline
+comparison is claimed from that red run. A fresh committed-head coverage
+request remained in shared admission and was cancelled before starting
+to prioritize publication under the push-first workflow; it must be
+re-submitted before calling final. Final test-tsgo/doctest/schema/sandbox
+smokes are queued. No other lane's process or slot was interrupted.
+
+JSDoc ratchet and fallow audit+health passed. Knowledge refs has eleven
+inherited observations in eight files that exactly match main; ownership
+stays with the orchestrator. The prior terminal evidence PR #1718 is
+merged and integrated. No recovery family or new manifest is created.
+Publication will carry only this lane's recovery changes and receipts.
