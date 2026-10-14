@@ -11,9 +11,9 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
-import { SkillsLockMigrationPlan } from "./SkillsLock.schemas.ts";
+import { SkillsLockMigrationPlan, SkillsLockWriteReceipt } from "./SkillsLock.schemas.ts";
 import type { SkillProvenanceReport } from "./Skills.schemas.ts";
-import type { SkillMigrationRow, VendoredMigrationRow } from "./SkillsLock.schemas.ts";
+import type { SkillMigrationRow, UnresolvedMigrationRow, VendoredMigrationRow } from "./SkillsLock.schemas.ts";
 
 const encodeUnknownJson = S.encodeUnknownResult(S.fromJsonString(S.Unknown));
 
@@ -207,8 +207,9 @@ const encodeMigrationPlanJson = S.encodeResult(S.fromJsonString(SkillsLockMigrat
  * import { SkillsLockMigrationPlan } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
  * import { Sha256Hex } from "@beep/schema"
  *
- * const plan = SkillsLockMigrationPlan.make({ planDigest: Sha256Hex.make("0".repeat(64)), rows: [] })
- * console.log(renderSkillsLockMigrationPlanJson(plan).includes("skills-lock-migration-plan/v2")) // true
+ * const digest = Sha256Hex.make("0".repeat(64))
+ * const plan = SkillsLockMigrationPlan.make({ planDigest: digest, lockSha256: digest, rows: [] })
+ * console.log(renderSkillsLockMigrationPlanJson(plan).includes("skills-lock-migration-plan/v3")) // true
  * ```
  *
  * @param plan - Migration plan to render.
@@ -227,7 +228,7 @@ const abbreviatedRevision = Str.slice(0, 10);
 const describePin = (row: VendoredMigrationRow): string =>
   row.pin.proposal === "pristine-at-revision"
     ? `pristine at ${abbreviatedRevision(row.pin.revision)} (proposed pin)`
-    : `no pristine revision; keeps seed pin ${abbreviatedRevision(row.pin.revision)}`;
+    : `no pristine revision; keeps current pin ${abbreviatedRevision(row.pin.revision)}`;
 
 const describeDrift = (row: VendoredMigrationRow): string => {
   const local = A.filter(row.drift, (drift) => drift.driftClass === "matches-no-examined-revision");
@@ -239,9 +240,22 @@ const describeDrift = (row: VendoredMigrationRow): string => {
         ", "
       )})`;
   return A.isReadonlyArrayEmpty(row.drift)
-    ? "no drift from seed pin"
-    : `drift from seed pin: ${pulled} match an upstream revision, ${A.length(local)} match no examined revision${candidates}`;
+    ? "no drift from current pin"
+    : `drift from current pin: ${pulled} match an upstream revision, ${A.length(local)} match no examined revision${candidates}`;
 };
+
+const describePatches = (row: VendoredMigrationRow): string =>
+  A.match(row.entry.patches.series, {
+    onEmpty: () => "no patches",
+    onNonEmpty: (series) =>
+      `patches: ${A.join(
+        A.map(series, (patch) => patch.path),
+        ", "
+      )}`,
+  });
+
+const describeUnresolved = (row: UnresolvedMigrationRow): string =>
+  `  ${row.skill}: unresolved, ${row.cause}${row.cause === "no-ratified-seed" ? " (written local)" : " (blocks write)"} (${row.note})`;
 
 const describeHistory = (row: VendoredMigrationRow): string =>
   `history: ${row.pathHistory.revisionCount} revision(s) at ${row.pathHistory.trackingRef}, head ${abbreviatedRevision(
@@ -254,9 +268,11 @@ const describeHistory = (row: VendoredMigrationRow): string =>
  * **Details**
  *
  * The headline gives the disposition counts and the plan digest. A vendored
- * line names its pin proposal, its drift split by path-history class (listing
- * the patch candidates), and the path history it was classified against,
- * including whether that history was truncated.
+ * line names its pin proposal, its drift from the current pin split by
+ * path-history class (listing the files no revision explains), the patch
+ * series its entry carries at the proposed pin, and the path history it was
+ * classified against, including whether that history was truncated. An
+ * unresolved line names its cause and marks the causes that block a write.
  *
  * **Example** (Render an empty plan summary)
  *
@@ -265,7 +281,8 @@ const describeHistory = (row: VendoredMigrationRow): string =>
  * import { SkillsLockMigrationPlan } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
  * import { Sha256Hex } from "@beep/schema"
  *
- * const plan = SkillsLockMigrationPlan.make({ planDigest: Sha256Hex.make("0".repeat(64)), rows: [] })
+ * const digest = Sha256Hex.make("0".repeat(64))
+ * const plan = SkillsLockMigrationPlan.make({ planDigest: digest, lockSha256: digest, rows: [] })
  * console.log(renderSkillsLockMigrationPlanSummary(plan).startsWith("skills lock-plan: 0 vendored")) // true
  * ```
  *
@@ -282,8 +299,8 @@ export const renderSkillsLockMigrationPlanSummary = (plan: SkillsLockMigrationPl
     Match.type<SkillMigrationRow>().pipe(
       Match.discriminatorsExhaustive("disposition")({
         vendored: (row) =>
-          `  ${row.skill}: vendored; ${describePin(row)}; ${describeDrift(row)}; ${describeHistory(row)}`,
-        unresolved: (row) => `  ${row.skill}: unresolved (${row.note})`,
+          `  ${row.skill}: vendored; ${describePin(row)}; ${describeDrift(row)}; ${describePatches(row)}; ${describeHistory(row)}`,
+        unresolved: describeUnresolved,
         local: (row) => `  ${row.skill}: local`,
       })
     )
@@ -296,4 +313,39 @@ export const renderSkillsLockMigrationPlanSummary = (plan: SkillsLockMigrationPl
     ],
     "\n"
   );
+};
+
+const encodeWriteReceiptJson = S.encodeResult(S.fromJsonString(SkillsLockWriteReceipt));
+
+/**
+ * Renders a skills-lock write receipt as formatted JSON.
+ *
+ * **Example** (Render a receipt)
+ *
+ * ```ts
+ * import { renderSkillsLockWriteReceiptJson } from "@beep/repo-cli/commands/Skills/Skills.render"
+ * import { SkillsLockWriteReceipt, SkillsLockWrittenFile } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import { Sha256Hex } from "@beep/schema"
+ *
+ * const digest = Sha256Hex.make("0".repeat(64))
+ * const receipt = SkillsLockWriteReceipt.make({
+ *   planDigest: digest,
+ *   outcome: "already-applied",
+ *   lock: SkillsLockWrittenFile.make({ path: "skills-lock.json", sha256: digest }),
+ *   vendored: 0,
+ *   local: 0,
+ *   patches: [],
+ * })
+ * console.log(renderSkillsLockWriteReceiptJson(receipt).includes("already-applied")) // true
+ * ```
+ *
+ * @param receipt - The receipt a reviewed write returned.
+ * @returns Two-space formatted JSON with a trailing newline.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderSkillsLockWriteReceiptJson = (receipt: SkillsLockWriteReceipt): string => {
+  const encoded = Result.getOrThrow(encodeWriteReceiptJson(receipt));
+  const edits = jsonc.format(encoded, undefined, { tabSize: 2, insertSpaces: true });
+  return `${jsonc.applyEdits(encoded, edits)}\n`;
 };

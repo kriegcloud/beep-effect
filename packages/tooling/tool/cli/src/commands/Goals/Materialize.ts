@@ -366,20 +366,19 @@ export const replacePinnedFile = Effect.fn("Goals.replacePinnedFile")(function* 
   const lockPath = `${target}.lock`;
   return yield* withJournalFileLock(
     lockPath,
-    (lockToken) =>
-      Effect.gen(function* () {
-        const bytes = yield* readPinnedFile(relativePath, preImageDigest, repoRoot);
-        const next = yield* render(new TextDecoder().decode(bytes));
-        const afterDigest = yield* writeFileAtomically(
-          target,
-          next,
-          assertJournalFileLockOwned(lockPath, lockToken).pipe(
-            Effect.andThen(readPinnedFile(relativePath, preImageDigest, repoRoot)),
-            Effect.asVoid
-          )
-        );
-        return { beforeDigest: preImageDigest, afterDigest };
-      }),
+    Effect.fnUntraced(function* (lockToken: string) {
+      const bytes = yield* readPinnedFile(relativePath, preImageDigest, repoRoot);
+      const next = yield* render(new TextDecoder().decode(bytes));
+      const afterDigest = yield* writeFileAtomically(
+        target,
+        next,
+        assertJournalFileLockOwned(lockPath, lockToken).pipe(
+          Effect.andThen(readPinnedFile(relativePath, preImageDigest, repoRoot)),
+          Effect.asVoid
+        )
+      );
+      return { beforeDigest: preImageDigest, afterDigest };
+    }),
     undefined,
     `Refusing to replace ${relativePath}: another writer holds ${lockPath}.`
   ).pipe(

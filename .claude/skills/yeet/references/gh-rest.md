@@ -27,6 +27,12 @@ its own budget. Use `bun run beep yeet gh <command>` instead of those `gh pr` co
   window (20 minutes after the later of "marked ready" and the head commit) has
   passed, and the outstanding thread count is zero. A thread read that failed is
   never zero. Exit 75 means hold (time can clear it); exit 1 means refused.
+- S11 merges over attributed reds use the orchestrator's gate instead:
+  `bun run beep yeet merge-gate <pr> <sha> --relaxed [--tolerate
+  "<check>=<attribution>"]`. Reds and pending checks, required ones included,
+  are recorded in the merge line and a PR comment rather than held; head,
+  draft, conflict, ruleset, review-window and thread holds stay, and a head on
+  which no required check has run yet still holds.
 - Alternate identity (its own rate-limit budget): `--token-ref op://…` or
   `BEEP_GH_TOKEN_REF`, or a GitHub App installation token from
   `BEEP_GH_APP_ID`, `BEEP_GH_APP_INSTALLATION_ID`, and `BEEP_GH_APP_KEY_REF`

@@ -1,7 +1,14 @@
-import { cn } from "@/lib/utils";
-import type * as React from "react";
+import * as React from "react"
 
-const defaultStates = ["default", "hover", "focus", "active", "disabled"] as const;
+import { cn } from "@/lib/utils"
+
+const defaultStates = [
+  "default",
+  "hover",
+  "focus",
+  "active",
+  "disabled",
+] as const
 
 export function StateMatrix<Row extends string>({
   rows,
@@ -9,10 +16,10 @@ export function StateMatrix<Row extends string>({
   render,
   className,
 }: {
-  rows: readonly Row[];
-  states?: readonly string[];
-  render: (row: Row, state: string) => React.ReactNode;
-  className?: string;
+  rows: readonly Row[]
+  states?: readonly string[]
+  render: (row: Row, state: string) => React.ReactNode
+  className?: string
 }) {
   return (
     <div className={cn("w-full overflow-x-auto", className)}>
@@ -21,7 +28,11 @@ export function StateMatrix<Row extends string>({
           <tr>
             <th />
             {states.map((state) => (
-              <th key={state} scope="col" className="text-left font-mono text-xs font-normal text-muted-foreground">
+              <th
+                key={state}
+                scope="col"
+                className="text-left font-mono text-xs font-normal text-muted-foreground"
+              >
                 {state}
               </th>
             ))}
@@ -30,7 +41,10 @@ export function StateMatrix<Row extends string>({
         <tbody>
           {rows.map((row) => (
             <tr key={row}>
-              <th scope="row" className="pr-4 text-left font-mono text-xs font-normal text-muted-foreground">
+              <th
+                scope="row"
+                className="pr-4 text-left font-mono text-xs font-normal text-muted-foreground"
+              >
                 {row}
               </th>
               {states.map((state) => (
@@ -41,18 +55,18 @@ export function StateMatrix<Row extends string>({
         </tbody>
       </table>
     </div>
-  );
+  )
 }
 
 // Spread onto a component to pin a state without interaction.
 export function previewState(state: string) {
   if (state === "disabled") {
-    return { disabled: true };
+    return { disabled: true }
   }
 
   if (["hover", "focus", "active"].includes(state)) {
-    return { "data-preview": state };
+    return { "data-preview": state }
   }
 
-  return {};
+  return {}
 }

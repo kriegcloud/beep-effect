@@ -76,7 +76,7 @@ Status: `in-progress` (P1 started 2026-09-22 with PR 1; graduated 2026-09-22).
 
 ## Execution Notes
 
-- Validate every Effect API against `node_modules/effect/dist/unstable/ai/**`; the frozen research
+- Validate every Effect API against `node_modules/effect/dist/ai/**`; the frozen research
   predates Effect#8326. The npm package ships no tests: the conformance sources come from the
   reference clone (`.repos/effect`).
 - Record Goal B's start checkpoint ("PR 1 merged") in this README so Goal B can overlap PR 2–4.
