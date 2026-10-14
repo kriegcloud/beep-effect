@@ -219,3 +219,33 @@ and a recent Phoenix page could not be read. No remote state, home fields,
 installed timer, salt namespace or live evidence was changed. F owns native
 trust, launcher ancestry, global projection, OTel fields and the usable archive
 secret reference; the orchestrator owns any scheduling decision.
+
+The final batching repair is committed at `8af3d54111`. Separate pinned
+Opus 5.5 medium review found and closed diagnostic-shaped filename handling,
+metadata completeness/status validation, remaining per-path forks, deleted
+unusual names and regression accuracy. Its final confirmation reports zero
+actionable findings at every severity. Tests cover 150 selected batch files,
+a missing indexed path after more than 4 KB of output, `stat: `-prefixed guidance,
+EACCES after successful metadata, dangling-link parity, loop refusal and deleted
+non-ASCII paths. No baseline or deadline was relaxed.
+
+Normal-cap full-checkout samples after final source repair were Claude 0.545 s
+at 19:41:59.261Z, Codex 0.499 s at 19:41:59.760Z and Cursor 0.530 s at
+19:42:00.290Z. Each exited zero, wrote one stamped row and zero refusals.
+The actual-checkout TypeScript oracle selected 525 files and confirmed all
+three shell stamps match. The 528-path Git list includes paths excluded by
+snapshot rules; selected-file and raw-index counts are different measures.
+These samples precede the deleted-unusual-path compatibility repair, which
+leaves the actual checkout's selected inputs and hot path unchanged.
+
+The October 14 isolated switch workflow returned zero for disarm, refused
+event and arm; it persisted two transitions, one disabled refusal and one
+closed disarm window, and left the disposable sentinel armed. Earlier native
+workflow receipts keep their October 9 provenance; desktop/proxy permissions
+and native Codex/Cursor tool qualification remain unproved.
+
+Refreshed parity passed test-tsgo, local docgen, JSDoc ratchet (zero introduced
+findings), CI knowledge refs (zero live gated observations), Fallow audit and
+health (zero introduced findings), and retired Effect paths. The scoped baseline
+read covered 10 touched source files without editing any row. Current scoped
+coverage and the final package rerun follow below when terminal.
