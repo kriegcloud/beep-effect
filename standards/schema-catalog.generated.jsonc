@@ -51473,6 +51473,36 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillMaterializeRefusal",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillMaterializeRefusal"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillMaterializeRefusalReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillMaterializeRefusalReason",
+      "description": "Why skills materialize refused: an unverified pristine tree, patch, or reconstruction."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillPatchApplyError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchApplyError"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillPatchApplyReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchApplyReason",
+      "description": "Why a strict unified-diff apply refused a skill patch."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
       "symbol": "SkillUpstreamContentError",
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
@@ -51895,6 +51925,78 @@
       "owner": "@beep/repo-cli",
       "identity": "VendoredSkillLockEntry",
       "description": "A ratified-upstream skill with snapshot, license, provenance, patch, and effective-tree identity."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+      "symbol": "SkillMaterializeMode",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillMaterializeMode",
+      "description": "Whether skills materialize rebuilds installed trees or only verifies them."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+      "symbol": "SkillMaterializeReport",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillMaterializeReport",
+      "description": "Per-entry materialize outcomes for one write or check run."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+      "symbol": "SkillMaterializeRow",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillMaterializeRow",
+      "description": "The materialize outcome for one lock entry with its per-target states."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+      "symbol": "SkillMaterializeStatus",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillMaterializeStatus",
+      "description": "Per-entry materialize outcome: current, rebuilt, would rebuild, or local drift."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+      "symbol": "SkillMaterializeTarget",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillMaterializeTarget",
+      "description": "One repo-relative install target and its state against the verified tree."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+      "symbol": "SkillMaterializeTargetState",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillMaterializeTargetState",
+      "description": "An install target's state against the verified effective tree."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/internal/DiffLines.ts",
+      "symbol": "DiffLine",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "DiffLine",
+      "description": "One text line and whether a newline ends it."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/internal/SkillTree.ts",
+      "symbol": "ComputedSkillTree",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ComputedSkillTree",
+      "description": "Ordered mode-aware manifest plus pristine or effective aggregate hashes."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/internal/SkillTree.ts",
+      "symbol": "HashedSkillFile",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "HashedSkillFile",
+      "description": "Binary-safe skill file paired with its canonical content digest."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts",

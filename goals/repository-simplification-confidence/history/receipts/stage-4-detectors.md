@@ -111,6 +111,24 @@ The fresh ordered owner replay at `a00d3fdaf7c2` completed with identical
 semantic counts and command outcomes. Current logs/results are retained in
 `.beep/rsc-resume/integrated/`; committed-head parity follows.
 
+### Latest replay after Skills materialization
+
+Main #1709 adds source/schema inputs and is integrated as `49ffd94e5f32`.
+A new admitted ordered owner pass succeeds except raw health exit 1, which
+still writes its baseline. JSDoc now has 147 packages, 3,467 public modules
+and 23,491 exports; findings remain at the previous candidate totals. Catalog
+entries are 7,396. All 126 schema-first entry bodies remain unchanged.
+
+Health retains 180 per-file baseline findings and thirteen target keys. Raw
+health separately reports 148 above-threshold functions across 5,238 files
+and 100,069 functions (2 critical / 13 high / 133 moderate), using
+static-estimated coverage. Dead-code is zero under Fallow 3.32.0. CLI census
+instantiations are 5,186,374, growth of 249,983 against main's 4,936,391; the
+other five rows are unchanged. Owner commands preserve measured debt and
+catalogs; these values are not B-authored repairs or an accepted zero scan.
+Current raw logs/results are in `.beep/rsc-resume/integrated/`. The earlier
+parity below is historical pending qualification of the newest candidate.
+
 ### Committed-head parity
 
 The committed candidate is `f5163d65a2b22c8025ddba5ccffd8ae667c2e003`.

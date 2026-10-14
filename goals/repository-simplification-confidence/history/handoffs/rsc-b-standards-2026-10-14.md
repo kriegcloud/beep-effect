@@ -1,10 +1,10 @@
 lane: rsc-b-standards
-head: a00d3fdaf7c285109ed1d6986adb32fcb4eb95e2 (owner replay source head; committed-candidate parity follows)
+head: 49ffd94e5f328bcbd112247c1b3b2e444f2622bc (latest owner replay source head; committed-candidate qualification follows)
 PR: #1616 (merged historical bounded test slice; new refresh PR pending)
 package-verify: not applicable to the current generated refresh; no workspace package edited
 hosted-parity: test-tsgo pending; docgen local pending; jsdoc-ratchet pending; knowledge refs pending; fallow audit+health pending; coverage read pending
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-b-standards-2026-10-14.md
-open: owner refresh completed at a00d3fdaf7; committed-head parity pending; RSC-RESUME cap gate released at 12:05 UTC; later guidance and detector waves pending; effect-laws provenance edits require S5 notification confirmation; V owns open canon cohorts under R102
+open: latest owner replay completed; candidate qualification and named review pending; cap gate released; R14 serialized merge before later R20 waves; S5 notice before effect-laws edits; V owns open canon cohorts
 
 ## Resume and inbox disposition
 
@@ -181,3 +181,28 @@ superseded candidate was withdrawn before its process started; no unrelated
 job was stopped. The separate Codex review remains pinned to f516 and is
 retained in the integrated review receipt. Fresh qualification must follow
 integration; none of these results certifies the upcoming source head.
+
+## Latest owner replay after Skills materialization
+
+Integrated main `4e66575c646c282169021a6d5eb3d01129617bcf` at
+`49ffd94e5f328bcbd112247c1b3b2e444f2622bc`. The admitted ordered
+refresh completes: installation, full build and all owner commands exit 0
+except raw health, which writes its baseline and exits 1. The current owner
+outputs have 147 JSDoc packages, 3,467 public modules, 23,491 exports and
+7,396 catalog entries. Existing JSDoc finding totals remain unchanged from
+the earlier candidate. All 126 schema-first entry bodies are unchanged.
+
+Fallow 3.32.0 dead-code remains zero. Health retains 180 per-file baseline
+findings and thirteen target keys; raw health reports 148 above-threshold
+functions (two critical, thirteen high, 133 moderate) across 5,238 files and
+100,069 functions, with static-estimated coverage. Census CLI instantiations
+are 5,186,374, growth of 249,983 against main's 4,936,391; the other five
+retained rows remain unchanged. No B-authored source repair is attributed
+to these changes. All measurements remain candidate outputs until R14 merge.
+
+The seven generated snapshot deltas and packet-only scope remain isolated.
+The integrated Effect/Vitest inventory update is main's #1709 work, not a B
+edit or admission. Private occurrence reviews remain pinned to their stated
+source heads and need that inventory delta reconciled before implementation.
+Current owner logs are in `.beep/rsc-resume/integrated/`; prior source passes
+are archived separately. Candidate parity and the named reviewer follow.

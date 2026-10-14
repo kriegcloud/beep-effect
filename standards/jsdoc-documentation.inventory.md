@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-14T11:50:32.373Z
+Generated: 2026-10-14T12:16:44.821Z
 
 ## Scope
 
@@ -14,8 +14,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 64 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 81 |
-| publicModules | 3464 |
-| publicExports | 23464 |
+| publicModules | 3467 |
+| publicExports | 23491 |
 | openModules | 912 |
 | openExports | 1388 |
 | missingExportExamples | 8 |
@@ -161,7 +161,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 103 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 15 | 0 | 0 |
 | 104 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 105 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
-| 106 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 383 | 3392 | 47 | 38 |
+| 106 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 386 | 3419 | 47 | 38 |
 | 107 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 108 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
 | 109 | `@beep/brand` | `packages/foundation/ui-system/brand` | needs-remediation | 7 | 50 | 0 | 43 |
@@ -2233,9 +2233,9 @@ Export findings:
 - `src/commands/Runners/Runners.schemas.ts:275` `BakePlan` (class) - 1 example import violation(s)
 - `src/commands/Runners/Runners.schemas.ts:334` `BakeCheckReport` (class) - 1 example import violation(s)
 - `src/commands/Runners/Runners.service.ts:170` `BakeLocalInputs` (class) - 1 example import violation(s)
-- `src/commands/Skills/Skills.render.ts:220` `renderSkillsLockMigrationPlanJson` (const) - 1 example import violation(s)
-- `src/commands/Skills/Skills.render.ts:294` `renderSkillsLockMigrationPlanSummary` (const) - 1 example import violation(s)
-- `src/commands/Skills/Skills.render.ts:347` `renderSkillsLockWriteReceiptJson` (const) - 1 example import violation(s)
+- `src/commands/Skills/Skills.render.ts:221` `renderSkillsLockMigrationPlanJson` (const) - 1 example import violation(s)
+- `src/commands/Skills/Skills.render.ts:295` `renderSkillsLockMigrationPlanSummary` (const) - 1 example import violation(s)
+- `src/commands/Skills/Skills.render.ts:348` `renderSkillsLockWriteReceiptJson` (const) - 1 example import violation(s)
 - `src/commands/Skills/SkillsLock.schemas.ts:96` `LocalSkillLockEntry` (class) - 1 example import violation(s)
 - `src/commands/Skills/SkillsLock.schemas.ts:570` `LocalMigrationRow` (class) - 1 example import violation(s)
 - `src/commands/Skills/SkillsLock.schemas.ts:734` `SkillsLockMigrationPlan` (class) - 1 example import violation(s)

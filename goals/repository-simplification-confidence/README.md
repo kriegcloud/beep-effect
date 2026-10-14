@@ -2,6 +2,12 @@
 
 ## Status
 
+B first-wave owner replay is current to main #1709 at `49ffd94e5f32`. Its
+generated candidate remains unpublished pending committed-head qualification
+and independent review; the publication cap is released. Later R20 guidance
+and detector work remains pending. Counts become accepted program baselines
+only after the serialized R14 merge.
+
 Lifecycle: `active`
 
 Program resumed on 2026-10-14. B integrated current main and is reproducing
