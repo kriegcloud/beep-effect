@@ -349,7 +349,7 @@ describe("CI lane descriptors", () => {
     expect(missing).toEqual([]);
   });
 
-  it.effect("matches the captured required-check set after the coordinated Knip retirement", () =>
+  it.effect("matches captured workflow checks while retaining the external reviewer App check", () =>
     Effect.gen(function* () {
       const snapshot = yield* Effect.tryPromise(() => Bun.file(branchProtectionContextSnapshotUrl).text()).pipe(
         Effect.flatMap(decodeBranchProtectionContextSnapshot)
@@ -361,12 +361,12 @@ describe("CI lane descriptors", () => {
         A.dedupe,
         A.sort(Order.String)
       );
-      // The capture is immutable pre-retirement history. S3 removes only Knip
-      // at the hosted gate; every surviving context still matches exactly.
+      expect(A.contains(snapshot.requiredStatusChecks, "beep-reviewer")).toBe(true);
+      // The reviewer App owns this required context outside the workflow lane inventory.
       expect(requiredContexts).toEqual(
         pipe(
           snapshot.requiredStatusChecks,
-          A.filter((context) => context !== "Knip"),
+          A.filter((context) => context !== "beep-reviewer"),
           A.sort(Order.String)
         )
       );

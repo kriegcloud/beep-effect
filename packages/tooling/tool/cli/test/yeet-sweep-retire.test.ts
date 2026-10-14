@@ -16,14 +16,17 @@ import {
 import { GhPrView } from "@beep/repo-cli/test/SharedInternals";
 import {
   planRetire,
+  renderRetireGate,
   renderRetirement,
   retireInvokingWorktree,
   retirementFailureMessage,
+  retireVerdict,
   runYeetSweep,
   SweepGitState,
   YeetRetirePlan,
   YeetRetireSweepPlanJson,
   YeetRetireSweepReportJson,
+  YeetRetireVerdict,
 } from "@beep/repo-cli/test/Yeet";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
@@ -89,9 +92,14 @@ const encodePacketLifecycle = S.encodeEffect(
 
 const encodePrFiles = S.encodeEffect(S.fromJsonString(S.Struct({ files: S.Array(S.Struct({ path: S.String })) })));
 
+// `none` is a branch that never headed a pull request: `gh pr view` exits 1
+// with its "no pull requests found" line, which the sweep reads as no
+// observation rather than as a failure.
+type FakePullRequestState = "MERGED" | "OPEN" | "none";
+
 const ghSpawner = Effect.fn("YeetRetireTest.ghSpawner")(function* (
   headRefOid: string,
-  state: "MERGED" | "OPEN",
+  state: FakePullRequestState,
   files: ReadonlyArray<string> = [],
   filesExitCode = ChildProcessSpawner.ExitCode(0)
 ) {
@@ -99,7 +107,11 @@ const ghSpawner = Effect.fn("YeetRetireTest.ghSpawner")(function* (
   // The fake answers with the same documents a real `gh pr view --json`
   // prints, encoded through the schemas the sweep decodes them with: the
   // pull request view, or its file list when `--json files` is asked for.
-  const viewText = yield* encodePrView(GhPrView.make({ number: 1, headRefName: "claude/lane", state, headRefOid }));
+  const viewText =
+    state === "none"
+      ? 'no pull requests found for branch "claude/lane"'
+      : yield* encodePrView(GhPrView.make({ number: 1, headRefName: "claude/lane", state, headRefOid }));
+  const viewExitCode = ChildProcessSpawner.ExitCode(state === "none" ? 1 : 0);
   const filesText = yield* encodePrFiles({ files: A.map(files, (path) => ({ path })) });
   const handleFor = (text: string, exitCode = ChildProcessSpawner.ExitCode(0)) => {
     const output = Stream.make(new TextEncoder().encode(text));
@@ -119,12 +131,14 @@ const ghSpawner = Effect.fn("YeetRetireTest.ghSpawner")(function* (
   };
   return ChildProcessSpawner.make((command) =>
     ChildProcess.isStandardCommand(command) && command.command === "gh"
-      ? Effect.succeed(A.contains(command.args, "files") ? handleFor(filesText, filesExitCode) : handleFor(viewText))
+      ? Effect.succeed(
+          A.contains(command.args, "files") ? handleFor(filesText, filesExitCode) : handleFor(viewText, viewExitCode)
+        )
       : real.spawn(command)
   );
 });
 
-const ghLayer = (headRefOid: string, state: "MERGED" | "OPEN", files: ReadonlyArray<string> = []) =>
+const ghLayer = (headRefOid: string, state: FakePullRequestState, files: ReadonlyArray<string> = []) =>
   Layer.effect(ChildProcessSpawner.ChildProcessSpawner, ghSpawner(headRefOid, state, files));
 
 const withCwd = <A, E, R>(cwd: string, effect: Effect.Effect<A, E, R>) =>
@@ -155,6 +169,9 @@ const captureOutput = Effect.fnUntraced(function* <A, E, R>(effect: Effect.Effec
   return A.join(A.map(output, String), "\n");
 });
 
+// `remoteBranch: false` is a lane whose branch was never pushed: its tip still
+// reaches origin/main (pushed straight there), but no `origin/claude/lane`
+// and no pull request ever existed.
 const withScratchRepo = <A, E, R>(
   use: (fixture: {
     repoRoot: string;
@@ -163,7 +180,8 @@ const withScratchRepo = <A, E, R>(
     packetDir: string;
     residueRoot: string;
     env: Record<string, string>;
-  }) => Effect.Effect<A, E, R>
+  }) => Effect.Effect<A, E, R>,
+  options: { readonly remoteBranch?: boolean } = {}
 ) =>
   Effect.scoped(
     Effect.gen(function* () {
@@ -196,7 +214,9 @@ const withScratchRepo = <A, E, R>(
       yield* fs.writeFileString(path.join(lane, "lane.txt"), "merged lane\n");
       yield* runGit(lane, ["add", "lane.txt"]);
       yield* runGit(lane, ["commit", "-m", "lane"]);
-      yield* runGit(lane, ["push", "origin", "claude/lane"]);
+      if (options.remoteBranch !== false) {
+        yield* runGit(lane, ["push", "origin", "claude/lane"]);
+      }
       yield* runGit(lane, ["push", "origin", "claude/lane:main"]);
       yield* runGit(repoRoot, ["fetch", "origin"]);
       const tip = yield* runGitText(lane, ["rev-parse", "HEAD"]);
@@ -395,6 +415,81 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
   );
 
   it.effect.prop(
+    "roundtrips retirement verdicts through the JSON boundary",
+    [Arbitrary.schema(YeetRetireVerdict)],
+    Effect.fn(function* ([verdict]) {
+      const codec = S.fromJsonString(YeetRetireVerdict);
+      const encoded = yield* S.encodeEffect(codec)(verdict);
+      const decoded = yield* S.decodeEffect(codec)(encoded);
+      expect(S.toEquivalence(YeetRetireVerdict)(verdict, decoded)).toBe(true);
+    }),
+    { arbitrary: { runs: 20 } }
+  );
+
+  it("judges a lane by its pull request when one was observed, otherwise by git", () => {
+    const plan = YeetRetirePlan.make({
+      worktreePath: "/clones/x/.claude/worktrees/lane",
+      owningClone: "/clones/x",
+      name: "lane",
+      branch: "claude/lane",
+    });
+    const tip = "1ed08f66df016a18c6d7d56bd97aa778912cb37b";
+    const base = SweepGitState.make({
+      branch: "claude/lane",
+      mainBranch: "main",
+      headBranch: "claude/lane",
+      worktreeDirty: false,
+      mainCheckedOutElsewhere: false,
+      branchCheckedOutElsewhere: false,
+      branchMergedIntoBase: true,
+      lockfileMovedOnMainUpdate: false,
+      statusProbeUnreliable: false,
+      worktreeProbeUnreliable: false,
+      localTip: O.some(tip),
+    });
+    // No pull request, tip on origin/main, clean tree: the lane landed some other way.
+    const prLess = retireVerdict(plan, base);
+    expect(prLess).toEqual(YeetRetireVerdict.cases["pr-less-on-main"].make({ tip, mainBranch: "main" }));
+    expect(renderRetireGate(prLess)).toBe(
+      `  gate: no pull request; tip ${tip} is already on origin/main and the lane is clean`
+    );
+    expect(pipe(plan, retireVerdict(base))).toEqual(prLess);
+    // Without a pull request, only git can vouch: an unmerged tip or a dirty tree refuses.
+    expect(retireVerdict(plan, SweepGitState.make({ ...base, branchMergedIntoBase: false }))).toEqual(
+      YeetRetireVerdict.cases.refused.make({
+        reason: `no pull request was observed for claude/lane and its tip ${tip} is not contained in origin/main`,
+      })
+    );
+    expect(retireVerdict(plan, SweepGitState.make({ ...base, worktreeDirty: true }))).toEqual(
+      YeetRetireVerdict.cases.refused.make({
+        reason: "no pull request was observed for claude/lane and the lane has uncommitted changes",
+      })
+    );
+    // An observed pull request decides on its own, whatever git says about the tip.
+    const merged = SweepGitState.make({
+      ...base,
+      branchMergedIntoBase: false,
+      pullRequestState: O.some("MERGED"),
+      pullRequestHeadBranch: O.some("claude/lane"),
+    });
+    expect(retireVerdict(plan, merged)).toEqual(YeetRetireVerdict.cases["pr-merged"].make({}));
+    expect(renderRetireGate(retireVerdict(plan, merged))).toBe("  gate: pull request MERGED");
+    expect(retireVerdict(plan, SweepGitState.make({ ...merged, pullRequestState: O.some("OPEN") }))).toEqual(
+      YeetRetireVerdict.cases.refused.make({ reason: "the pull request for claude/lane is OPEN, not MERGED" })
+    );
+    const elsewhere = retireVerdict(
+      plan,
+      SweepGitState.make({ ...merged, pullRequestHeadBranch: O.some("claude/other") })
+    );
+    expect(elsewhere).toEqual(
+      YeetRetireVerdict.cases.refused.make({ reason: "the resolved pull request heads claude/other, not claude/lane" })
+    );
+    expect(renderRetireGate(elsewhere)).toBe(
+      "  blocked: the resolved pull request heads claude/other, not claude/lane"
+    );
+  });
+
+  it.effect.prop(
     "generated retire-invoker outcomes round-trip through the JSON line the invoker prints",
     { outcome: Arbitrary.schema(RetireInvokerOutcome) },
     ({ outcome }) =>
@@ -504,6 +599,133 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
         expect(output).toContain("blocked: the pull request for claude/lane is OPEN, not MERGED");
         expect(yield* fs.exists(lane)).toBe(true);
       })
+    )
+  );
+
+  it.effect("retires a lane that never headed a pull request once origin/main contains its tip", () =>
+    withScratchRepo(
+      ({ repoRoot, lane, tip, packetDir }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          // The branch was never pushed and `gh pr view` finds nothing; the tip
+          // reached origin/main some other way, so the lane is a leftover.
+          const output = yield* captureOutput(
+            withCwd(lane, sweep(packetDir)).pipe(provideScopedLayer(ghLayer(tip, "none")))
+          );
+          expect(yield* fs.exists(lane)).toBe(false);
+          expect(yield* runGitText(repoRoot, ["branch", "--list", "claude/lane"])).toBe("");
+          expect(yield* runGitText(repoRoot, ["rev-parse", "main"])).toBe(tip);
+          expect(output).toContain("[yeet] retired");
+          expect(output).toContain("branch claude/lane: deleted");
+          expect(output).toContain(`gate: no pull request; tip ${tip} is already on origin/main and the lane is clean`);
+        }),
+      { remoteBranch: false }
+    )
+  );
+
+  it.effect("refuses a pull-request-less lane whose tip origin/main does not contain", () =>
+    withScratchRepo(
+      ({ lane, packetDir }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          yield* fs.writeFileString(path.join(lane, "ahead.txt"), "not on main\n");
+          yield* runGit(lane, ["add", "ahead.txt"]);
+          yield* runGit(lane, ["commit", "-m", "ahead"]);
+          const tip = yield* runGitText(lane, ["rev-parse", "HEAD"]);
+          const error = yield* withCwd(lane, sweep(packetDir)).pipe(
+            provideScopedLayer(ghLayer(tip, "none")),
+            Effect.flip
+          );
+          expect(error._tag).toBe("YeetCommandError");
+          expect(error.message).toContain(
+            `no pull request was observed for claude/lane and its tip ${tip} is not contained in origin/main`
+          );
+          expect(yield* fs.exists(lane)).toBe(true);
+        }),
+      { remoteBranch: false }
+    )
+  );
+
+  it.effect("refuses a pull-request-less lane with uncommitted changes and says so in plan mode", () =>
+    withScratchRepo(
+      ({ lane, tip, packetDir }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          yield* fs.writeFileString(path.join(lane, "lane.txt"), "edited after the push\n");
+          const planOutput = yield* captureOutput(
+            withCwd(lane, sweep(packetDir, { plan: true })).pipe(provideScopedLayer(ghLayer(tip, "none")))
+          );
+          expect(planOutput).toContain(
+            "blocked: no pull request was observed for claude/lane and the lane has uncommitted changes"
+          );
+          const error = yield* withCwd(lane, sweep(packetDir)).pipe(
+            provideScopedLayer(ghLayer(tip, "none")),
+            Effect.flip
+          );
+          expect(error.message).toContain("the lane has uncommitted changes");
+          expect(yield* fs.exists(lane)).toBe(true);
+          expect(yield* runGitText(lane, ["status", "--porcelain"])).toContain("lane.txt");
+        }),
+      { remoteBranch: false }
+    )
+  );
+
+  it.effect("refuses a pull-request-less retirement once the lane's HEAD moved past the approved tip", () =>
+    withScratchRepo(
+      ({ repoRoot, lane, tip }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          // The gate approved `tip`; a commit lands in the lane before removal.
+          const approved = SweepGitState.make({
+            branch: "claude/lane",
+            mainBranch: "main",
+            headBranch: "claude/lane",
+            worktreeDirty: false,
+            mainCheckedOutElsewhere: false,
+            branchCheckedOutElsewhere: false,
+            branchMergedIntoBase: true,
+            lockfileMovedOnMainUpdate: false,
+            statusProbeUnreliable: false,
+            worktreeProbeUnreliable: false,
+            localTip: O.some(tip),
+          });
+          yield* fs.writeFileString(path.join(lane, "late.txt"), "landed after the gate\n");
+          yield* runGit(lane, ["add", "late.txt"]);
+          yield* runGit(lane, ["commit", "-m", "late"]);
+          const error = yield* Effect.flip(
+            retireInvokingWorktree(
+              YeetRetirePlan.make({ worktreePath: lane, owningClone: repoRoot, name: "lane", branch: "claude/lane" }),
+              approved
+            )
+          );
+          expect(error.message).toContain(`is not the authorized ${tip}`);
+          expect(yield* fs.exists(lane)).toBe(true);
+          expect(yield* runGitText(repoRoot, ["branch", "--list", "claude/lane"])).toContain("claude/lane");
+        }),
+      { remoteBranch: false }
+    )
+  );
+
+  it.effect("prints the pull-request-less verdict in the JSON plan and report", () =>
+    withScratchRepo(
+      ({ lane, tip, packetDir }) =>
+        Effect.gen(function* () {
+          const planOutput = yield* captureOutput(
+            withCwd(lane, sweep(packetDir, { plan: true, json: true })).pipe(provideScopedLayer(ghLayer(tip, "none")))
+          );
+          const plan = yield* YeetRetireSweepPlanJson.decode(planOutput);
+          expect(plan.verdict).toEqual(YeetRetireVerdict.cases["pr-less-on-main"].make({ tip, mainBranch: "main" }));
+          const runOutput = yield* captureOutput(
+            withCwd(lane, sweep(packetDir, { json: true })).pipe(provideScopedLayer(ghLayer(tip, "none")))
+          );
+          const report = yield* YeetRetireSweepReportJson.decode(runOutput);
+          expect(report.verdict._tag).toBe("pr-less-on-main");
+          expect(report.receipt.branchDeleted).toBe(true);
+        }),
+      { remoteBranch: false }
     )
   );
 
@@ -1078,12 +1300,13 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
         );
         const plan = yield* YeetRetireSweepPlanJson.decode(planOutput);
         expect(plan.retire.branch).toBe("claude/lane");
-        expect(O.isNone(plan.blocker)).toBe(true);
+        expect(plan.verdict._tag).toBe("pr-merged");
         expect(plan.sweep.steps.length).toBeGreaterThan(0);
         const runOutput = yield* captureOutput(
           withCwd(lane, sweep(packetDir, { json: true })).pipe(provideScopedLayer(ghLayer(tip, "MERGED")))
         );
         const report = yield* YeetRetireSweepReportJson.decode(runOutput);
+        expect(report.verdict._tag).toBe("pr-merged");
         expect(report.receipt.branchDeleted).toBe(true);
         expect(report.sweep.steps.length).toBeGreaterThan(0);
       })
