@@ -268,6 +268,8 @@ const isImportedBindingMember = (
       const node = exactlyOneBindingDeclaration(target);
       return (
         namespaceImportMemberMatches(node, target, moduleSpecifier) ||
+        (moduleSpecifier === "effect/cli" &&
+          namespaceImportMemberMatches(node, target, `${moduleSpecifier}/${importedName}`)) ||
         namedImportMemberMatches(node, target, importedName, moduleSpecifier)
       );
     })

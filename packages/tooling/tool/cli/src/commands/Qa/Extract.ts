@@ -70,7 +70,7 @@ import type {
   RoundLayout,
 } from "@beep/qa-capture";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { QaExtractOptions } from "./Qa.schemas.ts";
 
 const decodeUnknownJsonEffect = S.decodeUnknownEffect(S.fromJsonString(S.Unknown));

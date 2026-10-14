@@ -12,7 +12,9 @@ import { generateAnthropicToolJson } from "@beep/anthropic";
 import { $AgentsServerId } from "@beep/identity/packages";
 import { redactString } from "@beep/observability";
 import * as A from "effect/Array";
-import { AnthropicStructuredOutput, Tool, Toolkit } from "effect/ai";
+import * as AnthropicStructuredOutput from "effect/ai/AnthropicStructuredOutput";
+import * as Tool from "effect/ai/Tool";
+import * as Toolkit from "effect/ai/Toolkit";
 import * as Effect from "effect/Effect";
 import * as JsonPatch from "effect/JsonPatch";
 import * as Metric from "effect/Metric";
@@ -194,8 +196,7 @@ class RepairInvalidBlocksResult extends S.Class<RepairInvalidBlocksResult>($I`Re
  * import type { BlockRepairCall } from "@beep/agents-server/BlockRepair"
  * import { AnthropicToolJsonResponse } from "@beep/anthropic"
  * import * as Effect from "effect/Effect";
- * import { Response } from "effect/ai"
- *
+ * import * as Response from "effect/ai/Response";
  * const issue = IssueReport.make({
  *   index: 0,
  *   raw: '{"type":"paragraph","children":[{"type":"text","text":1}]}',
@@ -241,8 +242,7 @@ export type BlockRepairCall = (
  * import { AnthropicToolJsonResponse } from "@beep/anthropic"
  * import type { RepairInvalidBlocks } from "@beep/agents-server/BlockRepair"
  * import * as Effect from "effect/Effect";
- * import { Response } from "effect/ai"
- *
+ * import * as Response from "effect/ai/Response";
  * const repair: RepairInvalidBlocks = makeRepairInvalidBlocks(() =>
  *   Effect.succeed(AnthropicToolJsonResponse.make({
  *     paramsJson: '{"repairs":[{"index":0,"block":{"type":"paragraph","children":[{"type":"text","text":"Fixed"}]}}]}',
@@ -665,8 +665,7 @@ const runRepairAttempts = Effect.fn("runRepairAttempts")(function* (
  * import { IssueReport, makeRepairInvalidBlocks } from "@beep/agents-server/BlockRepair"
  * import { AnthropicToolJsonResponse } from "@beep/anthropic"
  * import * as Effect from "effect/Effect";
- * import { Response } from "effect/ai"
- *
+ * import * as Response from "effect/ai/Response";
  * const repair = makeRepairInvalidBlocks(() =>
  *   Effect.succeed(AnthropicToolJsonResponse.make({
  *     paramsJson: '{"repairs":[{"index":0,"block":{"type":"paragraph","children":[{"type":"text","text":"Fixed"}]}}]}',

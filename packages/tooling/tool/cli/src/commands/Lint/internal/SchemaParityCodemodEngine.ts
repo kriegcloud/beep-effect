@@ -43,7 +43,7 @@ import { findSchemaParityCodemodEditOverlap, renderSchemaParityCodemodEdits } fr
 import { schemaParityCodemodValueImports } from "./SchemaParityCodemodImports.ts";
 import { literalKitFacetsRule } from "./SchemaParityCodemodLiteralKitRule.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { SourceFile } from "ts-morph";
 import type {
   SchemaParityCodemodOptions,

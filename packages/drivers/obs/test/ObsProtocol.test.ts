@@ -29,7 +29,7 @@ import * as PubSub from "effect/PubSub";
 import * as Queue from "effect/Queue";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
-import { Socket } from "effect/socket";
+import * as Socket from "effect/socket/Socket";
 import type { ObsIdentify, ObsIncomingMessage, ObsRequestEnvelope } from "@beep/obs";
 import type * as Cause from "effect/Cause";
 
