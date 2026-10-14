@@ -42,6 +42,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
+import { temporaryWorkingDirectory } from "./support/CommandTest.ts";
 import type {
   KnowledgeCounterfactualVerdict,
   KnowledgeDoctorMemoryTreeInput,
@@ -752,6 +753,34 @@ describe("knowledge doctor command boundary", () => {
       "refuses the unavailable gating form and emits human and JSON reports without gating findings",
       Effect.fnUntraced(
         function* () {
+          yield* temporaryWorkingDirectory;
+          const fs = yield* FileSystem.FileSystem;
+          const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+          const rootModule = "packages/tooling/tool/cli/src/commands/Root.ts";
+          yield* fs.makeDirectory("packages/tooling/tool/cli/src/commands", { recursive: true });
+          yield* fs.writeFileString(
+            rootModule,
+            doc(
+              'import { Command, Flag } from "effect/cli"',
+              'const doctor = Command.make("doctor", { report: Flag.Boolean("report"), tree: Flag.String("tree"), json: Flag.Boolean("json") })',
+              'const knowledge = Command.make("knowledge").pipe(Command.withSubcommands([doctor]))',
+              'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands([knowledge]))'
+            )
+          );
+          yield* fs.writeFileString(
+            "AGENTS.md",
+            `Read \`${rootModule}\` or run \`bun run beep knowledge doctor --report\`. Missing: \`goals/missing.md\`.\n`
+          );
+          yield* fs.makeDirectory("goals/demo/reviews", { recursive: true });
+          yield* fs.writeFileString("goals/demo/reviews/plain.md", "Old `goals/archived.md` reference.\n");
+          for (const args of [
+            ["init", "--initial-branch=main"],
+            ["add", "."],
+            ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-m", "fixture"],
+          ]) {
+            const code = yield* spawner.exitCode(ChildProcess.make("git", args, { extendEnv: true }));
+            assert.strictEqual(code, 0);
+          }
           const run = Command.runWith(knowledgeDoctorCommand, { version: "0.0.0" });
           const refused = yield* Effect.exit(run([]));
           assert.isTrue(Exit.isFailure(refused));
@@ -763,6 +792,8 @@ describe("knowledge doctor command boundary", () => {
           const report = yield* A.last(lines).pipe(O.getOrThrow, decodeKnowledgeDoctorReportJson);
           assert.strictEqual(report.mode, "report");
           assert.isAbove(report.spanCounts.verified, 0);
+          assert.isTrue(A.some(report.findings, (row) => row.finding.severity === "blocking"));
+          assert.isTrue(A.some(report.findings, (row) => row.finding.severity === "advisory"));
         },
         Effect.provideServiceEffect(Console.Console, TestConsole.make)
       )

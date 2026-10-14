@@ -18178,13 +18178,13 @@
       "status": "open"
     },
     {
-      "id": "EV006:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:757:isTrue@10#1",
+      "id": "EV006:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:786:isTrue@10#1",
       "lens": "resource",
       "ruleId": "EV006",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-doctor.test.ts",
-      "line": 757,
-      "endLine": 757,
+      "line": 786,
+      "endLine": 786,
       "symbol": "isTrue",
       "occurrence": "v2:e83c748c2e5b4f2cb38e27c4232f5d3db19fc4fe3f226f7f21b0e3f5d834fdf0",
       "class": "hand-rolled-data-assertion",
