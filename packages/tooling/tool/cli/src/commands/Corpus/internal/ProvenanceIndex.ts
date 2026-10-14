@@ -25,7 +25,7 @@ import {
   MailExportTreeIndexer,
 } from "./ProvenanceIndex.contracts.ts";
 import * as P from "./ProvenanceIndex.schemas.ts";
-import { appendCorpusJsonLines, resolveWithinRoot, writeCorpusStringFile } from "./Shared.ts";
+import { resolveWithinRoot } from "./Shared.ts";
 import type { ChildProcessSpawner } from "effect/process";
 import type { MailExportTreeIndexResult } from "./ProvenanceIndex.schemas.ts";
 
@@ -74,6 +74,86 @@ const readOptional = Effect.fn("Provenance.readOptional")(function* (root: strin
 const checked = Effect.fn("Provenance.checked")(function* (root: string, candidate: string) {
   return yield* resolveWithinRoot(root, candidate, "Provenance path escapes corpus root");
 });
+
+const writeProvenance = Effect.fn("Provenance.writeOutput")(function* (
+  output: string,
+  file: string,
+  content: string,
+  append?: boolean
+) {
+  const path = yield* Path.Path;
+  return yield* Effect.try({
+    try: () => {
+      const nodeFs = process.getBuiltinModule("node:fs");
+      if (path.dirname(file) !== output) {
+        throw CorpusCommandError.make({
+          message: "Provenance output must be a direct child of its checked directory.",
+        });
+      }
+      const directory = nodeFs.openSync(
+        output,
+        nodeFs.constants.O_RDONLY | nodeFs.constants.O_DIRECTORY | nodeFs.constants.O_NOFOLLOW
+      );
+      let temporary: string | undefined;
+      let temporaryDir: string | undefined;
+      try {
+        if (nodeFs.realpathSync(`/proc/self/fd/${directory}`) !== output) {
+          throw CorpusCommandError.make({ message: "Provenance output directory changed after validation." });
+        }
+        const target = `/proc/self/fd/${directory}/${path.basename(file)}`;
+        if (append === true) {
+          const descriptor = nodeFs.openSync(
+            target,
+            nodeFs.constants.O_WRONLY | nodeFs.constants.O_APPEND | nodeFs.constants.O_NOFOLLOW
+          );
+          try {
+            nodeFs.writeFileSync(descriptor, content);
+            nodeFs.fsyncSync(descriptor);
+          } finally {
+            nodeFs.closeSync(descriptor);
+          }
+          return;
+        }
+        temporaryDir = nodeFs.mkdtempSync(`/proc/self/fd/${directory}/.provenance-`);
+        temporary = `${temporaryDir}/output.tmp`;
+        const descriptor = nodeFs.openSync(
+          temporary,
+          nodeFs.constants.O_WRONLY | nodeFs.constants.O_CREAT | nodeFs.constants.O_EXCL | nodeFs.constants.O_NOFOLLOW,
+          0o600
+        );
+        try {
+          nodeFs.writeFileSync(descriptor, content);
+          nodeFs.fsyncSync(descriptor);
+        } finally {
+          nodeFs.closeSync(descriptor);
+        }
+        nodeFs.renameSync(temporary, target);
+        temporary = undefined;
+        nodeFs.fsyncSync(directory);
+      } finally {
+        if (temporary !== undefined) {
+          try {
+            nodeFs.unlinkSync(temporary);
+          } catch {
+            // The write error remains authoritative.
+          }
+        }
+        if (temporaryDir !== undefined) {
+          try {
+            nodeFs.rmdirSync(temporaryDir);
+          } catch {
+            // The write error remains authoritative.
+          }
+        }
+        nodeFs.closeSync(directory);
+      }
+    },
+    catch: fail,
+  });
+});
+
+const appendProvenance = (output: string, file: string, lines: ReadonlyArray<string>) =>
+  writeProvenance(output, file, `${A.join(lines, "\n")}\n`, true);
 const childrenRoot = Effect.fn("Provenance.childrenRoot")(function* (root: string, tree: string) {
   const path = yield* Path.Path;
   if (tree === "." || tree === ".." || /[/\\\0]/.test(tree))
@@ -751,11 +831,18 @@ export const FileMetadataCensusReaderLive = (command = "exiftool") =>
   );
 
 const outputRoot = Effect.fn("Provenance.outputRoot")(function* (root: string, output?: string) {
+  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  return yield* checked(
+  const resolved = yield* checked(
     root,
     output === undefined ? path.join(root, "staging", "provenance") : path.resolve(root, output)
   );
+  yield* fs.makeDirectory(resolved, { recursive: true }).pipe(Effect.mapError(fail));
+  const actual = yield* fs.realPath(resolved).pipe(Effect.mapError(fail));
+  if (actual !== resolved) {
+    return yield* CorpusCommandError.make({ message: "Provenance output directory changed after validation." });
+  }
+  return resolved;
 });
 
 /**
@@ -782,17 +869,18 @@ export const indexMailExportTrees = Effect.fn("Provenance.indexMailExportTrees")
     Effect.fn(function* (tree) {
       yield* childrenRoot(options.corpusRoot, tree);
       const file = path.join(output, `messages-${tree}.jsonl`);
-      yield* writeCorpusStringFile(file, "");
+      yield* writeProvenance(output, file, "");
       const counts = yield* indexer.indexTree(
         options.corpusRoot,
         tree,
         Effect.fn(function* (row) {
           const text = yield* P.MailMessageIndexRecordJson.encode(row).pipe(Effect.mapError(fail));
-          yield* appendCorpusJsonLines(file, [text]);
+          yield* appendProvenance(output, file, [text]);
         }, Effect.provide(context))
       );
       const summary = P.MailMessageIndexSummary.make({ ...counts, tree, generatedAt: yield* now });
-      yield* writeCorpusStringFile(
+      yield* writeProvenance(
+        output,
         path.join(output, `messages-${tree}.summary.json`),
         yield* P.MailMessageIndexSummaryJson.encode(summary).pipe(Effect.mapError(fail))
       );
@@ -940,7 +1028,7 @@ const scanAttachments = Effect.fn("Provenance.scanAttachments")(function* (
     const root = yield* childrenRoot(options.corpusRoot, tree);
     const files = yield* attachmentFiles(root);
     const proposalFile = path.join(output, `proposals-${tree}.jsonl`);
-    yield* writeCorpusStringFile(proposalFile, "");
+    yield* writeProvenance(output, proposalFile, "");
     yield* Effect.forEach(
       A.chunksOf(files, 2000),
       Effect.fn("Provenance.scanBatch")(function* (batch) {
@@ -955,7 +1043,7 @@ const scanAttachments = Effect.fn("Provenance.scanAttachments")(function* (
             scannedFiles++;
             bump(byMime, row.mimeType);
             for (const flag of row.flags) bump(byFlag, flag);
-            yield* appendCorpusJsonLines(proposalFile, [
+            yield* appendProvenance(output, proposalFile, [
               yield* P.AttachmentRepairProposalJson.encode(row).pipe(Effect.mapError(fail)),
             ]);
             if (row.decision !== "rename" || row.proposedFileName === undefined) return;
@@ -1009,7 +1097,8 @@ export const repairAttachmentExtensions = Effect.fn("Provenance.repairAttachment
     byMime,
     byOutcome,
   });
-  yield* writeCorpusStringFile(
+  yield* writeProvenance(
+    output,
     path.join(output, `attachments-${options.mode}.summary.json`),
     yield* P.AttachmentRepairSummaryJson.encode(summary).pipe(Effect.mapError(fail))
   );
@@ -1017,6 +1106,7 @@ export const repairAttachmentExtensions = Effect.fn("Provenance.repairAttachment
 });
 
 const writeMetadataBatches = Effect.fn("Provenance.writeMetadataBatches")(function* (
+  output: string,
   file: string,
   batches: ReadonlyArray<ReadonlyArray<P.MetadataCensusRecord>>,
   counts: { fileCount: number; errorCount: number; withAuthor: number; withCreateDate: number },
@@ -1029,7 +1119,9 @@ const writeMetadataBatches = Effect.fn("Provenance.writeMetadataBatches")(functi
       counts.withAuthor += Number(row.fields.author !== undefined);
       counts.withCreateDate += Number(row.fields.createDate !== undefined);
       bump(byFileType, row.fields.fileType ?? "unknown");
-      yield* appendCorpusJsonLines(file, [yield* P.MetadataCensusRecordJson.encode(row).pipe(Effect.mapError(fail))]);
+      yield* appendProvenance(output, file, [
+        yield* P.MetadataCensusRecordJson.encode(row).pipe(Effect.mapError(fail)),
+      ]);
     }
 });
 
@@ -1054,7 +1146,7 @@ export const runMetadataCensus = Effect.fn("Provenance.runMetadataCensus")(funct
   const reader = yield* FileMetadataCensusReader;
   const output = yield* outputRoot(options.corpusRoot, options.outputDir);
   const file = path.join(output, "metadata.jsonl");
-  yield* writeCorpusStringFile(file, "");
+  yield* writeProvenance(output, file, "");
   const engineVersion = yield* reader.version;
   const byFileType: Record<string, number> = {};
   const counts = { fileCount: 0, errorCount: 0, withAuthor: 0, withCreateDate: 0 };
@@ -1079,7 +1171,7 @@ export const runMetadataCensus = Effect.fn("Provenance.runMetadataCensus")(funct
       const batches = yield* Effect.forEach(wave, (batch) => reader.readBatch(options.corpusRoot, label, batch), {
         concurrency: options.concurrency,
       });
-      yield* writeMetadataBatches(file, batches, counts, byFileType);
+      yield* writeMetadataBatches(output, file, batches, counts, byFileType);
     }
   }
   const summary = P.MetadataCensusSummary.make({
@@ -1090,7 +1182,8 @@ export const runMetadataCensus = Effect.fn("Provenance.runMetadataCensus")(funct
     okCount: counts.fileCount - counts.errorCount,
     byFileType,
   });
-  yield* writeCorpusStringFile(
+  yield* writeProvenance(
+    output,
     path.join(output, "metadata.summary.json"),
     yield* P.MetadataCensusSummaryJson.encode(summary).pipe(Effect.mapError(fail))
   );

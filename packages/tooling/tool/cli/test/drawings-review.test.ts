@@ -637,6 +637,67 @@ const TestLayer = Layer.mergeAll(
 
 describe("beep drawings review", () => {
   it.layer(TestLayer, { timeout: "180 seconds" })((it) => {
+    it.effect("refuses a symlinked review directory before creating a round outside the corpus", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const outside = yield* fs.makeTempDirectoryScoped();
+        yield* fs.symlink(outside, path.join(corpus.matter, "review"));
+
+        const failure = yield* Effect.flip(
+          review.open(
+            ReviewOpenRequest.make({
+              location: corpus.location,
+              manifestPath: corpus.sent.manifest,
+              deliveryPath: O.none(),
+            })
+          )
+        );
+        assertInstanceOf(failure, DrawingsCommandError);
+        expect(yield* fs.exists(path.join(outside, "round-1"))).toBe(false);
+      })
+    );
+    it.effect("replaces a linked inventory entry without writing to its outside target", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const outside = yield* fs.makeTempDirectoryScoped();
+        const opened = yield* review.open(
+          ReviewOpenRequest.make({
+            location: corpus.location,
+            manifestPath: corpus.sent.manifest,
+            deliveryPath: O.none(),
+          })
+        );
+        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        const inventory = path.join(opened.roundDir, "inventory.json");
+        const outsideInventory = path.join(outside, "inventory.json");
+        yield* fs.rename(inventory, outsideInventory);
+        const original = yield* fs.readFile(outsideInventory);
+        yield* fs.symlink(outsideInventory, inventory);
+        const dispositionsFile = path.join(corpus.matter, "dispositions-draft.json");
+        yield* writeJsonFile(
+          ReviewDispositions,
+          dispositionsFile,
+          ReviewDispositions.make({
+            schemaVersion: "drawing-review-dispositions/v1",
+            round: 1,
+            entries: [entry("A1-01", specChange), entry("A1-02", declined), entry("A1-03", specChange, "P2")],
+          })
+        );
+
+        const planned = yield* review.plan(
+          ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: dispositionsFile })
+        );
+        expect(planned.round.status).toBe("planned");
+        expect(yield* fs.readFile(outsideInventory)).toStrictEqual(original);
+        expect(yield* fs.realPath(inventory)).toBe(inventory);
+      })
+    );
     it.effect("ingests flattened markup: notes with rects, an all-sheets merge, and unique-winner matches", (context) =>
       Effect.gen(function* () {
         if (yield* skipWithoutPoppler(context)) return;

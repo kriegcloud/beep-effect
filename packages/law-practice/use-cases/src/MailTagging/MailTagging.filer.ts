@@ -394,14 +394,10 @@ export const makeAttachmentFiler: Effect.Effect<
         ),
     });
 
-  // The holder is ours when its reported hash matches, or, without a hash, its reported size.
-  const isOwnUpload = (
-    holder: ExistingDocument,
-    payload: Payload,
-    intent: FilingIntent
-  ): Effect.Effect<boolean, MailTaggingPortError> =>
+  // A matching byte length cannot establish ownership of a conflicting file.
+  const isOwnUpload = (holder: ExistingDocument, payload: Payload): Effect.Effect<boolean, MailTaggingPortError> =>
     O.match(holder.contentSha1, {
-      onNone: () => Effect.succeed(O.exists(holder.byteLength, (byteLength) => byteLength === intent.byteLength)),
+      onNone: () => Effect.succeed(false),
       onSome: (reported) => Effect.map(contentSha1(payload.bytes), (own) => own === reported),
     });
 
@@ -428,7 +424,7 @@ export const makeAttachmentFiler: Effect.Effect<
     payload: Payload,
     adoption: { readonly intent: FilingIntent; readonly holder: ExistingDocument }
   ): Effect.Effect<FilingState, FilingError> =>
-    Effect.flatMap(isOwnUpload(adoption.holder, payload, adoption.intent), (ours) =>
+    Effect.flatMap(isOwnUpload(adoption.holder, payload), (ours) =>
       ours
         ? Effect.as(
             complete(target, payload, adoption.intent, { fileId: adoption.holder.fileId, reconciled: true }),

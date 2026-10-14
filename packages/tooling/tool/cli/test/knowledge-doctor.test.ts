@@ -456,6 +456,23 @@ describe("knowledge doctor scan", () => {
     );
 
     it.effect(
+      "refuses an unbounded fan-out of distinct historical commits before materialization",
+      Effect.fnUntraced(function* () {
+        const commits = A.map(["1", "2", "3", "4", "5"], (digit) => Str.repeat(40)(digit));
+        const tree = yield* memoryTree({
+          files: {
+            "goals/demo/research/notes.md": doc(
+              ...A.flatMap(commits, (commit) => [`<!-- beep:historical commit=${commit} -->`, "`package.json`"])
+            ),
+          },
+          ancestors: commits,
+        });
+        const error = yield* Effect.flip(scanKnowledgeDoctorTree(tree));
+        assert.include(error.message, "more than four distinct historical commits");
+      })
+    );
+
+    it.effect(
       "reports a non-ancestor citation and leaves its spans unclassified",
       Effect.fnUntraced(function* () {
         const tree = yield* memoryTree({

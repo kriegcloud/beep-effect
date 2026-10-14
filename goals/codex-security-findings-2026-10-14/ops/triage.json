@@ -106,6 +106,42 @@
     "L24": {
       "status": "implemented",
       "findings": ["CSF-036"]
+    },
+    "L25": {
+      "status": "implemented",
+      "findings": ["CSF-035"]
+    },
+    "L26": {
+      "status": "implemented",
+      "findings": ["CSF-037"]
+    },
+    "L27": {
+      "status": "implemented",
+      "findings": ["CSF-038"]
+    },
+    "L30": {
+      "status": "implemented",
+      "findings": ["CSF-040"]
+    },
+    "L28": {
+      "status": "implemented",
+      "findings": ["CSF-043"]
+    },
+    "L29": {
+      "status": "implemented",
+      "findings": ["CSF-044"]
+    },
+    "L31": {
+      "status": "implemented",
+      "findings": ["CSF-046"]
+    },
+    "L33": {
+      "status": "implemented",
+      "findings": ["CSF-024"]
+    },
+    "L32": {
+      "status": "implemented",
+      "findings": ["CSF-047"]
     }
   },
   "findings": [
@@ -704,15 +740,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "89cf1564bea82087bef7a8ed2fbc76648a73dfdb",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Current HEAD used a global before(.*?)after regex for every selected line. The seeded JudgePack locator selects empty-prefix lines, and an adversarial repeated-opening line exercised the slow path."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Models/Models.locator.service.ts",
+          "packages/tooling/tool/cli/test/models-locators.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/models-locators.test.ts --pool=threads --maxWorkers=1",
+          "bun run beep quality package-verify @beep/repo-cli --quick"
+        ],
+        "summary": "Scan each line once with literal delimiter searches and advance past each completed match. The focused repeated-opening regression and all locator tests pass."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Models locator parsing",
+      "lane": "L33"
     },
     {
       "id": "CSF-025",
@@ -983,15 +1031,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "319436049eec0e08a36aae46d6ebf5e15a7d4d01",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Current HEAD accepts every unique commit marker in one report and calls the historical tree materializer for each. A focused test exercises five distinct historical markers."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.service.ts",
+          "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.service.ts",
+          "packages/tooling/tool/cli/test/knowledge-doctor.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/knowledge-doctor.test.ts --pool=threads --maxWorkers=1 -t 'rejects more than four historical commits'"
+        ],
+        "summary": "Reject a report with more than four distinct historical commits before ancestry resolution and delete each compressed archive immediately after extraction. The limit is per report and can be revisited with a bounded streaming design."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Knowledge doctor historical citations",
+      "lane": "L25"
     },
     {
       "id": "CSF-036",
@@ -1028,15 +1088,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "6d85719b0c74ba2e9cc944358f5ccada89a87e85",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Current HEAD obtains the outer boundary during application from a mutable checkout path. The regression replaces the path with a symlink after the first probe and confirms the replacement is refused."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/internal/repo-run/ResidueReap.ts",
+          "packages/tooling/tool/cli/test/residue-reap.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/residue-reap.test.ts --pool=threads --maxWorkers=1 -t 'refuses a checkout root swap'"
+        ],
+        "summary": "Resolve and freeze each checkout root boundary in settings before discovery; use only the frozen boundary for candidate application."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Repository residue cleanup",
+      "lane": "L26"
     },
     {
       "id": "CSF-038",
@@ -1045,15 +1116,24 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "ade1def89b2a6acdeb75e2480c070e0bf8defc4d",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Current HEAD interpolated a parsed font version into the source comment without escaping. Custom font paths are supported by the generator."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/foundation/capability/technical-drawing/scripts/generate-label-glyphs.ts",
+          "packages/foundation/capability/technical-drawing/src/internal/LabelGlyphs.ts"
+        ],
+        "verificationCommands": ["bun run generate"],
+        "summary": "Emit only SHA-256 digests in the generated provenance comment and remove the unnecessary version parser. Regenerate the committed glyph module from the default fonts."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Technical drawing glyph generator",
+      "lane": "L27"
     },
     {
       "id": "CSF-039",
@@ -1079,15 +1159,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "fd7d06b834b4f98ae3196354f707044824cdac90",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current hook rejected dollar expansion but accepted bracket, star, and question-mark globs. A local hook fixture confirmed that the globbed Git command received allow before the fix."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          ".cursor/hooks/deny-shell.sh",
+          "docs/runbooks/agent-pools.md"
+        ],
+        "verificationCommands": [
+          "Python JSON-payload fixture for the configured shell hook: globbed Git denied, plain echo allowed, literal Git denied"
+        ],
+        "summary": "Reject commands containing pathname glob syntax in the guard and document the conservative literal-command policy. A hook fixture now denies the globbed Git spelling and still permits a plain command."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Cursor shell guard",
+      "lane": "L30"
     },
     {
       "id": "CSF-041",
@@ -1130,15 +1221,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "8f74b33631e1f949ea8bcbd94c1f660f578e201e",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current use case adopted a conflict by equal size when SHA-1 metadata was absent. The production adapter can forward size independently from hash, making the conditional path reachable."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/law-practice/use-cases/src/MailTagging/MailTagging.filer.ts",
+          "packages/law-practice/use-cases/test/MailTagging.filer.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/MailTagging.filer.test.ts --pool=threads --maxWorkers=1 -t 'store reports a size and no hash'"
+        ],
+        "summary": "Require a matching content hash to adopt an existing file; otherwise retire the pending intent and upload under the short-hash alternate name. The size-only regression now expects that fallback."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Mail attachment filing reconciliation",
+      "lane": "L28"
     },
     {
       "id": "CSF-044",
@@ -1147,15 +1249,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "649129464573c7a9a1182be755267cc14fdc0bc9",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current discovery path read every matching .last-used sidecar before age and process checks. A FIFO without a writer could wait indefinitely."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/internal/repo-run/TmpfsReap.ts",
+          "packages/tooling/tool/cli/test/tmpfs-reap.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/tmpfs-reap.test.ts --pool=threads --maxWorkers=1 -t 'ignores FIFO, symlink, and oversized Fallow owner sidecars'"
+        ],
+        "summary": "Open sidecars without following the final symlink and with nonblocking flags, accept only regular files, and cap reads at 4096 bytes. A focused test covers FIFO, symlink, and oversized inputs."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Tmpfs Fallow cache janitor",
+      "lane": "L29"
     },
     {
       "id": "CSF-045",
@@ -1181,15 +1294,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "3e18bd6ea2fa1e0f9d31f97d277dd938f3a96827",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Current HEAD used ordinary writeFile on each round output after validating only the matter directory. The focused tests exercise a linked review directory and a linked inventory leaf."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Drawings/Drawings.review.ts",
+          "packages/tooling/tool/cli/test/drawings-review.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/drawings-review.test.ts --pool=threads --maxWorkers=1 -t 'replaces a linked inventory entry|refuses a symlinked review directory'",
+          "bun run beep quality package-verify @beep/repo-cli --quick"
+        ],
+        "summary": "Create review directories through no-follow directory descriptors, verify the bound directory remains under the corpus root, and atomically replace each round file through its bound parent. A symlink leaf is replaced without writing its target."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Drawing review round storage",
+      "lane": "L31"
     },
     {
       "id": "CSF-047",
@@ -1198,15 +1323,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "604694ebec1d37241d36cf21dbf2833448af1a57",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Current HEAD joined fixed output leaf names after parent validation and wrote them without final-component symlink protection. The metadata workflow reached its truncate before invoking the external reader."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Corpus/internal/ProvenanceIndex.ts",
+          "packages/tooling/tool/cli/test/corpus-provenance-index.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/corpus-provenance-index.test.ts --pool=threads --maxWorkers=1 -t 'metadata census replaces a linked output leaf'",
+          "bun run beep quality package-verify @beep/repo-cli --quick"
+        ],
+        "summary": "Create and recheck the canonical output directory, bind each write to that directory descriptor, atomically replace complete output files, and append only through no-follow descriptors. A metadata symlink regression confirms the outside target remains unchanged."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Corpus provenance output",
+      "lane": "L32"
     }
   ]
 }

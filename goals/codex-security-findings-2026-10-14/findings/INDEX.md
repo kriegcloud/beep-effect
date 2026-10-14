@@ -40,7 +40,7 @@ auth values, email addresses, and raw local paths.
 | [CSF-021](./CSF-021.md) | Informational | captured | Predictable codemod staging paths allow symlink file overwrite | _pending P2_ |
 | [CSF-022](./CSF-022.md) | Informational | captured | Quadratic overlap enumeration enables drawing\-spec denial of service | _pending P2_ |
 | [CSF-023](./CSF-023.md) | Informational | captured | Intake inspector can leak document bytes to the hosted relay | _pending P2_ |
-| [CSF-024](./CSF-024.md) | Informational | captured | New line\-value locator permits repository\-triggered ReDoS | _pending P2_ |
+| [CSF-024](./CSF-024.md) | Informational | repair implemented | New line\-value locator permits repository\-triggered ReDoS | Models locator parsing |
 | [CSF-025](./CSF-025.md) | Informational | already fixed | Artifact upload allows command execution through zip filenames | scratchpad artifact archive command |
 | [CSF-026](./CSF-026.md) | Informational | repair implemented | Event deletion permits traversal to other Graph resources | M365 Graph path segment schema |
 | [CSF-027](./CSF-027.md) | Informational | repair implemented | Bootstrap executes unverified op during status logging | cloud bootstrap 1Password status |
@@ -51,19 +51,19 @@ auth values, email addresses, and raw local paths.
 | [CSF-032](./CSF-032.md) | Informational | repair implemented | Boundary\-date input can repeatedly abort docket intake polls | docket reminder ladder |
 | [CSF-033](./CSF-033.md) | Informational | repair implemented | New Bash grants bypass the Beep\-only log access restriction | Claude Bash permission allowlist |
 | [CSF-034](./CSF-034.md) | Informational | repair implemented | Crafted PDF font graphs cause exponential validation work | PDF font structure inspector |
-| [CSF-035](./CSF-035.md) | Informational | captured | Historical citations cause unbounded repository archive copies | _pending P2_ |
+| [CSF-035](./CSF-035.md) | Informational | repair implemented | Historical citations cause unbounded repository archive copies | Knowledge doctor historical citations |
 | [CSF-036](./CSF-036.md) | Informational | repair implemented | Unsafe shell quoting in PR\-title recovery commands | Yeet PR title recovery |
-| [CSF-037](./CSF-037.md) | Informational | captured | Checkout\-root swaps bypass residue\-reap containment | _pending P2_ |
-| [CSF-038](./CSF-038.md) | Informational | captured | Font metadata can inject executable generated TypeScript | _pending P2_ |
+| [CSF-037](./CSF-037.md) | Informational | repair implemented | Checkout\-root swaps bypass residue\-reap containment | Repository residue cleanup |
+| [CSF-038](./CSF-038.md) | Informational | repair implemented | Font metadata can inject executable generated TypeScript | Technical drawing glyph generator |
 | [CSF-039](./CSF-039.md) | Informational | captured | Corpus resume follows output symlinks outside its root | _pending P2_ |
-| [CSF-040](./CSF-040.md) | Informational | captured | Cursor shell deny guard can be bypassed with pathname globs | _pending P2_ |
+| [CSF-040](./CSF-040.md) | Informational | repair implemented | Cursor shell deny guard can be bypassed with pathname globs | Cursor shell guard |
 | [CSF-041](./CSF-041.md) | Informational | captured | Unnormalized sensitivity labels bypass memory access checks | _pending P2_ |
 | [CSF-042](./CSF-042.md) | Informational | captured | Departed terminal shells bypass retirement write detection | _pending P2_ |
-| [CSF-043](./CSF-043.md) | Informational | captured | Size\-only Box conflicts can falsely complete pending filings | _pending P2_ |
-| [CSF-044](./CSF-044.md) | Informational | captured | Unvalidated Fallow sidecars can block the tmpfs janitor | _pending P2_ |
+| [CSF-043](./CSF-043.md) | Informational | repair implemented | Size\-only Box conflicts can falsely complete pending filings | Mail attachment filing reconciliation |
+| [CSF-044](./CSF-044.md) | Informational | repair implemented | Unvalidated Fallow sidecars can block the tmpfs janitor | Tmpfs Fallow cache janitor |
 | [CSF-045](./CSF-045.md) | Informational | captured | Chunked uploads commit swapped sources before checking integrity | _pending P2_ |
-| [CSF-046](./CSF-046.md) | Informational | captured | Review round writes follow symlinks outside the corpus root | _pending P2_ |
-| [CSF-047](./CSF-047.md) | Informational | captured | Provenance outputs follow symlinks outside the corpus root | _pending P2_ |
+| [CSF-046](./CSF-046.md) | Informational | repair implemented | Review round writes follow symlinks outside the corpus root | Drawing review round storage |
+| [CSF-047](./CSF-047.md) | Informational | repair implemented | Provenance outputs follow symlinks outside the corpus root | Corpus provenance output |
 
 ## Closeout Mapping
 

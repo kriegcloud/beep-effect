@@ -702,7 +702,7 @@ describe("MailTagging two-phase filing", () => {
 
   it.layer(repeatedPdf(), { timeout: "30 seconds" })("store reports a size and no hash", (it) => {
     it.effect(
-      "reconciles its own upload by size",
+      "refuses size-only adoption and files under the short-hash name",
       Effect.fnUntraced(function* () {
         const state = yield* World;
         yield* Ref.set(state.holderDetail, "size-only");
@@ -710,8 +710,11 @@ describe("MailTagging two-phase filing", () => {
         yield* Effect.flip(file({ mode: "apply", message: usptoMail }));
         const rerun = yield* file({ mode: "apply", message: usptoMail });
 
-        expect([rerun.attachmentsReconciled, rerun.attachmentsFiled]).toStrictEqual([1, 0]);
-        expect((yield* ledgerShape()).completed).toStrictEqual([["2026-07-01 office-action.pdf", "file-1", true]]);
+        expect([rerun.attachmentsReconciled, rerun.attachmentsFiled]).toStrictEqual([0, 1]);
+        expect(yield* abandonReasons()).toStrictEqual(["holder-mismatch"]);
+        expect((yield* ledgerShape()).completed).toStrictEqual([
+          ["2026-07-01 office-action (315d429b).pdf", "file-2", false],
+        ]);
       })
     );
   });

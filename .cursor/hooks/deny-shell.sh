@@ -8,7 +8,7 @@
 #    treats shell operators, backticks, `$`, and `=` as separators. Arguments count too:
 #    `echo git` is denied on purpose.
 # 2. The command uses shell expansion: `$name`, `${...}`, `$(...)`, `$'...'`, `$"..."`,
-#    positional or special parameters, or backticks. A static scan cannot know what an
+#    positional or special parameters, backticks, or pathname globs. A static scan cannot know what an
 #    expansion produces (`a=su; ${a}do`), so it refuses to guess. Lanes pass literal values.
 #
 # Interpreter-level construction (a Python or Node string that assembles a command name)
@@ -33,11 +33,15 @@ for token in ${normalized}; do
   esac
 done
 expansion_pattern='[$][A-Za-z0-9_{(@*#?!$'"'"'"-]|`'
+glob=""
+case "${command_line}" in
+  *"*"*|*"?"*|*"["*|*"]"*) glob="yes" ;;
+esac
 if [ -n "${deny}" ]; then
   jq -cn --arg d "${deny}" '{permission:"deny",
     user_message:("Blocked: `"+$d+"` is denied in Cursor lanes (D21); the orchestrator stages by name."),
     agent_message:("`"+$d+"` is denied in this repository for Cursor lanes (any token, any path). Do not retry with a wrapper; report what you needed instead.")}'
-elif [[ "${command_line}" =~ ${expansion_pattern} ]]; then
+elif [[ "${command_line}" =~ ${expansion_pattern} || -n "${glob}" ]]; then
   jq -cn '{permission:"deny",
     user_message:"Blocked: shell expansion is denied in Cursor lanes (D21) because the guard cannot see what it produces.",
     agent_message:"Shell expansion ($name, ${...}, $(...), $'"'"'...'"'"', backticks) is denied in this repository for Cursor lanes. Rewrite the command with literal values; do not retry with another indirection."}'

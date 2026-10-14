@@ -1247,6 +1247,12 @@ export const scanKnowledgeDoctorTree = Effect.fn("KnowledgeDoctor.scanTree")(fun
   const archivalCommits = A.flatMap(extractions, ({ documentPath, extraction }) =>
     isKnowledgeArchivalPath(documentPath) ? A.map(extraction.markers, (marker) => marker.commit) : A.empty<string>()
   );
+  const distinctHistoricalCommits = A.dedupe(archivalCommits);
+  if (A.length(distinctHistoricalCommits) > 4) {
+    return yield* KnowledgeOperationalError.make({
+      message: "Knowledge doctor refuses more than four distinct historical commits in one report.",
+    });
+  }
   const ancestry = yield* citationAncestry(tree, archivalCommits);
   let rows = A.empty<FindingRow>();
   let counts = HashMap.empty<KnowledgeSpanClass, number>();
