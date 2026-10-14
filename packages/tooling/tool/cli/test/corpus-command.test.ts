@@ -4417,7 +4417,7 @@ it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restor
         const decoded = yield* decodeTransformationLedgerRecordJson(encoded);
         expect(decoded).toEqual(terminal.value);
         const legacy = yield* S.decodeUnknownEffect(TransformationLedgerRecord)(
-          Struct.omit(["failureCause"])(terminal.value)
+          Struct.omit(terminal.value, ["failureCause"])
         );
         expect(isTransformationLedgerRecordCasesMailStoreException(legacy) && legacy.failureCause).toBeUndefined();
         expect(

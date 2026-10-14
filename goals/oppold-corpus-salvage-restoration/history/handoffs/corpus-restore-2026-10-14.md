@@ -133,3 +133,21 @@ inherited observations in eight files that exactly match main; ownership
 stays with the orchestrator. The prior terminal evidence PR #1718 is
 merged and integrated. No recovery family or new manifest is created.
 Publication will carry only this lane's recovery changes and receipts.
+
+
+## Final preflight results and fixture type-inference correction
+
+Both real sandbox smokes passed through admitted beep-heavy: Apache Tika
+3.3.1 and pffexport 20260917. Schema-first lint passed. Doctest verification
+passed for the restoration schema file; the new pure example is marked.
+Its 23 older unmarked-example advisories are inherited and are not rewritten
+in this two-change engine scope.
+
+Final test-tsgo identified TS2322 on curried Struct.omit key inference.
+Switching to the verified data-first overload preserves the runtime omission
+and fixes inference without changing production code or any policy.
+All eight focused corpus tests pass again. The green default package audit
+and docgen are retained for identical production inputs; final test-tsgo
+and fresh coverage remain required. The queued publication request was
+cancelled before it started, before any push, so this correction joins the
+same fully addressed publication wave. No family or manifest was launched.
