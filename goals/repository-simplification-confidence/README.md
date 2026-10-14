@@ -2,6 +2,21 @@
 
 ## Status
 
+Program active after the October 14 resume. H4 PR #1770 delivers the read-only
+permission census, runbook and synthetic regressions. Current source review
+has zero actionable findings; 42 scoped tests pass, including the hosted
+review regressions. Current-main parity is complete: bounded docgen, references,
+Fallow and coverage pass; test-tsgo and JSDoc remain source-attributed main reds.
+Full package verification passes (audit 1,190.6s / docgen 46.4s); live
+ruleset drift is shared-owned.
+Desktop route verification and F's owned-field config repair remain external
+dependencies; Permission continuity is open.
+H2's #1574 merge and #1744 evidence follow-up are in current main.
+
+The earlier lane snapshots below retain their recorded proof boundaries;
+they do not certify the current program state. Current H4 evidence is in
+[its handoff](history/handoffs/rsc-h4-permissions-2026-10-14.md).
+
 B first-wave publication snapshot is regenerated at `80fe0135ff` from fetched
 main `f21e2a8563`. Its generated candidate remains subject to publication-head
 parity, named review and the serialized R14 merge. Cap released; later R20
@@ -184,3 +199,9 @@ integration and both review fixes with local verification and checks waived.
 This supersedes the earlier publication hold; prior proof stays bound to its
 recorded source. Hosted CI qualifies this new integration. Later A waves
 and overall program acceptance remain open.
+
+H4's October 14 implementation adds an explicit-file, read-only Session
+permission census and the [Desktop continuity runbook](../../docs/runbooks/agent-permission-continuity.md).
+[H4 handoff](history/handoffs/rsc-h4-permissions-2026-10-14.md) records the local
+gates and pending operator fixture batch. Installed-build routes remain
+unknown; no home configuration or Claude harness setting has been changed.
