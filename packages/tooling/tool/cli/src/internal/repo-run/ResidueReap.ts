@@ -1777,7 +1777,7 @@ const citationSkip = Effect.fnUntraced(function* (checkout: string, candidatePat
   // the container. Match .beep-relative tails even when a receipt names another clone.
   const cited = A.some(A.getSomes(documents), (text) => {
     if (Str.includes(relative)(text)) return true;
-    const references = O.getOrElse(Str.match(/\.beep\/[^\s"\x27`<>[\]()]+/gu)(text), () => A.empty<string>());
+    const references = O.getOrElse(Str.match(/\.beep\/[^\s"\x27`<>[\]()]+/gu)(text), A.empty<string>);
     return A.some(references, (reference) => {
       const ref = Str.replace(/[.,;:)/-]+$/u, "")(reference);
       return (
@@ -2213,6 +2213,7 @@ type ResidueReapSettings = {
   readonly runId: string;
   readonly beepCacheRoot: string;
   readonly checkoutRoots: ReadonlyArray<string>;
+  readonly checkoutBoundaries: ReadonlyArray<readonly [string, O.Option<string>]>;
   readonly classes: ReadonlyArray<ResidueReapClass>;
   readonly codexRoot: string;
   readonly homeRoot: string;
@@ -2259,6 +2260,10 @@ const resolveSettings = Effect.fnUntraced(function* (options: ResidueReapOptions
   const fs = yield* FileSystem.FileSystem;
   const homeRoot = yield* resolveHomeRoot(options);
   const repoRoot = yield* resolveRepoRoot(options);
+  const checkoutRoots = yield* distinctCheckoutRoots(nonEmptyOr(options.checkoutRoots, [repoRoot]));
+  const checkoutBoundaries = yield* Effect.forEach(checkoutRoots, (checkout) =>
+    Effect.map(fs.realPath(checkout).pipe(Effect.option), (canonical) => [checkout, canonical] as const)
+  );
   const beepCacheRoot = path.join(homeRoot, ".cache", "beep");
   const now = yield* Clock.currentTimeMillis;
   const policy: ReapPolicy = {
@@ -2279,7 +2284,8 @@ const resolveSettings = Effect.fnUntraced(function* (options: ResidueReapOptions
   return {
     runId: yield* (yield* Crypto.Crypto).randomUUIDv4,
     beepCacheRoot,
-    checkoutRoots: yield* distinctCheckoutRoots(nonEmptyOr(options.checkoutRoots, [repoRoot])),
+    checkoutRoots,
+    checkoutBoundaries,
     classes: nonEmptyOr(options.classes, ResidueReapClass.literals),
     codexRoot: path.join(homeRoot, ".codex"),
     homeRoot,
@@ -2399,10 +2405,14 @@ const unapplied = (entry: ResidueReapCandidate): AppliedCandidate => ({
 const outerBoundaryFor = Effect.fnUntraced(function* (
   settings: ResidueReapSettings,
   entry: ResidueReapCandidate
-): Effect.fn.Return<O.Option<string>, never, FileSystem.FileSystem> {
-  const fs = yield* FileSystem.FileSystem;
+): Effect.fn.Return<O.Option<string>, never> {
   return isRepoScopedResidueClass(entry.reapClass)
-    ? yield* fs.realPath(optionOr(entry.checkoutRoot, settings.repoRoot)).pipe(Effect.option)
+    ? O.flatMap(
+        A.findFirst(settings.checkoutBoundaries, ([checkout]) =>
+          Str.Equivalence(checkout, optionOr(entry.checkoutRoot, settings.repoRoot))
+        ),
+        ([, canonical]) => canonical
+      )
     : O.some(settings.policy.homeBoundary);
 });
 

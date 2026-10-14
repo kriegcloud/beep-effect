@@ -172,6 +172,29 @@ describe("MailTagging M365 mailbox", () => {
   );
 
   it.effect(
+    "does not treat an angle-bracket substring inside a sender local part as the sender identity",
+    Effect.fnUntraced(function* () {
+      const mailbox = yield* mailboxOver({
+        listMessages: () =>
+          Effect.succeed(
+            M365MessageCollection.make({
+              value: [
+                GraphMessage.make({
+                  ...received("msg-crafted", 1),
+                  from: O.some(recipient('"<notices@uspto.gov>"@attacker.example')),
+                }),
+              ],
+            })
+          ),
+      });
+
+      const page = yield* mailbox.listMessagesSince(ListMessagesSinceRequest.make({ since }));
+
+      expect(A.map(page.envelopes, (envelope) => O.getOrNull(envelope.senderAddress))).toStrictEqual([null]);
+    })
+  );
+
+  it.effect(
     "resolves Deleted Items and Junk once when it is built, for the configured mailbox",
     Effect.fnUntraced(function* () {
       const lookups = yield* Ref.make<ReadonlyArray<readonly [string, string | null]>>([]);

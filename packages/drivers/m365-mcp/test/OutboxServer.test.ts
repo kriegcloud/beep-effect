@@ -161,10 +161,10 @@ describe("@beep/m365-mcp outbox server", () => {
     }
   });
 
-  it("says plainly which tool sends and what to do after an unknown outcome", () => {
+  it("says plainly that automated sending is disabled", () => {
     assert.isTrue(Str.startsWith("Microsoft 365 outbox")(M365_OUTBOX_MCP_INSTRUCTIONS));
-    assert.include(M365_OUTBOX_MCP_INSTRUCTIONS, "Only m365_outbox_send_draft sends mail");
-    assert.include(OutboxToolkit.tools.m365_outbox_send_draft.description, "never send again blindly");
+    assert.include(M365_OUTBOX_MCP_INSTRUCTIONS, "Automated sending is disabled");
+    assert.include(OutboxToolkit.tools.m365_outbox_send_draft.description, "version-unbound");
     assert.include(OutboxToolkit.tools.m365_outbox_create_draft.description, "does not send anything");
   });
 

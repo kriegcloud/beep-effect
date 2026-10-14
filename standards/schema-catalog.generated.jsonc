@@ -9810,7 +9810,7 @@
       "kind": "literal-kit",
       "owner": "@beep/m365-mcp",
       "identity": "OutboxSendMismatchField",
-      "description": "A reason a send is refused: a part of the stored draft that differs from the send expectation, or `not-created-here` when this server did not create the draft."
+      "description": "A reason a send is refused: a mismatched draft field, an unrecorded draft, or an unversioned Graph send operation."
     },
     {
       "file": "packages/drivers/m365-mcp/src/OutboxStoredAttachments.ts",
@@ -48075,7 +48075,7 @@
       "kind": "literal-kit",
       "owner": "@beep/repo-cli",
       "identity": "KnowledgeLeaseViolation",
-      "description": "A debt-lease rule a lease breaks: owner, lifetime, or quota."
+      "description": "A debt-lease rule a lease breaks: owner, future issue date, lifetime, or quota."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
@@ -53137,7 +53137,7 @@
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "SkillTrainPullRequestComment",
-      "description": "A pull-request comment's body and creation time from gh pr list --json comments."
+      "description": "A pull-request comment's author, body, and creation time from gh pr list --json comments."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",

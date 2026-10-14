@@ -417,34 +417,55 @@ export const isPracticeKgPracticeAddress =
     });
   };
 
-const addressEntryPattern = /(?:"([^"]*)"|([^,<"]*?))\s*<([^<>\s]+@[^<>\s]+)>|([^\s,<>";]+@[^\s,<>"';]+)/gu;
+const namedAddressPattern = /^([^<>]*)<([^<>\s]+@[^<>\s]+)>$/u;
+const bareAddressPattern = /^[^\s,<>";]+@[^\s,<>"';]+$/u;
 const surroundingQuotesPattern = /^['"\s]+|['"\s]+$/gu;
 // A bare address wrapped in single quotes: the pattern keeps the opening quote and stops at the closing one.
 const bareAddressQuotePattern = /^'|'$/gu;
+const maxAddressHeaderLength = 16_384;
 
 const cleanName = (raw: string | null | undefined): string | null =>
   pipe(O.fromNullishOr(raw), O.map(Str.replace(surroundingQuotesPattern, "")), O.filter(Str.isNonEmpty), O.getOrNull);
 
+const addressEntries = (header: string): ReadonlyArray<string> => {
+  const entries: Array<string> = [];
+  let start = 0;
+  let quoted = false;
+  for (let index = 0; index < Str.length(header); index += 1) {
+    const character = header[index];
+    if (character === '"') quoted = !quoted;
+    if (character === "," && !quoted) {
+      entries.push(Str.trim(Str.slice(start, index)(header)));
+      start = index + 1;
+    }
+  }
+  entries.push(Str.trim(Str.slice(start)(header)));
+  return entries;
+};
+
 const participantsOf = (
   header: string,
   role: PracticeKgEmailParticipantRole
-): ReadonlyArray<PracticeKgEmailParticipant> =>
-  A.getSomes(
-    A.map(A.fromIterable(header.matchAll(addressEntryPattern)), (match) =>
-      pipe(
-        O.orElse(O.fromNullishOr(match[3]), () =>
-          O.map(O.fromNullishOr(match[4]), Str.replace(bareAddressQuotePattern, ""))
-        ),
-        O.map((address) =>
-          PracticeKgEmailParticipant.make({
-            address: normalizeAddress(address),
-            name: cleanName(match[1] ?? match[2]),
-            role,
-          })
-        )
-      )
-    )
+): ReadonlyArray<PracticeKgEmailParticipant> => {
+  if (Str.length(header) > maxAddressHeaderLength) return [];
+  return A.getSomes(
+    A.map(addressEntries(header), (entry) => {
+      const named = Str.match(namedAddressPattern)(entry);
+      const address = O.match(named, {
+        onNone: () => Str.replace(bareAddressQuotePattern, "")(entry),
+        onSome: (match) => match[2] ?? "",
+      });
+      if (!O.isSome(named) && !bareAddressPattern.test(address)) return O.none<PracticeKgEmailParticipant>();
+      return O.some(
+        PracticeKgEmailParticipant.make({
+          address: normalizeAddress(address),
+          name: O.match(named, { onNone: () => null, onSome: (match) => cleanName(match[1]) }),
+          role,
+        })
+      );
+    })
   );
+};
 
 /**
  * Reads the participants named by one address header value.

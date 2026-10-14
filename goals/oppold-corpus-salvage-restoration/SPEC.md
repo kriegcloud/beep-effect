@@ -1290,3 +1290,73 @@ ledgers, outputs, claims and freeze records. Release notes without changesets:
 @beep/repo-cli is private and ignored (#1566); additive optional evidence
 requires no major release and receives no changeset. P2 remains in-progress;
 eighteen larger occurrences and estate/recycle/DOC gates stay open for P3.
+
+
+### 2026-10-14: recovery freeze after the engine PR merged
+
+PR #1731 merged at 226087bfda2c5162679ea5262ffd1b62fe523434. Integrate
+main once, preserving the prior final-proof receipts through the handoff
+conflict, then use the fresh recovery-run branch. The execution-source
+snapshot is 08afe6715d2715713618b2d9f2ea64c8aba6b6b7; Corpus and libpff
+source match merged main byte-for-byte. Subsequent freeze/evidence commits
+change only this packet. No execution identity with the first wave is claimed.
+
+Commit four new manifests before any recovery family-run-start. They cover
+only failed ordinals 5/7/8/9, one occurrence per fresh family and one attempt
+each, using the original membership digest. Launcher digest:
+9c39a78e1b143f7b6d0df48bb680eee8e723db3c41b179ffd48c36308ff5c98d.
+The launcher checks frozen source equality, engine identities, membership
+and its own digest before invoking restore-mail. These are fail-closed
+preflight checks; the only execution-budget delta is the approved attempt
+ceiling 22,320,000 ms. Family 43,200,000 ms, ratio 4, output
+2,147,483,648 bytes and the 100,000,000,000-byte floor remain unchanged.
+The derivation and repeated-failure unsupported disposition remain those
+of the approved bounded-recovery amendment; real failures stay unapproved.
+
+Run roots, relative to corpus home, are
+staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-14-recovery-05,
+-07, -08 and -09, each with ledgers/mail/slice.jsonl, output/mail/slice
+and writer-claims. Only restore-mail creates them. The recovery launcher
+is ~/.cache/beep/corpus-restore/p2-recovery-2026-10-14.sh; private logs
+remain under logs/corpus-restore, relative to corpus home. Only counts and
+exit codes leave those logs. Fill each manifest policySha256 once from its
+family-run-start; every other freeze field stays immutable.
+
+Re-measured engines remain pffexport 20260917, bubblewrap 0.13.0,
+OpenJDK 27 (2026-09-15) at /usr/lib/jvm/java-27-openjdk/bin/java and
+Tika 3.3.1 jar digest
+0e8ee9795ac4244feab466f4a5a9c3b94675af392848243842cb6e1e69d27103.
+Both admitted sandbox smokes and the four focused restoration cases pass.
+Initial free space is 340,800,180,224 bytes. Launch sequentially, never a
+third attempt; the driver resumes the next occurrence after seal review.
+P2 remains in-progress, with eighteen larger occurrences and the
+estate/recycle/DOC gates open for P3. Reversal: revert packet decisions
+before launch; afterward retain every ledger, output, claim and manifest.
+
+
+### 2026-10-14: recovery ordinal 5 unsupported; continue approved remainder
+
+The recovery family sealed failure with TikaSecondPassFailure: exitCode 1,
+emptyOutput true, truncated false. Retain 354,621,761 bytes and the 30.1G
+memory peak; no memory-kill claim. Family elapsed 1,264,398 ms; no accepted
+children. Disposition unsupported under the 11:14Z ruling; engine-failure
+stays unapproved and ordinal 5 never gets a third attempt. Existing tool
+seal is unchanged. Fill its manifest policy digest once from run-start.
+Successor 19:40Z ruling authorizes sequential recovery ordinals 7/8/9 after
+main integration and renewed preflight. Reversal: revert packet decisions,
+retaining every ledger, output, claim and freeze record. See
+history/p2/2026-10-14-recovery-progress.md for aggregate evidence.
+
+
+### 2026-10-14: recovery continuation stops at frozen-source preflight
+
+The successor reboot ruling requires main integration before ordinal 7.
+That merge imports three JSDoc-only changes in Corpus.service.ts; the
+frozen launcher compares every Corpus/libpff source byte with its manifest
+codeHead and would exit 71. Libpff and the restoration implementation
+remain unchanged. Stop before invoking the launcher; do not rewrite the
+manifest or claim source identity. Publish ordinal 5's unsupported recovery
+evidence and this preflight conflict. The orchestrator must resolve the
+execution identity before ordinals 7/8/9. Reversal: a separately recorded
+freeze amendment or authorized execution route, retaining all evidence.
+No other code or policy change; P2 in-progress, P3 open items unchanged.
