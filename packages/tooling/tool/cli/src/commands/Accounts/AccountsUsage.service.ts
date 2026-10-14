@@ -387,7 +387,7 @@ export const junieUsageOutcome = (response: UsageTextResponse): AccountUsageOutc
  * @since 0.0.0
  */
 export const junieRefreshOutcome = (
-  response: JunieRefreshResponse
+  response: S.Struct.Type<typeof JunieRefreshResponse.fields>
 ): Result.Result<JunieRefreshBody, AccountUsageOutcome> => {
   const { stored, status, body } = response;
   if (status !== 200)
@@ -438,7 +438,7 @@ const JunieFallbackJson = JsonStringCodec(S.Struct({ "jb-account-stored": JunieS
  * @category utilities
  * @since 0.0.0
  */
-export const grokUsageOutcome = (response: GrokUsageResponse): AccountUsageOutcome => {
+export const grokUsageOutcome = (response: S.Struct.Type<typeof GrokUsageResponse.fields>): AccountUsageOutcome => {
   if (isRejectedStatus(response.status)) return loginRejected;
   if (response.status !== 200) return failed(`Grok billing answered HTTP ${response.status}`);
   return O.match(grokUsageWindows(response.body), {
