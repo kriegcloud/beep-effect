@@ -21,3 +21,13 @@ same owner command. The 41-finding transfer is in the packet research list.
 The ciops v1 fixture pins a historical handoff by digest; it remains immutable
 and retains its historical Knip lane. Its tests compare against that pinned
 packet artifact rather than the current CLI lane registry.
+
+## Current-main integration — 2026-10-14
+
+The root review also retains the incoming practice-claude-mod workspace
+addition and its generated app tasks/template turbo configuration. Its
+original review is recorded in
+`goals/practice-claude-mod/research/cache-baseline-review.md`. The merged
+root posture covers both that workspace addition and Knip retirement;
+no cache qualification is granted. Revert this integration to restore the
+prior branch snapshot.

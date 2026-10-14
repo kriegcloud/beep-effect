@@ -2479,6 +2479,78 @@
       "identity": "OipContentLoadError"
     },
     {
+      "file": "apps/practice-claude-mod/src/PracticeMod.host.ts",
+      "symbol": "ModHostError",
+      "kind": "tagged-error",
+      "owner": "@beep/practice-claude-mod",
+      "identity": "ModHostError",
+      "description": "A mod engine call rejected."
+    },
+    {
+      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
+      "symbol": "ChosenMatter",
+      "kind": "schema-class",
+      "owner": "@beep/practice-claude-mod",
+      "identity": "ChosenMatter",
+      "description": "A uniquely resolved matter the attorney chose for this session."
+    },
+    {
+      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
+      "symbol": "KgAnswerItem",
+      "kind": "schema-class",
+      "owner": "@beep/practice-claude-mod",
+      "identity": "KgAnswerItem",
+      "description": "The completed turn a per-answer verdict targets."
+    },
+    {
+      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
+      "symbol": "PracticeKgToolName",
+      "kind": "literal-kit",
+      "owner": "@beep/practice-claude-mod",
+      "identity": "PracticeKgToolName",
+      "description": "A practice-kg MCP tool whose calls the mod redraws in plain language."
+    },
+    {
+      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
+      "symbol": "TimerInterval",
+      "kind": "schema-class",
+      "owner": "@beep/practice-claude-mod",
+      "identity": "TimerInterval",
+      "description": "One explicit timer interval, one line of the local timer log."
+    },
+    {
+      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
+      "symbol": "Verdict",
+      "kind": "literal-kit",
+      "owner": "@beep/practice-claude-mod",
+      "identity": "Verdict",
+      "description": "The attorney's judgement of one answer."
+    },
+    {
+      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
+      "symbol": "VerdictRow",
+      "kind": "schema-class",
+      "owner": "@beep/practice-claude-mod",
+      "identity": "VerdictRow",
+      "description": "One append-only verdict revision on one reviewed item."
+    },
+    {
+      "file": "apps/practice-claude-mod/src/PracticeMod.verdicts.ts",
+      "symbol": "VerdictInput",
+      "kind": "schema-class",
+      "owner": "@beep/practice-claude-mod",
+      "identity": "VerdictInput",
+      "description": "A verdict (or an undo when none) and an optional note on one answer."
+    },
+    {
+      "file": "apps/practice-claude-mod/src/build-plugin.ts",
+      "symbol": "PluginBuildFailed",
+      "kind": "tagged-error",
+      "owner": "@beep/practice-claude-mod",
+      "identity": "PluginBuildFailed",
+      "description": "Bundling the plugin's hooks module failed."
+    },
+    {
       "file": "apps/practice-identify/src/PracticeIdentify.config.ts",
       "symbol": "ContactsInput",
       "kind": "schema-class",
@@ -40245,11 +40317,43 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+      "symbol": "JunieAccessOptionsBody",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "JunieAccessOptionsBody",
+      "description": "Enabled JetBrains license options; identifiers remain redacted."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
       "symbol": "JunieAuthTestBody",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "JunieAuthTestBody",
       "description": "The direct Junie balance response; absent fields do not imply zero."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+      "symbol": "JunieExchangeBody",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "JunieExchangeBody",
+      "description": "The in-memory Grazie exchange token."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+      "symbol": "JunieQuotaBody",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "JunieQuotaBody",
+      "description": "Tariff and top-up quota amounts in JetBrains wire units."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+      "symbol": "JunieRefillBody",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "JunieRefillBody",
+      "description": "Cycle refill metadata; next is an epoch millisecond timestamp."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
@@ -51791,6 +51895,21 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillRelockRefusal",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillRelockRefusal"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillRelockRefusalReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillRelockRefusalReason",
+      "description": "Why skills relock refused: no such vendored entry, an unclean replay, or a changed license."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
       "symbol": "SkillUpstreamContentError",
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
@@ -52261,6 +52380,94 @@
       "owner": "@beep/repo-cli",
       "identity": "SkillMaterializeTargetState",
       "description": "An install target's state against the verified effective tree."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillHunkReport",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillHunkReport",
+      "description": "One hunk's replay outcome keyed by its position-free identity hash."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillHunkStatus",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillHunkStatus",
+      "description": "Per-hunk replay outcome: exact apply, shifted-only match (report only), or conflict."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillRelockOutcome",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillRelockOutcome",
+      "description": "Whether skills relock only planned, wrote the lock, or found it already current."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillRelockReceipt",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillRelockReceipt",
+      "description": "A digest-sealed relock plan for one vendored skill and the outcome of the run."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillReplayBatch",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReplayBatch",
+      "description": "Replay reports for the selected vendored skills, sorted by lock key."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillReplayReport",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReplayReport",
+      "description": "One vendored skill's replay at its lock pin: verdict, per-hunk report, and upstream diff."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillReplayStatus",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReplayStatus",
+      "description": "Whole-skill replay verdict: clean, shifted-only matches, or at least one conflict."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillTrainBatchIssue",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillTrainBatchIssue",
+      "description": "Stable title and rendered body of one update-train batch's parent tracking issue."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillTrainPullRequest",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillTrainPullRequest",
+      "description": "An open skill-update pull request with the comments that carry its replay report."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillTrainPullRequestComment",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillTrainPullRequestComment",
+      "description": "A pull-request comment's body and creation time from gh pr list --json comments."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+      "symbol": "SkillTrainPullRequests",
+      "kind": "schema-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillTrainPullRequests",
+      "description": "Open skill-update pull requests as gh pr list --json returns them."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/internal/DiffLines.ts",

@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-14T13:59:37.160Z
+Generated: 2026-10-14T13:17:56.705Z
 
 ## Scope
 
@@ -14,11 +14,11 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 64 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 81 |
-| publicModules | 3470 |
-| publicExports | 23599 |
+| publicModules | 3468 |
+| publicExports | 23522 |
 | openModules | 912 |
-| openExports | 1392 |
-| missingExportExamples | 11 |
+| openExports | 1389 |
+| missingExportExamples | 8 |
 | missingExportCategories | 0 |
 | missingExportSince | 0 |
 | forbiddenTagFindings | 0 |
@@ -161,7 +161,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 103 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 15 | 0 | 0 |
 | 104 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 105 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
-| 106 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 389 | 3526 | 47 | 41 |
+| 106 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 387 | 3449 | 47 | 38 |
 | 107 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 108 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
 | 109 | `@beep/brand` | `packages/foundation/ui-system/brand` | needs-remediation | 7 | 50 | 0 | 43 |
@@ -2211,8 +2211,8 @@ Export findings:
 - `src/commands/Cache/Cache.command.ts:271` `runCacheWarm` (const) - 1 example import violation(s)
 - `src/commands/Cache/Cache.command.ts:468` `buildCacheDashboard` (const) - 1 example import violation(s)
 - `src/commands/Cache/Cache.service.ts:111` `encodeCachePolicyBaselineText` (const) - 1 example import violation(s)
-- `src/commands/Ci/CiLane.ts:386` `CI_LANE_DESCRIPTORS` (const) - 1 documentation section/link violation(s)
-- `src/commands/Ci/CiLane.ts:1520` `ciLaneStepsForTesting` (const) - 1 documentation section/link violation(s)
+- `src/commands/Ci/CiLane.ts:387` `CI_LANE_DESCRIPTORS` (const) - 1 documentation section/link violation(s)
+- `src/commands/Ci/CiLane.ts:1529` `ciLaneStepsForTesting` (const) - 1 documentation section/link violation(s)
 - `src/commands/Corpus/Corpus.errors.ts:303` `CorpusArchiveMoveDigestMismatchError` (class) - 1 example import violation(s)
 - `src/commands/Corpus/Corpus.service.ts:915` `indexMailExportTrees` (const) - missing @example
 - `src/commands/Corpus/Corpus.service.ts:928` `repairAttachmentExtensions` (const) - missing @example
@@ -2223,15 +2223,12 @@ Export findings:
 - `src/commands/Drawings/Drawings.intake.schemas.ts:401` `IntakeResult` (class) - 1 example import violation(s)
 - `src/commands/Drawings/Drawings.intake.ts:631` `renderIntakeSummary` (const) - 1 example import violation(s)
 - `src/commands/Explore/Atlas.ts:762` `explorationProjectionDriftPaths` (const) - 1 example import violation(s)
-- `src/commands/Knowledge/KnowledgeDoctor.baseline.ts:945` `KnowledgeBaselineGroupInput` (class) - missing @example
-- `src/commands/Knowledge/KnowledgeDoctor.baseline.ts:1327` `KnowledgeSealGuardInput` (class) - missing @example
-- `src/commands/Knowledge/KnowledgeDoctor.baseline.ts:1566` `KnowledgeDoctorCheckInput` (class) - missing @example
 - `src/commands/Laws/FrozenGrantSet.ts:330` `runFrozenGrantSetRules` (const) - 1 documentation section/link violation(s)
 - `src/commands/Laws/NoNativeRuntime.ts:620` `runNoNativeRuntimeRules` (const) - 1 documentation section/link violation(s)
 - `src/commands/Qa/JudgeCheck.ts:511` `extractLastJsonBlock` (const) - 1 documentation section/link violation(s)
 - `src/commands/Qa/JudgePack.ts:587` `renderTimeline` (const) - 1 documentation section/link violation(s)
 - `src/commands/Qa/JudgePack.ts:688` `selectJudgeEvidence` (const) - 1 documentation section/link violation(s)
-- `src/commands/Quality/Quality.command.ts:1027` `runBunAudit` (const) - 1 documentation section/link violation(s)
+- `src/commands/Quality/Quality.command.ts:1028` `runBunAudit` (const) - 1 documentation section/link violation(s)
 - `src/commands/Runners/Runners.schemas.ts:120` `BakeConfig` (class) - 1 example import violation(s)
 - `src/commands/Runners/Runners.schemas.ts:166` `BakeReport` (class) - 1 example import violation(s)
 - `src/commands/Runners/Runners.schemas.ts:275` `BakePlan` (class) - 1 example import violation(s)

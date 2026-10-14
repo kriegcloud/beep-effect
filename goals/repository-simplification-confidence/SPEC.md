@@ -995,3 +995,55 @@ field change with the retirement wave.
 | 2026-10-14 | A observes the S5 effected-port notification rule has reached its recorded exit condition: all port branches landed, and closeout #1662 (`4a78679afe5b21c19c7587e6985fa7a0d98e2881`) is in lane ancestry. No additional notice gates the generated Knip-removal lock. | Live merged PRs #1592, #1628, #1659 and #1662; `scratchpad/EFFECTED_PORT_GOAL.md` Port complete records 29/29 done. S5 and the earlier Decision Log row end the rule once that branch lands. | If the port reopens on a branch rewriting these files, restore its notification coordination before the next shared-file push. |
 
 | 2026-10-14 | A restores the committed coverage baseline after archiving the successful scoped writer output. The orchestrator owns the narrow removal of five retired source rows in its consolidated coverage splice. | The package-block writer also lowers 38 percentage floors, 33 with unchanged/higher uncovered counts. Independent source review finds no sanctioned file-row-only prune command; standing RSC-RESUME keeps inherited coverage splice ownership with the orchestrator. | Apply an owner-approved five-row splice retaining every live floor; reverse by restoring those rows from the pre-splice commit. No new baseline tool or manual A pin is introduced. |
+
+### 2026-10-14 — B resumes the ordered R20 refresh
+
+- Decision: preserve the previous refresh stash and rerun the detector owners
+  against integrated main before preparing the dedicated generated chore.
+  The previous proposed counts and review hashes remain historical until
+  replaced by current measurements; R14 still requires serialized merge
+  before the candidate becomes the program baseline.
+- Reason: #1616 landed only the bounded codec-test repair. Its old JSDoc
+  generation and Repo Sanity failures are fixed by #1617, already on main.
+  Guidance previews also predate later policy and path changes. Direct
+  restoration would regress those changes.
+- Reversal: revert the eventual refresh PR and regenerate snapshots with
+  their owners. Preserve the raw old and current receipts for comparison.
+- Boundaries: no push before the RSC-RESUME cap gate; no effect-laws allowlist
+  or snapshot edit before S5 notification confirmation; V retains the open
+  canon cohorts under R102.
+
+
+### 2026-10-14 B cap continuity through required main integration
+
+Decision: treat the released B cap file as CI-branch admission, continuing
+through the mandatory latest-main integration. The resume addendum gates on
+file existence and separately requires fetching/merging newer main before
+push; it defines no head-SHA binding. The release-time main SHA is provenance,
+not a replacement for the latter condition. This resolves the independent
+review's ambiguity without inferring an additional approval requirement.
+No revocation or absent file is overridden. Recovery: stop before publication
+if the gate is removed; after publication, revert the generated refresh PR
+and regenerate through its owners. R14 merge serialization remains required.
+
+
+### 2026-10-14 B publication and pre-final proof ordering
+
+Decision: follow AGENTS.md Quality Operator's push-first publication rule:
+`publish` gates the push on cheap gates and the head-install preflight only;
+never wait on a queued local full proof to publish. The resume addendum's
+parity requirement applies before the final report. The fresh publication
+snapshot is owner-regenerated before push; exact-head parity and independent
+review remain mandatory qualification, and R14 merge belongs to the driver.
+No failing check is relabelled a pass. Recovery: repair any introduced red
+in a fully addressed wave before calling final; revert the PR if necessary.
+
+### Pre-reboot publication decision — 2026-10-14
+
+Publish the prepared retirement and review fixes with current main under the
+operator's explicit no-verification/no-checks waiver. Remove exactly the five
+absent-source coverage rows identified in the A handoff, retaining every
+surviving coverage metric. Regenerate conflicted projections using their
+owners. Reversal: revert this integration commit. The live required Knip
+context still needs coordinated removal before merge; this push does not
+claim merge readiness or current-head qualification.

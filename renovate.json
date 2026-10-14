@@ -42,7 +42,30 @@
       "description": "Auto-merge type definition updates",
       "matchPackagePatterns": ["^@types/"],
       "automerge": true
+    },
+    {
+      "description": "One update PR per vendored skill (B18), so one conflict never stalls the others. The skills update train workflow replays, relocks, and proves each one; nothing automerges (B28).",
+      "matchManagers": ["custom.regex"],
+      "matchFileNames": ["skills-lock.json"],
+      "groupName": "skill {{depName}}",
+      "labels": ["dependencies", "skills-update-train"],
+      "automerge": false
     }
   ],
-  "ignorePaths": [".repos/**"]
+  "ignorePaths": [".repos/**"],
+  "gitIgnoredAuthors": [
+    "41898282+github-actions[bot]@users.noreply.github.com"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Vendored skill pins in skills-lock.json (B3, B18): each vendored entry's upstream.repository and upstream.sourceRevision, tracked on upstream.trackingRef through git-refs. Local entries carry no upstream block, so they never match.",
+      "managerFilePatterns": ["/^skills-lock\\.json$/"],
+      "matchStrings": [
+        "\"(?<depName>[a-z0-9][a-z0-9-]*)\": \\{\\s*\"_tag\": \"vendored\",\\s*\"sourceType\": \"github\",\\s*\"upstream\": \\{\\s*\"repository\": \"(?<repository>[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)\",\\s*\"repositoryUrl\": \"[^\"]+\",\\s*\"treePath\": \"[^\"]+\",\\s*\"entryPath\": \"[^\"]+\",\\s*\"trackingRef\": \"(?<currentValue>[^\"]+)\",\\s*\"sourceRevision\": \"(?<currentDigest>[0-9a-f]{40})\""
+      ],
+      "datasourceTemplate": "git-refs",
+      "packageNameTemplate": "https://github.com/{{{repository}}}"
+    }
+  ]
 }
