@@ -390,7 +390,7 @@ const LABS_EXCLUDE_FILTER = "--filter=!./apps/labs/**";
 const policyTurboStep = (
   label: string,
   base?: string,
-  deprecatedApis: PolicySweepProgram = "shards"
+  deprecatedApis: PolicySweepProgram = "oxlint"
 ): QualityTaskStep =>
   O.getOrThrow(
     A.findFirst(
@@ -1077,6 +1077,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:cache-policy",
         "goals:index-check",
         "explore:atlas-check",
+        "observability:catalog-check",
         "repo-sanity:tsconfig-sync",
         "lint:effect-imports",
         "lint:effect-imports-markdown",
@@ -3833,7 +3834,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       );
       expect(policyTurboStep("lint:deprecated-apis", undefined, "turbo").args).toContain("turbo");
       expect(policyTurboStep("lint:deprecated-apis", "review-base", "turbo")).toEqual(
-        policyTurboStep("lint:deprecated-apis", "review-base", "shards")
+        policyTurboStep("lint:deprecated-apis", "review-base", "oxlint")
       );
       expect(rootQualityStepsForTesting("/repo", getInvocation(["lint"]))).toEqual([
         expect.objectContaining({ label: "lint", args: expectedRootTurboArgs("lint", []) }),
@@ -3964,7 +3965,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           yield* fs.makeDirectory(path.join(tmpDir, "standards"), { recursive: true });
           yield* fs.writeFileString(
             path.join(tmpDir, "standards/lint-policy.sweeps.jsonc"),
-            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"shards"}'
+            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"oxlint"}'
           );
           yield* fs.makeDirectory(binDir, { recursive: true });
           yield* fs.writeFileString(fakeBunxPath, A.join(["#!/usr/bin/env sh", "exit 0", ""], "\n"));
@@ -4003,7 +4004,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           yield* fs.makeDirectory(`${root}/standards`, { recursive: true });
           yield* fs.writeFileString(
             `${root}/standards/lint-policy.sweeps.jsonc`,
-            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"shards"}'
+            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"oxlint"}'
           );
           yield* withEnvVarEffect(
             "CI",

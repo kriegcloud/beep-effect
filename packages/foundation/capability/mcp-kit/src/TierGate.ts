@@ -140,7 +140,7 @@ export type TierGateOutcome = typeof TierGateOutcome.Type;
  *
  * ```ts
  * import * as O from "effect/Option"
- * import { TierGateAuditRecord } from "@beep/mcp-kit"
+ * import { TierGateAuditRecord } from "@beep/mcp-kit/TierGate"
  *
  * const audit = TierGateAuditRecord.make({
  *   tool: "delete_document",

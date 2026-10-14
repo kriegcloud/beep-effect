@@ -112,3 +112,56 @@ sitting behind bot walls (`goals/design-figure-generation/research/OPPORTUNITIES
   lane step that re-reads every row and doc site naming a changed constant before `final`
   (`graft grep "<constant>"` over `goals/` and `src/`); a validator floor read from the schema
   that defines it, never a second literal (`ShadingPlan.clearance` now does this).
+
+## 2026-10-14 — the probe-grid window model cannot tell two cells of a lattice apart
+
+**Doing:** review loop 2 (five-model sequential pass) on the merged pipeline's render; the first two
+reviewers found the lid underside bare where it shows through the central cell of the bottom plan,
+while the bottom pictorial shades that same cell.
+**Evidence:** an env-gated dump of `regionsOf` showed the lid face planned ONE window spanning its
+whole step range (3.9 → 333.5 model units): pieces of different probes were merged by overlap along
+the step only, so the band landed at the periphery, under the flaps. A first fix (merge only when
+the shadow-side ends agree within one probe spacing) banded the central cell but split FIG 1's lid
+top along its own diagonal outline into two bands, and a star cell's band spilled along the lines
+into the central cell because a window's strokes are centred on a one-fifth-face slab.
+**Prevention:** windows merge only when both pieces start at the face's own outline or at the same
+occluder edge, and a stretch keeps only the pieces its own probes crossed (kernel `regionsOf`,
+`crosses`); the synthetic lattice test "bands every separately bounded visible area" holds it. The
+deeper gap stays: five probes per face cannot see a cell narrower than a fifth of the face along
+the lines, so a `shading-lost-window` check (a probed window that drew nothing) and adaptive probing
+belong to the P13/P14 phases.
+
+## 2026-10-14 — the app Terminal panel cannot elevate, and force pushes are refused
+
+**Doing:** installing veraPDF, qpdf and mupdf-tools through the YubiKey sudo route; amending a
+published commit message to carry the packet slug.
+**Evidence:** `sudo: The "no new privileges" flag is set` from `yay --sudo yubi-sudo` in the app's
+Terminal panel (the AUR build itself succeeded); `git push --force-with-lease` denied by the session's
+permission policy after a local `--amend`.
+**Prevention:** package installs run in Ghostty, never in the panel (recorded in the session memory);
+never amend a pushed commit — put the longer explanation in the PR body with `gh pr edit --body-file`
+and keep the commit subject under 100 characters on the first try (commitlint refused a 105-character
+subject and `yeet publish` then committed with its own title).
+
+## 2026-10-14 — three loop-2 findings wait on per-stroke intent (P14)
+
+**Doing:** judging review loop 2 (five sequential reviewers) on the merged pipeline's render.
+**Evidence:** K-05 (windows chain over gaps under one pitch, so a thin occluder is bridged), K-06 (the
+1e-3 hatch lift puts probes inside a neighbour at a grazing butt joint), O-03 (a tapered stroke's length
+and centre come from the face's whole chord, leaving a 3.69 mm tick in a 32 mm window).
+**Prevention:** all three need the planned stroke next to its drawn pieces: the P14 stroke-intent
+sidecar carries planned length, window chord and bridged gaps per stroke, and the ratio check (drawn
+under 25% of planned → drop) lands with it. Until then the critic loop is the detector.
+
+## 2026-10-14 — the artifact's note boxes could never reach the operator
+
+**Doing:** giving the attorney a page to mark each shaded sheet right or wrong.
+**Evidence:** the published artifact declared the `db` capability and only enabled "Save note" when
+`claude.use("db")` resolved; for a public-link viewer who is not signed in it resolves null, and a
+signed-in viewer at view level has writes refused (probed with ArtifactData at `view`). The page fell
+back to "reply to the email" and nobody noticed until the operator asked.
+**Prevention:** lawyer-facing review surfaces follow the sitting-app pattern from the start (private
+tailnet page, token path, answers on disk, Codex gate before the link goes out); an artifact is a
+look-only copy. The replacement page's gate found 25 defects in round 1 (notes copied across sheets on
+Send, a lock after a failed save, a server race on lock, drafts lost on reload); the round-1 and
+round-2 reports are kept beside the page under `matter/review-app-drawings-gate/`.

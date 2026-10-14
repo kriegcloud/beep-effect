@@ -10,9 +10,8 @@ import * as Console from "effect/Console";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { flow, pipe } from "effect/Function";
+import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
@@ -22,38 +21,6 @@ import { expectReportedExit, temporaryWorkingDirectory } from "./support/Command
 
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
 const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
-const deprecatedApiLintShards = [
-  "apps/architecture-lab-proof",
-  "apps/labs",
-  "apps/oip-web",
-  "apps/professional-desktop",
-  "infra",
-  "packages/_internal",
-  "packages/agents",
-  "packages/architecture-lab",
-  "packages/drivers",
-  "packages/ecosystem",
-  "packages/epistemic/client",
-  "packages/epistemic/config",
-  "packages/epistemic/domain",
-  "packages/epistemic/server",
-  "packages/epistemic/tables",
-  "packages/epistemic/ui",
-  "packages/epistemic/use-cases",
-  "packages/foundation/capability",
-  "packages/foundation/modeling",
-  "packages/foundation/primitive",
-  "packages/foundation/ui-system",
-  "packages/law-practice",
-  "packages/shared",
-  "packages/tooling/library",
-  "packages/tooling/policy-pack",
-  "packages/tooling/test-kit",
-  "packages/tooling/tool/cli",
-  "packages/tooling/tool/docgen",
-  "packages/workspace",
-];
-
 const testLayer = Layer.mergeAll(
   NodeServices.layer,
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer)),
@@ -102,50 +69,36 @@ const writeSchemaFirstSourceFixture = Effect.fn("writeSchemaFirstSourceFixture")
   yield* writeSchemaFirstFileFixture("packages/example/src/Example.ts", sourceLines);
 });
 
-const writeDeprecatedApiLintFixture = Effect.fn("writeDeprecatedApiLintFixture")(function* (options?: {
-  readonly failingShard?: string;
-  readonly omitShard?: string;
-}) {
+const writeDeprecatedApiLintFixture = Effect.fn("writeDeprecatedApiLintFixture")(function* (
+  fails: boolean,
+  omitLabs: boolean
+) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   yield* fs.writeFileString("bun.lock", "");
   yield* fs.makeDirectory("standards", { recursive: true });
   yield* fs.writeFileString(
     "standards/lint-policy.sweeps.jsonc",
-    '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"shards"}'
+    '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"oxlint"}'
   );
-  const failingShard = options?.failingShard;
-  const shards = A.filter(deprecatedApiLintShards, (shard) => shard !== options?.omitShard);
-  yield* Effect.forEach(shards, (shard) => fs.makeDirectory(shard, { recursive: true }), {
-    concurrency: 4,
-  });
-
-  const eslintPath = path.join("node_modules", ".bin", "eslint");
-  yield* fs.makeDirectory(path.dirname(eslintPath), { recursive: true });
+  yield* Effect.forEach(
+    ["apps", "packages", "infra", ...(omitLabs ? [] : ["apps/labs"])],
+    (directory) => fs.makeDirectory(directory, { recursive: true }),
+    { concurrency: 1 }
+  );
+  const binary = path.join("node_modules", ".bin", "oxlint");
+  yield* fs.makeDirectory(path.dirname(binary), { recursive: true });
   yield* fs.writeFileString(
-    eslintPath,
-    A.join(
-      [
-        "#!/usr/bin/env sh",
-        ...(P.isUndefined(failingShard)
-          ? A.empty<string>()
-          : ['case "$*" in', `  *${failingShard}*) exit 7 ;;`, "esac"]),
-        "exit 0",
-        "",
-      ],
-      "\n"
-    )
+    binary,
+    A.join(["#!/usr/bin/env sh", 'echo "$*" >> native-invocations.txt', fails ? "exit 7" : "exit 0", ""], "\n")
   );
-  yield* fs.chmod(eslintPath, 0o755);
+  yield* fs.chmod(binary, 0o755);
 });
 
-const argumentAfter = (line: string, argument: string): O.Option<string> => {
-  const parts = Str.split(line, " ");
-  return pipe(
-    A.findFirstIndex(parts, Str.equivalence(argument)),
-    O.flatMap((index) => A.get(parts, index + 1))
-  );
-};
+const nativeInvocations = Effect.fn("LintTest.nativeInvocations")(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  return A.filter(Str.split(yield* fs.readFileString("native-invocations.txt"), "\n"), Str.isNonEmpty);
+});
 
 it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
   describe("tooling schema-first lint detectors", () => {
@@ -220,103 +173,48 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
     });
   });
 
-  const checkShardCacheCommands = Effect.fnUntraced(function* () {
-    yield* writeDeprecatedApiLintFixture();
-    yield* runLintCommand(["deprecated-apis", "--full"]);
-
-    const logLines = A.filter(yield* TestConsole.logLines, P.isString);
-    const invocationLines = A.filter(
-      logLines,
-      (line) => Str.startsWith("[lint:deprecated-apis] ")(line) && Str.includes(": ./node_modules/.bin/eslint ")(line)
-    );
-    const cacheLocations = A.getSomes(A.map(invocationLines, (line) => argumentAfter(line, "--cache-location")));
-
-    expect(logLines).toContain("[lint:deprecated-apis] running 29 shards with concurrency 4");
-    expect(invocationLines).toHaveLength(29);
-    expect(A.dedupe(cacheLocations)).toHaveLength(29);
-    expect(A.every(invocationLines, (line) => Str.includes("--cache-strategy content")(line))).toBe(true);
-    expect(A.every(cacheLocations, Str.startsWith("node_modules/.cache/eslint-deprecated-apis/.eslintcache-"))).toBe(
-      true
-    );
-  });
-
-  const checkShardFailure = Effect.fnUntraced(function* () {
-    yield* writeDeprecatedApiLintFixture({ failingShard: "packages/agents" });
-
-    const exit = yield* Effect.exit(runLintCommand(["deprecated-apis", "--full"]));
-
-    expectReportedExit(exit, 7);
-    expect(A.filter(yield* TestConsole.logLines, P.isString)).not.toContain(
-      "[lint:deprecated-apis] OK: no deprecated vendor API usage found."
-    );
-  });
-
-  const checkMissingLabsShard = Effect.fnUntraced(function* () {
-    yield* writeDeprecatedApiLintFixture({ omitShard: "apps/labs" });
-    yield* runLintCommand(["deprecated-apis", "--full"]);
-
-    const logLines = A.filter(yield* TestConsole.logLines, P.isString);
-    const invocationLines = A.filter(
-      logLines,
-      (line) => Str.startsWith("[lint:deprecated-apis] ")(line) && Str.includes(": ./node_modules/.bin/eslint ")(line)
-    );
-
-    expect(logLines).toContain("[lint:deprecated-apis] skipping missing shard: apps/labs");
-    expect(invocationLines).toHaveLength(28);
-    expect(logLines).toContain("[lint:deprecated-apis] OK: no deprecated vendor API usage found.");
-  });
-
-  const checkLabsShardTolerance = Effect.fnUntraced(function* () {
-    yield* writeDeprecatedApiLintFixture();
-    yield* runLintCommand(["deprecated-apis", "--full"]);
-
-    const logLines = A.filter(yield* TestConsole.logLines, P.isString);
-    const invocationLines = A.filter(
-      logLines,
-      (line) => Str.startsWith("[lint:deprecated-apis] ")(line) && Str.includes(": ./node_modules/.bin/eslint ")(line)
-    );
-    const labsLines = A.filter(invocationLines, Str.startsWith("[lint:deprecated-apis] apps/labs: "));
-    const flaggedLines = A.filter(invocationLines, Str.includes("--no-error-on-unmatched-pattern"));
-
-    expect(labsLines).toHaveLength(1);
-    expect(flaggedLines).toEqual(labsLines);
-  });
-
   describe("deprecated-apis lint command", { concurrent: false }, () => {
-    it.effect(
-      "constructs unique content-cache shard commands at concurrency four",
-      () =>
-        Effect.andThen(temporaryWorkingDirectory, checkShardCacheCommands()).pipe(
-          Effect.provideServiceEffect(Console.Console, TestConsole.make)
-        ),
-      10_000
+    it.effect("executes one bounded native full sweep without ESLint caching", () =>
+      Effect.gen(function* () {
+        yield* temporaryWorkingDirectory;
+        yield* writeDeprecatedApiLintFixture(false, false);
+        yield* runLintCommand(["deprecated-apis", "--full"]);
+        const calls = yield* nativeInvocations();
+        expect(calls).toHaveLength(1);
+        expect(calls[0]).toContain("--disable-nested-config --threads=4 apps packages infra");
+        expect(calls[0]).toContain(".oxlintrc.deprecated-apis.jsonc");
+        expect(calls[0]).not.toContain("--cache");
+      })
     );
-
-    it.effect(
-      "fails the aggregate when any shard exits nonzero",
-      () =>
-        Effect.andThen(temporaryWorkingDirectory, checkShardFailure()).pipe(
-          Effect.provideServiceEffect(Console.Console, TestConsole.make)
-        ),
-      10_000
+    it.effect("propagates the native process exit code", () =>
+      Effect.gen(function* () {
+        yield* temporaryWorkingDirectory;
+        yield* writeDeprecatedApiLintFixture(true, false);
+        const exit = yield* Effect.exit(runLintCommand(["deprecated-apis", "--full"]));
+        expectReportedExit(exit, 7);
+        expect(yield* nativeInvocations()).toHaveLength(1);
+      })
     );
-
-    it.effect(
-      "skips the labs shard when the labs root is absent",
-      () =>
-        Effect.andThen(temporaryWorkingDirectory, checkMissingLabsShard()).pipe(
-          Effect.provideServiceEffect(Console.Console, TestConsole.make)
-        ),
-      10_000
+    it.effect("keeps the full apps scope when the labs directory is absent", () =>
+      Effect.gen(function* () {
+        yield* temporaryWorkingDirectory;
+        yield* writeDeprecatedApiLintFixture(false, true);
+        yield* runLintCommand(["deprecated-apis", "--full"]);
+        const calls = yield* nativeInvocations();
+        expect(calls).toHaveLength(1);
+        expect(calls[0]).toContain("apps packages infra");
+      })
     );
-
-    it.effect(
-      "passes --no-error-on-unmatched-pattern to the labs shard only",
-      () =>
-        Effect.andThen(temporaryWorkingDirectory, checkLabsShardTolerance()).pipe(
-          Effect.provideServiceEffect(Console.Console, TestConsole.make)
-        ),
-      10_000
+    it.effect("uses the same bounded worker for a package scope", () =>
+      Effect.gen(function* () {
+        yield* temporaryWorkingDirectory;
+        yield* writeDeprecatedApiLintFixture(false, false);
+        yield* runLintCommand(["deprecated-apis", "--package", "packages"]);
+        const calls = yield* nativeInvocations();
+        expect(calls).toHaveLength(1);
+        expect(calls[0]).toContain("--disable-nested-config --threads=4 packages");
+        expect(calls[0]).not.toContain("apps packages infra");
+      })
     );
   });
 
