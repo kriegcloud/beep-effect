@@ -22,7 +22,15 @@ import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import { SANS_FACE, SERIF_FACE } from "./internal/LabelGlyphs.ts";
 import { alphabetSpan } from "./internal/LabelOutline.ts";
-import { LabelTypeface, marginsCm, PT_PER_CM, PT_PER_MM, pageSizePt, SheetLabelFaces } from "./Sheet.schemas.ts";
+import {
+  LabelTypeface,
+  marginsCm,
+  PT_PER_CM,
+  PT_PER_MM,
+  pageSizePt,
+  SheetLabelFaces,
+  visibleBrokenGapMm,
+} from "./Sheet.schemas.ts";
 import type { Segment2 } from "./Geometry.schemas.ts";
 import type { InkBox, LabelFace } from "./internal/LabelOutline.ts";
 import type { LabelStyle, SheetOptions } from "./Sheet.schemas.ts";
@@ -628,7 +636,8 @@ export const composeSheet = (input: {
     A.length(input.shading) === 0
       ? []
       : [`<path id="shading" d="${pathOf(input.shading)}" ${attrsFor(options.shadingWeightMm * PT_PER_MM)}/>`];
-  const dash = `${r3(options.brokenDashMm * PT_PER_MM)} ${r3(options.brokenGapMm * PT_PER_MM)}`;
+  // the gap widens with a heavy line weight so the round caps never close it
+  const dash = `${r3(options.brokenDashMm * PT_PER_MM)} ${r3(visibleBrokenGapMm(options) * PT_PER_MM)}`;
   const brokenLayer =
     A.length(broken) === 0 ? [] : [`<path id="broken" d="${pathOf(broken)}" ${attrs} stroke-dasharray="${dash}"/>`];
   // Each label layer is emitted only when it has marks, so a sheet without

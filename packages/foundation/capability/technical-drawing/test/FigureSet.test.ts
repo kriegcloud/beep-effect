@@ -34,6 +34,7 @@ import {
   sheetGeometry,
   structuralFindings,
   ValidationOptions,
+  visibleBrokenGapMm,
 } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
@@ -412,9 +413,18 @@ describe("@beep/technical-drawing", () => {
         expect(SheetOptions.make({}).brokenGapMm).toBe(1.5);
         expect(() => SheetOptions.make({ brokenDashMm: 0.5 })).toThrow();
         expect(() => SheetOptions.make({ brokenGapMm: 0.5 })).toThrow();
-        // round caps eat the line weight: a heavy stroke closes a gap that is valid on its own
-        expect(() => SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 0.75 })).toThrow();
-        expect(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 1.2 }).brokenGapMm).toBe(1.2);
+        // round caps eat the line weight: a heavy stroke would close a gap that is valid on its own, so the
+        // drawn gap widens at emit time; the options themselves stay usable on a solid-only sheet
+        expect(SheetOptions.make({ lineWeightMm: 1.2 }).brokenGapMm).toBe(1.5);
+        expect(visibleBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 0.75 }))).toBeCloseTo(1.2, 9);
+        expect(visibleBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 1.2 }))).toBe(1.2);
+        const widened = composeSheet({
+          ...base,
+          shading: [],
+          broken: [[2, 1, 8, 1]],
+          options: SheetOptions.make({ brokenDashMm: 2, brokenGapMm: 0.75, lineWeightMm: 0.8 }),
+        });
+        expect(widened).toContain('stroke-dasharray="5.669 3.402"');
       })
     );
 

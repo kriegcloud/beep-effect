@@ -483,13 +483,43 @@ export class SheetLabelFaces extends S.Class<SheetLabelFaces>($I`SheetLabelFaces
 
 // Smallest visible gap between broken-line dashes, after the round caps eat
 // half the line weight from each side. 0.4 mm survives two-thirds reduction.
-// The tolerance keeps decimal inputs such as 1.2 - 0.8 on the right side of
-// the floor despite binary rounding.
+// The tolerance keeps decimal inputs such as 0.8 + 0.4 against 1.2 on the
+// right side of the floor despite binary rounding.
 const MIN_VISIBLE_BROKEN_GAP_MM = 0.4;
 const GAP_TOLERANCE_MM = 1e-9;
 
-const brokenGapStaysOpen = (options: { readonly brokenGapMm: number; readonly lineWeightMm: number }): boolean =>
-  options.brokenGapMm - options.lineWeightMm >= MIN_VISIBLE_BROKEN_GAP_MM - GAP_TOLERANCE_MM;
+/**
+ * The gap the broken (unclaimed) layer is drawn with, in mm on the sheet: the
+ * options' `brokenGapMm`, widened to `lineWeightMm + 0.4` when the round caps
+ * of that line weight would otherwise close it.
+ *
+ * **Details**
+ *
+ * Round caps add half the line weight to each end of every dash, so the
+ * visible gap is the drawn gap minus the line weight. The law is applied here,
+ * where a broken layer is emitted, rather than on every `SheetOptions`: a
+ * heavy line weight stays usable on a solid-only sheet, and an unclaimed
+ * outline never prints as a solid line.
+ *
+ * **Example** (A heavy weight widens the default gap)
+ *
+ * ```ts
+ * import { SheetOptions, visibleBrokenGapMm } from "@beep/technical-drawing"
+ *
+ * console.log(visibleBrokenGapMm(SheetOptions.make({ lineWeightMm: 1.2 }))) // 1.6
+ * console.log(visibleBrokenGapMm(SheetOptions.make({}))) // 1.5
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const visibleBrokenGapMm = (options: {
+  readonly brokenGapMm: number;
+  readonly lineWeightMm: number;
+}): number => {
+  const floor = options.lineWeightMm + MIN_VISIBLE_BROKEN_GAP_MM;
+  return options.brokenGapMm >= floor - GAP_TOLERANCE_MM ? options.brokenGapMm : floor;
+};
 
 /**
  * Sheet options of a render: format, margin standard, line weight, lettering,
@@ -498,9 +528,11 @@ const brokenGapStaysOpen = (options: { readonly brokenGapMm: number; readonly li
  *
  * **Gotchas**
  *
- * Round caps eat half the line weight from each end of a dash, so the options
- * are refused unless `brokenGapMm - lineWeightMm` is at least 0.4 mm;
- * otherwise a broken (unclaimed) outline would print as a solid line.
+ * Round caps eat half the line weight from each end of a dash. When
+ * `brokenGapMm - lineWeightMm` falls under 0.4 mm the broken layer is drawn
+ * with a gap of `lineWeightMm + 0.4` instead (see {@link visibleBrokenGapMm}),
+ * so a broken (unclaimed) outline never prints as a solid line and a heavy
+ * line weight stays usable on a sheet without broken lines.
  *
  * **Example** (Defaults)
  *
@@ -515,7 +547,7 @@ const brokenGapStaysOpen = (options: { readonly brokenGapMm: number; readonly li
  * @since 0.0.0
  */
 export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
-  S.Struct({
+  {
     format: SheetFormat.pipe(
       S.withConstructorDefault(Effect.succeed("letter" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("letter" as const)),
@@ -679,14 +711,7 @@ export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
           "Gap between dashes of broken (unclaimed) lines, in mm on the sheet, measured before the round caps. Defaults to 1.5.",
       })
     ),
-  }).check(
-    S.makeFilter(brokenGapStaysOpen, {
-      identifier: $I`SheetOptionsBrokenGapCheck`,
-      title: "Broken-Line Visible Gap",
-      description: `Round caps add half the line weight to each end of every dash, so the visible broken-line gap is brokenGapMm minus lineWeightMm; it must stay at least ${MIN_VISIBLE_BROKEN_GAP_MM} mm or the unclaimed outline prints as a solid (claimed) line.`,
-      message: `Expected the broken-line gap minus the line weight to be at least ${MIN_VISIBLE_BROKEN_GAP_MM} mm`,
-    })
-  ),
+  },
   $I.annote("SheetOptions", {
     description:
       "Page format, margin standard, stroke and shading widths, shading pitch range, broken-line dash pattern, lettering height, label gap and styles, and margin safety gap of a render.",
