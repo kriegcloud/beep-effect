@@ -653,3 +653,34 @@ larger occurrences and remaining estate/recycle/legacy-Word gates stay open.
 Decision: accept family 4 and continue the unchanged frozen wave. Reversal:
 revert packet decisions while retaining every ledger, output and freeze record.
 No push, merge, or PR7 publication until the terminal wave record.
+
+
+## Standing continuation — ordinal 5 submitted
+
+A full sixty-second interval elapsed after renewed admitted preflight and
+family 4 reconciliation. Capacity immediately before submission:
+422,327,496,704 free bytes, above the 100,000,000,000-byte floor.
+Submitted at 2026-10-14T00:14:38Z with the SAME frozen script and ordinal 5.
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-5.service.
+Started stamp: 2026-10-14T00:14:38.133Z. Active/running at initial observation;
+it is the sole wave family unit. MemoryMax 34,359,738,368 bytes,
+MemorySwapMax zero, agent-runs.slice. Result absent; re-verification begins.
+
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-05/ledgers/mail/slice.jsonl`.
+Freeze record: history/evidence/p2-first-wave-2026-10-13-family-05-run-manifest.json.
+Frozen expected policy:
+fd9019c7caf2b434c8a09d12196ca841b4802b7702181fb571d57c4f878ebbc6.
+Runtime policy comparison awaits family-run-start after verification.
+
+Four of nine accepted; ordinal 5 active, ordinals 6-9 unstarted. The watcher
+owns this explicit mid-wave handoff. After unit 5 ends, reconcile result,
+accepted seal, source/policy identities, all child and repair digest pairs,
+ceilings and capacity before renewed admitted preflight, a full sixty-second
+interval and ordinal 6. Stop and diagnose the first failure; never retry a
+sealed family. No source, engine, launcher, admission policy or outside job
+changed. P2 remains incomplete; eighteen larger occurrences and remaining
+estate/recycle/legacy-Word gates stay open. PR7 follows the terminal record.
+Reversal: revert packet continuation decisions while retaining every ledger,
+output and immutable manifest. No push, merge or worker-owned gate started.
+Graft estimated 79,542 tokens saved across two source retrievals.

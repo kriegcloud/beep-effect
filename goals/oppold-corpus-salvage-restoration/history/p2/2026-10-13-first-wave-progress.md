@@ -292,3 +292,17 @@ Renewed admitted direct Tika/pffexport sandbox smokes passed; four focused
 tests passed, 78 skipped, 3.85 seconds. Four of nine accepted; ordinals 5-9
 unstarted. Continue only after the full sixty-second interval and fresh
 capacity/state checks. Retain all ledgers, outputs and immutable manifests.
+
+
+### Ordinal 5 submitted after renewed preflight
+
+Full sixty-second interval completed. Free bytes before submission:
+422,327,496,704. Unit beep-heavy-corpus-restore-p2-2026-10-13-5.service
+submitted 2026-10-14T00:14:38Z; started 2026-10-14T00:14:38.133Z.
+Sole wave family unit active/running, result absent; frozen script unchanged.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-05/ledgers/mail/slice.jsonl`.
+Frozen policy fd9019c7caf2b434c8a09d12196ca841b4802b7702181fb571d57c4f878ebbc6;
+compare runtime value after family-run-start. Four of nine accepted; ordinals
+6-9 unstarted. Watcher resumes after unit 5 ends; no worker wait on the family.
+P2 remains incomplete. No source/engine/launcher change or PR publication.

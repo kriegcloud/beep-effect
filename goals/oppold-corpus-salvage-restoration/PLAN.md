@@ -285,3 +285,13 @@ After renewed admitted smokes/focused proof and sixty seconds, ordinal 4
 was submitted with the SAME frozen launcher as the sole wave unit.
 Three of nine accepted; P2 remains incomplete. The watcher resumes after
 the unit ends. Retain every family; stop at the first failure.
+
+
+**Standing continuation 2026-10-14:** family 4 accepted and fully reconciled:
+836 children, zero warnings/exceptions, 2.833357835x amplification,
+4,789,718 ms attempt / 4,797,300 ms family; 20 repair digest pairs.
+Renewed admitted smokes and four focused tests passed; a full sixty-second
+interval followed. Ordinal 5 submitted with the SAME frozen launcher as the
+sole wave family unit, with 422,327,496,704 free bytes. Four of nine accepted;
+P2 remains incomplete. Watcher resumes after unit 5 ends and reconciles all
+acceptance conditions before ordinal 6. Stop at the first failure; retain state.
