@@ -27,9 +27,9 @@ Higher sources outrank lower sources when they conflict.
 
 ## Target Surfaces
 
-- `packages/tooling/library/palantiri` (NET-NEW)
-- `packages/tooling/tool/palantiri-mcp` (NET-NEW, `@beep/mcp-kit` host pattern)
-- `packages/tooling/tool/cli/src/commands/Palantiri/` (NET-NEW group) and `Accounts/` (quota gauge)
+- `packages/tooling/library/palantiri/**` (NET-NEW)
+- `packages/tooling/tool/palantiri-mcp/**` (NET-NEW, `@beep/mcp-kit` host pattern)
+- `packages/tooling/tool/cli/src/commands/Palantiri/**` (NET-NEW group) and `Accounts/` (quota gauge)
 - `SessionLedger` / `beep session open` push
 
 ## Constraints
@@ -47,7 +47,7 @@ Higher sources outrank lower sources when they conflict.
 
 ## Acceptance Criteria
 
-- [ ] First vertical slice (`explorations/observability-palantiri/MAP.md`): `bun run beep palantiri parcel account-headroom --json` decodes to `Fresh`/`Unknown{stale}`, and the run exports a `beep.accounts.window_remaining` gauge and a `Parcels.read` span carrying `beep.*` v2 attributes, nested under the caller's trace.
+- [ ] First vertical slice (`explorations/observability-palantiri/MAP.md`): `beep palantiri parcel account-headroom --json` decodes to `Fresh`/`Unknown{stale}`, and the run exports a `beep.accounts.window_remaining` gauge and a `Parcels.read` span carrying `beep.*` v2 attributes, nested under the caller's trace.
 - [ ] Five parcels ship: account headroom, lane reds, host pressure, app error classes, since-last-check.
 - [ ] `palantiri-mcp` exposes the same parcels with identical encoded JSON; stdio host pins `Logger.LogToStderr`.
 - [ ] `beep session open` prints the hot parcels.

@@ -71,11 +71,11 @@
     "@beep/utils": "workspace:^",
     "@biomejs/biome": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@effect/tsgo": "catalog:",
     "@standard-schema/spec": "catalog:",
-    "effect": "catalog:",
-    "ts-morph": "catalog:",
     "@typescript/native": "catalog:",
-    "@effect/tsgo": "catalog:"
+    "effect": "catalog:",
+    "ts-morph": "catalog:"
   },
   "devDependencies": {
     "@beep/test-runner": "workspace:^",
