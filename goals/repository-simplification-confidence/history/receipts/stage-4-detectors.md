@@ -44,7 +44,7 @@ frontier. Every output is tool-owned. Effect/Vitest inventory and policy
 fingerprint remain outside this wave. These are candidate measurements until
 R14 serialized merge, not accepted program baseline counts.
 
-| Artifact or metric | Committed snapshot | Current owner output |
+| Artifact or metric | Committed snapshot | Owner output at 01b3d54700 |
 | --- | ---: | ---: |
 | JSDoc packages / public modules / exports | 141 / 2,880 / 20,404 | 147 / 3,462 / 23,453 |
 | Packages needing remediation / open modules / open exports | 120 / 366 / 2,949 | 81 / 912 / 1,388 |
@@ -85,6 +85,30 @@ boundary detector does not establish zero actionable complexity debt.
 The current individual schema-first review proposals are preserved privately
 at `.beep/rsc-resume/schema-first-review.json` with source-bound evidence for
 every current identity. No proposal changes an exception body in this wave.
+
+### Integrated replay at bea70598228b
+
+After intervening source changes landed on main, the admitted ordered replay
+at `bea70598228bf617e1f35843332ac222e58e7211` passed installation,
+full build and every owner command except raw health. Health still wrote its
+baseline and exited 1 on 148 above-threshold functions. Completed logs are
+preserved in `.beep/rsc-resume/replay-bea70598228b/`.
+
+Against main's snapshots at `b096cbd99b43`, this candidate has 147 JSDoc
+packages, 3,464 public modules and 23,464 public exports. Open modules/exports
+remain 912/1,388, example-import/root-package findings 1,363/1,342 and missing
+examples eight. Catalog entries are 7,383. All 126 schema-first entry bodies
+are unchanged. Fallow 3.32.0 reports zero dead-code issues; health preserves
+180 per-file baseline findings across thirteen targets. Census CLI
+instantiations are 5,168,345, an increase of 231,954 against main's retained
+4,936,391. The other five census rows are unchanged. These values describe
+owner output, not accepted program baselines or B-authored source repairs.
+
+The lane subsequently integrated main `a0838402f5` as `a00d3fdaf7c2`.
+That intervening delta consists of documentation, packets and service units.
+The fresh ordered owner replay at `a00d3fdaf7c2` completed with identical
+semantic counts and command outcomes. Current logs/results are retained in
+`.beep/rsc-resume/integrated/`; committed-head parity follows.
 
 ### Committed-head parity
 

@@ -1,10 +1,10 @@
 lane: rsc-b-standards
-head: 01b3d54700fa4327472fb7beb0ed169766902c90
+head: a00d3fdaf7c285109ed1d6986adb32fcb4eb95e2 (owner replay source head; committed-candidate parity follows)
 PR: #1616 (merged historical bounded test slice; new refresh PR pending)
 package-verify: not applicable to the current generated refresh; no workspace package edited
 hosted-parity: test-tsgo pending; docgen local pending; jsdoc-ratchet pending; knowledge refs pending; fallow audit+health pending; coverage read pending
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-b-standards-2026-10-14.md
-open: current-head owner refresh completed; committed-head parity pending; RSC-RESUME cap gate absent; later guidance and detector waves pending; effect-laws provenance edits require S5 notification confirmation; V owns open canon cohorts under R102
+open: owner refresh completed at a00d3fdaf7; committed-head parity pending; RSC-RESUME cap gate absent; later guidance and detector waves pending; effect-laws provenance edits require S5 notification confirmation; V owns open canon cohorts under R102
 
 ## Resume and inbox disposition
 
@@ -100,3 +100,56 @@ Effect/Vitest proposal inputs. Those checks establish only body freshness,
 not a new semantic review. The newer registry/source delta still needs
 reconciliation before the detector wave. No effect-laws or snapshot edit
 is made before S5 notification confirmation.
+
+## Replay completed and documentation integration
+
+The ordered admitted replay at `bea70598228bf617e1f35843332ac222e58e7211`
+completed: install, full build, JSDoc, ratchet baseline, catalog, schema-first,
+dead-code and census all exit 0. Health writes its baseline and exits 1 on
+148 raw above-threshold functions. JSDoc now reports 3,464 public modules and
+23,464 public exports; open modules/exports remain 912/1,388. Catalog entries
+are 7,383; all 126 schema-first exception bodies remain unchanged. Dead-code
+is zero under Fallow 3.32.0. CLI census instantiations are 5,168,345; the other
+five retained census rows are unchanged. These are candidate measurements.
+
+Commit `e32af2eb99` preserves these owner outputs and historical FP-7 removal
+evidence. Merge `a00d3fdaf7c285109ed1d6986adb32fcb4eb95e2` integrates main
+`a0838402f5`, whose intervening changes are documentation, packets and service
+units. An admitted ordered owner pass is queued at this integrated head.
+Completed logs remain in `.beep/rsc-resume/replay-bea70598228b/`; current replay
+logs are in `.beep/rsc-resume/integrated/`. No queued job owned by another
+session was stopped. The cap gate remains absent; no new PR or push exists.
+
+## Inline occurrence reconciliation prepared
+
+The independent private review at `bea70598228b` covers all 457 current
+tracked-comment directives individually: 135 retain proposals, 283 actionable
+items and 39 inert-removal proposals. It reconciles 404 preserved historical
+occurrences, 53 new and two removed; one witness rationale changes in place.
+Each record has its own operand/context evidence, owner, reason and
+reconsideration condition. All 36 cspell comments remain inert-removal
+candidates; new negative type fixtures remain actionable until their exact
+rejection is proved. The two removed technical-drawing digest suppressions
+have actual extraction evidence on main. Static semantic review does not
+establish executed compiler/linter proof, admission or zero debt. Reports
+remain private in `.beep/rsc-resume/inline-review.{json,md}` for the later wave.
+
+## Coverage attribution
+
+The resume addendum records an inherited Coverage Regression red on main
+`6e7f6d3d3c` from #1671/#1679/#1688/#1690, with the hosted-row splice owned
+by the orchestrator. B does not repair it or alter a coverage baseline. This
+first wave edits no package source and therefore has no touched source row
+for scoped coverage execution. Fresh hosted status is still pending a new
+publication; the standing attribution is not a claim about a current hosted
+run or a successful rerun.
+
+## Owner replay completed at a00d3fdaf7
+
+The fresh admitted ordered owner pass at
+`a00d3fdaf7c285109ed1d6986adb32fcb4eb95e2` completed with the same
+command outcomes and semantic counts as the prior replay: all exit 0 except
+raw health, which writes its baseline and exits 1. The baseline and catalogs
+remain candidate outputs. Current logs/results are retained under
+`.beep/rsc-resume/integrated/`. Required parity runs on the committed candidate
+next. Coverage read is not applicable: no package source or floor is changed.

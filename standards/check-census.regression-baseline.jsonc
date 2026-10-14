@@ -7,8 +7,8 @@
 // A write refuses any sample whose compiler output reports a type error.
 {
   "schemaVersion": "check-census-baseline/v1",
-  "measuredAt": "2026-10-14T11:48:23.352Z",
-  "commit": "bea70598228bf617e1f35843332ac222e58e7211",
+  "measuredAt": "2026-10-14T12:00:32.818Z",
+  "commit": "a00d3fdaf7c285109ed1d6986adb32fcb4eb95e2",
   "dirtyWorktree": true,
   "compiler": "7.0.2+effect-tsgo.0.51.1",
   "command": "bun run tsc -p <tsconfig> --noEmit --extendedDiagnostics --singleThreaded --tsBuildInfoFile <fresh>",
@@ -19,21 +19,21 @@
       "tsconfig": "packages/foundation/modeling/schema/tsconfig.json",
       "instantiations": 456717,
       "types": 136471,
-      "checkTimeMs": 1115
+      "checkTimeMs": 829
     },
     {
       "name": "@beep/repo-cli",
       "tsconfig": "packages/tooling/tool/cli/tsconfig.json",
       "instantiations": 5168345,
       "types": 1325461,
-      "checkTimeMs": 16980
+      "checkTimeMs": 21223
     },
     {
       "name": "@beep/law-practice-domain",
       "tsconfig": "packages/law-practice/domain/tsconfig.json",
       "instantiations": 896665,
       "types": 267822,
-      "checkTimeMs": 2343
+      "checkTimeMs": 1931
     }
   ],
   "typeperfFixtures": [
@@ -42,21 +42,21 @@
       "tsconfig": "packages/foundation/modeling/schema/test/fixtures/typeperf/tsconfig.baseline.json",
       "instantiations": 17335,
       "types": 6896,
-      "checkTimeMs": 20
+      "checkTimeMs": 41
     },
     {
       "name": "@beep/schema#typeperf/literal-kit-tagged-union",
       "tsconfig": "packages/foundation/modeling/schema/test/fixtures/typeperf/tsconfig.literal-kit-tagged-union.json",
       "instantiations": 20586,
       "types": 7649,
-      "checkTimeMs": 25
+      "checkTimeMs": 37
     },
     {
       "name": "@beep/schema#typeperf/literal-kit-keyed-api",
       "tsconfig": "packages/foundation/modeling/schema/test/fixtures/typeperf/tsconfig.literal-kit-keyed-api.json",
       "instantiations": 17915,
       "types": 7040,
-      "checkTimeMs": 21
+      "checkTimeMs": 29
     }
   ]
 }
