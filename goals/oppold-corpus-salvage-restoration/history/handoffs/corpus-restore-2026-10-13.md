@@ -1102,3 +1102,68 @@ source changed in the PR; package-verify and source hosted-parity lanes are
 not run (docs-only). Publication uses the Yeet skill under admitted heavy
 execution. The sealed family failure remains the blocker regardless of PR
 readiness; the orchestrator owns any next execution decision.
+
+
+## Family 7 stop final report
+
+lane: corpus-restore
+head: 258042e16e61139c504801b4f3e087f2d534ebeb (exact published PR head)
+PR(s): #1683 OPEN, draft, aggregate failure evidence published | #1646 MERGED
+package-verify: not run (docs-only: no package source edited; no new family launch or engine fix).
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet pass through Yeet's committed cheap gate | knowledge refs pass through beep-heavy at 2502411929, zero live gated observations | fallow audit+health pass through Yeet cheap gates | scoped coverage not run (docs-only: no package source changed)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+open items: Family 7 result 1 and immutable family-acceptance-failure; one unapproved engine-failure, expected/terminal one, unapproved one. Seven of nine sealed: five accepted (1-4 and 6), families 5 and 7 failed, ordinals 8-9 unstarted. No next launch, retry, artifact mutation or merge of a PR. Family 7 input 354,026,496 bytes; retained output 910,603,343 bytes, amplification 2.572133310x; family elapsed 7,211,513 ms. Zero accepted store or terminal child rows, warnings or interruptions. Partial dispositions: 288 repaired occurrences / 245 distinct digests, 217 unsupported, zero unchanged. Retained 15,003 files include 246 repair copies and 245 Tika files. One unmatched 2,280,873-byte PDF copy near the attempt cap strongly supports attachment-repair elapsed-budget exhaustion, but exact cause is unresolved because the generic terminal catch discarded it. No parser-exception approval or accepted child reconciliation is claimed. Ledger SHA-256 fca75d67a121ef972f807acd099ad56e4cb9d3f4bc706959c1de187f5c572e35. Frozen engines, nine source metadata identities, script/membership digests and seven runtime policies match; earlier ledger hashes unchanged. Capacity after failure 407,601,733,632 bytes. Decision: stop under Run 17 and publish aggregate evidence; reversal is reverting packet decisions while retaining every ledger, output, claim and immutable manifest. P2 remains in-progress; family-5 separate recovery, family-7 diagnosis/recovery, two unstarted members, eighteen larger occurrences and estate/recycle/DOC obligations remain open. Main was integrated only after the wave stopped; newer restoration source differs from the frozen execution code, so continuation must re-establish governing code identity before launch. All sixteen cheap gates and exact-head install preflight passed; one push, seven packet files only. Packet doctor zero new blockers, same three unrelated advisories. Yeet ready refused its branch lookup despite REST confirming #1683 open; the explicit guarded ready command exited 75 with GraphQL remaining zero, reset 2026-10-14T05:34:35Z. Ready flip and review-thread state remain pending/unknown; merge readiness is not claimed. Worker-owned monitor terminated and proof inbox acknowledged; no worker-owned unit or gate active. Session ledger records blocked handoff. The committed handoff contains the diagnosis, decisions and aggregate evidence; this exact-head final report is appended locally for the next evidence commit. Graft saved approximately 65,334 tokens across two retrievals.
+blocked: family 7 sealed failure — likely attachment-repair elapsed-budget exhaustion; exact cause unresolved, wave stopped, PR #1683 draft pending GraphQL quota
+
+
+## 2026-10-14 continuation preflight: ordinal 8 held on frozen code
+
+Read the complete brief and its latest 05:55Z ruling. Continuation of
+ordinals 8 and 9 is authorized; families 5 and 7 remain sealed failures,
+not accepted stores. Preserve the prior exact-head stop-report append.
+No running wave family unit exists, and ordinals 8 and 9 have no run root,
+started stamp or result. All seven previous result stamps and ledger hashes
+match the prior handoffs: five accepted, two failed. Family 7 result 1,
+expected/terminal one, unapproved one; ledger SHA-256
+fca75d67a121ef972f807acd099ad56e4cb9d3f4bc706959c1de187f5c572e35.
+No retry, engine change, manifest edit or next launch occurred.
+
+| Prerequisite | State | Measured evidence |
+| --- | --- | --- |
+| P0 seal | met | 755 directory passes, 10,696 file passes, four losses, one preflight, one seal in the sealed run |
+| Original candidate | met | 53 PSTs, 23 eligible; original object/digest and 56,140,800 bytes unchanged |
+| Nine source identities | met | Object, source digest and input bytes match archive metadata for all nine manifests |
+| Existing transformation state | met | Seven immutable seals; five accepted, families 5 and 7 failed; ordinal 8/9 absent |
+| Frozen engines | met | pffexport 20260917, bubblewrap 0.13.0, OpenJDK 27 dated 2026-09-15; Java real path and Tika digest unchanged |
+| Frozen script/membership | met | Digests unchanged, recorded below |
+| Runtime policy | met | All seven started policies match their prior handoffs; no new runtime policy |
+| Code identity | not met | Current restoration source differs from all nine manifests' code head after the earlier publication integration |
+| Capacity | met | 407,414,800,384 free bytes, above 100,000,000,000 floor at inspection |
+| Renewed smokes/focused proof | not run | Held before admitted execution on the code-freeze mismatch |
+| Packet baseline | met | Adoption zero conflicts; doctor zero blockers, same three unrelated advisories; index matches |
+
+Launcher SHA-256:
+5b1d87cb5c420a53e56340bbc092c21826666c9e25ef210a421b8e20955e65e6.
+Membership SHA-256:
+00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+Tika SHA-256:
+0e8ee9795ac4244feab466f4a5a9c3b94675af392848243842cb6e1e69d27103.
+Governing code head for all nine manifests:
+6eb3d036771e868768846b3c56a5aafac69c3b2b.
+
+The source delta is #1636's inherited Array.every substitutions in signature
+detection, imported by the previous stop-publication main merge. Libpff
+source matches the frozen head; restoration source does not. No behavioral
+defect is claimed, but the frozen script executes this checkout, so a new
+launch cannot be described as executing the recorded source identity.
+Decision: hold ordinal 8 pending orchestrator reconciliation of continuation
+and code freeze. Reversal: revert documentation while retaining every corpus
+artifact and immutable manifest. Never rewrite the old freeze records.
+
+PR #1683 remains open at published head
+258042e16e61139c504801b4f3e087f2d534ebeb at inspection; the orchestrator
+owns its gate. Do not move that head during gate handling. Existing sealed
+failure evidence is published there; this continuation blocker is committed
+locally for handoff. No new PR, push, main merge or worker-owned gate.
+Source/package proof is not applicable to this docs-only stop.
+Graft saved approximately 53,475 tokens in one retrieval.

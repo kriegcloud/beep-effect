@@ -832,3 +832,18 @@ family engine failure; no live family was launched before it was repaired.
   when the frozen execution permits it. Preserve dated decisions on both sides.
 - Action: retained this branch's newer packet records, including the earlier
   family-5 evidence, and updated current status to the further sealed failure.
+
+
+## 2026-10-14: publication integration changed the frozen wave source
+
+- Doing: resume ordinal 8 under the 05:55Z continuation ruling.
+- Evidence: the previous stop-publication merge imported #1636, replacing
+  native array predicates in RestorationTransformations signature detection
+  with Effect Array.every. All nine immutable manifests still identify
+  code head 6eb3d036771e868768846b3c56a5aafac69c3b2b. The frozen launcher
+  executes this checkout, whose restoration source differs from that head.
+- Prevention: separate evidence publication integration from a still-frozen
+  execution checkout, or provide an explicit source-identity transition
+  before resuming the remaining members.
+- Action: stop before ordinal 8 without modifying source, the launcher,
+  manifests or corpus artifacts. Report the freeze mismatch to the orchestrator.

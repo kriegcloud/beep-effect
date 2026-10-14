@@ -1128,3 +1128,29 @@ Reversal: revert packet decisions while retaining all ledgers, output,
 claims and manifests. Further continuation or recovery needs an orchestrator
 ruling. Family-5 separate recovery and eighteen larger occurrences remain
 deferred. Evidence: history/p2/2026-10-14-family-07-stop.md.
+
+
+### 2026-10-14: authorized continuation held by execution-code identity
+
+The orchestrator's 05:55Z ruling authorizes ordinals 8 and 9, retaining
+family 7 as sealed-failure with attachment-repair elapsed-budget exhaustion
+(exact cause unresolved; raw attempt output retained). Family 5 remains
+sealed-failure; both recoveries belong to a separate post-wave engine PR
+and newly frozen executions. This supersedes the earlier continuation stop.
+
+Renewed inspection finds a distinct pre-launch blocker. The previous
+publication integration imported #1636's Array.every substitutions in
+RestorationTransformations. All nine pre-launch manifests retain code head
+6eb3d036771e868768846b3c56a5aafac69c3b2b; the unchanged launcher executes
+the current checkout rather than an isolated frozen source tree. Its code
+identity therefore cannot be reported as matching the governing freeze.
+The source delta is inherited, not a new lane edit; no behavioral defect
+is claimed. Engine versions, script and membership digests still match.
+
+Decision: do not launch ordinal 8 until the orchestrator reconciles the
+continuation ruling with the unchanged code-freeze requirement. Do not
+rewrite a manifest, restore source files, alter the frozen launcher or
+assert that a smoke test establishes source identity. Seven families remain
+sealed: five accepted and two failed; ordinals 8 and 9 are unstarted.
+Reversal: revert this documentation decision while retaining every ledger,
+output, claim and immutable manifest. P2 remains in-progress.
