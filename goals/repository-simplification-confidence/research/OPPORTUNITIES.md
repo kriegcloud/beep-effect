@@ -1311,3 +1311,12 @@ on the new head if it appears.
   the orchestrator. Neither result is described as a passing gate.
 - Prevention: run the test compiler on added command coverage before merging
   the coverage repair; preserve source-bound gate results across integration.
+
+### 2026-10-14 — H2 publisher runtime flag
+
+- Work: publish the qualified H2 delivery with a bounded readiness monitor.
+- Evidence: `yeet publish --job-max-runtime "40 minutes"` exits before mutation:
+  `--job-max-runtime requires --detach.` No commit or push occurs.
+- Prevention: use the canonical publisher invocation; configure the detached
+  readiness monitor through its own job options. Shared help lists job flags
+  without distinguishing the publisher's automatically detached monitor.
