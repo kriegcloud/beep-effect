@@ -172,6 +172,76 @@ listing.
 6. Accept 10 as doc fixes and 14 as true positives (B-3b and a lock refresh).
 7. Rule on 11 and 13: should decision logs and `ops/handoffs/` be archival surfaces?
 
+## PR 3 — causal grouping and root attribution
+
+Re-run of the read-only report with causal grouping (design contract 12, K18–K23), at
+tree `a439bc3ff2` on 2026-10-14. It still exits 0, writes nothing, and gates nothing;
+two runs produce byte-identical JSON. Every finding keeps its `causeKey`; the report adds
+`groups` (one per distinct cause key) and `rootHistory`, and the human output lists roots
+instead of findings. `goals doctor` output is byte-identical before and after its packet
+core moved onto a reader.
+
+| Measure | Value |
+| --- | --- |
+| Findings / blocking findings | 31,116 / 883 |
+| Cause groups / groups with a blocking finding | 7,688 / 341 (the other 7,347 are the unclassified worklist) |
+| Blocking roots by cause | 238 path, 54 `@beep` package, 26 subpath, 4 export, 4 command, 14 skill, 1 packet-status |
+| Groups with 5 or more dependents | 37, covering 441 of the 883 blocking findings |
+| Delegated roots | 0: at this tree the goals doctor reports only Git-history advisories, which are excluded |
+| Path roots attributed to a removing commit | 103 of 238 (12 with a rename repair target) |
+| Root history | `available` (full clone) |
+
+The 883 blocking findings collapse to 341 roots. Cross-evaluator merging works: 20
+`unknown-beep-symbol` findings whose subpath resolves to a missing file share the
+`path:` root with the broken-path findings for that file.
+
+Top roots by dependents:
+
+| Dependents | Root | Attribution |
+| --- | --- | --- |
+| 55 | `beep-package:@beep/courtlistener` | none (package names are not paths) |
+| 29 | `beep-package:@beep/epistemic` | none |
+| 29 | `path:goals/ip-law-knowledge-graph` | deleted in `cd7670d5d0` (#401, portfolio consolidation) |
+| 25 | `path:scripts/generate.ts` | none |
+| 23 | `path:tools/call` | none |
+| 18 | `beep-package:@beep/dol`, `beep-package:@beep/federal-register` | none |
+| 18 | `path:packages/drivers/workflow` | none |
+| 17 | `path:goals/trustgraph-port` | deleted in `cd7670d5d0` (#401) |
+| 16 | `path:scripts/setup-effect-ref.sh` | deleted in `0684c57f99` (#1583, scripts ported to Effect commands) |
+| 15 | `path:goals/ontology-modeling-foundation` | deleted in `cd7670d5d0` (#401) |
+| 13 | `path:scripts/cloud-session-setup.sh` | deleted in `0684c57f99` (#1583) |
+| 10 | `path:apps/canvas` | deleted in `33c584b179` (retired slices and apps) |
+
+The commits that removed the most attributed roots: `cd7670d5d0` (#401) 26,
+`33c584b179` 12, `0684c57f99` (#1583) 10, `8852619f04` (repo-exports catalog removal) 8.
+
+### Candidate wrong groupings (PR 3)
+
+15. **Directory repair targets taken from one renamed file.** The proposal for a
+    directory root comes from the newest rename under it. `packages/foundation/capability/nlp`
+    proposes `packages/drivers/rdf-canonize` and `packages/common` proposes
+    `packages/foundation/ui-system`, because one file moved there while the rest of the
+    directory went elsewhere. Attribution (the commit) is right; the repair target is
+    not. Option: propose a directory target only when every rename under the root agrees.
+16. **One skill, several roots.** `skill:adhd:license` and `skill:adhd:revision` are two
+    roots for one lock entry (6 skills split this way, 14 skill roots in all). The ask is
+    whether the skills cause key should be the lock entry (`skill:<name>`), so one
+    lock fix is one root.
+17. **Package roots are never attributed.** 54 package roots (241 dependents) carry no
+    authoring commit because a package name is not a path. Most are proposed packages
+    (candidate 8), so there is no commit to find; for removed packages, attribution
+    would need the removed `package.json` whose `name` matched.
+18. **Unattributed path roots are mostly never-existed paths.** 135 of 238 path roots
+    have no removal in history: planned paths, MCP method names written as paths
+    (`tools/call`, `tools/list`), and shorthand. These are paths-evaluator FP classes,
+    not grouping errors, but grouping makes them visible as single roots.
+
+### Asks for the PR 3 verdict
+
+8. Rule on 15: restrict directory repair proposals to unanimous renames, or drop them.
+9. Rule on 16: key skill causes by lock entry.
+10. Accept 17 and 18 as known limits (attribution is path lineage only, per C6 tier 2).
+
 ## Deviations from the design (recorded)
 
 - Historical-marker block scope is line-based (Stage-1 fence reader plus blank lines),

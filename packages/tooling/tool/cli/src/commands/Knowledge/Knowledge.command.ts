@@ -41,8 +41,12 @@ import { KnowledgeService, KnowledgeServiceLive } from "./Knowledge.service.ts";
 import { encodeKnowledgeDoctorReportJson, KnowledgeSpanClass } from "./KnowledgeDoctor.schemas.ts";
 import { KnowledgeDoctor, KnowledgeDoctorLive } from "./KnowledgeDoctor.service.ts";
 import type { KnowledgeRef, KnowledgeRefObservation, KnowledgeRefsReport } from "./Knowledge.refs.ts";
-import type { KnowledgeFinding, KnowledgeSemanticDeltaReport } from "./Knowledge.schemas.ts";
-import type { KnowledgeDoctorFinding, KnowledgeDoctorReport } from "./KnowledgeDoctor.schemas.ts";
+import type { KnowledgeFinding, KnowledgeFindingId, KnowledgeSemanticDeltaReport } from "./Knowledge.schemas.ts";
+import type {
+  KnowledgeCauseGroup,
+  KnowledgeDoctorReport,
+  KnowledgeRootAttribution,
+} from "./KnowledgeDoctor.schemas.ts";
 
 const baseFlag = Flag.String("base").pipe(
   Flag.withDescription("Local base ref used to resolve the merge-base; the command never fetches"),
@@ -603,21 +607,6 @@ const doctorJsonFlag = Flag.Boolean("json").pipe(
   Flag.withDescription("Render the whole doctor report, every finding included, as one JSON line")
 );
 
-const renderDoctorFinding = (row: KnowledgeDoctorFinding): string => {
-  const line = O.getOrElse(O.fromNullishOr(row.finding.location.line), () => 0);
-  const column = O.getOrElse(O.fromNullishOr(row.finding.location.column), () => 0);
-  return `  ${row.finding.kind} [${row.spanClass}] ${row.finding.location.path}:${line}:${column} ${row.finding.subject}`;
-};
-
-// Human listing reads document by document; JSON keeps the canonical identity order.
-const doctorListingOrder: Order.Order<KnowledgeDoctorFinding> = Order.combine(
-  Order.mapInput(Order.String, (row: KnowledgeDoctorFinding) => row.finding.location.path),
-  Order.combine(
-    Order.mapInput(Order.Number, (row: KnowledgeDoctorFinding) => row.finding.location.line ?? 0),
-    Order.mapInput(Order.Number, (row: KnowledgeDoctorFinding) => row.finding.location.column ?? 0)
-  )
-);
-
 // One line per finding kind present, in finding-kind domain order.
 const doctorKindCounts = (report: KnowledgeDoctorReport): ReadonlyArray<string> =>
   A.getSomes(
@@ -630,14 +619,55 @@ const doctorKindCounts = (report: KnowledgeDoctorReport): ReadonlyArray<string> 
     )
   );
 
+const renderAttribution = (attribution: KnowledgeRootAttribution): string =>
+  pipe(
+    attribution.repairTarget,
+    O.map((target) => ` -> ${target}`),
+    O.getOrElse(() => ""),
+    (repair) =>
+      ` ${attribution.change} ${attribution.removedPath} in ${Str.slice(0, 10)(attribution.commit)} "${attribution.subject}"${repair}`
+  );
+
+const renderRoot = (group: KnowledgeCauseGroup): string =>
+  `  ${Str.padStart(6)(`${A.length(group.dependents)}`)} ${group.causeKey} [${group.rootOrigin}]${pipe(
+    group.attribution,
+    O.map(renderAttribution),
+    O.getOrElse(() => "")
+  )}`;
+
+// Roots with the most dependents first; ties read in cause-key order.
+const rootListingOrder: Order.Order<KnowledgeCauseGroup> = Order.combine(
+  Order.flip(Order.mapInput(Order.Number, (group: KnowledgeCauseGroup) => A.length(group.dependents))),
+  Order.mapInput(Order.String, (group: KnowledgeCauseGroup) => group.causeKey)
+);
+
+// A group is blocking when its delegated root or any dependent is a blocking finding.
+const blockingGroups = (report: KnowledgeDoctorReport): ReadonlyArray<KnowledgeCauseGroup> => {
+  const blockingIds = HashMap.fromIterable(
+    A.map(
+      A.filter(report.findings, (row) => row.finding.severity === "blocking"),
+      (row) => [row.finding.findingId, true] as const
+    )
+  );
+  const isBlocking = (id: KnowledgeFindingId) => HashMap.has(blockingIds, id);
+  return A.filter(report.groups, (group) => O.exists(group.root, isBlocking) || A.some(group.dependents, isBlocking));
+};
+
+const rootSummary = (report: KnowledgeDoctorReport): string => {
+  const delegated = A.length(A.filter(report.groups, (group) => group.rootOrigin === "delegated"));
+  const attributed = A.length(A.filter(report.groups, (group) => O.isSome(group.attribution)));
+  return `cause groups (${A.length(report.groups)}; delegated ${delegated}; attributed ${attributed}; history ${report.rootHistory}):`;
+};
+
 /**
  * Renders a knowledge-doctor report for local human inspection.
  *
  * **Details**
  *
  * The headline names the tree, the per-class span totals, the unchecked option tokens, and the
- * per-kind finding totals. Blocking findings are listed one per line; advisory findings (the
- * unclassified worklist) fold into one count line, because `--json` carries every row.
+ * per-kind finding totals. Blocking findings are shown as their causal roots, one line per cause
+ * group with its dependent count, origin, and authoring commit, most dependents first; advisory-only
+ * groups (the unclassified worklist) fold into one count line, because `--json` carries every row.
  *
  * **Example** (Render an empty report)
  *
@@ -657,6 +687,8 @@ const doctorKindCounts = (report: KnowledgeDoctorReport): ReadonlyArray<string> 
  *       unclassified: 0,
  *     }),
  *     uncheckedOptionCount: 0,
+ *     rootHistory: "available",
+ *     groups: [],
  *     findings: [],
  *   })
  * )
@@ -671,11 +703,9 @@ const doctorKindCounts = (report: KnowledgeDoctorReport): ReadonlyArray<string> 
  * @since 0.0.0
  */
 export const renderKnowledgeDoctorHumanReport = (report: KnowledgeDoctorReport): string => {
-  const blocking = A.sort(
-    A.filter(report.findings, (row) => row.finding.severity === "blocking"),
-    doctorListingOrder
-  );
-  const advisory = A.length(report.findings) - A.length(blocking);
+  const blocking = A.length(A.filter(report.findings, (row) => row.finding.severity === "blocking"));
+  const roots = A.sort(blockingGroups(report), rootListingOrder);
+  const advisory = A.length(report.findings) - blocking;
   return A.join(
     [
       `knowledge doctor --report @ ${report.treeish} (${report.tree})`,
@@ -687,8 +717,9 @@ export const renderKnowledgeDoctorHumanReport = (report: KnowledgeDoctorReport):
       `unchecked options: ${report.uncheckedOptionCount}`,
       `findings (${A.length(report.findings)}):`,
       ...doctorKindCounts(report),
-      `blocking findings (${A.length(blocking)}):`,
-      ...A.map(blocking, renderDoctorFinding),
+      rootSummary(report),
+      `blocking findings (${blocking}) under ${A.length(roots)} root(s):`,
+      ...A.map(roots, renderRoot),
       ...(advisory > 0 ? [`advisory findings: ${advisory} ${OMITTED_DOCTOR_HINT}`] : []),
     ],
     "\n"

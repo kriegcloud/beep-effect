@@ -22,6 +22,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { optionalProp } from "../../internal/cli/OptionRecord.ts";
+import { capabilityPacketFindings, GoalExplorationPathState, goalPacketFindings } from "../Goals/Doctor.ts";
 import { decodeGoalManifest } from "../Goals/Goals.schemas.ts";
 import {
   GOALS_DIR,
@@ -42,6 +43,7 @@ import {
   KnowledgeSkillsFacts,
   KnowledgeWorkspacePackage,
 } from "./KnowledgeDoctor.schemas.ts";
+import type { GoalDoctorFinding, GoalPacketReader } from "../Goals/Doctor.ts";
 import type { KnowledgeTreeOracle } from "./Knowledge.refs.ts";
 import type {
   ExportWitness,
@@ -122,6 +124,7 @@ const WORKSPACE_SCOPE = "@beep/";
  */
 export interface KnowledgeDoctorDomain {
   readonly fileExports: (file: string) => Effect.Effect<KnowledgeFileExports, KnowledgeOperationalError>;
+  readonly goalsDoctorFindings: Effect.Effect<ReadonlyArray<GoalDoctorFinding>, KnowledgeOperationalError>;
   readonly packages: Effect.Effect<ReadonlyArray<KnowledgeWorkspacePackage>, KnowledgeOperationalError>;
   readonly packets: Effect.Effect<ReadonlyArray<KnowledgePacketFacts>, KnowledgeOperationalError>;
   readonly pathAliases: Effect.Effect<ReadonlyArray<KnowledgePackageEntrypoint>, KnowledgeOperationalError>;
@@ -281,6 +284,139 @@ const recordFacts = Effect.fn("KnowledgeDoctorDomain.recordFacts")(function* (re
 
 const derivePackets = (oracle: KnowledgeTreeOracle) =>
   Effect.flatMap(readKnowledgeGoalPacketRecords(oracle), (records) => Effect.forEach(records, recordFacts));
+
+const REFLECTIONS_DIR = "history/reflections";
+
+const ancestorDirectories = (paths: HashSet.HashSet<string>): HashSet.HashSet<string> =>
+  HashSet.fromIterable(
+    A.flatMap(A.fromIterable(paths), (repoPath) =>
+      A.drop(
+        A.scan(A.dropRight(Str.split("/")(repoPath), 1), "", (prefix, segment) =>
+          Str.isEmpty(prefix) ? segment : `${prefix}/${segment}`
+        ),
+        1
+      )
+    )
+  );
+
+const isEscapingSpelling = (exploration: string): boolean =>
+  Str.startsWith("/")(exploration) || Str.startsWith("\\\\")(exploration);
+
+/**
+ * Builds the goal-packet reader over one tree, the knowledge doctor's twin of the goals doctor's
+ * filesystem reader.
+ *
+ * **Details**
+ *
+ * Reflection files are the tracked files directly under `<packet>/history/reflections`, read from
+ * tree bytes (malformed UTF-8 fails closed). An exploration back-link is `escapes` when it is
+ * absolute or climbs above the repository root, and otherwise `present` exactly when the tree
+ * tracks it as a file or a directory.
+ *
+ * **Example** (Read the reflections of an empty tree)
+ *
+ * ```ts
+ * import { makeKnowledgeGoalPacketReader } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.domain"
+ * import * as Effect from "effect/Effect"
+ *
+ * const reader = makeKnowledgeGoalPacketReader({
+ *   commit: "HEAD",
+ *   treeish: "HEAD",
+ *   trackedEntries: [],
+ *   readBytes: () => Effect.succeed(new Uint8Array()),
+ * })
+ *
+ * console.log(Effect.isEffect(reader.reflectionFiles("goals/demo"))) // true
+ * ```
+ *
+ * @param oracle - Tree to read.
+ * @returns A goal-packet reader that never touches the working filesystem.
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeKnowledgeGoalPacketReader = (
+  oracle: KnowledgeTreeOracle
+): GoalPacketReader<KnowledgeOperationalError, never> => {
+  const paths = trackedPaths(oracle);
+  const directories = ancestorDirectories(paths);
+  return {
+    reflectionFiles: (packetPath) => {
+      const prefix = `${packetPath}/${REFLECTIONS_DIR}/`;
+      return Effect.succeed(
+        A.getSomes(
+          A.map(oracle.trackedEntries, (entry) =>
+            pipe(
+              O.liftPredicate(entry.path, Str.startsWith(prefix)),
+              O.map(Str.slice(Str.length(prefix))),
+              O.filter((name) => !pipe(name, Str.includes("/")))
+            )
+          )
+        )
+      );
+    },
+    readReflection: (packetPath, file) => readText(oracle, `${packetPath}/${REFLECTIONS_DIR}/${file}`),
+    explorationPath: (exploration) =>
+      Effect.succeed(
+        pipe(
+          O.liftPredicate(exploration, (value) => !isEscapingSpelling(value)),
+          O.flatMap((value) => joinRepoPath("", value)),
+          O.match({
+            onNone: () => GoalExplorationPathState.Enum.escapes,
+            onSome: (repoPath) =>
+              Str.isEmpty(repoPath) || HashSet.has(paths, repoPath) || HashSet.has(directories, repoPath)
+                ? GoalExplorationPathState.Enum.present
+                : GoalExplorationPathState.Enum.absent,
+          })
+        )
+      ),
+  };
+};
+
+/**
+ * Lists the goals-doctor findings of one tree that are a function of its bytes alone.
+ *
+ * **Details**
+ *
+ * The goals packet core ({@link goalPacketFindings}) runs over every packet record with the tree
+ * reader, followed by the cross-packet capability findings. The goals doctor's Git-history advisories
+ * (`stale-active`, `active-after-merge`, `completion-gate-unsatisfied`) read wall-clock windows and
+ * merge subjects rather than the tree, so they are never derived here.
+ *
+ * **Example** (List the findings of an empty tree)
+ *
+ * ```ts
+ * import { readKnowledgeGoalsDoctorFindings } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.domain"
+ * import * as Effect from "effect/Effect"
+ *
+ * const findings = readKnowledgeGoalsDoctorFindings({
+ *   commit: "HEAD",
+ *   treeish: "HEAD",
+ *   trackedEntries: [],
+ *   readBytes: () => Effect.succeed(new Uint8Array()),
+ * })
+ *
+ * console.log(Effect.isEffect(findings)) // true
+ * ```
+ *
+ * @param oracle - Tree to read.
+ * @returns Packet findings in slug order, then capability findings.
+ * @category queries
+ * @since 0.0.0
+ */
+export const readKnowledgeGoalsDoctorFindings = Effect.fn("KnowledgeDoctorDomain.goalsDoctorFindings")(function* (
+  oracle: KnowledgeTreeOracle
+) {
+  const records = yield* readKnowledgeGoalPacketRecords(oracle);
+  const reader = makeKnowledgeGoalPacketReader(oracle);
+  const results = yield* Effect.forEach(records, (record) => goalPacketFindings(record, reader));
+  const capability = capabilityPacketFindings(
+    A.zipWith(records, results, (record, result) => ({ slug: record.slug, manifest: result.manifest }))
+  );
+  return A.appendAll(
+    A.flatMap(results, (result) => result.findings),
+    capability
+  );
+});
 
 /* -------------------------------------------------------------------------------------------------
  * Workspace packages and exports
@@ -672,7 +808,7 @@ const deriveSkills = Effect.fn("KnowledgeDoctorDomain.skills")(function* (
  * ```
  *
  * @param oracle - Tree whose bytes the facts come from.
- * @returns Lookups for packets, packages, path aliases, file exports, and skills.
+ * @returns Lookups for packets, packages, path aliases, file exports, goals-doctor findings, and skills.
  * @category constructors
  * @since 0.0.0
  */
@@ -683,6 +819,7 @@ export const deriveKnowledgeDoctorDomain = (oracle: KnowledgeTreeOracle): Knowle
     packages: derivePackages(oracle, paths),
     pathAliases: derivePathAliases(oracle, paths),
     fileExports: (file) => deriveFileExports(oracle, paths, file),
+    goalsDoctorFindings: readKnowledgeGoalsDoctorFindings(oracle),
     skills: deriveSkills(oracle, paths),
   };
 };
@@ -725,6 +862,7 @@ export const cacheKnowledgeDoctorDomain = Effect.fn("KnowledgeDoctorDomain.cache
     packages: yield* Effect.cached(domain.packages),
     pathAliases: yield* Effect.cached(domain.pathAliases),
     skills: yield* Effect.cached(domain.skills),
+    goalsDoctorFindings: yield* Effect.cached(domain.goalsDoctorFindings),
     fileExports: (file: string) =>
       O.match(MutableHashMap.get(exportsByFile, file), {
         onSome: Effect.succeed,

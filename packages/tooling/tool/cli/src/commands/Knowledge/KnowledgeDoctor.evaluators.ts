@@ -32,6 +32,7 @@ import {
   ManifestFieldWitness,
   TreeEntryWitness,
 } from "./KnowledgeDoctor.schemas.ts";
+import type { GoalDoctorFindingKind } from "../Goals/Doctor.ts";
 import type { KnowledgeOperationalError } from "./Knowledge.errors.ts";
 import type { KnowledgeDocumentFenceLine } from "./Knowledge.refs.ts";
 import type { KnowledgeFindingKind } from "./Knowledge.schemas.ts";
@@ -68,6 +69,44 @@ const nfc = Str.normalize("NFC");
  * @since 0.0.0
  */
 export const knowledgeDoctorDocumentId = (documentPath: string): string => nfc(`tree:${documentPath}`);
+
+/**
+ * The cause key of one goals-doctor finding, shared by the delegated finding and by every knowledge
+ * claim it explains.
+ *
+ * **Details**
+ *
+ * The key is `goals-doctor:<kind>:<slug>`, suffixed with `:<detail>` when the goals doctor
+ * distinguishes several findings of one kind in a packet (a reflection file name, a capability). A
+ * packet-status claim under a missing or invalid manifest uses the same key, which is what lets the
+ * manifest finding collapse the claims beneath it into one group.
+ *
+ * **Example** (Key an invalid manifest)
+ *
+ * ```ts
+ * import { knowledgeGoalsDoctorCauseKey } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.evaluators"
+ *
+ * console.log(knowledgeGoalsDoctorCauseKey({ kind: "manifest-invalid", slug: "demo" })) // "goals-doctor:manifest-invalid:demo"
+ * ```
+ *
+ * @param cause - Goals-doctor finding kind, packet slug, and the goals doctor's key suffix when it has one.
+ * @returns `goals-doctor:<kind>:<slug>`, with `:<detail>` appended when a detail is given.
+ * @category constructors
+ * @since 0.0.0
+ */
+export const knowledgeGoalsDoctorCauseKey = (cause: {
+  readonly kind: GoalDoctorFindingKind;
+  readonly slug: string;
+  readonly detail?: string | undefined;
+}): string =>
+  pipe(
+    O.fromUndefinedOr(cause.detail),
+    O.filter(Str.isNonEmpty),
+    O.match({
+      onNone: () => `goals-doctor:${cause.kind}:${cause.slug}`,
+      onSome: (detail) => `goals-doctor:${cause.kind}:${cause.slug}:${detail}`,
+    })
+  );
 
 type KnowledgeFailureFields = {
   readonly kind: KnowledgeFindingKind;
@@ -399,7 +438,7 @@ const evaluateClaimAgainst = (
       span,
       claim,
       `goals/${claim.slug} claim cannot be checked: its ops/manifest.json is ${facts.manifest} (a goals doctor finding).`,
-      `goals-doctor:manifest-${facts.manifest}:${claim.slug}`
+      knowledgeGoalsDoctorCauseKey({ kind: `manifest-${facts.manifest}`, slug: claim.slug })
     );
   }
   return claim.phase ? evaluatePhaseClaim(span, claim, facts) : evaluateStatusClaim(span, claim, facts);
@@ -415,7 +454,12 @@ const evaluatePacketSpan = Effect.fn("KnowledgeDoctor.evaluatePacketSpan")(funct
     A.findFirst(packets, (facts) => facts.slug === claim.slug),
     {
       onNone: () =>
-        packetFailure(span, claim, `No goal packet goals/${claim.slug} exists in this tree.`, `packet:${claim.slug}`),
+        packetFailure(
+          span,
+          claim,
+          `No goal packet goals/${claim.slug} exists in this tree.`,
+          `path:goals/${claim.slug}`
+        ),
       onSome: (facts) => evaluateClaimAgainst(span, claim, facts),
     }
   );
