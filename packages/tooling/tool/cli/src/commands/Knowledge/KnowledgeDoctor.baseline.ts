@@ -637,6 +637,7 @@ const GOVERNANCE_KINDS = HashSet.make<ReadonlyArray<KnowledgeFindingKind>>(
   "baseline-tamper",
   "lease-expired",
   "lease-owner-unresolved",
+  "lease-issued-in-future",
   "lease-lifetime-exceeded",
   "lease-quota-exceeded"
 );

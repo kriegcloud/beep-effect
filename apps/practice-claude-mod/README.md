@@ -24,8 +24,8 @@ engine declarations and terminal/desktop engine tests.
   `/matter clear` clears it.
 - `/time start` starts the visible timer; `/time stop` saves one raw interval.
   `/time` shows its status. The interval keeps the matter selected when it started.
-- `/practice export` writes `practice-verdicts.jsonl` and `practice-timer.jsonl`
-  into the working folder. Logs stay in the plugin's local store until exported.
+- `/practice export` replies with the verdict and timer rows as JSONL for the
+  attorney to copy into a file; the plugin writes no files (#1728). Logs stay in the plugin's local store until exported.
 
 The band shows the chosen matter, elapsed whole minutes while timing runs, and
 verdict controls after an answer. Selection and a running timer are module state

@@ -14,25 +14,20 @@ import { ModHost } from "@/PracticeMod.host";
 import { TimerLog, timerLogLayer } from "@/PracticeMod.timers";
 import { ChosenMatter, TimerInterval } from "@/PracticeMod.values";
 
-type Written = { readonly path: string; readonly text: string };
-
 // What the fake host stored and wrote, so a test can seed and inspect it.
 class FakeHostState extends Context.Service<
   FakeHostState,
-  { readonly store: MutableHashMap.MutableHashMap<string, unknown>; readonly written: Array<Written> }
+  { readonly store: MutableHashMap.MutableHashMap<string, unknown> }
 >()("@beep/practice-claude-mod/test/PracticeMod.timers.test/FakeHostState") {}
 
 const fakeHost = Layer.effect(ModHost)(
-  Effect.map(FakeHostState, ({ store, written }) =>
+  Effect.map(FakeHostState, ({ store }) =>
     ModHost.of({
       storeGet: Effect.fn("FakeHost.storeGet")((key: string) =>
         Effect.sync(() => O.getOrUndefined(MutableHashMap.get(store, key)))
       ),
       storeSet: Effect.fn("FakeHost.storeSet")((key: string, value: unknown) =>
         Effect.sync(() => void MutableHashMap.set(store, key, value))
-      ),
-      writeText: Effect.fn("FakeHost.writeText")((path: string, text: string) =>
-        Effect.sync(() => void written.push({ path, text }))
       ),
       toast: Effect.fn("FakeHost.toast")((_text: string) => Effect.void),
       sessionId: Effect.succeed("s-1"),
@@ -42,7 +37,7 @@ const fakeHost = Layer.effect(ModHost)(
 );
 
 const testLayer = () => {
-  const state = Layer.sync(FakeHostState)(() => ({ store: MutableHashMap.empty<string, unknown>(), written: [] }));
+  const state = Layer.sync(FakeHostState)(() => ({ store: MutableHashMap.empty<string, unknown>() }));
   return timerLogLayer.pipe(Layer.provide(fakeHost), Layer.provideMerge(state));
 };
 
@@ -60,7 +55,7 @@ describe("TimerLog", () => {
       "appends encoded intervals and exports round-trippable JSON lines",
       Effect.fnUntraced(function* () {
         const log = yield* TimerLog;
-        const { store, written } = yield* FakeHostState;
+        const { store } = yield* FakeHostState;
         yield* log.record(interval);
         yield* log.record(
           TimerInterval.make({
@@ -79,13 +74,8 @@ describe("TimerLog", () => {
           "s-1"
         );
         assertNone(O.flatMap(A.last(rows), (row) => row.matter));
-        expect(yield* log.exportJsonl("practice-timer.jsonl")).toBe(2);
-        assertSome(
-          O.map(A.head(written), (file) => file.path),
-          "practice-timer.jsonl"
-        );
-        const file = O.getOrElse(A.head(written), () => ({ path: "", text: "" }));
-        const decoded = yield* Effect.forEach(file.text.trim().split("\n"), (line) =>
+        const jsonl = yield* log.exportJsonl;
+        const decoded = yield* Effect.forEach(jsonl.trim().split("\n"), (line) =>
           S.decodeEffect(S.fromJsonString(TimerInterval))(line)
         );
         expect(decoded).toEqual(rows);
@@ -97,13 +87,9 @@ describe("TimerLog", () => {
       "exports an empty log without creating an interval",
       Effect.fnUntraced(function* () {
         const log = yield* TimerLog;
-        const { store, written } = yield* FakeHostState;
-        expect(yield* log.exportJsonl("practice-timer.jsonl")).toBe(0);
+        const { store } = yield* FakeHostState;
+        expect(yield* log.exportJsonl).toBe("");
         assertNone(MutableHashMap.get(store, "timer-intervals"));
-        assertSome(
-          O.map(A.head(written), (file) => file.text),
-          ""
-        );
       })
     );
   });

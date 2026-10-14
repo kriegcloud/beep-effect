@@ -1520,6 +1520,28 @@ describe("tmpfs reap", () => {
         })
       )
     );
+    it.effect("ignores FIFO, symlink, and oversized Fallow owner sidecars without blocking discovery", () =>
+      Effect.flatMap(temporaryDirectory, (root) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpRoot = path.join(root, "tmp");
+          const cacheRoot = path.join(root, "cache");
+          const fallow = path.join(tmpRoot, "fallow-audit-base-cache-sidecars");
+          yield* Effect.forEach([fallow, cacheRoot], (directory) => fs.makeDirectory(directory, { recursive: true }), {
+            discard: true,
+          });
+          yield* runCommand("mkfifo", [path.join(fallow, "fifo.last-used")], root);
+          const target = path.join(root, "outside-owner.txt");
+          yield* fs.writeFileString(target, `${root}\n`);
+          yield* fs.symlink(target, path.join(fallow, "link.last-used"));
+          yield* fs.writeFileString(path.join(fallow, "large.last-used"), `${root}\n${"x".repeat(4096)}`);
+
+          const report = yield* runTmpfsReap({ cacheRoot, nowMillis: FIXTURE_NOW_MILLIS, tmpRoot });
+          expect(candidateByPath(report, fallow).ownerRoot).toBeUndefined();
+        })
+      )
+    );
     it.effect("falls back to directory mtime and rejects an explicit non-directory candidate", () =>
       Effect.flatMap(temporaryDirectory, (root) =>
         Effect.gen(function* () {

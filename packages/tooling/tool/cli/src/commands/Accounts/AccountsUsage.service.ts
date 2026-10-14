@@ -26,6 +26,8 @@ import * as Effect from "effect/Effect";
 import { Base64Url } from "effect/encoding";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
@@ -80,7 +82,13 @@ import {
 } from "./Accounts.wire.schemas.ts";
 import type * as PlatformError from "effect/PlatformError";
 import type { AccountSnapshot } from "./Accounts.schemas.ts";
-import type { JunieRefreshBody, ProxyAuthFile } from "./Accounts.wire.schemas.ts";
+import type {
+  JunieAccessOptionsBody,
+  JunieQuotaBody,
+  JunieRefillBody,
+  JunieRefreshBody,
+  ProxyAuthFile,
+} from "./Accounts.wire.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Accounts/AccountsUsage.service");
 
@@ -327,6 +335,125 @@ export const museUsageOutcome: (response: UsageTextResponse) => AccountUsageOutc
 const JUNIE_UNITS_PER_CREDIT = 100000;
 const JUNIE_GRAZIE_AGENT = '{"name":"junie:cli","version":"3659.4"}';
 const JunieJwtClaimsJson = JsonStringCodec(S.Struct({ exp: S.Finite.pipe(S.OptionFromOptionalKey) }));
+const JUNIE_TOKEN_SKEW = Duration.seconds(60);
+const junieAudienceRotated = AccountUsageOutcome.cases.NeedsLogin.make({
+  detail: "JetBrains rotated the refresh token during cycle lookup; run `junie` and sign in again",
+});
+
+type JunieOkOutcome = (typeof AccountUsageOutcome.cases.Ok)["Type"];
+
+class JunieQuotaReply extends S.Class<JunieQuotaReply>($I`JunieQuotaReply`)(
+  { status: S.Finite, body: S.String },
+  $I.annote("JunieQuotaReply", { description: "One Grazie quota endpoint's HTTP status and body text." })
+) {}
+
+const isJunieAudienceRotation = (status: number, body: string, stored: Redacted.Redacted<string>): boolean =>
+  status === 200 &&
+  O.exists(JunieRefreshBodyJson.decodeOption(body), (decoded) =>
+    O.exists(decoded.refresh_token, (next) => Redacted.value(next) !== Redacted.value(stored))
+  );
+
+const isJunieLicenseCurrent = (validThrough: O.Option<string>, time: number): boolean =>
+  !O.exists(
+    validThrough,
+    (date) =>
+      !O.exists(DateTime.make(date), (at) => DateTime.toEpochMillis(at) + Duration.toMillis(Duration.days(1)) > time)
+  );
+
+const selectJunieLicense = (
+  options: JunieAccessOptionsBody,
+  licenseType: O.Option<string>,
+  time: number
+): O.Option<Redacted.Redacted<string>> => {
+  const eligible = A.filter(
+    options.aiAccessOptions,
+    (option) =>
+      option.aiAccessEnabled &&
+      Str.toLowerCase(option.type) === "license" &&
+      isJunieLicenseCurrent(option.validThrough, time)
+  );
+  const preferred = A.filter(eligible, (option) => O.exists(licenseType, (type) => O.contains(option.code, type)));
+  // Fail closed: several equally eligible licences (personal plus organisation) or only
+  // non-`license` tiers select nothing, so the row stays balance-only rather than guessing.
+  const selected = preferred.length === 1 ? A.head(preferred) : eligible.length === 1 ? A.head(eligible) : O.none();
+  return O.map(selected, (option) => option.licenseId);
+};
+
+// Without a decoded tariff `available`, balanceLeft may already include top-up, so the
+// original balance credit stays as it is and no separate top-up row is added.
+const junieCycleCredits = (balance: JunieOkOutcome, quota: JunieQuotaBody): O.Option<ReadonlyArray<CreditBalance>> => {
+  const tariff = quota.current.tariffQuota;
+  const maximum = O.flatMap(tariff, (pool) => pool.maximum);
+  const topUp = O.filter(
+    O.flatMap(quota.current.topUpQuota, (pool) => pool.available),
+    (amount) => amount.amount > 0
+  );
+  return O.map(
+    O.flatMap(tariff, (pool) => pool.available),
+    (available) => [
+      ...A.map(balance.credits, (credit) =>
+        CreditBalance.make({
+          ...credit,
+          label: "JetBrains AI cycle",
+          unit: "credits",
+          remaining: available.amount / JUNIE_UNITS_PER_CREDIT,
+          limit: O.map(maximum, (amount) => amount.amount / JUNIE_UNITS_PER_CREDIT),
+          expiresAt: O.none(),
+        })
+      ),
+      ...A.map(A.fromOption(topUp), (amount) =>
+        CreditBalance.make({
+          label: "JetBrains AI top-up",
+          unit: "credits",
+          remaining: amount.amount / JUNIE_UNITS_PER_CREDIT,
+          limit: O.none(),
+          expiresAt: O.none(),
+        })
+      ),
+    ]
+  );
+};
+
+const junieCycleWindows = (quota: JunieQuotaBody, refill: O.Option<JunieRefillBody>): ReadonlyArray<UsageWindow> => {
+  const tariff = quota.current.tariffQuota;
+  const resetsAt = pipe(
+    O.flatMap(refill, (body) => body.current.next),
+    O.orElse(() => quota.current.until),
+    O.flatMap(DateTime.make)
+  );
+  return pipe(
+    O.zipWith(
+      O.flatMap(tariff, (pool) => pool.current),
+      O.filter(
+        O.flatMap(tariff, (pool) => pool.maximum),
+        (max) => max.amount > 0
+      ),
+      (used, max) => (100 * used.amount) / max.amount
+    ),
+    O.filter(S.is(S.Finite)),
+    O.map((usedPercent) => UsageWindow.make({ kind: "cycle", scope: O.none(), usedPercent, resetsAt })),
+    A.fromOption
+  );
+};
+
+const junieReplyBody = <A>(reply: JunieQuotaReply, decode: (text: string) => O.Option<A>): O.Option<A> =>
+  reply.status === 200 ? decode(reply.body) : O.none();
+
+// Only quota/get is required; a failed refill only loses the refill reset time.
+const junieCycleOutcome = (
+  balance: JunieOkOutcome,
+  quotaReply: JunieQuotaReply,
+  refillReply: JunieQuotaReply
+): AccountUsageOutcome =>
+  O.match(junieReplyBody(quotaReply, JunieQuotaBodyJson.decodeOption), {
+    onNone: () => balance,
+    onSome: (quota) =>
+      AccountUsageOutcome.cases.Ok.make({
+        ...balance,
+        windows: junieCycleWindows(quota, junieReplyBody(refillReply, JunieRefillBodyJson.decodeOption)),
+        credits: O.getOrElse(junieCycleCredits(balance, quota), () => balance.credits),
+      }),
+  });
 
 const decodedJunieUsageOutcome: (response: UsageTextResponse) => AccountUsageOutcome = decodedOutcome(
   "JetBrains AI",
@@ -559,6 +686,9 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
   const directory = yield* resolveAccountsAuthDir;
   const junieAccessToken = yield* Ref.make(O.none<JunieAccessToken>());
   const junieExchangeToken = yield* Ref.make(O.none<JunieExchangeToken>());
+  // Both caches are keyed by the refresh-token fingerprint and live for the process lifetime.
+  const junieLicenses = yield* Ref.make(HashMap.empty<string, Redacted.Redacted<string>>());
+  const junieRotatedCredentials = yield* Ref.make(HashSet.empty<string>());
 
   const crypto = yield* Crypto.Crypto;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
@@ -624,6 +754,8 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
         sha256Hex,
         Effect.provideService(Crypto.Crypto, crypto)
       );
+      // A credential whose refresh token rotated during cycle lookup is never sent to switch_audience again.
+      if (HashSet.has(yield* Ref.get(junieRotatedCredentials), credentialFingerprint)) return junieAudienceRotated;
       const cached = yield* Ref.get(junieAccessToken);
       if (O.exists(cached, (value) => value.credentialFingerprint !== credentialFingerprint)) {
         yield* Ref.set(junieAccessToken, O.none());
@@ -634,7 +766,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
       const token = O.match(matching, {
         onNone: () => account.access_token,
         onSome: (value) =>
-          value.expiresAt - Duration.toMillis(Duration.seconds(60)) > now ? value.access_token : account.access_token,
+          value.expiresAt - Duration.toMillis(JUNIE_TOKEN_SKEW) > now ? value.access_token : account.access_token,
       });
       const authTest = Effect.fnUntraced(function* (accessToken: Redacted.Redacted<string>) {
         const response = yield* client.execute(
@@ -668,56 +800,52 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
               })
             )
           );
+          const switchedBody = yield* switched.text;
+          if (isJunieAudienceRotation(switched.status, switchedBody, account.refresh_token)) {
+            yield* Ref.update(junieRotatedCredentials, HashSet.add(credentialFingerprint));
+            return Result.fail(junieAudienceRotated);
+          }
           const audience = junieRefreshOutcome({
             stored: account.refresh_token,
             status: switched.status,
-            body: yield* switched.text,
+            body: switchedBody,
           });
-          if (Result.isFailure(audience)) return O.none<Redacted.Redacted<string>>();
+          if (Result.isFailure(audience)) return Result.succeed(O.none<Redacted.Redacted<string>>());
           const listing = yield* client.execute(
             HttpClientRequest.get("https://api.jetbrains.cloud/user-management/api/ai-access-options").pipe(
               HttpClientRequest.bearerToken(Redacted.value(audience.success.access_token)),
               HttpClientRequest.setHeader("Accept", "application/json")
             )
           );
-          if (listing.status !== 200) return O.none<Redacted.Redacted<string>>();
+          if (listing.status !== 200) return Result.succeed(O.none<Redacted.Redacted<string>>());
           const options = JunieAccessOptionsBodyJson.decodeOption(yield* listing.text);
-          if (O.isNone(options)) return O.none<Redacted.Redacted<string>>();
-          const eligible = A.filter(
-            options.value.aiAccessOptions,
-            (option) =>
-              option.aiAccessEnabled &&
-              Str.toLowerCase(option.type) === "license" &&
-              !O.exists(
-                option.validThrough,
-                (date) =>
-                  !O.exists(
-                    DateTime.make(date),
-                    (at) => DateTime.toEpochMillis(at) + Duration.toMillis(Duration.days(1)) > time
-                  )
-              )
+          if (O.isNone(options)) return Result.succeed(O.none<Redacted.Redacted<string>>());
+          const licenseId = selectJunieLicense(
+            options.value,
+            O.flatMap(JunieAuthTestBodyJson.decodeOption(response.body), (body) => body.licenseType),
+            time
           );
-          const licenseType = O.flatMap(JunieAuthTestBodyJson.decodeOption(response.body), (body) => body.licenseType);
-          const preferred = A.filter(
-            eligible,
-            (option) => O.isSome(licenseType) && O.contains(option.code, licenseType.value)
-          );
-          const selected =
-            preferred.length === 1 ? A.head(preferred) : eligible.length === 1 ? A.head(eligible) : O.none();
-          return O.map(selected, (option) => option.licenseId);
+          if (O.isSome(licenseId))
+            yield* Ref.update(junieLicenses, HashMap.set(credentialFingerprint, licenseId.value));
+          return Result.succeed(licenseId);
         });
         const mintExchange = Effect.fnUntraced(function* (time: number) {
-          const selected = yield* loadLicense(time);
-          if (O.isNone(selected)) return O.none<Redacted.Redacted<string>>();
+          const cachedLicense = HashMap.get(yield* Ref.get(junieLicenses), credentialFingerprint);
+          const loaded = O.isSome(cachedLicense) ? Result.succeed(cachedLicense) : yield* loadLicense(time);
+          if (Result.isFailure(loaded)) return loaded;
+          const selected = loaded.success;
+          if (O.isNone(selected)) return Result.succeed(O.none<Redacted.Redacted<string>>());
           const provided = yield* client.execute(
             yield* HttpClientRequest.post("https://api.jetbrains.ai/auth/jetbrains-jwt/provide-access/license/v2").pipe(
               HttpClientRequest.bearerToken(Redacted.value(idToken.value)),
               HttpClientRequest.bodyJson({ licenseId: Redacted.value(selected.value) })
             )
           );
-          if (provided.status !== 200) return O.none<Redacted.Redacted<string>>();
+          if (provided.status >= 400 && provided.status < 500)
+            yield* Ref.update(junieLicenses, HashMap.remove(credentialFingerprint));
+          if (provided.status !== 200) return Result.succeed(O.none<Redacted.Redacted<string>>());
           const decoded = JunieExchangeBodyJson.decodeOption(yield* provided.text);
-          if (O.isNone(decoded)) return O.none<Redacted.Redacted<string>>();
+          if (O.isNone(decoded)) return Result.succeed(O.none<Redacted.Redacted<string>>());
 
           const exp = pipe(
             Redacted.value(decoded.value.token),
@@ -735,89 +863,62 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
                 credentialFingerprint,
                 expiresAt: O.match(exp, {
                   onNone: () => time + Duration.toMillis(Duration.minutes(10)),
-                  onSome: (seconds) => Math.min(seconds * 1000, time + Duration.toMillis(Duration.minutes(10))),
+                  onSome: (seconds) =>
+                    Math.min(
+                      seconds * 1000 - Duration.toMillis(JUNIE_TOKEN_SKEW),
+                      time + Duration.toMillis(Duration.minutes(10))
+                    ),
                 }),
               })
             )
           );
-          return O.some(decoded.value.token);
+          return decoded.value.token.pipe(O.some, Result.succeed);
         });
-        const detail = Effect.fnUntraced(function* () {
-          const time = yield* Clock.currentTimeMillis;
+        const currentExchange = Effect.fnUntraced(function* (time: number) {
           const cachedExchange = O.filter(
             yield* Ref.get(junieExchangeToken),
             (value) => value.credentialFingerprint === credentialFingerprint && value.expiresAt > time
           );
-          const exchange = O.isSome(cachedExchange) ? O.some(cachedExchange.value.token) : yield* mintExchange(time);
-          if (O.isNone(exchange)) return balance;
-          const quotaRequest = Effect.fnUntraced(function* (suffix: string) {
-            const result = yield* client.execute(
-              yield* HttpClientRequest.post(`https://api.jetbrains.ai/user/v5/quota/${suffix}`).pipe(
-                HttpClientRequest.setHeaders({
-                  "Grazie-Authenticate-JWT": Redacted.value(exchange.value),
-                  "Grazie-Agent": JUNIE_GRAZIE_AGENT,
-                }),
-                HttpClientRequest.bodyJson({})
-              )
-            );
-            return result.status === 200 ? O.some(yield* result.text) : O.none();
-          });
-          const quota = O.flatMap(yield* quotaRequest("get"), JunieQuotaBodyJson.decodeOption);
-          const refill = O.flatMap(yield* quotaRequest("metadata/refill"), JunieRefillBodyJson.decodeOption);
-          if (O.isNone(quota) || O.isNone(refill)) return balance;
-          const tariff = quota.value.current.tariffQuota;
-          const topUp = quota.value.current.topUpQuota;
-          const maximum = O.flatMap(tariff, (pool) => pool.maximum);
-          const current = O.flatMap(tariff, (pool) => pool.current);
-          const resetsAt = O.flatMap(refill.value.current.next, DateTime.make);
-          const percentage = O.zipWith(
-            current,
-            O.filter(maximum, (max) => max.amount > 0),
-            (used, max) => (100 * used.amount) / max.amount
-          ).pipe(O.filter(S.is(S.Finite)));
-          return AccountUsageOutcome.cases.Ok.make({
-            ...balance,
-            windows: O.match(percentage, {
-              onNone: A.empty<UsageWindow>,
-              onSome: (usedPercent) => [UsageWindow.make({ kind: "cycle", scope: O.none(), usedPercent, resetsAt })],
-            }),
-            credits: [
-              ...A.map(balance.credits, (credit) =>
-                CreditBalance.make({
-                  ...credit,
-                  label: "JetBrains AI cycle",
-                  unit: "credits",
-                  remaining: O.getOrElse(
-                    O.map(
-                      O.flatMap(tariff, (pool) => pool.available),
-                      (amount) => amount.amount / JUNIE_UNITS_PER_CREDIT
-                    ),
-                    () => credit.remaining
-                  ),
-                  limit: O.map(maximum, (amount) => amount.amount / JUNIE_UNITS_PER_CREDIT),
-                  expiresAt: O.none(),
-                })
-              ),
-              ...O.match(
-                O.filter(
-                  O.flatMap(topUp, (pool) => pool.available),
-                  (amount) => amount.amount > 0
-                ),
-                {
-                  onNone: A.empty<CreditBalance>,
-                  onSome: (amount) => [
-                    CreditBalance.make({
-                      label: "JetBrains AI top-up",
-                      unit: "credits",
-                      remaining: amount.amount / JUNIE_UNITS_PER_CREDIT,
-                      limit: O.none(),
-                      expiresAt: O.none(),
-                    }),
-                  ],
-                }
-              ),
-            ],
-          });
+          return O.isSome(cachedExchange)
+            ? cachedExchange.value.token.pipe(O.some, Result.succeed)
+            : yield* mintExchange(time);
+        });
+        const quotaRequest = Effect.fnUntraced(function* (exchange: Redacted.Redacted<string>, suffix: string) {
+          const result = yield* client.execute(
+            yield* HttpClientRequest.post(`https://api.jetbrains.ai/user/v5/quota/${suffix}`).pipe(
+              HttpClientRequest.setHeaders({
+                "Grazie-Authenticate-JWT": Redacted.value(exchange),
+                "Grazie-Agent": JUNIE_GRAZIE_AGENT,
+              }),
+              HttpClientRequest.bodyJson({})
+            )
+          );
+          return JunieQuotaReply.make({ status: result.status, body: yield* result.text });
+        });
+        const quotaReplies = (exchange: Redacted.Redacted<string>) =>
+          Effect.all([quotaRequest(exchange, "get"), quotaRequest(exchange, "metadata/refill")], { concurrency: 2 });
+        const withExchange = <E, R>(
+          minted: Result.Result<O.Option<Redacted.Redacted<string>>, AccountUsageOutcome>,
+          use: (exchange: Redacted.Redacted<string>) => Effect.Effect<AccountUsageOutcome, E, R>
+        ): Effect.Effect<AccountUsageOutcome, E, R> =>
+          Result.isFailure(minted)
+            ? Effect.succeed(minted.failure)
+            : O.match(minted.success, { onNone: () => Effect.succeed<AccountUsageOutcome>(balance), onSome: use });
+        const cycleFrom = (exchange: Redacted.Redacted<string>) =>
+          quotaReplies(exchange).pipe(Effect.map(([quota, refill]) => junieCycleOutcome(balance, quota, refill)));
+        const detail = Effect.fnUntraced(function* () {
+          const time = yield* Clock.currentTimeMillis;
+          return yield* withExchange(
+            yield* currentExchange(time),
+            Effect.fnUntraced(function* (exchange) {
+              const [quota, refill] = yield* quotaReplies(exchange);
+              if (!isJunieTokenRejected(quota.status) && !isJunieTokenRejected(refill.status))
+                return junieCycleOutcome(balance, quota, refill);
+              // A rejected Grazie token is dropped and re-minted once within this poll.
+              yield* Ref.set(junieExchangeToken, O.none());
+              return yield* withExchange(yield* mintExchange(time), cycleFrom);
+            })
+          );
         });
         return yield* detail().pipe(
           Effect.timeoutOption(Duration.seconds(8)),
@@ -830,7 +931,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
         return yield* enrich(
           initial,
           O.flatMap(
-            O.filter(matching, (value) => value.expiresAt - Duration.toMillis(Duration.seconds(60)) > now),
+            O.filter(matching, (value) => value.expiresAt - Duration.toMillis(JUNIE_TOKEN_SKEW) > now),
             (value) => value.id_token
           )
         );

@@ -15,7 +15,6 @@ test("a verdict after an answer is saved and exported", async ($, on) => {
   mock.clock(on);
   mock.session(on);
   on("ui.toast", () => ({ value: undefined }));
-  on("fs.write", () => ({ value: undefined }));
   on("session.messages", () => ({ value: [{ role: "user", text: "Which matter is 10008US01?", toolUses: [] }] }));
   on("turn.complete", () => ({ text: "" }));
   on("session.id", () => ({ value: "s-1" }));
@@ -23,7 +22,8 @@ test("a verdict after an answer is saved and exported", async ($, on) => {
   const saved = await $.command.run({ command: "wrong", args: "missed the continuation", origin, presentation });
   expect(JSON.stringify(saved)).toContain("Saved: Wrong");
   const exported = await $.command.run({ command: "practice", args: "export", origin, presentation });
-  expect(JSON.stringify(exported)).toContain("Exported 1 verdicts");
+  expect(JSON.stringify(exported)).toContain("Copy these JSONL rows into files you choose.");
+  expect(JSON.stringify(exported)).toContain('\\"verdict\\":\\"wrong\\"');
 });
 
 for (const surface of ["terminal", "desktop"] as const) {
@@ -164,11 +164,6 @@ test("/time is explicit, saves one interval, and exports alongside verdicts", as
   const clock = mock.clock(on);
   on("session.id", () => ({ value: "s-1" }));
   on("ui.toast", () => ({ value: undefined }));
-  const files: Record<string, string> = {};
-  on("fs.write", (_$, e) => {
-    files[e.path.split("/").pop() ?? e.path] = e.text;
-    return { value: undefined };
-  });
   expect(JSON.stringify(await $.command.run({ command: "time", args: "", origin, presentation }))).toContain(
     "Timer is stopped."
   );
@@ -185,10 +180,10 @@ test("/time is explicit, saves one interval, and exports alongside verdicts", as
   );
   await $.command.run({ command: "time", args: "stop", origin, presentation });
 
-  await $.command.run({ command: "practice", args: "export", origin, presentation });
-  expect(files["practice-timer.jsonl"].trim().split("\n").length).toBe(1);
-  expect(files["practice-timer.jsonl"]).toContain("practice-timer/v1");
-  expect(files["practice-verdicts.jsonl"]).toBe("");
+  const exported = JSON.stringify(await $.command.run({ command: "practice", args: "export", origin, presentation }));
+  expect(exported).toContain("Copy these JSONL rows into files you choose.");
+  expect(exported).toContain("practice-timer/v1");
+  expect(exported).not.toContain("practice-verdict/v1");
 });
 
 for (const surface of ["terminal", "desktop"] as const) {

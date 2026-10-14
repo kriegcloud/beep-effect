@@ -34,7 +34,7 @@ type TimerLogError = TimerStoreUnreadable | ModHostError;
  * ```ts
  * import * as Effect from "effect/Effect"
  * import { TimerLog } from "@/PracticeMod.timers"
- * const program = Effect.flatMap(TimerLog, (log) => log.exportJsonl("practice-timer.jsonl"))
+ * const program = Effect.flatMap(TimerLog, (log) => log.exportJsonl)
  * console.log(Effect.isEffect(program)) // true
  * ```
  * @category services
@@ -44,7 +44,7 @@ export class TimerLog extends Context.Service<
   TimerLog,
   {
     readonly record: (interval: TimerInterval) => Effect.Effect<void, TimerLogError>;
-    readonly exportJsonl: (path: string) => Effect.Effect<number, TimerLogError>;
+    readonly exportJsonl: Effect.Effect<string, TimerLogError>;
   }
 >()($I`TimerLog`) {}
 
@@ -75,11 +75,11 @@ export const makeTimerLog = Effect.gen(function* () {
     const encoded = yield* S.encodeEffect(StoredRows)(A.append(rows, interval)).pipe(Effect.mapError(unreadable));
     yield* host.storeSet(RowsKey, encoded);
   });
-  const exportJsonl = Effect.fn("TimerLog.exportJsonl")(function* (path: string) {
+  // Returned as text for the attorney to copy; the mod writes no files (#1728).
+  const exportJsonl = Effect.gen(function* () {
     const rows = yield* read;
     const lines = yield* Effect.forEach(rows, (row) => S.encodeEffect(RowLine)(row).pipe(Effect.mapError(unreadable)));
-    yield* host.writeText(path, A.join(lines, "\n") + (lines.length > 0 ? "\n" : ""));
-    return rows.length;
+    return A.join(lines, "\n") + (lines.length > 0 ? "\n" : "");
   });
   const record = (interval: TimerInterval) => Semaphore.withPermit(writes)(recordUnserialized(interval));
   return TimerLog.of({ record, exportJsonl });

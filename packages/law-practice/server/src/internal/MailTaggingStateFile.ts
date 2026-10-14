@@ -70,8 +70,10 @@ export const makeStateFileAt = Effect.fn("MailTaggingState.makeStateFileAt")(fun
   const write = (destination: string, flag: "a" | "w", text: string) =>
     Effect.scoped(
       Effect.gen(function* () {
-        yield* fs.makeDirectory(directory, { recursive: true });
-        const handle = yield* fs.open(destination, { flag });
+        yield* fs.makeDirectory(directory, { recursive: true, mode: 0o700 });
+        yield* fs.chmod(directory, 0o700);
+        const handle = yield* fs.open(destination, { flag, mode: 0o600 });
+        yield* fs.chmod(destination, 0o600);
         yield* handle.writeAll(textEncoder.encode(text));
         yield* handle.sync;
       })

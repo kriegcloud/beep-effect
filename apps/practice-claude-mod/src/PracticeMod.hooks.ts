@@ -13,8 +13,7 @@
  *   the engine's own rows back, D13);
  * - the band above the prompt offers Right / Wrong / Partly / Undo for the
  *   latest answer, and `/right`, `/wrong`, `/partly` do the same (D14);
- * - `/practice export` writes the verdict log as JSON lines into the working
- *   folder.
+ * - `/practice export` returns the verdict log as JSON lines for explicit saving.
  *
  * **Gotchas**
  *
@@ -59,8 +58,6 @@ import type { ChosenMatter, Verdict } from "./PracticeMod.values.ts";
 type LatestAnswer = { readonly turnId: string; readonly question: string };
 
 const DefaultServers: ReadonlyArray<string> = ["practice-kg"];
-const ExportFile = "practice-verdicts.jsonl";
-const TimerExportFile = "practice-timer.jsonl";
 
 const VerdictLabel: Record<Verdict, string> = { right: "Right", wrong: "Wrong", partly: "Partly right" };
 
@@ -304,19 +301,20 @@ export const practiceCommand =
       Match.when("export", () =>
         runWith($)(
           Effect.gen(function* () {
-            const verdicts = yield* VerdictLog;
-            const timers = yield* TimerLog;
-            const count = yield* verdicts.exportJsonl(ExportFile);
-            const intervals = yield* timers.exportJsonl(TimerExportFile);
-            return { count, intervals };
+            const verdicts = yield* Effect.flatMap(VerdictLog, (log) => log.exportJsonl);
+            const intervals = yield* Effect.flatMap(TimerLog, (log) => log.exportJsonl);
+            return { verdicts, intervals };
           }).pipe(
             Effect.match({
               onFailure: () => {
                 $.ui.toast("The practice logs could not be exported. Try again.");
                 return { text: "The practice logs could not be exported. Try again." };
               },
-              onSuccess: ({ count, intervals }) => ({
-                text: `Exported ${count} verdicts to ${ExportFile} and ${intervals} timer intervals to ${TimerExportFile}.`,
+              onSuccess: ({ verdicts, intervals }) => ({
+                text:
+                  Str.isEmpty(verdicts) && Str.isEmpty(intervals)
+                    ? "Nothing to export yet."
+                    : `Copy these JSONL rows into files you choose.\n\nVerdicts:\n${verdicts}\nTimer intervals:\n${intervals}`,
               }),
             })
           )
