@@ -5,7 +5,7 @@ Read before any `gh pr` call: these commands spend the right budget. Part of the
 
 GitHub GraphQL is 5,000 points an hour per identity, shared by every session on
 the account; `gh pr view|edit|ready|merge|checks|comment` all spend it. REST has
-its own budget. Use `bun run beep yeet gh …` instead of those `gh pr` commands:
+its own budget. Use `bun run beep yeet gh <command>` instead of those `gh pr` commands:
 
 | Need | Command | Budget |
 | --- | --- | --- |
