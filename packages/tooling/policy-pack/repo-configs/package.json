@@ -53,8 +53,8 @@
     "@serwist/next": "catalog:",
     "@types/estree": "catalog:",
     "@types/node": "catalog:",
-    "next": "catalog:",
-    "@typescript/native": "catalog:"
+    "@typescript/native": "catalog:",
+    "next": "catalog:"
   },
   "peerDependencies": {
     "@next/bundle-analyzer": "catalog:",
