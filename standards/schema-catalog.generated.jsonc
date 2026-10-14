@@ -45773,6 +45773,20 @@
       "description": "A check the executor must pass against the prospective overlay before publish."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Completion.ts",
+      "symbol": "GoalCompletionObservation",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalCompletionObservation",
+      "description": "Facts observed once for a declared final PR, separate from the pure completion decision."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Completion.ts",
+      "symbol": "observeGoalCompletion",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli"
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Goals/Doctor.ts",
       "symbol": "GoalDoctorClassification",
       "kind": "schema-class",
@@ -45877,11 +45891,59 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalAcceptanceEvidenceKind",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalAcceptanceEvidenceKind",
+      "description": "Names the evidence provider used to accept a goal."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalAcceptanceEvidenceRef",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalAcceptanceEvidenceRef",
+      "description": "Points to acceptance evidence bound to a commit, with an explicit gating policy."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalCheckConclusion",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalCheckConclusion",
+      "description": "GitHub check conclusion or explicit pending/unknown observation."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
       "symbol": "GoalCompletionGate",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "GoalCompletionGate",
       "description": "Declared completion gate of a goal packet (yeet PR-to-mergeable unless grandfathered)."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalCompletionOutcome",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalCompletionOutcome",
+      "description": "Separates affirmative completion, contrary facts, and missing observations."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalCompletionReceipt",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalCompletionReceipt",
+      "description": "Binds a derived completion observation to the repository, packet, declaration and accepted head."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalEvidenceCheck",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalEvidenceCheck",
+      "description": "Records the outcome and observed head of one acceptance reference."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
@@ -45909,6 +45971,30 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalMergeMethod",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalMergeMethod",
+      "description": "Names the independently observed GitHub merge workflow."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalMergeResult",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalMergeResult",
+      "description": "Records GitHub merge identity and tree without requiring squash-head ancestry."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalNonRequiredRed",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalNonRequiredRed",
+      "description": "Retains merge-time and final conclusions alongside independently attributed failures."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
       "symbol": "GoalPhase",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
@@ -45922,6 +46008,38 @@
       "owner": "@beep/repo-cli",
       "identity": "GoalPhaseStatus",
       "description": "Canonical normalized goal-phase status domain (superseded = moved to another packet)."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalPullRequestRef",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalPullRequestRef",
+      "description": "Declares one pull request by number and delivery role."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalPullRequestRole",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalPullRequestRole",
+      "description": "Distinguishes the final delivery PR from supporting work."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalRedAttribution",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalRedAttribution",
+      "description": "Attributes non-required failures without treating their conclusion as a waiver."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
+      "symbol": "GoalRequiredCheckSnapshot",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalRequiredCheckSnapshot",
+      "description": "Historical required-context list with source version references and merge-time applicability."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.schemas.ts",
@@ -51549,6 +51667,76 @@
       "description": "One starred repository row returned by the GitHub API."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerErrors.ts",
+      "symbol": "ReviewerError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerError",
+      "description": "A sanitized reviewer operation failure."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerAnnotation",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerAnnotation",
+      "description": "A GitHub Check Run line annotation."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerChangedFile",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerChangedFile",
+      "description": "A changed PR path including a rename source."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerCredentials",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerCredentials",
+      "description": "GitHub App identity and redacted signing key."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerInlineComment",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerInlineComment",
+      "description": "A diff-anchored review comment."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerInstallationToken",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerInstallationToken",
+      "description": "Redacted installation access token and expiry."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerResult",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerResult",
+      "description": "Reviewer check completion input."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerReview",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerReview",
+      "description": "Input for a COMMENT-only GitHub review."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "reviewerWire",
+      "kind": "codec",
+      "owner": "@beep/repo-cli"
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Runners/Runners.errors.ts",
       "symbol": "RunnersCommandError",
       "kind": "tagged-error",
@@ -52476,6 +52664,14 @@
       "owner": "@beep/repo-cli",
       "identity": "DiffLine",
       "description": "One text line and whether a newline ends it."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/internal/PatchSeries.ts",
+      "symbol": "PatchSeriesFile",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "PatchSeriesFile",
+      "description": "A verified patch file's repository-relative path and exact bytes."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/internal/SkillTree.ts",
@@ -54062,20 +54258,20 @@
       "description": "Result of one operator-authorized squash merge and the workspace sweep that followed it."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/MergeGate.schemas.ts",
+      "symbol": "MergeGateCheckRun",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "MergeGateCheckRun",
+      "description": "One check run on the pull request head, as the gate reads it."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/MergeGate.ts",
       "symbol": "MergeGateCheckAtMerge",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "MergeGateCheckAtMerge",
       "description": "One check that was not green when an S11 merge went through, with its attribution."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/MergeGate.ts",
-      "symbol": "MergeGateCheckRun",
-      "kind": "schema-class",
-      "owner": "@beep/repo-cli",
-      "identity": "MergeGateCheckRun",
-      "description": "One check run on the pull request head, as the gate reads it."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/MergeGate.ts",
