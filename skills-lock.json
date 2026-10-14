@@ -31,7 +31,7 @@
         ".claude/skills/closeout",
         ".agents/skills/closeout"
       ],
-      "installedTreeHash": "d6e2fd64dd44dff89cf4c95a4a4a0b8f3827351e07f00dd14f2dc904b5f2d631"
+      "installedTreeHash": "8c5c3f17365d89bf85f4924e71ab0501c68ceb5d4b772c6de264e1f2410d3429"
     },
     "codex-findings": {
       "_tag": "local",
@@ -47,7 +47,7 @@
         ".claude/skills/crispen",
         ".agents/skills/crispen"
       ],
-      "installedTreeHash": "c111373fc6d77f010a6f7bcd941a10a576922a83adb77d0b2de1fa35db4bbb58"
+      "installedTreeHash": "202eccd4bedaa0d7e2de64a3af7c143dc95ef0127aa814bf62b228cd4137dbb3"
     },
     "effect-first-development": {
       "_tag": "local",
@@ -55,7 +55,7 @@
         ".claude/skills/effect-first-development",
         ".agents/skills/effect-first-development"
       ],
-      "installedTreeHash": "e4a013c6cc1b5fc120959b916493326d95cf9b0723f59173d608b913d6f67ab7"
+      "installedTreeHash": "f127f9a84ddd5516a53ecd4c344539ea2e6e70e89608e7ff360dbe035b672556"
     },
     "explore": {
       "_tag": "local",
@@ -163,7 +163,7 @@
         ".claude/skills/jsdoc-annotation-specialist",
         ".agents/skills/jsdoc-annotation-specialist"
       ],
-      "installedTreeHash": "c0adf04d19a92fe1eb658a2f83a1da8edab732aab2eb9ed4e1de241d9dc30265"
+      "installedTreeHash": "1db3bb2c822d31930349e69b75a835f972f5196a40c41d20691ff32577452922"
     },
     "motion-evidence-review": {
       "_tag": "local",
@@ -321,7 +321,7 @@
         ".claude/skills/orchestrate",
         ".agents/skills/orchestrate"
       ],
-      "installedTreeHash": "6a8d30811f4d310d9c7d048caa68d569c079391620d1fc1b2f6ddf1a88e31dca"
+      "installedTreeHash": "1d392f0511cefce3b16c34a335b32607f9808e2b32e56b307fa8864e4a8a0720"
     },
     "portless": {
       "_tag": "vendored",
@@ -408,7 +408,7 @@
         ".claude/skills/schema-first-development",
         ".agents/skills/schema-first-development"
       ],
-      "installedTreeHash": "9a943edb54a3a418302e1faf7b6537373529c270a797174221f729e84f5fd824"
+      "installedTreeHash": "4d987bd8a5659c31d0cb33dd160d4bc8ebb28e3d111d8b38c6a082656f8ba272"
     },
     "shadcn": {
       "_tag": "vendored",
@@ -730,7 +730,7 @@
         ".claude/skills/yeet",
         ".agents/skills/yeet"
       ],
-      "installedTreeHash": "7e8ac7193f4b7bf87cdbd95a3ca4904c954df242982d82fe33a439b9781c3ccb"
+      "installedTreeHash": "12601d466627d3d7b3be7195bf6e6454f858030b80e9549573754120d8f46ddf"
     }
   }
 }

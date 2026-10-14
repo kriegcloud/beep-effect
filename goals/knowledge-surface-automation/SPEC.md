@@ -384,3 +384,8 @@ Each entry names its record, which carries the reason and the reversal path.
   listing stays read-only, `patch add` appends proven patches, `patch label` moves lock
   labels to the ledger, `lock-plan --write` carries the ledger):
   `research/p5-warehouse-update-train-design.md`.
+- 2026-10-14 — Workstream C Stage-2 PR 5 K32–K37 (weekly plus dispatch mint that writes
+  nothing when unchanged, the CLI checks C8 condition (i) from the event payload and
+  `KNOWLEDGE_MINT_APP_SLUG`, App token via `create-github-app-token` v3.2.0 `client-id`,
+  `knowledge doctor ci` is report-only until the merge-base is sealed, dry-run mints
+  never print the file, stale mint PRs are re-minted): `research/p4-knowledge-doctor-design.md`.

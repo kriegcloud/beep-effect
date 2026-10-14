@@ -246,7 +246,7 @@ export const makeDockSnapshotStoreMemory = (initial: O.Option<string> = O.none()
       const snapshot = yield* Ref.make(initial);
       return DockSnapshotStore.of({
         load: Ref.get(snapshot),
-        save: Effect.fn("DockSnapshotStore.save")(function* (value) {
+        save: Effect.fn("MemoryDockSnapshotStore.save")(function* (value) {
           yield* Ref.set(snapshot, O.some(value));
         }),
       });

@@ -102,6 +102,15 @@ P4 in progress. Shipped on main so far:
   `.github/workflows/skills-update-train.yml` replays every lock or patch change, relocks
   and rebuilds clean Renovate bumps, and writes the weekly batch issue. Decisions B28–B33
   in the same design doc.
+- **C (PR 5, #1752):** the knowledge-doctor mint workflow.
+  `beep knowledge doctor mint [--write]` is the sealed baseline's only writer (CI-only
+  write, refuses to launder), `.github/workflows/knowledge-baseline-mint.yml` opens the
+  weekly baseline-only PR from `automation/knowledge-baseline-mint` as the mint App, and
+  `knowledge:doctor` runs `knowledge doctor ci`: report-only until the merge-base is
+  sealed, then the gate with the seal guard (design K32–K37). **Operator item (no
+  money), done 2026-10-14:** the `beep-knowledge-mint` App is registered (#1768,
+  `docs/ops/beep-knowledge-mint-app.md`) and its variables and secret are set. Its first
+  baseline-only PR is the initial seal.
 - **B-6 (this PR):** `beep skills review` lists, or walks within a time budget, every
   vendored hunk the append-only ledger (`.agents/skill-patches/ledger.jsonl`) has not
   settled, answered interactively or from a scripted `--decisions` file under a named
@@ -118,7 +127,8 @@ C Stage-2 PR 2b (the domain evaluators), and B-3b (the skills lock write and fli
 on main.
 
 B-4 (`beep skills materialize`, #1709) and C Stage-2 PR 4 (the knowledge-doctor gate,
-#1734) are on main, and B-5 (the update train, #1732) precedes this PR. This PR is B-6:
+#1734) are on main, and so are B-5 (the update train, #1732) and C Stage-2 PR 5 (the
+mint, #1752). This PR is B-6:
 the hunk ledger, `skills review` with `--ghost`, the two-strike flag, and
 `skills patch add`/`label`. Ritual 1 (the operator's classification of the generated
 patches, prepared by `skills review`) is the last Workstream B step.

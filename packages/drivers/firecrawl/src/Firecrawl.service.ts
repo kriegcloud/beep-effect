@@ -341,7 +341,7 @@ const runSdkCall = <Payload, Success>(
       decodeWith(method, successSchema, result, FirecrawlCodecErrorReason.Enum["response decoding"])
     ),
     Effect.tapError(logDriverFailure("firecrawl.driver_failure")),
-    Effect.withSpan(`firecrawl.${method}`, {
+    Effect.withSpan("Firecrawl.invoke", {
       attributes: {
         "firecrawl.method": method,
       },
