@@ -30929,6 +30929,30 @@
             "branches": 2,
             "functions": 1
           }
+        },
+        "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.domain.ts": {
+          "lines": 96.47,
+          "statements": 96.73,
+          "branches": 86.81,
+          "functions": 96.21,
+          "uncovered": {
+            "lines": 8,
+            "statements": 8,
+            "branches": 12,
+            "functions": 5
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.evaluators.ts": {
+          "lines": 98.26,
+          "statements": 98.37,
+          "branches": 96.05,
+          "functions": 96.51,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 3,
+            "functions": 3
+          }
         }
       }
     },
@@ -36490,6 +36514,18 @@
             "statements": 9,
             "branches": 13,
             "functions": 8
+          }
+        },
+        "packages/foundation/capability/technical-drawing/src/Shading.rules.ts": {
+          "lines": 93.47,
+          "statements": 94.11,
+          "branches": 87.75,
+          "functions": 91.3,
+          "uncovered": {
+            "lines": 19,
+            "statements": 19,
+            "branches": 18,
+            "functions": 10
           }
         }
       }
