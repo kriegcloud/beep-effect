@@ -13,8 +13,7 @@
  *   the engine's own rows back, D13);
  * - the band above the prompt offers Right / Wrong / Partly / Undo for the
  *   latest answer, and `/right`, `/wrong`, `/partly` do the same (D14);
- * - `/practice export` writes the verdict log as JSON lines into the working
- *   folder.
+ * - `/practice export` returns the verdict log as JSON lines for explicit saving.
  *
  * **Gotchas**
  *
@@ -53,7 +52,6 @@ import type { Verdict } from "./PracticeMod.values.ts";
 type LatestAnswer = { readonly turnId: string; readonly question: string };
 
 const DefaultServers: ReadonlyArray<string> = ["practice-kg"];
-const ExportFile = "practice-verdicts.jsonl";
 
 const VerdictLabel: Record<Verdict, string> = { right: "Right", wrong: "Wrong", partly: "Partly right" };
 
@@ -281,10 +279,14 @@ export const practiceCommand =
       Match.when("undo", () => recordVerdict($)(O.none(), O.none()).then((text) => ({ text }))),
       Match.when("export", () =>
         runWith($)(
-          Effect.flatMap(VerdictLog, (log) => log.exportJsonl(ExportFile)).pipe(
+          Effect.flatMap(VerdictLog, (log) => log.exportJsonl).pipe(
             Effect.match({
               onFailure: () => ({ text: "The verdicts could not be exported." }),
-              onSuccess: (count) => ({ text: `Exported ${count} verdicts to ${ExportFile}.` }),
+              onSuccess: (jsonl) => ({
+                text: Str.isEmpty(jsonl)
+                  ? "No verdicts to export."
+                  : `Copy these JSONL rows into a file you choose:\n\n${jsonl}`,
+              }),
             })
           )
         )

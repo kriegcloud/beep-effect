@@ -15,7 +15,7 @@
 - Codex Security Cloud MCP app:
   `https://chatgpt.com/mcp-app/connector_openai_defense_factory/open_defense_factory#/findings`, captured on 2026-10-14
   through a supported connector or the operator's signed-in in-app browser.
-- The UI's signed-in `More finding actions → Export CSV` control supplied the 49-record
+- The UI's signed-in `More finding actions → Export CSV` control supplied the 52-record
   batch. `beep codex findings ingest` normalized it; the export itself was never
   copied into the repository.
 

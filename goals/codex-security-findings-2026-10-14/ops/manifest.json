@@ -10,14 +10,14 @@
   },
   "packetPath": "goals/codex-security-findings-2026-10-14",
   "lifecycle": "active",
-  "mission": "Remediate and close the 49 Codex security findings captured on 2026-10-14.",
+  "mission": "Remediate and close the 52 Codex security findings captured on 2026-10-14.",
   "executionCapable": true,
   "reflectionRequired": true,
   "completionGate": {
     "operator": "yeet",
     "requiresPullRequest": true,
     "requiresMergeable": true,
-    "statement": "Not achieved until the work ships as a Yeet-driven mergeable PR, is merged, and the exact 49 Codex findings are resolved with zero packet-applicable open findings.",
+    "statement": "Not achieved until the work ships as a Yeet-driven mergeable PR, is merged, and the exact 52 Codex findings are resolved with zero packet-applicable open findings.",
     "grandfathered": false
   },
   "branch": "codex/security-findings-2026-10-14",
@@ -50,22 +50,22 @@
     "rawCaptureTracked": false
   },
   "catalog": {
-    "expectedCount": 49,
-    "capturedCount": 49,
+    "expectedCount": 52,
+    "capturedCount": 52,
     "severityCountsKnown": true,
     "severityCounts": {
       "Medium": 5,
-      "Low": 13,
-      "Informational": 31
+      "Low": 15,
+      "Informational": 32
     },
     "dispositionCounts": {
       "remediate": 48,
       "already-fixed": 1,
       "false-positive": 0,
       "out-of-scope": 0,
-      "untriaged": 0
+      "untriaged": 3
     },
-    "note": "All 49 findings have current-HEAD dispositions: 48 repairs and one already fixed. The refreshed signed-in CSV added CSF-049 while preserving the previous 48 verdicts."
+    "note": "All 49 findings have current-HEAD dispositions: 48 repairs and one already fixed. The refreshed signed-in CSV added CSF-049 while preserving the previous 48 verdicts. Refresh capture: the original 49 records retain their prior triage and proof; 3 newly captured record(s) await P2 validation and P3 lane assignment."
   },
   "closeoutPolicy": {
     "fixed": "Fixed",
@@ -101,12 +101,12 @@
     {
       "id": "P2",
       "name": "Validate",
-      "status": "complete"
+      "status": "in-progress"
     },
     {
       "id": "P3",
       "name": "Lane partition",
-      "status": "complete"
+      "status": "in-progress"
     },
     {
       "id": "P4",
@@ -143,7 +143,7 @@
     "test \"$(wc -m < goals/codex-security-findings-2026-10-14/GOAL.md)\" -le 4000",
     "jq . goals/codex-security-findings-2026-10-14/ops/manifest.json",
     "jq . goals/codex-security-findings-2026-10-14/ops/triage.json",
-    "test \"$(find goals/codex-security-findings-2026-10-14/findings -maxdepth 1 -name 'CSF-*.md' | wc -l | tr -d ' ')\" = 49",
+    "test \"$(find goals/codex-security-findings-2026-10-14/findings -maxdepth 1 -name 'CSF-*.md' | wc -l | tr -d ' ')\" = 52",
     "git diff --check -- goals/codex-security-findings-2026-10-14",
     "jq -r '.findings[].commit' goals/codex-security-findings-2026-10-14/ops/triage.json | while read -r c; do git merge-base --is-ancestor \"$c\" HEAD || echo \"not-an-ancestor: $c\"; done",
     "bun run beep lint reflection-artifacts"

@@ -351,7 +351,9 @@ export class SkillRelockReceipt extends S.Class<SkillRelockReceipt>($I`SkillRelo
  * import { SkillTrainPullRequestComment } from "@beep/repo-cli/commands/Skills/SkillsRelock.schemas"
  * import * as S from "effect/Schema"
  *
- * const comment = S.decodeUnknownSync(SkillTrainPullRequestComment)({ body: "hi", createdAt: "2026-10-14T00:00:00Z" })
+ * const comment = S.decodeUnknownSync(SkillTrainPullRequestComment)({
+ *   author: { login: "github-actions[bot]" }, body: "hi", createdAt: "2026-10-14T00:00:00Z",
+ * })
  * console.log(comment.body) // "hi"
  * ```
  *
@@ -362,11 +364,12 @@ export class SkillTrainPullRequestComment extends S.Class<SkillTrainPullRequestC
   $I`SkillTrainPullRequestComment`
 )(
   {
+    author: S.NullOr(S.Struct({ login: S.String })),
     body: S.String,
     createdAt: S.String,
   },
   $I.annote("SkillTrainPullRequestComment", {
-    description: "A pull-request comment's body and creation time from gh pr list --json comments.",
+    description: "A pull-request comment's author, body, and creation time from gh pr list --json comments.",
   })
 ) {}
 
@@ -384,6 +387,7 @@ export class SkillTrainPullRequestComment extends S.Class<SkillTrainPullRequestC
  *   title: "chore(deps): update skill oracle",
  *   url: "https://github.com/beep-effect/beep-effect/pull/7",
  *   headRefName: "renovate/skill-oracle",
+ *   headRefOid: "a".repeat(40),
  *   comments: [],
  * })
  * console.log(pr.number) // 7
@@ -398,6 +402,7 @@ export class SkillTrainPullRequest extends S.Class<SkillTrainPullRequest>($I`Ski
     title: S.String,
     url: S.String,
     headRefName: S.String,
+    headRefOid: S.String,
     comments: S.Array(SkillTrainPullRequestComment),
   },
   $I.annote("SkillTrainPullRequest", {

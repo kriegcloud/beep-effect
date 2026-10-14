@@ -4,7 +4,7 @@
 
 Remediate every open Codex Cloud security finding visible at
 `https://chatgpt.com/mcp-app/connector_openai_defense_factory/open_defense_factory#/findings` for
-`kriegcloud/beep-effect` in the 49-finding batch captured on 2026-10-14. Publish
+`kriegcloud/beep-effect` in the 52-finding batch captured on 2026-10-14. Publish
 the work through Yeet, reach mergeable hosted state, merge, then resolve the
 exact captured findings until no packet-applicable finding remains open.
 
@@ -45,12 +45,12 @@ exact captured findings until no packet-applicable finding remains open.
 - Security controls may not be simplified away for diff size.
 - Captured summaries stay in ignored `raw/`; tracked records contain only sanitized
   metadata, summaries, validation, decisions, changed files, and proof.
-- Browser closure happens after merge, against the exact 49-ID allowlist.
+- Browser closure happens after merge, against the exact 52-ID allowlist.
 - Preserve unrelated work and stage only reviewed packet intent.
 
 ## Acceptance Criteria
 
-- [x] All 49 findings have sanitized tracked CSF records with Codex ID, severity,
+- [x] All 52 findings have sanitized tracked CSF records with Codex ID, severity,
       title, source commit, and public summary.
 - [x] Every finding has a current-HEAD verdict, disposition, lane, rationale,
       remediation state, changed-file set, and verification evidence.
@@ -61,7 +61,7 @@ exact captured findings until no packet-applicable finding remains open.
 - [ ] Yeet repair and verify are green on the complete remediation scope.
 - [ ] The branch is published, hosted checks and reviews are closed, and the PR
       is mergeable and merged.
-- [ ] All 49 captured Codex findings are resolved after merge and the live view
+- [ ] All 52 captured Codex findings are resolved after merge and the live view
       shows zero packet-applicable open findings.
 
 ## Verification Matrix
@@ -70,8 +70,8 @@ exact captured findings until no packet-applicable finding remains open.
 | --- | --- | --- |
 | Launcher size | `test "$(wc -m < goals/codex-security-findings-2026-10-14/GOAL.md)" -le 4000` | Pass |
 | JSON shape | `jq .` over both files in `ops/` | Pass |
-| Finding count | CSF file count equals 49 | Pass |
-| Severity count | 5 Medium, 13 Low, 31 Informational | Pass |
+| Finding count | CSF file count equals 52 | Pass |
+| Severity count | 5 Medium, 15 Low, 32 Informational | Pass |
 | Raw ignored | `git status --short -- .../raw` | Only `.gitignore` tracked |
 | Sanitization | tracked packet secret/path pattern scan | No matches |
 | Per-finding proof | command recorded in finding and triage ledger | Pass |
@@ -114,3 +114,7 @@ exact captured findings until no packet-applicable finding remains open.
 | Bound skill patch review at 100,000 combined lines and four million LCS cells (CSF-048). | Repository-controlled text could allocate gigabytes before a read-only command returned. Ordinary reviews retain exact hunks; large changed regions receive a valid replacement hunk, while extreme inputs fail with a typed error. | Replace the limits with a measured streaming diff that preserves Git patch validity and a fixed memory budget, then raise them with a resource regression. |
 | Restrict skill installation to the repository's two physical skills directories (CSF-049). | An allowed textual target can traverse an install-parent symlink to an external or unrelated in-repository directory; publishing and cleanup would then mutate that directory. The normal in-repository mirror symlink remains supported. | Permit another skill store only through an explicit trusted root, with containment, cleanup, and rollback tests for that root. |
 | Close duplicate inherited-gate PR #1723 after #1721 merged the same correction. | The independently merged correction on `main` superseded our docs-only unblocker and made its branch conflict. | Reopen #1723 only if #1721 is reverted and the retired-path check becomes red again; otherwise keep the single merged fix. |
+| Refresh the canonical packet from the complete 52-row export (CSF-050–052). | The signed-in open findings view gained three rows after the 49-row capture. The canonical refresh preserved the original 49 IDs and appended the three new IDs. | Refresh again from a complete later export if the open set changes; retain the prior captured identities and decisions. |
+| Return practice verdict JSONL in command output rather than writing a fixed workspace file (CSF-050). | The mod host exposes only an opaque file write without a documented no-follow or atomic replacement guarantee. Returning the rows removes the filesystem write boundary while retaining export access. | Restore automatic file export only when the engine provides a tested no-follow, atomic write API; preserve the current explicit-save path until then. |
+| Accept only current-head GitHub Actions replay comments in the skills batch issue (CSF-051). | PR comments are untrusted issue content; author identity and head binding are needed before publishing a verdict from them. | Replace the comment channel with an authenticated artifact or check-run lookup that preserves both bindings. |
+| Reject future-issued knowledge leases with a dedicated governance kind (CSF-052). | A future 29-day term otherwise suppresses a current finding long before the nominal lease begins. | Introduce a pending status only if it remains ineffective until its start instant and has gate regressions. |

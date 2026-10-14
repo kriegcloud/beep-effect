@@ -11,13 +11,14 @@ const settingsPath = fileURLToPath(new URL("../../../../../.claude/settings.json
 const HookSettings = S.Struct({
   hooks: S.Record(S.String, S.Array(S.Struct({ hooks: S.Array(S.Struct({ command: S.String })) }))),
 });
+const HookSettingsJson = S.fromJsonString(HookSettings);
 
 it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook launch project containment", (it) => {
   it.effect("keeps executable hooks in the session launch project when CWD is attacker controlled", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const settings = yield* S.decodeEffect(S.fromJsonString(HookSettings))(yield* fs.readFileString(settingsPath));
+      const settings = yield* S.decodeEffect(HookSettingsJson)(yield* fs.readFileString(settingsPath));
       const commands = Object.values(settings.hooks).flatMap((groups) =>
         groups.flatMap((group) => group.hooks.map((hook) => hook.command))
       );

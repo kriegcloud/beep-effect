@@ -97,3 +97,15 @@
 - Would have prevented it: retain a concise failing-test summary in the check
   annotations or as a separately downloadable artifact when the large log
   blob is unavailable.
+
+## 2026-10-14: coverage runner lost communication before a verdict
+
+- Doing: attributing the optional Coverage Regression failure on PR #1728.
+- Evidence: the completed check annotation says the self-hosted runner lost
+  communication with GitHub. Its log stops during package coverage execution,
+  with no coverage delta or final assertion. An EC2 state read confirms Spot
+  instance termination, so the job cannot establish whether coverage passed
+  or failed on that head.
+- Would have prevented it: a durable runner heartbeat and a small final lane
+  summary uploaded independently of the large test stream, plus runner health
+  telemetry for memory, CPU, and network loss.

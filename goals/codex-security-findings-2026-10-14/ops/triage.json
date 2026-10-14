@@ -4,11 +4,11 @@
     "repository": "kriegcloud/beep-effect",
     "findingsView": "repo-scoped, status=new",
     "branch": "codex/security-findings-2026-10-14",
-    "expectedCount": 49,
-    "capturedCount": 49,
+    "expectedCount": 52,
+    "capturedCount": 52,
     "capturedAt": "2026-10-14",
     "captureMethod": "signed-in-csv-export",
-    "note": "All 49 finding IDs are bound to current-HEAD triage. The 49th was appended from the refreshed signed-in CSV export while preserving prior decisions."
+    "note": "All 49 finding IDs are bound to current-HEAD triage. The 49th was appended from the refreshed signed-in CSV export while preserving prior decisions. Refresh capture: the original 49 records retain their prior triage and proof; 3 newly captured record(s) await P2 validation and P3 lane assignment."
   },
   "lanes": {
     "L1-remediation": {
@@ -1590,6 +1590,101 @@
       "ownerArea": "Skills materializer target containment",
       "verdict": "confirmed-vulnerable",
       "lane": "L41-skill-install-containment"
+    },
+    {
+      "id": "CSF-050",
+      "codexId": "commit:26190290755c81918cb7cb4935b8f079",
+      "title": "Verdict export lacks symlink protection for its output file",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "c2848918b71c41a77bae1cb63eb919b7c94a56d1",
+      "disposition": "remediate",
+      "validation": {
+        "status": "complete",
+        "confidence": "medium",
+        "rationale": "The current command passed a fixed workspace filename to the opaque mod-engine fs.write API. The engine implementation is unavailable, so symlink-following behavior was not directly proven; the plugin had no no-follow or atomic-write guarantee at this boundary. The exported data can be returned without a filesystem write."
+      },
+      "remediation": {
+        "status": "implemented",
+        "changedFiles": [
+          "apps/practice-claude-mod/src/PracticeMod.hooks.ts",
+          "apps/practice-claude-mod/src/PracticeMod.host.ts",
+          "apps/practice-claude-mod/src/PracticeMod.verdicts.ts",
+          "apps/practice-claude-mod/test/PracticeMod.verdicts.test.ts",
+          "docs/runbooks/practice-claude-mod-delivery.md"
+        ],
+        "verificationCommands": [
+          "bunx --bun vitest run test/PracticeMod.verdicts.test.ts",
+          "bun run beep quality package-verify @beep/practice-claude-mod"
+        ],
+        "summary": "Return JSONL in the slash-command result for explicit saving. Remove the plugin filesystem-write capability, so a workspace symlink cannot redirect this export."
+      },
+      "verdict": "real",
+      "ownerArea": "Practice Claude mod verdict export",
+      "lane": "L42-final-three"
+    },
+    {
+      "id": "CSF-051",
+      "codexId": "commit:e5b6e1a72814819185018866128e5f74",
+      "title": "Untrusted PR comments can forge bot-published replay verdicts",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "8858e31070d5fac12533818b6a6fdbb2a32f905f",
+      "disposition": "remediate",
+      "validation": {
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The batch issue selected the latest schema-valid replay marker from any PR comment, regardless of author or PR head. A later ordinary comment could therefore replace the displayed bot verdict without changing replay or relock gates."
+      },
+      "remediation": {
+        "status": "implemented",
+        "changedFiles": [
+          ".github/workflows/skills-update-train.yml",
+          "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.render.ts",
+          "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
+          "packages/tooling/tool/cli/test/skills-relock.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx --bun vitest run test/skills-relock.test.ts",
+          "bun run beep quality package-verify @beep/repo-cli"
+        ],
+        "summary": "Accept replay markers only from github-actions[bot] comments bound to the PR current head SHA. The posting workflow tags its comment with that SHA and updates only its own sticky comment. Forged later and stale-head comments are ignored."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Skills update train replay attribution",
+      "lane": "L42-final-three"
+    },
+    {
+      "id": "CSF-052",
+      "codexId": "commit:d295a567040c819194249ea150b0825f",
+      "title": "Future-dated leases bypass the 30-day suppression limit",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "620ebcf28528abdd879d1e1972f858c453871464",
+      "disposition": "remediate",
+      "validation": {
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The lease evaluator checked issued-to-expires duration and expiry against now but never rejected issued dates after now. A 29-day lease dated in 2099 was active immediately and could suppress an introduced finding."
+      },
+      "remediation": {
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.schemas.ts",
+          "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+          "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+          "packages/tooling/tool/cli/test/knowledge-doctor-baseline.test.ts",
+          "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.command.ts"
+        ],
+        "verificationCommands": [
+          "bunx --bun vitest run test/knowledge-doctor-baseline.test.ts",
+          "bun run beep quality package-verify @beep/repo-cli"
+        ],
+        "summary": "Emit a dedicated lease-issued-in-future governance finding, make the lease ineffective, and exclude it from quota allocation. A gate regression shows the underlying introduced finding remains blocking."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Knowledge doctor lease governance",
+      "lane": "L42-final-three"
     }
   ]
 }

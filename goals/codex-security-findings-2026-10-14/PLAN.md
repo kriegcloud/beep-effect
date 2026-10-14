@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active`. All 49 findings are validated and repaired or already fixed;
+Status: `active`. All 52 findings are validated and repaired or already fixed;
 repository proof is in progress.
 
 ## Phases
@@ -10,14 +10,14 @@ repository proof is in progress.
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 bootstrap | complete | Create feature branch and packet scaffold. | Branch and launcher exist; packet JSON parses. |
-| P1 capture | complete | Capture the full signed-in CSV snapshot. | 49 IDs reconcile: 5 Medium, 13 Low, 31 Informational. |
-| P2 validate | complete | Validate newly captured reports at current HEAD. | 49 current-HEAD verdicts and dispositions. |
-| P3 lane-partition | complete | Assign newly captured findings to disjoint root-cause lanes. | CSF-049 assigned to the skill install containment lane. |
+| P1 capture | complete | Capture the full signed-in CSV snapshot. | 52 IDs reconcile: 5 Medium, 15 Low, 32 Informational. |
+| P2 validate | complete | Validate newly captured reports at current HEAD. | All 52 have verdicts and dispositions. |
+| P3 lane-partition | complete | Assign newly captured findings to disjoint root-cause lanes. | CSF-050–052 assigned to L42. |
 | P4 remediate | complete | Fix all real findings with focused checks. | Changed files and passing targeted proof recorded per finding. |
 | P5 repo-proof | in progress | Run packet validation and Yeet repair/verify. | No packet drift; local proof green. |
-| P6 publish | pending | Publish one intentional PR through Yeet. | Exact branch head pushed and PR opened. |
-| P7 monitor | pending | Close hosted checks and actionable reviews. | PR green and mergeable. |
-| P8 merge-and-close | pending | Merge and close captured findings. | PR merged; all 49 IDs resolved. |
+| P6 publish | in progress | Publish one intentional PR through Yeet. | PR #1728 is open; final 52-finding wave awaits push. |
+| P7 monitor | in progress | Close hosted checks and actionable reviews. | First head reviewed; final head must clear checks and review window. |
+| P8 merge-and-close | pending | Merge and close captured findings. | PR merged; all 52 IDs resolved. |
 | P9 close | pending | Record evidence, reflection, and lifecycle. | Packet set to `completed-retained` in the same closeout PR state. |
 
 ## Execution Rules
@@ -35,6 +35,6 @@ repository proof is in progress.
 test "$(wc -m < goals/codex-security-findings-2026-10-14/GOAL.md)" -le 4000
 jq . goals/codex-security-findings-2026-10-14/ops/manifest.json
 jq . goals/codex-security-findings-2026-10-14/ops/triage.json
-test "$(find goals/codex-security-findings-2026-10-14/findings -maxdepth 1 -name 'CSF-*.md' | wc -l | tr -d ' ')" = 49
+test "$(find goals/codex-security-findings-2026-10-14/findings -maxdepth 1 -name 'CSF-*.md' | wc -l | tr -d ' ')" = 52
 git diff --check -- goals/codex-security-findings-2026-10-14
 ```

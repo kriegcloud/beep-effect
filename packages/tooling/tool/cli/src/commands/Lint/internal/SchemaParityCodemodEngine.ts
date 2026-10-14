@@ -356,8 +356,9 @@ const applyPlannedWrites = Effect.fn("SchemaParityCodemod.applyPlannedWrites")(f
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const crypto = yield* Crypto.Crypto;
-  const staged = yield* Effect.forEach(writes, (write) =>
-    Effect.gen(function* () {
+  const staged = yield* Effect.forEach(
+    writes,
+    Effect.fnUntraced(function* (write) {
       const extension = path.extname(write.filePath);
       const stem = Str.slice(0, write.filePath.length - extension.length)(write.filePath);
       const nonce = yield* crypto.randomUUIDv4.pipe(

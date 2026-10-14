@@ -18,6 +18,8 @@ import type { CreateInspector } from "@beep/xstate";
 import type { Transport } from "@statelyai/sdk";
 import type { ConfigError } from "effect/Config";
 
+const UnknownJson = S.fromJsonString(S.Unknown);
+
 interface RecordedMessage {
   readonly snapshot?: { readonly value?: unknown; readonly status?: unknown };
   readonly type: string;
@@ -91,9 +93,7 @@ describe("StatelyInspector", () => {
         );
         expect(snapshotValues).toContain("deploying");
         expect(snapshotValues).toContain("deployed");
-        expect(yield* S.encodeUnknownEffect(S.fromJsonString(S.Unknown))(recorder.messages)).not.toContain(
-          "sensitive-reviewer-marker"
-        );
+        expect(yield* S.encodeUnknownEffect(UnknownJson)(recorder.messages)).not.toContain("sensitive-reviewer-marker");
         expect(recorder.destroyed).toBe(0);
       }).pipe(Effect.provideService(Deployments, deploymentsSucceeding))
     );
