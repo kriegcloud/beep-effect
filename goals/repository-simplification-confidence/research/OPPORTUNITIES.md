@@ -2231,7 +2231,7 @@ dependencies through admission, and reruns the package check. No source repair
 is inferred from missing declarations. A quick verifier that detects stale
 project outputs and names the required upstream build would prevent this loop.
 
-### F publication cheap-gate repair (2026-10-15 UTC)
+### F publication cheap-gate repair (2026-10-14 UTC)
 
 - Trigger: the first `yeet publish` stopped before push on observability catalog
   drift and 28 new Effect Vitest findings in the two native config test files.

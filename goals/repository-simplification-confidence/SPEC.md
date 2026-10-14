@@ -1461,8 +1461,8 @@ changed. Full package and parity qualification is repeated for this wave.
 
 ### RSC-F-FREEZE-20261014 (2026-10-14): final review input boundary
 
-The final expanded configuration set is `2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8`, captured at
-2026-10-14T22:54:37.633568Z across 356 files. It includes native MCP registries,
+The final expanded configuration set is `3f813571c590a983d51e4e691ec9e75c9f48fd49ad2abc4c516da8b7c673e18a`, captured at
+2026-10-14T23:58:16.256715Z across 356 files. It includes native MCP registries,
 installed plugin indices, instructions, specialist definitions, canonical
 hook implementations and their adapters. This supersedes earlier captures;
 the qualification window opens at this capture and its qualifying count is
@@ -1486,6 +1486,20 @@ pass. Apply the eventual owned header span through ModelsApply with a fresh
 backup and journal; reverse with that journal. No native header was changed.
 The read-only probe is research/f-grok-header-probe.py in this packet.
 
-Publication capture supersedes earlier sets: `2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8`,
-2026-10-14T23:36:54.529409Z, 356 files. Window open since that capture;
+Publication capture supersedes earlier sets: `3f813571c590a983d51e4e691ec9e75c9f48fd49ad2abc4c516da8b7c673e18a`,
+2026-10-14T23:58:16.256715Z, 356 files. Window open since that capture;
 qualifying count unknown. The collector check passes at capture.
+
+
+### RSC-F-PUBLICATION-20261014: integrated proof and refreshed capture
+
+Main #1792 repairs the earlier AgentMessage and drawings test typecheck reds;
+F integrates it and test-tsgo passes. Introduced publication findings are
+repaired in a85bdd76f0, with native filesystem judgments recorded through the
+Effect Vitest owner writer. Both owner checks pass. The configuration set is
+3f813571c590a983d51e4e691ec9e75c9f48fd49ad2abc4c516da8b7c673e18a at 2026-10-14T23:58:16.256715Z, with
+356 files. Concurrent unowned native app state changed after the
+earlier capture; F did not write those files. This refreshed set supersedes
+that panel input and opens the current window; qualifying count remains
+unknown. Reversal: revert this PR for repository changes; retain the existing
+ModelsApply backup/journal for the native cleanup. Collection is read-only.

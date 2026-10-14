@@ -6,10 +6,10 @@ The driver owns the independent panel, merge, and any later retirement.
 
 ```text
 lane: rsc-f-agents
-head: 6ac93b8fe0917fc16beb992809bc4e0cb5e1c444 (publication source)   PR: pending publication
+head: bb67db8ccde1896abe85511a601f52b07d713c03 (verified source; publication metadata follows)   PR: pending publication
 package-verify: @beep/repo-cli: pass (default audit 1076.0s; full docgen 39.2s)
-hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> inherited fail (AgentMessage TS377032; drawing tests TS377026) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
-config fingerprint (final): 2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
+hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> pass (main #1792 integrated) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
+config fingerprint (final): 3f813571c590a983d51e4e691ec9e75c9f48fd49ad2abc4c516da8b7c673e18a   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-14.md
 open items: incomplete current-fingerprint 30-session windows; Junie authorization; native SessionStart/root-child and namespace/OTel/archive qualification; Cursor isolated-state qualification; external gateway and operator-run Claude transformations; retained agent projections and native links; matched native measurements; driver panel; hosted PR review
 ```
@@ -147,7 +147,7 @@ No other lane, root manifest/lock, model manifest, effect-law allowlist or
 service unit was edited. No merge or lane retirement is performed by F.
 The driver runs the three-model panel at this source/configuration pair.
 
-Graft retrieval saved approximately 27,822 tokens in two successful queries.
+Graft retrieval saved approximately 44,268 tokens in three successful queries.
 
 
 ## Latest main integration boundary
@@ -198,3 +198,34 @@ The final fingerprint gate passes with no changed paths immediately before
 publication. The snapshot has 356 files. The source proof and its earlier
 attribution boundaries remain recorded above; final hosted/parity outcomes
 are appended to the publication receipt after the PR exists.
+
+
+## Publication gate repair and main typecheck recovery
+
+The first publication attempt stopped before any push. Its introduced cheap
+findings were repaired in a85bdd76f0: expected-error assertions use Effect.flip,
+absence assertions use assertNone, and redundant whole-test scopes are removed.
+The two EV010 native-filesystem provenance judgments carry explicit reasons
+through the schema-validating owner writer. Atomic rename, Unix modes,
+symlink containment and byte-exact recovery remain real-filesystem tests.
+The catalog is regenerated through its owner. Inbox
+local-shard-ce03122f7338 is acknowledged with that fix SHA.
+
+Main 967fe1e808 (#1792) repairs both previously attributed test-tsgo reds.
+F merges that main commit and reruns its proof before publication. The earlier
+red results above remain historical evidence, not the final parity verdict.
+
+A pre-publication check also observed concurrent changes in the unowned native
+Claude application state and Cursor configuration. F wrote neither path.
+The publication receipt captures the new byte set; the driver must recheck it
+before panel admission. A changed set invalidates that panel input rather than
+silently inheriting the earlier measurement window.
+
+Final source verification at bb67db8ccde1896abe85511a601f52b07d713c03:
+package quick lint/check, test-tsgo, 154 scoped tests, bounded docgen, Fallow
+audit/health, schema-first and retired paths all pass. Coverage percentages
+are unchanged and exceed every existing touched-file floor. Both introduced
+cheap-gate repairs pass their owner checks. The final online models check
+reports zero findings; the pinned native read-only probe passed after the
+last Codex apply. Configuration capture: 2026-10-14T23:58:16.256715Z,
+356 files; its equality check passes immediately after capture.

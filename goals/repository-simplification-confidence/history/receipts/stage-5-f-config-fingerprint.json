@@ -1,7 +1,7 @@
 {
   "format": "rsc-f-config-fingerprint/v1",
-  "capturedAt": "2026-10-14T23:36:54.529409Z",
-  "setSha256": "2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8",
+  "capturedAt": "2026-10-14T23:58:16.256715Z",
+  "setSha256": "3f813571c590a983d51e4e691ec9e75c9f48fd49ad2abc4c516da8b7c673e18a",
   "files": [
     {
       "path": ".claude/agents/architecture-guardian.md",
@@ -1678,7 +1678,7 @@
     {
       "path": "~/.claude.json",
       "bytes": 373473,
-      "sha256": "e2db03b670f4733364e41546686a2c7fa4d5e3e4915b401469664a61f17da26e"
+      "sha256": "40852688a5c0f7824532feb0db35348c2bdcc73ddb7f0297ccb6a363514f9ba0"
     },
     {
       "path": "~/.claude/CLAUDE.md",
@@ -1692,8 +1692,8 @@
     },
     {
       "path": "~/.claude/memory/beep-effect/MEMORY.md",
-      "bytes": 38390,
-      "sha256": "34f98ecd75bd3cfea0e4d708788e0d98e61d2673650f9a88a14ab0f754f515bc"
+      "bytes": 38400,
+      "sha256": "9e3ae5d943a26244efa04bac61edc715d34df64b7bbe31acdaf5b92d19453523"
     },
     {
       "path": "~/.claude/plugins/installed_plugins.json",
@@ -1718,7 +1718,7 @@
     {
       "path": "~/.config/Claude/claude_desktop_config.json",
       "bytes": 19154,
-      "sha256": "4f7f951f250c5003569fea6b637c76d8b0db23481a3fe8b6db1abf12e133e817"
+      "sha256": "b621a9ec512bcb0aa82a7ad2939620efee7955250928103bf6edcb8a3f6b6712"
     },
     {
       "path": "~/.config/JetBrains/Air/.codex/config.toml",
@@ -1743,7 +1743,7 @@
     {
       "path": "~/.cursor/cli-config.json",
       "bytes": 3996,
-      "sha256": "ce0a6ab840aa70be70d06601437807475bacaca81247e898d9fe84fd544f6ffd"
+      "sha256": "6008fbf4fb6ed05dd970c50994efce96fce7ed488d76c009f2ccc70271486a83"
     },
     {
       "path": "~/.cursor/mcp.json",
