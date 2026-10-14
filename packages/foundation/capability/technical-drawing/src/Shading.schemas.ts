@@ -385,8 +385,9 @@ const CutIndex = S.Int.check(S.isGreaterThanOrEqualTo(0));
  *
  * ```ts
  * import { ShadingWindow } from "@beep/technical-drawing/Shading.schemas"
+ * import * as O from "effect/Option"
  *
- * console.log(ShadingWindow.make({ start: 22, span: 18, low: 0, high: 20 }).span)
+ * console.log(ShadingWindow.make({ start: 22, span: 18, low: O.some(0), high: O.some(20) }).span)
  * ```
  *
  * @category models

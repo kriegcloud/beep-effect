@@ -31,7 +31,7 @@
         ".claude/skills/closeout",
         ".agents/skills/closeout"
       ],
-      "installedTreeHash": "d7283167801e1ba58e2f24c9e0f255fa8c12f2ed310e411b096266616d78b9f0"
+      "installedTreeHash": "d6e2fd64dd44dff89cf4c95a4a4a0b8f3827351e07f00dd14f2dc904b5f2d631"
     },
     "codex-findings": {
       "_tag": "local",
@@ -63,7 +63,7 @@
         ".claude/skills/explore",
         ".agents/skills/explore"
       ],
-      "installedTreeHash": "5f4f4894ac028139a0ab576477dc8acd94ddfdf810aa1a9850e8240698807541"
+      "installedTreeHash": "5c9be0bc9e03ad6572ec45537163331194896c91310b0835b3933fc4a3a7e8c6"
     },
     "graft": {
       "_tag": "local",
@@ -139,7 +139,7 @@
         ".claude/skills/grill-with-docs",
         ".agents/skills/grill-with-docs"
       ],
-      "installedTreeHash": "5baabbc3181dfeab5fbb030c5b5546b1e4ea5ecae84018da717a8cc69b8245cd"
+      "installedTreeHash": "9067e73e3c7c22daa7070b2f86963063621a6a8a8ceac91b54129d51c2a7910a"
     },
     "grilling": {
       "_tag": "local",
