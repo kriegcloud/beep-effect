@@ -1354,3 +1354,11 @@ The commit-bound `beep laws retired-effect-paths --check` reported 19 stale refe
 ### 2026-10-14 — concurrent CLI proof hit the cache fixture port
 
 Scoped coverage failed after 23 minutes when the unchanged cache-protocol fixture raised `EADDRINUSE` on port 49312, followed by test and hook timeouts. Its other 6,170 CLI tests and all nine non-CLI shards passed; the default CLI audit passed separately. The source fixture matches main and the port was free after termination. This is environment-only; the failed run wrote no coverage baseline. Serializing this lane's next full CLI audit and coverage avoids overlap between its own fixture users. The fixture already requests ephemeral port 0. Better bind-race diagnostics in the test runtime would shorten attribution; changing the main fixture is outside A retirement scope. The exact cause of the port race remains unproven.
+
+### 2026-10-14 — coverage owner refresh is too broad for retirement rows
+
+The serial 11-package scoped coverage run passed on `b50dce625c`, but `--write-baseline` adopted whole measured package blocks: 4,056 changed lines, 38 lower percentages, 33 with unchanged or higher uncovered counts. Its five deleted-source row removals are the four retired Data files and KnipRatchet. The generated output, patch and delta census are archived in ignored lane evidence. Restored the committed baseline rather than lowering live floors or hand-editing generated rows. A deleted-source-only owner operation would permit retirement cleanup without coupling it to inherited coverage debt; the standing consolidated row splice belongs to the orchestrator.
+
+### 2026-10-14 — final prep admission has no elapsed-wait evidence
+
+After the baseline-owner hold was recorded, the latest owner and targeted-test jobs waited more than ten minutes with only `beep-heavy: all 5 slots busy, waiting` and no terminal result rows. Existing requests are retained; no duplicate or bypass is started. The wrapper polls nonblocking slot locks every five seconds rather than using a FIFO queue. Admission receipts with enqueue/admit times and visible ordering would distinguish wait from runtime and prevent unnecessary diagnostic polling.

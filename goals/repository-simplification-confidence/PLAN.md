@@ -349,3 +349,13 @@ See `history/handoffs/rsc-d-release-2026-10-09.md` for current terminal results.
 GitHub Packages lacks read:packages; desktop verification remains E-owned.
 
 B status (2026-10-13): bounded three-finding baseline repair published in #1616; integrated local verification settled, hosted requalification pending; original R20 waves remain open.
+
+## A wave 1 blocked checkpoint — 2026-10-14
+
+A source retirement and both review fixes are implemented locally. The
+remaining publication dependency is the orchestrator-owned narrow coverage
+splice: remove five absent-source rows while retaining every live floor.
+The generated package-block refresh is archived, not adopted. The
+[resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md) records source
+SHAs, runtime passes and the exact paths. PR #1584 has no resumed push yet;
+thread replies follow that push. Later A waves and program acceptance remain open.

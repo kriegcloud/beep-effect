@@ -42946,6 +42946,14 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "MailFailureCause",
+      "kind": "tagged-union",
+      "owner": "@beep/repo-cli",
+      "identity": "MailFailureCause",
+      "description": "Allowlisted original mail failure classes and stable fields without corpus-bearing messages or paths."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
       "symbol": "MailOccurrenceMember",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
@@ -45685,6 +45693,14 @@
       "description": "Finding kinds emitted by beep goals doctor and beep explore --check (blocking and advisory; the packet-* kinds are the explore check's stream findings)."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Doctor.ts",
+      "symbol": "GoalExplorationPathState",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalExplorationPathState",
+      "description": "Whether a packet's exploration back-link path exists, is missing, or leaves the repository."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.errors.ts",
       "symbol": "GoalGraphInputError",
       "kind": "tagged-error",
@@ -46695,6 +46711,28 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts",
+      "symbol": "KnowledgeDoctorGateError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorGateError"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts",
+      "symbol": "KnowledgeDoctorInputError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorInputError"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts",
+      "symbol": "KnowledgeDoctorInputReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorInputReason",
+      "description": "Which gating input of the knowledge doctor was absent, shallow, or undecodable."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts",
       "symbol": "KnowledgeHostPathDebtError",
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
@@ -46709,6 +46747,13 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts",
+      "symbol": "KnowledgeMintRefusal",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeMintRefusal"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts",
       "symbol": "KnowledgeOperationalError",
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
@@ -46720,6 +46765,13 @@
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
       "identity": "KnowledgeProbeBootError"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts",
+      "symbol": "KnowledgeSealBroken",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeSealBroken"
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.refs.ts",
@@ -47068,6 +47120,202 @@
       "owner": "@beep/repo-cli"
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeBaselineEntry",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeBaselineEntry",
+      "description": "One sealed inherited knowledge-doctor finding: key, named group, kind, document, subject, owners."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeBaselineGroup",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeBaselineGroup",
+      "description": "Named cause group of one sealed knowledge-doctor baseline entry."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeBaselineGroupInput",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeBaselineGroupInput",
+      "description": "A finding, its source line, its attribution, and the retired package names its group is read from."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeDoctorBaseline",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorBaseline",
+      "description": "Sealed knowledge-doctor baseline minted by CI at one default-branch commit."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeDoctorCheckInput",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorCheckInput",
+      "description": "A scanned report plus every seal, lease, identity, and history input of one gating check."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeDoctorIdentity",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorIdentity",
+      "description": "Durable-identity sidecar mappings for documents rename lineage provably loses."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeDoctorPromotion",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorPromotion",
+      "description": "A finding kind promoted from report-only to blocking, with its C7 window evidence."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeDoctorPromotions",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorPromotions",
+      "description": "Append-only, human-reviewed list of promoted knowledge-doctor finding kinds."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeIdentityInput",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeIdentityInput",
+      "description": "Rename lineage, sidecar mappings, and the tracked paths at mintedAt and now."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeIdentityMapping",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeIdentityMapping",
+      "description": "A document path at mintedAt and the path it has now, for moves git lineage loses."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeIdentityResolution",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeIdentityResolution",
+      "description": "Current-to-durable document path map and the rejected identity-sidecar mappings."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeMintAcceptance",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeMintAcceptance",
+      "description": "Whether the minted commit is an ancestor of the merge-base and the baseline re-mints byte for byte."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeSealFiles",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeSealFiles",
+      "description": "The baseline, promotions, leases, identity sidecar, and CODEOWNERS read from one tree."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeSealGuardInput",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeSealGuardInput",
+      "description": "Base and head seal files, the branch's changed paths, and the CI mint acceptance facts."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeSealableSpanClass",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeSealableSpanClass",
+      "description": "Span classes a sealed baseline entry may carry; unclassified spans are never sealed."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.grouping.ts",
+      "symbol": "KnowledgeDelegatedRow",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDelegatedRow",
+      "description": "A goals-doctor finding listed as a delegated knowledge-doctor candidate with its severity and cause key."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+      "symbol": "KnowledgeDebtLease",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDebtLease",
+      "description": "A time-boxed, CODEOWNERS-owned suppression of one introduced knowledge-doctor finding."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+      "symbol": "KnowledgeDebtLeases",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDebtLeases",
+      "description": "Every debt lease the repository holds."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+      "symbol": "KnowledgeLeaseEvaluationInput",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeLeaseEvaluationInput",
+      "description": "Tree leases, merge-base leases, merge-base CODEOWNERS text, and the instant a lease evaluation judges at."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+      "symbol": "KnowledgeLeaseRow",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeLeaseRow",
+      "description": "One debt lease with its expiry status and every rule it breaks."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+      "symbol": "KnowledgeLeaseStatus",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeLeaseStatus",
+      "description": "Whether a debt lease is active, within its seven-day warning window, or expired."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+      "symbol": "KnowledgeLeaseViolation",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeLeaseViolation",
+      "description": "A debt-lease rule a lease breaks: owner, lifetime, or quota."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+      "symbol": "KnowledgeLeasesReport",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeLeasesReport",
+      "description": "Every debt lease of one tree with its status and violations at one instant."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+      "symbol": "decodeKnowledgeLeasesReportJson",
+      "kind": "codec",
+      "owner": "@beep/repo-cli"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
+      "symbol": "encodeKnowledgeLeasesReportJson",
+      "kind": "codec",
+      "owner": "@beep/repo-cli"
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
       "symbol": "CommandNodeWitness",
       "kind": "tagged-class",
@@ -47101,6 +47349,22 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeBaselineKey",
+      "kind": "schema-const",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeBaselineKey",
+      "description": "SHA-256 durable identity of one baselineable knowledge-doctor finding."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeCauseGroup",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeCauseGroup",
+      "description": "Every finding sharing one cause key, its delegated root when one exists, and the root's authoring commit."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
       "symbol": "KnowledgeCounterfactualVerdict",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
@@ -47125,11 +47389,27 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeDoctorMode",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorMode",
+      "description": "Read-only report or gating check form of a knowledge-doctor run."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeDoctorRatchet",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorRatchet",
+      "description": "Introduced, pending, inherited, leased, and resolved buckets of a gating knowledge-doctor check."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
       "symbol": "KnowledgeDoctorReport",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "KnowledgeDoctorReport",
-      "description": "Read-only knowledge-doctor report: span-class totals and every classified finding."
+      "description": "Knowledge-doctor report: span-class totals, causal groups, every classified finding, and the check ratchet."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
@@ -47169,7 +47449,7 @@
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "KnowledgeFileExports",
-      "description": "Identifiers one source file exports itself and the files it star re-exports."
+      "description": "Identifiers one source file exports itself, the files it star re-exports, and the star specifiers it cannot follow."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
@@ -47221,11 +47501,51 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgePathChange",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgePathChange",
+      "description": "Whether a commit deleted a path or renamed it away."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgePathRemoval",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgePathRemoval",
+      "description": "A path a commit deleted or renamed away, with the commit's subject and any rename target."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
       "symbol": "KnowledgeProducerOutput",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "KnowledgeProducerOutput",
       "description": "A registered producer id and the derived repository path it owns."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeRatchetEntry",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeRatchetEntry",
+      "description": "A finding id of the scanned tree paired with its durable baseline key."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeRootAttribution",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeRootAttribution",
+      "description": "The commit that removed a cause group's missing target, plus any rename repair proposal."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeRootHistory",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeRootHistory",
+      "description": "Whether Git history was available to attribute cause-group roots."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
@@ -47334,6 +47654,22 @@
       "symbol": "encodeKnowledgeDoctorReportJson",
       "kind": "codec",
       "owner": "@beep/repo-cli"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.service.ts",
+      "symbol": "KnowledgeDoctorCheckOptions",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorCheckOptions",
+      "description": "Base ref, CI mint acceptance flag, and the instant of one gating knowledge-doctor check."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.service.ts",
+      "symbol": "KnowledgeDoctorLeasesOptions",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorLeasesOptions",
+      "description": "Base ref and instant of one knowledge-doctor lease listing."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Labs/Labs.command.ts",

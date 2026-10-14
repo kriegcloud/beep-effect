@@ -137,3 +137,27 @@ Fetched and merged main at integration `312b0cf01d2b28d4ca9968cf58b641cd6778a93e
 ## Third integrated owners and source review
 
 All ten `main3-` owner commands pass. Frozen install changes no lock; catalog adds 126 lines for incoming source. JSDoc totals remain 147/81/1,388/912/0. Skills owner updates only Browser QA Loop's tree hash after its incoming main edits. The independent reviewer finds zero scoped source findings against pinned main `09b24dba55861cf6e69e2c4aa81ac05ad66b00b6`. The isolated cache fixture passes 16/16 tests in 4.74s; this does not relabel the earlier failed full coverage as a pass. Fresh CLI default audit and scoped coverage now run serially; commit-bound policy/documentation parity runs separately.
+
+## Main3 terminal proof and baseline-owner hold
+
+On source `b50dce625cccb1239fb9cd4560958e07ddd78b67`, fresh CLI default audit/docgen passes at 1,377.6s/43.4s. Serial scoped coverage passes all eleven packages, including its CLI shard; the earlier bind failure does not recur. Type-test, full local docgen, JSDoc ratchet, Fallow audit/health and retired-path law all pass. Knowledge refs has 14 exact inherited lines against immutable main `09b24dba55861cf6e69e2c4aa81ac05ad66b00b6`; ignored attribution receipt names each line.
+
+The coverage writer exits 0 but its generated baseline is not accepted: 4,056 changed lines, 38 lower percentages, 33 with unchanged/higher uncovered counts. It also removes exactly five absent-source rows (four Data files and KnipRatchet). Archived full output, patch and census under ignored `main3-generated-coverage*` / `main3-coverage-floor-delta.json`, then restored the committed baseline. The owner currently adopts whole measured package blocks, so a narrow deleted-source cleanup remains under review. No live floor is lowered; no generated row is hand-edited. The standing consolidated inherited coverage splice belongs to the orchestrator.
+
+Main advanced to `f21e2a8563b136de8701dbf901501736f002e135` with Knowledge Doctor/observability changes. Its changed paths have zero overlap with A's delta (including 51 CLI paths). The next integration preserves full A proof at its tested source and refreshes the affected incoming source and owners.
+
+Independent review confirms the baseline owner exposes package-block adoption only (`replaceAll` / `carryUnmeasured`). Its delete-package operation would remove entire surviving Data/CLI package records and is unsafe here. The five-row prune therefore needs the orchestrator-owned splice; A retains all live floors and the complete generated evidence. Latest main is integrated at `9536b7e359a02097c927f7df420231c4c880207a`, base `bc7e344fbaf79bc112a3029ad452b1449a077bec`. It carries the main host-reference fix, Knowledge baseline/lease work, corpus repair and the report-only policy step. No A feature implementation is added. Refreshing owners and targeted incoming-source tests before the blocked handoff; broad A proof remains explicitly bound to `b50dce625c`.
+
+## Latest owners and exact splice request
+
+All ten `main4-` owner commands pass after main `bc7e344fba`. Fresh JSDoc counts are 147 packages / 81 open packages / 1,392 open exports / 912 open modules / zero root-policy findings; the four-export increase comes from incoming main, not relabelled as the earlier 1,388 snapshot. Targeted integration passes **586 tests in ten files** (187.24s). Latest independent source verdict is zero actionable findings.
+
+Publication remains blocked on the orchestrator-owned splice of exactly these absent-source rows, preserving every surviving row and metric:
+
+- `packages/foundation/primitive/data/src/internal/data/currency-codes.ts`
+- `packages/foundation/primitive/data/src/internal/data/index.ts`
+- `packages/foundation/primitive/data/src/internal/data/timezones.ts`
+- `packages/foundation/primitive/data/src/internal/index.ts`
+- `packages/tooling/tool/cli/src/commands/Quality/internal/KnipRatchet.ts`
+
+The tracked baseline matches pinned main `bc7e344fba`. Archived artifacts are `.beep/rsc-a/main3-generated-coverage.jsonc`, `.beep/rsc-a/main3-generated-coverage.patch` and `.beep/rsc-a/main3-coverage-floor-delta.json`. No new baseline tool, manual A pin or waiver is introduced. Current source is reviewed; owner/test proof is complete. Fresh quick CLI and policy/documentation checks follow this owner commit before the blocked report.

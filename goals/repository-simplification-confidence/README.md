@@ -4,7 +4,7 @@
 
 Lifecycle: `active`
 
-The program resumed on October 14. A wave 1 is open and ready in PR #1584; the lane integrates current main and refreshes owner/package/parity proof. The 11:01Z ruling assigns A the hosted Knip job and historical parity-helper fixes; the orchestrator still owns required-context removal. [Current A handoff](./history/handoffs/rsc-a-retire-2026-10-14.md) records current progress and preserves the October 9 proof as historical evidence. Later A waves and program acceptance remain open.
+The program resumed on October 14. A wave 1 is implemented locally in the PR #1584 lane, with zero scoped source-review findings. Publication is blocked on the orchestrator-owned five-row coverage-baseline splice: the normal writer also weakens live floors, so A preserved the committed baseline. All eleven default package gates and serial scoped coverage passed on the recorded source; later main integrations have separate owner and targeted-test evidence. [Current A handoff](./history/handoffs/rsc-a-retire-2026-10-14.md) records the exact boundaries. The remote PR head has not moved in this resumed run. Later A waves and program acceptance remain open.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -61,7 +61,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-[A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): PR #1584 is reopened and ready. The lane completed the interrupted main merge and preserved the new PDF coverage consumer. All 41 transferred findings retain final dispositions; the saved one-Govinfo scan applies to its October 9 revision. The third main integration and all owner commands are complete. Ten non-CLI default package gates pass with unchanged source; fresh CLI and parity proof follow incoming main changes. A removes the hosted Knip job and its historical parity-helper wiring under the 11:01Z ruling. S5 publishing coordination ended when the effected port and its closeout landed. The orchestrator must remove the required context before A merges.
+[A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): latest main is integrated and all ten owner commands pass. The targeted incoming/A suite passes 586 tests in ten files. The live Knip workflow job and FQE helper wiring are removed locally; five obsolete generated coverage rows await the orchestrator splice. The writer artifact is archived and all live floors remain unchanged. The orchestrator also owns required-context removal before merge.
 B's October 13 bounded baseline repair is published in
 [PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
 codec properties for the three inherited arbitrary-test findings. After

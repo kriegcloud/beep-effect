@@ -19,6 +19,9 @@ context at the S3 gate. S5 notification has ended: port branches and closeout
 #1662 are merged, with its completion commit in this lane ancestry. The
 additional generated lock hoists remain documented. No final retirement
 acceptance is claimed.
+The baseline still carries five absent-source provenance rows. The owner
+writer removes them only alongside broad live-floor changes; A declines that
+output and blocks publication on the orchestrator-owned narrow splice.
 Other retirement surfaces belong to the next A wave.
 
 ## Retained tools
@@ -38,11 +41,11 @@ Pending the compact-presentation wave. Append-only rows remain untouched.
 
 ## Package gates
 
-Ten non-CLI packages have current default audit/docgen passes; their source
-trees are unchanged by the latest main integration. CLI passed its previous
-integrated default gate and needs a fresh check after incoming main source.
-October 9 passes remain historical. Exact commands, source boundaries and
-parity results appear in the resumed handoff.
+All eleven packages have default audit/docgen passes bound to recorded
+source. Serial scoped coverage passes on `b50dce625c`; its baseline write is
+archived and declined. Latest incoming source has a separate 586-test
+integration pass and owner refresh. October 9 passes remain historical.
+Exact commands, source boundaries and parity results are in the handoff.
 
 ## Scope
 
