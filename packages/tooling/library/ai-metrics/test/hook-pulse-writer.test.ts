@@ -1098,7 +1098,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       expect(yield* add.exitCode).toBe(0);
       yield* fs.chmod(blocked, 0o000);
       const run = yield* runWriter(yield* encodeJson(sessionStartPayload(root))).pipe(
-        Effect.ensuring(fs.chmod(blocked, 0o755))
+        Effect.ensuring(fs.chmod(blocked, 0o755).pipe(Effect.orDie))
       );
       assertNone((yield* decodeHookPulseRow(expectSingleRow(run))).harnessHash);
       expect(
