@@ -127,10 +127,29 @@ const limitationLetters = ["a", "b", "c", "d"] as const;
 
 const anchorAt = (startChar: number, quote: string) => ({ startChar, endChar: startChar + quote.length, quote });
 
-const termSample = Arbitrary.all({
-  determiner: Arbitrary.schema(ClaimTermDeterminer),
-  head: Arbitrary.schema(ClaimTermHead),
-});
+// The surface each determiner recites; a bare term recites none.
+const surfaceOf = (determiner: ClaimTermDeterminer): string =>
+  ({
+    a: "a ",
+    an: "an ",
+    the: "the ",
+    said: "said ",
+    "at-least-one": "at least one ",
+    "plurality-of": "a plurality of ",
+    bare: "",
+  })[determiner];
+
+// A bare head must not open with a determiner word, or its quote would recite one.
+const bareSafeHead = (head: string): string =>
+  /^(?:a|an|the|said|at|one|plurality)(?:\s|$)/u.test(head) ? `x${head}` : head;
+
+const termSample = Arbitrary.map(
+  Arbitrary.all({
+    determiner: Arbitrary.schema(ClaimTermDeterminer),
+    head: Arbitrary.schema(ClaimTermHead),
+  }),
+  ({ determiner, head }) => ({ determiner, head: bareSafeHead(head) })
+);
 
 // Coherent claim-element trees: element paths derive from the claim number and
 // edges are built only over those paths, so the coherence check always holds.
@@ -148,7 +167,7 @@ const coherentTreeInput = Arbitrary.map(
       A.prepend(restTerms, firstTerm),
       preamble.endChar + 2,
       (start, { determiner, head }, index) => {
-        const term = anchorAt(start, `${determiner} ${head}`);
+        const term = anchorAt(start, `${surfaceOf(determiner)}${head}`);
         const text = anchorAt(term.endChar + 1, "linked");
         return [
           text.endChar + 2,
@@ -262,6 +281,22 @@ describe("ClaimElement", () => {
         tree({ ...claimOneTree, edges: [{ kind: "part-of", child: "1.z", parent: "1" }] }),
         tree({ ...claimOneTree, elements: [] }),
         tree({ ...claimOneTree, producer: "model" }),
+        // two terms of one element overlap
+        tree({
+          ...claimOneTree,
+          edges: [],
+          elements: [
+            claimOneTree.elements[0],
+            claimOneTree.elements[1],
+            {
+              ...claimOneTree.elements[2],
+              terms: [
+                { anchor: processorClauseAnchor, determiner: "a", head: "processor" },
+                { anchor: processorAnchor, determiner: "a", head: "processor" },
+              ],
+            },
+          ],
+        }),
       ]);
       expect(results).toEqual(A.replicate(true, results.length));
     })
@@ -295,6 +330,12 @@ describe("ClaimElement", () => {
           kind: "functional",
           element: "1.b",
           parts: [{ kind: "term", term: { path: "1.q", anchor: processorAnchor } }],
+        }),
+        // functional connecting text outside the element it is read from
+        withEdge({
+          kind: "functional",
+          element: "1.b",
+          parts: [{ kind: "text", anchor: anchorIn(claimOneText, "comprising") }],
         }),
         // functional edge read from a non-functional element
         withEdge({ kind: "functional", element: "1.a", parts: [{ kind: "text", anchor: connectAnchor }] }),
@@ -350,6 +391,9 @@ describe("ClaimElement", () => {
         term({ anchor: sensorAnchor, determiner: "an", head: "Optical sensor" }),
         term({ anchor: sensorAnchor, determiner: "an", head: "optical  sensor" }),
         term({ anchor: sensorAnchor, determiner: "some", head: "optical sensor" }),
+        term({ anchor: sensorAnchor, determiner: "the", head: "optical sensor" }),
+        term({ anchor: sensorAnchor, determiner: "at-least-one", head: "optical sensor" }),
+        term({ anchor: sensorAnchor, determiner: "bare", head: "optical sensor" }),
         term({ anchor: { startChar: 0, endChar: 3, quote: "an optical" }, determiner: "an", head: "x" }),
         termRef({ path: "b.ii", anchor: sensorAnchor }),
         termRef({ path: "0.a", anchor: sensorAnchor }),

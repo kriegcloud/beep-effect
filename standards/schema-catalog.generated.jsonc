@@ -28837,7 +28837,7 @@
     {
       "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.model.ts",
       "symbol": "ClaimTerm",
-      "kind": "struct-const",
+      "kind": "schema-class",
       "owner": "@beep/law-practice-domain",
       "identity": "ClaimTerm",
       "description": "Span-anchored determiner and normalized head noun phrase recited in a claim element."
