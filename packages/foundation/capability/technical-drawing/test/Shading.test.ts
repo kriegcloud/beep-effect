@@ -32,9 +32,10 @@ import {
   ValidationOptions,
   viewFactsOf,
 } from "@beep/technical-drawing";
-import { A, O } from "@beep/utils";
+import { O } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as Order from "effect/Order";
 import type { Segment2, Vec3 } from "@beep/technical-drawing";
@@ -46,7 +47,7 @@ const quad = (normal: Vec3, corners: readonly [Vec3, Vec3, Vec3, Vec3]): FaceFac
     return FaceEdge.make({ start, end, length: Math.hypot(end[0] - start[0], end[1] - start[1], end[2] - start[2]) });
   });
   const axis = (k: 0 | 1 | 2) => A.map(corners, (c) => c[k]);
-  const center = [0, 1, 2].map((k) => (Math.min(...axis(k as 0 | 1 | 2)) + Math.max(...axis(k as 0 | 1 | 2))) / 2);
+  const center = A.map([0, 1, 2], (k) => (Math.min(...axis(k as 0 | 1 | 2)) + Math.max(...axis(k as 0 | 1 | 2))) / 2);
   return FaceFacts.make({
     normal,
     center: [center[0] ?? 0, center[1] ?? 0, center[2] ?? 0],
@@ -103,7 +104,7 @@ describe("Shading.rules", () => {
     const k = 1 / Math.sqrt(3);
     expect(clean(front.right)).toEqual([1, 0, 0]);
     expect(clean(front.up)).toEqual([0, 0, 1]);
-    front.light.forEach((v, i) => expect(v).toBeCloseTo([-k, -k, k][i] ?? 0, 12));
+    A.forEach(front.light, (v, i) => expect(v).toBeCloseTo([-k, -k, k][i] ?? 0, 12));
   });
 
   it("classes faces against +Z within a degree", () => {
