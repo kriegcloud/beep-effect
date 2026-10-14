@@ -474,7 +474,7 @@ false-positive escape hatch (`status: exception` + `reason`), and the KG `replac
 
 ## 8. Delivery rules (repeat in every lane and every PR)
 
-- Yeet is the only publish path: `bun run beep yeet publish --start-pr-early --monitor --pr --message "..."`,
+- Yeet is the only publish path: `bun run beep yeet publish --monitor --pr --message "..."`,
   then `bun run beep yeet monitor` until `merge-ready: yes`; answer every review thread via
   `bun run beep yeet reply`; never merge unless Benjamin asks.
 - Merge `origin/main` into the branch before every publish (stale-base guard); never force-push.

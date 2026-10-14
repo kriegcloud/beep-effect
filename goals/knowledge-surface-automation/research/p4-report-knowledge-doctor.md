@@ -77,6 +77,24 @@ no `beep:generated` fences or historical markers yet.
    1,694; `goals/time-to-certainty` 1,182). They gate only through the Stage-1
    introduced-only delta.
 
+## After PR 2
+
+Re-run of the same read-only report on the PR 2 working tree (2026-10-14), after the
+whole-line assertion reader, the arrow-chain eligibility fix, and the accepted doc fixes:
+
+| Count | PR 1 report | Verdict re-run | After PR 2 |
+| --- | --- | --- | --- |
+| failed-assertion | 1 | 1 | 0 |
+| unknown-beep-option | 13 | 13 | 0 |
+| unknown-beep-command | 20 | 20 | 10 |
+| broken-tracked-path | 530 | 530 | 530 |
+| verified / unclassified spans | 11,122 / 19,314 | 11,167 / 19,372 | 11,151 / 19,370 |
+
+The 13 options split into 5 arrow-chain artefacts (no longer command spans) and 8 doc
+fixes. The 10 commands that left are the 3 ellipsis tails (now `<command>`) and the 7
+planned-command spans re-spelled as prose `beep <cmd>`. The 10 that remain are the
+removed-command spans, which belong to the baseline burn-down with the 530 broken paths.
+
 ## Deviations from the design (recorded)
 
 - Historical-marker block scope is line-based (Stage-1 fence reader plus blank lines),
@@ -91,6 +109,11 @@ no `beep:generated` fences or historical markers yet.
 - Running without `--report` fails on purpose until the sealed baseline exists.
 
 ## Asks for the verdict
+
+Verdict recorded 2026-10-14 in
+[`p1-fp-eyeball-verdicts.md`](./p1-fp-eyeball-verdicts.md) (Workstream C knowledge
+doctor): ask 1 accepted, ask 2 ruled with no `planned` class, ask 3 partial (candidate 4
+and five of candidate 5's spans rejected). C Stage-2 PR 2 lands the fixes.
 
 1. Accept candidate 1 as a true FP class, to be fixed in PR 2 with a fixture.
 2. Rule on candidate 2: add a `planned` span class (new K-decision), or treat planned
