@@ -92,7 +92,7 @@ const isVoiceReadiness = S.is(VoiceReadiness);
  * @category errors
  * @since 0.0.0
  */
-export class TimeZoneRejected extends S.TaggedError<TimeZoneRejected>()(
+export class TimeZoneRejected extends S.TaggedError<TimeZoneRejected, { readonly brand: unique symbol }>()(
   "TimeZoneRejected",
   {
     reason: S.String,

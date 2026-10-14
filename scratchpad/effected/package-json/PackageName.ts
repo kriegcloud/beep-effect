@@ -33,7 +33,7 @@ const $I = $ScratchpadId.create("effected/package-json/PackageName");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidPackageNameError extends S.TaggedError<InvalidPackageNameError>($I`InvalidPackageNameError`)("InvalidPackageNameError", {
+export class InvalidPackageNameError extends S.TaggedError<InvalidPackageNameError, { readonly brand: unique symbol }>($I`InvalidPackageNameError`)("InvalidPackageNameError", {
 	/**
 	 * The raw input string that failed validation.
 	 *

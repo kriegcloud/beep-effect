@@ -31,49 +31,110 @@ import type {
 
 const $I = $RepoCliId.create("commands/Files/Files.plan");
 
-class TargetNameForEntryOptions extends S.Class<TargetNameForEntryOptions>($I`TargetNameForEntryOptions`)(
-  {
+/**
+ * Inputs used to build a generated target filename for a sortable file.
+ *
+ * **Example** (Name a probed photo by index and size)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { MediaDimensions, SortableFile, targetNameForEntry } from "@beep/repo-cli/commands/Files"
+ * import { TargetNameForEntryOptions } from "@beep/repo-cli/commands/Files/Files.plan"
+ *
+ * const file = SortableFile.make({
+ *   canonicalPath: "/srv/photos/IMG_0042.jpg",
+ *   extension: ".jpg",
+ *   name: "IMG_0042.jpg",
+ *   size: 2_485_760n,
+ *   sourcePath: "/srv/photos/IMG_0042.jpg"
+ * })
+ * const options = TargetNameForEntryOptions.make({
+ *   dimensions: O.some(MediaDimensions.make({ width: 4032, height: 3024 })),
+ *   file,
+ *   index: 7,
+ *   width: 3
+ * })
+ *
+ * console.log(targetNameForEntry("vacation", options)) // => "vacation_007_4032x3024.jpg"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TargetNameForEntryOptions extends S.Opaque<TargetNameForEntryOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dimensions: S.Option(MediaDimensions),
     file: SortableFile,
     index: S.Finite,
     width: S.Finite,
-  },
-  $I.annote("TargetNameForEntryOptions", {
-    description: "Inputs used to build a generated target filename for a sortable file.",
-  })
+  }).pipe(
+    $I.annoteSchema("TargetNameForEntryOptions", {
+      description: "Inputs used to build a generated target filename for a sortable file.",
+    })
+  )
 ) {}
 
-class StripMetadataTempEntry extends S.Class<StripMetadataTempEntry>($I`StripMetadataTempEntry`)(
-  {
+class StripMetadataTempEntry extends S.Opaque<StripMetadataTempEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     entry: StripMetadataPlanEntry,
     tempPath: S.String,
-  },
-  $I.annote("StripMetadataTempEntry", {
-    description: "Metadata stripping plan entry paired with its temporary output path.",
-  })
+  }).pipe(
+    $I.annoteSchema("StripMetadataTempEntry", {
+      description: "Metadata stripping plan entry paired with its temporary output path.",
+    })
+  )
 ) {}
 
-class CandidateAssessmentThresholds extends S.Class<CandidateAssessmentThresholds>($I`CandidateAssessmentThresholds`)(
-  {
+/**
+ * Hard thresholds used to assess image candidate quality.
+ *
+ * **Example** (Archive a thumbnail below the short-edge floor)
+ *
+ * ```ts
+ * import { assessImageCandidate, MediaDimensions } from "@beep/repo-cli/commands/Files"
+ * import { CandidateAssessmentThresholds } from "@beep/repo-cli/commands/Files/Files.plan"
+ *
+ * const thresholds = CandidateAssessmentThresholds.make({
+ *   maxAspect: 3,
+ *   maxUpscale: 2,
+ *   minShortEdge: 512,
+ *   targetResolution: 1024
+ * })
+ * const result = assessImageCandidate(MediaDimensions.make({ width: 320, height: 240 }), thresholds)
+ *
+ * console.log(result.decision) // => "archive"
+ * console.log(result.reasons) // => ["short-edge-too-small", "upscale-too-large"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CandidateAssessmentThresholds extends S.Opaque<
+  CandidateAssessmentThresholds,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     maxAspect: S.Finite,
     maxUpscale: S.Finite,
     minShortEdge: S.Finite,
     targetResolution: S.Finite,
-  },
-  $I.annote("CandidateAssessmentThresholds", {
-    description: "Hard thresholds used to assess image candidate quality.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandidateAssessmentThresholds", {
+      description: "Hard thresholds used to assess image candidate quality.",
+    })
+  )
 ) {}
 
-class CandidateAssessmentResult extends S.Class<CandidateAssessmentResult>($I`CandidateAssessmentResult`)(
-  {
+class CandidateAssessmentResult extends S.Opaque<CandidateAssessmentResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     decision: CandidateAssessmentDecision,
     metrics: CandidateAssessmentMetrics,
     reasons: S.Array(CandidateAssessmentReason),
-  },
-  $I.annote("CandidateAssessmentResult", {
-    description: "Candidate-quality decision with metrics and hard-threshold reasons.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandidateAssessmentResult", {
+      description: "Candidate-quality decision with metrics and hard-threshold reasons.",
+    })
+  )
 ) {}
 
 /**

@@ -1,5 +1,5 @@
 import { EntityNode, LemmaNode, POSNode } from "@beep/nlp/Graph/Schema";
-import { NLPBackend } from "@beep/nlp-processing/Backend/NLPBackend";
+import { BackendCapabilities, NLPBackend } from "@beep/nlp-processing/Backend/NLPBackend";
 import * as ATG from "@beep/nlp-processing/Graph/AnnotatedTextGraph";
 import { it } from "@beep/test-runner";
 import { fcRuns, provideScopedLayer } from "@beep/test-utils";
@@ -27,7 +27,7 @@ const StubBackend = Layer.succeed(
   NLPBackend,
   NLPBackend.of({
     name: "stub",
-    capabilities: {
+    capabilities: BackendCapabilities.make({
       tokenization: true,
       sentencization: true,
       posTagging: true,
@@ -37,7 +37,7 @@ const StubBackend = Layer.succeed(
       relationExtraction: false,
       coreferenceResolution: false,
       constituencyParsing: false,
-    },
+    }),
     tokenize: Effect.fn("StubBackend.tokenize")(function* (text: string) {
       return words(text);
     }),

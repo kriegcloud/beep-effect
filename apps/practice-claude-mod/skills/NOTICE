@@ -1,0 +1,13 @@
+Oppold IP Law firm skills
+Adapted from the legal plugin in anthropics/knowledge-work-plugins.
+Copyright Anthropic, PBC
+Licensed under the Apache License, Version 2.0. See LICENSE.
+These skills were rewritten for a solo patent and IP prosecution practice
+on 2026-10-14. The original corporate workflows and connector instructions
+were replaced with matter-focused instructions for Oppold IP Law.
+
+review-contract: ported from legal/skills/review-contract/SKILL.md; modified 2026-10-14.
+triage-nda: ported from legal/skills/triage-nda/SKILL.md; modified 2026-10-14.
+legal-risk-assessment: ported from legal/skills/legal-risk-assessment/SKILL.md; modified 2026-10-14.
+brief: ported from legal/skills/brief/SKILL.md; modified 2026-10-14.
+meeting-briefing: ported from legal/skills/meeting-briefing/SKILL.md; modified 2026-10-14.

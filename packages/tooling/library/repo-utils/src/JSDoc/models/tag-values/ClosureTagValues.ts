@@ -30,12 +30,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/ClosureTagValues");
  * @category models
  * @since 0.0.0
  */
-export class DefineValue extends S.TaggedClass<DefineValue>($I`DefineValue`)(
-  "define",
-  { ...optionalType, ...optionalDesc },
-  $I.annote("DefineValue", {
-    description: "Occurrence shape for @define — defines a compile-time constant.",
-  })
+export class DefineValue extends S.Opaque<DefineValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("define", { ...optionalType, ...optionalDesc }).pipe(
+    $I.annoteSchema("DefineValue", {
+      description: "Occurrence shape for @define — defines a compile-time constant.",
+    })
+  )
 ) {}
 
 /**
@@ -54,12 +54,12 @@ export class DefineValue extends S.TaggedClass<DefineValue>($I`DefineValue`)(
  * @category models
  * @since 0.0.0
  */
-export class DictValue extends S.TaggedClass<DictValue>($I`DictValue`)(
-  "dict",
-  empty,
-  $I.annote("DictValue", {
-    description: "Occurrence shape for @dict — marks an object as a dictionary.",
-  })
+export class DictValue extends S.Opaque<DictValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("dict", empty).pipe(
+    $I.annoteSchema("DictValue", {
+      description: "Occurrence shape for @dict — marks an object as a dictionary.",
+    })
+  )
 ) {}
 
 /**
@@ -78,12 +78,12 @@ export class DictValue extends S.TaggedClass<DictValue>($I`DictValue`)(
  * @category models
  * @since 0.0.0
  */
-export class ImplicitCastValue extends S.TaggedClass<ImplicitCastValue>($I`ImplicitCastValue`)(
-  "implicitCast",
-  empty,
-  $I.annote("ImplicitCastValue", {
-    description: "Occurrence shape for @implicitCast — allows implicit type casts.",
-  })
+export class ImplicitCastValue extends S.Opaque<ImplicitCastValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("implicitCast", empty).pipe(
+    $I.annoteSchema("ImplicitCastValue", {
+      description: "Occurrence shape for @implicitCast — allows implicit type casts.",
+    })
+  )
 ) {}
 
 /**
@@ -102,12 +102,12 @@ export class ImplicitCastValue extends S.TaggedClass<ImplicitCastValue>($I`Impli
  * @category models
  * @since 0.0.0
  */
-export class StructValue extends S.TaggedClass<StructValue>($I`StructValue`)(
-  "struct",
-  empty,
-  $I.annote("StructValue", {
-    description: "Occurrence shape for @struct — marks an object as a struct.",
-  })
+export class StructValue extends S.Opaque<StructValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("struct", empty).pipe(
+    $I.annoteSchema("StructValue", {
+      description: "Occurrence shape for @struct — marks an object as a struct.",
+    })
+  )
 ) {}
 
 /**
@@ -126,12 +126,12 @@ export class StructValue extends S.TaggedClass<StructValue>($I`StructValue`)(
  * @category models
  * @since 0.0.0
  */
-export class UnrestrictedValue extends S.TaggedClass<UnrestrictedValue>($I`UnrestrictedValue`)(
-  "unrestricted",
-  empty,
-  $I.annote("UnrestrictedValue", {
-    description: "Occurrence shape for @unrestricted — marks an object as unrestricted.",
-  })
+export class UnrestrictedValue extends S.Opaque<UnrestrictedValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("unrestricted", empty).pipe(
+    $I.annoteSchema("UnrestrictedValue", {
+      description: "Occurrence shape for @unrestricted — marks an object as unrestricted.",
+    })
+  )
 ) {}
 
 /**
@@ -150,12 +150,12 @@ export class UnrestrictedValue extends S.TaggedClass<UnrestrictedValue>($I`Unres
  * @category models
  * @since 0.0.0
  */
-export class SuppressValue extends S.TaggedClass<SuppressValue>($I`SuppressValue`)(
-  "suppress",
-  { ...optionalDesc },
-  $I.annote("SuppressValue", {
-    description: "Occurrence shape for @suppress — suppresses compiler warnings.",
-  })
+export class SuppressValue extends S.Opaque<SuppressValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("suppress", { ...optionalDesc }).pipe(
+    $I.annoteSchema("SuppressValue", {
+      description: "Occurrence shape for @suppress — suppresses compiler warnings.",
+    })
+  )
 ) {}
 
 /**
@@ -174,12 +174,12 @@ export class SuppressValue extends S.TaggedClass<SuppressValue>($I`SuppressValue
  * @category models
  * @since 0.0.0
  */
-export class ExternsValue extends S.TaggedClass<ExternsValue>($I`ExternsValue`)(
-  "externs",
-  empty,
-  $I.annote("ExternsValue", {
-    description: "Occurrence shape for @externs — declares external definitions.",
-  })
+export class ExternsValue extends S.Opaque<ExternsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("externs", empty).pipe(
+    $I.annoteSchema("ExternsValue", {
+      description: "Occurrence shape for @externs — declares external definitions.",
+    })
+  )
 ) {}
 
 /**
@@ -198,12 +198,12 @@ export class ExternsValue extends S.TaggedClass<ExternsValue>($I`ExternsValue`)(
  * @category models
  * @since 0.0.0
  */
-export class NoaliasValue extends S.TaggedClass<NoaliasValue>($I`NoaliasValue`)(
-  "noalias",
-  empty,
-  $I.annote("NoaliasValue", {
-    description: "Occurrence shape for @noalias — prevents aliasing.",
-  })
+export class NoaliasValue extends S.Opaque<NoaliasValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("noalias", empty).pipe(
+    $I.annoteSchema("NoaliasValue", {
+      description: "Occurrence shape for @noalias — prevents aliasing.",
+    })
+  )
 ) {}
 
 /**
@@ -222,12 +222,12 @@ export class NoaliasValue extends S.TaggedClass<NoaliasValue>($I`NoaliasValue`)(
  * @category models
  * @since 0.0.0
  */
-export class NocompileValue extends S.TaggedClass<NocompileValue>($I`NocompileValue`)(
-  "nocompile",
-  empty,
-  $I.annote("NocompileValue", {
-    description: "Occurrence shape for @nocompile — excludes from compilation.",
-  })
+export class NocompileValue extends S.Opaque<NocompileValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("nocompile", empty).pipe(
+    $I.annoteSchema("NocompileValue", {
+      description: "Occurrence shape for @nocompile — excludes from compilation.",
+    })
+  )
 ) {}
 
 /**
@@ -246,12 +246,12 @@ export class NocompileValue extends S.TaggedClass<NocompileValue>($I`NocompileVa
  * @category models
  * @since 0.0.0
  */
-export class NosideeffectsValue extends S.TaggedClass<NosideeffectsValue>($I`NosideeffectsValue`)(
-  "nosideeffects",
-  empty,
-  $I.annote("NosideeffectsValue", {
-    description: "Occurrence shape for @nosideeffects — marks a function as pure.",
-  })
+export class NosideeffectsValue extends S.Opaque<NosideeffectsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("nosideeffects", empty).pipe(
+    $I.annoteSchema("NosideeffectsValue", {
+      description: "Occurrence shape for @nosideeffects — marks a function as pure.",
+    })
+  )
 ) {}
 
 /**
@@ -270,12 +270,12 @@ export class NosideeffectsValue extends S.TaggedClass<NosideeffectsValue>($I`Nos
  * @category models
  * @since 0.0.0
  */
-export class PolymerValue extends S.TaggedClass<PolymerValue>($I`PolymerValue`)(
-  "polymer",
-  empty,
-  $I.annote("PolymerValue", {
-    description: "Occurrence shape for @polymer — Polymer element marker.",
-  })
+export class PolymerValue extends S.Opaque<PolymerValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("polymer", empty).pipe(
+    $I.annoteSchema("PolymerValue", {
+      description: "Occurrence shape for @polymer — Polymer element marker.",
+    })
+  )
 ) {}
 
 /**
@@ -294,12 +294,12 @@ export class PolymerValue extends S.TaggedClass<PolymerValue>($I`PolymerValue`)(
  * @category models
  * @since 0.0.0
  */
-export class PolymerBehaviorValue extends S.TaggedClass<PolymerBehaviorValue>($I`PolymerBehaviorValue`)(
-  "polymerBehavior",
-  empty,
-  $I.annote("PolymerBehaviorValue", {
-    description: "Occurrence shape for @polymerBehavior — Polymer behavior marker.",
-  })
+export class PolymerBehaviorValue extends S.Opaque<PolymerBehaviorValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("polymerBehavior", empty).pipe(
+    $I.annoteSchema("PolymerBehaviorValue", {
+      description: "Occurrence shape for @polymerBehavior — Polymer behavior marker.",
+    })
+  )
 ) {}
 
 /**
@@ -318,12 +318,12 @@ export class PolymerBehaviorValue extends S.TaggedClass<PolymerBehaviorValue>($I
  * @category models
  * @since 0.0.0
  */
-export class RecordValue extends S.TaggedClass<RecordValue>($I`RecordValue`)(
-  "record",
-  empty,
-  $I.annote("RecordValue", {
-    description: "Occurrence shape for @record — marks a type as a record.",
-  })
+export class RecordValue extends S.Opaque<RecordValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("record", empty).pipe(
+    $I.annoteSchema("RecordValue", {
+      description: "Occurrence shape for @record — marks a type as a record.",
+    })
+  )
 ) {}
 
 /**
@@ -342,12 +342,12 @@ export class RecordValue extends S.TaggedClass<RecordValue>($I`RecordValue`)(
  * @category models
  * @since 0.0.0
  */
-export class NocollapseValue extends S.TaggedClass<NocollapseValue>($I`NocollapseValue`)(
-  "nocollapse",
-  empty,
-  $I.annote("NocollapseValue", {
-    description: "Occurrence shape for @nocollapse — prevents property collapsing.",
-  })
+export class NocollapseValue extends S.Opaque<NocollapseValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("nocollapse", empty).pipe(
+    $I.annoteSchema("NocollapseValue", {
+      description: "Occurrence shape for @nocollapse — prevents property collapsing.",
+    })
+  )
 ) {}
 
 /**
@@ -366,10 +366,10 @@ export class NocollapseValue extends S.TaggedClass<NocollapseValue>($I`Nocollaps
  * @category models
  * @since 0.0.0
  */
-export class NoinlineValue extends S.TaggedClass<NoinlineValue>($I`NoinlineValue`)(
-  "noinline",
-  empty,
-  $I.annote("NoinlineValue", {
-    description: "Occurrence shape for @noinline — prevents inlining.",
-  })
+export class NoinlineValue extends S.Opaque<NoinlineValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("noinline", empty).pipe(
+    $I.annoteSchema("NoinlineValue", {
+      description: "Occurrence shape for @noinline — prevents inlining.",
+    })
+  )
 ) {}

@@ -37,7 +37,10 @@ const fixture = () => {
         { role: "assistant", text: "An earlier answer." },
       ]),
     },
-    clock: { now: vi.fn<Engine["clock"]["now"]>().mockResolvedValue(1000) },
+    clock: {
+      now: vi.fn<Engine["clock"]["now"]>().mockResolvedValue(1000),
+      every: vi.fn<Engine["clock"]["every"]>(() => ({ cancel: () => undefined })),
+    },
   } satisfies Engine;
   // The engine owns opaque render elements; these spies inspect its requested props.
   const elements = {
@@ -65,6 +68,8 @@ describe("practice hook host boundaries", { concurrent: false }, () => {
       const { engine } = fixture();
       yield* Effect.promise(hooks.registerCommands(engine));
       expect(A.map(engine.command.register.mock.calls, ([command]) => command.name)).toEqual([
+        "matter",
+        "time",
         "right",
         "wrong",
         "partly",
@@ -106,7 +111,7 @@ describe("practice hook host boundaries", { concurrent: false }, () => {
       expect(A.map(rows, (row) => O.getOrUndefined(row.verdict))).toEqual(["wrong", undefined]);
       expect(O.getOrUndefined(A.getUnsafe(rows, 0).note)).toBe("missed the continuation");
       const exported = yield* Effect.promise(() => hooks.practiceCommand(engine)("export"));
-      expect(exported.text).toMatch(/^Copy these JSONL rows into a file you choose:/);
+      expect(exported.text).toMatch(/^Copy these JSONL rows into files you choose\./);
       expect(exported.text).toContain('"revision":1');
       expect(engine.fs.write).not.toHaveBeenCalled();
       expect(yield* Effect.promise(() => hooks.practiceCommand(engine)("unknown"))).toEqual({
@@ -128,7 +133,7 @@ describe("practice hook host boundaries", { concurrent: false }, () => {
       expect(engine.ui.toast).toHaveBeenCalledWith("The verdict could not be saved. Try again.");
       engine.store.get.mockRejectedValue("read denied");
       expect(yield* Effect.promise(() => hooks.practiceCommand(engine)("export"))).toEqual({
-        text: "The verdicts could not be exported.",
+        text: "The practice logs could not be exported. Try again.",
       });
       expect(engine.fs.write).not.toHaveBeenCalled();
     })

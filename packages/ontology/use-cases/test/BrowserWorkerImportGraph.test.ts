@@ -37,10 +37,13 @@ const WORKER_ENTRY = "@beep/ontology-use-cases/aggregates/Session/worker";
 
 const PACKAGE_ROOT = new URL("..", import.meta.url);
 
-class DynamicModuleLoadError extends S.TaggedError<DynamicModuleLoadError>()("DynamicModuleLoadError", {
-  cause: S.Defect({ includeStack: true }),
-  url: S.String,
-}) {}
+class DynamicModuleLoadError extends S.TaggedError<DynamicModuleLoadError, { readonly brand: unique symbol }>()(
+  "DynamicModuleLoadError",
+  {
+    cause: S.Defect({ includeStack: true }),
+    url: S.String,
+  }
+) {}
 
 const loadDynamicModule = Effect.fn("DynamicModuleLoader.load")((url: string) =>
   Effect.tryPromise<unknown, DynamicModuleLoadError>({

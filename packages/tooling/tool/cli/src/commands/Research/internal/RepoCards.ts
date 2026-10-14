@@ -33,8 +33,8 @@ const $I = $RepoCliId.create("commands/Research/internal/RepoCards");
  * @internal
  * @category models
  */
-export class ClonedRepoInfo extends S.Class<ClonedRepoInfo>($I`ClonedRepoInfo`)(
-  {
+export class ClonedRepoInfo extends S.Opaque<ClonedRepoInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     hasLicense: S.Boolean,
     lastCommitIso: S.OptionFromOptionalKey(S.String),
     localPath: S.String,
@@ -42,11 +42,12 @@ export class ClonedRepoInfo extends S.Class<ClonedRepoInfo>($I`ClonedRepoInfo`)(
     remoteUrl: S.OptionFromOptionalKey(S.String),
     slugOwner: S.String,
     slugRepo: S.String,
-  },
-  $I.annote("ClonedRepoInfo", {
-    title: "Cloned Repo Info",
-    description: "Facts gathered about one cloned repository before rendering a research repo card.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClonedRepoInfo", {
+      title: "Cloned Repo Info",
+      description: "Facts gathered about one cloned repository before rendering a research repo card.",
+    })
+  )
 ) {}
 
 /**
@@ -55,18 +56,19 @@ export class ClonedRepoInfo extends S.Class<ClonedRepoInfo>($I`ClonedRepoInfo`)(
  * @internal
  * @category models
  */
-export class StarredRepo extends S.Class<StarredRepo>($I`StarredRepo`)(
-  {
+export class StarredRepo extends S.Opaque<StarredRepo, { readonly brand: unique symbol }>()(
+  S.Struct({
     description: S.String.pipe(S.NullOr, S.optionalKey),
     full_name: S.String,
     html_url: S.String,
     language: S.String.pipe(S.NullOr, S.optionalKey),
     topics: S.Array(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("StarredRepo", {
-    title: "Starred Repo",
-    description: "One starred repository row returned by the GitHub API.",
-  })
+  }).pipe(
+    $I.annoteSchema("StarredRepo", {
+      title: "Starred Repo",
+      description: "One starred repository row returned by the GitHub API.",
+    })
+  )
 ) {}
 
 const decodeStarredRepoJsonLine = S.decodeEffect(S.fromJsonString(StarredRepo));

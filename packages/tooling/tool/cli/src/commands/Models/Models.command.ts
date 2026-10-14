@@ -25,6 +25,7 @@ import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { writeContainedFileString } from "../../internal/cli/FsGuards.ts";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
 import { CatalogSnapshot } from "./Models.catalog.schemas.ts";
+import { ModelsCatalogOptions } from "./Models.catalog.service.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
 import { ModelsCheckReport } from "./Models.report.schemas.ts";
 import { seedModelsManifest } from "./Models.seed.ts";
@@ -32,6 +33,7 @@ import {
   defaultManifestRelativePath,
   ModelsCatalog,
   ModelsCheck,
+  ModelsCheckOptions,
   ModelsLive,
   ModelsManifestStore,
 } from "./Models.service.ts";
@@ -205,12 +207,14 @@ const writeReports = Effect.fnUntraced(function* (
 const runCheck = Effect.fnUntraced(function* (flags: ModelsCommandFlags) {
   const paths = yield* resolvePaths(flags);
   const check = yield* ModelsCheck;
-  const report = yield* check.run({
-    home: paths.home,
-    repo: paths.repo,
-    manifestPath: paths.manifestPath,
-    offline: flags.offline,
-  });
+  const report = yield* check.run(
+    ModelsCheckOptions.make({
+      home: paths.home,
+      repo: paths.repo,
+      manifestPath: paths.manifestPath,
+      offline: flags.offline,
+    })
+  );
 
   if (flags.json) {
     const encoded = yield* encodeReport(report).pipe(
@@ -242,7 +246,7 @@ const runCatalog = Effect.fnUntraced(function* (flags: ModelsCommandFlags) {
   const paths = yield* resolvePaths(flags);
   const catalog = yield* ModelsCatalog;
   const snapshot = yield* catalog
-    .snapshot({ home: paths.home, offline: flags.offline })
+    .snapshot(ModelsCatalogOptions.make({ home: paths.home, offline: flags.offline }))
     .pipe(Effect.mapError(ModelsCommandError.fromInternal));
 
   if (flags.json) {

@@ -14,14 +14,15 @@ const encodeJsoncTextToUnknown = S.encodeEffect(JsoncTextToUnknown);
 
 const $I = $SchemaId.create("jsonc_test");
 
-class JsoncPerson extends S.Class<JsoncPerson>($I`JsoncPerson`)(
-  {
+class JsoncPerson extends S.Opaque<JsoncPerson, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     age: S.Finite,
-  },
-  $I.annote("JsoncPerson", {
-    description: "Typed JSONC person fixture used in schema tests.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncPerson", {
+      description: "Typed JSONC person fixture used in schema tests.",
+    })
+  )
 ) {}
 
 describe("Jsonc", () => {
@@ -34,7 +35,7 @@ describe("Jsonc", () => {
         "age": 36,
       }`);
 
-      expect(person).toBeInstanceOf(JsoncPerson);
+      expect(S.is(JsoncPerson)(person)).toBe(true);
       expect(person.name).toBe("Ada");
       expect(person.age).toBe(36);
     })

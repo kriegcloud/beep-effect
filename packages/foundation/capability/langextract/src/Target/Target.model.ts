@@ -54,8 +54,8 @@ const extractionTargetAttributesDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class ExtractionTarget extends S.Class<ExtractionTarget>($I`ExtractionTarget`)(
-  {
+export class ExtractionTarget extends S.Opaque<ExtractionTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributes: S.Array(S.NonEmptyString).pipe(
       S.withConstructorDefault(Effect.succeed(extractionTargetAttributesDefault)),
       S.withDecodingDefaultType(Effect.succeed(extractionTargetAttributesDefault))
@@ -63,10 +63,11 @@ export class ExtractionTarget extends S.Class<ExtractionTarget>($I`ExtractionTar
     description: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     kind: ExtractionTargetKind,
     name: S.NonEmptyString,
-  },
-  $I.annote("ExtractionTarget", {
-    description: "Provider-neutral extraction target used to construct a LangExtract prompt.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractionTarget", {
+      description: "Provider-neutral extraction target used to construct a LangExtract prompt.",
+    })
+  )
 ) {}
 
 /**
@@ -83,18 +84,19 @@ export class ExtractionTarget extends S.Class<ExtractionTarget>($I`ExtractionTar
  * @category models
  * @since 0.0.0
  */
-export class ExtractionExampleItem extends S.Class<ExtractionExampleItem>($I`ExtractionExampleItem`)(
-  {
+export class ExtractionExampleItem extends S.Opaque<ExtractionExampleItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributes: S.Record(S.String, S.String).pipe(
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone)
     ),
     label: S.NonEmptyString,
     text: S.NonEmptyString,
-  },
-  $I.annote("ExtractionExampleItem", {
-    description: "Expected extraction item in a LangExtract prompt example.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractionExampleItem", {
+      description: "Expected extraction item in a LangExtract prompt example.",
+    })
+  )
 ) {}
 
 /**
@@ -114,12 +116,13 @@ export class ExtractionExampleItem extends S.Class<ExtractionExampleItem>($I`Ext
  * @category models
  * @since 0.0.0
  */
-export class ExtractionExample extends S.Class<ExtractionExample>($I`ExtractionExample`)(
-  {
+export class ExtractionExample extends S.Opaque<ExtractionExample, { readonly brand: unique symbol }>()(
+  S.Struct({
     extractions: S.Array(ExtractionExampleItem),
     text: S.String,
-  },
-  $I.annote("ExtractionExample", {
-    description: "Few-shot extraction example used by the provider-neutral prompt builder.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractionExample", {
+      description: "Few-shot extraction example used by the provider-neutral prompt builder.",
+    })
+  )
 ) {}

@@ -77,9 +77,10 @@ export type PretextMeasurementUnavailableReason = typeof PretextMeasurementUnava
  * @category errors
  * @since 0.0.0
  */
-export class PretextMeasurementUnavailableError extends S.TaggedError<PretextMeasurementUnavailableError>(
-  $I`PretextMeasurementUnavailableError`
-)(
+export class PretextMeasurementUnavailableError extends S.TaggedError<
+  PretextMeasurementUnavailableError,
+  { readonly brand: unique symbol }
+>($I`PretextMeasurementUnavailableError`)(
   "PretextMeasurementUnavailableError",
   {
     reason: PretextMeasurementUnavailableReason,
@@ -111,9 +112,10 @@ export class PretextMeasurementUnavailableError extends S.TaggedError<PretextMea
  * @category errors
  * @since 0.0.0
  */
-export class PretextUnsupportedFontError extends S.TaggedError<PretextUnsupportedFontError>(
-  $I`PretextUnsupportedFontError`
-)(
+export class PretextUnsupportedFontError extends S.TaggedError<
+  PretextUnsupportedFontError,
+  { readonly brand: unique symbol }
+>($I`PretextUnsupportedFontError`)(
   "PretextUnsupportedFontError",
   {
     font: S.String,
@@ -185,7 +187,10 @@ export type PretextSnapshotCodecOperation = typeof PretextSnapshotCodecOperation
  * @category errors
  * @since 0.0.0
  */
-export class PretextSnapshotCodecError extends S.TaggedError<PretextSnapshotCodecError>($I`PretextSnapshotCodecError`)(
+export class PretextSnapshotCodecError extends S.TaggedError<
+  PretextSnapshotCodecError,
+  { readonly brand: unique symbol }
+>($I`PretextSnapshotCodecError`)(
   "PretextSnapshotCodecError",
   {
     operation: PretextSnapshotCodecOperation,
@@ -257,7 +262,9 @@ export type PretextMeasurementOperation = typeof PretextMeasurementOperation.Typ
  * @category errors
  * @since 0.0.0
  */
-export class PretextMeasurementError extends S.TaggedError<PretextMeasurementError>($I`PretextMeasurementError`)(
+export class PretextMeasurementError extends S.TaggedError<PretextMeasurementError, { readonly brand: unique symbol }>(
+  $I`PretextMeasurementError`
+)(
   "PretextMeasurementError",
   {
     operation: PretextMeasurementOperation,

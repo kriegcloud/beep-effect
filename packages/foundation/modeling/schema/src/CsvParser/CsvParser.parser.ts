@@ -108,14 +108,15 @@ const getQuotedFieldStart = (input: string, cursor: number, parserOptions: Parse
  * @category models
  * @since 0.0.0
  */
-export class ParsedField extends S.Class<ParsedField>($I`ParsedField`)(
-  {
+export class ParsedField extends S.Opaque<ParsedField, { readonly brand: unique symbol }>()(
+  S.Struct({
     cursor: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     value: S.String,
-  },
-  $I.annote("ParsedField", {
-    description: "A Parsed CSV Field",
-  })
+  }).pipe(
+    $I.annoteSchema("ParsedField", {
+      description: "A Parsed CSV Field",
+    })
+  )
 ) {}
 
 const parseQuotedField = (
@@ -193,10 +194,12 @@ const parseQuotedField = (
     );
   }
 
-  return Effect.succeed({
-    cursor,
-    value: normalizeColumn(value, parserOptions),
-  });
+  return Effect.succeed(
+    ParsedField.make({
+      cursor,
+      value: normalizeColumn(value, parserOptions),
+    })
+  );
 };
 
 const parseUnquotedField = (input: string, cursor: number, parserOptions: ParserOptions): ParsedField => {
@@ -220,10 +223,10 @@ const parseUnquotedField = (input: string, cursor: number, parserOptions: Parser
     currentCursor += 1;
   }
 
-  return {
+  return ParsedField.make({
     cursor: currentCursor,
     value: normalizeColumn(value, parserOptions),
-  };
+  });
 };
 
 const parseField = (
@@ -234,10 +237,12 @@ const parseField = (
   const rowDelimiterLength = getRowDelimiterLength(input, cursor);
 
   if (rowDelimiterLength > 0 || charAt(input, cursor) === parserOptions.delimiter || cursor >= input.length) {
-    return Effect.succeed({
-      cursor,
-      value: "",
-    });
+    return Effect.succeed(
+      ParsedField.make({
+        cursor,
+        value: "",
+      })
+    );
   }
 
   return pipe(
@@ -264,14 +269,15 @@ const parseField = (
  * @category models
  * @since 0.0.0
  */
-export class ParsedRow extends S.Class<ParsedRow>($I`ParsedRow`)(
-  {
+export class ParsedRow extends S.Opaque<ParsedRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     cursor: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     row: S.Array(S.String),
-  },
-  $I.annote("ParsedRow", {
-    description: "A parsed row",
-  })
+  }).pipe(
+    $I.annoteSchema("ParsedRow", {
+      description: "A parsed row",
+    })
+  )
 ) {}
 
 const parseRowAt = Effect.fn("CsvParser.parseRowAt")(function* (
@@ -286,17 +292,17 @@ const parseRowAt = Effect.fn("CsvParser.parseRowAt")(function* (
     const rowDelimiterLength = getRowDelimiterLength(input, currentCursor);
 
     if (rowDelimiterLength > 0) {
-      return {
+      return ParsedRow.make({
         cursor: currentCursor + rowDelimiterLength,
         row,
-      };
+      });
     }
 
     if (currentCursor >= input.length) {
-      return {
+      return ParsedRow.make({
         cursor: currentCursor,
         row,
-      };
+      });
     }
 
     const field = yield* parseField(input, currentCursor, parserOptions);
@@ -306,17 +312,17 @@ const parseRowAt = Effect.fn("CsvParser.parseRowAt")(function* (
     const nextRowDelimiterLength = getRowDelimiterLength(input, currentCursor);
 
     if (nextRowDelimiterLength > 0) {
-      return {
+      return ParsedRow.make({
         cursor: currentCursor + nextRowDelimiterLength,
         row,
-      };
+      });
     }
 
     if (currentCursor >= input.length) {
-      return {
+      return ParsedRow.make({
         cursor: currentCursor,
         row,
-      };
+      });
     }
 
     if (charAt(input, currentCursor) === parserOptions.delimiter) {
@@ -324,20 +330,20 @@ const parseRowAt = Effect.fn("CsvParser.parseRowAt")(function* (
 
       if (currentCursor >= input.length) {
         row = A.append(row, "");
-        return {
+        return ParsedRow.make({
           cursor: currentCursor,
           row,
-        };
+        });
       }
 
       const trailingDelimiterLength = getRowDelimiterLength(input, currentCursor);
 
       if (trailingDelimiterLength > 0) {
         row = A.append(row, "");
-        return {
+        return ParsedRow.make({
           cursor: currentCursor + trailingDelimiterLength,
           row,
-        };
+        });
       }
 
       continue;

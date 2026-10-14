@@ -11,10 +11,10 @@
  * **Example** (Convert content to document)
  *
  * ```ts
- * import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent"
+ * import { assistantContentToDocument, ParagraphBlock, TextInline } from "@beep/agents-domain/values/AssistantContent"
  *
  * const document = assistantContentToDocument([
- *   { type: "paragraph", children: [{ type: "text", text: "Hello" }] },
+ *   ParagraphBlock.make({ children: [TextInline.make({ text: "Hello" })] }),
  * ])
  * console.log(document._tag)
  * ```

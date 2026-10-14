@@ -32,7 +32,7 @@ import { RawTomlError } from "./diagnostics.ts";
 
 const $I = $ScratchpadId.create("effected/toml/internal/semantic");
 
-class TomlSemanticInvariantError extends S.TaggedError<TomlSemanticInvariantError>($I`TomlSemanticInvariantError`)(
+class TomlSemanticInvariantError extends S.TaggedError<TomlSemanticInvariantError, { readonly brand: unique symbol }>($I`TomlSemanticInvariantError`)(
 	"TomlSemanticInvariantError",
 	{ message: S.String.annotateKey({ description: "Explanation of the violated semantic engine invariant." }) },
 	$I.annote("TomlSemanticInvariantError", { description: "An impossible state in the TOML semantic engine." }),

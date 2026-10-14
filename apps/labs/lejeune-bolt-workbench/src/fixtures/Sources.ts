@@ -70,16 +70,28 @@ const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 const workbookRelationshipsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`;
 
-class XlsxInlineString extends S.Class<XlsxInlineString>($I`XlsxInlineString`)({ t: S.String }) {}
-class XlsxCell extends S.Class<XlsxCell>($I`XlsxCell`)({
-  is: XlsxInlineString,
-  r: S.String,
-  t: S.Literal("inlineStr"),
-}) {}
-class XlsxRow extends S.Class<XlsxRow>($I`XlsxRow`)({ c: S.NonEmptyArray(XlsxCell), r: S.String }) {}
-class XlsxSheetData extends S.Class<XlsxSheetData>($I`XlsxSheetData`)({ row: S.NonEmptyArray(XlsxRow) }) {}
-class XlsxWorksheet extends S.Class<XlsxWorksheet>($I`XlsxWorksheet`)({ sheetData: XlsxSheetData }) {}
-class XlsxDocument extends S.Class<XlsxDocument>($I`XlsxDocument`)({ worksheet: XlsxWorksheet }) {}
+class XlsxInlineString extends S.Opaque<XlsxInlineString, { readonly brand: unique symbol }>()(
+  S.Struct({ t: S.String }).pipe($I.annoteSchema("XlsxInlineString"))
+) {}
+class XlsxCell extends S.Opaque<XlsxCell, { readonly brand: unique symbol }>()(
+  S.Struct({
+    is: XlsxInlineString,
+    r: S.String,
+    t: S.Literal("inlineStr"),
+  }).pipe($I.annoteSchema("XlsxCell"))
+) {}
+class XlsxRow extends S.Opaque<XlsxRow, { readonly brand: unique symbol }>()(
+  S.Struct({ c: S.NonEmptyArray(XlsxCell), r: S.String }).pipe($I.annoteSchema("XlsxRow"))
+) {}
+class XlsxSheetData extends S.Opaque<XlsxSheetData, { readonly brand: unique symbol }>()(
+  S.Struct({ row: S.NonEmptyArray(XlsxRow) }).pipe($I.annoteSchema("XlsxSheetData"))
+) {}
+class XlsxWorksheet extends S.Opaque<XlsxWorksheet, { readonly brand: unique symbol }>()(
+  S.Struct({ sheetData: XlsxSheetData }).pipe($I.annoteSchema("XlsxWorksheet"))
+) {}
+class XlsxDocument extends S.Opaque<XlsxDocument, { readonly brand: unique symbol }>()(
+  S.Struct({ worksheet: XlsxWorksheet }).pipe($I.annoteSchema("XlsxDocument"))
+) {}
 
 const decodeWorksheetXml = decodeXmlTextAs(XlsxDocument);
 
@@ -97,7 +109,7 @@ const decodeWorksheetXml = decodeXmlTextAs(XlsxDocument);
  * @category errors
  * @since 0.0.0
  */
-export class FixtureError extends S.TaggedError<FixtureError>($I`FixtureError`)(
+export class FixtureError extends S.TaggedError<FixtureError, { readonly brand: unique symbol }>($I`FixtureError`)(
   "FixtureError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
@@ -124,17 +136,18 @@ export class FixtureError extends S.TaggedError<FixtureError>($I`FixtureError`)(
  * @category fixtures
  * @since 0.0.0
  */
-export class GeneratedFixtureArtifacts extends S.Class<GeneratedFixtureArtifacts>($I`GeneratedFixtureArtifacts`)(
-  {
+export class GeneratedFixtureArtifacts extends S.Opaque<GeneratedFixtureArtifacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     rfqAEmail: S.Uint8Array,
     rfqAXlsx: S.Uint8Array,
     rfqBEmail: S.Uint8Array,
     rfqBPdf: S.Uint8Array,
     sources: S.NonEmptyArray(SourceDocument),
-  },
-  $I.annote("GeneratedFixtureArtifacts", {
-    description: "Deterministic synthetic Office bytes and their four parsed exact-text source records.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeneratedFixtureArtifacts", {
+      description: "Deterministic synthetic Office bytes and their four parsed exact-text source records.",
+    })
+  )
 ) {}
 
 const fixtureError = (stage: string, message: string): FixtureError => FixtureError.make({ message, stage });

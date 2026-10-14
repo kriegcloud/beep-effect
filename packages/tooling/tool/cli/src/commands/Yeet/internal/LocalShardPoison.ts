@@ -42,16 +42,17 @@ const $I = $RepoCliId.create("commands/Yeet/internal/LocalShardPoison");
  * @category models
  * @since 0.0.0
  */
-export class YeetLocalShardOutcome extends S.Class<YeetLocalShardOutcome>($I`YeetLocalShardOutcome`)(
-  {
+export class YeetLocalShardOutcome extends S.Opaque<YeetLocalShardOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.NonEmptyString,
     exitCode: S.Finite,
     headSha: S.NonEmptyString,
     shard: S.NonEmptyString,
-  },
-  $I.annote("YeetLocalShardOutcome", {
-    description: "Result coordinates for one named local proof shard on one repository head.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetLocalShardOutcome", {
+      description: "Result coordinates for one named local proof shard on one repository head.",
+    })
+  )
 ) {}
 
 /**

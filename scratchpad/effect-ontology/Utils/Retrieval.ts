@@ -114,7 +114,7 @@ export const rrfFusion: {
 
 const ExpandedTermSource = LiteralKit(["original", "altLabel", "broader", "narrower", "related"]);
 
-class ExpandedTermBase extends S.Class<ExpandedTermBase>($I`ExpandedTermBase`)(
+class ExpandedTermBase extends S.Class<ExpandedTermBase, { readonly brand: unique symbol }>($I`ExpandedTermBase`)(
   {
     term: S.NonEmptyString.annotateKey({
       description: "Non-empty query term contributed to retrieval expansion.",
@@ -233,8 +233,7 @@ const queryExpansionOptionsHierarchyWeightDefault = UnitInterval.make(0.5);
  * @category configuration
  * @since 0.0.0
  */
-export class QueryExpansionOptions extends S.Class<QueryExpansionOptions>($I`QueryExpansionOptions`)(
-  {
+export class QueryExpansionOptions extends S.Opaque<QueryExpansionOptions, { readonly brand: unique symbol }>()(S.Struct({
     includeAltLabels: SchemaUtils.BoolKeyDefaultTrue.annotateKey({
       description: "Whether SKOS alternate labels contribute synonym terms.",
     }),
@@ -256,11 +255,9 @@ export class QueryExpansionOptions extends S.Class<QueryExpansionOptions>($I`Que
       S.withConstructorDefault(Effect.succeed(queryExpansionOptionsHierarchyWeightDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(queryExpansionOptionsHierarchyWeightDefault)),
       S.annotateKey({ description: "Weight assigned to broader and narrower concepts." })
     ),
-  },
-  $I.annote("QueryExpansionOptions", {
+  }).pipe($I.annoteSchema("QueryExpansionOptions", {
     description: "Schema-defaulted ontology query-expansion policy with bounded weights.",
-  })
-) {}
+  }))) {}
 
 /** @internal */
 type QueryExpansionOptionsInput = (typeof QueryExpansionOptions)["~type.make.in"];

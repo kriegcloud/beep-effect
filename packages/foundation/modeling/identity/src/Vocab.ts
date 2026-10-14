@@ -60,14 +60,15 @@ export type VocabShape = Readonly<
  * @category models
  * @since 0.0.0
  */
-export class VocabEntry extends S.Class<VocabEntry>("@beep/identity/Vocab/VocabEntry")(
-  {
+export class VocabEntry extends S.Opaque<VocabEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     iri: S.String,
     terms: S.Array(S.String),
-  },
-  $I.annote("VocabEntry", {
-    description: "One namespace IRI and term list inside an identity vocabulary registry.",
-  })
+  }).pipe(
+    $I.annoteSchema("VocabEntry", {
+      description: "One namespace IRI and term list inside an identity vocabulary registry.",
+    })
+  )
 ) {}
 
 /**

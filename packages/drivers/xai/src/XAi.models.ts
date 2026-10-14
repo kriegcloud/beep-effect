@@ -166,7 +166,9 @@ const emptyQueryRecord: Readonly<Record<string, XAiQueryValue>> = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class XAiRequestOptions extends S.Class<XAiRequestOptions>($I`XAiRequestOptions`)(
+export class XAiRequestOptions extends S.Class<XAiRequestOptions, { readonly brand: unique symbol }>(
+  $I`XAiRequestOptions`
+)(
   {
     accept: S.optionalKey(S.String),
     body: S.optionalKey(S.Unknown),
@@ -203,7 +205,7 @@ export class XAiRequestOptions extends S.Class<XAiRequestOptions>($I`XAiRequestO
  * ```ts
  * import { XAiJsonResponse } from "@beep/xai"
  *
- * const response = new XAiJsonResponse({
+ * const response = XAiJsonResponse.make({
  *   body: { ok: true },
  *   headers: {},
  *   status: 200
@@ -215,17 +217,17 @@ export class XAiRequestOptions extends S.Class<XAiRequestOptions>($I`XAiRequestO
  * @category models
  * @since 0.0.0
  */
-export class XAiJsonResponse extends S.TaggedClass<XAiJsonResponse>($I`XAiJsonResponse`)(
-  "Json",
-  {
+export class XAiJsonResponse extends S.Opaque<XAiJsonResponse, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Json", {
     body: S.Unknown,
     contentType: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     headers: S.Record(S.String, S.String),
     status: XAiHttpStatusCode,
-  },
-  $I.annote("XAiJsonResponse", {
-    description: "JSON response returned by the xAI driver.",
-  })
+  }).pipe(
+    $I.annoteSchema("XAiJsonResponse", {
+      description: "JSON response returned by the xAI driver.",
+    })
+  )
 ) {}
 
 /**
@@ -236,7 +238,7 @@ export class XAiJsonResponse extends S.TaggedClass<XAiJsonResponse>($I`XAiJsonRe
  * ```ts
  * import { XAiTextResponse } from "@beep/xai"
  *
- * const response = new XAiTextResponse({
+ * const response = XAiTextResponse.make({
  *   headers: {},
  *   status: 200,
  *   text: "ok"
@@ -248,17 +250,17 @@ export class XAiJsonResponse extends S.TaggedClass<XAiJsonResponse>($I`XAiJsonRe
  * @category models
  * @since 0.0.0
  */
-export class XAiTextResponse extends S.TaggedClass<XAiTextResponse>($I`XAiTextResponse`)(
-  "Text",
-  {
+export class XAiTextResponse extends S.Opaque<XAiTextResponse, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Text", {
     contentType: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     headers: S.Record(S.String, S.String),
     status: XAiHttpStatusCode,
     text: S.String,
-  },
-  $I.annote("XAiTextResponse", {
-    description: "Text response returned by the xAI driver.",
-  })
+  }).pipe(
+    $I.annoteSchema("XAiTextResponse", {
+      description: "Text response returned by the xAI driver.",
+    })
+  )
 ) {}
 
 /**
@@ -269,7 +271,7 @@ export class XAiTextResponse extends S.TaggedClass<XAiTextResponse>($I`XAiTextRe
  * ```ts
  * import { XAiBinaryResponse } from "@beep/xai"
  *
- * const response = new XAiBinaryResponse({
+ * const response = XAiBinaryResponse.make({
  *   bytes: new Uint8Array([1, 2, 3]),
  *   headers: {},
  *   status: 200
@@ -281,17 +283,17 @@ export class XAiTextResponse extends S.TaggedClass<XAiTextResponse>($I`XAiTextRe
  * @category models
  * @since 0.0.0
  */
-export class XAiBinaryResponse extends S.TaggedClass<XAiBinaryResponse>($I`XAiBinaryResponse`)(
-  "Binary",
-  {
+export class XAiBinaryResponse extends S.Opaque<XAiBinaryResponse, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Binary", {
     bytes: S.Uint8Array,
     contentType: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     headers: S.Record(S.String, S.String),
     status: XAiHttpStatusCode,
-  },
-  $I.annote("XAiBinaryResponse", {
-    description: "Binary response returned by the xAI driver.",
-  })
+  }).pipe(
+    $I.annoteSchema("XAiBinaryResponse", {
+      description: "Binary response returned by the xAI driver.",
+    })
+  )
 ) {}
 
 /**
@@ -302,7 +304,7 @@ export class XAiBinaryResponse extends S.TaggedClass<XAiBinaryResponse>($I`XAiBi
  * ```ts
  * import { XAiNoBodyResponse } from "@beep/xai"
  *
- * const response = new XAiNoBodyResponse({
+ * const response = XAiNoBodyResponse.make({
  *   headers: {},
  *   status: 204
  * })
@@ -313,16 +315,16 @@ export class XAiBinaryResponse extends S.TaggedClass<XAiBinaryResponse>($I`XAiBi
  * @category models
  * @since 0.0.0
  */
-export class XAiNoBodyResponse extends S.TaggedClass<XAiNoBodyResponse>($I`XAiNoBodyResponse`)(
-  "NoBody",
-  {
+export class XAiNoBodyResponse extends S.Opaque<XAiNoBodyResponse, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("NoBody", {
     contentType: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     headers: S.Record(S.String, S.String),
     status: XAiHttpStatusCode,
-  },
-  $I.annote("XAiNoBodyResponse", {
-    description: "Empty response returned by xAI endpoints that have no body.",
-  })
+  }).pipe(
+    $I.annoteSchema("XAiNoBodyResponse", {
+      description: "Empty response returned by xAI endpoints that have no body.",
+    })
+  )
 ) {}
 
 /**
@@ -356,7 +358,7 @@ export const XAiResponse = S.Union([XAiBinaryResponse, XAiJsonResponse, XAiNoBod
  * import { XAiJsonResponse } from "@beep/xai"
  * import type { XAiResponse } from "@beep/xai"
  *
- * const response: XAiResponse = new XAiJsonResponse({
+ * const response: XAiResponse = XAiJsonResponse.make({
  *   body: { ok: true },
  *   headers: {},
  *   status: 200
@@ -390,15 +392,16 @@ export type XAiResponse = typeof XAiResponse.Type;
  * @category models
  * @since 0.0.0
  */
-export class XAiServerSentEvent extends S.Class<XAiServerSentEvent>($I`XAiServerSentEvent`)(
-  {
+export class XAiServerSentEvent extends S.Opaque<XAiServerSentEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: S.optionalKey(S.Unknown),
     done: S.Boolean,
     index: XAiSseEventIndex,
-  },
-  $I.annote("XAiServerSentEvent", {
-    description: "Parsed server-sent event emitted by streaming xAI endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("XAiServerSentEvent", {
+      description: "Parsed server-sent event emitted by streaming xAI endpoints.",
+    })
+  )
 ) {}
 
 const XAiWebSocketEventKindBase = LiteralKit(["close", "error", "message"]);

@@ -265,7 +265,7 @@ export type BoxMethodName = typeof BoxMethodName.Type;
  * @category models
  * @since 0.0.0
  */
-export class AppItem extends S.Class<AppItem>($I`AppItem`)(
+export class AppItem extends S.Class<AppItem, { readonly brand: unique symbol }>($I`AppItem`)(
   {
     id: S.String,
     type: S.suspend(() => AppItemTypeField),
@@ -290,7 +290,7 @@ export class AppItem extends S.Class<AppItem>($I`AppItem`)(
  * @category models
  * @since 0.0.0
  */
-export class AppItemEventSource extends S.Class<AppItemEventSource>($I`AppItemEventSource`)(
+export class AppItemEventSource extends S.Class<AppItemEventSource, { readonly brand: unique symbol }>($I`AppItemEventSource`)(
   {
     id: S.String,
     type: S.suspend(() => AppItemEventSourceTypeField),
@@ -385,7 +385,7 @@ export type AppItemTypeField = typeof AppItemTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class CancelSignRequestHeaders extends S.Class<CancelSignRequestHeaders>($I`CancelSignRequestHeaders`)(
+export class CancelSignRequestHeaders extends S.Class<CancelSignRequestHeaders, { readonly brand: unique symbol }>($I`CancelSignRequestHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -408,7 +408,7 @@ export class CancelSignRequestHeaders extends S.Class<CancelSignRequestHeaders>(
  * @category models
  * @since 0.0.0
  */
-export class CancelSignRequestOptionalsInput extends S.Class<CancelSignRequestOptionalsInput>($I`CancelSignRequestOptionalsInput`)(
+export class CancelSignRequestOptionalsInput extends S.Class<CancelSignRequestOptionalsInput, { readonly brand: unique symbol }>($I`CancelSignRequestOptionalsInput`)(
   {
     requestBody: S.suspend(() => SignRequestCancelRequest).pipe(S.optionalKey),
     headers: S.suspend(() => CancelSignRequestHeaders).pipe(S.optionalKey),
@@ -433,7 +433,7 @@ export class CancelSignRequestOptionalsInput extends S.Class<CancelSignRequestOp
  * @category models
  * @since 0.0.0
  */
-export class Collaboration extends S.Class<Collaboration>($I`Collaboration`)(
+export class Collaboration extends S.Class<Collaboration, { readonly brand: unique symbol }>($I`Collaboration`)(
   {
     id: S.String,
     type: S.suspend(() => CollaborationTypeField),
@@ -470,7 +470,7 @@ export class Collaboration extends S.Class<Collaboration>($I`Collaboration`)(
  * @category models
  * @since 0.0.0
  */
-export class CollaborationAcceptanceRequirementsStatusField extends S.Class<CollaborationAcceptanceRequirementsStatusField>($I`CollaborationAcceptanceRequirementsStatusField`)(
+export class CollaborationAcceptanceRequirementsStatusField extends S.Class<CollaborationAcceptanceRequirementsStatusField, { readonly brand: unique symbol }>($I`CollaborationAcceptanceRequirementsStatusField`)(
   {
     termsOfServiceRequirement: S.suspend(() => CollaborationAcceptanceRequirementsStatusTermsOfServiceRequirementField).pipe(S.optionalKey),
     strongPasswordRequirement: S.suspend(() => CollaborationAcceptanceRequirementsStatusStrongPasswordRequirementField).pipe(S.optionalKey),
@@ -495,7 +495,7 @@ export class CollaborationAcceptanceRequirementsStatusField extends S.Class<Coll
  * @category models
  * @since 0.0.0
  */
-export class CollaborationAcceptanceRequirementsStatusStrongPasswordRequirementField extends S.Class<CollaborationAcceptanceRequirementsStatusStrongPasswordRequirementField>($I`CollaborationAcceptanceRequirementsStatusStrongPasswordRequirementField`)(
+export class CollaborationAcceptanceRequirementsStatusStrongPasswordRequirementField extends S.Class<CollaborationAcceptanceRequirementsStatusStrongPasswordRequirementField, { readonly brand: unique symbol }>($I`CollaborationAcceptanceRequirementsStatusStrongPasswordRequirementField`)(
   {
     enterpriseHasStrongPasswordRequiredForExternalUsers: S.Boolean.pipe(S.optionalKey),
     userHasStrongPassword: S.Boolean.pipe(S.NullOr, S.optionalKey),
@@ -519,7 +519,7 @@ export class CollaborationAcceptanceRequirementsStatusStrongPasswordRequirementF
  * @category models
  * @since 0.0.0
  */
-export class CollaborationAcceptanceRequirementsStatusTermsOfServiceRequirementField extends S.Class<CollaborationAcceptanceRequirementsStatusTermsOfServiceRequirementField>($I`CollaborationAcceptanceRequirementsStatusTermsOfServiceRequirementField`)(
+export class CollaborationAcceptanceRequirementsStatusTermsOfServiceRequirementField extends S.Class<CollaborationAcceptanceRequirementsStatusTermsOfServiceRequirementField, { readonly brand: unique symbol }>($I`CollaborationAcceptanceRequirementsStatusTermsOfServiceRequirementField`)(
   {
     isAccepted: S.Boolean.pipe(S.NullOr, S.optionalKey),
     termsOfService: S.suspend(() => TermsOfServiceBase).pipe(S.optionalKey),
@@ -543,7 +543,7 @@ export class CollaborationAcceptanceRequirementsStatusTermsOfServiceRequirementF
  * @category models
  * @since 0.0.0
  */
-export class CollaborationAcceptanceRequirementsStatusTwoFactorAuthenticationRequirementField extends S.Class<CollaborationAcceptanceRequirementsStatusTwoFactorAuthenticationRequirementField>($I`CollaborationAcceptanceRequirementsStatusTwoFactorAuthenticationRequirementField`)(
+export class CollaborationAcceptanceRequirementsStatusTwoFactorAuthenticationRequirementField extends S.Class<CollaborationAcceptanceRequirementsStatusTwoFactorAuthenticationRequirementField, { readonly brand: unique symbol }>($I`CollaborationAcceptanceRequirementsStatusTwoFactorAuthenticationRequirementField`)(
   {
     enterpriseHasTwoFactorAuthEnabled: S.Boolean.pipe(S.optionalKey),
     userHasTwoFactorAuthenticationEnabled: S.Boolean.pipe(S.NullOr, S.optionalKey),
@@ -669,7 +669,7 @@ export type CollaborationRoleField = typeof CollaborationRoleField.Type;
  * @category models
  * @since 0.0.0
  */
-export class Collaborations extends S.Class<Collaborations>($I`Collaborations`)(
+export class Collaborations extends S.Class<Collaborations, { readonly brand: unique symbol }>($I`Collaborations`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     nextMarker: S.String.pipe(S.NullOr, S.optionalKey),
@@ -695,7 +695,7 @@ export class Collaborations extends S.Class<Collaborations>($I`Collaborations`)(
  * @category models
  * @since 0.0.0
  */
-export class CollaborationsOffsetPaginated extends S.Class<CollaborationsOffsetPaginated>($I`CollaborationsOffsetPaginated`)(
+export class CollaborationsOffsetPaginated extends S.Class<CollaborationsOffsetPaginated, { readonly brand: unique symbol }>($I`CollaborationsOffsetPaginated`)(
   {
     totalCount: S.Finite.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -789,7 +789,7 @@ export type CollaborationTypeField = typeof CollaborationTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class Collection extends S.Class<Collection>($I`Collection`)(
+export class Collection extends S.Class<Collection, { readonly brand: unique symbol }>($I`Collection`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.suspend(() => CollectionTypeField).pipe(S.optionalKey),
@@ -917,7 +917,7 @@ export type CollectionTypeField = typeof CollectionTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class CopyFileHeaders extends S.Class<CopyFileHeaders>($I`CopyFileHeaders`)(
+export class CopyFileHeaders extends S.Class<CopyFileHeaders, { readonly brand: unique symbol }>($I`CopyFileHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -940,7 +940,7 @@ export class CopyFileHeaders extends S.Class<CopyFileHeaders>($I`CopyFileHeaders
  * @category models
  * @since 0.0.0
  */
-export class CopyFileOptionalsInput extends S.Class<CopyFileOptionalsInput>($I`CopyFileOptionalsInput`)(
+export class CopyFileOptionalsInput extends S.Class<CopyFileOptionalsInput, { readonly brand: unique symbol }>($I`CopyFileOptionalsInput`)(
   {
     queryParams: S.suspend(() => CopyFileQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => CopyFileHeaders).pipe(S.optionalKey),
@@ -965,7 +965,7 @@ export class CopyFileOptionalsInput extends S.Class<CopyFileOptionalsInput>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CopyFileQueryParams extends S.Class<CopyFileQueryParams>($I`CopyFileQueryParams`)(
+export class CopyFileQueryParams extends S.Class<CopyFileQueryParams, { readonly brand: unique symbol }>($I`CopyFileQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -988,7 +988,7 @@ export class CopyFileQueryParams extends S.Class<CopyFileQueryParams>($I`CopyFil
  * @category models
  * @since 0.0.0
  */
-export class CopyFileRequestBody extends S.Class<CopyFileRequestBody>($I`CopyFileRequestBody`)(
+export class CopyFileRequestBody extends S.Class<CopyFileRequestBody, { readonly brand: unique symbol }>($I`CopyFileRequestBody`)(
   {
     name: S.String.pipe(S.optionalKey),
     version: S.String.pipe(S.optionalKey),
@@ -1013,7 +1013,7 @@ export class CopyFileRequestBody extends S.Class<CopyFileRequestBody>($I`CopyFil
  * @category models
  * @since 0.0.0
  */
-export class CopyFileRequestBodyParentField extends S.Class<CopyFileRequestBodyParentField>($I`CopyFileRequestBodyParentField`)(
+export class CopyFileRequestBodyParentField extends S.Class<CopyFileRequestBodyParentField, { readonly brand: unique symbol }>($I`CopyFileRequestBodyParentField`)(
   {
     id: S.String,
   },
@@ -1036,7 +1036,7 @@ export class CopyFileRequestBodyParentField extends S.Class<CopyFileRequestBodyP
  * @category models
  * @since 0.0.0
  */
-export class CopyFolderHeaders extends S.Class<CopyFolderHeaders>($I`CopyFolderHeaders`)(
+export class CopyFolderHeaders extends S.Class<CopyFolderHeaders, { readonly brand: unique symbol }>($I`CopyFolderHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -1059,7 +1059,7 @@ export class CopyFolderHeaders extends S.Class<CopyFolderHeaders>($I`CopyFolderH
  * @category models
  * @since 0.0.0
  */
-export class CopyFolderOptionalsInput extends S.Class<CopyFolderOptionalsInput>($I`CopyFolderOptionalsInput`)(
+export class CopyFolderOptionalsInput extends S.Class<CopyFolderOptionalsInput, { readonly brand: unique symbol }>($I`CopyFolderOptionalsInput`)(
   {
     queryParams: S.suspend(() => CopyFolderQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => CopyFolderHeaders).pipe(S.optionalKey),
@@ -1084,7 +1084,7 @@ export class CopyFolderOptionalsInput extends S.Class<CopyFolderOptionalsInput>(
  * @category models
  * @since 0.0.0
  */
-export class CopyFolderQueryParams extends S.Class<CopyFolderQueryParams>($I`CopyFolderQueryParams`)(
+export class CopyFolderQueryParams extends S.Class<CopyFolderQueryParams, { readonly brand: unique symbol }>($I`CopyFolderQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -1107,7 +1107,7 @@ export class CopyFolderQueryParams extends S.Class<CopyFolderQueryParams>($I`Cop
  * @category models
  * @since 0.0.0
  */
-export class CopyFolderRequestBody extends S.Class<CopyFolderRequestBody>($I`CopyFolderRequestBody`)(
+export class CopyFolderRequestBody extends S.Class<CopyFolderRequestBody, { readonly brand: unique symbol }>($I`CopyFolderRequestBody`)(
   {
     name: S.String.pipe(S.optionalKey),
     parent: S.suspend(() => CopyFolderRequestBodyParentField),
@@ -1131,7 +1131,7 @@ export class CopyFolderRequestBody extends S.Class<CopyFolderRequestBody>($I`Cop
  * @category models
  * @since 0.0.0
  */
-export class CopyFolderRequestBodyParentField extends S.Class<CopyFolderRequestBodyParentField>($I`CopyFolderRequestBodyParentField`)(
+export class CopyFolderRequestBodyParentField extends S.Class<CopyFolderRequestBodyParentField, { readonly brand: unique symbol }>($I`CopyFolderRequestBodyParentField`)(
   {
     id: S.String,
   },
@@ -1154,7 +1154,7 @@ export class CopyFolderRequestBodyParentField extends S.Class<CopyFolderRequestB
  * @category models
  * @since 0.0.0
  */
-export class CreateCollaborationHeaders extends S.Class<CreateCollaborationHeaders>($I`CreateCollaborationHeaders`)(
+export class CreateCollaborationHeaders extends S.Class<CreateCollaborationHeaders, { readonly brand: unique symbol }>($I`CreateCollaborationHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -1177,7 +1177,7 @@ export class CreateCollaborationHeaders extends S.Class<CreateCollaborationHeade
  * @category models
  * @since 0.0.0
  */
-export class CreateCollaborationOptionalsInput extends S.Class<CreateCollaborationOptionalsInput>($I`CreateCollaborationOptionalsInput`)(
+export class CreateCollaborationOptionalsInput extends S.Class<CreateCollaborationOptionalsInput, { readonly brand: unique symbol }>($I`CreateCollaborationOptionalsInput`)(
   {
     queryParams: S.suspend(() => CreateCollaborationQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => CreateCollaborationHeaders).pipe(S.optionalKey),
@@ -1202,7 +1202,7 @@ export class CreateCollaborationOptionalsInput extends S.Class<CreateCollaborati
  * @category models
  * @since 0.0.0
  */
-export class CreateCollaborationQueryParams extends S.Class<CreateCollaborationQueryParams>($I`CreateCollaborationQueryParams`)(
+export class CreateCollaborationQueryParams extends S.Class<CreateCollaborationQueryParams, { readonly brand: unique symbol }>($I`CreateCollaborationQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
     notify: S.Boolean.pipe(S.optionalKey),
@@ -1226,7 +1226,7 @@ export class CreateCollaborationQueryParams extends S.Class<CreateCollaborationQ
  * @category models
  * @since 0.0.0
  */
-export class CreateCollaborationRequestBody extends S.Class<CreateCollaborationRequestBody>($I`CreateCollaborationRequestBody`)(
+export class CreateCollaborationRequestBody extends S.Class<CreateCollaborationRequestBody, { readonly brand: unique symbol }>($I`CreateCollaborationRequestBody`)(
   {
     item: S.suspend(() => CreateCollaborationRequestBodyItemField),
     accessibleBy: S.suspend(() => CreateCollaborationRequestBodyAccessibleByField),
@@ -1254,7 +1254,7 @@ export class CreateCollaborationRequestBody extends S.Class<CreateCollaborationR
  * @category models
  * @since 0.0.0
  */
-export class CreateCollaborationRequestBodyAccessibleByField extends S.Class<CreateCollaborationRequestBodyAccessibleByField>($I`CreateCollaborationRequestBodyAccessibleByField`)(
+export class CreateCollaborationRequestBodyAccessibleByField extends S.Class<CreateCollaborationRequestBodyAccessibleByField, { readonly brand: unique symbol }>($I`CreateCollaborationRequestBodyAccessibleByField`)(
   {
     type: S.suspend(() => CreateCollaborationRequestBodyAccessibleByTypeField),
     id: S.String.pipe(S.optionalKey),
@@ -1319,7 +1319,7 @@ export type CreateCollaborationRequestBodyAccessibleByTypeField = typeof CreateC
  * @category models
  * @since 0.0.0
  */
-export class CreateCollaborationRequestBodyItemField extends S.Class<CreateCollaborationRequestBodyItemField>($I`CreateCollaborationRequestBodyItemField`)(
+export class CreateCollaborationRequestBodyItemField extends S.Class<CreateCollaborationRequestBodyItemField, { readonly brand: unique symbol }>($I`CreateCollaborationRequestBodyItemField`)(
   {
     type: S.suspend(() => CreateCollaborationRequestBodyItemTypeField).pipe(S.optionalKey),
     id: S.String.pipe(S.optionalKey),
@@ -1417,7 +1417,7 @@ export type CreateCollaborationRequestBodyRoleField = typeof CreateCollaboration
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionCommitByUrlHeadersInput extends S.Class<CreateFileUploadSessionCommitByUrlHeadersInput>($I`CreateFileUploadSessionCommitByUrlHeadersInput`)(
+export class CreateFileUploadSessionCommitByUrlHeadersInput extends S.Class<CreateFileUploadSessionCommitByUrlHeadersInput, { readonly brand: unique symbol }>($I`CreateFileUploadSessionCommitByUrlHeadersInput`)(
   {
     digest: S.String,
     ifMatch: S.String.pipe(S.optionalKey),
@@ -1443,7 +1443,7 @@ export class CreateFileUploadSessionCommitByUrlHeadersInput extends S.Class<Crea
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionCommitByUrlOptionalsInput extends S.Class<CreateFileUploadSessionCommitByUrlOptionalsInput>($I`CreateFileUploadSessionCommitByUrlOptionalsInput`)(
+export class CreateFileUploadSessionCommitByUrlOptionalsInput extends S.Class<CreateFileUploadSessionCommitByUrlOptionalsInput, { readonly brand: unique symbol }>($I`CreateFileUploadSessionCommitByUrlOptionalsInput`)(
   {
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
   },
@@ -1466,7 +1466,7 @@ export class CreateFileUploadSessionCommitByUrlOptionalsInput extends S.Class<Cr
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionCommitByUrlRequestBody extends S.Class<CreateFileUploadSessionCommitByUrlRequestBody>($I`CreateFileUploadSessionCommitByUrlRequestBody`)(
+export class CreateFileUploadSessionCommitByUrlRequestBody extends S.Class<CreateFileUploadSessionCommitByUrlRequestBody, { readonly brand: unique symbol }>($I`CreateFileUploadSessionCommitByUrlRequestBody`)(
   {
     parts: S.suspend(() => UploadPart).pipe(S.Array),
   },
@@ -1489,7 +1489,7 @@ export class CreateFileUploadSessionCommitByUrlRequestBody extends S.Class<Creat
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionCommitHeadersInput extends S.Class<CreateFileUploadSessionCommitHeadersInput>($I`CreateFileUploadSessionCommitHeadersInput`)(
+export class CreateFileUploadSessionCommitHeadersInput extends S.Class<CreateFileUploadSessionCommitHeadersInput, { readonly brand: unique symbol }>($I`CreateFileUploadSessionCommitHeadersInput`)(
   {
     digest: S.String,
     ifMatch: S.String.pipe(S.optionalKey),
@@ -1515,7 +1515,7 @@ export class CreateFileUploadSessionCommitHeadersInput extends S.Class<CreateFil
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionCommitOptionalsInput extends S.Class<CreateFileUploadSessionCommitOptionalsInput>($I`CreateFileUploadSessionCommitOptionalsInput`)(
+export class CreateFileUploadSessionCommitOptionalsInput extends S.Class<CreateFileUploadSessionCommitOptionalsInput, { readonly brand: unique symbol }>($I`CreateFileUploadSessionCommitOptionalsInput`)(
   {
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
   },
@@ -1538,7 +1538,7 @@ export class CreateFileUploadSessionCommitOptionalsInput extends S.Class<CreateF
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionCommitRequestBody extends S.Class<CreateFileUploadSessionCommitRequestBody>($I`CreateFileUploadSessionCommitRequestBody`)(
+export class CreateFileUploadSessionCommitRequestBody extends S.Class<CreateFileUploadSessionCommitRequestBody, { readonly brand: unique symbol }>($I`CreateFileUploadSessionCommitRequestBody`)(
   {
     parts: S.suspend(() => UploadPart).pipe(S.Array),
   },
@@ -1561,7 +1561,7 @@ export class CreateFileUploadSessionCommitRequestBody extends S.Class<CreateFile
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionForExistingFileHeaders extends S.Class<CreateFileUploadSessionForExistingFileHeaders>($I`CreateFileUploadSessionForExistingFileHeaders`)(
+export class CreateFileUploadSessionForExistingFileHeaders extends S.Class<CreateFileUploadSessionForExistingFileHeaders, { readonly brand: unique symbol }>($I`CreateFileUploadSessionForExistingFileHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -1584,7 +1584,7 @@ export class CreateFileUploadSessionForExistingFileHeaders extends S.Class<Creat
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionForExistingFileOptionalsInput extends S.Class<CreateFileUploadSessionForExistingFileOptionalsInput>($I`CreateFileUploadSessionForExistingFileOptionalsInput`)(
+export class CreateFileUploadSessionForExistingFileOptionalsInput extends S.Class<CreateFileUploadSessionForExistingFileOptionalsInput, { readonly brand: unique symbol }>($I`CreateFileUploadSessionForExistingFileOptionalsInput`)(
   {
     headers: S.suspend(() => CreateFileUploadSessionForExistingFileHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -1608,7 +1608,7 @@ export class CreateFileUploadSessionForExistingFileOptionalsInput extends S.Clas
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionForExistingFileRequestBody extends S.Class<CreateFileUploadSessionForExistingFileRequestBody>($I`CreateFileUploadSessionForExistingFileRequestBody`)(
+export class CreateFileUploadSessionForExistingFileRequestBody extends S.Class<CreateFileUploadSessionForExistingFileRequestBody, { readonly brand: unique symbol }>($I`CreateFileUploadSessionForExistingFileRequestBody`)(
   {
     fileSize: S.Finite,
     fileName: S.String.pipe(S.optionalKey),
@@ -1632,7 +1632,7 @@ export class CreateFileUploadSessionForExistingFileRequestBody extends S.Class<C
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionHeaders extends S.Class<CreateFileUploadSessionHeaders>($I`CreateFileUploadSessionHeaders`)(
+export class CreateFileUploadSessionHeaders extends S.Class<CreateFileUploadSessionHeaders, { readonly brand: unique symbol }>($I`CreateFileUploadSessionHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -1655,7 +1655,7 @@ export class CreateFileUploadSessionHeaders extends S.Class<CreateFileUploadSess
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionOptionalsInput extends S.Class<CreateFileUploadSessionOptionalsInput>($I`CreateFileUploadSessionOptionalsInput`)(
+export class CreateFileUploadSessionOptionalsInput extends S.Class<CreateFileUploadSessionOptionalsInput, { readonly brand: unique symbol }>($I`CreateFileUploadSessionOptionalsInput`)(
   {
     headers: S.suspend(() => CreateFileUploadSessionHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -1679,7 +1679,7 @@ export class CreateFileUploadSessionOptionalsInput extends S.Class<CreateFileUpl
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionPlanByUrlHeaders extends S.Class<CreateFileUploadSessionPlanByUrlHeaders>($I`CreateFileUploadSessionPlanByUrlHeaders`)(
+export class CreateFileUploadSessionPlanByUrlHeaders extends S.Class<CreateFileUploadSessionPlanByUrlHeaders, { readonly brand: unique symbol }>($I`CreateFileUploadSessionPlanByUrlHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -1702,7 +1702,7 @@ export class CreateFileUploadSessionPlanByUrlHeaders extends S.Class<CreateFileU
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionPlanByUrlOptionalsInput extends S.Class<CreateFileUploadSessionPlanByUrlOptionalsInput>($I`CreateFileUploadSessionPlanByUrlOptionalsInput`)(
+export class CreateFileUploadSessionPlanByUrlOptionalsInput extends S.Class<CreateFileUploadSessionPlanByUrlOptionalsInput, { readonly brand: unique symbol }>($I`CreateFileUploadSessionPlanByUrlOptionalsInput`)(
   {
     headers: S.suspend(() => CreateFileUploadSessionPlanByUrlHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -1726,7 +1726,7 @@ export class CreateFileUploadSessionPlanByUrlOptionalsInput extends S.Class<Crea
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionPlanHeaders extends S.Class<CreateFileUploadSessionPlanHeaders>($I`CreateFileUploadSessionPlanHeaders`)(
+export class CreateFileUploadSessionPlanHeaders extends S.Class<CreateFileUploadSessionPlanHeaders, { readonly brand: unique symbol }>($I`CreateFileUploadSessionPlanHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -1749,7 +1749,7 @@ export class CreateFileUploadSessionPlanHeaders extends S.Class<CreateFileUpload
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionPlanOptionalsInput extends S.Class<CreateFileUploadSessionPlanOptionalsInput>($I`CreateFileUploadSessionPlanOptionalsInput`)(
+export class CreateFileUploadSessionPlanOptionalsInput extends S.Class<CreateFileUploadSessionPlanOptionalsInput, { readonly brand: unique symbol }>($I`CreateFileUploadSessionPlanOptionalsInput`)(
   {
     headers: S.suspend(() => CreateFileUploadSessionPlanHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -1773,7 +1773,7 @@ export class CreateFileUploadSessionPlanOptionalsInput extends S.Class<CreateFil
  * @category models
  * @since 0.0.0
  */
-export class CreateFileUploadSessionRequestBody extends S.Class<CreateFileUploadSessionRequestBody>($I`CreateFileUploadSessionRequestBody`)(
+export class CreateFileUploadSessionRequestBody extends S.Class<CreateFileUploadSessionRequestBody, { readonly brand: unique symbol }>($I`CreateFileUploadSessionRequestBody`)(
   {
     folderId: S.String,
     fileSize: S.Finite,
@@ -1798,7 +1798,7 @@ export class CreateFileUploadSessionRequestBody extends S.Class<CreateFileUpload
  * @category models
  * @since 0.0.0
  */
-export class CreateFolderHeaders extends S.Class<CreateFolderHeaders>($I`CreateFolderHeaders`)(
+export class CreateFolderHeaders extends S.Class<CreateFolderHeaders, { readonly brand: unique symbol }>($I`CreateFolderHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -1821,7 +1821,7 @@ export class CreateFolderHeaders extends S.Class<CreateFolderHeaders>($I`CreateF
  * @category models
  * @since 0.0.0
  */
-export class CreateFolderOptionalsInput extends S.Class<CreateFolderOptionalsInput>($I`CreateFolderOptionalsInput`)(
+export class CreateFolderOptionalsInput extends S.Class<CreateFolderOptionalsInput, { readonly brand: unique symbol }>($I`CreateFolderOptionalsInput`)(
   {
     queryParams: S.suspend(() => CreateFolderQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => CreateFolderHeaders).pipe(S.optionalKey),
@@ -1846,7 +1846,7 @@ export class CreateFolderOptionalsInput extends S.Class<CreateFolderOptionalsInp
  * @category models
  * @since 0.0.0
  */
-export class CreateFolderQueryParams extends S.Class<CreateFolderQueryParams>($I`CreateFolderQueryParams`)(
+export class CreateFolderQueryParams extends S.Class<CreateFolderQueryParams, { readonly brand: unique symbol }>($I`CreateFolderQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -1869,7 +1869,7 @@ export class CreateFolderQueryParams extends S.Class<CreateFolderQueryParams>($I
  * @category models
  * @since 0.0.0
  */
-export class CreateFolderRequestBody extends S.Class<CreateFolderRequestBody>($I`CreateFolderRequestBody`)(
+export class CreateFolderRequestBody extends S.Class<CreateFolderRequestBody, { readonly brand: unique symbol }>($I`CreateFolderRequestBody`)(
   {
     name: S.String,
     parent: S.suspend(() => CreateFolderRequestBodyParentField),
@@ -1929,7 +1929,7 @@ export type CreateFolderRequestBodyFolderUploadEmailAccessField = typeof CreateF
  * @category models
  * @since 0.0.0
  */
-export class CreateFolderRequestBodyFolderUploadEmailField extends S.Class<CreateFolderRequestBodyFolderUploadEmailField>($I`CreateFolderRequestBodyFolderUploadEmailField`)(
+export class CreateFolderRequestBodyFolderUploadEmailField extends S.Class<CreateFolderRequestBodyFolderUploadEmailField, { readonly brand: unique symbol }>($I`CreateFolderRequestBodyFolderUploadEmailField`)(
   {
     access: S.suspend(() => CreateFolderRequestBodyFolderUploadEmailAccessField).pipe(S.optionalKey),
   },
@@ -1952,7 +1952,7 @@ export class CreateFolderRequestBodyFolderUploadEmailField extends S.Class<Creat
  * @category models
  * @since 0.0.0
  */
-export class CreateFolderRequestBodyParentField extends S.Class<CreateFolderRequestBodyParentField>($I`CreateFolderRequestBodyParentField`)(
+export class CreateFolderRequestBodyParentField extends S.Class<CreateFolderRequestBodyParentField, { readonly brand: unique symbol }>($I`CreateFolderRequestBodyParentField`)(
   {
     id: S.String,
   },
@@ -2009,7 +2009,7 @@ export type CreateFolderRequestBodySyncStateField = typeof CreateFolderRequestBo
  * @category models
  * @since 0.0.0
  */
-export class CreateSignRequestHeaders extends S.Class<CreateSignRequestHeaders>($I`CreateSignRequestHeaders`)(
+export class CreateSignRequestHeaders extends S.Class<CreateSignRequestHeaders, { readonly brand: unique symbol }>($I`CreateSignRequestHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2032,7 +2032,7 @@ export class CreateSignRequestHeaders extends S.Class<CreateSignRequestHeaders>(
  * @category models
  * @since 0.0.0
  */
-export class CreateSignRequestOptionalsInput extends S.Class<CreateSignRequestOptionalsInput>($I`CreateSignRequestOptionalsInput`)(
+export class CreateSignRequestOptionalsInput extends S.Class<CreateSignRequestOptionalsInput, { readonly brand: unique symbol }>($I`CreateSignRequestOptionalsInput`)(
   {
     headers: S.suspend(() => CreateSignRequestHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2056,7 +2056,7 @@ export class CreateSignRequestOptionalsInput extends S.Class<CreateSignRequestOp
  * @category models
  * @since 0.0.0
  */
-export class CreateUserAvatarHeaders extends S.Class<CreateUserAvatarHeaders>($I`CreateUserAvatarHeaders`)(
+export class CreateUserAvatarHeaders extends S.Class<CreateUserAvatarHeaders, { readonly brand: unique symbol }>($I`CreateUserAvatarHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2079,7 +2079,7 @@ export class CreateUserAvatarHeaders extends S.Class<CreateUserAvatarHeaders>($I
  * @category models
  * @since 0.0.0
  */
-export class CreateUserAvatarOptionalsInput extends S.Class<CreateUserAvatarOptionalsInput>($I`CreateUserAvatarOptionalsInput`)(
+export class CreateUserAvatarOptionalsInput extends S.Class<CreateUserAvatarOptionalsInput, { readonly brand: unique symbol }>($I`CreateUserAvatarOptionalsInput`)(
   {
     headers: S.suspend(() => CreateUserAvatarHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2103,7 +2103,7 @@ export class CreateUserAvatarOptionalsInput extends S.Class<CreateUserAvatarOpti
  * @category models
  * @since 0.0.0
  */
-export class CreateUserHeaders extends S.Class<CreateUserHeaders>($I`CreateUserHeaders`)(
+export class CreateUserHeaders extends S.Class<CreateUserHeaders, { readonly brand: unique symbol }>($I`CreateUserHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2126,7 +2126,7 @@ export class CreateUserHeaders extends S.Class<CreateUserHeaders>($I`CreateUserH
  * @category models
  * @since 0.0.0
  */
-export class CreateUserOptionalsInput extends S.Class<CreateUserOptionalsInput>($I`CreateUserOptionalsInput`)(
+export class CreateUserOptionalsInput extends S.Class<CreateUserOptionalsInput, { readonly brand: unique symbol }>($I`CreateUserOptionalsInput`)(
   {
     queryParams: S.suspend(() => CreateUserQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => CreateUserHeaders).pipe(S.optionalKey),
@@ -2151,7 +2151,7 @@ export class CreateUserOptionalsInput extends S.Class<CreateUserOptionalsInput>(
  * @category models
  * @since 0.0.0
  */
-export class CreateUserQueryParams extends S.Class<CreateUserQueryParams>($I`CreateUserQueryParams`)(
+export class CreateUserQueryParams extends S.Class<CreateUserQueryParams, { readonly brand: unique symbol }>($I`CreateUserQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -2174,7 +2174,7 @@ export class CreateUserQueryParams extends S.Class<CreateUserQueryParams>($I`Cre
  * @category models
  * @since 0.0.0
  */
-export class CreateUserRequestBody extends S.Class<CreateUserRequestBody>($I`CreateUserRequestBody`)(
+export class CreateUserRequestBody extends S.Class<CreateUserRequestBody, { readonly brand: unique symbol }>($I`CreateUserRequestBody`)(
   {
     name: S.String,
     login: S.String.pipe(S.optionalKey),
@@ -2282,7 +2282,7 @@ export type CreateUserRequestBodyStatusField = typeof CreateUserRequestBodyStatu
  * @category models
  * @since 0.0.0
  */
-export class CreateWebhookHeaders extends S.Class<CreateWebhookHeaders>($I`CreateWebhookHeaders`)(
+export class CreateWebhookHeaders extends S.Class<CreateWebhookHeaders, { readonly brand: unique symbol }>($I`CreateWebhookHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2305,7 +2305,7 @@ export class CreateWebhookHeaders extends S.Class<CreateWebhookHeaders>($I`Creat
  * @category models
  * @since 0.0.0
  */
-export class CreateWebhookOptionalsInput extends S.Class<CreateWebhookOptionalsInput>($I`CreateWebhookOptionalsInput`)(
+export class CreateWebhookOptionalsInput extends S.Class<CreateWebhookOptionalsInput, { readonly brand: unique symbol }>($I`CreateWebhookOptionalsInput`)(
   {
     headers: S.suspend(() => CreateWebhookHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2329,7 +2329,7 @@ export class CreateWebhookOptionalsInput extends S.Class<CreateWebhookOptionalsI
  * @category models
  * @since 0.0.0
  */
-export class CreateWebhookRequestBody extends S.Class<CreateWebhookRequestBody>($I`CreateWebhookRequestBody`)(
+export class CreateWebhookRequestBody extends S.Class<CreateWebhookRequestBody, { readonly brand: unique symbol }>($I`CreateWebhookRequestBody`)(
   {
     target: S.suspend(() => CreateWebhookRequestBodyTargetField),
     address: S.String,
@@ -2354,7 +2354,7 @@ export class CreateWebhookRequestBody extends S.Class<CreateWebhookRequestBody>(
  * @category models
  * @since 0.0.0
  */
-export class CreateWebhookRequestBodyTargetField extends S.Class<CreateWebhookRequestBodyTargetField>($I`CreateWebhookRequestBodyTargetField`)(
+export class CreateWebhookRequestBodyTargetField extends S.Class<CreateWebhookRequestBodyTargetField, { readonly brand: unique symbol }>($I`CreateWebhookRequestBodyTargetField`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.suspend(() => CreateWebhookRequestBodyTargetTypeField).pipe(S.optionalKey),
@@ -2452,7 +2452,7 @@ export type CreateWebhookRequestBodyTriggersField = typeof CreateWebhookRequestB
  * @category models
  * @since 0.0.0
  */
-export class CreateZipDownloadHeaders extends S.Class<CreateZipDownloadHeaders>($I`CreateZipDownloadHeaders`)(
+export class CreateZipDownloadHeaders extends S.Class<CreateZipDownloadHeaders, { readonly brand: unique symbol }>($I`CreateZipDownloadHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2475,7 +2475,7 @@ export class CreateZipDownloadHeaders extends S.Class<CreateZipDownloadHeaders>(
  * @category models
  * @since 0.0.0
  */
-export class CreateZipDownloadOptionalsInput extends S.Class<CreateZipDownloadOptionalsInput>($I`CreateZipDownloadOptionalsInput`)(
+export class CreateZipDownloadOptionalsInput extends S.Class<CreateZipDownloadOptionalsInput, { readonly brand: unique symbol }>($I`CreateZipDownloadOptionalsInput`)(
   {
     headers: S.suspend(() => CreateZipDownloadHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2499,7 +2499,7 @@ export class CreateZipDownloadOptionalsInput extends S.Class<CreateZipDownloadOp
  * @category models
  * @since 0.0.0
  */
-export class DeleteCollaborationByIdHeaders extends S.Class<DeleteCollaborationByIdHeaders>($I`DeleteCollaborationByIdHeaders`)(
+export class DeleteCollaborationByIdHeaders extends S.Class<DeleteCollaborationByIdHeaders, { readonly brand: unique symbol }>($I`DeleteCollaborationByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2522,7 +2522,7 @@ export class DeleteCollaborationByIdHeaders extends S.Class<DeleteCollaborationB
  * @category models
  * @since 0.0.0
  */
-export class DeleteCollaborationByIdOptionalsInput extends S.Class<DeleteCollaborationByIdOptionalsInput>($I`DeleteCollaborationByIdOptionalsInput`)(
+export class DeleteCollaborationByIdOptionalsInput extends S.Class<DeleteCollaborationByIdOptionalsInput, { readonly brand: unique symbol }>($I`DeleteCollaborationByIdOptionalsInput`)(
   {
     headers: S.suspend(() => DeleteCollaborationByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2546,7 +2546,7 @@ export class DeleteCollaborationByIdOptionalsInput extends S.Class<DeleteCollabo
  * @category models
  * @since 0.0.0
  */
-export class DeleteFileByIdHeaders extends S.Class<DeleteFileByIdHeaders>($I`DeleteFileByIdHeaders`)(
+export class DeleteFileByIdHeaders extends S.Class<DeleteFileByIdHeaders, { readonly brand: unique symbol }>($I`DeleteFileByIdHeaders`)(
   {
     ifMatch: S.String.pipe(S.optionalKey),
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
@@ -2570,7 +2570,7 @@ export class DeleteFileByIdHeaders extends S.Class<DeleteFileByIdHeaders>($I`Del
  * @category models
  * @since 0.0.0
  */
-export class DeleteFileByIdOptionalsInput extends S.Class<DeleteFileByIdOptionalsInput>($I`DeleteFileByIdOptionalsInput`)(
+export class DeleteFileByIdOptionalsInput extends S.Class<DeleteFileByIdOptionalsInput, { readonly brand: unique symbol }>($I`DeleteFileByIdOptionalsInput`)(
   {
     headers: S.suspend(() => DeleteFileByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2594,7 +2594,7 @@ export class DeleteFileByIdOptionalsInput extends S.Class<DeleteFileByIdOptional
  * @category models
  * @since 0.0.0
  */
-export class DeleteFileUploadSessionByIdHeaders extends S.Class<DeleteFileUploadSessionByIdHeaders>($I`DeleteFileUploadSessionByIdHeaders`)(
+export class DeleteFileUploadSessionByIdHeaders extends S.Class<DeleteFileUploadSessionByIdHeaders, { readonly brand: unique symbol }>($I`DeleteFileUploadSessionByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2617,7 +2617,7 @@ export class DeleteFileUploadSessionByIdHeaders extends S.Class<DeleteFileUpload
  * @category models
  * @since 0.0.0
  */
-export class DeleteFileUploadSessionByIdOptionalsInput extends S.Class<DeleteFileUploadSessionByIdOptionalsInput>($I`DeleteFileUploadSessionByIdOptionalsInput`)(
+export class DeleteFileUploadSessionByIdOptionalsInput extends S.Class<DeleteFileUploadSessionByIdOptionalsInput, { readonly brand: unique symbol }>($I`DeleteFileUploadSessionByIdOptionalsInput`)(
   {
     headers: S.suspend(() => DeleteFileUploadSessionByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2641,7 +2641,7 @@ export class DeleteFileUploadSessionByIdOptionalsInput extends S.Class<DeleteFil
  * @category models
  * @since 0.0.0
  */
-export class DeleteFileUploadSessionByUrlHeaders extends S.Class<DeleteFileUploadSessionByUrlHeaders>($I`DeleteFileUploadSessionByUrlHeaders`)(
+export class DeleteFileUploadSessionByUrlHeaders extends S.Class<DeleteFileUploadSessionByUrlHeaders, { readonly brand: unique symbol }>($I`DeleteFileUploadSessionByUrlHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2664,7 +2664,7 @@ export class DeleteFileUploadSessionByUrlHeaders extends S.Class<DeleteFileUploa
  * @category models
  * @since 0.0.0
  */
-export class DeleteFileUploadSessionByUrlOptionalsInput extends S.Class<DeleteFileUploadSessionByUrlOptionalsInput>($I`DeleteFileUploadSessionByUrlOptionalsInput`)(
+export class DeleteFileUploadSessionByUrlOptionalsInput extends S.Class<DeleteFileUploadSessionByUrlOptionalsInput, { readonly brand: unique symbol }>($I`DeleteFileUploadSessionByUrlOptionalsInput`)(
   {
     headers: S.suspend(() => DeleteFileUploadSessionByUrlHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2688,7 +2688,7 @@ export class DeleteFileUploadSessionByUrlOptionalsInput extends S.Class<DeleteFi
  * @category models
  * @since 0.0.0
  */
-export class DeleteFolderByIdHeaders extends S.Class<DeleteFolderByIdHeaders>($I`DeleteFolderByIdHeaders`)(
+export class DeleteFolderByIdHeaders extends S.Class<DeleteFolderByIdHeaders, { readonly brand: unique symbol }>($I`DeleteFolderByIdHeaders`)(
   {
     ifMatch: S.String.pipe(S.optionalKey),
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
@@ -2712,7 +2712,7 @@ export class DeleteFolderByIdHeaders extends S.Class<DeleteFolderByIdHeaders>($I
  * @category models
  * @since 0.0.0
  */
-export class DeleteFolderByIdOptionalsInput extends S.Class<DeleteFolderByIdOptionalsInput>($I`DeleteFolderByIdOptionalsInput`)(
+export class DeleteFolderByIdOptionalsInput extends S.Class<DeleteFolderByIdOptionalsInput, { readonly brand: unique symbol }>($I`DeleteFolderByIdOptionalsInput`)(
   {
     queryParams: S.suspend(() => DeleteFolderByIdQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => DeleteFolderByIdHeaders).pipe(S.optionalKey),
@@ -2737,7 +2737,7 @@ export class DeleteFolderByIdOptionalsInput extends S.Class<DeleteFolderByIdOpti
  * @category models
  * @since 0.0.0
  */
-export class DeleteFolderByIdQueryParams extends S.Class<DeleteFolderByIdQueryParams>($I`DeleteFolderByIdQueryParams`)(
+export class DeleteFolderByIdQueryParams extends S.Class<DeleteFolderByIdQueryParams, { readonly brand: unique symbol }>($I`DeleteFolderByIdQueryParams`)(
   {
     recursive: S.Boolean.pipe(S.optionalKey),
   },
@@ -2760,7 +2760,7 @@ export class DeleteFolderByIdQueryParams extends S.Class<DeleteFolderByIdQueryPa
  * @category models
  * @since 0.0.0
  */
-export class DeleteUserAvatarHeaders extends S.Class<DeleteUserAvatarHeaders>($I`DeleteUserAvatarHeaders`)(
+export class DeleteUserAvatarHeaders extends S.Class<DeleteUserAvatarHeaders, { readonly brand: unique symbol }>($I`DeleteUserAvatarHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2783,7 +2783,7 @@ export class DeleteUserAvatarHeaders extends S.Class<DeleteUserAvatarHeaders>($I
  * @category models
  * @since 0.0.0
  */
-export class DeleteUserAvatarOptionalsInput extends S.Class<DeleteUserAvatarOptionalsInput>($I`DeleteUserAvatarOptionalsInput`)(
+export class DeleteUserAvatarOptionalsInput extends S.Class<DeleteUserAvatarOptionalsInput, { readonly brand: unique symbol }>($I`DeleteUserAvatarOptionalsInput`)(
   {
     headers: S.suspend(() => DeleteUserAvatarHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2807,7 +2807,7 @@ export class DeleteUserAvatarOptionalsInput extends S.Class<DeleteUserAvatarOpti
  * @category models
  * @since 0.0.0
  */
-export class DeleteUserByIdHeaders extends S.Class<DeleteUserByIdHeaders>($I`DeleteUserByIdHeaders`)(
+export class DeleteUserByIdHeaders extends S.Class<DeleteUserByIdHeaders, { readonly brand: unique symbol }>($I`DeleteUserByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2830,7 +2830,7 @@ export class DeleteUserByIdHeaders extends S.Class<DeleteUserByIdHeaders>($I`Del
  * @category models
  * @since 0.0.0
  */
-export class DeleteUserByIdOptionalsInput extends S.Class<DeleteUserByIdOptionalsInput>($I`DeleteUserByIdOptionalsInput`)(
+export class DeleteUserByIdOptionalsInput extends S.Class<DeleteUserByIdOptionalsInput, { readonly brand: unique symbol }>($I`DeleteUserByIdOptionalsInput`)(
   {
     queryParams: S.suspend(() => DeleteUserByIdQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => DeleteUserByIdHeaders).pipe(S.optionalKey),
@@ -2855,7 +2855,7 @@ export class DeleteUserByIdOptionalsInput extends S.Class<DeleteUserByIdOptional
  * @category models
  * @since 0.0.0
  */
-export class DeleteUserByIdQueryParams extends S.Class<DeleteUserByIdQueryParams>($I`DeleteUserByIdQueryParams`)(
+export class DeleteUserByIdQueryParams extends S.Class<DeleteUserByIdQueryParams, { readonly brand: unique symbol }>($I`DeleteUserByIdQueryParams`)(
   {
     notify: S.Boolean.pipe(S.optionalKey),
     force: S.Boolean.pipe(S.optionalKey),
@@ -2879,7 +2879,7 @@ export class DeleteUserByIdQueryParams extends S.Class<DeleteUserByIdQueryParams
  * @category models
  * @since 0.0.0
  */
-export class DeleteWebhookByIdHeaders extends S.Class<DeleteWebhookByIdHeaders>($I`DeleteWebhookByIdHeaders`)(
+export class DeleteWebhookByIdHeaders extends S.Class<DeleteWebhookByIdHeaders, { readonly brand: unique symbol }>($I`DeleteWebhookByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -2902,7 +2902,7 @@ export class DeleteWebhookByIdHeaders extends S.Class<DeleteWebhookByIdHeaders>(
  * @category models
  * @since 0.0.0
  */
-export class DeleteWebhookByIdOptionalsInput extends S.Class<DeleteWebhookByIdOptionalsInput>($I`DeleteWebhookByIdOptionalsInput`)(
+export class DeleteWebhookByIdOptionalsInput extends S.Class<DeleteWebhookByIdOptionalsInput, { readonly brand: unique symbol }>($I`DeleteWebhookByIdOptionalsInput`)(
   {
     headers: S.suspend(() => DeleteWebhookByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -2926,7 +2926,7 @@ export class DeleteWebhookByIdOptionalsInput extends S.Class<DeleteWebhookByIdOp
  * @category models
  * @since 0.0.0
  */
-export class DownloadFileHeaders extends S.Class<DownloadFileHeaders>($I`DownloadFileHeaders`)(
+export class DownloadFileHeaders extends S.Class<DownloadFileHeaders, { readonly brand: unique symbol }>($I`DownloadFileHeaders`)(
   {
     range: S.String.pipe(S.optionalKey),
     boxapi: S.String.pipe(S.optionalKey),
@@ -2951,7 +2951,7 @@ export class DownloadFileHeaders extends S.Class<DownloadFileHeaders>($I`Downloa
  * @category models
  * @since 0.0.0
  */
-export class DownloadFileOptionalsInput extends S.Class<DownloadFileOptionalsInput>($I`DownloadFileOptionalsInput`)(
+export class DownloadFileOptionalsInput extends S.Class<DownloadFileOptionalsInput, { readonly brand: unique symbol }>($I`DownloadFileOptionalsInput`)(
   {
     queryParams: S.suspend(() => DownloadFileQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => DownloadFileHeaders).pipe(S.optionalKey),
@@ -2976,7 +2976,7 @@ export class DownloadFileOptionalsInput extends S.Class<DownloadFileOptionalsInp
  * @category models
  * @since 0.0.0
  */
-export class DownloadFileQueryParams extends S.Class<DownloadFileQueryParams>($I`DownloadFileQueryParams`)(
+export class DownloadFileQueryParams extends S.Class<DownloadFileQueryParams, { readonly brand: unique symbol }>($I`DownloadFileQueryParams`)(
   {
     version: S.String.pipe(S.optionalKey),
     accessToken: S.String.pipe(S.optionalKey),
@@ -3000,7 +3000,7 @@ export class DownloadFileQueryParams extends S.Class<DownloadFileQueryParams>($I
  * @category models
  * @since 0.0.0
  */
-export class DownloadZipHeaders extends S.Class<DownloadZipHeaders>($I`DownloadZipHeaders`)(
+export class DownloadZipHeaders extends S.Class<DownloadZipHeaders, { readonly brand: unique symbol }>($I`DownloadZipHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -3023,7 +3023,7 @@ export class DownloadZipHeaders extends S.Class<DownloadZipHeaders>($I`DownloadZ
  * @category models
  * @since 0.0.0
  */
-export class DownloadZipOptionalsInput extends S.Class<DownloadZipOptionalsInput>($I`DownloadZipOptionalsInput`)(
+export class DownloadZipOptionalsInput extends S.Class<DownloadZipOptionalsInput, { readonly brand: unique symbol }>($I`DownloadZipOptionalsInput`)(
   {
     headers: S.suspend(() => DownloadZipHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -3047,7 +3047,7 @@ export class DownloadZipOptionalsInput extends S.Class<DownloadZipOptionalsInput
  * @category models
  * @since 0.0.0
  */
-export class Event extends S.Class<Event>($I`Event`)(
+export class Event extends S.Class<Event, { readonly brand: unique symbol }>($I`Event`)(
   {
     type: S.String.pipe(S.optionalKey),
     createdAt: BoxSdkDateTime.pipe(S.optionalKey),
@@ -3112,7 +3112,7 @@ export type EventEventTypeField = typeof EventEventTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class Events extends S.Class<Events>($I`Events`)(
+export class Events extends S.Class<Events, { readonly brand: unique symbol }>($I`Events`)(
   {
     chunkSize: S.Finite.pipe(S.optionalKey),
     nextStreamPosition: S.suspend(() => EventsNextStreamPositionField).pipe(S.optionalKey),
@@ -3171,7 +3171,7 @@ export type EventsNextStreamPositionField = typeof EventsNextStreamPositionField
  * @category models
  * @since 0.0.0
  */
-export class EventSource extends S.Class<EventSource>($I`EventSource`)(
+export class EventSource extends S.Class<EventSource, { readonly brand: unique symbol }>($I`EventSource`)(
   {
     itemType: S.suspend(() => EventSourceItemTypeField),
     itemId: S.String,
@@ -3199,7 +3199,7 @@ export class EventSource extends S.Class<EventSource>($I`EventSource`)(
  * @category models
  * @since 0.0.0
  */
-export class EventSourceClassificationField extends S.Class<EventSourceClassificationField>($I`EventSourceClassificationField`)(
+export class EventSourceClassificationField extends S.Class<EventSourceClassificationField, { readonly brand: unique symbol }>($I`EventSourceClassificationField`)(
   {
     name: S.String.pipe(S.optionalKey),
   },
@@ -3296,7 +3296,7 @@ export type EventSourceResource = typeof EventSourceResource.Type;
  * @category models
  * @since 0.0.0
  */
-export class FileBase extends S.Class<FileBase>($I`FileBase`)(
+export class FileBase extends S.Class<FileBase, { readonly brand: unique symbol }>($I`FileBase`)(
   {
     id: S.String,
     etag: S.String.pipe(S.NullOr, S.optionalKey),
@@ -3534,7 +3534,7 @@ export type FileFullAllowedSharedLinkAccessLevelsField = typeof FileFullAllowedS
  * @category models
  * @since 0.0.0
  */
-export class FileFullClassificationField extends S.Class<FileFullClassificationField>($I`FileFullClassificationField`)(
+export class FileFullClassificationField extends S.Class<FileFullClassificationField, { readonly brand: unique symbol }>($I`FileFullClassificationField`)(
   {
     name: S.String.pipe(S.optionalKey),
     definition: S.String.pipe(S.optionalKey),
@@ -3559,7 +3559,7 @@ export class FileFullClassificationField extends S.Class<FileFullClassificationF
  * @category models
  * @since 0.0.0
  */
-export class FileFullExpiringEmbedLinkField extends S.Class<FileFullExpiringEmbedLinkField>($I`FileFullExpiringEmbedLinkField`)(
+export class FileFullExpiringEmbedLinkField extends S.Class<FileFullExpiringEmbedLinkField, { readonly brand: unique symbol }>($I`FileFullExpiringEmbedLinkField`)(
   {
     accessToken: S.String.pipe(S.optionalKey),
     expiresIn: S.Finite.pipe(S.optionalKey),
@@ -3654,7 +3654,7 @@ export type FileFullLockAppTypeField = typeof FileFullLockAppTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class FileFullLockField extends S.Class<FileFullLockField>($I`FileFullLockField`)(
+export class FileFullLockField extends S.Class<FileFullLockField, { readonly brand: unique symbol }>($I`FileFullLockField`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.suspend(() => FileFullLockTypeField).pipe(S.optionalKey),
@@ -3717,7 +3717,7 @@ export type FileFullLockTypeField = typeof FileFullLockTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class FileFullMetadataField extends S.Class<FileFullMetadataField>($I`FileFullMetadataField`)(
+export class FileFullMetadataField extends S.Class<FileFullMetadataField, { readonly brand: unique symbol }>($I`FileFullMetadataField`)(
   {
     extraData: S.Record(S.String, S.Record(S.String, S.suspend(() => MetadataFull))).pipe(S.optionalKey),
   },
@@ -3740,7 +3740,7 @@ export class FileFullMetadataField extends S.Class<FileFullMetadataField>($I`Fil
  * @category models
  * @since 0.0.0
  */
-export class FileFullPermissionsField extends S.Class<FileFullPermissionsField>($I`FileFullPermissionsField`)(
+export class FileFullPermissionsField extends S.Class<FileFullPermissionsField, { readonly brand: unique symbol }>($I`FileFullPermissionsField`)(
   {
     canDelete: S.Boolean,
     canDownload: S.Boolean,
@@ -3775,7 +3775,7 @@ export class FileFullPermissionsField extends S.Class<FileFullPermissionsField>(
  * @category models
  * @since 0.0.0
  */
-export class FileFullRepresentationsEntriesContentField extends S.Class<FileFullRepresentationsEntriesContentField>($I`FileFullRepresentationsEntriesContentField`)(
+export class FileFullRepresentationsEntriesContentField extends S.Class<FileFullRepresentationsEntriesContentField, { readonly brand: unique symbol }>($I`FileFullRepresentationsEntriesContentField`)(
   {
     urlTemplate: S.String.pipe(S.optionalKey),
   },
@@ -3798,7 +3798,7 @@ export class FileFullRepresentationsEntriesContentField extends S.Class<FileFull
  * @category models
  * @since 0.0.0
  */
-export class FileFullRepresentationsEntriesField extends S.Class<FileFullRepresentationsEntriesField>($I`FileFullRepresentationsEntriesField`)(
+export class FileFullRepresentationsEntriesField extends S.Class<FileFullRepresentationsEntriesField, { readonly brand: unique symbol }>($I`FileFullRepresentationsEntriesField`)(
   {
     content: S.suspend(() => FileFullRepresentationsEntriesContentField).pipe(S.optionalKey),
     info: S.suspend(() => FileFullRepresentationsEntriesInfoField).pipe(S.optionalKey),
@@ -3825,7 +3825,7 @@ export class FileFullRepresentationsEntriesField extends S.Class<FileFullReprese
  * @category models
  * @since 0.0.0
  */
-export class FileFullRepresentationsEntriesInfoField extends S.Class<FileFullRepresentationsEntriesInfoField>($I`FileFullRepresentationsEntriesInfoField`)(
+export class FileFullRepresentationsEntriesInfoField extends S.Class<FileFullRepresentationsEntriesInfoField, { readonly brand: unique symbol }>($I`FileFullRepresentationsEntriesInfoField`)(
   {
     url: S.String.pipe(S.optionalKey),
   },
@@ -3848,7 +3848,7 @@ export class FileFullRepresentationsEntriesInfoField extends S.Class<FileFullRep
  * @category models
  * @since 0.0.0
  */
-export class FileFullRepresentationsEntriesPropertiesField extends S.Class<FileFullRepresentationsEntriesPropertiesField>($I`FileFullRepresentationsEntriesPropertiesField`)(
+export class FileFullRepresentationsEntriesPropertiesField extends S.Class<FileFullRepresentationsEntriesPropertiesField, { readonly brand: unique symbol }>($I`FileFullRepresentationsEntriesPropertiesField`)(
   {
     dimensions: S.String.pipe(S.optionalKey),
     paged: S.String.pipe(S.optionalKey),
@@ -3873,7 +3873,7 @@ export class FileFullRepresentationsEntriesPropertiesField extends S.Class<FileF
  * @category models
  * @since 0.0.0
  */
-export class FileFullRepresentationsEntriesStatusField extends S.Class<FileFullRepresentationsEntriesStatusField>($I`FileFullRepresentationsEntriesStatusField`)(
+export class FileFullRepresentationsEntriesStatusField extends S.Class<FileFullRepresentationsEntriesStatusField, { readonly brand: unique symbol }>($I`FileFullRepresentationsEntriesStatusField`)(
   {
     state: S.suspend(() => FileFullRepresentationsEntriesStatusStateField).pipe(S.optionalKey),
   },
@@ -3930,7 +3930,7 @@ export type FileFullRepresentationsEntriesStatusStateField = typeof FileFullRepr
  * @category models
  * @since 0.0.0
  */
-export class FileFullRepresentationsField extends S.Class<FileFullRepresentationsField>($I`FileFullRepresentationsField`)(
+export class FileFullRepresentationsField extends S.Class<FileFullRepresentationsField, { readonly brand: unique symbol }>($I`FileFullRepresentationsField`)(
   {
     entries: S.suspend(() => FileFullRepresentationsEntriesField).pipe(S.Array, S.optionalKey),
   },
@@ -3987,7 +3987,7 @@ export type FileFullSharedLinkPermissionOptionsField = typeof FileFullSharedLink
  * @category models
  * @since 0.0.0
  */
-export class FileFullWatermarkInfoField extends S.Class<FileFullWatermarkInfoField>($I`FileFullWatermarkInfoField`)(
+export class FileFullWatermarkInfoField extends S.Class<FileFullWatermarkInfoField, { readonly brand: unique symbol }>($I`FileFullWatermarkInfoField`)(
   {
     isWatermarked: S.Boolean.pipe(S.optionalKey),
     isWatermarkInherited: S.Boolean.pipe(S.optionalKey),
@@ -4046,7 +4046,7 @@ export type FileItemStatusField = typeof FileItemStatusField.Type;
  * @category models
  * @since 0.0.0
  */
-export class FilePathCollectionField extends S.Class<FilePathCollectionField>($I`FilePathCollectionField`)(
+export class FilePathCollectionField extends S.Class<FilePathCollectionField, { readonly brand: unique symbol }>($I`FilePathCollectionField`)(
   {
     totalCount: S.Finite,
     entries: S.suspend(() => FolderMini).pipe(S.Array),
@@ -4070,7 +4070,7 @@ export class FilePathCollectionField extends S.Class<FilePathCollectionField>($I
  * @category models
  * @since 0.0.0
  */
-export class Files extends S.Class<Files>($I`Files`)(
+export class Files extends S.Class<Files, { readonly brand: unique symbol }>($I`Files`)(
   {
     totalCount: S.Finite.pipe(S.optionalKey),
     entries: S.suspend(() => FileFull).pipe(S.Array, S.optionalKey),
@@ -4196,7 +4196,7 @@ export type FileSharedLinkEffectivePermissionField = typeof FileSharedLinkEffect
  * @category models
  * @since 0.0.0
  */
-export class FileSharedLinkField extends S.Class<FileSharedLinkField>($I`FileSharedLinkField`)(
+export class FileSharedLinkField extends S.Class<FileSharedLinkField, { readonly brand: unique symbol }>($I`FileSharedLinkField`)(
   {
     url: S.String,
     downloadUrl: S.String.pipe(S.NullOr, S.optionalKey),
@@ -4230,7 +4230,7 @@ export class FileSharedLinkField extends S.Class<FileSharedLinkField>($I`FileSha
  * @category models
  * @since 0.0.0
  */
-export class FileSharedLinkPermissionsField extends S.Class<FileSharedLinkPermissionsField>($I`FileSharedLinkPermissionsField`)(
+export class FileSharedLinkPermissionsField extends S.Class<FileSharedLinkPermissionsField, { readonly brand: unique symbol }>($I`FileSharedLinkPermissionsField`)(
   {
     canDownload: S.Boolean,
     canPreview: S.Boolean,
@@ -4255,7 +4255,7 @@ export class FileSharedLinkPermissionsField extends S.Class<FileSharedLinkPermis
  * @category models
  * @since 0.0.0
  */
-export class FilesUnderRetention extends S.Class<FilesUnderRetention>($I`FilesUnderRetention`)(
+export class FilesUnderRetention extends S.Class<FilesUnderRetention, { readonly brand: unique symbol }>($I`FilesUnderRetention`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     nextMarker: S.String.pipe(S.NullOr, S.optionalKey),
@@ -4281,7 +4281,7 @@ export class FilesUnderRetention extends S.Class<FilesUnderRetention>($I`FilesUn
  * @category models
  * @since 0.0.0
  */
-export class FileVersionBase extends S.Class<FileVersionBase>($I`FileVersionBase`)(
+export class FileVersionBase extends S.Class<FileVersionBase, { readonly brand: unique symbol }>($I`FileVersionBase`)(
   {
     id: S.String,
     type: S.suspend(() => FileVersionBaseTypeField),
@@ -4362,7 +4362,7 @@ export type FileVersionBaseTypeField = typeof FileVersionBaseTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class FolderBase extends S.Class<FolderBase>($I`FolderBase`)(
+export class FolderBase extends S.Class<FolderBase, { readonly brand: unique symbol }>($I`FolderBase`)(
   {
     id: S.String,
     etag: S.String.pipe(S.NullOr, S.optionalKey),
@@ -4518,7 +4518,7 @@ export type FolderFolderUploadEmailAccessField = typeof FolderFolderUploadEmailA
  * @category models
  * @since 0.0.0
  */
-export class FolderFolderUploadEmailField extends S.Class<FolderFolderUploadEmailField>($I`FolderFolderUploadEmailField`)(
+export class FolderFolderUploadEmailField extends S.Class<FolderFolderUploadEmailField, { readonly brand: unique symbol }>($I`FolderFolderUploadEmailField`)(
   {
     access: S.suspend(() => FolderFolderUploadEmailAccessField).pipe(S.optionalKey),
     email: S.String.pipe(S.optionalKey),
@@ -4648,7 +4648,7 @@ export type FolderFullAllowedSharedLinkAccessLevelsField = typeof FolderFullAllo
  * @category models
  * @since 0.0.0
  */
-export class FolderFullClassificationField extends S.Class<FolderFullClassificationField>($I`FolderFullClassificationField`)(
+export class FolderFullClassificationField extends S.Class<FolderFullClassificationField, { readonly brand: unique symbol }>($I`FolderFullClassificationField`)(
   {
     name: S.String.pipe(S.optionalKey),
     definition: S.String.pipe(S.optionalKey),
@@ -4673,7 +4673,7 @@ export class FolderFullClassificationField extends S.Class<FolderFullClassificat
  * @category models
  * @since 0.0.0
  */
-export class FolderFullMetadataField extends S.Class<FolderFullMetadataField>($I`FolderFullMetadataField`)(
+export class FolderFullMetadataField extends S.Class<FolderFullMetadataField, { readonly brand: unique symbol }>($I`FolderFullMetadataField`)(
   {
     extraData: S.Record(S.String, S.Record(S.String, S.suspend(() => MetadataFull))).pipe(S.optionalKey),
   },
@@ -4696,7 +4696,7 @@ export class FolderFullMetadataField extends S.Class<FolderFullMetadataField>($I
  * @category models
  * @since 0.0.0
  */
-export class FolderFullPermissionsField extends S.Class<FolderFullPermissionsField>($I`FolderFullPermissionsField`)(
+export class FolderFullPermissionsField extends S.Class<FolderFullPermissionsField, { readonly brand: unique symbol }>($I`FolderFullPermissionsField`)(
   {
     canDelete: S.Boolean,
     canDownload: S.Boolean,
@@ -4760,7 +4760,7 @@ export type FolderFullSyncStateField = typeof FolderFullSyncStateField.Type;
  * @category models
  * @since 0.0.0
  */
-export class FolderFullWatermarkInfoField extends S.Class<FolderFullWatermarkInfoField>($I`FolderFullWatermarkInfoField`)(
+export class FolderFullWatermarkInfoField extends S.Class<FolderFullWatermarkInfoField, { readonly brand: unique symbol }>($I`FolderFullWatermarkInfoField`)(
   {
     isWatermarked: S.Boolean.pipe(S.optionalKey),
     isWatermarkInherited: S.Boolean.pipe(S.optionalKey),
@@ -4819,7 +4819,7 @@ export type FolderItemStatusField = typeof FolderItemStatusField.Type;
  * @category models
  * @since 0.0.0
  */
-export class FolderPathCollectionField extends S.Class<FolderPathCollectionField>($I`FolderPathCollectionField`)(
+export class FolderPathCollectionField extends S.Class<FolderPathCollectionField, { readonly brand: unique symbol }>($I`FolderPathCollectionField`)(
   {
     totalCount: S.Finite,
     entries: S.suspend(() => FolderMini).pipe(S.Array),
@@ -4945,7 +4945,7 @@ export type FolderSharedLinkEffectivePermissionField = typeof FolderSharedLinkEf
  * @category models
  * @since 0.0.0
  */
-export class FolderSharedLinkField extends S.Class<FolderSharedLinkField>($I`FolderSharedLinkField`)(
+export class FolderSharedLinkField extends S.Class<FolderSharedLinkField, { readonly brand: unique symbol }>($I`FolderSharedLinkField`)(
   {
     url: S.String,
     downloadUrl: S.String.pipe(S.NullOr, S.optionalKey),
@@ -4979,7 +4979,7 @@ export class FolderSharedLinkField extends S.Class<FolderSharedLinkField>($I`Fol
  * @category models
  * @since 0.0.0
  */
-export class FolderSharedLinkPermissionsField extends S.Class<FolderSharedLinkPermissionsField>($I`FolderSharedLinkPermissionsField`)(
+export class FolderSharedLinkPermissionsField extends S.Class<FolderSharedLinkPermissionsField, { readonly brand: unique symbol }>($I`FolderSharedLinkPermissionsField`)(
   {
     canDownload: S.Boolean,
     canPreview: S.Boolean,
@@ -5038,7 +5038,7 @@ export type GenericSource = typeof GenericSource.Type;
  * @category models
  * @since 0.0.0
  */
-export class GetCollaborationByIdHeaders extends S.Class<GetCollaborationByIdHeaders>($I`GetCollaborationByIdHeaders`)(
+export class GetCollaborationByIdHeaders extends S.Class<GetCollaborationByIdHeaders, { readonly brand: unique symbol }>($I`GetCollaborationByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5061,7 +5061,7 @@ export class GetCollaborationByIdHeaders extends S.Class<GetCollaborationByIdHea
  * @category models
  * @since 0.0.0
  */
-export class GetCollaborationByIdOptionalsInput extends S.Class<GetCollaborationByIdOptionalsInput>($I`GetCollaborationByIdOptionalsInput`)(
+export class GetCollaborationByIdOptionalsInput extends S.Class<GetCollaborationByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetCollaborationByIdOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetCollaborationByIdQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetCollaborationByIdHeaders).pipe(S.optionalKey),
@@ -5086,7 +5086,7 @@ export class GetCollaborationByIdOptionalsInput extends S.Class<GetCollaboration
  * @category models
  * @since 0.0.0
  */
-export class GetCollaborationByIdQueryParams extends S.Class<GetCollaborationByIdQueryParams>($I`GetCollaborationByIdQueryParams`)(
+export class GetCollaborationByIdQueryParams extends S.Class<GetCollaborationByIdQueryParams, { readonly brand: unique symbol }>($I`GetCollaborationByIdQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -5109,7 +5109,7 @@ export class GetCollaborationByIdQueryParams extends S.Class<GetCollaborationByI
  * @category models
  * @since 0.0.0
  */
-export class GetCollaborationsHeaders extends S.Class<GetCollaborationsHeaders>($I`GetCollaborationsHeaders`)(
+export class GetCollaborationsHeaders extends S.Class<GetCollaborationsHeaders, { readonly brand: unique symbol }>($I`GetCollaborationsHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5132,7 +5132,7 @@ export class GetCollaborationsHeaders extends S.Class<GetCollaborationsHeaders>(
  * @category models
  * @since 0.0.0
  */
-export class GetCollaborationsOptionalsInput extends S.Class<GetCollaborationsOptionalsInput>($I`GetCollaborationsOptionalsInput`)(
+export class GetCollaborationsOptionalsInput extends S.Class<GetCollaborationsOptionalsInput, { readonly brand: unique symbol }>($I`GetCollaborationsOptionalsInput`)(
   {
     headers: S.suspend(() => GetCollaborationsHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -5156,7 +5156,7 @@ export class GetCollaborationsOptionalsInput extends S.Class<GetCollaborationsOp
  * @category models
  * @since 0.0.0
  */
-export class GetCollaborationsQueryParams extends S.Class<GetCollaborationsQueryParams>($I`GetCollaborationsQueryParams`)(
+export class GetCollaborationsQueryParams extends S.Class<GetCollaborationsQueryParams, { readonly brand: unique symbol }>($I`GetCollaborationsQueryParams`)(
   {
     status: S.suspend(() => GetCollaborationsQueryParamsStatusField),
     fields: S.String.pipe(S.Array, S.optionalKey),
@@ -5216,7 +5216,7 @@ export type GetCollaborationsQueryParamsStatusField = typeof GetCollaborationsQu
  * @category models
  * @since 0.0.0
  */
-export class GetDownloadFileUrlHeaders extends S.Class<GetDownloadFileUrlHeaders>($I`GetDownloadFileUrlHeaders`)(
+export class GetDownloadFileUrlHeaders extends S.Class<GetDownloadFileUrlHeaders, { readonly brand: unique symbol }>($I`GetDownloadFileUrlHeaders`)(
   {
     range: S.String.pipe(S.optionalKey),
     boxapi: S.String.pipe(S.optionalKey),
@@ -5241,7 +5241,7 @@ export class GetDownloadFileUrlHeaders extends S.Class<GetDownloadFileUrlHeaders
  * @category models
  * @since 0.0.0
  */
-export class GetDownloadFileUrlOptionalsInput extends S.Class<GetDownloadFileUrlOptionalsInput>($I`GetDownloadFileUrlOptionalsInput`)(
+export class GetDownloadFileUrlOptionalsInput extends S.Class<GetDownloadFileUrlOptionalsInput, { readonly brand: unique symbol }>($I`GetDownloadFileUrlOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetDownloadFileUrlQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetDownloadFileUrlHeaders).pipe(S.optionalKey),
@@ -5266,7 +5266,7 @@ export class GetDownloadFileUrlOptionalsInput extends S.Class<GetDownloadFileUrl
  * @category models
  * @since 0.0.0
  */
-export class GetDownloadFileUrlQueryParams extends S.Class<GetDownloadFileUrlQueryParams>($I`GetDownloadFileUrlQueryParams`)(
+export class GetDownloadFileUrlQueryParams extends S.Class<GetDownloadFileUrlQueryParams, { readonly brand: unique symbol }>($I`GetDownloadFileUrlQueryParams`)(
   {
     version: S.String.pipe(S.optionalKey),
     accessToken: S.String.pipe(S.optionalKey),
@@ -5290,7 +5290,7 @@ export class GetDownloadFileUrlQueryParams extends S.Class<GetDownloadFileUrlQue
  * @category models
  * @since 0.0.0
  */
-export class GetEnterpriseMetadataTemplatesHeadersInput extends S.Class<GetEnterpriseMetadataTemplatesHeadersInput>($I`GetEnterpriseMetadataTemplatesHeadersInput`)(
+export class GetEnterpriseMetadataTemplatesHeadersInput extends S.Class<GetEnterpriseMetadataTemplatesHeadersInput, { readonly brand: unique symbol }>($I`GetEnterpriseMetadataTemplatesHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5313,7 +5313,7 @@ export class GetEnterpriseMetadataTemplatesHeadersInput extends S.Class<GetEnter
  * @category models
  * @since 0.0.0
  */
-export class GetEnterpriseMetadataTemplatesQueryParams extends S.Class<GetEnterpriseMetadataTemplatesQueryParams>($I`GetEnterpriseMetadataTemplatesQueryParams`)(
+export class GetEnterpriseMetadataTemplatesQueryParams extends S.Class<GetEnterpriseMetadataTemplatesQueryParams, { readonly brand: unique symbol }>($I`GetEnterpriseMetadataTemplatesQueryParams`)(
   {
     marker: S.String.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -5337,7 +5337,7 @@ export class GetEnterpriseMetadataTemplatesQueryParams extends S.Class<GetEnterp
  * @category models
  * @since 0.0.0
  */
-export class GetEventsHeadersInput extends S.Class<GetEventsHeadersInput>($I`GetEventsHeadersInput`)(
+export class GetEventsHeadersInput extends S.Class<GetEventsHeadersInput, { readonly brand: unique symbol }>($I`GetEventsHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5360,7 +5360,7 @@ export class GetEventsHeadersInput extends S.Class<GetEventsHeadersInput>($I`Get
  * @category models
  * @since 0.0.0
  */
-export class GetEventsQueryParams extends S.Class<GetEventsQueryParams>($I`GetEventsQueryParams`)(
+export class GetEventsQueryParams extends S.Class<GetEventsQueryParams, { readonly brand: unique symbol }>($I`GetEventsQueryParams`)(
   {
     streamType: S.suspend(() => GetEventsQueryParamsStreamTypeField).pipe(S.optionalKey),
     streamPosition: S.String.pipe(S.optionalKey),
@@ -5456,7 +5456,7 @@ export type GetEventsQueryParamsStreamTypeField = typeof GetEventsQueryParamsStr
  * @category models
  * @since 0.0.0
  */
-export class GetEventStreamHeadersInput extends S.Class<GetEventStreamHeadersInput>($I`GetEventStreamHeadersInput`)(
+export class GetEventStreamHeadersInput extends S.Class<GetEventStreamHeadersInput, { readonly brand: unique symbol }>($I`GetEventStreamHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5479,7 +5479,7 @@ export class GetEventStreamHeadersInput extends S.Class<GetEventStreamHeadersInp
  * @category models
  * @since 0.0.0
  */
-export class GetEventStreamQueryParams extends S.Class<GetEventStreamQueryParams>($I`GetEventStreamQueryParams`)(
+export class GetEventStreamQueryParams extends S.Class<GetEventStreamQueryParams, { readonly brand: unique symbol }>($I`GetEventStreamQueryParams`)(
   {
     streamType: S.suspend(() => GetEventStreamQueryParamsStreamTypeField).pipe(S.optionalKey),
     streamPosition: S.String.pipe(S.optionalKey),
@@ -5575,7 +5575,7 @@ export type GetEventStreamQueryParamsStreamTypeField = typeof GetEventStreamQuer
  * @category models
  * @since 0.0.0
  */
-export class GetEventsWithLongPollingHeadersInput extends S.Class<GetEventsWithLongPollingHeadersInput>($I`GetEventsWithLongPollingHeadersInput`)(
+export class GetEventsWithLongPollingHeadersInput extends S.Class<GetEventsWithLongPollingHeadersInput, { readonly brand: unique symbol }>($I`GetEventsWithLongPollingHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5598,7 +5598,7 @@ export class GetEventsWithLongPollingHeadersInput extends S.Class<GetEventsWithL
  * @category models
  * @since 0.0.0
  */
-export class GetFileByIdHeaders extends S.Class<GetFileByIdHeaders>($I`GetFileByIdHeaders`)(
+export class GetFileByIdHeaders extends S.Class<GetFileByIdHeaders, { readonly brand: unique symbol }>($I`GetFileByIdHeaders`)(
   {
     ifNoneMatch: S.String.pipe(S.optionalKey),
     boxapi: S.String.pipe(S.optionalKey),
@@ -5624,7 +5624,7 @@ export class GetFileByIdHeaders extends S.Class<GetFileByIdHeaders>($I`GetFileBy
  * @category models
  * @since 0.0.0
  */
-export class GetFileByIdOptionalsInput extends S.Class<GetFileByIdOptionalsInput>($I`GetFileByIdOptionalsInput`)(
+export class GetFileByIdOptionalsInput extends S.Class<GetFileByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetFileByIdOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFileByIdQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFileByIdHeaders).pipe(S.optionalKey),
@@ -5649,7 +5649,7 @@ export class GetFileByIdOptionalsInput extends S.Class<GetFileByIdOptionalsInput
  * @category models
  * @since 0.0.0
  */
-export class GetFileByIdQueryParams extends S.Class<GetFileByIdQueryParams>($I`GetFileByIdQueryParams`)(
+export class GetFileByIdQueryParams extends S.Class<GetFileByIdQueryParams, { readonly brand: unique symbol }>($I`GetFileByIdQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -5672,7 +5672,7 @@ export class GetFileByIdQueryParams extends S.Class<GetFileByIdQueryParams>($I`G
  * @category models
  * @since 0.0.0
  */
-export class GetFileCollaborationsHeaders extends S.Class<GetFileCollaborationsHeaders>($I`GetFileCollaborationsHeaders`)(
+export class GetFileCollaborationsHeaders extends S.Class<GetFileCollaborationsHeaders, { readonly brand: unique symbol }>($I`GetFileCollaborationsHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5695,7 +5695,7 @@ export class GetFileCollaborationsHeaders extends S.Class<GetFileCollaborationsH
  * @category models
  * @since 0.0.0
  */
-export class GetFileCollaborationsOptionalsInput extends S.Class<GetFileCollaborationsOptionalsInput>($I`GetFileCollaborationsOptionalsInput`)(
+export class GetFileCollaborationsOptionalsInput extends S.Class<GetFileCollaborationsOptionalsInput, { readonly brand: unique symbol }>($I`GetFileCollaborationsOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFileCollaborationsQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFileCollaborationsHeaders).pipe(S.optionalKey),
@@ -5720,7 +5720,7 @@ export class GetFileCollaborationsOptionalsInput extends S.Class<GetFileCollabor
  * @category models
  * @since 0.0.0
  */
-export class GetFileCollaborationsQueryParams extends S.Class<GetFileCollaborationsQueryParams>($I`GetFileCollaborationsQueryParams`)(
+export class GetFileCollaborationsQueryParams extends S.Class<GetFileCollaborationsQueryParams, { readonly brand: unique symbol }>($I`GetFileCollaborationsQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -5745,7 +5745,7 @@ export class GetFileCollaborationsQueryParams extends S.Class<GetFileCollaborati
  * @category models
  * @since 0.0.0
  */
-export class GetFilesUnderRetentionPolicyAssignmentHeaders extends S.Class<GetFilesUnderRetentionPolicyAssignmentHeaders>($I`GetFilesUnderRetentionPolicyAssignmentHeaders`)(
+export class GetFilesUnderRetentionPolicyAssignmentHeaders extends S.Class<GetFilesUnderRetentionPolicyAssignmentHeaders, { readonly brand: unique symbol }>($I`GetFilesUnderRetentionPolicyAssignmentHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5768,7 +5768,7 @@ export class GetFilesUnderRetentionPolicyAssignmentHeaders extends S.Class<GetFi
  * @category models
  * @since 0.0.0
  */
-export class GetFilesUnderRetentionPolicyAssignmentOptionalsInput extends S.Class<GetFilesUnderRetentionPolicyAssignmentOptionalsInput>($I`GetFilesUnderRetentionPolicyAssignmentOptionalsInput`)(
+export class GetFilesUnderRetentionPolicyAssignmentOptionalsInput extends S.Class<GetFilesUnderRetentionPolicyAssignmentOptionalsInput, { readonly brand: unique symbol }>($I`GetFilesUnderRetentionPolicyAssignmentOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFilesUnderRetentionPolicyAssignmentQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFilesUnderRetentionPolicyAssignmentHeaders).pipe(S.optionalKey),
@@ -5793,7 +5793,7 @@ export class GetFilesUnderRetentionPolicyAssignmentOptionalsInput extends S.Clas
  * @category models
  * @since 0.0.0
  */
-export class GetFilesUnderRetentionPolicyAssignmentQueryParams extends S.Class<GetFilesUnderRetentionPolicyAssignmentQueryParams>($I`GetFilesUnderRetentionPolicyAssignmentQueryParams`)(
+export class GetFilesUnderRetentionPolicyAssignmentQueryParams extends S.Class<GetFilesUnderRetentionPolicyAssignmentQueryParams, { readonly brand: unique symbol }>($I`GetFilesUnderRetentionPolicyAssignmentQueryParams`)(
   {
     marker: S.String.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -5851,7 +5851,7 @@ export type GetFileThumbnailByIdExtension = typeof GetFileThumbnailByIdExtension
  * @category models
  * @since 0.0.0
  */
-export class GetFileThumbnailByIdHeaders extends S.Class<GetFileThumbnailByIdHeaders>($I`GetFileThumbnailByIdHeaders`)(
+export class GetFileThumbnailByIdHeaders extends S.Class<GetFileThumbnailByIdHeaders, { readonly brand: unique symbol }>($I`GetFileThumbnailByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5874,7 +5874,7 @@ export class GetFileThumbnailByIdHeaders extends S.Class<GetFileThumbnailByIdHea
  * @category models
  * @since 0.0.0
  */
-export class GetFileThumbnailByIdOptionalsInput extends S.Class<GetFileThumbnailByIdOptionalsInput>($I`GetFileThumbnailByIdOptionalsInput`)(
+export class GetFileThumbnailByIdOptionalsInput extends S.Class<GetFileThumbnailByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetFileThumbnailByIdOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFileThumbnailByIdQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFileThumbnailByIdHeaders).pipe(S.optionalKey),
@@ -5899,7 +5899,7 @@ export class GetFileThumbnailByIdOptionalsInput extends S.Class<GetFileThumbnail
  * @category models
  * @since 0.0.0
  */
-export class GetFileThumbnailByIdQueryParams extends S.Class<GetFileThumbnailByIdQueryParams>($I`GetFileThumbnailByIdQueryParams`)(
+export class GetFileThumbnailByIdQueryParams extends S.Class<GetFileThumbnailByIdQueryParams, { readonly brand: unique symbol }>($I`GetFileThumbnailByIdQueryParams`)(
   {
     minHeight: S.Finite.pipe(S.optionalKey),
     minWidth: S.Finite.pipe(S.optionalKey),
@@ -5959,7 +5959,7 @@ export type GetFileThumbnailUrlExtension = typeof GetFileThumbnailUrlExtension.T
  * @category models
  * @since 0.0.0
  */
-export class GetFileThumbnailUrlHeaders extends S.Class<GetFileThumbnailUrlHeaders>($I`GetFileThumbnailUrlHeaders`)(
+export class GetFileThumbnailUrlHeaders extends S.Class<GetFileThumbnailUrlHeaders, { readonly brand: unique symbol }>($I`GetFileThumbnailUrlHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -5982,7 +5982,7 @@ export class GetFileThumbnailUrlHeaders extends S.Class<GetFileThumbnailUrlHeade
  * @category models
  * @since 0.0.0
  */
-export class GetFileThumbnailUrlOptionalsInput extends S.Class<GetFileThumbnailUrlOptionalsInput>($I`GetFileThumbnailUrlOptionalsInput`)(
+export class GetFileThumbnailUrlOptionalsInput extends S.Class<GetFileThumbnailUrlOptionalsInput, { readonly brand: unique symbol }>($I`GetFileThumbnailUrlOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFileThumbnailUrlQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFileThumbnailUrlHeaders).pipe(S.optionalKey),
@@ -6007,7 +6007,7 @@ export class GetFileThumbnailUrlOptionalsInput extends S.Class<GetFileThumbnailU
  * @category models
  * @since 0.0.0
  */
-export class GetFileThumbnailUrlQueryParams extends S.Class<GetFileThumbnailUrlQueryParams>($I`GetFileThumbnailUrlQueryParams`)(
+export class GetFileThumbnailUrlQueryParams extends S.Class<GetFileThumbnailUrlQueryParams, { readonly brand: unique symbol }>($I`GetFileThumbnailUrlQueryParams`)(
   {
     minHeight: S.Finite.pipe(S.optionalKey),
     minWidth: S.Finite.pipe(S.optionalKey),
@@ -6033,7 +6033,7 @@ export class GetFileThumbnailUrlQueryParams extends S.Class<GetFileThumbnailUrlQ
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionByIdHeaders extends S.Class<GetFileUploadSessionByIdHeaders>($I`GetFileUploadSessionByIdHeaders`)(
+export class GetFileUploadSessionByIdHeaders extends S.Class<GetFileUploadSessionByIdHeaders, { readonly brand: unique symbol }>($I`GetFileUploadSessionByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6056,7 +6056,7 @@ export class GetFileUploadSessionByIdHeaders extends S.Class<GetFileUploadSessio
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionByIdOptionalsInput extends S.Class<GetFileUploadSessionByIdOptionalsInput>($I`GetFileUploadSessionByIdOptionalsInput`)(
+export class GetFileUploadSessionByIdOptionalsInput extends S.Class<GetFileUploadSessionByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetFileUploadSessionByIdOptionalsInput`)(
   {
     headers: S.suspend(() => GetFileUploadSessionByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -6080,7 +6080,7 @@ export class GetFileUploadSessionByIdOptionalsInput extends S.Class<GetFileUploa
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionByUrlHeaders extends S.Class<GetFileUploadSessionByUrlHeaders>($I`GetFileUploadSessionByUrlHeaders`)(
+export class GetFileUploadSessionByUrlHeaders extends S.Class<GetFileUploadSessionByUrlHeaders, { readonly brand: unique symbol }>($I`GetFileUploadSessionByUrlHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6103,7 +6103,7 @@ export class GetFileUploadSessionByUrlHeaders extends S.Class<GetFileUploadSessi
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionByUrlOptionalsInput extends S.Class<GetFileUploadSessionByUrlOptionalsInput>($I`GetFileUploadSessionByUrlOptionalsInput`)(
+export class GetFileUploadSessionByUrlOptionalsInput extends S.Class<GetFileUploadSessionByUrlOptionalsInput, { readonly brand: unique symbol }>($I`GetFileUploadSessionByUrlOptionalsInput`)(
   {
     headers: S.suspend(() => GetFileUploadSessionByUrlHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -6127,7 +6127,7 @@ export class GetFileUploadSessionByUrlOptionalsInput extends S.Class<GetFileUplo
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionPartsByUrlHeaders extends S.Class<GetFileUploadSessionPartsByUrlHeaders>($I`GetFileUploadSessionPartsByUrlHeaders`)(
+export class GetFileUploadSessionPartsByUrlHeaders extends S.Class<GetFileUploadSessionPartsByUrlHeaders, { readonly brand: unique symbol }>($I`GetFileUploadSessionPartsByUrlHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6150,7 +6150,7 @@ export class GetFileUploadSessionPartsByUrlHeaders extends S.Class<GetFileUpload
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionPartsByUrlOptionalsInput extends S.Class<GetFileUploadSessionPartsByUrlOptionalsInput>($I`GetFileUploadSessionPartsByUrlOptionalsInput`)(
+export class GetFileUploadSessionPartsByUrlOptionalsInput extends S.Class<GetFileUploadSessionPartsByUrlOptionalsInput, { readonly brand: unique symbol }>($I`GetFileUploadSessionPartsByUrlOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFileUploadSessionPartsByUrlQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFileUploadSessionPartsByUrlHeaders).pipe(S.optionalKey),
@@ -6175,7 +6175,7 @@ export class GetFileUploadSessionPartsByUrlOptionalsInput extends S.Class<GetFil
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionPartsByUrlQueryParams extends S.Class<GetFileUploadSessionPartsByUrlQueryParams>($I`GetFileUploadSessionPartsByUrlQueryParams`)(
+export class GetFileUploadSessionPartsByUrlQueryParams extends S.Class<GetFileUploadSessionPartsByUrlQueryParams, { readonly brand: unique symbol }>($I`GetFileUploadSessionPartsByUrlQueryParams`)(
   {
     offset: S.Finite.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -6199,7 +6199,7 @@ export class GetFileUploadSessionPartsByUrlQueryParams extends S.Class<GetFileUp
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionPartsHeaders extends S.Class<GetFileUploadSessionPartsHeaders>($I`GetFileUploadSessionPartsHeaders`)(
+export class GetFileUploadSessionPartsHeaders extends S.Class<GetFileUploadSessionPartsHeaders, { readonly brand: unique symbol }>($I`GetFileUploadSessionPartsHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6222,7 +6222,7 @@ export class GetFileUploadSessionPartsHeaders extends S.Class<GetFileUploadSessi
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionPartsOptionalsInput extends S.Class<GetFileUploadSessionPartsOptionalsInput>($I`GetFileUploadSessionPartsOptionalsInput`)(
+export class GetFileUploadSessionPartsOptionalsInput extends S.Class<GetFileUploadSessionPartsOptionalsInput, { readonly brand: unique symbol }>($I`GetFileUploadSessionPartsOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFileUploadSessionPartsQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFileUploadSessionPartsHeaders).pipe(S.optionalKey),
@@ -6247,7 +6247,7 @@ export class GetFileUploadSessionPartsOptionalsInput extends S.Class<GetFileUplo
  * @category models
  * @since 0.0.0
  */
-export class GetFileUploadSessionPartsQueryParams extends S.Class<GetFileUploadSessionPartsQueryParams>($I`GetFileUploadSessionPartsQueryParams`)(
+export class GetFileUploadSessionPartsQueryParams extends S.Class<GetFileUploadSessionPartsQueryParams, { readonly brand: unique symbol }>($I`GetFileUploadSessionPartsQueryParams`)(
   {
     offset: S.Finite.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -6271,7 +6271,7 @@ export class GetFileUploadSessionPartsQueryParams extends S.Class<GetFileUploadS
  * @category models
  * @since 0.0.0
  */
-export class GetFolderByIdHeaders extends S.Class<GetFolderByIdHeaders>($I`GetFolderByIdHeaders`)(
+export class GetFolderByIdHeaders extends S.Class<GetFolderByIdHeaders, { readonly brand: unique symbol }>($I`GetFolderByIdHeaders`)(
   {
     ifNoneMatch: S.String.pipe(S.optionalKey),
     boxapi: S.String.pipe(S.optionalKey),
@@ -6296,7 +6296,7 @@ export class GetFolderByIdHeaders extends S.Class<GetFolderByIdHeaders>($I`GetFo
  * @category models
  * @since 0.0.0
  */
-export class GetFolderByIdOptionalsInput extends S.Class<GetFolderByIdOptionalsInput>($I`GetFolderByIdOptionalsInput`)(
+export class GetFolderByIdOptionalsInput extends S.Class<GetFolderByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetFolderByIdOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFolderByIdQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFolderByIdHeaders).pipe(S.optionalKey),
@@ -6321,7 +6321,7 @@ export class GetFolderByIdOptionalsInput extends S.Class<GetFolderByIdOptionalsI
  * @category models
  * @since 0.0.0
  */
-export class GetFolderByIdQueryParams extends S.Class<GetFolderByIdQueryParams>($I`GetFolderByIdQueryParams`)(
+export class GetFolderByIdQueryParams extends S.Class<GetFolderByIdQueryParams, { readonly brand: unique symbol }>($I`GetFolderByIdQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
     sort: S.suspend(() => GetFolderByIdQueryParamsSortField).pipe(S.optionalKey),
@@ -6416,7 +6416,7 @@ export type GetFolderByIdQueryParamsSortField = typeof GetFolderByIdQueryParamsS
  * @category models
  * @since 0.0.0
  */
-export class GetFolderCollaborationsHeaders extends S.Class<GetFolderCollaborationsHeaders>($I`GetFolderCollaborationsHeaders`)(
+export class GetFolderCollaborationsHeaders extends S.Class<GetFolderCollaborationsHeaders, { readonly brand: unique symbol }>($I`GetFolderCollaborationsHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6439,7 +6439,7 @@ export class GetFolderCollaborationsHeaders extends S.Class<GetFolderCollaborati
  * @category models
  * @since 0.0.0
  */
-export class GetFolderCollaborationsOptionalsInput extends S.Class<GetFolderCollaborationsOptionalsInput>($I`GetFolderCollaborationsOptionalsInput`)(
+export class GetFolderCollaborationsOptionalsInput extends S.Class<GetFolderCollaborationsOptionalsInput, { readonly brand: unique symbol }>($I`GetFolderCollaborationsOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFolderCollaborationsQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFolderCollaborationsHeaders).pipe(S.optionalKey),
@@ -6464,7 +6464,7 @@ export class GetFolderCollaborationsOptionalsInput extends S.Class<GetFolderColl
  * @category models
  * @since 0.0.0
  */
-export class GetFolderCollaborationsQueryParams extends S.Class<GetFolderCollaborationsQueryParams>($I`GetFolderCollaborationsQueryParams`)(
+export class GetFolderCollaborationsQueryParams extends S.Class<GetFolderCollaborationsQueryParams, { readonly brand: unique symbol }>($I`GetFolderCollaborationsQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -6489,7 +6489,7 @@ export class GetFolderCollaborationsQueryParams extends S.Class<GetFolderCollabo
  * @category models
  * @since 0.0.0
  */
-export class GetFolderItemsHeaders extends S.Class<GetFolderItemsHeaders>($I`GetFolderItemsHeaders`)(
+export class GetFolderItemsHeaders extends S.Class<GetFolderItemsHeaders, { readonly brand: unique symbol }>($I`GetFolderItemsHeaders`)(
   {
     boxapi: S.String.pipe(S.optionalKey),
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
@@ -6513,7 +6513,7 @@ export class GetFolderItemsHeaders extends S.Class<GetFolderItemsHeaders>($I`Get
  * @category models
  * @since 0.0.0
  */
-export class GetFolderItemsOptionalsInput extends S.Class<GetFolderItemsOptionalsInput>($I`GetFolderItemsOptionalsInput`)(
+export class GetFolderItemsOptionalsInput extends S.Class<GetFolderItemsOptionalsInput, { readonly brand: unique symbol }>($I`GetFolderItemsOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFolderItemsQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFolderItemsHeaders).pipe(S.optionalKey),
@@ -6538,7 +6538,7 @@ export class GetFolderItemsOptionalsInput extends S.Class<GetFolderItemsOptional
  * @category models
  * @since 0.0.0
  */
-export class GetFolderItemsQueryParams extends S.Class<GetFolderItemsQueryParams>($I`GetFolderItemsQueryParams`)(
+export class GetFolderItemsQueryParams extends S.Class<GetFolderItemsQueryParams, { readonly brand: unique symbol }>($I`GetFolderItemsQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
     usemarker: S.Boolean.pipe(S.optionalKey),
@@ -6635,7 +6635,7 @@ export type GetFolderItemsQueryParamsSortField = typeof GetFolderItemsQueryParam
  * @category models
  * @since 0.0.0
  */
-export class GetFolderMetadataByIdHeaders extends S.Class<GetFolderMetadataByIdHeaders>($I`GetFolderMetadataByIdHeaders`)(
+export class GetFolderMetadataByIdHeaders extends S.Class<GetFolderMetadataByIdHeaders, { readonly brand: unique symbol }>($I`GetFolderMetadataByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6658,7 +6658,7 @@ export class GetFolderMetadataByIdHeaders extends S.Class<GetFolderMetadataByIdH
  * @category models
  * @since 0.0.0
  */
-export class GetFolderMetadataByIdOptionalsInput extends S.Class<GetFolderMetadataByIdOptionalsInput>($I`GetFolderMetadataByIdOptionalsInput`)(
+export class GetFolderMetadataByIdOptionalsInput extends S.Class<GetFolderMetadataByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetFolderMetadataByIdOptionalsInput`)(
   {
     headers: S.suspend(() => GetFolderMetadataByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -6716,7 +6716,7 @@ export type GetFolderMetadataByIdScope = typeof GetFolderMetadataByIdScope.Type;
  * @category models
  * @since 0.0.0
  */
-export class GetFolderMetadataHeaders extends S.Class<GetFolderMetadataHeaders>($I`GetFolderMetadataHeaders`)(
+export class GetFolderMetadataHeaders extends S.Class<GetFolderMetadataHeaders, { readonly brand: unique symbol }>($I`GetFolderMetadataHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6739,7 +6739,7 @@ export class GetFolderMetadataHeaders extends S.Class<GetFolderMetadataHeaders>(
  * @category models
  * @since 0.0.0
  */
-export class GetFolderMetadataOptionalsInput extends S.Class<GetFolderMetadataOptionalsInput>($I`GetFolderMetadataOptionalsInput`)(
+export class GetFolderMetadataOptionalsInput extends S.Class<GetFolderMetadataOptionalsInput, { readonly brand: unique symbol }>($I`GetFolderMetadataOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetFolderMetadataQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetFolderMetadataHeaders).pipe(S.optionalKey),
@@ -6764,7 +6764,7 @@ export class GetFolderMetadataOptionalsInput extends S.Class<GetFolderMetadataOp
  * @category models
  * @since 0.0.0
  */
-export class GetFolderMetadataQueryParams extends S.Class<GetFolderMetadataQueryParams>($I`GetFolderMetadataQueryParams`)(
+export class GetFolderMetadataQueryParams extends S.Class<GetFolderMetadataQueryParams, { readonly brand: unique symbol }>($I`GetFolderMetadataQueryParams`)(
   {
     view: S.String.pipe(S.optionalKey),
   },
@@ -6787,7 +6787,7 @@ export class GetFolderMetadataQueryParams extends S.Class<GetFolderMetadataQuery
  * @category models
  * @since 0.0.0
  */
-export class GetGlobalMetadataTemplatesHeadersInput extends S.Class<GetGlobalMetadataTemplatesHeadersInput>($I`GetGlobalMetadataTemplatesHeadersInput`)(
+export class GetGlobalMetadataTemplatesHeadersInput extends S.Class<GetGlobalMetadataTemplatesHeadersInput, { readonly brand: unique symbol }>($I`GetGlobalMetadataTemplatesHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6810,7 +6810,7 @@ export class GetGlobalMetadataTemplatesHeadersInput extends S.Class<GetGlobalMet
  * @category models
  * @since 0.0.0
  */
-export class GetGlobalMetadataTemplatesQueryParams extends S.Class<GetGlobalMetadataTemplatesQueryParams>($I`GetGlobalMetadataTemplatesQueryParams`)(
+export class GetGlobalMetadataTemplatesQueryParams extends S.Class<GetGlobalMetadataTemplatesQueryParams, { readonly brand: unique symbol }>($I`GetGlobalMetadataTemplatesQueryParams`)(
   {
     marker: S.String.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -6834,7 +6834,7 @@ export class GetGlobalMetadataTemplatesQueryParams extends S.Class<GetGlobalMeta
  * @category models
  * @since 0.0.0
  */
-export class GetGroupCollaborationsHeaders extends S.Class<GetGroupCollaborationsHeaders>($I`GetGroupCollaborationsHeaders`)(
+export class GetGroupCollaborationsHeaders extends S.Class<GetGroupCollaborationsHeaders, { readonly brand: unique symbol }>($I`GetGroupCollaborationsHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6857,7 +6857,7 @@ export class GetGroupCollaborationsHeaders extends S.Class<GetGroupCollaboration
  * @category models
  * @since 0.0.0
  */
-export class GetGroupCollaborationsOptionalsInput extends S.Class<GetGroupCollaborationsOptionalsInput>($I`GetGroupCollaborationsOptionalsInput`)(
+export class GetGroupCollaborationsOptionalsInput extends S.Class<GetGroupCollaborationsOptionalsInput, { readonly brand: unique symbol }>($I`GetGroupCollaborationsOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetGroupCollaborationsQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetGroupCollaborationsHeaders).pipe(S.optionalKey),
@@ -6882,7 +6882,7 @@ export class GetGroupCollaborationsOptionalsInput extends S.Class<GetGroupCollab
  * @category models
  * @since 0.0.0
  */
-export class GetGroupCollaborationsQueryParams extends S.Class<GetGroupCollaborationsQueryParams>($I`GetGroupCollaborationsQueryParams`)(
+export class GetGroupCollaborationsQueryParams extends S.Class<GetGroupCollaborationsQueryParams, { readonly brand: unique symbol }>($I`GetGroupCollaborationsQueryParams`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     offset: S.Finite.pipe(S.optionalKey),
@@ -6906,7 +6906,7 @@ export class GetGroupCollaborationsQueryParams extends S.Class<GetGroupCollabora
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataCascadePoliciesHeaders extends S.Class<GetMetadataCascadePoliciesHeaders>($I`GetMetadataCascadePoliciesHeaders`)(
+export class GetMetadataCascadePoliciesHeaders extends S.Class<GetMetadataCascadePoliciesHeaders, { readonly brand: unique symbol }>($I`GetMetadataCascadePoliciesHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -6929,7 +6929,7 @@ export class GetMetadataCascadePoliciesHeaders extends S.Class<GetMetadataCascad
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataCascadePoliciesOptionalsInput extends S.Class<GetMetadataCascadePoliciesOptionalsInput>($I`GetMetadataCascadePoliciesOptionalsInput`)(
+export class GetMetadataCascadePoliciesOptionalsInput extends S.Class<GetMetadataCascadePoliciesOptionalsInput, { readonly brand: unique symbol }>($I`GetMetadataCascadePoliciesOptionalsInput`)(
   {
     headers: S.suspend(() => GetMetadataCascadePoliciesHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -6953,7 +6953,7 @@ export class GetMetadataCascadePoliciesOptionalsInput extends S.Class<GetMetadat
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataCascadePoliciesQueryParams extends S.Class<GetMetadataCascadePoliciesQueryParams>($I`GetMetadataCascadePoliciesQueryParams`)(
+export class GetMetadataCascadePoliciesQueryParams extends S.Class<GetMetadataCascadePoliciesQueryParams, { readonly brand: unique symbol }>($I`GetMetadataCascadePoliciesQueryParams`)(
   {
     folderId: S.String,
     ownerEnterpriseId: S.String.pipe(S.optionalKey),
@@ -6979,7 +6979,7 @@ export class GetMetadataCascadePoliciesQueryParams extends S.Class<GetMetadataCa
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataCascadePolicyByIdHeaders extends S.Class<GetMetadataCascadePolicyByIdHeaders>($I`GetMetadataCascadePolicyByIdHeaders`)(
+export class GetMetadataCascadePolicyByIdHeaders extends S.Class<GetMetadataCascadePolicyByIdHeaders, { readonly brand: unique symbol }>($I`GetMetadataCascadePolicyByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7002,7 +7002,7 @@ export class GetMetadataCascadePolicyByIdHeaders extends S.Class<GetMetadataCasc
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataCascadePolicyByIdOptionalsInput extends S.Class<GetMetadataCascadePolicyByIdOptionalsInput>($I`GetMetadataCascadePolicyByIdOptionalsInput`)(
+export class GetMetadataCascadePolicyByIdOptionalsInput extends S.Class<GetMetadataCascadePolicyByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetMetadataCascadePolicyByIdOptionalsInput`)(
   {
     headers: S.suspend(() => GetMetadataCascadePolicyByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -7026,7 +7026,7 @@ export class GetMetadataCascadePolicyByIdOptionalsInput extends S.Class<GetMetad
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataTemplateByIdHeaders extends S.Class<GetMetadataTemplateByIdHeaders>($I`GetMetadataTemplateByIdHeaders`)(
+export class GetMetadataTemplateByIdHeaders extends S.Class<GetMetadataTemplateByIdHeaders, { readonly brand: unique symbol }>($I`GetMetadataTemplateByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7049,7 +7049,7 @@ export class GetMetadataTemplateByIdHeaders extends S.Class<GetMetadataTemplateB
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataTemplateByIdOptionalsInput extends S.Class<GetMetadataTemplateByIdOptionalsInput>($I`GetMetadataTemplateByIdOptionalsInput`)(
+export class GetMetadataTemplateByIdOptionalsInput extends S.Class<GetMetadataTemplateByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetMetadataTemplateByIdOptionalsInput`)(
   {
     headers: S.suspend(() => GetMetadataTemplateByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -7073,7 +7073,7 @@ export class GetMetadataTemplateByIdOptionalsInput extends S.Class<GetMetadataTe
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataTemplateHeaders extends S.Class<GetMetadataTemplateHeaders>($I`GetMetadataTemplateHeaders`)(
+export class GetMetadataTemplateHeaders extends S.Class<GetMetadataTemplateHeaders, { readonly brand: unique symbol }>($I`GetMetadataTemplateHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7096,7 +7096,7 @@ export class GetMetadataTemplateHeaders extends S.Class<GetMetadataTemplateHeade
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataTemplateOptionalsInput extends S.Class<GetMetadataTemplateOptionalsInput>($I`GetMetadataTemplateOptionalsInput`)(
+export class GetMetadataTemplateOptionalsInput extends S.Class<GetMetadataTemplateOptionalsInput, { readonly brand: unique symbol }>($I`GetMetadataTemplateOptionalsInput`)(
   {
     headers: S.suspend(() => GetMetadataTemplateHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -7120,7 +7120,7 @@ export class GetMetadataTemplateOptionalsInput extends S.Class<GetMetadataTempla
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataTemplatesByInstanceIdHeaders extends S.Class<GetMetadataTemplatesByInstanceIdHeaders>($I`GetMetadataTemplatesByInstanceIdHeaders`)(
+export class GetMetadataTemplatesByInstanceIdHeaders extends S.Class<GetMetadataTemplatesByInstanceIdHeaders, { readonly brand: unique symbol }>($I`GetMetadataTemplatesByInstanceIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7143,7 +7143,7 @@ export class GetMetadataTemplatesByInstanceIdHeaders extends S.Class<GetMetadata
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataTemplatesByInstanceIdOptionalsInput extends S.Class<GetMetadataTemplatesByInstanceIdOptionalsInput>($I`GetMetadataTemplatesByInstanceIdOptionalsInput`)(
+export class GetMetadataTemplatesByInstanceIdOptionalsInput extends S.Class<GetMetadataTemplatesByInstanceIdOptionalsInput, { readonly brand: unique symbol }>($I`GetMetadataTemplatesByInstanceIdOptionalsInput`)(
   {
     headers: S.suspend(() => GetMetadataTemplatesByInstanceIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -7167,7 +7167,7 @@ export class GetMetadataTemplatesByInstanceIdOptionalsInput extends S.Class<GetM
  * @category models
  * @since 0.0.0
  */
-export class GetMetadataTemplatesByInstanceIdQueryParams extends S.Class<GetMetadataTemplatesByInstanceIdQueryParams>($I`GetMetadataTemplatesByInstanceIdQueryParams`)(
+export class GetMetadataTemplatesByInstanceIdQueryParams extends S.Class<GetMetadataTemplatesByInstanceIdQueryParams, { readonly brand: unique symbol }>($I`GetMetadataTemplatesByInstanceIdQueryParams`)(
   {
     metadataInstanceId: S.String,
     marker: S.String.pipe(S.optionalKey),
@@ -7226,7 +7226,7 @@ export type GetMetadataTemplateScope = typeof GetMetadataTemplateScope.Type;
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPoliciesHeadersInput extends S.Class<GetRetentionPoliciesHeadersInput>($I`GetRetentionPoliciesHeadersInput`)(
+export class GetRetentionPoliciesHeadersInput extends S.Class<GetRetentionPoliciesHeadersInput, { readonly brand: unique symbol }>($I`GetRetentionPoliciesHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7249,7 +7249,7 @@ export class GetRetentionPoliciesHeadersInput extends S.Class<GetRetentionPolici
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPoliciesQueryParams extends S.Class<GetRetentionPoliciesQueryParams>($I`GetRetentionPoliciesQueryParams`)(
+export class GetRetentionPoliciesQueryParams extends S.Class<GetRetentionPoliciesQueryParams, { readonly brand: unique symbol }>($I`GetRetentionPoliciesQueryParams`)(
   {
     policyName: S.String.pipe(S.optionalKey),
     policyType: S.suspend(() => GetRetentionPoliciesQueryParamsPolicyTypeField).pipe(S.optionalKey),
@@ -7311,7 +7311,7 @@ export type GetRetentionPoliciesQueryParamsPolicyTypeField = typeof GetRetention
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPolicyAssignmentByIdHeaders extends S.Class<GetRetentionPolicyAssignmentByIdHeaders>($I`GetRetentionPolicyAssignmentByIdHeaders`)(
+export class GetRetentionPolicyAssignmentByIdHeaders extends S.Class<GetRetentionPolicyAssignmentByIdHeaders, { readonly brand: unique symbol }>($I`GetRetentionPolicyAssignmentByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7334,7 +7334,7 @@ export class GetRetentionPolicyAssignmentByIdHeaders extends S.Class<GetRetentio
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPolicyAssignmentByIdOptionalsInput extends S.Class<GetRetentionPolicyAssignmentByIdOptionalsInput>($I`GetRetentionPolicyAssignmentByIdOptionalsInput`)(
+export class GetRetentionPolicyAssignmentByIdOptionalsInput extends S.Class<GetRetentionPolicyAssignmentByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetRetentionPolicyAssignmentByIdOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetRetentionPolicyAssignmentByIdQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetRetentionPolicyAssignmentByIdHeaders).pipe(S.optionalKey),
@@ -7359,7 +7359,7 @@ export class GetRetentionPolicyAssignmentByIdOptionalsInput extends S.Class<GetR
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPolicyAssignmentByIdQueryParams extends S.Class<GetRetentionPolicyAssignmentByIdQueryParams>($I`GetRetentionPolicyAssignmentByIdQueryParams`)(
+export class GetRetentionPolicyAssignmentByIdQueryParams extends S.Class<GetRetentionPolicyAssignmentByIdQueryParams, { readonly brand: unique symbol }>($I`GetRetentionPolicyAssignmentByIdQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -7382,7 +7382,7 @@ export class GetRetentionPolicyAssignmentByIdQueryParams extends S.Class<GetRete
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPolicyAssignmentsHeaders extends S.Class<GetRetentionPolicyAssignmentsHeaders>($I`GetRetentionPolicyAssignmentsHeaders`)(
+export class GetRetentionPolicyAssignmentsHeaders extends S.Class<GetRetentionPolicyAssignmentsHeaders, { readonly brand: unique symbol }>($I`GetRetentionPolicyAssignmentsHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7405,7 +7405,7 @@ export class GetRetentionPolicyAssignmentsHeaders extends S.Class<GetRetentionPo
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPolicyAssignmentsOptionalsInput extends S.Class<GetRetentionPolicyAssignmentsOptionalsInput>($I`GetRetentionPolicyAssignmentsOptionalsInput`)(
+export class GetRetentionPolicyAssignmentsOptionalsInput extends S.Class<GetRetentionPolicyAssignmentsOptionalsInput, { readonly brand: unique symbol }>($I`GetRetentionPolicyAssignmentsOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetRetentionPolicyAssignmentsQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetRetentionPolicyAssignmentsHeaders).pipe(S.optionalKey),
@@ -7430,7 +7430,7 @@ export class GetRetentionPolicyAssignmentsOptionalsInput extends S.Class<GetRete
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPolicyAssignmentsQueryParams extends S.Class<GetRetentionPolicyAssignmentsQueryParams>($I`GetRetentionPolicyAssignmentsQueryParams`)(
+export class GetRetentionPolicyAssignmentsQueryParams extends S.Class<GetRetentionPolicyAssignmentsQueryParams, { readonly brand: unique symbol }>($I`GetRetentionPolicyAssignmentsQueryParams`)(
   {
     type: S.suspend(() => GetRetentionPolicyAssignmentsQueryParamsTypeField).pipe(S.optionalKey),
     fields: S.String.pipe(S.Array, S.optionalKey),
@@ -7496,7 +7496,7 @@ export type GetRetentionPolicyAssignmentsQueryParamsTypeField = typeof GetRetent
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPolicyByIdHeaders extends S.Class<GetRetentionPolicyByIdHeaders>($I`GetRetentionPolicyByIdHeaders`)(
+export class GetRetentionPolicyByIdHeaders extends S.Class<GetRetentionPolicyByIdHeaders, { readonly brand: unique symbol }>($I`GetRetentionPolicyByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7519,7 +7519,7 @@ export class GetRetentionPolicyByIdHeaders extends S.Class<GetRetentionPolicyByI
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPolicyByIdOptionalsInput extends S.Class<GetRetentionPolicyByIdOptionalsInput>($I`GetRetentionPolicyByIdOptionalsInput`)(
+export class GetRetentionPolicyByIdOptionalsInput extends S.Class<GetRetentionPolicyByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetRetentionPolicyByIdOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetRetentionPolicyByIdQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetRetentionPolicyByIdHeaders).pipe(S.optionalKey),
@@ -7544,7 +7544,7 @@ export class GetRetentionPolicyByIdOptionalsInput extends S.Class<GetRetentionPo
  * @category models
  * @since 0.0.0
  */
-export class GetRetentionPolicyByIdQueryParams extends S.Class<GetRetentionPolicyByIdQueryParams>($I`GetRetentionPolicyByIdQueryParams`)(
+export class GetRetentionPolicyByIdQueryParams extends S.Class<GetRetentionPolicyByIdQueryParams, { readonly brand: unique symbol }>($I`GetRetentionPolicyByIdQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -7567,7 +7567,7 @@ export class GetRetentionPolicyByIdQueryParams extends S.Class<GetRetentionPolic
  * @category models
  * @since 0.0.0
  */
-export class GetSignRequestByIdHeaders extends S.Class<GetSignRequestByIdHeaders>($I`GetSignRequestByIdHeaders`)(
+export class GetSignRequestByIdHeaders extends S.Class<GetSignRequestByIdHeaders, { readonly brand: unique symbol }>($I`GetSignRequestByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7590,7 +7590,7 @@ export class GetSignRequestByIdHeaders extends S.Class<GetSignRequestByIdHeaders
  * @category models
  * @since 0.0.0
  */
-export class GetSignRequestByIdOptionalsInput extends S.Class<GetSignRequestByIdOptionalsInput>($I`GetSignRequestByIdOptionalsInput`)(
+export class GetSignRequestByIdOptionalsInput extends S.Class<GetSignRequestByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetSignRequestByIdOptionalsInput`)(
   {
     headers: S.suspend(() => GetSignRequestByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -7614,7 +7614,7 @@ export class GetSignRequestByIdOptionalsInput extends S.Class<GetSignRequestById
  * @category models
  * @since 0.0.0
  */
-export class GetSignRequestsHeadersInput extends S.Class<GetSignRequestsHeadersInput>($I`GetSignRequestsHeadersInput`)(
+export class GetSignRequestsHeadersInput extends S.Class<GetSignRequestsHeadersInput, { readonly brand: unique symbol }>($I`GetSignRequestsHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7637,7 +7637,7 @@ export class GetSignRequestsHeadersInput extends S.Class<GetSignRequestsHeadersI
  * @category models
  * @since 0.0.0
  */
-export class GetSignRequestsQueryParams extends S.Class<GetSignRequestsQueryParams>($I`GetSignRequestsQueryParams`)(
+export class GetSignRequestsQueryParams extends S.Class<GetSignRequestsQueryParams, { readonly brand: unique symbol }>($I`GetSignRequestsQueryParams`)(
   {
     marker: S.String.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -7663,7 +7663,7 @@ export class GetSignRequestsQueryParams extends S.Class<GetSignRequestsQueryPara
  * @category models
  * @since 0.0.0
  */
-export class GetSignTemplateByIdHeaders extends S.Class<GetSignTemplateByIdHeaders>($I`GetSignTemplateByIdHeaders`)(
+export class GetSignTemplateByIdHeaders extends S.Class<GetSignTemplateByIdHeaders, { readonly brand: unique symbol }>($I`GetSignTemplateByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7686,7 +7686,7 @@ export class GetSignTemplateByIdHeaders extends S.Class<GetSignTemplateByIdHeade
  * @category models
  * @since 0.0.0
  */
-export class GetSignTemplateByIdOptionalsInput extends S.Class<GetSignTemplateByIdOptionalsInput>($I`GetSignTemplateByIdOptionalsInput`)(
+export class GetSignTemplateByIdOptionalsInput extends S.Class<GetSignTemplateByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetSignTemplateByIdOptionalsInput`)(
   {
     headers: S.suspend(() => GetSignTemplateByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -7710,7 +7710,7 @@ export class GetSignTemplateByIdOptionalsInput extends S.Class<GetSignTemplateBy
  * @category models
  * @since 0.0.0
  */
-export class GetSignTemplatesHeadersInput extends S.Class<GetSignTemplatesHeadersInput>($I`GetSignTemplatesHeadersInput`)(
+export class GetSignTemplatesHeadersInput extends S.Class<GetSignTemplatesHeadersInput, { readonly brand: unique symbol }>($I`GetSignTemplatesHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7733,7 +7733,7 @@ export class GetSignTemplatesHeadersInput extends S.Class<GetSignTemplatesHeader
  * @category models
  * @since 0.0.0
  */
-export class GetSignTemplatesQueryParams extends S.Class<GetSignTemplatesQueryParams>($I`GetSignTemplatesQueryParams`)(
+export class GetSignTemplatesQueryParams extends S.Class<GetSignTemplatesQueryParams, { readonly brand: unique symbol }>($I`GetSignTemplatesQueryParams`)(
   {
     marker: S.String.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -7757,7 +7757,7 @@ export class GetSignTemplatesQueryParams extends S.Class<GetSignTemplatesQueryPa
  * @category models
  * @since 0.0.0
  */
-export class GetUserAvatarHeaders extends S.Class<GetUserAvatarHeaders>($I`GetUserAvatarHeaders`)(
+export class GetUserAvatarHeaders extends S.Class<GetUserAvatarHeaders, { readonly brand: unique symbol }>($I`GetUserAvatarHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7780,7 +7780,7 @@ export class GetUserAvatarHeaders extends S.Class<GetUserAvatarHeaders>($I`GetUs
  * @category models
  * @since 0.0.0
  */
-export class GetUserAvatarOptionalsInput extends S.Class<GetUserAvatarOptionalsInput>($I`GetUserAvatarOptionalsInput`)(
+export class GetUserAvatarOptionalsInput extends S.Class<GetUserAvatarOptionalsInput, { readonly brand: unique symbol }>($I`GetUserAvatarOptionalsInput`)(
   {
     headers: S.suspend(() => GetUserAvatarHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -7804,7 +7804,7 @@ export class GetUserAvatarOptionalsInput extends S.Class<GetUserAvatarOptionalsI
  * @category models
  * @since 0.0.0
  */
-export class GetUserByIdHeaders extends S.Class<GetUserByIdHeaders>($I`GetUserByIdHeaders`)(
+export class GetUserByIdHeaders extends S.Class<GetUserByIdHeaders, { readonly brand: unique symbol }>($I`GetUserByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7827,7 +7827,7 @@ export class GetUserByIdHeaders extends S.Class<GetUserByIdHeaders>($I`GetUserBy
  * @category models
  * @since 0.0.0
  */
-export class GetUserByIdOptionalsInput extends S.Class<GetUserByIdOptionalsInput>($I`GetUserByIdOptionalsInput`)(
+export class GetUserByIdOptionalsInput extends S.Class<GetUserByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetUserByIdOptionalsInput`)(
   {
     queryParams: S.suspend(() => GetUserByIdQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => GetUserByIdHeaders).pipe(S.optionalKey),
@@ -7852,7 +7852,7 @@ export class GetUserByIdOptionalsInput extends S.Class<GetUserByIdOptionalsInput
  * @category models
  * @since 0.0.0
  */
-export class GetUserByIdQueryParams extends S.Class<GetUserByIdQueryParams>($I`GetUserByIdQueryParams`)(
+export class GetUserByIdQueryParams extends S.Class<GetUserByIdQueryParams, { readonly brand: unique symbol }>($I`GetUserByIdQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -7875,7 +7875,7 @@ export class GetUserByIdQueryParams extends S.Class<GetUserByIdQueryParams>($I`G
  * @category models
  * @since 0.0.0
  */
-export class GetUserMeHeadersInput extends S.Class<GetUserMeHeadersInput>($I`GetUserMeHeadersInput`)(
+export class GetUserMeHeadersInput extends S.Class<GetUserMeHeadersInput, { readonly brand: unique symbol }>($I`GetUserMeHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7898,7 +7898,7 @@ export class GetUserMeHeadersInput extends S.Class<GetUserMeHeadersInput>($I`Get
  * @category models
  * @since 0.0.0
  */
-export class GetUserMeQueryParams extends S.Class<GetUserMeQueryParams>($I`GetUserMeQueryParams`)(
+export class GetUserMeQueryParams extends S.Class<GetUserMeQueryParams, { readonly brand: unique symbol }>($I`GetUserMeQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -7921,7 +7921,7 @@ export class GetUserMeQueryParams extends S.Class<GetUserMeQueryParams>($I`GetUs
  * @category models
  * @since 0.0.0
  */
-export class GetUsersHeadersInput extends S.Class<GetUsersHeadersInput>($I`GetUsersHeadersInput`)(
+export class GetUsersHeadersInput extends S.Class<GetUsersHeadersInput, { readonly brand: unique symbol }>($I`GetUsersHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -7944,7 +7944,7 @@ export class GetUsersHeadersInput extends S.Class<GetUsersHeadersInput>($I`GetUs
  * @category models
  * @since 0.0.0
  */
-export class GetUsersQueryParams extends S.Class<GetUsersQueryParams>($I`GetUsersQueryParams`)(
+export class GetUsersQueryParams extends S.Class<GetUsersQueryParams, { readonly brand: unique symbol }>($I`GetUsersQueryParams`)(
   {
     filterTerm: S.String.pipe(S.optionalKey),
     userType: S.suspend(() => GetUsersQueryParamsUserTypeField).pipe(S.optionalKey),
@@ -8008,7 +8008,7 @@ export type GetUsersQueryParamsUserTypeField = typeof GetUsersQueryParamsUserTyp
  * @category models
  * @since 0.0.0
  */
-export class GetWebhookByIdHeaders extends S.Class<GetWebhookByIdHeaders>($I`GetWebhookByIdHeaders`)(
+export class GetWebhookByIdHeaders extends S.Class<GetWebhookByIdHeaders, { readonly brand: unique symbol }>($I`GetWebhookByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -8031,7 +8031,7 @@ export class GetWebhookByIdHeaders extends S.Class<GetWebhookByIdHeaders>($I`Get
  * @category models
  * @since 0.0.0
  */
-export class GetWebhookByIdOptionalsInput extends S.Class<GetWebhookByIdOptionalsInput>($I`GetWebhookByIdOptionalsInput`)(
+export class GetWebhookByIdOptionalsInput extends S.Class<GetWebhookByIdOptionalsInput, { readonly brand: unique symbol }>($I`GetWebhookByIdOptionalsInput`)(
   {
     headers: S.suspend(() => GetWebhookByIdHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -8055,7 +8055,7 @@ export class GetWebhookByIdOptionalsInput extends S.Class<GetWebhookByIdOptional
  * @category models
  * @since 0.0.0
  */
-export class GetWebhooksHeadersInput extends S.Class<GetWebhooksHeadersInput>($I`GetWebhooksHeadersInput`)(
+export class GetWebhooksHeadersInput extends S.Class<GetWebhooksHeadersInput, { readonly brand: unique symbol }>($I`GetWebhooksHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -8078,7 +8078,7 @@ export class GetWebhooksHeadersInput extends S.Class<GetWebhooksHeadersInput>($I
  * @category models
  * @since 0.0.0
  */
-export class GetWebhooksQueryParams extends S.Class<GetWebhooksQueryParams>($I`GetWebhooksQueryParams`)(
+export class GetWebhooksQueryParams extends S.Class<GetWebhooksQueryParams, { readonly brand: unique symbol }>($I`GetWebhooksQueryParams`)(
   {
     marker: S.String.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -8102,7 +8102,7 @@ export class GetWebhooksQueryParams extends S.Class<GetWebhooksQueryParams>($I`G
  * @category models
  * @since 0.0.0
  */
-export class GetZipDownloadContentHeaders extends S.Class<GetZipDownloadContentHeaders>($I`GetZipDownloadContentHeaders`)(
+export class GetZipDownloadContentHeaders extends S.Class<GetZipDownloadContentHeaders, { readonly brand: unique symbol }>($I`GetZipDownloadContentHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -8125,7 +8125,7 @@ export class GetZipDownloadContentHeaders extends S.Class<GetZipDownloadContentH
  * @category models
  * @since 0.0.0
  */
-export class GetZipDownloadContentOptionalsInput extends S.Class<GetZipDownloadContentOptionalsInput>($I`GetZipDownloadContentOptionalsInput`)(
+export class GetZipDownloadContentOptionalsInput extends S.Class<GetZipDownloadContentOptionalsInput, { readonly brand: unique symbol }>($I`GetZipDownloadContentOptionalsInput`)(
   {
     headers: S.suspend(() => GetZipDownloadContentHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -8149,7 +8149,7 @@ export class GetZipDownloadContentOptionalsInput extends S.Class<GetZipDownloadC
  * @category models
  * @since 0.0.0
  */
-export class GetZipDownloadStatusHeaders extends S.Class<GetZipDownloadStatusHeaders>($I`GetZipDownloadStatusHeaders`)(
+export class GetZipDownloadStatusHeaders extends S.Class<GetZipDownloadStatusHeaders, { readonly brand: unique symbol }>($I`GetZipDownloadStatusHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -8172,7 +8172,7 @@ export class GetZipDownloadStatusHeaders extends S.Class<GetZipDownloadStatusHea
  * @category models
  * @since 0.0.0
  */
-export class GetZipDownloadStatusOptionalsInput extends S.Class<GetZipDownloadStatusOptionalsInput>($I`GetZipDownloadStatusOptionalsInput`)(
+export class GetZipDownloadStatusOptionalsInput extends S.Class<GetZipDownloadStatusOptionalsInput, { readonly brand: unique symbol }>($I`GetZipDownloadStatusOptionalsInput`)(
   {
     headers: S.suspend(() => GetZipDownloadStatusHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -8196,7 +8196,7 @@ export class GetZipDownloadStatusOptionalsInput extends S.Class<GetZipDownloadSt
  * @category models
  * @since 0.0.0
  */
-export class GroupBase extends S.Class<GroupBase>($I`GroupBase`)(
+export class GroupBase extends S.Class<GroupBase, { readonly brand: unique symbol }>($I`GroupBase`)(
   {
     id: S.String,
     type: S.suspend(() => GroupBaseTypeField),
@@ -8346,7 +8346,7 @@ export type Item = typeof Item.Type;
  * @category models
  * @since 0.0.0
  */
-export class Items extends S.Class<Items>($I`Items`)(
+export class Items extends S.Class<Items, { readonly brand: unique symbol }>($I`Items`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     nextMarker: S.String.pipe(S.NullOr, S.optionalKey),
@@ -8409,7 +8409,7 @@ export type ItemsOrderDirectionField = typeof ItemsOrderDirectionField.Type;
  * @category models
  * @since 0.0.0
  */
-export class ItemsOrderField extends S.Class<ItemsOrderField>($I`ItemsOrderField`)(
+export class ItemsOrderField extends S.Class<ItemsOrderField, { readonly brand: unique symbol }>($I`ItemsOrderField`)(
   {
     by: S.String.pipe(S.optionalKey),
     direction: S.suspend(() => ItemsOrderDirectionField).pipe(S.optionalKey),
@@ -8467,7 +8467,7 @@ export type Metadata = typeof Metadata.Type;
  * @category models
  * @since 0.0.0
  */
-export class MetadataBase extends S.Class<MetadataBase>($I`MetadataBase`)(
+export class MetadataBase extends S.Class<MetadataBase, { readonly brand: unique symbol }>($I`MetadataBase`)(
   {
     parent: S.String.pipe(S.optionalKey),
     template: S.String.pipe(S.optionalKey),
@@ -8493,7 +8493,7 @@ export class MetadataBase extends S.Class<MetadataBase>($I`MetadataBase`)(
  * @category models
  * @since 0.0.0
  */
-export class MetadataCascadePolicies extends S.Class<MetadataCascadePolicies>($I`MetadataCascadePolicies`)(
+export class MetadataCascadePolicies extends S.Class<MetadataCascadePolicies, { readonly brand: unique symbol }>($I`MetadataCascadePolicies`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     nextMarker: S.String.pipe(S.NullOr, S.optionalKey),
@@ -8519,7 +8519,7 @@ export class MetadataCascadePolicies extends S.Class<MetadataCascadePolicies>($I
  * @category models
  * @since 0.0.0
  */
-export class MetadataCascadePolicy extends S.Class<MetadataCascadePolicy>($I`MetadataCascadePolicy`)(
+export class MetadataCascadePolicy extends S.Class<MetadataCascadePolicy, { readonly brand: unique symbol }>($I`MetadataCascadePolicy`)(
   {
     id: S.String,
     type: S.suspend(() => MetadataCascadePolicyTypeField),
@@ -8547,7 +8547,7 @@ export class MetadataCascadePolicy extends S.Class<MetadataCascadePolicy>($I`Met
  * @category models
  * @since 0.0.0
  */
-export class MetadataCascadePolicyOwnerEnterpriseField extends S.Class<MetadataCascadePolicyOwnerEnterpriseField>($I`MetadataCascadePolicyOwnerEnterpriseField`)(
+export class MetadataCascadePolicyOwnerEnterpriseField extends S.Class<MetadataCascadePolicyOwnerEnterpriseField, { readonly brand: unique symbol }>($I`MetadataCascadePolicyOwnerEnterpriseField`)(
   {
     type: S.suspend(() => MetadataCascadePolicyOwnerEnterpriseTypeField).pipe(S.optionalKey),
     id: S.String.pipe(S.optionalKey),
@@ -8605,7 +8605,7 @@ export type MetadataCascadePolicyOwnerEnterpriseTypeField = typeof MetadataCasca
  * @category models
  * @since 0.0.0
  */
-export class MetadataCascadePolicyParentField extends S.Class<MetadataCascadePolicyParentField>($I`MetadataCascadePolicyParentField`)(
+export class MetadataCascadePolicyParentField extends S.Class<MetadataCascadePolicyParentField, { readonly brand: unique symbol }>($I`MetadataCascadePolicyParentField`)(
   {
     type: S.suspend(() => MetadataCascadePolicyParentTypeField).pipe(S.optionalKey),
     id: S.String.pipe(S.optionalKey),
@@ -8731,7 +8731,7 @@ export type MetadataFull = typeof MetadataFull.Type;
  * @category models
  * @since 0.0.0
  */
-export class Metadatas extends S.Class<Metadatas>($I`Metadatas`)(
+export class Metadatas extends S.Class<Metadatas, { readonly brand: unique symbol }>($I`Metadatas`)(
   {
     entries: S.suspend(() => Metadata).pipe(S.Array, S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -8755,7 +8755,7 @@ export class Metadatas extends S.Class<Metadatas>($I`Metadatas`)(
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplate extends S.Class<MetadataTemplate>($I`MetadataTemplate`)(
+export class MetadataTemplate extends S.Class<MetadataTemplate, { readonly brand: unique symbol }>($I`MetadataTemplate`)(
   {
     id: S.String,
     type: S.suspend(() => MetadataTemplateTypeField),
@@ -8785,7 +8785,7 @@ export class MetadataTemplate extends S.Class<MetadataTemplate>($I`MetadataTempl
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplateFieldsField extends S.Class<MetadataTemplateFieldsField>($I`MetadataTemplateFieldsField`)(
+export class MetadataTemplateFieldsField extends S.Class<MetadataTemplateFieldsField, { readonly brand: unique symbol }>($I`MetadataTemplateFieldsField`)(
   {
     type: S.suspend(() => MetadataTemplateFieldsTypeField),
     key: S.String,
@@ -8818,7 +8818,7 @@ export class MetadataTemplateFieldsField extends S.Class<MetadataTemplateFieldsF
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplateFieldsOptionsField extends S.Class<MetadataTemplateFieldsOptionsField>($I`MetadataTemplateFieldsOptionsField`)(
+export class MetadataTemplateFieldsOptionsField extends S.Class<MetadataTemplateFieldsOptionsField, { readonly brand: unique symbol }>($I`MetadataTemplateFieldsOptionsField`)(
   {
     key: S.String,
     id: S.String.pipe(S.optionalKey),
@@ -8842,7 +8842,7 @@ export class MetadataTemplateFieldsOptionsField extends S.Class<MetadataTemplate
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplateFieldsOptionsRulesField extends S.Class<MetadataTemplateFieldsOptionsRulesField>($I`MetadataTemplateFieldsOptionsRulesField`)(
+export class MetadataTemplateFieldsOptionsRulesField extends S.Class<MetadataTemplateFieldsOptionsRulesField, { readonly brand: unique symbol }>($I`MetadataTemplateFieldsOptionsRulesField`)(
   {
     multiSelect: S.Boolean.pipe(S.optionalKey),
     selectableLevels: S.Finite.pipe(S.Array, S.optionalKey),
@@ -8906,7 +8906,7 @@ export type MetadataTemplateFieldsTypeField = typeof MetadataTemplateFieldsTypeF
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplates extends S.Class<MetadataTemplates>($I`MetadataTemplates`)(
+export class MetadataTemplates extends S.Class<MetadataTemplates, { readonly brand: unique symbol }>($I`MetadataTemplates`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     nextMarker: S.String.pipe(S.NullOr, S.optionalKey),
@@ -8966,7 +8966,7 @@ export type MetadataTemplateTypeField = typeof MetadataTemplateTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class PreflightFileUploadCheckHeadersInput extends S.Class<PreflightFileUploadCheckHeadersInput>($I`PreflightFileUploadCheckHeadersInput`)(
+export class PreflightFileUploadCheckHeadersInput extends S.Class<PreflightFileUploadCheckHeadersInput, { readonly brand: unique symbol }>($I`PreflightFileUploadCheckHeadersInput`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -8989,7 +8989,7 @@ export class PreflightFileUploadCheckHeadersInput extends S.Class<PreflightFileU
  * @category models
  * @since 0.0.0
  */
-export class PreflightFileUploadCheckRequestBody extends S.Class<PreflightFileUploadCheckRequestBody>($I`PreflightFileUploadCheckRequestBody`)(
+export class PreflightFileUploadCheckRequestBody extends S.Class<PreflightFileUploadCheckRequestBody, { readonly brand: unique symbol }>($I`PreflightFileUploadCheckRequestBody`)(
   {
     name: S.String.pipe(S.optionalKey),
     size: S.Finite.pipe(S.optionalKey),
@@ -9014,7 +9014,7 @@ export class PreflightFileUploadCheckRequestBody extends S.Class<PreflightFileUp
  * @category models
  * @since 0.0.0
  */
-export class PreflightFileUploadCheckRequestBodyParentField extends S.Class<PreflightFileUploadCheckRequestBodyParentField>($I`PreflightFileUploadCheckRequestBodyParentField`)(
+export class PreflightFileUploadCheckRequestBodyParentField extends S.Class<PreflightFileUploadCheckRequestBodyParentField, { readonly brand: unique symbol }>($I`PreflightFileUploadCheckRequestBodyParentField`)(
   {
     id: S.String.pipe(S.optionalKey),
   },
@@ -9037,7 +9037,7 @@ export class PreflightFileUploadCheckRequestBodyParentField extends S.Class<Pref
  * @category models
  * @since 0.0.0
  */
-export class RealtimeServer extends S.Class<RealtimeServer>($I`RealtimeServer`)(
+export class RealtimeServer extends S.Class<RealtimeServer, { readonly brand: unique symbol }>($I`RealtimeServer`)(
   {
     type: S.String.pipe(S.optionalKey),
     url: S.String.pipe(S.optionalKey),
@@ -9064,7 +9064,7 @@ export class RealtimeServer extends S.Class<RealtimeServer>($I`RealtimeServer`)(
  * @category models
  * @since 0.0.0
  */
-export class RealtimeServers extends S.Class<RealtimeServers>($I`RealtimeServers`)(
+export class RealtimeServers extends S.Class<RealtimeServers, { readonly brand: unique symbol }>($I`RealtimeServers`)(
   {
     chunkSize: S.Finite.pipe(S.optionalKey),
     entries: S.suspend(() => RealtimeServer).pipe(S.Array, S.optionalKey),
@@ -9088,7 +9088,7 @@ export class RealtimeServers extends S.Class<RealtimeServers>($I`RealtimeServers
  * @category models
  * @since 0.0.0
  */
-export class ResendSignRequestHeaders extends S.Class<ResendSignRequestHeaders>($I`ResendSignRequestHeaders`)(
+export class ResendSignRequestHeaders extends S.Class<ResendSignRequestHeaders, { readonly brand: unique symbol }>($I`ResendSignRequestHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -9111,7 +9111,7 @@ export class ResendSignRequestHeaders extends S.Class<ResendSignRequestHeaders>(
  * @category models
  * @since 0.0.0
  */
-export class ResendSignRequestOptionalsInput extends S.Class<ResendSignRequestOptionalsInput>($I`ResendSignRequestOptionalsInput`)(
+export class ResendSignRequestOptionalsInput extends S.Class<ResendSignRequestOptionalsInput, { readonly brand: unique symbol }>($I`ResendSignRequestOptionalsInput`)(
   {
     headers: S.suspend(() => ResendSignRequestHeaders).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -9169,7 +9169,7 @@ export type Resource = typeof Resource.Type;
  * @category models
  * @since 0.0.0
  */
-export class ResourceScope extends S.Class<ResourceScope>($I`ResourceScope`)(
+export class ResourceScope extends S.Class<ResourceScope, { readonly brand: unique symbol }>($I`ResourceScope`)(
   {
     scope: S.suspend(() => ResourceScopeScopeField).pipe(S.optionalKey),
     object: S.suspend(() => Resource).pipe(S.optionalKey),
@@ -9227,7 +9227,7 @@ export type ResourceScopeScopeField = typeof ResourceScopeScopeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicies extends S.Class<RetentionPolicies>($I`RetentionPolicies`)(
+export class RetentionPolicies extends S.Class<RetentionPolicies, { readonly brand: unique symbol }>($I`RetentionPolicies`)(
   {
     entries: S.suspend(() => RetentionPolicy).pipe(S.Array, S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -9252,7 +9252,7 @@ export class RetentionPolicies extends S.Class<RetentionPolicies>($I`RetentionPo
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicyBase extends S.Class<RetentionPolicyBase>($I`RetentionPolicyBase`)(
+export class RetentionPolicyBase extends S.Class<RetentionPolicyBase, { readonly brand: unique symbol }>($I`RetentionPolicyBase`)(
   {
     id: S.String,
     type: S.suspend(() => RetentionPolicyBaseTypeField),
@@ -9335,7 +9335,7 @@ export class RetentionPolicy extends RetentionPolicyMini.extend<RetentionPolicy>
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicyAssignment extends S.Class<RetentionPolicyAssignment>($I`RetentionPolicyAssignment`)(
+export class RetentionPolicyAssignment extends S.Class<RetentionPolicyAssignment, { readonly brand: unique symbol }>($I`RetentionPolicyAssignment`)(
   {
     id: S.String,
     type: S.suspend(() => RetentionPolicyAssignmentTypeField),
@@ -9365,7 +9365,7 @@ export class RetentionPolicyAssignment extends S.Class<RetentionPolicyAssignment
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicyAssignmentAssignedToField extends S.Class<RetentionPolicyAssignmentAssignedToField>($I`RetentionPolicyAssignmentAssignedToField`)(
+export class RetentionPolicyAssignmentAssignedToField extends S.Class<RetentionPolicyAssignmentAssignedToField, { readonly brand: unique symbol }>($I`RetentionPolicyAssignmentAssignedToField`)(
   {
     id: S.String.pipe(S.NullOr, S.optionalKey),
     type: S.suspend(() => RetentionPolicyAssignmentAssignedToTypeField).pipe(S.optionalKey),
@@ -9429,7 +9429,7 @@ export type RetentionPolicyAssignmentAssignedToTypeField = typeof RetentionPolic
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicyAssignmentCountsField extends S.Class<RetentionPolicyAssignmentCountsField>($I`RetentionPolicyAssignmentCountsField`)(
+export class RetentionPolicyAssignmentCountsField extends S.Class<RetentionPolicyAssignmentCountsField, { readonly brand: unique symbol }>($I`RetentionPolicyAssignmentCountsField`)(
   {
     enterprise: S.Finite.pipe(S.optionalKey),
     folder: S.Finite.pipe(S.optionalKey),
@@ -9454,7 +9454,7 @@ export class RetentionPolicyAssignmentCountsField extends S.Class<RetentionPolic
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicyAssignmentFilterFieldsField extends S.Class<RetentionPolicyAssignmentFilterFieldsField>($I`RetentionPolicyAssignmentFilterFieldsField`)(
+export class RetentionPolicyAssignmentFilterFieldsField extends S.Class<RetentionPolicyAssignmentFilterFieldsField, { readonly brand: unique symbol }>($I`RetentionPolicyAssignmentFilterFieldsField`)(
   {
     field: S.String.pipe(S.NullOr, S.optionalKey),
     value: S.String.pipe(S.NullOr, S.optionalKey),
@@ -9478,7 +9478,7 @@ export class RetentionPolicyAssignmentFilterFieldsField extends S.Class<Retentio
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicyAssignments extends S.Class<RetentionPolicyAssignments>($I`RetentionPolicyAssignments`)(
+export class RetentionPolicyAssignments extends S.Class<RetentionPolicyAssignments, { readonly brand: unique symbol }>($I`RetentionPolicyAssignments`)(
   {
     entries: S.suspend(() => RetentionPolicyAssignment).pipe(S.Array, S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -9809,7 +9809,7 @@ export type SignRequest = typeof SignRequest.Type;
  * @category models
  * @since 0.0.0
  */
-export class SignRequestCancelRequest extends S.Class<SignRequestCancelRequest>($I`SignRequestCancelRequest`)(
+export class SignRequestCancelRequest extends S.Class<SignRequestCancelRequest, { readonly brand: unique symbol }>($I`SignRequestCancelRequest`)(
   {
     reason: S.String.pipe(S.optionalKey),
   },
@@ -9866,7 +9866,7 @@ export type SignRequestCreateRequest = typeof SignRequestCreateRequest.Type;
  * @category models
  * @since 0.0.0
  */
-export class SignRequests extends S.Class<SignRequests>($I`SignRequests`)(
+export class SignRequests extends S.Class<SignRequests, { readonly brand: unique symbol }>($I`SignRequests`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     nextMarker: S.String.pipe(S.NullOr, S.optionalKey),
@@ -9891,7 +9891,7 @@ export class SignRequests extends S.Class<SignRequests>($I`SignRequests`)(
  * @category models
  * @since 0.0.0
  */
-export class SignTemplate extends S.Class<SignTemplate>($I`SignTemplate`)(
+export class SignTemplate extends S.Class<SignTemplate, { readonly brand: unique symbol }>($I`SignTemplate`)(
   {
     type: S.suspend(() => SignTemplateTypeField).pipe(S.optionalKey),
     id: S.String.pipe(S.optionalKey),
@@ -9931,7 +9931,7 @@ export class SignTemplate extends S.Class<SignTemplate>($I`SignTemplate`)(
  * @category models
  * @since 0.0.0
  */
-export class SignTemplateAdditionalInfoField extends S.Class<SignTemplateAdditionalInfoField>($I`SignTemplateAdditionalInfoField`)(
+export class SignTemplateAdditionalInfoField extends S.Class<SignTemplateAdditionalInfoField, { readonly brand: unique symbol }>($I`SignTemplateAdditionalInfoField`)(
   {
     nonEditable: S.suspend(() => SignTemplateAdditionalInfoNonEditableField).pipe(S.Array, S.optionalKey),
     required: S.suspend(() => SignTemplateAdditionalInfoRequiredField).pipe(S.optionalKey),
@@ -9989,7 +9989,7 @@ export type SignTemplateAdditionalInfoNonEditableField = typeof SignTemplateAddi
  * @category models
  * @since 0.0.0
  */
-export class SignTemplateAdditionalInfoRequiredField extends S.Class<SignTemplateAdditionalInfoRequiredField>($I`SignTemplateAdditionalInfoRequiredField`)(
+export class SignTemplateAdditionalInfoRequiredField extends S.Class<SignTemplateAdditionalInfoRequiredField, { readonly brand: unique symbol }>($I`SignTemplateAdditionalInfoRequiredField`)(
   {
     signers: S.suspend(() => SignTemplateAdditionalInfoRequiredSignersField).pipe(S.Array, S.Array, S.optionalKey),
   },
@@ -10046,7 +10046,7 @@ export type SignTemplateAdditionalInfoRequiredSignersField = typeof SignTemplate
  * @category models
  * @since 0.0.0
  */
-export class SignTemplateCustomBrandingField extends S.Class<SignTemplateCustomBrandingField>($I`SignTemplateCustomBrandingField`)(
+export class SignTemplateCustomBrandingField extends S.Class<SignTemplateCustomBrandingField, { readonly brand: unique symbol }>($I`SignTemplateCustomBrandingField`)(
   {
     companyName: S.String.pipe(S.NullOr, S.optionalKey),
     logoUri: S.String.pipe(S.NullOr, S.optionalKey),
@@ -10072,7 +10072,7 @@ export class SignTemplateCustomBrandingField extends S.Class<SignTemplateCustomB
  * @category models
  * @since 0.0.0
  */
-export class SignTemplateReadySignLinkField extends S.Class<SignTemplateReadySignLinkField>($I`SignTemplateReadySignLinkField`)(
+export class SignTemplateReadySignLinkField extends S.Class<SignTemplateReadySignLinkField, { readonly brand: unique symbol }>($I`SignTemplateReadySignLinkField`)(
   {
     url: S.String.pipe(S.optionalKey),
     name: S.String.pipe(S.NullOr, S.optionalKey),
@@ -10100,7 +10100,7 @@ export class SignTemplateReadySignLinkField extends S.Class<SignTemplateReadySig
  * @category models
  * @since 0.0.0
  */
-export class SignTemplates extends S.Class<SignTemplates>($I`SignTemplates`)(
+export class SignTemplates extends S.Class<SignTemplates, { readonly brand: unique symbol }>($I`SignTemplates`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     nextMarker: S.String.pipe(S.NullOr, S.optionalKey),
@@ -10160,7 +10160,7 @@ export type SignTemplateTypeField = typeof SignTemplateTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class TemplateSigner extends S.Class<TemplateSigner>($I`TemplateSigner`)(
+export class TemplateSigner extends S.Class<TemplateSigner, { readonly brand: unique symbol }>($I`TemplateSigner`)(
   {
     inputs: S.suspend(() => TemplateSignerInput).pipe(S.Array, S.optionalKey),
     email: S.String.pipe(S.NullOr, S.optionalKey),
@@ -10261,7 +10261,7 @@ export type TemplateSignerRoleField = typeof TemplateSignerRoleField.Type;
  * @category models
  * @since 0.0.0
  */
-export class TermsOfServiceBase extends S.Class<TermsOfServiceBase>($I`TermsOfServiceBase`)(
+export class TermsOfServiceBase extends S.Class<TermsOfServiceBase, { readonly brand: unique symbol }>($I`TermsOfServiceBase`)(
   {
     id: S.String,
     type: S.suspend(() => TermsOfServiceBaseTypeField),
@@ -10319,7 +10319,7 @@ export type TermsOfServiceBaseTypeField = typeof TermsOfServiceBaseTypeField.Typ
  * @category models
  * @since 0.0.0
  */
-export class TrackingCode extends S.Class<TrackingCode>($I`TrackingCode`)(
+export class TrackingCode extends S.Class<TrackingCode, { readonly brand: unique symbol }>($I`TrackingCode`)(
   {
     type: S.suspend(() => TrackingCodeTypeField).pipe(S.optionalKey),
     name: S.String.pipe(S.optionalKey),
@@ -10378,7 +10378,7 @@ export type TrackingCodeTypeField = typeof TrackingCodeTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class UpdateCollaborationByIdHeaders extends S.Class<UpdateCollaborationByIdHeaders>($I`UpdateCollaborationByIdHeaders`)(
+export class UpdateCollaborationByIdHeaders extends S.Class<UpdateCollaborationByIdHeaders, { readonly brand: unique symbol }>($I`UpdateCollaborationByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -10401,7 +10401,7 @@ export class UpdateCollaborationByIdHeaders extends S.Class<UpdateCollaborationB
  * @category models
  * @since 0.0.0
  */
-export class UpdateCollaborationByIdOptionalsInput extends S.Class<UpdateCollaborationByIdOptionalsInput>($I`UpdateCollaborationByIdOptionalsInput`)(
+export class UpdateCollaborationByIdOptionalsInput extends S.Class<UpdateCollaborationByIdOptionalsInput, { readonly brand: unique symbol }>($I`UpdateCollaborationByIdOptionalsInput`)(
   {
     requestBody: S.suspend(() => UpdateCollaborationByIdRequestBody).pipe(S.optionalKey),
     headers: S.suspend(() => UpdateCollaborationByIdHeaders).pipe(S.optionalKey),
@@ -10426,7 +10426,7 @@ export class UpdateCollaborationByIdOptionalsInput extends S.Class<UpdateCollabo
  * @category models
  * @since 0.0.0
  */
-export class UpdateCollaborationByIdRequestBody extends S.Class<UpdateCollaborationByIdRequestBody>($I`UpdateCollaborationByIdRequestBody`)(
+export class UpdateCollaborationByIdRequestBody extends S.Class<UpdateCollaborationByIdRequestBody, { readonly brand: unique symbol }>($I`UpdateCollaborationByIdRequestBody`)(
   {
     role: S.suspend(() => UpdateCollaborationByIdRequestBodyRoleField).pipe(S.optionalKey),
     status: S.suspend(() => UpdateCollaborationByIdRequestBodyStatusField).pipe(S.optionalKey),
@@ -10520,7 +10520,7 @@ export type UpdateCollaborationByIdRequestBodyStatusField = typeof UpdateCollabo
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdHeaders extends S.Class<UpdateFileByIdHeaders>($I`UpdateFileByIdHeaders`)(
+export class UpdateFileByIdHeaders extends S.Class<UpdateFileByIdHeaders, { readonly brand: unique symbol }>($I`UpdateFileByIdHeaders`)(
   {
     ifMatch: S.String.pipe(S.optionalKey),
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
@@ -10544,7 +10544,7 @@ export class UpdateFileByIdHeaders extends S.Class<UpdateFileByIdHeaders>($I`Upd
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdOptionalsInput extends S.Class<UpdateFileByIdOptionalsInput>($I`UpdateFileByIdOptionalsInput`)(
+export class UpdateFileByIdOptionalsInput extends S.Class<UpdateFileByIdOptionalsInput, { readonly brand: unique symbol }>($I`UpdateFileByIdOptionalsInput`)(
   {
     requestBody: S.suspend(() => UpdateFileByIdRequestBody).pipe(S.optionalKey),
     queryParams: S.suspend(() => UpdateFileByIdQueryParams).pipe(S.optionalKey),
@@ -10570,7 +10570,7 @@ export class UpdateFileByIdOptionalsInput extends S.Class<UpdateFileByIdOptional
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdQueryParams extends S.Class<UpdateFileByIdQueryParams>($I`UpdateFileByIdQueryParams`)(
+export class UpdateFileByIdQueryParams extends S.Class<UpdateFileByIdQueryParams, { readonly brand: unique symbol }>($I`UpdateFileByIdQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -10593,7 +10593,7 @@ export class UpdateFileByIdQueryParams extends S.Class<UpdateFileByIdQueryParams
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdRequestBody extends S.Class<UpdateFileByIdRequestBody>($I`UpdateFileByIdRequestBody`)(
+export class UpdateFileByIdRequestBody extends S.Class<UpdateFileByIdRequestBody, { readonly brand: unique symbol }>($I`UpdateFileByIdRequestBody`)(
   {
     name: S.String.pipe(S.optionalKey),
     description: S.String.pipe(S.optionalKey),
@@ -10624,7 +10624,7 @@ export class UpdateFileByIdRequestBody extends S.Class<UpdateFileByIdRequestBody
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdRequestBodyCollectionsField extends S.Class<UpdateFileByIdRequestBodyCollectionsField>($I`UpdateFileByIdRequestBodyCollectionsField`)(
+export class UpdateFileByIdRequestBodyCollectionsField extends S.Class<UpdateFileByIdRequestBodyCollectionsField, { readonly brand: unique symbol }>($I`UpdateFileByIdRequestBodyCollectionsField`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.String.pipe(S.optionalKey),
@@ -10682,7 +10682,7 @@ export type UpdateFileByIdRequestBodyLockAccessField = typeof UpdateFileByIdRequ
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdRequestBodyLockField extends S.Class<UpdateFileByIdRequestBodyLockField>($I`UpdateFileByIdRequestBodyLockField`)(
+export class UpdateFileByIdRequestBodyLockField extends S.Class<UpdateFileByIdRequestBodyLockField, { readonly brand: unique symbol }>($I`UpdateFileByIdRequestBodyLockField`)(
   {
     access: S.suspend(() => UpdateFileByIdRequestBodyLockAccessField).pipe(S.optionalKey),
     expiresAt: BoxSdkDateTime.pipe(S.optionalKey),
@@ -10707,7 +10707,7 @@ export class UpdateFileByIdRequestBodyLockField extends S.Class<UpdateFileByIdRe
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdRequestBodyParentField extends S.Class<UpdateFileByIdRequestBodyParentField>($I`UpdateFileByIdRequestBodyParentField`)(
+export class UpdateFileByIdRequestBodyParentField extends S.Class<UpdateFileByIdRequestBodyParentField, { readonly brand: unique symbol }>($I`UpdateFileByIdRequestBodyParentField`)(
   {
     id: S.String.pipe(S.optionalKey),
     userId: S.String.pipe(S.optionalKey),
@@ -10765,7 +10765,7 @@ export type UpdateFileByIdRequestBodyPermissionsCanDownloadField = typeof Update
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdRequestBodyPermissionsField extends S.Class<UpdateFileByIdRequestBodyPermissionsField>($I`UpdateFileByIdRequestBodyPermissionsField`)(
+export class UpdateFileByIdRequestBodyPermissionsField extends S.Class<UpdateFileByIdRequestBodyPermissionsField, { readonly brand: unique symbol }>($I`UpdateFileByIdRequestBodyPermissionsField`)(
   {
     canDownload: S.suspend(() => UpdateFileByIdRequestBodyPermissionsCanDownloadField).pipe(S.optionalKey),
   },
@@ -10822,7 +10822,7 @@ export type UpdateFileByIdRequestBodySharedLinkAccessField = typeof UpdateFileBy
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdRequestBodySharedLinkField extends S.Class<UpdateFileByIdRequestBodySharedLinkField>($I`UpdateFileByIdRequestBodySharedLinkField`)(
+export class UpdateFileByIdRequestBodySharedLinkField extends S.Class<UpdateFileByIdRequestBodySharedLinkField, { readonly brand: unique symbol }>($I`UpdateFileByIdRequestBodySharedLinkField`)(
   {
     access: S.suspend(() => UpdateFileByIdRequestBodySharedLinkAccessField).pipe(S.optionalKey),
     password: S.String.pipe(S.NullOr, S.optionalKey),
@@ -10849,7 +10849,7 @@ export class UpdateFileByIdRequestBodySharedLinkField extends S.Class<UpdateFile
  * @category models
  * @since 0.0.0
  */
-export class UpdateFileByIdRequestBodySharedLinkPermissionsField extends S.Class<UpdateFileByIdRequestBodySharedLinkPermissionsField>($I`UpdateFileByIdRequestBodySharedLinkPermissionsField`)(
+export class UpdateFileByIdRequestBodySharedLinkPermissionsField extends S.Class<UpdateFileByIdRequestBodySharedLinkPermissionsField, { readonly brand: unique symbol }>($I`UpdateFileByIdRequestBodySharedLinkPermissionsField`)(
   {
     canDownload: S.Boolean.pipe(S.optionalKey),
   },
@@ -10872,7 +10872,7 @@ export class UpdateFileByIdRequestBodySharedLinkPermissionsField extends S.Class
  * @category models
  * @since 0.0.0
  */
-export class UpdateFolderByIdHeaders extends S.Class<UpdateFolderByIdHeaders>($I`UpdateFolderByIdHeaders`)(
+export class UpdateFolderByIdHeaders extends S.Class<UpdateFolderByIdHeaders, { readonly brand: unique symbol }>($I`UpdateFolderByIdHeaders`)(
   {
     ifMatch: S.String.pipe(S.optionalKey),
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
@@ -10896,7 +10896,7 @@ export class UpdateFolderByIdHeaders extends S.Class<UpdateFolderByIdHeaders>($I
  * @category models
  * @since 0.0.0
  */
-export class UpdateFolderByIdOptionalsInput extends S.Class<UpdateFolderByIdOptionalsInput>($I`UpdateFolderByIdOptionalsInput`)(
+export class UpdateFolderByIdOptionalsInput extends S.Class<UpdateFolderByIdOptionalsInput, { readonly brand: unique symbol }>($I`UpdateFolderByIdOptionalsInput`)(
   {
     requestBody: S.suspend(() => UpdateFolderByIdRequestBody).pipe(S.optionalKey),
     queryParams: S.suspend(() => UpdateFolderByIdQueryParams).pipe(S.optionalKey),
@@ -10922,7 +10922,7 @@ export class UpdateFolderByIdOptionalsInput extends S.Class<UpdateFolderByIdOpti
  * @category models
  * @since 0.0.0
  */
-export class UpdateFolderByIdQueryParams extends S.Class<UpdateFolderByIdQueryParams>($I`UpdateFolderByIdQueryParams`)(
+export class UpdateFolderByIdQueryParams extends S.Class<UpdateFolderByIdQueryParams, { readonly brand: unique symbol }>($I`UpdateFolderByIdQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -10945,7 +10945,7 @@ export class UpdateFolderByIdQueryParams extends S.Class<UpdateFolderByIdQueryPa
  * @category models
  * @since 0.0.0
  */
-export class UpdateFolderByIdRequestBody extends S.Class<UpdateFolderByIdRequestBody>($I`UpdateFolderByIdRequestBody`)(
+export class UpdateFolderByIdRequestBody extends S.Class<UpdateFolderByIdRequestBody, { readonly brand: unique symbol }>($I`UpdateFolderByIdRequestBody`)(
   {
     name: S.String.pipe(S.optionalKey),
     description: S.String.pipe(S.optionalKey),
@@ -10978,7 +10978,7 @@ export class UpdateFolderByIdRequestBody extends S.Class<UpdateFolderByIdRequest
  * @category models
  * @since 0.0.0
  */
-export class UpdateFolderByIdRequestBodyCollectionsField extends S.Class<UpdateFolderByIdRequestBodyCollectionsField>($I`UpdateFolderByIdRequestBodyCollectionsField`)(
+export class UpdateFolderByIdRequestBodyCollectionsField extends S.Class<UpdateFolderByIdRequestBodyCollectionsField, { readonly brand: unique symbol }>($I`UpdateFolderByIdRequestBodyCollectionsField`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.String.pipe(S.optionalKey),
@@ -11036,7 +11036,7 @@ export type UpdateFolderByIdRequestBodyFolderUploadEmailAccessField = typeof Upd
  * @category models
  * @since 0.0.0
  */
-export class UpdateFolderByIdRequestBodyFolderUploadEmailField extends S.Class<UpdateFolderByIdRequestBodyFolderUploadEmailField>($I`UpdateFolderByIdRequestBodyFolderUploadEmailField`)(
+export class UpdateFolderByIdRequestBodyFolderUploadEmailField extends S.Class<UpdateFolderByIdRequestBodyFolderUploadEmailField, { readonly brand: unique symbol }>($I`UpdateFolderByIdRequestBodyFolderUploadEmailField`)(
   {
     access: S.suspend(() => UpdateFolderByIdRequestBodyFolderUploadEmailAccessField).pipe(S.optionalKey),
   },
@@ -11059,7 +11059,7 @@ export class UpdateFolderByIdRequestBodyFolderUploadEmailField extends S.Class<U
  * @category models
  * @since 0.0.0
  */
-export class UpdateFolderByIdRequestBodyParentField extends S.Class<UpdateFolderByIdRequestBodyParentField>($I`UpdateFolderByIdRequestBodyParentField`)(
+export class UpdateFolderByIdRequestBodyParentField extends S.Class<UpdateFolderByIdRequestBodyParentField, { readonly brand: unique symbol }>($I`UpdateFolderByIdRequestBodyParentField`)(
   {
     id: S.String.pipe(S.optionalKey),
     userId: S.String.pipe(S.optionalKey),
@@ -11117,7 +11117,7 @@ export type UpdateFolderByIdRequestBodySharedLinkAccessField = typeof UpdateFold
  * @category models
  * @since 0.0.0
  */
-export class UpdateFolderByIdRequestBodySharedLinkField extends S.Class<UpdateFolderByIdRequestBodySharedLinkField>($I`UpdateFolderByIdRequestBodySharedLinkField`)(
+export class UpdateFolderByIdRequestBodySharedLinkField extends S.Class<UpdateFolderByIdRequestBodySharedLinkField, { readonly brand: unique symbol }>($I`UpdateFolderByIdRequestBodySharedLinkField`)(
   {
     access: S.suspend(() => UpdateFolderByIdRequestBodySharedLinkAccessField).pipe(S.optionalKey),
     password: S.String.pipe(S.NullOr, S.optionalKey),
@@ -11144,7 +11144,7 @@ export class UpdateFolderByIdRequestBodySharedLinkField extends S.Class<UpdateFo
  * @category models
  * @since 0.0.0
  */
-export class UpdateFolderByIdRequestBodySharedLinkPermissionsField extends S.Class<UpdateFolderByIdRequestBodySharedLinkPermissionsField>($I`UpdateFolderByIdRequestBodySharedLinkPermissionsField`)(
+export class UpdateFolderByIdRequestBodySharedLinkPermissionsField extends S.Class<UpdateFolderByIdRequestBodySharedLinkPermissionsField, { readonly brand: unique symbol }>($I`UpdateFolderByIdRequestBodySharedLinkPermissionsField`)(
   {
     canDownload: S.Boolean.pipe(S.optionalKey),
   },
@@ -11201,7 +11201,7 @@ export type UpdateFolderByIdRequestBodySyncStateField = typeof UpdateFolderByIdR
  * @category models
  * @since 0.0.0
  */
-export class UpdateUserByIdHeaders extends S.Class<UpdateUserByIdHeaders>($I`UpdateUserByIdHeaders`)(
+export class UpdateUserByIdHeaders extends S.Class<UpdateUserByIdHeaders, { readonly brand: unique symbol }>($I`UpdateUserByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -11224,7 +11224,7 @@ export class UpdateUserByIdHeaders extends S.Class<UpdateUserByIdHeaders>($I`Upd
  * @category models
  * @since 0.0.0
  */
-export class UpdateUserByIdOptionalsInput extends S.Class<UpdateUserByIdOptionalsInput>($I`UpdateUserByIdOptionalsInput`)(
+export class UpdateUserByIdOptionalsInput extends S.Class<UpdateUserByIdOptionalsInput, { readonly brand: unique symbol }>($I`UpdateUserByIdOptionalsInput`)(
   {
     requestBody: S.suspend(() => UpdateUserByIdRequestBody).pipe(S.optionalKey),
     queryParams: S.suspend(() => UpdateUserByIdQueryParams).pipe(S.optionalKey),
@@ -11250,7 +11250,7 @@ export class UpdateUserByIdOptionalsInput extends S.Class<UpdateUserByIdOptional
  * @category models
  * @since 0.0.0
  */
-export class UpdateUserByIdQueryParams extends S.Class<UpdateUserByIdQueryParams>($I`UpdateUserByIdQueryParams`)(
+export class UpdateUserByIdQueryParams extends S.Class<UpdateUserByIdQueryParams, { readonly brand: unique symbol }>($I`UpdateUserByIdQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -11273,7 +11273,7 @@ export class UpdateUserByIdQueryParams extends S.Class<UpdateUserByIdQueryParams
  * @category models
  * @since 0.0.0
  */
-export class UpdateUserByIdRequestBody extends S.Class<UpdateUserByIdRequestBody>($I`UpdateUserByIdRequestBody`)(
+export class UpdateUserByIdRequestBody extends S.Class<UpdateUserByIdRequestBody, { readonly brand: unique symbol }>($I`UpdateUserByIdRequestBody`)(
   {
     enterprise: S.String.pipe(S.NullOr, S.optionalKey),
     notify: S.Boolean.pipe(S.optionalKey),
@@ -11317,7 +11317,7 @@ export class UpdateUserByIdRequestBody extends S.Class<UpdateUserByIdRequestBody
  * @category models
  * @since 0.0.0
  */
-export class UpdateUserByIdRequestBodyNotificationEmailField extends S.Class<UpdateUserByIdRequestBodyNotificationEmailField>($I`UpdateUserByIdRequestBodyNotificationEmailField`)(
+export class UpdateUserByIdRequestBodyNotificationEmailField extends S.Class<UpdateUserByIdRequestBodyNotificationEmailField, { readonly brand: unique symbol }>($I`UpdateUserByIdRequestBodyNotificationEmailField`)(
   {
     email: S.String.pipe(S.optionalKey),
   },
@@ -11408,7 +11408,7 @@ export type UpdateUserByIdRequestBodyStatusField = typeof UpdateUserByIdRequestB
  * @category models
  * @since 0.0.0
  */
-export class UpdateWebhookByIdHeaders extends S.Class<UpdateWebhookByIdHeaders>($I`UpdateWebhookByIdHeaders`)(
+export class UpdateWebhookByIdHeaders extends S.Class<UpdateWebhookByIdHeaders, { readonly brand: unique symbol }>($I`UpdateWebhookByIdHeaders`)(
   {
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
   },
@@ -11431,7 +11431,7 @@ export class UpdateWebhookByIdHeaders extends S.Class<UpdateWebhookByIdHeaders>(
  * @category models
  * @since 0.0.0
  */
-export class UpdateWebhookByIdOptionalsInput extends S.Class<UpdateWebhookByIdOptionalsInput>($I`UpdateWebhookByIdOptionalsInput`)(
+export class UpdateWebhookByIdOptionalsInput extends S.Class<UpdateWebhookByIdOptionalsInput, { readonly brand: unique symbol }>($I`UpdateWebhookByIdOptionalsInput`)(
   {
     requestBody: S.suspend(() => UpdateWebhookByIdRequestBody).pipe(S.optionalKey),
     headers: S.suspend(() => UpdateWebhookByIdHeaders).pipe(S.optionalKey),
@@ -11456,7 +11456,7 @@ export class UpdateWebhookByIdOptionalsInput extends S.Class<UpdateWebhookByIdOp
  * @category models
  * @since 0.0.0
  */
-export class UpdateWebhookByIdRequestBody extends S.Class<UpdateWebhookByIdRequestBody>($I`UpdateWebhookByIdRequestBody`)(
+export class UpdateWebhookByIdRequestBody extends S.Class<UpdateWebhookByIdRequestBody, { readonly brand: unique symbol }>($I`UpdateWebhookByIdRequestBody`)(
   {
     target: S.suspend(() => UpdateWebhookByIdRequestBodyTargetField).pipe(S.optionalKey),
     address: S.String.pipe(S.optionalKey),
@@ -11481,7 +11481,7 @@ export class UpdateWebhookByIdRequestBody extends S.Class<UpdateWebhookByIdReque
  * @category models
  * @since 0.0.0
  */
-export class UpdateWebhookByIdRequestBodyTargetField extends S.Class<UpdateWebhookByIdRequestBodyTargetField>($I`UpdateWebhookByIdRequestBodyTargetField`)(
+export class UpdateWebhookByIdRequestBodyTargetField extends S.Class<UpdateWebhookByIdRequestBodyTargetField, { readonly brand: unique symbol }>($I`UpdateWebhookByIdRequestBodyTargetField`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.suspend(() => UpdateWebhookByIdRequestBodyTargetTypeField).pipe(S.optionalKey),
@@ -11579,7 +11579,7 @@ export type UpdateWebhookByIdRequestBodyTriggersField = typeof UpdateWebhookById
  * @category models
  * @since 0.0.0
  */
-export class UploadedPart extends S.Class<UploadedPart>($I`UploadedPart`)(
+export class UploadedPart extends S.Class<UploadedPart, { readonly brand: unique symbol }>($I`UploadedPart`)(
   {
     part: S.suspend(() => UploadPart).pipe(S.optionalKey),
   },
@@ -11602,7 +11602,7 @@ export class UploadedPart extends S.Class<UploadedPart>($I`UploadedPart`)(
  * @category models
  * @since 0.0.0
  */
-export class UploadFileHeaders extends S.Class<UploadFileHeaders>($I`UploadFileHeaders`)(
+export class UploadFileHeaders extends S.Class<UploadFileHeaders, { readonly brand: unique symbol }>($I`UploadFileHeaders`)(
   {
     contentMd5: S.String.pipe(S.optionalKey),
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
@@ -11626,7 +11626,7 @@ export class UploadFileHeaders extends S.Class<UploadFileHeaders>($I`UploadFileH
  * @category models
  * @since 0.0.0
  */
-export class UploadFileOptionalsInput extends S.Class<UploadFileOptionalsInput>($I`UploadFileOptionalsInput`)(
+export class UploadFileOptionalsInput extends S.Class<UploadFileOptionalsInput, { readonly brand: unique symbol }>($I`UploadFileOptionalsInput`)(
   {
     queryParams: S.suspend(() => UploadFileQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => UploadFileHeaders).pipe(S.optionalKey),
@@ -11651,7 +11651,7 @@ export class UploadFileOptionalsInput extends S.Class<UploadFileOptionalsInput>(
  * @category models
  * @since 0.0.0
  */
-export class UploadFilePartByUrlHeadersInput extends S.Class<UploadFilePartByUrlHeadersInput>($I`UploadFilePartByUrlHeadersInput`)(
+export class UploadFilePartByUrlHeadersInput extends S.Class<UploadFilePartByUrlHeadersInput, { readonly brand: unique symbol }>($I`UploadFilePartByUrlHeadersInput`)(
   {
     digest: S.String,
     contentRange: S.String,
@@ -11676,7 +11676,7 @@ export class UploadFilePartByUrlHeadersInput extends S.Class<UploadFilePartByUrl
  * @category models
  * @since 0.0.0
  */
-export class UploadFilePartByUrlOptionalsInput extends S.Class<UploadFilePartByUrlOptionalsInput>($I`UploadFilePartByUrlOptionalsInput`)(
+export class UploadFilePartByUrlOptionalsInput extends S.Class<UploadFilePartByUrlOptionalsInput, { readonly brand: unique symbol }>($I`UploadFilePartByUrlOptionalsInput`)(
   {
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
   },
@@ -11699,7 +11699,7 @@ export class UploadFilePartByUrlOptionalsInput extends S.Class<UploadFilePartByU
  * @category models
  * @since 0.0.0
  */
-export class UploadFilePartHeadersInput extends S.Class<UploadFilePartHeadersInput>($I`UploadFilePartHeadersInput`)(
+export class UploadFilePartHeadersInput extends S.Class<UploadFilePartHeadersInput, { readonly brand: unique symbol }>($I`UploadFilePartHeadersInput`)(
   {
     digest: S.String,
     contentRange: S.String,
@@ -11724,7 +11724,7 @@ export class UploadFilePartHeadersInput extends S.Class<UploadFilePartHeadersInp
  * @category models
  * @since 0.0.0
  */
-export class UploadFilePartOptionalsInput extends S.Class<UploadFilePartOptionalsInput>($I`UploadFilePartOptionalsInput`)(
+export class UploadFilePartOptionalsInput extends S.Class<UploadFilePartOptionalsInput, { readonly brand: unique symbol }>($I`UploadFilePartOptionalsInput`)(
   {
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
   },
@@ -11747,7 +11747,7 @@ export class UploadFilePartOptionalsInput extends S.Class<UploadFilePartOptional
  * @category models
  * @since 0.0.0
  */
-export class UploadFileQueryParams extends S.Class<UploadFileQueryParams>($I`UploadFileQueryParams`)(
+export class UploadFileQueryParams extends S.Class<UploadFileQueryParams, { readonly brand: unique symbol }>($I`UploadFileQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -11770,7 +11770,7 @@ export class UploadFileQueryParams extends S.Class<UploadFileQueryParams>($I`Upl
  * @category models
  * @since 0.0.0
  */
-export class UploadFileRequestBodyAttributesField extends S.Class<UploadFileRequestBodyAttributesField>($I`UploadFileRequestBodyAttributesField`)(
+export class UploadFileRequestBodyAttributesField extends S.Class<UploadFileRequestBodyAttributesField, { readonly brand: unique symbol }>($I`UploadFileRequestBodyAttributesField`)(
   {
     name: S.String,
     parent: S.suspend(() => UploadFileRequestBodyAttributesParentField),
@@ -11796,7 +11796,7 @@ export class UploadFileRequestBodyAttributesField extends S.Class<UploadFileRequ
  * @category models
  * @since 0.0.0
  */
-export class UploadFileRequestBodyAttributesParentField extends S.Class<UploadFileRequestBodyAttributesParentField>($I`UploadFileRequestBodyAttributesParentField`)(
+export class UploadFileRequestBodyAttributesParentField extends S.Class<UploadFileRequestBodyAttributesParentField, { readonly brand: unique symbol }>($I`UploadFileRequestBodyAttributesParentField`)(
   {
     id: S.String,
   },
@@ -11819,7 +11819,7 @@ export class UploadFileRequestBodyAttributesParentField extends S.Class<UploadFi
  * @category models
  * @since 0.0.0
  */
-export class UploadFileVersionHeaders extends S.Class<UploadFileVersionHeaders>($I`UploadFileVersionHeaders`)(
+export class UploadFileVersionHeaders extends S.Class<UploadFileVersionHeaders, { readonly brand: unique symbol }>($I`UploadFileVersionHeaders`)(
   {
     ifMatch: S.String.pipe(S.optionalKey),
     contentMd5: S.String.pipe(S.optionalKey),
@@ -11844,7 +11844,7 @@ export class UploadFileVersionHeaders extends S.Class<UploadFileVersionHeaders>(
  * @category models
  * @since 0.0.0
  */
-export class UploadFileVersionOptionalsInput extends S.Class<UploadFileVersionOptionalsInput>($I`UploadFileVersionOptionalsInput`)(
+export class UploadFileVersionOptionalsInput extends S.Class<UploadFileVersionOptionalsInput, { readonly brand: unique symbol }>($I`UploadFileVersionOptionalsInput`)(
   {
     queryParams: S.suspend(() => UploadFileVersionQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => UploadFileVersionHeaders).pipe(S.optionalKey),
@@ -11869,7 +11869,7 @@ export class UploadFileVersionOptionalsInput extends S.Class<UploadFileVersionOp
  * @category models
  * @since 0.0.0
  */
-export class UploadFileVersionQueryParams extends S.Class<UploadFileVersionQueryParams>($I`UploadFileVersionQueryParams`)(
+export class UploadFileVersionQueryParams extends S.Class<UploadFileVersionQueryParams, { readonly brand: unique symbol }>($I`UploadFileVersionQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -11892,7 +11892,7 @@ export class UploadFileVersionQueryParams extends S.Class<UploadFileVersionQuery
  * @category models
  * @since 0.0.0
  */
-export class UploadFileVersionRequestBodyAttributesField extends S.Class<UploadFileVersionRequestBodyAttributesField>($I`UploadFileVersionRequestBodyAttributesField`)(
+export class UploadFileVersionRequestBodyAttributesField extends S.Class<UploadFileVersionRequestBodyAttributesField, { readonly brand: unique symbol }>($I`UploadFileVersionRequestBodyAttributesField`)(
   {
     name: S.String,
     contentModifiedAt: BoxSdkDateTime.pipe(S.optionalKey),
@@ -11950,7 +11950,7 @@ export type UploadPart = typeof UploadPart.Type;
  * @category models
  * @since 0.0.0
  */
-export class UploadPartPlan extends S.Class<UploadPartPlan>($I`UploadPartPlan`)(
+export class UploadPartPlan extends S.Class<UploadPartPlan, { readonly brand: unique symbol }>($I`UploadPartPlan`)(
   {
     offset: S.Finite,
     size: S.Finite,
@@ -11975,7 +11975,7 @@ export class UploadPartPlan extends S.Class<UploadPartPlan>($I`UploadPartPlan`)(
  * @category models
  * @since 0.0.0
  */
-export class UploadPartPlanHit extends S.Class<UploadPartPlanHit>($I`UploadPartPlanHit`)(
+export class UploadPartPlanHit extends S.Class<UploadPartPlanHit, { readonly brand: unique symbol }>($I`UploadPartPlanHit`)(
   {
     offset: S.Finite,
     size: S.Finite,
@@ -12001,7 +12001,7 @@ export class UploadPartPlanHit extends S.Class<UploadPartPlanHit>($I`UploadPartP
  * @category models
  * @since 0.0.0
  */
-export class UploadParts extends S.Class<UploadParts>($I`UploadParts`)(
+export class UploadParts extends S.Class<UploadParts, { readonly brand: unique symbol }>($I`UploadParts`)(
   {
     totalCount: S.Finite.pipe(S.optionalKey),
     limit: S.Finite.pipe(S.optionalKey),
@@ -12062,7 +12062,7 @@ export type UploadPartsOrderDirectionField = typeof UploadPartsOrderDirectionFie
  * @category models
  * @since 0.0.0
  */
-export class UploadPartsOrderField extends S.Class<UploadPartsOrderField>($I`UploadPartsOrderField`)(
+export class UploadPartsOrderField extends S.Class<UploadPartsOrderField, { readonly brand: unique symbol }>($I`UploadPartsOrderField`)(
   {
     by: S.String.pipe(S.optionalKey),
     direction: S.suspend(() => UploadPartsOrderDirectionField).pipe(S.optionalKey),
@@ -12086,7 +12086,7 @@ export class UploadPartsOrderField extends S.Class<UploadPartsOrderField>($I`Upl
  * @category models
  * @since 0.0.0
  */
-export class UploadSession extends S.Class<UploadSession>($I`UploadSession`)(
+export class UploadSession extends S.Class<UploadSession, { readonly brand: unique symbol }>($I`UploadSession`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.suspend(() => UploadSessionTypeField).pipe(S.optionalKey),
@@ -12115,7 +12115,7 @@ export class UploadSession extends S.Class<UploadSession>($I`UploadSession`)(
  * @category models
  * @since 0.0.0
  */
-export class UploadSessionPlanRequest extends S.Class<UploadSessionPlanRequest>($I`UploadSessionPlanRequest`)(
+export class UploadSessionPlanRequest extends S.Class<UploadSessionPlanRequest, { readonly brand: unique symbol }>($I`UploadSessionPlanRequest`)(
   {
     parts: S.suspend(() => UploadPartPlan).pipe(S.Array),
   },
@@ -12138,7 +12138,7 @@ export class UploadSessionPlanRequest extends S.Class<UploadSessionPlanRequest>(
  * @category models
  * @since 0.0.0
  */
-export class UploadSessionPlanResponse extends S.Class<UploadSessionPlanResponse>($I`UploadSessionPlanResponse`)(
+export class UploadSessionPlanResponse extends S.Class<UploadSessionPlanResponse, { readonly brand: unique symbol }>($I`UploadSessionPlanResponse`)(
   {
     uploadSessionId: S.String,
     hits: S.suspend(() => UploadPartPlanHit).pipe(S.Array),
@@ -12163,7 +12163,7 @@ export class UploadSessionPlanResponse extends S.Class<UploadSessionPlanResponse
  * @category models
  * @since 0.0.0
  */
-export class UploadSessionSessionEndpointsField extends S.Class<UploadSessionSessionEndpointsField>($I`UploadSessionSessionEndpointsField`)(
+export class UploadSessionSessionEndpointsField extends S.Class<UploadSessionSessionEndpointsField, { readonly brand: unique symbol }>($I`UploadSessionSessionEndpointsField`)(
   {
     plan: S.String.pipe(S.optionalKey),
     uploadPart: S.String.pipe(S.optionalKey),
@@ -12226,7 +12226,7 @@ export type UploadSessionTypeField = typeof UploadSessionTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class UploadUrl extends S.Class<UploadUrl>($I`UploadUrl`)(
+export class UploadUrl extends S.Class<UploadUrl, { readonly brand: unique symbol }>($I`UploadUrl`)(
   {
     uploadUrl: S.String.pipe(S.optionalKey),
     uploadToken: S.String.pipe(S.optionalKey),
@@ -12250,7 +12250,7 @@ export class UploadUrl extends S.Class<UploadUrl>($I`UploadUrl`)(
  * @category models
  * @since 0.0.0
  */
-export class UploadWithPreflightCheckHeaders extends S.Class<UploadWithPreflightCheckHeaders>($I`UploadWithPreflightCheckHeaders`)(
+export class UploadWithPreflightCheckHeaders extends S.Class<UploadWithPreflightCheckHeaders, { readonly brand: unique symbol }>($I`UploadWithPreflightCheckHeaders`)(
   {
     contentMd5: S.String.pipe(S.optionalKey),
     extraHeaders: S.Record(S.String, S.String.pipe(S.UndefinedOr)).pipe(S.optionalKey),
@@ -12274,7 +12274,7 @@ export class UploadWithPreflightCheckHeaders extends S.Class<UploadWithPreflight
  * @category models
  * @since 0.0.0
  */
-export class UploadWithPreflightCheckOptionalsInput extends S.Class<UploadWithPreflightCheckOptionalsInput>($I`UploadWithPreflightCheckOptionalsInput`)(
+export class UploadWithPreflightCheckOptionalsInput extends S.Class<UploadWithPreflightCheckOptionalsInput, { readonly brand: unique symbol }>($I`UploadWithPreflightCheckOptionalsInput`)(
   {
     queryParams: S.suspend(() => UploadWithPreflightCheckQueryParams).pipe(S.optionalKey),
     headers: S.suspend(() => UploadWithPreflightCheckHeaders).pipe(S.optionalKey),
@@ -12299,7 +12299,7 @@ export class UploadWithPreflightCheckOptionalsInput extends S.Class<UploadWithPr
  * @category models
  * @since 0.0.0
  */
-export class UploadWithPreflightCheckQueryParams extends S.Class<UploadWithPreflightCheckQueryParams>($I`UploadWithPreflightCheckQueryParams`)(
+export class UploadWithPreflightCheckQueryParams extends S.Class<UploadWithPreflightCheckQueryParams, { readonly brand: unique symbol }>($I`UploadWithPreflightCheckQueryParams`)(
   {
     fields: S.String.pipe(S.Array, S.optionalKey),
   },
@@ -12322,7 +12322,7 @@ export class UploadWithPreflightCheckQueryParams extends S.Class<UploadWithPrefl
  * @category models
  * @since 0.0.0
  */
-export class UploadWithPreflightCheckRequestBodyAttributesField extends S.Class<UploadWithPreflightCheckRequestBodyAttributesField>($I`UploadWithPreflightCheckRequestBodyAttributesField`)(
+export class UploadWithPreflightCheckRequestBodyAttributesField extends S.Class<UploadWithPreflightCheckRequestBodyAttributesField, { readonly brand: unique symbol }>($I`UploadWithPreflightCheckRequestBodyAttributesField`)(
   {
     name: S.String,
     parent: S.suspend(() => UploadWithPreflightCheckRequestBodyAttributesParentField),
@@ -12349,7 +12349,7 @@ export class UploadWithPreflightCheckRequestBodyAttributesField extends S.Class<
  * @category models
  * @since 0.0.0
  */
-export class UploadWithPreflightCheckRequestBodyAttributesParentField extends S.Class<UploadWithPreflightCheckRequestBodyAttributesParentField>($I`UploadWithPreflightCheckRequestBodyAttributesParentField`)(
+export class UploadWithPreflightCheckRequestBodyAttributesParentField extends S.Class<UploadWithPreflightCheckRequestBodyAttributesParentField, { readonly brand: unique symbol }>($I`UploadWithPreflightCheckRequestBodyAttributesParentField`)(
   {
     id: S.String,
   },
@@ -12372,7 +12372,7 @@ export class UploadWithPreflightCheckRequestBodyAttributesParentField extends S.
  * @category models
  * @since 0.0.0
  */
-export class UserBase extends S.Class<UserBase>($I`UserBase`)(
+export class UserBase extends S.Class<UserBase, { readonly brand: unique symbol }>($I`UserBase`)(
   {
     id: S.String,
     type: S.suspend(() => UserBaseTypeField),
@@ -12455,7 +12455,7 @@ export class User extends UserMini.extend<User>($I`User`)(
  * @category models
  * @since 0.0.0
  */
-export class UserAvatar extends S.Class<UserAvatar>($I`UserAvatar`)(
+export class UserAvatar extends S.Class<UserAvatar, { readonly brand: unique symbol }>($I`UserAvatar`)(
   {
     picUrls: S.suspend(() => UserAvatarPicUrlsField).pipe(S.optionalKey),
   },
@@ -12478,7 +12478,7 @@ export class UserAvatar extends S.Class<UserAvatar>($I`UserAvatar`)(
  * @category models
  * @since 0.0.0
  */
-export class UserAvatarPicUrlsField extends S.Class<UserAvatarPicUrlsField>($I`UserAvatarPicUrlsField`)(
+export class UserAvatarPicUrlsField extends S.Class<UserAvatarPicUrlsField, { readonly brand: unique symbol }>($I`UserAvatarPicUrlsField`)(
   {
     small: S.String.pipe(S.optionalKey),
     large: S.String.pipe(S.optionalKey),
@@ -12597,7 +12597,7 @@ export class UserFull extends User.extend<UserFull>($I`UserFull`)(
  * @category models
  * @since 0.0.0
  */
-export class UserFullEnterpriseField extends S.Class<UserFullEnterpriseField>($I`UserFullEnterpriseField`)(
+export class UserFullEnterpriseField extends S.Class<UserFullEnterpriseField, { readonly brand: unique symbol }>($I`UserFullEnterpriseField`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.suspend(() => UserFullEnterpriseTypeField).pipe(S.optionalKey),
@@ -12690,7 +12690,7 @@ export type UserFullRoleField = typeof UserFullRoleField.Type;
  * @category models
  * @since 0.0.0
  */
-export class UserNotificationEmailField extends S.Class<UserNotificationEmailField>($I`UserNotificationEmailField`)(
+export class UserNotificationEmailField extends S.Class<UserNotificationEmailField, { readonly brand: unique symbol }>($I`UserNotificationEmailField`)(
   {
     email: S.String.pipe(S.optionalKey),
     isConfirmed: S.Boolean.pipe(S.optionalKey),
@@ -12714,7 +12714,7 @@ export class UserNotificationEmailField extends S.Class<UserNotificationEmailFie
  * @category models
  * @since 0.0.0
  */
-export class Users extends S.Class<Users>($I`Users`)(
+export class Users extends S.Class<Users, { readonly brand: unique symbol }>($I`Users`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     nextMarker: S.String.pipe(S.NullOr, S.optionalKey),
@@ -12777,7 +12777,7 @@ export type UsersOrderDirectionField = typeof UsersOrderDirectionField.Type;
  * @category models
  * @since 0.0.0
  */
-export class UsersOrderField extends S.Class<UsersOrderField>($I`UsersOrderField`)(
+export class UsersOrderField extends S.Class<UsersOrderField, { readonly brand: unique symbol }>($I`UsersOrderField`)(
   {
     by: S.String.pipe(S.optionalKey),
     direction: S.suspend(() => UsersOrderDirectionField).pipe(S.optionalKey),
@@ -12835,7 +12835,7 @@ export type UserStatusField = typeof UserStatusField.Type;
  * @category models
  * @since 0.0.0
  */
-export class ValidateMessageOptionalsInput extends S.Class<ValidateMessageOptionalsInput>($I`ValidateMessageOptionalsInput`)(
+export class ValidateMessageOptionalsInput extends S.Class<ValidateMessageOptionalsInput, { readonly brand: unique symbol }>($I`ValidateMessageOptionalsInput`)(
   {
     secondaryKey: S.String.pipe(S.optionalKey),
     maxAge: S.Finite.pipe(S.optionalKey),
@@ -12893,7 +12893,7 @@ export type Webhook = typeof Webhook.Type;
  * @category models
  * @since 0.0.0
  */
-export class WebhookMini extends S.Class<WebhookMini>($I`WebhookMini`)(
+export class WebhookMini extends S.Class<WebhookMini, { readonly brand: unique symbol }>($I`WebhookMini`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.suspend(() => WebhookMiniTypeField).pipe(S.optionalKey),
@@ -12918,7 +12918,7 @@ export class WebhookMini extends S.Class<WebhookMini>($I`WebhookMini`)(
  * @category models
  * @since 0.0.0
  */
-export class WebhookMiniTargetField extends S.Class<WebhookMiniTargetField>($I`WebhookMiniTargetField`)(
+export class WebhookMiniTargetField extends S.Class<WebhookMiniTargetField, { readonly brand: unique symbol }>($I`WebhookMiniTargetField`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.suspend(() => WebhookMiniTargetTypeField).pipe(S.optionalKey),
@@ -13016,7 +13016,7 @@ export type WebhookMiniTypeField = typeof WebhookMiniTypeField.Type;
  * @category models
  * @since 0.0.0
  */
-export class Webhooks extends S.Class<Webhooks>($I`Webhooks`)(
+export class Webhooks extends S.Class<Webhooks, { readonly brand: unique symbol }>($I`Webhooks`)(
   {
     limit: S.Finite.pipe(S.optionalKey),
     nextMarker: S.String.pipe(S.NullOr, S.optionalKey),
@@ -13042,7 +13042,7 @@ export class Webhooks extends S.Class<Webhooks>($I`Webhooks`)(
  * @category models
  * @since 0.0.0
  */
-export class WebLinkBase extends S.Class<WebLinkBase>($I`WebLinkBase`)(
+export class WebLinkBase extends S.Class<WebLinkBase, { readonly brand: unique symbol }>($I`WebLinkBase`)(
   {
     id: S.String,
     type: S.suspend(() => WebLinkBaseTypeField),
@@ -13230,7 +13230,7 @@ export type WebLinkItemStatusField = typeof WebLinkItemStatusField.Type;
  * @category models
  * @since 0.0.0
  */
-export class WebLinkPathCollectionField extends S.Class<WebLinkPathCollectionField>($I`WebLinkPathCollectionField`)(
+export class WebLinkPathCollectionField extends S.Class<WebLinkPathCollectionField, { readonly brand: unique symbol }>($I`WebLinkPathCollectionField`)(
   {
     totalCount: S.Finite,
     entries: S.suspend(() => FolderMini).pipe(S.Array),
@@ -13356,7 +13356,7 @@ export type WebLinkSharedLinkEffectivePermissionField = typeof WebLinkSharedLink
  * @category models
  * @since 0.0.0
  */
-export class WebLinkSharedLinkField extends S.Class<WebLinkSharedLinkField>($I`WebLinkSharedLinkField`)(
+export class WebLinkSharedLinkField extends S.Class<WebLinkSharedLinkField, { readonly brand: unique symbol }>($I`WebLinkSharedLinkField`)(
   {
     url: S.String,
     downloadUrl: S.String.pipe(S.NullOr, S.optionalKey),
@@ -13390,7 +13390,7 @@ export class WebLinkSharedLinkField extends S.Class<WebLinkSharedLinkField>($I`W
  * @category models
  * @since 0.0.0
  */
-export class WebLinkSharedLinkPermissionsField extends S.Class<WebLinkSharedLinkPermissionsField>($I`WebLinkSharedLinkPermissionsField`)(
+export class WebLinkSharedLinkPermissionsField extends S.Class<WebLinkSharedLinkPermissionsField, { readonly brand: unique symbol }>($I`WebLinkSharedLinkPermissionsField`)(
   {
     canDownload: S.Boolean,
     canPreview: S.Boolean,
@@ -13415,7 +13415,7 @@ export class WebLinkSharedLinkPermissionsField extends S.Class<WebLinkSharedLink
  * @category models
  * @since 0.0.0
  */
-export class ZipDownload extends S.Class<ZipDownload>($I`ZipDownload`)(
+export class ZipDownload extends S.Class<ZipDownload, { readonly brand: unique symbol }>($I`ZipDownload`)(
   {
     downloadUrl: S.String.pipe(S.optionalKey),
     statusUrl: S.String.pipe(S.optionalKey),
@@ -13441,7 +13441,7 @@ export class ZipDownload extends S.Class<ZipDownload>($I`ZipDownload`)(
  * @category models
  * @since 0.0.0
  */
-export class ZipDownloadNameConflictsField extends S.Class<ZipDownloadNameConflictsField>($I`ZipDownloadNameConflictsField`)(
+export class ZipDownloadNameConflictsField extends S.Class<ZipDownloadNameConflictsField, { readonly brand: unique symbol }>($I`ZipDownloadNameConflictsField`)(
   {
     id: S.String.pipe(S.optionalKey),
     type: S.suspend(() => ZipDownloadNameConflictsTypeField).pipe(S.optionalKey),
@@ -13507,7 +13507,7 @@ export type ZipDownloadNameConflictsTypeField = typeof ZipDownloadNameConflictsT
  * @category models
  * @since 0.0.0
  */
-export class ZipDownloadRequest extends S.Class<ZipDownloadRequest>($I`ZipDownloadRequest`)(
+export class ZipDownloadRequest extends S.Class<ZipDownloadRequest, { readonly brand: unique symbol }>($I`ZipDownloadRequest`)(
   {
     items: S.suspend(() => ZipDownloadRequestItemsField).pipe(S.Array),
     downloadFileName: S.String.pipe(S.optionalKey),
@@ -13531,7 +13531,7 @@ export class ZipDownloadRequest extends S.Class<ZipDownloadRequest>($I`ZipDownlo
  * @category models
  * @since 0.0.0
  */
-export class ZipDownloadRequestItemsField extends S.Class<ZipDownloadRequestItemsField>($I`ZipDownloadRequestItemsField`)(
+export class ZipDownloadRequestItemsField extends S.Class<ZipDownloadRequestItemsField, { readonly brand: unique symbol }>($I`ZipDownloadRequestItemsField`)(
   {
     type: S.suspend(() => ZipDownloadRequestItemsTypeField),
     id: S.String,
@@ -13595,7 +13595,7 @@ export type ZipDownloadRequestItemsTypeField = typeof ZipDownloadRequestItemsTyp
  * @category models
  * @since 0.0.0
  */
-export class ZipDownloadStatus extends S.Class<ZipDownloadStatus>($I`ZipDownloadStatus`)(
+export class ZipDownloadStatus extends S.Class<ZipDownloadStatus, { readonly brand: unique symbol }>($I`ZipDownloadStatus`)(
   {
     totalFileCount: S.Finite.pipe(S.optionalKey),
     downloadedFileCount: S.Finite.pipe(S.optionalKey),
@@ -13656,7 +13656,7 @@ export type ZipDownloadStatusStateField = typeof ZipDownloadStatusStateField.Typ
  * @category models
  * @since 0.0.0
  */
-export class AvatarsDeleteUserAvatarPayload extends S.Class<AvatarsDeleteUserAvatarPayload>($I`AvatarsDeleteUserAvatarPayload`)(
+export class AvatarsDeleteUserAvatarPayload extends S.Class<AvatarsDeleteUserAvatarPayload, { readonly brand: unique symbol }>($I`AvatarsDeleteUserAvatarPayload`)(
   {
     userId: S.String,
     optionalsInput: S.suspend(() => DeleteUserAvatarOptionalsInput).pipe(S.optionalKey),
@@ -13680,7 +13680,7 @@ export class AvatarsDeleteUserAvatarPayload extends S.Class<AvatarsDeleteUserAva
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsCreateFileUploadSessionPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionPayload>($I`ChunkedUploadsCreateFileUploadSessionPayload`)(
+export class ChunkedUploadsCreateFileUploadSessionPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsCreateFileUploadSessionPayload`)(
   {
     requestBody: S.suspend(() => CreateFileUploadSessionRequestBody),
     optionalsInput: S.suspend(() => CreateFileUploadSessionOptionalsInput).pipe(S.optionalKey),
@@ -13704,7 +13704,7 @@ export class ChunkedUploadsCreateFileUploadSessionPayload extends S.Class<Chunke
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsCreateFileUploadSessionCommitPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionCommitPayload>($I`ChunkedUploadsCreateFileUploadSessionCommitPayload`)(
+export class ChunkedUploadsCreateFileUploadSessionCommitPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionCommitPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsCreateFileUploadSessionCommitPayload`)(
   {
     uploadSessionId: S.String,
     requestBody: S.suspend(() => CreateFileUploadSessionCommitRequestBody),
@@ -13730,7 +13730,7 @@ export class ChunkedUploadsCreateFileUploadSessionCommitPayload extends S.Class<
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsCreateFileUploadSessionCommitByUrlPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionCommitByUrlPayload>($I`ChunkedUploadsCreateFileUploadSessionCommitByUrlPayload`)(
+export class ChunkedUploadsCreateFileUploadSessionCommitByUrlPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionCommitByUrlPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsCreateFileUploadSessionCommitByUrlPayload`)(
   {
     url: S.String,
     requestBody: S.suspend(() => CreateFileUploadSessionCommitByUrlRequestBody),
@@ -13756,7 +13756,7 @@ export class ChunkedUploadsCreateFileUploadSessionCommitByUrlPayload extends S.C
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsCreateFileUploadSessionForExistingFilePayload extends S.Class<ChunkedUploadsCreateFileUploadSessionForExistingFilePayload>($I`ChunkedUploadsCreateFileUploadSessionForExistingFilePayload`)(
+export class ChunkedUploadsCreateFileUploadSessionForExistingFilePayload extends S.Class<ChunkedUploadsCreateFileUploadSessionForExistingFilePayload, { readonly brand: unique symbol }>($I`ChunkedUploadsCreateFileUploadSessionForExistingFilePayload`)(
   {
     fileId: S.String,
     requestBody: S.suspend(() => CreateFileUploadSessionForExistingFileRequestBody),
@@ -13781,7 +13781,7 @@ export class ChunkedUploadsCreateFileUploadSessionForExistingFilePayload extends
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsCreateFileUploadSessionPlanPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionPlanPayload>($I`ChunkedUploadsCreateFileUploadSessionPlanPayload`)(
+export class ChunkedUploadsCreateFileUploadSessionPlanPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionPlanPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsCreateFileUploadSessionPlanPayload`)(
   {
     uploadSessionId: S.String,
     requestBody: S.suspend(() => UploadSessionPlanRequest),
@@ -13806,7 +13806,7 @@ export class ChunkedUploadsCreateFileUploadSessionPlanPayload extends S.Class<Ch
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsCreateFileUploadSessionPlanByUrlPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionPlanByUrlPayload>($I`ChunkedUploadsCreateFileUploadSessionPlanByUrlPayload`)(
+export class ChunkedUploadsCreateFileUploadSessionPlanByUrlPayload extends S.Class<ChunkedUploadsCreateFileUploadSessionPlanByUrlPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsCreateFileUploadSessionPlanByUrlPayload`)(
   {
     url: S.String,
     requestBody: S.suspend(() => UploadSessionPlanRequest),
@@ -13831,7 +13831,7 @@ export class ChunkedUploadsCreateFileUploadSessionPlanByUrlPayload extends S.Cla
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsDeleteFileUploadSessionByIdPayload extends S.Class<ChunkedUploadsDeleteFileUploadSessionByIdPayload>($I`ChunkedUploadsDeleteFileUploadSessionByIdPayload`)(
+export class ChunkedUploadsDeleteFileUploadSessionByIdPayload extends S.Class<ChunkedUploadsDeleteFileUploadSessionByIdPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsDeleteFileUploadSessionByIdPayload`)(
   {
     uploadSessionId: S.String,
     optionalsInput: S.suspend(() => DeleteFileUploadSessionByIdOptionalsInput).pipe(S.optionalKey),
@@ -13855,7 +13855,7 @@ export class ChunkedUploadsDeleteFileUploadSessionByIdPayload extends S.Class<Ch
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsDeleteFileUploadSessionByUrlPayload extends S.Class<ChunkedUploadsDeleteFileUploadSessionByUrlPayload>($I`ChunkedUploadsDeleteFileUploadSessionByUrlPayload`)(
+export class ChunkedUploadsDeleteFileUploadSessionByUrlPayload extends S.Class<ChunkedUploadsDeleteFileUploadSessionByUrlPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsDeleteFileUploadSessionByUrlPayload`)(
   {
     url: S.String,
     optionalsInput: S.suspend(() => DeleteFileUploadSessionByUrlOptionalsInput).pipe(S.optionalKey),
@@ -13879,7 +13879,7 @@ export class ChunkedUploadsDeleteFileUploadSessionByUrlPayload extends S.Class<C
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsGetCachedUploadPartPayload extends S.Class<ChunkedUploadsGetCachedUploadPartPayload>($I`ChunkedUploadsGetCachedUploadPartPayload`)(
+export class ChunkedUploadsGetCachedUploadPartPayload extends S.Class<ChunkedUploadsGetCachedUploadPartPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsGetCachedUploadPartPayload`)(
   {
     planUrl: S.String,
     offset: S.Finite,
@@ -13905,7 +13905,7 @@ export class ChunkedUploadsGetCachedUploadPartPayload extends S.Class<ChunkedUpl
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsGetFileUploadSessionByIdPayload extends S.Class<ChunkedUploadsGetFileUploadSessionByIdPayload>($I`ChunkedUploadsGetFileUploadSessionByIdPayload`)(
+export class ChunkedUploadsGetFileUploadSessionByIdPayload extends S.Class<ChunkedUploadsGetFileUploadSessionByIdPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsGetFileUploadSessionByIdPayload`)(
   {
     uploadSessionId: S.String,
     optionalsInput: S.suspend(() => GetFileUploadSessionByIdOptionalsInput).pipe(S.optionalKey),
@@ -13929,7 +13929,7 @@ export class ChunkedUploadsGetFileUploadSessionByIdPayload extends S.Class<Chunk
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsGetFileUploadSessionByUrlPayload extends S.Class<ChunkedUploadsGetFileUploadSessionByUrlPayload>($I`ChunkedUploadsGetFileUploadSessionByUrlPayload`)(
+export class ChunkedUploadsGetFileUploadSessionByUrlPayload extends S.Class<ChunkedUploadsGetFileUploadSessionByUrlPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsGetFileUploadSessionByUrlPayload`)(
   {
     url: S.String,
     optionalsInput: S.suspend(() => GetFileUploadSessionByUrlOptionalsInput).pipe(S.optionalKey),
@@ -13953,7 +13953,7 @@ export class ChunkedUploadsGetFileUploadSessionByUrlPayload extends S.Class<Chun
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsGetFileUploadSessionPartsPayload extends S.Class<ChunkedUploadsGetFileUploadSessionPartsPayload>($I`ChunkedUploadsGetFileUploadSessionPartsPayload`)(
+export class ChunkedUploadsGetFileUploadSessionPartsPayload extends S.Class<ChunkedUploadsGetFileUploadSessionPartsPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsGetFileUploadSessionPartsPayload`)(
   {
     uploadSessionId: S.String,
     optionalsInput: S.suspend(() => GetFileUploadSessionPartsOptionalsInput).pipe(S.optionalKey),
@@ -13977,7 +13977,7 @@ export class ChunkedUploadsGetFileUploadSessionPartsPayload extends S.Class<Chun
  * @category models
  * @since 0.0.0
  */
-export class ChunkedUploadsGetFileUploadSessionPartsByUrlPayload extends S.Class<ChunkedUploadsGetFileUploadSessionPartsByUrlPayload>($I`ChunkedUploadsGetFileUploadSessionPartsByUrlPayload`)(
+export class ChunkedUploadsGetFileUploadSessionPartsByUrlPayload extends S.Class<ChunkedUploadsGetFileUploadSessionPartsByUrlPayload, { readonly brand: unique symbol }>($I`ChunkedUploadsGetFileUploadSessionPartsByUrlPayload`)(
   {
     url: S.String,
     optionalsInput: S.suspend(() => GetFileUploadSessionPartsByUrlOptionalsInput).pipe(S.optionalKey),
@@ -14001,7 +14001,7 @@ export class ChunkedUploadsGetFileUploadSessionPartsByUrlPayload extends S.Class
  * @category models
  * @since 0.0.0
  */
-export class DownloadsGetDownloadFileUrlPayload extends S.Class<DownloadsGetDownloadFileUrlPayload>($I`DownloadsGetDownloadFileUrlPayload`)(
+export class DownloadsGetDownloadFileUrlPayload extends S.Class<DownloadsGetDownloadFileUrlPayload, { readonly brand: unique symbol }>($I`DownloadsGetDownloadFileUrlPayload`)(
   {
     fileId: S.String,
     optionalsInput: S.suspend(() => GetDownloadFileUrlOptionalsInput).pipe(S.optionalKey),
@@ -14025,7 +14025,7 @@ export class DownloadsGetDownloadFileUrlPayload extends S.Class<DownloadsGetDown
  * @category models
  * @since 0.0.0
  */
-export class EventsGetEventsPayload extends S.Class<EventsGetEventsPayload>($I`EventsGetEventsPayload`)(
+export class EventsGetEventsPayload extends S.Class<EventsGetEventsPayload, { readonly brand: unique symbol }>($I`EventsGetEventsPayload`)(
   {
     queryParams: S.suspend(() => GetEventsQueryParams).pipe(S.optionalKey),
     headersInput: S.suspend(() => GetEventsHeadersInput).pipe(S.optionalKey),
@@ -14050,7 +14050,7 @@ export class EventsGetEventsPayload extends S.Class<EventsGetEventsPayload>($I`E
  * @category models
  * @since 0.0.0
  */
-export class EventsGetEventsWithLongPollingPayload extends S.Class<EventsGetEventsWithLongPollingPayload>($I`EventsGetEventsWithLongPollingPayload`)(
+export class EventsGetEventsWithLongPollingPayload extends S.Class<EventsGetEventsWithLongPollingPayload, { readonly brand: unique symbol }>($I`EventsGetEventsWithLongPollingPayload`)(
   {
     headersInput: S.suspend(() => GetEventsWithLongPollingHeadersInput).pipe(S.optionalKey),
     cancellationToken: S.instanceOf(AbortSignal).pipe(S.optionalKey),
@@ -14074,7 +14074,7 @@ export class EventsGetEventsWithLongPollingPayload extends S.Class<EventsGetEven
  * @category models
  * @since 0.0.0
  */
-export class FilesCopyFilePayload extends S.Class<FilesCopyFilePayload>($I`FilesCopyFilePayload`)(
+export class FilesCopyFilePayload extends S.Class<FilesCopyFilePayload, { readonly brand: unique symbol }>($I`FilesCopyFilePayload`)(
   {
     fileId: S.String,
     requestBody: S.suspend(() => CopyFileRequestBody),
@@ -14099,7 +14099,7 @@ export class FilesCopyFilePayload extends S.Class<FilesCopyFilePayload>($I`Files
  * @category models
  * @since 0.0.0
  */
-export class FilesDeleteFileByIdPayload extends S.Class<FilesDeleteFileByIdPayload>($I`FilesDeleteFileByIdPayload`)(
+export class FilesDeleteFileByIdPayload extends S.Class<FilesDeleteFileByIdPayload, { readonly brand: unique symbol }>($I`FilesDeleteFileByIdPayload`)(
   {
     fileId: S.String,
     optionalsInput: S.suspend(() => DeleteFileByIdOptionalsInput).pipe(S.optionalKey),
@@ -14123,7 +14123,7 @@ export class FilesDeleteFileByIdPayload extends S.Class<FilesDeleteFileByIdPaylo
  * @category models
  * @since 0.0.0
  */
-export class FilesGetFileByIdPayload extends S.Class<FilesGetFileByIdPayload>($I`FilesGetFileByIdPayload`)(
+export class FilesGetFileByIdPayload extends S.Class<FilesGetFileByIdPayload, { readonly brand: unique symbol }>($I`FilesGetFileByIdPayload`)(
   {
     fileId: S.String,
     optionalsInput: S.suspend(() => GetFileByIdOptionalsInput).pipe(S.optionalKey),
@@ -14147,7 +14147,7 @@ export class FilesGetFileByIdPayload extends S.Class<FilesGetFileByIdPayload>($I
  * @category models
  * @since 0.0.0
  */
-export class FilesGetFileThumbnailUrlPayload extends S.Class<FilesGetFileThumbnailUrlPayload>($I`FilesGetFileThumbnailUrlPayload`)(
+export class FilesGetFileThumbnailUrlPayload extends S.Class<FilesGetFileThumbnailUrlPayload, { readonly brand: unique symbol }>($I`FilesGetFileThumbnailUrlPayload`)(
   {
     fileId: S.String,
     extension: S.suspend(() => GetFileThumbnailUrlExtension),
@@ -14172,7 +14172,7 @@ export class FilesGetFileThumbnailUrlPayload extends S.Class<FilesGetFileThumbna
  * @category models
  * @since 0.0.0
  */
-export class FilesUpdateFileByIdPayload extends S.Class<FilesUpdateFileByIdPayload>($I`FilesUpdateFileByIdPayload`)(
+export class FilesUpdateFileByIdPayload extends S.Class<FilesUpdateFileByIdPayload, { readonly brand: unique symbol }>($I`FilesUpdateFileByIdPayload`)(
   {
     fileId: S.String,
     optionalsInput: S.suspend(() => UpdateFileByIdOptionalsInput).pipe(S.optionalKey),
@@ -14196,7 +14196,7 @@ export class FilesUpdateFileByIdPayload extends S.Class<FilesUpdateFileByIdPaylo
  * @category models
  * @since 0.0.0
  */
-export class FolderMetadataGetFolderMetadataPayload extends S.Class<FolderMetadataGetFolderMetadataPayload>($I`FolderMetadataGetFolderMetadataPayload`)(
+export class FolderMetadataGetFolderMetadataPayload extends S.Class<FolderMetadataGetFolderMetadataPayload, { readonly brand: unique symbol }>($I`FolderMetadataGetFolderMetadataPayload`)(
   {
     folderId: S.String,
     optionalsInput: S.suspend(() => GetFolderMetadataOptionalsInput).pipe(S.optionalKey),
@@ -14220,7 +14220,7 @@ export class FolderMetadataGetFolderMetadataPayload extends S.Class<FolderMetada
  * @category models
  * @since 0.0.0
  */
-export class FolderMetadataGetFolderMetadataByIdPayload extends S.Class<FolderMetadataGetFolderMetadataByIdPayload>($I`FolderMetadataGetFolderMetadataByIdPayload`)(
+export class FolderMetadataGetFolderMetadataByIdPayload extends S.Class<FolderMetadataGetFolderMetadataByIdPayload, { readonly brand: unique symbol }>($I`FolderMetadataGetFolderMetadataByIdPayload`)(
   {
     folderId: S.String,
     scope: S.suspend(() => GetFolderMetadataByIdScope),
@@ -14246,7 +14246,7 @@ export class FolderMetadataGetFolderMetadataByIdPayload extends S.Class<FolderMe
  * @category models
  * @since 0.0.0
  */
-export class FoldersCopyFolderPayload extends S.Class<FoldersCopyFolderPayload>($I`FoldersCopyFolderPayload`)(
+export class FoldersCopyFolderPayload extends S.Class<FoldersCopyFolderPayload, { readonly brand: unique symbol }>($I`FoldersCopyFolderPayload`)(
   {
     folderId: S.String,
     requestBody: S.suspend(() => CopyFolderRequestBody),
@@ -14271,7 +14271,7 @@ export class FoldersCopyFolderPayload extends S.Class<FoldersCopyFolderPayload>(
  * @category models
  * @since 0.0.0
  */
-export class FoldersCreateFolderPayload extends S.Class<FoldersCreateFolderPayload>($I`FoldersCreateFolderPayload`)(
+export class FoldersCreateFolderPayload extends S.Class<FoldersCreateFolderPayload, { readonly brand: unique symbol }>($I`FoldersCreateFolderPayload`)(
   {
     requestBody: S.suspend(() => CreateFolderRequestBody),
     optionalsInput: S.suspend(() => CreateFolderOptionalsInput).pipe(S.optionalKey),
@@ -14295,7 +14295,7 @@ export class FoldersCreateFolderPayload extends S.Class<FoldersCreateFolderPaylo
  * @category models
  * @since 0.0.0
  */
-export class FoldersDeleteFolderByIdPayload extends S.Class<FoldersDeleteFolderByIdPayload>($I`FoldersDeleteFolderByIdPayload`)(
+export class FoldersDeleteFolderByIdPayload extends S.Class<FoldersDeleteFolderByIdPayload, { readonly brand: unique symbol }>($I`FoldersDeleteFolderByIdPayload`)(
   {
     folderId: S.String,
     optionalsInput: S.suspend(() => DeleteFolderByIdOptionalsInput).pipe(S.optionalKey),
@@ -14319,7 +14319,7 @@ export class FoldersDeleteFolderByIdPayload extends S.Class<FoldersDeleteFolderB
  * @category models
  * @since 0.0.0
  */
-export class FoldersGetFolderByIdPayload extends S.Class<FoldersGetFolderByIdPayload>($I`FoldersGetFolderByIdPayload`)(
+export class FoldersGetFolderByIdPayload extends S.Class<FoldersGetFolderByIdPayload, { readonly brand: unique symbol }>($I`FoldersGetFolderByIdPayload`)(
   {
     folderId: S.String,
     optionalsInput: S.suspend(() => GetFolderByIdOptionalsInput).pipe(S.optionalKey),
@@ -14343,7 +14343,7 @@ export class FoldersGetFolderByIdPayload extends S.Class<FoldersGetFolderByIdPay
  * @category models
  * @since 0.0.0
  */
-export class FoldersGetFolderItemsPayload extends S.Class<FoldersGetFolderItemsPayload>($I`FoldersGetFolderItemsPayload`)(
+export class FoldersGetFolderItemsPayload extends S.Class<FoldersGetFolderItemsPayload, { readonly brand: unique symbol }>($I`FoldersGetFolderItemsPayload`)(
   {
     folderId: S.String,
     optionalsInput: S.suspend(() => GetFolderItemsOptionalsInput).pipe(S.optionalKey),
@@ -14367,7 +14367,7 @@ export class FoldersGetFolderItemsPayload extends S.Class<FoldersGetFolderItemsP
  * @category models
  * @since 0.0.0
  */
-export class FoldersUpdateFolderByIdPayload extends S.Class<FoldersUpdateFolderByIdPayload>($I`FoldersUpdateFolderByIdPayload`)(
+export class FoldersUpdateFolderByIdPayload extends S.Class<FoldersUpdateFolderByIdPayload, { readonly brand: unique symbol }>($I`FoldersUpdateFolderByIdPayload`)(
   {
     folderId: S.String,
     optionalsInput: S.suspend(() => UpdateFolderByIdOptionalsInput).pipe(S.optionalKey),
@@ -14391,7 +14391,7 @@ export class FoldersUpdateFolderByIdPayload extends S.Class<FoldersUpdateFolderB
  * @category models
  * @since 0.0.0
  */
-export class ListCollaborationsGetCollaborationsPayload extends S.Class<ListCollaborationsGetCollaborationsPayload>($I`ListCollaborationsGetCollaborationsPayload`)(
+export class ListCollaborationsGetCollaborationsPayload extends S.Class<ListCollaborationsGetCollaborationsPayload, { readonly brand: unique symbol }>($I`ListCollaborationsGetCollaborationsPayload`)(
   {
     queryParams: S.suspend(() => GetCollaborationsQueryParams),
     optionalsInput: S.suspend(() => GetCollaborationsOptionalsInput).pipe(S.optionalKey),
@@ -14415,7 +14415,7 @@ export class ListCollaborationsGetCollaborationsPayload extends S.Class<ListColl
  * @category models
  * @since 0.0.0
  */
-export class ListCollaborationsGetFileCollaborationsPayload extends S.Class<ListCollaborationsGetFileCollaborationsPayload>($I`ListCollaborationsGetFileCollaborationsPayload`)(
+export class ListCollaborationsGetFileCollaborationsPayload extends S.Class<ListCollaborationsGetFileCollaborationsPayload, { readonly brand: unique symbol }>($I`ListCollaborationsGetFileCollaborationsPayload`)(
   {
     fileId: S.String,
     optionalsInput: S.suspend(() => GetFileCollaborationsOptionalsInput).pipe(S.optionalKey),
@@ -14439,7 +14439,7 @@ export class ListCollaborationsGetFileCollaborationsPayload extends S.Class<List
  * @category models
  * @since 0.0.0
  */
-export class ListCollaborationsGetFolderCollaborationsPayload extends S.Class<ListCollaborationsGetFolderCollaborationsPayload>($I`ListCollaborationsGetFolderCollaborationsPayload`)(
+export class ListCollaborationsGetFolderCollaborationsPayload extends S.Class<ListCollaborationsGetFolderCollaborationsPayload, { readonly brand: unique symbol }>($I`ListCollaborationsGetFolderCollaborationsPayload`)(
   {
     folderId: S.String,
     optionalsInput: S.suspend(() => GetFolderCollaborationsOptionalsInput).pipe(S.optionalKey),
@@ -14463,7 +14463,7 @@ export class ListCollaborationsGetFolderCollaborationsPayload extends S.Class<Li
  * @category models
  * @since 0.0.0
  */
-export class ListCollaborationsGetGroupCollaborationsPayload extends S.Class<ListCollaborationsGetGroupCollaborationsPayload>($I`ListCollaborationsGetGroupCollaborationsPayload`)(
+export class ListCollaborationsGetGroupCollaborationsPayload extends S.Class<ListCollaborationsGetGroupCollaborationsPayload, { readonly brand: unique symbol }>($I`ListCollaborationsGetGroupCollaborationsPayload`)(
   {
     groupId: S.String,
     optionalsInput: S.suspend(() => GetGroupCollaborationsOptionalsInput).pipe(S.optionalKey),
@@ -14487,7 +14487,7 @@ export class ListCollaborationsGetGroupCollaborationsPayload extends S.Class<Lis
  * @category models
  * @since 0.0.0
  */
-export class MetadataCascadePoliciesGetMetadataCascadePoliciesPayload extends S.Class<MetadataCascadePoliciesGetMetadataCascadePoliciesPayload>($I`MetadataCascadePoliciesGetMetadataCascadePoliciesPayload`)(
+export class MetadataCascadePoliciesGetMetadataCascadePoliciesPayload extends S.Class<MetadataCascadePoliciesGetMetadataCascadePoliciesPayload, { readonly brand: unique symbol }>($I`MetadataCascadePoliciesGetMetadataCascadePoliciesPayload`)(
   {
     queryParams: S.suspend(() => GetMetadataCascadePoliciesQueryParams),
     optionalsInput: S.suspend(() => GetMetadataCascadePoliciesOptionalsInput).pipe(S.optionalKey),
@@ -14511,7 +14511,7 @@ export class MetadataCascadePoliciesGetMetadataCascadePoliciesPayload extends S.
  * @category models
  * @since 0.0.0
  */
-export class MetadataCascadePoliciesGetMetadataCascadePolicyByIdPayload extends S.Class<MetadataCascadePoliciesGetMetadataCascadePolicyByIdPayload>($I`MetadataCascadePoliciesGetMetadataCascadePolicyByIdPayload`)(
+export class MetadataCascadePoliciesGetMetadataCascadePolicyByIdPayload extends S.Class<MetadataCascadePoliciesGetMetadataCascadePolicyByIdPayload, { readonly brand: unique symbol }>($I`MetadataCascadePoliciesGetMetadataCascadePolicyByIdPayload`)(
   {
     metadataCascadePolicyId: S.String,
     optionalsInput: S.suspend(() => GetMetadataCascadePolicyByIdOptionalsInput).pipe(S.optionalKey),
@@ -14535,7 +14535,7 @@ export class MetadataCascadePoliciesGetMetadataCascadePolicyByIdPayload extends 
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplatesGetEnterpriseMetadataTemplatesPayload extends S.Class<MetadataTemplatesGetEnterpriseMetadataTemplatesPayload>($I`MetadataTemplatesGetEnterpriseMetadataTemplatesPayload`)(
+export class MetadataTemplatesGetEnterpriseMetadataTemplatesPayload extends S.Class<MetadataTemplatesGetEnterpriseMetadataTemplatesPayload, { readonly brand: unique symbol }>($I`MetadataTemplatesGetEnterpriseMetadataTemplatesPayload`)(
   {
     queryParams: S.suspend(() => GetEnterpriseMetadataTemplatesQueryParams).pipe(S.optionalKey),
     headersInput: S.suspend(() => GetEnterpriseMetadataTemplatesHeadersInput).pipe(S.optionalKey),
@@ -14560,7 +14560,7 @@ export class MetadataTemplatesGetEnterpriseMetadataTemplatesPayload extends S.Cl
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplatesGetGlobalMetadataTemplatesPayload extends S.Class<MetadataTemplatesGetGlobalMetadataTemplatesPayload>($I`MetadataTemplatesGetGlobalMetadataTemplatesPayload`)(
+export class MetadataTemplatesGetGlobalMetadataTemplatesPayload extends S.Class<MetadataTemplatesGetGlobalMetadataTemplatesPayload, { readonly brand: unique symbol }>($I`MetadataTemplatesGetGlobalMetadataTemplatesPayload`)(
   {
     queryParams: S.suspend(() => GetGlobalMetadataTemplatesQueryParams).pipe(S.optionalKey),
     headersInput: S.suspend(() => GetGlobalMetadataTemplatesHeadersInput).pipe(S.optionalKey),
@@ -14585,7 +14585,7 @@ export class MetadataTemplatesGetGlobalMetadataTemplatesPayload extends S.Class<
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplatesGetMetadataTemplatePayload extends S.Class<MetadataTemplatesGetMetadataTemplatePayload>($I`MetadataTemplatesGetMetadataTemplatePayload`)(
+export class MetadataTemplatesGetMetadataTemplatePayload extends S.Class<MetadataTemplatesGetMetadataTemplatePayload, { readonly brand: unique symbol }>($I`MetadataTemplatesGetMetadataTemplatePayload`)(
   {
     scope: S.suspend(() => GetMetadataTemplateScope),
     templateKey: S.String,
@@ -14610,7 +14610,7 @@ export class MetadataTemplatesGetMetadataTemplatePayload extends S.Class<Metadat
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplatesGetMetadataTemplateByIdPayload extends S.Class<MetadataTemplatesGetMetadataTemplateByIdPayload>($I`MetadataTemplatesGetMetadataTemplateByIdPayload`)(
+export class MetadataTemplatesGetMetadataTemplateByIdPayload extends S.Class<MetadataTemplatesGetMetadataTemplateByIdPayload, { readonly brand: unique symbol }>($I`MetadataTemplatesGetMetadataTemplateByIdPayload`)(
   {
     templateId: S.String,
     optionalsInput: S.suspend(() => GetMetadataTemplateByIdOptionalsInput).pipe(S.optionalKey),
@@ -14634,7 +14634,7 @@ export class MetadataTemplatesGetMetadataTemplateByIdPayload extends S.Class<Met
  * @category models
  * @since 0.0.0
  */
-export class MetadataTemplatesGetMetadataTemplatesByInstanceIdPayload extends S.Class<MetadataTemplatesGetMetadataTemplatesByInstanceIdPayload>($I`MetadataTemplatesGetMetadataTemplatesByInstanceIdPayload`)(
+export class MetadataTemplatesGetMetadataTemplatesByInstanceIdPayload extends S.Class<MetadataTemplatesGetMetadataTemplatesByInstanceIdPayload, { readonly brand: unique symbol }>($I`MetadataTemplatesGetMetadataTemplatesByInstanceIdPayload`)(
   {
     queryParams: S.suspend(() => GetMetadataTemplatesByInstanceIdQueryParams),
     optionalsInput: S.suspend(() => GetMetadataTemplatesByInstanceIdOptionalsInput).pipe(S.optionalKey),
@@ -14658,7 +14658,7 @@ export class MetadataTemplatesGetMetadataTemplatesByInstanceIdPayload extends S.
  * @category models
  * @since 0.0.0
  */
-export class RetentionPoliciesGetRetentionPoliciesPayload extends S.Class<RetentionPoliciesGetRetentionPoliciesPayload>($I`RetentionPoliciesGetRetentionPoliciesPayload`)(
+export class RetentionPoliciesGetRetentionPoliciesPayload extends S.Class<RetentionPoliciesGetRetentionPoliciesPayload, { readonly brand: unique symbol }>($I`RetentionPoliciesGetRetentionPoliciesPayload`)(
   {
     queryParams: S.suspend(() => GetRetentionPoliciesQueryParams).pipe(S.optionalKey),
     headersInput: S.suspend(() => GetRetentionPoliciesHeadersInput).pipe(S.optionalKey),
@@ -14683,7 +14683,7 @@ export class RetentionPoliciesGetRetentionPoliciesPayload extends S.Class<Retent
  * @category models
  * @since 0.0.0
  */
-export class RetentionPoliciesGetRetentionPolicyByIdPayload extends S.Class<RetentionPoliciesGetRetentionPolicyByIdPayload>($I`RetentionPoliciesGetRetentionPolicyByIdPayload`)(
+export class RetentionPoliciesGetRetentionPolicyByIdPayload extends S.Class<RetentionPoliciesGetRetentionPolicyByIdPayload, { readonly brand: unique symbol }>($I`RetentionPoliciesGetRetentionPolicyByIdPayload`)(
   {
     retentionPolicyId: S.String,
     optionalsInput: S.suspend(() => GetRetentionPolicyByIdOptionalsInput).pipe(S.optionalKey),
@@ -14707,7 +14707,7 @@ export class RetentionPoliciesGetRetentionPolicyByIdPayload extends S.Class<Rete
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicyAssignmentsGetFilesUnderRetentionPolicyAssignmentPayload extends S.Class<RetentionPolicyAssignmentsGetFilesUnderRetentionPolicyAssignmentPayload>($I`RetentionPolicyAssignmentsGetFilesUnderRetentionPolicyAssignmentPayload`)(
+export class RetentionPolicyAssignmentsGetFilesUnderRetentionPolicyAssignmentPayload extends S.Class<RetentionPolicyAssignmentsGetFilesUnderRetentionPolicyAssignmentPayload, { readonly brand: unique symbol }>($I`RetentionPolicyAssignmentsGetFilesUnderRetentionPolicyAssignmentPayload`)(
   {
     retentionPolicyAssignmentId: S.String,
     optionalsInput: S.suspend(() => GetFilesUnderRetentionPolicyAssignmentOptionalsInput).pipe(S.optionalKey),
@@ -14731,7 +14731,7 @@ export class RetentionPolicyAssignmentsGetFilesUnderRetentionPolicyAssignmentPay
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicyAssignmentsGetRetentionPolicyAssignmentByIdPayload extends S.Class<RetentionPolicyAssignmentsGetRetentionPolicyAssignmentByIdPayload>($I`RetentionPolicyAssignmentsGetRetentionPolicyAssignmentByIdPayload`)(
+export class RetentionPolicyAssignmentsGetRetentionPolicyAssignmentByIdPayload extends S.Class<RetentionPolicyAssignmentsGetRetentionPolicyAssignmentByIdPayload, { readonly brand: unique symbol }>($I`RetentionPolicyAssignmentsGetRetentionPolicyAssignmentByIdPayload`)(
   {
     retentionPolicyAssignmentId: S.String,
     optionalsInput: S.suspend(() => GetRetentionPolicyAssignmentByIdOptionalsInput).pipe(S.optionalKey),
@@ -14755,7 +14755,7 @@ export class RetentionPolicyAssignmentsGetRetentionPolicyAssignmentByIdPayload e
  * @category models
  * @since 0.0.0
  */
-export class RetentionPolicyAssignmentsGetRetentionPolicyAssignmentsPayload extends S.Class<RetentionPolicyAssignmentsGetRetentionPolicyAssignmentsPayload>($I`RetentionPolicyAssignmentsGetRetentionPolicyAssignmentsPayload`)(
+export class RetentionPolicyAssignmentsGetRetentionPolicyAssignmentsPayload extends S.Class<RetentionPolicyAssignmentsGetRetentionPolicyAssignmentsPayload, { readonly brand: unique symbol }>($I`RetentionPolicyAssignmentsGetRetentionPolicyAssignmentsPayload`)(
   {
     retentionPolicyId: S.String,
     optionalsInput: S.suspend(() => GetRetentionPolicyAssignmentsOptionalsInput).pipe(S.optionalKey),
@@ -14779,7 +14779,7 @@ export class RetentionPolicyAssignmentsGetRetentionPolicyAssignmentsPayload exte
  * @category models
  * @since 0.0.0
  */
-export class SignRequestsCancelSignRequestPayload extends S.Class<SignRequestsCancelSignRequestPayload>($I`SignRequestsCancelSignRequestPayload`)(
+export class SignRequestsCancelSignRequestPayload extends S.Class<SignRequestsCancelSignRequestPayload, { readonly brand: unique symbol }>($I`SignRequestsCancelSignRequestPayload`)(
   {
     signRequestId: S.String,
     optionalsInput: S.suspend(() => CancelSignRequestOptionalsInput).pipe(S.optionalKey),
@@ -14803,7 +14803,7 @@ export class SignRequestsCancelSignRequestPayload extends S.Class<SignRequestsCa
  * @category models
  * @since 0.0.0
  */
-export class SignRequestsCreateSignRequestPayload extends S.Class<SignRequestsCreateSignRequestPayload>($I`SignRequestsCreateSignRequestPayload`)(
+export class SignRequestsCreateSignRequestPayload extends S.Class<SignRequestsCreateSignRequestPayload, { readonly brand: unique symbol }>($I`SignRequestsCreateSignRequestPayload`)(
   {
     requestBody: S.suspend(() => SignRequestCreateRequest),
     optionalsInput: S.suspend(() => CreateSignRequestOptionalsInput).pipe(S.optionalKey),
@@ -14827,7 +14827,7 @@ export class SignRequestsCreateSignRequestPayload extends S.Class<SignRequestsCr
  * @category models
  * @since 0.0.0
  */
-export class SignRequestsGetSignRequestByIdPayload extends S.Class<SignRequestsGetSignRequestByIdPayload>($I`SignRequestsGetSignRequestByIdPayload`)(
+export class SignRequestsGetSignRequestByIdPayload extends S.Class<SignRequestsGetSignRequestByIdPayload, { readonly brand: unique symbol }>($I`SignRequestsGetSignRequestByIdPayload`)(
   {
     signRequestId: S.String,
     optionalsInput: S.suspend(() => GetSignRequestByIdOptionalsInput).pipe(S.optionalKey),
@@ -14851,7 +14851,7 @@ export class SignRequestsGetSignRequestByIdPayload extends S.Class<SignRequestsG
  * @category models
  * @since 0.0.0
  */
-export class SignRequestsGetSignRequestsPayload extends S.Class<SignRequestsGetSignRequestsPayload>($I`SignRequestsGetSignRequestsPayload`)(
+export class SignRequestsGetSignRequestsPayload extends S.Class<SignRequestsGetSignRequestsPayload, { readonly brand: unique symbol }>($I`SignRequestsGetSignRequestsPayload`)(
   {
     queryParams: S.suspend(() => GetSignRequestsQueryParams).pipe(S.optionalKey),
     headersInput: S.suspend(() => GetSignRequestsHeadersInput).pipe(S.optionalKey),
@@ -14876,7 +14876,7 @@ export class SignRequestsGetSignRequestsPayload extends S.Class<SignRequestsGetS
  * @category models
  * @since 0.0.0
  */
-export class SignRequestsResendSignRequestPayload extends S.Class<SignRequestsResendSignRequestPayload>($I`SignRequestsResendSignRequestPayload`)(
+export class SignRequestsResendSignRequestPayload extends S.Class<SignRequestsResendSignRequestPayload, { readonly brand: unique symbol }>($I`SignRequestsResendSignRequestPayload`)(
   {
     signRequestId: S.String,
     optionalsInput: S.suspend(() => ResendSignRequestOptionalsInput).pipe(S.optionalKey),
@@ -14900,7 +14900,7 @@ export class SignRequestsResendSignRequestPayload extends S.Class<SignRequestsRe
  * @category models
  * @since 0.0.0
  */
-export class SignTemplatesGetSignTemplateByIdPayload extends S.Class<SignTemplatesGetSignTemplateByIdPayload>($I`SignTemplatesGetSignTemplateByIdPayload`)(
+export class SignTemplatesGetSignTemplateByIdPayload extends S.Class<SignTemplatesGetSignTemplateByIdPayload, { readonly brand: unique symbol }>($I`SignTemplatesGetSignTemplateByIdPayload`)(
   {
     templateId: S.String,
     optionalsInput: S.suspend(() => GetSignTemplateByIdOptionalsInput).pipe(S.optionalKey),
@@ -14924,7 +14924,7 @@ export class SignTemplatesGetSignTemplateByIdPayload extends S.Class<SignTemplat
  * @category models
  * @since 0.0.0
  */
-export class SignTemplatesGetSignTemplatesPayload extends S.Class<SignTemplatesGetSignTemplatesPayload>($I`SignTemplatesGetSignTemplatesPayload`)(
+export class SignTemplatesGetSignTemplatesPayload extends S.Class<SignTemplatesGetSignTemplatesPayload, { readonly brand: unique symbol }>($I`SignTemplatesGetSignTemplatesPayload`)(
   {
     queryParams: S.suspend(() => GetSignTemplatesQueryParams).pipe(S.optionalKey),
     headersInput: S.suspend(() => GetSignTemplatesHeadersInput).pipe(S.optionalKey),
@@ -14949,7 +14949,7 @@ export class SignTemplatesGetSignTemplatesPayload extends S.Class<SignTemplatesG
  * @category models
  * @since 0.0.0
  */
-export class UploadsPreflightFileUploadCheckPayload extends S.Class<UploadsPreflightFileUploadCheckPayload>($I`UploadsPreflightFileUploadCheckPayload`)(
+export class UploadsPreflightFileUploadCheckPayload extends S.Class<UploadsPreflightFileUploadCheckPayload, { readonly brand: unique symbol }>($I`UploadsPreflightFileUploadCheckPayload`)(
   {
     requestBody: S.suspend(() => PreflightFileUploadCheckRequestBody).pipe(S.optionalKey),
     headersInput: S.suspend(() => PreflightFileUploadCheckHeadersInput).pipe(S.optionalKey),
@@ -14974,7 +14974,7 @@ export class UploadsPreflightFileUploadCheckPayload extends S.Class<UploadsPrefl
  * @category models
  * @since 0.0.0
  */
-export class UserCollaborationsCreateCollaborationPayload extends S.Class<UserCollaborationsCreateCollaborationPayload>($I`UserCollaborationsCreateCollaborationPayload`)(
+export class UserCollaborationsCreateCollaborationPayload extends S.Class<UserCollaborationsCreateCollaborationPayload, { readonly brand: unique symbol }>($I`UserCollaborationsCreateCollaborationPayload`)(
   {
     requestBody: S.suspend(() => CreateCollaborationRequestBody),
     optionalsInput: S.suspend(() => CreateCollaborationOptionalsInput).pipe(S.optionalKey),
@@ -14998,7 +14998,7 @@ export class UserCollaborationsCreateCollaborationPayload extends S.Class<UserCo
  * @category models
  * @since 0.0.0
  */
-export class UserCollaborationsDeleteCollaborationByIdPayload extends S.Class<UserCollaborationsDeleteCollaborationByIdPayload>($I`UserCollaborationsDeleteCollaborationByIdPayload`)(
+export class UserCollaborationsDeleteCollaborationByIdPayload extends S.Class<UserCollaborationsDeleteCollaborationByIdPayload, { readonly brand: unique symbol }>($I`UserCollaborationsDeleteCollaborationByIdPayload`)(
   {
     collaborationId: S.String,
     optionalsInput: S.suspend(() => DeleteCollaborationByIdOptionalsInput).pipe(S.optionalKey),
@@ -15022,7 +15022,7 @@ export class UserCollaborationsDeleteCollaborationByIdPayload extends S.Class<Us
  * @category models
  * @since 0.0.0
  */
-export class UserCollaborationsGetCollaborationByIdPayload extends S.Class<UserCollaborationsGetCollaborationByIdPayload>($I`UserCollaborationsGetCollaborationByIdPayload`)(
+export class UserCollaborationsGetCollaborationByIdPayload extends S.Class<UserCollaborationsGetCollaborationByIdPayload, { readonly brand: unique symbol }>($I`UserCollaborationsGetCollaborationByIdPayload`)(
   {
     collaborationId: S.String,
     optionalsInput: S.suspend(() => GetCollaborationByIdOptionalsInput).pipe(S.optionalKey),
@@ -15046,7 +15046,7 @@ export class UserCollaborationsGetCollaborationByIdPayload extends S.Class<UserC
  * @category models
  * @since 0.0.0
  */
-export class UserCollaborationsUpdateCollaborationByIdPayload extends S.Class<UserCollaborationsUpdateCollaborationByIdPayload>($I`UserCollaborationsUpdateCollaborationByIdPayload`)(
+export class UserCollaborationsUpdateCollaborationByIdPayload extends S.Class<UserCollaborationsUpdateCollaborationByIdPayload, { readonly brand: unique symbol }>($I`UserCollaborationsUpdateCollaborationByIdPayload`)(
   {
     collaborationId: S.String,
     optionalsInput: S.suspend(() => UpdateCollaborationByIdOptionalsInput).pipe(S.optionalKey),
@@ -15070,7 +15070,7 @@ export class UserCollaborationsUpdateCollaborationByIdPayload extends S.Class<Us
  * @category models
  * @since 0.0.0
  */
-export class UsersCreateUserPayload extends S.Class<UsersCreateUserPayload>($I`UsersCreateUserPayload`)(
+export class UsersCreateUserPayload extends S.Class<UsersCreateUserPayload, { readonly brand: unique symbol }>($I`UsersCreateUserPayload`)(
   {
     requestBody: S.suspend(() => CreateUserRequestBody),
     optionalsInput: S.suspend(() => CreateUserOptionalsInput).pipe(S.optionalKey),
@@ -15094,7 +15094,7 @@ export class UsersCreateUserPayload extends S.Class<UsersCreateUserPayload>($I`U
  * @category models
  * @since 0.0.0
  */
-export class UsersDeleteUserByIdPayload extends S.Class<UsersDeleteUserByIdPayload>($I`UsersDeleteUserByIdPayload`)(
+export class UsersDeleteUserByIdPayload extends S.Class<UsersDeleteUserByIdPayload, { readonly brand: unique symbol }>($I`UsersDeleteUserByIdPayload`)(
   {
     userId: S.String,
     optionalsInput: S.suspend(() => DeleteUserByIdOptionalsInput).pipe(S.optionalKey),
@@ -15118,7 +15118,7 @@ export class UsersDeleteUserByIdPayload extends S.Class<UsersDeleteUserByIdPaylo
  * @category models
  * @since 0.0.0
  */
-export class UsersGetUserByIdPayload extends S.Class<UsersGetUserByIdPayload>($I`UsersGetUserByIdPayload`)(
+export class UsersGetUserByIdPayload extends S.Class<UsersGetUserByIdPayload, { readonly brand: unique symbol }>($I`UsersGetUserByIdPayload`)(
   {
     userId: S.String,
     optionalsInput: S.suspend(() => GetUserByIdOptionalsInput).pipe(S.optionalKey),
@@ -15142,7 +15142,7 @@ export class UsersGetUserByIdPayload extends S.Class<UsersGetUserByIdPayload>($I
  * @category models
  * @since 0.0.0
  */
-export class UsersGetUserMePayload extends S.Class<UsersGetUserMePayload>($I`UsersGetUserMePayload`)(
+export class UsersGetUserMePayload extends S.Class<UsersGetUserMePayload, { readonly brand: unique symbol }>($I`UsersGetUserMePayload`)(
   {
     queryParams: S.suspend(() => GetUserMeQueryParams).pipe(S.optionalKey),
     headersInput: S.suspend(() => GetUserMeHeadersInput).pipe(S.optionalKey),
@@ -15167,7 +15167,7 @@ export class UsersGetUserMePayload extends S.Class<UsersGetUserMePayload>($I`Use
  * @category models
  * @since 0.0.0
  */
-export class UsersGetUsersPayload extends S.Class<UsersGetUsersPayload>($I`UsersGetUsersPayload`)(
+export class UsersGetUsersPayload extends S.Class<UsersGetUsersPayload, { readonly brand: unique symbol }>($I`UsersGetUsersPayload`)(
   {
     queryParams: S.suspend(() => GetUsersQueryParams).pipe(S.optionalKey),
     headersInput: S.suspend(() => GetUsersHeadersInput).pipe(S.optionalKey),
@@ -15192,7 +15192,7 @@ export class UsersGetUsersPayload extends S.Class<UsersGetUsersPayload>($I`Users
  * @category models
  * @since 0.0.0
  */
-export class UsersUpdateUserByIdPayload extends S.Class<UsersUpdateUserByIdPayload>($I`UsersUpdateUserByIdPayload`)(
+export class UsersUpdateUserByIdPayload extends S.Class<UsersUpdateUserByIdPayload, { readonly brand: unique symbol }>($I`UsersUpdateUserByIdPayload`)(
   {
     userId: S.String,
     optionalsInput: S.suspend(() => UpdateUserByIdOptionalsInput).pipe(S.optionalKey),
@@ -15216,7 +15216,7 @@ export class UsersUpdateUserByIdPayload extends S.Class<UsersUpdateUserByIdPaylo
  * @category models
  * @since 0.0.0
  */
-export class WebhooksCreateWebhookPayload extends S.Class<WebhooksCreateWebhookPayload>($I`WebhooksCreateWebhookPayload`)(
+export class WebhooksCreateWebhookPayload extends S.Class<WebhooksCreateWebhookPayload, { readonly brand: unique symbol }>($I`WebhooksCreateWebhookPayload`)(
   {
     requestBody: S.suspend(() => CreateWebhookRequestBody),
     optionalsInput: S.suspend(() => CreateWebhookOptionalsInput).pipe(S.optionalKey),
@@ -15240,7 +15240,7 @@ export class WebhooksCreateWebhookPayload extends S.Class<WebhooksCreateWebhookP
  * @category models
  * @since 0.0.0
  */
-export class WebhooksDeleteWebhookByIdPayload extends S.Class<WebhooksDeleteWebhookByIdPayload>($I`WebhooksDeleteWebhookByIdPayload`)(
+export class WebhooksDeleteWebhookByIdPayload extends S.Class<WebhooksDeleteWebhookByIdPayload, { readonly brand: unique symbol }>($I`WebhooksDeleteWebhookByIdPayload`)(
   {
     webhookId: S.String,
     optionalsInput: S.suspend(() => DeleteWebhookByIdOptionalsInput).pipe(S.optionalKey),
@@ -15264,7 +15264,7 @@ export class WebhooksDeleteWebhookByIdPayload extends S.Class<WebhooksDeleteWebh
  * @category models
  * @since 0.0.0
  */
-export class WebhooksGetWebhookByIdPayload extends S.Class<WebhooksGetWebhookByIdPayload>($I`WebhooksGetWebhookByIdPayload`)(
+export class WebhooksGetWebhookByIdPayload extends S.Class<WebhooksGetWebhookByIdPayload, { readonly brand: unique symbol }>($I`WebhooksGetWebhookByIdPayload`)(
   {
     webhookId: S.String,
     optionalsInput: S.suspend(() => GetWebhookByIdOptionalsInput).pipe(S.optionalKey),
@@ -15288,7 +15288,7 @@ export class WebhooksGetWebhookByIdPayload extends S.Class<WebhooksGetWebhookByI
  * @category models
  * @since 0.0.0
  */
-export class WebhooksGetWebhooksPayload extends S.Class<WebhooksGetWebhooksPayload>($I`WebhooksGetWebhooksPayload`)(
+export class WebhooksGetWebhooksPayload extends S.Class<WebhooksGetWebhooksPayload, { readonly brand: unique symbol }>($I`WebhooksGetWebhooksPayload`)(
   {
     queryParams: S.suspend(() => GetWebhooksQueryParams).pipe(S.optionalKey),
     headersInput: S.suspend(() => GetWebhooksHeadersInput).pipe(S.optionalKey),
@@ -15313,7 +15313,7 @@ export class WebhooksGetWebhooksPayload extends S.Class<WebhooksGetWebhooksPaylo
  * @category models
  * @since 0.0.0
  */
-export class WebhooksUpdateWebhookByIdPayload extends S.Class<WebhooksUpdateWebhookByIdPayload>($I`WebhooksUpdateWebhookByIdPayload`)(
+export class WebhooksUpdateWebhookByIdPayload extends S.Class<WebhooksUpdateWebhookByIdPayload, { readonly brand: unique symbol }>($I`WebhooksUpdateWebhookByIdPayload`)(
   {
     webhookId: S.String,
     optionalsInput: S.suspend(() => UpdateWebhookByIdOptionalsInput).pipe(S.optionalKey),
@@ -15337,7 +15337,7 @@ export class WebhooksUpdateWebhookByIdPayload extends S.Class<WebhooksUpdateWebh
  * @category models
  * @since 0.0.0
  */
-export class WebhooksValidateMessagePayload extends S.Class<WebhooksValidateMessagePayload>($I`WebhooksValidateMessagePayload`)(
+export class WebhooksValidateMessagePayload extends S.Class<WebhooksValidateMessagePayload, { readonly brand: unique symbol }>($I`WebhooksValidateMessagePayload`)(
   {
     body: S.String,
     headers: S.Record(S.String, S.String),
@@ -15363,7 +15363,7 @@ export class WebhooksValidateMessagePayload extends S.Class<WebhooksValidateMess
  * @category models
  * @since 0.0.0
  */
-export class ZipDownloadsCreateZipDownloadPayload extends S.Class<ZipDownloadsCreateZipDownloadPayload>($I`ZipDownloadsCreateZipDownloadPayload`)(
+export class ZipDownloadsCreateZipDownloadPayload extends S.Class<ZipDownloadsCreateZipDownloadPayload, { readonly brand: unique symbol }>($I`ZipDownloadsCreateZipDownloadPayload`)(
   {
     requestBody: S.suspend(() => ZipDownloadRequest),
     optionalsInput: S.suspend(() => CreateZipDownloadOptionalsInput).pipe(S.optionalKey),
@@ -15387,7 +15387,7 @@ export class ZipDownloadsCreateZipDownloadPayload extends S.Class<ZipDownloadsCr
  * @category models
  * @since 0.0.0
  */
-export class ZipDownloadsGetZipDownloadStatusPayload extends S.Class<ZipDownloadsGetZipDownloadStatusPayload>($I`ZipDownloadsGetZipDownloadStatusPayload`)(
+export class ZipDownloadsGetZipDownloadStatusPayload extends S.Class<ZipDownloadsGetZipDownloadStatusPayload, { readonly brand: unique symbol }>($I`ZipDownloadsGetZipDownloadStatusPayload`)(
   {
     statusUrl: S.String,
     optionalsInput: S.suspend(() => GetZipDownloadStatusOptionalsInput).pipe(S.optionalKey),

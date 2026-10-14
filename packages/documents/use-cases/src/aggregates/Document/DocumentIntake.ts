@@ -42,8 +42,8 @@ const $I = $DocumentsUseCasesId.create("aggregates/Document/DocumentIntake");
  * @category use-cases
  * @since 0.0.0
  */
-export class IntakeDroppedFilePayload extends S.Class<IntakeDroppedFilePayload>($I`IntakeDroppedFilePayload`)(
-  {
+export class IntakeDroppedFilePayload extends S.Opaque<IntakeDroppedFilePayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.Uint8ArrayFromBase64.annotateKey({
       description: "Dropped file bytes encoded over RPC as Base64.",
     }),
@@ -59,10 +59,11 @@ export class IntakeDroppedFilePayload extends S.Class<IntakeDroppedFilePayload>(
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace receiving the dropped file.",
     }),
-  },
-  $I.annote("IntakeDroppedFilePayload", {
-    description: "Client payload for app-level dropped-file intake.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeDroppedFilePayload", {
+      description: "Client payload for app-level dropped-file intake.",
+    })
+  )
 ) {}
 
 /**
@@ -91,8 +92,8 @@ export class IntakeDroppedFilePayload extends S.Class<IntakeDroppedFilePayload>(
  * @category use-cases
  * @since 0.0.0
  */
-export class IntakeDroppedFileInput extends S.Class<IntakeDroppedFileInput>($I`IntakeDroppedFileInput`)(
-  {
+export class IntakeDroppedFileInput extends S.Opaque<IntakeDroppedFileInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.Uint8ArrayFromBase64.annotateKey({
       description: "Dropped file bytes.",
     }),
@@ -111,10 +112,11 @@ export class IntakeDroppedFileInput extends S.Class<IntakeDroppedFileInput>($I`I
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace receiving the dropped file.",
     }),
-  },
-  $I.annote("IntakeDroppedFileInput", {
-    description: "Server-side input for dropped-file intake after workspace vault resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeDroppedFileInput", {
+      description: "Server-side input for dropped-file intake after workspace vault resolution.",
+    })
+  )
 ) {}
 
 /**

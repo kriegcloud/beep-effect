@@ -25,13 +25,16 @@ const $I = $RepoCliId.create("commands/Ci/CiOperational.schemas");
  * @category models
  * @since 0.0.0
  */
-export class CiOperationalPatterns extends S.Class<CiOperationalPatterns>($I`CiOperationalPatterns`)(
-  {
+export class CiOperationalPatterns extends S.Opaque<CiOperationalPatterns, { readonly brand: unique symbol }>()(
+  S.Struct({
     goals: S.NonEmptyString.annotateKey({ description: "Convention-owned goal prose pattern." }),
     desktop: S.NonEmptyString.annotateKey({ description: "Desktop Cargo and gate-owner pattern." }),
     docs: S.NonEmptyString.annotateKey({ description: "Additional Heavy docs-only paths." }),
-  },
-  $I.annote("CiOperationalPatterns", { description: "Canonical pattern data for hosted and bootstrap CI profiles." })
+  }).pipe(
+    $I.annoteSchema("CiOperationalPatterns", {
+      description: "Canonical pattern data for hosted and bootstrap CI profiles.",
+    })
+  )
 ) {}
 
 /**
@@ -167,9 +170,10 @@ export type CiResourceLane = typeof CiResourceLane.Type;
  * @category models
  * @since 0.0.0
  */
-export class CiChangeProfile extends S.Class<CiChangeProfile>($I`CiChangeProfile`)(
-  { goalsOnly: S.Boolean, desktopRustRelevant: S.Boolean },
-  $I.annote("CiChangeProfile", { description: "Hosted goals and Rust lane execution profile." })
+export class CiChangeProfile extends S.Opaque<CiChangeProfile, { readonly brand: unique symbol }>()(
+  S.Struct({ goalsOnly: S.Boolean, desktopRustRelevant: S.Boolean }).pipe(
+    $I.annoteSchema("CiChangeProfile", { description: "Hosted goals and Rust lane execution profile." })
+  )
 ) {}
 
 /**
@@ -185,8 +189,8 @@ export class CiChangeProfile extends S.Class<CiChangeProfile>($I`CiChangeProfile
  * @category models
  * @since 0.0.0
  */
-export class CiResourceSample extends S.Class<CiResourceSample>($I`CiResourceSample`)(
-  {
+export class CiResourceSample extends S.Opaque<CiResourceSample, { readonly brand: unique symbol }>()(
+  S.Struct({
     epoch: S.Finite,
     total: S.Finite.check(S.isGreaterThan(0)),
     available: S.Finite.check(S.isGreaterThan(0)),
@@ -194,8 +198,7 @@ export class CiResourceSample extends S.Class<CiResourceSample>($I`CiResourceSam
     idle: S.Finite,
     swapIn: S.Finite,
     swapOut: S.Finite,
-  },
-  $I.annote("CiResourceSample", { description: "Host-wide procfs counters for runner measurement." })
+  }).pipe($I.annoteSchema("CiResourceSample", { description: "Host-wide procfs counters for runner measurement." }))
 ) {}
 
 const CiEnvironmentMode = LiteralKit([
@@ -220,7 +223,10 @@ const CiEnvironmentMode = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class CiEnvironmentSelection extends S.Class<CiEnvironmentSelection>($I`CiEnvironmentSelection`)(
-  { mode: CiEnvironmentMode, entries: S.Array(S.Tuple([S.String, S.Redacted(S.String)])) },
-  $I.annote("CiEnvironmentSelection", { description: "Trusted event export selection with values kept redacted." })
+export class CiEnvironmentSelection extends S.Opaque<CiEnvironmentSelection, { readonly brand: unique symbol }>()(
+  S.Struct({ mode: CiEnvironmentMode, entries: S.Array(S.Tuple([S.String, S.Redacted(S.String)])) }).pipe(
+    $I.annoteSchema("CiEnvironmentSelection", {
+      description: "Trusted event export selection with values kept redacted.",
+    })
+  )
 ) {}

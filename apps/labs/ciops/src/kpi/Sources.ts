@@ -163,8 +163,8 @@ export type AttemptOutcome = typeof AttemptOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class FleetAttempt extends S.Class<FleetAttempt>($I`FleetAttempt`)(
-  {
+export class FleetAttempt extends S.Opaque<FleetAttempt, { readonly brand: unique symbol }>()(
+  S.Struct({
     checkout: S.NonEmptyString,
     runId: S.NonEmptyString,
     attemptId: S.NonEmptyString,
@@ -176,10 +176,11 @@ export class FleetAttempt extends S.Class<FleetAttempt>($I`FleetAttempt`)(
     resolvedHeadSha: S.Option(GitCommitSha),
     outcome: AttemptOutcome,
     finishedAt: S.Option(S.DateTimeUtcFromString),
-  },
-  $I.annote("FleetAttempt", {
-    description: "One pinned attempt start joined with its terminal row, as the KPI fold consumes it.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetAttempt", {
+      description: "One pinned attempt start joined with its terminal row, as the KPI fold consumes it.",
+    })
+  )
 ) {}
 
 /**
@@ -210,17 +211,18 @@ export class FleetAttempt extends S.Class<FleetAttempt>($I`FleetAttempt`)(
  * @category models
  * @since 0.0.0
  */
-export class FleetJournal extends S.Class<FleetJournal>($I`FleetJournal`)(
-  {
+export class FleetJournal extends S.Opaque<FleetJournal, { readonly brand: unique symbol }>()(
+  S.Struct({
     checkout: S.NonEmptyString,
     runId: S.NonEmptyString,
     atWriterCap: S.Boolean,
     compactionCutoff: S.Option(S.DateTimeUtcFromString),
     attempts: S.Array(FleetAttempt),
-  },
-  $I.annote("FleetJournal", {
-    description: "One pinned attempt journal with its ring-window facts and its decoded attempts.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetJournal", {
+      description: "One pinned attempt journal with its ring-window facts and its decoded attempts.",
+    })
+  )
 ) {}
 
 /**
@@ -245,17 +247,18 @@ export class FleetJournal extends S.Class<FleetJournal>($I`FleetJournal`)(
  * @category models
  * @since 0.0.0
  */
-export class AttemptJournalPin extends S.Class<AttemptJournalPin>($I`AttemptJournalPin`)(
-  {
+export class AttemptJournalPin extends S.Opaque<AttemptJournalPin, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString,
     checkout: S.NonEmptyString,
     runId: S.NonEmptyString,
     sha256: Sha256Hex,
     atWriterCap: S.Boolean,
-  },
-  $I.annote("AttemptJournalPin", {
-    description: "Manifest-relative path, checkout label, run id, digest and writer-cap flag of one attempt journal.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttemptJournalPin", {
+      description: "Manifest-relative path, checkout label, run id, digest and writer-cap flag of one attempt journal.",
+    })
+  )
 ) {}
 
 /**
@@ -277,11 +280,12 @@ export class AttemptJournalPin extends S.Class<AttemptJournalPin>($I`AttemptJour
  * @category models
  * @since 0.0.0
  */
-export class FleetManifestFacts extends S.Class<FleetManifestFacts>($I`FleetManifestFacts`)(
-  { captureInstant: S.DateTimeUtcFromString, journals: S.Array(AttemptJournalPin) },
-  $I.annote("FleetManifestFacts", {
-    description: "The fleet capture instant and every attempt-journal pin the manifest names.",
-  })
+export class FleetManifestFacts extends S.Opaque<FleetManifestFacts, { readonly brand: unique symbol }>()(
+  S.Struct({ captureInstant: S.DateTimeUtcFromString, journals: S.Array(AttemptJournalPin) }).pipe(
+    $I.annoteSchema("FleetManifestFacts", {
+      description: "The fleet capture instant and every attempt-journal pin the manifest names.",
+    })
+  )
 ) {}
 
 const LOCK_SENTENCE = "Another Yeet full proof";
@@ -618,7 +622,7 @@ const optionalMillis = S.OptionFromOptionalKey(S.Finite);
  * @category models
  * @since 0.0.0
  */
-export class KpiAdmissionRow extends S.Class<KpiAdmissionRow>($I`KpiAdmissionRow`)(
+export class KpiAdmissionRow extends S.Class<KpiAdmissionRow, { readonly brand: unique symbol }>($I`KpiAdmissionRow`)(
   {
     _tag: AdmissionEventTag,
     nonce: S.NonEmptyString,
@@ -650,11 +654,12 @@ const custodyMembers: ReadonlyArray<string> = [
   "checkoutRef",
 ];
 
-class SourcedAdmissionRow extends S.Class<SourcedAdmissionRow>($I`SourcedAdmissionRow`)(
-  { key: S.String, comparable: S.String, row: KpiAdmissionRow },
-  $I.annote("SourcedAdmissionRow", {
-    description: "An admission row with its dedupe key and its custody-free comparable form.",
-  })
+class SourcedAdmissionRow extends S.Opaque<SourcedAdmissionRow, { readonly brand: unique symbol }>()(
+  S.Struct({ key: S.String, comparable: S.String, row: KpiAdmissionRow }).pipe(
+    $I.annoteSchema("SourcedAdmissionRow", {
+      description: "An admission row with its dedupe key and its custody-free comparable form.",
+    })
+  )
 ) {}
 
 const comparableForm = (record: { readonly [key: string]: string | number | boolean | null }): string =>

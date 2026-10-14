@@ -26,9 +26,13 @@ const Output = S.declare((u): u is Effect.Effect<number, IdentificationError> =>
  * @category configuration
  * @since 0.0.0
  */
-export class ContactsInput extends S.Class<ContactsInput>($I`ContactsInput`)(
-  { csv: S.NonEmptyString, vcard: S.NonEmptyString, output: S.NonEmptyString, projection: S.NonEmptyString },
-  $I.annote("ContactsInput", { description: "Explicit private paths." })
+export class ContactsInput extends S.Opaque<ContactsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    csv: S.NonEmptyString,
+    vcard: S.NonEmptyString,
+    output: S.NonEmptyString,
+    projection: S.NonEmptyString,
+  }).pipe($I.annoteSchema("ContactsInput", { description: "Explicit private paths." }))
 ) {}
 /**
  * Required private paths for the index stage.
@@ -44,9 +48,10 @@ export class ContactsInput extends S.Class<ContactsInput>($I`ContactsInput`)(
  * @category configuration
  * @since 0.0.0
  */
-export class IndexInput extends S.Class<IndexInput>($I`IndexInput`)(
-  { input: S.NonEmptyString, contacts: S.NonEmptyString, output: S.NonEmptyString },
-  $I.annote("IndexInput", { description: "Explicit private paths." })
+export class IndexInput extends S.Opaque<IndexInput, { readonly brand: unique symbol }>()(
+  S.Struct({ input: S.NonEmptyString, contacts: S.NonEmptyString, output: S.NonEmptyString }).pipe(
+    $I.annoteSchema("IndexInput", { description: "Explicit private paths." })
+  )
 ) {}
 /**
  * Required private paths for the uspto stage.
@@ -62,9 +67,10 @@ export class IndexInput extends S.Class<IndexInput>($I`IndexInput`)(
  * @category configuration
  * @since 0.0.0
  */
-export class UsptoInput extends S.Class<UsptoInput>($I`UsptoInput`)(
-  { input: S.NonEmptyString, output: S.NonEmptyString, ledger: S.NonEmptyString },
-  $I.annote("UsptoInput", { description: "Explicit private paths." })
+export class UsptoInput extends S.Opaque<UsptoInput, { readonly brand: unique symbol }>()(
+  S.Struct({ input: S.NonEmptyString, output: S.NonEmptyString, ledger: S.NonEmptyString }).pipe(
+    $I.annoteSchema("UsptoInput", { description: "Explicit private paths." })
+  )
 ) {}
 /**
  * Required private paths for the resolve stage.
@@ -80,16 +86,15 @@ export class UsptoInput extends S.Class<UsptoInput>($I`UsptoInput`)(
  * @category configuration
  * @since 0.0.0
  */
-export class ResolveInput extends S.Class<ResolveInput>($I`ResolveInput`)(
-  {
+export class ResolveInput extends S.Opaque<ResolveInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     input: S.NonEmptyString,
     context: S.NonEmptyString,
     training: S.NonEmptyString,
     batches: S.NonEmptyString,
     uspto: S.NonEmptyString,
     output: S.NonEmptyString,
-  },
-  $I.annote("ResolveInput", { description: "Explicit private paths." })
+  }).pipe($I.annoteSchema("ResolveInput", { description: "Explicit private paths." }))
 ) {}
 /**
  * Required private paths for the evaluate stage.
@@ -105,9 +110,13 @@ export class ResolveInput extends S.Class<ResolveInput>($I`ResolveInput`)(
  * @category configuration
  * @since 0.0.0
  */
-export class EvaluateInput extends S.Class<EvaluateInput>($I`EvaluateInput`)(
-  { input: S.NonEmptyString, context: S.NonEmptyString, output: S.NonEmptyString, splitSalt: S.NonEmptyString },
-  $I.annote("EvaluateInput", { description: "Explicit private paths and the hold-out split salt." })
+export class EvaluateInput extends S.Opaque<EvaluateInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    input: S.NonEmptyString,
+    context: S.NonEmptyString,
+    output: S.NonEmptyString,
+    splitSalt: S.NonEmptyString,
+  }).pipe($I.annoteSchema("EvaluateInput", { description: "Explicit private paths and the hold-out split salt." }))
 ) {}
 /**
  * Injectable CLI stage implementations.
@@ -124,15 +133,14 @@ export class EvaluateInput extends S.Class<EvaluateInput>($I`EvaluateInput`)(
  * @category services
  * @since 0.0.0
  */
-export class IdentificationStagesShape extends S.Class<IdentificationStagesShape>($I`IdentificationStagesShape`)(
-  {
+export class IdentificationStagesShape extends S.Opaque<IdentificationStagesShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     contacts: Fn({ input: ContactsInput, output: Output }),
     index: Fn({ input: IndexInput, output: Output }),
     uspto: Fn({ input: UsptoInput, output: Output }),
     resolve: Fn({ input: ResolveInput, output: Output }),
     evaluate: Fn({ input: EvaluateInput, output: Output }),
-  },
-  $I.annote("IdentificationStagesShape", { description: "Private file pipeline stages." })
+  }).pipe($I.annoteSchema("IdentificationStagesShape", { description: "Private file pipeline stages." }))
 ) {}
 /**
  * CLI pipeline stage service tag.

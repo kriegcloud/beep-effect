@@ -52,16 +52,17 @@ export const OntologyWorkspaceRootConfig = Config.NonEmptyString("ONTOLOGY_WORKS
  * @category configuration
  * @since 0.0.0
  */
-export class OntologyServerConfig extends S.Class<OntologyServerConfig>($I`OntologyServerConfig`)(
-  {
+export class OntologyServerConfig extends S.Opaque<OntologyServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     workspaceRoot: S.NonEmptyString.annotateKey({
       description: "Existing directory that bounds ontology file reads and writes.",
     }),
-  },
-  $I.annote("OntologyServerConfig", {
-    title: "Ontology server config",
-    description: "Server-only filesystem authority settings for ontology documents.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyServerConfig", {
+      title: "Ontology server config",
+      description: "Server-only filesystem authority settings for ontology documents.",
+    })
+  )
 ) {}
 
 /**

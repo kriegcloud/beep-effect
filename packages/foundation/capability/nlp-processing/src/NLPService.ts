@@ -95,10 +95,11 @@ export class NLPService extends Context.Service<NLPService, NLPServiceShape>()($
  * import * as Effect from "effect/Effect";
  * import { make } from "@beep/nlp-processing/NLPService"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backend: NLPBackendShape = {
  *   name: "minimal",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -108,7 +109,7 @@ export class NLPService extends Context.Service<NLPService, NLPServiceShape>()($
  *     relationExtraction: false,
  *     sentencization: true,
  *     tokenization: true
- *   },
+ *   }),
  *   tokenize: (text) => Effect.succeed(text.split(" ")),
  *   sentencize: (text) => Effect.succeed([text]),
  *   posTag: () => Effect.succeed([]),
@@ -149,11 +150,11 @@ export const make = (backend: NLPBackendShape): NLPServiceShape =>
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  * import { NLPService, layer } from "@beep/nlp-processing/NLPService"
- * import { NLPBackend, notSupported } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities, NLPBackend, notSupported } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backendLayer = Layer.succeed(NLPBackend, NLPBackend.of({
  *   name: "empty",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -163,7 +164,7 @@ export const make = (backend: NLPBackendShape): NLPServiceShape =>
  *     relationExtraction: false,
  *     sentencization: false,
  *     tokenization: false
- *   },
+ *   }),
  *   tokenize: () => Effect.fail(notSupported("empty", "tokenize")),
  *   sentencize: () => Effect.fail(notSupported("empty", "sentencize")),
  *   posTag: () => Effect.fail(notSupported("empty", "posTag")),
@@ -192,10 +193,11 @@ export const layer = <E, R>(backendLayer: Layer.Layer<Backend.NLPBackend, E, R>)
  * import { empty, nodeCount } from "@beep/nlp-processing/Graph/AnnotatedTextGraph"
  * import { NLPService, processText } from "@beep/nlp-processing/NLPService"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backend: NLPBackendShape = {
  *   name: "minimal",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -205,7 +207,7 @@ export const layer = <E, R>(backendLayer: Layer.Layer<Backend.NLPBackend, E, R>)
  *     relationExtraction: false,
  *     sentencization: false,
  *     tokenization: false
- *   },
+ *   }),
  *   tokenize: () => Effect.succeed([]),
  *   sentencize: () => Effect.succeed([]),
  *   posTag: () => Effect.succeed([]),
@@ -246,10 +248,11 @@ export const processText = (text: string): Effect.Effect<AnnotatedTextGraph, NLP
  * import { empty } from "@beep/nlp-processing/Graph/AnnotatedTextGraph"
  * import { NLPService, extractEntities } from "@beep/nlp-processing/NLPService"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backend: NLPBackendShape = {
  *   name: "minimal",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -259,7 +262,7 @@ export const processText = (text: string): Effect.Effect<AnnotatedTextGraph, NLP
  *     relationExtraction: false,
  *     sentencization: false,
  *     tokenization: false
- *   },
+ *   }),
  *   tokenize: () => Effect.succeed([]),
  *   sentencize: () => Effect.succeed([]),
  *   posTag: () => Effect.succeed([]),
@@ -297,10 +300,11 @@ export const extractEntities = (text: string): Effect.Effect<ReadonlyArray<Entit
  * import { empty } from "@beep/nlp-processing/Graph/AnnotatedTextGraph"
  * import { NLPService, extractRelations } from "@beep/nlp-processing/NLPService"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backend: NLPBackendShape = {
  *   name: "minimal",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -310,7 +314,7 @@ export const extractEntities = (text: string): Effect.Effect<ReadonlyArray<Entit
  *     relationExtraction: false,
  *     sentencization: false,
  *     tokenization: false
- *   },
+ *   }),
  *   tokenize: () => Effect.succeed([]),
  *   sentencize: () => Effect.succeed([]),
  *   posTag: () => Effect.succeed([]),
@@ -350,10 +354,11 @@ export const extractRelations = (
  * import { empty } from "@beep/nlp-processing/Graph/AnnotatedTextGraph"
  * import { NLPService, tagPartsOfSpeech } from "@beep/nlp-processing/NLPService"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backend: NLPBackendShape = {
  *   name: "minimal",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -363,7 +368,7 @@ export const extractRelations = (
  *     relationExtraction: false,
  *     sentencization: false,
  *     tokenization: false
- *   },
+ *   }),
  *   tokenize: () => Effect.succeed([]),
  *   sentencize: () => Effect.succeed([]),
  *   posTag: () => Effect.succeed([]),

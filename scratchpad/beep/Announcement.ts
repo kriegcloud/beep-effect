@@ -607,7 +607,7 @@ const decodeAnnouncement = S.decodeUnknownEffect(Announcement);
  * @category errors
  * @since 0.0.0
  */
-export class AnnouncementContentMismatch extends S.TaggedError<AnnouncementContentMismatch>()(
+export class AnnouncementContentMismatch extends S.TaggedError<AnnouncementContentMismatch, { readonly brand: unique symbol }>()(
   "AnnouncementContentMismatch",
   { expected: S.String, actual: S.String },
   $I.annoteError<AnnouncementContentMismatch>("AnnouncementContentMismatch", {

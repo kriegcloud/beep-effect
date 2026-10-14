@@ -98,8 +98,8 @@ const optionsFromInput = (options: FFmpegErrorContextInput): FFmpegErrorFromUnkn
  * @category errors
  * @since 0.0.0
  */
-export class FFmpegErrorContext extends S.Class<FFmpegErrorContext>($I`FFmpegErrorContext`)(
-  {
+export class FFmpegErrorContext extends S.Opaque<FFmpegErrorContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.OptionFromOptionalKey(S.String).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("FFmpegErrorContext.command", {
@@ -124,10 +124,11 @@ export class FFmpegErrorContext extends S.Class<FFmpegErrorContext>($I`FFmpegErr
         description: "Captured standard output text, when available.",
       })
     ),
-  },
-  $I.annote("FFmpegErrorContext", {
-    description: "Additional process context captured for an FFmpeg failure.",
-  })
+  }).pipe(
+    $I.annoteSchema("FFmpegErrorContext", {
+      description: "Additional process context captured for an FFmpeg failure.",
+    })
+  )
 ) {}
 
 const existingFfmpegError = (cause: unknown): O.Option<FFmpegError> =>
@@ -153,10 +154,11 @@ const existingFfmpegError = (cause: unknown): O.Option<FFmpegError> =>
  * @category errors
  * @since 0.0.0
  */
-export class FFmpegErrorFromUnknownOptions extends S.Class<FFmpegErrorFromUnknownOptions>(
-  $I`FFmpegErrorFromUnknownOptions`
-)(
-  {
+export class FFmpegErrorFromUnknownOptions extends S.Opaque<
+  FFmpegErrorFromUnknownOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cause: S.OptionFromOptionalKey(FFmpegDefect).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("FFmpegErrorFromUnknownOptions.cause", {
@@ -187,10 +189,11 @@ export class FFmpegErrorFromUnknownOptions extends S.Class<FFmpegErrorFromUnknow
         description: "Captured standard output text, when available.",
       })
     ),
-  },
-  $I.annote("FFmpegErrorFromUnknownOptions", {
-    description: "Options used when normalizing unknown FFmpeg boundary failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("FFmpegErrorFromUnknownOptions", {
+      description: "Options used when normalizing unknown FFmpeg boundary failures.",
+    })
+  )
 ) {}
 
 /**
@@ -208,7 +211,7 @@ export class FFmpegErrorFromUnknownOptions extends S.Class<FFmpegErrorFromUnknow
  * @category errors
  * @since 0.0.0
  */
-export class FFmpegError extends S.TaggedError<FFmpegError>($I`FFmpegError`)(
+export class FFmpegError extends S.TaggedError<FFmpegError, { readonly brand: unique symbol }>($I`FFmpegError`)(
   "FFmpegError",
   {
     command: S.OptionFromOptionalKey(S.String).pipe(

@@ -24,7 +24,7 @@ import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/workspaces/internal/enumerate");
 
-class EnumerationOptionsError extends S.TaggedError<EnumerationOptionsError>($I`EnumerationOptionsError`)("EnumerationOptionsError", {
+class EnumerationOptionsError extends S.TaggedError<EnumerationOptionsError, { readonly brand: unique symbol }>($I`EnumerationOptionsError`)("EnumerationOptionsError", {
 	message: S.String,
 }, $I.annote("EnumerationOptionsError", { description: "An invalid workspace enumeration depth bound." })) {}
 

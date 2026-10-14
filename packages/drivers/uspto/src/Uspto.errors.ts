@@ -76,11 +76,12 @@ const UsptoErrorContextFields = {
   ),
 } satisfies S.Struct.Fields;
 
-class UsptoErrorOptions extends S.Class<UsptoErrorOptions>($I`UsptoErrorOptions`)(
-  UsptoErrorContextFields,
-  $I.annote("UsptoErrorOptions", {
-    description: "Options for configuring sanitized USPTO driver errors.",
-  })
+class UsptoErrorOptions extends S.Opaque<UsptoErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct(UsptoErrorContextFields).pipe(
+    $I.annoteSchema("UsptoErrorOptions", {
+      description: "Options for configuring sanitized USPTO driver errors.",
+    })
+  )
 ) {}
 
 /**
@@ -98,7 +99,7 @@ class UsptoErrorOptions extends S.Class<UsptoErrorOptions>($I`UsptoErrorOptions`
  * @category errors
  * @since 0.0.0
  */
-export class UsptoError extends S.TaggedError<UsptoError>($I`UsptoError`)(
+export class UsptoError extends S.TaggedError<UsptoError, { readonly brand: unique symbol }>($I`UsptoError`)(
   "UsptoError",
   {
     ...UsptoErrorContextFields,

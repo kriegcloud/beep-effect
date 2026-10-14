@@ -36,7 +36,7 @@ const $I = $ScratchpadId.create("effected/github-actions/OidcTokenIssuer");
  * @category errors
  * @since 0.0.0
  */
-export class OidcTokenError extends S.TaggedError<OidcTokenError>($I`OidcTokenError`)("OidcTokenError", {
+export class OidcTokenError extends S.TaggedError<OidcTokenError, { readonly brand: unique symbol }>($I`OidcTokenError`)("OidcTokenError", {
 	/**
 	 * `unavailable` — the runner did not publish the token-service variables,
 	 * which almost always means the workflow is missing `permissions: id-token:
@@ -117,7 +117,7 @@ export class OidcTokenError extends S.TaggedError<OidcTokenError>($I`OidcTokenEr
  * @category models
  * @since 0.0.0
  */
-export class OidcClaims extends S.Class<OidcClaims>($I`OidcClaims`)({
+export class OidcClaims extends S.Class<OidcClaims, { readonly brand: unique symbol }>($I`OidcClaims`)({
 	/** The issuer, e.g. `https://token.actions.githubusercontent.com`. */
 	iss: S.String.annotateKey({ description: "The issuer, e.g. `https://token.actions.githubusercontent.com`." }),
 	/** The full ref the workflow ran on. */

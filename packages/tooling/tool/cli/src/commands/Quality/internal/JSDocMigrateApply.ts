@@ -47,6 +47,7 @@ import {
   scanJSDocMigrateBlocks,
 } from "./JSDocMigrateExtract.ts";
 import {
+  JSDocMigrateBlockInput,
   jsdocMigrateConservationFindings,
   jsdocMigrateShapeRegressions,
   rewriteJSDocMigrateBlock,
@@ -460,17 +461,21 @@ const failOnDirtyBinding = Effect.fn("JSDocMigrateApply.failOnDirtyBinding")(fun
  * @category models
  * @since 0.0.0
  */
-export class RunJSDocMigrateApplyOptions extends S.Class<RunJSDocMigrateApplyOptions>($I`RunJSDocMigrateApplyOptions`)(
-  {
+export class RunJSDocMigrateApplyOptions extends S.Opaque<
+  RunJSDocMigrateApplyOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     titles: S.optionalKey(S.String),
     overrides: S.optionalKey(S.String),
     manifest: S.optionalKey(S.String),
     dryRun: S.Boolean,
     syntheticTitles: S.Boolean,
-  },
-  $I.annote("RunJSDocMigrateApplyOptions", {
-    description: "Options for the jsdoc-migrate apply stage: data-file paths, dry-run, and synthetic titles.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunJSDocMigrateApplyOptions", {
+      description: "Options for the jsdoc-migrate apply stage: data-file paths, dry-run, and synthetic titles.",
+    })
+  )
 ) {}
 
 const anchorFilePath = (anchor: string): string => Str.split("#")(anchor)[0] ?? anchor;
@@ -533,16 +538,18 @@ const blockOutcome = (
   if (O.isNone(title)) {
     return { _tag: "DataMismatch", reasons: [`missing-title-record: ${block.anchor}`] };
   }
-  const result = rewriteJSDocMigrateBlock({
-    blockText: block.text,
-    indent: block.indent,
-    data: {
-      titles: title.value.titles,
-      remarks: title.value.remarks,
-      leadEnd: title.value.leadEnd,
-      seePurposes: title.value.seePurposes,
-    },
-  });
+  const result = rewriteJSDocMigrateBlock(
+    JSDocMigrateBlockInput.make({
+      blockText: block.text,
+      indent: block.indent,
+      data: {
+        titles: title.value.titles,
+        remarks: title.value.remarks,
+        leadEnd: title.value.leadEnd,
+        seePurposes: title.value.seePurposes,
+      },
+    })
+  );
   if (result._tag === "Rewritten") {
     return { _tag: "Rewritten", replacement: result.text };
   }
@@ -732,18 +739,20 @@ export const runJSDocMigrateApply = Effect.fn("JSDocMigrateApply.run")(function*
  * @category models
  * @since 0.0.0
  */
-export class RunJSDocMigrateVerifyOptions extends S.Class<RunJSDocMigrateVerifyOptions>(
-  $I`RunJSDocMigrateVerifyOptions`
-)(
-  {
+export class RunJSDocMigrateVerifyOptions extends S.Opaque<
+  RunJSDocMigrateVerifyOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     extract: S.optionalKey(S.String),
     titles: S.optionalKey(S.String),
     overrides: S.optionalKey(S.String),
     manifest: S.optionalKey(S.String),
-  },
-  $I.annote("RunJSDocMigrateVerifyOptions", {
-    description: "Options for the jsdoc-migrate verify stage: frozen data-file paths and the manifest output.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunJSDocMigrateVerifyOptions", {
+      description: "Options for the jsdoc-migrate verify stage: frozen data-file paths and the manifest output.",
+    })
+  )
 ) {}
 
 /**
@@ -835,16 +844,18 @@ export const runJSDocMigrateVerify = Effect.fn("JSDocMigrateApply.runVerify")(fu
       A.appendInPlace(violations, `changed-without-record: ${record.anchor}`);
       continue;
     }
-    const expected = rewriteJSDocMigrateBlock({
-      blockText: record.blockText,
-      indent: current.value.indent,
-      data: {
-        titles: title.value.titles,
-        remarks: title.value.remarks,
-        leadEnd: title.value.leadEnd,
-        seePurposes: title.value.seePurposes,
-      },
-    });
+    const expected = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: record.blockText,
+        indent: current.value.indent,
+        data: {
+          titles: title.value.titles,
+          remarks: title.value.remarks,
+          leadEnd: title.value.leadEnd,
+          seePurposes: title.value.seePurposes,
+        },
+      })
+    );
     if (expected._tag === "Quarantined") {
       A.appendInPlace(
         quarantines,

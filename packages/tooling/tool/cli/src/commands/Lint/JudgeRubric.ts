@@ -79,14 +79,15 @@ const promptLensTokens = (prompt: string): HashSet.HashSet<string> =>
  * @category models
  * @since 0.0.0
  */
-export class JudgeRubricDrift extends S.Class<JudgeRubricDrift>($I`JudgeRubricDrift`)(
-  {
+export class JudgeRubricDrift extends S.Opaque<JudgeRubricDrift, { readonly brand: unique symbol }>()(
+  S.Struct({
     missingFromPrompt: S.Array(QaLens),
     unknownInPrompt: S.Array(S.String),
-  },
-  $I.annote("JudgeRubricDrift", {
-    description: "Lenses missing from the judge prompt and unknown lens tokens the prompt names.",
-  })
+  }).pipe(
+    $I.annoteSchema("JudgeRubricDrift", {
+      description: "Lenses missing from the judge prompt and unknown lens tokens the prompt names.",
+    })
+  )
 ) {}
 
 /**
@@ -105,14 +106,15 @@ export class JudgeRubricDrift extends S.Class<JudgeRubricDrift>($I`JudgeRubricDr
  * @category models
  * @since 0.0.0
  */
-export class JudgeRubricFamilyInput extends S.Class<JudgeRubricFamilyInput>($I`JudgeRubricFamilyInput`)(
-  {
+export class JudgeRubricFamilyInput extends S.Opaque<JudgeRubricFamilyInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     prompt: S.String.annotateKey({ description: "Full judge prompt template text." }),
     family: S.Array(QaLens).annotateKey({ description: "Lens literals the prompt must name exactly." }),
-  },
-  $I.annote("JudgeRubricFamilyInput", {
-    description: "A judge prompt paired with the lens family its Lenses section is checked against.",
-  })
+  }).pipe(
+    $I.annoteSchema("JudgeRubricFamilyInput", {
+      description: "A judge prompt paired with the lens family its Lenses section is checked against.",
+    })
+  )
 ) {}
 
 const DiffJudgeRubricFamily = Fn({ input: JudgeRubricFamilyInput, output: JudgeRubricDrift }).pipe(

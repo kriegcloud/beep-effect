@@ -43,9 +43,10 @@ export const seedFolderName = "Practice contacts (seeded)";
  * @category schemas
  * @since 0.0.0
  */
-export class ContactInputs extends S.Class<ContactInputs>($I`ContactInputs`)(
-  { csv: S.Array(S.NonEmptyString), vcf: S.Array(S.NonEmptyString) },
-  $I.annote("ContactInputs", { description: "Explicit private contact source paths." })
+export class ContactInputs extends S.Opaque<ContactInputs, { readonly brand: unique symbol }>()(
+  S.Struct({ csv: S.Array(S.NonEmptyString), vcf: S.Array(S.NonEmptyString) }).pipe(
+    $I.annoteSchema("ContactInputs", { description: "Explicit private contact source paths." })
+  )
 ) {}
 
 /** A plan distinguishes creates from each safety-preserving skip.
@@ -83,8 +84,8 @@ export type ContactPlanRow = typeof ContactPlanRow.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class ContactReport extends S.Class<ContactReport>($I`ContactReport`)(
-  {
+export class ContactReport extends S.Opaque<ContactReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: S.NonEmptyString,
     Create: S.Natural,
     SkipExistsInMailbox: S.Natural,
@@ -100,8 +101,7 @@ export class ContactReport extends S.Class<ContactReport>($I`ContactReport`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(0))
     ),
     deleted: S.Natural,
-  },
-  $I.annote("ContactReport", { description: "Counts only; never names, addresses or paths." })
+  }).pipe($I.annoteSchema("ContactReport", { description: "Counts only; never names, addresses or paths." }))
 ) {}
 
 /** Counts for one unique CSV byte stream.
@@ -113,8 +113,8 @@ export class ContactReport extends S.Class<ContactReport>($I`ContactReport`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CsvCensus extends S.Class<CsvCensus>($I`CsvCensus`)(
-  {
+export class CsvCensus extends S.Opaque<CsvCensus, { readonly brand: unique symbol }>()(
+  S.Struct({
     sha256: S.NonEmptyString,
     inputsSharingHash: S.Natural,
     columnCount: S.Natural,
@@ -123,8 +123,7 @@ export class CsvCensus extends S.Class<CsvCensus>($I`CsvCensus`)(
     withEmail: S.Natural,
     withNonRoleEmail: S.Natural,
     roleOnly: S.Natural,
-  },
-  $I.annote("CsvCensus", { description: "CSV header names and counts without source paths or records." })
+  }).pipe($I.annoteSchema("CsvCensus", { description: "CSV header names and counts without source paths or records." }))
 ) {}
 
 /** Offline source census, including VCF comparison counts only.
@@ -136,8 +135,8 @@ export class CsvCensus extends S.Class<CsvCensus>($I`CsvCensus`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ContactCensus extends S.Class<ContactCensus>($I`ContactCensus`)(
-  {
+export class ContactCensus extends S.Opaque<ContactCensus, { readonly brand: unique symbol }>()(
+  S.Struct({
     csvInputs: S.Array(CsvCensus),
     csvNormalized: S.Natural,
     unidentifiable: S.Natural,
@@ -145,8 +144,7 @@ export class ContactCensus extends S.Class<ContactCensus>($I`ContactCensus`)(
     vcfNormalized: S.Natural,
     vcfOverlap: S.Natural,
     vcfOnly: S.Natural,
-  },
-  $I.annote("ContactCensus", { description: "Counts-only offline CSV and VCF census." })
+  }).pipe($I.annoteSchema("ContactCensus", { description: "Counts-only offline CSV and VCF census." }))
 ) {}
 
 /** One privately journaled create and its original change key.
@@ -158,9 +156,10 @@ export class ContactCensus extends S.Class<ContactCensus>($I`ContactCensus`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CreatedContact extends S.Class<CreatedContact>($I`CreatedContact`)(
-  { sourceKey: S.NonEmptyString, contactId: GraphPathSegment, changeKey: S.NonEmptyString },
-  $I.annote("CreatedContact", { description: "Private contact create receipt for guarded undo." })
+export class CreatedContact extends S.Opaque<CreatedContact, { readonly brand: unique symbol }>()(
+  S.Struct({ sourceKey: S.NonEmptyString, contactId: GraphPathSegment, changeKey: S.NonEmptyString }).pipe(
+    $I.annoteSchema("CreatedContact", { description: "Private contact create receipt for guarded undo." })
+  )
 ) {}
 
 /** Private durable run state, written before any non-idempotent create.
@@ -172,8 +171,8 @@ export class CreatedContact extends S.Class<CreatedContact>($I`CreatedContact`)(
  * @category schemas
  * @since 0.0.0
  */
-export class RunJournal extends S.Class<RunJournal>($I`RunJournal`)(
-  {
+export class RunJournal extends S.Opaque<RunJournal, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: GraphPathSegment,
     folderId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
     folderCreated: S.Boolean,
@@ -181,11 +180,12 @@ export class RunJournal extends S.Class<RunJournal>($I`RunJournal`)(
     pendingSourceKey: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     receipt: S.OptionFromOptionalKey(ContactReport).pipe(S.withConstructorDefault(Effect.succeedNone)),
     undoReceipt: S.OptionFromOptionalKey(ContactReport).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("RunJournal", {
-    description:
-      "Durable folder ownership, contact entries and counts-only apply/undo receipts, including zero-create runs.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunJournal", {
+      description:
+        "Durable folder ownership, contact entries and counts-only apply/undo receipts, including zero-create runs.",
+    })
+  )
 ) {}
 
 /** Technical failure codes; no private contact value is a failure message. */
@@ -210,7 +210,7 @@ const ContactsFailureReason = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class ContactsError extends S.TaggedError<ContactsError>($I`ContactsError`)(
+export class ContactsError extends S.TaggedError<ContactsError, { readonly brand: unique symbol }>($I`ContactsError`)(
   "ContactsError",
   { reason: ContactsFailureReason },
   $I.annote("ContactsError", { description: "A safety guard or private input failure." })

@@ -31,7 +31,9 @@ const $I = $RepoUtilsId.create("errors/CyclicDependencyError");
  * @category error-handling
  * @since 0.0.0
  */
-export class CyclicDependencyError extends S.TaggedError<CyclicDependencyError>($I`CyclicDependencyError`)(
+export class CyclicDependencyError extends S.TaggedError<CyclicDependencyError, { readonly brand: unique symbol }>(
+  $I`CyclicDependencyError`
+)(
   "CyclicDependencyError",
   {
     message: S.String,

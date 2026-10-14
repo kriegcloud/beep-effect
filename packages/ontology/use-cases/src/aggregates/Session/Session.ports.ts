@@ -170,7 +170,9 @@ export type TurtleCodecErrorReason = typeof TurtleCodecErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class TurtleCodecError extends S.TaggedError<TurtleCodecError>($I`TurtleCodecError`)(
+export class TurtleCodecError extends S.TaggedError<TurtleCodecError, { readonly brand: unique symbol }>(
+  $I`TurtleCodecError`
+)(
   "TurtleCodecError",
   {
     reason: TurtleCodecErrorReason,
@@ -199,14 +201,15 @@ export class TurtleCodecError extends S.TaggedError<TurtleCodecError>($I`TurtleC
  * @category models
  * @since 0.0.0
  */
-export class ParseTurtleRequest extends S.Class<ParseTurtleRequest>($I`ParseTurtleRequest`)(
-  {
+export class ParseTurtleRequest extends S.Opaque<ParseTurtleRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: TurtleDocumentText,
     baseIri: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ParseTurtleRequest", {
-    description: "Turtle parse request.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParseTurtleRequest", {
+      description: "Turtle parse request.",
+    })
+  )
 ) {}
 
 /**
@@ -228,14 +231,15 @@ export class ParseTurtleRequest extends S.Class<ParseTurtleRequest>($I`ParseTurt
  * @category models
  * @since 0.0.0
  */
-export class ParseTurtleResult extends S.Class<ParseTurtleResult>($I`ParseTurtleResult`)(
-  {
+export class ParseTurtleResult extends S.Opaque<ParseTurtleResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataset: Dataset,
     prefixes: PrefixMapWithEmptyDefault,
-  },
-  $I.annote("ParseTurtleResult", {
-    description: "Turtle parse result.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParseTurtleResult", {
+      description: "Turtle parse result.",
+    })
+  )
 ) {}
 
 /**
@@ -257,14 +261,15 @@ export class ParseTurtleResult extends S.Class<ParseTurtleResult>($I`ParseTurtle
  * @category models
  * @since 0.0.0
  */
-export class SerializeTurtleRequest extends S.Class<SerializeTurtleRequest>($I`SerializeTurtleRequest`)(
-  {
+export class SerializeTurtleRequest extends S.Opaque<SerializeTurtleRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataset: Dataset,
     prefixes: PrefixMapWithEmptyDefault,
-  },
-  $I.annote("SerializeTurtleRequest", {
-    description: "Turtle serialize request.",
-  })
+  }).pipe(
+    $I.annoteSchema("SerializeTurtleRequest", {
+      description: "Turtle serialize request.",
+    })
+  )
 ) {}
 
 /**
@@ -285,13 +290,14 @@ export class SerializeTurtleRequest extends S.Class<SerializeTurtleRequest>($I`S
  * @category models
  * @since 0.0.0
  */
-export class SerializeTurtleResult extends S.Class<SerializeTurtleResult>($I`SerializeTurtleResult`)(
-  {
+export class SerializeTurtleResult extends S.Opaque<SerializeTurtleResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: TurtleDocumentText,
-  },
-  $I.annote("SerializeTurtleResult", {
-    description: "Turtle serialize result.",
-  })
+  }).pipe(
+    $I.annoteSchema("SerializeTurtleResult", {
+      description: "Turtle serialize result.",
+    })
+  )
 ) {}
 
 /**
@@ -389,7 +395,9 @@ export type OntologyFileStoreErrorReason = typeof OntologyFileStoreErrorReason.T
  * @category errors
  * @since 0.0.0
  */
-export class OntologyFileStoreError extends S.TaggedError<OntologyFileStoreError>($I`OntologyFileStoreError`)(
+export class OntologyFileStoreError extends S.TaggedError<OntologyFileStoreError, { readonly brand: unique symbol }>(
+  $I`OntologyFileStoreError`
+)(
   "OntologyFileStoreError",
   {
     reason: OntologyFileStoreErrorReason,
@@ -420,13 +428,14 @@ export class OntologyFileStoreError extends S.TaggedError<OntologyFileStoreError
  * @category models
  * @since 0.0.0
  */
-export class ReadOntologyFileRequest extends S.Class<ReadOntologyFileRequest>($I`ReadOntologyFileRequest`)(
-  {
+export class ReadOntologyFileRequest extends S.Opaque<ReadOntologyFileRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
-  },
-  $I.annote("ReadOntologyFileRequest", {
-    description: "Read ontology file request.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReadOntologyFileRequest", {
+      description: "Read ontology file request.",
+    })
+  )
 ) {}
 
 /**
@@ -449,14 +458,15 @@ export class ReadOntologyFileRequest extends S.Class<ReadOntologyFileRequest>($I
  * @category models
  * @since 0.0.0
  */
-export class ReadOntologyFileResult extends S.Class<ReadOntologyFileResult>($I`ReadOntologyFileResult`)(
-  {
+export class ReadOntologyFileResult extends S.Opaque<ReadOntologyFileResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     source: TurtleDocumentText,
-  },
-  $I.annote("ReadOntologyFileResult", {
-    description: "Read ontology file result.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReadOntologyFileResult", {
+      description: "Read ontology file result.",
+    })
+  )
 ) {}
 
 /**
@@ -479,14 +489,15 @@ export class ReadOntologyFileResult extends S.Class<ReadOntologyFileResult>($I`R
  * @category models
  * @since 0.0.0
  */
-export class WriteOntologyFileRequest extends S.Class<WriteOntologyFileRequest>($I`WriteOntologyFileRequest`)(
-  {
+export class WriteOntologyFileRequest extends S.Opaque<WriteOntologyFileRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     source: TurtleDocumentText,
-  },
-  $I.annote("WriteOntologyFileRequest", {
-    description: "Write ontology file request.",
-  })
+  }).pipe(
+    $I.annoteSchema("WriteOntologyFileRequest", {
+      description: "Write ontology file request.",
+    })
+  )
 ) {}
 
 /**

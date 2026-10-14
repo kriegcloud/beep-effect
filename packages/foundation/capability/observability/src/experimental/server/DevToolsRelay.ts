@@ -47,16 +47,17 @@ const maxSpanEvents = 200;
  * @category models
  * @since 0.0.0
  */
-export class DevToolsSnapshot extends S.Class<DevToolsSnapshot>($I`DevToolsSnapshot`)(
-  {
+export class DevToolsSnapshot extends S.Opaque<DevToolsSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     spanCount: S.Natural,
     spanEventCount: S.Natural,
     metricCount: S.Natural,
     lastUpdatedAtMs: S.Natural,
-  },
-  $I.annote("DevToolsSnapshot", {
-    description: "Summary of the in-memory relay state.",
-  })
+  }).pipe(
+    $I.annoteSchema("DevToolsSnapshot", {
+      description: "Summary of the in-memory relay state.",
+    })
+  )
 ) {}
 
 /**

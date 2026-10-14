@@ -1,5 +1,6 @@
 import {
   buildJSDocDocumentationInventory,
+  JSDocDocumentationInventoryOptions,
   listSourceFiles,
   summarizeTurboDryRunOutput,
   summarizeTurboQueryAffectedOutput,
@@ -324,7 +325,9 @@ export class ModelClass extends Model.Class<ModelClass>("ModelClass")({}) {}
 export class DomainEntity extends PartEntity.Entity<DomainEntity>("DomainEntity")({}) {}
 `
         );
-        const inventory = yield* buildJSDocDocumentationInventory({ rootDir: repoRoot, generatedAt: fixedGeneratedAt });
+        const inventory = yield* buildJSDocDocumentationInventory(
+          JSDocDocumentationInventoryOptions.make({ rootDir: repoRoot, generatedAt: fixedGeneratedAt })
+        );
         const gaps = A.flatMap(inventory.packages, (pkg) =>
           A.map(pkg.exports, (entry) => ({
             name: entry.symbolName,
@@ -357,7 +360,9 @@ export class EmptyError extends S.TaggedError<EmptyError>()("EmptyError", {}, {}
 export class FieldOnly extends S.TaggedError<FieldOnly>()("FieldOnly", { description: S.String }) {}
 `
         );
-        const inventory = yield* buildJSDocDocumentationInventory({ rootDir: repoRoot, generatedAt: fixedGeneratedAt });
+        const inventory = yield* buildJSDocDocumentationInventory(
+          JSDocDocumentationInventoryOptions.make({ rootDir: repoRoot, generatedAt: fixedGeneratedAt })
+        );
         const gaps = A.flatMap(inventory.packages, (pkg) =>
           A.map(pkg.exports, (entry) => ({
             name: entry.symbolName,
@@ -383,12 +388,14 @@ export class FieldOnly extends S.TaggedError<FieldOnly>()("FieldOnly", { descrip
       const outputJsonPath = path.join(repoRoot, "out", "jsdoc.inventory.jsonc");
       const outputMarkdownPath = path.join(repoRoot, "out", "jsdoc.inventory.md");
 
-      const result = yield* writeJSDocDocumentationInventory({
-        rootDir: repoRoot,
-        outputJsonPath,
-        outputMarkdownPath,
-        generatedAt: fixedGeneratedAt,
-      });
+      const result = yield* writeJSDocDocumentationInventory(
+        JSDocDocumentationInventoryOptions.make({
+          rootDir: repoRoot,
+          outputJsonPath,
+          outputMarkdownPath,
+          generatedAt: fixedGeneratedAt,
+        })
+      );
       const inventory = parseJsoncText(yield* fs.readFileString(outputJsonPath)) as {
         readonly generatedAt: string;
         readonly packages: ReadonlyArray<{
@@ -418,14 +425,16 @@ export class FieldOnly extends S.TaggedError<FieldOnly>()("FieldOnly", { descrip
       const ciOutputJsonPath = path.join(repoRoot, ".beep", "ci", "jsdoc.inventory.jsonc");
       const ciOutputMarkdownPath = path.join(repoRoot, ".beep", "ci", "jsdoc.inventory.md");
 
-      const result = yield* writeJSDocDocumentationInventory({
-        rootDir: repoRoot,
-        outputJsonPath,
-        outputMarkdownPath,
-        ciOutputJsonPath,
-        ciOutputMarkdownPath,
-        generatedAt: fixedGeneratedAt,
-      });
+      const result = yield* writeJSDocDocumentationInventory(
+        JSDocDocumentationInventoryOptions.make({
+          rootDir: repoRoot,
+          outputJsonPath,
+          outputMarkdownPath,
+          ciOutputJsonPath,
+          ciOutputMarkdownPath,
+          generatedAt: fixedGeneratedAt,
+        })
+      );
 
       expect(result.outputJsonPath).toBe(outputJsonPath);
       expect(result.outputMarkdownPath).toBe(outputMarkdownPath);
@@ -443,12 +452,14 @@ export class FieldOnly extends S.TaggedError<FieldOnly>()("FieldOnly", { descrip
       const outputJsonPath = path.join(repoRoot, "out", "jsdoc.inventory.jsonc");
       const outputMarkdownPath = path.join(repoRoot, "out", "jsdoc.inventory.md");
 
-      const result = yield* writeJSDocDocumentationInventory({
-        rootDir: repoRoot,
-        outputJsonPath,
-        outputMarkdownPath,
-        generatedAt: fixedGeneratedAt,
-      });
+      const result = yield* writeJSDocDocumentationInventory(
+        JSDocDocumentationInventoryOptions.make({
+          rootDir: repoRoot,
+          outputJsonPath,
+          outputMarkdownPath,
+          generatedAt: fixedGeneratedAt,
+        })
+      );
       const inventory = parseJsoncText(yield* fs.readFileString(outputJsonPath)) as {
         readonly packages: ReadonlyArray<{ readonly packageName: string }>;
       };

@@ -6,6 +6,7 @@
  * @since 0.0.0
  */
 
+import { SystemPrincipal } from "@beep/shared-domain/entity/Principal";
 import * as PublicEntityId from "@beep/shared-domain/entity/PublicEntityId";
 import { WorkerId } from "@beep/shared-domain/identity/ArchitectureLab/WorkerId";
 import * as Result from "effect/Result";
@@ -17,10 +18,10 @@ import type { CreateWorkerInput } from "./Worker.values.ts";
 const WorkerPublicId = PublicEntityId.factory(WorkerId);
 
 const decodeWorkerPublicIdResult = S.decodeResult(WorkerPublicId);
-const systemPrincipal: Principal = {
+const systemPrincipal: Principal = SystemPrincipal.make({
   component: "Runtime",
   kind: "System",
-};
+});
 
 const publicIdFor = (id: WorkerId) => Result.getOrThrow(decodeWorkerPublicIdResult(`${WorkerId.tableName}_a${id}`));
 

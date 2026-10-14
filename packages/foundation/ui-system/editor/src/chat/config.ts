@@ -86,8 +86,8 @@ export type SendOn = typeof SendOn.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class ComposerFeatures extends S.Class<ComposerFeatures>($I`ComposerFeatures`)(
-  {
+export class ComposerFeatures extends S.Opaque<ComposerFeatures, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Mount the fixed formatting toolbar (bold/italic/lists/quote/code). */
     toolbar: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))).annotateKey({
       description: "Mount the fixed formatting toolbar.",
@@ -112,11 +112,12 @@ export class ComposerFeatures extends S.Class<ComposerFeatures>($I`ComposerFeatu
     sendOn: SendOn.pipe(S.withConstructorDefault(Effect.succeed("enter" as const))).annotateKey({
       description: "Which keystroke submits the message.",
     }),
-  },
-  $I.annote("ComposerFeatures", {
-    description:
-      "Which composer plugins mount and which keystroke sends; every field defaults to its chat-surface default.",
-  })
+  }).pipe(
+    $I.annoteSchema("ComposerFeatures", {
+      description:
+        "Which composer plugins mount and which keystroke sends; every field defaults to its chat-surface default.",
+    })
+  )
 ) {}
 
 /**
@@ -166,8 +167,8 @@ const EditorEffectSchema = S.declare<EditorEffect>(isEditorEffect).pipe(
  * @category configuration
  * @since 0.0.0
  */
-export class SlashItem extends S.Class<SlashItem>($I`SlashItem`)(
-  {
+export class SlashItem extends S.Opaque<SlashItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Stable identity used as the menu option key. */
     key: S.NonEmptyString.annotateKey({ description: "Stable identity used as the menu option key." }),
     /** Display label. */
@@ -186,10 +187,11 @@ export class SlashItem extends S.Class<SlashItem>($I`SlashItem`)(
     onSelect: EditorEffectSchema.annotateKey({
       description: "Apply the command to the editor inside the menu selection flow.",
     }),
-  },
-  $I.annote("SlashItem", {
-    description: "A single `/` command: identity, label, optional hint/keywords/icon, and an editor side effect.",
-  })
+  }).pipe(
+    $I.annoteSchema("SlashItem", {
+      description: "A single `/` command: identity, label, optional hint/keywords/icon, and an editor side effect.",
+    })
+  )
 ) {}
 
 const uniqueSlashItemKeys = S.makeFilter<ReadonlyArray<SlashItem>>(
@@ -275,8 +277,8 @@ export type SlashItems = typeof SlashItems.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class MentionOption extends S.Class<MentionOption>($I`MentionOption`)(
-  {
+export class MentionOption extends S.Opaque<MentionOption, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Stable identity used as the menu option key. */
     id: S.NonEmptyString.annotateKey({ description: "Stable identity used as the menu option key." }),
     /** Display label, also the inserted text (`@label`). */
@@ -285,10 +287,11 @@ export class MentionOption extends S.Class<MentionOption>($I`MentionOption`)(
     hint: S.optionalKey(S.String).annotateKey({ description: "Optional secondary line, such as a role or handle." }),
     /** Optional leading icon/avatar. */
     icon: S.optionalKey(DOMReactNode).annotateKey({ description: "Optional leading icon or avatar." }),
-  },
-  $I.annote("MentionOption", {
-    description: "A single `@` mention candidate: identity, label, and optional hint/icon.",
-  })
+  }).pipe(
+    $I.annoteSchema("MentionOption", {
+      description: "A single `@` mention candidate: identity, label, and optional hint/icon.",
+    })
+  )
 ) {}
 
 const uniqueMentionOptionIds = S.makeFilter<ReadonlyArray<MentionOption>>(
@@ -361,6 +364,12 @@ export type MentionOptions = typeof MentionOptions.Type;
  * async; the composer races stale responses out by request order. Modeled as a
  * typed function schema so the composer can hold it as schema-backed config.
  *
+ * **Details**
+ *
+ * The source returns plain candidate objects (the encoded side of
+ * {@link MentionOption}); the composer decodes them with {@link MentionOptions},
+ * so invalid or duplicate candidates surface as a lookup failure, not a throw.
+ *
  * **Example** (Validate mention source function)
  *
  * ```ts import.meta.vitest name="Validate mention source function"
@@ -373,7 +382,9 @@ export type MentionOptions = typeof MentionOptions.Type;
  * @category configuration
  * @since 0.0.0
  */
-export type MentionSource = (query: string) => ReadonlyArray<MentionOption> | Promise<ReadonlyArray<MentionOption>>;
+export type MentionSource = (
+  query: string
+) => ReadonlyArray<typeof MentionOption.Encoded> | Promise<ReadonlyArray<typeof MentionOption.Encoded>>;
 
 // Type guard backing the {@link MentionSource} schema's `S.declare`.
 const isMentionSource = (u: unknown): u is MentionSource => P.isFunction(u);

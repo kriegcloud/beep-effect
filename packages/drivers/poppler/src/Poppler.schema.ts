@@ -31,8 +31,8 @@ const defaultTimeoutMillis = PosInt.make(60_000);
  * @category configuration
  * @since 0.0.0
  */
-export class PopplerConfig extends S.Class<PopplerConfig>($I`PopplerConfig`)(
-  {
+export class PopplerConfig extends S.Opaque<PopplerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     dpi: PosInt.pipe(
       S.withConstructorDefault(Effect.succeed(defaultDpi)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultDpi))
@@ -49,10 +49,11 @@ export class PopplerConfig extends S.Class<PopplerConfig>($I`PopplerConfig`)(
       S.withConstructorDefault(Effect.succeed(defaultTimeoutMillis)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultTimeoutMillis))
     ).annotateKey({ description: "Timeout in milliseconds for one pdfinfo or pdftoppm call." }),
-  },
-  $I.annote("PopplerConfig", {
-    description: "Paths, render resolution and per-call timeout for the Poppler command-line tools.",
-  })
+  }).pipe(
+    $I.annoteSchema("PopplerConfig", {
+      description: "Paths, render resolution and per-call timeout for the Poppler command-line tools.",
+    })
+  )
 ) {}
 
 /**
@@ -112,7 +113,7 @@ export type PopplerErrorReason = typeof PopplerErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class PopplerError extends S.TaggedError<PopplerError>($I`PopplerError`)(
+export class PopplerError extends S.TaggedError<PopplerError, { readonly brand: unique symbol }>($I`PopplerError`)(
   "PopplerError",
   {
     message: S.String,

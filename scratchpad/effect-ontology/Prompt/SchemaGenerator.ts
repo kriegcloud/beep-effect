@@ -205,8 +205,7 @@ export const getFieldValidationTemplate = dual2(
  * @category models
  * @since 0.0.0
  */
-export class GeneratedSchemaAnnotations extends S.Class<GeneratedSchemaAnnotations>($I`GeneratedSchemaAnnotations`)(
-  {
+export class GeneratedSchemaAnnotations extends S.Opaque<GeneratedSchemaAnnotations, { readonly brand: unique symbol }>()(S.Struct({
     /** Stable identifier consumed by Effect Schema tooling. */
     identifier: S.NonEmptyString.pipe(
       $I.annoteKey("GeneratedSchemaAnnotations.identifier", {
@@ -225,11 +224,9 @@ export class GeneratedSchemaAnnotations extends S.Class<GeneratedSchemaAnnotatio
         description: "Rule-derived schema description.",
       })
     ),
-  },
-  $I.annote("GeneratedSchemaAnnotations", {
+  }).pipe($I.annoteSchema("GeneratedSchemaAnnotations", {
     description: "Identity, title, and rule-derived description for an extraction schema.",
-  })
-) {}
+  }))) {}
 
 /**
  * Generates a complete annotation object from an extraction rule set.

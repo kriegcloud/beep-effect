@@ -28,7 +28,7 @@ const $I = $AiSyncId.create("_generated/schemas.gen");
  * @category schemas
  * @since 0.0.0
  */
-export class CodexMcpServer extends S.Class<CodexMcpServer>($I`CodexMcpServer`)(
+export class CodexMcpServer extends S.Class<CodexMcpServer, { readonly brand: unique symbol }>($I`CodexMcpServer`)(
   {
     command: S.String.pipe(S.optionalKey),
     args: S.Array(S.String).pipe(S.optionalKey),
@@ -56,7 +56,7 @@ export class CodexMcpServer extends S.Class<CodexMcpServer>($I`CodexMcpServer`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CodexSkillEntry extends S.Class<CodexSkillEntry>($I`CodexSkillEntry`)(
+export class CodexSkillEntry extends S.Class<CodexSkillEntry, { readonly brand: unique symbol }>($I`CodexSkillEntry`)(
   {
     name: S.String,
     enabled: S.Boolean,
@@ -72,11 +72,11 @@ export class CodexSkillEntry extends S.Class<CodexSkillEntry>($I`CodexSkillEntry
  * **Example** (Construct a CodexSkills block)
  *
  * ```ts
- * import { CodexSkills } from "@beep/ai-sync"
+ * import { CodexSkillEntry, CodexSkills } from "@beep/ai-sync"
  *
  * const skills = CodexSkills.make({
  *   include_instructions: true,
- *   config: [{ name: "effect-first-development", enabled: true }]
+ *   config: [CodexSkillEntry.make({ name: "effect-first-development", enabled: true })]
  * })
  * console.log(skills.config?.[0]?.name)
  * ```
@@ -84,7 +84,7 @@ export class CodexSkillEntry extends S.Class<CodexSkillEntry>($I`CodexSkillEntry
  * @category schemas
  * @since 0.0.0
  */
-export class CodexSkills extends S.Class<CodexSkills>($I`CodexSkills`)(
+export class CodexSkills extends S.Class<CodexSkills, { readonly brand: unique symbol }>($I`CodexSkills`)(
   {
     include_instructions: S.Boolean.pipe(S.optionalKey),
     config: S.Array(CodexSkillEntry).pipe(S.optionalKey),
@@ -100,11 +100,11 @@ export class CodexSkills extends S.Class<CodexSkills>($I`CodexSkills`)(
  * **Example** (Construct a CodexConfig)
  *
  * ```ts
- * import { CodexConfig } from "@beep/ai-sync"
+ * import { CodexConfig, CodexMcpServer } from "@beep/ai-sync"
  *
  * const config = CodexConfig.make({
  *   model: "gpt-5",
- *   mcp_servers: { local: { command: "node", args: ["server.js"] } }
+ *   mcp_servers: { local: CodexMcpServer.make({ command: "node", args: ["server.js"] }) }
  * })
  * console.log(config.mcp_servers?.local?.command)
  * ```
@@ -112,7 +112,7 @@ export class CodexSkills extends S.Class<CodexSkills>($I`CodexSkills`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CodexConfig extends S.Class<CodexConfig>($I`CodexConfig`)(
+export class CodexConfig extends S.Class<CodexConfig, { readonly brand: unique symbol }>($I`CodexConfig`)(
   {
     model: S.String.pipe(S.optionalKey),
     approval_policy: LiteralKit([
@@ -149,7 +149,7 @@ export class CodexConfig extends S.Class<CodexConfig>($I`CodexConfig`)(
  * @category schemas
  * @since 0.0.0
  */
-export class McpJsonServer extends S.Class<McpJsonServer>($I`McpJsonServer`)(
+export class McpJsonServer extends S.Class<McpJsonServer, { readonly brand: unique symbol }>($I`McpJsonServer`)(
   {
     type: LiteralKit([
       "stdio",
@@ -174,10 +174,10 @@ export class McpJsonServer extends S.Class<McpJsonServer>($I`McpJsonServer`)(
  * **Example** (Construct a ClaudeMcpJson)
  *
  * ```ts
- * import { ClaudeMcpJson } from "@beep/ai-sync"
+ * import { ClaudeMcpJson, McpJsonServer } from "@beep/ai-sync"
  *
  * const config = ClaudeMcpJson.make({
- *   mcpServers: { local: { type: "stdio", command: "node" } }
+ *   mcpServers: { local: McpJsonServer.make({ type: "stdio", command: "node" }) }
  * })
  * console.log(config.mcpServers.local?.command)
  * ```
@@ -185,7 +185,7 @@ export class McpJsonServer extends S.Class<McpJsonServer>($I`McpJsonServer`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ClaudeMcpJson extends S.Class<ClaudeMcpJson>($I`ClaudeMcpJson`)(
+export class ClaudeMcpJson extends S.Class<ClaudeMcpJson, { readonly brand: unique symbol }>($I`ClaudeMcpJson`)(
   {
     mcpServers: S.Record(S.String, McpJsonServer),
   },
@@ -212,7 +212,7 @@ export class ClaudeMcpJson extends S.Class<ClaudeMcpJson>($I`ClaudeMcpJson`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ClaudeSettings extends S.Class<ClaudeSettings>($I`ClaudeSettings`)(
+export class ClaudeSettings extends S.Class<ClaudeSettings, { readonly brand: unique symbol }>($I`ClaudeSettings`)(
   {
     enabledMcpjsonServers: S.Array(S.String).pipe(S.optionalKey),
     enabledPlugins: S.Record(S.String, S.Boolean).pipe(S.optionalKey),

@@ -95,7 +95,7 @@ const enrichedContentTopicsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class EnrichedContent extends S.Class<EnrichedContent>($I`EnrichedContent`)(
+export class EnrichedContent extends S.Class<EnrichedContent, { readonly brand: unique symbol }>($I`EnrichedContent`)(
   {
     headline: S.NonEmptyString.annotateKey({
       description: "Main title extracted from or generated for the source.",
@@ -230,7 +230,7 @@ export class EnrichedContent extends S.Class<EnrichedContent>($I`EnrichedContent
  * @category models
  * @since 0.0.0
  */
-export class JinaContent extends S.Class<JinaContent>($I`JinaContent`)(
+export class JinaContent extends S.Class<JinaContent, { readonly brand: unique symbol }>($I`JinaContent`)(
   {
     url: URLStr.annotateKey({
       description: "Original URL fetched by the reader.",

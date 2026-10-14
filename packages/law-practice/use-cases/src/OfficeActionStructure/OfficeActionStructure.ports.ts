@@ -124,19 +124,21 @@ export class OfficeActionEvidenceConsumer extends Context.Service<
   OfficeActionEvidenceConsumerShape
 >()($I`OfficeActionEvidenceConsumer`) {}
 
-class RecognizedReceipt extends S.Class<RecognizedReceipt>($I`RecognizedReceipt`)(
-  {
+class RecognizedReceipt extends S.Opaque<RecognizedReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("recognized"),
     finality: OfficeActionFinality,
     anchors: S.Tuple([TextAnchorVerificationReceipt, TextAnchorVerificationReceipt]),
-  },
-  $I.annote("RecognizedReceipt", {
-    description: "Ordered pair receipts to reverify against the exact source before returning candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecognizedReceipt", {
+      description: "Ordered pair receipts to reverify against the exact source before returning candidates.",
+    })
+  )
 ) {}
-class FailedReceipt extends S.Class<FailedReceipt>($I`FailedReceipt`)(
-  { status: S.tag("failed"), reason: VerifiedTextAnchorErrorReason },
-  $I.annote("FailedReceipt", { description: "Retained exact-source failure with zero candidates." })
+class FailedReceipt extends S.Opaque<FailedReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({ status: S.tag("failed"), reason: VerifiedTextAnchorErrorReason }).pipe(
+    $I.annoteSchema("FailedReceipt", { description: "Retained exact-source failure with zero candidates." })
+  )
 ) {}
 /**
  * Retains structural receipts or closed failures; decoding it never restores runtime authority.
@@ -178,10 +180,11 @@ export type OfficeActionStoredOutcome = typeof OfficeActionStoredOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class OfficeActionStructureAttempt extends S.Class<OfficeActionStructureAttempt>(
-  $I`OfficeActionStructureAttempt`
-)(
-  {
+export class OfficeActionStructureAttempt extends S.Opaque<
+  OfficeActionStructureAttempt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("1"),
     attemptId: S.NonEmptyString,
     previousAttemptId: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -192,11 +195,12 @@ export class OfficeActionStructureAttempt extends S.Class<OfficeActionStructureA
     extractions: S.Array(GroundedExtraction),
     ocrPages: OfficeActionStructureInput.fields.ocrPages,
     outcome: OfficeActionStoredOutcome,
-  },
-  $I.annote("OfficeActionStructureAttempt", {
-    description:
-      "Immutable attempt retaining identity, raw extractions, rule version and linked predecessor without storing approval state.",
-  })
+  }).pipe(
+    $I.annoteSchema("OfficeActionStructureAttempt", {
+      description:
+        "Immutable attempt retaining identity, raw extractions, rule version and linked predecessor without storing approval state.",
+    })
+  )
 ) {}
 
 /**
@@ -246,18 +250,22 @@ export class OfficeActionStructureStore extends Context.Service<
  * @category adapters
  * @since 0.0.0
  */
-export class OfficeActionAttemptRequest extends S.Class<OfficeActionAttemptRequest>($I`OfficeActionAttemptRequest`)(
-  {
+export class OfficeActionAttemptRequest extends S.Opaque<
+  OfficeActionAttemptRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attemptId: S.NonEmptyString,
     document: DocStructureDocument,
     verification: VerifySourceTextIdentityInput,
     ocrPages: OfficeActionStructureInput.fields.ocrPages,
     rule: DocStructureRuleFamily.pipe(S.withConstructorDefault(Effect.succeed(officeActionRuleV1))),
     previousAttemptId: OfficeActionStructureAttempt.fields.previousAttemptId,
-  },
-  $I.annote("OfficeActionAttemptRequest", {
-    description: "Explicit source authorization and predecessor for a new immutable attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("OfficeActionAttemptRequest", {
+      description: "Explicit source authorization and predecessor for a new immutable attempt.",
+    })
+  )
 ) {}
 /**
  * Defines retained extraction, exact-source replay and delivery to an evidence consumer.

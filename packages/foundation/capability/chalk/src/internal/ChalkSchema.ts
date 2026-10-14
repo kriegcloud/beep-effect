@@ -256,16 +256,17 @@ export type ColorSupportLevel = typeof ColorSupportLevel.Type;
  * @category models
  * @since 0.0.0
  */
-export class ColorSupport extends S.Class<ColorSupport>($I`ColorSupport`)(
-  {
+export class ColorSupport extends S.Opaque<ColorSupport, { readonly brand: unique symbol }>()(
+  S.Struct({
     level: ColorSupportLevel,
     hasBasic: S.Boolean,
     has256: S.Boolean,
     has16m: S.Boolean,
-  },
-  $I.annote("ColorSupport", {
-    description: "Detected terminal color support metadata for a Chalk output stream.",
-  })
+  }).pipe(
+    $I.annoteSchema("ColorSupport", {
+      description: "Detected terminal color support metadata for a Chalk output stream.",
+    })
+  )
 ) {}
 
 /**
@@ -322,13 +323,14 @@ export type ColorInfo = typeof ColorInfo.Type;
  * @category models
  * @since 0.0.0
  */
-export class ChalkOptions extends S.Class<ChalkOptions>($I`ChalkOptions`)(
-  {
+export class ChalkOptions extends S.Opaque<ChalkOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     level: S.optionalKey(ColorSupportLevel),
-  },
-  $I.annote("ChalkOptions", {
-    description: "Configuration for constructing an isolated Chalk instance with an explicit color support level.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChalkOptions", {
+      description: "Configuration for constructing an isolated Chalk instance with an explicit color support level.",
+    })
+  )
 ) {}
 
 /**

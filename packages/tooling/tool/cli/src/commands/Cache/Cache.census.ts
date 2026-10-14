@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { CacheTaskConfiguration } from "@beep/repo-configs/cache";
-import { FsUtils, readPackageJsonFile, resolveWorkspacePackages } from "@beep/repo-utils";
+import { FsUtils, GlobOptions, readPackageJsonFile, resolveWorkspacePackages } from "@beep/repo-utils";
 import { Sha256HexFromBytes } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import * as A from "effect/Array";
@@ -558,7 +558,7 @@ export const collectCacheCensus = Effect.fn("Cache.collectCacheCensus")(function
         ".github/actions/**/action.{yml,yaml}",
         "packages/tooling/tool/cli/src/commands/{Cache,Ci,Quality,Yeet}/**/*.ts",
       ],
-      { cwd: root, absolute: false }
+      GlobOptions.make({ cwd: root, absolute: false })
     )
     .pipe(Effect.map(A.sort(Order.String)), CacheCommandError.mapError("Cannot inventory quality entrypoint sources."));
   sourcePaths = pipe(A.appendAll(sourcePaths, entrypointSources), A.dedupe, A.sort(Order.String));

@@ -133,7 +133,7 @@ export type ExternalReferenceType = typeof ExternalReferenceType.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExternalReference extends S.Class<ExternalReference>($I`ExternalReference`)({
+export class ExternalReference extends S.Class<ExternalReference, { readonly brand: unique symbol }>($I`ExternalReference`)({
 	/** The reference kind. */
 	type: ExternalReferenceType.annotateKey({ description: "The reference kind." }),
 	/** The URL it points at, passed through exactly as supplied. */
@@ -156,7 +156,7 @@ export class ExternalReference extends S.Class<ExternalReference>($I`ExternalRef
  * @category models
  * @since 0.0.0
  */
-export class Contact extends S.Class<Contact>($I`Contact`)({
+export class Contact extends S.Class<Contact, { readonly brand: unique symbol }>($I`Contact`)({
 	/** The contact's name. */
 	name: S.optionalKey(S.String).annotateKey({ description: "The contact's name." }),
 	/** Their email address. */
@@ -186,7 +186,7 @@ export class Contact extends S.Class<Contact>($I`Contact`)({
  * @category models
  * @since 0.0.0
  */
-export class Supplier extends S.Class<Supplier>($I`Supplier`)({
+export class Supplier extends S.Class<Supplier, { readonly brand: unique symbol }>($I`Supplier`)({
 	/** The supplier organization's name. */
 	name: S.String.annotateKey({ description: "The supplier organization's name." }),
 	/** Its URLs. */
@@ -221,7 +221,7 @@ export class Supplier extends S.Class<Supplier>($I`Supplier`)({
  * @category models
  * @since 0.0.0
  */
-export class Component extends S.Class<Component>($I`Component`)({
+export class Component extends S.Class<Component, { readonly brand: unique symbol }>($I`Component`)({
 	/** What kind of component this is. */
 	type: ComponentType.annotateKey({ description: "What kind of component this is." }),
 	/** The component's name — NTIA minimum element 2. */
@@ -264,7 +264,7 @@ export class Component extends S.Class<Component>($I`Component`)({
  * @category models
  * @since 0.0.0
  */
-export class SbomMetadata extends S.Class<SbomMetadata>($I`SbomMetadata`)({
+export class SbomMetadata extends S.Class<SbomMetadata, { readonly brand: unique symbol }>($I`SbomMetadata`)({
 	/** When the BOM was assembled — NTIA minimum element 7. */
 	timestamp: S.optionalKey(S.String).annotateKey({ description: "When the BOM was assembled — NTIA minimum element 7." }),
 	/** Who created the BOM — NTIA minimum element 6. */
@@ -302,7 +302,7 @@ export class SbomMetadata extends S.Class<SbomMetadata>($I`SbomMetadata`)({
  * @category models
  * @since 0.0.0
  */
-export class SbomDocument extends S.Class<SbomDocument>($I`SbomDocument`)({
+export class SbomDocument extends S.Class<SbomDocument, { readonly brand: unique symbol }>($I`SbomDocument`)({
 	/** Always `"CycloneDX"`. */
 	bomFormat: S.Literal(BOM_FORMAT).annotateKey({ description: "Always `\"CycloneDX\"`." }),
 	/** Always `"1.6"`. */

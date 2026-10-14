@@ -35,7 +35,9 @@ import { readonlyStruct } from "./internal/Html.readonly.ts";
 
 const $I = $HtmlId.create("Html.attributes");
 
-class HtmlAttributeDomainError extends S.TaggedError<HtmlAttributeDomainError>($I`HtmlAttributeDomainError`)(
+class HtmlAttributeDomainError extends S.TaggedError<HtmlAttributeDomainError, { readonly brand: unique symbol }>(
+  $I`HtmlAttributeDomainError`
+)(
   "HtmlAttributeDomainError",
   { message: S.String },
   $I.annoteError<HtmlAttributeDomainError>("HtmlAttributeDomainError", {

@@ -127,14 +127,32 @@ const InvariantEnforcementKind = LiteralKit([
   "notEnforced",
 ]);
 
-class TypeLevelEnforcement extends S.Class<TypeLevelEnforcement>($I`TypeLevelEnforcement`)(
-  {
+/**
+ * Evidence that a TypeScript or schema type excludes invalid constructions.
+ *
+ * **Example** (Record that the type system rules out a bad shape)
+ *
+ * ```ts
+ * import { Enforcement, TypeLevelEnforcement } from "@beep/schema/Conformance"
+ *
+ * const evidence = TypeLevelEnforcement.make({ mechanism: "Heading.depth is the literal union 1 | 2 | 3 | 4 | 5 | 6" })
+ *
+ * console.log(evidence.kind) // => "typeLevel"
+ * console.log(Enforcement.guards.typeLevel(evidence)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TypeLevelEnforcement extends S.Opaque<TypeLevelEnforcement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("typeLevel"),
     mechanism: S.NonEmptyString,
-  },
-  $I.annote("TypeLevelEnforcement", {
-    description: "Evidence that a TypeScript or schema type excludes invalid constructions.",
-  })
+  }).pipe(
+    $I.annoteSchema("TypeLevelEnforcement", {
+      description: "Evidence that a TypeScript or schema type excludes invalid constructions.",
+    })
+  )
 ) {}
 
 const RuntimeValidatorIdentifier = S.String.check(
@@ -150,56 +168,154 @@ const RuntimeValidatorIdentifier = S.String.check(
   })
 );
 
-class RuntimeEnforcement extends S.Class<RuntimeEnforcement>($I`RuntimeEnforcement`)(
-  {
+/**
+ * Evidence that runtime schema decoding or validation checks an invariant.
+ *
+ * **Example** (Name the validator that checks an invariant at runtime)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { RuntimeEnforcement } from "@beep/schema/Conformance"
+ *
+ * const decode = S.decodeUnknownSync(RuntimeEnforcement)
+ * const evidence = decode({ kind: "runtime", validator: "Heading.validateOutline" })
+ *
+ * console.log(evidence.validator) // => "Heading.validateOutline"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RuntimeEnforcement extends S.Opaque<RuntimeEnforcement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("runtime"),
     validator: RuntimeValidatorIdentifier,
-  },
-  $I.annote("RuntimeEnforcement", {
-    description: "Evidence that runtime schema decoding or validation checks an invariant.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeEnforcement", {
+      description: "Evidence that runtime schema decoding or validation checks an invariant.",
+    })
+  )
 ) {}
 
-class StaticAnalysisEnforcement extends S.Class<StaticAnalysisEnforcement>($I`StaticAnalysisEnforcement`)(
-  {
+/**
+ * Evidence that a named static-analysis rule checks an invariant.
+ *
+ * **Example** (Point at the lint rule that enforces an invariant)
+ *
+ * ```ts
+ * import { StaticAnalysisEnforcement } from "@beep/schema/Conformance"
+ *
+ * const evidence = StaticAnalysisEnforcement.make({ tool: "oxlint", rule: "beep/no-native-set" })
+ *
+ * console.log(`${evidence.tool}:${evidence.rule}`) // => "oxlint:beep/no-native-set"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StaticAnalysisEnforcement extends S.Opaque<StaticAnalysisEnforcement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("staticAnalysis"),
     tool: S.NonEmptyString,
     rule: S.NonEmptyString,
-  },
-  $I.annote("StaticAnalysisEnforcement", {
-    description: "Evidence that a named static-analysis rule checks an invariant.",
-  })
+  }).pipe(
+    $I.annoteSchema("StaticAnalysisEnforcement", {
+      description: "Evidence that a named static-analysis rule checks an invariant.",
+    })
+  )
 ) {}
 
-class TestEnforcement extends S.Class<TestEnforcement>($I`TestEnforcement`)(
-  {
+/**
+ * Evidence that a named test suite checks an invariant against an oracle.
+ *
+ * **Example** (Cite the suite and oracle that check an invariant)
+ *
+ * ```ts
+ * import { Enforcement, TestEnforcement } from "@beep/schema/Conformance"
+ *
+ * const evidence = TestEnforcement.make({ suite: "md/test/commonmark-spec.test.ts", oracle: "CommonMark 0.31.2 spec examples" })
+ *
+ * console.log(Enforcement.isAnyOf(["test", "runtime"])(evidence)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TestEnforcement extends S.Opaque<TestEnforcement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("test"),
     suite: S.NonEmptyString,
     oracle: S.NonEmptyString,
-  },
-  $I.annote("TestEnforcement", {
-    description: "Evidence that a named test suite checks an invariant against an oracle.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestEnforcement", {
+      description: "Evidence that a named test suite checks an invariant against an oracle.",
+    })
+  )
 ) {}
 
-class DocumentedEnforcement extends S.Class<DocumentedEnforcement>($I`DocumentedEnforcement`)(
-  {
+/**
+ * Documentation-only treatment for an invariant that cannot be mechanically decided here.
+ *
+ * **Example** (Explain why an invariant is documented rather than checked)
+ *
+ * ```ts
+ * import { DocumentedEnforcement } from "@beep/schema/Conformance"
+ *
+ * const evidence = DocumentedEnforcement.make({
+ *   rationale: "Link reference resolution depends on the full document, which the per-node codec never sees."
+ * })
+ *
+ * console.log(evidence.kind) // => "documented"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DocumentedEnforcement extends S.Opaque<DocumentedEnforcement, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("documented"),
     rationale: S.NonEmptyString,
-  },
-  $I.annote("DocumentedEnforcement", {
-    description: "Documentation-only treatment for an invariant that cannot be mechanically decided here.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentedEnforcement", {
+      description: "Documentation-only treatment for an invariant that cannot be mechanically decided here.",
+    })
+  )
 ) {}
 
-class NotEnforced extends S.Class<NotEnforced>($I`NotEnforced`)(
-  {
+/**
+ * Explicit evidence that an invariant still has an enforcement gap.
+ *
+ * **Example** (Record a known enforcement gap)
+ *
+ * ```ts
+ * import { Enforcement, NotEnforced } from "@beep/schema/Conformance"
+ *
+ * const gap = NotEnforced.make({ gap: "Tab stops inside list items are not normalized yet." })
+ *
+ * const summary = Enforcement.match(gap, {
+ *   typeLevel: () => "types",
+ *   runtime: () => "runtime",
+ *   staticAnalysis: () => "lint",
+ *   test: () => "tests",
+ *   documented: () => "documented",
+ *   notEnforced: (evidence) => `gap: ${evidence.gap}`
+ * })
+ *
+ * console.log(summary) // => "gap: Tab stops inside list items are not normalized yet."
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NotEnforced extends S.Opaque<NotEnforced, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("notEnforced"),
     gap: S.NonEmptyString,
-  },
-  $I.annote("NotEnforced", {
-    description: "Explicit evidence that an invariant still has an enforcement gap.",
-  })
+  }).pipe(
+    $I.annoteSchema("NotEnforced", {
+      description: "Explicit evidence that an invariant still has an enforcement gap.",
+    })
+  )
 ) {}
 
 /**
@@ -352,7 +468,9 @@ const InvariantDescriptorValue = InvariantDescriptorFields.check(InvariantDescri
  * @category models
  * @since 0.0.0
  */
-export class InvariantDescriptor extends S.Class<InvariantDescriptor>($I`InvariantDescriptor`)(
+export class InvariantDescriptor extends S.Class<InvariantDescriptor, { readonly brand: unique symbol }>(
+  $I`InvariantDescriptor`
+)(
   InvariantDescriptorValue,
   $I.annote("InvariantDescriptor", {
     description: "Specification-backed statement of one semantic or structural invariant.",

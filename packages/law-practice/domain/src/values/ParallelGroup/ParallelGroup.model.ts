@@ -41,16 +41,17 @@ const $I = $LawPracticeDomainId.create("values/ParallelGroup/ParallelGroup.model
  * @category models
  * @since 0.0.0
  */
-export class ParallelGroup extends S.Class<ParallelGroup>($I`ParallelGroup`)(
-  {
+export class ParallelGroup extends S.Opaque<ParallelGroup, { readonly brand: unique symbol }>()(
+  S.Struct({
     memberIds: S.Array(CitationId).annotateKey({
       description:
         "Stable CitationId of every member of this parallel-citation group, including this citation itself, in document order (#850).",
     }),
-  },
-  $I.annote("ParallelGroup", {
-    description: "A parallel-citation group: the same case reported in multiple reporters (#850).",
-  })
+  }).pipe(
+    $I.annoteSchema("ParallelGroup", {
+      description: "A parallel-citation group: the same case reported in multiple reporters (#850).",
+    })
+  )
 ) {}
 
 /**

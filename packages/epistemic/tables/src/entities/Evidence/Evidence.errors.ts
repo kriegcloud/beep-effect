@@ -31,7 +31,9 @@ const EvidenceConverterOperation = LiteralKit(["toInsert", "fromRow"]);
  * @category errors
  * @since 0.0.0
  */
-export class EvidenceConverterError extends S.TaggedError<EvidenceConverterError>($I`EvidenceConverterError`)(
+export class EvidenceConverterError extends S.TaggedError<EvidenceConverterError, { readonly brand: unique symbol }>(
+  $I`EvidenceConverterError`
+)(
   "EvidenceConverterError",
   {
     operation: EvidenceConverterOperation.annotateKey({

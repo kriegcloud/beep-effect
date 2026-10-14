@@ -186,14 +186,15 @@ const setJaccard = (leftValues: ReadonlyArray<string>, rightValues: ReadonlyArra
   });
 };
 
-class EntityOutputDetail extends S.Class<EntityOutputDetail>($I`EntityOutputDetail`)(
-  {
+class EntityOutputDetail extends S.Opaque<EntityOutputDetail, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.optionalKey(S.Unknown),
     value: S.optionalKey(S.Unknown),
-  },
-  $I.annote("EntityOutputDetail", {
-    description: "Loose detail object returned by wink entity output records.",
-  })
+  }).pipe(
+    $I.annoteSchema("EntityOutputDetail", {
+      description: "Loose detail object returned by wink entity output records.",
+    })
+  )
 ) {}
 
 const EntityOutputDetailUnknowns = S.Array(S.Unknown).pipe(

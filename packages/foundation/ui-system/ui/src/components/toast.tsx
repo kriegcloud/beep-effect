@@ -148,8 +148,8 @@ export type ToastVariant = typeof ToastVariant.Type;
  * @category type-level
  * @since 0.0.0
  */
-export class ToastData extends S.Class<ToastData>($I`ToastData`)(
-  {
+export class ToastData extends S.Opaque<ToastData, { readonly brand: unique symbol }>()(
+  S.Struct({
     variant: ToastVariant.pipe(
       S.optionalKey,
       S.withConstructorDefault(Effect.succeed(ToastVariant.Enum.default)),
@@ -158,10 +158,11 @@ export class ToastData extends S.Class<ToastData>($I`ToastData`)(
         description: "Visual variant carried by toast notification data.",
       })
     ),
-  },
-  $I.annote("ToastData", {
-    description: "Data carried by toast notifications.",
-  })
+  }).pipe(
+    $I.annoteSchema("ToastData", {
+      description: "Data carried by toast notifications.",
+    })
+  )
 ) {}
 
 /**

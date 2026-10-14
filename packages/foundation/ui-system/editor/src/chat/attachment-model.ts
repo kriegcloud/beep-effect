@@ -176,7 +176,9 @@ const resolveAttachmentCaptureLimitBytes = (maxBytes: number): number =>
  * @category errors
  * @since 0.0.0
  */
-export class AttachmentTooLarge extends S.TaggedError<AttachmentTooLarge>($I`AttachmentTooLarge`)(
+export class AttachmentTooLarge extends S.TaggedError<AttachmentTooLarge, { readonly brand: unique symbol }>(
+  $I`AttachmentTooLarge`
+)(
   "AttachmentTooLarge",
   {
     filename: S.String.annotateKey({ description: "Original name of the rejected file." }),
@@ -208,7 +210,10 @@ export class AttachmentTooLarge extends S.TaggedError<AttachmentTooLarge>($I`Att
  * @category errors
  * @since 0.0.0
  */
-export class AttachmentInvalidMimeType extends S.TaggedError<AttachmentInvalidMimeType>($I`AttachmentInvalidMimeType`)(
+export class AttachmentInvalidMimeType extends S.TaggedError<
+  AttachmentInvalidMimeType,
+  { readonly brand: unique symbol }
+>($I`AttachmentInvalidMimeType`)(
   "AttachmentInvalidMimeType",
   {
     filename: S.String.annotateKey({ description: "Original name of the rejected file." }),
@@ -238,7 +243,9 @@ export class AttachmentInvalidMimeType extends S.TaggedError<AttachmentInvalidMi
  * @category errors
  * @since 0.0.0
  */
-export class AttachmentPortFailed extends S.TaggedError<AttachmentPortFailed>($I`AttachmentPortFailed`)(
+export class AttachmentPortFailed extends S.TaggedError<AttachmentPortFailed, { readonly brand: unique symbol }>(
+  $I`AttachmentPortFailed`
+)(
   "AttachmentPortFailed",
   {
     message: S.String.annotateKey({ description: "User-safe upload-port failure message." }),
@@ -383,8 +390,8 @@ let attachmentSequence = 0;
  * @category models
  * @since 0.0.0
  */
-export class ComposerAttachment extends S.Class<ComposerAttachment>($I`ComposerAttachment`)(
-  {
+export class ComposerAttachment extends S.Opaque<ComposerAttachment, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Ephemeral UI identity used as the chip key." }),
     filename: S.String.annotateKey({ description: "Original file name." }),
     mimeType: MimeType.annotateKey({ description: "Validated MIME type of the captured file." }),
@@ -397,11 +404,12 @@ export class ComposerAttachment extends S.Class<ComposerAttachment>($I`ComposerA
     file: FileFromSelf.annotateKey({
       description: "Captured file handle kept for the app upload port to transport later.",
     }),
-  },
-  $I.annote("ComposerAttachment", {
-    description:
-      "An in-memory captured attachment: file, validated MIME type, bounded size, and a thumbnail object URL.",
-  })
+  }).pipe(
+    $I.annoteSchema("ComposerAttachment", {
+      description:
+        "An in-memory captured attachment: file, validated MIME type, bounded size, and a thumbnail object URL.",
+    })
+  )
 ) {
   /**
    * Whether a file's size is within the given byte budget. Configurable size

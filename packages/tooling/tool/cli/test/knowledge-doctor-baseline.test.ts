@@ -15,7 +15,9 @@ import {
   KnowledgeDoctor,
   KnowledgeDoctorBaseline,
   KnowledgeDoctorCheckInput,
+  KnowledgeDoctorCheckOptions,
   KnowledgeDoctorIdentity,
+  KnowledgeDoctorLeasesOptions,
   KnowledgeDoctorLive,
   KnowledgeDoctorPromotion,
   KnowledgeDoctorPromotions,
@@ -734,7 +736,9 @@ describe("knowledge doctor sealed baseline", () => {
         const absent = yield* Effect.flip(
           Effect.gen(function* () {
             const doctor = yield* KnowledgeDoctor;
-            return yield* doctor.leases({ baseRef: "refs/heads/knowledge-doctor-no-such-ref", now: NOW });
+            return yield* doctor.leases(
+              KnowledgeDoctorLeasesOptions.make({ baseRef: "refs/heads/knowledge-doctor-no-such-ref", now: NOW })
+            );
           })
         );
         assert.strictEqual(absent._tag === "KnowledgeDoctorInputError" ? absent.reason : absent._tag, "absent-ref");
@@ -773,7 +777,9 @@ describe("knowledge doctor sealed baseline", () => {
           { discard: true }
         );
         const doctor = yield* KnowledgeDoctor;
-        const missing = yield* doctor.check({ acceptMint: false, baseRef: "fixture-base", now: NOW }).pipe(Effect.flip);
+        const missing = yield* doctor
+          .check(KnowledgeDoctorCheckOptions.make({ acceptMint: false, baseRef: "fixture-base", now: NOW }))
+          .pipe(Effect.flip);
         assert.strictEqual(missing._tag, "KnowledgeDoctorInputError");
         assert.include(missing.message, "baseline");
         const baseline = yield* doctor.mint("HEAD");
@@ -801,10 +807,17 @@ describe("knowledge doctor sealed baseline", () => {
         });
 
         assert.strictEqual((yield* doctor.verifyMint).mintedAt, baseline.mintedAt);
-        const checked = yield* doctor.check({ acceptMint: true, baseRef: "fixture-base", now: NOW });
+        const checked = yield* doctor.check(
+          KnowledgeDoctorCheckOptions.make({ acceptMint: true, baseRef: "fixture-base", now: NOW })
+        );
         assert.strictEqual(O.isSome(checked.ratchet), true);
-        assert.deepStrictEqual((yield* doctor.leases({ baseRef: "fixture-base", now: NOW })).leases, []);
-        const ordinary = yield* doctor.check({ acceptMint: false, baseRef: "HEAD", now: NOW });
+        assert.deepStrictEqual(
+          (yield* doctor.leases(KnowledgeDoctorLeasesOptions.make({ baseRef: "fixture-base", now: NOW }))).leases,
+          []
+        );
+        const ordinary = yield* doctor.check(
+          KnowledgeDoctorCheckOptions.make({ acceptMint: false, baseRef: "HEAD", now: NOW })
+        );
         assert.strictEqual(O.isSome(ordinary.ratchet), true);
         assert.strictEqual((yield* doctor.mint("HEAD")).mintedAt, ordinary.tree);
         yield* fs.writeFileString(
@@ -828,7 +841,7 @@ describe("knowledge doctor sealed baseline", () => {
           cwd: root,
           extendEnv: true,
         });
-        const leases = yield* doctor.leases({ baseRef: "fixture-base", now: NOW });
+        const leases = yield* doctor.leases(KnowledgeDoctorLeasesOptions.make({ baseRef: "fixture-base", now: NOW }));
         assert.strictEqual(A.length(leases.leases), 1);
         assert.strictEqual(leases.leases[0]?.status, "active");
       }, Effect.scoped)

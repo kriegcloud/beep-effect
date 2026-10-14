@@ -52,8 +52,8 @@ const $I = $LawPracticeDomainId.create("values/AnnotationCitation/AnnotationCita
  * @category models
  * @since 0.0.0
  */
-export class AnnotationCitation extends S.Class<AnnotationCitation>($I`AnnotationCitation`)(
-  {
+export class AnnotationCitation extends S.Opaque<AnnotationCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("annotation"),
     series: S.String.annotateKey({
@@ -79,11 +79,12 @@ export class AnnotationCitation extends S.Class<AnnotationCitation>($I`Annotatio
         description: "Component spans locating this citation's sub-parts within the source text.",
       })
     ),
-  },
-  $I.annote("AnnotationCitation", {
-    description:
-      "Annotation citation (#581): American Law Reports (A.L.R.) annotations — secondary authority that looks like a case citation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnnotationCitation", {
+      description:
+        "Annotation citation (#581): American Law Reports (A.L.R.) annotations — secondary authority that looks like a case citation.",
+    })
+  )
 ) {}
 
 /**

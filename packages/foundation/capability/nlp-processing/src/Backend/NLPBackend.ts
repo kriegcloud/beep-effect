@@ -63,7 +63,9 @@ const isBackendOperationErrorDataFirst = (args: IArguments): boolean => args.len
  * @category errors
  * @since 0.0.0
  */
-export class BackendNotSupported extends S.TaggedError<BackendNotSupported>($I`BackendNotSupported`)(
+export class BackendNotSupported extends S.TaggedError<BackendNotSupported, { readonly brand: unique symbol }>(
+  $I`BackendNotSupported`
+)(
   "BackendNotSupported",
   {
     backend: S.String,
@@ -107,7 +109,9 @@ export class BackendNotSupported extends S.TaggedError<BackendNotSupported>($I`B
  * @category errors
  * @since 0.0.0
  */
-export class BackendInitError extends S.TaggedError<BackendInitError>($I`BackendInitError`)(
+export class BackendInitError extends S.TaggedError<BackendInitError, { readonly brand: unique symbol }>(
+  $I`BackendInitError`
+)(
   "BackendInitError",
   {
     backend: S.String,
@@ -152,7 +156,9 @@ export class BackendInitError extends S.TaggedError<BackendInitError>($I`Backend
  * @category errors
  * @since 0.0.0
  */
-export class BackendOperationError extends S.TaggedError<BackendOperationError>($I`BackendOperationError`)(
+export class BackendOperationError extends S.TaggedError<BackendOperationError, { readonly brand: unique symbol }>(
+  $I`BackendOperationError`
+)(
   "BackendOperationError",
   {
     backend: S.String,
@@ -227,9 +233,9 @@ export type NLPBackendError = typeof NLPBackendError.Type;
  * **Example** (Declare capability bitmap)
  *
  * ```ts import.meta.vitest name="Declare capability bitmap"
- * import type { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  *
- * const capabilities: BackendCapabilities = {
+ * const capabilities: BackendCapabilities = BackendCapabilities.make({
  *   constituencyParsing: false,
  *   coreferenceResolution: false,
  *   dependencyParsing: false,
@@ -239,15 +245,15 @@ export type NLPBackendError = typeof NLPBackendError.Type;
  *   relationExtraction: false,
  *   sentencization: true,
  *   tokenization: true
- * }
+ * })
  * capabilities.tokenization // => true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BackendCapabilities extends S.Class<BackendCapabilities>($I`BackendCapabilities`)(
-  {
+export class BackendCapabilities extends S.Opaque<BackendCapabilities, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Constituency parsing (phrase structure). */
     constituencyParsing: S.Boolean.annotateKey({
       description: "Constituency parsing (phrase structure).",
@@ -284,10 +290,11 @@ export class BackendCapabilities extends S.Class<BackendCapabilities>($I`Backend
     tokenization: S.Boolean.annotateKey({
       description: "Basic tokenization (word segmentation).",
     }),
-  },
-  $I.annote("BackendCapabilities", {
-    description: "Capabilities of an NLP backend service.",
-  })
+  }).pipe(
+    $I.annoteSchema("BackendCapabilities", {
+      description: "Capabilities of an NLP backend service.",
+    })
+  )
 ) {}
 
 /**
@@ -305,10 +312,11 @@ export class BackendCapabilities extends S.Class<BackendCapabilities>($I`Backend
  * ```ts import.meta.vitest name="Implement minimal backend shape"
  * import * as Effect from "effect/Effect";
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backend: NLPBackendShape = {
  *   name: "minimal",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -318,7 +326,7 @@ export class BackendCapabilities extends S.Class<BackendCapabilities>($I`Backend
  *     relationExtraction: false,
  *     sentencization: true,
  *     tokenization: true
- *   },
+ *   }),
  *   tokenize: (text) => Effect.succeed(text.split(" ")),
  *   sentencize: (text) => Effect.succeed([text]),
  *   posTag: () => Effect.succeed([]),
@@ -379,12 +387,12 @@ export class NLPBackend extends Context.Service<NLPBackend, NLPBackendShape>()($
  *
  * ```ts import.meta.vitest name="Check single capability support"
  * import * as Effect from "effect/Effect";
- * import { supportsCapability } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities, supportsCapability } from "@beep/nlp-processing/Backend/NLPBackend"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backend: NLPBackendShape = {
  *   name: "minimal",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -394,7 +402,7 @@ export class NLPBackend extends Context.Service<NLPBackend, NLPBackendShape>()($
  *     relationExtraction: false,
  *     sentencization: true,
  *     tokenization: true
- *   },
+ *   }),
  *   tokenize: (text) => Effect.succeed(text.split(" ")),
  *   sentencize: (text) => Effect.succeed([text]),
  *   posTag: () => Effect.succeed([]),
@@ -410,11 +418,12 @@ export class NLPBackend extends Context.Service<NLPBackend, NLPBackendShape>()($
  * @since 0.0.0
  */
 export const supportsCapability: {
-  (backend: NLPBackendShape, capability: keyof BackendCapabilities): boolean;
-  (capability: keyof BackendCapabilities): (backend: NLPBackendShape) => boolean;
+  (backend: NLPBackendShape, capability: keyof typeof BackendCapabilities.fields): boolean;
+  (capability: keyof typeof BackendCapabilities.fields): (backend: NLPBackendShape) => boolean;
 } = dual(
   2,
-  (backend: NLPBackendShape, capability: keyof BackendCapabilities): boolean => backend.capabilities[capability]
+  (backend: NLPBackendShape, capability: keyof typeof BackendCapabilities.fields): boolean =>
+    backend.capabilities[capability]
 );
 
 /**
@@ -424,12 +433,12 @@ export const supportsCapability: {
  *
  * ```ts import.meta.vitest name="List supported capability keys"
  * import * as Effect from "effect/Effect";
- * import { getSupportedCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities, getSupportedCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backend: NLPBackendShape = {
  *   name: "minimal",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -439,7 +448,7 @@ export const supportsCapability: {
  *     relationExtraction: false,
  *     sentencization: true,
  *     tokenization: true
- *   },
+ *   }),
  *   tokenize: (text) => Effect.succeed(text.split(" ")),
  *   sentencize: (text) => Effect.succeed([text]),
  *   posTag: () => Effect.succeed([]),
@@ -454,9 +463,11 @@ export const supportsCapability: {
  * @category utilities
  * @since 0.0.0
  */
-export const getSupportedCapabilities = (backend: NLPBackendShape): ReadonlyArray<keyof BackendCapabilities> =>
+export const getSupportedCapabilities = (
+  backend: NLPBackendShape
+): ReadonlyArray<keyof typeof BackendCapabilities.fields> =>
   pipe(
-    Struct.keys(backend.capabilities),
+    Struct.keys(BackendCapabilities.fields),
     A.filter((cap) => backend.capabilities[cap])
   );
 

@@ -75,13 +75,14 @@ export type SourceNormDesignation = typeof SourceNormDesignation.Type;
  * @category models
  * @since 0.0.0
  */
-export class SourceNormRef extends S.Class<SourceNormRef>($I`SourceNormRef`)(
-  {
+export class SourceNormRef extends S.Opaque<SourceNormRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     designation: SourceNormDesignation.annotateKey({
       description: "Verbatim norm designation, opaque until versioned norm identity lands.",
     }),
-  },
-  $I.annote("SourceNormRef", {
-    description: "Opaque reference to the norm that prescribes a legal position or role.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceNormRef", {
+      description: "Opaque reference to the norm that prescribes a legal position or role.",
+    })
+  )
 ) {}

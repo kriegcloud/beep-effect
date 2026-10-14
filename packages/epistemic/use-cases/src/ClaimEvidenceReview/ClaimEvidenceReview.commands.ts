@@ -40,14 +40,15 @@ const ResolvedClaimEvidence = S.Struct({
  * @category commands
  * @since 0.0.0
  */
-export class ExplainClaimEvidence extends S.Class<ExplainClaimEvidence>($I`ExplainClaimEvidence`)(
-  {
+export class ExplainClaimEvidence extends S.Opaque<ExplainClaimEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...ResolvedClaimEvidence.fields,
     review: S.OptionFromNullOr(ClaimEvidenceReview),
-  },
-  $I.annote("ExplainClaimEvidence", {
-    description: "Resolve exact-source validity and the applicability of a historical human approval.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplainClaimEvidence", {
+      description: "Resolve exact-source validity and the applicability of a historical human approval.",
+    })
+  )
 ) {}
 
 /**
@@ -69,12 +70,13 @@ export class ExplainClaimEvidence extends S.Class<ExplainClaimEvidence>($I`Expla
  * @category commands
  * @since 0.0.0
  */
-export class ApproveClaimEvidence extends S.Class<ApproveClaimEvidence>($I`ApproveClaimEvidence`)(
-  {
+export class ApproveClaimEvidence extends S.Opaque<ApproveClaimEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...ResolvedClaimEvidence.fields,
     reviewedBy: UserPrincipal,
-  },
-  $I.annote("ApproveClaimEvidence", {
-    description: "Human approval request bound to the exact assertion, evidence, and source presented.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApproveClaimEvidence", {
+      description: "Human approval request bound to the exact assertion, evidence, and source presented.",
+    })
+  )
 ) {}

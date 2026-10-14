@@ -119,7 +119,7 @@ export declare namespace Effect {
  * @category models
  * @since 0.0.0
  */
-export class Base extends S.Class<Base>($I`Base`)(
+export class Base extends S.Class<Base, { readonly brand: unique symbol }>($I`Base`)(
   {
     action: RuleAction.annotateKey({ description: "Action token the rule evaluates." }),
     resource: RuleResource.annotateKey({ description: "Resource token the rule evaluates." }),
