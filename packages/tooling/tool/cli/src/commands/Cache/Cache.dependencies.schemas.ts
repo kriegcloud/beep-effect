@@ -37,10 +37,11 @@ export { CacheDependencyLink, CacheDependencyTree } from "./Cache.schemas.ts";
  * @category models
  * @since 0.0.0
  */
-export class CacheDependencyMaterialization extends S.Class<CacheDependencyMaterialization>(
-  $I`CacheDependencyMaterialization`
-)(
-  {
+export class CacheDependencyMaterialization extends S.Opaque<
+  CacheDependencyMaterialization,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("cache-dependency-materialization/v1"),
     authority: S.Literal("local-installed-tree-snapshot"),
     directory: S.NonEmptyString,
@@ -48,8 +49,9 @@ export class CacheDependencyMaterialization extends S.Class<CacheDependencyMater
     rootManifestSha256: Sha256Hex,
     tree: CacheDependencyTree,
     tools: S.Record(S.String, CacheExecutablePin),
-  },
-  $I.annote("CacheDependencyMaterialization", {
-    description: "A copied installed dependency tree with source/copy parity and exact integrity-tool pins.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheDependencyMaterialization", {
+      description: "A copied installed dependency tree with source/copy parity and exact integrity-tool pins.",
+    })
+  )
 ) {}

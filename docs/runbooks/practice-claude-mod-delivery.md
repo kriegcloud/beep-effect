@@ -42,7 +42,7 @@ copy that no other process holds open.
 
 ## Verdict evidence
 
-`/practice export` returns the verdict rows as JSONL in the command output.
+`/practice export` returns the verdict and timer rows as JSONL in the command output.
 Copy those rows into a file you choose when collecting sitting evidence.
 The mod engine's file-write API cannot reject symlinks, so the command does
 not write into the session's working folder.

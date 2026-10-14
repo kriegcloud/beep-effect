@@ -73,8 +73,8 @@ const $I = $LawPracticeServerId.create("PracticeKg.rows");
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgCatalogRow extends S.Class<PracticeKgCatalogRow>($I`PracticeKgCatalogRow`)(
-  {
+export class PracticeKgCatalogRow extends S.Opaque<PracticeKgCatalogRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.String,
     client: S.NullOr(S.String),
     digest: S.NonEmptyString,
@@ -97,10 +97,11 @@ export class PracticeKgCatalogRow extends S.Class<PracticeKgCatalogRow>($I`Pract
     sizeBytes: S.Finite,
     sourceLabel: S.String,
     sourceRelativePath: S.String,
-  },
-  $I.annote("PracticeKgCatalogRow", {
-    description: "One digest-identified corpus document as joined from the catalog DuckDB organize view.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCatalogRow", {
+      description: "One digest-identified corpus document as joined from the catalog DuckDB organize view.",
+    })
+  )
 ) {}
 
 /**
@@ -136,8 +137,8 @@ export class PracticeKgCatalogRow extends S.Class<PracticeKgCatalogRow>($I`Pract
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgEnrichmentRow extends S.Class<PracticeKgEnrichmentRow>($I`PracticeKgEnrichmentRow`)(
-  {
+export class PracticeKgEnrichmentRow extends S.Opaque<PracticeKgEnrichmentRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationNumber: S.NullOr(S.String),
     candidate: S.String,
     docketFamilies: S.String,
@@ -147,10 +148,11 @@ export class PracticeKgEnrichmentRow extends S.Class<PracticeKgEnrichmentRow>($I
     parentApplicationNumbers: S.String,
     patentNumber: S.NullOr(S.String),
     status: S.String,
-  },
-  $I.annote("PracticeKgEnrichmentRow", {
-    description: "One USPTO enrichment candidate joined to a docket family from the catalog DuckDB.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgEnrichmentRow", {
+      description: "One USPTO enrichment candidate joined to a docket family from the catalog DuckDB.",
+    })
+  )
 ) {}
 
 /**
@@ -184,18 +186,20 @@ export class PracticeKgEnrichmentRow extends S.Class<PracticeKgEnrichmentRow>($I
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgDocketReferenceRow extends S.Class<PracticeKgDocketReferenceRow>(
-  $I`PracticeKgDocketReferenceRow`
-)(
-  {
+export class PracticeKgDocketReferenceRow extends S.Opaque<
+  PracticeKgDocketReferenceRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     client: S.NonEmptyString,
     digest: S.NonEmptyString,
     docket: S.NonEmptyString,
     family: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgDocketReferenceRow", {
-    description: "One client-prefixed docket-family reference found in a docket document's text.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgDocketReferenceRow", {
+      description: "One client-prefixed docket-family reference found in a docket document's text.",
+    })
+  )
 ) {}
 
 /**
@@ -226,15 +230,19 @@ export class PracticeKgDocketReferenceRow extends S.Class<PracticeKgDocketRefere
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgNumberMentionRow extends S.Class<PracticeKgNumberMentionRow>($I`PracticeKgNumberMentionRow`)(
-  {
+export class PracticeKgNumberMentionRow extends S.Opaque<
+  PracticeKgNumberMentionRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     digest: S.NonEmptyString,
     number: S.NonEmptyString,
     source: S.Literals(["filename", "text"]),
-  },
-  $I.annote("PracticeKgNumberMentionRow", {
-    description: "One USPTO number mentioned by a docket document, with where it was found.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgNumberMentionRow", {
+      description: "One USPTO number mentioned by a docket document, with where it was found.",
+    })
+  )
 ) {}
 
 /**

@@ -34,7 +34,7 @@ const commonFields = {
  * @category errors
  * @since 0.0.0
  */
-export class CspError extends S.TaggedError<CspError>($I.make("CspError"))(
+export class CspError extends S.TaggedError<CspError, { readonly brand: unique symbol }>($I.make("CspError"))(
   SecureHeader.Enum.CONTENT_SECURITY_POLICY,
   commonFields,
   $I.annoteError<CspError>("CspError", { description: "A CSP error." })
@@ -56,7 +56,9 @@ export class CspError extends S.TaggedError<CspError>($I.make("CspError"))(
  * @category errors
  * @since 0.0.0
  */
-export class ForceHttpsRedirectError extends S.TaggedError<ForceHttpsRedirectError>($I.make("ForceHttpsRedirectError"))(
+export class ForceHttpsRedirectError extends S.TaggedError<ForceHttpsRedirectError, { readonly brand: unique symbol }>(
+  $I.make("ForceHttpsRedirectError")
+)(
   SecureHeader.Enum.FORCE_HTTPS_REDIRECT,
   commonFields,
   $I.annoteError<ForceHttpsRedirectError>("ForceHttpsRedirectError", {
@@ -80,7 +82,9 @@ export class ForceHttpsRedirectError extends S.TaggedError<ForceHttpsRedirectErr
  * @category errors
  * @since 0.0.0
  */
-export class XssProtectionError extends S.TaggedError<XssProtectionError>($I.make("XssProtectionError"))(
+export class XssProtectionError extends S.TaggedError<XssProtectionError, { readonly brand: unique symbol }>(
+  $I.make("XssProtectionError")
+)(
   SecureHeader.Enum.XSS_PROTECTION,
   commonFields,
   $I.annoteError<XssProtectionError>("XssProtectionError", { description: "An XSS protection error." })
@@ -102,7 +106,9 @@ export class XssProtectionError extends S.TaggedError<XssProtectionError>($I.mak
  * @category errors
  * @since 0.0.0
  */
-export class ReferrerPolicyError extends S.TaggedError<ReferrerPolicyError>($I.make("ReferrerPolicyError"))(
+export class ReferrerPolicyError extends S.TaggedError<ReferrerPolicyError, { readonly brand: unique symbol }>(
+  $I.make("ReferrerPolicyError")
+)(
   SecureHeader.Enum.REFERRER_POLICY,
   commonFields,
   $I.annoteError<ReferrerPolicyError>("ReferrerPolicyError", { description: "A referrer policy error." })
@@ -124,7 +130,9 @@ export class ReferrerPolicyError extends S.TaggedError<ReferrerPolicyError>($I.m
  * @category errors
  * @since 0.0.0
  */
-export class NoSniffError extends S.TaggedError<NoSniffError>($I.make("NoSniffError"))(
+export class NoSniffError extends S.TaggedError<NoSniffError, { readonly brand: unique symbol }>(
+  $I.make("NoSniffError")
+)(
   SecureHeader.Enum.NO_SNIFF,
   commonFields,
   $I.annoteError<NoSniffError>("NoSniffError", { description: "A no sniff error." })
@@ -146,7 +154,7 @@ export class NoSniffError extends S.TaggedError<NoSniffError>($I.make("NoSniffEr
  * @category errors
  * @since 0.0.0
  */
-export class NoOpenError extends S.TaggedError<NoOpenError>($I.make("NoOpenError"))(
+export class NoOpenError extends S.TaggedError<NoOpenError, { readonly brand: unique symbol }>($I.make("NoOpenError"))(
   SecureHeader.Enum.NO_OPEN,
   commonFields,
   $I.annoteError<NoOpenError>("NoOpenError", { description: "A no open error." })
@@ -168,7 +176,9 @@ export class NoOpenError extends S.TaggedError<NoOpenError>($I.make("NoOpenError
  * @category errors
  * @since 0.0.0
  */
-export class FrameGuardError extends S.TaggedError<FrameGuardError>($I.make("FrameGuardError"))(
+export class FrameGuardError extends S.TaggedError<FrameGuardError, { readonly brand: unique symbol }>(
+  $I.make("FrameGuardError")
+)(
   SecureHeader.Enum.FRAME_GUARD,
   commonFields,
   $I.annoteError<FrameGuardError>("FrameGuardError", { description: "A frame guard error." })
@@ -190,7 +200,9 @@ export class FrameGuardError extends S.TaggedError<FrameGuardError>($I.make("Fra
  * @category errors
  * @since 0.0.0
  */
-export class ExpectCtError extends S.TaggedError<ExpectCtError>($I.make("ExpectCtError"))(
+export class ExpectCtError extends S.TaggedError<ExpectCtError, { readonly brand: unique symbol }>(
+  $I.make("ExpectCtError")
+)(
   SecureHeader.Enum.EXPECT_CT,
   commonFields,
   $I.annoteError<ExpectCtError>("ExpectCtError", { description: "An Expect-CT error." })
@@ -212,7 +224,9 @@ export class ExpectCtError extends S.TaggedError<ExpectCtError>($I.make("ExpectC
  * @category errors
  * @since 0.0.0
  */
-export class PermissionsPolicyError extends S.TaggedError<PermissionsPolicyError>($I.make("PermissionsPolicyError"))(
+export class PermissionsPolicyError extends S.TaggedError<PermissionsPolicyError, { readonly brand: unique symbol }>(
+  $I.make("PermissionsPolicyError")
+)(
   SecureHeader.Enum.PERMISSIONS_POLICY,
   commonFields,
   $I.annoteError<PermissionsPolicyError>("PermissionsPolicyError", {
@@ -236,9 +250,10 @@ export class PermissionsPolicyError extends S.TaggedError<PermissionsPolicyError
  * @category errors
  * @since 0.0.0
  */
-export class CrossOriginOpenerPolicyError extends S.TaggedError<CrossOriginOpenerPolicyError>(
-  $I.make("CrossOriginOpenerPolicyError")
-)(
+export class CrossOriginOpenerPolicyError extends S.TaggedError<
+  CrossOriginOpenerPolicyError,
+  { readonly brand: unique symbol }
+>($I.make("CrossOriginOpenerPolicyError"))(
   SecureHeader.Enum.CROSS_ORIGIN_OPENER_POLICY,
   commonFields,
   $I.annoteError<CrossOriginOpenerPolicyError>("CrossOriginOpenerPolicyError", {
@@ -262,9 +277,10 @@ export class CrossOriginOpenerPolicyError extends S.TaggedError<CrossOriginOpene
  * @category errors
  * @since 0.0.0
  */
-export class CrossOriginEmbedderPolicyError extends S.TaggedError<CrossOriginEmbedderPolicyError>(
-  $I.make("CrossOriginEmbedderPolicyError")
-)(
+export class CrossOriginEmbedderPolicyError extends S.TaggedError<
+  CrossOriginEmbedderPolicyError,
+  { readonly brand: unique symbol }
+>($I.make("CrossOriginEmbedderPolicyError"))(
   SecureHeader.Enum.CROSS_ORIGIN_EMBEDDER_POLICY,
   commonFields,
   $I.annoteError<CrossOriginEmbedderPolicyError>("CrossOriginEmbedderPolicyError", {
@@ -288,9 +304,10 @@ export class CrossOriginEmbedderPolicyError extends S.TaggedError<CrossOriginEmb
  * @category errors
  * @since 0.0.0
  */
-export class CrossOriginResourcePolicyError extends S.TaggedError<CrossOriginResourcePolicyError>(
-  $I.make("CrossOriginResourcePolicyError")
-)(
+export class CrossOriginResourcePolicyError extends S.TaggedError<
+  CrossOriginResourcePolicyError,
+  { readonly brand: unique symbol }
+>($I.make("CrossOriginResourcePolicyError"))(
   SecureHeader.Enum.CROSS_ORIGIN_RESOURCE_POLICY,
   commonFields,
   $I.annoteError<CrossOriginResourcePolicyError>("CrossOriginResourcePolicyError", {
@@ -314,9 +331,10 @@ export class CrossOriginResourcePolicyError extends S.TaggedError<CrossOriginRes
  * @category errors
  * @since 0.0.0
  */
-export class PermittedCrossDomainPoliciesError extends S.TaggedError<PermittedCrossDomainPoliciesError>(
-  $I.make("PermittedCrossDomainPoliciesError")
-)(
+export class PermittedCrossDomainPoliciesError extends S.TaggedError<
+  PermittedCrossDomainPoliciesError,
+  { readonly brand: unique symbol }
+>($I.make("PermittedCrossDomainPoliciesError"))(
   SecureHeader.Enum.PERMITTED_CROSS_DOMAIN_POLICIES,
   commonFields,
   $I.annoteError<PermittedCrossDomainPoliciesError>("PermittedCrossDomainPoliciesError", {
@@ -340,7 +358,7 @@ export class PermittedCrossDomainPoliciesError extends S.TaggedError<PermittedCr
  * @category errors
  * @since 0.0.0
  */
-export class CoreError extends S.TaggedError<CoreError>($I.make("CoreError"))(
+export class CoreError extends S.TaggedError<CoreError, { readonly brand: unique symbol }>($I.make("CoreError"))(
   SecureHeader.Enum.CORE,
   commonFields,
   $I.annoteError<CoreError>("CoreError", { description: "A core error." })

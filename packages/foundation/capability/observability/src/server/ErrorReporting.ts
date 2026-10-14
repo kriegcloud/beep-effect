@@ -37,18 +37,22 @@ const writeErrorLine = (line: string): void => {
  * @category models
  * @since 0.0.0
  */
-export class ConsoleErrorReporterOptions extends S.Class<ConsoleErrorReporterOptions>($I`ConsoleErrorReporterOptions`)(
-  {
+export class ConsoleErrorReporterOptions extends S.Opaque<
+  ConsoleErrorReporterOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     includeCause: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
     ).annotateKey({
       description: "Whether to render the pretty Effect cause after the error line.",
     }),
-  },
-  $I.annote("ConsoleErrorReporterOptions", {
-    description: "Options for the console-backed error reporter.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConsoleErrorReporterOptions", {
+      description: "Options for the console-backed error reporter.",
+    })
+  )
 ) {}
 
 /**
@@ -67,8 +71,8 @@ export class ConsoleErrorReporterOptions extends S.Class<ConsoleErrorReporterOpt
  * @category models
  * @since 0.0.0
  */
-export class ErrorReporterLayerOptions extends S.Class<ErrorReporterLayerOptions>($I`ErrorReporterLayerOptions`)(
-  {
+export class ErrorReporterLayerOptions extends S.Opaque<ErrorReporterLayerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     includeCause: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
@@ -81,10 +85,11 @@ export class ErrorReporterLayerOptions extends S.Class<ErrorReporterLayerOptions
     ).annotateKey({
       description: "Whether to merge this reporter with already registered reporters.",
     }),
-  },
-  $I.annote("ErrorReporterLayerOptions", {
-    description: "Options for registering the console-backed error reporter layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("ErrorReporterLayerOptions", {
+      description: "Options for registering the console-backed error reporter layer.",
+    })
+  )
 ) {}
 
 /**
@@ -93,9 +98,9 @@ export class ErrorReporterLayerOptions extends S.Class<ErrorReporterLayerOptions
  * **Example** (Create console error reporter)
  *
  * ```typescript
- * import { makeConsoleErrorReporter } from "@beep/observability/server"
+ * import { ConsoleErrorReporterOptions, makeConsoleErrorReporter } from "@beep/observability/server"
  *
- * const reporter = makeConsoleErrorReporter({ includeCause: true })
+ * const reporter = makeConsoleErrorReporter(ConsoleErrorReporterOptions.make({ includeCause: true }))
  * console.log(reporter)
  * ```
  *
@@ -150,7 +155,10 @@ export const makeConsoleErrorReporter = (options?: ConsoleErrorReporterOptions):
 export const layerErrorReporter = (options?: ErrorReporterLayerOptions) => {
   const resolvedOptions = ErrorReporterLayerOptions.make(options ?? {});
 
-  return ErrorReporter.layer([makeConsoleErrorReporter({ includeCause: resolvedOptions.includeCause })], {
-    mergeWithExisting: resolvedOptions.mergeWithExisting,
-  });
+  return ErrorReporter.layer(
+    [makeConsoleErrorReporter(ConsoleErrorReporterOptions.make({ includeCause: resolvedOptions.includeCause }))],
+    {
+      mergeWithExisting: resolvedOptions.mergeWithExisting,
+    }
+  );
 };

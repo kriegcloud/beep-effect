@@ -62,16 +62,16 @@ const observeTokenizer = (operation: string) =>
  * @category errors
  * @since 0.0.0
  */
-export class SentenceSpanFailure extends S.TaggedClass<SentenceSpanFailure>($I`SentenceSpanFailure`)(
-  "SentenceSpanFailure",
-  {
+export class SentenceSpanFailure extends S.Opaque<SentenceSpanFailure, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("SentenceSpanFailure", {
     reason: S.String,
     sentenceIndex: SentenceIndex,
     sentenceText: S.String,
-  },
-  $I.annote("SentenceSpanFailure", {
-    description: "Failure raised when wink sentence spans cannot be derived from token positions.",
-  })
+  }).pipe(
+    $I.annoteSchema("SentenceSpanFailure", {
+      description: "Failure raised when wink sentence spans cannot be derived from token positions.",
+    })
+  )
 ) {}
 
 const decodeDocumentIdOption = S.decodeUnknownOption(DocumentId);

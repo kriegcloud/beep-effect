@@ -153,7 +153,7 @@ export declare namespace RecurrenceEvidenceRef {
  * @category errors
  * @since 0.0.0
  */
-export class RecurrenceRejected extends S.TaggedError<RecurrenceRejected>()(
+export class RecurrenceRejected extends S.TaggedError<RecurrenceRejected, { readonly brand: unique symbol }>()(
   "RecurrenceRejected",
   { reason: S.String },
   $I.annoteError<RecurrenceRejected>("RecurrenceRejected", {

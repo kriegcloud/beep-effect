@@ -102,8 +102,8 @@ const isRoundDirName = S.is(RoundDirName);
  * @category models
  * @since 0.0.0
  */
-export class RoundLayout extends S.Class<RoundLayout>($I`RoundLayout`)(
-  {
+export class RoundLayout extends S.Opaque<RoundLayout, { readonly brand: unique symbol }>()(
+  S.Struct({
     clipsDir: S.String.pipe(
       $I.annoteKey("RoundLayout.clipsDir", {
         description: "Directory for GIFs and probe clips.",
@@ -149,10 +149,11 @@ export class RoundLayout extends S.Class<RoundLayout>($I`RoundLayout`)(
         description: "Directory for recorded videos.",
       })
     ),
-  },
-  $I.annote("RoundLayout", {
-    description: "Resolved file-system layout of one QA round directory.",
-  })
+  }).pipe(
+    $I.annoteSchema("RoundLayout", {
+      description: "Resolved file-system layout of one QA round directory.",
+    })
+  )
 ) {}
 
 /**

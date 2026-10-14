@@ -139,8 +139,8 @@ export type ProofInputSource = typeof ProofInputSource.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProofEpoch extends S.Class<ProofEpoch>($I`ProofEpoch`)(
-  {
+export class ProofEpoch extends S.Opaque<ProofEpoch, { readonly brand: unique symbol }>()(
+  S.Struct({
     lockfileDigest: S.NonEmptyString,
     bunVersion: S.NonEmptyString,
     nodeVersion: S.NonEmptyString,
@@ -148,11 +148,12 @@ export class ProofEpoch extends S.Class<ProofEpoch>($I`ProofEpoch`)(
     rootTsconfigDigest: S.NonEmptyString,
     policyPackVersion: S.NonEmptyString,
     digest: S.NonEmptyString,
-  },
-  $I.annote("ProofEpoch", {
-    description:
-      "Epoch salt components (lockfile, toolchain pins, root Turbo and TypeScript config, policy-pack version) and their combined digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofEpoch", {
+      description:
+        "Epoch salt components (lockfile, toolchain pins, root Turbo and TypeScript config, policy-pack version) and their combined digest.",
+    })
+  )
 ) {}
 
 /**
@@ -189,8 +190,8 @@ export class ProofEpoch extends S.Class<ProofEpoch>($I`ProofEpoch`)(
  * @category models
  * @since 0.0.0
  */
-export class ProofInputDigest extends S.Class<ProofInputDigest>($I`ProofInputDigest`)(
-  {
+export class ProofInputDigest extends S.Opaque<ProofInputDigest, { readonly brand: unique symbol }>()(
+  S.Struct({
     laneId: S.NonEmptyString,
     laneClass: CiLaneClass,
     commandDigest: S.NonEmptyString,
@@ -199,11 +200,12 @@ export class ProofInputDigest extends S.Class<ProofInputDigest>($I`ProofInputDig
     inputSource: ProofInputSource,
     epochDigest: S.NonEmptyString,
     key: S.NonEmptyString,
-  },
-  $I.annote("ProofInputDigest", {
-    description:
-      "Tier-independent reuse key: lane identity, command digest, env profile, lane input digest, epoch digest, and their combined key.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofInputDigest", {
+      description:
+        "Tier-independent reuse key: lane identity, command digest, env profile, lane input digest, epoch digest, and their combined key.",
+    })
+  )
 ) {}
 
 /**
@@ -230,8 +232,8 @@ export class ProofInputDigest extends S.Class<ProofInputDigest>($I`ProofInputDig
  * @category models
  * @since 0.0.0
  */
-export class ProofProvenance extends S.Class<ProofProvenance>($I`ProofProvenance`)(
-  {
+export class ProofProvenance extends S.Opaque<ProofProvenance, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: S.NonEmptyString,
     attemptId: S.NonEmptyString,
     originKey: S.NonEmptyString,
@@ -239,11 +241,12 @@ export class ProofProvenance extends S.Class<ProofProvenance>($I`ProofProvenance
     stage: ProofStage,
     headSha: S.NonEmptyString,
     hostedRunId: S.NullOr(S.NonEmptyString),
-  },
-  $I.annote("ProofProvenance", {
-    description:
-      "Origin of a proof fact: run and attempt ids, checkout origin key, local proof tier, stage, head SHA, and the hosted run id when known.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofProvenance", {
+      description:
+        "Origin of a proof fact: run and attempt ids, checkout origin key, local proof tier, stage, head SHA, and the hosted run id when known.",
+    })
+  )
 ) {}
 
 /**
@@ -295,8 +298,8 @@ export class ProofProvenance extends S.Class<ProofProvenance>($I`ProofProvenance
  * @category models
  * @since 0.0.0
  */
-export class ProofFact extends S.Class<ProofFact>($I`ProofFact`)(
-  {
+export class ProofFact extends S.Opaque<ProofFact, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(PROOF_FACT_SCHEMA_VERSION),
     key: ProofInputDigest,
     epoch: ProofEpoch,
@@ -305,11 +308,12 @@ export class ProofFact extends S.Class<ProofFact>($I`ProofFact`)(
     provenance: ProofProvenance,
     recordedAt: S.NonEmptyString,
     expiresAt: S.NonEmptyString,
-  },
-  $I.annote("ProofFact", {
-    description:
-      "One reusable verification fact: reuse key, epoch, terminal outcome, non-negative duration, provenance, and expiry bounded by the epoch's lifetime.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofFact", {
+      description:
+        "One reusable verification fact: reuse key, epoch, terminal outcome, non-negative duration, provenance, and expiry bounded by the epoch's lifetime.",
+    })
+  )
 ) {}
 
 /**
@@ -364,15 +368,16 @@ export type ProofMissReason = typeof ProofMissReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProofReuseHit extends S.Class<ProofReuseHit>($I`ProofReuseHit`)(
-  {
+export class ProofReuseHit extends S.Opaque<ProofReuseHit, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("hit"),
     key: S.NonEmptyString,
     factRecordedAt: S.NonEmptyString,
-  },
-  $I.annote("ProofReuseHit", {
-    description: "Ledger lookup outcome: a passed fact with the same reuse key exists and is valid.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofReuseHit", {
+      description: "Ledger lookup outcome: a passed fact with the same reuse key exists and is valid.",
+    })
+  )
 ) {}
 
 /**
@@ -390,15 +395,16 @@ export class ProofReuseHit extends S.Class<ProofReuseHit>($I`ProofReuseHit`)(
  * @category models
  * @since 0.0.0
  */
-export class ProofReuseMiss extends S.Class<ProofReuseMiss>($I`ProofReuseMiss`)(
-  {
+export class ProofReuseMiss extends S.Opaque<ProofReuseMiss, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("miss"),
     key: S.NonEmptyString,
     reason: ProofMissReason,
-  },
-  $I.annote("ProofReuseMiss", {
-    description: "Ledger lookup outcome: the lane must run, with the reason reuse was refused.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofReuseMiss", {
+      description: "Ledger lookup outcome: the lane must run, with the reason reuse was refused.",
+    })
+  )
 ) {}
 
 /**
@@ -449,15 +455,16 @@ export type ProofReuseDecision = typeof ProofReuseDecision.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProofLedgerFactRow extends S.Class<ProofLedgerFactRow>($I`ProofLedgerFactRow`)(
-  {
+export class ProofLedgerFactRow extends S.Opaque<ProofLedgerFactRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("fact"),
     schemaVersion: S.Literal(PROOF_FACT_SCHEMA_VERSION),
     fact: ProofFact,
-  },
-  $I.annote("ProofLedgerFactRow", {
-    description: "Append-only ledger row carrying one recorded proof fact.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofLedgerFactRow", {
+      description: "Append-only ledger row carrying one recorded proof fact.",
+    })
+  )
 ) {}
 
 /**
@@ -496,8 +503,8 @@ export class ProofLedgerFactRow extends S.Class<ProofLedgerFactRow>($I`ProofLedg
  * @category models
  * @since 0.0.0
  */
-export class ProofLedgerShadowRow extends S.Class<ProofLedgerShadowRow>($I`ProofLedgerShadowRow`)(
-  {
+export class ProofLedgerShadowRow extends S.Opaque<ProofLedgerShadowRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("shadow"),
     schemaVersion: S.Literal(PROOF_FACT_SCHEMA_VERSION),
     attemptId: S.NonEmptyString,
@@ -509,11 +516,12 @@ export class ProofLedgerShadowRow extends S.Class<ProofLedgerShadowRow>($I`Proof
     observed: ProofOutcome,
     durationMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     recordedAt: S.NonEmptyString,
-  },
-  $I.annote("ProofLedgerShadowRow", {
-    description:
-      "Shadow-mode row: the decision the ledger would have made, the outcome the lane actually produced, and the lane, branch, stage, env profile and duration the enforcement bar counts.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofLedgerShadowRow", {
+      description:
+        "Shadow-mode row: the decision the ledger would have made, the outcome the lane actually produced, and the lane, branch, stage, env profile and duration the enforcement bar counts.",
+    })
+  )
 ) {}
 
 /**

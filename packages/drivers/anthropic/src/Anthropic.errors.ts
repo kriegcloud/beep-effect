@@ -36,7 +36,7 @@ const $I = $AnthropicId.create("Anthropic.errors");
  * @category errors
  * @since 0.0.0
  */
-export class RepairError extends S.TaggedError<RepairError>($I`RepairError`)(
+export class RepairError extends S.TaggedError<RepairError, { readonly brand: unique symbol }>($I`RepairError`)(
   "RepairError",
   {
     message: S.NonEmptyString.annotateKey({

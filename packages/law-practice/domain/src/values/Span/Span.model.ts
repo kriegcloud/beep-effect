@@ -41,8 +41,8 @@ const $I = $LawPracticeDomainId.create("values/Span/Span.model");
  * @category models
  * @since 0.0.0
  */
-export class Span extends S.Class<Span>($I`Span`)(
-  {
+export class Span extends S.Opaque<Span, { readonly brand: unique symbol }>()(
+  S.Struct({
     cleanStart: S.Natural.annotateKey({
       description: "Start position in cleaned/tokenized text used during parsing",
     }),
@@ -55,10 +55,11 @@ export class Span extends S.Class<Span>($I`Span`)(
     originalEnd: S.Natural.annotateKey({
       description: "End position in original input text returned to user",
     }),
-  },
-  $I.annote("Span", {
-    description: "Represents a text span with positions tracked through transformations.",
-  })
+  }).pipe(
+    $I.annoteSchema("Span", {
+      description: "Represents a text span with positions tracked through transformations.",
+    })
+  )
 ) {
   /**
    * Build a Span for a regex capture group using match.indices (ES2022 `d` flag).
@@ -193,8 +194,8 @@ export class Span extends S.Class<Span>($I`Span`)(
  * @category models
  * @since 0.0.0
  */
-export class TransformationMap extends S.Class<TransformationMap>($I`TransformationMap`)(
-  {
+export class TransformationMap extends S.Opaque<TransformationMap, { readonly brand: unique symbol }>()(
+  S.Struct({
     cleanToOriginal: S.HashMap(S.Natural, S.Natural).annotateKey({
       description: "Maps cleaned text position to original text position",
     }),
@@ -204,8 +205,9 @@ export class TransformationMap extends S.Class<TransformationMap>($I`Transformat
     cleanToOriginalSegments: S.OptionFromOptionalKey(SegmentMap).annotateKey({
       description: "Compressed segment-based clean-to-original mapping for logarithmic lookup",
     }),
-  },
-  $I.annote("TransformationMap", {
-    description: "Maps cleaned text positions to original text positions.",
-  })
+  }).pipe(
+    $I.annoteSchema("TransformationMap", {
+      description: "Maps cleaned text positions to original text positions.",
+    })
+  )
 ) {}

@@ -28,21 +28,22 @@ const $I = $DockId.create("Dock.protocol");
  * ```ts
  * import { ApiCommandOrigin, ClearWorkspaceCommand, CommandId, DispatchDockCommand, DockCommandEnvelope } from "@beep/dock"
  *
- * const value = DispatchDockCommand.make({ envelope: DockCommandEnvelope.make({ commandId: CommandId.make("command-clear"), origin: ApiCommandOrigin.make({ requestId: "request-one" }), command: ClearWorkspaceCommand.make() }) })
+ * const value = DispatchDockCommand.make({ envelope: DockCommandEnvelope.make({ commandId: CommandId.make("command-clear"), origin: ApiCommandOrigin.make({ requestId: "request-one" }), command: ClearWorkspaceCommand.make({}) }) })
  * console.log(value.kind)
  * ```
  *
  * @category protocols
  * @since 0.0.0
  */
-export class DispatchDockCommand extends S.Class<DispatchDockCommand>($I`DispatchDockCommand`)(
-  {
+export class DispatchDockCommand extends S.Opaque<DispatchDockCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("dispatchCommand"),
     envelope: DockCommandEnvelope,
-  },
-  $I.annote("DispatchDockCommand", {
-    description: "Executes a typed dock command through the serialized Atom session.",
-  })
+  }).pipe(
+    $I.annoteSchema("DispatchDockCommand", {
+      description: "Executes a typed dock command through the serialized Atom session.",
+    })
+  )
 ) {}
 
 /**
@@ -60,14 +61,18 @@ export class DispatchDockCommand extends S.Class<DispatchDockCommand>($I`Dispatc
  * @category protocols
  * @since 0.0.0
  */
-export class DispatchUnknownDockCommand extends S.Class<DispatchUnknownDockCommand>($I`DispatchUnknownDockCommand`)(
-  {
+export class DispatchUnknownDockCommand extends S.Opaque<
+  DispatchUnknownDockCommand,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("dispatchUnknownCommand"),
     input: S.Unknown,
-  },
-  $I.annote("DispatchUnknownDockCommand", {
-    description: "Decodes untrusted command input at the Atom session boundary.",
-  })
+  }).pipe(
+    $I.annoteSchema("DispatchUnknownDockCommand", {
+      description: "Decodes untrusted command input at the Atom session boundary.",
+    })
+  )
 ) {}
 
 /**
@@ -78,20 +83,21 @@ export class DispatchUnknownDockCommand extends S.Class<DispatchUnknownDockComma
  * ```ts
  * import { SaveDockSnapshot } from "@beep/dock"
  *
- * const value = SaveDockSnapshot.make()
+ * const value = SaveDockSnapshot.make({})
  * console.log(value.kind)
  * ```
  *
  * @category protocols
  * @since 0.0.0
  */
-export class SaveDockSnapshot extends S.Class<SaveDockSnapshot>($I`SaveDockSnapshot`)(
-  {
+export class SaveDockSnapshot extends S.Opaque<SaveDockSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("saveSnapshot"),
-  },
-  $I.annote("SaveDockSnapshot", {
-    description: "Persists the current workspace without changing live topology.",
-  })
+  }).pipe(
+    $I.annoteSchema("SaveDockSnapshot", {
+      description: "Persists the current workspace without changing live topology.",
+    })
+  )
 ) {}
 
 /**
@@ -109,14 +115,15 @@ export class SaveDockSnapshot extends S.Class<SaveDockSnapshot>($I`SaveDockSnaps
  * @category protocols
  * @since 0.0.0
  */
-export class RestoreDockSnapshot extends S.Class<RestoreDockSnapshot>($I`RestoreDockSnapshot`)(
-  {
+export class RestoreDockSnapshot extends S.Opaque<RestoreDockSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("restoreSnapshot"),
     request: RestoreSnapshotRequest,
-  },
-  $I.annote("RestoreDockSnapshot", {
-    description: "Loads, validates, and atomically installs the persisted snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("RestoreDockSnapshot", {
+      description: "Loads, validates, and atomically installs the persisted snapshot.",
+    })
+  )
 ) {}
 
 /**
@@ -127,7 +134,7 @@ export class RestoreDockSnapshot extends S.Class<RestoreDockSnapshot>($I`Restore
  * ```ts
  * import { DockAtomOperation, SaveDockSnapshot } from "@beep/dock"
  *
- * const value = SaveDockSnapshot.make()
+ * const value = SaveDockSnapshot.make({})
  * console.log(value.kind)
  * ```
  *
@@ -169,7 +176,7 @@ export type DockAtomOperationKind = typeof DockAtomOperationKind.Type;
  * ```ts
  * import { DockAtomOperation, SaveDockSnapshot } from "@beep/dock"
  *
- * const value = DockAtomOperation.make(SaveDockSnapshot.make())
+ * const value = DockAtomOperation.make(SaveDockSnapshot.make({}))
  * console.log(value.kind)
  * ```
  *
@@ -198,7 +205,7 @@ export const DockAtomOperation = DockAtomOperationKind.mapMembers(
  * ```ts
  * import { DockAtomOperation, SaveDockSnapshot } from "@beep/dock"
  *
- * const value: DockAtomOperation = SaveDockSnapshot.make()
+ * const value: DockAtomOperation = SaveDockSnapshot.make({})
  * console.log(value.kind)
  * ```
  *
@@ -223,14 +230,15 @@ export type DockAtomOperation = typeof DockAtomOperation.Type;
  * @category protocols
  * @since 0.0.0
  */
-export class DockMutationCompleted extends S.Class<DockMutationCompleted>($I`DockMutationCompleted`)(
-  {
+export class DockMutationCompleted extends S.Opaque<DockMutationCompleted, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("mutationCompleted"),
     outcome: DockMutationOutcome,
-  },
-  $I.annote("DockMutationCompleted", {
-    description: "Carries either a changed transition or an explicit unchanged result.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockMutationCompleted", {
+      description: "Carries either a changed transition or an explicit unchanged result.",
+    })
+  )
 ) {}
 
 /**
@@ -248,14 +256,15 @@ export class DockMutationCompleted extends S.Class<DockMutationCompleted>($I`Doc
  * @category protocols
  * @since 0.0.0
  */
-export class DockSnapshotSaved extends S.Class<DockSnapshotSaved>($I`DockSnapshotSaved`)(
-  {
+export class DockSnapshotSaved extends S.Opaque<DockSnapshotSaved, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("snapshotSaved"),
     snapshot: S.String,
-  },
-  $I.annote("DockSnapshotSaved", {
-    description: "Confirms persistence and carries the encoded snapshot for diagnostics.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockSnapshotSaved", {
+      description: "Confirms persistence and carries the encoded snapshot for diagnostics.",
+    })
+  )
 ) {}
 
 const DockAtomOperationOutcomeKind = LiteralKit(["mutationCompleted", "snapshotSaved"]);
@@ -361,16 +370,16 @@ export type DockAtomSessionError = typeof DockAtomSessionError.Type;
  * @category protocols
  * @since 0.0.0
  */
-export class DockAtomFeedSuccess extends S.TaggedClass<DockAtomFeedSuccess>($I`DockAtomFeedSuccess`)(
-  "Success",
-  {
+export class DockAtomFeedSuccess extends S.Opaque<DockAtomFeedSuccess, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Success", {
     submission: S.Natural,
     operationKind: DockAtomOperationKind,
     outcome: DockAtomOperationOutcome,
-  },
-  $I.annote("DockAtomFeedSuccess", {
-    description: "Publishes one successful operation outcome with its submission causality.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockAtomFeedSuccess", {
+      description: "Publishes one successful operation outcome with its submission causality.",
+    })
+  )
 ) {}
 
 /**
@@ -389,16 +398,16 @@ export class DockAtomFeedSuccess extends S.TaggedClass<DockAtomFeedSuccess>($I`D
  * @category protocols
  * @since 0.0.0
  */
-export class DockAtomFeedFailure extends S.TaggedClass<DockAtomFeedFailure>($I`DockAtomFeedFailure`)(
-  "Failure",
-  {
+export class DockAtomFeedFailure extends S.Opaque<DockAtomFeedFailure, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Failure", {
     submission: S.Natural,
     operationKind: DockAtomOperationKind,
     error: DockAtomSessionError,
-  },
-  $I.annote("DockAtomFeedFailure", {
-    description: "Publishes one typed session failure with its operation and submission causality.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockAtomFeedFailure", {
+      description: "Publishes one typed session failure with its operation and submission causality.",
+    })
+  )
 ) {}
 
 /**

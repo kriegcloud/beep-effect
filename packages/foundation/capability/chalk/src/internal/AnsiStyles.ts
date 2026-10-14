@@ -86,14 +86,15 @@ export type { StyleName } from "./ChalkSchema.ts";
  * @category models
  * @since 0.0.0
  */
-export class StylerEntry extends S.Class<StylerEntry>($I`StylerEntry`)(
-  {
+export class StylerEntry extends S.Opaque<StylerEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     open: S.NonEmptyString,
     close: S.NonEmptyString,
-  },
-  $I.annote("StylerEntry", {
-    description: "Open and close ANSI escape sequences for a single chalk style.",
-  })
+  }).pipe(
+    $I.annoteSchema("StylerEntry", {
+      description: "Open and close ANSI escape sequences for a single chalk style.",
+    })
+  )
 ) {}
 
 const ANSI_BACKGROUND_OFFSET = 10;
@@ -271,13 +272,14 @@ const renderMonochromeAnsi256 = (red: number): number => (red < 8 ? 16 : renderE
  * @category utilities
  * @since 0.0.0
  */
-class BlueChannelOptionsModel extends S.Class<BlueChannelOptionsModel>($I`BlueChannelOptions`)(
-  {
+class BlueChannelOptionsModel extends S.Opaque<BlueChannelOptionsModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     blue: S.Int.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(255)),
-  },
-  $I.annote("BlueChannelOptions", {
-    description: "Blue channel companion value for dual RGB conversion helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("BlueChannelOptions", {
+      description: "Blue channel companion value for dual RGB conversion helpers.",
+    })
+  )
 ) {}
 
 type BlueChannelOptions = typeof BlueChannelOptionsModel.Encoded;

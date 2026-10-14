@@ -75,7 +75,9 @@ export type ShaclEngineErrorReason = typeof ShaclEngineErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class ShaclEngineError extends S.TaggedError<ShaclEngineError>($I`ShaclEngineError`)(
+export class ShaclEngineError extends S.TaggedError<ShaclEngineError, { readonly brand: unique symbol }>(
+  $I`ShaclEngineError`
+)(
   "ShaclEngineError",
   {
     reason: ShaclEngineErrorReason,

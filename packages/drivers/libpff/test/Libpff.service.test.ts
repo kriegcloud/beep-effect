@@ -14,6 +14,7 @@ import {
   PffexportEngineConfig,
   PffexportMessageRecord,
 } from "@beep/libpff";
+import { LibpffErrorOptions } from "@beep/libpff/Libpff.errors";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
@@ -132,10 +133,13 @@ describe("@beep/libpff", () => {
     Effect.fnUntraced(function* () {
       const config = PffexportEngineConfig.make({ exportRoot: "/tmp/pst-out" });
       const errorWithoutContext = LibpffError.fromReason("timeout");
-      const errorWithContext = LibpffError.fromReason("process", {
-        cause: "pffexport failed",
-        exitCode: S.Natural.make(2),
-      });
+      const errorWithContext = LibpffError.fromReason(
+        "process",
+        LibpffErrorOptions.make({
+          cause: "pffexport failed",
+          exitCode: S.Natural.make(2),
+        })
+      );
 
       expect(yield* encodePffexportEngineConfig(config)).toStrictEqual({
         existingExportPolicy: "fail",
@@ -178,9 +182,9 @@ describe("@beep/libpff", () => {
       "can emit synthetic child artifacts for proof fixtures",
       Effect.fnUntraced(function* () {
         const ids = yield* fixtureIds;
-        const result = yield* makeLibpffFileProcessingEngine({ syntheticExport: true }).exportArchive(
-          yield* operation(ids)
-        );
+        const result = yield* makeLibpffFileProcessingEngine(
+          LibpffFileProcessingEngineOptions.make({ syntheticExport: true })
+        ).exportArchive(yield* operation(ids));
 
         return yield* Effect.sync(() => {
           expect(result.children).toHaveLength(1);

@@ -158,7 +158,7 @@ const algorithmOf = (value: string): O.Option<IntegrityAlgorithm> => {
  * @category errors
  * @since 0.0.0
  */
-export class InvalidIntegrityHashError extends S.TaggedError<InvalidIntegrityHashError>($I`InvalidIntegrityHashError`)(
+export class InvalidIntegrityHashError extends S.TaggedError<InvalidIntegrityHashError, { readonly brand: unique symbol }>($I`InvalidIntegrityHashError`)(
 	"InvalidIntegrityHashError",
 	{
 		/** The raw input string that failed validation. */
@@ -593,7 +593,7 @@ const corepackFromSri: S.Codec<IntegrityHashBrand, string> = S.String.pipe(
  * @category errors
  * @since 0.0.0
  */
-export class InvalidSriIntegrityHashError extends S.TaggedError<InvalidSriIntegrityHashError>($I`InvalidSriIntegrityHashError`)(
+export class InvalidSriIntegrityHashError extends S.TaggedError<InvalidSriIntegrityHashError, { readonly brand: unique symbol }>($I`InvalidSriIntegrityHashError`)(
 	"InvalidSriIntegrityHashError",
 	{
 		/** The raw input string that failed conversion. */

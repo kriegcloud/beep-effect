@@ -11,7 +11,7 @@ import { IV_LENGTH, decrypt, deriveKey, encrypt, fromBase64, randomIv, toBase64 
 const $I = $ScratchpadId.create("effected/config-file/EncryptedCodec");
 
 /** Identifies an encrypted envelope that cannot contain both an IV and ciphertext. */
-class CiphertextTooShortError extends S.TaggedError<CiphertextTooShortError>($I`CiphertextTooShortError`)("CiphertextTooShortError", {
+class CiphertextTooShortError extends S.TaggedError<CiphertextTooShortError, { readonly brand: unique symbol }>($I`CiphertextTooShortError`)("CiphertextTooShortError", {
 	message: S.String,
 }, $I.annote("CiphertextTooShortError", { description: "The encrypted envelope is too short to contain an IV and ciphertext." })) {}
 
@@ -38,7 +38,7 @@ class CiphertextTooShortError extends S.TaggedError<CiphertextTooShortError>($I`
  * @category errors
  * @since 0.0.0
  */
-export class ConfigEncryptionError extends S.TaggedError<ConfigEncryptionError>($I`ConfigEncryptionError`)("ConfigEncryptionError", {
+export class ConfigEncryptionError extends S.TaggedError<ConfigEncryptionError, { readonly brand: unique symbol }>($I`ConfigEncryptionError`)("ConfigEncryptionError", {
 	/**
 	 * Which cryptographic stage failed.
 	 *

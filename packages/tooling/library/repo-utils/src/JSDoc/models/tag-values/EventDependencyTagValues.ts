@@ -30,12 +30,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/EventDependencyTagValues
  * @category models
  * @since 0.0.0
  */
-export class FiresValue extends S.TaggedClass<FiresValue>($I`FiresValue`)(
-  "fires",
-  { ...optionalName, ...optionalDesc },
-  $I.annote("FiresValue", {
-    description: "Occurrence shape for @fires — documents an event a symbol emits.",
-  })
+export class FiresValue extends S.Opaque<FiresValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("fires", { ...optionalName, ...optionalDesc }).pipe(
+    $I.annoteSchema("FiresValue", {
+      description: "Occurrence shape for @fires — documents an event a symbol emits.",
+    })
+  )
 ) {}
 
 /**
@@ -57,12 +57,12 @@ export class FiresValue extends S.TaggedClass<FiresValue>($I`FiresValue`)(
  * @category models
  * @since 0.0.0
  */
-export class ListensValue extends S.TaggedClass<ListensValue>($I`ListensValue`)(
-  "listens",
-  { ...optionalName, ...optionalDesc },
-  $I.annote("ListensValue", {
-    description: "Occurrence shape for @listens — documents an event a symbol listens for.",
-  })
+export class ListensValue extends S.Opaque<ListensValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("listens", { ...optionalName, ...optionalDesc }).pipe(
+    $I.annoteSchema("ListensValue", {
+      description: "Occurrence shape for @listens — documents an event a symbol listens for.",
+    })
+  )
 ) {}
 
 /**
@@ -84,12 +84,12 @@ export class ListensValue extends S.TaggedClass<ListensValue>($I`ListensValue`)(
  * @category models
  * @since 0.0.0
  */
-export class EventValue extends S.TaggedClass<EventValue>($I`EventValue`)(
-  "event",
-  { ...optionalName, ...optionalDesc },
-  $I.annote("EventValue", {
-    description: "Occurrence shape for @event — documents an event.",
-  })
+export class EventValue extends S.Opaque<EventValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("event", { ...optionalName, ...optionalDesc }).pipe(
+    $I.annoteSchema("EventValue", {
+      description: "Occurrence shape for @event — documents an event.",
+    })
+  )
 ) {}
 
 /**
@@ -108,10 +108,10 @@ export class EventValue extends S.TaggedClass<EventValue>($I`EventValue`)(
  * @category models
  * @since 0.0.0
  */
-export class RequiresValue extends S.TaggedClass<RequiresValue>($I`RequiresValue`)(
-  "requires",
-  { ...nameField },
-  $I.annote("RequiresValue", {
-    description: "Occurrence shape for @requires — documents a dependency.",
-  })
+export class RequiresValue extends S.Opaque<RequiresValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("requires", { ...nameField }).pipe(
+    $I.annoteSchema("RequiresValue", {
+      description: "Occurrence shape for @requires — documents a dependency.",
+    })
+  )
 ) {}

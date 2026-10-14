@@ -51,7 +51,7 @@ const $I = $ScratchpadId.create("effected/workspaces/ConfigDependencySpec");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidConfigDependencySpecError extends S.TaggedError<InvalidConfigDependencySpecError>($I`InvalidConfigDependencySpecError`)(
+export class InvalidConfigDependencySpecError extends S.TaggedError<InvalidConfigDependencySpecError, { readonly brand: unique symbol }>($I`InvalidConfigDependencySpecError`)(
 	"InvalidConfigDependencySpecError",
 	{
 		/** The raw spec string that failed validation. */
@@ -144,7 +144,7 @@ const specVersion = SemVer.pipe(
  * @category models
  * @since 0.0.0
  */
-export class ConfigDependencySpec extends S.Class<ConfigDependencySpec>($I`ConfigDependencySpec`)({
+export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readonly brand: unique symbol }>($I`ConfigDependencySpec`)({
 	/**
 	 * The exact declared version. Never carries build metadata — the spec
 	 * grammar cannot express it (see the class remarks), and a version

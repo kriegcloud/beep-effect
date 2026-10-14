@@ -19,7 +19,9 @@ import type { ParseError } from "jsonc-parser";
 
 const $I = $RepoCliId.create("goals/fallow-zero-dead-code/ops/validate-packet");
 
-class PacketValidationFailed extends S.TaggedError<PacketValidationFailed>($I`PacketValidationFailed`)(
+class PacketValidationFailed extends S.TaggedError<PacketValidationFailed, { readonly brand: unique symbol }>(
+  $I`PacketValidationFailed`
+)(
   "PacketValidationFailed",
   {},
   $I.annote("PacketValidationFailed", {
@@ -134,19 +136,20 @@ const DecisionGateStatus = LiteralKit(["open", "blocked", "passed", "failed"]).p
   $I.annoteSchema("DecisionGateStatus", { description: "Decision gate status for a packet task." })
 );
 
-class DecisionGate extends S.Class<DecisionGate>($I`DecisionGate`)(
-  {
+class DecisionGate extends S.Opaque<DecisionGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: DecisionGateKind,
     status: DecisionGateStatus,
     evidence: S.NonEmptyArray(RepoRefString),
-  },
-  $I.annote("DecisionGate", {
-    description: "Decision gate attached to a packet task.",
-  })
+  }).pipe(
+    $I.annoteSchema("DecisionGate", {
+      description: "Decision gate attached to a packet task.",
+    })
+  )
 ) {}
 
-class TaskRow extends S.Class<TaskRow>($I`TaskRow`)(
-  {
+class TaskRow extends S.Opaque<TaskRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TaskIdString,
     rank: PositiveInt,
     status: TaskStatus,
@@ -162,23 +165,25 @@ class TaskRow extends S.Class<TaskRow>($I`TaskRow`)(
     owner: OwnerString,
     riskLevel: RiskLevel,
     decisionGate: DecisionGate,
-  },
-  $I.annote("TaskRow", {
-    description: "Implementation task row for the fallow-zero-dead-code goal.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaskRow", {
+      description: "Implementation task row for the fallow-zero-dead-code goal.",
+    })
+  )
 ) {}
 
-class TasksDocument extends S.Class<TasksDocument>($I`TasksDocument`)(
-  {
+class TasksDocument extends S.Opaque<TasksDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     schemaVersion: S.Literal("fallow-zero-dead-code/tasks/v1"),
     updated: TrimmedNonEmptyString,
     validatorVersion: S.Literal(validatorVersion),
     tasks: S.NonEmptyArray(TaskRow),
-  },
-  $I.annote("TasksDocument", {
-    description: "Task inventory for the fallow-zero-dead-code goal.",
-  })
+  }).pipe(
+    $I.annoteSchema("TasksDocument", {
+      description: "Task inventory for the fallow-zero-dead-code goal.",
+    })
+  )
 ) {}
 
 const ReviewFindingSeverity = LiteralKit(["required", "nice-to-have"]).pipe(
@@ -189,8 +194,8 @@ const ReviewClosureStatus = LiteralKit(["open", "fixed", "waived"]).pipe(
   $I.annoteSchema("ReviewClosureStatus", { description: "Closure status of a review finding." })
 );
 
-class ReviewFinding extends S.Class<ReviewFinding>($I`ReviewFinding`)(
-  {
+class ReviewFinding extends S.Opaque<ReviewFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TrimmedNonEmptyString,
     severity: ReviewFindingSeverity,
     title: TrimmedNonEmptyString,
@@ -198,65 +203,70 @@ class ReviewFinding extends S.Class<ReviewFinding>($I`ReviewFinding`)(
     concreteFix: TrimmedNonEmptyString,
     closureStatus: ReviewClosureStatus,
     closureEvidenceRefs: S.Array(RepoRefString),
-  },
-  $I.annote("ReviewFinding", {
-    description: "Single critic finding tracked toward packet closeout.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewFinding", {
+      description: "Single critic finding tracked toward packet closeout.",
+    })
+  )
 ) {}
 
-class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
-  {
+class ReviewRound extends S.Opaque<ReviewRound, { readonly brand: unique symbol }>()(
+  S.Struct({
     roundId: TrimmedNonEmptyString,
     criticId: TrimmedNonEmptyString,
     criticRole: TrimmedNonEmptyString,
     requiredFindingCount: S.Natural,
     openRequiredFindingCount: S.Natural,
     findings: S.Array(ReviewFinding),
-  },
-  $I.annote("ReviewRound", {
-    description: "Critic review round recorded during packet closeout.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewRound", {
+      description: "Critic review round recorded during packet closeout.",
+    })
+  )
 ) {}
 
-class ReviewRoundsDocument extends S.Class<ReviewRoundsDocument>($I`ReviewRoundsDocument`)(
-  {
+class ReviewRoundsDocument extends S.Opaque<ReviewRoundsDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("fallow-zero-dead-code/review-rounds/v1"),
     updated: TrimmedNonEmptyString,
     validatorVersion: S.Literal(validatorVersion),
     rounds: S.Array(ReviewRound),
-  },
-  $I.annote("ReviewRoundsDocument", {
-    description: "Review round inventory for the fallow-zero-dead-code goal.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewRoundsDocument", {
+      description: "Review round inventory for the fallow-zero-dead-code goal.",
+    })
+  )
 ) {}
 
-class ManifestInitiative extends S.Class<ManifestInitiative>($I`ManifestInitiative`)(
-  {
+class ManifestInitiative extends S.Opaque<ManifestInitiative, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Literal("fallow-zero-dead-code"),
     title: TrimmedNonEmptyString,
     status: TrimmedNonEmptyString,
     created: TrimmedNonEmptyString,
     updated: TrimmedNonEmptyString,
     packetAnchorDocument: S.Literal("SPEC.md"),
-  },
-  $I.annote("ManifestInitiative", {
-    description: "Initiative identity block of the packet manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManifestInitiative", {
+      description: "Initiative identity block of the packet manifest.",
+    })
+  )
 ) {}
 
-class ManifestPhase extends S.Class<ManifestPhase>($I`ManifestPhase`)(
-  {
+class ManifestPhase extends S.Opaque<ManifestPhase, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TaskPhase,
     name: TrimmedNonEmptyString,
     status: LiteralKit(["pending", "in-progress", "done"]),
-  },
-  $I.annote("ManifestPhase", {
-    description: "Phase row in the packet manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManifestPhase", {
+      description: "Phase row in the packet manifest.",
+    })
+  )
 ) {}
 
-class InitiativeManifestDocument extends S.Class<InitiativeManifestDocument>($I`InitiativeManifestDocument`)(
-  {
+class InitiativeManifestDocument extends S.Opaque<InitiativeManifestDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("initiative-manifest/v1"),
     initiative: ManifestInitiative,
     packetPath: S.Literal(packetRoot),
@@ -269,19 +279,21 @@ class InitiativeManifestDocument extends S.Class<InitiativeManifestDocument>($I`
     phases: S.NonEmptyArray(ManifestPhase),
     verificationCommands: S.NonEmptyArray(CommandString),
     stopConditions: S.NonEmptyArray(TrimmedNonEmptyString),
-  },
-  $I.annote("InitiativeManifestDocument", {
-    description: "Machine-readable routing manifest for the fallow-zero-dead-code packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("InitiativeManifestDocument", {
+      description: "Machine-readable routing manifest for the fallow-zero-dead-code packet.",
+    })
+  )
 ) {}
 
-class RegressionBaselineDocument extends S.Class<RegressionBaselineDocument>($I`RegressionBaselineDocument`)(
-  {
+class RegressionBaselineDocument extends S.Opaque<RegressionBaselineDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     check: S.Record(S.String, S.Number),
-  },
-  $I.annote("RegressionBaselineDocument", {
-    description: "Fallow dead-code regression baseline counts (only the check block is inspected).",
-  })
+  }).pipe(
+    $I.annoteSchema("RegressionBaselineDocument", {
+      description: "Fallow dead-code regression baseline counts (only the check block is inspected).",
+    })
+  )
 ) {}
 
 const decodeTasksDocument = S.decodeUnknownEffect(TasksDocument);

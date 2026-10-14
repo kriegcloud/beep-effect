@@ -63,14 +63,15 @@ const contractEquivalence = S.toEquivalence(SkillContract);
  * @category projections
  * @since 0.0.0
  */
-export class SkillMarkdownProjection extends S.Class<SkillMarkdownProjection>($I`SkillMarkdownProjection`)(
-  {
+export class SkillMarkdownProjection extends S.Opaque<SkillMarkdownProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     contract: SkillContract,
     projection: projectionKind,
-  },
-  $I.annote("SkillMarkdownProjection", {
-    description: "Versioned SKILL.md projection metadata containing the complete typed skill contract.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillMarkdownProjection", {
+      description: "Versioned SKILL.md projection metadata containing the complete typed skill contract.",
+    })
+  )
 ) {}
 const decodeUnknownSkillMarkdownProjectionResult = S.decodeUnknownResult(SkillMarkdownProjection);
 const encodeUnknownSkillMarkdownProjectionResult = S.encodeUnknownResult(SkillMarkdownProjection);
@@ -127,15 +128,16 @@ export type SkillArtifactDenialReason = typeof SkillArtifactDenialReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillArtifactCheck extends S.Class<SkillArtifactCheck>($I`SkillArtifactCheck`)(
-  {
+export class SkillArtifactCheck extends S.Opaque<SkillArtifactCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     check: artifactCheckName,
     detail: S.NonEmptyString,
     outcome: artifactCheckOutcome,
-  },
-  $I.annote("SkillArtifactCheck", {
-    description: "Named pass or failure observation recorded by skill artifact verification.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillArtifactCheck", {
+      description: "Named pass or failure observation recorded by skill artifact verification.",
+    })
+  )
 ) {}
 
 const AllowedChecksAreComplete = S.makeFilter(
@@ -178,14 +180,15 @@ const DeniedChecksRecordAFailure = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class SkillArtifactAllowed extends S.Class<SkillArtifactAllowed>($I`SkillArtifactAllowed`)(
-  {
+export class SkillArtifactAllowed extends S.Opaque<SkillArtifactAllowed, { readonly brand: unique symbol }>()(
+  S.Struct({
     checks: S.Tuple([SkillArtifactCheck, SkillArtifactCheck]).check(AllowedChecksAreComplete),
     verdict: S.tag("allowed"),
-  },
-  $I.annote("SkillArtifactAllowed", {
-    description: "Allowed artifact verdict proving byte equality and frontmatter contract equality.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillArtifactAllowed", {
+      description: "Allowed artifact verdict proving byte equality and frontmatter contract equality.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -204,15 +207,16 @@ export class SkillArtifactAllowed extends S.Class<SkillArtifactAllowed>($I`Skill
  * @category models
  * @since 0.0.0
  */
-export class SkillArtifactDenied extends S.Class<SkillArtifactDenied>($I`SkillArtifactDenied`)(
-  {
+export class SkillArtifactDenied extends S.Opaque<SkillArtifactDenied, { readonly brand: unique symbol }>()(
+  S.Struct({
     checks: S.NonEmptyArray(SkillArtifactCheck).check(DeniedChecksRecordAFailure),
     reasons: S.NonEmptyArray(SkillArtifactDenialReason),
     verdict: S.tag("denied"),
-  },
-  $I.annote("SkillArtifactDenied", {
-    description: "Denied artifact verdict retaining all failed reasons and ordered audit observations as values.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillArtifactDenied", {
+      description: "Denied artifact verdict retaining all failed reasons and ordered audit observations as values.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -262,14 +266,15 @@ export type SkillArtifactVerdict = typeof SkillArtifactVerdict.Type;
  * @category models
  * @since 0.0.0
  */
-export class VerifySkillArtifactInput extends S.Class<VerifySkillArtifactInput>($I`VerifySkillArtifactInput`)(
-  {
+export class VerifySkillArtifactInput extends S.Opaque<VerifySkillArtifactInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     committed: S.String,
     contract: SkillContract,
-  },
-  $I.annote("VerifySkillArtifactInput", {
-    description: "Typed skill contract and committed SKILL.md bytes evaluated for deterministic parity.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifySkillArtifactInput", {
+      description: "Typed skill contract and committed SKILL.md bytes evaluated for deterministic parity.",
+    })
+  )
 ) {}
 
 const gatesTable = (contract: SkillContract) =>

@@ -24,15 +24,22 @@ import type { AgentEffectivenessEvalLawLane, SkillOptTaskManifest } from "../Age
 const $I = $RepoCliId.create("commands/AgentEffectiveness/internal/EvalScoring");
 const SCORE_FORMAT_DIGITS = 6;
 
-class LawComponentScores extends S.Class<LawComponentScores>($I`LawComponentScores`)(
-  {
+/**
+ * Scores for one eval task, one law lane.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LawComponentScores extends S.Opaque<LawComponentScores, { readonly brand: unique symbol }>()(
+  S.Struct({
     biome: S.Finite,
     schemaFirst: S.Finite,
     tsgo: S.Finite,
-  },
-  $I.annote("LawComponentScores", {
-    description: "Scores for one eval task, one law lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("LawComponentScores", {
+      description: "Scores for one eval task, one law lane.",
+    })
+  )
 ) {}
 
 /**
@@ -50,14 +57,15 @@ class LawComponentScores extends S.Class<LawComponentScores>($I`LawComponentScor
  * @category scoring
  * @since 0.0.0
  */
-export class CompletionResult extends S.Class<CompletionResult>($I`CompletionResult`)(
-  {
+export class CompletionResult extends S.Opaque<CompletionResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     fraction: S.Finite,
     violations: S.Array(AgentEffectivenessEvalViolation),
-  },
-  $I.annote("CompletionResult", {
-    description: "Result of a completion.",
-  })
+  }).pipe(
+    $I.annoteSchema("CompletionResult", {
+      description: "Result of a completion.",
+    })
+  )
 ) {}
 
 /**
@@ -80,18 +88,19 @@ export class CompletionResult extends S.Class<CompletionResult>($I`CompletionRes
  * @category scoring
  * @since 0.0.0
  */
-export class LawEvaluation extends S.Class<LawEvaluation>($I`LawEvaluation`)(
-  {
+export class LawEvaluation extends S.Opaque<LawEvaluation, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaFirst: S.Array(AgentEffectivenessEvalViolation),
     tsgo: S.Array(AgentEffectivenessEvalViolation),
     biome: S.Array(AgentEffectivenessEvalViolation),
     lanes: S.Array(AgentEffectivenessEvalLaneReport).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<AgentEffectivenessEvalLaneReport>()))
     ),
-  },
-  $I.annote("LawEvaluation", {
-    description: "Result of a law evaluation.",
-  })
+  }).pipe(
+    $I.annoteSchema("LawEvaluation", {
+      description: "Result of a law evaluation.",
+    })
+  )
 ) {}
 
 /**
@@ -237,7 +246,7 @@ const buildAgentEffectivenessEvalScoreReport = (
   const schemaFirst = componentScore("schema-first", law.schemaFirst);
   const tsgo = componentScore("tsgo", law.tsgo);
   const biome = componentScore("biome", law.biome);
-  const lawFraction = aggregateLawFraction({ biome, schemaFirst, tsgo });
+  const lawFraction = aggregateLawFraction(LawComponentScores.make({ biome, schemaFirst, tsgo }));
   const violations = sortViolations([...completion.violations, ...law.schemaFirst, ...law.tsgo, ...law.biome]);
   return AgentEffectivenessEvalScoreReport.make({
     taskId: task.id,

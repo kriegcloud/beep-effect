@@ -120,30 +120,33 @@ export type PhoenixErrorReason = typeof PhoenixErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class PhoenixErrorOptions extends S.Class<PhoenixErrorOptions>($I`PhoenixErrorOptions`)(
-  {
+export class PhoenixErrorOptions extends S.Opaque<PhoenixErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.optionalKey(
       S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))
     ).annotateKey({
       description: "Optional failure cause converted to a redacted diagnostic label.",
     }),
-  },
-  $I.annote("PhoenixErrorOptions", {
-    description: "Options for configuring PhoenixError instances, including optional redacted cause data.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixErrorOptions", {
+      description: "Options for configuring PhoenixError instances, including optional redacted cause data.",
+    })
+  )
 ) {}
 
-class PhoenixErrorOperationOptionsInput extends S.Class<PhoenixErrorOperationOptionsInput>(
-  $I`PhoenixErrorOperationOptionsInput`
-)(
-  {
+class PhoenixErrorOperationOptionsInput extends S.Opaque<
+  PhoenixErrorOperationOptionsInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cause: S.optionalKey(S.Unknown).annotateKey({
       description: "Unknown operation failure cause accepted by PhoenixError.operation.",
     }),
-  },
-  $I.annote("PhoenixErrorOperationOptionsInput", {
-    description: "Operation error constructor input before redacted cause-label extraction.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixErrorOperationOptionsInput", {
+      description: "Operation error constructor input before redacted cause-label extraction.",
+    })
+  )
 ) {}
 
 /**
@@ -161,7 +164,7 @@ class PhoenixErrorOperationOptionsInput extends S.Class<PhoenixErrorOperationOpt
  * @category errors
  * @since 0.0.0
  */
-export class PhoenixError extends S.TaggedError<PhoenixError>($I`PhoenixError`)(
+export class PhoenixError extends S.TaggedError<PhoenixError, { readonly brand: unique symbol }>($I`PhoenixError`)(
   "PhoenixError",
   {
     cause: S.optionalKey(S.String).annotateKey({

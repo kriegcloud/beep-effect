@@ -24,7 +24,7 @@ import { GuardExceeded, MAX_NESTING_DEPTH } from "./limits.ts";
 
 const $I = $ScratchpadId.create("effected/toml/internal/stringifyValue");
 
-class TomlStringifyInvariantError extends S.TaggedError<TomlStringifyInvariantError>($I`TomlStringifyInvariantError`)(
+class TomlStringifyInvariantError extends S.TaggedError<TomlStringifyInvariantError, { readonly brand: unique symbol }>($I`TomlStringifyInvariantError`)(
 	"TomlStringifyInvariantError",
 	{ message: S.String.annotateKey({ description: "Explanation of the violated stringify engine invariant." }) },
 	$I.annote("TomlStringifyInvariantError", { description: "An impossible state in the TOML value emitter." }),

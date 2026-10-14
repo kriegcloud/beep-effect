@@ -44,8 +44,7 @@ const formatIssue = SchemaIssue.makeFormatterDefault();
  * @category models
  * @since 0.0.0
  */
-export class Violation extends S.Class<Violation>($I`Violation`)(
-  {
+export class Violation extends S.Opaque<Violation, { readonly brand: unique symbol }>()(S.Struct({
     /** Formatted path to the rejected field or collection element. */
     path: S.NonEmptyString.pipe(
       $I.annoteKey("Violation.path", {
@@ -66,11 +65,9 @@ export class Violation extends S.Class<Violation>($I`Violation`)(
         description: "Optional rejected input retained when schema decoding enabled input reporting.",
       })
     ),
-  },
-  $I.annote("Violation", {
+  }).pipe($I.annoteSchema("Violation", {
     description: "Flattened Effect Schema violation used by extraction feedback.",
-  })
-) {}
+  }))) {}
 
 /**
  * Flattens an Effect v4 `SchemaError` into deterministic path/message records.

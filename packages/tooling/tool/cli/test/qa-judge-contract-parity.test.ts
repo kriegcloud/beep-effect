@@ -50,6 +50,7 @@ import {
   SkillContract,
   verifySkillArtifact,
 } from "@beep/skill-contract";
+import { VerifySkillArtifactInput } from "@beep/skill-contract/SkillProjection";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
@@ -327,7 +328,7 @@ it.layer(Layer.merge(MemoryPlatformLayer, BunCrypto.layer), { timeout: "30 secon
         const digest = yield* decodeSha256HexFromBytes(new TextEncoder().encode(QaJudgeContractSubject.name));
 
         expect(QaJudgeContractSubject.name).toBe(`${QaJudgeContract.id}@${QaJudgeContract.version}`);
-        expect(QaJudgeContract.evidenceSubject).toBe(QaJudgeContractSubject);
+        expect(QaJudgeContract.evidenceSubject).toEqual(QaJudgeContractSubject);
         expect(QaJudgeContractSubject.digest.sha256).toBe(digest);
       })
     );
@@ -651,7 +652,9 @@ it.layer(PlatformLayer, { timeout: "30 seconds" })("commands/Qa judge contract S
   it.effect("verifies the committed qa-inventory judge SKILL.md artifact", () =>
     Effect.gen(function* () {
       const committed = yield* committedArtifact();
-      const verdict = yield* verifySkillArtifact({ committed, contract: QaJudgeContract });
+      const verdict = yield* verifySkillArtifact(
+        VerifySkillArtifactInput.make({ committed, contract: QaJudgeContract })
+      );
 
       expect(verdict.verdict).toBe("allowed");
     })
@@ -660,10 +663,12 @@ it.layer(PlatformLayer, { timeout: "30 seconds" })("commands/Qa judge contract S
   it.effect("denies a mutated copy of the committed SKILL.md artifact", () =>
     Effect.gen(function* () {
       const committed = yield* committedArtifact();
-      const verdict = yield* verifySkillArtifact({
-        committed: Str.replace("Mode: none", "Mode: tampered")(committed),
-        contract: QaJudgeContract,
-      });
+      const verdict = yield* verifySkillArtifact(
+        VerifySkillArtifactInput.make({
+          committed: Str.replace("Mode: none", "Mode: tampered")(committed),
+          contract: QaJudgeContract,
+        })
+      );
 
       expect(verdict.verdict).toBe("denied");
       expect(

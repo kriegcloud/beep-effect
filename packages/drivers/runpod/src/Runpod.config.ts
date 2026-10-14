@@ -111,8 +111,8 @@ const runpodConfigInputHeadersDefault = R.empty();
  * @category models
  * @since 0.1.0
  */
-export class RunpodConfigInput extends S.Class<RunpodConfigInput>($I`RunpodConfigInput`)(
-  {
+export class RunpodConfigInput extends S.Opaque<RunpodConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
     apiUrl: RunpodConfigUrl.pipe(
       S.withConstructorDefault(Effect.succeed(RUNPOD_API_URL)),
@@ -122,10 +122,11 @@ export class RunpodConfigInput extends S.Class<RunpodConfigInput>($I`RunpodConfi
       S.withConstructorDefault(Effect.succeed(runpodConfigInputHeadersDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(runpodConfigInputHeadersDefault))
     ),
-  },
-  $I.annote("RunpodConfigInput", {
-    description: "Runtime configuration accepted by the Runpod REST API driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodConfigInput", {
+      description: "Runtime configuration accepted by the Runpod REST API driver layer.",
+    })
+  )
 ) {}
 
 const runpodDocsConfigInputHeadersDefault = R.empty();
@@ -146,8 +147,8 @@ const runpodDocsConfigInputHeadersDefault = R.empty();
  * @category models
  * @since 0.1.0
  */
-export class RunpodDocsConfigInput extends S.Class<RunpodDocsConfigInput>($I`RunpodDocsConfigInput`)(
-  {
+export class RunpodDocsConfigInput extends S.Opaque<RunpodDocsConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     headers: S.Record(S.String, S.String).pipe(
       S.withConstructorDefault(Effect.succeed(runpodDocsConfigInputHeadersDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(runpodDocsConfigInputHeadersDefault))
@@ -156,8 +157,9 @@ export class RunpodDocsConfigInput extends S.Class<RunpodDocsConfigInput>($I`Run
       S.withConstructorDefault(Effect.succeed(RUNPOD_DOCS_INDEX_URL)),
       S.withDecodingDefaultTypeKey(Effect.succeed(RUNPOD_DOCS_INDEX_URL))
     ),
-  },
-  $I.annote("RunpodDocsConfigInput", {
-    description: "Runtime configuration accepted by the Runpod documentation index driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodDocsConfigInput", {
+      description: "Runtime configuration accepted by the Runpod documentation index driver layer.",
+    })
+  )
 ) {}

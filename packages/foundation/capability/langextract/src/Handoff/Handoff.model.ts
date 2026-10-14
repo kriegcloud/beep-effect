@@ -38,15 +38,16 @@ const GroundedExtractions: S.Codec<
  * @category interop
  * @since 0.0.0
  */
-export class AnnotatedDocumentInput extends S.Class<AnnotatedDocumentInput>($I`AnnotatedDocumentInput`)(
-  {
+export class AnnotatedDocumentInput extends S.Opaque<AnnotatedDocumentInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentId: DocumentId,
     extractions: GroundedExtractions,
     generatedBy: S.String,
     text: S.String,
     timestamp: S.Finite,
-  },
-  $I.annote("AnnotatedDocumentInput", {
-    description: "Input required to convert LangExtract extractions into the NLP handoff envelope.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnnotatedDocumentInput", {
+      description: "Input required to convert LangExtract extractions into the NLP handoff envelope.",
+    })
+  )
 ) {}

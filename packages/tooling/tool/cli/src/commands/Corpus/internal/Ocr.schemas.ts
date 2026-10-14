@@ -57,8 +57,8 @@ const pageIdentityFields = {
  * @category models
  * @since 0.0.0
  */
-export class CorpusPageReadRecord extends S.Class<CorpusPageReadRecord>($I`CorpusPageReadRecord`)(
-  {
+export class CorpusPageReadRecord extends S.Opaque<CorpusPageReadRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...pageIdentityFields,
     charCount: S.Natural,
     confidence: S.optionalKey(UnitInterval),
@@ -68,11 +68,12 @@ export class CorpusPageReadRecord extends S.Class<CorpusPageReadRecord>($I`Corpu
     textPath: PosixPath,
     timing: PageOcrTiming,
     warnings: S.Array(PageOcrWarning),
-  },
-  $I.annote("CorpusPageReadRecord", {
-    description:
-      "One engine's reading of one page: character count, mean confidence, and the path and digest of the page text.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusPageReadRecord", {
+      description:
+        "One engine's reading of one page: character count, mean confidence, and the path and digest of the page text.",
+    })
+  )
 ) {}
 
 /**
@@ -127,16 +128,17 @@ export type CorpusPageFailureReason = typeof CorpusPageFailureReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class CorpusPageFailedRecord extends S.Class<CorpusPageFailedRecord>($I`CorpusPageFailedRecord`)(
-  {
+export class CorpusPageFailedRecord extends S.Opaque<CorpusPageFailedRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...pageIdentityFields,
     message: S.String,
     reason: CorpusPageFailureReason,
     status: S.Literal("failed"),
-  },
-  $I.annote("CorpusPageFailedRecord", {
-    description: "One engine's failed attempt at one page, with the sanitized reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusPageFailedRecord", {
+      description: "One engine's failed attempt at one page, with the sanitized reason.",
+    })
+  )
 ) {}
 
 /**
@@ -210,8 +212,8 @@ export const CorpusPageReadingRecordJson = JsonStringCodec(CorpusPageReadingReco
  * @category models
  * @since 0.0.0
  */
-export class CorpusExtractOcrCounts extends S.Class<CorpusExtractOcrCounts>($I`CorpusExtractOcrCounts`)(
-  {
+export class CorpusExtractOcrCounts extends S.Opaque<CorpusExtractOcrCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     completed: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
@@ -227,11 +229,12 @@ export class CorpusExtractOcrCounts extends S.Class<CorpusExtractOcrCounts>($I`C
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
     readPageCount: S.Natural,
-  },
-  $I.annote("CorpusExtractOcrCounts", {
-    description:
-      "OCR page counts and missing language models for one source; completed is false when no model could be selected, and pageCountFailed marks an uncountable PDF. Older counts decode without missing languages and as completed.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusExtractOcrCounts", {
+      description:
+        "OCR page counts and missing language models for one source; completed is false when no model could be selected, and pageCountFailed marks an uncountable PDF. Older counts decode without missing languages and as completed.",
+    })
+  )
 ) {}
 
 /**
@@ -249,17 +252,18 @@ export class CorpusExtractOcrCounts extends S.Class<CorpusExtractOcrCounts>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CorpusOcrLanguageReport extends S.Class<CorpusOcrLanguageReport>($I`CorpusOcrLanguageReport`)(
-  {
+export class CorpusOcrLanguageReport extends S.Opaque<CorpusOcrLanguageReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     engine: PageOcrEngineIdentity,
     installed: S.Array(S.NonEmptyString),
     missing: S.Array(S.NonEmptyString),
     scriptDetection: S.Boolean,
-  },
-  $I.annote("CorpusOcrLanguageReport", {
-    description:
-      "The OCR engine that ran, its installed language models, the requested models that are missing, and whether script detection was available.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusOcrLanguageReport", {
+      description:
+        "The OCR engine that ran, its installed language models, the requested models that are missing, and whether script detection was available.",
+    })
+  )
 ) {}
 
 /**

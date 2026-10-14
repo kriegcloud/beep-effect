@@ -109,7 +109,7 @@ export type ReviewStatus = typeof ReviewStatus.Type;
  * ```ts
  * import { ReviewGate } from "@beep/oip-web/content"
  *
- * const gate = new ReviewGate({
+ * const gate = ReviewGate.make({
  *   note: "Launch approved.",
  *   status: "approved"
  * })
@@ -120,14 +120,15 @@ export type ReviewStatus = typeof ReviewStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReviewGate extends S.Class<ReviewGate>($I`ReviewGate`)(
-  {
+export class ReviewGate extends S.Opaque<ReviewGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: ReviewStatus,
     note: S.String,
-  },
-  $I.annote("ReviewGate", {
-    description: "Review note attached to a public website claim.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewGate", {
+      description: "Review note attached to a public website claim.",
+    })
+  )
 ) {}
 
 /**
@@ -138,7 +139,7 @@ export class ReviewGate extends S.Class<ReviewGate>($I`ReviewGate`)(
  * ```ts
  * import { ExternalLink } from "@beep/oip-web/content"
  *
- * const link = new ExternalLink({
+ * const link = ExternalLink.make({
  *   href: "https://example.com",
  *   label: "Source"
  * })
@@ -149,14 +150,15 @@ export class ReviewGate extends S.Class<ReviewGate>($I`ReviewGate`)(
  * @category models
  * @since 0.0.0
  */
-export class ExternalLink extends S.Class<ExternalLink>($I`ExternalLink`)(
-  {
+export class ExternalLink extends S.Opaque<ExternalLink, { readonly brand: unique symbol }>()(
+  S.Struct({
     href: HttpsUrl,
     label: S.String,
-  },
-  $I.annote("ExternalLink", {
-    description: "External link displayed by the public OIP website.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExternalLink", {
+      description: "External link displayed by the public OIP website.",
+    })
+  )
 ) {}
 
 /**
@@ -215,7 +217,7 @@ export type SocialPlatform = typeof SocialPlatform.Type;
  * ```ts
  * import { SocialLink } from "@beep/oip-web/content"
  *
- * const link = new SocialLink({
+ * const link = SocialLink.make({
  *   href: "https://www.instagram.com/oip.law/",
  *   label: "OIP on Instagram",
  *   platform: "instagram"
@@ -227,8 +229,8 @@ export type SocialPlatform = typeof SocialPlatform.Type;
  * @category models
  * @since 0.0.0
  */
-export class SocialLink extends S.Class<SocialLink>($I`SocialLink`)(
-  {
+export class SocialLink extends S.Opaque<SocialLink, { readonly brand: unique symbol }>()(
+  S.Struct({
     href: HttpsUrl,
     label: S.String,
     platform: SocialPlatform,
@@ -236,10 +238,11 @@ export class SocialLink extends S.Class<SocialLink>($I`SocialLink`)(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultKey(Effect.succeed(true))
     ),
-  },
-  $I.annote("SocialLink", {
-    description: "Public social media profile link for the OIP firm.",
-  })
+  }).pipe(
+    $I.annoteSchema("SocialLink", {
+      description: "Public social media profile link for the OIP firm.",
+    })
+  )
 ) {}
 
 /**
@@ -250,7 +253,7 @@ export class SocialLink extends S.Class<SocialLink>($I`SocialLink`)(
  * ```ts
  * import { SiteAsset } from "@beep/oip-web/content"
  *
- * const asset = new SiteAsset({
+ * const asset = SiteAsset.make({
  *   alt: "Patent drawing",
  *   src: "/oip/patent.png"
  * })
@@ -261,17 +264,18 @@ export class SocialLink extends S.Class<SocialLink>($I`SocialLink`)(
  * @category models
  * @since 0.0.0
  */
-export class SiteAsset extends S.Class<SiteAsset>($I`SiteAsset`)(
-  {
+export class SiteAsset extends S.Opaque<SiteAsset, { readonly brand: unique symbol }>()(
+  S.Struct({
     alt: S.String,
     credit: S.optionalKey(S.String),
     height: S.optionalKey(ImagePixelDimension),
     src: PublicAssetPath,
     width: S.optionalKey(ImagePixelDimension),
-  },
-  $I.annote("SiteAsset", {
-    description: "Runtime asset reference served by the OIP website.",
-  })
+  }).pipe(
+    $I.annoteSchema("SiteAsset", {
+      description: "Runtime asset reference served by the OIP website.",
+    })
+  )
 ) {}
 
 /**
@@ -282,7 +286,7 @@ export class SiteAsset extends S.Class<SiteAsset>($I`SiteAsset`)(
  * ```ts
  * import { SiteMetadataContent } from "@beep/oip-web/content"
  *
- * const metadata = new SiteMetadataContent({
+ * const metadata = SiteMetadataContent.make({
  *   description: "Patent counsel.",
  *   linkedInUrl: "https://linkedin.com/company/example",
  *   ogImage: "/oip/og.png",
@@ -297,18 +301,19 @@ export class SiteAsset extends S.Class<SiteAsset>($I`SiteAsset`)(
  * @category models
  * @since 0.0.0
  */
-export class SiteMetadataContent extends S.Class<SiteMetadataContent>($I`SiteMetadataContent`)(
-  {
+export class SiteMetadataContent extends S.Opaque<SiteMetadataContent, { readonly brand: unique symbol }>()(
+  S.Struct({
     description: S.String,
     linkedInUrl: HttpsUrl,
     ogImage: PublicAssetPath,
     siteName: S.String,
     siteUrl: HttpsUrl,
     title: S.String,
-  },
-  $I.annote("SiteMetadataContent", {
-    description: "Top-level metadata used by Next.js and JSON-LD generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("SiteMetadataContent", {
+      description: "Top-level metadata used by Next.js and JSON-LD generation.",
+    })
+  )
 ) {}
 
 /**
@@ -319,21 +324,22 @@ export class SiteMetadataContent extends S.Class<SiteMetadataContent>($I`SiteMet
  * ```ts
  * import { NavItem } from "@beep/oip-web/content"
  *
- * const item = new NavItem({ href: "#contact", label: "Contact" })
+ * const item = NavItem.make({ href: "#contact", label: "Contact" })
  * console.log(item.label)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class NavItem extends S.Class<NavItem>($I`NavItem`)(
-  {
+export class NavItem extends S.Opaque<NavItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     href: HashAnchor,
     label: S.String,
-  },
-  $I.annote("NavItem", {
-    description: "Anchor navigation item for the OIP home page.",
-  })
+  }).pipe(
+    $I.annoteSchema("NavItem", {
+      description: "Anchor navigation item for the OIP home page.",
+    })
+  )
 ) {}
 
 /**
@@ -344,9 +350,9 @@ export class NavItem extends S.Class<NavItem>($I`NavItem`)(
  * ```ts
  * import { HeroClip, SiteAsset } from "@beep/oip-web/content"
  *
- * const clip = new HeroClip({
- *   poster: new SiteAsset({ alt: "", src: "/oip/hero-vid-poster.jpg" }),
- *   video: new SiteAsset({ alt: "", src: "/oip/hero-vid.mp4" })
+ * const clip = HeroClip.make({
+ *   poster: SiteAsset.make({ alt: "", src: "/oip/hero-vid-poster.jpg" }),
+ *   video: SiteAsset.make({ alt: "", src: "/oip/hero-vid.mp4" })
  * })
  *
  * console.log(clip.video.src)
@@ -356,14 +362,15 @@ export class NavItem extends S.Class<NavItem>($I`NavItem`)(
  * @since 0.0.0
  */
 // fallow-ignore-next-line unused-export -- nested public schema is consumed through HeroContent rather than direct imports
-export class HeroClip extends S.Class<HeroClip>($I`HeroClip`)(
-  {
+export class HeroClip extends S.Opaque<HeroClip, { readonly brand: unique symbol }>()(
+  S.Struct({
     poster: SiteAsset,
     video: SiteAsset,
-  },
-  $I.annote("HeroClip", {
-    description: "A single rotating hero background clip for the OIP home page.",
-  })
+  }).pipe(
+    $I.annoteSchema("HeroClip", {
+      description: "A single rotating hero background clip for the OIP home page.",
+    })
+  )
 ) {}
 
 /**
@@ -374,15 +381,15 @@ export class HeroClip extends S.Class<HeroClip>($I`HeroClip`)(
  * ```ts
  * import { HeroClip, HeroContent, NavItem, SiteAsset } from "@beep/oip-web/content"
  *
- * const link = new NavItem({ href: "#contact", label: "Contact" })
- * const asset = new SiteAsset({ alt: "Hero", src: "/oip/hero.jpg" })
- * const hero = new HeroContent({
+ * const link = NavItem.make({ href: "#contact", label: "Contact" })
+ * const asset = SiteAsset.make({ alt: "Hero", src: "/oip/hero.jpg" })
+ * const hero = HeroContent.make({
  *   headline: "Patent counsel.",
  *   lede: "For builders.",
  *   portrait: asset,
  *   primaryCta: link,
  *   secondaryCta: link,
- *   clips: [new HeroClip({ poster: asset, video: asset })]
+ *   clips: [HeroClip.make({ poster: asset, video: asset })]
  * })
  *
  * console.log(hero.headline)
@@ -391,18 +398,19 @@ export class HeroClip extends S.Class<HeroClip>($I`HeroClip`)(
  * @category models
  * @since 0.0.0
  */
-export class HeroContent extends S.Class<HeroContent>($I`HeroContent`)(
-  {
+export class HeroContent extends S.Opaque<HeroContent, { readonly brand: unique symbol }>()(
+  S.Struct({
     headline: S.String,
     lede: S.String,
     primaryCta: NavItem,
     secondaryCta: NavItem,
     portrait: SiteAsset,
     clips: S.NonEmptyArray(HeroClip),
-  },
-  $I.annote("HeroContent", {
-    description: "Hero opening claim and rotating background media for the OIP home page.",
-  })
+  }).pipe(
+    $I.annoteSchema("HeroContent", {
+      description: "Hero opening claim and rotating background media for the OIP home page.",
+    })
+  )
 ) {}
 
 /**
@@ -413,10 +421,10 @@ export class HeroContent extends S.Class<HeroContent>($I`HeroContent`)(
  * ```ts
  * import { AboutPanel, SiteAsset } from "@beep/oip-web/content"
  *
- * const panel = new AboutPanel({
+ * const panel = AboutPanel.make({
  *   body: "Trial and prosecution experience.",
  *   id: "law",
- *   image: new SiteAsset({ alt: "Portrait", src: "/oip/portrait.png" }),
+ *   image: SiteAsset.make({ alt: "Portrait", src: "/oip/portrait.png" }),
  *   title: "Patent practice"
  * })
  *
@@ -426,16 +434,17 @@ export class HeroContent extends S.Class<HeroContent>($I`HeroContent`)(
  * @category models
  * @since 0.0.0
  */
-export class AboutPanel extends S.Class<AboutPanel>($I`AboutPanel`)(
-  {
+export class AboutPanel extends S.Opaque<AboutPanel, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.String,
     id: S.String,
     image: SiteAsset,
     title: S.String,
-  },
-  $I.annote("AboutPanel", {
-    description: "Biographical bridge panel for the OIP home page.",
-  })
+  }).pipe(
+    $I.annoteSchema("AboutPanel", {
+      description: "Biographical bridge panel for the OIP home page.",
+    })
+  )
 ) {}
 
 /**
@@ -446,7 +455,7 @@ export class AboutPanel extends S.Class<AboutPanel>($I`AboutPanel`)(
  * ```ts
  * import { PracticeArea } from "@beep/oip-web/content"
  *
- * const practice = new PracticeArea({
+ * const practice = PracticeArea.make({
  *   body: "Patent prosecution and litigation.",
  *   id: "01",
  *   title: "Patents"
@@ -458,15 +467,16 @@ export class AboutPanel extends S.Class<AboutPanel>($I`AboutPanel`)(
  * @category models
  * @since 0.0.0
  */
-export class PracticeArea extends S.Class<PracticeArea>($I`PracticeArea`)(
-  {
+export class PracticeArea extends S.Opaque<PracticeArea, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.String,
     id: S.String,
     title: S.String,
-  },
-  $I.annote("PracticeArea", {
-    description: "Practice-area summary for the OIP home page.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeArea", {
+      description: "Practice-area summary for the OIP home page.",
+    })
+  )
 ) {}
 
 /**
@@ -477,14 +487,14 @@ export class PracticeArea extends S.Class<PracticeArea>($I`PracticeArea`)(
  * ```ts
  * import { ExternalLink, MatterItem, ReviewGate, SiteAsset } from "@beep/oip-web/content"
  *
- * const matter = new MatterItem({
+ * const matter = MatterItem.make({
  *   body: "Representative public matter.",
  *   caption: "Litigation",
  *   eyebrow: "1999",
- *   figure: new SiteAsset({ alt: "Patent drawing", src: "/oip/patent.png" }),
+ *   figure: SiteAsset.make({ alt: "Patent drawing", src: "/oip/patent.png" }),
  *   id: "matter",
- *   review: new ReviewGate({ note: "Approved.", status: "approved" }),
- *   source: new ExternalLink({ href: "https://example.com", label: "Read" }),
+ *   review: ReviewGate.make({ note: "Approved.", status: "approved" }),
+ *   source: ExternalLink.make({ href: "https://example.com", label: "Read" }),
  *   title: "Matter"
  * })
  *
@@ -494,8 +504,8 @@ export class PracticeArea extends S.Class<PracticeArea>($I`PracticeArea`)(
  * @category models
  * @since 0.0.0
  */
-export class MatterItem extends S.Class<MatterItem>($I`MatterItem`)(
-  {
+export class MatterItem extends S.Opaque<MatterItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.String,
     caption: S.String,
     citation: S.optionalKey(S.String),
@@ -505,10 +515,11 @@ export class MatterItem extends S.Class<MatterItem>($I`MatterItem`)(
     review: ReviewGate,
     source: ExternalLink,
     title: S.String,
-  },
-  $I.annote("MatterItem", {
-    description: "Selected matter summary for the OIP home page.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterItem", {
+      description: "Selected matter summary for the OIP home page.",
+    })
+  )
 ) {}
 
 /**
@@ -519,11 +530,11 @@ export class MatterItem extends S.Class<MatterItem>($I`MatterItem`)(
  * ```ts
  * import { ClientLogo, ReviewGate, SiteAsset } from "@beep/oip-web/content"
  *
- * const client = new ClientLogo({
+ * const client = ClientLogo.make({
  *   aspectRatio: "4/1",
  *   id: "client",
- *   logo: new SiteAsset({ alt: "Client", src: "/oip/client.svg" }),
- *   review: new ReviewGate({ note: "Approved.", status: "approved" }),
+ *   logo: SiteAsset.make({ alt: "Client", src: "/oip/client.svg" }),
+ *   review: ReviewGate.make({ note: "Approved.", status: "approved" }),
  *   website: "https://example.com"
  * })
  *
@@ -533,17 +544,18 @@ export class MatterItem extends S.Class<MatterItem>($I`MatterItem`)(
  * @category models
  * @since 0.0.0
  */
-export class ClientLogo extends S.Class<ClientLogo>($I`ClientLogo`)(
-  {
+export class ClientLogo extends S.Opaque<ClientLogo, { readonly brand: unique symbol }>()(
+  S.Struct({
     aspectRatio: CssAspectRatio,
     id: S.String,
     logo: SiteAsset,
     review: ReviewGate,
     website: S.optionalKey(HttpsUrl),
-  },
-  $I.annote("ClientLogo", {
-    description: "Client logo reference for the OIP home page.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClientLogo", {
+      description: "Client logo reference for the OIP home page.",
+    })
+  )
 ) {}
 
 /**
@@ -554,13 +566,13 @@ export class ClientLogo extends S.Class<ClientLogo>($I`ClientLogo`)(
  * ```ts
  * import { ExternalLink, PressItem } from "@beep/oip-web/content"
  *
- * const press = new PressItem({
+ * const press = PressItem.make({
  *   body: "Coverage summary.",
  *   date: "2026-05-14",
  *   dateLabel: "May 14, 2026",
  *   headline: "Patent coverage",
  *   publication: "Publication",
- *   source: new ExternalLink({ href: "https://example.com", label: "Read" })
+ *   source: ExternalLink.make({ href: "https://example.com", label: "Read" })
  * })
  *
  * console.log(press.publication)
@@ -569,18 +581,19 @@ export class ClientLogo extends S.Class<ClientLogo>($I`ClientLogo`)(
  * @category models
  * @since 0.0.0
  */
-export class PressItem extends S.Class<PressItem>($I`PressItem`)(
-  {
+export class PressItem extends S.Opaque<PressItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.String,
     date: PressDate,
     dateLabel: S.String,
     headline: S.String,
     publication: S.String,
     source: ExternalLink,
-  },
-  $I.annote("PressItem", {
-    description: "Press item summary for the OIP home page.",
-  })
+  }).pipe(
+    $I.annoteSchema("PressItem", {
+      description: "Press item summary for the OIP home page.",
+    })
+  )
 ) {}
 
 /**
@@ -591,12 +604,12 @@ export class PressItem extends S.Class<PressItem>($I`PressItem`)(
  * ```ts
  * import { ContactContent, ReviewGate } from "@beep/oip-web/content"
  *
- * const contact = new ContactContent({
+ * const contact = ContactContent.make({
  *   email: "hello@example.com",
  *   lede: "Reach out.",
  *   notice: ["No attorney-client relationship is formed by this website."],
  *   officePhone: "+16125550100",
- *   review: new ReviewGate({ note: "Approved.", status: "approved" }),
+ *   review: ReviewGate.make({ note: "Approved.", status: "approved" }),
  *   title: "Contact"
  * })
  *
@@ -606,8 +619,8 @@ export class PressItem extends S.Class<PressItem>($I`PressItem`)(
  * @category models
  * @since 0.0.0
  */
-export class ContactContent extends S.Class<ContactContent>($I`ContactContent`)(
-  {
+export class ContactContent extends S.Opaque<ContactContent, { readonly brand: unique symbol }>()(
+  S.Struct({
     email: EmailString.check(
       S.isLowercased({
         arbitraryConstraint: { patterns: [{ source: "^[a-z][a-z0-9]{0,15}@example\\.com$", flags: "" }] },
@@ -618,10 +631,11 @@ export class ContactContent extends S.Class<ContactContent>($I`ContactContent`)(
     officePhone: S.NonEmptyString,
     review: ReviewGate,
     title: S.String,
-  },
-  $I.annote("ContactContent", {
-    description: "Public contact and legal notice content for the OIP home page.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContactContent", {
+      description: "Public contact and legal notice content for the OIP home page.",
+    })
+  )
 ) {}
 
 /**
@@ -632,15 +646,15 @@ export class ContactContent extends S.Class<ContactContent>($I`ContactContent`)(
  * ```ts
  * import { OipSiteContent, oipSiteContent } from "@beep/oip-web/content"
  *
- * const content = new OipSiteContent(oipSiteContent)
+ * const content = OipSiteContent.make(oipSiteContent)
  * console.log(content.metadata.siteName)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class OipSiteContent extends S.Class<OipSiteContent>($I`OipSiteContent`)(
-  {
+export class OipSiteContent extends S.Opaque<OipSiteContent, { readonly brand: unique symbol }>()(
+  S.Struct({
     about: S.NonEmptyArray(AboutPanel),
     clients: S.NonEmptyArray(ClientLogo),
     contact: ContactContent,
@@ -654,10 +668,11 @@ export class OipSiteContent extends S.Class<OipSiteContent>($I`OipSiteContent`)(
       S.withConstructorDefault(Effect.succeed([])),
       S.withDecodingDefaultKey(Effect.succeed([]))
     ),
-  },
-  $I.annote("OipSiteContent", {
-    description: "Complete content contract for the OIP public site.",
-  })
+  }).pipe(
+    $I.annoteSchema("OipSiteContent", {
+      description: "Complete content contract for the OIP public site.",
+    })
+  )
 ) {
   static readonly decodeUnknownResult = S.decodeUnknownResult(this);
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);

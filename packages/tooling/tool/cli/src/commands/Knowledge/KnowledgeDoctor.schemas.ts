@@ -227,15 +227,19 @@ export type KnowledgeHistoricalCitationForm = typeof KnowledgeHistoricalCitation
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeHistoricalCitation extends S.Class<KnowledgeHistoricalCitation>($I`KnowledgeHistoricalCitation`)(
-  {
+export class KnowledgeHistoricalCitation extends S.Opaque<
+  KnowledgeHistoricalCitation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     form: KnowledgeHistoricalCitationForm,
     commit: KnowledgeCommitSha,
     line: S.Natural,
-  },
-  $I.annote("KnowledgeHistoricalCitation", {
-    description: "A historical citation marker, its cited commit, and the 1-based line it sits on.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeHistoricalCitation", {
+      description: "A historical citation marker, its cited commit, and the 1-based line it sits on.",
+    })
+  )
 ) {}
 
 /**
@@ -271,8 +275,8 @@ export class KnowledgeHistoricalCitation extends S.Class<KnowledgeHistoricalCita
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSpan extends S.Class<KnowledgeSpan>($I`KnowledgeSpan`)(
-  {
+export class KnowledgeSpan extends S.Opaque<KnowledgeSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     form: KnowledgeSpanForm,
     documentPath: S.String,
     surface: KnowledgeRefSurface,
@@ -280,10 +284,11 @@ export class KnowledgeSpan extends S.Class<KnowledgeSpan>($I`KnowledgeSpan`)(
     raw: S.String,
     generatedBy: S.OptionFromOptionalKey(S.String),
     citation: S.OptionFromOptionalKey(KnowledgeHistoricalCitation),
-  },
-  $I.annote("KnowledgeSpan", {
-    description: "One extracted knowledge reference span plus its classification context.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSpan", {
+      description: "One extracted knowledge reference span plus its classification context.",
+    })
+  )
 ) {}
 
 /**
@@ -302,14 +307,15 @@ export class KnowledgeSpan extends S.Class<KnowledgeSpan>($I`KnowledgeSpan`)(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeProducerOutput extends S.Class<KnowledgeProducerOutput>($I`KnowledgeProducerOutput`)(
-  {
+export class KnowledgeProducerOutput extends S.Opaque<KnowledgeProducerOutput, { readonly brand: unique symbol }>()(
+  S.Struct({
     producerId: S.String,
     targetPath: S.String,
-  },
-  $I.annote("KnowledgeProducerOutput", {
-    description: "A registered producer id and the derived repository path it owns.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeProducerOutput", {
+      description: "A registered producer id and the derived repository path it owns.",
+    })
+  )
 ) {}
 
 /**
@@ -331,12 +337,12 @@ export class KnowledgeProducerOutput extends S.Class<KnowledgeProducerOutput>($I
  * @category models
  * @since 0.0.0
  */
-export class TreeEntryWitness extends S.TaggedClass<TreeEntryWitness>($I`TreeEntryWitness`)(
-  "TreeEntryWitness",
-  { path: S.String },
-  $I.annote("TreeEntryWitness", {
-    description: "A tracked tree entry or directory whose existence resolved a span.",
-  })
+export class TreeEntryWitness extends S.Opaque<TreeEntryWitness, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("TreeEntryWitness", { path: S.String }).pipe(
+    $I.annoteSchema("TreeEntryWitness", {
+      description: "A tracked tree entry or directory whose existence resolved a span.",
+    })
+  )
 ) {}
 
 /**
@@ -361,12 +367,12 @@ export class TreeEntryWitness extends S.TaggedClass<TreeEntryWitness>($I`TreeEnt
  * @category models
  * @since 0.0.0
  */
-export class CommandNodeWitness extends S.TaggedClass<CommandNodeWitness>($I`CommandNodeWitness`)(
-  "CommandNodeWitness",
-  { commandPath: S.Array(S.String), option: S.optionalKey(S.String) },
-  $I.annote("CommandNodeWitness", {
-    description: "A static command node, or one declared flag on it, that resolved a span.",
-  })
+export class CommandNodeWitness extends S.Opaque<CommandNodeWitness, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("CommandNodeWitness", { commandPath: S.Array(S.String), option: S.optionalKey(S.String) }).pipe(
+    $I.annoteSchema("CommandNodeWitness", {
+      description: "A static command node, or one declared flag on it, that resolved a span.",
+    })
+  )
 ) {}
 
 /**
@@ -385,12 +391,12 @@ export class CommandNodeWitness extends S.TaggedClass<CommandNodeWitness>($I`Com
  * @category models
  * @since 0.0.0
  */
-export class ProducerWitness extends S.TaggedClass<ProducerWitness>($I`ProducerWitness`)(
-  "ProducerWitness",
-  { producerId: S.String, targetPath: S.String },
-  $I.annote("ProducerWitness", {
-    description: "A registered producer whose derived output resolved a span naming an untracked path.",
-  })
+export class ProducerWitness extends S.Opaque<ProducerWitness, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ProducerWitness", { producerId: S.String, targetPath: S.String }).pipe(
+    $I.annoteSchema("ProducerWitness", {
+      description: "A registered producer whose derived output resolved a span naming an untracked path.",
+    })
+  )
 ) {}
 
 /**
@@ -414,12 +420,12 @@ export class ProducerWitness extends S.TaggedClass<ProducerWitness>($I`ProducerW
  * @category models
  * @since 0.0.0
  */
-export class ManifestFieldWitness extends S.TaggedClass<ManifestFieldWitness>($I`ManifestFieldWitness`)(
-  "ManifestFieldWitness",
-  { slug: S.String, field: S.String },
-  $I.annote("ManifestFieldWitness", {
-    description: "A decoded goal-packet manifest field that resolved a packet claim.",
-  })
+export class ManifestFieldWitness extends S.Opaque<ManifestFieldWitness, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ManifestFieldWitness", { slug: S.String, field: S.String }).pipe(
+    $I.annoteSchema("ManifestFieldWitness", {
+      description: "A decoded goal-packet manifest field that resolved a packet claim.",
+    })
+  )
 ) {}
 
 /**
@@ -449,12 +455,12 @@ export class ManifestFieldWitness extends S.TaggedClass<ManifestFieldWitness>($I
  * @category models
  * @since 0.0.0
  */
-export class ExportWitness extends S.TaggedClass<ExportWitness>($I`ExportWitness`)(
-  "ExportWitness",
-  { packageName: S.String, file: S.String, exportName: S.String },
-  $I.annote("ExportWitness", {
-    description: "An exports-map key, path alias, or exported identifier of one workspace file.",
-  })
+export class ExportWitness extends S.Opaque<ExportWitness, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ExportWitness", { packageName: S.String, file: S.String, exportName: S.String }).pipe(
+    $I.annoteSchema("ExportWitness", {
+      description: "An exports-map key, path alias, or exported identifier of one workspace file.",
+    })
+  )
 ) {}
 
 /**
@@ -471,12 +477,12 @@ export class ExportWitness extends S.TaggedClass<ExportWitness>($I`ExportWitness
  * @category models
  * @since 0.0.0
  */
-export class LockEntryWitness extends S.TaggedClass<LockEntryWitness>($I`LockEntryWitness`)(
-  "LockEntryWitness",
-  { skill: S.String },
-  $I.annote("LockEntryWitness", {
-    description: "A skills-lock entry that resolved a skill span.",
-  })
+export class LockEntryWitness extends S.Opaque<LockEntryWitness, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("LockEntryWitness", { skill: S.String }).pipe(
+    $I.annoteSchema("LockEntryWitness", {
+      description: "A skills-lock entry that resolved a skill span.",
+    })
+  )
 ) {}
 
 /**
@@ -573,17 +579,18 @@ export type KnowledgePacketManifestState = typeof KnowledgePacketManifestState.T
  * @category models
  * @since 0.0.0
  */
-export class KnowledgePacketFacts extends S.Class<KnowledgePacketFacts>($I`KnowledgePacketFacts`)(
-  {
+export class KnowledgePacketFacts extends S.Opaque<KnowledgePacketFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     manifestPath: S.String,
     manifest: KnowledgePacketManifestState,
     status: S.OptionFromOptionalKey(GoalStatus),
     phaseIds: S.Array(S.String),
-  },
-  $I.annote("KnowledgePacketFacts", {
-    description: "One goal packet's manifest state, lifecycle status, and phase ids as read from a tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgePacketFacts", {
+      description: "One goal packet's manifest state, lifecycle status, and phase ids as read from a tree.",
+    })
+  )
 ) {}
 
 /**
@@ -608,14 +615,18 @@ export class KnowledgePacketFacts extends S.Class<KnowledgePacketFacts>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgePackageEntrypoint extends S.Class<KnowledgePackageEntrypoint>($I`KnowledgePackageEntrypoint`)(
-  {
+export class KnowledgePackageEntrypoint extends S.Opaque<
+  KnowledgePackageEntrypoint,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     key: S.String,
     target: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("KnowledgePackageEntrypoint", {
-    description: "An exports-map key or path alias and the repository path it resolves to, if any.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgePackageEntrypoint", {
+      description: "An exports-map key or path alias and the repository path it resolves to, if any.",
+    })
+  )
 ) {}
 
 /**
@@ -639,16 +650,17 @@ export class KnowledgePackageEntrypoint extends S.Class<KnowledgePackageEntrypoi
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeWorkspacePackage extends S.Class<KnowledgeWorkspacePackage>($I`KnowledgeWorkspacePackage`)(
-  {
+export class KnowledgeWorkspacePackage extends S.Opaque<KnowledgeWorkspacePackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     manifestPath: S.String,
     root: S.String,
     entrypoints: S.Array(KnowledgePackageEntrypoint),
-  },
-  $I.annote("KnowledgeWorkspacePackage", {
-    description: "A workspace package name, manifest path, root, and exports-map entry points.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeWorkspacePackage", {
+      description: "A workspace package name, manifest path, root, and exports-map entry points.",
+    })
+  )
 ) {}
 
 /**
@@ -675,17 +687,18 @@ export class KnowledgeWorkspacePackage extends S.Class<KnowledgeWorkspacePackage
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeFileExports extends S.Class<KnowledgeFileExports>($I`KnowledgeFileExports`)(
-  {
+export class KnowledgeFileExports extends S.Opaque<KnowledgeFileExports, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     names: S.Array(S.String),
     stars: S.Array(S.String),
     opaqueStars: S.Array(S.String),
-  },
-  $I.annote("KnowledgeFileExports", {
-    description:
-      "Identifiers one source file exports itself, the files it star re-exports, and the star specifiers it cannot follow.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeFileExports", {
+      description:
+        "Identifiers one source file exports itself, the files it star re-exports, and the star specifiers it cannot follow.",
+    })
+  )
 ) {}
 
 /**
@@ -719,8 +732,8 @@ export class KnowledgeFileExports extends S.Class<KnowledgeFileExports>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSkillLockFacts extends S.Class<KnowledgeSkillLockFacts>($I`KnowledgeSkillLockFacts`)(
-  {
+export class KnowledgeSkillLockFacts extends S.Opaque<KnowledgeSkillLockFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.String,
     sourceType: S.String,
     source: S.OptionFromOptionalKey(S.String),
@@ -728,10 +741,11 @@ export class KnowledgeSkillLockFacts extends S.Class<KnowledgeSkillLockFacts>($I
     licensed: S.Boolean,
     installedTargets: S.Array(S.String),
     line: S.OptionFromOptionalKey(S.Natural),
-  },
-  $I.annote("KnowledgeSkillLockFacts", {
-    description: "One skills-lock entry's source type, upstream, revision, license presence, and targets.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSkillLockFacts", {
+      description: "One skills-lock entry's source type, upstream, revision, license presence, and targets.",
+    })
+  )
 ) {}
 
 /**
@@ -756,15 +770,16 @@ export class KnowledgeSkillLockFacts extends S.Class<KnowledgeSkillLockFacts>($I
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSkillsFacts extends S.Class<KnowledgeSkillsFacts>($I`KnowledgeSkillsFacts`)(
-  {
+export class KnowledgeSkillsFacts extends S.Opaque<KnowledgeSkillsFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     lockVersion: S.OptionFromOptionalKey(S.Literals([1, 2])),
     entries: S.Array(KnowledgeSkillLockFacts),
     installed: S.Array(S.String),
-  },
-  $I.annote("KnowledgeSkillsFacts", {
-    description: "Normalized skills-lock entries plus the installed skill directories of one tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSkillsFacts", {
+      description: "Normalized skills-lock entries plus the installed skill directories of one tree.",
+    })
+  )
 ) {}
 
 /**
@@ -799,14 +814,18 @@ export class KnowledgeSkillsFacts extends S.Class<KnowledgeSkillsFacts>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeEvaluationFailure extends S.Class<KnowledgeEvaluationFailure>($I`KnowledgeEvaluationFailure`)(
-  {
+export class KnowledgeEvaluationFailure extends S.Opaque<
+  KnowledgeEvaluationFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidate: KnowledgeFindingCandidate,
     causeKey: S.String,
-  },
-  $I.annote("KnowledgeEvaluationFailure", {
-    description: "A finding candidate plus the identity of the missing target that caused it.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeEvaluationFailure", {
+      description: "A finding candidate plus the identity of the missing target that caused it.",
+    })
+  )
 ) {}
 
 /**
@@ -835,15 +854,15 @@ export class KnowledgeEvaluationFailure extends S.Class<KnowledgeEvaluationFailu
  * @category models
  * @since 0.0.0
  */
-export class EvaluationResolved extends S.TaggedClass<EvaluationResolved>($I`EvaluationResolved`)(
-  "Resolved",
-  {
+export class EvaluationResolved extends S.Opaque<EvaluationResolved, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Resolved", {
     witnesses: S.NonEmptyArray(ResolutionWitness),
     unchecked: S.Array(S.String),
-  },
-  $I.annote("EvaluationResolved", {
-    description: "A resolved span with its non-empty resolution witnesses and any unchecked option tokens.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvaluationResolved", {
+      description: "A resolved span with its non-empty resolution witnesses and any unchecked option tokens.",
+    })
+  )
 ) {}
 
 /**
@@ -877,12 +896,12 @@ export class EvaluationResolved extends S.TaggedClass<EvaluationResolved>($I`Eva
  * @category models
  * @since 0.0.0
  */
-export class EvaluationFailed extends S.TaggedClass<EvaluationFailed>($I`EvaluationFailed`)(
-  "Failed",
-  { failures: S.NonEmptyArray(KnowledgeEvaluationFailure) },
-  $I.annote("EvaluationFailed", {
-    description: "A span whose evaluation found one or more failures.",
-  })
+export class EvaluationFailed extends S.Opaque<EvaluationFailed, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Failed", { failures: S.NonEmptyArray(KnowledgeEvaluationFailure) }).pipe(
+    $I.annoteSchema("EvaluationFailed", {
+      description: "A span whose evaluation found one or more failures.",
+    })
+  )
 ) {}
 
 /**
@@ -934,14 +953,18 @@ export type KnowledgeEvaluationOutcome = typeof KnowledgeEvaluationOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDocumentExtraction extends S.Class<KnowledgeDocumentExtraction>($I`KnowledgeDocumentExtraction`)(
-  {
+export class KnowledgeDocumentExtraction extends S.Opaque<
+  KnowledgeDocumentExtraction,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     markers: S.Array(KnowledgeHistoricalCitation),
     spans: S.Array(KnowledgeSpan),
-  },
-  $I.annote("KnowledgeDocumentExtraction", {
-    description: "Source-ordered spans plus every historical marker extracted from one document.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDocumentExtraction", {
+      description: "Source-ordered spans plus every historical marker extracted from one document.",
+    })
+  )
 ) {}
 
 /**
@@ -1014,18 +1037,20 @@ export type KnowledgeCounterfactualVerdictKind = typeof KnowledgeCounterfactualV
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeCounterfactualVerdict extends S.Class<KnowledgeCounterfactualVerdict>(
-  $I`KnowledgeCounterfactualVerdict`
-)(
-  {
+export class KnowledgeCounterfactualVerdict extends S.Opaque<
+  KnowledgeCounterfactualVerdict,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     evaluator: KnowledgeEvaluatorId,
     span: KnowledgeSpan,
     witness: ResolutionWitness,
     verdict: KnowledgeCounterfactualVerdictKind,
-  },
-  $I.annote("KnowledgeCounterfactualVerdict", {
-    description: "A resolved span, one of its witnesses, and how the span behaved with that witness removed.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeCounterfactualVerdict", {
+      description: "A resolved span, one of its witnesses, and how the span behaved with that witness removed.",
+    })
+  )
 ) {}
 
 /**
@@ -1067,17 +1092,18 @@ export class KnowledgeCounterfactualVerdict extends S.Class<KnowledgeCounterfact
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorFinding extends S.Class<KnowledgeDoctorFinding>($I`KnowledgeDoctorFinding`)(
-  {
+export class KnowledgeDoctorFinding extends S.Opaque<KnowledgeDoctorFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     finding: KnowledgeFinding,
     spanClass: KnowledgeSpanClass,
     origin: KnowledgeFindingOrigin,
     evaluator: S.OptionFromOptionalKey(KnowledgeEvaluatorId),
     causeKey: S.String,
-  },
-  $I.annote("KnowledgeDoctorFinding", {
-    description: "A normalized finding with its span class, gate owner, evaluator, and cause identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorFinding", {
+      description: "A normalized finding with its span class, gate owner, evaluator, and cause identity.",
+    })
+  )
 ) {}
 
 /**
@@ -1101,16 +1127,17 @@ export class KnowledgeDoctorFinding extends S.Class<KnowledgeDoctorFinding>($I`K
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSpanCounts extends S.Class<KnowledgeSpanCounts>($I`KnowledgeSpanCounts`)(
-  {
+export class KnowledgeSpanCounts extends S.Opaque<KnowledgeSpanCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     verified: S.Natural,
     "generated-example": S.Natural,
     "historical-with-commit": S.Natural,
     unclassified: S.Natural,
-  },
-  $I.annote("KnowledgeSpanCounts", {
-    description: "Number of extracted spans in each span class.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSpanCounts", {
+      description: "Number of extracted spans in each span class.",
+    })
+  )
 ) {}
 
 /**
@@ -1164,17 +1191,18 @@ export type KnowledgePathChange = typeof KnowledgePathChange.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgePathRemoval extends S.Class<KnowledgePathRemoval>($I`KnowledgePathRemoval`)(
-  {
+export class KnowledgePathRemoval extends S.Opaque<KnowledgePathRemoval, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     commit: KnowledgeCommitSha,
     subject: S.String,
     change: KnowledgePathChange,
     renamedTo: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("KnowledgePathRemoval", {
-    description: "A path a commit deleted or renamed away, with the commit's subject and any rename target.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgePathRemoval", {
+      description: "A path a commit deleted or renamed away, with the commit's subject and any rename target.",
+    })
+  )
 ) {}
 
 /**
@@ -1206,17 +1234,18 @@ export class KnowledgePathRemoval extends S.Class<KnowledgePathRemoval>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRootAttribution extends S.Class<KnowledgeRootAttribution>($I`KnowledgeRootAttribution`)(
-  {
+export class KnowledgeRootAttribution extends S.Opaque<KnowledgeRootAttribution, { readonly brand: unique symbol }>()(
+  S.Struct({
     commit: KnowledgeCommitSha,
     subject: S.String,
     change: KnowledgePathChange,
     removedPath: S.String,
     repairTarget: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("KnowledgeRootAttribution", {
-    description: "The commit that removed a cause group's missing target, plus any rename repair proposal.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRootAttribution", {
+      description: "The commit that removed a cause group's missing target, plus any rename repair proposal.",
+    })
+  )
 ) {}
 
 /**
@@ -1252,18 +1281,19 @@ export class KnowledgeRootAttribution extends S.Class<KnowledgeRootAttribution>(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeCauseGroup extends S.Class<KnowledgeCauseGroup>($I`KnowledgeCauseGroup`)(
-  {
+export class KnowledgeCauseGroup extends S.Opaque<KnowledgeCauseGroup, { readonly brand: unique symbol }>()(
+  S.Struct({
     causeKey: S.String,
     rootOrigin: KnowledgeFindingOrigin,
     root: S.OptionFromOptionalKey(KnowledgeFindingId),
     dependents: S.Array(KnowledgeFindingId),
     attribution: S.OptionFromOptionalKey(KnowledgeRootAttribution),
-  },
-  $I.annote("KnowledgeCauseGroup", {
-    description:
-      "Every finding sharing one cause key, its delegated root when one exists, and the root's authoring commit.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeCauseGroup", {
+      description:
+        "Every finding sharing one cause key, its delegated root when one exists, and the root's authoring commit.",
+    })
+  )
 ) {}
 
 /**
@@ -1381,14 +1411,15 @@ export type KnowledgeBaselineKey = typeof KnowledgeBaselineKey.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRatchetEntry extends S.Class<KnowledgeRatchetEntry>($I`KnowledgeRatchetEntry`)(
-  {
+export class KnowledgeRatchetEntry extends S.Opaque<KnowledgeRatchetEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     findingId: KnowledgeFindingId,
     key: KnowledgeBaselineKey,
-  },
-  $I.annote("KnowledgeRatchetEntry", {
-    description: "A finding id of the scanned tree paired with its durable baseline key.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRatchetEntry", {
+      description: "A finding id of the scanned tree paired with its durable baseline key.",
+    })
+  )
 ) {}
 
 /**
@@ -1427,8 +1458,8 @@ export class KnowledgeRatchetEntry extends S.Class<KnowledgeRatchetEntry>($I`Kno
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorRatchet extends S.Class<KnowledgeDoctorRatchet>($I`KnowledgeDoctorRatchet`)(
-  {
+export class KnowledgeDoctorRatchet extends S.Opaque<KnowledgeDoctorRatchet, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseRef: S.String,
     mergeBase: KnowledgeCommitSha,
     mintedAt: KnowledgeCommitSha,
@@ -1439,10 +1470,11 @@ export class KnowledgeDoctorRatchet extends S.Class<KnowledgeDoctorRatchet>($I`K
     leased: S.Array(KnowledgeRatchetEntry),
     resolved: S.Array(KnowledgeBaselineKey),
     identityRejected: S.Array(S.String),
-  },
-  $I.annote("KnowledgeDoctorRatchet", {
-    description: "Introduced, pending, inherited, leased, and resolved buckets of a gating knowledge-doctor check.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorRatchet", {
+      description: "Introduced, pending, inherited, leased, and resolved buckets of a gating knowledge-doctor check.",
+    })
+  )
 ) {}
 
 /**
@@ -1487,8 +1519,8 @@ export class KnowledgeDoctorRatchet extends S.Class<KnowledgeDoctorRatchet>($I`K
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorReport extends S.Class<KnowledgeDoctorReport>($I`KnowledgeDoctorReport`)(
-  {
+export class KnowledgeDoctorReport extends S.Opaque<KnowledgeDoctorReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("knowledge-doctor/v1"),
     treeish: S.String,
     tree: KnowledgeCommitSha,
@@ -1499,11 +1531,12 @@ export class KnowledgeDoctorReport extends S.Class<KnowledgeDoctorReport>($I`Kno
     groups: S.Array(KnowledgeCauseGroup),
     findings: S.Array(KnowledgeDoctorFinding),
     ratchet: S.OptionFromOptionalKey(KnowledgeDoctorRatchet),
-  },
-  $I.annote("KnowledgeDoctorReport", {
-    description:
-      "Knowledge-doctor report: span-class totals, causal groups, every classified finding, and the check ratchet.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorReport", {
+      description:
+        "Knowledge-doctor report: span-class totals, causal groups, every classified finding, and the check ratchet.",
+    })
+  )
 ) {}
 
 /**

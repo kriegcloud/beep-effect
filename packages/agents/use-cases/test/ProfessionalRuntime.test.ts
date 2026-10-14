@@ -27,7 +27,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type { PromotionGateRequest } from "@beep/shared-use-cases/PromotionGate";
 
-const lawFixture: RuntimeFixtureInput = {
+const lawFixture = RuntimeFixtureInput.make({
   body: A.join(
     [
       "[span:law-email-001-s2] We need help preparing a provisional patent application.",
@@ -59,7 +59,7 @@ const lawFixture: RuntimeFixtureInput = {
       workspaceId: "workspace-law-fixture",
     },
   },
-};
+});
 
 const lawScope = RuntimeScope.make({
   organizationId: lawFixture.seed.organization.organizationId,
@@ -90,7 +90,7 @@ describe("@beep/agents-use-cases", { concurrent: false }, () => {
     Effect.gen(function* () {
       const outputSet = yield* runRuntimeFixture(lawFixture);
 
-      expect(outputSet).toBeInstanceOf(CandidateOutputSet);
+      expect(S.is(CandidateOutputSet)(outputSet)).toBe(true);
       expect(outputSet.scenarioId).toBe("law-patent-intake");
       expect(outputSet.claims).toHaveLength(3);
       expect(outputSet.contextPacket.scope.workspaceId).toBe("workspace-law-fixture");
@@ -329,11 +329,15 @@ describe("@beep/agents-use-cases", { concurrent: false }, () => {
     { RuntimeScope, RuntimeEvidenceRef, RuntimeCandidateClaim, RuntimeActivity, SdkContextPacket },
     (values) =>
       Effect.sync(() => {
-        roundTrip(RuntimeScope, values.RuntimeScope, "RuntimeScope");
-        roundTrip(RuntimeEvidenceRef, values.RuntimeEvidenceRef, "RuntimeEvidenceRef");
-        roundTrip(RuntimeCandidateClaim, values.RuntimeCandidateClaim, "RuntimeCandidateClaim");
-        roundTrip(RuntimeActivity, values.RuntimeActivity, "RuntimeActivity");
-        roundTrip(SdkContextPacket, values.SdkContextPacket, "SdkContextPacket");
+        roundTrip(RuntimeScope, RuntimeScope.make(values.RuntimeScope), "RuntimeScope");
+        roundTrip(RuntimeEvidenceRef, RuntimeEvidenceRef.make(values.RuntimeEvidenceRef), "RuntimeEvidenceRef");
+        roundTrip(
+          RuntimeCandidateClaim,
+          RuntimeCandidateClaim.make(values.RuntimeCandidateClaim),
+          "RuntimeCandidateClaim"
+        );
+        roundTrip(RuntimeActivity, RuntimeActivity.make(values.RuntimeActivity), "RuntimeActivity");
+        roundTrip(SdkContextPacket, SdkContextPacket.make(values.SdkContextPacket), "SdkContextPacket");
       }),
     { arbitrary: fcRuns(10), timeout: 600_000 }
   );

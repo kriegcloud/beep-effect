@@ -74,9 +74,16 @@ const PrRefInput = S.NonEmptyString.check(
   )
 );
 
-class PrRefValue extends S.Class<PrRefValue>($I`PrRefValue`)(
-  { pr: PrNumber, repository: S.OptionFromNullOr(PrRepository) },
-  $I.annote("PrRefValue", { description: "Decoded pull-request number and optional URL repository identity." })
+/**
+ * Decoded pull-request number and optional URL repository identity.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PrRefValue extends S.Opaque<PrRefValue, { readonly brand: unique symbol }>()(
+  S.Struct({ pr: PrNumber, repository: S.OptionFromNullOr(PrRepository) }).pipe(
+    $I.annoteSchema("PrRefValue", { description: "Decoded pull-request number and optional URL repository identity." })
+  )
 ) {}
 
 /**
@@ -173,16 +180,17 @@ export type PrRef = typeof PrRef.Type;
  * @category models
  * @since 0.0.0
  */
-export class ResumeOptions extends S.Class<ResumeOptions>($I`ResumeOptions`)(
-  {
+export class ResumeOptions extends S.Opaque<ResumeOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     ref: PrRef,
     list: S.Boolean,
     print: S.Boolean,
     force: S.Boolean,
     json: S.Boolean,
     agent: S.OptionFromNullOr(PositiveInt),
-  },
-  $I.annote("ResumeOptions", { description: "Validated CLI options for resolving and resuming a PR session." })
+  }).pipe(
+    $I.annoteSchema("ResumeOptions", { description: "Validated CLI options for resolving and resuming a PR session." })
+  )
 ) {}
 
 /**
@@ -214,8 +222,8 @@ export class ResumeOptions extends S.Class<ResumeOptions>($I`ResumeOptions`)(
  * @category models
  * @since 0.0.0
  */
-export class ResolvedResume extends S.Class<ResolvedResume>($I`ResolvedResume`)(
-  {
+export class ResolvedResume extends S.Opaque<ResolvedResume, { readonly brand: unique symbol }>()(
+  S.Struct({
     pr: PrNumber,
     sequence: PrNumber,
     harness: S.String,
@@ -223,6 +231,9 @@ export class ResolvedResume extends S.Class<ResolvedResume>($I`ResolvedResume`)(
     status: ResumeStatus,
     command: S.OptionFromNullOr(S.String),
     cwd: S.String,
-  },
-  $I.annote("ResolvedResume", { description: "Local-only resolved resume command shown or executed in the terminal." })
+  }).pipe(
+    $I.annoteSchema("ResolvedResume", {
+      description: "Local-only resolved resume command shown or executed in the terminal.",
+    })
+  )
 ) {}

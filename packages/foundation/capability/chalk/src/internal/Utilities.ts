@@ -74,13 +74,14 @@ const renderLineBreakSliceEnd = (nextIndex: number, gotCR: boolean): number => (
  * @category utilities
  * @since 0.0.0
  */
-class StringReplaceAllOptionsModel extends S.Class<StringReplaceAllOptionsModel>($I`StringReplaceAllOptions`)(
-  {
+class StringReplaceAllOptionsModel extends S.Opaque<StringReplaceAllOptionsModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     replacer: S.String,
-  },
-  $I.annote("StringReplaceAllOptions", {
-    description: "Replacement text used by Chalk string replacement helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("StringReplaceAllOptions", {
+      description: "Replacement text used by Chalk string replacement helpers.",
+    })
+  )
 ) {}
 
 type StringReplaceAllOptions = typeof StringReplaceAllOptionsModel.Encoded;
@@ -112,14 +113,15 @@ export const stringReplaceAll: {
  * @category utilities
  * @since 0.0.0
  */
-class StringEncaseCrlfOptionsModel extends S.Class<StringEncaseCrlfOptionsModel>($I`StringEncaseCrlfOptions`)(
-  {
+class StringEncaseCrlfOptionsModel extends S.Opaque<StringEncaseCrlfOptionsModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     index: NonNegativeInteger,
     postfix: S.String,
-  },
-  $I.annote("StringEncaseCrlfOptions", {
-    description: "Line-break position and reopen text used by Chalk CRLF encasing helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("StringEncaseCrlfOptions", {
+      description: "Line-break position and reopen text used by Chalk CRLF encasing helpers.",
+    })
+  )
 ) {}
 
 type StringEncaseCrlfOptions = typeof StringEncaseCrlfOptionsModel.Encoded;

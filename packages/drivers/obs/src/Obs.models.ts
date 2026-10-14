@@ -155,8 +155,8 @@ export type ObsWebSocketPort = typeof ObsWebSocketPort.Type;
  * @category models
  * @since 0.0.0
  */
-export class ObsConfigInput extends S.Class<ObsConfigInput>($I`ObsConfigInput`)(
-  {
+export class ObsConfigInput extends S.Opaque<ObsConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     connectTimeoutMillis: PositiveMilliseconds.pipe(
       S.withConstructorDefault(Effect.succeed(5000)),
       S.withDecodingDefaultTypeKey(Effect.succeed(5000)),
@@ -206,10 +206,11 @@ export class ObsConfigInput extends S.Class<ObsConfigInput>($I`ObsConfigInput`)(
         description: "Port the obs-websocket server listens on.",
       })
     ),
-  },
-  $I.annote("ObsConfigInput", {
-    description: "Optional runtime configuration overrides for the OBS driver.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsConfigInput", {
+      description: "Optional runtime configuration overrides for the OBS driver.",
+    })
+  )
 ) {}
 
 /**
@@ -245,8 +246,8 @@ export type ObsConfigInputOptions = (typeof ObsConfigInput)["~type.make.in"];
  * @category models
  * @since 0.0.0
  */
-export class ObsConfig extends S.Class<ObsConfig>($I`ObsConfig`)(
-  {
+export class ObsConfig extends S.Opaque<ObsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     connectTimeoutMillis: PositiveMilliseconds.pipe(
       $I.annoteKey("ObsConfig.connectTimeoutMillis", {
         description: "Resolved timeout in milliseconds for the obs-websocket connect handshake.",
@@ -282,10 +283,11 @@ export class ObsConfig extends S.Class<ObsConfig>($I`ObsConfig`)(
         description: "Resolved port the obs-websocket server listens on.",
       })
     ),
-  },
-  $I.annote("ObsConfig", {
-    description: "Resolved runtime configuration for the OBS driver.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsConfig", {
+      description: "Resolved runtime configuration for the OBS driver.",
+    })
+  )
 ) {}
 
 /**
@@ -326,8 +328,8 @@ export const resolveObsConfig = (input?: ObsConfigInputOptions | undefined): Obs
  * @category models
  * @since 0.0.0
  */
-export class EnsureRunningResult extends S.Class<EnsureRunningResult>($I`EnsureRunningResult`)(
-  {
+export class EnsureRunningResult extends S.Opaque<EnsureRunningResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     obsVersion: S.String.pipe(
       $I.annoteKey("EnsureRunningResult.obsVersion", {
         description: "OBS Studio version reported by the connected server.",
@@ -343,10 +345,11 @@ export class EnsureRunningResult extends S.Class<EnsureRunningResult>($I`EnsureR
         description: "Whether the driver had to spawn the OBS process to establish this session.",
       })
     ),
-  },
-  $I.annote("EnsureRunningResult", {
-    description: "Result of verifying the OBS process behind the connected session.",
-  })
+  }).pipe(
+    $I.annoteSchema("EnsureRunningResult", {
+      description: "Result of verifying the OBS process behind the connected session.",
+    })
+  )
 ) {}
 
 /**
@@ -364,8 +367,8 @@ export class EnsureRunningResult extends S.Class<EnsureRunningResult>($I`EnsureR
  * @category models
  * @since 0.0.0
  */
-export class EnsureQaSceneRequest extends S.Class<EnsureQaSceneRequest>($I`EnsureQaSceneRequest`)(
-  {
+export class EnsureQaSceneRequest extends S.Opaque<EnsureQaSceneRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputKind: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("pipewire-screen-capture-source")),
       S.withDecodingDefaultTypeKey(Effect.succeed("pipewire-screen-capture-source")),
@@ -387,10 +390,11 @@ export class EnsureQaSceneRequest extends S.Class<EnsureQaSceneRequest>($I`Ensur
         description: "Name of the QA scene to provision.",
       })
     ),
-  },
-  $I.annote("EnsureQaSceneRequest", {
-    description: "Request to provision the idempotent QA capture scene.",
-  })
+  }).pipe(
+    $I.annoteSchema("EnsureQaSceneRequest", {
+      description: "Request to provision the idempotent QA capture scene.",
+    })
+  )
 ) {}
 
 /**
@@ -421,8 +425,8 @@ export class EnsureQaSceneRequest extends S.Class<EnsureQaSceneRequest>($I`Ensur
  * @category models
  * @since 0.0.0
  */
-export class EnsureQaSceneResult extends S.Class<EnsureQaSceneResult>($I`EnsureQaSceneResult`)(
-  {
+export class EnsureQaSceneResult extends S.Opaque<EnsureQaSceneResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputCreated: S.Boolean.pipe(
       $I.annoteKey("EnsureQaSceneResult.inputCreated", {
         description: "Whether the capture input had to be created by this call.",
@@ -449,10 +453,11 @@ export class EnsureQaSceneResult extends S.Class<EnsureQaSceneResult>($I`EnsureQ
         description: "Name of the provisioned QA scene.",
       })
     ),
-  },
-  $I.annote("EnsureQaSceneResult", {
-    description: "Result of provisioning the idempotent QA capture scene.",
-  })
+  }).pipe(
+    $I.annoteSchema("EnsureQaSceneResult", {
+      description: "Result of provisioning the idempotent QA capture scene.",
+    })
+  )
 ) {}
 
 /**
@@ -470,8 +475,8 @@ export class EnsureQaSceneResult extends S.Class<EnsureQaSceneResult>($I`EnsureQ
  * @category models
  * @since 0.0.0
  */
-export class StartRecordingRequest extends S.Class<StartRecordingRequest>($I`StartRecordingRequest`)(
-  {
+export class StartRecordingRequest extends S.Opaque<StartRecordingRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     recordDirectory: S.String.pipe(
       $I.annoteKey("StartRecordingRequest.recordDirectory", {
         description: "Directory the record output writes files to (SetRecordDirectory before StartRecord).",
@@ -484,10 +489,11 @@ export class StartRecordingRequest extends S.Class<StartRecordingRequest>($I`Sta
         description: "Timeout in milliseconds waiting for the RecordStateChanged STARTED event.",
       })
     ),
-  },
-  $I.annote("StartRecordingRequest", {
-    description: "Request to start an OBS recording into a specific directory.",
-  })
+  }).pipe(
+    $I.annoteSchema("StartRecordingRequest", {
+      description: "Request to start an OBS recording into a specific directory.",
+    })
+  )
 ) {}
 
 /**
@@ -507,8 +513,8 @@ export class StartRecordingRequest extends S.Class<StartRecordingRequest>($I`Sta
  * @category models
  * @since 0.0.0
  */
-export class StartRecordingResult extends S.Class<StartRecordingResult>($I`StartRecordingResult`)(
-  {
+export class StartRecordingResult extends S.Opaque<StartRecordingResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     recordDirectory: S.String.pipe(
       $I.annoteKey("StartRecordingResult.recordDirectory", {
         description: "Directory the record output writes files to.",
@@ -519,10 +525,11 @@ export class StartRecordingResult extends S.Class<StartRecordingResult>($I`Start
         description: "Wall-clock epoch milliseconds captured when the STARTED event was received (clock anchor).",
       })
     ),
-  },
-  $I.annote("StartRecordingResult", {
-    description: "Result of a started OBS recording, carrying the clock-sync anchor.",
-  })
+  }).pipe(
+    $I.annoteSchema("StartRecordingResult", {
+      description: "Result of a started OBS recording, carrying the clock-sync anchor.",
+    })
+  )
 ) {}
 
 /**
@@ -540,8 +547,8 @@ export class StartRecordingResult extends S.Class<StartRecordingResult>($I`Start
  * @category models
  * @since 0.0.0
  */
-export class StopRecordingRequest extends S.Class<StopRecordingRequest>($I`StopRecordingRequest`)(
-  {
+export class StopRecordingRequest extends S.Opaque<StopRecordingRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     waitForStoppedTimeoutMillis: PositiveMilliseconds.pipe(
       S.withConstructorDefault(Effect.succeed(10_000)),
       S.withDecodingDefaultTypeKey(Effect.succeed(10_000)),
@@ -549,10 +556,11 @@ export class StopRecordingRequest extends S.Class<StopRecordingRequest>($I`StopR
         description: "Timeout in milliseconds waiting for the RecordStateChanged STOPPED event.",
       })
     ),
-  },
-  $I.annote("StopRecordingRequest", {
-    description: "Request options for stopping an OBS recording.",
-  })
+  }).pipe(
+    $I.annoteSchema("StopRecordingRequest", {
+      description: "Request options for stopping an OBS recording.",
+    })
+  )
 ) {}
 
 /**
@@ -572,15 +580,16 @@ export class StopRecordingRequest extends S.Class<StopRecordingRequest>($I`StopR
  * @category models
  * @since 0.0.0
  */
-export class StopRecordingResult extends S.Class<StopRecordingResult>($I`StopRecordingResult`)(
-  {
+export class StopRecordingResult extends S.Opaque<StopRecordingResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputPath: S.String.pipe(
       $I.annoteKey("StopRecordingResult.outputPath", {
         description: "Committed recording file path reported by the StopRecord response.",
       })
     ),
-  },
-  $I.annote("StopRecordingResult", {
-    description: "Result of a stopped OBS recording with the committed output path.",
-  })
+  }).pipe(
+    $I.annoteSchema("StopRecordingResult", {
+      description: "Result of a stopped OBS recording with the committed output path.",
+    })
+  )
 ) {}

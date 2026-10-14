@@ -22,7 +22,7 @@ const $I = $ScratchpadId.create("effected/cli/internal/ExitRequested");
  * @category errors
  * @since 0.0.0
  */
-export class ExitRequested extends S.TaggedError<ExitRequested>($I`ExitRequested`)(
+export class ExitRequested extends S.TaggedError<ExitRequested, { readonly brand: unique symbol }>($I`ExitRequested`)(
 	"ExitRequested",
 	{
 		code: S.Finite.annotate({ description: "The non-zero exit code recorded by a successful CLI program." }),

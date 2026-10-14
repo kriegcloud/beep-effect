@@ -45,8 +45,8 @@ const resolutionResultWarningsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class ResolutionResult extends S.Class<ResolutionResult>($I`ResolutionResult`)(
-  {
+export class ResolutionResult extends S.Opaque<ResolutionResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     resolvedTo: S.Natural.pipe(
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone),
@@ -95,10 +95,11 @@ export class ResolutionResult extends S.Class<ResolutionResult>($I`ResolutionRes
       description:
         "Confidence in the resolution (0-1). Factors: party name similarity, scope boundary, citation type match.",
     }),
-  },
-  $I.annote("ResolutionResult", {
-    description: "Result of resolving a short-form citation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolutionResult", {
+      description: "Result of resolving a short-form citation.",
+    })
+  )
 ) {}
 
 /**

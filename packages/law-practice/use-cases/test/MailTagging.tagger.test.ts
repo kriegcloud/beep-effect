@@ -27,6 +27,7 @@ import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as HashMap from "effect/HashMap";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { acme, envelope, globex, index, since, taxonomy } from "./MailTagging.fixture.ts";
 import type { MailEnvelope } from "@beep/law-practice-domain/values/MailTagging";
 
@@ -36,14 +37,14 @@ const decide = (message: MailEnvelope) => decideMatterTagging(context, message);
 const expectMatched = (message: MailEnvelope, kind: string) => {
   const decision = decide(message);
 
-  expect(decision).toBeInstanceOf(MatterMatched);
+  expect(S.is(MatterMatched)(decision)).toBe(true);
   expect(isMatched(decision) && decision.matterKey === acme).toBe(true);
   expect(isMatched(decision) && A.map(decision.evidence, (item) => item.kind)).toStrictEqual([kind]);
 };
 const expectUnmatched = (message: MailEnvelope, reason: string) => {
   const decision = decide(message);
 
-  expect(decision).toBeInstanceOf(MatterUnmatched);
+  expect(S.is(MatterUnmatched)(decision)).toBe(true);
   expect(!isMatched(decision) && decision.reason).toBe(reason);
 };
 
@@ -252,8 +253,8 @@ describe("MailTagging matter tagger", () => {
     const invoice = envelope({ at: 1, sender: "invoices@vendor.example.test" });
     const colleague = envelope({ at: 2, sender: "sales@vendor.example.test" });
 
-    expect(senderRuleCategories(withBillingRule.taxonomy, invoice)).toStrictEqual(["P: Billing"]);
-    expect(senderRuleCategories(colleague)(withBillingRule.taxonomy)).toStrictEqual([]);
+    expect(senderRuleCategories(MailTaxonomy.make(withBillingRule.taxonomy), invoice)).toStrictEqual(["P: Billing"]);
+    expect(senderRuleCategories(colleague)(MailTaxonomy.make(withBillingRule.taxonomy))).toStrictEqual([]);
     expect(decisionCategories(decideMatterTagging(withBillingRule, invoice))).toStrictEqual(["P: Billing"]);
     expect(decisionCategories(decideMatterTagging(colleague)(withBillingRule))).toStrictEqual([]);
   });

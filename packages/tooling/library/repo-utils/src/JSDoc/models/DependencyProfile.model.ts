@@ -70,8 +70,8 @@ export type FanValue = typeof FanValue.Type;
  * @category models
  * @since 0.0.0
  */
-export class DependencyProfile extends S.Class<DependencyProfile>($I`DependencyProfile`)(
-  {
+export class DependencyProfile extends S.Opaque<DependencyProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** How many other categories typically depend on this one */
     typicalFanIn: FanValue.annotateKey({
       description: "How many other categories typically depend on this one",
@@ -80,9 +80,10 @@ export class DependencyProfile extends S.Class<DependencyProfile>($I`DependencyP
     typicalFanOut: FanValue.annotateKey({
       description: "How many other categories this one typically depends on",
     }),
-  },
-  $I.annote("DependencyProfile", {
-    description:
-      "Dependency direction profile. Used to validate classifications: if something classified as domain logic has high fan-out, that is a misclassification signal.",
-  })
+  }).pipe(
+    $I.annoteSchema("DependencyProfile", {
+      description:
+        "Dependency direction profile. Used to validate classifications: if something classified as domain logic has high fan-out, that is a misclassification signal.",
+    })
+  )
 ) {}

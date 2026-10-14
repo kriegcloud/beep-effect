@@ -28,7 +28,9 @@ const $I = $RepoCliId.create("commands/Ci/Ci.errors");
  * @category errors
  * @since 0.0.0
  */
-export class CiCommandError extends S.TaggedError<CiCommandError>($I`CiCommandError`)(
+export class CiCommandError extends S.TaggedError<CiCommandError, { readonly brand: unique symbol }>(
+  $I`CiCommandError`
+)(
   "CiCommandError",
   {
     message: S.String,
@@ -132,7 +134,9 @@ export type CiLanePartitionErrorReason = typeof CiLanePartitionErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class CiLanePartitionError extends S.TaggedError<CiLanePartitionError>($I`CiLanePartitionError`)(
+export class CiLanePartitionError extends S.TaggedError<CiLanePartitionError, { readonly brand: unique symbol }>(
+  $I`CiLanePartitionError`
+)(
   "CiLanePartitionError",
   {
     reason: CiLanePartitionErrorReason,

@@ -99,7 +99,7 @@ export const GITHUB_BUILD_TYPE = "https://actions.github.io/buildtypes/workflow/
  * @category models
  * @since 0.0.0
  */
-export class SlsaBuildDefinition extends S.Class<SlsaBuildDefinition>($I`SlsaBuildDefinition`)({
+export class SlsaBuildDefinition extends S.Class<SlsaBuildDefinition, { readonly brand: unique symbol }>($I`SlsaBuildDefinition`)({
 	/** The build type URI — {@link GITHUB_BUILD_TYPE} for an Actions workflow. */
 	buildType: S.String.annotateKey({ description: "The build type URI — GITHUB_BUILD_TYPE for an Actions workflow." }),
 	/** Parameters an external party controls: for Actions, the workflow itself. */
@@ -158,7 +158,7 @@ export class SlsaBuildDefinition extends S.Class<SlsaBuildDefinition>($I`SlsaBui
  * @category models
  * @since 0.0.0
  */
-export class SlsaRunDetails extends S.Class<SlsaRunDetails>($I`SlsaRunDetails`)({
+export class SlsaRunDetails extends S.Class<SlsaRunDetails, { readonly brand: unique symbol }>($I`SlsaRunDetails`)({
 	/** The build platform's identity. */
 	builder: S.Struct({
 		/** A URI identifying the builder — the reusable workflow, for Actions. */
@@ -290,7 +290,7 @@ const workflowPathOf = (input: GitHubWorkflowProvenance): string =>
  * @category models
  * @since 0.0.0
  */
-export class SlsaProvenance extends S.Class<SlsaProvenance>($I`SlsaProvenance`)({
+export class SlsaProvenance extends S.Class<SlsaProvenance, { readonly brand: unique symbol }>($I`SlsaProvenance`)({
 	/** What was built, and from what. */
 	buildDefinition: SlsaBuildDefinition.annotateKey({ description: "What was built, and from what." }),
 	/** Who built it, and when. */

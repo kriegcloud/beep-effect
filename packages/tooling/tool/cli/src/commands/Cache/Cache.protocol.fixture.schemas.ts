@@ -81,15 +81,16 @@ export type CacheFixtureFault = typeof CacheFixtureFault.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class CacheFixtureCredentials extends S.Class<CacheFixtureCredentials>($I`CacheFixtureCredentials`)(
-  {
+export class CacheFixtureCredentials extends S.Opaque<CacheFixtureCredentials, { readonly brand: unique symbol }>()(
+  S.Struct({
     namespace: S.NonEmptyString.check(S.isMaxLength(128)),
     reader: S.Redacted(S.NonEmptyString),
     writer: S.Redacted(S.NonEmptyString),
-  },
-  $I.annote("CacheFixtureCredentials", {
-    description: "Local fixture tenant and distinct ephemeral HTTP capabilities.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheFixtureCredentials", {
+      description: "Local fixture tenant and distinct ephemeral HTTP capabilities.",
+    })
+  )
 ) {}
 
 /**
@@ -105,9 +106,10 @@ export class CacheFixtureCredentials extends S.Class<CacheFixtureCredentials>($I
  * @category schemas
  * @since 0.0.0
  */
-export class CacheFixtureScenario extends S.Class<CacheFixtureScenario>($I`CacheFixtureScenario`)(
-  { id: S.NonEmptyString.check(S.isMaxLength(128)), fault: CacheFixtureFault },
-  $I.annote("CacheFixtureScenario", { description: "Attribution and explicit fault for one fixture case." })
+export class CacheFixtureScenario extends S.Opaque<CacheFixtureScenario, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.NonEmptyString.check(S.isMaxLength(128)), fault: CacheFixtureFault }).pipe(
+    $I.annoteSchema("CacheFixtureScenario", { description: "Attribution and explicit fault for one fixture case." })
+  )
 ) {}
 
 /**
@@ -123,8 +125,8 @@ export class CacheFixtureScenario extends S.Class<CacheFixtureScenario>($I`Cache
  * @category schemas
  * @since 0.0.0
  */
-export class CacheFixtureEvent extends S.Class<CacheFixtureEvent>($I`CacheFixtureEvent`)(
-  {
+export class CacheFixtureEvent extends S.Opaque<CacheFixtureEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     sequence: S.Natural,
     scenario: CacheFixtureScenario,
     operation: LiteralKit(["status", "put", "get", "head", "events", "batch", "rejected"]),
@@ -134,6 +136,9 @@ export class CacheFixtureEvent extends S.Class<CacheFixtureEvent>($I`CacheFixtur
     digest: S.OptionFromNullOr(Sha256Hex),
     bytes: S.Natural,
     tagPresent: S.Boolean,
-  },
-  $I.annote("CacheFixtureEvent", { description: "Sanitized fixture request, selected bytes and response disposition." })
+  }).pipe(
+    $I.annoteSchema("CacheFixtureEvent", {
+      description: "Sanitized fixture request, selected bytes and response disposition.",
+    })
+  )
 ) {}

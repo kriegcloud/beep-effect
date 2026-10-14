@@ -220,17 +220,18 @@ export type RouterErrorCode = typeof RouterErrorCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class CapabilityEvidence extends S.Class<CapabilityEvidence>($I`CapabilityEvidence`)(
-  {
+export class CapabilityEvidence extends S.Opaque<CapabilityEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     capability: Capability,
     disposition: EvidenceDisposition,
     source: S.NonEmptyString.check(S.isMaxLength(512)),
     observedAt: S.Natural,
-  },
-  $I.annote("CapabilityEvidence", {
-    description:
-      "Bounded receipt provenance for one capability; source references sanitized evidence rather than secrets.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityEvidence", {
+      description:
+        "Bounded receipt provenance for one capability; source references sanitized evidence rather than secrets.",
+    })
+  )
 ) {}
 
 /**
@@ -249,8 +250,8 @@ export class CapabilityEvidence extends S.Class<CapabilityEvidence>($I`Capabilit
  * @category models
  * @since 0.0.0
  */
-export class PolicySnapshot extends S.Class<PolicySnapshot>($I`PolicySnapshot`)(
-  {
+export class PolicySnapshot extends S.Opaque<PolicySnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     provider: Provider,
     modelId: ModelId.check(S.isMaxLength(128)),
     effort: EffortLevel,
@@ -258,10 +259,11 @@ export class PolicySnapshot extends S.Class<PolicySnapshot>($I`PolicySnapshot`)(
     approvalPolicy: PolicyValue,
     fingerprint: Fingerprint,
     policyEvidence: S.Literals(["effective-reported", "launch-enforced", "unverified"]),
-  },
-  $I.annote("PolicySnapshot", {
-    description: "Explicit launch policy with evidence distinguishing runtime reports from enforced arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("PolicySnapshot", {
+      description: "Explicit launch policy with evidence distinguishing runtime reports from enforced arguments.",
+    })
+  )
 ) {}
 
 /**
@@ -285,16 +287,18 @@ export class PolicySnapshot extends S.Class<PolicySnapshot>($I`PolicySnapshot`)(
  * @category models
  * @since 0.0.0
  */
-export class EndpointExecutionRef extends S.Class<EndpointExecutionRef>($I`EndpointExecutionRef`)(
-  {
+export class EndpointExecutionRef extends S.Opaque<EndpointExecutionRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     workspace: RepositoryScope,
     lane: OptionalIdentity,
     runId: OptionalIdentity,
     turnId: OptionalIdentity,
-  },
-  $I.annote("EndpointExecutionRef", {
-    description: "Host-resolved canonical workspace and optional independently observed lane, run and turn references.",
-  })
+  }).pipe(
+    $I.annoteSchema("EndpointExecutionRef", {
+      description:
+        "Host-resolved canonical workspace and optional independently observed lane, run and turn references.",
+    })
+  )
 ) {}
 
 /**
@@ -347,17 +351,19 @@ export type EndpointHostMode = typeof EndpointHostMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class EndpointHostRef extends S.Class<EndpointHostRef>($I`EndpointHostRef`)(
-  {
+export class EndpointHostRef extends S.Opaque<EndpointHostRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: EndpointHostMode,
     provider: Provider,
     backend: PolicyValue,
     hostId: OptionalIdentity,
     appId: OptionalIdentity,
-  },
-  $I.annote("EndpointHostRef", {
-    description: "Session-owning surface, provider and backend with optional observed host and application references.",
-  })
+  }).pipe(
+    $I.annoteSchema("EndpointHostRef", {
+      description:
+        "Session-owning surface, provider and backend with optional observed host and application references.",
+    })
+  )
 ) {}
 
 /**
@@ -376,8 +382,8 @@ export class EndpointHostRef extends S.Class<EndpointHostRef>($I`EndpointHostRef
  * @category models
  * @since 0.0.0
  */
-export class EndpointBinding extends S.Class<EndpointBinding>($I`EndpointBinding`)(
-  {
+export class EndpointBinding extends S.Opaque<EndpointBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     endpointId: Identity,
     participantId: Identity,
     sessionId: Identity,
@@ -391,10 +397,11 @@ export class EndpointBinding extends S.Class<EndpointBinding>($I`EndpointBinding
     policy: PolicySnapshot,
     execution: EndpointExecutionRef.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     host: EndpointHostRef.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("EndpointBinding", {
-    description: "Owned endpoint enrollment scoped to a repository and fenced by the current lifecycle generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("EndpointBinding", {
+      description: "Owned endpoint enrollment scoped to a repository and fenced by the current lifecycle generation.",
+    })
+  )
 ) {}
 
 /**
@@ -446,8 +453,8 @@ export type MessageTarget = typeof MessageTarget.Type;
  * @category models
  * @since 0.0.0
  */
-export class Envelope extends S.Class<Envelope>($I`Envelope`)(
-  {
+export class Envelope extends S.Opaque<Envelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("agent-message/v1").pipe(
       S.withDecodingDefaultKey(Effect.succeed<"agent-message/v1">("agent-message/v1")),
       S.withConstructorDefault(Effect.succeed<"agent-message/v1">("agent-message/v1"))
@@ -468,11 +475,12 @@ export class Envelope extends S.Class<Envelope>($I`Envelope`)(
     replyTo: OptionalIdentity,
     capabilityFingerprint: Fingerprint,
     policyFingerprint: Fingerprint,
-  },
-  $I.annote("Envelope", {
-    description:
-      "Immutable send or reply payload; transactional acceptance additionally validates expiry and enrollment policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("Envelope", {
+      description:
+        "Immutable send or reply payload; transactional acceptance additionally validates expiry and enrollment policy.",
+    })
+  )
 ) {}
 
 /**
@@ -490,8 +498,8 @@ export class Envelope extends S.Class<Envelope>($I`Envelope`)(
  * @category models
  * @since 0.0.0
  */
-export class Receipt extends S.Class<Receipt>($I`Receipt`)(
-  {
+export class Receipt extends S.Opaque<Receipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     sequence: S.Natural,
     messageId: Identity,
     status: ReceiptStatus,
@@ -499,11 +507,12 @@ export class Receipt extends S.Class<Receipt>($I`Receipt`)(
     attemptGeneration: S.Natural,
     owner: OptionalIdentity,
     detail: OptionalDetail,
-  },
-  $I.annote("Receipt", {
-    description:
-      "Ordered append-only delivery evidence with attempt fencing and bounded context for adapter-confirmed or audited operator-asserted terminal results.",
-  })
+  }).pipe(
+    $I.annoteSchema("Receipt", {
+      description:
+        "Ordered append-only delivery evidence with attempt fencing and bounded context for adapter-confirmed or audited operator-asserted terminal results.",
+    })
+  )
 ) {}
 
 /**
@@ -554,8 +563,8 @@ export type AmbiguityDisposition = typeof AmbiguityDisposition.Type;
  * @category models
  * @since 0.0.0
  */
-export class AmbiguityResolution extends S.Class<AmbiguityResolution>($I`AmbiguityResolution`)(
-  {
+export class AmbiguityResolution extends S.Opaque<AmbiguityResolution, { readonly brand: unique symbol }>()(
+  S.Struct({
     resolutionId: Identity,
     messageId: Identity,
     endpointId: Identity,
@@ -566,10 +575,11 @@ export class AmbiguityResolution extends S.Class<AmbiguityResolution>($I`Ambigui
     disposition: AmbiguityDisposition,
     evidence: Detail,
     reason: Detail,
-  },
-  $I.annote("AmbiguityResolution", {
-    description: "Trusted operator assertion of a known terminal outcome, fenced to the original ambiguous attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("AmbiguityResolution", {
+      description: "Trusted operator assertion of a known terminal outcome, fenced to the original ambiguous attempt.",
+    })
+  )
 ) {}
 
 /**
@@ -587,16 +597,17 @@ export class AmbiguityResolution extends S.Class<AmbiguityResolution>($I`Ambigui
  * @category models
  * @since 0.0.0
  */
-export class Claim extends S.Class<Claim>($I`Claim`)(
-  {
+export class Claim extends S.Opaque<Claim, { readonly brand: unique symbol }>()(
+  S.Struct({
     envelope: Envelope,
     ownerId: Identity,
     generation: S.Natural,
     leaseUntil: S.Natural,
-  },
-  $I.annote("Claim", {
-    description: "Exclusive bounded delivery lease; completion compares owner and generation atomically.",
-  })
+  }).pipe(
+    $I.annoteSchema("Claim", {
+      description: "Exclusive bounded delivery lease; completion compares owner and generation atomically.",
+    })
+  )
 ) {}
 
 /**
@@ -614,8 +625,8 @@ export class Claim extends S.Class<Claim>($I`Claim`)(
  * @category models
  * @since 0.0.0
  */
-export class LaunchGrant extends S.Class<LaunchGrant>($I`LaunchGrant`)(
-  {
+export class LaunchGrant extends S.Opaque<LaunchGrant, { readonly brand: unique symbol }>()(
+  S.Struct({
     grantId: Identity,
     endpointId: Identity,
     generation: S.Natural,
@@ -625,11 +636,12 @@ export class LaunchGrant extends S.Class<LaunchGrant>($I`LaunchGrant`)(
     allowedRecipients: S.Array(Identity).check(S.isMinLength(1), S.isMaxLength(64)),
     expiresAt: S.Natural,
     maxMessages: S.Int.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(1000)),
-  },
-  $I.annote("LaunchGrant", {
-    description:
-      "Trusted host enrollment authority with optional conversation scope and persisted recipient scope, expiry and atomic message budget; never a payload secret.",
-  })
+  }).pipe(
+    $I.annoteSchema("LaunchGrant", {
+      description:
+        "Trusted host enrollment authority with optional conversation scope and persisted recipient scope, expiry and atomic message budget; never a payload secret.",
+    })
+  )
 ) {}
 
 /**
@@ -647,7 +659,7 @@ export class LaunchGrant extends S.Class<LaunchGrant>($I`LaunchGrant`)(
  * @category errors
  * @since 0.0.0
  */
-export class RouterError extends S.TaggedError<RouterError>($I`RouterError`)(
+export class RouterError extends S.TaggedError<RouterError, { readonly brand: unique symbol }>($I`RouterError`)(
   "RouterError",
   { code: RouterErrorCode, message: Detail },
   $I.annoteError<RouterError>("RouterError", {

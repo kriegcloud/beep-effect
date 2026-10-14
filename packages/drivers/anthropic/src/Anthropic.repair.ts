@@ -227,14 +227,15 @@ export const collectToolParamsJson = <Tools extends Record<string, Tool.Any>, E,
  * @category models
  * @since 0.0.0
  */
-export class AnthropicToolJsonResponse extends S.Class<AnthropicToolJsonResponse>($I`AnthropicToolJsonResponse`)(
-  {
+export class AnthropicToolJsonResponse extends S.Opaque<AnthropicToolJsonResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     paramsJson: S.String.annotateKey({ description: "Collected forced-tool parameter JSON." }),
     usage: Response.Usage.annotateKey({ description: "Provider-reported token usage for the repair call." }),
-  },
-  $I.annote("AnthropicToolJsonResponse", {
-    description: "Collected forced-tool parameter JSON and provider usage for one Anthropic repair call.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnthropicToolJsonResponse", {
+      description: "Collected forced-tool parameter JSON and provider usage for one Anthropic repair call.",
+    })
+  )
 ) {}
 
 const isFinishPart = <Tools extends Record<string, Tool.Any>, ParametersMode extends Response.ToolParametersMode>(

@@ -91,7 +91,7 @@ export const CorrectionStrategy = LiteralKit([
  */
 export type CorrectionStrategy = typeof CorrectionStrategy.Type;
 
-class CorrectionBase extends S.Class<CorrectionBase>($I`CorrectionBase`)(
+class CorrectionBase extends S.Class<CorrectionBase, { readonly brand: unique symbol }>($I`CorrectionBase`)(
   {
     /**
      * Focus node (entity) being corrected
@@ -308,7 +308,7 @@ export const correctionShouldApply: (correction: Correction) => boolean = Correc
  * @category errors
  * @since 0.0.0
  */
-export class CorrectionError extends S.TaggedError<CorrectionError>($I`CorrectionError`)(
+export class CorrectionError extends S.TaggedError<CorrectionError, { readonly brand: unique symbol }>($I`CorrectionError`)(
   "CorrectionError",
   {
     message: S.NonEmptyString,
@@ -344,7 +344,7 @@ export class CorrectionError extends S.TaggedError<CorrectionError>($I`Correctio
  * @category errors
  * @since 0.0.0
  */
-export class CorrectionApplicationError extends S.TaggedError<CorrectionApplicationError>(
+export class CorrectionApplicationError extends S.TaggedError<CorrectionApplicationError, { readonly brand: unique symbol }>(
   $I`CorrectionApplicationError`
 )(
   "CorrectionApplicationError",
@@ -391,7 +391,7 @@ export class CorrectionApplicationError extends S.TaggedError<CorrectionApplicat
  * @category schemas
  * @since 0.0.0
  */
-export class CorrectionResult extends S.Class<CorrectionResult>($I`CorrectionResult`)({
+export class CorrectionResult extends S.Opaque<CorrectionResult, { readonly brand: unique symbol }>()(S.Struct({
   /**
    * The original violation
    */
@@ -411,11 +411,9 @@ export class CorrectionResult extends S.Class<CorrectionResult>($I`CorrectionRes
    * Time taken in milliseconds
    */
   durationMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("CorrectionResult", {
+  }).pipe($I.annoteSchema("CorrectionResult", {
     description: "Single-violation correction, whether it was applied, and elapsed milliseconds.",
-  })
-) {}
+  }))) {}
 
 /**
  * Aggregate outcome of correcting every violation in a SHACL report.
@@ -439,7 +437,7 @@ export class CorrectionResult extends S.Class<CorrectionResult>($I`CorrectionRes
  * @category schemas
  * @since 0.0.0
  */
-export class BatchCorrectionResult extends S.Class<BatchCorrectionResult>($I`BatchCorrectionResult`)({
+export class BatchCorrectionResult extends S.Class<BatchCorrectionResult, { readonly brand: unique symbol }>($I`BatchCorrectionResult`)({
   /**
    * Individual correction results
    */

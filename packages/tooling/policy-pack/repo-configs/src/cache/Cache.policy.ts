@@ -152,16 +152,17 @@ export type CacheClientChannel = typeof CacheClientChannel.Type;
  * @category models
  * @since 0.0.0
  */
-export class CacheQualificationKey extends S.Class<CacheQualificationKey>($I`CacheQualificationKey`)(
-  {
+export class CacheQualificationKey extends S.Opaque<CacheQualificationKey, { readonly brand: unique symbol }>()(
+  S.Struct({
     computation: S.NonEmptyString.check(S.isPattern(/^[^#\s]+#[^#\s]+$/)),
     layer: CacheReuseLayer,
     profile: S.NonEmptyString,
     epoch: S.NonEmptyString,
-  },
-  $I.annote("CacheQualificationKey", {
-    description: "Identifies one computation, reuse layer, named environment and epoch.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheQualificationKey", {
+      description: "Identifies one computation, reuse layer, named environment and epoch.",
+    })
+  )
 ) {}
 
 /**
@@ -178,17 +179,18 @@ export class CacheQualificationKey extends S.Class<CacheQualificationKey>($I`Cac
  * @category models
  * @since 0.0.0
  */
-export class CacheQualificationPins extends S.Class<CacheQualificationPins>($I`CacheQualificationPins`)(
-  {
+export class CacheQualificationPins extends S.Opaque<CacheQualificationPins, { readonly brand: unique symbol }>()(
+  S.Struct({
     contract: Sha256Hex,
     configuration: Sha256Hex,
     toolchain: Sha256Hex,
     fixtures: Sha256Hex,
     backend: Sha256Hex,
-  },
-  $I.annote("CacheQualificationPins", {
-    description: "Binds evidence to the reviewed worksheet, config, tools, fixtures and backend.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheQualificationPins", {
+      description: "Binds evidence to the reviewed worksheet, config, tools, fixtures and backend.",
+    })
+  )
 ) {}
 
 /**
@@ -205,8 +207,8 @@ export class CacheQualificationPins extends S.Class<CacheQualificationPins>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CacheTaskConfiguration extends S.Class<CacheTaskConfiguration>($I`CacheTaskConfiguration`)(
-  {
+export class CacheTaskConfiguration extends S.Opaque<CacheTaskConfiguration, { readonly brand: unique symbol }>()(
+  S.Struct({
     cache: S.Boolean,
     inputs: S.Array(S.String),
     env: S.Array(S.String),
@@ -217,10 +219,11 @@ export class CacheTaskConfiguration extends S.Class<CacheTaskConfiguration>($I`C
     interactive: S.Boolean,
     interruptible: S.Boolean,
     outputLogs: S.NonEmptyString,
-  },
-  $I.annote("CacheTaskConfiguration", {
-    description: "Reviewed effective Turbo settings, including dependency and persistence boundaries.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheTaskConfiguration", {
+      description: "Reviewed effective Turbo settings, including dependency and persistence boundaries.",
+    })
+  )
 ) {}
 
 /**
@@ -237,13 +240,12 @@ export class CacheTaskConfiguration extends S.Class<CacheTaskConfiguration>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CacheClientPin extends S.Class<CacheClientPin>($I`CacheClientPin`)(
-  {
+export class CacheClientPin extends S.Opaque<CacheClientPin, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.NonEmptyString.check(S.isPattern(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/)),
     sha256: Sha256Hex,
     namespace: S.NonEmptyString.check(S.isPattern(/^[a-z0-9][a-z0-9._-]{0,127}$/)),
-  },
-  $I.annote("CacheClientPin", { description: "Exact client binary and isolated experiment namespace." })
+  }).pipe($I.annoteSchema("CacheClientPin", { description: "Exact client binary and isolated experiment namespace." }))
 ) {}
 
 /**
@@ -260,16 +262,17 @@ export class CacheClientPin extends S.Class<CacheClientPin>($I`CacheClientPin`)(
  * @category models
  * @since 0.0.0
  */
-export class CacheEvidenceReference extends S.Class<CacheEvidenceReference>($I`CacheEvidenceReference`)(
-  {
+export class CacheEvidenceReference extends S.Opaque<CacheEvidenceReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString.check(
       S.isPattern(/^(?:[.@]?[A-Za-z0-9_-][A-Za-z0-9._-]*)(?:\/[.@]?[A-Za-z0-9_-][A-Za-z0-9._-]*)*$/)
     ),
     sha256: Sha256Hex,
-  },
-  $I.annote("CacheEvidenceReference", {
-    description: "Content-addressed portable receipt reference; Cache verifies the referenced bytes.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheEvidenceReference", {
+      description: "Content-addressed portable receipt reference; Cache verifies the referenced bytes.",
+    })
+  )
 ) {}
 
 /**
@@ -290,16 +293,17 @@ export class CacheEvidenceReference extends S.Class<CacheEvidenceReference>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CacheActivationProjection extends S.Class<CacheActivationProjection>($I`CacheActivationProjection`)(
-  {
+export class CacheActivationProjection extends S.Opaque<CacheActivationProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: CacheEvidenceReference.fields.path,
     before: CacheEvidenceReference,
     after: CacheEvidenceReference,
     sourceConfiguration: Sha256Hex,
-  },
-  $I.annote("CacheActivationProjection", {
-    description: "Exact reviewed configuration bytes and disabled fingerprint for a single task activation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheActivationProjection", {
+      description: "Exact reviewed configuration bytes and disabled fingerprint for a single task activation.",
+    })
+  )
 ) {}
 
 /**
@@ -319,8 +323,11 @@ export class CacheActivationProjection extends S.Class<CacheActivationProjection
  * @category models
  * @since 0.0.0
  */
-export class CacheSignedExecutionProfile extends S.Class<CacheSignedExecutionProfile>($I`CacheSignedExecutionProfile`)(
-  {
+export class CacheSignedExecutionProfile extends S.Opaque<
+  CacheSignedExecutionProfile,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.tag("cache-signed-execution-profile/v1"),
     sourceKey: CacheQualificationKey,
     sourceConfiguration: Sha256Hex,
@@ -329,10 +336,11 @@ export class CacheSignedExecutionProfile extends S.Class<CacheSignedExecutionPro
     activationRequest: CacheEvidenceReference,
     signedRootConfiguration: CacheEvidenceReference,
     runtimeKeys: S.Record(CacheClientChannel, Sha256Hex),
-  },
-  $I.annote("CacheSignedExecutionProfile", {
-    description: "Independent reviewed source, activation, signed-root and channel-runtime identities.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSignedExecutionProfile", {
+      description: "Independent reviewed source, activation, signed-root and channel-runtime identities.",
+    })
+  )
 ) {}
 
 /**
@@ -349,8 +357,8 @@ export class CacheSignedExecutionProfile extends S.Class<CacheSignedExecutionPro
  * @category models
  * @since 0.0.0
  */
-export class CacheTaskContract extends S.Class<CacheTaskContract>($I`CacheTaskContract`)(
-  {
+export class CacheTaskContract extends S.Opaque<CacheTaskContract, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: CacheQualificationKey,
     pins: CacheQualificationPins,
     commands: S.NonEmptyArray(S.NonEmptyString),
@@ -367,8 +375,11 @@ export class CacheTaskContract extends S.Class<CacheTaskContract>($I`CacheTaskCo
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("CacheTaskContract", { description: "Complete reviewed obligations for a finite executable computation." })
+  }).pipe(
+    $I.annoteSchema("CacheTaskContract", {
+      description: "Complete reviewed obligations for a finite executable computation.",
+    })
+  )
 ) {}
 
 /**
@@ -385,10 +396,11 @@ export class CacheTaskContract extends S.Class<CacheTaskContract>($I`CacheTaskCo
  * @category models
  * @since 0.0.0
  */
-export class CacheQualificationObservation extends S.Class<CacheQualificationObservation>(
-  $I`CacheQualificationObservation`
-)(
-  {
+export class CacheQualificationObservation extends S.Opaque<
+  CacheQualificationObservation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     key: CacheQualificationKey,
     pins: CacheQualificationPins,
     kind: CacheEvidenceKind,
@@ -399,10 +411,11 @@ export class CacheQualificationObservation extends S.Class<CacheQualificationObs
     subjects: S.Array(S.NonEmptyString),
     passed: S.Boolean,
     receipt: CacheEvidenceReference,
-  },
-  $I.annote("CacheQualificationObservation", {
-    description: "Validated experiment fact; its receipt remains the operational evidence authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheQualificationObservation", {
+      description: "Validated experiment fact; its receipt remains the operational evidence authority.",
+    })
+  )
 ) {}
 
 /**

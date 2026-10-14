@@ -65,8 +65,8 @@ const launchDefault: StatelyInspectorLaunch = StatelyInspectorLaunch.Enum.none;
  * @category models
  * @since 0.0.0
  */
-export class StatelyInspectorConfig extends S.Class<StatelyInspectorConfig>($I`StatelyInspectorConfig`)(
-  {
+export class StatelyInspectorConfig extends S.Opaque<StatelyInspectorConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     enabled: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
@@ -85,10 +85,11 @@ export class StatelyInspectorConfig extends S.Class<StatelyInspectorConfig>($I`S
     name: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Display name for the inspected system in the visualizer.",
     }),
-  },
-  $I.annote("StatelyInspectorConfig", {
-    description: "Runtime configuration for the Stately inspector bridge.",
-  })
+  }).pipe(
+    $I.annoteSchema("StatelyInspectorConfig", {
+      description: "Runtime configuration for the Stately inspector bridge.",
+    })
+  )
 ) {}
 
 /**

@@ -129,8 +129,7 @@ export type AgentType = typeof AgentType.Type;
  * @category models
  * @since 0.0.0
  */
-export class AgentMetadata extends S.Class<AgentMetadata>($I`AgentMetadata`)(
-  {
+export class AgentMetadata extends S.Opaque<AgentMetadata, { readonly brand: unique symbol }>()(S.Struct({
     id: AgentId.annotateKey({
       description: "Stable implementation identifier.",
     }),
@@ -147,11 +146,9 @@ export class AgentMetadata extends S.Class<AgentMetadata>($I`AgentMetadata`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Implementation version when independently versioned." })
     ),
-  },
-  $I.annote("AgentMetadata", {
+  }).pipe($I.annoteSchema("AgentMetadata", {
     description: "Stable identity and human-readable metadata for an executable agent.",
-  })
-) {}
+  }))) {}
 
 const validationResultErrorsDefault = A.empty<string>();
 const validationResultWarningsDefault = A.empty<string>();
@@ -176,7 +173,7 @@ const validationResultWarningsDefault = A.empty<string>();
  * @category validation
  * @since 0.0.0
  */
-export class ValidationResult extends S.Class<ValidationResult>($I`ValidationResult`)(
+export class ValidationResult extends S.Class<ValidationResult, { readonly brand: unique symbol }>($I`ValidationResult`)(
   {
     errors: S.Array(S.NonEmptyString).pipe(
       S.withConstructorDefault(Effect.succeed(validationResultErrorsDefault)), S.withDecodingDefaultType(Effect.succeed(validationResultErrorsDefault)),
@@ -450,8 +447,7 @@ export type PipelineStatus = typeof PipelineStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class IntermediateResult extends S.Class<IntermediateResult>($I`IntermediateResult`)(
-  {
+export class IntermediateResult extends S.Opaque<IntermediateResult, { readonly brand: unique symbol }>()(S.Struct({
     agentId: AgentId.annotateKey({
       description: "Agent that produced the result.",
     }),
@@ -464,11 +460,9 @@ export class IntermediateResult extends S.Class<IntermediateResult>($I`Intermedi
     duration: S.DurationFromMillis.annotateKey({
       description: "Non-negative execution duration encoded as milliseconds.",
     }),
-  },
-  $I.annote("IntermediateResult", {
+  }).pipe($I.annoteSchema("IntermediateResult", {
     description: "Checkpoint-safe JSON output and timing from one completed agent.",
-  })
-) {}
+  }))) {}
 
 const pipelineStateCompletedAgentsDefault = A.empty<AgentId>();
 const pipelineStateIntermediateResultsDefault = A.empty<IntermediateResult>();
@@ -492,7 +486,7 @@ const pipelineStateIterationCountDefault = S.Natural.make(0);
  * @category aggregates
  * @since 0.0.0
  */
-export class PipelineState extends S.Class<PipelineState>($I`PipelineState`)(
+export class PipelineState extends S.Class<PipelineState, { readonly brand: unique symbol }>($I`PipelineState`)(
   {
     pipelineId: S.NonEmptyString.annotateKey({
       description: "Unique identifier for this pipeline execution.",
@@ -645,8 +639,7 @@ const terminationConditionMaxIterationsDefault = PosInt.make(5);
  * @category policies
  * @since 0.0.0
  */
-export class TerminationCondition extends S.Class<TerminationCondition>($I`TerminationCondition`)(
-  {
+export class TerminationCondition extends S.Opaque<TerminationCondition, { readonly brand: unique symbol }>()(S.Struct({
     maxIterations: PosInt.pipe(
       S.withConstructorDefault(Effect.succeed(terminationConditionMaxIterationsDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(terminationConditionMaxIterationsDefault)),
       S.annotateKey({ description: "Maximum completed iterations before forced termination." })
@@ -663,11 +656,9 @@ export class TerminationCondition extends S.Class<TerminationCondition>($I`Termi
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional execution timeout encoded as milliseconds." })
     ),
-  },
-  $I.annote("TerminationCondition", {
+  }).pipe($I.annoteSchema("TerminationCondition", {
     description: "Schema-defaulted stop policy for iterative agent pipelines.",
-  })
-) {
+  }))) {
   /**
    * Constructs the canonical default loop-termination policy.
    *
@@ -702,8 +693,7 @@ const checkpointConfigAfterAgentsDefault = A.empty<AgentId>();
  * @category configuration
  * @since 0.0.0
  */
-export class CheckpointConfig extends S.Class<CheckpointConfig>($I`CheckpointConfig`)(
-  {
+export class CheckpointConfig extends S.Opaque<CheckpointConfig, { readonly brand: unique symbol }>()(S.Struct({
     afterAgents: S.Array(AgentId).pipe(
       S.withConstructorDefault(Effect.succeed(checkpointConfigAfterAgentsDefault)), S.withDecodingDefaultType(Effect.succeed(checkpointConfigAfterAgentsDefault)),
       S.annotateKey({ description: "Agents whose completion triggers a checkpoint." })
@@ -720,11 +710,9 @@ export class CheckpointConfig extends S.Class<CheckpointConfig>($I`CheckpointCon
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional approval timeout encoded as milliseconds." })
     ),
-  },
-  $I.annote("CheckpointConfig", {
+  }).pipe($I.annoteSchema("CheckpointConfig", {
     description: "Schema-defaulted policy for pipeline checkpoint timing and approval.",
-  })
-) {
+  }))) {
   /**
    * Constructs the canonical default checkpoint policy.
    *
@@ -761,17 +749,14 @@ export class CheckpointConfig extends S.Class<CheckpointConfig>($I`CheckpointCon
  * @category domain-events
  * @since 0.0.0
  */
-export class AgentStarted extends S.TaggedClass<AgentStarted>($I`AgentStarted`)(
-  "AgentStarted",
+export class AgentStarted extends S.Opaque<AgentStarted, { readonly brand: unique symbol }>()(S.TaggedStruct("AgentStarted",
   {
     agentId: AgentId,
     startedAt: S.DateTimeUtcFromString,
     inputSummary: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AgentStarted", {
+  }).pipe($I.annoteSchema("AgentStarted", {
     description: "Lifecycle event recording the start of one agent execution.",
-  })
-) {}
+  }))) {}
 
 /**
  * Progress update emitted during agent execution.
@@ -793,18 +778,15 @@ export class AgentStarted extends S.TaggedClass<AgentStarted>($I`AgentStarted`)(
  * @category domain-events
  * @since 0.0.0
  */
-export class AgentProgress extends S.TaggedClass<AgentProgress>($I`AgentProgress`)(
-  "AgentProgress",
+export class AgentProgress extends S.Opaque<AgentProgress, { readonly brand: unique symbol }>()(S.TaggedStruct("AgentProgress",
   {
     agentId: AgentId,
     progress: Percentage,
     message: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     timestamp: S.DateTimeUtcFromString,
-  },
-  $I.annote("AgentProgress", {
+  }).pipe($I.annoteSchema("AgentProgress", {
     description: "Bounded percentage progress reported by an executing agent.",
-  })
-) {}
+  }))) {}
 
 /**
  * Event emitted after successful agent execution.
@@ -826,18 +808,15 @@ export class AgentProgress extends S.TaggedClass<AgentProgress>($I`AgentProgress
  * @category domain-events
  * @since 0.0.0
  */
-export class AgentCompleted extends S.TaggedClass<AgentCompleted>($I`AgentCompleted`)(
-  "AgentCompleted",
+export class AgentCompleted extends S.Opaque<AgentCompleted, { readonly brand: unique symbol }>()(S.TaggedStruct("AgentCompleted",
   {
     agentId: AgentId,
     completedAt: S.DateTimeUtcFromString,
     duration: S.DurationFromMillis,
     outputSummary: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AgentCompleted", {
+  }).pipe($I.annoteSchema("AgentCompleted", {
     description: "Lifecycle event recording successful agent completion and duration.",
-  })
-) {}
+  }))) {}
 
 /**
  * Event emitted after failed agent execution.
@@ -860,19 +839,16 @@ export class AgentCompleted extends S.TaggedClass<AgentCompleted>($I`AgentComple
  * @category domain-events
  * @since 0.0.0
  */
-export class AgentFailed extends S.TaggedClass<AgentFailed>($I`AgentFailed`)(
-  "AgentFailed",
+export class AgentFailed extends S.Opaque<AgentFailed, { readonly brand: unique symbol }>()(S.TaggedStruct("AgentFailed",
   {
     agentId: AgentId,
     failedAt: S.DateTimeUtcFromString,
     duration: S.DurationFromMillis,
     error: S.NonEmptyString,
     retryable: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefaultTypeKey(Effect.succeed(false))),
-  },
-  $I.annote("AgentFailed", {
+  }).pipe($I.annoteSchema("AgentFailed", {
     description: "Lifecycle event recording typed failure information for one agent execution.",
-  })
-) {}
+  }))) {}
 
 /**
  * Reason a pipeline checkpoint was written.
@@ -933,17 +909,14 @@ export type CheckpointReason = typeof CheckpointReason.Type;
  * @category domain-events
  * @since 0.0.0
  */
-export class PipelineCheckpoint extends S.TaggedClass<PipelineCheckpoint>($I`PipelineCheckpoint`)(
-  "PipelineCheckpoint",
+export class PipelineCheckpoint extends S.Opaque<PipelineCheckpoint, { readonly brand: unique symbol }>()(S.TaggedStruct("PipelineCheckpoint",
   {
     state: PipelineState,
     reason: CheckpointReason,
     timestamp: S.DateTimeUtcFromString,
-  },
-  $I.annote("PipelineCheckpoint", {
+  }).pipe($I.annoteSchema("PipelineCheckpoint", {
     description: "Lifecycle event carrying an immutable pipeline-state checkpoint.",
-  })
-) {}
+  }))) {}
 
 const AgentEventDefinition = S.Union([
   AgentStarted,

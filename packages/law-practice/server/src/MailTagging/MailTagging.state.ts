@@ -32,15 +32,16 @@ const $I = $LawPracticeServerId.create("MailTagging/MailTagging.state");
  * @category configuration
  * @since 0.0.0
  */
-export class MailTaggingStateConfig extends S.Class<MailTaggingStateConfig>($I`MailTaggingStateConfig`)(
-  {
+export class MailTaggingStateConfig extends S.Opaque<MailTaggingStateConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     stateDirectory: S.NonEmptyString.annotateKey({
       description: "Directory holding the ledgers and the checkpoint.",
     }),
-  },
-  $I.annote("MailTaggingStateConfig", {
-    description: "Configuration of the file-backed mail-tagging state.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailTaggingStateConfig", {
+      description: "Configuration of the file-backed mail-tagging state.",
+    })
+  )
 ) {}
 
 /**

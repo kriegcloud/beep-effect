@@ -199,8 +199,8 @@ export type IntakePickFromString = typeof IntakePickFromString.Type;
  * @category models
  * @since 0.0.0
  */
-export class IntakeRequest extends S.Class<IntakeRequest>($I`IntakeRequest`)(
-  {
+export class IntakeRequest extends S.Opaque<IntakeRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     ref: OutlookItemRef.annotateKey({ description: "Message or conversation named by the pasted link or id." }),
     mailbox: GraphPathSegment.annotateKey({ description: "Mailbox (address or user id) the item lives in." }),
     outDir: S.NonEmptyString.annotateKey({ description: "Directory the attachments go to; under `corpusRoot`." }),
@@ -214,10 +214,11 @@ export class IntakeRequest extends S.Class<IntakeRequest>($I`IntakeRequest`)(
     includeOwn: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))).annotateKey({
       description: "Let --pick choose the mailbox's own messages of a conversation; drafts are never chosen.",
     }),
-  },
-  $I.annote("IntakeRequest", {
-    description: "Request to pull one message's file attachments into a directory under the corpus root.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeRequest", {
+      description: "Request to pull one message's file attachments into a directory under the corpus root.",
+    })
+  )
 ) {}
 
 /**
@@ -245,8 +246,8 @@ export class IntakeRequest extends S.Class<IntakeRequest>($I`IntakeRequest`)(
  * @category models
  * @since 0.0.0
  */
-export class IntakeAttachment extends S.Class<IntakeAttachment>($I`IntakeAttachment`)(
-  {
+export class IntakeAttachment extends S.Opaque<IntakeAttachment, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachmentId: S.String.annotateKey({ description: "Graph attachment id." }),
     name: S.String.annotateKey({ description: "Attachment name as the message carries it." }),
     savedAs: S.OptionFromNullOr(S.String).annotateKey({
@@ -261,8 +262,11 @@ export class IntakeAttachment extends S.Class<IntakeAttachment>($I`IntakeAttachm
     duplicateOf: S.OptionFromNullOr(S.String).annotateKey({
       description: "Existing file with the same bytes, for a `duplicate`.",
     }),
-  },
-  $I.annote("IntakeAttachment", { description: "One message attachment and what a drawing intake did with it." })
+  }).pipe(
+    $I.annoteSchema("IntakeAttachment", {
+      description: "One message attachment and what a drawing intake did with it.",
+    })
+  )
 ) {}
 
 /**
@@ -297,8 +301,8 @@ export class IntakeAttachment extends S.Class<IntakeAttachment>($I`IntakeAttachm
  * @category models
  * @since 0.0.0
  */
-export class MessageFacts extends S.Class<MessageFacts>($I`MessageFacts`)(
-  {
+export class MessageFacts extends S.Opaque<MessageFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     messageId: S.String.annotateKey({ description: "Graph message id." }),
     internetMessageId: S.OptionFromNullOr(S.String).annotateKey({ description: "RFC 5322 Message-ID, if reported." }),
     conversationId: S.OptionFromNullOr(S.String).annotateKey({ description: "Graph conversation id, if reported." }),
@@ -312,8 +316,7 @@ export class MessageFacts extends S.Class<MessageFacts>($I`MessageFacts`)(
       description: "Receipt timestamp as Graph reports it, if reported.",
     }),
     subject: S.String.annotateKey({ description: "Subject line; empty when the message has none." }),
-  },
-  $I.annote("MessageFacts", { description: "Provenance facts of the message a drawing intake pulled." })
+  }).pipe($I.annoteSchema("MessageFacts", { description: "Provenance facts of the message a drawing intake pulled." }))
 ) {}
 
 /**
@@ -348,18 +351,19 @@ export class MessageFacts extends S.Class<MessageFacts>($I`MessageFacts`)(
  * @category models
  * @since 0.0.0
  */
-export class IntakeRecord extends S.Class<IntakeRecord>($I`IntakeRecord`)(
-  {
+export class IntakeRecord extends S.Opaque<IntakeRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("drawing-intake/v1").annotateKey({ description: "Record schema version." }),
     mailbox: S.String.annotateKey({ description: "Mailbox the message was read from." }),
     message: MessageFacts.annotateKey({ description: "Provenance facts of the pulled message." }),
     outDir: S.String.annotateKey({ description: "Absolute intake directory." }),
     attachments: S.Array(IntakeAttachment).annotateKey({ description: "Every attachment, in message order." }),
     pulledAt: S.String.annotateKey({ description: "When the intake ran (ISO-8601 UTC)." }),
-  },
-  $I.annote("IntakeRecord", {
-    description: "Provenance record of one drawing intake: the message, and the hash and outcome of each attachment.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeRecord", {
+      description: "Provenance record of one drawing intake: the message, and the hash and outcome of each attachment.",
+    })
+  )
 ) {}
 
 /**
@@ -398,8 +402,8 @@ export class IntakeRecord extends S.Class<IntakeRecord>($I`IntakeRecord`)(
  * @category models
  * @since 0.0.0
  */
-export class IntakeResult extends S.Class<IntakeResult>($I`IntakeResult`)(
-  {
+export class IntakeResult extends S.Opaque<IntakeResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     record: IntakeRecord.annotateKey({ description: "The record that was written." }),
     recordPath: S.String.annotateKey({ description: "Absolute path of the record file." }),
     conversationSize: S.Option(S.Natural).annotateKey({
@@ -408,6 +412,5 @@ export class IntakeResult extends S.Class<IntakeResult>($I`IntakeResult`)(
     setAside: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))).annotateKey({
       description: "Conversation messages --pick never considered: drafts, and the mailbox's own mail unless included.",
     }),
-  },
-  $I.annote("IntakeResult", { description: "The intake record and where it was written." })
+  }).pipe($I.annoteSchema("IntakeResult", { description: "The intake record and where it was written." }))
 ) {}

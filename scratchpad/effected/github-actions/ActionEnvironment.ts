@@ -36,7 +36,7 @@ const Json = S.fromJsonString(S.Unknown);
  * @category errors
  * @since 0.0.0
  */
-export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError>($I`ActionEnvironmentError`)("ActionEnvironmentError", {
+export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError, { readonly brand: unique symbol }>($I`ActionEnvironmentError`)("ActionEnvironmentError", {
 	/**
 	 * `missing` — absent or empty; `malformed` — present but unusable.
 	 * @since 0.0.0
@@ -93,7 +93,7 @@ export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError
  * @category schemas
  * @since 0.0.0
  */
-export class GitHubContext extends S.Class<GitHubContext>($I`GitHubContext`)({
+export class GitHubContext extends S.Class<GitHubContext, { readonly brand: unique symbol }>($I`GitHubContext`)({
 	/**
 	 * `owner/repo`.
 	 * @since 0.0.0
@@ -237,7 +237,7 @@ export class GitHubContext extends S.Class<GitHubContext>($I`GitHubContext`)({
  * @category schemas
  * @since 0.0.0
  */
-export class RunnerContext extends S.Class<RunnerContext>($I`RunnerContext`)({
+export class RunnerContext extends S.Class<RunnerContext, { readonly brand: unique symbol }>($I`RunnerContext`)({
 	/**
 	 * The runner's operating system: `Linux`, `Windows` or `macOS`.
 	 * @since 0.0.0

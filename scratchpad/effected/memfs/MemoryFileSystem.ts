@@ -50,7 +50,7 @@ const $I = $ScratchpadId.create("effected/memfs/MemoryFileSystem");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidFaultCountError extends S.TaggedError<InvalidFaultCountError>($I`InvalidFaultCountError`)(
+export class InvalidFaultCountError extends S.TaggedError<InvalidFaultCountError, { readonly brand: unique symbol }>($I`InvalidFaultCountError`)(
 	"InvalidFaultCountError",
 	{ message: S.String.pipe($I.annoteKey("InvalidFaultCountError.message", { description: "The invalid failure count and its required range." })) },
  $I.annoteError<InvalidFaultCountError>("InvalidFaultCountError", { description: "The failure count is not a non-negative integer." }),

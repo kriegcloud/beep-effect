@@ -151,10 +151,11 @@ export type StorybookPulumiConfigValues = typeof StorybookPulumiConfigValues.Typ
  * @category models
  * @since 0.0.0
  */
-export class StorybookVercelProjectConfig extends S.Class<StorybookVercelProjectConfig>(
-  $I`StorybookVercelProjectConfig`
-)(
-  {
+export class StorybookVercelProjectConfig extends S.Opaque<
+  StorybookVercelProjectConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     buildCommand: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultBuildCommand)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultBuildCommand))
@@ -192,10 +193,11 @@ export class StorybookVercelProjectConfig extends S.Class<StorybookVercelProject
         Effect.succeed<typeof defaultVercelAuthenticationDeploymentType>(defaultVercelAuthenticationDeploymentType)
       )
     ),
-  },
-  $I.annote("StorybookVercelProjectConfig", {
-    description: "Vercel project configuration for @beep/storybook.",
-  })
+  }).pipe(
+    $I.annoteSchema("StorybookVercelProjectConfig", {
+      description: "Vercel project configuration for @beep/storybook.",
+    })
+  )
 ) {}
 
 /**
@@ -211,16 +213,17 @@ export class StorybookVercelProjectConfig extends S.Class<StorybookVercelProject
  * @category models
  * @since 0.0.0
  */
-export class StorybookStackArgs extends S.Class<StorybookStackArgs>($I`StorybookStackArgs`)(
-  {
+export class StorybookStackArgs extends S.Opaque<StorybookStackArgs, { readonly brand: unique symbol }>()(
+  S.Struct({
     vercel: StorybookVercelProjectConfig.pipe(
       S.withConstructorDefault(Effect.succeed(StorybookVercelProjectConfig.make({}))),
       S.withDecodingDefaultKey(Effect.succeed({}))
     ),
-  },
-  $I.annote("StorybookStackArgs", {
-    description: "Pulumi-facing args for the Storybook Vercel stack.",
-  })
+  }).pipe(
+    $I.annoteSchema("StorybookStackArgs", {
+      description: "Pulumi-facing args for the Storybook Vercel stack.",
+    })
+  )
 ) {}
 
 /**

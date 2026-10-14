@@ -33,7 +33,9 @@ const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.errors"
  * @category errors
  * @since 0.0.0
  */
-export class WorkItemAlreadyArchived extends S.TaggedError<WorkItemAlreadyArchived>($I`WorkItemAlreadyArchived`)(
+export class WorkItemAlreadyArchived extends S.TaggedError<WorkItemAlreadyArchived, { readonly brand: unique symbol }>(
+  $I`WorkItemAlreadyArchived`
+)(
   "WorkItemAlreadyArchived",
   {
     workItemId: WorkItemId.annotateKey({
@@ -69,7 +71,10 @@ export class WorkItemAlreadyArchived extends S.TaggedError<WorkItemAlreadyArchiv
  * @category errors
  * @since 0.0.0
  */
-export class WorkItemInvalidTransition extends S.TaggedError<WorkItemInvalidTransition>($I`WorkItemInvalidTransition`)(
+export class WorkItemInvalidTransition extends S.TaggedError<
+  WorkItemInvalidTransition,
+  { readonly brand: unique symbol }
+>($I`WorkItemInvalidTransition`)(
   "WorkItemInvalidTransition",
   {
     workItemId: WorkItemId.annotateKey({
@@ -140,7 +145,10 @@ export class WorkItemInvalidTransition extends S.TaggedError<WorkItemInvalidTran
  * @category errors
  * @since 0.0.0
  */
-export class WorkItemAssigneeRequired extends S.TaggedError<WorkItemAssigneeRequired>($I`WorkItemAssigneeRequired`)(
+export class WorkItemAssigneeRequired extends S.TaggedError<
+  WorkItemAssigneeRequired,
+  { readonly brand: unique symbol }
+>($I`WorkItemAssigneeRequired`)(
   "WorkItemAssigneeRequired",
   {
     workItemId: WorkItemId.annotateKey({

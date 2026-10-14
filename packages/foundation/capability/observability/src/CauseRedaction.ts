@@ -245,8 +245,8 @@ export const redactString: {
  * @category models
  * @since 0.0.0
  */
-export class RedactedCause extends S.Class<RedactedCause>($I`RedactedCause`)(
-  {
+export class RedactedCause extends S.Opaque<RedactedCause, { readonly brand: unique symbol }>()(
+  S.Struct({
     tag: CauseClassification.annotateKey({
       description: "Stable cause classification preserved for diagnostics across redaction.",
     }),
@@ -262,10 +262,11 @@ export class RedactedCause extends S.Class<RedactedCause>($I`RedactedCause`)(
     truncated: S.Boolean.annotateKey({
       description: "Whether the sanitized message or detail was truncated to its length bound.",
     }),
-  },
-  $I.annote("RedactedCause", {
-    description: "Transport-safe, sanitized, bounded representation of a cause for logs, telemetry, and clients.",
-  })
+  }).pipe(
+    $I.annoteSchema("RedactedCause", {
+      description: "Transport-safe, sanitized, bounded representation of a cause for logs, telemetry, and clients.",
+    })
+  )
 ) {}
 
 /**
@@ -283,8 +284,8 @@ export class RedactedCause extends S.Class<RedactedCause>($I`RedactedCause`)(
  * @category models
  * @since 0.0.0
  */
-export class RedactCauseOptions extends S.Class<RedactCauseOptions>($I`RedactCauseOptions`)(
-  {
+export class RedactCauseOptions extends S.Opaque<RedactCauseOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     channel: RedactionChannel.pipe(
       S.withConstructorDefault(Effect.succeed(RedactionChannel.Enum.diagnostic))
     ).annotateKey({
@@ -300,10 +301,11 @@ export class RedactCauseOptions extends S.Class<RedactCauseOptions>($I`RedactCau
     ).annotateKey({
       description: "Maximum length of the sanitized diagnostic detail before truncation.",
     }),
-  },
-  $I.annote("RedactCauseOptions", {
-    description: "Options controlling channel and length bounds when redacting a cause.",
-  })
+  }).pipe(
+    $I.annoteSchema("RedactCauseOptions", {
+      description: "Options controlling channel and length bounds when redacting a cause.",
+    })
+  )
 ) {
   static readonly is = S.is(RedactCauseOptions);
 }
@@ -467,7 +469,9 @@ export const redactCauseForClient = (input: unknown): RedactedCause =>
  * @category error-handling
  * @since 0.0.0
  */
-export class RedactedCauseError extends S.TaggedError<RedactedCauseError>($I`RedactedCauseError`)(
+export class RedactedCauseError extends S.TaggedError<RedactedCauseError, { readonly brand: unique symbol }>(
+  $I`RedactedCauseError`
+)(
   "RedactedCauseError",
   {
     redacted: RedactedCause,
@@ -570,15 +574,16 @@ export type RedactedCauseLogLevel = typeof RedactedCauseLogLevel.Type;
  * @category models
  * @since 0.0.0
  */
-export class LogRedactedCauseOptions extends S.Class<LogRedactedCauseOptions>($I`LogRedactedCauseOptions`)(
-  {
+export class LogRedactedCauseOptions extends S.Opaque<LogRedactedCauseOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: S.NonEmptyString,
     level: RedactedCauseLogLevel.pipe(S.withConstructorDefault(Effect.succeed(RedactedCauseLogLevel.Enum.Error))),
     attributes: S.Record(S.String, S.String).pipe(S.optionalKey),
-  },
-  $I.annote("LogRedactedCauseOptions", {
-    description: "Options for logging one sanitized and bounded Cause.",
-  })
+  }).pipe(
+    $I.annoteSchema("LogRedactedCauseOptions", {
+      description: "Options for logging one sanitized and bounded Cause.",
+    })
+  )
 ) {}
 
 const logAtRedactedCauseLevel = (level: RedactedCauseLogLevel, message: string): Effect.Effect<void> =>

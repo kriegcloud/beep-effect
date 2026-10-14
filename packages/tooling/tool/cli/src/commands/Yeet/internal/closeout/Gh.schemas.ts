@@ -31,13 +31,14 @@ const $I = $RepoCliId.create("commands/Yeet/internal/closeout/Gh.schemas");
  * @category models
  * @since 0.0.0
  */
-export class GhRepoOwner extends S.Class<GhRepoOwner>($I`GhRepoOwner`)(
-  {
+export class GhRepoOwner extends S.Opaque<GhRepoOwner, { readonly brand: unique symbol }>()(
+  S.Struct({
     login: S.String,
-  },
-  $I.annote("GhRepoOwner", {
-    description: "GitHub repository owner.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhRepoOwner", {
+      description: "GitHub repository owner.",
+    })
+  )
 ) {}
 
 /**
@@ -57,14 +58,15 @@ export class GhRepoOwner extends S.Class<GhRepoOwner>($I`GhRepoOwner`)(
  * @category models
  * @since 0.0.0
  */
-export class GhRepoView extends S.Class<GhRepoView>($I`GhRepoView`)(
-  {
+export class GhRepoView extends S.Opaque<GhRepoView, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     owner: GhRepoOwner,
-  },
-  $I.annote("GhRepoView", {
-    description: "GitHub repository metadata for GraphQL queries.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhRepoView", {
+      description: "GitHub repository metadata for GraphQL queries.",
+    })
+  )
 ) {}
 
 /**
@@ -91,18 +93,19 @@ export class GhRepoView extends S.Class<GhRepoView>($I`GhRepoView`)(
  * @category models
  * @since 0.0.0
  */
-export class GhInlineReviewComment extends S.Class<GhInlineReviewComment>($I`GhInlineReviewComment`)(
-  {
+export class GhInlineReviewComment extends S.Opaque<GhInlineReviewComment, { readonly brand: unique symbol }>()(
+  S.Struct({
     author: S.NullOr(GhActor),
     body: S.String,
     id: S.String,
     line: S.NullOr(S.Finite),
     path: S.NullOr(S.String),
     url: S.String,
-  },
-  $I.annote("GhInlineReviewComment", {
-    description: "Inline review comment returned by GitHub GraphQL.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhInlineReviewComment", {
+      description: "Inline review comment returned by GitHub GraphQL.",
+    })
+  )
 ) {}
 
 /**
@@ -125,16 +128,18 @@ export class GhInlineReviewComment extends S.Class<GhInlineReviewComment>($I`GhI
  * @category models
  * @since 0.0.0
  */
-export class GhInlineReviewCommentConnection extends S.Class<GhInlineReviewCommentConnection>(
-  $I`GhInlineReviewCommentConnection`
-)(
-  {
+export class GhInlineReviewCommentConnection extends S.Opaque<
+  GhInlineReviewCommentConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     nodes: S.Array(GhInlineReviewComment),
     pageInfo: GhPageInfo,
-  },
-  $I.annote("GhInlineReviewCommentConnection", {
-    description: "Inline review comment connection.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhInlineReviewCommentConnection", {
+      description: "Inline review comment connection.",
+    })
+  )
 ) {}
 
 /**
@@ -157,16 +162,18 @@ export class GhInlineReviewCommentConnection extends S.Class<GhInlineReviewComme
  * @category models
  * @since 0.0.0
  */
-export class GhReviewThreadCommentConnection extends S.Class<GhReviewThreadCommentConnection>(
-  $I`GhReviewThreadCommentConnection`
-)(
-  {
+export class GhReviewThreadCommentConnection extends S.Opaque<
+  GhReviewThreadCommentConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     nodes: S.Array(GhComment),
     pageInfo: GhPageInfo,
-  },
-  $I.annote("GhReviewThreadCommentConnection", {
-    description: "Review thread comment connection.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewThreadCommentConnection", {
+      description: "Review thread comment connection.",
+    })
+  )
 ) {}
 
 /**
@@ -197,17 +204,21 @@ export class GhReviewThreadCommentConnection extends S.Class<GhReviewThreadComme
  * @category models
  * @since 0.0.0
  */
-export class GhReviewThreadLatestComment extends S.Class<GhReviewThreadLatestComment>($I`GhReviewThreadLatestComment`)(
-  {
+export class GhReviewThreadLatestComment extends S.Opaque<
+  GhReviewThreadLatestComment,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     author: GhActor.pipe(S.NullOr, S.optionalKey),
     body: S.optionalKey(S.String),
     createdAt: S.optionalKey(S.String),
     url: S.optionalKey(S.String),
-  },
-  $I.annote("GhReviewThreadLatestComment", {
-    description:
-      "One review-thread comment reduced to the author and timestamp the thread-state rule reads, plus the body and url quoted as evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewThreadLatestComment", {
+      description:
+        "One review-thread comment reduced to the author and timestamp the thread-state rule reads, plus the body and url quoted as evidence.",
+    })
+  )
 ) {}
 
 const ghReviewThreadLatestConnectionNodesDefault = A.empty<GhReviewThreadLatestComment>();
@@ -226,18 +237,20 @@ const ghReviewThreadLatestConnectionNodesDefault = A.empty<GhReviewThreadLatestC
  * @category models
  * @since 0.0.0
  */
-export class GhReviewThreadLatestConnection extends S.Class<GhReviewThreadLatestConnection>(
-  $I`GhReviewThreadLatestConnection`
-)(
-  {
+export class GhReviewThreadLatestConnection extends S.Opaque<
+  GhReviewThreadLatestConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     nodes: S.Array(GhReviewThreadLatestComment).pipe(
       S.withConstructorDefault(Effect.succeed(ghReviewThreadLatestConnectionNodesDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(ghReviewThreadLatestConnectionNodesDefault))
     ),
-  },
-  $I.annote("GhReviewThreadLatestConnection", {
-    description: "The `comments(last: 1)` connection naming a review thread's newest comment.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewThreadLatestConnection", {
+      description: "The `comments(last: 1)` connection naming a review thread's newest comment.",
+    })
+  )
 ) {}
 
 /**
@@ -274,8 +287,8 @@ export class GhReviewThreadLatestConnection extends S.Class<GhReviewThreadLatest
  * @category models
  * @since 0.0.0
  */
-export class GhReviewThread extends S.Class<GhReviewThread>($I`GhReviewThread`)(
-  {
+export class GhReviewThread extends S.Opaque<GhReviewThread, { readonly brand: unique symbol }>()(
+  S.Struct({
     comments: GhReviewThreadCommentConnection,
     id: S.String,
     isOutdated: S.Boolean,
@@ -287,10 +300,11 @@ export class GhReviewThread extends S.Class<GhReviewThread>($I`GhReviewThread`)(
     line: S.NullOr(S.Finite),
     path: S.NullOr(S.String),
     resolvedBy: GhActor.pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("GhReviewThread", {
-    description: "Pull request review thread returned by GitHub GraphQL, optionally naming who resolved it.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewThread", {
+      description: "Pull request review thread returned by GitHub GraphQL, optionally naming who resolved it.",
+    })
+  )
 ) {}
 
 /**
@@ -313,14 +327,15 @@ export class GhReviewThread extends S.Class<GhReviewThread>($I`GhReviewThread`)(
  * @category models
  * @since 0.0.0
  */
-export class GhReviewThreadConnection extends S.Class<GhReviewThreadConnection>($I`GhReviewThreadConnection`)(
-  {
+export class GhReviewThreadConnection extends S.Opaque<GhReviewThreadConnection, { readonly brand: unique symbol }>()(
+  S.Struct({
     nodes: S.Array(GhReviewThread),
     pageInfo: GhPageInfo,
-  },
-  $I.annote("GhReviewThreadConnection", {
-    description: "Review thread connection.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewThreadConnection", {
+      description: "Review thread connection.",
+    })
+  )
 ) {}
 
 /**
@@ -343,16 +358,18 @@ export class GhReviewThreadConnection extends S.Class<GhReviewThreadConnection>(
  * @category models
  * @since 0.0.0
  */
-export class GhPullRequestCommentConnection extends S.Class<GhPullRequestCommentConnection>(
-  $I`GhPullRequestCommentConnection`
-)(
-  {
+export class GhPullRequestCommentConnection extends S.Opaque<
+  GhPullRequestCommentConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     nodes: S.Array(GhComment),
     pageInfo: GhPageInfo,
-  },
-  $I.annote("GhPullRequestCommentConnection", {
-    description: "Pull request top-level comment connection.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhPullRequestCommentConnection", {
+      description: "Pull request top-level comment connection.",
+    })
+  )
 ) {}
 
 /**
@@ -382,18 +399,19 @@ export class GhPullRequestCommentConnection extends S.Class<GhPullRequestComment
  * @category models
  * @since 0.0.0
  */
-export class GhReview extends S.Class<GhReview>($I`GhReview`)(
-  {
+export class GhReview extends S.Opaque<GhReview, { readonly brand: unique symbol }>()(
+  S.Struct({
     author: S.NullOr(GhActor),
     body: S.String,
     comments: GhInlineReviewCommentConnection,
     id: S.String,
     state: S.String,
     submittedAt: S.String.pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("GhReview", {
-    description: "Pull request review returned by GitHub GraphQL.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReview", {
+      description: "Pull request review returned by GitHub GraphQL.",
+    })
+  )
 ) {}
 
 /**
@@ -416,14 +434,15 @@ export class GhReview extends S.Class<GhReview>($I`GhReview`)(
  * @category models
  * @since 0.0.0
  */
-export class GhReviewConnection extends S.Class<GhReviewConnection>($I`GhReviewConnection`)(
-  {
+export class GhReviewConnection extends S.Opaque<GhReviewConnection, { readonly brand: unique symbol }>()(
+  S.Struct({
     nodes: S.Array(GhReview),
     pageInfo: GhPageInfo,
-  },
-  $I.annote("GhReviewConnection", {
-    description: "Pull request review connection.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewConnection", {
+      description: "Pull request review connection.",
+    })
+  )
 ) {}
 
 /**
@@ -448,13 +467,14 @@ export class GhReviewConnection extends S.Class<GhReviewConnection>($I`GhReviewC
  * @category models
  * @since 0.0.0
  */
-export class GhCommentsPullRequest extends S.Class<GhCommentsPullRequest>($I`GhCommentsPullRequest`)(
-  {
+export class GhCommentsPullRequest extends S.Opaque<GhCommentsPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     comments: GhPullRequestCommentConnection,
-  },
-  $I.annote("GhCommentsPullRequest", {
-    description: "Pull request top-level comment page payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhCommentsPullRequest", {
+      description: "Pull request top-level comment page payload.",
+    })
+  )
 ) {}
 
 /**
@@ -479,13 +499,17 @@ export class GhCommentsPullRequest extends S.Class<GhCommentsPullRequest>($I`GhC
  * @category models
  * @since 0.0.0
  */
-export class GhReviewThreadsPullRequest extends S.Class<GhReviewThreadsPullRequest>($I`GhReviewThreadsPullRequest`)(
-  {
+export class GhReviewThreadsPullRequest extends S.Opaque<
+  GhReviewThreadsPullRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     reviewThreads: GhReviewThreadConnection,
-  },
-  $I.annote("GhReviewThreadsPullRequest", {
-    description: "Pull request review thread page payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewThreadsPullRequest", {
+      description: "Pull request review thread page payload.",
+    })
+  )
 ) {}
 
 /**
@@ -510,13 +534,14 @@ export class GhReviewThreadsPullRequest extends S.Class<GhReviewThreadsPullReque
  * @category models
  * @since 0.0.0
  */
-export class GhReviewsPullRequest extends S.Class<GhReviewsPullRequest>($I`GhReviewsPullRequest`)(
-  {
+export class GhReviewsPullRequest extends S.Opaque<GhReviewsPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     reviews: GhReviewConnection,
-  },
-  $I.annote("GhReviewsPullRequest", {
-    description: "Pull request review page payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewsPullRequest", {
+      description: "Pull request review page payload.",
+    })
+  )
 ) {}
 
 /**
@@ -546,15 +571,16 @@ export class GhReviewsPullRequest extends S.Class<GhReviewsPullRequest>($I`GhRev
  * @category models
  * @since 0.0.0
  */
-export class GhCloseoutPullRequest extends S.Class<GhCloseoutPullRequest>($I`GhCloseoutPullRequest`)(
-  {
+export class GhCloseoutPullRequest extends S.Opaque<GhCloseoutPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     comments: GhPullRequestCommentConnection,
     reviewThreads: GhReviewThreadConnection,
     reviews: GhReviewConnection,
-  },
-  $I.annote("GhCloseoutPullRequest", {
-    description: "Pull request GraphQL payload used by Yeet closeout.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhCloseoutPullRequest", {
+      description: "Pull request GraphQL payload used by Yeet closeout.",
+    })
+  )
 ) {}
 
 /**
@@ -581,13 +607,14 @@ export class GhCloseoutPullRequest extends S.Class<GhCloseoutPullRequest>($I`GhC
  * @category models
  * @since 0.0.0
  */
-export class GhCommentsRepository extends S.Class<GhCommentsRepository>($I`GhCommentsRepository`)(
-  {
+export class GhCommentsRepository extends S.Opaque<GhCommentsRepository, { readonly brand: unique symbol }>()(
+  S.Struct({
     pullRequest: GhCommentsPullRequest,
-  },
-  $I.annote("GhCommentsRepository", {
-    description: "Repository wrapper for pull request comment page payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhCommentsRepository", {
+      description: "Repository wrapper for pull request comment page payload.",
+    })
+  )
 ) {}
 
 /**
@@ -614,13 +641,14 @@ export class GhCommentsRepository extends S.Class<GhCommentsRepository>($I`GhCom
  * @category models
  * @since 0.0.0
  */
-export class GhReviewThreadsRepository extends S.Class<GhReviewThreadsRepository>($I`GhReviewThreadsRepository`)(
-  {
+export class GhReviewThreadsRepository extends S.Opaque<GhReviewThreadsRepository, { readonly brand: unique symbol }>()(
+  S.Struct({
     pullRequest: GhReviewThreadsPullRequest,
-  },
-  $I.annote("GhReviewThreadsRepository", {
-    description: "Repository wrapper for pull request review thread page payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewThreadsRepository", {
+      description: "Repository wrapper for pull request review thread page payload.",
+    })
+  )
 ) {}
 
 /**
@@ -647,13 +675,14 @@ export class GhReviewThreadsRepository extends S.Class<GhReviewThreadsRepository
  * @category models
  * @since 0.0.0
  */
-export class GhReviewsRepository extends S.Class<GhReviewsRepository>($I`GhReviewsRepository`)(
-  {
+export class GhReviewsRepository extends S.Opaque<GhReviewsRepository, { readonly brand: unique symbol }>()(
+  S.Struct({
     pullRequest: GhReviewsPullRequest,
-  },
-  $I.annote("GhReviewsRepository", {
-    description: "Repository wrapper for pull request review page payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewsRepository", {
+      description: "Repository wrapper for pull request review page payload.",
+    })
+  )
 ) {}
 
 /**
@@ -682,13 +711,14 @@ export class GhReviewsRepository extends S.Class<GhReviewsRepository>($I`GhRevie
  * @category models
  * @since 0.0.0
  */
-export class GhCommentsData extends S.Class<GhCommentsData>($I`GhCommentsData`)(
-  {
+export class GhCommentsData extends S.Opaque<GhCommentsData, { readonly brand: unique symbol }>()(
+  S.Struct({
     repository: GhCommentsRepository,
-  },
-  $I.annote("GhCommentsData", {
-    description: "GraphQL data wrapper for pull request comment pages.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhCommentsData", {
+      description: "GraphQL data wrapper for pull request comment pages.",
+    })
+  )
 ) {}
 
 /**
@@ -722,13 +752,14 @@ export class GhCommentsData extends S.Class<GhCommentsData>($I`GhCommentsData`)(
  * @category models
  * @since 0.0.0
  */
-export class GhReviewThreadsData extends S.Class<GhReviewThreadsData>($I`GhReviewThreadsData`)(
-  {
+export class GhReviewThreadsData extends S.Opaque<GhReviewThreadsData, { readonly brand: unique symbol }>()(
+  S.Struct({
     repository: GhReviewThreadsRepository,
-  },
-  $I.annote("GhReviewThreadsData", {
-    description: "GraphQL data wrapper for pull request review thread pages.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewThreadsData", {
+      description: "GraphQL data wrapper for pull request review thread pages.",
+    })
+  )
 ) {}
 
 /**
@@ -757,13 +788,14 @@ export class GhReviewThreadsData extends S.Class<GhReviewThreadsData>($I`GhRevie
  * @category models
  * @since 0.0.0
  */
-export class GhReviewsData extends S.Class<GhReviewsData>($I`GhReviewsData`)(
-  {
+export class GhReviewsData extends S.Opaque<GhReviewsData, { readonly brand: unique symbol }>()(
+  S.Struct({
     repository: GhReviewsRepository,
-  },
-  $I.annote("GhReviewsData", {
-    description: "GraphQL data wrapper for pull request review pages.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewsData", {
+      description: "GraphQL data wrapper for pull request review pages.",
+    })
+  )
 ) {}
 
 /**
@@ -800,13 +832,14 @@ export class GhReviewsData extends S.Class<GhReviewsData>($I`GhReviewsData`)(
  * @category models
  * @since 0.0.0
  */
-export class GhCommentsDocument extends S.Class<GhCommentsDocument>($I`GhCommentsDocument`)(
-  {
+export class GhCommentsDocument extends S.Opaque<GhCommentsDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: GhCommentsData,
-  },
-  $I.annote("GhCommentsDocument", {
-    description: "GitHub GraphQL response document for pull request comment pages.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhCommentsDocument", {
+      description: "GitHub GraphQL response document for pull request comment pages.",
+    })
+  )
 ) {}
 
 /**
@@ -843,13 +876,14 @@ export class GhCommentsDocument extends S.Class<GhCommentsDocument>($I`GhComment
  * @category models
  * @since 0.0.0
  */
-export class GhReviewThreadsDocument extends S.Class<GhReviewThreadsDocument>($I`GhReviewThreadsDocument`)(
-  {
+export class GhReviewThreadsDocument extends S.Opaque<GhReviewThreadsDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: GhReviewThreadsData,
-  },
-  $I.annote("GhReviewThreadsDocument", {
-    description: "GitHub GraphQL response document for pull request review thread pages.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewThreadsDocument", {
+      description: "GitHub GraphQL response document for pull request review thread pages.",
+    })
+  )
 ) {}
 
 /**
@@ -886,13 +920,14 @@ export class GhReviewThreadsDocument extends S.Class<GhReviewThreadsDocument>($I
  * @category models
  * @since 0.0.0
  */
-export class GhReviewsDocument extends S.Class<GhReviewsDocument>($I`GhReviewsDocument`)(
-  {
+export class GhReviewsDocument extends S.Opaque<GhReviewsDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: GhReviewsData,
-  },
-  $I.annote("GhReviewsDocument", {
-    description: "GitHub GraphQL response document for pull request review pages.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhReviewsDocument", {
+      description: "GitHub GraphQL response document for pull request review pages.",
+    })
+  )
 ) {}
 
 /**

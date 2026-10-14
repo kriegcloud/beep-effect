@@ -6,7 +6,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import type { MigrationBundleEntry } from "@beep/postgres";
+import { MigrationBundleEntry } from "@beep/postgres";
 
 /**
  * Professional Desktop sidecar migration bundle, synced byte-exactly from
@@ -24,7 +24,7 @@ import type { MigrationBundleEntry } from "@beep/postgres";
  * @since 0.0.0
  */
 export const migrationBundle: ReadonlyArray<MigrationBundleEntry> = [
-  {
+  MigrationBundleEntry.make({
     name: "20260813130540_baseline",
     sql: `CREATE TABLE "architecture_lab_work_item" (
 	"id" text PRIMARY KEY,
@@ -710,8 +710,8 @@ CREATE UNIQUE INDEX "workspace_turn_public_id_unique_idx" ON "workspace_turn" ("
 CREATE INDEX "workspace_workspace_org_id_btree_idx" ON "workspace_workspace" ("org_id");--> statement-breakpoint
 CREATE INDEX "workspace_workspace_source_btree_idx" ON "workspace_workspace" ("source");--> statement-breakpoint
 CREATE UNIQUE INDEX "workspace_workspace_public_id_unique_idx" ON "workspace_workspace" ("public_id");`,
-  },
-  {
+  }),
+  MigrationBundleEntry.make({
     name: "20260813143745_baseline-functions",
     sql: `CREATE EXTENSION IF NOT EXISTS btree_gist;--> statement-breakpoint
 DROP INDEX "epistemic_candidate_claim_org_id_btree_idx";--> statement-breakpoint
@@ -920,8 +920,8 @@ CREATE TRIGGER law_practice_correction_delta_block_truncate BEFORE TRUNCATE ON "
 CREATE TRIGGER law_practice_legal_opposition_candidate_append_only BEFORE UPDATE OR DELETE ON "law_practice_legal_opposition_candidate" FOR EACH ROW EXECUTE FUNCTION law_practice_legal_position_block_mutation();--> statement-breakpoint
 CREATE TRIGGER law_practice_legal_opposition_candidate_block_truncate BEFORE TRUNCATE ON "law_practice_legal_opposition_candidate" FOR EACH STATEMENT EXECUTE FUNCTION law_practice_legal_position_block_mutation();
 `,
-  },
-  {
+  }),
+  MigrationBundleEntry.make({
     name: "20260814001821_law_practice_st13_office_identity",
     sql: `CREATE FUNCTION law_practice_is_wipo_st13_office_code(office_code text) RETURNS boolean
 LANGUAGE sql IMMUTABLE STRICT
@@ -1009,8 +1009,8 @@ ALTER TABLE law_practice_patent_citation_event
     )
   );
 `,
-  },
-  {
+  }),
+  MigrationBundleEntry.make({
     name: "20261009202131_audit_soft_delete",
     sql: `ALTER TABLE "architecture_lab_worker" ADD COLUMN "deleted_at" bigint;--> statement-breakpoint
 ALTER TABLE "architecture_lab_worker" ADD COLUMN "deleted_by_principal" jsonb;--> statement-breakpoint
@@ -1064,5 +1064,5 @@ ALTER TABLE "workspace_turn" ADD COLUMN "deleted_at" bigint;--> statement-breakp
 ALTER TABLE "workspace_turn" ADD COLUMN "deleted_by_principal" jsonb;--> statement-breakpoint
 ALTER TABLE "workspace_workspace" ADD COLUMN "deleted_at" bigint;--> statement-breakpoint
 ALTER TABLE "workspace_workspace" ADD COLUMN "deleted_by_principal" jsonb;`,
-  },
+  }),
 ];

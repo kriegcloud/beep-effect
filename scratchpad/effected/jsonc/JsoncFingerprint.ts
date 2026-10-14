@@ -106,7 +106,7 @@ export type JsoncCanonicalizeErrorCode = typeof JsoncCanonicalizeErrorCode.Type;
  * @category errors
  * @since 0.0.0
  */
-export class JsoncCanonicalizeError extends S.TaggedError<JsoncCanonicalizeError>($I.make("JsoncCanonicalizeError"))(
+export class JsoncCanonicalizeError extends S.TaggedError<JsoncCanonicalizeError, { readonly brand: unique symbol }>($I.make("JsoncCanonicalizeError"))(
   "JsoncCanonicalizeError",
   {
     code: JsoncCanonicalizeErrorCode,
@@ -159,7 +159,7 @@ export class JsoncCanonicalizeError extends S.TaggedError<JsoncCanonicalizeError
  * @category models
  * @since 0.0.0
  */
-export class JsoncTextHashOptions extends S.Class<JsoncTextHashOptions>($I`JsoncTextHashOptions`)(
+export class JsoncTextHashOptions extends S.Class<JsoncTextHashOptions, { readonly brand: unique symbol }>($I`JsoncTextHashOptions`)(
   {
     normalizeEol: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),

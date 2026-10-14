@@ -33,8 +33,8 @@ const UnitIntervalFromString = S.FiniteFromString.pipe(S.decodeTo(UnitInterval))
  * @category models
  * @since 0.0.0
  */
-export class DocketIntakeAppConfig extends S.Class<DocketIntakeAppConfig>($I`DocketIntakeAppConfig`)(
-  {
+export class DocketIntakeAppConfig extends S.Opaque<DocketIntakeAppConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     certPrivateKey: S.Redacted(S.NonEmptyString).annotateKey({
       description: "Private key of the registered certificate; never printed.",
     }),
@@ -67,8 +67,7 @@ export class DocketIntakeAppConfig extends S.Class<DocketIntakeAppConfig>($I`Doc
     stateDirectory: S.NonEmptyString.annotateKey({ description: "Directory of the state file and the digests." }),
     tenantId: S.NonEmptyString.annotateKey({ description: "Entra tenant id." }),
     timeZone: S.TimeZoneNamed.annotateKey({ description: "IANA time zone of the practice." }),
-  },
-  $I.annote("DocketIntakeAppConfig", { description: "Resolved settings of the docket intake service." })
+  }).pipe($I.annoteSchema("DocketIntakeAppConfig", { description: "Resolved settings of the docket intake service." }))
 ) {}
 
 const DEFAULT_MAX_CONSECUTIVE_FAILURES = 6;

@@ -28,7 +28,7 @@ const $I = $ScratchpadId.create("effected/xdg/NativeDirs");
  * @category models
  * @since 0.0.0
  */
-export class NativeDirs extends S.Class<NativeDirs>($I`NativeDirs`)({
+export class NativeDirs extends S.Class<NativeDirs, { readonly brand: unique symbol }>($I`NativeDirs`)({
 	/** Where configuration lives. */
 	config: S.String.annotateKey({ description: "Where configuration lives." }),
 	/** Where application data lives. */

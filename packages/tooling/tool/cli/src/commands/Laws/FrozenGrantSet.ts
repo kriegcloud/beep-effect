@@ -53,8 +53,11 @@ const FrozenGrantSetSeverity = LiteralKit(["error"]);
  * @category models
  * @since 0.0.0
  */
-export class FrozenGrantSetRulesOptions extends S.Class<FrozenGrantSetRulesOptions>($I`FrozenGrantSetRulesOptions`)(
-  {
+export class FrozenGrantSetRulesOptions extends S.Opaque<
+  FrozenGrantSetRulesOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -64,10 +67,11 @@ export class FrozenGrantSetRulesOptions extends S.Class<FrozenGrantSetRulesOptio
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("FrozenGrantSetRulesOptions", {
-    description: "Runtime options for the repo-local FrozenGrantSet construction law.",
-  })
+  }).pipe(
+    $I.annoteSchema("FrozenGrantSetRulesOptions", {
+      description: "Runtime options for the repo-local FrozenGrantSet construction law.",
+    })
+  )
 ) {}
 
 /**
@@ -93,19 +97,20 @@ export class FrozenGrantSetRulesOptions extends S.Class<FrozenGrantSetRulesOptio
  * @category models
  * @since 0.0.0
  */
-export class FrozenGrantSetDiagnostic extends S.Class<FrozenGrantSetDiagnostic>($I`FrozenGrantSetDiagnostic`)(
-  {
+export class FrozenGrantSetDiagnostic extends S.Opaque<FrozenGrantSetDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     line: S.Finite,
     column: S.Finite,
     ruleId: S.String,
     severity: FrozenGrantSetSeverity,
     message: S.String,
-  },
-  $I.annote("FrozenGrantSetDiagnostic", {
-    description:
-      "Diagnostic emitted when FrozenGrantSet is constructed (make, new, or a syntactic alias of either) outside its defining module.",
-  })
+  }).pipe(
+    $I.annoteSchema("FrozenGrantSetDiagnostic", {
+      description:
+        "Diagnostic emitted when FrozenGrantSet is constructed (make, new, or a syntactic alias of either) outside its defining module.",
+    })
+  )
 ) {}
 
 /**
@@ -129,8 +134,11 @@ export class FrozenGrantSetDiagnostic extends S.Class<FrozenGrantSetDiagnostic>(
  * @category models
  * @since 0.0.0
  */
-export class FrozenGrantSetRulesSummary extends S.Class<FrozenGrantSetRulesSummary>($I`FrozenGrantSetRulesSummary`)(
-  {
+export class FrozenGrantSetRulesSummary extends S.Opaque<
+  FrozenGrantSetRulesSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     scannedFiles: S.Finite,
     touchedFiles: S.Finite,
     violationCount: S.Finite,
@@ -143,10 +151,11 @@ export class FrozenGrantSetRulesSummary extends S.Class<FrozenGrantSetRulesSumma
       S.withConstructorDefault(Effect.succeed(A.empty<FrozenGrantSetDiagnostic>())),
       S.withDecodingDefault(Effect.succeed(A.empty<FrozenGrantSetDiagnostic>()))
     ),
-  },
-  $I.annote("FrozenGrantSetRulesSummary", {
-    description: "Summary of repo-local FrozenGrantSet construction law results.",
-  })
+  }).pipe(
+    $I.annoteSchema("FrozenGrantSetRulesSummary", {
+      description: "Summary of repo-local FrozenGrantSet construction law results.",
+    })
+  )
 ) {}
 
 type TaintedBindings = {

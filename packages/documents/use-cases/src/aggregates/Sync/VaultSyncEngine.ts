@@ -63,8 +63,8 @@ const $I = $DocumentsUseCasesId.create("aggregates/Sync/VaultSyncEngine");
  * @category use-cases
  * @since 0.0.0
  */
-export class VaultSyncStatus extends S.Class<VaultSyncStatus>($I`VaultSyncStatus`)(
-  {
+export class VaultSyncStatus extends S.Opaque<VaultSyncStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     conflictItems: S.Natural.annotateKey({
       description: "Number of tracked items in the conflict reconciliation state.",
     }),
@@ -112,10 +112,11 @@ export class VaultSyncStatus extends S.Class<VaultSyncStatus>($I`VaultSyncStatus
     queuedOperations: S.Natural.annotateKey({
       description: "Number of outbox operations in the queued status.",
     }),
-  },
-  $I.annote("VaultSyncStatus", {
-    description: "Point-in-time vault sync status read model for one workspace mirror.",
-  })
+  }).pipe(
+    $I.annoteSchema("VaultSyncStatus", {
+      description: "Point-in-time vault sync status read model for one workspace mirror.",
+    })
+  )
 ) {}
 
 /**
@@ -196,18 +197,19 @@ export type VaultSyncError = typeof VaultSyncError.Type;
  * @category use-cases
  * @since 0.0.0
  */
-export class SyncOnceInput extends S.Class<SyncOnceInput>($I`SyncOnceInput`)(
-  {
+export class SyncOnceInput extends S.Opaque<SyncOnceInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     vaultRootPath: S.NonEmptyString.annotateKey({
       description: "Absolute workspace vault root path read from workspace configuration.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose vault is synced.",
     }),
-  },
-  $I.annote("SyncOnceInput", {
-    description: "Input for one full push-and-poll sync pass over a workspace vault.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncOnceInput", {
+      description: "Input for one full push-and-poll sync pass over a workspace vault.",
+    })
+  )
 ) {}
 
 /**
@@ -229,8 +231,8 @@ export class SyncOnceInput extends S.Class<SyncOnceInput>($I`SyncOnceInput`)(
  * @category use-cases
  * @since 0.0.0
  */
-export class VaultSyncStatusInput extends S.Class<VaultSyncStatusInput>($I`VaultSyncStatusInput`)(
-  {
+export class VaultSyncStatusInput extends S.Opaque<VaultSyncStatusInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     // Default-false and missing-key tolerant so pre-forceProbe callers stay
     // wire-compatible and keep the cached read path.
     forceProbe: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
@@ -239,10 +241,11 @@ export class VaultSyncStatusInput extends S.Class<VaultSyncStatusInput>($I`Vault
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose vault sync status is read.",
     }),
-  },
-  $I.annote("VaultSyncStatusInput", {
-    description: "Input for reading the current vault sync status of one workspace.",
-  })
+  }).pipe(
+    $I.annoteSchema("VaultSyncStatusInput", {
+      description: "Input for reading the current vault sync status of one workspace.",
+    })
+  )
 ) {}
 
 /**
@@ -264,15 +267,16 @@ export class VaultSyncStatusInput extends S.Class<VaultSyncStatusInput>($I`Vault
  * @category use-cases
  * @since 0.0.0
  */
-export class ListOpenConflictsInput extends S.Class<ListOpenConflictsInput>($I`ListOpenConflictsInput`)(
-  {
+export class ListOpenConflictsInput extends S.Opaque<ListOpenConflictsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose open drift records are listed.",
     }),
-  },
-  $I.annote("ListOpenConflictsInput", {
-    description: "Input for listing the open drift records of one workspace.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListOpenConflictsInput", {
+      description: "Input for listing the open drift records of one workspace.",
+    })
+  )
 ) {}
 
 /**
@@ -302,18 +306,19 @@ export class ListOpenConflictsInput extends S.Class<ListOpenConflictsInput>($I`L
  * @category use-cases
  * @since 0.0.0
  */
-export class MarkConflictReviewedInput extends S.Class<MarkConflictReviewedInput>($I`MarkConflictReviewedInput`)(
-  {
+export class MarkConflictReviewedInput extends S.Opaque<MarkConflictReviewedInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     conflictId: Documents.SyncConflictId.annotateKey({
       description: "Drift record to mark as reviewed.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace that must own the drift record for the review to apply.",
     }),
-  },
-  $I.annote("MarkConflictReviewedInput", {
-    description: "Input for marking one drift record as reviewed.",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkConflictReviewedInput", {
+      description: "Input for marking one drift record as reviewed.",
+    })
+  )
 ) {}
 
 /**

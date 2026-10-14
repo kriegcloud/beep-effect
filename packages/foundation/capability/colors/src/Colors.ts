@@ -59,17 +59,18 @@ const $I = $ColorsId.create("Domain");
  * @category models
  * @since 0.0.0
  */
-export class ProcessLikeStdout extends S.Class<ProcessLikeStdout>($I`ProcessLikeStdout`)(
-  {
+export class ProcessLikeStdout extends S.Opaque<ProcessLikeStdout, { readonly brand: unique symbol }>()(
+  S.Struct({
     isTTY: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("ProcessLikeStdout.isTTY", {
         description: "Whether the stdout stream is attached to a TTY.",
       })
     ),
-  },
-  $I.annote("ProcessLikeStdout", {
-    description: "Minimal stdout metadata used by ANSI color support detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessLikeStdout", {
+      description: "Minimal stdout metadata used by ANSI color support detection.",
+    })
+  )
 ) {}
 
 /**
@@ -87,8 +88,8 @@ export class ProcessLikeStdout extends S.Class<ProcessLikeStdout>($I`ProcessLike
  * @category models
  * @since 0.0.0
  */
-export class ProcessLike extends S.Class<ProcessLike>($I`ProcessLike`)(
-  {
+export class ProcessLike extends S.Opaque<ProcessLike, { readonly brand: unique symbol }>()(
+  S.Struct({
     argv: S.String.pipe(
       S.Array,
       S.optionalKey,
@@ -112,10 +113,11 @@ export class ProcessLike extends S.Class<ProcessLike>($I`ProcessLike`)(
         description: "Stdout metadata used to detect terminal color support.",
       })
     ),
-  },
-  $I.annote("ProcessLike", {
-    description: "Minimal process-like runtime metadata used by ANSI color support detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessLike", {
+      description: "Minimal process-like runtime metadata used by ANSI color support detection.",
+    })
+  )
 ) {
   static readonly decodeOption: {
     (input: unknown, options?: AST.ParseOptions): O.Option<ProcessLike>;
@@ -235,11 +237,9 @@ const formatter =
  * **Example** (Detect forced color support)
  *
  * ```ts import.meta.vitest name="Detect forced color support"
- * import { supportsColor } from "@beep/colors"
+ * import { ProcessLike, supportsColor } from "@beep/colors"
  *
- * const enabled = supportsColor({
- *   env: { FORCE_COLOR: "1" },
- * })
+ * const enabled = supportsColor(ProcessLike.make({ env: { FORCE_COLOR: "1" } }))
  *
  * enabled // => true
  * ```
@@ -289,7 +289,7 @@ export const isColorSupported = supportsColor();
  * @category models
  * @since 0.0.0
  */
-export class Colors extends S.Class<Colors>($I`Colors`)(
+export class Colors extends S.Class<Colors, { readonly brand: unique symbol }>($I`Colors`)(
   ColorsFields,
   $I.annote("Colors", {
     description: "The Colors configuration object.",

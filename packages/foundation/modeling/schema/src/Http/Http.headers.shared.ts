@@ -246,14 +246,15 @@ export const wrapArray = <T>(value: T | ReadonlyArray<T>): readonly T[] =>
  * @category models
  * @since 0.0.0
  */
-export class ResponseHeader extends S.Class<ResponseHeader>($I`ResponseHeader`)(
-  {
+export class ResponseHeader extends S.Opaque<ResponseHeader, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     value: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ResponseHeader", {
-    description: "A response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResponseHeader", {
+      description: "A response header.",
+    })
+  )
 ) {}
 
 /**

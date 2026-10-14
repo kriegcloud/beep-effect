@@ -156,16 +156,20 @@ export const FrozenRelationPredicate = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class RelationExtractionCandidate extends S.Class<RelationExtractionCandidate>($I`RelationExtractionCandidate`)(
-  {
+export class RelationExtractionCandidate extends S.Opaque<
+  RelationExtractionCandidate,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     evidenceQuote: S.NonEmptyString,
     object: S.NonEmptyString,
     predicate: S.NonEmptyString,
     subject: S.NonEmptyString,
-  },
-  $I.annote("RelationExtractionCandidate", {
-    description: "Relation predicate and endpoint surfaces carried by one source evidence quote.",
-  })
+  }).pipe(
+    $I.annoteSchema("RelationExtractionCandidate", {
+      description: "Relation predicate and endpoint surfaces carried by one source evidence quote.",
+    })
+  )
 ) {}
 
 /**
@@ -307,11 +311,14 @@ const EntityBodyFields = S.Struct({
   ...TextAnchorFields,
 });
 
-class EntityClaimBody extends S.Class<EntityClaimBody>($I`EntityClaimBody`)(
-  EntityBodyFields.mapFields(identity).check(TextAnchorWidthCheck),
-  $I.annote("EntityClaimBody", {
-    description: "Grounded entity label, type, optional provider cluster, and exact UTF-16 text anchor.",
-  })
+class EntityClaimBody extends S.Opaque<EntityClaimBody, { readonly brand: unique symbol }>()(
+  EntityBodyFields.mapFields(identity)
+    .check(TextAnchorWidthCheck)
+    .pipe(
+      $I.annoteSchema("EntityClaimBody", {
+        description: "Grounded entity label, type, optional provider cluster, and exact UTF-16 text anchor.",
+      })
+    )
 ) {}
 
 const RelationBodyFields = S.Struct({
@@ -322,11 +329,14 @@ const RelationBodyFields = S.Struct({
   ...TextAnchorFields,
 });
 
-class RelationClaimBody extends S.Class<RelationClaimBody>($I`RelationClaimBody`)(
-  RelationBodyFields.mapFields(identity).check(TextAnchorWidthCheck),
-  $I.annote("RelationClaimBody", {
-    description: "Grounded relation predicate and entity-claim endpoints with an exact text anchor.",
-  })
+class RelationClaimBody extends S.Opaque<RelationClaimBody, { readonly brand: unique symbol }>()(
+  RelationBodyFields.mapFields(identity)
+    .check(TextAnchorWidthCheck)
+    .pipe(
+      $I.annoteSchema("RelationClaimBody", {
+        description: "Grounded relation predicate and entity-claim endpoints with an exact text anchor.",
+      })
+    )
 ) {}
 
 const StructureBodyFields = S.Struct({
@@ -336,11 +346,14 @@ const StructureBodyFields = S.Struct({
   ...TextAnchorFields,
 });
 
-class StructureClaimBody extends S.Class<StructureClaimBody>($I`StructureClaimBody`)(
-  StructureBodyFields.mapFields(identity).check(TextAnchorWidthCheck),
-  $I.annote("StructureClaimBody", {
-    description: "Grounded structural role and depth with an exact UTF-16 text anchor.",
-  })
+class StructureClaimBody extends S.Opaque<StructureClaimBody, { readonly brand: unique symbol }>()(
+  StructureBodyFields.mapFields(identity)
+    .check(TextAnchorWidthCheck)
+    .pipe(
+      $I.annoteSchema("StructureClaimBody", {
+        description: "Grounded structural role and depth with an exact UTF-16 text anchor.",
+      })
+    )
 ) {}
 
 const ClaimBodyKind = LiteralKit(["Entity", "Relation", "Structure"]);
@@ -509,11 +522,14 @@ const EvidenceClaimChecks = S.makeFilterGroup([EvidenceClaimReceiptCheck, Eviden
  * @category models
  * @since 0.0.0
  */
-export class EvidenceClaim extends S.Class<EvidenceClaim>($I`EvidenceClaim`)(
-  EvidenceClaimFields.mapFields(identity).check(EvidenceClaimChecks),
-  $I.annote("EvidenceClaim", {
-    description: "Grounded claim with model, method, confidence, cache provenance, and verified anchor receipt.",
-  })
+export class EvidenceClaim extends S.Opaque<EvidenceClaim, { readonly brand: unique symbol }>()(
+  EvidenceClaimFields.mapFields(identity)
+    .check(EvidenceClaimChecks)
+    .pipe(
+      $I.annoteSchema("EvidenceClaim", {
+        description: "Grounded claim with model, method, confidence, cache provenance, and verified anchor receipt.",
+      })
+    )
 ) {}
 
 /**
@@ -536,15 +552,16 @@ export class EvidenceClaim extends S.Class<EvidenceClaim>($I`EvidenceClaim`)(
  * @category models
  * @since 0.0.0
  */
-export class DegradedClaim extends S.Class<DegradedClaim>($I`DegradedClaim`)(
-  {
+export class DegradedClaim extends S.Opaque<DegradedClaim, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: DegradedKind,
     detail: S.NonEmptyString,
     chunk: ChunkId,
-  },
-  $I.annote("DegradedClaim", {
-    description: "Typed chunk-scoped extraction degradation that never silently becomes a claim.",
-  })
+  }).pipe(
+    $I.annoteSchema("DegradedClaim", {
+      description: "Typed chunk-scoped extraction degradation that never silently becomes a claim.",
+    })
+  )
 ) {}
 
 const EvidenceBatchFields = S.Struct({
@@ -734,34 +751,39 @@ const EvidenceBatchChecks = S.makeFilterGroup(
  * @category models
  * @since 0.0.0
  */
-export class EvidenceBatch extends S.Class<EvidenceBatch>($I`EvidenceBatch`)(
-  EvidenceBatchFields.mapFields(identity).check(EvidenceBatchChecks),
-  $I.annote("EvidenceBatch", {
-    description: "Coherent extraction batch with unique claims and explicit unsupported-capability declarations.",
-  })
+export class EvidenceBatch extends S.Opaque<EvidenceBatch, { readonly brand: unique symbol }>()(
+  EvidenceBatchFields.mapFields(identity)
+    .check(EvidenceBatchChecks)
+    .pipe(
+      $I.annoteSchema("EvidenceBatch", {
+        description: "Coherent extraction batch with unique claims and explicit unsupported-capability declarations.",
+      })
+    )
 ) {}
 
-class ExtractedOutcome extends S.Class<ExtractedOutcome>($I`ExtractedOutcome`)(
-  {
+class ExtractedOutcome extends S.Opaque<ExtractedOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcome: S.tag("Extracted"),
     batch: EvidenceBatch,
-  },
-  $I.annote("ExtractedOutcome", {
-    description: "Successful extraction represented by a validated evidence batch.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractedOutcome", {
+      description: "Successful extraction represented by a validated evidence batch.",
+    })
+  )
 ) {}
 
-class DegradedExtractOutcome extends S.Class<DegradedExtractOutcome>($I`DegradedExtractOutcome`)(
-  {
+class DegradedExtractOutcome extends S.Opaque<DegradedExtractOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcome: S.tag("Degraded"),
     document: DocumentId,
     lane: ExtractionLane,
     kind: DegradedKind,
     detail: S.NonEmptyString,
-  },
-  $I.annote("DegradedExtractOutcome", {
-    description: "Typed document-and-lane extraction degradation retained as a value.",
-  })
+  }).pipe(
+    $I.annoteSchema("DegradedExtractOutcome", {
+      description: "Typed document-and-lane extraction degradation retained as a value.",
+    })
+  )
 ) {}
 
 const ExtractOutcomeKind = LiteralKit(["Extracted", "Degraded"]);
@@ -928,9 +950,10 @@ const ConflictWitnessChecks = S.makeFilterGroup(
  * @category models
  * @since 0.0.0
  */
-export class ConflictWitness extends S.Class<ConflictWitness>($I`ConflictWitness`)(
-  ConflictWitnessFields.check(ConflictWitnessChecks),
-  $I.annote("ConflictWitness", {
-    description: "Content-addressed record that keeps two conflicting evidence claims as separate nodes.",
-  })
+export class ConflictWitness extends S.Opaque<ConflictWitness, { readonly brand: unique symbol }>()(
+  ConflictWitnessFields.check(ConflictWitnessChecks).pipe(
+    $I.annoteSchema("ConflictWitness", {
+      description: "Content-addressed record that keeps two conflicting evidence claims as separate nodes.",
+    })
+  )
 ) {}

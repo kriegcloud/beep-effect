@@ -73,7 +73,9 @@ export type SessionChangeRejectedReason = typeof SessionChangeRejectedReason.Typ
  * @category errors
  * @since 0.0.0
  */
-export class SessionChangeRejected extends S.TaggedError<SessionChangeRejected>($I`SessionChangeRejected`)(
+export class SessionChangeRejected extends S.TaggedError<SessionChangeRejected, { readonly brand: unique symbol }>(
+  $I`SessionChangeRejected`
+)(
   "SessionChangeRejected",
   {
     sessionId: SessionId,

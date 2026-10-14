@@ -27,7 +27,7 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/unstubbed");
  * @category errors
  * @since 0.0.0
  */
-export class UnstubbedMemberError extends S.TaggedError<UnstubbedMemberError>($I`UnstubbedMemberError`)("UnstubbedMemberError", {
+export class UnstubbedMemberError extends S.TaggedError<UnstubbedMemberError, { readonly brand: unique symbol }>($I`UnstubbedMemberError`)("UnstubbedMemberError", {
 	message: S.String,
 }, $I.annote("UnstubbedMemberError", { description: "A test-double member was called without an override." })) {}
 

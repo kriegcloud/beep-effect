@@ -39,7 +39,9 @@ const $I = $NlpProcessingId.create("Graph/GraphOperations/Errors");
  * @category errors
  * @since 0.0.0
  */
-export class ValidationError extends S.TaggedError<ValidationError>($I`ValidationError`)(
+export class ValidationError extends S.TaggedError<ValidationError, { readonly brand: unique symbol }>(
+  $I`ValidationError`
+)(
   "ValidationError",
   {
     errors: S.Array(S.String),
@@ -72,7 +74,7 @@ export class ValidationError extends S.TaggedError<ValidationError>($I`Validatio
  * @category errors
  * @since 0.0.0
  */
-export class TimeoutError extends S.TaggedError<TimeoutError>($I`TimeoutError`)(
+export class TimeoutError extends S.TaggedError<TimeoutError, { readonly brand: unique symbol }>($I`TimeoutError`)(
   "TimeoutError",
   {
     nodeId: NodeId,
@@ -111,7 +113,9 @@ export class TimeoutError extends S.TaggedError<TimeoutError>($I`TimeoutError`)(
  * @category errors
  * @since 0.0.0
  */
-export class OperationError extends S.TaggedError<OperationError>($I`OperationError`)(
+export class OperationError extends S.TaggedError<OperationError, { readonly brand: unique symbol }>(
+  $I`OperationError`
+)(
   "OperationError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -144,7 +148,7 @@ export class OperationError extends S.TaggedError<OperationError>($I`OperationEr
  * @category errors
  * @since 0.0.0
  */
-export class GraphError extends S.TaggedError<GraphError>($I`GraphError`)(
+export class GraphError extends S.TaggedError<GraphError, { readonly brand: unique symbol }>($I`GraphError`)(
   "GraphError",
   {
     message: S.String,
@@ -179,7 +183,7 @@ export class GraphError extends S.TaggedError<GraphError>($I`GraphError`)(
  * @category errors
  * @since 0.0.0
  */
-export class StorageError extends S.TaggedError<StorageError>($I`StorageError`)(
+export class StorageError extends S.TaggedError<StorageError, { readonly brand: unique symbol }>($I`StorageError`)(
   "StorageError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -210,7 +214,9 @@ export class StorageError extends S.TaggedError<StorageError>($I`StorageError`)(
  * @category errors
  * @since 0.0.0
  */
-export class ExecutionError extends S.TaggedError<ExecutionError>($I`ExecutionError`)(
+export class ExecutionError extends S.TaggedError<ExecutionError, { readonly brand: unique symbol }>(
+  $I`ExecutionError`
+)(
   "ExecutionError",
   {
     cause: S.OptionFromOptionalKey(
