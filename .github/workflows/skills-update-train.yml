@@ -94,7 +94,7 @@ jobs:
               core.warning("No replay report was written; the replay step failed before reporting.");
               return;
             }
-            const body = fs.readFileSync(path, "utf8");
+            const body = `${fs.readFileSync(path, "utf8")}\n<!-- beep-skills-replay-head:${context.payload.pull_request.head.sha} -->\n`;
             const tag = "<!-- beep-skills-replay -->";
             const issue_number = context.payload.pull_request.number;
             const comments = await github.paginate(github.rest.issues.listComments, {
@@ -104,7 +104,7 @@ jobs:
               per_page: 100,
             });
             const existing = comments.find(
-              (comment) => comment.user?.type === "Bot" && (comment.body ?? "").startsWith(tag)
+              (comment) => comment.user?.login === "github-actions[bot]" && (comment.body ?? "").startsWith(tag)
             );
             if (existing) {
               await github.rest.issues.updateComment({
@@ -259,7 +259,7 @@ jobs:
           set -euo pipefail
           batch="$(date -u +%G-W%V)"
           gh pr list --repo "$GITHUB_REPOSITORY" --state open --label skills-update-train \
-            --json number,title,url,headRefName,comments --limit 100 > "$RUNNER_TEMP/train-prs.json"
+            --json number,title,url,headRefName,headRefOid,comments --limit 100 > "$RUNNER_TEMP/train-prs.json"
           title="$(bun run beep skills train-issue --batch "$batch" --prs "$RUNNER_TEMP/train-prs.json" \
             --body-out "$RUNNER_TEMP/train-issue.md" | tail -n 1)"
           echo "title=$title" >> "$GITHUB_OUTPUT"

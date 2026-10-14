@@ -38,11 +38,22 @@ const NonOperative = S.String.check(
   })
 );
 const Uncovered = S.String.check(
-  S.isPattern(/Unknown procedural|FI\u200bNAL|SHORTENED STATUTORY PERIOD[^.]*?(?:ELEVEN|\[period\])/u, {
-    identifier: $I`UncoveredCheck`,
-    title: "Uncovered form",
-    description: "Procedural or damaged text outside the covered v1 forms.",
-  })
+  S.makeFilter(
+    (text: string) =>
+      Str.includes("Unknown procedural")(text) ||
+      Str.includes("FI\u200bNAL")(text) ||
+      A.some(
+        Str.split(".")(text),
+        (sentence) =>
+          Str.includes("SHORTENED STATUTORY PERIOD")(sentence) &&
+          (Str.includes("ELEVEN")(sentence) || Str.includes("[period]")(sentence))
+      ),
+    {
+      identifier: $I`UncoveredCheck`,
+      title: "Uncovered form",
+      description: "Procedural or damaged text outside the covered v1 forms.",
+    }
+  )
 );
 const MissingCheckbox = S.String.check(
   S.isPattern(/\[ \] FINAL \[ \] NON-FINAL/u, {

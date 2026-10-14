@@ -655,6 +655,39 @@ scenario(
 );
 
 scenario(
+  "@beep/box-provisioning content migration refuses swapped chunked source before upload",
+  { entries: [] },
+  Effect.fnUntraced(function* () {
+    const { fake, onAppend } = yield* MigrationHarness;
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const large: SourceSpec = {
+      content: new Uint8Array(20 * mebibyte).fill(7),
+      fileName: "large.bin",
+      folderPath: ["Inbox"],
+      relativePath: "large.bin",
+      ruleId: "bulk",
+    };
+    const { mapInput, sourceRoot } = yield* prepare([large]);
+    yield* Ref.set(onAppend, (entry) =>
+      entry.phase === "Started" && entry.actionKind === "folder"
+        ? Effect.orDie(fs.writeFile(path.join(sourceRoot, "large.bin"), new Uint8Array(20 * mebibyte).fill(8)))
+        : Effect.void
+    );
+    const { result } = yield* planAndApply(
+      mapInput,
+      BoxContentMigrationOptions.make({ chunkedThresholdBytes: 20 * mebibyte })
+    );
+    expect(result.verdict).toBe("incomplete");
+    expect(A.filter(result.receipt.outcomes, (outcome) => outcome._tag === "Blocked")).toMatchObject([
+      { actionKind: "file", reason: "source-changed" },
+    ]);
+    expect(fake.calls.uploadBigFile).toBe(0);
+    expect(A.filter(fake.entries(), (entry) => entry.type === "file")).toEqual([]);
+  })
+);
+
+scenario(
   "@beep/box-provisioning content migration fails an upload whose stored SHA-1 does not verify",
   { entries: [folder("200", "Inbox")] },
   Effect.fnUntraced(function* () {

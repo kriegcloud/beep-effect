@@ -224,6 +224,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+UMask=0077
 WorkingDirectory=<repo checkout>
 ExecStart=<path to op> run --env-file=<env file> -- <path to bun> run apps/docket-intake/src/bin.ts run
 Restart=on-failure
