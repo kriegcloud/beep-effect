@@ -106,8 +106,9 @@ export type ReviewBatchId = typeof ReviewBatchId.Type;
  * review sitting or queue run. A row with `lockedAt` closes that row's
  * `batchId` only; other batches stay open and later sittings append under a
  * new batch id. Locking appends a copy of the batch's latest row with
- * `revision` + 1, the same `recordedAt`, and `lockedAt` set. Timestamps encode
- * as epoch milliseconds.
+ * `revision` + 1, the same `recordedAt`, and `lockedAt` set; verdict
+ * selection skips lock rows, which only mark the batch closed. Timestamps
+ * encode as epoch milliseconds.
  *
  * **Example** (Decode a verdict row)
  *
@@ -135,8 +136,8 @@ export type ReviewBatchId = typeof ReviewBatchId.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class VerdictRow extends S.Class<VerdictRow>($I`VerdictRow`)(
-  {
+export class VerdictRow extends S.Opaque<VerdictRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemId: ReviewItemId.annotateKey({
       description: "Review item this verdict judges.",
     }),
@@ -166,10 +167,11 @@ export class VerdictRow extends S.Class<VerdictRow>($I`VerdictRow`)(
         description: "When this row's batch was locked; a locked batch accepts no further rows.",
       })
     ),
-  },
-  $I.annote("VerdictRow", {
-    description: "One append-only entry in the attorney's verdict log for a review item.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerdictRow", {
+      description: "One append-only entry in the attorney's verdict log for a review item.",
+    })
+  )
 ) {}
 
 /**

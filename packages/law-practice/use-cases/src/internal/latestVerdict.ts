@@ -26,6 +26,9 @@ const VerdictRowRecency: Order.Order<VerdictRow> = Order.combine(
 
 const isMoreRecent = Order.isGreaterThan(VerdictRowRecency);
 
+// A judgement row decides verdicts; a lock row only closes its batch.
+const isJudgementRow = (row: VerdictRow): boolean => O.isNone(row.lockedAt);
+
 // Of two rows read in append order, the more recent one; a full tie on
 // `recordedAt` and `revision` goes to `next`, the row appended last.
 const laterRow = (current: VerdictRow, next: VerdictRow): VerdictRow => (isMoreRecent(current, next) ? current : next);
@@ -37,7 +40,9 @@ const laterRow = (current: VerdictRow, next: VerdictRow): VerdictRow => (isMoreR
  *
  * Latest means the greatest `recordedAt`, ties broken by the greater
  * `revision`; remaining ties go to the row appended last, since rows are read
- * in append order.
+ * in append order. Lock rows (rows with `lockedAt`) are skipped: they only
+ * mark their batch closed, so locking never changes an item's verdict, even
+ * when `recordedAt` ties across batches.
  *
  * **Example** (Index an empty log)
  *
@@ -53,7 +58,7 @@ const laterRow = (current: VerdictRow, next: VerdictRow): VerdictRow => (isMoreR
  * @since 0.0.0
  */
 export const latestVerdictByItem = (rows: ReadonlyArray<VerdictRow>): HashMap.HashMap<ReviewItemId, VerdictRow> =>
-  A.reduce(rows, HashMap.empty<ReviewItemId, VerdictRow>(), (latest, row) =>
+  A.reduce(A.filter(rows, isJudgementRow), HashMap.empty<ReviewItemId, VerdictRow>(), (latest, row) =>
     HashMap.set(
       latest,
       row.itemId,

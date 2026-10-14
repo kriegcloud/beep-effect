@@ -126,8 +126,11 @@ export type ClaimDispositionProjectionStatus = typeof ClaimDispositionProjection
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimDispositionProjection extends S.Class<ClaimDispositionProjection>($I`ClaimDispositionProjection`)(
-  {
+export class ClaimDispositionProjection extends S.Opaque<
+  ClaimDispositionProjection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     claimId: CandidateClaimId.annotateKey({
       description: "Candidate claim the verdict resolves.",
     }),
@@ -149,10 +152,11 @@ export class ClaimDispositionProjection extends S.Class<ClaimDispositionProjecti
         description: "Always empty: an attorney verdict is not a claim-gate result.",
       })
     ),
-  },
-  $I.annote("ClaimDispositionProjection", {
-    description: "The disposition an attorney's final verdict implies for one candidate claim, before persistence.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimDispositionProjection", {
+      description: "The disposition an attorney's final verdict implies for one candidate claim, before persistence.",
+    })
+  )
 ) {}
 
 /**

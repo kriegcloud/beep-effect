@@ -122,8 +122,8 @@ const PageCropData = S.String.check(
  * @category value-objects
  * @since 0.0.0
  */
-export class PageCrop extends S.Class<PageCrop>($I`PageCrop`)(
-  {
+export class PageCrop extends S.Opaque<PageCrop, { readonly brand: unique symbol }>()(
+  S.Struct({
     page: PosInt.annotateKey({
       description: "One-based page number the crop was taken from.",
     }),
@@ -139,10 +139,11 @@ export class PageCrop extends S.Class<PageCrop>($I`PageCrop`)(
     data: PageCropData.annotateKey({
       description: "Base64 image data, at most 120,000 characters.",
     }),
-  },
-  $I.annote("PageCrop", {
-    description: "A pre-rendered, size-bounded image of the passage region on one page.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageCrop", {
+      description: "A pre-rendered, size-bounded image of the passage region on one page.",
+    })
+  )
 ) {}
 
 /**
@@ -223,7 +224,7 @@ const SourceRefCropPageCheck = S.makeFilter(
  * @category value-objects
  * @since 0.0.0
  */
-export class SourceRef extends S.Class<SourceRef>($I`SourceRef`)(
+export class SourceRef extends S.Opaque<SourceRef, { readonly brand: unique symbol }>()(
   S.Struct({
     boxFileId: BoxFileId.annotateKey({
       description: "Box file that holds the passage.",
@@ -245,10 +246,14 @@ export class SourceRef extends S.Class<SourceRef>($I`SourceRef`)(
         description: "Optional pre-rendered image of the passage region.",
       })
     ),
-  }).check(SourceRefCropPageCheck),
-  $I.annote("SourceRef", {
-    description: "Where a review item's evidence lives: a Box file, an optional page, the quote, and an optional crop.",
   })
+    .check(SourceRefCropPageCheck)
+    .pipe(
+      $I.annoteSchema("SourceRef", {
+        description:
+          "Where a review item's evidence lives: a Box file, an optional page, the quote, and an optional crop.",
+      })
+    )
 ) {}
 
 /**
