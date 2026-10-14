@@ -3617,7 +3617,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:36:query@59#2",
@@ -3638,7 +3639,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:39:query@20#1",
