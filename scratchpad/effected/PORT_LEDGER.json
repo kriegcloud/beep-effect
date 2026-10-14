@@ -18461,6 +18461,102 @@
           "upstreamBehaviour": "Upstream Promise filesystem resolution is ported to FileSystem Effects; the previous port catches every cause and turns an injected realPath self-interruption into successful None.",
           "labBehaviour": "inkChalk recovers only non-interrupt causes, allowing injected filesystem interruption to propagate while retaining unresolved/missing-chalk fallback and the forced Effect/FileSystem shape.",
           "reason": "effect-first: D11 Effect interruption semantics require selective recovery; cli-r2-30 is a port-specific Effect-idiom correction, not a verified upstream bug. The diff uses catchCauseIf with not(hasInterrupts) and the added regression asserts Exit.hasInterrupts."
+        },
+        {
+          "test": "scratchpad/test/cli/CliLog.file.test.ts:102",
+          "upstreamBehaviour": "A schema-valid file configuration with envVar and path: undefined selects the path branch and dies in Path.resolve instead of opening the environment path.",
+          "labBehaviour": "The path-member schema guard falls through to envVar when path is undefined; the logger writes to the configured environment path.",
+          "reason": "upstream-bug: cli-r3-2 inventory verifies the pinned-oracle defect; the diff replaces key-presence dispatch with S.is(CliLogFilePath), and the added layer regression asserts the write."
+        },
+        {
+          "test": "scratchpad/test/cli/CliLog.file.test.ts:115; scratchpad/test/cli/CliLog.property.test.ts:39",
+          "upstreamBehaviour": "With valid path and envVar strings, runtime prefers path but the codec selects envVar, changing the log destination after round-trip.",
+          "labBehaviour": "The path member comes first in CliLogFile, so encoding and decoding preserve explicit-path precedence and the log destination.",
+          "reason": "upstream-bug: cli-r3-2 inventory verifies the pinned-oracle defect; the union-order diff and added codec/runtime regression assert path-only encoding and no environment-path write."
+        },
+        {
+          "test": "scratchpad/test/cli/CliPrompt.test.ts:99; scratchpad/test/cli/ui/CliUi.fallback.test.ts:108",
+          "upstreamBehaviour": "A schema-valid argument target with flag: undefined takes the flag branch and dies while constructing MissingOption.",
+          "labBehaviour": "A schema-derived flag guard selects MissingArgument for an invalid flag sibling; valid flag precedence and otherwise answers remain intact.",
+          "reason": "upstream-bug: cli-r3-3 inventory verifies the pinned-oracle defect; the fallbackAnswer guard diff and new public fallback regressions cover undefined, null and numeric flag siblings."
+        },
+        {
+          "test": "scratchpad/test/cli/CliMain.test.ts:297",
+          "upstreamBehaviour": "Logger initialization catches every cause, turning platform self-interruption into a second build and successful program execution.",
+          "labBehaviour": "Initialization causes containing interruption propagate without running the program; noninterrupt failures and defects retain logger fallback.",
+          "reason": "upstream-bug: cli-r3-4 inventory verifies the pinned-oracle defect; the catchCause diff checks Cause.hasInterrupts, preserves mixed causes with Cause.map, and four new channel regressions assert builds and execution."
+        },
+        {
+          "test": "scratchpad/test/cli/CliRuntime.coverage.test.ts:38",
+          "upstreamBehaviour": "Installing runtime marks on frozen errors or nonconfigurable properties throws a secondary defect, losing the original failure and selected exit code.",
+          "labBehaviour": "Failed marker installation returns a fresh marked CliRuntimeError with the original cause and selected code; mutable errors remain marked in place.",
+          "reason": "upstream-bug: cli-r3-5 inventory verifies the pinned-oracle defect; the Result.try installation diff adds an optional cause field; new failure/defect, locked-marker and teardown regressions pin one diagnostic and the chosen code."
+        },
+        {
+          "test": "scratchpad/test/cli/internal/fileSink.coverage.test.ts:13",
+          "upstreamBehaviour": "A filesystem defect with throwing string conversion or message access kills the log drain and makes scope finalization fail without its warning.",
+          "labBehaviour": "Guarded error formatting supplies unprintable filesystem error, warns once, disables further appends and lets the scope close successfully.",
+          "reason": "upstream-bug: cli-r3-13 inventory verifies the pinned-oracle defect; the Result.try diff covers squashing, message access and conversion; two new regressions assert one append, one warning and Exit.Success."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/CliUiLive.coverage.test.ts:146",
+          "upstreamBehaviour": "A failed live callback whose description throws terminates the controller, emits no warning and discards subsequent runs.",
+          "labBehaviour": "DEGRADED uses guarded description formatting and a fixed fallback, so only that run degrades, one warning is emitted and later runs continue.",
+          "reason": "upstream-bug: cli-r3-21 inventory verifies the pinned-oracle defect; the DEGRADED diff and added two-run regression assert four events, two final calls and second-run output."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/widget-resize.test.ts:19",
+          "upstreamBehaviour": "KeyHelp and Confirm, Select and MultiSelect question, answer and detail rows wrap beyond their reserved row budgets during immediate resize repaints.",
+          "labBehaviour": "Layout-time one-row clipping and cursor-column margins keep those additional widget rows within their budgets during every captured repaint.",
+          "reason": "upstream-bug: cli-r3-22 inventory verifies the pinned-oracle defect; the wrapper diff covers these new sites; added production-path 80-to-20 and 80-to-10 cases check every frame, and g8 reports three failures with clipping removed."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/TextInput.coverage.test.ts:52",
+          "upstreamBehaviour": "An editing key after Enter in the same input chunk clears TextInput submission or changes its pending value, leaving the prompt waiting.",
+          "labBehaviour": "Submitted states ignore subsequent keys until validation rejects the value and re-enables editing.",
+          "reason": "upstream-bug: cli-r3-29 inventory verifies the pinned-oracle defect; the reducer early-return diff and added Enter/Left, reducer-identity and validation-recovery tests pin submission and resumed editing."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/TextInput.coverage.test.ts:84",
+          "upstreamBehaviour": "TextInput scrolling cuts by code point, exposing joined-emoji fragments and splitting regional-indicator flags.",
+          "labBehaviour": "Prefix and suffix windows retain and measure whole grapheme clusters while submitting the unchanged raw text.",
+          "reason": "upstream-bug: cli-r3-30 inventory verifies the pinned-oracle defect; the head/tail diff uses shared graphemes; two mounted prefix/suffix regressions assert complete emoji and flag clusters."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/testing/CliUiTest.coverage.test.ts:169",
+          "upstreamBehaviour": "An ended screen handle can successfully resize the terminal shared with a later mounted screen.",
+          "labBehaviour": "Resize checks screen ownership before changing terminal size and dies with SCREEN_ENDED; surfaced crash precedence is retained.",
+          "reason": "upstream-bug: cli-r3-31 inventory verifies the pinned-oracle defect; the ended guard diff and added two-screen regression require the ended-screen defect and an unchanged second frame."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/Tabs.coverage.test.ts:40",
+          "upstreamBehaviour": "Shrinking an uncontrolled tab list leaves its active index beyond the remaining tabs, rendering only an ellipsis until navigation.",
+          "labBehaviour": "The effective uncontrolled index is clamped before navigation refs and overflow layout, immediately rendering the remaining active label.",
+          "reason": "upstream-bug: cli-r3-32 inventory verifies the pinned-oracle defect; the index-clamp diff and strengthened existing rerender assertion require [L…] immediately; empty-list behavior is retained."
+        },
+        {
+          "test": "scratchpad/test/cli/round3-config-schemas.test.ts:26; scratchpad/test/cli/round3-key-input-schema.test.ts:15; scratchpad/test/cli/ui/KeyTable.property.test.ts:43",
+          "upstreamBehaviour": "Audience/config/status options, KeyInput, audience tallies, widget state families and key-table payloads are erased interfaces without production codecs.",
+          "labBehaviour": "Twenty newly modeled payloads gain annotated schema values or factories and derived types; ten widget/key-table values are re-exported by ui.ts. Plain constructor and reducer paths remain unvalidated; KeyInput is a direct-file value only.",
+          "reason": "schema-first: D5/D11 and EF-33 require executable ownership of pure data; D2 permits added value exports. This records newly modeled round-3 sites only, excluding already ledgered schemas; the diff does not add the reported testing.ts value export."
+        },
+        {
+          "test": "scratchpad/test/cli/round3-config-schemas.test.ts:80; scratchpad/test/cli/ui/Confirm.property.test.ts:30; scratchpad/test/cli/ui/MultiSelect.property.test.ts:25",
+          "upstreamBehaviour": "CliEnvTestOptions.columns, ConfirmState.row and MultiSelectState.chosen elements have unrestricted TypeScript number contracts and no executable owning schema.",
+          "labBehaviour": "Their new schema sites use S.Finite, rejecting nonfinite values during validation while ordinary layer/reducer construction stays unvalidated. CliLogStatusOptions.indent separately retains every JavaScript number.",
+          "reason": "numeric-domains: schemaNumber diagnostic and finite-domain ruling require finite numeric schema sites; g5 reports the columns diagnostic. This records only new columns, row and chosen sites, excluding existing ViewportState numbers and previously ledgered numeric domains."
+        },
+        {
+          "test": "scratchpad/test/cli/Token.test.ts:15; scratchpad/test/cli/round3-key-input-schema.test.ts:15",
+          "upstreamBehaviour": "Style field descriptions repeat field names, while newly modeled round-3 configuration, key-table and widget-state payloads have no identity-backed executable metadata.",
+          "labBehaviour": "Style fields describe foreground rendering and SGR effects; newly introduced schema and field sites carry local $I identities and semantic descriptions. Existing Style identities, types and rendering remain intact.",
+          "reason": "identity-annotations: Step 4 and EF-12 require meaningful identity-backed schema and field metadata. This records replacement of five placeholder descriptions and newly annotated round-3 sites, excluding the already ledgered initial Style and error annotations."
+        },
+        {
+          "test": "scratchpad/test/cli/CliRuntime.test.ts:252; scratchpad/test/cli/CliRuntime.test.ts:282",
+          "upstreamBehaviour": "reported<E extends Error> advertises E even when runtime wraps structural Error lookalikes and strips their subtype fields.",
+          "labBehaviour": "The generic result is E | Error; callers and typed recovery narrow before accessing subtype fields. Internal yieldable-error paths explicitly fail the widened result.",
+          "reason": "type-safety: D11 requires the signature to describe runtime results. cli-r3-6 adds compile-time union assertions and a structural lookalike regression; widening is new this round and runtime wrapping remains unchanged."
         }
       ],
       "backlog": [
@@ -18601,6 +18697,78 @@
           "round": 2,
           "finding": "cli-r2-17 — Text immediately before a Markdown link turns it into an image. (scratchpad/effected/cli/internal/renderMarkdown.ts:30)",
           "reason": "bug: outside the port's write surface — central PORT_LEDGER.json and README deviation registration; DEVIATION supplied below."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "cli-b3-1 — EditorLinks lacks a production-schema round-trip property. (scratchpad/effected/cli/CliLinks.ts:44)",
+          "reason": "test: Add an fcRuns-bounded property generated from Arbitrary.schema(EditorLinks) that encodes, decodes, and re-encodes every generated value, asserting value and encoded-form fidelity. Keep the environment-parser property as a separate behavior test."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-b3-2 — Doc and Block prose denies their executable codec contract. (scratchpad/effected/cli/Doc.ts:531)",
+          "reason": "docs: Rewrite both sentences so constructors still return plain objects and do not decode, and the schemas remain the decode and encode contract. Leave overflow and total as function fields."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-1 — Schema-valid file targets retain an invalid URL key and crash raw-target consumers. (scratchpad/effected/cli/CliLinks.ts:127)",
+          "reason": "bug: branch mismatch: live branch is @lab/effected-2; task specifies @lab/effected and binding EFFECTED_PORT_GOAL.md §0.3 requires stopping."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-8 — CliLinksOptions remain erased pure-data models. (scratchpad/effected/cli/CliLinks.ts:86)",
+          "reason": "schema: branch mismatch: live branch is @lab/effected-2; task specifies @lab/effected and binding EFFECTED_PORT_GOAL.md §0.3 requires stopping."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-14 — Custom ellipsis markers can increase the assembled grapheme width past the requested limit. (scratchpad/effected/cli/Fmt.ts:164)",
+          "reason": "bug: branch mismatch: live branch is @lab/effected-2; task specifies @lab/effected and binding EFFECTED_PORT_GOAL.md §0.3 requires stopping."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-16 — The shared Span rendering payload has no executable production schema. (scratchpad/effected/cli/internal/layout.ts:24)",
+          "reason": "schema: branch mismatch: live branch is @lab/effected-2; task specifies @lab/effected and binding EFFECTED_PORT_GOAL.md §0.3 requires stopping."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-18 — Document layout still treats span boundaries as grapheme boundaries. (scratchpad/effected/cli/internal/layout.ts:154)",
+          "reason": "bug: branch mismatch: live branch is @lab/effected-2; task specifies @lab/effected and binding EFFECTED_PORT_GOAL.md §0.3 requires stopping."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-19 — Adjacent Markdown code nodes inject backticks into their displayed content. (scratchpad/effected/cli/internal/renderMarkdown.ts:146)",
+          "reason": "bug: branch mismatch: live branch is @lab/effected-2; task specifies @lab/effected and binding EFFECTED_PORT_GOAL.md §0.3 requires stopping."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-20 — Splitting URL-like plain text across spans bypasses Markdown autolink escaping. (scratchpad/effected/cli/internal/renderMarkdown.ts:146)",
+          "reason": "bug: branch mismatch: live branch is @lab/effected-2; task specifies @lab/effected and binding EFFECTED_PORT_GOAL.md §0.3 requires stopping."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-23 — Table width allocation performs quadratic work for short-header columns. (scratchpad/effected/cli/internal/renderDoc.ts:197)",
+          "reason": "perf: branch mismatch: live branch is @lab/effected-2; task specifies @lab/effected and binding EFFECTED_PORT_GOAL.md §0.3 requires stopping."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-27 — Markdown renderer Mode remains an erased named runtime literal domain. (scratchpad/effected/cli/internal/renderMarkdown.ts:17)",
+          "reason": "schema: branch mismatch: live branch is @lab/effected-2; task specifies @lab/effected and binding EFFECTED_PORT_GOAL.md §0.3 requires stopping."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "cli-r3-15 — KeyInput has no executable production schema. (scratchpad/effected/cli/TestTerminal.ts:16)",
+          "reason": "schema: (follow-on) scratchpad/test/cli/entrypoints.test.ts:77 is outside the port's write surface. The value re-export the finding requires changes the testing entry's exports to [\"CliTest\", \"KeyInput\", \"TestTerminal\"]; the test still expects [\"CliTest\", \"TestTerminal\"]. The owner of that file needs to add \"KeyInput\" (an addition, not a weakening)."
         }
       ],
       "reviewRounds": [
@@ -18636,6 +18804,24 @@
             },
             "fable": {
               "required": 12,
+              "backlog": 1
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "c3fc60bdbfd5574dc69623d132dced0a552a586a",
+          "seats": {
+            "grok": {
+              "required": 8,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 27,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 7,
               "backlog": 1
             }
           }
