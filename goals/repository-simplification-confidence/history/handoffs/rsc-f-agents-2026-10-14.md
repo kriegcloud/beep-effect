@@ -6,7 +6,7 @@ The driver owns the independent panel, merge, and any later retirement.
 
 ```text
 lane: rsc-f-agents
-head: 0b17420839bbe1ad1fb382de07a0da980b05f820 (integrated source)   PR: pending publication
+head: 6ac93b8fe0917fc16beb992809bc4e0cb5e1c444 (publication source)   PR: pending publication
 package-verify: @beep/repo-cli: pass (default audit 1076.0s; full docgen 39.2s)
 hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> inherited fail (AgentMessage TS377032; drawing tests TS377026) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
 config fingerprint (final): 2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
@@ -190,3 +190,11 @@ Driver configuration gate:
 `python3 goals/repository-simplification-confidence/research/f-config-fingerprint.py --check goals/repository-simplification-confidence/history/receipts/stage-5-f-config-fingerprint.json`.
 It passes for a fresh set and fails for an altered receipt. File and link
 identities are covered. New panel input is required on any configuration change.
+
+
+Publication-base merge 6ac93b8fe0 includes current main cb37212785. Its later
+main changes do not touch F's implementation or frozen configuration inputs.
+The final fingerprint gate passes with no changed paths immediately before
+publication. The snapshot has 356 files. The source proof and its earlier
+attribution boundaries remain recorded above; final hosted/parity outcomes
+are appended to the publication receipt after the PR exists.
