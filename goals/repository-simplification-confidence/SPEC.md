@@ -1097,3 +1097,11 @@ Missing legacy read completeness defaults true because the old reader was
 all-or-nothing; inventory completeness still defaults false. Verification
 requires both dimensions. Reverse the adapter/schema/reader change together
 and rebuild derived receipts; old manifests and receipts remain decodable.
+
+### 2026-10-14 — H2 unsupported default-branch tokens fail closed
+
+For a non-main base, a historical DEFAULT_BRANCH token in either include or
+exclude cannot be resolved by this main-scoped adapter. Fail that ruleset read
+instead of silently declaring it non-applicable. Literal refs and ALL matching
+remain supported; partial-read and older-definite-evidence safeguards apply.
+Reverse this guard with its fixtures; no lifecycle or receipt ownership change.

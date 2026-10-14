@@ -38,6 +38,9 @@ const encode = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.g
 const HistoricalRulesetFailure = LiteralKit(["organization", "glob", "unreadable"]);
 const Scenario = S.Struct({
   partialRuleset: S.optionalKey(HistoricalRulesetFailure),
+  base: S.optionalKey(S.NonEmptyString),
+  branchPattern: S.optionalKey(S.NonEmptyString),
+  defaultExclusion: S.optionalKey(S.Boolean),
   distinctSiblingRed: S.optionalKey(S.Boolean),
   failure: S.optionalKey(S.Boolean),
   merged: S.optionalKey(S.Boolean),
@@ -90,7 +93,7 @@ const fixtureIo = (acceptedText: string, scenario: typeof Scenario.Type = {}) =>
               merged_at: scenario.merged === false ? null : "2026-10-06T01:00:00Z",
               merge_commit_sha: "merge-result",
               head: { sha: "accepted-head" },
-              base: { ref: "main", repo: { full_name: "example/repo" } },
+              base: { ref: scenario.base ?? "main", repo: { full_name: "example/repo" } },
             })
           )
         ),
@@ -141,8 +144,8 @@ const fixtureIo = (acceptedText: string, scenario: typeof Scenario.Type = {}) =>
                       HistoricalRulesetFailure.is.glob(scenario.partialRuleset) &&
                       Str.includes("/rulesets/43/")(endpoint)
                         ? ["refs/heads/release/*"]
-                        : ["~DEFAULT_BRANCH"],
-                    exclude: [],
+                        : [scenario.branchPattern ?? "~DEFAULT_BRANCH"],
+                    exclude: scenario.defaultExclusion === true ? ["~DEFAULT_BRANCH"] : [],
                   },
                 },
                 rules: [
@@ -290,6 +293,38 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
               ["repos/{owner}/{repo}/rulesets/42/history/1"]
             );
           })
+        );
+      })
+    )
+  );
+  it.effect("unresolved non-main default-branch include and exclude tokens fail closed", () =>
+    Effect.gen(function* () {
+      const included = yield* observe({ base: "develop", red: true });
+      expect(included.outcome).toBe("unknown");
+      assertNone(included.requiredChecks);
+      const excluded = yield* observe({
+        base: "develop",
+        branchPattern: "~ALL",
+        defaultExclusion: true,
+        red: true,
+      });
+      expect(excluded.outcome).toBe("unknown");
+      assertNone(excluded.requiredChecks);
+    })
+  );
+  it.effect("non-main explicit refs and all-branch rules retain known required reds", () =>
+    Effect.forEach(
+      ["refs/heads/develop", "~ALL"],
+      Effect.fn("GoalsCompletionTest.nonMainLiteralRules")(function* (branchPattern) {
+        const receipt = yield* observe({ base: "develop", branchPattern, red: true });
+        expect(receipt.outcome).toBe("unsatisfied");
+        assertSome(
+          O.map(receipt.requiredChecks, (snapshot) => snapshot.contexts),
+          ["Lint"]
+        );
+        assertSome(
+          O.map(receipt.requiredChecks, (snapshot) => snapshot.rulesetReadsComplete),
+          true
         );
       })
     )

@@ -1648,3 +1648,11 @@ should be rendered beside the option in command help.
   completeness paragraphs under one heading; preserve examples and behavior.
   Rerun the JSDoc lane, retaining the failed observation rather than resetting
   its baseline. Main's earlier compiler/schema/reference repairs now pass.
+
+### 2026-10-14 — H2 unresolved default-branch rule
+
+- New review identifies non-main DEFAULT_BRANCH applicability silently skipped
+  as a successful non-match. Fail that unsupported per-ruleset read, covering
+  include and exclude tokens; preserve ALL and explicit branch matching.
+- Stop only the owned readiness monitor for the new wave, requalify frozen
+  source, answer and resolve the thread. No default-branch history is inferred.

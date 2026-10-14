@@ -265,13 +265,14 @@ const historicalRulesetApplies = Effect.fn("Goals.Completion.rulesetApplies")(fu
   base: string
 ) {
   if (state.enforcement !== "active" || state.target !== "branch") return false;
+  const patterns = A.appendAll(state.conditions.ref_name.include, state.conditions.ref_name.exclude);
+  if (base !== "main" && A.contains(patterns, "~DEFAULT_BRANCH"))
+    return yield* YeetCommandError.make({
+      message: "Historical ruleset ~DEFAULT_BRANCH needs an independently observed default branch",
+    });
   const matches = (pattern: string): boolean =>
     pattern === "~ALL" || (pattern === "~DEFAULT_BRANCH" && base === "main") || pattern === `refs/heads/${base}`;
-  if (
-    A.some([...state.conditions.ref_name.include, ...state.conditions.ref_name.exclude], (pattern) =>
-      Str.includes("*")(pattern)
-    )
-  )
+  if (A.some(patterns, Str.includes("*")))
     return yield* YeetCommandError.make({
       message: "Historical ruleset glob requires an independently evaluated branch snapshot",
     });
