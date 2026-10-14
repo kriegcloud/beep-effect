@@ -727,7 +727,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock write", (it) => {
       expect(fallback[1]).toBe("-old-0");
       expect(fallback[2_100]).toBe("-old-2099");
       expect(fallback[2_101]).toBe("+new-0");
-      expect(A.last(fallback)).toEqual(O.some("+new-2099"));
+      assertSome(A.last(fallback), "+new-2099");
     })
   );
 
@@ -1070,7 +1070,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills provenance service", (it) =>
         Effect.provideService(SkillUpstreamContentSource, source),
         Effect.exit
       );
-      expect(Exit.isFailure(exit)).toBe(true);
+      assertTrue(Exit.isFailure(exit));
       expect(String(exit)).toContain("line review limit");
     })
   );

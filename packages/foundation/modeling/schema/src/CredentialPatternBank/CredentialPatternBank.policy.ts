@@ -101,7 +101,7 @@ const closingPrivateMatch = (textLength: number, depth: number, start: number, e
     Match.value(depth),
     Match.when(0, () => O.some(makeMatch("private-tag", 0, textLength, "unresolved"))),
     Match.when(1, () => O.some(makeMatch("private-tag", start, end))),
-    Match.orElse(() => O.none<CredentialMatch>())
+    Match.orElse(O.none<CredentialMatch>)
   );
 const privateMatches = (text: string, grammar: CredentialRule): ReadonlyArray<CredentialMatch> => {
   let depth = 0;

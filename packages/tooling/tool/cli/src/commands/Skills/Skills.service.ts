@@ -332,27 +332,32 @@ const abbreviatedSha = Str.slice(0, 12);
 
 const MAX_PATCH_LINES = 100_000;
 
-const ensurePatchLineBudget = (skill: string, filePath: string, before: string, after: string) => {
-  let lines = 0;
-  for (const content of [before, after]) {
-    if (Str.isEmpty(content)) {
-      continue;
+const countPatchLines = (content: string): number => {
+  if (Str.isEmpty(content)) {
+    return 0;
+  }
+  let lines = 1;
+  for (const character of content) {
+    if (character === "\n") {
+      lines++;
     }
-    lines++;
-    for (const character of content) {
-      if (character === "\n" && ++lines > MAX_PATCH_LINES) {
-        return Effect.fail(
-          SkillsCommandError.make({
-            message: `Skill patch exceeds the ${MAX_PATCH_LINES} line review limit`,
-            skill,
-            file: filePath,
-          })
-        );
-      }
+    if (lines > MAX_PATCH_LINES) {
+      break;
     }
   }
-  return Effect.void;
+  return lines;
 };
+
+const ensurePatchLineBudget = (skill: string, filePath: string, before: string, after: string) =>
+  countPatchLines(before) + countPatchLines(after) > MAX_PATCH_LINES
+    ? Effect.fail(
+        SkillsCommandError.make({
+          message: `Skill patch exceeds the ${MAX_PATCH_LINES} line review limit`,
+          skill,
+          file: filePath,
+        })
+      )
+    : Effect.void;
 
 const renderAddedFilePatch = Effect.fn("SkillsProvenance.renderAddedFilePatch")(function* (
   skill: string,

@@ -1545,7 +1545,9 @@
         ],
         "verificationCommands": [
           "bunx vitest run test/skills-provenance.test.ts --pool=threads --maxWorkers=1",
-          "bun run beep quality package-verify @beep/repo-cli"
+          "bun run beep quality package-verify @beep/repo-cli",
+          "bun run beep quality package-verify @beep/repo-cli --quick",
+          "bun run beep lint effect-vitest"
         ],
         "summary": "Bound combined patch inputs to 100,000 lines with a typed error, trim unchanged prefix and suffix, and cap the LCS matrix at four million cells. Large changed regions fall back to a valid linear-size replacement hunk."
       },

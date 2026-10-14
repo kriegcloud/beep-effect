@@ -1275,7 +1275,7 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
                   Effect.succeed(PageImage.make({ bytes, digest, mediaType: "image/png" })),
               });
             }),
-            Effect.orElseSucceed(() => O.none<Omit<OcrPages, "format">>())
+            Effect.orElseSucceed(O.none<Omit<OcrPages, "format">>)
           ),
       })
     );

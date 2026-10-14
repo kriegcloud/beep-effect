@@ -203,7 +203,7 @@ const skipOutcomeOf = (maxBytes: number): ((attachment: GraphAttachment) => O.Op
       (attachment: GraphAttachment) => declaredBytesOf(attachment) > maxBytes,
       () => O.some<IntakeAttachmentOutcome>("skipped-oversize")
     ),
-    Match.orElse(() => O.none<IntakeAttachmentOutcome>())
+    Match.orElse(O.none<IntakeAttachmentOutcome>)
   );
 
 // Content already in the directory: unchanged when it holds the wanted name, otherwise a duplicate of its holder.

@@ -611,7 +611,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
     const hits = yield* Effect.forEach(ancestors, (dir) =>
       fs.stat(path.join(dir, "review")).pipe(
         Effect.map((info) => (info.type === "Directory" ? O.some(path.join(dir, "review")) : O.none<string>())),
-        Effect.orElseSucceed(() => O.none<string>())
+        Effect.orElseSucceed(O.none<string>)
       )
     );
     return A.head(A.getSomes(hits));

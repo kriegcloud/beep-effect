@@ -381,7 +381,7 @@ const regionsOf = (options: {
 }): HashMap.HashMap<number, ReadonlyArray<ShadingWindow>> => {
   const stretches: ReadonlyArray<Stretch> = A.flatMap(options.probes, ({ probe, pieces }) =>
     O.match(projectedProbe(options.camera, probe), {
-      onNone: () => A.empty<Stretch>(),
+      onNone: A.empty<Stretch>,
       onSome: (line) =>
         A.map(pieces, (s) => {
           const a = offsetAt(line, s[0], s[1]);
@@ -539,7 +539,7 @@ export const project = (options: {
           plan,
           regions: O.map(
             regions,
-            (windows) => (face: number) => O.getOrElse(HashMap.get(windows, face), () => A.empty<ShadingWindow>())
+            (windows) => (face: number) => O.getOrElse(HashMap.get(windows, face), A.empty<ShadingWindow>)
           ),
         })
       )
