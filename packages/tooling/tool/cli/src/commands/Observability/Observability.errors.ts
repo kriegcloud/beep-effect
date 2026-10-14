@@ -28,7 +28,10 @@ const $I = $RepoCliId.create("commands/Observability/Observability.errors");
  * @category errors
  * @since 0.0.0
  */
-export class ObservabilityCommandError extends S.TaggedError<ObservabilityCommandError>($I`ObservabilityCommandError`)(
+export class ObservabilityCommandError extends S.TaggedError<
+  ObservabilityCommandError,
+  { readonly brand: unique symbol }
+>($I`ObservabilityCommandError`)(
   "ObservabilityCommandError",
   { path: S.String, message: S.String, cause: S.optionalKey(S.Defect({ includeStack: true })) },
   $I.annoteError<ObservabilityCommandError>("ObservabilityCommandError", {

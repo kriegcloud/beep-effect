@@ -22,7 +22,7 @@ Format: `Concept(.Sub)*.action`, the domain-span form in every package family (s
 
 Rules:
 
-- Concept segments are PascalCase and the action is camelCase. Span identity is the owning package plus the name; the exporter stamps `beep.package` and `beep.family` from the instrumentation catalog, so call sites never add them by hand.
+- Concept segments are PascalCase and the action is camelCase. Span identity is the owning package plus the name; the instrumentation catalog records `beep.package` and `beep.family` for each declared span.
 - Names are static literals and unique across packages. A name built from input is a leak path: put the variable part in a bounded attribute (`Box.invoke` with `box.method`, not `` `box.${method}` ``).
 - Protocol spans follow OpenTelemetry semantic conventions (`GET /v1/iam/memberships/:id/revoke`, `gen_ai.*`, `mcp.method.name`) and are declared with `protocol: true` in the owning package's `*.instruments.ts` file. The use-case span inside a protocol span still carries the domain name.
 - Names that predate this form stay as they are; the catalog records them with `conforms: false` and there is no mass rename. New spans use the domain form.

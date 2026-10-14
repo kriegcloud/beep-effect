@@ -150,18 +150,19 @@ export type SpanNameFindingKind = typeof SpanNameFindingKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class SpanSite extends S.Class<SpanSite>($I`SpanSite`)(
-  {
+export class SpanSite extends S.Opaque<SpanSite, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     owner: Catalog.PackageName,
     family: Catalog.PackageFamily,
     file: PosixPath,
     line: S.Int,
     callee: SpanCallee,
-  },
-  $I.annote("SpanSite", {
-    description: "Literal span name found at one source location.",
-  })
+  }).pipe(
+    $I.annoteSchema("SpanSite", {
+      description: "Literal span name found at one source location.",
+    })
+  )
 ) {}
 
 /**
@@ -186,17 +187,18 @@ export class SpanSite extends S.Class<SpanSite>($I`SpanSite`)(
  * @category models
  * @since 0.0.0
  */
-export class SpanNameFinding extends S.Class<SpanNameFinding>($I`SpanNameFinding`)(
-  {
+export class SpanNameFinding extends S.Opaque<SpanNameFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: SpanNameFindingKind,
     file: PosixPath,
     line: S.Int,
     callee: SpanCallee,
     text: S.String,
-  },
-  $I.annote("SpanNameFinding", {
-    description: "Span-name argument that is interpolated or otherwise not a static literal.",
-  })
+  }).pipe(
+    $I.annoteSchema("SpanNameFinding", {
+      description: "Span-name argument that is interpolated or otherwise not a static literal.",
+    })
+  )
 ) {}
 
 /**
@@ -213,14 +215,15 @@ export class SpanNameFinding extends S.Class<SpanNameFinding>($I`SpanNameFinding
  * @category models
  * @since 0.0.0
  */
-export class SpanHarvest extends S.Class<SpanHarvest>($I`SpanHarvest`)(
-  {
+export class SpanHarvest extends S.Opaque<SpanHarvest, { readonly brand: unique symbol }>()(
+  S.Struct({
     sites: S.Array(SpanSite),
     findings: S.Array(SpanNameFinding),
-  },
-  $I.annote("SpanHarvest", {
-    description: "Literal span sites and non-literal span-name findings from one scan.",
-  })
+  }).pipe(
+    $I.annoteSchema("SpanHarvest", {
+      description: "Literal span sites and non-literal span-name findings from one scan.",
+    })
+  )
 ) {}
 
 /**
@@ -243,14 +246,15 @@ export class SpanHarvest extends S.Class<SpanHarvest>($I`SpanHarvest`)(
  * @category models
  * @since 0.0.0
  */
-export class DeclarationsFile extends S.Class<DeclarationsFile>($I`DeclarationsFile`)(
-  {
+export class DeclarationsFile extends S.Opaque<DeclarationsFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: PosixPath,
     declarations: S.Array(Catalog.InstrumentDeclarations),
-  },
-  $I.annote("DeclarationsFile", {
-    description: "Instrument declarations exported by one *.instruments.ts file.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeclarationsFile", {
+      description: "Instrument declarations exported by one *.instruments.ts file.",
+    })
+  )
 ) {}
 
 /**
@@ -275,16 +279,17 @@ export class DeclarationsFile extends S.Class<DeclarationsFile>($I`DeclarationsF
  * @category models
  * @since 0.0.0
  */
-export class HarvestedSpan extends S.Class<HarvestedSpan>($I`HarvestedSpan`)(
-  {
+export class HarvestedSpan extends S.Opaque<HarvestedSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     owner: Catalog.PackageName,
     family: Catalog.PackageFamily,
     conforms: S.Boolean,
-  },
-  $I.annote("HarvestedSpan", {
-    description: "Generated span section row: harvested name, owning package, family and conformance.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarvestedSpan", {
+      description: "Generated span section row: harvested name, owning package, family and conformance.",
+    })
+  )
 ) {}
 
 /**
@@ -309,10 +314,11 @@ export class HarvestedSpan extends S.Class<HarvestedSpan>($I`HarvestedSpan`)(
  * @category models
  * @since 0.0.0
  */
-export class InstrumentationCatalogDocument extends S.Class<InstrumentationCatalogDocument>(
-  $I`InstrumentationCatalogDocument`
-)(
-  {
+export class InstrumentationCatalogDocument extends S.Opaque<
+  InstrumentationCatalogDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("instrumentation-catalog/v1").pipe(
       S.withConstructorDefault(Effect.succeed("instrumentation-catalog/v1"))
     ),
@@ -322,11 +328,12 @@ export class InstrumentationCatalogDocument extends S.Class<InstrumentationCatal
     attributes: S.Array(Catalog.AttributeKey),
     instruments: S.Array(Catalog.Instrument),
     spans: S.Array(HarvestedSpan),
-  },
-  $I.annote("InstrumentationCatalogDocument", {
-    description:
-      "Generated instrumentation catalog: declared attributes and instruments plus the harvested span section.",
-  })
+  }).pipe(
+    $I.annoteSchema("InstrumentationCatalogDocument", {
+      description:
+        "Generated instrumentation catalog: declared attributes and instruments plus the harvested span section.",
+    })
+  )
 ) {}
 
 /**
@@ -347,14 +354,15 @@ export class InstrumentationCatalogDocument extends S.Class<InstrumentationCatal
  * @category models
  * @since 0.0.0
  */
-export class CatalogBuild extends S.Class<CatalogBuild>($I`CatalogBuild`)(
-  {
+export class CatalogBuild extends S.Opaque<CatalogBuild, { readonly brand: unique symbol }>()(
+  S.Struct({
     document: InstrumentationCatalogDocument,
     conflicts: S.Array(S.String),
-  },
-  $I.annote("CatalogBuild", {
-    description: "Generated catalog document plus the rendered conflicts its merge reported.",
-  })
+  }).pipe(
+    $I.annoteSchema("CatalogBuild", {
+      description: "Generated catalog document plus the rendered conflicts its merge reported.",
+    })
+  )
 ) {}
 
 /**
@@ -371,15 +379,16 @@ export class CatalogBuild extends S.Class<CatalogBuild>($I`CatalogBuild`)(
  * @category models
  * @since 0.0.0
  */
-export class FamilySpanCount extends S.Class<FamilySpanCount>($I`FamilySpanCount`)(
-  {
+export class FamilySpanCount extends S.Opaque<FamilySpanCount, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: Catalog.PackageFamily,
     spans: S.Int,
     conforming: S.Int,
-  },
-  $I.annote("FamilySpanCount", {
-    description: "Harvested span count and conforming span count for one package family.",
-  })
+  }).pipe(
+    $I.annoteSchema("FamilySpanCount", {
+      description: "Harvested span count and conforming span count for one package family.",
+    })
+  )
 ) {}
 
 /**
@@ -474,8 +483,8 @@ export type GeneratedFileStatus = typeof GeneratedFileStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class CatalogRunReport extends S.Class<CatalogRunReport>($I`CatalogRunReport`)(
-  {
+export class CatalogRunReport extends S.Opaque<CatalogRunReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: CatalogRunMode,
     catalog: GeneratedFileStatus,
     standard: GeneratedFileStatus,
@@ -490,8 +499,9 @@ export class CatalogRunReport extends S.Class<CatalogRunReport>($I`CatalogRunRep
     nonLiteral: S.Array(SpanNameFinding),
     conflicts: S.Array(S.String),
     ok: S.Boolean,
-  },
-  $I.annote("CatalogRunReport", {
-    description: "Outcome of one instrumentation catalog write or check run.",
-  })
+  }).pipe(
+    $I.annoteSchema("CatalogRunReport", {
+      description: "Outcome of one instrumentation catalog write or check run.",
+    })
+  )
 ) {}

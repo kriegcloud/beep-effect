@@ -91,6 +91,24 @@ describe("harvestSourceFile", () => {
     expect(A.map(harvest.sites, ({ owner, family }) => `${owner} ${family}`)).toEqual(A.replicate("@beep/a driver", 5));
   });
 
+  it("resolves aliased effect/Effect namespace and named imports", () => {
+    const harvest = harvestFixture(
+      [
+        'import * as Eff from "effect/Effect";',
+        'import { withSpan as span, fnUntraced } from "effect/Effect";',
+        'const read = Eff.fn("Parcels.read")(function* () {});',
+        'const write = fnUntraced("Parcels.write")(function* () {});',
+        'const list = span(Eff.void, "Parcels.list");',
+        'const other = Other.fn("Parcels.ignored");',
+      ].join("\n")
+    );
+    expect(A.map(harvest.sites, ({ name, callee }) => `${callee} ${name}`)).toEqual([
+      "Effect.fn Parcels.read",
+      "Effect.fnUntraced Parcels.write",
+      "Effect.withSpan Parcels.list",
+    ]);
+  });
+
   it("reports interpolated names and non-literal names as findings", () => {
     const harvest = harvestFixture(dynamicSpans);
     expect(harvest.sites).toEqual([]);

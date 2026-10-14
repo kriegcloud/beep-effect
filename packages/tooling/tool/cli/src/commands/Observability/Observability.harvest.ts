@@ -16,6 +16,8 @@
 import { PackageFamily } from "@beep/observability/catalog";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -69,17 +71,55 @@ export const packageFamilyOfPath = (file: string): PackageFamily =>
     () => PackageFamily.Enum.slice
   );
 
-const calleeOf = (call: CallExpression): O.Option<SpanCallee> => {
-  const expression = call.getExpression();
-  if (!Node.isPropertyAccessExpression(expression)) {
-    return O.none();
-  }
-  const receiver = expression.getExpression();
-  if (!Node.isIdentifier(receiver) || receiver.getText() !== "Effect") {
-    return O.none();
-  }
-  return O.liftPredicate(`Effect.${expression.getName()}`, isSpanCallee);
+// Local names bound to `effect/Effect` in one file: namespace aliases (`import * as Eff`) and named
+// members (`import { withSpan as ws }`). The bare `Effect` identifier is always accepted, so files that
+// rely on an ambient or re-exported `Effect` namespace still harvest.
+interface EffectBindings {
+  readonly members: HashMap.HashMap<string, string>;
+  readonly namespaces: HashSet.HashSet<string>;
+}
+
+const effectBindings = (sourceFile: SourceFile): EffectBindings => {
+  const imports = A.filter(
+    sourceFile.getImportDeclarations(),
+    (declaration) => declaration.getModuleSpecifierValue() === "effect/Effect"
+  );
+  return {
+    namespaces: HashSet.fromIterable(
+      A.append(
+        A.flatMap(imports, (declaration) =>
+          O.toArray(O.map(O.fromUndefinedOr(declaration.getNamespaceImport()), (alias) => alias.getText()))
+        ),
+        "Effect"
+      )
+    ),
+    members: HashMap.fromIterable(
+      A.flatMap(imports, (declaration) =>
+        A.map(
+          declaration.getNamedImports(),
+          (specifier) => [specifier.getAliasNode()?.getText() ?? specifier.getName(), specifier.getName()] as const
+        )
+      )
+    ),
+  };
 };
+
+const calleeOf =
+  (bindings: EffectBindings) =>
+  (call: CallExpression): O.Option<SpanCallee> => {
+    const expression = call.getExpression();
+    if (Node.isPropertyAccessExpression(expression)) {
+      const receiver = expression.getExpression();
+      return Node.isIdentifier(receiver) && HashSet.has(bindings.namespaces, receiver.getText())
+        ? O.liftPredicate(`Effect.${expression.getName()}`, isSpanCallee)
+        : O.none();
+    }
+    return Node.isIdentifier(expression)
+      ? O.flatMap(HashMap.get(bindings.members, expression.getText()), (member) =>
+          O.liftPredicate(`Effect.${member}`, isSpanCallee)
+        )
+      : O.none();
+  };
 
 const isStringLike = (node: Node): boolean =>
   Node.isStringLiteral(node) || Node.isNoSubstitutionTemplateLiteral(node) || Node.isTemplateExpression(node);
@@ -141,9 +181,10 @@ export const harvestSourceFile: {
   (sourceFile: SourceFile, file: PosixPath, owner: PackageName): SpanHarvest;
 } = dual(3, (sourceFile: SourceFile, file: PosixPath, owner: PackageName): SpanHarvest => {
   const family = packageFamilyOfPath(file);
+  const calleeIn = calleeOf(effectBindings(sourceFile));
   const named = A.flatMap(sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression), (call) =>
     O.match(
-      O.flatMap(calleeOf(call), (callee) => O.map(nameArgument(callee, call), (argument) => ({ argument, callee }))),
+      O.flatMap(calleeIn(call), (callee) => O.map(nameArgument(callee, call), (argument) => ({ argument, callee }))),
       {
         onNone: () => [],
         onSome: ({ argument, callee }) => [{ argument, callee, line: call.getStartLineNumber() }],

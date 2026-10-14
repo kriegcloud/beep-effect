@@ -26,17 +26,14 @@ import {
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric";
-import {
-  OntologyOperationDuration,
-  OntologyOperations as OntologyOperationsMetric,
-} from "@/ProfessionalDesktop.instruments";
+import { OntologyOperationDuration, OntologyOperations } from "@/ProfessionalDesktop.instruments";
 import type {
   ApplyOntologyBatchCommand,
   OntologyFilePath,
   OpenOntologyDocumentResult as OpenOntologyDocumentResultType,
 } from "@beep/ontology-use-cases/public";
 
-const ontologyOperations = Metric.counter(OntologyOperationsMetric.name, { incremental: true });
+const ontologyOperations = Metric.counter(OntologyOperations.name, { incremental: true });
 const ontologyDuration = Metric.timer(OntologyOperationDuration.name);
 
 const observeOntologyOperation = Effect.fnUntraced(function* <A, E, R>(
@@ -161,7 +158,7 @@ const makeOntologyOperations = (
 /**
  * Runtime type for the ontology orchestration operations.
  */
-type OntologyOperations = ReturnType<typeof makeOntologyOperations>;
+type OntologyHandlerOperations = ReturnType<typeof makeOntologyOperations>;
 
 /**
  * Adapt ontology operations onto the {@link OntologyRpcs} handler record.
@@ -169,7 +166,7 @@ type OntologyOperations = ReturnType<typeof makeOntologyOperations>;
  * @category constructors
  * @since 0.0.0
  */
-const makeOntologyHandlers = (operations: OntologyOperations) =>
+const makeOntologyHandlers = (operations: OntologyHandlerOperations) =>
   OntologyRpcs.of({
     OpenOntologyDocument: (payload) =>
       operations.openDocument(

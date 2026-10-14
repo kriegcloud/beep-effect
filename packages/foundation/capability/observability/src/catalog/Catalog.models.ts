@@ -102,8 +102,8 @@ const isStrictlyAscending = (values: ReadonlyArray<number>): boolean =>
  * @category models
  * @since 0.0.0
  */
-export class AttributeKey extends S.Class<AttributeKey>($I`AttributeKey`)(
-  {
+export class AttributeKey extends S.Opaque<AttributeKey, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: AttributeKeyName,
     type: AttributeValueType,
     signals: S.NonEmptyArray(SignalKind).check(S.isUnique()),
@@ -114,10 +114,11 @@ export class AttributeKey extends S.Class<AttributeKey>($I`AttributeKey`)(
     ),
     owner: PackageName,
     description: Description,
-  },
-  $I.annote("AttributeKey", {
-    description: "Attribute key declaration: value type, allowed signals, cardinality and strictest allowed tier.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttributeKey", {
+      description: "Attribute key declaration: value type, allowed signals, cardinality and strictest allowed tier.",
+    })
+  )
 ) {}
 
 /**
@@ -165,9 +166,8 @@ export declare namespace AttributeKey {
  * @category models
  * @since 0.0.0
  */
-export class MetricInstrument extends S.TaggedClass<MetricInstrument>($I`MetricInstrument`)(
-  "MetricInstrument",
-  S.Struct({
+export class MetricInstrument extends S.Opaque<MetricInstrument, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("MetricInstrument", {
     name: MetricName,
     owner: PackageName,
     attributes: AttributeKeyNames,
@@ -178,23 +178,26 @@ export class MetricInstrument extends S.TaggedClass<MetricInstrument>($I`MetricI
     boundaries: S.OptionFromOptionalKey(S.Finite.pipe(S.NonEmptyArray)).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  }).check(
-    S.makeFilter(({ kind, boundaries }) => O.isNone(boundaries) || kind === MetricKind.Enum.histogram, {
-      identifier: $I`MetricInstrumentBoundariesKindCheck`,
-      title: "Metric Boundaries Kind",
-      description: "Histogram boundaries are allowed only on histogram metrics.",
-      message: "Expected boundaries only on a histogram metric",
-    }),
-    S.makeFilter(({ boundaries }) => O.match(boundaries, { onNone: () => true, onSome: isStrictlyAscending }), {
-      identifier: $I`MetricInstrumentBoundariesOrderCheck`,
-      title: "Metric Boundaries Order",
-      description: "Histogram boundaries are strictly ascending.",
-      message: "Expected strictly ascending histogram boundaries",
-    })
-  ),
-  $I.annote("MetricInstrument", {
-    description: "Metric instrument declaration with kind, UCUM unit and optional histogram boundaries.",
   })
+    .check(
+      S.makeFilter(({ kind, boundaries }) => O.isNone(boundaries) || kind === MetricKind.Enum.histogram, {
+        identifier: $I`MetricInstrumentBoundariesKindCheck`,
+        title: "Metric Boundaries Kind",
+        description: "Histogram boundaries are allowed only on histogram metrics.",
+        message: "Expected boundaries only on a histogram metric",
+      }),
+      S.makeFilter(({ boundaries }) => O.match(boundaries, { onNone: () => true, onSome: isStrictlyAscending }), {
+        identifier: $I`MetricInstrumentBoundariesOrderCheck`,
+        title: "Metric Boundaries Order",
+        description: "Histogram boundaries are strictly ascending.",
+        message: "Expected strictly ascending histogram boundaries",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("MetricInstrument", {
+        description: "Metric instrument declaration with kind, UCUM unit and optional histogram boundaries.",
+      })
+    )
 ) {}
 
 /**
@@ -247,9 +250,8 @@ export declare namespace MetricInstrument {
  * @category models
  * @since 0.0.0
  */
-export class SpanInstrument extends S.TaggedClass<SpanInstrument>($I`SpanInstrument`)(
-  "SpanInstrument",
-  S.Struct({
+export class SpanInstrument extends S.Opaque<SpanInstrument, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("SpanInstrument", {
     name: S.Union([SpanName, ProtocolSpanName]),
     owner: PackageName,
     family: PackageFamily,
@@ -269,23 +271,26 @@ export class SpanInstrument extends S.TaggedClass<SpanInstrument>($I`SpanInstrum
       S.withDecodingDefaultKey(Effect.succeed(true)),
       S.withConstructorDefault(Effect.succeed(true))
     ),
-  }).check(
-    S.makeFilter(({ name, protocol, conforms }) => conforms === (protocol || S.is(SpanName)(name)), {
-      identifier: $I`SpanInstrumentConformsCheck`,
-      title: "Span Name Conformance",
-      description: "conforms is true exactly when the span is a protocol span or its name is in Concept.action form.",
-      message: "Expected conforms to match whether the name is a protocol or Concept(.Sub)*.action span name",
-    }),
-    S.makeFilter(({ conforms, origin }) => conforms || origin === InstrumentOrigin.Enum.harvested, {
-      identifier: $I`SpanInstrumentProtocolNameCheck`,
-      title: "Span Protocol Name",
-      description: "Only protocol spans and legacy harvested spans may use a name outside the Concept.action form.",
-      message: "Expected a Concept(.Sub)*.action span name, or protocol: true",
-    })
-  ),
-  $I.annote("SpanInstrument", {
-    description: "Span instrument entry, harvested from source or declared by hand.",
   })
+    .check(
+      S.makeFilter(({ name, protocol, conforms }) => conforms === (protocol || S.is(SpanName)(name)), {
+        identifier: $I`SpanInstrumentConformsCheck`,
+        title: "Span Name Conformance",
+        description: "conforms is true exactly when the span is a protocol span or its name is in Concept.action form.",
+        message: "Expected conforms to match whether the name is a protocol or Concept(.Sub)*.action span name",
+      }),
+      S.makeFilter(({ conforms, origin }) => conforms || origin === InstrumentOrigin.Enum.harvested, {
+        identifier: $I`SpanInstrumentProtocolNameCheck`,
+        title: "Span Protocol Name",
+        description: "Only protocol spans and legacy harvested spans may use a name outside the Concept.action form.",
+        message: "Expected a Concept(.Sub)*.action span name, or protocol: true",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("SpanInstrument", {
+        description: "Span instrument entry, harvested from source or declared by hand.",
+      })
+    )
 ) {}
 
 /**
@@ -324,18 +329,18 @@ export declare namespace SpanInstrument {
  * @category models
  * @since 0.0.0
  */
-export class EventInstrument extends S.TaggedClass<EventInstrument>($I`EventInstrument`)(
-  "EventInstrument",
-  {
+export class EventInstrument extends S.Opaque<EventInstrument, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("EventInstrument", {
     name: EventName,
     owner: PackageName,
     attributes: AttributeKeyNames,
     minTier: TelemetryTier,
     description: Description,
-  },
-  $I.annote("EventInstrument", {
-    description: "Event instrument declaration.",
-  })
+  }).pipe(
+    $I.annoteSchema("EventInstrument", {
+      description: "Event instrument declaration.",
+    })
+  )
 ) {}
 
 /**
@@ -430,8 +435,8 @@ export const instrumentSignal: (instrument: Instrument) => SignalKind = Instrume
  * @category models
  * @since 0.0.0
  */
-export class InstrumentDeclarations extends S.Class<InstrumentDeclarations>($I`InstrumentDeclarations`)(
-  {
+export class InstrumentDeclarations extends S.Opaque<InstrumentDeclarations, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributes: S.Array(AttributeKey).pipe(
       S.withDecodingDefaultKey(Effect.succeed([])),
       S.withConstructorDefault(Effect.succeed([]))
@@ -440,10 +445,11 @@ export class InstrumentDeclarations extends S.Class<InstrumentDeclarations>($I`I
       S.withDecodingDefaultKey(Effect.succeed([])),
       S.withConstructorDefault(Effect.succeed([]))
     ),
-  },
-  $I.annote("InstrumentDeclarations", {
-    description: "One package's attribute key and instrument declarations.",
-  })
+  }).pipe(
+    $I.annoteSchema("InstrumentDeclarations", {
+      description: "One package's attribute key and instrument declarations.",
+    })
+  )
 ) {}
 
 /**
@@ -466,14 +472,15 @@ export class InstrumentDeclarations extends S.Class<InstrumentDeclarations>($I`I
  * @category models
  * @since 0.0.0
  */
-export class InstrumentCatalogContent extends S.Class<InstrumentCatalogContent>($I`InstrumentCatalogContent`)(
-  {
+export class InstrumentCatalogContent extends S.Opaque<InstrumentCatalogContent, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributes: S.Array(AttributeKey),
     instruments: S.Array(Instrument),
-  },
-  $I.annote("InstrumentCatalogContent", {
-    description: "Attribute keys and instruments before the catalog conflict checks run.",
-  })
+  }).pipe(
+    $I.annoteSchema("InstrumentCatalogContent", {
+      description: "Attribute keys and instruments before the catalog conflict checks run.",
+    })
+  )
 ) {}
 
 const conflictKey = (instrument: Instrument): string =>
@@ -593,27 +600,30 @@ export const catalogConflicts = ({
  * @category models
  * @since 0.0.0
  */
-export class InstrumentCatalog extends S.Class<InstrumentCatalog>($I`InstrumentCatalog`)(
+export class InstrumentCatalog extends S.Opaque<InstrumentCatalog, { readonly brand: unique symbol }>()(
   S.Struct({
     version: S.Literal(1).pipe(S.withConstructorDefault(Effect.succeed(1))),
     ...InstrumentCatalogContent.fields,
-  }).check(
-    S.makeFilter(
-      (catalog) => {
-        const conflicts = catalogConflicts(catalog);
-        return A.isReadonlyArrayNonEmpty(conflicts) ? A.map(conflicts, describeConflict) : undefined;
-      },
-      {
-        identifier: $I`InstrumentCatalogConflictCheck`,
-        title: "Instrument Catalog Conflicts",
-        description:
-          "Names are unique per signal, referenced keys exist and allow the signal, metric labels are bounded, and instrument tiers are no looser than their attributes.",
-      }
-    )
-  ),
-  $I.annote("InstrumentCatalog", {
-    description: "Merged instrument catalog, checked for name, attribute, cardinality and tier conflicts.",
   })
+    .check(
+      S.makeFilter(
+        (catalog) => {
+          const conflicts = catalogConflicts(catalog);
+          return A.isReadonlyArrayNonEmpty(conflicts) ? A.map(conflicts, describeConflict) : undefined;
+        },
+        {
+          identifier: $I`InstrumentCatalogConflictCheck`,
+          title: "Instrument Catalog Conflicts",
+          description:
+            "Names are unique per signal, referenced keys exist and allow the signal, metric labels are bounded, and instrument tiers are no looser than their attributes.",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("InstrumentCatalog", {
+        description: "Merged instrument catalog, checked for name, attribute, cardinality and tier conflicts.",
+      })
+    )
 ) {}
 
 /**
@@ -647,14 +657,15 @@ export declare namespace InstrumentCatalog {
  * @category models
  * @since 0.0.0
  */
-export class SpanOwner extends S.Class<SpanOwner>($I`SpanOwner`)(
-  {
+export class SpanOwner extends S.Opaque<SpanOwner, { readonly brand: unique symbol }>()(
+  S.Struct({
     package: PackageName,
     family: PackageFamily,
-  },
-  $I.annote("SpanOwner", {
-    description: "Package and package family that own a span name.",
-  })
+  }).pipe(
+    $I.annoteSchema("SpanOwner", {
+      description: "Package and package family that own a span name.",
+    })
+  )
 ) {}
 
 /**
@@ -672,10 +683,10 @@ export class SpanOwner extends S.Class<SpanOwner>($I`SpanOwner`)(
  * @category models
  * @since 0.0.0
  */
-export class Workstation extends S.TaggedClass<Workstation>($I`Workstation`)(
-  "Workstation",
-  { identitySource: IdentitySource, hostName: HostName },
-  $I.annote("Workstation", { description: "Developer workstation emitter; tier ceiling dev-verbose." })
+export class Workstation extends S.Opaque<Workstation, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Workstation", { identitySource: IdentitySource, hostName: HostName }).pipe(
+    $I.annoteSchema("Workstation", { description: "Developer workstation emitter; tier ceiling dev-verbose." })
+  )
 ) {}
 
 /**
@@ -693,10 +704,10 @@ export class Workstation extends S.TaggedClass<Workstation>($I`Workstation`)(
  * @category models
  * @since 0.0.0
  */
-export class Server extends S.TaggedClass<Server>($I`Server`)(
-  "Server",
-  { identitySource: IdentitySource, hostName: HostName },
-  $I.annote("Server", { description: "Long-running server emitter; tier ceiling standard." })
+export class Server extends S.Opaque<Server, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Server", { identitySource: IdentitySource, hostName: HostName }).pipe(
+    $I.annoteSchema("Server", { description: "Long-running server emitter; tier ceiling standard." })
+  )
 ) {}
 
 /**
@@ -715,12 +726,12 @@ export class Server extends S.TaggedClass<Server>($I`Server`)(
  * @category models
  * @since 0.0.0
  */
-export class StrictDesktop extends S.TaggedClass<StrictDesktop>($I`StrictDesktop`)(
-  "StrictDesktop",
-  { identitySource: IdentitySource },
-  $I.annote("StrictDesktop", {
-    description: "Strict-tier desktop emitter whose host the gateway stamps; tier ceiling shape-only.",
-  })
+export class StrictDesktop extends S.Opaque<StrictDesktop, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("StrictDesktop", { identitySource: IdentitySource }).pipe(
+    $I.annoteSchema("StrictDesktop", {
+      description: "Strict-tier desktop emitter whose host the gateway stamps; tier ceiling shape-only.",
+    })
+  )
 ) {}
 
 /**
@@ -742,10 +753,10 @@ export class StrictDesktop extends S.TaggedClass<StrictDesktop>($I`StrictDesktop
  * @category models
  * @since 0.0.0
  */
-export class CiRunner extends S.TaggedClass<CiRunner>($I`CiRunner`)(
-  "CiRunner",
-  { identitySource: IdentitySource, pipelineRunId: Token, vcsRevision: VcsRevision },
-  $I.annote("CiRunner", { description: "CI runner emitter; tier ceiling standard." })
+export class CiRunner extends S.Opaque<CiRunner, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("CiRunner", { identitySource: IdentitySource, pipelineRunId: Token, vcsRevision: VcsRevision }).pipe(
+    $I.annoteSchema("CiRunner", { description: "CI runner emitter; tier ceiling standard." })
+  )
 ) {}
 
 /**
@@ -763,10 +774,10 @@ export class CiRunner extends S.TaggedClass<CiRunner>($I`CiRunner`)(
  * @category models
  * @since 0.0.0
  */
-export class CloudVm extends S.TaggedClass<CloudVm>($I`CloudVm`)(
-  "CloudVm",
-  { identitySource: IdentitySource, cloudProvider: CloudProviderName },
-  $I.annote("CloudVm", { description: "Cloud virtual machine emitter; tier ceiling standard." })
+export class CloudVm extends S.Opaque<CloudVm, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("CloudVm", { identitySource: IdentitySource, cloudProvider: CloudProviderName }).pipe(
+    $I.annoteSchema("CloudVm", { description: "Cloud virtual machine emitter; tier ceiling standard." })
+  )
 ) {}
 
 /**
@@ -789,15 +800,13 @@ export class CloudVm extends S.TaggedClass<CloudVm>($I`CloudVm`)(
  * @category models
  * @since 0.0.0
  */
-export class Serverless extends S.TaggedClass<Serverless>($I`Serverless`)(
-  "Serverless",
-  {
+export class Serverless extends S.Opaque<Serverless, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Serverless", {
     identitySource: IdentitySource,
     cloudProvider: CloudProviderName,
     faasName: Token,
     deploymentEnvironment: Token,
-  },
-  $I.annote("Serverless", { description: "Serverless function emitter; tier ceiling standard." })
+  }).pipe($I.annoteSchema("Serverless", { description: "Serverless function emitter; tier ceiling standard." }))
 ) {}
 
 /**
@@ -815,10 +824,10 @@ export class Serverless extends S.TaggedClass<Serverless>($I`Serverless`)(
  * @category models
  * @since 0.0.0
  */
-export class Browser extends S.TaggedClass<Browser>($I`Browser`)(
-  "Browser",
-  { identitySource: IdentitySource },
-  $I.annote("Browser", { description: "Browser emitter; tier ceiling shape-only." })
+export class Browser extends S.Opaque<Browser, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Browser", { identitySource: IdentitySource }).pipe(
+    $I.annoteSchema("Browser", { description: "Browser emitter; tier ceiling shape-only." })
+  )
 ) {}
 
 /**

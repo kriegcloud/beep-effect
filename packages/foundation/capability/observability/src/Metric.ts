@@ -86,16 +86,31 @@ export class TrackDurationOptions extends S.Opaque<TrackDurationOptions, { reado
  */
 export type TrackDurationOptionsInput = typeof TrackDurationOptions.Encoded;
 
-interface ObserveWorkflowOptions {
+interface ObserveWorkflowBaseOptions {
   readonly attributes?: Record<string, string> | undefined;
-  readonly completed?: Metric.Counter<number> | undefined;
   readonly duration?: Metric.Metric<Duration.Duration, unknown> | undefined;
+  readonly name: string;
+}
+
+// The legacy per-outcome counters and the unified `outcomes` counter are mutually exclusive: setting
+// both would count every run twice.
+interface ObserveWorkflowCounterOptions extends ObserveWorkflowBaseOptions {
+  readonly completed?: Metric.Counter<number> | undefined;
   readonly failed?: Metric.Counter<number> | undefined;
   readonly interrupted?: Metric.Counter<number> | undefined;
-  readonly name: string;
-  readonly outcomes?: Metric.Counter<number> | undefined;
+  readonly outcomes?: undefined;
   readonly started?: Metric.Counter<number> | undefined;
 }
+
+interface ObserveWorkflowOutcomeOptions extends ObserveWorkflowBaseOptions {
+  readonly completed?: undefined;
+  readonly failed?: undefined;
+  readonly interrupted?: undefined;
+  readonly outcomes: Metric.Counter<number>;
+  readonly started?: undefined;
+}
+
+type ObserveWorkflowOptions = ObserveWorkflowCounterOptions | ObserveWorkflowOutcomeOptions;
 
 /**
  * Attribute key {@link observeWorkflow} stamps on its `outcomes` counter.
@@ -106,6 +121,13 @@ interface ObserveWorkflowOptions {
  * `PhaseOutcome` when it ends, so one counter replaces a started, completed,
  * failed and interrupted counter family. The key is declared in the kernel
  * instruments file.
+ *
+ * **Gotchas**
+ *
+ * The counter records one `started` point and one terminal point per run, so a
+ * total such as `increase(...)` must filter `beep.outcome` (for example to the
+ * terminal outcomes) or it counts every run twice. Pass either `outcomes` or
+ * the legacy `started`/`completed`/`failed`/`interrupted` counters, never both.
  *
  * **Example** (Read the outcome attribute key)
  *

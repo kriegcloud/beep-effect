@@ -31,7 +31,9 @@ const $I = $ObservabilityId.create("catalog/Catalog.errors");
  * @category errors
  * @since 0.0.0
  */
-export class DuplicateInstrumentName extends S.TaggedError<DuplicateInstrumentName>($I`DuplicateInstrumentName`)(
+export class DuplicateInstrumentName extends S.TaggedError<DuplicateInstrumentName, { readonly brand: unique symbol }>(
+  $I`DuplicateInstrumentName`
+)(
   "DuplicateInstrumentName",
   {
     signal: SignalKind,
@@ -61,7 +63,9 @@ export class DuplicateInstrumentName extends S.TaggedError<DuplicateInstrumentNa
  * @category errors
  * @since 0.0.0
  */
-export class DuplicateAttributeKey extends S.TaggedError<DuplicateAttributeKey>($I`DuplicateAttributeKey`)(
+export class DuplicateAttributeKey extends S.TaggedError<DuplicateAttributeKey, { readonly brand: unique symbol }>(
+  $I`DuplicateAttributeKey`
+)(
   "DuplicateAttributeKey",
   {
     key: AttributeKeyName,
@@ -91,7 +95,9 @@ export class DuplicateAttributeKey extends S.TaggedError<DuplicateAttributeKey>(
  * @category errors
  * @since 0.0.0
  */
-export class MissingAttributeKey extends S.TaggedError<MissingAttributeKey>($I`MissingAttributeKey`)(
+export class MissingAttributeKey extends S.TaggedError<MissingAttributeKey, { readonly brand: unique symbol }>(
+  $I`MissingAttributeKey`
+)(
   "MissingAttributeKey",
   {
     signal: SignalKind,
@@ -122,7 +128,9 @@ export class MissingAttributeKey extends S.TaggedError<MissingAttributeKey>($I`M
  * @category errors
  * @since 0.0.0
  */
-export class SignalNotAllowed extends S.TaggedError<SignalNotAllowed>($I`SignalNotAllowed`)(
+export class SignalNotAllowed extends S.TaggedError<SignalNotAllowed, { readonly brand: unique symbol }>(
+  $I`SignalNotAllowed`
+)(
   "SignalNotAllowed",
   {
     signal: SignalKind,
@@ -152,7 +160,9 @@ export class SignalNotAllowed extends S.TaggedError<SignalNotAllowed>($I`SignalN
  * @category errors
  * @since 0.0.0
  */
-export class UnboundedMetricLabel extends S.TaggedError<UnboundedMetricLabel>($I`UnboundedMetricLabel`)(
+export class UnboundedMetricLabel extends S.TaggedError<UnboundedMetricLabel, { readonly brand: unique symbol }>(
+  $I`UnboundedMetricLabel`
+)(
   "UnboundedMetricLabel",
   {
     name: MetricName,
@@ -191,7 +201,9 @@ export class UnboundedMetricLabel extends S.TaggedError<UnboundedMetricLabel>($I
  * @category errors
  * @since 0.0.0
  */
-export class TierLooserThanAttribute extends S.TaggedError<TierLooserThanAttribute>($I`TierLooserThanAttribute`)(
+export class TierLooserThanAttribute extends S.TaggedError<TierLooserThanAttribute, { readonly brand: unique symbol }>(
+  $I`TierLooserThanAttribute`
+)(
   "TierLooserThanAttribute",
   {
     signal: SignalKind,
