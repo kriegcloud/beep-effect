@@ -25,7 +25,13 @@ import type * as SqlError from "effect/sql/SqlError";
 
 const $I = $SemanticaId.create("layers/LedgerLive");
 
-class LedgerLiveOptions extends S.Opaque<LedgerLiveOptions, { readonly brand: unique symbol }>()(
+/**
+ * Filesystem root and execution identity for one isolated PGlite ledger.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LedgerLiveOptions extends S.Opaque<LedgerLiveOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     ledgerRoot: S.NonEmptyString,
     mode: RuntimeMode,

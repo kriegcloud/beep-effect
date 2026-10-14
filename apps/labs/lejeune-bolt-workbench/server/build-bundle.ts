@@ -35,6 +35,7 @@ import {
   makePublishedReplayAggregate,
   ProjectionStoreMetadata,
   ProjectionStoreMetadataFromJsonString,
+  ProviderRecording,
   RetentionAuthorizationFromJsonString,
 } from "@/domain/Bundle";
 import { buildFixtureArtifacts, RFQ_A_OUTLOOK_BODY } from "@/fixtures/Sources";
@@ -377,7 +378,10 @@ const buildStagedBundle = Effect.fn("LeJeuneBundle.buildStagedBundle")(function*
       bundleBuildErrorWithCause("provider-recording", "The sanitized provider recording is invalid.", cause)
     )
   );
-  const recording = yield* verifyFrozenProviderRecording(decodedRecording, RFQ_A_OUTLOOK_BODY).pipe(
+  const recording = yield* verifyFrozenProviderRecording(
+    ProviderRecording.make(decodedRecording),
+    RFQ_A_OUTLOOK_BODY
+  ).pipe(
     Effect.mapError((cause) =>
       bundleBuildErrorWithCause(
         "provider-recording",
@@ -392,7 +396,9 @@ const buildStagedBundle = Effect.fn("LeJeuneBundle.buildStagedBundle")(function*
   const replay = yield* Layer.build(
     makeProjectionLayer(ProjectionLayerOptions.make({ duckDbPath, pgliteDataDir: O.some(pgliteDataDir) }))
   ).pipe(
-    Effect.flatMap((context) => replayOffline(recording, retentionAuthorization).pipe(Effect.provide(context))),
+    Effect.flatMap((context) =>
+      replayOffline(ProviderRecording.make(recording), retentionAuthorization).pipe(Effect.provide(context))
+    ),
     Effect.scoped,
     Effect.mapError((cause) =>
       bundleBuildErrorWithCause("replay", "The deterministic offline replay could not be built.", cause)
