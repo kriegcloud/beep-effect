@@ -260,3 +260,15 @@ of retaining the whole corpus. The subsequent schema-first scan independently
 grows past the soft threshold; apply an evidence-backed bound to that owner
 without reducing required coverage. One canonical cancellation completed with
 status 130 and no relief; reboot and harsher shutdown behavior remain open.
+
+## Schema-first memory acceptance and quality closeout — 2026-10-14
+
+The [schema-first receipt](../history/2026-10-14-schema-memory.md) closes the
+measured scanner gap: preserved semantic checks, ambient declarations and test
+arbitrary coverage; byte-identical 3,698-file result; 117-second detached gate
+pass under the unchanged limits. Peak sits just below MemoryHigh, so concurrent
+proofs and future corpus growth remain unqualified. Fallow audit now exposes
+introduced complexity in recovery readLocked and model bindingProblem. Refactor
+those owners, rerun their focused regressions, and then allow a longer finite
+deadline for the complete serial cheap-gate tier. The final health check was
+interrupted at ten minutes; no green complete verdict exists yet.
