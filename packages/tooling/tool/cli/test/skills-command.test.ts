@@ -1,6 +1,15 @@
-import { renderCodexConfigWithSkills, runSkillsUpdate, skillsCommand } from "@beep/repo-cli/commands/Skills";
+import {
+  decodeSkillsLockDocumentJson,
+  encodeSkillsLockDocumentJson,
+  renderCodexConfigWithSkills,
+  runSkillsUpdate,
+  SkillsLockDocument,
+  skillsCommand,
+} from "@beep/repo-cli/commands/Skills";
+import { findRepoRoot } from "@beep/repo-utils";
+import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { it } from "@beep/test-runner";
-import { A, O } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { assert, describe, expect } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
@@ -13,7 +22,9 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
+import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { temporaryWorkingDirectory } from "./support/CommandTest.ts";
 
@@ -327,6 +338,103 @@ describe("skills command", () => {
       }).pipe(Effect.provideService(HttpClient.HttpClient, makeTraversalSkillsClient()))
     );
   });
+});
+
+const emptyLockV2 = SkillsLockDocument.make({ version: 2, skills: {} });
+const oracleLockFixture = new URL("./fixtures/skills-provenance/oracle-lock-v2.json", import.meta.url).pathname;
+
+it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills update over a v2 lock", (it) => {
+  it.effect("refuses to refetch a vendored entry at its floating ref", () =>
+    Effect.gen(function* () {
+      yield* temporaryRepository;
+      const fs = yield* FileSystem.FileSystem;
+      const fixture = yield* decodeSkillsLockDocumentJson(yield* fs.readFileString(oracleLockFixture));
+      const vendored = fixture.skills.oracle;
+      assert(vendored !== undefined);
+      // grill-me is a known floating remote source; here the lock already vendors it.
+      const lock = SkillsLockDocument.make({ version: 2, skills: { "grill-me": vendored } });
+      yield* writeProjectFile("skills-lock.json", `${yield* encodeSkillsLockDocumentJson(lock)}\n`);
+      yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", "vendored skill\n");
+
+      const error = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") }).pipe(Effect.flip);
+
+      expect(error._tag).toBe("SkillVendoredRefetchError");
+      expect(error.message).toContain("never refetches it at its floating ref main");
+      expect(error.message).toContain("pinned bump");
+      expect(yield* readProjectFile(".claude/skills/grill-me/SKILL.md")).toBe("vendored skill\n");
+    }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+  );
+
+  it.effect("treats a reformatted but JSON-equal lock as no drift and leaves its bytes alone", () =>
+    Effect.gen(function* () {
+      yield* temporaryRepository;
+      yield* writeProjectFile(".codex/config.toml", "[skills]\n  include_instructions = true\n");
+      yield* writeProjectFile("skills-lock.json", `${yield* encodeSkillsLockDocumentJson(emptyLockV2)}\n`);
+      // The repo mirrors `.agents/skills` as a symlink onto `.claude/skills`.
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.makeDirectory(".agents", { recursive: true });
+      yield* fs.symlink("../.claude/skills", ".agents/skills");
+      yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") });
+      const canonical = yield* decodeSkillsLockDocumentJson(yield* readProjectFile("skills-lock.json"));
+      // Same document, different bytes: compact JSON instead of the writer's two-space form.
+      const reformatted = yield* encodeSkillsLockDocumentJson(canonical);
+      expect(reformatted).not.toBe(yield* readProjectFile("skills-lock.json"));
+      yield* writeProjectFile("skills-lock.json", reformatted);
+
+      const checked = yield* runSkillsUpdate({ mode: "check", skill: O.some("grill-me") });
+      yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") });
+
+      expect(A.some(checked, (entry) => entry._tag === "LockDrift")).toBe(false);
+      expect(yield* readProjectFile("skills-lock.json")).toBe(reformatted);
+    }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+  );
+
+  it.effect("fails closed on a lock that is neither a valid v2 nor a v1 lock", () =>
+    Effect.gen(function* () {
+      yield* temporaryRepository;
+      // A broken v2 lock must not read as "no lock", which would bypass the vendored refusal.
+      yield* writeProjectFile("skills-lock.json", `{"version": 2, "skills": {"grill-me": {"_tag": "vendored"}}}\n`);
+      yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", "vendored skill\n");
+
+      const error = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") }).pipe(Effect.flip);
+
+      expect(error._tag).toBe("SkillsCommandError");
+      expect(error.message).toContain("neither a valid v2 lock nor a v1 lock");
+      expect(yield* readProjectFile(".claude/skills/grill-me/SKILL.md")).toBe("vendored skill\n");
+    }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+  );
+});
+
+const BiomeFileIncludes = S.Struct({ files: S.Struct({ includes: S.Array(S.String) }) });
+
+// A target is excluded when it, or a directory above it, appears as a negated include.
+const excludedByBiome = (includes: ReadonlyArray<string>) => (target: string) => {
+  const segments = Str.split("/")(target);
+  return A.some(A.range(1, segments.length), (depth) =>
+    A.contains(includes, `!${A.join(A.take(segments, depth), "/")}`)
+  );
+};
+
+it.layer(NodeServices.layer, { timeout: "30 seconds" })("vendored skill trees in this repository", (it) => {
+  it.effect("keeps every vendored install target out of biome so it stays byte-exact upstream", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* findRepoRoot();
+      const lock = yield* decodeSkillsLockDocumentJson(
+        yield* fs.readFileString(path.join(repoRoot, "skills-lock.json"))
+      );
+      const biome = yield* decodeJsoncTextAs(BiomeFileIncludes)(
+        yield* fs.readFileString(path.join(repoRoot, "biome.jsonc"))
+      );
+      const vendoredTargets = A.flatMap(R.values(lock.skills), (entry) =>
+        entry._tag === "vendored" ? entry.effective.installedTargets : A.empty<string>()
+      );
+
+      expect(A.isArrayNonEmpty(vendoredTargets)).toBe(true);
+      expect(A.filter(vendoredTargets, (target) => !excludedByBiome(biome.files.includes)(target))).toEqual([]);
+    })
+  );
 });
 
 // Exercise the constructor used by the command cases, including its fallible

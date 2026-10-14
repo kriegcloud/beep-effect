@@ -26,6 +26,7 @@ export * from "./Check.ts";
  * @since 0.0.0
  */
 export * from "./Explore.command.ts";
+export * from "./Explore.errors.ts";
 /**
  * Exploration graduation plan schemas.
  *

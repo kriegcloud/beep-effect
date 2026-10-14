@@ -48,7 +48,7 @@ export const exploreCommand = Command.make(
     return yield* printLines([
       "Explore commands:",
       "- bun run beep explore --check   fold packet event streams; report forks, integrity issues, stale traces (advisory)",
-      "- bun run beep explore graduate <exploration> --goal <slug>=<title> --plan [--json]   compile a graduation plan",
+      "- bun run beep explore graduate <exploration> --goal <slug>=<title> --plan [--json] | --write --expect <planId>   plan or replay a graduation",
     ]);
   })
 ).pipe(
