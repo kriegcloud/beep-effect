@@ -17,6 +17,7 @@ import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import { HttpClient, HttpClientResponse } from "effect/http";
+import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
@@ -26,20 +27,27 @@ import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
-import { SkillsCommandError, SkillsDriftError } from "./Skills.errors.ts";
+import { SkillsCommandError, SkillsDriftError, SkillVendoredRefetchError } from "./Skills.errors.ts";
+import { SkillPatchOwnerSourceLive } from "./Skills.patches.ts";
 import {
   renderSkillProvenanceJson,
   renderSkillProvenanceSummary,
   renderSkillsLockMigrationPlanJson,
   renderSkillsLockMigrationPlanSummary,
+  renderSkillsLockWriteReceiptJson,
 } from "./Skills.render.ts";
 import {
+  computeLocalSkillLockEntry,
+  listInstalledSkillNames,
   planSkillsLockMigration,
   runSkillProvenance,
   SkillProvenanceServiceLive,
   SkillUpstreamContentSourceLive,
 } from "./Skills.service.ts";
+import { decodeSkillsLockDocumentJson, SkillsLockDocument } from "./SkillsLock.schemas.ts";
+import { renderSkillsLockDocumentText, writeSkillsLockMigration } from "./SkillsLock.write.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
+import type { SkillsLockEntry, VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
 
 // cspell:ignore mattpocock Gebert
 
@@ -79,6 +87,10 @@ type SkillDrift =
     }
   | {
       readonly _tag: "AgentsMirrorDrift";
+    }
+  | {
+      readonly _tag: "VendoredTreeDrift";
+      readonly name: string;
     };
 
 type SkillDriftByTag<Tag extends SkillDrift["_tag"]> = Extract<SkillDrift, { readonly _tag: Tag }>;
@@ -328,7 +340,7 @@ const skillFlag = Flag.String("skill").pipe(
 );
 const provenanceSkillArgument = Argument.String("skill").pipe(
   Argument.withDescription(
-    "Installed skill to resolve: one with a ratified resolution seed (grill-me, oracle, portless, shadcn, teach, turborepo)"
+    "Installed skill to resolve: a vendored skills-lock.json entry, or one with a ratified resolution seed"
   )
 );
 const provenanceJsonFlag = Flag.Boolean("json").pipe(
@@ -516,38 +528,6 @@ const hashSkillDirectory = Effect.fn("Skills.hashSkillDirectory")(function* (
   return O.some(yield* hashSkillFiles(files, name));
 });
 
-const readInstalledSkillNames = Effect.fn("Skills.readInstalledSkillNames")(function* (
-  repoRoot: string
-): Effect.fn.Return<ReadonlyArray<string>, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const skillsDir = path.join(repoRoot, CLAUDE_SKILLS_DIR);
-  const exists = yield* fs
-    .exists(skillsDir)
-    .pipe(SkillsCommandError.mapError(`Failed to check whether ${skillsDir} exists.`, skillsDir));
-
-  if (!exists) {
-    return A.empty<string>();
-  }
-
-  const entries = yield* fs
-    .readDirectory(skillsDir)
-    .pipe(SkillsCommandError.mapError(`Failed to read ${skillsDir}.`, skillsDir));
-  const names: Array<string> = [];
-
-  for (const entry of A.sort(entries, Order.String)) {
-    const skillDir = path.join(skillsDir, entry);
-    const skillFile = path.join(skillDir, "SKILL.md");
-    const stat = yield* fs.stat(skillDir).pipe(Effect.orElseSucceed(() => undefined));
-    const hasSkillFile = yield* fs.exists(skillFile).pipe(Effect.orElseSucceed(() => false));
-    if (stat?.type === "Directory" && hasSkillFile) {
-      names.push(entry);
-    }
-  }
-
-  return names;
-});
-
 const fetchResponseBytes = Effect.fn("Skills.fetchResponseBytes")(function* (
   url: string
 ): Effect.fn.Return<Uint8Array, SkillsCommandError, HttpClient.HttpClient> {
@@ -708,7 +688,7 @@ const buildDesiredLock = Effect.fn("Skills.buildDesiredLock")(function* (
   snapshotsByName: Readonly<Record<string, SkillSnapshot>>
 ): Effect.fn.Return<SkillLockFile, SkillsCommandError, FileSystem.FileSystem | Path.Path | Crypto.Crypto> {
   const path = yield* Path.Path;
-  const names = yield* readInstalledSkillNames(repoRoot);
+  const names = yield* listInstalledSkillNames(repoRoot);
   const entries: Array<readonly [string, SkillLockEntry]> = [];
 
   for (const name of names) {
@@ -816,7 +796,7 @@ const renderDesiredCodexConfig = Effect.fn("Skills.renderDesiredCodexConfig")(fu
       })
     )
   );
-  const names = yield* readInstalledSkillNames(repoRoot);
+  const names = yield* listInstalledSkillNames(repoRoot);
   const rendered = renderCodexConfigWithSkills(existing, names);
   yield* decodeCodexSkillsConfig(rendered).pipe(
     SkillsCommandError.mapError(`Rendered ${CODEX_CONFIG_PATH} is invalid TOML.`, configPath)
@@ -871,6 +851,8 @@ const driftLineFormatters = {
   LockDrift: (): string => `- ${SKILLS_LOCK_PATH}`,
   CodexConfigDrift: (): string => `- ${CODEX_CONFIG_PATH}`,
   AgentsMirrorDrift: (): string => `- ${AGENTS_SKILLS_DIR}`,
+  VendoredTreeDrift: (drift): string =>
+    `- vendored skill ${drift.name} differs from its pinned entry (repair through a pinned bump, not skills update)`,
 } satisfies { readonly [Tag in SkillDrift["_tag"]]: SkillDriftLineFormatter<Tag> };
 
 const driftLine = (drift: SkillDrift): string => {
@@ -972,8 +954,137 @@ const evaluateAgentsMirrorDrift = Effect.fnUntraced(function* (repoRoot: string,
   return O.some<SkillDrift>({ _tag: "AgentsMirrorDrift" });
 });
 
+const readLockV2 = Effect.fn("Skills.readLockV2")(function* (
+  repoRoot: string
+): Effect.fn.Return<O.Option<SkillsLockDocument>, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
+  const path = yield* Path.Path;
+  const content = yield* readExistingFile(path.join(repoRoot, SKILLS_LOCK_PATH));
+  if (O.isNone(content)) {
+    return O.none();
+  }
+  return yield* Effect.option(decodeSkillsLockDocumentJson(content.value));
+});
+
+const vendoredEntryOf = (lock: O.Option<SkillsLockDocument>, name: string): O.Option<VendoredSkillLockEntry> =>
+  O.flatMap(lock, (document) =>
+    O.filter(R.get(document.skills, name), (entry): entry is VendoredSkillLockEntry => entry._tag === "vendored")
+  );
+
+// Contract 7: a vendored entry moves only through a pinned bump, never a floating refetch.
+const refuseVendoredRefetch = (
+  lock: O.Option<SkillsLockDocument>,
+  selectedSkill: O.Option<string>
+): Effect.Effect<void, SkillVendoredRefetchError> =>
+  O.match(
+    O.flatMap(selectedSkill, (name) => O.map(vendoredEntryOf(lock, name), (entry) => [name, entry] as const)),
+    {
+      onNone: () => Effect.void,
+      onSome: ([name, entry]) =>
+        Effect.fail(
+          SkillVendoredRefetchError.make({
+            skill: name,
+            sourceRevision: entry.upstream.sourceRevision,
+            message: `${name} is vendored at ${entry.upstream.sourceRevision}; skills update never refetches it at its floating ref ${entry.upstream.trackingRef}. Move it through a pinned bump: change upstream.sourceRevision (Renovate, B3), replay its .agents/skill-patches/${name} series, then run beep skills lock-plan --json and --write --expect <planDigest>.`,
+          })
+        ),
+    }
+  );
+
+const floatingSources = Effect.fn("Skills.floatingSources")(function* (
+  lock: O.Option<SkillsLockDocument>,
+  sources: ReadonlyArray<RemoteSkillSource>
+) {
+  const isVendored = (source: RemoteSkillSource): boolean => O.isSome(vendoredEntryOf(lock, source.name));
+  for (const source of A.filter(sources, isVendored)) {
+    yield* Console.log(`skills:update: ${source.name} is vendored; skipping its floating refetch`);
+  }
+  return A.filter(sources, (source) => !isVendored(source));
+});
+
+const desiredLockEntry = Effect.fn("Skills.desiredLockEntry")(function* (
+  repoRoot: string,
+  current: SkillsLockDocument,
+  name: string
+): Effect.fn.Return<
+  readonly [string, SkillsLockEntry],
+  SkillsCommandError,
+  FileSystem.FileSystem | Path.Path | Crypto.Crypto
+> {
+  const vendored = vendoredEntryOf(O.some(current), name);
+  if (O.isSome(vendored)) {
+    return [name, vendored.value] as const;
+  }
+  return [name, yield* computeLocalSkillLockEntry(repoRoot, name)] as const;
+});
+
+// Over a v2 lock, vendored entries are kept verbatim and local entries are recomputed from the
+// installed trees with the same mode-aware hashing rule the plan uses.
+const evaluateLockDriftV2 = Effect.fnUntraced(function* (
+  repoRoot: string,
+  current: SkillsLockDocument,
+  mode: SkillsRunMode
+) {
+  const path = yield* Path.Path;
+  const names = yield* listInstalledSkillNames(repoRoot);
+  const entries = yield* Effect.forEach(names, (name) => desiredLockEntry(repoRoot, current, name));
+  const desiredLockText = yield* renderSkillsLockDocumentText(
+    SkillsLockDocument.make({ version: 2, skills: toSortedRecord(entries) })
+  );
+  const lockPath = path.join(repoRoot, SKILLS_LOCK_PATH);
+  const currentLockText = yield* readExistingFile(lockPath);
+  if (O.exists(currentLockText, (text) => text === desiredLockText)) {
+    return O.none<SkillDrift>();
+  }
+  if (mode === "write") {
+    yield* writeStringFile(lockPath, desiredLockText);
+  }
+  return O.some<SkillDrift>({ _tag: "LockDrift" });
+});
+
+// A vendored skill whose installed tree moved away from its entry is drift only a pinned bump
+// repairs, so it is reported in every mode and never rewritten.
+const evaluateVendoredTreeDrift = Effect.fnUntraced(function* (repoRoot: string, current: SkillsLockDocument) {
+  const vendored = A.flatMap(R.toEntries(current.skills), ([name, entry]) =>
+    entry._tag === "vendored" ? [[name, entry] as const] : []
+  );
+  const drift = yield* Effect.forEach(
+    vendored,
+    Effect.fnUntraced(function* ([name, entry]) {
+      const installed = yield* computeLocalSkillLockEntry(repoRoot, name);
+      return installed.installedTreeHash === entry.effective.installedTreeHash
+        ? A.empty<SkillDrift>()
+        : A.of<SkillDrift>({ _tag: "VendoredTreeDrift", name });
+    })
+  );
+  return A.flatten(drift);
+});
+
+const evaluateLockState = Effect.fnUntraced(function* (
+  repoRoot: string,
+  lock: O.Option<SkillsLockDocument>,
+  snapshotsByName: Readonly<Record<string, SkillSnapshot>>,
+  mode: SkillsRunMode
+) {
+  if (O.isNone(lock)) {
+    return A.getSomes([yield* evaluateLockDrift(repoRoot, snapshotsByName, mode)]);
+  }
+  const vendoredDrift = yield* evaluateVendoredTreeDrift(repoRoot, lock.value);
+  const lockDrift = yield* evaluateLockDriftV2(repoRoot, lock.value, mode);
+  return A.appendAll(vendoredDrift, A.getSomes([lockDrift]));
+});
+
 /**
  * Run the skills update workflow.
+ *
+ * **Details**
+ *
+ * Over a v1 lock (or none) every known remote skill is refetched at its
+ * floating ref and the v1 lock is rewritten. Over a `skills-lock/v2` lock the
+ * vendored entries are pinned: naming one with `skill` refuses with
+ * {@link SkillVendoredRefetchError}, a bulk run skips them, their entries are
+ * kept verbatim, and an installed tree that moved away from its entry is
+ * reported as drift that only a pinned bump repairs. Local entries are
+ * recomputed from the installed trees.
  *
  * **Example** (Create the skills update workflow)
  *
@@ -994,11 +1105,13 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
   readonly skill: O.Option<string>;
 }): Effect.fn.Return<
   ReadonlyArray<SkillDrift>,
-  SkillsCommandError | SkillsDriftError,
+  SkillsCommandError | SkillsDriftError | SkillVendoredRefetchError,
   FileSystem.FileSystem | Path.Path | Crypto.Crypto | HttpClient.HttpClient
 > {
   const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Failed to locate repository root."));
-  const sources = yield* resolveSourcesToFetch(options.skill);
+  const lock = yield* readLockV2(repoRoot);
+  yield* refuseVendoredRefetch(lock, options.skill);
+  const sources = yield* floatingSources(lock, yield* resolveSourcesToFetch(options.skill));
   const fetchedSnapshots = yield* Effect.forEach(sources, fetchRemoteSkillSnapshot, {
     concurrency: 3,
   });
@@ -1008,10 +1121,10 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
     R.fromEntries
   );
   const remoteDrift = yield* evaluateRemoteSkillDrift(repoRoot, fetchedSnapshots, options.mode);
-  const lockDrift = yield* evaluateLockDrift(repoRoot, snapshotsByName, options.mode);
+  const lockDrift = yield* evaluateLockState(repoRoot, lock, snapshotsByName, options.mode);
   const configDrift = yield* evaluateCodexConfigDrift(repoRoot, options.mode);
   const mirrorDrift = yield* evaluateAgentsMirrorDrift(repoRoot, options.mode);
-  const drift = A.appendAll(remoteDrift, A.getSomes([lockDrift, configDrift, mirrorDrift]));
+  const drift = A.appendAll(A.appendAll(remoteDrift, lockDrift), A.getSomes([configDrift, mirrorDrift]));
 
   yield* printDriftReport(options.mode, drift);
 
@@ -1034,6 +1147,10 @@ const skillsUpdateCommand = Command.make(
     yield* runSkillsUpdate({ mode, skill }).pipe(
       Effect.catchTags({
         SkillsDriftError: Effect.fn(function* (error) {
+          yield* Console.error(`skills:update: ${error.message}`);
+          return yield* failWithReportedExit(`skills:update: ${error.message}`);
+        }),
+        SkillVendoredRefetchError: Effect.fn(function* (error) {
           yield* Console.error(`skills:update: ${error.message}`);
           return yield* failWithReportedExit(`skills:update: ${error.message}`);
         }),
@@ -1082,37 +1199,63 @@ const skillsProvenanceCommand = Command.make(
   Command.provide(SkillProvenanceServiceLive)
 );
 
+const runSkillsLockPlanCommand = Effect.fn("Skills.runSkillsLockPlanCommand")(function* (options: {
+  readonly json: boolean;
+  readonly write: boolean;
+  readonly expect: O.Option<string>;
+}) {
+  const repoRoot = yield* findRepoRoot().pipe(
+    SkillsCommandError.mapError("Failed to locate repository root for the skills lock plan.")
+  );
+  if (options.write) {
+    const receipt = yield* writeSkillsLockMigration(repoRoot, options.expect);
+    return yield* Console.log(Str.trimEnd(renderSkillsLockWriteReceiptJson(receipt)));
+  }
+  if (O.isSome(options.expect)) {
+    return yield* SkillsCommandError.make({ message: "--expect only applies with --write." });
+  }
+  const plan = yield* planSkillsLockMigration(repoRoot);
+  yield* Console.log(
+    options.json ? Str.trimEnd(renderSkillsLockMigrationPlanJson(plan)) : renderSkillsLockMigrationPlanSummary(plan)
+  );
+});
+
+const reportLockPlanError = Effect.fn("Skills.lockPlanCommand.reportError")(function* (error: {
+  readonly message: string;
+}) {
+  const message = `skills:lock-plan: ${error.message}`;
+  yield* Console.error(message);
+  return yield* failWithReportedExit(message);
+});
+
 const skillsLockPlanCommand = Command.make(
   "lock-plan",
   {
     json: Flag.Boolean("json").pipe(
       Flag.withDefault(false),
-      Flag.withDescription("Print the skills-lock-migration-plan/v2 report as JSON")
+      Flag.withDescription("Print the skills-lock-migration-plan/v3 report as JSON")
+    ),
+    write: Flag.Boolean("write").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription(
+        "Write the reviewed plan named by --expect: skills-lock.json as v2 plus .agents/skill-patches, atomically"
+      )
+    ),
+    expect: Flag.String("expect").pipe(
+      Flag.optional,
+      Flag.withDescription("The reviewed planDigest (from --json) that --write must match")
     ),
   },
   Effect.fn("Skills.lockPlanCommand")(function* (options) {
-    yield* Effect.gen(function* () {
-      const repoRoot = yield* findRepoRoot().pipe(
-        SkillsCommandError.mapError("Failed to locate repository root for the skills lock plan.")
-      );
-      const plan = yield* planSkillsLockMigration(repoRoot);
-      yield* Console.log(
-        options.json ? Str.trimEnd(renderSkillsLockMigrationPlanJson(plan)) : renderSkillsLockMigrationPlanSummary(plan)
-      );
-    }).pipe(
-      Effect.catchTag(
-        "SkillsCommandError",
-        Effect.fn("Skills.lockPlanCommand.reportError")(function* (error) {
-          const message = `skills:lock-plan: ${error.message}`;
-          yield* Console.error(message);
-          return yield* failWithReportedExit(message);
-        })
-      )
+    yield* runSkillsLockPlanCommand(options).pipe(
+      Effect.catchTags({ SkillsCommandError: reportLockPlanError, SkillsLockWriteRefusal: reportLockPlanError })
     );
   })
 ).pipe(
-  Command.withDescription("Plan the skills-lock v1 to v2 migration without writing repository state"),
-  Command.provide(SkillUpstreamContentSourceLive)
+  Command.withDescription(
+    "Plan the skills-lock v2 migration read-only, or write a reviewed plan with --write --expect <planDigest>"
+  ),
+  Command.provide(Layer.mergeAll(SkillUpstreamContentSourceLive, SkillPatchOwnerSourceLive))
 );
 
 /**
@@ -1133,7 +1276,7 @@ const skillsLockPlanCommand = Command.make(
  */
 export const skillsCommand = Command.make("skills", {}, () =>
   Console.log(
-    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]"
+    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>"
   )
 ).pipe(
   Command.withDescription("Manage repo-local Claude and Codex skill mirrors"),

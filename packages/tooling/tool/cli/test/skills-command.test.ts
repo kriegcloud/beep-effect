@@ -1,4 +1,11 @@
-import { renderCodexConfigWithSkills, runSkillsUpdate, skillsCommand } from "@beep/repo-cli/commands/Skills";
+import {
+  decodeSkillsLockDocumentJson,
+  encodeSkillsLockDocumentJson,
+  renderCodexConfigWithSkills,
+  runSkillsUpdate,
+  SkillsLockDocument,
+  skillsCommand,
+} from "@beep/repo-cli/commands/Skills";
 import { it } from "@beep/test-runner";
 import { A, O } from "@beep/utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
@@ -265,6 +272,31 @@ describe("skills command", () => {
       }).pipe(Effect.provideService(HttpClient.HttpClient, makeTraversalSkillsClient()))
     );
   });
+});
+
+const oracleLockFixture = new URL("./fixtures/skills-provenance/oracle-lock-v2.json", import.meta.url).pathname;
+
+it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills update over a v2 lock", (it) => {
+  it.effect("refuses to refetch a vendored entry at its floating ref", () =>
+    Effect.gen(function* () {
+      yield* temporaryRepository;
+      const fs = yield* FileSystem.FileSystem;
+      const fixture = yield* decodeSkillsLockDocumentJson(yield* fs.readFileString(oracleLockFixture));
+      const vendored = fixture.skills.oracle;
+      assert(vendored !== undefined);
+      // grill-me is a known floating remote source; here the lock already vendors it.
+      const lock = SkillsLockDocument.make({ version: 2, skills: { "grill-me": vendored } });
+      yield* writeProjectFile("skills-lock.json", `${yield* encodeSkillsLockDocumentJson(lock)}\n`);
+      yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", "vendored skill\n");
+
+      const error = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") }).pipe(Effect.flip);
+
+      expect(error._tag).toBe("SkillVendoredRefetchError");
+      expect(error.message).toContain("never refetches it at its floating ref main");
+      expect(error.message).toContain("pinned bump");
+      expect(yield* readProjectFile(".claude/skills/grill-me/SKILL.md")).toBe("vendored skill\n");
+    }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+  );
 });
 
 // Exercise the constructor used by the command cases, including its fallible

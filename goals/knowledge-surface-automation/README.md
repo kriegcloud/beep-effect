@@ -47,7 +47,11 @@ P4 in progress. Shipped on main so far:
 - **E:** `goals bootstrap|adopt --write --expect <planId>` (atomic publish, exclusive
   adoption). This packet adopted itself with its own executor (self-hosting test case
   #1).
-- **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds.
+- **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds;
+  B-3a classifies drift against upstream path history. B-3b (this PR) adds
+  `lock-plan --write --expect <planDigest>`, flips `skills-lock.json` to v2 (6 vendored,
+  31 local), and generates oracle's two-patch series under `.agents/skill-patches/`;
+  receipt in [`research/p4-report-skills-lock-plan.md`](./research/p4-report-skills-lock-plan.md).
 - **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`
   ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
 - **Designs:** B, E, and C Stage 2
@@ -62,8 +66,8 @@ The D and B verdicts are recorded. The D verdict unlocked this PR (design PR 3):
 separate manifest-only PR declares the four missing `provides`. The B verdict gates the
 lock write on a path-history reclassification (B-3).
 
-Waiting on verdicts: the C report gates PR 2 (domain evaluators and the
-assertion/planned-command classification fixes).
+Waiting on verdicts: none. The C verdict is recorded and C PR 2 carries its fixes;
+the domain evaluators are the next C PR.
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 
