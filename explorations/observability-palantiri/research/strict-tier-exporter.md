@@ -64,7 +64,7 @@ unreachable in the shape-only build. Add a static check: no `@effect/opentelemet
 `.mcpb` bundle.
 
 ```ts
-// sketch: @beep/observability/strict (no effect/unstable/*; v4 paths)
+// sketch: @beep/observability/strict (current v4 module paths only)
 import * as Layer from "effect/Layer"
 import * as Otlp from "effect/observability/Otlp"
 import { OtlpSerialization } from "effect/observability/OtlpSerialization"

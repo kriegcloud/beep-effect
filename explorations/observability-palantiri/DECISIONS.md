@@ -43,7 +43,7 @@ and are not re-litigated in align.
 
 - **Answer:** All providers land attributed spans/metrics in one pipeline and
   read the Palantiri through a repo-owned observability MCP server plus an
-  equivalent `bun run beep …` CLI with JSON output.
+  equivalent `beep …` CLI with JSON output.
 
 ### D5 — Quota is telemetry
 
@@ -155,8 +155,8 @@ Follow-ups this surfaces:
 
 ### Q: Where do the Palantiri MCP server and CLI live?
 
-- **Answer:** Parcel schemas in `packages/tooling/library/palantiri`; the MCP
-  host in `packages/tooling/tool/palantiri-mcp` on the `@beep/mcp-kit`
+- **Answer:** Parcel schemas in `packages/tooling/library/palantiri/**`; the MCP
+  host in `packages/tooling/tool/palantiri-mcp/**` on the `@beep/mcp-kit`
   pattern; a `beep palantiri` CLI command group. `@beep/observability`
   splits its kernel (signal schemas, `TelemetryTier`, the tier gate) from its
   `/server` wiring. Backend query adapters (Prometheus, Tempo, Loki, Phoenix)
@@ -164,7 +164,7 @@ Follow-ups this surfaces:
 - **Rationale:** Follows `07-non-slice-families.md` routing (repo ops →
   tooling, external engines → drivers, runtime substrate → capability) and
   keeps developer-AI semantics out of `@beep/observability`. Rejected:
-  an `apps/palantiri` runnable (labs cannot publish reusable APIs) and folding
+  an `apps/palantiri/**` runnable (labs cannot publish reusable APIs) and folding
   everything into `@beep/observability` (mixes repo-ops parcels into runtime
   substrate).
 
