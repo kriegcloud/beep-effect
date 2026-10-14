@@ -193,6 +193,30 @@ describe("knowledge doctor domain evaluators", () => {
     );
 
     it.effect(
+      "reads record-form phase keys as phase ids when an entry has no explicit id",
+      Effect.fnUntraced(function* () {
+        // Record-form phases are keyed by phase id (e.g. goals/nlp-adjunct-port); the key stands in.
+        const keyed = doc(
+          "{",
+          `  "schemaVersion": "initiative-manifest/v2",`,
+          `  "initiative": { "id": "keyed", "status": "active" },`,
+          `  "lifecycle": "active",`,
+          `  "completionGate": { "operator": "yeet", "requiresPullRequest": true, "requiresMergeable": true, "statement": "Ship.", "grandfathered": false },`,
+          `  "phases": { "P1": { "status": "complete" }, "P2": { "status": "pending" } }`,
+          "}"
+        );
+        const tree = makeKnowledgeDoctorMemoryTree({
+          files: {
+            "goals/keyed/ops/manifest.json": keyed,
+            "goals/keyed/README.md": doc("# Keyed", "", "## Current Phase", "", "P2 Implement."),
+          },
+        });
+        const report = yield* scanKnowledgeDoctorTree(tree);
+        assert.deepStrictEqual(subjects(report, "packet-status-claim-drift"), []);
+      })
+    );
+
+    it.effect(
       "resolves packages, subpaths, aliases, and exported identifiers through manifests and barrels",
       Effect.fnUntraced(function* () {
         const tree = makeKnowledgeDoctorMemoryTree({ files: { ...PACKAGE_FILES, "docs/symbols.md": SYMBOL_DOC } });

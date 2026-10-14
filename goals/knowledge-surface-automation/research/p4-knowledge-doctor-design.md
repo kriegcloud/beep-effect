@@ -313,9 +313,11 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   Report-only.
 - **PR 2b (landed scope):** the domain evaluators, report-only. The doctor tree gains
   `domain`, the packet, workspace-package, and skill facts derived from tree bytes (K14).
-  `packet-status` checks lifecycle and current-phase claims against manifests read
-  through `readKnowledgeGoalPacketRecords`, the tree-reader twin of `listGoalPackets`
-  (K15). `symbols` resolves `@beep/*` packages, subpaths, and imported identifiers
+  `packet-status` checks two claim sources, both read through
+  `readKnowledgeGoalPacketRecords` (the tree-reader twin of `listGoalPackets`): lifecycle
+  claims against the manifest's `initiative.status`, and the phase id that opens the
+  packet README's `## Current Phase` section against the manifest's declared phase ids,
+  where a record-form phase without an explicit `id` uses its record key (K15). `symbols` resolves `@beep/*` packages, subpaths, and imported identifiers
   through workspace manifests, `exports` maps, root `tsconfig.json` aliases, and a
   declaration scan of barrels (K16). `skills-local` (`evaluateSkillsLocal`, which needs
   nothing from its environment) checks lock coverage, source pinning, and license

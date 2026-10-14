@@ -26,7 +26,7 @@ import { decodeGoalManifest } from "../Goals/Goals.schemas.ts";
 import {
   GOALS_DIR,
   GoalPacketRecord,
-  goalManifestPhases,
+  goalManifestPhaseIds,
   parseGoalManifestText,
   TEMPLATE_SLUG,
 } from "../Goals/Inventory.ts";
@@ -273,7 +273,7 @@ const recordFacts = Effect.fn("KnowledgeDoctorDomain.recordFacts")(function* (re
         "decoded",
         O.some({
           status: O.some(manifest.initiative.status),
-          phaseIds: A.getSomes(A.map(goalManifestPhases(manifest), (phase) => O.fromUndefinedOr(phase.id))),
+          phaseIds: goalManifestPhaseIds(manifest),
         })
       ),
   });

@@ -77,7 +77,7 @@ This PR adds C Stage-2 PR 2b, the domain evaluators, report-only: `packet-status
 `symbols` (`@beep/*` packages, subpaths, and imported identifiers against workspace
 manifests and barrels), and `skills-local` (`evaluateSkillsLocal`: lock coverage,
 pinning, and licenses, with no network capability). Design K14–K17; the live run and
-its seven new FP candidates are in the report's "PR 2b" section, the next FP-eyeball
+its seven review items, including six FP candidate groups are in the report's "PR 2b" section, the next FP-eyeball
 input. B-3b (the lock write and flip) is in progress.
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
