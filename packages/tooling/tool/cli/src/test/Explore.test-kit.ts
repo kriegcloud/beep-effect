@@ -7,3 +7,5 @@
 
 export * from "@beep/repo-cli/commands/Explore/Check";
 export * from "@beep/repo-cli/commands/Explore/Explore.command";
+export * from "@beep/repo-cli/commands/Explore/Graduate";
+export * from "@beep/repo-cli/commands/Explore/Graduate.schemas";

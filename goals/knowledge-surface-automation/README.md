@@ -47,6 +47,10 @@ P4 in progress. Shipped on main so far:
 - **E:** `goals bootstrap|adopt --write --expect <planId>` (atomic publish, exclusive
   adoption). This packet adopted itself with its own executor (self-hosting test case
   #1).
+- **E-3b:** the read-only `beep explore graduate <exploration> --goal <slug>=<title>
+  --plan [--json]` compiles a content-addressed `graduation-plan/v1` (one bootstrap
+  plan per child, the hash-pinned exploration manifest edit, the refusal matrix, and
+  `alreadyPublished` replay classification). `--write --expect` is E-3c.
 - **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds;
   B-3a classifies drift against upstream path history. B-3b (this PR) adds
   `lock-plan --write --expect <planDigest>`, flips `skills-lock.json` to v2 (6 vendored,
