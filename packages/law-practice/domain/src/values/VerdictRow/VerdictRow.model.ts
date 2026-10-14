@@ -17,20 +17,30 @@ const $I = $LawPracticeDomainId.create("values/VerdictRow/VerdictRow.model");
 /**
  * The attorney's judgement of a review item.
  *
+ * **Details**
+ *
+ * `right` and `wrong` are final judgements. `partly` is a judgement that
+ * returns the item to the queue. `withdrawn` clears an earlier verdict, for
+ * example an accidental click, so the item has no current judgement and is
+ * open again. Every value supersedes the item's earlier rows by recency, so
+ * the audit trail keeps the withdrawn verdict.
+ *
  * **Example** (Guard a verdict)
  *
  * ```ts
  * import { Verdict } from "@beep/law-practice-domain"
  *
  * console.log(Verdict.is.partly("partly")) // true
+ * console.log(Verdict.is.withdrawn("withdrawn")) // true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const Verdict = LiteralKit(["right", "wrong", "partly"]).pipe(
+export const Verdict = LiteralKit(["right", "wrong", "partly", "withdrawn"]).pipe(
   $I.annoteSchema("Verdict", {
-    description: "The attorney's judgement of a review item: right, wrong, or partly right.",
+    description:
+      "The attorney's judgement of a review item: right, wrong, partly right, or withdrawn (no current judgement).",
   })
 );
 

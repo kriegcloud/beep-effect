@@ -43,7 +43,7 @@ export type ClaimFindingReviewItem = (typeof ReviewItem.cases)["claim-finding"][
  * - `right` projects to `active` with `ATTORNEY_CONFIRMED_REASON`;
  * - `wrong` projects to `rejected` with the row's note as the reason, or
  *   `ATTORNEY_REJECTED_REASON` when the row has no note;
- * - `partly`, or no row for the item, projects to nothing: the claim stays
+ * - `partly`, `withdrawn`, or no row for the item, projects to nothing: the claim stays
  *   unresolved and the item returns to the queue.
  *
  * `resolvedAt` is the deciding row's `recordedAt`; `resolvedBy` is copied
@@ -75,7 +75,7 @@ export interface VerdictProjectorShape {
   }) => ReadonlyArray<ClaimDispositionProjection>;
   /**
    * Project one `claim-finding` item. `None` when the item has no rows or its
-   * latest verdict is `partly`. Rows for other items are ignored.
+   * latest verdict is `partly` or `withdrawn`. Rows for other items are ignored.
    */
   readonly projectItem: (input: {
     readonly item: ClaimFindingReviewItem;

@@ -213,7 +213,7 @@ describe("@beep/law-practice-domain VerdictRow", () => {
   );
 
   it.effect(
-    "rejects a verdict outside right, wrong and partly",
+    "rejects a verdict outside right, wrong, partly and withdrawn",
     Effect.fnUntraced(function* () {
       const error = yield* Effect.flip(decodeRow({ ...encodedRow, verdict: "maybe" }));
 

@@ -84,8 +84,11 @@ const byRecency: Order.Order<VerdictRow> = Order.combine(
   Order.mapInput(Num.Order, (row: VerdictRow) => row.revision)
 );
 
-const finding = (batchId: string, verdict: "right" | "wrong" | "partly", note: O.Option<string> = O.none()) =>
-  RecordVerdictInput.make({ itemId: FINDING_ID, batchId, verdict, note });
+const finding = (
+  batchId: string,
+  verdict: "right" | "wrong" | "partly" | "withdrawn",
+  note: O.Option<string> = O.none()
+) => RecordVerdictInput.make({ itemId: FINDING_ID, batchId, verdict, note });
 
 describe("@beep/law-practice-use-cases review verdict round trip", () => {
   it.layer(TestLayer, { timeout: "10 seconds" })("superseded and locked batch", (it) => {
@@ -231,6 +234,32 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
             projector.project({ items: [item], resolvedBy, rows })
           )
         );
+      })
+    );
+  });
+
+  it.layer(TestLayer, { timeout: "10 seconds" })("withdrawn verdict", (it) => {
+    it.effect(
+      "withdraws an accidental wrong in the same batch, keeps both rows, and reopens the item",
+      Effect.fnUntraced(function* () {
+        const queue = yield* ReviewQueue;
+        const projector = yield* VerdictProjector;
+        const item = yield* claimFinding;
+        const resolvedBy = yield* attorney;
+
+        yield* verdictAt(T_WRONG, finding(BATCH_A, "wrong"));
+        expect(yield* queue.openItems([item])).toStrictEqual([]);
+
+        yield* verdictAt(T_RIGHT, finding(BATCH_A, "withdrawn"));
+        const rows = yield* queue.readLog;
+
+        expect(A.map(rows, (row) => [row.verdict, row.revision])).toStrictEqual([
+          ["wrong", 1],
+          ["withdrawn", 2],
+        ]);
+        expect(projector.project({ items: [item], resolvedBy, rows })).toStrictEqual([]);
+        assertNone(projector.projectItem({ item, resolvedBy, rows }));
+        expect(yield* queue.openItems([item])).toStrictEqual([item]);
       })
     );
   });

@@ -30540,7 +30540,7 @@
       "kind": "literal-kit",
       "owner": "@beep/law-practice-domain",
       "identity": "Verdict",
-      "description": "The attorney's judgement of a review item: right, wrong, or partly right."
+      "description": "The attorney's judgement of a review item: right, wrong, partly right, or withdrawn (no current judgement)."
     },
     {
       "file": "packages/law-practice/domain/src/values/VerdictRow/VerdictRow.model.ts",

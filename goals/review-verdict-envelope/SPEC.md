@@ -23,9 +23,9 @@ surface it will be judged in before anyone builds that surface. Observably:
      `width` and `height`, and base64 `data` of at most 120,000 characters, so the desktop `Svg`
      wrapper stays under its 131,072-character cap;
    - `VerdictRow`: `itemId`, `batchId` (the review batch, one sitting or queue run), `verdict`
-     (`right | wrong | partly`), an optional `note`, `revision`, `recordedAt`
+     (`right | wrong | partly | withdrawn`), an optional `note`, `revision`, `recordedAt`
      (`DateTimeUtcFromMillis`), and an optional `lockedAt`. Rows are append-only, and undo is a
-     superseding revision. **A lock closes one batch:** after a row with `lockedAt` for a given
+     superseding revision; `withdrawn` supersedes with no current judgement and reopens the item. **A lock closes one batch:** after a row with `lockedAt` for a given
      `batchId`, later writes to that batch fail with a typed error. New items get verdicts in a
      new batch with a fresh `batchId`. Earlier rows stay in the one log and remain grouped by
      their `batchId`, so history is never lost.
@@ -168,7 +168,7 @@ From the brief's rabbit holes and the repo laws:
 - [x] **P1** `ReviewItem` decodes all six `kind` members; an unknown `kind` fails to decode.
       `SourceRef` round-trips with and without `page`, `prefix` and `suffix`. A `claim-finding`
       round-trips its `claimId`. `VerdictRow` round-trips `batchId` and `recordedAt`, and
-      rejects a verdict outside `right | wrong | partly`.
+      rejects a verdict outside `right | wrong | partly | withdrawn`.
 - [x] **P2** `ReviewQueue` and `VerdictProjector` exist as `Context.Service` contracts with
       typed errors (including a locked-batch write error) and Layer implementations.
 - [x] **P2 / S5** The round-trip test passes: decode → queue → `wrong` + note → undo (a
@@ -180,7 +180,8 @@ From the brief's rabbit holes and the repo laws:
       `status: active`, the fixed confirm reason, `resolvedAt` equal to the deciding row's
       `recordedAt`, and the supplied `resolvedBy`. A second case projects a final `wrong` to
       `rejected` with the note as `reason`; a third case uses `wrong` without a note and gets the
-      fixed reject reason. A fourth case, a final `partly`, yields no projection. Projecting the
+      fixed reject reason. A fourth case, a final `partly`, yields no projection, and a fifth, a `wrong` withdrawn in the
+      same batch, yields no projection, keeps both rows, and reopens the item. Projecting the
       same rows twice gives equal results.
 - [x] **P3** The amendment is delivered to the `practice-claude-mod` owner (link or PR comment
       recorded in `README.md`), in its S1-pass form or its row-only fallback form. On S1 fail,
@@ -249,6 +250,7 @@ Seeded from
 | 2026-10-14 | The projector's methods return plain values, not `Effect`s: `project` gives the resolved findings, `projectItem` gives an `Option`. They take the items as well as the rows, because rows carry only `itemId`. | The mapping is pure and cannot fail; a plain return type rules out clock reads and I/O. | Wrap the projector in an `Effect`. |
 | 2026-10-14 | `ReviewQueueLive` serializes `recordVerdict` and `lockBatch` with a one-permit semaphore per queue. The in-memory `VerdictLog` is test-only (`./test`). `Principal` comes from `@beep/shared-domain`. Neither package publishes a changeset, because both are `private`. | This prevents a record/lock race inside one process; adapters across processes must serialize appends. Test Layers stay off production paths (layer-composition doctrine). | Drop the semaphore and document single-writer use. |
 | 2026-10-14 | PR #1712 round-3 follow-ups are applied here: PLAN names the locked-batch error; S5 re-judges the same item in a new batch and states that a lock closes the batch, not the item; `ClaimDispositionProjection` lives in `VerdictProjector.schemas.ts`, because `.model.ts` is a domain-only role. | Recorded as tracked follow-ups when #1712 merged. | n/a |
+| 2026-10-14 | `Verdict` gains `withdrawn`: a row that clears the item's earlier verdict (no current judgement, item reopened, no projection). | The `practice-claude-mod` D22 check found that v1 rows can clear a verdict (Undo writes null) and the three-value envelope could only re-judge, so an accidental verdict could not be withdrawn and migrated clears had no representation. A literal keeps `verdict` required and the audit trail intact. | Remove the literal and map clears to dropped items in the v1 decode transform. |
 
 ## Exception Ledger
 

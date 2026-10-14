@@ -171,7 +171,9 @@ export declare namespace RecordVerdictInput {
  * - **Latest verdict.** An item's latest verdict is its row with the greatest
  *   `recordedAt` across every batch, ties broken by the greater `revision`;
  *   remaining ties go to the row appended last, since rows are read in
- *   append order. A latest verdict of `right` or `wrong` is final; `partly` is not.
+ *   append order. A latest verdict of `right` or `wrong` is final; `partly`
+ *   and `withdrawn` are not, and `withdrawn` leaves the item with no current
+ *   judgement.
  * - **Revisions.** Revisions count per item within one batch. A verdict is
  *   recorded with one more than the highest revision of that item in that
  *   batch, or 1 when the batch has no row for the item.
@@ -213,7 +215,8 @@ export interface ReviewQueueShape {
   ) => Effect.Effect<VerdictRow, VerdictBatchEmptyError | VerdictBatchLockedError | VerdictLogError>;
   /**
    * The items still awaiting a final verdict, in the order given: those with
-   * no row in the log, and those whose latest verdict is `partly`. Producers
+   * no row in the log, and those whose latest verdict is `partly` or
+   * `withdrawn`. Producers
    * own the items; the queue stores only verdicts.
    */
   readonly openItems: (items: ReadonlyArray<ReviewItem>) => Effect.Effect<ReadonlyArray<ReviewItem>, VerdictLogError>;

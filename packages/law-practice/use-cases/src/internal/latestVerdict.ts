@@ -66,8 +66,8 @@ export const latestVerdictByItem = (rows: ReadonlyArray<VerdictRow>): HashMap.Ha
   );
 
 /**
- * Whether a verdict row closes its item: `right` and `wrong` are final,
- * `partly` returns the item to the queue.
+ * Whether a verdict row closes its item: `right` and `wrong` are final;
+ * `partly` and `withdrawn` return the item to the queue.
  *
  * **Example** (Check a partly verdict)
  *
@@ -81,7 +81,8 @@ export const latestVerdictByItem = (rows: ReadonlyArray<VerdictRow>): HashMap.Ha
  * @category reading
  * @since 0.0.0
  */
-export const isFinalVerdict = (row: VerdictRow): boolean => !Verdict.is.partly(row.verdict);
+export const isFinalVerdict = (row: VerdictRow): boolean =>
+  Verdict.is.right(row.verdict) || Verdict.is.wrong(row.verdict);
 
 /**
  * The batch's latest row (greatest `recordedAt`, then `revision`, then the
