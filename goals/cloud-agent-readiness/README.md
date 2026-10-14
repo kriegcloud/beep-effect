@@ -97,6 +97,9 @@ qualified by the beep-worker receipts.
   fresh profile comparison, corrected SSH launch isolation and remaining gaps.
 - [Graft/reference qualification](./history/2026-10-14-graft-reference-qualification.md):
   eleven reference clones, structural navigation and explicit resource/coverage limits.
+- [MCP qualification](./history/2026-10-14-mcp-qualification.md):
+  seven successful read-only tool paths, native Codex proof, corrected WordCount
+  approval metadata and explicit optional/authentication gaps.
 - [Model-policy reconciliation](./history/2026-10-14-model-policy-reconciliation.md):
   October 14 pins, zero local/worker findings, proxy catalog proof and explicit
   source-version boundaries.

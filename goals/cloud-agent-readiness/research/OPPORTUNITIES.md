@@ -167,3 +167,25 @@ match October 14 policy. Historical smoke results retain their actual pins.
 - Optional Junie/Graft deep targets remain unqualified when absent. Do not
   interpret their skipped checks as an installed/authenticated integration.
 - Continue with actual MCP tool requests and detached Yeet proof.
+
+
+## MCP qualification follow-up — 2026-10-14
+
+[Receipt](../history/2026-10-14-mcp-qualification.md) and sanitized protocol
+summary distinguish seven actual read-only tool successes, two startup-only
+servers and three unavailable/authentication-dependent paths. Native Codex's
+read-only/never-approval session now calls WordCount and Phoenix docs successfully.
+
+- Unannotated Effect tools advertise destructive defaults. WordCount was blocked
+  despite its pure implementation; only its four hints were corrected. Audit
+  other pure NLP tools individually and prove native approval behavior.
+- Enabled Stately still needs OAuth; decide authentication versus a host-scoped
+  optional disable. Serena/WebStorm retain their default-disabled IDE boundary.
+- Fallow project_info's approximately 923 KB response is context friction even
+  with optional sections disabled. Prefer bounded discovery surfaces.
+- Graft MCP requires a positional indexed checkout path. Root main's graph passes;
+  worktree graph freshness remains a separate source-version qualification.
+- Claude native smoke was quota-blocked; direct MCP transport success is not a
+  replacement for rerunning that provider profile later.
+- Chrome debugging and M365 outbox startup do not qualify browser or mailbox
+  operations. Preserve their explicit workflow/authorization boundaries.
