@@ -168,7 +168,7 @@ const escapeXml = (value: string) =>
  * console.log(typeof modelsWriteSpans === "function")
  * ```
  *
- * @category editing
+ * @category utilities
  * @since 0.0.0
  */
 export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
@@ -335,7 +335,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
  * console.log(Effect.isEffect(modelsApplySpans("abc", [{ start: 1, end: 2, before: "b", after: "B" }])))
  * ```
  *
- * @category editing
+ * @category utilities
  * @since 0.0.0
  */
 export const modelsApplySpans = Effect.fn("Models.applySpans")(function* (
