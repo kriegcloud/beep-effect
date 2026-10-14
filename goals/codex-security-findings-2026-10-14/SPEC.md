@@ -50,13 +50,13 @@ exact captured findings until no packet-applicable finding remains open.
 
 ## Acceptance Criteria
 
-- [ ] All 47 findings have sanitized tracked CSF records with Codex ID, severity,
+- [x] All 47 findings have sanitized tracked CSF records with Codex ID, severity,
       title, source commit, and public summary.
-- [ ] Every finding has a current-HEAD verdict, disposition, lane, rationale,
+- [x] Every finding has a current-HEAD verdict, disposition, lane, rationale,
       remediation state, changed-file set, and verification evidence.
-- [ ] Every real finding is fixed at the shared root cause with a focused
+- [x] Every real finding is fixed at the shared root cause with a focused
       regression check where executable behavior changes.
-- [ ] Packet counts, manifest, triage ledger, launcher size, sanitation, and
+- [x] Packet counts, manifest, triage ledger, launcher size, sanitation, and
       whitespace checks pass.
 - [ ] Yeet repair and verify are green on the complete remediation scope.
 - [ ] The branch is published, hosted checks and reviews are closed, and the PR
@@ -108,3 +108,6 @@ exact captured findings until no packet-applicable finding remains open.
 | Cap one knowledge-doctor report at four distinct historical commits (CSF-035). | This bounds archive materialization before any historical tree is extracted; the compressed archive is released after extraction. | Replace the cap with a measured streaming or eviction design, then raise it with a resource-bound regression. |
 | Require a matching hash to adopt a pending Box upload (CSF-043). | Matching byte length alone cannot establish that the conflicting file contains the intended attachment. | Restore a size-only path only after an authenticated provider ownership proof and a regression covering same-size foreign bytes exist. |
 | Bind review and provenance writes to checked directory descriptors (CSF-046, CSF-047). | A final-component symlink or swapped output directory must not redirect operator writes outside the corpus. | Replace the descriptor operations only with a tested equivalent that preserves no-follow opens and atomic replacement. |
+| Require a fresh Graph change key for docket undo deletion (CSF-031). | A planning read cannot protect a calendar entry from later attorney edits, and a second read without a version condition still races. | Restore the old request only after another atomic provider operation can enforce the provisional-category rule; keep the concurrent-edit regression. |
+| Recheck every initially exempted terminal shell before retirement deletion (CSF-042). | A shell can leave the attachment scan after writing, so an empty final holder set does not prove the archive is complete. | Replace PID/count tracking with a stronger filesystem change journal and retain a departing-shell regression. |
+| Stage and verify chunked Box upload bytes before opening a remote session (CSF-045). | Provider SHA-1 arrives after storage, so a mutable source pathname cannot serve as approved content identity. | Replace private staging only with a precommit digest path or immutable source handle proven against same-size swaps; preserve scoped cleanup tests. |

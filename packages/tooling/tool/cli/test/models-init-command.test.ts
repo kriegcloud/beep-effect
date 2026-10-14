@@ -3,6 +3,7 @@ import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
 import { expect, layer } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as Console from "effect/Console";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
@@ -134,7 +135,7 @@ layer(testLayer, { timeout: "30 seconds" })("models init command", (it) => {
           reportDir,
         ])
       );
-      expect(Exit.isFailure(exit)).toBe(true);
+      assertTrue(Exit.isFailure(exit));
       expect(yield* fs.readFileString(sentinel)).toBe("operator routing stays intact\n");
     }).pipe(withFreshConsole)
   );

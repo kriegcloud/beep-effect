@@ -2,7 +2,8 @@
 
 ## Status
 
-Status: `active`. The batch is captured; validation is in progress (44 of 47).
+Status: `active`. All 47 findings are validated and repaired or already fixed;
+repository proof is in progress.
 
 ## Phases
 
@@ -10,10 +11,10 @@ Status: `active`. The batch is captured; validation is in progress (44 of 47).
 | --- | --- | --- | --- |
 | P0 bootstrap | complete | Create feature branch and packet scaffold. | Branch and launcher exist; packet JSON parses. |
 | P1 capture | complete | Capture all live findings via the signed-in CSV export. | 47 IDs reconcile: 5 Medium, 12 Low, 30 Informational. |
-| P2 validate | in progress | Reproduce each report at current HEAD. | Every item has strict verdict, disposition, rationale, and owner surface. |
-| P3 lane-partition | pending | Group shared root causes and disjoint paths. | Lanes recorded without overlapping file ownership. |
-| P4 remediate | pending | Fix all real findings with focused checks. | Changed files and passing targeted proof recorded per finding. |
-| P5 repo-proof | pending | Run packet validation and Yeet repair/verify. | No packet drift; local proof green. |
+| P2 validate | complete | Reproduce each report at current HEAD. | Every item has strict verdict, disposition, rationale, and owner surface. |
+| P3 lane-partition | complete | Group shared root causes and disjoint paths. | Lanes recorded without overlapping file ownership. |
+| P4 remediate | complete | Fix all real findings with focused checks. | Changed files and passing targeted proof recorded per finding. |
+| P5 repo-proof | in progress | Run packet validation and Yeet repair/verify. | No packet drift; local proof green. |
 | P6 publish | pending | Publish one intentional PR through Yeet. | Exact branch head pushed and PR opened. |
 | P7 monitor | pending | Close hosted checks and actionable reviews. | PR green and mergeable. |
 | P8 merge-and-close | pending | Merge and close captured findings. | PR merged; all 47 IDs resolved. |

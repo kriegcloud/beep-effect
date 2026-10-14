@@ -608,19 +608,31 @@ export const applyDocketUndo: (input: {
     yield* journal.append([DocketJournalEntry.make({ ...fields, at, kind: kind.value, runId: plan.runId })]);
   });
 
+  const deleteIfStillProvisional = Effect.fnUntraced(function* (eventId: string) {
+    // Recheck eligibility immediately before deletion, and bind the delete
+    // to that version so a later Outlook edit fails closed.
+    const current = yield* orGone(m365.getEvent(M365GetEventRequest.make({ eventId, userId })), null, "calendar").pipe(
+      Effect.map(O.fromNullishOr)
+    );
+    if (O.isNone(current)) return DocketUndoEventAction.Enum.gone;
+    if (eventAction(O.getOrElse(current.value.categories, A.empty<string>)) !== "delete") {
+      return DocketUndoEventAction.Enum.keep;
+    }
+    const changeKey = O.filter(current.value.changeKey, Str.isNonEmpty);
+    if (O.isNone(changeKey)) return DocketUndoEventAction.Enum.keep;
+    return yield* orGone(
+      m365
+        .deleteEvent(M365DeleteEventRequest.make({ changeKey, eventId, userId }))
+        .pipe(Effect.as(DocketUndoEventAction.Enum.delete)),
+      DocketUndoEventAction.Enum.gone,
+      "calendar"
+    );
+  });
+
   const eventActions = yield* Effect.forEach(
     plan.events,
     Effect.fnUntraced(function* (target) {
-      const action =
-        target.action === "delete"
-          ? yield* orGone(
-              m365
-                .deleteEvent(M365DeleteEventRequest.make({ eventId: target.eventId, userId }))
-                .pipe(Effect.as(DocketUndoEventAction.Enum.delete)),
-              DocketUndoEventAction.Enum.gone,
-              "calendar"
-            )
-          : target.action;
+      const action = target.action === "delete" ? yield* deleteIfStillProvisional(target.eventId) : target.action;
       yield* record(eventLineKind(action), { eventId: O.some(target.eventId) });
       return action;
     })

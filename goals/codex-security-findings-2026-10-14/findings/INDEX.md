@@ -47,7 +47,7 @@ auth values, email addresses, and raw local paths.
 | [CSF-028](./CSF-028.md) | Informational | repair implemented | Staging cleanup can delete data through a symlinked goals root | goal bootstrap staging sweep |
 | [CSF-029](./CSF-029.md) | Informational | repair implemented | Model report symlinks can overwrite operator files | models report writer |
 | [CSF-030](./CSF-030.md) | Informational | repair implemented | Quadratic regex permits denial of service in OA recognition | office action text recognizer |
-| [CSF-031](./CSF-031.md) | Informational | captured | Undo can delete calendar entries verified after planning | _pending P2_ |
+| [CSF-031](./CSF-031.md) | Informational | repair implemented | Undo can delete calendar entries verified after planning | docket undo and M365 event writes |
 | [CSF-032](./CSF-032.md) | Informational | repair implemented | Boundary\-date input can repeatedly abort docket intake polls | docket reminder ladder |
 | [CSF-033](./CSF-033.md) | Informational | repair implemented | New Bash grants bypass the Beep\-only log access restriction | Claude Bash permission allowlist |
 | [CSF-034](./CSF-034.md) | Informational | repair implemented | Crafted PDF font graphs cause exponential validation work | PDF font structure inspector |
@@ -58,10 +58,10 @@ auth values, email addresses, and raw local paths.
 | [CSF-039](./CSF-039.md) | Informational | repair implemented | Corpus resume follows output symlinks outside its root | corpus extract output preparation |
 | [CSF-040](./CSF-040.md) | Informational | repair implemented | Cursor shell deny guard can be bypassed with pathname globs | Cursor shell guard |
 | [CSF-041](./CSF-041.md) | Informational | repair implemented | Unnormalized sensitivity labels bypass memory access checks | scratchpad memory access policy |
-| [CSF-042](./CSF-042.md) | Informational | captured | Departed terminal shells bypass retirement write detection | _pending P2_ |
+| [CSF-042](./CSF-042.md) | Informational | repair implemented | Departed terminal shells bypass retirement write detection | Worktree retirement fence |
 | [CSF-043](./CSF-043.md) | Informational | repair implemented | Size\-only Box conflicts can falsely complete pending filings | Mail attachment filing reconciliation |
 | [CSF-044](./CSF-044.md) | Informational | repair implemented | Unvalidated Fallow sidecars can block the tmpfs janitor | Tmpfs Fallow cache janitor |
-| [CSF-045](./CSF-045.md) | Informational | captured | Chunked uploads commit swapped sources before checking integrity | _pending P2_ |
+| [CSF-045](./CSF-045.md) | Informational | repair implemented | Chunked uploads commit swapped sources before checking integrity | Box content migration |
 | [CSF-046](./CSF-046.md) | Informational | repair implemented | Review round writes follow symlinks outside the corpus root | Drawing review round storage |
 | [CSF-047](./CSF-047.md) | Informational | repair implemented | Provenance outputs follow symlinks outside the corpus root | Corpus provenance output |
 

@@ -1228,6 +1228,9 @@ export class M365DeleteEventRequest extends S.Class<M365DeleteEventRequest>($I`M
   {
     eventId: GraphPathSegment.annotateKey({ description: "Graph event id." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
+    changeKey: S.OptionFromOptionalKey(S.NonEmptyString)
+      .pipe(S.withConstructorDefault(Effect.succeedNone))
+      .annotateKey({ description: "Optional version from the last event read; sent as `If-Match`." }),
   },
   $I.annote("M365DeleteEventRequest", { description: "Request for deleting an Outlook calendar event." })
 ) {}
@@ -3124,7 +3127,13 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
     const url = yield* mailboxUrl(runtime.config, request.userId, `events/${request.eventId}`, "events");
     yield* executeWrite(
       runtime,
-      M365WriteCall.make({ body: O.none(), headers: NO_HEADERS, method: "DELETE", resource: "events", url })
+      M365WriteCall.make({
+        body: O.none(),
+        headers: changeKeyHeaders(request.changeKey),
+        method: "DELETE",
+        resource: "events",
+        url,
+      })
     );
   }),
   deltaDriveItems: Effect.fn("M365.deltaDriveItems")(function* (rawRequest) {

@@ -18,7 +18,7 @@ import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
-import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
+import { assertInstanceOf, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
@@ -471,7 +471,7 @@ describe("@beep/pdf-tools service", () => {
           yield* fs.writeFile(file, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
 
           const exit = yield* Effect.exit((yield* PdfTools).inspect(file));
-          expect(Exit.isFailure(exit)).toBe(true);
+          assertTrue(Exit.isFailure(exit));
           expect(String(exit)).toContain("Cyclic PDF descendant-font graph");
         })
       );

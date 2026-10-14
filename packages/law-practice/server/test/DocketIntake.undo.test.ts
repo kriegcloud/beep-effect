@@ -378,6 +378,31 @@ describe("@beep/law-practice-server DocketIntake undo", () => {
 
   it.layer(UndoLayer, { timeout: "10 seconds" })((it) => {
     it.effect(
+      "keeps a calendar event verified after planning",
+      Effect.fnUntraced(function* () {
+        const fake = yield* FakeGraph;
+        const journalService = yield* DocketIntakeJournal;
+        yield* Ref.set(
+          fake.events,
+          HashMap.make(["e-race", event({ categories: ["Docket - unverified"], id: "e-race" })])
+        );
+        yield* journalService.append([created(RUN, "e-race")]);
+        const planned = yield* plan;
+        expect(planned.events[0]?.action).toBe("delete");
+        yield* Ref.update(
+          fake.events,
+          HashMap.set("e-race", event({ categories: ["Docket - verified"], changeKey: "ck-2", id: "e-race" }))
+        );
+        const report = yield* applyDocketUndo({ mailbox: MAILBOX, plan: planned });
+        expect(report.deleted).toBe(0);
+        expect(HashMap.has(yield* Ref.get(fake.events), "e-race")).toBe(true);
+        expect(A.some(yield* Ref.get(fake.calls), Str.startsWith("deleteEvent e-race"))).toBe(false);
+      })
+    );
+  });
+
+  it.layer(UndoLayer, { timeout: "10 seconds" })((it) => {
+    it.effect(
       "resumes a halfway undo without touching what it already did",
       Effect.fnUntraced(function* () {
         const fake = yield* FakeGraph;

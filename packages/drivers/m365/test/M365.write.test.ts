@@ -414,7 +414,7 @@ describe("@beep/m365 app-only lane and write verbs", () => {
 
   it.layer(appOnlyLayer(), { timeout: "5 seconds" })((it) => {
     it.effect(
-      "patches only the supplied event fields and deletes by id",
+      "patches only the supplied event fields and conditionally deletes by id",
       Effect.fnUntraced(function* () {
         const testHttp = yield* WriteTestHttp;
         const m365 = yield* M365;
@@ -431,7 +431,9 @@ describe("@beep/m365 app-only lane and write verbs", () => {
             userId: O.some(MAILBOX),
           })
         );
-        yield* m365.deleteEvent(M365DeleteEventRequest.make({ eventId: "event-id", userId: O.some(MAILBOX) }));
+        yield* m365.deleteEvent(
+          M365DeleteEventRequest.make({ changeKey: O.some("ck-1"), eventId: "event-id", userId: O.some(MAILBOX) })
+        );
         const captures = yield* testHttp.captures;
 
         expect(A.map(captures, (capture) => `${capture.method} ${capture.url}`)).toStrictEqual([
@@ -443,6 +445,7 @@ describe("@beep/m365 app-only lane and write verbs", () => {
           { categories: ["Docket - verified"], showAs: "free" }
         );
         assertNone(O.flatMap(A.get(captures, 1), (capture) => capture.body));
+        expect(captures[1]?.headers["if-match"]).toBe('W/"ck-1"');
       })
     );
   });

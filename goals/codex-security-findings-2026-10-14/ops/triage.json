@@ -142,6 +142,18 @@
     "L32": {
       "status": "implemented",
       "findings": ["CSF-047"]
+    },
+    "L38": {
+      "status": "implemented",
+      "findings": ["CSF-031"]
+    },
+    "L39": {
+      "status": "implemented",
+      "findings": ["CSF-042"]
+    },
+    "L40": {
+      "status": "implemented",
+      "findings": ["CSF-045"]
     }
   },
   "findings": [
@@ -1010,15 +1022,32 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "f443286f26afd5b6df804b2bfbdfacaa71dbb022",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Undo cached a delete decision before application, then sent an unconditional Graph DELETE despite concurrent category edits."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/law-practice/server/src/DocketIntake/DocketIntake.undo.ts",
+          "packages/law-practice/server/test/DocketIntake.undo.test.ts",
+          "packages/law-practice/server/test/DocketIntake.fixture.ts",
+          "packages/drivers/m365/src/M365.service.ts",
+          "packages/drivers/m365/test/M365.write.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run packages/law-practice/server/test/DocketIntake.undo.test.ts",
+          "bunx vitest run packages/drivers/m365/test/M365.write.test.ts",
+          "bun run beep quality package-verify @beep/m365",
+          "bun run beep quality package-verify @beep/law-practice-server"
+        ],
+        "summary": "Recheck categories at apply and condition deletion on the fresh Graph change key."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "docket undo and M365 event writes",
+      "lane": "L38"
     },
     {
       "id": "CSF-032",
@@ -1236,7 +1265,7 @@
           "packages/tooling/tool/cli/test/corpus-command.test.ts"
         ],
         "verificationCommands": [
-          "bunx vitest run test/corpus-command.test.ts --pool=threads --maxWorkers=1 -t resumed-output-symlink",
+          "bunx vitest run test/corpus-command.test.ts --pool=threads --maxWorkers=1 -t 'resumed output symlink'",
           "bun run beep quality package-verify @beep/repo-cli --quick"
         ],
         "summary": "Reject symbolic links in output components before lock acquisition and cleanup and after creating directories; a linked-output regression preserves an outside sentinel."
@@ -1308,15 +1337,28 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "aec33cc4ab59bc26cc74d58bef723db430855496",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The final retirement scan evaluated only current holder PIDs, omitting initially exempted shells that had detached or exited."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Worktree/Worktree.service.ts",
+          "packages/tooling/tool/cli/test/yeet-sweep-retire.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run packages/tooling/tool/cli/test/yeet-sweep-retire.test.ts -t 'idle panel shell'",
+          "bunx vitest run packages/tooling/tool/cli/test/yeet-sweep-retire.test.ts -t 'initially idle panel shell departs'",
+          "bun run beep quality package-verify @beep/repo-cli --quick"
+        ],
+        "summary": "Revalidate every initially exempted shell's context-switch count before deleting the fenced copy."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Worktree retirement fence",
+      "lane": "L39"
     },
     {
       "id": "CSF-043",
@@ -1381,15 +1423,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "98c3947d44359fd230a9adfb082268847e3174fb",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The chunked upload reopened a mutable source pathname and committed bytes before comparing the provider SHA-1 with the inspected source."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/drivers/box-provisioning/src/BoxContentMigration.ts",
+          "packages/drivers/box-provisioning/test/BoxContentMigration.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run packages/drivers/box-provisioning/test/BoxContentMigration.test.ts",
+          "bun run beep quality package-verify @beep/box-provisioning"
+        ],
+        "summary": "Stage chunked source bytes privately, verify their reviewed size and SHA-256, then upload only the scoped snapshot."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Box content migration",
+      "lane": "L40"
     },
     {
       "id": "CSF-046",
