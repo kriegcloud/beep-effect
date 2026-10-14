@@ -15,9 +15,6 @@
       "path": "../../packages/drivers/duckdb/tsconfig.json"
     },
     {
-      "path": "../../packages/drivers/pglite/tsconfig.json"
-    },
-    {
       "path": "../../packages/foundation/modeling/identity/tsconfig.json"
     },
     {

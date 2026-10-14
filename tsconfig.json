@@ -2099,6 +2099,9 @@
       "@beep/windows-secrets/*": ["./packages/drivers/windows-secrets/src/*"],
       "@beep/windows-secrets/internal/*": [
         "./packages/drivers/windows-secrets/src/internal/*"
+      ],
+      "@beep/law-practice-server/PracticeKgHost": [
+        "./packages/law-practice/server/src/PracticeKgHost/index.ts"
       ]
     }
   }

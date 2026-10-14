@@ -326,7 +326,6 @@
         "@beep/duckdb": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/law-practice-server": "workspace:^",
-        "@beep/pglite": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
@@ -2795,6 +2794,7 @@
         "@beep/libpff": "workspace:^",
         "@beep/m365": "workspace:^",
         "@beep/mcp-kit": "workspace:^",
+        "@beep/pglite": "workspace:^",
         "@beep/postgres": "workspace:^",
         "@beep/provenance": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -2808,7 +2808,6 @@
       "devDependencies": {
         "@beep/md": "workspace:^",
         "@beep/nlp": "workspace:^",
-        "@beep/pglite": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",

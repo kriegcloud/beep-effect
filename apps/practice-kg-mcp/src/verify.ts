@@ -16,6 +16,7 @@ import {
   readPracticeKgMatterTables,
   verifyPracticeKgBundle,
 } from "@beep/law-practice-server";
+import { makePracticeKgPgliteLayer } from "@beep/law-practice-server/PracticeKgHost";
 import * as Console from "effect/Console";
 import { Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
@@ -24,7 +25,6 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { runEntrypoint } from "./entrypoint.ts";
-import { makePracticeKgPgliteLayer } from "./runtime/index.ts";
 import type { PracticeKgMatterTables } from "@beep/law-practice-server";
 
 const bundleDir = Flag.Directory("bundle-dir", { mustExist: true });
