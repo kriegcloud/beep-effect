@@ -32,7 +32,7 @@ import { SkillPatchApplyError } from "./Skills.errors.ts";
 import { SkillTreeMode, SkillUpstreamContentFile } from "./Skills.schemas.ts";
 import type { SkillPatchApplyReason } from "./Skills.errors.ts";
 
-const textDecoder = new TextDecoder("utf-8", { fatal: true });
+const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 const textEncoder = new TextEncoder();
 const isSkillTreeMode = S.is(SkillTreeMode);
 
@@ -429,6 +429,19 @@ const applySection = Effect.fn("SkillPatches.applySection")(function* (
   const existing = HashMap.get(tree, section.path);
   yield* requirePresence(patch, section, existing);
   yield* requireOldMode(patch, section, existing);
+  // A mode-only section never decodes its file, so a binary file keeps its bytes.
+  if (section.change === "modify" && A.isReadonlyArrayEmpty(section.hunks) && O.isSome(existing)) {
+    const file = existing.value;
+    return HashMap.set(
+      tree,
+      section.path,
+      SkillUpstreamContentFile.make({
+        path: file.path,
+        mode: O.getOrElse(section.newMode, () => file.mode),
+        bytes: file.bytes,
+      })
+    );
+  }
   const before = yield* O.match(existing, {
     onNone: () => Effect.succeed(""),
     onSome: (file) => decodeText(patch, file),

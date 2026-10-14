@@ -106,6 +106,12 @@ const selectEntries = Effect.fn("SkillsMaterialize.selectEntries")(function* (
     : yield* refuse(skill.value, "unknown-skill", `${skill.value} has no entry in ${SKILLS_LOCK_PATH}.`);
 });
 
+// A publish replaces the whole target directory, so only the skill's own install directories qualify.
+const skillDirectories = (skill: string): ReadonlyArray<string> => [
+  `.claude/skills/${skill}`,
+  `.agents/skills/${skill}`,
+];
+
 const requireSafeTargets = Effect.fn("SkillsMaterialize.requireSafeTargets")(function* (
   skill: string,
   targets: ReadonlyArray<string>
@@ -114,6 +120,10 @@ const requireSafeTargets = Effect.fn("SkillsMaterialize.requireSafeTargets")(fun
     validateRelativePath(target, skill).pipe(
       Effect.catchTag("SkillsCommandError", () =>
         refuse(skill, "unsafe-target", `Install target ${target} of ${skill} is not a contained repo-relative path.`)
+      ),
+      Effect.filterOrElse(
+        (normalized) => A.contains(skillDirectories(skill), normalized),
+        () => refuse(skill, "unsafe-target", `Install target ${target} of ${skill} is not that skill's directory.`)
       )
     )
   );

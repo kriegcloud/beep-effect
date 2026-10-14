@@ -862,7 +862,7 @@ const driftLineFormatters = {
   CodexConfigDrift: (): string => `- ${CODEX_CONFIG_PATH}`,
   AgentsMirrorDrift: (): string => `- ${AGENTS_SKILLS_DIR}`,
   HandEditedVendoredOutput: (drift): string =>
-    `- hand-edited-vendored-output: ${drift.name} no longer matches its effective tree; keep the edit as a patch (beep skills patch add, B-6) or revert it with beep skills materialize --skill ${drift.name}`,
+    `- hand-edited-vendored-output: ${drift.name} no longer matches its effective tree; revert it with beep skills materialize --skill ${drift.name}, or keep it as a patch under .agents/skill-patches/${drift.name} and re-record the lock with beep skills lock-plan (beep skills patch add is not available yet)`,
 } satisfies { readonly [Tag in SkillDrift["_tag"]]: SkillDriftLineFormatter<Tag> };
 
 const driftLine = (drift: SkillDrift): string => {

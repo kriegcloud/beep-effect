@@ -113,14 +113,28 @@ const writeStagedFile = Effect.fn("ClearingHouse.writeStagedFile")(function* (
     .pipe(SkillsCommandError.mapError(`Failed to set the mode of ${file.path}.`, absolute, skill));
 });
 
-// Leftovers of a run that died mid-publish are this skill's stages and set-aside trees; the
-// re-run rebuilds from the lock (contract 2), so they carry nothing worth keeping.
+const isSetAside = Str.endsWith(".previous");
+
+// Leftover stages of a run that died mid-publish carry nothing worth keeping: the re-run
+// rebuilds from the lock (contract 2). A set-aside tree may hold the only copy of a hand edit,
+// so it is never deleted here; the publish refuses until someone moves it back or removes it.
 const sweepLeftovers = Effect.fn("ClearingHouse.sweepLeftovers")(function* (workDir: string, skill: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const entries = yield* fs.readDirectory(workDir).pipe(Effect.orElseSucceed(A.empty<string>));
+  const entries = A.filter(
+    yield* fs.readDirectory(workDir).pipe(Effect.orElseSucceed(A.empty<string>)),
+    Str.startsWith(`${skill}.`)
+  );
+  const setAside = A.map(A.filter(entries, isSetAside), (entry) => path.join(workDir, entry));
+  if (A.isReadonlyArrayNonEmpty(setAside)) {
+    return yield* SkillsCommandError.make({
+      message: `An earlier publish of ${skill} left its previous tree set aside at ${A.join(setAside, ", ")}; move it back to its target or remove it, then re-run.`,
+      file: setAside[0],
+      skill,
+    });
+  }
   yield* Effect.forEach(
-    A.filter(entries, Str.startsWith(`${skill}.`)),
+    entries,
     (entry) => fs.remove(path.join(workDir, entry), { recursive: true, force: true }).pipe(Effect.ignore),
     { discard: true }
   );
@@ -152,15 +166,34 @@ const stageTree = Effect.fn("ClearingHouse.stageTree")(function* (
   return stage;
 });
 
+// Returns the set-aside trees it could not move back, so the failure can name them.
 const restore = Effect.fn("ClearingHouse.restore")(function* (swaps: ReadonlyArray<Swap>) {
   const fs = yield* FileSystem.FileSystem;
+  const stranded: Array<string> = [];
   for (const swap of A.reverse(swaps)) {
     yield* fs.remove(swap.target, { recursive: true, force: true }).pipe(Effect.ignore);
     if (O.isSome(swap.previous)) {
-      yield* fs.rename(swap.previous.value, swap.target).pipe(Effect.ignore);
+      const restored = yield* fs.rename(swap.previous.value, swap.target).pipe(Effect.option);
+      if (O.isNone(restored)) {
+        stranded.push(swap.previous.value);
+      }
     }
   }
+  return stranded;
 });
+
+const restoreAfter = (swaps: Ref.Ref<Array<Swap>>, skill: string) =>
+  Effect.fnUntraced(function* (error: SkillsCommandError) {
+    const stranded = yield* restore(yield* Ref.get(swaps));
+    return yield* A.isReadonlyArrayNonEmpty(stranded)
+      ? SkillsCommandError.make({
+          ...(error.cause === undefined ? {} : { cause: error.cause }),
+          message: `${error.message} The previous tree could not be moved back and is kept at ${A.join(stranded, ", ")}.`,
+          file: stranded[0],
+          skill,
+        })
+      : error;
+  });
 
 /**
  * Publishes one verified tree to every install target by staged sibling and rename.
@@ -174,7 +207,8 @@ const restore = Effect.fn("ClearingHouse.restore")(function* (swaps: ReadonlyArr
  * target changes. A process that dies between two swaps runs no restore; the
  * targets are left skewed, the caller's equivalence check reports the skew,
  * and a plain re-run rebuilds every target from the lock. Leftover stages and
- * set-aside trees of a dead run are swept at the next publish.
+ * Leftover stages of a dead run are swept at the next publish; a set-aside
+ * tree is kept and named in the error, never deleted.
  *
  * @internal
  * @category commands
@@ -210,7 +244,8 @@ export const publishSkillTree = Effect.fn("ClearingHouse.publishSkillTree")(func
       .pipe(SkillsCommandError.mapError(`Failed to publish ${target.absolute}.`, target.absolute, skill));
   });
   yield* Effect.forEach(stages, ([target, stage]) => swapIn(target, stage), { discard: true }).pipe(
-    Effect.onError(() => Effect.flatMap(Ref.get(swaps), restore)),
+    Effect.catchTag("SkillsCommandError", restoreAfter(swaps, skill)),
+    Effect.onInterrupt(() => Effect.flatMap(Ref.get(swaps), restore)),
     Effect.ensuring(
       Effect.forEach(stages, ([, stage]) => fs.remove(stage, { recursive: true, force: true }).pipe(Effect.ignore), {
         discard: true,

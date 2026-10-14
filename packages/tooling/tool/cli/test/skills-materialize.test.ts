@@ -337,6 +337,41 @@ layer(TestLayer, { timeout: "30 seconds" })("strict skill patch apply", (it) => 
       ).toBe("unsupported-patch");
     })
   );
+
+  it.effect("keeps a leading byte order mark through decode and re-encode", () =>
+    Effect.gen(function* () {
+      const patch = A.join(
+        [
+          "diff --git a/bom.md b/bom.md",
+          "--- a/bom.md",
+          "+++ b/bom.md",
+          "@@ -1,3 +1,3 @@",
+          " \uFEFFa",
+          "-b",
+          "+B",
+          " c",
+          "",
+        ],
+        "\n"
+      );
+      const patched = yield* applySkillPatch("bom.patch", patch, [file("bom.md", "\uFEFFa\nb\nc\n")]);
+      expect(A.fromIterable(A.getUnsafe(patched, 0).bytes)).toEqual(
+        A.fromIterable(textEncoder.encode("\uFEFFa\nB\nc\n"))
+      );
+    })
+  );
+
+  it.effect("applies a mode-only section to a file that is not UTF-8 without decoding it", () =>
+    Effect.gen(function* () {
+      const bytes = Uint8Array.from([0xff, 0xfe, 0x00, 0x80]);
+      const patch = A.join(["diff --git a/blob.bin b/blob.bin", "old mode 100644", "new mode 100755", ""], "\n");
+      const patched = yield* applySkillPatch("mode.patch", patch, [
+        SkillUpstreamContentFile.make({ path: "blob.bin", mode: "100644", bytes }),
+      ]);
+      const blob = A.getUnsafe(patched, 0);
+      expect([blob.mode, A.fromIterable(blob.bytes)]).toEqual(["100755", A.fromIterable(bytes)]);
+    })
+  );
 });
 
 layer(TestLayer, { timeout: "60 seconds" })("skills materialize", (it) => {
@@ -451,6 +486,73 @@ layer(TestLayer, { timeout: "60 seconds" })("skills materialize", (it) => {
       // A plain re-run then publishes both targets.
       expect(rowOf(yield* materialize(repoRoot, "write"), SKILL).status).toBe("rebuilt");
       expect(rowOf(yield* materialize(repoRoot, "check"), SKILL).status).toBe("current");
+    })
+  );
+
+  it.effect("names a set-aside tree it could not move back and refuses to sweep it later", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* makeRepo("split");
+      yield* fs.writeFileString(path.join(repoRoot, CLAUDE_TARGET, "SKILL.md"), "hand edit\n");
+      // Renames 1-4 publish both targets; fail the fourth, then fail restoring the claude tree (sixth).
+      const renames = yield* Ref.make(0);
+      const failingRename: FileSystem.FileSystem = {
+        ...fs,
+        rename: (from, to) =>
+          Effect.flatMap(
+            Ref.updateAndGet(renames, (count) => count + 1),
+            (count) =>
+              count === 4 || count === 6
+                ? Effect.fail(
+                    PlatformError.systemError({
+                      _tag: "PermissionDenied",
+                      module: "FileSystem",
+                      method: "rename",
+                      pathOrDescriptor: to,
+                    })
+                  )
+                : fs.rename(from, to)
+          ),
+      };
+
+      const error = yield* materialize(repoRoot, "write", { fileSystem: failingRename }).pipe(Effect.flip);
+      expect(error._tag).toBe("SkillsCommandError");
+      expect(error.message).toContain("could not be moved back");
+      const workDir = path.join(repoRoot, ".claude/.skills-materialize");
+      const kept = A.filter(yield* fs.readDirectory(workDir), Str.endsWith(".previous"));
+      expect(A.length(kept)).toBe(1);
+      expect(yield* fs.readFileString(path.join(workDir, A.getUnsafe(kept, 0), "SKILL.md"))).toBe("hand edit\n");
+
+      const refused = yield* materialize(repoRoot, "write").pipe(Effect.flip);
+      expect(refused.message).toContain(A.getUnsafe(kept, 0));
+      expect(yield* fs.exists(path.join(workDir, A.getUnsafe(kept, 0)))).toBe(true);
+    })
+  );
+
+  it.effect("refuses an install target that is not the skill's own directory", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* makeRepo("linked");
+      const lockPath = path.join(repoRoot, "skills-lock.json");
+      const lock = yield* decodeSkillsLockDocumentJson(yield* fs.readFileString(lockPath));
+      const entry = lock.skills[SKILL];
+      assert(entry !== undefined && entry._tag === "vendored");
+      const widened = VendoredSkillLockEntry.make({
+        ...entry,
+        effective: SkillEffective.make({ ...entry.effective, installedTargets: [CLAUDE_TARGET, ".claude/skills"] }),
+      });
+      yield* fs.writeFileString(
+        lockPath,
+        `${yield* encodeSkillsLockDocumentJson(SkillsLockDocument.make({ ...lock, skills: { ...lock.skills, [SKILL]: widened } }))}\n`
+      );
+
+      const refused = yield* materialize(repoRoot, "check").pipe(Effect.flip);
+      expect([refused._tag, refused._tag === "SkillMaterializeRefusal" ? refused.reason : ""]).toEqual([
+        "SkillMaterializeRefusal",
+        "unsafe-target",
+      ]);
     })
   );
 

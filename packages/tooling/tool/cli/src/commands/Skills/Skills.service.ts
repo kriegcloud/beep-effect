@@ -83,7 +83,7 @@ import type { SkillDriftRow, SkillPinProposal, SkillsLockDocument } from "./Skil
 const $I = $RepoCliId.create("commands/Skills/Skills.service");
 
 const CLAUDE_SKILLS_DIR = ".claude/skills";
-const textDecoder = new TextDecoder("utf-8", { fatal: true });
+const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 const textEncoder = new TextEncoder();
 const decodeSkillTreeMode = S.decodeUnknownEffect(SkillTreeMode);
 
