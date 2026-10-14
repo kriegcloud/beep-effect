@@ -470,7 +470,7 @@
       "reason": "Retire Knip root scripts, task and fingerprint input; preserve incoming main cache reviews and directly declare FreshBooks bun-types. No qualification or TTC proof reuse.",
       "basis": {
         "path": "goals/repository-simplification-confidence/history/receipts/knip-cache-policy-review.md",
-        "sha256": "f963ef8f0b9446b69f40b77cefbbbbcb3e2487c3e740b7c4ce1de6b624e591ff"
+        "sha256": "aa3b409668e97612e189d3bfe2507ae2a74fa0babb72647208877100ca4310cd"
       }
     },
     "@beep/gov-legal-mcp": {
