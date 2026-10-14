@@ -483,11 +483,12 @@ describe("@beep/occt service", () => {
             cameras: [front, back, top],
           })
         );
-        expect(totalLength(frontView?.emphasis ?? [])).toBeCloseTo(20, 3);
-        expect(A.every(frontView?.emphasis ?? [], ([, y1, , y2]) => y1 === 15 && y2 === 15)).toBe(true);
+        const emphasisOf = (view: typeof frontView) => view?.emphasis ?? [];
+        expect(totalLength(emphasisOf(frontView))).toBeCloseTo(20, 3);
+        expect(A.every(emphasisOf(frontView), ([, y1, , y2]) => y1 === 15 && y2 === 15)).toBe(true);
         // the face is seen from behind in the back view and edge-on in the plan: no line prints over an outline
-        expect(backView?.emphasis).toEqual([]);
-        expect(topView?.emphasis).toEqual([]);
+        expect(emphasisOf(backView)).toEqual([]);
+        expect(emphasisOf(topView)).toEqual([]);
         // an overlay draws nothing on the other layers
         const [bare] = yield* occt.project(
           ProjectionRequest.make({ solid: ModelSpec.make({ parts: [slab] }), cameras: [front] })
@@ -499,8 +500,8 @@ describe("@beep/occt service", () => {
         const [hidden] = yield* occt.project(
           ProjectionRequest.make({ solid: ModelSpec.make({ parts: [slab, post], overlays: [seat] }), cameras: [front] })
         );
-        expect(totalLength(hidden?.emphasis ?? [])).toBeCloseTo(10, 3);
-        expect(A.every(hidden?.emphasis ?? [], ([x1, , x2]) => Math.max(x1, x2) <= 0)).toBe(true);
+        expect(totalLength(emphasisOf(hidden))).toBeCloseTo(10, 3);
+        expect(A.every(emphasisOf(hidden), ([x1, , x2]) => Math.max(x1, x2) <= 0)).toBe(true);
       })
     );
 

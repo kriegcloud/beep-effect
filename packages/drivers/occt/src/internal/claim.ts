@@ -434,13 +434,17 @@ const traceOf = (at: (t: number) => Viewed, line: boolean): Trace => {
     at,
     points,
     slack,
-    box: A.reduce(
-      points,
-      [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY] as Box2,
-      ([x0, y0, x1, y1], p) => [Math.min(x0, p.x), Math.min(y0, p.y), Math.max(x1, p.x), Math.max(y1, p.y)]
-    ),
+    box: box2Of(points),
   };
 };
+
+// The bounding box of points on the view plane.
+const box2Of = (points: ReadonlyArray<{ readonly x: number; readonly y: number }>): Box2 =>
+  A.reduce(
+    points,
+    [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY] as Box2,
+    ([x0, y0, x1, y1], p) => [Math.min(x0, p.x), Math.min(y0, p.y), Math.max(x1, p.x), Math.max(y1, p.y)]
+  );
 
 const inBox2 = (x: number, y: number, [x0, y0, x1, y1]: Box2, slack: number): boolean =>
   x >= x0 - slack && x <= x1 + slack && y >= y0 - slack && y <= y1 + slack;
@@ -609,15 +613,7 @@ export const pieceStyles = (options: {
           ]
         ),
         A.map(view),
-        A.reduce(
-          [
-            Number.POSITIVE_INFINITY,
-            Number.POSITIVE_INFINITY,
-            Number.NEGATIVE_INFINITY,
-            Number.NEGATIVE_INFINITY,
-          ] as Box2,
-          ([x0, y0, x1, y1], p) => [Math.min(x0, p.x), Math.min(y0, p.y), Math.max(x1, p.x), Math.max(y1, p.y)]
-        )
+        box2Of
       )
     )
   );

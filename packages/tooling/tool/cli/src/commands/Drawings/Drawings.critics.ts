@@ -119,6 +119,58 @@ export interface CriticInvocation {
   readonly reportFrom: { readonly kind: "file"; readonly path: string } | { readonly kind: "stdout" };
 }
 
+// The stroke row of one drawn segment of the shading path, in sheet millimetres; none for a zero-length segment.
+const rowOf = (from: readonly [number, number], to: readonly [number, number]): O.Option<StrokeRow> => {
+  const [x1, y1] = from;
+  const [x2, y2] = to;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const length = Math.hypot(dx, dy);
+  if (!(length > 0)) {
+    return O.none();
+  }
+  const angle = ((Math.atan2(dy, dx) * 180) / Math.PI + 180) % 180;
+  const normal = angle >= 90 ? ([dy / length, -dx / length] as const) : ([-dy / length, dx / length] as const);
+  return O.some({
+    angle: round(angle, 1),
+    offset: round(x1 * normal[0] + y1 * normal[1], 2),
+    length: round(length, 2),
+    x1: round(x1, 1),
+    y1: round(y1, 1),
+    x2: round(x2, 1),
+    y2: round(y2, 1),
+  });
+};
+
+// The stroke rows of a shading path's move/line data: each line command draws from the current point.
+const rowsOfPath = (data: string): ReadonlyArray<StrokeRow> =>
+  pipe(
+    A.fromIterable(data.matchAll(/([ML])\s*([-\d.]+)[ ,]([-\d.]+)/g)),
+    A.reduce(
+      { current: O.none<readonly [number, number]>(), rows: A.empty<StrokeRow>() },
+      (
+        state: { readonly current: O.Option<readonly [number, number]>; readonly rows: ReadonlyArray<StrokeRow> },
+        m
+      ) => {
+        const point = [Number(m[2]) / PT_PER_MM, Number(m[3]) / PT_PER_MM] as const;
+        if (m[1] === "M") {
+          return { current: O.some(point), rows: state.rows };
+        }
+        return O.match(state.current, {
+          onNone: () => state,
+          onSome: (from) => ({
+            current: O.some(point),
+            rows: O.match(rowOf(from, point), {
+              onNone: () => state.rows,
+              onSome: (row) => A.append(state.rows, row),
+            }),
+          }),
+        });
+      }
+    ),
+    (state) => state.rows
+  );
+
 /**
  * Parse one `--zoom` flag value `fig:x,y,width,height:label` into a
  * {@link CriticZoom}.
@@ -178,38 +230,7 @@ const shadingSegmentsMm = (svg: string): ReadonlyArray<StrokeRow> => {
       const d = O.fromNullishOr(/\sd="([^"]*)"/.exec(element)?.[1]);
       return O.match(d, {
         onNone: () => A.empty<StrokeRow>(),
-        onSome: (data) => {
-          const rows: Array<StrokeRow> = [];
-          let current: O.Option<readonly [number, number]> = O.none();
-          for (const m of data.matchAll(/([ML])\s*([-\d.]+)[ ,]([-\d.]+)/g)) {
-            const point = [Number(m[2]) / PT_PER_MM, Number(m[3]) / PT_PER_MM] as const;
-            if (m[1] === "M") {
-              current = O.some(point);
-            } else if (O.isSome(current)) {
-              const [x1, y1] = current.value;
-              const [x2, y2] = point;
-              const dx = x2 - x1;
-              const dy = y2 - y1;
-              const length = Math.hypot(dx, dy);
-              if (length > 0) {
-                const angle = ((Math.atan2(dy, dx) * 180) / Math.PI + 180) % 180;
-                const normal =
-                  angle >= 90 ? ([dy / length, -dx / length] as const) : ([-dy / length, dx / length] as const);
-                rows.push({
-                  angle: round(angle, 1),
-                  offset: round(x1 * normal[0] + y1 * normal[1], 2),
-                  length: round(length, 2),
-                  x1: round(x1, 1),
-                  y1: round(y1, 1),
-                  x2: round(x2, 1),
-                  y2: round(y2, 1),
-                });
-              }
-              current = O.some(point);
-            }
-          }
-          return rows;
-        },
+        onSome: rowsOfPath,
       });
     },
   });
