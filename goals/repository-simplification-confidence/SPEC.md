@@ -1079,3 +1079,11 @@ and only the unchanged main PatchSeriesFile red. Keep that repair on main
 with the program orchestrator; do not weaken policy or duplicate its code.
 Run explicit bounded readiness and report the skipped isolated preflight.
 Reverse through the delivery PR's revert; derived receipts remain rebuildable.
+
+### 2026-10-14 — H2 isolates historical ruleset read failures
+
+Keep every successful applicable Repository ruleset snapshot when a sibling
+parent, glob or history read is unsupported or unavailable. A known required
+red remains unsatisfied even though incomplete inventory still blocks verified.
+All-failed or non-applicable reads remain unknown. Reverse by reverting this
+adapter fix and deleting derived receipts before refresh; no lifecycle changes.

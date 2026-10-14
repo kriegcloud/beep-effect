@@ -1605,3 +1605,13 @@ should be rendered beside the option in command help.
   wave, followed by explicit bounded readiness. Workspace frozen install
   passes; the refused isolated head-install step is not claimed as run.
   Program orchestrator owns the single-main repair and S11 gate.
+
+### 2026-10-14 — H2 partial historical ruleset reads
+
+- New P1 review shows one unsupported parent or failed ruleset discards
+  readable Repository siblings, hiding a known required red as unknown.
+  Isolate failures per ruleset, flatten nested Options and retain successes.
+  Keep inventoryComplete false and the all-failed unknown path unchanged.
+- Cover organization, glob and unreadable-history siblings with both green
+  and red repository checks. Cancel only the owned readiness monitor for the
+  new implementation wave; confirm termination before requalification.

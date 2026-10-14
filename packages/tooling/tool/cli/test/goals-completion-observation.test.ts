@@ -15,6 +15,7 @@ import {
   storedGoalCompletion,
 } from "@beep/repo-cli/test/Goals";
 import { YeetCommandError } from "@beep/repo-cli/test/Yeet";
+import { LiteralKit } from "@beep/schema";
 import { it } from "@beep/test-runner";
 import { expect } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
@@ -34,7 +35,9 @@ import * as Str from "effect/String";
 import { NodeTestLayer, temporaryWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
 
 const encode = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
+const HistoricalRulesetFailure = LiteralKit(["organization", "glob", "unreadable"]);
 const Scenario = S.Struct({
+  partialRuleset: S.optionalKey(HistoricalRulesetFailure),
   failure: S.optionalKey(S.Boolean),
   merged: S.optionalKey(S.Boolean),
   postMergeRerun: S.optionalKey(S.Boolean),
@@ -128,7 +131,16 @@ const fixtureIo = (acceptedText: string, scenario: typeof Scenario.Type = {}) =>
               state: {
                 enforcement: "active",
                 target: "branch",
-                conditions: { ref_name: { include: ["~DEFAULT_BRANCH"], exclude: [] } },
+                conditions: {
+                  ref_name: {
+                    include:
+                      HistoricalRulesetFailure.is.glob(scenario.partialRuleset) &&
+                      Str.includes("/rulesets/43/")(endpoint)
+                        ? ["refs/heads/release/*"]
+                        : ["~DEFAULT_BRANCH"],
+                    exclude: [],
+                  },
+                },
                 rules: [
                   {
                     type: "required_status_checks",
@@ -143,7 +155,8 @@ const fixtureIo = (acceptedText: string, scenario: typeof Scenario.Type = {}) =>
           )
         ),
         Match.when(Str.includes("/history"), () =>
-          scenario.missingHistory === true
+          scenario.missingHistory === true ||
+          (HistoricalRulesetFailure.is.unreadable(scenario.partialRuleset) && Str.includes("/rulesets/43/")(endpoint))
             ? Effect.fail(YeetCommandError.make({ message: "History unavailable" }))
             : Effect.succeed(
                 encode([
@@ -155,7 +168,24 @@ const fixtureIo = (acceptedText: string, scenario: typeof Scenario.Type = {}) =>
               )
         ),
         Match.when(Str.includes("rulesets?"), () =>
-          Effect.succeed(encode([[{ id: 42, source_type: "Repository", created_at: "2026-09-01T00:00:00Z" }]]))
+          Effect.succeed(
+            encode([
+              [
+                { id: 42, source_type: "Repository", created_at: "2026-09-01T00:00:00Z" },
+                ...(scenario.partialRuleset === undefined
+                  ? []
+                  : [
+                      {
+                        id: 43,
+                        source_type: HistoricalRulesetFailure.is.organization(scenario.partialRuleset)
+                          ? "Organization"
+                          : "Repository",
+                        created_at: "2026-09-01T00:00:00Z",
+                      },
+                    ]),
+              ],
+            ])
+          )
         ),
         Match.orElse(() =>
           Effect.succeed(
@@ -226,6 +256,32 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       }
       expect(decoded).toBeGreaterThan(0);
     })
+  );
+  it.effect("retains repository check facts when a sibling parent, glob or history cannot be read", () =>
+    Effect.forEach(
+      HistoricalRulesetFailure.literals,
+      Effect.fn("GoalsCompletionTest.partialRulesets")(function* (partialRuleset) {
+        yield* Effect.forEach(
+          [true, false],
+          Effect.fn("GoalsCompletionTest.partialRulesetCheck")(function* (red) {
+            const receipt = yield* observe({ partialRuleset, red });
+            expect(receipt.outcome).toBe(red ? "unsatisfied" : "unknown");
+            assertSome(
+              O.map(receipt.requiredChecks, (snapshot) => snapshot.inventoryComplete),
+              false
+            );
+            assertSome(
+              O.map(receipt.requiredChecks, (snapshot) => snapshot.contexts),
+              ["Lint"]
+            );
+            assertSome(
+              O.map(receipt.requiredChecks, (snapshot) => snapshot.sources),
+              ["repos/{owner}/{repo}/rulesets/42/history/1"]
+            );
+          })
+        );
+      })
+    )
   );
   it.effect("a rerun pending at merge cannot reuse an older green result", () =>
     Effect.gen(function* () {

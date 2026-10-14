@@ -324,7 +324,9 @@ const readHistoricalRequiredChecks = Effect.fn("Goals.Completion.historicalRequi
     )
   );
   const snapshots = A.getSomes(
-    yield* Effect.forEach(inventory, (ruleset) => readHistoricalRuleset(root, ruleset, base, mergedAt))
+    yield* Effect.forEach(inventory, (ruleset) =>
+      readHistoricalRuleset(root, ruleset, base, mergedAt).pipe(Effect.option, Effect.map(O.flatten))
+    )
   );
   if (A.isReadonlyArrayEmpty(snapshots))
     return yield* YeetCommandError.make({ message: "No historical applicable ruleset observed" });
