@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "yaml",
+    "module": "workspaces",
     "stage": 5,
     "commit": null,
-    "at": "2026-10-14T00:44:06.680Z"
+    "at": "2026-10-14T00:48:36.240Z"
   },
   "rows": [
     {
@@ -15457,8 +15457,8 @@
       "module": "workspaces",
       "wave": 4,
       "position": 3,
-      "stage": 3,
-      "status": "in-progress",
+      "stage": 5,
+      "status": "done",
       "provisionalHome": "tooling/library",
       "upstreamPaths": {
         "src": "packages/workspaces/src",
@@ -17008,6 +17008,14 @@
         },
         {
           "stage": 2,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 3,
+          "sha": "60fcfb5ebcdc26765a66cc1f13afc88adcb05d11"
+        },
+        {
+          "stage": 4,
           "sha": null
         }
       ],
@@ -17016,9 +17024,11 @@
         "2026-10-09T11:34:09.401Z beep laws done (four laws clean, allowlisted sites listed); S1 held by the environment-bound tests in TESTS_NOT_PASSING.md",
         "2026-10-09T15:21:24.529Z S1: green: env-bound tests resolved per the 2026-10-09 rulings; tsgo, oxlint and the four laws clean; audit green (parity strict)",
         "2026-10-09T16:20:16.965Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
-        "2026-10-10T00:12:29.857Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (55 ledgered exceptions), property floor"
+        "2026-10-10T00:12:29.857Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (55 ledgered exceptions), property floor",
+        "2026-10-14T00:48:34.370Z S4: S4 closed at review round 3 (operator cap: three rounds)",
+        "2026-10-14T00:48:36.240Z S5: done: final round committed and gated (audit, docgen, per-file coverage)"
       ],
-      "closedAt": null
+      "closedAt": "2026-10-14T00:48:36.240Z"
     },
     {
       "id": "w4-cli",
