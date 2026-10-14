@@ -623,6 +623,8 @@ const attachmentLine = (row: IntakeAttachment): string => {
  * console.log(lines[0]) // "intake: 0 attachment(s) -> /corpus/in"
  * ```
  *
+ * @param result - Completed intake record and attachment outcomes to summarize.
+ * @returns Summary lines containing attachment names, sizes, hashes, and storage paths.
  * @category formatting
  * @since 0.0.0
  */
