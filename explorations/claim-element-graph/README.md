@@ -3,8 +3,8 @@
 ## Status
 
 <!-- BEGIN GENERATED: EXPLORATION STATUS -->
-Stage: `align`
-Status: `active`
+Stage: `graduate`
+Status: `graduated`
 <!-- END GENERATED: EXPLORATION STATUS -->
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
@@ -24,14 +24,8 @@ by deterministic rules first, extended by an LLM second, and scored strictly.
 
 ## Next Open Question
 
-Align round 1 has seven questions, each with a recommended answer in the manifest:
-- Where do elements live: inside `PatentClaim` or in a sibling projection?
-- Deterministic-first or LLM-first?
-- Which metric is primary?
-- Is NC-licensed data acceptable for internal evaluation?
-- Is Markush in scope for the first slice?
-- Which consumer comes first?
-- How large a US labelled set do we need?
+None. Graduated into [`goals/claim-element-antecedent-check`](../../goals/claim-element-antecedent-check/README.md); gated MAP rows are the
+re-entry points.
 
 ## Read This First
 
@@ -48,10 +42,17 @@ Align round 1 has seven questions, each with a recommended answer in the manifes
 7. [`research/ANCHOR-2610.01553.md`](./research/ANCHOR-2610.01553.md): the deep-dive on the
    anchor paper and its code release.
 8. [`research/OPPORTUNITIES.md`](./research/OPPORTUNITIES.md): friction receipts.
-9. [`DECISIONS.md`](./DECISIONS.md): the align log. No rounds have run yet.
+9. [`DECISIONS.md`](./DECISIONS.md): the align and shape rulings.
+10. [`BRIEF.md`](./BRIEF.md) and [`MAP.md`](./MAP.md): the shaped pitch and the graduation map.
 
 ## Trail
 
+- 2026-10-14: graduated into `goals/claim-element-antecedent-check` with `bun run beep explore graduate`; goal SPEC seeded
+  from the brief and reviewed independently.
+- 2026-10-14: align rounds 1–3 settled 14 rulings, all on the recommended options. The shape review
+  routed findings through the shared review queue
+  ([attorney-review-workspace](../attorney-review-workspace/README.md)). The map names one goal,
+  `claim-element-antecedent-check`, plus gated re-entry points.
 - 2026-10-14: packet opened from a 57-agent literature sweep anchored on arXiv 2610.01553. A
   15-claim refutation pass found 8 claims confirmed and 7 partly wrong; corrections are applied.
   The 21 core sources were acquired into the research library (verify: 0 missing, 0 integrity

@@ -3,20 +3,12 @@
   "exploration": {
     "slug": "claim-element-graph",
     "title": "Claim Element Graph",
-    "status": "active",
-    "stage": "align",
-    "openQuestions": [
-      "Should claim elements live inside PatentClaim, or in a sibling ClaimElementTree projection keyed by claimNumber? Recommended: sibling, so the completed patent-document-schema stays stable and elements get their own epistemic candidate lifecycle.",
-      "Deterministic-first (FLAN/PHAGE rules, claim-text XML nesting, determiner antecedents) or LLM-first decomposition? Recommended: deterministic-first, with an LLM pass second, admitted only through CandidateClaim.",
-      "Which primary metric: strict structural equality under one consistent mapping, or IPRally-style teacher-agreement IoU? Recommended: strict equality, with IoU reported only for comparison.",
-      "Is NC-licensed data (PANORAMA CC BY-NC 4.0, PatClaimEval) acceptable as internal-only evaluation data, never shipped or redistributed?",
-      "Are chemical/Markush claims in scope for the first slice, or deferred? Recommended: deferred, keeping only the strict-metric lesson from MarkushGlyph.",
-      "Which consumer goes first: the drafting ledger's ClaimLimitationSupportSet, a deterministic 112(b) antecedent self-check, an OA per-element mapping record, Distinction.missing_limitation as an element reference, or KG element node kinds? Recommended: antecedent self-check, then the drafting support set.",
-      "How large a hand-labelled US claim set do we need to measure the deterministic floor, and the checker's false-positive rate on allowed claims (which no paper measures)? Where do its claims come from?"
-    ],
+    "status": "graduated",
+    "stage": "graduate",
+    "openQuestions": [],
     "sources": ["research/SOURCES.md"],
     "links": {
-      "goals": [],
+      "goals": ["goals/claim-element-antecedent-check"],
       "docs": [],
       "supersededBy": null
     },
