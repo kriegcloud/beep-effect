@@ -30905,6 +30905,18 @@
             "branches": 0,
             "functions": 0
           }
+        },
+        "packages/tooling/tool/cli/src/commands/Explore/Graduate.ts": {
+          "lines": 95.76,
+          "statements": 95.9,
+          "branches": 92.85,
+          "functions": 90.56,
+          "uncovered": {
+            "lines": 5,
+            "statements": 5,
+            "branches": 2,
+            "functions": 5
+          }
         }
       }
     },

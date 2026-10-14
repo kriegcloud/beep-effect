@@ -637,6 +637,7 @@ describe("@beep/technical-drawing", () => {
         const decode = S.decodeUnknownEffect(LabelStyle);
         const sans = yield* decode({ typeface: "sans", sizePt: 18, render: "text" });
         expect(labelFontFamily(sans)).toBe("Arial");
+        expect(labelFontFamily(yield* decode({ typeface: "stroke", sizePt: 18 }))).toBe("Times New Roman");
         expect(labelFontFamily(yield* decode({ typeface: "serif", sizePt: 24, render: "text" }))).toBe(
           "Times New Roman"
         );
