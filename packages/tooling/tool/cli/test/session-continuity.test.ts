@@ -8,6 +8,7 @@ import {
 } from "@beep/repo-cli/test/Session";
 import { fcRuns } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -17,8 +18,11 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Stdio from "effect/Stdio";
+import * as Terminal from "effect/Terminal";
 
 const expected = PermissionTuple.make({ approval: "never", sandbox: "danger-full-access", profile: "disabled" });
 const encode = S.encodeEffect(S.fromJsonString(S.Unknown));
@@ -85,7 +89,29 @@ const fixture = Effect.fn("ContinuityTest.fixture")(function* (
   const read = yield* PermissionContinuity;
   return yield* read.read(manifest);
 });
-it.layer(PermissionContinuityLive.pipe(Layer.provideMerge(Layer.mergeAll(MemoryFileSystem.layer, Path.layer))), {
+// Command.runWith requires the CLI environment even for this non-interactive subcommand.
+// Files stay virtual; unexpected terminal input or process execution fails the test.
+const commandEnvironment = Layer.mergeAll(
+  MemoryFileSystem.layer,
+  Path.layer,
+  NodeCrypto.layer,
+  Stdio.layerTest({}),
+  Layer.succeed(
+    Terminal.Terminal,
+    Terminal.make({
+      columns: Effect.succeed(80),
+      rows: Effect.succeed(24),
+      readInput: Effect.die("Unexpected terminal input"),
+      readLine: Effect.die("Unexpected terminal input"),
+      display: () => Effect.void,
+    })
+  ),
+  Layer.succeed(
+    ChildProcessSpawner.ChildProcessSpawner,
+    ChildProcessSpawner.make(() => Effect.die("Unexpected process execution"))
+  )
+);
+it.layer(PermissionContinuityLive.pipe(Layer.provideMerge(commandEnvironment)), {
   timeout: "30 seconds",
 })("permission continuity census", (it) => {
   it.prop(
