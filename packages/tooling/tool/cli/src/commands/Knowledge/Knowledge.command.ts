@@ -8,15 +8,18 @@
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import { Command, Flag } from "effect/cli";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { dual, flow, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { isCi } from "../../internal/cli/EnvConfig.ts";
 import {
   KnowledgeHostPathDebtError,
   KnowledgeIntroducedFindingsError,
@@ -38,11 +41,24 @@ import {
   KnowledgeProbePolicy,
 } from "./Knowledge.schemas.ts";
 import { KnowledgeService, KnowledgeServiceLive } from "./Knowledge.service.ts";
+import { knowledgeDoctorGateFailure } from "./KnowledgeDoctor.baseline.ts";
+import { encodeKnowledgeLeasesReportJson, knowledgeLeaseWarnings } from "./KnowledgeDoctor.leases.ts";
 import { encodeKnowledgeDoctorReportJson, KnowledgeSpanClass } from "./KnowledgeDoctor.schemas.ts";
-import { KnowledgeDoctor, KnowledgeDoctorLive } from "./KnowledgeDoctor.service.ts";
+import {
+  KnowledgeDoctor,
+  KnowledgeDoctorCheckOptions,
+  KnowledgeDoctorLeasesOptions,
+  KnowledgeDoctorLive,
+} from "./KnowledgeDoctor.service.ts";
 import type { KnowledgeRef, KnowledgeRefObservation, KnowledgeRefsReport } from "./Knowledge.refs.ts";
-import type { KnowledgeFinding, KnowledgeSemanticDeltaReport } from "./Knowledge.schemas.ts";
-import type { KnowledgeDoctorFinding, KnowledgeDoctorReport } from "./KnowledgeDoctor.schemas.ts";
+import type { KnowledgeFinding, KnowledgeFindingId, KnowledgeSemanticDeltaReport } from "./Knowledge.schemas.ts";
+import type { KnowledgeLeasesReport } from "./KnowledgeDoctor.leases.ts";
+import type {
+  KnowledgeCauseGroup,
+  KnowledgeDoctorRatchet,
+  KnowledgeDoctorReport,
+  KnowledgeRootAttribution,
+} from "./KnowledgeDoctor.schemas.ts";
 
 const baseFlag = Flag.String("base").pipe(
   Flag.withDescription("Local base ref used to resolve the merge-base; the command never fetches"),
@@ -603,21 +619,6 @@ const doctorJsonFlag = Flag.Boolean("json").pipe(
   Flag.withDescription("Render the whole doctor report, every finding included, as one JSON line")
 );
 
-const renderDoctorFinding = (row: KnowledgeDoctorFinding): string => {
-  const line = O.getOrElse(O.fromNullishOr(row.finding.location.line), () => 0);
-  const column = O.getOrElse(O.fromNullishOr(row.finding.location.column), () => 0);
-  return `  ${row.finding.kind} [${row.spanClass}] ${row.finding.location.path}:${line}:${column} ${row.finding.subject}`;
-};
-
-// Human listing reads document by document; JSON keeps the canonical identity order.
-const doctorListingOrder: Order.Order<KnowledgeDoctorFinding> = Order.combine(
-  Order.mapInput(Order.String, (row: KnowledgeDoctorFinding) => row.finding.location.path),
-  Order.combine(
-    Order.mapInput(Order.Number, (row: KnowledgeDoctorFinding) => row.finding.location.line ?? 0),
-    Order.mapInput(Order.Number, (row: KnowledgeDoctorFinding) => row.finding.location.column ?? 0)
-  )
-);
-
 // One line per finding kind present, in finding-kind domain order.
 const doctorKindCounts = (report: KnowledgeDoctorReport): ReadonlyArray<string> =>
   A.getSomes(
@@ -630,20 +631,84 @@ const doctorKindCounts = (report: KnowledgeDoctorReport): ReadonlyArray<string> 
     )
   );
 
+const renderAttribution = (attribution: KnowledgeRootAttribution): string =>
+  pipe(
+    attribution.repairTarget,
+    O.map((target) => ` -> ${target}`),
+    O.getOrElse(() => ""),
+    (repair) =>
+      ` ${attribution.change} ${attribution.removedPath} in ${Str.slice(0, 10)(attribution.commit)} "${attribution.subject}"${repair}`
+  );
+
+// One blocking root: its group and the split of its dependents by severity.
+interface BlockingRoot {
+  readonly advisory: number;
+  readonly blocking: number;
+  readonly group: KnowledgeCauseGroup;
+}
+
+// The per-root number counts blocking findings only (a blocking delegated root and its blocking
+// dependents), so the lines add up to the headline; advisory dependents are named beside it.
+const renderRoot = ({ advisory, blocking, group }: BlockingRoot): string =>
+  `  ${Str.padStart(6)(`${blocking}`)} ${group.causeKey} [${group.rootOrigin}]${pipe(
+    group.attribution,
+    O.map(renderAttribution),
+    O.getOrElse(() => "")
+  )}${advisory > 0 ? ` (+${advisory} advisory)` : ""}`;
+
+// Roots with the most blocking findings (root included) first; ties read in cause-key order.
+const rootListingOrder: Order.Order<BlockingRoot> = Order.combine(
+  Order.flip(Order.mapInput(Order.Number, (root: BlockingRoot) => root.blocking)),
+  Order.mapInput(Order.String, (root: BlockingRoot) => root.group.causeKey)
+);
+
+// A group is blocking when its delegated root or any dependent is a blocking finding.
+const blockingRoots = (report: KnowledgeDoctorReport): ReadonlyArray<BlockingRoot> => {
+  const blockingIds = HashSet.fromIterable(
+    A.map(
+      A.filter(report.findings, (row) => row.finding.severity === "blocking"),
+      (row) => row.finding.findingId
+    )
+  );
+  const isBlocking = (id: KnowledgeFindingId) => HashSet.has(blockingIds, id);
+  // A blocking delegated root counts toward its own line, so the lines sum to the headline.
+  const roots = A.map(report.groups, (group): BlockingRoot => {
+    const dependents = A.length(A.filter(group.dependents, isBlocking));
+    return {
+      group,
+      blocking: dependents + (O.exists(group.root, isBlocking) ? 1 : 0),
+      advisory: A.length(group.dependents) - dependents,
+    };
+  });
+  return A.filter(roots, (root) => root.blocking > 0);
+};
+
+const rootSummary = (report: KnowledgeDoctorReport): string => {
+  const delegated = A.length(A.filter(report.groups, (group) => group.rootOrigin === "delegated"));
+  const attributed = A.length(A.filter(report.groups, (group) => O.isSome(group.attribution)));
+  return `cause groups (${A.length(report.groups)}; delegated ${delegated}; attributed ${attributed}; history ${report.rootHistory}):`;
+};
+
 /**
  * Renders a knowledge-doctor report for local human inspection.
  *
  * **Details**
  *
- * The headline names the tree, the per-class span totals, the unchecked option tokens, and the
- * per-kind finding totals. Blocking findings are listed one per line; advisory findings (the
- * unclassified worklist) fold into one count line, because `--json` carries every row.
+ * The headline names the tree, the per-class span totals (with how many `verified` spans failed, since
+ * `verified` means checked at the tree, not passed), the unchecked option tokens, and the per-kind
+ * finding totals. Blocking findings are shown as their causal roots, one line per cause group with
+ * its blocking count (a blocking delegated root plus its blocking dependents, advisory dependents
+ * named beside it), origin, and authoring commit,
+ * most blocking findings first; advisory-only groups (the unclassified worklist) fold into one
+ * count line, because `--json` carries every row, followed by the worklist's counts per evaluator
+ * and its ten densest documents.
  *
  * **Example** (Render an empty report)
  *
  * ```ts
  * import { KnowledgeDoctorReport, KnowledgeSpanCounts } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
  * import { renderKnowledgeDoctorHumanReport } from "@beep/repo-cli/test/Knowledge"
+ * import * as O from "effect/Option"
  *
  * const output = renderKnowledgeDoctorHumanReport(
  *   KnowledgeDoctorReport.make({
@@ -657,7 +722,10 @@ const doctorKindCounts = (report: KnowledgeDoctorReport): ReadonlyArray<string> 
  *       unclassified: 0,
  *     }),
  *     uncheckedOptionCount: 0,
+ *     rootHistory: "available",
+ *     groups: [],
  *     findings: [],
+ *     ratchet: O.none(),
  *   })
  * )
  *
@@ -671,11 +739,9 @@ const doctorKindCounts = (report: KnowledgeDoctorReport): ReadonlyArray<string> 
  * @since 0.0.0
  */
 export const renderKnowledgeDoctorHumanReport = (report: KnowledgeDoctorReport): string => {
-  const blocking = A.sort(
-    A.filter(report.findings, (row) => row.finding.severity === "blocking"),
-    doctorListingOrder
-  );
-  const advisory = A.length(report.findings) - A.length(blocking);
+  const blocking = A.length(A.filter(report.findings, (row) => row.finding.severity === "blocking"));
+  const roots = A.sort(blockingRoots(report), rootListingOrder);
+  const advisory = A.length(report.findings) - blocking;
   return A.join(
     [
       `knowledge doctor --report @ ${report.treeish} (${report.tree})`,
@@ -684,29 +750,251 @@ export const renderKnowledgeDoctorHumanReport = (report: KnowledgeDoctorReport):
         KnowledgeSpanClass.literals,
         (spanClass) => `  ${Str.padEnd(24)(spanClass)} ${report.spanCounts[spanClass]}`
       ),
+      verifiedNote(report),
       `unchecked options: ${report.uncheckedOptionCount}`,
       `findings (${A.length(report.findings)}):`,
       ...doctorKindCounts(report),
-      `blocking findings (${A.length(blocking)}):`,
-      ...A.map(blocking, renderDoctorFinding),
+      rootSummary(report),
+      `blocking findings (${blocking}) under ${A.length(roots)} root(s):`,
+      ...A.map(roots, renderRoot),
       ...(advisory > 0 ? [`advisory findings: ${advisory} ${OMITTED_DOCTOR_HINT}`] : []),
+      ...unclassifiedWorklist(report),
     ],
     "\n"
   );
 };
 
 const OMITTED_DOCTOR_HINT = "row(s) omitted (--json lists them)";
+const UNCLASSIFIED_DOCUMENT_LIMIT = 10;
+
+// Count pairs sorted by count descending, then key, so the listing reads the same on every run.
+const countPairOrder: Order.Order<readonly [string, number]> = Order.combine(
+  Order.flip(Order.mapInput(Order.Number, ([, count]: readonly [string, number]) => count)),
+  Order.mapInput(Order.String, ([key]: readonly [string, number]) => key)
+);
+
+const countBy = (keys: ReadonlyArray<string>): ReadonlyArray<readonly [string, number]> =>
+  A.sort(
+    A.fromIterable(
+      A.reduce(keys, HashMap.empty<string, number>(), (counts, key) =>
+        HashMap.set(counts, key, O.getOrElse(HashMap.get(counts, key), () => 0) + 1)
+      )
+    ),
+    countPairOrder
+  );
+
+// The K9 burn-down worklist by evaluator and by document (risk 3 of the C PR 2b verdict).
+const unclassifiedWorklist = (report: KnowledgeDoctorReport): ReadonlyArray<string> => {
+  const rows = A.filter(report.findings, (row) => row.finding.kind === "unclassified-reference-span");
+  return A.match(rows, {
+    onEmpty: () => [],
+    onNonEmpty: (unclassified) => [
+      `unclassified by evaluator: ${A.join(
+        A.map(
+          countBy(A.map(unclassified, (row) => O.getOrElse(row.evaluator, () => "none"))),
+          ([evaluator, count]) => `${evaluator} ${count}`
+        ),
+        ", "
+      )}`,
+      `unclassified top documents (${UNCLASSIFIED_DOCUMENT_LIMIT}):`,
+      ...A.map(
+        A.take(countBy(A.map(unclassified, (row) => row.finding.location.path)), UNCLASSIFIED_DOCUMENT_LIMIT),
+        ([path, count]) => `  ${Str.padStart(6)(`${count}`)} ${path}`
+      ),
+    ],
+  });
+};
+
+// "verified" counts spans checked at the tree, failing ones included (risk 4 of the C PR 2b verdict).
+const verifiedNote = (report: KnowledgeDoctorReport): string =>
+  `  (verified = checked at the tree, not passed: ${A.length(
+    A.filter(report.findings, (row) => row.spanClass === "verified" && row.origin === "owned")
+  )} of them failed)`;
+
+const doctorAcceptMintFlag = Flag.Boolean("accept-mint").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription(
+    "CI-only: admit the mint App's baseline-only PR when mintedAt is an ancestor and the baseline re-mints byte for byte"
+  )
+);
+const doctorBaseFlag = Flag.String("base").pipe(
+  Flag.withDescription("Local base ref; its merge-base anchors the seal guard, leases, and promotions (never fetched)"),
+  Flag.withDefault("origin/main")
+);
+const leasesJsonFlag = Flag.Boolean("json").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Render the lease report as one JSON line (yeet's verify step reads it)")
+);
+
+const renderRatchetRows = (
+  report: KnowledgeDoctorReport,
+  entries: KnowledgeDoctorRatchet["introduced"]
+): ReadonlyArray<string> => {
+  const byId = HashMap.fromIterable(A.map(report.findings, (row) => [row.finding.findingId, row] as const));
+  return A.getSomes(
+    A.map(entries, (entry) =>
+      O.map(
+        HashMap.get(byId, entry.findingId),
+        (row) => `  ${row.finding.kind} ${row.finding.location.path}: ${row.finding.message}`
+      )
+    )
+  );
+};
+
+/**
+ * Renders a checked knowledge-doctor report: the ratchet buckets, introduced findings, and governance
+ * findings.
+ *
+ * **Details**
+ *
+ * Introduced findings (promoted kinds with no baseline key or effective lease) and governance
+ * findings (`baseline-tamper`, lease violations, expired leases) are listed one per line, since each
+ * blocks; pending, inherited, leased, and resolved buckets print as counts.
+ *
+ * **Example** (A read-only report has no ratchet section)
+ *
+ * ```ts
+ * import { KnowledgeDoctorReport, KnowledgeSpanCounts } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import { renderKnowledgeDoctorCheckReport } from "@beep/repo-cli/test/Knowledge"
+ * import * as O from "effect/Option"
+ *
+ * const output = renderKnowledgeDoctorCheckReport(
+ *   KnowledgeDoctorReport.make({
+ *     treeish: "HEAD",
+ *     tree: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4",
+ *     mode: "report",
+ *     spanCounts: KnowledgeSpanCounts.make({
+ *       verified: 0,
+ *       "generated-example": 0,
+ *       "historical-with-commit": 0,
+ *       unclassified: 0,
+ *     }),
+ *     uncheckedOptionCount: 0,
+ *     rootHistory: "available",
+ *     groups: [],
+ *     findings: [],
+ *     ratchet: O.none(),
+ *   })
+ * )
+ *
+ * console.log(output.includes("no ratchet")) // true
+ * ```
+ *
+ * @internal
+ * @param report - A checked doctor report.
+ * @returns A stable multiline summary.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderKnowledgeDoctorCheckReport = (report: KnowledgeDoctorReport): string =>
+  O.match(report.ratchet, {
+    onNone: () => `knowledge doctor @ ${report.treeish} (${report.tree}): no ratchet (read-only report)`,
+    onSome: (ratchet) => {
+      const governance = A.filter(report.findings, (row) =>
+        A.contains(
+          [
+            "baseline-tamper",
+            "lease-expired",
+            "lease-owner-unresolved",
+            "lease-lifetime-exceeded",
+            "lease-quota-exceeded",
+          ],
+          row.finding.kind
+        )
+      );
+      return A.join(
+        [
+          `knowledge doctor @ ${report.tree} vs ${ratchet.baseRef} (merge-base ${ratchet.mergeBase}); baseline minted at ${ratchet.mintedAt}`,
+          `promoted kinds: ${A.isReadonlyArrayEmpty(ratchet.promotedKinds) ? "none (every kind is report-only)" : A.join(ratchet.promotedKinds, ", ")}`,
+          `inherited ${A.length(ratchet.inherited)}, leased ${A.length(ratchet.leased)}, pending ${A.length(
+            ratchet.pending
+          )} (report-only kinds), resolved ${A.length(ratchet.resolved)}`,
+          `introduced (${A.length(ratchet.introduced)}):`,
+          ...renderRatchetRows(report, ratchet.introduced),
+          `governance (${A.length(governance)}):`,
+          ...A.map(governance, (row) => `  ${row.finding.kind} ${row.finding.location.path}: ${row.finding.message}`),
+          ...A.map(ratchet.identityRejected, (line) => `identity sidecar mapping rejected: ${line}`),
+        ],
+        "\n"
+      );
+    },
+  });
+
+/**
+ * Renders a lease report for local human inspection.
+ *
+ * **Example** (No leases)
+ *
+ * ```ts
+ * import { KnowledgeLeasesReport } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.leases"
+ * import { renderKnowledgeLeasesReport } from "@beep/repo-cli/test/Knowledge"
+ * import * as DateTime from "effect/DateTime"
+ *
+ * const output = renderKnowledgeLeasesReport(
+ *   KnowledgeLeasesReport.make({
+ *     tree: "1111111111111111111111111111111111111111",
+ *     mergeBase: "2222222222222222222222222222222222222222",
+ *     now: DateTime.makeUnsafe("2026-10-14T00:00:00Z"),
+ *     leases: [],
+ *   })
+ * )
+ *
+ * console.log(output.includes("0 lease(s)")) // true
+ * ```
+ *
+ * @internal
+ * @param report - The lease report.
+ * @returns A count line plus one line per lease that needs attention.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderKnowledgeLeasesReport = (report: KnowledgeLeasesReport): string =>
+  A.join(
+    [
+      `knowledge doctor leases @ ${report.tree} (merge-base ${report.mergeBase}): ${A.length(report.leases)} lease(s)`,
+      ...knowledgeLeaseWarnings(report),
+    ],
+    "\n"
+  );
+
+const runDoctorCheck = Effect.fn("KnowledgeCommand.runDoctorCheck")(function* (options: {
+  readonly base: string;
+  readonly acceptMint: boolean;
+  readonly json: boolean;
+}) {
+  if (options.acceptMint && !(yield* isCi)) {
+    return yield* KnowledgeOperationalError.make({
+      message: "knowledge doctor: --accept-mint is CI-only; the mint workflow passes it for the mint App's branch.",
+    });
+  }
+  const doctor = yield* KnowledgeDoctor;
+  const report = yield* doctor.check(
+    KnowledgeDoctorCheckOptions.make({
+      baseRef: options.base,
+      acceptMint: options.acceptMint,
+      now: yield* DateTime.now,
+    })
+  );
+  if (options.json) {
+    const json = yield* encodeKnowledgeDoctorReportJson(report).pipe(
+      KnowledgeOperationalError.mapError("Failed to encode the knowledge doctor JSON report.")
+    );
+    yield* Console.log(json);
+  } else {
+    yield* Console.log(renderKnowledgeDoctorCheckReport(report));
+  }
+  yield* O.match(knowledgeDoctorGateFailure(report), { onNone: () => Effect.void, onSome: Effect.fail });
+});
 
 const runDoctor = Effect.fn("KnowledgeCommand.runDoctor")(function* (options: {
   readonly report: boolean;
   readonly tree: string;
   readonly json: boolean;
+  readonly base: string;
+  readonly acceptMint: boolean;
 }) {
   if (!options.report) {
-    return yield* KnowledgeOperationalError.make({
-      message:
-        "knowledge doctor: only the read-only report is available until the sealed baseline lands; rerun with --report.",
-    });
+    return yield* runDoctorCheck(options);
   }
   const doctor = yield* KnowledgeDoctor;
   const report = yield* doctor.report(options.tree);
@@ -720,6 +1008,37 @@ const runDoctor = Effect.fn("KnowledgeCommand.runDoctor")(function* (options: {
   }
 });
 
+const knowledgeDoctorVerifyMintCommand = Command.make(
+  "verify-mint",
+  {},
+  Effect.fn("KnowledgeCommand.verifyMint")(function* () {
+    const doctor = yield* KnowledgeDoctor;
+    const minted = yield* doctor.verifyMint;
+    yield* Console.log(
+      `knowledge doctor verify-mint: the committed baseline reproduces at ${minted.mintedAt} (${A.length(minted.entries)} entries).`
+    );
+  })
+).pipe(Command.withDescription("Re-mint the committed baseline at its mintedAt and byte-compare"));
+
+const knowledgeDoctorLeasesCommand = Command.make(
+  "leases",
+  { base: doctorBaseFlag, json: leasesJsonFlag },
+  Effect.fn("KnowledgeCommand.leases")(function* (options) {
+    const doctor = yield* KnowledgeDoctor;
+    const report = yield* doctor.leases(
+      KnowledgeDoctorLeasesOptions.make({ baseRef: options.base, now: yield* DateTime.now })
+    );
+    if (options.json) {
+      const json = yield* encodeKnowledgeLeasesReportJson(report).pipe(
+        KnowledgeOperationalError.mapError("Failed to encode the knowledge doctor lease report.")
+      );
+      yield* Console.log(json);
+    } else {
+      yield* Console.log(renderKnowledgeLeasesReport(report));
+    }
+  })
+).pipe(Command.withDescription("List debt leases: active, expiring within 7 days, expired, and rule violations"));
+
 /**
  * The `beep knowledge doctor` subcommand.
  *
@@ -730,10 +1049,17 @@ const runDoctor = Effect.fn("KnowledgeCommand.runDoctor")(function* (options: {
  * and prints the result. It reads no baseline, writes nothing, gates nothing, and exits 0 whatever
  * it finds. `--tree` accepts any commit-ish (default `HEAD`); no fetch ever occurs.
  *
+ * Without `--report` the command is the gate: it scans `HEAD`, classifies every baselineable finding
+ * against the sealed baseline (introduced, pending, inherited, leased, resolved), runs the seal
+ * guard against the merge-base with `--base`, evaluates the debt leases, and fails on introduced or
+ * governance findings. `--accept-mint` is CI-only. `verify-mint` re-mints the committed baseline at
+ * its `mintedAt` and byte-compares; `leases [--json]` lists the leases without scanning the corpus.
+ *
  * **Gotchas**
  *
- * Without `--report` the command fails: the gating form needs the sealed baseline, which has not
- * landed. Human output folds advisory findings into a count; `--json` keeps every finding.
+ * Until the CI mint opens the first sealed baseline the gate refuses with the same message it always
+ * has, and every kind stays report-only until its promotion row lands. Human output folds advisory
+ * findings into a count; `--json` keeps every finding.
  *
  * **Example** (Read the subcommand identity)
  *
@@ -748,10 +1074,19 @@ const runDoctor = Effect.fn("KnowledgeCommand.runDoctor")(function* (options: {
  */
 export const knowledgeDoctorCommand = Command.make(
   "doctor",
-  { report: doctorReportFlag, tree: treeFlag, json: doctorJsonFlag },
+  {
+    report: doctorReportFlag,
+    tree: treeFlag,
+    json: doctorJsonFlag,
+    base: doctorBaseFlag,
+    acceptMint: doctorAcceptMintFlag,
+  },
   runDoctor
 ).pipe(
-  Command.withDescription("Classify and check every knowledge reference span; --report is read-only and exits 0"),
+  Command.withDescription(
+    "Classify and check every knowledge reference span; --report is read-only, the bare form gates on the sealed baseline"
+  ),
+  Command.withSubcommands([knowledgeDoctorVerifyMintCommand, knowledgeDoctorLeasesCommand]),
   Command.provide(KnowledgeDoctorLive)
 );
 
@@ -783,7 +1118,7 @@ export const knowledgeDoctorCommand = Command.make(
  */
 export const knowledgeCommand = Command.make("knowledge", {}, () =>
   Console.log(
-    "Knowledge commands: refs [--tree <rev>] [--surface live|archival|all] [--json] [--check] [--verbose], semantic-delta [--base <ref>] [--json], doctor --report [--tree <rev>] [--json]"
+    "Knowledge commands: refs [--tree <rev>] [--surface live|archival|all] [--json] [--check] [--verbose], semantic-delta [--base <ref>] [--json], doctor [--report [--tree <rev>]] [--base <ref>] [--json], doctor verify-mint, doctor leases [--json]"
   )
 ).pipe(
   Command.withDescription("Knowledge-surface verification commands"),

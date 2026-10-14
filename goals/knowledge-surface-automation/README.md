@@ -87,6 +87,12 @@ P4 in progress. Shipped on main so far:
   --check` reports hand-edited vendored output (`hand-edited-vendored-output`) and
   names both remedies. Decisions B24–B27 in
   [`research/p5-warehouse-update-train-design.md`](./research/p5-warehouse-update-train-design.md).
+- **C (PR 4, #1734):** the knowledge-doctor gate. It has the sealed-baseline,
+  promotions, identity, and lease schemas, the seal guard, `verify-mint`, and
+  `leases [--json]`, with `knowledge:doctor` running report-only in `lint:policy` and
+  lease warnings in yeet's verify step. Nothing is sealed yet: PR 5's CI mint opens
+  the first baseline (882 entries in six named groups on the live tree,
+  [`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
 - **B-5 (this PR, opens P5):** `beep skills relock --skill <name> [--expect <planDigest>]`
   records a bumped pin's snapshot and effective hashes after a clean replay, and refuses
   (lock untouched) when a hunk conflicts, matches only at a shifted line, or the license
@@ -102,10 +108,19 @@ command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling
 C Stage-2 PR 2b (the domain evaluators), and B-3b (the skills lock write and flip) are
 on main.
 
-B-4 (`beep skills materialize`) is on main (#1709). This PR is B-5, the first P5 piece:
+B-4 (`beep skills materialize`, #1709) and C Stage-2 PR 4 (the knowledge-doctor gate,
+#1734) are on main. This PR is B-5, the first P5 piece:
 `skills relock`, `skills replay`, `skills train-issue`, the Renovate custom manager, and
 the update-train workflow. B-6 (the hunk ledger, `--ghost`, `skills patch add`, and
 `skills review`) is next for Workstream B, then Ritual 1 (the operator's classification).
+
+C Stage-2 PR 3 (stacked on PR 2b) adds causal grouping and root attribution,
+report-only: one cause group per missing target or delegated goals-doctor finding, each
+root attributed to the commit that removed its path, with roots listed by dependent
+count. The goals packet core now reads through a reader, so the knowledge doctor lists
+goals-doctor findings as delegated roots while `goals doctor` output stays
+byte-identical. Design K18–K23; the live run (883 blocking findings under 341 roots) and
+four candidate wrong groupings are in the report's "PR 3" section.
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 
