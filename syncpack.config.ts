@@ -134,11 +134,13 @@ const config = {
       // (7.1 is the target), so its actual consumers cannot move:
       // typescript-eslint (peer `<6.1.0`, TS7 tracked in
       // typescript-eslint/typescript-eslint#10940, still open 2026-09-24),
-      // tstyche (classic API despite its open `>=5.4` peer), and commitlint's
-      // cosmiconfig-typescript-loader. ts-morph vendors its own TS 6 copy in
+      // and commitlint's cosmiconfig-typescript-loader. ts-morph vendors its own TS 6 copy in
       // @ts-morph/common and knip 6 parses with oxc, so neither needs this
-      // pin. The split ends when typescript-eslint and tstyche both release
-      // against 7.1's API.
+      // pin. Reassess the split when typescript-eslint releases against 7.1's API.
+      // tstyche is pinned exactly to 8.0.0-beta.0 for its TypeScript 7.1 backend.
+      // Explicit targets use its own store, independent of root typescript@6.
+      // Exit this hold when stable 8.0 supports the same matrix and all existing
+      // effect-drizzle assertions pass on that release.
       // Microsoft's @typescript/typescript6 bridge was blocked by
       // oven-sh/bun#33834; that fix merged 2026-08-06 (bun 1.4.0 shipped
       // after it), so the bridge is now an option but a separate decision.
@@ -188,6 +190,7 @@ const config = {
       label: "Held back — do not auto-update (see changeset portless-default-react-grab-storybook)",
       dependencies: [
         "typescript",
+        "tstyche",
         "lexical",
         "@lexical/**",
         "jsdom",

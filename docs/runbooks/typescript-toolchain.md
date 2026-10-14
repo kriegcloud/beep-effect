@@ -90,20 +90,35 @@ lab apps in the next rule sweep because `bun run check` filters them out.
 TypeScript 7.0 shipped without the classic programmatic API that tools import
 from the `typescript` module. Microsoft targets a stable API for 7.1. Until a
 consumer releases against that API, it needs the 6.x package under the
-`typescript` name. Consumers in this repo, checked 2026-09-24:
+`typescript` name. The tstyche row was refreshed 2026-10-14; other rows were
+checked 2026-09-24:
 
 | Tool | Needs `typescript@6`? | Why |
 | --- | --- | --- |
 | typescript-eslint 8.70.x | yes | peer `>=4.8.4 <6.1.0` via typescript-estree and ts-api-utils; TS7 support tracked in typescript-eslint/typescript-eslint#10940 (open) |
-| tstyche 7.x | yes | loads the classic API; its `>=5.4` peer range is open but no TS7 backend exists |
+| tstyche 8.0.0-beta.0 | no, for effect-drizzle's explicit targets | downloads `5.9.3`, `6.0.3` and `next` to its own store; TS7 backend uses the 7.1 sync/ast API. No root `typescript@6` API is loaded for this matrix. |
 | commitlint (`cosmiconfig-typescript-loader`) | yes | peer `>=5` on the JS API |
 | ts-morph 28 | no | `@ts-morph/common` vendors its own TypeScript 6.0.2 |
 | knip 6 | no | parses with oxc-parser, no `typescript` dependency |
 
 The hold lives in `syncpack.config.ts` (the "Held back" update group) so
-`deps:update` cannot collapse the split. It ends when typescript-eslint and
-tstyche ship releases against TypeScript 7.1; at that point drop `typescript@6`
-and re-point anything that resolves the `typescript` name at the native package.
+`deps:update` cannot collapse the split. Reassess the root `typescript@6` hold
+when typescript-eslint and the remaining
+classic-API consumers support TypeScript 7.1; only then drop `typescript@6` and
+re-point consumers that resolve the `typescript` name at the native package.
+The separate exact tstyche beta hold ends when stable 8.0 passes the same
+effect-drizzle assertions.
+
+Effect-drizzle's matrix is `5.9.3 || 6.0.3 || next`. On 2026-10-14, `next`
+resolved to `7.1.0-dev.20261014.1`; all 234 assertions passed across the three
+targets without assertion edits. The beta refuses the exact tsc-rs-matching
+`7.1.0-dev.20261008.1` target because its manifest excludes explicit prerelease
+versions; `next` is therefore a moving target, not exact compiler parity with
+the gates. Pin an exact 7.1 version once a supported beta/stable is listed and
+re-run the matrix. The beta intentionally excludes 7.0, including 7.0.2.
+Only the `*` target can select the installed/default TypeScript specifier;
+explicit targets use stock store compilers, without the repo's Effect patch.
+See `goals/ts7-tstyche8-type-tests` for the errors and migration evidence.
 
 Microsoft's `@typescript/typescript6` bridge (alias `typescript` to 7 and give
 old consumers 6 under a second name) was blocked by a Bun alias-resolution bug
