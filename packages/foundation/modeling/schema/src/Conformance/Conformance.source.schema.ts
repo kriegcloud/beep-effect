@@ -144,6 +144,21 @@ const SpecificationRevisionKind = LiteralKit([
 /**
  * Specification revision pinned to an immutable source-control commit.
  *
+ * **Example** (Pin a specification to a Git commit)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { GitCommitRevision, revisionLabel } from "@beep/schema/Conformance"
+ *
+ * const revision = S.decodeUnknownSync(GitCommitRevision)({
+ *   kind: "gitCommit",
+ *   repository: "https://github.com/commonmark/commonmark-spec",
+ *   commit: "0123456789abcdef0123456789abcdef01234567"
+ * })
+ *
+ * console.log(revisionLabel(revision).startsWith("gitCommit:https%3A%2F%2Fgithub.com")) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -162,6 +177,16 @@ export class GitCommitRevision extends S.Opaque<GitCommitRevision, { readonly br
 /**
  * Specification revision identified by a published release label.
  *
+ * **Example** (Pin a specification to a tagged release)
+ *
+ * ```ts
+ * import { ReleaseRevision, revisionLabel } from "@beep/schema/Conformance"
+ *
+ * const revision = ReleaseRevision.make({ version: "0.31.2" })
+ *
+ * console.log(revisionLabel(revision)) // => "release:0.31.2"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -179,6 +204,17 @@ export class ReleaseRevision extends S.Opaque<ReleaseRevision, { readonly brand:
 /**
  * Specification revision identified by the authority's snapshot date.
  *
+ * **Example** (Pin a living standard to its dated snapshot)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DatedSnapshotRevision, revisionLabel } from "@beep/schema/Conformance"
+ *
+ * const revision = S.decodeUnknownSync(DatedSnapshotRevision)({ kind: "datedSnapshot", date: "2026-09-30" })
+ *
+ * console.log(revisionLabel(revision)) // => "datedSnapshot:2026-09-30"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -195,6 +231,16 @@ export class DatedSnapshotRevision extends S.Opaque<DatedSnapshotRevision, { rea
 
 /**
  * Specification revision identified by a named registry and registry version.
+ *
+ * **Example** (Pin a registry entry such as an IANA table)
+ *
+ * ```ts
+ * import { RegistryVersionRevision, revisionLabel } from "@beep/schema/Conformance"
+ *
+ * const revision = RegistryVersionRevision.make({ registry: "iana-media-types", version: "2026-08-12" })
+ *
+ * console.log(revisionLabel(revision)) // => "registryVersion:iana-media-types@2026-08-12"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -214,6 +260,17 @@ export class RegistryVersionRevision extends S.Opaque<RegistryVersionRevision, {
 /**
  * Unversioned specification snapshot identified by its retrieval date.
  *
+ * **Example** (Pin an unversioned page to the day it was fetched)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { RetrievedSnapshotRevision } from "@beep/schema/Conformance"
+ *
+ * const revision = S.decodeUnknownSync(RetrievedSnapshotRevision)({ kind: "retrievedSnapshot", retrievedOn: "2026-10-01" })
+ *
+ * console.log(revision.retrievedOn) // => "2026-10-01"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -230,6 +287,17 @@ export class RetrievedSnapshotRevision extends S.Opaque<RetrievedSnapshotRevisio
 
 /**
  * Implementation reference pinned to a package name and package version.
+ *
+ * **Example** (Pin a reference implementation package)
+ *
+ * ```ts
+ * import { PackageRevision, Revision, revisionLabel } from "@beep/schema/Conformance"
+ *
+ * const revision = PackageRevision.make({ packageName: "@effect/platform", version: "4.0.0" })
+ *
+ * console.log(Revision.guards.packageRevision(revision)) // => true
+ * console.log(revisionLabel(revision)) // => "packageRevision:%40effect%2Fplatform@4.0.0"
+ * ```
  *
  * @category models
  * @since 0.0.0

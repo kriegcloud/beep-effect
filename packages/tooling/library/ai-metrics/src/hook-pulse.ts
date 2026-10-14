@@ -705,6 +705,30 @@ export class HookPulseRawEvent extends S.Opaque<HookPulseRawEvent, { readonly br
 /**
  * Raw hook payload paired with the ambient stamps supplied by its writer.
  *
+ * **Example** (Pair a raw hook payload with its writer stamps)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { HookPulseRawEventInput } from "@beep/repo-ai-metrics/hook-pulse"
+ *
+ * const input = S.decodeUnknownSync(HookPulseRawEventInput)({
+ *   event: {
+ *     hook_event_name: "SessionStart",
+ *     session_id: "8d2f6c1e-1b7a-4c59-9e0d-3f5a2b7c9d10",
+ *     cwd: "/home/dev/repo",
+ *     transcript_path: "/home/dev/.claude/projects/repo/8d2f6c1e.jsonl"
+ *   },
+ *   notifierRev: "notifier-7",
+ *   instrumentClass: "production",
+ *   agentKind: "claude-code",
+ *   evidenceTier: "observed",
+ *   ts: "2026-10-14T09:00:00.000Z"
+ * })
+ *
+ * console.log(O.isNone(input.repoRoot)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

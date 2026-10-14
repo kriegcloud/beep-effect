@@ -57,10 +57,7 @@ export type DependencyRecord = typeof DependencyRecord.Type;
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceDependencyBuckets extends S.Opaque<
-  WorkspaceDependencyBuckets,
-  { readonly brand: unique symbol }
->()(
+class WorkspaceDependencyBuckets extends S.Opaque<WorkspaceDependencyBuckets, { readonly brand: unique symbol }>()(
   S.Struct({
     dependencies: DependencyRecord.annotateKey({
       description: "Runtime dependency package names mapped to version specifiers.",

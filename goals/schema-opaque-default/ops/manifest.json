@@ -30,9 +30,7 @@
     "goals/schema-opaque-default/GOAL.md",
     "goals/schema-opaque-default/research/SOURCES.md"
   ],
-  "researchReports": [
-    "research/SOURCES.md"
-  ],
+  "researchReports": ["research/SOURCES.md"],
   "agentLaunchers": [
     {
       "kind": "codex-goal",
@@ -58,12 +56,12 @@
     {
       "id": "P2",
       "name": "Verify",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P4",
@@ -82,5 +80,6 @@
     "Required source files are missing or materially contradictory.",
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
-  ]
+  ],
+  "statusNote": "2026-10-14: migration, codemod, docs and lint landed with the PR that carries this note (S25). Arming schemaClassMissingBrand at error waits on the @effect/tsgo 0.52.0 bump, which waits on tsc-rs porting the 0.52 rule set (syncpack.config.ts hold comment); the D7 proof already shows 0 hits. P4 Close and the reflection land with that bump."
 }

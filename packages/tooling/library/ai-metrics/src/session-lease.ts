@@ -182,6 +182,29 @@ const SessionLeaseEventKind = LiteralKit(["session-start", "activity", "wait-ope
 /**
  * First liveness observation that creates an active session lease.
  *
+ * **Example** (Open a lease from SessionStart)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { SessionLeaseStarted, transitionSessionLease } from "@beep/repo-ai-metrics/session-lease"
+ *
+ * const sessionId = "a".repeat(64)
+ * const started = S.decodeUnknownSync(SessionLeaseStarted)({
+ *   event: "session-start",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:00:00.000Z",
+ *   eventDigest: "b".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear",
+ *   sourceKind: "claude",
+ *   instrumentClass: "production"
+ * })
+ * const first = transitionSessionLease(O.none(), started)
+ *
+ * console.log(first.status) // => "active"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -201,6 +224,40 @@ export class SessionLeaseStarted extends S.Opaque<SessionLeaseStarted, { readonl
 /**
  * Content-free hook activity that renews an existing session lease.
  *
+ * **Example** (Renew a lease on hook activity)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { SessionLeaseActivity, SessionLeaseStarted, SessionLeaseTransition, transitionSessionLease } from "@beep/repo-ai-metrics/session-lease"
+ *
+ * const sessionId = "a".repeat(64)
+ * const started = S.decodeUnknownSync(SessionLeaseStarted)({
+ *   event: "session-start",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:00:00.000Z",
+ *   eventDigest: "b".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear",
+ *   sourceKind: "claude",
+ *   instrumentClass: "production"
+ * })
+ * const first = transitionSessionLease(O.none(), started)
+ * const activity = S.decodeUnknownSync(SessionLeaseActivity)({
+ *   event: "activity",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:05:00.000Z",
+ *   eventDigest: "c".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear"
+ * })
+ *
+ * if (SessionLeaseTransition.guards.active(first)) {
+ *   const renewed = transitionSessionLease(O.some(first.lease), activity)
+ *   console.log(SessionLeaseTransition.guards.active(renewed) && renewed.outcome) // => "renewed"
+ * }
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -216,7 +273,46 @@ export class SessionLeaseActivity extends S.Opaque<SessionLeaseActivity, { reado
 ) {}
 
 /**
- * Requires the wait-open timestamp to equal its PermissionRequest observation timestamp.
+ * Strictly attributed PermissionRequest observation that opens a pending wait.
+ *
+ * **Details**
+ *
+ * The wait-open timestamp must equal the PermissionRequest observation timestamp.
+ *
+ * **Example** (Open a pending permission wait on the lease)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { SessionLeaseStarted, SessionLeaseTransition, SessionLeaseWaitOpened, transitionSessionLease } from "@beep/repo-ai-metrics/session-lease"
+ *
+ * const sessionId = "a".repeat(64)
+ * const started = S.decodeUnknownSync(SessionLeaseStarted)({
+ *   event: "session-start",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:00:00.000Z",
+ *   eventDigest: "b".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear",
+ *   sourceKind: "claude",
+ *   instrumentClass: "production"
+ * })
+ * const first = transitionSessionLease(O.none(), started)
+ * const opened = S.decodeUnknownSync(SessionLeaseWaitOpened)({
+ *   event: "wait-opened",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:10:00.000Z",
+ *   eventDigest: "d".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear",
+ *   wait: { waitId: "e".repeat(64), openedAt: "2026-10-14T09:10:00.000Z", reason: "tool-permission", evidenceTier: "observed", oipTaint: "clear" }
+ * })
+ *
+ * if (SessionLeaseTransition.guards.active(first)) {
+ *   const next = transitionSessionLease(O.some(first.lease), opened)
+ *   console.log(SessionLeaseTransition.guards.active(next) && next.lease.openWaits.length) // => 1
+ * }
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -248,6 +344,41 @@ export class SessionLeaseWaitOpened extends S.Opaque<SessionLeaseWaitOpened, { r
 /**
  * Exact-ID terminal decision observation that closes at most one pending wait.
  *
+ * **Example** (Ignore a close for a wait the lease never opened)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { SessionLeaseStarted, SessionLeaseTransition, SessionLeaseWaitClosed, transitionSessionLease } from "@beep/repo-ai-metrics/session-lease"
+ *
+ * const sessionId = "a".repeat(64)
+ * const started = S.decodeUnknownSync(SessionLeaseStarted)({
+ *   event: "session-start",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:00:00.000Z",
+ *   eventDigest: "b".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear",
+ *   sourceKind: "claude",
+ *   instrumentClass: "production"
+ * })
+ * const first = transitionSessionLease(O.none(), started)
+ * const closed = S.decodeUnknownSync(SessionLeaseWaitClosed)({
+ *   event: "wait-closed",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:12:00.000Z",
+ *   eventDigest: "f".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear",
+ *   waitId: "9".repeat(64)
+ * })
+ *
+ * if (SessionLeaseTransition.guards.active(first)) {
+ *   const next = transitionSessionLease(O.some(first.lease), closed)
+ *   console.log(SessionLeaseTransition.guards.active(next) && next.outcome) // => "wait-close-unmatched"
+ * }
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -265,6 +396,39 @@ export class SessionLeaseWaitClosed extends S.Opaque<SessionLeaseWaitClosed, { r
 
 /**
  * Observed harness terminal event that retires an active lease.
+ *
+ * **Example** (Retire a lease on the harness end event)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { SessionLeaseEnded, SessionLeaseStarted, SessionLeaseTransition, transitionSessionLease } from "@beep/repo-ai-metrics/session-lease"
+ *
+ * const sessionId = "a".repeat(64)
+ * const started = S.decodeUnknownSync(SessionLeaseStarted)({
+ *   event: "session-start",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:00:00.000Z",
+ *   eventDigest: "b".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear",
+ *   sourceKind: "claude",
+ *   instrumentClass: "production"
+ * })
+ * const first = transitionSessionLease(O.none(), started)
+ * const ended = S.decodeUnknownSync(SessionLeaseEnded)({
+ *   event: "session-end",
+ *   sessionId,
+ *   observedAt: "2026-10-14T10:00:00.000Z",
+ *   eventDigest: "0".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear"
+ * })
+ *
+ * if (SessionLeaseTransition.guards.active(first)) {
+ *   console.log(transitionSessionLease(O.some(first.lease), ended).status) // => "ended"
+ * }
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -361,6 +525,32 @@ const SessionLeaseTransitionFailure = LiteralKit([
 /**
  * Accepted lease transition that leaves the session active.
  *
+ * **Example** (Read the fresh lease from a start transition)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { ActiveSessionLeaseTransition, SessionLeaseStarted, transitionSessionLease } from "@beep/repo-ai-metrics/session-lease"
+ *
+ * const sessionId = "a".repeat(64)
+ * const started = S.decodeUnknownSync(SessionLeaseStarted)({
+ *   event: "session-start",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:00:00.000Z",
+ *   eventDigest: "b".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear",
+ *   sourceKind: "claude",
+ *   instrumentClass: "production"
+ * })
+ * const first = transitionSessionLease(O.none(), started)
+ *
+ * if (S.is(ActiveSessionLeaseTransition)(first)) {
+ *   console.log(first.outcome) // => "started"
+ *   console.log(first.lease.openWaits.length) // => 0
+ * }
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -381,6 +571,42 @@ export class ActiveSessionLeaseTransition extends S.Opaque<
 
 /**
  * Observed session end carrying the final lease for flight-record composition.
+ *
+ * **Example** (Hand the final lease to flight-record composition)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { EndedSessionLeaseTransition, SessionLeaseEnded, SessionLeaseStarted, SessionLeaseTransition, transitionSessionLease } from "@beep/repo-ai-metrics/session-lease"
+ *
+ * const sessionId = "a".repeat(64)
+ * const started = S.decodeUnknownSync(SessionLeaseStarted)({
+ *   event: "session-start",
+ *   sessionId,
+ *   observedAt: "2026-10-14T09:00:00.000Z",
+ *   eventDigest: "b".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear",
+ *   sourceKind: "claude",
+ *   instrumentClass: "production"
+ * })
+ * const first = transitionSessionLease(O.none(), started)
+ * const ended = S.decodeUnknownSync(SessionLeaseEnded)({
+ *   event: "session-end",
+ *   sessionId,
+ *   observedAt: "2026-10-14T10:00:00.000Z",
+ *   eventDigest: "0".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear"
+ * })
+ *
+ * if (SessionLeaseTransition.guards.active(first)) {
+ *   const last = transitionSessionLease(O.some(first.lease), ended)
+ *   if (S.is(EndedSessionLeaseTransition)(last)) {
+ *     console.log(last.terminalEventDigest === ended.eventDigest) // => true
+ *   }
+ * }
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -403,6 +629,28 @@ export class EndedSessionLeaseTransition extends S.Opaque<
 
 /**
  * Content-free refusal of a lease transition whose identity or ordering cannot be trusted.
+ *
+ * **Example** (Quarantine activity that arrives before SessionStart)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { QuarantinedSessionLeaseTransition, SessionLeaseActivity, transitionSessionLease } from "@beep/repo-ai-metrics/session-lease"
+ *
+ * const activity = S.decodeUnknownSync(SessionLeaseActivity)({
+ *   event: "activity",
+ *   sessionId: "a".repeat(64),
+ *   observedAt: "2026-10-14T09:05:00.000Z",
+ *   eventDigest: "c".repeat(64),
+ *   evidenceTier: "observed",
+ *   oipTaint: "clear"
+ * })
+ * const result = transitionSessionLease(O.none(), activity)
+ *
+ * if (S.is(QuarantinedSessionLeaseTransition)(result)) {
+ *   console.log(result.reason) // => "missing-lease"
+ * }
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -792,6 +1040,23 @@ const SessionLeaseReconciliationDeferral = LiteralKit([
 /**
  * Content-free refusal to synthesize a tombstone while any required gate is unresolved.
  *
+ * **Example** (Defer a tombstone while a wait is still open)
+ *
+ * ```ts
+ * import { DeferredSessionLeaseReconciliation, SessionLeaseReconciliation } from "@beep/repo-ai-metrics/session-lease"
+ * import * as S from "effect/Schema"
+ *
+ * const deferred = S.decodeUnknownSync(DeferredSessionLeaseReconciliation)({
+ *   status: "deferred",
+ *   sessionId: "a".repeat(64),
+ *   leaseDigest: "1".repeat(64),
+ *   reason: "open-wait"
+ * })
+ *
+ * console.log(SessionLeaseReconciliation.guards.deferred(deferred)) // => true
+ * console.log(deferred.reason) // => "open-wait"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -813,6 +1078,31 @@ export class DeferredSessionLeaseReconciliation extends S.Opaque<
 
 /**
  * Reconstructed terminal marker produced after lease and source evidence agree.
+ *
+ * **Example** (Tombstone an expired lease with an honest unknown outcome)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TombstonedSessionLeaseReconciliation } from "@beep/repo-ai-metrics/session-lease"
+ *
+ * const reconciliation = S.decodeUnknownSync(TombstonedSessionLeaseReconciliation)({
+ *   status: "tombstoned",
+ *   tombstone: {
+ *     schemaVersion: "telemetry-v2/session-lease-tombstone/v1",
+ *     sessionId: "a".repeat(64),
+ *     sourceKind: "claude",
+ *     lastObservedAt: "2026-10-14T09:05:00.000Z",
+ *     tombstonedAt: "2026-10-14T13:05:00.000Z",
+ *     terminalOutcome: "unknown",
+ *     leaseDigest: "1".repeat(64),
+ *     sourceEvidenceDigest: "2".repeat(64),
+ *     evidenceTier: "reconstructed",
+ *     oipTaint: "clear"
+ *   }
+ * })
+ *
+ * console.log(reconciliation.tombstone.terminalOutcome) // => "unknown"
+ * ```
  *
  * @category models
  * @since 0.0.0

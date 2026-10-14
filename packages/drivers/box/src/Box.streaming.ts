@@ -175,6 +175,24 @@ class BoxUploadFileVersionRequestBody extends S.Opaque<
 /**
  * Upload-file request body with a runtime byte input.
  *
+ * **Example** (Describe an in-memory upload into the root folder)
+ *
+ * ```ts
+ * import { UploadFileRequestBodyAttributesField, UploadFileRequestBodyAttributesParentField } from "@beep/box"
+ * import { BoxUploadFileRequestBody } from "@beep/box/Box.streaming"
+ *
+ * const body = BoxUploadFileRequestBody.make({
+ *   attributes: UploadFileRequestBodyAttributesField.make({
+ *     name: "engagement-letter.txt",
+ *     parent: UploadFileRequestBodyAttributesParentField.make({ id: "0" })
+ *   }),
+ *   file: new TextEncoder().encode("Signed engagement letter"),
+ *   fileContentType: "text/plain"
+ * })
+ *
+ * console.log(body.attributes.name) // => "engagement-letter.txt"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

@@ -464,6 +464,18 @@ class VersionSyncOptionsCheck extends S.Opaque<VersionSyncOptionsCheck, { readon
 /**
  * Resolved option set for write mode.
  *
+ * **Example** (Write only the Bun pin)
+ *
+ * ```ts
+ * import { VersionSyncOptions, VersionSyncOptionsWrite } from "@beep/repo-cli/commands/VersionSync/VersionSync.schemas"
+ *
+ * const options = VersionSyncOptionsWrite.make({ bunOnly: true, skipNetwork: true })
+ *
+ * console.log(options.mode) // => "write"
+ * console.log(options.nodeOnly) // => false
+ * console.log(VersionSyncOptions.guards.write(options)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

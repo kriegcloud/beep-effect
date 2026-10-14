@@ -88,6 +88,20 @@ class Ruleset extends S.Opaque<Ruleset, { readonly brand: unique symbol }>()(
 /**
  * Desktop environment reviewer rules without secret values.
  *
+ * **Example** (Require a named reviewer on the desktop environment)
+ *
+ * ```ts
+ * import { desktopEnvironmentApproved, SettingsEnvironment } from "@beep/repo-cli/commands/Ci"
+ *
+ * const unreviewed = SettingsEnvironment.make({ protection_rules: [{ type: "required_reviewers", reviewers: [] }] })
+ * const reviewed = SettingsEnvironment.make({
+ *   protection_rules: [{ type: "required_reviewers", reviewers: [{ type: "User", reviewer: { login: "octocat" } }] }]
+ * })
+ *
+ * console.log(desktopEnvironmentApproved(unreviewed)) // => false
+ * console.log(desktopEnvironmentApproved(reviewed)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -100,6 +114,18 @@ export class SettingsEnvironment extends S.Opaque<SettingsEnvironment, { readonl
 ) {}
 /**
  * Main Check run fields required to detect a held concurrency group.
+ *
+ * **Example** (Find the stale main run holding the concurrency group)
+ *
+ * ```ts
+ * import { HeldRun, heldGroupRunIds } from "@beep/repo-cli/commands/Ci"
+ *
+ * const stale = HeldRun.make({ id: 101, status: "waiting", created_at: "2026-10-09T12:00:00Z", head_branch: "main" })
+ * const successor = HeldRun.make({ id: 102, status: "pending", created_at: "2026-10-09T13:00:00Z", head_branch: "main" })
+ * const twoHoursLater = Date.parse("2026-10-09T14:00:00Z")
+ *
+ * console.log(heldGroupRunIds([stale, successor], twoHoursLater)) // => [101]
+ * ```
  *
  * @category models
  * @since 0.0.0

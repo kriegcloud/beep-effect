@@ -30,7 +30,7 @@ const unsupportedFloat16ArrayRuntimeMessage =
  * @category models
  * @since 0.0.0
  */
-export class UnsupportedFloat16ArrayRuntimeError extends S.TaggedError<
+class UnsupportedFloat16ArrayRuntimeError extends S.TaggedError<
   UnsupportedFloat16ArrayRuntimeError,
   { readonly brand: unique symbol }
 >($I`UnsupportedFloat16ArrayRuntimeError`)(

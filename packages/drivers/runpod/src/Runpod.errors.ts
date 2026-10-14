@@ -310,6 +310,21 @@ export class RunpodErrorOptions extends S.Opaque<RunpodErrorOptions, { readonly 
 /**
  * Raw option input accepted by RunpodError constructors before schema-owned normalization.
  *
+ * **Example** (Record the HTTP status of a failed operation)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { listPodsOperation, RunpodError, RunpodErrorOptionsInput } from "@beep/runpod"
+ *
+ * const error = RunpodError.fromDescriptor(
+ *   listPodsOperation,
+ *   "response status",
+ *   RunpodErrorOptionsInput.make({ status: 503 })
+ * )
+ *
+ * console.log(O.getOrUndefined(error.status)) // => 503
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -392,6 +407,20 @@ export class RunpodDocsErrorOptions extends S.Opaque<RunpodDocsErrorOptions, { r
 
 /**
  * Raw option input accepted by RunpodDocsError constructors before schema-owned normalization.
+ *
+ * **Example** (Record the URL of a failed docs fetch)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { RunpodDocsError, RunpodDocsErrorOptionsInput } from "@beep/runpod"
+ *
+ * const error = RunpodDocsError.fromReason(
+ *   "response status",
+ *   RunpodDocsErrorOptionsInput.make({ status: 404, url: "https://docs.runpod.io/llms.txt" })
+ * )
+ *
+ * console.log(O.getOrUndefined(error.url)) // => "https://docs.runpod.io/llms.txt"
+ * ```
  *
  * @category models
  * @since 0.0.0

@@ -301,6 +301,16 @@ export type SequenceBreakDeliveryFailureReason = typeof SequenceBreakDeliveryFai
 /**
  * A notification transport accepted the content-free delivery request.
  *
+ * **Example** (Record a delivered notification)
+ *
+ * ```ts
+ * import { SequenceBreakDeliveryOutcome, SequenceBreakDeliverySent } from "@beep/repo-ai-metrics/sequence-break"
+ *
+ * const outcome = SequenceBreakDeliverySent.make({})
+ *
+ * console.log(SequenceBreakDeliveryOutcome.guards.sent(outcome)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -314,6 +324,16 @@ export class SequenceBreakDeliverySent extends S.Opaque<SequenceBreakDeliverySen
 
 /**
  * A notification transport was deliberately skipped for a bounded operational reason.
+ *
+ * **Example** (Skip delivery while the storm damper is engaged)
+ *
+ * ```ts
+ * import { SequenceBreakDeliverySkipped } from "@beep/repo-ai-metrics/sequence-break"
+ *
+ * const outcome = SequenceBreakDeliverySkipped.make({ reason: "storm-damped" })
+ *
+ * console.log(`${outcome.status}: ${outcome.reason}`) // => "skipped: storm-damped"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -334,6 +354,21 @@ export class SequenceBreakDeliverySkipped extends S.Opaque<
 
 /**
  * A notification transport failed without retaining response or command content.
+ *
+ * **Example** (Record a transport timeout without its output)
+ *
+ * ```ts
+ * import { SequenceBreakDeliveryFailed, SequenceBreakDeliveryOutcome } from "@beep/repo-ai-metrics/sequence-break"
+ *
+ * const outcome = SequenceBreakDeliveryFailed.make({ reason: "timeout" })
+ * const retryable = SequenceBreakDeliveryOutcome.match(outcome, {
+ *   sent: () => false,
+ *   skipped: () => false,
+ *   failed: (failed) => failed.reason === "timeout"
+ * })
+ *
+ * console.log(retryable) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0

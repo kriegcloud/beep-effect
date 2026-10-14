@@ -159,7 +159,18 @@ export const NextParsedUrlQuery = S.Record(S.String, StringOrStringArray).pipe(
 export type NextParsedUrlQuery = typeof NextParsedUrlQuery.Type;
 
 /**
- * Page route that should render this export path.
+ * Public export path map entry returned by next.config.js exportPathMap.
+ *
+ * **Example** (Export a dynamic patent page as a static path)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ExportPathMapEntry } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
+ *
+ * const entry = S.decodeUnknownSync(ExportPathMapEntry)({ page: "/patents/[id]", query: { id: "US11234567B2" } })
+ *
+ * console.log(entry.page) // => "/patents/[id]"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -224,7 +235,7 @@ export type ExportPathMap = typeof ExportPathMap.Type;
  * @category models
  * @since 0.0.0
  */
-export class FetchLoggingConfig extends S.Opaque<FetchLoggingConfig, { readonly brand: unique symbol }>()(
+class FetchLoggingConfig extends S.Opaque<FetchLoggingConfig, { readonly brand: unique symbol }>()(
   S.Struct({
     fullUrl: S.optionalKey(S.Boolean.annotateKey({ description: "Log full fetch request URLs." })),
     hmrRefreshes: S.optionalKey(
@@ -240,7 +251,18 @@ export class FetchLoggingConfig extends S.Opaque<FetchLoggingConfig, { readonly 
 ) {}
 
 /**
- * Regular expressions matching incoming requests that should not be logged.
+ * Incoming request logging ignore rules: regular expressions matching requests that should not be
+ * logged.
+ *
+ * **Example** (Skip health checks in the request log)
+ *
+ * ```ts
+ * import { IncomingRequestLoggingConfig } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
+ *
+ * const logging = IncomingRequestLoggingConfig.make({ ignore: [/^\/api\/health/, /^\/_next\/static/] })
+ *
+ * console.log(logging.ignore?.some((pattern) => pattern.test("/api/health/live"))) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0

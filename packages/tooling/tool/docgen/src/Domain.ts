@@ -44,6 +44,24 @@ const DocgenPathSegments = S.Array(S.NonEmptyString).pipe(
 /**
  * Constructor options carrying grouped JSDoc tag values for a normalized Doc.
  *
+ * **Example** (Group parsed JSDoc tags into a Doc)
+ *
+ * ```ts
+ * import { Doc, DocNewOptions } from "@beep/repo-docgen/Domain"
+ *
+ * const doc = Doc.new("Parses a module path.", DocNewOptions.make({
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["parsing"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: { effects: ["Reads the file system."] }
+ * }))
+ *
+ * console.log(doc.category) // => ["parsing"]
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -214,6 +232,29 @@ export class Doc extends S.Class<Doc, { readonly brand: unique symbol }>($I`Doc`
 /**
  * Constructor options carrying declaration text and source position.
  *
+ * **Example** (Locate a function signature in its source file)
+ *
+ * ```ts
+ * import { Doc, DocNewOptions, Function, Position, SignaturePositionOptions } from "@beep/repo-docgen/Domain"
+ *
+ * const doc = Doc.new("Adds two numbers.", DocNewOptions.make({
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["utilities"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * }))
+ * const options = SignaturePositionOptions.make({
+ *   signature: "export declare const add: (a: number, b: number) => number",
+ *   position: Position.new(12, 1)
+ * })
+ * const model = Function.new("add", doc, options)
+ *
+ * console.log(model.position.line) // => 12
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -305,6 +346,35 @@ export class DocEntry extends S.Opaque<DocEntry, { readonly brand: unique symbol
 
 /**
  * Constructor options carrying class signature and member entries.
+ *
+ * **Example** (Describe a class with one documented method)
+ *
+ * ```ts
+ * import { Class, ClassNewOptions, Doc, DocEntry, DocNewOptions, Position, SignaturePositionOptions } from "@beep/repo-docgen/Domain"
+ *
+ * const options = DocNewOptions.make({
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["models"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const method = DocEntry.new("render", Doc.new("Renders the counter.", options), SignaturePositionOptions.make({
+ *   signature: "render(): string",
+ *   position: Position.new(8, 3)
+ * }))
+ * const model = Class.new("Counter", Doc.new("A counter.", options), ClassNewOptions.make({
+ *   signature: "export declare class Counter",
+ *   position: Position.new(4, 1),
+ *   methods: [method],
+ *   staticMethods: [],
+ *   properties: []
+ * }))
+ *
+ * console.log(model.methods.length) // => 1
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -710,6 +780,29 @@ export class Constant extends S.Opaque<Constant, { readonly brand: unique symbol
 /**
  * Constructor options carrying export signature, position, and namespace-export marker.
  *
+ * **Example** (Mark a namespace re-export edge)
+ *
+ * ```ts
+ * import { Doc, DocNewOptions, Export, ExportNewOptions, Position } from "@beep/repo-docgen/Domain"
+ *
+ * const doc = Doc.new("Array helpers.", DocNewOptions.make({
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["utilities"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * }))
+ * const model = Export.new("A", doc, ExportNewOptions.make({
+ *   signature: "export * as A from \"./Array.ts\"",
+ *   position: Position.new(3, 1),
+ *   isNamespaceExport: true
+ * }))
+ *
+ * console.log(model.isNamespaceExport) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -904,6 +997,43 @@ export class Namespace extends S.TaggedClass<Namespace, { readonly brand: unique
 
 /**
  * Constructor options carrying parsed module documentation and members.
+ *
+ * **Example** (Assemble a module with one documented constant)
+ *
+ * ```ts
+ * import { Project } from "ts-morph"
+ * import { Constant, Doc, DocNewOptions, Module, ModuleNewOptions, Position, SignaturePositionOptions } from "@beep/repo-docgen/Domain"
+ * import { SourceShape } from "@beep/repo-docgen/Parser"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("src/answer.ts", "export const answer = 42")
+ * const tags = DocNewOptions.make({
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["constants"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const answer = Constant.new("answer", Doc.new("The answer.", tags), SignaturePositionOptions.make({
+ *   signature: "export declare const answer: 42",
+ *   position: Position.new(1, 1)
+ * }))
+ * const module = Module.new(SourceShape.new(["src", "answer.ts"], sourceFile), "answer.ts", ModuleNewOptions.make({
+ *   doc: Doc.new("Answer constants.", tags),
+ *   path: ["src", "answer.ts"],
+ *   classes: [],
+ *   interfaces: [],
+ *   functions: [],
+ *   typeAliases: [],
+ *   constants: [answer],
+ *   exports: [],
+ *   namespaces: []
+ * }))
+ *
+ * console.log(module.constants.length) // => 1
+ * ```
  *
  * @category models
  * @since 0.0.0

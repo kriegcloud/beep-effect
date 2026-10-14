@@ -18,6 +18,17 @@ const $I = $RepoCliId.create("commands/Files/Files.errors");
 /**
  * Options for platform errors, including a cause.
  *
+ * **Example** (Wrap a permission failure from a rename)
+ *
+ * ```ts
+ * import { formatPlatformError, PlatformErrorOptions } from "@beep/repo-cli/commands/Files"
+ *
+ * const options = PlatformErrorOptions.make({ cause: new Error("EACCES: permission denied") })
+ * const error = formatPlatformError("Failed to rename file", "/srv/photos/IMG_0042.jpg", options)
+ *
+ * console.log(error.message) // => "Failed to rename file: \"/srv/photos/IMG_0042.jpg\""
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

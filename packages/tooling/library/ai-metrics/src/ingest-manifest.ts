@@ -220,6 +220,25 @@ const IngestUnemittableReason = LiteralKit([
 /**
  * Successfully read subject with positive record count and content-addressed evidence.
  *
+ * **Example** (Account for a transcript that was read)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { IngestDisposition, ReadIngestDisposition } from "@beep/repo-ai-metrics/ingest-manifest"
+ *
+ * const subject = { subjectId: "a".repeat(64), rootId: "b".repeat(64), sourceKind: "codex", subjectKind: "transcript", evidenceTier: "observed", oipTaint: "clear" }
+ * const read = S.decodeUnknownSync(ReadIngestDisposition)({
+ *   status: "read",
+ *   subject,
+ *   recordCount: 37,
+ *   evidenceDigest: "c".repeat(64),
+ *   evidenceTier: "observed"
+ * })
+ *
+ * console.log(read.recordCount) // => 37
+ * console.log(S.is(IngestDisposition)(read)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -239,6 +258,22 @@ export class ReadIngestDisposition extends S.Opaque<ReadIngestDisposition, { rea
 
 /**
  * Enumerated-but-recordless subject recovered as an explicit reconstructed tombstone.
+ *
+ * **Example** (Keep an empty session directory as a tombstone)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TombstonedIngestDisposition } from "@beep/repo-ai-metrics/ingest-manifest"
+ *
+ * const tombstone = S.decodeUnknownSync(TombstonedIngestDisposition)({
+ *   status: "tombstoned",
+ *   subject: { subjectId: "a".repeat(64), rootId: "b".repeat(64), sourceKind: "claude", subjectKind: "session-directory", evidenceTier: "reconstructed", oipTaint: "unknown" },
+ *   tombstoneEvidenceDigest: "d".repeat(64),
+ *   evidenceTier: "reconstructed"
+ * })
+ *
+ * console.log(tombstone.evidenceTier) // => "reconstructed"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -261,6 +296,23 @@ export class TombstonedIngestDisposition extends S.Opaque<
 
 /**
  * Explicitly unreachable subject with bounded failure class and content-addressed evidence.
+ *
+ * **Example** (Record a transcript the ingest could not open)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { UnreachableIngestDisposition } from "@beep/repo-ai-metrics/ingest-manifest"
+ *
+ * const unreachable = S.decodeUnknownSync(UnreachableIngestDisposition)({
+ *   status: "unreachable",
+ *   subject: { subjectId: "a".repeat(64), rootId: "b".repeat(64), sourceKind: "codex", subjectKind: "transcript", evidenceTier: "observed", oipTaint: "clear" },
+ *   reason: "permission-denied",
+ *   evidenceDigest: "e".repeat(64),
+ *   evidenceTier: "observed"
+ * })
+ *
+ * console.log(unreachable.reason) // => "permission-denied"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -285,6 +337,23 @@ export class UnreachableIngestDisposition extends S.Opaque<
 /**
  * Intentionally skipped subject carrying a required bounded policy reason.
  *
+ * **Example** (Skip every subject during a dry run)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { IngestDisposition, SkippedIngestDisposition } from "@beep/repo-ai-metrics/ingest-manifest"
+ *
+ * const skipped = S.decodeUnknownSync(SkippedIngestDisposition)({
+ *   status: "skipped",
+ *   subject: { subjectId: "a".repeat(64), rootId: "b".repeat(64), sourceKind: "openclaw", subjectKind: "source-instance", evidenceTier: "derived", oipTaint: "clear" },
+ *   reason: "dry-run",
+ *   evidenceTier: "derived"
+ * })
+ *
+ * console.log(skipped.reason) // => "dry-run"
+ * console.log(S.is(IngestDisposition)(skipped)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -303,6 +372,22 @@ export class SkippedIngestDisposition extends S.Opaque<SkippedIngestDisposition,
 
 /**
  * Enumerated source class that cannot yet emit telemetry-v2 flight records.
+ *
+ * **Example** (Count a source that has no emitter yet)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { UnemittableIngestDisposition } from "@beep/repo-ai-metrics/ingest-manifest"
+ *
+ * const unemittable = S.decodeUnknownSync(UnemittableIngestDisposition)({
+ *   status: "unemittable",
+ *   subject: { subjectId: "a".repeat(64), rootId: "b".repeat(64), sourceKind: "openclaw", subjectKind: "canonical-root", evidenceTier: "derived", oipTaint: "clear" },
+ *   reason: "emitter-not-installed",
+ *   evidenceTier: "derived"
+ * })
+ *
+ * console.log(unemittable.reason) // => "emitter-not-installed"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -373,6 +458,24 @@ export type IngestDisposition = typeof IngestDisposition.Type;
 
 /**
  * Disposition partition for a complete telemetry-v2 ingest denominator.
+ *
+ * **Example** (Partition an ingest denominator by disposition)
+ *
+ * ```ts
+ * import { IngestManifestSummary } from "@beep/repo-ai-metrics/ingest-manifest"
+ *
+ * const summary = IngestManifestSummary.make({
+ *   enumeratedCount: 10,
+ *   accountedCount: 10,
+ *   readCount: 7,
+ *   tombstonedCount: 1,
+ *   unreachableCount: 1,
+ *   skippedCount: 0,
+ *   unemittableCount: 1
+ * })
+ *
+ * console.log(summary.readCount + summary.tombstonedCount + summary.unreachableCount + summary.skippedCount + summary.unemittableCount) // => 10
+ * ```
  *
  * @category models
  * @since 0.0.0

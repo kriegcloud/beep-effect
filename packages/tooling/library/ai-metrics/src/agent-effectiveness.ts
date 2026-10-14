@@ -2141,7 +2141,7 @@ export class AgentEffectivenessPhoenixSyncResult extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class ScorecardSummaryRow extends S.Opaque<ScorecardSummaryRow, { readonly brand: unique symbol }>()(
+class ScorecardSummaryRow extends S.Opaque<ScorecardSummaryRow, { readonly brand: unique symbol }>()(
   S.Struct({
     benchmarkRunCount: S.Finite,
     completionReady: S.Boolean,
@@ -2168,7 +2168,7 @@ export class ScorecardSummaryRow extends S.Opaque<ScorecardSummaryRow, { readonl
  * @category models
  * @since 0.0.0
  */
-export class OutcomeLabelAnnotationRow extends S.Opaque<OutcomeLabelAnnotationRow, { readonly brand: unique symbol }>()(
+class OutcomeLabelAnnotationRow extends S.Opaque<OutcomeLabelAnnotationRow, { readonly brand: unique symbol }>()(
   S.Struct({
     agentTaskId: S.String,
     followUpFix: S.Boolean,
@@ -2192,7 +2192,7 @@ export class OutcomeLabelAnnotationRow extends S.Opaque<OutcomeLabelAnnotationRo
  * @category models
  * @since 0.0.0
  */
-export class BenchmarkRunAnnotationRow extends S.Opaque<BenchmarkRunAnnotationRow, { readonly brand: unique symbol }>()(
+class BenchmarkRunAnnotationRow extends S.Opaque<BenchmarkRunAnnotationRow, { readonly brand: unique symbol }>()(
   S.Struct({
     benchmarkCaseId: S.String,
     benchmarkRunId: S.String,
@@ -2215,7 +2215,7 @@ export class BenchmarkRunAnnotationRow extends S.Opaque<BenchmarkRunAnnotationRo
  * @category models
  * @since 0.0.0
  */
-export class WorkerEvalSummary extends S.Opaque<WorkerEvalSummary, { readonly brand: unique symbol }>()(
+class WorkerEvalSummary extends S.Opaque<WorkerEvalSummary, { readonly brand: unique symbol }>()(
   S.Struct({
     completed: S.Finite,
     failed: S.Finite,
@@ -2234,7 +2234,7 @@ export class WorkerEvalSummary extends S.Opaque<WorkerEvalSummary, { readonly br
  * @category models
  * @since 0.0.0
  */
-export class WorkerEvalPolicyViolationObject extends S.Opaque<
+class WorkerEvalPolicyViolationObject extends S.Opaque<
   WorkerEvalPolicyViolationObject,
   { readonly brand: unique symbol }
 >()(
@@ -2260,7 +2260,7 @@ const workerEvalPacketPolicyViolationCodesDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class WorkerEvalPacket extends S.Opaque<WorkerEvalPacket, { readonly brand: unique symbol }>()(
+class WorkerEvalPacket extends S.Opaque<WorkerEvalPacket, { readonly brand: unique symbol }>()(
   S.Struct({
     policyViolationCodes: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(workerEvalPacketPolicyViolationCodesDefault)),
@@ -2281,7 +2281,7 @@ const workerEvalReportPolicyViolationsDefault = A.empty<typeof WorkerEvalPolicyV
  * @category models
  * @since 0.0.0
  */
-export class WorkerEvalReport extends S.Opaque<WorkerEvalReport, { readonly brand: unique symbol }>()(
+class WorkerEvalReport extends S.Opaque<WorkerEvalReport, { readonly brand: unique symbol }>()(
   S.Struct({
     packets: S.Array(WorkerEvalPacket).pipe(
       S.withConstructorDefault(Effect.succeed(workerEvalReportPacketsDefault)),
@@ -2305,7 +2305,7 @@ export class WorkerEvalReport extends S.Opaque<WorkerEvalReport, { readonly bran
  * @category models
  * @since 0.0.0
  */
-export class RunpodWorkerCleanup extends S.Opaque<RunpodWorkerCleanup, { readonly brand: unique symbol }>()(
+class RunpodWorkerCleanup extends S.Opaque<RunpodWorkerCleanup, { readonly brand: unique symbol }>()(
   S.Struct({
     deleteStatus: S.String,
     stopStatus: S.String,
@@ -2322,7 +2322,7 @@ export class RunpodWorkerCleanup extends S.Opaque<RunpodWorkerCleanup, { readonl
  * @category models
  * @since 0.0.0
  */
-export class RunpodWorkerOtlp extends S.Opaque<RunpodWorkerOtlp, { readonly brand: unique symbol }>()(
+class RunpodWorkerOtlp extends S.Opaque<RunpodWorkerOtlp, { readonly brand: unique symbol }>()(
   S.Struct({
     status: S.String,
   }).pipe(
@@ -2338,7 +2338,7 @@ export class RunpodWorkerOtlp extends S.Opaque<RunpodWorkerOtlp, { readonly bran
  * @category models
  * @since 0.0.0
  */
-export class RunpodWorkerEvalReport extends S.Opaque<RunpodWorkerEvalReport, { readonly brand: unique symbol }>()(
+class RunpodWorkerEvalReport extends S.Opaque<RunpodWorkerEvalReport, { readonly brand: unique symbol }>()(
   S.Struct({
     cleanup: RunpodWorkerCleanup,
     otlp: RunpodWorkerOtlp,
@@ -2358,10 +2358,7 @@ export class RunpodWorkerEvalReport extends S.Opaque<RunpodWorkerEvalReport, { r
  * @category models
  * @since 0.0.0
  */
-export class WorkerEvalManifestEvidence extends S.Opaque<
-  WorkerEvalManifestEvidence,
-  { readonly brand: unique symbol }
->()(
+class WorkerEvalManifestEvidence extends S.Opaque<WorkerEvalManifestEvidence, { readonly brand: unique symbol }>()(
   S.Struct({
     raw: S.String,
   }).pipe(
@@ -2377,7 +2374,7 @@ export class WorkerEvalManifestEvidence extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class WorkerEvalManifest extends S.Opaque<WorkerEvalManifest, { readonly brand: unique symbol }>()(
+class WorkerEvalManifest extends S.Opaque<WorkerEvalManifest, { readonly brand: unique symbol }>()(
   S.Struct({
     evidence: S.Array(WorkerEvalManifestEvidence),
   }).pipe(
@@ -2395,7 +2392,7 @@ export class WorkerEvalManifest extends S.Opaque<WorkerEvalManifest, { readonly 
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlProjectNode extends S.Opaque<PhoenixGraphqlProjectNode, { readonly brand: unique symbol }>()(
+class PhoenixGraphqlProjectNode extends S.Opaque<PhoenixGraphqlProjectNode, { readonly brand: unique symbol }>()(
   S.Struct({
     name: S.String,
     spanAnnotationNames: S.Array(S.String),
@@ -2414,7 +2411,7 @@ export class PhoenixGraphqlProjectNode extends S.Opaque<PhoenixGraphqlProjectNod
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlProjectStatsNode extends S.Opaque<
+class PhoenixGraphqlProjectStatsNode extends S.Opaque<
   PhoenixGraphqlProjectStatsNode,
   { readonly brand: unique symbol }
 >()(
@@ -2436,7 +2433,7 @@ export class PhoenixGraphqlProjectStatsNode extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlProjectStatsEdge extends S.Opaque<
+class PhoenixGraphqlProjectStatsEdge extends S.Opaque<
   PhoenixGraphqlProjectStatsEdge,
   { readonly brand: unique symbol }
 >()(
@@ -2455,7 +2452,7 @@ export class PhoenixGraphqlProjectStatsEdge extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlProjectStatsConnection extends S.Opaque<
+class PhoenixGraphqlProjectStatsConnection extends S.Opaque<
   PhoenixGraphqlProjectStatsConnection,
   { readonly brand: unique symbol }
 >()(
@@ -2474,7 +2471,7 @@ export class PhoenixGraphqlProjectStatsConnection extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlProjectStatsData extends S.Opaque<
+class PhoenixGraphqlProjectStatsData extends S.Opaque<
   PhoenixGraphqlProjectStatsData,
   { readonly brand: unique symbol }
 >()(
@@ -2493,7 +2490,7 @@ export class PhoenixGraphqlProjectStatsData extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlProjectStatsResponse extends S.Opaque<
+class PhoenixGraphqlProjectStatsResponse extends S.Opaque<
   PhoenixGraphqlProjectStatsResponse,
   { readonly brand: unique symbol }
 >()(
@@ -2514,7 +2511,7 @@ export class PhoenixGraphqlProjectStatsResponse extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlProjectEdge extends S.Opaque<PhoenixGraphqlProjectEdge, { readonly brand: unique symbol }>()(
+class PhoenixGraphqlProjectEdge extends S.Opaque<PhoenixGraphqlProjectEdge, { readonly brand: unique symbol }>()(
   S.Struct({
     node: PhoenixGraphqlProjectNode,
   }).pipe(
@@ -2530,7 +2527,7 @@ export class PhoenixGraphqlProjectEdge extends S.Opaque<PhoenixGraphqlProjectEdg
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlProjectsConnection extends S.Opaque<
+class PhoenixGraphqlProjectsConnection extends S.Opaque<
   PhoenixGraphqlProjectsConnection,
   { readonly brand: unique symbol }
 >()(
@@ -2549,10 +2546,7 @@ export class PhoenixGraphqlProjectsConnection extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlServerStatus extends S.Opaque<
-  PhoenixGraphqlServerStatus,
-  { readonly brand: unique symbol }
->()(
+class PhoenixGraphqlServerStatus extends S.Opaque<PhoenixGraphqlServerStatus, { readonly brand: unique symbol }>()(
   S.Struct({
     insufficientStorage: S.Boolean,
   }).pipe(
@@ -2568,7 +2562,7 @@ export class PhoenixGraphqlServerStatus extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlData extends S.Opaque<PhoenixGraphqlData, { readonly brand: unique symbol }>()(
+class PhoenixGraphqlData extends S.Opaque<PhoenixGraphqlData, { readonly brand: unique symbol }>()(
   S.Struct({
     datasetCount: S.Finite,
     evaluatorCount: S.Finite,
@@ -2589,7 +2583,7 @@ export class PhoenixGraphqlData extends S.Opaque<PhoenixGraphqlData, { readonly 
  * @category models
  * @since 0.0.0
  */
-export class PhoenixGraphqlResponse extends S.Opaque<PhoenixGraphqlResponse, { readonly brand: unique symbol }>()(
+class PhoenixGraphqlResponse extends S.Opaque<PhoenixGraphqlResponse, { readonly brand: unique symbol }>()(
   S.Struct({
     data: PhoenixGraphqlData,
   }).pipe(

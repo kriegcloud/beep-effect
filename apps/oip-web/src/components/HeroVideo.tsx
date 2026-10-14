@@ -42,6 +42,23 @@ const DOMHtmlVideoElement = S.declare(isHTMLVideoElement).pipe(
 /**
  * A single rotating hero background clip: an optimized poster plus its background
  * video sources.
+ *
+ * **Example** (Describe one rotating hero clip)
+ *
+ * ```ts
+ * import { HeroClipMedia } from "@beep/oip-web/components/HeroVideo"
+ *
+ * const clip = HeroClipMedia.make({
+ *   poster: "/hero/patent-drafting.webp",
+ *   mp4: "/hero/patent-drafting.mp4",
+ *   webm: "/hero/patent-drafting.webm"
+ * })
+ *
+ * console.log(clip.mp4) // => "/hero/patent-drafting.mp4"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
  */
 export class HeroClipMedia extends S.Opaque<HeroClipMedia, { readonly brand: unique symbol }>()(
   S.Struct({

@@ -51,7 +51,7 @@ const loadControlsModule = Effect.tryPromise({
  * @category models
  * @since 0.0.0
  */
-export class Graph3DConfig extends S.Opaque<Graph3DConfig, { readonly brand: unique symbol }>()(
+class Graph3DConfig extends S.Opaque<Graph3DConfig, { readonly brand: unique symbol }>()(
   S.Struct({
     // The observed reference canvas is #111111; #000000 is only the bundle's
     // no-override fallback (research VERIFICATION.md §5.4). Fixed dark grammar

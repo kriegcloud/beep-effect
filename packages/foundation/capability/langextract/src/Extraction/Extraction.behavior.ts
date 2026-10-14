@@ -48,7 +48,7 @@ const ModelOutputJson = S.fromJsonString(S.Unknown).pipe(
  * @category models
  * @since 0.0.0
  */
-export class ModelOutputObject extends S.Opaque<ModelOutputObject, { readonly brand: unique symbol }>()(
+class ModelOutputObject extends S.Opaque<ModelOutputObject, { readonly brand: unique symbol }>()(
   S.Struct({
     extractions: ModelOutputCandidates,
   }).pipe(

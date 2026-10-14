@@ -104,6 +104,18 @@ export class BeepNextConfigEnv extends S.Opaque<BeepNextConfigEnv, { readonly br
 /**
  * Bundle analyzer object configuration for the shared Next.js preset.
  *
+ * **Example** (Emit a static analyzer report without opening a browser)
+ *
+ * ```ts
+ * import { BeepNextBundleAnalyzerConfig, BeepNextBundleAnalyzerConfigOptions } from "@beep/repo-configs/next"
+ * import * as S from "effect/Schema"
+ *
+ * const analyzer = BeepNextBundleAnalyzerConfigOptions.make({ enabled: true, openAnalyzer: false, analyzerMode: "static" })
+ *
+ * console.log(S.is(BeepNextBundleAnalyzerConfig)(analyzer)) // => true
+ * console.log(analyzer.analyzerMode) // => "static"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -166,7 +178,22 @@ export const BeepNextBundleAnalyzerConfig = S.Union([S.Literal(false), BeepNextB
 export type BeepNextBundleAnalyzerConfig = typeof BeepNextBundleAnalyzerConfig.Type;
 
 /**
- * Webpack rule condition for MDX file extensions.
+ * MDX object configuration for the shared Next.js preset.
+ *
+ * **Details**
+ *
+ * The `extension` webpack rule condition defaults to matching `.md` and `.mdx` files.
+ *
+ * **Example** (Accept the default Markdown extensions)
+ *
+ * ```ts
+ * import { BeepNextMdxConfigOptions } from "@beep/repo-configs/next"
+ *
+ * const mdx = BeepNextMdxConfigOptions.make({})
+ *
+ * console.log(mdx.extension.test("intro.mdx")) // => true
+ * console.log(mdx.extension.test("intro.tsx")) // => false
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -232,7 +259,21 @@ export const BeepNextMdxConfig = S.Union([S.Literal(false), BeepNextMdxConfigOpt
 export type BeepNextMdxConfig = typeof BeepNextMdxConfig.Type;
 
 /**
- * Service worker source file passed to serwist (swSrc).
+ * PWA (serwist) object configuration for the shared Next.js preset.
+ *
+ * **Details**
+ *
+ * `swSrc` defaults to `src/app/sw.ts` and `swDest` to `public/sw.js`.
+ *
+ * **Example** (Enable the service worker with default paths)
+ *
+ * ```ts
+ * import { BeepNextPwaConfigOptions } from "@beep/repo-configs/next"
+ *
+ * const pwa = BeepNextPwaConfigOptions.make({ enabled: true, reloadOnOnline: true })
+ *
+ * console.log([pwa.swSrc, pwa.swDest]) // => ["src/app/sw.ts", "public/sw.js"]
+ * ```
  *
  * @category models
  * @since 0.0.0

@@ -26,6 +26,23 @@ const violationIssuePathDefault = A.empty<string | number>();
 /**
  * Definite violation of a mechanically decidable conformance invariant.
  *
+ * **Example** (Report a heading level that skips a step)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { Issue, ViolationIssue } from "@beep/schema/Conformance"
+ *
+ * const issue = ViolationIssue.make({
+ *   invariantId: "md.heading.no-skipped-levels",
+ *   strength: "should",
+ *   path: ["children", 4],
+ *   message: "Heading jumps from level 1 to level 3."
+ * })
+ *
+ * console.log(Issue.guards.violation(issue)) // => true
+ * console.log(O.isNone(issue.reference)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -50,6 +67,20 @@ export class ViolationIssue extends S.Opaque<ViolationIssue, { readonly brand: u
 const indeterminateIssuePathDefault = A.empty<string | number>();
 /**
  * Invariant outcome that requires context or authority unavailable to the validator.
+ *
+ * **Example** (Report an invariant that needs the whole document)
+ *
+ * ```ts
+ * import { IndeterminateIssue } from "@beep/schema/Conformance"
+ *
+ * const issue = IndeterminateIssue.make({
+ *   invariantId: "md.link.reference-defined",
+ *   message: "Cannot tell whether [spec] resolves.",
+ *   reason: "Link reference definitions live outside the checked node."
+ * })
+ *
+ * console.log(issue.path) // => []
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -150,6 +181,19 @@ const ConformingReportValue = ConformingReportFields.check(ConformingReportConsi
 /**
  * Report asserting conformance for the declared checked-invariant set.
  *
+ * **Example** (Record a clean run against one profile)
+ *
+ * ```ts
+ * import { ConformingReport, Report } from "@beep/schema/Conformance"
+ *
+ * const report = ConformingReport.make({
+ *   profileIds: ["commonmark-0.31.2"],
+ *   checkedInvariantIds: ["md.heading.no-skipped-levels", "md.list.consistent-markers"]
+ * })
+ *
+ * console.log(Report.guards.conforming(report)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -190,6 +234,29 @@ const NonConformingReportValue = NonConformingReportFields.check(NonConformingRe
 /**
  * Report containing one or more definite invariant violations plus any independently indeterminate outcomes.
  *
+ * **Example** (Record a run with one definite violation)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NonConformingReport } from "@beep/schema/Conformance"
+ *
+ * const report = S.decodeUnknownSync(NonConformingReport)({
+ *   status: "nonConforming",
+ *   profileIds: ["commonmark-0.31.2"],
+ *   checkedInvariantIds: ["md.heading.no-skipped-levels"],
+ *   issues: [{
+ *     kind: "violation",
+ *     invariantId: "md.heading.no-skipped-levels",
+ *     strength: "should",
+ *     path: ["children", 4],
+ *     message: "Heading jumps from level 1 to level 3."
+ *   }]
+ * })
+ *
+ * console.log(report.issues.length) // => 1
+ * console.log(report.indeterminateIssues.length) // => 0
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -223,6 +290,20 @@ const IndeterminateReportValue = IndeterminateReportFields.check(IndeterminateRe
 
 /**
  * Report containing outcomes that the available validator could not decide.
+ *
+ * **Example** (Reject an issue for an invariant that was never checked)
+ *
+ * ```ts
+ * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
+ * import { IndeterminateReport } from "@beep/schema/Conformance"
+ *
+ * const decode = S.decodeUnknownExit(IndeterminateReport)
+ * const issue = { kind: "indeterminate", invariantId: "md.link.reference-defined", path: [], message: "Unresolved [spec].", reason: "Needs the whole document." }
+ *
+ * console.log(Exit.isSuccess(decode({ status: "indeterminate", profileIds: ["gfm-0.29"], checkedInvariantIds: ["md.link.reference-defined"], issues: [issue] }))) // => true
+ * console.log(Exit.isSuccess(decode({ status: "indeterminate", profileIds: ["gfm-0.29"], checkedInvariantIds: ["md.heading.no-skipped-levels"], issues: [issue] }))) // => false
+ * ```
  *
  * @category models
  * @since 0.0.0

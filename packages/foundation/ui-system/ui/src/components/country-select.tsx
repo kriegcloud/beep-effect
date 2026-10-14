@@ -344,6 +344,23 @@ export type CountryCode = typeof CountryCode.Type;
 /**
  * A country option rendered by {@link CountrySelect}.
  *
+ * **Example** (Build the option shown for Germany)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CountryCode, CountryOption } from "@beep/ui/components/country-select"
+ *
+ * const germany = CountryOption.make({
+ *   callingCode: "+49",
+ *   code: S.decodeUnknownSync(CountryCode)("DE"),
+ *   label: "Germany",
+ *   nativeLabel: "Deutschland",
+ *   searchText: "Germany Deutschland DE DEU +49"
+ * })
+ *
+ * console.log(`${germany.label} (${germany.callingCode})`) // => "Germany (+49)"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

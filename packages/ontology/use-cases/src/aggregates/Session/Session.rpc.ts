@@ -273,6 +273,23 @@ export class ApplyOntologyBatchResult extends S.Opaque<ApplyOntologyBatchResult,
 /**
  * Wire payload for opening an ontology document from the desktop sidecar.
  *
+ * **Example** (Open a Turtle file with a base IRI)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { OpenOntologyDocumentPayload } from "@beep/ontology-use-cases/aggregates/Session"
+ *
+ * const payload = S.decodeUnknownSync(OpenOntologyDocumentPayload)({
+ *   sessionId: "session-1",
+ *   path: "ontologies/patent-claims.ttl",
+ *   baseIri: "https://oip.law/ontology/claims#"
+ * })
+ *
+ * console.log(payload.path) // => "ontologies/patent-claims.ttl"
+ * console.log(O.getOrUndefined(payload.baseIri)) // => "https://oip.law/ontology/claims#"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -294,6 +311,27 @@ export class OpenOntologyDocumentPayload extends S.Opaque<
 /**
  * Wire payload for saving an ontology document from the desktop sidecar.
  *
+ * **Example** (Save an empty session to a Turtle file)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Session, SessionId } from "@beep/ontology-domain/aggregates/Session"
+ * import { OntologyFilePath, SaveOntologyDocumentPayload } from "@beep/ontology-use-cases/aggregates/Session"
+ * import { makeDataset } from "@beep/rdf/Rdf"
+ *
+ * const session = Session.make({
+ *   id: S.decodeUnknownSync(SessionId)("session-1"),
+ *   baseDataset: makeDataset([]),
+ *   changeLog: []
+ * })
+ * const payload = SaveOntologyDocumentPayload.make({
+ *   path: S.decodeUnknownSync(OntologyFilePath)("ontologies/patent-claims.ttl"),
+ *   session
+ * })
+ *
+ * console.log(payload.session.id) // => "session-1"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -314,6 +352,25 @@ export class SaveOntologyDocumentPayload extends S.Opaque<
 /**
  * Wire payload for previewing Turtle serialization in the desktop sidecar.
  *
+ * **Example** (Preview Turtle for a session without writing it)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Session, SessionId } from "@beep/ontology-domain/aggregates/Session"
+ * import { PreviewOntologyTurtlePayload } from "@beep/ontology-use-cases/aggregates/Session"
+ * import { makeDataset } from "@beep/rdf/Rdf"
+ *
+ * const payload = PreviewOntologyTurtlePayload.make({
+ *   session: Session.make({
+ *     id: S.decodeUnknownSync(SessionId)("session-2"),
+ *     baseDataset: makeDataset([]),
+ *     changeLog: []
+ *   })
+ * })
+ *
+ * console.log(payload.session.changeLog.length) // => 0
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -332,6 +389,24 @@ export class PreviewOntologyTurtlePayload extends S.Opaque<
 
 /**
  * Wire payload for building the current ontology explorer snapshot.
+ *
+ * **Example** (Request the explorer snapshot for a session)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Session, SessionId } from "@beep/ontology-domain/aggregates/Session"
+ * import { GetOntologySnapshotPayload } from "@beep/ontology-use-cases/aggregates/Session"
+ * import { makeDataset } from "@beep/rdf/Rdf"
+ *
+ * const session = Session.make({
+ *   id: S.decodeUnknownSync(SessionId)("session-3"),
+ *   baseDataset: makeDataset([]),
+ *   changeLog: []
+ * })
+ * const payload = GetOntologySnapshotPayload.make({ session })
+ *
+ * console.log(payload.session === session) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0

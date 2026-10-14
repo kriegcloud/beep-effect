@@ -102,6 +102,24 @@ export class KnowledgeStaticCommandFlag extends S.Opaque<
 /**
  * One non-executing projection of a CLI command and its ordered descendants.
  *
+ * **Example** (Project a nested command tree)
+ *
+ * ```ts
+ * import { StaticCommandNode } from "@beep/repo-cli/commands/Knowledge/Knowledge.command-surface"
+ *
+ * const tree = StaticCommandNode.make({
+ *   name: "beep",
+ *   alias: null,
+ *   children: [
+ *     StaticCommandNode.make({ name: "knowledge", alias: null, children: [
+ *       StaticCommandNode.make({ name: "refs", alias: null, children: [] })
+ *     ] })
+ *   ]
+ * })
+ *
+ * console.log(tree.children[0]?.children[0]?.name) // => "refs"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

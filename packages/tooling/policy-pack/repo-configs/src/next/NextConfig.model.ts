@@ -72,6 +72,16 @@ const CacheHandlersConfig = S.Record(S.String, S.UndefinedOr(S.String)).pipe(
 /**
  * Development indicator object configuration for Next.js.
  *
+ * **Example** (Move the dev indicator out of the way)
+ *
+ * ```ts
+ * import { DevIndicatorsConfigOptions } from "@beep/repo-configs/next"
+ *
+ * const indicators = DevIndicatorsConfigOptions.make({ position: "bottom-right" })
+ *
+ * console.log(indicators.position) // => "bottom-right"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -98,6 +108,16 @@ const DevIndicatorsConfig = S.Union([S.Literal(false), DevIndicatorsConfigOption
 /**
  * Development-time on-demand entries cache configuration.
  *
+ * **Example** (Keep compiled pages warm for one minute)
+ *
+ * ```ts
+ * import { OnDemandEntriesConfig } from "@beep/repo-configs/next"
+ *
+ * const entries = OnDemandEntriesConfig.make({ maxInactiveAge: 60_000, pagesBufferLength: 5 })
+ *
+ * console.log(entries.maxInactiveAge) // => 60000
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -114,6 +134,17 @@ export class OnDemandEntriesConfig extends S.Opaque<OnDemandEntriesConfig, { rea
 /**
  * HTTP agent options used by Next.js fetch and server internals.
  *
+ * **Example** (Disable keep-alive for upstream fetches)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { HttpAgentOptionsConfig } from "@beep/repo-configs/next"
+ *
+ * const agent = S.decodeUnknownSync(HttpAgentOptionsConfig)({ keepAlive: false })
+ *
+ * console.log(agent.keepAlive) // => false
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -128,6 +159,19 @@ export class HttpAgentOptionsConfig extends S.Opaque<HttpAgentOptionsConfig, { r
 ) {}
 /**
  * Package import modularization rule for one optimized package.
+ *
+ * **Example** (Rewrite barrel imports to per-icon modules)
+ *
+ * ```ts
+ * import { ModularizeImportsRuleConfig } from "@beep/repo-configs/next"
+ *
+ * const lucide = ModularizeImportsRuleConfig.make({
+ *   transform: "lucide-react/dist/esm/icons/{{ kebabCase member }}",
+ *   preventFullImport: true
+ * })
+ *
+ * console.log(lucide.transform) // => "lucide-react/dist/esm/icons/{{ kebabCase member }}"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -161,6 +205,16 @@ const OutputFileTracingRules = S.Record(S.String, StringArray).pipe(
 );
 /**
  * File watching options for Next.js.
+ *
+ * **Example** (Poll for file changes inside a container)
+ *
+ * ```ts
+ * import { WatchOptionsConfig } from "@beep/repo-configs/next"
+ *
+ * const watch = WatchOptionsConfig.make({ pollIntervalMs: 1000 })
+ *
+ * console.log(watch.pollIntervalMs) // => 1000
+ * ```
  *
  * @category models
  * @since 0.0.0

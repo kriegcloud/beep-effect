@@ -74,7 +74,7 @@ const RawArchiveObjectIdPattern = /^raw-[a-f0-9]{64}$/u;
  * @category models
  * @since 0.0.0
  */
-export class RawArchivePlanItem extends S.Opaque<RawArchivePlanItem, { readonly brand: unique symbol }>()(
+class RawArchivePlanItem extends S.Opaque<RawArchivePlanItem, { readonly brand: unique symbol }>()(
   S.Struct({
     archiveObjectId: S.String,
     archivePath: S.String,
@@ -97,7 +97,7 @@ export class RawArchivePlanItem extends S.Opaque<RawArchivePlanItem, { readonly 
  * @category models
  * @since 0.0.0
  */
-export class RawArchiveObjectRow extends S.Opaque<RawArchiveObjectRow, { readonly brand: unique symbol }>()(
+class RawArchiveObjectRow extends S.Opaque<RawArchiveObjectRow, { readonly brand: unique symbol }>()(
   S.Struct({
     archiveObjectId: S.String,
     archivePath: S.String,
@@ -122,7 +122,7 @@ export class RawArchiveObjectRow extends S.Opaque<RawArchiveObjectRow, { readonl
  * @category models
  * @since 0.0.0
  */
-export class IngestRunRow extends S.Opaque<IngestRunRow, { readonly brand: unique symbol }>()(
+class IngestRunRow extends S.Opaque<IngestRunRow, { readonly brand: unique symbol }>()(
   S.Struct({
     completedAtEpochMillis: S.Natural,
     ingestRunId: S.String,
@@ -141,7 +141,7 @@ export class IngestRunRow extends S.Opaque<IngestRunRow, { readonly brand: uniqu
  * @category models
  * @since 0.0.0
  */
-export class OutcomeLabelRow extends S.Opaque<OutcomeLabelRow, { readonly brand: unique symbol }>()(
+class OutcomeLabelRow extends S.Opaque<OutcomeLabelRow, { readonly brand: unique symbol }>()(
   S.Struct({
     labelId: S.String,
     labeledAtEpochMillis: S.OptionFromNullOr(S.Natural),
@@ -160,7 +160,7 @@ export class OutcomeLabelRow extends S.Opaque<OutcomeLabelRow, { readonly brand:
  * @category models
  * @since 0.0.0
  */
-export class BenchmarkRunRow extends S.Opaque<BenchmarkRunRow, { readonly brand: unique symbol }>()(
+class BenchmarkRunRow extends S.Opaque<BenchmarkRunRow, { readonly brand: unique symbol }>()(
   S.Struct({
     benchmarkRunId: S.String,
     recordedAtEpochMillis: S.OptionFromNullOr(S.Natural),
@@ -179,7 +179,7 @@ export class BenchmarkRunRow extends S.Opaque<BenchmarkRunRow, { readonly brand:
  * @category models
  * @since 0.0.0
  */
-export class ScorecardRow extends S.Opaque<ScorecardRow, { readonly brand: unique symbol }>()(
+class ScorecardRow extends S.Opaque<ScorecardRow, { readonly brand: unique symbol }>()(
   S.Struct({
     scorecardId: S.String,
     windowEndEpochMillis: S.OptionFromNullOr(S.Natural),
@@ -198,7 +198,7 @@ export class ScorecardRow extends S.Opaque<ScorecardRow, { readonly brand: uniqu
  * @category models
  * @since 0.0.0
  */
-export class PathPlanItem extends S.Opaque<PathPlanItem, { readonly brand: unique symbol }>()(
+class PathPlanItem extends S.Opaque<PathPlanItem, { readonly brand: unique symbol }>()(
   S.Struct({
     absolutePath: S.String,
     modifiedAtEpochMillis: S.Natural,
@@ -216,7 +216,7 @@ export class PathPlanItem extends S.Opaque<PathPlanItem, { readonly brand: uniqu
  * @category models
  * @since 0.0.0
  */
-export class RetentionPlan extends S.Opaque<RetentionPlan, { readonly brand: unique symbol }>()(
+class RetentionPlan extends S.Opaque<RetentionPlan, { readonly brand: unique symbol }>()(
   S.Struct({
     benchmarkRunIds: S.Array(S.String),
     derivedExportItems: S.Array(PathPlanItem),

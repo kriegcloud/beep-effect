@@ -16,6 +16,19 @@ const $I = $FileProcessingId.create("Extraction");
 /**
  * Extracted text span with byte or character offsets supplied by the engine.
  *
+ * **Example** (Compare the unchecked base with the ordered span)
+ *
+ * ```ts
+ * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
+ * import { TextSpan, TextSpanBase } from "@beep/file-processing/Extraction"
+ *
+ * const reversed = { startOffset: 12, endOffset: 4, text: "claim 1" }
+ *
+ * console.log(Exit.isSuccess(S.decodeUnknownExit(TextSpanBase)(reversed))) // => true
+ * console.log(Exit.isSuccess(S.decodeUnknownExit(TextSpan)(reversed))) // => false
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

@@ -40,7 +40,7 @@ Higher sources outrank lower sources when they conflict.
 
 - [x] Plain data schemas (empty or statics-only body, no `.extend` relation, no instance members) are `S.Opaque<X, { readonly brand: unique symbol }>()(S.Struct | S.TaggedStruct)`.
 - [ ] Every remaining `S.Class`/`S.TaggedClass`/`S.Error`/`S.TaggedError`/`S.Opaque` declaration carries `{ readonly brand: unique symbol }`.
-- [ ] With `@effect/tsgo` 0.52.0 installed and `schemaClassMissingBrand: "error"`, repo-wide `bun run check` reports zero diagnostics (the pin itself stays 0.51.1).
+- [x] With `@effect/tsgo` 0.52.0 installed and `schemaClassMissingBrand: "error"`, repo-wide `bun run check` reports zero diagnostics (the pin itself stays 0.51.1).
 - [x] Guidance documents the new default; a `DECISIONS.md` entry records it; `lint schema-first` flags a new empty/statics-only `S.Class` that is not an error, entity or `.extend` root.
 - [x] The `$I.annote` tooling lint recognises brand type arguments.
 - [ ] No unrelated refactors or formatting churn.

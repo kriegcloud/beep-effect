@@ -183,6 +183,24 @@ const GroundedExtractionAlignedFields = {
 /**
  * Source-grounded extraction aligned by an exact text match.
  *
+ * **Example** (Ground a party name found verbatim)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { GroundedExtraction, GroundedExtractionMatchExact } from "@beep/langextract/Extraction"
+ * import { Contract } from "@beep/nlp/Handoff"
+ *
+ * const party = GroundedExtractionMatchExact.make({
+ *   label: "party",
+ *   text: "Acme Robotics, Inc.",
+ *   matchedText: "Acme Robotics, Inc.",
+ *   span: Contract.Span.make({ start: S.Natural.make(17), end: S.Natural.make(36) })
+ * })
+ *
+ * console.log(party.alignmentStatus) // => "match_exact"
+ * console.log(GroundedExtraction.guards.match_exact(party)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -203,6 +221,24 @@ export class GroundedExtractionMatchExact extends S.Opaque<
 /**
  * Source-grounded extraction aligned by a case-insensitive text match.
  *
+ * **Example** (Ground a claim term that differs only in case)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { GroundedExtractionMatchLesser } from "@beep/langextract/Extraction"
+ * import { Contract } from "@beep/nlp/Handoff"
+ *
+ * const term = GroundedExtractionMatchLesser.make({
+ *   label: "claim-term",
+ *   text: "Robotic Arm",
+ *   matchedText: "robotic arm",
+ *   span: Contract.Span.make({ start: S.Natural.make(102), end: S.Natural.make(113) })
+ * })
+ *
+ * console.log(term.text === term.matchedText) // => false
+ * console.log(term.alignmentStatus) // => "match_lesser"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -222,6 +258,23 @@ export class GroundedExtractionMatchLesser extends S.Opaque<
 
 /**
  * Source-grounded extraction aligned by case folding, whitespace collapse, or end-of-line hyphen folding.
+ *
+ * **Example** (Ground text split by an end-of-line hyphen)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { GroundedExtractionMatchMinimalFold } from "@beep/langextract/Extraction"
+ * import { Contract } from "@beep/nlp/Handoff"
+ *
+ * const term = GroundedExtractionMatchMinimalFold.make({
+ *   label: "component",
+ *   text: "end effector",
+ *   matchedText: "end ef-\nfector",
+ *   span: Contract.Span.make({ start: S.Natural.make(240), end: S.Natural.make(255) })
+ * })
+ *
+ * console.log(term.span.end - term.span.start) // => 15
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -244,6 +297,26 @@ export class GroundedExtractionMatchMinimalFold extends S.Opaque<
 /**
  * Source-grounded extraction aligned by a bounded fuzzy text match.
  *
+ * **Example** (Ground an OCR-damaged date with model confidence)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { GroundedExtractionMatchFuzzy } from "@beep/langextract/Extraction"
+ * import { Contract } from "@beep/nlp/Handoff"
+ * import { UnitInterval } from "@beep/schema/UnitInterval"
+ *
+ * const filingDate = GroundedExtractionMatchFuzzy.make({
+ *   label: "filing-date",
+ *   text: "March 3, 2024",
+ *   matchedText: "Rarch 3, 2O24",
+ *   span: Contract.Span.make({ start: S.Natural.make(58), end: S.Natural.make(71) }),
+ *   confidence: O.some(UnitInterval.make(0.82))
+ * })
+ *
+ * console.log(O.getOrUndefined(filingDate.confidence)) // => 0.82
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -263,6 +336,17 @@ export class GroundedExtractionMatchFuzzy extends S.Opaque<
 
 /**
  * Extraction candidate for which deterministic source alignment found no match.
+ *
+ * **Example** (Keep a candidate the source text never mentions)
+ *
+ * ```ts
+ * import { GroundedExtraction, GroundedExtractionUnaligned } from "@beep/langextract/Extraction"
+ *
+ * const hallucinated = GroundedExtractionUnaligned.make({ label: "inventor", text: "Grace Hopper" })
+ *
+ * console.log(GroundedExtraction.isAnyOf(["unaligned"])(hallucinated)) // => true
+ * console.log("span" in hallucinated) // => false
+ * ```
  *
  * @category models
  * @since 0.0.0

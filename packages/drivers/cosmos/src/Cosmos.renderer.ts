@@ -26,7 +26,7 @@ const $I = $CosmosId.create("Cosmos.renderer");
  * @category models
  * @since 0.0.0
  */
-export class CosmosGraphConfig extends S.Opaque<CosmosGraphConfig, { readonly brand: unique symbol }>()(
+class CosmosGraphConfig extends S.Opaque<CosmosGraphConfig, { readonly brand: unique symbol }>()(
   S.Struct({
     enableDrag: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
@@ -321,7 +321,7 @@ type CosmosGraphModule = {
  * @category models
  * @since 0.0.0
  */
-export class GraphologyOptions extends S.Opaque<GraphologyOptions, { readonly brand: unique symbol }>()(
+class GraphologyOptions extends S.Opaque<GraphologyOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     multi: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
@@ -342,7 +342,7 @@ const edgeAttributesColorDefault = HexColor.make("#94a3b8");
  * @category models
  * @since 0.0.0
  */
-export class EdgeAttributes extends S.Opaque<EdgeAttributes, { readonly brand: unique symbol }>()(
+class EdgeAttributes extends S.Opaque<EdgeAttributes, { readonly brand: unique symbol }>()(
   S.Struct({
     color: HexColor.pipe(
       S.withConstructorDefault(Effect.succeed(edgeAttributesColorDefault)),
@@ -363,7 +363,7 @@ const nodeAttributesColorDefault = HexColor.make("#38bdf8");
  * @category models
  * @since 0.0.0
  */
-export class NodeAttributes extends S.Opaque<NodeAttributes, { readonly brand: unique symbol }>()(
+class NodeAttributes extends S.Opaque<NodeAttributes, { readonly brand: unique symbol }>()(
   S.Struct({
     color: HexColor.pipe(
       S.withConstructorDefault(Effect.succeed(nodeAttributesColorDefault)),

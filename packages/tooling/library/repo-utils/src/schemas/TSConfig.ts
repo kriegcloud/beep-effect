@@ -1217,10 +1217,9 @@ const tsConfigCompilerOptionsFields = {
  * @category models
  * @since 0.0.0
  */
-export class TSConfigCompilerOptionsShape extends S.Opaque<
-  TSConfigCompilerOptionsShape,
-  { readonly brand: unique symbol }
->()(S.Struct(tsConfigCompilerOptionsFields).pipe($I.annoteSchema("TSConfigCompilerOptionsShape"))) {}
+class TSConfigCompilerOptionsShape extends S.Opaque<TSConfigCompilerOptionsShape, { readonly brand: unique symbol }>()(
+  S.Struct(tsConfigCompilerOptionsFields).pipe($I.annoteSchema("TSConfigCompilerOptionsShape"))
+) {}
 
 type TSConfigCompilerOptionsShapeType = TSConfigCompilerOptionsShape;
 

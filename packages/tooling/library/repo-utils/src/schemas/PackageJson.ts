@@ -256,6 +256,16 @@ const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling", "ecosy
 /**
  * Repo-local package metadata for foundation packages.
  *
+ * **Example** (Tag a modeling package in the foundation family)
+ *
+ * ```ts
+ * import { BeepFoundationMetadata } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const metadata = BeepFoundationMetadata.make({ family: "foundation", kind: "modeling" })
+ *
+ * console.log(`${metadata.family}/${metadata.kind}`) // => "foundation/modeling"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -274,6 +284,17 @@ export class BeepFoundationMetadata extends S.Opaque<BeepFoundationMetadata, { r
 /**
  * Repo-local package metadata for flat driver packages.
  *
+ * **Example** (Tag a flat driver package)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { BeepDriverMetadata } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const metadata = S.decodeUnknownSync(BeepDriverMetadata)({ family: "drivers" })
+ *
+ * console.log(metadata.family) // => "drivers"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -290,6 +311,19 @@ export class BeepDriverMetadata extends S.Opaque<BeepDriverMetadata, { readonly 
 
 /**
  * Repo-local package metadata for tooling packages.
+ *
+ * **Example** (Reject an unknown tooling kind)
+ *
+ * ```ts
+ * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
+ * import { BeepToolingMetadata } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const decode = S.decodeUnknownExit(BeepToolingMetadata)
+ *
+ * console.log(Exit.isSuccess(decode({ family: "tooling", kind: "policy-pack" }))) // => true
+ * console.log(Exit.isSuccess(decode({ family: "tooling", kind: "plugin" }))) // => false
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -308,6 +342,16 @@ export class BeepToolingMetadata extends S.Opaque<BeepToolingMetadata, { readonl
 
 /**
  * Repo-local package metadata for flat ecosystem packages.
+ *
+ * **Example** (Tag an ecosystem package)
+ *
+ * ```ts
+ * import { BeepEcosystemMetadata } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const metadata = BeepEcosystemMetadata.make({ family: "ecosystem" })
+ *
+ * console.log(metadata.family) // => "ecosystem"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -366,6 +410,18 @@ const BrowserReplacement = S.Union([S.String, S.Literal(false)]).pipe(
 /**
  * Structured package person metadata with a required name and optional contact fields.
  *
+ * **Example** (Decode a structured author entry)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Person, PersonObject } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const author = S.decodeUnknownSync(PersonObject)({ name: "Ada Lovelace", email: "ada@example.com" })
+ *
+ * console.log(author.name) // => "Ada Lovelace"
+ * console.log(S.is(Person)("Ada Lovelace <ada@example.com>")) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -384,6 +440,20 @@ export class PersonObject extends S.Opaque<PersonObject, { readonly brand: uniqu
 
 /**
  * Structured repository metadata with required type and url fields and an optional directory.
+ *
+ * **Example** (Point a monorepo package at its directory)
+ *
+ * ```ts
+ * import { RepositoryObject } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const repository = RepositoryObject.make({
+ *   type: "git",
+ *   url: "git+https://github.com/beep-effect/beep-effect.git",
+ *   directory: "packages/tooling/library/repo-utils"
+ * })
+ *
+ * console.log(repository.directory) // => "packages/tooling/library/repo-utils"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -404,6 +474,18 @@ export class RepositoryObject extends S.Opaque<RepositoryObject, { readonly bran
 /**
  * Structured bug tracker metadata with optional URL and contact email fields.
  *
+ * **Example** (Route bug reports to the issue tracker)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { BugsObject } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const bugs = S.decodeUnknownSync(BugsObject)({ url: "https://github.com/beep-effect/beep-effect/issues" })
+ *
+ * console.log(bugs.url) // => "https://github.com/beep-effect/beep-effect/issues"
+ * console.log(bugs.email) // => undefined
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -421,6 +503,17 @@ export class BugsObject extends S.Opaque<BugsObject, { readonly brand: unique sy
 
 /**
  * Structured funding metadata with a required URL and an optional funding type label.
+ *
+ * **Example** (Declare one funding link)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Funding, FundingEntry } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const entry = FundingEntry.make({ type: "github", url: "https://github.com/sponsors/beep-effect" })
+ *
+ * console.log(S.is(Funding)([entry, "https://opencollective.com/beep-effect"])) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -634,6 +727,16 @@ export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)
 /**
  * Schema for the `directories` field.
  *
+ * **Example** (Describe where docs and tests live)
+ *
+ * ```ts
+ * import { DirectoriesShape } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const directories = DirectoriesShape.make({ doc: "docs", test: "test", bin: "bin" })
+ *
+ * console.log(directories.test) // => "test"
+ * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -789,6 +892,16 @@ export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray))
 /**
  * Schema for a development environment requirement entry.
  *
+ * **Example** (Require Bun and fail when it is missing)
+ *
+ * ```ts
+ * import { DevEngineDependencyShape } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const bun = DevEngineDependencyShape.make({ name: "bun", version: ">=1.4.0", onFail: "error" })
+ *
+ * console.log(`${bun.name} ${bun.version}`) // => "bun >=1.4.0"
+ * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -834,6 +947,20 @@ const OptionalDevEngineRequirement = S.optionalKey(DevEngineRequirement);
 
 /**
  * Schema for the `devEngines` field.
+ *
+ * **Example** (Pin the runtime and package manager for contributors)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DevEnginesShape } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const engines = S.decodeUnknownSync(DevEnginesShape)({
+ *   runtime: { name: "node", version: ">=24", onFail: "warn" },
+ *   packageManager: [{ name: "bun", version: ">=1.4.0", onFail: "error" }]
+ * })
+ *
+ * console.log(Array.isArray(engines.packageManager)) // => true
+ * ```
  *
  * @category validation
  * @since 0.0.0
@@ -1051,6 +1178,18 @@ const OverrideValue: S.Codec<OverrideValue, OverrideValue> = S.suspend(() =>
 
 /**
  * A Yarn-style workspaces object with package globs and optional nohoist rules.
+ *
+ * **Example** (Declare workspace globs with nohoist rules)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Workspaces, WorkspacesObject } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const workspaces = WorkspacesObject.make({ packages: ["packages/*", "apps/*"], nohoist: ["react-native"] })
+ *
+ * console.log(S.is(Workspaces)(workspaces)) // => true
+ * console.log(workspaces.packages) // => ["packages/*", "apps/*"]
+ * ```
  *
  * @category models
  * @since 0.0.0

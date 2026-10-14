@@ -86,6 +86,16 @@ export type TurbopackLoaderOptions = typeof TurbopackLoaderOptions.Type;
 /**
  * Object-form loader entry accepted by a Turbopack rule.
  *
+ * **Example** (Load SVGs as React components)
+ *
+ * ```ts
+ * import { TurbopackLoaderItemConfig } from "@beep/repo-configs/next"
+ *
+ * const svgr = TurbopackLoaderItemConfig.make({ loader: "@svgr/webpack", options: { icon: true } })
+ *
+ * console.log(svgr.loader) // => "@svgr/webpack"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -211,7 +221,7 @@ export type TurbopackRuleCondition =
  * @category models
  * @since 0.0.0
  */
-export class TurbopackRuleAllCondition extends S.Opaque<TurbopackRuleAllCondition, { readonly brand: unique symbol }>()(
+class TurbopackRuleAllCondition extends S.Opaque<TurbopackRuleAllCondition, { readonly brand: unique symbol }>()(
   S.Struct({
     all: S.suspend(() => TurbopackRuleCondition).pipe(S.Array, S.mutable),
   }).pipe(
@@ -227,7 +237,7 @@ export class TurbopackRuleAllCondition extends S.Opaque<TurbopackRuleAllConditio
  * @category models
  * @since 0.0.0
  */
-export class TurbopackRuleAnyCondition extends S.Opaque<TurbopackRuleAnyCondition, { readonly brand: unique symbol }>()(
+class TurbopackRuleAnyCondition extends S.Opaque<TurbopackRuleAnyCondition, { readonly brand: unique symbol }>()(
   S.Struct({
     any: S.suspend(() => TurbopackRuleCondition).pipe(S.Array, S.mutable),
   }).pipe(
@@ -243,7 +253,7 @@ export class TurbopackRuleAnyCondition extends S.Opaque<TurbopackRuleAnyConditio
  * @category models
  * @since 0.0.0
  */
-export class TurbopackRuleNotCondition extends S.Opaque<TurbopackRuleNotCondition, { readonly brand: unique symbol }>()(
+class TurbopackRuleNotCondition extends S.Opaque<TurbopackRuleNotCondition, { readonly brand: unique symbol }>()(
   S.Struct({
     not: S.suspend(() => TurbopackRuleCondition),
   }).pipe(
@@ -259,7 +269,7 @@ export class TurbopackRuleNotCondition extends S.Opaque<TurbopackRuleNotConditio
  * @category models
  * @since 0.0.0
  */
-export class TurbopackRuleMatcherCondition extends S.Opaque<
+class TurbopackRuleMatcherCondition extends S.Opaque<
   TurbopackRuleMatcherCondition,
   { readonly brand: unique symbol }
 >()(
@@ -425,6 +435,16 @@ export type TurbopackRuleConfigCollection = typeof TurbopackRuleConfigCollection
 
 /**
  * Issue filter rule ignored by Turbopack.
+ *
+ * **Example** (Silence a known warning from a vendored package)
+ *
+ * ```ts
+ * import { TurbopackIgnoredIssue } from "@beep/repo-configs/next"
+ *
+ * const ignored = TurbopackIgnoredIssue.make({ path: /node_modules\/pdfjs-dist/, title: "Module not found" })
+ *
+ * console.log(ignored.path instanceof RegExp) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0

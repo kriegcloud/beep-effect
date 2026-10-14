@@ -104,6 +104,19 @@ const BudgetBytes = PosInt.pipe(
 /**
  * Shared byte budget accepted by practice KG read tools.
  *
+ * **Example** (Fall back to the default response budget)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { BudgetParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const defaults = S.decodeUnknownSync(BudgetParams)({})
+ * const tight = S.decodeUnknownSync(BudgetParams)({ budgetBytes: 2000 })
+ *
+ * console.log(defaults.budgetBytes) // => 8000
+ * console.log(tight.budgetBytes) // => 2000
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -114,7 +127,24 @@ export class BudgetParams extends S.Opaque<BudgetParams, { readonly brand: uniqu
 ) {}
 
 /**
- * Docket-family key. A bare family number such as 10008 returns every client-keyed family sharing it; a client-keyed form such as 12345.10008 returns one.
+ * Parameters for resolving one docket family.
+ *
+ * **Details**
+ *
+ * A bare family number such as 10008 returns every client-keyed family sharing it; a client-keyed form
+ * such as 12345.10008 returns one.
+ *
+ * **Example** (Resolve every client family sharing a bare number)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DocketFamilyParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(DocketFamilyParams)({ family: "10008" })
+ *
+ * console.log(params.family.includes(".")) // => false
+ * console.log(params.budgetBytes) // => 8000
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -131,6 +161,18 @@ export class DocketFamilyParams extends S.Opaque<DocketFamilyParams, { readonly 
 
 /**
  * Application lookup by application number, patent number, or docket. A docket may be bare (10008US01) or client-keyed (12345.10008US01).
+ *
+ * **Example** (Look up an application by client-keyed docket)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ApplicationLookupParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(ApplicationLookupParams)({ docket: "12345.10008US01" })
+ *
+ * console.log(params.docket) // => "12345.10008US01"
+ * console.log(params.application_number) // => undefined
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -150,7 +192,18 @@ export class ApplicationLookupParams extends S.Opaque<ApplicationLookupParams, {
 ) {}
 
 /**
- * Case-insensitive node label or natural-key fragment.
+ * Parameters for finding graph spine nodes by a case-insensitive node label or natural-key fragment.
+ *
+ * **Example** (Find graph nodes by a label fragment)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FindParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(FindParams)({ query: "robotic gripper", budgetBytes: 4000 })
+ *
+ * console.log(params.query) // => "robotic gripper"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -165,6 +218,18 @@ export class FindParams extends S.Opaque<FindParams, { readonly brand: unique sy
 const searchTextParamsLimitDefault = PosInt.make(20);
 /**
  * Parameters for BM25 corpus full-text search.
+ *
+ * **Example** (Search one family's corpus with the default page size)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SearchTextParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(SearchTextParams)({ query: "final rejection 103", family: "12345.10008" })
+ *
+ * console.log(params.limit) // => 20
+ * console.log(params.family) // => "12345.10008"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -184,6 +249,17 @@ export class SearchTextParams extends S.Opaque<SearchTextParams, { readonly bran
 /**
  * One-based text start and positive character length.
  *
+ * **Example** (Read the second 4 KiB window of a document)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DocumentRange } from "@beep/law-practice-use-cases/server"
+ *
+ * const range = S.decodeUnknownSync(DocumentRange)({ start: 4097, length: 4096 })
+ *
+ * console.log(range.start + range.length - 1) // => 8192
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -199,6 +275,20 @@ const defaultDocumentRange = DocumentRange.make({ length: PosInt.make(2_097_152)
 
 /**
  * Document lookup by digest or organized corpus path.
+ *
+ * **Example** (Fetch a document by digest with the default range)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { GetDocumentParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(GetDocumentParams)({
+ *   digest: "sha256:9f2c4a7e1b0d3c5f8a6e2d4b7c9f1a3e5d7b9c2f4a6e8d0b2c4f6a8e0d2b4c6f"
+ * })
+ *
+ * console.log(params.range.start) // => 1
+ * console.log(params.organized_path) // => undefined
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -218,6 +308,21 @@ export class GetDocumentParams extends S.Opaque<GetDocumentParams, { readonly br
 /**
  * Header-only email search filters.
  *
+ * **Example** (Search mail headers from one sender in a date window)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { EmailSearchParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(EmailSearchParams)({
+ *   sender: "examiner@uspto.gov",
+ *   after: "2026-01-01",
+ *   before: "2026-06-30"
+ * })
+ *
+ * console.log([params.after, params.before]) // => ["2026-01-01", "2026-06-30"]
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -233,7 +338,23 @@ export class EmailSearchParams extends S.Opaque<EmailSearchParams, { readonly br
 ) {}
 
 /**
- * Docket family, bare (10008) or client-keyed (12345.10008).
+ * Candidate-claim lookup key accepted before the claims batch is loaded.
+ *
+ * **Details**
+ *
+ * The family may be bare (10008) or client-keyed (12345.10008).
+ *
+ * **Example** (Load candidate claims for one family)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CandidateClaimsParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(CandidateClaimsParams)({ family: "12345.10008" })
+ *
+ * console.log(params.family) // => "12345.10008"
+ * console.log(params.digest === undefined && params.docket === undefined) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -255,6 +376,18 @@ export class CandidateClaimsParams extends S.Opaque<CandidateClaimsParams, { rea
 
 /**
  * Optional graph or document identity for provenance lookup.
+ *
+ * **Example** (Trace where a graph node came from)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ProvenanceParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(ProvenanceParams)({ natural_key: "application:14/783,547" })
+ *
+ * console.log(params.natural_key) // => "application:14/783,547"
+ * console.log(params.iri) // => undefined
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -729,7 +862,7 @@ export const practiceKgEmailFieldTiers = defineFieldTiers({
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgCandidateClaimMinimalRow extends S.Opaque<
+class PracticeKgCandidateClaimMinimalRow extends S.Opaque<
   PracticeKgCandidateClaimMinimalRow,
   { readonly brand: unique symbol }
 >()(
@@ -751,7 +884,7 @@ export class PracticeKgCandidateClaimMinimalRow extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgCandidateClaimBalancedRow extends S.Opaque<
+class PracticeKgCandidateClaimBalancedRow extends S.Opaque<
   PracticeKgCandidateClaimBalancedRow,
   { readonly brand: unique symbol }
 >()(
@@ -797,7 +930,24 @@ export const practiceKgCandidateClaimFieldTiers = defineFieldTiers({
  * open world, which is wrong here.
  */
 /**
- * One identifier as it appears in mail or a document: client-keyed docket (12345.10008US01), bare docket (10008US01), family, USPTO application (14/783,547) or patent number, or client number.
+ * Single reference to resolve to practice matters.
+ *
+ * **Details**
+ *
+ * The reference is one identifier as it appears in mail or a document: a client-keyed docket
+ * (12345.10008US01), a bare docket (10008US01), a family, a USPTO application (14/783,547) or patent
+ * number, or a client number.
+ *
+ * **Example** (Resolve a USPTO application number to its matter)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { MatterLookupParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(MatterLookupParams)({ reference: "14/783,547" })
+ *
+ * console.log(params.reference) // => "14/783,547"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -889,7 +1039,24 @@ export const practiceKgMatterFieldTiers = defineFieldTiers({
 });
 
 /**
- * One email address, bare (pat@example.com) or as one From, To, or Cc entry (Pat Example <pat@example.com>). A whole header with several addresses is refused; look each address up on its own.
+ * Single email address to resolve to practice matters.
+ *
+ * **Details**
+ *
+ * The address may be bare (pat@example.com) or one From, To, or Cc entry (Pat Example
+ * <pat@example.com>). A whole header with several addresses is refused; look each address up on its
+ * own.
+ *
+ * **Example** (Resolve one From entry to its matters)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CorrespondentLookupParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(CorrespondentLookupParams)({ address: "Pat Example <pat@example.com>" })
+ *
+ * console.log(params.address) // => "Pat Example <pat@example.com>"
+ * ```
  *
  * @category models
  * @since 0.0.0

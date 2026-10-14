@@ -1678,6 +1678,20 @@ class TsMorphScopeEntrypointTsConfig extends S.Opaque<
 /**
  * Scope entrypoint that resolves an owning tsconfig from a TypeScript file path.
  *
+ * **Example** (Resolve a scope from a source file path)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TsMorphScopeEntrypointFile } from "@beep/repo-utils/TSMorph/TSMorph.model"
+ *
+ * const entrypoint = S.decodeUnknownSync(TsMorphScopeEntrypointFile)({
+ *   _tag: "file",
+ *   filePath: "packages/foundation/modeling/schema/src/index.ts"
+ * })
+ *
+ * console.log(entrypoint.filePath) // => "packages/foundation/modeling/schema/src/index.ts"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

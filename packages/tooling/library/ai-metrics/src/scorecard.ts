@@ -552,7 +552,7 @@ const UnitInterval = S.Finite.check(
  * @category models
  * @since 0.0.0
  */
-export class TaskPresenceRow extends S.Opaque<TaskPresenceRow, { readonly brand: unique symbol }>()(
+class TaskPresenceRow extends S.Opaque<TaskPresenceRow, { readonly brand: unique symbol }>()(
   S.Struct({
     agentTaskId: S.String,
   }).pipe(
@@ -570,7 +570,7 @@ export class TaskPresenceRow extends S.Opaque<TaskPresenceRow, { readonly brand:
  * @category models
  * @since 0.0.0
  */
-export class BenchmarkCaseRow extends S.Opaque<BenchmarkCaseRow, { readonly brand: unique symbol }>()(
+class BenchmarkCaseRow extends S.Opaque<BenchmarkCaseRow, { readonly brand: unique symbol }>()(
   S.Struct({
     benchmarkCaseId: S.String,
     expectedChecks: S.Array(S.String).pipe(S.fromJsonString),
@@ -592,7 +592,7 @@ export class BenchmarkCaseRow extends S.Opaque<BenchmarkCaseRow, { readonly bran
  * @category models
  * @since 0.0.0
  */
-export class TaskAggregateRow extends S.Opaque<TaskAggregateRow, { readonly brand: unique symbol }>()(
+class TaskAggregateRow extends S.Opaque<TaskAggregateRow, { readonly brand: unique symbol }>()(
   S.Struct({
     averageInterventionCount: NonNegativeFinite,
     averageQualityGateScore: UnitInterval,
@@ -617,7 +617,7 @@ export class TaskAggregateRow extends S.Opaque<TaskAggregateRow, { readonly bran
  * @category models
  * @since 0.0.0
  */
-export class BenchmarkAggregateRow extends S.Opaque<BenchmarkAggregateRow, { readonly brand: unique symbol }>()(
+class BenchmarkAggregateRow extends S.Opaque<BenchmarkAggregateRow, { readonly brand: unique symbol }>()(
   S.Struct({
     benchmarkPassRate: UnitInterval,
     benchmarkQualityGateScore: UnitInterval,
@@ -638,7 +638,7 @@ export class BenchmarkAggregateRow extends S.Opaque<BenchmarkAggregateRow, { rea
  * @category models
  * @since 0.0.0
  */
-export class CoverageCountsRow extends S.Opaque<CoverageCountsRow, { readonly brand: unique symbol }>()(
+class CoverageCountsRow extends S.Opaque<CoverageCountsRow, { readonly brand: unique symbol }>()(
   S.Struct({
     modelCallCount: NonNegativeCount,
     toolInvocationCount: NonNegativeCount,

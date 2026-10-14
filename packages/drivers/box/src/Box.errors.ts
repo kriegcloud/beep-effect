@@ -337,6 +337,20 @@ export class BoxErrorOptions extends S.Opaque<BoxErrorOptions, { readonly brand:
 /**
  * Raw option input accepted by BoxError.fromReason before schema-owned normalization.
  *
+ * **Example** (Attach request details to a rate-limit failure)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { BoxError, BoxErrorOptionsInput } from "@beep/box/Box.errors"
+ *
+ * const error = BoxError.fromReason(
+ *   "response status",
+ *   BoxErrorOptionsInput.make({ method: "files.getFileById", status: 429, requestId: "a1b2c3d4" })
+ * )
+ *
+ * console.log(O.getOrUndefined(error.status)) // => 429
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

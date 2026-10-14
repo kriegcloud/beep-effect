@@ -688,6 +688,17 @@ export type HarnessEditRefKind = typeof HarnessEditRefKind.Type;
 /**
  * Edit recorded as a git commit id.
  *
+ * **Example** (Point a ledger row at a commit)
+ *
+ * ```ts
+ * import { HarnessCommitEditRef, HarnessEditRef } from "@beep/repo-ai-metrics/harness-ledger"
+ *
+ * const edit = HarnessCommitEditRef.make({ ref: "332db18e29" })
+ *
+ * console.log(edit.kind) // => "commit"
+ * console.log(HarnessEditRef.guards.commit(edit)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -705,6 +716,17 @@ export class HarnessCommitEditRef extends S.Opaque<HarnessCommitEditRef, { reado
 /**
  * Uncommitted edit recorded as the SHA-256 hex digest of its diff.
  *
+ * **Example** (Point a ledger row at an uncommitted diff)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { HarnessDiffDigestEditRef } from "@beep/repo-ai-metrics/harness-ledger"
+ *
+ * const edit = S.decodeUnknownSync(HarnessDiffDigestEditRef)({ kind: "diff-digest", ref: "9".repeat(64) })
+ *
+ * console.log(edit.ref.length) // => 64
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -721,6 +743,21 @@ export class HarnessDiffDigestEditRef extends S.Opaque<HarnessDiffDigestEditRef,
 
 /**
  * Edit proposed but not yet made.
+ *
+ * **Example** (Record an edit that has not been made yet)
+ *
+ * ```ts
+ * import { HarnessEditRef, HarnessPendingEditRef } from "@beep/repo-ai-metrics/harness-ledger"
+ *
+ * const edit = HarnessPendingEditRef.make({})
+ * const label = HarnessEditRef.match(edit, {
+ *   commit: (commit) => commit.ref,
+ *   "diff-digest": (diff) => diff.ref,
+ *   pending: () => "pending"
+ * })
+ *
+ * console.log(label) // => "pending"
+ * ```
  *
  * @category models
  * @since 0.0.0

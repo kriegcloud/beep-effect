@@ -346,7 +346,7 @@ export class AiMetricsPrivacyError extends S.TaggedError<AiMetricsPrivacyError, 
  * @category models
  * @since 0.0.0
  */
-export class GenericTranscriptLine extends S.Opaque<GenericTranscriptLine, { readonly brand: unique symbol }>()(
+class GenericTranscriptLine extends S.Opaque<GenericTranscriptLine, { readonly brand: unique symbol }>()(
   S.Struct({
     event: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     sessionId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -367,7 +367,7 @@ export class GenericTranscriptLine extends S.Opaque<GenericTranscriptLine, { rea
  * @category models
  * @since 0.0.0
  */
-export class CodexSubagentSource extends S.Opaque<CodexSubagentSource, { readonly brand: unique symbol }>()(
+class CodexSubagentSource extends S.Opaque<CodexSubagentSource, { readonly brand: unique symbol }>()(
   S.Struct({
     agent_nickname: OptionalNonEmptyTrimmed,
     agent_role: OptionalNonEmptyTrimmed,
@@ -388,7 +388,7 @@ export class CodexSubagentSource extends S.Opaque<CodexSubagentSource, { readonl
  * @category models
  * @since 0.0.0
  */
-export class CodexSessionSource extends S.Opaque<CodexSessionSource, { readonly brand: unique symbol }>()(
+class CodexSessionSource extends S.Opaque<CodexSessionSource, { readonly brand: unique symbol }>()(
   S.Struct({
     subagent: S.OptionFromOptionalKey(CodexSubagentSource).pipe(S.withConstructorDefault(Effect.succeedNone)),
   }).pipe(
@@ -404,7 +404,7 @@ export class CodexSessionSource extends S.Opaque<CodexSessionSource, { readonly 
  * @category models
  * @since 0.0.0
  */
-export class CodexSessionPayload extends S.Opaque<CodexSessionPayload, { readonly brand: unique symbol }>()(
+class CodexSessionPayload extends S.Opaque<CodexSessionPayload, { readonly brand: unique symbol }>()(
   S.Struct({
     id: OptionalNonEmptyTrimmed,
     parent_session_id: OptionalNonEmptyTrimmed,
@@ -423,7 +423,7 @@ export class CodexSessionPayload extends S.Opaque<CodexSessionPayload, { readonl
  * @category models
  * @since 0.0.0
  */
-export class CodexSessionMetaLine extends S.Opaque<CodexSessionMetaLine, { readonly brand: unique symbol }>()(
+class CodexSessionMetaLine extends S.Opaque<CodexSessionMetaLine, { readonly brand: unique symbol }>()(
   S.Struct({
     payload: S.OptionFromOptionalKey(CodexSessionPayload).pipe(S.withConstructorDefault(Effect.succeedNone)),
     type: S.String,

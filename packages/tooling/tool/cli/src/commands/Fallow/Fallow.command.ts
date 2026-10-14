@@ -80,7 +80,7 @@ type FallowBoundaryConfig = {
  * @category models
  * @since 0.0.0
  */
-export class FallowBoundaryViolation extends S.Opaque<FallowBoundaryViolation, { readonly brand: unique symbol }>()(
+class FallowBoundaryViolation extends S.Opaque<FallowBoundaryViolation, { readonly brand: unique symbol }>()(
   S.Struct({
     from_path: S.String,
     to_path: S.String,
@@ -102,7 +102,7 @@ export class FallowBoundaryViolation extends S.Opaque<FallowBoundaryViolation, {
  * @category models
  * @since 0.0.0
  */
-export class FallowBoundaryReport extends S.Opaque<FallowBoundaryReport, { readonly brand: unique symbol }>()(
+class FallowBoundaryReport extends S.Opaque<FallowBoundaryReport, { readonly brand: unique symbol }>()(
   S.Struct({
     boundary_violations: S.Array(FallowBoundaryViolation),
   }).pipe(

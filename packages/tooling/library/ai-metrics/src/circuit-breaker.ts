@@ -191,6 +191,17 @@ export type CircuitBreakerOpenStateSchemaVersion = typeof CircuitBreakerOpenStat
 /**
  * The guarded external probe completed successfully.
  *
+ * **Example** (Record a probe that went through)
+ *
+ * ```ts
+ * import { CircuitBreakerOutcome, CircuitBreakerProbeSucceeded } from "@beep/repo-ai-metrics/circuit-breaker"
+ *
+ * const outcome = CircuitBreakerProbeSucceeded.make({})
+ *
+ * console.log(outcome.status) // => "probe-succeeded"
+ * console.log(CircuitBreakerOutcome.guards["probe-succeeded"](outcome)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -207,6 +218,21 @@ export class CircuitBreakerProbeSucceeded extends S.Opaque<
 
 /**
  * A failed external probe atomically opened the machine-wide breaker.
+ *
+ * **Example** (Open the breaker after a curl timeout)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CircuitBreakerTripped } from "@beep/repo-ai-metrics/circuit-breaker"
+ *
+ * const tripped = S.decodeUnknownSync(CircuitBreakerTripped)({
+ *   status: "tripped",
+ *   exitCode: 28,
+ *   retryAfterEpochMs: 1_791_975_600_000
+ * })
+ *
+ * console.log(tripped.exitCode) // => 28
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -225,6 +251,23 @@ export class CircuitBreakerTripped extends S.Opaque<CircuitBreakerTripped, { rea
 
 /**
  * An identical retry was skipped while the machine-wide breaker remained open.
+ *
+ * **Example** (Skip an identical retry until the cooldown ends)
+ *
+ * ```ts
+ * import { CircuitBreakerOutcome, CircuitBreakerRetrySkipped } from "@beep/repo-ai-metrics/circuit-breaker"
+ *
+ * const skipped = CircuitBreakerRetrySkipped.make({ retryAfterEpochMs: 1_791_975_600_000 })
+ * const retryAt = CircuitBreakerOutcome.match(skipped, {
+ *   "probe-succeeded": () => 0,
+ *   tripped: (outcome) => outcome.retryAfterEpochMs,
+ *   "retry-skipped": (outcome) => outcome.retryAfterEpochMs,
+ *   "coordination-skipped": () => 0,
+ *   reset: () => 0
+ * })
+ *
+ * console.log(retryAt) // => 1791975600000
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -246,6 +289,16 @@ export class CircuitBreakerRetrySkipped extends S.Opaque<
 /**
  * A probe was skipped because another process held the machine-wide coordination lock.
  *
+ * **Example** (Back off while another process holds the lock)
+ *
+ * ```ts
+ * import { CircuitBreakerCoordinationSkipped, CircuitBreakerOutcome } from "@beep/repo-ai-metrics/circuit-breaker"
+ *
+ * const outcome = CircuitBreakerCoordinationSkipped.make({})
+ *
+ * console.log(CircuitBreakerOutcome.isAnyOf(["retry-skipped", "coordination-skipped"])(outcome)) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -262,6 +315,24 @@ export class CircuitBreakerCoordinationSkipped extends S.Opaque<
 
 /**
  * An operator explicitly closed one breaker state.
+ *
+ * **Example** (Record an operator closing the breaker)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CircuitBreakerEventV1, CircuitBreakerReset } from "@beep/repo-ai-metrics/circuit-breaker"
+ *
+ * const event = S.decodeUnknownSync(CircuitBreakerEventV1)({
+ *   schemaVersion: "circuit-breaker-event/v1",
+ *   ts: "2026-10-14T09:30:00.000Z",
+ *   probe: "gh",
+ *   caller: "operator",
+ *   breakerRev: "shared-cooldown-1",
+ *   outcome: { status: "reset" }
+ * })
+ *
+ * console.log(S.is(CircuitBreakerReset)(event.outcome)) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0

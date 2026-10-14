@@ -47,6 +47,17 @@ const IntakeFileSize = S.Int.check(
 /**
  * Browser file metadata used by the pre-read intake refusal policy.
  *
+ * **Example** (Refuse an oversized upload before reading it)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { IntakeFileMetadata, intakeRefusal } from "@/intake/DocumentIntake.models"
+ *
+ * const scan = IntakeFileMetadata.make({ name: "deposition-scan.pdf", size: 40 * 1024 * 1024 })
+ *
+ * console.log(O.isSome(intakeRefusal(scan))) // => true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

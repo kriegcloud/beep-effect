@@ -32,6 +32,21 @@ const FlightObjectiveStatus = LiteralKit(["known", "unknown"]);
 /**
  * Content-addressed objective supplied by the semantic flight-record channel.
  *
+ * **Example** (Reference an objective by its content hash)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { KnownFlightObjective } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const objective = S.decodeUnknownSync(KnownFlightObjective)({
+ *   status: "known",
+ *   objectiveRef: "1".repeat(64),
+ *   evidenceTier: "derived"
+ * })
+ *
+ * console.log(objective.evidenceTier) // => "derived"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -49,6 +64,22 @@ export class KnownFlightObjective extends S.Opaque<KnownFlightObjective, { reado
 
 /**
  * Explicit absence of an attributable objective, without a guessed or free-text replacement.
+ *
+ * **Example** (Admit that no objective was attributable)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FlightRecordSemantic, UnknownFlightObjective } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const semantic = FlightRecordSemantic.make({
+ *   objective: UnknownFlightObjective.make({ evidenceTier: "unknown" }),
+ *   semanticTurns: [],
+ *   selfReportedTerminalOutcome: "unknown",
+ *   evidenceTier: "unknown"
+ * })
+ *
+ * console.log(S.is(UnknownFlightObjective)(semantic.objective)) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -73,6 +104,24 @@ const FlightObjective = S.Union([KnownFlightObjective, UnknownFlightObjective]).
 
 /**
  * Content-free semantic labels supplied for one turn, with no mechanical timing or count fields.
+ *
+ * **Example** (Label one turn without recording its content)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FlightSemanticTurn } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const turn = S.decodeUnknownSync(FlightSemanticTurn)({
+ *   turnId: "2".repeat(64),
+ *   sequence: 0,
+ *   lifecycleState: "active",
+ *   activePhase: "tool-execution",
+ *   selfReportedTerminalOutcome: "none",
+ *   evidenceTier: "observed"
+ * })
+ *
+ * console.log(turn.activePhase) // => "tool-execution"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -155,6 +204,24 @@ const FlightWaitStatus = LiteralKit(["open", "closed", "tombstoned"]);
 /**
  * Mechanically observed wait bracket that has not received terminal evidence.
  *
+ * **Example** (Keep a pending permission wait open without a duration)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FlightWaitSpan, OpenFlightWait } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const wait = S.decodeUnknownSync(OpenFlightWait)({
+ *   status: "open",
+ *   waitId: "3".repeat(64),
+ *   openedAt: "2026-10-14T09:00:00.000Z",
+ *   reason: "tool-permission",
+ *   evidenceTier: "observed"
+ * })
+ *
+ * console.log(FlightWaitSpan.guards.open(wait)) // => true
+ * console.log("durationMs" in wait) // => false
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -174,6 +241,25 @@ export class OpenFlightWait extends S.Opaque<OpenFlightWait, { readonly brand: u
 
 /**
  * Mechanically closed wait bracket with a computed non-negative duration.
+ *
+ * **Example** (Close a wait with its measured duration)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ClosedFlightWait } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const wait = S.decodeUnknownSync(ClosedFlightWait)({
+ *   status: "closed",
+ *   waitId: "3".repeat(64),
+ *   openedAt: "2026-10-14T09:00:00.000Z",
+ *   closedAt: "2026-10-14T09:00:42.000Z",
+ *   durationMs: 42_000,
+ *   reason: "tool-permission",
+ *   evidenceTier: "derived"
+ * })
+ *
+ * console.log(wait.durationMs / 1000) // => 42
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -196,6 +282,24 @@ export class ClosedFlightWait extends S.Opaque<ClosedFlightWait, { readonly bran
 
 /**
  * Unclosed wait bracket retained with explicit tombstone provenance instead of a guessed close.
+ *
+ * **Example** (Retire a wait that never closed)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FlightWaitSpan, TombstonedFlightWait } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const wait = S.decodeUnknownSync(TombstonedFlightWait)({
+ *   status: "tombstoned",
+ *   waitId: "4".repeat(64),
+ *   openedAt: "2026-10-14T09:00:00.000Z",
+ *   tombstonedAt: "2026-10-14T11:00:00.000Z",
+ *   reason: "idle-input",
+ *   evidenceTier: "reconstructed"
+ * })
+ *
+ * console.log(FlightWaitSpan.isAnyOf(["closed", "tombstoned"])(wait)) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -361,6 +465,21 @@ const FlightConfigStatus = LiteralKit(["observed", "last-known", "unknown"]);
 /**
  * Configuration fingerprint observed for the represented session.
  *
+ * **Example** (Attribute a session to its observed config fingerprint)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ObservedFlightConfig } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const config = S.decodeUnknownSync(ObservedFlightConfig)({
+ *   status: "observed",
+ *   fingerprint: "5".repeat(64),
+ *   evidenceTier: "observed"
+ * })
+ *
+ * console.log(config.status) // => "observed"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -379,6 +498,20 @@ export class ObservedFlightConfig extends S.Opaque<ObservedFlightConfig, { reado
 /**
  * Last-known configuration fingerprint retained as explicitly heuristic evidence.
  *
+ * **Example** (Reject a last-known fingerprint claimed as observed)
+ *
+ * ```ts
+ * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
+ * import { LastKnownFlightConfig } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const decode = S.decodeUnknownExit(LastKnownFlightConfig)
+ * const fingerprint = "5".repeat(64)
+ *
+ * console.log(Exit.isSuccess(decode({ status: "last-known", fingerprint, evidenceTier: "heuristic" }))) // => true
+ * console.log(Exit.isSuccess(decode({ status: "last-known", fingerprint, evidenceTier: "observed" }))) // => false
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -396,6 +529,16 @@ export class LastKnownFlightConfig extends S.Opaque<LastKnownFlightConfig, { rea
 
 /**
  * Explicit absence of a session configuration fingerprint.
+ *
+ * **Example** (Record that no config fingerprint exists)
+ *
+ * ```ts
+ * import { UnknownFlightConfig } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const config = UnknownFlightConfig.make({ evidenceTier: "unknown" })
+ *
+ * console.log(config.status) // => "unknown"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -700,6 +843,23 @@ const FlightRecordWriteStatus = LiteralKit(["accepted", "invalid", "quarantined"
 /**
  * Accepted telemetry-v2 flight record ready for durable append.
  *
+ * **Example** (Tell an accepted write apart from a receipt)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { AcceptedFlightRecordWrite, FlightRecordWriteEvent } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const event = S.decodeUnknownSync(FlightRecordWriteEvent)({
+ *   status: "invalid",
+ *   candidateDigest: "6".repeat(64),
+ *   violations: ["privacy-field"],
+ *   evidenceTier: "derived",
+ *   oipTaint: "clear"
+ * })
+ *
+ * console.log(S.is(AcceptedFlightRecordWrite)(event)) // => false
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -716,6 +876,23 @@ export class AcceptedFlightRecordWrite extends S.Opaque<AcceptedFlightRecordWrit
 
 /**
  * Content-free receipt for a rejected flight-record candidate.
+ *
+ * **Example** (Receipt a rejected candidate by digest only)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { InvalidFlightRecordWrite } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const receipt = S.decodeUnknownSync(InvalidFlightRecordWrite)({
+ *   status: "invalid",
+ *   candidateDigest: "6".repeat(64),
+ *   violations: ["mechanical-semantic-boundary", "evidence-tier-promotion"],
+ *   evidenceTier: "derived",
+ *   oipTaint: "clear"
+ * })
+ *
+ * console.log(receipt.violations.length) // => 2
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -736,6 +913,25 @@ export class InvalidFlightRecordWrite extends S.Opaque<InvalidFlightRecordWrite,
 
 /**
  * Content-free receipt for a candidate whose canonical identity could not be resolved without guessing.
+ *
+ * **Example** (Quarantine a candidate with ambiguous identity)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FlightRecordWriteEvent, QuarantinedFlightRecordWrite } from "@beep/repo-ai-metrics/flight-record"
+ *
+ * const receipt = S.decodeUnknownSync(QuarantinedFlightRecordWrite)({
+ *   status: "quarantined",
+ *   candidateDigest: "6".repeat(64),
+ *   quarantineRef: "7".repeat(64),
+ *   reason: "ambiguous-identity",
+ *   evidenceTier: "derived",
+ *   oipTaint: "tainted"
+ * })
+ *
+ * console.log(FlightRecordWriteEvent.guards.quarantined(receipt)) // => true
+ * console.log(receipt.reason) // => "ambiguous-identity"
+ * ```
  *
  * @category models
  * @since 0.0.0

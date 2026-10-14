@@ -62,7 +62,7 @@ const JsonSchemaDefinitions = S.Record(S.String, JsonSchemaNode).pipe(
  * @category models
  * @since 0.0.0
  */
-export class OpenApiComponents extends S.Opaque<OpenApiComponents, { readonly brand: unique symbol }>()(
+class OpenApiComponents extends S.Opaque<OpenApiComponents, { readonly brand: unique symbol }>()(
   S.Struct({ schemas: S.optionalKey(JsonSchemaDefinitions) }).pipe(
     $I.annoteSchema("OpenApiComponents", {
       description: "OpenAPI components subset used to locate shared schemas.",
@@ -76,7 +76,7 @@ export class OpenApiComponents extends S.Opaque<OpenApiComponents, { readonly br
  * @category models
  * @since 0.0.0
  */
-export class DefinitionDocument extends S.Opaque<DefinitionDocument, { readonly brand: unique symbol }>()(
+class DefinitionDocument extends S.Opaque<DefinitionDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $defs: S.optionalKey(JsonSchemaDefinitions),
     definitions: S.optionalKey(JsonSchemaDefinitions),
@@ -94,7 +94,7 @@ export class DefinitionDocument extends S.Opaque<DefinitionDocument, { readonly 
  * @category models
  * @since 0.0.0
  */
-export class OpenApiInfo extends S.Opaque<OpenApiInfo, { readonly brand: unique symbol }>()(
+class OpenApiInfo extends S.Opaque<OpenApiInfo, { readonly brand: unique symbol }>()(
   S.Struct({ version: S.NonEmptyString }).pipe(
     $I.annoteSchema("OpenApiInfo", {
       description: "OpenAPI info fields required to validate a source version pin.",
@@ -108,7 +108,7 @@ export class OpenApiInfo extends S.Opaque<OpenApiInfo, { readonly brand: unique 
  * @category models
  * @since 0.0.0
  */
-export class OpenApiVersionDocument extends S.Opaque<OpenApiVersionDocument, { readonly brand: unique symbol }>()(
+class OpenApiVersionDocument extends S.Opaque<OpenApiVersionDocument, { readonly brand: unique symbol }>()(
   S.Struct({ info: OpenApiInfo }).pipe(
     $I.annoteSchema("OpenApiVersionDocument", {
       description: "OpenAPI document subset containing the upstream version used for pin validation.",

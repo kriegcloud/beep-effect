@@ -91,6 +91,16 @@ const OnBeforeDeferredEntries = S.declare<NonNullable<ExperimentalConfigFromNext
 /**
  * Cache life timing profile for a named cache strategy.
  *
+ * **Example** (Define an hourly cache profile)
+ *
+ * ```ts
+ * import { CacheLifeProfile } from "@beep/repo-configs/next"
+ *
+ * const hourly = CacheLifeProfile.make({ stale: 300, revalidate: 3_600, expire: 86_400 })
+ *
+ * console.log(hourly.revalidate) // => 3600
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -111,6 +121,16 @@ const CacheLife = S.Record(S.String, CacheLifeProfile);
 /**
  * Prefetch inlining size limits.
  *
+ * **Example** (Cap inlined prefetch payloads)
+ *
+ * ```ts
+ * import { PrefetchInliningOptions } from "@beep/repo-configs/next"
+ *
+ * const inlining = PrefetchInliningOptions.make({ maxSize: 2_048, maxBundleSize: 16_384 })
+ *
+ * console.log(inlining.maxBundleSize) // => 16384
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -128,7 +148,24 @@ export class PrefetchInliningOptions extends S.Opaque<PrefetchInliningOptions, {
 const PrefetchInlining = S.Union([S.Boolean, PrefetchInliningOptions]);
 
 /**
+ * Stale time settings, in seconds, for dynamic and static routes.
+ *
+ * **Details**
+ *
  * The static stale time must be at least 30 seconds.
+ *
+ * **Example** (Reject a static stale time under 30 seconds)
+ *
+ * ```ts
+ * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
+ * import { StaleTimes } from "@beep/repo-configs/next"
+ *
+ * const decode = S.decodeUnknownExit(StaleTimes)
+ *
+ * console.log(Exit.isSuccess(decode({ dynamic: 0, static: 180 }))) // => true
+ * console.log(Exit.isSuccess(decode({ static: 10 }))) // => false
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -155,6 +192,16 @@ export class StaleTimes extends S.Opaque<StaleTimes, { readonly brand: unique sy
 /**
  * SWC environment transform options.
  *
+ * **Example** (Polyfill by usage for older browsers)
+ *
+ * ```ts
+ * import { SwcEnvOptions } from "@beep/repo-configs/next"
+ *
+ * const env = SwcEnvOptions.make({ mode: "usage", coreJs: "3.38", shippedProposals: true })
+ *
+ * console.log(env.mode) // => "usage"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -179,6 +226,16 @@ export class SwcEnvOptions extends S.Opaque<SwcEnvOptions, { readonly brand: uni
 /**
  * Subresource integrity configuration.
  *
+ * **Example** (Emit SHA-384 subresource integrity hashes)
+ *
+ * ```ts
+ * import { SriConfig } from "@beep/repo-configs/next"
+ *
+ * const sri = SriConfig.make({ algorithm: "sha384" })
+ *
+ * console.log(sri.algorithm) // => "sha384"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -194,6 +251,16 @@ export class SriConfig extends S.Opaque<SriConfig, { readonly brand: unique symb
 
 /**
  * Rust MDX compiler configuration.
+ *
+ * **Example** (Compile GitHub-flavored MDX with the Rust compiler)
+ *
+ * ```ts
+ * import { MdxRsConfig } from "@beep/repo-configs/next"
+ *
+ * const mdxRs = MdxRsConfig.make({ mdxType: "gfm", jsxRuntime: "automatic", providerImportSource: "@mdx-js/react" })
+ *
+ * console.log(mdxRs.mdxType) // => "gfm"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -216,6 +283,17 @@ export class MdxRsConfig extends S.Opaque<MdxRsConfig, { readonly brand: unique 
 /**
  * Server Actions configuration.
  *
+ * **Example** (Allow larger form uploads from one origin)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ServerActions } from "@beep/repo-configs/next"
+ *
+ * const actions = S.decodeUnknownSync(ServerActions)({ bodySizeLimit: "4mb", allowedOrigins: ["app.oip.law"] })
+ *
+ * console.log(actions.bodySizeLimit) // => "4mb"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -231,7 +309,18 @@ export class ServerActions extends S.Opaque<ServerActions, { readonly brand: uni
 ) {}
 
 /**
- * Build time threshold in milliseconds.
+ * Slow module detection configuration: modules whose build time exceeds the threshold, in
+ * milliseconds, are reported.
+ *
+ * **Example** (Flag modules that take longer than 500 ms to build)
+ *
+ * ```ts
+ * import { SlowModuleDetection } from "@beep/repo-configs/next"
+ *
+ * const detection = SlowModuleDetection.make({ buildTimeThresholdMs: 500 })
+ *
+ * console.log(detection.buildTimeThresholdMs) // => 500
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -248,6 +337,16 @@ export class SlowModuleDetection extends S.Opaque<SlowModuleDetection, { readonl
 
 /**
  * Browser debug output controls for terminal rendering.
+ *
+ * **Example** (Forward browser warnings to the dev terminal)
+ *
+ * ```ts
+ * import { BrowserDebugInfoInTerminalOptions } from "@beep/repo-configs/next"
+ *
+ * const debug = BrowserDebugInfoInTerminalOptions.make({ level: "warn", depthLimit: 3, showSourceLocation: true })
+ *
+ * console.log(debug.level) // => "warn"
+ * ```
  *
  * @category models
  * @since 0.0.0

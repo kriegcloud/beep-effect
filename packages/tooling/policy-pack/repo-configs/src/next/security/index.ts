@@ -96,7 +96,25 @@ const emptySecureHeaders: Array<SecureHeader> = [];
 export const DEFAULT_BEEP_SECURE_HEADERS: ReadonlyArray<SecureHeader> = defaultBeepSecureHeaders;
 
 /**
- * Next.js route source receiving the secure headers.
+ * Object form of shared secure-header configuration for the repo Next.js preset.
+ *
+ * **Details**
+ *
+ * `source` is the Next.js route source receiving the headers; `additionalHeaders` are appended after
+ * the shared defaults.
+ *
+ * **Example** (Add one header to the shared defaults)
+ *
+ * ```ts
+ * import { DEFAULT_BEEP_SECURE_HEADERS, SecureHeader, SecureHeadersConfigValue } from "@beep/repo-configs/next/security"
+ *
+ * const config = SecureHeadersConfigValue.make({
+ *   additionalHeaders: [SecureHeader.make({ key: "X-Robots-Tag", value: "noindex" })]
+ * })
+ *
+ * console.log(config.source) // => "/(.*)"
+ * console.log(config.headers.length === DEFAULT_BEEP_SECURE_HEADERS.length) // => true
+ * ```
  *
  * @category models
  * @since 0.0.0

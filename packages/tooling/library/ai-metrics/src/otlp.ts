@@ -376,10 +376,7 @@ export class AiMetricsOtlpExportResult extends S.Opaque<AiMetricsOtlpExportResul
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsOtlpTurnExportRow extends S.Opaque<
-  AiMetricsOtlpTurnExportRow,
-  { readonly brand: unique symbol }
->()(
+class AiMetricsOtlpTurnExportRow extends S.Opaque<AiMetricsOtlpTurnExportRow, { readonly brand: unique symbol }>()(
   S.Struct({
     agentNicknameHash: S.OptionFromNullOr(S.String),
     agentRoleHash: S.OptionFromNullOr(S.String),
