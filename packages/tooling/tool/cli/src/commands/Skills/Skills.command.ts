@@ -962,8 +962,26 @@ const readLockV2 = Effect.fn("Skills.readLockV2")(function* (
   if (O.isNone(content)) {
     return O.none();
   }
-  return yield* Effect.option(decodeSkillsLockDocumentJson(content.value));
+  // Fail closed: only a lock that declares version 1 is read as "no v2 lock"; any
+  // other decode failure is an error, so refuseVendoredRefetch cannot be bypassed.
+  return yield* decodeSkillsLockDocumentJson(content.value).pipe(
+    Effect.asSome,
+    Effect.catchTag("SchemaError", (error) =>
+      decodeLegacyLockVersion(content.value).pipe(
+        Effect.as(O.none<SkillsLockDocument>()),
+        Effect.catchTag("SchemaError", () =>
+          SkillsCommandError.make({
+            message: `${SKILLS_LOCK_PATH} is neither a valid v2 lock nor a v1 lock: ${error.message}`,
+            file: SKILLS_LOCK_PATH,
+          })
+        )
+      )
+    )
+  );
 });
+
+// The legacy lock is recognized by its declared version alone.
+const decodeLegacyLockVersion = S.decodeUnknownEffect(S.fromJsonString(S.Struct({ version: S.Literal(1) })));
 
 const vendoredEntryOf = (lock: O.Option<SkillsLockDocument>, name: string): O.Option<VendoredSkillLockEntry> =>
   O.flatMap(lock, (document) =>

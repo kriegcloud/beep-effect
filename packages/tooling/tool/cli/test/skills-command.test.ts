@@ -297,6 +297,21 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills update over a v2 l
       expect(yield* readProjectFile(".claude/skills/grill-me/SKILL.md")).toBe("vendored skill\n");
     }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
   );
+
+  it.effect("fails closed on a lock that is neither a valid v2 nor a v1 lock", () =>
+    Effect.gen(function* () {
+      yield* temporaryRepository;
+      // A broken v2 lock must not read as "no lock", which would bypass the vendored refusal.
+      yield* writeProjectFile("skills-lock.json", `{"version": 2, "skills": {"grill-me": {"_tag": "vendored"}}}\n`);
+      yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", "vendored skill\n");
+
+      const error = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") }).pipe(Effect.flip);
+
+      expect(error._tag).toBe("SkillsCommandError");
+      expect(error.message).toContain("neither a valid v2 lock nor a v1 lock");
+      expect(yield* readProjectFile(".claude/skills/grill-me/SKILL.md")).toBe("vendored skill\n");
+    }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+  );
 });
 
 // Exercise the constructor used by the command cases, including its fallible
