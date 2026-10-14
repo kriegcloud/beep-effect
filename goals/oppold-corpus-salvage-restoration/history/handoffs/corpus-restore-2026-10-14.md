@@ -243,3 +243,22 @@ repeated second-pass failure is unsupported with retained cause evidence,
 never accepted partial output or a third attempt. Eighteen larger
 occurrences and estate/recycle/DOC gates remain open for P3.
 Reversal: revert packet decisions; retain every corpus artifact and freeze.
+
+
+Additional admitted recovery proof: both message-free Tika failure and
+separately frozen elapsed-ceiling regressions pass, two selected cases,
+85 skipped, 2.37 seconds. Pre-launch manifest commit:
+4bd0ea98d73a9c3a285ec0bfd85973d64f8a0223. Full sixty-second interval
+completed after the four focused cases and freeze commit; renewed capacity
+339,888,861,184 bytes at 13:34:41Z. No recovery root or stamp exists yet.
+Knowledge-reference verification queued normally and is now admitted.
+No package source changes in this run. Package/parity evidence on #1731
+remains retained; source equality with its merged production code is proved.
+
+
+Knowledge refs at the freeze commit reported sixteen live external-mirror
+gates: one introduced SPEC private-log reference, fifteen inherited rows
+in eleven documents that match main. Replaced the new location with the
+corpus-relative logs/corpus-restore inventory; no engine or freeze field
+changed. Rerun after committing; inherited rows remain orchestrator-owned.
+No failure of a corpus precondition and no recovery family started.

@@ -1318,7 +1318,7 @@ staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-14-recovery-05,
 -07, -08 and -09, each with ledgers/mail/slice.jsonl, output/mail/slice
 and writer-claims. Only restore-mail creates them. The recovery launcher
 is ~/.cache/beep/corpus-restore/p2-recovery-2026-10-14.sh; private logs
-remain under ~/data-home/oppold-corpus/logs/corpus-restore. Only counts and
+remain under logs/corpus-restore, relative to corpus home. Only counts and
 exit codes leave those logs. Fill each manifest policySha256 once from its
 family-run-start; every other freeze field stays immutable.
 

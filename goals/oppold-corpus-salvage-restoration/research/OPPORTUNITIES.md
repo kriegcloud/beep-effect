@@ -1003,3 +1003,14 @@ that integrated main commit. No fix or base merge inside the frozen launch.
   Preserve the append and complete the merge; engine source matches main.
 - Prevented by: committing post-push proof receipts with the next evidence
   wave before integration; do not drop them or re-push a merged head branch.
+
+
+## 2026-10-14 — An added private-log reference trips the knowledge gate
+
+- Doing: verifying committed recovery freeze documentation before launch.
+- Evidence: knowledge refs reports sixteen live gated external-mirror
+  observations; one is the new SPEC private-log location. Fifteen other
+  observations are in documents that match main. No corpus tool ran.
+- Prevented by: write private-log locations relative to the declared corpus
+  home, matching the packet's existing inventory. Correct the introduced
+  row, commit, rerun; the orchestrator owns the inherited observations.
