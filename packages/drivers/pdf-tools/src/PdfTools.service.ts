@@ -9,7 +9,7 @@
  */
 
 import { $PdfToolsId } from "@beep/identity/packages";
-import { O, Str, thunkEmptyStr } from "@beep/utils";
+import { A, Html, O, Str, thunkEmptyStr } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -27,6 +27,7 @@ import { PdfToolsError } from "./PdfTools.errors.ts";
 import {
   InkCoverageRequest,
   PageTextRequest,
+  PinnedFontconfigRequest,
   PngRequest,
   RasterRequest,
   SvgToPdfRequest,
@@ -70,6 +71,50 @@ const mergePages = Effect.fn("PdfTools.mergePages")(function* (pages: ReadonlyAr
   saved.set(encoder.encode(`%PDF-${version}`), 0);
   return saved;
 });
+
+/**
+ * The fontconfig file a pinned conversion runs under.
+ *
+ * **Details**
+ *
+ * The file names `fonts.directory` as the only font directory (fontconfig
+ * reads it recursively) and includes no system configuration, so no host font
+ * is visible. Each alias rebinds its requested family to the resolved family
+ * with a strong binding. `cacheDirectory` holds fontconfig's scan cache.
+ *
+ * **Example** (Pin one family)
+ *
+ * ```ts
+ * import { FontFamilyAlias, PinnedFontconfigRequest, PinnedFonts, pinnedFontconfig } from "@beep/pdf-tools"
+ *
+ * const fonts = PinnedFonts.make({
+ *   directory: "/fonts",
+ *   families: [FontFamilyAlias.make({ requested: "Arial", family: "Arial" })]
+ * })
+ * console.log(pinnedFontconfig(PinnedFontconfigRequest.make({ fonts, cacheDirectory: "/tmp/fc-cache" })))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const pinnedFontconfig = ({ fonts, cacheDirectory }: PinnedFontconfigRequest): string =>
+  A.join(
+    [
+      `<?xml version="1.0"?>`,
+      `<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">`,
+      `<fontconfig>`,
+      `  <dir>${Html.escapeHtml(fonts.directory)}</dir>`,
+      `  <cachedir>${Html.escapeHtml(cacheDirectory)}</cachedir>`,
+      ...A.map(
+        fonts.families,
+        (alias) =>
+          `  <match target="pattern"><test name="family" qual="any"><string>${Html.escapeHtml(alias.requested)}</string></test><edit name="family" mode="assign" binding="strong"><string>${Html.escapeHtml(alias.family)}</string></edit></match>`
+      ),
+      `</fontconfig>`,
+      ``,
+    ],
+    "\n"
+  );
 
 /**
  * Technical knobs: executable names and the process kill grace period.
@@ -228,7 +273,30 @@ const makeService = Effect.fn("PdfTools.makeService")(function* (config: PdfTool
     const dir = yield* fs
       .makeTempDirectoryScoped({ prefix: "beep-pdf-tools-" })
       .pipe(Effect.mapError(io("Could not create a temp directory.")));
-    const env = { SOURCE_DATE_EPOCH: `${request.sourceDateEpoch}` };
+    // Pinned fonts: rsvg-convert sees only the given directory, through a
+    // fontconfig file of its own.
+    const fontconfig = yield* O.match(request.fonts, {
+      onNone: () => Effect.succeed({}),
+      onSome: Effect.fnUntraced(function* (fonts) {
+        if (!(yield* fs.exists(fonts.directory).pipe(Effect.orElseSucceed(() => false)))) {
+          return yield* PdfToolsError.make({
+            reason: "invalid-request",
+            message: `The pinned font directory "${fonts.directory}" does not exist.`,
+          });
+        }
+        const file = path.join(dir, "fonts.conf");
+        yield* fs
+          .writeFileString(
+            file,
+            pinnedFontconfig(
+              PinnedFontconfigRequest.make({ fonts, cacheDirectory: path.join(dir, "fontconfig-cache") })
+            )
+          )
+          .pipe(Effect.mapError(io(`Could not write "${file}".`)));
+        return { FONTCONFIG_FILE: file };
+      }),
+    });
+    const env = { SOURCE_DATE_EPOCH: `${request.sourceDateEpoch}`, ...fontconfig };
     const pagePaths = yield* Effect.forEach(request.svgPaths, (svgPath, index) => {
       const pagePath = path.join(dir, `page-${index + 1}.pdf`);
       return run(
