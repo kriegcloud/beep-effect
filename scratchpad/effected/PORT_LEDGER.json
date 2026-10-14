@@ -16703,6 +16703,60 @@
           "upstreamBehaviour": "ReplayPayload has anonymous envelope fields; the SemVer pattern and minimum-depth checks lack their own identity metadata.",
           "labBehaviour": "ReplayPayload and its ok/config/name/message/stack fields receive canonical identities and meaning; VersionTextPattern and MinimumDepth checks receive identifier, title and description metadata.",
           "reason": "identity-annotations: operator step 4, EF-12/EF-12c and law 18 require canonical boundary and check annotations. r05/r14/r25 and the diff add metadata to these previously unannotated surfaces, preserving wire shapes, optionality, regex, numeric range and failure wording."
+        },
+        {
+          "test": "scratchpad/test/workspaces/DuplicateCheck.test.ts:45; scratchpad/test/workspaces/DuplicateCheck.test.ts:77",
+          "upstreamBehaviour": "DuplicateCheck dedupes dependents with NUL-delimited string keys (targetId + renderKey). Schema-valid holders {name:'x\\u0000y',version:'z'} and {name:'x',version:'y\\u0000z'} collide, so a duplicate instance reports one dependent instead of two; target-id/importer-path NULs collide the same way.",
+          "labBehaviour": "Each [targetId, dependent] relationship is keyed by an identity-annotated S.fromJsonString(S.Tuple([S.String, Dependent])) codec, so distinct relationships keep their own provenance. First-occurrence order and identical-relationship deduplication are unchanged.",
+          "reason": "upstream-bug: inventory r01 (part-1/sol-3-1) and fix-workspaces-g1.md report pinned-oracle probes: package collision expected 2 dependents, got 1; target/path collision expected [1,1], got [1,0]; non-colliding controls correct. The diff removes renderKey and adds collision plus control regressions."
+        },
+        {
+          "test": "scratchpad/test/workspaces/SourceBoundary.test.ts:17; scratchpad/test/workspaces/SourceBoundary.test.ts:55; scratchpad/test/workspaces/sourceText.test.ts:205",
+          "upstreamBehaviour": "SourceBoundary matches console/stdout members and exemption/ignore-token ends on raw characters: it spares console.error\\u0058, flags console.\\u0065rror, misses stdout.wr\\u0069te, flags stdout.write\\u0058 and exempts process.env.__PACKAGE_VERSION__\\u0058.",
+          "labBehaviour": "Complete raw identifier tokens are cooked before console/stdout member matching, and exemption/forbidden-token end guards reject escaped identifier continuations. Raw UTF-16 locations are kept. internal/sourceText now exports identifierTokens, identifierAt and cookIdentifier.",
+          "reason": "upstream-bug: inventory r04 (part-2 sol-3-1..3-3, fable-3-1, fable-3-2) and fix-workspaces-g4.md compare against pinned oracle af7566a9; injected runtime calls confirm write vs writeX. The diff replaces the STDOUT_WRITE regex with identifierTokens/cookIdentifier matching and adds escaped-member and suffix regressions."
+        },
+        {
+          "test": "scratchpad/test/workspaces/SourceBoundary.test.ts:75",
+          "upstreamBehaviour": "The final-chunk check END_WITH_CHUNK only accepts '(' right after end, so stdout.end?.(x) is not reported even though the chunk reaches stdout.",
+          "labBehaviour": "END_WITH_CHUNK accepts an optional-call ?. before the argument parenthesis, so stdout.end?.(x) is reported. stdout.end?.() stays clean, and write/end distinctions are unchanged.",
+          "reason": "upstream-bug: inventory r05 (part-2/sol-3-4) and fix-workspaces-g4.md report the pinned-oracle omission, and runtime execution shows the chunk reaching end. The diff changes END_WITH_CHUNK to /^\\s*(?:\\?\\.\\s*)?\\(\\s*[^\\s)]/u and adds chunk-bearing and empty optional-call controls."
+        },
+        {
+          "test": "scratchpad/test/workspaces/WorkspaceRoot.test.ts:130; scratchpad/test/workspaces/WorkspaceRoot.test.ts:147",
+          "upstreamBehaviour": "Workspace-root detection uses fs.exists on pnpm-workspace.yaml, so a directory with that name counts as the marker and returns /repo/packages/a instead of continuing up to the real /repo workspace.",
+          "labBehaviour": "The marker is checked with fs.stat and only counts when its type is File. A directory with that name falls through to the package.json check and the ancestor ascent. Stat errors are still absorbed as before.",
+          "reason": "upstream-bug: inventory r06 (part-3/sol-3-1) and fix-workspaces-g5.md probe the oracle: directory-marker returns /repo/packages/a, while the ordinary-directory control returns /repo. The diff swaps exists for stat with type === 'File' and adds directory-marker, real-file, ancestor and PermissionDenied controls."
+        },
+        {
+          "test": "scratchpad/test/workspaces/internal/configDependencyResolution.coverage.test.ts:15; scratchpad/test/workspaces/integration/ConfigDependencyHooks.int.test.ts:238",
+          "upstreamBehaviour": "declaredEntries rejects '..' segments only in config-dependency names. Versions are joined into store paths unchecked, so pkg@../../outside resolves outside the store (for example /outside/pnpmfile.cjs).",
+          "labBehaviour": "declaredEntries also rejects a version containing a '..' segment, before any path is built, directory is read or fetch runs. The refusal uses the existing typed error path with a version-specific message. Dotted single-segment versions such as 1.0.0-beta..1 still resolve.",
+          "reason": "upstream-bug: inventory r07 (part-4/grok-3-1) and fix-workspaces-g6.md cite the upstream name-only guard and the unchecked version join, with a path-normalization reproduction. The diff adds hasTraversalSegment(entry.version) and version-message branching, with zero-I/O refusal and dotted-prerelease controls."
+        },
+        {
+          "test": "scratchpad/test/workspaces/internal/configDependencyFetch.coverage.test.ts:42",
+          "upstreamBehaviour": "registrySettingsOf copies scoped registries by ordinary assignment (registries[scope] = url). An own __proto__ scope from parsed YAML is silently dropped, and normal scopes are kept.",
+          "labBehaviour": "Scopes are copied with R.assignProperty, so an own __proto__ scope survives extraction and is emitted by scratchWorkspaceYaml alongside normal scopes, in declaration order. Tolerant input handling is unchanged.",
+          "reason": "upstream-bug: inventory r08 (part-4/grok-3-2, fable-3-4) and fix-workspaces-g7.md show the upstream function losing the YAML parser's own key while keeping the normal-scope control. The diff replaces the assignment with R.assignProperty and adds own-key, scope-order and YAML round-trip regressions."
+        },
+        {
+          "test": "scratchpad/test/workspaces/sourceText.test.ts:219; scratchpad/test/workspaces/sourceText.test.ts:232; scratchpad/test/workspaces/SourceBoundary.test.ts:87",
+          "upstreamBehaviour": "The lexer only treats '/' as division after a '!' directly attached to its operand. A spaced, commented or repeated non-null assertion (x ! / 2, x!! / 2) is lexed as a regex start, which hides real code such as process.cwd() from the boundary check.",
+          "labBehaviour": "The lexer walks back over repeated postfix '!' tokens with lastCode, skipping spaces and comments, before checking the operand, so the '/' divides and the code after it stays visible. Control-condition closing parentheses are tracked so that a prefix negation after them still starts a regex.",
+          "reason": "upstream-bug: inventory r09 (part-4/sol-3-1, fable-3-1) and fix-workspaces-g4.md reproduce the pinned-oracle omission; Bun transpiles every assertion spelling to the same division. The diff adds the backward walk and the controlCloses tracking, plus spaced/commented/repeated regressions and prefix-negation controls."
+        },
+        {
+          "test": "scratchpad/test/workspaces/sourceText.test.ts:242; scratchpad/test/workspaces/sourceText.test.ts:254; scratchpad/test/workspaces/SourceBoundary.test.ts:97",
+          "upstreamBehaviour": "Global-object receiver detection checks only the identifier immediately before the member, so child.globalThis.process on a locally built object is flagged as a process reference (the oracle reports column 61).",
+          "labBehaviour": "isGlobalReceiver checks every receiver in the chain. Each one must be a global-object name, the chain must end at a free or spread reference, and private (#) receivers are excluded. Local nested spellings are no longer flagged; globalThis.process and genuine global-object chains still are.",
+          "reason": "upstream-bug: inventory r10 (part-4/sol-3-2, fable-3-2) and fix-workspaces-g4.md cite the pinned-oracle false positive, and runtime evaluation shows the local read returning 42. The diff adds isGlobalReceiver and both local-negative and genuine-global regressions."
+        },
+        {
+          "test": "scratchpad/test/workspaces/WorkspacesSync.test.ts:676; scratchpad/test/workspaces/PackedInstallPlan.test.ts:281; scratchpad/test/workspaces/internal/packedInstallPlan.coverage.test.ts:37",
+          "upstreamBehaviour": "The synchronous manifest readers in WorkspacesSync and packedInstallPlan call JSON.parse inside try/catch, so the invalidJson skip cause and the packed-manifest Result failure are a native SyntaxError. YAML scalars and the consumer package.json are written with JSON.stringify.",
+          "labBehaviour": "These readers decode with S.fromJsonString codecs through Result/Option, so the invalidJson cause and packed-manifest failure become S.SchemaError. Quoting and the consumer package.json use identity-annotated JsonString and ConsumerDocument codecs, with the same bytes. DependencyGraph Edges is now a module-local schema.",
+          "reason": "schema-first: EF-19, preferSchemaOverJson and EF-12b/EF-33 require Schema JSON boundaries and schema-owned data (inventory r11, r03). The diff removes JSON.parse/JSON.stringify from WorkspacesSync, packedInstallPlan and configDependencyFetch. The oracle cause assertions are retargeted to SchemaError; classification, skips, formatting and trailing newlines are unchanged."
         }
       ],
       "backlog": [
@@ -16873,6 +16927,18 @@
           "round": 2,
           "finding": "b01 — Avoid taking the whole source suffix for a member lookup. (scratchpad/effected/workspaces/SourceBoundary.ts:352)",
           "reason": "perf: walk via codePointAt(code, end) and take only code.slice(j, end), with Unicode/member-boundary controls. Do not require a behavior-changing restore: the report does not demonstrate an unforced semantic change."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "b01 — Complete the generated codec floor for the omitted exported schemas during S3. (scratchpad/effected/workspaces/WorkspaceDiscovery.ts:259)",
+          "reason": "test: deferred to S3. Register the 22 owning schemas with the roundTrips/it.effect.prop helpers and add generator-only toCodecArbitrary depth metadata for WorkspaceDiscoveryOptions/EnumerateOptions.maxDepth and TraversalFrame.depth. S2/S3 coverage and vitest-canon work has not run yet."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "r02 — Annotate the reusable required-edge check. (scratchpad/effected/workspaces/LayerPolicy.ts:136)",
+          "reason": "schema: left. A $I identifier on S.isPattern(REQUIRED_EDGE) pulls the pattern into a named RequiredEdge JSON Schema $ref and breaks the inline-pattern assertion at LayerPolicy.test.ts:103. Retargeting that test was not sanctioned, so the fix was reverted; no diff remains."
         }
       ],
       "reviewRounds": [
@@ -16908,6 +16974,24 @@
             },
             "fable": {
               "required": 9,
+              "backlog": 0
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "c3fc60bdbfd5574dc69623d132dced0a552a586a",
+          "seats": {
+            "grok": {
+              "required": 2,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 14,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 8,
               "backlog": 0
             }
           }
