@@ -132,3 +132,5 @@ qualified by the beep-worker receipts.
 - [Longer bounded cheap-gate proof](history/2026-10-14-long-cheap-gates.md): ten-minute timeout under four-lane memory contention; guarded recovery passes after cleanup, full green verdict remains open.
 
 - [Worker-aware cheap-gate concurrency](history/2026-10-14-cheap-gate-concurrency.md): one-lane override installed and verified; individual import-law scan memory remains a complete-proof blocker.
+
+- [Bounded import-law scan](history/2026-10-14-import-memory.md): full 8,079-file / 27,822-fence check passes around 1 GiB, including detached gate proof; later schema-first memory is the next blocker.

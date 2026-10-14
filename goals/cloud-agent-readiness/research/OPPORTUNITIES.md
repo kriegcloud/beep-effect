@@ -250,3 +250,13 @@ grows past the soft threshold and the bounded proof times out. Bound that
 scan's memory without weakening gate coverage. Shutdown still needs temporary
 soft-throttle relief for stuck children; independent finalization alone cannot
 free those tasks. Keep these as separate acceptance gaps.
+
+## Import-law memory repair and next scanner — 2026-10-14
+
+The [bounded scanner receipt](../history/2026-10-14-import-memory.md) closes the
+import-law memory gap: same complete corpus, 92-second isolated check near 1 GiB,
+97-second detached gate pass. Release each syntax tree after inspection instead
+of retaining the whole corpus. The subsequent schema-first scan independently
+grows past the soft threshold; apply an evidence-backed bound to that owner
+without reducing required coverage. One canonical cancellation completed with
+status 130 and no relief; reboot and harsher shutdown behavior remain open.
