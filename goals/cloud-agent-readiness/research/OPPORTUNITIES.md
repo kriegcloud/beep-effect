@@ -55,3 +55,21 @@ was complete; missing-tool findings are timestamped initial-wave evidence.
   timers. This run inaccurately claimed no approvals and a two-minute duration.
 
 Evidence: [T3 remote smoke](../history/2026-10-14-t3-remote-smoke.md).
+
+
+## T3 provider qualification follow-up — 2026-10-14
+
+The installed Claude, Cursor, Grok and Muse providers are now enabled and each
+has a successful T3 shell smoke. Cursor's separate SDK browser login, exact
+AppArmor helper profiles and D21-respecting test are recorded in
+[provider qualification](../history/2026-10-14-t3-provider-qualification.md).
+
+- Maintain version-pinned Cursor sandbox AppArmor attachments during upgrades.
+- Match smoke commands to provider-lane policy; Cursor Git checks belong to the
+  orchestrator under D21. Do not loosen the deny rule to reuse a generic test.
+- Qualify T3's own GitHub account binding; its PR lookups hit rate limits while
+  authenticated native gh had its full core allowance.
+- Review Claude SDK's MCP allowedTools/canUseTool shadowing warning separately.
+- Refresh browser/native connection grants only through an explicit operator
+  action when management permissions are required; viewing status is distinct
+  from provider management.
