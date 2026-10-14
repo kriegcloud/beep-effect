@@ -22745,6 +22745,8 @@
         "primitive": "it.layer",
         "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
       },
+      "severity": "info",
+      "confidence": 0.55,
       "mechanization": "judgment",
       "status": "open"
     },
