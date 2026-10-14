@@ -9,13 +9,13 @@ digests while retaining the originals.
 
 ## Next action
 
-The first bounded P2 wave is stopped at family 5's sealed failure.
-Four families are accepted and reconciled; ordinals 6-9 remain unstarted.
-The unmatched GIF repair copy reproduces Tika exit 1 and empty stdout under
-the frozen sandbox. Retain every ledger, output, claim and freeze record.
-Do not launch another member or retry the sealed family. The orchestrator
-owns any separately frozen recovery decision. P2 remains in-progress; P3
-pending. See the terminal wave record and dated handoff.
+Run 17 authorizes continuing ordinals 6-9 of the frozen bounded P2 wave.
+Four families are accepted; family 5 remains sealed-failure and is never
+retried or counted as accepted. Renew admitted preflight, wait sixty seconds,
+and launch only ordinal 6 with the SAME frozen script. Stop and diagnose
+any further failure. Separate family-5 recovery follows the wave with an
+engine PR and new freeze record. Retain all evidence. P2 remains in-progress;
+P3 pending and eighteen larger occurrences remain deferred.
 
 ## Launcher
 

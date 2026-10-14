@@ -304,3 +304,11 @@ empty stdout and TikaException. All frozen identities and retained ceilings
 hold; no terminal children or store pass were published for family 5.
 The wave is stopped; ordinal 6 must not launch and family 5 must not retry.
 P2 remains in-progress. See history/p2/2026-10-14-first-wave-stop.md.
+
+
+**Run 17 continuation 2026-10-14:** the orchestrator supersedes the preceding
+ordinal-6 prohibition and authorizes ordinals 6-9 with the SAME frozen launcher.
+Four accepted families plus family 5 sealed-failure are retained. Renewed
+admitted preflight and the full sixty-second interval precede ordinal 6;
+stop and diagnose any further sealed failure. Family 5 is not retried or
+accepted. Separate parser-exception recovery follows the wave. P2 incomplete.

@@ -1056,3 +1056,31 @@ and its own freeze record. Follow up with sanitized failure-stage/class
 evidence and a synthetic failing-GIF fixture. Reversal: revert these packet
 decisions while retaining all families, ledgers, outputs, claims and manifests.
 See history/p2/2026-10-14-first-wave-stop.md for aggregate evidence.
+
+
+### 2026-10-14: Run 17 resumes ordinals 6-9 with family 5 retained as failed
+
+The orchestrator accepts the family-5 diagnosis and explicitly authorizes
+continuing the SAME frozen wave with ordinals 6-9, one admitted family at
+a time. This supersedes the preceding continuation prohibition, preserving
+its historical evidence. Family 5 remains sealed-failure and is never retried
+or counted as accepted. Its ledger digest remains
+`dda98f8c7088589dffdc463935455b7474fad7ab4738cf8feaab749dd1d3031c`.
+Four accepted families and one failed family are sealed; four remain unstarted.
+
+Renewed preflight matches all nine source, engine, launcher, membership,
+policy and frozen-code identities. Earlier ledger hashes remain unchanged.
+P0 counts remain 755 directories, 10,696 files, four inherited losses, one
+preflight and one seal. Capacity is 417,086,545,920 free bytes. Both admitted
+real sandbox smokes pass; four focused tests pass, 78 skipped, 4.93 seconds.
+The full sixty-second continuation interval precedes the final capacity and
+state recheck and ordinal 6 submission. Retain ratio 4, attempt 7,200,000 ms,
+family 43,200,000 ms, total output 2,147,483,648 bytes and 100 GB floor.
+Stop and diagnose any further sealed failure. No engine or launcher change.
+
+Decision: continue the remaining authorized ordinals, retaining family 5 as
+failed. Reversal: revert packet decisions while retaining every immutable
+ledger, output, claim and manifest. Family-5 parser-exception recovery is a
+separate future engine PR and separately frozen execution after this wave.
+P2 remains in-progress; eighteen larger occurrences and estate/recycle/DOC
+obligations remain open. Never merge from this worker.

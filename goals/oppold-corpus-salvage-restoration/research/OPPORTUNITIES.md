@@ -796,3 +796,14 @@ What would prevent this: preserve a sanitized exception class and execution
 stage at the failure boundary, with a synthetic nonzero/empty GIF second-pass
 fixture. This is a follow-up, not authorization to change the frozen wave,
 approve an exception, retry a sealed family or launch ordinal 6.
+
+
+### 2026-10-14: API shell omitted the user-manager environment
+
+Doing: renewed wave continuation preflight after the accepted family-5 diagnosis.
+Evidence: the first read-only systemctl probe reported the user-bus environment
+was not defined. Standard XDG runtime and D-Bus variables restored command
+access; both admitted real sandbox smokes passed. No configuration changed.
+Prevention: forward user-manager environment into the API command surface,
+as the lane launcher already does. This was a shell precondition, not a
+family engine failure; no live family was launched before it was repaired.

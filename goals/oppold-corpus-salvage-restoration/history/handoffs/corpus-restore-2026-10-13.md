@@ -789,3 +789,56 @@ historical evidence, not a claim that family 5 accepted.
 
 Publication uses Yeet through beep-heavy. P2 remains in-progress and the
 wave remains stopped irrespective of publication state. No merge is authorized.
+
+
+## Terminal wave failure final report
+
+lane: corpus-restore
+
+head: 6412bf26c0f7a63e1eb9888a739e427dfe17ef14 (exact published PR head)
+
+PR(s): #1646 OPEN, ready for review, content-final failure evidence | #1611 MERGED at 6eb3d03677
+
+package-verify: not run (docs-only; no package edited). Four focused restoration tests passed, 78 skipped, 4.41 seconds through beep-heavy; real frozen Tika/pffexport sandbox version smokes passed.
+
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet pass through Yeet's committed cheap gate | knowledge refs pass through beep-heavy at merged head 3b852097704bbdd3a4da617b94ac1d33e1490e1c, zero live gated observations | fallow audit+health pass through Yeet cheap gates | scoped coverage not run (docs-only: no package source changed)
+
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+
+open items: The bounded wave is stopped: four accepted families, family 5 sealed failure, ordinals 6-9 unstarted. Family 5 result is 1; one unapproved engine-failure, expected/terminal one, unapproved one, zero store passes or terminal child rows, zero warnings or interruptions. Input 157,975,552 bytes; retained output/family disk usage 354,621,626 bytes, amplification 2.244788016x; family elapsed 1,491,085 ms and archive verification 420,681 ms. Partial dispositions are 108 repaired occurrences / 98 distinct digests, 217 unsupported, zero unchanged. Retained copies/Tika files are 99/98. The sole unmatched 3,020-byte GIF repair copy reproduces Tika exit 1, empty stdout and TikaException in the frozen read-only sandbox. Attribution is an input-sensitive Tika/parser failure; the precise parser cause and whether the input is corrupt remain unresolved. Ledger SHA-256 dda98f8c7088589dffdc463935455b7474fad7ab4738cf8feaab749dd1d3031c. All nine frozen identities and ceilings hold; earlier accepted ledger hashes are unchanged. Capacity after failure was 418,243,366,912 free bytes. No ordinal 6 launch, sealed-family retry, engine/launcher change, artifact mutation or merge occurred. P2 remains in-progress; P0/P1/P4 complete, P3 pending. Decision: retain every family, ledger, output, claim and freeze record, publish aggregate failure evidence, and stop under the standing ruling. Reversal: revert packet decisions while retaining all evidence. Any recovery execution or exception approval needs an orchestrator ruling and a new freeze record. Follow-ups are sanitized failure-stage/exception-class preservation, a failing-GIF synthetic fixture, eighteen larger occurrences and remaining estate/recycle/DOC gates. Terminal record: history/p2/2026-10-14-first-wave-stop.md. Yeet passed all 16 cheap gates and the exact-head install preflight; one push, ready flip, zero unresolved review threads at the final read. Hosted CI and the review window are pending; merge readiness is not claimed. The two Vercel deployment failures are verified build-rate limits and acknowledged environment-only. The worker-owned readiness monitor was cancelled and its proof inbox row acknowledged; no worker-owned unit or gate remains active. The orchestrator owns subsequent PR handling. Packet checks and commit hooks passed with zero new doctor blockers. This exact-head report is appended locally to the handoff for the next evidence commit, preserving the prior report append. Graft saved approximately 124,561 tokens across three retrievals.
+
+blocked: family 5 sealed failure — frozen Tika second pass exits 1 with empty output on the unmatched GIF repair copy; wave stopped, PR #1646 ready
+
+
+## Run 17: authorized continuation after family 5 sealed-failure
+
+The preceding final-report append is retained. Run 17 supersedes the stop
+on further ordinals while preserving family 5 sealed-failure. PR #1646 is
+OPEN at 6412bf26c0f7a63e1eb9888a739e427dfe17ef14, orchestrator-owned.
+No push to it in this continuation. Four accepted, one failed, four unstarted.
+
+| Prerequisite | State | Measured evidence |
+| --- | --- | --- |
+| P0 sealed | met | 755 directory passes, 10,696 file passes, four losses, one preflight, one seal |
+| Existing transformation state | met | Results 0/0/0/0/1; accepted seals 1-4, failure seal 5; all five ledger hashes unchanged |
+| Source identities | met | All nine object/digest/input-byte records match archive and membership |
+| Frozen identities | met | All nine engine, launcher, membership and twelve-field policy digests match |
+| Code parity | met | Corpus/libpff source identical to all nine frozen code heads |
+| Capacity | met | 417,086,545,920 bytes free, above 100,000,000,000 floor |
+| Admitted engine smokes | met | Real frozen Tika and pffexport sandbox invocations exit zero |
+| Focused synthetic proof | met | Four passed, 78 skipped, 4.93 seconds through beep-heavy |
+| Packet health | met | Adoption passes, doctor zero blockers and same three unrelated advisories; index matches |
+| Next ordinal | met | 6-9 run roots and stamps absent; no active wave family unit |
+
+User-manager variables were absent in this API shell. Restored the standard
+user-bus environment for commands; manager and admitted smokes work. No
+configuration or systemd unit changed. No probe or code fix runs again.
+Frozen script digest 5b1d87cb5c420a53e56340bbc092c21826666c9e25ef210a421b8e20955e65e6.
+Membership digest 00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+Ordinal 6 freeze record: history/evidence/p2-first-wave-2026-10-13-family-06-run-manifest.json.
+Expected policy: 0c5decece1493a3948b13315444251763a15a7552366c0a364f20602052965b9.
+A full sixty-second interval follows renewed preflight. Retained ceilings:
+ratio 4, attempt 7,200,000 ms, family 43,200,000 ms, total 2,147,483,648 bytes.
+Decision and reversal are recorded in SPEC. Separate family-5 recovery waits
+until after this wave; eighteen larger occurrences and other family gates stay open.
+Graft saved approximately 99,936 tokens across two retrievals.
