@@ -7,6 +7,8 @@ import * as S from "effect/Schema";
 import { InvalidSha256DigestError, Sha256Digest, InTotoSubject, InTotoStatementInput, InTotoSubjectInput, InTotoStatement } from "../../effected/sbom/InTotoStatement.ts";
 
 const runs = { arbitrary: fcRuns(100) };
+const statementJson = S.fromJsonString(InTotoStatement);
+const decodeStatementJson = S.decodeEffect(statementJson);
 
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   const encode = S.encodeEffect(schema);
@@ -45,10 +47,10 @@ it.effect.prop("digest parsing is idempotent and faithful for uppercase prefixed
 it.effect.prop("statement JSON formatting is idempotent and parse/stringify preserves its fields", [InTotoSubject.pipe(S.Array, Arbitrary.schema), Arbitrary.schema(S.String), Arbitrary.schema(S.Json)], ([subject, predicateType, predicate]) => Effect.gen(function* () {
   const statement = InTotoStatement.of({ subject, predicateType, predicate });
   const bytes = statement.toJson();
-  const parsed = yield* S.decodeEffect(S.fromJsonString(InTotoStatement))(bytes);
+  const parsed = yield* decodeStatementJson(bytes);
   assertTrue(S.toEquivalence(InTotoStatement)(parsed, statement));
   assert.strictEqual(parsed.toJson(), bytes);
-  const reparsed = yield* S.decodeEffect(S.fromJsonString(InTotoStatement))(parsed.toJson());
+  const reparsed = yield* decodeStatementJson(parsed.toJson());
   assertTrue(S.toEquivalence(InTotoStatement)(reparsed, parsed));
   assert.strictEqual(reparsed.toJson(), parsed.toJson());
 }), runs);
