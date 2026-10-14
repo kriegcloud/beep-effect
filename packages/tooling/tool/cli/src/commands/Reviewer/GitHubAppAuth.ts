@@ -44,7 +44,7 @@ const failure = (operation: string, message: string) => ReviewerError.make({ ope
 
 // Do not attach original exceptions: process and HTTP failures can contain credentials.
 const secretRead = Effect.fn("Reviewer.secretRead")(function* (field: string, host: O.Option<string>) {
-  const reference = `op://beep-effect/beep-reviewer GitHub App/${field}`;
+  const reference = `op://BEEP_SECRETS/beep-reviewer GitHub App/${field}`;
   const command = O.isSome(host) ? "ssh" : "op";
   const args = O.isSome(host)
     ? ["-o", "BatchMode=yes", "--", host.value, `op read '${reference}'`]

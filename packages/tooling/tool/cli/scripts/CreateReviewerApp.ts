@@ -64,7 +64,7 @@ const convertAndStore = (code: string | null) =>
         ],
       });
       // No secret in argv, stdout, stderr, the callback page, or a temporary file.
-      const child = Bun.spawn(["op", "item", "create", "--vault", "beep-effect", "-"], {
+      const child = Bun.spawn(["op", "item", "create", "--vault", "BEEP_SECRETS", "-"], {
         stdin: "pipe",
         stdout: "ignore",
         stderr: "ignore",

@@ -32,7 +32,7 @@ not create or install an App, create a service account, or enable a live rule.
    `https://github.com/organizations/beep-effect/settings/apps/new`. The localhost
    callback validates a random state, exchanges the one-use code with
    `POST /app-manifests/{code}/conversions`, and sends `id`, `client_id`, and
-   `pem` to `op item create --vault beep-effect -` through stdin. The field names
+   `pem` to `op item create --vault BEEP_SECRETS -` through stdin. The field names
    are `app_id`, `client_id`, `installation_id`, and `private_key`. No conversion
    response is printed or saved. The callback is one-use, binds loopback only,
    disables caching and referrer propagation, and never renders credentials.
@@ -43,7 +43,7 @@ not create or install an App, create a service account, or enable a live rule.
    selecting **beep-effect/beep-effect only**. Record the numeric installation id
    from the installation settings URL in the same item's `installation_id` field.
 4. Give the reviewer box a **read-only** 1Password service account scoped only to
-   vault `beep-effect`. Provision `OP_SERVICE_ACCOUNT_TOKEN` through its existing
+   vault `BEEP_SECRETS`. Provision `OP_SERVICE_ACCOUNT_TOKEN` through its existing
    secret delivery mechanism. Do not paste it into repo files or terminal history.
    There is no need for Desktop sign-in or Desktop MCP approval.
 5. Run the scratch-PR verification below. Only after that, preview and apply the
@@ -86,10 +86,10 @@ Ruleset administration uses the human account; the App has no administration gra
 
 | Environment override | 1Password reference |
 | --- | --- |
-| `BEEP_REVIEWER_APP_ID` | `op://beep-effect/beep-reviewer GitHub App/app_id` |
-| `BEEP_REVIEWER_CLIENT_ID` | `op://beep-effect/beep-reviewer GitHub App/client_id` |
-| `BEEP_REVIEWER_INSTALLATION_ID` | `op://beep-effect/beep-reviewer GitHub App/installation_id` |
-| `BEEP_REVIEWER_PRIVATE_KEY` | `op://beep-effect/beep-reviewer GitHub App/private_key` |
+| `BEEP_REVIEWER_APP_ID` | `op://BEEP_SECRETS/beep-reviewer GitHub App/app_id` |
+| `BEEP_REVIEWER_CLIENT_ID` | `op://BEEP_SECRETS/beep-reviewer GitHub App/client_id` |
+| `BEEP_REVIEWER_INSTALLATION_ID` | `op://BEEP_SECRETS/beep-reviewer GitHub App/installation_id` |
+| `BEEP_REVIEWER_PRIVATE_KEY` | `op://BEEP_SECRETS/beep-reviewer GitHub App/private_key` |
 
 Unset fields resolve with `op read`. To use the existing Tailscale SSH route, set
 `BEEP_REVIEWER_OP_SSH=dankstation`; the resolver uses batch-mode
