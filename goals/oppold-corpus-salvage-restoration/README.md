@@ -9,13 +9,13 @@ digests while retaining the originals.
 
 ## Next action
 
-P1 is complete. Four of nine bounded P2 families are accepted and reconciled.
-Renewed admitted smokes and four focused tests pass; ordinal 5 is submitted
-to its detached unit with the unchanged frozen script after sixty seconds.
-Continue from the dated handoff when the watcher reports that unit ended.
-Reconcile its seal, identities, children, repair pairs and ceilings before
-ordinal 6. Stop and diagnose the first failure; never retry a sealed family.
-P2 remains incomplete. Retain every family, output and immutable freeze record.
+The first bounded P2 wave is stopped at family 5's sealed failure.
+Four families are accepted and reconciled; ordinals 6-9 remain unstarted.
+The unmatched GIF repair copy reproduces Tika exit 1 and empty stdout under
+the frozen sandbox. Retain every ledger, output, claim and freeze record.
+Do not launch another member or retry the sealed family. The orchestrator
+owns any separately frozen recovery decision. P2 remains in-progress; P3
+pending. See the terminal wave record and dated handoff.
 
 ## Launcher
 
@@ -41,6 +41,18 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-14: First bounded wave stopped at family 5. Result 1, one unapproved
+engine-failure, zero store or terminal child passes, zero warnings and
+interruptions. Input 157,975,552 bytes; retained output 354,621,626 bytes,
+amplification 2.244788016x; family 1,491,085 ms, within retained ceilings.
+Partial dispositions: 108 repaired occurrences / 98 distinct digests,
+217 unsupported, zero unchanged. Retained copies/Tika outputs 99/98.
+The unmatched 3,020-byte GIF reproduces Tika exit 1, empty stdout and
+TikaException. All nine frozen identities match. Four accepted, one failed,
+four unstarted; P2 remains in-progress. No next launch or retry.
+See history/p2/2026-10-14-first-wave-stop.md.
+
 
 2026-10-14 — Fourth bounded P2 family accepted: one store, 836 accounted
 children (796 engine plus 20 repair-copy and 20 Tika children), zero warnings,

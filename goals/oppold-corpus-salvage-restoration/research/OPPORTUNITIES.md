@@ -781,3 +781,18 @@ Free bytes 204492922880, above retained floor. Zero P2 families started.
   beep-heavy. The failure is wrapper evidence, not a failed corpus family.
 - **Prevented by:** use the brief's direct smoke invocations, preserving their
   argument boundaries; keep the frozen live launcher unchanged.
+
+
+### 2026-10-14: a GIF second pass sealed the bounded wave without parser detail
+
+Doing: reconcile ordinal 5 under the frozen first-wave contract.
+Evidence: result 1, one unapproved engine-failure, zero terminal child rows.
+The retained repair directory has 99 copies and 98 Tika outputs. The unmatched
+3,020-byte GIF copy reproduces exit 1, empty stdout and one TikaException
+under the frozen Java/Tika sandbox. Tika's version smoke exits zero.
+The failure catch replaces the original cause with a generic ledger reason,
+so the precise parser cause is unavailable from the sealed ledger.
+What would prevent this: preserve a sanitized exception class and execution
+stage at the failure boundary, with a synthetic nonzero/empty GIF second-pass
+fixture. This is a follow-up, not authorization to change the frozen wave,
+approve an exception, retry a sealed family or launch ordinal 6.

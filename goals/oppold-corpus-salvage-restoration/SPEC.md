@@ -1026,3 +1026,33 @@ incomplete; eighteen larger occurrences and estate/recycle/DOC gates remain open
 Reversal: revert packet continuation decisions while retaining every family,
 ledger, output and immutable pre-launch freeze record. PR7 follows the
 terminal wave record; never retry a sealed family or merge from this worker.
+
+
+### 2026-10-14: stop the first bounded P2 wave at family 5
+
+Standing Runs 12+/13+ ruling stops this wave at its first sealed failure.
+Family 5 result is 1, with one unapproved engine-failure and a terminal
+family-acceptance-failure. Four preceding families remain accepted and
+reconciled; ordinals 6-9 are unstarted. All nine frozen source, engine,
+launcher, membership and policy identities match, and earlier ledger hashes
+remain unchanged. Input 157,975,552 bytes; retained output 354,621,626 bytes,
+amplification 2.244788016x; family 1,491,085 ms. These fit retained ceilings.
+
+The retained attempt has 99 repair copies and 98 Tika outputs. Its unmatched
+3,020-byte GIF copy reproduces frozen second-pass exit 1, empty stdout and
+TikaException in a disposable read-only sandbox. The engine version smoke
+passes. Attribution is an input-sensitive Tika/parser failure; the precise
+original parser cause is unavailable from the generic ledger catch.
+The 108 repaired occurrences / 98 distinct digests and 217 unsupported
+dispositions are partial evidence. Zero terminal child rows and zero store
+passes mean no acceptance or complete child reconciliation is claimed.
+
+Decision: stop, diagnose and publish the terminal record; launch nothing,
+change no frozen engine/launcher code, and never retry the sealed family.
+P2 remains in-progress with eighteen larger occurrences, four unstarted wave
+members and remaining estate/recycle/legacy-Word obligations open. P0/P1/P4
+remain complete; P3 pending. Any new execution needs an orchestrator ruling
+and its own freeze record. Follow up with sanitized failure-stage/class
+evidence and a synthetic failing-GIF fixture. Reversal: revert these packet
+decisions while retaining all families, ledgers, outputs, claims and manifests.
+See history/p2/2026-10-14-first-wave-stop.md for aggregate evidence.

@@ -295,3 +295,12 @@ interval followed. Ordinal 5 submitted with the SAME frozen launcher as the
 sole wave family unit, with 422,327,496,704 free bytes. Four of nine accepted;
 P2 remains incomplete. Watcher resumes after unit 5 ends and reconciles all
 acceptance conditions before ordinal 6. Stop at the first failure; retain state.
+
+
+**Standing stop 2026-10-14:** family 5 exited 1 and sealed one unapproved
+engine-failure. Four families accepted, one failed, four unstarted.
+A read-only reproduction of the unmatched GIF repair copy gives Tika exit 1,
+empty stdout and TikaException. All frozen identities and retained ceilings
+hold; no terminal children or store pass were published for family 5.
+The wave is stopped; ordinal 6 must not launch and family 5 must not retry.
+P2 remains in-progress. See history/p2/2026-10-14-first-wave-stop.md.

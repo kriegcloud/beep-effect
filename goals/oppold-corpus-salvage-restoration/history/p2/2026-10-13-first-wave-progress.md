@@ -306,3 +306,13 @@ Frozen policy fd9019c7caf2b434c8a09d12196ca841b4802b7702181fb571d57c4f878ebbc6;
 compare runtime value after family-run-start. Four of nine accepted; ordinals
 6-9 unstarted. Watcher resumes after unit 5 ends; no worker wait on the family.
 P2 remains incomplete. No source/engine/launcher change or PR publication.
+
+
+## Terminal update 2026-10-14
+
+The wave stopped at family 5's sealed unapproved engine-failure.
+Four accepted, one failed and four unstarted. Earlier active-unit statements
+above are historical. No wave unit remains active; do not launch ordinal 6
+or retry family 5. P2 stays in-progress. The terminal record is
+history/p2/2026-10-14-first-wave-stop.md, with aggregate diagnosis and retained
+identities. All output, ledgers, claims and immutable manifests remain intact.
