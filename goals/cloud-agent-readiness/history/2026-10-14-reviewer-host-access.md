@@ -76,3 +76,14 @@ in CiGovernance is resolved by adopting main's canonical implementation and test
 file, retiring the branch-only validator export/test. Exact-name validation and
 App integration checks remain enabled; no live ruleset is changed. Fresh focused
 checks and hosted qualification belong to the new merged head.
+
+### Publication unblock follow-up
+
+The first publish attempt after reconciliation passed 15 of 16 cheap gates and
+stopped without pushing. Its sole failure was the inherited knowledge-App
+bootstrap export `makeKnowledgeMintHandler`, consumed through a subprocess test.
+PR #1782 was closed without merging because #1781 had already landed the canonical
+symbol-scoped Fallow entry on main (`bfe6176ca24c3127151c3192c0c203cee9baa965`).
+The readiness branch adopted that landed repair through main; it did not duplicate
+the competing suppression or waive the gate. Publication must rerun on the merged
+head. Earlier hosted success and the failed local preflight remain source-bound.
