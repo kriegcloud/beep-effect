@@ -18908,27 +18908,6 @@
       "status": "open"
     },
     {
-      "id": "EV006:packages/tooling/tool/cli/test/skills-command.test.ts:553:expect@8#1",
-      "lens": "resource",
-      "ruleId": "EV006",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/skills-command.test.ts",
-      "line": 553,
-      "endLine": 553,
-      "symbol": "expect",
-      "occurrence": "v2:b72fd15c0653b31229c17bc1cb6589c75916070ee01314dfc564c1a8d66c2fbb",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(Exit.isFailure(refused)).toBe(true)",
-      "replacement": {
-        "primitive": "utils.assertTrue",
-        "sketch": "Preserve this Exit.isFailure Boolean branch check and its true polarity. A payload assertion requires an independently supplied expected value/error/Cause; do not invent one. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV006:packages/tooling/tool/cli/test/turbo-lane-digest.test.ts:108:expect@6#1",
       "lens": "resource",
       "ruleId": "EV006",
@@ -37761,27 +37740,6 @@
       "occurrence": "v2:4ec9b018ba7e86018f7c4185ae458959dac4f18246eb27944e2f4add630967a1",
       "class": "resource-layer-without-hook-timeout",
       "evidence": "it.layer(Layer.fresh(layerOrchestratorRegisterMemory))",
-      "replacement": {
-        "primitive": "it.layer.option.timeout",
-        "sketch": "it.layer.option.timeout: Use for resource-layer-without-hook-timeout findings (EV014, candidate class resource-layer-without-hook-timeout). layer.option.timeout: Use for resource-layer-without-hook-timeout judgments (EV014, candidate class resource-layer-without-hook-timeout) at standalone layer(resource, { timeout }) acquisition when the resource needs an explicit hook budget. Diagnose slow or hung acquisition/release before selecting that budget."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV014:packages/tooling/tool/cli/test/skills-command.test.ts:531:it.layer@0#1",
-      "lens": "resource",
-      "ruleId": "EV014",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/skills-command.test.ts",
-      "line": 531,
-      "endLine": 531,
-      "symbol": "it.layer",
-      "occurrence": "v2:dd8d0ab62620896216ada4af923d7e2ea37f14aad6ea155a850d5e81d617212d",
-      "class": "resource-layer-without-hook-timeout",
-      "evidence": "it.layer(CommandTestLayer)",
       "replacement": {
         "primitive": "it.layer.option.timeout",
         "sketch": "it.layer.option.timeout: Use for resource-layer-without-hook-timeout findings (EV014, candidate class resource-layer-without-hook-timeout). layer.option.timeout: Use for resource-layer-without-hook-timeout judgments (EV014, candidate class resource-layer-without-hook-timeout) at standalone layer(resource, { timeout }) acquisition when the resource needs an explicit hook budget. Diagnose slow or hung acquisition/release before selecting that budget."

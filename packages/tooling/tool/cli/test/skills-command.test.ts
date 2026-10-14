@@ -12,7 +12,7 @@ import { it } from "@beep/test-runner";
 import { A, O, Str } from "@beep/utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { assert, describe, expect } from "@effect/vitest";
-import { assertExitFailure, assertSome } from "@effect/vitest/utils";
+import { assertExitFailure, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
@@ -528,7 +528,27 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills fixture ownership"
   }
 });
 
-it.layer(CommandTestLayer)("read-only skills lock-plan command", (it) => {
+it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills command boundary reports", (it) => {
+  it.effect(
+    "reports an unknown remote update refusal and preserves the existing lock",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = '{"version":1,"skills":{}}\n';
+        yield* writeProjectFile("skills-lock.json", lock);
+
+        const refused = yield* runSkillsCommand(["update", "--skill", "not-registered"]).pipe(Effect.exit);
+        refused.pipe(Exit.isFailure, assertTrue);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:update: Unknown remote-backed skill")])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
   it.effect(
     "renders both report formats without changing the lock and reports malformed input",
     Effect.fnUntraced(
@@ -550,7 +570,7 @@ it.layer(CommandTestLayer)("read-only skills lock-plan command", (it) => {
         expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
         yield* writeProjectFile("skills-lock.json", "not-json");
         const refused = yield* Effect.exit(runSkillsCommand(["lock-plan"]));
-        expect(Exit.isFailure(refused)).toBe(true);
+        refused.pipe(Exit.isFailure, assertTrue);
         const errors = yield* TestConsole.errorLines;
         expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("skills:lock-plan:")]));
       },

@@ -30953,6 +30953,42 @@
             "branches": 3,
             "functions": 3
           }
+        },
+        "packages/tooling/tool/cli/src/commands/Laws/RetiredEffectPaths.ts": {
+          "lines": 94.66,
+          "statements": 93.82,
+          "branches": 87.5,
+          "functions": 87.5,
+          "uncovered": {
+            "lines": 4,
+            "statements": 5,
+            "branches": 2,
+            "functions": 5
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/Skills.patches.ts": {
+          "lines": 86.29,
+          "statements": 87.21,
+          "branches": 85.71,
+          "functions": 85.29,
+          "uncovered": {
+            "lines": 17,
+            "statements": 17,
+            "branches": 8,
+            "functions": 5
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/SkillsLock.write.ts": {
+          "lines": 99.18,
+          "statements": 98.44,
+          "branches": 87.5,
+          "functions": 97.22,
+          "uncovered": {
+            "lines": 1,
+            "statements": 2,
+            "branches": 3,
+            "functions": 1
+          }
         }
       }
     },
