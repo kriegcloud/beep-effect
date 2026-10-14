@@ -100,20 +100,26 @@ const longEnough =
     return length * Math.sqrt(Math.max(0, 1 - along * along)) >= minStroke;
   };
 
+// Shorter than this (model units) a trimmed stroke is not made at all: the
+// kernel refuses an edge between coincident points, and nothing that short
+// survives the minimum-stroke filter anyway.
+const SHORTEST_STROKE = 1e-6;
+
 // A stroke is centred on its chord: it stops `inset` short of the outline at
 // both ends (model units along the chord) and then keeps `extent` of what is
-// left (the graded taper). A chord with no room for the inset is returned
-// whole; the minimum-stroke filter decides its fate.
+// left (the graded taper). A chord with no room for the inset yields nothing.
 const trimTo =
   (extent: number, inset: number) =>
-  (edge: replicad.Edge): replicad.Edge => {
+  (edge: replicad.Edge): O.Option<replicad.Edge> => {
     const length = edge.length;
-    const room = length - 2 * inset;
-    if (room <= 0 || (extent >= 1 && inset <= 0)) {
-      return edge;
+    if (extent >= 1 && inset <= 0) {
+      return O.some(edge);
     }
+    const room = length - 2 * inset;
     const kept = (room * extent) / length;
-    return replicad.makeLine(edge.pointAt(0.5 - kept / 2), edge.pointAt(0.5 + kept / 2));
+    return room * extent < SHORTEST_STROKE
+      ? O.none()
+      : O.some(replicad.makeLine(edge.pointAt(0.5 - kept / 2), edge.pointAt(0.5 + kept / 2)));
   };
 
 // Model-unit inset along a chord that projects to the plan's minimum pitch on
@@ -143,6 +149,7 @@ const shadeFace =
           pipe(
             sectionEdges(oc, face, add(lines.origin, scale(lines.step, cut.offset)), lines.step),
             A.map((edge) => trimTo(cut.extent, insetFor(view, plan, directionOf(edge)))(edge)),
+            A.getSomes,
             A.filter(longEnough(view, plan.minStroke))
           )
         ),

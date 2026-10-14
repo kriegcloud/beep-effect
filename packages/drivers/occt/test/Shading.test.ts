@@ -166,7 +166,7 @@ describe("@beep/occt shading", () => {
     );
 
     it.effect(
-      "drops strokes shorter than the plan's minimum on the view plane but still counts the face as shaded",
+      "drops strokes shorter than the plan's minimum on the view plane; a face too narrow for any stroke is a sliver",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;
         const solid = box([-20, -15, 0], [20, 15, 20]);
@@ -176,14 +176,18 @@ describe("@beep/occt shading", () => {
         const [dropped] = yield* occt.project(
           ProjectionRequest.make({ solid, cameras: [front], shading: O.some(graded({ minStroke: 25 })) })
         );
-        // the wall is 20 high: every chord clears 8, the 40% tail strokes do not clear 25 and the full ones do not either
+        // the wall is 20 high: the full chords clear 8 after their end insets; nothing clears 25, so the
+        // chord-aware offsets find no position and the face is a sliver
         expect(drawn?.shading.length).toBeGreaterThan(1);
         expect(dropped?.shading).toEqual([]);
         assertSome(
           O.flatMap(O.fromNullishOr(dropped), (view) => view.shadingCoverage),
           ShadingCoverage.make({
-            shadedFaces: 1,
-            skippedFaces: [ShadingSkip.make({ reason: "back-facing", faces: 5 })],
+            shadedFaces: 0,
+            skippedFaces: [
+              ShadingSkip.make({ reason: "back-facing", faces: 5 }),
+              ShadingSkip.make({ reason: "sliver", faces: 1 }),
+            ],
           })
         );
       })
@@ -339,7 +343,9 @@ describe("@beep/occt shading", () => {
           ),
           [1, ["back-facing", "sliver"]]
         );
-        expect(banded?.shading.length).toBeLessThan(all?.shading.length ?? 0);
+        // the band's 2-unit chords leave no room past the end insets, so it draws nothing even before the
+        // sliver rule; the coverage above is what tells the two apart
+        expect(banded?.shading.length).toBeLessThanOrEqual(all?.shading.length ?? 0);
       })
     );
   });

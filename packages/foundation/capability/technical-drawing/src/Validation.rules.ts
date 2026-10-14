@@ -254,7 +254,7 @@ export const shadingSpacingFindings = (input: {
     A.flatMap((a, i) =>
       pipe(
         A.drop(segmentsMm, i + 1),
-        A.map((b) => sideBySideGap(a, b, minSpacing)),
+        A.map((b) => sideBySideGap({ first: a, second: b, minSpacing })),
         A.getSomes
       )
     )

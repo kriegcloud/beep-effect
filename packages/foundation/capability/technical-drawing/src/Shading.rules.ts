@@ -267,15 +267,19 @@ const chordAt =
   (offset: number): number => {
     const u = (p: V3) => dot(minus(p, anchor.point), direction);
     const v = (p: V3) => dot(minus(p, anchor.point), anchor.step);
-    const hits = A.filterMap(face.edges, (e) => {
-      const v0 = v(e.start);
-      const v1 = v(e.end);
-      if (v0 === v1 || (v0 - offset) * (v1 - offset) > 0) {
-        return O.none();
-      }
-      const t = (offset - v0) / (v1 - v0);
-      return O.some(u(e.start) + t * (u(e.end) - u(e.start)));
-    });
+    const hits = pipe(
+      face.edges,
+      A.map((e): O.Option<number> => {
+        const v0 = v(e.start);
+        const v1 = v(e.end);
+        if (v0 === v1 || (v0 - offset) * (v1 - offset) > 0) {
+          return O.none();
+        }
+        const t = (offset - v0) / (v1 - v0);
+        return O.some(u(e.start) + t * (u(e.end) - u(e.start)));
+      }),
+      A.getSomes
+    );
     return A.isReadonlyArrayNonEmpty(hits) ? Math.max(...hits) - Math.min(...hits) : Number.POSITIVE_INFINITY;
   };
 
@@ -338,13 +342,18 @@ const COLLINEAR = 0.01;
  * import { sideBySideGap } from "@beep/technical-drawing/Shading.rules"
  * import * as O from "effect/Option"
  *
- * console.log(O.getOrNull(sideBySideGap([0, 0, 10, 0], [0, 0.3, 10, 0.3], 0.5))) // 0.3
+ * console.log(O.getOrNull(sideBySideGap({ first: [0, 0, 10, 0], second: [0, 0.3, 10, 0.3], minSpacing: 0.5 }))) // 0.3
  * ```
  *
  * @category shading
  * @since 0.0.0
  */
-export const sideBySideGap = (a: Segment2, b: Segment2, minSpacing: number): O.Option<number> => {
+export const sideBySideGap = (input: {
+  readonly first: Segment2;
+  readonly second: Segment2;
+  readonly minSpacing: number;
+}): O.Option<number> => {
+  const { first: a, second: b, minSpacing } = input;
   const [ax, ay, bx, by] = a;
   const length = Math.hypot(bx - ax, by - ay);
   const otherLength = Math.hypot(b[2] - b[0], b[3] - b[1]);
@@ -393,7 +402,7 @@ export const legibleShading = (input: {
   const long = A.filter(input.segments, (s) => segmentLength(s) >= input.minStroke);
   const yieldsTo = (s: Segment2, i: number) => (other: Segment2, j: number) =>
     j !== i &&
-    O.isSome(sideBySideGap(s, other, input.minSpacing)) &&
+    O.isSome(sideBySideGap({ first: s, second: other, minSpacing: input.minSpacing })) &&
     (segmentLength(other) > segmentLength(s) || (segmentLength(other) === segmentLength(s) && j < i));
   return A.filter(long, (s, i) => !A.some(long, yieldsTo(s, i)));
 };

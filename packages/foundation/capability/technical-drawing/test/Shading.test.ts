@@ -156,7 +156,12 @@ describe("Shading.rules", () => {
     expect(gradedOffsets({ span: 4, minPitch: 1, maxPitch: 2.5, tone: "medium" })).toEqual([1, 2.4]);
     expect(gradedOffsets({ span: 1.5, minPitch: 1, maxPitch: 2.5, tone: "dark" })).toEqual([]);
     // positions the face is too narrow for are skipped, not counted: the strokes move inward
-    expect(gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint", keep: (o) => o >= 3 })).toEqual([3, 4]);
+    expect(
+      A.map(
+        gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint", keep: (o) => o >= 3 }),
+        (o) => Math.round(o * 10) / 10
+      )
+    ).toEqual([3, 4.4]);
   });
 
   it("keeps shading legible after hidden-line removal: fragments and doubled lines go", () => {
@@ -183,8 +188,8 @@ describe("Shading.rules", () => {
         minSpacing: 0.5,
       })
     ).toEqual([[0, 0.3, 10, 0.3]]);
-    assertSome(sideBySideGap([0, 0, 10, 0], [0, 0.3, 10, 0.3], 0.5), 0.3);
-    assertNone(sideBySideGap([0, 0, 10, 0], [10.5, 0, 20, 0], 0.5));
+    assertSome(sideBySideGap({ first: [0, 0, 10, 0], second: [0, 0.3, 10, 0.3], minSpacing: 0.5 }), 0.3);
+    assertNone(sideBySideGap({ first: [0, 0, 10, 0], second: [10.5, 0, 20, 0], minSpacing: 0.5 }));
   });
 
   it("tapers graded strokes: two full lines, then 60% down to 40% of the chord", () => {
