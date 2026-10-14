@@ -41,5 +41,6 @@ P0 Research — complete (PR #1670). P1 Implement — complete (the swap PR). P2
 
 ## Notes
 
+- Hosted `Heavy / Check` on the swap PR (#1675, head 5fbfa91c3c): the turbo `check` graph passed 265/265 on tsc-rs in 2m14.9s (tsgo baseline 7m39s); the job's one red is the Effect-compiler lane `quality:test-tsgo`, which still spawns `node_modules/.bin/tsgo` and reports `test/drawings-review.test.ts(388,37) TS2339: Property 'pipe' does not exist on type 'MarkupNote'`, a test that #1674 rewrote on main after this packet's merge-base (inherited; `MarkupNote.make(...)` returns the plain class instance, which is not Pipeable).
 - `@effect/tsgo` and `tsc-rs` must move together: tsc-rs compiles a fixed Effect rule set in, and 0.51.1 fails the `tsgo-rules` gate on unknown severity keys, so 0.52 rules cannot be pre-registered.
 - `--fast` must follow `-b`; a wrapper that prepends it breaks `tsc-rs -b`. Failure exit code is 2.

@@ -37,6 +37,14 @@ Cache-cold `Heavy / Check` on a pull request (2026-10-13): 268 tasks, 0 cached,
 (8 vCPU, 32 GiB) at `--concurrency=4`. Median over the previous 15 runs was
 2.5 min because main pushes warm the remote cache.
 
+## Hosted on tsc-rs (2026-10-14, PR #1675 head 5fbfa91c3c)
+
+Cache-cold `Heavy / Check` on the same `beep-ec2-heavy` m7i.2xlarge at
+`--concurrency=4`: 265 tasks, 0 cached, 2m14.9s turbo time, against 7m39s for
+the tsgo baseline the day before (3.4× faster). Local
+`turbo run check --force --continue --concurrency=3` on the 64-core
+workstation: 270 of 270 tasks, 1m01.6s turbo time.
+
 ## Correctness
 
 - Diagnostics identical on 283 of 284 check and test projects, Effect 377xxx
