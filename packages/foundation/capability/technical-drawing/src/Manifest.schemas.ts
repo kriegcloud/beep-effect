@@ -116,6 +116,11 @@ export class FigureRecord extends S.Class<FigureRecord>($I`FigureRecord`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
       S.annotateKey({ description: "Surface-shading segments drawn. Defaults to 0." })
     ),
+    brokenSegments: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({ description: "Broken-line (unclaimed part) segments drawn. Defaults to 0." })
+    ),
     camera: S.OptionFromOptionalKey(Camera).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({

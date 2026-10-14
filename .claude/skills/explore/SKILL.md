@@ -6,8 +6,9 @@ description: >
   `/explore`, a new fuzzy idea or brainstorm to capture, "crystallize this",
   "help me break down this vision", decomposing a vision into goal packets,
   triaging explorations/INBOX.md, or resuming any packet under explorations/.
-version: 0.2.0
-status: active
+metadata:
+  version: "0.2.0"
+  status: active
 ---
 
 # Explore
