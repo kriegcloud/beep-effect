@@ -240,3 +240,13 @@ direct SSH detection and broader budget sizing remain separate acceptance.
 ## Worker cheap-gate concurrency — 2026-10-14
 
 The [ten-minute proof](../history/2026-10-14-long-cheap-gates.md) still stalled at the 7 GiB soft ceiling: import-law and schema-first scans overlap under the hard-coded four-lane policy. Add an explicit or host-aware lower lane width, preserve the 8 GiB hard limit, and rerun actual detached cheap gates. Recovery safely refused remaining tasks and completed after bounded soft-throttle relief; finalizer execution under pressure remains separate work.
+
+## Serial worker proof follow-up — 2026-10-14
+
+The [one-lane rerun](../history/2026-10-14-cheap-gate-concurrency.md) proves the
+configuration and detached forwarding. Required gate coverage and defaults
+are unchanged. Concurrency no longer overlaps the scans, but import-law alone
+grows past the soft threshold and the bounded proof times out. Bound that
+scan's memory without weakening gate coverage. Shutdown still needs temporary
+soft-throttle relief for stuck children; independent finalization alone cannot
+free those tasks. Keep these as separate acceptance gaps.
