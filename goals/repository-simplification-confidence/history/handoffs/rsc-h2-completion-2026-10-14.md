@@ -2,9 +2,9 @@
 
 ```text
 lane: rsc-h2-completion
-head: 075a4d79081f33cca1d1d5b4f44b770b2d1dc01d (qualified code; report-only delivery tip in final dispatch)   PR: #1574
-package-verify @beep/repo-cli: pass (frozen final source audit 890.6s/docgen 26.5s at 075a4d7908)
-hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=fail inherited 15 main host paths fallow=pass coverage=pass (289 tests; every existing touched floor/ceiling met or improved)
+head: 99829f4ccb800ac9222783e61779694eb28b4406 (qualified integration; full H2 source 075a4d7908; report-only delivery tip in final dispatch)   PR: #1574
+package-verify @beep/repo-cli: pass (full H2 source 075a4d7908 audit 890.6s/docgen 26.5s; integrated quick lint 3.9s/check 4.2s)
+hosted-parity: test-tsgo=fail inherited skills-relock TS377112 docgen=pass (135 outputs) jsdoc-ratchet=fail inherited 4 missing examples/1 unsafe example knowledge-refs=fail inherited 1 external mirror fallow=pass coverage=pass (289 tests; existing touched floors/ceilings met)
 doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
 advisories: #1429=unknown (draft-ready/window verified) #1462=unknown (window unsatisfied, seven seconds) #1427=unknown (draft-ready/window verified; merge-ready verdict unknown)
 post-merge refresh: pending merge; orchestrator owns three-packet refresh
@@ -347,3 +347,42 @@ The bounded monitor's durable result is in clone-local Yeet job receipts and
 the final dispatch. A red/unknown strict monitor does not authorize H2 to
 merge; the program orchestrator applies S11, re-reads threads, then owns
 three-packet refresh and retirement.
+
+## Final shared-ledger integration qualification
+
+Publisher refuses only the four shared packet ledgers, so commit the evidence
+then merge main `6cf44a7678`. Integration `99829f4ccb` preserves both lane
+ledgers and resolves only README's union conflict. H2 Goals, Completion,
+doctor, schemas, tests and MergeGate surfaces are byte-identical to full
+qualified source `075a4d7908`; no H2 implementation changes in the merge.
+Main's unrelated source and owner-generated snapshots are carried unchanged.
+The merge hook formats two lines in main's identity registry; its owner
+`lint identity-registry --fix` validates all 154 packages/five labs, and
+`@beep/identity --quick` passes lint 3.4s/check 0.2s. No identity behavior
+is authored by H2.
+
+Integrated `@beep/repo-cli --quick` passes lint 3.9s/check 4.2s. The prior
+full audit/docgen pass remains source-bound, rather than claimed as a new
+full integration audit. Effect/Vitest, bounded docgen (135 aggregated outputs),
+Fallow audit/health, retired-path law and all 289 scoped tests pass. Existing
+touched coverage floors/ceilings remain satisfied.
+
+Integrated reds are attributed from exact current rows:
+
+- Test-tsgo: `skills-relock.test.ts:507` TS377112, byte-identical to main.
+- Schema-first: `Skills/internal/PatchSeries.ts` `PatchSeriesFile` pure-data
+  type alias, byte-identical to main.
+- JSDoc: 12 missing examples versus floor 8 and one unsafe example versus zero.
+  The four new missing-example rows are `KnowledgeBaselineGroupInput`,
+  `KnowledgeSealGuardInput`, `KnowledgeDoctorCheckInput`, and `VerdictInput`;
+  the unsafe declaration-stub example is `isSkillReplayClean`. Their source
+  files are all byte-identical to main. This local inventory identifies the
+  source rows that the earlier hosted aggregate omitted; it does not rewrite
+  historical hosted attribution or claim those logs contained them.
+- Knowledge refs: main #1729 removes the prior 15-path observation set; one
+  gated external-mirror reference remains in claim-element capture. The source
+  is unchanged by H2. Supplementary broken-target rows are not gated failures.
+
+The program orchestrator owns these main repairs. No baseline, inventory
+exception or unrelated source fix is introduced. Final delivery retains the
+complete H2 fixes and both independent medium Opus review receipts.

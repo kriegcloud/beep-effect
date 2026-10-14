@@ -426,3 +426,18 @@ records intermediate compiler/audit failures, accepted source, publication
 boundary and exact hosted-red observations. Final dispatch binds the
 report-only published tip and bounded readiness receipt. Post-merge refresh
 is still owned by the orchestrator; no historical lifecycle is reset.
+
+### Shared-ledger integration result
+
+At `99829f4ccb`, all H2 implementation/test surfaces are byte-identical to
+full qualified source `075a4d7908`. Integrated CLI quick lint/check pass
+3.9s/4.2s; main's formatted identity registry is owner-validated, with quick
+identity lint/check 3.4s/0.2s. Effect/Vitest, bounded docgen (135 outputs),
+Fallow audit/health, retired paths and 289 scoped tests pass.
+
+Integrated test-tsgo/schema-first fail only on unchanged main skills decoder
+and PatchSeriesFile. JSDoc's four missing-example rows and one unsafe example
+are identified in unchanged main knowledge-baseline, practice verdict and
+skills replay files. Knowledge refs now has one gated unchanged claim-element
+external-mirror path. The handoff lists exact rows and preserves old proofs
+at their real heads. No baseline or inventory exception is written.

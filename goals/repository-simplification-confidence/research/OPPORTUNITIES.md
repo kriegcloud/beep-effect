@@ -1583,3 +1583,15 @@ should be rendered beside the option in command help.
   code and owner-generated snapshots without authoring or regenerating them.
   Requalify integrated lint/type, hosted parity and scoped runtime/coverage;
   keep the full 890.6s/26.5s proof bound to its source head.
+
+### 2026-10-14 — H2 integrated inherited parity
+
+- Integrated quick CLI and identity package checks pass; H2 implementation is
+  unchanged. Main skills decoder and PatchSeriesFile remain compiler/schema
+  reds. JSDoc inventory identifies four new missing-example rows in main
+  knowledge-baseline/practice verdict inputs, plus the main skills replay
+  declaration-stub example. Every offending source file is byte-identical to
+  main. Route the consolidated repair to the program orchestrator.
+- References now has one gated claim-element external-mirror path after main
+  #1729, rather than the earlier 15. Preserve both results at their own heads.
+  Docgen, Fallow, retired paths and 289 scoped tests pass on the integration.
