@@ -32,7 +32,7 @@ auth values, email addresses, and raw local paths.
 | [CSF-013](./CSF-013.md) | Low | repair implemented | Aliased packages bypass the exact\-version Bun audit ignore guard | Bun audit OSV override selection |
 | [CSF-014](./CSF-014.md) | Low | repair implemented | Backdated commits bypass the new merge review window | Yeet REST merge review window |
 | [CSF-015](./CSF-015.md) | Low | repair implemented | Address substring parsing bypasses attachment sender restrictions | mail sender address normalization |
-| [CSF-016](./CSF-016.md) | Low | captured | Publisher PDF discovery bypasses internal\-source restrictions | _pending P2_ |
+| [CSF-016](./CSF-016.md) | Low | repair implemented | Publisher PDF discovery bypasses internal\-source restrictions | research library paper acquisition |
 | [CSF-017](./CSF-017.md) | Low | repair implemented | Correspondent parser allows CPU\-exhausting regex backtracking | practice KG correspondent parser |
 | [CSF-018](./CSF-018.md) | Informational | repair implemented | Backslash filenames escape scorer staging and enable code execution | agent effectiveness law-lane staging |
 | [CSF-019](./CSF-019.md) | Informational | repair implemented | Repository\-controlled ignore globs can hang Graft via ReDoS | Graft deep-ignore patch |

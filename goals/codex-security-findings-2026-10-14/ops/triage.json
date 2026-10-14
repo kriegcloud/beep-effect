@@ -589,15 +589,28 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "e89fab0c8e0bae8759aa239619cab256fdb02682",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Publisher HTML supplied an unchecked follow-up URL, including internal destinations, and acquisition requested it before PDF validation."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Research/Library/Library.web.ts",
+          "packages/tooling/tool/cli/test/research-library-acquisition.test.ts",
+          "docs/runbooks/research-library.md"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/research-library-acquisition.test.ts --pool=threads --maxWorkers=1",
+          "bun run beep quality package-verify @beep/repo-cli --quick"
+        ],
+        "summary": "Retain landing pages without requesting HTML locators and disable automatic redirects for direct paper requests; internal locator regression observes one request."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "research library paper acquisition",
+      "lane": "L39"
     },
     {
       "id": "CSF-017",
