@@ -75,7 +75,9 @@ export type ClaimDecompositionReason = typeof ClaimDecompositionReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class ClaimDecompositionError extends S.TaggedError<ClaimDecompositionError>($I`ClaimDecompositionError`)(
+export class ClaimDecompositionError extends S.TaggedError<ClaimDecompositionError, { readonly brand: unique symbol }>(
+  $I`ClaimDecompositionError`
+)(
   "ClaimDecompositionError",
   {
     claimNumber: PosInt.annotateKey({

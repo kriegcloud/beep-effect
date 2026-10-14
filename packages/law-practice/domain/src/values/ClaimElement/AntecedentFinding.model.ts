@@ -211,7 +211,7 @@ const chainStartsAtReferringClaim = ({
   referring,
 }: {
   readonly chain: AntecedentDependencyChain;
-  readonly referring: ClaimTermRef;
+  readonly referring: Pick<ClaimTermRef, "path">;
 }): boolean => A.headNonEmpty(chain) === claimNumberOfPath(referring.path);
 
 const AntecedentFindingChainCheck = S.makeFilter(

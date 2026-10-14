@@ -72,7 +72,7 @@ const anchorWithin =
   (inner: TextAnchor): boolean =>
     outer.startChar <= inner.startChar && inner.endChar <= outer.endChar;
 
-const termRefsOf = (edge: ClaimElementEdge): ReadonlyArray<ClaimTermRef> =>
+const termRefsOf = (edge: ClaimElementEdge): ReadonlyArray<Pick<ClaimTermRef, "path" | "anchor">> =>
   ClaimElementEdge.match(edge, {
     "part-of": () => A.empty(),
     "depends-on-element": () => A.empty(),
@@ -249,11 +249,12 @@ const ClaimElementTreeCoherenceCheck = S.makeFilter(
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimElementTree extends S.Class<ClaimElementTree>($I`ClaimElementTree`)(
-  ClaimElementTreeFields.check(ClaimElementTreeCoherenceCheck),
-  $I.annote("ClaimElementTree", {
-    description: "Span-anchored claim elements and typed edges for one patent claim, keyed by claim number.",
-  })
+export class ClaimElementTree extends S.Opaque<ClaimElementTree, { readonly brand: unique symbol }>()(
+  ClaimElementTreeFields.check(ClaimElementTreeCoherenceCheck).pipe(
+    $I.annoteSchema("ClaimElementTree", {
+      description: "Span-anchored claim elements and typed edges for one patent claim, keyed by claim number.",
+    })
+  )
 ) {}
 
 /**

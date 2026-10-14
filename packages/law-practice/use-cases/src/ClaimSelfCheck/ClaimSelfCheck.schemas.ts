@@ -122,8 +122,8 @@ export type UsptoClaimSource = typeof UsptoClaimSource.Type;
  * @category models
  * @since 0.0.0
  */
-export class UsptoClaimSet extends S.Class<UsptoClaimSet>($I`UsptoClaimSet`)(
-  {
+export class UsptoClaimSet extends S.Opaque<UsptoClaimSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     claims: PatentClaims.annotateKey({
       description: "Validated, consecutively numbered claims read from the record's full text.",
     }),
@@ -133,10 +133,11 @@ export class UsptoClaimSet extends S.Class<UsptoClaimSet>($I`UsptoClaimSet`)(
     source: UsptoClaimSource.annotateKey({
       description: "Record the claim set was requested from.",
     }),
-  },
-  $I.annote("UsptoClaimSet", {
-    description: "Full-text public USPTO claims normalized into validated patent claims, with their source document.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoClaimSet", {
+      description: "Full-text public USPTO claims normalized into validated patent claims, with their source document.",
+    })
+  )
 ) {}
 
 /**
@@ -164,8 +165,8 @@ export class UsptoClaimSet extends S.Class<UsptoClaimSet>($I`UsptoClaimSet`)(
  * @category models
  * @since 0.0.0
  */
-export class ClaimSelfCheckReport extends S.Class<ClaimSelfCheckReport>($I`ClaimSelfCheckReport`)(
-  {
+export class ClaimSelfCheckReport extends S.Opaque<ClaimSelfCheckReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     trees: S.NonEmptyArray(ClaimElementTree).annotateKey({
       description: "One claim-element tree per decomposed claim, in claim order.",
     }),
@@ -176,11 +177,12 @@ export class ClaimSelfCheckReport extends S.Class<ClaimSelfCheckReport>($I`Claim
     findings: S.Array(AntecedentFinding).annotateKey({
       description: "Advisory antecedent findings over the trees; empty when no rule fired.",
     }),
-  },
-  $I.annote("ClaimSelfCheckReport", {
-    description:
-      "Claim-element trees, per-claim decomposition failures, and the advisory antecedent findings over the trees.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimSelfCheckReport", {
+      description:
+        "Claim-element trees, per-claim decomposition failures, and the advisory antecedent findings over the trees.",
+    })
+  )
 ) {}
 
 /**
@@ -203,20 +205,22 @@ export class ClaimSelfCheckReport extends S.Class<ClaimSelfCheckReport>($I`Claim
  * @category models
  * @since 0.0.0
  */
-export class PublishedClaimSelfCheckReport extends S.Class<PublishedClaimSelfCheckReport>(
-  $I`PublishedClaimSelfCheckReport`
-)(
-  {
+export class PublishedClaimSelfCheckReport extends S.Opaque<
+  PublishedClaimSelfCheckReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     claimSet: UsptoClaimSet.annotateKey({
       description: "Public claim set the check ran on, with its USPTO source document as provenance.",
     }),
     report: ClaimSelfCheckReport.annotateKey({
       description: "Self-check report over the claim set's claims.",
     }),
-  },
-  $I.annote("PublishedClaimSelfCheckReport", {
-    description: "Claim self-check report paired with the public USPTO claim set and source document it was run on.",
-  })
+  }).pipe(
+    $I.annoteSchema("PublishedClaimSelfCheckReport", {
+      description: "Claim self-check report paired with the public USPTO claim set and source document it was run on.",
+    })
+  )
 ) {}
 
 /**
@@ -240,8 +244,8 @@ export class PublishedClaimSelfCheckReport extends S.Class<PublishedClaimSelfChe
  * @category models
  * @since 0.0.0
  */
-export class ClaimSelfCheckInput extends S.Class<ClaimSelfCheckInput>($I`ClaimSelfCheckInput`)(
-  {
+export class ClaimSelfCheckInput extends S.Opaque<ClaimSelfCheckInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     digest: ContentDigest.annotateKey({
       description: "Content digest of the normalized patent document.",
     }),
@@ -266,10 +270,12 @@ export class ClaimSelfCheckInput extends S.Class<ClaimSelfCheckInput>($I`ClaimSe
     sourceFile: S.NonEmptyString.annotateKey({
       description: "Traceable source filename presented by the caller.",
     }),
-  },
-  $I.annote("ClaimSelfCheckInput", {
-    description: "Normalized patent document and provenance for mapping antecedent findings into epistemic candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimSelfCheckInput", {
+      description:
+        "Normalized patent document and provenance for mapping antecedent findings into epistemic candidates.",
+    })
+  )
 ) {}
 
 /**
@@ -293,8 +299,8 @@ export class ClaimSelfCheckInput extends S.Class<ClaimSelfCheckInput>($I`ClaimSe
  * @category models
  * @since 0.0.0
  */
-export class ClaimFindingCandidate extends S.Class<ClaimFindingCandidate>($I`ClaimFindingCandidate`)(
-  {
+export class ClaimFindingCandidate extends S.Opaque<ClaimFindingCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     finding: AntecedentFinding.annotateKey({
       description: "Advisory antecedent finding the candidate was mapped from.",
     }),
@@ -304,8 +310,9 @@ export class ClaimFindingCandidate extends S.Class<ClaimFindingCandidate>($I`Cla
     evidence: Evidence.annotateKey({
       description: "Evidence span over the referring term in the document's source text.",
     }),
-  },
-  $I.annote("ClaimFindingCandidate", {
-    description: "Antecedent finding paired with the epistemic candidate claim and evidence it maps to.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimFindingCandidate", {
+      description: "Antecedent finding paired with the epistemic candidate claim and evidence it maps to.",
+    })
+  )
 ) {}

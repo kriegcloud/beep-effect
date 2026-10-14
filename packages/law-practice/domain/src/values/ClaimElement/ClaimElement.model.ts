@@ -240,8 +240,8 @@ export type ClaimTermHead = typeof ClaimTermHead.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimTerm extends S.Class<ClaimTerm>($I`ClaimTerm`)(
-  {
+export class ClaimTerm extends S.Opaque<ClaimTerm, { readonly brand: unique symbol }>()(
+  S.Struct({
     anchor: TextAnchor.annotateKey({
       description: "Char-exact span of the whole term, determiner included, in the claim text.",
     }),
@@ -251,10 +251,11 @@ export class ClaimTerm extends S.Class<ClaimTerm>($I`ClaimTerm`)(
     head: ClaimTermHead.annotateKey({
       description: "Normalized head noun phrase without the determiner.",
     }),
-  },
-  $I.annote("ClaimTerm", {
-    description: "Span-anchored determiner and normalized head noun phrase recited in a claim element.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimTerm", {
+      description: "Span-anchored determiner and normalized head noun phrase recited in a claim element.",
+    })
+  )
 ) {}
 
 /**
@@ -301,18 +302,19 @@ export declare namespace ClaimTerm {
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimTermRef extends S.Class<ClaimTermRef>($I`ClaimTermRef`)(
-  {
+export class ClaimTermRef extends S.Opaque<ClaimTermRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: ClaimElementPath.annotateKey({
       description: "Path of the element that recites the term; its root names the claim.",
     }),
     anchor: TextAnchor.annotateKey({
       description: "Char-exact span of the term in the claim text of the path's root claim.",
     }),
-  },
-  $I.annote("ClaimTermRef", {
-    description: "Reference to one claim term by its element path and exact span.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimTermRef", {
+      description: "Reference to one claim term by its element path and exact span.",
+    })
+  )
 ) {}
 
 /**
@@ -361,8 +363,8 @@ export declare namespace ClaimTermRef {
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimElement extends S.Class<ClaimElement>($I`ClaimElement`)(
-  {
+export class ClaimElement extends S.Opaque<ClaimElement, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: ClaimElementPath.annotateKey({
       description: "Ordinal path of the element, rooted at its claim number.",
     }),
@@ -375,10 +377,11 @@ export class ClaimElement extends S.Class<ClaimElement>($I`ClaimElement`)(
     terms: S.Array(ClaimTerm).annotateKey({
       description: "Determiner-bearing terms recited in the element, in text order.",
     }),
-  },
-  $I.annote("ClaimElement", {
-    description: "Span-anchored claim element with its ordinal path, structural kind, and recited terms.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimElement", {
+      description: "Span-anchored claim element with its ordinal path, structural kind, and recited terms.",
+    })
+  )
 ) {}
 
 /**
