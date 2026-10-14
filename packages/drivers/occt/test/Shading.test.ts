@@ -168,6 +168,26 @@ describe("@beep/occt shading", () => {
     );
 
     it.effect(
+      "grades planar faces around curved and partially hidden geometry without producing degenerate strokes",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const views = yield* occt.project(
+          ProjectionRequest.make({ solid: legacyFixture, cameras: legacyCameras, shading: O.some(graded()) })
+        );
+        const strokes = A.flatMap(views, (view) => view.shading);
+        expect(A.length(strokes)).toBeGreaterThan(0);
+        expect(A.every(strokes, (stroke) => lengthOf(stroke) > 0)).toBe(true);
+        expect(
+          A.some(views, (view) =>
+            O.exists(view.shadingCoverage, (coverage) =>
+              A.some(coverage.skippedFaces, (skip) => skip.reason === "curved")
+            )
+          )
+        ).toBe(true);
+      })
+    );
+
+    it.effect(
       "drops strokes shorter than the plan's minimum on the view plane; a face too narrow for any stroke is a sliver",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;

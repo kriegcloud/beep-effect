@@ -15447,12 +15447,12 @@
         "packages/drivers/m365/src/M365.links.ts": {
           "lines": 100,
           "statements": 100,
-          "branches": 93.75,
+          "branches": 100,
           "functions": 100,
           "uncovered": {
             "lines": 0,
             "statements": 0,
-            "branches": 1,
+            "branches": 0,
             "functions": 0
           }
         },
@@ -16471,13 +16471,13 @@
     },
     "@beep/nlp-mcp": {
       "path": "packages/drivers/nlp-mcp",
-      "lines": 44.88,
-      "statements": 44.37,
+      "lines": 45.83,
+      "statements": 45.28,
       "branches": 9.35,
-      "functions": 40.67,
+      "functions": 42.62,
       "uncovered": {
-        "lines": 248,
-        "statements": 262,
+        "lines": 247,
+        "statements": 261,
         "branches": 126,
         "functions": 105
       },
@@ -19830,18 +19830,6 @@
             "functions": 0
           }
         },
-        "packages/drivers/pdf-tools/src/internal/coverage.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 80,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 4,
-            "functions": 0
-          }
-        },
         "packages/drivers/pdf-tools/src/internal/ppm.ts": {
           "lines": 94.44,
           "statements": 93.75,
@@ -19866,15 +19854,27 @@
             "functions": 7
           }
         },
+        "packages/drivers/pdf-tools/src/internal/coverage.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 85,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 3,
+            "functions": 0
+          }
+        },
         "packages/drivers/pdf-tools/src/internal/words.ts": {
-          "lines": 93.93,
-          "statements": 94.44,
-          "branches": 63.63,
+          "lines": 96.96,
+          "statements": 97.22,
+          "branches": 68.18,
           "functions": 92.3,
           "uncovered": {
-            "lines": 2,
-            "statements": 2,
-            "branches": 8,
+            "lines": 1,
+            "statements": 1,
+            "branches": 7,
             "functions": 1
           }
         }
@@ -22567,15 +22567,15 @@
     },
     "@beep/repo-cli": {
       "path": "packages/tooling/tool/cli",
-      "lines": 86.64,
-      "statements": 86.3,
-      "branches": 78.93,
-      "functions": 83.24,
+      "lines": 85.11,
+      "statements": 84.91,
+      "branches": 76.56,
+      "functions": 81.1,
       "uncovered": {
-        "lines": 9100,
-        "statements": 9915,
-        "branches": 5666,
-        "functions": 3773
+        "lines": 8065,
+        "statements": 8626,
+        "branches": 4839,
+        "functions": 3240
       },
       "files": {
         "packages/tooling/tool/cli/src/bin-main.ts": {
@@ -24643,15 +24643,15 @@
           }
         },
         "packages/tooling/tool/cli/src/commands/Drawings/Drawings.layer.ts": {
-          "lines": 58.82,
-          "statements": 57.69,
+          "lines": 62.5,
+          "statements": 61.22,
           "branches": 100,
-          "functions": 24,
+          "functions": 26.08,
           "uncovered": {
-            "lines": 21,
-            "statements": 22,
+            "lines": 18,
+            "statements": 19,
             "branches": 0,
-            "functions": 19
+            "functions": 17
           }
         },
         "packages/tooling/tool/cli/src/commands/Drawings/Drawings.review.rules.ts": {
@@ -24724,18 +24724,6 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
-          }
-        },
-        "packages/tooling/tool/cli/src/commands/Explore/Graduate.ts": {
-          "lines": 95.76,
-          "statements": 95.9,
-          "branches": 92.85,
-          "functions": 90.56,
-          "uncovered": {
-            "lines": 5,
-            "statements": 5,
-            "branches": 2,
-            "functions": 5
           }
         },
         "packages/tooling/tool/cli/src/commands/Explore/index.ts": {
@@ -25759,27 +25747,27 @@
           }
         },
         "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.command-surface.ts": {
-          "lines": 89.83,
-          "statements": 89.53,
-          "branches": 76.71,
-          "functions": 88.52,
+          "lines": 87.03,
+          "statements": 87.2,
+          "branches": 74.15,
+          "functions": 90,
           "uncovered": {
-            "lines": 43,
-            "statements": 45,
-            "branches": 61,
-            "functions": 14
+            "lines": 38,
+            "statements": 38,
+            "branches": 46,
+            "functions": 7
           }
         },
         "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.command.ts": {
-          "lines": 77.77,
-          "statements": 75.16,
-          "branches": 52.77,
-          "functions": 81.53,
+          "lines": 78.37,
+          "statements": 76.27,
+          "branches": 61.53,
+          "functions": 76.31,
           "uncovered": {
-            "lines": 32,
-            "statements": 38,
-            "branches": 17,
-            "functions": 12
+            "lines": 24,
+            "statements": 28,
+            "branches": 10,
+            "functions": 9
           }
         },
         "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts": {
@@ -27823,15 +27811,15 @@
           }
         },
         "packages/tooling/tool/cli/src/commands/Skills/Skills.command.ts": {
-          "lines": 88.1,
-          "statements": 87.9,
-          "branches": 71.11,
-          "functions": 78.37,
+          "lines": 89.96,
+          "statements": 89.69,
+          "branches": 72.72,
+          "functions": 81.69,
           "uncovered": {
-            "lines": 39,
-            "statements": 41,
-            "branches": 26,
-            "functions": 16
+            "lines": 32,
+            "statements": 34,
+            "branches": 24,
+            "functions": 13
           }
         },
         "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts": {
@@ -27870,16 +27858,40 @@
             "functions": 0
           }
         },
-        "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts": {
-          "lines": 78.08,
-          "statements": 78.2,
-          "branches": 68.47,
-          "functions": 67.02,
+        "packages/tooling/tool/cli/src/commands/Skills/Skills.seeds.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
           "uncovered": {
-            "lines": 71,
-            "statements": 73,
-            "branches": 29,
-            "functions": 31
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts": {
+          "lines": 80.67,
+          "statements": 80.84,
+          "branches": 65.15,
+          "functions": 72.72,
+          "uncovered": {
+            "lines": 40,
+            "statements": 41,
+            "branches": 23,
+            "functions": 12
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/SkillsLock.schemas.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/tooling/tool/cli/src/commands/Skills/index.ts": {
@@ -28015,15 +28027,15 @@
           }
         },
         "packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/IanaTimezones.ts": {
-          "lines": 30.43,
-          "statements": 29.16,
+          "lines": 31.81,
+          "statements": 29.78,
           "branches": 0,
           "functions": 0,
           "uncovered": {
-            "lines": 32,
-            "statements": 34,
-            "branches": 10,
-            "functions": 18
+            "lines": 30,
+            "statements": 33,
+            "branches": 12,
+            "functions": 17
           }
         },
         "packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso3166.ts": {
@@ -30892,6 +30904,54 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Explore/Graduate.ts": {
+          "lines": 95.76,
+          "statements": 95.9,
+          "branches": 92.85,
+          "functions": 90.56,
+          "uncovered": {
+            "lines": 5,
+            "statements": 5,
+            "branches": 2,
+            "functions": 5
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/internal/SkillFrontmatterCheck.ts": {
+          "lines": 96.15,
+          "statements": 96.15,
+          "branches": 83.33,
+          "functions": 85.71,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 2,
+            "functions": 1
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.domain.ts": {
+          "lines": 96.47,
+          "statements": 96.73,
+          "branches": 86.81,
+          "functions": 96.21,
+          "uncovered": {
+            "lines": 8,
+            "statements": 8,
+            "branches": 12,
+            "functions": 5
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.evaluators.ts": {
+          "lines": 98.26,
+          "statements": 98.37,
+          "branches": 96.05,
+          "functions": 96.51,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 3,
+            "functions": 3
           }
         }
       }
@@ -36289,15 +36349,15 @@
           }
         },
         "packages/foundation/capability/technical-drawing/src/FigureSet.service.ts": {
-          "lines": 93.71,
-          "statements": 93.19,
-          "branches": 95,
-          "functions": 86.04,
+          "lines": 95.04,
+          "statements": 94.65,
+          "branches": 91.66,
+          "functions": 87.75,
           "uncovered": {
-            "lines": 11,
-            "statements": 13,
+            "lines": 6,
+            "statements": 7,
             "branches": 1,
-            "functions": 12
+            "functions": 6
           }
         },
         "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts": {
@@ -36349,15 +36409,15 @@
           }
         },
         "packages/foundation/capability/technical-drawing/src/Sheet.schemas.ts": {
-          "lines": 97.77,
-          "statements": 97.82,
+          "lines": 100,
+          "statements": 100,
           "branches": 100,
-          "functions": 95.23,
+          "functions": 100,
           "uncovered": {
-            "lines": 1,
-            "statements": 1,
+            "lines": 0,
+            "statements": 0,
             "branches": 0,
-            "functions": 1
+            "functions": 0
           }
         },
         "packages/foundation/capability/technical-drawing/src/TechnicalDrawing.errors.ts": {
@@ -36445,15 +36505,27 @@
           }
         },
         "packages/foundation/capability/technical-drawing/src/internal/LabelOutline.ts": {
-          "lines": 82.27,
-          "statements": 82.55,
-          "branches": 54.76,
-          "functions": 73.91,
+          "lines": 86.56,
+          "statements": 87.5,
+          "branches": 69.04,
+          "functions": 79.48,
           "uncovered": {
-            "lines": 14,
-            "statements": 15,
-            "branches": 19,
-            "functions": 12
+            "lines": 9,
+            "statements": 9,
+            "branches": 13,
+            "functions": 8
+          }
+        },
+        "packages/foundation/capability/technical-drawing/src/Shading.rules.ts": {
+          "lines": 93.47,
+          "statements": 94.11,
+          "branches": 87.75,
+          "functions": 91.3,
+          "uncovered": {
+            "lines": 19,
+            "statements": 19,
+            "branches": 18,
+            "functions": 10
           }
         }
       }
