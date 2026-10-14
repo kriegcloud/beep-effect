@@ -28,7 +28,7 @@ describe("phraseToolCall", () => {
 
   it("quotes a search and cuts a long query", () => {
     const sentence = phraseToolCall("corpus_search_text", { query: "a".repeat(80) });
-    expect(sentence.startsWith('Searching the firm\'s documents for "')).toBe(true);
+    expect(sentence.startsWith("Searching the firm's documents for \"")).toBe(true);
     expect(sentence.endsWith('..."')).toBe(true);
   });
 

@@ -27,7 +27,7 @@ const $I = $PracticeClaudeModId.create("PracticeMod.values");
  * @category schemas
  * @since 0.0.0
  */
-export const Verdict = LiteralKit(["right", "wrong"]).pipe(
+export const Verdict = LiteralKit(["right", "wrong", "partly"]).pipe(
   $I.annoteSchema("Verdict", { description: "The attorney's judgement of one answer." })
 );
 
@@ -105,32 +105,72 @@ export class ChosenMatter extends S.Class<ChosenMatter>($I`ChosenMatter`)(
 ) {}
 
 /**
- * One verdict on one answer, written as one JSON line to the mod's local
- * verdict log.
+ * The answer a per-answer verdict targets: one completed turn of one
+ * session, kept beside the verdict rows so a reviewer knows what was asked.
  *
  * **Details**
  *
- * The row stays on the machine that produced it. `question` is the prompt
- * the answer replied to; `answerId` is the transcript id of the answer row.
+ * `itemId` is `kg-answer:<sessionId>:<turnId>`, the same item id a review
+ * queue uses for a knowledge-graph answer.
+ *
+ * **Example** (Make an answer item)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { KgAnswerItem } from "@/PracticeMod.values"
+ *
+ * const item = KgAnswerItem.make({
+ *   itemId: "kg-answer:s-1:t-1",
+ *   sessionId: "s-1",
+ *   turnId: "t-1",
+ *   question: "Which matter is 10008US01?",
+ *   matter: O.none(),
+ * })
+ * console.log(item.itemId) // "kg-answer:s-1:t-1"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KgAnswerItem extends S.Class<KgAnswerItem>($I`KgAnswerItem`)(
+  {
+    itemId: S.NonEmptyString,
+    sessionId: S.NonEmptyString,
+    turnId: S.NonEmptyString,
+    question: S.String,
+    matter: S.OptionFromNullOr(ChosenMatter),
+  },
+  $I.annote("KgAnswerItem", { description: "The completed turn a per-answer verdict targets." })
+) {}
+
+/**
+ * One verdict revision on one item. Rows are append-only: undo and changes
+ * append a higher `revision`, and a row with `lockedAt` ends the item.
+ *
+ * **Details**
+ *
+ * The field set mirrors the shared review verdict envelope so the schema can
+ * move to `@beep/law-practice-domain` unchanged once a second consumer reads
+ * it (D10, D16).
  *
  * **Example** (Make a verdict row)
  *
  * ```ts
  * import * as DateTime from "effect/DateTime"
  * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  * import { VerdictRow } from "@/PracticeMod.values"
  *
  * const row = VerdictRow.make({
  *   schemaVersion: "practice-verdict/v1",
- *   at: DateTime.makeUnsafe(0),
- *   sessionId: "s-1",
- *   answerId: "m-1",
- *   question: "Which matter is 10008US01?",
- *   matter: O.none(),
- *   verdict: "wrong",
+ *   itemId: "kg-answer:s-1:t-1",
+ *   verdict: O.some("wrong"),
  *   note: O.some("Missed the continuation."),
+ *   revision: S.Natural.make(0),
+ *   recordedAt: DateTime.makeUnsafe(0),
+ *   lockedAt: O.none(),
  * })
- * console.log(row.verdict) // "wrong"
+ * console.log(row.revision) // 0
  * ```
  *
  * @category models
@@ -139,15 +179,16 @@ export class ChosenMatter extends S.Class<ChosenMatter>($I`ChosenMatter`)(
 export class VerdictRow extends S.Class<VerdictRow>($I`VerdictRow`)(
   {
     schemaVersion: S.Literal("practice-verdict/v1"),
-    at: S.DateTimeUtcFromString,
-    sessionId: S.NonEmptyString,
-    answerId: S.NonEmptyString,
-    question: S.String,
-    matter: S.OptionFromNullOr(ChosenMatter),
-    verdict: Verdict,
+    itemId: S.NonEmptyString,
+    verdict: S.OptionFromNullOr(Verdict).annotateKey({
+      description: "The verdict; none when this revision undoes the previous one.",
+    }),
     note: S.OptionFromNullOr(S.NonEmptyString),
+    revision: S.Natural,
+    recordedAt: S.DateTimeUtcFromString,
+    lockedAt: S.OptionFromNullOr(S.DateTimeUtcFromString),
   },
-  $I.annote("VerdictRow", { description: "One verdict on one answer, one line of the local verdict log." })
+  $I.annote("VerdictRow", { description: "One append-only verdict revision on one reviewed item." })
 ) {}
 
 /**

@@ -4,6 +4,9 @@
   "references": [
     {
       "path": "../../packages/foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/modeling/schema/tsconfig.json"
     }
   ],
   "compilerOptions": {

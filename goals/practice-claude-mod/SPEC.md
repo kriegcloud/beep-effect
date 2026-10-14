@@ -7,10 +7,12 @@ the attorney's Claude Code sessions into a lawyer-facing surface over the
 firm's practice knowledge graph:
 
 1. **Plain-language tool rows**: practice-kg tool calls draw as lawyer
-   sentences; the raw call stays visible when the row is expanded.
-2. **Right/Wrong verdict capture**: Right / Wrong / Note controls on each
-   answer and a `/wrong [note]` command, each verdict one schema-validated
-   JSONL row in the mod's local state file.
+   sentences; `/practice raw` toggles the engine's own rows back on for
+   inspection (the ToolUse site has no expanded flag; D13).
+2. **Right/Wrong verdict capture**: Right / Wrong / Partly / Note controls
+   for the latest answer in the band and `/wrong [note]` / `/right`
+   commands; each verdict is one append-only schema-validated row kept in
+   the plugin store and exported as JSONL with `/practice export` (D14).
 3. **Current-matter band**: `/matter <number or name>` resolves through
    `kg_matter_lookup` (picker on ambiguity) and a band above the prompt shows
    the matter.
@@ -42,6 +44,10 @@ Shaped in [`explorations/claude-mods-law-practice`](../../explorations/claude-mo
   only practice-kg read tools.
 - Installing the stock `legal` plugin or its connectors (D2).
 - Mods for the operator's own repo workflow (D1: that machine is a test bed).
+- From the attorney-review-workspace amendment (D16): no annotation
+  workspace, no artifact or Doc review surface, no tailnet review pages, no
+  Box writes from review, no mod-owned side chat; drawings get whole-sheet
+  verdicts in the queue.
 
 ## Source Hierarchy
 
@@ -105,8 +111,9 @@ Higher sources outrank lower sources when they conflict.
       bundle): a practice-kg question shows plain-language rows, and ctrl+o
       shows the raw call.
 - [ ] Pressing Wrong (or `/wrong <note>`) appends one schema-valid verdict
-      row and shows a confirmation toast; a forced write failure shows an
-      error toast.
+      row and shows a "Saved" toast; undo appends a superseding revision; a
+      forced write failure shows an error toast; `/practice export` writes
+      the rows as JSONL into the working folder.
 - [ ] `/matter` resolves a unique matter into the band, and shows a picker
       for an ambiguous lookup.
 - [ ] `/time start` and `/time stop` show a running clock in the band and
@@ -114,6 +121,11 @@ Higher sources outrank lower sources when they conflict.
 - [ ] The five ported skills load from the plugin with attribution.
 - [ ] `claude plugin validate dist/plugin` lists only D9-envelope calls, and
       `claude plugin test` passes on terminal and desktop surfaces.
+- [ ] P1b (gated, D15): `/review` pane shows one ReviewItem at a time with
+      Right / Wrong / Note, undo and Lock; the band shows "N to review";
+      "Open in Box" opens the Browser pane; "Ask about this" fills the
+      prompt; no Box write is possible. Entry gate: review-verdict-envelope
+      S1 + S3 pass and its P1 schema is merged.
 - [ ] The same build, copied into the attorney PC's directory marketplace and
       installed at user scope, repeats the tool-row and verdict checks there
       (redacted evidence in `history/`).
@@ -157,6 +169,10 @@ Seeded from the exploration's `DECISIONS.md` (full rationale there).
 | 2026-10-14 | D8/D10 Local schema'd JSONL verdicts, app-local schema | No network; one consumer | Promote schema to law-practice when evals read it |
 | 2026-10-14 | D9 Mods API envelope | Mods are unsandboxed; reviewable release check | Log a decision per added call |
 | 2026-10-14 | D12 One goal, about one week | One plugin, one release path | Split skills into a follow-up |
+| 2026-10-14 | D13 Raw tool rows via `/practice raw` toggle, not ctrl+o | Engine contract: `ToolUse` props carry no expanded flag (history/2026-10-14-engine-contract.md §2) | Use an expanded flag if a later engine adds one |
+| 2026-10-14 | D14 Verdict controls in the band for the latest answer (`turn.complete` turnId + answer), rows in `$.store`, JSONL via `/practice export` | No assistant-message id or fs append/data-dir in the API (§7, §9); the band avoids redrawing answers | Move controls onto `AssistantMessage` rows if an id appears |
+| 2026-10-14 | D15 Accept the attorney-review-workspace amendment: gated P1b review queue; widen D9 for P1b only to Box `get_file_content` / `get_preview_page` reads and `$.prompt.fill`; queue reads ReviewItems from a practice-kg read tool; Saved toast + undo live in the verdict acceptance item | Same verdict capture applied to queued items; amendment on PR #1712 | Drop P1b; D9 returns to the slice-1 envelope |
+| 2026-10-14 | D16 App-local VerdictRow mirrors the shared envelope (itemId, right/wrong/partly, note, revision, recordedAt, lockedAt); promote to `@beep/law-practice-domain` when review-verdict-envelope P1 merges (D10 second consumer) | One log for per-answer controls and the queue | Keep the app-local schema |
 
 ## Exception Ledger
 

@@ -3263,11 +3263,13 @@
         "from": "@beep/practice-claude-mod",
         "allow": [
           "@beep/identity",
-          "@beep/practice-claude-mod"
+          "@beep/practice-claude-mod",
+          "@beep/schema"
         ],
         "allowTypeOnly": [
           "@beep/identity",
-          "@beep/practice-claude-mod"
+          "@beep/practice-claude-mod",
+          "@beep/schema"
         ]
       },
       {

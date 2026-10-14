@@ -8,7 +8,7 @@
 
 import { $PracticeClaudeModId } from "@beep/identity/packages";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -48,7 +48,11 @@ const quoted = (text: string): string =>
   Str.length(text) > MaxQuoted ? `"${Str.trimEnd(Str.slice(0, MaxQuoted)(text))}..."` : `"${text}"`;
 
 const lastSegment = (path: string): string =>
-  pipe(Str.split(/[\\/]/)(path), A.last, O.getOrElse(() => path));
+  pipe(
+    Str.split(/[\\/]/)(path),
+    A.last,
+    O.getOrElse(() => path)
+  );
 
 const sentenceFor = (tool: PracticeKgToolName, input: PhraseInput): string =>
   PracticeKgToolName.$match(tool, {
@@ -68,7 +72,9 @@ const sentenceFor = (tool: PracticeKgToolName, input: PhraseInput): string =>
             ? `Looking up docket ${input.docket}`
             : "Looking up an application",
     kg_find: () =>
-      input.query !== undefined ? `Searching the firm's records for ${quoted(input.query)}` : "Searching the firm's records",
+      input.query !== undefined
+        ? `Searching the firm's records for ${quoted(input.query)}`
+        : "Searching the firm's records",
     corpus_search_text: () =>
       input.query !== undefined
         ? `Searching the firm's documents for ${quoted(input.query)}`
@@ -116,12 +122,15 @@ const sentenceFor = (tool: PracticeKgToolName, input: PhraseInput): string =>
  * @category combinators
  * @since 0.0.0
  */
-export const practiceKgToolOf = (servers: ReadonlyArray<string>, toolName: string): O.Option<PracticeKgToolName> => {
+export const practiceKgToolOf: {
+  (toolName: string): (servers: ReadonlyArray<string>) => O.Option<PracticeKgToolName>;
+  (servers: ReadonlyArray<string>, toolName: string): O.Option<PracticeKgToolName>;
+} = dual(2, (servers: ReadonlyArray<string>, toolName: string): O.Option<PracticeKgToolName> => {
   const parts = Str.split("__")(toolName);
   return parts.length === 3 && parts[0] === "mcp" && A.contains(servers, parts[1] ?? "")
     ? O.liftPredicate(parts[2] ?? "", isPracticeKgToolName)
     : O.none();
-};
+});
 
 /**
  * The plain-language sentence for one practice-kg tool call.
@@ -138,8 +147,12 @@ export const practiceKgToolOf = (servers: ReadonlyArray<string>, toolName: strin
  * @category combinators
  * @since 0.0.0
  */
-export const phraseToolCall = (tool: PracticeKgToolName, input: unknown): string =>
+export const phraseToolCall: {
+  (input: unknown): (tool: PracticeKgToolName) => string;
+  (tool: PracticeKgToolName, input: unknown): string;
+} = dual(2, (tool: PracticeKgToolName, input: unknown): string =>
   sentenceFor(
     tool,
     O.getOrElse(decodePhraseInput(input), () => PhraseInput.make({}))
-  );
+  )
+);
