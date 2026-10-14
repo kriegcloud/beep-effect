@@ -13035,6 +13035,48 @@
       "status": "open"
     },
     {
+      "id": "EV004:packages/foundation/capability/observability/test/DevTools.test.ts:81:scoped@8#1",
+      "lens": "resource",
+      "ruleId": "EV004",
+      "package": "@beep/observability",
+      "file": "packages/foundation/capability/observability/test/DevTools.test.ts",
+      "line": 81,
+      "endLine": 81,
+      "symbol": "scoped",
+      "occurrence": "v2:9e6761df6c0e487a885208420e5cfca06943ec18476101b1ff6a780f0ca8dc70",
+      "class": "inner-helper-scope-lifetime-review",
+      "evidence": "Effect.scoped",
+      "replacement": {
+        "primitive": "readme.resource-safety",
+        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV004:packages/foundation/capability/observability/test/LocalLgtmServer.test.ts:53:scoped@4#1",
+      "lens": "resource",
+      "ruleId": "EV004",
+      "package": "@beep/observability",
+      "file": "packages/foundation/capability/observability/test/LocalLgtmServer.test.ts",
+      "line": 53,
+      "endLine": 53,
+      "symbol": "scoped",
+      "occurrence": "v2:ea3b4d95e6b6ce636a7fa1db7eb2f39f972d87085e7dda05017ac91773e1ca12",
+      "class": "helper-scope-lifetime-review",
+      "evidence": "Effect.scoped",
+      "replacement": {
+        "primitive": "readme.resource-safety",
+        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
       "id": "EV004:packages/foundation/ui-system/dock-react/test/DockviewReact.test.tsx:205:scoped@13#1",
       "lens": "resource",
       "ruleId": "EV004",
@@ -20418,6 +20460,27 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "The subject is the native Chromium DOM/WebGL renderer, including RAF, real canvas hit testing, GPU disposal and remount behavior. TestClock cannot drive those native browser callbacks. Retain it.live for the native browser subject. Instrumented runner adoption is verified in 72ea45def6 and L-OBS-01 is fixed."
+    },
+    {
+      "id": "EV009:packages/foundation/capability/observability/test/LocalLgtmServer.test.ts:62:it.live@2#1",
+      "lens": "resource",
+      "ruleId": "EV009",
+      "package": "@beep/observability",
+      "file": "packages/foundation/capability/observability/test/LocalLgtmServer.test.ts",
+      "line": 62,
+      "endLine": 75,
+      "symbol": "it.live",
+      "occurrence": "v2:d5cde1998e0b3b828593c6038f0ed3941b0f28826a31a668f63be835bb20b07a",
+      "class": "unjustified-live-test",
+      "evidence": "it.live( \"exports spans over OTLP when devtools is also enabled\", Effect.fnUntraced(function* () { const http = makeCapturingHttpClient(); const span = yield* runWithLayer( Effect.currentSpan.pipe(Eff",
+      "replacement": {
+        "primitive": "it.effect",
+        "sketch": "it.effect: Use for runtime-boundary-in-test candidates (EV001, candidate class runtime-boundary-in-test) and unjustified-live-test judgments (EV009, candidate class unjustified-live-test)."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
     },
     {
       "id": "EV009:packages/foundation/modeling/schema/test/LocalDate.test.ts:346:it.live@4#1",
