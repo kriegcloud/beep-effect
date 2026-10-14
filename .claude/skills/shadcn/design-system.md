@@ -28,7 +28,7 @@ Trigger phrases: "build me a design system using <preset>", "apply this DESIGN.m
 | App name  | Derived from the brand in DESIGN.md | Kebab-case.                                                                                                                              |
 | Base      | `base`                              | Pass `--base` when no preset code is given. Use `radix` only when the user asks. `info --json` after init decides `render` vs `asChild`. |
 
-If the DESIGN.md path can't be read (macOS privacy blocks `~/Downloads` and `~/Desktop` for some hosts), ask the user to copy it into the working directory. Don't guess its contents.
+If the DESIGN.md path can't be read (macOS privacy blocks `$HOME/Downloads` and `$HOME/Desktop` for some hosts), ask the user to copy it into the working directory. Don't guess its contents.
 
 ---
 

@@ -1196,6 +1196,25 @@
         "!{.patterns,standards,.claude/skills,docs,goals}/**/_generated/**"
       ]
     },
+    "//#lint:retired-effect-paths": {
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["//#lint:policy-fingerprint"],
+      "inputs": [
+        "**/*",
+        "!.git/**",
+        "!**/.git/**",
+        "!graft/**",
+        "!.repos/**",
+        "!**/node_modules/**",
+        "!**/.beep/**",
+        "!**/.turbo/**",
+        "!**/dist/**",
+        "!**/coverage/**",
+        "!**/.next/**",
+        "!**/storybook-static/**"
+      ]
+    },
     "//#lint:ecosystem-polarity": {
       "cache": true,
       "outputs": [],

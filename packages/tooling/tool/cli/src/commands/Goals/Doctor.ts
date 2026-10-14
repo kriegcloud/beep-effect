@@ -122,6 +122,7 @@ export const GoalDoctorFindingKind = LiteralKit([
   "packet-status-drift",
   "packet-trace-stale",
   "packet-trace-missing",
+  "packet-graduation-pending",
   "packet-fleet-duplicate-slug",
   "packet-fleet-dependency-cycle",
   "packet-fleet-unreachable",
@@ -957,37 +958,33 @@ const loadDoctorBaselineKeys = Effect.fn("Goals.loadDoctorBaselineKeys")(functio
   );
 });
 
+// Prints a header and its lines on stderr, or nothing when there are no lines.
+const printErrorSection = Effect.fn("Goals.printErrorSection")(function* (
+  header: string,
+  lines: ReadonlyArray<string>
+) {
+  if (A.isReadonlyArrayEmpty(lines)) {
+    return;
+  }
+  yield* Console.error(header);
+  yield* Effect.forEach(lines, (line) => Console.error(line), { discard: true });
+});
+
 const printNonFatalFindings = Effect.fn("Goals.printNonFatalFindings")(function* (input: {
   readonly notes: ReadonlyArray<string>;
   readonly advisories: ReadonlyArray<GoalDoctorFinding>;
   readonly classified: GoalDoctorClassification;
 }) {
-  for (const note of input.notes) {
-    yield* Console.log(`[goals:doctor] note: ${note}`);
-  }
-
-  if (A.isReadonlyArrayNonEmpty(input.advisories)) {
-    yield* Console.error("[goals:doctor] advisories (non-fatal):");
-    for (const item of input.advisories) {
-      yield* Console.error(findingLine(item));
-    }
-  }
-
-  if (A.isReadonlyArrayNonEmpty(input.classified.inherited)) {
-    yield* Console.error("[goals:doctor] inherited baseline findings (non-fatal, burn down over time):");
-    for (const item of input.classified.inherited) {
-      yield* Console.error(findingLine(item));
-    }
-  }
-
-  if (A.isReadonlyArrayNonEmpty(input.classified.resolved)) {
-    yield* Console.error(
-      `[goals:doctor] ${A.length(input.classified.resolved)} baseline finding(s) resolved — shrink the baseline with --write-baseline:`
-    );
-    for (const key of input.classified.resolved) {
-      yield* Console.error(`- ${key}`);
-    }
-  }
+  yield* Effect.forEach(input.notes, (note) => Console.log(`[goals:doctor] note: ${note}`), { discard: true });
+  yield* printErrorSection("[goals:doctor] advisories (non-fatal):", A.map(input.advisories, findingLine));
+  yield* printErrorSection(
+    "[goals:doctor] inherited baseline findings (non-fatal, burn down over time):",
+    A.map(input.classified.inherited, findingLine)
+  );
+  yield* printErrorSection(
+    `[goals:doctor] ${A.length(input.classified.resolved)} baseline finding(s) resolved — shrink the baseline with --write-baseline:`,
+    A.map(input.classified.resolved, (key) => `- ${key}`)
+  );
 });
 
 /**
