@@ -31,7 +31,9 @@ const ToolResult = S.Struct({
   content: S.Array(S.Struct({ type: S.String, text: S.optionalKey(S.String) })),
 });
 
-class MatterLookupUnreadable extends S.TaggedError<MatterLookupUnreadable>($I`MatterLookupUnreadable`)(
+class MatterLookupUnreadable extends S.TaggedError<MatterLookupUnreadable, { readonly brand: unique symbol }>(
+  $I`MatterLookupUnreadable`
+)(
   "MatterLookupUnreadable",
   { message: S.String },
   $I.annote("MatterLookupUnreadable", { description: "A matter lookup response could not be decoded safely." })
