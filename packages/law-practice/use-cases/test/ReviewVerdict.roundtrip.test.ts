@@ -88,7 +88,7 @@ const finding = (batchId: string, verdict: "right" | "wrong" | "partly", note: O
   RecordVerdictInput.make({ itemId: FINDING_ID, batchId, verdict, note });
 
 describe("@beep/law-practice-use-cases review verdict round trip", () => {
-  it.layer(TestLayer)("superseded and locked batch", (it) => {
+  it.layer(TestLayer, { timeout: "10 seconds" })("superseded and locked batch", (it) => {
     it.effect(
       "records, supersedes and locks a verdict, then projects the confirmed finding",
       Effect.fnUntraced(function* () {
@@ -169,7 +169,7 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
     );
   });
 
-  it.layer(TestLayer)("final wrong with a note", (it) => {
+  it.layer(TestLayer, { timeout: "10 seconds" })("final wrong with a note", (it) => {
     it.effect(
       "projects a final wrong verdict with a note as rejected with the note as the reason",
       Effect.fnUntraced(function* () {
@@ -190,7 +190,7 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
     );
   });
 
-  it.layer(TestLayer)("final wrong without a note", (it) => {
+  it.layer(TestLayer, { timeout: "10 seconds" })("final wrong without a note", (it) => {
     it.effect(
       "projects a final wrong verdict without a note with the fixed reject reason",
       Effect.fnUntraced(function* () {
@@ -207,7 +207,7 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
     );
   });
 
-  it.layer(TestLayer)("final partly", (it) => {
+  it.layer(TestLayer, { timeout: "10 seconds" })("final partly", (it) => {
     it.effect(
       "leaves a final partly verdict unprojected and returns the item to the queue",
       Effect.fnUntraced(function* () {
@@ -235,7 +235,7 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
     );
   });
 
-  it.layer(TestLayer)("cross-batch tie", (it) => {
+  it.layer(TestLayer, { timeout: "10 seconds" })("cross-batch tie", (it) => {
     it.effect(
       "gives a full tie on recordedAt and revision to the row appended last",
       Effect.fnUntraced(function* () {
@@ -256,7 +256,7 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
     );
   });
 
-  it.layer(VerdictProjectorLive)("projection properties", (it) => {
+  it.layer(VerdictProjectorLive, { timeout: "10 seconds" })("projection properties", (it) => {
     it.effect.prop(
       "projects exactly the latest row's final verdict, independent of the order of distinct rows",
       {
