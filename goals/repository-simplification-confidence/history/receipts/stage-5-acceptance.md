@@ -550,3 +550,68 @@ All four new rows were appended by the supported writer. None of the existing
 rows was edited. Source-only ModelsApply implementation has no harness-admission
 row until a corresponding configuration apply occurs. Full F mapping, home
 execution chains, acceptance, and panel remain open.
+
+### F authorized global configuration proof (2026-10-14)
+
+The explicit home scope grant supersedes the earlier lane-only block. The
+current manifest is authoritative. Native Codex cleanup has run through
+ModelsApply with a private exclusive backup, staged TOML parse, and atomic
+rename. Restoring the first journal reproduces the original bytes exactly;
+reapplying reproduces the cleaned bytes exactly. All other keys and bytes
+survive, including the 496 projects and 325 hook states observed before apply.
+The two model pins are unchanged. Online `models check` reports zero findings,
+the required read-only pinned Codex probe answers OK, and
+`models codex-permissions --check` detects return of the legacy key.
+
+Recovery names and journal ids are in the F handoff and SPEC Decision Log.
+The operator-only Claude defaults script remains a no-op preview. F wrote no
+home Claude file. `skills update` changed only its lock; its terminal check
+reports current. The existing source and fixtures prove unknown skill-table
+keys, scalar spans, and rollback preservation. The matched native benchmark
+and other-client activation requirements remain open with named owners and
+reconsideration gates in RSC-F-DISPOSITIONS-20261014. These are not successful
+migrations or accepted panel results.
+
+The final configuration fingerprint receipt is
+[stage-5-f-config-fingerprint.json](stage-5-f-config-fingerprint.json). The
+configuration is frozen for review only while a fresh collector equals that
+set. The driver owns the independent three-model panel and terminal verdicts.
+
+### F harness ledger links (2026-10-14)
+
+| Decision token | SPEC row / approved basis | Execution chain |
+| --- | --- | --- |
+| RSC-F-NATIVE-20261014 | October 14 scope grant and H4 legacy-key ruling | proposal hl-20261014-70942f58; accepted hl-20261014-e979a4ad |
+| RSC-F-HOOKS-20261014 | F event-registration brief and approved A repository retirement | same explicit diff-digest chain; two touched hashes |
+| RSC-F-DUPLICATES-20261014 | Approved F confirmed-duplicate reduction | proposal hl-20261014-2e87155d; accepted hl-20261014-2b463e1a |
+| F-WINDOWS / F-H3-QUALIFY | Thirty-session requirement and wave-2 measured-gate ruling | prior proposal hl-20260929-2072a6f9 dispositioned deferred; native qualification remains open |
+| SkillOpt retirement | Approved pilot retirement; preserve immutable conclusions | tombstones hl-20261014-9e833571 and hl-20261014-69d53a31; rejected heads untouched |
+
+The supported writer appended all new rows; no existing row was changed. The
+native execution proposal references the explicit diff digest, and its commit
+carries `Harness-Ledger: hl-20261014-70942f58`. Retained surfaces with no applied
+edit have no fabricated execution chain. Historical evidence is not counted
+as current-regime sessions.
+
+### F scope at authorized publication
+
+Changes are limited to F's CLI writer/projection safety, native Codex legacy
+permission cleanup, repository canonical shims and event wiring, ledger rows,
+and packet evidence. No effect-law allowlist, root package manifest, lockfile,
+model manifest, gateway service, another lane, or home Claude file is edited.
+`skills-lock.json` is owner-regenerated. The repository reversal is the F PR
+revert; home restoration is separately drift-fenced by its recovery journal.
+
+
+### F canonical pulse adapter qualification
+
+The Codex pulse body also delegates to the canonical writer now, following the
+explicit H3 adapter contract. Eight isolated spike events preserve their core
+Codex fields; the synthetic private tool input is omitted; SessionStart gains
+a canonical harness stamp. No ordinary native trust or root/child success is
+inferred. This fourth duplicate removal changes the configuration set, so the
+fingerprint receipt was regenerated before publication.
+
+Supported ledger chain for RSC-F-PULSE-ADAPTER-20261014: proposal
+`hl-20261014-70a2e773`, accepted `hl-20261014-fb2e0a5d`. Its execution
+commit carries the proposal trailer. Native qualification remains open.

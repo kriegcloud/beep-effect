@@ -804,12 +804,13 @@ export type Locator = typeof Locator.Type;
  * @category models
  * @since 0.0.0
  */
-export class ModelsLocatorWrite extends S.Class<ModelsLocatorWrite>($I`ModelsLocatorWrite`)(
-  { locator: Locator, expected: S.String },
-  $I.annote("ModelsLocatorWrite", {
-    description:
-      "One grammar-specific locator and its expected scalar or generated block body; never whole-file ownership.",
-  })
+export class ModelsLocatorWrite extends S.Opaque<ModelsLocatorWrite, { readonly brand: unique symbol }>()(
+  S.Struct({ locator: Locator, expected: S.String, remove: S.optionalKey(S.Literal(true)) }).pipe(
+    $I.annoteSchema("ModelsLocatorWrite", {
+      description:
+        "One grammar-specific locator and its expected scalar or generated block body; never whole-file ownership.",
+    })
+  )
 ) {}
 
 /**
@@ -825,9 +826,10 @@ export class ModelsLocatorWrite extends S.Class<ModelsLocatorWrite>($I`ModelsLoc
  * @category models
  * @since 0.0.0
  */
-export class ModelsWriteSpan extends S.Class<ModelsWriteSpan>($I`ModelsWriteSpan`)(
-  { start: S.Int, end: S.Int, before: S.String, after: S.String },
-  $I.annote("ModelsWriteSpan", { description: "An owned text range with its drift fence and replacement." })
+export class ModelsWriteSpan extends S.Opaque<ModelsWriteSpan, { readonly brand: unique symbol }>()(
+  S.Struct({ start: S.Int, end: S.Int, before: S.String, after: S.String }).pipe(
+    $I.annoteSchema("ModelsWriteSpan", { description: "An owned text range with its drift fence and replacement." })
+  )
 ) {}
 
 /**
@@ -869,18 +871,19 @@ export type ModelsApplyMode = typeof ModelsApplyMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class ModelsApplyJournal extends S.Class<ModelsApplyJournal>($I`ModelsApplyJournal`)(
-  {
+export class ModelsApplyJournal extends S.Opaque<ModelsApplyJournal, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     file: S.NonEmptyString,
     backup: S.NonEmptyString,
     beforeHash: S.NonEmptyString,
     afterHash: S.NonEmptyString,
     mode: S.Int,
-  },
-  $I.annote("ModelsApplyJournal", {
-    description: "Private recovery metadata written before a native file is replaced.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsApplyJournal", {
+      description: "Private recovery metadata written before a native file is replaced.",
+    })
+  )
 ) {}
 
 /**

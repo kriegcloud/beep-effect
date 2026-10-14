@@ -1,5 +1,9 @@
 import { ModelsApply, ModelsApplyLive } from "@beep/repo-cli/commands/Models/Models.apply.service";
-import { ModelsLocatorWrite } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
+import {
+  BindingFilter,
+  LocatorBinding,
+  ModelsLocatorWrite,
+} from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 import { modelsApplySpans, modelsWriteSpans } from "@beep/repo-cli/commands/Models/Models.spans";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
@@ -9,9 +13,9 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import type { Locator, LocatorBinding, LocatorRender } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
+import type { Locator, LocatorRender } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 
-const binding: LocatorBinding = { role: "codex.heavy", surface: "codex-cli", field: "model" };
+const binding: LocatorBinding = LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" });
 const render: LocatorRender = { _tag: "verbatim" };
 const write = (locator: Locator, expected = "gpt-6.1-sol") => ModelsLocatorWrite.make({ locator, expected });
 const topLevel = write({ _tag: "toml-top-level-key", binding, render, key: "model" });
@@ -100,7 +104,12 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
         ],
         [
           "intro\n<!-- beep-models:begin x -->\nold\n<!-- beep-models:end x -->\ntail",
-          { _tag: "md-generated-block", blockId: "x", filter: { roles: [], surfaces: [] }, includeSuperseded: false },
+          {
+            _tag: "md-generated-block",
+            blockId: "x",
+            filter: BindingFilter.make({ roles: [], surfaces: [] }),
+            includeSuperseded: false,
+          },
           "intro\n<!-- beep-models:begin x -->\ngpt-6.1-sol\n<!-- beep-models:end x -->\ntail",
         ],
       ];
@@ -135,6 +144,48 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
           (yield* Effect.result(writer.restore(path.join(backupDirectory, `${second.id}.json`), backupDirectory)))._tag
         ).toBe("Failure");
         expect(yield* fs.readFileString(file)).toContain("external native write");
+      })
+    )
+  );
+
+  it.effect("removes only an owned legacy key, detects its return, and restores exact bytes", () =>
+    Effect.scoped(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "remove-fixture-" });
+        const file = path.join(root, "config.toml");
+        const backups = path.join(root, "backups");
+        const before = 'sandbox_mode = "danger-full-access" # legacy\r\n' + native;
+        yield* fs.writeFileString(file, before);
+        const request = ModelsLocatorWrite.make({
+          locator: { _tag: "toml-top-level-key", binding, render, key: "sandbox_mode" },
+          expected: "",
+          remove: true,
+        });
+        const writer = yield* ModelsApply;
+        expect((yield* Effect.result(writer.apply(file, [request], "check", backups)))._tag).toBe("Failure");
+        const journal = O.getOrThrow(yield* writer.apply(file, [request], "write", backups));
+        expect(yield* fs.readFileString(file)).toBe(native);
+        expect(O.isNone(yield* writer.apply(file, [request], "check", backups))).toBe(true);
+        yield* writer.restore(path.join(backups, `${journal.id}.json`), backups);
+        expect(yield* fs.readFileString(file)).toBe(before);
+        expect((yield* Effect.result(writer.apply(file, [request], "check", backups)))._tag).toBe("Failure");
+        expect((yield* Effect.result(modelsWriteSpans('sandbox_mode="a"\nsandbox_mode="b"\n', request)))._tag).toBe(
+          "Failure"
+        );
+        expect(
+          (yield* Effect.result(
+            modelsWriteSpans(
+              "{}",
+              ModelsLocatorWrite.make({
+                locator: { _tag: "json-key", binding, render, pointer: ["sandbox_mode"], fallbacks: [] },
+                expected: "",
+                remove: true,
+              })
+            )
+          ))._tag
+        ).toBe("Failure");
       })
     )
   );

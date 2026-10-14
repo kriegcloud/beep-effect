@@ -367,3 +367,15 @@ integration and both review fixes with local verification and checks waived.
 This supersedes the earlier publication hold; prior proof stays bound to its
 recorded source. Hosted CI qualifies this new integration. Later A waves
 and overall program acceptance remain open.
+
+
+### F authorized resume status (2026-10-14)
+
+Lane `rsc-f-agents` now has an authorized native Codex apply and exact rollback,
+a lasting legacy-key check, zero model drift, a successful pinned native probe,
+and explicit retained-capability dispositions. Package/parity evidence and the
+PR are in its dated handoff. Acceptance paths include
+`history/receipts/stage-5-f-config-fingerprint.json` and
+`history/receipts/stage-5-f-observed-after.json`. The driver owns the independent
+panel and the merge gate. Program operational acceptance remains open for the
+measured/external prerequisites named in RSC-F-DISPOSITIONS-20261014.

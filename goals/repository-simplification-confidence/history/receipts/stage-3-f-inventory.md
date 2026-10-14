@@ -160,3 +160,32 @@ The implementation keeps missing primary keys/markers fail-closed and edits
 all shell matches. The live Claude script preview reports no change for
 Fable 5.1 and medium effort. Full inventory dispositions, native activation
 workflows, telemetry windows, and panel acceptance remain open.
+
+## Authorized resume and final dispositions
+
+The operator's explicit scope grant resolves the earlier scope block. The
+October 14 routing refresh is authoritative; there is no remaining model
+source conflict. ModelsApply and restore are implemented and qualified, and
+native Codex cleanup has run with byte-exact rollback. The current execution
+boundary and retained-surface decisions are RSC-F-NATIVE-20261014,
+RSC-F-HOOKS-20261014 and RSC-F-DISPOSITIONS-20261014 in SPEC. Earlier status
+paragraphs above describe the pre-apply checkpoint, not the current dispatch.
+
+Repository hook registration now has PostToolUseFailure and SessionStart pulse
+callbacks. Stale guarded repository Impeccable callbacks were removed under A's
+approved retirement. Models and specialist capability retention remain as
+recorded. `skills update` regenerated only its lock; its fresh check is the
+projection evidence. No tracked Claude payload or home Claude file was written.
+
+Junie native fixed-prompt execution fails with missing authorization. Chat mode
+is unavailable in the installed release. Both are observed failures. Cursor's
+native fixed prompt remains unqualified under the exact state-write boundary.
+Neither is replaced with a synthetic successful benchmark. Docker remains the
+shared legacy service; RSC-F-DISPOSITIONS-20261014 names its target owner and
+external apply boundary. No capability is retired from incomplete telemetry.
+
+
+The final source adopts the H3 Codex thin-adapter contract for hook-pulse too.
+Eight spike events preserve core payloads, and SessionStart gains the canonical
+stamp. The earlier note retaining the divergent body is superseded; the old
+body is backed up in the lane. Native event qualification remains open.

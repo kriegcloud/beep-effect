@@ -1,178 +1,150 @@
-# F source implementation handoff — 2026-10-14
+# F authorized native configuration handoff (2026-10-14)
 
-This is a blocked source checkpoint, not a final F PR or a frozen panel input.
-The qualified source candidate below is separate from the packet's containing
-documentation commit. No push, PR, ready transition, gate sentinel, merge, or
-retirement was performed.
+Source content is final for this wave; publication metadata is filled after the final main integration. Program operational
+acceptance remains open for the explicit measured and external-owner gates.
+The driver owns the independent panel, merge, and any later retirement.
 
 ```text
 lane: rsc-f-agents
-head: 8f47fcd4bb01912e43418906d2738d5d360b21f7 (source candidate)   PR: none
-package-verify: @beep/repo-cli: pass (full default audit 1213.8s; docgen 40.3s)
-hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> pass | pass | pass | pass (0 live gated observations) | pass (0 findings) | pass (142 tests; all four touched baseline floors exceeded)
-config fingerprint (final): NOT FROZEN; observed-native set 1f035829ecf40e425859b1421e285512841852dc765462baaa934e8f708d9b4d at 20:04:25Z   backups: existing rsc-stage1-20261009T155100Z--{.codex__config.toml,.claude__settings.json,.config__beep__models.yaml}; .beep/rsc-f-repo-backups/{law-pulse.sh,hook-pulse-switch.sh,graft.SKILL.md}; synthetic journal models-2026-10-14T202210287Z-b387cc; no new home apply backup
+head: pending publication   PR: none yet
+package-verify: @beep/repo-cli: pass (default audit 1076.0s; full docgen 39.2s)
+hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> inherited fail (AgentMessage TS377032) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
+config fingerprint (final): 559eaa31dab31e279ae0c808905a0d58e4e5370282c35852860924ac7a142025   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-14.md
-open items: BLOCKED source checkpoint; lane-only/home-write scope clarification unanswered; native applies, Boolean trust-field extension, Codex agent projections, H3/H4 integration/re-trust, Docker allowlist/profile compatibility, home duplicates/default-load/secret-reference migrations, full native workflow and matched measurements, all current-fingerprint 30-session windows, full F ledger mapping, fresh main integration before publication, final fingerprint and driver panel; no PR/review reply ids
+open items: incomplete current-fingerprint 30-session windows; Junie authorization; native SessionStart/root-child and namespace/OTel/archive qualification; Cursor isolated-state qualification; external gateway and operator-run Claude transformations; retained agent projections and native links; matched native measurements; driver panel; hosted PR review
 ```
 
-## What changed
+## Changes and native evidence
 
-- Fetched and merged main into the lane. Resolved the packet README conflict
-  as a union and completed merge 313e7da0b7. Frozen install succeeded without
-  a manifest or lock change; the initial missing workspace module was an
-  install prerequisite, not a source defect.
-- Read the complete lane brief, latest F/resume rulings, the previous handoff,
-  source contracts and backup ownership receipt. The 19:55Z routing ruling
-  supersedes the older pins. The current offline check reports zero drift;
-  no shared manifest was edited.
-- Implemented schema-first owned write requests/spans/modes/journals,
-  ModelsApply, apply/check/dry-run/restore CLI, and all eleven locator grammars.
-  Scalar writes require existing unambiguous addresses; generated markers and
-  primary JSON pointers fail closed when missing. All shell matches are
-  checked. No general configuration manager was introduced.
-- Writer validation asserts parsed non-owned TOML/JSON equality and exact
-  reconstruction outside owned spans. Writes use exclusive private backups,
-  journal before rename, same-directory staging, mode preservation, drift
-  fences, and idempotent rollback refusing subsequent native changes.
-  Native UTF-8 decoding rejects invalid bytes and preserves a BOM. Parser
-  input/cause is omitted from native validation errors.
-- Skills writes have backup and atomic file replacement. Remote payloads are
-  backed up before staged publication. Unknown parent/row/subtable fields
-  survive; unknown undiscovered rows are retained; repeat write/check is
-  idempotent. The operator must still run the S2 projection-update route.
-- Removed three confirmed repository duplicate owners. Two Codex hooks
-  delegate to their byte-identical canonical scripts; Grok graft is a
-  relative canonical link. The distinct Codex hook-pulse remains separate.
-- Supported ledger writer appended proposal hl-20261014-2e87155d and admitted
-  disposition hl-20261014-2b463e1a for duplicate removal. Approved pilot
-  tombstones are hl-20261014-9e833571 and hl-20261014-69d53a31. Original ledger
-  bytes are unchanged. The in-regime SessionStart chain remains pending H3
-  proof; no observation window was fabricated.
-- Added a bounded JSONL spelling exception only for hexadecimal ref fields
-  after the commit hook treated an immutable short SHA as a word. Policy
-  fingerprint and cache-profile owner commands ran; no generated-file diff
-  remained. All prose continues to be spell-checked.
+The explicit scope grant resolves the previous dispatch's scope block. F
+merged main after the merge gate opened and applied the prescribed schema
+codemod. Its three new data classes are branded Opaque models. A missing
+ModelsTargetFile.make call, two branded test fixtures, and one branded JSDoc
+example were repaired without weakening checks. Current source build/check,
+local docgen and 154 scoped tests pass.
 
-## Source commits and evidence
+The earlier source checkpoint implemented ModelsApply and restore, all eleven
+locator grammars, parsed non-owned-key comparison, exact span preservation,
+exclusive private backups, drift fences, strict UTF-8, and journal recovery.
+Skills writes now back up and replace atomically while retaining unknown
+skills keys and native rows. This wave adds a bounded top-level TOML removal
+operation and `beep models codex-permissions --check|--dry-run|--write`.
+Only the legacy sandbox_mode assignment is owned. Missing model addresses
+still fail closed. Model pins are never part of this command's writes.
 
-- a55e569743: ModelsApply/restore, grammar spans, skill-write safety and fixtures.
-- 2f6f04c337: missing remote staging parent and JSDoc layout repairs.
-- cc2063ede325a958e5d9db5be1ad6d837b1e1a63: canonical hook/skill delegation.
-- cce526421c: symlink containment and hexadecimal ledger-ref spelling.
-- c353719e45: shared filter reuse, smaller validation/projection decisions,
-  direct CLI coverage, native-error privacy and strict UTF-8 fidelity.
-- 8f47fcd4bb: two supported docgen categories; runtime source is unchanged.
+The actual native Codex config had 496 projects and 325 hook-state entries.
+The legacy assignment was removed through ModelsApply, with all other parsed
+keys and bytes equal to the backup. A fresh safety copy preceded actual native
+journal restoration. The restored bytes equal the original; reapplying equals
+the cleaned safety copy. Both restore and final apply parse the staged
+same-directory TOML before atomic rename. The native key-return check passes,
+online model check has **0 findings**, and the required pinned read-only Codex
+probe **passes**. Codex remains **gpt-6.1-sol / medium**. These checks were
+repeated after native callback probing.
 
-142 tests across eleven files pass in scoped Node/V8 coverage. Coverage exceeds
-all four touched baseline rows in every recorded dimension; see
-`history/receipts/stage-5-f-after-measurement.md`. No baseline was weakened.
-The coverage read is at c353719e45; the successor changes only two JSDoc
-category annotations. Source check passes. Admitted Fallow audit/health report zero findings after
-three introduced complexity findings were repaired.
+The final configuration set covers 327 files and is recorded in
+`history/receipts/stage-5-f-config-fingerprint.json`. The collector reports
+paths, sizes and SHA-256 only. Its final set is rechecked before publication.
+Any change after this freeze requires a new panel input; no earlier panel
+verdict is treated as final acceptance.
 
-Synthetic hook probes compare five-call law payloads and both switch
-disarm/status/arm/status lifecycles. CLI apply/restore produces an exact byte
-round trip, and a symlink escaping its declared synthetic home is refused
-before mutation. These probes write only beneath the lane's gitignored .beep.
-The native-error fixture contains a synthetic credential marker; it never
-appears in the typed error and no backup is created on validation failure.
+## Duplicate and event behavior
 
-Earlier failed runs are attributed in `research/OPPORTUNITIES.md`. The first
-direct check lacked built declarations. A long run loaded old modules during
-the edit loop; its eleven failures are repaired on the candidate. A later
-run's non-repository fixtures discovered the checkout because TMPDIR was
-beneath it. The first private namespace mapped the host root owner to an unmapped UID;
-Graft correctly rejected two trust fixtures (6,430/6,432 tests passed). Full
-docgen passed in that run. The corrected invocation uses a lane-owned root
-and binds lane-owned scratch at /tmp in a private namespace under beep-heavy.
-All six dedicated Graft fixtures pass with trusted ancestor ownership; no
-production trust check was weakened. The terminal default package gate passes:
-audit 1,213.8 seconds and full docgen 40.3 seconds. The terminal script runs
-all proof stages serially with source held fixed. One early
-Fallow diagnostic bypassed admission accidentally; only the subsequent
-admitted zero-finding results are acceptance evidence.
+Four repository duplicate payload owners now delegate to their canonical
+sources: Codex law-pulse, hook-pulse-switch, hook-pulse, and Grok graft. The
+first two retain the earlier five-call/switch-lifecycle proof. The pulse
+adapter follows H3's four-line contract. Eight isolated spike events preserve
+all compared core Codex fields and omit synthetic private tool input.
+SessionStart gains the canonical harness stamp. The existing canonical writer
+conformance suite passes **71 tests**. No Claude canonical file was modified.
 
-## Terminal source gates
+Codex now registers PostToolUseFailure and SessionStart callbacks. Stale guarded
+repository Impeccable callbacks were removed under A's approved retirement.
+A native pinned read-only probe returns OK and emits UserPromptSubmit, Stop,
+and SessionEnd rows in an isolated spike directory. It emits no observed
+SessionStart row. Those probes contribute **zero qualifying window sessions**.
+Native failure rate remains **not recorded**. No trust boolean, namespace,
+root/child inference, or archive credential was guessed.
 
-The admitted terminal script `.beep/rsc-f-terminal-proof.sh` completed with
-exit 0. Each stage records source head
-8f47fcd4bb01912e43418906d2738d5d360b21f7 in
-`.beep/rsc-f-terminal-proof-results.tsv`. Per-stage logs are
-`.beep/rsc-f-terminal-<stage>.log`. These are local parity results, not hosted
-PR checks. The containing packet commit changes only receipts and ledger rows.
+`beep skills update` regenerated only skills-lock.json. Its terminal check
+reports current; no tracked Claude payload was written. Repo backup is
+`.beep/skills-backups/skills-lock.json.2026-10-14T222456035Z-1511155`.
+No home Claude file was written. The operator-only defaults script remains
+`.beep/rsc-f-claude-defaults.sh`; dry-run reports change=false for both current
+Fable 5.1 and medium effort. It uses ModelsApply for any later authorized apply.
 
-| Command (through beep-heavy) | Terminal result |
-| --- | --- |
-| beep quality package-verify @beep/repo-cli | pass; full audit 1,213.8s, docgen 40.3s |
-| beep docgen local --base origin/main | pass; both selected packages, 36.9s |
-| beep quality test-tsgo | pass; 363 files, one package; 151 covered by check scripts |
-| beep ci lane jsdoc-ratchet | pass; zero non-generated legacy findings; missing examples 4 vs 8 |
-| CI=true beep knowledge refs --check | pass; zero live gated observations; archival observations retained |
-| beep quality fallow audit | pass; zero findings |
-| beep quality fallow health | pass; zero findings |
-| scoped Node/V8 coverage read | pass; 142 tests in 11 files, all four existing touched floors exceeded |
+## Measurements and limits
 
-No baseline was relaxed. The coverage read binds the preceding runtime-equivalent
-source candidate c353719e45; its successor changes only JSDoc categories.
-A fresh offline model check again reports hasDrift=false and zero findings.
-The initial main integration is retained; merge fresh main before any later
-publication wave and rerun checks affected by that integration.
+Before evidence landed before any F apply. The after collector repeats the
+same bounded local-store extraction. Historical medians are labeled as such,
+and n<20 remains n<20. They are not a matched intervention study and do not
+qualify the 30-session gate. Stored duplicate reduction is not context-token
+or filesystem-capacity savings. Byte/4 remains an estimate wherever used.
 
-## Native scope, scripts and recovery
+The native Grok fixed-prompt probe passes on grok-4.7-build with explicit medium
+effort and no tool invocation. Its one-turn counts are 47,038 input tokens,
+1,280 cache-read input tokens, 28 output tokens and costUsdTicks 322,605,600.
+No dollar conversion or saving is claimed. Junie's ordinary probe fails with
+missing authorization; its installed release rejects chat mode. No login,
+credential copying, purchase, quota top-up or provider fallback was attempted.
+Cursor has no admitted native probe under a proved isolated-state route.
 
-The latest private F ruling allows named non-Claude home applies; this
-dispatch again explicitly says to work only inside the lane. Clarification
-was asked while independent source work continued. No response was received,
-and no home file was applied. Session open was read; a workstation session note
-was not written because that ledger is outside the explicit lane-only boundary. Actual native write/activation work remains
-open. Model defaults are already current against the manifest.
+Every retained/deferred surface has its reason, owner and reconsideration
+condition in RSC-F-DISPOSITIONS-20261014. This includes the shared gateway,
+Claude plugins/memory/headers and clone policy, native links and extra profiles,
+Junie guidelines/ACP, Codex agent projections, nested instruction links, Grok
+compatibility, claudem, and each H3 handoff item. They are not silently counted
+as completed migrations. Dynamic discovery is off and code mode excluded.
+The current-fingerprint window begins at the final capture, with qualifying
+count unknown. Missing telemetry never authorizes retirement.
 
-Prepared operator-only script: `.beep/rsc-f-claude-defaults.sh`. It defaults to
---dry-run, accepts --apply, uses ModelsApply, prints a journal restoration id
-after a write, and runs the offline drift check. Its live --dry-run output is:
+## Qualification records
 
-```text
-preview home.claude.settings [json-key] change=false expected=claude-fable-5-1
-preview home.claude.settings [json-key] change=false expected=medium
-dry-run home.claude.settings; no file written
-```
+All heavy work runs through beep-heavy. The inherited AgentMessage
+TS377032 file matches origin/main byte for byte, SHA-256
+58f9d3318a5b3699508ea3537ae5284f63c309326c844a366f4efba35789c800.
+Its separate repair lane owns it. F does not copy the fix. JSDoc ratchet,
+knowledge refs, retired Effect paths and schema-first are green. Fallow audit
+and health report zero findings after the introduced complexity repair.
+No baseline or allowlist was relaxed.
 
-No script was applied. The broader Claude harness/default-load migration
-scripts and native Boolean ownership are still remaining implementation,
-not implied by this no-op defaults preview. All native capability decisions
-without a complete qualifying window retain the capability.
+Current source records are `.beep/rsc-f-qualified-results.tsv`,
+`.beep/rsc-f-qualified-*.log`, `.beep/rsc-f-resume-parity-results.tsv`, and
+`.beep/rsc-f-resume-test-tsgo-2.log`. The first docgen attempt failed on the
+branded example; the qualified rerun passes. The qualified coverage read
+passes 154 tests across 11 files and exceeds all four touched existing rows.
+The native adapter suite has 71 additional passing conformance tests.
 
-Existing stage-1 backup copies remain verified and retained:
+The original full package checkpoint at 8f47fcd4bb passed its default audit
+and full docgen. The current full package invocation passes its default audit in 1,076.0s and
+full docgen in 39.2s. Final integrated checks follow the last main merge. An initial invocation
+without user-bus variables ran no proof. The accepted invocations carry the
+standard runtime and bus environment and preserve the admission queue.
 
-- rsc-stage1-20261009T155100Z--.codex__config.toml
-- rsc-stage1-20261009T155100Z--.claude__settings.json
-- rsc-stage1-20261009T155100Z--.config__beep__models.yaml
+## Ledger and reversal
 
-They must not be blindly restored over newer native state. Fresh per-apply backups are required.
-Lane-local duplicate backups are in `.beep/rsc-f-repo-backups/`: law-pulse.sh,
-hook-pulse-switch.sh and graft.SKILL.md. Synthetic CLI recovery journal is
-models-2026-10-14T202210287Z-b387cc; its restore round trip already passed.
-Repository reversal is git revert of the named source commits.
+Supported append-only writer chains:
 
-The live global Impeccable integration emitted design hints on these non-UI
-test edits and created `.impeccable/live/pending-manual-edits.json`. That
-plugin-owned state remains untracked and is not published or deleted.
+- native removal and event registration: hl-20261014-70942f58 to
+  hl-20261014-e979a4ad, admitted under the explicit scope grant and wave-2 ruling;
+- canonical pulse adapter: hl-20261014-70a2e773 to hl-20261014-fb2e0a5d;
+- earlier hook/graft duplicates: hl-20261014-2e87155d to hl-20261014-2b463e1a;
+- original SessionStart proposal hl-20260929-2072a6f9 now deferred by
+  hl-20261014-23354455 behind native qualification;
+- approved pilot tombstones remain hl-20261014-9e833571 and
+  hl-20261014-69d53a31. Rejected historical heads are unchanged.
 
-## Acceptance boundaries
+Final native reversal:
+`beep models restore --journal models-2026-10-14T222525456Z-12665845`.
+The journal is in the normal private config-backups directory and refuses
+later native drift. Its backup is named in the report and SPEC Decision Log.
+The earlier journal and fresh pre-rollback backup remain retained. Stage-1
+backups also remain intact; they must never be blindly restored over newer
+native state. Repository reversal is revert of the F PR.
 
-The before snapshot remains historical. The 20:04:25Z native observation is
-supplemental and unfrozen. Stored duplicate text decreased by 20,286 bytes;
-this is neither reclaimed filesystem capacity nor measured context/token
-savings. Fresh native prompts, activation latency, per-surface n>=20 matched
-measurements, cost-window deltas, current-regime 30-session qualification,
-complete inventory dispositions and final operational acceptance remain open.
-The Docker gateway remains the installed shared legacy service; dynamic
-discovery and experimental code mode stay off.
+The untracked `.impeccable/live/` residue is plugin-owned and preserved.
+No other lane, root manifest/lock, model manifest, effect-law allowlist or
+service unit was edited. No merge or lane retirement is performed by F.
+The driver runs the three-model panel at this source/configuration pair.
 
-No edits were made to another lane, the model manifest, root workspace
-manifest/lock, effect-law allowlists, or tracked Claude harness settings. No
-paid endpoint, account purchase, provider fallback, or independent panel was
-launched. The driver owns the panel once F has a final reviewed fingerprint.
-No final gate sentinel is written for this incomplete workstream.
-
-Graft retrieval saved approximately 28,869 tokens in this source discovery.
+Graft retrieval saved approximately 27,822 tokens in two successful queries.

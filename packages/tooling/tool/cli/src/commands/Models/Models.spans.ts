@@ -4,8 +4,9 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { A, O, pipe, Str } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
@@ -175,6 +176,18 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
   content: string,
   request: ModelsLocatorWrite
 ): Effect.fn.Return<ReadonlyArray<ModelsWriteSpan>, ModelsLocatorError> {
+  if (request.remove === true) {
+    if (request.locator._tag !== "toml-top-level-key")
+      return yield* error("Removal owns only a top-level TOML assignment.");
+    const bounds = yield* tableRegion(content, O.none());
+    const end = O.getOrElse(A.get(bounds, 1), () => Str.length(content));
+    const matches = captures(
+      Str.slice(0, end)(content),
+      new RegExp(`(^[ \t]*${escape(request.locator.key)}[ \t]*=[^\r\n]*(?:\r?\n|$))`, "gmd"),
+      ""
+    );
+    return A.length(matches) > 1 ? yield* error("Removal address is ambiguous.") : matches;
+  }
   const quoted = yield* encodeString(request.expected).pipe(ModelsLocatorError.mapError("Cannot encode scalar."));
   const expected = request.expected;
   return yield* Match.value(request.locator).pipe(
@@ -331,8 +344,9 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
  *
  * ```ts
  * import { modelsApplySpans } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import { ModelsWriteSpan } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
  * import * as Effect from "effect/Effect"
- * console.log(Effect.isEffect(modelsApplySpans("abc", [{ start: 1, end: 2, before: "b", after: "B" }])))
+ * console.log(Effect.isEffect(modelsApplySpans("abc", [ModelsWriteSpan.make({ start: 1, end: 2, before: "b", after: "B" })])))
  * ```
  *
  * @category utilities

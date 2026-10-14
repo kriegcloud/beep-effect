@@ -78,6 +78,33 @@ const consoleLayer = Layer.effect(Console.Console, TestConsole.make);
 layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer, consoleLayer), {
   timeout: "30 seconds",
 })((it) => {
+  it.effect("checks legacy Codex permission drift, preserves pins, and journals removal", () =>
+    Effect.scoped(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const [home, , manifest] = yield* fixture();
+        const dir = path.join(home, ".codex");
+        yield* fs.makeDirectory(dir);
+        const file = path.join(dir, "config.toml");
+        const before = 'sandbox_mode="danger-full-access"\n' + native;
+        yield* fs.writeFileString(file, before);
+        const flags = ["--home", home, "--repo", home, "--manifest", manifest];
+        yield* run(["codex-permissions", ...flags]);
+        expect(yield* fs.readFileString(file)).toBe(before);
+        expect((yield* Effect.result(run(["codex-permissions", ...flags, "--check"])))._tag).toBe("Failure");
+        expect((yield* Effect.result(run(["codex-permissions", ...flags, "--check", "--write"])))._tag).toBe("Failure");
+        yield* run(["codex-permissions", ...flags, "--write"]);
+        expect(yield* fs.readFileString(file)).toBe(native);
+        yield* run(["codex-permissions", ...flags, "--check"]);
+        const journals = yield* fs.readDirectory(path.join(home, ".config-backups"));
+        expect(journals).toHaveLength(2);
+        yield* run(["codex-permissions", ...flags, "--write"]);
+        expect(yield* fs.readDirectory(path.join(home, ".config-backups"))).toHaveLength(2);
+      })
+    )
+  );
+
   it.effect("previews every owned target, writes one target idempotently, and restores its journal", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;

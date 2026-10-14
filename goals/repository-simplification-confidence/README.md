@@ -5,16 +5,20 @@
 Lifecycle: `active`. The program remains in implementation; operational
 acceptance and the final F panel are open.
 
-F has a local owned-field writer and restore implementation with synthetic
-native-preservation proof. Default package verification and all terminal
-local parity gates pass; scoped coverage exceeds every touched existing floor. The wave-2 ruling resolves the older model-route
-conflict. Actual home applies remain pending clarification of this dispatch's
-lane-only write instruction. No configuration was applied and F operational
-acceptance, full measurements, publication, and panel remain open.
+F has implemented ModelsApply and restore, repaired skill-write safety and
+removed confirmed repository duplicate payloads. The authorized native Codex
+legacy permission cleanup and byte-exact rollback now pass; model drift is
+zero and the pinned native probe passes. Current source qualification and
+publication state are in the [F handoff](history/handoffs/rsc-f-agents-2026-10-14.md).
+The [configuration fingerprint](history/receipts/stage-5-f-config-fingerprint.json)
+is the driver panel input, subject to an equality check at publication.
 [Before measurement](history/receipts/stage-3-f-before-measurement.md),
 [inventory](history/receipts/stage-3-f-inventory.md), and
-[current handoff](history/handoffs/rsc-f-agents-2026-10-14.md) retain the evidence
-and exact limits.
+[after measurement](history/receipts/stage-5-f-after-measurement.md) distinguish
+proved changes from native activation gaps. The program remains active.
+Junie authorization, incomplete telemetry windows, external service/Claude
+owner actions, and the independent panel remain open. No zero-use retirement
+or causal context/cost saving is claimed.
 
 The October 14 wave-2 resume ruling records A #1584, H2 #1574, and B #1738 as
 merged. H2 follow-up #1744 also landed. Other lane receipts below retain the

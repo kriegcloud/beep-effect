@@ -23,9 +23,9 @@ import { XMLParser } from "fast-xml-parser";
 import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
 import { decodeTomlTextWith, decodeYamlTextWith } from "../../internal/schema/TextCodec.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
-import { ModelsApplyJournal } from "./Models.manifest.schemas.ts";
+import { ModelsApplyJournal, ModelsWriteSpan } from "./Models.manifest.schemas.ts";
 import { modelsApplySpans, modelsWriteSpans } from "./Models.spans.ts";
-import type { ModelsApplyMode, ModelsLocatorWrite, ModelsWriteSpan } from "./Models.manifest.schemas.ts";
+import type { ModelsApplyMode, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.apply.service");
 const encodeJournal = S.encodeEffect(S.fromJsonString(ModelsApplyJournal));
@@ -44,7 +44,11 @@ const maskOwned = (value: unknown, paths: ReadonlyArray<ReadonlyArray<string>>):
       A.drop(1)
     );
   if (A.isArray(value)) return A.map(value, (child, index) => maskOwned(child, childPaths(`${index}`)));
-  if (S.is(nativeFields)(value)) return R.map(value, (child, key) => maskOwned(child, childPaths(key)));
+  if (S.is(nativeFields)(value))
+    return R.map(
+      R.filter(value, (_, key) => !A.some(childPaths(key), A.isReadonlyArrayEmpty)),
+      (child, key) => maskOwned(child, childPaths(key))
+    );
   return value;
 };
 
@@ -90,6 +94,36 @@ const assertNativeFields = Effect.fnUntraced(function* (
       jsonPaths
     );
   }
+});
+
+const assertOwnedBytes = Effect.fnUntraced(function* (
+  before: string,
+  after: string,
+  writes: ReadonlyArray<ModelsLocatorWrite>,
+  spans: ReadonlyArray<ModelsWriteSpan>
+) {
+  const previousByOrder = A.sort(
+    spans,
+    Order.mapInput(Order.Number, (entry: ModelsWriteSpan) => entry.start)
+  );
+  let shift = 0;
+  const reversed = A.map(previousByOrder, (previous) => {
+    const start = previous.start + shift;
+    shift += Str.length(previous.after) - Str.length(previous.before);
+    return ModelsWriteSpan.make({
+      start,
+      end: start + Str.length(previous.after),
+      before: previous.after,
+      after: previous.before,
+    });
+  });
+  // Re-resolve all owned locators, including absent-key removal assertions.
+  for (const write of writes) {
+    const resolved = yield* modelsWriteSpans(after, write);
+    if (write.remove === true && A.isReadonlyArrayNonEmpty(resolved))
+      return yield* failure("Removed native key returned during projection.");
+  }
+  if ((yield* modelsApplySpans(after, reversed)) !== before) return yield* failure("Non-owned native bytes changed.");
 });
 
 /**
@@ -192,12 +226,25 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     return `models-${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
   });
 
-  const atomic = Effect.fnUntraced(function* (file: string, beforeHash: string, after: string, mode: number) {
+  const atomic = Effect.fnUntraced(function* (
+    file: string,
+    beforeHash: string,
+    after: string,
+    mode: number,
+    writes: ReadonlyArray<ModelsLocatorWrite> = []
+  ) {
     const temporary = `${file}.${yield* suffix}.tmp`;
     yield* Effect.scoped(
       Effect.acquireUseRelease(
         fs.writeFileString(temporary, after, { flag: "wx", mode: 0o600 }).pipe(io, Effect.as(temporary)),
         Effect.fnUntraced(function* () {
+          const staged = yield* readNative(temporary);
+          if (staged !== after) return yield* failure("Staged configuration differs from the validated candidate.");
+          yield* validate(staged, writes);
+          if (Str.endsWith(".toml")(file))
+            yield* decodeTomlTextWith(S.decodeUnknownEffect(S.Unknown))(staged).pipe(
+              Effect.mapError(() => failure("Invalid staged TOML target."))
+            );
           yield* fs.chmod(temporary, mode).pipe(io);
           const current = yield* readNative(file);
           if ((yield* hash(current)) !== beforeHash)
@@ -223,25 +270,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       yield* assertNativeFields(before, after, writes);
       // Re-resolve every address in the candidate. Replacing only those spans with
       // the old scalar bytes must reconstruct the complete original native file.
-      const nextSpans = yield* Effect.forEach(writes, (write) => modelsWriteSpans(after, write), {
-        concurrency: 1,
-      }).pipe(Effect.map(A.flatten));
-      const previousByOrder = A.sort(
-        spans,
-        Order.mapInput(Order.Number, (entry: ModelsWriteSpan) => entry.start)
-      );
-      const nextByOrder = A.sort(
-        nextSpans,
-        Order.mapInput(Order.Number, (entry: ModelsWriteSpan) => entry.start)
-      );
-      if (A.length(previousByOrder) !== A.length(nextByOrder))
-        return yield* failure("Owned address set changed during projection.");
-      const reversed: ReadonlyArray<ModelsWriteSpan> = A.zipWith(nextByOrder, previousByOrder, (next, previous) => ({
-        ...next,
-        after: previous.before,
-      }));
-      if ((yield* modelsApplySpans(after, reversed)) !== before)
-        return yield* failure("Non-owned native bytes changed.");
+      yield* assertOwnedBytes(before, after, writes, spans);
       if (after === before) return O.none();
       if (mode === "check") return yield* failure("Owned configuration drift detected.");
       if (mode === "dry-run") return O.none();
@@ -264,7 +293,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       yield* fs
         .writeFileString(path.join(backupDirectory, `${id}.json`), encoded, { flag: "wx", mode: 0o600 })
         .pipe(io);
-      yield* atomic(actual, journal.beforeHash, after, info.mode);
+      yield* atomic(actual, journal.beforeHash, after, info.mode, writes);
       if ((yield* hash(yield* readNative(actual))) !== journal.afterHash)
         return yield* failure("Native file changed after replacement; preserve journal for recovery.");
       return O.some(journal);

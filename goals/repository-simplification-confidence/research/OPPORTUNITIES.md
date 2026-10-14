@@ -2078,3 +2078,30 @@ checks. All six dedicated Graft fixtures pass. The default package gate is
 rerun through that corrected environment, with source held fixed. Bounded
 docgen additionally rejected two unsupported `editing` category annotations;
 the source now uses the existing `utilities` category.
+
+### F resume: native activation prerequisites and codemod fixup (2026-10-14)
+
+- Work: fixed-prompt Junie activation before matched measurement. Evidence:
+  installed Junie rejects chat mode, and ordinary mode returns "Cannot find
+  authorization." No login, credential material, or fallback was attempted.
+  Prevention: qualify the installed CLI and its existing authorized account
+  before admitting a matched harness benchmark. F retains the capability.
+- Work: post-schema-codemod test repair. Evidence: rerunning fixup against an
+  already consumed diagnostic log wrapped the adjacent string fixture and
+  selected a root export without a runtime binding. Both source mistakes are
+  repaired; no production check was weakened. Prevention: bind fixup input to
+  the exact diagnostic source revision and reject stale offsets.
+- Work: admitted verification. Evidence: first beep-heavy invocation could not
+  reach the user bus because its environment was missing. It ran no proof.
+  Corrected invocations supply the standard user runtime and bus variables.
+  Prevention: the wrapper should infer the existing user manager safely.
+
+### F resume: post-codemod example and validation complexity (2026-10-14)
+
+The first fresh local docgen finds an unbranded ModelsWriteSpan literal in a
+JSDoc example, introduced by converting the schema to branded Opaque. The
+example now constructs through ModelsWriteSpan.make. Fallow also finds the
+owned-write workflow at cognitive complexity 9 against its threshold 8. The
+byte-reconstruction assertion is now its own validation operation; no waiver
+or baseline change was made. Prevention: codemod example qualification and
+keeping candidate validation separate from I/O orchestration.

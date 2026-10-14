@@ -29,8 +29,8 @@ import { CatalogSnapshot } from "./Models.catalog.schemas.ts";
 import { ModelsCatalogOptions } from "./Models.catalog.service.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
 import { bindLocatorModel } from "./Models.locator.service.ts";
-import { ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
-import { ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
+import { LocatorBinding, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
+import { ModelsTargetFile, ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
 import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
 import { ModelsCheckReport } from "./Models.report.schemas.ts";
 import { seedModelsManifest } from "./Models.seed.ts";
@@ -375,7 +375,7 @@ const previewModelWrites = Effect.fnUntraced(function* (
   const content = yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
   for (const request of writes) {
     const current = yield* reader
-      .read({ root: target.root, absolutePath: file, content }, request.locator)
+      .read(ModelsTargetFile.make({ root: target.root, absolutePath: file, content }), request.locator)
       .pipe(Effect.mapError(ModelsCommandError.fromInternal));
     yield* Console.log(
       `models: preview ${target.id} [${request.locator._tag}] change=${!O.contains(current, request.expected)} expected=${request.expected}`
@@ -429,6 +429,51 @@ const applyCommand = Command.make(
   })
 ).pipe(Command.withDescription("Check or preview owned native fields; --write backs up and journals each replacement"));
 
+const codexPermissionsCommand = Command.make(
+  "codex-permissions",
+  {
+    ...modelsFlags,
+    check: Flag.Boolean("check").pipe(Flag.withDefault(false)),
+    dryRun: Flag.Boolean("dry-run").pipe(Flag.withDefault(false)),
+    write: Flag.Boolean("write").pipe(Flag.withDefault(false)),
+  },
+  Effect.fn("ModelsCommand.codexPermissions")(function* (flags) {
+    if (A.length(A.filter([flags.check, flags.dryRun, flags.write], (value) => value)) > 1)
+      return yield* ModelsCommandError.make({ message: "Choose one of --check, --dry-run, --write." });
+    const paths = yield* resolvePaths(flags);
+    const path = yield* Path.Path;
+    const fs = yield* FileSystem.FileSystem;
+    const file = path.join(paths.home, ".codex", "config.toml");
+    const actual = yield* fs.realPath(file).pipe(ModelsCommandError.mapError("Cannot resolve Codex config."));
+    const home = yield* fs.realPath(paths.home).pipe(ModelsCommandError.mapError("Cannot resolve home."));
+    if (Str.startsWith("..")(path.relative(home, actual)) || path.isAbsolute(path.relative(home, actual)))
+      return yield* ModelsCommandError.make({ message: "Codex config resolves outside its home." });
+    const writer = yield* ModelsApply;
+    const request = ModelsLocatorWrite.make({
+      locator: {
+        _tag: "toml-top-level-key",
+        key: "sandbox_mode",
+        binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }),
+        render: { _tag: "verbatim" },
+      },
+      expected: "",
+      remove: true,
+    });
+    const mode = flags.write ? "write" : flags.check ? "check" : "dry-run";
+    const journal = yield* writer
+      .apply(file, [request], mode, path.join(paths.home, ".config-backups"))
+      .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    yield* Console.log(
+      O.match(journal, {
+        onNone: () => `models: codex-permissions ${mode} complete; no file written`,
+        onSome: (entry) => `models: codex-permissions journal ${entry.id}`,
+      })
+    );
+  })
+).pipe(
+  Command.withDescription("Detect or remove only legacy Codex sandbox_mode; model pins and native fields survive")
+);
+
 const restoreCommand = Command.make(
   "restore",
   {
@@ -477,7 +522,14 @@ export const modelsCommand = Command.make(
   Effect.fn(runCheck, Effect.catchTag("ModelsCommandError", failWithModelsError))
 ).pipe(
   Command.withDescription("Check every routing surface against the operator model manifest"),
-  Command.withSubcommands([checkCommand, catalogCommand, initCommand, applyCommand, restoreCommand]),
+  Command.withSubcommands([
+    checkCommand,
+    catalogCommand,
+    initCommand,
+    applyCommand,
+    codexPermissionsCommand,
+    restoreCommand,
+  ]),
   Command.provide(ModelsApplyLive),
   Command.provide(ModelsLive)
 );

@@ -1328,3 +1328,84 @@ namespace root preserves trusted ancestor ownership without changing Graft
 checks; all six dedicated trust fixtures pass. Reversal:
 remove the private binding from the test invocation after the dispatch permits
 an ordinary external temporary directory. No unrelated scratch is deleted.
+
+
+### RSC-F-NATIVE-20261014 (2026-10-14): owned Codex permission cleanup
+
+The operator's explicit F scope grant and wave-2 routing ruling authorize the
+named non-Claude native surfaces. The October 14 manifest supersedes older
+brief pins; Codex stays `gpt-6.1-sol` / `medium`. ModelsApply removes only the
+legacy `sandbox_mode` assignment with a validated same-directory atomic rename.
+Native project/trust state and all non-owned bytes are preserved. No model pin
+is written. Reversal: `beep models restore --journal
+models-2026-10-14T222221002Z-16103436`, backed by
+`~/.config-backups/models-2026-10-14T222221002Z-16103436.backup`.
+Synthetic restoration is byte-exact and refuses later drift. Online models
+check: zero findings; pinned read-only native Codex probe: pass. Detect return
+of the legacy key with `beep models codex-permissions --check`.
+
+### RSC-F-HOOKS-20261014 (2026-10-14): repair observable event registration
+
+Register Codex PostToolUseFailure and SessionStart pulse callbacks and delegate
+the Codex pulse body to the existing canonical writer. Remove stale guarded
+repository Impeccable callbacks under the approved A retirement. This fixes
+local wiring; native execution and root/child attribution remain a measured
+qualification gate owned by F and H3, with failure rate **not recorded** until
+ordinary native rows are witnessed. Reversal: revert the F hook diff. No
+home Claude file or live gateway service is changed.
+
+### RSC-F-DISPOSITIONS-20261014 (2026-10-14): retained surfaces and measured gates
+
+These are bounded dispositions under F step 5, not non-use claims. Every
+capability remains available. Reversal is to complete the named prerequisite
+and re-run F acceptance against a new configuration fingerprint.
+
+| Decision id | Surface / owner | Disposition, reason, and reconsideration gate |
+| --- | --- | --- |
+| F-DOCKER | Existing gateway service / workstation owner | Retain legacy explicit servers, dynamic discovery off, code mode excluded. Choose servers plus an explicit tools allowlist as the target owner (R56). Service units and Docker profiles are outside the exact home-write grant. Driver owns apply after representative workflows and profile compatibility; the observed 47-tool schema is the baseline, not a frozen allowlist. |
+| F-CLAUDE | Claude home / operator-run owner | No lane writes. Defaults preview is already change=false. Retain plugins, literal-header configuration, memory and clone-local policy until operator-run transformations with validated native client support are available. This also covers Impeccable, Azure, Discord, the four model seats, and memory above 24.4 KB. No observed-use window justifies removing them. |
+| F-NATIVE-LINKS | Home skills / installer owners | Retain broken links and extra Codex profiles. The exact grant excludes home skills, Air configuration and other clones. Missing consumers are not non-use evidence. Reconsider after owner-provided link repair and explicit consumer inspection. |
+| F-JUNIE | Native Junie and IDE ACP / Junie owner | Preserve launch model and Auto mode. Keep its instruction copy until a successful guidelines witness; normal CLI probe returns missing authorization. IDE ACP remains a distinct owner, with no fallback chain. Reconsider after the existing authorized account and an IDE witness work. |
+| F-CURSOR | Cursor native execution / Cursor owner | Retain existing native policy and tools. No native fixed-prompt run is admitted because the exact grant excludes Cursor session/config state and no supported isolated state directory was established. Reconsider after a supported lane-local state route or expanded owner scope; no sandbox policy is weakened. |
+| F-AGENT-PROJECTION | Codex agent definitions / F | Retain the seven distinct native TOML definitions pending a source-to-native semantic equivalence probe. Existing ai-sync owns schema validation, not a proved agent-body projection. Repository hook and graft duplicates are already reduced through canonical delegation. Reconsider when a generated projection preserves the native fields and each specialist invocation. |
+| F-H3-QUALIFY | Native Codex trust, root/child attribution, global namespace, desktop OTel, archive reference / F with H3 | Keep each as a measured gate, using H3 final delivery 826c032ed6 as source evidence. No trust booleans or secret references are guessed. Qualification requires the merged H3 collector, an ordinary native event witness, dated cutover, and accessible approved archive reference. Native failure rate remains not recorded. |
+| F-WINDOWS | Every harness / H3 collector | Window open since the final F fingerprint capture; qualifying current-regime count is unknown, never 30 by inference. Retain capabilities on demand. Reconsider retirement only after 30 qualifying sessions per affected surface and the approved workflow exclusion test. Historical samples and synthetic probes do not count. |
+| F-CLAUDEM | Native Muse wrapper / wrapper owner | Retain as an opt-in, unowned wrapper outside F's exact write grant. No fallback or ordinary default is added. Reconsider a manifest binding only with the wrapper owner's explicit surface contract. |
+
+The retained items above are not represented as completed migrations, measured
+latency wins, or accepted panel results. The three-model panel belongs to the
+driver and must evaluate the final reviewed source and configuration set.
+
+Native rollback was then verified against the actual Codex file, preserving a
+fresh pre-rollback copy first. Restoration matched the original backup exactly;
+reapply matched the pre-rollback cleaned bytes exactly. The final apply uses
+journal `models-2026-10-14T222525456Z-12665845`, with reversal backup
+`~/.config-backups/models-2026-10-14T222525456Z-12665845.backup`.
+The fresh safety copy is
+`~/.config-backups/rsc-f-pre-rollback-20261014T222520875693Z.backup`.
+Both restore and final apply parse the staged temporary TOML before rename.
+
+| Decision id | Surface / owner | Disposition, reason, and reconsideration gate |
+| --- | --- | --- |
+| F-NESTED-DOCTRINE | Twenty nested AGENTS owners | Retain their current instruction discovery until package owners qualify CLAUDE link activation. No body is deleted, and no existing link is replaced. Reconsider by creating relative AGENTS links with each owner's package-scoped instruction probe; reverse any added link by removing that link only. |
+
+
+| Decision id | Surface / owner | Disposition, reason, and reconsideration gate |
+| --- | --- | --- |
+| F-GROK-COMPAT | Native Grok compatibility / Grok owner | Preserve current compat fields. The native config has only the explicit Cursor MCP false field; Claude MCP/hook toggles are absent. F's scalar writer refuses missing addresses rather than guessing version-dependent insertion semantics. A pinned native OK probe passes with no tool invocation. Reconsider after the installed client's compatibility schema and plan-session activation steps are proved; reverse any later apply through its writer journal. |
+
+The current set was captured at 2026-10-14T22:37:38.214763Z. This begins the
+recorded qualification window; it does not create qualifying sessions. Native
+config equality must hold at the driver panel input and again at acceptance.
+
+
+### RSC-F-PULSE-ADAPTER-20261014 (2026-10-14): canonical Codex pulse writer
+
+Adopt the four-line Codex adapter described by H3, delegating to the canonical
+writer with `BEEP_HOOK_PULSE_AGENT_KIND=codex-cli`. Eight spike events preserve
+core payload equality and private-input omission. SessionStart gains the
+canonical harness stamp. This removes another duplicate without modifying
+Claude's canonical implementation. Reversal is the repository diff revert;
+the pre-adapter body remains in the private lane backup. Refreeze the final
+configuration set after this change. Native trust/root-child qualification
+and namespace cutover remain measured gates, not consequences of fixture success.
