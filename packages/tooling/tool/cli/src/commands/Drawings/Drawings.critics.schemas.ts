@@ -551,6 +551,16 @@ const encodeCriticPackManifestJson = S.encodeEffect(manifestCodec);
 /**
  * Decode a manifest from JSON text.
  *
+ * **Example** (A one-sheet pack)
+ *
+ * ```ts
+ * import { decodeCriticPackManifest } from "@beep/repo-cli/commands/Drawings"
+ * import * as Effect from "effect/Effect"
+ *
+ * const text = '{"schemaVersion":"drawing-critic-pack/v1","title":"Bracket","sheetSetSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","specSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","sheets":["render/pg-1.png"],"zooms":[],"svgs":["render/fig-1.svg"],"images":[],"strokeTable":"render/RENDER.md","brief":"BRIEF.md"}'
+ * Effect.runPromise(decodeCriticPackManifest(text)).then((manifest) => console.log(manifest.sheets)) // ["render/pg-1.png"]
+ * ```
+ *
  * @category decoding
  * @since 0.0.0
  */
@@ -558,6 +568,16 @@ export const decodeCriticPackManifest = (text: string) => decodeCriticPackManife
 
 /**
  * Encode a pack manifest as JSON text.
+ *
+ * **Example** (Round-trip a pack manifest)
+ *
+ * ```ts
+ * import { decodeCriticPackManifest, encodeCriticPackManifest } from "@beep/repo-cli/commands/Drawings"
+ * import * as Effect from "effect/Effect"
+ *
+ * const text = '{"schemaVersion":"drawing-critic-pack/v1","title":"Bracket","sheetSetSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","specSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","sheets":["render/pg-1.png"],"zooms":[],"svgs":["render/fig-1.svg"],"images":[],"strokeTable":"render/RENDER.md","brief":"BRIEF.md"}'
+ * Effect.runPromise(Effect.flatMap(decodeCriticPackManifest(text), encodeCriticPackManifest)).then(console.log)
+ * ```
  *
  * @category encoding
  * @since 0.0.0
@@ -633,6 +653,16 @@ const encodeCriticLoopRecordJson = S.encodeEffect(recordCodec);
 /**
  * Decode a record from JSON text.
  *
+ * **Example** (A loop with no runs yet)
+ *
+ * ```ts
+ * import { decodeCriticLoopRecord } from "@beep/repo-cli/commands/Drawings"
+ * import * as Effect from "effect/Effect"
+ *
+ * const text = '{"schemaVersion":"drawing-critic-loop/v1","loop":1,"sheetSetSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","runs":[]}'
+ * Effect.runPromise(decodeCriticLoopRecord(text)).then((record) => console.log(record.loop)) // 1
+ * ```
+ *
  * @category decoding
  * @since 0.0.0
  */
@@ -640,6 +670,16 @@ export const decodeCriticLoopRecord = (text: string) => decodeCriticLoopRecordJs
 
 /**
  * Encode a loop record as JSON text.
+ *
+ * **Example** (Round-trip a loop record)
+ *
+ * ```ts
+ * import { decodeCriticLoopRecord, encodeCriticLoopRecord } from "@beep/repo-cli/commands/Drawings"
+ * import * as Effect from "effect/Effect"
+ *
+ * const text = '{"schemaVersion":"drawing-critic-loop/v1","loop":1,"sheetSetSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","runs":[]}'
+ * Effect.runPromise(Effect.flatMap(decodeCriticLoopRecord(text), encodeCriticLoopRecord)).then(console.log)
+ * ```
  *
  * @category encoding
  * @since 0.0.0

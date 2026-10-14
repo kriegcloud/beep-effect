@@ -93,6 +93,14 @@ const SCRUBBED_ENV = HashSet.fromIterable([
 /**
  * The hard rules appended to every reviewer prompt.
  *
+ * **Example** (Every reviewer runs read-only)
+ *
+ * ```ts
+ * import { CRITIC_HARD_RULES } from "@beep/repo-cli/commands/Drawings"
+ *
+ * console.log(CRITIC_HARD_RULES.startsWith("Hard rules for this run: read only")) // true
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */

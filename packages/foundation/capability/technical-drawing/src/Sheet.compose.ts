@@ -682,7 +682,8 @@ export const drawnBrokenGapMm = (options: SheetOptions): number => {
  * **Example** (A sheet with one segment)
  *
  * ```ts
- * import { SheetOptions, composeSheet } from "@beep/technical-drawing"
+ * import { composeSheet } from "@beep/technical-drawing/Sheet.compose"
+ * import { SheetOptions } from "@beep/technical-drawing/Sheet.schemas"
  *
  * const svg = composeSheet({
  *   segments: [[0, 0, 40, 0]], shading: [], figure: 1, sheet: 1, sheets: 1, scale: 5, options: SheetOptions.make({})

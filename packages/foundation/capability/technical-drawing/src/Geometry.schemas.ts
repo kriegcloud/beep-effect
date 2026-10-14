@@ -153,7 +153,7 @@ const PartLineStyleBase = LiteralKit(["solid", "broken"]);
  * **Example** (Read the styles)
  *
  * ```ts
- * import { PartLineStyle } from "@beep/technical-drawing"
+ * import { PartLineStyle } from "@beep/technical-drawing/Geometry.schemas"
  *
  * console.log(PartLineStyle.literals)
  * ```
@@ -174,7 +174,7 @@ export const PartLineStyle = PartLineStyleBase.pipe(
  * **Example** (Annotate a style)
  *
  * ```ts
- * import type { PartLineStyle } from "@beep/technical-drawing"
+ * import type { PartLineStyle } from "@beep/technical-drawing/Geometry.schemas"
  *
  * const style: PartLineStyle = "broken"
  * console.log(style)
@@ -238,7 +238,7 @@ const primitiveFields = {
  * **Example** (A flap with an unclaimed tab fused into it)
  *
  * ```ts
- * import { Box, Part } from "@beep/technical-drawing"
+ * import { Box, Part } from "@beep/technical-drawing/Geometry.schemas"
  * import * as O from "effect/Option"
  *
  * const flap = Part.make({
@@ -475,7 +475,7 @@ const OverlayStyleBase = LiteralKit(["emphasis", "broken"]);
  * **Example** (Read the styles)
  *
  * ```ts
- * import { OverlayStyle } from "@beep/technical-drawing"
+ * import { OverlayStyle } from "@beep/technical-drawing/Geometry.schemas"
  *
  * console.log(OverlayStyle.literals)
  * ```
@@ -497,7 +497,7 @@ export const OverlayStyle = OverlayStyleBase.pipe(
  * **Example** (Annotate a style)
  *
  * ```ts
- * import type { OverlayStyle } from "@beep/technical-drawing"
+ * import type { OverlayStyle } from "@beep/technical-drawing/Geometry.schemas"
  *
  * const style: OverlayStyle = "emphasis"
  * console.log(style)
@@ -542,7 +542,7 @@ const OverlayFacing = Vec3.check(
  * **Example** (A heavy edge along a tab seated in its slot)
  *
  * ```ts
- * import { OverlayLine } from "@beep/technical-drawing"
+ * import { OverlayLine } from "@beep/technical-drawing/Geometry.schemas"
  * import * as O from "effect/Option"
  *
  * const seat = OverlayLine.make({
