@@ -304,3 +304,24 @@ empty stdout and TikaException. All frozen identities and retained ceilings
 hold; no terminal children or store pass were published for family 5.
 The wave is stopped; ordinal 6 must not launch and family 5 must not retry.
 P2 remains in-progress. See history/p2/2026-10-14-first-wave-stop.md.
+
+
+**Run 17 continuation 2026-10-14:** the orchestrator supersedes the preceding
+ordinal-6 prohibition and authorizes ordinals 6-9 with the SAME frozen launcher.
+Four accepted families plus family 5 sealed-failure are retained. Renewed
+admitted preflight and the full sixty-second interval precede ordinal 6;
+stop and diagnose any further sealed failure. Family 5 is not retried or
+accepted. Separate parser-exception recovery follows the wave. P2 incomplete.
+
+Ordinal 6 submitted 2026-10-14T01:07:39Z after full interval and capacity
+417,793,134,592 bytes. Unit beep-heavy-corpus-restore-p2-2026-10-13-6.service;
+five of nine sealed, four accepted plus family 5 failed. Driver resumes
+after unit 6 ends; 7-9 unstarted. Runtime acceptance is pending.
+
+
+### 2026-10-14: first bounded wave stops again at family 7
+
+Seven of nine sealed, five accepted and two failed (5 and 7). Ordinals 8-9
+remain unstarted under Run 17's further-failure stop rule. P2 remains
+in-progress; family-7 elapsed-budget diagnosis is qualified by lost exception
+cause. See history/p2/2026-10-14-family-07-stop.md. No retry or next launch.
