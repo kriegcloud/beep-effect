@@ -11,6 +11,8 @@ Eff = "Eff"
 Somes = "Somes"
 annote = "annote"
 bimap = "bimap"
+# OCCT surface type name as replicad reports it (Face.geomType)
+CYLINDRE = "CYLINDRE"
 # GnuPG --with-colons record tag for a key fingerprint line (scripts/cloud/bootstrap.sh)
 fpr = "fpr"
 retriev = "retriev"

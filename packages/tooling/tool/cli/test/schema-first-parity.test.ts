@@ -56,7 +56,7 @@ const parityEntries = (sourceLines: ReadonlyArray<string>) =>
 const schemaUtilsProject = () => {
   const project = new Project({
     useInMemoryFileSystem: true,
-    compilerOptions: { baseUrl: ".", paths: { "@beep/schema": ["packages/foundation/modeling/schema/src/index.ts"] } },
+    compilerOptions: { paths: { "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"] } },
   });
   const schemaSource = "packages/foundation/modeling/schema/src";
   project.createSourceFile(`${schemaSource}/index.ts`, 'export * as SchemaUtils from "./SchemaUtils/index.ts";');

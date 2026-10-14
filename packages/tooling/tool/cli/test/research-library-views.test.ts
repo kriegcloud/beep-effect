@@ -59,6 +59,8 @@ const transcriptApiVariation = (scenario: string) => {
     query: "&kind=asr",
     captionKind,
     xmlStart: 1,
+    xmlDoctype: "",
+    decodedText: "We're <b>here</b>",
     xmlText: "We&amp;#39;re &lt;b&gt;here&lt;/b&gt;",
     partialApi: false,
     origin: "automatic",
@@ -67,6 +69,21 @@ const transcriptApiVariation = (scenario: string) => {
   };
   const overrides: Record<string, Partial<typeof base>> = {
     creator: { automatic: false, query: "", captionKind: {}, origin: "creator" },
+    "named and numeric entities": {
+      xmlText: "We&#39;re&nbsp;&lt;b&gt;here&lt;/b&gt;&euro;&#x41;",
+      decodedText: "We're\u00a0<b>here</b>€A",
+    },
+    "xml11 declaration": { xmlDoctype: '<?xml version="1.1"?>' },
+    "default XML after xml11": { xmlText: "We&amp;#39;re &lt;b&gt;here&lt;/b&gt;&#x1F;" },
+    "doctype entity": {
+      xmlDoctype: '<!DOCTYPE transcript [<!ENTITY speaker "We">]>',
+      xmlText: "&speaker;&amp;#39;re &lt;b&gt;here&lt;/b&gt;",
+    },
+    "unsafe doctype entity": {
+      xmlDoctype: '<!DOCTYPE transcript [<!ENTITY speaker "&lt;script&gt;alert(1)&lt;/script&gt;">]>',
+      xmlText: "&speaker;",
+    },
+    "entity expansion limit": { xmlText: "&euro;".repeat(100_001) },
     "wrong player": { playerId: "other-video" },
     "wrong timed target": { timedId: "other-video" },
     "wrong origin": { origin: "creator" },
@@ -1785,6 +1802,12 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
   it.effect.each([
     "automatic",
     "creator",
+    "named and numeric entities",
+    "xml11 declaration",
+    "default XML after xml11",
+    "doctype entity",
+    "unsafe doctype entity",
+    "entity expansion limit",
     "wrong player",
     "wrong timed target",
     "wrong origin",
@@ -1827,12 +1850,12 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       );
       const xml = yield* make(
         "timed.xml",
-        `<transcript><text start="${variation.xmlStart}" dur="2">${variation.xmlText}</text><text start="4" dur="1">Next cue</text></transcript>`,
+        `${variation.xmlDoctype}<transcript><text start="${variation.xmlStart}" dur="2">${variation.xmlText}</text><text start="4" dur="1">Next cue</text></transcript>`,
         "raw-transcript",
         "text/xml"
       );
       const snippets = [
-        { text: "We're <b>here</b>", start: 1, duration: 2 },
+        { text: variation.decodedText, start: 1, duration: 2 },
         { text: "Next cue", start: 4, duration: 1 },
       ];
       const api = yield* make(
@@ -1886,7 +1909,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       );
       const text = yield* make(
         "transcript.txt",
-        `${variation.transcriptStart} We're <b>here</b>\n[4.000 - 5.000] Next cue\n`,
+        `${variation.transcriptStart} ${variation.decodedText}\n[4.000 - 5.000] Next cue\n`,
         "transcript-full-text",
         "text/plain"
       );
@@ -1928,7 +1951,10 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
         reason: "Original API/XML caption proof",
         artifacts: [...artifacts, envelope],
       });
-      const valid = scenario === "automatic" || scenario === "creator";
+      const valid = A.contains(
+        ["automatic", "creator", "named and numeric entities", "xml11 declaration", "default XML after xml11"],
+        scenario
+      );
       expect(yield* librarySourceEvidenceValid(root, source, capture)).toBe(valid);
       const probe = yield* make(
         "probe.json",
