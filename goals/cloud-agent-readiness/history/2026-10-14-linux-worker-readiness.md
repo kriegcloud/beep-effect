@@ -138,8 +138,12 @@ Granted elpresidank Tailscale operator access and published only through
 Tailscale Serve HTTPS: `https://beep-worker.tailc7c348.ts.net` proxies loopback
 3773. Serve reports tailnet-only; no Funnel or LAN firewall port was opened.
 The public environment descriptor responds successfully with label beep-worker
-and server version 0.0.45. Service installation ran without a forwarded admin
-SSH agent; privileged Tailscale administration used the existing YubiKey route.
+and server version 0.0.45. Service installation was requested without a forwarded admin SSH agent;
+inspection found the user manager retained an older SSH_AUTH_SOCK. Added a
+user-service drop-in with UnsetEnvironment=SSH_AUTH_SOCK and an explicit approved
+development PATH, restarted before any agent turn, and verified the live main
+process has the tool PATH and no SSH agent socket. Privileged Tailscale
+administration used the existing YubiKey route.
 
 A 15-minute one-time pairing link was generated into a mode-0600 private file
 and passed to DankStation's clipboard without printing its credential. Native
