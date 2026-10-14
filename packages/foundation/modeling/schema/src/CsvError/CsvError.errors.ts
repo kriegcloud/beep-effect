@@ -27,7 +27,7 @@ const $I = $SchemaId.create("CsvError");
  * @category validation
  * @since 0.0.0
  */
-export class CsvError extends S.TaggedError<CsvError>($I`CsvError`)(
+export class CsvError extends S.TaggedError<CsvError, { readonly brand: unique symbol }>($I`CsvError`)(
   "CsvError",
   {
     message: S.String,

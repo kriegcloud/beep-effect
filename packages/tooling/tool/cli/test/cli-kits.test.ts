@@ -51,9 +51,15 @@ const decodeRunModeEffect = S.decodeEffect(RunMode);
 
 const toError = (cause: unknown) => new Error(String(cause));
 
-class InvalidPathSegment extends S.TaggedError<InvalidPathSegment>()("InvalidPathSegment", { message: S.String }) {}
+class InvalidPathSegment extends S.TaggedError<InvalidPathSegment, { readonly brand: unique symbol }>()(
+  "InvalidPathSegment",
+  { message: S.String }
+) {}
 
-class FsGuardTestError extends S.TaggedError<FsGuardTestError>()("FsGuardTestError", { message: S.String }) {}
+class FsGuardTestError extends S.TaggedError<FsGuardTestError, { readonly brand: unique symbol }>()(
+  "FsGuardTestError",
+  { message: S.String }
+) {}
 
 const hashTestError = (_cause: unknown, filePath: string) => FsGuardTestError.make({ message: `hash: ${filePath}` });
 

@@ -56,7 +56,7 @@ const RANK: Record<PermissionLevel, number> = { read: 1, write: 2, admin: 3 };
  * @category models
  * @since 0.0.0
  */
-export class PermissionGap extends S.Class<PermissionGap>($I`PermissionGap`)({
+export class PermissionGap extends S.Class<PermissionGap, { readonly brand: unique symbol }>($I`PermissionGap`)({
   /** The permission's name, e.g. `"contents"`. */
   permission: S.String.annotateKey({ description: "The permission's name, e.g. `\"contents\"`." }),
   /** What was asked for. */
@@ -82,7 +82,7 @@ export class PermissionGap extends S.Class<PermissionGap>($I`PermissionGap`)({
  * @category models
  * @since 0.0.0
  */
-export class ExtraPermission extends S.Class<ExtraPermission>($I`ExtraPermission`)({
+export class ExtraPermission extends S.Class<ExtraPermission, { readonly brand: unique symbol }>($I`ExtraPermission`)({
   /** The permission's name, e.g. `"contents"`. */
   permission: S.String.annotateKey({ description: "The permission's name, e.g. `\"contents\"`." }),
   /** What the token has. */
@@ -108,7 +108,7 @@ export class ExtraPermission extends S.Class<ExtraPermission>($I`ExtraPermission
  * @category models
  * @since 0.0.0
  */
-export class PermissionResult extends S.Class<PermissionResult>($I`PermissionResult`)({
+export class PermissionResult extends S.Class<PermissionResult, { readonly brand: unique symbol }>($I`PermissionResult`)({
   /** Permissions that are missing or too weak. */
   missing: S.Array(PermissionGap).annotateKey({ description: "Permissions that are missing or too weak." }),
   /** Permissions granted beyond what was asked for. */
@@ -175,7 +175,7 @@ export class PermissionResult extends S.Class<PermissionResult>($I`PermissionRes
  * @category errors
  * @since 0.0.0
  */
-export class TokenPermissionError extends S.TaggedError<TokenPermissionError>($I`TokenPermissionError`)("TokenPermissionError", {
+export class TokenPermissionError extends S.TaggedError<TokenPermissionError, { readonly brand: unique symbol }>($I`TokenPermissionError`)("TokenPermissionError", {
   /** Which assertion failed. */
   kind: S.Literals(["insufficient", "excess"]).annotateKey({ description: "Which assertion failed." }),
   /** The comparison that produced it. */
@@ -239,7 +239,7 @@ export class TokenPermissionError extends S.TaggedError<TokenPermissionError>($I
  * @category models
  * @since 0.0.0
  */
-export class TokenPermissions extends S.Class<TokenPermissions>($I`TokenPermissions`)({
+export class TokenPermissions extends S.Class<TokenPermissions, { readonly brand: unique symbol }>($I`TokenPermissions`)({
   /** Permission name to level. */
   granted: S.Record(S.String, PermissionLevel).annotateKey({ description: "Permission name to level." }),
 }, $I.annote("TokenPermissions", { description: "The permissions a token was granted, and what they satisfy." })) {

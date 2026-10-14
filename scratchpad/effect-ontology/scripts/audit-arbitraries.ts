@@ -29,7 +29,7 @@ const baseSeed = 0x5eed;
 const domainRoot = new URL("../Domain/", import.meta.url);
 const domainModules = new Bun.Glob("**/*.ts");
 
-class ArbitraryAuditError extends S.TaggedError<ArbitraryAuditError>("effect-ontology/scripts/ArbitraryAuditError")(
+class ArbitraryAuditError extends S.TaggedError<ArbitraryAuditError, { readonly brand: unique symbol }>("effect-ontology/scripts/ArbitraryAuditError")(
   "ArbitraryAuditError",
   { message: S.String }
 ) {}

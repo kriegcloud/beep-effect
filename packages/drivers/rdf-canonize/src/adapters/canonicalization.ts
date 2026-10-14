@@ -11,6 +11,7 @@
 import {
   DefaultGraph,
   GraphTerm,
+  MakeQuadOptionsInput,
   makeBlankNode,
   makeDataset,
   makeLiteral,
@@ -164,10 +165,14 @@ const fromCanonizeGraph = (graph: CanonizeGraph): GraphTerm =>
   );
 
 const fromCanonizeQuad = (quad: CanonizeQuad): Quad =>
-  makeQuad(fromCanonizeSubject(quad.subject), makeNamedNode(quad.predicate.value), {
-    object: fromCanonizeObject(quad.object),
-    graph: fromCanonizeGraph(quad.graph),
-  });
+  makeQuad(
+    fromCanonizeSubject(quad.subject),
+    makeNamedNode(quad.predicate.value),
+    MakeQuadOptionsInput.make({
+      object: fromCanonizeObject(quad.object),
+      graph: fromCanonizeGraph(quad.graph),
+    })
+  );
 
 const hasSemanticCanonicalizationBudgetFailureName = (error: unknown): boolean =>
   error instanceof Error && A.some(semanticCanonicalizationBudgetFailureNames, (name) => error.name === name);
@@ -224,7 +229,7 @@ const canonicalizeLexically = (quads: ReadonlyArray<Quad>) => {
 };
 
 const getCanonicalDataset = (
-  request: Parameters<CanonicalizationServiceShape["canonicalize"]>[0]
+  request: Pick<Parameters<CanonicalizationServiceShape["canonicalize"]>[0], "algorithm" | "dataset">
 ): Effect.Effect<
   { readonly canonicalText: string; readonly dataset: ReturnType<typeof makeDataset> },
   CanonicalizationError

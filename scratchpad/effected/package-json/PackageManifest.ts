@@ -80,7 +80,7 @@ const $I = $ScratchpadId.create("effected/package-json/PackageManifest");
  * @category models
  * @since 0.0.0
  */
-export class PackageManifest extends S.Class<PackageManifest>($I`PackageManifest`)({
+export class PackageManifest extends S.Class<PackageManifest, { readonly brand: unique symbol }>($I`PackageManifest`)({
 	...Package.fields,
 	name: S.optionalKey(PackageName).annotateKey({ description: "Optional package identifier that must satisfy npm naming rules when present" }),
 	version: S.optionalKey(SemVer.FromString).annotateKey({ description: "Optional package release version that must satisfy strict semantic versioning when present" }),

@@ -34,14 +34,15 @@ const RunAfterProductionCompile = S.declare<RunAfterProductionCompileHook>(isRun
   })
 );
 
-class EmotionImportMapEntry extends S.Class<EmotionImportMapEntry>($I`EmotionImportMapEntry`)(
-  {
+class EmotionImportMapEntry extends S.Opaque<EmotionImportMapEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalImport: S.optionalKey(StringTuple),
     styledBaseImport: S.optionalKey(StringTuple),
-  },
-  $I.annote("EmotionImportMapEntry", {
-    description: "Emotion import map entry for a named compiler transform import.",
-  })
+  }).pipe(
+    $I.annoteSchema("EmotionImportMapEntry", {
+      description: "Emotion import map entry for a named compiler transform import.",
+    })
+  )
 ) {}
 
 /**
@@ -58,16 +59,17 @@ class EmotionImportMapEntry extends S.Class<EmotionImportMapEntry>($I`EmotionImp
  * @category schemas
  * @since 0.0.0
  */
-export class EmotionConfig extends S.Class<EmotionConfig>($I`EmotionConfig`)(
-  {
+export class EmotionConfig extends S.Opaque<EmotionConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceMap: S.optionalKey(S.Boolean),
     autoLabel: S.optionalKey(LiteralKit(["dev-only", "always", "never"])),
     labelFormat: S.optionalKey(S.String),
     importMap: S.optionalKey(S.Record(S.String, S.Record(S.String, EmotionImportMapEntry))),
-  },
-  $I.annote("EmotionConfig", {
-    description: "Emotion compiler transform configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("EmotionConfig", {
+      description: "Emotion compiler transform configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -84,8 +86,8 @@ export class EmotionConfig extends S.Class<EmotionConfig>($I`EmotionConfig`)(
  * @category schemas
  * @since 0.0.0
  */
-export class StyledComponentsConfig extends S.Class<StyledComponentsConfig>($I`StyledComponentsConfig`)(
-  {
+export class StyledComponentsConfig extends S.Opaque<StyledComponentsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     displayName: S.optionalKey(S.Boolean),
     topLevelImportPaths: S.optionalKey(StringArray),
     ssr: S.optionalKey(S.Boolean),
@@ -96,10 +98,11 @@ export class StyledComponentsConfig extends S.Class<StyledComponentsConfig>($I`S
     namespace: S.optionalKey(S.String),
     pure: S.optionalKey(S.Boolean),
     cssProp: S.optionalKey(S.Boolean),
-  },
-  $I.annote("StyledComponentsConfig", {
-    description: "Styled Components compiler transform configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("StyledComponentsConfig", {
+      description: "Styled Components compiler transform configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -116,54 +119,59 @@ export class StyledComponentsConfig extends S.Class<StyledComponentsConfig>($I`S
  * @category schemas
  * @since 0.0.0
  */
-export class ReactCompilerOptions extends S.Class<ReactCompilerOptions>($I`ReactCompilerOptions`)(
-  {
+export class ReactCompilerOptions extends S.Opaque<ReactCompilerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     compilationMode: S.optionalKey(LiteralKit(["infer", "annotation", "all"])),
     panicThreshold: S.optionalKey(LiteralKit(["none", "critical_errors", "all_errors"])),
-  },
-  $I.annote("ReactCompilerOptions", {
-    description: "React Compiler options supported by Next.js.",
-    documentation: "https://react.dev/reference/react-compiler/configuration",
-  })
+  }).pipe(
+    $I.annoteSchema("ReactCompilerOptions", {
+      description: "React Compiler options supported by Next.js.",
+      documentation: "https://react.dev/reference/react-compiler/configuration",
+    })
+  )
 ) {}
 
-class ReactRemovePropertiesConfig extends S.Class<ReactRemovePropertiesConfig>($I`ReactRemovePropertiesConfig`)(
-  {
+class ReactRemovePropertiesConfig extends S.Opaque<ReactRemovePropertiesConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     properties: S.optionalKey(StringArray),
-  },
-  $I.annote("ReactRemovePropertiesConfig", {
-    description: "Compiler transform options that remove selected React properties.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReactRemovePropertiesConfig", {
+      description: "Compiler transform options that remove selected React properties.",
+    })
+  )
 ) {}
 
-class RelayConfig extends S.Class<RelayConfig>($I`RelayConfig`)(
-  {
+class RelayConfig extends S.Opaque<RelayConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     src: S.String,
     artifactDirectory: S.optionalKey(S.String),
     language: S.optionalKey(LiteralKit(["typescript", "javascript", "flow"])),
     eagerEsModules: S.optionalKey(S.Boolean),
-  },
-  $I.annote("RelayConfig", {
-    description: "Relay compiler transform configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("RelayConfig", {
+      description: "Relay compiler transform configuration.",
+    })
+  )
 ) {}
 
-class RemoveConsoleConfig extends S.Class<RemoveConsoleConfig>($I`RemoveConsoleConfig`)(
-  {
+class RemoveConsoleConfig extends S.Opaque<RemoveConsoleConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     exclude: S.optionalKey(StringArray),
-  },
-  $I.annote("RemoveConsoleConfig", {
-    description: "Compiler transform options that remove console calls.",
-  })
+  }).pipe(
+    $I.annoteSchema("RemoveConsoleConfig", {
+      description: "Compiler transform options that remove console calls.",
+    })
+  )
 ) {}
 
-class StyledJsxConfig extends S.Class<StyledJsxConfig>($I`StyledJsxConfig`)(
-  {
+class StyledJsxConfig extends S.Opaque<StyledJsxConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     useLightningcss: S.optionalKey(S.Boolean),
-  },
-  $I.annote("StyledJsxConfig", {
-    description: "Styled JSX compiler options.",
-  })
+  }).pipe(
+    $I.annoteSchema("StyledJsxConfig", {
+      description: "Styled JSX compiler options.",
+    })
+  )
 ) {}
 
 /**
@@ -180,8 +188,8 @@ class StyledJsxConfig extends S.Class<StyledJsxConfig>($I`StyledJsxConfig`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CompilerConfig extends S.Class<CompilerConfig>($I`CompilerConfig`)(
-  {
+export class CompilerConfig extends S.Opaque<CompilerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     reactRemoveProperties: S.optionalKey(
       S.Union([S.Boolean, ReactRemovePropertiesConfig]).annotateKey({
         description: "Compiler transform that removes selected React properties.",
@@ -199,10 +207,11 @@ export class CompilerConfig extends S.Class<CompilerConfig>($I`CompilerConfig`)(
     define: S.optionalKey(S.Record(S.String, S.Union([S.String, S.Finite, S.Boolean]))),
     defineServer: S.optionalKey(S.Record(S.String, S.Union([S.String, S.Finite, S.Boolean]))),
     runAfterProductionCompile: S.optionalKey(RunAfterProductionCompile),
-  },
-  $I.annote("CompilerConfig", {
-    description: "Next.js compiler configuration block.",
-  })
+  }).pipe(
+    $I.annoteSchema("CompilerConfig", {
+      description: "Next.js compiler configuration block.",
+    })
+  )
 ) {}
 
 /**

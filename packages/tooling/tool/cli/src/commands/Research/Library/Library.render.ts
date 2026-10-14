@@ -17,8 +17,8 @@ import * as Str from "effect/String";
 import { LibraryError } from "./Library.errors.ts";
 import { libraryEffectiveCaptures, libraryEffectiveCategory } from "./Library.evidence.ts";
 import { LibraryDispositionImportPayload, libraryDispositionValid } from "./Library.import.ts";
+import { LibraryArtifact } from "./Library.schemas.ts";
 import { hashBytes, loadCatalog } from "./Library.store.ts";
-import type { LibraryArtifact } from "./Library.schemas.ts";
 
 const LibraryDispositionImportPayloadJson = S.fromJsonString(LibraryDispositionImportPayload);
 
@@ -139,13 +139,15 @@ const renderProjection = Effect.fn("Research.Library.renderProjection")(function
         ),
         ""
       );
-      const text = yield* artifactText({
-        path: document.snapshotPath,
-        sha256: document.sha256,
-        bytes: document.bytes,
-        mediaType: "text/markdown",
-        role: "report",
-      });
+      const text = yield* artifactText(
+        LibraryArtifact.make({
+          path: document.snapshotPath,
+          sha256: document.sha256,
+          bytes: document.bytes,
+          mediaType: "text/markdown",
+          role: "report",
+        })
+      );
       yield* write(
         reportPage(document.id),
         page(

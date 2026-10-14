@@ -39,7 +39,7 @@ const withoutKeys = (input: unknown, keys: ReadonlyArray<string>): unknown => {
  * @category errors
  * @since 0.0.0
  */
-export class LayerPolicyError extends S.TaggedError<LayerPolicyError>($I`LayerPolicyError`)("LayerPolicyError", {
+export class LayerPolicyError extends S.TaggedError<LayerPolicyError, { readonly brand: unique symbol }>($I`LayerPolicyError`)("LayerPolicyError", {
 	/** `read`: the file could not be read. `json`: it is not JSON. `decode`: it is not a `LayerPolicy`. */
 	reason: S.Literals(["read", "json", "decode"]).annotateKey({ description: "`read`: the file could not be read. `json`: it is not JSON. `decode`: it is not a `LayerPolicy`." }),
 	/** The file, when the policy came from one. */
@@ -117,7 +117,7 @@ export class LayerPolicyError extends S.TaggedError<LayerPolicyError>($I`LayerPo
  * @category models
  * @since 0.0.0
  */
-export class LayerPolicy extends S.Class<LayerPolicy>($I`LayerPolicy`)({
+export class LayerPolicy extends S.Class<LayerPolicy, { readonly brand: unique symbol }>($I`LayerPolicy`)({
 	/** Exact package names (never relative paths) per layer, top layer first. */
 	layers: S.String.pipe(S.Array, S.Array).annotateKey({ description: "Exact package names (never relative paths) per layer, top layer first." }),
 	/** Exact package names (never relative paths) any layer may depend on that never depend on a layer. */

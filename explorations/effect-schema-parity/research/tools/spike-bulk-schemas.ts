@@ -48,7 +48,7 @@ export const makeSchemas = () => {
     rowVersion: S.Int.check(S.isGreaterThan(0)),
   };
 
-  class UserRowClass extends S.Class<UserRowClass>("UserRowClass")(selectFields) {}
+  class UserRowClass extends S.Class<UserRowClass, { readonly brand: unique symbol }>("UserRowClass")(selectFields) {}
 
   const wireFields = {
     ...selectFields,

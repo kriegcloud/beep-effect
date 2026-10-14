@@ -180,8 +180,8 @@ export type RepoGraphHealthStatus = typeof RepoGraphHealthStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class TurboPlanTask extends S.Class<TurboPlanTask>($I`TurboPlanTask`)(
-  {
+export class TurboPlanTask extends S.Opaque<TurboPlanTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     taskId: S.String,
     packageName: S.optionalKey(S.String),
     packagePath: S.optionalKey(S.String),
@@ -190,10 +190,11 @@ export class TurboPlanTask extends S.Class<TurboPlanTask>($I`TurboPlanTask`)(
     command: S.optionalKey(S.String),
     cacheStatus: S.optionalKey(S.String),
     logFile: S.optionalKey(S.String),
-  },
-  $I.annote("TurboPlanTask", {
-    description: "One task entry discovered from Turbo planning or run telemetry.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboPlanTask", {
+      description: "One task entry discovered from Turbo planning or run telemetry.",
+    })
+  )
 ) {}
 
 /**
@@ -211,14 +212,15 @@ export class TurboPlanTask extends S.Class<TurboPlanTask>($I`TurboPlanTask`)(
  * @category models
  * @since 0.0.0
  */
-export class TurboWorkspacePackage extends S.Class<TurboWorkspacePackage>($I`TurboWorkspacePackage`)(
-  {
+export class TurboWorkspacePackage extends S.Opaque<TurboWorkspacePackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     path: S.String,
-  },
-  $I.annote("TurboWorkspacePackage", {
-    description: "One workspace package known to Turbo.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboWorkspacePackage", {
+      description: "One workspace package known to Turbo.",
+    })
+  )
 ) {}
 
 /**
@@ -236,17 +238,18 @@ export class TurboWorkspacePackage extends S.Class<TurboWorkspacePackage>($I`Tur
  * @category models
  * @since 0.0.0
  */
-export class TurboPlanSnapshot extends S.Class<TurboPlanSnapshot>($I`TurboPlanSnapshot`)(
-  {
+export class TurboPlanSnapshot extends S.Opaque<TurboPlanSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     graphHealthStatus: RepoGraphHealthStatus,
     graphHealthWarnings: S.Array(S.String),
     turboVersion: S.optionalKey(S.String),
     tasks: S.Array(TurboPlanTask),
     packages: TurboWorkspacePackage.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("TurboPlanSnapshot", {
-    description: "Turbo planning and graph-health metadata for a repo run.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboPlanSnapshot", {
+      description: "Turbo planning and graph-health metadata for a repo run.",
+    })
+  )
 ) {}
 
 /**
@@ -273,8 +276,8 @@ export class TurboPlanSnapshot extends S.Class<TurboPlanSnapshot>($I`TurboPlanSn
  * @category models
  * @since 0.0.0
  */
-export class RepoRunContext extends S.Class<RepoRunContext>($I`RepoRunContext`)(
-  {
+export class RepoRunContext extends S.Opaque<RepoRunContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.String,
     cwd: S.String,
     base: S.String,
@@ -283,10 +286,11 @@ export class RepoRunContext extends S.Class<RepoRunContext>($I`RepoRunContext`)(
     packetDir: S.String,
     originalArgv: S.Array(S.String),
     turbo: TurboPlanSnapshot,
-  },
-  $I.annote("RepoRunContext", {
-    description: "Shared in-process state for one repository orchestration run.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepoRunContext", {
+      description: "Shared in-process state for one repository orchestration run.",
+    })
+  )
 ) {}
 
 /**
@@ -304,14 +308,15 @@ export class RepoRunContext extends S.Class<RepoRunContext>($I`RepoRunContext`)(
  * @category models
  * @since 0.0.0
  */
-export class RepoPlanWave extends S.Class<RepoPlanWave>($I`RepoPlanWave`)(
-  {
+export class RepoPlanWave extends S.Opaque<RepoPlanWave, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     laneIds: S.Array(S.String),
-  },
-  $I.annote("RepoPlanWave", {
-    description: "One named lane wave rendered inside a repository proof plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepoPlanWave", {
+      description: "One named lane wave rendered inside a repository proof plan.",
+    })
+  )
 ) {}
 
 /**
@@ -339,8 +344,8 @@ export class RepoPlanWave extends S.Class<RepoPlanWave>($I`RepoPlanWave`)(
  * @category models
  * @since 0.0.0
  */
-export class RepoPlanStep extends S.Class<RepoPlanStep>($I`RepoPlanStep`)(
-  {
+export class RepoPlanStep extends S.Opaque<RepoPlanStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     label: S.String,
     phase: RepoPlanPhase,
@@ -356,10 +361,11 @@ export class RepoPlanStep extends S.Class<RepoPlanStep>($I`RepoPlanStep`)(
     task: S.optionalKey(S.String),
     verification: S.optionalKey(S.String),
     waves: RepoPlanWave.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("RepoPlanStep", {
-    description: "Planned repository command step.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepoPlanStep", {
+      description: "Planned repository command step.",
+    })
+  )
 ) {}
 
 /**
@@ -377,14 +383,15 @@ export class RepoPlanStep extends S.Class<RepoPlanStep>($I`RepoPlanStep`)(
  * @category models
  * @since 0.0.0
  */
-export class RepoRunPlan extends S.Class<RepoRunPlan>($I`RepoRunPlan`)(
-  {
+export class RepoRunPlan extends S.Opaque<RepoRunPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     context: RepoRunContext,
     steps: S.Array(RepoPlanStep),
-  },
-  $I.annote("RepoRunPlan", {
-    description: "Ordered repository run plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepoRunPlan", {
+      description: "Ordered repository run plan.",
+    })
+  )
 ) {}
 
 /**
@@ -402,8 +409,8 @@ export class RepoRunPlan extends S.Class<RepoRunPlan>($I`RepoRunPlan`)(
  * @category models
  * @since 0.0.0
  */
-export class RepoStepRunResult extends S.Class<RepoStepRunResult>($I`RepoStepRunResult`)(
-  {
+export class RepoStepRunResult extends S.Opaque<RepoStepRunResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     stepId: S.String,
     commandText: S.String,
     exitCode: S.Finite,
@@ -414,10 +421,11 @@ export class RepoStepRunResult extends S.Class<RepoStepRunResult>($I`RepoStepRun
     output: S.optionalKey(S.String),
     rawOutputRef: S.optionalKey(S.String),
     truncated: S.optionalKey(S.Boolean),
-  },
-  $I.annote("RepoStepRunResult", {
-    description: "Captured output and exit code from a repository run step.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepoStepRunResult", {
+      description: "Captured output and exit code from a repository run step.",
+    })
+  )
 ) {}
 
 const phaseOrderValue = (phase: RepoPlanPhase): number =>

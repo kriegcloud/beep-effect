@@ -419,7 +419,7 @@ export type OptionalMilliseconds = typeof OptionalMilliseconds.Type;
  * @category errors
  * @since 0.0.0
  */
-export class BaseError extends S.TaggedError<BaseError>($I`BaseError`)(
+export class BaseError extends S.TaggedError<BaseError, { readonly brand: unique symbol }>($I`BaseError`)(
   "BaseError",
   {
     message: ErrorMessage.annotateKey({
@@ -461,7 +461,7 @@ export class BaseError extends S.TaggedError<BaseError>($I`BaseError`)(
  * @category errors
  * @since 0.0.0
  */
-export class NotImplemented extends S.TaggedError<NotImplemented>($I`NotImplemented`)(
+export class NotImplemented extends S.TaggedError<NotImplemented, { readonly brand: unique symbol }>($I`NotImplemented`)(
   "NotImplemented",
   {
     message: ErrorMessage.annotateKey({

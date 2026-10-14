@@ -207,16 +207,18 @@ export type OpenAiCompatFinishReason = typeof OpenAiCompatFinishReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatToolCallFunction extends S.Class<OpenAiCompatToolCallFunction>(
-  $I`OpenAiCompatToolCallFunction`
-)(
-  {
+export class OpenAiCompatToolCallFunction extends S.Opaque<
+  OpenAiCompatToolCallFunction,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     arguments: S.String.annotateKey({ description: "JSON-encoded argument payload supplied to the tool call." }),
     name: S.String.annotateKey({ description: "Provider-facing function name for the tool call." }),
-  },
-  $I.annote("OpenAiCompatToolCallFunction", {
-    description: "Function payload inside an OpenAI-compatible tool call.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatToolCallFunction", {
+      description: "Function payload inside an OpenAI-compatible tool call.",
+    })
+  )
 ) {}
 
 /**
@@ -239,8 +241,8 @@ export class OpenAiCompatToolCallFunction extends S.Class<OpenAiCompatToolCallFu
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatToolCall extends S.Class<OpenAiCompatToolCall>($I`OpenAiCompatToolCall`)(
-  {
+export class OpenAiCompatToolCall extends S.Opaque<OpenAiCompatToolCall, { readonly brand: unique symbol }>()(
+  S.Struct({
     function: OpenAiCompatToolCallFunction.annotateKey({
       description: "Function payload attached to the OpenAI-compatible tool call.",
     }),
@@ -249,10 +251,11 @@ export class OpenAiCompatToolCall extends S.Class<OpenAiCompatToolCall>($I`OpenA
       description: "Zero-based tool-call index when a provider includes one.",
     }),
     type: S.tag("function").annotateKey({ description: "OpenAI-compatible tool-call discriminator." }),
-  },
-  $I.annote("OpenAiCompatToolCall", {
-    description: "Tool call payload emitted by OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatToolCall", {
+      description: "Tool call payload emitted by OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -273,20 +276,22 @@ export class OpenAiCompatToolCall extends S.Class<OpenAiCompatToolCall>($I`OpenA
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatToolCallFunctionDelta extends S.Class<OpenAiCompatToolCallFunctionDelta>(
-  $I`OpenAiCompatToolCallFunctionDelta`
-)(
-  {
+export class OpenAiCompatToolCallFunctionDelta extends S.Opaque<
+  OpenAiCompatToolCallFunctionDelta,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     arguments: S.optionalKey(S.String).annotateKey({
       description: "Partial JSON-encoded argument delta for a streaming tool call.",
     }),
     name: S.optionalKey(S.String).annotateKey({
       description: "Provider-facing function name when present in the stream delta.",
     }),
-  },
-  $I.annote("OpenAiCompatToolCallFunctionDelta", {
-    description: "Incremental function payload inside an OpenAI-compatible streaming tool-call delta.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatToolCallFunctionDelta", {
+      description: "Incremental function payload inside an OpenAI-compatible streaming tool-call delta.",
+    })
+  )
 ) {}
 
 /**
@@ -309,8 +314,8 @@ export class OpenAiCompatToolCallFunctionDelta extends S.Class<OpenAiCompatToolC
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatToolCallDelta extends S.Class<OpenAiCompatToolCallDelta>($I`OpenAiCompatToolCallDelta`)(
-  {
+export class OpenAiCompatToolCallDelta extends S.Opaque<OpenAiCompatToolCallDelta, { readonly brand: unique symbol }>()(
+  S.Struct({
     function: S.optionalKey(OpenAiCompatToolCallFunctionDelta).annotateKey({
       description: "Incremental function payload for the streaming tool-call delta.",
     }),
@@ -321,10 +326,11 @@ export class OpenAiCompatToolCallDelta extends S.Class<OpenAiCompatToolCallDelta
     type: S.optionalKey(S.Literal("function")).annotateKey({
       description: "Streaming tool-call discriminator when supplied by the provider.",
     }),
-  },
-  $I.annote("OpenAiCompatToolCallDelta", {
-    description: "Incremental tool-call payload emitted by OpenAI-compatible chat completion streams.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatToolCallDelta", {
+      description: "Incremental tool-call payload emitted by OpenAI-compatible chat completion streams.",
+    })
+  )
 ) {}
 
 /**
@@ -346,10 +352,11 @@ export class OpenAiCompatToolCallDelta extends S.Class<OpenAiCompatToolCallDelta
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatFunctionToolDefinition extends S.Class<OpenAiCompatFunctionToolDefinition>(
-  $I`OpenAiCompatFunctionToolDefinition`
-)(
-  {
+export class OpenAiCompatFunctionToolDefinition extends S.Opaque<
+  OpenAiCompatFunctionToolDefinition,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     description: S.String.pipe(S.NullOr, S.optionalKey).annotateKey({
       description: "Optional provider-visible tool description.",
     }),
@@ -360,10 +367,11 @@ export class OpenAiCompatFunctionToolDefinition extends S.Class<OpenAiCompatFunc
     strict: S.optionalKey(S.Boolean).annotateKey({
       description: "Whether the provider should enforce the supplied JSON Schema strictly.",
     }),
-  },
-  $I.annote("OpenAiCompatFunctionToolDefinition", {
-    description: "Function details sent to OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatFunctionToolDefinition", {
+      description: "Function details sent to OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -385,16 +393,17 @@ export class OpenAiCompatFunctionToolDefinition extends S.Class<OpenAiCompatFunc
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatFunctionTool extends S.Class<OpenAiCompatFunctionTool>($I`OpenAiCompatFunctionTool`)(
-  {
+export class OpenAiCompatFunctionTool extends S.Opaque<OpenAiCompatFunctionTool, { readonly brand: unique symbol }>()(
+  S.Struct({
     function: OpenAiCompatFunctionToolDefinition.annotateKey({
       description: "Function definition sent to the chat completion provider.",
     }),
     type: S.tag("function").annotateKey({ description: "OpenAI-compatible function-tool discriminator." }),
-  },
-  $I.annote("OpenAiCompatFunctionTool", {
-    description: "Function declaration sent to OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatFunctionTool", {
+      description: "Function declaration sent to OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {}
 
 const OpenAiCompatChatContent = S.Union([S.String, S.Array(S.Record(S.String, S.Unknown))]).pipe(
@@ -422,19 +431,21 @@ const OpenAiCompatChatContent = S.Union([S.String, S.Array(S.Record(S.String, S.
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatSystemChatMessage extends S.Class<OpenAiCompatSystemChatMessage>(
-  $I`OpenAiCompatSystemChatMessage`
-)(
-  {
+export class OpenAiCompatSystemChatMessage extends S.Opaque<
+  OpenAiCompatSystemChatMessage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: OpenAiCompatChatContent.pipe(S.NullOr, S.optionalKey).annotateKey({
       description: "System message content sent to the provider.",
     }),
     name: S.optionalKey(S.String).annotateKey({ description: "Optional participant name for the system message." }),
     role: S.tag("system").annotateKey({ description: "System chat role discriminator." }),
-  },
-  $I.annote("OpenAiCompatSystemChatMessage", {
-    description: "System chat message accepted by OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatSystemChatMessage", {
+      description: "System chat message accepted by OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -456,17 +467,21 @@ export class OpenAiCompatSystemChatMessage extends S.Class<OpenAiCompatSystemCha
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatUserChatMessage extends S.Class<OpenAiCompatUserChatMessage>($I`OpenAiCompatUserChatMessage`)(
-  {
+export class OpenAiCompatUserChatMessage extends S.Opaque<
+  OpenAiCompatUserChatMessage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: OpenAiCompatChatContent.pipe(S.NullOr, S.optionalKey).annotateKey({
       description: "User message content sent to the provider.",
     }),
     name: S.optionalKey(S.String).annotateKey({ description: "Optional participant name for the user message." }),
     role: S.tag("user").annotateKey({ description: "User chat role discriminator." }),
-  },
-  $I.annote("OpenAiCompatUserChatMessage", {
-    description: "User chat message accepted by OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatUserChatMessage", {
+      description: "User chat message accepted by OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -488,10 +503,11 @@ export class OpenAiCompatUserChatMessage extends S.Class<OpenAiCompatUserChatMes
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatAssistantChatMessage extends S.Class<OpenAiCompatAssistantChatMessage>(
-  $I`OpenAiCompatAssistantChatMessage`
-)(
-  {
+export class OpenAiCompatAssistantChatMessage extends S.Opaque<
+  OpenAiCompatAssistantChatMessage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: OpenAiCompatChatContent.pipe(S.NullOr, S.optionalKey).annotateKey({
       description: "Assistant message content sent to the provider.",
     }),
@@ -502,10 +518,11 @@ export class OpenAiCompatAssistantChatMessage extends S.Class<OpenAiCompatAssist
     tool_calls: OpenAiCompatToolCall.pipe(S.Array, S.optionalKey).annotateKey({
       description: "Tool calls requested by the assistant message.",
     }),
-  },
-  $I.annote("OpenAiCompatAssistantChatMessage", {
-    description: "Assistant chat message accepted by OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatAssistantChatMessage", {
+      description: "Assistant chat message accepted by OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -528,8 +545,11 @@ export class OpenAiCompatAssistantChatMessage extends S.Class<OpenAiCompatAssist
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatToolChatMessage extends S.Class<OpenAiCompatToolChatMessage>($I`OpenAiCompatToolChatMessage`)(
-  {
+export class OpenAiCompatToolChatMessage extends S.Opaque<
+  OpenAiCompatToolChatMessage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: OpenAiCompatChatContent.pipe(S.NullOr, S.optionalKey).annotateKey({
       description: "Tool result content sent back to the provider.",
     }),
@@ -538,26 +558,25 @@ export class OpenAiCompatToolChatMessage extends S.Class<OpenAiCompatToolChatMes
     tool_call_id: S.optionalKey(S.String).annotateKey({
       description: "Identifier of the tool call this message answers.",
     }),
-  },
-  $I.annote("OpenAiCompatToolChatMessage", {
-    description: "Tool chat message accepted by OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatToolChatMessage", {
+      description: "Tool chat message accepted by OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {}
 
 /**
  * Chat message accepted by OpenAI-compatible chat completion endpoints.
  *
- * **Example** (Typing a user chat message)
+ * **Example** (Decode and narrow a chat message)
  *
  * ```ts
- * import type { OpenAiCompatChatMessage } from "@beep/openai-compat"
+ * import { OpenAiCompatChatMessage } from "@beep/openai-compat"
+ * import * as S from "effect/Schema"
  *
- * const message: OpenAiCompatChatMessage = {
- *   content: "Hello",
- *   role: "user"
- * }
+ * const message = S.decodeUnknownSync(OpenAiCompatChatMessage)({ content: "Hello", role: "user" })
  *
- * console.log(message)
+ * console.log(OpenAiCompatChatMessage.guards.user(message)) // true
  * ```
  *
  * @category schemas
@@ -580,17 +599,17 @@ export const OpenAiCompatChatMessage = OpenAiCompatChatRole.mapMembers(
 /**
  * Chat message accepted by OpenAI-compatible chat completion endpoints.
  *
- * **Example** (Typing a user chat message)
+ * **Example** (Type a user chat message)
  *
  * ```ts
- * import type { OpenAiCompatChatMessage } from "@beep/openai-compat"
+ * import { type OpenAiCompatChatMessage, OpenAiCompatUserChatMessage } from "@beep/openai-compat"
  *
- * const message: OpenAiCompatChatMessage = {
+ * const message: OpenAiCompatChatMessage = OpenAiCompatUserChatMessage.make({
  *   content: "Hello",
  *   role: "user"
- * }
+ * })
  *
- * console.log(message)
+ * console.log(message.role) // "user"
  * ```
  *
  * @category models
@@ -618,10 +637,11 @@ export type OpenAiCompatChatMessage = typeof OpenAiCompatChatMessage.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatJsonSchemaDefinition extends S.Class<OpenAiCompatJsonSchemaDefinition>(
-  $I`OpenAiCompatJsonSchemaDefinition`
-)(
-  {
+export class OpenAiCompatJsonSchemaDefinition extends S.Opaque<
+  OpenAiCompatJsonSchemaDefinition,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     description: S.optionalKey(S.String).annotateKey({
       description: "Optional description of the structured response schema.",
     }),
@@ -632,10 +652,11 @@ export class OpenAiCompatJsonSchemaDefinition extends S.Class<OpenAiCompatJsonSc
     strict: S.optionalKey(S.Boolean).annotateKey({
       description: "Whether the provider should strictly enforce the structured output schema.",
     }),
-  },
-  $I.annote("OpenAiCompatJsonSchemaDefinition", {
-    description: "JSON schema response-format details for chat completion requests.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatJsonSchemaDefinition", {
+      description: "JSON schema response-format details for chat completion requests.",
+    })
+  )
 ) {}
 
 /**
@@ -657,18 +678,20 @@ export class OpenAiCompatJsonSchemaDefinition extends S.Class<OpenAiCompatJsonSc
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatJsonSchemaResponseFormat extends S.Class<OpenAiCompatJsonSchemaResponseFormat>(
-  $I`OpenAiCompatJsonSchemaResponseFormat`
-)(
-  {
+export class OpenAiCompatJsonSchemaResponseFormat extends S.Opaque<
+  OpenAiCompatJsonSchemaResponseFormat,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     json_schema: OpenAiCompatJsonSchemaDefinition.annotateKey({
       description: "JSON Schema response-format payload.",
     }),
     type: S.tag("json_schema").annotateKey({ description: "JSON Schema response-format discriminator." }),
-  },
-  $I.annote("OpenAiCompatJsonSchemaResponseFormat", {
-    description: "Structured response format configuration for chat completion requests.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatJsonSchemaResponseFormat", {
+      description: "Structured response format configuration for chat completion requests.",
+    })
+  )
 ) {}
 
 /**
@@ -727,15 +750,17 @@ export type OpenAiCompatResponseFormatKind = typeof OpenAiCompatResponseFormatKi
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatTextResponseFormat extends S.Class<OpenAiCompatTextResponseFormat>(
-  $I`OpenAiCompatTextResponseFormat`
-)(
-  {
+export class OpenAiCompatTextResponseFormat extends S.Opaque<
+  OpenAiCompatTextResponseFormat,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     type: S.tag("text").annotateKey({ description: "Text response-format discriminator." }),
-  },
-  $I.annote("OpenAiCompatTextResponseFormat", {
-    description: "Text response format configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatTextResponseFormat", {
+      description: "Text response format configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -754,28 +779,31 @@ export class OpenAiCompatTextResponseFormat extends S.Class<OpenAiCompatTextResp
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatJsonObjectResponseFormat extends S.Class<OpenAiCompatJsonObjectResponseFormat>(
-  $I`OpenAiCompatJsonObjectResponseFormat`
-)(
-  {
+export class OpenAiCompatJsonObjectResponseFormat extends S.Opaque<
+  OpenAiCompatJsonObjectResponseFormat,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     type: S.tag("json_object").annotateKey({ description: "JSON object response-format discriminator." }),
-  },
-  $I.annote("OpenAiCompatJsonObjectResponseFormat", {
-    description: "JSON object response format configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatJsonObjectResponseFormat", {
+      description: "JSON object response format configuration.",
+    })
+  )
 ) {}
 
 /**
  * Response format configuration accepted by OpenAI-compatible chat completion requests.
  *
- * **Example** (Typing a JSON object format)
+ * **Example** (Decode a JSON object format)
  *
  * ```ts
- * import type { OpenAiCompatResponseFormat } from "@beep/openai-compat"
+ * import { OpenAiCompatResponseFormat } from "@beep/openai-compat"
+ * import * as S from "effect/Schema"
  *
- * const format: OpenAiCompatResponseFormat = { type: "json_object" }
+ * const format = S.decodeUnknownSync(OpenAiCompatResponseFormat)({ type: "json_object" })
  *
- * console.log(format)
+ * console.log(OpenAiCompatResponseFormat.guards.json_object(format)) // true
  * ```
  *
  * @category models
@@ -797,14 +825,14 @@ export const OpenAiCompatResponseFormat = OpenAiCompatResponseFormatKind.mapMemb
 /**
  * Response format configuration accepted by OpenAI-compatible chat completion requests.
  *
- * **Example** (Typing a text response format)
+ * **Example** (Type a text response format)
  *
  * ```ts
- * import type { OpenAiCompatResponseFormat } from "@beep/openai-compat"
+ * import { type OpenAiCompatResponseFormat, OpenAiCompatTextResponseFormat } from "@beep/openai-compat"
  *
- * const format: OpenAiCompatResponseFormat = { type: "text" }
+ * const format: OpenAiCompatResponseFormat = OpenAiCompatTextResponseFormat.make({ type: "text" })
  *
- * console.log(format)
+ * console.log(format.type) // "text"
  * ```
  *
  * @category models
@@ -831,10 +859,11 @@ export type OpenAiCompatResponseFormat = typeof OpenAiCompatResponseFormat.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatChatCompletionRequest extends S.Class<OpenAiCompatChatCompletionRequest>(
-  $I`OpenAiCompatChatCompletionRequest`
-)(
-  {
+export class OpenAiCompatChatCompletionRequest extends S.Opaque<
+  OpenAiCompatChatCompletionRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     frequency_penalty: OpenAiCompatPenalty.pipe(S.optionalKey).annotateKey({
       description: "Penalty applied to repeated tokens, from -2 through 2.",
     }),
@@ -879,10 +908,11 @@ export class OpenAiCompatChatCompletionRequest extends S.Class<OpenAiCompatChatC
       description: "Nucleus sampling value or null when explicitly forwarded to the provider.",
     }),
     user: S.optionalKey(S.String).annotateKey({ description: "Optional provider-visible end-user identifier." }),
-  },
-  $I.annote("OpenAiCompatChatCompletionRequest", {
-    description: "Chat completion request sent to OpenAI-compatible providers.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatChatCompletionRequest", {
+      description: "Chat completion request sent to OpenAI-compatible providers.",
+    })
+  )
 ) {}
 
 /**
@@ -905,10 +935,11 @@ export class OpenAiCompatChatCompletionRequest extends S.Class<OpenAiCompatChatC
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatAssistantMessage extends S.Class<OpenAiCompatAssistantMessage>(
-  $I`OpenAiCompatAssistantMessage`
-)(
-  {
+export class OpenAiCompatAssistantMessage extends S.Opaque<
+  OpenAiCompatAssistantMessage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: OptionalNullableString.annotateKey({
       description: "Assistant message content returned by the provider.",
     }),
@@ -922,10 +953,11 @@ export class OpenAiCompatAssistantMessage extends S.Class<OpenAiCompatAssistantM
     ).annotateKey({
       description: "Tool calls returned with the assistant message.",
     }),
-  },
-  $I.annote("OpenAiCompatAssistantMessage", {
-    description: "Assistant message returned by OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatAssistantMessage", {
+      description: "Assistant message returned by OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -948,8 +980,11 @@ export class OpenAiCompatAssistantMessage extends S.Class<OpenAiCompatAssistantM
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDelta>($I`OpenAiCompatAssistantDelta`)(
-  {
+export class OpenAiCompatAssistantDelta extends S.Opaque<
+  OpenAiCompatAssistantDelta,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: OptionalNullableString.annotateKey({
       description: "Incremental assistant content returned by a stream chunk.",
     }),
@@ -961,10 +996,11 @@ export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDel
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone)
     ).annotateKey({ description: "Incremental tool-call deltas returned by the stream." }),
-  },
-  $I.annote("OpenAiCompatAssistantDelta", {
-    description: "Delta message returned by OpenAI-compatible chat completion streams.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatAssistantDelta", {
+      description: "Delta message returned by OpenAI-compatible chat completion streams.",
+    })
+  )
 ) {}
 
 /**
@@ -989,8 +1025,8 @@ export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDel
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatUsage extends S.Class<OpenAiCompatUsage>($I`OpenAiCompatUsage`)(
-  {
+export class OpenAiCompatUsage extends S.Opaque<OpenAiCompatUsage, { readonly brand: unique symbol }>()(
+  S.Struct({
     completion_tokens: OptionalNonNegativeInt.annotateKey({
       description: "Non-negative number of completion tokens reported by the provider.",
     }),
@@ -1003,10 +1039,11 @@ export class OpenAiCompatUsage extends S.Class<OpenAiCompatUsage>($I`OpenAiCompa
     total_tokens: OptionalNonNegativeInt.annotateKey({
       description: "Non-negative total token count reported by the provider.",
     }),
-  },
-  $I.annote("OpenAiCompatUsage", {
-    description: "Token usage returned by OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatUsage", {
+      description: "Token usage returned by OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -1031,10 +1068,11 @@ export class OpenAiCompatUsage extends S.Class<OpenAiCompatUsage>($I`OpenAiCompa
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatChatCompletionChoice extends S.Class<OpenAiCompatChatCompletionChoice>(
-  $I`OpenAiCompatChatCompletionChoice`
-)(
-  {
+export class OpenAiCompatChatCompletionChoice extends S.Opaque<
+  OpenAiCompatChatCompletionChoice,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     finish_reason: OptionalNullableString.annotateKey({
       description: "Provider finish reason for this chat completion choice.",
     }),
@@ -1044,10 +1082,11 @@ export class OpenAiCompatChatCompletionChoice extends S.Class<OpenAiCompatChatCo
     message: S.OptionFromOptionalKey(OpenAiCompatAssistantMessage)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Assistant message payload for this choice." }),
-  },
-  $I.annote("OpenAiCompatChatCompletionChoice", {
-    description: "Chat completion choice returned by OpenAI-compatible endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatChatCompletionChoice", {
+      description: "Chat completion choice returned by OpenAI-compatible endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -1080,10 +1119,11 @@ export class OpenAiCompatChatCompletionChoice extends S.Class<OpenAiCompatChatCo
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatChatCompletionResponse extends S.Class<OpenAiCompatChatCompletionResponse>(
-  $I`OpenAiCompatChatCompletionResponse`
-)(
-  {
+export class OpenAiCompatChatCompletionResponse extends S.Opaque<
+  OpenAiCompatChatCompletionResponse,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     choices: S.Array(OpenAiCompatChatCompletionChoice).annotateKey({
       description: "Chat completion choices returned by the provider.",
     }),
@@ -1092,10 +1132,11 @@ export class OpenAiCompatChatCompletionResponse extends S.Class<OpenAiCompatChat
     usage: S.OptionFromOptionalKey(OpenAiCompatUsage)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional token usage returned by the provider." }),
-  },
-  $I.annote("OpenAiCompatChatCompletionResponse", {
-    description: "Chat completion response returned by OpenAI-compatible endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatChatCompletionResponse", {
+      description: "Chat completion response returned by OpenAI-compatible endpoints.",
+    })
+  )
 ) {
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(OpenAiCompatChatCompletionResponse);
 }
@@ -1121,10 +1162,11 @@ export class OpenAiCompatChatCompletionResponse extends S.Class<OpenAiCompatChat
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatChatCompletionChunkChoice extends S.Class<OpenAiCompatChatCompletionChunkChoice>(
-  $I`OpenAiCompatChatCompletionChunkChoice`
-)(
-  {
+export class OpenAiCompatChatCompletionChunkChoice extends S.Opaque<
+  OpenAiCompatChatCompletionChunkChoice,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     delta: S.OptionFromOptionalKey(OpenAiCompatAssistantDelta)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Assistant delta payload for this stream choice." }),
@@ -1134,10 +1176,11 @@ export class OpenAiCompatChatCompletionChunkChoice extends S.Class<OpenAiCompatC
     index: S.optionalKey(S.Natural).annotateKey({
       description: "Zero-based stream choice index.",
     }),
-  },
-  $I.annote("OpenAiCompatChatCompletionChunkChoice", {
-    description: "Stream chunk choice returned by OpenAI-compatible endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatChatCompletionChunkChoice", {
+      description: "Stream chunk choice returned by OpenAI-compatible endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -1169,10 +1212,11 @@ export class OpenAiCompatChatCompletionChunkChoice extends S.Class<OpenAiCompatC
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatChatCompletionChunk extends S.Class<OpenAiCompatChatCompletionChunk>(
-  $I`OpenAiCompatChatCompletionChunk`
-)(
-  {
+export class OpenAiCompatChatCompletionChunk extends S.Opaque<
+  OpenAiCompatChatCompletionChunk,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     choices: S.Array(OpenAiCompatChatCompletionChunkChoice).annotateKey({
       description: "Streaming chat completion choices returned by the provider.",
     }),
@@ -1181,10 +1225,11 @@ export class OpenAiCompatChatCompletionChunk extends S.Class<OpenAiCompatChatCom
     usage: S.OptionFromOptionalKey(OpenAiCompatUsage)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional token usage returned by a stream chunk." }),
-  },
-  $I.annote("OpenAiCompatChatCompletionChunk", {
-    description: "Stream chunk returned by OpenAI-compatible chat completion endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatChatCompletionChunk", {
+      description: "Stream chunk returned by OpenAI-compatible chat completion endpoints.",
+    })
+  )
 ) {
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(OpenAiCompatChatCompletionChunk);
 }

@@ -85,7 +85,10 @@ const throttledWhen = (throttled: boolean): PracticeMailTaggingFailureKind => (t
  * @category errors
  * @since 0.0.0
  */
-export class PracticeMailTaggingError extends S.TaggedError<PracticeMailTaggingError>($I`PracticeMailTaggingError`)(
+export class PracticeMailTaggingError extends S.TaggedError<
+  PracticeMailTaggingError,
+  { readonly brand: unique symbol }
+>($I`PracticeMailTaggingError`)(
   "PracticeMailTaggingError",
   {
     kind: PracticeMailTaggingFailureKind.annotateKey({

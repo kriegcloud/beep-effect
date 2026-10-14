@@ -35,15 +35,16 @@ const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalR
  * @category queries
  * @since 0.0.0
  */
-export class GetContextPacket extends S.Class<GetContextPacket>($I`GetContextPacket`)(
-  {
+export class GetContextPacket extends S.Opaque<GetContextPacket, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifactId: S.NonEmptyString.annotateKey({ description: "Source artifact identifier requested by the SDK." }),
     scenarioId: RuntimeFixtureScenarioId.annotateKey({
       description: "Fixture scenario identifier requested by the SDK.",
     }),
     scope: RuntimeScope.annotateKey({ description: "Runtime scope for the context packet query." }),
-  },
-  $I.annote("GetContextPacket", {
-    description: "Query requesting the context packet for a scenario artifact and scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("GetContextPacket", {
+      description: "Query requesting the context packet for a scenario artifact and scope.",
+    })
+  )
 ) {}

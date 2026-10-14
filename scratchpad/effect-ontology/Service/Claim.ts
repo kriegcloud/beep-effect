@@ -78,8 +78,7 @@ const randomUuid = Effect.all([
  * @category models
  * @since 0.0.0
  */
-export class CreateClaimInput extends S.Class<CreateClaimInput>($I`CreateClaimInput`)(
-  {
+export class CreateClaimInput extends S.Opaque<CreateClaimInput, { readonly brand: unique symbol }>()(S.Struct({
     subjectIri: S.NonEmptyString,
     predicateIri: S.NonEmptyString,
     objectValue: S.String,
@@ -96,11 +95,9 @@ export class CreateClaimInput extends S.Class<CreateClaimInput>($I`CreateClaimIn
     ),
     validFrom: S.optionalKey(S.Date),
     validTo: S.optionalKey(S.Date),
-  },
-  $I.annote("CreateClaimInput", {
+  }).pipe($I.annoteSchema("CreateClaimInput", {
     description: "Validated claim creation payload with optional evidence and temporal bounds.",
-  })
-) {}
+  }))) {}
 
 /**
  * Result of deprecating a claim
@@ -121,17 +118,14 @@ export class CreateClaimInput extends S.Class<CreateClaimInput>($I`CreateClaimIn
  * @category models
  * @since 0.0.0
  */
-export class DeprecationResult extends S.Class<DeprecationResult>($I`DeprecationResult`)(
-  {
+export class DeprecationResult extends S.Opaque<DeprecationResult, { readonly brand: unique symbol }>()(S.Struct({
     claimId: S.NonEmptyString,
     deprecatedAt: S.Date,
     reason: S.NonEmptyString,
     correctionId: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("DeprecationResult", {
+  }).pipe($I.annoteSchema("DeprecationResult", {
     description: "Claim deprecation outcome with an optional correcting claim identifier.",
-  })
-) {}
+  }))) {}
 
 interface ClaimServiceShape {
   readonly createClaim: (input: CreateClaimInput) => ReturnType<ClaimRepository["Service"]["insertClaim"]>;

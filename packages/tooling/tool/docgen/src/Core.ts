@@ -40,14 +40,15 @@ const FencedCodeBlockExtension = S.Union([S.Literal(".ts"), S.Literal(".tsx")]).
     description: "Generated file extension for an extracted TypeScript example block.",
   })
 );
-class FencedCodeBlock extends S.Class<FencedCodeBlock>($I`FencedCodeBlock`)(
-  {
+class FencedCodeBlock extends S.Opaque<FencedCodeBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.String,
     extension: FencedCodeBlockExtension,
-  },
-  $I.annote("FencedCodeBlock", {
-    description: "Extracted TypeScript fenced code payload and generated file extension.",
-  })
+  }).pipe(
+    $I.annoteSchema("FencedCodeBlock", {
+      description: "Extracted TypeScript fenced code payload and generated file extension.",
+    })
+  )
 ) {}
 
 /**
@@ -71,8 +72,8 @@ class FencedCodeBlock extends S.Class<FencedCodeBlock>($I`FencedCodeBlock`)(
  * @category models
  * @since 0.0.0
  */
-export class FencedCodeBlockDetail extends S.Class<FencedCodeBlockDetail>($I`FencedCodeBlockDetail`)(
-  {
+export class FencedCodeBlockDetail extends S.Opaque<FencedCodeBlockDetail, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.String,
     extension: FencedCodeBlockExtension,
     infoString: S.String,
@@ -82,10 +83,11 @@ export class FencedCodeBlockDetail extends S.Class<FencedCodeBlockDetail>($I`Fen
     infoEnd: S.Natural,
     codeStart: S.Natural,
     codeEnd: S.Natural,
-  },
-  $I.annote("FencedCodeBlockDetail", {
-    description: "Extracted TypeScript fence with raw metadata and half-open source offsets.",
-  })
+  }).pipe(
+    $I.annoteSchema("FencedCodeBlockDetail", {
+      description: "Extracted TypeScript fence with raw metadata and half-open source offsets.",
+    })
+  )
 ) {}
 
 const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(value);

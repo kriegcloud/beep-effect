@@ -42,18 +42,19 @@ const $I = $GovLegalMcpId.create("Server");
  * @category models
  * @since 0.0.0
  */
-export class GovLegalMcpServerConfig extends S.Class<GovLegalMcpServerConfig>($I`GovLegalMcpServerConfig`)(
-  {
+export class GovLegalMcpServerConfig extends S.Opaque<GovLegalMcpServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({
       description: "Human-readable MCP server name advertised during stdio initialization.",
     }),
     version: S.NonEmptyString.annotateKey({
       description: "Package version advertised to MCP clients.",
     }),
-  },
-  $I.annote("GovLegalMcpServerConfig", {
-    description: "Identity advertised by the gov-legal MCP stdio server.",
-  })
+  }).pipe(
+    $I.annoteSchema("GovLegalMcpServerConfig", {
+      description: "Identity advertised by the gov-legal MCP stdio server.",
+    })
+  )
 ) {}
 
 /**

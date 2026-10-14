@@ -15,23 +15,25 @@ const encodeXmlTextToUnknown = S.encodeEffect(XmlTextToUnknown);
 
 const $I = $SchemaId.create("xml_test");
 
-class PersonNode extends S.Class<PersonNode>($I`PersonNode`)(
-  {
+class PersonNode extends S.Opaque<PersonNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     age: S.FiniteFromString,
-  },
-  $I.annote("PersonNode", {
-    description: "Parsed XML person node used in schema tests.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonNode", {
+      description: "Parsed XML person node used in schema tests.",
+    })
+  )
 ) {}
 
-class PeopleDocument extends S.Class<PeopleDocument>($I`PeopleDocument`)(
-  {
+class PeopleDocument extends S.Opaque<PeopleDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     people: PersonNode,
-  },
-  $I.annote("PeopleDocument", {
-    description: "Typed XML document fixture used in schema tests.",
-  })
+  }).pipe(
+    $I.annoteSchema("PeopleDocument", {
+      description: "Typed XML document fixture used in schema tests.",
+    })
+  )
 ) {}
 
 describe("Xml", () => {
@@ -67,7 +69,7 @@ describe("Xml", () => {
     Effect.fnUntraced(function* () {
       const document = yield* decodeXmlTextAs(PeopleDocument)(`<people><name>Ada</name><age>36</age></people>`);
 
-      expect(document).toBeInstanceOf(PeopleDocument);
+      expect(S.is(PeopleDocument)(document)).toBe(true);
       expect(document.people.name).toBe("Ada");
       expect(document.people.age).toBe(36);
     })

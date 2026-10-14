@@ -42,15 +42,16 @@ const $I = $LawPracticeUseCasesId.create("LegalPositionRecord/LegalPositionRecor
  * @category models
  * @since 0.0.0
  */
-export class LegalPositionRecordScope extends S.Class<LegalPositionRecordScope>($I`LegalPositionRecordScope`)(
-  {
+export class LegalPositionRecordScope extends S.Opaque<LegalPositionRecordScope, { readonly brand: unique symbol }>()(
+  S.Struct({
     orgId: Shared.OrganizationId.annotateKey({
       description: "Organization whose records may be read; never inferred from a row.",
     }),
-  },
-  $I.annote("LegalPositionRecordScope", {
-    description: "Tenant key for every legal position record read that is not keyed by a frame.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalPositionRecordScope", {
+      description: "Tenant key for every legal position record read that is not keyed by a frame.",
+    })
+  )
 ) {}
 
 /**
@@ -85,16 +86,17 @@ export class LegalPositionRecordScope extends S.Class<LegalPositionRecordScope>(
  * @category models
  * @since 0.0.0
  */
-export class ActFrameRecordScope extends S.Class<ActFrameRecordScope>($I`ActFrameRecordScope`)(
-  {
+export class ActFrameRecordScope extends S.Opaque<ActFrameRecordScope, { readonly brand: unique symbol }>()(
+  S.Struct({
     frame: LawPractice.ActFrameId.annotateKey({
       description: "Recorded act frame the exercises or corrections being read belong to.",
     }),
     orgId: Shared.OrganizationId.annotateKey({
       description: "Organization whose records may be read; never inferred from a row.",
     }),
-  },
-  $I.annote("ActFrameRecordScope", {
-    description: "Tenant-scoped frame key for reading the exercises and corrections that cite one frame.",
-  })
+  }).pipe(
+    $I.annoteSchema("ActFrameRecordScope", {
+      description: "Tenant-scoped frame key for reading the exercises and corrections that cite one frame.",
+    })
+  )
 ) {}

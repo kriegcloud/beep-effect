@@ -1,6 +1,6 @@
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
 import * as UsageRecordTable from "@beep/epistemic-tables/entities/UsageRecord";
-import { makeDrizzle, makeDrizzleLayer, migrateBundle } from "@beep/postgres";
+import { MigrationBundleConfig, makeDrizzle, makeDrizzleLayer, migrateBundle } from "@beep/postgres";
 import { it } from "@beep/test-runner";
 import { makePgliteIntegrationGate, makePgliteSqlTestLayer } from "@beep/test-utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
@@ -77,7 +77,10 @@ if (!shouldRunPgliteIntegration) {
         "preserves legacy activity provenance and persists a finalized turn UsageRecord",
         Effect.fnUntraced(function* () {
           const db = yield* makeDrizzle();
-          yield* migrateBundle(db, { migrations: migrationsBeforeOptionalActivity, migrationsSchema: "drizzle" });
+          yield* migrateBundle(
+            db,
+            MigrationBundleConfig.make({ migrations: migrationsBeforeOptionalActivity, migrationsSchema: "drizzle" })
+          );
           const sql = (yield* SqlClient.SqlClient).withoutTransforms();
           yield* sql`
             INSERT INTO epistemic_usage_record (

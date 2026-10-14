@@ -126,7 +126,7 @@ export type BackgroundColorName = BackgroundColorNameDefinition;
  * @since 0.0.0
  * @category schemas
  */
-export const ChalkConstructorOptions = ChalkConstructorOptionsDefinition;
+export const ChalkConstructorOptions: typeof ChalkConstructorOptionsDefinition = ChalkConstructorOptionsDefinition;
 
 /**
  * Constructor options accepted by {@link Chalk}.

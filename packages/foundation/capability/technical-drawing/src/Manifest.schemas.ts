@@ -74,15 +74,16 @@ export type Sha256Hex = typeof Sha256Hex.Type;
  * @category models
  * @since 0.0.0
  */
-export class EngineInfo extends S.Class<EngineInfo>($I`EngineInfo`)(
-  {
+export class EngineInfo extends S.Opaque<EngineInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Engine name." }),
     version: S.NonEmptyString.annotateKey({ description: "Engine version." }),
     binarySha256: S.String.annotateKey({ description: "Hash of the kernel binary, when the engine has one." }),
-  },
-  $I.annote("EngineInfo", {
-    description: "Name, version, and binary hash of the geometry engine.",
-  })
+  }).pipe(
+    $I.annoteSchema("EngineInfo", {
+      description: "Name, version, and binary hash of the geometry engine.",
+    })
+  )
 ) {}
 
 /**
@@ -103,8 +104,8 @@ export class EngineInfo extends S.Class<EngineInfo>($I`EngineInfo`)(
  * @category models
  * @since 0.0.0
  */
-export class FigureRecord extends S.Class<FigureRecord>($I`FigureRecord`)(
-  {
+export class FigureRecord extends S.Opaque<FigureRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     figure: S.Natural.annotateKey({ description: "FIG. number, from 1." }),
     view: ViewName.annotateKey({ description: "View shown." }),
     description: S.NonEmptyString.annotateKey({ description: "Description sentence." }),
@@ -135,11 +136,12 @@ export class FigureRecord extends S.Class<FigureRecord>($I`FigureRecord`)(
           "Faces given shading lines and faces skipped per reason. Absent on unshaded renders and on manifests rendered before graded shading.",
       })
     ),
-  },
-  $I.annote("FigureRecord", {
-    description:
-      "FIG. number, view, description, sheet file, hash, segment counts, camera, and shading coverage of one figure.",
-  })
+  }).pipe(
+    $I.annoteSchema("FigureRecord", {
+      description:
+        "FIG. number, view, description, sheet file, hash, segment counts, camera, and shading coverage of one figure.",
+    })
+  )
 ) {}
 
 /**
@@ -156,16 +158,17 @@ export class FigureRecord extends S.Class<FigureRecord>($I`FigureRecord`)(
  * @category models
  * @since 0.0.0
  */
-export class OmissionProof extends S.Class<OmissionProof>($I`OmissionProof`)(
-  {
+export class OmissionProof extends S.Opaque<OmissionProof, { readonly brand: unique symbol }>()(
+  S.Struct({
     omitted: ViewName.annotateKey({ description: "View omitted." }),
     shown: ViewName.annotateKey({ description: "View it was compared with." }),
     relation: S.Literals(["identical", "mirror"]).annotateKey({ description: "Claimed relation." }),
     proven: S.Boolean.annotateKey({ description: "Whether the projections agreed." }),
-  },
-  $I.annote("OmissionProof", {
-    description: "Outcome of checking one omission claim against the projections.",
-  })
+  }).pipe(
+    $I.annoteSchema("OmissionProof", {
+      description: "Outcome of checking one omission claim against the projections.",
+    })
+  )
 ) {}
 
 /**
@@ -182,16 +185,17 @@ export class OmissionProof extends S.Class<OmissionProof>($I`OmissionProof`)(
  * @category models
  * @since 0.0.0
  */
-export class LabelFontRecord extends S.Class<LabelFontRecord>($I`LabelFontRecord`)(
-  {
+export class LabelFontRecord extends S.Opaque<LabelFontRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     fontFile: S.NonEmptyString.annotateKey({
       description: "Absolute path of the font file, as the sheet options name it.",
     }),
     sha256: Sha256Hex.annotateKey({ description: "SHA-256 of the font file bytes the labels were outlined from." }),
-  },
-  $I.annote("LabelFontRecord", {
-    description: "Path and SHA-256 of an operator label font file outlined by a render.",
-  })
+  }).pipe(
+    $I.annoteSchema("LabelFontRecord", {
+      description: "Path and SHA-256 of an operator label font file outlined by a render.",
+    })
+  )
 ) {}
 
 /**
@@ -214,15 +218,16 @@ export class LabelFontRecord extends S.Class<LabelFontRecord>($I`LabelFontRecord
  * @category models
  * @since 0.0.0
  */
-export class FontPin extends S.Class<FontPin>($I`FontPin`)(
-  {
+export class FontPin extends S.Opaque<FontPin, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: S.NonEmptyString.annotateKey({ description: "Font family a text label requested." }),
     file: S.NonEmptyString.annotateKey({ description: "Absolute path of the font file the family resolved to." }),
     sha256: Sha256Hex.annotateKey({ description: "SHA-256 of the font file bytes embedded in the PDF." }),
-  },
-  $I.annote("FontPin", {
-    description: "Requested family, resolved file, and SHA-256 of a font embedded for text labels.",
-  })
+  }).pipe(
+    $I.annoteSchema("FontPin", {
+      description: "Requested family, resolved file, and SHA-256 of a font embedded for text labels.",
+    })
+  )
 ) {}
 
 /**
@@ -252,8 +257,8 @@ export class FontPin extends S.Class<FontPin>($I`FontPin`)(
  * @category models
  * @since 0.0.0
  */
-export class RenderManifest extends S.Class<RenderManifest>($I`RenderManifest`)(
-  {
+export class RenderManifest extends S.Opaque<RenderManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     title: S.NonEmptyString.annotateKey({ description: "Article title from the spec." }),
     specSha256: S.String.annotateKey({ description: "SHA-256 of the spec file bytes." }),
     engine: EngineInfo.annotateKey({ description: "Geometry engine provenance." }),
@@ -300,9 +305,10 @@ export class RenderManifest extends S.Class<RenderManifest>($I`RenderManifest`)(
           "Fonts resolved and embedded for text labels, with their files and hashes. Empty when every label is outlined.",
       })
     ),
-  },
-  $I.annote("RenderManifest", {
-    description:
-      "Spec hash, engine, model facts, scale, figures, omission proofs, PDF hash, validation, recorded approver, effective sheet options, label font files, and embedded label fonts of a render.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderManifest", {
+      description:
+        "Spec hash, engine, model facts, scale, figures, omission proofs, PDF hash, validation, recorded approver, effective sheet options, label font files, and embedded label fonts of a render.",
+    })
+  )
 ) {}

@@ -117,13 +117,14 @@ const TurboSchemaUrlToVersion = TurboSchemaUrl.pipe(
 
 const decodeSchemaVersion = S.decodeUnknownOption(TurboSchemaUrlToVersion);
 
-class TurboJsonDocument extends S.Class<TurboJsonDocument>($I`TurboJsonDocument`)(
-  {
+class TurboJsonDocument extends S.Opaque<TurboJsonDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.optionalKey(S.String),
-  },
-  $I.annote("TurboJsonDocument", {
-    description: "Subset of turbo.json used to resolve the current schema URL.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboJsonDocument", {
+      description: "Subset of turbo.json used to resolve the current schema URL.",
+    })
+  )
 ) {}
 
 // ── Public API ──────────────────────────────────────────────────────────────
@@ -134,15 +135,16 @@ class TurboJsonDocument extends S.Class<TurboJsonDocument>($I`TurboJsonDocument`
  * @category models
  * @since 0.0.0
  */
-export class TurboConfigFile extends S.Class<TurboConfigFile>($I`TurboConfigFile`)(
-  {
+export class TurboConfigFile extends S.Opaque<TurboConfigFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     schemaUrl: S.String,
     schemaVersion: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("TurboConfigFile", {
-    description: "A turbo.json file (repo-relative) with its current $schema URL and the version it pins, if any.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboConfigFile", {
+      description: "A turbo.json file (repo-relative) with its current $schema URL and the version it pins, if any.",
+    })
+  )
 ) {}
 
 /**
@@ -151,8 +153,8 @@ export class TurboConfigFile extends S.Class<TurboConfigFile>($I`TurboConfigFile
  * @category models
  * @since 0.0.0
  */
-export class TurboSchemaState extends S.Class<TurboSchemaState>($I`TurboSchemaState`)(
-  {
+export class TurboSchemaState extends S.Opaque<TurboSchemaState, { readonly brand: unique symbol }>()(
+  S.Struct({
     installedVersion: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefault(Effect.succeed(""))
@@ -161,10 +163,11 @@ export class TurboSchemaState extends S.Class<TurboSchemaState>($I`TurboSchemaSt
       S.withConstructorDefault(Effect.succeed(A.empty<TurboConfigFile>())),
       S.withDecodingDefault(Effect.succeed(A.empty<TurboConfigFile>()))
     ),
-  },
-  $I.annote("TurboSchemaState", {
-    description: "Resolved Turborepo schema state: installed version plus every turbo.json that pins a $schema.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboSchemaState", {
+      description: "Resolved Turborepo schema state: installed version plus every turbo.json that pins a $schema.",
+    })
+  )
 ) {}
 
 const readTurboConfigFile = Effect.fn("readTurboConfigFile")(function* (

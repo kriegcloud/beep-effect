@@ -118,17 +118,18 @@ export const LAB_EXPORTS_END_MARKER = "// GENERATED LAB EXPORTS END";
  * @category schemas
  * @since 0.0.0
  */
-export class LabIdentitySegmentState extends S.Class<LabIdentitySegmentState>($I`LabIdentitySegmentState`)(
-  {
+export class LabIdentitySegmentState extends S.Opaque<LabIdentitySegmentState, { readonly brand: unique symbol }>()(
+  S.Struct({
     expectedSlugs: S.Array(S.NonEmptyString),
     actualComposerSlugs: S.Array(S.NonEmptyString),
     actualExportSlugs: S.Array(S.NonEmptyString),
     misplacedSlugs: S.Array(S.NonEmptyString),
-  },
-  $I.annote("LabIdentitySegmentState", {
-    description:
-      "Labs identity-segment diff: expected lab slugs from the workspace catalog, actual composer/export slugs read from the marker-fenced regions, and live lab slugs registered outside the regions.",
-  })
+  }).pipe(
+    $I.annoteSchema("LabIdentitySegmentState", {
+      description:
+        "Labs identity-segment diff: expected lab slugs from the workspace catalog, actual composer/export slugs read from the marker-fenced regions, and live lab slugs registered outside the regions.",
+    })
+  )
 ) {}
 
 const BEEP_SCOPE_PREFIX = "@beep/";

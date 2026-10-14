@@ -55,7 +55,7 @@ const $I = $ScratchpadId.create("effected/runner/DocsMigrate");
  * @category models
  * @since 0.0.0
  */
-export class DocBlock extends S.Class<DocBlock>($I`DocBlock`)(
+export class DocBlock extends S.Class<DocBlock, { readonly brand: unique symbol }>($I`DocBlock`)(
   {
     anchor: S.NonEmptyString,
     file: S.NonEmptyString,

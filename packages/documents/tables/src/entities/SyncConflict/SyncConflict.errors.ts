@@ -26,9 +26,10 @@ const $I = $DocumentsTablesId.create("entities/SyncConflict/SyncConflict.errors"
  * @category errors
  * @since 0.0.0
  */
-export class SyncConflictConverterError extends S.TaggedError<SyncConflictConverterError>(
-  $I`SyncConflictConverterError`
-)(
+export class SyncConflictConverterError extends S.TaggedError<
+  SyncConflictConverterError,
+  { readonly brand: unique symbol }
+>($I`SyncConflictConverterError`)(
   "SyncConflictConverterError",
   {
     message: S.String.annotateKey({

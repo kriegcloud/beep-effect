@@ -32,15 +32,17 @@ const $I = $RepoCliId.create("commands/Docgen/Docgen.schemas");
  * @category models
  * @since 0.0.0
  */
-export class ResolveDocgenWorkspacePackageOptions extends S.Class<ResolveDocgenWorkspacePackageOptions>(
-  $I`ResolveDocgenWorkspacePackageOptions`
-)(
-  {
+export class ResolveDocgenWorkspacePackageOptions extends S.Opaque<
+  ResolveDocgenWorkspacePackageOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     rootDir: S.optionalKey(S.String),
-  },
-  $I.annote("ResolveDocgenWorkspacePackageOptions", {
-    description: "Resolved workspace package options for docgen",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolveDocgenWorkspacePackageOptions", {
+      description: "Resolved workspace package options for docgen",
+    })
+  )
 ) {}
 
 /**
@@ -107,8 +109,8 @@ const docgenConfigDocumentExcludeDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class DocgenConfigDocument extends S.Class<DocgenConfigDocument>($I`DocgenConfigDocument`)(
-  {
+export class DocgenConfigDocument extends S.Opaque<DocgenConfigDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.optionalKey(S.String),
     projectHomepage: S.optionalKey(S.String),
     srcLink: S.optionalKey(S.String),
@@ -130,10 +132,11 @@ export class DocgenConfigDocument extends S.Class<DocgenConfigDocument>($I`Docge
     ),
     parseCompilerOptions: S.optionalKey(S.Union([S.String, DocgenJsonObject])),
     examplesCompilerOptions: S.optionalKey(S.Union([S.String, DocgenJsonObject])),
-  },
-  $I.annote("DocgenConfigDocument", {
-    description: "Parsed docgen.json document used by the command suite.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenConfigDocument", {
+      description: "Parsed docgen.json document used by the command suite.",
+    })
+  )
 ) {}
 
 /**
@@ -158,8 +161,8 @@ export class DocgenConfigDocument extends S.Class<DocgenConfigDocument>($I`Docge
  * @category models
  * @since 0.0.0
  */
-export class DocgenWorkspacePackage extends S.Class<DocgenWorkspacePackage>($I`DocgenWorkspacePackage`)(
-  {
+export class DocgenWorkspacePackage extends S.Opaque<DocgenWorkspacePackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     relativePath: S.String,
     absolutePath: S.String,
@@ -171,10 +174,11 @@ export class DocgenWorkspacePackage extends S.Class<DocgenWorkspacePackage>($I`D
     hasDocgenConfig: S.Boolean,
     hasGeneratedDocs: S.Boolean,
     status: DocgenPackageStatus,
-  },
-  $I.annote("DocgenWorkspacePackage", {
-    description: "Workspace package metadata used by docgen commands.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenWorkspacePackage", {
+      description: "Workspace package metadata used by docgen commands.",
+    })
+  )
 ) {}
 
 /**
@@ -281,8 +285,8 @@ export type DocgenExportKind = typeof DocgenExportKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`DocgenExportAnalysis`)(
-  {
+export class DocgenExportAnalysis extends S.Opaque<DocgenExportAnalysis, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     kind: DocgenExportKind,
     filePath: S.String,
@@ -295,10 +299,11 @@ export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`Docge
     context: S.optionalKey(S.String),
     priority: DocgenIssuePriority,
     declarationSource: S.String,
-  },
-  $I.annote("DocgenExportAnalysis", {
-    description: "Analysis finding for a single export or module-level doc requirement.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenExportAnalysis", {
+      description: "Analysis finding for a single export or module-level doc requirement.",
+    })
+  )
 ) {}
 
 /**
@@ -323,8 +328,8 @@ export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`Docge
  * @category models
  * @since 0.0.0
  */
-export class DocgenAnalysisSummary extends S.Class<DocgenAnalysisSummary>($I`DocgenAnalysisSummary`)(
-  {
+export class DocgenAnalysisSummary extends S.Opaque<DocgenAnalysisSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     totalExports: S.Finite,
     fullyDocumented: S.Finite,
     missingDocumentation: S.Finite,
@@ -332,10 +337,11 @@ export class DocgenAnalysisSummary extends S.Class<DocgenAnalysisSummary>($I`Doc
     invalidCategory: S.Finite,
     missingExample: S.Finite,
     missingSince: S.Finite,
-  },
-  $I.annote("DocgenAnalysisSummary", {
-    description: "Summary counts for a package analysis run.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenAnalysisSummary", {
+      description: "Summary counts for a package analysis run.",
+    })
+  )
 ) {}
 
 /**
@@ -369,17 +375,18 @@ export class DocgenAnalysisSummary extends S.Class<DocgenAnalysisSummary>($I`Doc
  * @category models
  * @since 0.0.0
  */
-export class DocgenPackageAnalysis extends S.Class<DocgenPackageAnalysis>($I`DocgenPackageAnalysis`)(
-  {
+export class DocgenPackageAnalysis extends S.Opaque<DocgenPackageAnalysis, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     packagePath: S.String,
     timestamp: S.String,
     exports: S.Array(DocgenExportAnalysis),
     summary: DocgenAnalysisSummary,
-  },
-  $I.annote("DocgenPackageAnalysis", {
-    description: "Package-level analysis document written by docgen analyze.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenPackageAnalysis", {
+      description: "Package-level analysis document written by docgen analyze.",
+    })
+  )
 ) {}
 
 /**
@@ -401,18 +408,19 @@ export class DocgenPackageAnalysis extends S.Class<DocgenPackageAnalysis>($I`Doc
  * @category models
  * @since 0.0.0
  */
-export class DocgenGenerationResult extends S.Class<DocgenGenerationResult>($I`DocgenGenerationResult`)(
-  {
+export class DocgenGenerationResult extends S.Opaque<DocgenGenerationResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     packagePath: S.String,
     success: S.Boolean,
     moduleCount: S.optionalKey(S.Finite),
     error: S.optionalKey(S.String),
     output: S.optionalKey(S.String),
-  },
-  $I.annote("DocgenGenerationResult", {
-    description: "Per-package docgen generation result.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenGenerationResult", {
+      description: "Per-package docgen generation result.",
+    })
+  )
 ) {}
 
 /**
@@ -435,16 +443,17 @@ export class DocgenGenerationResult extends S.Class<DocgenGenerationResult>($I`D
  * @category models
  * @since 0.0.0
  */
-export class DocgenAggregateResult extends S.Class<DocgenAggregateResult>($I`DocgenAggregateResult`)(
-  {
+export class DocgenAggregateResult extends S.Opaque<DocgenAggregateResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     packagePath: S.String,
     docsOutputPath: S.String,
     fileCount: S.Finite,
-  },
-  $I.annote("DocgenAggregateResult", {
-    description: "Per-package aggregated docs result.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenAggregateResult", {
+      description: "Per-package aggregated docs result.",
+    })
+  )
 ) {}
 
 /**

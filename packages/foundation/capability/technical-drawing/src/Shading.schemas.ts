@@ -172,15 +172,16 @@ export type ShadingTone = typeof ShadingTone.Type;
  * @category models
  * @since 0.0.0
  */
-export class FaceEdge extends S.Class<FaceEdge>($I`FaceEdge`)(
-  {
+export class FaceEdge extends S.Opaque<FaceEdge, { readonly brand: unique symbol }>()(
+  S.Struct({
     start: Vec3.annotateKey({ description: "Start point of the edge." }),
     end: Vec3.annotateKey({ description: "End point of the edge." }),
     length: S.Finite.annotateKey({ description: "Edge length as the kernel measured it." }),
-  },
-  $I.annote("FaceEdge", {
-    description: "A straight boundary edge of a planar face: end points and measured length.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceEdge", {
+      description: "A straight boundary edge of a planar face: end points and measured length.",
+    })
+  )
 ) {}
 
 /**
@@ -212,17 +213,18 @@ export class FaceEdge extends S.Class<FaceEdge>($I`FaceEdge`)(
  * @category models
  * @since 0.0.0
  */
-export class FaceFacts extends S.Class<FaceFacts>($I`FaceFacts`)(
-  {
+export class FaceFacts extends S.Opaque<FaceFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     normal: Vec3.annotateKey({ description: "Outward unit normal of the face." }),
     center: Vec3.annotateKey({ description: "Centre of mass of the face." }),
     edges: S.Array(FaceEdge).annotateKey({ description: "Straight boundary edges, in the kernel's order." }),
     outline: S.Array(Vec3).annotateKey({ description: "Sample points on every boundary edge." }),
     bounds: BoundingBox.annotateKey({ description: "Kernel bounding box of the face." }),
-  },
-  $I.annote("FaceFacts", {
-    description: "Normal, centre, straight edges, outline samples, and bounds of one planar face.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceFacts", {
+      description: "Normal, centre, straight edges, outline samples, and bounds of one planar face.",
+    })
+  )
 ) {}
 
 /**
@@ -246,16 +248,17 @@ export class FaceFacts extends S.Class<FaceFacts>($I`FaceFacts`)(
  * @category models
  * @since 0.0.0
  */
-export class ViewFacts extends S.Class<ViewFacts>($I`ViewFacts`)(
-  {
+export class ViewFacts extends S.Opaque<ViewFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     eye: Vec3.annotateKey({ description: "Unit direction from the target toward the viewer." }),
     right: Vec3.annotateKey({ description: "Unit sheet-right direction." }),
     up: Vec3.annotateKey({ description: "Unit sheet-up direction." }),
     light: Vec3.annotateKey({ description: "Unit direction toward the 1.84(m) light." }),
-  },
-  $I.annote("ViewFacts", {
-    description: "Sheet frame (eye, right, up) and 1.84(m) light of one view in model coordinates.",
-  })
+  }).pipe(
+    $I.annoteSchema("ViewFacts", {
+      description: "Sheet frame (eye, right, up) and 1.84(m) light of one view in model coordinates.",
+    })
+  )
 ) {}
 
 /**
@@ -274,8 +277,8 @@ export class ViewFacts extends S.Class<ViewFacts>($I`ViewFacts`)(
  * @category models
  * @since 0.0.0
  */
-export class FaceAnchor extends S.Class<FaceAnchor>($I`FaceAnchor`)(
-  {
+export class FaceAnchor extends S.Opaque<FaceAnchor, { readonly brand: unique symbol }>()(
+  S.Struct({
     point: Vec3.annotateKey({ description: "Outline point farthest toward the shadow side." }),
     step: Vec3.annotateKey({ description: "Unit in-plane direction from the anchor into the face." }),
     edge: S.OptionFromOptionalKey(FaceEdge).pipe(
@@ -284,10 +287,11 @@ export class FaceAnchor extends S.Class<FaceAnchor>($I`FaceAnchor`)(
         description: "The straight edge along the hatch direction that lies on the shadow side, when the face has one.",
       })
     ),
-  },
-  $I.annote("FaceAnchor", {
-    description: "Shadow-side anchor point, inward step, and anchor edge of graded shading on one face.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceAnchor", {
+      description: "Shadow-side anchor point, inward step, and anchor edge of graded shading on one face.",
+    })
+  )
 ) {}
 
 const StrokeExtent = S.Finite.check(
@@ -327,18 +331,19 @@ const StrokeExtent = S.Finite.check(
  * @category models
  * @since 0.0.0
  */
-export class ShadingCut extends S.Class<ShadingCut>($I`ShadingCut`)(
-  {
+export class ShadingCut extends S.Opaque<ShadingCut, { readonly brand: unique symbol }>()(
+  S.Struct({
     offset: S.Finite.annotateKey({ description: "Plane position along `step`, in model units." }),
     extent: StrokeExtent.pipe(
       S.withConstructorDefault(Effect.succeed(1)),
       S.withDecodingDefaultTypeKey(Effect.succeed(1)),
       S.annotateKey({ description: "Fraction of the chord drawn, centred on it. Defaults to 1 (the full chord)." })
     ),
-  },
-  $I.annote("ShadingCut", {
-    description: "A section plane's offset along the step and the drawn fraction of its chord.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingCut", {
+      description: "A section plane's offset along the step and the drawn fraction of its chord.",
+    })
+  )
 ) {}
 
 /**
@@ -358,19 +363,20 @@ export class ShadingCut extends S.Class<ShadingCut>($I`ShadingCut`)(
  * @category models
  * @since 0.0.0
  */
-export class ShadingLines extends S.Class<ShadingLines>($I`ShadingLines`)(
-  {
+export class ShadingLines extends S.Opaque<ShadingLines, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("lines").annotateKey({ description: "Treatment discriminator." }),
     origin: Vec3.annotateKey({ description: "Point the offsets are measured from." }),
     step: Vec3.annotateKey({ description: "Unit in-plane direction across the lines; also each plane's normal." }),
     cuts: S.Array(ShadingCut).annotateKey({
       description: "Section planes along `step`, each with the fraction of its chord that is drawn.",
     }),
-  },
-  $I.annote("ShadingLines", {
-    description:
-      "Section planes, as origin, step, and cuts, that cut one face into shading lines drawn over a centred fraction of each chord.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingLines", {
+      description:
+        "Section planes, as origin, step, and cuts, that cut one face into shading lines drawn over a centred fraction of each chord.",
+    })
+  )
 ) {}
 
 const CutIndex = S.Int.check(S.isGreaterThanOrEqualTo(0));
@@ -393,8 +399,8 @@ const CutIndex = S.Int.check(S.isGreaterThanOrEqualTo(0));
  * @category models
  * @since 0.0.0
  */
-export class ShadingWindow extends S.Class<ShadingWindow>($I`ShadingWindow`)(
-  {
+export class ShadingWindow extends S.Opaque<ShadingWindow, { readonly brand: unique symbol }>()(
+  S.Struct({
     start: S.Finite.annotateKey({ description: "Where the stretch begins along the step, from the shadow anchor." }),
     span: S.Finite.check(S.isGreaterThan(0)).annotateKey({ description: "Length of the stretch along the step." }),
     low: S.OptionFromOptionalKey(S.Finite).pipe(
@@ -408,10 +414,11 @@ export class ShadingWindow extends S.Class<ShadingWindow>($I`ShadingWindow`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Highest position along the lines at which the stretch was seen." })
     ),
-  },
-  $I.annote("ShadingWindow", {
-    description: "A visible stretch of a face along its shading step, from the shadow anchor.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingWindow", {
+      description: "A visible stretch of a face along its shading step, from the shadow anchor.",
+    })
+  )
 ) {}
 
 /**
@@ -435,8 +442,8 @@ export class ShadingWindow extends S.Class<ShadingWindow>($I`ShadingWindow`)(
  * @category models
  * @since 0.0.0
  */
-export class ShadingProbe extends S.Class<ShadingProbe>($I`ShadingProbe`)(
-  {
+export class ShadingProbe extends S.Opaque<ShadingProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     face: CutIndex.annotateKey({ description: "Index of the face in its shape." }),
     rank: CutIndex.annotateKey({ description: "Position of the probe among its face's probes." }),
     from: Vec3.annotateKey({ description: "One end of the probe, in model space." }),
@@ -447,10 +454,11 @@ export class ShadingProbe extends S.Class<ShadingProbe>($I`ShadingProbe`)(
     reach: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
       description: "Half the spacing between the face's probes along its lines: what one probe stands for.",
     }),
-  },
-  $I.annote("ShadingProbe", {
-    description: "A probe line across one face, for the hidden-line pass to read the face's visible stretches from.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingProbe", {
+      description: "A probe line across one face, for the hidden-line pass to read the face's visible stretches from.",
+    })
+  )
 ) {}
 
 /**
@@ -467,14 +475,15 @@ export class ShadingProbe extends S.Class<ShadingProbe>($I`ShadingProbe`)(
  * @category models
  * @since 0.0.0
  */
-export class ShadingSkipped extends S.Class<ShadingSkipped>($I`ShadingSkipped`)(
-  {
+export class ShadingSkipped extends S.Opaque<ShadingSkipped, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("skipped").annotateKey({ description: "Treatment discriminator." }),
     reason: ShadingSkipReason.annotateKey({ description: "Why the face gets no lines." }),
-  },
-  $I.annote("ShadingSkipped", {
-    description: "A face left unshaded, with the reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingSkipped", {
+      description: "A face left unshaded, with the reason.",
+    })
+  )
 ) {}
 
 /**

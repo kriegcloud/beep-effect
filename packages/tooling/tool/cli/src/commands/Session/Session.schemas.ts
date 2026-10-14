@@ -109,8 +109,8 @@ export type SessionRole = typeof SessionRole.Type;
  * @category models
  * @since 0.0.0
  */
-export class SessionLedgerRow extends S.Class<SessionLedgerRow>($I`SessionLedgerRow`)(
-  {
+export class SessionLedgerRow extends S.Opaque<SessionLedgerRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("session-ledger/v1"),
     repository: PrRepository,
     clone: S.String,
@@ -125,10 +125,11 @@ export class SessionLedgerRow extends S.Class<SessionLedgerRow>($I`SessionLedger
     sessionId: S.OptionFromNullOr(S.String),
     recordedAt: S.DateTimeUtcFromString,
     role: SessionRole.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SessionLedgerRow", {
-    description: "Where one harness session stopped in a checkout and what it meant to do next.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionLedgerRow", {
+      description: "Where one harness session stopped in a checkout and what it meant to do next.",
+    })
+  )
 ) {}
 
 /**
@@ -162,13 +163,14 @@ export const SessionLedgerRowJson = JsonStringCodec(SessionLedgerRow);
  * @category models
  * @since 0.0.0
  */
-export class SessionOpenReport extends S.Class<SessionOpenReport>($I`SessionOpenReport`)(
-  {
+export class SessionOpenReport extends S.Opaque<SessionOpenReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("session-open/v1"),
     repository: PrRepository,
     rows: S.Array(SessionLedgerRow),
-  },
-  $I.annote("SessionOpenReport", { description: "The newest non-done ledger row per checkout, newest first." })
+  }).pipe(
+    $I.annoteSchema("SessionOpenReport", { description: "The newest non-done ledger row per checkout, newest first." })
+  )
 ) {}
 
 /**

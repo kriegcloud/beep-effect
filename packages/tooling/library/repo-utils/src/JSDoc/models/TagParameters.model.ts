@@ -30,8 +30,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/TagParameters.model");
  * @category models
  * @since 0.0.0
  */
-export class TagParameters extends S.Class<TagParameters>($I`TagParameters`)(
-  {
+export class TagParameters extends S.Opaque<TagParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Short syntax template for a typed parameter tag. */
     syntax: S.String.annotateKey({
       description: "Short syntax template for a typed parameter tag.",
@@ -52,8 +52,9 @@ export class TagParameters extends S.Class<TagParameters>($I`TagParameters`)(
     allowedValues: S.String.pipe(S.Array, S.OptionFromOptionalKey).annotateKey({
       description: "For tags with constrained values, the allowed options",
     }),
-  },
-  $I.annote("TagParameters", {
-    description: "Structured description of what arguments a tag accepts",
-  })
+  }).pipe(
+    $I.annoteSchema("TagParameters", {
+      description: "Structured description of what arguments a tag accepts",
+    })
+  )
 ) {}

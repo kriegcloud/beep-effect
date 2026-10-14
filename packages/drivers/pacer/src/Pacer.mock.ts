@@ -254,8 +254,8 @@ export type PacerCasesOption = typeof PacerCasesOption.Type;
  * @category models
  * @since 0.0.0
  */
-export class PacerMockOptions extends S.Class<PacerMockOptions>($I`PacerMockOptions`)(
-  {
+export class PacerMockOptions extends S.Opaque<PacerMockOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * cso-auth behavior. Defaults to `"success"`.
      */
@@ -311,10 +311,11 @@ export class PacerMockOptions extends S.Class<PacerMockOptions>($I`PacerMockOpti
         default: "success",
       })
     ),
-  },
-  $I.annote("PacerMockOptions", {
-    description: "Selects which scenario the mock serves.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacerMockOptions", {
+      description: "Selects which scenario the mock serves.",
+    })
+  )
 ) {}
 
 interface PacerMockRuntimeOptions {

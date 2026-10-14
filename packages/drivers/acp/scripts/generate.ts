@@ -13,15 +13,16 @@ const packageRoot = `${import.meta.dirname}/..`;
 const releaseBaseUrl = `https://github.com/agentclientprotocol/agent-client-protocol/releases/download/${CURRENT_SCHEMA_RELEASE}`;
 const $I = $AcpId.create("scripts/generate");
 
-class MetaJson extends S.Class<MetaJson>($I`MetaJson`)(
-  {
+class MetaJson extends S.Opaque<MetaJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentMethods: S.Record(S.String, S.String),
     clientMethods: S.Record(S.String, S.String),
     version: S.Union([S.Finite, S.String]),
-  },
-  $I.annote("MetaJson", {
-    description: "ACP upstream metadata JSON consumed by the package-specific extra renderer.",
-  })
+  }).pipe(
+    $I.annoteSchema("MetaJson", {
+      description: "ACP upstream metadata JSON consumed by the package-specific extra renderer.",
+    })
+  )
 ) {}
 
 const metaSource: SpecSource = {

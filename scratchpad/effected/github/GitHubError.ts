@@ -135,7 +135,7 @@ export type GitHubValidationCode = typeof GitHubValidationCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class GitHubValidationEntry extends S.Class<GitHubValidationEntry>($I`GitHubValidationEntry`)({
+export class GitHubValidationEntry extends S.Class<GitHubValidationEntry, { readonly brand: unique symbol }>($I`GitHubValidationEntry`)({
 	/** The resource type GitHub validated, e.g. `"Release"`. */
 	resource: S.optionalKey(S.String).annotateKey({ description: "The resource type GitHub validated, e.g. `\"Release\"`." }),
 	/** The parameter at fault, e.g. `"tag_name"`. */
@@ -168,7 +168,7 @@ export class GitHubValidationEntry extends S.Class<GitHubValidationEntry>($I`Git
  * @category errors
  * @since 0.0.0
  */
-export class GitHubError extends S.TaggedError<GitHubError>($I`GitHubError`)("GitHubError", {
+export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: unique symbol }>($I`GitHubError`)("GitHubError", {
 	/** Structural routing. Branch on this, never on the rendered message. */
 	kind: GitHubErrorKind.annotateKey({ description: "Structural routing. Branch on this, never on the rendered message." }),
 	/** What was attempted: a resource method (`"GitBranch.upsert"`) or a raw route. */

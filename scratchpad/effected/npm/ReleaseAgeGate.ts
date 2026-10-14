@@ -172,7 +172,7 @@ const matchesExclude = (name: string, patterns: readonly string[]): boolean =>
  * @category models
  * @since 0.0.0
  */
-export class ReleaseAgeGate extends S.Class<ReleaseAgeGate>($I`ReleaseAgeGate`)({
+export class ReleaseAgeGate extends S.Class<ReleaseAgeGate, { readonly brand: unique symbol }>($I`ReleaseAgeGate`)({
 	/**
 	 * Minutes a published version must age before it is eligible (non-negative, finite).
 	 *

@@ -184,8 +184,8 @@ export const ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS = 250 as const;
  * @category configuration
  * @since 0.0.0
  */
-export class AnthropicApproximatePrice extends S.Class<AnthropicApproximatePrice>($I`AnthropicApproximatePrice`)(
-  {
+export class AnthropicApproximatePrice extends S.Opaque<AnthropicApproximatePrice, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputPerMillionTokensUsd: AnthropicTokenPriceUsd.annotateKey({
       description: "Approximate USD price per million input tokens for this model.",
     }),
@@ -195,10 +195,11 @@ export class AnthropicApproximatePrice extends S.Class<AnthropicApproximatePrice
     outputPerMillionTokensUsd: AnthropicTokenPriceUsd.annotateKey({
       description: "Approximate USD price per million output tokens for this model.",
     }),
-  },
-  $I.annote("AnthropicApproximatePrice", {
-    description: "Approximate static Anthropic model price used for usage attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnthropicApproximatePrice", {
+      description: "Approximate static Anthropic model price used for usage attribution.",
+    })
+  )
 ) {}
 
 /**
@@ -253,10 +254,11 @@ const anthropicLanguageModelOptionsMaxTokensDefault = PosInt.make(ANTHROPIC_DEFA
  * @category models
  * @since 0.0.0
  */
-export class AnthropicLanguageModelOptions extends S.Class<AnthropicLanguageModelOptions>(
-  $I`AnthropicLanguageModelOptions`
-)(
-  {
+export class AnthropicLanguageModelOptions extends S.Opaque<
+  AnthropicLanguageModelOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     maxTokens: PosInt.pipe(
       S.withConstructorDefault(Effect.succeed(anthropicLanguageModelOptionsMaxTokensDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(anthropicLanguageModelOptionsMaxTokensDefault))
@@ -272,8 +274,9 @@ export class AnthropicLanguageModelOptions extends S.Class<AnthropicLanguageMode
     temperature: S.optionalKey(S.Finite.check(S.isBetween({ maximum: 1, minimum: 0 }))).annotateKey({
       description: "Sampling temperature from 0 to 1 forwarded as `temperature`; the provider default when absent.",
     }),
-  },
-  $I.annote("AnthropicLanguageModelOptions", {
-    description: "Options accepted by Anthropic language-model layer helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnthropicLanguageModelOptions", {
+      description: "Options accepted by Anthropic language-model layer helpers.",
+    })
+  )
 ) {}

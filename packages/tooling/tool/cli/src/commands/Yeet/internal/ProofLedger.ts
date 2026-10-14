@@ -209,16 +209,17 @@ export type ProofChangedPackageTripwire = (key: ProofInputDigest) => boolean;
  * @category models
  * @since 0.0.0
  */
-export class ProofLedgerSnapshot extends S.Class<ProofLedgerSnapshot>($I`ProofLedgerSnapshot`)(
-  {
+export class ProofLedgerSnapshot extends S.Opaque<ProofLedgerSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     shadowRows: S.Array(ProofLedgerShadowRow),
     facts: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     expiredFacts: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     malformedRows: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("ProofLedgerSnapshot", {
-    description: "Shadow rows, fact count, expired-fact count and malformed-row count read from one ledger load.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofLedgerSnapshot", {
+      description: "Shadow rows, fact count, expired-fact count and malformed-row count read from one ledger load.",
+    })
+  )
 ) {}
 
 // Newest-first facts from a loaded ledger, decoded once per snapshot.

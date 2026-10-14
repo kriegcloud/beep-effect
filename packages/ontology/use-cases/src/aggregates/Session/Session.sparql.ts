@@ -7,7 +7,7 @@
 
 import { $OntologyUseCasesId } from "@beep/identity/packages";
 import { deriveSessionGraphPartitions, graphPartitionIri, Session } from "@beep/ontology-domain/aggregates/Session";
-import { makeDataset, makeNamedNode, makeQuad } from "@beep/rdf/Rdf";
+import { MakeQuadOptionsInput, makeDataset, makeNamedNode, makeQuad } from "@beep/rdf/Rdf";
 import { LiteralKit } from "@beep/schema";
 import {
   SparqlConstructResult,
@@ -87,8 +87,8 @@ export type OntologySparqlPanelProfile = typeof OntologySparqlPanelProfile.Type;
  * @category queries
  * @since 0.0.0
  */
-export class OntologySparqlSafeguards extends S.Class<OntologySparqlSafeguards>($I`OntologySparqlSafeguards`)(
-  {
+export class OntologySparqlSafeguards extends S.Opaque<OntologySparqlSafeguards, { readonly brand: unique symbol }>()(
+  S.Struct({
     defaultLimit: S.Natural.pipe(
       S.withConstructorDefault(Effect.succeed(100)),
       S.withDecodingDefaultKey(Effect.succeed(100))
@@ -97,10 +97,11 @@ export class OntologySparqlSafeguards extends S.Class<OntologySparqlSafeguards>(
       S.withConstructorDefault(Effect.succeed(200)),
       S.withDecodingDefaultKey(Effect.succeed(200))
     ),
-  },
-  $I.annote("OntologySparqlSafeguards", {
-    description: "SPARQL query safeguard envelope.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySparqlSafeguards", {
+      description: "SPARQL query safeguard envelope.",
+    })
+  )
 ) {}
 
 /**
@@ -124,16 +125,17 @@ export class OntologySparqlSafeguards extends S.Class<OntologySparqlSafeguards>(
  * @category queries
  * @since 0.0.0
  */
-export class OntologySparqlExample extends S.Class<OntologySparqlExample>($I`OntologySparqlExample`)(
-  {
+export class OntologySparqlExample extends S.Opaque<OntologySparqlExample, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     label: S.NonEmptyString,
     profile: OntologySparqlPanelProfile,
     query: S.NonEmptyString,
-  },
-  $I.annote("OntologySparqlExample", {
-    description: "SPARQL panel example query.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySparqlExample", {
+      description: "SPARQL panel example query.",
+    })
+  )
 ) {}
 
 /**
@@ -164,8 +166,8 @@ export class OntologySparqlExample extends S.Class<OntologySparqlExample>($I`Ont
  * @category queries
  * @since 0.0.0
  */
-export class RunOntologySparqlInput extends S.Class<RunOntologySparqlInput>($I`RunOntologySparqlInput`)(
-  {
+export class RunOntologySparqlInput extends S.Opaque<RunOntologySparqlInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     session: Session,
     profile: OntologySparqlPanelProfile,
     query: S.NonEmptyString,
@@ -178,10 +180,11 @@ export class RunOntologySparqlInput extends S.Class<RunOntologySparqlInput>($I`R
       S.withConstructorDefault(Effect.succeed(OntologySparqlSafeguards.make({}))),
       S.withDecodingDefaultKey(Effect.succeed(OntologySparqlSafeguards.make({})))
     ),
-  },
-  $I.annote("RunOntologySparqlInput", {
-    description: "SPARQL execution input for an ontology session.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunOntologySparqlInput", {
+      description: "SPARQL execution input for an ontology session.",
+    })
+  )
 ) {}
 
 /**
@@ -212,8 +215,8 @@ export class RunOntologySparqlInput extends S.Class<RunOntologySparqlInput>($I`R
  * @category queries
  * @since 0.0.0
  */
-export class RunOntologySparqlResult extends S.Class<RunOntologySparqlResult>($I`RunOntologySparqlResult`)(
-  {
+export class RunOntologySparqlResult extends S.Opaque<RunOntologySparqlResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     profile: OntologySparqlPanelProfile,
     submittedQuery: S.String,
     normalizedQuery: S.String,
@@ -223,10 +226,11 @@ export class RunOntologySparqlResult extends S.Class<RunOntologySparqlResult>($I
     rawResultCount: S.Int,
     displayedResultCount: S.Int,
     result: SparqlQueryResult,
-  },
-  $I.annote("RunOntologySparqlResult", {
-    description: "SPARQL execution result with applied safeguards.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunOntologySparqlResult", {
+      description: "SPARQL execution result with applied safeguards.",
+    })
+  )
 ) {}
 
 /**
@@ -248,7 +252,9 @@ export class RunOntologySparqlResult extends S.Class<RunOntologySparqlResult>($I
  * @category errors
  * @since 0.0.0
  */
-export class OntologySparqlError extends S.TaggedError<OntologySparqlError>($I`OntologySparqlError`)(
+export class OntologySparqlError extends S.TaggedError<OntologySparqlError, { readonly brand: unique symbol }>(
+  $I`OntologySparqlError`
+)(
   "OntologySparqlError",
   {
     reason: LiteralKit(["profileMismatch", "engineFailed"]).pipe(
@@ -521,10 +527,14 @@ const injectLimit = (query: string, limit: number): { readonly query: string; re
 const partitionDataset = (partition: GraphPartition, quads: ReadonlyArray<Quad>): ReadonlyArray<Quad> => {
   const graph = makeNamedNode(graphPartitionIri(partition));
   return A.map(quads, (quad) =>
-    makeQuad(quad.subject, quad.predicate, {
-      object: quad.object,
-      graph,
-    })
+    makeQuad(
+      quad.subject,
+      quad.predicate,
+      MakeQuadOptionsInput.make({
+        object: quad.object,
+        graph,
+      })
+    )
   );
 };
 

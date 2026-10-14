@@ -26,9 +26,10 @@ const $I = $DocumentsTablesId.create("entities/SyncOperation/SyncOperation.error
  * @category errors
  * @since 0.0.0
  */
-export class SyncOperationConverterError extends S.TaggedError<SyncOperationConverterError>(
-  $I`SyncOperationConverterError`
-)(
+export class SyncOperationConverterError extends S.TaggedError<
+  SyncOperationConverterError,
+  { readonly brand: unique symbol }
+>($I`SyncOperationConverterError`)(
   "SyncOperationConverterError",
   {
     message: S.String.annotateKey({

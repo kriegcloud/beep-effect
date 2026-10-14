@@ -41,8 +41,8 @@ const $I = $WorkspaceServerId.create("aggregates/Thread/ThreadStore.repo.interna
  * @category repositories
  * @since 0.0.0
  */
-export class ThreadEntityInput extends S.Class<ThreadEntityInput>($I`ThreadEntityInput`)(
-  {
+export class ThreadEntityInput extends S.Opaque<ThreadEntityInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: PosInt.annotateKey({
       description: "Positive generated Thread entity id.",
     }),
@@ -52,10 +52,11 @@ export class ThreadEntityInput extends S.Class<ThreadEntityInput>($I`ThreadEntit
     workspaceId: PosInt.annotateKey({
       description: "Positive workspace id owning the Thread entity.",
     }),
-  },
-  $I.annote("ThreadEntityInput", {
-    description: "Input for creating a Thread entity.",
-  })
+  }).pipe(
+    $I.annoteSchema("ThreadEntityInput", {
+      description: "Input for creating a Thread entity.",
+    })
+  )
 ) {}
 
 /**
@@ -83,8 +84,8 @@ export class ThreadEntityInput extends S.Class<ThreadEntityInput>($I`ThreadEntit
  * @category repositories
  * @since 0.0.0
  */
-export class TurnEntityInput extends S.Class<TurnEntityInput>($I`TurnEntityInput`)(
-  {
+export class TurnEntityInput extends S.Opaque<TurnEntityInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: PosInt.annotateKey({
       description: "Positive generated Turn entity id.",
     }),
@@ -100,10 +101,11 @@ export class TurnEntityInput extends S.Class<TurnEntityInput>($I`TurnEntityInput
     turnIndex: S.Natural.annotateKey({
       description: "Zero-based non-negative order of this Turn within its Thread.",
     }),
-  },
-  $I.annote("TurnEntityInput", {
-    description: "Input for creating a Turn entity.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurnEntityInput", {
+      description: "Input for creating a Turn entity.",
+    })
+  )
 ) {}
 
 /**
@@ -132,8 +134,8 @@ export class TurnEntityInput extends S.Class<TurnEntityInput>($I`TurnEntityInput
  * @category repositories
  * @since 0.0.0
  */
-export class MessageEntityInput extends S.Class<MessageEntityInput>($I`MessageEntityInput`)(
-  {
+export class MessageEntityInput extends S.Opaque<MessageEntityInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: Document.annotateKey({
       description: "Md document content persisted as the Message body.",
     }),
@@ -149,10 +151,11 @@ export class MessageEntityInput extends S.Class<MessageEntityInput>($I`MessageEn
     turnId: PosInt.annotateKey({
       description: "Positive Turn id linked to this Message.",
     }),
-  },
-  $I.annote("MessageEntityInput", {
-    description: "Input for creating a Message entity.",
-  })
+  }).pipe(
+    $I.annoteSchema("MessageEntityInput", {
+      description: "Input for creating a Message entity.",
+    })
+  )
 ) {}
 
 /**
@@ -171,8 +174,8 @@ export class MessageEntityInput extends S.Class<MessageEntityInput>($I`MessageEn
  * @category repositories
  * @since 0.0.0
  */
-export class InMemoryState extends S.Class<InMemoryState>($I`InMemoryState`)(
-  {
+export class InMemoryState extends S.Opaque<InMemoryState, { readonly brand: unique symbol }>()(
+  S.Struct({
     messages: S.HashMap(PosInt, Message)
       .pipe(S.withConstructorDefault(Effect.succeed(HashMap.empty<PosInt, Message>())))
       .annotateKey({
@@ -191,8 +194,9 @@ export class InMemoryState extends S.Class<InMemoryState>($I`InMemoryState`)(
       .annotateKey({
         description: "Turns currently held by positive Turn id.",
       }),
-  },
-  $I.annote("InMemoryState", {
-    description: "In-memory state for the thread store.",
-  })
+  }).pipe(
+    $I.annoteSchema("InMemoryState", {
+      description: "In-memory state for the thread store.",
+    })
+  )
 ) {}

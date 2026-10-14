@@ -491,16 +491,17 @@ const OperationSource = ArchitectureOperationSource.pipe(
  * @category models
  * @since 0.0.0
  */
-export class ArchitectureSliceRolePlan extends S.Class<ArchitectureSliceRolePlan>($I`ArchitectureSliceRolePlan`)(
-  {
+export class ArchitectureSliceRolePlan extends S.Opaque<ArchitectureSliceRolePlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: ArchitectureSliceRole,
     packageName: S.String,
     path: S.String,
     exports: S.Array(S.String),
-  },
-  $I.annote("ArchitectureSliceRolePlan", {
-    description: "Package-level role metadata emitted by the architecture operation-plan factory.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchitectureSliceRolePlan", {
+      description: "Package-level role metadata emitted by the architecture operation-plan factory.",
+    })
+  )
 ) {}
 
 /**
@@ -524,17 +525,18 @@ export class ArchitectureSliceRolePlan extends S.Class<ArchitectureSliceRolePlan
  * @category models
  * @since 0.0.0
  */
-export class ArchitecturePlanTarget extends S.Class<ArchitecturePlanTarget>($I`ArchitecturePlanTarget`)(
-  {
+export class ArchitecturePlanTarget extends S.Opaque<ArchitecturePlanTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     boundedContext: S.String,
     concept: S.String,
     domainKind: ArchitectureDomainKind,
     conceptPath: S.String,
     stage: ArchitecturePlanStage,
-  },
-  $I.annote("ArchitecturePlanTarget", {
-    description: "Normalized slice, concept, domain-kind, and stage selected by architecture commands.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchitecturePlanTarget", {
+      description: "Normalized slice, concept, domain-kind, and stage selected by architecture commands.",
+    })
+  )
 ) {}
 
 /**
@@ -559,8 +561,8 @@ export class ArchitecturePlanTarget extends S.Class<ArchitecturePlanTarget>($I`A
  * @category models
  * @since 0.0.0
  */
-export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFileOperation`)(
-  {
+export class WriteFileOperation extends S.Opaque<WriteFileOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.Literal("write-file"),
     operationId: OperationId,
     role: ArchitectureSliceRole,
@@ -571,10 +573,11 @@ export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFile
     writer: ArchitectureWriterKind,
     content: S.String,
     description: S.String,
-  },
-  $I.annote("WriteFileOperation", {
-    description: "Operation that materializes a canonical architecture file with failsafe conflict behavior.",
-  })
+  }).pipe(
+    $I.annoteSchema("WriteFileOperation", {
+      description: "Operation that materializes a canonical architecture file with failsafe conflict behavior.",
+    })
+  )
 ) {}
 
 /**
@@ -603,8 +606,8 @@ export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFile
  * @category models
  * @since 0.0.0
  */
-export class WritePackageJsonOperation extends S.Class<WritePackageJsonOperation>($I`WritePackageJsonOperation`)(
-  {
+export class WritePackageJsonOperation extends S.Opaque<WritePackageJsonOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.Literal("write-package-json"),
     operationId: OperationId,
     role: ArchitecturePackageRole,
@@ -619,10 +622,11 @@ export class WritePackageJsonOperation extends S.Class<WritePackageJsonOperation
     dependencies: S.Record(S.String, S.String),
     devDependencies: S.Record(S.String, S.String),
     description: S.String,
-  },
-  $I.annote("WritePackageJsonOperation", {
-    description: "Structured package.json operation selected by the architecture operation-plan factory.",
-  })
+  }).pipe(
+    $I.annoteSchema("WritePackageJsonOperation", {
+      description: "Structured package.json operation selected by the architecture operation-plan factory.",
+    })
+  )
 ) {}
 
 /**
@@ -645,8 +649,8 @@ export class WritePackageJsonOperation extends S.Class<WritePackageJsonOperation
  * @category models
  * @since 0.0.0
  */
-export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureFileOperation`)(
-  {
+export class EnsureFileOperation extends S.Opaque<EnsureFileOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.Literal("ensure-file"),
     operationId: OperationId,
     role: ArchitectureSliceRole,
@@ -655,10 +659,11 @@ export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureF
     conflictPolicy: RequirePresent,
     operationSource: OperationSource,
     description: S.String,
-  },
-  $I.annote("EnsureFileOperation", {
-    description: "Operation asserting that a canonical slice file is materialized.",
-  })
+  }).pipe(
+    $I.annoteSchema("EnsureFileOperation", {
+      description: "Operation asserting that a canonical slice file is materialized.",
+    })
+  )
 ) {}
 
 /**
@@ -680,8 +685,8 @@ export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureF
  * @category models
  * @since 0.0.0
  */
-export class EnsureAbsentPathOperation extends S.Class<EnsureAbsentPathOperation>($I`EnsureAbsentPathOperation`)(
-  {
+export class EnsureAbsentPathOperation extends S.Opaque<EnsureAbsentPathOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.Literal("ensure-absent-path"),
     operationId: OperationId,
     path: S.String,
@@ -689,10 +694,11 @@ export class EnsureAbsentPathOperation extends S.Class<EnsureAbsentPathOperation
     conflictPolicy: RemoveExisting,
     operationSource: OperationSource,
     description: S.String,
-  },
-  $I.annote("EnsureAbsentPathOperation", {
-    description: "Operation asserting that a legacy architecture fixture path is absent.",
-  })
+  }).pipe(
+    $I.annoteSchema("EnsureAbsentPathOperation", {
+      description: "Operation asserting that a legacy architecture fixture path is absent.",
+    })
+  )
 ) {}
 
 /**
@@ -764,16 +770,20 @@ export type ArchitectureOperation = typeof ArchitectureOperation.Type;
  * @category models
  * @since 0.0.0
  */
-export class ArchitectureOperationCheck extends S.Class<ArchitectureOperationCheck>($I`ArchitectureOperationCheck`)(
-  {
+export class ArchitectureOperationCheck extends S.Opaque<
+  ArchitectureOperationCheck,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     operationId: S.String,
     kind: ArchitectureOperationKind,
     path: S.String,
     status: ArchitectureOperationCheckStatus,
-  },
-  $I.annote("ArchitectureOperationCheck", {
-    description: "Per-operation idempotency result returned by architecture operation-plan checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchitectureOperationCheck", {
+      description: "Per-operation idempotency result returned by architecture operation-plan checks.",
+    })
+  )
 ) {}
 
 /**
@@ -799,7 +809,10 @@ export class ArchitectureOperationCheck extends S.Class<ArchitectureOperationChe
  * @category models
  * @since 0.0.0
  */
-export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperationPlan>($I`CanonicalSliceOperationPlan`)(
+export class CanonicalSliceOperationPlan extends S.Class<
+  CanonicalSliceOperationPlan,
+  { readonly brand: unique symbol }
+>($I`CanonicalSliceOperationPlan`)(
   {
     schemaVersion: S.Literal("architecture-operation-plan/v1"),
     target: ArchitecturePlanTarget,
@@ -862,8 +875,8 @@ const operationPlanCheckResultDifferingPathsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class OperationPlanCheckResult extends S.Class<OperationPlanCheckResult>($I`OperationPlanCheckResult`)(
-  {
+export class OperationPlanCheckResult extends S.Opaque<OperationPlanCheckResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     idempotent: S.Boolean,
     operationStatuses: S.Array(ArchitectureOperationCheck).pipe(
       S.withConstructorDefault(Effect.succeed(operationPlanCheckResultOperationStatusesDefault)),
@@ -875,10 +888,11 @@ export class OperationPlanCheckResult extends S.Class<OperationPlanCheckResult>(
       S.withDecodingDefaultType(Effect.succeed(operationPlanCheckResultDifferingPathsDefault))
     ),
     unexpectedPaths: S.Array(S.String),
-  },
-  $I.annote("OperationPlanCheckResult", {
-    description: "Filesystem validation result for a decoded architecture operation plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("OperationPlanCheckResult", {
+      description: "Filesystem validation result for a decoded architecture operation plan.",
+    })
+  )
 ) {}
 
 /**
@@ -900,15 +914,16 @@ export class OperationPlanCheckResult extends S.Class<OperationPlanCheckResult>(
  * @category models
  * @since 0.0.0
  */
-export class OperationPlanApplyResult extends S.Class<OperationPlanApplyResult>($I`OperationPlanApplyResult`)(
-  {
+export class OperationPlanApplyResult extends S.Opaque<OperationPlanApplyResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     writtenPaths: S.Array(S.String),
     skippedPaths: S.Array(S.String),
     removedPaths: S.Array(S.String),
-  },
-  $I.annote("OperationPlanApplyResult", {
-    description: "Filesystem write summary for a decoded architecture operation plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("OperationPlanApplyResult", {
+      description: "Filesystem write summary for a decoded architecture operation plan.",
+    })
+  )
 ) {}
 
 /**

@@ -189,15 +189,16 @@ export const sameFeatureFamily: {
  * @category schema
  * @since 0.0.0
  */
-export class FindingAttributionSummary extends S.Class<FindingAttributionSummary>($I`FindingAttributionSummary`)(
-  {
+export class FindingAttributionSummary extends S.Opaque<FindingAttributionSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     introduced: S.Natural,
     inheritedAdjacent: S.Natural,
     notApplicable: S.Natural,
-  },
-  $I.annote("FindingAttributionSummary", {
-    description: "Count summary for normalized Fallow finding attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("FindingAttributionSummary", {
+      description: "Count summary for normalized Fallow finding attribution.",
+    })
+  )
 ) {}
 
 /**
@@ -207,8 +208,8 @@ export class FindingAttributionSummary extends S.Class<FindingAttributionSummary
  * @category schema
  * @since 0.0.0
  */
-export class FallowReportFinding extends S.Class<FallowReportFinding>($I`FallowReportFinding`)(
-  {
+export class FallowReportFinding extends S.Opaque<FallowReportFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     featureFamily: FallowFeatureFamily,
     attribution: FindingAttributionKind,
@@ -216,10 +217,11 @@ export class FallowReportFinding extends S.Class<FallowReportFinding>($I`FallowR
     subCategory: S.String,
     blocking: S.Boolean,
     sourceRef: S.String,
-  },
-  $I.annote("FallowReportFinding", {
-    description: "Normalized Fallow finding inside the repo-cli report envelope.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportFinding", {
+      description: "Normalized Fallow finding inside the repo-cli report envelope.",
+    })
+  )
 ) {}
 
 /**
@@ -229,14 +231,15 @@ export class FallowReportFinding extends S.Class<FallowReportFinding>($I`FallowR
  * @category schema
  * @since 0.0.0
  */
-export class FallowReportPayload extends S.Class<FallowReportPayload>($I`FallowReportPayload`)(
-  {
+export class FallowReportPayload extends S.Opaque<FallowReportPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     findingCount: S.Natural,
     findings: S.Array(FallowReportFinding),
-  },
-  $I.annote("FallowReportPayload", {
-    description: "Normalized report payload carried by successful Fallow envelopes.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportPayload", {
+      description: "Normalized report payload carried by successful Fallow envelopes.",
+    })
+  )
 ) {}
 
 /**
@@ -290,16 +293,17 @@ export const FallowReportBaseFields = {
  * @category schema
  * @since 0.0.0
  */
-export class FallowReportOk extends S.Class<FallowReportOk>($I`FallowReportOk`)(
-  {
+export class FallowReportOk extends S.Opaque<FallowReportOk, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("ok"),
     exitStatus: S.Natural,
     report: FallowReportPayload,
-  },
-  $I.annote("FallowReportOk", {
-    description: "Successful Fallow envelope. The raw tool exit status is preserved separately.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportOk", {
+      description: "Successful Fallow envelope. The raw tool exit status is preserved separately.",
+    })
+  )
 ) {}
 
 /**
@@ -309,16 +313,17 @@ export class FallowReportOk extends S.Class<FallowReportOk>($I`FallowReportOk`)(
  * @category schema
  * @since 0.0.0
  */
-export class FallowReportToolFailed extends S.Class<FallowReportToolFailed>($I`FallowReportToolFailed`)(
-  {
+export class FallowReportToolFailed extends S.Opaque<FallowReportToolFailed, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("tool-failed"),
     exitStatus: PositiveExitStatus,
     stderrExcerpt: S.String,
-  },
-  $I.annote("FallowReportToolFailed", {
-    description: "Fallow envelope emitted when the tool failed without decodable JSON.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportToolFailed", {
+      description: "Fallow envelope emitted when the tool failed without decodable JSON.",
+    })
+  )
 ) {}
 
 /**
@@ -328,16 +333,17 @@ export class FallowReportToolFailed extends S.Class<FallowReportToolFailed>($I`F
  * @category schema
  * @since 0.0.0
  */
-export class FallowReportInvalidJson extends S.Class<FallowReportInvalidJson>($I`FallowReportInvalidJson`)(
-  {
+export class FallowReportInvalidJson extends S.Opaque<FallowReportInvalidJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("invalid-json"),
     exitStatus: S.Natural,
     stderrExcerpt: S.String,
-  },
-  $I.annote("FallowReportInvalidJson", {
-    description: "Fallow envelope emitted when the tool succeeded but emitted invalid JSON.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportInvalidJson", {
+      description: "Fallow envelope emitted when the tool succeeded but emitted invalid JSON.",
+    })
+  )
 ) {}
 
 /**
@@ -347,16 +353,17 @@ export class FallowReportInvalidJson extends S.Class<FallowReportInvalidJson>($I
  * @category schema
  * @since 0.0.0
  */
-export class FallowReportInvalidReport extends S.Class<FallowReportInvalidReport>($I`FallowReportInvalidReport`)(
-  {
+export class FallowReportInvalidReport extends S.Opaque<FallowReportInvalidReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("invalid-report"),
     exitStatus: S.Natural,
     stderrExcerpt: S.String,
-  },
-  $I.annote("FallowReportInvalidReport", {
-    description: "Fallow envelope emitted when JSON decodes but does not match the expected feature report shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportInvalidReport", {
+      description: "Fallow envelope emitted when JSON decodes but does not match the expected feature report shape.",
+    })
+  )
 ) {}
 
 /**
@@ -366,18 +373,20 @@ export class FallowReportInvalidReport extends S.Class<FallowReportInvalidReport
  * @category schema
  * @since 0.0.0
  */
-export class FallowReportBaseResolutionFailed extends S.Class<FallowReportBaseResolutionFailed>(
-  $I`FallowReportBaseResolutionFailed`
-)(
-  {
+export class FallowReportBaseResolutionFailed extends S.Opaque<
+  FallowReportBaseResolutionFailed,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("base-resolution-failed"),
     exitStatus: PositiveExitStatus,
     stderrExcerpt: S.String,
-  },
-  $I.annote("FallowReportBaseResolutionFailed", {
-    description: "Fallow envelope emitted when a diff-aware base ref cannot be resolved.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportBaseResolutionFailed", {
+      description: "Fallow envelope emitted when a diff-aware base ref cannot be resolved.",
+    })
+  )
 ) {}
 
 /**

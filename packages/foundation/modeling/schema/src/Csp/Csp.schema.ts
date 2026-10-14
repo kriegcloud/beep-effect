@@ -354,8 +354,8 @@ const fetchDirectiveNamesByKey = {
  * @category models
  * @since 0.0.0
  */
-export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
-  {
+export class FetchDirective extends S.Opaque<FetchDirective, { readonly brand: unique symbol }>()(
+  S.Struct({
     childSrc: DirectiveSource,
     "child-src": DirectiveSource,
     connectSrc: DirectiveSource,
@@ -390,12 +390,15 @@ export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
     "style-src-attr": DirectiveSource,
     workerSrc: DirectiveSource,
     "worker-src": DirectiveSource,
-  },
-  $I.annote("FetchDirective", {
-    description: "CSP fetch directive fields and serialization helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("FetchDirective", {
+      description: "CSP fetch directive fields and serialization helpers.",
+    })
+  )
 ) {
-  static readonly convertToString = (directive?: undefined | DirectiveInput<FetchDirective>) => {
+  static readonly convertToString = (
+    directive?: undefined | DirectiveInput<S.Struct.Type<typeof FetchDirective.fields>>
+  ) => {
     if (P.isUndefined(directive)) {
       return Str.empty;
     }
@@ -445,17 +448,18 @@ export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
  * @category models
  * @since 0.0.0
  */
-export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDirective`)(
-  {
+export class DocumentDirective extends S.Opaque<DocumentDirective, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseURI: DirectiveSource,
     "base-uri": DirectiveSource,
     pluginTypes: PluginTypes,
     "plugin-types": PluginTypes,
     sandbox: Sandbox,
-  },
-  $I.annote("DocumentDirective", {
-    description: "CSP document directive fields and serialization helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentDirective", {
+      description: "CSP document directive fields and serialization helpers.",
+    })
+  )
 ) {
   static readonly convertToString = (directive?: undefined | DirectiveInput<DocumentDirective>) => {
     if (P.isUndefined(directive)) {
@@ -510,18 +514,19 @@ export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDir
  * @category models
  * @since 0.0.0
  */
-export class NavigationDirective extends S.Class<NavigationDirective>($I`NavigationDirective`)(
-  {
+export class NavigationDirective extends S.Opaque<NavigationDirective, { readonly brand: unique symbol }>()(
+  S.Struct({
     formAction: DirectiveSource,
     "form-action": DirectiveSource,
     frameAncestors: DirectiveSource,
     "frame-ancestors": DirectiveSource,
     navigateTo: DirectiveSource,
     "navigate-to": DirectiveSource,
-  },
-  $I.annote("NavigationDirective", {
-    description: "CSP navigation directive fields and serialization helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("NavigationDirective", {
+      description: "CSP navigation directive fields and serialization helpers.",
+    })
+  )
 ) {
   static readonly convertToString = (directive?: undefined | DirectiveInput<NavigationDirective>) => {
     if (directive == undefined) {
@@ -613,16 +618,17 @@ export type ReportURI = typeof ReportURI.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReportingDirective extends S.Class<ReportingDirective>($I`ReportingDirective`)(
-  {
+export class ReportingDirective extends S.Opaque<ReportingDirective, { readonly brand: unique symbol }>()(
+  S.Struct({
     reportURI: ReportURI,
     "report-uri": ReportURI,
     reportTo: S.String,
     "report-to": S.String,
-  },
-  $I.annote("ReportingDirective", {
-    description: "CSP reporting directive fields and serialization helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReportingDirective", {
+      description: "CSP reporting directive fields and serialization helpers.",
+    })
+  )
 ) {
   static readonly convertToString = (directive?: undefined | DirectiveInput<ReportingDirective>) => {
     if (directive == undefined) {
@@ -669,16 +675,17 @@ export class ReportingDirective extends S.Class<ReportingDirective>($I`Reporting
  * @category schemas
  * @since 0.0.0
  */
-export class CspDirectives extends S.Class<CspDirectives>($I`CspDirectives`)(
-  {
+export class CspDirectives extends S.Opaque<CspDirectives, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...FetchDirective.fields,
     ...DocumentDirective.fields,
     ...NavigationDirective.fields,
     ...ReportingDirective.fields,
-  },
-  $I.annote("CspDirectives", {
-    description: "The complete normalized field set for all supported CSP directives.",
-  })
+  }).pipe(
+    $I.annoteSchema("CspDirectives", {
+      description: "The complete normalized field set for all supported CSP directives.",
+    })
+  )
 ) {}
 
 /**
@@ -705,10 +712,11 @@ export class CspDirectives extends S.Class<CspDirectives>($I`CspDirectives`)(
  * @category models
  * @since 0.0.0
  */
-export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPolicyOptionStruct>(
-  $I`ContentSecurityPolicyOptionStruct`
-)(
-  {
+export class ContentSecurityPolicyOptionStruct extends S.Opaque<
+  ContentSecurityPolicyOptionStruct,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     directives: CspDirectives.mapFields((fields) => {
       const evolve = pipe(
         Struct.entries(fields),
@@ -727,10 +735,11 @@ export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPo
       return pipe(fields, Struct.evolve(evolve));
     }),
     reportOnly: S.optionalKey(S.Boolean),
-  },
-  $I.annote("ContentSecurityPolicyOptionStruct", {
-    description: "Structured CSP option input with optional directive fields and optional report-only mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContentSecurityPolicyOptionStruct", {
+      description: "Structured CSP option input with optional directive fields and optional report-only mode.",
+    })
+  )
 ) {}
 const decodeContentSecurityPolicyOptionStruct = S.decodeEffect(ContentSecurityPolicyOptionStruct);
 
@@ -817,7 +826,7 @@ export type Option = typeof Option.Type;
  * import * as O from "effect/Option"
  * import { ContentSecurityPolicyResponseHeader } from "@beep/schema/Csp"
  *
- * const header = new ContentSecurityPolicyResponseHeader({
+ * const header = ContentSecurityPolicyResponseHeader.make({
  *   name: "Content-Security-Policy",
  *   value: O.some("default-src 'self'")
  * })
@@ -827,16 +836,18 @@ export type Option = typeof Option.Type;
  * @category models
  * @since 0.0.0
  */
-export class ContentSecurityPolicyResponseHeader extends S.Class<ContentSecurityPolicyResponseHeader>(
-  $I`ContentSecurityPolicyResponseHeader`
-)(
-  {
+export class ContentSecurityPolicyResponseHeader extends S.Opaque<
+  ContentSecurityPolicyResponseHeader,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: ContentSecurityPolicyHeaderName,
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ContentSecurityPolicyResponseHeader", {
-    description: "A rendered Content-Security-Policy response header name and optional serialized value.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContentSecurityPolicyResponseHeader", {
+      description: "A rendered Content-Security-Policy response header name and optional serialized value.",
+    })
+  )
 ) {}
 
 type ContentSecurityPolicyResponseHeaderEncoded = typeof ContentSecurityPolicyResponseHeader.Encoded;
@@ -940,12 +951,12 @@ export const createContentSecurityPolicyOptionHeaderValue = (
  * ```ts import.meta.vitest name="Create report-only response header"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
- * import { ContentSecurityPolicyHeader } from "@beep/schema/Csp"
+ * import { ContentSecurityPolicyHeader, ContentSecurityPolicyOptionStruct } from "@beep/schema/Csp"
  *
- * const header = Effect.runSync(ContentSecurityPolicyHeader.create({
+ * const header = Effect.runSync(ContentSecurityPolicyHeader.create(ContentSecurityPolicyOptionStruct.make({
  *   directives: { defaultSrc: "'self'" },
  *   reportOnly: true
- * }))
+ * })))
  * const response = O.getOrThrow(header)
  *
  * response.name // => "Content-Security-Policy-Report-Only"
@@ -1025,7 +1036,7 @@ export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption,
  * import * as O from "effect/Option"
  * import { ContentSecurityPolicyResponseHeader, type ContentSecurityPolicyHeader } from "@beep/schema/Csp"
  *
- * const header: ContentSecurityPolicyHeader = new ContentSecurityPolicyResponseHeader({
+ * const header: ContentSecurityPolicyHeader = ContentSecurityPolicyResponseHeader.make({
  *   name: "Content-Security-Policy",
  *   value: O.some("default-src 'self'")
  * })
@@ -1053,9 +1064,10 @@ export { ContentSecurityPolicyResponseHeader as ResponseHeader };
  * ```ts import.meta.vitest name="Create header via alias"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
- * import { Header } from "@beep/schema/Csp"
+ * import { ContentSecurityPolicyOptionStruct, Header } from "@beep/schema/Csp"
  *
- * const header = Effect.runSync(Header.create({ directives: { scriptSrc: "'self'" } }))
+ * const option = ContentSecurityPolicyOptionStruct.make({ directives: { scriptSrc: "'self'" } })
+ * const header = Effect.runSync(Header.create(option))
  *
  * O.isSome(header) // => true
  * ```
@@ -1074,7 +1086,7 @@ export const Header = ContentSecurityPolicyHeader;
  * import * as O from "effect/Option"
  * import { ContentSecurityPolicyResponseHeader, type Header } from "@beep/schema/Csp"
  *
- * const header: Header = new ContentSecurityPolicyResponseHeader({
+ * const header: Header = ContentSecurityPolicyResponseHeader.make({
  *   name: "Content-Security-Policy",
  *   value: O.some("default-src 'self'")
  * })

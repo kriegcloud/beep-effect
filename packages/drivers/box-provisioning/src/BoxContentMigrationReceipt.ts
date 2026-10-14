@@ -178,12 +178,12 @@ const outcomeFields = {
  * @category models
  * @since 0.0.0
  */
-export class BoxContentActionApplied extends S.TaggedClass<BoxContentActionApplied>($I`BoxContentActionApplied`)(
-  "Applied",
-  { ...outcomeFields, providerId: BoxProviderId, adopted: S.Boolean },
-  $I.annote("BoxContentActionApplied", {
-    description: "Folder created or adopted, or file uploaded with a verified SHA-1.",
-  })
+export class BoxContentActionApplied extends S.Opaque<BoxContentActionApplied, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Applied", { ...outcomeFields, providerId: BoxProviderId, adopted: S.Boolean }).pipe(
+    $I.annoteSchema("BoxContentActionApplied", {
+      description: "Folder created or adopted, or file uploaded with a verified SHA-1.",
+    })
+  )
 ) {}
 
 /**
@@ -207,12 +207,12 @@ export class BoxContentActionApplied extends S.TaggedClass<BoxContentActionAppli
  * @category models
  * @since 0.0.0
  */
-export class BoxContentActionSkipped extends S.TaggedClass<BoxContentActionSkipped>($I`BoxContentActionSkipped`)(
-  "Skipped",
-  { ...outcomeFields, providerId: BoxProviderId },
-  $I.annote("BoxContentActionSkipped", {
-    description: "Existing folder or identical file that required no provider write.",
-  })
+export class BoxContentActionSkipped extends S.Opaque<BoxContentActionSkipped, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Skipped", { ...outcomeFields, providerId: BoxProviderId }).pipe(
+    $I.annoteSchema("BoxContentActionSkipped", {
+      description: "Existing folder or identical file that required no provider write.",
+    })
+  )
 ) {}
 
 /**
@@ -238,12 +238,12 @@ export class BoxContentActionSkipped extends S.TaggedClass<BoxContentActionSkipp
  * @category models
  * @since 0.0.0
  */
-export class BoxContentActionBlocked extends S.TaggedClass<BoxContentActionBlocked>($I`BoxContentActionBlocked`)(
-  "Blocked",
-  { ...outcomeFields, reason: BoxContentBlockReason, providerId: optionalProviderId },
-  $I.annote("BoxContentActionBlocked", {
-    description: "Blocked file action carried from the reviewed plan without any provider write.",
-  })
+export class BoxContentActionBlocked extends S.Opaque<BoxContentActionBlocked, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Blocked", { ...outcomeFields, reason: BoxContentBlockReason, providerId: optionalProviderId }).pipe(
+    $I.annoteSchema("BoxContentActionBlocked", {
+      description: "Blocked file action carried from the reviewed plan without any provider write.",
+    })
+  )
 ) {}
 
 /**
@@ -274,17 +274,17 @@ export class BoxContentActionBlocked extends S.TaggedClass<BoxContentActionBlock
  * @category models
  * @since 0.0.0
  */
-export class BoxContentActionFailed extends S.TaggedClass<BoxContentActionFailed>($I`BoxContentActionFailed`)(
-  "Failed",
-  {
+export class BoxContentActionFailed extends S.Opaque<BoxContentActionFailed, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Failed", {
     ...outcomeFields,
     failureKind: BoxContentFailureKind,
     status: S.OptionFromOptionalKey(HttpStatus).pipe(S.withConstructorDefault(Effect.succeedNone)),
     providerId: optionalProviderId,
-  },
-  $I.annote("BoxContentActionFailed", {
-    description: "Dispatched write that failed, with a closed failure kind and optional HTTP status.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentActionFailed", {
+      description: "Dispatched write that failed, with a closed failure kind and optional HTTP status.",
+    })
+  )
 ) {}
 
 /**
@@ -307,14 +307,15 @@ export class BoxContentActionFailed extends S.TaggedClass<BoxContentActionFailed
  * @category models
  * @since 0.0.0
  */
-export class BoxContentActionNotAttempted extends S.TaggedClass<BoxContentActionNotAttempted>(
-  $I`BoxContentActionNotAttempted`
-)(
-  "NotAttempted",
-  { ...outcomeFields, reason: BoxContentNotAttemptedReason },
-  $I.annote("BoxContentActionNotAttempted", {
-    description: "Planned write skipped by the provider-call budget or by a failed parent folder.",
-  })
+export class BoxContentActionNotAttempted extends S.Opaque<
+  BoxContentActionNotAttempted,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("NotAttempted", { ...outcomeFields, reason: BoxContentNotAttemptedReason }).pipe(
+    $I.annoteSchema("BoxContentActionNotAttempted", {
+      description: "Planned write skipped by the provider-call budget or by a failed parent folder.",
+    })
+  )
 ) {}
 
 /**
@@ -372,15 +373,14 @@ export type BoxContentActionOutcome = typeof BoxContentActionOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxContentMigrationCounts extends S.Class<BoxContentMigrationCounts>($I`BoxContentMigrationCounts`)(
-  {
+export class BoxContentMigrationCounts extends S.Opaque<BoxContentMigrationCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     applied: S.Natural,
     skipped: S.Natural,
     blocked: S.Natural,
     failed: S.Natural,
     notAttempted: S.Natural,
-  },
-  $I.annote("BoxContentMigrationCounts", { description: "Receipt outcome totals by outcome tag." })
+  }).pipe($I.annoteSchema("BoxContentMigrationCounts", { description: "Receipt outcome totals by outcome tag." }))
 ) {}
 
 /**
@@ -405,8 +405,11 @@ export class BoxContentMigrationCounts extends S.Class<BoxContentMigrationCounts
  * @category models
  * @since 0.0.0
  */
-export class BoxContentMigrationReceipt extends S.Class<BoxContentMigrationReceipt>($I`BoxContentMigrationReceipt`)(
-  {
+export class BoxContentMigrationReceipt extends S.Opaque<
+  BoxContentMigrationReceipt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     version: S.Literal("box-content-migration-receipt/v1").pipe(
       S.withConstructorDefault(Effect.succeed("box-content-migration-receipt/v1"))
     ),
@@ -418,10 +421,11 @@ export class BoxContentMigrationReceipt extends S.Class<BoxContentMigrationRecei
     uploadedBytes: S.Natural,
     providerCalls: S.Natural,
     maxProviderCalls: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BoxContentMigrationReceipt", {
-    description: "Redacted per-action outcomes, counts, uploaded bytes, and provider-call usage for one apply.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentMigrationReceipt", {
+      description: "Redacted per-action outcomes, counts, uploaded bytes, and provider-call usage for one apply.",
+    })
+  )
 ) {}
 
 /**
@@ -471,17 +475,19 @@ export type BoxContentMigrationVerdict = typeof BoxContentMigrationVerdict.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxContentMigrationApplyResult extends S.Class<BoxContentMigrationApplyResult>(
-  $I`BoxContentMigrationApplyResult`
-)(
-  {
+export class BoxContentMigrationApplyResult extends S.Opaque<
+  BoxContentMigrationApplyResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     receipt: BoxContentMigrationReceipt,
     postPlan: BoxContentMigrationPlan,
     verdict: BoxContentMigrationVerdict,
-  },
-  $I.annote("BoxContentMigrationApplyResult", {
-    description: "Apply receipt, immediate post-apply plan, and completion verdict.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentMigrationApplyResult", {
+      description: "Apply receipt, immediate post-apply plan, and completion verdict.",
+    })
+  )
 ) {}
 
 const journalFields = {
@@ -519,11 +525,12 @@ const journalExampleFields = {
  * @category models
  * @since 0.0.0
  */
-export class BoxContentJournalStarted extends S.Class<BoxContentJournalStarted>($I`BoxContentJournalStarted`)(
-  { ...journalFields, phase: S.tag("Started") },
-  $I.annote("BoxContentJournalStarted", {
-    description: "Sanitized journal entry persisted before one content-migration write is dispatched.",
-  })
+export class BoxContentJournalStarted extends S.Opaque<BoxContentJournalStarted, { readonly brand: unique symbol }>()(
+  S.Struct({ ...journalFields, phase: S.tag("Started") }).pipe(
+    $I.annoteSchema("BoxContentJournalStarted", {
+      description: "Sanitized journal entry persisted before one content-migration write is dispatched.",
+    })
+  )
 ) {}
 
 /**
@@ -544,11 +551,12 @@ export class BoxContentJournalStarted extends S.Class<BoxContentJournalStarted>(
  * @category models
  * @since 0.0.0
  */
-export class BoxContentJournalApplied extends S.Class<BoxContentJournalApplied>($I`BoxContentJournalApplied`)(
-  { ...journalFields, phase: S.tag("Applied") },
-  $I.annote("BoxContentJournalApplied", {
-    description: "Sanitized journal entry persisted after one content-migration write succeeds.",
-  })
+export class BoxContentJournalApplied extends S.Opaque<BoxContentJournalApplied, { readonly brand: unique symbol }>()(
+  S.Struct({ ...journalFields, phase: S.tag("Applied") }).pipe(
+    $I.annoteSchema("BoxContentJournalApplied", {
+      description: "Sanitized journal entry persisted after one content-migration write succeeds.",
+    })
+  )
 ) {}
 
 /**
@@ -572,11 +580,12 @@ export class BoxContentJournalApplied extends S.Class<BoxContentJournalApplied>(
  * @category models
  * @since 0.0.0
  */
-export class BoxContentJournalFailed extends S.Class<BoxContentJournalFailed>($I`BoxContentJournalFailed`)(
-  { ...journalFields, phase: S.tag("Failed"), failureKind: BoxContentFailureKind },
-  $I.annote("BoxContentJournalFailed", {
-    description: "Sanitized journal entry persisted after one content-migration write fails.",
-  })
+export class BoxContentJournalFailed extends S.Opaque<BoxContentJournalFailed, { readonly brand: unique symbol }>()(
+  S.Struct({ ...journalFields, phase: S.tag("Failed"), failureKind: BoxContentFailureKind }).pipe(
+    $I.annoteSchema("BoxContentJournalFailed", {
+      description: "Sanitized journal entry persisted after one content-migration write fails.",
+    })
+  )
 ) {}
 
 /**
@@ -597,8 +606,8 @@ export class BoxContentJournalFailed extends S.Class<BoxContentJournalFailed>($I
  * @category models
  * @since 0.0.0
  */
-export class BoxContentJournalSkipped extends S.Class<BoxContentJournalSkipped>($I`BoxContentJournalSkipped`)(
-  {
+export class BoxContentJournalSkipped extends S.Opaque<BoxContentJournalSkipped, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...journalFields,
     phase: S.tag("Skipped"),
     reason: LiteralKit([
@@ -609,10 +618,11 @@ export class BoxContentJournalSkipped extends S.Class<BoxContentJournalSkipped>(
       "budget-exhausted",
       "dependency-failed",
     ]),
-  },
-  $I.annote("BoxContentJournalSkipped", {
-    description: "Sanitized journal entry for an identical, blocked, or not-attempted content-migration action.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentJournalSkipped", {
+      description: "Sanitized journal entry for an identical, blocked, or not-attempted content-migration action.",
+    })
+  )
 ) {}
 
 /**
@@ -645,13 +655,15 @@ export class BoxContentJournalSkipped extends S.Class<BoxContentJournalSkipped>(
  * @category models
  * @since 0.0.0
  */
-export class BoxContentJournalAdoptedExistingFolder extends S.Class<BoxContentJournalAdoptedExistingFolder>(
-  $I`BoxContentJournalAdoptedExistingFolder`
-)(
-  { ...journalFields, phase: S.tag("AdoptedExistingFolder") },
-  $I.annote("BoxContentJournalAdoptedExistingFolder", {
-    description: "Sanitized journal entry for a folder create resolved by adopting the existing same-name folder.",
-  })
+export class BoxContentJournalAdoptedExistingFolder extends S.Opaque<
+  BoxContentJournalAdoptedExistingFolder,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ ...journalFields, phase: S.tag("AdoptedExistingFolder") }).pipe(
+    $I.annoteSchema("BoxContentJournalAdoptedExistingFolder", {
+      description: "Sanitized journal entry for a folder create resolved by adopting the existing same-name folder.",
+    })
+  )
 ) {}
 
 /**

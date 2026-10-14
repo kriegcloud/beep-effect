@@ -156,11 +156,12 @@ export type GateApplicabilityKind = typeof GateApplicabilityKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class AlwaysGateApplicability extends S.Class<AlwaysGateApplicability>($I`AlwaysGateApplicability`)(
-  { kind: S.tag("always") },
-  $I.annote("AlwaysGateApplicability", {
-    description: "Applicability value for a gate that always runs.",
-  })
+export class AlwaysGateApplicability extends S.Opaque<AlwaysGateApplicability, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("always") }).pipe(
+    $I.annoteSchema("AlwaysGateApplicability", {
+      description: "Applicability value for a gate that always runs.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -187,16 +188,18 @@ export class AlwaysGateApplicability extends S.Class<AlwaysGateApplicability>($I
  * @category models
  * @since 0.0.0
  */
-export class ConditionalGateApplicability extends S.Class<ConditionalGateApplicability>(
-  $I`ConditionalGateApplicability`
-)(
-  {
+export class ConditionalGateApplicability extends S.Opaque<
+  ConditionalGateApplicability,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     condition: SchemaReference,
     kind: S.tag("conditional"),
-  },
-  $I.annote("ConditionalGateApplicability", {
-    description: "Conditional gate applicability bound to a persisted schema reference.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConditionalGateApplicability", {
+      description: "Conditional gate applicability bound to a persisted schema reference.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -283,15 +286,16 @@ export type EvidencePredicateType = typeof EvidencePredicateType.Type;
  * @category models
  * @since 0.0.0
  */
-export class GateEvidenceRequirement extends S.Class<GateEvidenceRequirement>($I`GateEvidenceRequirement`)(
-  {
+export class GateEvidenceRequirement extends S.Opaque<GateEvidenceRequirement, { readonly brand: unique symbol }>()(
+  S.Struct({
     predicateType: EvidencePredicateType.annotateKey({
       description: "Versioned predicate identity expected by the gate evaluator.",
     }),
-  },
-  $I.annote("GateEvidenceRequirement", {
-    description: "Typed predicate identity a gate requires as evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateEvidenceRequirement", {
+      description: "Typed predicate identity a gate requires as evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -323,8 +327,8 @@ export class GateEvidenceRequirement extends S.Class<GateEvidenceRequirement>($I
  * @category models
  * @since 0.0.0
  */
-export class GateDeclaration extends S.Class<GateDeclaration>($I`GateDeclaration`)(
-  {
+export class GateDeclaration extends S.Opaque<GateDeclaration, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicability: GateApplicability.annotateKey({
       description: "Whether this declaration always applies or names a condition schema.",
     }),
@@ -338,10 +342,12 @@ export class GateDeclaration extends S.Class<GateDeclaration>($I`GateDeclaration
     severity: GateSeverity.annotateKey({
       description: "Whether denial blocks progress or remains advisory.",
     }),
-  },
-  $I.annote("GateDeclaration", {
-    description: "Persistable declaration of a gate's identity, policy, applicability, and typed evidence requirement.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateDeclaration", {
+      description:
+        "Persistable declaration of a gate's identity, policy, applicability, and typed evidence requirement.",
+    })
+  )
 ) {}
 
 const GateRegistryFields = S.Struct({ declarations: S.Array(GateDeclaration) });
@@ -376,11 +382,12 @@ const UniqueGateIdsCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GateRegistry extends S.Class<GateRegistry>($I`GateRegistry`)(
-  GateRegistryFields.check(UniqueGateIdsCheck),
-  $I.annote("GateRegistry", {
-    description: "Ordered gate declarations with unique ids enforced at schema decode.",
-  })
+export class GateRegistry extends S.Opaque<GateRegistry, { readonly brand: unique symbol }>()(
+  GateRegistryFields.check(UniqueGateIdsCheck).pipe(
+    $I.annoteSchema("GateRegistry", {
+      description: "Ordered gate declarations with unique ids enforced at schema decode.",
+    })
+  )
 ) {}
 
 /**

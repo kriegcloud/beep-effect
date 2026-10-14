@@ -20,7 +20,9 @@ import type { ParseError } from "jsonc-parser";
 
 const $I = $RepoCliId.create("goals/fallow-quality-enforcement/ops/validate-packet");
 
-class PacketValidationFailed extends S.TaggedError<PacketValidationFailed>($I`PacketValidationFailed`)(
+class PacketValidationFailed extends S.TaggedError<PacketValidationFailed, { readonly brand: unique symbol }>(
+  $I`PacketValidationFailed`
+)(
   "PacketValidationFailed",
   {},
   $I.annote("PacketValidationFailed", {
@@ -311,27 +313,29 @@ const FallowEnvelopeStatus = LiteralKit([
   })
 );
 
-class RepoCommandTarget extends S.Class<RepoCommandTarget>($I`RepoCommandTarget`)(
-  {
+class RepoCommandTarget extends S.Opaque<RepoCommandTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: CommandString,
     phase: RepoCommandPhase,
     implementationStatus: CommandImplementationStatus,
     defaultOutputPath: RepoRefString,
-  },
-  $I.annote("RepoCommandTarget", {
-    description: "Repo command surface targeted by a Fallow feature row.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepoCommandTarget", {
+      description: "Repo command surface targeted by a Fallow feature row.",
+    })
+  )
 ) {}
 
-class BaselineSummary extends S.Class<BaselineSummary>($I`BaselineSummary`)(
-  {
+class BaselineSummary extends S.Opaque<BaselineSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: TrimmedNonEmptyString,
     counts: TrimmedNonEmptyString,
     notes: TrimmedNonEmptyString,
-  },
-  $I.annote("BaselineSummary", {
-    description: "Human-readable measured baseline summary for a feature row.",
-  })
+  }).pipe(
+    $I.annoteSchema("BaselineSummary", {
+      description: "Human-readable measured baseline summary for a feature row.",
+    })
+  )
 ) {}
 
 const SuppressionClass = LiteralKit([
@@ -357,20 +361,21 @@ const SuppressionClass = LiteralKit([
   })
 );
 
-class SuppressionPolicy extends S.Class<SuppressionPolicy>($I`SuppressionPolicy`)(
-  {
+class SuppressionPolicy extends S.Opaque<SuppressionPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     recordRequired: S.Boolean,
     allowedClasses: S.NonEmptyArray(SuppressionClass),
     inlineAllowed: S.Boolean,
     expiryRequired: S.Boolean,
-  },
-  $I.annote("SuppressionPolicy", {
-    description: "Suppression policy for one Fallow feature family.",
-  })
+  }).pipe(
+    $I.annoteSchema("SuppressionPolicy", {
+      description: "Suppression policy for one Fallow feature family.",
+    })
+  )
 ) {}
 
-class BoundaryRuleSource extends S.Class<BoundaryRuleSource>($I`BoundaryRuleSource`)(
-  {
+class BoundaryRuleSource extends S.Opaque<BoundaryRuleSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     ruleId: TrimmedNonEmptyString,
     sourceClass: RuleSourceClass,
     enforcementScope: BoundaryEnforcementScope,
@@ -378,51 +383,55 @@ class BoundaryRuleSource extends S.Class<BoundaryRuleSource>($I`BoundaryRuleSour
     doctrineRefs: S.NonEmptyArray(ArchitectureDoctrineRefString),
     catalogRefs: S.Array(RepoRefString),
     promotionEligible: S.Boolean,
-  },
-  $I.annote("BoundaryRuleSource", {
-    description: "Per-rule provenance for Fallow boundary enforcement candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoundaryRuleSource", {
+      description: "Per-rule provenance for Fallow boundary enforcement candidates.",
+    })
+  )
 ) {}
 
-class AttributionPolicy extends S.Class<AttributionPolicy>($I`AttributionPolicy`)(
-  {
+class AttributionPolicy extends S.Opaque<AttributionPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     modes: S.NonEmptyArray(AttributionMode),
     basePolicy: BasePolicy,
     cleanupOnTouchTriggers: S.NonEmptyArray(TrimmedNonEmptyString),
     adjacentFindingPolicy: AdjacentFindingPolicy,
     reviewArtifactRefs: S.NonEmptyArray(RepoRefString),
-  },
-  $I.annote("AttributionPolicy", {
-    description: "Diff attribution and cleanup-on-touch contract for a Fallow feature row.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttributionPolicy", {
+      description: "Diff attribution and cleanup-on-touch contract for a Fallow feature row.",
+    })
+  )
 ) {}
 
-class YeetMapping extends S.Class<YeetMapping>($I`YeetMapping`)(
-  {
+class YeetMapping extends S.Opaque<YeetMapping, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: QualityIssueCategory,
     parser: TrimmedNonEmptyString,
     subCategoryPrefix: TrimmedNonEmptyString,
     blockingDefault: S.Boolean,
     routingSkills: S.NonEmptyArray(TrimmedNonEmptyString),
-  },
-  $I.annote("YeetMapping", {
-    description: "Mapping from Fallow findings into Yeet quality issue packets.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMapping", {
+      description: "Mapping from Fallow findings into Yeet quality issue packets.",
+    })
+  )
 ) {}
 
-class FindingAttributionSummary extends S.Class<FindingAttributionSummary>($I`FindingAttributionSummary`)(
-  {
+class FindingAttributionSummary extends S.Opaque<FindingAttributionSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     introduced: S.Natural,
     inheritedAdjacent: S.Natural,
     notApplicable: S.Natural,
-  },
-  $I.annote("FindingAttributionSummary", {
-    description: "Count summary for Fallow finding attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("FindingAttributionSummary", {
+      description: "Count summary for Fallow finding attribution.",
+    })
+  )
 ) {}
 
-class FallowReportFinding extends S.Class<FallowReportFinding>($I`FallowReportFinding`)(
-  {
+class FallowReportFinding extends S.Opaque<FallowReportFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TrimmedNonEmptyString,
     featureFamily: FeatureFamily,
     attribution: FindingAttributionKind,
@@ -430,24 +439,26 @@ class FallowReportFinding extends S.Class<FallowReportFinding>($I`FallowReportFi
     subCategory: TrimmedNonEmptyString,
     blocking: S.Boolean,
     sourceRef: RepoRefString,
-  },
-  $I.annote("FallowReportFinding", {
-    description: "Normalized finding fixture inside a successful Fallow report envelope.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportFinding", {
+      description: "Normalized finding fixture inside a successful Fallow report envelope.",
+    })
+  )
 ) {}
 
-class FallowReportPayload extends S.Class<FallowReportPayload>($I`FallowReportPayload`)(
-  {
+class FallowReportPayload extends S.Opaque<FallowReportPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     findingCount: S.Natural,
     findings: S.Array(FallowReportFinding),
-  },
-  $I.annote("FallowReportPayload", {
-    description: "Decoded Fallow report payload used by Yeet parser fixtures.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportPayload", {
+      description: "Decoded Fallow report payload used by Yeet parser fixtures.",
+    })
+  )
 ) {}
 
-class YeetIssueFixture extends S.Class<YeetIssueFixture>($I`YeetIssueFixture`)(
-  {
+class YeetIssueFixture extends S.Opaque<YeetIssueFixture, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TrimmedNonEmptyString,
     sourceFeature: FeatureFamily,
     sourceEnvelopeRef: RepoRefString,
@@ -457,26 +468,28 @@ class YeetIssueFixture extends S.Class<YeetIssueFixture>($I`YeetIssueFixture`)(
     subCategory: TrimmedNonEmptyString,
     blocking: S.Literal(false),
     attribution: FindingAttributionKind,
-  },
-  $I.annote("YeetIssueFixture", {
-    description: "Fixture proving Fallow attribution survives Yeet quality issue mapping.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetIssueFixture", {
+      description: "Fixture proving Fallow attribution survives Yeet quality issue mapping.",
+    })
+  )
 ) {}
 
-class PromotionCriteria extends S.Class<PromotionCriteria>($I`PromotionCriteria`)(
-  {
+class PromotionCriteria extends S.Opaque<PromotionCriteria, { readonly brand: unique symbol }>()(
+  S.Struct({
     requiredCommands: S.NonEmptyArray(CommandString),
     requiredEvidenceRefs: S.NonEmptyArray(RepoRefString),
     requiredReviewerRoles: S.NonEmptyArray(TrimmedNonEmptyString),
     minimumCleanRuns: S.Natural,
-  },
-  $I.annote("PromotionCriteria", {
-    description: "Evidence gate required before a feature can be promoted.",
-  })
+  }).pipe(
+    $I.annoteSchema("PromotionCriteria", {
+      description: "Evidence gate required before a feature can be promoted.",
+    })
+  )
 ) {}
 
-class FeatureRow extends S.Class<FeatureRow>($I`FeatureRow`)(
-  {
+class FeatureRow extends S.Opaque<FeatureRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TrimmedNonEmptyString,
     featureFamily: FeatureFamily,
     fallowDocsUrls: S.NonEmptyArray(UrlString),
@@ -503,27 +516,29 @@ class FeatureRow extends S.Class<FeatureRow>($I`FeatureRow`)(
     acceptanceCommands: S.NonEmptyArray(CommandString),
     rollbackNotes: TrimmedNonEmptyString,
     evidenceRefs: S.NonEmptyArray(RepoRefString),
-  },
-  $I.annote("FeatureRow", {
-    description: "One feature-family row in the Fallow enforcement matrix.",
-  })
+  }).pipe(
+    $I.annoteSchema("FeatureRow", {
+      description: "One feature-family row in the Fallow enforcement matrix.",
+    })
+  )
 ) {}
 
-class FeatureMatrixDocument extends S.Class<FeatureMatrixDocument>($I`FeatureMatrixDocument`)(
-  {
+class FeatureMatrixDocument extends S.Opaque<FeatureMatrixDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     schemaVersion: S.Literal("fallow-quality-enforcement/feature-matrix/v1"),
     updated: S.String,
     validatorVersion: S.Literal(validatorVersion),
     features: S.NonEmptyArray(FeatureRow),
-  },
-  $I.annote("FeatureMatrixDocument", {
-    description: "Feature-family matrix for the Fallow quality enforcement goal.",
-  })
+  }).pipe(
+    $I.annoteSchema("FeatureMatrixDocument", {
+      description: "Feature-family matrix for the Fallow quality enforcement goal.",
+    })
+  )
 ) {}
 
-class KnipParityRow extends S.Class<KnipParityRow>($I`KnipParityRow`)(
-  {
+class KnipParityRow extends S.Opaque<KnipParityRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TrimmedNonEmptyString,
     knipConfigSurface: TrimmedNonEmptyString,
     currentKnipBehavior: TrimmedNonEmptyString,
@@ -537,39 +552,42 @@ class KnipParityRow extends S.Class<KnipParityRow>($I`KnipParityRow`)(
     retirementRationale: TrimmedNonEmptyString,
     acceptanceCommands: S.NonEmptyArray(CommandString),
     evidenceRefs: S.NonEmptyArray(RepoRefString),
-  },
-  $I.annote("KnipParityRow", {
-    description: "One parity row comparing a Knip behavior to Fallow.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipParityRow", {
+      description: "One parity row comparing a Knip behavior to Fallow.",
+    })
+  )
 ) {}
 
-class KnipParityDocument extends S.Class<KnipParityDocument>($I`KnipParityDocument`)(
-  {
+class KnipParityDocument extends S.Opaque<KnipParityDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     schemaVersion: S.Literal("fallow-quality-enforcement/knip-parity/v1"),
     updated: S.String,
     validatorVersion: S.Literal(validatorVersion),
     knipRemovalRecommendation: KnipRemovalRecommendation,
     rows: S.NonEmptyArray(KnipParityRow),
-  },
-  $I.annote("KnipParityDocument", {
-    description: "Knip parity matrix for the Fallow quality enforcement goal.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipParityDocument", {
+      description: "Knip parity matrix for the Fallow quality enforcement goal.",
+    })
+  )
 ) {}
 
-class DecisionGate extends S.Class<DecisionGate>($I`DecisionGate`)(
-  {
+class DecisionGate extends S.Opaque<DecisionGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: TrimmedNonEmptyString,
     status: DecisionGateStatus,
     evidence: S.NonEmptyArray(RepoRefString),
-  },
-  $I.annote("DecisionGate", {
-    description: "Decision gate attached to a task.",
-  })
+  }).pipe(
+    $I.annoteSchema("DecisionGate", {
+      description: "Decision gate attached to a task.",
+    })
+  )
 ) {}
 
-class TaskRow extends S.Class<TaskRow>($I`TaskRow`)(
-  {
+class TaskRow extends S.Opaque<TaskRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TrimmedNonEmptyString,
     rank: PositiveInt,
     status: TaskStatus,
@@ -585,23 +603,25 @@ class TaskRow extends S.Class<TaskRow>($I`TaskRow`)(
     owner: OwnerString,
     riskLevel: RiskLevel,
     decisionGate: DecisionGate,
-  },
-  $I.annote("TaskRow", {
-    description: "Implementation task row for the Fallow quality enforcement goal.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaskRow", {
+      description: "Implementation task row for the Fallow quality enforcement goal.",
+    })
+  )
 ) {}
 
-class TasksDocument extends S.Class<TasksDocument>($I`TasksDocument`)(
-  {
+class TasksDocument extends S.Opaque<TasksDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     schemaVersion: S.Literal("fallow-quality-enforcement/tasks/v1"),
     updated: S.String,
     validatorVersion: S.Literal(validatorVersion),
     tasks: S.NonEmptyArray(TaskRow),
-  },
-  $I.annote("TasksDocument", {
-    description: "Task inventory for the Fallow quality enforcement goal.",
-  })
+  }).pipe(
+    $I.annoteSchema("TasksDocument", {
+      description: "Task inventory for the Fallow quality enforcement goal.",
+    })
+  )
 ) {}
 
 const FallowReportBaseFields = {
@@ -619,73 +639,80 @@ const FallowReportBaseFields = {
   findingAttributionSummary: FindingAttributionSummary,
 };
 
-class FallowReportBase extends S.Class<FallowReportBase>($I`FallowReportBase`)(
-  FallowReportBaseFields,
-  $I.annote("FallowReportBase", {
-    description: "Common metadata required on every Fallow report envelope.",
-  })
+class FallowReportBase extends S.Opaque<FallowReportBase, { readonly brand: unique symbol }>()(
+  S.Struct(FallowReportBaseFields).pipe(
+    $I.annoteSchema("FallowReportBase", {
+      description: "Common metadata required on every Fallow report envelope.",
+    })
+  )
 ) {}
 
-class FallowReportOk extends S.Class<FallowReportOk>($I`FallowReportOk`)(
-  {
+class FallowReportOk extends S.Opaque<FallowReportOk, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("ok"),
     exitStatus: S.Natural,
     report: FallowReportPayload,
-  },
-  $I.annote("FallowReportOk", {
-    description: "Successful Fallow report envelope.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportOk", {
+      description: "Successful Fallow report envelope.",
+    })
+  )
 ) {}
 
-class FallowReportToolFailed extends S.Class<FallowReportToolFailed>($I`FallowReportToolFailed`)(
-  {
+class FallowReportToolFailed extends S.Opaque<FallowReportToolFailed, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("tool-failed"),
     exitStatus: PositiveInt,
     stderrExcerpt: TrimmedNonEmptyString,
-  },
-  $I.annote("FallowReportToolFailed", {
-    description: "Fallow report envelope for a nonzero Fallow tool exit.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportToolFailed", {
+      description: "Fallow report envelope for a nonzero Fallow tool exit.",
+    })
+  )
 ) {}
 
-class FallowReportInvalidJson extends S.Class<FallowReportInvalidJson>($I`FallowReportInvalidJson`)(
-  {
+class FallowReportInvalidJson extends S.Opaque<FallowReportInvalidJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("invalid-json"),
     exitStatus: S.Natural,
     stderrExcerpt: TrimmedNonEmptyString,
-  },
-  $I.annote("FallowReportInvalidJson", {
-    description: "Fallow report envelope for invalid JSON emitted by Fallow.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportInvalidJson", {
+      description: "Fallow report envelope for invalid JSON emitted by Fallow.",
+    })
+  )
 ) {}
 
-class FallowReportInvalidReport extends S.Class<FallowReportInvalidReport>($I`FallowReportInvalidReport`)(
-  {
+class FallowReportInvalidReport extends S.Opaque<FallowReportInvalidReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("invalid-report"),
     exitStatus: S.Natural,
     stderrExcerpt: TrimmedNonEmptyString,
-  },
-  $I.annote("FallowReportInvalidReport", {
-    description: "Fallow report envelope for decoded JSON that fails the expected feature report shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportInvalidReport", {
+      description: "Fallow report envelope for decoded JSON that fails the expected feature report shape.",
+    })
+  )
 ) {}
 
-class FallowReportBaseResolutionFailed extends S.Class<FallowReportBaseResolutionFailed>(
-  $I`FallowReportBaseResolutionFailed`
-)(
-  {
+class FallowReportBaseResolutionFailed extends S.Opaque<
+  FallowReportBaseResolutionFailed,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...FallowReportBaseFields,
     status: S.Literal("base-resolution-failed"),
     exitStatus: PositiveInt,
     stderrExcerpt: TrimmedNonEmptyString,
-  },
-  $I.annote("FallowReportBaseResolutionFailed", {
-    description: "Fallow report envelope for an unresolved comparison base ref.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowReportBaseResolutionFailed", {
+      description: "Fallow report envelope for an unresolved comparison base ref.",
+    })
+  )
 ) {}
 
 const FallowReportEnvelope = S.Union([
@@ -700,22 +727,23 @@ const FallowReportEnvelope = S.Union([
   })
 );
 
-class ReportFixtureDocument extends S.Class<ReportFixtureDocument>($I`ReportFixtureDocument`)(
-  {
+class ReportFixtureDocument extends S.Opaque<ReportFixtureDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     schemaVersion: S.Literal("fallow-quality-enforcement/report-fixtures/v1"),
     updated: S.String,
     validatorVersion: S.Literal(validatorVersion),
     fixtures: S.NonEmptyArray(FallowReportEnvelope),
     yeetIssueFixtures: S.NonEmptyArray(YeetIssueFixture),
-  },
-  $I.annote("ReportFixtureDocument", {
-    description: "Fixture set proving each Fallow report envelope variant decodes.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReportFixtureDocument", {
+      description: "Fixture set proving each Fallow report envelope variant decodes.",
+    })
+  )
 ) {}
 
-class ReviewWaiver extends S.Class<ReviewWaiver>($I`ReviewWaiver`)(
-  {
+class ReviewWaiver extends S.Opaque<ReviewWaiver, { readonly brand: unique symbol }>()(
+  S.Struct({
     owner: OwnerString,
     sourceStandardRefs: S.NonEmptyArray(RepoRefString),
     rationale: TrimmedNonEmptyString,
@@ -723,14 +751,15 @@ class ReviewWaiver extends S.Class<ReviewWaiver>($I`ReviewWaiver`)(
     residualRisk: ResidualRiskLevel,
     approver: OwnerString,
     acceptanceEvidenceRefs: S.NonEmptyArray(RepoRefString),
-  },
-  $I.annote("ReviewWaiver", {
-    description: "Required evidence for waiving a critic finding.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewWaiver", {
+      description: "Required evidence for waiving a critic finding.",
+    })
+  )
 ) {}
 
-class ReviewFinding extends S.Class<ReviewFinding>($I`ReviewFinding`)(
-  {
+class ReviewFinding extends S.Opaque<ReviewFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TrimmedNonEmptyString,
     severity: ReviewFindingSeverity,
     title: TrimmedNonEmptyString,
@@ -739,47 +768,53 @@ class ReviewFinding extends S.Class<ReviewFinding>($I`ReviewFinding`)(
     closureStatus: ReviewClosureStatus,
     closureEvidenceRefs: S.NonEmptyArray(RepoRefString),
     waiver: S.optionalKey(ReviewWaiver),
-  },
-  $I.annote("ReviewFinding", {
-    description: "Structured critic finding and closure record.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewFinding", {
+      description: "Structured critic finding and closure record.",
+    })
+  )
 ) {}
 
-class GeneratedBoundaryRule extends S.Class<GeneratedBoundaryRule>($I`GeneratedBoundaryRule`)(
-  {
+class GeneratedBoundaryRule extends S.Opaque<GeneratedBoundaryRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     from: TrimmedNonEmptyString,
     allow: S.Array(TrimmedNonEmptyString),
     allowTypeOnly: S.Array(TrimmedNonEmptyString),
-  },
-  $I.annote("GeneratedBoundaryRule", {
-    description: "Minimal generated Fallow boundary rule shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeneratedBoundaryRule", {
+      description: "Minimal generated Fallow boundary rule shape.",
+    })
+  )
 ) {}
 
-class GeneratedBoundaryConfigBoundaries extends S.Class<GeneratedBoundaryConfigBoundaries>(
-  $I`GeneratedBoundaryConfigBoundaries`
-)(
-  {
+class GeneratedBoundaryConfigBoundaries extends S.Opaque<
+  GeneratedBoundaryConfigBoundaries,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     rules: S.NonEmptyArray(GeneratedBoundaryRule),
-  },
-  $I.annote("GeneratedBoundaryConfigBoundaries", {
-    description: "Generated Fallow boundary config boundaries section.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeneratedBoundaryConfigBoundaries", {
+      description: "Generated Fallow boundary config boundaries section.",
+    })
+  )
 ) {}
 
-class GeneratedBoundaryConfig extends S.Class<GeneratedBoundaryConfig>($I`GeneratedBoundaryConfig`)(
-  {
+class GeneratedBoundaryConfig extends S.Opaque<GeneratedBoundaryConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     boundaries: GeneratedBoundaryConfigBoundaries,
-  },
-  $I.annote("GeneratedBoundaryConfig", {
-    description: "Minimal generated Fallow boundary config used for provenance checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeneratedBoundaryConfig", {
+      description: "Minimal generated Fallow boundary config used for provenance checks.",
+    })
+  )
 ) {}
 
-class BoundaryGeneratedRuleProvenance extends S.Class<BoundaryGeneratedRuleProvenance>(
-  $I`BoundaryGeneratedRuleProvenance`
-)(
-  {
+class BoundaryGeneratedRuleProvenance extends S.Opaque<
+  BoundaryGeneratedRuleProvenance,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ruleId: TrimmedNonEmptyString,
     generatedRuleFrom: TrimmedNonEmptyString,
     sourceClass: RuleSourceClass,
@@ -788,28 +823,30 @@ class BoundaryGeneratedRuleProvenance extends S.Class<BoundaryGeneratedRuleProve
     doctrineRefs: S.NonEmptyArray(ArchitectureDoctrineRefString),
     catalogRefs: S.Array(RepoRefString),
     promotionEligible: S.Boolean,
-  },
-  $I.annote("BoundaryGeneratedRuleProvenance", {
-    description: "Per-generated-rule provenance sidecar entry for Fallow boundary rules.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoundaryGeneratedRuleProvenance", {
+      description: "Per-generated-rule provenance sidecar entry for Fallow boundary rules.",
+    })
+  )
 ) {}
 
-class BoundaryProvenanceDocument extends S.Class<BoundaryProvenanceDocument>($I`BoundaryProvenanceDocument`)(
-  {
+class BoundaryProvenanceDocument extends S.Opaque<BoundaryProvenanceDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     schemaVersion: S.Literal("fallow-quality-enforcement/boundary-provenance/v1"),
     updated: S.String,
     validatorVersion: S.Literal(validatorVersion),
     generatedConfigRef: S.Literal("standards/fallow.boundaries.generated.jsonc"),
     rules: S.NonEmptyArray(BoundaryGeneratedRuleProvenance),
-  },
-  $I.annote("BoundaryProvenanceDocument", {
-    description: "Sidecar provenance records for every generated Fallow boundary rule.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoundaryProvenanceDocument", {
+      description: "Sidecar provenance records for every generated Fallow boundary rule.",
+    })
+  )
 ) {}
 
-class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
-  {
+class ReviewRound extends S.Opaque<ReviewRound, { readonly brand: unique symbol }>()(
+  S.Struct({
     roundId: TrimmedNonEmptyString,
     criticId: TrimmedNonEmptyString,
     criticRole: TrimmedNonEmptyString,
@@ -817,27 +854,29 @@ class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
     openRequiredFindingCount: S.Natural,
     findings: S.Array(ReviewFinding),
     acceptanceCommands: S.NonEmptyArray(CommandString),
-  },
-  $I.annote("ReviewRound", {
-    description: "One critic round in the packet review/fix loop.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewRound", {
+      description: "One critic round in the packet review/fix loop.",
+    })
+  )
 ) {}
 
-class ReviewRoundsDocument extends S.Class<ReviewRoundsDocument>($I`ReviewRoundsDocument`)(
-  {
+class ReviewRoundsDocument extends S.Opaque<ReviewRoundsDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     schemaVersion: S.Literal("fallow-quality-enforcement/review-rounds/v1"),
     updated: S.String,
     validatorVersion: S.Literal(validatorVersion),
     rounds: S.NonEmptyArray(ReviewRound),
-  },
-  $I.annote("ReviewRoundsDocument", {
-    description: "Structured review/fix-loop inventory for the packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewRoundsDocument", {
+      description: "Structured review/fix-loop inventory for the packet.",
+    })
+  )
 ) {}
 
-class SchemaCompanionDocument extends S.Class<SchemaCompanionDocument>($I`SchemaCompanionDocument`)(
-  {
+class SchemaCompanionDocument extends S.Opaque<SchemaCompanionDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     $id: S.String,
     title: S.String,
@@ -849,41 +888,44 @@ class SchemaCompanionDocument extends S.Class<SchemaCompanionDocument>($I`Schema
     "x-requiredFields": S.Array(S.String),
     "x-enumValues": S.Record(S.String, S.Array(S.String)),
     "x-rowRequiredFields": S.optionalKey(S.Array(S.String)),
-  },
-  $I.annote("SchemaCompanionDocument", {
-    description: "JSON Schema companion metadata checked against Effect Schema constants.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaCompanionDocument", {
+      description: "JSON Schema companion metadata checked against Effect Schema constants.",
+    })
+  )
 ) {}
 
-class InitiativeManifestSummary extends S.Class<InitiativeManifestSummary>($I`InitiativeManifestSummary`)(
-  {
+class InitiativeManifestSummary extends S.Opaque<InitiativeManifestSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TrimmedNonEmptyString,
     title: TrimmedNonEmptyString,
     status: TrimmedNonEmptyString,
     created: TrimmedNonEmptyString,
     updated: TrimmedNonEmptyString,
     packetAnchorDocument: RepoRefString,
-  },
-  $I.annote("InitiativeManifestSummary", {
-    description: "Initiative metadata for the Fallow packet manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("InitiativeManifestSummary", {
+      description: "Initiative metadata for the Fallow packet manifest.",
+    })
+  )
 ) {}
 
-class InitiativeManifestPackage extends S.Class<InitiativeManifestPackage>($I`InitiativeManifestPackage`)(
-  {
+class InitiativeManifestPackage extends S.Opaque<InitiativeManifestPackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: TrimmedNonEmptyString,
     path: RepoRefString,
     family: TrimmedNonEmptyString,
     kind: TrimmedNonEmptyString,
     role: TrimmedNonEmptyString,
-  },
-  $I.annote("InitiativeManifestPackage", {
-    description: "Package touched by the Fallow packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("InitiativeManifestPackage", {
+      description: "Package touched by the Fallow packet.",
+    })
+  )
 ) {}
 
-class InitiativeManifestDecisions extends S.Class<InitiativeManifestDecisions>($I`InitiativeManifestDecisions`)(
-  {
+class InitiativeManifestDecisions extends S.Opaque<InitiativeManifestDecisions, { readonly brand: unique symbol }>()(
+  S.Struct({
     branch: TrimmedNonEmptyString,
     operatorSurface: TrimmedNonEmptyString,
     ciPosture: TrimmedNonEmptyString,
@@ -891,14 +933,15 @@ class InitiativeManifestDecisions extends S.Class<InitiativeManifestDecisions>($
     runtimeCoverage: TrimmedNonEmptyString,
     autofix: TrimmedNonEmptyString,
     doctrineRole: TrimmedNonEmptyString,
-  },
-  $I.annote("InitiativeManifestDecisions", {
-    description: "High-level decisions recorded in the packet manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("InitiativeManifestDecisions", {
+      description: "High-level decisions recorded in the packet manifest.",
+    })
+  )
 ) {}
 
-class InitiativeManifestDocument extends S.Class<InitiativeManifestDocument>($I`InitiativeManifestDocument`)(
-  {
+class InitiativeManifestDocument extends S.Opaque<InitiativeManifestDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literals(["initiative-manifest/v1", "initiative-manifest/v2"]),
     initiative: InitiativeManifestSummary,
     mission: TrimmedNonEmptyString,
@@ -908,10 +951,11 @@ class InitiativeManifestDocument extends S.Class<InitiativeManifestDocument>($I`
     packages: S.NonEmptyArray(InitiativeManifestPackage),
     verification: S.NonEmptyArray(CommandString),
     decisions: InitiativeManifestDecisions,
-  },
-  $I.annote("InitiativeManifestDocument", {
-    description: "Machine-readable manifest for the Fallow quality enforcement packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("InitiativeManifestDocument", {
+      description: "Machine-readable manifest for the Fallow quality enforcement packet.",
+    })
+  )
 ) {}
 
 const decodeFeatureMatrixDocument = S.decodeUnknownEffect(FeatureMatrixDocument);

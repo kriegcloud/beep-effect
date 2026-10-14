@@ -52,7 +52,7 @@ const EMPTY_IMPORTERS: ReadonlyArray<LockfileImporter> = [];
  * @category errors
  * @since 0.0.0
  */
-export class LockfileParseError extends S.TaggedError<LockfileParseError>($I`LockfileParseError`)("LockfileParseError", {
+export class LockfileParseError extends S.TaggedError<LockfileParseError, { readonly brand: unique symbol }>($I`LockfileParseError`)("LockfileParseError", {
 	/** The lockfile format that was being parsed. */
 	format: LockfileFormat.annotateKey({ description: "The lockfile format that was being parsed." }),
 	/** Whether the text itself failed to parse (`"syntax"`) or parsed but had the wrong shape (`"validation"`). */
@@ -135,7 +135,7 @@ export class LockfileParseError extends S.TaggedError<LockfileParseError>($I`Loc
  * @category errors
  * @since 0.0.0
  */
-export class LockfileFramingError extends S.TaggedError<LockfileFramingError>($I`LockfileFramingError`)("LockfileFramingError", {
+export class LockfileFramingError extends S.TaggedError<LockfileFramingError, { readonly brand: unique symbol }>($I`LockfileFramingError`)("LockfileFramingError", {
 	/** The lockfile format that was being parsed. */
 	format: LockfileFormat.annotateKey({ description: "The lockfile format that was being parsed." }),
 	/** Which framing check failed; see the class remarks for each. */
@@ -249,7 +249,7 @@ const dispatch = (
  * @category models
  * @since 0.0.0
  */
-export class Lockfile extends S.Class<Lockfile>($I`Lockfile`)({
+export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol }>($I`Lockfile`)({
 	format: LockfileFormat.annotateKey({ description: "Lockfile format that produced the normalized data: bun, npm, pnpm or yarn Berry" }),
 	lockfileVersion: S.String.annotateKey({ description: "Format version recorded by the lockfile" }),
 	packages: S.Array(ResolvedPackage).annotateKey({ description: "Resolved package instances, including workspace packages and separate instances for different peer contexts" }),

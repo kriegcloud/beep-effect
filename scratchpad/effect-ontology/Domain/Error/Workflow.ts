@@ -32,7 +32,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Error/Workflow");
  * @category errors
  * @since 0.0.0
  */
-export class WorkflowError extends S.TaggedError<WorkflowError>($I`WorkflowError`)(
+export class WorkflowError extends S.TaggedError<WorkflowError, { readonly brand: unique symbol }>($I`WorkflowError`)(
   "WorkflowError",
   {
     message: ErrorMessage.annotateKey({
@@ -68,7 +68,7 @@ export class WorkflowError extends S.TaggedError<WorkflowError>($I`WorkflowError
  * @category errors
  * @since 0.0.0
  */
-export class WorkflowNotFoundError extends S.TaggedError<WorkflowNotFoundError>($I`WorkflowNotFoundError`)(
+export class WorkflowNotFoundError extends S.TaggedError<WorkflowNotFoundError, { readonly brand: unique symbol }>($I`WorkflowNotFoundError`)(
   "WorkflowNotFoundError",
   {
     message: ErrorMessage.annotateKey({
@@ -108,7 +108,7 @@ export class WorkflowNotFoundError extends S.TaggedError<WorkflowNotFoundError>(
  * @category errors
  * @since 0.0.0
  */
-export class WorkflowSuspendedError extends S.TaggedError<WorkflowSuspendedError>($I`WorkflowSuspendedError`)(
+export class WorkflowSuspendedError extends S.TaggedError<WorkflowSuspendedError, { readonly brand: unique symbol }>($I`WorkflowSuspendedError`)(
   "WorkflowSuspendedError",
   {
     message: ErrorMessage.annotateKey({

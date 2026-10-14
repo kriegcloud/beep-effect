@@ -6,7 +6,13 @@
  * @since 0.0.0
  */
 
-import { Box } from "@beep/box";
+import {
+  Box,
+  BoxUploadFilePayload,
+  UploadFileRequestBodyAttributesField,
+  UploadFileRequestBodyAttributesParentField,
+} from "@beep/box";
+import { BoxUploadFileRequestBody } from "@beep/box/Box.streaming";
 import { DocumentFileId } from "@beep/law-practice-domain/values/MailTagging";
 import {
   ContentSha1,
@@ -25,7 +31,7 @@ import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ProviderCallMeter, ProviderCalls } from "./MailTagging.metering.ts";
-import type { BoxError, BoxUploadFilePayload, Files } from "@beep/box";
+import type { BoxError, Files } from "@beep/box";
 import type { DocumentUploadResult, UploadDocumentRequest } from "@beep/law-practice-use-cases/MailTagging";
 
 const tooManyRequests = 429;
@@ -73,16 +79,19 @@ const isNameTaken = (error: BoxError): boolean =>
  * **Example** (Read the conflicting file of a 409)
  *
  * ```ts
- * import { BoxApiFailureConflict, BoxApiFailureContext, BoxError } from "@beep/box"
+ * import { BoxApiFailureConflict, BoxApiFailureContext, BoxError, BoxErrorOptionsInput } from "@beep/box"
  * import { boxConflictingFile } from "@beep/law-practice-server/MailTagging"
  * import * as O from "effect/Option"
  *
- * const error = BoxError.fromReason("response status", {
- *   status: 409,
- *   context: BoxApiFailureContext.make({
- *     values: { conflictCount: 1, conflicts: [BoxApiFailureConflict.make({ id: "8001", type: "file" })] }
+ * const error = BoxError.fromReason(
+ *   "response status",
+ *   BoxErrorOptionsInput.make({
+ *     status: 409,
+ *     context: BoxApiFailureContext.make({
+ *       values: { conflictCount: 1, conflicts: [BoxApiFailureConflict.make({ id: "8001", type: "file" })] }
+ *     })
  *   })
- * })
+ * )
  * console.log(O.map(boxConflictingFile(error), (file) => file.fileId)) // Option.some("8001")
  * ```
  *
@@ -125,14 +134,18 @@ const refused = (error: BoxError): Effect.Effect<DocumentUploadResult, MailTaggi
     ? error.pipe(nameTaken, Effect.succeed)
     : error.pipe(portFailure, Effect.fail);
 
-const payloadOf = (request: UploadDocumentRequest): BoxUploadFilePayload => ({
-  requestBody: {
-    attributes: { name: request.fileName, parent: { id: request.folderId } },
-    file: request.bytes,
-    fileFileName: request.fileName,
-    ...O.getSomesStruct({ fileContentType: request.contentType }),
-  },
-});
+const payloadOf = (request: UploadDocumentRequest): BoxUploadFilePayload =>
+  BoxUploadFilePayload.make({
+    requestBody: BoxUploadFileRequestBody.make({
+      attributes: UploadFileRequestBodyAttributesField.make({
+        name: request.fileName,
+        parent: UploadFileRequestBodyAttributesParentField.make({ id: request.folderId }),
+      }),
+      file: request.bytes,
+      fileFileName: request.fileName,
+      ...O.getSomesStruct({ fileContentType: request.contentType }),
+    }),
+  });
 
 const fileIdOf = (files: Files): Effect.Effect<DocumentFileId, MailTaggingPortError> =>
   pipe(

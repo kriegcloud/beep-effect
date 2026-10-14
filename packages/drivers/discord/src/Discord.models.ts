@@ -167,18 +167,19 @@ const DiscordHttpSuccessStatus = DiscordHttpStatus.check(
  * @category models
  * @since 0.0.0
  */
-export class DiscordConfigInput extends S.Class<DiscordConfigInput>($I`DiscordConfigInput`)(
-  {
+export class DiscordConfigInput extends S.Opaque<DiscordConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseUrl: DiscordBaseUrl.pipe(
       S.withConstructorDefault(Effect.succeed(DISCORD_API_URL)),
       S.withDecodingDefaultTypeKey(Effect.succeed(DISCORD_API_URL))
     ).annotateKey({
       description: "Discord REST base URL; defaults to Discord's public v10 API.",
     }),
-  },
-  $I.annote("DiscordConfigInput", {
-    description: "Runtime configuration accepted by the Discord REST driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiscordConfigInput", {
+      description: "Runtime configuration accepted by the Discord REST driver layer.",
+    })
+  )
 ) {}
 
 /**
@@ -199,15 +200,16 @@ export class DiscordConfigInput extends S.Class<DiscordConfigInput>($I`DiscordCo
  * @category models
  * @since 0.0.0
  */
-export class DiscordChannelRequest extends S.Class<DiscordChannelRequest>($I`DiscordChannelRequest`)(
-  {
+export class DiscordChannelRequest extends S.Opaque<DiscordChannelRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     channelId: DiscordSnowflake.annotateKey({
       description: "Discord channel snowflake identifier.",
     }),
-  },
-  $I.annote("DiscordChannelRequest", {
-    description: "Request payload for proving a Discord channel can be reached.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiscordChannelRequest", {
+      description: "Request payload for proving a Discord channel can be reached.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(DiscordChannelRequest);
 }
@@ -236,18 +238,22 @@ export class DiscordChannelRequest extends S.Class<DiscordChannelRequest>($I`Dis
  * @category models
  * @since 0.0.0
  */
-export class DiscordCreateMessageRequest extends S.Class<DiscordCreateMessageRequest>($I`DiscordCreateMessageRequest`)(
-  {
+export class DiscordCreateMessageRequest extends S.Opaque<
+  DiscordCreateMessageRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     channelId: DiscordSnowflake.annotateKey({
       description: "Discord channel snowflake identifier.",
     }),
     content: S.NonEmptyString.annotateKey({
       description: "Proof message content to send without Discord mention expansion.",
     }),
-  },
-  $I.annote("DiscordCreateMessageRequest", {
-    description: "Request payload for creating a Discord proof message.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiscordCreateMessageRequest", {
+      description: "Request payload for creating a Discord proof message.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(DiscordCreateMessageRequest);
 }
@@ -280,8 +286,8 @@ export class DiscordCreateMessageRequest extends S.Class<DiscordCreateMessageReq
  * @category models
  * @since 0.0.0
  */
-export class DiscordChannelProof extends S.Class<DiscordChannelProof>($I`DiscordChannelProof`)(
-  {
+export class DiscordChannelProof extends S.Opaque<DiscordChannelProof, { readonly brand: unique symbol }>()(
+  S.Struct({
     channelId: DiscordSnowflake.annotateKey({
       description: "Discord channel snowflake identifier confirmed by the REST API.",
     }),
@@ -300,10 +306,11 @@ export class DiscordChannelProof extends S.Class<DiscordChannelProof>($I`Discord
     status: DiscordHttpSuccessStatus.annotateKey({
       description: "Successful HTTP status observed for the channel lookup.",
     }),
-  },
-  $I.annote("DiscordChannelProof", {
-    description: "Sanitized metadata returned after a successful channel lookup.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiscordChannelProof", {
+      description: "Sanitized metadata returned after a successful channel lookup.",
+    })
+  )
 ) {}
 
 /**
@@ -333,8 +340,8 @@ export class DiscordChannelProof extends S.Class<DiscordChannelProof>($I`Discord
  * @category models
  * @since 0.0.0
  */
-export class DiscordMessageProof extends S.Class<DiscordMessageProof>($I`DiscordMessageProof`)(
-  {
+export class DiscordMessageProof extends S.Opaque<DiscordMessageProof, { readonly brand: unique symbol }>()(
+  S.Struct({
     channelId: DiscordSnowflake.annotateKey({
       description: "Discord channel snowflake identifier that received the proof message.",
     }),
@@ -350,8 +357,9 @@ export class DiscordMessageProof extends S.Class<DiscordMessageProof>($I`Discord
         description: "Discord message creation timestamp when returned by the API.",
       })
     ),
-  },
-  $I.annote("DiscordMessageProof", {
-    description: "Sanitized metadata returned after a successful proof message creation.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiscordMessageProof", {
+      description: "Sanitized metadata returned after a successful proof message creation.",
+    })
+  )
 ) {}

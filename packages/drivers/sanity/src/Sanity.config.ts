@@ -86,8 +86,8 @@ const sanityConfigInputHeadersDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class SanityConfigInput extends S.Class<SanityConfigInput>($I`SanityConfigInput`)(
-  {
+export class SanityConfigInput extends S.Opaque<SanityConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiHost: SanityApiHost.pipe(
       S.withConstructorDefault(Effect.succeed(SANITY_API_HOST)),
       S.withDecodingDefaultTypeKey(Effect.succeed(SANITY_API_HOST))
@@ -117,8 +117,9 @@ export class SanityConfigInput extends S.Class<SanityConfigInput>($I`SanityConfi
     projectId: S.optionalKey(SanityProjectId).annotateKey({
       description: "Sanity project id used to scope first-party API hosts.",
     }),
-  },
-  $I.annote("SanityConfigInput", {
-    description: "Runtime configuration accepted by the Sanity API driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("SanityConfigInput", {
+      description: "Runtime configuration accepted by the Sanity API driver layer.",
+    })
+  )
 ) {}

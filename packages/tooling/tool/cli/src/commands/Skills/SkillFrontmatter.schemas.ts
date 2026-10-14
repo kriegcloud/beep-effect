@@ -50,15 +50,16 @@ const LineCount = S.Int.check(S.isGreaterThanOrEqualTo(0));
  * @category models
  * @since 0.0.0
  */
-export class SkillFrontmatterIssue extends S.Class<SkillFrontmatterIssue>($I`SkillFrontmatterIssue`)(
-  {
+export class SkillFrontmatterIssue extends S.Opaque<SkillFrontmatterIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.String,
     message: S.String,
-  },
-  $I.annote("SkillFrontmatterIssue", {
-    title: "Skill Frontmatter Issue",
-    description: "A SKILL.md frontmatter block that violates the Agent Skills format or the Claude Code extensions.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillFrontmatterIssue", {
+      title: "Skill Frontmatter Issue",
+      description: "A SKILL.md frontmatter block that violates the Agent Skills format or the Claude Code extensions.",
+    })
+  )
 ) {}
 
 /**
@@ -76,16 +77,17 @@ export class SkillFrontmatterIssue extends S.Class<SkillFrontmatterIssue>($I`Ski
  * @category models
  * @since 0.0.0
  */
-export class SkillBodyAdvisory extends S.Class<SkillBodyAdvisory>($I`SkillBodyAdvisory`)(
-  {
+export class SkillBodyAdvisory extends S.Opaque<SkillBodyAdvisory, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.String,
     lines: LineCount,
     limit: LineCount,
-  },
-  $I.annote("SkillBodyAdvisory", {
-    title: "Skill Body Advisory",
-    description: "A SKILL.md longer than the Agent Skills progressive-disclosure recommendation.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillBodyAdvisory", {
+      title: "Skill Body Advisory",
+      description: "A SKILL.md longer than the Agent Skills progressive-disclosure recommendation.",
+    })
+  )
 ) {}
 
 /**
@@ -105,15 +107,16 @@ export class SkillBodyAdvisory extends S.Class<SkillBodyAdvisory>($I`SkillBodyAd
  * @category models
  * @since 0.0.0
  */
-export class SkillFrontmatterReport extends S.Class<SkillFrontmatterReport>($I`SkillFrontmatterReport`)(
-  {
+export class SkillFrontmatterReport extends S.Opaque<SkillFrontmatterReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     issues: S.Array(SkillFrontmatterIssue),
     upstreamIssues: S.Array(SkillFrontmatterIssue),
     advisories: S.Array(SkillBodyAdvisory),
-  },
-  $I.annote("SkillFrontmatterReport", {
-    title: "Skill Frontmatter Report",
-    description:
-      "Frontmatter issues that fail the skills check (repo-authored skills), the same findings on upstream mirrors (advisory), and body-length advisories.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillFrontmatterReport", {
+      title: "Skill Frontmatter Report",
+      description:
+        "Frontmatter issues that fail the skills check (repo-authored skills), the same findings on upstream mirrors (advisory), and body-length advisories.",
+    })
+  )
 ) {}

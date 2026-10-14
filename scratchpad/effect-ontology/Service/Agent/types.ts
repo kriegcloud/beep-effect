@@ -107,7 +107,7 @@ export type AgentGraph = typeof AgentGraph.Type;
  * @category schemas
  * @since 0.0.0
  */
-class AgentTaskModel extends S.Class<AgentTaskModel>($I`AgentTask`)({
+class AgentTaskModel extends S.Opaque<AgentTaskModel, { readonly brand: unique symbol }>()(S.Struct({
   /**
    * Unique task identifier
    */
@@ -205,7 +205,7 @@ class AgentTaskModel extends S.Class<AgentTaskModel>($I`AgentTask`)({
    * Priority (lower = higher priority)
    */
   priority: S.Natural.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-}) {
+}).pipe($I.annoteSchema("AgentTask"))) {
   /**
    * Create a text extraction task
    *
@@ -364,8 +364,7 @@ export const AgentTask = AgentTaskModel;
  * @category schemas
  * @since 0.0.0
  */
-export class PipelineConfig extends S.Class<PipelineConfig>($I`PipelineConfig`)(
-  {
+export class PipelineConfig extends S.Opaque<PipelineConfig, { readonly brand: unique symbol }>()(S.Struct({
   /**
    * Unique pipeline identifier
    */
@@ -400,11 +399,9 @@ export class PipelineConfig extends S.Class<PipelineConfig>($I`PipelineConfig`)(
    * Enable detailed tracing
    */
   tracing: S.Boolean.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PipelineConfig", {
+  }).pipe($I.annoteSchema("PipelineConfig", {
     description: "Execution mode, agent sequence, and termination policy for a multi-agent pipeline.",
-  })
-) {
+  }))) {
   /**
    * Create a simple sequential pipeline
    *
@@ -478,14 +475,11 @@ export class PipelineConfig extends S.Class<PipelineConfig>($I`PipelineConfig`)(
  * @category models
  * @since 0.0.0
  */
-export class HumanApprove extends S.TaggedClass<HumanApprove>($I`HumanApprove`)(
-  "HumanApprove",
+export class HumanApprove extends S.Opaque<HumanApprove, { readonly brand: unique symbol }>()(S.TaggedStruct("HumanApprove",
   {
     reviewerId: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     comment: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("HumanApprove", { description: "Human approval of the current pipeline state." })
-) {}
+  }).pipe($I.annoteSchema("HumanApprove", { description: "Human approval of the current pipeline state." }))) {}
 
 /**
  * Human rejection of the current pipeline checkpoint.
@@ -502,14 +496,11 @@ export class HumanApprove extends S.TaggedClass<HumanApprove>($I`HumanApprove`)(
  * @category models
  * @since 0.0.0
  */
-export class HumanReject extends S.TaggedClass<HumanReject>($I`HumanReject`)(
-  "HumanReject",
+export class HumanReject extends S.Opaque<HumanReject, { readonly brand: unique symbol }>()(S.TaggedStruct("HumanReject",
   {
     reason: S.NonEmptyString,
     reviewerId: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("HumanReject", { description: "Human rejection of the current pipeline state." })
-) {}
+  }).pipe($I.annoteSchema("HumanReject", { description: "Human rejection of the current pipeline state." }))) {}
 
 /**
  * Human-provided modifications to the current pipeline state.
@@ -530,15 +521,12 @@ export class HumanReject extends S.TaggedClass<HumanReject>($I`HumanReject`)(
  * @category models
  * @since 0.0.0
  */
-export class HumanModify extends S.TaggedClass<HumanModify>($I`HumanModify`)(
-  "HumanModify",
+export class HumanModify extends S.Opaque<HumanModify, { readonly brand: unique symbol }>()(S.TaggedStruct("HumanModify",
   {
     changes: S.Json,
     reviewerId: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     comment: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("HumanModify", { description: "Human-provided modifications to the current pipeline state." })
-) {}
+  }).pipe($I.annoteSchema("HumanModify", { description: "Human-provided modifications to the current pipeline state." }))) {}
 
 /**
  * Human request to skip one pipeline agent.
@@ -560,15 +548,12 @@ export class HumanModify extends S.TaggedClass<HumanModify>($I`HumanModify`)(
  * @category models
  * @since 0.0.0
  */
-export class HumanSkip extends S.TaggedClass<HumanSkip>($I`HumanSkip`)(
-  "HumanSkip",
+export class HumanSkip extends S.Opaque<HumanSkip, { readonly brand: unique symbol }>()(S.TaggedStruct("HumanSkip",
   {
     agentId: AgentId,
     reason: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     reviewerId: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("HumanSkip", { description: "Human request to skip one pipeline agent." })
-) {}
+  }).pipe($I.annoteSchema("HumanSkip", { description: "Human request to skip one pipeline agent." }))) {}
 
 /**
  * Feedback supplied by a human reviewer at an orchestration checkpoint.
@@ -622,7 +607,7 @@ export type HumanFeedback = typeof HumanFeedback.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class RefinementConfig extends S.Class<RefinementConfig>($I`RefinementConfig`)(
+export class RefinementConfig extends S.Class<RefinementConfig, { readonly brand: unique symbol }>($I`RefinementConfig`)(
   {
   /**
    * Maximum number of correction iterations
@@ -779,7 +764,7 @@ export type RefinementStatus =
  * @category schemas
  * @since 0.0.0
  */
-export class RefinementResult extends S.Class<RefinementResult>($I`RefinementResult`)(
+export class RefinementResult extends S.Class<RefinementResult, { readonly brand: unique symbol }>($I`RefinementResult`)(
   {
   /**
    * Final knowledge graph
@@ -951,8 +936,7 @@ export type AgentRegistry = HashMap.HashMap<AgentIdType, RegisteredAgent>;
  * @category schemas
  * @since 0.0.0
  */
-export class ExecutionContext extends S.Class<ExecutionContext>($I`ExecutionContext`)(
-  {
+export class ExecutionContext extends S.Opaque<ExecutionContext, { readonly brand: unique symbol }>()(S.Struct({
     /**
      * Current pipeline state
      */
@@ -977,11 +961,9 @@ export class ExecutionContext extends S.Class<ExecutionContext>($I`ExecutionCont
      * Correlation ID for request tracking
      */
     correlationId: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ExecutionContext", {
+  }).pipe($I.annoteSchema("ExecutionContext", {
     description: "Pipeline snapshot, iteration, and tracing identifiers supplied to executing agents.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Error Types
@@ -1006,7 +988,7 @@ export class ExecutionContext extends S.Class<ExecutionContext>($I`ExecutionCont
  * @category errors
  * @since 0.0.0
  */
-export class AgentExecutionError extends S.TaggedError<AgentExecutionError>($I`AgentExecutionError`)(
+export class AgentExecutionError extends S.TaggedError<AgentExecutionError, { readonly brand: unique symbol }>($I`AgentExecutionError`)(
   "AgentExecutionError",
   {
     agentId: AgentId,
@@ -1047,7 +1029,7 @@ export class AgentExecutionError extends S.TaggedError<AgentExecutionError>($I`A
  * @category errors
  * @since 0.0.0
  */
-export class PipelineExecutionError extends S.TaggedError<PipelineExecutionError>($I`PipelineExecutionError`)(
+export class PipelineExecutionError extends S.TaggedError<PipelineExecutionError, { readonly brand: unique symbol }>($I`PipelineExecutionError`)(
   "PipelineExecutionError",
   {
     pipelineId: S.NonEmptyString,
@@ -1078,7 +1060,7 @@ export class PipelineExecutionError extends S.TaggedError<PipelineExecutionError
  * @category errors
  * @since 0.0.0
  */
-export class AgentNotFoundError extends S.TaggedError<AgentNotFoundError>($I`AgentNotFoundError`)(
+export class AgentNotFoundError extends S.TaggedError<AgentNotFoundError, { readonly brand: unique symbol }>($I`AgentNotFoundError`)(
   "AgentNotFoundError",
   {
     agentId: AgentId,
@@ -1107,7 +1089,7 @@ export class AgentNotFoundError extends S.TaggedError<AgentNotFoundError>($I`Age
  * @category errors
  * @since 0.0.0
  */
-export class CheckpointTimeoutError extends S.TaggedError<CheckpointTimeoutError>($I`CheckpointTimeoutError`)(
+export class CheckpointTimeoutError extends S.TaggedError<CheckpointTimeoutError, { readonly brand: unique symbol }>($I`CheckpointTimeoutError`)(
   "CheckpointTimeoutError",
   {
     pipelineId: S.NonEmptyString,

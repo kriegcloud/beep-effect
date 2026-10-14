@@ -57,8 +57,8 @@ const $I = $LawPracticeDomainId.create("values/MailTagging/MailTagging.matching.
  * @category models
  * @since 0.0.0
  */
-export class MatterIndexEntry extends S.Class<MatterIndexEntry>($I`MatterIndexEntry`)(
-  {
+export class MatterIndexEntry extends S.Opaque<MatterIndexEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     matterKey: MatterKey.annotateKey({
       description: "Matter the entry describes.",
     }),
@@ -90,10 +90,11 @@ export class MatterIndexEntry extends S.Class<MatterIndexEntry>($I`MatterIndexEn
       .annotateKey({
         description: "Sender domains associated with the matter's client.",
       }),
-  },
-  $I.annote("MatterIndexEntry", {
-    description: "Identifiers and contacts that tie mail to one matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterIndexEntry", {
+      description: "Identifiers and contacts that tie mail to one matter.",
+    })
+  )
 ) {}
 
 /**
@@ -125,8 +126,8 @@ export class MatterIndexEntry extends S.Class<MatterIndexEntry>($I`MatterIndexEn
  * @category models
  * @since 0.0.0
  */
-export class UnattributedMatter extends S.Class<UnattributedMatter>($I`UnattributedMatter`)(
-  {
+export class UnattributedMatter extends S.Opaque<UnattributedMatter, { readonly brand: unique symbol }>()(
+  S.Struct({
     docketNumbers: S.Array(MatterDocketNumber)
       .pipe(S.withDecodingDefaultKey(Effect.succeed([])), S.withConstructorDefault(Effect.succeed([])))
       .annotateKey({
@@ -147,10 +148,11 @@ export class UnattributedMatter extends S.Class<UnattributedMatter>($I`Unattribu
       .annotateKey({
         description: "Family keys of the matter, client-keyed or bare; compared only with extracted docket references.",
       }),
-  },
-  $I.annote("UnattributedMatter", {
-    description: "Identifiers of a matter that cannot be a tag target.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnattributedMatter", {
+      description: "Identifiers of a matter that cannot be a tag target.",
+    })
+  )
 ) {}
 
 /**
@@ -172,8 +174,8 @@ export class UnattributedMatter extends S.Class<UnattributedMatter>($I`Unattribu
  * @category models
  * @since 0.0.0
  */
-export class MatterIndex extends S.Class<MatterIndex>($I`MatterIndex`)(
-  {
+export class MatterIndex extends S.Opaque<MatterIndex, { readonly brand: unique symbol }>()(
+  S.Struct({
     entries: S.Array(MatterIndexEntry).annotateKey({
       description: "One entry per taggable matter.",
     }),
@@ -185,10 +187,11 @@ export class MatterIndex extends S.Class<MatterIndex>($I`MatterIndex`)(
     builtAt: S.DateTimeUtcFromString.annotateKey({
       description: "UTC instant the snapshot was read.",
     }),
-  },
-  $I.annote("MatterIndex", {
-    description: "Snapshot of every taggable matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterIndex", {
+      description: "Snapshot of every taggable matter.",
+    })
+  )
 ) {}
 
 /**
@@ -222,8 +225,8 @@ export class MatterIndex extends S.Class<MatterIndex>($I`MatterIndex`)(
  * @category models
  * @since 0.0.0
  */
-export class MailEnvelope extends S.Class<MailEnvelope>($I`MailEnvelope`)(
-  {
+export class MailEnvelope extends S.Opaque<MailEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     messageId: MailMessageId.annotateKey({
       description: "Provider message id.",
     }),
@@ -271,10 +274,11 @@ export class MailEnvelope extends S.Class<MailEnvelope>($I`MailEnvelope`)(
       .annotateKey({
         description: "Short provider body preview; never persisted.",
       }),
-  },
-  $I.annote("MailEnvelope", {
-    description: "The subset of a mailbox message the tagger reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailEnvelope", {
+      description: "The subset of a mailbox message the tagger reads.",
+    })
+  )
 ) {}
 
 /**
@@ -409,18 +413,19 @@ export type MatterEvidenceToken = typeof MatterEvidenceToken.Type;
  * @category models
  * @since 0.0.0
  */
-export class MatterEvidence extends S.Class<MatterEvidence>($I`MatterEvidence`)(
-  {
+export class MatterEvidence extends S.Opaque<MatterEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: MatterEvidenceKind.annotateKey({
       description: "Kind of evidence.",
     }),
     matched: MatterEvidenceToken.annotateKey({
       description: "Normalized identifier or address that hit.",
     }),
-  },
-  $I.annote("MatterEvidence", {
-    description: "One piece of evidence tying a message to a matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterEvidence", {
+      description: "One piece of evidence tying a message to a matter.",
+    })
+  )
 ) {}
 
 /**
@@ -477,8 +482,8 @@ export const matterEvidenceConfidence = (evidence: ReadonlyArray<MatterEvidence>
  * @category models
  * @since 0.0.0
  */
-export class MatterCandidate extends S.Class<MatterCandidate>($I`MatterCandidate`)(
-  {
+export class MatterCandidate extends S.Opaque<MatterCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     matterKey: MatterKey.annotateKey({
       description: "Candidate matter.",
     }),
@@ -488,10 +493,11 @@ export class MatterCandidate extends S.Class<MatterCandidate>($I`MatterCandidate
     evidence: S.NonEmptyArray(MatterEvidence).annotateKey({
       description: "Evidence supporting the candidate; at least one item.",
     }),
-  },
-  $I.annote("MatterCandidate", {
-    description: "A matter the evidence points at, with its combined confidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterCandidate", {
+      description: "A matter the evidence points at, with its combined confidence.",
+    })
+  )
 ) {}
 
 const defaultMaxAttachmentBytes = 50 * 1024 * 1024;
@@ -514,8 +520,8 @@ const defaultMaxAttachmentBytes = 50 * 1024 * 1024;
  * @category policies
  * @since 0.0.0
  */
-export class TaggingPolicy extends S.Class<TaggingPolicy>($I`TaggingPolicy`)(
-  {
+export class TaggingPolicy extends S.Opaque<TaggingPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     confidenceThreshold: UnitInterval.pipe(
       S.withDecodingDefaultKey(Effect.succeed(0.8)),
       S.withConstructorDefault(Effect.succeed(UnitInterval.make(0.8)))
@@ -534,10 +540,11 @@ export class TaggingPolicy extends S.Class<TaggingPolicy>($I`TaggingPolicy`)(
     ).annotateKey({
       description: "Largest attachment, in bytes, the filer downloads and files; defaults to 50 MiB.",
     }),
-  },
-  $I.annote("TaggingPolicy", {
-    description: "Thresholds that turn matter candidates into a tagging decision, plus the attachment size cap.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaggingPolicy", {
+      description: "Thresholds that turn matter candidates into a tagging decision, plus the attachment size cap.",
+    })
+  )
 ) {}
 
 /**
@@ -590,9 +597,8 @@ export type UnmatchedReason = typeof UnmatchedReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class MatterMatched extends S.TaggedClass<MatterMatched>($I`MatterMatched`)(
-  "MatterMatched",
-  {
+export class MatterMatched extends S.Opaque<MatterMatched, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("MatterMatched", {
     matterKey: MatterKey.annotateKey({
       description: "Matter the message belongs to.",
     }),
@@ -607,10 +613,11 @@ export class MatterMatched extends S.TaggedClass<MatterMatched>($I`MatterMatched
       .annotateKey({
         description: "Practice categories that ride alongside the match.",
       }),
-  },
-  $I.annote("MatterMatched", {
-    description: "Tagging decision assigning the message to one matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterMatched", {
+      description: "Tagging decision assigning the message to one matter.",
+    })
+  )
 ) {}
 
 /**
@@ -628,9 +635,8 @@ export class MatterMatched extends S.TaggedClass<MatterMatched>($I`MatterMatched
  * @category models
  * @since 0.0.0
  */
-export class MatterUnmatched extends S.TaggedClass<MatterUnmatched>($I`MatterUnmatched`)(
-  "MatterUnmatched",
-  {
+export class MatterUnmatched extends S.Opaque<MatterUnmatched, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("MatterUnmatched", {
     reason: UnmatchedReason.annotateKey({
       description: "Why no matter was assigned.",
     }),
@@ -644,10 +650,11 @@ export class MatterUnmatched extends S.TaggedClass<MatterUnmatched>($I`MatterUnm
       .annotateKey({
         description: "Practice categories that ride alongside the outcome.",
       }),
-  },
-  $I.annote("MatterUnmatched", {
-    description: "Tagging decision leaving the message without a matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterUnmatched", {
+      description: "Tagging decision leaving the message without a matter.",
+    })
+  )
 ) {}
 
 /**

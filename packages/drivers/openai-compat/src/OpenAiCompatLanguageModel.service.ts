@@ -107,10 +107,11 @@ const decodeKnownFinishReasonOption: (reason: string) => O.Option<Response.Finis
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatLanguageModelConfig extends S.Class<OpenAiCompatLanguageModelConfig>(
-  $I`OpenAiCompatLanguageModelConfig`
-)(
-  {
+export class OpenAiCompatLanguageModelConfig extends S.Opaque<
+  OpenAiCompatLanguageModelConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     maxCompletionTokens: OptionalPosInt.annotateKey({
       description: "Optional positive maximum completion-token count.",
     }),
@@ -129,10 +130,11 @@ export class OpenAiCompatLanguageModelConfig extends S.Class<OpenAiCompatLanguag
       description: "Optional nucleus sampling value, preserving explicit null for provider wire compatibility.",
     }),
     user: OptionalString.annotateKey({ description: "Optional provider-visible end-user identifier." }),
-  },
-  $I.annote("OpenAiCompatLanguageModelConfig", {
-    description: "Request-time tuning options shared by OpenAI-compatible language-model adapters.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatLanguageModelConfig", {
+      description: "Request-time tuning options shared by OpenAI-compatible language-model adapters.",
+    })
+  )
 ) {}
 
 /**
@@ -185,7 +187,7 @@ export type OpenAiCompatProvider = OpenAiCompatClientShape;
  * @category models
  * @since 0.0.0
  */
-export type OpenAiCompatLanguageModelOptions = OpenAiCompatLanguageModelClientOptions & {
+export type OpenAiCompatLanguageModelOptions = Omit<OpenAiCompatLanguageModelClientOptions, "brand"> & {
   readonly model: string;
   readonly moduleName: string;
   readonly provider: OpenAiCompatProvider;
@@ -197,43 +199,44 @@ export type OpenAiCompatLanguageModelOptions = OpenAiCompatLanguageModelClientOp
  * **Example** (Select a model by name)
  *
  * ```ts
- * import type { OpenAiCompatLanguageModelClientOptions } from "@beep/openai-compat"
+ * import { OpenAiCompatLanguageModelClientOptions } from "@beep/openai-compat"
  *
- * const options: OpenAiCompatLanguageModelClientOptions = {
- *   model: "gpt-compatible"
- * }
+ * const options = OpenAiCompatLanguageModelClientOptions.make({ model: "gpt-compatible" })
  *
- * console.log(options)
+ * console.log(options.model) // "gpt-compatible"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatLanguageModelClientOptions extends S.Class<OpenAiCompatLanguageModelClientOptions>(
-  $I`OpenAiCompatLanguageModelClientOptions`
-)(
-  {
+export class OpenAiCompatLanguageModelClientOptions extends S.Opaque<
+  OpenAiCompatLanguageModelClientOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     config: S.optionalKey(OpenAiCompatLanguageModelConfig),
     model: S.String,
-  },
-  $I.annote("OpenAiCompatLanguageModelClientOptions", {
-    description: "Options accepted by the default OpenAI-compatible language-model constructor.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatLanguageModelClientOptions", {
+      description: "Options accepted by the default OpenAI-compatible language-model constructor.",
+    })
+  )
 ) {}
 
-class ActiveToolCall extends S.Class<ActiveToolCall>($I`ActiveToolCall`)(
-  {
+class ActiveToolCall extends S.Opaque<ActiveToolCall, { readonly brand: unique symbol }>()(
+  S.Struct({
     arguments: S.String.annotateKey({ description: "Buffered JSON argument text for the active stream tool call." }),
     id: S.String.annotateKey({ description: "Stable tool-call identifier reconstructed from stream deltas." }),
     name: S.String.annotateKey({ description: "Tool name reconstructed from stream deltas." }),
-  },
-  $I.annote("ActiveToolCall", {
-    description: "A tool call that is currently active.",
-  })
+  }).pipe(
+    $I.annoteSchema("ActiveToolCall", {
+      description: "A tool call that is currently active.",
+    })
+  )
 ) {}
 
-class StreamState extends S.Class<StreamState>($I`StreamState`)(
-  {
+class StreamState extends S.Opaque<StreamState, { readonly brand: unique symbol }>()(
+  S.Struct({
     activeToolCalls: S.Record(S.String, ActiveToolCall).annotateKey({
       description: "Active streaming tool calls keyed by provider tool-call index.",
     }),
@@ -246,19 +249,21 @@ class StreamState extends S.Class<StreamState>($I`StreamState`)(
     usage: OpenAiCompatChatCompletionChunk.fields.usage.annotateKey({
       description: "Latest token usage observed in stream chunks.",
     }),
-  },
-  $I.annote("StreamState", {
-    description: "Mutable stream reconstruction state for OpenAI-compatible streaming chunks.",
-  })
+  }).pipe(
+    $I.annoteSchema("StreamState", {
+      description: "Mutable stream reconstruction state for OpenAI-compatible streaming chunks.",
+    })
+  )
 ) {
-  static readonly initial = (): StreamState => ({
-    activeToolCalls: {},
-    finishReason: O.none(),
-    finished: false,
-    textEnded: false,
-    textStarted: false,
-    usage: O.none(),
-  });
+  static readonly initial = (): StreamState =>
+    StreamState.make({
+      activeToolCalls: {},
+      finishReason: O.none(),
+      finished: false,
+      textEnded: false,
+      textStarted: false,
+      usage: O.none(),
+    });
 }
 
 const makeAiError = (moduleName: string, method: string, reason: AiError.AiErrorReason): AiError.AiError =>
@@ -737,11 +742,11 @@ const makeToolCallDeltaParts = (
   const id = streamToolCallId(chunk, toolIndex, activeToolCall, toolCall);
   const name = streamToolCallName(toolNameMapper, activeToolCall, toolCall);
   const argumentsDelta = toolCall.function?.arguments ?? "";
-  const nextToolCall: ActiveToolCall = {
+  const nextToolCall: ActiveToolCall = ActiveToolCall.make({
     arguments: `${activeToolCall?.arguments ?? ""}${argumentsDelta}`,
     id,
     name,
-  };
+  });
   const parts: ReadonlyArray<Response.StreamPartEncoded> = [
     ...(activeToolCall === undefined
       ? [
@@ -926,14 +931,14 @@ const makeStreamChoiceParts = Effect.fn("OpenAiCompatLanguageModel.makeStreamCho
     );
   const finished = state.finished || shouldFinish;
   return Tuple.make(
-    {
+    StreamState.make({
       activeToolCalls,
       finishReason,
       finished,
       textEnded,
       textStarted,
       usage,
-    },
+    }),
     allParts
   );
 });
@@ -1039,9 +1044,9 @@ export const layerFromProvider = (
  * **Example** (Build a client-backed model)
  *
  * ```ts
- * import { make } from "@beep/openai-compat"
+ * import { make, OpenAiCompatLanguageModelClientOptions } from "@beep/openai-compat"
  *
- * const model = make({ model: "gpt-compatible" })
+ * const model = make(OpenAiCompatLanguageModelClientOptions.make({ model: "gpt-compatible" }))
  *
  * console.log(model)
  * ```
@@ -1072,9 +1077,9 @@ export const make: (
  * **Example** (Build a client-backed layer)
  *
  * ```ts
- * import { layer } from "@beep/openai-compat"
+ * import { layer, OpenAiCompatLanguageModelClientOptions } from "@beep/openai-compat"
  *
- * const modelLayer = layer({ model: "gpt-compatible" })
+ * const modelLayer = layer(OpenAiCompatLanguageModelClientOptions.make({ model: "gpt-compatible" }))
  *
  * console.log(modelLayer)
  * ```
@@ -1121,12 +1126,14 @@ export const model: {
       "openai-compat",
       modelName,
       layer(
-        config === undefined
-          ? { model: modelName }
-          : {
-              config,
-              model: modelName,
-            }
+        OpenAiCompatLanguageModelClientOptions.make(
+          config === undefined
+            ? { model: modelName }
+            : {
+                config,
+                model: modelName,
+              }
+        )
       )
     )
 );

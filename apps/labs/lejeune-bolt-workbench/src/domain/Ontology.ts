@@ -242,17 +242,18 @@ const ExpertClaimReviewStatus = LiteralKit(["candidate", "approved", "superseded
  * @category models
  * @since 0.0.0
  */
-export class ProductVariant extends S.Class<ProductVariant>($I`ProductVariant`)(
-  {
+export class ProductVariant extends S.Opaque<ProductVariant, { readonly brand: unique symbol }>()(
+  S.Struct({
     componentIds: S.NonEmptyArray(EntityId),
     finishId: EntityId,
     id: EntityId,
     label: S.NonEmptyString,
     standardId: EntityId,
-  },
-  $I.annote("ProductVariant", {
-    description: "A fixed-story fastener variant linked to its standard, finish, and assembly components.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProductVariant", {
+      description: "A fixed-story fastener variant linked to its standard, finish, and assembly components.",
+    })
+  )
 ) {}
 
 /**
@@ -269,7 +270,7 @@ export class ProductVariant extends S.Class<ProductVariant>($I`ProductVariant`)(
  * @category models
  * @since 0.0.0
  */
-export class Component extends S.Class<Component>($I`Component`)(
+export class Component extends S.Class<Component, { readonly brand: unique symbol }>($I`Component`)(
   {
     finishId: EntityId.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     id: EntityId,
@@ -297,17 +298,18 @@ export class Component extends S.Class<Component>($I`Component`)(
  * @category models
  * @since 0.0.0
  */
-export class Standard extends S.Class<Standard>($I`Standard`)(
-  {
+export class Standard extends S.Opaque<Standard, { readonly brand: unique symbol }>()(
+  S.Struct({
     accessedOn: IsoDate,
     designation: S.NonEmptyString,
     id: EntityId,
     revision: S.NonEmptyString,
     sourceUrl: HttpsUrl,
-  },
-  $I.annote("Standard", {
-    description: "A technical designation with an explicit revision or access date and an opening URL.",
-  })
+  }).pipe(
+    $I.annoteSchema("Standard", {
+      description: "A technical designation with an explicit revision or access date and an opening URL.",
+    })
+  )
 ) {}
 
 /**
@@ -324,15 +326,16 @@ export class Standard extends S.Class<Standard>($I`Standard`)(
  * @category models
  * @since 0.0.0
  */
-export class Finish extends S.Class<Finish>($I`Finish`)(
-  {
+export class Finish extends S.Opaque<Finish, { readonly brand: unique symbol }>()(
+  S.Struct({
     coatingSpecification: S.NonEmptyString,
     id: EntityId,
     label: S.NonEmptyString,
-  },
-  $I.annote("Finish", {
-    description: "A lab-scoped coating or plain-finish designation used by the two RFQ fixtures.",
-  })
+  }).pipe(
+    $I.annoteSchema("Finish", {
+      description: "A lab-scoped coating or plain-finish designation used by the two RFQ fixtures.",
+    })
+  )
 ) {}
 
 /**
@@ -349,15 +352,16 @@ export class Finish extends S.Class<Finish>($I`Finish`)(
  * @category models
  * @since 0.0.0
  */
-export class Tool extends S.Class<Tool>($I`Tool`)(
-  {
+export class Tool extends S.Opaque<Tool, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: EntityId,
     label: S.NonEmptyString,
     operation: S.NonEmptyString,
-  },
-  $I.annote("Tool", {
-    description: "A fixed-story installation or verification tool referenced without supplier authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("Tool", {
+      description: "A fixed-story installation or verification tool referenced without supplier authority.",
+    })
+  )
 ) {}
 
 /**
@@ -374,8 +378,8 @@ export class Tool extends S.Class<Tool>($I`Tool`)(
  * @category models
  * @since 0.0.0
  */
-export class SupplierOffer extends S.Class<SupplierOffer>($I`SupplierOffer`)(
-  {
+export class SupplierOffer extends S.Opaque<SupplierOffer, { readonly brand: unique symbol }>()(
+  S.Struct({
     availableQuantity: PosInt,
     expiresAt: IsoTimestamp,
     id: EntityId,
@@ -384,10 +388,11 @@ export class SupplierOffer extends S.Class<SupplierOffer>($I`SupplierOffer`)(
     recordLabel: S.tag("SYNTHETIC"),
     supplier: S.NonEmptyString,
     unitPriceCents: PosInt,
-  },
-  $I.annote("SupplierOffer", {
-    description: "A dated synthetic offer that cannot be mistaken for current supplier price or availability.",
-  })
+  }).pipe(
+    $I.annoteSchema("SupplierOffer", {
+      description: "A dated synthetic offer that cannot be mistaken for current supplier price or availability.",
+    })
+  )
 ) {}
 
 /**
@@ -404,15 +409,16 @@ export class SupplierOffer extends S.Class<SupplierOffer>($I`SupplierOffer`)(
  * @category models
  * @since 0.0.0
  */
-export class Project extends S.Class<Project>($I`Project`)(
-  {
+export class Project extends S.Opaque<Project, { readonly brand: unique symbol }>()(
+  S.Struct({
     deliveryDate: IsoDate,
     id: EntityId,
     name: S.NonEmptyString,
-  },
-  $I.annote("Project", {
-    description: "A synthetic project identity and delivery date used by a fixed RFQ pair.",
-  })
+  }).pipe(
+    $I.annoteSchema("Project", {
+      description: "A synthetic project identity and delivery date used by a fixed RFQ pair.",
+    })
+  )
 ) {}
 
 /**
@@ -429,17 +435,18 @@ export class Project extends S.Class<Project>($I`Project`)(
  * @category models
  * @since 0.0.0
  */
-export class RFQ extends S.Class<RFQ>($I`RFQ`)(
-  {
+export class RFQ extends S.Opaque<RFQ, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: EntityId,
     missingFields: S.Tuple([S.NonEmptyString]),
     projectId: EntityId,
     quoteLineIds: S.Tuple([EntityId]),
     sourceDocumentIds: S.Tuple([EntityId, EntityId]),
-  },
-  $I.annote("RFQ", {
-    description: "A fixed-layout RFQ that preserves every required value the sources did not provide.",
-  })
+  }).pipe(
+    $I.annoteSchema("RFQ", {
+      description: "A fixed-layout RFQ that preserves every required value the sources did not provide.",
+    })
+  )
 ) {}
 
 /**
@@ -456,16 +463,17 @@ export class RFQ extends S.Class<RFQ>($I`RFQ`)(
  * @category models
  * @since 0.0.0
  */
-export class QuoteLine extends S.Class<QuoteLine>($I`QuoteLine`)(
-  {
+export class QuoteLine extends S.Opaque<QuoteLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: EntityId,
     productVariantId: EntityId,
     quantity: PosInt,
     rfqId: EntityId,
-  },
-  $I.annote("QuoteLine", {
-    description: "A normalized quantity request linked to its RFQ and fixed product variant.",
-  })
+  }).pipe(
+    $I.annoteSchema("QuoteLine", {
+      description: "A normalized quantity request linked to its RFQ and fixed product variant.",
+    })
+  )
 ) {}
 
 /**
@@ -482,17 +490,18 @@ export class QuoteLine extends S.Class<QuoteLine>($I`QuoteLine`)(
  * @category models
  * @since 0.0.0
  */
-export class LotCertificate extends S.Class<LotCertificate>($I`LotCertificate`)(
-  {
+export class LotCertificate extends S.Opaque<LotCertificate, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: EntityId,
     issuedAt: IsoTimestamp,
     lotId: EntityId,
     recordLabel: S.tag("SYNTHETIC"),
     standardId: EntityId,
-  },
-  $I.annote("LotCertificate", {
-    description: "A dated synthetic certificate pointer with no copied mill or third-party payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("LotCertificate", {
+      description: "A dated synthetic certificate pointer with no copied mill or third-party payload.",
+    })
+  )
 ) {}
 
 /**
@@ -509,17 +518,18 @@ export class LotCertificate extends S.Class<LotCertificate>($I`LotCertificate`)(
  * @category models
  * @since 0.0.0
  */
-export class Approval extends S.Class<Approval>($I`Approval`)(
-  {
+export class Approval extends S.Opaque<Approval, { readonly brand: unique symbol }>()(
+  S.Struct({
     decision: ApprovalDecision,
     id: EntityId,
     recordedAt: IsoTimestamp,
     reviewer: S.NonEmptyString,
     subjectId: EntityId,
-  },
-  $I.annote("Approval", {
-    description: "A lab-local review record that never represents a quote send, substitution, or order.",
-  })
+  }).pipe(
+    $I.annoteSchema("Approval", {
+      description: "A lab-local review record that never represents a quote send, substitution, or order.",
+    })
+  )
 ) {}
 
 /**
@@ -536,15 +546,16 @@ export class Approval extends S.Class<Approval>($I`Approval`)(
  * @category models
  * @since 0.0.0
  */
-export class ExpertClaim extends S.Class<ExpertClaim>($I`ExpertClaim`)(
-  {
+export class ExpertClaim extends S.Opaque<ExpertClaim, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: EntityId,
     reviewStatus: ExpertClaimReviewStatus,
     sourceUrl: HttpsUrl,
     statement: S.NonEmptyString,
     validFrom: IsoDate,
-  },
-  $I.annote("ExpertClaim", {
-    description: "A cited and review-gated veteran claim limited to the fixed demo story.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExpertClaim", {
+      description: "A cited and review-gated veteran claim limited to the fixed demo story.",
+    })
+  )
 ) {}

@@ -20,7 +20,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import { RUNPOD_DOCS_INDEX_URL, RunpodConfigUrl, RunpodDocsConfigInput } from "./Runpod.config.ts";
-import { RunpodDocsError } from "./Runpod.errors.ts";
+import { RunpodDocsError, RunpodDocsErrorOptionsInput } from "./Runpod.errors.ts";
 import type * as HttpClientResponse from "effect/http/HttpClientResponse";
 
 const $I = $RunpodId.create("RunpodDocs.service");
@@ -50,16 +50,17 @@ const RunpodDocsUrl = S.String.check(URLStr.filter).pipe(
  * @category models
  * @since 0.1.0
  */
-export class RunpodDocsIndexEntry extends S.Class<RunpodDocsIndexEntry>($I`RunpodDocsIndexEntry`)(
-  {
+export class RunpodDocsIndexEntry extends S.Opaque<RunpodDocsIndexEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     description: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     section: S.NonEmptyString,
     title: S.NonEmptyString,
     url: RunpodDocsUrl,
-  },
-  $I.annote("RunpodDocsIndexEntry", {
-    description: "One Markdown documentation link parsed from Runpod's llms.txt index.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodDocsIndexEntry", {
+      description: "One Markdown documentation link parsed from Runpod's llms.txt index.",
+    })
+  )
 ) {}
 
 /**
@@ -86,17 +87,18 @@ export class RunpodDocsIndexEntry extends S.Class<RunpodDocsIndexEntry>($I`Runpo
  * @category models
  * @since 0.1.0
  */
-export class RunpodDocsIndex extends S.Class<RunpodDocsIndex>($I`RunpodDocsIndex`)(
-  {
+export class RunpodDocsIndex extends S.Opaque<RunpodDocsIndex, { readonly brand: unique symbol }>()(
+  S.Struct({
     entries: S.NonEmptyArray(RunpodDocsIndexEntry),
     title: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed("Runpod Documentation")),
       S.withDecodingDefaultTypeKey(Effect.succeed("Runpod Documentation"))
     ),
-  },
-  $I.annote("RunpodDocsIndex", {
-    description: "Parsed Runpod documentation index from docs.runpod.io/llms.txt.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodDocsIndex", {
+      description: "Parsed Runpod documentation index from docs.runpod.io/llms.txt.",
+    })
+  )
 ) {}
 
 /**
@@ -109,19 +111,20 @@ interface RunpodDocsShape {
   readonly fetchIndex: Effect.Effect<RunpodDocsIndex, RunpodDocsError>;
 }
 
-class ResolvedRunpodDocsConfig extends S.Class<ResolvedRunpodDocsConfig>($I`ResolvedRunpodDocsConfig`)(
-  {
+class ResolvedRunpodDocsConfig extends S.Opaque<ResolvedRunpodDocsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     headers: S.Record(S.String, S.String),
     indexUrl: S.String,
-  },
-  $I.annote("ResolvedRunpodDocsConfig", {
-    description: "Resolved runtime configuration for the Runpod documentation index client.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedRunpodDocsConfig", {
+      description: "Resolved runtime configuration for the Runpod documentation index client.",
+    })
+  )
 ) {}
 
 const docsParseStateEntriesDefault = A.empty<RunpodDocsIndexEntry>();
-class DocsParseState extends S.Class<DocsParseState>($I`DocsParseState`)(
-  {
+class DocsParseState extends S.Opaque<DocsParseState, { readonly brand: unique symbol }>()(
+  S.Struct({
     entries: S.Array(RunpodDocsIndexEntry).pipe(
       S.withConstructorDefault(Effect.succeed(docsParseStateEntriesDefault)),
       S.withDecodingDefaultType(Effect.succeed(docsParseStateEntriesDefault))
@@ -131,10 +134,11 @@ class DocsParseState extends S.Class<DocsParseState>($I`DocsParseState`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultDocsSection))
     ),
     title: S.Option(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("DocsParseState", {
-    description: "Internal parser state for Runpod's llms.txt index.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocsParseState", {
+      description: "Internal parser state for Runpod's llms.txt index.",
+    })
+  )
 ) {}
 
 const normalizeUrl = Str.replace(/\/+$/, "");
@@ -272,7 +276,7 @@ const parseRunpodDocsIndexContract = RunpodDocsIndexParser.implementEffect(
 );
 
 const mapParserContractError = (cause: RunpodDocsError | SchemaIssue.Issue): RunpodDocsError =>
-  SchemaIssue.isIssue(cause) ? RunpodDocsError.fromReason("parse", { cause }) : cause;
+  SchemaIssue.isIssue(cause) ? RunpodDocsError.fromReason("parse", RunpodDocsErrorOptionsInput.make({ cause })) : cause;
 
 /**
  * Parse Runpod's `llms.txt` Markdown index into a structured schema model.
@@ -306,7 +310,10 @@ const ensureSuccessStatus = Effect.fnUntraced(function* (
     return response;
   }
 
-  return yield* RunpodDocsError.fromReason("response status", { status: response.status, url });
+  return yield* RunpodDocsError.fromReason(
+    "response status",
+    RunpodDocsErrorOptionsInput.make({ status: response.status, url })
+  );
 });
 
 const fetchIndex = Effect.fn("RunpodDocs.fetchIndex")(function* (
@@ -318,11 +325,18 @@ const fetchIndex = Effect.fn("RunpodDocs.fetchIndex")(function* (
     HttpClientRequest.setHeaders(config.headers),
     HttpClientRequest.accept("text/plain"),
     (request) => client.execute(request),
-    Effect.mapError((cause) => RunpodDocsError.fromReason("transport", { cause, url: config.indexUrl })),
+    Effect.mapError((cause) =>
+      RunpodDocsError.fromReason("transport", RunpodDocsErrorOptionsInput.make({ cause, url: config.indexUrl }))
+    ),
     Effect.flatMap((response) => ensureSuccessStatus(config.indexUrl, response)),
     Effect.flatMap((response) =>
       response.text.pipe(
-        Effect.mapError((cause) => RunpodDocsError.fromReason("response decoding", { cause, url: config.indexUrl }))
+        Effect.mapError((cause) =>
+          RunpodDocsError.fromReason(
+            "response decoding",
+            RunpodDocsErrorOptionsInput.make({ cause, url: config.indexUrl })
+          )
+        )
       )
     ),
     Effect.flatMap(parseRunpodDocsIndex),
@@ -397,6 +411,8 @@ export class RunpodDocs extends Context.Service<RunpodDocs, RunpodDocsShape>()($
    */
   static readonly layer: Layer.Layer<RunpodDocs, RunpodDocsError> = Layer.effect(
     RunpodDocs,
-    makeRunpodDocsFromEnvironment().pipe(Effect.mapError((cause) => RunpodDocsError.fromReason("config", { cause })))
+    makeRunpodDocsFromEnvironment().pipe(
+      Effect.mapError((cause) => RunpodDocsError.fromReason("config", RunpodDocsErrorOptionsInput.make({ cause })))
+    )
   ).pipe(Layer.provide(FetchHttpClient.layer));
 }

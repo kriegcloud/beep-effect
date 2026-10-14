@@ -17,47 +17,51 @@ const $I = $SchemaId.create("csv_test");
 
 const PositiveCsvNumber = S.FiniteFromString.check(S.isGreaterThan(0));
 
-class UserRow extends S.Class<UserRow>($I`UserRow`)(
-  {
+class UserRow extends S.Opaque<UserRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: PositiveCsvNumber,
     first_name: S.String,
     last_name: S.String,
     address: S.String,
-  },
-  $I.annote("UserRow", {
-    description: "CSV user row used in tests.",
-  })
+  }).pipe(
+    $I.annoteSchema("UserRow", {
+      description: "CSV user row used in tests.",
+    })
+  )
 ) {}
 
-class OptionalUserRow extends S.Class<OptionalUserRow>($I`OptionalUserRow`)(
-  {
+class OptionalUserRow extends S.Opaque<OptionalUserRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: PositiveCsvNumber,
     first_name: S.String,
     nickname: S.optionalKey(S.String),
-  },
-  $I.annote("OptionalUserRow", {
-    description: "CSV user row with an optional encoded field.",
-  })
+  }).pipe(
+    $I.annoteSchema("OptionalUserRow", {
+      description: "CSV user row with an optional encoded field.",
+    })
+  )
 ) {}
 
-class NullableUserRow extends S.Class<NullableUserRow>($I`NullableUserRow`)(
-  {
+class NullableUserRow extends S.Opaque<NullableUserRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: PositiveCsvNumber,
     nickname: S.NullOr(S.String),
-  },
-  $I.annote("NullableUserRow", {
-    description: "CSV user row with a nullable encoded field.",
-  })
+  }).pipe(
+    $I.annoteSchema("NullableUserRow", {
+      description: "CSV user row with a nullable encoded field.",
+    })
+  )
 ) {}
 
-class InvalidNumberRow extends S.Class<InvalidNumberRow>($I`InvalidNumberRow`)(
-  {
+class InvalidNumberRow extends S.Opaque<InvalidNumberRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Finite,
     name: S.String,
-  },
-  $I.annote("InvalidNumberRow", {
-    description: "CSV row with a non-string boundary number field.",
-  })
+  }).pipe(
+    $I.annoteSchema("InvalidNumberRow", {
+      description: "CSV row with a non-string boundary number field.",
+    })
+  )
 ) {}
 
 describe("CSV", () => {
@@ -70,7 +74,7 @@ describe("CSV", () => {
       );
 
       expect(rows).toHaveLength(2);
-      expect(rows[0]).toBeInstanceOf(UserRow);
+      expect(S.is(UserRow)(rows[0])).toBe(true);
       expect(rows[0]?.id).toBe(1);
       expect(rows[1]?.last_name).toBe("Hopper");
     })
@@ -123,7 +127,7 @@ describe("CSV", () => {
 
       expect(rows).toHaveLength(1);
       const [row] = rows as ReadonlyArray<OptionalUserRow>;
-      expect(row).toBeInstanceOf(OptionalUserRow);
+      expect(S.is(OptionalUserRow)(row)).toBe(true);
       if (row === undefined) {
         return;
       }

@@ -112,7 +112,7 @@ export const SentenceIndex = S.Natural.pipe(
  * @category models
  * @since 0.0.0
  */
-export class Sentence extends S.Class<Sentence>($I`Sentence`)(
+export class Sentence extends S.Class<Sentence, { readonly brand: unique symbol }>($I`Sentence`)(
   {
     text: S.String,
     index: SentenceIndex,

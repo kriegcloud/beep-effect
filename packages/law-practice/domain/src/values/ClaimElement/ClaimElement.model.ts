@@ -13,7 +13,9 @@ import { flow } from "effect/Function";
 import * as N from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
+import type * as SchemaAST from "effect/SchemaAST";
 
 const $I = $LawPracticeDomainId.create("values/ClaimElement/ClaimElement.model");
 
@@ -212,6 +214,49 @@ export const ClaimTermHead = S.String.check(
  */
 export type ClaimTermHead = typeof ClaimTermHead.Type;
 
+// How each determiner opens a term's quote; a bare term opens with none of them.
+const determinerSurfaces: { readonly [K in ClaimTermDeterminer]: RegExp } = {
+  a: /^a\s/u,
+  an: /^an\s/u,
+  the: /^the\s/u,
+  said: /^said\s/u,
+  "at-least-one": /^(?:at least one|one or more)\s/u,
+  "plurality-of": /^(?:a\s+)?plurality of\s/u,
+  bare: /^(?!(?:a|an|the|said|at least one|one or more|(?:a\s+)?plurality of)\s)/u,
+};
+
+// The surface text each determiner recites, used to build schema-derived terms.
+const determinerSurfaceText: { readonly [K in ClaimTermDeterminer]: string } = {
+  a: "a ",
+  an: "an ",
+  the: "the ",
+  said: "said ",
+  "at-least-one": "at least one ",
+  "plurality-of": "a plurality of ",
+  bare: "",
+};
+
+// Keep a generated head short enough for its quote, and keep a bare head from
+// opening with a determiner word.
+const arbitraryHead = (determiner: ClaimTermDeterminer, head: string): string => {
+  const short = Str.trim(Str.slice(0, 200)(head));
+  return ClaimTermDeterminer.is.bare(determiner) &&
+    O.isSome(Str.match(/^(?:a|an|the|said|at|one|plurality)(?:\s|$)/u)(short))
+    ? `x${short}`
+    : short;
+};
+
+const ClaimTermDeterminerSurfaceCheck = S.makeFilter(
+  ({ anchor, determiner }: { readonly anchor: TextAnchor; readonly determiner: ClaimTermDeterminer }): boolean =>
+    O.isSome(Str.match(determinerSurfaces[determiner])(Str.toLowerCase(anchor.quote))),
+  {
+    identifier: $I`ClaimTermDeterminerSurfaceCheck`,
+    title: "Determiner matches the quote",
+    description: "The term's quote opens with its determiner's surface; a bare term opens with no determiner.",
+    message: "A claim term's determiner must match how its quote opens, e.g. the for 'the sensor'.",
+  }
+);
+
 /**
  * One determiner-bearing noun phrase recited in a claim element.
  *
@@ -240,8 +285,8 @@ export type ClaimTermHead = typeof ClaimTermHead.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimTerm extends S.Class<ClaimTerm>($I`ClaimTerm`)(
-  {
+export class ClaimTerm extends S.Class<ClaimTerm, { readonly brand: unique symbol }>($I`ClaimTerm`)(
+  S.Struct({
     anchor: TextAnchor.annotateKey({
       description: "Char-exact span of the whole term, determiner included, in the claim text.",
     }),
@@ -251,8 +296,28 @@ export class ClaimTerm extends S.Class<ClaimTerm>($I`ClaimTerm`)(
     head: ClaimTermHead.annotateKey({
       description: "Normalized head noun phrase without the determiner.",
     }),
-  },
+  }).check(ClaimTermDeterminerSurfaceCheck),
   $I.annote("ClaimTerm", {
+    toCodecArbitrary: (): SchemaAST.Link =>
+      S.link<ClaimTerm>()(
+        S.Struct({
+          startChar: S.Natural.check(S.isLessThanOrEqualTo(9_000)),
+          determiner: ClaimTermDeterminer,
+          head: ClaimTermHead,
+        }),
+        SchemaTransformation.transform({
+          decode: ({ startChar, determiner, head }) => {
+            const safeHead = arbitraryHead(determiner, head);
+            const quote = `${determinerSurfaceText[determiner]}${safeHead}`;
+            return ClaimTerm.make({
+              anchor: TextAnchor.make({ startChar, endChar: S.Natural.make(startChar + Str.length(quote)), quote }),
+              determiner,
+              head: safeHead,
+            });
+          },
+          encode: ({ anchor, determiner, head }) => ({ startChar: anchor.startChar, determiner, head }),
+        })
+      ),
     description: "Span-anchored determiner and normalized head noun phrase recited in a claim element.",
   })
 ) {}
@@ -301,18 +366,19 @@ export declare namespace ClaimTerm {
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimTermRef extends S.Class<ClaimTermRef>($I`ClaimTermRef`)(
-  {
+export class ClaimTermRef extends S.Opaque<ClaimTermRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: ClaimElementPath.annotateKey({
       description: "Path of the element that recites the term; its root names the claim.",
     }),
     anchor: TextAnchor.annotateKey({
       description: "Char-exact span of the term in the claim text of the path's root claim.",
     }),
-  },
-  $I.annote("ClaimTermRef", {
-    description: "Reference to one claim term by its element path and exact span.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimTermRef", {
+      description: "Reference to one claim term by its element path and exact span.",
+    })
+  )
 ) {}
 
 /**
@@ -361,8 +427,8 @@ export declare namespace ClaimTermRef {
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimElement extends S.Class<ClaimElement>($I`ClaimElement`)(
-  {
+export class ClaimElement extends S.Opaque<ClaimElement, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: ClaimElementPath.annotateKey({
       description: "Ordinal path of the element, rooted at its claim number.",
     }),
@@ -375,10 +441,11 @@ export class ClaimElement extends S.Class<ClaimElement>($I`ClaimElement`)(
     terms: S.Array(ClaimTerm).annotateKey({
       description: "Determiner-bearing terms recited in the element, in text order.",
     }),
-  },
-  $I.annote("ClaimElement", {
-    description: "Span-anchored claim element with its ordinal path, structural kind, and recited terms.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimElement", {
+      description: "Span-anchored claim element with its ordinal path, structural kind, and recited terms.",
+    })
+  )
 ) {}
 
 /**

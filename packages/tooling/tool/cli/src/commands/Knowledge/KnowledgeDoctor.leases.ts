@@ -156,8 +156,8 @@ export const KNOWLEDGE_LEASES_PER_REPO = 20;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDebtLease extends S.Class<KnowledgeDebtLease>($I`KnowledgeDebtLease`)(
-  {
+export class KnowledgeDebtLease extends S.Opaque<KnowledgeDebtLease, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: KnowledgeBaselineKey,
     document: S.String,
     owner: S.String,
@@ -165,10 +165,11 @@ export class KnowledgeDebtLease extends S.Class<KnowledgeDebtLease>($I`Knowledge
     issued: S.DateTimeUtcFromString,
     expires: S.DateTimeUtcFromString,
     tracking: S.optionalKey(S.String),
-  },
-  $I.annote("KnowledgeDebtLease", {
-    description: "A time-boxed, CODEOWNERS-owned suppression of one introduced knowledge-doctor finding.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDebtLease", {
+      description: "A time-boxed, CODEOWNERS-owned suppression of one introduced knowledge-doctor finding.",
+    })
+  )
 ) {}
 
 /**
@@ -185,14 +186,15 @@ export class KnowledgeDebtLease extends S.Class<KnowledgeDebtLease>($I`Knowledge
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDebtLeases extends S.Class<KnowledgeDebtLeases>($I`KnowledgeDebtLeases`)(
-  {
+export class KnowledgeDebtLeases extends S.Opaque<KnowledgeDebtLeases, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("knowledge-doctor-leases/v1"),
     leases: S.Array(KnowledgeDebtLease),
-  },
-  $I.annote("KnowledgeDebtLeases", {
-    description: "Every debt lease the repository holds.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDebtLeases", {
+      description: "Every debt lease the repository holds.",
+    })
+  )
 ) {}
 
 /**
@@ -291,8 +293,8 @@ export type KnowledgeLeaseViolation = typeof KnowledgeLeaseViolation.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeLeaseRow extends S.Class<KnowledgeLeaseRow>($I`KnowledgeLeaseRow`)(
-  {
+export class KnowledgeLeaseRow extends S.Opaque<KnowledgeLeaseRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: KnowledgeBaselineKey,
     document: S.String,
     owner: S.String,
@@ -300,10 +302,11 @@ export class KnowledgeLeaseRow extends S.Class<KnowledgeLeaseRow>($I`KnowledgeLe
     status: KnowledgeLeaseStatus,
     violations: S.Array(KnowledgeLeaseViolation),
     details: S.Array(S.String),
-  },
-  $I.annote("KnowledgeLeaseRow", {
-    description: "One debt lease with its expiry status and every rule it breaks.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeLeaseRow", {
+      description: "One debt lease with its expiry status and every rule it breaks.",
+    })
+  )
 ) {}
 
 /**
@@ -328,17 +331,18 @@ export class KnowledgeLeaseRow extends S.Class<KnowledgeLeaseRow>($I`KnowledgeLe
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeLeasesReport extends S.Class<KnowledgeLeasesReport>($I`KnowledgeLeasesReport`)(
-  {
+export class KnowledgeLeasesReport extends S.Opaque<KnowledgeLeasesReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("knowledge-doctor-leases-report/v1"),
     tree: KnowledgeCommitSha,
     mergeBase: KnowledgeCommitSha,
     now: S.DateTimeUtcFromString,
     leases: S.Array(KnowledgeLeaseRow),
-  },
-  $I.annote("KnowledgeLeasesReport", {
-    description: "Every debt lease of one tree with its status and violations at one instant.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeLeasesReport", {
+      description: "Every debt lease of one tree with its status and violations at one instant.",
+    })
+  )
 ) {}
 
 /**
@@ -499,19 +503,21 @@ export const resolveKnowledgeCodeowners: {
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeLeaseEvaluationInput extends S.Class<KnowledgeLeaseEvaluationInput>(
-  $I`KnowledgeLeaseEvaluationInput`
-)(
-  {
+export class KnowledgeLeaseEvaluationInput extends S.Opaque<
+  KnowledgeLeaseEvaluationInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseLeases: S.Array(KnowledgeDebtLease),
     codeowners: S.Option(S.String),
     leases: S.Array(KnowledgeDebtLease),
     now: S.DateTimeUtc,
-  },
-  $I.annote("KnowledgeLeaseEvaluationInput", {
-    description:
-      "Tree leases, merge-base leases, merge-base CODEOWNERS text, and the instant a lease evaluation judges at.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeLeaseEvaluationInput", {
+      description:
+        "Tree leases, merge-base leases, merge-base CODEOWNERS text, and the instant a lease evaluation judges at.",
+    })
+  )
 ) {}
 
 const leaseStatus = (lease: KnowledgeDebtLease, now: DateTime.Utc): KnowledgeLeaseStatus => {

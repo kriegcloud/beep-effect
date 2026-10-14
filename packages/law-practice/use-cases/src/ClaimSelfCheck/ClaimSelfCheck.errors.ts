@@ -80,7 +80,9 @@ export type UsptoClaimsFailureReason = typeof UsptoClaimsFailureReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class UsptoClaimsError extends S.TaggedError<UsptoClaimsError>($I`UsptoClaimsError`)(
+export class UsptoClaimsError extends S.TaggedError<UsptoClaimsError, { readonly brand: unique symbol }>(
+  $I`UsptoClaimsError`
+)(
   "UsptoClaimsError",
   {
     message: S.NonEmptyString.annotateKey({
@@ -163,7 +165,9 @@ export type ClaimSelfCheckFailureReason = typeof ClaimSelfCheckFailureReason.Typ
  * @category errors
  * @since 0.0.0
  */
-export class ClaimSelfCheckError extends S.TaggedError<ClaimSelfCheckError>($I`ClaimSelfCheckError`)(
+export class ClaimSelfCheckError extends S.TaggedError<ClaimSelfCheckError, { readonly brand: unique symbol }>(
+  $I`ClaimSelfCheckError`
+)(
   "ClaimSelfCheckError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),

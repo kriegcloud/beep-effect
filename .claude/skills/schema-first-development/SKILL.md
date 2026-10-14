@@ -47,8 +47,11 @@ Keep `Schema` as the source of truth for pure data models.
 
 4. Apply the laws in this order.
 - Model pure data with `Schema` first.
-- Prefer `S.Class` for object models unless a boundary exception makes
-  `S.Struct` the better fit.
+- Model plain object data as a branded `S.Opaque` over an annotated
+  `S.Struct` (`S.TaggedStruct` for `_tag` data). Keep `S.Class` /
+  `S.TaggedClass` / `S.Error` / `S.TaggedError` for errors, persisted
+  entities, schemas with instance members, and `.extend` chains. Every schema
+  class and Opaque declaration carries `{ readonly brand: unique symbol }`.
 - Check upstream `effect/Schema` first, then reuse `@beep/schema` and existing
   local schemas before inventing new checks. Where upstream covers a
   `foundation/modeling` concept's intent, its covered facets retire in the
@@ -77,8 +80,11 @@ Keep `Schema` as the source of truth for pure data models.
 
 - Prefer `import * as S from "effect/Schema"` and canonical Effect aliases.
 - Create file-local identity composers with `@beep/identity/packages`.
-- Prefer `S.Class` for object models and named intermediate schemas for reused
-  concepts.
+- Plain data is `class X extends S.Opaque<X, { readonly brand: unique symbol }>()(S.Struct({...}).pipe($I.annoteSchema("X", {...}))) {}`.
+  Construct with `X.make(...)`; there is no `new X(...)` and no `.extend`.
+  Annotate the Struct inside the pipe, because `X.annotate(...)` drops the
+  statics. See `references/repo-laws.md` section 2.
+- Use named intermediate schemas for reused concepts.
 - Prefer `LiteralKit` for named literal domains: its keyed API (`.Enum`,
   `.is`, `$match`, `.toTaggedUnion(...)`) plus the `S.Literals` members it
   inherits (`.literals`, `.pick(...)`, `.mapMembers(...)`). Use `S.Literals`

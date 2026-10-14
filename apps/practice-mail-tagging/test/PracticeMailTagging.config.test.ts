@@ -8,7 +8,7 @@ import { M365CertificateCredential } from "@beep/m365";
 import { it } from "@beep/test-runner";
 import { assertSchemaArbitraryDecodesToSelf } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
-import { assertInstanceOf, assertSome } from "@effect/vitest/utils";
+import { assertInstanceOf, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as DateTime from "effect/DateTime";
@@ -34,6 +34,10 @@ const required = {
   PRACTICE_MAIL_TAGGING_KNOWN_DOCUMENTS_PATH: "/private/box-files.jsonl",
   PRACTICE_MAIL_TAGGING_BOX_CALL_LEDGER_PATH: "/private/box-api-calls.jsonl",
 };
+
+const isM365CertificateCredential = S.is(M365CertificateCredential);
+const isBoxCcgConfig = S.is(BoxCcgConfig);
+const isBoxDeveloperTokenConfig = S.is(BoxDeveloperTokenConfig);
 
 const boxClientPair = { DMS_BOX_CLIENT_ID: "box-client-0001", DMS_BOX_CLIENT_SECRET: "placeholder-secret" };
 
@@ -137,7 +141,7 @@ describe("m365AppOnlyConfig", () => {
     Effect.gen(function* () {
       const config = yield* parse(m365AppOnlyConfig, credentialEnvironment);
 
-      assertInstanceOf(config.credential, M365CertificateCredential);
+      assertTrue(isM365CertificateCredential(config.credential));
       expect(config.tenantId).toBe("tenant-0001");
       expect(config.clientId).toBe("client-0001");
       expect(config.credential.thumbprintSha256).toBe("AB12");
@@ -154,7 +158,7 @@ describe("m365AppOnlyConfig", () => {
         CLOUD_M365_DOCKET_CERT_PRIVATE_KEY: "-----BEGIN PLACEHOLDER-----\\nAAAA\\nBBBB\\n-----END PLACEHOLDER-----\\n",
       });
 
-      assertInstanceOf(config.credential, M365CertificateCredential);
+      assertTrue(isM365CertificateCredential(config.credential));
       expect(Redacted.value(config.credential.privateKey)).toBe(
         "-----BEGIN PLACEHOLDER-----\nAAAA\nBBBB\n-----END PLACEHOLDER-----\n"
       );
@@ -180,7 +184,7 @@ describe("boxCredentialConfig", () => {
         CLOUD_BOX_TOKEN: "placeholder-token",
       });
 
-      assertInstanceOf(credential, BoxCcgConfig);
+      assertTrue(isBoxCcgConfig(credential));
       assertSome(credential.enterpriseId, "enterprise-0001");
       expect(`${credential.clientSecret}`).toBe("<redacted>");
     })
@@ -190,7 +194,7 @@ describe("boxCredentialConfig", () => {
     Effect.gen(function* () {
       const credential = yield* parse(boxCredentialConfig, { ...boxClientPair, DMS_BOX_USER_ID: "user-0001" });
 
-      assertInstanceOf(credential, BoxCcgConfig);
+      assertTrue(isBoxCcgConfig(credential));
       assertSome(credential.userId, "user-0001");
     })
   );
@@ -200,7 +204,7 @@ describe("boxCredentialConfig", () => {
       const credential = yield* parse(boxCredentialConfig, { ...boxClientPair, CLOUD_BOX_TOKEN: "placeholder-token" });
       const missing = yield* Effect.flip(parse(boxCredentialConfig, {}));
 
-      assertInstanceOf(credential, BoxDeveloperTokenConfig);
+      assertTrue(isBoxDeveloperTokenConfig(credential));
       expect(`${credential.token}`).toBe("<redacted>");
       assertInstanceOf(missing, Config.ConfigError);
     })

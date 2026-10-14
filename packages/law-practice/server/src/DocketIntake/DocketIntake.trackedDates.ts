@@ -43,13 +43,15 @@ const $I = $LawPracticeServerId.create("DocketIntake/DocketIntake.trackedDates")
  * @category models
  * @since 0.0.0
  */
-export class DocketTrackedDatesCsvOptions extends S.Class<DocketTrackedDatesCsvOptions>(
-  $I`DocketTrackedDatesCsvOptions`
-)(
-  {
+export class DocketTrackedDatesCsvOptions extends S.Opaque<
+  DocketTrackedDatesCsvOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: S.NonEmptyString.annotateKey({ description: "Path of the sheet's CSV export (UTF-8, header row)." }),
-  },
-  $I.annote("DocketTrackedDatesCsvOptions", { description: "Where the CSV export of the docket sheet is." })
+  }).pipe(
+    $I.annoteSchema("DocketTrackedDatesCsvOptions", { description: "Where the CSV export of the docket sheet is." })
+  )
 ) {}
 
 // The sheet's own words for each kind of date, compared without case; anything else is `other`.
@@ -109,14 +111,15 @@ const DATE_TYPE = "Date Type";
 const TRACKED_DATE = "Tracked Date";
 const REQUIRED_COLUMNS: A.NonEmptyReadonlyArray<string> = [FILE_NUMBER, DATE_NAME, DATE_TYPE, TRACKED_DATE];
 
-class DocketSheetRow extends S.Class<DocketSheetRow>($I`DocketSheetRow`)(
-  {
+class DocketSheetRow extends S.Opaque<DocketSheetRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     [DATE_NAME]: S.String.annotateKey({ description: "What the date is for." }),
     [DATE_TYPE]: S.String.annotateKey({ description: "Kind of date, in the sheet's words." }),
     [FILE_NUMBER]: S.String.annotateKey({ description: "The docket, or a foreign agent's reference with a `/` tail." }),
     [TRACKED_DATE]: S.String.annotateKey({ description: "The date, as the export writes it." }),
-  },
-  $I.annote("DocketSheetRow", { description: "The columns of one docket sheet row the cross-check reads." })
+  }).pipe(
+    $I.annoteSchema("DocketSheetRow", { description: "The columns of one docket sheet row the cross-check reads." })
+  )
 ) {}
 
 const decodeSheetRows = S.decodeUnknownEffect(S.Array(DocketSheetRow));

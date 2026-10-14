@@ -26,6 +26,7 @@ import {
   AssistantTurnHistoryItem,
   ChatActionError,
   ChatRpcs,
+  IndexedBlock,
   ProviderUsageMetadata,
   TurnGenerationError,
   UserTurnHistoryItem,
@@ -42,6 +43,11 @@ import * as O from "@beep/utils/Option";
 import * as Str from "@beep/utils/Str";
 import { thunkEffectVoid, thunkFalse } from "@beep/utils/thunk";
 import { MessageRole } from "@beep/workspace-domain/entities/Message";
+import {
+  AppendTurnInput,
+  CreateThreadInput,
+  SetThreadTitleIfEmptyInput,
+} from "@beep/workspace-use-cases/aggregates/Thread/server";
 import { Thread } from "@beep/workspace-use-cases/server";
 import * as Cause from "effect/Cause";
 import * as Clock from "effect/Clock";
@@ -64,7 +70,7 @@ import { DerivedThreadTitle } from "./DerivedThreadTitle.ts";
 import { approximateCostUsdMicros } from "./UsagePricing.ts";
 import { UsageRecordSink } from "./UsageRecordSink.ts";
 import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
-import type { IndexedBlock, TurnHistoryItem, TurnRequestStatus } from "@beep/agents-use-cases/public";
+import type { TurnHistoryItem, TurnRequestStatus } from "@beep/agents-use-cases/public";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 
 const $I = $ProfessionalDesktopId.create("chat/ChatOrchestrator");
@@ -218,12 +224,14 @@ const repairOrphanedUserTurn = Effect.fn("agents.chat.repair_orphaned_user_turn"
   const timeline = yield* store.timeline(threadId).pipe(Effect.catch(toChatActionError("SendMessage.repairTimeline")));
   if (!O.exists(A.last(projectTimelineToHistory(timeline)), (turn) => turn.role === "user")) return;
   yield* store
-    .appendTurn({
-      threadId,
-      parentTurnId: O.none(),
-      role: "assistant",
-      content: terminalNoteDocument(FAILED_NOTE),
-    })
+    .appendTurn(
+      AppendTurnInput.make({
+        threadId,
+        parentTurnId: O.none(),
+        role: "assistant",
+        content: terminalNoteDocument(FAILED_NOTE),
+      })
+    )
     .pipe(Effect.catch(toChatActionError("SendMessage.repairAssistant")));
 });
 
@@ -410,12 +418,14 @@ const streamAndPersist = (
               onSome: terminalNoteDocument,
             });
             const assistant = yield* store
-              .appendTurn({
-                threadId,
-                parentTurnId: O.none(),
-                role: "assistant",
-                content,
-              })
+              .appendTurn(
+                AppendTurnInput.make({
+                  threadId,
+                  parentTurnId: O.none(),
+                  role: "assistant",
+                  content,
+                })
+              )
               .pipe(Effect.catch(toChatActionError("SendMessage.persistAssistant")));
             yield* setTurnRequestStatus(
               coordinator,
@@ -507,13 +517,13 @@ const streamAndPersist = (
                   Duration.millis(firstBlockAt - startedAt)
                 );
               }
-              collected = A.append(collected, indexed);
+              collected = A.append(collected, IndexedBlock.make(indexed));
               yield* Metric.update(Metric.withAttributes(chatBlocksStreamedTotal, { kind }), 1);
               return O.some(indexed.block);
             }),
             finalization: Effect.fnUntraced(function* (event) {
               const completedAt = yield* Clock.currentTimeMillis;
-              yield* Ref.set(finalizedUsage, O.some(event.usage));
+              yield* Ref.set(finalizedUsage, O.some(ProviderUsageMetadata.make(event.usage)));
               yield* Ref.set(finalizedAt, O.some(completedAt));
               return O.none<AssistantBlock>();
             }),
@@ -602,7 +612,7 @@ const setTitleFromFirstUserMessage = (
   pipe(
     deriveThreadTitle(content),
     O.map((title) =>
-      store.setTitleIfEmpty({ threadId, emptyTitle, title }).pipe(
+      store.setTitleIfEmpty(SetThreadTitleIfEmptyInput.make({ threadId, emptyTitle, title })).pipe(
         Effect.catch(
           flow(
             Cause.fail,
@@ -672,43 +682,50 @@ const titleGuardForEditedTurn = (
  */
 const TurnRequestReceiptFields = { generation: S.Int };
 
-class PendingTurnRequestReceipt extends S.Class<PendingTurnRequestReceipt>($I`PendingTurnRequestReceipt`)(
-  { ...TurnRequestReceiptFields, status: S.tag("pending") },
-  $I.annote("PendingTurnRequestReceipt", {
-    description: "Generation-scoped pending persistence receipt for a chat turn request.",
-  })
+class PendingTurnRequestReceipt extends S.Opaque<PendingTurnRequestReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({ ...TurnRequestReceiptFields, status: S.tag("pending") }).pipe(
+    $I.annoteSchema("PendingTurnRequestReceipt", {
+      description: "Generation-scoped pending persistence receipt for a chat turn request.",
+    })
+  )
 ) {}
 
-class AcceptedTurnRequestReceipt extends S.Class<AcceptedTurnRequestReceipt>($I`AcceptedTurnRequestReceipt`)(
-  { ...TurnRequestReceiptFields, status: S.tag("accepted") },
-  $I.annote("AcceptedTurnRequestReceipt", {
-    description: "Generation-scoped accepted persistence receipt for a chat turn request.",
-  })
+class AcceptedTurnRequestReceipt extends S.Opaque<AcceptedTurnRequestReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({ ...TurnRequestReceiptFields, status: S.tag("accepted") }).pipe(
+    $I.annoteSchema("AcceptedTurnRequestReceipt", {
+      description: "Generation-scoped accepted persistence receipt for a chat turn request.",
+    })
+  )
 ) {}
 
-class PersistedTurnRequestReceipt extends S.Class<PersistedTurnRequestReceipt>($I`PersistedTurnRequestReceipt`)(
-  { ...TurnRequestReceiptFields, status: S.tag("persisted") },
-  $I.annote("PersistedTurnRequestReceipt", {
-    description: "Generation-scoped persisted receipt for a chat turn request.",
-  })
+class PersistedTurnRequestReceipt extends S.Opaque<PersistedTurnRequestReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({ ...TurnRequestReceiptFields, status: S.tag("persisted") }).pipe(
+    $I.annoteSchema("PersistedTurnRequestReceipt", {
+      description: "Generation-scoped persisted receipt for a chat turn request.",
+    })
+  )
 ) {}
 
-class UserPersistedTurnRequestReceipt extends S.Class<UserPersistedTurnRequestReceipt>(
-  $I`UserPersistedTurnRequestReceipt`
-)(
-  { ...TurnRequestReceiptFields, status: S.tag("user_persisted") },
-  $I.annote("UserPersistedTurnRequestReceipt", {
-    description: "Generation-scoped user-persisted receipt for a chat turn request.",
-  })
+class UserPersistedTurnRequestReceipt extends S.Opaque<
+  UserPersistedTurnRequestReceipt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ ...TurnRequestReceiptFields, status: S.tag("user_persisted") }).pipe(
+    $I.annoteSchema("UserPersistedTurnRequestReceipt", {
+      description: "Generation-scoped user-persisted receipt for a chat turn request.",
+    })
+  )
 ) {}
 
-class NotPersistedTurnRequestReceipt extends S.Class<NotPersistedTurnRequestReceipt>(
-  $I`NotPersistedTurnRequestReceipt`
-)(
-  { ...TurnRequestReceiptFields, status: S.tag("not_persisted") },
-  $I.annote("NotPersistedTurnRequestReceipt", {
-    description: "Generation-scoped non-persisted receipt for a chat turn request.",
-  })
+class NotPersistedTurnRequestReceipt extends S.Opaque<
+  NotPersistedTurnRequestReceipt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ ...TurnRequestReceiptFields, status: S.tag("not_persisted") }).pipe(
+    $I.annoteSchema("NotPersistedTurnRequestReceipt", {
+      description: "Generation-scoped non-persisted receipt for a chat turn request.",
+    })
+  )
 ) {}
 
 // The receipt lifecycle is the shared rpc family minus "unknown". A literal
@@ -747,14 +764,15 @@ type TurnRequestReceipt = typeof TurnRequestReceipts.Type;
 type TurnRequestQueryStatus = TurnRequestStatus;
 const TURN_REQUEST_STATUS_TTL_MILLIS = Duration.toMillis(Duration.minutes(5));
 
-class TrackedTurnRequestReceipt extends S.Class<TrackedTurnRequestReceipt>($I`TrackedTurnRequestReceipt`)(
-  {
+class TrackedTurnRequestReceipt extends S.Opaque<TrackedTurnRequestReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     receipt: TurnRequestReceipts,
     expiresAt: S.Option(S.Int),
-  },
-  $I.annote("TrackedTurnRequestReceipt", {
-    description: "A chat turn request receipt and its optional terminal-state expiry time.",
-  })
+  }).pipe(
+    $I.annoteSchema("TrackedTurnRequestReceipt", {
+      description: "A chat turn request receipt and its optional terminal-state expiry time.",
+    })
+  )
 ) {}
 
 type ThreadTurnLockEntry = {
@@ -1007,7 +1025,7 @@ const makeChatOperationsWith = (
 
   createThread: (workspaceId: WorkspaceIdentity.WorkspaceId, title: string) =>
     store
-      .createThread({ workspaceId, title })
+      .createThread(CreateThreadInput.make({ workspaceId, title }))
       .pipe(Effect.catch(toChatActionError("CreateThread")), Effect.withSpan("agents.chat.create_thread")),
 
   getTimeline: (threadId: WorkspaceIdentity.ThreadId): Effect.Effect<Thread.ThreadTimeline, ChatActionError> =>
@@ -1030,12 +1048,14 @@ const makeChatOperationsWith = (
         yield* repairOrphanedUserTurn(store, threadId);
         yield* Effect.uninterruptible(
           store
-            .appendTurn({
-              threadId,
-              parentTurnId: O.none(),
-              role: "user",
-              content,
-            })
+            .appendTurn(
+              AppendTurnInput.make({
+                threadId,
+                parentTurnId: O.none(),
+                role: "user",
+                content,
+              })
+            )
             .pipe(
               Effect.catch(toChatActionError("SendMessage")),
               Effect.andThen(
@@ -1075,12 +1095,14 @@ const makeChatOperationsWith = (
         const titleGuard = yield* titleGuardForEditedTurn(store, threadId, turnId);
         yield* Effect.uninterruptible(
           store
-            .appendTurn({
-              threadId,
-              parentTurnId: O.some(turnId),
-              role: "user",
-              content,
-            })
+            .appendTurn(
+              AppendTurnInput.make({
+                threadId,
+                parentTurnId: O.some(turnId),
+                role: "user",
+                content,
+              })
+            )
             .pipe(
               Effect.catch(toChatActionError("EditMessage")),
               Effect.andThen(

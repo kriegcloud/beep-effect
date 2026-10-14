@@ -93,19 +93,16 @@ const $I = $ScratchpadId.create("effect-ontology/Service/Agent/AgentCoordinator"
  * @category schemas
  * @since 0.0.0
  */
-export class ExecutionPolicy extends S.Class<ExecutionPolicy>($I`ExecutionPolicy`)(
-  {
+export class ExecutionPolicy extends S.Opaque<ExecutionPolicy, { readonly brand: unique symbol }>()(S.Struct({
     agentTimeout: S.Duration.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Maximum duration allowed for one agent execution.",
     }),
     continueOnError: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefaultTypeKey(Effect.succeed(false))).annotateKey({
       description: "Whether the pipeline should continue after an agent fails.",
     }),
-  },
-  $I.annote("ExecutionPolicy", {
+  }).pipe($I.annoteSchema("ExecutionPolicy", {
     description: "Timeout and failure-continuation policy shared by agent pipeline execution modes.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link ExecutionPolicy}.
@@ -210,14 +207,11 @@ const resolveExecutionOptions = (options?: ExecutionOptions): ResolvedExecutionO
  * @category models
  * @since 0.0.0
  */
-export class ExecutionResult extends S.Class<ExecutionResult>($I`ExecutionResult`)(
-  {
+export class ExecutionResult extends S.Opaque<ExecutionResult, { readonly brand: unique symbol }>()(S.Struct({
     state: PipelineState,
     events: S.Array(AgentEvent),
     outputs: S.HashMap(AgentId, S.Unknown),
-  },
-  $I.annote("ExecutionResult", { description: "Validated state, events, and outputs from one pipeline execution." })
-) {}
+  }).pipe($I.annoteSchema("ExecutionResult", { description: "Validated state, events, and outputs from one pipeline execution." }))) {}
 
 interface AgentCoordinatorShape {
   readonly register: <E>(agent: Agent<AgentTask, AgentTask, E>, agentType?: AgentType) => Effect.Effect<void>;

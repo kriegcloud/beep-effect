@@ -33,14 +33,15 @@ const $I = $SharedUseCasesId.create("PromotionGate/PromotionGate.schema");
  * @category models
  * @since 0.0.0
  */
-export class PromotionSubjectRef extends S.Class<PromotionSubjectRef>($I`PromotionSubjectRef`)(
-  {
+export class PromotionSubjectRef extends S.Opaque<PromotionSubjectRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString.annotateKey({ description: "Stable identifier interpreted only by the vertical adapter." }),
     kind: S.NonEmptyString.annotateKey({ description: "Opaque subject kind used to route vertical policy." }),
-  },
-  $I.annote("PromotionSubjectRef", {
-    description: "Opaque kind/id reference consulted before candidate output promotion.",
-  })
+  }).pipe(
+    $I.annoteSchema("PromotionSubjectRef", {
+      description: "Opaque kind/id reference consulted before candidate output promotion.",
+    })
+  )
 ) {}
 
 /**
@@ -141,14 +142,15 @@ export type PromotionTenantRef = typeof PromotionTenantRef.Type;
  * @category models
  * @since 0.0.0
  */
-export class PromotionGateRequest extends S.Class<PromotionGateRequest>($I`PromotionGateRequest`)(
-  {
+export class PromotionGateRequest extends S.Opaque<PromotionGateRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     subject: PromotionSubjectRef,
     tenantRef: PromotionTenantRef,
-  },
-  $I.annote("PromotionGateRequest", {
-    description: "Trusted candidate-promotion subject bound to the tenant whose policy must clear.",
-  })
+  }).pipe(
+    $I.annoteSchema("PromotionGateRequest", {
+      description: "Trusted candidate-promotion subject bound to the tenant whose policy must clear.",
+    })
+  )
 ) {}
 
 const PromotionGateOutcome = LiteralKit(["clear", "blocked"]);

@@ -68,8 +68,7 @@ const backpressureConfigSamplingRateDefault = UnitInterval.make(0.1);
  * @category schemas
  * @since 0.0.0
  */
-export class BackpressureConfig extends S.Class<BackpressureConfig>($I`BackpressureConfig`)(
-  {
+export class BackpressureConfig extends S.Opaque<BackpressureConfig, { readonly brand: unique symbol }>()(S.Struct({
     /** Maximum queued events before dropping starts */
     maxQueuedEvents: PosInt.pipe(
       S.withConstructorDefault(Effect.succeed(backpressureConfigMaxQueuedEventsDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(backpressureConfigMaxQueuedEventsDefault)),
@@ -91,11 +90,9 @@ export class BackpressureConfig extends S.Class<BackpressureConfig>($I`Backpress
         description: "Sampling rate when threshold exceeded (0-1, e.g., 0.1 = keep 10%)",
       })
     ),
-  },
-  $I.annote("BackpressureConfig", {
+  }).pipe($I.annoteSchema("BackpressureConfig", {
     description: "Queue capacity and bounded sampling ratios for extraction progress backpressure.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Critical Events

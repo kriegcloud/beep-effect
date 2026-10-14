@@ -84,8 +84,8 @@ const SourceFormat = LiteralKit(["outlook-body-table", "xlsx-takeoff", "prose-em
  * @category models
  * @since 0.0.0
  */
-export class SourceDocument extends S.Class<SourceDocument>($I`SourceDocument`)(
-  {
+export class SourceDocument extends S.Opaque<SourceDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: SourceFormat,
     id: EntityId,
     layoutId: RfqLayoutId,
@@ -93,10 +93,11 @@ export class SourceDocument extends S.Class<SourceDocument>($I`SourceDocument`)(
     sha256: Sha256Hex,
     syntheticLabel: S.tag("SYNTHETIC"),
     text: S.NonEmptyString,
-  },
-  $I.annote("SourceDocument", {
-    description: "A parsed synthetic source whose exact text and SHA-256 digest are stable across rebuilds.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceDocument", {
+      description: "A parsed synthetic source whose exact text and SHA-256 digest are stable across rebuilds.",
+    })
+  )
 ) {}
 
 /**
@@ -113,16 +114,17 @@ export class SourceDocument extends S.Class<SourceDocument>($I`SourceDocument`)(
  * @category models
  * @since 0.0.0
  */
-export class ExtractedField extends S.Class<ExtractedField>($I`ExtractedField`)(
-  {
+export class ExtractedField extends S.Opaque<ExtractedField, { readonly brand: unique symbol }>()(
+  S.Struct({
     anchor: TextAnchor,
     name: S.NonEmptyString,
     sourceDocumentId: EntityId,
     value: S.NonEmptyString,
-  },
-  $I.annote("ExtractedField", {
-    description: "A normalized field value grounded by @beep/langextract to an exact source-text slice.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractedField", {
+      description: "A normalized field value grounded by @beep/langextract to an exact source-text slice.",
+    })
+  )
 ) {}
 
 /**
@@ -139,15 +141,16 @@ export class ExtractedField extends S.Class<ExtractedField>($I`ExtractedField`)(
  * @category models
  * @since 0.0.0
  */
-export class MissingField extends S.Class<MissingField>($I`MissingField`)(
-  {
+export class MissingField extends S.Opaque<MissingField, { readonly brand: unique symbol }>()(
+  S.Struct({
     field: S.NonEmptyString,
     question: S.NonEmptyString,
     rfqId: EntityId,
-  },
-  $I.annote("MissingField", {
-    description: "An explicit missing value retained as a review question instead of inferred.",
-  })
+  }).pipe(
+    $I.annoteSchema("MissingField", {
+      description: "An explicit missing value retained as a review question instead of inferred.",
+    })
+  )
 ) {}
 
 /**
@@ -292,11 +295,12 @@ const NormalizedFixtureChecks = S.makeFilterGroup(
 const NormalizedFixtureSchema = NormalizedFixtureFields.mapFields(identity).check(NormalizedFixtureChecks);
 const decodeUnknownNormalizedFixtureSchemaType = S.decodeUnknownEffect(S.toType(NormalizedFixtureSchema));
 
-export class NormalizedFixture extends S.Class<NormalizedFixture>($I`NormalizedFixture`)(
-  NormalizedFixtureSchema,
-  $I.annote("NormalizedFixture", {
-    description: "One complete deterministic RFQ normalization with split sources and retained missing values.",
-  })
+export class NormalizedFixture extends S.Opaque<NormalizedFixture, { readonly brand: unique symbol }>()(
+  NormalizedFixtureSchema.pipe(
+    $I.annoteSchema("NormalizedFixture", {
+      description: "One complete deterministic RFQ normalization with split sources and retained missing values.",
+    })
+  )
 ) {}
 
 /** Validate already-decoded nested values and construct one normalized fixture. @category constructors @since 0.0.0 */
@@ -588,11 +592,14 @@ const RuleSourceEvidenceCheck = S.makeFilter(
   }
 );
 
-export class RuleSource extends S.Class<RuleSource>($I`RuleSource`)(
-  RuleSourceFields.mapFields(identity).check(RuleSourceEvidenceCheck),
-  $I.annote("RuleSource", {
-    description: "A rule authority that opens to a governing public source and pins a minimal exact evidence span.",
-  })
+export class RuleSource extends S.Opaque<RuleSource, { readonly brand: unique symbol }>()(
+  RuleSourceFields.mapFields(identity)
+    .check(RuleSourceEvidenceCheck)
+    .pipe(
+      $I.annoteSchema("RuleSource", {
+        description: "A rule authority that opens to a governing public source and pins a minimal exact evidence span.",
+      })
+    )
 ) {}
 
 /**
@@ -653,12 +660,15 @@ const RuleResultHumanStopCheck = S.makeFilter(
   }
 );
 
-export class RuleResult extends S.Class<RuleResult>($I`RuleResult`)(
-  RuleResultFields.mapFields(identity).check(RuleResultHumanStopCheck),
-  $I.annote("RuleResult", {
-    description:
-      "An advisory rule result carrying source, revision, exact evidence, facts, disposition, and stop point.",
-  })
+export class RuleResult extends S.Opaque<RuleResult, { readonly brand: unique symbol }>()(
+  RuleResultFields.mapFields(identity)
+    .check(RuleResultHumanStopCheck)
+    .pipe(
+      $I.annoteSchema("RuleResult", {
+        description:
+          "An advisory rule result carrying source, revision, exact evidence, facts, disposition, and stop point.",
+      })
+    )
 ) {}
 
 /**
@@ -681,14 +691,15 @@ const ProviderCandidateLabel = LiteralKit(["project", "delivery_date", "finish"]
   })
 );
 
-export class ProviderCandidate extends S.Class<ProviderCandidate>($I`ProviderCandidate`)(
-  {
+export class ProviderCandidate extends S.Opaque<ProviderCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: ProviderCandidateLabel,
     text: S.NonEmptyString,
-  },
-  $I.annote("ProviderCandidate", {
-    description: "A provider candidate stripped of request ids, usage, authorization data, and transport metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProviderCandidate", {
+      description: "A provider candidate stripped of request ids, usage, authorization data, and transport metadata.",
+    })
+  )
 ) {}
 
 /** Exact sanitized source text authorized for provider-recording verification. @category fixtures @since 0.0.0 */
@@ -729,11 +740,12 @@ const ProviderRecordingFields = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class ProviderRecording extends S.Class<ProviderRecording>($I`ProviderRecording`)(
-  ProviderRecordingFields,
-  $I.annote("ProviderRecording", {
-    description: "A sanitized successful live extraction recording that makes the golden run provider-independent.",
-  })
+export class ProviderRecording extends S.Opaque<ProviderRecording, { readonly brand: unique symbol }>()(
+  ProviderRecordingFields.pipe(
+    $I.annoteSchema("ProviderRecording", {
+      description: "A sanitized successful live extraction recording that makes the golden run provider-independent.",
+    })
+  )
 ) {}
 
 const CanonicalProviderRecording = ProviderRecording.make({
@@ -774,11 +786,14 @@ const FrozenProviderRecordingCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class FrozenProviderRecording extends S.Class<FrozenProviderRecording>($I`FrozenProviderRecording`)(
-  ProviderRecordingFields.mapFields(identity).check(FrozenProviderRecordingCheck),
-  $I.annote("FrozenProviderRecording", {
-    description: "The exact ordered, sanitized live-provider result committed for deterministic offline replay v1.",
-  })
+export class FrozenProviderRecording extends S.Opaque<FrozenProviderRecording, { readonly brand: unique symbol }>()(
+  ProviderRecordingFields.mapFields(identity)
+    .check(FrozenProviderRecordingCheck)
+    .pipe(
+      $I.annoteSchema("FrozenProviderRecording", {
+        description: "The exact ordered, sanitized live-provider result committed for deterministic offline replay v1.",
+      })
+    )
 ) {
   static readonly decodeEffect = S.decodeEffect(FrozenProviderRecording);
 }
@@ -797,8 +812,8 @@ export class FrozenProviderRecording extends S.Class<FrozenProviderRecording>($I
  * @category read-models
  * @since 0.0.0
  */
-export class ProjectionSnapshot extends S.Class<ProjectionSnapshot>($I`ProjectionSnapshot`)(
-  {
+export class ProjectionSnapshot extends S.Opaque<ProjectionSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     citations: S.Tuple([
       S.Literal("full-text:rfq-b-pdf-schedule"),
       S.Literal("source:aisc-matched-assembly|https://www.aisc.org/aisc/solutions-center/engineering-faqs/6-bolting/"),
@@ -844,10 +859,11 @@ export class ProjectionSnapshot extends S.Class<ProjectionSnapshot>($I`Projectio
       S.Literal("synthetic-offer-rfq-a|SupplierOffer|SYNTHETIC|2026-08-27T11:30:00.000Z"),
       S.Literal("synthetic-offer-rfq-b|SupplierOffer|SYNTHETIC|2026-08-27T11:35:00.000Z"),
     ]),
-  },
-  $I.annote("ProjectionSnapshot", {
-    description: "Stable PGlite, DuckDB, and bounded Oxigraph query outputs for the committed golden run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectionSnapshot", {
+      description: "Stable PGlite, DuckDB, and bounded Oxigraph query outputs for the committed golden run.",
+    })
+  )
 ) {
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(ProjectionSnapshot);
 }
@@ -883,8 +899,8 @@ const ImmutableDemoBundleFields = S.Struct({
 
 type ImmutableDemoBundleFields = typeof ImmutableDemoBundleFields.Type;
 
-class CanonicalRuleSourceContract extends S.Class<CanonicalRuleSourceContract>($I`CanonicalRuleSourceContract`)(
-  {
+class CanonicalRuleSourceContract extends S.Opaque<CanonicalRuleSourceContract, { readonly brand: unique symbol }>()(
+  S.Struct({
     accessedOn: S.Literal("2026-08-25"),
     evidence: S.NonEmptyString,
     id: EntityId,
@@ -893,10 +909,11 @@ class CanonicalRuleSourceContract extends S.Class<CanonicalRuleSourceContract>($
     ruleId: RuleId,
     title: S.NonEmptyString,
     url: HttpsUrl,
-  },
-  $I.annote("CanonicalRuleSourceContract", {
-    description: "The complete governing-source semantics for one rule in the frozen replay matrix.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalRuleSourceContract", {
+      description: "The complete governing-source semantics for one rule in the frozen replay matrix.",
+    })
+  )
 ) {}
 
 /** Complete canonical source records for the three fixed cited rules. @category fixtures @since 0.0.0 */
@@ -1164,11 +1181,15 @@ const ImmutableDemoBundleCheck = S.makeFilter(bundleReferencesAreClosed, {
   message: "Immutable bundle references and fixed identity sets must be complete, unique, and closed.",
 });
 
-export class ImmutableDemoBundle extends S.Class<ImmutableDemoBundle>($I`ImmutableDemoBundle`)(
-  ImmutableDemoBundleFields.mapFields(identity).check(ImmutableDemoBundleCheck),
-  $I.annote("ImmutableDemoBundle", {
-    description: "The complete immutable replay payload; mutable approvals and reviewed claims are stored separately.",
-  })
+export class ImmutableDemoBundle extends S.Opaque<ImmutableDemoBundle, { readonly brand: unique symbol }>()(
+  ImmutableDemoBundleFields.mapFields(identity)
+    .check(ImmutableDemoBundleCheck)
+    .pipe(
+      $I.annoteSchema("ImmutableDemoBundle", {
+        description:
+          "The complete immutable replay payload; mutable approvals and reviewed claims are stored separately.",
+      })
+    )
 ) {}
 
 /**
@@ -1185,17 +1206,18 @@ export class ImmutableDemoBundle extends S.Class<ImmutableDemoBundle>($I`Immutab
  * @category models
  * @since 0.0.0
  */
-export class MutableReviewLedger extends S.Class<MutableReviewLedger>($I`MutableReviewLedger`)(
-  {
+export class MutableReviewLedger extends S.Opaque<MutableReviewLedger, { readonly brand: unique symbol }>()(
+  S.Struct({
     approvals: S.Tuple([]),
     claims: S.Tuple([]),
     disposition: S.Literal("delete-or-promote"),
     dispositionDate: S.Literal(MUTABLE_CORPUS_DISPOSITION_DATE),
     schemaVersion: S.Literal("lejeune-review-ledger/v1"),
-  },
-  $I.annote("MutableReviewLedger", {
-    description: "Mutable approvals and reviewed claims governed by the explicit 2026-09-30 disposition.",
-  })
+  }).pipe(
+    $I.annoteSchema("MutableReviewLedger", {
+      description: "Mutable approvals and reviewed claims governed by the explicit 2026-09-30 disposition.",
+    })
+  )
 ) {}
 
 /**
@@ -1212,8 +1234,8 @@ export class MutableReviewLedger extends S.Class<MutableReviewLedger>($I`Mutable
  * @category models
  * @since 0.0.0
  */
-export class GoldenReplayReceipt extends S.Class<GoldenReplayReceipt>($I`GoldenReplayReceipt`)(
-  {
+export class GoldenReplayReceipt extends S.Opaque<GoldenReplayReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundleVersion: S.Literal(BUNDLE_VERSION),
     bundleIdentity: Sha256Hex,
     networkAvailable: S.Literal(false),
@@ -1221,11 +1243,12 @@ export class GoldenReplayReceipt extends S.Class<GoldenReplayReceipt>($I`GoldenR
     providerAvailable: S.Literal(false),
     replayMode: S.Literal("recorded-offline"),
     schemaVersion: S.tag("lejeune-golden-replay/v1"),
-  },
-  $I.annote("GoldenReplayReceipt", {
-    description:
-      "Proof that normalized data, rules, citations, projections, and identity replay without network or provider.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoldenReplayReceipt", {
+      description:
+        "Proof that normalized data, rules, citations, projections, and identity replay without network or provider.",
+    })
+  )
 ) {}
 
 /**
@@ -1270,11 +1293,14 @@ const RetentionAuthorizationExtensionCheck = S.makeFilter(
   }
 );
 
-export class RetentionAuthorization extends S.Class<RetentionAuthorization>($I`RetentionAuthorization`)(
-  RetentionAuthorizationFields.mapFields(identity).check(RetentionAuthorizationExtensionCheck),
-  $I.annote("RetentionAuthorization", {
-    description: "A reviewed consent or promotion record that grants a later mutable-corpus disposition date.",
-  })
+export class RetentionAuthorization extends S.Opaque<RetentionAuthorization, { readonly brand: unique symbol }>()(
+  RetentionAuthorizationFields.mapFields(identity)
+    .check(RetentionAuthorizationExtensionCheck)
+    .pipe(
+      $I.annoteSchema("RetentionAuthorization", {
+        description: "A reviewed consent or promotion record that grants a later mutable-corpus disposition date.",
+      })
+    )
 ) {}
 
 const MutableRetentionMetadataFields = S.Struct({
@@ -1338,11 +1364,12 @@ const MutableRetentionMetadataModel = MutableRetentionMetadataFields.mapFields(i
  * @category models
  * @since 0.0.0
  */
-export class MutableRetentionMetadata extends S.Class<MutableRetentionMetadata>($I`MutableRetentionMetadata`)(
-  MutableRetentionMetadataModel,
-  $I.annote("MutableRetentionMetadata", {
-    description: "The schema-validated mutable retention authority and its effective disposition date.",
-  })
+export class MutableRetentionMetadata extends S.Opaque<MutableRetentionMetadata, { readonly brand: unique symbol }>()(
+  MutableRetentionMetadataModel.pipe(
+    $I.annoteSchema("MutableRetentionMetadata", {
+      description: "The schema-validated mutable retention authority and its effective disposition date.",
+    })
+  )
 ) {}
 
 /**
@@ -1386,17 +1413,18 @@ export const MutableRetentionMetadataArbitrary = RetentionAuthorization.pipe(
  * @category projections
  * @since 0.0.0
  */
-export class ProjectionStoreMetadata extends S.Class<ProjectionStoreMetadata>($I`ProjectionStoreMetadata`)(
-  {
+export class ProjectionStoreMetadata extends S.Opaque<ProjectionStoreMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundleIdentity: Sha256Hex,
     bundleVersion: S.Literal(BUNDLE_VERSION),
     projectionSchemaVersion: S.Literal("lejeune-projection-stores/v1"),
     schemaVersion: S.tag("lejeune-projection-metadata/v1"),
     stores: S.Tuple([S.Literal("pglite"), S.Literal("duckdb")]),
-  },
-  $I.annote("ProjectionStoreMetadata", {
-    description: "Version and bundle identity metadata persisted alongside the PGlite and DuckDB stores.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectionStoreMetadata", {
+      description: "Version and bundle identity metadata persisted alongside the PGlite and DuckDB stores.",
+    })
+  )
 ) {}
 
 const PublishedReplayAggregateFields = S.Struct({
@@ -1436,11 +1464,12 @@ const PublishedReplayAggregateModel =
 const decodeUnknownPublishedReplayAggregateModelType = S.decodeUnknownEffect(S.toType(PublishedReplayAggregateModel));
 
 /** Decoded readback proof for every persisted publication document promoted by the builder. */
-class PublishedReplayAggregate extends S.Class<PublishedReplayAggregate>($I`PublishedReplayAggregate`)(
-  PublishedReplayAggregateModel,
-  $I.annote("PublishedReplayAggregate", {
-    description: "A fully decoded and cross-checked durable bundle publication before its atomic promotion.",
-  })
+class PublishedReplayAggregate extends S.Opaque<PublishedReplayAggregate, { readonly brand: unique symbol }>()(
+  PublishedReplayAggregateModel.pipe(
+    $I.annoteSchema("PublishedReplayAggregate", {
+      description: "A fully decoded and cross-checked durable bundle publication before its atomic promotion.",
+    })
+  )
 ) {}
 
 /**

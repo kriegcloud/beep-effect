@@ -75,7 +75,9 @@ const describeCharacter = (code: number): string => `U+${code.toString(16).toUpp
  * @category errors
  * @since 0.0.0
  */
-export class JsonTextSyntaxError extends S.TaggedError<JsonTextSyntaxError>($I`JsonTextSyntaxError`)(
+export class JsonTextSyntaxError extends S.TaggedError<JsonTextSyntaxError, { readonly brand: unique symbol }>(
+  $I`JsonTextSyntaxError`
+)(
   "JsonTextSyntaxError",
   {
     position: S.Int.annotateKey({

@@ -149,7 +149,7 @@ export type Item<R extends PaginatingRoute> =
  * @category models
  * @since 0.0.0
  */
-export class PageOptions extends S.Class<PageOptions>($I`PageOptions`)({
+export class PageOptions extends S.Class<PageOptions, { readonly brand: unique symbol }>($I`PageOptions`)({
 	/** Items requested per page. GitHub's ceiling is 100. */
 	perPage: S.optionalKey(S.Int.check(S.isBetween({ minimum: 1, maximum: 100 }))).annotateKey({ description: "Items requested per page. GitHub's ceiling is 100." }),
 	/** Stop after this many pages. Absent means "until GitHub stops". */

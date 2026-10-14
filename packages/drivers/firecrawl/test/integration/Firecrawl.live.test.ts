@@ -61,7 +61,7 @@ pipe(
               const firecrawl = yield* F.Firecrawl;
               const response = yield* firecrawl.getQueueStatus(F.FirecrawlGetQueueStatusPayload.make({}));
 
-              expect(response).toBeInstanceOf(F.FirecrawlGetQueueStatusSuccess);
+              expect(S.is(F.FirecrawlGetQueueStatusSuccess)(response)).toBe(true);
               expect(response.data).toBeDefined();
             })
           );
@@ -72,7 +72,7 @@ pipe(
               const firecrawl = yield* F.Firecrawl;
               const response = yield* firecrawl.getCreditUsage(F.FirecrawlGetCreditUsagePayload.make({}));
 
-              expect(response).toBeInstanceOf(F.FirecrawlGetCreditUsageSuccess);
+              expect(S.is(F.FirecrawlGetCreditUsageSuccess)(response)).toBe(true);
               expect(response.data).toBeDefined();
             })
           );

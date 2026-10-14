@@ -10,7 +10,9 @@ import { TextAnchor } from "@beep/provenance/TextAnchor";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { PosInt } from "../../internal/PosInt.ts";
@@ -72,7 +74,7 @@ const anchorWithin =
   (inner: TextAnchor): boolean =>
     outer.startChar <= inner.startChar && inner.endChar <= outer.endChar;
 
-const termRefsOf = (edge: ClaimElementEdge): ReadonlyArray<ClaimTermRef> =>
+const termRefsOf = (edge: ClaimElementEdge): ReadonlyArray<Pick<ClaimTermRef, "path" | "anchor">> =>
   ClaimElementEdge.match(edge, {
     "part-of": () => A.empty(),
     "depends-on-element": () => A.empty(),
@@ -96,6 +98,16 @@ const endpointsOf = (edge: ClaimElementEdge): ReadonlyArray<ClaimElementPath> =>
     }),
     A.map(termRefsOf(edge), ({ path }) => path)
   );
+
+const connectingTextOf = (parts: ReadonlyArray<ClaimFunctionalPart>): ReadonlyArray<TextAnchor> =>
+  A.flatMap(parts, (part) =>
+    ClaimFunctionalPart.match(part, {
+      term: () => A.empty(),
+      text: ({ anchor }) => [anchor],
+    })
+  );
+
+const termStartOrder = Order.mapInput(Num.Order, (term: { readonly anchor: TextAnchor }) => term.anchor.startChar);
 
 const firstViolation = (rules: ReadonlyArray<readonly [holds: boolean, message: string]>): O.Option<string> =>
   pipe(
@@ -139,11 +151,15 @@ const ClaimElementTreeCoherenceCheck = S.makeFilter(
                 `Antecedent introducing term ${introducing.path} is in a claim later than claim ${claim}.`,
               ],
             ]),
-          functional: ({ element }) =>
+          functional: ({ element, parts }) =>
             firstViolation([
               [
                 O.exists(elementAt(element), ({ kind }) => ClaimElementKind.is["functional-relation"](kind)),
                 `Functional edge element ${element} is not a functional-relation element of claim ${claim}.`,
+              ],
+              [
+                O.exists(elementAt(element), (owner) => A.every(connectingTextOf(parts), anchorWithin(owner.anchor))),
+                `Functional edge connecting text lies outside element ${element}.`,
               ],
             ]),
         })
@@ -160,6 +176,13 @@ const ClaimElementTreeCoherenceCheck = S.makeFilter(
         ({ anchor }) => [element.path, anchor] as const
       )
     );
+    const overlappingTerms = A.flatMap(tree.elements, (element) => {
+      const sorted = A.sort(element.terms, termStartOrder);
+      return A.map(
+        A.filter(A.zip(sorted, A.drop(sorted, 1)), ([before, after]) => after.anchor.startChar < before.anchor.endChar),
+        ([, after]) => [element.path, after.anchor] as const
+      );
+    });
     return A.getSomes([
       pipe(
         A.head(foreignElements),
@@ -188,13 +211,20 @@ const ClaimElementTreeCoherenceCheck = S.makeFilter(
             `Term [${anchor.startChar}, ${anchor.endChar}) of element ${path} lies outside the element's span.`
         )
       ),
+      pipe(
+        A.head(overlappingTerms),
+        O.map(
+          ([path, anchor]) =>
+            `Term [${anchor.startChar}, ${anchor.endChar}) of element ${path} overlaps the term before it.`
+        )
+      ),
     ]);
   },
   {
     identifier: $I`ClaimElementTreeCoherenceCheck`,
     title: "Coherent claim-element tree",
     description:
-      "Element paths are unique and rooted at the tree's claim number; every claim-local edge endpoint and term reference names an element and term of the tree; terms lie inside their element's span; part-of nests within the claim; dependencies and introductions point to earlier claims; functional edges read from functional-relation elements.",
+      "Element paths are unique and rooted at the tree's claim number; every claim-local edge endpoint and term reference names an element and term of the tree; terms lie inside their element's span and do not overlap; part-of nests within the claim; dependencies and introductions point to earlier claims; functional edges read from functional-relation elements whose span holds their connecting text.",
   }
 );
 
@@ -249,11 +279,12 @@ const ClaimElementTreeCoherenceCheck = S.makeFilter(
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimElementTree extends S.Class<ClaimElementTree>($I`ClaimElementTree`)(
-  ClaimElementTreeFields.check(ClaimElementTreeCoherenceCheck),
-  $I.annote("ClaimElementTree", {
-    description: "Span-anchored claim elements and typed edges for one patent claim, keyed by claim number.",
-  })
+export class ClaimElementTree extends S.Opaque<ClaimElementTree, { readonly brand: unique symbol }>()(
+  ClaimElementTreeFields.check(ClaimElementTreeCoherenceCheck).pipe(
+    $I.annoteSchema("ClaimElementTree", {
+      description: "Span-anchored claim elements and typed edges for one patent claim, keyed by claim number.",
+    })
+  )
 ) {}
 
 /**

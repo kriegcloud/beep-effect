@@ -158,18 +158,20 @@ export type AiMetricsConfigSnapshotStage = typeof AiMetricsConfigSnapshotStage.T
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotStageTiming extends S.Class<AiMetricsConfigSnapshotStageTiming>(
-  $I`AiMetricsConfigSnapshotStageTiming`
-)(
-  {
+export class AiMetricsConfigSnapshotStageTiming extends S.Opaque<
+  AiMetricsConfigSnapshotStageTiming,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     byteCount: S.Natural,
     durationMillis: S.Natural,
     fileCount: S.Natural,
     stage: AiMetricsConfigSnapshotStage,
-  },
-  $I.annote("AiMetricsConfigSnapshotStageTiming", {
-    description: "Duration, file count, and byte count for one AI metrics config snapshot stage.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotStageTiming", {
+      description: "Duration, file count, and byte count for one AI metrics config snapshot stage.",
+    })
+  )
 ) {}
 
 /**
@@ -196,10 +198,11 @@ export class AiMetricsConfigSnapshotStageTiming extends S.Class<AiMetricsConfigS
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotBudget extends S.Class<AiMetricsConfigSnapshotBudget>(
-  $I`AiMetricsConfigSnapshotBudget`
-)(
-  {
+export class AiMetricsConfigSnapshotBudget extends S.Opaque<
+  AiMetricsConfigSnapshotBudget,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     maxDepth: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_DEPTH)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_DEPTH))
@@ -216,10 +219,11 @@ export class AiMetricsConfigSnapshotBudget extends S.Class<AiMetricsConfigSnapsh
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_TOTAL_BYTES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_TOTAL_BYTES))
     ),
-  },
-  $I.annote("AiMetricsConfigSnapshotBudget", {
-    description: "Depth, file-count, per-file byte, and total byte bounds applied to a config snapshot walk.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotBudget", {
+      description: "Depth, file-count, per-file byte, and total byte bounds applied to a config snapshot walk.",
+    })
+  )
 ) {}
 
 const defaultConfigSnapshotBudget = AiMetricsConfigSnapshotBudget.make({});
@@ -286,10 +290,11 @@ export type AiMetricsConfigSnapshotTruncationReason = typeof AiMetricsConfigSnap
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotBoundsReport extends S.Class<AiMetricsConfigSnapshotBoundsReport>(
-  $I`AiMetricsConfigSnapshotBoundsReport`
-)(
-  {
+export class AiMetricsConfigSnapshotBoundsReport extends S.Opaque<
+  AiMetricsConfigSnapshotBoundsReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     budget: AiMetricsConfigSnapshotBudget.pipe(
       S.withConstructorDefault(Effect.succeed(defaultConfigSnapshotBudget)),
       S.withDecodingDefaultKey(Effect.succeed(defaultConfigSnapshotBudget))
@@ -301,10 +306,11 @@ export class AiMetricsConfigSnapshotBoundsReport extends S.Class<AiMetricsConfig
     truncationReason: S.OptionFromOptionalKey(AiMetricsConfigSnapshotTruncationReason).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("AiMetricsConfigSnapshotBoundsReport", {
-    description: "Budget, nested-root exclusions, and truncation outcome for one AI metrics config snapshot walk.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotBoundsReport", {
+      description: "Budget, nested-root exclusions, and truncation outcome for one AI metrics config snapshot walk.",
+    })
+  )
 ) {}
 
 const emptyConfigSnapshotBoundsReport = AiMetricsConfigSnapshotBoundsReport.make({
@@ -340,10 +346,11 @@ const emptyConfigSnapshotBoundsReport = AiMetricsConfigSnapshotBoundsReport.make
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotInput extends S.Class<AiMetricsConfigSnapshotInput>(
-  $I`AiMetricsConfigSnapshotInput`
-)(
-  {
+export class AiMetricsConfigSnapshotInput extends S.Opaque<
+  AiMetricsConfigSnapshotInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     budget: AiMetricsConfigSnapshotBudget.pipe(
       S.withConstructorDefault(Effect.succeed(defaultConfigSnapshotBudget)),
       S.withDecodingDefaultKey(Effect.succeed(defaultConfigSnapshotBudget))
@@ -354,10 +361,11 @@ export class AiMetricsConfigSnapshotInput extends S.Class<AiMetricsConfigSnapsho
     ),
     previousSnapshotPath: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     repoRoot: S.String,
-  },
-  $I.annote("AiMetricsConfigSnapshotInput", {
-    description: "Repo root and label used to build an agent-facing configuration snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotInput", {
+      description: "Repo root and label used to build an agent-facing configuration snapshot.",
+    })
+  )
 ) {}
 
 /**
@@ -389,16 +397,20 @@ export class AiMetricsConfigSnapshotInput extends S.Class<AiMetricsConfigSnapsho
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotDiff extends S.Class<AiMetricsConfigSnapshotDiff>($I`AiMetricsConfigSnapshotDiff`)(
-  {
+export class AiMetricsConfigSnapshotDiff extends S.Opaque<
+  AiMetricsConfigSnapshotDiff,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     addedPaths: S.Array(S.String),
     modifiedPaths: S.Array(S.String),
     removedPaths: S.Array(S.String),
     unchangedPaths: S.Array(S.String),
-  },
-  $I.annote("AiMetricsConfigSnapshotDiff", {
-    description: "Path-level before/after diff for agent-facing configuration snapshots.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotDiff", {
+      description: "Path-level before/after diff for agent-facing configuration snapshots.",
+    })
+  )
 ) {}
 
 const emptyConfigSnapshotDiff = AiMetricsConfigSnapshotDiff.make({
@@ -438,8 +450,11 @@ const emptyConfigSnapshotDiff = AiMetricsConfigSnapshotDiff.make({
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotFile extends S.Class<AiMetricsConfigSnapshotFile>($I`AiMetricsConfigSnapshotFile`)(
-  {
+export class AiMetricsConfigSnapshotFile extends S.Opaque<
+  AiMetricsConfigSnapshotFile,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     contentHash: S.String,
     relativePath: S.String,
     scope: AiMetricsConfigScope.pipe(
@@ -447,10 +462,11 @@ export class AiMetricsConfigSnapshotFile extends S.Class<AiMetricsConfigSnapshot
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsConfigScope.Enum.baseline))
     ),
     sizeBytes: S.Natural,
-  },
-  $I.annote("AiMetricsConfigSnapshotFile", {
-    description: "Repo-relative agent-facing configuration file and its deterministic content hash.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotFile", {
+      description: "Repo-relative agent-facing configuration file and its deterministic content hash.",
+    })
+  )
 ) {}
 
 /**
@@ -501,10 +517,11 @@ export class AiMetricsConfigSnapshotFile extends S.Class<AiMetricsConfigSnapshot
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapshotResult>(
-  $I`AiMetricsConfigSnapshotResult`
-)(
-  {
+export class AiMetricsConfigSnapshotResult extends S.Opaque<
+  AiMetricsConfigSnapshotResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baselineHash: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefaultKey(Effect.succeed(""))
@@ -527,10 +544,11 @@ export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapsh
       S.withConstructorDefault(Effect.succeed(A.empty<AiMetricsConfigSnapshotStageTiming>())),
       S.withDecodingDefaultKey(Effect.succeed(A.empty<AiMetricsConfigSnapshotStageTiming>()))
     ),
-  },
-  $I.annote("AiMetricsConfigSnapshotResult", {
-    description: "Config snapshot manifest used to attribute AI-agent metrics to repo guidance changes.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotResult", {
+      description: "Config snapshot manifest used to attribute AI-agent metrics to repo guidance changes.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsConfigSnapshotResult));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsConfigSnapshotResult));
@@ -562,9 +580,10 @@ export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapsh
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotError extends S.TaggedError<AiMetricsConfigSnapshotError>(
-  $I`AiMetricsConfigSnapshotError`
-)(
+export class AiMetricsConfigSnapshotError extends S.TaggedError<
+  AiMetricsConfigSnapshotError,
+  { readonly brand: unique symbol }
+>($I`AiMetricsConfigSnapshotError`)(
   "AiMetricsConfigSnapshotError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),

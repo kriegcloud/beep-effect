@@ -5,7 +5,10 @@ import { OpaqueDefect } from "../../schema/OpaqueDefect.ts";
 
 const $I = $RepoCliId.create("internal/cli/RegistrationGeometry/errors");
 
-export class RegistrationGeometryError extends S.TaggedError<RegistrationGeometryError>()(
+export class RegistrationGeometryError extends S.TaggedError<
+  RegistrationGeometryError,
+  { readonly brand: unique symbol }
+>()(
   "RegistrationGeometryError",
   {
     message: S.NonEmptyString,

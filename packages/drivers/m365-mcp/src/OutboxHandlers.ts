@@ -84,7 +84,7 @@ const $I = $M365McpId.create("OutboxHandlers");
 const NOT_FOUND_STATUS = 404;
 
 // A refusal the handlers raise themselves, before or after a driver call.
-class OutboxRefusal extends S.TaggedError<OutboxRefusal>($I`OutboxRefusal`)(
+class OutboxRefusal extends S.TaggedError<OutboxRefusal, { readonly brand: unique symbol }>($I`OutboxRefusal`)(
   "OutboxRefusal",
   {
     message: S.String,
@@ -175,8 +175,8 @@ const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive in
  * @category models
  * @since 0.1.0
  */
-export class OutboxHandlerSettings extends S.Class<OutboxHandlerSettings>($I`OutboxHandlerSettings`)(
-  {
+export class OutboxHandlerSettings extends S.Opaque<OutboxHandlerSettings, { readonly brand: unique symbol }>()(
+  S.Struct({
     mailbox: GraphPathSegment.annotateKey({
       description: "The only mailbox any handler addresses; from server configuration, never a tool parameter.",
     }),
@@ -191,10 +191,11 @@ export class OutboxHandlerSettings extends S.Class<OutboxHandlerSettings>($I`Out
       description:
         "Per-message attachment byte limit. A draft whose attachments Graph reports as more than twice this is not downloaded.",
     }),
-  },
-  $I.annote("OutboxHandlerSettings", {
-    description: "The mailbox and download limits the outbox tool handlers are bound to.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutboxHandlerSettings", {
+      description: "The mailbox and download limits the outbox tool handlers are bound to.",
+    })
+  )
 ) {}
 
 /**

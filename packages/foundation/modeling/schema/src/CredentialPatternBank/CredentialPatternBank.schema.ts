@@ -72,18 +72,19 @@ export type CredentialCategory = typeof CredentialCategory.Type;
  * @category models
  * @since 0.0.0
  */
-export class CredentialRule extends S.Class<CredentialRule>($I`CredentialRule`)(
-  {
+export class CredentialRule extends S.Opaque<CredentialRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: CredentialCategory,
     version: S.Literal("v1"),
     pattern: S.NonEmptyString,
     flags: S.Literals(["gu", "giu"]),
     valueGroups: S.NonEmptyArray(S.Natural),
     residuePatterns: S.Array(S.NonEmptyString),
-  },
-  $I.annote("CredentialRule", {
-    description: "Pure versioned grammar with sensitive capture group and incomplete supported-form grammars.",
-  })
+  }).pipe(
+    $I.annoteSchema("CredentialRule", {
+      description: "Pure versioned grammar with sensitive capture group and incomplete supported-form grammars.",
+    })
+  )
 ) {}
 
 /**
@@ -96,15 +97,16 @@ export class CredentialRule extends S.Class<CredentialRule>($I`CredentialRule`)(
  * @category models
  * @since 0.0.0
  */
-export class CredentialMatch extends S.Class<CredentialMatch>($I`CredentialMatch`)(
-  {
+export class CredentialMatch extends S.Opaque<CredentialMatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: CredentialCategory,
     ruleVersion: S.Literal("v1"),
     start: S.Natural,
     end: S.Natural,
     state: S.Literals(["matched", "residue", "unresolved"]),
-  },
-  $I.annote("CredentialMatch", {
-    description: "Non-secret half-open original UTF-16 offsets; no matched text or quote is retained.",
-  })
+  }).pipe(
+    $I.annoteSchema("CredentialMatch", {
+      description: "Non-secret half-open original UTF-16 offsets; no matched text or quote is retained.",
+    })
+  )
 ) {}

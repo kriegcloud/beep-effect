@@ -38,8 +38,8 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.comma
  * @category commands
  * @since 0.0.0
  */
-export class CreateWorkItemCommand extends S.Class<CreateWorkItemCommand>($I`CreateWorkItemCommand`)(
-  {
+export class CreateWorkItemCommand extends S.Opaque<CreateWorkItemCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: DomainWorkItem.WorkItemId.annotateKey({
       description: "WorkItem identity assigned by the caller.",
     }),
@@ -51,11 +51,12 @@ export class CreateWorkItemCommand extends S.Class<CreateWorkItemCommand>($I`Cre
       .annotateKey({
         description: "Optional requested WorkItem priority.",
       }),
-  },
-  $I.annote("CreateWorkItemCommand", {
-    title: "Create WorkItem command",
-    description: "Public command for creating a canonical architecture lab WorkItem.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateWorkItemCommand", {
+      title: "Create WorkItem command",
+      description: "Public command for creating a canonical architecture lab WorkItem.",
+    })
+  )
 ) {}
 
 /**
@@ -80,19 +81,20 @@ export class CreateWorkItemCommand extends S.Class<CreateWorkItemCommand>($I`Cre
  * @category commands
  * @since 0.0.0
  */
-export class AssignWorkItemCommand extends S.Class<AssignWorkItemCommand>($I`AssignWorkItemCommand`)(
-  {
+export class AssignWorkItemCommand extends S.Opaque<AssignWorkItemCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: DomainWorkItem.WorkItemId.annotateKey({
       description: "WorkItem identity to assign.",
     }),
     assignee: ArchitectureLabIdentity.WorkerId.annotateKey({
       description: "Worker identity receiving the WorkItem assignment.",
     }),
-  },
-  $I.annote("AssignWorkItemCommand", {
-    title: "Assign WorkItem command",
-    description: "Public command for assigning a canonical architecture lab WorkItem.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssignWorkItemCommand", {
+      title: "Assign WorkItem command",
+      description: "Public command for assigning a canonical architecture lab WorkItem.",
+    })
+  )
 ) {}
 
 /**
@@ -115,16 +117,17 @@ export class AssignWorkItemCommand extends S.Class<AssignWorkItemCommand>($I`Ass
  * @category commands
  * @since 0.0.0
  */
-export class CompleteWorkItemCommand extends S.Class<CompleteWorkItemCommand>($I`CompleteWorkItemCommand`)(
-  {
+export class CompleteWorkItemCommand extends S.Opaque<CompleteWorkItemCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: DomainWorkItem.WorkItemId.annotateKey({
       description: "WorkItem identity to complete.",
     }),
-  },
-  $I.annote("CompleteWorkItemCommand", {
-    title: "Complete WorkItem command",
-    description: "Public command for completing a canonical architecture lab WorkItem.",
-  })
+  }).pipe(
+    $I.annoteSchema("CompleteWorkItemCommand", {
+      title: "Complete WorkItem command",
+      description: "Public command for completing a canonical architecture lab WorkItem.",
+    })
+  )
 ) {}
 
 /**
@@ -147,16 +150,17 @@ export class CompleteWorkItemCommand extends S.Class<CompleteWorkItemCommand>($I
  * @category commands
  * @since 0.0.0
  */
-export class ReopenWorkItemCommand extends S.Class<ReopenWorkItemCommand>($I`ReopenWorkItemCommand`)(
-  {
+export class ReopenWorkItemCommand extends S.Opaque<ReopenWorkItemCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: DomainWorkItem.WorkItemId.annotateKey({
       description: "WorkItem identity to reopen.",
     }),
-  },
-  $I.annote("ReopenWorkItemCommand", {
-    title: "Reopen WorkItem command",
-    description: "Public command for reopening a completed canonical architecture lab WorkItem.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReopenWorkItemCommand", {
+      title: "Reopen WorkItem command",
+      description: "Public command for reopening a completed canonical architecture lab WorkItem.",
+    })
+  )
 ) {}
 
 /**
@@ -179,16 +183,17 @@ export class ReopenWorkItemCommand extends S.Class<ReopenWorkItemCommand>($I`Reo
  * @category commands
  * @since 0.0.0
  */
-export class ArchiveWorkItemCommand extends S.Class<ArchiveWorkItemCommand>($I`ArchiveWorkItemCommand`)(
-  {
+export class ArchiveWorkItemCommand extends S.Opaque<ArchiveWorkItemCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: DomainWorkItem.WorkItemId.annotateKey({
       description: "WorkItem identity to archive.",
     }),
-  },
-  $I.annote("ArchiveWorkItemCommand", {
-    title: "Archive WorkItem command",
-    description: "Public command for archiving a canonical architecture lab WorkItem.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveWorkItemCommand", {
+      title: "Archive WorkItem command",
+      description: "Public command for archiving a canonical architecture lab WorkItem.",
+    })
+  )
 ) {}
 
 /**
@@ -211,16 +216,17 @@ export class ArchiveWorkItemCommand extends S.Class<ArchiveWorkItemCommand>($I`A
  * @category queries
  * @since 0.0.0
  */
-export class GetWorkItemQuery extends S.Class<GetWorkItemQuery>($I`GetWorkItemQuery`)(
-  {
+export class GetWorkItemQuery extends S.Opaque<GetWorkItemQuery, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: DomainWorkItem.WorkItemId.annotateKey({
       description: "WorkItem identity to load.",
     }),
-  },
-  $I.annote("GetWorkItemQuery", {
-    title: "Get WorkItem query",
-    description: "Public query for loading one canonical architecture lab WorkItem.",
-  })
+  }).pipe(
+    $I.annoteSchema("GetWorkItemQuery", {
+      title: "Get WorkItem query",
+      description: "Public query for loading one canonical architecture lab WorkItem.",
+    })
+  )
 ) {}
 
 /**
@@ -240,16 +246,17 @@ export class GetWorkItemQuery extends S.Class<GetWorkItemQuery>($I`GetWorkItemQu
  * @category queries
  * @since 0.0.0
  */
-export class ListWorkItemsQuery extends S.Class<ListWorkItemsQuery>($I`ListWorkItemsQuery`)(
-  {
+export class ListWorkItemsQuery extends S.Opaque<ListWorkItemsQuery, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.OptionFromOptionalKey(DomainWorkItem.WorkItemStatus)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
         description: "Optional lifecycle status filter applied after repository listing.",
       }),
-  },
-  $I.annote("ListWorkItemsQuery", {
-    title: "List WorkItems query",
-    description: "Public query for listing canonical architecture lab WorkItems.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListWorkItemsQuery", {
+      title: "List WorkItems query",
+      description: "Public query for listing canonical architecture lab WorkItems.",
+    })
+  )
 ) {}

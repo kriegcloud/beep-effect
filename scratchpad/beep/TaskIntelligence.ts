@@ -745,7 +745,7 @@ export const linkageFailure = (event: TaskIntelligenceAttributionEvent): O.Optio
  * @category errors
  * @since 0.0.0
  */
-export class TaskIntelligenceLinkageError extends S.TaggedError<TaskIntelligenceLinkageError>()(
+export class TaskIntelligenceLinkageError extends S.TaggedError<TaskIntelligenceLinkageError, { readonly brand: unique symbol }>()(
   "TaskIntelligenceLinkageError",
   { message: S.String },
   $I.annoteError<TaskIntelligenceLinkageError>("TaskIntelligenceLinkageError", {
