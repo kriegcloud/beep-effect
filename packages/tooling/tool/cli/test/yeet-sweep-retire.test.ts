@@ -672,6 +672,43 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
     )
   );
 
+  it.effect("refuses a pull-request-less retirement once the lane's HEAD moved past the approved tip", () =>
+    withScratchRepo(
+      ({ repoRoot, lane, tip }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          // The gate approved `tip`; a commit lands in the lane before removal.
+          const approved = SweepGitState.make({
+            branch: "claude/lane",
+            mainBranch: "main",
+            headBranch: "claude/lane",
+            worktreeDirty: false,
+            mainCheckedOutElsewhere: false,
+            branchCheckedOutElsewhere: false,
+            branchMergedIntoBase: true,
+            lockfileMovedOnMainUpdate: false,
+            statusProbeUnreliable: false,
+            worktreeProbeUnreliable: false,
+            localTip: O.some(tip),
+          });
+          yield* fs.writeFileString(path.join(lane, "late.txt"), "landed after the gate\n");
+          yield* runGit(lane, ["add", "late.txt"]);
+          yield* runGit(lane, ["commit", "-m", "late"]);
+          const error = yield* Effect.flip(
+            retireInvokingWorktree(
+              YeetRetirePlan.make({ worktreePath: lane, owningClone: repoRoot, name: "lane", branch: "claude/lane" }),
+              approved
+            )
+          );
+          expect(error.message).toContain(`is not the authorized ${tip}`);
+          expect(yield* fs.exists(lane)).toBe(true);
+          expect(yield* runGitText(repoRoot, ["branch", "--list", "claude/lane"])).toContain("claude/lane");
+        }),
+      { remoteBranch: false }
+    )
+  );
+
   it.effect("prints the pull-request-less verdict in the JSON plan and report", () =>
     withScratchRepo(
       ({ lane, tip, packetDir }) =>

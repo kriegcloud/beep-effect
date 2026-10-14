@@ -271,7 +271,9 @@ const discardLaneFallowBaseCache = Effect.fn("Yeet.discardLaneFallowBaseCache")(
  * tip is already contained in `origin/<main>` and the tree is clean.
  * Retirement always archives, so dirty files and unpushed commits behind a
  * merged pull request are preserved under the residue root rather than
- * blocking the closeout. The archive fence refuses a lane any process still
+ * blocking the closeout. A pull-request-less retirement is pinned to the tip
+ * its verdict proved on `origin/<main>`: if the lane's HEAD moves before or
+ * inside the archive fence, the removal refuses instead of retiring new work. The archive fence refuses a lane any process still
  * stands in; this command first moves its own working directory to the
  * owning clone and asks the fence to exempt the invoker's ancestry (the
  * shell and agent session that started it) plus, when the harness names the
@@ -331,7 +333,9 @@ export const retireInvokingWorktree = Effect.fn("Yeet.retireInvokingWorktree")(f
         branch: O.some(plan.branch),
         archive: true,
         deleteBranch: true,
-        expectedHead: O.none(),
+        // A pull-request-less retirement was approved for one tip; pin the
+        // removal to it so a HEAD that moves before or inside the fence refuses.
+        expectedHead: YeetRetireVerdict.guards["pr-less-on-main"](verdict) ? O.some(verdict.tip) : O.none(),
         exemptInvoker,
       })
     )
