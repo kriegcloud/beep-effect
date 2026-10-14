@@ -51,7 +51,10 @@ const convertAndStore = (code: string | null) =>
           })
         )
       );
-      if (response.status !== 201) return false;
+      if (response.status !== 201) {
+        console.error(`[reviewer-bootstrap] Manifest conversion returned HTTP ${response.status}.`);
+        return false;
+      }
       const converted = yield* decodeConversion(yield* response.json);
       const template = yield* encodeJson({
         title: "beep-reviewer GitHub App",
@@ -64,14 +67,16 @@ const convertAndStore = (code: string | null) =>
         ],
       });
       // No secret in argv, stdout, stderr, the callback page, or a temporary file.
-      const child = Bun.spawn(["op", "item", "create", "--vault", "BEEP_SECRETS", "-"], {
-        stdin: "pipe",
+      // Bun uses a socket for child stdin on Linux. The CLI requires a real pipe
+      // to detect a JSON template, so cat bridges the in-memory Blob into one.
+      const child = Bun.spawn(["bash", "-o", "pipefail", "-c", "cat | op item create --vault BEEP_SECRETS -"], {
+        stdin: new Blob([template]),
         stdout: "ignore",
         stderr: "ignore",
       });
-      child.stdin.end(template);
       const status = yield* Effect.promise(() => child.exited);
       if (status !== 0) {
+        console.error(`[reviewer-bootstrap] 1Password item creation exited ${status}; secret diagnostics suppressed.`);
         const doctor = Bun.spawn(["op-doctor"], { stdout: "inherit", stderr: "ignore" });
         yield* Effect.promise(() => doctor.exited);
         return false;

@@ -15,6 +15,7 @@ import {
 } from "@beep/repo-cli/commands/Reviewer";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";
@@ -25,6 +26,7 @@ import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
 
@@ -40,6 +42,11 @@ const Requests = S.Array(
 );
 const decodeRequests = S.decodeUnknownEffect(Requests);
 const decodeReview = S.decodeUnknownEffect(S.fromJsonString(ReviewerReview));
+const ReviewerResultJson = S.fromJsonString(ReviewerResult);
+const ReviewerResultArbitrary = Arbitrary.schema(ReviewerResult);
+const encodeReviewerResult = S.encodeResult(ReviewerResultJson);
+const decodeReviewerResult = S.decodeResult(ReviewerResultJson);
+const sameReviewerResult = S.toEquivalence(ReviewerResult);
 const sha = "a".repeat(40);
 const check = (id: number, app = 42, status = "in_progress", conclusion: string | null = null) => ({
   id,
@@ -108,6 +115,15 @@ const usingHttp =
     MockClient.use((current) => Ref.set(current, http).pipe(Effect.andThen(program)));
 
 describe("reviewer conclusions and identity", () => {
+  it.prop(
+    "round-trips schema-generated review results through JSON",
+    { value: ReviewerResultArbitrary },
+    ({ value }) => {
+      const encoded = Result.getOrThrow(encodeReviewerResult(value));
+      const decoded = Result.getOrThrow(decodeReviewerResult(encoded));
+      expect(sameReviewerResult(value, decoded)).toBe(true);
+    }
+  );
   it.effect("fails P0/P1 and succeeds P2-only results", () =>
     Effect.sync(() => {
       expect(reviewerConclusion(result())).toBe("success");

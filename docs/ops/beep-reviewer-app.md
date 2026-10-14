@@ -38,6 +38,13 @@ not create or install an App, create a service account, or enable a live rule.
    disables caching and referrer propagation, and never renders credentials.
    Stop it with Ctrl-C after success. If conversion or vault write fails, revoke
    the generated key in GitHub before restarting; the code cannot be replayed.
+   If registration succeeded but storage failed, delete the new, uninstalled App
+   registration after revoking its key, then restart the helper and register it
+   again. The failed helper does not retain a recoverable copy of the PEM.
+   The helper uses a shell pipe to deliver the in-memory JSON template: Bun's
+   child stdin is a socket on Linux, which this 1Password CLI does not recognize
+   as piped template input. Raw process and conversion errors remain suppressed;
+   only the failed stage, HTTP status, or process exit code can be reported.
 3. In the new App's settings, verify private visibility, no webhook, no subscribed
    events, and the permissions below. Install on **Only select repositories**,
    selecting **beep-effect/beep-effect only**. Record the numeric installation id
