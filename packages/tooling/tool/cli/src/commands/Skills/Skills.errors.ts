@@ -646,3 +646,95 @@ export class SkillMaterializeRefusal extends S.TaggedError<SkillMaterializeRefus
     description: "A vendored skill was not rebuilt because a pristine, patch, or reconstruction check failed.",
   })
 ) {}
+
+/**
+ * Why `skills relock` refused to record new hashes.
+ *
+ * **Details**
+ *
+ * `unknown-skill`: the lock has no entry by that name. `not-vendored`: the
+ * entry is local, so it has no pin to relock. `replay-conflicted`: at least
+ * one hunk of the patch series conflicts at the new pin. `replay-fuzz-only`:
+ * no hunk conflicts, but at least one matches only at a shifted position, so
+ * the strict applier cannot reproduce a tree (B27). `license-changed`: the
+ * license bytes at the new pin no longer hash to the recorded digest.
+ *
+ * **Example** (Check a refusal reason)
+ *
+ * ```ts
+ * import { SkillRelockRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * console.log(SkillRelockRefusalReason.is["replay-conflicted"]("replay-conflicted")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const SkillRelockRefusalReason = LiteralKit([
+  "unknown-skill",
+  "not-vendored",
+  "replay-conflicted",
+  "replay-fuzz-only",
+  "license-changed",
+]).pipe(
+  $I.annoteSchema("SkillRelockRefusalReason", {
+    description: "Why skills relock refused: no such vendored entry, an unclean replay, or a changed license.",
+  })
+);
+
+/**
+ * Why `skills relock` refused to record new hashes.
+ *
+ * **Example** (Annotate a refusal reason)
+ *
+ * ```ts
+ * import type { SkillRelockRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const reason: SkillRelockRefusalReason = "license-changed"
+ * console.log(reason)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SkillRelockRefusalReason = typeof SkillRelockRefusalReason.Type;
+
+/**
+ * `skills relock` refused, and `skills-lock.json` was left untouched.
+ *
+ * **Details**
+ *
+ * Every refusal happens before the lock is staged, so a refused relock never
+ * leaves a partial lock or a stage file behind. That is what holds a
+ * conflicted pin bump for the review ritual (B19): the Renovate branch keeps
+ * the old pin's hashes and `materialize --check` stays red until a human
+ * decides the conflicted hunks.
+ *
+ * **Example** (Create a conflict refusal)
+ *
+ * ```ts
+ * import { SkillRelockRefusal } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const error = SkillRelockRefusal.make({
+ *   skill: "oracle",
+ *   reason: "replay-conflicted",
+ *   message: "1 hunk conflicts at the new pin.",
+ * })
+ * console.log(error.reason) // "replay-conflicted"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillRelockRefusal extends S.TaggedError<SkillRelockRefusal>($I`SkillRelockRefusal`)(
+  "SkillRelockRefusal",
+  {
+    skill: S.String,
+    reason: SkillRelockRefusalReason,
+    message: S.String,
+  },
+  $I.annoteError<SkillRelockRefusal>("SkillRelockRefusal", {
+    title: "Skill Relock Refusal",
+    description: "A vendored skill's new pin was not recorded because its replay or license check failed.",
+  })
+) {}
