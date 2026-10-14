@@ -160,6 +160,15 @@ spelling), never as an inline span that starts with `bun run beep`: only such sp
 probed, so the planned spelling is never read as a command. The doctor has no `planned`
 span class (orchestrator ruling on the C Stage-2 report, 2026-10-14, recorded in
 `./research/p1-fp-eyeball-verdicts.md`).
+The same prose spelling covers `@beep/*` names that do not resolve on purpose. A proposed
+package that does not exist yet, and a package, subpath, or symbol named only to say it is
+retired, removed, or must not be imported, is written as plain prose without a code span:
+"a proposed @beep/foo package", "the retired @beep/schema/color subpath", "do not import
+@beep/schema/Dom". The symbols evaluator reads only inline code spans, so prose names are
+never checked against the tree. The prohibition keeps its full wording; only the code span
+goes. The doctor has no `planned` or `retired` span class and no reader rule for either
+(orchestrator ruling on the C PR 2b report, 2026-10-14, recorded in the same file). A
+`@beep/*` code span always names something that resolves in the tree.
 
 **Stage 2 — full `beep knowledge doctor`, hardened against gaming from day one:**
 
@@ -339,3 +348,7 @@ Each entry names its record, which carries the reason and the reversal path.
   bootstrap child plans, children published before the exploration flips, provenance as
   the resume journal, events only for opted-in packets, self-hosting by a real
   graduation): `research/p4-explore-graduate-design.md`.
+- 2026-10-14 — Workstream B materialize, clearing house and the P5 update train B16–B22
+  (one writer feeds both targets, verify before write, Renovate git-refs per skill,
+  conflicts fail CI while clean replays merge, append-only hunk ledger, the first ritual
+  is the operator's HITL classification): `research/p5-warehouse-update-train-design.md`.
