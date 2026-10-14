@@ -4,6 +4,7 @@ import { FileProcessingOperationError } from "@beep/file-processing/Operation";
 import {
   ArchiveLedgerRecord,
   CollectorManifestRecord,
+  CorpusCommandError,
   CorpusCommandServiceLive,
   decodeTransformationLedgerRecordJson,
   encodeArchiveLedgerRecordJson,
@@ -1966,6 +1967,37 @@ else exit 92; fi
           "attempt-1"
         )
       ).toEqual({ inputBytes: 0, outputBytes: 0, passed: false, unapproved: true });
+    })
+  );
+
+  it.effect("projects nested mail causes through a bounded message-free allowlist", () =>
+    Effect.sync(() => {
+      const original = FileProcessingOperationError.make({
+        reason: "operation-timed-out",
+        message: "private engine details",
+        engine: "/private/engine",
+        details: { arbitrary: "private output" },
+      });
+      const nested = CorpusCommandError.new(CorpusCommandError.new(original, "private wrapper"), "outer");
+      expect(RT.mailFailureCause(nested)).toEqual({
+        _tag: "FileProcessingOperationError",
+        reason: "operation-timed-out",
+      });
+      expect(RT.mailFailureCause(CorpusCommandError.make({ message: "no cause" }))).toEqual({
+        _tag: "CorpusCommandError",
+      });
+      expect(
+        RT.mailFailureCause({ _tag: "CaptureCommandTimedOutError", commandLine: "/private/tool", message: "private" })
+      ).toEqual({
+        _tag: "CaptureCommandTimedOutError",
+      });
+      expect(
+        RT.mailFailureCause({ _tag: "CapturePipeWedgedError", commandLine: "/private/tool", message: "private" })
+      ).toEqual({ _tag: "CapturePipeWedgedError" });
+      expect(RT.mailFailureCause({ _tag: "unrecognized private class", message: "private" })).toEqual({
+        _tag: "Unknown",
+      });
+      expect(RT.mailFailureCause(nested, 8)).toEqual({ _tag: "CorpusCommandError" });
     })
   );
 
