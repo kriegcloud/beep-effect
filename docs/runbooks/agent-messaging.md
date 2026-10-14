@@ -113,11 +113,54 @@ retains the acknowledgement and adds an ambiguity diagnostic. A confirmed result
 for that exact active attempt can reconcile the hold. Replaying a completion for
 an already settled attempt cannot re-open it.
 
-An ambiguity requires reconciliation against the original owned runtime and its
-receipts. This slice deliberately has no command that clears the hold or silently
-replays the message. Do not delete rows, reset quotas or change generations to
-bypass it. A future adapter can add consumptive reconciliation only when it can
-prove the original outcome.
+An ambiguity requires evidence from the original owned runtime and its receipts.
+The operator-only `resolve-ambiguity` command records a known terminal delivery
+or failure for that exact message, endpoint enrollment and dispatch attempt. It
+does not query a provider, verify the supplied evidence remotely, or replay work.
+The operator must establish the terminal outcome before using it; elapsed time,
+a replacement session or peer text is insufficient evidence. Do not delete rows,
+reset quotas or change generations to bypass a hold.
+
+Supply a private `0600` JSON file using the `AmbiguityResolution` contract:
+
+```json
+{
+  "resolutionId": "owned-resolution-1",
+  "messageId": "owned-message-1",
+  "endpointId": "owned-recipient",
+  "endpointGeneration": 1,
+  "attemptGeneration": 1,
+  "attemptOwnerId": "owned-dispatcher",
+  "operatorId": "owning-operator",
+  "disposition": "delivered",
+  "evidence": "Original owned runtime terminal receipt and its recorded correlation",
+  "reason": "The owning operator established this exact attempt's terminal outcome"
+}
+```
+
+```sh
+bun run beep agent-message resolve-ambiguity --state-dir "$OWNED_STATE" --file "$RESOLUTION_FILE"
+```
+
+The store atomically retains the complete decision, timestamp and original
+receipt sequence. An identical request returns the same receipt after a restart;
+changed content or a second decision for the same attempt is rejected. An
+ordinary ambiguous message becomes `delivered` or `failed`, without returning
+to the send queue. Delivery still requires participant acknowledgement. If an
+ACK was already recorded, it remains recorded while the native dispatch hold is
+released. An operator decision is distinct from adapter-verified reconciliation;
+adapter-specific automatic evidence qualification remains separate work.
+
+This operation is absent from peer commands and model-accessible MCP tools.
+It has no automatic startup behavior: existing holds are unchanged unless their
+owning operator explicitly submits a valid decision.
+
+Admission retains the global pending ceiling and also bounds each destination
+endpoint. The default store limits are 1,000 globally and 100 per endpoint;
+factory callers may set both, and a lower global bound still wins. Unresolved
+attempts and delivered messages awaiting ACK count toward both limits. Exact
+acceptance retries remain idempotent at capacity, and rejected admission does
+not spend a launch grant's message budget.
 
 A higher endpoint generation does not redirect old mail. Replacement refuses
 active or ambiguous dispatches, as well as delivered messages awaiting

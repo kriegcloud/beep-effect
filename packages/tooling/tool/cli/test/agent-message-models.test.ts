@@ -1,4 +1,5 @@
 import {
+  AmbiguityResolution,
   EndpointBinding,
   EndpointExecutionRef,
   EndpointHostRef,
@@ -47,6 +48,19 @@ const grant: typeof LaunchGrant.Encoded = {
 };
 
 describe("AgentMessage bounded contracts", () => {
+  it.effect.prop(
+    "preserves operator decision identity and complete evidence through canonical audit transport",
+    [Arbitrary.schema(AmbiguityResolution)],
+    Effect.fnUntraced(function* ([resolution]) {
+      const codec = S.fromJsonString(AmbiguityResolution);
+      const wire = yield* S.encodeEffect(codec)(resolution);
+      const decoded = yield* S.decodeEffect(codec)(wire);
+      expect(yield* S.encodeEffect(codec)(decoded)).toBe(wire);
+      expect(decoded).toEqual(resolution);
+    }),
+    { arbitrary: fcRuns(50) }
+  );
+
   it.effect.prop(
     "preserves bounded message identity, task correlation and optional reply identity through JSON transport",
     [Arbitrary.schema(Envelope)],

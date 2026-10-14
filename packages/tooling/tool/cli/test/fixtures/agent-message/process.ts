@@ -1,5 +1,11 @@
 /** Synthetic process-crash boundary; no providers, credentials or tools. */
-import { Envelope, makeAgentMessageSqliteClient, makeAgentMessageStore } from "@beep/repo-cli/test/AgentMessage";
+import {
+  AmbiguityResolution,
+  Envelope,
+  makeAgentMessageSqliteClient,
+  makeAgentMessageStore,
+  Receipt,
+} from "@beep/repo-cli/test/AgentMessage";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -30,6 +36,15 @@ const program = Effect.scoped(
         .pipe(Effect.repeat({ schedule: Schedule.spaced("10 millis"), until: identity<boolean> }));
       yield* client`ROLLBACK`;
       return;
+    }
+    if (stage === "resolve") {
+      const input = yield* Config.String("BEEP_MESSAGE_FIXTURE_ENVELOPE");
+      const request = yield* fs
+        .readFileString(input)
+        .pipe(Effect.flatMap(S.decodeEffect(S.fromJsonString(AmbiguityResolution))));
+      const receipt = yield* store.resolveAmbiguity(request, 202);
+      yield* fs.writeFileString(checkpoint, yield* S.encodeEffect(S.fromJsonString(Receipt))(receipt), { mode: 0o600 });
+      return yield* Effect.never;
     }
     if (stage === "accept") {
       const input = yield* Config.String("BEEP_MESSAGE_FIXTURE_ENVELOPE");

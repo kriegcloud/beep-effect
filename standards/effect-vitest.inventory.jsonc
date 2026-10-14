@@ -14767,13 +14767,13 @@
       "reason": "See goals/effect-vitest-canon/research/cli-next-five-scope-proof.md. Per-invocation fixture and repository directories close before returning captured commands and configs; do not widen this lifetime to the shared platform layer."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/agent-message-store.test.ts:680:scoped@15#1",
+      "id": "EV004:packages/tooling/tool/cli/test/agent-message-store.test.ts:1106:scoped@15#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/agent-message-store.test.ts",
-      "line": 680,
-      "endLine": 689,
+      "line": 1106,
+      "endLine": 1115,
       "symbol": "scoped",
       "occurrence": "v2:2a0c3e16b37b5347c2fea9b2bee98fe86f7d9ebaf57256278ff450b4a7778667",
       "class": "shorter-scope-lifetime-review",
@@ -25794,13 +25794,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/agent-message-store.test.ts:13:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/agent-message-store.test.ts:15:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/agent-message-store.test.ts",
-      "line": 13,
-      "endLine": 13,
+      "line": 15,
+      "endLine": 15,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",

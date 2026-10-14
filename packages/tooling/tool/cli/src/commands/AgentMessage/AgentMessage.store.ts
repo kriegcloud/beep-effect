@@ -20,6 +20,7 @@ import * as SqlClient from "effect/sql/SqlClient";
 import * as SqlError from "effect/sql/SqlError";
 import * as Tuple from "effect/Tuple";
 import {
+  AmbiguityResolution,
   Claim,
   EndpointBinding,
   Envelope,
@@ -31,6 +32,7 @@ import {
 
 const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.store");
 const PayloadRows = S.Array(S.Struct({ payload: S.String }));
+const ResolutionRows = S.Array(S.Struct({ payload: S.String, receipt_sequence: S.Natural }));
 const ExistingMessageRows = S.Array(S.Struct({ payload: S.String, sender_generation: S.Natural }));
 const QueueLimit = S.Int.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(100000));
 const DurabilityRows = S.Array(S.Struct({ synchronous: S.Literals([2]) })).check(S.isMinLength(1));
@@ -60,6 +62,16 @@ type MessageState = (typeof StateRows.Type)[number];
 const isActiveCompletionState = S.is(
   S.Struct({ state: S.Literals(["claimed", "acknowledged"]), dispatch_active: S.Literals([1, 2]) })
 );
+const isResolvableAttemptState = S.is(
+  S.Union([
+    S.Struct({ state: S.Literal("ambiguous") }),
+    S.Struct({ state: S.Literal("acknowledged"), dispatch_active: S.Literal(2) }),
+  ]).pipe(
+    $I.annoteSchema("ResolvableAttemptState", {
+      description: "Ordinary ambiguity or participant acknowledgement retaining an ambiguous native dispatch hold.",
+    })
+  )
+);
 const isUsableSendEvidence = S.is(
   S.Struct({ capability: S.Literal("send"), disposition: S.Literals(["verified", "advertised"]) })
 );
@@ -74,6 +86,7 @@ const ReceiptRows = S.Array(
     detail: S.NullOr(S.String),
   })
 );
+const encodeResolution = S.encodeEffect(S.fromJsonString(AmbiguityResolution));
 const encodeEnvelope = S.encodeEffect(S.fromJsonString(Envelope));
 const decodeEnvelope = S.decodeUnknownEffect(S.fromJsonString(Envelope));
 const encodeBinding = S.encodeEffect(S.fromJsonString(EndpointBinding));
@@ -134,6 +147,7 @@ export interface AgentMessageStoreShape {
   readonly recover: (now: number) => Effect.Effect<number, RouterError>;
   readonly register: (binding: EndpointBinding) => Effect.Effect<void, RouterError>;
   readonly registerGrant: (grant: LaunchGrant) => Effect.Effect<void, RouterError>;
+  readonly resolveAmbiguity: (request: AmbiguityResolution, now: number) => Effect.Effect<Receipt, RouterError>;
   readonly scopedEndpoints: (
     grantId: string,
     now: number
@@ -176,17 +190,22 @@ export class AgentMessageStore extends Context.Service<AgentMessageStore, AgentM
  * console.log(Effect.isEffect(store)) // true
  * ```
  *
- * @param maxPending - Maximum accepted or claimed messages retained in the dispatch queue.
+ * @param maxPending - Global maximum of retained messages and active dispatch holds.
+ * @param maxPendingPerEndpoint - Maximum retained messages and active dispatch holds for each endpoint.
  * @returns A store using the injected SQL client.
  * @category constructors
  * @since 0.0.0
  */
+// Constructor configuration has no data operand to receive through a pipe.
+// @effect-diagnostics-next-line missingPipeableSignature:off
 export const makeAgentMessageStore = (
-  maxPending = 1000
+  maxPending = 1000,
+  maxPendingPerEndpoint = 100
 ): Effect.Effect<AgentMessageStoreShape, RouterError, SqlClient.SqlClient> =>
   Effect.gen(function* () {
     const sql = yield* SqlClient.SqlClient;
     yield* S.decodeEffect(QueueLimit)(maxPending);
+    yield* S.decodeEffect(QueueLimit)(maxPendingPerEndpoint);
     yield* sql`PRAGMA journal_mode = WAL`;
     yield* sql`PRAGMA synchronous = FULL`;
     const durability = yield* sql`PRAGMA synchronous`;
@@ -212,6 +231,10 @@ export const makeAgentMessageStore = (
         sequence INTEGER PRIMARY KEY AUTOINCREMENT, message_id TEXT NOT NULL,
         status TEXT NOT NULL, at INTEGER NOT NULL, generation INTEGER NOT NULL,
         owner TEXT, detail TEXT)`;
+        yield* sql`CREATE TABLE IF NOT EXISTS agent_message_resolutions (
+        resolution_id TEXT PRIMARY KEY, message_id TEXT NOT NULL, attempt_generation INTEGER NOT NULL,
+        payload TEXT NOT NULL, decided_at INTEGER NOT NULL, receipt_sequence INTEGER NOT NULL UNIQUE,
+        UNIQUE(message_id, attempt_generation))`;
         yield* sql`CREATE INDEX IF NOT EXISTS agent_message_receipts_message ON agent_message_receipts(message_id, sequence)`;
       })
     );
@@ -373,7 +396,8 @@ export const makeAgentMessageStore = (
         );
     });
     const reserveAcceptance = Effect.fn("AgentMessageStore.reserveAcceptance")(function* (
-      grant: O.Option<LaunchGrant>
+      grant: O.Option<LaunchGrant>,
+      endpointId: string
     ) {
       const counts =
         yield* sql`SELECT count(*) AS count FROM agent_messages WHERE state IN ('accepted', 'claimed', 'ambiguous', 'delivered') OR dispatch_active != 0`.pipe(
@@ -381,6 +405,12 @@ export const makeAgentMessageStore = (
         );
       if (A.some(counts, (row) => row.count >= maxPending))
         return yield* error("queueFull", "Durable message queue is at capacity.");
+      const endpointCounts =
+        yield* sql`SELECT count(*) AS count FROM agent_messages WHERE target = ${endpointId} AND (state IN ('accepted', 'claimed', 'ambiguous', 'delivered') OR dispatch_active != 0)`.pipe(
+          Effect.flatMap(S.decodeUnknownEffect(CountRows))
+        );
+      if (A.some(endpointCounts, (row) => row.count >= maxPendingPerEndpoint))
+        return yield* error("queueFull", "Durable endpoint message queue is at capacity.");
       if (O.isSome(grant)) {
         const spent =
           yield* sql`UPDATE agent_message_grants SET used = used + 1 WHERE id = ${grant.value.grantId} AND used < ${grant.value.maxMessages} RETURNING used`;
@@ -557,11 +587,85 @@ export const makeAgentMessageStore = (
           const target = yield* endpoint(envelope.to.endpointId);
           yield* validateDestination(envelope, target);
           yield* validateReply(envelope, sender, target);
-          yield* reserveAcceptance(grant);
+          yield* reserveAcceptance(grant, target.endpointId);
           yield* sql`INSERT INTO agent_messages (id, idempotency_key, payload, target, sender, scope, target_generation, sender_generation, state, created, expires) VALUES (${envelope.messageId}, ${envelope.idempotencyKey}, ${payload}, ${target.endpointId}, ${envelope.from}, ${envelope.repositoryScope}, ${target.generation}, ${sender.generation}, 'accepted', ${envelope.createdAt}, ${envelope.expiresAt})`;
           return yield* append(envelope.messageId, "accepted", now, 0);
         })
       );
+    const replayResolution = Effect.fn("AgentMessageStore.replayResolution")(function* (
+      request: AmbiguityResolution,
+      payload: string
+    ) {
+      const existing =
+        yield* sql`SELECT payload, receipt_sequence FROM agent_message_resolutions WHERE resolution_id = ${request.resolutionId} OR (message_id = ${request.messageId} AND attempt_generation = ${request.attemptGeneration})`.pipe(
+          Effect.flatMap(S.decodeUnknownEffect(ResolutionRows))
+        );
+      const previous = A.head(existing);
+      if (O.isNone(previous)) return O.none<Receipt>();
+      if (previous.value.payload !== payload)
+        return yield* error("conflict", "Resolution identity or attempt already has a different operator decision.");
+      const original = A.findFirst(
+        yield* receipts(request.messageId),
+        (receipt) => receipt.sequence === previous.value.receipt_sequence
+      );
+      if (O.isNone(original)) return yield* error("storage", "Resolution audit has no original receipt.");
+      return O.some(original.value);
+    });
+    const validateResolutionAttempt = Effect.fn("AgentMessageStore.validateResolutionAttempt")(function* (
+      request: AmbiguityResolution
+    ) {
+      const current = yield* state(request.messageId);
+      const envelope = yield* decodeEnvelope(current.payload);
+      if (envelope.to.kind !== "direct" || envelope.to.endpointId !== request.endpointId)
+        return yield* error("conflict", "Resolution does not identify the message's direct endpoint.");
+      const binding = yield* endpoint(request.endpointId);
+      if (
+        current.target_generation !== request.endpointGeneration ||
+        binding.generation !== request.endpointGeneration ||
+        current.attempt_generation !== request.attemptGeneration ||
+        current.owner !== request.attemptOwnerId ||
+        binding.ownerId !== request.attemptOwnerId
+      )
+        return yield* error(
+          "staleClaim",
+          "Resolution no longer identifies the original attempt and current enrollment."
+        );
+      if (!isResolvableAttemptState(current))
+        return yield* error("conflict", "Only an ambiguous native attempt can receive an operator resolution.");
+      return current;
+    });
+    const resolveAmbiguity = Effect.fn("AgentMessageStore.resolveAmbiguity")(function* (
+      request: AmbiguityResolution,
+      now: number
+    ) {
+      return yield* transaction(
+        Effect.gen(function* () {
+          const validated = yield* S.decodeEffect(AmbiguityResolution)(request);
+          yield* S.decodeEffect(S.Natural)(now);
+          const payload = yield* encodeResolution(validated);
+          const replay = yield* replayResolution(validated, payload);
+          if (O.isSome(replay)) return replay.value;
+          const current = yield* validateResolutionAttempt(validated);
+          const nextState = current.state === "acknowledged" ? "acknowledged" : validated.disposition;
+          yield* sql`UPDATE agent_messages SET state = ${nextState}, dispatch_active = 0 WHERE id = ${validated.messageId}`;
+          const receipt = yield* append(
+            validated.messageId,
+            validated.disposition,
+            now,
+            validated.attemptGeneration,
+            O.some(validated.attemptOwnerId),
+            O.some(
+              Str.takeLeft(
+                `Operator resolution ${validated.resolutionId} by ${validated.operatorId}; known terminal evidence: ${validated.evidence}; reason: ${validated.reason}`,
+                1024
+              )
+            )
+          );
+          yield* sql`INSERT INTO agent_message_resolutions (resolution_id, message_id, attempt_generation, payload, decided_at, receipt_sequence) VALUES (${validated.resolutionId}, ${validated.messageId}, ${validated.attemptGeneration}, ${payload}, ${now}, ${receipt.sequence})`;
+          return receipt;
+        })
+      );
+    });
     const recover = (now: number) =>
       transaction(
         Effect.gen(function* () {
@@ -583,7 +687,7 @@ export const makeAgentMessageStore = (
             )
           );
           const unacknowledged =
-            yield* sql`UPDATE agent_messages SET state = 'ambiguous' WHERE state = 'delivered' AND expires <= ${now} RETURNING id, state, attempt_generation, owner`;
+            yield* sql`UPDATE agent_messages SET state = 'ambiguous' WHERE state = 'delivered' AND expires <= ${now} AND NOT EXISTS (SELECT 1 FROM agent_message_resolutions AS resolution JOIN agent_message_receipts AS receipt ON receipt.sequence = resolution.receipt_sequence WHERE resolution.message_id = agent_messages.id AND resolution.attempt_generation = agent_messages.attempt_generation AND receipt.status = 'delivered') RETURNING id, state, attempt_generation, owner`;
           const unacknowledgedRows = yield* S.decodeUnknownEffect(RecoveredRows)(unacknowledged);
           yield* Effect.forEach(unacknowledgedRows, (row) =>
             append(
@@ -710,6 +814,7 @@ export const makeAgentMessageStore = (
       accept: (envelope, now) => accept(envelope, now, O.none()),
       acceptWithGrant: (envelope, grantId, now) => accept(envelope, now, O.some(grantId)),
       recover,
+      resolveAmbiguity,
       claimNext: (endpointId, ownerId, now, leaseUntil) =>
         transaction(
           Effect.gen(function* () {

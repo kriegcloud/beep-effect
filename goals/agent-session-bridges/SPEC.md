@@ -277,3 +277,20 @@ Independently re-review only that unchanged subject against a new immutable
 source-bound correction basis; retain the other154 reviews and every
 qualification tuple, executable contract and floor. The original main owner
 was notified on PR1584. Revert this correction to recover the carried reference.
+
+### 2026-10-14: address the current reviewer recovery and admission findings
+
+The operator resumed after reboot and requested the existing PR reviewer's 5/5
+assessment, with complete fix waves pushed after basic local checks rather than
+full local proof. Implement the two carried findings in this PR: an audited
+operator-only decision for an exact ambiguous message attempt, and a per-endpoint
+admission ceiling alongside the global bound. This instruction expands the
+earlier deferred scope; the existing live holds remain untouched. Fixture tests
+qualify transaction, identity, restart and capacity behavior, without native
+provider calls. Adapter-specific automatic evidence qualification remains in
+#1579. No reviewer score or hosted-green result is fabricated.
+
+Reversal: revert the fix wave; retain the appended audit table and receipt history
+rather than deleting operator decisions. Older version-1 stores can open the
+additive table without interpreting it; startup does not rewrite existing rows.
+All binding main coverage floors and qualification tuples remain unchanged.

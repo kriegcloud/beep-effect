@@ -2,6 +2,7 @@ import { JsonRpcMessage } from "@beep/mcp-kit/client";
 import { agentMessageCommand } from "@beep/repo-cli/commands/AgentMessage";
 import {
   AgentMessageStore,
+  AmbiguityResolution,
   AttachedT3Profile,
   agentMessageStoreLayer,
   EndpointBinding,
@@ -243,6 +244,69 @@ it.layer(
   ),
   { timeout: "30 seconds" }
 )("AgentMessage CLI boundaries", (it) => {
+  it.effect("resolve-ambiguity records an operator decision once without contacting a provider", () =>
+    Effect.gen(function* () {
+      const f = yield* setup();
+      yield* f.store.accept(f.envelope("operator-resolution"), f.now);
+      const claim = O.getOrThrow(yield* f.store.claimNext("b", "b-owner", f.now, f.now + 1000));
+      yield* f.store.complete(claim, "ambiguous", f.now + 1);
+      const resolution = AmbiguityResolution.make({
+        resolutionId: "fixture-resolution",
+        messageId: "operator-resolution",
+        endpointId: "b",
+        endpointGeneration: 1,
+        attemptGeneration: claim.generation,
+        attemptOwnerId: claim.ownerId,
+        operatorId: "fixture-operator",
+        disposition: "delivered",
+        evidence: "Fixture-only original attempt terminal receipt",
+        reason: "The fixture operator confirmed the original attempt finished",
+      });
+      const filename = yield* f.write("resolution.json", yield* S.encodeEffect(AmbiguityResolution)(resolution));
+      const invoke = () => f.execute(["resolve-ambiguity", "--file", filename]);
+      const first = yield* S.decodeUnknownEffect(Receipt)(O.getOrThrow(A.head(yield* invoke())));
+      const repeated = yield* S.decodeUnknownEffect(Receipt)(O.getOrThrow(A.head(yield* invoke())));
+      expect(first.status).toBe("delivered");
+      expect(repeated.sequence).toBe(first.sequence);
+      expect(yield* f.store.receipts("operator-resolution")).toHaveLength(4);
+    })
+  );
+
+  it.effect(
+    "resolve-ambiguity refuses shared evidence files and stale endpoint evidence without changing the hold",
+    () =>
+      Effect.gen(function* () {
+        const f = yield* setup();
+        yield* f.store.accept(f.envelope("retained-hold"), f.now);
+        const claim = O.getOrThrow(yield* f.store.claimNext("b", "b-owner", f.now, f.now + 1000));
+        yield* f.store.complete(claim, "ambiguous", f.now + 1);
+        const resolution = AmbiguityResolution.make({
+          resolutionId: "rejected-resolution",
+          messageId: "retained-hold",
+          endpointId: "b",
+          endpointGeneration: 2,
+          attemptGeneration: claim.generation,
+          attemptOwnerId: claim.ownerId,
+          operatorId: "fixture-operator",
+          disposition: "failed",
+          evidence: "Fixture-only evidence with a wrong enrollment generation",
+          reason: "Reject stale evidence",
+        });
+        const filename = yield* f.write(
+          "stale-resolution.json",
+          yield* S.encodeEffect(AmbiguityResolution)(resolution)
+        );
+        yield* f.fs.chmod(filename, 0o644);
+        const shared = yield* f.execute(["resolve-ambiguity", "--file", filename]).pipe(Effect.flip);
+        expect(shared).toMatchObject({ _tag: "RouterError", code: "policyMismatch" });
+        yield* f.fs.chmod(filename, 0o600);
+        const stale = yield* f.execute(["resolve-ambiguity", "--file", filename]).pipe(Effect.flip);
+        expect(stale).toMatchObject({ _tag: "RouterError", code: "staleClaim" });
+        expect(yield* f.store.receipts("retained-hold")).toHaveLength(3);
+        expect(O.getOrThrow(A.last(yield* f.store.receipts("retained-hold"))).status).toBe("ambiguous");
+      })
+  );
+
   it.effect("watch emits durable acceptance without acknowledging and stops on cancellation", () =>
     Effect.gen(function* () {
       const f = yield* setup();

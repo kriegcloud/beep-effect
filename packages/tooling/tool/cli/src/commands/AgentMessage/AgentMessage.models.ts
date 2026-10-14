@@ -129,7 +129,7 @@ export const EvidenceDisposition = LiteralKit(["advertised", "verified", "unveri
 export type EvidenceDisposition = typeof EvidenceDisposition.Type;
 
 /**
- * Durable lifecycle fact; delivered requires adapter confirmation and ambiguous forbids blind retry.
+ * Durable lifecycle fact; terminal delivery is adapter-confirmed or operator-asserted in an audit, and ambiguity forbids blind retry.
  *
  * **Example** (Validate a router value)
  *
@@ -153,12 +153,13 @@ export const ReceiptStatus = LiteralKit([
   "ambiguous",
 ]).pipe(
   $I.annoteSchema("ReceiptStatus", {
-    description: "Durable lifecycle fact; delivered requires adapter confirmation and ambiguous forbids blind retry.",
+    description:
+      "Durable lifecycle fact; terminal delivery is adapter-confirmed or operator-asserted in an audit, and ambiguity forbids blind retry.",
   })
 );
 
 /**
- * Durable lifecycle fact; delivered requires adapter confirmation and ambiguous forbids blind retry.
+ * Durable lifecycle fact; terminal delivery is adapter-confirmed or operator-asserted in an audit, and ambiguity forbids blind retry.
  *
  * @category type-level
  * @since 0.0.0
@@ -475,7 +476,7 @@ export class Envelope extends S.Class<Envelope>($I`Envelope`)(
 ) {}
 
 /**
- * Ordered append-only delivery evidence with attempt fencing and bounded optional diagnostic context.
+ * Ordered append-only delivery evidence with attempt fencing and bounded context for adapter-confirmed or audited operator-asserted terminal results.
  *
  * **Example** (Validate a router value)
  *
@@ -500,7 +501,74 @@ export class Receipt extends S.Class<Receipt>($I`Receipt`)(
     detail: OptionalDetail,
   },
   $I.annote("Receipt", {
-    description: "Ordered append-only delivery evidence with attempt fencing and bounded optional diagnostic context.",
+    description:
+      "Ordered append-only delivery evidence with attempt fencing and bounded context for adapter-confirmed or audited operator-asserted terminal results.",
+  })
+) {}
+
+/**
+ * Known native terminal outcome asserted by a trusted local operator.
+ *
+ * **Example** (Validate a terminal disposition)
+ *
+ * ```ts
+ * import { AmbiguityDisposition } from "@beep/repo-cli/test/AgentMessage"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(AmbiguityDisposition)("delivered")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const AmbiguityDisposition = LiteralKit(["delivered", "failed"]).pipe(
+  $I.annoteSchema("AmbiguityDisposition", {
+    description: "Explicit evidence-backed known native terminal outcome; abandonment is not a disposition.",
+  })
+);
+
+/**
+ * Terminal disposition derived from its runtime schema.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type AmbiguityDisposition = typeof AmbiguityDisposition.Type;
+
+/**
+ * Immutable operator assertion identifying the original ambiguous attempt and its known terminal evidence.
+ *
+ * **Details**
+ *
+ * The trusted local operator supplies evidence of a known native terminal result. This request
+ * releases a dispatch hold without retrying the provider or discarding participant acknowledgement.
+ * Its identity and full payload remain in the durable resolution audit.
+ *
+ * **Example** (Record a known terminal result)
+ *
+ * ```ts
+ * import { AmbiguityResolution } from "@beep/repo-cli/test/AgentMessage"
+ * const request = AmbiguityResolution.make({ resolutionId: "resolve-1", messageId: "m1", endpointId: "peer", endpointGeneration: 1, attemptGeneration: 1, attemptOwnerId: "owner", operatorId: "operator", disposition: "delivered", evidence: "Owned session terminal receipt", reason: "Confirmed original attempt completed" })
+ * console.log(request.disposition) // delivered
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AmbiguityResolution extends S.Class<AmbiguityResolution>($I`AmbiguityResolution`)(
+  {
+    resolutionId: Identity,
+    messageId: Identity,
+    endpointId: Identity,
+    endpointGeneration: S.Natural,
+    attemptGeneration: S.Natural,
+    attemptOwnerId: Identity,
+    operatorId: Identity,
+    disposition: AmbiguityDisposition,
+    evidence: Detail,
+    reason: Detail,
+  },
+  $I.annote("AmbiguityResolution", {
+    description: "Trusted operator assertion of a known terminal outcome, fenced to the original ambiguous attempt.",
   })
 ) {}
 

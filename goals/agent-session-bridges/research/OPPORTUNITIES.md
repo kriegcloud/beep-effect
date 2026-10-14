@@ -494,3 +494,11 @@ Knip-retirement basis both exactly match landed main, but the recorded digest
 starts `f963ef8f` while the actual basis starts `aa3b4096`. Preserve the carried
 review and qualification ledger; route a source-bound correction to the main
 owner. A final receipt hash check before publication would have prevented this.
+
+### 2026-10-14: distinguish the installed review route from a score-shaped comment
+
+While resuming PR1571's 5/5 cycle, the latest 3/5 was a human-account
+`greptile_style_summary`, while Yeet accepts only Greptile-authored summaries for
+its Greptile advisory. The operator selected the existing PR reviewer. Preserve
+that reviewer provenance and request a fresh assessment after the source fixes;
+do not label a local or human-account score as a Greptile bot verdict.
