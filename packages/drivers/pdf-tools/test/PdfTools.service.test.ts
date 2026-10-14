@@ -7,6 +7,7 @@ import {
   PdfTools,
   PdfToolsConfig,
   PdfToolsError,
+  PinnedFontconfigRequest,
   PinnedFonts,
   PngRequest,
   pinnedFontconfig,
@@ -330,16 +331,18 @@ describe("@beep/pdf-tools service", () => {
 
     it.effect("writes the pinned fontconfig for every alias", () =>
       Effect.sync(() => {
-        const config = pinnedFontconfig({
-          fonts: PinnedFonts.make({
-            directory: "/fonts",
-            families: [
-              FontFamilyAlias.make({ requested: "Arial", family: "Arial" }),
-              FontFamilyAlias.make({ requested: "Times New Roman", family: "Times New Roman" }),
-            ],
-          }),
-          cacheDirectory: "/cache",
-        });
+        const config = pinnedFontconfig(
+          PinnedFontconfigRequest.make({
+            fonts: PinnedFonts.make({
+              directory: "/fonts",
+              families: [
+                FontFamilyAlias.make({ requested: "Arial", family: "Arial" }),
+                FontFamilyAlias.make({ requested: "Times New Roman", family: "Times New Roman" }),
+              ],
+            }),
+            cacheDirectory: "/cache",
+          })
+        );
         expect(config).toContain("<cachedir>/cache</cachedir>");
         expect(config.match(/<match target="pattern">/g)?.length).toBe(2);
         expect(PdfFont.make({ name: "QWERTY+TimesNewRomanPSMT", embedded: true }).baseName).toBe("TimesNewRomanPSMT");

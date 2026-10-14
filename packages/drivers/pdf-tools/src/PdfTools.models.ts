@@ -216,6 +216,35 @@ export class PinnedFonts extends S.Class<PinnedFonts>($I`PinnedFonts`)(
 ) {}
 
 /**
+ * What a pinned fontconfig file is written from: the pinned fonts and the
+ * directory fontconfig may cache in for the run.
+ *
+ * **Example** (Request a config for one family)
+ *
+ * ```ts
+ * import { FontFamilyAlias, PinnedFontconfigRequest, PinnedFonts } from "@beep/pdf-tools"
+ *
+ * const fonts = PinnedFonts.make({
+ *   directory: "/fonts",
+ *   families: [FontFamilyAlias.make({ requested: "Arial", family: "Arial" })]
+ * })
+ * console.log(PinnedFontconfigRequest.make({ fonts, cacheDirectory: "/tmp/fc-cache" }).cacheDirectory)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PinnedFontconfigRequest extends S.Class<PinnedFontconfigRequest>($I`PinnedFontconfigRequest`)(
+  {
+    fonts: PinnedFonts.annotateKey({ description: "The font directory and family bindings to pin." }),
+    cacheDirectory: AbsoluteDirectory.annotateKey({ description: "Where fontconfig keeps its cache for this run." }),
+  },
+  $I.annote("PinnedFontconfigRequest", {
+    description: "Pinned fonts and the cache directory a fontconfig file is written from.",
+  })
+) {}
+
+/**
  * Convert one or more SVG files into one PDF, one page per SVG, in order.
  *
  * **Details**

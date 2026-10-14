@@ -27,6 +27,7 @@ import { PdfToolsError } from "./PdfTools.errors.ts";
 import {
   InkCoverageRequest,
   PageTextRequest,
+  PinnedFontconfigRequest,
   PngRequest,
   RasterRequest,
   SvgToPdfRequest,
@@ -37,7 +38,6 @@ import type {
   PdfAnnotation,
   PdfStructure,
   PdfVersion,
-  PinnedFonts,
   RasterMetrics,
   TextBlock,
 } from "./PdfTools.models.ts";
@@ -85,25 +85,19 @@ const mergePages = Effect.fn("PdfTools.mergePages")(function* (pages: ReadonlyAr
  * **Example** (Pin one family)
  *
  * ```ts
- * import { FontFamilyAlias, PinnedFonts, pinnedFontconfig } from "@beep/pdf-tools"
+ * import { FontFamilyAlias, PinnedFontconfigRequest, PinnedFonts, pinnedFontconfig } from "@beep/pdf-tools"
  *
  * const fonts = PinnedFonts.make({
  *   directory: "/fonts",
  *   families: [FontFamilyAlias.make({ requested: "Arial", family: "Arial" })]
  * })
- * console.log(pinnedFontconfig({ fonts, cacheDirectory: "/tmp/fc-cache" }))
+ * console.log(pinnedFontconfig(PinnedFontconfigRequest.make({ fonts, cacheDirectory: "/tmp/fc-cache" })))
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const pinnedFontconfig = ({
-  fonts,
-  cacheDirectory,
-}: {
-  readonly fonts: PinnedFonts;
-  readonly cacheDirectory: string;
-}): string =>
+export const pinnedFontconfig = ({ fonts, cacheDirectory }: PinnedFontconfigRequest): string =>
   A.join(
     [
       `<?xml version="1.0"?>`,
@@ -292,7 +286,12 @@ const makeService = Effect.fn("PdfTools.makeService")(function* (config: PdfTool
         }
         const file = path.join(dir, "fonts.conf");
         yield* fs
-          .writeFileString(file, pinnedFontconfig({ fonts, cacheDirectory: path.join(dir, "fontconfig-cache") }))
+          .writeFileString(
+            file,
+            pinnedFontconfig(
+              PinnedFontconfigRequest.make({ fonts, cacheDirectory: path.join(dir, "fontconfig-cache") })
+            )
+          )
           .pipe(Effect.mapError(io(`Could not write "${file}".`)));
         return { FONTCONFIG_FILE: file };
       }),
