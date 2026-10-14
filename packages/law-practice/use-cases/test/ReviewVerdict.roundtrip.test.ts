@@ -33,7 +33,6 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
-import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
@@ -79,10 +78,8 @@ const verdictAt = Effect.fnUntraced(function* (at: number, input: RecordVerdictI
 // Reference recency order for the property test: rows sorted stably by
 // `recordedAt`, then `revision`, so the last row is the latest and a full tie
 // goes to the row appended last.
-const byRecency: Order.Order<VerdictRow> = Order.combine(
-  Order.mapInput(DateTime.Order, (row: VerdictRow) => row.recordedAt),
-  Order.mapInput(Num.Order, (row: VerdictRow) => row.revision)
-);
+// Stable sort: rows that tie on `recordedAt` keep their append order.
+const byRecency: Order.Order<VerdictRow> = Order.mapInput(DateTime.Order, (row: VerdictRow) => row.recordedAt);
 
 const finding = (
   batchId: string,
@@ -292,7 +289,7 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
 
   it.layer(TestLayer, { timeout: "10 seconds" })("cross-batch tie", (it) => {
     it.effect(
-      "gives a full tie on recordedAt and revision to the row appended last",
+      "gives a tie on recordedAt to the row appended last",
       Effect.fnUntraced(function* () {
         const queue = yield* ReviewQueue;
         const projector = yield* VerdictProjector;
@@ -307,6 +304,28 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
         const rows = yield* queue.readLog;
         expect(yield* queue.openItems([item])).toStrictEqual([item]);
         expect(projector.project({ items: [item], resolvedBy, rows })).toStrictEqual([]);
+      })
+    );
+  });
+
+  it.layer(TestLayer, { timeout: "10 seconds" })("revision tie across batches", (it) => {
+    it.effect(
+      "never lets a higher revision in another batch win a recordedAt tie",
+      Effect.fnUntraced(function* () {
+        const queue = yield* ReviewQueue;
+        const projector = yield* VerdictProjector;
+        const item = yield* claimFinding;
+        const resolvedBy = yield* attorney;
+
+        yield* verdictAt(T_WRONG, finding(BATCH_A, "wrong"));
+        const revised = yield* verdictAt(T_WRONG, finding(BATCH_A, "right"));
+        const other = yield* verdictAt(T_WRONG, finding(BATCH_B, "wrong"));
+        expect([revised.revision, other.revision]).toStrictEqual([2, 1]);
+
+        const rows = yield* queue.readLog;
+        expect(A.map(projector.project({ items: [item], resolvedBy, rows }), (p) => p.status)).toStrictEqual([
+          "rejected",
+        ]);
       })
     );
   });

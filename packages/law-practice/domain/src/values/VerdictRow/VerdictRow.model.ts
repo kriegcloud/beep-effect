@@ -101,7 +101,7 @@ export type ReviewBatchId = typeof ReviewBatchId.Type;
  * same `itemId` in the same `batchId` with `revision` one higher; revisions
  * count per item within one batch and start at 1. An item's current verdict
  * is its row with the greatest `recordedAt` across all batches, ties broken by
- * the greater `revision`; remaining ties go to the row appended last, since
+ * the row appended last (revisions never compare across items or batches), since
  * rows are read in append order. Every row names its `batchId`: a batch is one
  * review sitting or queue run. A row with `lockedAt` closes that row's
  * `batchId` only; other batches stay open and later sittings append under a

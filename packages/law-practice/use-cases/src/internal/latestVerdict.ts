@@ -18,19 +18,17 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import type { ReviewBatchId, ReviewItemId, VerdictRow } from "@beep/law-practice-domain";
 
-// Recency order of verdict rows: by `recordedAt`, ties broken by `revision`.
-const VerdictRowRecency: Order.Order<VerdictRow> = Order.combine(
-  Order.mapInput(DateTime.Order, (row: VerdictRow) => row.recordedAt),
-  Order.mapInput(Num.Order, (row: VerdictRow) => row.revision)
-);
+// Recency order of verdict rows: by `recordedAt` only. Revisions restart per
+// item and batch, so they never compare rows; append order breaks ties.
+const VerdictRowRecency: Order.Order<VerdictRow> = Order.mapInput(DateTime.Order, (row: VerdictRow) => row.recordedAt);
 
 const isMoreRecent = Order.isGreaterThan(VerdictRowRecency);
 
 // A judgement row decides verdicts; a lock row only closes its batch.
 const isJudgementRow = (row: VerdictRow): boolean => O.isNone(row.lockedAt);
 
-// Of two rows read in append order, the more recent one; a full tie on
-// `recordedAt` and `revision` goes to `next`, the row appended last.
+// Of two rows read in append order, the more recent one; a tie on
+// `recordedAt` goes to `next`, the row appended last.
 const laterRow = (current: VerdictRow, next: VerdictRow): VerdictRow => (isMoreRecent(current, next) ? current : next);
 
 /**
@@ -38,9 +36,9 @@ const laterRow = (current: VerdictRow, next: VerdictRow): VerdictRow => (isMoreR
  *
  * **Details**
  *
- * Latest means the greatest `recordedAt`, ties broken by the greater
- * `revision`; remaining ties go to the row appended last, since rows are read
- * in append order. Lock rows (rows with `lockedAt`) are skipped: they only
+ * Latest means the greatest `recordedAt`; ties go to the row appended last,
+ * since rows are read in append order. Revisions never break ties: they count
+ * per item within one batch, and a later revision is always appended later. Lock rows (rows with `lockedAt`) are skipped: they only
  * mark their batch closed, so locking never changes an item's verdict, even
  * when `recordedAt` ties across batches.
  *
@@ -90,8 +88,8 @@ export const isFinalVerdict = (row: VerdictRow): boolean =>
   Verdict.is.right(row.verdict) || Verdict.is.wrong(row.verdict);
 
 /**
- * The batch's latest row (greatest `recordedAt`, then `revision`, then the
- * row appended last), or none when the batch has no rows.
+ * The batch's latest row (greatest `recordedAt`, then the row appended last),
+ * or none when the batch has no rows.
  *
  * **Example** (Read an empty batch)
  *
