@@ -12,6 +12,7 @@ import { HttpClient, HttpClientError, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
+import * as P from "effect/Predicate";
 import * as Ref from "effect/Ref";
 import * as TestConsole from "effect/testing/TestConsole";
 import { temporaryWorkingDirectory } from "./support/CommandTest.ts";
@@ -270,7 +271,7 @@ describe("skills command", () => {
         yield* writeProjectFile(".codex/config.toml", "[skills]\n  include_instructions = true\n");
 
         const error = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") }).pipe(Effect.flip);
-        const logs = yield* TestConsole.logLines;
+        const logs = A.filter(yield* TestConsole.logLines, P.isString);
 
         expect(error._tag).toBe("SkillFrontmatterError");
         assert(error._tag === "SkillFrontmatterError");
