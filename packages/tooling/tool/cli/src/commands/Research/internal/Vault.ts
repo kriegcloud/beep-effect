@@ -194,7 +194,6 @@ export const renderCard: {
 });
 
 /**
-
  * Write a knowledge card beneath the vault root, creating parent directories.
  *
  * @internal

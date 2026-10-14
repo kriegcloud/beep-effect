@@ -104,3 +104,14 @@ accepted PR lands the completed packet without another metadata-only follow-up.
 | Final closeout follows the implementation PR | Packet publication only; PR #1038 | Operator, approved 2026-09-09 | PR #1028 merged before final verification and lifecycle closeout. The operator authorized a final closeout PR; no implementation or verification requirement was waived. | Superseded by the successor-draft exception after #1038 also merged before closeout. |
 | Successor draft carries final closeout | Packet publication only; PR #1042, branch `codex/inline-schema-packet-closeout` | Operator, approved 2026-09-09 | PR #1038 merged while its final-head local proof was queued. The operator authorized a successor draft PR and later marked it ready for review. No implementation or verification requirement was waived. | Unfulfilled at merge: #1042 merged at 09:01:20 UTC on 2026-09-09 before the final packet update. Superseded by the explicitly approved lifecycle-closeout successor below. |
 | Lifecycle update precedes successor publication | Packet publication only; branch `codex/inline-schema-lifecycle-closeout` | Operator, approved 2026-09-09 after #1042 merged | The operator authorized one successor containing the completed packet-state update before publication, with merging held until final verification and reviews complete. This corrects #1042's packet-closeout P1 without waiving any implementation, verification, or review requirement. | The successor contains the synchronized completed-retained lifecycle, completed phase states, and validated reflection; its final head passes local and hosted verification, all review comments are addressed, and Yeet reports `merge-ready: yes`. |
+
+## Decision Log
+
+- **2026-10-14 — Repair inherited lint on `main` once.** The post-merge
+  `Heavy / Lint Policy` run on #1745 exposed inline Schema compiler calls in
+  four test files and a malformed JSDoc opening in `Research/internal/Vault.ts`.
+  Apply the packet's existing hoist codemod to those tests and remove the
+  extra JSDoc blank line in one `unblocks-main` PR. This keeps dependent
+  security PR #1728 from carrying a duplicate fix. Reversal: revert the
+  unblocker merge commit; the change adds only module-scope compiler bindings
+  and JSDoc formatting, with no data migration.

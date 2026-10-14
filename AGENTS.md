@@ -170,6 +170,10 @@ Runbook: `docs/runbooks/agent-pools.md`.
   (`.patterns/effect-module-paths.md`). Import `pipe`,
   `flow`, and `identity` from `effect/Function`. Do not import from the root
   `effect` barrel in code, JSDoc examples, or Markdown code blocks.
+- Use every module and feature Effect ships, `@stability unstable` ones
+  included: the tag means the API may change on a bump, not that it is unfit
+  for production. Never hand-roll what an Effect module provides (e.g.
+  `effect/Graph` algorithms) because of the tag.
 - Prefer match helpers over conditional chains; prefer service composition
   over global state; keep service boundaries explicit.
 - Prefer the tersest equivalent helper form when behavior is unchanged: direct

@@ -21,6 +21,12 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
+const decodeGoalCompletionGate = S.decodeEffect(GoalCompletionGate);
+const decodeGoalManifest = S.decodeEffect(GoalManifest);
+const decodeGoalRequiredCheckSnapshot = S.decodeEffect(GoalRequiredCheckSnapshot);
+const decodeGoalCompletionReceiptJson = S.decodeEffect(S.fromJsonString(GoalCompletionReceipt));
+const encodeGoalCompletionReceiptJson = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
+
 const time = DateTime.makeUnsafe("2026-10-06T00:55:25Z");
 const gate = GoalCompletionGate.make({
   operator: "yeet",
@@ -75,7 +81,7 @@ describe("goal completion declaration", () => {
     "normalizes arbitrary explicit PR declarations without changing their roles",
     [Arbitrary.schema(GoalPullRequestRef)],
     Effect.fnUntraced(function* ([reference]) {
-      const manifest = yield* S.decodeEffect(GoalManifest)({
+      const manifest = yield* decodeGoalManifest({
         initiative: { id: "typed", status: "completed-retained" },
         completionGate: { ...gate, pullRequests: [reference] },
       });
@@ -85,7 +91,7 @@ describe("goal completion declaration", () => {
   );
   it.effect("leaves packets without PR declarations on the legacy citation path", () =>
     Effect.gen(function* () {
-      const manifest = yield* S.decodeEffect(GoalManifest)({
+      const manifest = yield* decodeGoalManifest({
         initiative: { id: "legacy", status: "completed-retained" },
         completionGate: gate,
       });
@@ -94,7 +100,7 @@ describe("goal completion declaration", () => {
   );
   it.effect("normalizes a singular PR with no plural list", () =>
     Effect.gen(function* () {
-      const manifest = yield* S.decodeEffect(GoalManifest)({
+      const manifest = yield* decodeGoalManifest({
         initiative: { id: "legacy", status: "completed-retained" },
         completionGate: gate,
         mergedPullRequest: 8,
@@ -104,7 +110,7 @@ describe("goal completion declaration", () => {
   );
   it.effect("normalizes singular and plural legacy PRs in memory", () =>
     Effect.gen(function* () {
-      const manifest = yield* S.decodeEffect(GoalManifest)({
+      const manifest = yield* decodeGoalManifest({
         initiative: { id: "legacy", status: "completed-retained" },
         completionGate: gate,
         mergedPullRequest: 168,
@@ -119,7 +125,7 @@ describe("goal completion declaration", () => {
   );
   it.effect("uses the last plural PR as final without a singular reference", () =>
     Effect.gen(function* () {
-      const manifest = yield* S.decodeEffect(GoalManifest)({
+      const manifest = yield* decodeGoalManifest({
         initiative: { id: "legacy", status: "completed-retained" },
         completionGate: gate,
         mergedPullRequests: [167, 168],
@@ -132,7 +138,7 @@ describe("goal completion declaration", () => {
   );
   it.effect("rejects multiple final PRs", () =>
     Effect.gen(function* () {
-      const exit = yield* S.decodeEffect(GoalCompletionGate)({
+      const exit = yield* decodeGoalCompletionGate({
         ...gate,
         pullRequests: [
           { number: 1, role: "final" },
@@ -144,7 +150,7 @@ describe("goal completion declaration", () => {
   );
   it.effect("explicit supporting-only references do not invent a final PR", () =>
     Effect.gen(function* () {
-      const manifest = yield* S.decodeEffect(GoalManifest)({
+      const manifest = yield* decodeGoalManifest({
         initiative: { id: "typed", status: "completed-retained" },
         completionGate: { ...gate, pullRequests: [{ number: 7, role: "supporting" }] },
         mergedPullRequest: 8,
@@ -188,7 +194,7 @@ describe("pure goal completion resolver", () => {
           })
         )).outcome
       ).toBe("verified");
-      const legacy = yield* S.decodeEffect(GoalRequiredCheckSnapshot)({
+      const legacy = yield* decodeGoalRequiredCheckSnapshot({
         contexts: ["Lint"],
         sources: ["surviving-ruleset/history/1"],
         effectiveAt: "2026-10-06T00:55:25Z",
@@ -210,8 +216,8 @@ describe("pure goal completion resolver", () => {
   it.effect("round-trips the persisted JSON boundary including optional head and merge facts", () =>
     Effect.gen(function* () {
       const receipt = yield* GoalCompletionVerifier.resolve(fixture());
-      const text = yield* S.encodeEffect(S.fromJsonString(GoalCompletionReceipt))(receipt);
-      const decoded = yield* S.decodeEffect(S.fromJsonString(GoalCompletionReceipt))(text);
+      const text = yield* encodeGoalCompletionReceiptJson(receipt);
+      const decoded = yield* decodeGoalCompletionReceiptJson(text);
       expect(decoded.outcome).toBe("verified");
       assertSome(decoded.acceptedHead, "accepted-head");
       assertSome(
