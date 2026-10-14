@@ -69,3 +69,19 @@ prior findings remain actionable. The forty-four guidance previews are
 three-way reconciled against current main and independently reviewed twice.
 No tracked guidance is applied. These proposals remain the input to later
 R20 waves, after this generated chore lands.
+
+## Main integration after the first candidate
+
+Committed the measured first candidate as
+`7878eb923855f29ef421f6e0a6c31e752864bc14`. Independent
+[refresh review](../receipts/stage-4-b-refresh-review.md) found no remaining
+accuracy or scope defect in that pinned candidate.
+
+Main advanced to `3749e7ca4a` during reproduction. Merge
+`aeaa911d5162c76ab55a1afea6fae64929472278` integrates its source walk,
+coverage/command boundary repairs and new goal packets. The source tree
+contains those upstream changes; B has no source delta against main. The
+lockfile moved on main, so fresh admitted install/build and all touched
+owner regenerations are queued under `.beep/rsc-resume/integrated/`.
+The earlier raw scans remain attributed to `01b3d54700`. They are not
+successful requalification of this later integrated head.

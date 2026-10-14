@@ -1090,3 +1090,16 @@ on the new head if it appears.
   concurrency cap or authentication setting changed.
 - Prevention: the worker launcher should supply the user-manager environment
   before invoking the canonical heavy wrapper.
+
+
+### B shared snapshot qualification follows moving main, 2026-10-14
+
+- Work: reproduce the R20 baseline and review the dedicated generated chore.
+- Evidence: during the first admitted reproduction, main advanced through
+  #1707, #1666, #1711 and #1713. Independent review had to pin its verdict to
+  `7878eb9238`; it could not extend it to merge `aeaa911d51`.
+- Action: preserve the completed raw observations, integrate main, install
+  the moved lockfile and regenerate all touched snapshots through owners.
+- Prevention: coordinate the serialized snapshot wave with a bounded base
+  window, or qualify owner outputs against their precise source inputs, so
+  unrelated publication does not force repeated whole-tree scans.
