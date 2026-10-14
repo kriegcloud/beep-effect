@@ -719,7 +719,7 @@ const completionGateAdvisories = (
             packet.record.slug,
             "completion-gate-unsatisfied",
             "advisory",
-            "Legacy completion declaration has no PR reference or packet citation in the scanned commit subjects; declare a final PR to verify structured evidence."
+            "Legacy completion declaration has no PR reference or packet citation in the scanned commit subjects; declare a final PR to inspect structured PR/head/merge facts. Overall verification also requires a complete merge-time ruleset inventory."
           )
         )
       ),
@@ -912,6 +912,17 @@ const completionReceiptFindings = (
   receipt: O.Option<GoalCompletionReceipt>
 ) => {
   const outcome = O.isSome(receipt) ? receipt.value.outcome : "unknown";
+  const detail = receipt.pipe(
+    O.map((row) =>
+      outcome === "unknown" && O.exists(row.requiredChecks, (snapshot) => !snapshot.inventoryComplete)
+        ? "Merge-time ruleset inventory completeness is unknown: GitHub cannot enumerate rulesets deleted since the merge. Online reads and refresh record observed facts; they cannot verify completion without a complete historical inventory."
+        : "See head-bound completion evidence; lifecycle is unchanged."
+    ),
+    O.getOrElse(
+      () =>
+        "No matching clone receipt. Online doctor inspects PR/merge/check facts; completion refresh records them. Overall verification requires a complete merge-time ruleset inventory, which GitHub's current inventory cannot reconstruct."
+    )
+  );
   const findings =
     outcome === "verified"
       ? A.empty<GoalDoctorFinding>()
@@ -920,7 +931,7 @@ const completionReceiptFindings = (
             slug,
             outcome === "unknown" ? "completion-gate-unknown" : "completion-gate-unsatisfied",
             "advisory",
-            `Final PR #${final.number}: ${outcome}. ${O.isNone(receipt) ? "No matching clone receipt; use doctor --online (read-only) or completion refresh (explicit writer)." : "See head-bound completion evidence; lifecycle is unchanged."}`
+            `Final PR #${final.number}: ${outcome}. ${detail}`
           )
         );
   return findings;

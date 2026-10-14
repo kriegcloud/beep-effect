@@ -1330,3 +1330,36 @@ on the new head if it appears.
 - Prevention: size or stream NUL-delimited path inventories independently of
   bounded diagnostic output. H2 does not widen the shared command runner here;
   preserve qualification and use the lane's authorized publication fallback.
+
+### 2026-10-14 — H2 inherited hosted Repo Sanity ordering
+
+- Work: monitor reopened #1574 at `7912fecf03`.
+- Evidence: completed Repo Sanity job `115818260298` fails Sherif's
+  `unordered-dependencies` on `scratchpad/package.json`,
+  `packages/ecosystem/effect-drizzle/package.json`,
+  `packages/tooling/library/repo-utils/package.json`, and
+  `packages/tooling/policy-pack/repo-configs/package.json`.
+  All four manifests and the lockfile are identical to integrated `origin/main`.
+- Attribution: inherited. Inbox row `Repo_Sanity-d7557a709d78` is acknowledged
+  with the program orchestrator owning one consolidated main repair under S11;
+  the acknowledgement is not a passing gate or waiver.
+- Prevention: run the hosted Sherif lane when main changes dependency keys;
+  keep generated script ownership separate from dependency-key ordering.
+
+### 2026-10-14 — H2 hint review and newly integrated packet failures
+
+- Review `discussion_r4270037982` identifies a misleading doctor hint: online
+  reads and refresh cannot prove deleted-ruleset inventory completeness.
+  Name that blocker in absent/incomplete receipt advisories and explain that
+  refresh records observed facts; preserve unknown outcomes and lifecycle.
+  Add a stored incomplete-inventory regression using the existing doctor
+  console-capture fixture.
+- Test Unit aggregate `115823367350` points to repo-cli-2 `115818260229`:
+  2947 tests pass; repository-wide retired-path command coverage fails on
+  the newly integrated main packet. Main #1721 owns the path repair. Both
+  inbox rows are acknowledged with attribution, without weakening the fixture.
+- Lint Policy job `115818622663` log fetch returns HTTP 404 twice. Its entire
+  attribution remains unknown. The local knowledge-reference check separately
+  identifies 11 inherited host-path observations in main #1713 packets;
+  H2 changes none of those paths relative to its integrated base `3749e7ca4a`.
+  Route the main repair and log investigation to the program orchestrator.

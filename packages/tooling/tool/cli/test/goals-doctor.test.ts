@@ -5,11 +5,17 @@ import {
   capabilityPacketFindings,
   classifyGoalDoctorFindings,
   DuplicateCapabilityDeclaration,
+  GoalAcceptanceEvidenceRef,
   GoalCompletionIo,
+  GoalCompletionReceipt,
   GoalDoctorFinding,
+  GoalEvidenceCheck,
   GoalManifest,
+  GoalMergeResult,
+  GoalRequiredCheckSnapshot,
   GraphCapabilityEdge,
   GraphPacketRow,
+  goalCompletionDeclarationDigest,
   goalsCommand,
   PacketEventStoreLive,
 } from "@beep/repo-cli/test/Goals";
@@ -176,6 +182,84 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
       expect(output).toContain("legacy [completion-gate-unsatisfied]");
       expect(output).not.toContain("legacy [completion-gate-unknown]");
       expect(output).toContain("typed [completion-gate-unknown]");
+      expect(output).toContain("Overall verification requires a complete merge-time ruleset inventory");
+      expect(output).toContain("declare a final PR to inspect structured PR/head/merge facts");
+      expect(output).not.toContain("use doctor --online");
+    })
+  );
+  it.effect("stored incomplete inventory explains why refresh cannot verify completion", () =>
+    Effect.gen(function* () {
+      yield* temporaryWorkingDirectory;
+      yield* runGit(["init", "-b", "main"]);
+      const manifest = yield* S.decodeUnknownEffect(GoalManifest)({
+        initiative: { id: "typed", status: "completed-retained" },
+        lifecycle: "completed-retained",
+        completionGate: { ...COMPLETION_GATE, pullRequests: [{ number: 7, role: "final" }] },
+      });
+      yield* writeProjectFile(
+        "goals/typed/ops/manifest.json",
+        yield* S.encodeEffect(S.fromJsonString(GoalManifest))(manifest)
+      );
+      yield* writeProjectFile("goals/typed/README.md", "# Typed\n\nLifecycle: `completed-retained`\n");
+      yield* writeBaseline([]);
+      const digest = yield* goalCompletionDeclarationDigest(manifest);
+      const time = DateTime.makeUnsafe("2026-10-06T01:00:00Z");
+      const receipt = GoalCompletionReceipt.make({
+        schemaVersion: "goal-completion-receipt/v1",
+        repository: "example/repo",
+        packet: "typed",
+        declarationDigest: digest,
+        acceptedDeclarationDigest: O.some(digest),
+        requiredChecks: O.some(
+          GoalRequiredCheckSnapshot.make({
+            contexts: ["Lint"],
+            sources: ["surviving-ruleset-history"],
+            effectiveAt: time,
+            inventoryComplete: false,
+          })
+        ),
+        finalPullRequest: 7,
+        acceptedHead: O.some("accepted-head"),
+        merge: O.some(
+          GoalMergeResult.make({
+            mergeCommit: "merge-result",
+            tree: "merge-tree",
+            mergedAt: time,
+            method: O.none(),
+            baseRef: "main",
+          })
+        ),
+        evidence: [
+          GoalEvidenceCheck.make({
+            ref: GoalAcceptanceEvidenceRef.make({ kind: "hosted-required-checks", ref: "required", gating: true }),
+            outcome: "verified",
+            observedHead: O.some("accepted-head"),
+            detail: "Surviving required contexts passed before merge",
+          }),
+        ],
+        nonRequiredReds: [],
+        subClaims: [],
+        outcome: "unknown",
+        verifiedAt: time,
+      });
+      const text = yield* S.encodeEffect(S.fromJsonString(GoalCompletionReceipt))(receipt);
+      yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
+      const output = yield* captureOutput(
+        runGoalsCommand(["doctor"]).pipe(
+          Effect.provideService(
+            GoalCompletionIo,
+            GoalCompletionIo.of({
+              git: Effect.fn("GoalsDoctorTest.storedGit")(() => Effect.succeed("git@github.com:example/repo.git")),
+              github: Effect.fn("GoalsDoctorTest.storedGitHub")(() => Effect.die("offline receipt read used GitHub")),
+            })
+          )
+        )
+      );
+      expect(output).toContain("typed [completion-gate-unknown]");
+      expect(output).toContain("Merge-time ruleset inventory completeness is unknown");
+      expect(output).toContain("rulesets deleted since the merge");
+      expect(output).toContain("they cannot verify completion without a complete historical inventory");
+      expect(output).not.toContain("No matching clone receipt");
     })
   );
   it.effect(
