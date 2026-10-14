@@ -63,7 +63,10 @@ Higher sources outrank lower sources when they conflict.
 - Approval before any mutation; narrow, real repairs; evidence as an
   artifact contract (stack-installer lessons).
 - No extension sandbox exists: policy is enforced in gateway code paths.
-- Prove Windows Credential Manager access from the bun-compiled binary early.
+- Windows Credential Manager works only in the user's interactive logon
+  session (proved 2026-10-14: an SSH key logon gets Win32 error 1312). The
+  gateway runs under Claude Desktop in that session; VM proofs touching
+  credentials use `ops/vm/vm-run.sh interactive`.
 - OAuth loopback may be blocked on firm networks; device-code fallback where
   the provider offers it.
 - The gateway keeps a Box call ledger (about 50K calls/month, no visible

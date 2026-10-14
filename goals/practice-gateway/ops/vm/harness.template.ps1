@@ -11,6 +11,8 @@ Start-Service sshd
 if (-not (Get-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue)) {
   New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Protocol TCP -LocalPort 22 -Action Allow -Direction Inbound | Out-Null
 }
+# The capability's own rule covers only Private networks; the VM NIC is Public.
+Set-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -Profile Any
 $keys = 'C:\ProgramData\ssh\administrators_authorized_keys'
 Set-Content -Path $keys -Value '@@SSH_PUBKEY@@' -Encoding ascii
 icacls $keys /inheritance:r /grant 'Administrators:F' /grant 'SYSTEM:F' | Out-Null
