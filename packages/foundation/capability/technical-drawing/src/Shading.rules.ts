@@ -61,9 +61,10 @@ const GROWTH = 1.4;
 const FULL_LINES = 2;
 const TAPER_FROM = 0.6;
 const TAPER_TO = 0.4;
-// Spare cut positions a graded face lists past its band, for when the strokes
-// at its shadow edge turn out to be hidden behind another part.
-const SPARE_CUTS = 6;
+// A graded face lists spare cut positions past its band all the way to its far
+// edge, for when the strokes at its shadow edge turn out to be hidden behind
+// another part (a crossing wall hides half of the wall behind it).
+const SPARE_CUTS = Number.POSITIVE_INFINITY;
 
 /**
  * Sheet frame and 1.84(m) light of a camera, in model coordinates.

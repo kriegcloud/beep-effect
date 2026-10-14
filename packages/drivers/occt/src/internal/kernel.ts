@@ -217,15 +217,11 @@ const offLine = (
   y: number
 ): number => Math.abs((x - line.point[0]) * line.along[1] - (y - line.point[1]) * line.along[0]);
 
-/**
- * Of a graded view's visible strokes, those on the first `keep` cuts of each
- * face that hidden-line removal left with a stroke at least `minStroke` long:
- * a face whose shadow edge is behind another part draws its strokes on the
- * spare positions further in instead of nothing.
- *
- * @internal
- */
-export const visibleCuts = (options: {
+// Of a graded view's visible strokes, those on the first `keep` cuts of each
+// face that hidden-line removal left with a stroke at least `minStroke` long:
+// a face whose shadow edge is behind another part draws its strokes on the
+// spare positions further in instead of nothing.
+const visibleCuts = (options: {
   readonly camera: Camera;
   readonly cuts: ReadonlyArray<HatchCut>;
   readonly segments: ReadonlyArray<Segment2>;

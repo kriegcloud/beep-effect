@@ -21,7 +21,7 @@ import {
 import { A, O } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as replicad from "replicad";
-import { add, scale } from "./vector.ts";
+import { add, cross, scale } from "./vector.ts";
 import type { ShadingCoverage, ViewFacts } from "@beep/technical-drawing";
 import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { Camera, ShadingPlan } from "../Occt.models.ts";
@@ -174,13 +174,11 @@ const unitV = (v: V3): V3 => {
   return length < 1e-12 ? v : [v[0] / length, v[1] / length, v[2] / length];
 };
 
-const crossV = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-
 const cutsOf = (index: number, face: replicad.Face, treatment: FaceTreatment): ReadonlyArray<HatchCut> =>
   FaceTreatment.match(treatment, {
     lines: (lines) => {
       const normal = vec(face.normalAt(face.center));
-      const direction = unitV(crossV(normal, lines.step));
+      const direction = unitV(cross(normal, lines.step));
       const keep = O.getOrElse(lines.keep, () => A.length(lines.cuts));
       return A.map(lines.cuts, (cut, rank) => ({
         face: index,
