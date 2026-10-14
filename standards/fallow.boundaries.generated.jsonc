@@ -3318,7 +3318,9 @@
       {
         "from": "@beep/practice-gateway",
         "allow": [
+          "@beep/doc-text",
           "@beep/duckdb",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/law-practice-domain",
           "@beep/law-practice-server",
@@ -3333,7 +3335,9 @@
           "@beep/windows-secrets"
         ],
         "allowTypeOnly": [
+          "@beep/doc-text",
           "@beep/duckdb",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/law-practice-domain",
           "@beep/law-practice-server",

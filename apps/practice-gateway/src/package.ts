@@ -19,19 +19,22 @@ import {
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import { BoxDriveToolkit } from "./BoxDriveTools.ts";
 import { SetupToolkit } from "./SetupTools.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
 
 /*
  * The manifest's tool list derives from the toolkits the gateway serves, so it
- * cannot drift from them. Setup tools are always mounted; practice-kg tools
- * mount when the saved profile selects the knowledge graph.
+ * cannot drift from them. Setup tools are always mounted; practice-kg and Box
+ * Drive tools mount when the saved profile selects them.
  */
-const manifestTools = A.map([...R.values(SetupToolkit.tools), ...R.values(PracticeKgToolkit.tools)], (tool) =>
-  McpbTool.make({
-    name: tool.name,
-    description: O.getOrElse(O.fromUndefinedOr(tool.description), () => tool.name),
-  })
+const manifestTools = A.map(
+  [...R.values(SetupToolkit.tools), ...R.values(PracticeKgToolkit.tools), ...R.values(BoxDriveToolkit.tools)],
+  (tool) =>
+    McpbTool.make({
+      name: tool.name,
+      description: O.getOrElse(O.fromUndefinedOr(tool.description), () => tool.name),
+    })
 );
 
 const program = mcpbPackageProgram(

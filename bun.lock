@@ -312,7 +312,9 @@
         "practice-gateway": "./src/bin.ts",
       },
       "dependencies": {
+        "@beep/doc-text": "workspace:^",
         "@beep/duckdb": "workspace:^",
+        "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/law-practice-domain": "workspace:^",
         "@beep/law-practice-server": "workspace:^",
@@ -332,6 +334,7 @@
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
+        "pdf-lib": "catalog:",
       },
     },
     "apps/practice-identify": {

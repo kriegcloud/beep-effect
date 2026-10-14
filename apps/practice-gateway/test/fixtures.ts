@@ -22,6 +22,7 @@ export interface FakeMachine {
   readonly bitLocker?: BitLockerProtection;
   readonly fileBytes?: ReadonlyArray<readonly [string, Uint8Array]>;
   readonly files?: ReadonlyArray<string>;
+  readonly folders?: ReadonlyArray<readonly [KnownFolder, string]>;
   readonly isWindows?: boolean;
   readonly processes?: ReadonlyArray<string>;
   readonly registry?: ReadonlyArray<readonly [string, string]>;
@@ -34,11 +35,14 @@ export const fakeHost = (machine: FakeMachine) => {
   const bytes = HashMap.fromIterable(machine.fileBytes ?? []);
   const registry = HashMap.fromIterable(machine.registry ?? []);
   const processes = HashSet.fromIterable(machine.processes ?? []);
+  const knownFolders = HashMap.union(folders, HashMap.fromIterable(machine.folders ?? []));
   return Layer.succeed(
     WindowsHost,
     WindowsHostShape.make({
       isWindows: machine.isWindows ?? true,
-      folder: Effect.fn("FakeWindowsHost.folder")((name: KnownFolder) => Effect.succeed(HashMap.get(folders, name))),
+      folder: Effect.fn("FakeWindowsHost.folder")((name: KnownFolder) =>
+        Effect.succeed(HashMap.get(knownFolders, name))
+      ),
       exists: Effect.fn("FakeWindowsHost.exists")((path: string) => Effect.succeed(HashSet.has(files, path))),
       readFile: Effect.fn("FakeWindowsHost.readFile")((path: string) => Effect.succeed(HashMap.get(bytes, path))),
       registryValue: Effect.fn("FakeWindowsHost.registryValue")(function* ({ key, name }: RegistryValueQuery) {

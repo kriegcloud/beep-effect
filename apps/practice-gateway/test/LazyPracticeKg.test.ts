@@ -14,6 +14,7 @@ import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as McpServer from "effect/ai/McpServer";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -58,14 +59,6 @@ const GatewayServices = Layer.unwrap(
   )
 ).pipe(Layer.provideMerge(Platform));
 
-const StubMcpServer = Layer.mock(McpServer.McpServer)({
-  notifications: {} as McpServer.McpServer["Service"]["notifications"],
-  prompts: [],
-  resources: [],
-  resourceTemplates: [],
-  tools: [],
-});
-
 const GatewayWithTools = SetupToolkitHandlers.pipe(Layer.provideMerge(GatewayServices));
 
 const statusOf = (check: RequirementCheck) =>
@@ -89,8 +82,9 @@ describe("practice-kg provider without the DuckDB sidecar", () => {
     it.effect("skips the provider, keeps the setup tools and answers setup_status", () =>
       Effect.gen(function* () {
         yield* ProfileStore.use((store) => store.save(fullProfile));
-        // The provider builds to nothing: the stub server dies if anything registers on it.
-        yield* Layer.build(PracticeKgProviderLayer.pipe(Layer.provide(StubMcpServer)));
+        // The provider builds to nothing, logging why, instead of failing the gateway.
+        const services = yield* Layer.build(Layer.merge(McpServer.McpServer.layer, PracticeKgProviderLayer));
+        expect(Context.get(services, McpServer.McpServer).tools).toEqual([]);
 
         const toolkit = yield* SetupToolkit;
         const stream = yield* toolkit.handle("setup_status", {});

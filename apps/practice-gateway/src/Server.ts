@@ -15,6 +15,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { ElicitedApprovals } from "./Approvals.ts";
+import { BoxDriveProviderLayer } from "./BoxDriveTools.ts";
 import { GatewaySettings } from "./GatewaySettings.ts";
 import { PracticeKgProviderLayer } from "./PracticeKgProvider.ts";
 import { GatewaySetupProbes } from "./Probes.ts";
@@ -60,7 +61,8 @@ const SetupProbesForPlatform = Layer.unwrap(
 
 /**
  * Setup services: settings, profile store, Windows host and the setup doctor
- * with the gateway's probes and elicited approvals.
+ * with the gateway's probes and elicited approvals. The settings, profile
+ * store and Windows host are also exposed to the provider layers.
  *
  * **Details**
  *
@@ -81,7 +83,7 @@ const SetupProbesForPlatform = Layer.unwrap(
  */
 export const GatewayServicesLayer = SetupDoctor.layer.pipe(
   Layer.provide(Layer.merge(SetupProbesForPlatform, ElicitedApprovals)),
-  Layer.provide(WindowsHost.layer),
+  Layer.provideMerge(WindowsHost.layer),
   Layer.provideMerge(ProfileStore.layer),
   Layer.provideMerge(GatewaySettings.layer)
 );
@@ -102,7 +104,7 @@ export const GatewayServicesLayer = SetupDoctor.layer.pipe(
  * @category layers
  * @since 0.0.0
  */
-export const GatewayServerLayer = Layer.merge(SetupToolsLayer, PracticeKgProviderLayer).pipe(
+export const GatewayServerLayer = Layer.mergeAll(SetupToolsLayer, PracticeKgProviderLayer, BoxDriveProviderLayer).pipe(
   Layer.provide(
     McpServer.layerStdio({
       name: "beep-practice-gateway",
