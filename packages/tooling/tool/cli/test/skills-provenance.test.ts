@@ -290,6 +290,11 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
         SkillUpstreamContentFile.make({ path: "SKILL.md", mode: "100644", bytes: textEncoder.encode(skillText) }),
         SkillUpstreamContentFile.make({ path: "assets/example.png", mode: "100644", bytes: pngBytes }),
         SkillUpstreamContentFile.make({
+          path: "rules/upstream-only.md",
+          mode: "100644",
+          bytes: textEncoder.encode("# Upstream-only rule\n"),
+        }),
+        SkillUpstreamContentFile.make({
           path: "rules/composition.md",
           mode: "100644",
           bytes: textEncoder.encode(composition),
@@ -325,6 +330,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
         textEncoder.encode(localComposition)
       );
       yield* writeFixtureFile(repoRoot, ".claude/skills/shadcn/assets/example.png", pngBytes);
+      // The upstream text rule is deliberately absent locally; its drift must not disappear.
       yield* writeFixtureFile(repoRoot, ".claude/skills/adhd/SKILL.md", textEncoder.encode("# adhd\n"));
       yield* writeFixtureFile(repoRoot, ".claude/skills/yeet/SKILL.md", textEncoder.encode("# yeet\n"));
       yield* fs.makeDirectory(path.join(repoRoot, ".agents"), { recursive: true });
@@ -345,6 +351,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
         expect(A.map(shadcn.value.drift, (row) => [row.path, row.driftClass])).toEqual([
           ["SKILL.md", "differs-from-upstream-head"],
           ["rules/composition.md", "matches-upstream-head"],
+          ["rules/upstream-only.md", "differs-from-upstream-head"],
         ]);
         expect(shadcn.value.upstreamHead).toBe(OBSERVED_HEAD_REVISION);
       }

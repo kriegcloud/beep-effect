@@ -27327,6 +27327,18 @@
             "functions": 0
           }
         },
+        "packages/tooling/tool/cli/src/commands/Skills/Skills.seeds.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts": {
           "lines": 80.67,
           "statements": 80.84,
@@ -27337,6 +27349,18 @@
             "statements": 41,
             "branches": 23,
             "functions": 12
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/SkillsLock.schemas.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/tooling/tool/cli/src/commands/Skills/index.ts": {

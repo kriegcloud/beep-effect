@@ -19,6 +19,7 @@ import {
   scanKnowledgeDoctorTree,
   TreeEntryWitness,
 } from "@beep/repo-cli/commands/Knowledge";
+import { knowledgeDoctorCommand } from "@beep/repo-cli/commands/Knowledge/Knowledge.command";
 import { KnowledgeCommandSurface, renderKnowledgeDoctorHumanReport } from "@beep/repo-cli/test/Knowledge";
 import { findRepoRoot } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
@@ -27,7 +28,10 @@ import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { assert, describe } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Console from "effect/Console";
+import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
@@ -37,6 +41,7 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as TestConsole from "effect/testing/TestConsole";
 import type {
   KnowledgeCounterfactualVerdict,
   KnowledgeDoctorMemoryTreeInput,
@@ -54,6 +59,7 @@ const FENCE = "```";
 const TILDES = "~~~";
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
+const decodeConsoleLines = S.decodeUnknownEffect(S.Array(S.String));
 
 const commandTreeOf = (value: unknown) =>
   Effect.flatMap(encodeJson(value), KnowledgeCommandSurface.decodeCurrentCommandTree).pipe(Effect.asSome);
@@ -613,7 +619,8 @@ describe("knowledge static option surface", () => {
             ")",
             'const opaque = Command.make("opaque", { either: Flag.String("a").pipe(Flag.orElse(() => Flag.String("b"))) })',
             'const bare = Command.make("bare")',
-            'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands([derived, opaque, bare]))',
+            'const invalidAlias = Command.make("invalidAlias", { file: Argument.String("file").pipe(Flag.withAlias("v")) })',
+            'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands([derived, opaque, bare, invalidAlias]))',
             ""
           )
         );
@@ -635,6 +642,12 @@ describe("knowledge static option surface", () => {
           ]
         );
         assert.isNull(options("opaque"));
+        assert.isNull(options("invalidAlias"));
+        assert.deepStrictEqual(KnowledgeCommandSurface.resolveStaticCommand(tree, ["invalidAlias"]), [
+          "resolved",
+          ["invalidAlias"],
+        ]);
+        assert.strictEqual(KnowledgeCommandSurface.pruneStaticCommand(tree, []), tree);
         assert.deepStrictEqual(options("bare"), []);
       })
     );
@@ -729,6 +742,30 @@ describe("knowledge doctor on this checkout", () => {
         );
       }),
       { timeout: 180_000 }
+    );
+  });
+});
+
+describe("knowledge doctor command boundary", () => {
+  it.layer(testLayer, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "refuses the unavailable gating form and emits human and JSON reports without gating findings",
+      Effect.fnUntraced(
+        function* () {
+          const run = Command.runWith(knowledgeDoctorCommand, { version: "0.0.0" });
+          const refused = yield* Effect.exit(run([]));
+          assert.isTrue(Exit.isFailure(refused));
+          yield* run(["--report", "--tree", "HEAD"]);
+          const human = yield* TestConsole.logLines.pipe(Effect.flatMap(decodeConsoleLines));
+          assert.isTrue(A.some(human, (line) => Str.includes("knowledge doctor --report @ HEAD")(line)));
+          yield* run(["--report", "--tree", "HEAD", "--json"]);
+          const lines = yield* TestConsole.logLines.pipe(Effect.flatMap(decodeConsoleLines));
+          const report = yield* A.last(lines).pipe(O.getOrThrow, decodeKnowledgeDoctorReportJson);
+          assert.strictEqual(report.mode, "report");
+          assert.isAbove(report.spanCounts.verified, 0);
+        },
+        Effect.provideServiceEffect(Console.Console, TestConsole.make)
+      )
     );
   });
 });
