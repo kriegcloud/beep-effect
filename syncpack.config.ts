@@ -123,6 +123,7 @@ const config = {
     "packages/drivers/t3-code/package.json",
     "packages/drivers/windows-secrets/package.json",
     "apps/practice-gateway/package.json",
+    "apps/practice-setup/package.json",
   ],
   customTypes: {
     catalog: {

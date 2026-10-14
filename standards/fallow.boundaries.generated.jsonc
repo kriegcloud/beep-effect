@@ -672,6 +672,12 @@
         ]
       },
       {
+        "name": "@beep/practice-setup",
+        "patterns": [
+          "apps/practice-setup/src/**"
+        ]
+      },
+      {
         "name": "@beep/pretext",
         "patterns": [
           "packages/drivers/pretext/src/**"
@@ -3447,6 +3453,25 @@
           "@beep/law-practice-use-cases",
           "@beep/m365",
           "@beep/practice-mail-tagging",
+          "@beep/schema",
+          "@beep/test-runner",
+          "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/practice-setup",
+        "allow": [
+          "@beep/identity",
+          "@beep/mcpb-kit",
+          "@beep/practice-setup",
+          "@beep/schema",
+          "@beep/test-runner",
+          "@beep/test-utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/mcpb-kit",
+          "@beep/practice-setup",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
