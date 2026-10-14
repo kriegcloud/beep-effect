@@ -344,10 +344,7 @@ export class ShadingCut extends S.Class<ShadingCut>($I`ShadingCut`)(
 /**
  * Parallel shading lines on one face: section planes through
  * `origin + step × offset`, each with normal `step`, drawn over `extent` of
- * the chord they cut. Graded lines list spare positions after the ones they
- * mean to draw, and `keep` says how many visible cuts to draw, so a face whose
- * shadow edge is hidden behind another part still shows its strokes further
- * in.
+ * the chord they cut.
  *
  * **Example** (Two lines, the second a short stroke)
  *
@@ -369,52 +366,72 @@ export class ShadingLines extends S.Class<ShadingLines>($I`ShadingLines`)(
     cuts: S.Array(ShadingCut).annotateKey({
       description: "Section planes along `step`, each with the fraction of its chord that is drawn.",
     }),
-    keep: S.OptionFromOptionalKey(S.Int.check(S.isGreaterThanOrEqualTo(0))).pipe(
-      S.withConstructorDefault(Effect.succeedNone),
-      S.annotateKey({
-        description:
-          "How many of the cuts, in order, are drawn once hidden-line removal has shown which are visible; the rest are spare positions deeper in the face. None draws every cut.",
-      })
-    ),
   },
   $I.annote("ShadingLines", {
     description:
-      "Section planes, as origin, step, and cuts, that cut one face into shading lines drawn over a centred fraction of each chord; `keep` caps how many visible cuts are drawn.",
+      "Section planes, as origin, step, and cuts, that cut one face into shading lines drawn over a centred fraction of each chord.",
   })
 ) {}
 
 const CutIndex = S.Int.check(S.isGreaterThanOrEqualTo(0));
 
 /**
- * One planned cut of one face, for the hidden-line pass to find again: the
- * face's index in its shape, the cut's rank among that face's cuts, how many
- * visible cuts the face draws per run, and the extent of its strokes in model
- * space (two faces whose cut lines coincide on the view plane are told apart
- * by where along the line their strokes lie).
+ * A visible stretch of one face along its shading step, in model units from
+ * the shadow anchor. Graded lines are planned per stretch, so a face that
+ * another part hides at its shadow edge or splits in the middle gets a band
+ * at the shadow side of every stretch that shows.
  *
- * **Example** (The first cut of face 2)
+ * **Example** (The stretch of a wall left of a post)
  *
  * ```ts
- * import { HatchCut } from "@beep/technical-drawing/Shading.schemas"
+ * import { ShadingWindow } from "@beep/technical-drawing/Shading.schemas"
  *
- * console.log(HatchCut.make({ face: 2, rank: 0, keep: 5, from: [19, -15, 0], to: [19, -15, 20] }).keep)
+ * console.log(ShadingWindow.make({ start: 22, span: 18 }).span)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class HatchCut extends S.Class<HatchCut>($I`HatchCut`)(
+export class ShadingWindow extends S.Class<ShadingWindow>($I`ShadingWindow`)(
+  {
+    start: S.Finite.annotateKey({ description: "Where the stretch begins along the step, from the shadow anchor." }),
+    span: S.Finite.check(S.isGreaterThan(0)).annotateKey({ description: "Length of the stretch along the step." }),
+  },
+  $I.annote("ShadingWindow", {
+    description: "A visible stretch of a face along its shading step, from the shadow anchor.",
+  })
+) {}
+
+/**
+ * One probe across a face for the hidden-line pass: a line along the face's
+ * shading step at one height, whose visible pieces say which stretches of the
+ * face show in a view. `start` and `end` are the offsets of `from` and `to`
+ * along the step from the shadow anchor, so a visible piece maps straight to
+ * a {@link ShadingWindow}.
+ *
+ * **Example** (A probe across a wall)
+ *
+ * ```ts
+ * import { ShadingProbe } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * const probe = ShadingProbe.make({ face: 2, rank: 0, from: [20, -15, 10], to: [-20, -15, 10], start: 0, end: 40 })
+ * console.log(probe.end)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingProbe extends S.Class<ShadingProbe>($I`ShadingProbe`)(
   {
     face: CutIndex.annotateKey({ description: "Index of the face in its shape." }),
-    rank: CutIndex.annotateKey({ description: "Position of the cut among its face's cuts, from the shadow edge." }),
-    keep: CutIndex.annotateKey({ description: "How many visible cuts of each run the face draws." }),
-    from: Vec3.annotateKey({ description: "One end of the cut's strokes, in model space." }),
-    to: Vec3.annotateKey({
-      description: "The other end of the cut's strokes, in model space; the cut line runs through both.",
-    }),
+    rank: CutIndex.annotateKey({ description: "Position of the probe among its face's probes." }),
+    from: Vec3.annotateKey({ description: "One end of the probe, in model space." }),
+    to: Vec3.annotateKey({ description: "The other end of the probe, in model space." }),
+    start: S.Finite.annotateKey({ description: "Offset of `from` along the step, from the shadow anchor." }),
+    end: S.Finite.annotateKey({ description: "Offset of `to` along the step, from the shadow anchor." }),
   },
-  $I.annote("HatchCut", {
-    description: "A planned shading cut of one face, as the hidden-line pass needs to find it again.",
+  $I.annote("ShadingProbe", {
+    description: "A probe line across one face, for the hidden-line pass to read the face's visible stretches from.",
   })
 ) {}
 

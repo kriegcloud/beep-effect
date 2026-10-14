@@ -43,7 +43,7 @@ deliverable) and Track B (tooling) run in parallel sibling lanes, Track C is doc
 | P1 Layout, margins, projection, plan facing | A / PR-B | F1, F7, F8 | complete (#1644; F ticks wait for P7) | Spec-carried sheet options, `cfr-strict` margins, isometric pictorials, plan facing. | package-verify green; synthetic golden byte-identical; new camera tests. |
 | P2 Outlined label typefaces | A / PR-C | F2, F3 | complete (#1644; outline route, superseded for the matter by P7a) | Sans/serif outlined labels at stated point sizes, placed by ink box. | Composer sha256 golden; label-presence assertion on every sheet. |
 | P3 Broken-line parts and multi-part fixture | A / PR-D | F5, F6, F10 | in-progress (#1648 open) | `Part` line style, overlap guard, generic egg-crate fixture with hosted WASM tests. | Hosted tests cover halving slots, a through joint, a broken part. |
-| P4 Opt-in contour shading | A / PR-E | F4 | in-progress (#1671 draft; graded style calibrated to the 1993 Guide) | Lit-threshold probe first, then graded / surface-class shading as opt-ins. | Judge round on the probe; validator spacing rule. |
+| P4 Opt-in contour shading | A / PR-E | F4 | in-progress (#1671 draft; graded style calibrated to the 1993 Guide; bands per visible stretch) | Lit-threshold probe first, then graded / surface-class shading as opt-ins. | Judge round on the probe; validator spacing rule. |
 | P5 Mailbox intake | B / PR-F | T1 | in-progress (#1649 open) | `beep drawings intake` on the app-only lane into the corpus root. | One read-only proof call; sha manifest per attachment. |
 | P6 Review rounds from markup | B / PR-G | T2, T3 | in-progress (#1650 open) | pdf-tools verbs, `ReviewRound` schemas, statement guard, judge claim-scope rule. | Statement refuses while required findings are open on the hash. |
 | P7 Corpus remodel and round-2 render | A / corpus only | F1-F10 | in-progress (remodel done; render running) | Durable spec generator under the corpus, two byte-stable renders, judge round, F9 zoom check. | Round-2 set validator clean; zero open required review findings or an attorney-accepted deferral. |
@@ -165,6 +165,10 @@ bun run beep lint reflection-artifacts
 - 2026-10-14 — #1644 (PR-A, PR-B, PR-C: packet admission, spec-carried sheet options, isometric pictorials, outlined labels) merged 01:14Z; #1651 (technical-drawing: explicit ink-sample compare in the test square scan) merged 01:55Z. Open: #1648 (PR-D broken-line parts, crate fixture), #1649 (PR-F `beep drawings intake`), #1650 (PR-G review rounds from markup).
 - 2026-10-14 — P7: the corpus remodel is done (separate parts and joints per inventory rows F5, F6, F9, F10); the round-2 render is in progress.
 - 2026-10-14 — The attorney questions went out about 01:44Z and were answered at 02:09Z. Rulings recorded in the SPEC Decision Log: orientation confirmed; fastening tabs broken (unclaimed) in every view; lap overlap and board thickness at the stated values; tabs flush with a heavier tab-in-slot edge; corner gaps shown in the pictorials too; labels embedded as real Arial and Times New Roman text (reverses decision 4); a dashed corrugation overlay as unclaimed matter. New phases P7a (PR-K embedded label text) and P7b (PR-L edge emphasis and corrugation overlay). Open: the bottom-edge question (Q7) and the overlay's edge extent.
+- 2026-10-14 — P4 (PR-E #1671, lane `drawings-shading`): the graded style is calibrated to the 1993 Guide (1.5 mm
+  first gap growing by 1.4, taper, 2 mm minimum stroke, post-HLR end inset) and now bands every visible stretch
+  of a face from its shadow side (probe pass, `ShadingWindow`, `ShadingProbe`, skip reason `hidden`); lit faces
+  carry two short strokes. Review loops 1-2 (Codex, Grok) dispositioned in the corpus review pack; loop 3 next.
 
 ## Current blockers
 

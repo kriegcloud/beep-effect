@@ -18,6 +18,7 @@ import {
   ShadingSkip,
   ShadingSkipped,
   ShadingTone,
+  ShadingWindow,
   SheetOptions,
   shadingSpacingFindings,
   sideBySideGap,
@@ -162,16 +163,16 @@ describe("Shading.rules", () => {
         (o) => Math.round(o * 10) / 10
       )
     ).toEqual([3, 4.4]);
-    // spares continue the schedule past the band, inside the face
-    const withSpares = gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint", spare: 3 });
-    expect(A.take(withSpares, 2)).toEqual(gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint" }));
-    expect(A.length(withSpares)).toBe(5);
-    expect(Math.max(...withSpares)).toBeLessThanOrEqual(39);
-    const faint = treatmentFor({ face: wall, view: front, plan: plan({ style: "graded", axis: "surface-class" }) });
-    assertSome(
-      O.map(linesOf(faint), (l) => [A.length(l.cuts) > O.getOrThrow(l.keep), O.getOrThrow(l.keep) >= 1]),
-      [true, true]
+    // a visible stretch of the face is shaded on its own, from the side nearest the shadow anchor
+    const gradedPlan = plan({ style: "graded", axis: "surface-class" });
+    const offsetsFrom = (from: number) => (treatment: FaceTreatment) =>
+      O.map(linesOf(treatment), (l) => A.map(l.cuts, (c) => Math.round((c.offset - from) * 10) / 10));
+    const whole = offsetsFrom(0)(treatmentFor({ face: wall, view: front, plan: gradedPlan }));
+    const stretch = offsetsFrom(12)(
+      treatmentFor({ face: wall, view: front, plan: gradedPlan, window: ShadingWindow.make({ start: 12, span: 28 }) })
     );
+    assertSome(O.map(stretch, A.take(3)), O.getOrThrow(O.map(whole, A.take(3))));
+    expect(Math.max(...O.getOrThrow(stretch))).toBeLessThanOrEqual(28 - 1);
   });
 
   it("keeps shading legible after hidden-line removal: fragments and doubled lines go", () => {

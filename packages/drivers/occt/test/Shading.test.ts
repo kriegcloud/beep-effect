@@ -194,7 +194,7 @@ describe("@beep/occt shading", () => {
     );
 
     it.effect(
-      "draws a wall's strokes on the spare positions when another part hides its shadow edge, and tones every visible region",
+      "shades every visible stretch of a wall at the side nearest its shadow edge",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;
         // a wall whose shadow edge (its right end, x = 20) is behind a slab standing in front of x >= 8
@@ -202,22 +202,30 @@ describe("@beep/occt shading", () => {
         const slab = Part.make({ name: "slab", add: [Box.make({ min: [8, -40, -5], max: [26, -25, 25] })] });
         // a post in front of the wall's middle splits its visible area in two
         const post = Part.make({ name: "post", add: [Box.make({ min: [-2, -40, -5], max: [2, -25, 25] })] });
-        const strokesLeftOf = (solid: ModelSpec, limit: number) =>
+        const strokeXs = (solid: ModelSpec) =>
           occt
             .project(ProjectionRequest.make({ solid, cameras: [front], shading: O.some(graded({ minStroke: 0.5 })) }))
             .pipe(
               Effect.map((views) =>
                 pipe(
                   views[0]?.shading ?? [],
-                  A.filter((s) => isVertical(s) && s[0] > -19 && s[0] < limit),
-                  A.length
+                  A.filter((s) => isVertical(s) && s[0] > -19),
+                  A.map((s) => s[0]),
+                  A.sort(Order.Number)
                 )
               )
             );
-        expect(yield* strokesLeftOf(ModelSpec.make({ parts: [wall] }), 7)).toBe(0);
-        expect(yield* strokesLeftOf(ModelSpec.make({ parts: [wall, slab] }), 7)).toBeGreaterThan(0);
-        // the region left of the post gets its own strokes at its shadow side, next to the post
-        expect(yield* strokesLeftOf(ModelSpec.make({ parts: [wall, post] }), -2)).toBeGreaterThan(0);
+        const alone = yield* strokeXs(ModelSpec.make({ parts: [wall] }));
+        expect(A.isReadonlyArrayNonEmpty(alone) && A.every(alone, (x) => x >= 7)).toBe(true);
+        // behind the slab the wall's band hugs the slab's edge: its first line one pitch left of x = 8
+        // (the slab's own strokes sit past x = 20)
+        const slabbed = A.filter(yield* strokeXs(ModelSpec.make({ parts: [wall, slab] })), (x) => x <= 20);
+        expect(A.isReadonlyArrayNonEmpty(slabbed) && A.every(slabbed, (x) => x < 8)).toBe(true);
+        expect(Math.max(...slabbed)).toBeCloseTo(7, 1);
+        // the post splits the wall: the right stretch keeps its band, the left one gets a band next to the post
+        const posted = yield* strokeXs(ModelSpec.make({ parts: [wall, post] }));
+        expect(A.some(posted, (x) => x > 7)).toBe(true);
+        expect(Math.max(...A.filter(posted, (x) => x < -2))).toBeCloseTo(-3, 1);
       })
     );
 

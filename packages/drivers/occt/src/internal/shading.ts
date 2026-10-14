@@ -3,7 +3,10 @@
  * kernel, let the pure 37 CFR 1.84(m) rules of `@beep/technical-drawing`
  * decide its treatment, and cut the face along the section planes they
  * return. The hatch edges lie on the model's own faces, so the caller
- * projects them through the same hidden-line removal as the outlines.
+ * projects them through the same hidden-line removal as the outlines. Graded
+ * faces are first crossed by probes, so the caller can read which stretches
+ * of each face show in the view and have every stretch shaded at its own
+ * shadow side.
  *
  * @internal
  */
@@ -14,7 +17,7 @@ import {
   FaceEdge,
   FaceFacts,
   FaceTreatment,
-  HatchCut,
+  ShadingProbe,
   ShadingSkipped,
   treatmentFor,
   viewFactsOf,
@@ -22,13 +25,20 @@ import {
 import { A, O } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as replicad from "replicad";
-import { add, scale } from "./vector.ts";
-import type { ShadingCoverage, ViewFacts } from "@beep/technical-drawing";
+import { add, cross, scale } from "./vector.ts";
+import type { ShadingCoverage, ShadingLines, ShadingWindow, ViewFacts } from "@beep/technical-drawing";
 import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { Camera, ShadingPlan } from "../Occt.models.ts";
 import type { V3 } from "./vector.ts";
 
 const vec = (v: replicad.Vector): V3 => [v.x, v.y, v.z];
+const dotV = (a: V3, b: V3): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const minusV = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+
+const unitV = (v: V3): V3 => {
+  const length = Math.hypot(v[0], v[1], v[2]);
+  return length < 1e-12 ? v : [v[0] / length, v[1] / length, v[2] / length];
+};
 
 // Curved boundary edges are sampled this many times for the face's outline.
 const OUTLINE_SAMPLES = 8;
@@ -110,11 +120,11 @@ const trimTo =
         ? O.none()
         : O.some(replicad.makeLine(edge.pointAt(0.5 - extent / 2), edge.pointAt(0.5 + extent / 2)));
 
-// Graded strokes are lifted this far off their face along its outward normal
-// (model units; a thousandth of a millimetre on the sheet) so the hidden-line
-// pass sees them in front of the face they lie on instead of deciding by
-// rounding whether a re-made stroke is behind it. The uniform style keeps its
-// legacy placement.
+// Graded strokes and probes are lifted this far off their face along its
+// outward normal (model units; a thousandth of a millimetre on the sheet) so
+// the hidden-line pass sees them in front of the face they lie on instead of
+// deciding by rounding whether a re-made stroke is behind it. The uniform
+// style keeps its legacy placement.
 const HATCH_LIFT = 1e-3;
 
 const liftFor =
@@ -130,83 +140,134 @@ const liftFor =
 // Planar faces only: curved faces are counted, never hatched.
 const isPlanar = (face: replicad.Face): boolean => face.geomType === "PLANE";
 
-const unitV = (v: V3): V3 => {
-  const length = Math.hypot(v[0], v[1], v[2]);
-  return length < 1e-12 ? v : [v[0] / length, v[1] / length, v[2] / length];
-};
+// Probes cross a graded face at this many heights, evenly spread between its
+// lowest and highest point along its lines.
+const PROBE_HEIGHTS = 5;
 
-// The extent of one cut's strokes along their common line, for the hidden-line
-// pass to find the cut again; none when the cut produced no stroke.
-const extentOf = (
-  index: number,
-  rank: number,
-  keep: number,
-  strokes: ReadonlyArray<replicad.Edge>
-): O.Option<HatchCut> =>
+// Lowest and highest reach of a face's outline along a unit direction.
+const reachOf = (face: FaceFacts, along: V3): readonly [number, number] =>
   pipe(
-    A.head(strokes),
-    O.map((first) => {
-      const origin = vec(first.startPoint);
-      const direction = unitV(minusV(vec(first.endPoint), origin));
-      const along = (p: V3): number =>
-        (p[0] - origin[0]) * direction[0] + (p[1] - origin[1]) * direction[1] + (p[2] - origin[2]) * direction[2];
-      const ts = A.flatMap(strokes, (e) => [along(vec(e.startPoint)), along(vec(e.endPoint))]);
-      const lo = Math.min(...ts);
-      const hi = Math.max(...ts);
-      return HatchCut.make({
-        face: index,
-        rank,
-        keep,
-        from: add(origin, scale(direction, lo)),
-        to: add(origin, scale(direction, hi)),
-      });
-    })
+    face.outline,
+    A.map((p) => dotV(p, along)),
+    (reaches) => [Math.min(...reaches), Math.max(...reaches)] as const
   );
 
-const minusV = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+type Probe = { readonly edge: replicad.Edge; readonly probe: ShadingProbe };
 
-const shadeFace =
+// Probe lines across one graded face: at each height, the face's chord(s)
+// along its shading step, lifted off the face like its strokes and tagged
+// with the offsets of their ends from the face's shadow anchor.
+const probeFace =
   (oc: OpenCascadeInstance, view: ViewFacts, plan: ShadingPlan) =>
+  (face: replicad.Face, index: number): ReadonlyArray<Probe> => {
+    if (!isPlanar(face)) {
+      return A.empty();
+    }
+    const facts = factsOf(face);
+    return FaceTreatment.match(treatmentFor({ face: facts, view, plan }), {
+      skipped: () => A.empty<Probe>(),
+      lines: (lines) => {
+        const direction = unitV(cross(facts.normal, lines.step));
+        const [low, high] = reachOf(facts, direction);
+        const offsetOf = (p: V3): number => dotV(minusV(p, lines.origin), lines.step);
+        return pipe(
+          A.makeBy(PROBE_HEIGHTS, (i) => low + ((high - low) * (i + 0.5)) / PROBE_HEIGHTS),
+          A.flatMap((height) => sectionEdges(oc, face, scale(direction, height), direction)),
+          A.map((edge, rank) => {
+            // the ends are read before the lift: translating a replicad edge frees the original
+            const from = vec(edge.startPoint);
+            const to = vec(edge.endPoint);
+            return {
+              edge: liftFor(face, plan)(edge),
+              probe: ShadingProbe.make({ face: index, rank, from, to, start: offsetOf(from), end: offsetOf(to) }),
+            };
+          })
+        );
+      },
+    });
+  };
+
+/**
+ * Probe lines across every graded face of a shape, each with its record, for
+ * the hidden-line pass to read each face's visible stretches from. The
+ * probes go through that pass as separate shapes, so each one's visible
+ * pieces come back on their own.
+ *
+ * @internal
+ */
+export const probeEdges = (options: {
+  readonly oc: OpenCascadeInstance;
+  readonly shape: replicad.AnyShape;
+  readonly camera: Camera;
+  readonly plan: ShadingPlan;
+}): ReadonlyArray<{ readonly edge: replicad.Edge; readonly probe: ShadingProbe }> =>
+  A.flatMap(options.shape.faces, probeFace(options.oc, viewFactsOf(options.camera), options.plan));
+
+// The strokes of one treatment on its face: each cut's chord, trimmed to the
+// cut's extent, kept when long enough on the view plane, lifted off the face.
+const strokesOf =
+  (oc: OpenCascadeInstance, view: ViewFacts, plan: ShadingPlan, face: replicad.Face) =>
+  (lines: ShadingLines): ReadonlyArray<replicad.Edge> =>
+    A.flatMap(lines.cuts, (cut) =>
+      pipe(
+        sectionEdges(oc, face, add(lines.origin, scale(lines.step, cut.offset)), lines.step),
+        A.map(trimTo(cut.extent)),
+        A.getSomes,
+        A.filter(longEnough(view, plan.minStroke)),
+        A.map(liftFor(face, plan))
+      )
+    );
+
+// Shading of one face: its treatment and strokes. With the face's visible
+// stretches known (graded shading after the probe pass), every stretch is
+// treated on its own: the face counts as shaded when any stretch gets lines,
+// as hidden when no stretch shows, and as a sliver when each is too narrow.
+const shadeFace =
+  (
+    oc: OpenCascadeInstance,
+    view: ViewFacts,
+    plan: ShadingPlan,
+    regions: O.Option<(face: number) => ReadonlyArray<ShadingWindow>>
+  ) =>
   (
     face: replicad.Face,
     index: number
-  ): {
-    readonly treatment: FaceTreatment;
-    readonly edges: ReadonlyArray<replicad.Edge>;
-    readonly cuts: ReadonlyArray<HatchCut>;
-  } => {
-    const treatment = isPlanar(face)
-      ? treatmentFor({ face: factsOf(face), view, plan })
-      : ShadingSkipped.make({ reason: "curved" });
-    const planned = FaceTreatment.match(treatment, {
-      lines: (lines) => {
-        const keep = O.getOrElse(lines.keep, () => A.length(lines.cuts));
-        return A.map(lines.cuts, (cut, rank) => {
-          const strokes = pipe(
-            sectionEdges(oc, face, add(lines.origin, scale(lines.step, cut.offset)), lines.step),
-            A.map(trimTo(cut.extent)),
-            A.getSomes,
-            A.filter(longEnough(view, plan.minStroke)),
-            A.map(liftFor(face, plan))
-          );
-          return { strokes, cut: extentOf(index, rank, keep, strokes) };
-        });
-      },
-      skipped: () => A.empty<{ readonly strokes: ReadonlyArray<replicad.Edge>; readonly cut: O.Option<HatchCut> }>(),
-    });
+  ): { readonly treatment: FaceTreatment; readonly edges: ReadonlyArray<replicad.Edge> } => {
+    if (!isPlanar(face)) {
+      return { treatment: ShadingSkipped.make({ reason: "curved" }), edges: A.empty() };
+    }
+    const facts = factsOf(face);
+    const whole = treatmentFor({ face: facts, view, plan });
+    const treatments: A.NonEmptyReadonlyArray<FaceTreatment> = pipe(
+      regions,
+      O.filter(() => FaceTreatment.guards.lines(whole)),
+      O.match({
+        onNone: () => A.of(whole),
+        onSome: (windows) =>
+          pipe(
+            windows(index),
+            A.map((window) => treatmentFor({ face: facts, view, plan, window })),
+            (stretches) =>
+              A.isReadonlyArrayNonEmpty(stretches)
+                ? stretches
+                : A.of<FaceTreatment>(ShadingSkipped.make({ reason: "hidden" }))
+          ),
+      })
+    );
     return {
-      treatment,
-      edges: A.flatMap(planned, (p) => p.strokes),
-      cuts: pipe(
-        A.map(planned, (p) => p.cut),
-        A.getSomes
+      treatment: pipe(
+        A.findFirst(treatments, FaceTreatment.guards.lines),
+        O.getOrElse(() => A.headNonEmpty(treatments))
       ),
+      edges: pipe(treatments, A.filter(FaceTreatment.guards.lines), A.flatMap(strokesOf(oc, view, plan, face))),
     };
   };
 
 /**
  * Hatch edges for every face of a shape the shading rules give lines, as one
  * compound (none when no face is shaded), and the view's coverage counts.
+ * With `regions` (graded shading after the probe pass), each face's visible
+ * stretches are shaded one by one.
  *
  * **Details**
  *
@@ -221,12 +282,15 @@ export const hatchCompound = (options: {
   readonly shape: replicad.AnyShape;
   readonly camera: Camera;
   readonly plan: ShadingPlan;
+  readonly regions: O.Option<(face: number) => ReadonlyArray<ShadingWindow>>;
 }): {
   readonly compound: O.Option<replicad.AnyShape>;
   readonly coverage: ShadingCoverage;
-  readonly cuts: ReadonlyArray<HatchCut>;
 } => {
-  const shaded = A.map(options.shape.faces, shadeFace(options.oc, viewFactsOf(options.camera), options.plan));
+  const shaded = A.map(
+    options.shape.faces,
+    shadeFace(options.oc, viewFactsOf(options.camera), options.plan, options.regions)
+  );
   return {
     compound: pipe(
       A.flatMap(shaded, (face) => face.edges),
@@ -234,6 +298,5 @@ export const hatchCompound = (options: {
       O.map((edges) => replicad.makeCompound([...edges]))
     ),
     coverage: coverageOf(A.map(shaded, (face) => face.treatment)),
-    cuts: A.flatMap(shaded, (face) => face.cuts),
   };
 };

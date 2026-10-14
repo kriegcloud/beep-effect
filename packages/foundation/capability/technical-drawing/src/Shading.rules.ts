@@ -34,7 +34,7 @@ import {
   ViewFacts,
 } from "./Shading.schemas.ts";
 import type { Camera, Segment2, ShadingPlan, Vec3 } from "./Geometry.schemas.ts";
-import type { FaceAspect, FaceEdge, FaceFacts } from "./Shading.schemas.ts";
+import type { FaceAspect, FaceEdge, FaceFacts, ShadingWindow } from "./Shading.schemas.ts";
 
 type V3 = Vec3;
 
@@ -61,10 +61,6 @@ const GROWTH = 1.4;
 const FULL_LINES = 2;
 const TAPER_FROM = 0.6;
 const TAPER_TO = 0.4;
-// A graded face lists spare cut positions past its band all the way to its far
-// edge, for when the strokes at its shadow edge turn out to be hidden behind
-// another part (a crossing wall hides half of the wall behind it).
-const SPARE_CUTS = Number.POSITIVE_INFINITY;
 
 /**
  * Sheet frame and 1.84(m) light of a camera, in model coordinates.
@@ -206,7 +202,7 @@ export const toneOf = (exposure: number): ShadingTone => {
 // and leave a face square to the light nearly bare.
 const toneSpacing = (tone: ShadingTone) =>
   ShadingTone.$match(tone, {
-    faint: () => ({ coverage: 0.15, minLines: 1, maxLines: 2 }),
+    faint: () => ({ coverage: 0.15, minLines: 2, maxLines: 2 }),
     light: () => ({ coverage: 0.3, minLines: 2, maxLines: 5 }),
     medium: () => ({ coverage: 0.35, minLines: 3, maxLines: 7 }),
     dark: () => ({ coverage: 0.35, minLines: 4, maxLines: 8 }),
@@ -225,9 +221,7 @@ const toneSpacing = (tone: ShadingTone) =>
  * for one line gets none. An optional `keep` rejects positions where the face
  * is too narrow for a stroke (a tab, a lip, a pointed tip): the line is not
  * counted and the next position is tried one gap further in, so the strokes
- * move inward instead of vanishing. `spare` adds that many further positions
- * on the same schedule, past the tone's share and count but still inside the
- * face, for the kernel to fall back on when the first ones are hidden.
+ * move inward instead of vanishing.
  *
  * **Example** (A light 30-wide face)
  *
@@ -246,26 +240,23 @@ export const gradedOffsets = (input: {
   readonly maxPitch: number;
   readonly tone: ShadingTone;
   readonly keep?: (offset: number) => boolean;
-  readonly spare?: number;
 }): ReadonlyArray<number> => {
   const { span, minPitch } = input;
   const maxPitch = Math.max(input.maxPitch, minPitch);
   const keep = input.keep ?? (() => true);
-  const spare = Math.max(0, input.spare ?? 0);
   const { coverage, minLines, maxLines } = toneSpacing(input.tone);
   const limit = span - minPitch;
-  const next = (offsets: ReadonlyArray<number>, at: number, gap: number, spares: number): ReadonlyArray<number> => {
+  const next = (offsets: ReadonlyArray<number>, at: number, gap: number): ReadonlyArray<number> => {
     const offset = at + gap;
-    const drawn = A.length(offsets) - spares;
-    const bandFull = drawn >= maxLines || (drawn >= minLines && offset > coverage * span);
-    if (offset > limit || (bandFull && spares >= spare)) {
+    const drawn = A.length(offsets);
+    if (offset > limit || drawn >= maxLines || (drawn >= minLines && offset > coverage * span)) {
       return offsets;
     }
     return keep(offset)
-      ? next([...offsets, offset], offset, Math.min(maxPitch, gap * GROWTH), bandFull ? spares + 1 : spares)
-      : next(offsets, offset, gap, spares);
+      ? next([...offsets, offset], offset, Math.min(maxPitch, gap * GROWTH))
+      : next(offsets, offset, gap);
   };
-  return next([], 0, minPitch, 0);
+  return next([], 0, minPitch);
 };
 
 // Length of the chord a cut at `offset` along the anchor's step makes across
@@ -662,29 +653,29 @@ const gradedTreatment = (input: {
   readonly plan: ShadingPlan;
   readonly direction: V3;
   readonly factor: number;
+  readonly window: O.Option<ShadingWindow>;
 }): FaceTreatment => {
-  const { face, view, plan, direction, factor } = input;
+  const { face, view, plan, direction, factor, window } = input;
   const anchor = anchorOf({ face, view, direction });
-  const span =
-    pipe(
-      face.outline,
-      A.map((point) => dot(minus(point, anchor.point), anchor.step)),
-      A.reduce(0, (most, reach) => Math.max(most, reach))
-    ) * factor;
+  const reach = pipe(
+    face.outline,
+    A.map((point) => dot(minus(point, anchor.point), anchor.step)),
+    A.reduce(0, (most, r) => Math.max(most, r))
+  );
+  // a visible stretch of the face is shaded as a face of its own, from the side nearest the shadow anchor
+  const start = O.match(window, { onNone: () => 0, onSome: (w) => w.start });
+  const span = O.match(window, { onNone: () => reach, onSome: (w) => w.span }) * factor;
   const tone = toneOf(dot(face.normal, view.light));
   // a stroke needs the face to be at least the minimum stroke wide where it is cut
   const chord = chordAt(face, anchor, direction);
   const seen = spread(direction, view.eye);
-  const keep = (offset: number) => plan.minStroke <= 0 || chord(offset / factor) * seen >= plan.minStroke;
-  const schedule = { span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone, keep };
-  const band = gradedOffsets(schedule);
-  // spare positions past the band share its schedule; the kernel draws the first `keep` visible cuts
-  const offsets = gradedOffsets({ ...schedule, spare: SPARE_CUTS });
+  const keep = (offset: number) => plan.minStroke <= 0 || chord(start + offset / factor) * seen >= plan.minStroke;
+  const band = gradedOffsets({ span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone, keep });
   // a lit face carries short strokes only (Example 32: lit faces are nearly bare)
   const extents = gradedExtents({ count: A.length(band), fullLines: tone === "faint" ? 0 : FULL_LINES });
-  const cuts = A.map(offsets, (offset, index) =>
+  const cuts = A.map(band, (offset, index) =>
     ShadingCut.make({
-      offset: offset / factor,
+      offset: start + offset / factor,
       extent: pipe(
         A.get(extents, index),
         O.getOrElse(() => TAPER_TO)
@@ -692,7 +683,7 @@ const gradedTreatment = (input: {
     })
   );
   return A.isReadonlyArrayNonEmpty(band)
-    ? ShadingLines.make({ origin: anchor.point, step: anchor.step, cuts, keep: O.some(A.length(band)) })
+    ? ShadingLines.make({ origin: anchor.point, step: anchor.step, cuts })
     : skipped("sliver");
 };
 
@@ -707,6 +698,9 @@ const gradedTreatment = (input: {
  * axis or style hatches along {@link hatchDirectionOf} with the true sheet
  * spacing; `graded` lines start at the shadow edge and never skip a face as
  * lit, while `uniform` lines keep the lit threshold and the centred pitch.
+ * With a `window`, graded lines are planned for that visible stretch of the
+ * face alone, measured along the step from the shadow anchor, so a stretch
+ * another part uncovers gets its band at the side nearest the shadow.
  *
  * **Example** (A square-on wall under graded shading)
  *
@@ -732,6 +726,7 @@ export const treatmentFor = (input: {
   readonly face: FaceFacts;
   readonly view: ViewFacts;
   readonly plan: ShadingPlan;
+  readonly window?: ShadingWindow;
 }): FaceTreatment => {
   const { face, view, plan } = input;
   if (!(dot(face.normal, view.eye) > BACK_FACING)) {
@@ -763,7 +758,14 @@ export const treatmentFor = (input: {
           return skipped("edge-on");
         }
         return plan.style === "graded"
-          ? gradedTreatment({ face, view, plan, direction, factor })
+          ? gradedTreatment({
+              face,
+              view,
+              plan,
+              direction,
+              factor,
+              window: input.window === undefined ? O.none() : O.some(input.window),
+            })
           : centredLines(face, step, O.getOrElse(pitch, () => plan.maxPitch) / factor);
       },
     })

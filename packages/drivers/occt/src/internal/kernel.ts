@@ -6,18 +6,18 @@
  * @internal
  */
 
-import { legibleShading } from "@beep/technical-drawing";
+import { legibleShading, ShadingWindow } from "@beep/technical-drawing";
 import { A, N, O } from "@beep/utils";
 import { pipe } from "effect/Function";
-import * as HashSet from "effect/HashSet";
+import * as HashMap from "effect/HashMap";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as replicad from "replicad";
 import { OcctError } from "../Occt.errors.ts";
 import { BoundingBox, EdgeSet, ModelSummary, Primitive } from "../Occt.models.ts";
-import { hatchCompound } from "./shading.ts";
+import { hatchCompound, probeEdges } from "./shading.ts";
 import { cross } from "./vector.ts";
-import type { HatchCut } from "@beep/technical-drawing";
+import type { ShadingProbe } from "@beep/technical-drawing";
 import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { Camera, ModelSpec, Rotation, Segment2, ShadingPlan } from "../Occt.models.ts";
 import type { V3 } from "./vector.ts";
@@ -186,13 +186,16 @@ const toSegments = (edges: ReadonlyArray<replicad.Edge>): ReadonlyArray<Segment2
     A.sort(segmentOrder)
   );
 
-// How far (model units on the view plane) a visible stroke may sit from the
-// projected cut line it came from and still be that cut's.
-const CUT_TOLERANCE = 0.05;
+type ProbeLine = {
+  readonly probe: ShadingProbe;
+  readonly point: readonly [number, number];
+  readonly along: readonly [number, number];
+  readonly length: number;
+};
 
-// Every cut's line on the view plane, in the projector's own frame: the same
-// frame the hidden-line pass reports its edges in.
-const projectedCuts = (camera: Camera, cuts: ReadonlyArray<HatchCut>) => {
+// A probe's line on the view plane, in the projector's own frame (the frame
+// the hidden-line pass reports its edges in); none when it projects to a point.
+const projectedProbe = (camera: Camera, probe: ShadingProbe): O.Option<ProbeLine> => {
   const direction = normalize(camera.eye);
   const right = normalize(cross(normalize(camera.up), direction));
   const up = cross(direction, right);
@@ -200,101 +203,121 @@ const projectedCuts = (camera: Camera, cuts: ReadonlyArray<HatchCut>) => {
     const d: V3 = [p[0] - camera.target[0], p[1] - camera.target[1], p[2] - camera.target[2]];
     return [d[0] * right[0] + d[1] * right[1] + d[2] * right[2], d[0] * up[0] + d[1] * up[1] + d[2] * up[2]];
   };
-  return A.map(cuts, (cut) => {
-    const point = to2d(cut.from);
-    const end = to2d(cut.to);
-    const length = Math.hypot(end[0] - point[0], end[1] - point[1]);
-    return {
-      cut,
-      point,
-      length,
-      along: length < 1e-9 ? null : ([(end[0] - point[0]) / length, (end[1] - point[1]) / length] as const),
-    };
-  });
+  const point = to2d(probe.from);
+  const end = to2d(probe.to);
+  const length = Math.hypot(end[0] - point[0], end[1] - point[1]);
+  return length < 1e-9
+    ? O.none()
+    : O.some({ probe, point, length, along: [(end[0] - point[0]) / length, (end[1] - point[1]) / length] });
 };
 
-type CutLine = {
-  readonly point: readonly [number, number];
-  readonly along: readonly [number, number];
-  readonly length: number;
-};
-
-const offLine = (line: CutLine, x: number, y: number): number =>
-  Math.abs((x - line.point[0]) * line.along[1] - (y - line.point[1]) * line.along[0]);
-
-// A point is on the cut when it lies on its line and within its strokes' extent.
-const onCut = (line: CutLine, x: number, y: number): boolean => {
+// Offset along the face's step, from its shadow anchor, of the point of a
+// probe's line nearest a view-plane point.
+const offsetAt = (line: ProbeLine, x: number, y: number): number => {
   const t = (x - line.point[0]) * line.along[0] + (y - line.point[1]) * line.along[1];
-  return offLine(line, x, y) <= CUT_TOLERANCE && t >= -CUT_TOLERANCE && t <= line.length + CUT_TOLERANCE;
+  return line.probe.start + (Math.min(Math.max(t, 0), line.length) / line.length) * (line.probe.end - line.probe.start);
 };
 
-// Of a graded view's visible strokes, those on the first `keep` cuts of each
-// run of consecutive visible cuts of a face (a cut shows when hidden-line
-// removal left it a stroke at least `minStroke` long): a face whose shadow
-// edge is behind another part draws its strokes on the spare positions
-// further in, and a face that other parts split into several visible regions
-// tones each region at its own shadow side, as a draftsperson would.
-const visibleCuts = (options: {
+type Stretch = { readonly face: number; readonly from: number; readonly to: number };
+
+// The visible stretches of every probed face along its shading step: each
+// visible piece of a probe mapped back to offsets from the face's shadow
+// anchor, then the pieces of all the face's probes merged where they overlap
+// or come within `merge` of each other.
+const regionsOf = (options: {
   readonly camera: Camera;
-  readonly cuts: ReadonlyArray<HatchCut>;
-  readonly segments: ReadonlyArray<Segment2>;
-  readonly minStroke: number;
-}): ReadonlyArray<Segment2> => {
-  const lines = pipe(
-    projectedCuts(options.camera, options.cuts),
-    A.map((line) =>
-      line.along === null
-        ? O.none()
-        : O.some({ cut: line.cut, point: line.point, along: line.along, length: line.length })
-    ),
-    A.getSomes
+  readonly probes: ReadonlyArray<{ readonly probe: ShadingProbe; readonly pieces: ReadonlyArray<Segment2> }>;
+  readonly merge: number;
+}): HashMap.HashMap<number, ReadonlyArray<ShadingWindow>> => {
+  const stretches: ReadonlyArray<Stretch> = A.flatMap(options.probes, ({ probe, pieces }) =>
+    O.match(projectedProbe(options.camera, probe), {
+      onNone: () => A.empty<Stretch>(),
+      onSome: (line) =>
+        A.map(pieces, (s) => {
+          const a = offsetAt(line, s[0], s[1]);
+          const b = offsetAt(line, s[2], s[3]);
+          return { face: probe.face, from: Math.min(a, b), to: Math.max(a, b) };
+        }),
+    })
   );
-  const owner = (s: Segment2): O.Option<HatchCut> =>
-    pipe(
-      lines,
-      A.findFirst((line) => onCut(line, s[0], s[1]) && onCut(line, s[2], s[3])),
-      O.map((line) => line.cut)
-    );
-  const owned = A.map(options.segments, (segment) => ({ segment, owner: owner(segment) }));
-  const length = (s: Segment2) => Math.hypot(s[2] - s[0], s[3] - s[1]);
-  const shows = (cut: HatchCut) =>
-    A.some(
-      owned,
-      (o) =>
-        O.exists(o.owner, (c) => c.face === cut.face && c.rank === cut.rank) && length(o.segment) >= options.minStroke
-    );
-  // per face, by rank: the first `keep` cuts of every run of cuts that show a stroke
-  const key = (cut: HatchCut) => `${cut.face}:${cut.rank}`;
-  const firstOfRuns = (group: A.NonEmptyReadonlyArray<HatchCut>): ReadonlyArray<HatchCut> =>
+  const merged = (group: ReadonlyArray<Stretch>): ReadonlyArray<ShadingWindow> =>
     pipe(
       A.sort(
         group,
-        Order.mapInput(Order.Number, (cut: HatchCut) => cut.rank)
+        Order.mapInput(Order.Number, (s: Stretch) => s.from)
       ),
-      A.reduce({ kept: A.empty<HatchCut>(), run: 0 }, (state, cut) =>
-        shows(cut)
-          ? { kept: state.run < group[0].keep ? [...state.kept, cut] : state.kept, run: state.run + 1 }
-          : { kept: state.kept, run: 0 }
+      A.reduce(A.empty<Stretch>(), (acc, s) =>
+        O.match(A.last(acc), {
+          onNone: () => [s],
+          onSome: (last) =>
+            s.from <= last.to + options.merge
+              ? [...A.dropRight(acc, 1), { ...last, to: Math.max(last.to, s.to) }]
+              : [...acc, s],
+        })
       ),
-      (state) => state.kept
+      A.filter((s) => s.to - s.from > 0),
+      A.map((s) => ShadingWindow.make({ start: s.from, span: s.to - s.from }))
     );
-  const chosen = pipe(
-    options.cuts,
-    A.groupBy((cut) => `${cut.face}`),
-    R.values,
-    A.flatMap(firstOfRuns),
-    A.map(key),
-    HashSet.fromIterable
-  );
   return pipe(
-    owned,
-    A.filter((o) => O.match(o.owner, { onNone: () => true, onSome: (cut) => HashSet.has(chosen, key(cut)) })),
-    A.map((o) => o.segment)
+    stretches,
+    A.groupBy((s) => `${s.face}`),
+    R.toEntries,
+    A.map(([face, group]) => [Number(face), merged(group)] as const),
+    HashMap.fromIterable
   );
+};
+
+type Lines = {
+  readonly visible: ReadonlyArray<replicad.Edge>;
+  readonly hidden: ReadonlyArray<replicad.Edge>;
+  readonly extras: ReadonlyArray<ReadonlyArray<replicad.Edge>>;
+};
+
+// One hidden-line pass over the model with extra shapes (shading strokes, or
+// one probe each) whose visible pieces come back per shape, in order.
+const hiddenLines = (options: {
+  readonly oc: OpenCascadeInstance;
+  readonly compound: AnyShape;
+  readonly camera: Camera;
+  readonly withHidden: boolean;
+  readonly extras: ReadonlyArray<AnyShape>;
+}): Lines => {
+  const { oc, compound, camera } = options;
+  const algo = new oc.HLRBRep_Algo();
+  algo.Add(compound.wrapped, 0);
+  A.forEach(options.extras, (shape) => algo.Add(shape.wrapped, 0));
+  algo.Projector(makeProjector(oc, camera));
+  algo.Update();
+  algo.Hide();
+  const shapes = new oc.HLRBRep_HLRToShape(algo);
+  const own = compound.wrapped;
+  return {
+    visible: [
+      ...edgesOf(shapes.VCompound(own), oc),
+      ...edgesOf(shapes.Rg1LineVCompound(own), oc),
+      ...edgesOf(shapes.OutLineVCompound(own), oc),
+    ],
+    hidden: options.withHidden
+      ? [
+          ...edgesOf(shapes.HCompound(own), oc),
+          ...edgesOf(shapes.Rg1LineHCompound(own), oc),
+          ...edgesOf(shapes.OutLineHCompound(own), oc),
+        ]
+      : [],
+    extras: A.map(options.extras, (shape) => edgesOf(shapes.VCompound(shape.wrapped), oc)),
+  };
 };
 
 /**
  * Run exact hidden-line removal for one camera and return canonical segments.
+ *
+ * **Details**
+ *
+ * Graded shading takes two passes: a probe across every graded face at
+ * several heights goes through hidden-line removal first, as a shape of its
+ * own, and its visible pieces give the face's visible stretches; the strokes
+ * are then planned per stretch and projected with the outlines. The uniform
+ * style keeps its single pass.
  *
  * @internal
  */
@@ -306,31 +329,39 @@ export const project = (options: {
   readonly shading: O.Option<ShadingPlan>;
 }): EdgeSet => {
   const { oc, compound, camera, withHidden } = options;
-  const shaded = O.map(options.shading, (plan) => hatchCompound({ oc, shape: compound, camera, plan }));
-  const hatch = O.flatMap(shaded, (view) => view.compound);
-  const algo = new oc.HLRBRep_Algo();
-  algo.Add(compound.wrapped, 0);
-  O.map(hatch, (shape) => algo.Add(shape.wrapped, 0));
-  algo.Projector(makeProjector(oc, camera));
-  algo.Update();
-  algo.Hide();
-  const shapes = new oc.HLRBRep_HLRToShape(algo);
-  const own = compound.wrapped;
-  const visible = [
-    ...edgesOf(shapes.VCompound(own), oc),
-    ...edgesOf(shapes.Rg1LineVCompound(own), oc),
-    ...edgesOf(shapes.OutLineVCompound(own), oc),
-  ];
-  const hidden = withHidden
-    ? [
-        ...edgesOf(shapes.HCompound(own), oc),
-        ...edgesOf(shapes.Rg1LineHCompound(own), oc),
-        ...edgesOf(shapes.OutLineHCompound(own), oc),
-      ]
-    : [];
-  const shading = O.match(hatch, {
-    onNone: () => [],
-    onSome: (shape) => edgesOf(shapes.VCompound(shape.wrapped), oc),
+  const regions = pipe(
+    options.shading,
+    O.filter((plan) => plan.style === "graded"),
+    O.map((plan) => {
+      const probing = probeEdges({ oc, shape: compound, camera, plan });
+      const pieces = A.isReadonlyArrayNonEmpty(probing)
+        ? hiddenLines({ oc, compound, camera, withHidden: false, extras: A.map(probing, (p) => p.edge) }).extras
+        : A.empty<ReadonlyArray<replicad.Edge>>();
+      return regionsOf({
+        camera,
+        probes: A.zipWith(probing, pieces, (p, edges) => ({ probe: p.probe, pieces: toSegments(edges) })),
+        merge: plan.minPitch,
+      });
+    })
+  );
+  const shaded = O.map(options.shading, (plan) =>
+    hatchCompound({
+      oc,
+      shape: compound,
+      camera,
+      plan,
+      regions: O.map(
+        regions,
+        (windows) => (face: number) => O.getOrElse(HashMap.get(windows, face), () => A.empty<ShadingWindow>())
+      ),
+    })
+  );
+  const lines = hiddenLines({
+    oc,
+    compound,
+    camera,
+    withHidden,
+    extras: O.toArray(O.flatMap(shaded, (view) => view.compound)),
   });
   // Graded shading is tidied after the hidden-line pass: fragments under the
   // minimum stroke and the shorter of two lines inside half the minimum pitch
@@ -341,12 +372,7 @@ export const project = (options: {
       onSome: (plan) =>
         plan.style === "graded"
           ? legibleShading({
-              segments: visibleCuts({
-                camera,
-                cuts: O.match(shaded, { onNone: () => [], onSome: (view) => view.cuts }),
-                segments,
-                minStroke: plan.minStroke,
-              }),
+              segments,
               minStroke: plan.minStroke,
               minSpacing: plan.minPitch / 2,
               inset: plan.minPitch,
@@ -354,9 +380,9 @@ export const project = (options: {
           : segments,
     });
   return EdgeSet.make({
-    visible: toSegments(visible),
-    hidden: toSegments(hidden),
-    shading: legible(toSegments(shading)),
+    visible: toSegments(lines.visible),
+    hidden: toSegments(lines.hidden),
+    shading: legible(toSegments(A.flatten(lines.extras))),
     shadingCoverage: O.map(shaded, (view) => view.coverage),
   });
 };

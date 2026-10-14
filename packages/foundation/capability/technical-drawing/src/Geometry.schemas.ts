@@ -492,6 +492,7 @@ const ShadingSkipReasonBase = LiteralKit([
   "curved",
   "broken-part",
   "sliver",
+  "hidden",
   "lit",
   "no-straight-edge",
   "edge-on",
@@ -505,7 +506,8 @@ const ShadingSkipReasonBase = LiteralKit([
  * `back-facing`: turned away from the viewer. `curved`: not planar.
  * `broken-part`: belongs to a part drawn in broken lines. `sliver`: narrower
  * on the sheet than the plan's minimum face span, or too narrow for one
- * graded line. `lit`: above the uniform style's lit threshold.
+ * graded line. `hidden`: graded, but no stretch of it shows in the view.
+ * `lit`: above the uniform style's lit threshold.
  * `no-straight-edge`: the hatch axis needs a straight edge the face lacks.
  * `edge-on`: the hatch step is too foreshortened to keep lines apart.
  *
@@ -523,7 +525,7 @@ const ShadingSkipReasonBase = LiteralKit([
 export const ShadingSkipReason = ShadingSkipReasonBase.pipe(
   $I.annoteSchema("ShadingSkipReason", {
     description:
-      "Why a face got no shading lines: back-facing, curved, broken-part, sliver, lit, no-straight-edge, or edge-on.",
+      "Why a face got no shading lines: back-facing, curved, broken-part, sliver, hidden, lit, no-straight-edge, or edge-on.",
   }),
   SchemaUtils.withLiteralKitStatics(ShadingSkipReasonBase)
 );
