@@ -1,0 +1,831 @@
+{
+  "meta": {
+    "schemaVersion": "codex-triage/v1",
+    "repository": "kriegcloud/beep-effect",
+    "findingsView": "repo-scoped, status=new",
+    "branch": "codex/security-findings-2026-10-14",
+    "expectedCount": 47,
+    "capturedCount": 47,
+    "capturedAt": "2026-10-14",
+    "captureMethod": "signed-in-csv-export",
+    "note": "Generated skeleton. ownerArea, verdict, and lane are absent until P2 assigns them."
+  },
+  "lanes": {
+    "L1": {
+      "status": "implemented",
+      "findings": ["CSF-001"]
+    }
+  },
+  "findings": [
+    {
+      "id": "CSF-001",
+      "codexId": "commit:4219f7291acc8191aab10fe5ae352a3c",
+      "title": "Crafted review counts can crash Yeet closeout and monitoring",
+      "severity": "Medium",
+      "codexStatus": "New",
+      "commit": "661e0932de3a5a04797bfa4d6a80552f317429cf",
+      "disposition": "remediate",
+      "validation": {
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Security Cloud validation and attack-path analysis identify a public PR review body whose oversized Greptile count reaches S.Finite through the Yeet parser. Current HEAD still parsed decimal captures without a safe-integer bound or saturated aggregate; the focused regression reproduces the input and passes after repair."
+      },
+      "remediation": {
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Yeet/internal/ReviewBodySignal.ts",
+          "packages/tooling/tool/cli/test/yeet-review-body-signal.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/yeet-review-body-signal.test.ts --pool=threads --maxWorkers=1"
+        ],
+        "summary": "Saturate untrusted review counts and aggregates at a finite ceiling before checked schema construction; retain advisory visibility."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Yeet review body parsing",
+      "lane": "L1"
+    },
+    {
+      "id": "CSF-002",
+      "codexId": "commit:4ca94a9561648191a4298e2e9910ef54",
+      "title": "Credential-bank regex enables small-input denial of service",
+      "severity": "Medium",
+      "codexStatus": "New",
+      "commit": "494d134760689cb62c222172bcd037be618b4a9a",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-003",
+      "codexId": "commit:91a88af887488191a7bae407f0db18c8",
+      "title": "Draft edits can bypass the outbox send expectation guard",
+      "severity": "Medium",
+      "codexStatus": "New",
+      "commit": "fa90e642f1b572e5cd64c4e0b064f4d7d2a86697",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-004",
+      "codexId": "commit:bc974bf0f854819185f94fd4a4b736a6",
+      "title": "Crafted attachment names persistently block mail tagging",
+      "severity": "Medium",
+      "codexStatus": "New",
+      "commit": "0f5b4d5ae1235eaedcb7d633ae4e62fb04d4237f",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-005",
+      "codexId": "commit:d4f610bfa9c88191942cbaf48ca19cfb",
+      "title": "Boundary-date emails can crash the docket intake service",
+      "severity": "Medium",
+      "codexStatus": "New",
+      "commit": "a9b6f6cc48255d51f78fe51fa6418faa061e27fa",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-006",
+      "codexId": "commit:0df06ede67a0819192f96233f81e711d",
+      "title": "Review checkpoints expose mail content through permissive files",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "d413c39afe6e3c53ddf9d2727ae207cf251e5f00",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-007",
+      "codexId": "commit:0f13c54587308191b9ea7187f7632ccc",
+      "title": "Mail-tagging state can be readable by other local users",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "6008faca1d0927aa2aed947e23cbf203a34629ae",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-008",
+      "codexId": "commit:220ff6218bdc819183439be00a008360",
+      "title": "Job-log ANSI filter can reconstruct terminal control sequences",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "21813b5cbab3057a624ef41e4ec4e819003449ab",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-009",
+      "codexId": "commit:2472aaabc8c881918d7d3de7ece3993a",
+      "title": "Tesseract file-list input bypasses the corpus read boundary",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "2dffb2827cd4a07a8b571c1d4f765f61410b81f3",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-010",
+      "codexId": "commit:69197f0ffd2c8191809faec14eb0315a",
+      "title": "Mail attachment names inject terminal controls during intake",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "08fb0d175463dc86ee6243ce5747bcff59ac0971",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-011",
+      "codexId": "commit:6b1c901199b88191acb574eb229b6334",
+      "title": "Source checkout preloads can forge signed pilot evidence",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "28b28fa551a4aa30c3cfd5b5a3a899a739328aa2",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-012",
+      "codexId": "commit:ab3071e2c0b48191a525ffe717ae2e8a",
+      "title": "Hook resolver executes code from an untrusted current checkout",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "650a025a72e7529ff801ba184f1fd08f91c95a71",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-013",
+      "codexId": "commit:b90b7e5053848191b94e681ebcef3438",
+      "title": "Aliased packages bypass the exact-version Bun audit ignore guard",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "f7d91408be3ac2fb4ec3de0da407f1b74e5d87a8",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-014",
+      "codexId": "commit:be07dc0f3b048191beaa21ebd6e777c9",
+      "title": "Backdated commits bypass the new merge review window",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "3c65e30092285e15ed600470ccc29538c11c2f4a",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-015",
+      "codexId": "commit:ce6dcbeec7d08191948f80256a4a678f",
+      "title": "Address substring parsing bypasses attachment sender restrictions",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "1a4aa495f845423178258e62a78a283416863451",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-016",
+      "codexId": "commit:d0dac0dd3c10819188d81129e88a841b",
+      "title": "Publisher PDF discovery bypasses internal-source restrictions",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "e89fab0c8e0bae8759aa239619cab256fdb02682",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-017",
+      "codexId": "commit:ed75e1347d0c8191b18a4dfbfba086b7",
+      "title": "Correspondent parser allows CPU-exhausting regex backtracking",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "cf106e28a726acb68430a5aa6a15260dc346ba5f",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-018",
+      "codexId": "commit:0086d4ff9304819189a558c785368663",
+      "title": "Backslash filenames escape scorer staging and enable code execution",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "2476ffa8c9a6115013a84a489fe33a57a0ce80bb",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-019",
+      "codexId": "commit:0faeb689284081918ca7eb9a6da29805",
+      "title": "Repository-controlled ignore globs can hang Graft via ReDoS",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "3f4b0b6cb66960fb69016f828bf71075447f4180",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-020",
+      "codexId": "commit:13f1a8e11b848191bbdeb43201ba2837",
+      "title": "Adoption writes outside the packet through directory symlinks",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "5ae1dd96d0160ed445c286edf3a2bbfc7f4eb4b2",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-021",
+      "codexId": "commit:16f7894e857c8191b3aefbc545ed1f19",
+      "title": "Predictable codemod staging paths allow symlink file overwrite",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "7cc0aa9b332feaf6ace8c6f6c7589f28aa5bfba1",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-022",
+      "codexId": "commit:191fef10ce6c81919e844657645ffce0",
+      "title": "Quadratic overlap enumeration enables drawing-spec denial of service",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "01d2c6c35f1dbdef5716d5b3efc5f1233e4a7a35",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-023",
+      "codexId": "commit:2eb31145cfd88191a526b40de0ff6d7d",
+      "title": "Intake inspector can leak document bytes to the hosted relay",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "6cbe90d5c1a990c26084e7ca97d760d746106bc5",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-024",
+      "codexId": "commit:373362b7d5008191a0e06941178fb1e1",
+      "title": "New line-value locator permits repository-triggered ReDoS",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "89cf1564bea82087bef7a8ed2fbc76648a73dfdb",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-025",
+      "codexId": "commit:4aa0ea969fe88191ab0f795b83db7147",
+      "title": "Artifact upload allows command execution through zip filenames",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "7929b1f529759c823571d90423d9aaa5afbcbbb8",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-026",
+      "codexId": "commit:5455745324c88191b9fca68421e0ab42",
+      "title": "Event deletion permits traversal to other Graph resources",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "6081174d05f7d0923c0034b358f6cbf8be365ac0",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-027",
+      "codexId": "commit:5d581e268758819189f854ccaba1ca54",
+      "title": "Bootstrap executes unverified op during status logging",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "b877057bc49dca15be45cc7c494e6c9326e5cc92",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-028",
+      "codexId": "commit:635f43301d4c8191aedfbac1da122f2b",
+      "title": "Staging cleanup can delete data through a symlinked goals root",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "ec2993d18b35d5368d79e5feff90f6d48c8f34af",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-029",
+      "codexId": "commit:6508654b804081919addeed48402cc6a",
+      "title": "Model report symlinks can overwrite operator files",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "ae35cf909cf42dd2620a721fc21d395b95348e43",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-030",
+      "codexId": "commit:658f385178a08191a050ad0a5c518261",
+      "title": "Quadratic regex permits denial of service in OA recognition",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "5bb194eba8b2dc3cf85e998c5b48abd2300caf3c",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-031",
+      "codexId": "commit:678a13c732d881918b51a7aee1910268",
+      "title": "Undo can delete calendar entries verified after planning",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "f443286f26afd5b6df804b2bfbdfacaa71dbb022",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-032",
+      "codexId": "commit:75b44d0da8f88191ae3ae1bc4ff38ea6",
+      "title": "Boundary-date input can repeatedly abort docket intake polls",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "793b1efffb26a55f67bc64d49632a9089df4ab26",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-033",
+      "codexId": "commit:8b61b0e4c7608191874a62ddb11eab25",
+      "title": "New Bash grants bypass the Beep-only log access restriction",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "153a4500844d9d259d0d74475a191080acf9ff58",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-034",
+      "codexId": "commit:8eb075ce10548191a41c04ca6d554955",
+      "title": "Crafted PDF font graphs cause exponential validation work",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "b79308975cdc18b24c90c2938c7755df43c9e131",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-035",
+      "codexId": "commit:9061a23fb8708191b797a2c1d16a44c5",
+      "title": "Historical citations cause unbounded repository archive copies",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "319436049eec0e08a36aae46d6ebf5e15a7d4d01",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-036",
+      "codexId": "commit:93d6eaa8645881919f32769efac1dadf",
+      "title": "Unsafe shell quoting in PR-title recovery commands",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "5479af40a41788fc2b8014ff658e4eed8da4b3a4",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-037",
+      "codexId": "commit:9e43e8b231a081918d76574437a153ad",
+      "title": "Checkout-root swaps bypass residue-reap containment",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "6d85719b0c74ba2e9cc944358f5ccada89a87e85",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-038",
+      "codexId": "commit:c42eb93a601081919e02de0170c74752",
+      "title": "Font metadata can inject executable generated TypeScript",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "ade1def89b2a6acdeb75e2480c070e0bf8defc4d",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-039",
+      "codexId": "commit:d29a8fc22b6c8191ab54af2d30fbea8c",
+      "title": "Corpus resume follows output symlinks outside its root",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "2996409e56e33f247063b4bbd88ca451d72fbfc6",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-040",
+      "codexId": "commit:d60503208ce88191b1ea6c0c734ba873",
+      "title": "Cursor shell deny guard can be bypassed with pathname globs",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "fd7d06b834b4f98ae3196354f707044824cdac90",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-041",
+      "codexId": "commit:dc5e336a334c8191a21a40d7505b65fb",
+      "title": "Unnormalized sensitivity labels bypass memory access checks",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "5c768538e434336885d324cbf56d04fc2684959b",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-042",
+      "codexId": "commit:e171dcc69cc88191b01955cd694f8787",
+      "title": "Departed terminal shells bypass retirement write detection",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "aec33cc4ab59bc26cc74d58bef723db430855496",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-043",
+      "codexId": "commit:ed9c99bbe3c88191abc106dc70ed75be",
+      "title": "Size-only Box conflicts can falsely complete pending filings",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "8f74b33631e1f949ea8bcbd94c1f660f578e201e",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-044",
+      "codexId": "commit:f112c76569fc81919044a36b92133681",
+      "title": "Unvalidated Fallow sidecars can block the tmpfs janitor",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "649129464573c7a9a1182be755267cc14fdc0bc9",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-045",
+      "codexId": "commit:f1b30bf8b93c8191ade97dae73ebb689",
+      "title": "Chunked uploads commit swapped sources before checking integrity",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "98c3947d44359fd230a9adfb082268847e3174fb",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-046",
+      "codexId": "commit:f4294d388b2c8191bbdf1aee86232319",
+      "title": "Review round writes follow symlinks outside the corpus root",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "3e18bd6ea2fa1e0f9d31f97d277dd938f3a96827",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    },
+    {
+      "id": "CSF-047",
+      "codexId": "commit:f681d44162a08191983edce900c3fb56",
+      "title": "Provenance outputs follow symlinks outside the corpus root",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "604694ebec1d37241d36cf21dbf2833448af1a57",
+      "disposition": "untriaged",
+      "validation": {
+        "status": "pending"
+      },
+      "remediation": {
+        "status": "pending",
+        "changedFiles": [],
+        "verificationCommands": []
+      }
+    }
+  ]
+}
