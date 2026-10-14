@@ -325,3 +325,13 @@ Seven of nine sealed, five accepted and two failed (5 and 7). Ordinals 8-9
 remain unstarted under Run 17's further-failure stop rule. P2 remains
 in-progress; family-7 elapsed-budget diagnosis is qualified by lost exception
 cause. See history/p2/2026-10-14-family-07-stop.md. No retry or next launch.
+
+
+**Continuation 2026-10-14 06:26Z:** ordinal 8 submitted as the sole detached
+wave family unit after the 06:25Z fallback freeze amendment, renewed admitted
+smokes/focused proof, sixty seconds and 407,447,691,264 free bytes. Seven
+sealed: five accepted, families 5 and 7 failed; ordinal 9 unstarted.
+Immutable manifests and launcher unchanged; execution source delta recorded
+before launch. Standing driver reconciles ordinal 8 after its unit ends.
+P2 remains in-progress; separate failed-family recovery and larger estate
+obligations remain open. Never retry a sealed family.

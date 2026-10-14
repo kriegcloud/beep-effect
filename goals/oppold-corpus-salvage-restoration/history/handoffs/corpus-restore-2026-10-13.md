@@ -1238,3 +1238,45 @@ No package source edited; no new package verification required. Graft saved
 approximately 24,520 tokens in one retrieval. All previous sealed families
 and the immutable launcher remain untouched. The full sixty-second interval
 starts after this admitted preflight before renewed capacity/state check.
+
+
+## 2026-10-14 ordinal 8 launch under the authorized freeze amendment
+
+Unit beep-heavy-corpus-restore-p2-2026-10-13-8.service is active.
+Started stamp: 2026-10-14T06:26:25.702Z; observed active at 06:26:37Z.
+Execution head: ce71e3cb88971dc0d2cfe9f7b0fd829164d859ac.
+Final capacity before submission: 407,447,691,264 free bytes.
+Renewed code delta equals the committed amendment patch; launcher digest
+is unchanged. Full sixty-second interval completed before final state checks.
+One wave unit only; ordinal 8 was absent before submission, ordinal 9 unstarted.
+Result stamp is absent at observation; private log has one line. Archive
+re-verification is underway; no family-run-start policy or outcome is claimed.
+
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-08/ledgers/mail/slice.jsonl`.
+Freeze record: history/evidence/p2-first-wave-2026-10-13-family-08-run-manifest.json,
+with the separate 2026-10-14 pre-launch amendment governing execution code.
+Object: 306991c7dc9caabb34f1e1c6149caf9964f2d9fe046682e753f65ea7efccc932.
+Source: ae4087e97704630b08c37eaa19e6d524bf2b60f8deca36eab78c336784ca4002.
+Input: 436,306,944 bytes. Policy expected:
+4bf79324137791479436f68ff24c00d495887fbb308ae671cc9e3b0988c97763.
+No policy hash or immutable manifest was edited. No source, engine or launcher
+change. No sealed-family retry, output mutation, PR push or main merge.
+
+The standing Runs 12+/13+ driver handoff supersedes the original mechanics'
+wait-until-inactive instruction: hand off after this one detached launch;
+the driver relaunches after this exact unit ends. Next worker reads ordinal
+8's result and aggregate ledger, reconciles seal/children/repair pairs,
+identities and ceilings, and records its digest. Stop and diagnose another
+sealed failure; never retry it. On PASS, renew admitted preflight, preserve
+the same amendment/code identity, wait sixty seconds, and launch ordinal 9
+once. Before terminal PR7 publication integrate main as ruled, recording
+actual execution identities. No PR merge by this worker.
+
+Knowledge refs passed through beep-heavy at pre-amendment head 17f42f572f
+with zero live gated observations. Index, launcher size, manifest JSON,
+whitespace and added-line hygiene passed. Commit hooks: gitleaks, typos and
+commitlint pass. No package edited; package-verify and source hosted-parity
+lanes are not run (docs-only). Seven of nine sealed: five accepted, families
+5 and 7 failed. Their separate post-wave recovery, eighteen larger inputs
+and estate/recycle/DOC obligations remain open. P2 stays in-progress.
