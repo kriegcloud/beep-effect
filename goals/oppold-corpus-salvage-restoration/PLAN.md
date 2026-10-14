@@ -366,3 +366,15 @@ exhaustion. No retry. Publish the separate terminal record and bounded
 5/7/8 recovery amendment; next extraction-engine binding and orchestrator
 approval required before launch. Family 9 needs explicit recovery scope.
 Eighteen larger occurrences and estate/recycle/DOC gates remain open for P3.
+
+
+**Recovery authorization 2026-10-14 11:14Z:** failed ordinals 5/7/8/9 have
+one bounded recovery batch using the SAME Java/Tika chain. The engine PR
+lands on main before execution. Four fresh sequential tool families, one
+occurrence/attempt each, use new manifests and attempt 22,320,000 ms;
+family 43,200,000 ms, ratio 4, 2 GiB output and 100 GB floor stay fixed.
+Preserve original cause classes/stable fields without messages. Repeated
+second-pass failure is dispositioned unsupported, never tried a third time;
+sealed failures and partial repairs stay evidence. No launch in the engine
+PR preparation run. Eighteen larger occurrences and estate/recycle/DOC
+gates remain open for P3. P2 stays in-progress.

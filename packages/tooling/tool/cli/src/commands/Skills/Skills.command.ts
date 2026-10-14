@@ -55,6 +55,15 @@ import {
 import { decodeSkillsLockDocumentJson, SkillsLockDocument } from "./SkillsLock.schemas.ts";
 import { renderSkillsLockDocumentText, writeSkillsLockMigration } from "./SkillsLock.write.ts";
 import { SkillMaterializer, SkillMaterializerLive } from "./SkillsMaterialize.service.ts";
+import {
+  renderSkillRelockReceiptJson,
+  renderSkillReplayJson,
+  renderSkillReplayMarkdown,
+  renderSkillReplaySummary,
+  renderSkillTrainBatchIssue,
+} from "./SkillsRelock.render.ts";
+import { SkillTrainPullRequests } from "./SkillsRelock.schemas.ts";
+import { isSkillReplayClean, SkillUpdateTrain, SkillUpdateTrainLive } from "./SkillsRelock.service.ts";
 import type { SkillFrontmatterReport } from "./SkillFrontmatter.schemas.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
 import type { SkillsLockEntry, VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
@@ -1389,6 +1398,173 @@ const skillsMaterializeCommand = Command.make(
   Command.provide(SkillMaterializerLive)
 );
 
+const reportTrainError = (command: string) =>
+  Effect.fn("Skills.trainCommand.reportError")(function* (error: { readonly message: string }) {
+    const message = `skills:${command}: ${error.message}`;
+    yield* Console.error(message);
+    return yield* failWithReportedExit(message);
+  });
+
+const writeTextOutput = Effect.fn("Skills.writeTextOutput")(function* (target: string, text: string) {
+  const fs = yield* FileSystem.FileSystem;
+  yield* fs.writeFileString(target, text).pipe(SkillsCommandError.mapError(`Failed to write ${target}.`, target));
+});
+
+const runSkillsReplayCommand = Effect.fn("Skills.runSkillsReplayCommand")(function* (options: {
+  readonly skill: O.Option<string>;
+  readonly json: boolean;
+  readonly markdown: O.Option<string>;
+}) {
+  const repoRoot = yield* findRepoRoot().pipe(
+    SkillsCommandError.mapError("Failed to locate repository root for skills replay.")
+  );
+  const train = yield* SkillUpdateTrain;
+  const batch = yield* train.replay(repoRoot, options.skill);
+  if (O.isSome(options.markdown)) {
+    yield* writeTextOutput(options.markdown.value, renderSkillReplayMarkdown(batch));
+  }
+  yield* Console.log(options.json ? Str.trimEnd(renderSkillReplayJson(batch)) : renderSkillReplaySummary(batch));
+  // Contract 6: a conflicted hunk fails the job; a fuzz-only replay fails too, because relock refuses it (B27),
+  // and so does a changed license, which needs a reviewed lock-plan (B30).
+  const unclean = A.filter(batch.reports, (report) => !isSkillReplayClean(report));
+  if (A.isReadonlyArrayNonEmpty(unclean)) {
+    return yield* SkillsDriftError.new(
+      A.length(unclean),
+      `${A.length(unclean)} skill(s) do not replay cleanly at their pins: ${A.join(
+        A.map(
+          unclean,
+          (report) => `${report.skill} (${report.licenseMatches ? report.status : `${report.status}, license changed`})`
+        ),
+        ", "
+      )}. The lock is untouched; the update waits for the review ritual.`
+    );
+  }
+});
+
+const skillsReplayCommand = Command.make(
+  "replay",
+  {
+    skill: Flag.String("skill").pipe(Flag.withDescription("Replay one vendored lock entry"), Flag.optional),
+    json: Flag.Boolean("json").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Print the skills-replay/v1 report as JSON")
+    ),
+    markdown: Flag.String("markdown").pipe(
+      Flag.withDescription("Also write the pull-request comment markdown to this file"),
+      Flag.optional
+    ),
+  },
+  Effect.fn("Skills.replayCommand")(function* (options) {
+    const report = reportTrainError("replay");
+    yield* runSkillsReplayCommand(options).pipe(
+      Effect.catchTags({
+        SkillsCommandError: report,
+        SkillsDriftError: report,
+        SkillRelockRefusal: report,
+        SkillsLockWriteRefusal: report,
+        SkillMaterializeRefusal: report,
+        SkillUpstreamContentError: report,
+      })
+    );
+  })
+).pipe(
+  Command.withDescription(
+    "Replay vendored patch series onto the pristine tree at each lock pin and classify every hunk; writes nothing"
+  ),
+  Command.provide(SkillUpdateTrainLive)
+);
+
+const runSkillsRelockCommand = Effect.fn("Skills.runSkillsRelockCommand")(function* (options: {
+  readonly skill: string;
+  readonly expect: O.Option<string>;
+  readonly json: boolean;
+}) {
+  const repoRoot = yield* findRepoRoot().pipe(
+    SkillsCommandError.mapError("Failed to locate repository root for skills relock.")
+  );
+  const train = yield* SkillUpdateTrain;
+  const receipt = yield* train.relock(repoRoot, options.skill, options.expect);
+  yield* Console.log(
+    options.json
+      ? Str.trimEnd(renderSkillRelockReceiptJson(receipt))
+      : `skills relock ${receipt.skill}: ${receipt.outcome} at ${receipt.sourceRevision} (planDigest ${receipt.planDigest}; snapshot ${receipt.snapshot.treeHash}; effective ${receipt.effective.treeHash})`
+  );
+});
+
+const skillsRelockCommand = Command.make(
+  "relock",
+  {
+    skill: Flag.String("skill").pipe(Flag.withDescription("The vendored lock entry whose pin moved")),
+    expect: Flag.String("expect").pipe(
+      Flag.optional,
+      Flag.withDescription("The reviewed planDigest (from --json) that the write must match")
+    ),
+    json: Flag.Boolean("json").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Print the skills-relock-plan/v1 receipt as JSON")
+    ),
+  },
+  Effect.fn("Skills.relockCommand")(function* (options) {
+    const report = reportTrainError("relock");
+    yield* runSkillsRelockCommand(options).pipe(
+      Effect.catchTags({
+        SkillsCommandError: report,
+        SkillRelockRefusal: report,
+        SkillsLockWriteRefusal: report,
+        SkillMaterializeRefusal: report,
+        SkillUpstreamContentError: report,
+      })
+    );
+  })
+).pipe(
+  Command.withDescription(
+    "Record a bumped pin's snapshot and effective hashes after a clean replay; plan without --expect, write with --expect <planDigest>"
+  ),
+  Command.provide(SkillUpdateTrainLive)
+);
+
+const decodeTrainPullRequestsJson = S.decodeUnknownEffect(S.fromJsonString(SkillTrainPullRequests));
+
+const runSkillsTrainIssueCommand = Effect.fn("Skills.runSkillsTrainIssueCommand")(function* (options: {
+  readonly batch: string;
+  readonly prs: string;
+  readonly bodyOut: string;
+}) {
+  const fs = yield* FileSystem.FileSystem;
+  const text = yield* fs
+    .readFileString(options.prs)
+    .pipe(SkillsCommandError.mapError(`Failed to read ${options.prs}.`, options.prs));
+  const prs = yield* decodeTrainPullRequestsJson(text).pipe(
+    SkillsCommandError.mapError(
+      `${options.prs} is not gh pr list --json number,title,url,headRefName,comments output.`,
+      options.prs
+    )
+  );
+  const issue = renderSkillTrainBatchIssue(options.batch, prs);
+  yield* writeTextOutput(options.bodyOut, issue.body);
+  yield* Console.log(issue.title);
+});
+
+const skillsTrainIssueCommand = Command.make(
+  "train-issue",
+  {
+    batch: Flag.String("batch").pipe(Flag.withDescription("The batch identifier, such as the ISO week 2026-W42")),
+    prs: Flag.String("prs").pipe(
+      Flag.withDescription("gh pr list --json number,title,url,headRefName,comments output for the open update PRs")
+    ),
+    bodyOut: Flag.String("body-out").pipe(Flag.withDescription("Write the rendered issue body to this file")),
+  },
+  Effect.fn("Skills.trainIssueCommand")(function* (options) {
+    yield* runSkillsTrainIssueCommand(options).pipe(
+      Effect.catchTag("SkillsCommandError", reportTrainError("train-issue"))
+    );
+  })
+).pipe(
+  Command.withDescription(
+    "Render the parent tracking issue of one update-train batch; prints the stable title and writes the body"
+  )
+);
+
 /**
  * Skills command group.
  *
@@ -1407,7 +1583,7 @@ const skillsMaterializeCommand = Command.make(
  */
 export const skillsCommand = Command.make("skills", {}, () =>
   Console.log(
-    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>\n- bun run beep skills materialize [--check] [--skill <name>]"
+    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>\n- bun run beep skills materialize [--check] [--skill <name>]\n- bun run beep skills replay [--skill <name>] [--json] [--markdown <file>]\n- bun run beep skills relock --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills train-issue --batch <id> --prs <file> --body-out <file>"
   )
 ).pipe(
   Command.withDescription("Manage repo-local Claude and Codex skill mirrors"),
@@ -1416,5 +1592,8 @@ export const skillsCommand = Command.make("skills", {}, () =>
     skillsProvenanceCommand,
     skillsLockPlanCommand,
     skillsMaterializeCommand,
+    skillsReplayCommand,
+    skillsRelockCommand,
+    skillsTrainIssueCommand,
   ])
 );

@@ -803,7 +803,6 @@ const rootConfigs = [
   ".oxlintrc.json",
   OXLINT_DEPRECATED_APIS_CONFIG,
   "_typos.toml",
-  "knip.jsonc",
   ".fallowrc.jsonc",
   "biome.jsonc",
   "tsconfig.base.json",

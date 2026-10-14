@@ -35,3 +35,7 @@ owns hosted <=150s timing and publication.
 Reversal: restore the engine/config and shared lint input hunks, regenerate the
 fingerprint and record a new reviewed baseline. Keep valid strict coverage,
 fixture, mock, Accordion and XML behavior fixes independently.
+
+## Re-record after merging main (2026-10-14 19:30Z)
+
+Main added `@beep/practice-claude-mod` (154 manifests). The lint-policy fingerprint change touches its tasks too, so the reviewed subject list gains it; nothing else changes.

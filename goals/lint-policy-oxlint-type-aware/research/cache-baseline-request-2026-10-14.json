@@ -1,11 +1,11 @@
 {
-  "previous": "e20dffd6c1ed19414032a9e46a71c61d02559f1ea941c9b1c369309f90f15e12",
+  "previous": "320b9f25860e3640cd0a57dde99374f7f091ef1a4ab7cb963bcb023eaefb99fe",
   "review": {
     "reviewer": "Codex lane A (feat/ts7-oxlint-deprecated-apis)",
     "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
     "basis": {
       "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-      "sha256": "0a01e1c40b20349b3ce7a675ef02f33e5a62b2ed104c874a752acd4215dcb662"
+      "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
     }
   },
   "subjects": [
@@ -114,6 +114,7 @@
     "@beep/phoenix",
     "@beep/poppler",
     "@beep/postgres",
+    "@beep/practice-claude-mod",
     "@beep/practice-identify",
     "@beep/practice-kg-mcp",
     "@beep/practice-m365-contacts",

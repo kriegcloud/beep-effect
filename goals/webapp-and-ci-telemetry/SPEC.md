@@ -39,7 +39,7 @@ Higher sources outrank lower sources when they conflict.
 - oip.law: aggregate, cookieless signals only.
 - CI resource fields from semconv (`cicd.pipeline.run.id`, `vcs.ref.head.revision`); strip `user` from Turbo summaries; Turbo OTel config key is `global.experimentalObservability`.
 - Consume `goals/turborepo-cache-trust-observability` outputs; never redefine cache outcomes.
-- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against `~/YeeBois/references/effect/effect`; `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
+- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against `.repos/effect`; `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
 - Names, metrics, events and attribute keys come from the instrumentation catalog (`goals/observability-kernel-catalog`); names are static literals, never interpolated.
 - Public repo: no client data, tokens, `op://` resolutions, LAN IPs, tailnet suffixes or account identifiers in packet or code.
 - Totals use `increase()` over the panel range; per-process identity never becomes a metric label; promoted labels come only from the registry's metric-safe set.
