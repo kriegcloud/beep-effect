@@ -1333,7 +1333,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
     })
   );
 
-  // Reusable Heavy is trusted at main; caller, scheduled, and skill-train writer jobs are orchestration exemptions.
+  // Reusable Heavy is trusted at main; caller, scheduled, and skill-train orchestration jobs are exemptions.
+  // Skills Replay comments on PRs; Relock and Batch Issue are the skill-train writers.
   it.effect(
     "maps every hosted job to a descriptor or explicit orchestration exemption",
     Effect.fnUntraced(function* () {

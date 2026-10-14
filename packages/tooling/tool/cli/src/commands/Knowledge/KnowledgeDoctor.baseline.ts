@@ -939,13 +939,41 @@ export const knowledgeRemovedPackageNames = (removals: ReadonlyArray<KnowledgePa
  * `line` is the finding's source line, `attributed` whether its cause group has an authoring
  * commit, and `removedPackages` the package short names the history retired.
  *
- * **Example** (Reject a group without its finding)
+ * **Example** (Construct a complete baseline group)
  *
  * ```ts
  * import { KnowledgeBaselineGroupInput } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.baseline"
+ * import { KnowledgeFinding, KnowledgeFindingLocation } from "@beep/repo-cli/commands/Knowledge/Knowledge.schemas"
+ * import { KnowledgeDoctorFinding } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as HashSet from "effect/HashSet"
+ * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(KnowledgeBaselineGroupInput)({ attributed: true })) // false
+ * const row = KnowledgeDoctorFinding.make({
+ *   finding: KnowledgeFinding.make({
+ *     findingId: `knowledge-finding/v1:${"1".repeat(64)}`,
+ *     kind: "unknown-beep-symbol",
+ *     severity: "blocking",
+ *     documentId: "tree:standards/ARCHITECTURE.md",
+ *     subject: "beep-package:@beep/gone",
+ *     occurrence: 0,
+ *     location: KnowledgeFindingLocation.make({ path: "standards/ARCHITECTURE.md", line: 3 }),
+ *     message: "Unknown package.",
+ *     remediation: "Respell it.",
+ *   }),
+ *   spanClass: "verified",
+ *   origin: "owned",
+ *   evaluator: O.some("symbols"),
+ *   causeKey: "beep-package:@beep/gone",
+ * })
+ * const group = KnowledgeBaselineGroupInput.make({
+ *   row,
+ *   line: O.some("`@beep/gone` is retired."),
+ *   attributed: false,
+ *   removedPackages: HashSet.empty(),
+ * })
+ * console.log(S.is(KnowledgeBaselineGroupInput)(group)) // true
  * ```
  *
  * @category models
@@ -1330,13 +1358,22 @@ export class KnowledgeMintAcceptance extends S.Class<KnowledgeMintAcceptance>($I
  * `acceptMint` is present only when CI passed `--accept-mint` for the mint App's branch;
  * `changedPaths` are the paths the branch changes relative to the merge-base.
  *
- * **Example** (Require both sides of the seal comparison)
+ * **Example** (Compare complete seal inputs)
  *
  * ```ts
- * import { KnowledgeSealGuardInput } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.baseline"
+ * import { KnowledgeSealFiles, KnowledgeSealGuardInput } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.baseline"
+ * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(KnowledgeSealGuardInput)({ changedPaths: [] })) // false
+ * const emptySeal = KnowledgeSealFiles.make({
+ *   baseline: O.none(), baselineText: O.none(), codeowners: O.none(),
+ *   identity: O.none(), leases: O.none(), promotions: O.none(),
+ * })
+ * const input = KnowledgeSealGuardInput.make({
+ *   acceptMint: O.none(), base: emptySeal, changedPaths: [], head: emptySeal,
+ * })
+ * console.log(S.is(KnowledgeSealGuardInput)(input)) // true
  * ```
  *
  * @category models
@@ -1578,13 +1615,40 @@ export const knowledgeSealGuard = (input: KnowledgeSealGuardInput): ReadonlyArra
  * as `[path at mintedAt, current path]`, `report` the read-only scan of the tree under check, and
  * `removals` the tree's path removals, for regrouping with the governance findings.
  *
- * **Example** (Require a scanned report for a gate check)
+ * **Example** (Check a scanned report against empty seals)
  *
  * ```ts
- * import { KnowledgeDoctorCheckInput } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.baseline"
+ * import { KnowledgeDoctorCheckInput, KnowledgeSealFiles } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.baseline"
+ * import { KnowledgeDoctorReport, KnowledgeSpanCounts } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as DateTime from "effect/DateTime"
+ * import * as HashSet from "effect/HashSet"
+ * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(KnowledgeDoctorCheckInput)({ baseRef: "main" })) // false
+ * const emptySeal = KnowledgeSealFiles.make({
+ *   baseline: O.none(), baselineText: O.none(), codeowners: O.none(),
+ *   identity: O.none(), leases: O.none(), promotions: O.none(),
+ * })
+ * const report = KnowledgeDoctorReport.make({
+ *   treeish: "HEAD",
+ *   tree: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4",
+ *   mode: "report",
+ *   spanCounts: KnowledgeSpanCounts.make({
+ *     verified: 0, "generated-example": 0, "historical-with-commit": 0, unclassified: 0,
+ *   }),
+ *   uncheckedOptionCount: 0,
+ *   rootHistory: "available",
+ *   groups: [], findings: [], ratchet: O.none(),
+ * })
+ * const input = KnowledgeDoctorCheckInput.make({
+ *   acceptMint: O.none(), base: emptySeal, baseRef: "origin/main",
+ *   changedPaths: [], head: emptySeal, headPaths: HashSet.empty(),
+ *   mergeBase: "1111111111111111111111111111111111111111",
+ *   mintedAtPaths: HashSet.empty(), now: DateTime.makeUnsafe("2026-10-14T00:00:00Z"),
+ *   removals: O.some([]), renames: [], report,
+ * })
+ * console.log(S.is(KnowledgeDoctorCheckInput)(input)) // true
  * ```
  *
  * @category models
