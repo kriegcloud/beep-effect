@@ -31,6 +31,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { canonicalJsonText } from "../Goals/PacketCore/PacketDigest.ts";
@@ -291,24 +292,31 @@ const publishAdd = Effect.fn("SkillsPatch.publishAdd")(function* (
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const absolutes = A.map(planned.files, (file) => path.join(repoRoot, file.path));
+  // Only files this attempt created are rolled back: an exclusive-create failure means the path
+  // already existed, and that file belongs to someone else.
+  const created = yield* Ref.make(A.empty<string>());
   const writeFiles = Effect.forEach(
-    A.zip(planned.files, absolutes),
-    ([file, absolute]) =>
-      fs
+    planned.files,
+    (file) => {
+      const absolute = path.join(repoRoot, file.path);
+      return fs
         .makeDirectory(path.dirname(absolute), { recursive: true })
         .pipe(
           Effect.andThen(fs.writeFile(absolute, file.bytes, { flag: "wx" })),
+          Effect.andThen(Ref.update(created, A.append(absolute))),
           SkillsCommandError.mapError(`Failed to write ${file.path}.`, absolute)
-        ),
+        );
+    },
     { discard: true }
   );
   return yield* writeFiles.pipe(
     Effect.andThen(publishSkillsLockEntry(repoRoot, planned.lock, skill, planned.entry, planned.planDigest)),
     Effect.onError(() =>
-      Effect.forEach(absolutes, (absolute) => fs.remove(absolute, { force: true }).pipe(Effect.ignore), {
-        discard: true,
-      })
+      Effect.flatMap(Ref.get(created), (paths) =>
+        Effect.forEach(paths, (absolute) => fs.remove(absolute, { force: true }).pipe(Effect.ignore), {
+          discard: true,
+        })
+      )
     )
   );
 });

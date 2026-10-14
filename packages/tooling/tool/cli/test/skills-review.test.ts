@@ -1,5 +1,6 @@
 import {
   decodeSkillsLockDocumentJson,
+  dequeueGhosted,
   encodeSkillsLockDocumentJson,
   LocalSkillLockEntry,
   renderSkillReplayMarkdown,
@@ -21,6 +22,7 @@ import {
   SkillReviewBaseSource,
   SkillReviewDecide,
   SkillReviewDecider,
+  SkillReviewItem,
   SkillReviewOptions,
   SkillReviewQuit,
   SkillReviewScriptEntry,
@@ -57,12 +59,7 @@ import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type {
-  SkillReviewAnswer,
-  SkillReviewItem,
-  SkillReviewScript,
-  SkillReviewSession,
-} from "@beep/repo-cli/commands/Skills";
+import type { SkillReviewAnswer, SkillReviewScript, SkillReviewSession } from "@beep/repo-cli/commands/Skills";
 
 const TestLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer);
 
@@ -514,6 +511,10 @@ layer(TestLayer, { timeout: "60 seconds" })("skills review", (it) => {
         ["drop", "@kriegcloud", "ghost", REV_D],
       ]);
       expect([A.length(ghosted.queue), A.map(ghosted.skills, (skill) => skill.state)]).toEqual([0, ["decided"]]);
+
+      // The same hunk queued for another skill stays queued: ghosts match on skill and hunk.
+      const twin = SkillReviewItem.make({ ...proposal, skill: "other-skill" });
+      expect(dequeueGhosted([proposal, twin], ghosted.recorded)).toEqual([twin]);
     })
   );
 
@@ -563,6 +564,27 @@ layer(TestLayer, { timeout: "60 seconds" })("skills patch", (it) => {
       expect(A.map(check.rows, (row) => row.status)).toEqual(["current", "current"]);
       const again = yield* recorder.add(repoRoot, SKILL, O.none()).pipe(Effect.flip);
       expect(refusalReason(again)).toBe("no-hand-edit");
+    })
+  );
+
+  it.effect("rolls back only the patch files it created when the write fails", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* makeRepo();
+      const lockBefore = yield* fs.readFileString(yield* lockPathOf(repoRoot));
+      yield* fs.writeFileString(path.join(repoRoot, TARGETS[0] ?? "", "rules/keep.md"), "keep\nlocal note\n");
+      const recorder = yield* recorderWith(pristineFiles);
+      const planned = yield* recorder.add(repoRoot, SKILL, O.none());
+
+      // Someone else's file appears at the planned path before the write: the exclusive create
+      // fails, and the rollback must leave that file alone.
+      const added = path.join(repoRoot, A.getUnsafe(planned.added, 0).path);
+      yield* fs.makeDirectory(path.dirname(added), { recursive: true });
+      yield* fs.writeFileString(added, "not ours\n");
+      yield* recorder.add(repoRoot, SKILL, O.some(planned.planDigest)).pipe(Effect.flip);
+      expect(yield* fs.readFileString(added)).toBe("not ours\n");
+      expect(yield* fs.readFileString(yield* lockPathOf(repoRoot))).toBe(lockBefore);
     })
   );
 

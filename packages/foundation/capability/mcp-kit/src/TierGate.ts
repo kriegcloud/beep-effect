@@ -234,8 +234,8 @@ export const TierGateVerdict = TierGateOutcomeTag.toTaggedUnion("verdict")({
  *
  * ```ts
  * import * as O from "effect/Option"
- * import { TierGateAuditRecord } from "@beep/mcp-kit"
- * import type { TierGateVerdict } from "@beep/mcp-kit"
+ * import { TierGateAuditRecord } from "@beep/mcp-kit/TierGate"
+ * import type { TierGateVerdict } from "@beep/mcp-kit/TierGate"
  *
  * const approved: TierGateVerdict = {
  *   verdict: "approved",

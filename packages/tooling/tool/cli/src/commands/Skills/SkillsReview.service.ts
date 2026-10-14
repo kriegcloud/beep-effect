@@ -34,6 +34,7 @@ import { Prompt } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -244,6 +245,42 @@ export class SkillReviewDecider extends Context.Service<SkillReviewDecider, Skil
 const entriesFor = (script: SkillReviewScript, hunkHash: string): ReadonlyArray<SkillReviewScriptEntry> =>
   A.filter(script, (entry) => Str.startsWith(entry.hunk)(hunkHash));
 
+const ghostKey = (skill: string, hunkHash: string): string => `${skill}\u0000${hunkHash}`;
+
+/**
+ * Removes from the queue the items a ghost replay already recorded.
+ *
+ * **Details**
+ *
+ * A hunk hash carries no skill name, so items are matched on skill and hunk
+ * together: the same hunk queued for two skills stays queued for the skill
+ * the ghosts did not cover.
+ *
+ * **Example** (Dequeue ghosted items)
+ *
+ * ```ts
+ * import { dequeueGhosted } from "@beep/repo-cli/commands/Skills/SkillsReview.service"
+ *
+ * console.log(dequeueGhosted([], []).length) // 0
+ * ```
+ *
+ * @internal
+ * @param queue - Items waiting for a decision.
+ * @param ghosts - Ledger rows the ghost replay recorded.
+ * @returns The items still waiting for a reviewer.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const dequeueGhosted: {
+  (
+    ghosts: ReadonlyArray<SkillHunkLedgerRow>
+  ): (queue: ReadonlyArray<SkillReviewItem>) => ReadonlyArray<SkillReviewItem>;
+  (queue: ReadonlyArray<SkillReviewItem>, ghosts: ReadonlyArray<SkillHunkLedgerRow>): ReadonlyArray<SkillReviewItem>;
+} = dual(2, (queue: ReadonlyArray<SkillReviewItem>, ghosts: ReadonlyArray<SkillHunkLedgerRow>) => {
+  const ghosted = HashSet.fromIterable(A.map(ghosts, (row) => ghostKey(row.skill, row.hunkHash)));
+  return A.filter(queue, (item) => !HashSet.has(ghosted, ghostKey(item.skill, item.hunkHash)));
+});
+
 const requireOneHunk = (entry: SkillReviewScriptEntry, known: HashSet.HashSet<string>) => {
   const matches = A.filter(A.fromIterable(known), Str.startsWith(entry.hunk));
   return Match.value(A.length(matches)).pipe(
@@ -255,7 +292,7 @@ const requireOneHunk = (entry: SkillReviewScriptEntry, known: HashSet.HashSet<st
         })
       )
     ),
-    Match.when(1, () => Effect.void),
+    Match.when(1, () => Effect.succeed(A.getUnsafe(matches, 0))),
     Match.orElse(() =>
       Effect.fail(
         SkillReviewRefusal.make({
@@ -300,7 +337,18 @@ const requireOneHunk = (entry: SkillReviewScriptEntry, known: HashSet.HashSet<st
 export const skillReviewDeciderFromScript = (script: SkillReviewScript): SkillReviewDeciderShape =>
   SkillReviewDecider.of({
     prepare: Effect.fn("SkillReviewDeciderScript.prepare")(function* (_queue, known) {
-      yield* Effect.forEach(script, (entry) => requireOneHunk(entry, known), { discard: true });
+      const named = yield* Effect.forEach(script, (entry) => requireOneHunk(entry, known));
+      // Two entries that resolve to the same hunk are refused up front, before anything is recorded.
+      const repeated = A.filter(
+        A.dedupe(named),
+        (hunk) => A.length(A.filter(named, (other) => Str.Equivalence(other, hunk))) > 1
+      );
+      if (A.isReadonlyArrayNonEmpty(repeated)) {
+        return yield* SkillReviewRefusal.make({
+          reason: "ambiguous-hunk",
+          message: `More than one scripted answer names hunk ${Str.slice(0, 12)(A.headNonEmpty(repeated))}.`,
+        });
+      }
     }),
     answer: Effect.fn("SkillReviewDeciderScript.answer")(function* (item) {
       const entries = entriesFor(script, item.hunkHash);
@@ -670,8 +718,7 @@ const runReview = Effect.fn("SkillsReview.runReview")(function* (
   }
   const ghosts = options.ghost ? yield* ghostRows(queue) : A.empty<SkillHunkLedgerRow>();
   yield* appendHunkLedgerRows(repoRoot, ghosts);
-  const ghosted = HashSet.fromIterable(A.map(ghosts, (row) => row.hunkHash));
-  const toWalk = A.filter(queue, (item) => !HashSet.has(ghosted, item.hunkHash));
+  const toWalk = dequeueGhosted(queue, ghosts);
   const decider = yield* SkillReviewDecider;
   yield* decider.prepare(
     toWalk,
