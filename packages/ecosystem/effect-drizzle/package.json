@@ -33,7 +33,7 @@
     "beep:check": "tsc-rs -p tsconfig.check.json && bun run beep:check:tests && bun run beep:type-test",
     "beep:docgen": "bunx --bun --no-install docgen",
     "beep:lint": "biome check .",
-    "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+    "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/** --exclude=test/import-boundary.test.ts && bunx vitest run test/import-boundary.test.ts",
     "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "beep:bundle-probe": "bun test/bundle-size.probe.ts",
@@ -74,20 +74,22 @@
   "devDependencies": {
     "@beep/fc-runs": "workspace:^",
     "@beep/pglite": "workspace:^",
+    "@beep/repo-utils": "workspace:^",
     "@beep/test-runner": "workspace:^",
     "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
     "@effect/sql-pglite": "catalog:",
     "@effect/sql-sqlite-bun": "catalog:",
     "@effect/vitest": "catalog:",
     "@electric-sql/pglite": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
     "drizzle-kit": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
     "esbuild": "catalog:",
     "tstyche": "8.0.0-beta.0",
-    "typescript": "catalog:",
     "vitest": "catalog:"
   }
 }
