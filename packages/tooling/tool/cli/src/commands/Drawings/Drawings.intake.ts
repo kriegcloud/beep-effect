@@ -30,6 +30,7 @@ import * as FileSystem from "effect/FileSystem";
 import { flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
@@ -152,6 +153,66 @@ const newestFirst = Order.flip(Order.mapInput(Order.String, receivedAtOf));
 const pickIndex = (pick: IntakePick): number => (pick === "latest" ? 0 : pick - 1);
 
 const escapeODataString = Str.replaceAll("'", "''");
+
+type RowFields = {
+  readonly bytes: number;
+  readonly sha256?: Sha256Hex;
+  readonly savedAs?: string;
+  readonly duplicateOf?: string;
+};
+
+type IntakeRow = (outcome: IntakeAttachmentOutcome, fields: RowFields) => IntakeAttachment;
+
+// The intake directory as scanned: its real path, the files in it by content hash, and every taken name.
+type OutDir = {
+  readonly realOut: string;
+  readonly byHash: MutableHashMap.MutableHashMap<Sha256Hex, string>;
+  readonly taken: MutableHashSet.MutableHashSet<string>;
+};
+
+const attachmentNameOf = (attachment: GraphAttachment): string => O.getOrElse(attachment.name, () => "");
+const declaredBytesOf = (attachment: GraphAttachment): number => O.getOrElse(attachment.size, () => 0);
+
+const rowFor =
+  (attachment: GraphAttachment): IntakeRow =>
+  (outcome, fields) =>
+    IntakeAttachment.make({
+      attachmentId: attachment.id,
+      name: attachmentNameOf(attachment),
+      savedAs: O.fromUndefinedOr(fields.savedAs),
+      contentType: attachment.contentType,
+      bytes: fields.bytes,
+      sha256: O.fromUndefinedOr(fields.sha256),
+      outcome,
+      duplicateOf: O.fromUndefinedOr(fields.duplicateOf),
+    });
+
+const isItemAttachment = (attachment: GraphAttachment): boolean =>
+  O.getOrElse(attachment["@odata.type"], () => FILE_ATTACHMENT) !== FILE_ATTACHMENT;
+const isInlineAttachment = (attachment: GraphAttachment): boolean => O.getOrElse(attachment.isInline, () => false);
+
+// The outcome that skips an attachment without downloading it: an item, an inline file, or a declared size over the cap.
+const skipOutcomeOf = (maxBytes: number): ((attachment: GraphAttachment) => O.Option<IntakeAttachmentOutcome>) =>
+  Match.type<GraphAttachment>().pipe(
+    Match.when(isItemAttachment, () => O.some<IntakeAttachmentOutcome>("skipped-item")),
+    Match.when(isInlineAttachment, () => O.some<IntakeAttachmentOutcome>("skipped-inline")),
+    Match.when(
+      (attachment: GraphAttachment) => declaredBytesOf(attachment) > maxBytes,
+      () => O.some<IntakeAttachmentOutcome>("skipped-oversize")
+    ),
+    Match.orElse(() => O.none<IntakeAttachmentOutcome>())
+  );
+
+// Content already in the directory: unchanged when it holds the wanted name, otherwise a duplicate of its holder.
+const knownRow = (
+  row: IntakeRow,
+  fields: { readonly bytes: number; readonly sha256: Sha256Hex },
+  wanted: string,
+  holder: string
+): IntakeAttachment =>
+  holder === wanted
+    ? row("unchanged", { ...fields, savedAs: wanted })
+    : row("duplicate", { ...fields, duplicateOf: holder });
 
 type Resolved = {
   readonly message: GraphMessage;
@@ -352,6 +413,55 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
     return { byHash, taken: MutableHashSet.fromIterable(names) };
   });
 
+  const download = (mailbox: string, messageId: string, attachment: GraphAttachment) =>
+    m365
+      .downloadMessageAttachment(
+        M365DownloadMessageAttachmentRequest.make({ attachmentId: attachment.id, messageId, userId: O.some(mailbox) })
+      )
+      .pipe(
+        Effect.map(({ bytes }) => bytes),
+        Effect.mapError(mailError(`Could not download attachment "${attachmentNameOf(attachment)}"`))
+      );
+
+  // Write new content under its sanitized name, or that name tagged with a short hash when another file holds it.
+  const save = Effect.fnUntraced(function* (out: OutDir, wanted: string, sha256: Sha256Hex, bytes: Uint8Array) {
+    const fileName = MutableHashSet.has(out.taken, wanted) ? withShortHash(wanted, sha256) : wanted;
+    if (MutableHashSet.has(out.taken, fileName)) {
+      return yield* refused(
+        `"${fileName}" already exists in "${out.realOut}" with other content; nothing is overwritten.`
+      );
+    }
+    // `wx` fails rather than replace a file that appeared since the scan.
+    yield* fs
+      .writeFile(path.join(out.realOut, fileName), bytes, { flag: "wx" })
+      .pipe(Effect.mapError(io(`Could not write "${fileName}".`)));
+    MutableHashMap.set(out.byHash, sha256, fileName);
+    MutableHashSet.add(out.taken, fileName);
+    return fileName;
+  });
+
+  // Hash downloaded bytes and keep them unless they are over the cap or their content is already in the directory.
+  const keep = Effect.fnUntraced(function* (
+    out: OutDir,
+    maxBytes: number,
+    attachment: GraphAttachment,
+    bytes: Uint8Array
+  ) {
+    const row = rowFor(attachment);
+    if (bytes.byteLength > maxBytes) {
+      return row("skipped-oversize", { bytes: bytes.byteLength });
+    }
+    const sha256 = yield* hash(bytes);
+    const wanted = sanitizedName(attachmentNameOf(attachment));
+    return yield* O.match(MutableHashMap.get(out.byHash, sha256), {
+      onSome: (holder) => Effect.succeed(knownRow(row, { bytes: bytes.byteLength, sha256 }, wanted, holder)),
+      onNone: () =>
+        save(out, wanted, sha256, bytes).pipe(
+          Effect.map((savedAs) => row("saved", { bytes: bytes.byteLength, sha256, savedAs }))
+        ),
+    });
+  });
+
   const pull = Effect.fn("DrawingIntake.pull")(function* (request: IntakeRequest) {
     const root = path.resolve(request.corpusRoot);
     const outDir = path.resolve(request.outDir);
@@ -380,73 +490,15 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
     if (realOut === realRoot) {
       return yield* refused(`"${outDir}" resolves to the corpus root itself.`);
     }
-    const { byHash, taken } = yield* scanOut(realOut);
-
-    const take = Effect.fnUntraced(function* (attachment: GraphAttachment) {
-      const name = O.getOrElse(attachment.name, () => "");
-      const row = (
-        outcome: IntakeAttachmentOutcome,
-        fields: {
-          readonly bytes: number;
-          readonly sha256?: Sha256Hex;
-          readonly savedAs?: string;
-          readonly duplicateOf?: string;
-        }
-      ) =>
-        IntakeAttachment.make({
-          attachmentId: attachment.id,
-          name,
-          savedAs: O.fromUndefinedOr(fields.savedAs),
-          contentType: attachment.contentType,
-          bytes: fields.bytes,
-          sha256: O.fromUndefinedOr(fields.sha256),
-          outcome,
-          duplicateOf: O.fromUndefinedOr(fields.duplicateOf),
-        });
-      const declared = O.getOrElse(attachment.size, () => 0);
-      if (O.getOrElse(attachment["@odata.type"], () => FILE_ATTACHMENT) !== FILE_ATTACHMENT) {
-        return row("skipped-item", { bytes: declared });
-      }
-      if (O.getOrElse(attachment.isInline, () => false)) {
-        return row("skipped-inline", { bytes: declared });
-      }
-      if (declared > request.maxBytes) {
-        return row("skipped-oversize", { bytes: declared });
-      }
-      const { bytes } = yield* m365
-        .downloadMessageAttachment(
-          M365DownloadMessageAttachmentRequest.make({
-            attachmentId: attachment.id,
-            messageId: message.id,
-            userId: O.some(request.mailbox),
-          })
-        )
-        .pipe(Effect.mapError(mailError(`Could not download attachment "${name}"`)));
-      if (bytes.byteLength > request.maxBytes) {
-        return row("skipped-oversize", { bytes: bytes.byteLength });
-      }
-      const sha256 = yield* hash(bytes);
-      const wanted = sanitizedName(name);
-      const holder = MutableHashMap.get(byHash, sha256);
-      if (O.isSome(holder)) {
-        return holder.value === wanted
-          ? row("unchanged", { bytes: bytes.byteLength, sha256, savedAs: wanted })
-          : row("duplicate", { bytes: bytes.byteLength, sha256, duplicateOf: holder.value });
-      }
-      const fileName = MutableHashSet.has(taken, wanted) ? withShortHash(wanted, sha256) : wanted;
-      if (MutableHashSet.has(taken, fileName)) {
-        return yield* refused(
-          `"${fileName}" already exists in "${realOut}" with other content; nothing is overwritten.`
-        );
-      }
-      // `wx` fails rather than replace a file that appeared since the scan.
-      yield* fs
-        .writeFile(path.join(realOut, fileName), bytes, { flag: "wx" })
-        .pipe(Effect.mapError(io(`Could not write "${fileName}".`)));
-      MutableHashMap.set(byHash, sha256, fileName);
-      MutableHashSet.add(taken, fileName);
-      return row("saved", { bytes: bytes.byteLength, sha256, savedAs: fileName });
-    });
+    const out: OutDir = { realOut, ...(yield* scanOut(realOut)) };
+    const take = (attachment: GraphAttachment): Effect.Effect<IntakeAttachment, DrawingIntakeError> =>
+      O.match(skipOutcomeOf(request.maxBytes)(attachment), {
+        onSome: (outcome) => Effect.succeed(rowFor(attachment)(outcome, { bytes: declaredBytesOf(attachment) })),
+        onNone: () =>
+          download(request.mailbox, message.id, attachment).pipe(
+            Effect.flatMap((bytes) => keep(out, request.maxBytes, attachment, bytes))
+          ),
+      });
 
     const attachments = yield* Effect.forEach(listed.value, take);
     const record = IntakeRecord.make({
@@ -457,7 +509,7 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
       attachments,
       pulledAt: DateTime.formatIso(yield* DateTime.now),
     });
-    const recordPath = path.join(realOut, recordNameFor(taken, 1));
+    const recordPath = path.join(realOut, recordNameFor(out.taken, 1));
     const json = yield* encodeRecord(record).pipe(Effect.mapError(io("Could not encode the intake record.")));
     yield* fs
       .writeFileString(recordPath, `${json}\n`, { flag: "wx" })
