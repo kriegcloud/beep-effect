@@ -63,7 +63,7 @@ import {
   renderSkillTrainBatchIssue,
 } from "./SkillsRelock.render.ts";
 import { SkillTrainPullRequests } from "./SkillsRelock.schemas.ts";
-import { SkillUpdateTrain, SkillUpdateTrainLive } from "./SkillsRelock.service.ts";
+import { isSkillReplayClean, SkillUpdateTrain, SkillUpdateTrainLive } from "./SkillsRelock.service.ts";
 import type { SkillFrontmatterReport } from "./SkillFrontmatter.schemas.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
 import type { SkillsLockEntry, VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
@@ -1424,13 +1424,17 @@ const runSkillsReplayCommand = Effect.fn("Skills.runSkillsReplayCommand")(functi
     yield* writeTextOutput(options.markdown.value, renderSkillReplayMarkdown(batch));
   }
   yield* Console.log(options.json ? Str.trimEnd(renderSkillReplayJson(batch)) : renderSkillReplaySummary(batch));
-  // Contract 6: a conflicted hunk fails the job; a fuzz-only replay fails too, because relock refuses it (B27).
-  const unclean = A.filter(batch.reports, (report) => report.status !== "clean");
+  // Contract 6: a conflicted hunk fails the job; a fuzz-only replay fails too, because relock refuses it (B27),
+  // and so does a changed license, which needs a reviewed lock-plan (B30).
+  const unclean = A.filter(batch.reports, (report) => !isSkillReplayClean(report));
   if (A.isReadonlyArrayNonEmpty(unclean)) {
     return yield* SkillsDriftError.new(
       A.length(unclean),
       `${A.length(unclean)} skill(s) do not replay cleanly at their pins: ${A.join(
-        A.map(unclean, (report) => `${report.skill} (${report.status})`),
+        A.map(
+          unclean,
+          (report) => `${report.skill} (${report.licenseMatches ? report.status : `${report.status}, license changed`})`
+        ),
         ", "
       )}. The lock is untouched; the update waits for the review ritual.`
     );

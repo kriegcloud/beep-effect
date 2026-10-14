@@ -2,6 +2,7 @@ import {
   classifySkillPatchHunks,
   decodeSkillsLockDocumentJson,
   encodeSkillsLockDocumentJson,
+  isSkillReplayClean,
   LocalSkillLockEntry,
   readSkillReplayMarker,
   renderSkillReplayMarkdown,
@@ -249,6 +250,18 @@ layer(TestLayer, { timeout: "60 seconds" })("skills replay", (it) => {
       expect([report.status, report.recorded]).toEqual(["clean", false]);
       expect(O.getOrThrow(report.effectiveTreeHash)).toBe((yield* computeSkillTree(bumpedEffective, "e")).treeHash);
       expect(yield* readLockText(repoRoot)).toBe(before);
+    })
+  );
+
+  it.effect("reports a license change at an unmoved tree as unrecorded and unclean", () =>
+    Effect.gen(function* () {
+      const repoRoot = yield* makeRepo();
+      const train = yield* trainWith(pristineFiles, textEncoder.encode("Apache License\n"));
+      const report = onlyReport(yield* train.replay(repoRoot, O.none()));
+      expect([report.status, report.recorded, report.licenseMatches]).toEqual(["clean", false, false]);
+      expect(isSkillReplayClean(report)).toBe(false);
+      const unmoved = onlyReport(yield* (yield* trainWith(pristineFiles)).replay(repoRoot, O.none()));
+      expect(isSkillReplayClean(unmoved)).toBe(true);
     })
   );
 

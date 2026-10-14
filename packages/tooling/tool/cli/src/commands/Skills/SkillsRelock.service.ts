@@ -216,7 +216,10 @@ const replayEntry = Effect.fn("SkillsRelock.replayEntry")(function* (
   const effective = Result.isSuccess(strict)
     ? O.some(yield* computeSkillTree(strict.success, `${skill}:effective`))
     : O.none<ComputedSkillTree>();
+  const licenseMatches = Str.Equivalence(licenseSha, entry.license.sha256);
+  // A relicense at an unchanged tree is still unrecorded: the lock's license digest is stale (B30).
   const recorded =
+    licenseMatches &&
     Str.Equivalence(pristine.treeHash, entry.snapshot.treeHash) &&
     Str.Equivalence(pristine.manifestHash, entry.snapshot.manifestHash) &&
     O.exists(effective, (tree) => Str.Equivalence(tree.treeHash, entry.effective.treeHash));
@@ -228,13 +231,40 @@ const replayEntry = Effect.fn("SkillsRelock.replayEntry")(function* (
     patchSetHash: entry.patches.patchSetHash,
     status,
     recorded,
-    licenseMatches: Str.Equivalence(licenseSha, entry.license.sha256),
+    licenseMatches,
     effectiveTreeHash: O.map(effective, (tree) => tree.treeHash),
     hunks: rows,
     diff: yield* renderSkillTreeDiff(skill, content.files, replayedFiles),
   });
   return { report, pristine, effective };
 });
+
+/**
+ * Reports whether a replay leaves nothing for a person to review.
+ *
+ * **Details**
+ *
+ * A replay is clean only when every hunk applies exactly and the license bytes
+ * at the pin match the lock. A changed license fails closed even when the skill
+ * tree is unchanged, because a relicense needs a reviewed lock-plan (B30).
+ *
+ * **Example** (Check a replay report)
+ *
+ * ```ts
+ * import { isSkillReplayClean } from "@beep/repo-cli/commands/Skills"
+ * import type { SkillReplayReport } from "@beep/repo-cli/commands/Skills"
+ *
+ * declare const report: SkillReplayReport
+ * console.log(isSkillReplayClean(report))
+ * ```
+ *
+ * @param report - One skill's replay outcome.
+ * @returns `true` when the hunks apply exactly and the license digest still matches.
+ * @category predicates
+ * @since 0.0.0
+ */
+export const isSkillReplayClean = (report: SkillReplayReport): boolean =>
+  report.status === "clean" && report.licenseMatches;
 
 const describeUnresolved = (report: SkillReplayReport): string =>
   A.join(

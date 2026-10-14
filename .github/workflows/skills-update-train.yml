@@ -141,12 +141,40 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout the Renovate branch
+      # The exact commit the replay judged, never the mutable branch, and no token left in
+      # git config: nothing this job runs from the branch can reuse a push credential.
+      - name: Checkout the replayed head commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          token: ${{ secrets.BEEP_SKILLS_TRAIN_TOKEN || github.token }}
-          persist-credentials: true
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Author login alone proves nothing: anyone with write access can push onto an open
+      # Renovate branch. Require every commit since the base to come from Renovate or a prior
+      # relock, and the change to stay inside the lock and the vendored skill trees.
+      - name: Verify the branch only carries Renovate and relock commits
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          base="$(git merge-base "$BASE_SHA" "$HEAD_SHA")"
+          foreign="$(git log --format='%H %an <%ae>' "$base..$HEAD_SHA" \
+            | grep -vE ' (renovate\[bot\] <29139614\+renovate\[bot\]@users\.noreply\.github\.com>|github-actions\[bot\] <41898282\+github-actions\[bot\]@users\.noreply\.github\.com>)$' || true)"
+          if [ -n "$foreign" ]; then
+            echo "::error::Commits not authored by Renovate or a prior relock:"
+            echo "$foreign"
+            exit 1
+          fi
+          outside="$(git diff --name-only "$base" "$HEAD_SHA" \
+            | grep -vE '^(skills-lock\.json|\.claude/skills/.+|\.agents/skills/.+)$' || true)"
+          if [ -n "$outside" ]; then
+            echo "::error::The branch changes files outside the lock and the vendored skill trees:"
+            echo "$outside"
+            exit 1
+          fi
 
       - name: Setup monorepo CI
         uses: ./.github/actions/setup-monorepo-ci
@@ -162,7 +190,7 @@ jobs:
         run: |
           set -euo pipefail
           bun run beep skills replay --json > "$RUNNER_TEMP/replay.json"
-          mapfile -t skills < <(jq -r '.reports[] | select(.recorded | not) | .skill' "$RUNNER_TEMP/replay.json")
+          mapfile -t skills < <(jq -r '.reports[] | select((.recorded | not) or (.licenseMatches | not)) | .skill' "$RUNNER_TEMP/replay.json")
           if [ "${#skills[@]}" -eq 0 ]; then
             echo "Every vendored skill already records its pin; nothing to relock."
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -178,11 +206,14 @@ jobs:
           echo "changed=true" >> "$GITHUB_OUTPUT"
           printf '%s\n' "${skills[@]}" > "$RUNNER_TEMP/relocked.txt"
 
+      # The push token is used here only, on an explicit URL; it never enters git config. A
+      # branch that moved after the replay makes this a non-fast-forward push, which fails.
       - name: Commit the recorded hashes to the Renovate branch
         if: steps.relock.outputs.changed == 'true'
         shell: bash
         env:
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PUSH_TOKEN: ${{ secrets.BEEP_SKILLS_TRAIN_TOKEN || github.token }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -196,7 +227,7 @@ jobs:
             exit 0
           fi
           git commit -m "chore(skills): relock $(paste -sd, "$RUNNER_TEMP/relocked.txt") at the bumped pin"
-          git push origin "HEAD:refs/heads/${HEAD_REF}"
+          git push "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${HEAD_REF}"
 
   batch-issue:
     name: Skills Train Batch Issue
