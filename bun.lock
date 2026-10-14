@@ -3305,6 +3305,7 @@
         "@effect/platform-node-shared": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+        "pdf-lib": "catalog:",
       },
     },
     "packages/tooling/tool/docgen": {
