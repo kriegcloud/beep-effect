@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { FileProcessingOperationErrorReason } from "@beep/file-processing/Operation";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
 import * as A from "effect/Array";
@@ -1289,6 +1290,61 @@ class MailStorePassRecord extends S.Class<MailStorePassRecord>($I`MailStorePassR
   })
 ) {}
 
+/**
+ * Message-free original failure evidence retained by the mail terminal catch.
+ *
+ * **Details**
+ *
+ * Only fixed classes, numeric budgets and capture status are retained. Messages,
+ * process arguments, output, arbitrary driver details and paths are excluded.
+ * Existing exception rows may omit this evidence and remain decodable.
+ *
+ * **Example** (Record a nonzero second pass)
+ *
+ * ```ts import.meta.vitest name="Record a nonzero second pass"
+ * import { MailFailureCause } from "@beep/repo-cli/commands/Corpus"
+ *
+ * const cause = MailFailureCause.cases.TikaSecondPassFailure.make({
+ *   emptyOutput: true, exitCode: 1, truncated: false
+ * })
+ * cause.exitCode // => 1
+ * ```
+ *
+ * @category diagnostics
+ * @since 0.0.0
+ */
+export const MailFailureCause = S.TaggedUnion({
+  AttachmentRepairElapsedBudget: {
+    attemptElapsedMillis: S.Natural,
+    familyElapsedMillis: S.Natural,
+    maxElapsedMillis: PosInt,
+    maxTotalElapsedMillis: PosInt,
+  },
+  TikaSecondPassFailure: {
+    emptyOutput: S.Boolean,
+    exitCode: S.Finite,
+    truncated: S.Boolean,
+  },
+  FileProcessingOperationError: { reason: FileProcessingOperationErrorReason },
+  CaptureCommandTimedOutError: {},
+  CapturePipeWedgedError: {},
+  CorpusCommandError: {},
+  Unknown: {},
+}).pipe(
+  $I.annoteSchema("MailFailureCause", {
+    description:
+      "Allowlisted original mail failure classes and stable fields without corpus-bearing messages or paths.",
+  })
+);
+
+/**
+ * Decoded diagnostic evidence for {@link MailFailureCause}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type MailFailureCause = typeof MailFailureCause.Type;
+
 class MailStoreExceptionRecord extends S.Class<MailStoreExceptionRecord>($I`MailStoreExceptionRecord`)(
   {
     ...TransformationEvidenceIdentity.fields,
@@ -1296,6 +1352,7 @@ class MailStoreExceptionRecord extends S.Class<MailStoreExceptionRecord>($I`Mail
     attemptId: AttemptId,
     disposition: S.optionalKey(MailDisposition),
     exceptionKind: MailExceptionKind,
+    failureCause: S.optionalKey(MailFailureCause),
     family: S.Literal("mail"),
     mailScope: MailRestorationScope,
     message: S.NonEmptyString,

@@ -244,7 +244,7 @@ produces them.
 | Surviving capabilities | `rsc-a-retire` (repository tools) + `rsc-f-agents` (agent capabilities) | `history/receipts/surviving-capabilities.md` |
 | Harness ledger presentation and decision links | `rsc-a-retire` (compact presentation) + `rsc-f-agents` (decision links via the supported writer) | `history/receipts/stage-5-acceptance.md#harness-ledger` |
 | Detector repairs | `rsc-b-standards` | **Pending** — detector fixtures and individual exception admission remain open |
-| Standards and documentation currency (brief 2.B) | `rsc-b-standards` | `history/receipts/stage-4-standards-docs.md` |
+| Standards and documentation currency (brief 2.B) | `rsc-b-standards` | **Pending** — reconciled previews require tracked application and proof after the R20 refresh |
 | Script ports | `rsc-c-scripts` | `history/receipts/stage-5-acceptance.md#script-ports` |
 | Sensitive scripts | `rsc-c-scripts` | `history/receipts/stage-5-acceptance.md#sensitive-scripts` |
 | Retained patches | `rsc-a-retire` | `history/receipts/stage-5-acceptance.md#retained-patches` |
@@ -335,4 +335,4 @@ source/scope review at `3897314253` returned zero actionable findings.
 See `history/handoffs/rsc-d-release-2026-10-09.md` for current terminal results.
 GitHub Packages lacks read:packages; desktop verification remains E-owned.
 
-B status (2026-10-13): bounded three-finding baseline repair published in #1616; integrated local verification settled, hosted requalification pending; original R20 waves remain open.
+B status (2026-10-14): historical #1616 is merged. First R20 owner refresh is regenerated at `80fe0135ff` from fetched main `f21e2a8563`; publication-head parity and named review precede the final report. Cap released. Serialized R14 merge and later guidance/provenance waves remain open. See the current B handoff for pinned results and inherited reds.

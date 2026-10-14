@@ -3762,6 +3762,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:policy:cheap",
         "lint:policy:medium",
         "lint:policy:state",
+        "knowledge:doctor",
         "lint:deprecated-apis",
         "quality:test-tsgo",
       ]);
@@ -3804,7 +3805,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "jsdoc:inventory:check",
         "jsdoc:ratchet:check",
       ]);
-      for (const index of [0, 1, 3]) {
+      for (const index of [0, 1, 4]) {
         const step = O.getOrThrow(A.get(local, index));
         expect(step.args).toContain("--affected");
         expect(policyTurboScmBase(step)).toBe("review-base");
@@ -3812,7 +3813,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       }
       expect(local[2]?.args).not.toContain("--affected");
       expect(policyTurboScmBase(O.getOrThrow(A.get(local, 2)))).toBeUndefined();
-      for (const step of A.take(local, 4)) {
+      expect(O.getOrThrow(A.get(local, 3)).args).toEqual(repoCliEntryArgs("knowledge", "doctor", "--report"));
+      for (const step of A.filter(A.take(local, 5), (planned) => planned.label !== "knowledge:doctor")) {
         expect(step.args).toContain("--summarize");
         expect(step.args).toContain("--continue=dependencies-successful");
         expect(step.args).not.toContain(LABS_EXCLUDE_FILTER);
@@ -3829,6 +3831,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(A.map(full, (step) => step.label)).toEqual([
         "lint:policy:cheap",
         "lint:policy:medium",
+        "knowledge:doctor",
         "lint:jsdoc",
         "lint:deprecated-apis",
         "quality:test-tsgo",
@@ -3837,10 +3840,15 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(11)),
         ...pipe(A.get(local, 2), O.getOrThrow, taskNames),
       ]);
-      // A local full-scope plan (no review base) leaves the two git-delta knowledge checks
-      // to the hosted plan; the changed-scope state phase still carries them.
+      // A local full-scope plan (no review base) leaves the two git-delta knowledge checks and the
+      // report-only knowledge doctor to the hosted plan; the changed-scope plan still carries them.
       const localFull = rootLintPolicyStepsForTesting("/repo", undefined, undefined, undefined, false);
-      expect(A.map(localFull, (step) => step.label)).toEqual(A.map(full, (step) => step.label));
+      expect(A.map(localFull, (step) => step.label)).toEqual(
+        A.filter(
+          A.map(full, (step) => step.label),
+          (label) => label !== "knowledge:doctor"
+        )
+      );
       expect(pipe(A.get(localFull, 1), O.getOrThrow, taskNames)).toEqual(
         pipe(
           A.get(full, 1),
@@ -3930,6 +3938,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "lint:effect-vitest",
           "lint:retired-effect-paths",
           "quality:test-tsgo",
+          "knowledge:doctor",
         ];
         expect(
           A.sort(

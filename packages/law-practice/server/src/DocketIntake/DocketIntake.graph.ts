@@ -283,6 +283,7 @@ const toDocketMessage =
             O.flatMap((body) => body.content),
             O.getOrElse(() => "")
           ),
+          conversationId: O.filter(message.conversationId, Str.isNonEmpty),
           internetMessageId: O.filter(message.internetMessageId, Str.isNonEmpty),
           messageId: message.id,
           // One timestamp format everywhere: the pipeline orders and compares these as strings.
@@ -476,6 +477,9 @@ const makeMailbox = (m365: M365Shape, config: DocketGraphConfig, folders: Mailbo
           bodyContentType: O.some("text"),
           filter: O.some(`receivedDateTime ge ${floor}`),
           orderby: O.some("receivedDateTime asc"),
+          select: O.some(
+            "id,conversationId,internetMessageId,receivedDateTime,body,from,sender,isDraft,parentFolderId,subject,webLink"
+          ),
           top: O.some(config.pageSize),
           userId,
         })

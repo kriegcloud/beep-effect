@@ -630,6 +630,12 @@
         ]
       },
       {
+        "name": "@beep/practice-claude-mod",
+        "patterns": [
+          "apps/practice-claude-mod/src/**"
+        ]
+      },
+      {
         "name": "@beep/practice-identify",
         "patterns": [
           "apps/practice-identify/src/**"
@@ -3253,6 +3259,21 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/practice-claude-mod",
+        "allow": [
+          "@beep/identity",
+          "@beep/practice-claude-mod",
+          "@beep/schema",
+          "@beep/test-runner"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/practice-claude-mod",
+          "@beep/schema",
+          "@beep/test-runner"
         ]
       },
       {
