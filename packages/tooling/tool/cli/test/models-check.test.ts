@@ -2,6 +2,7 @@ import {
   CatalogModel,
   CatalogSnapshot,
   CodexModelsCache,
+  ModelId,
   ModelsCatalog,
   ModelsCatalogLive,
   ModelsCatalogSources,
@@ -38,6 +39,7 @@ import {
 } from "./helpers/models-fixtures.ts";
 import type { DriftKind } from "@beep/repo-cli/commands/Models";
 
+const decodeModelId = S.decodeEffect(ModelId);
 const decodeUpstream = S.decodeEffect(UpstreamCatalog);
 const decodeCodex = S.decodeEffect(CodexModelsCache);
 const encodeReportJson = S.encodeUnknownEffect(S.fromJsonString(ModelsCheckReport));
@@ -99,12 +101,12 @@ const models = Layer.mergeAll(
 
 layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
   it.effect("keeps task-assigned panels separate from October 14 defaults and specialist routes", () =>
-    Effect.sync(() => {
+    Effect.gen(function* () {
       const pin = (role: string, surface: string) =>
         A.findFirst(seedModelsManifest.bindings, (entry) => entry.role === role && entry.surface === surface);
       assertSome(
         O.map(pin("codex.heavy", "codex-cli"), (entry) => entry.modelId),
-        "gpt-6.1-sol"
+        yield* decodeModelId("gpt-6.1-sol")
       );
       assertSome(
         O.flatMap(pin("codex.heavy", "codex-cli"), (entry) => entry.effort),
@@ -112,31 +114,31 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       );
       assertSome(
         O.map(pin("orchestrator", "claude-code"), (entry) => entry.modelId),
-        "claude-fable-5-1"
+        yield* decodeModelId("claude-fable-5-1")
       );
       assertSome(
         O.map(pin("child.heavy", "claude-code"), (entry) => entry.modelId),
-        "claude-opus-5-5"
+        yield* decodeModelId("claude-opus-5-5")
       );
       assertSome(
         O.map(pin("fallback.cursor", "cursor-seat"), (entry) => entry.modelId),
-        "claude-opus-5-5-medium"
+        yield* decodeModelId("claude-opus-5-5-medium")
       );
       assertSome(
         O.map(pin("child.lightweight", "proxy-workflow"), (entry) => entry.modelId),
-        "gpt-6-luna"
+        yield* decodeModelId("gpt-6-luna")
       );
       assertSome(
         O.map(pin("research.web", "proxy-workflow"), (entry) => entry.modelId),
-        "grok-4.7"
+        yield* decodeModelId("grok-4.7")
       );
       assertSome(
         O.map(pin("jsdoc.migrate-titles", "grok-cli"), (entry) => entry.modelId),
-        "grok-4.7"
+        yield* decodeModelId("grok-4.7")
       );
       assertSome(
         O.map(pin("review.panel", "codex-cli"), (entry) => entry.modelId),
-        "gpt-6-astra"
+        yield* decodeModelId("gpt-6-astra")
       );
       assertSome(
         O.flatMap(pin("review.panel", "codex-cli"), (entry) => entry.effort),
@@ -144,11 +146,11 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       );
       assertSome(
         O.map(pin("muse.opt-in", "proxy-workflow"), (entry) => entry.modelId),
-        "muse-wonder-1.0"
+        yield* decodeModelId("muse-wonder-1.0")
       );
       assertSome(
         O.map(pin("junie.default", "junie-cli"), (entry) => entry.modelId),
-        "gemini-3-flash-preview"
+        yield* decodeModelId("gemini-3-flash-preview")
       );
       strictEqual(
         A.some(seedModelsManifest.superseded, (entry) => entry.id === "gpt-6-astra"),

@@ -50,3 +50,45 @@ Private logs and plan remain under local ~/.cache/beep/pr1750/. Worker job logs,
 verdict and Turbo summaries remain in its disposable proof checkout until
 archived. Full/heavy hosted checks and remaining shard/property results were
 still pending when this receipt was written; no merge-ready claim is made.
+
+## Fixed wave-fixture head 10d3daa28b
+
+The new wave fixture passes on beep-worker: all 115 wave/proof-job tests in
+45.17 seconds, under the existing worker slice. Fresh full serial cheap gates
+at 10d3daa28bbbe2bd403eb3473efd096fb7744122 pass in 589,793 ms. Job
+4229a558-f84f-46bc-94f8-dd4e68acbb59 records normal systemd success, exit zero,
+invocation 07f793e6060e41c6afa65376291b00fb; job wait exits zero. The actual
+import-law scan takes 97,883 ms and schema-first 121,677 ms; observed peak
+7,180,320,768 bytes remains under unchanged worker limits. Cache reuse remains
+allowed. Hosted repo-cli shards, aggregate Test Unit and Property Laws are green
+at this head, closing the original stale-wave-fixture CI failures.
+
+Hosted Heavy Check then identifies ten TS2345 errors in models-check.test.ts:
+expected raw strings were supplied to assertions over branded ModelId values.
+Use the existing exported ModelId schema and decodeEffect inside the test's
+Effect generator to construct expected values. All identifiers remain identical;
+main-owned seeds/schema/service and installed routing manifests are unchanged.
+A first decodeSync draft triggered the test checker's effect(schemaSync) rule;
+it was replaced before committing. Model runtime tests pass (17), and the full
+local test-tsgo command checks 348 test files and exits zero. The broader three
+focused files also passed 132 runtime tests before the effectful decode change;
+model tests were rerun after that change. Hosted merge-preview tests additionally
+include newer main files, so fresh hosted Check remains required.
+
+## Stale hosted heavy jobs attributed to Spot reclamation
+
+At 10d3daa28b, all unit/property runs and Heavy Build, Docgen, Doctest and
+Integration were green. Heavy Check's ten branded-ID test errors were the
+remaining known source failure. Lint Policy (job 116056002704) and Coverage
+Regression (116056002649) still reported in_progress on runners
+beep-ci-i-0e90d82b87e47f1bd and beep-ci-i-08cb700f80e496458.
+
+Using the already approved worker op run AWS environment, read-only EC2
+instance status identified both as terminated. Spot request records identify
+both closed with instance-terminated-no-capacity, updated
+2026-10-14T19:48:28+00:00. This attributes loss to Spot capacity reclamation,
+not a source assertion or an unexplained OOM. The workflow was canceled only
+after confirming these were its sole remaining jobs and both assigned instances
+were gone. The fixes will get fresh hosted qualification; canceled lost-runner
+jobs remain unknown rather than being waived or counted green. No runner cap,
+instance type, Spot policy, budget, state or infrastructure deployment changed.
