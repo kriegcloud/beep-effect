@@ -1,27 +1,30 @@
+// @effect-diagnostics strictEffectProvide:skip-file
+// Tests are runtime entrypoints and own their native compiler layer scopes.
 /** Executable proof of the ecosystem polarity contract and dialect import DAG. */
+import { TsNativeApi, TsNativeConfig } from "@beep/repo-utils/TsNativeApi";
 import { it } from "@beep/test-runner";
+import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
-import * as A from "effect/Array";
-import { fn, fnUntraced, forEach, map, tryPromise, withSpan } from "effect/Effect";
-import * as R from "effect/Record";
-import { decodeUnknownEffect, Record as RecordSchema, String, Unknown } from "effect/Schema";
-import * as Str from "effect/String";
 import {
-  createSourceFile,
-  forEachChild,
   isCallExpression,
   isExportDeclaration,
   isExternalModuleReference,
   isIdentifier,
   isImportDeclaration,
   isImportEqualsDeclaration,
-  isStringLiteralLike,
-  ScriptKind,
-  ScriptTarget,
+  isStringLiteralLikeNode,
   SyntaxKind,
-} from "typescript";
+} from "@typescript/native/unstable/ast";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import { fn, fnUntraced, forEach, map, tryPromise, withSpan } from "effect/Effect";
+import * as HashSet from "effect/HashSet";
+import * as EffectLayer from "effect/Layer";
+import * as R from "effect/Record";
+import { decodeUnknownEffect, Record as RecordSchema, String, Unknown } from "effect/Schema";
+import * as Str from "effect/String";
 import { buildBundleConsumer } from "./bundle-build.ts";
-import type { Node } from "typescript";
+import type { Node } from "@typescript/native/unstable/ast";
 
 interface ModuleEdge {
   readonly file: string;
@@ -35,7 +38,7 @@ const importOrExportSpecifier = (node: Node): string | undefined => {
   if (
     (isImportDeclaration(node) || isExportDeclaration(node)) &&
     node.moduleSpecifier !== undefined &&
-    isStringLiteralLike(node.moduleSpecifier)
+    isStringLiteralLikeNode(node.moduleSpecifier)
   ) {
     return node.moduleSpecifier.text;
   }
@@ -47,7 +50,7 @@ const importEqualsSpecifier = (node: Node): string | undefined => {
     isImportEqualsDeclaration(node) &&
     isExternalModuleReference(node.moduleReference) &&
     node.moduleReference.expression !== undefined &&
-    isStringLiteralLike(node.moduleReference.expression)
+    isStringLiteralLikeNode(node.moduleReference.expression)
   ) {
     return node.moduleReference.expression.text;
   }
@@ -59,55 +62,69 @@ const callSpecifier = (node: Node): string | undefined => {
   const isDynamicImport = node.expression.kind === SyntaxKind.ImportKeyword;
   const isRequire = isIdentifier(node.expression) && node.expression.text === "require";
   const argument = node.arguments[0];
-  return (isDynamicImport || isRequire) && argument !== undefined && isStringLiteralLike(argument)
+  return (isDynamicImport || isRequire) && argument !== undefined && isStringLiteralLikeNode(argument)
     ? argument.text
     : undefined;
 };
 
-const moduleSpecifiers = (file: string, source: string): ReadonlyArray<ModuleEdge> => {
+const nativeLayer = TsNativeApi.layer(TsNativeConfig.make({ cwd: process.cwd(), tsconfig: "tsconfig.json" })).pipe(
+  EffectLayer.provide(NodeServices.layer)
+);
+
+const moduleSpecifiers = fn("moduleSpecifiers")(function* (file: string, source: string) {
   const edges: Array<ModuleEdge> = [];
-  const sourceFile = createSourceFile(file, source, ScriptTarget.Latest, true, ScriptKind.TS);
+  const api = yield* TsNativeApi;
+  const sourceFile = yield* api.parseSource(file, source);
   const visit = (node: Node): void => {
     const specifier = importOrExportSpecifier(node) ?? importEqualsSpecifier(node) ?? callSpecifier(node);
     if (specifier !== undefined) edges.push({ file, specifier });
-    forEachChild(node, visit);
+    node.forEachChild(visit);
   };
   visit(sourceFile);
   return edges;
-};
+}, Effect.scoped);
 
-const sourceEdges = fn("sourceEdges")(function* (directoryUrl: URL, requiredFile: string) {
-  const files = [...new Bun.Glob("**/*.ts").scanSync({ cwd: directoryUrl.pathname })];
-  expect(files).toContain(requiredFile);
-  return yield* forEach(
-    files,
-    (file) =>
-      tryPromise(() => Bun.file(new URL(file, directoryUrl)).text()).pipe(
-        withSpan("EffectDrizzle.boundary.read", { attributes: { file } }),
-        map((source) => moduleSpecifiers(file, source))
-      ),
-    { concurrency: "unbounded" }
-  ).pipe(map((edges) => edges.flat()));
-});
+const sourceEdges = fn("sourceEdges")(
+  function* (directoryUrl: URL, requiredFile: string) {
+    const files = [...new Bun.Glob("**/*.ts").scanSync({ cwd: directoryUrl.pathname })];
+    expect(files).toContain(requiredFile);
+    return yield* forEach(
+      files,
+      (file) =>
+        tryPromise(() => Bun.file(new URL(file, directoryUrl)).text()).pipe(
+          withSpan("EffectDrizzle.boundary.read", { attributes: { file } }),
+          Effect.flatMap((source) => moduleSpecifiers(file, source))
+        ),
+      { concurrency: "unbounded" }
+    ).pipe(map(A.flatten));
+  },
+  Effect.scoped,
+  Effect.provide(nativeLayer)
+);
 
-const localModuleUrls = (current: URL, source: string): ReadonlyArray<URL> =>
-  A.map(
-    A.filter(moduleSpecifiers(current.pathname, source), ({ specifier }) => specifier.startsWith(".")),
+const localModuleUrls = fn("localModuleUrls")(function* (current: URL, source: string) {
+  return A.map(
+    A.filter(yield* moduleSpecifiers(current.pathname, source), ({ specifier }) => Str.startsWith(".")(specifier)),
     ({ specifier }) => new URL(specifier, current)
   );
-
-const localImportClosure = fn("localImportClosure")(function* (entrypoint: URL) {
-  const pending = [entrypoint];
-  const visited = new Set<string>();
-  while (pending.length > 0) {
-    const current = pending.pop();
-    if (current === undefined || visited.has(current.pathname)) continue;
-    visited.add(current.pathname);
-    const source = yield* tryPromise(() => Bun.file(current).text());
-    pending.push(...localModuleUrls(current, source));
-  }
-  return [...visited];
 });
+
+const localImportClosure = fn("localImportClosure")(
+  function* (entrypoint: URL) {
+    const pending = [entrypoint];
+    let visited = HashSet.empty<string>();
+    while (pending.length > 0) {
+      const current = pending.pop();
+      if (current === undefined || HashSet.has(visited, current.pathname)) continue;
+      visited = HashSet.add(visited, current.pathname);
+      const source = yield* tryPromise(() => Bun.file(current).text());
+      pending.push(...(yield* localModuleUrls(current, source)));
+    }
+    return A.fromIterable(visited);
+  },
+  Effect.scoped,
+  Effect.provide(nativeLayer)
+);
 
 const workspaceEdges = (edges: ReadonlyArray<ModuleEdge>) =>
   A.filter(edges, ({ specifier }) => Str.startsWith("@beep/")(specifier));
@@ -129,8 +146,11 @@ const forbiddenDialectEdges = fn("forbiddenDialectEdges")(function* (
 });
 
 describe("boundary scanner controls", () => {
-  it("detects forbidden edges in each supported module syntax", () => {
-    const source = `
+  it.effect(
+    "detects forbidden edges in each supported module syntax",
+    fnUntraced(
+      function* () {
+        const source = `
       import { value } from "@beep/forbidden-import";
       export { value } from "@beep/forbidden-export";
       import legacy = require("@beep/forbidden-equals");
@@ -140,19 +160,23 @@ describe("boundary scanner controls", () => {
       export { sqlite } from "../sqlite/index.ts";
       import { allowed } from "effect/Effect";
     `;
-    const edges = moduleSpecifiers("boundary-control.ts", source);
-    expect(A.map(workspaceEdges(edges), ({ specifier }) => specifier)).toEqual([
-      "@beep/forbidden-import",
-      "@beep/forbidden-export",
-      "@beep/forbidden-equals",
-      "@beep/forbidden-dynamic",
-      "@beep/forbidden-require",
-    ]);
-    expect(A.map(dialectEdges(edges, ["../pg", "../sqlite"]), ({ specifier }) => specifier)).toEqual([
-      "../pg/index.ts",
-      "../sqlite/index.ts",
-    ]);
-  });
+        const edges = yield* moduleSpecifiers("boundary-control.ts", source);
+        expect(A.map(workspaceEdges(edges), ({ specifier }) => specifier)).toEqual([
+          "@beep/forbidden-import",
+          "@beep/forbidden-export",
+          "@beep/forbidden-equals",
+          "@beep/forbidden-dynamic",
+          "@beep/forbidden-require",
+        ]);
+        expect(A.map(dialectEdges(edges, ["../pg", "../sqlite"]), ({ specifier }) => specifier)).toEqual([
+          "../pg/index.ts",
+          "../sqlite/index.ts",
+        ]);
+      },
+      Effect.scoped,
+      Effect.provide(nativeLayer)
+    )
+  );
 });
 
 describe("ecosystem import boundaries", () => {
