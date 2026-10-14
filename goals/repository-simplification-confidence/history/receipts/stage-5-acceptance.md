@@ -1,4 +1,37 @@
-# Stage 5 acceptance evidence
+# Stage 5 acceptance evidence — partial A, V and G contributions
+
+This is a partial lane receipt, recorded 2026-10-09 with wave 1 published as draft PR #1584 at `b403cd2b9b` and D/E integration merged locally at `2f4979d2e7`; later-wave groundwork remains outside publication. It does not claim program completion or hosted acceptance.
+
+## Removals
+
+Wave 1: 40 Knip rows fixed and one Govinfo drift oracle documented at `8f29e3528e`; the final patched Knip 6.40.0 cross-check reports only that oracle. The local implementation, dependency/catalog/patch, config, scripts, Turbo task, baseline and CLI wiring are removed. Source-complete draft PR #1584 passes cheap gates and the clean-head install preflight. D #1566 and E #1568 are integrated locally; independent reviews find zero source collisions. E deliberately retains the Knip workflow for the separate S3 window, and the orchestrator owns required-context removal. Post-E owners and semantic delta pass. Full CLI verification has one failure in the live workflow/descriptor parity test (5,801 tests pass). E still owns the remaining Knip workflow job; post-E parity and scoped coverage are not run after that failure. First-head hosted coverage also identifies stale Data rows, surviving unchanged-source gaps and unproven minted floors. No acceptance is claimed. Other retirement waves remain open.
+
+## Retained tools
+
+Pending. `docs/runbooks/retained-repository-tools.md` records purpose, owner, consumers, invocation, checks and reconsideration conditions. Workflow execution evidence remains required.
+
+## Retained patches
+
+Pending. C owns the ONNX test move (R23), H1 owns its exact-version hold, and A owns the five fail-unpatched/pass-patched proofs. Four companion patch records now name the behavior, test requirements, available upstream evidence and exit conditions. The Effect reference at `66257d29224e949f7b300ff33416098519c7e86a` still lacks the filesystem offset and error-location fixes. Focused tests and unpatched/patched outcomes are not yet proved. XState runbook versions, discovery globs and the obsolete alpha.5 patch description are corrected against the root catalog and installed alpha.6 module.
+
+## Harness ledger
+
+Later-wave unstaged groundwork adds `harness-ledger/rows/` to `.rgignore`, `.aiignore` and `.graftignore`, leaving the compact README and supported CLI accessible. No `.gitignore` change is made. The graft meaning-tier ignore prevents row content from entering summaries; its structural graph still indexes paths per that file's contract.
+
+Before-change row hashes:
+
+- `rows/2026-09.jsonl`: `eaf44471696789fbd5417ddaef2c967fc15e5960703d75c9ead744b2ed326bbc`.
+- `rows/2026-10.jsonl`: `71a6312c53ca13d3823626df570d1601c79efd395044772844b7d88dd021b95c`.
+
+Verification: the same hashes remain after the ignore edits; `git ls-files harness-ledger/rows` retains both JSONL files and `.gitkeep`; default ripgrep does not enumerate row paths, while explicit `--no-ignore` enumeration does. Neither rows nor their decision chains were changed. Hosted acceptance remains pending.
+
+## Package gates
+
+All eleven touched packages passed full run-5 package verification before E's main merge: box-provisioning, box, freshbooks, occt, pdf-tools, wink, colors, data, repo-ai-metrics, codegen-kit and repo-cli. The refreshed post-D CLI audit passed in 785 seconds with docgen in 28 seconds; test TSGo and full docgen also passed. E changes CLI source, so those CLI/parity passes are now historical. Ten unchanged package gates remain valid. Post-E full CLI verification fails only the live Knip workflow contract. Its docgen and the subsequent post-E parity/coverage sequence are not run. This is an S3 integration blocker requiring E-owned workflow retirement, followed by a fresh CLI/package/parity/coverage run.
+
+## Scope
+
+All writes are inside the assigned lane. No foreign worktree, clone-local residue, home configuration, hosted ruleset or other lane's owned files were changed. Local residue is deferred until post-merge, with orchestrator routing required for paths outside this lane.
 
 ## Storage
 
@@ -130,11 +163,13 @@ and 20-minute review-window merge gate to the orchestrator. No G merge is
 performed by the worker.
 # Stage 5 acceptance evidence — partial V contribution
 
+## V canon evidence
+
 This records V's local evidence only. It does not close the program or qualify
 publication, hosted readiness, other lanes, or the repaired non-CLI preview.
 The orchestrator owns the aggregate acceptance record.
 
-## Package gates
+### V package gates
 
 | Lane | Package | Qualified source / artifact | Full package result | Evidence |
 | --- | --- | --- | --- | --- |
@@ -142,7 +177,7 @@ The orchestrator owns the aggregate acceptance record.
 | V, prepared R105 patch | `@beep/rdf` | Original patch `b0f087e9b4addbd08cebc4c8cb4750e879a6367d8f344c6a55b278f5f77a4a92` | PASS 12.064 s | Prepared-patch evidence only; repair preview needs its own proof |
 | V, prepared R105 patch | `@beep/pacer` | Same original patch | PASS 10.024 s | Prepared-patch evidence only; no second PR exists |
 
-## Scope
+### V scope
 
 V changes 78 files relative to merged main, including this partial receipt.
 Only repo-cli package source/tests are edited; RDF/Pacer are preserved patches,
@@ -227,7 +262,7 @@ The retained apt/systemd/cloud/Graft adapters received syntax or synthetic check
 only. No live apt directory, vault, systemd unit, reference checkout, bootstrap
 installation or model endpoint was mutated for proof.
 
-## Package gates
+## C package gates
 
 Changed versioned package: `@beep/repo-cli`, with a patch changeset.
 `beep quality package-verify @beep/repo-cli` is admitted through `beep-heavy` and
@@ -246,7 +281,7 @@ Scoped coverage baseline was read for touched files. This is a floor inventory,
 not a fresh coverage result; no baseline was lowered. New Accounts layout files
 have no pre-existing baseline floor. Exact affected floors are in the handoff.
 
-## Scope
+## C scope
 
 C owns its command-family ports, fixture tests, caller rewiring and historical
 cloud packet annotations. Shared root command/cache baseline/AGENTS/workflow

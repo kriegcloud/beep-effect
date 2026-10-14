@@ -111,6 +111,72 @@
   defects from wording findings up front, and a mechanical verbatim-section
   checker against the brief so copy drift is caught by a validator.
 
+### A admission environment (2026-10-09)
+
+- Task: regenerate the schema catalog and refresh the FreshBooks dependency lock through `beep-heavy`.
+- Evidence: wrapper exited 1 before executing either command: `Failed to connect to user scope bus`; runtime directory and session bus variables were absent in the worker shell.
+- Prevention: worker launcher exports the existing user-manager environment. Retry uses `/run/user/1000` and its bus, preserving admission rather than bypassing it.
+
+### A admission capacity receipt (2026-10-09)
+
+- Task: post-transfer dependency refresh and catalog/JSDoc regeneration.
+- Evidence: `beep-heavy: all 3 slots busy, waiting`; `lslocks` identified two finite proof commands and an orchestrator `gate.sh` polling loop holding a heavy slot for over two hours. Slot receipt files were empty while waiters were active.
+- Prevention: finite proofs own heavy slots; a persistent polling daemon should release admission between heavy operations. The lane leaves the existing owner's daemon untouched and keeps its commands queued.
+
+### A orphaned gate runner recovery (2026-10-09, run 2)
+
+- Task: read the resumed lane's package results before launching any duplicate gate.
+- Evidence: the package loop parent had exited; only the completed Box provisioning row remained in `package-results.tsv`. Its Box admission child and the schema writer were still queued. A background shell launched through the worker tool also exited while its user-manager child survived.
+- Recovery: terminated only A's confirmed queued children, then placed the sequential runner in `rsc-a-run2-gates.service`. It logs each command and appends terminal exit codes to `.beep/rsc-a/run2-results.tsv`. No other lane's process was stopped.
+- Prevention: launch the coordinator itself as a user service, not merely each admitted child. A polling coordinator takes no heavy slot; each finite command still uses `beep-heavy`.
+
+## 2026-10-09: inventory writer spelling selected the broad lint pipeline
+
+- Doing: regenerating the JSDoc inventory after narrowing private exports.
+- Evidence: `beep lint jsdoc-documentation --write` ran `lint:policy` and
+  failed with `Census subprocess failed or exceeded its 512 MiB capture bound`;
+  the actual owner is `beep quality jsdoc-inventory`.
+- Would have prevented it: rejecting unknown lint subcommands instead of
+  forwarding them into the root lint battery. Run 3 uses the owner command.
+
+## 2026-10-09: Knip retirement relocates shared lock hoisting
+
+- Doing: owner-generated `bun install` after removing only Knip declarations.
+- Evidence: 27 added / 128 removed lock lines; surviving `oxc-resolver` moves
+  from 11.24.2 to 11.21.2, `strip-json-comments` from 5.0.3 to 2.0.1, and
+  `@emnapi` package keys relocate. No other manifest version was changed.
+  The lane handoff records every changed/added/removed package key.
+- Would have prevented it: a lock regeneration receipt that separates
+  deleted dependency closure from shared-hoisting relocation, allowing the
+  orchestrator to approve the exact generated graph under S5 before push.
+  Publication is held as resume ruling 2 requires.
+
+## 2026-10-09: cache-baseline review request rejected its subject selection
+
+- Doing: re-recording cache posture after Knip retirement and FreshBooks transfer.
+- Evidence: `beep cache baseline --request` returned `Unreviewed: @beep/freshbooks. Unknown: .` for the request naming `//`.
+- Resolution: use the owner's documented changed-subject mode and include FreshBooks in the review basis; inspect the stamped subjects and resulting diff before publication.
+- Prevention: validate review subject selection against the current census when constructing the request, and keep its basis content-addressed.
+
+## 2026-10-09: retirement cheap gates exposed dependent artifacts
+
+- Doing: wave-1 Yeet draft publication.
+- Evidence: `config-sync:check` found two FreshBooks project-reference changes and Fallow boundary drift; `lint:effect-vitest` found three callback occurrences after fixture edits; Fallow audit/dead-code found only the Knip-only `smol-toml` override. Nothing was pushed.
+- Resolution: owner `tsconfig-sync`; shared `it.layer` for touched gate-order tests and removal of a redundant per-test layer in the already layered publish-gate test; retire the orphan override under the cleared Knip lock notice. Preserve the Effect Vitest inventory for V.
+- Prevention: include project-reference regeneration, override-consumer review and callback-fingerprint ratchets in dependency-removal preparation.
+
+## 2026-10-09: focused retirement repair waits behind shared heavy work
+
+- Doing: FreshBooks generated-reference check and current gate-order snapshot owner regeneration after the full CLI audit exposed stale retirement assertions.
+- Evidence: lane logs repeatedly contain `beep-heavy: all 3 slots busy, waiting`; FreshBooks has waited more than ten minutes without executing. The completed full audit ran 711.31 seconds and reported five precise fixture/assertion failures.
+- Prevention: an admission receipt with queue age and FIFO position would make focused repair scheduling observable. Keep the three-slot limit and other owners' proofs intact. This lane records the delay and waits; it does not bypass admission.
+
+## 2026-10-09: reference check missed before a String helper call
+
+- Doing: preserving the historical status byte fixture while projecting out its retired Knip gate.
+- Evidence: the focused assertion received a function as its expected value. `effect/String.replace` in the Effect v4 reference is curried-only: `replace(search, replacement)(self)`.
+- Resolution: corrected the call against `.repos/effect/packages/effect/src/String.ts` and reran the failed fixture group. The normalized historical placeholders are comparison text and are not decoded as a live DTO.
+- Prevention: inspect the current reference signature before writing each newly used Effect helper call; the data-first form cannot be assumed.
 ## H2: heavy proof entrypoint and read-only command cycle (2026-10-09)
 
 - Work: qualify structured goal completion in `rsc-h2-completion`.
@@ -811,6 +877,59 @@ and parity remain required before final handoff. No other lane unit was stopped.
   unpredictable wait time. A fair queue with observable position would prevent
   this delay; this lane does not alter the workstation wrapper or other jobs.
 
+## 2026-10-09: run-5 owner regeneration waits for shared admission
+
+- Doing: integrated-tree regeneration before the Knip retirement publication.
+- Evidence: the first command still has no terminal result after several
+  minutes; its log contains `beep-heavy: all 3 slots busy, waiting`. Slot
+  holders change while this waiter remains queued.
+- Prevention: a visible FIFO admission position and queue-age receipt would
+  distinguish normal capacity delay from starvation. The lane preserves the
+  shared three-slot limit and leaves other owners' processes intact.
+
+## 2026-10-09: local docgen requires a full proof for retirement inputs
+
+- Doing: run the brief's `beep docgen local --base origin/main` parity gate.
+- Evidence: exit 1 with `full docgen proof required; re-run with "--full"`.
+  Root manifest, lockfile, Turbo and Docgen tooling changes trigger this
+  planner refusal before execution. All eleven package docgen gates pass.
+- Resolution: run the required full proof under a second admitted command;
+  preserve the original refusal and report the full execution separately.
+- Prevention: lane plans with global input changes select the full mode
+  explicitly rather than treating local mode's planning refusal as a source red.
+
+## 2026-10-09: full docgen has no authenticated remote cache
+
+- Doing: required full docgen proof after global retirement inputs changed.
+- Evidence: Turbo warns `Remote caching unavailable (Authentication failed)`
+  and continues with local compilation.
+- Prevention: G's approved read-only cache credential route would avoid
+  repeated package compilation. This lane continues locally and leaves
+  cache credentials with their owner; no secret value or new endpoint used.
+
+## 2026-10-09: final-main advancement requires another CLI proof
+
+- Doing: final merge and artifact regeneration before A publication.
+- Evidence: D #1566 lands while the initial integrated package/parity/coverage
+  sequence runs. The merge is blocked first by dirty packet documents, then
+  has four documentation conflicts; source merges without conflict.
+- Recovery: retained recovery stash; preserve both lanes' documents; refresh
+  CLI source proofs and generated artifacts on merge `c65a49116c`. The ten
+  other package sources stay unchanged and their completed gates are retained.
+- Prevention: a serialized final-source integration window would avoid
+  repeating the 740-second CLI audit and 748-second coverage run. This lane
+  follows S4 and does not claim old source proof on the new integrated tree.
+
+## 2026-10-09: cache review CAS input became stale after D merge
+
+- Doing: regenerate the shared qualification baseline after final main merge.
+- Evidence: `Reviewed baseline changed; refresh its digest before replacing it.`
+- Resolution: read the owner's byte-hash CAS contract and refresh only the
+  request's previous digest from the actual merged baseline. Preserve scope,
+  profile, epoch, review basis and existing D evidence references. The failed
+  log remains; only this failed step and unrun steps are resumed.
+- Prevention: calculate the review CAS digest after the main merge, just before
+  the owner command. Saved pre-merge requests are evidence, not current inputs.
 ## 2026-10-09 — H2 test-law discovery during publication
 
 - Task: publish structured completion evidence after compiler, docgen and focused tests passed.
@@ -987,6 +1106,60 @@ Human review on PR #1568 identified that Repo Sanity's push-only hosted checks u
 
 While verifying the report push for #1568, both `gh pr view` and the complete review-thread query failed with `API rate limit already exceeded`. REST still verified the published head, ready state and existing comment history, but cannot establish thread-resolution state. Preserve unknown status and require a fresh complete GraphQL read at the orchestrator gate. A quota-aware final-read reservation would prevent publication verification from depending on an exhausted shared account budget.
 
+### A run 5: GitHub GraphQL rate limit at draft publication
+
+- Action: Yeet draft publication for PR #1584 at `b403cd2b9b`.
+- Evidence: body-history read returned `graphql_rate_limit`; Yeet verified
+  the provenance footer through REST readback and completed publication.
+- Effect: review-thread/window state remains unknown until a successful read;
+  no merge-readiness claim follows from the structural PR state.
+- Prevention: share API budget across fleet monitors and retain REST fallbacks
+  where they preserve the exact required evidence.
+
+### A run 5: integrated proof superseded by E landing
+
+- Action: finish wave-1 parity after draft publication.
+- Evidence: E #1568 adds CLI source while A's parity runs; GitHub reports
+  `base-conflict-14be9381b53c`.
+- Recovery: cancel superseded pending proof, retain terminal evidence, merge
+  E, refresh affected owners and CLI/package/parity/coverage once.
+- Prevention: serialize final shared-file integration before long package
+  proof; do not count an earlier tree's proof as a later integrated pass.
+
+### A run 5: owner regeneration delayed by fleet admission
+
+- Action: refresh JSDoc inventory after integrating E #1568.
+- Evidence: the admitted owner request waits over 15 minutes while fleet
+  package proofs hold all of its configured slots. No duplicate writer or
+  dead local coordinator is present.
+- Effect: a completed source merge cannot progress to its fresh package and
+  parity proof; completed prior-head proof remains explicitly historical.
+- Prevention: classify owner regeneration separately from long full-package
+  proofs while preserving admission and the workstation memory budget.
+
+The live overrides file now raises the slot floor to five, while A's queued
+JSDoc request captured four. Stopped only that not-started admitted request
+and resubmitted through the unchanged wrapper to inherit the operator's
+approved floor. Its cancellation row is not a source failure or a pass.
+Completed owners are skipped on resumption. No capacity setting was edited.
+
+The stopped queued systemd child returned zero to `systemd-run --wait`,
+so the naive coordinator wrote a zero row without command execution.
+Preserved the raw results, marked that row `cancelled-before-start`, then
+stopped the coordinator and its not-started schema child. Resume starts at
+JSDoc. A terminal wrapper status alone is not command-success proof.
+
+### A run 5: retirement breaks historical bare path references
+
+- Action: publish Knip retirement; read Heavy / Lint Policy job `114017372140`.
+- Evidence: knowledge semantic delta introduces five broken references to
+  the deleted baseline in historical KN-1 records and recovery documentation.
+- Repair: bind each affected span to the verified pre-retirement revision;
+  preserve the record's claims and avoid suppression/baseline refresh.
+- Prevention: audit historical documentation for revision-bound references
+  during tracked artifact retirement, including the semantic-delta lane in
+  focused parity rather than refs alone.
+
 ## C Run 8 integration proof admission
 
 The five required integration checks wait at `beep-heavy: all 4 slots busy, waiting`
@@ -1115,6 +1288,85 @@ assertions; rerun the affected fixtures, type and package checks. Checking
 the canonical process API before choosing the native boundary would have
 prevented this extra qualification wave. No suppression or inventory edit.
 
+### A run 5: scoped writer success differs from hosted floor proof
+
+- Action: read Coverage Regression job `114017372187` after local CLI
+  baseline generation.
+- Evidence: hosted reports stale deleted Data rows, unchanged Accounts and
+  EffectImports base-floor gaps, and minted Corpus/ProvenanceIndex/Drawings
+  floors above its measurements.
+- Effect: the writer's zero exit cannot prove hosted acceptance; package-level
+  adoption can move file rows the source retirement never touched.
+- Prevention: distinguish generation from verification and support bounded
+  changed-file baseline adoption plus explicit hosted measurement input.
+
+### A run 5: live workflow contract blocks staged Knip retirement
+
+- Action: verify CLI after E #1568 integration.
+- Evidence: only `ci-runner-security.test.ts:1169` fails, seeing the retained
+  Knip workflow job absent from the retired descriptor set; 5,801 tests pass.
+- Ownership: E's separate S3 job-removal window and orchestrator ruleset gate.
+- Recovery: retain the contract, publish blocked draft evidence, then rerun
+  package/parity/coverage after the owning workflow change lands.
+- Prevention: distinguish E governance completion from the separate Knip
+  retirement window before launching a long integrated package audit.
+
+### A run 5: publish preflight catches another main advancement
+
+- Action: publish integrated blocked receipts for PR #1584.
+- Evidence: Yeet refuses stale base after V #1575 and epistemic #1572 land;
+  eleven overlapping paths are named. No follow-up commit or push occurs.
+- Recovery: preserve dirt, merge current main, retain both packet
+  contributions and re-run shared owners; independent source review is zero.
+- Prevention: serialize the final shared-file window before expensive proof
+  and publication; do not bypass the stale-base guard.
+
+### A run 5: global owner regeneration exposes inherited package drift
+
+- Evidence: package-scripts writes missing doctest keys in two epistemic
+  packages from #1572; cache regeneration stamps those subjects under A's
+  narrower Knip basis.
+- Recovery: archive generated output and restore those unrelated manifests
+  and cache output from HEAD; route one main repair with matching evidence.
+- Prevention: have new source packages run their generated-script owner
+  before landing; reject unrelated subject stamps under a lane-scoped basis.
+
+### A run 5: new-main test consumer outlives retired helper
+
+- Evidence: current test-tsgo finds V #1575 importing/re-exporting deleted
+  parseCard through the Research test kit; source merge alone was clean.
+- Recovery: remove the stale test export and assert captured YAML metadata,
+  date, hash and body through the existing TextCodec decoder.
+- Prevention: run the test compiler after cross-lane source integration;
+  review retirement consumers as well as merge-conflict markers.
+
+### A run 5: proof admission dominates final integration repair
+
+- Evidence: finite Research/test-compiler/inventory batch remains queued for
+  more than ten minutes before its first result; main advances during wait.
+- Recovery: retain the admitted request, avoid duplicate writers and refresh
+  integrated provenance before publication. No shared capacity change.
+- Prevention: serialize final shared-file integration and publish windows
+  with visible admission ownership and bounded queue-age reporting.
+
+### A run 5: finite runner omits Fallow base environment
+
+- Evidence: audit exits 128 with base-resolution-failed and an empty base ref;
+  no finding is analyzed. The coordinator omitted BEEP_PROOF_BASE.
+- Recovery: use explicit origin/main for audit/health and resume only those
+  uncompleted steps plus publication. Source/proof inputs remain unchanged.
+- Prevention: centralize admission runner environment, and record the actual
+  merge parent after fetch rather than an earlier remote-ref snapshot.
+
+### A run 5: changed Research provider gains a detector occurrence
+
+- Evidence: cheap gates fail schema-first on main's Accounts schema file and
+  effect-vitest on 13 main rows plus one changed Research provider candidate.
+- Recovery: move the changed card-output test into native it.layer; retain
+  capture/date/hash/body assertions. Do not refresh the global detector
+  baseline or copy C/epistemic repairs into A.
+- Prevention: run the full test-policy detector after test-body/name changes;
+  inherited call shapes can receive new occurrence identities.
 ## 2026-10-09: burn-down qualification waits behind the shared heavy slots
 
 - Doing: running the inherited-red attribution scan, full docgen, and focused
@@ -1290,6 +1542,37 @@ repairs both; acknowledge with the actual main merge commit, not a waiver.
 The separately reported Sherif ordering issue still requires live attribution
 on the new head if it appears.
 
+### 2026-10-14 — A resumed integration reveals a new internal consumer
+
+The first `beep session open` failed with `Export named parseP6Header not found`. Main added `packages/drivers/pdf-tools/src/internal/coverage.ts` after the saved Knip scan. The lane restored the internal export during merge resolution rather than removing the live consumer. A consumer check at integration would have prevented this failure. The recorded October 9 scan remains historical evidence.
+
+### 2026-10-14 — A focused Vitest command used the wrong root
+
+Running the CLI Vitest config from the repository root returned `No test files found`, exit 1. The shared include is package-relative `test/**/*.test.{ts,tsx}`. The corrected invocation is `bun run --cwd packages/tooling/tool/cli beep:test -- test/yeet-merge-gate.test.ts test/research-command.test.ts`, through admission. A package-local invocation helper or the existing package script would have prevented the root mismatch; the first attempt is not test proof.
+
+### 2026-10-14 — A pre-final integration supersedes queued proof
+
+A fresh fetch advanced main from `aeb2a85cc5` to `3749e7ca4a` while the CLI audit ran and test-tsgo waited for admission. Main modified the retired `knip.jsonc`; the lane kept it deleted, and regenerated the conflicted Fallow boundary snapshot through tsconfig-sync. The queued parity coordinator and its owned admission unit were stopped before test execution; the owned CLI unit was stopped at exit 130 because incoming main changed CLI source. Neither is a pass. Main also changes OCCT source and PDF tests, so those package gates need fresh proof; eight unchanged A packages retain their prior terminal results. Integrating before submitting commit-bound proof would have prevented this discarded work.
+
+### 2026-10-14 — FQE archived validator rejects the current manifest version
+
+The admitted FQE validator exits 1 before its retirement assertions: the local manifest decoder accepts `initiative-manifest/v1`, while current main's manifest is v2. Both values are verified on `origin/main`, so the mismatch is inherited. Broaden the existing schema to the two supported literal versions, preserving v1 compatibility and rejection of other versions. A canonical manifest-version domain reused by archived validators would have prevented this drift. The initial red is not proof of the retired helper fix; validation must rerun.
+
+### 2026-10-14 — moving base obscured inherited path attribution
+
+The commit-bound `beep laws retired-effect-paths --check` reported 19 stale references in six Observability Palantiri documents. All six files exactly matched integrated main `3749e7ca4a` at source head `917daff5`; the failure is inherited. The shared `origin/main` ref had advanced to include the later fix #1721 (`9414d93e7e`), which initially obscured that attribution. Restored the exact corrected main lines and retained other lane text; the next merge carries the complete main fix. Attribution should compare immutable integration SHAs before moving remote refs. The original red log remains in the ignored lane evidence directory.
+
+### 2026-10-14 — concurrent CLI proof hit the cache fixture port
+
+Scoped coverage failed after 23 minutes when the unchanged cache-protocol fixture raised `EADDRINUSE` on port 49312, followed by test and hook timeouts. Its other 6,170 CLI tests and all nine non-CLI shards passed; the default CLI audit passed separately. The source fixture matches main and the port was free after termination. This is environment-only; the failed run wrote no coverage baseline. Serializing this lane's next full CLI audit and coverage avoids overlap between its own fixture users. The fixture already requests ephemeral port 0. Better bind-race diagnostics in the test runtime would shorten attribution; changing the main fixture is outside A retirement scope. The exact cause of the port race remains unproven.
+
+### 2026-10-14 — coverage owner refresh is too broad for retirement rows
+
+The serial 11-package scoped coverage run passed on `b50dce625c`, but `--write-baseline` adopted whole measured package blocks: 4,056 changed lines, 38 lower percentages, 33 with unchanged or higher uncovered counts. Its five deleted-source row removals are the four retired Data files and KnipRatchet. The generated output, patch and delta census are archived in ignored lane evidence. Restored the committed baseline rather than lowering live floors or hand-editing generated rows. A deleted-source-only owner operation would permit retirement cleanup without coupling it to inherited coverage debt; the standing consolidated row splice belongs to the orchestrator.
+
+### 2026-10-14 — final prep admission has no elapsed-wait evidence
+
+After the baseline-owner hold was recorded, the latest owner and targeted-test jobs waited more than ten minutes with only `beep-heavy: all 5 slots busy, waiting` and no terminal result rows. Existing requests are retained; no duplicate or bypass is started. The wrapper polls nonblocking slot locks every five seconds rather than using a FIFO queue. Admission receipts with enqueue/admit times and visible ordering would distinguish wait from runtime and prevent unnecessary diagnostic polling.
 ### 2026-10-14 — H2 resume integration
 
 - Work: resume closed-unmerged #1574 against current main. Four merge conflicts
