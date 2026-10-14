@@ -524,7 +524,6 @@ const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(fu
   inherited: ReadonlyArray<YeetReadyInheritedRed>
 ) {
   const applied = confirmation.inherited;
-  if (!A.isReadonlyArrayNonEmpty(applied)) return;
   yield* (dependencies.recordInherited ?? recordInheritedThroughRest)(confirmation.prNumber, applied);
   // Recording takes time; confirm the whole gate against the recorded head and
   // attributions before allowing the caller to flip.
@@ -558,6 +557,7 @@ const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(fu
  * the applied ones in the PR body (REST), and a failed record refuses the flip
  * with `YeetCommandError`. A second confirmation after the body write requires
  * the same head, a passing gate, and the same applied attributions before flipping.
+ * Every flip reconciles the body, including clearing a stale section when no reds apply.
  *
  * **Example** (Build the gate effect)
  *

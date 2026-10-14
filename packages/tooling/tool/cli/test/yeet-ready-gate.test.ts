@@ -236,6 +236,13 @@ describe("spliceYeetInheritedRedsSection", () => {
     );
   });
 
+  it("clears a stale section when no inherited reds apply and keeps surrounding text", () => {
+    const body = `Summary\n\n${section("old")}\n\nNotes\n\n${provenance}`;
+    assertSome(spliceYeetInheritedRedsSection(body, []), `Summary\n\n\n\nNotes\n\n${provenance}`);
+    assertSome(spliceYeetInheritedRedsSection(`Summary\n\n${provenance}`, []), `Summary\n\n${provenance}`);
+    assertNone(spliceYeetInheritedRedsSection("<!-- yeet-inherited-reds:start -->", []));
+  });
+
   it("refuses an orphan, repeated or out-of-order marker instead of guessing a span", () => {
     const start = "<!-- yeet-inherited-reds:start -->";
     const end = "<!-- yeet-inherited-reds:end -->";
@@ -275,6 +282,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const decision = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView()),
         markReady: recordingMarkReady(calls),
         findMonitor: () => Effect.succeedNone,
@@ -288,6 +296,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const error = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: yield* readTwice(prView(), prView({ headSha: O.some("fedcba9876") })),
         markReady: recordingMarkReady(calls),
       }).pipe(Effect.flip);
@@ -302,6 +311,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const error = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: yield* readTwice(prView(), prView({ unresolvedReviewThreadCount: 1 })),
         markReady: recordingMarkReady(calls),
       }).pipe(Effect.flip);
@@ -315,6 +325,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const error = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ unresolvedReviewThreadCount: 2 })),
         markReady: recordingMarkReady(calls),
       }).pipe(Effect.flip);
@@ -328,6 +339,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
   it.effect("names the current head and the red check when a required check is failing", () =>
     Effect.gen(function* () {
       const error = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () =>
           Effect.succeed(
             prView({
@@ -346,6 +358,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const decision = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ pendingOptionalCheckCount: 9, pendingRequiredCheckCount: 1 })),
         markReady: recordingMarkReady(calls),
         findMonitor: () => Effect.succeedNone,
@@ -361,6 +374,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
   it.effect("reads a non-draft pull request with an open thread as already ready, never as a pending flip", () =>
     Effect.gen(function* () {
       const decision = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ isDraft: false, unresolvedReviewThreadCount: 1 })),
         markReady: () => Effect.die("the flip must not run"),
       });
@@ -372,6 +386,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       for (const state of ["CLOSED", "MERGED"] as const) {
         const error = yield* runYeetReadyGate(context, {
+          recordInherited: () => Effect.void,
           read: () => Effect.succeed(prView({ isDraft: false, state })),
           markReady: () => Effect.die("the flip must not run"),
         }).pipe(Effect.flip);
@@ -384,6 +399,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
   it.effect("does not call gh for a pull request that is already ready", () =>
     Effect.gen(function* () {
       const decision = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ isDraft: false })),
         markReady: () => Effect.die("the flip must not run"),
       });
@@ -447,7 +463,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     })
   );
 
-  it.effect("records nothing when no attribution applies", () =>
+  it.effect("reconciles an empty attribution list before flipping", () =>
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       yield* runYeetReadyGate(
@@ -460,7 +476,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
         },
         [lintInherited]
       );
-      expect(yield* Ref.get(calls)).toEqual([["ready", "42"]]);
+      expect(yield* Ref.get(calls)).toEqual([
+        ["record", "42"],
+        ["ready", "42"],
+      ]);
     })
   );
 
@@ -468,6 +487,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const error = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView()),
         markReady: recordingMarkReady(calls, true),
       }).pipe(Effect.flip);
@@ -518,9 +538,10 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
         return Effect.succeed(fakeHandle(command.command === "gh" ? (answers[route] ?? "") : ""));
       });
       expect(
-        (yield* runYeetReadyGate(context, { markReady: () => Effect.void }).pipe(
-          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner)
-        ))._tag
+        (yield* runYeetReadyGate(context, {
+          recordInherited: () => Effect.void,
+          markReady: () => Effect.void,
+        }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner)))._tag
       ).toBe("flip");
     })
   );
@@ -564,6 +585,7 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
       });
       expect(
         (yield* runYeetReadyGate(context, {
+          recordInherited: () => Effect.void,
           read: () => Effect.succeed(prView()),
           markReady: () => Effect.void,
         }).pipe(Effect.provideService(FileSystem.FileSystem, failingFs)))._tag
@@ -578,6 +600,7 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
       yield* fs.writeFileString("/repo/.beep/yeet/jobs/.guard", "");
       expect(
         (yield* runYeetReadyGate(context, {
+          recordInherited: () => Effect.void,
           read: () => Effect.succeed(prView()),
           markReady: () => Effect.void,
         }))._tag
@@ -586,6 +609,31 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
   );
 });
 it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation races", (it) => {
+  it.effect("clears a recorded section on a no-red rerun after a post-record refusal", () =>
+    Effect.gen(function* () {
+      const body = yield* Ref.make("Summary");
+      const green = yield* Ref.make(false);
+      const flips = yield* Ref.make(0);
+      const dependencies = {
+        read: () => Ref.get(green).pipe(Effect.map((isGreen) => (isGreen ? prView() : redRead([lint])))),
+        recordInherited: (_pr: number, entries: ReadonlyArray<YeetReadyInheritedRed>) =>
+          Ref.update(body, (source) => O.getOrThrow(spliceYeetInheritedRedsSection(source, entries))).pipe(
+            Effect.andThen(Ref.set(green, true))
+          ),
+        markReady: () => Ref.update(flips, (n) => n + 1),
+        findMonitor: () => Effect.succeedNone,
+      };
+      const error = yield* runYeetReadyGate(context, dependencies, [lintInherited]).pipe(Effect.flip);
+      expect(error.message).toContain("changed while recording inherited reds");
+      expect(yield* Ref.get(body)).toContain("- `Lint`:");
+      expect(yield* Ref.get(flips)).toBe(0);
+      expect((yield* runYeetReadyGate(context, dependencies))._tag).toBe("flip");
+      expect(yield* Ref.get(body)).not.toContain("yeet-inherited-reds");
+      expect(yield* Ref.get(body)).toContain("Summary");
+      expect(yield* Ref.get(flips)).toBe(1);
+    })
+  );
+
   it.effect("refuses a head change during the inherited-red body write", () =>
     Effect.gen(function* () {
       const reads = yield* Ref.make(0);
@@ -642,6 +690,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
     Effect.gen(function* () {
       const count = yield* Ref.make(0);
       const error = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () => Ref.getAndUpdate(count, (n) => n + 1).pipe(Effect.map((n) => prView({ isDraft: n === 0 }))),
       }).pipe(Effect.flip);
       expect(error.message).toContain("already ready for review");
@@ -650,6 +699,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
   it.effect("refuses a flip without a head identity", () =>
     Effect.gen(function* () {
       const error = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ headSha: O.none() })),
       }).pipe(Effect.flip);
       expect(error.message).toContain("gate unknown, live unknown");
@@ -660,6 +710,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       // Every child process (`gh auth token`) fails, so no request reaches GitHub.
       const refusing = ChildProcessSpawner.make(() => Effect.succeed(fakeHandle("", 1)));
       const error = yield* runYeetReadyGate(context, {
+        recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView()),
       }).pipe(Effect.flip, Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, refusing));
       expect(error).toMatchObject({ _tag: "YeetCommandError", command: "bun run beep yeet gh pr ready 42" });
@@ -717,6 +768,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       });
       expect(
         (yield* runYeetReadyGate(context, {
+          recordInherited: () => Effect.void,
           read: () => Effect.succeed(prView()),
           markReady: () => Effect.void,
           findMonitor: () => Effect.succeedSome(record),
@@ -762,7 +814,10 @@ describe("ready gate incomplete remote identities", () => {
           ...read,
           remote: YeetStatusRemote.make({ ...read.remote, headSha: O.none() }),
         });
-        const error = yield* runYeetReadyGate(context, { read: () => Effect.succeed(withoutHead) }).pipe(Effect.flip);
+        const error = yield* runYeetReadyGate(context, {
+          recordInherited: () => Effect.void,
+          read: () => Effect.succeed(withoutHead),
+        }).pipe(Effect.flip);
         expect(error.message).toContain("gate unknown, live unknown");
       })
     );

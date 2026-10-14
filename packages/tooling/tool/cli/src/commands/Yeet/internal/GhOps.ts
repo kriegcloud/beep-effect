@@ -637,6 +637,7 @@ const markerCount = (marker: string, body: string): number => A.length(Str.split
  * **Details**
  *
  * An existing section between the `yeet-inherited-reds` markers is replaced.
+ * An empty attribution list removes it; a body without markers stays unchanged.
  * Otherwise the section goes immediately before the provenance footer (its
  * `---` rule included) when the body has one, else it is appended after one
  * blank line. Everything outside the section is kept as it was.
@@ -663,7 +664,7 @@ const markerCount = (marker: string, body: string): number => A.length(Str.split
  *
  * @param body - The current pull request body.
  * @param entries - The inherited reds to record, in order.
- * @returns The body with exactly one current section, or `None` when its markers are malformed.
+ * @returns The reconciled body, or `None` when its markers are malformed.
  * @category formatting
  * @since 0.0.0
  */
@@ -671,19 +672,22 @@ export const spliceYeetInheritedRedsSection: {
   (entries: ReadonlyArray<YeetReadyInheritedRed>): (body: string) => O.Option<string>;
   (body: string, entries: ReadonlyArray<YeetReadyInheritedRed>): O.Option<string>;
 } = dual(2, (body: string, entries: ReadonlyArray<YeetReadyInheritedRed>): O.Option<string> => {
-  const section = A.join(
-    [
-      inheritedRedsStart,
-      "## Inherited reds (S11)",
-      "",
-      ...A.map(entries, (entry) => `- \`${entry.check}\`: ${entry.attribution}`),
-      inheritedRedsEnd,
-    ],
-    "\n"
-  );
+  const section = A.isReadonlyArrayNonEmpty(entries)
+    ? A.join(
+        [
+          inheritedRedsStart,
+          "## Inherited reds (S11)",
+          "",
+          ...A.map(entries, (entry) => `- \`${entry.check}\`: ${entry.attribution}`),
+          inheritedRedsEnd,
+        ],
+        "\n"
+      )
+    : "";
   const starts = markerCount(inheritedRedsStart, body);
   const ends = markerCount(inheritedRedsEnd, body);
   if (starts === 0 && ends === 0) {
+    if (Str.isEmpty(section)) return O.some(body);
     return O.some(
       O.match(parsePrProvenanceFooter(body), {
         onNone: () => `${Str.trimEnd(body)}${Str.isEmpty(Str.trim(body)) ? "" : "\n\n"}${section}\n`,
@@ -727,6 +731,7 @@ const writeAndVerifyInheritedReds = Effect.fn("YeetGh.writeAndVerifyInheritedRed
  *
  * **Details**
  *
+ * An empty list clears any stale section through the same bounded write path.
  * Re-splices concurrent edits up to three times before refusing without a write.
  * A REST PATCH has no conditional-write guarantee: an edit between the last read
  * and PATCH can still be overwritten. Readback detects subsequent drift and

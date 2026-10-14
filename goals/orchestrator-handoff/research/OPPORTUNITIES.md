@@ -188,3 +188,25 @@
   body write without suppressions or baseline changes. No push had occurred.
 - Would have prevented it: a scoped Fallow audit before the broad qualification
   sequence, so these small structural changes could land in the first proof.
+
+## 2026-10-14: The worker brief and final-file watcher use different protocols
+
+- Doing: declaring the S11 review repair final after publishing and resolving
+  both review threads.
+- Evidence: the brief requires `final <sha40> #<pr>` in the lane's final marker.
+  The shared watcher reads its first field as a numeric PR number and expects
+  `<pr-number> <sha10> <push-time>`, so it renamed the required marker to
+  `.final.bad` without arming a merge gate. The worker's lane restriction leaves
+  the shared watcher repair to the orchestrator.
+- Would have prevented it: one versioned final-file contract shared by the
+  brief generator and watcher, with a fixture for the documented worker line.
+
+## 2026-10-14: A refused body record survived the next no-red flip
+
+- Doing: closing the S11 round-two review.
+- Evidence: a red could turn green after recording, making confirmation refuse;
+  the next flip skipped reconciliation for an empty attribution list and retained
+  the old section. Every flip now reconciles through the bounded writer, and
+  empty attributions remove the section while preserving surrounding text.
+- Would have prevented it: a sequence test covering record, post-record refusal,
+  and a no-red rerun, rather than checking each refusal in isolation.

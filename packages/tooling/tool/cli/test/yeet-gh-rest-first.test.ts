@@ -357,6 +357,26 @@ describe("inherited-red body reconciliation", () => {
     })
   );
 
+  it.effect("clears an existing section through the same bounded writer when no reds apply", () =>
+    Effect.gen(function* () {
+      const source = O.getOrThrow(spliceYeetInheritedRedsSection("Summary", entries));
+      const body = yield* Ref.make(source);
+      const writes = yield* Ref.make(0);
+      yield* recordInheritedRedsWithRest(
+        {
+          pullRequest: () => Ref.get(body).pipe(Effect.map((body) => pr({ body }))),
+          updatePullRequest: (_number: number, update: { readonly body?: string | undefined }) =>
+            Ref.set(body, update.body ?? "").pipe(Effect.andThen(Ref.update(writes, (n) => n + 1)), Effect.as(pr())),
+        },
+        1501,
+        []
+      );
+      expect(yield* Ref.get(body)).not.toContain("yeet-inherited-reds");
+      expect(yield* Ref.get(body)).toContain("Summary");
+      expect(yield* Ref.get(writes)).toBe(1);
+    })
+  );
+
   it.effect("confirms an already-current section without writing", () =>
     Effect.gen(function* () {
       const body = O.getOrThrow(spliceYeetInheritedRedsSection("Summary", entries));
