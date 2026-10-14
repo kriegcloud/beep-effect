@@ -601,30 +601,53 @@ export const withYeetGh =
     ).pipe(Effect.scoped);
 
 /**
- * Flip a draft pull request to ready through the GraphQL budget guard, reading
- * its node id over REST. Already-ready is success.
+ * Flip a draft pull request on its confirmed head after the GraphQL budget wait.
+ * Already-ready is success when the head still matches.
+ *
+ * **Gotchas**
+ *
+ * The REST head read runs after the budget guard allows the operation, immediately
+ * before the mutation. A push between that read and the mutation remains possible:
+ * GitHub's `markPullRequestReadyForReview` has no expected-head parameter. A changed
+ * head refuses with `YeetCommandError`; rerun the full gate and attribution path.
  *
  * **Example** (Build the flip)
  *
  * ```ts
  * import { flipPullRequestReady } from "@beep/repo-cli/test/Yeet"
  * import * as Effect from "effect/Effect";
- * console.log(Effect.isEffect(flipPullRequestReady(42))) // true
+ * console.log(Effect.isEffect(flipPullRequestReady(42, "abc1234def"))) // true
  * ```
  *
  * @param prNumber - Which pull request to flip.
- * @returns Nothing; an already-ready pull request is left alone.
+ * @param confirmedHead - Head already confirmed by the full gate and attribution record.
+ * @returns Nothing; an already-ready pull request on the confirmed head is left alone.
  * @category commands
  * @since 0.0.0
  */
-export const flipPullRequestReady = (prNumber: number) =>
-  withYeetGh(O.none())(
-    Effect.gen(function* () {
-      const rest = yield* GithubRest;
-      const pr = yield* rest.pullRequest(prNumber);
-      if (pr.draft) yield* markPullRequestReady(pr.nodeId, GraphqlBudgetPolicy.default);
-    })
-  );
+export const flipPullRequestReady = Effect.fn("YeetGh.flipPullRequestReady")(function* (
+  prNumber: number,
+  confirmedHead: string
+) {
+  const rest = yield* GithubRest;
+  const budget = yield* GraphqlBudget;
+  const client = yield* GitHubClient;
+  const flipConfirmed = Effect.fnUntraced(function* () {
+    const pr = yield* rest.pullRequest(prNumber);
+    if (!Str.Equivalence(pr.headSha, confirmedHead)) {
+      return yield* YeetCommandError.make({
+        message: `yeet ready refused: the head changed during the GraphQL budget wait (confirmed ${confirmedHead}, live ${pr.headSha}). Re-run \`bun run beep yeet ready\` so the current state is gated and recorded.`,
+        exitCode: 1,
+      });
+    }
+    if (pr.draft) {
+      yield* client
+        .graphql(markPullRequestReadyDocument, { pullRequestId: pr.nodeId })
+        .pipe(Effect.mapError(graphqlErrorToGitHubError));
+    }
+  });
+  yield* flipConfirmed().pipe(budget.guard("markPullRequestReadyForReview", GraphqlBudgetPolicy.default));
+});
 
 const inheritedRedsStart = "<!-- yeet-inherited-reds:start -->";
 const inheritedRedsEnd = "<!-- yeet-inherited-reds:end -->";
