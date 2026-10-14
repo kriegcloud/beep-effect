@@ -201,7 +201,8 @@ export class KnowledgeDebtLeases extends S.Class<KnowledgeDebtLeases>($I`Knowled
  * **Details**
  *
  * `expiring` means at most seven days remain (the yeet warning); `expired` means `expires` is not
- * after `now`, so the gate drops the lease and the finding blocks again.
+ * after `now`, so the gate drops the lease and the finding blocks again. A future-issued row can
+ * have `active` status, but its `lease-issued-in-future` violation makes it ineffective.
  *
  * **Example** (Recognize an expiring lease)
  *
@@ -244,11 +245,12 @@ export type KnowledgeLeaseStatus = typeof KnowledgeLeaseStatus.Type;
  */
 export const KnowledgeLeaseViolation = LiteralKit([
   "lease-owner-unresolved",
+  "lease-issued-in-future",
   "lease-lifetime-exceeded",
   "lease-quota-exceeded",
 ]).pipe(
   $I.annoteSchema("KnowledgeLeaseViolation", {
-    description: "A debt-lease rule a lease breaks: owner, lifetime, or quota.",
+    description: "A debt-lease rule a lease breaks: owner, future issue date, lifetime, or quota.",
   })
 );
 
@@ -542,13 +544,21 @@ const ownerVerdict = (lease: KnowledgeDebtLease, codeowners: string): O.Option<L
 
 const lifetimeVerdicts = (
   lease: KnowledgeDebtLease,
-  baseIssued: HashMap.HashMap<string, DateTime.Utc>
+  baseIssued: HashMap.HashMap<string, DateTime.Utc>,
+  now: DateTime.Utc
 ): ReadonlyArray<LeaseVerdict> => {
   const lifetime = DateTime.distance(lease.issued, lease.expires);
   const tooLong = Duration.isGreaterThan(lifetime, KNOWLEDGE_LEASE_MAX_LIFETIME);
   const inverted = Duration.isLessThan(lifetime, Duration.zero);
   const mutated = O.exists(HashMap.get(baseIssued, lease.key), (issued) => !DateTime.Equivalence(issued, lease.issued));
+  const futureIssued = DateTime.isGreaterThan(lease.issued, now);
   return A.getSomes([
+    futureIssued
+      ? O.some<LeaseVerdict>([
+          "lease-issued-in-future",
+          `Lease issued at ${DateTime.formatIso(lease.issued)} is in the future relative to ${DateTime.formatIso(now)}.`,
+        ])
+      : O.none(),
     tooLong || inverted
       ? O.some<LeaseVerdict>([
           "lease-lifetime-exceeded",
@@ -570,7 +580,7 @@ const quotaVerdicts = (
   now: DateTime.Utc
 ): HashMap.HashMap<string, LeaseVerdict> => {
   const live = A.sort(
-    A.filter(leases, (lease) => leaseStatus(lease, now) !== "expired"),
+    A.filter(leases, (lease) => !DateTime.isGreaterThan(lease.issued, now) && leaseStatus(lease, now) !== "expired"),
     leaseIssuedOrder
   );
   return A.reduce(
@@ -616,7 +626,7 @@ const leaseRowOrder = Order.mapInput(Order.String, (row: KnowledgeLeaseRow) => r
  * Owners resolve from the merge-base CODEOWNERS, never the tree's own, so a branch cannot grant itself
  * ownership (K6). `issued` is compared against the merge-base row with the same key. Quotas count
  * non-expired leases in `issued` order, so the earliest leases keep their slots. Rows are sorted by
- * key.
+ * key. Future-issued rows are ineffective and do not occupy quota slots.
  *
  * **Gotchas**
  *
@@ -670,7 +680,7 @@ export const evaluateKnowledgeLeases = Effect.fn("KnowledgeDoctor.evaluateLeases
   const quotas = quotaVerdicts(input.leases, input.now);
   const rows = A.map(input.leases, (lease) => {
     const verdicts = A.appendAll(
-      A.appendAll(O.toArray(ownerVerdict(lease, codeowners)), lifetimeVerdicts(lease, baseIssued)),
+      A.appendAll(O.toArray(ownerVerdict(lease, codeowners)), lifetimeVerdicts(lease, baseIssued, input.now)),
       O.toArray(HashMap.get(quotas, lease.key))
     );
     return KnowledgeLeaseRow.make({

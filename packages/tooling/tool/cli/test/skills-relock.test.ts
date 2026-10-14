@@ -538,13 +538,18 @@ layer(TestLayer, { timeout: "60 seconds" })("skills update train reports", (it) 
           title: `chore(deps): update skill ${SKILL}`,
           url: `https://github.com/kriegcloud/beep-effect/pull/${number}`,
           headRefName: `renovate/skill-${SKILL}`,
+          headRefOid: "a".repeat(40),
           comments,
         });
-      const comment = (createdAt: string, batch: SkillReplayBatch) =>
-        SkillTrainPullRequestComment.make({ createdAt, body: renderSkillReplayMarkdown(batch) });
+      const comment = (createdAt: string, batch: SkillReplayBatch, author = "github-actions", head = "a".repeat(40)) =>
+        SkillTrainPullRequestComment.make({
+          author: { login: author },
+          createdAt,
+          body: `${renderSkillReplayMarkdown(batch)}\n<!-- beep-skills-replay-head:${head} -->`,
+        });
       const issue = renderSkillTrainBatchIssue("2026-W42", [
         pr(12, [comment("2026-10-12T00:00:00Z", conflicted)]),
-        // The later comment wins: this PR was conflicted, then cleared.
+        // The later trusted comment for the current head wins.
         pr(11, [comment("2026-10-13T00:00:00Z", clean), comment("2026-10-12T00:00:00Z", conflicted)]),
         pr(13, []),
       ]);
@@ -553,6 +558,15 @@ layer(TestLayer, { timeout: "60 seconds" })("skills update train reports", (it) 
       expect(issue.body.indexOf("[#11]")).toBeLessThan(issue.body.indexOf("[#12]"));
       expect(issue.body).toContain("## Unresolved hunks");
       expect(issue.body).toContain(`- ${SKILL}: \`${PATCH_PATH}\` \`SKILL.md\` hunk 1 — conflicted`);
+      const forged = renderSkillTrainBatchIssue("2026-W42", [
+        pr(12, [
+          comment("2026-10-12T00:00:00Z", conflicted),
+          comment("2026-10-14T00:00:00Z", clean, "untrusted-contributor"),
+          comment("2026-10-15T00:00:00Z", clean, "github-actions", "b".repeat(40)),
+        ]),
+      ]);
+      expect(forged.body).toContain("1 conflicted, 0 pending");
+      expect(forged.body).toContain(`- ${SKILL}: \`${PATCH_PATH}\` \`SKILL.md\` hunk 1 — conflicted`);
       expect(renderSkillTrainBatchIssue("2026-W42", []).body).toContain("_No open skill update pull requests");
     })
   );

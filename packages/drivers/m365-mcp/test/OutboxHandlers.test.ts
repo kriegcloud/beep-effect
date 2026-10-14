@@ -1,4 +1,4 @@
-import { GraphEmailAddress, GraphEvent, GraphEventAttendee, M365Error } from "@beep/m365";
+import { GraphEmailAddress, GraphEvent, GraphEventAttendee } from "@beep/m365";
 import {
   makeOutboxToolkitHandlers,
   OutboxDraftCreated,
@@ -246,7 +246,7 @@ describe("@beep/m365-mcp outbox handlers", () => {
 
   it.layer(HandlersLayer, { timeout: "10 seconds" })("send_draft with a matching expectation", (it) => {
     it.effect(
-      "hashes the stored bytes, writes the intent, sends once, and writes the outcome under the same audit id",
+      "hashes the stored bytes and refuses an unversioned send without calling Graph",
       Effect.fnUntraced(function* () {
         const world = yield* OutboxWorld;
 
@@ -257,24 +257,13 @@ describe("@beep/m365-mcp outbox handlers", () => {
         assert.isFalse(output.isFailure);
         assert.isTrue(isSendResult(output.result));
         if (isSendResult(output.result)) {
-          assert.strictEqual(output.result.outcome, "sent");
+          assert.strictEqual(output.result.outcome, "refused");
+          assert.deepStrictEqual(output.result.mismatches, ["version-unbound"]);
           assert.isTrue(output.result.auditRecorded);
-          assert.deepStrictEqual(auditIds(records), [output.result.auditId, output.result.auditId]);
+          assert.deepStrictEqual(auditIds(records), [output.result.auditId]);
         }
-        assert.deepStrictEqual(tags(records), ["send-intent", "send-outcome"]);
-        assert.deepStrictEqual(
-          pipe(
-            A.head(records),
-            O.map((record) => (record._tag === "send-intent" ? A.map(record.attachments, (a) => [a.name, a.size]) : []))
-          ),
-          O.some([["fixture.pdf", 16]])
-        );
-        assert.deepStrictEqual(calls, [
-          "getMessage",
-          "listMessageAttachments",
-          "downloadMessageAttachment",
-          "sendDraftMessage",
-        ]);
+        assert.deepStrictEqual(tags(records), ["send-outcome"]);
+        assert.deepStrictEqual(calls, ["getMessage", "listMessageAttachments", "downloadMessageAttachment"]);
       })
     );
   });
@@ -365,84 +354,22 @@ describe("@beep/m365-mcp outbox handlers", () => {
           [["send-outcome", "refused", ["not-created-here"]]]
         );
 
-        // The same draft, once this server has a creation record for it, is sent.
+        // A creation record permits checking, but cannot authorize an unbound send.
         yield* world.script({ records: [draftCreatedRecord([])] });
         const own = yield* send;
 
-        assert.isTrue(isSendResult(own.result) && own.result.outcome === "sent");
-        assert.deepStrictEqual(sends(yield* world.calls), ["sendDraftMessage"]);
-      })
-    );
-  });
-
-  it.layer(HandlersLayer, { timeout: "10 seconds" })("send_draft when the intent record cannot be written", (it) => {
-    it.effect(
-      "fails the call and never reaches the send verb",
-      Effect.fnUntraced(function* () {
-        const world = yield* OutboxWorld;
-        yield* world.script({ appendFailsFor: ["send-intent"] });
-
-        const output = yield* send;
-
-        assert.isTrue(output.isFailure);
-        assert.isTrue(isToolError(output.result));
-        if (isToolError(output.result)) {
-          assertSome(output.result.reason, "append");
-          assert.isFalse(output.result.retryable);
+        assert.isTrue(isSendResult(own.result) && own.result.outcome === "refused");
+        if (isSendResult(own.result)) {
+          assert.deepStrictEqual(own.result.mismatches, ["version-unbound"]);
         }
         assert.deepStrictEqual(sends(yield* world.calls), []);
       })
     );
   });
 
-  it.layer(HandlersLayer, { timeout: "10 seconds" })("send_draft with an ambiguous write", (it) => {
-    it.effect(
-      "returns outcome unknown as a result, with an intent and an outcome record",
-      Effect.fnUntraced(function* () {
-        const world = yield* OutboxWorld;
-        yield* world.script({ sendFailure: O.some(M365Error.fromReason("ambiguous write", { resource: "messages" })) });
-
-        const output = yield* send;
-        const records = yield* world.records;
-
-        assert.isFalse(output.isFailure);
-        if (isSendResult(output.result)) {
-          assert.strictEqual(output.result.outcome, "unknown");
-          assert.deepStrictEqual(auditIds(records), [output.result.auditId, output.result.auditId]);
-        }
-        assert.deepStrictEqual(tags(records), ["send-intent", "send-outcome"]);
-        assert.deepStrictEqual(sends(yield* world.calls), ["sendDraftMessage"]);
-      })
-    );
-  });
-
-  it.layer(HandlersLayer, { timeout: "10 seconds" })("send_draft rejected by Graph", (it) => {
-    it.effect(
-      "records a refused outcome with the status and returns a non-retryable tool error",
-      Effect.fnUntraced(function* () {
-        const world = yield* OutboxWorld;
-        yield* world.script({
-          sendFailure: O.some(M365Error.fromReason("response status", { resource: "messages", status: 403 })),
-        });
-
-        const output = yield* send;
-        const outcome = A.last(yield* world.records);
-
-        assert.isTrue(output.isFailure);
-        if (isToolError(output.result)) {
-          assert.isFalse(output.result.retryable);
-        }
-        assertSome(
-          O.map(outcome, (record) => (record._tag === "send-outcome" ? [record.outcome, record.graphStatus] : [])),
-          ["refused", O.some(403)]
-        );
-      })
-    );
-  });
-
   it.layer(HandlersLayer, { timeout: "10 seconds" })("send_draft when the outcome record cannot be written", (it) => {
     it.effect(
-      "still reports the send, flagged as not recorded",
+      "reports the refusal without calling Graph, flagged as not recorded",
       Effect.fnUntraced(function* () {
         const world = yield* OutboxWorld;
         yield* world.script({ appendFailsFor: ["send-outcome"] });
@@ -451,9 +378,11 @@ describe("@beep/m365-mcp outbox handlers", () => {
 
         assert.isFalse(output.isFailure);
         if (isSendResult(output.result)) {
-          assert.strictEqual(output.result.outcome, "sent");
+          assert.strictEqual(output.result.outcome, "refused");
+          assert.deepStrictEqual(output.result.mismatches, ["version-unbound"]);
           assert.isFalse(output.result.auditRecorded);
         }
+        assert.deepStrictEqual(sends(yield* world.calls), []);
       })
     );
   });
@@ -562,7 +491,7 @@ describe("@beep/m365-mcp outbox handlers", () => {
 
   it.layer(HandlersLayer, { timeout: "10 seconds" })("the send verb", (it) => {
     it.effect(
-      "is reached by m365_outbox_send_draft and by no other tool",
+      "is not reached by any tool while unbound sending is disabled",
       Effect.fnUntraced(function* () {
         const world = yield* seedRecordedDraft;
         const toolkit = yield* OutboxToolkit;
@@ -601,7 +530,7 @@ describe("@beep/m365-mcp outbox handlers", () => {
         );
         assert.deepStrictEqual(
           A.filter(observed, ([, sent]) => sent > 0),
-          [["m365_outbox_send_draft", 1]]
+          []
         );
       })
     );

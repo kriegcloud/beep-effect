@@ -15,7 +15,6 @@ test("a verdict after an answer is saved and exported", async ($, on) => {
   mock.clock(on);
   mock.session(on);
   on("ui.toast", () => ({ value: undefined }));
-  on("fs.write", () => ({ value: undefined }));
   on("session.messages", () => ({ value: [{ role: "user", text: "Which matter is 10008US01?", toolUses: [] }] }));
   on("turn.complete", () => ({ text: "" }));
   on("session.id", () => ({ value: "s-1" }));
@@ -23,7 +22,8 @@ test("a verdict after an answer is saved and exported", async ($, on) => {
   const saved = await $.command.run({ command: "wrong", args: "missed the continuation", origin, presentation });
   expect(JSON.stringify(saved)).toContain("Saved: Wrong");
   const exported = await $.command.run({ command: "practice", args: "export", origin, presentation });
-  expect(JSON.stringify(exported)).toContain("Exported 1 verdicts");
+  expect(JSON.stringify(exported)).toContain("Copy these JSONL rows into a file you choose:");
+  expect(JSON.stringify(exported)).toContain('\\"verdict\\":\\"wrong\\"');
 });
 
 for (const surface of ["terminal", "desktop"] as const) {

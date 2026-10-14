@@ -22,7 +22,7 @@ const $I = $PracticeClaudeModId.create("PracticeMod.host");
  * @category schemas
  * @since 0.0.0
  */
-const ModHostOperation = LiteralKit(["store-get", "store-set", "fs-write", "session-id", "clock"]).pipe(
+const ModHostOperation = LiteralKit(["store-get", "store-set", "session-id", "clock"]).pipe(
   $I.annoteSchema("ModHostOperation", { description: "The mod engine call that failed." })
 );
 
@@ -42,8 +42,8 @@ type ModHostOperation = typeof ModHostOperation.Type;
  * ```ts
  * import { ModHostError } from "@/PracticeMod.host"
  *
- * const error = ModHostError.make({ operation: "fs-write", message: "EACCES" })
- * console.log(error.operation) // "fs-write"
+ * const error = ModHostError.make({ operation: "store-set", message: "EACCES" })
+ * console.log(error.operation) // "store-set"
  * ```
  *
  * @category errors
@@ -79,7 +79,6 @@ export class ModHost extends Context.Service<
   {
     readonly storeGet: (key: string) => Effect.Effect<unknown, ModHostError>;
     readonly storeSet: (key: string, value: unknown) => Effect.Effect<void, ModHostError>;
-    readonly writeText: (path: string, text: string) => Effect.Effect<void, ModHostError>;
     readonly toast: (text: string) => Effect.Effect<void>;
     readonly sessionId: Effect.Effect<string, ModHostError>;
     readonly now: Effect.Effect<DateTime.Utc, ModHostError>;
@@ -116,9 +115,6 @@ export const makeModHost = ($: Engine): ModHost["Service"] =>
     storeGet: Effect.fn("ModHost.storeGet")((key: string) => call("store-get", () => $.store.get(key))),
     storeSet: Effect.fn("ModHost.storeSet")((key: string, value: unknown) =>
       call("store-set", () => $.store.set(key, value))
-    ),
-    writeText: Effect.fn("ModHost.writeText")((path: string, text: string) =>
-      call("fs-write", () => $.fs.write(path, text))
     ),
     toast: Effect.fn("ModHost.toast")((text: string) => Effect.sync(() => $.ui.toast(text))),
     sessionId: call("session-id", () => $.session.id()),
