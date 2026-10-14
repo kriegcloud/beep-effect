@@ -81,6 +81,16 @@ const lid = Part.make({
 const tab = Part.make({ name: "tab", add: [box([20, -2, 40], [30, 2, 46])], lineStyle: "broken" });
 const crate = ModelSpec.make({ parts: [longWall, crossWall, lid, tab] });
 
+const noView = EdgeSet.make({ visible: [], hidden: [] });
+
+// Names the two views of a plan + front projection; a missing view fails the
+// test instead of silently reading as empty.
+const planAndFront = (views: ReadonlyArray<EdgeSet>): { readonly plan: EdgeSet; readonly front: EdgeSet } => {
+  expect(views).toHaveLength(2);
+  const [plan = noView, frontView = noView] = views;
+  return { plan, front: frontView };
+};
+
 // The projection output of this model before broken-line parts existed:
 // SHA-256 of the JSON of each view's visible, hidden and shading segments,
 // recorded from main 6e390049ca for the cameras and plan below.
@@ -356,22 +366,22 @@ describe("@beep/occt service", () => {
         const solidTab = ModelSpec.make({
           parts: [longWall, crossWall, lid, Part.make({ ...tab, lineStyle: "solid" })],
         });
-        const cameras = [top, front];
-        const [brokenTop, brokenFront] = yield* occt.project(ProjectionRequest.make({ solid: crate, cameras }));
-        const [solidTop, solidFront] = yield* occt.project(ProjectionRequest.make({ solid: solidTab, cameras }));
+        const projectPlanAndFront = (solid: ModelSpec) =>
+          occt.project(ProjectionRequest.make({ solid, cameras: [top, front] })).pipe(Effect.map(planAndFront));
+        const broken = yield* projectPlanAndFront(crate);
+        const solid = yield* projectPlanAndFront(solidTab);
         // the tab rises 3 above the lid: its top face in plan, its exposed band in front
-        expect(totalLength(brokenTop?.broken ?? [])).toBeGreaterThan(0);
-        expect(totalLength(brokenFront?.broken ?? [])).toBeGreaterThan(0);
-        expect(solidTop?.broken).toEqual([]);
+        expect(totalLength(broken.plan.broken)).toBeGreaterThan(0);
+        expect(totalLength(broken.front.broken)).toBeGreaterThan(0);
+        expect(solid.plan.broken).toEqual([]);
         // the band above the lid is 10 wide and 3 tall; the part inside the slit stays hidden
-        const frontBand = brokenFront?.broken ?? [];
-        expect(A.every(frontBand, ([, y1, , y2]) => Math.min(y1, y2) >= 43)).toBe(true);
+        expect(A.every(broken.front.broken, ([, y1, , y2]) => Math.min(y1, y2) >= 43)).toBe(true);
         // what the broken layer draws is exactly what the solid tab added to the outline
-        expect(totalLength(brokenFront?.visible ?? []) + totalLength(frontBand)).toBeCloseTo(
-          totalLength(solidFront?.visible ?? []),
+        expect(totalLength(broken.front.visible) + totalLength(broken.front.broken)).toBeCloseTo(
+          totalLength(solid.front.visible),
           3
         );
-        expect(brokenTop?.visible.length).toBeGreaterThan(0);
+        expect(broken.plan.visible.length).toBeGreaterThan(0);
       })
     );
 
