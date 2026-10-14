@@ -31,6 +31,7 @@ import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
+import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
@@ -292,6 +293,14 @@ const stagePatches = Effect.fn("SkillsLock.stagePatches")(function* (
     patchFiles,
     Effect.fnUntraced(function* (file) {
       const absolute = path.join(paths.stage, path.relative(PATCH_ROOT, file.path));
+      // Containment: a patch path must resolve inside the staging root.
+      const inside = path.relative(paths.stage, absolute);
+      if (Str.startsWith("..")(inside) || path.isAbsolute(inside)) {
+        return yield* SkillsCommandError.make({
+          message: `Refusing to stage ${file.path}: it resolves outside ${PATCH_ROOT}.`,
+          file: file.path,
+        });
+      }
       yield* fs
         .makeDirectory(path.dirname(absolute), { recursive: true })
         .pipe(SkillsCommandError.mapError(`Failed to create the parent of ${absolute}.`, absolute));
@@ -320,6 +329,8 @@ const requireLockUnchanged = Effect.fn("SkillsLock.requireLockUnchanged")(functi
   }
 });
 
+// Returns whether this run created the patch tree where none existed before, so rollback
+// knows to remove it rather than restore a set-aside tree.
 const swapPatchTree = Effect.fn("SkillsLock.swapPatchTree")(function* (paths: PublishPaths, hasPatches: boolean) {
   const fs = yield* FileSystem.FileSystem;
   const existing = yield* fs
@@ -331,14 +342,16 @@ const swapPatchTree = Effect.fn("SkillsLock.swapPatchTree")(function* (paths: Pu
       .pipe(SkillsCommandError.mapError(`Failed to set aside the previous ${PATCH_ROOT}.`, paths.target));
   }
   if (!hasPatches) {
-    return yield* removeQuietly(paths.stage);
+    yield* removeQuietly(paths.stage);
+    return false;
   }
   yield* fs
     .rename(paths.stage, paths.target)
     .pipe(SkillsCommandError.mapError(`Failed to publish the staged ${PATCH_ROOT}.`, paths.target));
+  return !existing;
 });
 
-const rollback = Effect.fn("SkillsLock.rollback")(function* (paths: PublishPaths) {
+const rollback = Effect.fn("SkillsLock.rollback")(function* (paths: PublishPaths, createdTarget: boolean) {
   const fs = yield* FileSystem.FileSystem;
   yield* removeQuietly(paths.stage);
   yield* removeQuietly(paths.lockStage);
@@ -346,6 +359,9 @@ const rollback = Effect.fn("SkillsLock.rollback")(function* (paths: PublishPaths
   if (setAside) {
     yield* removeQuietly(paths.target);
     yield* fs.rename(paths.previous, paths.target).pipe(Effect.ignore);
+  } else if (createdTarget) {
+    // First publish: no previous tree existed, so the new one must not outlive a failed lock rename.
+    yield* removeQuietly(paths.target);
   }
 });
 
@@ -357,18 +373,19 @@ const publish = Effect.fn("SkillsLock.publish")(function* (
 ) {
   const fs = yield* FileSystem.FileSystem;
   const paths = yield* publishPaths(repoRoot, plan.planDigest);
+  const createdTarget = yield* Ref.make(false);
   const run = Effect.gen(function* () {
     yield* stagePatches(paths, patchFiles);
     yield* fs
       .writeFileString(paths.lockStage, lockText, { flag: "wx" })
       .pipe(SkillsCommandError.mapError(`Refusing to stage: ${paths.lockStage} already exists.`, paths.lockStage));
     yield* requireLockUnchanged(paths.lockPath, plan.lockSha256);
-    yield* swapPatchTree(paths, A.isReadonlyArrayNonEmpty(patchFiles));
+    yield* Ref.set(createdTarget, yield* swapPatchTree(paths, A.isReadonlyArrayNonEmpty(patchFiles)));
     yield* fs
       .rename(paths.lockStage, paths.lockPath)
       .pipe(SkillsCommandError.mapError(`Failed to publish ${SKILLS_LOCK_PATH}.`, paths.lockPath));
   });
-  yield* run.pipe(Effect.onError(() => rollback(paths)));
+  yield* run.pipe(Effect.onError(() => Effect.flatMap(Ref.get(createdTarget), (created) => rollback(paths, created))));
   yield* removeQuietly(paths.previous);
 });
 

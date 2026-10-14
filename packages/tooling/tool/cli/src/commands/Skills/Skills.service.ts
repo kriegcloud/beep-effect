@@ -413,6 +413,19 @@ const PATCH_DROP_CONDITION = "Drop when upstream contains an equivalent change."
 
 const patchSlug = flow(Str.toLowerCase, Str.replace(/[^a-z0-9]+/gu, "-"), Str.replace(/^-+|-+$/gu, ""));
 
+// A lock key becomes a directory name under `.agents/skill-patches/`, so it must be one
+// plain path segment; a hand-edited key such as `../outside` is refused, never resolved.
+const SAFE_SKILL_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/u;
+const requireSafeSkillKey = (skill: string): Effect.Effect<string, SkillsCommandError> =>
+  SAFE_SKILL_KEY_PATTERN.test(skill)
+    ? Effect.succeed(skill)
+    : Effect.fail(
+        SkillsCommandError.make({
+          message: `Skill key "${skill}" is not a single safe path segment; refusing to place its patches.`,
+          skill,
+        })
+      );
+
 // `.agents/skill-patches/<skill>/NNNN-<slug>.patch`, numbered in drift-path order.
 const patchFilePath = (skill: string, index: number, filePath: string): string =>
   `${PATCH_ROOT}/${skill}/${Str.padStart(4, "0")(`${index + 1}`)}-${patchSlug(filePath)}.patch`;
@@ -434,6 +447,7 @@ const buildPatch = Effect.fn("SkillsProvenance.buildPatch")(function* (
   filePath: string,
   index: number
 ): Effect.fn.Return<BuiltPatch, SkillsCommandError, SkillPatchOwnerSource | Crypto.Crypto> {
+  yield* requireSafeSkillKey(skill);
   const owners = yield* SkillPatchOwnerSource;
   const text = yield* renderFilePatch(
     skill,

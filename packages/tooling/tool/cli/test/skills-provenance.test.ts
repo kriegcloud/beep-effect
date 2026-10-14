@@ -893,6 +893,43 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock write", (it) => {
     })
   );
 
+  it.effect("removes a first-time patch tree when the lock rename fails", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* fs.makeTempDirectoryScoped({ prefix: "skills-lock-write-first-" });
+      const { source } = yield* installLocallyEditedRepo(repoRoot);
+      // No earlier patch tree: the newly published one must not outlive the failed lock rename.
+      const lockPath = path.join(repoRoot, "skills-lock.json");
+      const failingRename: FileSystem.FileSystem = {
+        ...fs,
+        rename: (from, to) =>
+          to === lockPath
+            ? Effect.fail(
+                PlatformError.systemError({
+                  _tag: "PermissionDenied",
+                  module: "FileSystem",
+                  method: "rename",
+                  pathOrDescriptor: to,
+                })
+              )
+            : fs.rename(from, to),
+      };
+      const provide = Effect.provideService(SkillUpstreamContentSource, source);
+      const reviewed = yield* planSkillsLockMigration(repoRoot).pipe(provide);
+
+      const error = yield* writeSkillsLockMigration(repoRoot, O.some(reviewed.planDigest)).pipe(
+        provide,
+        Effect.provideService(FileSystem.FileSystem, failingRename),
+        Effect.flip
+      );
+
+      expect(error.message).toContain("Failed to publish skills-lock.json");
+      expect(yield* fs.readFileString(lockPath)).toBe(SKILLS_LOCK_V1_FIXTURE);
+      expect(yield* fs.exists(path.join(repoRoot, ".agents/skill-patches"))).toBe(false);
+    })
+  );
+
   it.effect("resolves provenance from a vendored lock entry instead of the seed", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
