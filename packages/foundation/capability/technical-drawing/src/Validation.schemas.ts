@@ -10,6 +10,7 @@ import { $TechnicalDrawingId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $TechnicalDrawingId.create("Validation.schemas");
 
@@ -56,12 +57,29 @@ export class PdfFontFact extends S.Opaque<PdfFontFact, { readonly brand: unique 
   S.Struct({
     name: S.String.annotateKey({ description: "BaseFont name." }),
     embedded: S.Boolean.annotateKey({ description: "Whether a font program is embedded." }),
-  }).pipe(
-    $I.annoteSchema("PdfFontFact", {
-      description: "Font name and embedding status.",
-    })
-  )
-) {}
+  },
+  $I.annote("PdfFontFact", {
+    description: "Font name and embedding status.",
+  })
+) {
+  /**
+   * The BaseFont name without its six-letter subset tag (`ABCDEF+`).
+   *
+   * **Example** (A subset font)
+   *
+   * ```ts
+   * import { PdfFontFact } from "@beep/technical-drawing"
+   *
+   * console.log(PdfFontFact.make({ name: "ABCDEF+ArialMT", embedded: true }).baseName) // "ArialMT"
+   * ```
+   *
+   * @category validation
+   * @since 0.0.0
+   */
+  get baseName(): string {
+    return Str.replace(/^[A-Z]{6}\+/, "")(this.name);
+  }
+}
 
 /**
  * Structural facts about a PDF file, as reported by the backend.
@@ -179,6 +197,8 @@ const FindingCodeBase = LiteralKit([
   "margin-bottom",
   "impure-pixels",
   "solid-black-area",
+  "label-missing",
+  "font-unexpected",
 ]);
 
 /**
@@ -249,6 +269,46 @@ export class SheetFinding extends S.Opaque<SheetFinding, { readonly brand: uniqu
   )
 ) {}
 
+const SheetLabelBase = LiteralKit(["figure", "sheet-number"]);
+
+/**
+ * The two labels of a sheet: `FIG. n` and the `n/N` sheet number.
+ *
+ * **Example** (Read the labels)
+ *
+ * ```ts
+ * import { SheetLabel } from "@beep/technical-drawing/Validation.schemas"
+ *
+ * console.log(SheetLabel.literals)
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const SheetLabel = SheetLabelBase.pipe(
+  $I.annoteSchema("SheetLabel", {
+    description: "`figure` (the `FIG. n` label) or `sheet-number` (the `n/N` label).",
+  }),
+  SchemaUtils.withLiteralKitStatics(SheetLabelBase)
+);
+
+/**
+ * Type for {@link SheetLabel}.
+ *
+ * **Example** (Annotate a label)
+ *
+ * ```ts
+ * import type { SheetLabel } from "@beep/technical-drawing/Validation.schemas"
+ *
+ * const label: SheetLabel = "figure"
+ * console.log(label)
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export type SheetLabel = typeof SheetLabel.Type;
+
 /**
  * Tolerances and expectations the validator checks against.
  *
@@ -275,11 +335,24 @@ export class ValidationOptions extends S.Opaque<ValidationOptions, { readonly br
       S.withConstructorDefault(Effect.succeed(1)),
       S.annotateKey({ description: "Allowed MediaBox deviation from the format, in points. Defaults to 1." })
     ),
-  }).pipe(
-    $I.annoteSchema("ValidationOptions", {
-      description: "Expected page count and tolerances of a validation run.",
-    })
-  )
+    textLabels: S.Array(SheetLabel).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Labels set as embedded text, so each page's extracted text must carry them (`FIG. n` on page n, `n/N` of N pages). Defaults to none.",
+      })
+    ),
+    expectedLabelFonts: S.Array(S.NonEmptyString).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Font families text labels were set in; every embedded font's base name must contain one of them (case and spaces ignored). Empty skips the check.",
+      })
+    ),
+  },
+  $I.annote("ValidationOptions", {
+    description: "Expected page count, tolerances, text labels, and label font families of a validation run.",
+  })
 ) {}
 
 /**

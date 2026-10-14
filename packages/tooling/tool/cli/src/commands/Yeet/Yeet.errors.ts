@@ -66,7 +66,7 @@ export class YeetCommandError extends S.TaggedError<YeetCommandError, { readonly
     (message: string, opts?: YeetCommandErrorOptions): (cause: unknown) => YeetCommandError;
   } = dual(
     3,
-    (cause: unknown, message: string, { command, exitCode, file } = {}): YeetCommandError =>
+    (cause: unknown, message: string, { command, exitCode, file }: YeetCommandErrorOptions = {}): YeetCommandError =>
       YeetCommandError.make({
         cause,
         message,

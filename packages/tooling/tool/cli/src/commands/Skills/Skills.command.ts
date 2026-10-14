@@ -16,6 +16,7 @@ import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -26,9 +27,21 @@ import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
-import { SkillsCommandError, SkillsDriftError } from "./Skills.errors.ts";
-import { renderSkillProvenanceJson, renderSkillProvenanceSummary } from "./Skills.render.ts";
-import { runSkillProvenance, SkillProvenanceServiceLive } from "./Skills.service.ts";
+import { checkInstalledSkills } from "./internal/SkillFrontmatterCheck.ts";
+import { SkillFrontmatterError, SkillsCommandError, SkillsDriftError } from "./Skills.errors.ts";
+import {
+  renderSkillProvenanceJson,
+  renderSkillProvenanceSummary,
+  renderSkillsLockMigrationPlanJson,
+  renderSkillsLockMigrationPlanSummary,
+} from "./Skills.render.ts";
+import {
+  planSkillsLockMigration,
+  runSkillProvenance,
+  SkillProvenanceServiceLive,
+  SkillUpstreamContentSourceLive,
+} from "./Skills.service.ts";
+import type { SkillFrontmatterReport } from "./SkillFrontmatter.schemas.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
 
 // cspell:ignore mattpocock Gebert
@@ -325,7 +338,9 @@ const skillFlag = Flag.String("skill").pipe(
   Flag.optional
 );
 const provenanceSkillArgument = Argument.String("skill").pipe(
-  Argument.withDescription("Installed skill to resolve; the P1 pilot supports shadcn")
+  Argument.withDescription(
+    "Installed skill to resolve: one with a ratified resolution seed (grill-me, oracle, portless, shadcn, teach, turborepo)"
+  )
 );
 const provenanceJsonFlag = Flag.Boolean("json").pipe(
   Flag.withDefault(false),
@@ -890,6 +905,32 @@ const printDriftReport = Effect.fn("Skills.printDriftReport")(function* (
   }
 });
 
+const frontmatterIssueLine = (skill: string, message: string): string =>
+  `- ${skill}: ${Str.replace(/\n\s*/g, " ")(message)}`;
+
+const printFrontmatterReport = Effect.fn("Skills.printFrontmatterReport")(function* (report: SkillFrontmatterReport) {
+  for (const advisory of report.advisories) {
+    yield* Console.log(
+      `skills:update: advisory ${advisory.skill}/SKILL.md has ${advisory.lines} lines; the Agent Skills format recommends at most ${advisory.limit}. Move detail into references/.`
+    );
+  }
+  for (const issue of report.upstreamIssues) {
+    yield* Console.log(
+      `skills:update: advisory upstream skill ${frontmatterIssueLine(issue.skill, issue.message).slice(2)}; fix it upstream or patch it through skills-lock, never by editing the mirror.`
+    );
+  }
+  if (report.issues.length === 0) {
+    return;
+  }
+  yield* Console.log(`skills:update: frontmatter issues (${report.issues.length})`);
+  for (const issue of report.issues) {
+    yield* Console.log(frontmatterIssueLine(issue.skill, issue.message));
+  }
+  yield* Console.log(
+    "Agent Skills frontmatter allows name, description, license, compatibility, metadata, and allowed-tools, plus Claude Code's native keys; put repo extras such as version and status under metadata."
+  );
+});
+
 const resolveMode = (check: boolean, dryRun: boolean): Effect.Effect<SkillsRunMode, SkillsCommandError> => {
   if (check && dryRun) {
     return Effect.fail(
@@ -990,9 +1031,10 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
   readonly skill: O.Option<string>;
 }): Effect.fn.Return<
   ReadonlyArray<SkillDrift>,
-  SkillsCommandError | SkillsDriftError,
+  SkillsCommandError | SkillsDriftError | SkillFrontmatterError,
   FileSystem.FileSystem | Path.Path | Crypto.Crypto | HttpClient.HttpClient
 > {
+  const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Failed to locate repository root."));
   const sources = yield* resolveSourcesToFetch(options.skill);
   const fetchedSnapshots = yield* Effect.forEach(sources, fetchRemoteSkillSnapshot, {
@@ -1004,12 +1046,22 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
     R.fromEntries
   );
   const remoteDrift = yield* evaluateRemoteSkillDrift(repoRoot, fetchedSnapshots, options.mode);
+  const frontmatterReport = yield* checkInstalledSkills(
+    path.join(repoRoot, CLAUDE_SKILLS_DIR),
+    yield* readInstalledSkillNames(repoRoot),
+    HashSet.fromIterable(A.map(remoteSkillSources, (source) => source.name))
+  );
   const lockDrift = yield* evaluateLockDrift(repoRoot, snapshotsByName, options.mode);
   const configDrift = yield* evaluateCodexConfigDrift(repoRoot, options.mode);
   const mirrorDrift = yield* evaluateAgentsMirrorDrift(repoRoot, options.mode);
   const drift = A.appendAll(remoteDrift, A.getSomes([lockDrift, configDrift, mirrorDrift]));
 
   yield* printDriftReport(options.mode, drift);
+  yield* printFrontmatterReport(frontmatterReport);
+
+  if (frontmatterReport.issues.length > 0) {
+    return yield* SkillFrontmatterError.new(frontmatterReport.issues);
+  }
 
   if (options.mode === "check" && drift.length > 0) {
     return yield* SkillsDriftError.new(drift.length, "Repo-local skills are stale.");
@@ -1029,6 +1081,10 @@ const skillsUpdateCommand = Command.make(
     const mode = yield* resolveMode(check, dryRun);
     yield* runSkillsUpdate({ mode, skill }).pipe(
       Effect.catchTags({
+        SkillFrontmatterError: Effect.fn(function* (error) {
+          yield* Console.error(`skills:update: ${error.message}`);
+          return yield* failWithReportedExit(`skills:update: ${error.message}`);
+        }),
         SkillsDriftError: Effect.fn(function* (error) {
           yield* Console.error(`skills:update: ${error.message}`);
           return yield* failWithReportedExit(`skills:update: ${error.message}`);
@@ -1078,6 +1134,39 @@ const skillsProvenanceCommand = Command.make(
   Command.provide(SkillProvenanceServiceLive)
 );
 
+const skillsLockPlanCommand = Command.make(
+  "lock-plan",
+  {
+    json: Flag.Boolean("json").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Print the skills-lock-migration-plan/v2 report as JSON")
+    ),
+  },
+  Effect.fn("Skills.lockPlanCommand")(function* (options) {
+    yield* Effect.gen(function* () {
+      const repoRoot = yield* findRepoRoot().pipe(
+        SkillsCommandError.mapError("Failed to locate repository root for the skills lock plan.")
+      );
+      const plan = yield* planSkillsLockMigration(repoRoot);
+      yield* Console.log(
+        options.json ? Str.trimEnd(renderSkillsLockMigrationPlanJson(plan)) : renderSkillsLockMigrationPlanSummary(plan)
+      );
+    }).pipe(
+      Effect.catchTag(
+        "SkillsCommandError",
+        Effect.fn("Skills.lockPlanCommand.reportError")(function* (error) {
+          const message = `skills:lock-plan: ${error.message}`;
+          yield* Console.error(message);
+          return yield* failWithReportedExit(message);
+        })
+      )
+    );
+  })
+).pipe(
+  Command.withDescription("Plan the skills-lock v1 to v2 migration without writing repository state"),
+  Command.provide(SkillUpstreamContentSourceLive)
+);
+
 /**
  * Skills command group.
  *
@@ -1096,9 +1185,9 @@ const skillsProvenanceCommand = Command.make(
  */
 export const skillsCommand = Command.make("skills", {}, () =>
   Console.log(
-    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance shadcn"
+    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]"
   )
 ).pipe(
   Command.withDescription("Manage repo-local Claude and Codex skill mirrors"),
-  Command.withSubcommands([skillsUpdateCommand, skillsProvenanceCommand])
+  Command.withSubcommands([skillsUpdateCommand, skillsProvenanceCommand, skillsLockPlanCommand])
 );

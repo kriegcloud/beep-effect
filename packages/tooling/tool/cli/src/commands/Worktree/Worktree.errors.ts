@@ -67,7 +67,11 @@ export class WorktreeCommandError extends S.TaggedError<WorktreeCommandError, { 
     (message: string, opts?: WorktreeCommandErrorOptions): (cause: unknown) => WorktreeCommandError;
   } = dual(
     3,
-    (cause: unknown, message: string, { command, exitCode, path } = {}): WorktreeCommandError =>
+    (
+      cause: unknown,
+      message: string,
+      { command, exitCode, path }: WorktreeCommandErrorOptions = {}
+    ): WorktreeCommandError =>
       WorktreeCommandError.make({
         cause,
         message,

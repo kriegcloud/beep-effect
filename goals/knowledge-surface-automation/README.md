@@ -47,21 +47,31 @@ P4 in progress. Shipped on main so far:
 - **E:** `goals bootstrap|adopt --write --expect <planId>` (atomic publish, exclusive
   adoption). This packet adopted itself with its own executor (self-hosting test case
   #1).
+- **E-3b:** the read-only `beep explore graduate <exploration> --goal <slug>=<title>
+  --plan [--json]` compiles a content-addressed `graduation-plan/v1` (one bootstrap
+  plan per child, the hash-pinned exploration manifest edit, the refusal matrix, and
+  `alreadyPublished` replay classification). `--write --expect` is E-3c.
 - **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds.
+- **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
+  FP-eyeball report
+  ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
 - **Designs:** B, E, and C Stage 2
   ([`research/p4-skills-warehouse-design.md`](./research/p4-skills-warehouse-design.md),
   [`research/p4-goals-materialize-design.md`](./research/p4-goals-materialize-design.md),
-  [`research/p4-knowledge-doctor-design.md`](./research/p4-knowledge-doctor-design.md)).
+  [`research/p4-knowledge-doctor-design.md`](./research/p4-knowledge-doctor-design.md)),
+  plus E-3 graduation
+  ([`research/p4-explore-graduate-design.md`](./research/p4-explore-graduate-design.md)).
+- **D (PR 3):** `beep goals doctor` emits `capability-duplicate-declaration`,
+  `capability-reference-provides` and `capability-packet-id-mismatch` (blocking,
+  ratcheted) and `capability-stranded` (advisory), all zero on the live census; the
+  four missing `provides` are declared.
+- **B-3a:** `skills lock-plan` classifies drift against upstream path history (B11).
 
-This PR adds C Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
-FP-eyeball report
-([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
-
-Waiting on verdicts:
-
-- the D and B reports gate D's doctor findings and B's lock write;
-- the C report gates PR 2 (domain evaluators and the assertion/planned-command
-  classification fixes).
+This PR adds C Stage-2 PR 2, the fixes from the C report's verdict: an assertion
+marker asserts only as a whole comment line (both stages), an arrow chain of commands
+is never one command span (both stages), the accepted doc fixes, and the planned-command
+spelling (`beep <cmd>` in prose) in the `SPEC.md` authoring note. The domain evaluators
+are the next C PR. B-3b (the lock write and flip) is in progress.
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 

@@ -1485,7 +1485,7 @@ export class Minimatch {
 				hit = f === p;
 				this.debug("string match", p, f, hit);
 			} else {
-				hit = p.test(f);
+				hit = p._matchSegment !== undefined ? p._matchSegment(f) : p.test(f);
 				this.debug("pattern match", p, f, hit);
 			}
 

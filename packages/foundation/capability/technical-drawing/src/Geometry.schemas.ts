@@ -284,6 +284,57 @@ export const Primitive = S.Union([Box, Prism, Cylinder]).pipe(
  */
 export type Primitive = typeof Primitive.Type;
 
+const PartLineStyleBase = LiteralKit(["solid", "broken"]);
+
+/**
+ * Line style of a part's visible edges.
+ *
+ * **Details**
+ *
+ * `solid` parts are the claimed design. `broken` parts are unclaimed subject
+ * matter (37 CFR 1.152): their visible edges go to the broken-line layer and
+ * are drawn dashed.
+ *
+ * **Gotchas**
+ *
+ * Broken lines mark unclaimed subject matter, never hidden lines. A broken
+ * part's hidden edges are not collected, and the part is never shaded.
+ *
+ * **Example** (Read the styles)
+ *
+ * ```ts
+ * import { PartLineStyle } from "@beep/technical-drawing"
+ *
+ * console.log(PartLineStyle.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const PartLineStyle = PartLineStyleBase.pipe(
+  $I.annoteSchema("PartLineStyle", {
+    description: "Line style of a part's visible edges: solid (claimed) or broken (unclaimed, 37 CFR 1.152).",
+  }),
+  SchemaUtils.withLiteralKitStatics(PartLineStyleBase)
+);
+
+/**
+ * Type for {@link PartLineStyle}.
+ *
+ * **Example** (Annotate a style)
+ *
+ * ```ts
+ * import type { PartLineStyle } from "@beep/technical-drawing"
+ *
+ * const style: PartLineStyle = "broken"
+ * console.log(style)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PartLineStyle = typeof PartLineStyle.Type;
+
 /**
  * One solid of a model: the fusion of its `add` primitives minus its `subtract` primitives.
  *
@@ -291,6 +342,16 @@ export type Primitive = typeof Primitive.Type;
  *
  * Parts stay separate solids in the final compound, so edges where two parts
  * touch are still drawn. Use one part per physical piece (panel, tab, peg).
+ * `lineStyle` chooses how the part's visible edges are drawn; it defaults to
+ * `solid`.
+ *
+ * **Gotchas**
+ *
+ * A `broken` part is drawn in broken (dashed) lines because it is unclaimed
+ * subject matter under 37 CFR 1.152: environment or context the design does
+ * not claim. Broken lines are never hidden lines. Only the part's visible
+ * edges are drawn, the part still hides what lies behind it, edges hidden by
+ * other parts are never collected, and the part is never surface-shaded.
  *
  * **Example** (A plate with a hole)
  *
@@ -326,11 +387,18 @@ export class Part extends S.Opaque<Part, { readonly brand: unique symbol }>()(
       S.withDecodingDefaultTypeKey(Effect.succeed([])),
       S.annotateKey({ description: "Primitives cut from the fused result, in order." })
     ),
-  }).pipe(
-    $I.annoteSchema("Part", {
-      description: "One solid: fused `add` primitives minus `subtract` primitives.",
-    })
-  )
+    lineStyle: PartLineStyle.pipe(
+      S.withConstructorDefault(Effect.succeed("solid" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("solid" as const)),
+      S.annotateKey({
+        description:
+          "How the part's visible edges are drawn: solid, or broken for unclaimed subject matter (37 CFR 1.152). Defaults to solid.",
+      })
+    ),
+  },
+  $I.annote("Part", {
+    description: "One solid: fused `add` primitives minus `subtract` primitives, drawn in solid or broken lines.",
+  })
 ) {}
 
 const LengthUnitBase = LiteralKit(["mm", "in"]);
@@ -502,7 +570,8 @@ export type Segment2 = typeof Segment2.Type;
  * Every edge is sampled to straight segments (one per straight edge, several
  * per curve), coordinates are rounded to three decimals, each segment is
  * direction-normalised, and the lists are sorted, so equal geometry yields
- * byte-equal output.
+ * byte-equal output. `visible` and `hidden` hold the edges of solid parts;
+ * `broken` holds only the visible edges of broken-line parts.
  *
  * **Example** (An empty edge set)
  *
@@ -524,11 +593,18 @@ export class EdgeSet extends S.Opaque<EdgeSet, { readonly brand: unique symbol }
       S.withDecodingDefaultTypeKey(Effect.succeed([])),
       S.annotateKey({ description: "Visible surface-shading lines; empty when the view was not shaded." })
     ),
-  }).pipe(
-    $I.annoteSchema("EdgeSet", {
-      description: "Canonically ordered visible and hidden projected segments of one view.",
-    })
-  )
+    broken: S.Array(Segment2).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultTypeKey(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Visible edges of broken-line parts (unclaimed subject matter), drawn dashed; empty when no part is broken.",
+      })
+    ),
+  },
+  $I.annote("EdgeSet", {
+    description: "Canonically ordered visible, hidden, shading, and broken-line projected segments of one view.",
+  })
 ) {}
 
 const ExposureThreshold = S.Finite.check(
@@ -615,6 +691,12 @@ export class BoundingBox extends S.Opaque<BoundingBox, { readonly brand: unique 
 /**
  * Measured facts about a built solid.
  *
+ * **Details**
+ *
+ * The volume sums every part, so overlapping parts are counted twice;
+ * `partOverlaps` reports how many part pairs truly overlap. Contact faces
+ * modelled with zero clearance do not count as overlaps.
+ *
  * **Example** (Make a summary)
  *
  * ```ts
@@ -638,9 +720,16 @@ export class ModelSummary extends S.Opaque<ModelSummary, { readonly brand: uniqu
     volume: S.Finite.annotateKey({ description: "Total volume in cubic model units, rounded to three decimals." }),
     faceCount: S.Natural.annotateKey({ description: "Number of faces across all parts." }),
     edgeCount: S.Natural.annotateKey({ description: "Number of edges across all parts." }),
-  }).pipe(
-    $I.annoteSchema("ModelSummary", {
-      description: "Bounding box, volume, and topology counts of a built solid.",
-    })
-  )
+    partOverlaps: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Pairs of parts whose common volume exceeds the kernel tolerance; parts that only touch do not count. Defaults to 0.",
+      })
+    ),
+  },
+  $I.annote("ModelSummary", {
+    description: "Bounding box, volume, topology counts, and part-overlap count of a built model.",
+  })
 ) {}

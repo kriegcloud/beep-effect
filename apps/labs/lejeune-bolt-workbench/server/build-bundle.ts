@@ -633,7 +633,7 @@ const buildBundleAt = Effect.fn("LeJeuneBundle.buildAt")(function* (
       acquireStagingRoots(roots),
       (staging) =>
         restore(buildStagedBundle(staging, recordingPath, retentionAuthorizationPath, currentTimeMillis)).pipe(
-          Effect.flatMap((receipt) => publishStagingRoots(staging, roots.publication).pipe(Effect.as(receipt)))
+          Effect.tap(() => publishStagingRoots(staging, roots.publication))
         ),
       (staging, exit) =>
         Exit.match(exit, {

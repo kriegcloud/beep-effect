@@ -1192,20 +1192,20 @@ const statusInput = S.Struct(StatusEntry.fields);
 /**
  * Parses `git log -1 --format=%H%x00%G?%x00%B` output: exactly two NUL
  * separators, everything after the second is the raw message, untrimmed.
- * Only ever called on the successful output of this package's own format
- * string, so the separators are guaranteed present.
+ * A successful invocation can select no commits; missing separators or an
+ * invalid signature verdict return None instead of escaping as a defect.
  */
-const parseCommitInfo = (output: string): CommitInfo => {
+const parseCommitInfo = (output: string): O.Option<CommitInfo> => {
   const first = output.indexOf("\0");
+  if (first < 0) return O.none();
   const second = output.indexOf("\0", first + 1);
+  if (second < 0) return O.none();
   const parsed = {
     sha: output.slice(0, first),
-    // Our own format string only ever emits git's %G? verdict letters.
     signatureStatus: output.slice(first + 1, second),
     message: output.slice(second + 1),
   };
-  S.asserts(commitInfoInput, parsed);
-  return CommitInfo.make(parsed);
+  return O.map(S.decodeUnknownOption(commitInfoInput)(parsed), (input) => CommitInfo.make(input));
 };
 
 /**
@@ -1842,14 +1842,15 @@ const rejectNonNaturalNumber = (
  * can change under a running service, so none is re-read per call — unlike
  * their git-config counterparts, which are repository-local.
  */
-interface SshFromEnv {
+const SshFromEnv = S.Struct({
   /** `GIT_SSH_COMMAND` — a full command line; the first rung. */
-  readonly command: O.Option<string>;
+  command: S.Option(S.String).annotateKey({ description: "GIT_SSH_COMMAND, a full command line with highest precedence." }),
   /** `GIT_SSH` — a program name with no argument support; the third rung. */
-  readonly program: O.Option<string>;
+  program: S.Option(S.String).annotateKey({ description: "GIT_SSH, a program name with no argument support." }),
   /** `GIT_SSH_VARIANT` — overrides git's basename inference of the grammar. */
-  readonly variant: O.Option<string>;
-}
+  variant: S.Option(S.String).annotateKey({ description: "GIT_SSH_VARIANT, overriding basename inference of the SSH grammar." }),
+}).annotate($I.annote("SshFromEnv", { description: "The optional SSH environment settings captured at layer construction." }));
+type SshFromEnv = typeof SshFromEnv.Type;
 
 /** Builds the `Git.Service` shape over an already-resolved `ChildProcessSpawner`. */
 const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: SshFromEnv) => {
@@ -2698,9 +2699,18 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
     const target = ref ?? "HEAD";
     yield* Effect.annotateCurrentSpan({ cwd, ref: target });
     yield* rejectOptionLikeRefs(cwd, [target]);
-    const classified = yield* runFor(GitCommand.commitInfo(target), cwd, "generic");
+    const invocation = GitCommand.commitInfo(target);
+    const classified = yield* runFor(invocation, cwd, "generic");
     return yield* Match.valueTags(classified, {
-      success: (classified) => Effect.succeed(parseCommitInfo(classified.output)),
+      success: (classified) => Effect.fromOption(parseCommitInfo(classified.output),
+        () => GitCommandError.make({
+          kind: "failed",
+          args: invocation.redactedArgs,
+          cwd,
+          stderr: "",
+          detail: "unparseable commitInfo output: expected two NUL separators and a valid signature status",
+        }),
+      ),
       notARepository: () => Effect.fail(NotARepositoryError.make({ cwd })),
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref: target, cwd })),
       failure: (classified) => Effect.fail(classified.error),

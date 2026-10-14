@@ -212,20 +212,28 @@ export const CorpusPageReadingRecordJson = JsonStringCodec(CorpusPageReadingReco
  * @category models
  * @since 0.0.0
  */
-export class CorpusExtractOcrCounts extends S.Opaque<CorpusExtractOcrCounts, { readonly brand: unique symbol }>()(
-  S.Struct({
+export class CorpusExtractOcrCounts extends S.Class<CorpusExtractOcrCounts>($I`CorpusExtractOcrCounts`)(
+  {
+    completed: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(true)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(true))
+    ),
     failedPageCount: S.Natural,
+    missingLanguages: S.NonEmptyString.pipe(
+      S.Array,
+      S.OptionFromOptionalKey,
+      S.withConstructorDefault(Effect.succeedNone)
+    ),
     pageCountFailed: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
     readPageCount: S.Natural,
-  }).pipe(
-    $I.annoteSchema("CorpusExtractOcrCounts", {
-      description:
-        "How many pages of one source the OCR pass read and how many it failed; pageCountFailed marks a PDF whose pages could not be counted, so none were read.",
-    })
-  )
+  },
+  $I.annote("CorpusExtractOcrCounts", {
+    description:
+      "OCR page counts and missing language models for one source; completed is false when no model could be selected, and pageCountFailed marks an uncountable PDF. Older counts decode without missing languages and as completed.",
+  })
 ) {}
 
 /**

@@ -1056,3 +1056,75 @@ and its own freeze record. Follow up with sanitized failure-stage/class
 evidence and a synthetic failing-GIF fixture. Reversal: revert these packet
 decisions while retaining all families, ledgers, outputs, claims and manifests.
 See history/p2/2026-10-14-first-wave-stop.md for aggregate evidence.
+
+
+### 2026-10-14: Run 17 resumes ordinals 6-9 with family 5 retained as failed
+
+The orchestrator accepts the family-5 diagnosis and explicitly authorizes
+continuing the SAME frozen wave with ordinals 6-9, one admitted family at
+a time. This supersedes the preceding continuation prohibition, preserving
+its historical evidence. Family 5 remains sealed-failure and is never retried
+or counted as accepted. Its ledger digest remains
+`dda98f8c7088589dffdc463935455b7474fad7ab4738cf8feaab749dd1d3031c`.
+Four accepted families and one failed family are sealed; four remain unstarted.
+
+Renewed preflight matches all nine source, engine, launcher, membership,
+policy and frozen-code identities. Earlier ledger hashes remain unchanged.
+P0 counts remain 755 directories, 10,696 files, four inherited losses, one
+preflight and one seal. Capacity is 417,086,545,920 free bytes. Both admitted
+real sandbox smokes pass; four focused tests pass, 78 skipped, 4.93 seconds.
+The full sixty-second continuation interval precedes the final capacity and
+state recheck and ordinal 6 submission. Retain ratio 4, attempt 7,200,000 ms,
+family 43,200,000 ms, total output 2,147,483,648 bytes and 100 GB floor.
+Stop and diagnose any further sealed failure. No engine or launcher change.
+
+Decision: continue the remaining authorized ordinals, retaining family 5 as
+failed. Reversal: revert packet decisions while retaining every immutable
+ledger, output, claim and manifest. Family-5 parser-exception recovery is a
+separate future engine PR and separately frozen execution after this wave.
+P2 remains in-progress; eighteen larger occurrences and estate/recycle/DOC
+obligations remain open. Never merge from this worker.
+
+
+### 2026-10-14: family 6 accepted under the unchanged first-wave freeze
+
+Family 6 result zero and accepted seal reconcile 6,091 children: 5,735 engine,
+178 repair-copy and 178 Tika children. Both derived digest sets match all
+178 distinct repaired digests. Dispositions: 217 repaired occurrences,
+220 unsupported, zero unchanged. Zero warnings, exceptions, interruptions
+or unaccounted children. Input 190,989,312 bytes; output 496,830,967 bytes
+(2.601354818x); attempt 5,724,191 ms, family 5,756,397 ms. Retained ceilings
+and all nine frozen identities hold; earlier ledger digests remain unchanged.
+Six sealed: five accepted, family 5 retained as sealed-failure.
+
+Decision: continue ordinal 7 under Run 17 and standing Runs 12+/13+ only after
+renewed admitted smokes/focused proof, a full sixty-second interval and the
+100 GB floor. No integration of newer main source during this frozen wave.
+Stop and diagnose any further sealed failure; never retry a sealed family.
+Reversal: revert packet decisions while retaining all ledgers, output, claims
+and immutable manifests. P2 remains in-progress; family-5 recovery follows
+as a separate engine PR and newly frozen execution. Eighteen larger inputs
+and estate/recycle/DOC obligations remain open; PR7 follows the terminal wave.
+
+
+### 2026-10-14: further sealed failure stops the bounded wave at family 7
+
+Run 17's continuation authorization requires stopping at any further
+sealed failure. Family 7 result 1 and immutable failure seal meet that
+condition. Seven families sealed: five accepted, two failed (5 and 7);
+ordinals 8-9 remain unstarted. Family 7 retained 910,603,343 output bytes
+from 354,026,496 input bytes (2.572133310x). Family elapsed 7,211,513 ms;
+no store pass or terminal child rows. Partial repair evidence is 288 repaired
+occurrences / 245 digests, 217 unsupported, with 246 copies and 245 Tika files.
+A 2,280,873-byte PDF copy lacks second-pass output near the attempt time cap.
+Elapsed-budget exhaustion is strongly supported by timing and code, but
+the generic exception catch prevents exact cause attribution. This is not
+an approved parser exception or an accepted store. Earlier seals, all nine
+freeze records, launcher and engine identities remain intact.
+
+Decision: stop, diagnose and publish aggregate evidence; no ordinal 8 launch,
+sealed-family retry or engine/launcher change. P2 stays in-progress.
+Reversal: revert packet decisions while retaining all ledgers, output,
+claims and manifests. Further continuation or recovery needs an orchestrator
+ruling. Family-5 separate recovery and eighteen larger occurrences remain
+deferred. Evidence: history/p2/2026-10-14-family-07-stop.md.

@@ -388,9 +388,25 @@ const lastMatchingEntry = (
   return found;
 };
 
-/** Appends `content` at the end of `text`, inserting a newline separator when the text does not end with one. */
-const appendAtEof = (text: string, content: string): string =>
-  text === "" ? content : text.endsWith("\n") ? text + content : `${text}\n${content}`;
+/** Separates inserted content from the preceding entry, including an open EOF continuation. */
+const insertionSeparator = (text: string, offset: number, entry: RawEntry | undefined): string => {
+  const separator = offset > 0 && text[offset - 1] !== "\n" ? "\n" : "";
+  if (entry === undefined || entry.valueOffset + entry.valueLength !== offset) return separator;
+  // A significant value span reaching the newline consumed a continuation.
+  if (text[offset - 1] === "\n") return text[offset - 2] === "\r" ? "\r\n" : "\n";
+  let slashStart = offset;
+  while (text[slashStart - 1] === "\\") slashStart -= 1;
+  // Paired backslashes decode literally; only an odd final backslash stays open.
+  return (offset - slashStart) % 2 === 1 ? `${separator}\n` : separator;
+};
+
+/** Appends `content` after terminating the last logical value, retaining the existing text. */
+const appendAtEof = (text: string, content: string): string => {
+  const sections = reparse(text).sections;
+  const section = sections[sections.length - 1];
+  const entry = section?.entries[section.entries.length - 1];
+  return text + insertionSeparator(text, text.length, entry) + content;
+};
 
 /**
  * A lossless git-config document: the source text plus the structural index
@@ -696,7 +712,7 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
       const indent = sectionIndent(this.text, found.section);
       const offset = found.entry.offset + found.entry.length;
       const line = `${indent}${key} = ${serializeValue(value)}\n`;
-      const content = this.text[offset - 1] !== "\n" ? `\n${line}` : line;
+      const content = insertionSeparator(this.text, offset, found.entry) + line;
       return Result.succeed(rebuild(applySplice(this.text, {
         offset,
         length: 0,
@@ -962,7 +978,7 @@ const insertEntry = (
   const indent = sectionIndent(text, target);
   const offset = sectionInsertOffset(target);
   const line = `${indent}${key} = ${serializeValue(value)}\n`;
-  const content = text[offset - 1] !== "\n" ? `\n${line}` : line;
+  const content = insertionSeparator(text, offset, target.entries[target.entries.length - 1]) + line;
   return rebuild(applySplice(text, { offset, length: 0, content }));
 };
 
