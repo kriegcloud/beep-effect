@@ -202,7 +202,7 @@ export const toneOf = (exposure: number): ShadingTone => {
 // and leave a face square to the light nearly bare.
 const toneSpacing = (tone: ShadingTone) =>
   ShadingTone.$match(tone, {
-    faint: () => ({ coverage: 0.15, minLines: 2, maxLines: 2 }),
+    faint: () => ({ coverage: 0.15, minLines: 2, maxLines: 4 }),
     light: () => ({ coverage: 0.3, minLines: 2, maxLines: 5 }),
     medium: () => ({ coverage: 0.35, minLines: 3, maxLines: 7 }),
     dark: () => ({ coverage: 0.35, minLines: 4, maxLines: 8 }),
@@ -218,10 +218,11 @@ const toneSpacing = (tone: ShadingTone) =>
  * times the one before, capped at `maxPitch`. Lines stop when they pass the
  * tone's share of the span (once its minimum count is drawn) or its maximum
  * count, and never come within `minPitch` of the far edge. A face too narrow
- * for one line gets none. An optional `keep` rejects positions where the face
- * is too narrow for a stroke (a tab, a lip, a pointed tip): the line is not
- * counted and the next position is tried one gap further in, so the strokes
- * move inward instead of vanishing.
+ * for one line gets none. An optional `keep`, given a position and the index
+ * the line would take, rejects positions where the face is too narrow for a
+ * stroke (a tab, a lip, a pointed tip): the line is not counted and the next
+ * position is tried one gap further in, so the strokes move inward instead
+ * of vanishing.
  *
  * **Example** (A light 30-wide face)
  *
@@ -239,7 +240,7 @@ export const gradedOffsets = (input: {
   readonly minPitch: number;
   readonly maxPitch: number;
   readonly tone: ShadingTone;
-  readonly keep?: (offset: number) => boolean;
+  readonly keep?: (offset: number, index: number) => boolean;
 }): ReadonlyArray<number> => {
   const { span, minPitch } = input;
   const maxPitch = Math.max(input.maxPitch, minPitch);
@@ -252,7 +253,7 @@ export const gradedOffsets = (input: {
     if (offset > limit || drawn >= maxLines || (drawn >= minLines && offset > coverage * span)) {
       return offsets;
     }
-    return keep(offset)
+    return keep(offset, drawn)
       ? next([...offsets, offset], offset, Math.min(maxPitch, gap * GROWTH))
       : next(offsets, offset, gap);
   };
@@ -330,11 +331,11 @@ const PARALLEL_SINE = Math.sin((2 * Math.PI) / 180);
 const COLLINEAR = 0.01;
 
 /**
- * Distance between two shading segments that sit side by side: within two
- * degrees of parallel, overlapping along their length by more than
- * `minSpacing`, and closer than `minSpacing` (measured from the second
- * segment's midpoint to the first one's line). Collinear pieces, one line
- * split by a hidden part, are none.
+ * Distance between two segments that sit side by side: within two degrees
+ * of parallel, overlapping along their length by more than `minOverlap`
+ * (default `minSpacing`), and closer than `maxGap` (default `minSpacing`,
+ * measured from the second segment's midpoint to the first one's line).
+ * Collinear pieces, one line split by a hidden part, are none.
  *
  * **Example** (Two lines 0.3 apart)
  *
@@ -352,8 +353,12 @@ export const sideBySideGap = (input: {
   readonly first: Segment2;
   readonly second: Segment2;
   readonly minSpacing: number;
+  readonly maxGap?: number;
+  readonly minOverlap?: number;
 }): O.Option<number> => {
   const { first: a, second: b, minSpacing } = input;
+  const maxGap = input.maxGap ?? minSpacing;
+  const minOverlap = input.minOverlap ?? minSpacing;
   const [ax, ay, bx, by] = a;
   const length = Math.hypot(bx - ax, by - ay);
   const otherLength = Math.hypot(b[2] - b[0], b[3] - b[1]);
@@ -368,12 +373,39 @@ export const sideBySideGap = (input: {
   const end = along(b[2], b[3]);
   const overlap = Math.min(length, Math.max(start, end)) - Math.max(0, Math.min(start, end));
   const distance = Math.abs(((b[1] + b[3]) / 2 - ay) * ux - ((b[0] + b[2]) / 2 - ax) * uy);
-  return sine <= PARALLEL_SINE && overlap > minSpacing && distance > COLLINEAR && distance < minSpacing
+  return sine <= PARALLEL_SINE && overlap > minOverlap && distance > COLLINEAR && distance < maxGap
     ? O.some(distance)
     : O.none();
 };
 
 const segmentLength = (s: Segment2): number => Math.hypot(s[2] - s[0], s[3] - s[1]);
+
+/**
+ * Distance from a point to a segment, in the segment's units.
+ *
+ * **Example** (A point beside a segment)
+ *
+ * ```ts
+ * import { pointToSegmentDistance } from "@beep/technical-drawing/Shading.rules"
+ *
+ * console.log(pointToSegmentDistance({ x: 5, y: 3, segment: [0, 0, 10, 0] })) // 3
+ * ```
+ *
+ * @category shading
+ * @since 0.0.0
+ */
+export const pointToSegmentDistance = (input: {
+  readonly x: number;
+  readonly y: number;
+  readonly segment: Segment2;
+}): number => {
+  const { x, y, segment: s } = input;
+  const dx = s[2] - s[0];
+  const dy = s[3] - s[1];
+  const length2 = dx * dx + dy * dy;
+  const t = length2 === 0 ? 0 : Math.max(0, Math.min(1, ((x - s[0]) * dx + (y - s[1]) * dy) / length2));
+  return Math.hypot(x - (s[0] + t * dx), y - (s[1] + t * dy));
+};
 
 /**
  * Shading segments kept legible after hidden-line removal: every piece is
@@ -382,7 +414,11 @@ const segmentLength = (s: Segment2): number => Math.hypot(s[2] - s[0], s[3] - s[
  * part in front of it), a piece then shorter than `minStroke` is dropped (a
  * chord cut to a fragment by a hidden part), and of two segments side by side
  * closer than `minSpacing` the shorter is dropped (two coplanar parts, a flap
- * and its tab, shading one area from their own anchors).
+ * and its tab, shading one area from their own anchors). With `outlines` and
+ * a `clearance`, an end that still stands closer than the clearance to an
+ * outline (one it met at a shallow angle) is drawn back further, half a
+ * clearance at a time and at most two clearances, and a piece running beside
+ * an outline closer than the clearance is dropped.
  *
  * **Example** (A fragment and a doubled line)
  *
@@ -401,8 +437,12 @@ export const legibleShading = (input: {
   readonly minStroke: number;
   readonly minSpacing: number;
   readonly inset?: number;
+  readonly outlines?: ReadonlyArray<Segment2>;
+  readonly clearance?: number;
 }): ReadonlyArray<Segment2> => {
   const inset = Math.max(0, input.inset ?? 0);
+  const clearance = Math.max(0, input.clearance ?? 0);
+  const outlines = input.outlines ?? [];
   const drawnBack = (s: Segment2): Segment2 => {
     const length = segmentLength(s);
     if (inset <= 0 || length <= 2 * inset) {
@@ -412,10 +452,40 @@ export const legibleShading = (input: {
     const uy = (s[3] - s[1]) / length;
     return [s[0] + ux * inset, s[1] + uy * inset, s[2] - ux * inset, s[3] - uy * inset];
   };
+  // an end that met an outline at a shallow angle sits almost on it after the
+  // inset along the stroke: each end is drawn back further, half a clearance
+  // at a time and at most two clearances, until it stands clear of every outline
+  const nearest = (x: number, y: number): number =>
+    pipe(
+      outlines,
+      A.map((segment) => pointToSegmentDistance({ x, y, segment })),
+      A.reduce(Number.POSITIVE_INFINITY, (least, d) => Math.min(least, d))
+    );
+  const cleared = (s: Segment2): Segment2 => {
+    const length = segmentLength(s);
+    if (clearance <= 0 || A.length(outlines) === 0 || length <= 0) {
+      return s;
+    }
+    const ux = (s[2] - s[0]) / length;
+    const uy = (s[3] - s[1]) / length;
+    const step = clearance / 2;
+    const most = 2 * clearance;
+    const back = (x: number, y: number, dx: number, dy: number, soFar: number): number =>
+      soFar >= most || nearest(x + dx * soFar, y + dy * soFar) >= clearance ? soFar : back(x, y, dx, dy, soFar + step);
+    const a = back(s[0], s[1], ux, uy, 0);
+    const b = back(s[2], s[3], -ux, -uy, 0);
+    return a + b >= length ? [s[0], s[1], s[0], s[1]] : [s[0] + ux * a, s[1] + uy * a, s[2] - ux * b, s[3] - uy * b];
+  };
+  // a stroke running beside a drawn outline closer than the clearance (a
+  // board's edge seen on edge next to the face it bounds) reads as a doubled
+  // line and goes
+  const besideOutline = (s: Segment2): boolean =>
+    clearance > 0 && A.some(outlines, (o) => O.isSome(sideBySideGap({ first: s, second: o, minSpacing: clearance })));
   const long = pipe(
     input.segments,
     A.map(drawnBack),
-    A.filter((s) => segmentLength(s) >= Math.max(input.minStroke, COLLINEAR))
+    A.map(cleared),
+    A.filter((s) => segmentLength(s) >= Math.max(input.minStroke, COLLINEAR) && !besideOutline(s))
   );
   const yieldsTo = (s: Segment2, i: number) => (other: Segment2, j: number) =>
     j !== i &&
@@ -445,9 +515,22 @@ const longestEdgeDirection = (face: FaceFacts): O.Option<V3> =>
     O.map((edge) => unitOf(plus(edge.end, times(edge.start, -1))))
   );
 
-// The straight edge of a level face whose outward side faces most away from
-// the light: strokes along it bunch on the face's darkest edge. Among equals
-// the longer edge wins, so a regular lid keeps one direction per set.
+// The straight edge of a level or inclined face whose outward side faces most
+// away from the light: strokes along it bunch on the face's darkest edge.
+// Only edges at least a quarter as long as the face's longest count, so a tab
+// notch or chamfer cannot turn a flap's strokes into a row of ticks; among
+// equals the longer edge wins, so a regular lid keeps one direction per set.
+const MAJOR_EDGE_SHARE = 0.25;
+
+const majorEdgesOf = (face: FaceFacts): ReadonlyArray<FaceEdge> => {
+  const longest = pipe(
+    face.edges,
+    A.map((edge) => edge.length),
+    A.reduce(0, (most, length) => Math.max(most, length))
+  );
+  return A.filter(face.edges, (edge) => edge.length > 0 && edge.length >= MAJOR_EDGE_SHARE * longest);
+};
+
 const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> => {
   const normal = unitOf(face.normal);
   const inPlane = minus(light, times(normal, dot(light, normal)));
@@ -463,8 +546,7 @@ const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> => {
     Order.flip(Order.mapInput(Order.Number, lineLength))
   );
   return pipe(
-    face.edges,
-    A.filter((edge) => edge.length > 0),
+    majorEdgesOf(face),
     A.sort(order),
     A.head,
     O.map((edge) => unitOf(minus(edge.end, edge.start)))
@@ -477,11 +559,13 @@ const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> => {
  * **Details**
  *
  * `longest-edge`: the face's longest straight edge. `surface-class`: +Z on
- * upright faces, the level line (`normal × Z`) on inclined faces, and on level
- * faces the edge whose outward side faces most away from `light` when a light
- * is given (so a regular lid's strokes bunch on its darkest edge), else the
- * longest edge (+X on a level face without straight edges, such as a peg's
- * top). None for a `longest-edge` face without straight edges.
+ * upright faces; on inclined and level faces the edge whose outward side
+ * faces most away from `light` when a light is given (so a lid's strokes
+ * bunch on its darkest edge and a hanging flap's run along its lower-right
+ * edge instead of shrinking to ticks at its tip), else the level line
+ * (`normal × Z`) on an inclined face and the longest edge on a level one (+X
+ * on a level face without straight edges, such as a peg's top). None for a
+ * `longest-edge` face without straight edges.
  *
  * **Example** (A wall hatches vertically)
  *
@@ -506,18 +590,22 @@ export const hatchDirectionOf = (input: {
   readonly light?: Vec3;
 }): O.Option<Vec3> => {
   const { face } = input;
-  const levelDirection = pipe(
+  const darkest = pipe(
     O.fromNullishOr(input.light),
-    O.flatMap((light) => darkestEdgeDirection(face, light)),
-    O.orElse(() => longestEdgeDirection(face))
+    O.flatMap((light) => darkestEdgeDirection(face, light))
   );
   return HatchAxis.$match(input.axis, {
     "longest-edge": () => longestEdgeDirection(face),
     "surface-class": () =>
       SurfaceClass.$match(surfaceClassOf(face.normal), {
         upright: () => O.some(MODEL_UP),
-        inclined: () => O.some(unitOf(crossOf(unitOf(face.normal), MODEL_UP))),
-        level: () => O.orElse(levelDirection, () => O.some(MODEL_X)),
+        inclined: () => O.orElse(darkest, () => O.some(unitOf(crossOf(unitOf(face.normal), MODEL_UP)))),
+        level: () =>
+          pipe(
+            darkest,
+            O.orElse(() => longestEdgeDirection(face)),
+            O.orElse(() => O.some(MODEL_X))
+          ),
       }),
   });
 };
@@ -542,12 +630,18 @@ const sign = (value: number): number => (value < 0 ? -1 : 1);
  *
  * **Details**
  *
- * The 1.84(m) light's component in the face plane points to the lit side;
- * the anchor is the outline point farthest the other way along `step`, and
+ * The sheet-plane part of the 1.84(m) light (its component toward the viewer
+ * dropped, since the shadow side is read on the sheet), projected into the
+ * face plane, points to the lit side; the anchor is the outline point
+ * farthest the other way along `step`, and
  * the returned step points from it into the face. When the light has no
  * component along `step` (a face lit edge-on to its lines), the shadow side
- * is the sheet's lower right. The anchor edge is the first straight edge, in
- * the kernel's order, that runs along `direction` through the anchor's line.
+ * is the sheet's lower right. The anchor is taken from the face's major
+ * straight edges (at least a quarter as long as its longest), so a tab or
+ * chamfer sticking out past a side does not move the band; a face without
+ * straight edges anchors on its outline. The anchor edge is the first
+ * straight edge, in the kernel's order, that runs along `direction` through
+ * the anchor's line.
  *
  * **Example** (A square-on wall anchors on its right edge)
  *
@@ -576,13 +670,20 @@ export const anchorOf = (input: {
   const { face, view, direction } = input;
   const normal = unitOf(face.normal);
   const across = unitOf(crossOf(normal, direction));
-  const inPlaneLight = minus(view.light, times(normal, dot(view.light, normal)));
+  // The shadow side is read on the sheet: the light's component toward the
+  // viewer makes faces lit but must not pick the near end of a receding wall.
+  const sheetLight = minus(view.light, times(view.eye, dot(view.light, view.eye)));
+  const inPlaneLight = minus(sheetLight, times(normal, dot(sheetLight, normal)));
   const toLight = dot(across, inPlaneLight);
   const sheetShadow = dot(across, minus(view.right, view.up));
   const toShadow = Math.abs(toLight) > 1e-9 ? -sign(toLight) : sign(sheetShadow);
   const shadow = times(across, toShadow);
+  // the anchor is read from the face's major edges, so a tab or chamfer that
+  // sticks out past the face's side cannot pull the band outside it
+  const majors = majorEdgesOf(face);
+  const candidates = A.isReadonlyArrayNonEmpty(majors) ? A.flatMap(majors, (e) => [e.start, e.end]) : face.outline;
   const point = pipe(
-    face.outline,
+    candidates,
     A.reduce(O.none<V3>(), (best, candidate) =>
       O.match(best, {
         onNone: () => O.some(candidate),
@@ -666,13 +767,18 @@ const gradedTreatment = (input: {
   const start = O.match(window, { onNone: () => 0, onSome: (w) => w.start });
   const span = O.match(window, { onNone: () => reach, onSome: (w) => w.span }) * factor;
   const tone = toneOf(dot(face.normal, view.light));
-  // a stroke needs the face to be at least the minimum stroke wide where it is cut
+  // a stroke needs the face wide enough where it is cut to keep the minimum
+  // stroke, at the fraction of the chord its line would draw, after the kernel
+  // draws both its ends back one pitch from the outline
   const chord = chordAt(face, anchor, direction);
   const seen = spread(direction, view.eye);
-  const keep = (offset: number) => plan.minStroke <= 0 || chord(start + offset / factor) * seen >= plan.minStroke;
-  const band = gradedOffsets({ span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone, keep });
+  const needed = plan.minStroke + 2 * plan.minPitch;
   // a lit face carries short strokes only (Example 32: lit faces are nearly bare)
-  const extents = gradedExtents({ count: A.length(band), fullLines: tone === "faint" ? 0 : FULL_LINES });
+  const fullLines = tone === "faint" ? 0 : FULL_LINES;
+  const keep = (offset: number, index: number) =>
+    plan.minStroke <= 0 || chord(start + offset / factor) * seen * (index < fullLines ? 1 : TAPER_TO) >= needed;
+  const band = gradedOffsets({ span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone, keep });
+  const extents = gradedExtents({ count: A.length(band), fullLines });
   const cuts = A.map(band, (offset, index) =>
     ShadingCut.make({
       offset: start + offset / factor,

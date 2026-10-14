@@ -601,9 +601,18 @@ export class ShadingCoverage extends S.Class<ShadingCoverage>($I`ShadingCoverage
     skippedFaces: S.Array(ShadingSkip).annotateKey({
       description: "Faces left unshaded, per reason, in reason order; zero counts left out.",
     }),
+    lostFaces: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Faces given shading lines whose every stroke the hidden-line and legibility passes then removed; counted in `shadedFaces` too. Defaults to 0.",
+      })
+    ),
   },
   $I.annote("ShadingCoverage", {
-    description: "Faces of one view given shading lines, and faces skipped per reason.",
+    description:
+      "Faces of one view given shading lines, faces skipped per reason, and faces whose lines were all lost after hidden-line removal.",
   })
 ) {}
 

@@ -386,7 +386,7 @@ const CutIndex = S.Int.check(S.isGreaterThanOrEqualTo(0));
  * ```ts
  * import { ShadingWindow } from "@beep/technical-drawing/Shading.schemas"
  *
- * console.log(ShadingWindow.make({ start: 22, span: 18 }).span)
+ * console.log(ShadingWindow.make({ start: 22, span: 18, low: 0, high: 20 }).span)
  * ```
  *
  * @category models
@@ -396,6 +396,17 @@ export class ShadingWindow extends S.Class<ShadingWindow>($I`ShadingWindow`)(
   {
     start: S.Finite.annotateKey({ description: "Where the stretch begins along the step, from the shadow anchor." }),
     span: S.Finite.check(S.isGreaterThan(0)).annotateKey({ description: "Length of the stretch along the step." }),
+    low: S.OptionFromOptionalKey(S.Finite).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Lowest position along the lines at which the stretch was seen, so tapered strokes centre on what shows. None centres them on the chord.",
+      })
+    ),
+    high: S.OptionFromOptionalKey(S.Finite).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({ description: "Highest position along the lines at which the stretch was seen." })
+    ),
   },
   $I.annote("ShadingWindow", {
     description: "A visible stretch of a face along its shading step, from the shadow anchor.",
@@ -414,7 +425,9 @@ export class ShadingWindow extends S.Class<ShadingWindow>($I`ShadingWindow`)(
  * ```ts
  * import { ShadingProbe } from "@beep/technical-drawing/Shading.schemas"
  *
- * const probe = ShadingProbe.make({ face: 2, rank: 0, from: [20, -15, 10], to: [-20, -15, 10], start: 0, end: 40 })
+ * const probe = ShadingProbe.make({
+ *   face: 2, rank: 0, from: [20, -15, 10], to: [-20, -15, 10], start: 0, end: 40, height: 10, reach: 2
+ * })
  * console.log(probe.end)
  * ```
  *
@@ -429,6 +442,10 @@ export class ShadingProbe extends S.Class<ShadingProbe>($I`ShadingProbe`)(
     to: Vec3.annotateKey({ description: "The other end of the probe, in model space." }),
     start: S.Finite.annotateKey({ description: "Offset of `from` along the step, from the shadow anchor." }),
     end: S.Finite.annotateKey({ description: "Offset of `to` along the step, from the shadow anchor." }),
+    height: S.Finite.annotateKey({ description: "Position of the probe along the face's lines." }),
+    reach: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
+      description: "Half the spacing between the face's probes along its lines: what one probe stands for.",
+    }),
   },
   $I.annote("ShadingProbe", {
     description: "A probe line across one face, for the hidden-line pass to read the face's visible stretches from.",

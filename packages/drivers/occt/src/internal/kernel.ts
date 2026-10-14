@@ -6,10 +6,11 @@
  * @internal
  */
 
-import { legibleShading, ShadingWindow } from "@beep/technical-drawing";
+import { legibleShading, ShadingCoverage, ShadingWindow } from "@beep/technical-drawing";
 import { A, N, O } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as replicad from "replicad";
@@ -17,7 +18,7 @@ import { OcctError } from "../Occt.errors.ts";
 import { BoundingBox, EdgeSet, ModelSummary, Primitive } from "../Occt.models.ts";
 import { hatchCompound, probeEdges } from "./shading.ts";
 import { cross } from "./vector.ts";
-import type { ShadingProbe } from "@beep/technical-drawing";
+import type { FaceTreatment, ShadingProbe } from "@beep/technical-drawing";
 import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { Camera, ModelSpec, Rotation, Segment2, ShadingPlan } from "../Occt.models.ts";
 import type { V3 } from "./vector.ts";
@@ -218,7 +219,13 @@ const offsetAt = (line: ProbeLine, x: number, y: number): number => {
   return line.probe.start + (Math.min(Math.max(t, 0), line.length) / line.length) * (line.probe.end - line.probe.start);
 };
 
-type Stretch = { readonly face: number; readonly from: number; readonly to: number };
+type Stretch = {
+  readonly face: number;
+  readonly from: number;
+  readonly to: number;
+  readonly low: number;
+  readonly high: number;
+};
 
 // The visible stretches of every probed face along its shading step: each
 // visible piece of a probe mapped back to offsets from the face's shadow
@@ -236,7 +243,13 @@ const regionsOf = (options: {
         A.map(pieces, (s) => {
           const a = offsetAt(line, s[0], s[1]);
           const b = offsetAt(line, s[2], s[3]);
-          return { face: probe.face, from: Math.min(a, b), to: Math.max(a, b) };
+          return {
+            face: probe.face,
+            from: Math.min(a, b),
+            to: Math.max(a, b),
+            low: probe.height - probe.reach,
+            high: probe.height + probe.reach,
+          };
         }),
     })
   );
@@ -251,12 +264,20 @@ const regionsOf = (options: {
           onNone: () => [s],
           onSome: (last) =>
             s.from <= last.to + options.merge
-              ? [...A.dropRight(acc, 1), { ...last, to: Math.max(last.to, s.to) }]
+              ? [
+                  ...A.dropRight(acc, 1),
+                  {
+                    ...last,
+                    to: Math.max(last.to, s.to),
+                    low: Math.min(last.low, s.low),
+                    high: Math.max(last.high, s.high),
+                  },
+                ]
               : [...acc, s],
         })
       ),
       A.filter((s) => s.to - s.from > 0),
-      A.map((s) => ShadingWindow.make({ start: s.from, span: s.to - s.from }))
+      A.map((s) => ShadingWindow.make({ start: s.from, span: s.to - s.from, low: O.some(s.low), high: O.some(s.high) }))
     );
   return pipe(
     stretches,
@@ -356,16 +377,19 @@ export const project = (options: {
       ),
     })
   );
-  const lines = hiddenLines({
-    oc,
-    compound,
-    camera,
-    withHidden,
-    extras: O.toArray(O.flatMap(shaded, (view) => view.compound)),
-  });
-  // Graded shading is tidied after the hidden-line pass: fragments under the
-  // minimum stroke and the shorter of two lines inside half the minimum pitch
-  // go; the uniform style is left exactly as the legacy golden records it.
+  // Each planned stretch's strokes go through the hidden-line pass as a shape
+  // of their own, so a stretch left with a single stroke can be emptied (one
+  // line beside an outline reads as a doubled edge, never as shading) and a
+  // face whose every stroke is lost can be counted.
+  const faces: ReadonlyArray<{ readonly treatment: FaceTreatment; readonly stretches: ReadonlyArray<AnyShape> }> =
+    O.match(shaded, { onNone: () => [], onSome: (view) => view.faces });
+  const stroked = A.flatMap(faces, (face, index) => A.map(face.stretches, (shape) => ({ index, shape })));
+  const lines = hiddenLines({ oc, compound, camera, withHidden, extras: A.map(stroked, (s) => s.shape) });
+  const outlines = toSegments(lines.visible);
+  // Graded shading is tidied after the hidden-line pass, face by face:
+  // fragments under the minimum stroke and the shorter of two lines inside
+  // half the minimum pitch go; the uniform style is left exactly as the
+  // legacy golden records it.
   const legible = (segments: ReadonlyArray<Segment2>): ReadonlyArray<Segment2> =>
     O.match(options.shading, {
       onNone: () => segments,
@@ -376,13 +400,30 @@ export const project = (options: {
               minStroke: plan.minStroke,
               minSpacing: plan.minPitch / 2,
               inset: plan.minPitch,
+              outlines,
+              clearance: plan.minPitch / 3,
             })
           : segments,
     });
+  const graded = O.exists(options.shading, (plan) => plan.style === "graded");
+  const drawn = A.map(lines.extras, (edges) => {
+    const segments = legible(toSegments(edges));
+    return graded && A.length(segments) < 2 ? A.empty<Segment2>() : segments;
+  });
+  const drawnFaces = pipe(
+    A.zipWith(stroked, drawn, (s, segments) => (A.isReadonlyArrayNonEmpty(segments) ? O.some(s.index) : O.none())),
+    A.getSomes,
+    HashSet.fromIterable
+  );
+  const lostFaces = pipe(
+    faces,
+    A.filter((face, index) => face.treatment.kind === "lines" && !HashSet.has(drawnFaces, index)),
+    A.length
+  );
   return EdgeSet.make({
-    visible: toSegments(lines.visible),
+    visible: outlines,
     hidden: toSegments(lines.hidden),
-    shading: legible(toSegments(A.flatten(lines.extras))),
-    shadingCoverage: O.map(shaded, (view) => view.coverage),
+    shading: pipe(drawn, A.flatten, A.sort(segmentOrder)),
+    shadingCoverage: O.map(shaded, (view) => ShadingCoverage.make({ ...view.coverage, lostFaces })),
   });
 };

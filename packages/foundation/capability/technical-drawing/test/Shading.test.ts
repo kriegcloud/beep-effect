@@ -11,6 +11,7 @@ import {
   gradedOffsets,
   hatchDirectionOf,
   legibleShading,
+  pointToSegmentDistance,
   ShadingCoverage,
   ShadingCut,
   ShadingLines,
@@ -20,6 +21,9 @@ import {
   ShadingTone,
   ShadingWindow,
   SheetOptions,
+  shadingCoverageFindings,
+  shadingLoneLineFindings,
+  shadingOutlineClearanceFindings,
   shadingSpacingFindings,
   sideBySideGap,
   surfaceClassOf,
@@ -66,7 +70,12 @@ const wall = quad(
 const front = viewFactsOf(Camera.make({ eye: [0, -1, 0], up: [0, 0, 1] }));
 const top = viewFactsOf(Camera.make({ eye: [0, 0, 1], up: [0, 1, 0] }));
 const plan = (
-  fields: Partial<{ style: "uniform" | "graded"; axis: "longest-edge" | "surface-class"; minFaceSpan: number }>
+  fields: Partial<{
+    style: "uniform" | "graded";
+    axis: "longest-edge" | "surface-class";
+    minFaceSpan: number;
+    minStroke: number;
+  }>
 ) => ShadingPlan.make({ minPitch: 1, maxPitch: 3, litThreshold: 0.55, ...fields });
 
 // Rounds away floating-point noise and folds -0 into 0.
@@ -139,6 +148,38 @@ describe("Shading.rules", () => {
     expect(anchorOf({ face: wall, view: front, direction: [1, 0, 0] }).point[2]).toBe(0);
   });
 
+  it("anchors a steeply receding wall's band at its sheet-right end, not its near end", () => {
+    // from the viewer at -Y the wall runs from x = 0 (sheet right) away and to the left, 60° off the sheet
+    const receding = quad(
+      [-Math.sqrt(0.75), -0.5, 0],
+      [
+        [0, 0, 0],
+        [-5, 8.66, 0],
+        [-5, 8.66, 20],
+        [0, 0, 20],
+      ]
+    );
+    expect(anchorOf({ face: receding, view: front, direction: [0, 0, 1] }).point[0]).toBe(0);
+    // a tab sticking out past the wall's right side does not move the anchor off the wall
+    const tabbed = FaceFacts.make({
+      ...wall,
+      edges: [
+        ...wall.edges,
+        FaceEdge.make({ start: [20, 0, 8], end: [22, 0, 8], length: 2 }),
+        FaceEdge.make({ start: [22, 0, 8], end: [22, 0, 12], length: 4 }),
+        FaceEdge.make({ start: [22, 0, 12], end: [20, 0, 12], length: 2 }),
+      ],
+      outline: [...wall.outline, [22, 0, 8], [22, 0, 12]],
+    });
+    expect(anchorOf({ face: tabbed, view: front, direction: [0, 0, 1] }).point[0]).toBe(20);
+    // a chord must keep the minimum stroke after both ends are drawn back one pitch
+    const gradedPlan = (minStroke: number) => plan({ style: "graded", axis: "surface-class", minStroke });
+    expect(treatmentFor({ face: wall, view: front, plan: gradedPlan(18) }).kind).toBe("lines");
+    expect(treatmentFor({ face: wall, view: front, plan: gradedPlan(19) })).toEqual(
+      ShadingSkipped.make({ reason: "sliver" })
+    );
+  });
+
   it("spaces graded lines from minPitch, growing, capped, within the tone's share", () => {
     const offsets = gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "medium" });
     const gaps = A.zipWith([0, ...offsets], offsets, (a, b) => b - a);
@@ -151,7 +192,10 @@ describe("Shading.rules", () => {
     ).toBe(true);
     expect(Math.max(...gaps)).toBe(2.5);
     expect(Math.max(...offsets)).toBeLessThanOrEqual(0.35 * 40 + 2.5);
-    expect(gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint" }).length).toBeLessThanOrEqual(2);
+    // a lit face carries two to four short strokes: three fit inside 15% of a 40-wide face, two in an 8-wide one
+    expect(gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint" }).length).toBe(3);
+    expect(gradedOffsets({ span: 8, minPitch: 1, maxPitch: 2.5, tone: "faint" }).length).toBe(2);
+    expect(gradedOffsets({ span: 400, minPitch: 1, maxPitch: 2.5, tone: "faint" }).length).toBe(4);
     expect(gradedOffsets({ span: 400, minPitch: 1, maxPitch: 2.5, tone: "dark" }).length).toBe(8);
     // a narrow face still gets the tone's minimum where it fits, and nothing below one pitch
     expect(gradedOffsets({ span: 4, minPitch: 1, maxPitch: 2.5, tone: "medium" })).toEqual([1, 2.4]);
@@ -213,6 +257,30 @@ describe("Shading.rules", () => {
     ).toEqual([[0, 0.3, 10, 0.3]]);
     assertSome(sideBySideGap({ first: [0, 0, 10, 0], second: [0, 0.3, 10, 0.3], minSpacing: 0.5 }), 0.3);
     assertNone(sideBySideGap({ first: [0, 0, 10, 0], second: [10.5, 0, 20, 0], minSpacing: 0.5 }));
+  });
+
+  it("draws a stroke end back further until it stands clear of an outline it met at a shallow angle", () => {
+    // the top end at (5, 0.3) sits 0.2 from the outline y = x / 10; clearance 0.5 needs it at y >= 1
+    const [stroke] = legibleShading({
+      segments: [[5, 0.3, 5, 19.7]],
+      minStroke: 1,
+      minSpacing: 0.5,
+      outlines: [[0, 0, 20, 2]],
+      clearance: 0.5,
+    });
+    expect(stroke?.[1]).toBeCloseTo(1.05, 6);
+    expect(stroke?.[3]).toBe(19.7);
+    // a stroke running beside an outline closer than the clearance is dropped
+    expect(
+      legibleShading({
+        segments: [[0.3, 2, 0.3, 18]],
+        minStroke: 1,
+        minSpacing: 0.5,
+        outlines: [[0, 0, 0, 20]],
+        clearance: 0.5,
+      })
+    ).toEqual([]);
+    expect(pointToSegmentDistance({ x: 5, y: 3, segment: [0, 0, 10, 0] })).toBe(3);
   });
 
   it("tapers graded strokes: two full lines, then 60% down to 40% of the chord", () => {
@@ -292,7 +360,7 @@ describe("Shading.rules", () => {
     );
   });
 
-  it("hatches upright faces along +Z, inclined faces along their level line, level faces along the longest edge", () => {
+  it("hatches upright faces along +Z, inclined faces along their level line or darkest edge, level faces along the longest edge", () => {
     assertSome(hatchDirectionOf({ face: wall, axis: "surface-class" }), [0, 0, 1]);
     assertSome(hatchDirectionOf({ face: wall, axis: "longest-edge" }), [1, 0, 0]);
     const flap = quad(
@@ -306,6 +374,14 @@ describe("Shading.rules", () => {
     );
     const flapDirection = hatchDirectionOf({ face: flap, axis: "surface-class" });
     assertSome(O.map(flapDirection, clean), [-1, 0, 0]);
+    // with the light known, an inclined face runs along the edge turned away from it: here the +X side
+    assertSome(
+      O.map(hatchDirectionOf({ face: flap, axis: "surface-class", light: front.light }), (d) => [
+        Math.round(d[0] * 100) / 100,
+        Math.round((Math.abs(d[1]) - Math.abs(d[2])) * 100) / 100,
+      ]),
+      [0, 0]
+    );
     const lid = quad(
       [0, 0, 1],
       [
@@ -389,6 +465,49 @@ describe("Shading.rules", () => {
         ],
       })
     );
+  });
+});
+
+describe("shadingCoverageFindings", () => {
+  it("flags a view whose faces planned lines and drew none, and nothing otherwise", () => {
+    const lost = ShadingCoverage.make({ shadedFaces: 3, skippedFaces: [], lostFaces: 1 });
+    expect(A.map(shadingCoverageFindings({ page: 2, coverage: lost }), (f) => [f.code, f.page])).toEqual([
+      ["shading-lost-face", O.some(2)],
+    ]);
+    expect(
+      shadingCoverageFindings({ page: 1, coverage: ShadingCoverage.make({ shadedFaces: 3, skippedFaces: [] }) })
+    ).toEqual([]);
+  });
+});
+
+describe("shading strokes against the outline", () => {
+  const options = ValidationOptions.make({ expectedPages: O.none() });
+  // a 40 × 30 face outline
+  const outlineMm: ReadonlyArray<Segment2> = [
+    [0, 0, 40, 0],
+    [40, 0, 40, 30],
+    [40, 30, 0, 30],
+    [0, 30, 0, 0],
+  ];
+  const codes = (findings: ReadonlyArray<{ readonly code: string }>) => A.map(findings, (f) => f.code);
+
+  it("flags a stroke end or side within half a millimetre of an outline and passes inset strokes", () => {
+    const clearance = (shadingMm: ReadonlyArray<Segment2>) =>
+      codes(shadingOutlineClearanceFindings({ page: 1, shadingMm, outlineMm, options }));
+    expect(clearance([[38.5, 1.5, 38.5, 28.5]])).toEqual([]);
+    expect(clearance([[38.5, 0.2, 38.5, 28.5]])).toEqual(["shading-outline-clearance"]);
+    expect(clearance([[39.7, 5, 39.7, 25]])).toEqual(["shading-outline-clearance"]);
+  });
+
+  it("flags a stroke that runs alone beside an outline and passes one with a companion", () => {
+    const lone: ReadonlyArray<Segment2> = [[38.5, 1.5, 38.5, 28.5]];
+    expect(codes(shadingLoneLineFindings({ page: 1, shadingMm: lone, outlineMm, options }))).toEqual([
+      "shading-lone-line",
+    ]);
+    const pair: ReadonlyArray<Segment2> = [...lone, [36.4, 6, 36.4, 24]];
+    expect(codes(shadingLoneLineFindings({ page: 1, shadingMm: pair, outlineMm, options }))).toEqual([]);
+    // a stroke far from every outline is not lone, however alone it is
+    expect(codes(shadingLoneLineFindings({ page: 1, shadingMm: [[20, 5, 20, 25]], outlineMm, options }))).toEqual([]);
   });
 });
 

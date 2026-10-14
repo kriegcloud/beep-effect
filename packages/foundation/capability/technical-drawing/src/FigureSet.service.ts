@@ -38,6 +38,9 @@ import {
   labelTextFindings,
   marginFindings,
   purityFindings,
+  shadingCoverageFindings,
+  shadingLoneLineFindings,
+  shadingOutlineClearanceFindings,
   shadingSpacingFindings,
   structuralFindings,
 } from "./Validation.rules.ts";
@@ -46,7 +49,7 @@ import { cameraForView, FigureSetSpec, PictorialProjection } from "./View.schema
 import type { EdgeSet } from "./Geometry.schemas.ts";
 import type { LabelFace } from "./internal/LabelOutline.ts";
 import type { LabelStyle } from "./Sheet.schemas.ts";
-import type { SheetLabel } from "./Validation.schemas.ts";
+import type { SheetFinding, SheetLabel } from "./Validation.schemas.ts";
 import type { FigureSpec, OmissionClaim, ViewName } from "./View.schemas.ts";
 
 const $I = $TechnicalDrawingId.create("FigureSet.service");
@@ -505,20 +508,31 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
         onSome: (t) => A.map(t.pins, (pin) => pin.family),
       }),
     });
-    // Shading spacing is checked on the render's own vectors, in mm on the sheet.
+    // Shading is checked on the render's own vectors, in mm on the sheet: line
+    // spacing, stroke ends clear of outlines, no stroke alone beside an outline,
+    // and no face that planned lines and drew none.
     const mm = scale / PT_PER_MM;
-    const spacingFindings = A.flatMap(shading, (view, index) =>
-      shadingSpacingFindings({
-        page: index + 1,
-        segmentsMm: A.map(view.shading, ([x1, y1, x2, y2]) => Segment2.make([x1 * mm, y1 * mm, x2 * mm, y2 * mm])),
-        options: validationOptions,
-      })
-    );
+    const inMm = (segments: ReadonlyArray<Segment2>) =>
+      A.map(segments, ([x1, y1, x2, y2]) => Segment2.make([x1 * mm, y1 * mm, x2 * mm, y2 * mm]));
+    const shadingFindings = A.flatMap(shading, (view, index) => {
+      const page = index + 1;
+      const shadingMm = inMm(view.shading);
+      const outlineMm = inMm(view.visible);
+      return [
+        ...shadingSpacingFindings({ page, segmentsMm: shadingMm, options: validationOptions }),
+        ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),
+        ...shadingLoneLineFindings({ page, shadingMm, outlineMm, options: validationOptions }),
+        ...O.match(view.shadingCoverage, {
+          onNone: () => A.empty<SheetFinding>(),
+          onSome: (coverage) => shadingCoverageFindings({ page, coverage }),
+        }),
+      ];
+    });
     const validation = request.validate
       ? O.some(
           yield* validate(pdfPath, validationOptions).pipe(
             Effect.map((report) =>
-              ValidationReport.make({ ...report, findings: [...report.findings, ...spacingFindings] })
+              ValidationReport.make({ ...report, findings: [...report.findings, ...shadingFindings] })
             )
           )
         )

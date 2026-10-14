@@ -226,6 +226,18 @@ describe("@beep/occt shading", () => {
         const posted = yield* strokeXs(ModelSpec.make({ parts: [wall, post] }));
         expect(A.some(posted, (x) => x > 7)).toBe(true);
         expect(Math.max(...A.filter(posted, (x) => x < -2))).toBeCloseTo(-3, 1);
+        // every face that planned lines drew some: nothing was lost to hidden-line removal
+        const views = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [wall, post] }),
+            cameras: [front],
+            shading: O.some(graded({ minStroke: 0.5 })),
+          })
+        );
+        assertSome(
+          O.flatMap(O.fromNullishOr(views[0]), (v) => O.map(v.shadingCoverage, (c) => c.lostFaces)),
+          0
+        );
       })
     );
 

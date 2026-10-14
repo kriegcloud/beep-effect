@@ -194,6 +194,9 @@ const FindingCodeBase = LiteralKit([
   "impure-pixels",
   "solid-black-area",
   "shading-spacing",
+  "shading-lost-face",
+  "shading-outline-clearance",
+  "shading-lone-line",
   "label-missing",
   "font-unexpected",
 ]);
@@ -336,6 +339,20 @@ export class ValidationOptions extends S.Class<ValidationOptions>($I`ValidationO
       S.annotateKey({
         description:
           "Closest two side-by-side shading lines may sit on the sheet, in mm; closer lines read as a solid black area. Defaults to 0.5.",
+      })
+    ),
+    loneLineOffsetMm: S.Finite.pipe(
+      S.withConstructorDefault(Effect.succeed(2.5)),
+      S.annotateKey({
+        description:
+          "How close, in mm, a shading stroke may run beside a parallel outline before it must have a companion stroke; alone it reads as a doubled edge. Defaults to 2.5.",
+      })
+    ),
+    loneLineCompanionMm: S.Finite.pipe(
+      S.withConstructorDefault(Effect.succeed(6)),
+      S.annotateKey({
+        description:
+          "How far, in mm, a companion stroke may sit from a stroke that runs beside an outline. Defaults to 6.",
       })
     ),
     textLabels: S.Array(SheetLabel).pipe(

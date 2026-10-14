@@ -1,0 +1,33 @@
+# Review-loop ledger — graded shading on the round-3 matter set
+
+Every finding the critic loops (Codex `gpt-6.1-sol`, Grok `grok-4.7`) and the judge raised against
+the matter's shaded sheet sets, with its root cause, the fix, and what now prevents it from coming
+back: a deterministic check (validator finding or kernel count), a unit test, a process step, or
+an opportunity receipt when the prevention is still to be built. Findings are at drawing-convention
+level only; the matter's measurements, markup wording and the critics' JSON live in the corpus
+review pack (`<corpus>/ops/patent-drawing-pipeline/matter/work/round-3/review-loop/`).
+
+| Loop | Id | Finding | Root cause | Fix (set) | Prevention |
+| --- | --- | --- | --- | --- | --- |
+| 1 | C-01 / G-01 | Lit walls bare | Three causes in turn: hidden-line removal discarded re-made strokes lying exactly on their face; stroke positions landed where the face is narrower than the minimum stroke; strokes were credited to the wrong wall when walls at different depths project onto one line | Strokes lifted 1e-3 off the face; chord-aware positions; then the per-stretch design (loop 3) | **test** `@beep/occt` "shades every visible stretch of a wall"; **check** `shading-lost-face` (validator finding from the kernel's `lostFaces` count: a face planned lines but drew none) |
+| 1 | C-02 / G-02 | Strokes touching the perimeter; lid band on the lit edge | Band inset applied before hidden-line removal; level faces hatched along the longest edge | Post-HLR end inset of one pitch (`legibleShading`); level faces along their darkest edge | **test** `legibleShading` inset; **check** `shading-outline-clearance` (every stroke end at least `minShadingSpacingMm` from the nearest outline) |
+| 1 | C-03 / G-03 | Slit-lip closure across each tab | Tab line style not yet landed | Routed to the tab line-style branch (PR-L) | **process**: PR-L scope row in PLAN.md |
+| 2 | C-01 (re) | Walls still bare in the isometrics | Attribution of visible strokes to cuts by projected line only (coplanar faces collide) | Extent-aware attribution; superseded by per-probe ownership in loop 3 (each probe is its own hidden-line shape, so ownership is exact) | **design rule** in `kernel.ts`: never attribute hidden-line output by projected geometry; add each shape whose pieces matter as its own `HLRBRep_Algo` input |
+| 2 | C-04 | Lap length 40 mm, attorney said 2 in | Generator default, not the attorney's answer | `lapWidth: 50.8` in the corpus build spec | **process**: attorney numeric answers become `check-overlap.ts` assertions in the corpus work dir (receipt below) |
+| 2 | C-05 | Stroke ends on a foreground part's outline | Inset before HLR | Inset after HLR | as C-02 |
+| 2 | G-01 (re) | FIG 7 right point face bare | Shadow-side end hidden; the spare-position grid missed the 22.8 mm that shows | Per-stretch bands | as C-01 |
+| 2 | G-04 | One stroke 1.5 mm inside a long outline reads as a doubled edge | Faint tone allowed a single line | Faint tone: two to four short strokes | **check** `shading-lone-line` (a stroke within `loneLineOffsetMm` of a parallel outline with no companion within `loneLineCompanionMm`) |
+| 2 | judge | Even 9 mm spare grid next to graded bands (FIG 5 left bays, FIG 1 left wall) | Spare positions continued the schedule at the capped pitch | Per-stretch bands (probe pass → `ShadingWindow` → `treatmentFor({ window })`) | **test** per-stretch occluder cases; spare positions removed from the rules |
+| 3 | C-06 / G-06 | Lid and outer flaps bare or nearly bare | Lit faces capped at two strokes; foreshortened flap strokes shorter than two insets plus the minimum stroke after HLR | Faint tone up to four strokes; chord check requires `minStroke + 2·minPitch` | **test** chord check with inset; **check** `shading-lost-face` |
+| 3 | C-07 / G-05 | Band on the sheet-left end of steeply receding walls | The light's toward-viewer component picked the near end as lit | `anchorOf` uses the light's sheet-plane part | **test** "anchors a steeply receding wall's band at its sheet-right end" |
+| 3 | G-07 (C open question) | Flap-tip tick ladders | Inclined faces hatched along the level line; a triangle's chords shrink to nothing at its tip | Inclined faces run along their darkest edge when the light is known | **test** hatch-direction case for an inclined face with light |
+| 3 | G-08 | Single stroke on 9 mm lit faces in the bottom isometric | Under investigation after the loop-3 fixes (possibly a short visible stretch at the probe heights) | Flagged by `shading-lone-line` on the render's own validation; a stretch with fewer than two legible strokes now carries none | **check** `shading-lone-line` |
+| 3 | judge (render-n) | Three flaps showed rows of short ticks after the darkest-edge change | A tab notch is a straight edge too; the darkest among all edges was a 5-unit notch | Only major edges (at least a quarter of the longest) choose the direction and the anchor | **test** hatch-direction and anchor cases with a tab |
+| check | validator (render-o) | Stroke ends 0.27–0.50 mm from an outline on six pages | An end drawn back one pitch along its own stroke stays close to an outline it meets at a shallow angle; a flap band ran 0.37 mm beside the drawn edge of the board's thickness | `legibleShading` draws ends back further until clear of every outline and drops a stroke running beside one closer than the clearance | **check** `shading-outline-clearance` (ends and sides); **test** clearance cases |
+| check | validator (render-o) | Two flap faces in the bottom plan planned lines and drew none | The chord check ignored the taper: a 0.4-extent stroke on a foreshortened face was shorter than two insets plus the minimum stroke | The chord check takes the fraction of the chord the line would draw | **check** `shading-lost-face`; **test** chord check |
+| check | validator (render-o..r) | One stroke alone in a 9 mm bay of the bottom isometric (G-08) | The bay held one legible stroke; the band's second line fell where the bay is shorter | Strokes go through hidden-line removal per stretch; a stretch left with fewer than two legible strokes carries none | **check** `shading-lone-line` |
+| 2 | Grok could_not_assess | Review pack had no zooms | Zooms were cut by hand for one set only | 300 dpi zooms cut per set by the pack refresh | **process**: pack refresh script (receipt below) |
+
+Kernel gotchas recorded for the next lane (not findings): a replicad `edge.translate()` frees the
+original wrapper (read endpoints before lifting); `A.filterMap` in the installed Effect wants
+`Result`; occt tests resolve `@beep/occt` through `dist`, so build before test.
