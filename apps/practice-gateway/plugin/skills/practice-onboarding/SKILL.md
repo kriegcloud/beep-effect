@@ -2,7 +2,7 @@
 name: practice-onboarding
 description: Set up a lawyer's computer for their practice through the practice gateway. Use when the lawyer asks to get set up, to connect their documents, mail, calendar or practice tools, or when the practice gateway reports that setup is incomplete. Interviews the lawyer one question at a time, saves a practice profile, then checks and repairs the computer until setup is complete.
 license: MIT
-compatibility: Needs the Beep Practice Gateway extension (its setup_profile_get, setup_profile_save, setup_status and setup_repair tools) in Claude Desktop or Claude Code. Written for Windows workstations.
+compatibility: Needs the Beep Practice Gateway extension (its setup_onboarding_guide, setup_profile_get, setup_profile_save, setup_status and setup_repair tools) in Claude Desktop or Claude Code. Written for Windows workstations.
 metadata:
   version: "0.1.0"
   status: draft
@@ -47,6 +47,10 @@ the lawyer only for the steps a person must take.
   profile.
 
 ## Step 1: check where setup stands
+
+In Claude Desktop chat these instructions reach you through the gateway's
+`setup_onboarding_guide` tool or its `onboard_practice` prompt; in Claude Code
+they load as this skill. Either way, follow them as written.
 
 Call `setup_profile_get`.
 

@@ -33,10 +33,11 @@
     "lint:jsdoc": "beep-cli lint jsdoc --package .",
     "lint:laws": "beep-cli lint laws --package .",
     "package-test-typecheck": "beep-cli quality test-tsgo-package",
-    "test": "bun run beep:test",
     "package:mcpb": "bun run src/package.ts",
     "package:mcpb:linux": "bun run src/package.ts --target linux-x64",
-    "package:mcpb:windows": "bun run src/package.ts --target windows-x64"
+    "package:mcpb:windows": "bun run src/package.ts --target windows-x64",
+    "sync:onboarding-skill": "bun run scripts/sync-onboarding-skill.ts",
+    "test": "bun run beep:test"
   },
   "exports": {
     ".": "./src/index.ts",

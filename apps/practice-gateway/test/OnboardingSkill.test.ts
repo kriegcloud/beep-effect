@@ -1,4 +1,6 @@
 import { PracticeCapability, PracticeProvider } from "@beep/law-practice-domain";
+import { skillBody } from "@beep/practice-gateway/OnboardingSkill";
+import { ONBOARDING_SKILL_BODY } from "@beep/practice-gateway/OnboardingSkill.generated";
 import { SetupToolkit } from "@beep/practice-gateway/SetupTools";
 import { describe, expect, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
@@ -69,6 +71,12 @@ describe("practice-onboarding skill", () => {
       const words = backticked(splitSkill(yield* readText(skillUrl)).body);
       expect(A.every(PracticeCapability.literals, (literal) => A.contains(words, literal))).toBe(true);
       expect(A.every(PracticeProvider.literals, (literal) => A.contains(words, literal))).toBe(true);
+    })
+  );
+
+  it.effect("serves the same text the skill ships (run `bun run sync:onboarding-skill` after editing SKILL.md)", () =>
+    Effect.gen(function* () {
+      expect(ONBOARDING_SKILL_BODY).toBe(skillBody(yield* readText(skillUrl)));
     })
   );
 });

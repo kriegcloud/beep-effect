@@ -12,6 +12,8 @@ import * as McpServer from "effect/ai/McpServer";
 import * as Context from "effect/Context";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { ONBOARDING_SKILL_BODY } from "./OnboardingSkill.generated.ts";
 
 const $I = $PracticeGatewayId.create("OnboardingGuide");
 
@@ -45,6 +47,32 @@ export const BUILT_IN_ONBOARDING_GUIDE = [
   "4. Steps only the lawyer can take (signing in, consenting, installing, asking IT) are listed in the report: give them one at a time and wait until the lawyer says they are done.",
   "5. Call setup_status again after each step until setup is complete. After saving a profile or connecting a provider, ask the lawyer to restart Claude so the practice tools appear.",
 ].join("\n");
+
+/**
+ * The body of the `practice-onboarding` skill shipped in
+ * `plugin/skills/practice-onboarding/SKILL.md`, without its YAML frontmatter.
+ *
+ * **Details**
+ *
+ * One source for both delivery routes: Claude Code loads the skill from the
+ * plugin, Claude Desktop chat reads the same text through
+ * `setup_onboarding_guide` and the `onboard_practice` prompt. Falls back to
+ * {@link BUILT_IN_ONBOARDING_GUIDE} if the file has no body.
+ *
+ * **Example** (Read the shipped guide)
+ *
+ * ```ts
+ * import { ONBOARDING_GUIDE } from "@beep/practice-gateway/OnboardingGuide"
+ *
+ * console.log(ONBOARDING_GUIDE.startsWith("# "))
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const ONBOARDING_GUIDE: string = Str.isNonEmpty(ONBOARDING_SKILL_BODY)
+  ? ONBOARDING_SKILL_BODY
+  : BUILT_IN_ONBOARDING_GUIDE;
 
 /**
  * Name of the MCP prompt that serves the onboarding guide.
@@ -138,7 +166,7 @@ export class OnboardingGuide extends Context.Service<OnboardingGuide, Onboarding
     Layer.succeed(OnboardingGuide, OnboardingGuideText.make({ text: S.NonEmptyString.make(text) }));
 
   /**
-   * The built-in guide ({@link BUILT_IN_ONBOARDING_GUIDE}).
+   * The shipped onboarding skill ({@link ONBOARDING_GUIDE}).
    *
    * **Example** (Compose the built-in guide)
    *
@@ -152,7 +180,7 @@ export class OnboardingGuide extends Context.Service<OnboardingGuide, Onboarding
    * @category layers
    * @since 0.0.0
    */
-  static readonly layer = OnboardingGuide.layerText(BUILT_IN_ONBOARDING_GUIDE);
+  static readonly layer = OnboardingGuide.layerText(ONBOARDING_GUIDE);
 }
 
 /**
