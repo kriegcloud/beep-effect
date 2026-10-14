@@ -1409,3 +1409,47 @@ Claude's canonical implementation. Reversal is the repository diff revert;
 the pre-adapter body remains in the private lane backup. Refreeze the final
 configuration set after this change. Native trust/root-child qualification
 and namespace cutover remain measured gates, not consequences of fixture success.
+### 2026-10-14 — H4 uses Session and retains explicit permission choices
+
+Place the read-only permission census in the existing Session family (R98),
+with explicit input manifests and sanitized output. Reuse the Models locator
+reader for top-level permission-key coexistence without editing Models or
+adding a second config writer. Compare all supplied segment turns against
+the chosen policy; missing evidence stays unknown. Metadata agreement alone
+does not certify behavioural route acceptance.
+
+Keep project Claude `permissions.defaultMode` at `default` (R97). There is no
+fixture evidence justifying a changed project-wide default; per-session
+bypass/auto choices remain explicit. No Claude harness or home config is
+changed. F owns removal of legacy Codex `sandbox_mode` and its return-of-key
+check with the owned-field writer, backup and rollback (R99/R101).
+
+The worker's checkout-only boundary and R96/S8 leave Desktop fixture roots,
+GUI actions and restarts with the orchestrator. Publish useful census and
+fixture documentation without claiming Permission continuity complete.
+Reversal: revert the H4 PR; no workstation rollback is required for this lane.
+
+### 2026-10-14 — H4 records integrated qualification without rewriting proof history
+
+Retain the passing default package audit/docgen as pre-integration worktree
+proof. After integrating current main, requalify the small redundant-guard
+cleanup and CLI regression with the package's quick lint/check, all named
+hosted-parity commands and 39 scoped cases. The canonical upstream closure
+restores new main declaration outputs before the quick check passes. Every
+incumbent touched coverage floor and uncovered ceiling is met; no baseline
+or generated inventory is changed. This avoids presenting historical full
+proof as an integrated-head result. Reversal: revert H4's PR and retain the
+historical receipts; no workstation config rollback is required.
+
+### 2026-10-14 — H4 follows S25 and retains incomplete mismatch evidence
+
+Integrate #1758 before final delivery. The six new plain-data models use
+branded `S.Opaque`, and reused Models inputs use their existing constructors;
+this preserves main's schema doctrine instead of reviving structural inputs.
+Retain decoded policy mismatches even without usable metadata/time. A settings
+boundary requires an earlier and later effective turn established by time or
+same-file position; manifest order supplies no cross-file tie evidence.
+Chronological valid tuples render first, followed by retained untimed tuples.
+Reason: hosted and independent review demonstrated two false-safe cases and
+a rendering regression. Reversal: revert the H4 PR; no workstation state was
+changed. Full package and parity qualification is repeated for this wave.
