@@ -17,9 +17,9 @@ import { OcctError } from "../Occt.errors.ts";
 import { BoundingBox, EdgeSet, ModelSummary, Primitive } from "../Occt.models.ts";
 import { hatchCompound } from "./shading.ts";
 import { cross } from "./vector.ts";
+import type { HatchCut } from "@beep/technical-drawing";
 import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { Camera, ModelSpec, Rotation, Segment2, ShadingPlan } from "../Occt.models.ts";
-import type { HatchCut } from "./shading.ts";
 import type { V3 } from "./vector.ts";
 
 type Shape3D = replicad.Shape3D;
@@ -201,21 +201,32 @@ const projectedCuts = (camera: Camera, cuts: ReadonlyArray<HatchCut>) => {
     return [d[0] * right[0] + d[1] * right[1] + d[2] * right[2], d[0] * up[0] + d[1] * up[1] + d[2] * up[2]];
   };
   return A.map(cuts, (cut) => {
-    const point = to2d(cut.point);
-    const along = [
-      cut.direction[0] * right[0] + cut.direction[1] * right[1] + cut.direction[2] * right[2],
-      cut.direction[0] * up[0] + cut.direction[1] * up[1] + cut.direction[2] * up[2],
-    ] as const;
-    const length = Math.hypot(along[0], along[1]);
-    return { cut, point, along: length < 1e-9 ? null : ([along[0] / length, along[1] / length] as const) };
+    const point = to2d(cut.from);
+    const end = to2d(cut.to);
+    const length = Math.hypot(end[0] - point[0], end[1] - point[1]);
+    return {
+      cut,
+      point,
+      length,
+      along: length < 1e-9 ? null : ([(end[0] - point[0]) / length, (end[1] - point[1]) / length] as const),
+    };
   });
 };
 
-const offLine = (
-  line: { readonly point: readonly [number, number]; readonly along: readonly [number, number] },
-  x: number,
-  y: number
-): number => Math.abs((x - line.point[0]) * line.along[1] - (y - line.point[1]) * line.along[0]);
+type CutLine = {
+  readonly point: readonly [number, number];
+  readonly along: readonly [number, number];
+  readonly length: number;
+};
+
+const offLine = (line: CutLine, x: number, y: number): number =>
+  Math.abs((x - line.point[0]) * line.along[1] - (y - line.point[1]) * line.along[0]);
+
+// A point is on the cut when it lies on its line and within its strokes' extent.
+const onCut = (line: CutLine, x: number, y: number): boolean => {
+  const t = (x - line.point[0]) * line.along[0] + (y - line.point[1]) * line.along[1];
+  return offLine(line, x, y) <= CUT_TOLERANCE && t >= -CUT_TOLERANCE && t <= line.length + CUT_TOLERANCE;
+};
 
 // Of a graded view's visible strokes, those on the first `keep` cuts of each
 // run of consecutive visible cuts of a face (a cut shows when hidden-line
@@ -231,13 +242,17 @@ const visibleCuts = (options: {
 }): ReadonlyArray<Segment2> => {
   const lines = pipe(
     projectedCuts(options.camera, options.cuts),
-    A.map((line) => (line.along === null ? O.none() : O.some({ cut: line.cut, point: line.point, along: line.along }))),
+    A.map((line) =>
+      line.along === null
+        ? O.none()
+        : O.some({ cut: line.cut, point: line.point, along: line.along, length: line.length })
+    ),
     A.getSomes
   );
   const owner = (s: Segment2): O.Option<HatchCut> =>
     pipe(
       lines,
-      A.findFirst((line) => offLine(line, s[0], s[1]) <= CUT_TOLERANCE && offLine(line, s[2], s[3]) <= CUT_TOLERANCE),
+      A.findFirst((line) => onCut(line, s[0], s[1]) && onCut(line, s[2], s[3])),
       O.map((line) => line.cut)
     );
   const owned = A.map(options.segments, (segment) => ({ segment, owner: owner(segment) }));
@@ -334,6 +349,7 @@ export const project = (options: {
               }),
               minStroke: plan.minStroke,
               minSpacing: plan.minPitch / 2,
+              inset: plan.minPitch,
             })
           : segments,
     });

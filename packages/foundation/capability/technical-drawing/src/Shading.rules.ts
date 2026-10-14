@@ -385,11 +385,13 @@ export const sideBySideGap = (input: {
 const segmentLength = (s: Segment2): number => Math.hypot(s[2] - s[0], s[3] - s[1]);
 
 /**
- * Shading segments kept legible after hidden-line removal: a piece shorter
- * than `minStroke` is dropped (a chord cut to a fragment by a hidden part),
- * and of two segments side by side closer than `minSpacing` the shorter is
- * dropped (two coplanar parts, a flap and its tab, shading one area from
- * their own anchors).
+ * Shading segments kept legible after hidden-line removal: every piece is
+ * drawn back `inset` from both of its ends (so a stroke stops short of the
+ * outline it would otherwise touch, whether that is the face's own edge or a
+ * part in front of it), a piece then shorter than `minStroke` is dropped (a
+ * chord cut to a fragment by a hidden part), and of two segments side by side
+ * closer than `minSpacing` the shorter is dropped (two coplanar parts, a flap
+ * and its tab, shading one area from their own anchors).
  *
  * **Example** (A fragment and a doubled line)
  *
@@ -397,7 +399,7 @@ const segmentLength = (s: Segment2): number => Math.hypot(s[2] - s[0], s[3] - s[
  * import { legibleShading } from "@beep/technical-drawing/Shading.rules"
  *
  * const segments = [[0, 0, 10, 0], [0, 0.3, 4, 0.3], [0, 0, 0.5, 0]] as const
- * console.log(legibleShading({ segments, minStroke: 1, minSpacing: 0.5 })) // [[0, 0, 10, 0]]
+ * console.log(legibleShading({ segments, minStroke: 1, minSpacing: 0.5, inset: 1 })) // [[1, 0, 9, 0]]
  * ```
  *
  * @category shading
@@ -407,8 +409,23 @@ export const legibleShading = (input: {
   readonly segments: ReadonlyArray<Segment2>;
   readonly minStroke: number;
   readonly minSpacing: number;
+  readonly inset?: number;
 }): ReadonlyArray<Segment2> => {
-  const long = A.filter(input.segments, (s) => segmentLength(s) >= input.minStroke);
+  const inset = Math.max(0, input.inset ?? 0);
+  const drawnBack = (s: Segment2): Segment2 => {
+    const length = segmentLength(s);
+    if (inset <= 0 || length <= 2 * inset) {
+      return inset <= 0 ? s : [s[0], s[1], s[0], s[1]];
+    }
+    const ux = (s[2] - s[0]) / length;
+    const uy = (s[3] - s[1]) / length;
+    return [s[0] + ux * inset, s[1] + uy * inset, s[2] - ux * inset, s[3] - uy * inset];
+  };
+  const long = pipe(
+    input.segments,
+    A.map(drawnBack),
+    A.filter((s) => segmentLength(s) >= Math.max(input.minStroke, COLLINEAR))
+  );
   const yieldsTo = (s: Segment2, i: number) => (other: Segment2, j: number) =>
     j !== i &&
     O.isSome(sideBySideGap({ first: s, second: other, minSpacing: input.minSpacing })) &&

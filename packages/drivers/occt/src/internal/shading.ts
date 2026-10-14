@@ -14,6 +14,7 @@ import {
   FaceEdge,
   FaceFacts,
   FaceTreatment,
+  HatchCut,
   ShadingSkipped,
   treatmentFor,
   viewFactsOf,
@@ -21,20 +22,13 @@ import {
 import { A, O } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as replicad from "replicad";
-import { add, cross, scale } from "./vector.ts";
+import { add, scale } from "./vector.ts";
 import type { ShadingCoverage, ViewFacts } from "@beep/technical-drawing";
 import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { Camera, ShadingPlan } from "../Occt.models.ts";
 import type { V3 } from "./vector.ts";
 
 const vec = (v: replicad.Vector): V3 => [v.x, v.y, v.z];
-
-const directionOf = (edge: replicad.Edge): V3 => {
-  const [sx, sy, sz] = vec(edge.startPoint);
-  const [ex, ey, ez] = vec(edge.endPoint);
-  const length = Math.max(edge.length, 1e-12);
-  return [(ex - sx) / length, (ey - sy) / length, (ez - sz) / length];
-};
 
 // Curved boundary edges are sampled this many times for the face's outline.
 const OUTLINE_SAMPLES = 8;
@@ -105,34 +99,16 @@ const longEnough =
 // survives the minimum-stroke filter anyway.
 const SHORTEST_STROKE = 1e-6;
 
-// A stroke is centred on its chord: it stops `inset` short of the outline at
-// both ends (model units along the chord) and then keeps `extent` of what is
-// left (the graded taper). A chord with no room for the inset yields nothing.
+// A stroke shorter than its chord is centred on it (the graded taper); the
+// stroke's ends are drawn back from the outline after hidden-line removal.
 const trimTo =
-  (extent: number, inset: number) =>
-  (edge: replicad.Edge): O.Option<replicad.Edge> => {
-    const length = edge.length;
-    if (extent >= 1 && inset <= 0) {
-      return O.some(edge);
-    }
-    const room = length - 2 * inset;
-    const kept = (room * extent) / length;
-    return room * extent < SHORTEST_STROKE
-      ? O.none()
-      : O.some(replicad.makeLine(edge.pointAt(0.5 - kept / 2), edge.pointAt(0.5 + kept / 2)));
-  };
-
-// Model-unit inset along a chord that projects to the plan's minimum pitch on
-// the view plane; nothing for the uniform style, whose legacy golden draws
-// every chord edge to edge.
-const insetFor = (view: ViewFacts, plan: ShadingPlan, direction: V3): number => {
-  if (plan.style !== "graded") {
-    return 0;
-  }
-  const along = direction[0] * view.eye[0] + direction[1] * view.eye[1] + direction[2] * view.eye[2];
-  const seen = Math.sqrt(Math.max(0, 1 - along * along));
-  return seen < 1e-6 ? 0 : plan.minPitch / seen;
-};
+  (extent: number) =>
+  (edge: replicad.Edge): O.Option<replicad.Edge> =>
+    extent >= 1
+      ? O.some(edge)
+      : edge.length * extent < SHORTEST_STROKE
+        ? O.none()
+        : O.some(replicad.makeLine(edge.pointAt(0.5 - extent / 2), edge.pointAt(0.5 + extent / 2)));
 
 // Graded strokes are lifted this far off their face along its outward normal
 // (model units; a thousandth of a millimetre on the sheet) so the hidden-line
@@ -154,42 +130,40 @@ const liftFor =
 // Planar faces only: curved faces are counted, never hatched.
 const isPlanar = (face: replicad.Face): boolean => face.geomType === "PLANE";
 
-/**
- * One planned cut of one face, for the hidden-line pass to find again: the
- * face's index, the cut's rank among its face's cuts, how many visible cuts
- * that face draws, and the cut line in model space.
- *
- * @internal
- */
-export interface HatchCut {
-  readonly direction: V3;
-  readonly face: number;
-  readonly keep: number;
-  readonly point: V3;
-  readonly rank: number;
-}
-
 const unitV = (v: V3): V3 => {
   const length = Math.hypot(v[0], v[1], v[2]);
   return length < 1e-12 ? v : [v[0] / length, v[1] / length, v[2] / length];
 };
 
-const cutsOf = (index: number, face: replicad.Face, treatment: FaceTreatment): ReadonlyArray<HatchCut> =>
-  FaceTreatment.match(treatment, {
-    lines: (lines) => {
-      const normal = vec(face.normalAt(face.center));
-      const direction = unitV(cross(normal, lines.step));
-      const keep = O.getOrElse(lines.keep, () => A.length(lines.cuts));
-      return A.map(lines.cuts, (cut, rank) => ({
+// The extent of one cut's strokes along their common line, for the hidden-line
+// pass to find the cut again; none when the cut produced no stroke.
+const extentOf = (
+  index: number,
+  rank: number,
+  keep: number,
+  strokes: ReadonlyArray<replicad.Edge>
+): O.Option<HatchCut> =>
+  pipe(
+    A.head(strokes),
+    O.map((first) => {
+      const origin = vec(first.startPoint);
+      const direction = unitV(minusV(vec(first.endPoint), origin));
+      const along = (p: V3): number =>
+        (p[0] - origin[0]) * direction[0] + (p[1] - origin[1]) * direction[1] + (p[2] - origin[2]) * direction[2];
+      const ts = A.flatMap(strokes, (e) => [along(vec(e.startPoint)), along(vec(e.endPoint))]);
+      const lo = Math.min(...ts);
+      const hi = Math.max(...ts);
+      return HatchCut.make({
         face: index,
         rank,
         keep,
-        point: add(lines.origin, scale(lines.step, cut.offset)),
-        direction,
-      }));
-    },
-    skipped: () => A.empty<HatchCut>(),
-  });
+        from: add(origin, scale(direction, lo)),
+        to: add(origin, scale(direction, hi)),
+      });
+    })
+  );
+
+const minusV = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 
 const shadeFace =
   (oc: OpenCascadeInstance, view: ViewFacts, plan: ShadingPlan) =>
@@ -204,20 +178,30 @@ const shadeFace =
     const treatment = isPlanar(face)
       ? treatmentFor({ face: factsOf(face), view, plan })
       : ShadingSkipped.make({ reason: "curved" });
-    const edges = FaceTreatment.match(treatment, {
-      lines: (lines) =>
-        A.flatMap(lines.cuts, (cut) =>
-          pipe(
+    const planned = FaceTreatment.match(treatment, {
+      lines: (lines) => {
+        const keep = O.getOrElse(lines.keep, () => A.length(lines.cuts));
+        return A.map(lines.cuts, (cut, rank) => {
+          const strokes = pipe(
             sectionEdges(oc, face, add(lines.origin, scale(lines.step, cut.offset)), lines.step),
-            A.map((edge) => trimTo(cut.extent, insetFor(view, plan, directionOf(edge)))(edge)),
+            A.map(trimTo(cut.extent)),
             A.getSomes,
             A.filter(longEnough(view, plan.minStroke)),
             A.map(liftFor(face, plan))
-          )
-        ),
-      skipped: () => A.empty<replicad.Edge>(),
+          );
+          return { strokes, cut: extentOf(index, rank, keep, strokes) };
+        });
+      },
+      skipped: () => A.empty<{ readonly strokes: ReadonlyArray<replicad.Edge>; readonly cut: O.Option<HatchCut> }>(),
     });
-    return { treatment, edges, cuts: cutsOf(index, face, treatment) };
+    return {
+      treatment,
+      edges: A.flatMap(planned, (p) => p.strokes),
+      cuts: pipe(
+        A.map(planned, (p) => p.cut),
+        A.getSomes
+      ),
+    };
   };
 
 /**

@@ -388,14 +388,16 @@ const CutIndex = S.Int.check(S.isGreaterThanOrEqualTo(0));
 /**
  * One planned cut of one face, for the hidden-line pass to find again: the
  * face's index in its shape, the cut's rank among that face's cuts, how many
- * visible cuts the face draws per run, and the cut line in model space.
+ * visible cuts the face draws per run, and the extent of its strokes in model
+ * space (two faces whose cut lines coincide on the view plane are told apart
+ * by where along the line their strokes lie).
  *
  * **Example** (The first cut of face 2)
  *
  * ```ts
  * import { HatchCut } from "@beep/technical-drawing/Shading.schemas"
  *
- * console.log(HatchCut.make({ face: 2, rank: 0, keep: 5, point: [19, -15, 0], direction: [0, 0, 1] }).keep)
+ * console.log(HatchCut.make({ face: 2, rank: 0, keep: 5, from: [19, -15, 0], to: [19, -15, 20] }).keep)
  * ```
  *
  * @category models
@@ -406,8 +408,10 @@ export class HatchCut extends S.Class<HatchCut>($I`HatchCut`)(
     face: CutIndex.annotateKey({ description: "Index of the face in its shape." }),
     rank: CutIndex.annotateKey({ description: "Position of the cut among its face's cuts, from the shadow edge." }),
     keep: CutIndex.annotateKey({ description: "How many visible cuts of each run the face draws." }),
-    point: Vec3.annotateKey({ description: "A point of the cut line, in model space." }),
-    direction: Vec3.annotateKey({ description: "Unit direction of the cut line, in model space." }),
+    from: Vec3.annotateKey({ description: "One end of the cut's strokes, in model space." }),
+    to: Vec3.annotateKey({
+      description: "The other end of the cut's strokes, in model space; the cut line runs through both.",
+    }),
   },
   $I.annote("HatchCut", {
     description: "A planned shading cut of one face, as the hidden-line pass needs to find it again.",

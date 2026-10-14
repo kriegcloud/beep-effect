@@ -187,6 +187,18 @@ describe("Shading.rules", () => {
       [0, 2, 10, 2],
       [20, 0, 20, 10],
     ]);
+    // the inset draws every surviving stroke back from both ends
+    expect(
+      legibleShading({
+        segments: [
+          [0, 0, 10, 0],
+          [0, 5, 1.5, 5],
+        ],
+        minStroke: 1,
+        minSpacing: 0.5,
+        inset: 1,
+      })
+    ).toEqual([[1, 0, 9, 0]]);
     // equal lengths side by side keep the first
     expect(
       legibleShading({
