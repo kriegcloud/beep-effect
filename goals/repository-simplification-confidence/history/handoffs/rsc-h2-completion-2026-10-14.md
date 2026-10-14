@@ -208,3 +208,20 @@ result remains its actual historical observation, not a current result.
 The fresh full package audit on the combined head is running while publication
 proceeds; final dispatch records its terminal result. No queued full proof gates
 the push, and no local proof is presented as a hosted pass.
+
+## Native property registration repair
+
+The next collected publisher identifies EV007 in the new fixture: use native
+`it.effect.prop` rather than a direct check inside an ordinary Effect test.
+`d42750855e` registers the existing schema-derived inputs with the native test
+primitive, preserving 20 runs, the satisfied-evidence invariant, offline network
+refusal and stored incomplete-receipt assertions. Fresh schema-first,
+Effect/Vitest, test-tsgo and all 51 focused tests pass. No inventory entry,
+waiver or baseline is changed.
+
+The combined-head audit and publisher both end with interruption exit 130;
+GitHub still heads `7912fecf03`, so no push is inferred. The interruption's cause
+is unknown and neither attempt is a passing qualification. A new full package
+command is admitted on the corrected native-property source while the complete
+publication wave proceeds. Final dispatch records its terminal result and the
+actual published head/monitor.

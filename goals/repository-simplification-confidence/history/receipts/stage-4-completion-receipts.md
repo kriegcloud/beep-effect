@@ -373,3 +373,11 @@ touched floor/ceiling holds. Knowledge refs separately reports 15 inherited
 main host-path observations. The current doctor census is 226 packets, zero
 blocking findings and six nonfatal advisories. Fresh combined full-package
 qualification and final-head hosted readiness are bound by final dispatch.
+
+EV007's native-property requirement is addressed by `d42750855e`: the stored
+receipt fixture is registered through `it.effect.prop`, preserving its 20-run
+floor and complete domain assertions. Fresh schema-first, Effect/Vitest,
+test-tsgo and all 51 focused tests pass. No detector baseline is refreshed.
+The intervening audit/publisher exit 130 is retained as interruption, with no
+inferred push or pass; fresh package and publication results are bound by final
+dispatch.

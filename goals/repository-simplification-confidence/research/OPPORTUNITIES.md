@@ -1403,3 +1403,15 @@ on the new head if it appears.
 - Combined parity passes except 15 inherited knowledge host paths. Keep the
   prior 11-row observation at its own head; the four additional main paths
   belong to the consolidated main repair, not an H2 baseline reset.
+
+### 2026-10-14 — H2 native property registration and interruption
+
+- Structured detector row EV007 identifies the direct property-check candidate.
+  Register the same fixture with `it.effect.prop`; preserve 20 runs, expected
+  outcomes, filesystem scope and offline network refusal. `d42750855e` is the
+  correction, not an inventory exception. Fresh detector/compiler/runtime checks
+  all pass.
+- Audit and publisher terminate with `All fibers interrupted without error`,
+  exit 130. No agent cancellation was requested; cause is unknown. Confirm both
+  calls ended and PR head stayed `7912fecf03` before retrying. Preserve interrupted
+  attempts without substituting earlier proof or replaying an uncertain push.
