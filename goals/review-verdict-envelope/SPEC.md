@@ -154,7 +154,7 @@ From the brief's rabbit holes and the repo laws:
 
 ## Acceptance Criteria
 
-- [ ] **P0** The spike report under `history/` records the one-app answer, S1 and S3 go/no-go
+- [x] **P0** The spike report under `history/` records the one-app answer, S1 and S3 go/no-go
       with evidence (screenshots kept out of the repo, described in text; S1 records pane
       placement, whether resizing works, and whether it coexists with the Browser pane), and results for S2,
       S4, S6, S8 and the Word check. **S3's gate is the text read:** a successful
@@ -163,13 +163,15 @@ From the brief's rabbit holes and the repo laws:
       any failure, which counts as an image limitation, not a queue blocker. If the text read
       itself fails, the handoff falls back to producers embedding the passage text in
       `SourceRef.quote`, so the pane needs no Box call, and the amendment says so. S2 records whether a 10-pt claim line is legible at the largest size.
-- [ ] **P1** `ReviewItem` decodes all six `kind` members; an unknown `kind` fails to decode.
+      *Met 2026-10-14 with one timed text read (2.5 s), not a p95 over repeated reads;
+      the `practice-claude-mod` review queue re-measures at its first sitting.*
+- [x] **P1** `ReviewItem` decodes all six `kind` members; an unknown `kind` fails to decode.
       `SourceRef` round-trips with and without `page`, `prefix` and `suffix`. A `claim-finding`
       round-trips its `claimId`. `VerdictRow` round-trips `batchId` and `recordedAt`, and
       rejects a verdict outside `right | wrong | partly`.
-- [ ] **P2** `ReviewQueue` and `VerdictProjector` exist as `Context.Service` contracts with
+- [x] **P2** `ReviewQueue` and `VerdictProjector` exist as `Context.Service` contracts with
       typed errors (including a locked-batch write error) and Layer implementations.
-- [ ] **P2 / S5** The round-trip test passes: decode → queue → `wrong` + note → undo (a
+- [x] **P2 / S5** The round-trip test passes: decode → queue → `wrong` + note → undo (a
       superseding revision, the original row still present) → `right` → lock the batch → a write to that
       batch fails with the typed error, while a write re-judging **the same item** in a new batch
       succeeds. A lock closes the batch for writes, not the item: an item locked in an earlier
@@ -180,13 +182,13 @@ From the brief's rabbit holes and the repo laws:
       `rejected` with the note as `reason`; a third case uses `wrong` without a note and gets the
       fixed reject reason. A fourth case, a final `partly`, yields no projection. Projecting the
       same rows twice gives equal results.
-- [ ] **P3** The amendment is delivered to the `practice-claude-mod` owner (link or PR comment
+- [x] **P3** The amendment is delivered to the `practice-claude-mod` owner (link or PR comment
       recorded in `README.md`), in its S1-pass form or its row-only fallback form. On S1 fail,
       the exploration's manifest is back at `decompose`.
-- [ ] `bun run beep quality package-verify` passes for both touched packages.
-- [ ] The PR is mergeable through Yeet, and a closeout reflection exists under
+- [x] `bun run beep quality package-verify` passes for both touched packages.
+- [x] The PR is mergeable through Yeet, and a closeout reflection exists under
       `history/reflections/`.
-- [ ] No unrelated refactors or formatting churn.
+- [x] No unrelated refactors or formatting churn.
 
 ## Verification Matrix
 
