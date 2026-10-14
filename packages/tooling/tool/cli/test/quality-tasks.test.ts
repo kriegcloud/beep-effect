@@ -8544,6 +8544,58 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
 // an in-repo rule module (which ESLint's own config digest cannot see) starts an empty cache.
 describe("root ESLint cache key", () => {
   it.layer(FileSystemLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("skips nested package markers without losing installed or workspace package identities", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped();
+        yield* fs.makeDirectory(path.join(root, "packages/tooling/policy-pack/repo-configs/src"), { recursive: true });
+        yield* fs.makeDirectory(path.join(root, "node_modules/eslint"), { recursive: true });
+        yield* fs.writeFileString(
+          path.join(root, "node_modules/eslint/package.json"),
+          '{"name":"eslint","version":"9.0.0","main":"index.js"}'
+        );
+        yield* fs.writeFileString(path.join(root, "node_modules/eslint/index.js"), "module.exports = {};\n");
+        const installed = path.join(root, "node_modules/eslint-plugin-fixture");
+        const first = path.join(root, "workspace/eslint-plugin-first");
+        const second = path.join(root, "workspace/eslint-plugin-second");
+        for (const directory of [installed, first, second]) {
+          yield* fs.makeDirectory(path.join(directory, "dist/cjs"), { recursive: true });
+          yield* fs.writeFileString(path.join(directory, "dist/cjs/package.json"), '{"type":"commonjs"}');
+          yield* fs.writeFileString(path.join(directory, "dist/cjs/index.js"), "module.exports = { rules: {} };\n");
+        }
+        const writeManifest = Effect.fnUntraced(function* (directory: string, name: string, version: string) {
+          yield* fs.writeFileString(
+            path.join(directory, "package.json"),
+            `{"name":"${name}","version":"${version}","main":"dist/cjs/index.js"}`
+          );
+        });
+        yield* writeManifest(installed, "eslint-plugin-fixture", "1.0.0");
+        yield* writeManifest(first, "eslint-plugin-first", "1.0.0");
+        yield* writeManifest(second, "eslint-plugin-second", "1.0.0");
+        yield* fs.symlink(first, path.join(root, "node_modules/eslint-plugin-first"));
+        yield* fs.symlink(second, path.join(root, "node_modules/eslint-plugin-second"));
+        yield* fs.writeFileString(
+          path.join(root, "eslint.config.mjs"),
+          'import installed from "eslint-plugin-fixture"; import first from "eslint-plugin-first"; import second from "eslint-plugin-second"; export default [{ plugins: { installed, first, second } }];\n'
+        );
+        yield* fs.writeFileString(path.join(root, "tsdoc.json"), "{}\n");
+        const initial = yield* rootEslintCacheKey(root);
+        expect(initial).toMatch(/^[0-9a-f]{16}$/);
+        expect(yield* rootEslintCacheKey(root)).toBe(initial);
+        for (const directory of [installed, first, second]) {
+          const name = path.basename(directory);
+          yield* writeManifest(directory, name, "1.0.1");
+          const bumped = yield* rootEslintCacheKey(root);
+          expect(bumped).toMatch(/^[0-9a-f]{16}$/);
+          expect(bumped).not.toBe(initial);
+          expect(yield* rootEslintCacheKey(root)).toBe(bumped);
+          yield* writeManifest(directory, name, "1.0.0");
+          expect(yield* rootEslintCacheKey(root)).toBe(initial);
+        }
+      })
+    );
+
     it.effect("keys installed plugin versions and workspace inputs while keeping unchanged inputs stable", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;

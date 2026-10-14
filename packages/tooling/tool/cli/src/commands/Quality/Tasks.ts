@@ -3029,6 +3029,37 @@ class EslintInputPackage extends S.Class<EslintInputPackage>($I`EslintInputPacka
   })
 ) {}
 
+// Nested module-format markers are not package identities. A failed decode means
+// discovery must keep walking; filesystem failures still fail input collection.
+const decodeEslintInputPackageOption = S.decodeUnknownOption(S.fromJsonString(EslintInputPackage));
+
+const rootEslintModuleSpecifier = Match.type<ts.Node>().pipe(
+  Match.when(ts.isImportDeclaration, (node) =>
+    node.importClause?.isTypeOnly === true ? O.none<ts.Node>() : O.some(node.moduleSpecifier)
+  ),
+  Match.when(ts.isExportDeclaration, (node) =>
+    node.isTypeOnly ? O.none<ts.Node>() : O.fromUndefinedOr(node.moduleSpecifier)
+  ),
+  Match.when(ts.isCallExpression, (node) => {
+    if (node.expression.kind === ts.SyntaxKind.ImportKeyword) return A.head(node.arguments);
+    if (!ts.isIdentifier(node.expression)) return O.none<ts.Node>();
+    return node.expression.text === "require" ? A.head(node.arguments) : O.none<ts.Node>();
+  }),
+  Match.orElse(O.none<ts.Node>)
+);
+
+const rootEslintImportSpecifiers = (file: string, content: string): ReadonlyArray<string> => {
+  const source = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, true);
+  const imports: Array<string> = [];
+  const visit = (node: ts.Node): void => {
+    const specifier = O.filter(rootEslintModuleSpecifier(node), ts.isStringLiteral);
+    if (O.isSome(specifier)) imports.push(specifier.value.text);
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return imports;
+};
+
 interface RootEslintInputsShape {
   readonly collect: (repoRoot: string) => Effect.Effect<ReadonlyArray<string>, QualityTaskConfigurationError>;
 }
@@ -3059,14 +3090,57 @@ class RootEslintInputs extends Context.Service<RootEslintInputs, RootEslintInput
     });
     const packageFile = Effect.fnUntraced(function* (entry: string) {
       let directory = path.dirname(entry);
-      while (!(yield* fs.exists(path.join(directory, "package.json")))) {
+      while (true) {
+        const file = path.join(directory, "package.json");
+        if (yield* fs.exists(file)) {
+          const manifest = decodeEslintInputPackageOption(yield* fs.readFileString(file));
+          if (O.isSome(manifest)) return file;
+        }
         const parent = path.dirname(directory);
         if (parent === directory) {
           return yield* QualityTaskConfigurationError.make({ message: `No package.json for ESLint input ${entry}` });
         }
         directory = parent;
       }
-      return path.join(directory, "package.json");
+    });
+    const isWorkspaceInput = (root: string, file: string): boolean => {
+      const relative = path.relative(root, file);
+      return !Str.includes("node_modules/")(relative) && !Str.startsWith("../")(relative);
+    };
+    const packageDependencies = Effect.fnUntraced(function* (
+      root: string,
+      manifestFile: string,
+      manifest: EslintInputPackage
+    ) {
+      const dependencies = A.dedupe([
+        ...R.keys(manifest.dependencies ?? {}),
+        ...R.keys(manifest.peerDependencies ?? {}),
+        ...R.keys(manifest.optionalDependencies ?? {}),
+      ]);
+      const files: Array<string> = [];
+      for (const dependency of dependencies) {
+        const installed = yield* resolvePackage(dependency, manifestFile);
+        if (O.isNone(installed)) continue;
+        files.push(installed.value);
+        // Linked workspace plugins also contribute their source import closure.
+        if (isWorkspaceInput(root, yield* fs.realPath(installed.value))) {
+          files.push(yield* resolve(dependency, manifestFile));
+        }
+      }
+      return files;
+    });
+    const workspaceImports = Effect.fnUntraced(function* (file: string, content: string) {
+      const files: Array<string> = [];
+      if (path.extname(file) === ".json") return files;
+      for (const specifier of rootEslintImportSpecifiers(file, content)) {
+        if (isBuiltin(specifier)) continue;
+        const entry = yield* resolve(specifier, file);
+        files.push(entry);
+        if (!Str.startsWith(".")(specifier) && !Str.startsWith("#")(specifier)) {
+          files.push(yield* packageFile(entry));
+        }
+      }
+      return files;
     });
     const collect = Effect.fn("RootEslintInputs.collect")(function* (repoRoot: string) {
       const root = yield* fs.realPath(repoRoot);
@@ -3079,11 +3153,10 @@ class RootEslintInputs extends Context.Service<RootEslintInputs, RootEslintInput
       while (A.isReadonlyArrayNonEmpty(pending)) {
         const next = A.headNonEmpty(pending);
         pending.shift();
-        if (isBuiltin(next)) continue;
         const file = yield* fs.realPath(next);
         if (HashSet.has(visited, file)) continue;
         const relative = path.relative(root, file);
-        if (Str.includes("node_modules/")(relative) || Str.startsWith("../")(relative)) {
+        if (!isWorkspaceInput(root, file)) {
           const manifestFile = yield* packageFile(file);
           if (HashSet.has(visited, manifestFile)) continue;
           visited = HashSet.add(visited, manifestFile);
@@ -3094,65 +3167,13 @@ class RootEslintInputs extends Context.Service<RootEslintInputs, RootEslintInput
           // hashing checkout-specific absolute paths. Traverse declared runtime dependencies
           // too: an external shared config can load plugins indirectly.
           parts.push(`${path.relative(root, manifestFile)}\0${manifest.name}\0${manifest.version}\0`);
-          const dependencies = A.dedupe([
-            ...R.keys(manifest.dependencies ?? {}),
-            ...R.keys(manifest.peerDependencies ?? {}),
-            ...R.keys(manifest.optionalDependencies ?? {}),
-          ]);
-          for (const dependency of dependencies) {
-            const installed = yield* resolvePackage(dependency, manifestFile);
-            if (O.isSome(installed)) {
-              pending.push(installed.value);
-              const installedPath = yield* fs.realPath(installed.value);
-              const installedRelative = path.relative(root, installedPath);
-              // External configs can depend on a linked workspace plugin. Follow
-              // its exported entry too, so source edits invalidate its unchanged version.
-              if (!Str.includes("node_modules/")(installedRelative) && !Str.startsWith("../")(installedRelative)) {
-                pending.push(yield* resolve(dependency, manifestFile));
-              }
-            }
-          }
+          pending.push(...(yield* packageDependencies(root, manifestFile, manifest)));
           continue;
         }
         visited = HashSet.add(visited, file);
         const content = yield* fs.readFileString(file);
         parts.push(`${relative}\0${content}\0`);
-        if (path.extname(file) === ".json") continue;
-        const source = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, true);
-        const imports: Array<string> = [];
-        const visit = (node: ts.Node): void => {
-          if (
-            ts.isImportDeclaration(node) &&
-            node.importClause?.isTypeOnly !== true &&
-            ts.isStringLiteral(node.moduleSpecifier)
-          ) {
-            imports.push(node.moduleSpecifier.text);
-          } else if (
-            ts.isExportDeclaration(node) &&
-            !node.isTypeOnly &&
-            P.isNotUndefined(node.moduleSpecifier) &&
-            ts.isStringLiteral(node.moduleSpecifier)
-          ) {
-            imports.push(node.moduleSpecifier.text);
-          } else if (
-            ts.isCallExpression(node) &&
-            (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
-              (ts.isIdentifier(node.expression) && node.expression.text === "require"))
-          ) {
-            const argument = A.head(node.arguments);
-            if (O.isSome(argument) && ts.isStringLiteral(argument.value)) imports.push(argument.value.text);
-          }
-          ts.forEachChild(node, visit);
-        };
-        visit(source);
-        for (const specifier of imports) {
-          if (isBuiltin(specifier)) continue;
-          const entry = yield* resolve(specifier, file);
-          pending.push(entry);
-          if (!Str.startsWith(".")(specifier) && !Str.startsWith("#")(specifier)) {
-            pending.push(yield* packageFile(entry));
-          }
-        }
+        pending.push(...(yield* workspaceImports(file, content)));
       }
       return A.sort(parts, Order.String);
     }, QualityTaskConfigurationError.mapError("Cannot collect ESLint cache inputs"));
