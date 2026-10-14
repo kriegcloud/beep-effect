@@ -151,6 +151,62 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
   `fuzz-applied` column stays a B-5 *report* classification only. Reverse: let the
   replay report attempt a fuzzed apply to classify hunks, still never writing from it.
 
+## Decisions recorded while landing B-5 (B28–B33)
+
+- **B28 — Renovate never automerges a skill bump.** The skill rule sets
+  `automerge: false`, overriding the `:automergeDigest` preset, and labels the PR
+  `skills-update-train`. A clean, relocked bump is mergeable without a human (B19), and it
+  merges through the repository's normal merge gate (review window, threads, orchestrator
+  merge), like every other PR. Reason: `AGENTS.md` defines one merge gate; a bot merge
+  path would bypass the review window. Reverse: set `automerge: true` on the rule.
+- **B29 — replay is its own read-only command, and a fuzz-only replay fails CI.** `skills
+  replay` and `skills relock` share one replay engine. A hunk is tried at its recorded
+  line, then at the nearest exact match (`fuzz-applied`, report only, B27), else
+  `conflicted`; its identity hashes the file path and body lines, never line numbers, so
+  a shifted hunk keeps the identity the B-6 ledger will key on. A replay with a
+  `fuzz-applied` hunk and no conflict is `fuzz-only`: relock refuses it
+  (`replay-fuzz-only`) because the strict applier cannot reproduce it, so the workflow
+  fails it like a conflict. Reason: a green replay must mean relock will succeed.
+  Reverse: let `fuzz-only` pass the replay job with a warning and fail only relock.
+- **B30 — relock seals its own small plan and rewrites only the lock.** The
+  `skills-relock-plan/v1` digest covers the read lock's SHA-256, the skill, its
+  `sourceRevision`, and the new `snapshot` and `effective` blocks. `--expect` re-plans,
+  refuses a mismatch (`digest-mismatch`), reports `already-current` when the lock already
+  holds those blocks, and otherwise publishes through a staged rename that re-checks the
+  lock bytes (`lock-changed`). The patch series and every other entry are untouched, and
+  the license is checked by byte hash only (`license-changed`); a relicense needs a
+  reviewed `lock-plan`. Reason: B22's plan-gated step without re-running the full
+  migration plan, whose upstream path-history walk is not needed to record a pin Renovate
+  already chose. Reverse: route relock through `lock-plan --write` with the pin taken
+  from the lock.
+- **B31 — the workflow commits the relocked lock and the rebuilt trees together.**
+  Contract 6's `materialize --check` can pass only once the installed trees match the new
+  effective hash, so the relock job runs, per unrecorded skill, `relock` (plan, then
+  `--expect`), `materialize --skill`, then `materialize --check` and `update --check`, and
+  commits `skills-lock.json` plus `.claude/skills/<skill>` to the Renovate branch as
+  `github-actions[bot]`. That author is in Renovate's `gitIgnoredAuthors`, so Renovate
+  keeps rebasing the branch. The job runs only for same-repository PRs opened by
+  `renovate[bot]`. It pushes with the `BEEP_SKILLS_TRAIN_TOKEN` secret when set; with the
+  fallback `GITHUB_TOKEN` the push does not re-trigger workflows, so the new head's
+  checks need a manual re-run. Reason: a bump PR must arrive at a provable state with no
+  human step. Reverse: drop the commit step and make relock plus materialize a reviewer
+  step on the branch.
+- **B32 — the batch report is a weekly parent issue.** `skills train-issue` renders it
+  from `gh pr list --json` for open `skills-update-train` PRs, reading each PR's latest
+  replay marker (base64url `skills-replay/v1` JSON without diffs, in the sticky comment;
+  a marker that does not decode is ignored). The workflow runs Monday 07:41 UTC (after
+  Renovate's weekend schedule) and on dispatch, keys the issue by its ISO-week title and
+  the `skills-update-train` label, edits it on re-run, and opens none when no update PR
+  is open. Reason: contract 9's one place to review the train, without a parent PR that
+  blocks the per-skill ones. Reverse: post the same body into Renovate's dependency
+  dashboard.
+- **B33 — the pin tracks the whole upstream ref.** `git-refs` follows the tracking ref's
+  head, so an upstream commit that does not touch the skill's path also bumps the pin.
+  Its replay is clean and already recorded (same tree hashes), so relock writes nothing
+  and the PR only moves `sourceRevision`. Reason: accepted noise; a path-filtered
+  datasource does not exist in Renovate. Reverse: B18's fallback, a scheduled
+  `beep skills bump --plan` that proposes a pin only when the skill's path history moved.
+
 ## Sequencing
 
 - **B-4 (P4) — landed.** `beep skills materialize [--check] [--skill <name>]`
@@ -169,10 +225,25 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
   no-op. Main's lock carried stale local hashes for `orchestrate` and `yeet` (edited
   after #1679 recorded the lock), so `skills update --check` was red at `08fa45bd98`;
   this lane refreshed those two local entries with `beep skills update`.
-- **B-5 (P5):** `skills relock`, the Renovate custom manager, the reconstruction workflow and per-hunk
-  report, and the parent batch issue writer. Proof: a dry-run Renovate config
-  validation (`renovate-config-validator`) plus a workflow run on a synthetic bump
-  branch.
+- **B-5 (P5) — landed in this PR.** `beep skills replay [--skill <name>] [--json]
+  [--markdown <file>]` (read-only per-hunk report, `skills-replay/v1`), `beep skills
+  relock --skill <name> [--json] [--expect <planDigest>]` (`skills-relock-plan/v1`), and
+  `beep skills train-issue --batch <id> --prs <file> --body-out <file>` on the
+  `SkillUpdateTrain` service; the per-skill Renovate `git-refs` regex manager in
+  `renovate.json`; and `.github/workflows/skills-update-train.yml` (replay with a sticky
+  PR comment and artifact, relock + materialize + commit on clean Renovate bumps, weekly
+  batch issue). Tests (`test/skills-relock.test.ts`): clean replay at the recorded pin,
+  bumped pin clean but unrecorded with nothing written, `fuzz-applied` and `conflicted`
+  classification, hunk identity stable under a shift, plan then `--expect` write then
+  `materialize` to `current`, the `already-current` fixed point and the stale-digest
+  refusal, refusals for an unreviewed digest, a conflict (naming patch, file, and hunk),
+  fuzz-only, a changed license, local and unknown skills, a changed patch digest and a
+  lock changed under the stage, the comment marker round trip, the batch issue, and the
+  Renovate regex matching exactly the live lock's vendored pins. Proof: the Renovate
+  regex validates (`renovate-config-validator`: "Config validated successfully"; its
+  `--strict` mode also asks to migrate the pre-existing `matchPackagePatterns` rules,
+  which this PR does not touch). The workflow run on a synthetic bump branch needs a
+  pushed branch, so it is the first hosted proof after this PR merges.
 - **B-6 (P5):** the hunk ledger, `--ghost`, the two-strike query, `skills patch add`,
   and `skills review` with budget checkpoints. Proof: a scripted ledger replay over
   fixture bumps.

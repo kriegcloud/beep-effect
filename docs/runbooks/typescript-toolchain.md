@@ -122,7 +122,6 @@ checked 2026-09-24:
 | tstyche 8.0.0-beta.0 | no, for effect-drizzle's explicit targets | downloads `5.9.3` and `6.0.3` (hosted matrix) plus `next` (on demand) to its own store; TS7 backend uses the 7.1 sync/ast API. No root `typescript@6` API is loaded for this matrix. |
 | commitlint (`cosmiconfig-typescript-loader`) | yes | peer `>=5` on the JS API |
 | ts-morph 28 | no | `@ts-morph/common` vendors its own TypeScript 6.0.2 |
-| knip 6 | no | parses with oxc-parser, no `typescript` dependency |
 
 The hold lives in `syncpack.config.ts` (the "Held back" update group) so
 `deps:update` cannot collapse the split. Reassess the root `typescript@6` hold
