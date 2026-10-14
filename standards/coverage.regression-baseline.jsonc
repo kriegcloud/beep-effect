@@ -22567,15 +22567,15 @@
     },
     "@beep/repo-cli": {
       "path": "packages/tooling/tool/cli",
-      "lines": 85.11,
-      "statements": 84.91,
-      "branches": 76.56,
-      "functions": 81.1,
+      "lines": 86.64,
+      "statements": 86.3,
+      "branches": 78.93,
+      "functions": 83.24,
       "uncovered": {
-        "lines": 8065,
-        "statements": 8626,
-        "branches": 4839,
-        "functions": 3240
+        "lines": 9100,
+        "statements": 9915,
+        "branches": 5666,
+        "functions": 3773
       },
       "files": {
         "packages/tooling/tool/cli/src/bin-main.ts": {
@@ -24724,6 +24724,18 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Explore/Graduate.ts": {
+          "lines": 95.76,
+          "statements": 95.9,
+          "branches": 92.85,
+          "functions": 90.56,
+          "uncovered": {
+            "lines": 5,
+            "statements": 5,
+            "branches": 2,
+            "functions": 5
           }
         },
         "packages/tooling/tool/cli/src/commands/Explore/index.ts": {
