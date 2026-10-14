@@ -48,8 +48,8 @@ const $I = $ArchitectureLabConfigId.create("WorkItemConfigLayer");
  * @category configuration
  * @since 0.0.0
  */
-export class WorkItemConfigValue extends S.Class<WorkItemConfigValue>($I`WorkItemConfigValue`)(
-  {
+export class WorkItemConfigValue extends S.Opaque<WorkItemConfigValue, { readonly brand: unique symbol }>()(
+  S.Struct({
     publicConfig: WorkItemPublicConfig.annotateKey({
       description: "Client-safe feature-flag configuration for WorkItem behavior.",
     }),
@@ -59,11 +59,12 @@ export class WorkItemConfigValue extends S.Class<WorkItemConfigValue>($I`WorkIte
     serverConfig: WorkItemServerConfig.annotateKey({
       description: "Server-side repository and migration configuration for WorkItem persistence.",
     }),
-  },
-  $I.annote("WorkItemConfigValue", {
-    title: "WorkItem config value",
-    description: "Resolved configuration value for the architecture lab WorkItem proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkItemConfigValue", {
+      title: "WorkItem config value",
+      description: "Resolved configuration value for the architecture lab WorkItem proof.",
+    })
+  )
 ) {}
 
 /**

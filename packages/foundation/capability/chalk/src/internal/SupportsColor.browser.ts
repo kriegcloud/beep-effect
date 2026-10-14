@@ -16,14 +16,15 @@ import type { ColorInfo } from "./ChalkSchema.ts";
 
 const $I = $ChalkId.create("Domain");
 
-class BrowserBrandModel extends S.Class<BrowserBrandModel>($I`BrowserBrand`)(
-  {
+class BrowserBrandModel extends S.Opaque<BrowserBrandModel, { readonly nominal: unique symbol }>()(
+  S.Struct({
     brand: S.String,
     version: S.String,
-  },
-  $I.annote("BrowserBrand", {
-    description: "Browser brand/version metadata used by Chalk browser color support detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserBrand", {
+      description: "Browser brand/version metadata used by Chalk browser color support detection.",
+    })
+  )
 ) {}
 
 type BrowserBrand = typeof BrowserBrandModel.Encoded;

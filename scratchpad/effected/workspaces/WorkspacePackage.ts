@@ -55,7 +55,7 @@ const EMPTY_MANIFEST: Readonly<Record<string, unknown>> = R.fromEntries([]);
  * @category schemas
  * @since 0.0.0
  */
-export class PublishConfig extends S.Class<PublishConfig>($I`PublishConfig`)({
+export class PublishConfig extends S.Class<PublishConfig, { readonly brand: unique symbol }>($I`PublishConfig`)({
 	/** Scoped-package visibility. Its presence overrides `private`. */
 	access: S.optionalKey(S.Literals(["public", "restricted"])).annotateKey({ description: "Scoped-package visibility. Its presence overrides `private`." }),
 	/** The registry to publish to. */
@@ -149,7 +149,7 @@ export type DependencyDiff = typeof DependencyDiff.Type;
  * @category errors
  * @since 0.0.0
  */
-export class WorkspaceManifestError extends S.TaggedError<WorkspaceManifestError>($I`WorkspaceManifestError`)("WorkspaceManifestError", {
+export class WorkspaceManifestError extends S.TaggedError<WorkspaceManifestError, { readonly brand: unique symbol }>($I`WorkspaceManifestError`)("WorkspaceManifestError", {
 	/** Absolute path to the `package.json` that failed. */
 	packageJsonPath: S.String.annotateKey({ description: "Absolute path to the `package.json` that failed." }),
 	/** Whether the file could not be read, or read but not decoded. */
@@ -211,7 +211,7 @@ export class WorkspaceManifestError extends S.TaggedError<WorkspaceManifestError
  * @category models
  * @since 0.0.0
  */
-export class WorkspacePackage extends S.Class<WorkspacePackage>($I`WorkspacePackage`)({
+export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand: unique symbol }>($I`WorkspacePackage`)({
 	/** The package name. */
 	name: S.NonEmptyString.annotateKey({ description: "The package name." }),
 	/**

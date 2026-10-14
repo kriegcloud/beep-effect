@@ -31,8 +31,8 @@ const TokenPriceUsd = S.Finite.check(
 
 // One static approximate provider-model price row (module-internal: the public
 // surface is approximateCostUsdMicros; the table itself is private data).
-class ApproximateModelPrice extends S.Class<ApproximateModelPrice>($I`ApproximateModelPrice`)(
-  {
+class ApproximateModelPrice extends S.Opaque<ApproximateModelPrice, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputPerMillionTokensUsd: TokenPriceUsd.annotateKey({
       description: "Approximate USD price per million input tokens.",
     }),
@@ -41,10 +41,11 @@ class ApproximateModelPrice extends S.Class<ApproximateModelPrice>($I`Approximat
       description: "Approximate USD price per million output tokens.",
     }),
     provider: S.NonEmptyString.annotateKey({ description: "Provider identifier." }),
-  },
-  $I.annote("ApproximateModelPrice", {
-    description: "Static approximate provider-model price used for desktop chat usage attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApproximateModelPrice", {
+      description: "Static approximate provider-model price used for desktop chat usage attribution.",
+    })
+  )
 ) {
   /**
    * Small data-only pricing table. Rates are approximate USD per million

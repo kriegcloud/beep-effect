@@ -42,7 +42,9 @@ const $I = $CiopsId.create("kpi/Script");
  * @category errors
  * @since 0.0.0
  */
-export class KpiArtifactError extends S.TaggedError<KpiArtifactError>($I`KpiArtifactError`)(
+export class KpiArtifactError extends S.TaggedError<KpiArtifactError, { readonly brand: unique symbol }>(
+  $I`KpiArtifactError`
+)(
   "KpiArtifactError",
   { message: S.String },
   $I.annoteError<KpiArtifactError>("KpiArtifactError", {

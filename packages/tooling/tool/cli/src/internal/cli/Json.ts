@@ -151,7 +151,7 @@ export const CommandJsonOutput: Context.Reference<(text: string) => Effect.Effec
  * @category errors
  * @since 0.0.0
  */
-export class CliJsonError extends S.TaggedError<CliJsonError>($I`CliJsonError`)(
+export class CliJsonError extends S.TaggedError<CliJsonError, { readonly brand: unique symbol }>($I`CliJsonError`)(
   "CliJsonError",
   {
     message: S.String,

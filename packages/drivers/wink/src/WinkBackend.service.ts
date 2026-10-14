@@ -23,7 +23,7 @@
  */
 
 import * as Schema from "@beep/nlp/Graph/Schema";
-import { NLPBackend, notSupported, operationError } from "@beep/nlp-processing/Backend/NLPBackend";
+import { BackendCapabilities, NLPBackend, notSupported, operationError } from "@beep/nlp-processing/Backend/NLPBackend";
 import { A } from "@beep/utils";
 import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
@@ -31,12 +31,11 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { WinkEngine } from "./Wink.service.ts";
-import type { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend";
 import type { Detail, ItsFunction } from "wink-nlp";
 
 const BACKEND_NAME = "wink-nlp";
 
-const capabilities: BackendCapabilities = {
+const capabilities: BackendCapabilities = BackendCapabilities.make({
   constituencyParsing: false,
   coreferenceResolution: false,
   dependencyParsing: false,
@@ -46,7 +45,7 @@ const capabilities: BackendCapabilities = {
   relationExtraction: false,
   sentencization: true,
   tokenization: true,
-};
+});
 
 /** Locate `needle` in `haystack`, returning a character span (length-correct if absent). */
 const findSpan = (haystack: string, needle: string): { readonly end: number; readonly start: number } => {

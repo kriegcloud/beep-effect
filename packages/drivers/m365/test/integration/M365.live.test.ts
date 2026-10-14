@@ -81,7 +81,7 @@ pipe(
               expect(drives.value.length).toBeGreaterThan(0);
               expect(message.id.length).toBeGreaterThan(0);
               if (download._tag === "M365DownloadedContent") {
-                expect(download).toBeInstanceOf(M365DownloadedContent);
+                expect(S.is(M365DownloadedContent)(download)).toBe(true);
                 expect(download.bytes.byteLength).toBeGreaterThan(0);
               } else {
                 expect(download.reason.length).toBeGreaterThan(0);

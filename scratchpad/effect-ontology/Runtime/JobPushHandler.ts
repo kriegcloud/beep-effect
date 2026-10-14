@@ -53,7 +53,7 @@ const BackgroundJobType = S.Union([
   BackgroundJob.cases.WebhookJob.fields._tag,
 ]);
 
-class JobProcessorNotImplementedError extends S.TaggedError<JobProcessorNotImplementedError>(
+class JobProcessorNotImplementedError extends S.TaggedError<JobProcessorNotImplementedError, { readonly brand: unique symbol }>(
   $I`JobProcessorNotImplementedError`
 )(
   "JobProcessorNotImplementedError",
@@ -67,7 +67,7 @@ class JobProcessorNotImplementedError extends S.TaggedError<JobProcessorNotImple
   })
 ) {}
 
-class JobParseError extends S.TaggedError<JobParseError>($I`JobParseError`)(
+class JobParseError extends S.TaggedError<JobParseError, { readonly brand: unique symbol }>($I`JobParseError`)(
   "JobParseError",
   {
     message: ErrorMessage.annotateKey({
@@ -82,7 +82,7 @@ class JobParseError extends S.TaggedError<JobParseError>($I`JobParseError`)(
   })
 ) {}
 
-class ProcessingError extends S.TaggedError<ProcessingError>($I`ProcessingError`)(
+class ProcessingError extends S.TaggedError<ProcessingError, { readonly brand: unique symbol }>($I`ProcessingError`)(
   "ProcessingError",
   {
     message: ErrorMessage.annotateKey({

@@ -88,7 +88,9 @@ export type IrToLawExtractionErrorReason = typeof IrToLawExtractionErrorReason.T
  * @category errors
  * @since 0.0.0
  */
-export class IrToLawExtractionError extends S.TaggedError<IrToLawExtractionError>($I`IrToLawExtractionError`)(
+export class IrToLawExtractionError extends S.TaggedError<IrToLawExtractionError, { readonly brand: unique symbol }>(
+  $I`IrToLawExtractionError`
+)(
   "IrToLawExtractionError",
   {
     alignmentStatus: S.OptionFromOptionalKey(AlignmentStatus)

@@ -49,7 +49,7 @@ const $I = $ScratchpadId.create("effected/jsonl/Line");
  * @category models
  * @since 0.0.0
  */
-export class ParsedLine extends S.Class<ParsedLine>($I`ParsedLine`)(
+export class ParsedLine extends S.Class<ParsedLine, { readonly brand: unique symbol }>($I`ParsedLine`)(
   {
     /** Where this line lives in the source. */
     line: LineSlice.pipe(

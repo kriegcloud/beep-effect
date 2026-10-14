@@ -122,7 +122,7 @@ export type CompileAndExpandOptions = typeof CompileAndExpandOptions.Type;
 * @category errors
 * @since 0.0.0
 */
-export class GlobExpansionError extends S.TaggedError<GlobExpansionError>($I`GlobExpansionError`)("GlobExpansionError", {
+export class GlobExpansionError extends S.TaggedError<GlobExpansionError, { readonly brand: unique symbol }>($I`GlobExpansionError`)("GlobExpansionError", {
 	/** The glob pattern's source text, as handed to {@link compileAndExpand}. */
 	pattern: S.String.annotateKey({ description: "The glob pattern's source text, as handed to compileAndExpand." }),
 	/** The underlying typed failure, intact: a compile guard trip or a descent failure. */

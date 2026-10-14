@@ -51,8 +51,8 @@ type FallowFinding = FallowReportFinding;
 const FallowEnvelope = FallowReportEnvelope;
 type FallowEnvelope = FallowReportEnvelope;
 
-class FallowYeetIssueFixture extends S.Class<FallowYeetIssueFixture>($I`FallowYeetIssueFixture`)(
-  {
+class FallowYeetIssueFixture extends S.Opaque<FallowYeetIssueFixture, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     sourceFeature: FallowFeatureFamily,
     sourceEnvelopeRef: S.String,
@@ -62,21 +62,23 @@ class FallowYeetIssueFixture extends S.Class<FallowYeetIssueFixture>($I`FallowYe
     subCategory: S.String,
     blocking: S.Literal(false),
     attribution: FindingAttributionKind,
-  },
-  $I.annote("FallowYeetIssueFixture", {
-    description: "Expected Yeet issue projection for one Fallow fixture finding.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowYeetIssueFixture", {
+      description: "Expected Yeet issue projection for one Fallow fixture finding.",
+    })
+  )
 ) {}
 
-class FallowFixtureDocument extends S.Class<FallowFixtureDocument>($I`FallowFixtureDocument`)(
-  {
+class FallowFixtureDocument extends S.Opaque<FallowFixtureDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("fallow-quality-enforcement/report-fixtures/v1"),
     fixtures: S.NonEmptyArray(FallowEnvelope),
     yeetIssueFixtures: S.NonEmptyArray(FallowYeetIssueFixture),
-  },
-  $I.annote("FallowFixtureDocument", {
-    description: "Checked-in Fallow report envelope fixture document.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowFixtureDocument", {
+      description: "Checked-in Fallow report envelope fixture document.",
+    })
+  )
 ) {}
 
 // `.beep/fallow` is gitignored, regenerable state. An advisory phase must never
@@ -100,26 +102,28 @@ const FallowEnvelopeDefectKind = LiteralKit(["mode-mismatch", "stale"]).pipe(
   })
 );
 
-class FallowEnvelopeEntry extends S.Class<FallowEnvelopeEntry>($I`FallowEnvelopeEntry`)(
-  {
+class FallowEnvelopeEntry extends S.Opaque<FallowEnvelopeEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     envelope: FallowEnvelope,
     filePath: S.String,
-  },
-  $I.annote("FallowEnvelopeEntry", {
-    description: "One decoded Fallow envelope paired with the file it was read from.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowEnvelopeEntry", {
+      description: "One decoded Fallow envelope paired with the file it was read from.",
+    })
+  )
 ) {}
 
-class FallowEnvelopeDefect extends S.Class<FallowEnvelopeDefect>($I`FallowEnvelopeDefect`)(
-  {
+class FallowEnvelopeDefect extends S.Opaque<FallowEnvelopeDefect, { readonly brand: unique symbol }>()(
+  S.Struct({
     detail: S.String,
     filePath: S.String,
     kind: FallowEnvelopeDefectKind,
     subcommand: FallowFeatureFamily,
-  },
-  $I.annote("FallowEnvelopeDefect", {
-    description: "One purgeable Fallow advisory envelope file plus why it is unusable for the current Yeet run.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowEnvelopeDefect", {
+      description: "One purgeable Fallow advisory envelope file plus why it is unusable for the current Yeet run.",
+    })
+  )
 ) {}
 
 const decodeFallowEnvelopeJson = S.decodeUnknownEffect(S.fromJsonString(FallowEnvelope));

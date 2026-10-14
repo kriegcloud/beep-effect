@@ -202,9 +202,10 @@ const LiteralValueSchema = S.Union([S.String, S.BigInt, S.Boolean, S.Finite]);
  * @category errors
  * @since 0.0.0
  */
-export class LiteralKitTaggedUnionLiteralError extends S.TaggedError<LiteralKitTaggedUnionLiteralError>(
-  $I.make("LiteralKitTaggedUnionLiteralError")
-)(
+export class LiteralKitTaggedUnionLiteralError extends S.TaggedError<
+  LiteralKitTaggedUnionLiteralError,
+  { readonly brand: unique symbol }
+>($I.make("LiteralKitTaggedUnionLiteralError"))(
   "LiteralKitTaggedUnionLiteralError",
   {
     literal: LiteralValueSchema,
@@ -242,9 +243,10 @@ export class LiteralKitTaggedUnionLiteralError extends S.TaggedError<LiteralKitT
  * @category errors
  * @since 0.0.0
  */
-export class LiteralKitKeyCollisionError extends S.TaggedError<LiteralKitKeyCollisionError>(
-  $I.make("LiteralKitKeyCollisionError")
-)(
+export class LiteralKitKeyCollisionError extends S.TaggedError<
+  LiteralKitKeyCollisionError,
+  { readonly brand: unique symbol }
+>($I.make("LiteralKitKeyCollisionError"))(
   "LiteralKitKeyCollisionError",
   {
     key: S.String,

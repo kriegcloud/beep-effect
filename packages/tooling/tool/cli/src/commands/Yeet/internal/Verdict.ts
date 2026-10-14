@@ -93,15 +93,16 @@ export type YeetLaneStatus = typeof YeetLaneStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetStashState extends S.Class<YeetStashState>($I`YeetStashState`)(
-  {
+export class YeetStashState extends S.Opaque<YeetStashState, { readonly brand: unique symbol }>()(
+  S.Struct({
     createdAt: S.String,
     marker: S.String,
     stashSha: S.String,
-  },
-  $I.annote("YeetStashState", {
-    description: "Recorded stash identity for staged-only publish residue parking and restore.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetStashState", {
+      description: "Recorded stash identity for staged-only publish residue parking and restore.",
+    })
+  )
 ) {}
 
 /**
@@ -123,15 +124,16 @@ export class YeetStashState extends S.Class<YeetStashState>($I`YeetStashState`)(
  * @category models
  * @since 0.0.0
  */
-export class YeetBaseFreshness extends S.Class<YeetBaseFreshness>($I`YeetBaseFreshness`)(
-  {
+export class YeetBaseFreshness extends S.Opaque<YeetBaseFreshness, { readonly brand: unique symbol }>()(
+  S.Struct({
     behindCount: S.Finite,
     mergeBase: S.String,
     overlappingPaths: S.Array(S.String),
-  },
-  $I.annote("YeetBaseFreshness", {
-    description: "Divergence assessment between the publish branch and its refreshed base ref.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetBaseFreshness", {
+      description: "Divergence assessment between the publish branch and its refreshed base ref.",
+    })
+  )
 ) {}
 
 /**
@@ -154,8 +156,8 @@ export class YeetBaseFreshness extends S.Class<YeetBaseFreshness>($I`YeetBaseFre
  * @category models
  * @since 0.0.0
  */
-export class YeetVerdictLane extends S.Class<YeetVerdictLane>($I`YeetVerdictLane`)(
-  {
+export class YeetVerdictLane extends S.Opaque<YeetVerdictLane, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     label: S.String,
     phase: S.String,
@@ -169,11 +171,12 @@ export class YeetVerdictLane extends S.Class<YeetVerdictLane>($I`YeetVerdictLane
     endedAt: OptionalVerdictString,
     inputDigest: NullableInputDigest,
     parentLaneId: S.optionalKey(S.String),
-  },
-  $I.annote("YeetVerdictLane", {
-    description:
-      "One planned yeet lane with its execution status and repair command; an inner lane names the wrapper lane that ran it.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetVerdictLane", {
+      description:
+        "One planned yeet lane with its execution status and repair command; an inner lane names the wrapper lane that ran it.",
+    })
+  )
 ) {}
 
 /**
@@ -286,8 +289,8 @@ export type YeetMergeReadyCriterion = typeof YeetMergeReadyCriterion.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetMergeReadyCriteria extends S.Class<YeetMergeReadyCriteria>($I`YeetMergeReadyCriteria`)(
-  {
+export class YeetMergeReadyCriteria extends S.Opaque<YeetMergeReadyCriteria, { readonly brand: unique symbol }>()(
+  S.Struct({
     prOpen: S.Boolean,
     notDraft: S.Boolean,
     closeoutRun: S.Boolean,
@@ -298,10 +301,11 @@ export class YeetMergeReadyCriteria extends S.Class<YeetMergeReadyCriteria>($I`Y
     reviewDecisionAcceptable: S.Boolean,
     reviewWindowElapsed: S.Boolean,
     greptileScore: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetMergeReadyCriteria", {
-    description: "Observed state of every truthful merge-protocol criterion; the Greptile score is display-only.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMergeReadyCriteria", {
+      description: "Observed state of every truthful merge-protocol criterion; the Greptile score is display-only.",
+    })
+  )
 ) {}
 
 /**
@@ -519,7 +523,7 @@ const normalizeLegacyYeetMergeReady = (value: typeof YeetMergeReadyEncoded.Type)
  * @category models
  * @since 0.0.0
  */
-export class YeetMergeReady extends S.Class<YeetMergeReady>($I`YeetMergeReady`)(
+export class YeetMergeReady extends S.Class<YeetMergeReady, { readonly brand: unique symbol }>($I`YeetMergeReady`)(
   S.Struct({
     ready: S.Boolean,
     failing: YeetMergeReadyCriterion.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -616,8 +620,8 @@ export const YeetMergeReadyFromEncoded = YeetMergeReadyEncoded.pipe(
  * @category models
  * @since 0.0.0
  */
-export class YeetVerdict extends S.Class<YeetVerdict>($I`YeetVerdict`)(
-  {
+export class YeetVerdict extends S.Opaque<YeetVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-verdict/v2"),
     base: S.String,
     branch: S.String,
@@ -649,10 +653,11 @@ export class YeetVerdict extends S.Class<YeetVerdict>($I`YeetVerdict`)(
     failedStepId: S.optionalKey(S.String),
     failureKind: YeetFailureKind.pipe(S.optionalKey),
     mergeReady: YeetMergeReadyFromEncoded.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetVerdict", {
-    description: "Machine-readable verdict for one yeet run, including per-lane repair commands.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetVerdict", {
+      description: "Machine-readable verdict for one yeet run, including per-lane repair commands.",
+    })
+  )
 ) {}
 
 /**
@@ -712,16 +717,17 @@ export const YeetVerdictJson = JsonStringCodec(YeetVerdict);
  * @category models
  * @since 0.0.0
  */
-export class YeetExecutedStep extends S.Class<YeetExecutedStep>($I`YeetExecutedStep`)(
-  {
+export class YeetExecutedStep extends S.Opaque<YeetExecutedStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     durationMs: S.optionalKey(S.Finite),
     result: RepoStepRunResult,
     status: S.optionalKey(YeetLaneStatus),
     step: RepoPlanStep,
-  },
-  $I.annote("YeetExecutedStep", {
-    description: "One executed yeet plan step paired with its run result.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetExecutedStep", {
+      description: "One executed yeet plan step paired with its run result.",
+    })
+  )
 ) {}
 
 // A wrapper (tier) lane repairs whatever its first red inner lane repairs. The
@@ -840,8 +846,8 @@ const innerLanesForWrapper = (
  * @category models
  * @since 0.0.0
  */
-export class BuildYeetVerdictInput extends S.Class<BuildYeetVerdictInput>($I`BuildYeetVerdictInput`)(
-  {
+export class BuildYeetVerdictInput extends S.Opaque<BuildYeetVerdictInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.String,
     attemptId: UUID.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     resolvedHeadSha: OptionalVerdictString,
@@ -873,10 +879,11 @@ export class BuildYeetVerdictInput extends S.Class<BuildYeetVerdictInput>($I`Bui
     failedStepId: S.optionalKey(S.String),
     failureKind: S.optionalKey(YeetFailureKind),
     mergeReady: S.optionalKey(YeetMergeReady),
-  },
-  $I.annote("BuildYeetVerdictInput", {
-    description: "Run identity, outcome, planned steps, and executed results used to build the run verdict.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildYeetVerdictInput", {
+      description: "Run identity, outcome, planned steps, and executed results used to build the run verdict.",
+    })
+  )
 ) {}
 
 /**

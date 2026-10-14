@@ -12,7 +12,7 @@
 import { Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { applyJsoncModification } from "../../../../internal/cli/Jsonc.ts";
+import { applyJsoncModification, JsoncModification } from "../../../../internal/cli/Jsonc.ts";
 import { VersionSyncError } from "../../VersionSync.schemas.ts";
 
 /**
@@ -43,7 +43,9 @@ export const updateJsoncSchemaUrl = Effect.fn("updateJsoncSchemaUrl")(function* 
     .readFileString(filePath)
     .pipe(VersionSyncError.mapError(`Failed to read ${filePath}`, filePath));
 
-  const updated = applyJsoncModification({ content: original, path: ["$schema"], value: schemaUrl });
+  const updated = applyJsoncModification(
+    JsoncModification.make({ content: original, path: ["$schema"], value: schemaUrl })
+  );
 
   if (Str.equivalence(updated, original)) {
     return false;

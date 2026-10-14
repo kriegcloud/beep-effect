@@ -273,21 +273,27 @@ export const identifierName = (node: MaybeNode): O.Option<string> =>
     expression.type === "Identifier" && P.isString(expression.name) ? O.some(expression.name) : O.none()
   );
 
-class NamedImportBinding extends S.Class<NamedImportBinding>("NamedImportBinding")({
-  kind: S.tag("named"),
-  imported: S.String,
-  local: S.String,
-}) {}
+class NamedImportBinding extends S.Opaque<NamedImportBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("named"),
+    imported: S.String,
+    local: S.String,
+  }).annotate({ identifier: "NamedImportBinding" })
+) {}
 
-class NamespaceImportBinding extends S.Class<NamespaceImportBinding>("NamespaceImportBinding")({
-  kind: S.tag("namespace"),
-  local: S.String,
-}) {}
+class NamespaceImportBinding extends S.Opaque<NamespaceImportBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("namespace"),
+    local: S.String,
+  }).annotate({ identifier: "NamespaceImportBinding" })
+) {}
 
-class DefaultImportBinding extends S.Class<DefaultImportBinding>("DefaultImportBinding")({
-  kind: S.tag("default"),
-  local: S.String,
-}) {}
+class DefaultImportBinding extends S.Opaque<DefaultImportBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("default"),
+    local: S.String,
+  }).annotate({ identifier: "DefaultImportBinding" })
+) {}
 
 /**
  * Schema-backed import binding classified by how a value import binds a local name.
@@ -328,9 +334,9 @@ export const ImportBinding = S.Union([NamedImportBinding, NamespaceImportBinding
  *
  * ```ts
  * import { deepStrictEqual } from "node:assert/strict"
- * import type { ImportBinding } from "@beep/lint-rules/oxlint"
+ * import { ImportBinding } from "@beep/lint-rules/oxlint"
  *
- * const binding: ImportBinding = { kind: "named", imported: "Effect", local: "Effect" }
+ * const binding: ImportBinding = ImportBinding.cases.named.make({ imported: "Effect", local: "Effect" })
  *
  * deepStrictEqual(binding, { kind: "named", imported: "Effect", local: "Effect" })
  * ```

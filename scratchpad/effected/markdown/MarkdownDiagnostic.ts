@@ -83,7 +83,7 @@ export type MarkdownParseErrorCode = typeof MarkdownParseErrorCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class MarkdownDiagnostic extends S.Class<MarkdownDiagnostic>($I`MarkdownDiagnostic`)({
+export class MarkdownDiagnostic extends S.Class<MarkdownDiagnostic, { readonly brand: unique symbol }>($I`MarkdownDiagnostic`)({
 	code: MarkdownParseErrorCode.annotateKey({ description: "Fatal condition identifier, currently `NestingDepthExceeded` for a nesting guard violation" }),
 	message: S.String.annotateKey({ description: "Human-readable explanation of the reported condition" }),
 	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 source offset of the reported condition" }),

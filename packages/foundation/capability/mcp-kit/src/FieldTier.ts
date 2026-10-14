@@ -257,18 +257,19 @@ const TIER_ORDER: ReadonlyArray<FieldTierName> = A.reverse(FieldTierName.literal
  * @category models
  * @since 0.0.0
  */
-export class OversizedFieldProjection extends S.Class<OversizedFieldProjection>($I`OversizedFieldProjection`)(
-  {
+export class OversizedFieldProjection extends S.Opaque<OversizedFieldProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: UnknownRecord.annotateKey({
       description: "The oversized minimal-tier projection.",
     }),
     sizeBytes: S.Natural.annotateKey({
       description: "Estimated serialized size of `value`, in bytes.",
     }),
-  },
-  $I.annote("OversizedFieldProjection", {
-    description: "A minimal-tier projection that still exceeds the caller's size budget.",
-  })
+  }).pipe(
+    $I.annoteSchema("OversizedFieldProjection", {
+      description: "A minimal-tier projection that still exceeds the caller's size budget.",
+    })
+  )
 ) {}
 
 /**
@@ -295,8 +296,8 @@ export class OversizedFieldProjection extends S.Class<OversizedFieldProjection>(
  * @category models
  * @since 0.0.0
  */
-export class FetchableHandle extends S.Class<FetchableHandle>($I`FetchableHandle`)(
-  {
+export class FetchableHandle extends S.Opaque<FetchableHandle, { readonly brand: unique symbol }>()(
+  S.Struct({
     handleId: S.NonEmptyString.annotateKey({
       description: "UUID identifying the out-of-band payload.",
     }),
@@ -309,10 +310,11 @@ export class FetchableHandle extends S.Class<FetchableHandle>($I`FetchableHandle
     tier: FieldTierName.annotateKey({
       description: "Field tier the full payload was projected at before storage.",
     }),
-  },
-  $I.annote("FetchableHandle", {
-    description: "UUID+TTL fetchable handle standing in for a payload too large to return inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("FetchableHandle", {
+      description: "UUID+TTL fetchable handle standing in for a payload too large to return inline.",
+    })
+  )
 ) {
   static readonly is = S.is(FetchableHandle);
 }
@@ -467,18 +469,19 @@ export const projectWithinBudget: {
  * @category models
  * @since 0.0.0
  */
-export class ColumnarEnvelope extends S.Class<ColumnarEnvelope>($I`ColumnarEnvelope`)(
-  {
+export class ColumnarEnvelope extends S.Opaque<ColumnarEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     columns: S.Array(S.String).annotateKey({
       description: "Field names, in the order each row's values appear.",
     }),
     rows: S.Unknown.pipe(S.Array, S.Array).annotateKey({
       description: "Row values, one array per row, in `columns` order.",
     }),
-  },
-  $I.annote("ColumnarEnvelope", {
-    description: "Columnar reshaping of row-oriented records: one column-name list plus value-only rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("ColumnarEnvelope", {
+      description: "Columnar reshaping of row-oriented records: one column-name list plus value-only rows.",
+    })
+  )
 ) {
   static readonly fromRows = (rows: ReadonlyArray<Record<string, unknown>>): ColumnarEnvelope => {
     const columns = A.dedupe(A.flatMap(rows, R.keys));

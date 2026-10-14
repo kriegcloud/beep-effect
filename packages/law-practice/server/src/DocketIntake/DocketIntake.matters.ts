@@ -124,11 +124,10 @@ export class DocketMatterMentions extends Context.Service<DocketMatterMentions, 
   $I`DocketMatterMentions`
 ) {}
 
-class MentionRow extends S.Class<MentionRow>($I`MentionRow`)(
-  {
+class MentionRow extends S.Opaque<MentionRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     familyKey: S.NonEmptyString.annotateKey({ description: "Family key of a matter whose documents cite the number." }),
-  },
-  $I.annote("MentionRow", { description: "One matter whose docket documents mention a USPTO number." })
+  }).pipe($I.annoteSchema("MentionRow", { description: "One matter whose docket documents mention a USPTO number." }))
 ) {}
 
 const decodeMentionRows = S.decodeUnknownEffect(S.Array(MentionRow));
@@ -444,7 +443,9 @@ export const DocketMatterLookupPracticeKg: Layer.Layer<
  * @category errors
  * @since 0.0.0
  */
-export class DocketKgBundleError extends S.TaggedError<DocketKgBundleError>($I`DocketKgBundleError`)(
+export class DocketKgBundleError extends S.TaggedError<DocketKgBundleError, { readonly brand: unique symbol }>(
+  $I`DocketKgBundleError`
+)(
   "DocketKgBundleError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),
@@ -469,20 +470,18 @@ export class DocketKgBundleError extends S.TaggedError<DocketKgBundleError>($I`D
  * @category models
  * @since 0.0.0
  */
-export class DocketKgBundleOptions extends S.Class<DocketKgBundleOptions>($I`DocketKgBundleOptions`)(
-  {
+export class DocketKgBundleOptions extends S.Opaque<DocketKgBundleOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundleDir: S.NonEmptyString.annotateKey({
       description: "Directory holding `bundle.manifest.json` and `practice.duckdb`.",
     }),
-  },
-  $I.annote("DocketKgBundleOptions", { description: "Where the practice knowledge-graph bundle is." })
+  }).pipe($I.annoteSchema("DocketKgBundleOptions", { description: "Where the practice knowledge-graph bundle is." }))
 ) {}
 
-class BundleFormatProbe extends S.Class<BundleFormatProbe>($I`BundleFormatProbe`)(
-  {
+class BundleFormatProbe extends S.Opaque<BundleFormatProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Record(S.String, S.String).annotateKey({ description: "Store format per store." }),
-  },
-  $I.annote("BundleFormatProbe", { description: "The store formats a bundle manifest declares." })
+  }).pipe($I.annoteSchema("BundleFormatProbe", { description: "The store formats a bundle manifest declares." }))
 ) {}
 
 const decodeFormatProbe = S.decodeUnknownEffect(S.fromJsonString(BundleFormatProbe));
@@ -510,12 +509,13 @@ const bundleError = (message: string) => (cause: unknown) => DocketKgBundleError
  * @category models
  * @since 0.0.0
  */
-export class DocketKgBundle extends S.Class<DocketKgBundle>($I`DocketKgBundle`)(
-  {
+export class DocketKgBundle extends S.Opaque<DocketKgBundle, { readonly brand: unique symbol }>()(
+  S.Struct({
     context: PracticeKgBundleContext.annotateKey({ description: "The bundle directory and its manifest." }),
     databasePath: S.NonEmptyString.annotateKey({ description: "Path of the bundle's `practice.duckdb`." }),
-  },
-  $I.annote("DocketKgBundle", { description: "A practice knowledge-graph bundle checked and ready to open." })
+  }).pipe(
+    $I.annoteSchema("DocketKgBundle", { description: "A practice knowledge-graph bundle checked and ready to open." })
+  )
 ) {}
 
 /**
@@ -619,7 +619,7 @@ export const makeDocketMatterLookupLayer = (
                 databasePath: bundle.databasePath,
               })
             ),
-            Layer.succeed(PracticeKgBundle, PracticeKgBundle.of(bundle.context))
+            Layer.succeed(PracticeKgBundle, PracticeKgBundle.of(PracticeKgBundleContext.make(bundle.context)))
           )
         )
       )

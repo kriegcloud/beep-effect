@@ -26,6 +26,7 @@
  * instead of the donor's in-memory edge mutation.
  */
 
+import { LogicalEdgeIdentity } from "@beep/epistemic-domain";
 import { EdgeVersion, flattenEdgeSource, flattenEdgeTarget } from "@beep/epistemic-domain/entities/EdgeVersion";
 import { logicalEdgeKey } from "@beep/epistemic-domain/values";
 import { DbSchema } from "@beep/epistemic-tables";
@@ -351,7 +352,7 @@ export const supersedeEdgeFactInTransaction: SupersedeEdgeFactInTransaction = du
     tx: EdgeAuthorityTransaction,
     command: SupersedeEdgeFact
   ): Effect.Effect<SupersedeEdgeFactResult, EdgeAuthorityError> => {
-    const logicalKey = logicalEdgeKey(command.identity);
+    const logicalKey = logicalEdgeKey(LogicalEdgeIdentity.make(command.identity));
     return Effect.gen(function* () {
       const currentRows = yield* tx
         .select()
@@ -460,7 +461,7 @@ export const makeDrizzleEdgeAuthorityRepository = Effect.fn("Epistemic.EdgeAutho
       return yield* readAsOfAt("readLatest", logicalKey, now, now);
     }),
     record: Effect.fn("Epistemic.EdgeAuthority.record")(function* (command) {
-      const logicalKey = logicalEdgeKey(command.identity);
+      const logicalKey = logicalEdgeKey(LogicalEdgeIdentity.make(command.identity));
       return yield* writeSemaphore.withPermit(
         db
           .transaction(
@@ -494,7 +495,7 @@ export const makeDrizzleEdgeAuthorityRepository = Effect.fn("Epistemic.EdgeAutho
       );
     }),
     supersede: Effect.fn("Epistemic.EdgeAuthority.supersede")(function* (command) {
-      const logicalKey = logicalEdgeKey(command.identity);
+      const logicalKey = logicalEdgeKey(LogicalEdgeIdentity.make(command.identity));
       const result = yield* writeSemaphore.withPermit(
         db
           .transaction((tx) => supersedeEdgeFactInTransaction(tx, command))

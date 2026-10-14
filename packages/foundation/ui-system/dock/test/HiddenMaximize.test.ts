@@ -95,10 +95,13 @@ describe("hidden groups and maximize", () => {
         const again = yield* engine.transition(maximized.state, maximize());
         expect(again.result).toMatchObject({ _tag: "Unchanged", reason: "group-already-maximized" });
         const restored = yield* requireChanged(
-          yield* engine.transition(maximized.state, envelope("restore", RestoreMaximizedCommand.make()))
+          yield* engine.transition(maximized.state, envelope("restore", RestoreMaximizedCommand.make({})))
         );
         expect(restored.events).toContainEqual(expect.objectContaining({ kind: "groupRestored", groupId: groupOne }));
-        const none = yield* engine.transition(restored.state, envelope("restore-none", RestoreMaximizedCommand.make()));
+        const none = yield* engine.transition(
+          restored.state,
+          envelope("restore-none", RestoreMaximizedCommand.make({}))
+        );
         expect(none.result).toMatchObject({ _tag: "Unchanged", reason: "no-group-maximized" });
       })
     );

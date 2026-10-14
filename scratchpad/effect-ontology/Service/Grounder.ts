@@ -147,15 +147,12 @@ const BatchEntityVerification = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class EntityVerificationInput extends S.Class<EntityVerificationInput>($I`EntityVerificationInput`)(
-  {
+export class EntityVerificationInput extends S.Opaque<EntityVerificationInput, { readonly brand: unique symbol }>()(S.Struct({
     context: S.NonEmptyString,
     entity: Entity,
-  },
-  $I.annote("EntityVerificationInput", {
+  }).pipe($I.annoteSchema("EntityVerificationInput", {
     description: "Source context and schema-owned entity supplied to grounding verification.",
-  })
-) {}
+  }))) {}
 
 /**
  * Entity grounding result
@@ -184,7 +181,7 @@ export class EntityVerificationInput extends S.Class<EntityVerificationInput>($I
  * @category models
  * @since 0.0.0
  */
-export class EntityGrounderResult extends S.Class<EntityGrounderResult>($I`EntityGrounderResult`)(
+export class EntityGrounderResult extends S.Class<EntityGrounderResult, { readonly brand: unique symbol }>($I`EntityGrounderResult`)(
   {
     decision: GroundingDecision,
     typeMatch: S.Boolean,
@@ -274,16 +271,13 @@ const relationEntityContextTypesDefault = A.empty();
  * @category models
  * @since 0.0.0
  */
-export class RelationEntityContext extends S.Class<RelationEntityContext>($I`RelationEntityContext`)(
-  {
+export class RelationEntityContext extends S.Opaque<RelationEntityContext, { readonly brand: unique symbol }>()(S.Struct({
     entityId: EntityId,
     mention: S.NonEmptyString,
     types: S.Array(IRI).pipe(S.withConstructorDefault(Effect.succeed(relationEntityContextTypesDefault)), S.withDecodingDefaultType(Effect.succeed(relationEntityContextTypesDefault))),
-  },
-  $I.annote("RelationEntityContext", {
+  }).pipe($I.annoteSchema("RelationEntityContext", {
     description: "Optional display metadata for an entity occupying a relation position.",
-  })
-) {}
+  }))) {}
 
 /**
  * Input required to verify a relation triple
@@ -310,18 +304,15 @@ export class RelationEntityContext extends S.Class<RelationEntityContext>($I`Rel
  * @category models
  * @since 0.0.0
  */
-export class RelationVerificationInput extends S.Class<RelationVerificationInput>($I`RelationVerificationInput`)(
-  {
+export class RelationVerificationInput extends S.Opaque<RelationVerificationInput, { readonly brand: unique symbol }>()(S.Struct({
     context: S.NonEmptyString,
     relation: Relation,
     subject: S.OptionFromOptionalKey(RelationEntityContext).pipe(S.withConstructorDefault(Effect.succeedNone)),
     predicate: S.OptionFromOptionalKey(PropertyDefinition).pipe(S.withConstructorDefault(Effect.succeedNone)),
     object: S.OptionFromOptionalKey(RelationEntityContext).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("RelationVerificationInput", {
+  }).pipe($I.annoteSchema("RelationVerificationInput", {
     description: "Canonical relation plus optional decoded ontology and entity display metadata.",
-  })
-) {}
+  }))) {}
 
 const relationObjectPrompt = (
   relation: Relation,
@@ -521,7 +512,7 @@ Instructions:
  * @category models
  * @since 0.0.0
  */
-export class GrounderResult extends S.Class<GrounderResult>($I`GrounderResult`)(
+export class GrounderResult extends S.Class<GrounderResult, { readonly brand: unique symbol }>($I`GrounderResult`)(
   {
     decision: GroundingDecision,
     relation: Relation,
@@ -609,7 +600,7 @@ const GroundingBatchKind = LiteralKit(["entity", "relation"]);
  * @category errors
  * @since 0.0.0
  */
-export class GroundingProtocolError extends S.TaggedError<GroundingProtocolError>($I`GroundingProtocolError`)(
+export class GroundingProtocolError extends S.TaggedError<GroundingProtocolError, { readonly brand: unique symbol }>($I`GroundingProtocolError`)(
   "GroundingProtocolError",
   {
     kind: GroundingBatchKind,

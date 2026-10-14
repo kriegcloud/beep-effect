@@ -36,8 +36,8 @@ const $I = $DocumentsUseCasesId.create("aggregates/Sync/DmsMirror");
  * @category ports
  * @since 0.0.0
  */
-export class DmsRemoteItem extends S.Class<DmsRemoteItem>($I`DmsRemoteItem`)(
-  {
+export class DmsRemoteItem extends S.Opaque<DmsRemoteItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemKind: SyncItemKind.annotateKey({
       description: "Whether the remote item is a file or a folder.",
     }),
@@ -50,10 +50,11 @@ export class DmsRemoteItem extends S.Class<DmsRemoteItem>($I`DmsRemoteItem`)(
     remoteId: RemoteItemId.annotateKey({
       description: "Provider item identifier assigned by the DMS.",
     }),
-  },
-  $I.annote("DmsRemoteItem", {
-    description: "Provider-neutral view of one item stored in the remote DMS.",
-  })
+  }).pipe(
+    $I.annoteSchema("DmsRemoteItem", {
+      description: "Provider-neutral view of one item stored in the remote DMS.",
+    })
+  )
 ) {}
 
 /**
@@ -116,8 +117,8 @@ export type DmsEventType = typeof DmsEventType.Type;
  * @category ports
  * @since 0.0.0
  */
-export class DmsRemoteEvent extends S.Class<DmsRemoteEvent>($I`DmsRemoteEvent`)(
-  {
+export class DmsRemoteEvent extends S.Opaque<DmsRemoteEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventId: S.NonEmptyString.annotateKey({
       description: "Provider event identifier.",
     }),
@@ -139,10 +140,11 @@ export class DmsRemoteEvent extends S.Class<DmsRemoteEvent>($I`DmsRemoteEvent`)(
     remoteId: S.Option(RemoteItemId).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Provider identifier of the affected remote item; none when the event omits it.",
     }),
-  },
-  $I.annote("DmsRemoteEvent", {
-    description: "One provider-neutral remote event observed on the DMS event stream.",
-  })
+  }).pipe(
+    $I.annoteSchema("DmsRemoteEvent", {
+      description: "One provider-neutral remote event observed on the DMS event stream.",
+    })
+  )
 ) {}
 
 /**
@@ -160,18 +162,19 @@ export class DmsRemoteEvent extends S.Class<DmsRemoteEvent>($I`DmsRemoteEvent`)(
  * @category ports
  * @since 0.0.0
  */
-export class DmsEventPage extends S.Class<DmsEventPage>($I`DmsEventPage`)(
-  {
+export class DmsEventPage extends S.Opaque<DmsEventPage, { readonly brand: unique symbol }>()(
+  S.Struct({
     entries: S.Array(DmsRemoteEvent).annotateKey({
       description: "Remote events in provider stream order.",
     }),
     nextStreamPosition: S.NonEmptyString.annotateKey({
       description: "Opaque provider stream position to resume polling from.",
     }),
-  },
-  $I.annote("DmsEventPage", {
-    description: "One page of remote events plus the stream position to resume from.",
-  })
+  }).pipe(
+    $I.annoteSchema("DmsEventPage", {
+      description: "One page of remote events plus the stream position to resume from.",
+    })
+  )
 ) {}
 
 /**
@@ -193,18 +196,19 @@ export class DmsEventPage extends S.Class<DmsEventPage>($I`DmsEventPage`)(
  * @category ports
  * @since 0.0.0
  */
-export class EnsureFolderInput extends S.Class<EnsureFolderInput>($I`EnsureFolderInput`)(
-  {
+export class EnsureFolderInput extends S.Opaque<EnsureFolderInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({
       description: "Folder name to ensure under the parent.",
     }),
     parentRemoteId: S.Option(RemoteItemId).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Provider identifier of the parent folder; none targets the provider mirror root.",
     }),
-  },
-  $I.annote("EnsureFolderInput", {
-    description: "Input for idempotent remote folder creation.",
-  })
+  }).pipe(
+    $I.annoteSchema("EnsureFolderInput", {
+      description: "Input for idempotent remote folder creation.",
+    })
+  )
 ) {}
 
 /**
@@ -229,8 +233,8 @@ export class EnsureFolderInput extends S.Class<EnsureFolderInput>($I`EnsureFolde
  * @category ports
  * @since 0.0.0
  */
-export class UploadFileInput extends S.Class<UploadFileInput>($I`UploadFileInput`)(
-  {
+export class UploadFileInput extends S.Opaque<UploadFileInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.Uint8Array.annotateKey({
       description: "File bytes to upload.",
     }),
@@ -240,10 +244,11 @@ export class UploadFileInput extends S.Class<UploadFileInput>($I`UploadFileInput
     parentRemoteId: S.Option(RemoteItemId).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Provider identifier of the parent folder; none targets the provider mirror root.",
     }),
-  },
-  $I.annote("UploadFileInput", {
-    description: "Input for uploading a new remote file.",
-  })
+  }).pipe(
+    $I.annoteSchema("UploadFileInput", {
+      description: "Input for uploading a new remote file.",
+    })
+  )
 ) {}
 
 /**
@@ -267,8 +272,8 @@ export class UploadFileInput extends S.Class<UploadFileInput>($I`UploadFileInput
  * @category ports
  * @since 0.0.0
  */
-export class UploadFileVersionInput extends S.Class<UploadFileVersionInput>($I`UploadFileVersionInput`)(
-  {
+export class UploadFileVersionInput extends S.Opaque<UploadFileVersionInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.Uint8Array.annotateKey({
       description: "File bytes to upload as the new version.",
     }),
@@ -278,10 +283,11 @@ export class UploadFileVersionInput extends S.Class<UploadFileVersionInput>($I`U
     remoteId: RemoteItemId.annotateKey({
       description: "Provider identifier of the remote file receiving the version.",
     }),
-  },
-  $I.annote("UploadFileVersionInput", {
-    description: "Input for uploading a new version of an existing remote file.",
-  })
+  }).pipe(
+    $I.annoteSchema("UploadFileVersionInput", {
+      description: "Input for uploading a new version of an existing remote file.",
+    })
+  )
 ) {}
 
 /**
@@ -310,8 +316,8 @@ export class UploadFileVersionInput extends S.Class<UploadFileVersionInput>($I`U
  * @category ports
  * @since 0.0.0
  */
-export class MoveItemInput extends S.Class<MoveItemInput>($I`MoveItemInput`)(
-  {
+export class MoveItemInput extends S.Opaque<MoveItemInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemKind: SyncItemKind.annotateKey({
       description: "Whether the moved remote item is a file or a folder.",
     }),
@@ -321,10 +327,11 @@ export class MoveItemInput extends S.Class<MoveItemInput>($I`MoveItemInput`)(
     remoteId: RemoteItemId.annotateKey({
       description: "Provider identifier of the remote item to move.",
     }),
-  },
-  $I.annote("MoveItemInput", {
-    description: "Input for moving a remote item to a new parent folder.",
-  })
+  }).pipe(
+    $I.annoteSchema("MoveItemInput", {
+      description: "Input for moving a remote item to a new parent folder.",
+    })
+  )
 ) {}
 
 /**
@@ -348,8 +355,8 @@ export class MoveItemInput extends S.Class<MoveItemInput>($I`MoveItemInput`)(
  * @category ports
  * @since 0.0.0
  */
-export class RenameItemInput extends S.Class<RenameItemInput>($I`RenameItemInput`)(
-  {
+export class RenameItemInput extends S.Opaque<RenameItemInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemKind: SyncItemKind.annotateKey({
       description: "Whether the renamed remote item is a file or a folder.",
     }),
@@ -359,10 +366,11 @@ export class RenameItemInput extends S.Class<RenameItemInput>($I`RenameItemInput
     remoteId: RemoteItemId.annotateKey({
       description: "Provider identifier of the remote item to rename.",
     }),
-  },
-  $I.annote("RenameItemInput", {
-    description: "Input for renaming a remote item in place.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenameItemInput", {
+      description: "Input for renaming a remote item in place.",
+    })
+  )
 ) {}
 
 /**
@@ -387,15 +395,16 @@ export class RenameItemInput extends S.Class<RenameItemInput>($I`RenameItemInput
  * @category ports
  * @since 0.0.0
  */
-export class PollEventsInput extends S.Class<PollEventsInput>($I`PollEventsInput`)(
-  {
+export class PollEventsInput extends S.Opaque<PollEventsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     streamPosition: S.Option(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Opaque provider stream position to poll from; none bootstraps at the provider's now.",
     }),
-  },
-  $I.annote("PollEventsInput", {
-    description: "Input for polling one page of remote events.",
-  })
+  }).pipe(
+    $I.annoteSchema("PollEventsInput", {
+      description: "Input for polling one page of remote events.",
+    })
+  )
 ) {}
 
 /**
@@ -576,8 +585,8 @@ export type DmsMirrorDisconnectReason = typeof DmsMirrorDisconnectReason.Type;
  * @category ports
  * @since 0.0.0
  */
-export class DmsMirrorProbe extends S.Class<DmsMirrorProbe>($I`DmsMirrorProbe`)(
-  {
+export class DmsMirrorProbe extends S.Opaque<DmsMirrorProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     connected: S.Boolean.annotateKey({
       description: "Whether the mirror adapter can reach the provider.",
     }),
@@ -595,10 +604,11 @@ export class DmsMirrorProbe extends S.Class<DmsMirrorProbe>($I`DmsMirrorProbe`)(
     rootRemoteId: S.Option(RemoteItemId).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Provider identifier of the resolved mirror-root folder; none when it could not be resolved.",
     }),
-  },
-  $I.annote("DmsMirrorProbe", {
-    description: "Connectivity probe result for one DMS mirror adapter.",
-  })
+  }).pipe(
+    $I.annoteSchema("DmsMirrorProbe", {
+      description: "Connectivity probe result for one DMS mirror adapter.",
+    })
+  )
 ) {}
 
 /**

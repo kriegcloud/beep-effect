@@ -91,16 +91,17 @@ export type PartyLikeKind = typeof PartyLikeKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class PartyReference extends S.Class<PartyReference>($I`PartyReference`)(
-  {
+export class PartyReference extends S.Opaque<PartyReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     fixtureKey: LawPracticeFixtureKey.annotateKey({
       description: "Fixture key of the referenced record, linked by text and never by entity id.",
     }),
     partyLike: PartyLikeKind.annotateKey({
       description: "Registry the fixture key belongs to.",
     }),
-  },
-  $I.annote("PartyReference", {
-    description: "Opaque text reference from a party to an existing law-practice record.",
-  })
+  }).pipe(
+    $I.annoteSchema("PartyReference", {
+      description: "Opaque text reference from a party to an existing law-practice record.",
+    })
+  )
 ) {}

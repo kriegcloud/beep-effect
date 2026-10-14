@@ -43,15 +43,16 @@ const $I = $DocumentsServerId.create("aggregates/Document/FilingTextExtraction")
  * @category models
  * @since 0.0.0
  */
-export class FilingTextExtractionInput extends S.Class<FilingTextExtractionInput>($I`FilingTextExtractionInput`)(
-  {
+export class FilingTextExtractionInput extends S.Opaque<FilingTextExtractionInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.Uint8Array,
     contentDigest: DocumentContentDigest,
     originalFileName: S.NonEmptyString,
-  },
-  $I.annote("FilingTextExtractionInput", {
-    description: "Input supplied to the optional filing text-extraction seam.",
-  })
+  }).pipe(
+    $I.annoteSchema("FilingTextExtractionInput", {
+      description: "Input supplied to the optional filing text-extraction seam.",
+    })
+  )
 ) {}
 
 /**

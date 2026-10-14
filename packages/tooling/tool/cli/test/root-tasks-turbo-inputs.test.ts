@@ -29,22 +29,27 @@ const PlatformLayer = FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer));
 const isProofTaskName = S.is(TurboConfigProofTaskName);
 const Strings = S.Array(S.String).pipe(S.withDecodingDefaultKey(Effect.succeed([])));
 
-class RootTask extends S.Class<RootTask>($I`RootTask`)(
-  {
+class RootTask extends S.Opaque<RootTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     cache: S.Boolean,
     inputs: S.Array(S.String),
     outputs: Strings,
     dependsOn: Strings,
     env: Strings,
     passThroughEnv: Strings,
-  },
-  $I.annote("RootTask", { description: "Root task declarations copied into the real Turbo fixture." })
+  }).pipe($I.annoteSchema("RootTask", { description: "Root task declarations copied into the real Turbo fixture." }))
 ) {}
-class TaskSummary extends S.Class<TaskSummary>($I`TaskSummary`)(
-  { taskId: S.String, hash: S.String, inputs: S.Record(S.String, S.String), dependencies: S.Array(S.String) },
-  $I.annote("TaskSummary", {
-    description: "Observed hashes and input membership from Turbo, never synthesized hashes.",
-  })
+class TaskSummary extends S.Opaque<TaskSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
+    taskId: S.String,
+    hash: S.String,
+    inputs: S.Record(S.String, S.String),
+    dependencies: S.Array(S.String),
+  }).pipe(
+    $I.annoteSchema("TaskSummary", {
+      description: "Observed hashes and input membership from Turbo, never synthesized hashes.",
+    })
+  )
 ) {}
 // `agentGuidance` must reach the fixture: under an agent-detected environment Turbo 2.11.5+
 // otherwise writes an untracked AGENTS.md before every run, which is a declared input of the

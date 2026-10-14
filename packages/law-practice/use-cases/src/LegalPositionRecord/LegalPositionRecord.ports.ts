@@ -101,9 +101,10 @@ export type LegalPositionRecordOperation = typeof LegalPositionRecordOperation.T
  * @category errors
  * @since 0.0.0
  */
-export class LegalPositionRecordRepositoryUnavailable extends S.TaggedError<LegalPositionRecordRepositoryUnavailable>(
-  $I`LegalPositionRecordRepositoryUnavailable`
-)(
+export class LegalPositionRecordRepositoryUnavailable extends S.TaggedError<
+  LegalPositionRecordRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`LegalPositionRecordRepositoryUnavailable`)(
   "LegalPositionRecordRepositoryUnavailable",
   {
     cause: S.OptionFromOptionalKey(
@@ -214,10 +215,11 @@ export class LegalPositionRecordRepositoryUnavailable extends S.TaggedError<Lega
  * @category repositories
  * @since 0.0.0
  */
-export class LegalPositionRecordRepositoryShape extends S.Class<LegalPositionRecordRepositoryShape>(
-  $I`LegalPositionRecordRepositoryShape`
-)(
-  {
+export class LegalPositionRecordRepositoryShape extends S.Opaque<
+  LegalPositionRecordRepositoryShape,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     listCorrections: Fn({
       input: ActFrameRecordScope,
       output: EffectOutput<ReadonlyArray<CorrectionDelta>, LegalPositionRecordRepositoryUnavailable>(),
@@ -278,10 +280,11 @@ export class LegalPositionRecordRepositoryShape extends S.Class<LegalPositionRec
     }).annotateKey({
       description: "Append one stored advantage-side relation; no derived view is ever written.",
     }),
-  },
-  $I.annote("LegalPositionRecordRepositoryShape", {
-    description: "Append-and-read-only service shape over the durable legal position record store.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalPositionRecordRepositoryShape", {
+      description: "Append-and-read-only service shape over the durable legal position record store.",
+    })
+  )
 ) {}
 
 /**

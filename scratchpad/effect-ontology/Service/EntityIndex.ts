@@ -60,7 +60,7 @@ import { StorageService } from "./Storage.ts";
  * @category errors
  * @since 0.0.0
  */
-export class PersistentEntityIndexConfigError extends S.TaggedError<PersistentEntityIndexConfigError>(
+export class PersistentEntityIndexConfigError extends S.TaggedError<PersistentEntityIndexConfigError, { readonly brand: unique symbol }>(
   $I`PersistentEntityIndexConfigError`
 )(
   "PersistentEntityIndexConfigError",
@@ -94,15 +94,12 @@ export class PersistentEntityIndexConfigError extends S.TaggedError<PersistentEn
  * @category models
  * @since 0.0.0
  */
-export class ScoredEntity extends S.Class<ScoredEntity>($I`ScoredEntity`)(
-  {
+export class ScoredEntity extends S.Opaque<ScoredEntity, { readonly brand: unique symbol }>()(S.Struct({
     entity: Entity,
     score: S.Finite,
-  },
-  $I.annote("ScoredEntity", {
+  }).pipe($I.annoteSchema("ScoredEntity", {
     description: "Indexed entity paired with its finite cosine-similarity score.",
-  })
-) {}
+  }))) {}
 
 /**
  * Options for similarity search
@@ -122,15 +119,12 @@ export class ScoredEntity extends S.Class<ScoredEntity>($I`ScoredEntity`)(
  * @category configuration
  * @since 0.0.0
  */
-export class FindSimilarOptions extends S.Class<FindSimilarOptions>($I`FindSimilarOptions`)(
-  {
+export class FindSimilarOptions extends S.Opaque<FindSimilarOptions, { readonly brand: unique symbol }>()(S.Struct({
     filterTypes: S.Array(S.NonEmptyString).pipe(S.optionalKey),
     minScore: S.Finite.check(S.isBetween({ minimum: 0, maximum: 1 })).pipe(S.optionalKey),
-  },
-  $I.annote("FindSimilarOptions", {
+  }).pipe($I.annoteSchema("FindSimilarOptions", {
     description: "Optional entity-type filter and minimum similarity threshold for index searches.",
-  })
-) {}
+  }))) {}
 
 /**
  * Internal index state

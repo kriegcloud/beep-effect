@@ -40,16 +40,18 @@ const decodeLanguageTagResult = S.decodeUnknownResult(LanguageTag);
 const makeLanguageTag = (value: string): LanguageTag =>
   pipe(decodeLanguageTagResult(value), Result.getOrThrowWith(schemaIssueToError));
 
-export class OntologyLanguageLiteralInputObject extends S.Class<OntologyLanguageLiteralInputObject>(
-  $I`OntologyLanguageLiteralInputObject`
-)(
-  {
+export class OntologyLanguageLiteralInputObject extends S.Opaque<
+  OntologyLanguageLiteralInputObject,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     value: S.String,
     language: S.optionalKey(S.String),
-  },
-  $I.annote("OntologyLanguageLiteralInputObject", {
-    description: "Input object for a language-aware ontology literal.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyLanguageLiteralInputObject", {
+      description: "Input object for a language-aware ontology literal.",
+    })
+  )
 ) {}
 
 export const OntologyLanguageLiteralInput = S.Union([S.String, OntologyLanguageLiteralInputObject]).pipe(
@@ -61,10 +63,11 @@ export type OntologyLanguageLiteralInput = typeof OntologyLanguageLiteralInput.T
 
 const isPlainLiteralInput = S.is(S.String);
 
-export class OntologySkosConceptProfileInputFields extends S.Class<OntologySkosConceptProfileInputFields>(
-  $I`OntologySkosConceptProfileInputFields`
-)(
-  {
+export class OntologySkosConceptProfileInputFields extends S.Opaque<
+  OntologySkosConceptProfileInputFields,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     prefLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
     altLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
     hiddenLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
@@ -82,10 +85,11 @@ export class OntologySkosConceptProfileInputFields extends S.Class<OntologySkosC
     relatedMatches: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
     inSchemes: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
     topConceptOf: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("OntologySkosConceptProfileInputFields", {
-    description: "Input fields for an opt-in SKOS concept profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySkosConceptProfileInputFields", {
+      description: "Input fields for an opt-in SKOS concept profile.",
+    })
+  )
 ) {}
 
 export const OntologySkosConceptProfileInput = S.StructWithRest(
@@ -98,10 +102,11 @@ export const OntologySkosConceptProfileInput = S.StructWithRest(
 );
 export type OntologySkosConceptProfileInput = typeof OntologySkosConceptProfileInput.Type;
 
-export class OntologySkosConceptSchemeProfileInputFields extends S.Class<OntologySkosConceptSchemeProfileInputFields>(
-  $I`OntologySkosConceptSchemeProfileInputFields`
-)(
-  {
+export class OntologySkosConceptSchemeProfileInputFields extends S.Opaque<
+  OntologySkosConceptSchemeProfileInputFields,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     prefLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
     altLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
     hiddenLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
@@ -110,10 +115,11 @@ export class OntologySkosConceptSchemeProfileInputFields extends S.Class<Ontolog
     editorialNotes: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
     historyNotes: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
     hasTopConcepts: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("OntologySkosConceptSchemeProfileInputFields", {
-    description: "Input fields for an opt-in SKOS concept scheme profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySkosConceptSchemeProfileInputFields", {
+      description: "Input fields for an opt-in SKOS concept scheme profile.",
+    })
+  )
 ) {}
 
 export const OntologySkosConceptSchemeProfileInput = S.StructWithRest(
@@ -126,10 +132,11 @@ export const OntologySkosConceptSchemeProfileInput = S.StructWithRest(
 );
 export type OntologySkosConceptSchemeProfileInput = typeof OntologySkosConceptSchemeProfileInput.Type;
 
-export class OntologyProvenanceMetadataInputFields extends S.Class<OntologyProvenanceMetadataInputFields>(
-  $I`OntologyProvenanceMetadataInputFields`
-)(
-  {
+export class OntologyProvenanceMetadataInputFields extends S.Opaque<
+  OntologyProvenanceMetadataInputFields,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     sourceIri: S.optionalKey(OntologyIriInput),
     sourceUri: S.optionalKey(S.String),
     sourceLabel: S.optionalKey(S.String),
@@ -139,10 +146,11 @@ export class OntologyProvenanceMetadataInputFields extends S.Class<OntologyProve
     extractionMethod: S.optionalKey(S.String),
     verificationStatus: S.optionalKey(OntologyProvenanceVerificationStatus),
     updatedAt: S.optionalKey(S.String),
-  },
-  $I.annote("OntologyProvenanceMetadataInputFields", {
-    description: "Input fields for optional domain-agnostic provenance metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyProvenanceMetadataInputFields", {
+      description: "Input fields for optional domain-agnostic provenance metadata.",
+    })
+  )
 ) {}
 
 export const OntologyProvenanceMetadataInput = S.StructWithRest(
@@ -155,10 +163,11 @@ export const OntologyProvenanceMetadataInput = S.StructWithRest(
 );
 export type OntologyProvenanceMetadataInput = typeof OntologyProvenanceMetadataInput.Type;
 
-class OntologyClassAnnotationInputFields extends S.Class<OntologyClassAnnotationInputFields>(
-  $I`OntologyClassAnnotationInputFields`
-)(
-  {
+class OntologyClassAnnotationInputFields extends S.Opaque<
+  OntologyClassAnnotationInputFields,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     termName: S.optionalKey(OntologyTermNameInput),
     iri: S.optionalKey(OntologyIriInput),
     label: S.optionalKey(S.String),
@@ -178,11 +187,12 @@ class OntologyClassAnnotationInputFields extends S.Class<OntologyClassAnnotation
     sameAs: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
     skosProfile: S.optionalKey(OntologySkosProfileDraft),
     provenance: S.optionalKey(OntologyProvenanceMetadata),
-  },
-  $I.annote("OntologyClassAnnotationInputFields", {
-    description:
-      "Input fields for ontology class annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, and source IRI.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyClassAnnotationInputFields", {
+      description:
+        "Input fields for ontology class annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, and source IRI.",
+    })
+  )
 ) {}
 
 export const OntologyClassAnnotationInput = S.StructWithRest(S.Struct(OntologyClassAnnotationInputFields.fields), [
@@ -196,20 +206,22 @@ export const OntologyClassAnnotationInput = S.StructWithRest(S.Struct(OntologyCl
 
 export type OntologyClassAnnotationInput = typeof OntologyClassAnnotationInput.Type;
 
-export class OntologyPredicateAnnotationInputFields extends S.Class<OntologyPredicateAnnotationInputFields>(
-  $I`OntologyPredicateAnnotationInputFields`
-)(
-  {
+export class OntologyPredicateAnnotationInputFields extends S.Opaque<
+  OntologyPredicateAnnotationInputFields,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     termName: S.optionalKey(OntologyTermNameInput),
     iri: S.optionalKey(OntologyIriInput),
     label: S.optionalKey(S.String),
     description: S.optionalKey(S.String),
     comment: S.optionalKey(S.String),
-  },
-  $I.annote("OntologyPredicateAnnotationInputFields", {
-    description:
-      "Fields for ontology predicate annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, and source IRI.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyPredicateAnnotationInputFields", {
+      description:
+        "Fields for ontology predicate annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, and source IRI.",
+    })
+  )
 ) {}
 
 export const OntologyPredicateAnnotationInput = S.StructWithRest(
@@ -252,8 +264,8 @@ export const OntologyObjectPredicateAnnotationInput = S.StructWithRest(
 );
 export type OntologyObjectPredicateAnnotationInput = typeof OntologyObjectPredicateAnnotationInput.Type;
 
-export class OntologyCreateInputFields extends S.Class<OntologyCreateInputFields>($I`OntologyCreateInputFields`)(
-  {
+export class OntologyCreateInputFields extends S.Opaque<OntologyCreateInputFields, { readonly brand: unique symbol }>()(
+  S.Struct({
     identity: S.declare(
       /* istanbul ignore next -- create input identity is typed by callers and not decoded through this internal schema */
       (u: unknown): u is IdentityComposer<string> => S.is(S.String)(u)
@@ -262,11 +274,12 @@ export class OntologyCreateInputFields extends S.Class<OntologyCreateInputFields
     preferredPrefix: S.String,
     label: S.String,
     comment: S.optionalKey(S.String),
-  },
-  $I.annote("OntologyCreateInputFields", {
-    description:
-      "Fields for creating an ontology, including identity, base IRI, preferred prefix, label, and optional comment.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyCreateInputFields", {
+      description:
+        "Fields for creating an ontology, including identity, base IRI, preferred prefix, label, and optional comment.",
+    })
+  )
 ) {}
 
 export type OntologyCreateInput = OntologyCreateInputFields & {};

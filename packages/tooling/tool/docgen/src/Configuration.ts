@@ -99,8 +99,8 @@ const stringArrayKeyDefault = S.Array(S.String).pipe(
  * @category configuration
  * @since 0.0.0
  */
-export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`ConfigurationSchema`)(
-  {
+export class ConfigurationSchema extends S.Opaque<ConfigurationSchema, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.optionalKey(S.String).annotateKey({
       description: "Optional JSON schema URI for editor tooling.",
     }),
@@ -146,10 +146,11 @@ export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`Configu
     tscExecutable: stringKeyDefault("tsc").annotateKey({
       description: "TypeScript compiler executable used for example checks.",
     }),
-  },
-  $I.annote("ConfigurationSchema", {
-    description: "Optional package-local docgen.json document.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConfigurationSchema", {
+      description: "Optional package-local docgen.json document.",
+    })
+  )
 ) {}
 
 /**
@@ -209,8 +210,8 @@ export type ConfigurationDocument = ConfigurationSchema;
  * @category configuration
  * @since 0.0.0
  */
-export class ConfigurationShape extends S.Class<ConfigurationShape>($I`ConfigurationShape`)(
-  {
+export class ConfigurationShape extends S.Opaque<ConfigurationShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     enableSearch: S.Boolean.annotateKey({
       description: "Whether generated docs include search support.",
     }),
@@ -256,10 +257,11 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
     tscExecutable: S.String.annotateKey({
       description: "Resolved TypeScript compiler executable used for example checks.",
     }),
-  },
-  $I.annote("ConfigurationShape", {
-    description: "Fully resolved configuration values used by parser, checker, and printer workflows.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConfigurationShape", {
+      description: "Fully resolved configuration values used by parser, checker, and printer workflows.",
+    })
+  )
 ) {}
 
 /**
@@ -388,10 +390,12 @@ export const defaultCompilerOptions = {
   target: "es2022",
 } as const satisfies typeof CompilerOptionsShape.Type;
 
-class PackageJsonSchema extends S.Class<PackageJsonSchema>($I`PackageJsonSchema`)({
-  homepage: S.String,
-  name: S.String,
-}) {}
+class PackageJsonSchema extends S.Opaque<PackageJsonSchema, { readonly brand: unique symbol }>()(
+  S.Struct({
+    homepage: S.String,
+    name: S.String,
+  }).pipe($I.annoteSchema("PackageJsonSchema"))
+) {}
 
 const readJsoncFile = Effect.fn("readJsonCFile")(function* <Schema extends S.ConstraintDecoder<unknown>>(
   filePath: string,
@@ -601,23 +605,25 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
     types: exampleTypes,
   };
 
-  return Configuration.of({
-    enableSearch,
-    enforceDescriptions,
-    enforceExamples,
-    enforceVersion,
-    examplesCompilerOptions,
-    exclude,
-    include,
-    outDir,
-    parseCompilerOptions,
-    projectHomepage,
-    projectName,
-    srcDir,
-    srcLink,
-    theme,
-    tscExecutable,
-  });
+  return Configuration.of(
+    ConfigurationShape.make({
+      enableSearch,
+      enforceDescriptions,
+      enforceExamples,
+      enforceVersion,
+      examplesCompilerOptions,
+      exclude,
+      include,
+      outDir,
+      parseCompilerOptions,
+      projectHomepage,
+      projectName,
+      srcDir,
+      srcLink,
+      theme,
+      tscExecutable,
+    })
+  );
 });
 
 /**

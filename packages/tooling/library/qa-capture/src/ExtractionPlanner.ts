@@ -468,8 +468,8 @@ export const planWindows: {
  * @category models
  * @since 0.0.0
  */
-export class WindowFitResult extends S.Class<WindowFitResult>($I`WindowFitResult`)(
-  {
+export class WindowFitResult extends S.Opaque<WindowFitResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     dropped: S.Array(DroppedWindow).pipe(
       $I.annoteKey("WindowFitResult.dropped", {
         description: "Windows absorbed by the merge, each with the reason it was dropped.",
@@ -480,10 +480,11 @@ export class WindowFitResult extends S.Class<WindowFitResult>($I`WindowFitResult
         description: "Surviving windows in start order.",
       })
     ),
-  },
-  $I.annote("WindowFitResult", {
-    description: "Overlap-merge outcome: the windows that survived and the ones they absorbed.",
-  })
+  }).pipe(
+    $I.annoteSchema("WindowFitResult", {
+      description: "Overlap-merge outcome: the windows that survived and the ones they absorbed.",
+    })
+  )
 ) {}
 
 const droppedFrom = (window: ExtractionWindow, reason: DroppedWindow["reason"], detail: string): DroppedWindow =>
@@ -643,8 +644,8 @@ const withGif = (window: ExtractionWindow, gif: O.Option<GifSpec>): ExtractionWi
  * @category models
  * @since 0.0.0
  */
-export class BudgetFitResult extends S.Class<BudgetFitResult>($I`BudgetFitResult`)(
-  {
+export class BudgetFitResult extends S.Opaque<BudgetFitResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     dropped: S.Array(DroppedWindow).pipe(
       $I.annoteKey("BudgetFitResult.dropped", {
         description: "Every window the budget ladder degraded or dropped, with its reason.",
@@ -660,10 +661,11 @@ export class BudgetFitResult extends S.Class<BudgetFitResult>($I`BudgetFitResult
         description: "Windows that fit the budget, in start order.",
       })
     ),
-  },
-  $I.annote("BudgetFitResult", {
-    description: "Budget-fit outcome: surviving windows, their estimated cost, and every omission.",
-  })
+  }).pipe(
+    $I.annoteSchema("BudgetFitResult", {
+      description: "Budget-fit outcome: surviving windows, their estimated cost, and every omission.",
+    })
+  )
 ) {}
 
 /**
@@ -805,8 +807,11 @@ const buildExtractionPlanOptionsBudgetDefault = ArtifactBudget.make({});
  * @category models
  * @since 0.0.0
  */
-export class BuildExtractionPlanOptions extends S.Class<BuildExtractionPlanOptions>($I`BuildExtractionPlanOptions`)(
-  {
+export class BuildExtractionPlanOptions extends S.Opaque<
+  BuildExtractionPlanOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     budget: ArtifactBudget.pipe(
       S.withConstructorDefault(Effect.succeed(buildExtractionPlanOptionsBudgetDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(buildExtractionPlanOptionsBudgetDefault)),
@@ -826,10 +831,11 @@ export class BuildExtractionPlanOptions extends S.Class<BuildExtractionPlanOptio
         description: "Extraction rules deciding which spans become windows.",
       })
     ),
-  },
-  $I.annote("BuildExtractionPlanOptions", {
-    description: "Witness events plus the budget and rules one extraction plan is built under.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildExtractionPlanOptions", {
+      description: "Witness events plus the budget and rules one extraction plan is built under.",
+    })
+  )
 ) {}
 
 /**
@@ -988,8 +994,8 @@ export const videoSecondsToEpochMs =
  * @category models
  * @since 0.0.0
  */
-export class PlanDriverRequestsOptions extends S.Class<PlanDriverRequestsOptions>($I`PlanDriverRequestsOptions`)(
-  {
+export class PlanDriverRequestsOptions extends S.Opaque<PlanDriverRequestsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     clipsDir: S.String.pipe(
       $I.annoteKey("PlanDriverRequestsOptions.clipsDir", {
         description: "Directory receiving rendered GIF artifacts.",
@@ -1032,10 +1038,11 @@ export class PlanDriverRequestsOptions extends S.Class<PlanDriverRequestsOptions
         description: "Recorded video path all requests read from.",
       })
     ),
-  },
-  $I.annote("PlanDriverRequestsOptions", {
-    description: "Input options for materializing driver requests from a plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("PlanDriverRequestsOptions", {
+      description: "Input options for materializing driver requests from a plan.",
+    })
+  )
 ) {}
 
 /**
@@ -1093,7 +1100,7 @@ export class PlanDriverRequestsOptions extends S.Class<PlanDriverRequestsOptions
  */
 export const planDriverRequests = (options: PlanDriverRequestsOptions): ReadonlyArray<QaDriverRequest> => {
   const lowConfidencePadMs = options.clockSync.confidence === "low" ? 250 : 0;
-  const toVideo = epochToVideoSeconds(options.clockSync, options.videoDurationSeconds);
+  const toVideo = epochToVideoSeconds(ClockSync.make(options.clockSync), options.videoDurationSeconds);
 
   const windowRequests = A.flatMap(options.plan.windows, (window, index): ReadonlyArray<QaDriverRequest> => {
     const prefix = `${window.ruleKind}-w${index}`;

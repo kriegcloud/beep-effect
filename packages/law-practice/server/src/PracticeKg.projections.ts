@@ -87,14 +87,16 @@ documents and email bodies remain pointers into the separately configured
 corpus root. Replace this folder as a unit when a newer bundle is delivered.
 `;
 
-class GraphReconciliationRow extends S.Class<GraphReconciliationRow>($I`GraphReconciliationRow`)({
-  baseDigests: S.Finite,
-  docketFamilies: S.Finite,
-  docketFiles: S.Finite,
-  familyAnchors: S.Finite,
-  snapshotIso: S.String,
-  sourceRows: S.Finite,
-}) {}
+class GraphReconciliationRow extends S.Opaque<GraphReconciliationRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    baseDigests: S.Finite,
+    docketFamilies: S.Finite,
+    docketFiles: S.Finite,
+    familyAnchors: S.Finite,
+    snapshotIso: S.String,
+    sourceRows: S.Finite,
+  }).pipe($I.annoteSchema("GraphReconciliationRow"))
+) {}
 
 const decodeCatalogRows = S.decodeUnknownEffect(S.Array(PracticeKgCatalogRow));
 const decodeEnrichmentRows = S.decodeUnknownEffect(S.Array(PracticeKgEnrichmentRow));

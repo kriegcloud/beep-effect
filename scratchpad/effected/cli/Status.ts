@@ -10,7 +10,7 @@ import * as R from "effect/Record";
 
 const $I = $ScratchpadId.create("effected/cli/Status");
 
-class UnknownStatusError extends S.TaggedError<UnknownStatusError>($I`UnknownStatusError`)(
+class UnknownStatusError extends S.TaggedError<UnknownStatusError, { readonly brand: unique symbol }>($I`UnknownStatusError`)(
 	"UnknownStatusError",
 	{
 		message: S.String.annotate({ description: "The unknown status name and the available names in the vocabulary." }),

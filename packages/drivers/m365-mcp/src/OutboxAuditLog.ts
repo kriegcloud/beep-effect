@@ -126,9 +126,8 @@ const addresses = (description: string) => S.Array(S.String).annotateKey({ descr
  * @category models
  * @since 0.1.0
  */
-export class OutboxDraftCreatedRecord extends S.TaggedClass<OutboxDraftCreatedRecord>($I`OutboxDraftCreatedRecord`)(
-  "draft-created",
-  {
+export class OutboxDraftCreatedRecord extends S.Opaque<OutboxDraftCreatedRecord, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("draft-created", {
     ...stamp,
     attachments: S.Array(OutboxAttachmentDigest).annotateKey({ description: "Files the server attached." }),
     bcc: addresses("Blind-carbon-copy addresses."),
@@ -136,8 +135,9 @@ export class OutboxDraftCreatedRecord extends S.TaggedClass<OutboxDraftCreatedRe
     draftId: S.NonEmptyString.annotateKey({ description: "Graph id of the draft." }),
     subject: S.String.annotateKey({ description: "Draft subject." }),
     to: addresses("Primary recipient addresses."),
-  },
-  $I.annote("OutboxDraftCreatedRecord", { description: "Audit record of a draft the outbox server created." })
+  }).pipe(
+    $I.annoteSchema("OutboxDraftCreatedRecord", { description: "Audit record of a draft the outbox server created." })
+  )
 ) {}
 
 /**
@@ -160,13 +160,13 @@ export class OutboxDraftCreatedRecord extends S.TaggedClass<OutboxDraftCreatedRe
  * @category models
  * @since 0.1.0
  */
-export class OutboxDraftDeletedRecord extends S.TaggedClass<OutboxDraftDeletedRecord>($I`OutboxDraftDeletedRecord`)(
-  "draft-deleted",
-  {
+export class OutboxDraftDeletedRecord extends S.Opaque<OutboxDraftDeletedRecord, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("draft-deleted", {
     ...stamp,
     draftId: S.NonEmptyString.annotateKey({ description: "Graph id of the draft." }),
-  },
-  $I.annote("OutboxDraftDeletedRecord", { description: "Audit record of a draft the outbox server deleted." })
+  }).pipe(
+    $I.annoteSchema("OutboxDraftDeletedRecord", { description: "Audit record of a draft the outbox server deleted." })
+  )
 ) {}
 
 /**
@@ -194,9 +194,8 @@ export class OutboxDraftDeletedRecord extends S.TaggedClass<OutboxDraftDeletedRe
  * @category models
  * @since 0.1.0
  */
-export class OutboxSendIntentRecord extends S.TaggedClass<OutboxSendIntentRecord>($I`OutboxSendIntentRecord`)(
-  "send-intent",
-  {
+export class OutboxSendIntentRecord extends S.Opaque<OutboxSendIntentRecord, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("send-intent", {
     ...stamp,
     attachments: S.Array(OutboxAttachmentDigest).annotateKey({
       description: "Attachments of the draft about to be sent: name, byte length and digest of the stored bytes.",
@@ -206,10 +205,11 @@ export class OutboxSendIntentRecord extends S.TaggedClass<OutboxSendIntentRecord
     draftId: S.NonEmptyString.annotateKey({ description: "Graph id of the draft." }),
     subject: S.String.annotateKey({ description: "Subject of the draft about to be sent." }),
     to: addresses("Primary recipient addresses."),
-  },
-  $I.annote("OutboxSendIntentRecord", {
-    description: "Audit record written before the outbox server asks Graph to send a draft.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutboxSendIntentRecord", {
+      description: "Audit record written before the outbox server asks Graph to send a draft.",
+    })
+  )
 ) {}
 
 /**
@@ -234,9 +234,8 @@ export class OutboxSendIntentRecord extends S.TaggedClass<OutboxSendIntentRecord
  * @category models
  * @since 0.1.0
  */
-export class OutboxSendOutcomeRecord extends S.TaggedClass<OutboxSendOutcomeRecord>($I`OutboxSendOutcomeRecord`)(
-  "send-outcome",
-  {
+export class OutboxSendOutcomeRecord extends S.Opaque<OutboxSendOutcomeRecord, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("send-outcome", {
     ...stamp,
     draftId: S.NonEmptyString.annotateKey({ description: "Graph id of the draft." }),
     graphStatus: S.OptionFromOptionalKey(S.Int)
@@ -247,8 +246,9 @@ export class OutboxSendOutcomeRecord extends S.TaggedClass<OutboxSendOutcomeReco
       .annotateKey({ description: "RFC 2822 message id of the sent message, when known." }),
     mismatches: emptyByDefault(OutboxSendMismatchField, "Fields the guard found different; empty unless it refused."),
     outcome: OutboxSendOutcome.annotateKey({ description: "How the send ended." }),
-  },
-  $I.annote("OutboxSendOutcomeRecord", { description: "Audit record of how a send through the outbox ended." })
+  }).pipe(
+    $I.annoteSchema("OutboxSendOutcomeRecord", { description: "Audit record of how a send through the outbox ended." })
+  )
 ) {}
 
 /**
@@ -276,14 +276,14 @@ export class OutboxSendOutcomeRecord extends S.TaggedClass<OutboxSendOutcomeReco
  * @category models
  * @since 0.1.0
  */
-export class OutboxEventCreatedRecord extends S.TaggedClass<OutboxEventCreatedRecord>($I`OutboxEventCreatedRecord`)(
-  "event-created",
-  {
+export class OutboxEventCreatedRecord extends S.Opaque<OutboxEventCreatedRecord, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("event-created", {
     ...stamp,
     eventId: S.NonEmptyString.annotateKey({ description: "Graph id of the event." }),
     subject: S.String.annotateKey({ description: "Event subject." }),
-  },
-  $I.annote("OutboxEventCreatedRecord", { description: "Audit record of an event the outbox server created." })
+  }).pipe(
+    $I.annoteSchema("OutboxEventCreatedRecord", { description: "Audit record of an event the outbox server created." })
+  )
 ) {}
 
 /**
@@ -306,16 +306,16 @@ export class OutboxEventCreatedRecord extends S.TaggedClass<OutboxEventCreatedRe
  * @category models
  * @since 0.1.0
  */
-export class OutboxEventUpdatedRecord extends S.TaggedClass<OutboxEventUpdatedRecord>($I`OutboxEventUpdatedRecord`)(
-  "event-updated",
-  {
+export class OutboxEventUpdatedRecord extends S.Opaque<OutboxEventUpdatedRecord, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("event-updated", {
     ...stamp,
     eventId: S.NonEmptyString.annotateKey({ description: "Graph id of the event." }),
     subject: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "New subject, when the update changed it." }),
-  },
-  $I.annote("OutboxEventUpdatedRecord", { description: "Audit record of an event the outbox server updated." })
+  }).pipe(
+    $I.annoteSchema("OutboxEventUpdatedRecord", { description: "Audit record of an event the outbox server updated." })
+  )
 ) {}
 
 /**
@@ -419,7 +419,9 @@ export type OutboxAuditErrorReason = typeof OutboxAuditErrorReason.Type;
  * @category errors
  * @since 0.1.0
  */
-export class OutboxAuditError extends S.TaggedError<OutboxAuditError>($I`OutboxAuditError`)(
+export class OutboxAuditError extends S.TaggedError<OutboxAuditError, { readonly brand: unique symbol }>(
+  $I`OutboxAuditError`
+)(
   "OutboxAuditError",
   {
     message: S.String.annotateKey({ description: "Human-readable failure; never record content." }),

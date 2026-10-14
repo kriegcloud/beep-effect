@@ -82,14 +82,15 @@ export type OutboxEventUpdateRefusalReason = typeof OutboxEventUpdateRefusalReas
  * @category models
  * @since 0.1.0
  */
-export class OutboxEventUpdateRefusal extends S.Class<OutboxEventUpdateRefusal>($I`OutboxEventUpdateRefusal`)(
-  {
+export class OutboxEventUpdateRefusal extends S.Opaque<OutboxEventUpdateRefusal, { readonly brand: unique symbol }>()(
+  S.Struct({
     attendeeCount: S.Natural.annotateKey({ description: "How many attendees the stored event has." }),
     reason: OutboxEventUpdateRefusalReason.annotateKey({ description: "The first rule the update breaks." }),
-  },
-  $I.annote("OutboxEventUpdateRefusal", {
-    description: "Refusal of the event update guard, naming the rule the update breaks.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutboxEventUpdateRefusal", {
+      description: "Refusal of the event update guard, naming the rule the update breaks.",
+    })
+  )
 ) {}
 
 /**
@@ -110,14 +111,13 @@ export class OutboxEventUpdateRefusal extends S.Class<OutboxEventUpdateRefusal>(
  * @category models
  * @since 0.1.0
  */
-export class OutboxEventUpdateCheck extends S.Class<OutboxEventUpdateCheck>($I`OutboxEventUpdateCheck`)(
-  {
+export class OutboxEventUpdateCheck extends S.Opaque<OutboxEventUpdateCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     createdHere: S.Boolean.annotateKey({
       description: "Whether the audit log holds an event-created record for this event id.",
     }),
     event: GraphEvent.annotateKey({ description: "The event as Graph stores it, read before the update." }),
-  },
-  $I.annote("OutboxEventUpdateCheck", { description: "Input of the event update guard." })
+  }).pipe($I.annoteSchema("OutboxEventUpdateCheck", { description: "Input of the event update guard." }))
 ) {}
 
 /**
@@ -181,7 +181,7 @@ export const storedAttendeeCount = (event: GraphEvent): number =>
  * @since 0.1.0
  */
 export const checkEventUpdate = (check: OutboxEventUpdateCheck): O.Option<OutboxEventUpdateRefusal> => {
-  const attendeeCount = storedAttendeeCount(check.event);
+  const attendeeCount = storedAttendeeCount(GraphEvent.make(check.event));
   const broken: ReadonlyArray<readonly [OutboxEventUpdateRefusalReason, boolean]> = [
     ["not-created-here", !check.createdHere],
     ["has-attendees", attendeeCount > 0],

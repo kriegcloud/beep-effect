@@ -27,7 +27,7 @@ const optionalUndefined = <const Schema extends S.Top>(schema: Schema) =>
     })
   );
 
-class InfoBase extends S.Class<InfoBase>($I`InfoBase`)(
+class InfoBase extends S.Class<InfoBase, { readonly brand: unique symbol }>($I`InfoBase`)(
   {
     file: optionalUndefined(S.String),
     patch: optionalUndefined(S.String),

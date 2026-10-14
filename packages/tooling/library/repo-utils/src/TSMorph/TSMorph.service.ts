@@ -29,12 +29,14 @@ import {
   makeProjectCacheKey,
   makeProjectScopeId,
   makeSymbol,
+  ProjectIdentityParts,
   ProjectScopeId,
   ProjectScopeIdParts,
   RepoRootPath,
   SourceText,
   SymbolFilePath,
   SymbolId,
+  SymbolInit,
   SymbolNameSegment,
   SymbolQualifiedName,
   TsConfigFilePath,
@@ -43,6 +45,7 @@ import {
   TsMorphFileOutline,
   TsMorphProjectScope,
   TsMorphReferencePolicy,
+  TsMorphScopeEntrypointFile,
   TsMorphScopeMode,
   TsMorphSourceTextResult,
   TsMorphSymbolLookupResult,
@@ -107,9 +110,10 @@ const decodeNonNegativeInt = S.decodeUnknownEffect(S.Natural);
  * @category models
  * @since 0.0.0
  */
-export class TsMorphServiceUnavailableError extends S.TaggedError<TsMorphServiceUnavailableError>(
-  $I`TsMorphServiceUnavailableError`
-)(
+export class TsMorphServiceUnavailableError extends S.TaggedError<
+  TsMorphServiceUnavailableError,
+  { readonly brand: unique symbol }
+>($I`TsMorphServiceUnavailableError`)(
   "TsMorphServiceUnavailableError",
   {
     method: S.String,
@@ -135,9 +139,10 @@ export class TsMorphServiceUnavailableError extends S.TaggedError<TsMorphService
  * @category models
  * @since 0.0.0
  */
-export class TsMorphScopeResolutionError extends S.TaggedError<TsMorphScopeResolutionError>(
-  $I`TsMorphScopeResolutionError`
-)(
+export class TsMorphScopeResolutionError extends S.TaggedError<
+  TsMorphScopeResolutionError,
+  { readonly brand: unique symbol }
+>($I`TsMorphScopeResolutionError`)(
   "TsMorphScopeResolutionError",
   {
     entrypoint: S.String,
@@ -163,7 +168,9 @@ export class TsMorphScopeResolutionError extends S.TaggedError<TsMorphScopeResol
  * @category models
  * @since 0.0.0
  */
-export class TsMorphProjectLoadError extends S.TaggedError<TsMorphProjectLoadError>($I`TsMorphProjectLoadError`)(
+export class TsMorphProjectLoadError extends S.TaggedError<TsMorphProjectLoadError, { readonly brand: unique symbol }>(
+  $I`TsMorphProjectLoadError`
+)(
   "TsMorphProjectLoadError",
   {
     scopeId: ProjectScopeId,
@@ -189,7 +196,9 @@ export class TsMorphProjectLoadError extends S.TaggedError<TsMorphProjectLoadErr
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSourceFileError extends S.TaggedError<TsMorphSourceFileError>($I`TsMorphSourceFileError`)(
+export class TsMorphSourceFileError extends S.TaggedError<TsMorphSourceFileError, { readonly brand: unique symbol }>(
+  $I`TsMorphSourceFileError`
+)(
   "TsMorphSourceFileError",
   {
     scopeId: S.OptionFromNullOr(ProjectScopeId),
@@ -238,9 +247,10 @@ export class TsMorphSourceFileError extends S.TaggedError<TsMorphSourceFileError
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolNotFoundError extends S.TaggedError<TsMorphSymbolNotFoundError>(
-  $I`TsMorphSymbolNotFoundError`
-)(
+export class TsMorphSymbolNotFoundError extends S.TaggedError<
+  TsMorphSymbolNotFoundError,
+  { readonly brand: unique symbol }
+>($I`TsMorphSymbolNotFoundError`)(
   "TsMorphSymbolNotFoundError",
   {
     scopeId: ProjectScopeId,
@@ -269,9 +279,10 @@ export class TsMorphSymbolNotFoundError extends S.TaggedError<TsMorphSymbolNotFo
  * @category models
  * @since 0.0.0
  */
-export class TsMorphUnsupportedFileError extends S.TaggedError<TsMorphUnsupportedFileError>(
-  $I`TsMorphUnsupportedFileError`
-)(
+export class TsMorphUnsupportedFileError extends S.TaggedError<
+  TsMorphUnsupportedFileError,
+  { readonly brand: unique symbol }
+>($I`TsMorphUnsupportedFileError`)(
   "TsMorphUnsupportedFileError",
   {
     filePath: TypeScriptFilePath,
@@ -571,37 +582,45 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
   const bytePrefix = utf8Encoder.encode(Str.slice(0, startOffset)(sourceFileText));
   const byteSpan = utf8Encoder.encode(symbolText);
   const docstring = readDocstring(declaration);
-  const symbol = makeSymbol({
-    filePath: yield* decodeOrFail(S.decodeUnknownEffect(SymbolFilePath), symbolFilePath, (message) =>
-      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode symbol file path for "${qualifiedName}": ${message}`)
-    ),
-    name: yield* decodeOrFail(S.decodeUnknownEffect(SymbolNameSegment), declarationName.value.name, (message) =>
-      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode symbol name for "${qualifiedName}": ${message}`)
-    ),
-    qualifiedName: yield* decodeOrFail(S.decodeUnknownEffect(SymbolQualifiedName), qualifiedName, (message) =>
-      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode qualified name "${qualifiedName}": ${message}`)
-    ),
-    kind: declarationName.value.kind,
-    signature: readSignature(declaration),
-    docstring,
-    summary: makeSummary(docstring),
-    decorators: readDecorators(declaration),
-    keywords: makeKeywords(declarationName.value.name, qualifiedName, { kind: declarationName.value.kind }),
-    parentId: O.map(parentSymbol, (parent) => parent.id),
-    startLine: yield* decodeOrFail(S.decodeUnknownEffect(LineNumber), declaration.getStartLineNumber(true), (message) =>
-      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode start line for "${qualifiedName}": ${message}`)
-    ),
-    endLine: yield* decodeOrFail(S.decodeUnknownEffect(LineNumber), declaration.getEndLineNumber(), (message) =>
-      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode end line for "${qualifiedName}": ${message}`)
-    ),
-    byteOffset: yield* decodeOrFail(S.decodeUnknownEffect(ByteOffset), bytePrefix.length, (message) =>
-      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode byte offset for "${qualifiedName}": ${message}`)
-    ),
-    byteLength: yield* decodeOrFail(S.decodeUnknownEffect(ByteLength), byteSpan.length, (message) =>
-      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode byte length for "${qualifiedName}": ${message}`)
-    ),
-    contentHash,
-  });
+  const symbol = makeSymbol(
+    SymbolInit.make({
+      filePath: yield* decodeOrFail(S.decodeUnknownEffect(SymbolFilePath), symbolFilePath, (message) =>
+        TsMorphSourceFileError.at(
+          symbolFilePath,
+          `Failed to decode symbol file path for "${qualifiedName}": ${message}`
+        )
+      ),
+      name: yield* decodeOrFail(S.decodeUnknownEffect(SymbolNameSegment), declarationName.value.name, (message) =>
+        TsMorphSourceFileError.at(symbolFilePath, `Failed to decode symbol name for "${qualifiedName}": ${message}`)
+      ),
+      qualifiedName: yield* decodeOrFail(S.decodeUnknownEffect(SymbolQualifiedName), qualifiedName, (message) =>
+        TsMorphSourceFileError.at(symbolFilePath, `Failed to decode qualified name "${qualifiedName}": ${message}`)
+      ),
+      kind: declarationName.value.kind,
+      signature: readSignature(declaration),
+      docstring,
+      summary: makeSummary(docstring),
+      decorators: readDecorators(declaration),
+      keywords: makeKeywords(declarationName.value.name, qualifiedName, { kind: declarationName.value.kind }),
+      parentId: O.map(parentSymbol, (parent) => parent.id),
+      startLine: yield* decodeOrFail(
+        S.decodeUnknownEffect(LineNumber),
+        declaration.getStartLineNumber(true),
+        (message) =>
+          TsMorphSourceFileError.at(symbolFilePath, `Failed to decode start line for "${qualifiedName}": ${message}`)
+      ),
+      endLine: yield* decodeOrFail(S.decodeUnknownEffect(LineNumber), declaration.getEndLineNumber(), (message) =>
+        TsMorphSourceFileError.at(symbolFilePath, `Failed to decode end line for "${qualifiedName}": ${message}`)
+      ),
+      byteOffset: yield* decodeOrFail(S.decodeUnknownEffect(ByteOffset), bytePrefix.length, (message) =>
+        TsMorphSourceFileError.at(symbolFilePath, `Failed to decode byte offset for "${qualifiedName}": ${message}`)
+      ),
+      byteLength: yield* decodeOrFail(S.decodeUnknownEffect(ByteLength), byteSpan.length, (message) =>
+        TsMorphSourceFileError.at(symbolFilePath, `Failed to decode byte length for "${qualifiedName}": ${message}`)
+      ),
+      contentHash,
+    })
+  );
 
   return O.some({
     symbol,
@@ -891,19 +910,23 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
         })
     );
 
-    const scopeId = makeProjectScopeId({
-      tsConfigPath,
-      mode,
-      referencePolicy,
-    });
-
-    const scope = TsMorphProjectScope.make({
-      scopeId,
-      cacheKey: makeProjectCacheKey({
+    const scopeId = makeProjectScopeId(
+      ProjectIdentityParts.make({
         tsConfigPath,
         mode,
         referencePolicy,
-      }),
+      })
+    );
+
+    const scope = TsMorphProjectScope.make({
+      scopeId,
+      cacheKey: makeProjectCacheKey(
+        ProjectIdentityParts.make({
+          tsConfigPath,
+          mode,
+          referencePolicy,
+        })
+      ),
       repoRootPath,
       workspaceDirectoryPath,
       tsConfigPath,
@@ -1120,10 +1143,10 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
 
   const readSourceText: TSMorphServiceShape["readSourceText"] = Effect.fn(function* (request) {
     const scope = yield* resolveScopeFromEntrypoint(
-      {
+      TsMorphScopeEntrypointFile.make({
         _tag: "file",
         filePath: request.filePath,
-      },
+      }),
       O.none(),
       DEFAULT_SCOPE_MODE,
       DEFAULT_REFERENCE_POLICY
@@ -1370,10 +1393,10 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     function* (filePath, update) {
       const safeFilePath = TypeScriptImplementationFilePath.make(filePath);
       const scope = yield* resolveScopeFromEntrypoint(
-        {
+        TsMorphScopeEntrypointFile.make({
           _tag: "file",
           filePath: safeFilePath,
-        },
+        }),
         O.none(),
         DEFAULT_SCOPE_MODE,
         DEFAULT_REFERENCE_POLICY

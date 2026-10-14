@@ -78,7 +78,9 @@ export type DockRejectionReason = typeof DockRejectionReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class DockCommandRejected extends S.TaggedError<DockCommandRejected>($I`DockCommandRejected`)(
+export class DockCommandRejected extends S.TaggedError<DockCommandRejected, { readonly brand: unique symbol }>(
+  $I`DockCommandRejected`
+)(
   "DockCommandRejected",
   {
     commandId: CommandId,
@@ -149,7 +151,9 @@ export type DockInvariantReason = typeof DockInvariantReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class DockInvariantViolation extends S.TaggedError<DockInvariantViolation>($I`DockInvariantViolation`)(
+export class DockInvariantViolation extends S.TaggedError<DockInvariantViolation, { readonly brand: unique symbol }>(
+  $I`DockInvariantViolation`
+)(
   "DockInvariantViolation",
   {
     reason: DockInvariantReason,
@@ -212,7 +216,9 @@ export type DockInputBoundary = typeof DockInputBoundary.Type;
  * @category errors
  * @since 0.0.0
  */
-export class DockInputError extends S.TaggedError<DockInputError>($I`DockInputError`)(
+export class DockInputError extends S.TaggedError<DockInputError, { readonly brand: unique symbol }>(
+  $I`DockInputError`
+)(
   "DockInputError",
   {
     boundary: DockInputBoundary,
@@ -275,7 +281,9 @@ export type DockPersistenceOperation = typeof DockPersistenceOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class DockPersistenceError extends S.TaggedError<DockPersistenceError>($I`DockPersistenceError`)(
+export class DockPersistenceError extends S.TaggedError<DockPersistenceError, { readonly brand: unique symbol }>(
+  $I`DockPersistenceError`
+)(
   "DockPersistenceError",
   {
     operation: DockPersistenceOperation,
@@ -301,7 +309,9 @@ export class DockPersistenceError extends S.TaggedError<DockPersistenceError>($I
  * @category errors
  * @since 0.0.0
  */
-export class DockSnapshotMissing extends S.TaggedError<DockSnapshotMissing>($I`DockSnapshotMissing`)(
+export class DockSnapshotMissing extends S.TaggedError<DockSnapshotMissing, { readonly brand: unique symbol }>(
+  $I`DockSnapshotMissing`
+)(
   "DockSnapshotMissing",
   {
     message: S.String,

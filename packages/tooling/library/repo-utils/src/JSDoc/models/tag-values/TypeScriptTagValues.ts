@@ -27,10 +27,10 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TypeScriptTagValues");
  * @category models
  * @since 0.0.0
  */
-export class OverloadValue extends S.TaggedClass<OverloadValue>($I`OverloadValue`)(
-  "overload",
-  empty,
-  $I.annote("OverloadValue", {
-    description: "Occurrence shape for @overload — marks a function overload signature.",
-  })
+export class OverloadValue extends S.Opaque<OverloadValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("overload", empty).pipe(
+    $I.annoteSchema("OverloadValue", {
+      description: "Occurrence shape for @overload — marks a function overload signature.",
+    })
+  )
 ) {}

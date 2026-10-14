@@ -122,7 +122,9 @@ export type CategoryPurity = typeof CategoryPurity.Type;
  * @category models
  * @since 0.0.0
  */
-export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCategoryDefinition`)(
+export class TSCategoryDefinition extends S.Class<TSCategoryDefinition, { readonly brand: unique symbol }>(
+  $I`TSCategoryDefinition`
+)(
   {
     /**
      * Discriminant. PascalCase with no spaces.
@@ -1453,18 +1455,19 @@ export function getCategoriesForApplicableTo(applicableTo: ApplicableTo): Readon
  * @category models
  * @since 0.0.0
  */
-export class CategorySignal extends S.Class<CategorySignal>($I`CategorySignal`)(
-  {
+export class CategorySignal extends S.Opaque<CategorySignal, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: TSCategoryTag.annotateKey({
       description: "Category tag suggested by an AST signal.",
     }),
     confidence: ASTSignal.fields.confidence.annotateKey({
       description: "Confidence for this category signal.",
     }),
-  },
-  $I.annote("CategorySignal", {
-    description: "Category signal tuple consumed by candidate resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("CategorySignal", {
+      description: "Category signal tuple consumed by candidate resolution.",
+    })
+  )
 ) {}
 
 /**
@@ -1485,18 +1488,19 @@ export class CategorySignal extends S.Class<CategorySignal>($I`CategorySignal`)(
  * @category models
  * @since 0.0.0
  */
-export class ScoredCategoryCandidate extends S.Class<ScoredCategoryCandidate>($I`ScoredCategoryCandidate`)(
-  {
+export class ScoredCategoryCandidate extends S.Opaque<ScoredCategoryCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: EncodedTSCategoryDefinition.annotateKey({
       description: "Encoded category metadata selected as a candidate.",
     }),
     combinedConfidence: ASTSignal.fields.confidence.annotateKey({
       description: "Combined confidence after merging all signals for the category.",
     }),
-  },
-  $I.annote("ScoredCategoryCandidate", {
-    description: "Scored category candidate shape produced by candidate resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScoredCategoryCandidate", {
+      description: "Scored category candidate shape produced by candidate resolution.",
+    })
+  )
 ) {}
 
 const scoredCategoryCandidateOrder = Order.make<ScoredCategoryCandidate>((left, right) => {
@@ -1530,10 +1534,15 @@ const scoredCategoryCandidateOrder = Order.make<ScoredCategoryCandidate>((left, 
  * **Example** (Scoring Validation candidates)
  *
  * ```ts
- * import { getCandidateCategories } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
+ * import { CategorySignal, getCandidateCategories } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * const candidates = getCandidateCategories([{ category: "Validation", confidence: 0.9 }])
- * console.log(candidates[0]?.category._tag)
+ * const candidates = getCandidateCategories([
+ *   CategorySignal.make({ category: "Validation", confidence: 0.5 }),
+ *   CategorySignal.make({ category: "Validation", confidence: 0.5 }),
+ *   CategorySignal.make({ category: "DataAccess", confidence: 0.6 })
+ * ])
+ * console.log(candidates.map((candidate) => [candidate.category._tag, candidate.combinedConfidence]))
+ * // [["Validation", 0.75], ["DataAccess", 0.6]]
  * ```
  *
  * @param signals - Category signal tuples with confidence values.

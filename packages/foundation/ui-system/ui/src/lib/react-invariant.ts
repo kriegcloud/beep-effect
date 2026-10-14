@@ -14,30 +14,33 @@ const $I = $UiId.create("lib/react-invariant");
 /**
  * React context invariant options class.
  *
- * **Example** (Import invariant options class)
+ * **Example** (Make invariant options)
  *
  * ```ts
  * import { ReactContextInvariantOptions } from "@beep/ui/lib/react-invariant"
  *
- * console.log(ReactContextInvariantOptions)
+ * const options = ReactContextInvariantOptions.make({ message: "useDock must be used within DockProvider" })
+ * console.log(options.message)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class ReactContextInvariantOptions extends S.Class<ReactContextInvariantOptions>(
-  $I`ReactContextInvariantOptions`
-)(
-  {
+export class ReactContextInvariantOptions extends S.Opaque<
+  ReactContextInvariantOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     message: S.NonEmptyString.pipe(
       $I.annoteKey("ReactContextInvariantOptions.message", {
         description: "Human-facing diagnostic emitted when a React context is missing.",
       })
     ),
-  },
-  $I.annote("ReactContextInvariantOptions", {
-    description: "Options for a React context invariant check.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReactContextInvariantOptions", {
+      description: "Options for a React context invariant check.",
+    })
+  )
 ) {}
 
 /**
@@ -55,9 +58,10 @@ export class ReactContextInvariantOptions extends S.Class<ReactContextInvariantO
  * @category errors
  * @since 0.0.0
  */
-export class ReactContextInvariantError extends S.TaggedError<ReactContextInvariantError>(
-  $I`ReactContextInvariantError`
-)(
+export class ReactContextInvariantError extends S.TaggedError<
+  ReactContextInvariantError,
+  { readonly brand: unique symbol }
+>($I`ReactContextInvariantError`)(
   "ReactContextInvariantError",
   {
     message: S.NonEmptyString.pipe(
@@ -84,12 +88,13 @@ type RequiredReactContext<Value> = Value extends unknown ? Value : never;
  * **Example** (Require context under provider)
  *
  * ```ts import.meta.vitest name="Require context under provider"
- * import { requireReactContext } from "@beep/ui/lib/react-invariant"
+ * import { ReactContextInvariantOptions, requireReactContext } from "@beep/ui/lib/react-invariant"
  *
- * const value = requireReactContext("ok", { message: "missing provider" })
+ * const value = requireReactContext("ok", ReactContextInvariantOptions.make({ message: "missing provider" }))
  * value // => "ok"
  * ```
  *
+ * @throws ReactContextInvariantError when `context` is `null`, carrying `options.message`.
  * @category utilities
  * @since 0.0.0
  */

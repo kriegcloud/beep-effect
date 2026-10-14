@@ -37,6 +37,7 @@ import {
   GraphTerm,
   LanguageTag,
   Literal,
+  MakeQuadOptionsInput,
   makeBlankNode,
   makeDataset,
   makeLiteral,
@@ -509,7 +510,7 @@ describe("@beep/rdf RDF term and dataset models", () => {
 
   it("constructs and decodes every RDF term family", () => {
     const defaultGraph = DefaultGraph.make({ termType: "DefaultGraph", value: "" });
-    const quad = makeQuad(alice, RDF_TYPE, { object: label, graph });
+    const quad = makeQuad(alice, RDF_TYPE, MakeQuadOptionsInput.make({ object: label, graph }));
     const decodedNamedNode = pipe(
       NamedNode.decodeUnknownResult({ termType: "NamedNode", value: alice.value }),
       Result.getOrThrow
@@ -549,8 +550,8 @@ describe("@beep/rdf RDF term and dataset models", () => {
     const languageLiteral = makeLiteral(XSD_STRING.value, { language: "EN" })("Alice");
     const directLanguageLiteral = makeLiteral("Alice", XSD_STRING.value, { language: "EN" });
     const defaultGraphQuad = makeQuad(alice, RDF_TYPE, typed);
-    const curriedQuad = makeQuad(RDF_TYPE, { object: person, graph })(alice);
-    const directOptionsQuad = makeQuad(alice, RDF_TYPE, { object: blank });
+    const curriedQuad = makeQuad(RDF_TYPE, MakeQuadOptionsInput.make({ object: person, graph }))(alice);
+    const directOptionsQuad = makeQuad(alice, RDF_TYPE, MakeQuadOptionsInput.make({ object: blank }));
     const directDataset = makeDataset([curriedQuad, defaultGraphQuad]);
     const reorderedDataset = makeDataset([defaultGraphQuad, curriedQuad]);
 

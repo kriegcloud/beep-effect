@@ -83,11 +83,15 @@ const OnePasswordCliProcessContextFields = {
  * @category errors
  * @since 0.0.0
  */
-export class OnePasswordCliErrorOptions extends S.Class<OnePasswordCliErrorOptions>($I`OnePasswordCliErrorOptions`)(
-  OnePasswordCliProcessContextFields,
-  $I.annote("OnePasswordCliErrorOptions", {
-    description: "Optional redacted process context for a 1Password CLI failure.",
-  })
+export class OnePasswordCliErrorOptions extends S.Opaque<
+  OnePasswordCliErrorOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(OnePasswordCliProcessContextFields).pipe(
+    $I.annoteSchema("OnePasswordCliErrorOptions", {
+      description: "Optional redacted process context for a 1Password CLI failure.",
+    })
+  )
 ) {}
 
 /**
@@ -104,7 +108,9 @@ export class OnePasswordCliErrorOptions extends S.Class<OnePasswordCliErrorOptio
  * @category errors
  * @since 0.0.0
  */
-export class OnePasswordCliError extends S.TaggedError<OnePasswordCliError>($I`OnePasswordCliError`)(
+export class OnePasswordCliError extends S.TaggedError<OnePasswordCliError, { readonly brand: unique symbol }>(
+  $I`OnePasswordCliError`
+)(
   "OnePasswordCliError",
   {
     ...OnePasswordCliProcessContextFields,

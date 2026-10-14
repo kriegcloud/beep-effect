@@ -498,7 +498,7 @@ describe("floating dock topology", () => {
           )
         ).state;
         const cleared = changed(
-          yield* engine.transition(withFloating, envelope("clear-populated", ClearWorkspaceCommand.make()))
+          yield* engine.transition(withFloating, envelope("clear-populated", ClearWorkspaceCommand.make({})))
         );
         expect(cleared.state).toMatchObject({ kind: "empty", floating: [] });
         expect(cleared.events).toContainEqual(expect.objectContaining({ kind: "workspaceCleared" }));
@@ -516,7 +516,7 @@ describe("floating dock topology", () => {
           )
         ).state;
         const cleared = changed(
-          yield* engine.transition(floatingOnly, envelope("clear-floating-only", ClearWorkspaceCommand.make()))
+          yield* engine.transition(floatingOnly, envelope("clear-floating-only", ClearWorkspaceCommand.make({})))
         );
         expect(cleared.state).toMatchObject({ kind: "empty", floating: [] });
         expect(cleared.events).toContainEqual(expect.objectContaining({ kind: "workspaceCleared" }));
@@ -528,7 +528,7 @@ describe("floating dock topology", () => {
       Effect.fnUntraced(function* () {
         const engine = yield* DockEngine;
         const error = yield* Effect.flip(
-          engine.transition(DockWorkspace.empty, envelope("clear-empty", ClearWorkspaceCommand.make()))
+          engine.transition(DockWorkspace.empty, envelope("clear-empty", ClearWorkspaceCommand.make({})))
         );
         expect(error).toMatchObject({ reason: "workspace-empty" });
       })
@@ -554,7 +554,7 @@ describe("floating dock topology", () => {
         floating: [{ anchoredBox: firstBox, root: tabsOne }],
       })._tag
     ).toBe("Failure");
-    expect(EmptyWorkspace.make().floating).toEqual([]);
+    expect(EmptyWorkspace.make({}).floating).toEqual([]);
   });
 });
 

@@ -13,28 +13,30 @@ import { ChunkId, DocumentId } from "@/schema/Ids";
 
 const $I = $SemanticaId.create("schema/Text");
 
-class ParsedOutcome extends S.Class<ParsedOutcome>($I`ParsedOutcome`)(
-  {
+class ParsedOutcome extends S.Opaque<ParsedOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcome: S.tag("Parsed"),
     document: DocumentId,
     text: S.String,
     extractor: SourceTextExtractor,
-  },
-  $I.annote("ParsedOutcome", {
-    description: "Successful raw-text parse with its pinned extractor identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParsedOutcome", {
+      description: "Successful raw-text parse with its pinned extractor identity.",
+    })
+  )
 ) {}
 
-class DegradedParseOutcome extends S.Class<DegradedParseOutcome>($I`DegradedParseOutcome`)(
-  {
+class DegradedParseOutcome extends S.Opaque<DegradedParseOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcome: S.tag("Degraded"),
     document: DocumentId,
     kind: DegradedKind,
     detail: S.NonEmptyString,
-  },
-  $I.annote("DegradedParseOutcome", {
-    description: "Typed parser degradation retained as a value.",
-  })
+  }).pipe(
+    $I.annoteSchema("DegradedParseOutcome", {
+      description: "Typed parser degradation retained as a value.",
+    })
+  )
 ) {}
 
 const ParseOutcomeKind = LiteralKit(["Parsed", "Degraded"]);
@@ -279,9 +281,12 @@ const ChunkChecks = S.makeFilterGroup([ChunkReceiptCheck, ChunkReceiptSourceChec
  * @category models
  * @since 0.0.0
  */
-export class Chunk extends S.Class<Chunk>($I`Chunk`)(
-  ChunkFields.mapFields(identity).check(ChunkChecks),
-  $I.annote("Chunk", {
-    description: "Document-scoped chunk whose exact text anchor has a persisted verification receipt.",
-  })
+export class Chunk extends S.Opaque<Chunk, { readonly brand: unique symbol }>()(
+  ChunkFields.mapFields(identity)
+    .check(ChunkChecks)
+    .pipe(
+      $I.annoteSchema("Chunk", {
+        description: "Document-scoped chunk whose exact text anchor has a persisted verification receipt.",
+      })
+    )
 ) {}

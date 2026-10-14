@@ -30,7 +30,9 @@ const $I = $RepoUtilsId.create("errors/NoSuchFileError");
  * @category error-handling
  * @since 0.0.0
  */
-export class NoSuchFileError extends S.TaggedError<NoSuchFileError>($I`NoSuchFileError`)(
+export class NoSuchFileError extends S.TaggedError<NoSuchFileError, { readonly brand: unique symbol }>(
+  $I`NoSuchFileError`
+)(
   "NoSuchFileError",
   {
     path: S.String,

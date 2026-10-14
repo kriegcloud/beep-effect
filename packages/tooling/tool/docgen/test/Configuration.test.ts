@@ -80,29 +80,32 @@ describe("Configuration", () => {
       Configuration.load(makeLoadArgs()).pipe(
         Effect.flatMap(
           Effect.fnUntraced(function* (config) {
-            return yield* expectConfig(config, {
-              projectName: "name",
-              projectHomepage: "homepage",
-              srcLink: "homepage/blob/main/src/",
-              srcDir: "src",
-              outDir: "docs",
-              theme: "mikearnaldi/just-the-docs",
-              enableSearch: true,
-              enforceDescriptions: false,
-              enforceExamples: false,
-              enforceVersion: true,
-              tscExecutable: "tsc",
-              include: [],
-              exclude: [],
-              parseCompilerOptions: Configuration.defaultCompilerOptions,
-              examplesCompilerOptions: {
-                ...Configuration.defaultCompilerOptions,
-                allowImportingTsExtensions: true,
-                noUnusedLocals: false,
-                noUnusedParameters: false,
-                types: ["node", "bun"],
-              },
-            });
+            return yield* expectConfig(
+              config,
+              Configuration.ConfigurationShape.make({
+                projectName: "name",
+                projectHomepage: "homepage",
+                srcLink: "homepage/blob/main/src/",
+                srcDir: "src",
+                outDir: "docs",
+                theme: "mikearnaldi/just-the-docs",
+                enableSearch: true,
+                enforceDescriptions: false,
+                enforceExamples: false,
+                enforceVersion: true,
+                tscExecutable: "tsc",
+                include: [],
+                exclude: [],
+                parseCompilerOptions: Configuration.defaultCompilerOptions,
+                examplesCompilerOptions: {
+                  ...Configuration.defaultCompilerOptions,
+                  allowImportingTsExtensions: true,
+                  noUnusedLocals: false,
+                  noUnusedParameters: false,
+                  types: ["node", "bun"],
+                },
+              })
+            );
           })
         )
       )
@@ -128,37 +131,40 @@ describe("Configuration", () => {
       Configuration.load(makeLoadArgs()).pipe(
         Effect.flatMap(
           Effect.fnUntraced(function* (config) {
-            return yield* expectConfig(config, {
-              projectName: "name",
-              projectHomepage: "myproject",
-              srcLink: "mygithub",
-              srcDir: "src",
-              outDir: "docs",
-              theme: "mikearnaldi/just-the-docs",
-              enableSearch: true,
-              enforceDescriptions: false,
-              enforceExamples: false,
-              enforceVersion: true,
-              tscExecutable: "tsc",
-              include: [],
-              exclude: [],
-              parseCompilerOptions: {
-                noEmit: true,
-                strict: true,
-                skipLibCheck: true,
-                exactOptionalPropertyTypes: true,
-                moduleResolution: "bundler",
-                target: "es2022",
-                lib: ["ES2022", "DOM"],
-              },
-              examplesCompilerOptions: {
-                ...Configuration.defaultCompilerOptions,
-                allowImportingTsExtensions: true,
-                noUnusedLocals: false,
-                noUnusedParameters: false,
-                types: ["node", "bun"],
-              },
-            });
+            return yield* expectConfig(
+              config,
+              Configuration.ConfigurationShape.make({
+                projectName: "name",
+                projectHomepage: "myproject",
+                srcLink: "mygithub",
+                srcDir: "src",
+                outDir: "docs",
+                theme: "mikearnaldi/just-the-docs",
+                enableSearch: true,
+                enforceDescriptions: false,
+                enforceExamples: false,
+                enforceVersion: true,
+                tscExecutable: "tsc",
+                include: [],
+                exclude: [],
+                parseCompilerOptions: {
+                  noEmit: true,
+                  strict: true,
+                  skipLibCheck: true,
+                  exactOptionalPropertyTypes: true,
+                  moduleResolution: "bundler",
+                  target: "es2022",
+                  lib: ["ES2022", "DOM"],
+                },
+                examplesCompilerOptions: {
+                  ...Configuration.defaultCompilerOptions,
+                  allowImportingTsExtensions: true,
+                  noUnusedLocals: false,
+                  noUnusedParameters: false,
+                  types: ["node", "bun"],
+                },
+              })
+            );
           })
         )
       )

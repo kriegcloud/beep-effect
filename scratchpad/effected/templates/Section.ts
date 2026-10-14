@@ -81,7 +81,7 @@ export type SectionKey = typeof SectionKey.Type;
  * @category models
  * @since 0.0.0
  */
-export class SectionId extends S.Class<SectionId>($I`SectionId`)({
+export class SectionId extends S.Class<SectionId, { readonly brand: unique symbol }>($I`SectionId`)({
 	/**
 	 * The section's name, exactly as it appears in the markers.
 	 *
@@ -169,7 +169,7 @@ export class SectionId extends S.Class<SectionId>($I`SectionId`)({
  * @category models
  * @since 0.0.0
  */
-export class Section extends S.Class<Section>($I`Section`)({
+export class Section extends S.Class<Section, { readonly brand: unique symbol }>($I`Section`)({
 	/**
 	 * The section's name, exactly as it appears in the markers.
 	 *
@@ -262,7 +262,7 @@ export class Section extends S.Class<Section>($I`Section`)({
  * @category models
  * @since 0.0.0
  */
-export class PlacedSection extends S.Class<PlacedSection>($I`PlacedSection`)({
+export class PlacedSection extends S.Class<PlacedSection, { readonly brand: unique symbol }>($I`PlacedSection`)({
 	/**
 	 * The section, with line endings already normalized to `\n`.
 	 *

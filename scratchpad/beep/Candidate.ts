@@ -1287,7 +1287,7 @@ export const candidateResolutionIssue = (record: CandidateRecord): O.Option<stri
  * @category errors
  * @since 0.0.0
  */
-export class CandidateShapeError extends S.TaggedError<CandidateShapeError>()(
+export class CandidateShapeError extends S.TaggedError<CandidateShapeError, { readonly brand: unique symbol }>()(
   "CandidateShapeError",
   { message: S.String },
   $I.annoteError<CandidateShapeError>("CandidateShapeError", {

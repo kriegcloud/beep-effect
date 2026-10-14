@@ -112,15 +112,14 @@ export type ReviewField = typeof ReviewField.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReviewFinding extends S.Class<ReviewFinding>($I`ReviewFinding`)(
-  {
+export class ReviewFinding extends S.Opaque<ReviewFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     field: ReviewField.annotateKey({ description: "The field the finding is about." }),
     reason: S.NonEmptyString.annotateKey({
       description: "One sentence on what is wrong, without the value the critic read.",
     }),
     severity: ReviewFindingSeverity.annotateKey({ description: "How serious the finding is." }),
-  },
-  $I.annote("ReviewFinding", { description: "One problem the critic found with the extractor's entry." })
+  }).pipe($I.annoteSchema("ReviewFinding", { description: "One problem the critic found with the extractor's entry." }))
 ) {}
 
 /**
@@ -222,8 +221,8 @@ const deterministicCheckSideDefault: ReviewSide = "extractor";
  * @category models
  * @since 0.0.0
  */
-export class DeterministicCheck extends S.Class<DeterministicCheck>($I`DeterministicCheck`)(
-  {
+export class DeterministicCheck extends S.Opaque<DeterministicCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     check: DeterministicCheckName.annotateKey({ description: "Which check ran." }),
     field: opt(ReviewField, "The disputed field whose quoted text was checked, on per-field rows."),
     passed: S.Boolean.annotateKey({ description: "Whether the reading passed it." }),
@@ -231,8 +230,7 @@ export class DeterministicCheck extends S.Class<DeterministicCheck>($I`Determini
       S.withConstructorDefault(Effect.succeed(deterministicCheckSideDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(deterministicCheckSideDefault))
     ).annotateKey({ description: "Whose reading was checked; the extractor's unless stated." }),
-  },
-  $I.annote("DeterministicCheck", { description: "Result of one deterministic check on a reading." })
+  }).pipe($I.annoteSchema("DeterministicCheck", { description: "Result of one deterministic check on a reading." }))
 ) {}
 
 /**
@@ -249,12 +247,13 @@ export class DeterministicCheck extends S.Class<DeterministicCheck>($I`Determini
  * @category models
  * @since 0.0.0
  */
-export class FieldAgreement extends S.Class<FieldAgreement>($I`FieldAgreement`)(
-  {
+export class FieldAgreement extends S.Opaque<FieldAgreement, { readonly brand: unique symbol }>()(
+  S.Struct({
     agreed: S.Boolean.annotateKey({ description: "Whether the extractor and the critic read the same value." }),
     field: ReviewField.annotateKey({ description: "The compared field." }),
-  },
-  $I.annote("FieldAgreement", { description: "Whether the two independent readings agree on one field." })
+  }).pipe(
+    $I.annoteSchema("FieldAgreement", { description: "Whether the two independent readings agree on one field." })
+  )
 ) {}
 
 /**
@@ -307,13 +306,12 @@ export type ExtractorFieldAction = typeof ExtractorFieldAction.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExtractorFieldResponse extends S.Class<ExtractorFieldResponse>($I`ExtractorFieldResponse`)(
-  {
+export class ExtractorFieldResponse extends S.Opaque<ExtractorFieldResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     action: ExtractorFieldAction.annotateKey({ description: "Whether the field was revised or defended." }),
     citedText: opt(S.String, "Exact source text the extractor relies on for this field (never logged)."),
     field: ReviewField.annotateKey({ description: "The disputed field." }),
-  },
-  $I.annote("ExtractorFieldResponse", { description: "The extractor's answer for one disputed field." })
+  }).pipe($I.annoteSchema("ExtractorFieldResponse", { description: "The extractor's answer for one disputed field." }))
 ) {}
 
 /**
@@ -337,12 +335,11 @@ export class ExtractorFieldResponse extends S.Class<ExtractorFieldResponse>($I`E
  * @category models
  * @since 0.0.0
  */
-export class ReviewDispute extends S.Class<ReviewDispute>($I`ReviewDispute`)(
-  {
+export class ReviewDispute extends S.Opaque<ReviewDispute, { readonly brand: unique symbol }>()(
+  S.Struct({
     field: ReviewField.annotateKey({ description: "The disputed field." }),
     reasons: S.Array(S.String).annotateKey({ description: "Why the field is disputed; never the critic's value." }),
-  },
-  $I.annote("ReviewDispute", { description: "One field the extractor must revise or defend." })
+  }).pipe($I.annoteSchema("ReviewDispute", { description: "One field the extractor must revise or defend." }))
 ) {}
 
 /**
@@ -365,16 +362,15 @@ export class ReviewDispute extends S.Class<ReviewDispute>($I`ReviewDispute`)(
  * @category models
  * @since 0.0.0
  */
-export class ReviewSourceText extends S.Class<ReviewSourceText>($I`ReviewSourceText`)(
-  {
+export class ReviewSourceText extends S.Opaque<ReviewSourceText, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentText: opt(S.String, "Text of the attached documents, when the adapter supplies it (never logged)."),
     hasDocuments: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ).annotateKey({ description: "Whether a source document was attached to the message." }),
     messageText: S.String.annotateKey({ description: "Subject and body of the message (never logged)." }),
-  },
-  $I.annote("ReviewSourceText", { description: "The text a citation is checked against." })
+  }).pipe($I.annoteSchema("ReviewSourceText", { description: "The text a citation is checked against." }))
 ) {}
 
 /**
@@ -392,13 +388,12 @@ export class ReviewSourceText extends S.Class<ReviewSourceText>($I`ReviewSourceT
  * @category models
  * @since 0.0.0
  */
-export class ReviewEvidence extends S.Class<ReviewEvidence>($I`ReviewEvidence`)(
-  {
+export class ReviewEvidence extends S.Opaque<ReviewEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     agreement: S.Array(FieldAgreement).annotateKey({ description: "Agreement per compared field." }),
     checks: S.Array(DeterministicCheck).annotateKey({ description: "Results of the deterministic checks." }),
     findings: S.Array(ReviewFinding).annotateKey({ description: "The critic's findings." }),
-  },
-  $I.annote("ReviewEvidence", { description: "What one review round measured." })
+  }).pipe($I.annoteSchema("ReviewEvidence", { description: "What one review round measured." }))
 ) {}
 
 /**
@@ -499,12 +494,11 @@ export type ReviewMaxRounds = typeof ReviewMaxRounds.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReviewFindingTrace extends S.Class<ReviewFindingTrace>($I`ReviewFindingTrace`)(
-  {
+export class ReviewFindingTrace extends S.Opaque<ReviewFindingTrace, { readonly brand: unique symbol }>()(
+  S.Struct({
     field: ReviewField.annotateKey({ description: "The field the finding is about." }),
     severity: ReviewFindingSeverity.annotateKey({ description: "How serious the finding is." }),
-  },
-  $I.annote("ReviewFindingTrace", { description: "A critic finding without its reason text." })
+  }).pipe($I.annoteSchema("ReviewFindingTrace", { description: "A critic finding without its reason text." }))
 ) {}
 
 const emptyFields: ReadonlyArray<ReviewField> = [];
@@ -550,8 +544,8 @@ const fieldList = (description: string) =>
  * @category models
  * @since 0.0.0
  */
-export class ReviewRoundTrace extends S.Class<ReviewRoundTrace>($I`ReviewRoundTrace`)(
-  {
+export class ReviewRoundTrace extends S.Opaque<ReviewRoundTrace, { readonly brand: unique symbol }>()(
+  S.Struct({
     agreedFields: fieldList("Compared fields the two readings agree on."),
     criticDocketItem: S.Boolean.annotateKey({ description: "Whether the critic read a docket item." }),
     defendedFields: fieldList("Disputed fields the extractor kept this round."),
@@ -563,8 +557,9 @@ export class ReviewRoundTrace extends S.Class<ReviewRoundTrace>($I`ReviewRoundTr
     index: S.Int.check(S.isGreaterThan(0)).annotateKey({ description: "1-based number of the round." }),
     revisedFields: fieldList("Disputed fields the extractor changed this round."),
     score: UnitInterval.annotateKey({ description: "Confidence score of the round." }),
-  },
-  $I.annote("ReviewRoundTrace", { description: "What each side decided in one review round, without text." })
+  }).pipe(
+    $I.annoteSchema("ReviewRoundTrace", { description: "What each side decided in one review round, without text." })
+  )
 ) {}
 
 const emptyTrace: ReadonlyArray<ReviewRoundTrace> = [];
@@ -591,8 +586,8 @@ const emptyTrace: ReadonlyArray<ReviewRoundTrace> = [];
  * @category models
  * @since 0.0.0
  */
-export class ReviewVerdict extends S.Class<ReviewVerdict>($I`ReviewVerdict`)(
-  {
+export class ReviewVerdict extends S.Opaque<ReviewVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     finalScore: UnitInterval.annotateKey({ description: "Score of the last round." }),
     maxRounds: ReviewMaxRounds.annotateKey({ description: "Round limit the review ran under." }),
     rounds: S.Natural.annotateKey({ description: "How many rounds were used." }),
@@ -604,8 +599,7 @@ export class ReviewVerdict extends S.Class<ReviewVerdict>($I`ReviewVerdict`)(
         S.withDecodingDefaultTypeKey(Effect.succeed(emptyTrace))
       )
       .annotateKey({ description: "Every round, oldest first, in ids and enums only; empty in older records." }),
-  },
-  $I.annote("ReviewVerdict", { description: "The result of a finished docket review." })
+  }).pipe($I.annoteSchema("ReviewVerdict", { description: "The result of a finished docket review." }))
 ) {}
 
 const docketReviewConfigMaxRoundsDefault = 3;
@@ -626,8 +620,8 @@ const docketReviewConfigAcceptThresholdDefault = UnitInterval.make(0.85);
  * @category models
  * @since 0.0.0
  */
-export class DocketReviewConfig extends S.Class<DocketReviewConfig>($I`DocketReviewConfig`)(
-  {
+export class DocketReviewConfig extends S.Opaque<DocketReviewConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     acceptThreshold: UnitInterval.pipe(
       S.withConstructorDefault(Effect.succeed(docketReviewConfigAcceptThresholdDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(docketReviewConfigAcceptThresholdDefault))
@@ -636,6 +630,5 @@ export class DocketReviewConfig extends S.Class<DocketReviewConfig>($I`DocketRev
       S.withConstructorDefault(Effect.succeed(docketReviewConfigMaxRoundsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(docketReviewConfigMaxRoundsDefault))
     ).annotateKey({ description: "Rounds after which an item that was not accepted is flagged; 3 by default." }),
-  },
-  $I.annote("DocketReviewConfig", { description: "Settings of the docket review loop." })
+  }).pipe($I.annoteSchema("DocketReviewConfig", { description: "Settings of the docket review loop." }))
 ) {}

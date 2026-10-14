@@ -401,7 +401,9 @@ const mirrorFailure = (message: string, cause: unknown): AiMetricsMirrorError =>
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsMirrorError extends S.TaggedError<AiMetricsMirrorError>($I`AiMetricsMirrorError`)(
+export class AiMetricsMirrorError extends S.TaggedError<AiMetricsMirrorError, { readonly brand: unique symbol }>(
+  $I`AiMetricsMirrorError`
+)(
   "AiMetricsMirrorError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -427,16 +429,18 @@ export class AiMetricsMirrorError extends S.TaggedError<AiMetricsMirrorError>($I
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsMirrorLatestPointer extends S.Class<AiMetricsMirrorLatestPointer>(
-  $I`AiMetricsMirrorLatestPointer`
-)(
-  {
+export class AiMetricsMirrorLatestPointer extends S.Opaque<
+  AiMetricsMirrorLatestPointer,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     bundleDir: S.String,
     bundleId: S.String,
-  },
-  $I.annote("AiMetricsMirrorLatestPointer", {
-    description: "Local pointer to the latest sanitized AI metrics mirror bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsMirrorLatestPointer", {
+      description: "Local pointer to the latest sanitized AI metrics mirror bundle.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsMirrorLatestPointer));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsMirrorLatestPointer));
@@ -467,8 +471,11 @@ export class AiMetricsMirrorLatestPointer extends S.Class<AiMetricsMirrorLatestP
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsMirrorBundleInput extends S.Class<AiMetricsMirrorBundleInput>($I`AiMetricsMirrorBundleInput`)(
-  {
+export class AiMetricsMirrorBundleInput extends S.Opaque<
+  AiMetricsMirrorBundleInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     bundleId: S.optionalKey(S.String),
     bundleRoot: S.optionalKey(S.String),
     dataRoot: S.String,
@@ -480,10 +487,11 @@ export class AiMetricsMirrorBundleInput extends S.Class<AiMetricsMirrorBundleInp
       S.withConstructorDefault(Effect.succeed(AiMetricsDeployTarget.Enum.dankserver)),
       S.withDecodingDefaultTypeKey(Effect.succeed(AiMetricsDeployTarget.Enum.dankserver))
     ),
-  },
-  $I.annote("AiMetricsMirrorBundleInput", {
-    description: "Local derived storage and remote target roots for one deploy-safe P7 mirror bundle build.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsMirrorBundleInput", {
+      description: "Local derived storage and remote target roots for one deploy-safe P7 mirror bundle build.",
+    })
+  )
 ) {}
 
 /**
@@ -513,15 +521,19 @@ export class AiMetricsMirrorBundleInput extends S.Class<AiMetricsMirrorBundleInp
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsMirrorTableExport extends S.Class<AiMetricsMirrorTableExport>($I`AiMetricsMirrorTableExport`)(
-  {
+export class AiMetricsMirrorTableExport extends S.Opaque<
+  AiMetricsMirrorTableExport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     parquetPath: S.String,
     rowCount: S.Finite,
     tableName: S.String,
-  },
-  $I.annote("AiMetricsMirrorTableExport", {
-    description: "Deploy-safe table and Parquet path produced by a mirror bundle build.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsMirrorTableExport", {
+      description: "Deploy-safe table and Parquet path produced by a mirror bundle build.",
+    })
+  )
 ) {}
 
 /**
@@ -560,16 +572,20 @@ export class AiMetricsMirrorTableExport extends S.Class<AiMetricsMirrorTableExpo
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsMirrorPrivacyProof extends S.Class<AiMetricsMirrorPrivacyProof>($I`AiMetricsMirrorPrivacyProof`)(
-  {
+export class AiMetricsMirrorPrivacyProof extends S.Opaque<
+  AiMetricsMirrorPrivacyProof,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     checkedTokens: S.Array(S.String),
     forbiddenMatches: S.Array(S.String),
     omittedTables: S.Array(S.String),
     safe: S.Boolean,
-  },
-  $I.annote("AiMetricsMirrorPrivacyProof", {
-    description: "Machine-readable proof that the manifest and status omit raw archive and local path fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsMirrorPrivacyProof", {
+      description: "Machine-readable proof that the manifest and status omit raw archive and local path fields.",
+    })
+  )
 ) {}
 
 /**
@@ -595,8 +611,8 @@ export class AiMetricsMirrorPrivacyProof extends S.Class<AiMetricsMirrorPrivacyP
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsMirrorStatus extends S.Class<AiMetricsMirrorStatus>($I`AiMetricsMirrorStatus`)(
-  {
+export class AiMetricsMirrorStatus extends S.Opaque<AiMetricsMirrorStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundleId: S.String,
     createdAtEpochMillis: S.Finite,
     mirrorStatusSchemaVersion: S.Literal(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_status.v1"]).pipe(
@@ -608,10 +624,11 @@ export class AiMetricsMirrorStatus extends S.Class<AiMetricsMirrorStatus>($I`AiM
       S.withConstructorDefault(Effect.succeed(AiMetricsMirrorSyncStatus.Enum.not_synced))
     ),
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsMirrorStatus", {
-    description: "Persisted synchronization status for one sanitized AI metrics mirror bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsMirrorStatus", {
+      description: "Persisted synchronization status for one sanitized AI metrics mirror bundle.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsMirrorStatus));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsMirrorStatus));
@@ -661,10 +678,11 @@ export class AiMetricsMirrorStatus extends S.Class<AiMetricsMirrorStatus>($I`AiM
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsMirrorBundleManifest extends S.Class<AiMetricsMirrorBundleManifest>(
-  $I`AiMetricsMirrorBundleManifest`
-)(
-  {
+export class AiMetricsMirrorBundleManifest extends S.Opaque<
+  AiMetricsMirrorBundleManifest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     bundleId: S.String,
     createdAtEpochMillis: S.Finite,
     includedTables: S.Array(S.String),
@@ -686,10 +704,11 @@ export class AiMetricsMirrorBundleManifest extends S.Class<AiMetricsMirrorBundle
       )
     ),
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsMirrorBundleManifest", {
-    description: "Deploy-safe bundle manifest for the hybrid P7 derived mirror.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsMirrorBundleManifest", {
+      description: "Deploy-safe bundle manifest for the hybrid P7 derived mirror.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsMirrorBundleManifest));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsMirrorBundleManifest));
@@ -756,8 +775,11 @@ export class AiMetricsMirrorBundleManifest extends S.Class<AiMetricsMirrorBundle
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsMirrorBundleResult extends S.Class<AiMetricsMirrorBundleResult>($I`AiMetricsMirrorBundleResult`)(
-  {
+export class AiMetricsMirrorBundleResult extends S.Opaque<
+  AiMetricsMirrorBundleResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     bundleDir: S.String,
     bundleId: S.String,
     manifest: AiMetricsMirrorBundleManifest,
@@ -766,10 +788,11 @@ export class AiMetricsMirrorBundleResult extends S.Class<AiMetricsMirrorBundleRe
     parquetDir: S.String,
     statusPath: S.String,
     tables: S.Array(AiMetricsMirrorTableExport),
-  },
-  $I.annote("AiMetricsMirrorBundleResult", {
-    description: "Local build result for a sanitized P7 AI metrics mirror bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsMirrorBundleResult", {
+      description: "Local build result for a sanitized P7 AI metrics mirror bundle.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsMirrorBundleResult));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsMirrorBundleResult));

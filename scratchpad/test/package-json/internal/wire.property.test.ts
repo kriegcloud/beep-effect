@@ -15,7 +15,7 @@ const Extras = S.Record(
   S.Json,
 );
 
-class Manifest extends S.Class<Manifest>("WirePropertyManifest")({
+class Manifest extends S.Class<Manifest, { readonly brand: unique symbol }>("WirePropertyManifest")({
   name: S.String,
   size: S.BigIntFromString,
   rest: Extras,
@@ -25,7 +25,7 @@ class ExtendedManifest extends Manifest.extend<ExtendedManifest>("WirePropertyEx
   enabled: S.Boolean,
 }) {}
 
-class CollidingManifest extends S.Class<CollidingManifest>("WireCollisionManifest")({
+class CollidingManifest extends S.Class<CollidingManifest, { readonly brand: unique symbol }>("WireCollisionManifest")({
   name: S.String,
   size: S.BigIntFromString,
   enabled: S.Boolean,

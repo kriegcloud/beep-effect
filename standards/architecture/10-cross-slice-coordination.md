@@ -126,15 +126,14 @@ const $I = $SharedUseCasesId.create("iam.events.MembershipRevoked")
  * but the contract surface and its consumers are tracked by the shared
  * promotion record per `02-shared-kernel.md` Appendix.
  */
-export class MembershipRevokedPayload extends S.Class<MembershipRevokedPayload>($I`Payload`)(
-  {
+export class MembershipRevokedPayload extends S.Opaque<MembershipRevokedPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     membershipId: S.String,
     revokedAt: S.DateTimeUtc,
     reason: S.optionalKey(S.String)
-  },
-  $I.annote("Payload", {
+  }).pipe($I.annoteSchema("Payload", {
     description: "Emitted when an iam Membership transitions to revoked."
-  })
+  }))
 ) {}
 
 /**

@@ -10,7 +10,7 @@ import type * as Rest from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/RepositoryVariable");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 

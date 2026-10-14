@@ -39,7 +39,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Error/Embedding");
  * @category errors
  * @since 0.0.0
  */
-export class EmbeddingError extends S.TaggedError<EmbeddingError>($I`EmbeddingError`)(
+export class EmbeddingError extends S.TaggedError<EmbeddingError, { readonly brand: unique symbol }>($I`EmbeddingError`)(
   "EmbeddingError",
   {
     message: ErrorMessage.annotateKey({
@@ -76,7 +76,7 @@ export class EmbeddingError extends S.TaggedError<EmbeddingError>($I`EmbeddingEr
  * @category errors
  * @since 0.0.0
  */
-export class EmbeddingRateLimitError extends S.TaggedError<EmbeddingRateLimitError>($I`EmbeddingRateLimitError`)(
+export class EmbeddingRateLimitError extends S.TaggedError<EmbeddingRateLimitError, { readonly brand: unique symbol }>($I`EmbeddingRateLimitError`)(
   "EmbeddingRateLimitError",
   {
     message: ErrorMessage.annotateKey({
@@ -118,7 +118,7 @@ export class EmbeddingRateLimitError extends S.TaggedError<EmbeddingRateLimitErr
  * @category errors
  * @since 0.0.0
  */
-export class EmbeddingTimeoutError extends S.TaggedError<EmbeddingTimeoutError>($I`EmbeddingTimeoutError`)(
+export class EmbeddingTimeoutError extends S.TaggedError<EmbeddingTimeoutError, { readonly brand: unique symbol }>($I`EmbeddingTimeoutError`)(
   "EmbeddingTimeoutError",
   {
     message: ErrorMessage.annotateKey({
@@ -160,7 +160,7 @@ export class EmbeddingTimeoutError extends S.TaggedError<EmbeddingTimeoutError>(
  * @category errors
  * @since 0.0.0
  */
-export class EmbeddingInvalidResponseError extends S.TaggedError<EmbeddingInvalidResponseError>(
+export class EmbeddingInvalidResponseError extends S.TaggedError<EmbeddingInvalidResponseError, { readonly brand: unique symbol }>(
   $I`EmbeddingInvalidResponseError`
 )(
   "EmbeddingInvalidResponseError",
@@ -203,7 +203,7 @@ export class EmbeddingInvalidResponseError extends S.TaggedError<EmbeddingInvali
  * @category errors
  * @since 0.0.0
  */
-export class EmbeddingDimensionMismatchError extends S.TaggedError<EmbeddingDimensionMismatchError>(
+export class EmbeddingDimensionMismatchError extends S.TaggedError<EmbeddingDimensionMismatchError, { readonly brand: unique symbol }>(
   $I`EmbeddingDimensionMismatchError`
 )(
   "EmbeddingDimensionMismatchError",
@@ -246,7 +246,7 @@ export class EmbeddingDimensionMismatchError extends S.TaggedError<EmbeddingDime
  * @category errors
  * @since 0.0.0
  */
-export class EmbeddingTokenLimitError extends S.TaggedError<EmbeddingTokenLimitError>($I`EmbeddingTokenLimitError`)(
+export class EmbeddingTokenLimitError extends S.TaggedError<EmbeddingTokenLimitError, { readonly brand: unique symbol }>($I`EmbeddingTokenLimitError`)(
   "EmbeddingTokenLimitError",
   {
     message: ErrorMessage.annotateKey({

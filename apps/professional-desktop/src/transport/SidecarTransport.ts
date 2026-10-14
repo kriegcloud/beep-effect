@@ -26,14 +26,15 @@ const $I = $ProfessionalDesktopId.create("transport/SidecarTransport");
  * @category models
  * @since 0.0.0
  */
-export class SidecarTransport extends S.Class<SidecarTransport>($I`SidecarTransport`)(
-  {
+export class SidecarTransport extends S.Opaque<SidecarTransport, { readonly brand: unique symbol }>()(
+  S.Struct({
     ipc: S.Boolean,
     rpcSessionToken: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SidecarTransport", {
-    description: "The transport used to communicate with the sidecar.",
-  })
+  }).pipe(
+    $I.annoteSchema("SidecarTransport", {
+      description: "The transport used to communicate with the sidecar.",
+    })
+  )
 ) {
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(SidecarTransport);
 }

@@ -34,7 +34,9 @@ import type { DocketIntakeAppConfig } from "./Config.ts";
 const $I = $DocketIntakeId.create("Smoke");
 
 // Not exported: `smoke` is the only producer, and the process exit code is the only consumer.
-class DocketIntakeSmokeFailed extends S.TaggedError<DocketIntakeSmokeFailed>($I`DocketIntakeSmokeFailed`)(
+class DocketIntakeSmokeFailed extends S.TaggedError<DocketIntakeSmokeFailed, { readonly brand: unique symbol }>(
+  $I`DocketIntakeSmokeFailed`
+)(
   "DocketIntakeSmokeFailed",
   {
     failed: S.Natural.annotateKey({ description: "How many steps failed." }),

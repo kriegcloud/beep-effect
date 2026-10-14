@@ -201,17 +201,21 @@ export type JSDocCategoryNormalizationStatus = typeof JSDocCategoryNormalization
  * @category models
  * @since 0.0.0
  */
-export class JSDocCategoryNormalization extends S.Class<JSDocCategoryNormalization>($I`JSDocCategoryNormalization`)(
-  {
+export class JSDocCategoryNormalization extends S.Opaque<
+  JSDocCategoryNormalization,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     original: S.String,
     normalized: S.String,
     status: JSDocCategoryNormalizationStatus,
     canonical: S.optionalKey(S.String),
     message: S.optionalKey(S.String),
-  },
-  $I.annote("JSDocCategoryNormalization", {
-    description: "Normalized interpretation of a single @category tag value.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocCategoryNormalization", {
+      description: "Normalized interpretation of a single @category tag value.",
+    })
+  )
 ) {}
 
 const JSDOC_CATEGORY_ALIASES: Readonly<Record<string, JSDocCategory>> = {

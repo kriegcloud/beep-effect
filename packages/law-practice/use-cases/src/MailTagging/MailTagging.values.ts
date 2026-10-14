@@ -86,18 +86,19 @@ export type MailPageCursor = typeof MailPageCursor.Type;
  * @category models
  * @since 0.0.0
  */
-export class ListMessagesSinceRequest extends S.Class<ListMessagesSinceRequest>($I`ListMessagesSinceRequest`)(
-  {
+export class ListMessagesSinceRequest extends S.Opaque<ListMessagesSinceRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     since: S.DateTimeUtcFromString.annotateKey({
       description: "Inclusive lower bound on the received instant.",
     }),
     cursor: S.Option(MailPageCursor).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Continuation token of the previous page; none for the first page.",
     }),
-  },
-  $I.annote("ListMessagesSinceRequest", {
-    description: "One page request of the ascending mailbox listing.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListMessagesSinceRequest", {
+      description: "One page request of the ascending mailbox listing.",
+    })
+  )
 ) {}
 
 /**
@@ -116,18 +117,19 @@ export class ListMessagesSinceRequest extends S.Class<ListMessagesSinceRequest>(
  * @category models
  * @since 0.0.0
  */
-export class MailPage extends S.Class<MailPage>($I`MailPage`)(
-  {
+export class MailPage extends S.Opaque<MailPage, { readonly brand: unique symbol }>()(
+  S.Struct({
     envelopes: S.Array(MailEnvelope).annotateKey({
       description: "Envelopes of the page, ascending by received instant.",
     }),
     next: S.Option(MailPageCursor).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Continuation token of the next page; none on the last page.",
     }),
-  },
-  $I.annote("MailPage", {
-    description: "One page of envelopes in ascending received order.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailPage", {
+      description: "One page of envelopes in ascending received order.",
+    })
+  )
 ) {}
 
 /**
@@ -163,8 +165,8 @@ export class MailPage extends S.Class<MailPage>($I`MailPage`)(
  * @category models
  * @since 0.0.0
  */
-export class SetCategoriesRequest extends S.Class<SetCategoriesRequest>($I`SetCategoriesRequest`)(
-  {
+export class SetCategoriesRequest extends S.Opaque<SetCategoriesRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     messageId: MailMessageId.annotateKey({
       description: "Message whose categories are replaced.",
     }),
@@ -177,10 +179,11 @@ export class SetCategoriesRequest extends S.Class<SetCategoriesRequest>($I`SetCa
     changeKey: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Version token the list was computed from; an adapter rejects the write when it is stale.",
     }),
-  },
-  $I.annote("SetCategoriesRequest", {
-    description: "Full-list replacement of one message's categories.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetCategoriesRequest", {
+      description: "Full-list replacement of one message's categories.",
+    })
+  )
 ) {}
 
 /**
@@ -205,8 +208,8 @@ export class SetCategoriesRequest extends S.Class<SetCategoriesRequest>($I`SetCa
  * @category models
  * @since 0.0.0
  */
-export class MailAttachmentMeta extends S.Class<MailAttachmentMeta>($I`MailAttachmentMeta`)(
-  {
+export class MailAttachmentMeta extends S.Opaque<MailAttachmentMeta, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachmentId: MailAttachmentId.annotateKey({
       description: "Provider id of the attachment.",
     }),
@@ -225,10 +228,11 @@ export class MailAttachmentMeta extends S.Class<MailAttachmentMeta>($I`MailAttac
     isFile: S.Boolean.annotateKey({
       description: "Whether the part is a file rather than an attached item or a link.",
     }),
-  },
-  $I.annote("MailAttachmentMeta", {
-    description: "Metadata of one attachment, read before any download.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailAttachmentMeta", {
+      description: "Metadata of one attachment, read before any download.",
+    })
+  )
 ) {}
 
 /**
@@ -250,18 +254,19 @@ export class MailAttachmentMeta extends S.Class<MailAttachmentMeta>($I`MailAttac
  * @category models
  * @since 0.0.0
  */
-export class DownloadAttachmentRequest extends S.Class<DownloadAttachmentRequest>($I`DownloadAttachmentRequest`)(
-  {
+export class DownloadAttachmentRequest extends S.Opaque<DownloadAttachmentRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     messageId: MailMessageId.annotateKey({
       description: "Message that carries the attachment.",
     }),
     attachmentId: MailAttachmentId.annotateKey({
       description: "Attachment to download.",
     }),
-  },
-  $I.annote("DownloadAttachmentRequest", {
-    description: "Address of one attachment's bytes.",
-  })
+  }).pipe(
+    $I.annoteSchema("DownloadAttachmentRequest", {
+      description: "Address of one attachment's bytes.",
+    })
+  )
 ) {}
 
 /**
@@ -283,18 +288,19 @@ export class DownloadAttachmentRequest extends S.Class<DownloadAttachmentRequest
  * @category models
  * @since 0.0.0
  */
-export class MatterFolderRequest extends S.Class<MatterFolderRequest>($I`MatterFolderRequest`)(
-  {
+export class MatterFolderRequest extends S.Opaque<MatterFolderRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     matterKey: MatterKey.annotateKey({
       description: "Matter whose folder is wanted; resolved by family key, never by client name.",
     }),
     destination: FilingDestination.annotateKey({
       description: "Subfolder of the matter the attachment is routed to.",
     }),
-  },
-  $I.annote("MatterFolderRequest", {
-    description: "Address of one filing subfolder of one matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterFolderRequest", {
+      description: "Address of one filing subfolder of one matter.",
+    })
+  )
 ) {}
 
 /**
@@ -317,8 +323,8 @@ export class MatterFolderRequest extends S.Class<MatterFolderRequest>($I`MatterF
  * @category models
  * @since 0.0.0
  */
-export class UploadDocumentRequest extends S.Class<UploadDocumentRequest>($I`UploadDocumentRequest`)(
-  {
+export class UploadDocumentRequest extends S.Opaque<UploadDocumentRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     folderId: DocumentFolderId.annotateKey({
       description: "Folder the file is created in.",
     }),
@@ -331,10 +337,11 @@ export class UploadDocumentRequest extends S.Class<UploadDocumentRequest>($I`Upl
     bytes: S.Uint8Array.annotateKey({
       description: "Content of the new file.",
     }),
-  },
-  $I.annote("UploadDocumentRequest", {
-    description: "One new file for a matter's document folder.",
-  })
+  }).pipe(
+    $I.annoteSchema("UploadDocumentRequest", {
+      description: "One new file for a matter's document folder.",
+    })
+  )
 ) {}
 
 /**
@@ -353,16 +360,16 @@ export class UploadDocumentRequest extends S.Class<UploadDocumentRequest>($I`Upl
  * @category models
  * @since 0.0.0
  */
-export class DocumentUploaded extends S.TaggedClass<DocumentUploaded>($I`DocumentUploaded`)(
-  "DocumentUploaded",
-  {
+export class DocumentUploaded extends S.Opaque<DocumentUploaded, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("DocumentUploaded", {
     fileId: DocumentFileId.annotateKey({
       description: "Id of the file the upload created.",
     }),
-  },
-  $I.annote("DocumentUploaded", {
-    description: "Outcome of an upload that created the file.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentUploaded", {
+      description: "Outcome of an upload that created the file.",
+    })
+  )
 ) {}
 
 /**
@@ -432,8 +439,8 @@ export type ContentSha1 = typeof ContentSha1.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExistingDocument extends S.Class<ExistingDocument>($I`ExistingDocument`)(
-  {
+export class ExistingDocument extends S.Opaque<ExistingDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileId: DocumentFileId.annotateKey({
       description: "Id of the file holding the name.",
     }),
@@ -443,10 +450,11 @@ export class ExistingDocument extends S.Class<ExistingDocument>($I`ExistingDocum
     contentSha1: S.Option(ContentSha1).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "SHA-1 of the holder's bytes, when the store reports it.",
     }),
-  },
-  $I.annote("ExistingDocument", {
-    description: "What a document store says about the file that already holds a name.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExistingDocument", {
+      description: "What a document store says about the file that already holds a name.",
+    })
+  )
 ) {}
 
 /**
@@ -472,16 +480,16 @@ export class ExistingDocument extends S.Class<ExistingDocument>($I`ExistingDocum
  * @category models
  * @since 0.0.0
  */
-export class DocumentNameTaken extends S.TaggedClass<DocumentNameTaken>($I`DocumentNameTaken`)(
-  "DocumentNameTaken",
-  {
+export class DocumentNameTaken extends S.Opaque<DocumentNameTaken, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("DocumentNameTaken", {
     existing: S.Option(ExistingDocument).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "The file that already holds the name, when the store describes it.",
     }),
-  },
-  $I.annote("DocumentNameTaken", {
-    description: "Outcome of an upload refused because the name already exists in the folder.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentNameTaken", {
+      description: "Outcome of an upload refused because the name already exists in the folder.",
+    })
+  )
 ) {}
 
 /**
@@ -537,18 +545,19 @@ export type DocumentUploadResult = typeof DocumentUploadResult.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnownDocumentRequest extends S.Class<KnownDocumentRequest>($I`KnownDocumentRequest`)(
-  {
+export class KnownDocumentRequest extends S.Opaque<KnownDocumentRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentSha256: ContentSha256.annotateKey({
       description: "SHA-256 of the content in question.",
     }),
     matterKey: MatterKey.annotateKey({
       description: "Matter the content would be filed under.",
     }),
-  },
-  $I.annote("KnownDocumentRequest", {
-    description: "Content hash and matter to look up in the known-documents index.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnownDocumentRequest", {
+      description: "Content hash and matter to look up in the known-documents index.",
+    })
+  )
 ) {}
 
 /**
@@ -571,8 +580,8 @@ export class KnownDocumentRequest extends S.Class<KnownDocumentRequest>($I`Known
  * @category models
  * @since 0.0.0
  */
-export class MatterTaggerContext extends S.Class<MatterTaggerContext>($I`MatterTaggerContext`)(
-  {
+export class MatterTaggerContext extends S.Opaque<MatterTaggerContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     index: MatterIndex.annotateKey({
       description: "Snapshot of every taggable matter.",
     }),
@@ -587,10 +596,11 @@ export class MatterTaggerContext extends S.Class<MatterTaggerContext>($I`MatterT
       .annotateKey({
         description: "Matter each already-tagged conversation belongs to.",
       }),
-  },
-  $I.annote("MatterTaggerContext", {
-    description: "Everything the pure tagger reads besides the message itself.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterTaggerContext", {
+      description: "Everything the pure tagger reads besides the message itself.",
+    })
+  )
 ) {}
 
 /**
@@ -631,8 +641,8 @@ export class MatterTaggerContext extends S.Class<MatterTaggerContext>($I`MatterT
  * @category models
  * @since 0.0.0
  */
-export class FileAttachmentsRequest extends S.Class<FileAttachmentsRequest>($I`FileAttachmentsRequest`)(
-  {
+export class FileAttachmentsRequest extends S.Opaque<FileAttachmentsRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     envelope: MailEnvelope.annotateKey({
       description: "Matched message whose attachments are filed.",
     }),
@@ -654,10 +664,11 @@ export class FileAttachmentsRequest extends S.Class<FileAttachmentsRequest>($I`F
     policy: defaultPolicy.annotateKey({
       description: "Policy carrying the attachment size cap.",
     }),
-  },
-  $I.annote("FileAttachmentsRequest", {
-    description: "Request to file the attachments of one matched message.",
-  })
+  }).pipe(
+    $I.annoteSchema("FileAttachmentsRequest", {
+      description: "Request to file the attachments of one matched message.",
+    })
+  )
 ) {}
 
 /**
@@ -683,8 +694,8 @@ export class FileAttachmentsRequest extends S.Class<FileAttachmentsRequest>($I`F
  * @category models
  * @since 0.0.0
  */
-export class RunMailTaggingRequest extends S.Class<RunMailTaggingRequest>($I`RunMailTaggingRequest`)(
-  {
+export class RunMailTaggingRequest extends S.Opaque<RunMailTaggingRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: TaggingMode.annotateKey({
       description: "Whether the run only reports or also writes.",
     }),
@@ -700,10 +711,11 @@ export class RunMailTaggingRequest extends S.Class<RunMailTaggingRequest>($I`Run
     maxPages: S.Option(PosInt).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Upper bound on pages read in this run; none reads to the end.",
     }),
-  },
-  $I.annote("RunMailTaggingRequest", {
-    description: "Request to tag the mailbox from an instant onwards.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunMailTaggingRequest", {
+      description: "Request to tag the mailbox from an instant onwards.",
+    })
+  )
 ) {}
 
 /**
@@ -726,8 +738,8 @@ export class RunMailTaggingRequest extends S.Class<RunMailTaggingRequest>($I`Run
  * @category models
  * @since 0.0.0
  */
-export class UndoMailTaggingRequest extends S.Class<UndoMailTaggingRequest>($I`UndoMailTaggingRequest`)(
-  {
+export class UndoMailTaggingRequest extends S.Opaque<UndoMailTaggingRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     originalRunId: TaggingRunId.annotateKey({
       description: "Run whose additions are taken back.",
     }),
@@ -737,8 +749,9 @@ export class UndoMailTaggingRequest extends S.Class<UndoMailTaggingRequest>($I`U
     mode: TaggingMode.annotateKey({
       description: "Whether the undo only reports or also writes.",
     }),
-  },
-  $I.annote("UndoMailTaggingRequest", {
-    description: "Request to take back the categories one run added.",
-  })
+  }).pipe(
+    $I.annoteSchema("UndoMailTaggingRequest", {
+      description: "Request to take back the categories one run added.",
+    })
+  )
 ) {}

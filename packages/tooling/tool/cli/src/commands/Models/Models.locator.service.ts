@@ -53,15 +53,15 @@ export interface ModelsLocatorReaderShape {
  * **Example** (Describe a locator read)
  *
  * ```ts
- * import { ModelsLocatorReader } from "@beep/repo-cli/commands/Models"
+ * import { LocatorBinding, ModelsLocatorReader, ModelsTargetFile } from "@beep/repo-cli/commands/Models"
  * import * as Effect from "effect/Effect"
  *
  * const program = ModelsLocatorReader.use((reader) =>
  *   reader.read(
- *     { root: "repo", absolutePath: "/repo/a.ts", content: 'export const x = "y";' },
+ *     ModelsTargetFile.make({ root: "repo", absolutePath: "/repo/a.ts", content: 'export const x = "y";' }),
  *     {
  *       _tag: "ts-literal",
- *       binding: { role: "qa.judge", surface: "codex-plugin", field: "model" },
+ *       binding: LocatorBinding.make({ role: "qa.judge", surface: "codex-plugin", field: "model" }),
  *       render: { _tag: "verbatim" },
  *       symbol: "x"
  *     }

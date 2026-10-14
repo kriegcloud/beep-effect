@@ -19,6 +19,7 @@ import {
   SkillMarkdownProjection,
   verifySkillArtifact,
 } from "@beep/skill-contract";
+import { VerifySkillArtifactInput } from "@beep/skill-contract/SkillProjection";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
@@ -67,7 +68,7 @@ describe("@beep/skill-contract SkillProjection", () => {
     Effect.gen(function* () {
       const rendered = renderFixture();
       const decoded = Result.getOrThrow(decodeSkillFrontmatter(rendered));
-      const verdict = yield* verifySkillArtifact({ committed: rendered, contract });
+      const verdict = yield* verifySkillArtifact(VerifySkillArtifactInput.make({ committed: rendered, contract }));
 
       expect(Str.startsWith("---json\n")(rendered)).toBe(true);
       expect(Str.includes("\n# `qa-inventory-judge@1.0.0`\n")(rendered)).toBe(true);
@@ -97,7 +98,9 @@ describe("@beep/skill-contract SkillProjection", () => {
 
   it.effect("denies a tampered body while still passing frontmatter equality", () =>
     Effect.gen(function* () {
-      const verdict = yield* verifySkillArtifact({ committed: `${renderFixture()}\n\nTampered body.`, contract });
+      const verdict = yield* verifySkillArtifact(
+        VerifySkillArtifactInput.make({ committed: `${renderFixture()}\n\nTampered body.`, contract })
+      );
 
       expect(verdict.verdict).toBe("denied");
       expect(
@@ -124,7 +127,7 @@ describe("@beep/skill-contract SkillProjection", () => {
         "Validate one QA inventory against recorded round evidence.",
         "Validate a different promise."
       )(renderFixture());
-      const verdict = yield* verifySkillArtifact({ committed, contract });
+      const verdict = yield* verifySkillArtifact(VerifySkillArtifactInput.make({ committed, contract }));
 
       expect(verdict.verdict).toBe("denied");
       expect(
@@ -142,7 +145,7 @@ describe("@beep/skill-contract SkillProjection", () => {
         '"projection":"skill-contract/skill-md/v1"',
         '"projection":"tampered"'
       )(renderFixture());
-      const verdict = yield* verifySkillArtifact({ committed, contract });
+      const verdict = yield* verifySkillArtifact(VerifySkillArtifactInput.make({ committed, contract }));
 
       expect(verdict.verdict).toBe("denied");
       expect(
@@ -156,7 +159,9 @@ describe("@beep/skill-contract SkillProjection", () => {
 
   it.effect("denies missing and unterminated leading frontmatter", () =>
     Effect.gen(function* () {
-      const missing = yield* verifySkillArtifact({ committed: "# no frontmatter", contract });
+      const missing = yield* verifySkillArtifact(
+        VerifySkillArtifactInput.make({ committed: "# no frontmatter", contract })
+      );
       const unterminated = decodeSkillFrontmatter('---json\n{"projection":"skill-contract/skill-md/v1"}');
 
       expect(
@@ -210,7 +215,7 @@ describe("@beep/skill-contract SkillProjection", () => {
     ([candidate]) =>
       Effect.gen(function* () {
         const committed = Result.getOrThrow(renderSkillMarkdown(candidate));
-        const verdict = yield* verifySkillArtifact({ committed, contract: candidate });
+        const verdict = yield* verifySkillArtifact(VerifySkillArtifactInput.make({ committed, contract: candidate }));
 
         expect(verdict.verdict).toBe("allowed");
       }),

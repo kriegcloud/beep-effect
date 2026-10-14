@@ -19,7 +19,7 @@ import * as Result from "effect/Result";
 const isProjection = S.is(OntologyGraphProjection);
 
 import { it } from "@beep/test-runner";
-import { assertFalse, assertTrue } from "@effect/vitest/utils";
+import { assertTrue } from "@effect/vitest/utils";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -84,9 +84,11 @@ describe("ontology graph worker wire", () => {
       result: buildOntologyGraphProjection(snapshot, options),
     });
 
-    // What the parent used to consume: the clone, used directly.
+    // What the parent used to consume: the clone, used directly. The projection is
+    // plain branded data now, so the clone still has its shape; the contract is that
+    // the parent decodes it, which restores every non-cloneable field below.
     const usedDirectly = structuredClone(result);
-    pipe(isProjection(usedDirectly.result), assertFalse);
+    pipe(isProjection(usedDirectly.result), assertTrue);
 
     // What it consumes now: decoded back into the domain.
     const encoded = encodeWorkerResult(result);

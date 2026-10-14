@@ -27,12 +27,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/RemainingTagValues");
  * @category models
  * @since 0.0.0
  */
-export class AliasValue extends S.TaggedClass<AliasValue>($I`AliasValue`)(
-  "alias",
-  { ...nameField },
-  $I.annote("AliasValue", {
-    description: "Occurrence shape for @alias — an alias name for the symbol.",
-  })
+export class AliasValue extends S.Opaque<AliasValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("alias", { ...nameField }).pipe(
+    $I.annoteSchema("AliasValue", {
+      description: "Occurrence shape for @alias — an alias name for the symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -51,12 +51,12 @@ export class AliasValue extends S.TaggedClass<AliasValue>($I`AliasValue`)(
  * @category models
  * @since 0.0.0
  */
-export class BorrowsValue extends S.TaggedClass<BorrowsValue>($I`BorrowsValue`)(
-  "borrows",
-  { ...nameField },
-  $I.annote("BorrowsValue", {
-    description: "Occurrence shape for @borrows — copies documentation from another symbol.",
-  })
+export class BorrowsValue extends S.Opaque<BorrowsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("borrows", { ...nameField }).pipe(
+    $I.annoteSchema("BorrowsValue", {
+      description: "Occurrence shape for @borrows — copies documentation from another symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -75,12 +75,12 @@ export class BorrowsValue extends S.TaggedClass<BorrowsValue>($I`BorrowsValue`)(
  * @category models
  * @since 0.0.0
  */
-export class ClassdescValue extends S.TaggedClass<ClassdescValue>($I`ClassdescValue`)(
-  "classdesc",
-  { ...optionalDesc },
-  $I.annote("ClassdescValue", {
-    description: "Occurrence shape for @classdesc — class-level description.",
-  })
+export class ClassdescValue extends S.Opaque<ClassdescValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("classdesc", { ...optionalDesc }).pipe(
+    $I.annoteSchema("ClassdescValue", {
+      description: "Occurrence shape for @classdesc — class-level description.",
+    })
+  )
 ) {}
 
 /**
@@ -99,12 +99,12 @@ export class ClassdescValue extends S.TaggedClass<ClassdescValue>($I`ClassdescVa
  * @category models
  * @since 0.0.0
  */
-export class ConstructsValue extends S.TaggedClass<ConstructsValue>($I`ConstructsValue`)(
-  "constructs",
-  { ...optionalName },
-  $I.annote("ConstructsValue", {
-    description: "Occurrence shape for @constructs — marks a function as a constructor.",
-  })
+export class ConstructsValue extends S.Opaque<ConstructsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("constructs", { ...optionalName }).pipe(
+    $I.annoteSchema("ConstructsValue", {
+      description: "Occurrence shape for @constructs — marks a function as a constructor.",
+    })
+  )
 ) {}
 
 /**
@@ -123,12 +123,12 @@ export class ConstructsValue extends S.TaggedClass<ConstructsValue>($I`Construct
  * @category models
  * @since 0.0.0
  */
-export class CopyrightValue extends S.TaggedClass<CopyrightValue>($I`CopyrightValue`)(
-  "copyright",
-  { ...optionalDesc },
-  $I.annote("CopyrightValue", {
-    description: "Occurrence shape for @copyright — copyright information.",
-  })
+export class CopyrightValue extends S.Opaque<CopyrightValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("copyright", { ...optionalDesc }).pipe(
+    $I.annoteSchema("CopyrightValue", {
+      description: "Occurrence shape for @copyright — copyright information.",
+    })
+  )
 ) {}
 
 /**
@@ -147,12 +147,12 @@ export class CopyrightValue extends S.TaggedClass<CopyrightValue>($I`CopyrightVa
  * @category models
  * @since 0.0.0
  */
-export class LicenseValue extends S.TaggedClass<LicenseValue>($I`LicenseValue`)(
-  "license",
-  { ...optionalDesc },
-  $I.annote("LicenseValue", {
-    description: "Occurrence shape for @license — license information.",
-  })
+export class LicenseValue extends S.Opaque<LicenseValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("license", { ...optionalDesc }).pipe(
+    $I.annoteSchema("LicenseValue", {
+      description: "Occurrence shape for @license — license information.",
+    })
+  )
 ) {}
 
 /**
@@ -174,12 +174,12 @@ export class LicenseValue extends S.TaggedClass<LicenseValue>($I`LicenseValue`)(
  * @category models
  * @since 0.0.0
  */
-export class ExternalValue extends S.TaggedClass<ExternalValue>($I`ExternalValue`)(
-  "external",
-  { ...optionalName, ...optionalDesc },
-  $I.annote("ExternalValue", {
-    description: "Occurrence shape for @external — documents an external symbol.",
-  })
+export class ExternalValue extends S.Opaque<ExternalValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("external", { ...optionalName, ...optionalDesc }).pipe(
+    $I.annoteSchema("ExternalValue", {
+      description: "Occurrence shape for @external — documents an external symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -198,12 +198,12 @@ export class ExternalValue extends S.TaggedClass<ExternalValue>($I`ExternalValue
  * @category models
  * @since 0.0.0
  */
-export class FileValue extends S.TaggedClass<FileValue>($I`FileValue`)(
-  "file",
-  { ...optionalDesc },
-  $I.annote("FileValue", {
-    description: "Occurrence shape for @file — file-level documentation.",
-  })
+export class FileValue extends S.Opaque<FileValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("file", { ...optionalDesc }).pipe(
+    $I.annoteSchema("FileValue", {
+      description: "Occurrence shape for @file — file-level documentation.",
+    })
+  )
 ) {}
 
 /**
@@ -222,12 +222,12 @@ export class FileValue extends S.TaggedClass<FileValue>($I`FileValue`)(
  * @category models
  * @since 0.0.0
  */
-export class GlobalValue extends S.TaggedClass<GlobalValue>($I`GlobalValue`)(
-  "global",
-  empty,
-  $I.annote("GlobalValue", {
-    description: "Occurrence shape for @global — marks a symbol as global.",
-  })
+export class GlobalValue extends S.Opaque<GlobalValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("global", empty).pipe(
+    $I.annoteSchema("GlobalValue", {
+      description: "Occurrence shape for @global — marks a symbol as global.",
+    })
+  )
 ) {}
 
 /**
@@ -246,12 +246,12 @@ export class GlobalValue extends S.TaggedClass<GlobalValue>($I`GlobalValue`)(
  * @category models
  * @since 0.0.0
  */
-export class HideconstructorValue extends S.TaggedClass<HideconstructorValue>($I`HideconstructorValue`)(
-  "hideconstructor",
-  empty,
-  $I.annote("HideconstructorValue", {
-    description: "Occurrence shape for @hideconstructor — hides the constructor from docs.",
-  })
+export class HideconstructorValue extends S.Opaque<HideconstructorValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("hideconstructor", empty).pipe(
+    $I.annoteSchema("HideconstructorValue", {
+      description: "Occurrence shape for @hideconstructor — hides the constructor from docs.",
+    })
+  )
 ) {}
 
 /**
@@ -270,12 +270,12 @@ export class HideconstructorValue extends S.TaggedClass<HideconstructorValue>($I
  * @category models
  * @since 0.0.0
  */
-export class IgnoreValue extends S.TaggedClass<IgnoreValue>($I`IgnoreValue`)(
-  "ignore",
-  empty,
-  $I.annote("IgnoreValue", {
-    description: "Occurrence shape for @ignore — excludes the symbol from documentation.",
-  })
+export class IgnoreValue extends S.Opaque<IgnoreValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ignore", empty).pipe(
+    $I.annoteSchema("IgnoreValue", {
+      description: "Occurrence shape for @ignore — excludes the symbol from documentation.",
+    })
+  )
 ) {}
 
 /**
@@ -294,12 +294,12 @@ export class IgnoreValue extends S.TaggedClass<IgnoreValue>($I`IgnoreValue`)(
  * @category models
  * @since 0.0.0
  */
-export class InnerValue extends S.TaggedClass<InnerValue>($I`InnerValue`)(
-  "inner",
-  empty,
-  $I.annote("InnerValue", {
-    description: "Occurrence shape for @inner — marks a symbol as an inner member.",
-  })
+export class InnerValue extends S.Opaque<InnerValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("inner", empty).pipe(
+    $I.annoteSchema("InnerValue", {
+      description: "Occurrence shape for @inner — marks a symbol as an inner member.",
+    })
+  )
 ) {}
 
 /**
@@ -318,12 +318,12 @@ export class InnerValue extends S.TaggedClass<InnerValue>($I`InnerValue`)(
  * @category models
  * @since 0.0.0
  */
-export class InstanceValue extends S.TaggedClass<InstanceValue>($I`InstanceValue`)(
-  "instance",
-  empty,
-  $I.annote("InstanceValue", {
-    description: "Occurrence shape for @instance — marks a symbol as an instance member.",
-  })
+export class InstanceValue extends S.Opaque<InstanceValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("instance", empty).pipe(
+    $I.annoteSchema("InstanceValue", {
+      description: "Occurrence shape for @instance — marks a symbol as an instance member.",
+    })
+  )
 ) {}
 
 /**
@@ -342,9 +342,8 @@ export class InstanceValue extends S.TaggedClass<InstanceValue>($I`InstanceValue
  * @category models
  * @since 0.0.0
  */
-export class KindValue extends S.TaggedClass<KindValue>($I`KindValue`)(
-  "kind",
-  {
+export class KindValue extends S.Opaque<KindValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("kind", {
     kindValue: S.Literals([
       "class",
       "constant",
@@ -358,10 +357,11 @@ export class KindValue extends S.TaggedClass<KindValue>($I`KindValue`)(
       "namespace",
       "typedef",
     ]),
-  },
-  $I.annote("KindValue", {
-    description: "Occurrence shape for @kind — specifies the kind of symbol.",
-  })
+  }).pipe(
+    $I.annoteSchema("KindValue", {
+      description: "Occurrence shape for @kind — specifies the kind of symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -380,12 +380,12 @@ export class KindValue extends S.TaggedClass<KindValue>($I`KindValue`)(
  * @category models
  * @since 0.0.0
  */
-export class LendsValue extends S.TaggedClass<LendsValue>($I`LendsValue`)(
-  "lends",
-  { ...nameField },
-  $I.annote("LendsValue", {
-    description: "Occurrence shape for @lends — documents lending to another symbol.",
-  })
+export class LendsValue extends S.Opaque<LendsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("lends", { ...nameField }).pipe(
+    $I.annoteSchema("LendsValue", {
+      description: "Occurrence shape for @lends — documents lending to another symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -404,12 +404,12 @@ export class LendsValue extends S.TaggedClass<LendsValue>($I`LendsValue`)(
  * @category models
  * @since 0.0.0
  */
-export class MixinValue extends S.TaggedClass<MixinValue>($I`MixinValue`)(
-  "mixin",
-  { ...optionalName },
-  $I.annote("MixinValue", {
-    description: "Occurrence shape for @mixin — marks a symbol as a mixin.",
-  })
+export class MixinValue extends S.Opaque<MixinValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("mixin", { ...optionalName }).pipe(
+    $I.annoteSchema("MixinValue", {
+      description: "Occurrence shape for @mixin — marks a symbol as a mixin.",
+    })
+  )
 ) {}
 
 /**
@@ -428,12 +428,12 @@ export class MixinValue extends S.TaggedClass<MixinValue>($I`MixinValue`)(
  * @category models
  * @since 0.0.0
  */
-export class MixesValue extends S.TaggedClass<MixesValue>($I`MixesValue`)(
-  "mixes",
-  { ...nameField },
-  $I.annote("MixesValue", {
-    description: "Occurrence shape for @mixes — documents mixin inclusion.",
-  })
+export class MixesValue extends S.Opaque<MixesValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("mixes", { ...nameField }).pipe(
+    $I.annoteSchema("MixesValue", {
+      description: "Occurrence shape for @mixes — documents mixin inclusion.",
+    })
+  )
 ) {}
 
 /**
@@ -452,12 +452,12 @@ export class MixesValue extends S.TaggedClass<MixesValue>($I`MixesValue`)(
  * @category models
  * @since 0.0.0
  */
-export class NameValue extends S.TaggedClass<NameValue>($I`NameValue`)(
-  "name",
-  { ...nameField },
-  $I.annote("NameValue", {
-    description: "Occurrence shape for @name — overrides the documented name.",
-  })
+export class NameValue extends S.Opaque<NameValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("name", { ...nameField }).pipe(
+    $I.annoteSchema("NameValue", {
+      description: "Occurrence shape for @name — overrides the documented name.",
+    })
+  )
 ) {}
 
 /**
@@ -476,12 +476,12 @@ export class NameValue extends S.TaggedClass<NameValue>($I`NameValue`)(
  * @category models
  * @since 0.0.0
  */
-export class VariationValue extends S.TaggedClass<VariationValue>($I`VariationValue`)(
-  "variation",
-  empty,
-  $I.annote("VariationValue", {
-    description: "Occurrence shape for @variation — distinguishes overloaded symbols.",
-  })
+export class VariationValue extends S.Opaque<VariationValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("variation", empty).pipe(
+    $I.annoteSchema("VariationValue", {
+      description: "Occurrence shape for @variation — distinguishes overloaded symbols.",
+    })
+  )
 ) {}
 
 /**
@@ -500,10 +500,10 @@ export class VariationValue extends S.TaggedClass<VariationValue>($I`VariationVa
  * @category models
  * @since 0.0.0
  */
-export class TutorialValue extends S.TaggedClass<TutorialValue>($I`TutorialValue`)(
-  "tutorial",
-  { ...nameField },
-  $I.annote("TutorialValue", {
-    description: "Occurrence shape for @tutorial — links to a tutorial.",
-  })
+export class TutorialValue extends S.Opaque<TutorialValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("tutorial", { ...nameField }).pipe(
+    $I.annoteSchema("TutorialValue", {
+      description: "Occurrence shape for @tutorial — links to a tutorial.",
+    })
+  )
 ) {}

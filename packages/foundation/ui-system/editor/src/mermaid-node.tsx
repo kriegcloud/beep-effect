@@ -56,16 +56,17 @@ const decodeSerializedMermaidNode = (input: unknown) => decodeUnknownSerializedM
  * @category models
  * @since 0.0.0
  */
-export class SerializedMermaidNode extends S.Class<SerializedMermaidNode>($I`SerializedMermaidNode`)(
-  {
+export class SerializedMermaidNode extends S.Opaque<SerializedMermaidNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("mermaid"),
     version: S.Literal(1),
     format: ElementFormat,
     source: S.String,
-  },
-  $I.annote("SerializedMermaidNode", {
-    description: "Viewer-internal serialized Mermaid decorator node.",
-  })
+  }).pipe(
+    $I.annoteSchema("SerializedMermaidNode", {
+      description: "Viewer-internal serialized Mermaid decorator node.",
+    })
+  )
 ) {}
 const decodeUnknownSerializedMermaidNodeResult = S.decodeUnknownResult(SerializedMermaidNode);
 

@@ -39,20 +39,23 @@ const $I = $LawPracticeServerId.create("PracticeKg.fts");
  * @category models
  * @since 0.0.0
  */
-export class GraphTextSourceSpec extends S.Class<GraphTextSourceSpec>($I`GraphTextSourceSpec`)(
-  {
+export class GraphTextSourceSpec extends S.Opaque<GraphTextSourceSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourcesPath: S.String,
     textGlob: S.String,
-  },
-  $I.annote("GraphTextSourceSpec", {
-    description: "Extraction manifest path and text glob pair joined into document_text.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraphTextSourceSpec", {
+      description: "Extraction manifest path and text glob pair joined into document_text.",
+    })
+  )
 ) {}
 
-class GraphDuckCountsRow extends S.Class<GraphDuckCountsRow>($I`GraphDuckCountsRow`)({
-  documents: S.Finite,
-  emails: S.Finite,
-}) {}
+class GraphDuckCountsRow extends S.Opaque<GraphDuckCountsRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    documents: S.Finite,
+    emails: S.Finite,
+  }).pipe($I.annoteSchema("GraphDuckCountsRow"))
+) {}
 
 const decodeDuckCountsRows = S.decodeUnknownEffect(S.NonEmptyArray(GraphDuckCountsRow));
 

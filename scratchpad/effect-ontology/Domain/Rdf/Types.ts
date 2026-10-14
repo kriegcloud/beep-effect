@@ -37,7 +37,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Rdf/Types");
  * @category models
  * @since 0.0.0
  */
-export class Triple extends S.Class<Triple>($I`Triple`)(
+export class Triple extends S.Class<Triple, { readonly brand: unique symbol }>($I`Triple`)(
   {
     subject: Subject,
     predicate: NamedNode,

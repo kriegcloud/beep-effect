@@ -60,17 +60,18 @@ const TurboSummaryExecution = S.Struct({ exitCode: S.Finite.pipe(S.NullOr, S.opt
  * @category models
  * @since 0.0.0
  */
-export class TurboSummaryTask extends S.Class<TurboSummaryTask>($I`TurboSummaryTask`)(
-  {
+export class TurboSummaryTask extends S.Opaque<TurboSummaryTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     taskId: S.String,
     task: S.String,
     hash: S.String,
     cache: S.Struct({ status: TurboSummaryCacheStatus }),
     execution: TurboSummaryExecution.pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("TurboSummaryTask", {
-    description: "One Turbo run-summary task row: id, bare name, hash, cache status, exit.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboSummaryTask", {
+      description: "One Turbo run-summary task row: id, bare name, hash, cache status, exit.",
+    })
+  )
 ) {}
 
 /**
@@ -92,13 +93,14 @@ export class TurboSummaryTask extends S.Class<TurboSummaryTask>($I`TurboSummaryT
  * @category models
  * @since 0.0.0
  */
-export class TurboRunSummary extends S.Class<TurboRunSummary>($I`TurboRunSummary`)(
-  {
+export class TurboRunSummary extends S.Opaque<TurboRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     execution: S.Struct({ startTime: S.Finite, endTime: S.Finite, exitCode: S.Finite }),
     tasks: S.Array(TurboSummaryTask),
-  },
-  $I.annote("TurboRunSummary", { description: "Turbo run summary subset: id, execution window and task rows." })
+  }).pipe(
+    $I.annoteSchema("TurboRunSummary", { description: "Turbo run summary subset: id, execution window and task rows." })
+  )
 ) {}
 
 /**
@@ -116,9 +118,12 @@ export class TurboRunSummary extends S.Class<TurboRunSummary>($I`TurboRunSummary
  * @category models
  * @since 0.0.0
  */
-export class TurboLaneTaskHash extends S.Class<TurboLaneTaskHash>($I`TurboLaneTaskHash`)(
-  { taskId: S.String, hash: S.String, cacheStatus: TurboSummaryCacheStatus },
-  $I.annote("TurboLaneTaskHash", { description: "Task id, Turbo hash and cache status folded into a lane digest." })
+export class TurboLaneTaskHash extends S.Opaque<TurboLaneTaskHash, { readonly brand: unique symbol }>()(
+  S.Struct({ taskId: S.String, hash: S.String, cacheStatus: TurboSummaryCacheStatus }).pipe(
+    $I.annoteSchema("TurboLaneTaskHash", {
+      description: "Task id, Turbo hash and cache status folded into a lane digest.",
+    })
+  )
 ) {}
 
 /**
@@ -149,9 +154,12 @@ export class TurboLaneTaskHash extends S.Class<TurboLaneTaskHash>($I`TurboLaneTa
  * @category models
  * @since 0.0.0
  */
-export class TurboLaneDigest extends S.Class<TurboLaneDigest>($I`TurboLaneDigest`)(
-  { digest: S.String, summaryIds: S.Array(S.String), tasks: S.Array(TurboLaneTaskHash) },
-  $I.annote("TurboLaneDigest", { description: "Lane input digest folded from one Turbo run summary's task hashes." })
+export class TurboLaneDigest extends S.Opaque<TurboLaneDigest, { readonly brand: unique symbol }>()(
+  S.Struct({ digest: S.String, summaryIds: S.Array(S.String), tasks: S.Array(TurboLaneTaskHash) }).pipe(
+    $I.annoteSchema("TurboLaneDigest", {
+      description: "Lane input digest folded from one Turbo run summary's task hashes.",
+    })
+  )
 ) {}
 
 const decodeSummary = S.decodeUnknownEffect(S.fromJsonString(TurboRunSummary));

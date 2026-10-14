@@ -91,16 +91,17 @@ export type BudgetDuration = typeof BudgetDuration.Type;
  * @category models
  * @since 0.0.0
  */
-export class RecoveryBudget extends S.Class<RecoveryBudget>($I`RecoveryBudget`)(
-  {
+export class RecoveryBudget extends S.Opaque<RecoveryBudget, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxAttempts: PosInt,
     maxOperations: PosInt,
     perAttemptTimeout: BudgetDuration,
     totalTimeout: BudgetDuration,
-  },
-  $I.annote("RecoveryBudget", {
-    description: "Hard attempt, operation, per-attempt, and total-time limits for bounded recovery.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecoveryBudget", {
+      description: "Hard attempt, operation, per-attempt, and total-time limits for bounded recovery.",
+    })
+  )
 ) {}
 
 /**
@@ -117,15 +118,16 @@ export class RecoveryBudget extends S.Class<RecoveryBudget>($I`RecoveryBudget`)(
  * @category models
  * @since 0.0.0
  */
-export class RecoveryBudgetConsumed extends S.Class<RecoveryBudgetConsumed>($I`RecoveryBudgetConsumed`)(
-  {
+export class RecoveryBudgetConsumed extends S.Opaque<RecoveryBudgetConsumed, { readonly brand: unique symbol }>()(
+  S.Struct({
     attempts: S.Natural,
     elapsed: BudgetDuration,
     operations: S.Natural,
-  },
-  $I.annote("RecoveryBudgetConsumed", {
-    description: "Attempt, operation, and elapsed-time budget consumed by a recovery sequence.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecoveryBudgetConsumed", {
+      description: "Attempt, operation, and elapsed-time budget consumed by a recovery sequence.",
+    })
+  )
 ) {}
 
 /**
@@ -170,8 +172,8 @@ export type RecoveryAttemptOutcome = typeof RecoveryAttemptOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class RecoveryAttemptReceipt extends S.Class<RecoveryAttemptReceipt>($I`RecoveryAttemptReceipt`)(
-  {
+export class RecoveryAttemptReceipt extends S.Opaque<RecoveryAttemptReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     attempt: PosInt,
     endedAt: IsoDateTimeString,
     observations: S.Array(EvidenceSubject),
@@ -179,10 +181,11 @@ export class RecoveryAttemptReceipt extends S.Class<RecoveryAttemptReceipt>($I`R
     outcome: RecoveryAttemptOutcome,
     reason: S.OptionFromOptionalKey(S.NonEmptyString),
     startedAt: IsoDateTimeString,
-  },
-  $I.annote("RecoveryAttemptReceipt", {
-    description: "Auditable timestamps, outcome, operation count, and evidence observations for one attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecoveryAttemptReceipt", {
+      description: "Auditable timestamps, outcome, operation count, and evidence observations for one attempt.",
+    })
+  )
 ) {}
 
 /**
@@ -311,11 +314,12 @@ const RecoveryBudgetCoherenceCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class FailureReceiptPredicate extends S.Class<FailureReceiptPredicate>($I`FailureReceiptPredicate`)(
-  FailureReceiptPredicateFields.check(RecoveryBudgetCoherenceCheck),
-  $I.annote("FailureReceiptPredicate", {
-    description: "Coherent budget, attempt history, partial effects, and terminal reason for failed recovery.",
-  })
+export class FailureReceiptPredicate extends S.Opaque<FailureReceiptPredicate, { readonly brand: unique symbol }>()(
+  FailureReceiptPredicateFields.check(RecoveryBudgetCoherenceCheck).pipe(
+    $I.annoteSchema("FailureReceiptPredicate", {
+      description: "Coherent budget, attempt history, partial effects, and terminal reason for failed recovery.",
+    })
+  )
 ) {}
 
 /**
@@ -374,11 +378,12 @@ export type FailureReceipt = typeof FailureReceipt.Type;
  * @category models
  * @since 0.0.0
  */
-export class NoRecoveryPolicy extends S.Class<NoRecoveryPolicy>($I`NoRecoveryPolicy`)(
-  { mode: S.tag("none") },
-  $I.annote("NoRecoveryPolicy", {
-    description: "Explicit policy value disabling recovery for a skill contract.",
-  })
+export class NoRecoveryPolicy extends S.Opaque<NoRecoveryPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({ mode: S.tag("none") }).pipe(
+    $I.annoteSchema("NoRecoveryPolicy", {
+      description: "Explicit policy value disabling recovery for a skill contract.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -397,14 +402,15 @@ export class NoRecoveryPolicy extends S.Class<NoRecoveryPolicy>($I`NoRecoveryPol
  * @category models
  * @since 0.0.0
  */
-export class BoundedRecoveryPolicy extends S.Class<BoundedRecoveryPolicy>($I`BoundedRecoveryPolicy`)(
-  {
+export class BoundedRecoveryPolicy extends S.Opaque<BoundedRecoveryPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     budget: RecoveryBudget,
     mode: S.tag("bounded"),
-  },
-  $I.annote("BoundedRecoveryPolicy", {
-    description: "Recovery policy constrained by hard attempt, operation, and time budgets.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoundedRecoveryPolicy", {
+      description: "Recovery policy constrained by hard attempt, operation, and time budgets.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }

@@ -20,6 +20,11 @@ import {
   ProbeVideoRequest,
   WriteContainerMetadataRequest,
 } from "@beep/ffmpeg";
+import {
+  ExtractFramesAtRequest,
+  RenderContactSheetRequest,
+  RenderGifRequest,
+} from "@beep/ffmpeg/FFmpeg.capture.models";
 import { $RepoCliId } from "@beep/identity/packages";
 import {
   ArtifactBudget,
@@ -27,6 +32,7 @@ import {
   BuildExtractionPlanOptions,
   buildExtractionPlan,
   CaptureArtifact,
+  CaptureSession,
   ClockCorrelator,
   CorrelateClockRequest,
   decodeExtractionPlan,
@@ -61,14 +67,7 @@ import {
   recordHintPath,
   resolveExistingRound,
 } from "./Qa.session.ts";
-import type {
-  ActionEvent,
-  CaptureSession,
-  ClockSync,
-  ExtractionPlan,
-  QaDriverRequest,
-  RoundLayout,
-} from "@beep/qa-capture";
+import type { ActionEvent, ClockSync, ExtractionPlan, QaDriverRequest, RoundLayout } from "@beep/qa-capture";
 import type * as Crypto from "effect/Crypto";
 import type { ChildProcessSpawner } from "effect/process";
 import type { QaExtractOptions } from "./Qa.schemas.ts";
@@ -380,8 +379,8 @@ const probeDuration = Effect.fn("QaExtract.probeDuration")(function* (videoPath:
  * @category models
  * @since 0.0.0
  */
-export class PreparedVideo extends S.Class<PreparedVideo>($I`PreparedVideo`)(
-  {
+export class PreparedVideo extends S.Opaque<PreparedVideo, { readonly brand: unique symbol }>()(
+  S.Struct({
     durationSeconds: S.Finite.pipe(
       $I.annoteKey("PreparedVideo.durationSeconds", {
         description: "Container duration the planner maps event epochs onto.",
@@ -397,10 +396,11 @@ export class PreparedVideo extends S.Class<PreparedVideo>($I`PreparedVideo`)(
         description: "Video path every extraction op reads.",
       })
     ),
-  },
-  $I.annote("PreparedVideo", {
-    description: "A round's video prepared for frame-accurate extraction.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreparedVideo", {
+      description: "A round's video prepared for frame-accurate extraction.",
+    })
+  )
 ) {}
 
 const normalizeVideo = Effect.fn("QaExtract.normalizeVideo")(function* (
@@ -620,8 +620,8 @@ const embedProvenance = Effect.fn("QaExtract.embedProvenance")(function* (
  * @category models
  * @since 0.0.0
  */
-export class ExtractionOutcome extends S.Class<ExtractionOutcome>($I`ExtractionOutcome`)(
-  {
+export class ExtractionOutcome extends S.Opaque<ExtractionOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifacts: S.Array(CaptureArtifact).pipe(
       $I.annoteKey("ExtractionOutcome.artifacts", {
         description: "Artifacts that were rendered and recorded in session.json.",
@@ -632,10 +632,11 @@ export class ExtractionOutcome extends S.Class<ExtractionOutcome>($I`ExtractionO
         description: "Driver and provenance failures, in execution order.",
       })
     ),
-  },
-  $I.annote("ExtractionOutcome", {
-    description: "Artifacts produced by one extraction run, plus everything that went wrong.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractionOutcome", {
+      description: "Artifacts produced by one extraction run, plus everything that went wrong.",
+    })
+  )
 ) {}
 
 const fileSize = Effect.fn("QaExtract.fileSize")(function* (
@@ -718,7 +719,7 @@ const executeRequest = Effect.fn("QaExtract.executeRequest")(function* (
 
   return yield* Match.value(request).pipe(
     Match.discriminator("kind")("extract-clip", (planned) =>
-      ffmpeg.extractClip(planned.request).pipe(
+      ffmpeg.extractClip(ExtractClipRequest.make(planned.request)).pipe(
         Effect.flatMap((result) =>
           stamp("clip", result.outPath, pipe(result.outPath, path.basename, Str.replace(/\.[^.]+$/, "")), O.none())
         ),
@@ -726,7 +727,7 @@ const executeRequest = Effect.fn("QaExtract.executeRequest")(function* (
       )
     ),
     Match.discriminator("kind")("extract-frames-at", (planned) =>
-      ffmpeg.extractFramesAt(planned.request).pipe(
+      ffmpeg.extractFramesAt(ExtractFramesAtRequest.make(planned.request)).pipe(
         Effect.flatMap((result) =>
           Effect.map(
             Effect.forEach(result.frames, (frame) =>
@@ -751,7 +752,7 @@ const executeRequest = Effect.fn("QaExtract.executeRequest")(function* (
       )
     ),
     Match.discriminator("kind")("render-contact-sheet", (planned) =>
-      ffmpeg.renderContactSheet(planned.request).pipe(
+      ffmpeg.renderContactSheet(RenderContactSheetRequest.make(planned.request)).pipe(
         Effect.flatMap((result) => stamp("sheet", result.outPath, "contact-sheet", O.none())),
         Effect.catchCause(() =>
           Effect.succeed(
@@ -763,7 +764,7 @@ const executeRequest = Effect.fn("QaExtract.executeRequest")(function* (
       )
     ),
     Match.discriminator("kind")("render-gif", (planned) =>
-      ffmpeg.renderGif(planned.request).pipe(
+      ffmpeg.renderGif(RenderGifRequest.make(planned.request)).pipe(
         Effect.flatMap((result) =>
           stamp("gif", result.outPath, pipe(result.outPath, path.basename, Str.replace(/\.gif$/, "")), O.none())
         ),
@@ -908,7 +909,7 @@ export const runQaExtract = Effect.fn("QaExtract.run")(function* (
       events: eventLog.events,
       layout,
       plan,
-      session: manifest.session,
+      session: CaptureSession.make(manifest.session),
       // Session-relative: provenance is embedded into artifacts that may be
       // committed to packets — absolute home paths must never ride along.
       sourceVideo: path.relative(layout.root, prepared.path),

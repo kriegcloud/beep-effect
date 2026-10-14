@@ -48,14 +48,15 @@ const encodeManifest = S.encodeUnknownEffect(ModelsManifest);
  * @category models
  * @since 0.0.0
  */
-export class ManifestAdoption extends S.Class<ManifestAdoption>($I`ManifestAdoption`)(
-  {
+export class ManifestAdoption extends S.Opaque<ManifestAdoption, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.NonEmptyString,
     backup: S.Option(S.NonEmptyString),
-  },
-  $I.annote("ManifestAdoption", {
-    description: "The manifest path `adopt` rewrote and the timestamped backup of the prior file, when one existed.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManifestAdoption", {
+      description: "The manifest path `adopt` rewrote and the timestamped backup of the prior file, when one existed.",
+    })
+  )
 ) {}
 
 /**

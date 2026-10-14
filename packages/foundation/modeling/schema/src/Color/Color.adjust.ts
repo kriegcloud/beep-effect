@@ -9,7 +9,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaGetter from "effect/SchemaGetter";
 import { HexColor, hexToRgbValue, NormalizeHexColor } from "./Color.hex.ts";
-import { $I, schemaIssueToError } from "./Color.shared.ts";
+import { $I, OklchEncoded, schemaIssueToError } from "./Color.shared.ts";
 import { hexToOklchValue, oklchToHexValue } from "./Color.transforms.ts";
 
 const rgbaNumberPatternSource = "-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:e[+-]?\\d+)?";
@@ -37,31 +37,37 @@ const mixColorsValue = ({ color1, color2, amount }: MixColorsInput): HexColor =>
   const start = hexToOklchValue(color1);
   const end = hexToOklchValue(color2);
 
-  return oklchToHexValue({
-    l: start.l + (end.l - start.l) * amount,
-    c: start.c + (end.c - start.c) * amount,
-    h: start.h + (end.h - start.h) * amount,
-  });
+  return oklchToHexValue(
+    OklchEncoded.make({
+      l: start.l + (end.l - start.l) * amount,
+      c: start.c + (end.c - start.c) * amount,
+      h: start.h + (end.h - start.h) * amount,
+    })
+  );
 };
 
 const lightenValue = ({ color, amount }: LightenInput): HexColor => {
   const value = hexToOklchValue(color);
 
-  return oklchToHexValue({
-    l: Num.min(value.l + amount, 1),
-    c: value.c,
-    h: value.h,
-  });
+  return oklchToHexValue(
+    OklchEncoded.make({
+      l: Num.min(value.l + amount, 1),
+      c: value.c,
+      h: value.h,
+    })
+  );
 };
 
 const darkenValue = ({ color, amount }: DarkenInput): HexColor => {
   const value = hexToOklchValue(color);
 
-  return oklchToHexValue({
-    l: Num.max(value.l - amount, 0),
-    c: value.c,
-    h: value.h,
-  });
+  return oklchToHexValue(
+    OklchEncoded.make({
+      l: Num.max(value.l - amount, 0),
+      c: value.c,
+      h: value.h,
+    })
+  );
 };
 
 const withAlphaValue = ({ color, alpha }: WithAlphaInput): RgbaColorString => {
@@ -181,15 +187,16 @@ export type ColorAmount = typeof ColorAmount.Type;
  * @category validation
  * @since 0.0.0
  */
-export class MixColorsInput extends S.Class<MixColorsInput>($I`MixColorsInput`)(
-  {
+export class MixColorsInput extends S.Opaque<MixColorsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     color1: NormalizeHexColor.annotateKey({ description: "Start color." }),
     color2: NormalizeHexColor.annotateKey({ description: "End color." }),
     amount: ColorAmount.annotateKey({ description: "Interpolation amount." }),
-  },
-  $I.annote("MixColorsInput", {
-    description: "Input payload for mixing two colors in OKLCH space.",
-  })
+  }).pipe(
+    $I.annoteSchema("MixColorsInput", {
+      description: "Input payload for mixing two colors in OKLCH space.",
+    })
+  )
 ) {}
 
 /**
@@ -252,14 +259,15 @@ export type MixColors = typeof MixColors.Type;
  * @category validation
  * @since 0.0.0
  */
-export class LightenInput extends S.Class<LightenInput>($I`LightenInput`)(
-  {
+export class LightenInput extends S.Opaque<LightenInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     color: NormalizeHexColor.annotateKey({ description: "Source color." }),
     amount: ColorAmount.annotateKey({ description: "Lightness adjustment amount." }),
-  },
-  $I.annote("LightenInput", {
-    description: "Input payload for lightening a color in OKLCH space.",
-  })
+  }).pipe(
+    $I.annoteSchema("LightenInput", {
+      description: "Input payload for lightening a color in OKLCH space.",
+    })
+  )
 ) {}
 
 /**
@@ -322,14 +330,15 @@ export type Lighten = typeof Lighten.Type;
  * @category validation
  * @since 0.0.0
  */
-export class DarkenInput extends S.Class<DarkenInput>($I`DarkenInput`)(
-  {
+export class DarkenInput extends S.Opaque<DarkenInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     color: NormalizeHexColor.annotateKey({ description: "Source color." }),
     amount: ColorAmount.annotateKey({ description: "Lightness reduction amount." }),
-  },
-  $I.annote("DarkenInput", {
-    description: "Input payload for darkening a color in OKLCH space.",
-  })
+  }).pipe(
+    $I.annoteSchema("DarkenInput", {
+      description: "Input payload for darkening a color in OKLCH space.",
+    })
+  )
 ) {}
 
 /**
@@ -392,14 +401,15 @@ export type Darken = typeof Darken.Type;
  * @category validation
  * @since 0.0.0
  */
-export class WithAlphaInput extends S.Class<WithAlphaInput>($I`WithAlphaInput`)(
-  {
+export class WithAlphaInput extends S.Opaque<WithAlphaInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     color: NormalizeHexColor.annotateKey({ description: "Source color." }),
     alpha: ColorAmount.annotateKey({ description: "Finite alpha value rendered into the rgba string." }),
-  },
-  $I.annote("WithAlphaInput", {
-    description: "Input payload for rendering a hex color plus alpha as a CSS rgba string.",
-  })
+  }).pipe(
+    $I.annoteSchema("WithAlphaInput", {
+      description: "Input payload for rendering a hex color plus alpha as a CSS rgba string.",
+    })
+  )
 ) {}
 
 /**
