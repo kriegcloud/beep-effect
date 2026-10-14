@@ -311,3 +311,12 @@ future MCP inventories must inspect plugin registrations as well. The recorded
 startup connection lacks a token; authenticate and qualify it if needed, or
 evaluate a headless-scoped exclusion with Desktop impact understood. No plugin
 state was changed during the trace.
+
+The [post-main provider smokes](../history/2026-10-14-post-main-provider-smokes.md)
+qualify fresh native Cursor, Grok and Muse inference with selected model
+identity evidence. Claude's corrected launch is weekly-quota blocked; repeat
+that route after availability returns rather than treating a fallback as its
+qualification. Muse needs explicit workspace trust to load repo context; its
+trusted prompt catalog compacts two skill descriptions without omitting ids.
+Bounded shell-tool qualification, T3/proxy routes and reboot recovery remain
+distinct from these inference-only runs.
