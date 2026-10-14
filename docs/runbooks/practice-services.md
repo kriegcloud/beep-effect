@@ -38,7 +38,7 @@ commit is not one.
 
 Both environment files hold 1Password references, not values, so each unit
 runs its job under `op run --env-file=<file> -- bun run ...`. The `op` shim on
-`PATH` (`~/.local/bin/op`) loads the agent credential itself, and `op run`
+`PATH` (`$HOME/.local/bin/op`) loads the agent credential itself, and `op run`
 exits with the job's own exit code. Exit code 78 means the shim could not
 resolve the references (run `op-doctor`). A restart does not fix that, so
 neither unit restarts on 78.
@@ -72,7 +72,7 @@ op run --env-file=$HOME/.config/beep-practice-mail-tagging/service.env.refs -- t
 cp apps/docket-intake/deploy/docket-intake.service ~/.config/systemd/user/
 cp apps/practice-mail-tagging/deploy/practice-mail-tagging.service ~/.config/systemd/user/
 # edit the REPLACE_ values in both copies: the deploy checkout, $HOME, the
-# environment file, and the bun shim (~/.local/share/mise/shims/bun)
+# environment file, and the bun shim ($HOME/.local/share/mise/shims/bun)
 systemd-analyze --user verify ~/.config/systemd/user/docket-intake.service ~/.config/systemd/user/practice-mail-tagging.service
 systemctl --user daemon-reload
 systemctl --user enable --now docket-intake.service

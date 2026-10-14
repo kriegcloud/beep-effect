@@ -41,7 +41,7 @@ Higher sources outrank lower sources when they conflict.
 - Process CPU/RSS coarsened (10 s samples, 5 min windows, 5% / 32 MiB steps); no disk I/O counters.
 - Spool after the gate, AES-GCM with a DPAPI-wrapped key (bun:ffi `crypt32`, PowerShell fallback); replay never under a looser tier.
 - Nothing leaves `tom-pc-1` until the fleet goal's tier-aware gateway replaces the open ingest.
-- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against `~/YeeBois/references/effect/effect`; `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
+- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against `$HOME/YeeBois/references/effect/effect`; `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
 - Names, metrics, events and attribute keys come from the instrumentation catalog (`goals/observability-kernel-catalog`); names are static literals, never interpolated.
 - Public repo: no client data, tokens, `op://` resolutions, LAN IPs, tailnet suffixes or account identifiers in packet or code.
 - Totals use `increase()` over the panel range; per-process identity never becomes a metric label; promoted labels come only from the registry's metric-safe set.

@@ -623,6 +623,35 @@ describe("knowledge refs listing", () => {
 });
 
 describe("knowledge refs check gate", () => {
+  it.effect("live mirror references gate while explicit home variables and broken-path backlog do not", () =>
+    Effect.gen(function* () {
+      const paths = ["YeeBois/references/effect/effect", ".local/bin/op", ".local/share/mise/shims/bun"];
+      const live = yield* scanFixture({
+        "docs/guide.md": A.join(
+          A.map(paths, (path) => `Use \`~/${path}\`.`),
+          "\n"
+        ),
+      });
+      expect(A.length(knowledgeRefsLiveDebt(live))).toBe(3);
+      assertSome(
+        O.map(knowledgeRefsCheckFailure(live), (error) => error.liveDebtCount),
+        S.Natural.make(3)
+      );
+
+      const portable = yield* scanFixture({
+        "docs/guide.md": A.join(
+          A.map(paths, (path) => `Use \`$HOME/${path}\`.`),
+          "\n"
+        ),
+        "goals/example/research/notes.md": "Captured `~/mirrors/example` and `packages/missing/src/index.ts`.\n",
+      });
+      expect(A.some(portable.observations, (row) => row.classification === "broken-target")).toBe(true);
+      expect(A.length(knowledgeRefsLiveDebt(portable))).toBe(0);
+      knowledgeRefsCheckFailure(portable).pipe(assertNone);
+      yield* applyKnowledgeRefsCheck(portable, { json: true });
+    })
+  );
+
   it.effect("a live gated observation fails the check with its count", () =>
     Effect.gen(function* () {
       const report = yield* scanFixture({
