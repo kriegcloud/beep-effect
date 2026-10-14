@@ -58,7 +58,7 @@ const bundle = (entry: string, outfile: string) =>
         { stderr: "pipe", stdout: "pipe" }
       );
       return child.exited.then((code) =>
-        code === 0 ? undefined : new Response(child.stderr).text().then((stderr) => Promise.reject(new Error(stderr)))
+        code === 0 ? undefined : new Response(child.stderr).text().then((stderr) => Promise.reject(stderr))
       );
     },
     catch: (cause) => PluginBuildFailed.make({ message: String(cause) }),

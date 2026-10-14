@@ -139,7 +139,7 @@ export type SkillReplayStatus = typeof SkillReplayStatus.Type;
  *
  * ```ts
  * import { SkillHunkReport } from "@beep/repo-cli/commands/Skills/SkillsRelock.schemas"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const row = SkillHunkReport.make({
  *   patch: ".agents/skill-patches/oracle/0001-skill-md.patch",
@@ -191,7 +191,7 @@ export class SkillHunkReport extends S.Class<SkillHunkReport>($I`SkillHunkReport
  *
  * ```ts
  * import { SkillReplayReport } from "@beep/repo-cli/commands/Skills/SkillsRelock.schemas"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  * import { SkillGitRevision } from "@beep/repo-cli/commands/Skills/Skills.schemas"
