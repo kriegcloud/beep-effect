@@ -312,3 +312,8 @@ Four accepted families plus family 5 sealed-failure are retained. Renewed
 admitted preflight and the full sixty-second interval precede ordinal 6;
 stop and diagnose any further sealed failure. Family 5 is not retried or
 accepted. Separate parser-exception recovery follows the wave. P2 incomplete.
+
+Ordinal 6 submitted 2026-10-14T01:07:39Z after full interval and capacity
+417,793,134,592 bytes. Unit beep-heavy-corpus-restore-p2-2026-10-13-6.service;
+five of nine sealed, four accepted plus family 5 failed. Driver resumes
+after unit 6 ends; 7-9 unstarted. Runtime acceptance is pending.

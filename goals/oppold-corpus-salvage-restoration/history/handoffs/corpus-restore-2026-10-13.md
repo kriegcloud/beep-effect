@@ -842,3 +842,35 @@ ratio 4, attempt 7,200,000 ms, family 43,200,000 ms, total 2,147,483,648 bytes.
 Decision and reversal are recorded in SPEC. Separate family-5 recovery waits
 until after this wave; eighteen larger occurrences and other family gates stay open.
 Graft saved approximately 99,936 tokens across two retrievals.
+
+
+## Run 17: ordinal 6 submitted
+
+Full interval: 2026-10-14T01:06:25Z to 01:07:25Z.
+Final capacity recheck: 417,793,134,592 free bytes.
+Submitted 2026-10-14T01:07:39Z with the SAME frozen script, ordinal 6.
+Started stamp: 2026-10-14T01:07:39.216Z.
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-6.service.
+Active/running at initial observation, sole wave family unit. MemoryMax
+34,359,738,368 bytes, MemorySwapMax zero, agent-runs.slice. Result absent;
+private log one line, no content read. Runtime policy comparison awaits
+family-run-start after archive re-verification.
+
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-06/ledgers/mail/slice.jsonl`.
+Five of nine sealed: four accepted, family 5 sealed-failure. Ordinal 6 active;
+7-9 unstarted. The orchestrator driver owns the explicit mid-wave handoff.
+After unit 6 ends, reconcile result, acceptance, source/policy identity,
+children and repair pairs, ceilings and capacity. If accepted, renew admitted
+preflight and full sixty-second interval before ordinal 7; stop and diagnose
+any further failure. Never retry family 5 or change frozen engines/launcher.
+
+Knowledge refs passes through beep-heavy with zero live gated observations.
+Packet doctor zero new blockers, same three unrelated advisories; index matches.
+Launcher size and JSON checks, whitespace, gitleaks, typos, Biome and commitlint
+pass. Original candidate remains 53 PST occurrences, 23 eligible, input
+56,140,800 bytes and original object/digest unchanged. No package source
+edited; package-verify and source hosted-parity lanes are not run (docs-only).
+No push, main integration, retry, engine fix or worker-owned gate started.
+PR #1646 remains orchestrator-owned; terminal wave PR follows all remaining
+seals. Run-17 decision reversal retains all immutable evidence.

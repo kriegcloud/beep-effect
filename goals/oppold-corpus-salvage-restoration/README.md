@@ -12,10 +12,12 @@ digests while retaining the originals.
 Run 17 authorizes continuing ordinals 6-9 of the frozen bounded P2 wave.
 Four families are accepted; family 5 remains sealed-failure and is never
 retried or counted as accepted. Renew admitted preflight, wait sixty seconds,
-and launch only ordinal 6 with the SAME frozen script. Stop and diagnose
+and launch only the next unstarted ordinal with the SAME frozen script. Stop and diagnose
 any further failure. Separate family-5 recovery follows the wave with an
 engine PR and new freeze record. Retain all evidence. P2 remains in-progress;
-P3 pending and eighteen larger occurrences remain deferred.
+P3 pending and eighteen larger occurrences remain deferred. Ordinal 6 was
+submitted at 2026-10-14T01:07:39Z; five of nine sealed, four accepted and one
+failed. The orchestrator driver resumes after its detached unit ends.
 
 ## Launcher
 
