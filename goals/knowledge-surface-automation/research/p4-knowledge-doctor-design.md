@@ -377,8 +377,10 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   laundering route the seal closed (review round 3 on #1626). Reverse: relax the
   single-file rule only if promotions start being minted by the CI App.
 - **K13 An assertion is a whole comment line.** A `beep:assert path-exists` marker asserts
-  only when the whole prose line, ignoring surrounding spaces and tabs, is the HTML
-  comment. One shared reader serves Stage 1 and Stage 2. Reason: the grammar's "an HTML
+  only when the whole prose line is the HTML comment, indented by at most three spaces and
+  followed only by spaces or tabs. Four spaces or a tab of indentation make a CommonMark
+  indented code block, which is syntax and asserts nothing. One shared reader serves
+  Stage 1 and Stage 2. Reason: the grammar's "an HTML
   comment outside fences" already excludes inline code (whose text is literal), but a
   mid-line or list-prefixed marker would still be ambiguous, and the live corpus had four
   quoted markers and no real one (C PR 1 report, verdict 2026-10-14). Reverse: widen the

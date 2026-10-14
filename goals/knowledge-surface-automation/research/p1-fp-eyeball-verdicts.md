@@ -185,8 +185,10 @@ in the orchestrator's gate records. The fixes land in C Stage-2 PR 2.
      round directory). Rejected 5: every `yeet repair --pr` span is the arrow-chain
      pipeline `repair → verify → publish --pr → monitor`, and `--pr` belongs to
      `publish`. That is a fifth FP class (arrow-chain notation). The shared command-span
-     eligibility now treats `→` like a shell operator (`->` was already excluded through
-     `>`), so neither stage reads such a chain as one command.
+     eligibility now treats a whitespace-delimited `→` like a shell operator (`->` was
+     already excluded through `>`), so neither stage reads such a chain as one command,
+     while an arrow inside a single argument (a quoted description) does not disqualify
+     the invocation.
    - 6 (530 broken paths) and 7 (unclassified spans): accepted as the baseline and K9
      classification burn-down; not rewritten here.
 
