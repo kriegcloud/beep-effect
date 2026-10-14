@@ -866,11 +866,11 @@
       }
     },
     "@beep/practice-gateway": {
-      "reviewer": "Claude Opus 5.5 (feat/practice-gateway)",
-      "reason": "Re-record @beep/practice-gateway after units A1-A3 added workspace dependencies (doc-text, file-processing, m365, m365-mcp) and tsconfig references; commands, inputs, outputs and cache flags are unchanged and no qualification is granted.",
+      "reviewer": "Claude Fable 5.1 (practice-gateway, feat/practice-gateway)",
+      "reason": "Re-record @beep/practice-gateway after its manifest gained the sync:onboarding-skill script; task commands, inputs, outputs, env and cache flags are unchanged and no qualification is granted.",
       "basis": {
-        "path": "goals/practice-gateway/research/cache-baseline-review-units-a.md",
-        "sha256": "2561f22cf58cd509587257ba255e479a36171d666c7eb5f494c351ce34c3f8e6"
+        "path": "goals/practice-gateway/research/cache-baseline-review-onboarding-wiring.md",
+        "sha256": "66c11137771f9d86a6c85e0a275c81432e96d9d0c1b15ebe6f0e050d27e99c38"
       }
     },
     "@beep/practice-identify": {
@@ -74626,7 +74626,7 @@
       {
         "computation": "@beep/practice-gateway#audit",
         "command": "bun run --if-present beep:audit",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "@beep/doc-text#audit",
           "@beep/duckdb#audit",
@@ -74702,7 +74702,7 @@
       {
         "computation": "@beep/practice-gateway#build",
         "command": "bun run beep:build",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "@beep/doc-text#build",
           "@beep/duckdb#build",
@@ -74765,7 +74765,7 @@
       {
         "computation": "@beep/practice-gateway#check",
         "command": "bun run beep:check",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "@beep/doc-text#build",
           "@beep/duckdb#build",
@@ -74815,7 +74815,7 @@
       {
         "computation": "@beep/practice-gateway#coverage",
         "command": "bunx vitest run --coverage --exclude=test/integration/**",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "@beep/doc-text#build",
           "@beep/duckdb#build",
@@ -74877,7 +74877,7 @@
       {
         "computation": "@beep/practice-gateway#docgen",
         "command": "bun run beep:docgen",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "@beep/practice-gateway#transit",
           "@beep/repo-docgen#transit"
@@ -74916,7 +74916,7 @@
       {
         "computation": "@beep/practice-gateway#lint",
         "command": "bun run beep:lint",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [],
         "configuration": {
           "cache": true,
@@ -74951,7 +74951,7 @@
       {
         "computation": "@beep/practice-gateway#lint:deprecated-apis",
         "command": "beep-cli lint deprecated-apis --package .",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/doc-text#transit",
@@ -75035,7 +75035,7 @@
       {
         "computation": "@beep/practice-gateway#lint:fix",
         "command": "bun run beep:lint:fix",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [],
         "configuration": {
           "cache": false,
@@ -75064,7 +75064,7 @@
       {
         "computation": "@beep/practice-gateway#lint:jsdoc",
         "command": "beep-cli lint jsdoc --package .",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -75119,7 +75119,7 @@
       {
         "computation": "@beep/practice-gateway#lint:laws",
         "command": "beep-cli lint laws --package .",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -75173,7 +75173,7 @@
       {
         "computation": "@beep/practice-gateway#package-test-typecheck",
         "command": "beep-cli quality test-tsgo-package",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "@beep/doc-text#transit",
           "@beep/duckdb#transit",
@@ -75229,7 +75229,7 @@
       {
         "computation": "@beep/practice-gateway#test",
         "command": "bun run beep:test",
-        "commandDigest": "e90ee19949cd884e741b15b36e276bfb1e4822d1e56cb599841ee533fb41119a",
+        "commandDigest": "a92ee45f160e6a7d855c259cc01c850817b3856d4a7f7bd70384bf81ecba7469",
         "dependencies": [
           "@beep/doc-text#transit",
           "@beep/duckdb#transit",
