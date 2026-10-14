@@ -7,7 +7,7 @@ import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
-class Conversion extends S.Class<Conversion>("ReviewerManifestConversion")({
+class Conversion extends S.Class<Conversion, { readonly brand: unique symbol }>("ReviewerManifestConversion")({
   id: S.Int,
   client_id: S.NonEmptyString,
   pem: S.RedactedFromValue(S.NonEmptyString),

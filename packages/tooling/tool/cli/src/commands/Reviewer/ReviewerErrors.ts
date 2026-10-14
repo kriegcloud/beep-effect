@@ -21,7 +21,7 @@ const $I = $RepoCliId.create("commands/Reviewer/Reviewer.errors");
  * @category errors
  * @since 0.0.0
  */
-export class ReviewerError extends S.TaggedError<ReviewerError>($I`ReviewerError`)(
+export class ReviewerError extends S.TaggedError<ReviewerError, { readonly brand: unique symbol }>($I`ReviewerError`)(
   "ReviewerError",
   {
     operation: S.String,

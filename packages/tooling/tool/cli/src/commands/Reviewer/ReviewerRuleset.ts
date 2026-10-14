@@ -26,32 +26,32 @@ const encodeJson = S.encodeEffect(UnknownJson);
 const ObjectRecord = S.Record(S.String, S.Unknown);
 const decodeObject = S.decodeUnknownEffect(ObjectRecord);
 const decodeObjects = S.decodeUnknownEffect(S.Array(ObjectRecord));
-class RequiredCheck extends S.Class<RequiredCheck>($I`RequiredCheck`)(
+class RequiredCheck extends S.Class<RequiredCheck, { readonly brand: unique symbol }>($I`RequiredCheck`)(
   { context: S.String, integration_id: S.Int.pipe(S.NullOr, S.optionalKey) },
   $I.annote("RequiredCheck", { description: "Required check and trusted App identity." })
 ) {}
 const decodeRequired = S.decodeUnknownEffect(S.Array(RequiredCheck));
-class Rule extends S.Class<Rule>($I`Rule`)(
+class Rule extends S.Class<Rule, { readonly brand: unique symbol }>($I`Rule`)(
   { type: S.String, parameters: S.optionalKey(ObjectRecord) },
   $I.annote("Rule", { description: "Effective branch rule." })
 ) {}
 const decodeRules = S.decodeUnknownEffect(S.Array(Rule));
-class Repository extends S.Class<Repository>($I`Repository`)(
+class Repository extends S.Class<Repository, { readonly brand: unique symbol }>($I`Repository`)(
   { default_branch: S.String },
   $I.annote("Repository", { description: "Repository default branch." })
 ) {}
 const decodeRepo = S.decodeUnknownEffect(Repository);
-class RuleSummary extends S.Class<RuleSummary>($I`RuleSummary`)(
+class RuleSummary extends S.Class<RuleSummary, { readonly brand: unique symbol }>($I`RuleSummary`)(
   { id: S.Int, source_type: S.String, enforcement: S.String },
   $I.annote("RuleSummary", { description: "Ruleset source and activation." })
 ) {}
 const decodeSummaryPages = S.decodeUnknownEffect(S.Array(S.Array(RuleSummary)));
-class BranchRule extends S.Class<BranchRule>($I`BranchRule`)(
+class BranchRule extends S.Class<BranchRule, { readonly brand: unique symbol }>($I`BranchRule`)(
   { type: S.String, ruleset_id: S.Int, parameters: S.optionalKey(ObjectRecord) },
   $I.annote("BranchRule", { description: "Effective rule with originating ruleset." })
 ) {}
 const decodeBranchRules = S.decodeUnknownEffect(S.Array(BranchRule));
-class Check extends S.Class<Check>($I`Check`)(
+class Check extends S.Class<Check, { readonly brand: unique symbol }>($I`Check`)(
   {
     id: S.Int,
     name: S.String,
@@ -62,12 +62,12 @@ class Check extends S.Class<Check>($I`Check`)(
   },
   $I.annote("Check", { description: "A check's source identity and head." })
 ) {}
-class Checks extends S.Class<Checks>($I`Checks`)(
+class Checks extends S.Class<Checks, { readonly brand: unique symbol }>($I`Checks`)(
   { total_count: S.Int, check_runs: S.Array(Check) },
   $I.annote("Checks", { description: "Check-run page." })
 ) {}
 const decodeChecks = S.decodeUnknownEffect(Checks);
-class PrHead extends S.Class<PrHead>($I`PrHead`)(
+class PrHead extends S.Class<PrHead, { readonly brand: unique symbol }>($I`PrHead`)(
   { head: S.Struct({ sha: S.String }), base: S.Struct({ ref: S.String }) },
   $I.annote("PrHead", { description: "Live pull request head and target branch." })
 ) {}

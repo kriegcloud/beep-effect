@@ -55,7 +55,7 @@ const check = (id: number, app = 42, status = "in_progress", conclusion: string 
   status,
   conclusion,
   app: { id: app },
-  pull_requests: [{ number: 7 }],
+  external_id: `pr-7-${sha.slice(0, 7)}`,
 });
 const summary = (
   app: number | null = 42,
@@ -303,7 +303,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
         const http = client((method, url) => {
           if (method !== "GET") writes += 1;
           if (url.pathname.endsWith("/pulls/7")) return { head: { sha: "b".repeat(40) } };
-          if (state === "unassociated") return { ...check(2), pull_requests: [] };
+          if (state === "unassociated") return { ...check(2), external_id: "invalid-association" };
           return state === "stale" ? check(2) : check(2, 42, "completed", state);
         });
         const outcome = yield* Reviewer.use((reviewer) => reviewer.complete(2, result())).pipe(

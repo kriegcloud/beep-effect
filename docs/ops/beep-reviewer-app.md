@@ -136,8 +136,9 @@ title such as `4/5 · L2 · P0 0 · P1 0 · P2 2`; `auto` fails when `p0+p1 > 0`
 succeeds otherwise. Optional `--annotations-file annotations.json` accepts an array
 of Checks API annotations. Batches contain at most 50 annotations and are appended
 before the final completion request. A failed batch cannot publish a green check.
-Completion rejects completed or unassociated checks and verifies the associated PR
-heads before annotation publication and again before the final status change.
+Completion rejects completed or unassociated checks. It decodes the intended PR
+from the run’s `external_id` and verifies that PR’s head before annotation
+publication and again before the final status change.
 
 The comment marker is `<!-- beep-reviewer:summary -->`. Upsert searches all comment
 pages and edits only a matching comment from `beep-reviewer[bot]` whose

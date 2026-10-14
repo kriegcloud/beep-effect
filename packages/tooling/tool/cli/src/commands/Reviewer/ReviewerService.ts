@@ -25,11 +25,11 @@ import type { ReviewerResult, ReviewerReview } from "./ReviewerModels.ts";
 const $I = $RepoCliId.create("commands/Reviewer/Reviewer.service");
 const API = "https://api.github.com/repos/beep-effect/beep-effect";
 const MARKER = "<!-- beep-reviewer:summary -->";
-class AppIdentity extends S.Class<AppIdentity>($I`AppIdentity`)(
+class AppIdentity extends S.Class<AppIdentity, { readonly brand: unique symbol }>($I`AppIdentity`)(
   { id: S.Int },
   $I.annote("AppIdentity", { description: "The originating GitHub App id." })
 ) {}
-class CheckRun extends S.Class<CheckRun>($I`CheckRun`)(
+class CheckRun extends S.Class<CheckRun, { readonly brand: unique symbol }>($I`CheckRun`)(
   {
     id: S.Int,
     name: S.String,
@@ -37,19 +37,19 @@ class CheckRun extends S.Class<CheckRun>($I`CheckRun`)(
     status: S.String,
     conclusion: S.NullOr(S.String),
     app: AppIdentity,
-    pull_requests: S.Array(S.Struct({ number: S.Int })),
+    external_id: S.NullOr(S.String),
   },
   $I.annote("CheckRun", { description: "App-owned check run response." })
 ) {}
-class CheckPage extends S.Class<CheckPage>($I`CheckPage`)(
+class CheckPage extends S.Class<CheckPage, { readonly brand: unique symbol }>($I`CheckPage`)(
   { total_count: S.Int, check_runs: S.Array(CheckRun) },
   $I.annote("CheckPage", { description: "Paginated check runs." })
 ) {}
-class CommentUser extends S.Class<CommentUser>($I`CommentUser`)(
+class CommentUser extends S.Class<CommentUser, { readonly brand: unique symbol }>($I`CommentUser`)(
   { login: S.String, type: S.String },
   $I.annote("CommentUser", { description: "Comment author's login and actor kind." })
 ) {}
-class SummaryComment extends S.Class<SummaryComment>($I`SummaryComment`)(
+class SummaryComment extends S.Class<SummaryComment, { readonly brand: unique symbol }>($I`SummaryComment`)(
   {
     id: S.Int,
     body: S.String,
@@ -58,19 +58,30 @@ class SummaryComment extends S.Class<SummaryComment>($I`SummaryComment`)(
   },
   $I.annote("SummaryComment", { description: "Summary comment including its authoring App." })
 ) {}
-class CreatedResource extends S.Class<CreatedResource>($I`CreatedResource`)(
+class CreatedResource extends S.Class<CreatedResource, { readonly brand: unique symbol }>($I`CreatedResource`)(
   { id: S.Int },
   $I.annote("CreatedResource", { description: "Created or edited GitHub resource id." })
 ) {}
-class PullRequest extends S.Class<PullRequest>($I`PullRequest`)(
+class PullRequest extends S.Class<PullRequest, { readonly brand: unique symbol }>($I`PullRequest`)(
   { head: S.Struct({ sha: S.String }) },
   $I.annote("PullRequest", { description: "The current PR head commit." })
 ) {}
+const CheckExternalId = S.TemplateLiteralParser([
+  "pr-",
+  S.NumberFromString.check(S.isInt(), S.isGreaterThan(0)),
+  "-",
+  S.String.check(S.isPattern(/^[a-f0-9]{7}$/)),
+]).pipe(
+  $I.annoteSchema("CheckExternalId", {
+    description: "The intended PR and head prefix recorded when a reviewer run starts.",
+  })
+);
+const decodeCheckExternalId = S.decodeUnknownEffect(CheckExternalId);
 const decodeCheck = S.decodeUnknownEffect(CheckRun);
 const decodeChecks = S.decodeUnknownEffect(CheckPage);
 const decodeComments = S.decodeUnknownEffect(S.Array(SummaryComment));
 const decodeResource = S.decodeUnknownEffect(CreatedResource);
-class ClassifiedPull extends S.Class<ClassifiedPull>($I`ClassifiedPull`)(
+class ClassifiedPull extends S.Class<ClassifiedPull, { readonly brand: unique symbol }>($I`ClassifiedPull`)(
   { ...PullRequest.fields, changed_files: S.Int },
   $I.annote("ClassifiedPull", { description: "PR head with complete changed-file count for L0 classification." })
 ) {}
@@ -241,9 +252,11 @@ export const ReviewerLive = Layer.effect(
     );
     const active = Effect.fn("Reviewer.activeCheck")(function* (id: number) {
       const check = yield* owned(id);
-      if (check.status !== "in_progress" || A.isReadonlyArrayEmpty(check.pull_requests))
-        return yield* error("Check is no longer active or has no associated PR.");
-      for (const pull of check.pull_requests) yield* currentHead(pull.number, check.head_sha);
+      if (check.status !== "in_progress") return yield* error("Check is no longer active.");
+      // external_id records the intended PR even when GitHub omits pull_requests for a fork.
+      const [, pr, , shortSha] = yield* decodeCheckExternalId(check.external_id);
+      if (shortSha !== Str.slice(0, 7)(check.head_sha)) return yield* error("Check has an invalid PR association.");
+      yield* currentHead(pr, check.head_sha);
     });
     const complete = Effect.fn("Reviewer.complete")(
       function* (id: number, result: ReviewerResult) {

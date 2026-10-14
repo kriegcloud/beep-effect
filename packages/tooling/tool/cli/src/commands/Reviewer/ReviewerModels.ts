@@ -21,7 +21,9 @@ const $I = $RepoCliId.create("commands/Reviewer/Reviewer.schemas");
  * @category models
  * @since 0.0.0
  */
-export class ReviewerCredentials extends S.Class<ReviewerCredentials>($I`ReviewerCredentials`)(
+export class ReviewerCredentials extends S.Class<ReviewerCredentials, { readonly brand: unique symbol }>(
+  $I`ReviewerCredentials`
+)(
   {
     appId: S.Int.check(S.isGreaterThan(0)),
     clientId: S.NonEmptyString,
@@ -43,7 +45,9 @@ export class ReviewerCredentials extends S.Class<ReviewerCredentials>($I`Reviewe
  * @category models
  * @since 0.0.0
  */
-export class ReviewerInstallationToken extends S.Class<ReviewerInstallationToken>($I`ReviewerInstallationToken`)(
+export class ReviewerInstallationToken extends S.Class<ReviewerInstallationToken, { readonly brand: unique symbol }>(
+  $I`ReviewerInstallationToken`
+)(
   {
     token: S.RedactedFromValue(S.NonEmptyString),
     expires_at: S.DateTimeUtcFromString,
@@ -64,7 +68,9 @@ export class ReviewerInstallationToken extends S.Class<ReviewerInstallationToken
  * @category models
  * @since 0.0.0
  */
-export class ReviewerAnnotation extends S.Class<ReviewerAnnotation>($I`ReviewerAnnotation`)(
+export class ReviewerAnnotation extends S.Class<ReviewerAnnotation, { readonly brand: unique symbol }>(
+  $I`ReviewerAnnotation`
+)(
   {
     path: S.NonEmptyString,
     start_line: S.Int.check(S.isGreaterThan(0)),
@@ -88,7 +94,9 @@ export class ReviewerAnnotation extends S.Class<ReviewerAnnotation>($I`ReviewerA
  * @category models
  * @since 0.0.0
  */
-export class ReviewerInlineComment extends S.Class<ReviewerInlineComment>($I`ReviewerInlineComment`)(
+export class ReviewerInlineComment extends S.Class<ReviewerInlineComment, { readonly brand: unique symbol }>(
+  $I`ReviewerInlineComment`
+)(
   {
     path: S.NonEmptyString,
     line: S.Int.check(S.isGreaterThan(0)),
@@ -112,7 +120,7 @@ export class ReviewerInlineComment extends S.Class<ReviewerInlineComment>($I`Rev
  * @category models
  * @since 0.0.0
  */
-export class ReviewerReview extends S.Class<ReviewerReview>($I`ReviewerReview`)(
+export class ReviewerReview extends S.Class<ReviewerReview, { readonly brand: unique symbol }>($I`ReviewerReview`)(
   {
     body: S.NonEmptyString,
     comments: S.Array(ReviewerInlineComment),
@@ -133,7 +141,9 @@ export class ReviewerReview extends S.Class<ReviewerReview>($I`ReviewerReview`)(
  * @category models
  * @since 0.0.0
  */
-export class ReviewerChangedFile extends S.Class<ReviewerChangedFile>($I`ReviewerChangedFile`)(
+export class ReviewerChangedFile extends S.Class<ReviewerChangedFile, { readonly brand: unique symbol }>(
+  $I`ReviewerChangedFile`
+)(
   { filename: S.String, previous_filename: S.optionalKey(S.String) },
   $I.annote("ReviewerChangedFile", { description: "A changed PR path including a rename source." })
 ) {}
@@ -151,7 +161,7 @@ export class ReviewerChangedFile extends S.Class<ReviewerChangedFile>($I`Reviewe
  * @category models
  * @since 0.0.0
  */
-export class ReviewerResult extends S.Class<ReviewerResult>($I`ReviewerResult`)(
+export class ReviewerResult extends S.Class<ReviewerResult, { readonly brand: unique symbol }>($I`ReviewerResult`)(
   {
     score: S.Int.check(S.isBetween({ minimum: 0, maximum: 5 })),
     tier: S.Literals(["L0", "L1", "L2", "L3"]),
