@@ -476,11 +476,6 @@
         "count": 1
       }
     },
-    "packages/tooling/tool/cli/src/commands/Goals/Doctor.ts": {
-      "complexity_moderate": {
-        "count": 1
-      }
-    },
     "packages/tooling/tool/cli/src/commands/Goals/Inventory.ts": {
       "complexity_moderate": {
         "count": 1

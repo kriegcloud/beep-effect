@@ -979,3 +979,45 @@ canonical writer. Verify structural equality of all incumbent baseline fields.
 The lease-warning boundary reaches full coverage and needs no partial identity.
 Reversal is a repair PR reverting these tests, the private narrowing, or new
 rows; it does not lower an existing floor. The broader program remains active.
+
+### 2026-10-14 — B resumes the ordered R20 refresh
+
+- Decision: preserve the previous refresh stash and rerun the detector owners
+  against integrated main before preparing the dedicated generated chore.
+  The previous proposed counts and review hashes remain historical until
+  replaced by current measurements; R14 still requires serialized merge
+  before the candidate becomes the program baseline.
+- Reason: #1616 landed only the bounded codec-test repair. Its old JSDoc
+  generation and Repo Sanity failures are fixed by #1617, already on main.
+  Guidance previews also predate later policy and path changes. Direct
+  restoration would regress those changes.
+- Reversal: revert the eventual refresh PR and regenerate snapshots with
+  their owners. Preserve the raw old and current receipts for comparison.
+- Boundaries: no push before the RSC-RESUME cap gate; no effect-laws allowlist
+  or snapshot edit before S5 notification confirmation; V retains the open
+  canon cohorts under R102.
+
+
+### 2026-10-14 B cap continuity through required main integration
+
+Decision: treat the released B cap file as CI-branch admission, continuing
+through the mandatory latest-main integration. The resume addendum gates on
+file existence and separately requires fetching/merging newer main before
+push; it defines no head-SHA binding. The release-time main SHA is provenance,
+not a replacement for the latter condition. This resolves the independent
+review's ambiguity without inferring an additional approval requirement.
+No revocation or absent file is overridden. Recovery: stop before publication
+if the gate is removed; after publication, revert the generated refresh PR
+and regenerate through its owners. R14 merge serialization remains required.
+
+
+### 2026-10-14 B publication and pre-final proof ordering
+
+Decision: follow AGENTS.md Quality Operator's push-first publication rule:
+`publish` gates the push on cheap gates and the head-install preflight only;
+never wait on a queued local full proof to publish. The resume addendum's
+parity requirement applies before the final report. The fresh publication
+snapshot is owner-regenerated before push; exact-head parity and independent
+review remain mandatory qualification, and R14 merge belongs to the driver.
+No failing check is relabelled a pass. Recovery: repair any introduced red
+in a fully addressed wave before calling final; revert the PR if necessary.

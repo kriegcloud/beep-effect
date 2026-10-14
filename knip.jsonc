@@ -93,6 +93,17 @@
         "test/helpers/EyeOracleChild.ts"
       ]
     },
+    "apps/practice-claude-mod": {
+      // plugin:build runs the builder by path; the generated register entry
+      // imports hook bodies, and Claude Code discovers its own engine tests.
+      "entry": [
+        "src/build-plugin.ts",
+        "src/PracticeMod.hooks.ts",
+        "plugin-test/*.test.ts"
+      ],
+      // Claude Code supplies its engine module; it is not an npm dependency.
+      "ignoreDependencies": ["claude-code"]
+    },
     "apps/storybook": {
       // vitest.storybook.config.ts is invoked via `vitest run --config vitest.storybook.config.ts`
       // from scripts/run-storybook-tests.mjs (a CLI flag knip can't trace); it in turn references

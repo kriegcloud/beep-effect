@@ -25,23 +25,14 @@ import { $RepoCliId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { publishSkillTree } from "./internal/ClearingHouse.ts";
 import { readSkillsLockText, SKILLS_LOCK_PATH } from "./internal/LockFile.ts";
-import { PATCH_ROOT } from "./internal/PatchStaging.ts";
-import {
-  computeSkillTree,
-  hashBytes,
-  installedTargetsHash,
-  patchSetHashOf,
-  readTargetTree,
-  validateRelativePath,
-} from "./internal/SkillTree.ts";
+import { decodePatchText, readVerifiedPatchSeries } from "./internal/PatchSeries.ts";
+import { computeSkillTree, installedTargetsHash, readTargetTree, validateRelativePath } from "./internal/SkillTree.ts";
 import { applySkillPatch } from "./SkillPatches.apply.ts";
 import { SkillMaterializeRefusal, SkillsCommandError } from "./Skills.errors.ts";
 import {
@@ -53,14 +44,14 @@ import { decodeSkillsLockDocumentJson } from "./SkillsLock.schemas.ts";
 import { SkillMaterializeReport, SkillMaterializeRow, SkillMaterializeTarget } from "./SkillsMaterialize.schemas.ts";
 import type { Sha256Hex } from "@beep/schema";
 import type * as Crypto from "effect/Crypto";
+import type * as FileSystem from "effect/FileSystem";
+import type * as Path from "effect/Path";
 import type { SkillPatchApplyError, SkillUpstreamContentError } from "./Skills.errors.ts";
 import type { SkillUpstreamContentFile } from "./Skills.schemas.ts";
 import type { LocalSkillLockEntry, SkillsLockEntry, VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
 import type { SkillMaterializeMode, SkillMaterializeTargetState } from "./SkillsMaterialize.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/SkillsMaterialize.service");
-
-const textDecoder = new TextDecoder("utf-8", { fatal: true });
 
 type MaterializeRequirements = SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto;
 
@@ -175,32 +166,6 @@ const reportTargets = (
     SkillMaterializeTarget.make({ target: reading.target, state: targetState(reading, matches) })
   );
 
-const readPatch = Effect.fn("SkillsMaterialize.readPatch")(function* (
-  repoRoot: string,
-  skill: string,
-  patch: VendoredSkillLockEntry["patches"]["series"][number]
-) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const relative = yield* validateRelativePath(patch.path, skill);
-  if (!Str.startsWith(`${PATCH_ROOT}/${skill}/`)(relative)) {
-    return yield* refuse(skill, "patch-digest-mismatch", `Patch ${patch.path} is not under ${PATCH_ROOT}/${skill}/.`);
-  }
-  const absolute = path.join(repoRoot, relative);
-  const bytes = yield* fs
-    .readFile(absolute)
-    .pipe(SkillsCommandError.mapError(`Failed to read the patch ${patch.path}.`, absolute, skill));
-  const sha256 = yield* hashBytes(bytes, patch.path);
-  if (!Str.Equivalence(sha256, patch.sha256)) {
-    return yield* refuse(
-      skill,
-      "patch-digest-mismatch",
-      `Patch ${patch.path} hashes to ${sha256}, but the lock records ${patch.sha256}.`
-    );
-  }
-  return { path: patch.path, bytes };
-});
-
 /**
  * Rebuilds a vendored entry's effective tree in memory and verifies every step (B17).
  *
@@ -250,22 +215,10 @@ export const reconstructVendoredSkill = Effect.fn("SkillsMaterialize.reconstruct
       `The tree at ${entry.upstream.sourceRevision} hashes to ${pristine.treeHash} (manifest ${pristine.manifestHash}), but the snapshot records ${entry.snapshot.treeHash} (manifest ${entry.snapshot.manifestHash}).`
     );
   }
-  const patches = yield* Effect.forEach(entry.patches.series, (patch) => readPatch(repoRoot, skill, patch));
-  const patchSetHash = yield* patchSetHashOf(patches, skill);
-  if (!Str.Equivalence(patchSetHash, entry.patches.patchSetHash)) {
-    return yield* refuse(
-      skill,
-      "patch-digest-mismatch",
-      `The ${skill} patch series hashes to ${patchSetHash}, but the lock records ${entry.patches.patchSetHash}.`
-    );
-  }
+  const patches = yield* readVerifiedPatchSeries(repoRoot, skill, entry);
   let files: ReadonlyArray<SkillUpstreamContentFile> = content.files;
   for (const patch of patches) {
-    const text = yield* Effect.try({
-      try: () => textDecoder.decode(patch.bytes),
-      catch: (cause) => SkillsCommandError.new(cause, `Patch ${patch.path} is not UTF-8 text.`, patch.path, skill),
-    });
-    files = yield* applySkillPatch(patch.path, text, files);
+    files = yield* applySkillPatch(patch.path, yield* decodePatchText(skill, patch), files);
   }
   const effective = yield* computeSkillTree(files, `${skill}:effective`);
   if (!Str.Equivalence(effective.treeHash, entry.effective.treeHash)) {
