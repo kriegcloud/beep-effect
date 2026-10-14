@@ -240,6 +240,35 @@ describe("Shading.rules", () => {
     ).toBe(true);
   });
 
+  it("runs a level face's lines along its darkest edge when the light is known", () => {
+    // a regular hexagon lid: every edge is longest, so the light decides; under the top-plan light
+    // (world +X +Y +Z) the darkest edge is the one whose outward side faces -X -Y
+    const corners = A.makeBy(
+      6,
+      (i) => [100 * Math.cos((i * Math.PI) / 3), 100 * Math.sin((i * Math.PI) / 3), 5] as const
+    );
+    const lid = FaceFacts.make({
+      normal: [0, 0, 1],
+      center: [0, 0, 5],
+      edges: A.makeBy(6, (i) => {
+        const start = corners[i]!;
+        const end = corners[(i + 1) % 6]!;
+        return FaceEdge.make({ start, end, length: Math.hypot(end[0] - start[0], end[1] - start[1]) });
+      }),
+      outline: corners,
+      bounds: BoundingBox.make({ min: [-100, -87, 5], max: [100, 87, 5] }),
+    });
+    const topPlan = viewFactsOf(Camera.make({ eye: [0, 0, 1], up: [1, 0, 0] }));
+    const direction = O.getOrThrow(hatchDirectionOf({ face: lid, axis: "surface-class", light: topPlan.light }));
+    // the edge from the 180° corner to the 240° corner runs along (0.5, -0.866)
+    expect(Math.abs(direction[0] * 0.5 + (direction[1] * -Math.sqrt(3)) / 2)).toBeCloseTo(1, 6);
+    // without a light the longest edge (the first among equals) is used as before
+    assertSome(
+      hatchDirectionOf({ face: lid, axis: "surface-class" }),
+      O.getOrThrow(hatchDirectionOf({ face: lid, axis: "longest-edge" }))
+    );
+  });
+
   it("hatches upright faces along +Z, inclined faces along their level line, level faces along the longest edge", () => {
     assertSome(hatchDirectionOf({ face: wall, axis: "surface-class" }), [0, 0, 1]);
     assertSome(hatchDirectionOf({ face: wall, axis: "longest-edge" }), [1, 0, 0]);

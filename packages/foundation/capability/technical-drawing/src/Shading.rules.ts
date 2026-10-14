@@ -428,15 +428,43 @@ const longestEdgeDirection = (face: FaceFacts): O.Option<V3> =>
     O.map((edge) => unitOf(plus(edge.end, times(edge.start, -1))))
   );
 
+// The straight edge of a level face whose outward side faces most away from
+// the light: strokes along it bunch on the face's darkest edge. Among equals
+// the longer edge wins, so a regular lid keeps one direction per set.
+const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> => {
+  const normal = unitOf(face.normal);
+  const inPlane = minus(light, times(normal, dot(light, normal)));
+  const darkness = (edge: FaceEdge): number => {
+    const along = unitOf(minus(edge.end, edge.start));
+    const side = unitOf(crossOf(normal, along));
+    const mid = times(plus(edge.start, edge.end), 0.5);
+    const outward = dot(side, minus(mid, face.center)) < 0 ? times(side, -1) : side;
+    return -dot(outward, inPlane);
+  };
+  const order = Order.combine(
+    Order.flip(Order.mapInput(Order.Number, (edge: FaceEdge) => Math.round(darkness(edge) * 1e6) / 1e6)),
+    Order.flip(Order.mapInput(Order.Number, lineLength))
+  );
+  return pipe(
+    face.edges,
+    A.filter((edge) => edge.length > 0),
+    A.sort(order),
+    A.head,
+    O.map((edge) => unitOf(minus(edge.end, edge.start)))
+  );
+};
+
 /**
  * Direction the shading lines run along a face, by hatch axis.
  *
  * **Details**
  *
  * `longest-edge`: the face's longest straight edge. `surface-class`: +Z on
- * upright faces, the level line (`normal × Z`) on inclined faces, and the
- * longest edge on level faces (+X on a level face without straight edges, such
- * as a peg's top). None for a `longest-edge` face without straight edges.
+ * upright faces, the level line (`normal × Z`) on inclined faces, and on level
+ * faces the edge whose outward side faces most away from `light` when a light
+ * is given (so a regular lid's strokes bunch on its darkest edge), else the
+ * longest edge (+X on a level face without straight edges, such as a peg's
+ * top). None for a `longest-edge` face without straight edges.
  *
  * **Example** (A wall hatches vertically)
  *
@@ -455,15 +483,24 @@ const longestEdgeDirection = (face: FaceFacts): O.Option<V3> =>
  * @category shading
  * @since 0.0.0
  */
-export const hatchDirectionOf = (input: { readonly face: FaceFacts; readonly axis: HatchAxis }): O.Option<Vec3> => {
+export const hatchDirectionOf = (input: {
+  readonly face: FaceFacts;
+  readonly axis: HatchAxis;
+  readonly light?: Vec3;
+}): O.Option<Vec3> => {
   const { face } = input;
+  const levelDirection = pipe(
+    O.fromNullishOr(input.light),
+    O.flatMap((light) => darkestEdgeDirection(face, light)),
+    O.orElse(() => longestEdgeDirection(face))
+  );
   return HatchAxis.$match(input.axis, {
     "longest-edge": () => longestEdgeDirection(face),
     "surface-class": () =>
       SurfaceClass.$match(surfaceClassOf(face.normal), {
         upright: () => O.some(MODEL_UP),
         inclined: () => O.some(unitOf(crossOf(unitOf(face.normal), MODEL_UP))),
-        level: () => O.orElse(longestEdgeDirection(face), () => O.some(MODEL_X)),
+        level: () => O.orElse(levelDirection, () => O.some(MODEL_X)),
       }),
   });
 };
@@ -682,7 +719,7 @@ export const treatmentFor = (input: {
     );
   }
   return pipe(
-    hatchDirectionOf({ face, axis: plan.axis }),
+    hatchDirectionOf({ face, axis: plan.axis, light: view.light }),
     O.match({
       onNone: () => skipped("no-straight-edge"),
       onSome: (direction) => {

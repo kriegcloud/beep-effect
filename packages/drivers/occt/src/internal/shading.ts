@@ -134,6 +134,23 @@ const insetFor = (view: ViewFacts, plan: ShadingPlan, direction: V3): number => 
   return seen < 1e-6 ? 0 : plan.minPitch / seen;
 };
 
+// Graded strokes are lifted this far off their face along its outward normal
+// (model units; a thousandth of a millimetre on the sheet) so the hidden-line
+// pass sees them in front of the face they lie on instead of deciding by
+// rounding whether a re-made stroke is behind it. The uniform style keeps its
+// legacy placement.
+const HATCH_LIFT = 1e-3;
+
+const liftFor =
+  (face: replicad.Face, plan: ShadingPlan) =>
+  (edge: replicad.Edge): replicad.Edge => {
+    if (plan.style !== "graded") {
+      return edge;
+    }
+    const [nx, ny, nz] = vec(face.normalAt(face.center));
+    return edge.translate(nx * HATCH_LIFT, ny * HATCH_LIFT, nz * HATCH_LIFT);
+  };
+
 // Planar faces only: curved faces are counted, never hatched.
 const isPlanar = (face: replicad.Face): boolean => face.geomType === "PLANE";
 
@@ -150,7 +167,8 @@ const shadeFace =
             sectionEdges(oc, face, add(lines.origin, scale(lines.step, cut.offset)), lines.step),
             A.map((edge) => trimTo(cut.extent, insetFor(view, plan, directionOf(edge)))(edge)),
             A.getSomes,
-            A.filter(longEnough(view, plan.minStroke))
+            A.filter(longEnough(view, plan.minStroke)),
+            A.map(liftFor(face, plan))
           )
         ),
       skipped: () => A.empty<replicad.Edge>(),
