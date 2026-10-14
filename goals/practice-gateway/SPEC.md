@@ -126,6 +126,8 @@ them and record each in the Decision Log.
 | 2026-10-14 | Setup requirements take `SetupCapability` (adds `workstation`) and `SetupProvider` (adds `claude`, `windows`); `HumanStep` adds `install` and `configure` | The slice 1 catalog has Claude, BitLocker and bundle-folder requirements the profile literals could not express | Drop the added literals once no requirement uses them |
 | 2026-10-14 | `claude-signed-in` is satisfied while an MCP client calls the gateway | Claude stores no stable sign-in marker; a tool call proves a signed-in session | Probe a Claude-owned marker if one is found in the VM |
 | 2026-10-14 | Box Drive install repair fails with a plain `SetupRepairFailed` until the installer route is decided | No installer download in slice 1 | Implement the repair once the route (bootstrapper, winget, MSI) is chosen |
+| 2026-10-14 | The onboarding skill is one `SKILL.md` in `apps/practice-gateway/plugin/` (a Claude Code plugin), and the gateway serves the same text through a read-only tool and an MCP prompt | Desktop chat sees only what the installed `.mcpb` provides: a plugin needs a separate upload and its local servers do not run in chat; tools are the one surface the model always sees ([research](research/onboarding-distribution.md) §1) | Drop the tool and prompt and require the plugin upload |
+| 2026-10-14 | The skill names the gateway's setup tools but tells Claude never to name them to the lawyer; the interview is fixed to the five `PracticeCapability` areas plus two IT questions | Lawyer-facing voice ruling (10-09); the profile schema admits nothing else | Extend the table when `PracticeCapability` grows |
 
 ## Exception Ledger
 
