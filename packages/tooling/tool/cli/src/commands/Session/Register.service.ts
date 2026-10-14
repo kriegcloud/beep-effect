@@ -90,9 +90,12 @@ export class OrchestratorRegister extends Context.Service<OrchestratorRegister, 
  * @category models
  * @since 0.0.0
  */
-export class DecodedRegister extends S.Class<DecodedRegister>($I`DecodedRegister`)(
-  { rows: S.Array(RegisterRow), corruptLineCount: S.Finite },
-  $I.annote("DecodedRegister", { description: "Decoded register rows and the count of corrupt JSON Lines entries." })
+export class DecodedRegister extends S.Opaque<DecodedRegister, { readonly brand: unique symbol }>()(
+  S.Struct({ rows: S.Array(RegisterRow), corruptLineCount: S.Finite }).pipe(
+    $I.annoteSchema("DecodedRegister", {
+      description: "Decoded register rows and the count of corrupt JSON Lines entries.",
+    })
+  )
 ) {}
 
 /**

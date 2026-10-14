@@ -59,16 +59,17 @@ type Exchange = typeof Exchange.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProtocolObservation extends S.Class<CacheProtocolObservation>($I`CacheProtocolObservation`)(
-  {
+export class CacheProtocolObservation extends S.Opaque<CacheProtocolObservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-protocol-observation/v1"),
     authority: S.tag("synthetic-native-observation-only"),
     channel: CacheClientChannel,
     client: CacheClientPin,
     runs: S.NonEmptyArray(NativeRun).check(S.isMaxLength(6)),
     exchanges: S.NonEmptyArray(Exchange).check(S.isMaxLength(6)),
-  },
-  $I.annote("CacheProtocolObservation", {
-    description: "Sanitized native-client and wire relationships with no qualification authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProtocolObservation", {
+      description: "Sanitized native-client and wire relationships with no qualification authority.",
+    })
+  )
 ) {}

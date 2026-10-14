@@ -583,7 +583,9 @@ const CiRunnersSubnetsDisjointCheck = S.makeFilter<CiRunnersNetworkGeometry>(
  * @category models
  * @since 0.0.0
  */
-export class CiRunnersNetworkConfig extends S.Class<CiRunnersNetworkConfig>($I`CiRunnersNetworkConfig`)(
+export class CiRunnersNetworkConfig extends S.Class<CiRunnersNetworkConfig, { readonly brand: unique symbol }>(
+  $I`CiRunnersNetworkConfig`
+)(
   ciRunnersNetworkConfigStruct.pipe(
     S.check(
       CiRunnersNetworkZonesWithinRegionCheck,
@@ -618,17 +620,18 @@ export class CiRunnersNetworkConfig extends S.Class<CiRunnersNetworkConfig>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CiRunnersImageConfig extends S.Class<CiRunnersImageConfig>($I`CiRunnersImageConfig`)(
-  {
+export class CiRunnersImageConfig extends S.Opaque<CiRunnersImageConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     amiId: S.OptionFromOptionalKey(AmiId).pipe(S.withConstructorDefault(Effect.succeedNone)),
     ssmParameterName: SsmParameterName.pipe(
       S.withConstructorDefault(Effect.succeed(defaultAmiSsmParameterName)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultAmiSsmParameterName))
     ),
-  },
-  $I.annote("CiRunnersImageConfig", {
-    description: "AMI selection: Canonical Ubuntu 24.04 via public SSM parameter, overridable by a pinned AMI id.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiRunnersImageConfig", {
+      description: "AMI selection: Canonical Ubuntu 24.04 via public SSM parameter, overridable by a pinned AMI id.",
+    })
+  )
 ) {}
 
 /**
@@ -646,8 +649,8 @@ export class CiRunnersImageConfig extends S.Class<CiRunnersImageConfig>($I`CiRun
  * @category models
  * @since 0.0.0
  */
-export class CiRunnersWorkerConfig extends S.Class<CiRunnersWorkerConfig>($I`CiRunnersWorkerConfig`)(
-  {
+export class CiRunnersWorkerConfig extends S.Opaque<CiRunnersWorkerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     instanceType: Ec2InstanceType.pipe(
       S.withConstructorDefault(Effect.succeed(defaultInstanceType)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultInstanceType))
@@ -660,10 +663,11 @@ export class CiRunnersWorkerConfig extends S.Class<CiRunnersWorkerConfig>($I`CiR
       S.withConstructorDefault(Effect.succeed(defaultRootVolumeSizeGb)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultRootVolumeSizeGb))
     ),
-  },
-  $I.annote("CiRunnersWorkerConfig", {
-    description: "Per-worker shape: instance type, root volume, and in-guest self-destruct deadline.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiRunnersWorkerConfig", {
+      description: "Per-worker shape: instance type, root volume, and in-guest self-destruct deadline.",
+    })
+  )
 ) {}
 
 /**
@@ -681,16 +685,17 @@ export class CiRunnersWorkerConfig extends S.Class<CiRunnersWorkerConfig>($I`CiR
  * @category models
  * @since 0.0.0
  */
-export class CiRunnersReaperConfig extends S.Class<CiRunnersReaperConfig>($I`CiRunnersReaperConfig`)(
-  {
+export class CiRunnersReaperConfig extends S.Opaque<CiRunnersReaperConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     ttlMinutes: ReaperTtlMinutes.pipe(
       S.withConstructorDefault(Effect.succeed(defaultReaperTtlMinutes)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultReaperTtlMinutes))
     ),
-  },
-  $I.annote("CiRunnersReaperConfig", {
-    description: "AWS-side reaper policy: the fleet-wide instance TTL enforced from outside the guest.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiRunnersReaperConfig", {
+      description: "AWS-side reaper policy: the fleet-wide instance TTL enforced from outside the guest.",
+    })
+  )
 ) {}
 
 /**
@@ -707,8 +712,8 @@ export class CiRunnersReaperConfig extends S.Class<CiRunnersReaperConfig>($I`CiR
  * @category models
  * @since 0.0.0
  */
-export class CiRunnersStackArgs extends S.Class<CiRunnersStackArgs>($I`CiRunnersStackArgs`)(
-  {
+export class CiRunnersStackArgs extends S.Opaque<CiRunnersStackArgs, { readonly brand: unique symbol }>()(
+  S.Struct({
     image: CiRunnersImageConfig.pipe(
       S.withConstructorDefault(Effect.succeed(CiRunnersImageConfig.make({}))),
       S.withDecodingDefaultKey(Effect.succeed({}))
@@ -725,10 +730,11 @@ export class CiRunnersStackArgs extends S.Class<CiRunnersStackArgs>($I`CiRunners
       S.withConstructorDefault(Effect.succeed(CiRunnersWorkerConfig.make({}))),
       S.withDecodingDefaultKey(Effect.succeed({}))
     ),
-  },
-  $I.annote("CiRunnersStackArgs", {
-    description: "Pulumi-facing args for the CI runner groundwork stack.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiRunnersStackArgs", {
+      description: "Pulumi-facing args for the CI runner groundwork stack.",
+    })
+  )
 ) {}
 
 /**

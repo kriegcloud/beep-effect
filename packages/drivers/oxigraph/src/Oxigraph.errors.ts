@@ -76,7 +76,9 @@ export type OxigraphSparqlErrorReason = typeof OxigraphSparqlErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class OxigraphSparqlError extends S.TaggedError<OxigraphSparqlError>($I`OxigraphSparqlError`)(
+export class OxigraphSparqlError extends S.TaggedError<OxigraphSparqlError, { readonly brand: unique symbol }>(
+  $I`OxigraphSparqlError`
+)(
   "OxigraphSparqlError",
   {
     reason: OxigraphSparqlErrorReason,

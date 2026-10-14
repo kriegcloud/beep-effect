@@ -31,7 +31,8 @@ D8's verdict JSONL rows become `VerdictRow`s from `@beep/law-practice-domain` (i
 subpath only, per the bundle-growth rabbit hole):
 - `itemId`;
 - `batchId`, for the review sitting or queue run;
-- `verdict`: `right | wrong | partly`;
+- `verdict`: `right | wrong | partly | withdrawn` (`withdrawn` clears an earlier verdict and
+  reopens the item);
 - an optional `note`;
 - `revision`;
 - `recordedAt`, the time the attorney pressed (required; the projector derives `resolvedAt` from

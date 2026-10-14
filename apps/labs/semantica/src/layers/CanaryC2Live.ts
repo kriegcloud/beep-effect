@@ -335,13 +335,13 @@ const makeCanaryC2 = Effect.fn("CanaryC2.make")(function* () {
           events,
         }),
       });
-      const provisional: C2EvalReport = {
+      const provisional: C2EvalReport = C2EvalReport.make({
         base: base.report,
         reasoning,
         reportDigest: Sha256Hex.make(Str.repeat(64)("0")),
         schemaVersion: C2_SCHEMA_VERSION,
         stage: C2_STAGE,
-      };
+      });
       const reportDigest = yield* digestOmitting(
         S.Struct(C2EvalReport.fields),
         "reportDigest"

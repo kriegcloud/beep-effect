@@ -50,8 +50,8 @@ const $I = $LawPracticeDomainId.create("values/StatutesAtLargeCitation/StatutesA
  * @category models
  * @since 0.0.0
  */
-export class StatutesAtLargeCitation extends S.Class<StatutesAtLargeCitation>($I`StatutesAtLargeCitation`)(
-  {
+export class StatutesAtLargeCitation extends S.Opaque<StatutesAtLargeCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("statutesAtLarge"),
     volume: S.Union([S.Natural, S.String]).annotateKey({
@@ -94,10 +94,11 @@ export class StatutesAtLargeCitation extends S.Class<StatutesAtLargeCitation>($I
         description: "Component spans locating the sub-parts of this citation within the source text.",
       })
     ),
-  },
-  $I.annote("StatutesAtLargeCitation", {
-    description: "Citation to the Statutes at Large (session law compilation).",
-  })
+  }).pipe(
+    $I.annoteSchema("StatutesAtLargeCitation", {
+      description: "Citation to the Statutes at Large (session law compilation).",
+    })
+  )
 ) {}
 
 /**

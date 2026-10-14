@@ -32,7 +32,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Error/EventBus");
  * @category errors
  * @since 0.0.0
  */
-export class EventBusError extends S.TaggedError<EventBusError>($I`EventBusError`)(
+export class EventBusError extends S.TaggedError<EventBusError, { readonly brand: unique symbol }>($I`EventBusError`)(
   "EventBusError",
   {
     method: S.NonEmptyString.annotateKey({
@@ -71,7 +71,7 @@ export class EventBusError extends S.TaggedError<EventBusError>($I`EventBusError
  * @category errors
  * @since 0.0.0
  */
-export class PubSubError extends S.TaggedError<PubSubError>($I`PubSubError`)(
+export class PubSubError extends S.TaggedError<PubSubError, { readonly brand: unique symbol }>($I`PubSubError`)(
   "PubSubError",
   {
     method: S.NonEmptyString.annotateKey({
@@ -116,7 +116,7 @@ export class PubSubError extends S.TaggedError<PubSubError>($I`PubSubError`)(
  * @category errors
  * @since 0.0.0
  */
-export class DeadLetterError extends S.TaggedError<DeadLetterError>($I`DeadLetterError`)(
+export class DeadLetterError extends S.TaggedError<DeadLetterError, { readonly brand: unique symbol }>($I`DeadLetterError`)(
   "DeadLetterError",
   {
     jobId: S.NonEmptyString.annotateKey({

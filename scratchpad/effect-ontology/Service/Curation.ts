@@ -92,16 +92,13 @@ export type CurationServiceError = DrizzleError | S.SchemaError | AnyEmbeddingEr
  * @category models
  * @since 0.0.0
  */
-export class CurationResult extends S.Class<CurationResult>($I`CurationResult`)(
-  {
+export class CurationResult extends S.Opaque<CurationResult, { readonly brand: unique symbol }>()(S.Struct({
     action: CurationActionTag,
     success: S.Boolean,
     details: S.Record(S.String, S.Unknown).pipe(S.optionalKey),
-  },
-  $I.annote("CurationResult", {
+  }).pipe($I.annoteSchema("CurationResult", {
     description: "Success flag and optional details for one tagged curation action.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Service

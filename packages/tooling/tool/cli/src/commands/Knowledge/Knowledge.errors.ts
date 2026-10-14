@@ -72,7 +72,10 @@ export const KNOWLEDGE_HISTORY_REMEDIATION =
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeOperationalError extends S.TaggedError<KnowledgeOperationalError>($I`KnowledgeOperationalError`)(
+export class KnowledgeOperationalError extends S.TaggedError<
+  KnowledgeOperationalError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeOperationalError`)(
   "KnowledgeOperationalError",
   {
     message: S.String,
@@ -168,7 +171,9 @@ export class KnowledgeOperationalError extends S.TaggedError<KnowledgeOperationa
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeProbeBootError extends S.TaggedError<KnowledgeProbeBootError>($I`KnowledgeProbeBootError`)(
+export class KnowledgeProbeBootError extends S.TaggedError<KnowledgeProbeBootError, { readonly brand: unique symbol }>(
+  $I`KnowledgeProbeBootError`
+)(
   "KnowledgeProbeBootError",
   {
     message: S.String,
@@ -204,9 +209,10 @@ export class KnowledgeProbeBootError extends S.TaggedError<KnowledgeProbeBootErr
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeIntroducedFindingsError extends S.TaggedError<KnowledgeIntroducedFindingsError>(
-  $I`KnowledgeIntroducedFindingsError`
-)(
+export class KnowledgeIntroducedFindingsError extends S.TaggedError<
+  KnowledgeIntroducedFindingsError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeIntroducedFindingsError`)(
   "KnowledgeIntroducedFindingsError",
   {
     message: S.String,
@@ -245,9 +251,10 @@ export class KnowledgeIntroducedFindingsError extends S.TaggedError<KnowledgeInt
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeHostPathDebtError extends S.TaggedError<KnowledgeHostPathDebtError>(
-  $I`KnowledgeHostPathDebtError`
-)(
+export class KnowledgeHostPathDebtError extends S.TaggedError<
+  KnowledgeHostPathDebtError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeHostPathDebtError`)(
   "KnowledgeHostPathDebtError",
   {
     message: S.String,
@@ -283,9 +290,10 @@ export class KnowledgeHostPathDebtError extends S.TaggedError<KnowledgeHostPathD
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeCloneAttributesError extends S.TaggedError<KnowledgeCloneAttributesError>(
-  $I`KnowledgeCloneAttributesError`
-)(
+export class KnowledgeCloneAttributesError extends S.TaggedError<
+  KnowledgeCloneAttributesError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeCloneAttributesError`)(
   "KnowledgeCloneAttributesError",
   {
     message: S.String,
@@ -427,7 +435,10 @@ const INPUT_REMEDIATION: Readonly<Record<KnowledgeDoctorInputReason, string>> = 
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeDoctorInputError extends S.TaggedError<KnowledgeDoctorInputError>($I`KnowledgeDoctorInputError`)(
+export class KnowledgeDoctorInputError extends S.TaggedError<
+  KnowledgeDoctorInputError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeDoctorInputError`)(
   "KnowledgeDoctorInputError",
   {
     reason: KnowledgeDoctorInputReason,
@@ -498,7 +509,10 @@ export class KnowledgeDoctorInputError extends S.TaggedError<KnowledgeDoctorInpu
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeDoctorGateError extends S.TaggedError<KnowledgeDoctorGateError>($I`KnowledgeDoctorGateError`)(
+export class KnowledgeDoctorGateError extends S.TaggedError<
+  KnowledgeDoctorGateError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeDoctorGateError`)(
   "KnowledgeDoctorGateError",
   {
     message: S.String,
@@ -535,7 +549,9 @@ export class KnowledgeDoctorGateError extends S.TaggedError<KnowledgeDoctorGateE
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeMintRefusal extends S.TaggedError<KnowledgeMintRefusal>($I`KnowledgeMintRefusal`)(
+export class KnowledgeMintRefusal extends S.TaggedError<KnowledgeMintRefusal, { readonly brand: unique symbol }>(
+  $I`KnowledgeMintRefusal`
+)(
   "KnowledgeMintRefusal",
   {
     message: S.String,
@@ -565,7 +581,9 @@ export class KnowledgeMintRefusal extends S.TaggedError<KnowledgeMintRefusal>($I
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeSealBroken extends S.TaggedError<KnowledgeSealBroken>($I`KnowledgeSealBroken`)(
+export class KnowledgeSealBroken extends S.TaggedError<KnowledgeSealBroken, { readonly brand: unique symbol }>(
+  $I`KnowledgeSealBroken`
+)(
   "KnowledgeSealBroken",
   {
     message: S.String,
@@ -573,5 +591,45 @@ export class KnowledgeSealBroken extends S.TaggedError<KnowledgeSealBroken>($I`K
   },
   $I.annoteError<KnowledgeSealBroken>("KnowledgeSealBroken", {
     description: "The committed knowledge-doctor baseline is not byte-reproducible from its mintedAt commit.",
+  })
+) {}
+
+/**
+ * The mint or `--accept-mint` refusing to run outside the context the seal requires.
+ *
+ * **Details**
+ *
+ * `knowledge doctor mint --write` runs only in CI, on a clean checkout of the minted commit, at a
+ * commit the base ref contains. `--accept-mint` admits a baseline change only for a pull request
+ * from `automation/knowledge-baseline-mint` that the mint App opened (C8 condition i). `reasons`
+ * lists every unmet condition, so one run names them all.
+ *
+ * **Example** (Refuse a local write)
+ *
+ * ```ts
+ * import { KnowledgeMintContextRefusal } from "@beep/repo-cli/commands/Knowledge/Knowledge.errors"
+ *
+ * const refusal = KnowledgeMintContextRefusal.make({
+ *   message: "knowledge doctor mint --write: 1 condition(s) unmet.",
+ *   reasons: ["CI is not true; only the mint workflow writes the sealed baseline."],
+ * })
+ *
+ * console.log(refusal.reasons.length) // 1
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class KnowledgeMintContextRefusal extends S.TaggedError<
+  KnowledgeMintContextRefusal,
+  { readonly brand: unique symbol }
+>($I`KnowledgeMintContextRefusal`)(
+  "KnowledgeMintContextRefusal",
+  {
+    message: S.String,
+    reasons: S.Array(S.String),
+  },
+  $I.annoteError<KnowledgeMintContextRefusal>("KnowledgeMintContextRefusal", {
+    description: "The mint write or the CI mint acceptance ran outside the context the seal requires.",
   })
 ) {}

@@ -70,15 +70,16 @@ const ImageQuality = S.Int.check(S.isBetween({ minimum: 1, maximum: 100 })).pipe
  * @category models
  * @since 0.0.0
  */
-export class ImageLoaderProps extends S.Class<ImageLoaderProps>($I`ImageLoaderProps`)(
-  {
+export class ImageLoaderProps extends S.Opaque<ImageLoaderProps, { readonly brand: unique symbol }>()(
+  S.Struct({
     src: S.String,
     width: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     quality: S.optionalKey(ImageQuality),
-  },
-  $I.annote("ImageLoaderProps", {
-    description: "Configuration properties for the image loader component.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageLoaderProps", {
+      description: "Configuration properties for the image loader component.",
+    })
+  )
 ) {}
 
 /**
@@ -95,8 +96,8 @@ export class ImageLoaderProps extends S.Class<ImageLoaderProps>($I`ImageLoaderPr
  * @category models
  * @since 0.0.0
  */
-export class LocalPattern extends S.Class<LocalPattern>($I`LocalPattern`)(
-  {
+export class LocalPattern extends S.Opaque<LocalPattern, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * Can be literal or wildcard.
      * Single `*` matches a single path segment.
@@ -114,10 +115,11 @@ export class LocalPattern extends S.Class<LocalPattern>($I`LocalPattern`)(
     search: S.optionalKey(S.String).annotateKey({
       description: "Can be literal query string such as `?v=1` or\nempty string meaning no query string.",
     }),
-  },
-  $I.annote("LocalPattern", {
-    description: "Next.js local image matching pattern.",
-  })
+  }).pipe(
+    $I.annoteSchema("LocalPattern", {
+      description: "Next.js local image matching pattern.",
+    })
+  )
 ) {}
 
 /**
@@ -134,8 +136,8 @@ export class LocalPattern extends S.Class<LocalPattern>($I`LocalPattern`)(
  * @category models
  * @since 0.0.0
  */
-export class RemotePattern extends S.Class<RemotePattern>($I`RemotePattern`)(
-  {
+export class RemotePattern extends S.Opaque<RemotePattern, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * Must be `http` or `https`.
      */
@@ -178,10 +180,11 @@ export class RemotePattern extends S.Class<RemotePattern>($I`RemotePattern`)(
     search: S.optionalKey(S.String).annotateKey({
       description: "Can be literal query string such as `?v=1` or\nempty string meaning no query string.",
     }),
-  },
-  $I.annote("RemotePattern", {
-    description: "Next.js remote image matching pattern.",
-  })
+  }).pipe(
+    $I.annoteSchema("RemotePattern", {
+      description: "Next.js remote image matching pattern.",
+    })
+  )
 ) {}
 
 /**
@@ -235,8 +238,8 @@ export type ImageFormat = typeof ImageFormat.Type;
  * @category models
  * @since 0.0.0
  */
-export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageConfigComplete`)(
-  {
+export class ImageConfigComplete extends S.Opaque<ImageConfigComplete, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** @see [Device sizes documentation](https://nextjs.org/docs/api-reference/next/image#device-sizes) */
     deviceSizes: S.Natural.pipe(
       S.Array,
@@ -372,11 +375,12 @@ export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageCo
       documentation:
         "https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheHandler#image-optimization-caching",
     }),
-  },
-  $I.annote("ImageConfigComplete", {
-    description: "Image configurations",
-    documentation: "https://nextjs.org/docs/api-reference/next/image#configuration-options",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageConfigComplete", {
+      description: "Image configurations",
+      documentation: "https://nextjs.org/docs/api-reference/next/image#configuration-options",
+    })
+  )
 ) {}
 
 /**

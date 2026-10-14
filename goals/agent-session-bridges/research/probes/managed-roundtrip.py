@@ -198,6 +198,7 @@ def run(args):
             err = (root / (provider + "-stderr.private.log")).open("w")
             handles += [out, err]
             proc = subprocess.Popen(commands + ["serve", "--state-dir", str(state), "--profile-file", str(profile_file),
+                                               "--grant-file", str(grants[provider]),
                                                "--endpoint", provider, "--participant", "agent-" + provider,
                                                "--owner", "owner-" + provider, "--repository-scope", scope, "--generation", "1"],
                                     cwd=repo, env=controller_env, stdout=out, stderr=err, start_new_session=True)

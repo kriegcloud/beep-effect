@@ -18,8 +18,7 @@ export { ExtractionTelemetry, ProviderTokenUsage } from "../Domain/Model/Extract
 
 const $I = $ScratchpadId.create("effect-ontology/Telemetry/ExtractionTelemetry");
 
-class UsageState extends S.Class<UsageState>($I`UsageState`)(
-  {
+class UsageState extends S.Opaque<UsageState, { readonly brand: unique symbol }>()(S.Struct({
     chunkCount: S.Natural,
     attemptCount: S.Natural,
     recordedAttempts: S.Natural,
@@ -27,11 +26,9 @@ class UsageState extends S.Class<UsageState>($I`UsageState`)(
     completeAttempts: S.Natural,
     inputTokens: S.Natural,
     outputTokens: S.Natural,
-  },
-  $I.annote("UsageState", {
+  }).pipe($I.annoteSchema("UsageState", {
     description: "Mutable-ref payload used to aggregate provider usage within one extraction request.",
-  })
-) {}
+  }))) {}
 
 const emptyUsageState = (): UsageState =>
   UsageState.make({

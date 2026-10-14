@@ -189,28 +189,30 @@ const GoalDoctorSeverity = LiteralKit(["blocking", "advisory"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class GoalDoctorFinding extends S.Class<GoalDoctorFinding>($I`GoalDoctorFinding`)(
-  {
+export class GoalDoctorFinding extends S.Opaque<GoalDoctorFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     kind: GoalDoctorFindingKind,
     severity: GoalDoctorSeverity,
     key: S.String,
     message: S.String,
-  },
-  $I.annote("GoalDoctorFinding", {
-    description: "One goals-doctor finding with a stable baseline-membership key.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalDoctorFinding", {
+      description: "One goals-doctor finding with a stable baseline-membership key.",
+    })
+  )
 ) {}
 
-class GoalsDoctorBaseline extends S.Class<GoalsDoctorBaseline>($I`GoalsDoctorBaseline`)(
-  {
+class GoalsDoctorBaseline extends S.Opaque<GoalsDoctorBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("goals-doctor-baseline/v1"),
     note: S.optionalKey(S.String),
     findings: S.Array(S.String),
-  },
-  $I.annote("GoalsDoctorBaseline", {
-    description: "Committed goals-doctor baseline: the inherited blocking-finding keys (may only shrink).",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalsDoctorBaseline", {
+      description: "Committed goals-doctor baseline: the inherited blocking-finding keys (may only shrink).",
+    })
+  )
 ) {}
 
 const decodeBaseline = S.decodeUnknownEffect(GoalsDoctorBaseline);
@@ -247,15 +249,16 @@ const finding = (
  * @category models
  * @since 0.0.0
  */
-export class GoalDoctorClassification extends S.Class<GoalDoctorClassification>($I`GoalDoctorClassification`)(
-  {
+export class GoalDoctorClassification extends S.Opaque<GoalDoctorClassification, { readonly brand: unique symbol }>()(
+  S.Struct({
     introduced: S.Array(GoalDoctorFinding),
     inherited: S.Array(GoalDoctorFinding),
     resolved: S.Array(S.String),
-  },
-  $I.annote("GoalDoctorClassification", {
-    description: "Baseline-ratchet classification: introduced blocks, inherited stays advisory, resolved shrinks.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalDoctorClassification", {
+      description: "Baseline-ratchet classification: introduced blocks, inherited stays advisory, resolved shrinks.",
+    })
+  )
 ) {}
 
 /**

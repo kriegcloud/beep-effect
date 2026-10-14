@@ -139,13 +139,14 @@ export type WorkerCommand = typeof WorkerCommand.Type;
  * @category models
  * @since 0.0.0
  */
-export class DiffWorkerResult extends S.Class<DiffWorkerResult>($I`DiffWorkerResult`)(
-  {
+export class DiffWorkerResult extends S.Opaque<DiffWorkerResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     operations: S.Array(ChangeOperation),
-  },
-  $I.annote("DiffWorkerResult", {
-    description: "Diff worker result expressed as typed change operations.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiffWorkerResult", {
+      description: "Diff worker result expressed as typed change operations.",
+    })
+  )
 ) {}
 
 const WorkerResultKind = LiteralKit([
@@ -364,9 +365,10 @@ export const decodeWorkerResult: (input: unknown) => Result.Result<WorkerResult,
  * @category errors
  * @since 0.0.0
  */
-export class OntologyWorkerUndecodableCommand extends S.TaggedError<OntologyWorkerUndecodableCommand>(
-  $I`OntologyWorkerUndecodableCommand`
-)(
+export class OntologyWorkerUndecodableCommand extends S.TaggedError<
+  OntologyWorkerUndecodableCommand,
+  { readonly brand: unique symbol }
+>($I`OntologyWorkerUndecodableCommand`)(
   "OntologyWorkerUndecodableCommand",
   { reason: S.String },
   $I.annoteError<OntologyWorkerUndecodableCommand>("OntologyWorkerUndecodableCommand", {

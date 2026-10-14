@@ -15,10 +15,11 @@ import {
   SvgToPdfRequest,
 } from "@beep/pdf-tools";
 import { it } from "@beep/test-runner";
-import { A, Str } from "@beep/utils";
+import { Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertInstanceOf, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
@@ -514,8 +515,8 @@ describe("@beep/pdf-tools service", () => {
         Effect.fnUntraced(function* () {
           const tools = yield* PdfTools;
           const blocks = yield* tools.pageWords(PageTextRequest.make({ pdfPath: "reviewed.pdf", page: 2 }));
-          expect(blocks.map((b) => b.text)).toEqual(["Rotate A&B\n<left> é—\"'", "(all sheets)"]);
-          expect(blocks.map((b) => [b.rect.xMin, b.rect.yMin, b.rect.xMax, b.rect.yMax])).toEqual([
+          expect(A.map(blocks, (b) => b.text)).toEqual(["Rotate A&B\n<left> é—\"'", "(all sheets)"]);
+          expect(A.map(blocks, (b) => [b.rect.xMin, b.rect.yMin, b.rect.xMax, b.rect.yMax])).toEqual([
             [72, 84.5, 238.25, 108],
             [72, 724.82, 208.16, 734.07],
           ]);
@@ -653,7 +654,7 @@ describe("@beep/pdf-tools service", () => {
           yield* fs.writeFile(file, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
           const tools = yield* PdfTools;
           const annotations = yield* tools.annotations(file);
-          expect(annotations.map((a) => [a.page, a.subtype])).toEqual([
+          expect(A.map(annotations, (a) => [a.page, a.subtype])).toEqual([
             [2, "Text"],
             [2, "Highlight"],
           ]);

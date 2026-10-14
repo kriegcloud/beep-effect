@@ -15,7 +15,6 @@
  */
 
 import * as A from "effect/Array";
-import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Eq from "effect/Equal";
 import { constant, dual, pipe } from "effect/Function";
@@ -28,42 +27,24 @@ import { runCapturedStreams } from "../../../internal/process/index.ts";
 import {
   fallowAuditCacheEnv,
   fallowAuditCacheRemoveArgs,
-  ProcessPid,
   RepoRunContext,
   resolveFallowAuditCacheSettings,
   runRepoCommandCapture,
 } from "../../../internal/repo-run/index.ts";
-import {
-  WorktreeInvokerExemption,
-  WorktreeRemovalRequest,
-  WorktreeSessionMarker,
-} from "../../Worktree/Worktree.schemas.ts";
+import { invokerExemption } from "../../Worktree/Worktree.command.ts";
+import { WorktreeRemovalRequest } from "../../Worktree/Worktree.schemas.ts";
 import { WorktreeRemovalService } from "../../Worktree/Worktree.service.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
-import { YeetRetirePlan } from "./Retire.schemas.ts";
+import { YeetRetirePlan, YeetRetireVerdict } from "./Retire.schemas.ts";
 import type { WorktreeRemovalReceipt } from "../../Worktree/Worktree.schemas.ts";
 import type { SweepGitState } from "./Sweep.ts";
 
 const decodeWorktreeName = S.decodeUnknownEffect(WorktreeRemovalRequest.fields.name);
 const decodeRetirePlan = S.decodeUnknownEffect(YeetRetirePlan);
-const isProcessPid = S.is(ProcessPid);
-
-// Claude Code exports its own pid under this name to every tool shell it
-// spawns; that harness key lives here, in the command that runs under it, so
-// the worktree service only ever learns "the marker that names the session".
-const SESSION_PID_ENV = "CLAUDE_PID";
+const decodeVerdictTip = S.decodeUnknownOption(YeetRetireVerdict.cases["pr-less-on-main"].fields.tip);
 
 // The lane's own CLI always carries --retire, whatever branch the clone sits on.
 const REPO_CLI_ENTRY_PATH = "packages/tooling/tool/cli/src/bin.ts";
-
-// A malformed value is no session, not a failed retirement; the fence itself
-// proves the marker against /proc before honouring the pid it names.
-const invokerSessionMarker = Config.option(Config.Int(SESSION_PID_ENV)).pipe(
-  Effect.orElseSucceed(O.none<number>),
-  Effect.map((named) =>
-    O.map(O.filter(named, isProcessPid), (pid) => WorktreeSessionMarker.make({ name: SESSION_PID_ENV, pid }))
-  )
-);
 
 const gitOutput = Effect.fn("Yeet.retireGitOutput")(function* (cwd: string, args: ReadonlyArray<string>) {
   const commandLine = `git ${A.join(args, " ")}`;
@@ -83,52 +64,119 @@ const unknownText = constant("unknown");
 
 const optionText = (value: O.Option<string>): string => O.getOrElse(value, unknownText);
 
+const refused = (reason: string): YeetRetireVerdict => YeetRetireVerdict.cases.refused.make({ reason });
+
+// The pull request's own facts, in the order an operator would check them:
+// MERGED first, then whether it heads the branch being retired.
+const pullRequestVerdict = (plan: YeetRetirePlan, state: SweepGitState): YeetRetireVerdict =>
+  O.match(
+    A.findFirst(
+      [
+        [
+          !O.exists(state.pullRequestState, (value) => Eq.equals(value, "MERGED")),
+          `the pull request for ${plan.branch} is ${optionText(state.pullRequestState)}, not MERGED`,
+        ] as const,
+        [
+          !O.exists(state.pullRequestHeadBranch, (head) => Eq.equals(head, plan.branch)),
+          `the resolved pull request heads ${optionText(state.pullRequestHeadBranch)}, not ${plan.branch}`,
+        ] as const,
+      ],
+      ([blocked]) => blocked
+    ),
+    {
+      onNone: () => YeetRetireVerdict.cases["pr-merged"].make({}),
+      onSome: ([, reason]) => refused(reason),
+    }
+  );
+
+// Without a pull request the branch itself must prove it landed: its tip is
+// already an ancestor of the remote main branch and nothing uncommitted would
+// be archived away. `branchMergedIntoBase` is the observed
+// `merge-base --is-ancestor refs/heads/<branch> refs/remotes/origin/<main>`,
+// and `worktreeDirty` folds an unreliable status probe in as dirty.
+const pullRequestLessVerdict = (plan: YeetRetirePlan, state: SweepGitState): YeetRetireVerdict =>
+  O.match(
+    A.findFirst(
+      [
+        [
+          !state.branchMergedIntoBase,
+          `no pull request was observed for ${plan.branch} and its tip ${optionText(state.localTip)} is not contained in origin/${state.mainBranch}`,
+        ] as const,
+        [
+          state.worktreeDirty,
+          `no pull request was observed for ${plan.branch} and the lane has uncommitted changes`,
+        ] as const,
+      ],
+      ([blocked]) => blocked
+    ),
+    {
+      onNone: () =>
+        O.match(O.flatMap(state.localTip, decodeVerdictTip), {
+          onNone: () => refused(`no pull request was observed for ${plan.branch} and its tip could not be resolved`),
+          onSome: (tip) => YeetRetireVerdict.cases["pr-less-on-main"].make({ tip, mainBranch: state.mainBranch }),
+        }),
+      onSome: ([, reason]) => refused(reason),
+    }
+  );
+
 /**
- * The first reason a retirement must not proceed, in the order an operator would check them.
+ * The retirement gate's decision for a lane.
  *
  * **Details**
  *
- * No pull request observed, pull request not MERGED, pull request heading a
- * different branch. `None` means the gate is open.
+ * A lane whose branch headed a pull request is judged by that pull request:
+ * it must be MERGED and head the branch (`pr-merged`). A lane whose branch
+ * never headed one is judged by git: its tip must already be contained in
+ * `origin/<main>` and its tree clean (`pr-less-on-main`), the case of a
+ * scratch checkout, a stacked parent, or a branch pushed straight to main.
+ * Anything else is `refused` with the first reason an operator would check.
  *
  * **Example** (Read the gate)
  *
  * ```ts
- * import { retireBlocker } from "@beep/repo-cli/test/Yeet"
+ * import { retireVerdict } from "@beep/repo-cli/test/Yeet"
  *
- * console.log(typeof retireBlocker) // function
+ * console.log(typeof retireVerdict) // function
  * ```
  *
  * @param plan - The retirement plan under review.
  * @param state - The observed git and pull request facts for its branch.
- * @returns The blocking reason when the gate is closed.
+ * @returns Why the retirement proceeds, or the reason it does not.
  * @category planning
  * @since 0.0.0
  */
-export const retireBlocker: {
-  (plan: YeetRetirePlan, state: SweepGitState): O.Option<string>;
-  (state: SweepGitState): (plan: YeetRetirePlan) => O.Option<string>;
+export const retireVerdict: {
+  (plan: YeetRetirePlan, state: SweepGitState): YeetRetireVerdict;
+  (state: SweepGitState): (plan: YeetRetirePlan) => YeetRetireVerdict;
 } = dual(
   2,
-  (plan: YeetRetirePlan, state: SweepGitState): O.Option<string> =>
-    O.map(
-      A.findFirst(
-        [
-          [O.isNone(state.pullRequestState), `no pull request was observed for ${plan.branch}`] as const,
-          [
-            !O.exists(state.pullRequestState, (value) => Eq.equals(value, "MERGED")),
-            `the pull request for ${plan.branch} is ${optionText(state.pullRequestState)}, not MERGED`,
-          ] as const,
-          [
-            !O.exists(state.pullRequestHeadBranch, (head) => Eq.equals(head, plan.branch)),
-            `the resolved pull request heads ${optionText(state.pullRequestHeadBranch)}, not ${plan.branch}`,
-          ] as const,
-        ],
-        ([blocked]) => blocked
-      ),
-      ([, reason]) => reason
-    )
+  (plan: YeetRetirePlan, state: SweepGitState): YeetRetireVerdict =>
+    O.isSome(state.pullRequestState) ? pullRequestVerdict(plan, state) : pullRequestLessVerdict(plan, state)
 );
+
+/**
+ * Render a verdict as the plan's `gate:` or `blocked:` line.
+ *
+ * **Example** (Render the merged gate)
+ *
+ * ```ts
+ * import { renderRetireGate, YeetRetireVerdict } from "@beep/repo-cli/test/Yeet"
+ *
+ * console.log(renderRetireGate(YeetRetireVerdict.cases["pr-merged"].make({}))) // "  gate: pull request MERGED"
+ * ```
+ *
+ * @param verdict - The gate's decision.
+ * @returns One indented report line.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderRetireGate = (verdict: YeetRetireVerdict): string =>
+  YeetRetireVerdict.match(verdict, {
+    "pr-merged": () => "  gate: pull request MERGED",
+    "pr-less-on-main": ({ tip, mainBranch }) =>
+      `  gate: no pull request; tip ${tip} is already on origin/${mainBranch} and the lane is clean`,
+    refused: ({ reason }) => `  blocked: ${reason}`,
+  });
 
 /**
  * Locate the linked worktree the sweep runs in and the clone that owns it.
@@ -214,21 +262,25 @@ const discardLaneFallowBaseCache = Effect.fn("Yeet.discardLaneFallowBaseCache")(
 });
 
 /**
- * Archive-retire the planned worktree and delete its branch once its pull request is MERGED.
+ * Archive-retire the planned worktree and delete its branch once the gate opens.
  *
  * **Details**
  *
- * The gate is the same one the sweep's own branch deletion uses: the pull
- * request resolved for the branch must be MERGED and must head that branch.
- * Retirement always archives, so dirty files and unpushed commits are
- * preserved under the residue root rather than blocking the closeout. The
- * archive fence refuses a lane any process still stands in; this command
- * first moves its own working directory to the owning clone and asks the
- * fence to exempt the invoker's ancestry (the shell and agent session that
- * started it) plus, when the harness names the session process through
- * `CLAUDE_PID` and the fence can prove it did, everything that session
- * spawned into the lane (its MCP servers, tool shells, and background
- * jobs). When the command started inside the lane it retires, the fence
+ * The gate is {@link retireVerdict}: the pull request resolved for the
+ * branch is MERGED and heads it, or, for a branch that never headed one, the
+ * tip is already contained in `origin/<main>` and the tree is clean.
+ * Retirement always archives, so dirty files and unpushed commits behind a
+ * merged pull request are preserved under the residue root rather than
+ * blocking the closeout. A pull-request-less retirement is pinned to the tip
+ * its verdict proved on `origin/<main>`: if the lane's HEAD moves before or
+ * inside the archive fence, the removal refuses instead of retiring new work. The archive fence refuses a lane any process still
+ * stands in; this command first moves its own working directory to the
+ * owning clone and asks the fence to exempt the invoker's ancestry (the
+ * shell and agent session that started it) plus, when the harness names the
+ * session process through `CLAUDE_PID` and the fence can prove it did,
+ * everything that session spawned into the lane (its MCP servers, tool
+ * shells, and background jobs), through the exemption `worktree remove`
+ * shares. When the command started inside the lane it retires, the fence
  * also leaves an idle Claude Desktop Terminal panel shell standing in it,
  * which the app starts in the session folder whether or not the operator
  * ever opened the panel, as long as that shell stays quiet until the lane is
@@ -256,26 +308,21 @@ export const retireInvokingWorktree = Effect.fn("Yeet.retireInvokingWorktree")(f
   plan: YeetRetirePlan,
   state: SweepGitState
 ) {
-  const blocker = retireBlocker(plan, state);
-  if (O.isSome(blocker)) {
+  const verdict = retireVerdict(plan, state);
+  if (YeetRetireVerdict.guards.refused(verdict)) {
     return yield* YeetCommandError.make({
-      message: `yeet sweep --retire refuses to retire ${plan.worktreePath}: ${blocker.value}.`,
+      message: `yeet sweep --retire refuses to retire ${plan.worktreePath}: ${verdict.reason}.`,
     });
   }
   const service = yield* WorktreeRemovalService;
-  const path = yield* Path.Path;
   const name = yield* decodeWorktreeName(plan.name).pipe(
     Effect.mapError(YeetCommandError.new(`Worktree name ${plan.name} is not one safe path component.`))
   );
-  // Leave the lane before it is renamed away: a process whose cwd is inside
-  // it would be a holder, and later steps run against the owning clone anyway.
-  // Starting inside the lane is also what makes this a session closing its own
-  // lane, the only retirement that may leave an idle desktop Terminal panel shell.
-  const selfRetirement = isWithin(path, plan.worktreePath, process.cwd());
-  if (selfRetirement) {
-    yield* Effect.sync(() => process.chdir(plan.owningClone));
-  }
-  const sessionMarker = yield* invokerSessionMarker;
+  // Leave the lane before it is renamed away and name the invoker to the
+  // fence; starting inside the lane is what makes this a session closing its
+  // own lane, the only retirement that may leave an idle desktop Terminal
+  // panel shell.
+  const exemptInvoker = yield* invokerExemption(plan.worktreePath, plan.owningClone);
   yield* discardLaneFallowBaseCache(plan.worktreePath);
   return yield* service
     .remove(
@@ -286,8 +333,10 @@ export const retireInvokingWorktree = Effect.fn("Yeet.retireInvokingWorktree")(f
         branch: O.some(plan.branch),
         archive: true,
         deleteBranch: true,
-        expectedHead: O.none(),
-        exemptInvoker: WorktreeInvokerExemption.make({ sessionMarker, selfRetirement }),
+        // A pull-request-less retirement was approved for one tip; pin the
+        // removal to it so a HEAD that moves before or inside the fence refuses.
+        expectedHead: YeetRetireVerdict.guards["pr-less-on-main"](verdict) ? O.some(verdict.tip) : O.none(),
+        exemptInvoker,
       })
     )
     .pipe(
@@ -428,11 +477,6 @@ export const renderActivePackets = (slugs: ReadonlyArray<string>): string =>
     "\n"
   );
 
-// Two absolute paths on one filesystem relate by a relative path; only a
-// leading `..` means the candidate lies outside the root.
-const isWithin = (path: Path.Path, root: string, candidate: string): boolean =>
-  !Str.startsWith("..")(path.relative(root, candidate));
-
 /**
  * The message a failed retirement reports, with the working form appended when a holder blocked it.
  *
@@ -528,10 +572,7 @@ export const renderRetirePlan: {
       `[yeet] retire ${plan.worktreePath}`,
       `  owning clone: ${plan.owningClone}`,
       `  branch: ${plan.branch}`,
-      O.match(retireBlocker(plan, state), {
-        onNone: () => "  gate: pull request MERGED",
-        onSome: (reason) => `  blocked: ${reason}`,
-      }),
+      renderRetireGate(retireVerdict(plan, state)),
     ],
     "\n"
   )

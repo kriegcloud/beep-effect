@@ -1,4 +1,4 @@
-import { PrettyLoggerConfig, renderLogBanner } from "@beep/observability";
+import { PrettyLoggerConfig, RenderLogBannerOptions, renderLogBanner } from "@beep/observability";
 import { layerNodeSdkServer, ServerObservabilityConfig } from "@beep/observability/server";
 
 const config = ServerObservabilityConfig.make({
@@ -16,10 +16,13 @@ const config = ServerObservabilityConfig.make({
   prometheusPrefix: "beep",
 });
 
-void renderLogBanner("Node SDK Server", {
-  pretty: PrettyLoggerConfig.make({
-    theme: "ocean",
-    bannerMode: "startup",
-  }),
-});
+void renderLogBanner(
+  "Node SDK Server",
+  RenderLogBannerOptions.make({
+    pretty: PrettyLoggerConfig.make({
+      theme: "ocean",
+      bannerMode: "startup",
+    }),
+  })
+);
 void layerNodeSdkServer(config);

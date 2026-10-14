@@ -122,17 +122,14 @@ export type HealthCheckStatus = typeof HealthCheckStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class HealthResult extends S.Class<HealthResult>($I`HealthResult`)(
-  {
+export class HealthResult extends S.Opaque<HealthResult, { readonly brand: unique symbol }>()(S.Struct({
     status: HealthStatus,
     timestamp: S.NonEmptyString,
     checks: S.optionalKey(S.Record(S.String, HealthCheckStatus)),
     error: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("HealthResult", {
+  }).pipe($I.annoteSchema("HealthResult", {
     description: "Timestamped aggregate health status with optional dependency results and failure detail.",
-  })
-) {}
+  }))) {}
 
 /**
  * Liveness, readiness, and deep-dependency probes for Kubernetes-style health checks.

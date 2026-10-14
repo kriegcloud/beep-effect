@@ -130,7 +130,7 @@ export type FindWorkspaceRootOptions = typeof FindWorkspaceRootOptions.Type;
  * @category errors
  * @since 0.0.0
  */
-export class WorkspaceRootNotFoundError extends S.TaggedError<WorkspaceRootNotFoundError>($I`WorkspaceRootNotFoundError`)(
+export class WorkspaceRootNotFoundError extends S.TaggedError<WorkspaceRootNotFoundError, { readonly brand: unique symbol }>($I`WorkspaceRootNotFoundError`)(
 	"WorkspaceRootNotFoundError",
 	{
 		/**

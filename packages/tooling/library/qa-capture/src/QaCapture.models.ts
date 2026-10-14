@@ -405,8 +405,8 @@ export type ToolVersions = typeof ToolVersions.Type;
  * @category models
  * @since 0.0.0
  */
-export class Viewport extends S.Class<Viewport>($I`Viewport`)(
-  {
+export class Viewport extends S.Opaque<Viewport, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: ViewportDimension.pipe(
       $I.annoteKey("Viewport.height", {
         description: "Viewport height in CSS pixels.",
@@ -417,10 +417,11 @@ export class Viewport extends S.Class<Viewport>($I`Viewport`)(
         description: "Viewport width in CSS pixels.",
       })
     ),
-  },
-  $I.annote("Viewport", {
-    description: "Browser viewport size recorded for a capture session.",
-  })
+  }).pipe(
+    $I.annoteSchema("Viewport", {
+      description: "Browser viewport size recorded for a capture session.",
+    })
+  )
 ) {}
 
 /**
@@ -449,8 +450,8 @@ export class Viewport extends S.Class<Viewport>($I`Viewport`)(
  * @category models
  * @since 0.0.0
  */
-export class CaptureSession extends S.Class<CaptureSession>($I`CaptureSession`)(
-  {
+export class CaptureSession extends S.Opaque<CaptureSession, { readonly brand: unique symbol }>()(
+  S.Struct({
     commitDirty: S.Boolean.pipe(
       $I.annoteKey("CaptureSession.commitDirty", {
         description: "Whether the working tree had uncommitted changes at capture time.",
@@ -502,10 +503,11 @@ export class CaptureSession extends S.Class<CaptureSession>($I`CaptureSession`)(
         description: "Browser viewport size during the capture.",
       })
     ),
-  },
-  $I.annote("CaptureSession", {
-    description: "Identity and environment of one QA capture session.",
-  })
+  }).pipe(
+    $I.annoteSchema("CaptureSession", {
+      description: "Identity and environment of one QA capture session.",
+    })
+  )
 ) {}
 
 /**
@@ -533,8 +535,8 @@ export class CaptureSession extends S.Class<CaptureSession>($I`CaptureSession`)(
  * @category models
  * @since 0.0.0
  */
-export class ClockSync extends S.Class<ClockSync>($I`ClockSync`)(
-  {
+export class ClockSync extends S.Opaque<ClockSync, { readonly brand: unique symbol }>()(
+  S.Struct({
     confidence: ClockConfidence.pipe(
       $I.annoteKey("ClockSync.confidence", {
         description: "Confidence level of the synchronization.",
@@ -574,10 +576,11 @@ export class ClockSync extends S.Class<ClockSync>($I`ClockSync`)(
         description: "Multiplicative slope; fixed at 1.0 for all current methods.",
       })
     ),
-  },
-  $I.annote("ClockSync", {
-    description: "Mapping from witness wall-clock time to video time.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClockSync", {
+      description: "Mapping from witness wall-clock time to video time.",
+    })
+  )
 ) {}
 
 /**
@@ -611,8 +614,8 @@ export class ClockSync extends S.Class<ClockSync>($I`ClockSync`)(
  * @category models
  * @since 0.0.0
  */
-export class CaptureProvenance extends S.Class<CaptureProvenance>($I`CaptureProvenance`)(
-  {
+export class CaptureProvenance extends S.Opaque<CaptureProvenance, { readonly brand: unique symbol }>()(
+  S.Struct({
     actionSeq: S.OptionFromOptionalKey(SequenceNumber).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("CaptureProvenance.actionSeq", {
@@ -661,10 +664,11 @@ export class CaptureProvenance extends S.Class<CaptureProvenance>($I`CaptureProv
         description: "Tool versions captured for reproducibility.",
       })
     ),
-  },
-  $I.annote("CaptureProvenance", {
-    description: "Provenance payload embedded into every committed artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("CaptureProvenance", {
+      description: "Provenance payload embedded into every committed artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -687,8 +691,8 @@ export class CaptureProvenance extends S.Class<CaptureProvenance>($I`CaptureProv
  * @category models
  * @since 0.0.0
  */
-export class CaptureArtifact extends S.Class<CaptureArtifact>($I`CaptureArtifact`)(
-  {
+export class CaptureArtifact extends S.Opaque<CaptureArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventSeqs: S.Array(SequenceNumber).pipe(
       $I.annoteKey("CaptureArtifact.eventSeqs", {
         description: "Witness sequence numbers the artifact gives evidence for.",
@@ -719,10 +723,11 @@ export class CaptureArtifact extends S.Class<CaptureArtifact>($I`CaptureArtifact
         description: "Path relative to the round directory.",
       })
     ),
-  },
-  $I.annote("CaptureArtifact", {
-    description: "One committed artifact of a capture round.",
-  })
+  }).pipe(
+    $I.annoteSchema("CaptureArtifact", {
+      description: "One committed artifact of a capture round.",
+    })
+  )
 ) {}
 
 /**
@@ -759,8 +764,8 @@ export class CaptureArtifact extends S.Class<CaptureArtifact>($I`CaptureArtifact
  * @category models
  * @since 0.0.0
  */
-export class SessionManifest extends S.Class<SessionManifest>($I`SessionManifest`)(
-  {
+export class SessionManifest extends S.Opaque<SessionManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifacts: S.Array(CaptureArtifact).pipe(
       $I.annoteKey("SessionManifest.artifacts", {
         description: "Artifacts committed for the round.",
@@ -799,10 +804,11 @@ export class SessionManifest extends S.Class<SessionManifest>($I`SessionManifest
         description: "Round-relative recorded video path, once committed.",
       })
     ),
-  },
-  $I.annote("SessionManifest", {
-    description: "Canonical session.json payload for one capture round.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionManifest", {
+      description: "Canonical session.json payload for one capture round.",
+    })
+  )
 ) {}
 
 /**
@@ -828,8 +834,8 @@ export class SessionManifest extends S.Class<SessionManifest>($I`SessionManifest
  * @category models
  * @since 0.0.0
  */
-export class CollectorHandle extends S.Class<CollectorHandle>($I`CollectorHandle`)(
-  {
+export class CollectorHandle extends S.Opaque<CollectorHandle, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventsPath: S.String.pipe(
       $I.annoteKey("CollectorHandle.eventsPath", {
         description: "Absolute path of the events NDJSON log being appended.",
@@ -872,10 +878,11 @@ export class CollectorHandle extends S.Class<CollectorHandle>($I`CollectorHandle
         description: "Collector start wall-clock timestamp in epoch milliseconds.",
       })
     ),
-  },
-  $I.annote("CollectorHandle", {
-    description: "Runtime discovery handle for a live collector.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectorHandle", {
+      description: "Runtime discovery handle for a live collector.",
+    })
+  )
 ) {}
 
 /**

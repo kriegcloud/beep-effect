@@ -31,9 +31,10 @@ const ClaimDispositionConverterOperation = LiteralKit(["toInsert", "fromRow"]);
  * @category errors
  * @since 0.0.0
  */
-export class ClaimDispositionConverterError extends S.TaggedError<ClaimDispositionConverterError>(
-  $I`ClaimDispositionConverterError`
-)(
+export class ClaimDispositionConverterError extends S.TaggedError<
+  ClaimDispositionConverterError,
+  { readonly brand: unique symbol }
+>($I`ClaimDispositionConverterError`)(
   "ClaimDispositionConverterError",
   {
     operation: ClaimDispositionConverterOperation.annotateKey({

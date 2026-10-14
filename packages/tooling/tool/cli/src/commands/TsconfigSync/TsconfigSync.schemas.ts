@@ -499,37 +499,99 @@ export const isDryRunModeFlags = P.Tuple([P.not(P.isTruthy), P.isTruthy, P.isBoo
  */
 export const isWriteModeFlags = P.Tuple([P.not(P.isTruthy), P.not(P.isTruthy), P.isTruthy]);
 
-class TsconfigSyncRunOptionsSync extends S.Class<TsconfigSyncRunOptionsSync>($I`TsconfigSyncRunOptionsSync`)(
-  {
+/**
+ * Runtime options for sync mode execution.
+ *
+ * **Example** (Build sync-mode options for one package)
+ *
+ * ```ts
+ * import { TsconfigSyncRunOptionsSync } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const options = TsconfigSyncRunOptionsSync.make({ filter: "@beep/schema", verbose: true })
+ *
+ * console.log(options.mode) // => "sync"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncRunOptionsSync extends S.Opaque<
+  TsconfigSyncRunOptionsSync,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mode: S.tag("sync"),
     filter: S.String.pipe(S.UndefinedOr, S.optionalKey),
     verbose: S.Boolean,
-  },
-  $I.annote("TsconfigSyncRunOptionsSync", {
-    description: "Runtime options for sync mode execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncRunOptionsSync", {
+      description: "Runtime options for sync mode execution.",
+    })
+  )
 ) {}
 
-class TsconfigSyncRunOptionsCheck extends S.Class<TsconfigSyncRunOptionsCheck>($I`TsconfigSyncRunOptionsCheck`)(
-  {
+/**
+ * Runtime options for check mode execution.
+ *
+ * **Example** (Build check-mode options for the whole repo)
+ *
+ * ```ts
+ * import { TsconfigSyncRunOptionsCheck } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const options = TsconfigSyncRunOptionsCheck.make({ verbose: false })
+ *
+ * console.log(options.mode) // => "check"
+ * console.log(options.filter) // => undefined
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncRunOptionsCheck extends S.Opaque<
+  TsconfigSyncRunOptionsCheck,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mode: S.tag("check"),
     filter: S.String.pipe(S.UndefinedOr, S.optionalKey),
     verbose: S.Boolean,
-  },
-  $I.annote("TsconfigSyncRunOptionsCheck", {
-    description: "Runtime options for check mode execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncRunOptionsCheck", {
+      description: "Runtime options for check mode execution.",
+    })
+  )
 ) {}
 
-class TsconfigSyncRunOptionsDryRun extends S.Class<TsconfigSyncRunOptionsDryRun>($I`TsconfigSyncRunOptionsDryRun`)(
-  {
+/**
+ * Runtime options for dry-run mode execution.
+ *
+ * **Example** (Preview changes for one package without writing)
+ *
+ * ```ts
+ * import { TsconfigSyncRunOptions, TsconfigSyncRunOptionsDryRun } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const options = TsconfigSyncRunOptionsDryRun.make({ filter: "@beep/repo-utils", verbose: true })
+ *
+ * console.log(options.mode) // => "dry-run"
+ * console.log(TsconfigSyncRunOptions.guards["dry-run"](options)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncRunOptionsDryRun extends S.Opaque<
+  TsconfigSyncRunOptionsDryRun,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mode: S.tag("dry-run"),
     filter: S.String.pipe(S.UndefinedOr, S.optionalKey),
     verbose: S.Boolean,
-  },
-  $I.annote("TsconfigSyncRunOptionsDryRun", {
-    description: "Runtime options for dry-run mode execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncRunOptionsDryRun", {
+      description: "Runtime options for dry-run mode execution.",
+    })
+  )
 ) {}
 
 /**
@@ -626,92 +688,271 @@ export const TsconfigSyncSection = LiteralKit([
  */
 export type TsconfigSyncSection = typeof TsconfigSyncSection.Type;
 
-class RootReferencesChange extends S.Class<RootReferencesChange>($I`RootReferencesChange`)(
-  {
+/**
+ * Planned change entry for root tsconfig references.
+ *
+ * **Example** (Report drift in the root project references)
+ *
+ * ```ts
+ * import { RootReferencesChange, TsconfigSyncChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const change = RootReferencesChange.make({
+ *   filePath: "tsconfig.packages.json",
+ *   summary: "add reference ./packages/drivers/box"
+ * })
+ *
+ * console.log(change.section) // => "root-references"
+ * console.log(TsconfigSyncChange.guards["root-references"](change)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootReferencesChange extends S.Opaque<RootReferencesChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-references"),
-  },
-  $I.annote("RootReferencesChange", {
-    description: "Planned change entry for root tsconfig references.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootReferencesChange", {
+      description: "Planned change entry for root tsconfig references.",
+    })
+  )
 ) {}
 
-class RootAliasesChange extends S.Class<RootAliasesChange>($I`RootAliasesChange`)(
-  {
+/**
+ * Planned change entry for root tsconfig aliases.
+ *
+ * **Example** (Report a missing root path alias)
+ *
+ * ```ts
+ * import { RootAliasesChange, TsconfigSyncChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const change = RootAliasesChange.make({
+ *   filePath: "tsconfig.base.json",
+ *   summary: "add alias @beep/box/*"
+ * })
+ *
+ * console.log(TsconfigSyncChange.isAnyOf(["root-aliases", "root-vitest-aliases"])(change)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootAliasesChange extends S.Opaque<RootAliasesChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-aliases"),
-  },
-  $I.annote("RootAliasesChange", {
-    description: "Planned change entry for root tsconfig aliases.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootAliasesChange", {
+      description: "Planned change entry for root tsconfig aliases.",
+    })
+  )
 ) {}
 
-class RootSyncpackChange extends S.Class<RootSyncpackChange>($I`RootSyncpackChange`)(
-  {
+/**
+ * Planned change entry for root syncpack config.
+ *
+ * **Example** (Report a syncpack version-group update)
+ *
+ * ```ts
+ * import { RootSyncpackChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const change = RootSyncpackChange.make({
+ *   filePath: "syncpack.config.ts",
+ *   summary: "pin @beep/* workspace dependencies to workspace:^"
+ * })
+ *
+ * console.log(`${change.section}: ${change.summary}`) // => "root-syncpack: pin @beep/* workspace dependencies to workspace:^"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootSyncpackChange extends S.Opaque<RootSyncpackChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-syncpack"),
-  },
-  $I.annote("RootSyncpackChange", {
-    description: "Planned change entry for root syncpack config.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootSyncpackChange", {
+      description: "Planned change entry for root syncpack config.",
+    })
+  )
 ) {}
 
-class PackageReferencesChange extends S.Class<PackageReferencesChange>($I`PackageReferencesChange`)(
-  {
+/**
+ * Planned change entry for package-level tsconfig references.
+ *
+ * **Example** (Report a package tsconfig that lost a reference)
+ *
+ * ```ts
+ * import { PackageReferencesChange, TsconfigSyncChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const change = PackageReferencesChange.make({
+ *   filePath: "packages/drivers/box/tsconfig.json",
+ *   summary: "add reference ../../foundation/modeling/schema"
+ * })
+ *
+ * console.log(TsconfigSyncChange.guards["package-references"](change)) // => true
+ * console.log(TsconfigSyncChange.guards["package-check-references"](change)) // => false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageReferencesChange extends S.Opaque<PackageReferencesChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-references"),
-  },
-  $I.annote("PackageReferencesChange", {
-    description: "Planned change entry for package-level tsconfig references.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageReferencesChange", {
+      description: "Planned change entry for package-level tsconfig references.",
+    })
+  )
 ) {}
 
-class PackageCheckReferencesChange extends S.Class<PackageCheckReferencesChange>($I`PackageCheckReferencesChange`)(
-  {
+/**
+ * Planned change entry for package tsconfig.check.json overlay references.
+ *
+ * **Example** (Report drift in a package check tsconfig)
+ *
+ * ```ts
+ * import { CHECK_TSCONFIG_FILENAME, PackageCheckReferencesChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const change = PackageCheckReferencesChange.make({
+ *   filePath: `packages/drivers/box/${CHECK_TSCONFIG_FILENAME}`,
+ *   summary: "add reference ../../tooling/test-kit/test-utils"
+ * })
+ *
+ * console.log(change.filePath) // => "packages/drivers/box/tsconfig.check.json"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageCheckReferencesChange extends S.Opaque<
+  PackageCheckReferencesChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-check-references"),
-  },
-  $I.annote("PackageCheckReferencesChange", {
-    description: "Planned change entry for package tsconfig.check.json overlay references.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageCheckReferencesChange", {
+      description: "Planned change entry for package tsconfig.check.json overlay references.",
+    })
+  )
 ) {}
 
-class PackageDocgenChange extends S.Class<PackageDocgenChange>($I`PackageDocgenChange`)(
-  {
+/**
+ * Planned change entry for package docgen configs.
+ *
+ * **Example** (Report docgen compiler paths that drifted)
+ *
+ * ```ts
+ * import { DOCGEN_CONFIG_FILENAME, PackageDocgenChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const change = PackageDocgenChange.make({
+ *   filePath: `packages/drivers/box/${DOCGEN_CONFIG_FILENAME}`,
+ *   summary: "update examplesCompilerOptions.paths for @beep/schema"
+ * })
+ *
+ * console.log(change.section) // => "package-docgen"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageDocgenChange extends S.Opaque<PackageDocgenChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-docgen"),
-  },
-  $I.annote("PackageDocgenChange", {
-    description: "Planned change entry for package docgen configs.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageDocgenChange", {
+      description: "Planned change entry for package docgen configs.",
+    })
+  )
 ) {}
 
-class RootVitestAliasesChange extends S.Class<RootVitestAliasesChange>($I`RootVitestAliasesChange`)(
-  {
+/**
+ * Planned change entry for the generated root Vitest alias data.
+ *
+ * **Example** (Report a missing vitest resolve alias)
+ *
+ * ```ts
+ * import { RootVitestAliasesChange, TsconfigSyncChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const change = RootVitestAliasesChange.make({
+ *   filePath: "vitest.shared.ts",
+ *   summary: "add alias @beep/repo-cli/test/Yeet"
+ * })
+ *
+ * const label = TsconfigSyncChange.match(change, {
+ *   "root-references": () => "references",
+ *   "root-aliases": () => "aliases",
+ *   "root-syncpack": () => "syncpack",
+ *   "package-references": () => "references",
+ *   "package-check-references": () => "references",
+ *   "package-docgen": () => "docgen",
+ *   "root-vitest-aliases": () => "vitest",
+ *   "root-fallow-boundaries": () => "fallow"
+ * })
+ *
+ * console.log(label) // => "vitest"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootVitestAliasesChange extends S.Opaque<RootVitestAliasesChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-vitest-aliases"),
-  },
-  $I.annote("RootVitestAliasesChange", {
-    description: "Planned change entry for the generated root Vitest alias data.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootVitestAliasesChange", {
+      description: "Planned change entry for the generated root Vitest alias data.",
+    })
+  )
 ) {}
 
-class RootFallowBoundariesChange extends S.Class<RootFallowBoundariesChange>($I`RootFallowBoundariesChange`)(
-  {
+/**
+ * Planned change entry for the generated Fallow boundary config.
+ *
+ * **Example** (Report a fallow boundary that needs a new zone)
+ *
+ * ```ts
+ * import { RootFallowBoundariesChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const change = RootFallowBoundariesChange.make({
+ *   filePath: ".fallowrc.json",
+ *   summary: "add boundary zone packages/drivers/box"
+ * })
+ *
+ * console.log(change.section) // => "root-fallow-boundaries"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootFallowBoundariesChange extends S.Opaque<
+  RootFallowBoundariesChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-fallow-boundaries"),
-  },
-  $I.annote("RootFallowBoundariesChange", {
-    description: "Planned change entry for the generated Fallow boundary config.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootFallowBoundariesChange", {
+      description: "Planned change entry for the generated Fallow boundary config.",
+    })
+  )
 ) {}
 
 /**
@@ -766,112 +1007,303 @@ export const TsconfigSyncChange = TsconfigSyncSection.mapMembers(
  */
 export type TsconfigSyncChange = typeof TsconfigSyncChange.Type;
 
-class RootReferencesPlannedFileChange extends S.Class<RootReferencesPlannedFileChange>(
-  $I`RootReferencesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for root tsconfig references.
+ *
+ * **Example** (Order planned writes by file path)
+ *
+ * ```ts
+ * import { byPlannedChangeAscending, RootAliasesPlannedFileChange, RootReferencesPlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const references = RootReferencesPlannedFileChange.make({
+ *   filePath: "tsconfig.packages.json",
+ *   summary: "add reference ./packages/drivers/box",
+ *   content: "{ \"references\": [{ \"path\": \"./packages/drivers/box\" }] }\n"
+ * })
+ * const aliases = RootAliasesPlannedFileChange.make({
+ *   filePath: "tsconfig.base.json",
+ *   summary: "add alias @beep/box/*",
+ *   content: "{ \"compilerOptions\": { \"paths\": {} } }\n"
+ * })
+ *
+ * console.log(byPlannedChangeAscending(aliases, references)) // => -1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootReferencesPlannedFileChange extends S.Opaque<
+  RootReferencesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-references"),
     content: S.String,
-  },
-  $I.annote("RootReferencesPlannedFileChange", {
-    description: "Planned file content change for root tsconfig references.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootReferencesPlannedFileChange", {
+      description: "Planned file content change for root tsconfig references.",
+    })
+  )
 ) {}
 
-class RootAliasesPlannedFileChange extends S.Class<RootAliasesPlannedFileChange>($I`RootAliasesPlannedFileChange`)(
-  {
+/**
+ * Planned file content change for root tsconfig aliases.
+ *
+ * **Example** (Carry the rewritten base tsconfig)
+ *
+ * ```ts
+ * import { PlannedFileChange, RootAliasesPlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const planned = RootAliasesPlannedFileChange.make({
+ *   filePath: "tsconfig.base.json",
+ *   summary: "add alias @beep/box/*",
+ *   content: "{ \"compilerOptions\": { \"paths\": { \"@beep/box/*\": [\"./packages/drivers/box/src/*.ts\"] } } }\n"
+ * })
+ *
+ * console.log(PlannedFileChange.guards["root-aliases"](planned)) // => true
+ * console.log(planned.content.includes("@beep/box/*")) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootAliasesPlannedFileChange extends S.Opaque<
+  RootAliasesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-aliases"),
     content: S.String,
-  },
-  $I.annote("RootAliasesPlannedFileChange", {
-    description: "Planned file content change for root tsconfig aliases.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootAliasesPlannedFileChange", {
+      description: "Planned file content change for root tsconfig aliases.",
+    })
+  )
 ) {}
 
-class RootSyncpackPlannedFileChange extends S.Class<RootSyncpackPlannedFileChange>($I`RootSyncpackPlannedFileChange`)(
-  {
+/**
+ * Planned file content change for root syncpack config.
+ *
+ * **Example** (Carry the rewritten syncpack config)
+ *
+ * ```ts
+ * import { RootSyncpackPlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const planned = RootSyncpackPlannedFileChange.make({
+ *   filePath: "syncpack.config.ts",
+ *   summary: "add @beep/box to the workspace version group",
+ *   content: "export default { versionGroups: [] }\n"
+ * })
+ *
+ * console.log(planned.content.startsWith("export default")) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootSyncpackPlannedFileChange extends S.Opaque<
+  RootSyncpackPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-syncpack"),
     content: S.String,
-  },
-  $I.annote("RootSyncpackPlannedFileChange", {
-    description: "Planned file content change for root syncpack config.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootSyncpackPlannedFileChange", {
+      description: "Planned file content change for root syncpack config.",
+    })
+  )
 ) {}
 
-class PackageReferencesPlannedFileChange extends S.Class<PackageReferencesPlannedFileChange>(
-  $I`PackageReferencesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for package tsconfig references.
+ *
+ * **Example** (Order two writes to the same file by section)
+ *
+ * ```ts
+ * import { byPlannedChangeSectionAscending, PackageDocgenPlannedFileChange, PackageReferencesPlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const references = PackageReferencesPlannedFileChange.make({
+ *   filePath: "packages/drivers/box/tsconfig.json",
+ *   summary: "add reference ../../foundation/modeling/schema",
+ *   content: "{ \"references\": [{ \"path\": \"../../foundation/modeling/schema\" }] }\n"
+ * })
+ * const docgen = PackageDocgenPlannedFileChange.make({
+ *   filePath: "packages/drivers/box/docgen.json",
+ *   summary: "update examplesCompilerOptions.paths",
+ *   content: "{ \"examplesCompilerOptions\": {} }\n"
+ * })
+ *
+ * console.log(byPlannedChangeSectionAscending(docgen, references)) // => -1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageReferencesPlannedFileChange extends S.Opaque<
+  PackageReferencesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-references"),
     content: S.String,
-  },
-  $I.annote("PackageReferencesPlannedFileChange", {
-    description: "Planned file content change for package tsconfig references.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageReferencesPlannedFileChange", {
+      description: "Planned file content change for package tsconfig references.",
+    })
+  )
 ) {}
 
-class PackageCheckReferencesPlannedFileChange extends S.Class<PackageCheckReferencesPlannedFileChange>(
-  $I`PackageCheckReferencesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for package tsconfig.check.json overlay references.
+ *
+ * **Example** (Carry the rewritten check tsconfig)
+ *
+ * ```ts
+ * import { PackageCheckReferencesPlannedFileChange, PlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const planned = PackageCheckReferencesPlannedFileChange.make({
+ *   filePath: "packages/drivers/box/tsconfig.check.json",
+ *   summary: "add reference ../../tooling/test-kit/test-utils",
+ *   content: "{ \"extends\": \"./tsconfig.json\", \"references\": [] }\n"
+ * })
+ *
+ * console.log(PlannedFileChange.isAnyOf(["package-references", "package-check-references"])(planned)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageCheckReferencesPlannedFileChange extends S.Opaque<
+  PackageCheckReferencesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-check-references"),
     content: S.String,
-  },
-  $I.annote("PackageCheckReferencesPlannedFileChange", {
-    description: "Planned file content change for package tsconfig.check.json overlay references.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageCheckReferencesPlannedFileChange", {
+      description: "Planned file content change for package tsconfig.check.json overlay references.",
+    })
+  )
 ) {}
 
-class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileChange>(
-  $I`PackageDocgenPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for package docgen configs.
+ *
+ * **Example** (Carry the rewritten docgen config)
+ *
+ * ```ts
+ * import { PackageDocgenPlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const planned = PackageDocgenPlannedFileChange.make({
+ *   filePath: "packages/drivers/box/docgen.json",
+ *   summary: "update examplesCompilerOptions.paths for @beep/schema",
+ *   content: "{ \"examplesCompilerOptions\": { \"paths\": {} } }\n"
+ * })
+ *
+ * console.log(`${planned.section} -> ${planned.filePath}`) // => "package-docgen -> packages/drivers/box/docgen.json"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageDocgenPlannedFileChange extends S.Opaque<
+  PackageDocgenPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-docgen"),
     content: S.String,
-  },
-  $I.annote("PackageDocgenPlannedFileChange", {
-    description: "Planned file content change for package docgen configs.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageDocgenPlannedFileChange", {
+      description: "Planned file content change for package docgen configs.",
+    })
+  )
 ) {}
 
-class RootVitestAliasesPlannedFileChange extends S.Class<RootVitestAliasesPlannedFileChange>(
-  $I`RootVitestAliasesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for the generated root Vitest alias data.
+ *
+ * **Example** (Carry the rewritten vitest alias table)
+ *
+ * ```ts
+ * import { RootVitestAliasesPlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const planned = RootVitestAliasesPlannedFileChange.make({
+ *   filePath: "vitest.shared.ts",
+ *   summary: "add alias @beep/repo-cli/test/Yeet",
+ *   content: "export const aliases = { \"@beep/repo-cli/test/Yeet\": \"./packages/tooling/tool/cli/src/test/Yeet.test-kit.ts\" }\n"
+ * })
+ *
+ * console.log(planned.content.includes("Yeet.test-kit.ts")) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootVitestAliasesPlannedFileChange extends S.Opaque<
+  RootVitestAliasesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-vitest-aliases"),
     content: S.String,
-  },
-  $I.annote("RootVitestAliasesPlannedFileChange", {
-    description: "Planned file content change for the generated root Vitest alias data.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootVitestAliasesPlannedFileChange", {
+      description: "Planned file content change for the generated root Vitest alias data.",
+    })
+  )
 ) {}
 
-class RootFallowBoundariesPlannedFileChange extends S.Class<RootFallowBoundariesPlannedFileChange>(
-  $I`RootFallowBoundariesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for the generated Fallow boundary config.
+ *
+ * **Example** (Carry the rewritten fallow boundaries)
+ *
+ * ```ts
+ * import { PlannedFileChange, RootFallowBoundariesPlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const planned = RootFallowBoundariesPlannedFileChange.make({
+ *   filePath: ".fallowrc.json",
+ *   summary: "add boundary zone packages/drivers/box",
+ *   content: "{ \"boundaries\": { \"zones\": [] } }\n"
+ * })
+ *
+ * console.log(PlannedFileChange.guards["root-fallow-boundaries"](planned)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootFallowBoundariesPlannedFileChange extends S.Opaque<
+  RootFallowBoundariesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-fallow-boundaries"),
     content: S.String,
-  },
-  $I.annote("RootFallowBoundariesPlannedFileChange", {
-    description: "Planned file content change for the generated Fallow boundary config.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootFallowBoundariesPlannedFileChange", {
+      description: "Planned file content change for the generated Fallow boundary config.",
+    })
+  )
 ) {}
 
 /**
@@ -926,37 +1358,96 @@ export const PlannedFileChange = TsconfigSyncSection.mapMembers(
  */
 export type PlannedFileChange = typeof PlannedFileChange.Type;
 
-class TsconfigSyncResultSync extends S.Class<TsconfigSyncResultSync>($I`TsconfigSyncResultSync`)(
-  {
+/**
+ * Sync mode result payload.
+ *
+ * **Example** (Summarize an applied sync)
+ *
+ * ```ts
+ * import { RootAliasesChange, TsconfigSyncResultSync } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const result = TsconfigSyncResultSync.make({
+ *   changedFiles: 1,
+ *   changes: [RootAliasesChange.make({ filePath: "tsconfig.base.json", summary: "add alias @beep/box/*" })]
+ * })
+ *
+ * console.log(`${result.mode}: ${result.changedFiles} file(s)`) // => "sync: 1 file(s)"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncResultSync extends S.Opaque<TsconfigSyncResultSync, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("sync"),
     changedFiles: S.Finite,
     changes: S.Array(TsconfigSyncChange),
-  },
-  $I.annote("TsconfigSyncResultSync", {
-    description: "Sync mode result payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncResultSync", {
+      description: "Sync mode result payload.",
+    })
+  )
 ) {}
 
-class TsconfigSyncResultCheck extends S.Class<TsconfigSyncResultCheck>($I`TsconfigSyncResultCheck`)(
-  {
+/**
+ * Check mode result payload.
+ *
+ * **Example** (Fail a check run that found drift)
+ *
+ * ```ts
+ * import { PackageReferencesChange, TsconfigSyncResult, TsconfigSyncResultCheck } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const result = TsconfigSyncResultCheck.make({
+ *   changedFiles: 1,
+ *   changes: [PackageReferencesChange.make({ filePath: "packages/drivers/box/tsconfig.json", summary: "add reference ../../foundation/modeling/schema" })]
+ * })
+ * const exitCode = TsconfigSyncResult.guards.check(result) && result.changedFiles > 0 ? 1 : 0
+ *
+ * console.log(exitCode) // => 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncResultCheck extends S.Opaque<TsconfigSyncResultCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("check"),
     changedFiles: S.Finite,
     changes: S.Array(TsconfigSyncChange),
-  },
-  $I.annote("TsconfigSyncResultCheck", {
-    description: "Check mode result payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncResultCheck", {
+      description: "Check mode result payload.",
+    })
+  )
 ) {}
 
-class TsconfigSyncResultDryRun extends S.Class<TsconfigSyncResultDryRun>($I`TsconfigSyncResultDryRun`)(
-  {
+/**
+ * Dry-run mode result payload.
+ *
+ * **Example** (Report a dry run with no drift)
+ *
+ * ```ts
+ * import { TsconfigSyncResultDryRun } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const result = TsconfigSyncResultDryRun.make({ changedFiles: 0, changes: [] })
+ *
+ * console.log(result.mode) // => "dry-run"
+ * console.log(result.changes.length) // => 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncResultDryRun extends S.Opaque<TsconfigSyncResultDryRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("dry-run"),
     changedFiles: S.Finite,
     changes: S.Array(TsconfigSyncChange),
-  },
-  $I.annote("TsconfigSyncResultDryRun", {
-    description: "Dry-run mode result payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncResultDryRun", {
+      description: "Dry-run mode result payload.",
+    })
+  )
 ) {}
 
 /**
@@ -1018,8 +1509,8 @@ export type TsconfigSyncResult = typeof TsconfigSyncResult.Type;
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`WorkspaceDescriptor`)(
-  {
+export class WorkspaceDescriptor extends S.Opaque<WorkspaceDescriptor, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     absoluteDir: S.String,
     relativeDir: S.String,
@@ -1030,10 +1521,11 @@ export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`Workspa
     rootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
     wildcardAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
     subpathAliasTargets: S.Record(S.String, S.String).pipe(S.UndefinedOr, S.optionalKey),
-  },
-  $I.annote("WorkspaceDescriptor", {
-    description: "A workspace package descriptor with metadata for tsconfig synchronization.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceDescriptor", {
+      description: "A workspace package descriptor with metadata for tsconfig synchronization.",
+    })
+  )
 ) {}
 
 /**
@@ -1075,22 +1567,64 @@ export const JsonObject = S.Record(S.String, S.Unknown).pipe(
  */
 export type JsonObject = typeof JsonObject.Type;
 
-class TsconfigReferenceEntry extends S.Class<TsconfigReferenceEntry>($I`TsconfigReferenceEntry`)(
-  {
+/**
+ * Single tsconfig references entry with optional path field.
+ *
+ * **Example** (Decode one project reference)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TsconfigReferenceEntry } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const entry = S.decodeUnknownSync(TsconfigReferenceEntry)({ path: "../../foundation/modeling/schema" })
+ *
+ * console.log(entry.path) // => "../../foundation/modeling/schema"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigReferenceEntry extends S.Opaque<TsconfigReferenceEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.optionalKey(S.Unknown),
-  },
-  $I.annote("TsconfigReferenceEntry", {
-    description: "Single tsconfig references entry with optional path field.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigReferenceEntry", {
+      description: "Single tsconfig references entry with optional path field.",
+    })
+  )
 ) {}
 
-class TsconfigCompilerOptionsPaths extends S.Class<TsconfigCompilerOptionsPaths>($I`TsconfigCompilerOptionsPaths`)(
-  {
+/**
+ * Subset of tsconfig compilerOptions containing optional paths map.
+ *
+ * **Example** (Decode compiler path aliases)
+ *
+ * ```ts
+ * import * as R from "effect/Record"
+ * import * as S from "effect/Schema"
+ * import { TsconfigCompilerOptionsPaths } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * const options = S.decodeUnknownSync(TsconfigCompilerOptionsPaths)({
+ *   paths: { "@beep/schema/*": ["./packages/foundation/modeling/schema/src/*.ts"] }
+ * })
+ *
+ * console.log(R.keys(options.paths ?? {})) // => ["@beep/schema/*"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigCompilerOptionsPaths extends S.Opaque<
+  TsconfigCompilerOptionsPaths,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     paths: S.optionalKey(S.Record(S.String, S.Unknown)),
-  },
-  $I.annote("TsconfigCompilerOptionsPaths", {
-    description: "Subset of tsconfig compilerOptions containing optional paths map.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigCompilerOptionsPaths", {
+      description: "Subset of tsconfig compilerOptions containing optional paths map.",
+    })
+  )
 ) {}
 
 /**
@@ -1109,13 +1643,14 @@ class TsconfigCompilerOptionsPaths extends S.Class<TsconfigCompilerOptionsPaths>
  * @category models
  * @since 0.0.0
  */
-export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`TsconfigWithReferences`)(
-  {
+export class TsconfigWithReferences extends S.Opaque<TsconfigWithReferences, { readonly brand: unique symbol }>()(
+  S.Struct({
     references: TsconfigReferenceEntry.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("TsconfigWithReferences", {
-    description: "A class representing a tsconfig.json file with references property.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigWithReferences", {
+      description: "A class representing a tsconfig.json file with references property.",
+    })
+  )
 ) {}
 
 /**
@@ -1134,13 +1669,14 @@ export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`T
  * @category models
  * @since 0.0.0
  */
-export class TsconfigWithPaths extends S.Class<TsconfigWithPaths>($I`TsconfigWithPaths`)(
-  {
+export class TsconfigWithPaths extends S.Opaque<TsconfigWithPaths, { readonly brand: unique symbol }>()(
+  S.Struct({
     compilerOptions: S.optionalKey(TsconfigCompilerOptionsPaths),
-  },
-  $I.annote("TsconfigWithPaths", {
-    description: "A class representing a tsconfig.json file with compilerOptions.paths property.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigWithPaths", {
+      description: "A class representing a tsconfig.json file with compilerOptions.paths property.",
+    })
+  )
 ) {}
 
 /**

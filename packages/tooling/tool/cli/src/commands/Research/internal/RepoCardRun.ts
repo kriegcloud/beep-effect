@@ -16,12 +16,11 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ResearchCommandError } from "../Research.errors.ts";
 import { KnowledgeCardFrontmatter, ResearchRepoCardSummary } from "../Research.schemas.ts";
-import { catalogDbPath, persistCards } from "./CatalogOps.ts";
+import { CardPersistRow, catalogDbPath, persistCards } from "./CatalogOps.ts";
 import { discoverClones, inspectClone, listStarredRepos, slugPartsOf } from "./RepoCards.ts";
 import { VAULT_DIRS } from "./Vault.ts";
 import type { ResearchRepoCardOptions } from "../Research.schemas.ts";
 import type { ResearchCommandServiceRequirements } from "../Research.service.ts";
-import type { CardPersistRow } from "./CatalogOps.ts";
 import type { ClonedRepoInfo, StarredRepo } from "./RepoCards.ts";
 
 const decodeRepoCardSummary = S.decodeUnknownEffect(ResearchRepoCardSummary);
@@ -114,7 +113,7 @@ const collectCloneCards = Effect.fnUntraced(function* (
       collection.cardsSkipped += 1;
       continue;
     }
-    collection.cards.push({ ...cloneCardOf(info, capturedAt), relativePath });
+    collection.cards.push(CardPersistRow.make({ ...cloneCardOf(info, capturedAt), relativePath }));
   }
 });
 
@@ -134,7 +133,7 @@ const collectStarCards = Effect.fnUntraced(function* (
       collection.cardsSkipped += 1;
       continue;
     }
-    collection.cards.push({ ...starCardOf(star, capturedAt), relativePath });
+    collection.cards.push(CardPersistRow.make({ ...starCardOf(star, capturedAt), relativePath }));
   }
 });
 

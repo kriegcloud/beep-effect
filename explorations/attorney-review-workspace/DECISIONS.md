@@ -179,3 +179,55 @@ points.
 
 **Rationale:** Accepted as shaped. claim-element-graph's brief was updated in the same round to
 route its findings through this queue.
+
+## 2026-10-14 — re-entry align: the attorney question loop
+
+The packet was re-entered at `decompose` for the question loop (CAPTURE, re-entry section). One
+round of four questions; the operator took the recommended answer each time.
+
+**Question:** Where does the question → answer → apply loop live?
+**Answer:** It reopens this exploration. A question is a new `ReviewItem` kind on the shared
+envelope, and the attorney sees it in the same `practice-claude-mod` review queue.
+**Rationale:** This keeps one review surface for every producer. Rejected: a separate exploration,
+which would duplicate the envelope and the queue; and folding it into docket-intake, which is only
+the first producer.
+
+**Question:** Where does the attorney answer?
+**Answer:** On a card in the Claude review queue. Email is only a notice that questions are waiting.
+**Rationale:** It matches the operator's direction of moving the attorney into Claude, and structured
+answers beat parsed email (6 of 6 answered against no replies). Rejected: a standalone answer page,
+which is one more app and the transient-server failure; and parsing email replies, which interprets
+free text and was missed in practice.
+
+**Question:** Who approves the writes an answer implies (calendar, docket, Box)?
+**Answer:** The operator approves each write batch. Writes are guarded, journaled with prior state,
+and reversible.
+**Rationale:** This is the policy that worked on 2026-10-14. Per-question or automatic apply waits
+for a track record. Rejected for now: per-question policy, and auto-applying structured answers.
+
+**Question:** How do open questions keep reminding him?
+**Answer:** A daily digest. A "pending on client" answer comes back on a date he sets for that
+question.
+**Rationale:** One predictable touch a day. The resurface date handles the most common non-decision
+answer. Rejected: per-question cadence, which is noisy and harder to explain; and a weekly digest,
+which is too slow for docket dates.
+
+## 2026-10-14 — re-entry shape review: the attorney question loop
+
+**Question:** Do the re-entry sections of `BRIEF.md` and `MAP.md` match the operator's picture?
+**Answer:** Yes. Graduate one goal, `attorney-question-loop`, and write a pane-card amendment for
+the `practice-claude-mod` owner. Email-reply parsing and auto-apply stay gated.
+**Rationale:** Accepted as shaped.
+
+**Question:** Which mailbox sends the daily notice?
+**Answer:** The attorney's own mailbox, to himself, through the existing m365 outbox.
+**Rationale:** It needs no new grant or send route. Rejected: sending from the operator's mailbox,
+which needs a server-side send route because the claude.ai connector cannot run from a timer; and
+sending no email, because the operator wants email as the notice.
+
+**Question:** Should answers get their own row type, or widen `VerdictRow`?
+**Answer:** A separate `AnswerRow` beside `VerdictRow`, with the same recency rule and append-only
+discipline.
+**Rationale:** Answers are not right or wrong judgements. A separate row keeps `VerdictProjector`
+and claim dispositions untouched. Rejected: widening `VerdictRow`, which would make every verdict
+consumer handle answer states.

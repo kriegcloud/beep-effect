@@ -84,7 +84,7 @@ const isDrawingError = (cause: unknown): cause is DrawingError => S.is(DrawingEr
  * @category errors
  * @since 0.0.0
  */
-export class DrawingError extends S.TaggedError<DrawingError>($I`DrawingError`)(
+export class DrawingError extends S.TaggedError<DrawingError, { readonly brand: unique symbol }>($I`DrawingError`)(
   "DrawingError",
   {
     reason: DrawingErrorReason.annotateKey({ description: "Where the operation failed." }),

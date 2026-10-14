@@ -113,8 +113,8 @@ export type PriorityBasisDesignation = typeof PriorityBasisDesignation.Type;
  * @category models
  * @since 0.0.0
  */
-export class PriorityBasis extends S.Class<PriorityBasis>($I`PriorityBasis`)(
-  {
+export class PriorityBasis extends S.Opaque<PriorityBasis, { readonly brand: unique symbol }>()(
+  S.Struct({
     authority: S.OptionFromNullOr(PriorityBasisDesignation)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -155,8 +155,9 @@ export class PriorityBasis extends S.Class<PriorityBasis>($I`PriorityBasis`)(
       .annotateKey({
         description: "Institutional viewpoint the claim is made from.",
       }),
-  },
-  $I.annote("PriorityBasis", {
-    description: "The recorded basis for a priority claim between two legal positions, never an outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("PriorityBasis", {
+      description: "The recorded basis for a priority claim between two legal positions, never an outcome.",
+    })
+  )
 ) {}

@@ -13,6 +13,7 @@ import { Str } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
@@ -21,9 +22,11 @@ import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { isCi } from "../../internal/cli/EnvConfig.ts";
 import { runCapturedStreams } from "../../internal/process/StepExec.ts";
 import {
   readGitRenames,
@@ -39,6 +42,7 @@ import {
   KNOWLEDGE_DOCTOR_BASELINE_PENDING_MESSAGE,
   KNOWLEDGE_HISTORY_REMEDIATION,
   KnowledgeDoctorInputError,
+  KnowledgeMintContextRefusal,
   KnowledgeOperationalError,
 } from "./Knowledge.errors.ts";
 import {
@@ -95,6 +99,13 @@ import {
   KnowledgeLeasesReport,
 } from "./KnowledgeDoctor.leases.ts";
 import {
+  decideKnowledgeDoctorCiMode,
+  KnowledgeDoctorCiModeInput,
+  KnowledgeMintWriteContext,
+  knowledgeMintWriteRefusals,
+  mintKnowledgeBaselineText,
+} from "./KnowledgeDoctor.mint.ts";
+import {
   CommandNodeWitness,
   EvaluationFailed,
   EvaluationResolved,
@@ -113,8 +124,6 @@ import {
   TreeEntryWitness,
 } from "./KnowledgeDoctor.schemas.ts";
 import type * as Crypto from "effect/Crypto";
-import type * as FileSystem from "effect/FileSystem";
-import type * as Path from "effect/Path";
 import type { ChildProcessSpawner } from "effect/process";
 import type * as Scope from "effect/Scope";
 import type { GitCommandErrorAdapter } from "../../internal/repo-run/GitExec.ts";
@@ -126,10 +135,12 @@ import type { KnowledgeMaterializedTree } from "./Knowledge.service.ts";
 import type {
   KnowledgeDoctorBaseline,
   KnowledgeDoctorPromotion,
+  KnowledgeMintInput,
   KnowledgeSealFiles,
 } from "./KnowledgeDoctor.baseline.ts";
 import type { KnowledgeDoctorDomain } from "./KnowledgeDoctor.domain.ts";
 import type { KnowledgeDebtLease } from "./KnowledgeDoctor.leases.ts";
+import type { KnowledgeDoctorCiMode, KnowledgeMintOutcome } from "./KnowledgeDoctor.mint.ts";
 import type {
   KnowledgeCounterfactualVerdictKind,
   KnowledgeEvaluationFailure,
@@ -1761,15 +1772,19 @@ const resolveDoctorRefs = Effect.fn("KnowledgeDoctor.resolveRefs")(function* (ba
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorCheckOptions extends S.Class<KnowledgeDoctorCheckOptions>($I`KnowledgeDoctorCheckOptions`)(
-  {
+export class KnowledgeDoctorCheckOptions extends S.Opaque<
+  KnowledgeDoctorCheckOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     acceptMint: S.Boolean,
     baseRef: S.String,
     now: S.DateTimeUtc,
-  },
-  $I.annote("KnowledgeDoctorCheckOptions", {
-    description: "Base ref, CI mint acceptance flag, and the instant of one gating knowledge-doctor check.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorCheckOptions", {
+      description: "Base ref, CI mint acceptance flag, and the instant of one gating knowledge-doctor check.",
+    })
+  )
 ) {}
 
 const missingBaseline = (): KnowledgeDoctorInputError =>
@@ -1796,18 +1811,20 @@ const previousPromotions = Effect.fn("KnowledgeDoctor.previousPromotions")(funct
   });
 });
 
-const mintAt = Effect.fn("KnowledgeDoctor.mintAt")(function* (commit: string) {
+const mintInputAt = Effect.fn("KnowledgeDoctor.mintInputAt")(function* (commit: string) {
   const tree = yield* makeKnowledgeDoctorTree(commit);
   const report = yield* scanKnowledgeDoctorTree(tree);
   const files = yield* readKnowledgeSealFiles(tree);
-  return yield* mintKnowledgeBaseline({
+  return {
     tree,
     report,
     removals: yield* tree.pathRemovals,
     files,
     previousPromotions: yield* previousPromotions(tree, files),
-  });
+  } satisfies KnowledgeMintInput;
 });
+
+const mintAt = (commit: string) => Effect.flatMap(mintInputAt(commit), mintKnowledgeBaseline);
 
 const reproducesAt = (text: O.Option<string>, baseline: KnowledgeDoctorBaseline) =>
   Effect.scoped(mintAt(baseline.mintedAt)).pipe(
@@ -1906,6 +1923,112 @@ const verifyMintLive = Effect.scoped(
 ).pipe(Effect.withSpan("KnowledgeDoctor.verifyMintLive"));
 
 /**
+ * Options of one mint run.
+ *
+ * **Details**
+ *
+ * `at` is the commit-ish to mint (default `HEAD`); `baseRef` the local ref that must contain it for
+ * a write; `write` writes `goals/knowledge-doctor.baseline.jsonc` when the mint changes it. Without
+ * `write` the run is a dry run that writes nothing and checks no CI context.
+ *
+ * **Example** (The CI mint at HEAD)
+ *
+ * ```ts
+ * import { KnowledgeDoctorMintOptions } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.service"
+ *
+ * const options = KnowledgeDoctorMintOptions.make({ at: "HEAD", baseRef: "origin/main", write: true })
+ *
+ * console.log(options.write) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgeDoctorMintOptions extends S.Opaque<
+  KnowledgeDoctorMintOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    at: S.String,
+    baseRef: S.String,
+    write: S.Boolean,
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorMintOptions", {
+      description: "Minted commit-ish, the base ref that must contain it, and whether the run writes the baseline.",
+    })
+  )
+) {}
+
+const mintWriteContext = Effect.fn("KnowledgeDoctor.mintWriteContext")(function* (
+  repoRoot: string,
+  commit: KnowledgeCommitSha,
+  baseRef: string
+) {
+  const head = yield* resolveGitCommit(repoRoot, "HEAD", doctorGitAdapter("HEAD"));
+  const base = yield* resolveGitCommit(repoRoot, baseRef, doctorGitAdapter(baseRef));
+  const status = yield* runCapturedStreams({
+    command: "git",
+    args: ["status", "--porcelain", "--untracked-files=no"],
+    cwd: repoRoot,
+    extendEnv: true,
+    trim: true,
+  }).pipe(KnowledgeOperationalError.mapError("Failed to spawn git status --porcelain."));
+  return KnowledgeMintWriteContext.make({
+    baseRef,
+    ci: yield* isCi,
+    clean: status.exitCode === 0 && Str.isEmpty(status.stdout),
+    commit,
+    headIsMinted: head === commit,
+    onBase: yield* isAncestorLive(repoRoot, base, commit),
+  });
+});
+
+// The only writer of the sealed baseline: the CI mint, after every write condition holds and only
+// when the mint changes the committed file.
+const mintLive = Effect.fn("KnowledgeDoctor.mintLive")(function* (options: KnowledgeDoctorMintOptions) {
+  const repoRoot = yield* findRepoRoot().pipe(
+    KnowledgeOperationalError.mapError("Failed to locate the repository root for the knowledge doctor mint.")
+  );
+  const commit = yield* resolveGitCommit(repoRoot, options.at, doctorGitAdapter(options.at));
+  if (options.write) {
+    const reasons = knowledgeMintWriteRefusals(yield* mintWriteContext(repoRoot, commit, options.baseRef));
+    if (A.isReadonlyArrayNonEmpty(reasons)) {
+      return yield* KnowledgeMintContextRefusal.make({
+        message: `knowledge doctor mint --write: ${A.length(reasons)} condition(s) unmet at ${commit}.`,
+        reasons,
+      });
+    }
+  }
+  const outcome = yield* Effect.scoped(Effect.flatMap(mintInputAt(commit), mintKnowledgeBaselineText));
+  if (options.write && outcome.changed) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    yield* fs
+      .writeFileString(path.join(repoRoot, KNOWLEDGE_DOCTOR_BASELINE_PATH), outcome.text)
+      .pipe(KnowledgeOperationalError.mapError(`Failed to write ${KNOWLEDGE_DOCTOR_BASELINE_PATH}.`));
+  }
+  return outcome;
+});
+
+const ciModeLive = Effect.fn("KnowledgeDoctor.ciModeLive")(function* (baseRef: string) {
+  const refs = yield* resolveDoctorRefs(baseRef);
+  const adapter = doctorGitAdapter(refs.mergeBase);
+  const changedPaths = yield* runGitPathList(
+    refs.repoRoot,
+    ["diff", "--name-only", "-z", refs.mergeBase, refs.head],
+    adapter
+  );
+  const sealed = yield* runGitPathList(
+    refs.repoRoot,
+    ["ls-tree", "--name-only", "-z", refs.mergeBase, "--", KNOWLEDGE_DOCTOR_BASELINE_PATH],
+    adapter
+  );
+  return decideKnowledgeDoctorCiMode(
+    KnowledgeDoctorCiModeInput.make({ sealedAtBase: A.isReadonlyArrayNonEmpty(sealed), changedPaths })
+  );
+});
+
+/**
  * Options of the lease listing.
  *
  * **Details**
@@ -1930,16 +2053,18 @@ const verifyMintLive = Effect.scoped(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorLeasesOptions extends S.Class<KnowledgeDoctorLeasesOptions>(
-  $I`KnowledgeDoctorLeasesOptions`
-)(
-  {
+export class KnowledgeDoctorLeasesOptions extends S.Opaque<
+  KnowledgeDoctorLeasesOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseRef: S.String,
     now: S.DateTimeUtc,
-  },
-  $I.annote("KnowledgeDoctorLeasesOptions", {
-    description: "Base ref and instant of one knowledge-doctor lease listing.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorLeasesOptions", {
+      description: "Base ref and instant of one knowledge-doctor lease listing.",
+    })
+  )
 ) {}
 
 const leasesLive = Effect.fn("KnowledgeDoctor.leasesLive")(function* (options: KnowledgeDoctorLeasesOptions) {
@@ -1979,8 +2104,10 @@ const leasesLive = Effect.fn("KnowledgeDoctor.leasesLive")(function* (options: K
  * is the gate: it scans HEAD, resolves the merge-base with `baseRef`, and classifies the scan against
  * the sealed baseline, leases, and the seal guard; it refuses while no baseline exists. `mint`
  * returns the baseline a commit seals to and writes nothing (the CI job writes it). `verifyMint`
- * re-mints the committed baseline at its `mintedAt` and byte-compares. `leases` evaluates the lease
- * file without scanning the corpus.
+ * re-mints the committed baseline at its `mintedAt` and byte-compares. `mintFile` is the only writer
+ * of the sealed baseline: a dry run returns the outcome, and a write checks the CI context first and
+ * writes only a changed file. `ciMode` decides whether the quality lane runs the read-only report or
+ * the gate. `leases` evaluates the lease file without scanning the corpus.
  *
  * @see {@link KnowledgeDoctor} for the service tag.
  * @category services
@@ -1993,6 +2120,9 @@ export interface KnowledgeDoctorShape {
     KnowledgeDoctorReport,
     KnowledgeOperationalError | KnowledgeDoctorInputError | KnowledgeCloneAttributesError
   >;
+  readonly ciMode: (
+    baseRef: string
+  ) => Effect.Effect<KnowledgeDoctorCiMode, KnowledgeOperationalError | KnowledgeDoctorInputError>;
   readonly leases: (
     options: KnowledgeDoctorLeasesOptions
   ) => Effect.Effect<
@@ -2004,6 +2134,16 @@ export interface KnowledgeDoctorShape {
   ) => Effect.Effect<
     KnowledgeDoctorBaseline,
     KnowledgeOperationalError | KnowledgeDoctorInputError | KnowledgeCloneAttributesError | KnowledgeMintRefusal
+  >;
+  readonly mintFile: (
+    options: KnowledgeDoctorMintOptions
+  ) => Effect.Effect<
+    KnowledgeMintOutcome,
+    | KnowledgeOperationalError
+    | KnowledgeDoctorInputError
+    | KnowledgeCloneAttributesError
+    | KnowledgeMintRefusal
+    | KnowledgeMintContextRefusal
   >;
   readonly report: (
     treeish: string
@@ -2065,6 +2205,8 @@ const makeKnowledgeDoctor = Effect.fn("KnowledgeDoctor.make")(function* () {
     ),
     check: Effect.fn("KnowledgeDoctor.check")((options) => checkLive(options).pipe(Effect.provide(runtime))),
     mint: Effect.fn("KnowledgeDoctor.mint")((commit) => Effect.scoped(mintAt(commit)).pipe(Effect.provide(runtime))),
+    mintFile: Effect.fn("KnowledgeDoctor.mintFile")((options) => mintLive(options).pipe(Effect.provide(runtime))),
+    ciMode: Effect.fn("KnowledgeDoctor.ciMode")((baseRef) => ciModeLive(baseRef).pipe(Effect.provide(runtime))),
     verifyMint: verifyMintLive.pipe(Effect.provide(runtime)),
     leases: Effect.fn("KnowledgeDoctor.leases")((options) => leasesLive(options).pipe(Effect.provide(runtime))),
   });

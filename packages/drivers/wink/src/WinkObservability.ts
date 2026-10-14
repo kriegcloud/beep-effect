@@ -78,10 +78,11 @@ const mergeAttributes = (left: Record<string, string>, right: Record<string, str
  * @category observability
  * @since 0.0.0
  */
-export class WinkWorkflowObservationOptions extends S.Class<WinkWorkflowObservationOptions>(
-  $I`WinkWorkflowObservationOptions`
-)(
-  {
+export class WinkWorkflowObservationOptions extends S.Opaque<
+  WinkWorkflowObservationOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attributes: S.Record(S.String, S.String).pipe(
       S.withConstructorDefault(Effect.succeed(emptyStringRecord)),
       S.withDecodingDefaultTypeKey(Effect.succeed(emptyStringRecord))
@@ -91,10 +92,11 @@ export class WinkWorkflowObservationOptions extends S.Class<WinkWorkflowObservat
       S.withDecodingDefaultTypeKey(Effect.succeed(emptyStringRecord))
     ),
     name: S.String,
-  },
-  $I.annote("WinkWorkflowObservationOptions", {
-    description: "Options used to observe one wink workflow with spans, logs, and metrics.",
-  })
+  }).pipe(
+    $I.annoteSchema("WinkWorkflowObservationOptions", {
+      description: "Options used to observe one wink workflow with spans, logs, and metrics.",
+    })
+  )
 ) {}
 
 /**
@@ -116,8 +118,11 @@ export class WinkWorkflowObservationOptions extends S.Class<WinkWorkflowObservat
  * @category observability
  * @since 0.0.0
  */
-export class WinkToolObservationOptions extends S.Class<WinkToolObservationOptions>($I`WinkToolObservationOptions`)(
-  {
+export class WinkToolObservationOptions extends S.Opaque<
+  WinkToolObservationOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attributes: S.Record(S.String, S.String).pipe(
       S.withConstructorDefault(Effect.succeed(emptyStringRecord)),
       S.withDecodingDefaultTypeKey(Effect.succeed(emptyStringRecord))
@@ -128,10 +133,11 @@ export class WinkToolObservationOptions extends S.Class<WinkToolObservationOptio
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
     toolName: S.String,
-  },
-  $I.annote("WinkToolObservationOptions", {
-    description: "Options used to observe a wink-backed AI tool handler.",
-  })
+  }).pipe(
+    $I.annoteSchema("WinkToolObservationOptions", {
+      description: "Options used to observe a wink-backed AI tool handler.",
+    })
+  )
 ) {}
 
 type WinkWorkflowObservationOptionsInput = Exclude<(typeof WinkWorkflowObservationOptions)["~type.make.in"], void>;
@@ -230,7 +236,7 @@ export const observeWinkWorkflow: {
       interrupted: winkWorkflowInterrupted,
       name: `wink.${resolvedOptions.name}`,
       started: winkWorkflowStarted,
-    }).pipe(Effect.withSpan(`Wink.${resolvedOptions.name}`));
+    }).pipe(Effect.withSpan("Wink.workflow", { attributes: { "wink.workflow_name": resolvedOptions.name } }));
   }
 );
 

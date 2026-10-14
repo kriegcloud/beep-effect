@@ -394,15 +394,16 @@ export type LanguageTag = typeof LanguageTag.Type;
  * @category models
  * @since 0.0.0
  */
-export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
-  {
+export class NamedNode extends S.Opaque<NamedNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     termType: S.tag("NamedNode"),
     value: IRI,
-  },
-  $I.annote("NamedNode", {
-    description: "RDF named node value aligned with RDF/JS.",
-    semanticSchemaMetadata: namedNodeMetadata,
-  })
+  }).pipe(
+    $I.annoteSchema("NamedNode", {
+      description: "RDF named node value aligned with RDF/JS.",
+      semanticSchemaMetadata: namedNodeMetadata,
+    })
+  )
 ) {
   static readonly decodeUnknownResult = S.decodeUnknownResult(this);
 
@@ -430,30 +431,31 @@ export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
  * @category models
  * @since 0.0.0
  */
-export class BlankNode extends S.Class<BlankNode>($I`BlankNode`)(
-  {
+export class BlankNode extends S.Opaque<BlankNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     termType: S.tag("BlankNode"),
     value: BlankNodeLabel,
-  },
-  $I.annote("BlankNode", {
-    description: "RDF blank node value aligned with RDF/JS.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "rdfConstruct",
-      canonicalName: "BlankNode",
-      overview: "RDF blank node value aligned with the RDF/JS data-model surface.",
-      status: "stable",
-      specifications: [
-        {
-          name: "RDF/JS Data Model",
-          section: "BlankNode",
-          disposition: "normative",
-        },
-      ],
-      equivalenceBasis: "Blank-node label equality within a bounded dataset.",
-      canonicalizationRequired: true,
-      representations: [{ kind: "RDF/JS" }, { kind: "TriG" }],
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("BlankNode", {
+      description: "RDF blank node value aligned with RDF/JS.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "rdfConstruct",
+        canonicalName: "BlankNode",
+        overview: "RDF blank node value aligned with the RDF/JS data-model surface.",
+        status: "stable",
+        specifications: [
+          {
+            name: "RDF/JS Data Model",
+            section: "BlankNode",
+            disposition: "normative",
+          },
+        ],
+        equivalenceBasis: "Blank-node label equality within a bounded dataset.",
+        canonicalizationRequired: true,
+        representations: [{ kind: "RDF/JS" }, { kind: "TriG" }],
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -477,17 +479,18 @@ export class BlankNode extends S.Class<BlankNode>($I`BlankNode`)(
  * @category models
  * @since 0.0.0
  */
-export class Literal extends S.Class<Literal>($I`Literal`)(
-  {
+export class Literal extends S.Opaque<Literal, { readonly brand: unique symbol }>()(
+  S.Struct({
     termType: S.tag("Literal"),
     value: S.String,
     language: S.OptionFromOptionalKey(LanguageTag).pipe(S.withConstructorDefault(Effect.succeedNone)),
     datatype: NamedNode,
-  },
-  $I.annote("Literal", {
-    description: "RDF literal value aligned with RDF/JS.",
-    semanticSchemaMetadata: literalMetadata,
-  })
+  }).pipe(
+    $I.annoteSchema("Literal", {
+      description: "RDF literal value aligned with RDF/JS.",
+      semanticSchemaMetadata: literalMetadata,
+    })
+  )
 ) {
   static readonly decodeUnknownResult = S.decodeUnknownResult(this);
 
@@ -513,28 +516,29 @@ export class Literal extends S.Class<Literal>($I`Literal`)(
  * @category models
  * @since 0.0.0
  */
-export class DefaultGraph extends S.Class<DefaultGraph>($I`DefaultGraph`)(
-  {
+export class DefaultGraph extends S.Opaque<DefaultGraph, { readonly brand: unique symbol }>()(
+  S.Struct({
     termType: S.tag("DefaultGraph"),
     value: S.tag(""),
-  },
-  $I.annote("DefaultGraph", {
-    description: "RDF default graph term aligned with RDF/JS.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "rdfConstruct",
-      canonicalName: "DefaultGraph",
-      overview: "Default graph term aligned with the RDF/JS data-model surface.",
-      status: "stable",
-      specifications: [
-        {
-          name: "RDF/JS Data Model",
-          section: "DefaultGraph",
-          disposition: "normative",
-        },
-      ],
-      equivalenceBasis: "Exact empty-string value equality.",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("DefaultGraph", {
+      description: "RDF default graph term aligned with RDF/JS.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "rdfConstruct",
+        canonicalName: "DefaultGraph",
+        overview: "Default graph term aligned with the RDF/JS data-model surface.",
+        status: "stable",
+        specifications: [
+          {
+            name: "RDF/JS Data Model",
+            section: "DefaultGraph",
+            disposition: "normative",
+          },
+        ],
+        equivalenceBasis: "Exact empty-string value equality.",
+      }),
+    })
+  )
 ) {}
 
 const TermDefinition = S.Union([NamedNode, BlankNode, Literal, DefaultGraph]);
@@ -762,17 +766,18 @@ export type GraphTerm = typeof GraphTerm.Type;
  * @category models
  * @since 0.0.0
  */
-export class Quad extends S.Class<Quad>($I`Quad`)(
-  {
+export class Quad extends S.Opaque<Quad, { readonly brand: unique symbol }>()(
+  S.Struct({
     subject: Subject,
     predicate: NamedNode,
     object: ObjectTerm,
     graph: GraphTerm,
-  },
-  $I.annote("Quad", {
-    description: "RDF quad value aligned with RDF/JS.",
-    semanticSchemaMetadata: quadMetadata,
-  })
+  }).pipe(
+    $I.annoteSchema("Quad", {
+      description: "RDF quad value aligned with RDF/JS.",
+      semanticSchemaMetadata: quadMetadata,
+    })
+  )
 ) {}
 
 /**
@@ -795,14 +800,15 @@ export class Quad extends S.Class<Quad>($I`Quad`)(
  * @category models
  * @since 0.0.0
  */
-export class Dataset extends S.Class<Dataset>($I`Dataset`)(
-  {
+export class Dataset extends S.Opaque<Dataset, { readonly brand: unique symbol }>()(
+  S.Struct({
     quads: S.Array(Quad),
-  },
-  $I.annote("Dataset", {
-    description: "Dataset wrapper for RDF quads.",
-    semanticSchemaMetadata: datasetMetadata,
-  })
+  }).pipe(
+    $I.annoteSchema("Dataset", {
+      description: "Dataset wrapper for RDF quads.",
+      semanticSchemaMetadata: datasetMetadata,
+    })
+  )
 ) {
   static readonly is = S.is(Dataset);
 }
@@ -826,15 +832,16 @@ export class Dataset extends S.Class<Dataset>($I`Dataset`)(
  * @category models
  * @since 0.0.0
  */
-export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBinding`)(
-  {
+export class NamespaceBinding extends S.Opaque<NamespaceBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     prefix: PrefixLabel,
     namespace: IRI,
-  },
-  $I.annote("NamespaceBinding", {
-    description: "Prefix-to-namespace binding for RDF compaction and expansion.",
-    semanticSchemaMetadata: namespaceBindingMetadata,
-  })
+  }).pipe(
+    $I.annoteSchema("NamespaceBinding", {
+      description: "Prefix-to-namespace binding for RDF compaction and expansion.",
+      semanticSchemaMetadata: namespaceBindingMetadata,
+    })
+  )
 ) {}
 
 /**
@@ -961,13 +968,14 @@ export const makeBlankNode = (value: string): BlankNode =>
  * @category utilities
  * @since 0.0.0
  */
-export class MakeLiteralOptions extends S.Class<MakeLiteralOptions>($I`MakeLiteralOptions`)(
-  {
+export class MakeLiteralOptions extends S.Opaque<MakeLiteralOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     language: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("MakeLiteralOptions", {
-    description: "Optional language settings for makeLiteral.",
-  })
+  }).pipe(
+    $I.annoteSchema("MakeLiteralOptions", {
+      description: "Optional language settings for makeLiteral.",
+    })
+  )
 ) {}
 
 /**
@@ -1043,14 +1051,15 @@ export const makeLiteral: {
  * @category utilities
  * @since 0.0.0
  */
-export class MakeQuadOptions extends S.Class<MakeQuadOptions>($I`MakeQuadOptions`)(
-  {
+export class MakeQuadOptions extends S.Opaque<MakeQuadOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     object: ObjectTerm,
     graph: GraphTerm.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("MakeQuadOptions", {
-    description: "Object and optional graph settings for makeQuad.",
-  })
+  }).pipe(
+    $I.annoteSchema("MakeQuadOptions", {
+      description: "Object and optional graph settings for makeQuad.",
+    })
+  )
 ) {}
 
 /**
@@ -1070,14 +1079,15 @@ export class MakeQuadOptions extends S.Class<MakeQuadOptions>($I`MakeQuadOptions
  * @category utilities
  * @since 0.0.0
  */
-export class MakeQuadOptionsInput extends S.Class<MakeQuadOptionsInput>($I`MakeQuadOptionsInput`)(
-  {
+export class MakeQuadOptionsInput extends S.Opaque<MakeQuadOptionsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     object: ObjectTerm,
     graph: GraphTerm.pipe(S.optionalKey),
-  },
-  $I.annote("MakeQuadOptionsInput", {
-    description: "In-memory object and optional graph input accepted by makeQuad.",
-  })
+  }).pipe(
+    $I.annoteSchema("MakeQuadOptionsInput", {
+      description: "In-memory object and optional graph input accepted by makeQuad.",
+    })
+  )
 ) {}
 
 const isMakeQuadOptions = (input: ObjectTerm | MakeQuadOptionsInput): input is MakeQuadOptionsInput =>

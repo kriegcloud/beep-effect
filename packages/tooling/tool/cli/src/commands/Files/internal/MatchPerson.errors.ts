@@ -45,7 +45,9 @@ const errorConstructor =
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonConfigError extends S.TaggedError<MatchPersonConfigError>($I`MatchPersonConfigError`)(
+export class MatchPersonConfigError extends S.TaggedError<MatchPersonConfigError, { readonly brand: unique symbol }>(
+  $I`MatchPersonConfigError`
+)(
   "MatchPersonConfigError",
   failureFields,
   $I.annoteError<MatchPersonConfigError>("MatchPersonConfigError", {
@@ -69,7 +71,9 @@ export class MatchPersonConfigError extends S.TaggedError<MatchPersonConfigError
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonPathError extends S.TaggedError<MatchPersonPathError>($I`MatchPersonPathError`)(
+export class MatchPersonPathError extends S.TaggedError<MatchPersonPathError, { readonly brand: unique symbol }>(
+  $I`MatchPersonPathError`
+)(
   "MatchPersonPathError",
   failureFields,
   $I.annoteError<MatchPersonPathError>("MatchPersonPathError", {
@@ -93,7 +97,9 @@ export class MatchPersonPathError extends S.TaggedError<MatchPersonPathError>($I
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonLicenseError extends S.TaggedError<MatchPersonLicenseError>($I`MatchPersonLicenseError`)(
+export class MatchPersonLicenseError extends S.TaggedError<MatchPersonLicenseError, { readonly brand: unique symbol }>(
+  $I`MatchPersonLicenseError`
+)(
   "MatchPersonLicenseError",
   failureFields,
   $I.annoteError<MatchPersonLicenseError>("MatchPersonLicenseError", {
@@ -117,9 +123,10 @@ export class MatchPersonLicenseError extends S.TaggedError<MatchPersonLicenseErr
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonModelAcquisitionError extends S.TaggedError<MatchPersonModelAcquisitionError>(
-  $I`MatchPersonModelAcquisitionError`
-)(
+export class MatchPersonModelAcquisitionError extends S.TaggedError<
+  MatchPersonModelAcquisitionError,
+  { readonly brand: unique symbol }
+>($I`MatchPersonModelAcquisitionError`)(
   "MatchPersonModelAcquisitionError",
   failureFields,
   $I.annoteError<MatchPersonModelAcquisitionError>("MatchPersonModelAcquisitionError", {
@@ -143,9 +150,10 @@ export class MatchPersonModelAcquisitionError extends S.TaggedError<MatchPersonM
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonModelIntegrityError extends S.TaggedError<MatchPersonModelIntegrityError>(
-  $I`MatchPersonModelIntegrityError`
-)(
+export class MatchPersonModelIntegrityError extends S.TaggedError<
+  MatchPersonModelIntegrityError,
+  { readonly brand: unique symbol }
+>($I`MatchPersonModelIntegrityError`)(
   "MatchPersonModelIntegrityError",
   failureFields,
   $I.annoteError<MatchPersonModelIntegrityError>("MatchPersonModelIntegrityError", {
@@ -169,7 +177,9 @@ export class MatchPersonModelIntegrityError extends S.TaggedError<MatchPersonMod
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonRuntimeError extends S.TaggedError<MatchPersonRuntimeError>($I`MatchPersonRuntimeError`)(
+export class MatchPersonRuntimeError extends S.TaggedError<MatchPersonRuntimeError, { readonly brand: unique symbol }>(
+  $I`MatchPersonRuntimeError`
+)(
   "MatchPersonRuntimeError",
   {
     ...failureFields,
@@ -196,7 +206,9 @@ export class MatchPersonRuntimeError extends S.TaggedError<MatchPersonRuntimeErr
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonProcessError extends S.TaggedError<MatchPersonProcessError>($I`MatchPersonProcessError`)(
+export class MatchPersonProcessError extends S.TaggedError<MatchPersonProcessError, { readonly brand: unique symbol }>(
+  $I`MatchPersonProcessError`
+)(
   "MatchPersonProcessError",
   failureFields,
   $I.annoteError<MatchPersonProcessError>("MatchPersonProcessError", {
@@ -220,7 +232,10 @@ export class MatchPersonProcessError extends S.TaggedError<MatchPersonProcessErr
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonProtocolError extends S.TaggedError<MatchPersonProtocolError>($I`MatchPersonProtocolError`)(
+export class MatchPersonProtocolError extends S.TaggedError<
+  MatchPersonProtocolError,
+  { readonly brand: unique symbol }
+>($I`MatchPersonProtocolError`)(
   "MatchPersonProtocolError",
   failureFields,
   $I.annoteError<MatchPersonProtocolError>("MatchPersonProtocolError", {
@@ -244,7 +259,10 @@ export class MatchPersonProtocolError extends S.TaggedError<MatchPersonProtocolE
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonSemanticError extends S.TaggedError<MatchPersonSemanticError>($I`MatchPersonSemanticError`)(
+export class MatchPersonSemanticError extends S.TaggedError<
+  MatchPersonSemanticError,
+  { readonly brand: unique symbol }
+>($I`MatchPersonSemanticError`)(
   "MatchPersonSemanticError",
   failureFields,
   $I.annoteError<MatchPersonSemanticError>("MatchPersonSemanticError", {
@@ -269,9 +287,10 @@ export class MatchPersonSemanticError extends S.TaggedError<MatchPersonSemanticE
  * @category errors
  * @since 0.0.0
  */
-export class MatchPersonMaterializationError extends S.TaggedError<MatchPersonMaterializationError>(
-  $I`MatchPersonMaterializationError`
-)(
+export class MatchPersonMaterializationError extends S.TaggedError<
+  MatchPersonMaterializationError,
+  { readonly brand: unique symbol }
+>($I`MatchPersonMaterializationError`)(
   "MatchPersonMaterializationError",
   failureFields,
   $I.annoteError<MatchPersonMaterializationError>("MatchPersonMaterializationError", {

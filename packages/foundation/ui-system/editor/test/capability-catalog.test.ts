@@ -23,70 +23,76 @@ import type { CapabilityDescriptor, CommandDefinition, Keybinding } from "@beep/
 
 const $I = $EditorId.create("capability/catalog-test");
 
-class AtlasBinding extends S.Class<AtlasBinding>($I`AtlasBinding`)(
-  {
+class AtlasBinding extends S.Opaque<AtlasBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     platform: S.String.annotateKey({ description: "Atlas platform string." }),
     chord: S.String.annotateKey({ description: "Atlas authored chord string." }),
-  },
-  $I.annote("AtlasBinding", {
-    title: "Atlas binding slice",
-    description: "Lenient keybinding fields used by catalog reconciliation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AtlasBinding", {
+      title: "Atlas binding slice",
+      description: "Lenient keybinding fields used by catalog reconciliation.",
+    })
+  )
 ) {}
 
-class AtlasCommand extends S.Class<AtlasCommand>($I`AtlasCommand`)(
-  {
+class AtlasCommand extends S.Opaque<AtlasCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Atlas command identifier." }),
     label: S.String.annotateKey({ description: "Atlas command label." }),
     helpText: S.String.annotateKey({ description: "Atlas command help text." }),
     keybindings: S.Array(AtlasBinding).annotateKey({ description: "Atlas command keybindings." }),
-  },
-  $I.annote("AtlasCommand", {
-    title: "Atlas command slice",
-    description: "Lenient command fields used by catalog reconciliation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AtlasCommand", {
+      title: "Atlas command slice",
+      description: "Lenient command fields used by catalog reconciliation.",
+    })
+  )
 ) {}
 
-class AtlasDisposition extends S.Class<AtlasDisposition>($I`AtlasDisposition`)(
-  { kind: S.String.annotateKey({ description: "Atlas disposition kind." }) },
-  $I.annote("AtlasDisposition", {
-    title: "Atlas disposition slice",
-    description: "Lenient disposition fields used by catalog reconciliation.",
-  })
+class AtlasDisposition extends S.Opaque<AtlasDisposition, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.String.annotateKey({ description: "Atlas disposition kind." }) }).pipe(
+    $I.annoteSchema("AtlasDisposition", {
+      title: "Atlas disposition slice",
+      description: "Lenient disposition fields used by catalog reconciliation.",
+    })
+  )
 ) {}
 
-class AtlasCompatibility extends S.Class<AtlasCompatibility>($I`AtlasCompatibility`)(
-  {
+class AtlasCompatibility extends S.Opaque<AtlasCompatibility, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: S.String.annotateKey({ description: "Compatibility target format." }),
     status: S.String.annotateKey({ description: "Compatibility status." }),
-  },
-  $I.annote("AtlasCompatibility", {
-    title: "Atlas compatibility slice",
-    description: "Lenient compatibility fields used by catalog reconciliation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AtlasCompatibility", {
+      title: "Atlas compatibility slice",
+      description: "Lenient compatibility fields used by catalog reconciliation.",
+    })
+  )
 ) {}
 
-class AtlasCapability extends S.Class<AtlasCapability>($I`AtlasCapability`)(
-  {
+class AtlasCapability extends S.Opaque<AtlasCapability, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Atlas capability identifier." }),
     category: S.String.annotateKey({ description: "Atlas capability category." }),
     disposition: AtlasDisposition.annotateKey({ description: "Atlas capability disposition." }),
     dependencies: S.Array(S.String).annotateKey({ description: "Atlas dependency identifiers." }),
     commands: S.Array(AtlasCommand).annotateKey({ description: "Atlas command rows." }),
     compatibility: S.Array(AtlasCompatibility).annotateKey({ description: "Atlas compatibility rows." }),
-  },
-  $I.annote("AtlasCapability", {
-    title: "Atlas capability slice",
-    description: "Lenient capability fields used by P1 catalog reconciliation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AtlasCapability", {
+      title: "Atlas capability slice",
+      description: "Lenient capability fields used by P1 catalog reconciliation.",
+    })
+  )
 ) {}
 
-class AtlasArtifact extends S.Class<AtlasArtifact>($I`AtlasArtifact`)(
-  { capabilities: S.Array(AtlasCapability).annotateKey({ description: "Atlas capability rows." }) },
-  $I.annote("AtlasArtifact", {
-    title: "Atlas artifact slice",
-    description: "Lenient root slice decoded from capability-atlas.json.",
-  })
+class AtlasArtifact extends S.Opaque<AtlasArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({ capabilities: S.Array(AtlasCapability).annotateKey({ description: "Atlas capability rows." }) }).pipe(
+    $I.annoteSchema("AtlasArtifact", {
+      title: "Atlas artifact slice",
+      description: "Lenient root slice decoded from capability-atlas.json.",
+    })
+  )
 ) {}
 const decodeAtlasArtifactJson = S.decodeEffect(S.fromJsonString(AtlasArtifact));
 

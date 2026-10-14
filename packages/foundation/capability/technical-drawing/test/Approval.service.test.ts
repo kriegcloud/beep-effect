@@ -19,7 +19,7 @@ import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
-import { assertInstanceOf } from "@effect/vitest/utils";
+import { assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -164,7 +164,7 @@ describe("@beep/technical-drawing sheet-set approval", () => {
         const statement = yield* SheetSetApproval.use((service) => service.statement(manifestPath));
         expect(statement).toBe(`I approve design-figure sheet set ${pdfSha256} for filing.`);
         const record = yield* sign(manifestPath, ConfirmationSource.cases.email.make({ messageId: "approved" }));
-        assertInstanceOf(record, ApprovalRecord);
+        assertTrue(S.is(ApprovalRecord)(record));
         expect(record.confirmationLocator).toBe("<approved@example.com>");
         expect(record.matchedAddress).toBe("attorney@example.com");
         // written and re-read: the stored event decodes back to the returned record

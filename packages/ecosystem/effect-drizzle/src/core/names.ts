@@ -97,7 +97,9 @@ export type ValidateDerivedSqlName<Identifier extends string, Message extends st
  * @category errors
  * @since 0.0.0
  */
-class SqlNameError extends TaggedError<SqlNameError>("@beep/effect-drizzle/SqlNameError")(
+class SqlNameError extends TaggedError<SqlNameError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/SqlNameError"
+)(
   "SqlNameError",
   {
     message: StringSchema,

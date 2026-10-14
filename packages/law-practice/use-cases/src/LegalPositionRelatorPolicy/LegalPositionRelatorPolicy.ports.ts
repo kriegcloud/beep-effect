@@ -71,10 +71,11 @@ const $I = $LawPracticeUseCasesId.create("LegalPositionRelatorPolicy/LegalPositi
  * @category services
  * @since 0.0.0
  */
-export class LegalPositionRelatorPolicyShape extends S.Class<LegalPositionRelatorPolicyShape>(
-  $I`LegalPositionRelatorPolicyShape`
-)(
-  {
+export class LegalPositionRelatorPolicyShape extends S.Opaque<
+  LegalPositionRelatorPolicyShape,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     admit: Fn({
       input: S.Unknown,
       output: EffectOutput<LegalPositionRelator, LegalPositionRelatorAdmissionError>(),
@@ -99,11 +100,12 @@ export class LegalPositionRelatorPolicyShape extends S.Class<LegalPositionRelato
     }).annotateKey({
       description: "Emit a candidate input for every pair whose scopes overlap and whose positions are opposed.",
     }),
-  },
-  $I.annote("LegalPositionRelatorPolicyShape", {
-    description:
-      "Service shape owning relator admission, the two derived views of a stored relation, and the pair screen.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalPositionRelatorPolicyShape", {
+      description:
+        "Service shape owning relator admission, the two derived views of a stored relation, and the pair screen.",
+    })
+  )
 ) {}
 
 /**

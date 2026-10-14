@@ -29,7 +29,9 @@ const $I = $RepoCliId.create("commands/SyncDataToTs/SyncDataToTs.errors");
  * @category utilities
  * @since 0.0.0
  */
-export class SyncDataToTsError extends S.TaggedError<SyncDataToTsError>($I`SyncDataToTsError`)(
+export class SyncDataToTsError extends S.TaggedError<SyncDataToTsError, { readonly brand: unique symbol }>(
+  $I`SyncDataToTsError`
+)(
   "SyncDataToTsError",
   {
     message: S.String,
@@ -89,7 +91,9 @@ export class SyncDataToTsError extends S.TaggedError<SyncDataToTsError>($I`SyncD
  * @category utilities
  * @since 0.0.0
  */
-export class SyncDataToTsDriftError extends S.TaggedError<SyncDataToTsDriftError>($I`SyncDataToTsDriftError`)(
+export class SyncDataToTsDriftError extends S.TaggedError<SyncDataToTsDriftError, { readonly brand: unique symbol }>(
+  $I`SyncDataToTsDriftError`
+)(
   "SyncDataToTsDriftError",
   {
     message: S.String,

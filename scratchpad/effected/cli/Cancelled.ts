@@ -29,7 +29,7 @@ const $I = $ScratchpadId.create("effected/cli/Cancelled");
  * @category errors
  * @since 0.0.0
  */
-export class Cancelled extends S.TaggedError<Cancelled>($I`Cancelled`)("Cancelled", {
+export class Cancelled extends S.TaggedError<Cancelled, { readonly brand: unique symbol }>($I`Cancelled`)("Cancelled", {
 	reason: S.Literals(["escape", "interrupt"]).annotateKey({ description: "Whether the person pressed escape or the interactive prompt was interrupted" }),
 }, $I.annote("Cancelled", { description: "A person backed out of an interactive prompt: they pressed escape, or the prompt was interrupted." })) {
 	/**

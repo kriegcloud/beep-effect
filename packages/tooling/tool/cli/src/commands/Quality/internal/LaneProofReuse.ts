@@ -33,8 +33,8 @@ const ActiveLaneProofMode = LiteralKit(["shadow", "active"]);
 const NonReusableLaneProofId = LiteralKit(["quality:security", "repo-sanity:bun-audit"]);
 const isNonReusableLaneProofId = S.is(NonReusableLaneProofId);
 
-class LaneProofRecord extends S.Class<LaneProofRecord>($I`LaneProofRecord`)(
-  {
+class LaneProofRecord extends S.Opaque<LaneProofRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     laneId: S.String,
     commandHash: S.String,
     inputHash: S.String,
@@ -44,23 +44,27 @@ class LaneProofRecord extends S.Class<LaneProofRecord>($I`LaneProofRecord`)(
     envProfileHash: S.String,
     durationMs: S.Natural,
     verifiedAt: S.String,
-  },
-  $I.annote("LaneProofRecord", {
-    description: "One exact-match reusable proof for a local GitHub-check lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("LaneProofRecord", {
+      description: "One exact-match reusable proof for a local GitHub-check lane.",
+    })
+  )
 ) {}
 
-class LaneProofStore extends S.Class<LaneProofStore>($I`LaneProofStore`)(
-  {
+class LaneProofStore extends S.Opaque<LaneProofStore, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-lane-proofs/v2"),
     records: S.Array(LaneProofRecord),
-  },
-  $I.annote("LaneProofStore", {
-    description: "Durable exact-match proofs written after each successful local lane wave.",
-  })
+  }).pipe(
+    $I.annoteSchema("LaneProofStore", {
+      description: "Durable exact-match proofs written after each successful local lane wave.",
+    })
+  )
 ) {}
 
-class LaneProofGitError extends S.TaggedError<LaneProofGitError>($I`LaneProofGitError`)(
+class LaneProofGitError extends S.TaggedError<LaneProofGitError, { readonly brand: unique symbol }>(
+  $I`LaneProofGitError`
+)(
   "LaneProofGitError",
   { message: S.String },
   $I.annoteError<LaneProofGitError>("LaneProofGitError", {
@@ -68,8 +72,8 @@ class LaneProofGitError extends S.TaggedError<LaneProofGitError>($I`LaneProofGit
   })
 ) {}
 
-class LaneProofIdentity extends S.Class<LaneProofIdentity>($I`LaneProofIdentity`)(
-  {
+class LaneProofIdentity extends S.Opaque<LaneProofIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     laneId: S.String,
     commandHash: S.String,
     inputHash: S.String,
@@ -77,10 +81,11 @@ class LaneProofIdentity extends S.Class<LaneProofIdentity>($I`LaneProofIdentity`
     headSha: S.String,
     baseSha: S.String,
     envProfileHash: S.String,
-  },
-  $I.annote("LaneProofIdentity", {
-    description: "Exact virtual-tree, command, head, base, and environment identity for one lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("LaneProofIdentity", {
+      description: "Exact virtual-tree, command, head, base, and environment identity for one lane.",
+    })
+  )
 ) {}
 
 /**
@@ -88,16 +93,17 @@ class LaneProofIdentity extends S.Class<LaneProofIdentity>($I`LaneProofIdentity`
  *
  * @category models
  */
-export class LaneProofSession extends S.Class<LaneProofSession>($I`LaneProofSession`)(
-  {
+export class LaneProofSession extends S.Opaque<LaneProofSession, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: ActiveLaneProofMode,
     path: S.String,
     records: S.Array(LaneProofRecord),
     identities: S.Array(LaneProofIdentity),
-  },
-  $I.annote("LaneProofSession", {
-    description: "Prepared proof-reuse session for one immutable virtual-tree snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("LaneProofSession", {
+      description: "Prepared proof-reuse session for one immutable virtual-tree snapshot.",
+    })
+  )
 ) {}
 
 const hashText = Effect.fnUntraced(function* (value: string) {
@@ -272,8 +278,8 @@ export const prepareLaneProofSession = Effect.fn("LaneProofReuse.prepareSession"
 });
 
 const identityMatchesIdentity = (
-  left: Omit<LaneProofRecord, "durationMs" | "verifiedAt">,
-  right: Omit<LaneProofRecord, "durationMs" | "verifiedAt">
+  left: Omit<LaneProofRecord, "brand" | "durationMs" | "verifiedAt">,
+  right: Omit<LaneProofRecord, "brand" | "durationMs" | "verifiedAt">
 ): boolean =>
   left.laneId === right.laneId &&
   left.commandHash === right.commandHash &&
@@ -285,7 +291,7 @@ const identityMatchesIdentity = (
 
 const recordMatchesIdentity = (
   record: LaneProofRecord,
-  identity: Omit<LaneProofRecord, "durationMs" | "verifiedAt">
+  identity: Omit<LaneProofRecord, "brand" | "durationMs" | "verifiedAt">
 ): boolean => identityMatchesIdentity(record, identity);
 
 /**

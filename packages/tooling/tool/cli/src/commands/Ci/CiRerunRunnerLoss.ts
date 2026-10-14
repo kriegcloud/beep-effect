@@ -94,8 +94,8 @@ const JOBS_MAX_PAGES = 10;
  * @category models
  * @since 0.0.0
  */
-export class CiRerunRunnerLossInput extends S.Class<CiRerunRunnerLossInput>($I`CiRerunRunnerLossInput`)(
-  {
+export class CiRerunRunnerLossInput extends S.Opaque<CiRerunRunnerLossInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: S.Finite,
     attempt: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     maxAttempt: S.Finite.pipe(
@@ -112,22 +112,33 @@ export class CiRerunRunnerLossInput extends S.Class<CiRerunRunnerLossInput>($I`C
     ),
     stepSummaryPath: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     cwd: S.String,
-  },
-  $I.annote("CiRerunRunnerLossInput", {
-    description: "Resolved flags and environment of one ci rerun-runner-loss invocation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiRerunRunnerLossInput", {
+      description: "Resolved flags and environment of one ci rerun-runner-loss invocation.",
+    })
+  )
 ) {}
 
-class RunnerLossPullRequest extends S.Class<RunnerLossPullRequest>($I`RunnerLossPullRequest`)(
-  { number: S.Finite, state: S.String, head_sha: S.String, head_ref: S.String, head_owner: S.NullOr(S.String) },
-  $I.annote("RunnerLossPullRequest", {
-    description: "The state, head SHA, and head branch of one pull request read by the runner-loss head gate.",
-  })
+class RunnerLossPullRequest extends S.Opaque<RunnerLossPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    number: S.Finite,
+    state: S.String,
+    head_sha: S.String,
+    head_ref: S.String,
+    head_owner: S.NullOr(S.String),
+  }).pipe(
+    $I.annoteSchema("RunnerLossPullRequest", {
+      description: "The state, head SHA, and head branch of one pull request read by the runner-loss head gate.",
+    })
+  )
 ) {}
 
-class RunnerLossBranchRef extends S.Class<RunnerLossBranchRef>($I`RunnerLossBranchRef`)(
-  { sha: S.String },
-  $I.annote("RunnerLossBranchRef", { description: "The tip SHA of one branch read by the runner-loss head gate." })
+class RunnerLossBranchRef extends S.Opaque<RunnerLossBranchRef, { readonly brand: unique symbol }>()(
+  S.Struct({ sha: S.String }).pipe(
+    $I.annoteSchema("RunnerLossBranchRef", {
+      description: "The tip SHA of one branch read by the runner-loss head gate.",
+    })
+  )
 ) {}
 
 const decodeRun = S.decodeUnknownEffect(S.fromJsonString(RunnerLossRun));

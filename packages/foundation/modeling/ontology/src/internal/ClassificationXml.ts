@@ -41,7 +41,7 @@ interface IpcEntryEncoded extends S.Codec.Encoded<typeof IpcEntryFields> {
   readonly ipcEntry?: IpcEntryEncoded | readonly IpcEntryEncoded[];
 }
 
-class IpcEntry extends S.Class<IpcEntry>("ClassificationXml/IpcEntry")({
+class IpcEntry extends S.Class<IpcEntry, { readonly brand: unique symbol }>("ClassificationXml/IpcEntry")({
   ...IpcEntryFields.fields,
   ipcEntry: S.ArrayEnsure(S.suspend((): S.Codec<IpcEntry, IpcEntryEncoded> => IpcEntry)).pipe(
     S.withDecodingDefaultKey(Effect.succeed([]))
@@ -65,7 +65,7 @@ interface CpcEntryEncoded extends S.Codec.Encoded<typeof CpcEntryFields> {
   readonly "classification-item"?: CpcEntryEncoded | readonly CpcEntryEncoded[];
 }
 
-class CpcEntry extends S.Class<CpcEntry>("ClassificationXml/CpcEntry")({
+class CpcEntry extends S.Class<CpcEntry, { readonly brand: unique symbol }>("ClassificationXml/CpcEntry")({
   ...CpcEntryFields.fields,
   "classification-item": S.ArrayEnsure(S.suspend((): S.Codec<CpcEntry, CpcEntryEncoded> => CpcEntry)).pipe(
     S.withDecodingDefaultKey(Effect.succeed([]))

@@ -44,8 +44,8 @@ const $I = $RepoCliId.create("commands/Corpus/internal/Extract.schemas");
  * @category models
  * @since 0.0.0
  */
-export class CorpusExtractOptions extends S.Class<CorpusExtractOptions>($I`CorpusExtractOptions`)(
-  {
+export class CorpusExtractOptions extends S.Opaque<CorpusExtractOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     concurrency: S.optionalKey(S.Finite),
     corpusRoot: S.String,
     exportChildren: S.Boolean,
@@ -63,11 +63,12 @@ export class CorpusExtractOptions extends S.Class<CorpusExtractOptions>($I`Corpu
     tesseractPath: S.optionalKey(S.NonEmptyString),
     tikaJarPath: S.String,
     tikaTimeoutMillis: S.optionalKey(PosInt),
-  },
-  $I.annote("CorpusExtractOptions", {
-    description:
-      "Validated options used by corpus extract. outLabel, when supplied, must be one staging directory name. overwrite forces a full redo; otherwise a run resumes an existing output tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusExtractOptions", {
+      description:
+        "Validated options used by corpus extract. outLabel, when supplied, must be one staging directory name. overwrite forces a full redo; otherwise a run resumes an existing output tree.",
+    })
+  )
 ) {}
 
 /**
@@ -113,8 +114,8 @@ export class CorpusExtractOptions extends S.Class<CorpusExtractOptions>($I`Corpu
  * @category models
  * @since 0.0.0
  */
-export class CorpusExtractSummary extends S.Class<CorpusExtractSummary>($I`CorpusExtractSummary`)(
-  {
+export class CorpusExtractSummary extends S.Opaque<CorpusExtractSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     alreadyCompleteCount: S.Natural,
     childArtifactCount: S.Natural,
     duplicatesSkipped: S.Natural,
@@ -129,11 +130,12 @@ export class CorpusExtractSummary extends S.Class<CorpusExtractSummary>($I`Corpu
     sourceCount: S.Natural,
     succeededCount: S.Natural,
     textArtifactCount: S.Natural,
-  },
-  $I.annote("CorpusExtractSummary", {
-    description:
-      "Summary counts returned by corpus extract: sources reused from disk, sources processed now, final statuses, and the failures no engine routes.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusExtractSummary", {
+      description:
+        "Summary counts returned by corpus extract: sources reused from disk, sources processed now, final statuses, and the failures no engine routes.",
+    })
+  )
 ) {}
 
 /**
@@ -213,8 +215,11 @@ export const encodeCorpusExtractSummaryJson = JsonStringCodec(CorpusExtractSumma
  * @category models
  * @since 0.0.0
  */
-export class CorpusExtractOutcomeRecord extends S.Class<CorpusExtractOutcomeRecord>($I`CorpusExtractOutcomeRecord`)(
-  {
+export class CorpusExtractOutcomeRecord extends S.Opaque<
+  CorpusExtractOutcomeRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     childArtifactCount: S.Natural,
     exportChildren: S.Boolean,
     failure: S.OptionFromOptionalKey(FileProcessingFailureRecord),
@@ -227,11 +232,12 @@ export class CorpusExtractOutcomeRecord extends S.Class<CorpusExtractOutcomeReco
     sha256: Sha256Hex,
     sourceRecord: SourceProcessingRecord,
     strategy: SelectedStrategy,
-  },
-  $I.annote("CorpusExtractOutcomeRecord", {
-    description:
-      "Atomically written completion marker for one corpus extract source: the settled outcome plus the inputs that make it reusable on resume.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusExtractOutcomeRecord", {
+      description:
+        "Atomically written completion marker for one corpus extract source: the settled outcome plus the inputs that make it reusable on resume.",
+    })
+  )
 ) {}
 
 /**

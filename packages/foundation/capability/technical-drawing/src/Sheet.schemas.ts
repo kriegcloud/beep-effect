@@ -111,14 +111,15 @@ export const PT_PER_MM = PT_PER_CM / 10;
  * @category models
  * @since 0.0.0
  */
-export class PagePoints extends S.Class<PagePoints>($I`PagePoints`)(
-  {
+export class PagePoints extends S.Opaque<PagePoints, { readonly brand: unique symbol }>()(
+  S.Struct({
     width: PositiveFinite.annotateKey({ description: "Page width in points." }),
     height: PositiveFinite.annotateKey({ description: "Page height in points." }),
-  },
-  $I.annote("PagePoints", {
-    description: "Page width and height in points.",
-  })
+  }).pipe(
+    $I.annoteSchema("PagePoints", {
+      description: "Page width and height in points.",
+    })
+  )
 ) {}
 
 const PageSizePt = Fn({ input: SheetFormat, output: PagePoints }).pipe(
@@ -246,16 +247,17 @@ export type MarginStandard = typeof MarginStandard.Type;
  * @category models
  * @since 0.0.0
  */
-export class SheetMargins extends S.Class<SheetMargins>($I`SheetMargins`)(
-  {
+export class SheetMargins extends S.Opaque<SheetMargins, { readonly brand: unique symbol }>()(
+  S.Struct({
     top: PositiveFinite.annotateKey({ description: "Top margin in cm." }),
     left: PositiveFinite.annotateKey({ description: "Left margin in cm." }),
     right: PositiveFinite.annotateKey({ description: "Right margin in cm." }),
     bottom: PositiveFinite.annotateKey({ description: "Bottom margin in cm." }),
-  },
-  $I.annote("SheetMargins", {
-    description: "Top, left, right, and bottom page margins of a sheet in centimetres.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetMargins", {
+      description: "Top, left, right, and bottom page margins of a sheet in centimetres.",
+    })
+  )
 ) {}
 
 const MarginsCm = Fn({ input: MarginStandard, output: SheetMargins }).pipe(
@@ -476,7 +478,7 @@ const AbsoluteFontFile = S.NonEmptyString.check(
  * @category models
  * @since 0.0.0
  */
-export class LabelStyle extends S.Class<LabelStyle>($I`LabelStyle`)(
+export class LabelStyle extends S.Opaque<LabelStyle, { readonly brand: unique symbol }>()(
   S.Struct({
     typeface: LabelTypeface.annotateKey({ description: "Typeface of the label." }),
     sizePt: PositiveFinite.annotateKey({ description: "Font size in points." }),
@@ -499,42 +501,45 @@ export class LabelStyle extends S.Class<LabelStyle>($I`LabelStyle`)(
           "Font family a `text` label requests, for example `Arial`. Absent, the typeface's metric family: `Arial` for sans, `Times New Roman` for serif.",
       })
     ),
-  }).check(
-    S.makeFilter((style) => labelCapHeightCm(style) >= MIN_LETTER_HEIGHT_CM, {
-      identifier: $I`LabelStyleCapHeightCheck`,
-      title: "Label Cap Height",
-      description: "37 CFR 1.84(p)(3) requires lettering at least 0.32 cm high.",
-      message: "Expected a label size whose cap height is at least 0.32 cm",
-    }),
-    S.makeFilter((style) => style.typeface !== "stroke" || O.isNone(style.fontFile), {
-      identifier: $I`LabelStyleFontFileCheck`,
-      title: "Label Font File Typeface",
-      description: "Only outlined typefaces read a font file.",
-      message: "Expected no font file on a stroke label",
-    }),
-    S.makeFilter((style) => style.render === "outline" || style.typeface !== "stroke", {
-      identifier: $I`LabelStyleTextTypefaceCheck`,
-      title: "Label Text Typeface",
-      description: "A text label is set in a font, so it needs the sans or serif typeface.",
-      message: "Expected the sans or serif typeface on a text label",
-    }),
-    S.makeFilter((style) => style.render === "outline" || O.isNone(style.fontFile), {
-      identifier: $I`LabelStyleTextFontFileCheck`,
-      title: "Label Text Font File",
-      description: "A text label takes its font from the sheet's font directory, not from a font file.",
-      message: "Expected no font file on a text label",
-    }),
-    S.makeFilter((style) => style.render === "text" || O.isNone(style.fontFamily), {
-      identifier: $I`LabelStyleFontFamilyCheck`,
-      title: "Label Font Family",
-      description: "Only a text label requests a font family.",
-      message: "Expected no font family on an outline label",
-    })
-  ),
-  $I.annote("LabelStyle", {
-    description:
-      "Typeface, point size, optional operator font file, render route, and requested font family of one sheet label.",
   })
+    .check(
+      S.makeFilter((style) => labelCapHeightCm(style) >= MIN_LETTER_HEIGHT_CM, {
+        identifier: $I`LabelStyleCapHeightCheck`,
+        title: "Label Cap Height",
+        description: "37 CFR 1.84(p)(3) requires lettering at least 0.32 cm high.",
+        message: "Expected a label size whose cap height is at least 0.32 cm",
+      }),
+      S.makeFilter((style) => style.typeface !== "stroke" || O.isNone(style.fontFile), {
+        identifier: $I`LabelStyleFontFileCheck`,
+        title: "Label Font File Typeface",
+        description: "Only outlined typefaces read a font file.",
+        message: "Expected no font file on a stroke label",
+      }),
+      S.makeFilter((style) => style.render === "outline" || style.typeface !== "stroke", {
+        identifier: $I`LabelStyleTextTypefaceCheck`,
+        title: "Label Text Typeface",
+        description: "A text label is set in a font, so it needs the sans or serif typeface.",
+        message: "Expected the sans or serif typeface on a text label",
+      }),
+      S.makeFilter((style) => style.render === "outline" || O.isNone(style.fontFile), {
+        identifier: $I`LabelStyleTextFontFileCheck`,
+        title: "Label Text Font File",
+        description: "A text label takes its font from the sheet's font directory, not from a font file.",
+        message: "Expected no font file on a text label",
+      }),
+      S.makeFilter((style) => style.render === "text" || O.isNone(style.fontFamily), {
+        identifier: $I`LabelStyleFontFamilyCheck`,
+        title: "Label Font Family",
+        description: "Only a text label requests a font family.",
+        message: "Expected no font family on an outline label",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("LabelStyle", {
+        description:
+          "Typeface, point size, optional operator font file, render route, and requested font family of one sheet label.",
+      })
+    )
 ) {}
 
 /**
@@ -586,8 +591,8 @@ export const labelFontFamily = (style: LabelStyle): string =>
  * @category models
  * @since 0.0.0
  */
-export class SheetLabelFaces extends S.Class<SheetLabelFaces>($I`SheetLabelFaces`)(
-  {
+export class SheetLabelFaces extends S.Opaque<SheetLabelFaces, { readonly brand: unique symbol }>()(
+  S.Struct({
     figure: S.OptionFromOptionalKey(LabelFace).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Face replacing the vendored one for the FIG. n label." })
@@ -596,10 +601,11 @@ export class SheetLabelFaces extends S.Class<SheetLabelFaces>($I`SheetLabelFaces
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Face replacing the vendored one for the n/N sheet number." })
     ),
-  },
-  $I.annote("SheetLabelFaces", {
-    description: "Label faces loaded by the caller from fontFile label styles, per label.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetLabelFaces", {
+      description: "Label faces loaded by the caller from fontFile label styles, per label.",
+    })
+  )
 ) {}
 
 /**
@@ -617,14 +623,15 @@ export class SheetLabelFaces extends S.Class<SheetLabelFaces>($I`SheetLabelFaces
  * @category models
  * @since 0.0.0
  */
-export class LabelFontAlias extends S.Class<LabelFontAlias>($I`LabelFontAlias`)(
-  {
+export class LabelFontAlias extends S.Opaque<LabelFontAlias, { readonly brand: unique symbol }>()(
+  S.Struct({
     requested: S.NonEmptyString.annotateKey({ description: "Family name the SVG `<text>` element requests." }),
     family: S.NonEmptyString.annotateKey({ description: "Family name recorded in the resolved font file." }),
-  },
-  $I.annote("LabelFontAlias", {
-    description: "A requested label font family and the family name of the font file it resolved to.",
-  })
+  }).pipe(
+    $I.annoteSchema("LabelFontAlias", {
+      description: "A requested label font family and the family name of the font file it resolved to.",
+    })
+  )
 ) {}
 
 /**
@@ -652,20 +659,21 @@ export class LabelFontAlias extends S.Class<LabelFontAlias>($I`LabelFontAlias`)(
  * @category models
  * @since 0.0.0
  */
-export class SheetFonts extends S.Class<SheetFonts>($I`SheetFonts`)(
-  {
+export class SheetFonts extends S.Opaque<SheetFonts, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: AbsolutePath.annotateKey({ description: "The only directory the converter reads fonts from." }),
     families: S.Array(LabelFontAlias).annotateKey({ description: "Requested families and their resolved names." }),
-  },
-  $I.annote("SheetFonts", {
-    description: "Font directory and family bindings a PDF converter uses for text labels.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetFonts", {
+      description: "Font directory and family bindings a PDF converter uses for text labels.",
+    })
+  )
 ) {}
 
 /**
  * Sheet options of a render: format, margin standard, line weight, lettering,
- * label gap and label styles, inner safety gap, shading pitches, and the
- * broken-line dash pattern.
+ * label gap and label styles, inner safety gap, shading pitches, the
+ * broken-line dash pattern, and the emphasis line weight.
  *
  * **Gotchas**
  *
@@ -687,8 +695,8 @@ export class SheetFonts extends S.Class<SheetFonts>($I`SheetFonts`)(
  * @category models
  * @since 0.0.0
  */
-export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
-  {
+export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: SheetFormat.pipe(
       S.withConstructorDefault(Effect.succeed("letter" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("letter" as const)),
@@ -905,9 +913,24 @@ export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
           "Gap between dashes of broken (unclaimed) lines, in mm on the sheet, measured before the round caps. Defaults to 1.5.",
       })
     ),
-  },
-  $I.annote("SheetOptions", {
-    description:
-      "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
-  })
+    emphasisWeightMm: S.Finite.check(
+      S.isGreaterThanOrEqualTo(0.35, {
+        identifier: $I`EmphasisWeightCheck`,
+        title: "Emphasis Weight",
+        description: "An emphasis line must not read lighter than the default outline weight of 0.35 mm.",
+        message: "Expected an emphasis weight of at least 0.35 mm",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(0.7)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0.7)),
+      S.annotateKey({
+        description: "Stroke width of emphasis overlay lines in mm (the tab-in-slot edge). Defaults to 0.7.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("SheetOptions", {
+      description:
+        "Page format, margin standard, stroke, shading and emphasis widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
+    })
+  )
 ) {}

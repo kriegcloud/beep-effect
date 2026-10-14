@@ -32,8 +32,14 @@ export const RuntimeMode = LiteralKit(["live", "replay"]).pipe(
   })
 );
 
-class LabConfigValue extends S.Class<LabConfigValue>($I`LabConfigValue`)(
-  {
+/**
+ * Environment-decoded configuration used by the headless Semantica runtime.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LabConfigValue extends S.Opaque<LabConfigValue, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.OptionFromNullOr(S.NonEmptyString),
     embeddingDimension: PosInt,
     embeddingModel: S.NonEmptyString,
@@ -48,10 +54,11 @@ class LabConfigValue extends S.Class<LabConfigValue>($I`LabConfigValue`)(
     offline: S.Boolean,
     projectionTimeout: S.Duration,
     providerCacheDirectory: S.NonEmptyString,
-  },
-  $I.annote("LabConfigValue", {
-    description: "Environment-decoded configuration used by the headless Semantica runtime.",
-  })
+  }).pipe(
+    $I.annoteSchema("LabConfigValue", {
+      description: "Environment-decoded configuration used by the headless Semantica runtime.",
+    })
+  )
 ) {}
 
 /**

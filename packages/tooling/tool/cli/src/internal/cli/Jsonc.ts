@@ -72,16 +72,17 @@ export const JSONC_FORMATTING_OPTIONS: jsonc.FormattingOptions = {
  * @category models
  * @since 0.0.0
  */
-export class JsoncModification extends S.Class<JsoncModification>($I`JsoncModification`)(
-  {
+export class JsoncModification extends S.Opaque<JsoncModification, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.String,
     path: S.Array(S.Union([S.String, S.Finite])),
     value: S.Unknown,
     isArrayInsertion: S.optionalKey(S.Boolean),
-  },
-  $I.annote("JsoncModification", {
-    description: "A comment-preserving JSONC modification request (content, JSON path, value, array-insertion flag).",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncModification", {
+      description: "A comment-preserving JSONC modification request (content, JSON path, value, array-insertion flag).",
+    })
+  )
 ) {}
 
 /**

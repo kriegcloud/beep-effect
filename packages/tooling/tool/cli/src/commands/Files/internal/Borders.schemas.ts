@@ -278,18 +278,19 @@ export type BorderDetectionTolerance = typeof BorderDetectionTolerance.Type;
  * @category models
  * @since 0.0.0
  */
-export class DetectBordersOptions extends S.Class<DetectBordersOptions>($I`DetectBordersOptions`)(
-  {
+export class DetectBordersOptions extends S.Opaque<DetectBordersOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dir: S.String,
     json: S.Boolean,
     maxScanPct: BorderDetectionMaxScanPercentage,
     minSolidPct: BorderDetectionPercentage,
     minWidthPct: BorderDetectionPercentage,
     tolerance: BorderDetectionTolerance,
-  },
-  $I.annote("DetectBordersOptions", {
-    description: "Validated options used by the solid-border detection operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectBordersOptions", {
+      description: "Validated options used by the solid-border detection operation.",
+    })
+  )
 ) {}
 
 /**
@@ -307,18 +308,19 @@ export class DetectBordersOptions extends S.Class<DetectBordersOptions>($I`Detec
  * @category models
  * @since 0.0.0
  */
-export class CropBordersOptions extends S.Class<CropBordersOptions>($I`CropBordersOptions`)(
-  {
+export class CropBordersOptions extends S.Opaque<CropBordersOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dir: S.String,
     dryRun: S.Boolean,
     maxScanPct: BorderDetectionMaxScanPercentage,
     minSolidPct: BorderDetectionPercentage,
     minWidthPct: BorderDetectionPercentage,
     tolerance: BorderDetectionTolerance,
-  },
-  $I.annote("CropBordersOptions", {
-    description: "Validated options used by the solid-border crop operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CropBordersOptions", {
+      description: "Validated options used by the solid-border crop operation.",
+    })
+  )
 ) {}
 
 /**
@@ -336,15 +338,16 @@ export class CropBordersOptions extends S.Class<CropBordersOptions>($I`CropBorde
  * @category models
  * @since 0.0.0
  */
-export class RgbColor extends S.Class<RgbColor>($I`RgbColor`)(
-  {
+export class RgbColor extends S.Opaque<RgbColor, { readonly brand: unique symbol }>()(
+  S.Struct({
     b: RgbChannel,
     g: RgbChannel,
     r: RgbChannel,
-  },
-  $I.annote("RgbColor", {
-    description: "RGB color sampled from an image border.",
-  })
+  }).pipe(
+    $I.annoteSchema("RgbColor", {
+      description: "RGB color sampled from an image border.",
+    })
+  )
 ) {}
 
 /**
@@ -362,8 +365,11 @@ export class RgbColor extends S.Class<RgbColor>($I`RgbColor`)(
  * @category models
  * @since 0.0.0
  */
-export class DetectBorderSideMeasurement extends S.Class<DetectBorderSideMeasurement>($I`DetectBorderSideMeasurement`)(
-  {
+export class DetectBorderSideMeasurement extends S.Opaque<
+  DetectBorderSideMeasurement,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     color: RgbColor,
     colorHex: S.String,
     matched: S.Boolean,
@@ -371,10 +377,11 @@ export class DetectBorderSideMeasurement extends S.Class<DetectBorderSideMeasure
     side: BorderSide,
     widthPct: S.Finite,
     widthPx: S.Int,
-  },
-  $I.annote("DetectBorderSideMeasurement", {
-    description: "Measured near-solid border width and sampled edge color for one image side.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectBorderSideMeasurement", {
+      description: "Measured near-solid border width and sampled edge color for one image side.",
+    })
+  )
 ) {}
 
 /**
@@ -392,8 +399,8 @@ export class DetectBorderSideMeasurement extends S.Class<DetectBorderSideMeasure
  * @category models
  * @since 0.0.0
  */
-export class DetectBordersEntry extends S.Class<DetectBordersEntry>($I`DetectBordersEntry`)(
-  {
+export class DetectBordersEntry extends S.Opaque<DetectBordersEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     borderCount: S.Int,
     classification: BorderDetectionKind,
     extension: S.String,
@@ -403,10 +410,11 @@ export class DetectBordersEntry extends S.Class<DetectBordersEntry>($I`DetectBor
     sourceName: S.String,
     sourcePath: S.String,
     width: PositiveMediaDimension,
-  },
-  $I.annote("DetectBordersEntry", {
-    description: "Image file analyzed for solid or near-solid canvas borders.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectBordersEntry", {
+      description: "Image file analyzed for solid or near-solid canvas borders.",
+    })
+  )
 ) {}
 
 /**
@@ -424,17 +432,18 @@ export class DetectBordersEntry extends S.Class<DetectBordersEntry>($I`DetectBor
  * @category models
  * @since 0.0.0
  */
-export class DetectBordersSkippedEntry extends S.Class<DetectBordersSkippedEntry>($I`DetectBordersSkippedEntry`)(
-  {
+export class DetectBordersSkippedEntry extends S.Opaque<DetectBordersSkippedEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     extension: S.optionalKey(S.String),
     message: S.String,
     reason: DetectBordersSkippedReason,
     sourceName: S.String,
     sourcePath: S.String,
-  },
-  $I.annote("DetectBordersSkippedEntry", {
-    description: "A direct source entry skipped by files detect-borders with a machine-readable reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectBordersSkippedEntry", {
+      description: "A direct source entry skipped by files detect-borders with a machine-readable reason.",
+    })
+  )
 ) {}
 
 /**
@@ -452,17 +461,18 @@ export class DetectBordersSkippedEntry extends S.Class<DetectBordersSkippedEntry
  * @category models
  * @since 0.0.0
  */
-export class DetectBordersSummary extends S.Class<DetectBordersSummary>($I`DetectBordersSummary`)(
-  {
+export class DetectBordersSummary extends S.Opaque<DetectBordersSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     analyzedCount: S.Finite,
     borderedCount: S.Finite,
     directory: S.String,
     skippedCount: S.Finite,
     totalCount: S.Finite,
-  },
-  $I.annote("DetectBordersSummary", {
-    description: "Summary counts returned by files detect-borders.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectBordersSummary", {
+      description: "Summary counts returned by files detect-borders.",
+    })
+  )
 ) {}
 
 /**
@@ -480,18 +490,19 @@ export class DetectBordersSummary extends S.Class<DetectBordersSummary>($I`Detec
  * @category models
  * @since 0.0.0
  */
-export class DetectBordersReport extends S.Class<DetectBordersReport>($I`DetectBordersReport`)(
-  {
+export class DetectBordersReport extends S.Opaque<DetectBordersReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: S.String,
     entries: S.Array(DetectBordersEntry),
     options: DetectBordersOptions,
     schemaVersion: S.Literal("beep.files.detect-borders.v1"),
     skipped: S.Array(DetectBordersSkippedEntry),
     summary: DetectBordersSummary,
-  },
-  $I.annote("DetectBordersReport", {
-    description: "JSON-safe report of solid-border detection results.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectBordersReport", {
+      description: "JSON-safe report of solid-border detection results.",
+    })
+  )
 ) {}
 
 /**
@@ -509,8 +520,8 @@ export class DetectBordersReport extends S.Class<DetectBordersReport>($I`DetectB
  * @category models
  * @since 0.0.0
  */
-export class CropBordersPlanEntry extends S.Class<CropBordersPlanEntry>($I`CropBordersPlanEntry`)(
-  {
+export class CropBordersPlanEntry extends S.Opaque<CropBordersPlanEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     borderCount: S.Int,
     classification: BorderDetectionKind,
     cropHeight: PositiveMediaDimension,
@@ -523,10 +534,11 @@ export class CropBordersPlanEntry extends S.Class<CropBordersPlanEntry>($I`CropB
     sides: S.Array(DetectBorderSideMeasurement),
     sourceName: S.String,
     sourcePath: S.String,
-  },
-  $I.annote("CropBordersPlanEntry", {
-    description: "Image crop planned from detected near-solid border measurements.",
-  })
+  }).pipe(
+    $I.annoteSchema("CropBordersPlanEntry", {
+      description: "Image crop planned from detected near-solid border measurements.",
+    })
+  )
 ) {}
 
 /**
@@ -544,17 +556,18 @@ export class CropBordersPlanEntry extends S.Class<CropBordersPlanEntry>($I`CropB
  * @category models
  * @since 0.0.0
  */
-export class CropBordersPlan extends S.Class<CropBordersPlan>($I`CropBordersPlan`)(
-  {
+export class CropBordersPlan extends S.Opaque<CropBordersPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     analyzedCount: S.Finite,
     borderedCount: S.Finite,
     directory: S.String,
     entries: S.Array(CropBordersPlanEntry),
     skippedCount: S.Finite,
-  },
-  $I.annote("CropBordersPlan", {
-    description: "Planned in-place crops for image files with detected near-solid borders.",
-  })
+  }).pipe(
+    $I.annoteSchema("CropBordersPlan", {
+      description: "Planned in-place crops for image files with detected near-solid borders.",
+    })
+  )
 ) {}
 
 /**
@@ -572,8 +585,8 @@ export class CropBordersPlan extends S.Class<CropBordersPlan>($I`CropBordersPlan
  * @category models
  * @since 0.0.0
  */
-export class CropBordersSummary extends S.Class<CropBordersSummary>($I`CropBordersSummary`)(
-  {
+export class CropBordersSummary extends S.Opaque<CropBordersSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     analyzedCount: S.Finite,
     borderedCount: S.Finite,
     croppedCount: S.Finite,
@@ -581,10 +594,11 @@ export class CropBordersSummary extends S.Class<CropBordersSummary>($I`CropBorde
     dryRun: S.Boolean,
     plannedCount: S.Finite,
     skippedCount: S.Finite,
-  },
-  $I.annote("CropBordersSummary", {
-    description: "Summary counts returned by files crop-borders.",
-  })
+  }).pipe(
+    $I.annoteSchema("CropBordersSummary", {
+      description: "Summary counts returned by files crop-borders.",
+    })
+  )
 ) {}
 
 /**

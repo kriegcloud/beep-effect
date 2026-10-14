@@ -79,13 +79,14 @@ export type XSSProtectionMode = typeof XSSProtectionMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class XSSProtectionReportConfig extends S.Class<XSSProtectionReportConfig>($I`XSSProtectionReportConfig`)(
-  {
+export class XSSProtectionReportConfig extends S.Opaque<XSSProtectionReportConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     uri: internal.StringOrUrl,
-  },
-  $I.annote("XSSProtectionReportConfig", {
-    description: "Configuration for the `X-XSS-Protection` report mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("XSSProtectionReportConfig", {
+      description: "Configuration for the `X-XSS-Protection` report mode.",
+    })
+  )
 ) {}
 
 /**
@@ -184,14 +185,18 @@ export type XSSProtectionOption = typeof XSSProtectionOption.Type;
  * @category models
  * @since 0.0.0
  */
-export class XSSProtectionResponseHeader extends S.Class<XSSProtectionResponseHeader>($I`XSSProtectionResponseHeader`)(
-  {
+export class XSSProtectionResponseHeader extends S.Opaque<
+  XSSProtectionResponseHeader,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("XSSProtectionResponseHeader", {
-    description: "The `X-XSS-Protection` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("XSSProtectionResponseHeader", {
+      description: "The `X-XSS-Protection` response header.",
+    })
+  )
 ) {}
 
 type XSSProtectionResponseHeaderEncoded = typeof XSSProtectionResponseHeader.Encoded;

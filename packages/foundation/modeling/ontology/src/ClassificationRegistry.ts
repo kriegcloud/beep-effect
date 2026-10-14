@@ -35,18 +35,20 @@ import type { ClassificationConcept } from "./Classification.models.ts";
 
 const $I = $OntologyId.create("ClassificationRegistry");
 
-class ClassificationAsset extends S.Class<ClassificationAsset>($I`ClassificationAsset`)({
-  id: S.NonEmptyString,
-  format: S.Literal("xml"),
-  loadKind: S.tag("classification-scheme"),
-  schemeKind: ClassificationSchemeKind,
-  edition: S.NonEmptyString,
-  verified: S.Boolean,
-  loadStatus: VendorLoadStatus,
-  path: VendorSlicePath,
-  entryPath: S.OptionFromOptionalKey(VendorSlicePath),
-  sha256: S.String.check(S.isPattern(/^[a-f0-9]{64}$/)),
-}) {}
+class ClassificationAsset extends S.Opaque<ClassificationAsset, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.NonEmptyString,
+    format: S.Literal("xml"),
+    loadKind: S.tag("classification-scheme"),
+    schemeKind: ClassificationSchemeKind,
+    edition: S.NonEmptyString,
+    verified: S.Boolean,
+    loadStatus: VendorLoadStatus,
+    path: VendorSlicePath,
+    entryPath: S.OptionFromOptionalKey(VendorSlicePath),
+    sha256: S.String.check(S.isPattern(/^[a-f0-9]{64}$/)),
+  }).pipe($I.annoteSchema("ClassificationAsset"))
+) {}
 
 /**
  * Edition-pinned classification loading and SKOS hierarchy lookup.

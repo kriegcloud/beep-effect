@@ -66,7 +66,9 @@ import type * as Meta from "../core/Meta.ts";
 
 /** Descriptor-construction failure at an author-input seam. */
 /** @internal */
-class ColumnInvariantError extends TaggedError<ColumnInvariantError>("@beep/effect-drizzle/ColumnInvariantError")(
+class ColumnInvariantError extends TaggedError<ColumnInvariantError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/ColumnInvariantError"
+)(
   "ColumnInvariantError",
   {
     message: StringSchema,

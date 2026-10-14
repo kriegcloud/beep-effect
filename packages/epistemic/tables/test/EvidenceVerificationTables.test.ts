@@ -134,7 +134,10 @@ describe("EvidenceVerificationTable", () => {
           ...productEntityFixtureInput("EpistemicEvidenceVerification", 7),
           evidenceId: manifestation.evidenceId,
           manifestationKey: Result.getOrThrow(
-            manifestationKeyFor(manifestation.evidenceId, manifestation.verifiedAnchor)
+            manifestationKeyFor(
+              manifestation.evidenceId,
+              TextAnchorVerificationReceipt.make(manifestation.verifiedAnchor)
+            )
           ),
           verifiedAnchor: Result.getOrThrow(
             encodeUnknownTextAnchorVerificationReceiptResult(manifestation.verifiedAnchor)

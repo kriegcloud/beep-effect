@@ -174,8 +174,8 @@ const fromRateLimitHeaders = (headers: Headers.Headers): O.Option<RateLimitSnaps
  * @category models
  * @since 0.0.0
  */
-export class RateLimitSnapshot extends S.Class<RateLimitSnapshot>($I`RateLimitSnapshot`)(
-  {
+export class RateLimitSnapshot extends S.Opaque<RateLimitSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     limit: S.optionalKey(S.Finite).pipe(
       $I.annoteKey("RateLimitSnapshot.limit", {
         description: "Latest rate-limit ceiling reported by the upstream response headers.",
@@ -194,10 +194,11 @@ export class RateLimitSnapshot extends S.Class<RateLimitSnapshot>($I`RateLimitSn
         examples: [60],
       })
     ),
-  },
-  $I.annote("RateLimitSnapshot", {
-    description: "Latest parsed X-RateLimit-* response headers observed by the shared transport transformer.",
-  })
+  }).pipe(
+    $I.annoteSchema("RateLimitSnapshot", {
+      description: "Latest parsed X-RateLimit-* response headers observed by the shared transport transformer.",
+    })
+  )
 ) {
   static readonly fromHeaders = fromRateLimitHeaders;
 }
@@ -260,13 +261,13 @@ const ApiTransportDurationInput = S.Union([
  * **Example** (Build ApiTransportOptions object)
  *
  * ```ts
- * import { ApiAuth, type ApiTransportOptions } from "@beep/api-transport"
+ * import { ApiAuth, ApiTransportOptions } from "@beep/api-transport"
  *
- * const options: ApiTransportOptions = {
+ * const options = ApiTransportOptions.make({
  *   auth: ApiAuth.NoAuth(),
  *   key: "govinfo",
  *   rateLimit: { limit: 1000, window: "1 hour" },
- * }
+ * })
  *
  * console.log(options.key)
  * ```
@@ -274,8 +275,8 @@ const ApiTransportDurationInput = S.Union([
  * @category models
  * @since 0.0.0
  */
-export class ApiTransportOptions extends S.Class<ApiTransportOptions>($I`ApiTransportOptions`)(
-  {
+export class ApiTransportOptions extends S.Opaque<ApiTransportOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     auth: ApiAuth.pipe(
       $I.annoteKey("ApiTransportOptions.auth", {
         description: "Authentication strategy attached to every outgoing request.",
@@ -308,10 +309,11 @@ export class ApiTransportOptions extends S.Class<ApiTransportOptions>($I`ApiTran
         description: "Optional maximum number of transient transport retries.",
       })
     ),
-  },
-  $I.annote("ApiTransportOptions", {
-    description: "Authentication, rate-limit, and retry options for the shared API transport.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApiTransportOptions", {
+      description: "Authentication, rate-limit, and retry options for the shared API transport.",
+    })
+  )
 ) {}
 
 /**
@@ -328,16 +330,18 @@ export class ApiTransportOptions extends S.Class<ApiTransportOptions>($I`ApiTran
  * ```ts import.meta.vitest name="Read rate-limit from transport"
  * import * as Effect from "effect/Effect";
  * import * as RateLimiter from "effect/persistence/RateLimiter"
- * import { ApiAuth, type ApiTransport, makeApiTransport } from "@beep/api-transport"
+ * import { ApiAuth, type ApiTransport, ApiTransportOptions, makeApiTransport } from "@beep/api-transport"
  *
  * const readSnapshot = (transport: ApiTransport) => transport.rateLimit
  *
  * const program = Effect.gen(function* () {
- *   const transport = yield* makeApiTransport({
- *     auth: ApiAuth.NoAuth(),
- *     key: "example",
- *     rateLimit: { limit: 1000, window: "1 hour" },
- *   })
+ *   const transport = yield* makeApiTransport(
+ *     ApiTransportOptions.make({
+ *       auth: ApiAuth.NoAuth(),
+ *       key: "example",
+ *       rateLimit: { limit: 1000, window: "1 hour" },
+ *     })
+ *   )
  *   return yield* readSnapshot(transport)
  * }).pipe(Effect.provide(RateLimiter.layerStoreMemory))
  *
@@ -369,14 +373,16 @@ export interface ApiTransport {
  * ```ts import.meta.vitest name="Build transport transformClient"
  * import * as Effect from "effect/Effect";
  * import * as RateLimiter from "effect/persistence/RateLimiter"
- * import { ApiAuth, makeApiTransport } from "@beep/api-transport"
+ * import { ApiAuth, ApiTransportOptions, makeApiTransport } from "@beep/api-transport"
  *
  * const program = Effect.gen(function* () {
- *   const transport = yield* makeApiTransport({
- *     auth: ApiAuth.NoAuth(),
- *     key: "example",
- *     rateLimit: { limit: 1000, window: "1 hour" },
- *   })
+ *   const transport = yield* makeApiTransport(
+ *     ApiTransportOptions.make({
+ *       auth: ApiAuth.NoAuth(),
+ *       key: "example",
+ *       rateLimit: { limit: 1000, window: "1 hour" },
+ *     })
+ *   )
  *   return transport.transformClient
  * }).pipe(Effect.provide(RateLimiter.layerStoreMemory))
  *

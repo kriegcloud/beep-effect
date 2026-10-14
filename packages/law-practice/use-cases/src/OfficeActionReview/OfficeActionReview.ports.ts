@@ -69,8 +69,8 @@ const officeActionReviewInputEntitySeedDefault = PosInt.make(1);
  * @category models
  * @since 0.0.0
  */
-export class OfficeActionReviewInput extends S.Class<OfficeActionReviewInput>($I`OfficeActionReviewInput`)(
-  {
+export class OfficeActionReviewInput extends S.Opaque<OfficeActionReviewInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     matterFixtureKey: S.NonEmptyString.annotateKey({
       description: "Stable fixture key for the prosecuted matter.",
     }),
@@ -89,10 +89,11 @@ export class OfficeActionReviewInput extends S.Class<OfficeActionReviewInput>($I
     ).annotateKey({
       description: "Deterministic positive seed used to mint distinct batch entity identities.",
     }),
-  },
-  $I.annote("OfficeActionReviewInput", {
-    description: "Schema-backed input for reviewing one office-action source artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("OfficeActionReviewInput", {
+      description: "Schema-backed input for reviewing one office-action source artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -110,16 +111,18 @@ export class OfficeActionReviewInput extends S.Class<OfficeActionReviewInput>($I
  * @category models
  * @since 0.0.0
  */
-export class OfficeActionCandidateExtraction extends S.Class<OfficeActionCandidateExtraction>(
-  $I`OfficeActionCandidateExtraction`
-)(
-  {
+export class OfficeActionCandidateExtraction extends S.Opaque<
+  OfficeActionCandidateExtraction,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidate: CandidateClaim,
     evidence: Evidence,
-  },
-  $I.annote("OfficeActionCandidateExtraction", {
-    description: "Grounded epistemic candidate and evidence emitted before claim admission.",
-  })
+  }).pipe(
+    $I.annoteSchema("OfficeActionCandidateExtraction", {
+      description: "Grounded epistemic candidate and evidence emitted before claim admission.",
+    })
+  )
 ) {}
 
 /**

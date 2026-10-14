@@ -149,8 +149,8 @@ export type YeetInboxSeverity = typeof YeetInboxSeverity.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetFailureCapsule extends S.Class<YeetFailureCapsule>($I`YeetFailureCapsule`)(
-  {
+export class YeetFailureCapsule extends S.Opaque<YeetFailureCapsule, { readonly brand: unique symbol }>()(
+  S.Struct({
     bucket: S.String,
     headSha: S.NonEmptyString,
     lane: S.NonEmptyString,
@@ -159,10 +159,11 @@ export class YeetFailureCapsule extends S.Class<YeetFailureCapsule>($I`YeetFailu
     prNumber: S.Finite,
     state: S.String,
     workflow: S.NullOr(S.String),
-  },
-  $I.annote("YeetFailureCapsule", {
-    description: "One hosted check failure, derived from the failing check's own gh record.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetFailureCapsule", {
+      description: "One hosted check failure, derived from the failing check's own gh record.",
+    })
+  )
 ) {}
 
 /**
@@ -209,8 +210,8 @@ export class YeetFailureCapsule extends S.Class<YeetFailureCapsule>($I`YeetFailu
  * @category models
  * @since 0.0.0
  */
-export class YeetCheckFailedRow extends S.Class<YeetCheckFailedRow>($I`YeetCheckFailedRow`)(
-  {
+export class YeetCheckFailedRow extends S.Opaque<YeetCheckFailedRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("check-failed"),
     schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
@@ -220,10 +221,11 @@ export class YeetCheckFailedRow extends S.Class<YeetCheckFailedRow>($I`YeetCheck
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetFailureCapsule,
-  },
-  $I.annote("YeetCheckFailedRow", {
-    description: "One check-failed inbox row: the failure capsule plus id, severity, checkout, and timestamp.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetCheckFailedRow", {
+      description: "One check-failed inbox row: the failure capsule plus id, severity, checkout, and timestamp.",
+    })
+  )
 ) {}
 
 /**
@@ -245,15 +247,19 @@ export class YeetCheckFailedRow extends S.Class<YeetCheckFailedRow>($I`YeetCheck
  * @category models
  * @since 0.0.0
  */
-export class YeetSiblingCollisionCapsule extends S.Class<YeetSiblingCollisionCapsule>($I`YeetSiblingCollisionCapsule`)(
-  {
+export class YeetSiblingCollisionCapsule extends S.Opaque<
+  YeetSiblingCollisionCapsule,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     contendedPaths: S.Array(S.NonEmptyString),
     ownerCheckout: S.NonEmptyString,
     siblingCheckout: S.NonEmptyString,
-  },
-  $I.annote("YeetSiblingCollisionCapsule", {
-    description: "Paths simultaneously claimed by an owning checkout and one sibling checkout.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetSiblingCollisionCapsule", {
+      description: "Paths simultaneously claimed by an owning checkout and one sibling checkout.",
+    })
+  )
 ) {}
 
 /**
@@ -279,8 +285,8 @@ export class YeetSiblingCollisionCapsule extends S.Class<YeetSiblingCollisionCap
  * @category models
  * @since 0.0.0
  */
-export class YeetSiblingCollisionRow extends S.Class<YeetSiblingCollisionRow>($I`YeetSiblingCollisionRow`)(
-  {
+export class YeetSiblingCollisionRow extends S.Opaque<YeetSiblingCollisionRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("sibling-collision"),
     schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
@@ -290,10 +296,11 @@ export class YeetSiblingCollisionRow extends S.Class<YeetSiblingCollisionRow>($I
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetSiblingCollisionCapsule,
-  },
-  $I.annote("YeetSiblingCollisionRow", {
-    description: "One P0 sibling-checkout collision delivered to the owning checkout.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetSiblingCollisionRow", {
+      description: "One P0 sibling-checkout collision delivered to the owning checkout.",
+    })
+  )
 ) {}
 
 /**
@@ -313,16 +320,17 @@ export class YeetSiblingCollisionRow extends S.Class<YeetSiblingCollisionRow>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewThreadCapsule extends S.Class<YeetReviewThreadCapsule>($I`YeetReviewThreadCapsule`)(
-  {
+export class YeetReviewThreadCapsule extends S.Opaque<YeetReviewThreadCapsule, { readonly brand: unique symbol }>()(
+  S.Struct({
     headSha: S.NonEmptyString,
     link: S.NullOr(S.String),
     prNumber: S.Finite,
     threadId: S.NonEmptyString,
-  },
-  $I.annote("YeetReviewThreadCapsule", {
-    description: "One unresolved review thread observed on the current pull request head.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewThreadCapsule", {
+      description: "One unresolved review thread observed on the current pull request head.",
+    })
+  )
 ) {}
 
 /**
@@ -343,8 +351,8 @@ export class YeetReviewThreadCapsule extends S.Class<YeetReviewThreadCapsule>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewThreadRow extends S.Class<YeetReviewThreadRow>($I`YeetReviewThreadRow`)(
-  {
+export class YeetReviewThreadRow extends S.Opaque<YeetReviewThreadRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("review-thread"),
     schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
@@ -354,10 +362,11 @@ export class YeetReviewThreadRow extends S.Class<YeetReviewThreadRow>($I`YeetRev
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetReviewThreadCapsule,
-  },
-  $I.annote("YeetReviewThreadRow", {
-    description: "One P1 review-thread row injected as repair context without denying tools.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewThreadRow", {
+      description: "One P1 review-thread row injected as repair context without denying tools.",
+    })
+  )
 ) {}
 
 /**
@@ -375,15 +384,16 @@ export class YeetReviewThreadRow extends S.Class<YeetReviewThreadRow>($I`YeetRev
  * @category models
  * @since 0.0.0
  */
-export class YeetBaseDriftCapsule extends S.Class<YeetBaseDriftCapsule>($I`YeetBaseDriftCapsule`)(
-  {
+export class YeetBaseDriftCapsule extends S.Opaque<YeetBaseDriftCapsule, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.NonEmptyString,
     headSha: S.NonEmptyString,
     prNumber: S.Finite,
-  },
-  $I.annote("YeetBaseDriftCapsule", {
-    description: "Base drift observed for the current pull request head.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetBaseDriftCapsule", {
+      description: "Base drift observed for the current pull request head.",
+    })
+  )
 ) {}
 
 /**
@@ -404,8 +414,8 @@ export class YeetBaseDriftCapsule extends S.Class<YeetBaseDriftCapsule>($I`YeetB
  * @category models
  * @since 0.0.0
  */
-export class YeetBaseDriftRow extends S.Class<YeetBaseDriftRow>($I`YeetBaseDriftRow`)(
-  {
+export class YeetBaseDriftRow extends S.Opaque<YeetBaseDriftRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("base-drift"),
     schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
@@ -415,10 +425,11 @@ export class YeetBaseDriftRow extends S.Class<YeetBaseDriftRow>($I`YeetBaseDrift
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetBaseDriftCapsule,
-  },
-  $I.annote("YeetBaseDriftRow", {
-    description: "One P2 base-drift row surfaced only at session start.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetBaseDriftRow", {
+      description: "One P2 base-drift row surfaced only at session start.",
+    })
+  )
 ) {}
 
 /**
@@ -459,8 +470,8 @@ export class YeetBaseDriftRow extends S.Class<YeetBaseDriftRow>($I`YeetBaseDrift
  * @category models
  * @since 0.0.0
  */
-export class YeetBaseConflictCapsule extends S.Class<YeetBaseConflictCapsule>($I`YeetBaseConflictCapsule`)(
-  {
+export class YeetBaseConflictCapsule extends S.Opaque<YeetBaseConflictCapsule, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.NonEmptyString,
     headSha: S.NonEmptyString,
     link: S.NullOr(S.String),
@@ -471,10 +482,11 @@ export class YeetBaseConflictCapsule extends S.Class<YeetBaseConflictCapsule>($I
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0))
     ),
-  },
-  $I.annote("YeetBaseConflictCapsule", {
-    description: "One pull request head that no longer merges into its base, with the raw merge fields observed.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetBaseConflictCapsule", {
+      description: "One pull request head that no longer merges into its base, with the raw merge fields observed.",
+    })
+  )
 ) {}
 
 /**
@@ -515,8 +527,8 @@ export class YeetBaseConflictCapsule extends S.Class<YeetBaseConflictCapsule>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetBaseConflictRow extends S.Class<YeetBaseConflictRow>($I`YeetBaseConflictRow`)(
-  {
+export class YeetBaseConflictRow extends S.Opaque<YeetBaseConflictRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("base-conflict"),
     schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
@@ -526,10 +538,11 @@ export class YeetBaseConflictRow extends S.Class<YeetBaseConflictRow>($I`YeetBas
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetBaseConflictCapsule,
-  },
-  $I.annote("YeetBaseConflictRow", {
-    description: "One P0 base-conflict row: the pull request head no longer merges into its base.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetBaseConflictRow", {
+      description: "One P0 base-conflict row: the pull request head no longer merges into its base.",
+    })
+  )
 ) {}
 
 /**
@@ -601,8 +614,8 @@ export type YeetPrCommentSource = typeof YeetPrCommentSource.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetPrCommentCapsule extends S.Class<YeetPrCommentCapsule>($I`YeetPrCommentCapsule`)(
-  {
+export class YeetPrCommentCapsule extends S.Opaque<YeetPrCommentCapsule, { readonly brand: unique symbol }>()(
+  S.Struct({
     author: S.NonEmptyString,
     commentId: S.Finite,
     createdAt: S.String,
@@ -611,11 +624,12 @@ export class YeetPrCommentCapsule extends S.Class<YeetPrCommentCapsule>($I`YeetP
     link: S.String,
     prNumber: S.Finite,
     source: YeetPrCommentSource,
-  },
-  $I.annote("YeetPrCommentCapsule", {
-    description:
-      "One top-level pull request comment from a person other than the acting login: URL, author and a bounded excerpt.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrCommentCapsule", {
+      description:
+        "One top-level pull request comment from a person other than the acting login: URL, author and a bounded excerpt.",
+    })
+  )
 ) {}
 
 /**
@@ -650,8 +664,8 @@ export class YeetPrCommentCapsule extends S.Class<YeetPrCommentCapsule>($I`YeetP
  * @category models
  * @since 0.0.0
  */
-export class YeetPrCommentRow extends S.Class<YeetPrCommentRow>($I`YeetPrCommentRow`)(
-  {
+export class YeetPrCommentRow extends S.Opaque<YeetPrCommentRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("pr-comment"),
     schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
@@ -661,10 +675,11 @@ export class YeetPrCommentRow extends S.Class<YeetPrCommentRow>($I`YeetPrComment
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetPrCommentCapsule,
-  },
-  $I.annote("YeetPrCommentRow", {
-    description: "One P1 top-level pull request comment row injected as context without denying tools.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrCommentRow", {
+      description: "One P1 top-level pull request comment row injected as context without denying tools.",
+    })
+  )
 ) {}
 
 /**
@@ -684,18 +699,20 @@ export class YeetPrCommentRow extends S.Class<YeetPrCommentRow>($I`YeetPrComment
  * @category models
  * @since 0.0.0
  */
-export class YeetLocalShardFailureCapsule extends S.Class<YeetLocalShardFailureCapsule>(
-  $I`YeetLocalShardFailureCapsule`
-)(
-  {
+export class YeetLocalShardFailureCapsule extends S.Opaque<
+  YeetLocalShardFailureCapsule,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     command: S.NonEmptyString,
     exitCode: S.Finite,
     headSha: S.NonEmptyString,
     shard: S.NonEmptyString,
-  },
-  $I.annote("YeetLocalShardFailureCapsule", {
-    description: "One named local proof shard that exited unsuccessfully on a repository head.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetLocalShardFailureCapsule", {
+      description: "One named local proof shard that exited unsuccessfully on a repository head.",
+    })
+  )
 ) {}
 
 /**
@@ -718,8 +735,8 @@ export class YeetLocalShardFailureCapsule extends S.Class<YeetLocalShardFailureC
  * @category models
  * @since 0.0.0
  */
-export class YeetLocalShardFailedRow extends S.Class<YeetLocalShardFailedRow>($I`YeetLocalShardFailedRow`)(
-  {
+export class YeetLocalShardFailedRow extends S.Opaque<YeetLocalShardFailedRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("local-shard-failed"),
     schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
@@ -729,10 +746,11 @@ export class YeetLocalShardFailedRow extends S.Class<YeetLocalShardFailedRow>($I
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetLocalShardFailureCapsule,
-  },
-  $I.annote("YeetLocalShardFailedRow", {
-    description: "One P0 local-shard poison pill inherited by every session in the checkout.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetLocalShardFailedRow", {
+      description: "One P0 local-shard poison pill inherited by every session in the checkout.",
+    })
+  )
 ) {}
 
 /**
@@ -767,8 +785,8 @@ export class YeetLocalShardFailedRow extends S.Class<YeetLocalShardFailedRow>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetPrMergeReadyCapsule extends S.Class<YeetPrMergeReadyCapsule>($I`YeetPrMergeReadyCapsule`)(
-  {
+export class YeetPrMergeReadyCapsule extends S.Opaque<YeetPrMergeReadyCapsule, { readonly brand: unique symbol }>()(
+  S.Struct({
     headSha: S.NonEmptyString,
     prNumber: S.Finite,
     url: S.NullOr(S.String),
@@ -777,10 +795,11 @@ export class YeetPrMergeReadyCapsule extends S.Class<YeetPrMergeReadyCapsule>($I
     settledAt: S.NullOr(S.String),
     closeoutAt: S.NullOr(S.String),
     pushToReadyMs: S.NullOr(S.Finite),
-  },
-  $I.annote("YeetPrMergeReadyCapsule", {
-    description: "One pull request head observed merge-ready, with its push-to-ready timeline.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrMergeReadyCapsule", {
+      description: "One pull request head observed merge-ready, with its push-to-ready timeline.",
+    })
+  )
 ) {}
 
 /**
@@ -818,8 +837,8 @@ export class YeetPrMergeReadyCapsule extends S.Class<YeetPrMergeReadyCapsule>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetPrMergeReadyRow extends S.Class<YeetPrMergeReadyRow>($I`YeetPrMergeReadyRow`)(
-  {
+export class YeetPrMergeReadyRow extends S.Opaque<YeetPrMergeReadyRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("pr-merge-ready"),
     schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
@@ -829,10 +848,11 @@ export class YeetPrMergeReadyRow extends S.Class<YeetPrMergeReadyRow>($I`YeetPrM
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetPrMergeReadyCapsule,
-  },
-  $I.annote("YeetPrMergeReadyRow", {
-    description: "One P1 informational row: a pull request head is merge-ready for the operator.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrMergeReadyRow", {
+      description: "One P1 informational row: a pull request head is merge-ready for the operator.",
+    })
+  )
 ) {}
 
 /**
@@ -847,8 +867,8 @@ export class YeetPrMergeReadyRow extends S.Class<YeetPrMergeReadyRow>($I`YeetPrM
  * @category models
  * @since 0.0.0
  */
-export class YeetProofJobFinishedRow extends S.Class<YeetProofJobFinishedRow>($I`YeetProofJobFinishedRow`)(
-  {
+export class YeetProofJobFinishedRow extends S.Opaque<YeetProofJobFinishedRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("proof-job-finished"),
     schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
@@ -858,8 +878,11 @@ export class YeetProofJobFinishedRow extends S.Class<YeetProofJobFinishedRow>($I
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetProofJobCapsule,
-  },
-  $I.annote("YeetProofJobFinishedRow", { description: "Informational completion or death of one detached proof job." })
+  }).pipe(
+    $I.annoteSchema("YeetProofJobFinishedRow", {
+      description: "Informational completion or death of one detached proof job.",
+    })
+  )
 ) {}
 
 /**
@@ -1583,16 +1606,18 @@ export const describeYeetInboxRow = (row: YeetInboxRow): string =>
  * @category models
  * @since 0.0.0
  */
-export class YeetInboxPaths extends S.Class<YeetInboxPaths>($I`YeetInboxPaths`)(
-  {
+export class YeetInboxPaths extends S.Opaque<YeetInboxPaths, { readonly brand: unique symbol }>()(
+  S.Struct({
     activePath: S.NonEmptyString,
     acksDir: S.NonEmptyString,
     dir: S.NonEmptyString,
     failuresPath: S.NonEmptyString,
-  },
-  $I.annote("YeetInboxPaths", {
-    description: "Resolved inbox locations for one checkout: bounded active index, history, acknowledgments, and root.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetInboxPaths", {
+      description:
+        "Resolved inbox locations for one checkout: bounded active index, history, acknowledgments, and root.",
+    })
+  )
 ) {}
 
 /**

@@ -2133,3 +2133,54 @@ contracts, flips `private: false`, reconciles ignore exemptions and restores
 appropriate note requirements and publication workflow/hosted allowlist wiring.
 Desktop manual versioning and `professional-desktop-v*` releases stay separate.
 Reverse the reset with the baseline recovery commands and revert its policy PR.
+
+## 2026-10-14: Plain Data Schemas Are Branded `S.Opaque`, And Every Schema Class Carries A Brand
+
+- **Status:** Active
+
+Decision:
+
+A plain data schema is declared as
+``class X extends S.Opaque<X, { readonly brand: unique symbol }>()(S.Struct({...}).pipe($I.annoteSchema("X", {...}))) { static ... }``.
+Plain data means no instance members, not an error, not a persisted entity,
+and not part of an `.extend` chain. Tagged data uses
+`S.TaggedStruct("X", {...})` as the source and keeps `_tag`. Values are plain
+objects validated by shape; the class supplies an opaque nominal type and a
+place for statics. `X.make(...)` constructs, `new X(...)` is unavailable,
+wider shapes spread `X.fields` or use `S.fieldsAssign(...)` because Opaque has
+no `.extend`, and annotations go on the Struct inside the pipe because
+`X.annotate(...)` returns a plain schema without the statics.
+
+`S.Class`, `S.TaggedClass`, `S.Error`, and `S.TaggedError` stay for errors,
+persisted entities (built on `@beep/effect-drizzle`), schemas with instance
+members, and `.extend` chain roots and subclasses. Every `S.Class`,
+`S.TaggedClass`, `S.Error`, `S.TaggedError`, and `S.Opaque` declaration carries
+`{ readonly brand: unique symbol }`; a structural `{}` brand needs a documented
+exception in `standards/schema-first.inventory.jsonc`.
+`bun run beep lint schema-first` reports a new plain-data `S.Class`, and
+`schemaClassMissingBrand` becomes an error at the `@effect/tsgo` 0.52 bump.
+The migration, its codemod, and the decisions behind each case are in
+`goals/schema-opaque-default/SPEC.md`, D1 to D8.
+
+Rationale:
+
+`S.Class` decodes to an instance and checks `instanceof` on the type side, so
+a structurally valid plain object fails `S.is`, encoding, and `HttpApiClient`
+payload encoding, and `structuredClone` or `postMessage` strips the class. The
+2026-10-13 census found 93% of 6,736 non-error schema classes with empty
+bodies, no `instanceof` checks against them, and about three `new` calls, so
+the class buys nothing at runtime for almost all of them. `S.Opaque` keeps what
+the class was chosen for, an opaque type and statics, and validates by shape.
+Without a brand both forms are structural, which is why the brand is part of
+the rule rather than an option.
+
+Rejected: `S.Class` plus a brand everywhere (the instance check and its
+plain-object failures stay); plain `S.Struct` with a same-name type alias
+(loses the opaque type and the statics, and the schema-first lint already
+rejects exported object structs). Consequences: runtime values of converted
+schemas change from class instances to plain objects, so `Equal.equals`
+between a decoded value and a plain literal now holds; error, entity,
+behavior, and `.extend` classes are unchanged apart from the brand; moving
+plain-`S.Class` persisted rows onto the `@beep/effect-drizzle` kit is a
+tracked follow-up. Reverse by running the codemod in Opaque-to-Class mode or
+reverting its PR.

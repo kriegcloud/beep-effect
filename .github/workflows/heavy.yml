@@ -190,6 +190,11 @@ jobs:
 
       - name: Run verification lane
         if: steps.lane-gate.outputs.should_run == 'true'
+        env:
+          # The knowledge doctor's seal guard admits a baseline change only on the
+          # mint App's pull request (C8 condition i); the App's login is
+          # `<slug>[bot]`. Unset, every baseline change stays baseline-tamper.
+          KNOWLEDGE_MINT_APP_SLUG: ${{ vars.KNOWLEDGE_MINT_APP_SLUG }}
         run: |
           set -euo pipefail
           # Lane bodies live in the beep CLI (one-round-loop P0 inversion;

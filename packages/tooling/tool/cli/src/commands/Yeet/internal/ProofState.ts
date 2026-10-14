@@ -49,8 +49,8 @@ const $I = $RepoCliId.create("commands/Yeet/internal/ProofState");
 const textEncoder = new TextEncoder();
 const fingerprintSeparator = new Uint8Array([0]);
 
-class YeetRunState extends S.Class<YeetRunState>($I`YeetRunState`)(
-  {
+class YeetRunState extends S.Opaque<YeetRunState, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-run-state/v1"),
     artifactDir: S.String,
     base: S.String,
@@ -62,12 +62,14 @@ class YeetRunState extends S.Class<YeetRunState>($I`YeetRunState`)(
     proofTier: YeetProofTier,
     runId: S.String,
     verifiedAt: S.String,
-  },
-  // TTC ruling 59: the per-lane `laneProofs` rows this state once carried had no reader and are
-  // retired, never migrated. Older state files still decode because excess keys are ignored.
-  $I.annote("YeetRunState", {
-    description: "Durable exact-match proof state for Yeet retry and closeout loops.",
   })
+    // TTC ruling 59: the per-lane `laneProofs` rows this state once carried had no reader and are
+    // retired, never migrated. Older state files still decode because excess keys are ignored.
+    .pipe(
+      $I.annoteSchema("YeetRunState", {
+        description: "Durable exact-match proof state for Yeet retry and closeout loops.",
+      })
+    )
 ) {}
 
 const proofLockOwnerFields = {
@@ -80,14 +82,15 @@ const proofLockOwnerFields = {
   startedAt: S.String,
 };
 
-class YeetProofLockStateV2 extends S.Class<YeetProofLockStateV2>($I`YeetProofLockStateV2`)(
-  {
+class YeetProofLockStateV2 extends S.Opaque<YeetProofLockStateV2, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-proof-lock/v2"),
     ...proofLockOwnerFields,
-  },
-  $I.annote("YeetProofLockStateV2", {
-    description: "Legacy proof-lock metadata retained only for fail-closed mixed-version coordination.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetProofLockStateV2", {
+      description: "Legacy proof-lock metadata retained only for fail-closed mixed-version coordination.",
+    })
+  )
 ) {}
 
 /**
@@ -96,37 +99,40 @@ class YeetProofLockStateV2 extends S.Class<YeetProofLockStateV2>($I`YeetProofLoc
  * @category models
  * @since 0.0.0
  */
-class YeetProofLockState extends S.Class<YeetProofLockState>($I`YeetProofLockState`)(
-  {
+class YeetProofLockState extends S.Opaque<YeetProofLockState, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-proof-lock/v3"),
     ...proofLockOwnerFields,
-  },
-  $I.annote("YeetProofLockState", {
-    description: "Machine-local repository coordinator metadata for heavyweight Yeet proof scheduling.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetProofLockState", {
+      description: "Machine-local repository coordinator metadata for heavyweight Yeet proof scheduling.",
+    })
+  )
 ) {}
 
-class YeetProofLockRetirementState extends S.Class<YeetProofLockRetirementState>($I`YeetProofLockRetirementState`)(
-  {
+class YeetProofLockRetirementState extends S.Opaque<YeetProofLockRetirementState, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-proof-lock/v4"),
     coordination: S.Literal("quality-scheduler/v1"),
     retiredAt: S.String,
-  },
-  $I.annote("YeetProofLockRetirementState", {
-    description:
-      "Persistent marker retiring the exclusive origin lock after the weighted quality scheduler becomes authoritative.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetProofLockRetirementState", {
+      description:
+        "Persistent marker retiring the exclusive origin lock after the weighted quality scheduler becomes authoritative.",
+    })
+  )
 ) {}
 
-class YeetProofLockReapClaim extends S.Class<YeetProofLockReapClaim>($I`YeetProofLockReapClaim`)(
-  {
+class YeetProofLockReapClaim extends S.Opaque<YeetProofLockReapClaim, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-proof-lock-reap-claim/v1"),
     pid: S.Finite,
     startedAt: S.String,
-  },
-  $I.annote("YeetProofLockReapClaim", {
-    description: "Process identity owning one observation-bound proof-lock reclamation claim.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetProofLockReapClaim", {
+      description: "Process identity owning one observation-bound proof-lock reclamation claim.",
+    })
+  )
 ) {}
 
 const ProofLockDisposition = LiteralKit([
@@ -142,14 +148,15 @@ const ProofLockDisposition = LiteralKit([
 );
 type ProofLockDisposition = typeof ProofLockDisposition.Type;
 
-class YeetProofLockLease extends S.Class<YeetProofLockLease>($I`YeetProofLockLease`)(
-  {
+class YeetProofLockLease extends S.Opaque<YeetProofLockLease, { readonly brand: unique symbol }>()(
+  S.Struct({
     lockPath: S.String,
     lockText: S.String,
-  },
-  $I.annote("YeetProofLockLease", {
-    description: "Exact proof-lock generation owned by one heavyweight Yeet proof scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetProofLockLease", {
+      description: "Exact proof-lock generation owned by one heavyweight Yeet proof scope.",
+    })
+  )
 ) {}
 
 const decodeYeetRunState = S.decodeUnknownEffect(S.fromJsonString(YeetRunState));

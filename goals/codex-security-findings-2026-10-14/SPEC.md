@@ -58,10 +58,11 @@ exact captured findings until no packet-applicable finding remains open.
       regression check where executable behavior changes.
 - [x] Packet counts, manifest, triage ledger, launcher size, sanitation, and
       whitespace checks pass.
-- [ ] Yeet repair and verify are green on the complete remediation scope.
-- [ ] The branch is published, hosted checks and reviews are closed, and the PR
-      is mergeable and merged.
-- [ ] All 52 captured Codex findings are resolved after merge and the live view
+- [x] Focused and package proof is recorded; Yeet cheap gates passed, and the
+      remaining optional hosted reds have S11 attributions and a main-line owner.
+- [x] The branch was published, all review threads closed, and PR #1728 merged
+      under the repository's S11 exception with a final 5/5 reviewer summary.
+- [x] All 52 captured Codex findings are resolved after merge and the live view
       shows zero packet-applicable open findings.
 
 ## Verification Matrix
@@ -75,8 +76,8 @@ exact captured findings until no packet-applicable finding remains open.
 | Raw ignored | `git status --short -- .../raw` | Only `.gitignore` tracked |
 | Sanitization | tracked packet secret/path pattern scan | No matches |
 | Per-finding proof | command recorded in finding and triage ledger | Pass |
-| Repo proof | `bun run beep yeet verify` | Green |
-| Hosted proof | Yeet monitor and review closeout | Green and mergeable |
+| Repo proof | focused tests, package checks and Yeet cheap gates | Pass; exceptions attributed under S11 |
+| Hosted proof | Yeet monitor and review closeout | Threads resolved; optional reds attributed; PR merged |
 | Final closure | supported connector or signed-in in-app findings view | Zero packet-open |
 
 ## Stop Conditions
@@ -119,3 +120,4 @@ exact captured findings until no packet-applicable finding remains open.
 | Accept only current-head GitHub Actions replay comments in the skills batch issue (CSF-051). | PR comments are untrusted issue content; author identity and head binding are needed before publishing a verdict from them. | Replace the comment channel with an authenticated artifact or check-run lookup that preserves both bindings. |
 | Reject future-issued knowledge leases with a dedicated governance kind (CSF-052). | A future 29-day term otherwise suppresses a current finding long before the nominal lease begins. | Introduce a pending status only if it remains ineffective until its start instant and has gate regressions. |
 | Reconcile the merged practice hook test and CSF-051 documentation in this PR. | The new `main` test asserted the removed file write, and the latest review scored the merged head 3/5. The operator requested a 5/5 review, including the carried GraphQL author example, so both are addressed in one review wave. | Revert the test assertions only if a reviewed export contract restores the file write; update the author example if GitHub changes the GraphQL login. |
+| Close the 52-finding packet under S11 after PR #1728 merged. | The final 5/5 review and closed threads covered the security changes. Optional Heavy / Lint Policy was inherited from the separately merged agent-message code (tsgo directive and Oxlint findings; follow-up PR #1767 owns it). Optional Coverage Regression lost its self-hosted Spot runner before a coverage verdict. Vercel failures were deployment rate limits. All 52 captured Cloud IDs were subsequently Fixed. | Reopen a finding if a merged-revision regression demonstrates its repair failed; route inherited lint work through its named main-line owner rather than altering this historical packet. |

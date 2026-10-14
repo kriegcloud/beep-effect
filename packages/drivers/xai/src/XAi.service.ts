@@ -101,7 +101,7 @@ export type XAiWebSocketEndpointMethodName = Extract<
  * import { XAiNoBodyResponse } from "@beep/xai"
  *
  * const method: XAiEndpointMethod = () =>
- *   Effect.succeed(new XAiNoBodyResponse({ headers: {}, status: 204 }))
+ *   Effect.succeed(XAiNoBodyResponse.make({ headers: {}, status: 204 }))
  *
  * const tag = Effect.runSync(Effect.map(method(), (response) => response._tag))
  * console.log(tag) // "NoBody"
@@ -549,7 +549,9 @@ const executeOperation = (
   config: ResolvedXAiConfig,
   descriptor: XAiEndpointDescriptor
 ): XAiEndpointMethod => {
-  const operation = Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = XAiRequestOptions.make({})) {
+  const operation = Effect.fn("XAi.execute", { attributes: { "xai.method": descriptor.methodName } })(function* (
+    request = XAiRequestOptions.make({})
+  ) {
     const response = yield* executeRaw(client, config, descriptor, request);
     return yield* decodeResponse(descriptor, response);
   });
@@ -863,7 +865,9 @@ const encodeSocketJson = (descriptor: XAiEndpointDescriptor, body: unknown): Eff
   encodeJson(body).pipe(Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause })));
 
 const websocketOperation = (config: ResolvedXAiConfig, descriptor: XAiEndpointDescriptor): XAiWebSocketMethod => {
-  const operation = Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = XAiRequestOptions.make({})) {
+  const operation = Effect.fn("XAi.connect", { attributes: { "xai.method": descriptor.methodName } })(function* (
+    request = XAiRequestOptions.make({})
+  ) {
     yield* failUnexpectedRequestPayload(descriptor, request);
     const socket = yield* connectSocket(config, descriptor, request);
 
@@ -903,12 +907,16 @@ const endpointByMethodName = Effect.fn("XAi.endpointByMethodName")(function* (me
 
 const makeService = (client: HttpClient.HttpClient, config: ResolvedXAiConfig): XAiShape => {
   const httpByMethodName = (methodName: XAiHttpEndpointMethodName): XAiEndpointMethod =>
-    Effect.fn(`XAi.${methodName}`)(function* (request = XAiRequestOptions.make({})) {
+    Effect.fn("XAi.request", { attributes: { "xai.method": methodName } })(function* (
+      request = XAiRequestOptions.make({})
+    ) {
       const descriptor = yield* endpointByMethodName(methodName);
       return yield* executeOperation(client, config, descriptor)(request);
     });
   const websocketByMethodName = (methodName: XAiWebSocketEndpointMethodName): XAiWebSocketMethod =>
-    Effect.fn(`XAi.${methodName}`)(function* (request = XAiRequestOptions.make({})) {
+    Effect.fn("XAi.openSocket", { attributes: { "xai.method": methodName } })(function* (
+      request = XAiRequestOptions.make({})
+    ) {
       const descriptor = yield* endpointByMethodName(methodName);
       return yield* websocketOperation(config, descriptor)(request);
     });

@@ -26,7 +26,9 @@ const $I = $WorkspaceTablesId.create("entities/Workspace/Workspace.errors");
  * @category errors
  * @since 0.0.0
  */
-export class WorkspaceConverterError extends S.TaggedError<WorkspaceConverterError>($I`WorkspaceConverterError`)(
+export class WorkspaceConverterError extends S.TaggedError<WorkspaceConverterError, { readonly brand: unique symbol }>(
+  $I`WorkspaceConverterError`
+)(
   "WorkspaceConverterError",
   {
     message: S.String.annotateKey({

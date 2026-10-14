@@ -7,6 +7,7 @@
 /// <reference path="./vendor.d.ts" />
 
 import * as Rdf from "@beep/rdf/Rdf";
+import { MakeQuadOptionsInput } from "@beep/rdf/Rdf";
 import {
   SparqlAskResult,
   SparqlConstructResult,
@@ -174,10 +175,14 @@ const fromOxigraphTerm = (term: Oxigraph.Term): Rdf.Term =>
   );
 
 const fromOxigraphQuad = (quad: Oxigraph.Quad): Rdf.Quad =>
-  Rdf.makeQuad(fromOxigraphSubject(quad.subject), Rdf.makeNamedNode(quad.predicate.value), {
-    object: fromOxigraphObject(quad.object),
-    graph: fromOxigraphGraph(quad.graph),
-  });
+  Rdf.makeQuad(
+    fromOxigraphSubject(quad.subject),
+    Rdf.makeNamedNode(quad.predicate.value),
+    MakeQuadOptionsInput.make({
+      object: fromOxigraphObject(quad.object),
+      graph: fromOxigraphGraph(quad.graph),
+    })
+  );
 
 const makeStore = Effect.fn("Oxigraph.makeStore")(function* (
   request: SparqlQueryRequest,
@@ -308,7 +313,7 @@ export const OxigraphSparqlQueryServiceLive = Layer.effect(
   Effect.sync(() => {
     const stores = MutableHashMap.empty<Rdf.Dataset, Oxigraph.Store>();
     return SparqlQueryService.of({
-      execute: Effect.fn("SparqlQueryService.execute")((request) =>
+      execute: Effect.fn("OxigraphSparqlQueryService.execute")((request) =>
         executeSparql(request, stores).pipe(Effect.mapError(semanticError))
       ),
     });

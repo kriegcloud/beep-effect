@@ -79,8 +79,8 @@ const NonNegativeOffset = S.Finite.check(
   })
 );
 
-class PreprocessedImage extends S.Class<PreprocessedImage>($I`PreprocessedImage`)(
-  {
+class PreprocessedImage extends S.Opaque<PreprocessedImage, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: PositivePixelDimension.annotateKey({
       description: "Source image height in pixels.",
     }),
@@ -105,66 +105,72 @@ class PreprocessedImage extends S.Class<PreprocessedImage>($I`PreprocessedImage`
     width: PositivePixelDimension.annotateKey({
       description: "Source image width in pixels.",
     }),
-  },
-  $I.annote("PreprocessedImage", {
-    description: "Internal BGR image tensor input for YuNet-compatible face detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreprocessedImage", {
+      description: "Internal BGR image tensor input for YuNet-compatible face detection.",
+    })
+  )
 ) {}
 
-class RawFaceDetectionPoint extends S.Class<RawFaceDetectionPoint>($I`RawFaceDetectionPoint`)(
-  {
+class RawFaceDetectionPoint extends S.Opaque<RawFaceDetectionPoint, { readonly brand: unique symbol }>()(
+  S.Struct({
     x: S.Finite,
     y: S.Finite,
-  },
-  $I.annote("RawFaceDetectionPoint", {
-    description: "Raw tensor-space point before projection back to source-image bounds.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawFaceDetectionPoint", {
+      description: "Raw tensor-space point before projection back to source-image bounds.",
+    })
+  )
 ) {}
 
-class RawFaceDetectionBox extends S.Class<RawFaceDetectionBox>($I`RawFaceDetectionBox`)(
-  {
+class RawFaceDetectionBox extends S.Opaque<RawFaceDetectionBox, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: S.Finite,
     width: S.Finite,
     x: S.Finite,
     y: S.Finite,
-  },
-  $I.annote("RawFaceDetectionBox", {
-    description: "Raw tensor-space box before projection back to source-image bounds.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawFaceDetectionBox", {
+      description: "Raw tensor-space box before projection back to source-image bounds.",
+    })
+  )
 ) {}
 
-class RawFaceDetectionLandmarks extends S.Class<RawFaceDetectionLandmarks>($I`RawFaceDetectionLandmarks`)(
-  {
+class RawFaceDetectionLandmarks extends S.Opaque<RawFaceDetectionLandmarks, { readonly brand: unique symbol }>()(
+  S.Struct({
     leftEye: RawFaceDetectionPoint,
     leftMouth: RawFaceDetectionPoint,
     nose: RawFaceDetectionPoint,
     rightEye: RawFaceDetectionPoint,
     rightMouth: RawFaceDetectionPoint,
-  },
-  $I.annote("RawFaceDetectionLandmarks", {
-    description: "Raw tensor-space landmarks before projection back to source-image bounds.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawFaceDetectionLandmarks", {
+      description: "Raw tensor-space landmarks before projection back to source-image bounds.",
+    })
+  )
 ) {}
 
-class RawFaceDetection extends S.Class<RawFaceDetection>($I`RawFaceDetection`)(
-  {
+class RawFaceDetection extends S.Opaque<RawFaceDetection, { readonly brand: unique symbol }>()(
+  S.Struct({
     box: RawFaceDetectionBox,
     confidence: RawFaceDetectionConfidence,
     landmarks: RawFaceDetectionLandmarks,
-  },
-  $I.annote("RawFaceDetection", {
-    description: "Raw tensor-space face detection before source-image coordinate projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawFaceDetection", {
+      description: "Raw tensor-space face detection before source-image coordinate projection.",
+    })
+  )
 ) {}
 
-class ModelInputDimensions extends S.Class<ModelInputDimensions>($I`ModelInputDimensions`)(
-  {
+class ModelInputDimensions extends S.Opaque<ModelInputDimensions, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: PositivePixelDimension,
     width: PositivePixelDimension,
-  },
-  $I.annote("ModelInputDimensions", {
-    description: "Fixed tensor dimensions expected by a loaded face detection model.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelInputDimensions", {
+      description: "Fixed tensor dimensions expected by a loaded face detection model.",
+    })
+  )
 ) {}
 
 type Ort = typeof import("onnxruntime-node");

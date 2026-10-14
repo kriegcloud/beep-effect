@@ -126,8 +126,7 @@ export type RuleSeverity = typeof RuleSeverity.Type;
  * @category models
  * @since 0.0.0
  */
-export class RuleExample extends S.Class<RuleExample>($I`RuleExample`)(
-  {
+export class RuleExample extends S.Opaque<RuleExample, { readonly brand: unique symbol }>()(S.Struct({
     /** Source context or scenario to which the example applies. */
     input: S.String.pipe(
       $I.annoteKey("RuleExample.input", {
@@ -146,11 +145,9 @@ export class RuleExample extends S.Class<RuleExample>($I`RuleExample`)(
         description: "Concise explanation connecting the input to the output.",
       })
     ),
-  },
-  $I.annote("RuleExample", {
+  }).pipe($I.annoteSchema("RuleExample", {
     description: "One input, output, and explanation used to teach an extraction rule.",
-  })
-) {}
+  }))) {}
 
 /**
  * Atomic extraction constraint that drives prompt instructions, schema metadata,
@@ -180,7 +177,7 @@ export class RuleExample extends S.Class<RuleExample>($I`RuleExample`)(
  * @category models
  * @since 0.0.0
  */
-export class ExtractionRule extends S.Class<ExtractionRule>($I`ExtractionRule`)(
+export class ExtractionRule extends S.Class<ExtractionRule, { readonly brand: unique symbol }>($I`ExtractionRule`)(
   {
     /** Stable identifier used to correlate prompts and validation feedback. */
     id: S.NonEmptyString.pipe(

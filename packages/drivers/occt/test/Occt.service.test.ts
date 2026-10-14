@@ -6,6 +6,7 @@ import {
   ModelSpec,
   Occt,
   OcctError,
+  OverlayLine,
   Part,
   Prism,
   ProjectionRequest,
@@ -22,6 +23,7 @@ import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 // A 40 × 30 × 20 box with an off-centre wedge on top, so no two principal
@@ -114,7 +116,9 @@ const LEGACY_MODEL = ModelSpec.make({
     Part.make({ name: "post", add: [Box.make({ min: [-4, -30, 0], max: [4, -24, 30] })] }),
   ],
 });
-const LEGACY_SHA256 = "5e0530cb08eb91997221a704f0800ba020da36137b2f4941e2b8e3f4ec059051";
+// Re-recorded 2026-10-14: the front view's hidden lines held 49 exact duplicates (two parts meeting on a shared
+// plane each reported the boundary); `toSegments` now draws such a line once. Visible and shading output unchanged.
+const LEGACY_SHA256 = "6824418a60da2f5a6d77dc7fac46024a7c909aa1552ea78a1e8be18555dd1d42";
 const LegacyViews = S.Struct({
   visible: S.Array(Segment2),
   hidden: S.Array(Segment2),
@@ -136,7 +140,8 @@ describe("@beep/occt service", () => {
   it.effect(
     "rejects model specs exceeding the bounded overlap work limit",
     Effect.fnUntraced(function* () {
-      const part = Part.make({ name: "box", add: [Box.make({ min: [0, 0, 0], max: [1, 1, 1] })] });
+      // encoded input: a primitive's decoded line style is an Option, which the decoder does not take back
+      const part = { name: "box", add: [{ kind: "box", min: [0, 0, 0], max: [1, 1, 1] }] };
       const decode = S.decodeUnknownEffect(ModelSpec);
       const rejected = yield* Effect.flip(decode({ parts: A.makeBy(257, () => part) }));
       expect(rejected.message).toContain("Expected at most 256 parts");
@@ -362,6 +367,7 @@ describe("@beep/occt service", () => {
           })
         );
         expect(A.map(views, (view) => view.broken)).toEqual([[], [], []]);
+        expect(A.map(views, (view) => view.emphasis)).toEqual([[], [], []]);
         const json = yield* encodeLegacyViews(
           A.map(views, (view) => ({ visible: view.visible, hidden: view.hidden, shading: view.shading }))
         );
@@ -451,6 +457,96 @@ describe("@beep/occt service", () => {
           })
         );
         expect(withTab?.shading).toEqual(withoutTab?.shading);
+      })
+    );
+
+    it.effect(
+      "draws an emphasis overlay only in views its face turns toward, behind the parts in front of it",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // a slab whose front face (y = 0) carries a 20-long heavy line at mid height
+        const slab = Part.make({ name: "slab", add: [box([-20, 0, 0], [20, 10, 30])] });
+        const seat = OverlayLine.make({
+          name: "seat",
+          style: "emphasis",
+          points: [
+            [-10, 0, 15],
+            [0, 0, 15],
+            [10, 0, 15],
+          ],
+          facing: O.some([0, -1, 0]),
+        });
+        const back = Camera.make({ eye: [0, 1, 0], up: [0, 0, 1] });
+        const [frontView, backView, topView] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [slab], overlays: [seat] }),
+            cameras: [front, back, top],
+          })
+        );
+        const emphasisOf = (view: typeof frontView) => view?.emphasis ?? [];
+        expect(totalLength(emphasisOf(frontView))).toBeCloseTo(20, 3);
+        expect(A.every(emphasisOf(frontView), ([, y1, , y2]) => y1 === 15 && y2 === 15)).toBe(true);
+        // the face is seen from behind in the back view and edge-on in the plan: no line prints over an outline
+        expect(emphasisOf(backView)).toEqual([]);
+        expect(emphasisOf(topView)).toEqual([]);
+        // an overlay draws nothing on the other layers
+        const [bare] = yield* occt.project(
+          ProjectionRequest.make({ solid: ModelSpec.make({ parts: [slab] }), cameras: [front] })
+        );
+        expect(frontView?.visible).toEqual(bare?.visible);
+        expect(frontView?.broken).toEqual([]);
+        // a post standing in front of the right half hides that half
+        const post = Part.make({ name: "post", add: [box([0, -20, 0], [15, -10, 30])] });
+        const [hidden] = yield* occt.project(
+          ProjectionRequest.make({ solid: ModelSpec.make({ parts: [slab, post], overlays: [seat] }), cameras: [front] })
+        );
+        expect(totalLength(emphasisOf(hidden))).toBeCloseTo(10, 3);
+        expect(A.every(emphasisOf(hidden), ([x1, , x2]) => Math.max(x1, x2) <= 0)).toBe(true);
+      })
+    );
+
+    it.effect(
+      "draws a broken overlay in the broken layer",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const slab = Part.make({ name: "slab", add: [box([-20, 0, 0], [20, 10, 30])] });
+        const corrugation = OverlayLine.make({
+          name: "corrugation",
+          style: "broken",
+          points: [
+            [-20, 0, 5],
+            [20, 0, 5],
+          ],
+          facing: O.some([0, -1, 0]),
+        });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [slab], overlays: [corrugation] }),
+            cameras: [front],
+          })
+        );
+        expect(totalLength(view?.broken ?? [])).toBeCloseTo(40, 3);
+        expect(view?.emphasis).toEqual([]);
+        expect(totalLength(view?.visible ?? [])).toBeCloseTo(140, 3);
+        // a corrugation wave of short segments comes back as pieces that meet end to end
+        // (the sheet chains them into one dashed subpath): only the wave's two ends are
+        // the end of a single piece
+        const wave = OverlayLine.make({
+          name: "wave",
+          style: "broken",
+          points: A.makeBy(17, (i) => [-20 + i * 2.5, 0, 15 + (i % 2)] as const),
+          facing: O.some([0, -1, 0]),
+        });
+        const [waved] = yield* occt.project(
+          ProjectionRequest.make({ solid: ModelSpec.make({ parts: [slab], overlays: [wave] }), cameras: [front] })
+        );
+        const pieces = waved?.broken ?? [];
+        expect(A.length(pieces)).toBe(16);
+        const ends = A.groupBy(
+          A.flatMap(pieces, ([x1, y1, x2, y2]) => [`${x1} ${y1}`, `${x2} ${y2}`]),
+          (key) => key
+        );
+        expect(A.length(A.filter(R.values(ends), (at) => A.length(at) === 1))).toBe(2);
       })
     );
 

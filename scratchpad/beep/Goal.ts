@@ -204,7 +204,7 @@ export type GoalProgressEventKind = typeof GoalProgressEventKind.Type;
  * @category errors
  * @since 0.0.0
  */
-export class GoalContractError extends S.TaggedError<GoalContractError>()(
+export class GoalContractError extends S.TaggedError<GoalContractError, { readonly brand: unique symbol }>()(
   "GoalContractError",
   { message: S.String },
   $I.annoteError<GoalContractError>("GoalContractError", {

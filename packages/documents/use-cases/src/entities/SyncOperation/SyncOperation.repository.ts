@@ -48,8 +48,8 @@ const $I = $DocumentsUseCasesId.create("entities/SyncOperation/SyncOperation.rep
  * @category repositories
  * @since 0.0.0
  */
-export class SyncOperationSeed extends S.Class<SyncOperationSeed>($I`SyncOperationSeed`)(
-  {
+export class SyncOperationSeed extends S.Opaque<SyncOperationSeed, { readonly brand: unique symbol }>()(
+  S.Struct({
     attemptCount: S.Natural.annotateKey({
       description: "Number of push attempts already made for this operation.",
     }),
@@ -89,10 +89,11 @@ export class SyncOperationSeed extends S.Class<SyncOperationSeed>($I`SyncOperati
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose vault produced the push operation.",
     }),
-  },
-  $I.annote("SyncOperationSeed", {
-    description: "Creation input for one push-outbox operation, excluding ProductEntity audit fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncOperationSeed", {
+      description: "Creation input for one push-outbox operation, excluding ProductEntity audit fields.",
+    })
+  )
 ) {}
 
 /**
@@ -113,9 +114,10 @@ export class SyncOperationSeed extends S.Class<SyncOperationSeed>($I`SyncOperati
  * @category errors
  * @since 0.0.0
  */
-export class SyncOperationRepositoryConflict extends S.TaggedError<SyncOperationRepositoryConflict>(
-  $I`SyncOperationRepositoryConflict`
-)(
+export class SyncOperationRepositoryConflict extends S.TaggedError<
+  SyncOperationRepositoryConflict,
+  { readonly brand: unique symbol }
+>($I`SyncOperationRepositoryConflict`)(
   "SyncOperationRepositoryConflict",
   {
     idempotencyKey: S.NonEmptyString.annotateKey({
@@ -152,9 +154,10 @@ export class SyncOperationRepositoryConflict extends S.TaggedError<SyncOperation
  * @category errors
  * @since 0.0.0
  */
-export class SyncOperationRepositoryNotFound extends S.TaggedError<SyncOperationRepositoryNotFound>(
-  $I`SyncOperationRepositoryNotFound`
-)(
+export class SyncOperationRepositoryNotFound extends S.TaggedError<
+  SyncOperationRepositoryNotFound,
+  { readonly brand: unique symbol }
+>($I`SyncOperationRepositoryNotFound`)(
   "SyncOperationRepositoryNotFound",
   {
     syncOperationId: Documents.SyncOperationId.annotateKey({
@@ -184,9 +187,10 @@ export class SyncOperationRepositoryNotFound extends S.TaggedError<SyncOperation
  * @category errors
  * @since 0.0.0
  */
-export class SyncOperationRepositoryUnavailable extends S.TaggedError<SyncOperationRepositoryUnavailable>(
-  $I`SyncOperationRepositoryUnavailable`
-)(
+export class SyncOperationRepositoryUnavailable extends S.TaggedError<
+  SyncOperationRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`SyncOperationRepositoryUnavailable`)(
   "SyncOperationRepositoryUnavailable",
   {
     reason: S.NonEmptyString.annotateKey({
@@ -221,20 +225,22 @@ export class SyncOperationRepositoryUnavailable extends S.TaggedError<SyncOperat
  * @category repositories
  * @since 0.0.0
  */
-export class ListQueuedSyncOperationsInput extends S.Class<ListQueuedSyncOperationsInput>(
-  $I`ListQueuedSyncOperationsInput`
-)(
-  {
+export class ListQueuedSyncOperationsInput extends S.Opaque<
+  ListQueuedSyncOperationsInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     provider: DmsProvider.annotateKey({
       description: "DMS provider whose outbox is listed.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose outbox is listed.",
     }),
-  },
-  $I.annote("ListQueuedSyncOperationsInput", {
-    description: "Listing input addressing the queued operations of one workspace mirror.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListQueuedSyncOperationsInput", {
+      description: "Listing input addressing the queued operations of one workspace mirror.",
+    })
+  )
 ) {}
 
 /**
@@ -258,20 +264,22 @@ export class ListQueuedSyncOperationsInput extends S.Class<ListQueuedSyncOperati
  * @category repositories
  * @since 0.0.0
  */
-export class ListQueuedSyncOperationsForItemInput extends S.Class<ListQueuedSyncOperationsForItemInput>(
-  $I`ListQueuedSyncOperationsForItemInput`
-)(
-  {
+export class ListQueuedSyncOperationsForItemInput extends S.Opaque<
+  ListQueuedSyncOperationsForItemInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     syncItemId: Documents.SyncItemId.annotateKey({
       description: "Sync-tracking row whose queued operations are listed.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose outbox is listed.",
     }),
-  },
-  $I.annote("ListQueuedSyncOperationsForItemInput", {
-    description: "Listing input addressing the queued operations of one sync-tracking row.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListQueuedSyncOperationsForItemInput", {
+      description: "Listing input addressing the queued operations of one sync-tracking row.",
+    })
+  )
 ) {}
 
 /**
@@ -294,20 +302,22 @@ export class ListQueuedSyncOperationsForItemInput extends S.Class<ListQueuedSync
  * @category repositories
  * @since 0.0.0
  */
-export class RequeueLeasedSyncOperationsInput extends S.Class<RequeueLeasedSyncOperationsInput>(
-  $I`RequeueLeasedSyncOperationsInput`
-)(
-  {
+export class RequeueLeasedSyncOperationsInput extends S.Opaque<
+  RequeueLeasedSyncOperationsInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     provider: DmsProvider.annotateKey({
       description: "DMS provider whose leased operations are requeued.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose leased operations are requeued.",
     }),
-  },
-  $I.annote("RequeueLeasedSyncOperationsInput", {
-    description: "Recovery input addressing the leased operations of one workspace mirror.",
-  })
+  }).pipe(
+    $I.annoteSchema("RequeueLeasedSyncOperationsInput", {
+      description: "Recovery input addressing the leased operations of one workspace mirror.",
+    })
+  )
 ) {}
 
 /**
@@ -331,10 +341,11 @@ export class RequeueLeasedSyncOperationsInput extends S.Class<RequeueLeasedSyncO
  * @category repositories
  * @since 0.0.0
  */
-export class ListSyncOperationsByStatusInput extends S.Class<ListSyncOperationsByStatusInput>(
-  $I`ListSyncOperationsByStatusInput`
-)(
-  {
+export class ListSyncOperationsByStatusInput extends S.Opaque<
+  ListSyncOperationsByStatusInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     provider: DmsProvider.annotateKey({
       description: "DMS provider whose outbox is listed.",
     }),
@@ -344,10 +355,11 @@ export class ListSyncOperationsByStatusInput extends S.Class<ListSyncOperationsB
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose outbox is listed.",
     }),
-  },
-  $I.annote("ListSyncOperationsByStatusInput", {
-    description: "Listing input addressing the operations of one workspace mirror by status.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListSyncOperationsByStatusInput", {
+      description: "Listing input addressing the operations of one workspace mirror by status.",
+    })
+  )
 ) {}
 
 /**

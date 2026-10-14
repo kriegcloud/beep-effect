@@ -101,7 +101,7 @@ export type SigningErrorKind = typeof SigningErrorKind.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SigningError extends S.TaggedError<SigningError>($I`SigningError`)("SigningError", {
+export class SigningError extends S.TaggedError<SigningError, { readonly brand: unique symbol }>($I`SigningError`)("SigningError", {
 	/** Which step failed. */
 	kind: SigningErrorKind.annotateKey({ description: "Which step failed." }),
 	/** The underlying failure, preserved structurally. */
@@ -247,7 +247,7 @@ const make = (identity: IdentityTokenShape, options: SigstoreSignerOptions): Sig
 });
 
 /** Raised when a signer test double has no signing override. */
-class UnstubbedSigstoreSignerError extends S.TaggedError<UnstubbedSigstoreSignerError>($I`UnstubbedSigstoreSignerError`)(
+class UnstubbedSigstoreSignerError extends S.TaggedError<UnstubbedSigstoreSignerError, { readonly brand: unique symbol }>($I`UnstubbedSigstoreSignerError`)(
 	"UnstubbedSigstoreSignerError",
 	{ message: S.String.annotateKey({ description: "Explains why the signer test double requires an explicit signing override." }) },
 	$I.annote("UnstubbedSigstoreSignerError", { description: "Raised when a signer test double has no signing override." }),

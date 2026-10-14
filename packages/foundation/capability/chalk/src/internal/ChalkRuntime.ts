@@ -21,7 +21,7 @@ import type { ColorInfo, ColorSupportLevel as ColorSupportLevelType } from "./Ch
 import type { ChalkConstructorOptions } from "./PublicSurface.ts";
 
 const $I = $ChalkId.create("Domain");
-class ChalkNoColorState extends S.Class<ChalkNoColorState>($I`ChalkNoColorState`)(
+class ChalkNoColorState extends S.Class<ChalkNoColorState, {}>($I`ChalkNoColorState`)(
   {
     level: S.tag(0),
   },
@@ -30,7 +30,7 @@ class ChalkNoColorState extends S.Class<ChalkNoColorState>($I`ChalkNoColorState`
   })
 ) {}
 
-class ChalkAnsiColorState extends S.Class<ChalkAnsiColorState>($I`ChalkAnsiColorState`)(
+class ChalkAnsiColorState extends S.Class<ChalkAnsiColorState, {}>($I`ChalkAnsiColorState`)(
   {
     level: S.tag(1),
   },
@@ -39,7 +39,7 @@ class ChalkAnsiColorState extends S.Class<ChalkAnsiColorState>($I`ChalkAnsiColor
   })
 ) {}
 
-class ChalkAnsi256ColorState extends S.Class<ChalkAnsi256ColorState>($I`ChalkAnsi256ColorState`)(
+class ChalkAnsi256ColorState extends S.Class<ChalkAnsi256ColorState, {}>($I`ChalkAnsi256ColorState`)(
   {
     level: S.tag(2),
   },
@@ -48,7 +48,7 @@ class ChalkAnsi256ColorState extends S.Class<ChalkAnsi256ColorState>($I`ChalkAns
   })
 ) {}
 
-class ChalkTrueColorState extends S.Class<ChalkTrueColorState>($I`ChalkTrueColorState`)(
+class ChalkTrueColorState extends S.Class<ChalkTrueColorState, {}>($I`ChalkTrueColorState`)(
   {
     level: S.tag(3),
   },
@@ -71,21 +71,23 @@ export const ChalkState = ColorSupportLevel.mapMembers(
   S.toTaggedUnion("level")
 );
 type ChalkState = typeof ChalkState.Type;
+
 type MutableChalkState = {
   -readonly [Key in keyof ChalkState]: ChalkState[Key];
 };
 
-class Styler extends S.Class<Styler>($I`Styler`)(
-  {
+class Styler extends S.Opaque<Styler, { readonly brand: unique symbol }>()(
+  S.Struct({
     open: S.NonEmptyString,
     close: S.NonEmptyString,
     openAll: S.NonEmptyString,
     closeAll: S.NonEmptyString,
     parent: S.UndefinedOr(S.suspend((): S.Codec<Styler.Codec> => Styler)),
-  },
-  $I.annote("Styler", {
-    description: "Represents a style modifier for terminal output formatting.",
-  })
+  }).pipe(
+    $I.annoteSchema("Styler", {
+      description: "Represents a style modifier for terminal output formatting.",
+    })
+  )
 ) {}
 
 declare namespace Styler {
@@ -94,11 +96,11 @@ declare namespace Styler {
     readonly close: string;
     readonly openAll: string;
     readonly closeAll: string;
-    readonly parent: Styler | undefined;
+    readonly parent: Codec | undefined;
   };
 }
 
-class BuilderMeta extends S.Class<BuilderMeta>($I`BuilderMeta`)(
+class BuilderMeta extends S.Class<BuilderMeta, {}>($I`BuilderMeta`)(
   {
     isEmpty: S.Boolean,
     state: ChalkState,
@@ -121,7 +123,9 @@ const levelMapping: Readonly<Record<ColorSupportLevelType, AnsiRenderLevel>> = {
   3: AnsiRenderLevel.Enum.ansi16m,
 };
 
-class MissingBuilderMetadataError extends S.TaggedError<MissingBuilderMetadataError>($I`MissingBuilderMetadataError`)(
+class MissingBuilderMetadataError extends S.TaggedError<MissingBuilderMetadataError, { readonly brand: unique symbol }>(
+  $I`MissingBuilderMetadataError`
+)(
   "MissingBuilderMetadataError",
   {
     message: S.String,
@@ -208,7 +212,7 @@ const applyStyle = (builder: ChalkFunction, text: string): string => {
   }
 
   let rendered = text;
-  let currentStyler: Styler | undefined = styler;
+  let currentStyler: Styler.Codec | undefined = styler;
 
   if (Str.includes("\u001B")(rendered)) {
     do {

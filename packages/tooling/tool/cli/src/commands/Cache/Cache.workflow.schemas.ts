@@ -23,11 +23,16 @@ const $I = $RepoCliId.create("commands/Cache/Cache.workflow.schemas");
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerWorkflowFile extends S.Class<CacheProducerWorkflowFile>($I`CacheProducerWorkflowFile`)(
-  { ...CacheCensusSource.fields, mode: S.Natural, linkTarget: S.OptionFromOptionalKey(S.NonEmptyString) },
-  $I.annote("CacheProducerWorkflowFile", {
-    description: "Exact bytes and resolution of one declared supervisor source file.",
-  })
+export class CacheProducerWorkflowFile extends S.Opaque<CacheProducerWorkflowFile, { readonly brand: unique symbol }>()(
+  S.Struct({
+    ...CacheCensusSource.fields,
+    mode: S.Natural,
+    linkTarget: S.OptionFromOptionalKey(S.NonEmptyString),
+  }).pipe(
+    $I.annoteSchema("CacheProducerWorkflowFile", {
+      description: "Exact bytes and resolution of one declared supervisor source file.",
+    })
+  )
 ) {}
 /**
  * Bounded declared supervisor source inventory and independently observed runtime.
@@ -46,19 +51,20 @@ export class CacheProducerWorkflowFile extends S.Class<CacheProducerWorkflowFile
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerWorkflow extends S.Class<CacheProducerWorkflow>($I`CacheProducerWorkflow`)(
-  {
+export class CacheProducerWorkflow extends S.Opaque<CacheProducerWorkflow, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-producer-workflow/v2"),
     executionProfile: S.tag("clean-declared-sources/root-dependencies/v1"),
     revision: GitObjectId,
     files: S.Array(CacheProducerWorkflowFile).check(S.isMinLength(1), S.isMaxLength(20000)),
     toolchain: CacheToolchainSnapshot,
     inspectionTools: S.Array(CacheLinkedFile).check(S.isMinLength(6), S.isMaxLength(6)),
-  },
-  $I.annote("CacheProducerWorkflow", {
-    description:
-      "Declared supervisor source, installed dependencies, runtime and inspection-tool identities; no approval authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProducerWorkflow", {
+      description:
+        "Declared supervisor source, installed dependencies, runtime and inspection-tool identities; no approval authority.",
+    })
+  )
 ) {}
 
 /**
@@ -73,15 +79,16 @@ export class CacheProducerWorkflow extends S.Class<CacheProducerWorkflow>($I`Cac
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerObservation extends S.Class<CacheProducerObservation>($I`CacheProducerObservation`)(
-  {
+export class CacheProducerObservation extends S.Opaque<CacheProducerObservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-producer-observation/v2"),
     authority: S.tag("authenticated-observation-only"),
     observation: CacheProducerBundle,
     envelope: CacheProducerEnvelope,
-  },
-  $I.annote("CacheProducerObservation", {
-    description:
-      "Owned complete pilot and conformance execution authenticated by a pre-provisioned issuer; qualification evidence and profile closure remain separate gates.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProducerObservation", {
+      description:
+        "Owned complete pilot and conformance execution authenticated by a pre-provisioned issuer; qualification evidence and profile closure remain separate gates.",
+    })
+  )
 ) {}

@@ -22,7 +22,7 @@ import {
   SignRequest,
   ValidationOptions,
 } from "@beep/technical-drawing";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import * as Config from "effect/Config";
 import { Argument, Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
@@ -33,6 +33,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { isRequiredSeverity } from "../Qa/Inventory.schemas.ts";
+import { DEFAULT_CRITIC_REVIEWERS, DrawingCritics, parseZoomFlag, selectReviewers } from "./Drawings.critics.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
 import { drawingIntakeLaneLayer, runDrawingIntake } from "./Drawings.intake.ts";
 import { buildDrawingJudgePack, ingestDrawingJudgeInventory } from "./Drawings.judge.ts";
@@ -763,6 +764,171 @@ const drawingsDeliverCommand = Command.make("deliver", {}, () =>
 const printDrawingsIndex = () =>
   printLines(["drawings commands: render, validate, judge, judge-ingest, statement, sign, deliver, review, intake"]);
 
+const say = (line: string) => printLines([line]);
+
+const criticsManifestFlag = Flag.File("manifest", { mustExist: true }).pipe(
+  Flag.withDescription("Render manifest.json of the sheet set to review")
+);
+const criticsOutFlag = Flag.Directory("out").pipe(
+  Flag.withDescription("Pack directory to create (matter packs stay under the corpus root)")
+);
+const criticsBriefFlag = Flag.File("brief", { mustExist: true }).pipe(
+  Flag.withDescription("Brief every reviewer reads first; copied into the pack as BRIEF.md")
+);
+const criticsContextFlag = Flag.Directory("context", { mustExist: true }).pipe(
+  Flag.optional,
+  Flag.withDescription("Directory copied into the pack as context/ (rules digest, answers, earlier judge rounds)")
+);
+const criticsImagesFlag = Flag.Directory("images", { mustExist: true }).pipe(
+  Flag.atLeast(0),
+  Flag.withDescription(
+    "Directory of context images copied under images/<name>/ and attached to image-taking routes; repeatable"
+  )
+);
+const criticsZoomFlag = Flag.String("zoom").pipe(
+  Flag.atLeast(0),
+  Flag.withDescription(
+    "300 dpi crop as fig:x,y,width,height:label (px at 300 dpi from the page's top-left); repeatable"
+  )
+);
+const criticsPackFlag = Flag.Directory("pack", { mustExist: true }).pipe(
+  Flag.withDescription("Pack directory built by `critics pack`")
+);
+const criticsLoopDirFlag = Flag.Directory("loop-dir").pipe(
+  Flag.withDescription("Directory that receives this loop's reports, logs, prior/ and loop.json")
+);
+const criticsLoopFlag = Flag.Int("loop").pipe(Flag.withDefault(1), Flag.withDescription("One-based loop number"));
+const criticsReviewersFlag = Flag.String("reviewers").pipe(
+  Flag.withDefault(
+    A.join(
+      A.map(DEFAULT_CRITIC_REVIEWERS, (r) => r.name),
+      ","
+    )
+  ),
+  Flag.withDescription("Comma-separated reviewer names, run in this order")
+);
+const criticsWorkspaceFlag = Flag.Directory("workspace", { mustExist: true }).pipe(
+  Flag.optional,
+  Flag.withDescription("Repository checkout a synthetic-scope reviewer works in")
+);
+const criticsSyntheticPackFlag = Flag.Directory("synthetic-pack", { mustExist: true }).pipe(
+  Flag.optional,
+  Flag.withDescription("Client-free pack (BRIEF-synthetic.md, render/) a synthetic-scope reviewer reviews")
+);
+const criticsTimeoutFlag = Flag.Int("timeout-minutes").pipe(
+  Flag.withDefault(90),
+  Flag.withDescription("Minutes a reviewer may run")
+);
+
+const runCriticsPack = Effect.fn("DrawingsCommand.criticsPack")(function* (options: {
+  readonly manifest: string;
+  readonly out: string;
+  readonly brief: string;
+  readonly context: O.Option<string>;
+  readonly images: ReadonlyArray<string>;
+  readonly zoom: ReadonlyArray<string>;
+}) {
+  const critics = yield* DrawingCritics;
+  const zooms = yield* Effect.forEach(options.zoom, parseZoomFlag);
+  const pack = yield* critics.buildPack({
+    manifestPath: options.manifest,
+    outDir: options.out,
+    briefPath: options.brief,
+    contextDir: options.context,
+    imagesDirs: options.images,
+    zooms,
+  });
+  yield* say(
+    `critic pack ${options.out}: ${A.length(pack.sheets)} sheet(s), ${A.length(pack.zooms)} zoom(s), ${A.length(pack.images)} image(s); sheet-set ${pack.sheetSetSha256}`
+  );
+});
+
+const runCriticsRun = Effect.fn("DrawingsCommand.criticsRun")(function* (options: {
+  readonly pack: string;
+  readonly loopDir: string;
+  readonly loop: number;
+  readonly reviewers: string;
+  readonly workspace: O.Option<string>;
+  readonly syntheticPack: O.Option<string>;
+  readonly timeoutMinutes: number;
+}) {
+  const critics = yield* DrawingCritics;
+  const reviewers = yield* selectReviewers(
+    pipe(Str.split(options.reviewers, ","), A.map(Str.trim), A.filter(Str.isNonEmpty))
+  );
+  const record = yield* critics.runSequence({
+    packDir: options.pack,
+    loopDir: options.loopDir,
+    loop: options.loop,
+    reviewers,
+    workspace: options.workspace,
+    syntheticPack: options.syntheticPack,
+    timeoutMinutes: options.timeoutMinutes,
+  });
+  yield* Effect.forEach(record.runs, (run) =>
+    say(
+      `${run.order}. ${run.reviewer.name}: exit ${run.exitCode}, ${run.findings} finding(s)${O.isNone(run.report) ? " (no report)" : ""}`
+    )
+  );
+  yield* say(
+    `loop ${record.loop} on ${record.sheetSetSha256}: ${A.length(record.runs)} run(s); ALL-FINDINGS.md written`
+  );
+});
+
+const runCriticsSummary = Effect.fn("DrawingsCommand.criticsSummary")(function* (options: {
+  readonly loopDir: string;
+}) {
+  const critics = yield* DrawingCritics;
+  yield* printLines(Str.split(yield* critics.summary(options.loopDir), "\n"));
+});
+
+const drawingsCriticsCommand = Command.make("critics", {}, () =>
+  say("Subcommands: pack, run, summary. See --help.")
+).pipe(
+  Command.withDescription("Sequential multi-model adversarial review of a rendered sheet set"),
+  Command.withSubcommands(
+    A.make(
+      Command.make(
+        "pack",
+        {
+          manifest: criticsManifestFlag,
+          out: criticsOutFlag,
+          brief: criticsBriefFlag,
+          context: criticsContextFlag,
+          images: criticsImagesFlag,
+          zoom: criticsZoomFlag,
+        },
+        runCriticsPack
+      ).pipe(
+        Command.withDescription(
+          "Build a critic pack: sheet rasters, zooms, SVGs, stroke tables, context, brief, schema"
+        )
+      ),
+      Command.make(
+        "run",
+        {
+          pack: criticsPackFlag,
+          loopDir: criticsLoopDirFlag,
+          loop: criticsLoopFlag,
+          reviewers: criticsReviewersFlag,
+          workspace: criticsWorkspaceFlag,
+          syntheticPack: criticsSyntheticPackFlag,
+          timeoutMinutes: criticsTimeoutFlag,
+        },
+        runCriticsRun
+      ).pipe(
+        Command.withDescription(
+          "Run the reviewers in order; each sees the earlier reports and must confirm, refute or extend them"
+        )
+      ),
+      Command.make("summary", { loopDir: criticsLoopDirFlag }, runCriticsSummary).pipe(
+        Command.withDescription("Print every report of a loop as one judge-ready summary")
+      )
+    )
+  ),
+  Command.provide(DrawingCritics.layer.pipe(Layer.provide(PdfTools.makeLayer())))
+);
+
 /**
  * Design-figure drawings command group.
  *
@@ -791,7 +957,8 @@ export const drawingsCommand = Command.make("drawings", {}, printDrawingsIndex).
       drawingsSignCommand,
       drawingsDeliverCommand,
       drawingsReviewCommand,
-      drawingsIntakeCommand
+      drawingsIntakeCommand,
+      drawingsCriticsCommand
     )
   )
 );

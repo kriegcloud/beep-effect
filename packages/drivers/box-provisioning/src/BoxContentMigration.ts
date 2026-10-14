@@ -6,6 +6,13 @@
  */
 
 import * as B from "@beep/box";
+import {
+  CreateFolderRequestBody,
+  CreateFolderRequestBodyParentField,
+  UploadFileOptionalsInput,
+  UploadFileRequestBodyAttributesField,
+  UploadFileRequestBodyAttributesParentField,
+} from "@beep/box";
 import { $BoxProvisioningId } from "@beep/identity";
 import { Sha256Hex } from "@beep/schema";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
@@ -150,8 +157,11 @@ const sha256Equivalence = S.toEquivalence(Sha256Hex);
  * @category models
  * @since 0.0.0
  */
-export class BoxContentMigrationOptions extends S.Class<BoxContentMigrationOptions>($I`BoxContentMigrationOptions`)(
-  {
+export class BoxContentMigrationOptions extends S.Opaque<
+  BoxContentMigrationOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     chunkedThresholdBytes: S.Int.check(S.isGreaterThanOrEqualTo(minimumChunkedThresholdBytes)).pipe(
       S.withConstructorDefault(Effect.succeed(50 * mebibyte))
     ),
@@ -162,10 +172,11 @@ export class BoxContentMigrationOptions extends S.Class<BoxContentMigrationOptio
       S.withConstructorDefault(Effect.succeedNone)
     ),
     attemptId: S.OptionFromOptionalKey(BoxApplyAttemptId).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BoxContentMigrationOptions", {
-    description: "Chunked threshold, upload concurrency, provider-call budget, and attempt id for one run.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentMigrationOptions", {
+      description: "Chunked threshold, upload concurrency, provider-call budget, and attempt id for one run.",
+    })
+  )
 ) {}
 
 type BudgetPhase = BoxContentMigrationBudgetError["phase"];
@@ -759,7 +770,8 @@ const createdFolderId = (created: B.FolderFull, parentId: BoxProviderId, name: s
     O.map(() => BoxProviderId.make(created.id))
   );
 
-const sourceReadFailure = () => B.BoxError.fromReason("stream", { cause: "source file read failed" });
+const sourceReadFailure = () =>
+  B.BoxError.fromReason("stream", B.BoxErrorOptionsInput.make({ cause: "source file read failed" }));
 
 const applyPlan = Effect.fn("BoxContentMigration.applyPlan")(function* (
   run: Run,
@@ -913,7 +925,10 @@ const applyPlan = Effect.fn("BoxContentMigration.applyPlan")(function* (
     const created = yield* run.box.folders
       .createFolder(
         B.FoldersCreateFolderPayload.make({
-          requestBody: { name: planned.folder.name, parent: { id: parentId.value } },
+          requestBody: CreateFolderRequestBody.make({
+            name: planned.folder.name,
+            parent: CreateFolderRequestBodyParentField.make({ id: parentId.value }),
+          }),
         })
       )
       .pipe(Effect.result);
@@ -1025,9 +1040,14 @@ const applyPlan = Effect.fn("BoxContentMigration.applyPlan")(function* (
                 .uploadFile(
                   B.BoxUploadFilePayload.make({
                     // Box verifies the request body against this SHA-1 before storing it.
-                    optionalsInput: { headers: { contentMd5: sha1 } },
+                    optionalsInput: UploadFileOptionalsInput.make({
+                      headers: B.UploadFileHeaders.make({ contentMd5: sha1 }),
+                    }),
                     requestBody: {
-                      attributes: { name: planned.file.fileName, parent: { id: folderId } },
+                      attributes: UploadFileRequestBodyAttributesField.make({
+                        name: planned.file.fileName,
+                        parent: UploadFileRequestBodyAttributesParentField.make({ id: folderId }),
+                      }),
                       file: bytes,
                       fileFileName: planned.file.fileName,
                     },

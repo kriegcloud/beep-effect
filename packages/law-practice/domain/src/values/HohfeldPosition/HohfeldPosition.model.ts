@@ -78,18 +78,19 @@ const negatedPolarity = LegalActPolarity.$match({
  * @category models
  * @since 0.0.0
  */
-export class HohfeldPosition extends S.Class<HohfeldPosition>($I`HohfeldPosition`)(
-  {
+export class HohfeldPosition extends S.Opaque<HohfeldPosition, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: LegalActContent.annotateKey({
       description: "The act the position is about, carrying its act-or-omission polarity.",
     }),
     kind: HohfeldPositionKind.annotateKey({
       description: "Position kind, drawn from the full eight-member domain because derived views are burden-side.",
     }),
-  },
-  $I.annote("HohfeldPosition", {
-    description: "One Hohfeldian legal position: a position kind paired with the act content it qualifies.",
-  })
+  }).pipe(
+    $I.annoteSchema("HohfeldPosition", {
+      description: "One Hohfeldian legal position: a position kind paired with the act content it qualifies.",
+    })
+  )
 ) {}
 
 /**

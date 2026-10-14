@@ -139,7 +139,9 @@ describe("Atom-owned workbench theme", { concurrent: false }, () => {
               },
               media: query,
               onchange: null,
+              // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
               addListener: () => {},
+              // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
               removeListener: () => {},
               addEventListener: (_type: string, listener: EventListenerOrEventListenerObject) => {
                 listeners.push(listener);

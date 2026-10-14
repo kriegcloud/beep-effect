@@ -45,7 +45,7 @@ import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/toml/TomlFormat");
 
-class TomlFormatInvariantError extends S.TaggedError<TomlFormatInvariantError>($I`TomlFormatInvariantError`)(
+class TomlFormatInvariantError extends S.TaggedError<TomlFormatInvariantError, { readonly brand: unique symbol }>($I`TomlFormatInvariantError`)(
 	"TomlFormatInvariantError",
 	{ message: S.String.annotateKey({ description: "Explanation of the missing CST node, path segment or splice span required by formatting or modification." }) },
 	$I.annote("TomlFormatInvariantError", { description: "A programmer defect encountered while computing TOML formatting or modification edits." }),
@@ -81,7 +81,7 @@ export type TomlRangeLike = TomlRange | { readonly offset: number; readonly leng
  * @category configuration
  * @since 0.0.0
  */
-export class TomlFormattingOptions extends S.Class<TomlFormattingOptions>($I`TomlFormattingOptions`)({
+export class TomlFormattingOptions extends S.Class<TomlFormattingOptions, { readonly brand: unique symbol }>($I`TomlFormattingOptions`)({
 	newline: S.optionalKey(S.Literals(["\n", "\r\n"])).annotateKey({ description: "LF or CRLF used to normalize line endings outside multiline strings during formatting and terminate inserted lines during modification" }),
 }, $I.annote("TomlFormattingOptions", { description: "Options controlling formatting and modification behavior. The only knob is `newline`: for `format` it normalizes every newline outside multi-line strings; for `modify` it overrides the dominant newline inherited by inserted lines." })) {}
 
@@ -109,7 +109,7 @@ export class TomlFormattingOptions extends S.Class<TomlFormattingOptions>($I`Tom
  * @category errors
  * @since 0.0.0
  */
-export class TomlModificationError extends S.TaggedError<TomlModificationError>($I`TomlModificationError`)("TomlModificationError", {
+export class TomlModificationError extends S.TaggedError<TomlModificationError, { readonly brand: unique symbol }>($I`TomlModificationError`)("TomlModificationError", {
 	diagnostic: TomlDiagnostic.annotateKey({ description: "Structured failure detail carrying the code, message and source position explaining why modification failed" }),
 }, $I.annote("TomlModificationError", { description: "Raised when `TomlFormat.modify` cannot resolve the requested path against the document's semantic view, when the insertion target refuses (an inline table or an implicitly created table), or when the replacement value cannot render as TOML. Carries one structured TomlDiagnostic — never a collapsed `reason` string." })) {
 	/**
@@ -559,7 +559,7 @@ const buildSemanticIndex = (
 // ── Internal: modify — path resolution ──────────────────────────────────────
 
 /** Thrown by the pure resolution helpers; `modify` materializes {@link TomlModificationError}. */
-class ModifyFailure extends S.TaggedError<ModifyFailure>($I`ModifyFailure`)("ModifyFailure", {
+class ModifyFailure extends S.TaggedError<ModifyFailure, { readonly brand: unique symbol }>($I`ModifyFailure`)("ModifyFailure", {
 	code: TomlErrorCode.annotateKey({ description: "Diagnostic category explaining why the modification path or target was rejected." }),
 	message: S.String.annotateKey({ description: "Original path-resolution or modification failure message." }),
 	offset: S.Finite.annotateKey({ description: "Starting source position of the rejected target in UTF-16 code units." }),

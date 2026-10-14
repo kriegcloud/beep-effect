@@ -134,7 +134,7 @@ const config = {
       // programmatic (JS) compiler API, while @typescript/native provides
       // the TS7 compiler. TypeScript 7.0 ships no stable programmatic API
       // (7.1 is the target), so its actual consumers cannot move:
-      // typescript-eslint (peer `<6.1.0`, TS7 tracked in
+      // typescript-eslint for the docs lane until TS7 exit lane B (peer `<6.1.0`, TS7 tracked in
       // typescript-eslint/typescript-eslint#10940, still open 2026-09-24),
       // and commitlint's cosmiconfig-typescript-loader. ts-morph vendors its own TS 6 copy in
       // @ts-morph/common, so it does not need this
@@ -164,10 +164,12 @@ const config = {
       // rule set tsc-rs ports, so editor, gate and tsc-rs agree. The code is
       // already clean against 0.52.0 (proved 2026-10-13); that bump adds
       // effectSleepZeroToYieldNow, flatMapToTap, preferEffectArray,
-      // preferEffectRecord and preferSchemaTaggedError at "error", parks
-      // schemaClassMissingBrand "off" pending the S.Class/S.Struct/S.Opaque
-      // decision, drops the removed `debug` option, and must also sweep
-      // apps/labs, which `bun run check` filters out.
+      // preferEffectRecord, preferSchemaTaggedError and
+      // schemaClassMissingBrand at "error" (goal schema-opaque-default: the
+      // brand rule proved 0 hits on 2026-10-14; re-check preferEffectArray,
+      // which main gained 28 sites for after #1636), drops the removed
+      // `debug` option, and must also sweep apps/labs, which `bun run check`
+      // filters out.
       // tsc-rs (pingdotgg/ts-rust) runs `beep:build`, `beep:check` and
       // `beep:check:tests`; it compiles the Effect rules of one effect-tsgo
       // version in (0.6.0 ports 0.51.1) and pins its own TypeScript

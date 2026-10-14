@@ -163,13 +163,14 @@ describe("@beep/identity", () => {
   it("composes full annotation identifiers for nested schema composers", () => {
     const $I = $OntologyId.create("Ontology.models");
 
-    class RegressionOWLClass extends S.Class<RegressionOWLClass>($I`OWLClass`)(
-      {
+    class RegressionOWLClass extends S.Opaque<RegressionOWLClass, { readonly brand: unique symbol }>()(
+      S.Struct({
         iri: S.String,
-      },
-      $I.annote("OWLClass", {
-        description: "Regression model for ontology class annotations.",
-      })
+      }).pipe(
+        $I.annoteSchema("OWLClass", {
+          description: "Regression model for ontology class annotations.",
+        })
+      )
     ) {}
 
     const classAnnotations = S.resolveAnnotations(RegressionOWLClass);

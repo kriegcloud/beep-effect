@@ -105,8 +105,8 @@ export class ContradictionReviewScope extends Context.Service<
  * @category value-objects
  * @since 0.0.0
  */
-export class ContradictionSubmission extends S.Class<ContradictionSubmission>($I`ContradictionSubmission`)(
-  {
+export class ContradictionSubmission extends S.Opaque<ContradictionSubmission, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidate: ContradictionCandidate.annotateKey({
       description: "Canonical candidate created or recovered by duplicate suppression.",
     }),
@@ -116,10 +116,11 @@ export class ContradictionSubmission extends S.Class<ContradictionSubmission>($I
     receipt: ContradictionReceipt.annotateKey({
       description: "Durable receipt proving this individual submission was observed.",
     }),
-  },
-  $I.annote("ContradictionSubmission", {
-    description: "Canonical candidate and durable receipt resulting from one submission.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionSubmission", {
+      description: "Canonical candidate and durable receipt resulting from one submission.",
+    })
+  )
 ) {}
 
 /**
@@ -136,10 +137,11 @@ export class ContradictionSubmission extends S.Class<ContradictionSubmission>($I
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionCandidateSummary extends S.Class<ContradictionCandidateSummary>(
-  $I`ContradictionCandidateSummary`
-)(
-  {
+export class ContradictionCandidateSummary extends S.Opaque<
+  ContradictionCandidateSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: ContradictionCandidate.fields.id.annotateKey({
       description: "Candidate selected when the reviewer opens this queue row.",
     }),
@@ -164,10 +166,11 @@ export class ContradictionCandidateSummary extends S.Class<ContradictionCandidat
     summary: ContradictionResolutionProposal.fields.rationale.annotateKey({
       description: "Bounded rationale from the first canonical proposal used as the row summary.",
     }),
-  },
-  $I.annote("ContradictionCandidateSummary", {
-    description: "Bounded candidate projection returned by paginated queue reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionCandidateSummary", {
+      description: "Bounded candidate projection returned by paginated queue reads.",
+    })
+  )
 ) {}
 
 /**
@@ -185,18 +188,22 @@ export class ContradictionCandidateSummary extends S.Class<ContradictionCandidat
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionCandidateView extends S.Class<ContradictionCandidateView>($I`ContradictionCandidateView`)(
-  {
+export class ContradictionCandidateView extends S.Opaque<
+  ContradictionCandidateView,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidate: ContradictionCandidateSummary.annotateKey({
       description: "Bounded immutable contradiction candidate summary.",
     }),
     disposition: ContradictionDisposition.pipe(S.OptionFromNullOr).annotateKey({
       description: "Disposition visible at the query's knownAt instant, when resolved.",
     }),
-  },
-  $I.annote("ContradictionCandidateView", {
-    description: "One bounded candidate summary paired with its bitemporally visible disposition.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionCandidateView", {
+      description: "One bounded candidate summary paired with its bitemporally visible disposition.",
+    })
+  )
 ) {}
 
 /**
@@ -220,18 +227,22 @@ export class ContradictionCandidateView extends S.Class<ContradictionCandidateVi
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionCandidatePage extends S.Class<ContradictionCandidatePage>($I`ContradictionCandidatePage`)(
-  {
+export class ContradictionCandidatePage extends S.Opaque<
+  ContradictionCandidatePage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     items: S.Array(ContradictionCandidateView).annotateKey({
       description: "Ordered candidate rows in the requested page.",
     }),
     total: S.Natural.annotateKey({
       description: "Total number of candidates matching the query before pagination.",
     }),
-  },
-  $I.annote("ContradictionCandidatePage", {
-    description: "Paginated two-axis contradiction candidate result.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionCandidatePage", {
+      description: "Paginated two-axis contradiction candidate result.",
+    })
+  )
 ) {}
 
 /**
@@ -249,10 +260,11 @@ export class ContradictionCandidatePage extends S.Class<ContradictionCandidatePa
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionCandidateDetail extends S.Class<ContradictionCandidateDetail>(
-  $I`ContradictionCandidateDetail`
-)(
-  {
+export class ContradictionCandidateDetail extends S.Opaque<
+  ContradictionCandidateDetail,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidate: ContradictionCandidate.annotateKey({
       description: "Immutable candidate applicable at validAt and recorded no later than knownAt.",
     }),
@@ -262,10 +274,11 @@ export class ContradictionCandidateDetail extends S.Class<ContradictionCandidate
     receipts: S.Array(ContradictionReceipt).annotateKey({
       description: "Durable submission receipts received no later than knownAt, in arrival order.",
     }),
-  },
-  $I.annote("ContradictionCandidateDetail", {
-    description: "Two-axis-visible candidate, disposition, and receipt history.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionCandidateDetail", {
+      description: "Two-axis-visible candidate, disposition, and receipt history.",
+    })
+  )
 ) {}
 
 /**
@@ -283,18 +296,22 @@ export class ContradictionCandidateDetail extends S.Class<ContradictionCandidate
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionEvidenceDetail extends S.Class<ContradictionEvidenceDetail>($I`ContradictionEvidenceDetail`)(
-  {
+export class ContradictionEvidenceDetail extends S.Opaque<
+  ContradictionEvidenceDetail,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     evidence: Evidence.annotateKey({
       description: "Exact evidence row referenced by the candidate match basis.",
     }),
     latestVerification: EvidenceVerification.pipe(S.OptionFromNullOr).annotateKey({
       description: "Newest immutable verification manifestation recorded no later than the candidate, when present.",
     }),
-  },
-  $I.annote("ContradictionEvidenceDetail", {
-    description: "Evidence plus its verified source-text manifestation as known when the candidate was recorded.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionEvidenceDetail", {
+      description: "Evidence plus its verified source-text manifestation as known when the candidate was recorded.",
+    })
+  )
 ) {}
 
 /**
@@ -312,18 +329,19 @@ export class ContradictionEvidenceDetail extends S.Class<ContradictionEvidenceDe
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionBeliefDetail extends S.Class<ContradictionBeliefDetail>($I`ContradictionBeliefDetail`)(
-  {
+export class ContradictionBeliefDetail extends S.Opaque<ContradictionBeliefDetail, { readonly brand: unique symbol }>()(
+  S.Struct({
     belief: EdgeVersion.annotateKey({
       description: "Exact immutable edge version referenced by the candidate.",
     }),
     evidence: S.Array(ContradictionEvidenceDetail).annotateKey({
       description: "Persisted evidence rows grounding this side of the match.",
     }),
-  },
-  $I.annote("ContradictionBeliefDetail", {
-    description: "Exact belief version and its persisted evidence detail.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionBeliefDetail", {
+      description: "Exact belief version and its persisted evidence detail.",
+    })
+  )
 ) {}
 
 /**
@@ -342,10 +360,11 @@ export class ContradictionBeliefDetail extends S.Class<ContradictionBeliefDetail
  * @category read-models
  * @since 0.0.0
  */
-export class ContradictionCandidateExpandedDetail extends S.Class<ContradictionCandidateExpandedDetail>(
-  $I`ContradictionCandidateExpandedDetail`
-)(
-  {
+export class ContradictionCandidateExpandedDetail extends S.Opaque<
+  ContradictionCandidateExpandedDetail,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidate: ContradictionCandidate.annotateKey({
       description: "Immutable candidate applicable at validAt and recorded no later than knownAt.",
     }),
@@ -358,10 +377,11 @@ export class ContradictionCandidateExpandedDetail extends S.Class<ContradictionC
     right: ContradictionBeliefDetail.annotateKey({
       description: "Exact right belief and side-bound evidence.",
     }),
-  },
-  $I.annote("ContradictionCandidateExpandedDetail", {
-    description: "Exact persisted inputs needed by server-side contradiction detail orchestration.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionCandidateExpandedDetail", {
+      description: "Exact persisted inputs needed by server-side contradiction detail orchestration.",
+    })
+  )
 ) {}
 
 /**

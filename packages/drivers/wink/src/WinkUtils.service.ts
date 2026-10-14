@@ -52,15 +52,16 @@ type TokenUtilities = {
   readonly soundex: (tokens: Array<string>) => ReadonlyArray<string>;
 };
 
-class NGramResult extends S.Class<NGramResult>($I`NGramResult`)(
-  {
+class NGramResult extends S.Opaque<NGramResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     ngrams: S.Record(S.String, S.Natural),
     totalNGrams: S.Natural,
     uniqueNGrams: S.Natural,
-  },
-  $I.annote("NGramResult", {
-    description: "Result of n-gram analysis, including n-gram counts, total n-grams, and unique n-grams.",
-  })
+  }).pipe(
+    $I.annoteSchema("NGramResult", {
+      description: "Result of n-gram analysis, including n-gram counts, total n-grams, and unique n-grams.",
+    })
+  )
 ) {}
 
 const isNGramRecord = (value: unknown): value is Record<string, number> => P.isObject(value);
@@ -113,35 +114,35 @@ const sanitizeNGramResult = (
 ): NGramResult => {
   if (isStringArray(value)) {
     const ngrams = R.fromEntries(A.map(value, (entry) => [entry, S.Natural.make(1)] as const));
-    return {
+    return NGramResult.make({
       ngrams,
       totalNGrams: S.Natural.make(value.length),
       uniqueNGrams: S.Natural.make(value.length),
-    };
+    });
   }
 
   if (value instanceof Set) {
     const entries = A.fromIterable(value);
     const ngrams = R.fromEntries(A.map(entries, (entry) => [entry, S.Natural.make(1)] as const));
-    return {
+    return NGramResult.make({
       ngrams,
       totalNGrams: S.Natural.make(entries.length),
       uniqueNGrams: S.Natural.make(entries.length),
-    };
+    });
   }
 
   if (!isNGramRecord(value)) {
-    return { ngrams: {}, totalNGrams: S.Natural.make(0), uniqueNGrams: S.Natural.make(0) };
+    return NGramResult.make({ ngrams: {}, totalNGrams: S.Natural.make(0), uniqueNGrams: S.Natural.make(0) });
   }
 
   const ngrams = R.fromEntries(A.map(R.toEntries(value), ([key, count]) => [key, sanitizeCount(count)] as const));
   const totalNGrams = A.reduce(R.values(ngrams), 0, (sum, count) => sum + count);
 
-  return {
+  return NGramResult.make({
     ngrams,
     totalNGrams: S.Natural.make(totalNGrams),
     uniqueNGrams: S.Natural.make(R.keys(ngrams).length),
-  };
+  });
 };
 
 /**
@@ -159,7 +160,9 @@ const sanitizeNGramResult = (
  * @category errors
  * @since 0.0.0
  */
-export class WinkUtilsError extends S.TaggedError<WinkUtilsError>($I`WinkUtilsError`)(
+export class WinkUtilsError extends S.TaggedError<WinkUtilsError, { readonly brand: unique symbol }>(
+  $I`WinkUtilsError`
+)(
   "WinkUtilsError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),

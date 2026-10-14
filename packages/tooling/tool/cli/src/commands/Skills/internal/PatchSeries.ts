@@ -38,11 +38,12 @@ const textDecoder = new TextDecoder("utf-8", { fatal: true });
  * @category models
  * @since 0.0.0
  */
-export class PatchSeriesFile extends S.Class<PatchSeriesFile>($I`PatchSeriesFile`)(
-  { path: S.String, bytes: S.Uint8Array },
-  $I.annote("PatchSeriesFile", {
-    description: "A verified patch file's repository-relative path and exact bytes.",
-  })
+export class PatchSeriesFile extends S.Opaque<PatchSeriesFile, { readonly brand: unique symbol }>()(
+  S.Struct({ path: S.String, bytes: S.Uint8Array }).pipe(
+    $I.annoteSchema("PatchSeriesFile", {
+      description: "A verified patch file's repository-relative path and exact bytes.",
+    })
+  )
 ) {}
 
 const refuseDigest = (skill: string, message: string) =>

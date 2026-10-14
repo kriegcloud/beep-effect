@@ -71,23 +71,23 @@ export type DockUnchangedReason = typeof DockUnchangedReason.Type;
  * import * as S from "effect/Schema"
  * import { DockChanged, DockWorkspace, WorkspaceClearedEvent } from "@beep/dock"
  *
- * const value = DockChanged.make({ previousRevision: S.Natural.make(0), state: DockWorkspace.empty, events: [WorkspaceClearedEvent.make()] })
+ * const value = DockChanged.make({ previousRevision: S.Natural.make(0), state: DockWorkspace.empty, events: [WorkspaceClearedEvent.make({})] })
  * console.log(value)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class DockChanged extends S.TaggedClass<DockChanged>($I`DockChanged`)(
-  "Changed",
-  {
+export class DockChanged extends S.Opaque<DockChanged, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Changed", {
     previousRevision: S.Natural,
     state: DockWorkspace,
     events: S.NonEmptyArray(DockEvent),
-  },
-  $I.annote("DockChanged", {
-    description: "A dock intent changed state and produced causally associated events.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockChanged", {
+      description: "A dock intent changed state and produced causally associated events.",
+    })
+  )
 ) {}
 
 /**
@@ -106,15 +106,15 @@ export class DockChanged extends S.TaggedClass<DockChanged>($I`DockChanged`)(
  * @category models
  * @since 0.0.0
  */
-export class DockUnchanged extends S.TaggedClass<DockUnchanged>($I`DockUnchanged`)(
-  "Unchanged",
-  {
+export class DockUnchanged extends S.Opaque<DockUnchanged, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Unchanged", {
     revision: S.Natural,
     reason: DockUnchangedReason,
-  },
-  $I.annote("DockUnchanged", {
-    description: "A valid dock intent left state and revision untouched and emitted no event.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockUnchanged", {
+      description: "A valid dock intent left state and revision untouched and emitted no event.",
+    })
+  )
 ) {}
 
 /**
@@ -173,13 +173,14 @@ export type DockMutationResult = typeof DockMutationResult.Type;
  * @category models
  * @since 0.0.0
  */
-export class DockMutationOutcome extends S.Class<DockMutationOutcome>($I`DockMutationOutcome`)(
-  {
+export class DockMutationOutcome extends S.Opaque<DockMutationOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     commandId: CommandId,
     origin: CommandOrigin,
     result: DockMutationResult,
-  },
-  $I.annote("DockMutationOutcome", {
-    description: "Causally identified result of a valid command or snapshot restore.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockMutationOutcome", {
+      description: "Causally identified result of a valid command or snapshot restore.",
+    })
+  )
 ) {}

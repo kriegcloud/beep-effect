@@ -29,9 +29,10 @@ import * as Stream from "effect/Stream";
 
 const $I = $UtilsId.create("FileSystem");
 
-class NodeFileSystemUnavailableError extends S.TaggedError<NodeFileSystemUnavailableError>(
-  $I`NodeFileSystemUnavailableError`
-)(
+class NodeFileSystemUnavailableError extends S.TaggedError<
+  NodeFileSystemUnavailableError,
+  { readonly brand: unique symbol }
+>($I`NodeFileSystemUnavailableError`)(
   "NodeFileSystemUnavailableError",
   {
     module: S.Literal("node:fs"),
@@ -92,8 +93,8 @@ const AppendFileSyncEncoding = S.Literals([
  * @category models
  * @since 0.0.0
  */
-export class AppendFileSyncOptions extends S.Class<AppendFileSyncOptions>($I`AppendFileSyncOptions`)(
-  {
+export class AppendFileSyncOptions extends S.Opaque<AppendFileSyncOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     encoding: S.optionalKey(AppendFileSyncEncoding).annotateKey({
       description: "Text encoding forwarded to node:fs appendFileSync.",
     }),
@@ -103,10 +104,11 @@ export class AppendFileSyncOptions extends S.Class<AppendFileSyncOptions>($I`App
     mode: S.optionalKey(S.Int.check(S.isGreaterThanOrEqualTo(0))).annotateKey({
       description: "Non-negative integer file mode forwarded to node:fs appendFileSync.",
     }),
-  },
-  $I.annote("AppendFileSyncOptions", {
-    description: "Options accepted by appendFileSync.",
-  })
+  }).pipe(
+    $I.annoteSchema("AppendFileSyncOptions", {
+      description: "Options accepted by appendFileSync.",
+    })
+  )
 ) {}
 
 /**
@@ -125,18 +127,19 @@ export class AppendFileSyncOptions extends S.Class<AppendFileSyncOptions>($I`App
  * @category models
  * @since 0.0.0
  */
-export class RmSyncOptions extends S.Class<RmSyncOptions>($I`RmSyncOptions`)(
-  {
+export class RmSyncOptions extends S.Opaque<RmSyncOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     force: S.optionalKey(S.Boolean).annotateKey({
       description: "Whether missing paths should be ignored by node:fs rmSync.",
     }),
     recursive: S.optionalKey(S.Boolean).annotateKey({
       description: "Whether directories should be removed recursively by node:fs rmSync.",
     }),
-  },
-  $I.annote("RmSyncOptions", {
-    description: "Options accepted by rmSync.",
-  })
+  }).pipe(
+    $I.annoteSchema("RmSyncOptions", {
+      description: "Options accepted by rmSync.",
+    })
+  )
 ) {}
 
 /**
@@ -155,15 +158,16 @@ export class RmSyncOptions extends S.Class<RmSyncOptions>($I`RmSyncOptions`)(
  * @category models
  * @since 0.0.0
  */
-export class ReaddirSyncOptions extends S.Class<ReaddirSyncOptions>($I`ReaddirSyncOptions`)(
-  {
+export class ReaddirSyncOptions extends S.Opaque<ReaddirSyncOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     withFileTypes: S.optionalKey(S.Boolean).annotateKey({
       description: "Whether readdirSync should return node:fs Dirent entries instead of names.",
     }),
-  },
-  $I.annote("ReaddirSyncOptions", {
-    description: "Options accepted by readdirSync.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReaddirSyncOptions", {
+      description: "Options accepted by readdirSync.",
+    })
+  )
 ) {}
 
 /**
@@ -258,10 +262,10 @@ const toFileInfo = (stats: NodeStats): FileSystem.File.Info => ({
  * **Example** (Append log entry)
  *
  * ```ts
- * import { appendFileSync } from "@beep/utils/FileSystem"
+ * import { AppendFileSyncOptions, appendFileSync } from "@beep/utils/FileSystem"
  *
  * // Build the effect; run it with `Effect.runSync` at a boundary.
- * const program = appendFileSync("/tmp/beep.log", "entry\n", { flag: "a" })
+ * const program = appendFileSync("/tmp/beep.log", "entry\n", AppendFileSyncOptions.make({ flag: "a" }))
  * console.log(program)
  * ```
  *
@@ -330,9 +334,9 @@ export const existsSync = (path: string): Effect.Effect<boolean> => Effect.sync(
  * **Example** (Remove directory recursively)
  *
  * ```ts
- * import { rmSync } from "@beep/utils/FileSystem"
+ * import { RmSyncOptions, rmSync } from "@beep/utils/FileSystem"
  *
- * const program = rmSync("/tmp/beep-scratch", { recursive: true, force: true })
+ * const program = rmSync("/tmp/beep-scratch", RmSyncOptions.make({ recursive: true, force: true }))
  * console.log(program)
  * ```
  *
@@ -393,7 +397,7 @@ function readdirSyncImpl(
 ): Effect.Effect<ReadonlyArray<NodeDirent>, PlatformError.PlatformError>;
 function readdirSyncImpl(
   path: string,
-  options?: ReaddirSyncOptions
+  options?: ReaddirSyncOptions | { readonly withFileTypes: true }
 ): Effect.Effect<ReadonlyArray<string | NodeDirent>, PlatformError.PlatformError> {
   return Effect.try({
     try: (): ReadonlyArray<string | NodeDirent> =>

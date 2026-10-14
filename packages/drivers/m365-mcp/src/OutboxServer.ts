@@ -12,12 +12,13 @@
  */
 
 import { M365 } from "@beep/m365";
+import { M365AppOnlyConfigInput } from "@beep/m365/M365.config";
 import { sanitizedToolkit } from "@beep/mcp-kit";
 import * as McpServer from "effect/ai/McpServer";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import { m365McpProtocols } from "./internal/McpProtocols.ts";
-import { OutboxAttachmentSource } from "./OutboxAttachmentSource.ts";
+import { OutboxAttachmentPolicy, OutboxAttachmentSource } from "./OutboxAttachmentSource.ts";
 import { OutboxAuditIds, OutboxAuditLog } from "./OutboxAuditLog.ts";
 import { makeOutboxToolkitHandlers, OutboxHandlerSettings } from "./OutboxHandlers.ts";
 import { OutboxToolkit } from "./OutboxTools.ts";
@@ -198,7 +199,7 @@ export const makeOutboxLiveServices = (
   FileSystem.FileSystem | Path.Path | Crypto.Crypto
 > =>
   Layer.mergeAll(
-    M365.makeAppOnlyLiveLayer(config.appOnly),
-    OutboxAttachmentSource.layer(config.attachments),
+    M365.makeAppOnlyLiveLayer(M365AppOnlyConfigInput.make(config.appOnly)),
+    OutboxAttachmentSource.layer(OutboxAttachmentPolicy.make(config.attachments)),
     OutboxAuditLog.layer(config.auditDirectory).pipe(Layer.provide(OutboxAuditIds.layer))
   );

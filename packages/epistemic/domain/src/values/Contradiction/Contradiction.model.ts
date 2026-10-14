@@ -309,8 +309,8 @@ export type ContradictionProposalDigest = typeof ContradictionProposalDigest.Typ
  * @category value-objects
  * @since 0.0.0
  */
-export class BeliefVersionRef extends S.Class<BeliefVersionRef>($I`BeliefVersionRef`)(
-  {
+export class BeliefVersionRef extends S.Opaque<BeliefVersionRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     edgeVersionId: EpistemicIdentity.EdgeVersionId.annotateKey({
       description: "Immutable edge-version row observed by the detector.",
     }),
@@ -320,10 +320,11 @@ export class BeliefVersionRef extends S.Class<BeliefVersionRef>($I`BeliefVersion
     version: PosInt.annotateKey({
       description: "Optimistic logical version observed by the detector.",
     }),
-  },
-  $I.annote("BeliefVersionRef", {
-    description: "Exact immutable edge version observed as one side of a contradiction candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeliefVersionRef", {
+      description: "Exact immutable edge version observed as one side of a contradiction candidate.",
+    })
+  )
 ) {}
 
 const encodeBeliefRef = (ref: BeliefVersionRef): string =>
@@ -332,17 +333,21 @@ const encodeBeliefRef = (ref: BeliefVersionRef): string =>
 const beliefRefOrder = Order.mapInput(Order.String, encodeBeliefRef);
 const beliefRefComesBefore = Order.isLessThan(beliefRefOrder);
 const edgeVersionIdEquivalent = S.toEquivalence(BeliefVersionRef.fields.edgeVersionId);
-const beliefsAreDistinct = ({ left, right }: { readonly left: BeliefVersionRef; readonly right: BeliefVersionRef }) =>
+const beliefsAreDistinct = ({ left, right }: S.Struct.Type<typeof ContradictionBeliefPairStruct.fields>) =>
   !edgeVersionIdEquivalent(left.edgeVersionId, right.edgeVersionId);
 
-class ContradictionBeliefPairStruct extends S.Class<ContradictionBeliefPairStruct>($I`ContradictionBeliefPairStruct`)(
-  {
+class ContradictionBeliefPairStruct extends S.Opaque<
+  ContradictionBeliefPairStruct,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     left: BeliefVersionRef.annotateKey({ description: "Belief presented on the left side of a submission." }),
     right: BeliefVersionRef.annotateKey({ description: "Belief presented on the right side of a submission." }),
-  },
-  $I.annote("ContradictionBeliefPairStruct", {
-    description: "Structural contradiction belief pair before distinctness is checked.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionBeliefPairStruct", {
+      description: "Structural contradiction belief pair before distinctness is checked.",
+    })
+  )
 ) {}
 
 const DistinctBeliefPairCheck = S.makeFilter(beliefsAreDistinct, {
@@ -375,15 +380,17 @@ const ContradictionBeliefPairSchema = ContradictionBeliefPairStruct.mapFields(id
  * @category value-objects
  * @since 0.0.0
  */
-export class ContradictionBeliefPair extends S.Class<ContradictionBeliefPair>($I`ContradictionBeliefPair`)(
-  ContradictionBeliefPairSchema,
-  $I.annote("ContradictionBeliefPair", {
-    description: "Submission-order pair of exact conflicting belief versions.",
-  })
+export class ContradictionBeliefPair extends S.Opaque<ContradictionBeliefPair, { readonly brand: unique symbol }>()(
+  ContradictionBeliefPairSchema.pipe(
+    $I.annoteSchema("ContradictionBeliefPair", {
+      description: "Submission-order pair of exact conflicting belief versions.",
+    })
+  )
 ) {}
 
 const CanonicalBeliefPairCheck = S.makeFilter(
-  ({ left, right }: ContradictionBeliefPair) => beliefRefComesBefore(left, right),
+  ({ left, right }: S.Struct.Type<typeof ContradictionBeliefPair.fields>) =>
+    beliefRefComesBefore(BeliefVersionRef.make(left), BeliefVersionRef.make(right)),
   {
     identifier: $I`CanonicalBeliefPairCheck`,
     title: "Canonical Contradiction Belief Pair",
@@ -410,13 +417,15 @@ const CanonicalContradictionBeliefPairSchema = ContradictionBeliefPair.mapFields
  * @category value-objects
  * @since 0.0.0
  */
-export class CanonicalContradictionBeliefPair extends S.Class<CanonicalContradictionBeliefPair>(
-  $I`CanonicalContradictionBeliefPair`
-)(
-  CanonicalContradictionBeliefPairSchema,
-  $I.annote("CanonicalContradictionBeliefPair", {
-    description: "Checked canonical ordering of the immutable belief-version pair persisted in a candidate.",
-  })
+export class CanonicalContradictionBeliefPair extends S.Opaque<
+  CanonicalContradictionBeliefPair,
+  { readonly brand: unique symbol }
+>()(
+  CanonicalContradictionBeliefPairSchema.pipe(
+    $I.annoteSchema("CanonicalContradictionBeliefPair", {
+      description: "Checked canonical ordering of the immutable belief-version pair persisted in a candidate.",
+    })
+  )
 ) {}
 
 /**
@@ -551,8 +560,11 @@ const UniqueNonEmptyEvidenceIds = S.NonEmptyArray(EpistemicIdentity.EvidenceId)
     })
   );
 
-class ContradictionMatchBasisStruct extends S.Class<ContradictionMatchBasisStruct>($I`ContradictionMatchBasisStruct`)(
-  {
+class ContradictionMatchBasisStruct extends S.Opaque<
+  ContradictionMatchBasisStruct,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     detector: ContradictionDetectorIdentity.annotateKey({
       description: "Stable detector or caller name; it identifies provenance, not authority.",
     }),
@@ -571,19 +583,23 @@ class ContradictionMatchBasisStruct extends S.Class<ContradictionMatchBasisStruc
     rightEvidenceIds: UniqueNonEmptyEvidenceIds.annotateKey({
       description: "Evidence grounding the second canonical belief.",
     }),
-  },
-  $I.annote("ContradictionMatchBasisStruct", {
-    description: "Internal structural base for a contradiction candidate match basis.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionMatchBasisStruct", {
+      description: "Internal structural base for a contradiction candidate match basis.",
+    })
+  )
 ) {}
 
-const evidenceSetsAreDisjoint = ({ leftEvidenceIds, rightEvidenceIds }: ContradictionMatchBasisStruct): boolean =>
+const evidenceSetsAreDisjoint = ({
+  leftEvidenceIds,
+  rightEvidenceIds,
+}: S.Struct.Type<typeof ContradictionMatchBasisStruct.fields>): boolean =>
   A.every(leftEvidenceIds, (leftId) =>
     A.every(rightEvidenceIds, (rightId) => Bool.not(evidenceIdEquivalence(leftId, rightId)))
   );
 
 const IndependentEvidenceSetsCheck = S.makeFilter(
-  (basis: ContradictionMatchBasisStruct) =>
+  (basis: S.Struct.Type<typeof ContradictionMatchBasisStruct.fields>) =>
     ContradictionMatchBasisKind.$match(basis.kind, {
       "independent-evidence": () => evidenceSetsAreDisjoint(basis),
       "same-source-overlap": () => true,
@@ -613,11 +629,12 @@ const ContradictionMatchBasisSchema =
  * @category value-objects
  * @since 0.0.0
  */
-export class ContradictionMatchBasis extends S.Class<ContradictionMatchBasis>($I`ContradictionMatchBasis`)(
-  ContradictionMatchBasisSchema,
-  $I.annote("ContradictionMatchBasis", {
-    description: "Exact evidence pair and detector revision supporting a contradiction candidate.",
-  })
+export class ContradictionMatchBasis extends S.Opaque<ContradictionMatchBasis, { readonly brand: unique symbol }>()(
+  ContradictionMatchBasisSchema.pipe(
+    $I.annoteSchema("ContradictionMatchBasis", {
+      description: "Exact evidence pair and detector revision supporting a contradiction candidate.",
+    })
+  )
 ) {}
 
 /**
@@ -728,10 +745,11 @@ const ContradictionProposalRationale = TrimmedText.check(
   })
 );
 
-class ContradictionResolutionProposalStruct extends S.Class<ContradictionResolutionProposalStruct>(
-  $I`ContradictionResolutionProposalStruct`
-)(
-  {
+class ContradictionResolutionProposalStruct extends S.Opaque<
+  ContradictionResolutionProposalStruct,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     fact: ContradictionProposalFact.annotateKey({
       description: "Immutable JSON-safe replacement fact proposed for the losing lineage.",
     }),
@@ -753,10 +771,11 @@ class ContradictionResolutionProposalStruct extends S.Class<ContradictionResolut
     validTo: S.DateTimeUtcFromMillis.pipe(S.OptionFromNullOr).annotateKey({
       description: "Exclusive valid-time upper bound of the replacement, when known.",
     }),
-  },
-  $I.annote("ContradictionResolutionProposalStruct", {
-    description: "Structural contradiction proposal before its half-open valid interval is checked.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionResolutionProposalStruct", {
+      description: "Structural contradiction proposal before its half-open valid interval is checked.",
+    })
+  )
 ) {}
 
 const validIntervalIsOrdered = Order.isLessThan(DateTime.Order);
@@ -834,13 +853,15 @@ const ContradictionResolutionProposalSchema = ContradictionResolutionProposalStr
  * @category value-objects
  * @since 0.0.0
  */
-export class ContradictionResolutionProposal extends S.Class<ContradictionResolutionProposal>(
-  $I`ContradictionResolutionProposal`
-)(
-  ContradictionResolutionProposalSchema,
-  $I.annote("ContradictionResolutionProposal", {
-    description: "Human-reviewable replacement proposed for one conflicting logical lineage.",
-  })
+export class ContradictionResolutionProposal extends S.Opaque<
+  ContradictionResolutionProposal,
+  { readonly brand: unique symbol }
+>()(
+  ContradictionResolutionProposalSchema.pipe(
+    $I.annoteSchema("ContradictionResolutionProposal", {
+      description: "Human-reviewable replacement proposed for one conflicting logical lineage.",
+    })
+  )
 ) {}
 
 const contradictionProposalIdEquivalence = S.toEquivalence(ContradictionProposalId);
@@ -902,18 +923,19 @@ const UniqueNonEmptyContradictionProposals = S.NonEmptyArray(ContradictionResolu
  * @category value-objects
  * @since 0.0.0
  */
-export class ContradictionAssessment extends S.Class<ContradictionAssessment>($I`ContradictionAssessment`)(
-  {
+export class ContradictionAssessment extends S.Opaque<ContradictionAssessment, { readonly brand: unique symbol }>()(
+  S.Struct({
     confidence: Confidence.annotateKey({
       description: "Detector confidence that the two exact belief versions contradict.",
     }),
     proposals: UniqueNonEmptyContradictionProposals.annotateKey({
       description: "One or more explicit supersession proposals presented for human review.",
     }),
-  },
-  $I.annote("ContradictionAssessment", {
-    description: "Detector confidence paired with explicit human-reviewable supersession proposals.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionAssessment", {
+      description: "Detector confidence paired with explicit human-reviewable supersession proposals.",
+    })
+  )
 ) {}
 
 const ContradictionDispositionStatusBase = LiteralKit(["rejected", "superseded"]);
@@ -1121,7 +1143,7 @@ const evidenceDigestForSides = (
   );
 
 const bindEvidenceSides = (
-  matchBasis: ContradictionMatchBasis,
+  matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>,
   leftEvidenceIds: ContradictionMatchBasis["leftEvidenceIds"],
   rightEvidenceIds: ContradictionMatchBasis["rightEvidenceIds"]
 ): ContradictionMatchBasis =>
@@ -1139,19 +1161,25 @@ const bindEvidenceSides = (
       })
   );
 
-class CanonicalizedContradiction extends S.Class<CanonicalizedContradiction>($I`CanonicalizedContradiction`)(
-  {
+class CanonicalizedContradiction extends S.Opaque<CanonicalizedContradiction, { readonly brand: unique symbol }>()(
+  S.Struct({
     matchBasis: ContradictionMatchBasis,
     pair: CanonicalContradictionBeliefPair,
-  },
-  $I.annote("CanonicalizedContradiction", {
-    description: "Canonical belief pair with evidence that remains bound to its corresponding side.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalizedContradiction", {
+      description: "Canonical belief pair with evidence that remains bound to its corresponding side.",
+    })
+  )
 ) {}
 
 type CanonicalizeContradiction = {
-  (matchBasis: ContradictionMatchBasis): (pair: ContradictionBeliefPair) => CanonicalizedContradiction;
-  (pair: ContradictionBeliefPair, matchBasis: ContradictionMatchBasis): CanonicalizedContradiction;
+  (
+    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
+  ): (pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>) => CanonicalizedContradiction;
+  (
+    pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>,
+    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
+  ): CanonicalizedContradiction;
 };
 
 /**
@@ -1176,9 +1204,12 @@ type CanonicalizeContradiction = {
  */
 export const canonicalizeContradiction: CanonicalizeContradiction = dual(
   2,
-  (pair: ContradictionBeliefPair, matchBasis: ContradictionMatchBasis): CanonicalizedContradiction =>
+  (
+    pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>,
+    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
+  ): CanonicalizedContradiction =>
     pipe(
-      beliefRefComesBefore(pair.left, pair.right),
+      beliefRefComesBefore(BeliefVersionRef.make(pair.left), BeliefVersionRef.make(pair.right)),
       Bool.match({
         onFalse: () =>
           CanonicalizedContradiction.make({
@@ -1242,8 +1273,13 @@ export const contradictionEvidenceDigest: ContradictionEvidenceDigestFn = dual(
 );
 
 type ContradictionCandidateKeyFn = {
-  (matchBasis: ContradictionMatchBasis): (pair: ContradictionBeliefPair) => ContradictionCandidateKey;
-  (pair: ContradictionBeliefPair, matchBasis: ContradictionMatchBasis): ContradictionCandidateKey;
+  (
+    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
+  ): (pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>) => ContradictionCandidateKey;
+  (
+    pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>,
+    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
+  ): ContradictionCandidateKey;
 };
 
 /**
@@ -1262,13 +1298,16 @@ type ContradictionCandidateKeyFn = {
  */
 export const contradictionCandidateKey: ContradictionCandidateKeyFn = dual(
   2,
-  (pair: ContradictionBeliefPair, matchBasis: ContradictionMatchBasis): ContradictionCandidateKey => {
+  (
+    pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>,
+    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
+  ): ContradictionCandidateKey => {
     const normalized = canonicalizeContradiction(pair, matchBasis);
     const canonical = A.join(
       [
         "v1",
-        encodeBeliefRef(normalized.pair.left),
-        encodeBeliefRef(normalized.pair.right),
+        encodeBeliefRef(BeliefVersionRef.make(normalized.pair.left)),
+        encodeBeliefRef(BeliefVersionRef.make(normalized.pair.right)),
         normalized.matchBasis.kind,
         normalized.matchBasis.evidenceDigest,
         normalized.matchBasis.detector,
@@ -1295,10 +1334,11 @@ export const contradictionCandidateKey: ContradictionCandidateKeyFn = dual(
  * @category value-objects
  * @since 0.0.0
  */
-export class ContradictionProposalContent extends S.Class<ContradictionProposalContent>(
-  $I`ContradictionProposalContent`
-)(
-  {
+export class ContradictionProposalContent extends S.Opaque<
+  ContradictionProposalContent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     fact: ContradictionProposalFact.annotateKey({
       description: "Immutable JSON-safe replacement fact covered by the proposal digest.",
     }),
@@ -1317,10 +1357,11 @@ export class ContradictionProposalContent extends S.Class<ContradictionProposalC
     validTo: S.DateTimeUtcFromMillis.pipe(S.OptionFromNullOr).annotateKey({
       description: "Exclusive valid-time upper bound covered by the proposal digest, when known.",
     }),
-  },
-  $I.annote("ContradictionProposalContent", {
-    description: "Complete authority-changing proposal content covered by its digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionProposalContent", {
+      description: "Complete authority-changing proposal content covered by its digest.",
+    })
+  )
 ) {}
 
 const encodeProposalContent = S.encodeResult(ContradictionProposalContent.mapFields(identity));
@@ -1334,6 +1375,7 @@ const encodeProposalContent = S.encodeResult(ContradictionProposalContent.mapFie
  * import * as S from "effect/Schema"
  * import {
  *   BeliefVersionRef,
+ *   ContradictionProposalContent,
  *   ContradictionProposalId,
  *   contradictionProposalDigest,
  * } from "@beep/epistemic-domain/values/Contradiction"
@@ -1346,18 +1388,20 @@ const encodeProposalContent = S.encodeResult(ContradictionProposalContent.mapFie
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
  *
- * const digest = contradictionProposalDigest({
- *   fact: { amount: "125" },
- *   losingBelief: BeliefVersionRef.make({
- *     edgeVersionId: Epistemic.EdgeVersionId.make(1),
- *     logicalKey: LogicalEdgeKey.make(Str.repeat(64)("a")),
- *     version: PosInt.make(1),
- *   }),
- *   proposalId: ContradictionProposalId.make(Str.repeat(64)("b")),
- *   rationale: "The signed amendment controls.",
- *   validFrom: DateTime.makeUnsafe(0),
- *   validTo: O.none(),
- * })
+ * const digest = contradictionProposalDigest(
+ *   ContradictionProposalContent.make({
+ *     fact: { amount: "125" },
+ *     losingBelief: BeliefVersionRef.make({
+ *       edgeVersionId: Epistemic.EdgeVersionId.make(1),
+ *       logicalKey: LogicalEdgeKey.make(Str.repeat(64)("a")),
+ *       version: PosInt.make(1),
+ *     }),
+ *     proposalId: ContradictionProposalId.make(Str.repeat(64)("b")),
+ *     rationale: "The signed amendment controls.",
+ *     validFrom: DateTime.makeUnsafe(0),
+ *     validTo: O.none(),
+ *   })
+ * )
  *
  * console.log(Result.isSuccess(digest)) // true
  * ```
@@ -1386,10 +1430,11 @@ export const contradictionProposalDigest = (
  * @category value-objects
  * @since 0.0.0
  */
-class ContradictionCandidateContentStruct extends S.Class<ContradictionCandidateContentStruct>(
-  $I`ContradictionCandidateContentStruct`
-)(
-  {
+class ContradictionCandidateContentStruct extends S.Opaque<
+  ContradictionCandidateContentStruct,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     assessment: ContradictionAssessment.annotateKey({
       description: "Detector confidence and resolution proposals covered by the candidate digest.",
     }),
@@ -1405,10 +1450,11 @@ class ContradictionCandidateContentStruct extends S.Class<ContradictionCandidate
     validTo: S.DateTimeUtcFromMillis.pipe(S.OptionFromNullOr).annotateKey({
       description: "Exclusive valid-time upper bound covered by the candidate digest, when known.",
     }),
-  },
-  $I.annote("ContradictionCandidateContentStruct", {
-    description: "Structural candidate payload before its half-open valid interval is checked.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContradictionCandidateContentStruct", {
+      description: "Structural candidate payload before its half-open valid interval is checked.",
+    })
+  )
 ) {}
 
 const ContradictionCandidateContentSchema = ContradictionCandidateContentStruct.mapFields(identity).check(
@@ -1433,13 +1479,15 @@ const ContradictionCandidateContentSchema = ContradictionCandidateContentStruct.
  * @category value-objects
  * @since 0.0.0
  */
-export class ContradictionCandidateContent extends S.Class<ContradictionCandidateContent>(
-  $I`ContradictionCandidateContent`
-)(
-  ContradictionCandidateContentSchema,
-  $I.annote("ContradictionCandidateContent", {
-    description: "Complete immutable candidate payload covered by its collision-guard digest.",
-  })
+export class ContradictionCandidateContent extends S.Opaque<
+  ContradictionCandidateContent,
+  { readonly brand: unique symbol }
+>()(
+  ContradictionCandidateContentSchema.pipe(
+    $I.annoteSchema("ContradictionCandidateContent", {
+      description: "Complete immutable candidate payload covered by its collision-guard digest.",
+    })
+  )
 ) {}
 
 const encodeCandidateContent = S.encodeResult(ContradictionCandidateContent.mapFields(identity));
@@ -1455,6 +1503,7 @@ const encodeCandidateContent = S.encodeResult(ContradictionCandidateContent.mapF
  *   BeliefVersionRef,
  *   ContradictionAssessment,
  *   CanonicalContradictionBeliefPair,
+ *   ContradictionCandidateContent,
  *   ContradictionMatchBasis,
  *   ContradictionProposalDigest,
  *   ContradictionProposalId,
@@ -1494,23 +1543,25 @@ const encodeCandidateContent = S.encodeResult(ContradictionCandidateContent.mapF
  *   validFrom,
  *   validTo: O.none(),
  * })
- * const digest = contradictionCandidateDigest({
- *   assessment: ContradictionAssessment.make({
- *     confidence: Confidence.make(0.95),
- *     proposals: [proposal],
- *   }),
- *   matchBasis: ContradictionMatchBasis.make({
- *     detector: "example-detector",
- *     detectorVersion: "0.0.0",
- *     evidenceDigest: contradictionEvidenceDigest(leftEvidenceIds, rightEvidenceIds),
- *     kind: "independent-evidence",
- *     leftEvidenceIds,
- *     rightEvidenceIds,
- *   }),
- *   pair: CanonicalContradictionBeliefPair.make({ left, right }),
- *   validFrom,
- *   validTo: O.none(),
- * })
+ * const digest = contradictionCandidateDigest(
+ *   ContradictionCandidateContent.make({
+ *     assessment: ContradictionAssessment.make({
+ *       confidence: Confidence.make(0.95),
+ *       proposals: [proposal],
+ *     }),
+ *     matchBasis: ContradictionMatchBasis.make({
+ *       detector: "example-detector",
+ *       detectorVersion: "0.0.0",
+ *       evidenceDigest: contradictionEvidenceDigest(leftEvidenceIds, rightEvidenceIds),
+ *       kind: "independent-evidence",
+ *       leftEvidenceIds,
+ *       rightEvidenceIds,
+ *     }),
+ *     pair: CanonicalContradictionBeliefPair.make({ left, right }),
+ *     validFrom,
+ *     validTo: O.none(),
+ *   })
+ * )
  *
  * console.log(Result.isSuccess(digest)) // true
  * ```
@@ -1519,7 +1570,7 @@ const encodeCandidateContent = S.encodeResult(ContradictionCandidateContent.mapF
  * @since 0.0.0
  */
 export const contradictionCandidateDigest = (
-  content: ContradictionCandidateContent
+  content: S.Struct.Type<typeof ContradictionCandidateContent.fields>
 ): Result.Result<ContradictionCandidateDigest, S.SchemaError> =>
   Result.map(encodeCandidateContent(content), (encoded) =>
     ContradictionCandidateDigest.make(sha256Hex(`v1\n${canonicalJson(encoded)}`))
@@ -1563,7 +1614,9 @@ export const ContradictionBeliefPairArbitrary = Arbitrary.schema(ContradictionBe
 export const CanonicalContradictionBeliefPairArbitrary = ContradictionBeliefPairArbitrary.pipe(
   Arbitrary.map(({ left, right }) =>
     CanonicalContradictionBeliefPair.make(
-      beliefRefComesBefore(left, right) ? { left, right } : { left: right, right: left }
+      beliefRefComesBefore(BeliefVersionRef.make(left), BeliefVersionRef.make(right))
+        ? { left, right }
+        : { left: right, right: left }
     )
   )
 );

@@ -42,8 +42,8 @@ const $I = $LawPracticeDomainId.create("values/StringCitationGroup/StringCitatio
  * @category models
  * @since 0.0.0
  */
-export class StringCitationGroup extends S.Class<StringCitationGroup>($I`StringCitationGroup`)(
-  {
+export class StringCitationGroup extends S.Opaque<StringCitationGroup, { readonly brand: unique symbol }>()(
+  S.Struct({
     memberIds: S.Array(CitationId).annotateKey({
       description: "Stable CitationIds of all group members (including self) in document order.",
     }),
@@ -54,10 +54,11 @@ export class StringCitationGroup extends S.Class<StringCitationGroup>($I`StringC
         description: "The group's leading citation signal, when present.",
       })
     ),
-  },
-  $I.annote("StringCitationGroup", {
-    description: 'A string-citation group: citations chained for one proposition ("See A; B; C") (#857).',
-  })
+  }).pipe(
+    $I.annoteSchema("StringCitationGroup", {
+      description: 'A string-citation group: citations chained for one proposition ("See A; B; C") (#857).',
+    })
+  )
 ) {}
 
 /**

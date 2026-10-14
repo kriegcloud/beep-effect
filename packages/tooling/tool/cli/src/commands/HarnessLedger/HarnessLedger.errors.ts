@@ -26,7 +26,9 @@ const $I = $RepoCliId.create("commands/HarnessLedger/HarnessLedger.errors");
  * @category errors
  * @since 0.0.0
  */
-export class HarnessLedgerInputError extends S.TaggedError<HarnessLedgerInputError>($I`HarnessLedgerInputError`)(
+export class HarnessLedgerInputError extends S.TaggedError<HarnessLedgerInputError, { readonly brand: unique symbol }>(
+  $I`HarnessLedgerInputError`
+)(
   "HarnessLedgerInputError",
   {
     message: S.String,
@@ -62,7 +64,9 @@ export class HarnessLedgerInputError extends S.TaggedError<HarnessLedgerInputErr
  * @category errors
  * @since 0.0.0
  */
-export class HarnessLedgerChainError extends S.TaggedError<HarnessLedgerChainError>($I`HarnessLedgerChainError`)(
+export class HarnessLedgerChainError extends S.TaggedError<HarnessLedgerChainError, { readonly brand: unique symbol }>(
+  $I`HarnessLedgerChainError`
+)(
   "HarnessLedgerChainError",
   {
     rowId: S.String,
@@ -101,7 +105,9 @@ export class HarnessLedgerChainError extends S.TaggedError<HarnessLedgerChainErr
  * @category errors
  * @since 0.0.0
  */
-export class HarnessLedgerIoError extends S.TaggedError<HarnessLedgerIoError>($I`HarnessLedgerIoError`)(
+export class HarnessLedgerIoError extends S.TaggedError<HarnessLedgerIoError, { readonly brand: unique symbol }>(
+  $I`HarnessLedgerIoError`
+)(
   "HarnessLedgerIoError",
   {
     cause: OpaqueDefect,
@@ -158,7 +164,9 @@ export class HarnessLedgerIoError extends S.TaggedError<HarnessLedgerIoError>($I
  * @category errors
  * @since 0.0.0
  */
-export class HarnessLedgerBusyError extends S.TaggedError<HarnessLedgerBusyError>($I`HarnessLedgerBusyError`)(
+export class HarnessLedgerBusyError extends S.TaggedError<HarnessLedgerBusyError, { readonly brand: unique symbol }>(
+  $I`HarnessLedgerBusyError`
+)(
   "HarnessLedgerBusyError",
   {
     lockFile: S.String,

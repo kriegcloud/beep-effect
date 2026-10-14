@@ -44,15 +44,12 @@ const $I = $ScratchpadId.create("effect-ontology/Service/SubgraphExtractor");
  * @category models
  * @since 0.0.0
  */
-export class NodeDistance extends S.Class<NodeDistance>($I`NodeDistance`)(
-  {
+export class NodeDistance extends S.Opaque<NodeDistance, { readonly brand: unique symbol }>()(S.Struct({
     entityId: EntityId.annotateKey({ description: "Entity whose breadth-first distance was measured." }),
     hops: S.Natural.annotateKey({ description: "Shortest number of traversed relations from any seed." }),
-  },
-  $I.annote("NodeDistance", {
+  }).pipe($I.annoteSchema("NodeDistance", {
     description: "Shortest breadth-first hop count from any accepted subgraph seed to one entity.",
-  })
-) {}
+  }))) {}
 
 /**
  * Schema-backed bounded view of a knowledge graph.
@@ -70,8 +67,7 @@ export class NodeDistance extends S.Class<NodeDistance>($I`NodeDistance`)(
  * @category models
  * @since 0.0.0
  */
-export class Subgraph extends S.Class<Subgraph>($I`Subgraph`)(
-  {
+export class Subgraph extends S.Opaque<Subgraph, { readonly brand: unique symbol }>()(S.Struct({
     nodes: S.Array(Entity).annotateKey({ description: "Entities admitted by the traversal bound." }),
     edges: S.Array(Relation).annotateKey({ description: "Relations whose entity endpoints are both admitted." }),
     centerNodes: S.Array(EntityId).annotateKey({ description: "Valid seed IDs admitted before traversal began." }),
@@ -79,11 +75,9 @@ export class Subgraph extends S.Class<Subgraph>($I`Subgraph`)(
     distances: S.Array(NodeDistance).annotateKey({
       description: "Shortest measured hop distance for every admitted entity.",
     }),
-  },
-  $I.annote("Subgraph", {
+  }).pipe($I.annoteSchema("Subgraph", {
     description: "Bounded knowledge-graph view with exact seed distances and actual traversal depth.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link Subgraph}.
@@ -109,8 +103,7 @@ const extractOptionsMaxNodesDefault = PosInt.make(50);
  * @category models
  * @since 0.0.0
  */
-export class ExtractOptions extends S.Class<ExtractOptions>($I`ExtractOptions`)(
-  {
+export class ExtractOptions extends S.Opaque<ExtractOptions, { readonly brand: unique symbol }>()(S.Struct({
     maxNodes: PosInt.pipe(
       S.withConstructorDefault(Effect.succeed(extractOptionsMaxNodesDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(extractOptionsMaxNodesDefault)),
       S.annotateKey({ description: "Maximum entities admitted, including seeds." })
@@ -123,11 +116,9 @@ export class ExtractOptions extends S.Class<ExtractOptions>($I`ExtractOptions`)(
       S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true)),
       S.annotateKey({ description: "Whether traversal follows subjects of relations targeting each entity." })
     ),
-  },
-  $I.annote("ExtractOptions", {
+  }).pipe($I.annoteSchema("ExtractOptions", {
     description: "Validated node bound and relation directions for breadth-first subgraph extraction.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link ExtractOptions}.
@@ -156,8 +147,7 @@ const extractRelevantOptionsFilterTypesDefault = A.empty<IRI>();
  * @category models
  * @since 0.0.0
  */
-export class ExtractRelevantOptions extends S.Class<ExtractRelevantOptions>($I`ExtractRelevantOptions`)(
-  {
+export class ExtractRelevantOptions extends S.Opaque<ExtractRelevantOptions, { readonly brand: unique symbol }>()(S.Struct({
     topK: PosInt.pipe(
       S.withConstructorDefault(Effect.succeed(extractRelevantOptionsTopKDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(extractRelevantOptionsTopKDefault)),
       S.annotateKey({ description: "Maximum embedding matches used as traversal seeds." })
@@ -174,11 +164,9 @@ export class ExtractRelevantOptions extends S.Class<ExtractRelevantOptions>($I`E
       S.withConstructorDefault(Effect.succeed(extractRelevantOptionsFilterTypesDefault)), S.withDecodingDefaultType(Effect.succeed(extractRelevantOptionsFilterTypesDefault)),
       S.annotateKey({ description: "Optional ontology classes restricting semantic seed candidates." })
     ),
-  },
-  $I.annote("ExtractRelevantOptions", {
+  }).pipe($I.annoteSchema("ExtractRelevantOptions", {
     description: "Validated semantic seed count, score threshold, type filter, and traversal distance.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link ExtractRelevantOptions}.

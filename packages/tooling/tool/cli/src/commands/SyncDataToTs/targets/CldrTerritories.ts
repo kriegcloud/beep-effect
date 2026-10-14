@@ -24,7 +24,7 @@ import {
   parseJsonSource,
   sourceMetadata,
 } from "../internal/Source.ts";
-import { SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
+import { SyncDataTargetMetadata, SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
 import type { SyncDataSourceMetadata, SyncDataTarget } from "../SyncDataToTs.schemas.ts";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/targets/CldrTerritories");
@@ -41,138 +41,156 @@ const canonicalPath = "packages/foundation/primitive/data/src/generated/cldr-ter
 export const CLDR_JSON_LATEST_RELEASE_URL =
   "https://api.github.com/repos/unicode-org/cldr-json/releases/latest" as const;
 
-class CldrGithubRelease extends S.Class<CldrGithubRelease>($I`CldrGithubRelease`)(
-  {
+class CldrGithubRelease extends S.Opaque<CldrGithubRelease, { readonly brand: unique symbol }>()(
+  S.Struct({
     tag_name: S.String,
     published_at: S.String,
-  },
-  $I.annote("CldrGithubRelease", {
-    description: "Latest GitHub release metadata for unicode-org/cldr-json.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrGithubRelease", {
+      description: "Latest GitHub release metadata for unicode-org/cldr-json.",
+    })
+  )
 ) {}
 const decodeUnknownCldrGithubRelease = S.decodeUnknownEffect(CldrGithubRelease);
 
-class CldrVersion extends S.Class<CldrVersion>($I`CldrVersion`)(
-  {
+class CldrVersion extends S.Opaque<CldrVersion, { readonly brand: unique symbol }>()(
+  S.Struct({
     _unicodeVersion: S.String,
     _cldrVersion: S.String,
-  },
-  $I.annote("CldrVersion", {
-    description: "CLDR supplemental version metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrVersion", {
+      description: "CLDR supplemental version metadata.",
+    })
+  )
 ) {}
 
-class CldrContainmentEntry extends S.Class<CldrContainmentEntry>($I`CldrContainmentEntry`)(
-  {
+class CldrContainmentEntry extends S.Opaque<CldrContainmentEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     _contains: S.Array(S.String),
     _grouping: S.optionalKey(S.String),
-  },
-  $I.annote("CldrContainmentEntry", {
-    description: "CLDR territory containment row.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrContainmentEntry", {
+      description: "CLDR territory containment row.",
+    })
+  )
 ) {}
 
-class CldrTerritoryContainmentSupplemental extends S.Class<CldrTerritoryContainmentSupplemental>(
-  $I`CldrTerritoryContainmentSupplemental`
-)(
-  {
+class CldrTerritoryContainmentSupplemental extends S.Opaque<
+  CldrTerritoryContainmentSupplemental,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     version: CldrVersion,
     territoryContainment: S.Record(S.String, CldrContainmentEntry),
-  },
-  $I.annote("CldrTerritoryContainmentSupplemental", {
-    description: "CLDR territory containment supplemental payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrTerritoryContainmentSupplemental", {
+      description: "CLDR territory containment supplemental payload.",
+    })
+  )
 ) {}
 
-class CldrTerritoryContainmentDocument extends S.Class<CldrTerritoryContainmentDocument>(
-  $I`CldrTerritoryContainmentDocument`
-)(
-  {
+class CldrTerritoryContainmentDocument extends S.Opaque<
+  CldrTerritoryContainmentDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     supplemental: CldrTerritoryContainmentSupplemental,
-  },
-  $I.annote("CldrTerritoryContainmentDocument", {
-    description: "Decoded CLDR territory containment JSON document.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrTerritoryContainmentDocument", {
+      description: "Decoded CLDR territory containment JSON document.",
+    })
+  )
 ) {}
 const decodeUnknownCldrTerritoryContainmentDocument = S.decodeUnknownEffect(CldrTerritoryContainmentDocument);
 
-class CldrTerritoryInfoSupplemental extends S.Class<CldrTerritoryInfoSupplemental>($I`CldrTerritoryInfoSupplemental`)(
-  {
+class CldrTerritoryInfoSupplemental extends S.Opaque<
+  CldrTerritoryInfoSupplemental,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     version: CldrVersion,
     territoryInfo: S.Record(S.String, S.Unknown),
-  },
-  $I.annote("CldrTerritoryInfoSupplemental", {
-    description: "CLDR territory info supplemental payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrTerritoryInfoSupplemental", {
+      description: "CLDR territory info supplemental payload.",
+    })
+  )
 ) {}
 
-class CldrTerritoryInfoDocument extends S.Class<CldrTerritoryInfoDocument>($I`CldrTerritoryInfoDocument`)(
-  {
+class CldrTerritoryInfoDocument extends S.Opaque<CldrTerritoryInfoDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     supplemental: CldrTerritoryInfoSupplemental,
-  },
-  $I.annote("CldrTerritoryInfoDocument", {
-    description: "Decoded CLDR territory info JSON document.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrTerritoryInfoDocument", {
+      description: "Decoded CLDR territory info JSON document.",
+    })
+  )
 ) {}
 const decodeUnknownCldrTerritoryInfoDocument = S.decodeUnknownEffect(CldrTerritoryInfoDocument);
 
-class CldrLocaleTerritoryNames extends S.Class<CldrLocaleTerritoryNames>($I`CldrLocaleTerritoryNames`)(
-  {
+class CldrLocaleTerritoryNames extends S.Opaque<CldrLocaleTerritoryNames, { readonly brand: unique symbol }>()(
+  S.Struct({
     territories: S.Record(S.String, S.String),
-  },
-  $I.annote("CldrLocaleTerritoryNames", {
-    description: "English CLDR territory display names.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrLocaleTerritoryNames", {
+      description: "English CLDR territory display names.",
+    })
+  )
 ) {}
 
-class CldrLocaleDisplayNames extends S.Class<CldrLocaleDisplayNames>($I`CldrLocaleDisplayNames`)(
-  {
+class CldrLocaleDisplayNames extends S.Opaque<CldrLocaleDisplayNames, { readonly brand: unique symbol }>()(
+  S.Struct({
     localeDisplayNames: CldrLocaleTerritoryNames,
-  },
-  $I.annote("CldrLocaleDisplayNames", {
-    description: "CLDR locale display name payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrLocaleDisplayNames", {
+      description: "CLDR locale display name payload.",
+    })
+  )
 ) {}
 
-class CldrTerritoryNamesMain extends S.Class<CldrTerritoryNamesMain>($I`CldrTerritoryNamesMain`)(
-  {
+class CldrTerritoryNamesMain extends S.Opaque<CldrTerritoryNamesMain, { readonly brand: unique symbol }>()(
+  S.Struct({
     en: CldrLocaleDisplayNames,
-  },
-  $I.annote("CldrTerritoryNamesMain", {
-    description: "CLDR territory names document's locale-keyed main payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrTerritoryNamesMain", {
+      description: "CLDR territory names document's locale-keyed main payload.",
+    })
+  )
 ) {}
 
-class CldrTerritoryNamesDocument extends S.Class<CldrTerritoryNamesDocument>($I`CldrTerritoryNamesDocument`)(
-  {
+class CldrTerritoryNamesDocument extends S.Opaque<CldrTerritoryNamesDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     main: CldrTerritoryNamesMain,
-  },
-  $I.annote("CldrTerritoryNamesDocument", {
-    description: "Decoded CLDR English territory names JSON document.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrTerritoryNamesDocument", {
+      description: "Decoded CLDR English territory names JSON document.",
+    })
+  )
 ) {}
 const decodeUnknownCldrTerritoryNamesDocument = S.decodeUnknownEffect(CldrTerritoryNamesDocument);
 
-class CldrTerritoryEntry extends S.Class<CldrTerritoryEntry>($I`CldrTerritoryEntry`)(
-  {
+class CldrTerritoryEntry extends S.Opaque<CldrTerritoryEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.String,
     name: S.String,
     continentCode: S.String,
     continentName: S.String,
-  },
-  $I.annote("CldrTerritoryEntry", {
-    description: "Normalized CLDR territory entry rendered into @beep/data.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrTerritoryEntry", {
+      description: "Normalized CLDR territory entry rendered into @beep/data.",
+    })
+  )
 ) {}
 
-class CldrContinentEntry extends S.Class<CldrContinentEntry>($I`CldrContinentEntry`)(
-  {
+class CldrContinentEntry extends S.Opaque<CldrContinentEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.String,
     name: S.String,
-  },
-  $I.annote("CldrContinentEntry", {
-    description: "Normalized CLDR top-level territory containment entry rendered as a continent.",
-  })
+  }).pipe(
+    $I.annoteSchema("CldrContinentEntry", {
+      description: "Normalized CLDR top-level territory containment entry rendered as a continent.",
+    })
+  )
 ) {}
 
 type CldrTerritoryEntryType = CldrTerritoryEntry;
@@ -612,14 +630,16 @@ const acquireCldrTerritoriesProjection = Effect.fn("SyncDataToTs.CldrTerritories
  * @since 0.0.0
  */
 export const cldrTerritoriesTarget: SyncDataTarget = {
-  id: targetId,
-  access: "public",
-  description: "Sync CLDR territory and top-level containment data from the latest CLDR JSON release.",
-  sourceUrls: [
-    CLDR_JSON_LATEST_RELEASE_URL,
-    "https://raw.githubusercontent.com/unicode-org/cldr-json/<release>/cldr-json/cldr-core/supplemental/territoryContainment.json",
-    "https://raw.githubusercontent.com/unicode-org/cldr-json/<release>/cldr-json/cldr-core/supplemental/territoryInfo.json",
-    "https://raw.githubusercontent.com/unicode-org/cldr-json/<release>/cldr-json/cldr-localenames-full/main/en/territories.json",
-  ],
+  ...SyncDataTargetMetadata.make({
+    id: targetId,
+    access: "public",
+    description: "Sync CLDR territory and top-level containment data from the latest CLDR JSON release.",
+    sourceUrls: [
+      CLDR_JSON_LATEST_RELEASE_URL,
+      "https://raw.githubusercontent.com/unicode-org/cldr-json/<release>/cldr-json/cldr-core/supplemental/territoryContainment.json",
+      "https://raw.githubusercontent.com/unicode-org/cldr-json/<release>/cldr-json/cldr-core/supplemental/territoryInfo.json",
+      "https://raw.githubusercontent.com/unicode-org/cldr-json/<release>/cldr-json/cldr-localenames-full/main/en/territories.json",
+    ],
+  }),
   acquire: acquireCldrTerritoriesProjection(),
 };

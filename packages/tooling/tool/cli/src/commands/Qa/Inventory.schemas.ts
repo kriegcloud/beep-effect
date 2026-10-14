@@ -318,8 +318,8 @@ export type QaFindingId = typeof QaFindingId.Type;
  * @category models
  * @since 0.0.0
  */
-export class QaEvidenceRef extends S.Class<QaEvidenceRef>($I`QaEvidenceRef`)(
-  {
+export class QaEvidenceRef extends S.Opaque<QaEvidenceRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventIds: S.Array(SequenceNumber).pipe(
       $I.annoteKey("QaEvidenceRef.eventIds", {
         description: "Witness sequence numbers this artifact corresponds to; may be empty.",
@@ -341,10 +341,11 @@ export class QaEvidenceRef extends S.Class<QaEvidenceRef>($I`QaEvidenceRef`)(
         description: "Round-relative path of the cited artifact.",
       })
     ),
-  },
-  $I.annote("QaEvidenceRef", {
-    description: "One artifact a vision-judge finding points at, with correlated witness events.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaEvidenceRef", {
+      description: "One artifact a vision-judge finding points at, with correlated witness events.",
+    })
+  )
 ) {}
 
 /**
@@ -362,8 +363,8 @@ export class QaEvidenceRef extends S.Class<QaEvidenceRef>($I`QaEvidenceRef`)(
  * @category models
  * @since 0.0.0
  */
-export class QaJudgeRef extends S.Class<QaJudgeRef>($I`QaJudgeRef`)(
-  {
+export class QaJudgeRef extends S.Opaque<QaJudgeRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     effort: S.String.pipe(
       $I.annoteKey("QaJudgeRef.effort", {
         description: "Reasoning effort the judge ran at.",
@@ -374,10 +375,11 @@ export class QaJudgeRef extends S.Class<QaJudgeRef>($I`QaJudgeRef`)(
         description: "Model identifier that judged the round.",
       })
     ),
-  },
-  $I.annote("QaJudgeRef", {
-    description: "The judge run that produced a QA inventory.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaJudgeRef", {
+      description: "The judge run that produced a QA inventory.",
+    })
+  )
 ) {}
 
 /**
@@ -407,8 +409,8 @@ export class QaJudgeRef extends S.Class<QaJudgeRef>($I`QaJudgeRef`)(
  * @category models
  * @since 0.0.0
  */
-export class QaFinding extends S.Class<QaFinding>($I`QaFinding`)(
-  {
+export class QaFinding extends S.Opaque<QaFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     evidence: S.NonEmptyArray(QaEvidenceRef).pipe(
       $I.annoteKey("QaFinding.evidence", {
         description: "Artifacts backing the finding; a finding without evidence is not a finding.",
@@ -450,10 +452,11 @@ export class QaFinding extends S.Class<QaFinding>($I`QaFinding`)(
         description: "One-line summary of the defect.",
       })
     ),
-  },
-  $I.annote("QaFinding", {
-    description: "One vision-judge finding with its evidence, reproduction, and fix.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaFinding", {
+      description: "One vision-judge finding with its evidence, reproduction, and fix.",
+    })
+  )
 ) {}
 
 /**
@@ -534,7 +537,7 @@ const RequiredCountCoherenceCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class QaInventory extends S.Class<QaInventory>($I`QaInventory`)(
+export class QaInventory extends S.Opaque<QaInventory, { readonly brand: unique symbol }>()(
   S.Struct({
     findings: S.Array(QaFinding).pipe(
       $I.annoteKey("QaInventory.findings", {
@@ -573,10 +576,13 @@ export class QaInventory extends S.Class<QaInventory>($I`QaInventory`)(
         description: "Round-relative path of the capture session manifest.",
       })
     ),
-  }).check(RequiredCountCoherenceCheck),
-  $I.annote("QaInventory", {
-    description: "Schema-validated vision-judge inventory for one QA round.",
   })
+    .check(RequiredCountCoherenceCheck)
+    .pipe(
+      $I.annoteSchema("QaInventory", {
+        description: "Schema-validated vision-judge inventory for one QA round.",
+      })
+    )
 ) {}
 
 /**

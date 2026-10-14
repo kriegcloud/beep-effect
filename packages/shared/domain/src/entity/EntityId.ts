@@ -160,8 +160,8 @@ export type EntityIdValueFor<TBrand extends string> = BrandNS.Branded<EntityIdVa
  * @category models
  * @since 0.0.0
  */
-export class Options extends S.Class<Options>($I`Options`)(
-  {
+export class Options extends S.Opaque<Options, { readonly nominal: unique symbol }>()(
+  S.Struct({
     brand: S.OptionFromOptionalKey(EntityIdPascalToken).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional schema brand override for the generated entity id." })
@@ -182,10 +182,11 @@ export class Options extends S.Class<Options>($I`Options`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional SQL table-name override for the generated entity id." })
     ),
-  },
-  $I.annote("Options", {
-    description: "Constrained metadata overrides accepted by EntityId.factory.",
-  })
+  }).pipe(
+    $I.annoteSchema("Options", {
+      description: "Constrained metadata overrides accepted by EntityId.factory.",
+    })
+  )
 ) {}
 
 /**
@@ -329,8 +330,8 @@ type ResolvedBrand<Slice extends string, Name extends string, Overrides> = Overr
  * @category models
  * @since 0.0.0
  */
-export class Definition extends S.Class<Definition>($I`Definition`)(
-  {
+export class Definition extends S.Opaque<Definition, { readonly nominal: unique symbol }>()(
+  S.Struct({
     brand: EntityIdPascalToken.annotateKey({ description: "Resolved schema brand for the generated entity id." }),
     description: EntityIdDescription.annotateKey({
       description: "Human-readable description for the generated entity id.",
@@ -343,10 +344,11 @@ export class Definition extends S.Class<Definition>($I`Definition`)(
     resource: EntityIdResource.annotateKey({ description: "Resolved dot-separated authorization resource token." }),
     slice: EntityIdToken.annotateKey({ description: "Slice segment used to derive shared entity-id metadata." }),
     tableName: EntityIdToken.annotateKey({ description: "Resolved SQL table name for the generated entity id." }),
-  },
-  $I.annote("Definition", {
-    description: "Materialized entity-id metadata derived from a slice and entity name.",
-  })
+  }).pipe(
+    $I.annoteSchema("Definition", {
+      description: "Materialized entity-id metadata derived from a slice and entity name.",
+    })
+  )
 ) {}
 
 /**

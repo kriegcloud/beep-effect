@@ -124,16 +124,18 @@ const FaceDetectionErrorTrailingContextFields = {
  * @category errors
  * @since 0.0.0
  */
-export class FaceDetectionErrorFromUnknownOptions extends S.Class<FaceDetectionErrorFromUnknownOptions>(
-  $I`FaceDetectionErrorFromUnknownOptions`
-)(
-  {
+export class FaceDetectionErrorFromUnknownOptions extends S.Opaque<
+  FaceDetectionErrorFromUnknownOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...FaceDetectionErrorLeadingContextFields,
     ...FaceDetectionErrorTrailingContextFields,
-  },
-  $I.annote("FaceDetectionErrorFromUnknownOptions", {
-    description: "Options used when normalizing unknown face detection failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceDetectionErrorFromUnknownOptions", {
+      description: "Options used when normalizing unknown face detection failures.",
+    })
+  )
 ) {}
 
 /**
@@ -158,7 +160,9 @@ export class FaceDetectionErrorFromUnknownOptions extends S.Class<FaceDetectionE
  * @category errors
  * @since 0.0.0
  */
-export class FaceDetectionError extends S.TaggedError<FaceDetectionError>($I`FaceDetectionError`)(
+export class FaceDetectionError extends S.TaggedError<FaceDetectionError, { readonly brand: unique symbol }>(
+  $I`FaceDetectionError`
+)(
   "FaceDetectionError",
   {
     ...FaceDetectionErrorLeadingContextFields,

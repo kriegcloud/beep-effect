@@ -6,6 +6,16 @@
  */
 
 import * as B from "@beep/box";
+import {
+  CreateCollaborationRequestBody,
+  CreateCollaborationRequestBodyItemField,
+  CreateFolderRequestBody,
+  CreateFolderRequestBodyParentField,
+  CreateWebhookRequestBody,
+  CreateWebhookRequestBodyTargetField,
+  UpdateCollaborationByIdOptionalsInput,
+  UpdateWebhookByIdOptionalsInput,
+} from "@beep/box";
 import { $BoxProvisioningId } from "@beep/identity";
 import { Sha256Hex } from "@beep/schema";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
@@ -422,7 +432,10 @@ const createFolder = Effect.fn("BoxProvisioningApplier.createFolder")(function* 
   });
   const created = yield* box.folders.createFolder(
     B.FoldersCreateFolderPayload.make({
-      requestBody: { name: desired.name, parent: { id: parentProviderId } },
+      requestBody: CreateFolderRequestBody.make({
+        name: desired.name,
+        parent: CreateFolderRequestBodyParentField.make({ id: parentProviderId }),
+      }),
     })
   );
   const createdIdentity = yield* toObservedFolderFromFull(created);
@@ -451,11 +464,11 @@ const createCollaboration = Effect.fn("BoxProvisioningApplier.createCollaboratio
   yield* validateFolderDependency(box, desired.folderKey, folderProviderIds, folderIdentities);
   const created = yield* box.userCollaborations.createCollaboration(
     B.UserCollaborationsCreateCollaborationPayload.make({
-      requestBody: {
+      requestBody: CreateCollaborationRequestBody.make({
         accessibleBy: collaborationAccessibleBy(desired),
-        item: { id: folderProviderId, type: "folder" },
+        item: CreateCollaborationRequestBodyItemField.make({ id: folderProviderId, type: "folder" }),
         role: desired.role,
-      },
+      }),
     })
   );
   return appliedOutcome(action, BoxProviderId.make(created.id));
@@ -474,11 +487,11 @@ const createWebhook = Effect.fn("BoxProvisioningApplier.createWebhook")(function
   yield* validateFolderDependency(box, desired.folderKey, folderProviderIds, folderIdentities);
   const created = yield* box.webhooks.createWebhook(
     B.WebhooksCreateWebhookPayload.make({
-      requestBody: {
+      requestBody: CreateWebhookRequestBody.make({
         address: desired.address,
-        target: { id: folderProviderId, type: "folder" },
+        target: CreateWebhookRequestBodyTargetField.make({ id: folderProviderId, type: "folder" }),
         triggers: desired.triggers,
-      },
+      }),
     })
   );
   return appliedOutcome(action, yield* decodeCreatedIdentity(created));
@@ -510,7 +523,9 @@ const updateCollaboration = Effect.fn("BoxProvisioningApplier.updateCollaboratio
   yield* box.userCollaborations.updateCollaborationById(
     B.UserCollaborationsUpdateCollaborationByIdPayload.make({
       collaborationId: providerId,
-      optionalsInput: { requestBody: { role: desired.role } },
+      optionalsInput: UpdateCollaborationByIdOptionalsInput.make({
+        requestBody: B.UpdateCollaborationByIdRequestBody.make({ role: desired.role }),
+      }),
     })
   );
   return appliedOutcome(action, providerId);
@@ -526,7 +541,9 @@ const updateWebhook = Effect.fn("BoxProvisioningApplier.updateWebhook")(function
   yield* box.webhooks.updateWebhookById(
     B.WebhooksUpdateWebhookByIdPayload.make({
       webhookId: providerId,
-      optionalsInput: { requestBody: { triggers: desired.triggers } },
+      optionalsInput: UpdateWebhookByIdOptionalsInput.make({
+        requestBody: B.UpdateWebhookByIdRequestBody.make({ triggers: desired.triggers }),
+      }),
     })
   );
   return appliedOutcome(action, providerId);

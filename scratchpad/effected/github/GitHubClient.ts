@@ -21,11 +21,11 @@ import type { PageOptions } from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/GitHubClient");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String.pipe(S.annotateKey({ description: "The test-double member that was called without an override." })),
 }, $I.annote("UnstubbedError", { description: "An unconfigured GitHubClient test-double member was called." })) {}
 
-class FixtureError extends S.TaggedError<FixtureError>($I`FixtureError`)("FixtureError", {
+class FixtureError extends S.TaggedError<FixtureError, { readonly brand: unique symbol }>($I`FixtureError`)("FixtureError", {
 	message: S.String.pipe(S.annotateKey({ description: "The requested route or GraphQL document missing from the fixture." })),
 }, $I.annote("FixtureError", { description: "A GitHubClient fixture has no response for the requested operation." })) {}
 

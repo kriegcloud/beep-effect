@@ -1914,5 +1914,26 @@
     "./packages/tooling/tool/cli/src/commands/AgentMessage/index.ts"
   ],
   "@beep/t3-code": ["./packages/drivers/t3-code/src/index.ts"],
-  "@beep/t3-code/*": ["./packages/drivers/t3-code/src/*"]
+  "@beep/t3-code/*": ["./packages/drivers/t3-code/src/*"],
+  "@beep/observability/catalog": [
+    "./packages/foundation/capability/observability/src/catalog/index.ts"
+  ],
+  "@beep/repo-cli/commands/Observability": [
+    "./packages/tooling/tool/cli/src/commands/Observability/index.ts"
+  ],
+  "@beep/law-practice-domain/values/ReviewItem": [
+    "./packages/law-practice/domain/src/values/ReviewItem/index.ts"
+  ],
+  "@beep/law-practice-domain/values/SourceRef": [
+    "./packages/law-practice/domain/src/values/SourceRef/index.ts"
+  ],
+  "@beep/law-practice-domain/values/VerdictRow": [
+    "./packages/law-practice/domain/src/values/VerdictRow/index.ts"
+  ],
+  "@beep/law-practice-use-cases/ReviewQueue": [
+    "./packages/law-practice/use-cases/src/ReviewQueue/index.ts"
+  ],
+  "@beep/law-practice-use-cases/VerdictProjector": [
+    "./packages/law-practice/use-cases/src/VerdictProjector/index.ts"
+  ]
 }

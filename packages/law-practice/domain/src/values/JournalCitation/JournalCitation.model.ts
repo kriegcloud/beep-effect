@@ -51,8 +51,8 @@ const $I = $LawPracticeDomainId.create("values/JournalCitation/JournalCitation.m
  * @category models
  * @since 0.0.0
  */
-export class JournalCitation extends S.Class<JournalCitation>($I`JournalCitation`)(
-  {
+export class JournalCitation extends S.Opaque<JournalCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("journal"),
     journal: S.String.annotateKey({
@@ -110,10 +110,11 @@ export class JournalCitation extends S.Class<JournalCitation>($I`JournalCitation
         description: "Component spans locating each recognized sub-part within the source text.",
       })
     ),
-  },
-  $I.annote("JournalCitation", {
-    description: "A parsed journal citation.",
-  })
+  }).pipe(
+    $I.annoteSchema("JournalCitation", {
+      description: "A parsed journal citation.",
+    })
+  )
 ) {}
 
 /**

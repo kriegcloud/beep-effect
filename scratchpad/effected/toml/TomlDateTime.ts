@@ -140,7 +140,7 @@ function formatOffset(offsetMinutes: number): string {
  * @category value-objects
  * @since 0.0.0
  */
-export class TomlLocalDate extends S.Class<TomlLocalDate>($I`TomlLocalDate`)(
+export class TomlLocalDate extends S.Class<TomlLocalDate, {}>($I`TomlLocalDate`)(
 	S.Struct(dateFields).check(isRealCalendarDate), $I.annote("TomlLocalDate", { description: "A TOML local date: `year`-`month`-`day` with no time-of-day or offset, validated against the real Gregorian calendar." }),
 ) {
 	/**
@@ -180,7 +180,7 @@ export class TomlLocalDate extends S.Class<TomlLocalDate>($I`TomlLocalDate`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class TomlLocalTime extends S.Class<TomlLocalTime>($I`TomlLocalTime`)(timeFields, $I.annote("TomlLocalTime", { description: "A TOML local time: `hour`:`minute`:`second`[.`nanosecond`] with no date or offset. `second` tolerates the RFC 3339 leap second (0-60)." })) {
+export class TomlLocalTime extends S.Class<TomlLocalTime, {}>($I`TomlLocalTime`)(timeFields, $I.annote("TomlLocalTime", { description: "A TOML local time: `hour`:`minute`:`second`[.`nanosecond`] with no date or offset. `second` tolerates the RFC 3339 leap second (0-60)." })) {
 	/**
 	 * Formats this time with seconds and an optional fraction trimmed to the shortest exact representation.
 	 *
@@ -218,7 +218,7 @@ export class TomlLocalTime extends S.Class<TomlLocalTime>($I`TomlLocalTime`)(tim
  * @category value-objects
  * @since 0.0.0
  */
-export class TomlLocalDateTime extends S.Class<TomlLocalDateTime>($I`TomlLocalDateTime`)(
+export class TomlLocalDateTime extends S.Class<TomlLocalDateTime, {}>($I`TomlLocalDateTime`)(
 	S.Struct({ ...dateFields, ...timeFields }).check(isRealCalendarDate), $I.annote("TomlLocalDateTime", { description: "A TOML local date-time: a TomlLocalDate and a TomlLocalTime combined, with no offset." }),
 ) {
 	/**
@@ -259,7 +259,7 @@ export class TomlLocalDateTime extends S.Class<TomlLocalDateTime>($I`TomlLocalDa
  * @category value-objects
  * @since 0.0.0
  */
-export class TomlOffsetDateTime extends S.Class<TomlOffsetDateTime>($I`TomlOffsetDateTime`)(
+export class TomlOffsetDateTime extends S.Class<TomlOffsetDateTime, {}>($I`TomlOffsetDateTime`)(
 	S.Struct({
 		...dateFields,
 		...timeFields,

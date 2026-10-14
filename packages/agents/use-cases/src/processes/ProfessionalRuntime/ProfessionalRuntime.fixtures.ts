@@ -37,48 +37,53 @@ import { RuntimeFixtureScenarioId } from "./ProfessionalRuntime.values.ts";
 
 const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalRuntime.fixtures");
 
-class RuntimeFixtureEmailInput extends S.Class<RuntimeFixtureEmailInput>($I`RuntimeFixtureEmailInput`)(
-  {
+class RuntimeFixtureEmailInput extends S.Opaque<RuntimeFixtureEmailInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifactId: S.String,
     scenarioId: RuntimeFixtureScenarioId,
     sourceSpans: S.Array(S.String),
     subject: S.String,
     threadId: S.String,
-  },
-  $I.annote("RuntimeFixtureEmailInput", {
-    description: "Email artifact metadata and declared source spans for a deterministic runtime fixture.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeFixtureEmailInput", {
+      description: "Email artifact metadata and declared source spans for a deterministic runtime fixture.",
+    })
+  )
 ) {}
 
-class RuntimeFixtureOrganizationInput extends S.Class<RuntimeFixtureOrganizationInput>(
-  $I`RuntimeFixtureOrganizationInput`
-)(
-  {
+class RuntimeFixtureOrganizationInput extends S.Opaque<
+  RuntimeFixtureOrganizationInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     organizationId: S.String,
-  },
-  $I.annote("RuntimeFixtureOrganizationInput", {
-    description: "Organization seed values used to scope a deterministic runtime fixture.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeFixtureOrganizationInput", {
+      description: "Organization seed values used to scope a deterministic runtime fixture.",
+    })
+  )
 ) {}
 
-class RuntimeFixtureWorkspaceInput extends S.Class<RuntimeFixtureWorkspaceInput>($I`RuntimeFixtureWorkspaceInput`)(
-  {
+class RuntimeFixtureWorkspaceInput extends S.Opaque<RuntimeFixtureWorkspaceInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     workspaceId: S.String,
-  },
-  $I.annote("RuntimeFixtureWorkspaceInput", {
-    description: "Workspace seed values used to scope a deterministic runtime fixture.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeFixtureWorkspaceInput", {
+      description: "Workspace seed values used to scope a deterministic runtime fixture.",
+    })
+  )
 ) {}
 
-class RuntimeFixtureSeedInput extends S.Class<RuntimeFixtureSeedInput>($I`RuntimeFixtureSeedInput`)(
-  {
+class RuntimeFixtureSeedInput extends S.Opaque<RuntimeFixtureSeedInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     organization: RuntimeFixtureOrganizationInput,
     scenarioId: RuntimeFixtureScenarioId,
     workspace: RuntimeFixtureWorkspaceInput,
-  },
-  $I.annote("RuntimeFixtureSeedInput", {
-    description: "Scenario seed values used to build deterministic runtime fixture scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeFixtureSeedInput", {
+      description: "Scenario seed values used to build deterministic runtime fixture scope.",
+    })
+  )
 ) {}
 
 /**
@@ -112,18 +117,19 @@ class RuntimeFixtureSeedInput extends S.Class<RuntimeFixtureSeedInput>($I`Runtim
  * @category models
  * @since 0.0.0
  */
-export class RuntimeFixtureInput extends S.Class<RuntimeFixtureInput>($I`RuntimeFixtureInput`)(
-  {
+export class RuntimeFixtureInput extends S.Opaque<RuntimeFixtureInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.String,
     email: RuntimeFixtureEmailInput,
     promotionSubjects: S.NonEmptyArray(PromotionSubjectRef).annotateKey({
       description: "Trusted product subjects bound to the deterministic fixture output by its host.",
     }),
     seed: RuntimeFixtureSeedInput,
-  },
-  $I.annote("RuntimeFixtureInput", {
-    description: "Parsed fixture input combining the email body, email metadata, and scenario seed.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeFixtureInput", {
+      description: "Parsed fixture input combining the email body, email metadata, and scenario seed.",
+    })
+  )
 ) {}
 
 const assertScenario = (input: RuntimeFixtureInput): void => {

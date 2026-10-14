@@ -33,7 +33,7 @@ import { TsconfigLoader } from "./TsconfigLoader.ts";
 const $I = $ScratchpadId.create("effected/tsconfig-json/TsconfigLoaderSync");
 
 /** Defect raised when the sync path adapter receives an unsupported operation. */
-class UnsupportedPathOperationError extends S.TaggedError<UnsupportedPathOperationError>($I`UnsupportedPathOperationError`)(
+class UnsupportedPathOperationError extends S.TaggedError<UnsupportedPathOperationError, { readonly brand: unique symbol }>($I`UnsupportedPathOperationError`)(
 	"UnsupportedPathOperationError",
 	{ message: S.String },
 	$I.annote("UnsupportedPathOperationError", {

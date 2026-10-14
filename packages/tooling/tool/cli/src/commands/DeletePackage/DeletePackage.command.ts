@@ -21,7 +21,7 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
-import { applyJsoncModification } from "../../internal/cli/Jsonc.ts";
+import { applyJsoncModification, JsoncModification } from "../../internal/cli/Jsonc.ts";
 import { decodeLabManifestJson, isLabsWorkspacePath, LAB_MANIFEST_FILENAME } from "../../internal/cli/Labs/index.ts";
 import {
   DeletionNotePolicy,
@@ -37,6 +37,7 @@ import { LabIdentitySegment } from "../CreatePackage/internal/LabIdentitySegment
 import { changesetPackageReferencesFromText } from "../Quality/ChangesetGraph.ts";
 import { subtractPackageFromCoverageRegressionBaseline } from "../Quality/internal/CoverageRegression.ts";
 import { syncTsconfigAtRoot } from "../TsconfigSync/index.ts";
+import { TsconfigSyncRunOptionsSync } from "../TsconfigSync/TsconfigSync.schemas.ts";
 import { DeletePackagePolicyEvaluation } from "./DeletePackage.policy.ts";
 import {
   BaselineOutputStamp,
@@ -63,15 +64,16 @@ const $I = $RepoCliId.create("commands/DeletePackage");
 const RETIRED_REGISTRY_PATH = "standards/changesets.retired-packages.json";
 const IDENTITY_SHAPE_TEST_PATH = "packages/foundation/modeling/identity/test/shape-stable.test.ts";
 
-class ResolvedDeleteTarget extends S.Class<ResolvedDeleteTarget>($I`ResolvedDeleteTarget`)(
-  {
+class ResolvedDeleteTarget extends S.Opaque<ResolvedDeleteTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     target: RegistrationTarget,
     liveWorkspace: S.Boolean,
     workspacePaths: S.Array(PosixPath),
-  },
-  $I.annote("ResolvedDeleteTarget", {
-    description: "A live workspace target or deleted-target doctor probe with the resolved workspace path inventory.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedDeleteTarget", {
+      description: "A live workspace target or deleted-target doctor probe with the resolved workspace path inventory.",
+    })
+  )
 ) {}
 
 const packageNameForInput = (input: string): string =>
@@ -299,7 +301,10 @@ const removeWorkspaceLiteral = Effect.fn("DeletePackage.removeWorkspaceLiteral")
   );
   const jsonPath = workspaceLiteralJsonPath(O.getOrUndefined(manifest.workspaces), packagePath);
   if (A.isReadonlyArrayNonEmpty(jsonPath)) {
-    yield* fs.writeFileString(file, applyJsoncModification({ content, path: jsonPath, value: undefined }));
+    yield* fs.writeFileString(
+      file,
+      applyJsoncModification(JsoncModification.make({ content, path: jsonPath, value: undefined }))
+    );
   }
 });
 
@@ -449,6 +454,10 @@ const BASELINE_WRITER_STEPS: ReadonlyArray<BaselineWriterStep> = [
     args: ["run", "beep", "lint", "package-test-typecheck", "--write-baseline"],
   }),
   BaselineWriterStep.make({ label: "schema catalog", args: ["run", "beep", "lint", "schema-catalog", "--write"] }),
+  BaselineWriterStep.make({
+    label: "instrumentation catalog",
+    args: ["run", "beep", "observability", "catalog", "--write"],
+  }),
   BaselineWriterStep.make({
     label: "package scripts",
     args: ["run", "beep", "lint", "package-scripts", "--write"],
@@ -768,9 +777,10 @@ const handler = Effect.fn("DeletePackage.handler")(function* (options: DeletePac
       yield* LabIdentitySegment.syncLabIdentitySegment(repoRoot).pipe(
         Effect.mapError(DomainError.newCause("labs identity-segment sync failed after tree removal."))
       );
-    yield* syncTsconfigAtRoot(repoRoot, { mode: "sync", filter: undefined, verbose: false }).pipe(
-      Effect.mapError(DomainError.newCause("tsconfig-sync failed after package deletion."))
-    );
+    yield* syncTsconfigAtRoot(
+      repoRoot,
+      TsconfigSyncRunOptionsSync.make({ mode: "sync", filter: undefined, verbose: false })
+    ).pipe(Effect.mapError(DomainError.newCause("tsconfig-sync failed after package deletion.")));
     if (!options.skipLockfile) yield* runStep(repoRoot, "lockfile refresh", "bun", ["install", "--lockfile-only"]);
     if (!options.skipBaselines) yield* runBaselineWriters(repoRoot, plan.target.packageName);
     yield* invalidateCiMirrors(repoRoot);

@@ -223,8 +223,8 @@ export const isPerspectiveView = S.is(ViewName.pick(["top-perspective", "bottom-
  * @category models
  * @since 0.0.0
  */
-export class CameraForViewInput extends S.Class<CameraForViewInput>($I`CameraForViewInput`)(
-  {
+export class CameraForViewInput extends S.Opaque<CameraForViewInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     view: ViewName.annotateKey({ description: "View to frame." }),
     box: BoundingBox.annotateKey({ description: "Bounding box of the model." }),
     projection: PictorialProjection.pipe(
@@ -245,10 +245,11 @@ export class CameraForViewInput extends S.Class<CameraForViewInput>($I`CameraFor
       S.withDecodingDefaultTypeKey(Effect.succeed("front" as const)),
       S.annotateKey({ description: "Elevation whose viewer stands at the page bottom of both plans." })
     ),
-  },
-  $I.annote("CameraForViewInput", {
-    description: "View name, model bounding box, pictorial projection and azimuth, and plan facing.",
-  })
+  }).pipe(
+    $I.annoteSchema("CameraForViewInput", {
+      description: "View name, model bounding box, pictorial projection and azimuth, and plan facing.",
+    })
+  )
 ) {}
 
 const CameraForView = Fn({ input: CameraForViewInput, output: Camera }).pipe(
@@ -351,8 +352,8 @@ const perspective = ({ box, azimuthDeg }: CameraForViewInput, zSign: 1 | -1): Ca
  * @category models
  * @since 0.0.0
  */
-export class FigureSpec extends S.Class<FigureSpec>($I`FigureSpec`)(
-  {
+export class FigureSpec extends S.Opaque<FigureSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     view: ViewName.annotateKey({ description: "View shown by this figure." }),
     description: S.Trimmed.check(
       S.isMinLength(1, {
@@ -370,10 +371,11 @@ export class FigureSpec extends S.Class<FigureSpec>($I`FigureSpec`)(
           "Projection of a pictorial (`top-perspective` / `bottom-perspective`) figure. Defaults to `perspective`; plans and elevations accept only the default.",
       })
     ),
-  },
-  $I.annote("FigureSpec", {
-    description: "A claimed figure: its view, description sentence, and pictorial projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("FigureSpec", {
+      description: "A claimed figure: its view, description sentence, and pictorial projection.",
+    })
+  )
 ) {}
 
 const OmissionRelationBase = LiteralKit(["identical", "mirror"]);
@@ -431,15 +433,16 @@ export type OmissionRelation = typeof OmissionRelation.Type;
  * @category models
  * @since 0.0.0
  */
-export class OmissionClaim extends S.Class<OmissionClaim>($I`OmissionClaim`)(
-  {
+export class OmissionClaim extends S.Opaque<OmissionClaim, { readonly brand: unique symbol }>()(
+  S.Struct({
     omitted: ViewName.annotateKey({ description: "View left out of the set." }),
     shown: ViewName.annotateKey({ description: "View in the set it is derived from." }),
     relation: OmissionRelation.annotateKey({ description: "How the omitted view relates to the shown one." }),
-  },
-  $I.annote("OmissionClaim", {
-    description: "An omitted view claimed identical to, or the mirror of, a shown view.",
-  })
+  }).pipe(
+    $I.annoteSchema("OmissionClaim", {
+      description: "An omitted view claimed identical to, or the mirror of, a shown view.",
+    })
+  )
 ) {}
 
 // Only the two pictorial slots have a projection choice.
@@ -474,8 +477,8 @@ const viewsAreUnique = (figures: ReadonlyArray<FigureSpec>): boolean =>
  * @category models
  * @since 0.0.0
  */
-export class FigureSetSpec extends S.Class<FigureSetSpec>($I`FigureSetSpec`)(
-  {
+export class FigureSetSpec extends S.Opaque<FigureSetSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     title: S.NonEmptyString.annotateKey({ description: "Article title, used in file names and the manifest." }),
     model: ModelSpec.annotateKey({ description: "Parametric model every figure is projected from." }),
     figures: S.Array(FigureSpec)
@@ -549,9 +552,10 @@ export class FigureSetSpec extends S.Class<FigureSetSpec>($I`FigureSetSpec`)(
           "Sheet options carried by the spec, so they hash with it. When present they win wholesale over the options of the render request.",
       })
     ),
-  },
-  $I.annote("FigureSetSpec", {
-    description:
-      "Model, claimed figures in order, omission claims, recorded approver, pictorial azimuth, plan facing, and sheet options of one figure set.",
-  })
+  }).pipe(
+    $I.annoteSchema("FigureSetSpec", {
+      description:
+        "Model, claimed figures in order, omission claims, recorded approver, pictorial azimuth, plan facing, and sheet options of one figure set.",
+    })
+  )
 ) {}

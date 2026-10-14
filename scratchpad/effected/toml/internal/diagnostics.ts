@@ -208,7 +208,7 @@ export type RawDiagnostic = typeof RawDiagnostic.Type;
  * @category errors
  * @since 0.0.0
  */
-export class RawTomlError extends S.TaggedError<RawTomlError>($I`RawTomlError`)("RawTomlError", RawDiagnostic.fields,
+export class RawTomlError extends S.TaggedError<RawTomlError, { readonly brand: unique symbol }>($I`RawTomlError`)("RawTomlError", RawDiagnostic.fields,
 	$I.annote("RawTomlError", { description: "The engine's diagnostic throw carrier, caught by the public facade." })) {
 	/**
 	 * Reports the standard error name for the raw engine carrier.

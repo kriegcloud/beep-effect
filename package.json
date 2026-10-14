@@ -129,7 +129,6 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.186.0",
     "@types/ws": "^8.18.2",
-    "@typescript-eslint/eslint-plugin": "^8.71.1",
     "@typescript-eslint/parser": "^8.71.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
@@ -207,7 +206,7 @@
     "officeparser": "^8.1.1",
     "onnxruntime-node": "^1.30.0",
     "opentype.js": "1.3.4",
-    "oxlint": "1.87.0",
+    "oxlint": "1.88.0",
     "oxigraph": "^0.5.11",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.4.299",
@@ -262,7 +261,8 @@
     "wink-nlp-utils": "^2.1.0",
     "ws": "^8.22.0",
     "xstate": "6.0.0-alpha.64",
-    "yaml": "^2.9.1"
+    "yaml": "^2.9.1",
+    "oxlint-tsgolint": "7.0.2004"
   },
   "devDependencies": {
     "@babel/cli": "catalog:",
@@ -297,6 +297,7 @@
     "micromark": "catalog:",
     "micromark-extension-gfm": "catalog:",
     "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
     "picomatch": "catalog:",
     "statelyai": "catalog:",
     "syncpack": "catalog:",

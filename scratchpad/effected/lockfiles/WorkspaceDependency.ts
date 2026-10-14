@@ -30,7 +30,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/WorkspaceDependency");
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceDependency extends S.Class<WorkspaceDependency>($I`WorkspaceDependency`)({
+export class WorkspaceDependency extends S.Class<WorkspaceDependency, { readonly brand: unique symbol }>($I`WorkspaceDependency`)({
 	from: S.NonEmptyString.annotateKey({ description: "Workspace package declaring the dependency; pnpm initially uses its importer path until rewritten with its manifest name" }),
 	to: S.NonEmptyString.annotateKey({ description: "Workspace package depended upon by the declaring package" }),
 	depType: DependencyField.annotateKey({ description: "Dependency section containing this workspace edge, such as `dependencies` or `devDependencies`" }),

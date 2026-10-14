@@ -52,8 +52,8 @@ const $I = $LawPracticeServerId.create("MailTagging/MailTagging.known");
  * @category models
  * @since 0.0.0
  */
-export class KnownDocument extends S.Class<KnownDocument>($I`KnownDocument`)(
-  {
+export class KnownDocument extends S.Opaque<KnownDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     sha256: S.String.check(
       S.isPattern(/^[0-9a-fA-F]{64}$/u, {
         identifier: $I`KnownDocumentSha256PatternCheck`,
@@ -67,10 +67,11 @@ export class KnownDocument extends S.Class<KnownDocument>($I`KnownDocument`)(
     familyKey: S.OptionFromOptionalNullOr(S.NonEmptyString).annotateKey({
       description: "Practice-KG family key of the matter the file is filed under; null or absent outside any matter.",
     }),
-  },
-  $I.annote("KnownDocument", {
-    description: "Content hash and matter of one file the document system already holds.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnownDocument", {
+      description: "Content hash and matter of one file the document system already holds.",
+    })
+  )
 ) {}
 
 /**
@@ -117,15 +118,16 @@ export type KnownDocumentJsonLine = typeof KnownDocumentJsonLine.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class KnownDocumentsConfig extends S.Class<KnownDocumentsConfig>($I`KnownDocumentsConfig`)(
-  {
+export class KnownDocumentsConfig extends S.Opaque<KnownDocumentsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString.annotateKey({
       description: "Full path of the known-documents JSONL index.",
     }),
-  },
-  $I.annote("KnownDocumentsConfig", {
-    description: "Location of the private known-documents index.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnownDocumentsConfig", {
+      description: "Location of the private known-documents index.",
+    })
+  )
 ) {}
 
 /**

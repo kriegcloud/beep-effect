@@ -61,9 +61,10 @@ export type SchemaReferenceId = typeof SchemaReferenceId.Type;
  * @category models
  * @since 0.0.0
  */
-export class SchemaReference extends S.Class<SchemaReference>($I`SchemaReference`)(
-  { schemaId: SchemaReferenceId },
-  $I.annote("SchemaReference", {
-    description: "Persisted identity reference to a schema bound by a runtime consumer module.",
-  })
+export class SchemaReference extends S.Opaque<SchemaReference, { readonly brand: unique symbol }>()(
+  S.Struct({ schemaId: SchemaReferenceId }).pipe(
+    $I.annoteSchema("SchemaReference", {
+      description: "Persisted identity reference to a schema bound by a runtime consumer module.",
+    })
+  )
 ) {}

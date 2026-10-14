@@ -228,7 +228,7 @@ const decodeJson = S.decodeUnknownResult(S.fromJsonString(S.Unknown));
  * @category models
  * @since 0.0.0
  */
-export class LenientManifest extends S.Class<LenientManifest>($I`LenientManifest`)({
+export class LenientManifest extends S.Class<LenientManifest, { readonly brand: unique symbol }>($I`LenientManifest`)({
 	name: S.optionalKey(S.String).annotateKey({ description: "The package identifier from the manifest, preserved without npm name validation" }),
 	version: S.optionalKey(S.String).annotateKey({ description: "The declared package release, preserved without semver validation" }),
 	description: S.optionalKey(S.String).annotateKey({ description: "A human-readable summary of the package from the manifest" }),

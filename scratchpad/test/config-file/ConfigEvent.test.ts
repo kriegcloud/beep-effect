@@ -18,7 +18,7 @@ import type { RecordingFs } from "./helpers.ts";
 import { recordingFs } from "./helpers.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
-class AppShape extends S.Class<AppShape>("AppShape")({ port: S.Finite }) {}
+class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({ port: S.Finite }) {}
 class AppConfig extends ConfigFile.Service<AppConfig, AppShape>()("test/EventConfig") {}
 
 /**

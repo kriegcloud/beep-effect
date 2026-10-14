@@ -588,16 +588,19 @@ const PacketCreatedBodyStagePairCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class PacketCreatedBody extends S.Class<PacketCreatedBody>($I`PacketCreatedBody`)(
+export class PacketCreatedBody extends S.Opaque<PacketCreatedBody, { readonly brand: unique symbol }>()(
   S.Struct({
     type: S.Literal("packet-created"),
     status: PacketStatusToken,
     stage: S.optionalKey(PacketStage),
     ordinal: S.optionalKey(PacketStageOrdinal),
-  }).check(PacketCreatedBodyStagePairCheck),
-  $I.annote("PacketCreatedBody", {
-    description: "Genesis event body: status plus optional stage/ordinal at stream adoption.",
   })
+    .check(PacketCreatedBodyStagePairCheck)
+    .pipe(
+      $I.annoteSchema("PacketCreatedBody", {
+        description: "Genesis event body: status plus optional stage/ordinal at stream adoption.",
+      })
+    )
 ) {}
 
 /**
@@ -615,15 +618,16 @@ export class PacketCreatedBody extends S.Class<PacketCreatedBody>($I`PacketCreat
  * @category models
  * @since 0.0.0
  */
-export class StageEnteredBody extends S.Class<StageEnteredBody>($I`StageEnteredBody`)(
-  {
+export class StageEnteredBody extends S.Opaque<StageEnteredBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Literal("stage-entered"),
     stage: PacketStage,
     ordinal: PacketStageOrdinal,
-  },
-  $I.annote("StageEnteredBody", {
-    description: "Stage-transition event body: entered stage plus its declared ordinal.",
-  })
+  }).pipe(
+    $I.annoteSchema("StageEnteredBody", {
+      description: "Stage-transition event body: entered stage plus its declared ordinal.",
+    })
+  )
 ) {}
 
 /**
@@ -641,15 +645,16 @@ export class StageEnteredBody extends S.Class<StageEnteredBody>($I`StageEnteredB
  * @category models
  * @since 0.0.0
  */
-export class StatusSetBody extends S.Class<StatusSetBody>($I`StatusSetBody`)(
-  {
+export class StatusSetBody extends S.Opaque<StatusSetBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Literal("status-set"),
     status: PacketStatusToken,
     previous: PacketStatusToken,
-  },
-  $I.annote("StatusSetBody", {
-    description: "Status-transition event body: new status plus the status it replaced.",
-  })
+  }).pipe(
+    $I.annoteSchema("StatusSetBody", {
+      description: "Status-transition event body: new status plus the status it replaced.",
+    })
+  )
 ) {}
 
 /**
@@ -714,16 +719,17 @@ export const RiskTierOverrideReason = S.String.check(
  * @category models
  * @since 0.0.0
  */
-export class RiskTierOverriddenBody extends S.Class<RiskTierOverriddenBody>($I`RiskTierOverriddenBody`)(
-  {
+export class RiskTierOverriddenBody extends S.Opaque<RiskTierOverriddenBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Literal("risk-tier-overridden"),
     tier: PacketRiskTier,
     previous: S.optionalKey(PacketRiskTier),
     reason: RiskTierOverrideReason,
-  },
-  $I.annote("RiskTierOverriddenBody", {
-    description: "Operator risk-tier override body: new tier, replaced override, recorded reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("RiskTierOverriddenBody", {
+      description: "Operator risk-tier override body: new tier, replaced override, recorded reason.",
+    })
+  )
 ) {}
 
 /**
@@ -900,7 +906,7 @@ const PacketEventCasRevisionCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class PacketEvent extends S.Class<PacketEvent>($I`PacketEvent`)(
+export class PacketEvent extends S.Opaque<PacketEvent, { readonly brand: unique symbol }>()(
   S.Struct({
     schemaVersion: PacketEventSchemaVersion,
     packet: PacketSlug,
@@ -918,10 +924,13 @@ export class PacketEvent extends S.Class<PacketEvent>($I`PacketEvent`)(
     at: PacketEventTimestamp,
     actor: PacketEventActor,
     body: PacketEventBody,
-  }).check(PacketEventGenesisParentCheck, PacketEventCasRevisionCheck),
-  $I.annote("PacketEvent", {
-    description: "One versioned CAS packet event with parent digest and expected revision.",
   })
+    .check(PacketEventGenesisParentCheck, PacketEventCasRevisionCheck)
+    .pipe(
+      $I.annoteSchema("PacketEvent", {
+        description: "One versioned CAS packet event with parent digest and expected revision.",
+      })
+    )
 ) {}
 
 /**
@@ -972,15 +981,16 @@ export const decodePacketEvent: {
  * @category models
  * @since 0.0.0
  */
-export class StoredPacketEvent extends S.Class<StoredPacketEvent>($I`StoredPacketEvent`)(
-  {
+export class StoredPacketEvent extends S.Opaque<StoredPacketEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: PacketEventId,
     fileName: S.String,
     event: PacketEvent,
-  },
-  $I.annote("StoredPacketEvent", {
-    description: "One packet event as stored on disk: decoded event plus verified digest and file name.",
-  })
+  }).pipe(
+    $I.annoteSchema("StoredPacketEvent", {
+      description: "One packet event as stored on disk: decoded event plus verified digest and file name.",
+    })
+  )
 ) {}
 
 /**
@@ -998,8 +1008,8 @@ export class StoredPacketEvent extends S.Class<StoredPacketEvent>($I`StoredPacke
  * @category models
  * @since 0.0.0
  */
-export class PacketTip extends S.Class<PacketTip>($I`PacketTip`)(
-  {
+export class PacketTip extends S.Opaque<PacketTip, { readonly brand: unique symbol }>()(
+  S.Struct({
     seq: S.Int.check(
       S.isGreaterThanOrEqualTo(1, {
         identifier: $I`PacketTipSeqRangeCheck`,
@@ -1009,10 +1019,11 @@ export class PacketTip extends S.Class<PacketTip>($I`PacketTip`)(
       })
     ),
     id: PacketEventId,
-  },
-  $I.annote("PacketTip", {
-    description: "Current head of a packet stream's linear chain (seq plus event digest).",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketTip", {
+      description: "Current head of a packet stream's linear chain (seq plus event digest).",
+    })
+  )
 ) {}
 
 /**
@@ -1040,15 +1051,16 @@ export class PacketTip extends S.Class<PacketTip>($I`PacketTip`)(
  * @category models
  * @since 0.0.0
  */
-export class PacketForkVerdict extends S.Class<PacketForkVerdict>($I`PacketForkVerdict`)(
-  {
+export class PacketForkVerdict extends S.Opaque<PacketForkVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     parent: S.optionalKey(PacketEventId),
     parentSeq: PacketRevision,
     children: S.Array(PacketEventId),
-  },
-  $I.annote("PacketForkVerdict", {
-    description: "One parent event with two or more children (parent absent for a genesis fork).",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketForkVerdict", {
+      description: "One parent event with two or more children (parent absent for a genesis fork).",
+    })
+  )
 ) {}
 
 /**
@@ -1087,8 +1099,8 @@ export class PacketForkVerdict extends S.Class<PacketForkVerdict>($I`PacketForkV
  * @category models
  * @since 0.0.0
  */
-export class PacketForkRepairPlan extends S.Class<PacketForkRepairPlan>($I`PacketForkRepairPlan`)(
-  {
+export class PacketForkRepairPlan extends S.Opaque<PacketForkRepairPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     packet: PacketSlug,
     root: PacketRoot,
     fork: PacketForkVerdict,
@@ -1096,10 +1108,11 @@ export class PacketForkRepairPlan extends S.Class<PacketForkRepairPlan>($I`Packe
     survivorTip: S.optionalKey(PacketTip),
     rebaseDrafts: S.Array(PacketEvent),
     filesToRemove: S.Array(S.String),
-  },
-  $I.annote("PacketForkRepairPlan", {
-    description: "Read-only first-fork repair plan: surviving child, rebased drafts, files to remove.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketForkRepairPlan", {
+      description: "Read-only first-fork repair plan: surviving child, rebased drafts, files to remove.",
+    })
+  )
 ) {}
 
 /**
@@ -1166,15 +1179,16 @@ export type PacketChainIssueKind = typeof PacketChainIssueKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class PacketChainIssue extends S.Class<PacketChainIssue>($I`PacketChainIssue`)(
-  {
+export class PacketChainIssue extends S.Opaque<PacketChainIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: PacketChainIssueKind,
     fileName: S.String,
     detail: S.String,
-  },
-  $I.annote("PacketChainIssue", {
-    description: "One chain-integrity issue anchored to an event file.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketChainIssue", {
+      description: "One chain-integrity issue anchored to an event file.",
+    })
+  )
 ) {}
 
 /**
@@ -1203,16 +1217,20 @@ export class PacketChainIssue extends S.Class<PacketChainIssue>($I`PacketChainIs
  * @category models
  * @since 0.0.0
  */
-export class PacketRiskTierOverrideState extends S.Class<PacketRiskTierOverrideState>($I`PacketRiskTierOverrideState`)(
-  {
+export class PacketRiskTierOverrideState extends S.Opaque<
+  PacketRiskTierOverrideState,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     tier: PacketRiskTier,
     reason: S.String,
     actor: PacketEventActor,
     at: PacketEventTimestamp,
-  },
-  $I.annote("PacketRiskTierOverrideState", {
-    description: "Effective operator risk-tier override: tier plus its recorded reason, actor, and timestamp.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketRiskTierOverrideState", {
+      description: "Effective operator risk-tier override: tier plus its recorded reason, actor, and timestamp.",
+    })
+  )
 ) {}
 
 /**
@@ -1245,8 +1263,8 @@ export class PacketRiskTierOverrideState extends S.Class<PacketRiskTierOverrideS
  * @category models
  * @since 0.0.0
  */
-export class PacketDerivedState extends S.Class<PacketDerivedState>($I`PacketDerivedState`)(
-  {
+export class PacketDerivedState extends S.Opaque<PacketDerivedState, { readonly brand: unique symbol }>()(
+  S.Struct({
     packet: PacketSlug,
     root: PacketRoot,
     revision: PacketRevision,
@@ -1258,11 +1276,12 @@ export class PacketDerivedState extends S.Class<PacketDerivedState>($I`PacketDer
     riskTierOverride: S.optionalKey(PacketRiskTierOverrideState),
     forks: S.Array(PacketForkVerdict),
     issues: S.Array(PacketChainIssue),
-  },
-  $I.annote("PacketDerivedState", {
-    description:
-      "Deterministic derived state of one packet stream (D3 stage derivations, tip, risk-tier override, forks, issues).",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketDerivedState", {
+      description:
+        "Deterministic derived state of one packet stream (D3 stage derivations, tip, risk-tier override, forks, issues).",
+    })
+  )
 ) {}
 
 /**
@@ -1320,8 +1339,8 @@ export const PACKET_PROJECTOR_VERSION = 2;
  * @category models
  * @since 0.0.0
  */
-export class PacketTraceEntry extends S.Class<PacketTraceEntry>($I`PacketTraceEntry`)(
-  {
+export class PacketTraceEntry extends S.Opaque<PacketTraceEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     seq: S.Int.check(
       S.isGreaterThanOrEqualTo(1, {
         identifier: $I`PacketTraceEntrySeqRangeCheck`,
@@ -1334,10 +1353,11 @@ export class PacketTraceEntry extends S.Class<PacketTraceEntry>($I`PacketTraceEn
     at: PacketEventTimestamp,
     actor: PacketEventActor,
     body: PacketEventBody,
-  },
-  $I.annote("PacketTraceEntry", {
-    description: "One linear-prefix event on the projected packet timeline, body embedded verbatim.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketTraceEntry", {
+      description: "One linear-prefix event on the projected packet timeline, body embedded verbatim.",
+    })
+  )
 ) {}
 
 /**
@@ -1369,8 +1389,8 @@ export class PacketTraceEntry extends S.Class<PacketTraceEntry>($I`PacketTraceEn
  * @category models
  * @since 0.0.0
  */
-export class PacketTraceProjection extends S.Class<PacketTraceProjection>($I`PacketTraceProjection`)(
-  {
+export class PacketTraceProjection extends S.Opaque<PacketTraceProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("packet-trace/v1"),
     projectorVersion: S.Int.check(
       S.isGreaterThanOrEqualTo(1, {
@@ -1383,10 +1403,11 @@ export class PacketTraceProjection extends S.Class<PacketTraceProjection>($I`Pac
     sourceTip: S.optionalKey(PacketTip),
     timeline: S.Array(PacketTraceEntry),
     derived: PacketDerivedState,
-  },
-  $I.annote("PacketTraceProjection", {
-    description: "Read-only trace projection binding sourceTip and projector version for staleness detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketTraceProjection", {
+      description: "Read-only trace projection binding sourceTip and projector version for staleness detection.",
+    })
+  )
 ) {}
 
 /**

@@ -16,7 +16,7 @@ import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { Segment2, ShadingPlan } from "./Geometry.schemas.ts";
+import { ModelSpec, Segment2, ShadingPlan } from "./Geometry.schemas.ts";
 import { mirrorSegments, sameSegments } from "./Geometry.segments.ts";
 import { fontNamesOf, outlineFontFile } from "./internal/LabelOutline.ts";
 import { sha256Hex } from "./Manifest.digest.ts";
@@ -88,8 +88,8 @@ const textLabelsOf = (sheet: SheetOptions): ReadonlyArray<{ readonly label: Shee
  * @category services
  * @since 0.0.0
  */
-export class RenderRequest extends S.Class<RenderRequest>($I`RenderRequest`)(
-  {
+export class RenderRequest extends S.Opaque<RenderRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     specPath: S.NonEmptyString.annotateKey({ description: "Path of the figure-set spec JSON." }),
     outputDir: S.NonEmptyString.annotateKey({ description: "Directory for sheet SVGs, the PDF, and the manifest." }),
     sheet: SheetOptions.pipe(
@@ -114,11 +114,12 @@ export class RenderRequest extends S.Class<RenderRequest>($I`RenderRequest`)(
           "Whether to render a model whose parts interpenetrate. Defaults to false: overlapping solids double-count volume and confuse hidden-line removal, so the render is refused.",
       })
     ),
-  },
-  $I.annote("RenderRequest", {
-    description:
-      "Spec path, output directory, sheet options, validation and shading switches, and the part-overlap override of a render.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderRequest", {
+      description:
+        "Spec path, output directory, sheet options, validation and shading switches, and the part-overlap override of a render.",
+    })
+  )
 ) {}
 
 /**
@@ -178,8 +179,12 @@ const shadingFor = (input: {
   );
 };
 
-// Everything a sheet draws for a view: solid outlines plus broken-line parts.
-const drawnSegments = (edges: EdgeSet): ReadonlyArray<Segment2> => [...edges.visible, ...edges.broken];
+// Everything a sheet draws for a view: solid outlines, broken lines, and emphasis lines.
+const drawnSegments = (edges: EdgeSet): ReadonlyArray<Segment2> => [
+  ...edges.visible,
+  ...edges.broken,
+  ...edges.emphasis,
+];
 
 // An omitted pictorial is projected like the figure it is claimed from.
 const projectionOf = (spec: FigureSetSpec, view: ViewName): PictorialProjection =>
@@ -196,6 +201,7 @@ const proveOmission = (claim: OmissionClaim, shown: EdgeSet, omitted: EdgeSet): 
     relation: claim.relation,
     proven:
       A.length(shown.broken) === A.length(omitted.broken) &&
+      A.length(shown.emphasis) === A.length(omitted.emphasis) &&
       sameSegments({
         left: claim.relation === "identical" ? drawnSegments(shown) : mirrorSegments(drawnSegments(shown)),
         right: drawnSegments(omitted),
@@ -386,7 +392,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       Effect.mapError((cause) => DrawingError.fromUnknown("spec", `Invalid figure-set spec "${specPath}".`, cause))
     );
     const info = yield* engine.info;
-    const model = yield* engine.summarize(spec.model);
+    const model = yield* engine.summarize(ModelSpec.make(spec.model));
     if (model.partOverlaps > 0 && !request.allowPartOverlaps) {
       return yield* DrawingError.make({
         reason: "geometry",
@@ -428,7 +434,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
         planFacing: spec.planFacing,
       })
     );
-    const projected = yield* engine.project(spec.model, cameras, O.none());
+    const projected = yield* engine.project(ModelSpec.make(spec.model), cameras, O.none());
     const edgesOf = (index: number): Effect.Effect<EdgeSet, DrawingError> =>
       pipe(
         A.get(projected, index),
@@ -472,7 +478,8 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       shade: request.shade,
       sheet,
       scale,
-      project: (plan) => engine.project(spec.model, A.take(cameras, A.length(spec.figures)), O.some(plan)),
+      project: (plan) =>
+        engine.project(ModelSpec.make(spec.model), A.take(cameras, A.length(spec.figures)), O.some(plan)),
     });
     const outputDir = path.resolve(request.outputDir);
     yield* fs
@@ -493,6 +500,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           segments: edges.visible,
           shading: shadingLines,
           broken: edges.broken,
+          emphasis: edges.emphasis,
           figure: index + 1,
           sheet: index + 1,
           sheets,
@@ -514,6 +522,8 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           visibleSegments: A.length(edges.visible),
           shadingSegments: A.length(shadingLines),
           brokenSegments: A.length(edges.broken),
+          // recorded only when drawn, so a manifest without overlays keeps its JSON
+          emphasisSegments: A.isReadonlyArrayNonEmpty(edges.emphasis) ? O.some(A.length(edges.emphasis)) : O.none(),
           camera: A.get(cameras, index),
           shadingCoverage: O.flatMap(shadedView, (view) => view.shadingCoverage),
         });
@@ -549,7 +559,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     const shadingFindings = A.flatMap(shading, (view, index) => {
       const page = index + 1;
       const shadingMm = inMm(view.shading);
-      const outlineMm = inMm([...view.visible, ...view.broken]);
+      const outlineMm = inMm(drawnSegments(view));
       const gradedFindings = graded
         ? [
             ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),

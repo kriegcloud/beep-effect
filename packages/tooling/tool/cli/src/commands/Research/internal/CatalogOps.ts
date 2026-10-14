@@ -81,15 +81,16 @@ export const catalogDbPath = Effect.fn("Research.catalogDbPath")(function* (
  * @category models
  * @since 0.0.0
  */
-export class CardPersistRow extends S.Class<CardPersistRow>($I`CardPersistRow`)(
-  {
+export class CardPersistRow extends S.Opaque<CardPersistRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.String,
     frontmatter: KnowledgeCardFrontmatter,
     relativePath: S.String,
-  },
-  $I.annote("CardPersistRow", {
-    description: "Research card payload staged for vault file writing and DuckDB catalog persistence.",
-  })
+  }).pipe(
+    $I.annoteSchema("CardPersistRow", {
+      description: "Research card payload staged for vault file writing and DuckDB catalog persistence.",
+    })
+  )
 ) {}
 
 /**
@@ -154,12 +155,13 @@ export const persistCards = Effect.fn("Research.persistCards")(function* (
   );
 });
 
-class SeenUrlRow extends S.Class<SeenUrlRow>($I`SeenUrlRow`)(
-  { urlNorm: S.String },
-  $I.annote("SeenUrlRow", {
-    title: "Seen URL Row",
-    description: "Research catalog row carrying one normalized seen URL.",
-  })
+class SeenUrlRow extends S.Opaque<SeenUrlRow, { readonly brand: unique symbol }>()(
+  S.Struct({ urlNorm: S.String }).pipe(
+    $I.annoteSchema("SeenUrlRow", {
+      title: "Seen URL Row",
+      description: "Research catalog row carrying one normalized seen URL.",
+    })
+  )
 ) {}
 const decodeSeenUrlRows = S.decodeUnknownEffect(S.Array(SeenUrlRow));
 

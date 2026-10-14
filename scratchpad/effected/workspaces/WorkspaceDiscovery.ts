@@ -47,7 +47,7 @@ const byName = Order.make<WorkspacePackage>((a, b) => {
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
-class WorkspaceDiscoveryCause extends S.TaggedError<WorkspaceDiscoveryCause>($I`WorkspaceDiscoveryCause`)(
+class WorkspaceDiscoveryCause extends S.TaggedError<WorkspaceDiscoveryCause, { readonly brand: unique symbol }>($I`WorkspaceDiscoveryCause`)(
 	"WorkspaceDiscoveryCause",
 	{ message: S.String },
 	$I.annote("WorkspaceDiscoveryCause", { description: "A manifest-shape failure or an unstubbed discovery test-double method." }),
@@ -83,7 +83,7 @@ class WorkspaceDiscoveryCause extends S.TaggedError<WorkspaceDiscoveryCause>($I`
  * @category errors
  * @since 0.0.0
  */
-export class WorkspaceDiscoveryError extends S.TaggedError<WorkspaceDiscoveryError>($I`WorkspaceDiscoveryError`)("WorkspaceDiscoveryError", {
+export class WorkspaceDiscoveryError extends S.TaggedError<WorkspaceDiscoveryError, { readonly brand: unique symbol }>($I`WorkspaceDiscoveryError`)("WorkspaceDiscoveryError", {
 	/** The workspace root discovery was running against. */
 	root: S.String.annotateKey({ description: "The workspace root discovery was running against." }),
 	/** The file that failed. */
@@ -131,7 +131,7 @@ export class WorkspaceDiscoveryError extends S.TaggedError<WorkspaceDiscoveryErr
  * @category errors
  * @since 0.0.0
  */
-export class WorkspacePatternError extends S.TaggedError<WorkspacePatternError>($I`WorkspacePatternError`)("WorkspacePatternError", {
+export class WorkspacePatternError extends S.TaggedError<WorkspacePatternError, { readonly brand: unique symbol }>($I`WorkspacePatternError`)("WorkspacePatternError", {
 	/** The workspace root the patterns were expanded against. */
 	root: S.String.annotateKey({ description: "The workspace root the patterns were expanded against." }),
 	/** The offending pattern, verbatim. */
@@ -182,7 +182,7 @@ export class WorkspacePatternError extends S.TaggedError<WorkspacePatternError>(
  * @category errors
  * @since 0.0.0
  */
-export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError>($I`PackageNotFoundError`)("PackageNotFoundError", {
+export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { readonly brand: unique symbol }>($I`PackageNotFoundError`)("PackageNotFoundError", {
 	/** The name that was requested. */
 	name: S.String.annotateKey({ description: "The name that was requested." }),
 	/** Every workspace package name that does exist. */
@@ -225,7 +225,7 @@ export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError>($I
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceInfo extends S.Class<WorkspaceInfo>($I`WorkspaceInfo`)({
+export class WorkspaceInfo extends S.Class<WorkspaceInfo, { readonly brand: unique symbol }>($I`WorkspaceInfo`)({
 	/** Absolute path to the workspace root. */
 	root: S.String.annotateKey({ description: "Absolute path to the workspace root." }),
 	/** The `packages:` patterns, verbatim. */

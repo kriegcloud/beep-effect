@@ -31,9 +31,10 @@ const CandidateClaimConverterOperation = LiteralKit(["toInsert", "fromRow"]);
  * @category errors
  * @since 0.0.0
  */
-export class CandidateClaimConverterError extends S.TaggedError<CandidateClaimConverterError>(
-  $I`CandidateClaimConverterError`
-)(
+export class CandidateClaimConverterError extends S.TaggedError<
+  CandidateClaimConverterError,
+  { readonly brand: unique symbol }
+>($I`CandidateClaimConverterError`)(
   "CandidateClaimConverterError",
   {
     operation: CandidateClaimConverterOperation.annotateKey({
