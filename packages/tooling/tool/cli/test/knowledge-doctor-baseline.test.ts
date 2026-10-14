@@ -14,6 +14,7 @@ import {
   KnowledgeDoctor,
   KnowledgeDoctorBaseline,
   KnowledgeDoctorCheckInput,
+  KnowledgeDoctorCheckOptions,
   KnowledgeDoctorIdentity,
   KnowledgeDoctorLeasesOptions,
   KnowledgeDoctorLive,
@@ -38,21 +39,27 @@ import {
   scanKnowledgeDoctorTree,
   verifyKnowledgeBaselineText,
 } from "@beep/repo-cli/commands/Knowledge";
+import { CacheRuntimeProcess as StepExec } from "@beep/repo-cli/test/Cache";
 import { renderKnowledgeDoctorCheckReport } from "@beep/repo-cli/test/Knowledge";
-import { knowledgeLeaseWarningLines } from "@beep/repo-cli/test/Yeet";
+import { CapturedStreams } from "@beep/repo-cli/test/Process";
+import { knowledgeLeaseWarningLines, warnKnowledgeLeases } from "@beep/repo-cli/test/Yeet";
 import { it } from "@beep/test-runner";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
-import { assert, describe } from "@effect/vitest";
+import { assert, describe, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as TestConsole from "effect/testing/TestConsole";
+import { temporaryWorkingDirectory } from "./support/CommandTest.ts";
 import type { KnowledgeDoctorReport, KnowledgeDoctorTree } from "@beep/repo-cli/commands/Knowledge";
 
 const platformLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer);
@@ -713,6 +720,107 @@ describe("knowledge doctor sealed baseline", () => {
     );
 
     it.effect(
+      "mints, verifies, and checks a sealed baseline through the live Git boundary",
+      Effect.fnUntraced(function* () {
+        const root = yield* temporaryWorkingDirectory;
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.makeDirectory("docs", { recursive: true });
+        yield* fs.makeDirectory("goals", { recursive: true });
+        yield* fs.makeDirectory(".github", { recursive: true });
+        yield* fs.writeFileString(".github/CODEOWNERS", CODEOWNERS);
+        yield* fs.writeFileString("package.json", '{"name":"synthetic-knowledge-repository","private":true}');
+        yield* fs.writeFileString("docs/a.md", "# Synthetic document\n");
+        yield* Effect.forEach(
+          [
+            ["init", "--initial-branch=main"],
+            ["add", "."],
+            [
+              "-c",
+              "user.name=Fixture",
+              "-c",
+              "user.email=fixture@example.invalid",
+              "-c",
+              "commit.gpgsign=false",
+              "commit",
+              "-m",
+              "fixture",
+            ],
+            ["branch", "fixture-base"],
+          ],
+          (args) => StepExec.runCapturedStreams({ command: "git", args, cwd: root, extendEnv: true }),
+          { discard: true }
+        );
+        const doctor = yield* KnowledgeDoctor;
+        const missing = yield* doctor
+          .check(KnowledgeDoctorCheckOptions.make({ acceptMint: false, baseRef: "fixture-base", now: NOW }))
+          .pipe(Effect.flip);
+        assert.strictEqual(missing._tag, "KnowledgeDoctorInputError");
+        assert.include(missing.message, "baseline");
+        const baseline = yield* doctor.mint("HEAD");
+        yield* fs.writeFileString(KNOWLEDGE_DOCTOR_BASELINE_PATH, yield* encodeKnowledgeBaselineText(baseline));
+        yield* fs.writeFileString(
+          "goals/knowledge-doctor.identity.jsonc",
+          '{"schemaVersion":"knowledge-doctor-identity/v1","mappings":[]}'
+        );
+        yield* StepExec.runCapturedStreams({ command: "git", args: ["add", "."], cwd: root, extendEnv: true });
+        yield* StepExec.runCapturedStreams({
+          command: "git",
+          args: [
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "-c",
+            "commit.gpgsign=false",
+            "commit",
+            "-m",
+            "sealed baseline",
+          ],
+          cwd: root,
+          extendEnv: true,
+        });
+
+        assert.strictEqual((yield* doctor.verifyMint).mintedAt, baseline.mintedAt);
+        const checked = yield* doctor.check(
+          KnowledgeDoctorCheckOptions.make({ acceptMint: true, baseRef: "fixture-base", now: NOW })
+        );
+        assert.strictEqual(O.isSome(checked.ratchet), true);
+        assert.deepStrictEqual(
+          (yield* doctor.leases(KnowledgeDoctorLeasesOptions.make({ baseRef: "fixture-base", now: NOW }))).leases,
+          []
+        );
+        const ordinary = yield* doctor.check(
+          KnowledgeDoctorCheckOptions.make({ acceptMint: false, baseRef: "HEAD", now: NOW })
+        );
+        assert.strictEqual(O.isSome(ordinary.ratchet), true);
+        assert.strictEqual((yield* doctor.mint("HEAD")).mintedAt, ordinary.tree);
+        yield* fs.writeFileString(
+          KNOWLEDGE_DOCTOR_LEASES_PATH,
+          `{"schemaVersion":"knowledge-doctor-leases/v1","leases":[{"key":"knowledge-doctor/v1:${Str.repeat(64)("a")}","document":"docs/a.md","owner":"@kriegcloud","reason":"Synthetic boundary fixture.","issued":"2026-10-01T00:00:00Z","expires":"2026-10-28T00:00:00Z"}]}`
+        );
+        yield* StepExec.runCapturedStreams({ command: "git", args: ["add", "."], cwd: root, extendEnv: true });
+        yield* StepExec.runCapturedStreams({
+          command: "git",
+          args: [
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "-c",
+            "commit.gpgsign=false",
+            "commit",
+            "-m",
+            "lease fixture",
+          ],
+          cwd: root,
+          extendEnv: true,
+        });
+        const leases = yield* doctor.leases(KnowledgeDoctorLeasesOptions.make({ baseRef: "fixture-base", now: NOW }));
+        assert.strictEqual(A.length(leases.leases), 1);
+        assert.strictEqual(leases.leases[0]?.status, "active");
+      }, Effect.scoped)
+    );
+    it.effect(
       "turns the lease report into yeet warnings and never fails on an unreadable report",
       Effect.fnUntraced(function* () {
         const expiring = yield* lease({
@@ -733,6 +841,39 @@ describe("knowledge doctor sealed baseline", () => {
         assert.include(lines[0] ?? "", "expiring");
         assert.include((yield* knowledgeLeaseWarningLines(1, ""))[0] ?? "", "exit 1");
         assert.include((yield* knowledgeLeaseWarningLines(0, "not json"))[0] ?? "", "did not decode");
+        assert.include((yield* knowledgeLeaseWarningLines(0, " \n "))[0] ?? "", "did not decode");
+      })
+    );
+    it.effect(
+      "keeps unreadable lease commands advisory and restores process capture",
+      Effect.fnUntraced(function* () {
+        const stdout = `{"schemaVersion":"knowledge-doctor-leases-report/v1","tree":"${MINTED}","mergeBase":"${MERGE_BASE}","now":"2026-10-14T00:00:00.000Z","leases":[]}`;
+        const capture = vi
+          .spyOn(StepExec, "runCapturedStreams")
+          .mockReturnValueOnce(
+            Effect.succeed(CapturedStreams.make({ exitCode: 0, stdout, stderr: "", truncated: false }))
+          )
+          .mockReturnValueOnce(
+            Effect.succeed(CapturedStreams.make({ exitCode: 1, stdout: "", stderr: "", truncated: false }))
+          )
+          .mockReturnValueOnce(
+            Effect.fail(PlatformError.systemError({ _tag: "NotFound", module: "ChildProcess", method: "spawn" }))
+          );
+        yield* Effect.gen(function* () {
+          yield* warnKnowledgeLeases("/synthetic-checkout");
+          yield* warnKnowledgeLeases("/synthetic-checkout");
+          yield* warnKnowledgeLeases("/synthetic-checkout");
+          const errors = yield* TestConsole.errorLines;
+          assert.strictEqual(A.length(errors), 2);
+          assert.include(errors[0] ?? "", "exit 1");
+          assert.include(errors[1] ?? "", "did not start");
+          assert.deepStrictEqual(capture.mock.calls[0]?.[0], {
+            command: "bun",
+            args: ["run", "beep", "knowledge", "doctor", "leases", "--json"],
+            cwd: "/synthetic-checkout",
+            extendEnv: true,
+          });
+        }).pipe(Effect.ensuring(Effect.sync(() => capture.mockRestore())));
       })
     );
   });

@@ -119,6 +119,7 @@ const config = {
     "apps/practice-mail-tagging/package.json",
     "apps/practice-identify/package.json",
     "apps/practice-m365-contacts/package.json",
+    "apps/practice-claude-mod/package.json",
   ],
   customTypes: {
     catalog: {
@@ -135,7 +136,7 @@ const config = {
       // typescript-eslint (peer `<6.1.0`, TS7 tracked in
       // typescript-eslint/typescript-eslint#10940, still open 2026-09-24),
       // and commitlint's cosmiconfig-typescript-loader. ts-morph vendors its own TS 6 copy in
-      // @ts-morph/common and knip 6 parses with oxc, so neither needs this
+      // @ts-morph/common, so it does not need this
       // pin. Reassess the split when typescript-eslint releases against 7.1's API.
       // tstyche is pinned exactly to 8.0.0-beta.0 for its TypeScript 7.1 backend.
       // Explicit targets use its own store, independent of root typescript@6.

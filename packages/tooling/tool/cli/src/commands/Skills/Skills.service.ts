@@ -221,6 +221,64 @@ const renderFilePatch = Effect.fn("SkillsProvenance.renderFilePatch")(function* 
   return yield* renderModifiedFilePatch(skill, filePath, upstream.value, local.value);
 });
 
+/**
+ * Renders the unified diff that turns one skill tree into another, one Git file section per changed path.
+ *
+ * **Details**
+ *
+ * Paths are visited in sorted order; a path whose bytes and mode are equal on
+ * both sides is skipped. Each changed path renders exactly as a generated
+ * patch would (new file, deleted file, mode change, or modified file with
+ * three lines of context), so the update train's upstream-vs-effective diff
+ * reads like the patch series it summarizes. Binary content fails typed.
+ *
+ * **Example** (Diff a one-line change)
+ *
+ * ```ts
+ * import { SkillUpstreamContentFile } from "@beep/repo-cli/commands/Skills/Skills.schemas"
+ * import { renderSkillTreeDiff } from "@beep/repo-cli/commands/Skills/Skills.service"
+ * import { NodeCrypto } from "@effect/platform-node"
+ * import * as Effect from "effect/Effect"
+ *
+ * const encoder = new TextEncoder()
+ * const file = (text: string) => SkillUpstreamContentFile.make({ path: "SKILL.md", mode: "100644", bytes: encoder.encode(text) })
+ * const diff = Effect.runSync(
+ *   renderSkillTreeDiff("demo", [file("a\n")], [file("b\n")]).pipe(Effect.provide(NodeCrypto.layer))
+ * )
+ * console.log(diff.startsWith("diff --git a/SKILL.md b/SKILL.md")) // true
+ * ```
+ *
+ * @param skill - The skill name, used in error messages.
+ * @param before - The tree the diff starts from, such as the pristine upstream tree.
+ * @param after - The tree the diff ends at, such as the replayed effective tree.
+ * @returns The concatenated file sections; empty when the trees are equal.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderSkillTreeDiff = Effect.fn("SkillsProvenance.renderSkillTreeDiff")(function* (
+  skill: string,
+  before: ReadonlyArray<SkillUpstreamContentFile>,
+  after: ReadonlyArray<SkillUpstreamContentFile>
+): Effect.fn.Return<string, SkillsCommandError, Crypto.Crypto> {
+  const left = yield* computeSkillTree(before, `${skill}:diff-before`);
+  const right = yield* computeSkillTree(after, `${skill}:diff-after`);
+  const paths = A.dedupe(
+    A.sort(
+      A.map(A.appendAll(left.files, right.files), (file) => file.path),
+      Str.Order
+    )
+  );
+  const changed = A.filter(paths, (filePath) => {
+    const leftFile = findFile(left.files, filePath);
+    const rightFile = findFile(right.files, filePath);
+    return !(O.isSome(leftFile) && O.isSome(rightFile) && filesMatch(leftFile.value, rightFile.value));
+  });
+  const sections = yield* Effect.forEach(changed, (filePath) =>
+    renderFilePatch(skill, filePath, findFile(left.files, filePath), findFile(right.files, filePath))
+  );
+  return A.join(sections, "");
+});
+
 const PATCH_DROP_CONDITION = "Drop when upstream contains an equivalent change.";
 
 const patchSlug = flow(Str.toLowerCase, Str.replace(/[^a-z0-9]+/gu, "-"), Str.replace(/^-+|-+$/gu, ""));

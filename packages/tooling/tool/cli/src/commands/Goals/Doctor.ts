@@ -37,8 +37,9 @@ import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { diffMembership } from "../../internal/ratchet/RatchetDiff.ts";
 import { runGitOutput } from "../../internal/repo-run/index.ts";
 import { reflectionFileNameIsArtifact, reflectionFrontmatterIsValid } from "../Lint/ReflectionArtifact.ts";
+import { observeGoalCompletion, storedGoalCompletion } from "./Completion.ts";
 import { GoalsGitError } from "./Goals.errors.ts";
-import { decodeGoalManifest, GoalPhaseStatus, GoalStatus } from "./Goals.schemas.ts";
+import { decodeGoalManifest, GoalPhaseStatus, GoalStatus, goalPullRequestRefs } from "./Goals.schemas.ts";
 import { capabilityProviderRows, compileCapabilityProjection, isStrandedProviderSet } from "./Graph.projection.ts";
 import {
   goalManifestPhases,
@@ -48,7 +49,7 @@ import {
   readmeLifecycleToken,
 } from "./Inventory.ts";
 import type { GitCommandErrorAdapter } from "../../internal/repo-run/index.ts";
-import type { GoalManifest } from "./Goals.schemas.ts";
+import type { GoalCompletionReceipt, GoalManifest, GoalPullRequestRef } from "./Goals.schemas.ts";
 import type { CapabilityProjection } from "./Graph.schemas.ts";
 import type { GoalPacketRecord } from "./Inventory.ts";
 
@@ -115,6 +116,7 @@ export const GoalDoctorFindingKind = LiteralKit([
   "active-missing-goal-md",
   "schema-version-upgrade",
   "completion-gate-unsatisfied",
+  "completion-gate-unknown",
   "superseded-without-pointer",
   "exploration-backlink-missing",
   "packet-stream-fork",
@@ -841,33 +843,35 @@ const activeAfterMergeAdvisories = (
   return findings;
 };
 
+const completedManifest = (packet: DoctorPacket) =>
+  O.filter(
+    packet.manifest,
+    (manifest) =>
+      GoalStatus.is["completed-retained"](manifest.initiative.status) && !manifest.completionGate.grandfathered
+  );
+
 const completionGateAdvisories = (
   packets: ReadonlyArray<DoctorPacket>,
   subjectsText: string
-): ReadonlyArray<GoalDoctorFinding> => {
-  let findings = A.empty<GoalDoctorFinding>();
-  for (const packet of packets) {
-    if (O.isNone(packet.manifest)) {
-      continue;
-    }
-    const manifest = packet.manifest.value;
-    if (!GoalStatus.is["completed-retained"](manifest.initiative.status) || manifest.completionGate.grandfathered) {
-      continue;
-    }
-    if (!citedAnywhere(packet, subjectsText)) {
-      findings = A.append(
-        findings,
-        finding(
-          packet.record.slug,
-          "completion-gate-unsatisfied",
-          "advisory",
-          "completed-retained but no merge/squash commit cites the packet (completionGate not grandfathered)."
+): ReadonlyArray<GoalDoctorFinding> =>
+  A.flatMap(packets, (packet) =>
+    completedManifest(packet).pipe(
+      O.filter(
+        (manifest) => manifest.completionGate.pullRequests === undefined && !citedAnywhere(packet, subjectsText)
+      ),
+      O.map(() =>
+        A.of(
+          finding(
+            packet.record.slug,
+            "completion-gate-unsatisfied",
+            "advisory",
+            "Legacy completion declaration has no PR reference or packet citation in the scanned commit subjects; declare a final PR to inspect structured PR/head/merge facts. Overall verification also requires a complete merge-time ruleset inventory."
+          )
         )
-      );
-    }
-  }
-  return findings;
-};
+      ),
+      O.getOrElse(A.empty<GoalDoctorFinding>)
+    )
+  );
 
 const gitAdvisories = Effect.fn("Goals.gitAdvisories")(function* (packets: ReadonlyArray<DoctorPacket>) {
   let findings = A.empty<GoalDoctorFinding>();
@@ -1048,6 +1052,78 @@ export const capabilityPacketFindings = (
 
 const findingLine = (item: GoalDoctorFinding): string => `- ${item.slug} [${item.kind}] ${item.message}`;
 
+const completionReceiptFindings = (
+  slug: string,
+  final: GoalPullRequestRef,
+  receipt: O.Option<GoalCompletionReceipt>
+) => {
+  const outcome = O.isSome(receipt) ? receipt.value.outcome : "unknown";
+  const detail = receipt.pipe(
+    O.map((row) =>
+      outcome === "unknown" && O.exists(row.requiredChecks, (snapshot) => !snapshot.inventoryComplete)
+        ? "Merge-time ruleset inventory completeness is unknown: GitHub cannot enumerate rulesets deleted since the merge. Online doctor inspects facts and completion refresh persists them; neither can verify completion without a complete historical inventory."
+        : "See head-bound completion evidence; lifecycle is unchanged."
+    ),
+    O.getOrElse(
+      () =>
+        "No matching clone receipt. Online doctor inspects PR/merge/check facts; completion refresh persists them. Overall verification requires a complete merge-time ruleset inventory, which GitHub's current inventory cannot reconstruct."
+    )
+  );
+  const findings =
+    outcome === "verified"
+      ? A.empty<GoalDoctorFinding>()
+      : A.of(
+          finding(
+            slug,
+            outcome === "unknown" ? "completion-gate-unknown" : "completion-gate-unsatisfied",
+            "advisory",
+            `Final PR #${final.number}: ${outcome}. ${detail}`
+          )
+        );
+  return findings;
+};
+
+const completionEvidenceAdvisory = Effect.fn("Goals.completionEvidenceAdvisory")(function* (
+  packet: DoctorPacket,
+  manifest: GoalManifest,
+  final: GoalPullRequestRef,
+  online: boolean
+) {
+  const root = yield* findRepoRoot().pipe(Effect.orElseSucceed(process.cwd));
+  const receipt = online
+    ? O.some(yield* observeGoalCompletion(root, packet.record.slug, manifest, final))
+    : yield* storedGoalCompletion(root, packet.record.slug, manifest, final).pipe(Effect.orElseSucceed(O.none));
+  if (O.isNone(receipt) && manifest.completionGate.pullRequests === undefined && !online) return O.none();
+  const findings = completionReceiptFindings(packet.record.slug, final, receipt);
+  return O.some({ slug: packet.record.slug, findings });
+});
+
+const structuredCompletionAdvisory = Effect.fn("Goals.structuredCompletionAdvisory")(function* (
+  packet: DoctorPacket,
+  online: boolean
+) {
+  const eligible = completedManifest(packet);
+  if (O.isNone(eligible))
+    return O.none<{ readonly slug: string; readonly findings: ReadonlyArray<GoalDoctorFinding> }>();
+  const manifest = eligible.value;
+  const final = A.findFirst(goalPullRequestRefs(manifest), (ref) => ref.role === "final");
+  if (O.isNone(final)) {
+    if (manifest.completionGate.pullRequests === undefined) return O.none();
+    const findings = manifest.completionGate.requiresPullRequest
+      ? A.of(
+          finding(
+            packet.record.slug,
+            "completion-gate-unknown",
+            "advisory",
+            "Typed completion declaration has no final PR; lifecycle is unchanged."
+          )
+        )
+      : A.empty<GoalDoctorFinding>();
+    return O.some({ slug: packet.record.slug, findings });
+  }
+  return yield* completionEvidenceAdvisory(packet, manifest, final.value, online);
+});
+
 /**
  * Run the goals doctor: collect findings, ratchet blocking ones against the
  * committed baseline, and fail on new blocking findings.
@@ -1150,6 +1226,7 @@ const printNonFatalFindings = Effect.fn("Goals.printNonFatalFindings")(function*
  */
 export const runGoalsDoctor = Effect.fn("Goals.runGoalsDoctor")(function* (options: {
   readonly writeBaseline: boolean;
+  readonly online?: boolean;
 }) {
   const records = yield* listGoalPackets();
   const reader = makeGoalPacketFilesystemReader();
@@ -1166,13 +1243,22 @@ export const runGoalsDoctor = Effect.fn("Goals.runGoalsDoctor")(function* (optio
   }
 
   const advisoriesFromGit = yield* gitAdvisories(packets);
+  const structured = A.getSomes(
+    yield* Effect.forEach(packets, (packet) => structuredCompletionAdvisory(packet, options.online === true))
+  );
+  const completionFindings = A.flatMap(structured, (row) => row.findings);
+  const structuredSlugs = HashSet.fromIterable(A.map(structured, (row) => row.slug));
   const capabilityFindings = capabilityPacketFindings(
     A.map(packets, (packet) => ({ slug: packet.record.slug, manifest: packet.manifest }))
   );
   const allFindings = [
     ...A.flatMap(packets, (packet) => packet.findings),
     ...capabilityFindings,
-    ...advisoriesFromGit.findings,
+    ...A.filter(
+      advisoriesFromGit.findings,
+      (item) => item.kind !== "completion-gate-unsatisfied" || !HashSet.has(structuredSlugs, item.slug)
+    ),
+    ...completionFindings,
   ];
   const blocking = A.filter(allFindings, (item) => item.severity === "blocking");
   const advisories = A.filter(allFindings, (item) => item.severity === "advisory");
@@ -1221,8 +1307,14 @@ const writeBaselineFlag = Flag.Boolean("write-baseline").pipe(
  */
 export const goalsDoctorCommand = Command.make(
   "doctor",
-  { writeBaseline: writeBaselineFlag },
-  Effect.fn(function* ({ writeBaseline }) {
-    yield* runGoalsDoctor({ writeBaseline });
+  {
+    writeBaseline: writeBaselineFlag,
+    online: Flag.Boolean("online").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Observe typed final PRs on GitHub without writing receipts")
+    ),
+  },
+  Effect.fn("Goals.doctorCommand")(function* ({ writeBaseline, online }) {
+    yield* runGoalsDoctor({ writeBaseline, online });
   })
 ).pipe(Command.withDescription("Diff goal-packet manifest claims against git/filesystem evidence (baseline ratchet)"));

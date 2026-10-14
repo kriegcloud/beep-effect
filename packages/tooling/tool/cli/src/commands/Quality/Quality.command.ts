@@ -93,7 +93,6 @@ import {
   RunJSDocRatchetOptions,
   runJSDocRatchet,
 } from "./internal/JSDocRatchet.ts";
-import { defaultKnipBaselinePath, RunKnipRatchetOptions, runKnipRatchet } from "./internal/KnipRatchet.ts";
 import { runPackageVerifyCli } from "./internal/PackageVerify.ts";
 import { repoRelative } from "./internal/QualityArtifactSupport.ts";
 import { testTsgoSyntheticConfigTemplate } from "./internal/TestTsgoSyntheticConfig.ts";
@@ -3807,29 +3806,6 @@ const jsdocMigrateCommand = Command.make("jsdoc-migrate", {}, () =>
   ])
 );
 
-const knipCommand = Command.make(
-  "knip",
-  {
-    baseline: Flag.String("baseline").pipe(
-      Flag.withDefault(defaultKnipBaselinePath),
-      Flag.withDescription("Committed Knip regression baseline JSONC path")
-    ),
-    writeBaseline: Flag.Boolean("write-baseline").pipe(
-      Flag.withDefault(false),
-      Flag.withDescription("Rewrite the Knip regression baseline from the current normalized finding set")
-    ),
-  },
-  ({ baseline, writeBaseline }) =>
-    runQualityProgram(
-      runKnipRatchet(
-        RunKnipRatchetOptions.make({
-          baselinePath: baseline,
-          writeBaseline,
-        })
-      )
-    )
-).pipe(Command.withDescription("Run Knip as a fail-on-growth regression-baseline gate"));
-
 const cachePolicyCommand = Command.make("cache-policy", {}, () =>
   findRepoRoot().pipe(Effect.flatMap((root) => runCachePolicyAudit(root, false)))
 ).pipe(
@@ -4506,8 +4482,6 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality jsdoc-ratchet --write-baseline",
     "- bun run beep quality jsdoc-migrate extract",
     "- bun run beep quality jsdoc-migrate apply --dry-run --synthetic-titles",
-    "- bun run beep quality knip",
-    "- bun run beep quality knip --write-baseline",
     "- bun run beep quality turbo-config-proof --base origin/main --head HEAD",
     "- bun run beep quality profile detect",
     "- bun run beep quality tmpfs-reap [--apply] [--json]",
@@ -4532,7 +4506,6 @@ export const qualityCommand = Command.make("quality", {}, () =>
     jsdocQualityCommand,
     jsdocRatchetCommand,
     jsdocMigrateCommand,
-    knipCommand,
     turboConfigProofCommand,
     cachePolicyCommand,
     qualityProfileCommand,
