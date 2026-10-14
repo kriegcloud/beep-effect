@@ -146,7 +146,7 @@ its credentials as a shortcut to making a worker ready.
 | Audit harness: independent dependencies and correct ledger attribution | Independent frozen install; intended checkout/state root identified | pending |
 | Managed-host capabilities: systemd/network/write/desktop availability | Same probes per admitted execution profile | pending |
 | MCP workflow matrix and connector authentication | Expected tools connect; optional IDE tools do not stall headless startup | pending |
-| Graft and Effect references | Structural graph and reference query, without deep-model work | pending |
+| Graft and Effect references | Structural graph and reference query, without deep-model work | worker Beep/Effect and scoped federation qualified; eleven member graphs fresh; Alchemy parse coverage and aggregate resource limits remain open |
 | Current bootstrap and closeout doctrine | Retired commands historical only; one closeout boundary per host | pending |
 | Detached Yeet qualification | Bounded job/slice lifecycle and terminal receipt | pending |
 | Cloud credentials: Azure/Vercel/Cloudflare/AWS/Pulumi | Actual output-suppressed authenticated operation per selected account/project | complete for worker read-only access: Azure/Vercel/Cloudflare checks, AWS identity/state bucket, and S3 Pulumi stack discovery pass; deployments remain separate |

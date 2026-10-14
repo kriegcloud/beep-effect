@@ -106,3 +106,35 @@ temporary file and transient systemd diagnostic. Future audits need enforceable
 capability/budget boundaries, not reliance on the model's plan-mode description.
 The canonical proxy executable is cli-proxy-api; guessed spellings missing from
 PATH do not establish a provisioning failure.
+
+## Reference graph qualification friction — 2026-10-14
+
+The canonical refs provision command only clones and links; its plan also prints
+operator-only deep refresh commands. Do not equate the printed plan with setup
+execution. Provisioning's child environment omits arbitrary Git configuration
+variables, so a temporary PATH wrapper supplies a command-scoped HTTPS rewrite
+for manifest SSH clone URLs without forwarding an administrator agent or changing
+global Git configuration. Structural builds preserve upstream ignore files.
+
+T3's 5,456-file reference graph built successfully, but its freshness check hit
+the initial 120-second harness bound on the worker. Retry under a bounded
+600-second check and record the result; a timeout is not proof of graph drift.
+Successful checks for other members are reused rather than repeated.
+
+All eleven member freshness checks eventually passed. Alchemy's build nevertheless
+reports a parse/extraction failure in AWS/IAM/actions.generated.ts (Maximum call
+stack size exceeded); zero build/check exits are not full parser-coverage proof.
+The parent workspace build federates all eleven members and repeats that warning.
+Its aggregate freshness check consumed roughly 10 GiB process memory, filled
+swap and left about 444 MiB available. The orchestrator stopped only its owned
+read-only check; memory recovered and T3, Docker and proxy services stayed active.
+Aggregate checking is not qualified on this worker. Subsequent graph operations
+use transient user scopes with explicit MemoryMax/MemorySwapMax and time bounds;
+record scoped-query coverage separately from complete workspace validation.
+
+Follow-up: [qualification receipt](../history/2026-10-14-graft-reference-qualification.md)
+records successful bounded Beep build/check, direct Effect lookup and scoped
+workspace/Beep source queries. Reference clones now have equivalent HTTPS
+origins for future agent-free updates. Persistent workload resource guards,
+aggregate freshness policy and the Alchemy parsing failure remain explicit
+follow-up; deep ingestion was not run.

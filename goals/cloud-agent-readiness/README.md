@@ -95,6 +95,8 @@ qualified by the beep-worker receipts.
   approved AWS credential route, matching S3 backend and four-stack discovery.
 - [Headless portability follow-up](./history/2026-10-14-headless-portability-follow-up.md):
   fresh profile comparison, corrected SSH launch isolation and remaining gaps.
+- [Graft/reference qualification](./history/2026-10-14-graft-reference-qualification.md):
+  eleven reference clones, structural navigation and explicit resource/coverage limits.
 - [Original cloud probe](./research/2026-10-01-container-probe.md): historical
   container restrictions; it does not describe the current Linux worker.
 
