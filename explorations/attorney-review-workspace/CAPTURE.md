@@ -45,3 +45,26 @@ Context at capture time:
   - the design-figure drawings review rounds;
   - the Box identification review app.
   Each was a separate web page or app.
+
+## 2026-10-14 (re-entry: the attorney question loop)
+
+Routed from the docket spot-check session. The operator asked: "if you are waiting for replies every
+30 minutes shouldn't we be setting up the tooling so that this happens via the practice-kg-mcp,
+CLIProxyAPI & claude code?" The operator chose to decide it here in an align round rather than as a
+side patch.
+
+The input is out of the repo at `$HOME/.cache/beep/handoffs/attorney-followup-loop/INPUT.md`. Its
+"Private evidence" section names clients and stays there.
+
+Summary of that input, numbers only:
+- The requirement is a standing loop. An agent poses a question with facts, sources and the exact
+  options. The attorney answers once, where he already works. The answer is captured as structured
+  data and applied under a stated write policy. Unanswered questions keep reminding him, and
+  nobody polls.
+- A one-question-at-a-time page got all 6 questions answered in one sitting. Two emails asking for
+  one date got no reply in more than 9 hours. A later email reply was missed by an in-session
+  poller.
+- 4 of 6 answers were notes rather than decisions: "pending on client" and "keep reminding".
+- Records settled 28 of 34 open items without asking him.
+- Failure modes: a transient page server died in a reboot, a connector went stale, and answers
+  sat unprocessed.
