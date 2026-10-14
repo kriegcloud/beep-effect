@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-10-13",
+  "generatedOn": "2026-10-14",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -1071,7 +1071,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 50,
+      "line": 51,
       "owner": "@beep/repo-cli",
       "reason": "Graduation write and crash-recovery regression decodes the receipts the CLI prints and the manifest it rewrites through S.fromJsonString codecs; the codec calls read real command output from temporary repositories and assert no schema law, so schema-derived arbitrary coverage does not apply."
     },

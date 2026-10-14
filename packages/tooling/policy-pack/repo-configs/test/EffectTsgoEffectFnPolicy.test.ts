@@ -5,6 +5,7 @@ import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect } from "@effect/vitest";
+import typescript from "@typescript/native/package.json" with { type: "json" };
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow, pipe } from "effect/Function";
@@ -16,7 +17,6 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as jsonc from "jsonc-parser";
-import typescript from "typescript";
 
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
 const tscBinPath = fileURLToPath(new URL("../../../../../node_modules/.bin/tsc", import.meta.url));
@@ -170,7 +170,7 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
         expect(tsgo.exitCode, tsgoContext).toBe(0);
         expect(tsc.stdout, `${tscContext}; ${tsgoContext}`).toBe(tsgo.stdout);
         expect(tsc.stdout, tscContext).toMatch(/^Version 7\..*\+effect-tsgo\./u);
-        expect(typescript.version, "TypeScript API version").toMatch(/^6\./u);
+        expect(typescript.version, "TypeScript API version").toMatch(/^7\./u);
       })
     );
     it.effect("runs the typecheck gates on the tsc-rs release that ports the pinned effect-tsgo", () =>

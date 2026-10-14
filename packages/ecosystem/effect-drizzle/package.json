@@ -33,7 +33,7 @@
     "beep:check": "tsc-rs -p tsconfig.check.json && bun run beep:check:tests && bun run beep:type-test",
     "beep:docgen": "bunx --bun --no-install docgen",
     "beep:lint": "biome check .",
-    "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+    "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/** --exclude=test/import-boundary.test.ts && bunx vitest run test/import-boundary.test.ts",
     "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "beep:bundle-probe": "bun test/bundle-size.probe.ts",
@@ -87,7 +87,9 @@
     "effect": "catalog:",
     "esbuild": "catalog:",
     "tstyche": "8.0.0-beta.0",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@beep/repo-utils": "workspace:^",
+    "@typescript/native": "catalog:",
+    "@effect/platform-node": "catalog:"
   }
 }
