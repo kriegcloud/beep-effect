@@ -55,6 +55,11 @@ const TestLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer);
 const textEncoder = new TextEncoder();
 const oracleLockFixture = new URL("./fixtures/skills-provenance/oracle-lock-v2.json", import.meta.url).pathname;
 const repoRootDir = new URL("../../../../../", import.meta.url).pathname;
+const RenovateConfig = S.fromJsonString(
+  S.Struct({
+    customManagers: S.Array(S.Struct({ matchStrings: S.Array(S.String), datasourceTemplate: S.String })),
+  })
+);
 
 const SKILL = "demo";
 const TARGETS = [`.claude/skills/${SKILL}`, `.agents/skills/${SKILL}`];
@@ -504,13 +509,7 @@ layer(TestLayer, { timeout: "30 seconds" })("skills update train Renovate manage
   it.effect("matches every vendored lock entry's pin and no local entry", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
-      const renovate = yield* S.decodeUnknownEffect(
-        S.fromJsonString(
-          S.Struct({
-            customManagers: S.Array(S.Struct({ matchStrings: S.Array(S.String), datasourceTemplate: S.String })),
-          })
-        )
-      )(yield* fs.readFileString(`${repoRootDir}renovate.json`));
+      const renovate = yield* S.decodeEffect(RenovateConfig)(yield* fs.readFileString(`${repoRootDir}renovate.json`));
       const manager = A.getUnsafe(renovate.customManagers, 0);
       expect(manager.datasourceTemplate).toBe("git-refs");
       const pattern = new RegExp(A.getUnsafe(manager.matchStrings, 0), "gu");
