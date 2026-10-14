@@ -1,5 +1,6 @@
 import { A, dual } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
+import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -11,6 +12,21 @@ import * as Runtime from "effect/Runtime";
 import { expect } from "vitest";
 
 export const NodeTestLayer = Layer.mergeAll(NodeServices.layer);
+
+/**
+ * Supplies native platform services and cryptography for complete CLI command trees.
+ *
+ * **Example** (Compose command tests)
+ * ```ts
+ * import { NodeCommandTestLayer } from "./CommandTest.ts"
+ * import * as Layer from "effect/Layer"
+ * console.log(Layer.isLayer(NodeCommandTestLayer)) // true
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const NodeCommandTestLayer = Layer.mergeAll(NodeTestLayer, NodeCrypto.layer);
 
 const permuteDirectoryEntries = (entries: ReadonlyArray<string>, iteration: number): ReadonlyArray<string> => {
   const size = A.length(entries);

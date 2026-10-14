@@ -271,8 +271,9 @@ an unreadable payload also blocks the command:
   `g"i"t`, and `git\ status` rejoin into the real word, then treats shell operators, backticks, `$`,
   and `=` as separators. Arguments count: `echo git` and `rg sudo` are denied on purpose.
 - **Any shell expansion.** `$name`, `${...}`, `$(...)`, `$'...'`, positional parameters, and
-  backticks are refused, because a static scan cannot know what `a=su; ${a}do` produces. A regex
-  anchor such as `grep -E 'end$'` is denied too, since the guard cannot tell it from `$'...'`.
+  backticks and pathname globs (`*`, `?`, `[`, `]`) are refused, because a static scan cannot
+  know what `a=su; ${a}do` or `/usr/bin/g[i]t` produces. A regex anchor such as
+  `grep -E 'end$'` is denied too, since the guard cannot tell it from `$'...'`.
 
 Lanes therefore pass literal values and search with the agent's file tools instead of shell. Smoke
 (goal history `2026-09-16-deny-shell-proof.md`): 27 command fixtures plus five payload fixtures.
@@ -419,7 +420,11 @@ Do not set `CLAUDE_CODE_SUBAGENT_MODEL` in proxy wrappers.
 ## Junie lane recipe
 
 Junie (`junie` CLI, JetBrains AI Pro) is the spend-down volume pool. Check the meter first:
-`bun run beep accounts status` shows the JetBrains row with credits left. Then run one bounded
+`bun run beep accounts status` shows the JetBrains row with credits left, cycle used percentage,
+and the next refill date when detailed quota is available. Its cycle window uses the existing
+ranking: a large unused balance near reset makes this pool urgent to spend. Detailed-quota
+failures preserve the balance-only row. Stored access tokens without a cached ID token skip
+the cycle window until the normal refresh-on-rejection path supplies one. Then run one bounded
 lane per invocation, verified 2026-10-14:
 
 ```sh

@@ -24,13 +24,19 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
+import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
 import { DiffLine, diffLines, joinDiffLines, sameDiffLine } from "./internal/DiffLines.ts";
+import { appendFramedText, hashBytes } from "./internal/SkillTree.ts";
 import { SkillPatchApplyError } from "./Skills.errors.ts";
 import { SkillTreeMode, SkillUpstreamContentFile } from "./Skills.schemas.ts";
-import type { SkillPatchApplyReason } from "./Skills.errors.ts";
+import { SkillHunkReport } from "./SkillsRelock.schemas.ts";
+import type * as Crypto from "effect/Crypto";
+import type { SkillPatchApplyReason, SkillsCommandError } from "./Skills.errors.ts";
+import type { SkillHunkStatus } from "./SkillsRelock.schemas.ts";
 
 const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 const textEncoder = new TextEncoder();
@@ -421,6 +427,26 @@ const requireOldMode = (
   });
 };
 
+// The patched file takes the section's new mode, else its old mode, else a plain file's.
+const setSectionLines = (
+  tree: HashMap.HashMap<string, SkillUpstreamContentFile>,
+  section: FileSection,
+  existing: O.Option<SkillUpstreamContentFile>,
+  lines: ReadonlyArray<DiffLine>
+): HashMap.HashMap<string, SkillUpstreamContentFile> =>
+  HashMap.set(
+    tree,
+    section.path,
+    SkillUpstreamContentFile.make({
+      path: section.path,
+      mode: O.getOrElse(
+        O.orElse(section.newMode, () => O.map(existing, (file) => file.mode)),
+        (): SkillTreeMode => "100644"
+      ),
+      bytes: textEncoder.encode(joinDiffLines(lines)),
+    })
+  );
+
 const applySection = Effect.fn("SkillPatches.applySection")(function* (
   patch: string,
   tree: HashMap.HashMap<string, SkillUpstreamContentFile>,
@@ -456,15 +482,7 @@ const applySection = Effect.fn("SkillPatches.applySection")(function* (
           "incomplete-delete"
         )(`Delete patch for ${section.path} leaves ${A.length(after)} line(s).`);
   }
-  const mode = O.getOrElse(
-    O.orElse(section.newMode, () => O.map(existing, (file) => file.mode)),
-    (): SkillTreeMode => "100644"
-  );
-  return HashMap.set(
-    tree,
-    section.path,
-    SkillUpstreamContentFile.make({ path: section.path, mode, bytes: textEncoder.encode(joinDiffLines(after)) })
-  );
+  return setSectionLines(tree, section, existing, after);
 });
 
 /**
@@ -528,4 +546,293 @@ export const applySkillPatch = Effect.fn("SkillPatches.applySkillPatch")(functio
     A.fromIterable,
     A.sortWith((file) => file.path, Str.Order)
   );
+});
+
+// ---------------------------------------------------------------------------
+// Per-hunk replay classification (B-5 report only; never a write path, B27).
+// ---------------------------------------------------------------------------
+
+type HunkVerdict = {
+  readonly hunk: number;
+  readonly oldStart: number;
+  readonly identity: ReadonlyArray<Uint8Array>;
+  readonly status: SkillHunkStatus;
+  readonly shift: number;
+  readonly detail: string;
+};
+
+type Classified = {
+  readonly verdicts: ReadonlyArray<HunkVerdict>;
+  readonly tree: HashMap.HashMap<string, SkillUpstreamContentFile>;
+};
+
+// A hunk's identity frames the file path and every body line with its kind and newline
+// state, never the line numbers, so a hunk upstream merely shifted keeps its identity.
+const hunkIdentity = (file: string, hunk: Hunk): ReadonlyArray<Uint8Array> =>
+  A.reduce(hunk.lines, appendFramedText(A.empty<Uint8Array>(), file), (chunks, entry) =>
+    appendFramedText(appendFramedText(chunks, `${entry.kind}${entry.line.text}`), entry.line.eol ? "eol" : "no-eol")
+  );
+
+const sectionIdentity = (section: FileSection): ReadonlyArray<Uint8Array> =>
+  A.reduce(
+    [section.path, section.change, O.getOrElse(section.oldMode, () => "-"), O.getOrElse(section.newMode, () => "-")],
+    A.empty<Uint8Array>(),
+    appendFramedText
+  );
+
+// Candidate starts nearest the recorded one first (earlier wins a tie), never before the
+// previous hunk's end, so a shifted match is the smallest move that fits.
+const shiftedStarts = (recorded: number, from: number, last: number): ReadonlyArray<number> =>
+  A.sortWith(
+    A.filter(A.range(from, Math.max(from, last)), (start) => start <= last && start !== recorded),
+    (start) => Math.abs(start - recorded) * 2 + (start < recorded ? 0 : 1),
+    Order.Number
+  );
+
+const matchesAt = (original: ReadonlyArray<DiffLine>, start: number, oldSide: ReadonlyArray<DiffLine>): boolean =>
+  linesEqual(A.take(A.drop(original, start), A.length(oldSide)), oldSide);
+
+const conflictedSection = (section: FileSection, detail: string): ReadonlyArray<HunkVerdict> =>
+  A.isReadonlyArrayEmpty(section.hunks)
+    ? [{ hunk: 0, oldStart: 0, identity: sectionIdentity(section), status: "conflicted", shift: 0, detail }]
+    : A.map(section.hunks, (hunk, index) => ({
+        hunk: index + 1,
+        oldStart: hunk.oldStart,
+        identity: hunkIdentity(section.path, hunk),
+        status: "conflicted",
+        shift: 0,
+        detail,
+      }));
+
+type ClassifyState = { readonly applied: Applied; readonly verdicts: ReadonlyArray<HunkVerdict> };
+
+const shiftDetail = (shift: number): string =>
+  shift === 0
+    ? ""
+    : `Matches exactly ${Math.abs(shift)} line(s) ${shift > 0 ? "below" : "above"} its recorded position; strict apply refuses it.`;
+
+// One hunk: its recorded start if it matches there, else the nearest exact shifted match;
+// a hunk that matches nowhere is reported and left out of the in-memory result.
+const classifyHunk =
+  (path: string, original: ReadonlyArray<DiffLine>) =>
+  (state: ClassifyState, hunk: Hunk, index: number): ClassifyState => {
+    const oldSide = sideOf(hunk.lines, "+");
+    const recorded = sideStart(hunk.oldStart, hunk.oldCount);
+    const base = { hunk: index + 1, oldStart: hunk.oldStart, identity: hunkIdentity(path, hunk) };
+    const exact = recorded >= state.applied.consumed && matchesAt(original, recorded, oldSide);
+    const landing = exact
+      ? O.some(recorded)
+      : A.findFirst(shiftedStarts(recorded, state.applied.consumed, A.length(original) - A.length(oldSide)), (start) =>
+          matchesAt(original, start, oldSide)
+        );
+    return O.match(landing, {
+      onNone: () => ({
+        applied: state.applied,
+        verdicts: A.append(state.verdicts, {
+          ...base,
+          status: "conflicted",
+          shift: 0,
+          detail: `The hunk at line ${hunk.oldStart} matches nowhere in ${path}.`,
+        }),
+      }),
+      onSome: (start) => {
+        const shift = start - recorded;
+        const kept = A.take(A.drop(original, state.applied.consumed), start - state.applied.consumed);
+        return {
+          applied: {
+            output: A.appendAll(A.appendAll(state.applied.output, kept), sideOf(hunk.lines, "-")),
+            consumed: start + A.length(oldSide),
+          },
+          verdicts: A.append(state.verdicts, {
+            ...base,
+            status: shift === 0 ? "applied" : "fuzz-applied",
+            shift,
+            detail: shiftDetail(shift),
+          }),
+        };
+      },
+    });
+  };
+
+const classifyHunks = (
+  section: FileSection,
+  original: ReadonlyArray<DiffLine>
+): { readonly verdicts: ReadonlyArray<HunkVerdict>; readonly lines: ReadonlyArray<DiffLine> } => {
+  const initial: ClassifyState = { applied: { output: A.empty(), consumed: 0 }, verdicts: A.empty() };
+  const final = A.reduce(section.hunks, initial, classifyHunk(section.path, original));
+  return {
+    verdicts: final.verdicts,
+    lines: A.appendAll(final.applied.output, A.drop(original, final.applied.consumed)),
+  };
+};
+
+const sectionBlocker = (
+  patch: string,
+  section: FileSection,
+  existing: O.Option<SkillUpstreamContentFile>
+): Effect.Effect<O.Option<string>> =>
+  requirePresence(patch, section, existing).pipe(
+    Effect.andThen(requireOldMode(patch, section, existing)),
+    Effect.as(O.none<string>()),
+    Effect.catchTag("SkillPatchApplyError", (error) => Effect.succeedSome(error.message))
+  );
+
+const classifySection = Effect.fn("SkillPatches.classifySection")(function* (
+  patch: string,
+  tree: HashMap.HashMap<string, SkillUpstreamContentFile>,
+  section: FileSection
+): Effect.fn.Return<Classified> {
+  const existing = HashMap.get(tree, section.path);
+  const blocker = yield* sectionBlocker(patch, section, existing);
+  if (O.isSome(blocker)) {
+    return { verdicts: conflictedSection(section, blocker.value), tree };
+  }
+  const before = yield* O.match(existing, {
+    onNone: () => Effect.succeedSome(""),
+    onSome: (file) => Effect.option(decodeText(patch, file)),
+  });
+  if (O.isNone(before)) {
+    return { verdicts: conflictedSection(section, `${section.path} is not UTF-8 text.`), tree };
+  }
+  const { verdicts, lines } = classifyHunks(section, diffLines(before.value));
+  const headerRow: ReadonlyArray<HunkVerdict> = A.isReadonlyArrayEmpty(section.hunks)
+    ? [{ hunk: 0, oldStart: 0, identity: sectionIdentity(section), status: "applied", shift: 0, detail: "" }]
+    : A.empty();
+  if (section.change === "delete") {
+    const leftover = A.isReadonlyArrayNonEmpty(lines);
+    const deleteRow: ReadonlyArray<HunkVerdict> = leftover
+      ? [
+          {
+            hunk: 0,
+            oldStart: 0,
+            identity: sectionIdentity(section),
+            status: "conflicted",
+            shift: 0,
+            detail: `Delete patch for ${section.path} leaves ${A.length(lines)} line(s).`,
+          },
+        ]
+      : A.empty();
+    return {
+      verdicts: A.appendAll(A.appendAll(headerRow, verdicts), deleteRow),
+      tree: leftover ? tree : HashMap.remove(tree, section.path),
+    };
+  }
+  return {
+    verdicts: A.appendAll(headerRow, verdicts),
+    tree: setSectionLines(tree, section, existing, lines),
+  };
+});
+
+const toReports = Effect.fn("SkillPatches.toReports")(function* (
+  patch: string,
+  file: string,
+  verdicts: ReadonlyArray<HunkVerdict>
+): Effect.fn.Return<ReadonlyArray<SkillHunkReport>, SkillsCommandError, Crypto.Crypto> {
+  return yield* Effect.forEach(
+    verdicts,
+    Effect.fnUntraced(function* (verdict) {
+      return SkillHunkReport.make({
+        patch,
+        file,
+        hunk: verdict.hunk,
+        hunkHash: yield* hashBytes(concatBytes(verdict.identity), `${patch}:${file}:hunk-${verdict.hunk}`),
+        oldStart: verdict.oldStart,
+        status: verdict.status,
+        shift: verdict.shift,
+        detail: verdict.detail,
+      });
+    })
+  );
+});
+
+/**
+ * Classifies every hunk of one patch against a tree, for the replay report only.
+ *
+ * **Details**
+ *
+ * Each hunk is tried exactly where its header says (`applied`), then at the
+ * nearest position where its context and removed lines match exactly
+ * (`fuzz-applied`, with the offset in `shift`), and otherwise it is
+ * `conflicted`. A file section that cannot apply at all (a missing or
+ * already-present file, an old-mode mismatch, binary content) marks every
+ * one of its hunks `conflicted`, and a patch that does not parse becomes one
+ * `conflicted` row. The returned tree applies every non-conflicted hunk in
+ * memory so later patches classify against the best available tree.
+ *
+ * This is never a write path (B27): the strict {@link applySkillPatch} is the
+ * only applier whose output may be recorded or written.
+ *
+ * **Example** (Classify a hunk that moved down one line)
+ *
+ * ```ts
+ * import { classifySkillPatchHunks } from "@beep/repo-cli/commands/Skills/SkillPatches.apply"
+ * import { SkillUpstreamContentFile } from "@beep/repo-cli/commands/Skills/Skills.schemas"
+ * import { NodeCrypto } from "@effect/platform-node"
+ * import * as Effect from "effect/Effect"
+ *
+ * const encoder = new TextEncoder()
+ * const tree = [SkillUpstreamContentFile.make({ path: "SKILL.md", mode: "100644", bytes: encoder.encode("new\na\nb\nc\n") })]
+ * const patch = [
+ *   "diff --git a/SKILL.md b/SKILL.md",
+ *   "--- a/SKILL.md",
+ *   "+++ b/SKILL.md",
+ *   "@@ -1,3 +1,3 @@",
+ *   " a",
+ *   "-b",
+ *   "+B",
+ *   " c",
+ *   "",
+ * ].join("\n")
+ *
+ * const classified = Effect.runSync(
+ *   classifySkillPatchHunks("0001-skill-md.patch", patch, tree).pipe(Effect.provide(NodeCrypto.layer))
+ * )
+ * console.log(classified.rows[0]?.status, classified.rows[0]?.shift) // "fuzz-applied" 1
+ * ```
+ *
+ * @param patch - The patch's repo-relative path, recorded on every row.
+ * @param text - Unified-diff text.
+ * @param tree - The tree to classify against, keyed by skill-relative path.
+ * @returns One row per hunk (or per hunk-less section) and the best-effort patched tree, sorted by path.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const classifySkillPatchHunks = Effect.fn("SkillPatches.classifySkillPatchHunks")(function* (
+  patch: string,
+  text: string,
+  tree: ReadonlyArray<SkillUpstreamContentFile>
+): Effect.fn.Return<
+  { readonly rows: ReadonlyArray<SkillHunkReport>; readonly tree: ReadonlyArray<SkillUpstreamContentFile> },
+  SkillsCommandError,
+  Crypto.Crypto
+> {
+  const parsed = yield* Effect.result(parsePatch(patch, text));
+  if (Result.isFailure(parsed)) {
+    const rows = yield* toReports(patch, parsed.failure.file, [
+      {
+        hunk: 0,
+        oldStart: 0,
+        identity: appendFramedText(A.empty<Uint8Array>(), text),
+        status: "conflicted",
+        shift: 0,
+        detail: parsed.failure.message,
+      },
+    ]);
+    return { rows, tree };
+  }
+  let files = HashMap.fromIterable(A.map(tree, (file) => [file.path, file] as const));
+  let rows = A.empty<SkillHunkReport>();
+  for (const section of parsed.success) {
+    const classified = yield* classifySection(patch, files, section);
+    files = classified.tree;
+    rows = A.appendAll(rows, yield* toReports(patch, section.path, classified.verdicts));
+  }
+  return {
+    rows,
+    tree: files.pipe(
+      HashMap.values,
+      A.fromIterable,
+      A.sortWith((file) => file.path, Str.Order)
+    ),
+  };
 });

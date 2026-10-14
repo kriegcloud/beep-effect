@@ -932,3 +932,100 @@ that integrated main commit. No fix or base merge inside the frozen launch.
   but packet/source discovery finds only the current Java/Tika second pass.
   Prevention: name the ordered engine ids, versions, format coverage and
   ledger contract in the scope ruling. No substitute or recovery launched.
+
+
+## 2026-10-14 — Recovery terminal catch discarded the attributable cause
+
+- **Doing:** deriving the bounded recovery budget from family 9's sealed
+  failure while preserving all immutable evidence.
+- **Evidence:** family elapsed 7,222,485 ms and an unmatched copy written
+  after 7,200,000 ms support elapsed-budget exhaustion. The terminal catch
+  kept only engine-failure and a generic message, so exact cause and parser
+  status could not be established. Add allowlisted schema evidence and
+  synthetic nonzero/empty/elapsed cases without approving engine failures.
+- **Prevented by:** persist the original class and stable numeric/status
+  fields at the terminal boundary; exclude all messages, paths and tool output.
+
+## 2026-10-14 — Worker omitted the user-manager environment
+
+- **Doing:** starting required package verification through beep-heavy.
+- **Evidence:** the first admission returned `Failed to connect to user
+  scope bus` before any workload started. UID and existing bus socket were
+  verified; subsequent invocations set the standard runtime/bus environment.
+- **Prevented by:** forward XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS
+  into the worker as the lane launcher contract specifies. Do not bypass
+  heavy admission or alter user-manager configuration.
+
+
+## 2026-10-14 — Main integration inherits eleven knowledge host-path gates
+
+- **Doing:** running hosted-parity knowledge refs before the recovery engine PR.
+- **Evidence:** `knowledge refs --check: 11 live host-path observation(s).`
+  All observed files belong to the Palantiri exploration and its six
+  graduated telemetry packets; each file matches origin/main exactly.
+  None is a recovery-lane change. Attribute inherited and preserve ownership.
+- **Prevented by:** close host-path observations before upstream packet
+  graduation, or make the declared consolidated unblocker clear the gates
+  once on main. This lane does not copy fixes into other packets.
+
+
+## 2026-10-14 — Dirty packet data invalidates the checkout-integrity test
+
+- **Doing:** default package verification before the recovery engine commit.
+- **Evidence:** `reads the same packets, workspace packages, and installed
+  skills as the live filesystem` failed because committed statusNote and
+  working-tree statusNote differed. The package audit ran 6,184 tests and
+  took 1,153.6 seconds; the other failure was an introduced Struct.omit
+  fixture API mistake, corrected against local Effect v4 source.
+- **Prevented by:** commit completed packet edits before running a suite
+  whose contract compares git HEAD and working-tree bytes. Verify new
+  helper signatures from installed Effect before using them in fixtures.
+
+
+## 2026-10-14 — Hosted inherited reds gate a locally proven recovery change
+
+- **Doing:** final exact-head closeout of recovery engine PR #1731.
+- **Evidence:** completed job logs show Lint Policy failed on fourteen
+  host-path observations and nine JSDoc warnings; Coverage Regression
+  failed on sixteen rows in nine non-Corpus files. Every reported file
+  matches the merge base. The changed restoration files retain their
+  per-file coverage floors; local scoped tests pass 6,197/6,197.
+- **Prevented by:** land the consolidated inherited lint/coverage repair
+  on main once and route ownership there. S11 gate and attribution stay
+  explicit; this lane never edits other packets or lowers a baseline.
+
+
+## 2026-10-14 — Post-merge proof receipts conflict with the published handoff
+
+- Doing: integrating the merged recovery engine before the live recovery.
+- Evidence: one add/add conflict in the dated handoff. Main ended before
+  this lane's locally appended final coverage/hosted attribution and report.
+  Preserve the append and complete the merge; engine source matches main.
+- Prevented by: committing post-push proof receipts with the next evidence
+  wave before integration; do not drop them or re-push a merged head branch.
+
+
+## 2026-10-14 — An added private-log reference trips the knowledge gate
+
+- Doing: verifying committed recovery freeze documentation before launch.
+- Evidence: knowledge refs reports sixteen live gated external-mirror
+  observations; one is the new SPEC private-log location. Fifteen other
+  observations are in documents that match main. No corpus tool ran.
+- Prevented by: write private-log locations relative to the declared corpus
+  home, matching the packet's existing inventory. Correct the introduced
+  row, commit, rerun; the orchestrator owns the inherited observations.
+
+
+## 2026-10-14 — Recovery source freeze includes unrelated JSDoc
+
+- Doing: reconcile the rebooted ordinal-5 recovery, then integrate main
+  before the successor-ruled ordinal-7 launch.
+- Evidence: three Corpus.service.ts JSDoc blocks differ from the committed
+  recovery codeHead (33 additions, six deletions). The frozen launcher checks
+  the entire Corpus directory with git diff --quiet and would exit 71.
+  Restoration implementation and libpff are unchanged; ordinal 7 unstarted.
+- Prevented by: define and record the exact frozen execution surface before
+  launch, or prescribe an execution route that survives mandatory main
+  integration without weakening an existing byte-identity contract.
+- Attribution: inherited source-comment changes from main; no local engine
+  edit. Orchestrator owns identity resolution; no manifest/launcher rewrite.

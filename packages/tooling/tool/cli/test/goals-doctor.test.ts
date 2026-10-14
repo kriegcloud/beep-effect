@@ -5,10 +5,19 @@ import {
   capabilityPacketFindings,
   classifyGoalDoctorFindings,
   DuplicateCapabilityDeclaration,
+  GoalAcceptanceEvidenceRef,
+  GoalCompletionIo,
+  GoalCompletionObservation,
+  GoalCompletionReceipt,
+  GoalCompletionVerifier,
   GoalDoctorFinding,
+  GoalEvidenceCheck,
   GoalManifest,
+  GoalMergeResult,
+  GoalRequiredCheckSnapshot,
   GraphCapabilityEdge,
   GraphPacketRow,
+  goalCompletionDeclarationDigest,
   goalsCommand,
   PacketEventStoreLive,
 } from "@beep/repo-cli/test/Goals";
@@ -17,6 +26,7 @@ import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
@@ -24,6 +34,7 @@ import { Command } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -31,7 +42,12 @@ import { ChildProcess } from "effect/process";
 import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { temporaryWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
+
+const decodeGoalManifest = S.decodeEffect(GoalManifest);
+const encodeGoalCompletionReceiptJson = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
+const encodeGoalManifestJson = S.encodeEffect(S.fromJsonString(GoalManifest));
 
 const runGoalsCommand = Command.runWith(goalsCommand, { version: "0.0.0" });
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
@@ -129,6 +145,143 @@ const writeBaseline = (keys: ReadonlyArray<string>) =>
   );
 
 it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", (it) => {
+  it.effect("offline legacy citations remain the fallback while typed declarations are unknown", () =>
+    Effect.gen(function* () {
+      yield* temporaryWorkingDirectory;
+      yield* runGit(["init", "-b", "main"]);
+      yield* runGit(["config", "user.name", "Fixture"]);
+      yield* runGit(["config", "user.email", "fixture@example.invalid"]);
+      for (const slug of ["legacy", "typed"]) {
+        yield* writeProjectFile(
+          `goals/${slug}/ops/manifest.json`,
+          `${encodeJson({
+            initiative: { id: slug, status: "completed-retained" },
+            lifecycle: "completed-retained",
+            completionGate: {
+              ...COMPLETION_GATE,
+              ...(slug === "typed" ? { pullRequests: [{ number: 7, role: "final" }] } : {}),
+            },
+            ...(slug === "legacy" ? { mergedPullRequest: 7 } : {}),
+          })}\n`
+        );
+        yield* writeProjectFile(`goals/${slug}/README.md`, `# ${slug}\n\nLifecycle: \`completed-retained\`\n`);
+      }
+      yield* writeBaseline([]);
+      yield* runGit(["add", "."]);
+      yield* runGit(["commit", "-m", "chore: seed fixtures"]);
+      let networkReads = 0;
+      const output = yield* captureOutput(
+        runGoalsCommand(["doctor"]).pipe(
+          Effect.provideService(
+            GoalCompletionIo,
+            GoalCompletionIo.of({
+              git: Effect.fn("GoalsDoctorTest.offlineGit")(() => Effect.succeed("git@github.com:example/repo.git")),
+              github: Effect.fn("GoalsDoctorTest.offlineGitHub")(() =>
+                Effect.sync(() => {
+                  networkReads += 1;
+                }).pipe(Effect.andThen(Effect.die("offline network read")))
+              ),
+            })
+          )
+        )
+      );
+      expect(networkReads).toBe(0);
+      expect(output).toContain("legacy [completion-gate-unsatisfied]");
+      expect(output).not.toContain("legacy [completion-gate-unknown]");
+      expect(output).toContain("typed [completion-gate-unknown]");
+      expect(output).toContain("Overall verification requires a complete merge-time ruleset inventory");
+      expect(output).toContain("declare a final PR to inspect structured PR/head/merge facts");
+      expect(output).not.toContain("use doctor --online");
+    })
+  );
+  it.effect.prop(
+    "stored incomplete inventory explains why refresh cannot verify completion",
+    [Arbitrary.schema(GoalRequiredCheckSnapshot)],
+    Effect.fn("GoalsDoctorTest.storedIncompleteInventory")(function* ([snapshot]) {
+      yield* temporaryWorkingDirectory;
+      yield* runGit(["init", "-b", "main"]);
+      const manifest = yield* decodeGoalManifest({
+        initiative: { id: "typed", status: "completed-retained" },
+        lifecycle: "completed-retained",
+        completionGate: { ...COMPLETION_GATE, pullRequests: [{ number: 7, role: "final" }] },
+      });
+      yield* writeProjectFile("goals/typed/ops/manifest.json", yield* encodeGoalManifestJson(manifest));
+      yield* writeProjectFile("goals/typed/README.md", "# Typed\n\nLifecycle: `completed-retained`\n");
+      yield* writeBaseline([]);
+      const digest = yield* goalCompletionDeclarationDigest(manifest);
+      const time = DateTime.makeUnsafe("2026-10-06T01:00:00Z");
+      const receipt = GoalCompletionReceipt.make({
+        schemaVersion: "goal-completion-receipt/v1",
+        repository: "example/repo",
+        packet: "typed",
+        declarationDigest: digest,
+        acceptedDeclarationDigest: O.some(digest),
+        requiredChecks: O.some(
+          GoalRequiredCheckSnapshot.make({
+            contexts: ["Lint"],
+            sources: ["surviving-ruleset-history"],
+            effectiveAt: time,
+            inventoryComplete: false,
+          })
+        ),
+        finalPullRequest: 7,
+        acceptedHead: O.some("accepted-head"),
+        merge: O.some(
+          GoalMergeResult.make({
+            mergeCommit: "merge-result",
+            tree: "merge-tree",
+            mergedAt: time,
+            method: O.none(),
+            baseRef: "main",
+          })
+        ),
+        evidence: [
+          GoalEvidenceCheck.make({
+            ref: GoalAcceptanceEvidenceRef.make({ kind: "hosted-required-checks", ref: "required", gating: true }),
+            outcome: "verified",
+            observedHead: O.some("accepted-head"),
+            detail: "Surviving required contexts passed before merge",
+          }),
+        ],
+        nonRequiredReds: [],
+        subClaims: [],
+        outcome: "unknown",
+        verifiedAt: time,
+      });
+      const resolved = yield* GoalCompletionVerifier.resolve(
+        GoalCompletionObservation.make({
+          ...receipt,
+          requiredChecks: O.some(snapshot),
+          merged: O.some(true),
+          grandfathered: false,
+        })
+      );
+      expect(resolved.outcome).toBe(
+        snapshot.inventoryComplete && snapshot.rulesetReadsComplete ? "verified" : "unknown"
+      );
+      const text = yield* encodeGoalCompletionReceiptJson(receipt);
+      yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
+      const output = yield* captureOutput(
+        runGoalsCommand(["doctor"]).pipe(
+          Effect.provideService(
+            GoalCompletionIo,
+            GoalCompletionIo.of({
+              git: Effect.fn("GoalsDoctorTest.storedGit")(() => Effect.succeed("git@github.com:example/repo.git")),
+              github: Effect.fn("GoalsDoctorTest.storedGitHub")(() => Effect.die("offline receipt read used GitHub")),
+            })
+          )
+        )
+      );
+      expect(output).toContain("typed [completion-gate-unknown]");
+      expect(output).toContain("Merge-time ruleset inventory completeness is unknown");
+      expect(output).toContain("rulesets deleted since the merge");
+      expect(output).toContain("neither can verify completion without a complete historical inventory");
+      expect(output).toContain("Online doctor inspects facts and completion refresh persists them");
+      expect(output).not.toContain("Online reads and refresh record");
+      expect(output).not.toContain("No matching clone receipt");
+    }),
+    { arbitrary: { runs: 20 } }
+  );
   it.effect(
     "ignores hidden editor directories under goals",
     () =>
@@ -136,8 +289,21 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
         yield* temporaryWorkingDirectory;
         yield* writeProjectFile("goals/.idea/workspace.xml", "<project />\n");
         yield* writeBaseline([]);
-        const exit = yield* Effect.exit(runGoalsCommand(["doctor"]));
+        const fs = yield* FileSystem.FileSystem;
+        let rootMarkerReads = 0;
+        const observedFs = FileSystem.FileSystem.of({
+          ...fs,
+          exists: Effect.fn("GoalsDoctorTest.observeRootMarkers")((path: string) => {
+            if (Str.endsWith("/.git")(path) || Str.endsWith("/bun.lock")(path)) rootMarkerReads += 1;
+            return fs.exists(path);
+          }),
+        });
+        const exit = yield* runGoalsCommand(["doctor"]).pipe(
+          Effect.provideService(FileSystem.FileSystem, observedFs),
+          Effect.exit
+        );
         exit.pipe(Exit.isSuccess, assertTrue);
+        expect(rootMarkerReads).toBe(0);
       }),
     20_000
   );

@@ -294,6 +294,8 @@ describe("@beep/law-practice-server DocketIntake file store", () => {
           "IntakeFailed",
         ]);
         expect(A.sort(files, Str.Order)).toStrictEqual(["state.json", "state.lock"]);
+        expect((yield* fs.stat(DIRECTORY)).mode & 0o077).toBe(0);
+        expect((yield* fs.stat(STATE_PATH)).mode & 0o077).toBe(0);
         // The lock is complete from the moment it exists: it is linked into place, never written there.
         assertSome(yield* lockHolder, OWN_HOLDER);
         expect(A.filter(yield* Ref.get(record.written), (path) => path === LOCK_PATH)).toStrictEqual([]);

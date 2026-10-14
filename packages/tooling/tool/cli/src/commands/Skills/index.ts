@@ -96,3 +96,24 @@ export * from "./SkillsMaterialize.schemas.ts";
  * @since 0.0.0
  */
 export * from "./SkillsMaterialize.service.ts";
+/**
+ * Update-train renderers: replay comment, relock receipt, batch issue.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./SkillsRelock.render.ts";
+/**
+ * Update-train report, plan, and batch-issue schemas.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./SkillsRelock.schemas.ts";
+/**
+ * The skills update train service: replay and relock.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./SkillsRelock.service.ts";

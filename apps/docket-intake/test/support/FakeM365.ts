@@ -52,7 +52,9 @@ export const passingScript: M365Script = {
   createEvent: Effect.succeed(GraphEvent.make({ id: "event-1" })),
   deleteEvent: Effect.void,
   findEvents: eventsFound(["event-1"]),
-  getEvent: Effect.succeed(GraphEvent.make({ categories: O.some(["Docket - unverified"]), id: "event-1" })),
+  getEvent: Effect.succeed(
+    GraphEvent.make({ categories: O.some(["Docket - unverified"]), changeKey: O.some("ck-1"), id: "event-1" })
+  ),
   getMessage: Effect.succeed(
     GraphMessage.make({ categories: O.some(["M: FIX-0001", "Docket - entered"]), changeKey: O.some("ck-1"), id: "m1" })
   ),
