@@ -1095,3 +1095,10 @@ whitespace, doctor and index checks pass. Doctor has zero new blockers and
 the same three unrelated advisories. Merge hooks pass with inherited
 large-file Biome warnings and JSDoc warnings from main; no package edited.
 Knowledge refs is awaiting shared beep-heavy admission; no bypass.
+
+Shared admission cleared without bypass. Knowledge refs passed through
+beep-heavy at head 2502411929 with zero live gated observations. No package
+source changed in the PR; package-verify and source hosted-parity lanes are
+not run (docs-only). Publication uses the Yeet skill under admitted heavy
+execution. The sealed family failure remains the blocker regardless of PR
+readiness; the orchestrator owns any next execution decision.
