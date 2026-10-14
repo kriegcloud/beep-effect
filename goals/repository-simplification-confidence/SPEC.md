@@ -1242,3 +1242,89 @@ train-issue test on main also lacks the mock `HttpClient` used by adjacent CLI
 tests; provide that local test service to restore the test typecheck. Revert
 this unblocker PR to restore the prior references and test fixture; re-record
 the cache review if the receipt changes again.
+
+### RSC-F-ROUTING-20261014 — Current manifest supersedes the older F brief
+
+The wave-2 F ruling at 19:55Z resolves the earlier routing-source conflict.
+Use the October 14 routing refresh and current tool-owned manifest: Codex
+6.1 Sol medium, Claude orchestrator Fable 5.1 medium, Claude children Opus 5.5,
+lightweight Luna 6, research Grok 4.7, and the named Astra/Fable/Grok xhigh panel.
+The live offline check reports zero drift. The lane does not edit the shared
+manifest or downgrade the newer routes. Reversal requires a new recorded
+routing decision followed by the existing manifest owner.
+
+### RSC-F-WRITER-20261014 — Qualify owned-span writes before native applies
+
+Implement the existing models locator vocabulary as schema-first write requests,
+a ModelsApply service, and grammar-specific spans. Reject missing or ambiguous
+scalar addresses and overlapping spans. Check all shell matches. Assert both
+parsed non-owned TOML/JSON equality and exact byte reconstruction outside owned
+spans. Back up exclusively, journal before replacement, preserve permissions,
+and restore only when the native file still matches its applied hash. Missing
+primary JSON pointers and missing generated-block markers fail closed; this
+writer does not invent ownership or insert unreviewed native structure.
+
+Reason: preserve native trust and client fields while reusing the existing
+model manifest, locators, and rendering owner. Skills projection writes also
+receive backups and atomic file replacement; unknown parent/row/subtable fields
+survive, and remote payloads are backed up before staged publication. Reversal:
+revert the F source commits; use a writer journal for any subsequently authorized
+native apply. This source checkpoint performs no home apply and records no
+harness admission for an unapplied change.
+
+### RSC-F-DISPATCH-20261014 — Preserve the explicit lane-only write boundary
+
+This dispatch again says to work only inside the lane. The private F ruling
+permits specified non-Claude home writes, so clarification was requested while
+independent source work and synthetic proofs continued. No response was received
+at this checkpoint; elapsed time is not authorization. Actual home changes,
+native probes that persist home state, and home-backed ledger notes remain
+pending. The Claude defaults script is prepared in gitignored .beep, defaults
+to dry-run, and has a no-change live preview. Reversal: receive an explicit
+scope clarification, then take fresh backups and continue the authorized apply
+wave. Retain every capability while qualification is incomplete.
+
+### RSCF-DUPLICATES-20261014 — Delegate exact repository copies
+
+The two identical Codex hook copies now execute the canonical Claude-owned
+implementations; the Grok graft skill is a relative link to its canonical
+skill. Confirmed duplicate owners decrease from three to zero. Preserve the
+separate Codex hook-pulse implementation, which is not byte-identical. Synthetic
+law payload comparison and both kill-switch lifecycles pass. This changes
+repository ownership, not a zero-use capability decision, advertised tool-count
+claim, or final native hook-trust witness. Reversal: revert cc2063ede325a958e5d9db5be1ad6d837b1e1a63 or restore
+the lane-local backups. The approved F item-4 decision links to proposal
+hl-20261014-2e87155d and admitted disposition hl-20261014-2b463e1a.
+
+### RSCF-SKILLOPT-20261014 — Preserve the retired pilot's immutable chains
+
+Close the two deferred pilot candidates by supported tombstone dispositions
+under the approved pilot-retirement decision. Preserve every original row and
+the retained scorer API. Reconsider only with a corpus that has headroom above
+the 0.0833 baseline spread. Reversal is a new supported disposition row after
+that evidence exists, never rewriting the old chain. The in-regime SessionStart
+proposal remains pending H3's runtime witness and is not admitted by this
+source-only checkpoint.
+
+### RSCF-NATIVE-ERRORS-20261014 — Preserve bytes and suppress native parser input
+
+Native reads require valid UTF-8 and preserve a BOM; invalid byte sequences
+fail before backup or replacement. Native validation/comparison errors carry
+a fixed typed message without the parser's input/cause. Synthetic credential
+markers remain absent from the error, and invalid bytes remain unchanged.
+Reason: an owned-field writer cannot normalize unrelated bytes or expose
+unknown credential-bearing fields while reporting malformed configuration.
+Reversal: revert the F writer source change; any broader encoding support
+requires a paired byte-preservation proof.
+
+### RSCF-TEST-NAMESPACE-20261014 — Keep scratch physical ownership and Git isolation
+
+Full package tests need temporary fixtures outside a Git ancestor. Bind the
+lane's owned scratch directory at `/tmp` in a private user namespace under
+beep-heavy, with TMPDIR=/tmp inside that namespace. Keep the source checkout
+visible and unchanged. This preserves the lane-only physical write boundary
+and the fixtures' semantics; it changes no workstation configuration. A lane-owned
+namespace root preserves trusted ancestor ownership without changing Graft
+checks; all six dedicated trust fixtures pass. Reversal:
+remove the private binding from the test invocation after the dispatch permits
+an ordinary external temporary directory. No unrelated scratch is deleted.

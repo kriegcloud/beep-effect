@@ -149,3 +149,14 @@ mapping and existing ledger chain closeout remain pending through the supported
 HarnessLedger writer. Earlier rejected rows remain untouched. The program
 acceptance, surviving-capability outcomes, after metrics and final panel remain
 open; none is implied by the current zero-drift offline manifest check.
+
+## Wave-2 source checkpoint
+
+The 19:55Z F ruling resolves the routing-source conflict above in favor of
+the October 14 manifest. Those conflict observations remain historical.
+The current offline check reports zero findings; the new ModelsApply service
+and restore CLI have source and synthetic proof, with no home apply.
+The implementation keeps missing primary keys/markers fail-closed and edits
+all shell matches. The live Claude script preview reports no change for
+Fable 5.1 and medium effort. Full inventory dispositions, native activation
+workflows, telemetry windows, and panel acceptance remain open.

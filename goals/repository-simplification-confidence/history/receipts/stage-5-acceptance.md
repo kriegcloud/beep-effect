@@ -16,6 +16,8 @@ Pending. C owns the ONNX test move (R23), H1 owns its exact-version hold, and A 
 
 ## Harness ledger
 
+The later [F source checkpoint](#f-source-checkpoint--operational-acceptance-remains-open) supersedes the earlier no-row F observation for the repository duplicate-removal and approved pilot-tombstone chains.
+
 Later-wave unstaged groundwork adds `harness-ledger/rows/` to `.rgignore`, `.aiignore` and `.graftignore`, leaving the compact README and supported CLI accessible. No `.gitignore` change is made. The graft meaning-tier ignore prevents row content from entering summaries; its structural graph still indexes paths per that file's contract.
 
 Before-change row hashes:
@@ -482,7 +484,9 @@ No source debt is relabelled an exception in this wave.
 
 ## Global configuration
 
-F checkpoint, 2026-10-14: **not accepted**. Read-only before evidence at
+The later [F source checkpoint](#f-source-checkpoint--operational-acceptance-remains-open) provides synthetic writer proof; actual global configuration acceptance remains open.
+
+Earlier 19:41Z F checkpoint, 2026-10-14: **not accepted**. Read-only before evidence at
 `529d77338d` is recorded in [before measurement](stage-3-f-before-measurement.md)
 and [inventory](stage-3-f-inventory.md). All three stage-1 backups were verified;
 no F apply occurred. The offline model check has zero findings against the
@@ -493,7 +497,7 @@ transformation or rollback round-trip. Package implementation, synthetic
 preservation/restore fixtures, all harness probes, after measurements and the
 final panel are pending. No frozen panel input is submitted.
 
-### F harness ledger checkpoint — 2026-10-14
+### Earlier 19:41Z F harness ledger checkpoint — 2026-10-14
 
 The read-only inventory changed no harness surface. No execution row or
 admission was manufactured for it. R51's decision-id mapping, interview
@@ -501,9 +505,48 @@ propose/disposition chains, the hook-window chain and deferred SkillOpt chains
 remain pending through the supported writer. Existing ledger rows were not
 rewritten. This checkpoint does not close the earlier Harness ledger section.
 
-### F scope checkpoint — 2026-10-14
+### Earlier 19:41Z F scope checkpoint — 2026-10-14
 
 Only packet evidence and status text changed. No workspace package, generated
 projection, model manifest, shared root manifest, allowlist, hook, skill,
 plugin, home setting, or another lane's checkout was edited. This is a blocked
 pre-apply handoff, not a content-final implementation or merge-ready claim.
+
+## F source checkpoint — operational acceptance remains open
+
+At this checkpoint, source-only preservation proof exists for ModelsApply,
+restore, and skill projection safety. The 142 scoped tests pass and the source
+type check passes. The live offline model check has zero drift. Claude's
+operator-run script is prepared in gitignored .beep; its dry-run reports no
+changes for the current Fable/medium defaults. No native apply or full
+configuration acceptance is claimed. Home applies and persistent native probes
+remain pending explicit scope clarification. The terminal local source gates at
+8f47fcd4bb01912e43418906d2738d5d360b21f7 all pass: default package audit
+1,213.8s and full docgen 40.3s, bounded docgen, test-tsgo, JSDoc ratchet,
+knowledge references (zero live gated observations), and Fallow audit/health
+(zero findings). No coverage or JSDoc baseline was relaxed. See the handoff's
+terminal command table and failure attributions. These are local source
+results, not hosted PR checks or final F operational acceptance.
+
+Repository duplicate-removal execution uses cc2063ede325a958e5d9db5be1ad6d837b1e1a63. The supported writer
+appended proposal hl-20261014-2e87155d and admitted disposition
+hl-20261014-2b463e1a under RSCF-DUPLICATES-20261014, mapping to the October 9
+Workstream F owned-field/duplicate-removal decision and approved F item 4.
+Both hook lifecycles pass against lane-local synthetic state and the skill link
+resolves to canonical bytes. Native Codex re-trust and the H3 configuration wave
+remain open. No session window was manufactured and no zero-use retirement
+was performed. RSCF-SKILLOPT-20261014 maps to the October 9 approved pilot
+retirement constraints; both old deferred candidate chains gain append-only
+tombstones with their original reconsideration condition. The rejected chains
+remain untouched. Proposal hl-20260929-2072a6f9 remains pending H3 proof.
+
+| Decision id | Approved source | Execution chain | State |
+| --- | --- | --- | --- |
+| RSCF-DUPLICATES-20261014 | October 9 Workstream F decision; approved F item 4 | hl-20261014-2e87155d -> hl-20261014-2b463e1a; cc2063ede325a958e5d9db5be1ad6d837b1e1a63 | admitted repository duplicates |
+| RSCF-SKILLOPT-20261014 | October 9 pilot retirement constraints | hl-20261001-f181b84d -> hl-20261014-9e833571; hl-20261001-500b0523 -> hl-20261014-69d53a31 | tombstoned; original evidence retained |
+| in-regime SessionStart proposal | F item 6 and H3 qualification | hl-20260929-2072a6f9 | pending runtime witness; no invented window |
+
+All four new rows were appended by the supported writer. None of the existing
+rows was edited. Source-only ModelsApply implementation has no harness-admission
+row until a corresponding configuration apply occurs. Full F mapping, home
+execution chains, acceptance, and panel remain open.

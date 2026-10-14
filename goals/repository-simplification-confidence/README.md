@@ -5,14 +5,16 @@
 Lifecycle: `active`. The program remains in implementation; operational
 acceptance and the final F panel are open.
 
-F's October 14 run has current, sanitized pre-apply evidence and is blocked on
-reconciling its launch brief with the newer shared model manifest, plus routing
-home applies outside this lane-only dispatch. No harness configuration changed.
+F has a local owned-field writer and restore implementation with synthetic
+native-preservation proof. Default package verification and all terminal
+local parity gates pass; scoped coverage exceeds every touched existing floor. The wave-2 ruling resolves the older model-route
+conflict. Actual home applies remain pending clarification of this dispatch's
+lane-only write instruction. No configuration was applied and F operational
+acceptance, full measurements, publication, and panel remain open.
 [Before measurement](history/receipts/stage-3-f-before-measurement.md),
 [inventory](history/receipts/stage-3-f-inventory.md), and
-[blocked handoff](history/handoffs/rsc-f-agents-2026-10-14.md) record the exact
-scope and remaining work. The offline model check is green against its current
-manifest; it does not certify the older brief or F acceptance.
+[current handoff](history/handoffs/rsc-f-agents-2026-10-14.md) retain the evidence
+and exact limits.
 
 The October 14 wave-2 resume ruling records A #1584, H2 #1574, and B #1738 as
 merged. H2 follow-up #1744 also landed. Other lane receipts below retain the
@@ -76,7 +78,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-F: [October 14 blocked handoff](history/handoffs/rsc-f-agents-2026-10-14.md).
+F: [October 14 source checkpoint handoff](history/handoffs/rsc-f-agents-2026-10-14.md).
 Current native fingerprints, source conflicts, missing qualification windows,
 and 47-tool authenticated gateway evidence precede any F apply. Writer,
 rollback fixtures, representative workflow acceptance, after measurements and
