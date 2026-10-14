@@ -792,15 +792,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "6cbe90d5c1a990c26084e7ca97d760d746106bc5",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The inspector forwarded full event objects, including possible invoked-actor output bytes, to the SDK transport; exact child propagation to hosted relay was not proven."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/drivers/xstate/src/StatelyInspector.service.ts",
+          "packages/drivers/xstate/test/StatelyInspector.test.ts",
+          "docs/runbooks/xstate-effect-statecharts.md"
+        ],
+        "verificationCommands": [
+          "bun run beep quality package-verify @beep/xstate"
+        ],
+        "summary": "Forward only event type to both SDK calls and keep projected snapshot status/value; transport regression verifies a sensitive marker is absent."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Stately inspector event projection",
+      "lane": "L40"
     },
     {
       "id": "CSF-024",

@@ -146,13 +146,14 @@ Two things to know before enabling it:
   made while the relay registration is pending still reach the timeline. When the relay rejects
   this producer's registration, the attachment is released, the rejection is logged redacted and
   no URL is reported, so an "attached" log line always means a working session.
-- The inspector forwards complete snapshots and events to the relay, which is the hosted Stately
-  relay unless you name another: `VITE_STATELY_INSPECT_URL` in the desktop app,
-  `STATELY_INSPECT_URL` outside the browser. For document intake that includes the developer's own
-  vault root path and manual path drafts; file bytes never enter events or context because they
-  travel as state input. Point the variable at a local relay when even your own paths must stay
-  on the machine; a value that is not a URL keeps inspection off and logs a warning rather than
-  falling back to the hosted relay.
+- The inspector forwards snapshot status/value and event type only to the relay,
+  which is the hosted Stately relay unless you name another:
+  `VITE_STATELY_INSPECT_URL` in the desktop app or `STATELY_INSPECT_URL` outside
+  the browser. Event payloads, including invoked actor outputs that may contain
+  document bytes, are omitted. State names and machine configuration can still
+  reveal workflow metadata. Point the variable at a local relay when that
+  metadata must stay on the machine; an invalid URL keeps inspection off and
+  logs a warning instead of falling back to the hosted relay.
 
 ## CLI
 

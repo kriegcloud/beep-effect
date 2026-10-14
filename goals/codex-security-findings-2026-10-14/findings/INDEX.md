@@ -39,7 +39,7 @@ auth values, email addresses, and raw local paths.
 | [CSF-020](./CSF-020.md) | Informational | repair implemented | Adoption writes outside the packet through directory symlinks | goal adoption materializer |
 | [CSF-021](./CSF-021.md) | Informational | repair implemented | Predictable codemod staging paths allow symlink file overwrite | schema-parity codemod staging |
 | [CSF-022](./CSF-022.md) | Informational | repair implemented | Quadratic overlap enumeration enables drawing\-spec denial of service | OCCT overlap counting and model schema |
-| [CSF-023](./CSF-023.md) | Informational | captured | Intake inspector can leak document bytes to the hosted relay | _pending P2_ |
+| [CSF-023](./CSF-023.md) | Informational | repair implemented | Intake inspector can leak document bytes to the hosted relay | Stately inspector event projection |
 | [CSF-024](./CSF-024.md) | Informational | repair implemented | New line\-value locator permits repository\-triggered ReDoS | Models locator parsing |
 | [CSF-025](./CSF-025.md) | Informational | already fixed | Artifact upload allows command execution through zip filenames | scratchpad artifact archive command |
 | [CSF-026](./CSF-026.md) | Informational | repair implemented | Event deletion permits traversal to other Graph resources | M365 Graph path segment schema |
