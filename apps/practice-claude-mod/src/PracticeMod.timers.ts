@@ -19,7 +19,9 @@ const RowsKey = "timer-intervals";
 const StoredRows = S.Array(TimerInterval);
 const RowLine = S.fromJsonString(TimerInterval);
 
-class TimerStoreUnreadable extends S.TaggedError<TimerStoreUnreadable>($I`TimerStoreUnreadable`)(
+class TimerStoreUnreadable extends S.TaggedError<TimerStoreUnreadable, { readonly brand: unique symbol }>(
+  $I`TimerStoreUnreadable`
+)(
   "TimerStoreUnreadable",
   { message: S.String },
   $I.annote("TimerStoreUnreadable", { description: "Timer data could not be decoded; it will not be overwritten." })
