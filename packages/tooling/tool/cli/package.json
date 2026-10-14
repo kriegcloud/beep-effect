@@ -181,6 +181,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@beep/ai-sync": "workspace:^",
     "@beep/chalk": "workspace:^",
     "@beep/colors": "workspace:^",
     "@beep/duckdb": "workspace:^",

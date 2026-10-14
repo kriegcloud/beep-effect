@@ -637,8 +637,8 @@ const isArgumentMember = (expression: Expression, memberName: string): boolean =
 /**
  * The member name of a `Namespace.member` callee, or `O.none()` for any other callee shape.
  *
- * @param expression - Callee syntax to inspect for a namespace-qualified property access.
- * @returns An optional property name for the static command evaluator.
+ * @param expression - The callee expression to inspect for a namespace member access.
+ * @returns The member name only when the receiver is an identifier.
  */
 const memberName = (expression: Expression): O.Option<string> =>
   Node.isPropertyAccessExpression(expression) && Node.isIdentifier(expression.getExpression())
@@ -881,9 +881,9 @@ const evaluateConfigOrParam = (
  * derivable. Unlike the command names, an underivable option set never fails the surface closed: the
  * Stage-1 gate does not read options, and the doctor reports such commands as unchecked instead.
  *
- * @param call - Parsed command declaration whose configuration supplies flags.
- * @param bindings - Literal values available while evaluating the configuration.
- * @returns Declared flags, or absence when their configuration cannot be derived statically.
+ * @param call - The `Command.make` call whose second argument declares its config.
+ * @param bindings - Bound string literals available when evaluating flag names and aliases.
+ * @returns The declared flags, an empty list for absent config, or `O.none()` for underivable config.
  */
 const commandMakeOptions = (
   call: CallExpression,
@@ -1110,9 +1110,9 @@ const updateStaticCommandAt = (
 /**
  * The surface without the command at `path`; the root itself cannot be pruned this way.
  *
- * @param root - Starting command tree for the counterfactual probe.
- * @param path - Child-command segments selecting the subtree to remove.
- * @returns A pruned tree, preserving the original root when removal is impossible.
+ * @param root - The command tree to rebuild without the selected descendant.
+ * @param path - Canonical command names locating the descendant from the root.
+ * @returns The rebuilt surface, or the original root when the path selects the root itself.
  */
 const pruneStaticCommand = (root: StaticCommandNode, path: ReadonlyArray<string>): StaticCommandNode =>
   O.getOrElse(
@@ -1123,10 +1123,10 @@ const pruneStaticCommand = (root: StaticCommandNode, path: ReadonlyArray<string>
 /**
  * The surface with the flag named `option` (canonical name) removed from the command at `path`.
  *
- * @param root - Starting command tree for the counterfactual probe.
- * @param path - Child-command segments selecting the declaration to alter.
- * @param option - Canonical flag name whose aliases are removed with it.
- * @returns A command tree with the selected flag omitted when the path exists.
+ * @param root - The command tree containing the flag to remove.
+ * @param path - Canonical command names locating the target command from the root.
+ * @param option - The canonical flag name to remove; aliases are not matched.
+ * @returns The rebuilt surface with other commands and flags preserved.
  */
 const withoutStaticCommandOption = (
   root: StaticCommandNode,
