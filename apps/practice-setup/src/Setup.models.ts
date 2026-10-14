@@ -13,33 +13,16 @@ import * as S from "effect/Schema";
 
 const $I = $PracticeSetupId.create("Setup.models");
 
-/**
- * The bootstrapper's steps, in the order it runs them.
- *
- * **Example** (Check a step)
- *
- * ```ts
- * import { SetupStep } from "@/Setup.models"
- *
- * console.log(SetupStep.literals[0]) // "claude-desktop"
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export const SetupStep = LiteralKit([
-  "claude-desktop",
-  "claude-sign-in",
-  "gateway-extension",
-  "onboarding-handoff",
-]).pipe(
+// The bootstrapper's steps, in the order it runs them.
+const SetupStep = LiteralKit(["claude-desktop", "claude-sign-in", "gateway-extension", "onboarding-handoff"]).pipe(
   $I.annoteSchema("SetupStep", {
     description: "One bootstrapper step: install Claude, sign in, install the gateway, hand off to onboarding.",
   })
 );
 
 /**
- * Decoded type of {@link SetupStep}.
+ * One bootstrapper step, in run order: `claude-desktop`, `claude-sign-in`,
+ * `gateway-extension`, `onboarding-handoff`.
  *
  * **Example** (Type a step)
  *

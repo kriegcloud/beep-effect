@@ -1,6 +1,7 @@
 import { PracticeCapability, PracticeProvider } from "@beep/law-practice-domain";
 import { SetupToolkit } from "@beep/practice-gateway/SetupTools";
 import { describe, expect, it } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -44,7 +45,7 @@ describe("practice-onboarding skill", () => {
       const skill = yield* S.decodeUnknownEffect(SkillFrontmatter)(frontmatter, { onExcessProperty: "error" });
       const plugin = yield* S.decodeEffect(S.fromJsonString(PluginManifest))(yield* readText(pluginUrl));
       expect(skill.name).toBe("practice-onboarding");
-      expect(R.get(skill.metadata, "version")).toEqual(O.some(plugin.version));
+      assertSome(R.get(skill.metadata, "version"), plugin.version);
     })
   );
 

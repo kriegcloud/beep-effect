@@ -31,40 +31,15 @@ import type { PinnedInstaller } from "./Setup.models.ts";
 
 const $I = $PracticeSetupId.create("Setup.services");
 
-/**
- * Package family name of the Claude Desktop MSIX.
- *
- * **Example** (Read the family name)
- *
- * ```ts
- * import { CLAUDE_PACKAGE_FAMILY } from "@/Setup.services"
- *
- * console.log(CLAUDE_PACKAGE_FAMILY) // "Claude_pzs8sxrjxfjjc"
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const CLAUDE_PACKAGE_FAMILY = "Claude_pzs8sxrjxfjjc";
+// Package family name of the Claude Desktop MSIX.
+const CLAUDE_PACKAGE_FAMILY = "Claude_pzs8sxrjxfjjc";
+
+// Registry key Claude Setup's per-user install registers under.
+const CLAUDE_UNINSTALL_KEY = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AnthropicClaude";
 
 /**
- * Registry key Claude Setup's per-user install registers under.
- *
- * **Example** (Read the uninstall key)
- *
- * ```ts
- * import { CLAUDE_UNINSTALL_KEY } from "@/Setup.services"
- *
- * console.log(CLAUDE_UNINSTALL_KEY.startsWith("HKCU")) // true
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const CLAUDE_UNINSTALL_KEY = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AnthropicClaude";
-
-/**
- * Whether `Get-AppxPackage` output names the Claude Desktop package family.
+ * Whether `Get-AppxPackage` output names the Claude Desktop package family,
+ * `Claude_pzs8sxrjxfjjc`.
  *
  * **Example** (Find the family in PowerShell output)
  *
@@ -82,28 +57,8 @@ export const CLAUDE_UNINSTALL_KEY = "HKCU\\Software\\Microsoft\\Windows\\Current
 export const appxListsClaude = (output: string): boolean =>
   pipe(Str.linesIterator(output), A.fromIterable, A.map(Str.trim), A.contains(CLAUDE_PACKAGE_FAMILY));
 
-/**
- * Service shape of {@link SetupHost}.
- *
- * **Example** (Type a host)
- *
- * ```ts
- * import type { SetupHostShape } from "@/Setup.services"
- * import * as Effect from "effect/Effect"
- *
- * const host: SetupHostShape = {
- *   claudeInstall: Effect.succeed("missing"),
- *   runInstaller: () => Effect.succeed(0),
- *   open: () => Effect.void,
- *   stateDir: Effect.succeed("C:\\Users\\lawyer\\AppData\\Local\\beep\\practice-setup"),
- * }
- * console.log(typeof host.open)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export interface SetupHostShape {
+// Service shape of SetupHost.
+interface SetupHostShape {
   /** How Claude Desktop is installed for this Windows account, if at all. */
   readonly claudeInstall: Effect.Effect<ClaudeInstall, SetupFailure>;
   /** Hand a file or link to Windows, as a double-click would. */
@@ -236,23 +191,8 @@ export class SetupHost extends Context.Service<SetupHost, SetupHostShape>()($I`S
   );
 }
 
-/**
- * Service shape of {@link InstallerDownload}.
- *
- * **Example** (Type a download)
- *
- * ```ts
- * import type { InstallerDownloadShape } from "@/Setup.services"
- * import * as Effect from "effect/Effect"
- *
- * const download: InstallerDownloadShape = { fetch: () => Effect.void }
- * console.log(typeof download.fetch)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export interface InstallerDownloadShape {
+// Service shape of InstallerDownload.
+interface InstallerDownloadShape {
   /** Download a pinned installer to `destination`, refusing it when its SHA-256 differs. */
   readonly fetch: (installer: PinnedInstaller, destination: string) => Effect.Effect<void, SetupFailure>;
 }
@@ -326,23 +266,8 @@ export class InstallerDownload extends Context.Service<InstallerDownload, Instal
   );
 }
 
-/**
- * Service shape of {@link GatewayBundle}.
- *
- * **Example** (Type a bundle)
- *
- * ```ts
- * import type { GatewayBundleShape } from "@/Setup.services"
- * import * as Effect from "effect/Effect"
- *
- * const bundle: GatewayBundleShape = { materialize: () => Effect.succeed("practice-gateway.mcpb") }
- * console.log(typeof bundle.materialize)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export interface GatewayBundleShape {
+// Service shape of GatewayBundle.
+interface GatewayBundleShape {
   /** Copy the gateway `.mcpb` into `dir` and return the copy's path, ready to open. */
   readonly materialize: (dir: string) => Effect.Effect<string, SetupFailure>;
 }
@@ -407,23 +332,8 @@ export class GatewayBundle extends Context.Service<GatewayBundle, GatewayBundleS
     );
 }
 
-/**
- * Service shape of {@link Lawyer}.
- *
- * **Example** (Type a conversation)
- *
- * ```ts
- * import type { LawyerShape } from "@/Setup.services"
- * import * as Effect from "effect/Effect"
- *
- * const lawyer: LawyerShape = { tell: () => Effect.void, waitFor: () => Effect.void }
- * console.log(typeof lawyer.waitFor)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export interface LawyerShape {
+// Service shape of Lawyer.
+interface LawyerShape {
   /** Show one plain-language line. */
   readonly tell: (text: string) => Effect.Effect<void>;
   /** Show an instruction and wait until the lawyer presses Enter. */

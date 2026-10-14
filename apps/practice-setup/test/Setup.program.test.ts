@@ -10,7 +10,6 @@ import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
-import * as Result from "effect/Result";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -123,7 +122,7 @@ const run = Effect.fn("run")(function* (script: Script) {
 const steps = (report: SetupReport): ReadonlyArray<string> =>
   A.map(report.outcomes, (outcome: StepOutcome) => `${outcome.step}:${outcome.outcome}`);
 
-it.layer(Platform)("runSetup", (it) => {
+it.layer(Platform, { timeout: "5 seconds" })("runSetup", (it) => {
   it.effect("skips the install, then opens Claude, the gateway and the onboarding chat", () =>
     Effect.gen(function* () {
       const result = yield* run({ installs: ["per-user"] });
@@ -200,28 +199,28 @@ const DownloadLayer = InstallerDownload.layer.pipe(
   Layer.provideMerge(Layer.mergeAll(Serving, BunCrypto.layer, MemoryFileSystem.layer))
 );
 
-const downloadWith = Effect.fn("downloadWith")(function* (body: string, sha256: string, destination: string) {
-  const download = yield* InstallerDownload;
-  const fs = yield* FileSystem.FileSystem;
-  const installer = PinnedInstaller.make({ version: "1", url: `https://example.test/${body}`, sha256, silentArgs: [] });
-  const result = yield* Effect.result(download.fetch(installer, destination));
-  return { result, written: yield* fs.exists(destination) };
-});
+const pinned = (body: string) =>
+  PinnedInstaller.make({ version: "1", url: `https://example.test/${body}`, sha256: ABC_SHA256, silentArgs: [] });
 
-it.layer(DownloadLayer)("InstallerDownload", (it) => {
+it.layer(DownloadLayer, { timeout: "5 seconds" })("InstallerDownload", (it) => {
   it.effect("writes an installer whose SHA-256 matches the pin", () =>
     Effect.gen(function* () {
-      const { result, written } = yield* downloadWith("abc", ABC_SHA256, "/match.exe");
-      expect(Result.isSuccess(result)).toBe(true);
-      expect(written).toBe(true);
+      const download = yield* InstallerDownload;
+      const fs = yield* FileSystem.FileSystem;
+      yield* download.fetch(pinned("abc"), "/match.exe");
+      expect(yield* fs.readFileString("/match.exe")).toBe("abc");
     })
   );
 
   it.effect("refuses and never writes an installer with another SHA-256", () =>
     Effect.gen(function* () {
-      const { result, written } = yield* downloadWith("xyz", ABC_SHA256, "/mismatch.exe");
-      expect(Result.isFailure(result)).toBe(true);
-      expect(written).toBe(false);
+      const download = yield* InstallerDownload;
+      const fs = yield* FileSystem.FileSystem;
+      const error = yield* Effect.flip(download.fetch(pinned("xyz"), "/mismatch.exe"));
+      expect(error.message).toBe(
+        "The downloaded Claude installer did not match its expected fingerprint, so it was not run."
+      );
+      expect(yield* fs.exists("/mismatch.exe")).toBe(false);
     })
   );
 });
