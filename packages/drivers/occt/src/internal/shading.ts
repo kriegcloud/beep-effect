@@ -23,7 +23,7 @@ import {
   viewFactsOf,
 } from "@beep/technical-drawing";
 import { A, O } from "@beep/utils";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as replicad from "replicad";
 import { add, cross, scale } from "./vector.ts";
 import type { ShadingCoverage, ShadingLines, ShadingWindow, ViewFacts } from "@beep/technical-drawing";
@@ -97,11 +97,8 @@ const longEnough =
     const [sx, sy, sz] = vec(edge.startPoint);
     const [ex, ey, ez] = vec(edge.endPoint);
     const length = edge.length;
-    if (length <= 0) {
-      return false;
-    }
     const along = ((ex - sx) * view.eye[0] + (ey - sy) * view.eye[1] + (ez - sz) * view.eye[2]) / length;
-    return length * Math.sqrt(Math.max(0, 1 - along * along)) >= minStroke;
+    return length > 0 && length * Math.sqrt(Math.max(0, 1 - along * along)) >= minStroke;
   };
 
 // Shorter than this (model units) a trimmed stroke is not made at all: the
@@ -125,7 +122,7 @@ const trimTo =
     const h0 = dotV(vec(edge.startPoint), along);
     const h1 = dotV(vec(edge.endPoint), along);
     const centre = O.match(focus, {
-      onNone: () => 0.5,
+      onNone: constant(0.5),
       onSome: ([low, high]) => {
         const lo = Math.min(h0, h1);
         const hi = Math.max(h0, h1);
