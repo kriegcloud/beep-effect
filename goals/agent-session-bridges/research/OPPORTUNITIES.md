@@ -467,3 +467,12 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
   Keep all floors and provider holds intact; integrate landed main repairs
   together and request fresh hosted proof. Runner recovery alone cannot
   clear a completed comparator failure.
+# 2026-10-14: main inventory moved during publication preparation
+
+Yeet rejected publication of reviewed integration `e7bb5ba6a2` before pushing.
+New main commits changed `standards/effect-vitest.inventory.jsonc` after the
+integration snapshot. The stale-base guard correctly caught the overlap.
+Merging main `b096cbd99b` required no conflict resolution; canonical config and
+cache checks remained green, and a fresh actual test compiler receipt recorded
+exit zero. Letting the declared consolidated repair finish before optional
+inventory changes would avoid repeated integration and review work.
