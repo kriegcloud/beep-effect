@@ -23,7 +23,7 @@
         ".claude/skills/browser-qa-loop",
         ".agents/skills/browser-qa-loop"
       ],
-      "installedTreeHash": "8cf132761f52bce8dec2f774aecbfec7dd399451bb4ad4b9e50bb5260df85437"
+      "installedTreeHash": "b1a4419a316d71ed299ddcba2b629b39e082b707dd72b0c766472d9e57e64f0a"
     },
     "closeout": {
       "_tag": "local",

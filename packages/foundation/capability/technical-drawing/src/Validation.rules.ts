@@ -372,8 +372,8 @@ export const shadingSpacingFindings = (input: {
 export const shadingCoverageFindings = (input: {
   readonly page: number;
   readonly coverage: ShadingCoverage;
-}): ReadonlyArray<SheetFinding> =>
-  input.coverage.lostFaces > 0
+}): ReadonlyArray<SheetFinding> => [
+  ...(input.coverage.lostFaces > 0
     ? [
         pageFinding(
           "shading-lost-face",
@@ -381,7 +381,17 @@ export const shadingCoverageFindings = (input: {
           `${input.coverage.lostFaces} face(s) planned shading lines but drew none after hidden-line removal and the legibility pass.`
         ),
       ]
-    : [];
+    : []),
+  ...(input.coverage.lostStretches > 0
+    ? [
+        pageFinding(
+          "shading-lost-stretch",
+          input.page,
+          `${input.coverage.lostStretches} visible stretch(es) of a face planned shading lines but drew none after hidden-line removal and the legibility pass.`
+        ),
+      ]
+    : []),
+];
 
 /**
  * Findings for shading strokes that touch or nearly touch an outline: every
