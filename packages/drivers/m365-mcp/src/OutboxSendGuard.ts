@@ -67,7 +67,7 @@ export class OutboxSendExpectation extends S.Class<OutboxSendExpectation>($I`Out
 
 /**
  * A reason a send is refused: a part of the stored draft that differs from
- * the send expectation, or `not-created-here`.
+ * the send expectation, `not-created-here`, or `version-unbound`.
  *
  * **Details**
  *
@@ -89,6 +89,7 @@ export class OutboxSendExpectation extends S.Class<OutboxSendExpectation>($I`Out
  */
 export const OutboxSendMismatchField = LiteralKit([
   "not-created-here",
+  "version-unbound",
   "not-a-draft",
   "to",
   "cc",
@@ -99,7 +100,7 @@ export const OutboxSendMismatchField = LiteralKit([
 ]).pipe(
   $I.annoteSchema("OutboxSendMismatchField", {
     description:
-      "A reason a send is refused: a part of the stored draft that differs from the send expectation, or `not-created-here` when this server did not create the draft.",
+      "A reason a send is refused: a mismatched draft field, an unrecorded draft, or an unversioned Graph send operation.",
   })
 );
 

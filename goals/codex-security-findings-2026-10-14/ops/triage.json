@@ -209,15 +209,33 @@
       "severity": "Medium",
       "codexStatus": "New",
       "commit": "fa90e642f1b572e5cd64c4e0b064f4d7d2a86697",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The code checked a mutable Graph draft and then sent only by id in a separate operation, without a documented version precondition."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/drivers/m365-mcp/src/OutboxHandlers.ts",
+          "packages/drivers/m365-mcp/src/OutboxSendGuard.ts",
+          "packages/drivers/m365-mcp/src/OutboxTools.ts",
+          "packages/drivers/m365-mcp/src/OutboxServer.ts",
+          "packages/drivers/m365-mcp/test/OutboxHandlers.test.ts",
+          "packages/drivers/m365-mcp/test/OutboxServer.test.ts",
+          "packages/drivers/m365-mcp/README.md",
+          "docs/runbooks/m365-agent-outbox-registration.md"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/OutboxHandlers.test.ts --pool=threads --maxWorkers=1",
+          "bun run beep quality package-verify @beep/m365-mcp"
+        ],
+        "summary": "Fail closed with version-unbound after the expectation check; no Graph send action is called. Document manual Outlook send and the path to restoring a bound operation."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "M365 outbox draft sending",
+      "lane": "L33"
     },
     {
       "id": "CSF-004",

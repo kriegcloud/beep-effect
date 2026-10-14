@@ -98,6 +98,7 @@ exact captured findings until no packet-applicable finding remains open.
 
 | Decision | Reason | Reversal path |
 | --- | --- | --- |
+| Disable automated M365 draft sending (CSF-003). | Graph's send-draft action accepts a mutable draft id without a documented version precondition; the checked bytes can change before send. Draft preparation and manual Outlook send remain available. | Implement an immutable message send or documented version-bound action with a concurrent-edit regression, then restore the tool under review. |
 | Remove the two raw Beep log/status Bash grants (CSF-033). | Their prefix patterns allow extra unit selectors and do not enforce the documented Beep-only boundary. Existing Beep CLI and timer-list commands remain available. | Add a separate argument-validating, read-only Beep unit wrapper with tests, then grant only that wrapper. |
 | Update the installed Graft 0.21.1 matcher along with its recorded patch (CSF-019). | The local CLI executes the installed dist file, so changing only the repo patch would leave this workstation exposed during the goal. | Restore the saved pre-security dist file or reinstall the pinned package and reapply the prior patch; the saved bytes are outside the repository. |
 | Use the shared no-follow contained writer for reviewed goal adoption (CSF-020). | It rejects stable symlink ancestors and retains exclusive creation while reusing repository path policy. | Revert the helper call and regression together after a replacement directory-handle implementation is proven. |

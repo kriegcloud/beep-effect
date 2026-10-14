@@ -19,7 +19,7 @@ auth values, email addresses, and raw local paths.
 | --- | --- | --- | --- | --- |
 | [CSF-001](./CSF-001.md) | Medium | repair implemented | Crafted review counts can crash Yeet closeout and monitoring | Yeet review body parsing |
 | [CSF-002](./CSF-002.md) | Medium | repair implemented | Credential\-bank regex enables small\-input denial of service | canonical credential pattern bank |
-| [CSF-003](./CSF-003.md) | Medium | captured | Draft edits can bypass the outbox send expectation guard | _pending P2_ |
+| [CSF-003](./CSF-003.md) | Medium | repair implemented | Draft edits can bypass the outbox send expectation guard | M365 outbox draft sending |
 | [CSF-004](./CSF-004.md) | Medium | repair implemented | Crafted attachment names persistently block mail tagging | mail attachment filing |
 | [CSF-005](./CSF-005.md) | Medium | repair implemented | Boundary\-date emails can crash the docket intake service | docket Graph calendar adapter |
 | [CSF-006](./CSF-006.md) | Low | repair implemented | Review checkpoints expose mail content through permissive files | docket intake file store |
