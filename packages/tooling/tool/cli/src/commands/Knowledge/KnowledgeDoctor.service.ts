@@ -36,7 +36,7 @@ import {
   KnowledgeRefSurface,
   knowledgeDocumentFenceLines,
   knowledgeInlineSpans,
-  knowledgeLineMatches,
+  knowledgePathAssertion,
   normalizeKnowledgeRepoPath,
 } from "./Knowledge.refs.ts";
 import { KnowledgeFindingCandidate, KnowledgeFindingLocation, KnowledgeTrackedEntry } from "./Knowledge.schemas.ts";
@@ -239,7 +239,6 @@ export const KNOWLEDGE_PRODUCER_OUTPUTS: ReadonlyArray<KnowledgeProducerOutput> 
 const HISTORICAL_BLOCK_PATTERN = /^\s*<!-- beep:historical commit=([0-9a-f]{40}) -->\s*$/u;
 const HISTORICAL_FRONTMATTER_PATTERN = /^beep-historical:\s*["']?([0-9a-f]{40})["']?\s*$/u;
 const GENERATED_INFO_PATTERN = /(?:^|\s)beep:generated=(\S+)/u;
-const ASSERTION_PATTERN = /<!-- beep:assert path-exists ([^\s]+) -->/gu;
 const FRONTMATTER_DELIMITER = "---";
 
 const isBlank = (line: KnowledgeDocumentFenceLine): boolean => Str.isEmpty(Str.trim(line.text));
@@ -320,10 +319,8 @@ const proseSpans = (
   documentPath: string,
   gitRefNames: HashSet.HashSet<string>
 ): ReadonlyArray<readonly [KnowledgeSpanForm, string, number]> => {
-  const assertions = A.getSomes(
-    A.map(knowledgeLineMatches(new RegExp(ASSERTION_PATTERN.source, "gu"), line.text), (match) =>
-      O.map(O.fromNullishOr(match[1]), (raw) => ["path-assertion", raw, match.index + 1] as const)
-    )
+  const assertions = O.toArray(
+    O.map(knowledgePathAssertion(line.text), ({ path, column }) => ["path-assertion", path, column] as const)
   );
   const inline = A.getSomes(
     A.map(knowledgeInlineSpans(line.text), (inlineSpan) => {
@@ -346,7 +343,8 @@ const proseSpans = (
  *
  * Spans come from the Stage-1 readers: inline code spans on prose lines (a `bun run beep` span is a
  * command, a governed repository spelling a path unless it exactly names a Git ref) and
- * `beep:assert path-exists` markers. Fenced content is never read as spans: an unmarked fence is a
+ * `beep:assert path-exists` markers that fill a whole prose line (a marker quoted in inline code or
+ * written mid-line asserts nothing). Fenced content is never read as spans: an unmarked fence is a
  * decoy, and a fence whose info string carries `beep:generated=<producer-id>` is one
  * `generated-fence` span on its opening delimiter. A block marker scopes the next Markdown block
  * (a fence through its closing delimiter, or the run of non-blank prose lines that follows), a

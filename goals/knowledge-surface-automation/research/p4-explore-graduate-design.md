@@ -111,6 +111,19 @@ then disagree with `goals/`.
 - **PR E-3b:** the schemas, the pure compiler, `explore graduate --plan --json`, and
   tests: refusal matrix, digest stability, and replay classifying `already-published`
   versus a foreign conflict.
+  *Landed scope:* `Explore/Graduate.schemas.ts` (`GraduationChildInput`,
+  `GraduationRequest`, `ExplorationSnapshot`, `ExplorationManifestEdit`,
+  `GraduationPlan`, and `GraduationReceipt` declared for E-3c) and `Explore/Graduate.ts`
+  (`readExplorationSnapshot`, the pure `compileGraduationPlan`, JSON and human renders,
+  and the `explore graduate` subcommand, which refuses without `--plan`). Child slugs
+  use `GoalSlug`, the grammar the bootstrap compiler already requires, which is
+  stricter than `PacketSlug`. Each refusal is a `GraduationConflict` row. The
+  `child-conflicted` reason lifts any conflict a compiled child plan carries. Under
+  today's bootstrap compiler it cannot occur, because existing slugs are classified
+  first. The plan id digests the exploration slug, the children's plan ids in request
+  order, and the plain edit row; `alreadyPublished` children are not recompiled. The
+  snapshot reads the manifest status, not an event fold: no exploration carries
+  `ops/events/` yet, and the E-3c writer owns the event-stream path (contract 6).
 - **PR E-3c:** `--write --expect`, the manifest edit applier (shared with adoption's
   preserve check), the event append for opted-in packets, crash-replay tests, and the
   first real graduation (E17).

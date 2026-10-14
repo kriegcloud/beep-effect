@@ -163,6 +163,13 @@ Runbook: `docs/runbooks/agent-pools.md`.
   `@beep/*` aliases instead of relative paths into any workspace `src/`;
   relatives only for local helpers, fixtures, snapshots, and other
   non-`src` test files.
+- `.claude/skills/<name>/SKILL.md` frontmatter follows the Agent Skills
+  specification (agentskills.io): `name`, `description`, `license`,
+  `compatibility`, `metadata`, `allowed-tools`, plus Claude Code's native
+  keys. Repo extras such as `version` and `status` go under `metadata`;
+  keep `SKILL.md` under 500 lines and move depth into `references/`.
+  `bun run beep skills update --check` enforces the keys and advises on
+  length.
 
 ## Autonomy
 

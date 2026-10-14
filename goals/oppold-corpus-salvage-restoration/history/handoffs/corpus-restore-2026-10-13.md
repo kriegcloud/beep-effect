@@ -1410,3 +1410,19 @@ tree rehash completed under beep-heavy. Graft saved approximately 101,934
 tokens across two retrievals. Preserve the previous uncommitted launch-report
 append. PR #1683 is confirmed merged; main integration and evidence
 publication follow while all corpus artifacts remain immutable.
+
+
+### Family-8 stop publication integration and local proof
+
+Merged main at 96f1f5087beb2b937c640843d502ada843b82958 after all family
+units ended. Four packet conflicts resolved to this branch's newer PLAN,
+README, handoff and manifest as the 05:55Z continuation ruling directs.
+All dated prior decisions, launch reports and failure evidence retained.
+Execution identity remains the pre-launch ce71e3cb88 amendment; publication
+integration does not alter that historical claim. No further family launch.
+Knowledge refs passed under beep-heavy at 89c7374764e204f3d83c74356bb146c73c3493db,
+zero live gated observations. Launcher 3,484 characters; manifest JSON,
+index, reflection-artifacts, whitespace and added-line hygiene pass.
+Doctor unchanged: zero blockers, three unrelated advisories. Gitleaks,
+typos, Biome and commitlint passed the stop-evidence commit a124c9d420.
+No package edited; package-verify and source hosted-parity not run (docs-only).

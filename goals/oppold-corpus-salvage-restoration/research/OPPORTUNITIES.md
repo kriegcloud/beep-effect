@@ -872,3 +872,15 @@ family engine failure; no live family was launched before it was repaired.
   nonzero/empty PDF extraction with a synthetic fixture before another freeze.
 - Action: record qualified input-sensitive parser attribution, retain output,
   stop before ordinal 9 and publish aggregate evidence. No retry or approval.
+
+
+## 2026-10-14: family-8 stop publication repeats packet squash conflicts
+
+- Doing: integrate main after all family units ended, before evidence publication.
+- Evidence: four conflicts in PLAN, README, the handoff and manifest. Main
+  carries the merged family-7 stop; this branch retains the pre-launch freeze
+  amendment, family-8 launch and the later sealed-failure record.
+- Prevention: give wave evidence a stable publication base while execution
+  identity is separately frozen. Do not change an active execution checkout.
+- Action: retained this branch's newer packet records as the brief rules,
+  preserving earlier family-5/7 evidence. No family unit was running.
