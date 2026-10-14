@@ -631,22 +631,25 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills command boundary r
 
   it.effect(
     "writes an empty train issue and preserves that output when pull-request input is malformed",
-    Effect.fnUntraced(function* () {
-      yield* temporaryRepository;
-      yield* writeProjectFile("prs.json", "[]");
-      const args = ["train-issue", "--batch", "2026-W42", "--prs", "prs.json", "--body-out", "issue.md"];
-      yield* runSkillsCommand(args);
-      expect(yield* TestConsole.logLines).toEqual(expect.arrayContaining([expect.stringContaining("2026-W42")]));
-      const body = yield* readProjectFile("issue.md");
-      expect(body).toContain("_No open skill update pull requests");
-      yield* writeProjectFile("prs.json", "not-json");
-      const refused = yield* Effect.exit(runSkillsCommand(args));
-      refused.pipe(Exit.isFailure, assertTrue);
-      expect(yield* TestConsole.errorLines).toEqual(
-        expect.arrayContaining([expect.stringContaining("skills:train-issue:")])
-      );
-      expect(yield* readProjectFile("issue.md")).toBe(body);
-    })
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        yield* writeProjectFile("prs.json", "[]");
+        const args = ["train-issue", "--batch", "2026-W42", "--prs", "prs.json", "--body-out", "issue.md"];
+        yield* runSkillsCommand(args);
+        expect(yield* TestConsole.logLines).toEqual(expect.arrayContaining([expect.stringContaining("2026-W42")]));
+        const body = yield* readProjectFile("issue.md");
+        expect(body).toContain("_No open skill update pull requests");
+        yield* writeProjectFile("prs.json", "not-json");
+        const refused = yield* Effect.exit(runSkillsCommand(args));
+        refused.pipe(Exit.isFailure, assertTrue);
+        expect(yield* TestConsole.errorLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:train-issue:")])
+        );
+        expect(yield* readProjectFile("issue.md")).toBe(body);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
   );
 
   it.effect(

@@ -1219,6 +1219,8 @@ The Knip retirement receipt was extended during main integration, but the
 FreshBooks cache review still pinned the earlier receipt digest. Pin that review
 to the current committed receipt, matching the root review. The review's scope
 and cache posture are unchanged. Also correct the CI fleet JSDoc example to use
-the existing public `@beep/infra` export, so docgen can compile it. Revert this
-unblocker PR to restore both prior references; re-record the cache review if
-the receipt changes again.
+the existing public `@beep/infra` export, so docgen can compile it. The skills
+train-issue test on main also lacks the mock `HttpClient` used by adjacent CLI
+tests; provide that local test service to restore the test typecheck. Revert
+this unblocker PR to restore the prior references and test fixture; re-record
+the cache review if the receipt changes again.
