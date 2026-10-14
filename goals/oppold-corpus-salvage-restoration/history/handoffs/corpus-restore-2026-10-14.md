@@ -262,3 +262,24 @@ in eleven documents that match main. Replaced the new location with the
 corpus-relative logs/corpus-restore inventory; no engine or freeze field
 changed. Rerun after committing; inherited rows remain orchestrator-owned.
 No failure of a corpus precondition and no recovery family started.
+
+
+Final knowledge-reference rerun: fifteen inherited external-mirror gates,
+zero introduced gates; all eleven affected documents match origin/main.
+The new SPEC location gate is cleared. Runtime preflight is complete;
+all auxiliary admitted verification jobs ended. No other lane's job was
+interrupted. The committed freeze fields are unchanged, Corpus/libpff
+source still matches the recorded code snapshot and merged main.
+
+First recovery launch is ordinal 5, followed only after seal reconciliation
+by 7, then 8, then 9. Planned unit:
+beep-heavy-corpus-restore-p2-recovery-2026-10-14-5.service.
+Planned ledger, relative to corpus home:
+staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-14-recovery-05/ledgers/mail/slice.jsonl.
+On driver resume, read the result stamp and this ledger through aggregate
+projections; fill policySha256 once, compare all identities/ceilings,
+reconcile accepted children or disposition a repeated second-pass failure
+unsupported with retained diagnostic evidence. Never retry this recovery
+occurrence or any old sealed family. Launch no further occurrence before
+that reconciliation. Publish the aggregate record PR after the recovery
+batch ends; this launch handoff is not a content-final record PR.
