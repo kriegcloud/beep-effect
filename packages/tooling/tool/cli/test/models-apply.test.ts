@@ -7,6 +7,7 @@ import {
 import { modelsApplySpans, modelsWriteSpans } from "@beep/repo-cli/commands/Models/Models.spans";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -119,93 +120,81 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
   );
 
   it.effect("takes an exclusive backup, restores exactly, and rejects stale recovery", () =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        yield* fs.makeDirectory(path.resolve(".beep"), { recursive: true });
-        const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "models-fixture-" });
-        const file = path.join(root, "config.toml");
-        const backupDirectory = path.join(root, ".config-backups");
-        yield* fs.writeFileString(file, native, { mode: 0o600 });
-        const writer = yield* ModelsApply;
-        expect(O.isNone(yield* writer.apply(file, [topLevel], "dry-run", backupDirectory))).toBe(true);
-        expect(yield* fs.exists(backupDirectory)).toBe(false);
-        const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backupDirectory));
-        expect(yield* fs.readFileString(journal.backup)).toBe(native);
-        expect((yield* fs.stat(file)).mode & 0o777).toBe(0o600);
-        const journalFile = path.join(backupDirectory, `${journal.id}.json`);
-        yield* writer.restore(journalFile, backupDirectory);
-        expect(yield* fs.readFileString(file)).toBe(native);
-        yield* writer.restore(journalFile, backupDirectory);
-        const second = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backupDirectory));
-        yield* fs.writeFileString(file, `${native}\n# external native write\n`);
-        expect(
-          (yield* Effect.result(writer.restore(path.join(backupDirectory, `${second.id}.json`), backupDirectory)))._tag
-        ).toBe("Failure");
-        expect(yield* fs.readFileString(file)).toContain("external native write");
-      })
-    )
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      yield* fs.makeDirectory(path.resolve(".beep"), { recursive: true });
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "models-fixture-" });
+      const file = path.join(root, "config.toml");
+      const backupDirectory = path.join(root, ".config-backups");
+      yield* fs.writeFileString(file, native, { mode: 0o600 });
+      const writer = yield* ModelsApply;
+      assertNone(yield* writer.apply(file, [topLevel], "dry-run", backupDirectory));
+      expect(yield* fs.exists(backupDirectory)).toBe(false);
+      const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backupDirectory));
+      expect(yield* fs.readFileString(journal.backup)).toBe(native);
+      expect((yield* fs.stat(file)).mode & 0o777).toBe(0o600);
+      const journalFile = path.join(backupDirectory, `${journal.id}.json`);
+      yield* writer.restore(journalFile, backupDirectory);
+      expect(yield* fs.readFileString(file)).toBe(native);
+      yield* writer.restore(journalFile, backupDirectory);
+      const second = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backupDirectory));
+      yield* fs.writeFileString(file, `${native}\n# external native write\n`);
+      yield* Effect.flip(writer.restore(path.join(backupDirectory, `${second.id}.json`), backupDirectory));
+      expect(yield* fs.readFileString(file)).toContain("external native write");
+    })
   );
 
   it.effect("removes only an owned legacy key, detects its return, and restores exact bytes", () =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "remove-fixture-" });
-        const file = path.join(root, "config.toml");
-        const backups = path.join(root, "backups");
-        const before = 'sandbox_mode = "danger-full-access" # legacy\r\n' + native;
-        yield* fs.writeFileString(file, before);
-        const request = ModelsLocatorWrite.make({
-          locator: { _tag: "toml-top-level-key", binding, render, key: "sandbox_mode" },
-          expected: "",
-          remove: true,
-        });
-        const writer = yield* ModelsApply;
-        expect((yield* Effect.result(writer.apply(file, [request], "check", backups)))._tag).toBe("Failure");
-        const journal = O.getOrThrow(yield* writer.apply(file, [request], "write", backups));
-        expect(yield* fs.readFileString(file)).toBe(native);
-        expect(O.isNone(yield* writer.apply(file, [request], "check", backups))).toBe(true);
-        yield* writer.restore(path.join(backups, `${journal.id}.json`), backups);
-        expect(yield* fs.readFileString(file)).toBe(before);
-        expect((yield* Effect.result(writer.apply(file, [request], "check", backups)))._tag).toBe("Failure");
-        expect((yield* Effect.result(modelsWriteSpans('sandbox_mode="a"\nsandbox_mode="b"\n', request)))._tag).toBe(
-          "Failure"
-        );
-        expect(
-          (yield* Effect.result(
-            modelsWriteSpans(
-              "{}",
-              ModelsLocatorWrite.make({
-                locator: { _tag: "json-key", binding, render, pointer: ["sandbox_mode"], fallbacks: [] },
-                expected: "",
-                remove: true,
-              })
-            )
-          ))._tag
-        ).toBe("Failure");
-      })
-    )
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "remove-fixture-" });
+      const file = path.join(root, "config.toml");
+      const backups = path.join(root, "backups");
+      const before = 'sandbox_mode = "danger-full-access" # legacy\r\n' + native;
+      yield* fs.writeFileString(file, before);
+      const request = ModelsLocatorWrite.make({
+        locator: { _tag: "toml-top-level-key", binding, render, key: "sandbox_mode" },
+        expected: "",
+        remove: true,
+      });
+      const writer = yield* ModelsApply;
+      yield* Effect.flip(writer.apply(file, [request], "check", backups));
+      const journal = O.getOrThrow(yield* writer.apply(file, [request], "write", backups));
+      expect(yield* fs.readFileString(file)).toBe(native);
+      assertNone(yield* writer.apply(file, [request], "check", backups));
+      yield* writer.restore(path.join(backups, `${journal.id}.json`), backups);
+      expect(yield* fs.readFileString(file)).toBe(before);
+      yield* Effect.flip(writer.apply(file, [request], "check", backups));
+      yield* Effect.flip(modelsWriteSpans('sandbox_mode="a"\nsandbox_mode="b"\n', request));
+      yield* Effect.flip(
+        modelsWriteSpans(
+          "{}",
+          ModelsLocatorWrite.make({
+            locator: { _tag: "json-key", binding, render, pointer: ["sandbox_mode"], fallbacks: [] },
+            expected: "",
+            remove: true,
+          })
+        )
+      );
+    })
   );
 
   it.effect("rejects absent and duplicate scalar addresses and overlapping ownership", () =>
     Effect.gen(function* () {
-      expect((yield* Effect.result(modelsWriteSpans("unknown = true\n", topLevel)))._tag).toBe("Failure");
-      expect((yield* Effect.result(modelsWriteSpans('model = "a"\nmodel = "b"\n', topLevel)))._tag).toBe("Failure");
+      yield* Effect.flip(modelsWriteSpans("unknown = true\n", topLevel));
+      yield* Effect.flip(modelsWriteSpans('model = "a"\nmodel = "b"\n', topLevel));
       const spans = yield* modelsWriteSpans(native, topLevel);
-      expect((yield* Effect.result(modelsApplySpans(native, [...spans, ...spans])))._tag).toBe("Failure");
+      yield* Effect.flip(modelsApplySpans(native, [...spans, ...spans]));
     })
   );
 
   it.effect("rejects duplicate JSON keys and a top-level key hidden in a commented native table", () =>
     Effect.gen(function* () {
       const json = write({ _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] });
-      expect((yield* Effect.result(modelsWriteSpans('{"model":"one","model":"two"}', json)))._tag).toBe("Failure");
-      expect(
-        (yield* Effect.result(modelsWriteSpans('[native] # retained\nmodel = "native-value"\n', topLevel)))._tag
-      ).toBe("Failure");
+      yield* Effect.flip(modelsWriteSpans('{"model":"one","model":"two"}', json));
+      yield* Effect.flip(modelsWriteSpans('[native] # retained\nmodel = "native-value"\n', topLevel));
     })
   );
 
@@ -228,39 +217,33 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
   );
 
   it.effect("keeps native parser input out of validation errors", () =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "private-parser-" });
-        const file = path.join(root, "config.json");
-        yield* fs.writeFileString(file, '{"model":"old", "unownedCredential":"__SYNTHETIC_PRIVATE__", malformed');
-        const request = write({ _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] });
-        const writer = yield* ModelsApply;
-        const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
-        expect(error.message).toBe("Invalid JSON target.");
-        expect(error.cause).toBeUndefined();
-        expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
-      })
-    )
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "private-parser-" });
+      const file = path.join(root, "config.json");
+      yield* fs.writeFileString(file, '{"model":"old", "unownedCredential":"__SYNTHETIC_PRIVATE__", malformed');
+      const request = write({ _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] });
+      const writer = yield* ModelsApply;
+      const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
+      expect(error.message).toBe("Invalid JSON target.");
+      expect(error.cause).toBeUndefined();
+      expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
+    })
   );
 
   it.effect("refuses invalid UTF-8 without changing or backing up normalized bytes", () =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "native-bytes-" });
-        const file = path.join(root, "config.toml");
-        const bytes = new Uint8Array([0xff, 0xfe, 0x23]);
-        yield* fs.writeFile(file, bytes);
-        const writer = yield* ModelsApply;
-        expect((yield* Effect.result(writer.apply(file, [topLevel], "write", path.join(root, "backups"))))._tag).toBe(
-          "Failure"
-        );
-        expect(A.fromIterable(yield* fs.readFile(file))).toEqual(A.fromIterable(bytes));
-        expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
-      })
-    )
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "native-bytes-" });
+      const file = path.join(root, "config.toml");
+      const bytes = new Uint8Array([0xff, 0xfe, 0x23]);
+      yield* fs.writeFile(file, bytes);
+      const writer = yield* ModelsApply;
+      yield* Effect.flip(writer.apply(file, [topLevel], "write", path.join(root, "backups")));
+      expect(A.fromIterable(yield* fs.readFile(file))).toEqual(A.fromIterable(bytes));
+      expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
+    })
   );
 });

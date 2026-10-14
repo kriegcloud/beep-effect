@@ -79,30 +79,28 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
   timeout: "30 seconds",
 })((it) => {
   it.effect("checks legacy Codex permission drift, preserves pins, and journals removal", () =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const [home, , manifest] = yield* fixture();
-        const dir = path.join(home, ".codex");
-        yield* fs.makeDirectory(dir);
-        const file = path.join(dir, "config.toml");
-        const before = 'sandbox_mode="danger-full-access"\n' + native;
-        yield* fs.writeFileString(file, before);
-        const flags = ["--home", home, "--repo", home, "--manifest", manifest];
-        yield* run(["codex-permissions", ...flags]);
-        expect(yield* fs.readFileString(file)).toBe(before);
-        expect((yield* Effect.result(run(["codex-permissions", ...flags, "--check"])))._tag).toBe("Failure");
-        expect((yield* Effect.result(run(["codex-permissions", ...flags, "--check", "--write"])))._tag).toBe("Failure");
-        yield* run(["codex-permissions", ...flags, "--write"]);
-        expect(yield* fs.readFileString(file)).toBe(native);
-        yield* run(["codex-permissions", ...flags, "--check"]);
-        const journals = yield* fs.readDirectory(path.join(home, ".config-backups"));
-        expect(journals).toHaveLength(2);
-        yield* run(["codex-permissions", ...flags, "--write"]);
-        expect(yield* fs.readDirectory(path.join(home, ".config-backups"))).toHaveLength(2);
-      })
-    )
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifest] = yield* fixture();
+      const dir = path.join(home, ".codex");
+      yield* fs.makeDirectory(dir);
+      const file = path.join(dir, "config.toml");
+      const before = 'sandbox_mode="danger-full-access"\n' + native;
+      yield* fs.writeFileString(file, before);
+      const flags = ["--home", home, "--repo", home, "--manifest", manifest];
+      yield* run(["codex-permissions", ...flags]);
+      expect(yield* fs.readFileString(file)).toBe(before);
+      yield* Effect.flip(run(["codex-permissions", ...flags, "--check"]));
+      yield* Effect.flip(run(["codex-permissions", ...flags, "--check", "--write"]));
+      yield* run(["codex-permissions", ...flags, "--write"]);
+      expect(yield* fs.readFileString(file)).toBe(native);
+      yield* run(["codex-permissions", ...flags, "--check"]);
+      const journals = yield* fs.readDirectory(path.join(home, ".config-backups"));
+      expect(journals).toHaveLength(2);
+      yield* run(["codex-permissions", ...flags, "--write"]);
+      expect(yield* fs.readDirectory(path.join(home, ".config-backups"))).toHaveLength(2);
+    })
   );
 
   it.effect("previews every owned target, writes one target idempotently, and restores its journal", () =>
@@ -114,9 +112,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       yield* run(["apply", ...flags]);
       expect(yield* fs.readFileString(file)).toBe(native);
       expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
-      expect((yield* Effect.result(run(["apply", ...flags, "--check", "--target", "synthetic.codex"])))._tag).toBe(
-        "Failure"
-      );
+      yield* Effect.flip(run(["apply", ...flags, "--check", "--target", "synthetic.codex"]));
       yield* run(["apply", ...flags, "--write", "--target", "synthetic.codex"]);
       expect(yield* fs.readFileString(file)).toContain('model = "gpt-6.1-sol"');
       yield* run(["apply", ...flags, "--check", "--target", "synthetic.codex"]);
@@ -126,7 +122,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       const journalFile = O.getOrThrow(A.findFirst(files, Str.endsWith(".json")));
       yield* run(["restore", ...flags, "--journal", Str.replace(/\.json$/, "")(journalFile)]);
       expect(yield* fs.readFileString(file)).toBe(native);
-      expect((yield* Effect.result(run(["restore", ...flags, "--journal", "../unsafe"])))._tag).toBe("Failure");
+      yield* Effect.flip(run(["restore", ...flags, "--journal", "../unsafe"]));
     })
   );
 
@@ -136,15 +132,13 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       const path = yield* Path.Path;
       const [home, file, manifest] = yield* fixture();
       const flags = ["--home", home, "--repo", home, "--manifest", manifest];
-      expect((yield* Effect.result(run(["apply", ...flags, "--check", "--write"])))._tag).toBe("Failure");
-      expect((yield* Effect.result(run(["apply", ...flags, "--target", "absent"])))._tag).toBe("Failure");
+      yield* Effect.flip(run(["apply", ...flags, "--check", "--write"]));
+      yield* Effect.flip(run(["apply", ...flags, "--target", "absent"]));
       const outside = yield* fs.makeTempFileScoped({ directory: path.dirname(home), prefix: "outside-models-" });
       yield* fs.writeFileString(outside, native);
       yield* fs.remove(file);
       yield* fs.symlink(outside, file);
-      expect((yield* Effect.result(run(["apply", ...flags, "--write", "--target", "synthetic.codex"])))._tag).toBe(
-        "Failure"
-      );
+      yield* Effect.flip(run(["apply", ...flags, "--write", "--target", "synthetic.codex"]));
       expect(yield* fs.readFileString(outside)).toBe(native);
       expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
     })
@@ -158,22 +152,20 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         manifestFile,
         yield* encodeManifest(ModelsManifest.make({ ...manifest, bindings: [] }))
       );
-      expect(
-        (yield* Effect.result(
-          run([
-            "apply",
-            "--home",
-            home,
-            "--repo",
-            home,
-            "--manifest",
-            manifestFile,
-            "--write",
-            "--target",
-            "synthetic.codex",
-          ])
-        ))._tag
-      ).toBe("Failure");
+      yield* Effect.flip(
+        run([
+          "apply",
+          "--home",
+          home,
+          "--repo",
+          home,
+          "--manifest",
+          manifestFile,
+          "--write",
+          "--target",
+          "synthetic.codex",
+        ])
+      );
       expect(yield* fs.readFileString(file)).toBe(native);
     })
   );

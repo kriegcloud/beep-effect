@@ -2230,3 +2230,16 @@ errors. F acknowledges the P0 as environment-only, rebuilds repo-cli's upstream
 dependencies through admission, and reruns the package check. No source repair
 is inferred from missing declarations. A quick verifier that detects stale
 project outputs and names the required upstream build would prevent this loop.
+
+### F publication cheap-gate repair (2026-10-15 UTC)
+
+- Trigger: the first `yeet publish` stopped before push on observability catalog
+  drift and 28 new Effect Vitest findings in the two native config test files.
+- Repair: regenerate the instrumentation catalog through its owner; use
+  `Effect.flip` for expected errors, `assertNone` for absent journals, and the
+  test runner's existing scope. Review the two EV010 platform-provenance rows
+  through the schema-validating inventory writer: native rename, Unix mode,
+  symlink containment and byte-identical recovery are the test subject.
+- Prevention: include the Effect Vitest ratchet and instrumentation catalog
+  check in the focused pre-publication proof after adding test files or spans.
+  This is an introduced gate failure, not inherited or environment-only.
