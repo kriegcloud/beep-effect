@@ -10,6 +10,8 @@ import {
   PlanEntry,
   publishBootstrapPlan,
   readPacketSnapshot,
+  replacePinnedFile,
+  sha256Hex,
 } from "@beep/repo-cli/test/Goals";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
@@ -23,7 +25,9 @@ import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Result from "effect/Result";
 import * as Str from "effect/String";
+import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 import { expectReportedExit, temporaryWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
 
@@ -319,6 +323,31 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
           expect(yield* listGoals).toEqual(["fresh-goal"]);
         })
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+  });
+
+  describe("replacePinnedFile", { concurrent: false }, () => {
+    it.effect("serializes two writers of one pre-image into one replacement and one refusal", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const preImage = '{"version":0}\n';
+          yield* writeProjectFile("pinned/state.json", preImage);
+          const preImageDigest = yield* sha256Hex(preImage);
+          const writer = (version: number) =>
+            Effect.result(
+              replacePinnedFile("pinned/state.json", preImageDigest, () => Effect.succeed(`{"version":${version}}\n`))
+            );
+          const outcomes = yield* Effect.all([writer(1), writer(2)], { concurrency: "unbounded" });
+          const successes = A.filter(outcomes, Result.isSuccess);
+          strictEqual(A.length(successes), 1);
+          strictEqual(A.length(A.filter(outcomes, Result.isFailure)), 1);
+          const finalDigest = yield* sha256Hex(yield* fs.readFileString("pinned/state.json"));
+          strictEqual(successes[0]?.success.afterDigest, finalDigest);
+          expect(yield* fs.readDirectory("pinned")).toEqual(["state.json"]);
+        })
+      ).pipe(TestClock.withLive)
     );
   });
 });

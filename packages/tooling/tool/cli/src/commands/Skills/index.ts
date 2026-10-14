@@ -27,6 +27,13 @@ export * from "./Skills.command.ts";
  */
 export * from "./Skills.errors.ts";
 /**
+ * Unified-diff hunks and CODEOWNERS ownership for generated skill patches.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./Skills.patches.ts";
+/**
  * Pure renderers for read-only skill provenance reports.
  *
  * @category utilities
@@ -61,3 +68,10 @@ export * from "./Skills.service.ts";
  * @since 0.0.0
  */
 export * from "./SkillsLock.schemas.ts";
+/**
+ * Reviewed, atomic skills-lock/v2 write.
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export * from "./SkillsLock.write.ts";

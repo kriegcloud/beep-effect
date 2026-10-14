@@ -47,6 +47,21 @@ import {
   readKnowledgeGitRefNames,
 } from "./Knowledge.service.ts";
 import {
+  cacheKnowledgeDoctorDomain,
+  deriveKnowledgeDoctorDomain,
+  knowledgeDomainWithout,
+  knowledgeDomainWitnessHolds,
+} from "./KnowledgeDoctor.domain.ts";
+import {
+  KnowledgePacketStatusEvaluator,
+  KnowledgeSkillsLocalEvaluator,
+  KnowledgeSymbolsEvaluator,
+  knowledgeCurrentPhaseClaim,
+  knowledgeDoctorDocumentId,
+  knowledgeDomainLineSpans,
+  knowledgeEvaluationFailure,
+} from "./KnowledgeDoctor.evaluators.ts";
+import {
   CommandNodeWitness,
   EvaluationFailed,
   EvaluationResolved,
@@ -54,7 +69,6 @@ import {
   KnowledgeDoctorFinding,
   KnowledgeDoctorReport,
   KnowledgeDocumentExtraction,
-  KnowledgeEvaluationFailure,
   KnowledgeEvaluationOutcome,
   KnowledgeHistoricalCitation,
   KnowledgeProducerOutput,
@@ -75,8 +89,10 @@ import type { KnowledgeCloneAttributesError } from "./Knowledge.errors.ts";
 import type { KnowledgeCommitSha, KnowledgeDocumentFenceLine, KnowledgeTreeOracle } from "./Knowledge.refs.ts";
 import type { KnowledgeFindingKind, KnowledgeFindingSeverity } from "./Knowledge.schemas.ts";
 import type { KnowledgeMaterializedTree } from "./Knowledge.service.ts";
+import type { KnowledgeDoctorDomain } from "./KnowledgeDoctor.domain.ts";
 import type {
   KnowledgeCounterfactualVerdictKind,
+  KnowledgeEvaluationFailure,
   KnowledgeEvaluatorId,
   KnowledgeSpanForm,
 } from "./KnowledgeDoctor.schemas.ts";
@@ -103,7 +119,8 @@ type KnowledgeTreeEntryIndex = {
  * an entry index, the live ref census, the registered producer outputs, the tree's own static
  * command surface (`O.none()` when the tree has no CLI root module), and the Effect CLI built-in
  * global flags. `isAncestor` and `atCommit` answer historical-citation questions: whether a cited
- * commit is an ancestor of this tree, and the doctor tree of that commit.
+ * commit is an ancestor of this tree, and the doctor tree of that commit. `domain` holds the goal
+ * packet, workspace package, and skill facts the domain evaluators read, derived from tree bytes.
  *
  * Every field is data or a lookup over data, which is what lets {@link overlayWithout} remove one
  * resolution witness and hand the evaluators an otherwise identical tree.
@@ -116,6 +133,7 @@ type KnowledgeTreeEntryIndex = {
 export interface KnowledgeDoctorTree extends KnowledgeTreeOracle {
   readonly atCommit: (commit: KnowledgeCommitSha) => Effect.Effect<KnowledgeDoctorTree, KnowledgeOperationalError>;
   readonly commandTree: Effect.Effect<O.Option<KnowledgeStaticCommandTree>, KnowledgeOperationalError>;
+  readonly domain: KnowledgeDoctorDomain;
   readonly entryIndex: KnowledgeTreeEntryIndex;
   readonly gitRefNames: HashSet.HashSet<string>;
   readonly globalOptions: ReadonlyArray<KnowledgeStaticCommandFlag>;
@@ -131,6 +149,8 @@ export interface KnowledgeDoctorTree extends KnowledgeTreeOracle {
  * `evaluate` must return {@link EvaluationResolved} only with witnesses that hold in the tree it was
  * given, so removing any one of them with {@link overlayWithout} changes the verdict. The
  * counterfactual harness ({@link knowledgeCounterfactualVerdicts}) checks exactly that.
+ * `treeSpans`, when present, synthesizes spans from the tree itself rather than from prose (the
+ * skills evaluator's one span per installed or locked skill); the scan evaluates them like any other.
  *
  * @see {@link KnowledgePathsEvaluator} and {@link KnowledgeCommandsEvaluator} for the PR-1 evaluators.
  * @category services
@@ -144,6 +164,9 @@ export interface KnowledgeEvaluator {
   readonly forms: ReadonlyArray<KnowledgeSpanForm>;
   readonly id: KnowledgeEvaluatorId;
   readonly kinds: ReadonlyArray<KnowledgeFindingKind>;
+  readonly treeSpans?:
+    | ((tree: KnowledgeDoctorTree) => Effect.Effect<ReadonlyArray<KnowledgeSpan>, KnowledgeOperationalError>)
+    | undefined;
 }
 
 /**
@@ -333,7 +356,7 @@ const proseSpans = (
         : O.some(["path", inlineSpan.span, inlineSpan.column] as const);
     })
   );
-  return A.appendAll(assertions, inline);
+  return A.appendAll(A.appendAll(assertions, inline), knowledgeDomainLineSpans(line.text));
 };
 
 /**
@@ -385,6 +408,7 @@ export const extractKnowledgeDocumentSpans: {
   const blocks = blockCitations(lines);
   const citationAt = (lineNumber: number): O.Option<KnowledgeHistoricalCitation> =>
     O.orElse(HashMap.get(blocks.byLine, lineNumber), () => documentMarker);
+  const phaseClaim = knowledgeCurrentPhaseClaim(documentPath, lines);
   const spans = A.flatMap(lines, (line) => {
     const generated = line.opensFence
       ? pipe(
@@ -404,8 +428,14 @@ export const extractKnowledgeDocumentSpans: {
           O.toArray
         )
       : A.empty<KnowledgeSpan>();
+    const phase = pipe(
+      phaseClaim,
+      O.filter(([lineNumber]) => lineNumber === line.number),
+      O.map(([, raw, column]): readonly [KnowledgeSpanForm, string, number] => ["packet-phase", raw, column]),
+      O.toArray
+    );
     const prose = line.prose
-      ? A.map(proseSpans(line, documentPath, gitRefNames), ([form, raw, column]) =>
+      ? A.map(A.appendAll(phase, proseSpans(line, documentPath, gitRefNames)), ([form, raw, column]) =>
           KnowledgeSpan.make({
             form,
             documentPath,
@@ -532,30 +562,6 @@ export const classifyKnowledgeSpan = (input: KnowledgeSpanClassificationInput): 
  * Evaluators
  * ---------------------------------------------------------------------------------------------- */
 
-const documentIdFor = (documentPath: string): string => nfc(`tree:${documentPath}`);
-
-const failure = (
-  span: KnowledgeSpan,
-  fields: {
-    readonly kind: KnowledgeFindingKind;
-    readonly subject: string;
-    readonly message: string;
-    readonly remediation: string;
-    readonly causeKey: string;
-  }
-): KnowledgeEvaluationFailure =>
-  KnowledgeEvaluationFailure.make({
-    candidate: KnowledgeFindingCandidate.make({
-      kind: fields.kind,
-      documentId: documentIdFor(span.documentPath),
-      subject: nfc(fields.subject),
-      location: span.location,
-      message: fields.message,
-      remediation: fields.remediation,
-    }),
-    causeKey: nfc(fields.causeKey),
-  });
-
 const failed = (first: KnowledgeEvaluationFailure, ...rest: ReadonlyArray<KnowledgeEvaluationFailure>) =>
   EvaluationFailed.make({ failures: [first, ...rest] });
 
@@ -576,7 +582,7 @@ const evaluatePathSpan = (span: KnowledgeSpan, tree: KnowledgeDoctorTree): Knowl
     onSome: (witness) => EvaluationResolved.make({ witnesses: [witness], unchecked: [] }),
     onNone: () =>
       failed(
-        failure(span, {
+        knowledgeEvaluationFailure(span, {
           kind: assertion ? "failed-assertion" : "broken-tracked-path",
           subject: assertion ? `path-exists:${repoPath}` : `repo-path:${repoPath}`,
           message: assertion ? `Path assertion failed: ${repoPath}.` : `Tracked path does not exist: ${repoPath}.`,
@@ -699,7 +705,7 @@ const witnessEquivalence = S.toEquivalence(ResolutionWitness);
 const unknownCommand = (span: KnowledgeSpan, canonicalPath: ReadonlyArray<string>): KnowledgeEvaluationOutcome => {
   const canonical = A.join(canonicalPath, " ");
   return failed(
-    failure(span, {
+    knowledgeEvaluationFailure(span, {
       kind: "unknown-beep-command",
       subject: `beep-command:${canonical}`,
       message: `Unknown beep command path: ${canonical}.`,
@@ -736,7 +742,7 @@ const evaluateCommandSpan = Effect.fn("KnowledgeDoctor.evaluateCommandSpan")(fun
     A.map(verdicts, (verdict) =>
       verdict._tag === "Unknown"
         ? O.some(
-            failure(span, {
+            knowledgeEvaluationFailure(span, {
               kind: "unknown-beep-option",
               subject: `beep-option:${A.join(commandPath, " ")} ${verdict.token.spelling}`,
               message: `Unknown option ${verdict.token.spelling} for beep command: ${A.join(commandPath, " ")}.`,
@@ -806,7 +812,8 @@ export const KnowledgeCommandsEvaluator: KnowledgeEvaluator = {
  * import { KNOWLEDGE_DOCTOR_EVALUATORS } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.service"
  * import * as A from "effect/Array"
  *
- * console.log(A.map(KNOWLEDGE_DOCTOR_EVALUATORS, (evaluator) => evaluator.id)) // [ "paths", "commands" ]
+ * console.log(A.map(KNOWLEDGE_DOCTOR_EVALUATORS, (evaluator) => evaluator.id))
+ * // [ "paths", "commands", "symbols", "packet-status", "skills-local" ]
  * ```
  *
  * @category constants
@@ -815,6 +822,9 @@ export const KnowledgeCommandsEvaluator: KnowledgeEvaluator = {
 export const KNOWLEDGE_DOCTOR_EVALUATORS: ReadonlyArray<KnowledgeEvaluator> = [
   KnowledgePathsEvaluator,
   KnowledgeCommandsEvaluator,
+  KnowledgeSymbolsEvaluator,
+  KnowledgePacketStatusEvaluator,
+  KnowledgeSkillsLocalEvaluator,
 ];
 
 /* -------------------------------------------------------------------------------------------------
@@ -828,6 +838,7 @@ const withTrackedEntries = (
   ...tree,
   trackedEntries: entries,
   entryIndex: makeKnowledgeTreeEntryIndex(entries),
+  domain: deriveKnowledgeDoctorDomain({ ...tree, trackedEntries: entries }),
 });
 
 const withoutCommandWitness = (tree: KnowledgeDoctorTree, witness: CommandNodeWitness): KnowledgeDoctorTree =>
@@ -860,7 +871,14 @@ const withoutCommandWitness = (tree: KnowledgeDoctorTree, witness: CommandNodeWi
  * A tree-entry witness hides the entry and, for a directory, every entry below it. A command-node
  * witness prunes the command (removing the root removes the whole command surface); with an option
  * it removes that flag from the command, and from the global flags when the command is the root. A
- * producer witness unregisters the producer output. Nothing else about the tree changes.
+ * producer witness unregisters the producer output. A manifest-field, export, or lock-entry witness
+ * removes that one fact from the domain ({@link knowledgeDomainWithout}). Nothing else about the
+ * tree changes.
+ *
+ * **Gotchas**
+ *
+ * Hiding a tree entry re-derives the domain from the remaining entries, uncached, so a domain overlay
+ * applied before it is not carried over; the harness overlays one witness at a time.
  *
  * **Example** (Hide a tracked file)
  *
@@ -901,6 +919,9 @@ export const overlayWithout: {
         ...tree,
         producers: A.filter(tree.producers, (output) => !Str.equivalence(output.producerId, producer.producerId)),
       }),
+      ManifestFieldWitness: (field) => ({ ...tree, domain: knowledgeDomainWithout(tree.domain, field) }),
+      ExportWitness: (exported) => ({ ...tree, domain: knowledgeDomainWithout(tree.domain, exported) }),
+      LockEntryWitness: (locked) => ({ ...tree, domain: knowledgeDomainWithout(tree.domain, locked) }),
     })
 );
 
@@ -939,6 +960,9 @@ const witnessHolds = Effect.fn("KnowledgeDoctor.witnessHolds")(function* (
           );
         })
       ),
+    ManifestFieldWitness: (field) => knowledgeDomainWitnessHolds(tree.domain, field),
+    ExportWitness: (exported) => knowledgeDomainWitnessHolds(tree.domain, exported),
+    LockEntryWitness: (locked) => knowledgeDomainWitnessHolds(tree.domain, locked),
   });
 });
 
@@ -1065,7 +1089,7 @@ const markerRows = (
         return O.some<FindingRow>({
           candidate: KnowledgeFindingCandidate.make({
             kind: "historical-marker-on-live-surface",
-            documentId: documentIdFor(documentPath),
+            documentId: knowledgeDoctorDocumentId(documentPath),
             subject: `historical-marker:${marker.form}:${marker.commit}`,
             location,
             message: `Historical ${marker.form} marker on a live surface is inert; its spans are checked at the scanned tree.`,
@@ -1081,7 +1105,7 @@ const markerRows = (
         : O.some<FindingRow>({
             candidate: KnowledgeFindingCandidate.make({
               kind: "historical-commit-not-ancestor",
-              documentId: documentIdFor(documentPath),
+              documentId: knowledgeDoctorDocumentId(documentPath),
               subject: `historical-commit:${marker.commit}`,
               location,
               message: `Historical citation ${marker.commit} is not an ancestor of the scanned tree.`,
@@ -1097,7 +1121,7 @@ const markerRows = (
 const unclassifiedRow = (span: KnowledgeSpan, evaluator: O.Option<KnowledgeEvaluator>): FindingRow => ({
   candidate: KnowledgeFindingCandidate.make({
     kind: "unclassified-reference-span",
-    documentId: documentIdFor(span.documentPath),
+    documentId: knowledgeDoctorDocumentId(span.documentPath),
     subject: nfc(`${span.form}:${span.raw}`),
     location: span.location,
     message: `Reference span on an archival path has no valid historical citation: ${span.raw}.`,
@@ -1206,7 +1230,8 @@ const citationAncestry = Effect.fn("KnowledgeDoctor.citationAncestry")(function*
  * `unclassified-reference-span` findings, and `generated-example` fences are counted (their producer
  * validation is a later evaluator). A historical marker on a live surface is reported as
  * `historical-marker-on-live-surface`; an archival marker citing a non-ancestor commit as
- * `historical-commit-not-ancestor`, and its spans stay unclassified.
+ * `historical-commit-not-ancestor`, and its spans stay unclassified. Spans an evaluator synthesizes
+ * from the tree (`treeSpans`, such as one per skill) are classified and evaluated after the documents.
  *
  * The scan is pure over the tree, so golden and counterfactual tests drive it with in-memory trees.
  *
@@ -1244,6 +1269,13 @@ export const scanKnowledgeDoctorTree = Effect.fn("KnowledgeDoctor.scanTree")(fun
       }))
     )
   );
+  const treeSpans = yield* Effect.forEach(evaluators, (evaluator) =>
+    P.isUndefined(evaluator.treeSpans) ? Effect.succeed(A.empty<KnowledgeSpan>()) : evaluator.treeSpans(tree)
+  );
+  const synthesized = A.map(A.flatten(treeSpans), (span) => ({
+    documentPath: span.documentPath,
+    extraction: KnowledgeDocumentExtraction.make({ markers: [], spans: [span] }),
+  }));
   const archivalCommits = A.flatMap(extractions, ({ documentPath, extraction }) =>
     isKnowledgeArchivalPath(documentPath) ? A.map(extraction.markers, (marker) => marker.commit) : A.empty<string>()
   );
@@ -1257,7 +1289,7 @@ export const scanKnowledgeDoctorTree = Effect.fn("KnowledgeDoctor.scanTree")(fun
   let rows = A.empty<FindingRow>();
   let counts = HashMap.empty<KnowledgeSpanClass, number>();
   let unchecked = 0;
-  for (const { documentPath, extraction } of extractions) {
+  for (const { documentPath, extraction } of A.appendAll(extractions, synthesized)) {
     const surface = isKnowledgeArchivalPath(documentPath)
       ? KnowledgeRefSurface.Enum.archival
       : KnowledgeRefSurface.Enum.live;
@@ -1340,7 +1372,8 @@ const textEncoder = new TextEncoder();
  *
  * Every file is a regular tracked blob. The command surface defaults to none, the global flags to
  * {@link KNOWLEDGE_CLI_GLOBAL_FLAGS}, and the producers to {@link KNOWLEDGE_PRODUCER_OUTPUTS}.
- * `atCommit` serves `history` and fails closed for any other commit, like an absent object.
+ * `atCommit` serves `history` and fails closed for any other commit, like an absent object. The
+ * domain facts are derived from `files`, uncached.
  *
  * **Example** (Build a one-file tree)
  *
@@ -1365,11 +1398,10 @@ export const makeKnowledgeDoctorMemoryTree = (input: KnowledgeDoctorMemoryTreeIn
   );
   const ancestors = HashSet.fromIterable(input.ancestors ?? A.empty());
   const history = HashMap.fromIterable(R.toEntries(input.history ?? {}));
-  return {
+  const oracle: KnowledgeTreeOracle = {
     treeish: commit,
     commit,
     trackedEntries: entries,
-    entryIndex: makeKnowledgeTreeEntryIndex(entries),
     readBytes: (repoPath) =>
       Effect.fromOption(HashMap.get(files, repoPath)).pipe(
         Effect.mapError(() =>
@@ -1377,6 +1409,11 @@ export const makeKnowledgeDoctorMemoryTree = (input: KnowledgeDoctorMemoryTreeIn
         ),
         Effect.map((text) => textEncoder.encode(text))
       ),
+  };
+  return {
+    ...oracle,
+    entryIndex: makeKnowledgeTreeEntryIndex(entries),
+    domain: deriveKnowledgeDoctorDomain(oracle),
     gitRefNames: input.gitRefNames ?? HashSet.empty(),
     producers: input.producers ?? KNOWLEDGE_PRODUCER_OUTPUTS,
     commandTree: Effect.succeed(input.commandTree ?? O.none()),
@@ -1441,8 +1478,10 @@ const liveDoctorTree = Effect.fn("KnowledgeDoctor.liveTree")(function* (
 ) {
   const runtime = yield* Effect.context<LiveTreeRequirements>();
   const commandTree = yield* Effect.cached(liveCommandTree(materialized).pipe(Effect.provide(runtime)));
+  const domain = yield* cacheKnowledgeDoctorDomain(deriveKnowledgeDoctorDomain(materialized.oracle));
   const tree: KnowledgeDoctorTree = {
     ...materialized.oracle,
+    domain,
     entryIndex: makeKnowledgeTreeEntryIndex(materialized.oracle.trackedEntries),
     gitRefNames,
     producers: KNOWLEDGE_PRODUCER_OUTPUTS,

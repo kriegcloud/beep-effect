@@ -9,12 +9,12 @@ digests while retaining the originals.
 
 ## Next action
 
-The bounded P2 wave stopped at family 7 under Run 17's further-failure rule.
-Seven families sealed: five accepted, family 5 and family 7 failed.
-Ordinals 8-9 remain unstarted. Retain all evidence and report the family-7
+The bounded P2 wave stopped at family 8 after its further sealed failure.
+Eight families sealed: five accepted, families 5, 7 and 8 failed. Ordinal 9
+remains unstarted. Retain all evidence and report the PDF second-pass parser
 diagnosis to the orchestrator; no retry or next launch is authorized.
-P2 remains in-progress, P3 pending. Separate family-5 recovery and eighteen
-larger occurrences remain deferred.
+P2 remains in-progress, P3 pending. Separate recovery of families 5/7,
+family-8 recovery scope and eighteen larger occurrences remain open.
 
 ## Launcher
 
@@ -40,6 +40,16 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-14: Family 8 sealed failure, result 1 and one unapproved engine-failure.
+Retained output 1,037,230,305 bytes from 436,306,944 input bytes; family
+elapsed 2,996,198 ms, within retained ceilings. Partial dispositions: 109
+repaired occurrences / 95 distinct digests, 95 unsupported, zero unchanged.
+96 copies and 95 Tika outputs; the unmatched PDF copy reproduces Tika exit
+1, empty stdout and TikaException/IOException counts. No accepted store
+or child rows. Retained digests independently match; eight sealed, five
+accepted and three failed, ordinal 9 unstarted. No retry or next launch.
+See history/p2/2026-10-14-family-08-stop.md.
 
 2026-10-14: Family 7 sealed failure, result 1 and one unapproved engine-failure.
 Retained output 910,603,343 bytes from 354,026,496 input bytes (2.572133310x).
