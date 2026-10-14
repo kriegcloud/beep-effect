@@ -205,7 +205,15 @@ const membershipKeys = (current: ReadonlyArray<EffectVitestFinding>, baseline: R
  * Ordinary membership may bridge unique legacy fingerprints, but an exception
  * requires matching stored anchors on both sides. Legacy rows lack full historical
  * statement/context identity and always require explicit re-review. Duplicate
- * anchored occurrences also remain open even when their ordinal keys match.
+ * anchored occurrences (the same statement fingerprint more than once, such as
+ * two identical calls on one line) inherit an exception only when nothing about
+ * the duplicate group moved: the group has the same members on both sides, by
+ * exact id (line, column and ordinal), each member sits at its own line and
+ * column, and the live row's id equals the excepted row's. A regeneration of
+ * unchanged source therefore keeps every reviewed exception, while a duplicate
+ * that was added, deleted or shifted, or members told apart only by ordinal,
+ * reopen the whole group for re-review, because nothing then proves which
+ * occurrence the reason was written for.
  *
  * **Example** (Preserve an exception reason)
  *
@@ -240,6 +248,27 @@ export const preserveEffectVitestExceptions: {
     (finding): readonly [string, EffectVitestFinding] => [key(finding), finding]
   );
   const previousByKey = HashMap.fromIterable(keyedPrevious);
+  const groupIds = (rows: ReadonlyArray<EffectVitestFinding>) => HashSet.fromIterable(A.map(rows, (row) => row.id));
+  // The id without its ordinal: the line and column the occurrence sits at.
+  const positionedApart = (rows: ReadonlyArray<EffectVitestFinding>): boolean =>
+    HashSet.size(HashSet.fromIterable(A.map(rows, (row) => Str.replace(/#\d+$/u, "")(row.id)))) === rows.length;
+  // Unique on both sides: the anchor alone identifies the occurrence. A
+  // duplicate group identifies it only while its exact ids are unchanged.
+  const unambiguous = (candidate: EffectVitestFinding, finding: EffectVitestFinding): boolean => {
+    const before = MutableHashMap.get(previousGroups, occurrenceGroup(candidate));
+    const after = MutableHashMap.get(liveGroups, occurrenceGroup(finding));
+    const unique = O.exists(before, (rows) => rows.length === 1) && O.exists(after, (rows) => rows.length === 1);
+    const unchangedGroup =
+      Equal.equals(candidate.id, finding.id) &&
+      O.exists(before, (rows) =>
+        O.exists(
+          after,
+          (others) =>
+            rows.length === others.length && positionedApart(rows) && Equal.equals(groupIds(rows), groupIds(others))
+        )
+      );
+    return unique || unchangedGroup;
+  };
   return A.map(live, (finding) => {
     const match = HashMap.get(previousByKey, key(finding));
     return O.match(match, {
@@ -247,10 +276,9 @@ export const preserveEffectVitestExceptions: {
       onSome: (candidate) =>
         candidate.status === "exception" &&
         O.isSome(candidate.reason) &&
-        O.exists(MutableHashMap.get(previousGroups, occurrenceGroup(candidate)), (rows) => rows.length === 1) &&
-        O.exists(MutableHashMap.get(liveGroups, occurrenceGroup(finding)), (rows) => rows.length === 1) &&
         O.isSome(candidate.occurrence) &&
-        O.isSome(finding.occurrence)
+        O.isSome(finding.occurrence) &&
+        unambiguous(candidate, finding)
           ? EffectVitestFinding.make({ ...finding, status: "exception", reason: candidate.reason })
           : finding,
     });
