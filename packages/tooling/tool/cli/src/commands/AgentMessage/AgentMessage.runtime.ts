@@ -20,7 +20,14 @@ import * as O from "effect/Option";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import { agentMessageStoreLayer, requirePrivateAgentPath } from "./AgentMessage.layer.ts";
-import { EndpointBinding, Envelope, LaunchGrant, Receipt, RouterError } from "./AgentMessage.models.ts";
+import {
+  EndpointBinding,
+  Envelope,
+  LaunchGrant,
+  Receipt,
+  RouterError,
+  receivingGrantAllowsEnvelopeScope,
+} from "./AgentMessage.models.ts";
 import { EndpointDispatch, makeAgentMessageRouter } from "./AgentMessage.service.ts";
 import { AgentMessageStore } from "./AgentMessage.store.ts";
 
@@ -41,11 +48,6 @@ const ownsReceivingGrant = (
   grant.ownerId === ownerId &&
   grant.generation === generation &&
   grant.repositoryScope === repositoryScope;
-const permitsReceivedEnvelope = (grant: LaunchGrant, envelope: Envelope) =>
-  envelope.to.kind === "direct" &&
-  envelope.to.endpointId === grant.endpointId &&
-  envelope.repositoryScope === grant.repositoryScope &&
-  (O.isNone(grant.conversationScope) || envelope.conversationId === grant.conversationScope.value);
 const isMailboxLockTimeout = S.is(
   S.Struct({
     code: S.Literal("storage"),
@@ -248,7 +250,7 @@ export const agentMessageServeCommand = Command.make(
           Effect.map(O.some),
           Effect.catchTag("RouterError", (error) => (error.code === "invalidGrant" ? Effect.succeed(O.none()) : error))
         );
-        if (O.isNone(receivingGrant) || !permitsReceivedEnvelope(receivingGrant.value, claim.envelope)) {
+        if (O.isNone(receivingGrant) || !receivingGrantAllowsEnvelopeScope(receivingGrant.value, claim.envelope)) {
           return "failed";
         }
         const body = yield* S.encodeEffect(EnvelopeJson)(claim.envelope).pipe(
