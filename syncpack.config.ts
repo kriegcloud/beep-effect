@@ -119,6 +119,7 @@ const config = {
     "apps/practice-mail-tagging/package.json",
     "apps/practice-identify/package.json",
     "apps/practice-m365-contacts/package.json",
+    "packages/drivers/windows-secrets/package.json",
   ],
   customTypes: {
     catalog: {

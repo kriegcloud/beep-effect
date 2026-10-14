@@ -238,6 +238,9 @@
       "path": "packages/drivers/venice-ai"
     },
     {
+      "path": "packages/drivers/windows-secrets"
+    },
+    {
       "path": "packages/drivers/wink"
     },
     {

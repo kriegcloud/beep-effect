@@ -882,6 +882,12 @@
         ]
       },
       {
+        "name": "@beep/windows-secrets",
+        "patterns": [
+          "packages/drivers/windows-secrets/src/**"
+        ]
+      },
+      {
         "name": "@beep/wink",
         "patterns": [
           "packages/drivers/wink/src/**"
@@ -4269,6 +4275,19 @@
           "@beep/test-utils",
           "@beep/utils",
           "@beep/venice-ai"
+        ]
+      },
+      {
+        "from": "@beep/windows-secrets",
+        "allow": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/windows-secrets"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/windows-secrets"
         ]
       },
       {

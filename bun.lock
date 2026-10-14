@@ -1845,6 +1845,21 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/drivers/windows-secrets": {
+      "name": "@beep/windows-secrets",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/platform-bun": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/drivers/wink": {
       "name": "@beep/wink",
       "version": "0.0.0",
@@ -4267,6 +4282,8 @@
     "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
 
     "@beep/venice-ai": ["@beep/venice-ai@workspace:packages/drivers/venice-ai"],
+
+    "@beep/windows-secrets": ["@beep/windows-secrets@workspace:packages/drivers/windows-secrets"],
 
     "@beep/wink": ["@beep/wink@workspace:packages/drivers/wink"],
 
