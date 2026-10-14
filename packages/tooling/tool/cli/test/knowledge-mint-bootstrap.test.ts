@@ -1,10 +1,12 @@
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { it } from "@beep/test-runner";
-import { describe, expect } from "@effect/vitest";
+import { NodeServices } from "@effect/platform-node";
+import { expect } from "@effect/vitest";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Path from "effect/Path";
+import { ChildProcess } from "effect/process";
+import * as Stream from "effect/Stream";
 
 const bootstrapUrl = new URL("../scripts/CreateKnowledgeMintApp.ts", import.meta.url).href;
 const PLACEHOLDER = "placeholder-only".repeat(4096);
@@ -45,48 +47,58 @@ if ((await get("http://localhost:8787/callback?code=fixture-code&state=fixture-s
 process.exit(0);
 `;
 
-const run = (opExit: number, conversionStatus: number, expectedStatus: number, expectedText: string) => {
-  const directory = mkdtempSync(join(tmpdir(), "knowledge-mint-bootstrap-test-"));
-  try {
-    writeFileSync(join(directory, "op"), fakeOp(opExit), { mode: 0o700 });
-    return spawnSync("bun", ["--eval", harness(conversionStatus, expectedStatus, expectedText)], {
-      env: { ...process.env, PATH: `${directory}:${process.env.PATH}` },
-      encoding: "utf8",
-      timeout: 15_000,
-    });
-  } finally {
-    rmSync(directory, { recursive: true, force: true });
-  }
-};
+// Runs the handler in a Bun child: the bootstrap uses Bun.spawn, and the fake op on PATH
+// fails unless its stdin is a real pipe carrying the complete template.
+const run = Effect.fn("KnowledgeMintBootstrapTest.run")(function* (
+  opExit: number,
+  conversionStatus: number,
+  expectedStatus: number,
+  expectedText: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const ambientPath = yield* Config.String("PATH");
+  const bin = yield* fs.makeTempDirectoryScoped({ prefix: "knowledge-mint-bootstrap-test-" });
+  yield* fs.writeFileString(path.join(bin, "op"), fakeOp(opExit));
+  yield* fs.chmod(path.join(bin, "op"), 0o700);
+  const handle = yield* ChildProcess.make("bun", ["--eval", harness(conversionStatus, expectedStatus, expectedText)], {
+    env: { PATH: `${bin}:${ambientPath}` },
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+  const [code, stdout, stderr] = yield* Effect.all(
+    [
+      handle.exitCode,
+      handle.stdout.pipe(Stream.decodeText, Stream.mkString),
+      handle.stderr.pipe(Stream.decodeText, Stream.mkString),
+    ],
+    { concurrency: "unbounded" }
+  );
+  expect(code).toBe(0);
+  expect(`${stdout}${stderr}`).not.toContain("placeholder-only");
+  return { stdout, stderr };
+}, Effect.scoped);
 
-const expectNoSecret = (child: ReturnType<typeof spawnSync>) => {
-  expect(child.error).toBeUndefined();
-  expect(child.status).toBe(0);
-  expect(`${child.stdout}${child.stderr}`).not.toContain("placeholder-only");
-};
-
-describe("knowledge mint manifest bootstrap", () => {
+it.layer(NodeServices.layer, { timeout: "30 seconds" })("knowledge mint manifest bootstrap", (it) => {
   it.effect("stores the full template through a real pipe and reports only the slug", () =>
-    Effect.sync(() => {
-      const child = run(0, 201, 200, "Stored in 1Password");
-      expectNoSecret(child);
-      expect(child.stdout).toContain("App beep-knowledge-mint-2 (app_id 123)");
+    Effect.gen(function* () {
+      const { stdout } = yield* run(0, 201, 200, "Stored in 1Password");
+      expect(stdout).toContain("App beep-knowledge-mint-2 (app_id 123)");
     })
   );
 
   it.effect("reports a failed vault write by exit code and forbids a reload", () =>
-    Effect.sync(() => {
-      const child = run(17, 201, 500, "Do not reload this page");
-      expectNoSecret(child);
-      expect(child.stderr).toContain("1Password item creation exited 17");
+    Effect.gen(function* () {
+      const { stderr } = yield* run(17, 201, 500, "Do not reload this page");
+      expect(stderr).toContain("1Password item creation exited 17");
     })
   );
 
   it.effect("stores nothing when the manifest conversion is refused", () =>
-    Effect.sync(() => {
-      const child = run(99, 422, 500, "returned HTTP 422");
-      expectNoSecret(child);
-      expect(child.stderr).toContain("Manifest conversion returned HTTP 422; nothing was stored.");
+    Effect.gen(function* () {
+      const { stderr } = yield* run(99, 422, 500, "returned HTTP 422");
+      expect(stderr).toContain("Manifest conversion returned HTTP 422; nothing was stored.");
     })
   );
 });

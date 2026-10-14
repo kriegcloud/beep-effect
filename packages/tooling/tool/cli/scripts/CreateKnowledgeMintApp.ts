@@ -5,6 +5,7 @@
  */
 import * as Effect from "effect/Effect";
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
+import * as Match from "effect/Match";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
@@ -86,22 +87,24 @@ const runCallback = (code: string): Promise<Outcome> =>
     )
   );
 
-const report = (outcome: Outcome): Response => {
-  switch (outcome._tag) {
-    case "Stored":
+const report = (outcome: Outcome): Response =>
+  Match.valueTags(outcome, {
+    Stored: (outcome) => {
       console.log(
         `[knowledge-mint] Stored "${ITEM_TITLE}" in BEEP_SECRETS for App ${outcome.slug} (app_id ${outcome.appId}). Install it, record installation_id, then press Ctrl-C.`
       );
       return page(
         `Stored in 1Password as "${ITEM_TITLE}" (App ${outcome.slug}). Install it on beep-effect/beep-effect only, record installation_id, then stop the launcher with Ctrl-C.`
       );
-    case "ConversionFailed":
+    },
+    ConversionFailed: (outcome) => {
       console.error(`[knowledge-mint] Manifest conversion returned HTTP ${outcome.status}; nothing was stored.`);
       return page(
         `Manifest conversion returned HTTP ${outcome.status}. Nothing was stored. Check the App registration page before starting over.`,
         500
       );
-    case "StoreFailed":
+    },
+    StoreFailed: (outcome) => {
       console.error(
         `[knowledge-mint] App ${outcome.slug} was registered, but 1Password item creation exited ${outcome.exitCode}; secret diagnostics suppressed. Do not reload the callback.`
       );
@@ -109,7 +112,8 @@ const report = (outcome: Outcome): Response => {
         `App ${outcome.slug} was registered, but storing it in 1Password failed (exit ${outcome.exitCode}). Do not reload this page: the code is single-use. Revoke the new App's generated private key, delete the uninstalled registration, then start the launcher again.`,
         500
       );
-    case "Failed":
+    },
+    Failed: () => {
       console.error(
         "[knowledge-mint] Conversion or vault write failed; diagnostics suppressed. Do not reload the callback."
       );
@@ -117,8 +121,8 @@ const report = (outcome: Outcome): Response => {
         "Conversion or vault write failed. No secret was printed or saved locally. Do not reload this page. Inspect the App settings, revoke any generated key, and delete an uninstalled new registration before retrying.",
         500
       );
-  }
-};
+    },
+  });
 
 /**
  * Builds the loopback request handler for one registration attempt.
