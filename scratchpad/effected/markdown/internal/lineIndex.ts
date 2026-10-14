@@ -41,17 +41,15 @@ export class InvalidLineTableError extends S.TaggedError<InvalidLineTableError>(
 /**
  * A 1-based line/column pair, unist's `Point` shape minus the `offset` field.
  *
- *
  * **Example** (Validate LineColumn data)
  *
  * ```ts
- * import { LineColumn } from "../../../../effected/markdown/internal/lineIndex.ts";
+ * import { LineColumn } from "@beep/scratchpad/effected/markdown/internal/lineIndex";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(LineColumn)({ line: 1, column: 1 })); // true
  * ```
  *
-
  * @category models
  * @since 0.0.0
  */

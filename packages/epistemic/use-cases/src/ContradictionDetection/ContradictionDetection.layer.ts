@@ -130,7 +130,7 @@ const detectPair = Effect.fnUntraced(function* (
     ],
     proposalOrder
   );
-  const nonEmptyProposals = yield* S.decodeEffect(S.toType(ContradictionAssessment.fields.proposals))(proposals);
+  const nonEmptyProposals = yield* S.decodeEffect(AssessmentProposals)(proposals);
   const assessment = yield* S.decodeEffect(ContradictionAssessment)({
     confidence: kind.value === "exact-negation" ? ExactNegationConfidence : ValueConflictConfidence,
     proposals: yield* S.encodeEffect(ContradictionAssessment.fields.proposals)(nonEmptyProposals),
@@ -206,3 +206,4 @@ const detect = Effect.fn("ContradictionDetection.detect")(
  * @since 0.0.0
  */
 export const ContradictionDetectionLive = Layer.succeed(ContradictionDetectionService, { detect });
+const AssessmentProposals = S.toType(ContradictionAssessment.fields.proposals);

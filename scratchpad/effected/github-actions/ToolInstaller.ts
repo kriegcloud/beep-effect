@@ -28,8 +28,6 @@ const $I = $ScratchpadId.create("effected/github-actions/ToolInstaller");
 
 /**
  * Raised when a tool cannot be downloaded, extracted or cached.
- *
- *
  * **Example** (Inspect a download failure)
  *
  * ```ts
@@ -38,7 +36,6 @@ const $I = $ScratchpadId.create("effected/github-actions/ToolInstaller");
  * const error = ToolInstallerError.make({ reason: "downloadFailed", subject: "https://example.com/tool", status: 429 });
  * console.log(error.message) // Could not download https://example.com/tool (HTTP 429)
  * ```
- *
  * @public
  * @category errors
  * @since 0.0.0
@@ -120,7 +117,6 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError>($I`Too
 /**
  * Where extraction should put its output.
  *
- *
  * **Example** (Validate ExtractOptions input)
  *
  * ```ts
@@ -164,8 +160,6 @@ export type ExtractOptions = typeof ExtractOptions.Type;
 
 /**
  * How a {@link ToolInstallerShape.download} should behave.
- *
- *
  * @public
  * @category models
  * @since 0.0.0
@@ -191,7 +185,6 @@ export interface ToolDownloadOptions {
 
 /**
  * What {@link ToolInstallerShape.provisionFile} should provision.
- *
  *
  * **Example** (Validate ProvisionFileOptions input)
  *
@@ -241,7 +234,6 @@ export type ProvisionFileOptions = typeof ProvisionFileOptions.Type;
  * single binary the two coincide: the cached directory contains exactly the
  * executable, so it IS the directory to hand to `ActionOutputs.addPath`.
  *
- *
  * **Example** (Validate ProvisionedFile input)
  *
  * ```ts
@@ -277,8 +269,6 @@ export type ProvisionedFile = typeof ProvisionedFile.Type;
  * The members of the {@link ToolInstaller} service: find, download, extract and
  * cache tools in the runner's tool cache, each failing with
  * {@link ToolInstallerError}.
- *
- *
  * @public
  * @category services
  * @since 0.0.0
@@ -712,7 +702,6 @@ const testRoot = (): string => Effect.runSync(
  *
  * console.log(Effect.isEffect(install)) // true
  * ```
- *
  *
  * @public
  * @category services

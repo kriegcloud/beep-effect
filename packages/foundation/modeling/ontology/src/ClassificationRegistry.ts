@@ -221,7 +221,7 @@ const decodeAssets = Effect.fnUntraced(function* (manifestPath: string, content:
         );
         if (!O.contains(route.loadKind, "classification-scheme")) return O.none<ClassificationAsset>();
         return O.some(
-          yield* S.decodeEffect(S.fromJsonString(ClassificationAsset))(line).pipe(
+          yield* S.decodeEffect(ClassificationAssetJson)(line).pipe(
             Effect.mapError(() => failure("manifest-invalid", `Classification row ${index + 1}`))
           )
         );
@@ -343,3 +343,4 @@ const load = Effect.fn("ClassificationRegistry.load")(function* (
   yield* validateSnapshot(snapshot, pin);
   return snapshot;
 });
+const ClassificationAssetJson = S.fromJsonString(ClassificationAsset);

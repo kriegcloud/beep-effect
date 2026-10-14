@@ -363,6 +363,14 @@ export const ProcessId = S.Number.pipe(
 );
 
 /**
+ * Decoded value produced by {@link ProcessId}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ProcessId = typeof ProcessId.Type;
+
+/**
  * How a detached child is started.
  *
  * **Example** (Validate detached launch options)

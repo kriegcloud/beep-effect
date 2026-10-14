@@ -22,7 +22,6 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/actionsResults
 /**
  * The run/job identifiers the artifact protocol scopes every call to.
  *
- *
  * **Example** (Validate BackendIds input)
  *
  * ```ts
@@ -53,7 +52,6 @@ export type BackendIds = typeof BackendIds.Type;
 
 /**
  * Where the results backend is and how to talk to it.
- *
  *
  * **Example** (Validate ResultsBackend input)
  *
@@ -142,8 +140,6 @@ export const RUNTIME_TOKEN = "ACTIONS_RUNTIME_TOKEN";
  * The `misconfigured` detail every results-backend consumer reports when
  * {@link resultsBackend} fails: names the missing variable, and says why it is
  * missing — the single most common misuse of these services.
- *
- *
  * **Example** (Explain a missing results URL)
  *
  * ```ts
@@ -151,7 +147,6 @@ export const RUNTIME_TOKEN = "ACTIONS_RUNTIME_TOKEN";
  *
  * console.log(misconfiguredDetail(RESULTS_URL, "cache")) // ACTIONS_RESULTS_URL is not set — the cache is only reachable from a `uses:` step, never from `run:`
  * ```
- *
  * @internal
  * @category formatting
  * @since 0.0.0
@@ -171,7 +166,6 @@ export const misconfiguredDetail: {
  * The scope is space-separated and the interesting entry is
  * `Actions.Results:<run>:<job>`. Exported so its own failures are tested
  * directly rather than through four RPC round trips.
- *
  *
  * **Example** (Read artifact backend scope)
  *
@@ -231,7 +225,6 @@ export const backendIdsFrom = (token: string): Result.Result<BackendIds, string>
  * themselves are read per call, because resolving them at construction would
  * make merely *composing* the layer fail outside Actions — including for an
  * action that never touches the cache.
- *
  *
  * **Example** (Compose a results backend lookup)
  *

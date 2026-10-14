@@ -19,12 +19,10 @@ const reNonSpace = /[^ ]/;
 /**
  * Parses a code span enclosed by backtick runs of equal length.
  *
- * **Details**
- *
  * **Example** (Register the backtick trigger)
  *
  * ```ts
- * import { codeSpanConstruct } from "../../../../effected/markdown/internal/inlines/codeSpan.ts"
+ * import { codeSpanConstruct } from "@beep/scratchpad/effected/markdown/internal/inlines/codeSpan"
  *
  * console.log(codeSpanConstruct.triggers.map((code) => String.fromCharCode(code)).join("")) // `
  * ```
