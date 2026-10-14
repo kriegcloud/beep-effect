@@ -286,28 +286,30 @@ const derivePackets = (oracle: KnowledgeTreeOracle) =>
  * Workspace packages and exports
  * ---------------------------------------------------------------------------------------------- */
 
-class PackageManifestJson extends S.Class<PackageManifestJson>($I`PackageManifestJson`)(
-  {
+class PackageManifestJson extends S.Opaque<PackageManifestJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.optionalKey(S.String),
     exports: S.optionalKey(S.Unknown),
     workspaces: S.optionalKey(S.Unknown),
-  },
-  $I.annote("PackageManifestJson", {
-    description: "The package.json fields the symbols evaluator reads: name, exports map, and workspace globs.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageManifestJson", {
+      description: "The package.json fields the symbols evaluator reads: name, exports map, and workspace globs.",
+    })
+  )
 ) {}
 
-class TsconfigPathsJson extends S.Class<TsconfigPathsJson>($I`TsconfigPathsJson`)(
-  {
+class TsconfigPathsJson extends S.Opaque<TsconfigPathsJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     compilerOptions: S.optionalKey(
       S.Struct({ paths: S.optionalKey(S.Record(S.String, S.Array(S.String))) }).annotate({
         description: "The compilerOptions block, read only for its paths aliases.",
       })
     ),
-  },
-  $I.annote("TsconfigPathsJson", {
-    description: "The root tsconfig.json fields the symbols evaluator reads: compilerOptions.paths.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigPathsJson", {
+      description: "The root tsconfig.json fields the symbols evaluator reads: compilerOptions.paths.",
+    })
+  )
 ) {}
 
 const decodePackageManifest = decodeJsoncTextAs(PackageManifestJson);

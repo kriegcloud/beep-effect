@@ -461,10 +461,11 @@ export class GraduationReceipt extends S.Opaque<GraduationReceipt, { readonly br
     manifestBeforeDigest: PlanDigest,
     manifestAfterDigest: PlanDigest,
     eventsAppended: S.Int,
-  },
-  $I.annote("GraduationReceipt", {
-    description: "What a --write replay of a reviewed graduation plan published and edited.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraduationReceipt", {
+      description: "What a --write replay of a reviewed graduation plan published and edited.",
+    })
+  )
 ) {}
 
 /**
@@ -516,8 +517,8 @@ export const GRADUATION_PENDING_SEGMENTS = ["ops", ".graduation-pending.json"] a
  * @category models
  * @since 0.0.0
  */
-export class GraduationPendingEvents extends S.Class<GraduationPendingEvents>($I`GraduationPendingEvents`)(
-  {
+export class GraduationPendingEvents extends S.Opaque<GraduationPendingEvents, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("graduation-pending/v1"),
     planId: GraduationPlanId,
     exploration: PacketSlug,
@@ -527,11 +528,12 @@ export class GraduationPendingEvents extends S.Class<GraduationPendingEvents>($I
     previousStage: ExplorationStage,
     at: PacketEventTimestamp,
     events: S.Array(PacketEventBody),
-  },
-  $I.annote("GraduationPendingEvents", {
-    description:
-      "Stream events an interrupted graduation still owes an opted-in exploration, pinned to the graduated manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraduationPendingEvents", {
+      description:
+        "Stream events an interrupted graduation still owes an opted-in exploration, pinned to the graduated manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -553,14 +555,15 @@ export class GraduationPendingEvents extends S.Class<GraduationPendingEvents>($I
  * @category models
  * @since 0.0.0
  */
-export class GraduationResumeReceipt extends S.Class<GraduationResumeReceipt>($I`GraduationResumeReceipt`)(
-  {
+export class GraduationResumeReceipt extends S.Opaque<GraduationResumeReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("graduation-resume-receipt/v1"),
     planId: GraduationPlanId,
     exploration: S.String,
     eventsAppended: S.Int,
-  },
-  $I.annote("GraduationResumeReceipt", {
-    description: "Events a --resume-events recovery appended for an interrupted graduation.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraduationResumeReceipt", {
+      description: "Events a --resume-events recovery appended for an interrupted graduation.",
+    })
+  )
 ) {}

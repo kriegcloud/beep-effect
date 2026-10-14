@@ -338,3 +338,53 @@ Logs live in the session scratchpad (not committed); each step is appended here 
    **exit 0** (266/266). `lint:package-test-typecheck`: **exit 0**. `docgen:local` refuses the
    bounded run (docgen tooling changed on main: `Doctest.errors.ts`), so the full proof ran:
    `bun run docgen` **140/140**.
+
+## Second merge (S25 wrap-up): origin/main a92a648c86 into 2b4dd6575a
+
+6. **Merge + re-run.** `git merge -X theirs origin/main` (11 commits, including #1700's Effect
+   module-path rewrite) → 0766364f1b. Three-way `git merge-file` over the 33 files both sides
+   touched since 9b433fe738: 10 TS files with conflicting hunks (Yeet `MergeGate.ts` 5,
+   `yeet-merge-gate.test.ts` 6, `SkillsLock.schemas.ts` 3, `Yeet.schemas.ts`, `ReadyGate.ts`,
+   `Graduate.schemas.ts`, technical-drawing `Sheet`/`Manifest`/`Geometry` schemas and
+   `FigureSet.service.ts`), reset to main's version. `bun install --frozen-lockfile`, then
+   `run.ts`: 95 `S.Class` + 10 `S.TaggedClass` converted to Opaque, 5 branded, 16 files, no
+   Biome parse errors. `run.ts --check`: 0. `laws retired-effect-paths`: 0 findings over
+   39,579 files (the codemod, fix-up and lint code use no retired path).
+7. **Fix-up after the second merge.** `bun run check`: technical-drawing `ModelSpec` x3 (its
+   reset file lost the earlier wraps), Yeet `MergeGate.ts` options/run-options, and 83 test
+   errors in `yeet-merge-gate.test.ts`. `fixup.ts` (one run per fresh log): 46 fixed. Manual:
+   the test's helpers typed overrides as `ConstructorParameters<typeof X>[0]` (an Opaque has
+   no constructor input, so it became `undefined`); they now use `Parameters<typeof X.make>[0]`
+   and build `MergeGateOptions.make(...)`; a fix-up relative `../src` import was folded into
+   the `@beep/repo-cli/test/Yeet` barrel import; `runMergeGate` builds
+   `MergeGateInput.make({ read, options })`. Results: `beep-heavy bun run check` **exit 0**
+   (266/266, includes `quality test-tsgo`); `run.ts --check` 0; `lint:package-test-typecheck`
+   **exit 0** (current=1 baseline=1 introduced=0); `lint schema-first` **exit 0** (missing 0,
+   stale 0, candidates 0); `lint effect-vitest` **exit 0**.
+8. **D7 proof.** Temporary: the 8 `@effect/tsgo*` pins at 0.52.0 (`bun install`), and in
+   `tsconfig.base.json` plus the 4 mirrored profiles `effectSleepZeroToYieldNow`,
+   `flatMapToTap`, `preferEffectArray`, `preferEffectRecord`, `preferSchemaTaggedError` and
+   `schemaClassMissingBrand` at `"error"`, `debug` removed. `lint:tsgo-rules`: ok (125 rules
+   error, 3 declared off, 28 options). Since #1636 the package `check`/`build` scripts run
+   **tsc-rs**, which ports 0.51.1 only: under 0.52 every package task fails on
+   `TS377134 Unknown Effect diagnostic rule` for the 6 new names, so `bun run check` cannot
+   carry the proof any more. The proof ran the installed (patched) `tsgo -p <config> --noEmit`
+   over all 279 `tsconfig.check.json` / `tsconfig.test.json` files outside `apps/labs`, plus
+   `quality test-tsgo` for the repo-cli tests.
+   - First sweep: **25 `schemaClassMissingBrand`** hits, all in `@beep/effect-drizzle`, whose
+     11 source files and 3 tests import the constructor by name
+     (`import { TaggedError } from "effect/Schema"`), which the codemod did not recognise. The
+     codemod now resolves named Schema imports (brand added; a named-import class stays a
+     class, keep reason `named-import`; fixture test added, 24 pass) and branded the 14
+     `TaggedError`s.
+   - Final sweep: **`schemaClassMissingBrand` 0**. Other new-rule hits:
+     `preferEffectArray` at 28 sites (9 in the package sweep: pdf-tools tests 5,
+     technical-drawing tests 3, `Drawings.review.rules.ts:720`; 19 more in repo-cli tests via
+     `test-tsgo`: `drawings-review.test.ts` 18, `knowledge-doctor-evaluators.test.ts` 1). Every
+     one is a line that exists verbatim on origin/main, added after #1636 cleared the sites
+     (#1682, #1690 and the drawings/pdf-tools lanes): inherited, for the 0.52 bump lane.
+     `effectSleepZeroToYieldNow`, `flatMapToTap`, `preferEffectRecord`,
+     `preferSchemaTaggedError`: 0.
+   - Reverted: the 7 files restored from the backup, `bun install --frozen-lockfile`,
+     installed tsgo 0.51.1; `git diff origin/main -- package.json bun.lock tsconfig.base.json`
+     and the 4 profiles: empty.

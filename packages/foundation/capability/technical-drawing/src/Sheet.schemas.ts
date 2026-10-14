@@ -913,9 +913,10 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
           "Gap between dashes of broken (unclaimed) lines, in mm on the sheet, measured before the round caps. Defaults to 1.5.",
       })
     ),
-  },
-  $I.annote("SheetOptions", {
-    description:
-      "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetOptions", {
+      description:
+        "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
+    })
+  )
 ) {}

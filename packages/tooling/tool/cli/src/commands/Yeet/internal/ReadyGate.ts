@@ -116,11 +116,12 @@ export type YeetReadyGateCriterion = typeof YeetReadyGateCriterion.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetReadyInheritedRed extends S.Class<YeetReadyInheritedRed>($I`YeetReadyInheritedRed`)(
-  { check: S.NonEmptyString, attribution: S.NonEmptyString },
-  $I.annote("YeetReadyInheritedRed", {
-    description: "A required check red inherited from main, attributed and recorded under S11 before the ready flip.",
-  })
+export class YeetReadyInheritedRed extends S.Opaque<YeetReadyInheritedRed, { readonly brand: unique symbol }>()(
+  S.Struct({ check: S.NonEmptyString, attribution: S.NonEmptyString }).pipe(
+    $I.annoteSchema("YeetReadyInheritedRed", {
+      description: "A required check red inherited from main, attributed and recorded under S11 before the ready flip.",
+    })
+  )
 ) {}
 
 /**
@@ -196,12 +197,16 @@ export class YeetReadyPullRequestRead extends S.Opaque<YeetReadyPullRequestRead,
  * @category models
  * @since 0.0.0
  */
-export class YeetReadyGateFlip extends S.TaggedClass<YeetReadyGateFlip>($I`YeetReadyGateFlip`)(
-  "flip",
-  { prNumber: S.Finite, headSha: S.Option(S.String), inherited: S.Array(YeetReadyInheritedRed) },
-  $I.annote("YeetReadyGateFlip", {
-    description: "The content-final gate holds on a draft pull request; flip it to ready.",
-  })
+export class YeetReadyGateFlip extends S.Opaque<YeetReadyGateFlip, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("flip", {
+    prNumber: S.Finite,
+    headSha: S.Option(S.String),
+    inherited: S.Array(YeetReadyInheritedRed),
+  }).pipe(
+    $I.annoteSchema("YeetReadyGateFlip", {
+      description: "The content-final gate holds on a draft pull request; flip it to ready.",
+    })
+  )
 ) {}
 
 /**

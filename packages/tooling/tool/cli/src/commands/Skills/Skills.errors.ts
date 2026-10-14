@@ -363,7 +363,9 @@ export type SkillsLockWriteRefusalReason = typeof SkillsLockWriteRefusalReason.T
  * @category errors
  * @since 0.0.0
  */
-export class SkillsLockWriteRefusal extends S.TaggedError<SkillsLockWriteRefusal>($I`SkillsLockWriteRefusal`)(
+export class SkillsLockWriteRefusal extends S.TaggedError<SkillsLockWriteRefusal, { readonly brand: unique symbol }>(
+  $I`SkillsLockWriteRefusal`
+)(
   "SkillsLockWriteRefusal",
   {
     reason: SkillsLockWriteRefusalReason,
@@ -401,7 +403,10 @@ export class SkillsLockWriteRefusal extends S.TaggedError<SkillsLockWriteRefusal
  * @category errors
  * @since 0.0.0
  */
-export class SkillVendoredRefetchError extends S.TaggedError<SkillVendoredRefetchError>($I`SkillVendoredRefetchError`)(
+export class SkillVendoredRefetchError extends S.TaggedError<
+  SkillVendoredRefetchError,
+  { readonly brand: unique symbol }
+>($I`SkillVendoredRefetchError`)(
   "SkillVendoredRefetchError",
   {
     skill: S.String,

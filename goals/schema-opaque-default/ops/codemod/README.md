@@ -120,6 +120,7 @@ these hold:
 | `effected-port` | File under `scratchpad/effected/`, or an upstream test copied beside it: `scratchpad/test/<module>/**` or `scratchpad/test/<module>.test.ts` for a module with a `scratchpad/effected/<module>/` source directory (D6). |
 | `instance-member` | Non-static property, method, accessor, constructor or index signature (`declare` fields count). |
 | `static-super` | A static member reads `super` (`static override make(...) { return super.make(...) }`). Schema `make`/`makeEffect`/`makeOption` are memoized by prototype getters that `defineProperty` onto `this`, so on an `S.Opaque` the first `super.make` replaces the override. An existing `S.Opaque` with such a member is reversed to a branded class. |
+| `named-import` | The constructor is imported by name (`import { Class, TaggedError } from "effect/Schema"`); the brand is added, but conversion needs `S.Opaque`/`S.Struct` in scope, so the class stays. |
 | `extend-root` | `X.extend(...)` anywhere (Opaque has no `.extend`, D2). |
 | `subclassed` | `class Y extends X` directly. |
 | `instanceof` | `v instanceof X` or `S.instanceOf(X)`. |

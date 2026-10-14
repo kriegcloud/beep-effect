@@ -16,7 +16,7 @@ import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { Segment2, ShadingPlan } from "./Geometry.schemas.ts";
+import { ModelSpec, Segment2, ShadingPlan } from "./Geometry.schemas.ts";
 import { mirrorSegments, sameSegments } from "./Geometry.segments.ts";
 import { fontNamesOf, outlineFontFile } from "./internal/LabelOutline.ts";
 import { sha256Hex } from "./Manifest.digest.ts";

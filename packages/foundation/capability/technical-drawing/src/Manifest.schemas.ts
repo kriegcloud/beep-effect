@@ -136,11 +136,12 @@ export class FigureRecord extends S.Opaque<FigureRecord, { readonly brand: uniqu
           "Faces given shading lines and faces skipped per reason. Absent on unshaded renders and on manifests rendered before graded shading.",
       })
     ),
-  },
-  $I.annote("FigureRecord", {
-    description:
-      "FIG. number, view, description, sheet file, hash, segment counts, camera, and shading coverage of one figure.",
-  })
+  }).pipe(
+    $I.annoteSchema("FigureRecord", {
+      description:
+        "FIG. number, view, description, sheet file, hash, segment counts, camera, and shading coverage of one figure.",
+    })
+  )
 ) {}
 
 /**

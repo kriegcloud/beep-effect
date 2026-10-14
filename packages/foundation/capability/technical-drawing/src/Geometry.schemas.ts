@@ -637,14 +637,15 @@ export type ShadingSkipReason = typeof ShadingSkipReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class ShadingSkip extends S.Class<ShadingSkip>($I`ShadingSkip`)(
-  {
+export class ShadingSkip extends S.Opaque<ShadingSkip, { readonly brand: unique symbol }>()(
+  S.Struct({
     reason: ShadingSkipReason.annotateKey({ description: "Why the faces got no lines." }),
     faces: S.Natural.annotateKey({ description: "Faces skipped for this reason." }),
-  },
-  $I.annote("ShadingSkip", {
-    description: "Count of faces in one view left unshaded for one reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingSkip", {
+      description: "Count of faces in one view left unshaded for one reason.",
+    })
+  )
 ) {}
 
 /**
@@ -671,8 +672,8 @@ export class ShadingSkip extends S.Class<ShadingSkip>($I`ShadingSkip`)(
  * @category models
  * @since 0.0.0
  */
-export class ShadingCoverage extends S.Class<ShadingCoverage>($I`ShadingCoverage`)(
-  {
+export class ShadingCoverage extends S.Opaque<ShadingCoverage, { readonly brand: unique symbol }>()(
+  S.Struct({
     shadedFaces: S.Natural.annotateKey({ description: "Faces given shading lines." }),
     skippedFaces: S.Array(ShadingSkip).annotateKey({
       description: "Faces left unshaded, per reason, in reason order; zero counts left out.",
@@ -685,11 +686,12 @@ export class ShadingCoverage extends S.Class<ShadingCoverage>($I`ShadingCoverage
           "Faces given shading lines whose every stroke the hidden-line and legibility passes then removed; counted in `shadedFaces` too. Defaults to 0.",
       })
     ),
-  },
-  $I.annote("ShadingCoverage", {
-    description:
-      "Faces of one view given shading lines, faces skipped per reason, and faces whose lines were all lost after hidden-line removal.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingCoverage", {
+      description:
+        "Faces of one view given shading lines, faces skipped per reason, and faces whose lines were all lost after hidden-line removal.",
+    })
+  )
 ) {}
 
 /**
@@ -943,11 +945,12 @@ export class ShadingPlan extends S.Opaque<ShadingPlan, { readonly brand: unique 
           "Distance, in model units, a graded stroke end keeps from every drawn outline after hidden-line removal; none means half the minimum pitch. A sheet sets it to the larger of half its pitch and the validator's spacing floor, so a render passes its own check.",
       })
     ),
-  },
-  $I.annote("ShadingPlan", {
-    description:
-      "Pitch range, lit threshold, style, hatch axis, sliver width, minimum stroke, and outline clearance of straight-line shading, in model units.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingPlan", {
+      description:
+        "Pitch range, lit threshold, style, hatch axis, sliver width, minimum stroke, and outline clearance of straight-line shading, in model units.",
+    })
+  )
 ) {}
 
 /**

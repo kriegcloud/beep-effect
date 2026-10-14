@@ -129,6 +129,15 @@ describe("keep as branded class (D2/D6)", () => {
     expect(result.results.find((entry) => entry.name === "C")?.outcome).toBe("converted-class");
   });
 
+  test("a constructor imported by name gets the brand and stays a class", () => {
+    const { text, result } = single(
+      `import { Class, TaggedError } from "effect/Schema";\nimport * as S from "effect/Schema";\nclass E extends TaggedError<E>("E")("E", { a: S.String }) {}\nclass C extends Class<C>("C")({ a: S.String }) {}\n`
+    );
+    expect(text).toContain(`TaggedError<E, ${BRAND}>("E")`);
+    expect(text).toContain(`Class<C, ${BRAND}>("C")`);
+    expect(result.results.find((entry) => entry.name === "C")?.keepReasons).toContain("named-import");
+  });
+
   test("a static member that reads super keeps the class", () => {
     const source = `class N extends S.Class<N>("N")({ a: S.String }) {\n  static override make(input: { a?: string }) {\n    return super.make({ a: input.a ?? "x" });\n  }\n}\n`;
     const { text, result } = single(source);

@@ -471,11 +471,12 @@ export class KeepSeedPin extends S.Opaque<KeepSeedPin, { readonly brand: unique 
   S.Struct({
     proposal: S.tag("keep-seed-pin"),
     revision: SkillGitRevision,
-  },
-  $I.annote("KeepSeedPin", {
-    description:
-      "The baseline pin (the lock's, else the seed's), kept because no examined revision equals the installed tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("KeepSeedPin", {
+      description:
+        "The baseline pin (the lock's, else the seed's), kept because no examined revision equals the installed tree.",
+    })
+  )
 ) {}
 
 /**
@@ -741,17 +742,18 @@ export type SkillMigrationRow = typeof SkillMigrationRow.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillsLockMigrationPlan extends S.Class<SkillsLockMigrationPlan>($I`SkillsLockMigrationPlan`)(
-  {
+export class SkillsLockMigrationPlan extends S.Opaque<SkillsLockMigrationPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("skills-lock-migration-plan/v3"),
     planDigest: Sha256Hex,
     lockSha256: Sha256Hex,
     rows: S.Array(SkillMigrationRow),
-  },
-  $I.annote("SkillsLockMigrationPlan", {
-    description:
-      "Per-skill v1-to-v2 lock migration report over the lock bytes it read, sorted by skill name and sealed by its digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillsLockMigrationPlan", {
+      description:
+        "Per-skill v1-to-v2 lock migration report over the lock bytes it read, sorted by skill name and sealed by its digest.",
+    })
+  )
 ) {}
 
 /**
@@ -772,14 +774,15 @@ export class SkillsLockMigrationPlan extends S.Class<SkillsLockMigrationPlan>($I
  * @category models
  * @since 0.0.0
  */
-export class SkillPatchFile extends S.Class<SkillPatchFile>($I`SkillPatchFile`)(
-  {
+export class SkillPatchFile extends S.Opaque<SkillPatchFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     bytes: S.Uint8Array,
-  },
-  $I.annote("SkillPatchFile", {
-    description: "A generated skill patch: its repository-relative path and exact bytes.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillPatchFile", {
+      description: "A generated skill patch: its repository-relative path and exact bytes.",
+    })
+  )
 ) {}
 
 /**
@@ -807,16 +810,18 @@ export class SkillPatchFile extends S.Class<SkillPatchFile>($I`SkillPatchFile`)(
  * @category models
  * @since 0.0.0
  */
-export class SkillsLockMigrationArtifacts extends S.Class<SkillsLockMigrationArtifacts>(
-  $I`SkillsLockMigrationArtifacts`
-)(
-  {
+export class SkillsLockMigrationArtifacts extends S.Opaque<
+  SkillsLockMigrationArtifacts,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     plan: SkillsLockMigrationPlan,
     patchFiles: S.Array(SkillPatchFile),
-  },
-  $I.annote("SkillsLockMigrationArtifacts", {
-    description: "A sealed migration plan with the generated patch bytes its vendored entries reference.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillsLockMigrationArtifacts", {
+      description: "A sealed migration plan with the generated patch bytes its vendored entries reference.",
+    })
+  )
 ) {}
 
 /**
@@ -878,14 +883,15 @@ export type SkillsLockWriteOutcome = typeof SkillsLockWriteOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillsLockWrittenFile extends S.Class<SkillsLockWrittenFile>($I`SkillsLockWrittenFile`)(
-  {
+export class SkillsLockWrittenFile extends S.Opaque<SkillsLockWrittenFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     sha256: Sha256Hex,
-  },
-  $I.annote("SkillsLockWrittenFile", {
-    description: "A repository-relative file a skills-lock write published, with its SHA-256.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillsLockWrittenFile", {
+      description: "A repository-relative file a skills-lock write published, with its SHA-256.",
+    })
+  )
 ) {}
 
 /**
@@ -912,8 +918,8 @@ export class SkillsLockWrittenFile extends S.Class<SkillsLockWrittenFile>($I`Ski
  * @category models
  * @since 0.0.0
  */
-export class SkillsLockWriteReceipt extends S.Class<SkillsLockWriteReceipt>($I`SkillsLockWriteReceipt`)(
-  {
+export class SkillsLockWriteReceipt extends S.Opaque<SkillsLockWriteReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("skills-lock-write-receipt/v1"),
     planDigest: Sha256Hex,
     outcome: SkillsLockWriteOutcome,
@@ -921,10 +927,11 @@ export class SkillsLockWriteReceipt extends S.Class<SkillsLockWriteReceipt>($I`S
     vendored: S.Natural,
     local: S.Natural,
     patches: S.Array(SkillsLockWrittenFile),
-  },
-  $I.annote("SkillsLockWriteReceipt", {
-    description: "The reviewed plan digest, outcome, lock digest, entry counts, and patch files of a lock write.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillsLockWriteReceipt", {
+      description: "The reviewed plan digest, outcome, lock digest, entry counts, and patch files of a lock write.",
+    })
+  )
 ) {}
 
 const SkillsLockDocumentJson = S.fromJsonString(SkillsLockDocument);

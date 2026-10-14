@@ -165,9 +165,10 @@ export class TerseEffectRulesPersistenceError extends S.TaggedError<
  * @category errors
  * @since 0.0.0
  */
-export class RetiredEffectPathsExecutionError extends S.TaggedError<RetiredEffectPathsExecutionError>(
-  $I`RetiredEffectPathsExecutionError`
-)(
+export class RetiredEffectPathsExecutionError extends S.TaggedError<
+  RetiredEffectPathsExecutionError,
+  { readonly brand: unique symbol }
+>($I`RetiredEffectPathsExecutionError`)(
   "RetiredEffectPathsExecutionError",
   {
     message: S.String,

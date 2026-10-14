@@ -112,12 +112,13 @@ export class MergeGateCheckRun extends S.Opaque<MergeGateCheckRun, { readonly br
  * @category models
  * @since 0.0.0
  */
-export class MergeGateTolerance extends S.Class<MergeGateTolerance>($I`MergeGateTolerance`)(
-  { check: S.NonEmptyString, attribution: S.NonEmptyString },
-  $I.annote("MergeGateTolerance", {
-    description:
-      "A check tolerated red or pending with its attribution: non-required only, unless the gate is relaxed (S11).",
-  })
+export class MergeGateTolerance extends S.Opaque<MergeGateTolerance, { readonly brand: unique symbol }>()(
+  S.Struct({ check: S.NonEmptyString, attribution: S.NonEmptyString }).pipe(
+    $I.annoteSchema("MergeGateTolerance", {
+      description:
+        "A check tolerated red or pending with its attribution: non-required only, unless the gate is relaxed (S11).",
+    })
+  )
 ) {}
 
 /**
@@ -271,16 +272,17 @@ export type MergeGateCheckState = typeof MergeGateCheckState.Type;
  * @category models
  * @since 0.0.0
  */
-export class MergeGateCheckAtMerge extends S.Class<MergeGateCheckAtMerge>($I`MergeGateCheckAtMerge`)(
-  {
+export class MergeGateCheckAtMerge extends S.Opaque<MergeGateCheckAtMerge, { readonly brand: unique symbol }>()(
+  S.Struct({
     check: S.NonEmptyString,
     state: MergeGateCheckState,
     required: S.Boolean,
     attribution: S.NonEmptyString,
-  },
-  $I.annote("MergeGateCheckAtMerge", {
-    description: "One check that was not green when an S11 merge went through, with its attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("MergeGateCheckAtMerge", {
+      description: "One check that was not green when an S11 merge went through, with its attribution.",
+    })
+  )
 ) {}
 
 /**
@@ -444,8 +446,7 @@ export class MergeGateMerge extends S.Opaque<MergeGateMerge, { readonly brand: u
     tolerated: S.Array(MergeGateTolerance),
     relaxed: S.Boolean,
     atMerge: S.Array(MergeGateCheckAtMerge),
-  },
-  $I.annote("MergeGateMerge", { description: "The merge gate is met at a pinned head." })
+  }).pipe($I.annoteSchema("MergeGateMerge", { description: "The merge gate is met at a pinned head." }))
 ) {}
 
 /**
@@ -515,8 +516,7 @@ export class MergeGateOptions extends S.Opaque<MergeGateOptions, { readonly bran
     tolerate: S.Array(MergeGateTolerance),
     forceWindow: S.Boolean,
     relaxed: S.Boolean,
-  },
-  $I.annote("MergeGateOptions", { description: "What the caller asserts when it asks the gate." })
+  }).pipe($I.annoteSchema("MergeGateOptions", { description: "What the caller asserts when it asks the gate." }))
 ) {}
 
 /**
@@ -1277,16 +1277,18 @@ export const runMergeGate = Effect.fn("Yeet.runMergeGate")(function* (
   options: MergeGateRunOptions
 ): Effect.fn.Return<MergeGateDecision, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
   const read = yield* readMergeGate(context, options.prNumber);
-  const decision = decideMergeGate({
-    read,
-    options: {
-      wantSha: options.wantSha,
-      now: read.readAt,
-      tolerate: options.tolerate,
-      forceWindow: options.forceWindow,
-      relaxed: options.relaxed,
-    },
-  });
+  const decision = decideMergeGate(
+    MergeGateInput.make({
+      read,
+      options: MergeGateOptions.make({
+        wantSha: options.wantSha,
+        now: read.readAt,
+        tolerate: options.tolerate,
+        forceWindow: options.forceWindow,
+        relaxed: options.relaxed,
+      }),
+    })
+  );
   yield* Console.log(
     `[yeet] ${renderMergeGateDecision(decision)}${options.forceWindow ? " (review window forced)" : ""}`
   );
@@ -1377,12 +1379,15 @@ export class MergeGateCommandOptions extends S.Opaque<MergeGateCommandOptions, {
 export const runYeetMergeGate = Effect.fn("Yeet.runMergeGateCommand")(function* (options: MergeGateCommandOptions) {
   const tolerate = yield* decodeAttributedCheckFlags("tolerate", options.tolerate, parseMergeGateTolerance);
   const context = yield* hydrateYeetReadOnlyContext(options);
-  yield* runMergeGate(context, {
-    prNumber: options.pr,
-    wantSha: options.sha,
-    tolerate,
-    forceWindow: options.forceWindow,
-    relaxed: options.relaxed,
-    dryRun: options.dryRun,
-  });
+  yield* runMergeGate(
+    context,
+    MergeGateRunOptions.make({
+      prNumber: options.pr,
+      wantSha: options.sha,
+      tolerate,
+      forceWindow: options.forceWindow,
+      relaxed: options.relaxed,
+      dryRun: options.dryRun,
+    })
+  );
 });

@@ -56,6 +56,7 @@ export type KeepReason =
   | "effected-port"
   | "instance-member"
   | "static-super"
+  | "named-import"
   | "extend-root"
   | "subclassed"
   | "instanceof"
@@ -99,7 +100,7 @@ interface SchemaHeritage {
   /** `S.Class<X>(ID)` inner call. */
   readonly inner: ts.CallExpression;
   readonly kind: SchemaKind;
-  /** Text of the Schema namespace expression (`S`, `Schema`, `Effect.Schema`). */
+  /** Text of the Schema namespace expression (`S`, `Schema`, `Effect.Schema`); `""` for a named import. */
   readonly ns: string;
   /** `S.Class<X>(ID)(ARGS)` outer call. */
   readonly outer: ts.CallExpression;
@@ -137,9 +138,13 @@ const lineOf = (sf: ts.SourceFile, pos: number): number => sf.getLineAndCharacte
 
 const isSchemaModuleSpec = (spec: string): boolean => spec === "effect/Schema" || /\/Schema(\.ts)?$/.test(spec);
 
-const collectImports = (sf: ts.SourceFile): { imports: Map<string, ImportBinding>; ns: Set<string> } => {
+const collectImports = (
+  sf: ts.SourceFile
+): { imports: Map<string, ImportBinding>; ns: Set<string>; named: Map<string, SchemaKind> } => {
   const imports = new Map<string, ImportBinding>();
   const ns = new Set<string>();
+  // `import { TaggedError } from "effect/Schema"`: local name → schema-class constructor.
+  const named = new Map<string, SchemaKind>();
   for (const statement of sf.statements) {
     if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
     const spec = statement.moduleSpecifier.text;
@@ -157,6 +162,8 @@ const collectImports = (sf: ts.SourceFile): { imports: Map<string, ImportBinding
         const imported = (element.propertyName ?? element.name).text;
         imports.set(element.name.text, { spec, imported });
         if (spec === "effect" && imported === "Schema") ns.add(element.name.text);
+        if (isSchemaModuleSpec(spec) && SCHEMA_KINDS.has(imported))
+          named.set(element.name.text, imported as SchemaKind);
       }
     }
   }
@@ -164,14 +171,24 @@ const collectImports = (sf: ts.SourceFile): { imports: Map<string, ImportBinding
   if (/import\(\s*["']effect\/Schema["']\s*\)/.test(sf.text)) {
     for (const name of ["S", "Schema", "SchemaModule"]) ns.add(name);
   }
-  return { imports, ns };
+  return { imports, ns, named };
 };
 
-const matchSchemaHeritage = (expression: ts.Expression, ns: ReadonlySet<string>): SchemaHeritage | undefined => {
+const matchSchemaHeritage = (
+  expression: ts.Expression,
+  ns: ReadonlySet<string>,
+  named: ReadonlyMap<string, SchemaKind>
+): SchemaHeritage | undefined => {
   if (!ts.isCallExpression(expression)) return undefined;
   const inner = expression.expression;
   if (!ts.isCallExpression(inner)) return undefined;
   const callee = inner.expression;
+  if (ts.isIdentifier(callee)) {
+    const kind = named.get(callee.text);
+    return kind === undefined
+      ? undefined
+      : { kind, ns: "", outer: expression, inner, typeArgs: inner.typeArguments ?? [] };
+  }
   if (!ts.isPropertyAccessExpression(callee)) return undefined;
   const kind = callee.name.text;
   if (!SCHEMA_KINDS.has(kind)) return undefined;
@@ -204,7 +221,7 @@ const scanFile = (file: string, text: string): FileInfo => {
     true,
     file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS
   );
-  const { imports, ns } = collectImports(sf);
+  const { imports, ns, named } = collectImports(sf);
   const decls: Array<SchemaClassDecl> = [];
   const declNames = new Set<string>();
   const refs: Array<Ref> = [];
@@ -218,7 +235,7 @@ const scanFile = (file: string, text: string): FileInfo => {
     if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
       const expression = heritageExpression(node);
       if (expression !== undefined) {
-        const heritage = matchSchemaHeritage(expression, ns);
+        const heritage = matchSchemaHeritage(expression, ns, named);
         if (heritage !== undefined) {
           const name = node.name?.text;
           if (name !== undefined) declNames.add(name);
@@ -1069,6 +1086,8 @@ export const runCodemod = (input: CodemodInput): CodemodResult => {
         if (isEffectedPort(info.file)) reasons.add("effected-port");
         if (hasInstanceMember(decl.node)) reasons.add("instance-member");
         if (hasStaticSuperMember(decl.node)) reasons.add("static-super");
+        // Converting needs `S.Opaque` / `S.Struct` in scope; a named-import file only gets the brand.
+        if (decl.heritage.ns === "") reasons.add("named-import");
         for (const reason of refReasons.get(key)?.keys() ?? []) reasons.add(reason);
         if (allowlisted.has(key)) reasons.add("keep-class-allowlist");
         if (decl.name === undefined || !ts.isClassDeclaration(decl.node)) reasons.add("unrecognized-shape");

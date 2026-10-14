@@ -447,10 +447,11 @@ export class YeetReadyOptions extends S.Opaque<YeetReadyOptions, { readonly bran
     head: S.String,
     packetDir: S.String,
     inherited: S.Array(S.String),
-  },
-  $I.annote("YeetReadyOptions", {
-    description: "Options accepted by yeet ready, which flips a draft pull request to ready under the D10 gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReadyOptions", {
+      description: "Options accepted by yeet ready, which flips a draft pull request to ready under the D10 gate.",
+    })
+  )
 ) {}
 
 /**

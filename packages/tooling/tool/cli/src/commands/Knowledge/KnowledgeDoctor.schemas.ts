@@ -414,12 +414,12 @@ export class ProducerWitness extends S.Opaque<ProducerWitness, { readonly brand:
  * @category models
  * @since 0.0.0
  */
-export class ManifestFieldWitness extends S.TaggedClass<ManifestFieldWitness>($I`ManifestFieldWitness`)(
-  "ManifestFieldWitness",
-  { slug: S.String, field: S.String },
-  $I.annote("ManifestFieldWitness", {
-    description: "A decoded goal-packet manifest field that resolved a packet claim.",
-  })
+export class ManifestFieldWitness extends S.Opaque<ManifestFieldWitness, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ManifestFieldWitness", { slug: S.String, field: S.String }).pipe(
+    $I.annoteSchema("ManifestFieldWitness", {
+      description: "A decoded goal-packet manifest field that resolved a packet claim.",
+    })
+  )
 ) {}
 
 /**
@@ -449,12 +449,12 @@ export class ManifestFieldWitness extends S.TaggedClass<ManifestFieldWitness>($I
  * @category models
  * @since 0.0.0
  */
-export class ExportWitness extends S.TaggedClass<ExportWitness>($I`ExportWitness`)(
-  "ExportWitness",
-  { packageName: S.String, file: S.String, exportName: S.String },
-  $I.annote("ExportWitness", {
-    description: "An exports-map key, path alias, or exported identifier of one workspace file.",
-  })
+export class ExportWitness extends S.Opaque<ExportWitness, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ExportWitness", { packageName: S.String, file: S.String, exportName: S.String }).pipe(
+    $I.annoteSchema("ExportWitness", {
+      description: "An exports-map key, path alias, or exported identifier of one workspace file.",
+    })
+  )
 ) {}
 
 /**
@@ -471,12 +471,12 @@ export class ExportWitness extends S.TaggedClass<ExportWitness>($I`ExportWitness
  * @category models
  * @since 0.0.0
  */
-export class LockEntryWitness extends S.TaggedClass<LockEntryWitness>($I`LockEntryWitness`)(
-  "LockEntryWitness",
-  { skill: S.String },
-  $I.annote("LockEntryWitness", {
-    description: "A skills-lock entry that resolved a skill span.",
-  })
+export class LockEntryWitness extends S.Opaque<LockEntryWitness, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("LockEntryWitness", { skill: S.String }).pipe(
+    $I.annoteSchema("LockEntryWitness", {
+      description: "A skills-lock entry that resolved a skill span.",
+    })
+  )
 ) {}
 
 /**
@@ -573,17 +573,18 @@ export type KnowledgePacketManifestState = typeof KnowledgePacketManifestState.T
  * @category models
  * @since 0.0.0
  */
-export class KnowledgePacketFacts extends S.Class<KnowledgePacketFacts>($I`KnowledgePacketFacts`)(
-  {
+export class KnowledgePacketFacts extends S.Opaque<KnowledgePacketFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     manifestPath: S.String,
     manifest: KnowledgePacketManifestState,
     status: S.OptionFromOptionalKey(GoalStatus),
     phaseIds: S.Array(S.String),
-  },
-  $I.annote("KnowledgePacketFacts", {
-    description: "One goal packet's manifest state, lifecycle status, and phase ids as read from a tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgePacketFacts", {
+      description: "One goal packet's manifest state, lifecycle status, and phase ids as read from a tree.",
+    })
+  )
 ) {}
 
 /**
@@ -608,14 +609,18 @@ export class KnowledgePacketFacts extends S.Class<KnowledgePacketFacts>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgePackageEntrypoint extends S.Class<KnowledgePackageEntrypoint>($I`KnowledgePackageEntrypoint`)(
-  {
+export class KnowledgePackageEntrypoint extends S.Opaque<
+  KnowledgePackageEntrypoint,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     key: S.String,
     target: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("KnowledgePackageEntrypoint", {
-    description: "An exports-map key or path alias and the repository path it resolves to, if any.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgePackageEntrypoint", {
+      description: "An exports-map key or path alias and the repository path it resolves to, if any.",
+    })
+  )
 ) {}
 
 /**
@@ -639,16 +644,17 @@ export class KnowledgePackageEntrypoint extends S.Class<KnowledgePackageEntrypoi
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeWorkspacePackage extends S.Class<KnowledgeWorkspacePackage>($I`KnowledgeWorkspacePackage`)(
-  {
+export class KnowledgeWorkspacePackage extends S.Opaque<KnowledgeWorkspacePackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     manifestPath: S.String,
     root: S.String,
     entrypoints: S.Array(KnowledgePackageEntrypoint),
-  },
-  $I.annote("KnowledgeWorkspacePackage", {
-    description: "A workspace package name, manifest path, root, and exports-map entry points.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeWorkspacePackage", {
+      description: "A workspace package name, manifest path, root, and exports-map entry points.",
+    })
+  )
 ) {}
 
 /**
@@ -673,15 +679,16 @@ export class KnowledgeWorkspacePackage extends S.Class<KnowledgeWorkspacePackage
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeFileExports extends S.Class<KnowledgeFileExports>($I`KnowledgeFileExports`)(
-  {
+export class KnowledgeFileExports extends S.Opaque<KnowledgeFileExports, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     names: S.Array(S.String),
     stars: S.Array(S.String),
-  },
-  $I.annote("KnowledgeFileExports", {
-    description: "Identifiers one source file exports itself and the files it star re-exports.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeFileExports", {
+      description: "Identifiers one source file exports itself and the files it star re-exports.",
+    })
+  )
 ) {}
 
 /**
@@ -715,8 +722,8 @@ export class KnowledgeFileExports extends S.Class<KnowledgeFileExports>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSkillLockFacts extends S.Class<KnowledgeSkillLockFacts>($I`KnowledgeSkillLockFacts`)(
-  {
+export class KnowledgeSkillLockFacts extends S.Opaque<KnowledgeSkillLockFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.String,
     sourceType: S.String,
     source: S.OptionFromOptionalKey(S.String),
@@ -724,10 +731,11 @@ export class KnowledgeSkillLockFacts extends S.Class<KnowledgeSkillLockFacts>($I
     licensed: S.Boolean,
     installedTargets: S.Array(S.String),
     line: S.OptionFromOptionalKey(S.Natural),
-  },
-  $I.annote("KnowledgeSkillLockFacts", {
-    description: "One skills-lock entry's source type, upstream, revision, license presence, and targets.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSkillLockFacts", {
+      description: "One skills-lock entry's source type, upstream, revision, license presence, and targets.",
+    })
+  )
 ) {}
 
 /**
@@ -752,15 +760,16 @@ export class KnowledgeSkillLockFacts extends S.Class<KnowledgeSkillLockFacts>($I
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSkillsFacts extends S.Class<KnowledgeSkillsFacts>($I`KnowledgeSkillsFacts`)(
-  {
+export class KnowledgeSkillsFacts extends S.Opaque<KnowledgeSkillsFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     lockVersion: S.OptionFromOptionalKey(S.Literals([1, 2])),
     entries: S.Array(KnowledgeSkillLockFacts),
     installed: S.Array(S.String),
-  },
-  $I.annote("KnowledgeSkillsFacts", {
-    description: "Normalized skills-lock entries plus the installed skill directories of one tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSkillsFacts", {
+      description: "Normalized skills-lock entries plus the installed skill directories of one tree.",
+    })
+  )
 ) {}
 
 /**
