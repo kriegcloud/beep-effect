@@ -3266,12 +3266,14 @@
         "allow": [
           "@beep/identity",
           "@beep/practice-claude-mod",
-          "@beep/schema"
+          "@beep/schema",
+          "@beep/test-runner"
         ],
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/practice-claude-mod",
-          "@beep/schema"
+          "@beep/schema",
+          "@beep/test-runner"
         ]
       },
       {

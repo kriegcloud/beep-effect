@@ -851,10 +851,10 @@
     },
     "@beep/practice-claude-mod": {
       "reviewer": "Claude Opus 5.5 (feat/practice-claude-mod)",
-      "reason": "Record the new @beep/practice-claude-mod workspace computations (generated app tasks, template turbo.json) and the root digest move from its workspace entry as reviewed legacy posture; no qualification is granted.",
+      "reason": "Re-record @beep/practice-claude-mod after its test-runner dev dependency moved the dependency digest of build, check, lint:deprecated-apis and test; no qualification is granted.",
       "basis": {
         "path": "goals/practice-claude-mod/research/cache-baseline-review.md",
-        "sha256": "fffa1af3dc981778a1b65b6842c489042905fdf2be945e9e7decb29f9bfb0e3f"
+        "sha256": "828a09492ba2dde989faad78991d121b6d1a036bea49b0eeb2a03787e1386706"
       }
     },
     "@beep/practice-identify": {
@@ -73501,7 +73501,8 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#audit",
-          "@beep/schema#audit"
+          "@beep/schema#audit",
+          "@beep/test-runner#audit"
         ],
         "configuration": {
           "cache": false,
@@ -73563,7 +73564,8 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#build",
-          "@beep/schema#build"
+          "@beep/schema#build",
+          "@beep/test-runner#build"
         ],
         "configuration": {
           "cache": true,
@@ -73599,7 +73601,8 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#build",
-          "@beep/schema#build"
+          "@beep/schema#build",
+          "@beep/test-runner#build"
         ],
         "configuration": {
           "cache": true,
@@ -73635,7 +73638,8 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#build",
-          "@beep/schema#build"
+          "@beep/schema#build",
+          "@beep/test-runner#build"
         ],
         "configuration": {
           "cache": false,
@@ -73719,7 +73723,8 @@
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/identity#transit",
-          "@beep/schema#transit"
+          "@beep/schema#transit",
+          "@beep/test-runner#transit"
         ],
         "configuration": {
           "cache": true,
@@ -73926,7 +73931,8 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#transit",
-          "@beep/schema#transit"
+          "@beep/schema#transit",
+          "@beep/test-runner#transit"
         ],
         "configuration": {
           "cache": false,
@@ -73969,6 +73975,7 @@
         "dependencies": [
           "@beep/identity#transit",
           "@beep/schema#transit",
+          "@beep/test-runner#transit",
           "@beep/utils#transit"
         ],
         "configuration": {
