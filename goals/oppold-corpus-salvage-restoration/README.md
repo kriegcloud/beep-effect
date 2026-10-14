@@ -9,14 +9,12 @@ digests while retaining the originals.
 
 ## Next action
 
-Ordinal 9 is running under the unchanged frozen launcher and committed
-06:25Z fallback amendment, authorized by the orchestrator's 08:35:38Z ruling.
-The driver resumes after its unit ends to reconcile its result, ledger and
-ceilings. Eight families remain sealed: five accepted, families 5/7/8 failed.
-Publish ordinal 9's own record PR after sealing, then commit one bounded
-recovery amendment for 5/7/8 and obtain the orchestrator's approved reply
-before recovery launch. P2 stays in-progress, P3 pending. Eighteen larger
-occurrences and estate/recycle/DOC gates remain open for P3.
+The first bounded wave ended: nine sealed, five accepted, failures 5/7/8/9.
+Publish ordinal 9's separate terminal record. The committed bounded 5/7/8
+recovery amendment requires a next extraction-engine binding and the
+orchestrator's approved reply before launch; family 9 needs a scope ruling.
+P2 stays in-progress, P3 pending. Eighteen larger occurrences and
+estate/recycle/DOC gates remain open for P3. Never retry a sealed family.
 
 ## Launcher
 
@@ -42,6 +40,14 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-14: Ordinal 9 sealed failure, result one, one unapproved engine-failure.
+Input 456,877,056 bytes; retained output 1,177,728,174 bytes; family elapsed
+7,222,485 ms. Timing supports attachment-repair elapsed-budget exhaustion;
+exact cause unresolved. Nine sealed: five accepted, four failed. Accepted
+families reconcile 19,438 children. Frozen policies and identities match.
+See history/p2/2026-10-14-first-wave-terminal.md and the bounded recovery amendment.
+
 
 2026-10-14: Ordinal 9 launched at 08:42:20Z after both admitted sandbox
 smokes, four focused tests and the full sixty-second interval. Capacity

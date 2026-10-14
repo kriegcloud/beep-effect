@@ -1235,3 +1235,19 @@ an unsupported disposition with retained evidence; no third attempt.
 Eighteen larger occurrences and estate/recycle/DOC gates remain open for P3.
 Reversal: revert this documentation decision while retaining every ledger,
 output, claim and immutable manifest. No sealed family is retried here.
+
+
+### 2026-10-14: ninth seal ends the first bounded wave
+
+Nine sealed: five accepted, failures 5/7/8/9. Ordinal 9 result one,
+one unapproved engine-failure, zero store/child passes or warnings.
+Input 456,877,056 bytes; retained output 1,177,728,174 bytes; family
+elapsed 7,222,485 ms. Timing supports attachment-repair elapsed-budget
+exhaustion; exact cause unresolved. All runtime policies, source metadata
+and frozen engine/launcher identities match. Accepted families reconcile
+19,438 children. P2 stays in-progress. See the terminal wave record.
+Decision: publish the ninth record separately; no sealed-family retry.
+The bounded recovery amendment covers only 5/7/8 and remains blocked: no
+recorded next extraction-engine chain was found, so the orchestrator must
+bind it and approve before launch. Family 9 needs a scope decision.
+Reversal: revert decisions while retaining all corpus artifacts/manifests.

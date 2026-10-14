@@ -358,3 +358,11 @@ recovery amendment for 5/7/8 follows; commit it and obtain the orchestrator's
 approved reply before recovery launch. Repeated PDF second-pass failure is
 unsupported, with no third attempt. Eighteen larger occurrences and
 estate/recycle/DOC gates remain open for P3; P2 remains in-progress.
+
+
+**Terminal wave 2026-10-14:** nine sealed, five accepted, four failed
+(5/7/8/9). Ordinal 9 timing supports attachment-repair elapsed-budget
+exhaustion. No retry. Publish the separate terminal record and bounded
+5/7/8 recovery amendment; next extraction-engine binding and orchestrator
+approval required before launch. Family 9 needs explicit recovery scope.
+Eighteen larger occurrences and estate/recycle/DOC gates remain open for P3.

@@ -1557,3 +1557,154 @@ launcher size, reflection-artifacts, whitespace and commit hooks pass.
 Knowledge refs failed with one inherited live gated observation from #1685,
 attributed against integrated main with the cached-ref correction above.
 Graft saved approximately 77,830 tokens across two retrievals.
+
+
+## Ordinal-9 continuation final report
+
+lane: corpus-restore
+head: c597939c6e0e81dd144a57b094c2e351e96b383a (committed ordinal-9 launch evidence; local, not pushed)
+PR(s): #1696 MERGED | #1683 MERGED | #1646 MERGED | ordinal-9 record PR none (family running)
+package-verify: not run (docs-only: no package source edited). Renewed admitted proof: both real sandbox engine smokes pass; four focused restoration tests pass, 81 skipped, 5.13 seconds.
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet not run (docs-only: no package source changed) | knowledge refs fail at e8c520d65ace9a554685c87e5f3840bef127826b, one inherited external-mirror-reference from #1685, attributed against integrated main 96f1f5087b | fallow audit+health not run (docs-only: no package source changed) | scoped coverage not run (docs-only: no package source changed)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+open items: Ordinal 9 is active in beep-heavy-corpus-restore-p2-2026-10-13-9.service, started 2026-10-14T08:42:20.121Z; result stamp absent at observation. Eight of nine are sealed: five accepted (1-4 and 6), three sealed failures (5/7/8). All eight prior ledger hashes and policies, all nine archive metadata identities, engine versions, launcher and membership digests match their records. The full sixty-second interval completed; capacity before submission 403,566,137,344 bytes exceeds the 100 GB floor. No sealed family retried, corpus artifact mutated, engine/launcher/source changed, PR pushed or worker-owned gate started.
+Ordinal 9 executed from 91256cfd1bf4fa7c428b9d568f7a5192c210dd9e with restoration/libpff source identical to the committed 06:25Z fallback amendment. Original manifest codeHead remains 6eb3d036771e868768846b3c56a5aafac69c3b2b; no behavior equivalence is claimed. The unchanged launcher hardcodes this lane, so no execution-only worktree was created. Runtime policy and acceptance are not claimed before the ninth ledger is available. Retained ceilings and the immutable manifest remain unchanged.
+The driver waits for this exact unit to end and relaunches the lane to reconcile the ninth result, seal, identities, children/repair digest pairs, ceilings and ledger digest. Publish ordinal 9's own record PR after integrating main with no family active; do not re-push merged #1696. After the ninth seal, commit one bounded recovery amendment for failed engine occurrences 5/7/8 naming the next fallback engine in the recorded chain and new freeze records; the orchestrator must reply approved before recovery launch. A repeated input-sensitive PDF second-pass failure receives unsupported disposition with retained evidence and no third attempt. Eighteen larger occurrences and estate/recycle/DOC gates remain open for P3. P2 stays in-progress; P0/P1/P4 complete, P3 pending. Reversal: revert documentation decisions while retaining every ledger, output, claim and immutable manifest.
+Packet doctor has zero blockers and the same three unrelated advisories; index, reflection-artifacts, launcher size, manifest JSON, whitespace and commit hooks pass. The inherited knowledge-reference red is documented with a correction distinguishing the stale cached origin/main ref from integrated main. The final report is appended locally for the next evidence commit. Session ledger records the driver handoff. Graft saved approximately 77,830 tokens across two retrievals.
+blocked: wave running — 8 of 9 sealed, unit beep-heavy-corpus-restore-p2-2026-10-13-9.service
+
+
+## Ordinal 9 sealed failure and terminal wave reconciliation
+
+
+All nine bounded members have sealed. Accepted ordinals: 1, 2, 3, 4, 6.
+Sealed failures: 5, 7, 8, 9. All family units are inactive. No sealed
+family was retried, original mutated, or engine/launcher changed.
+P2 stays in-progress; P0/P1/P4 complete, P3 pending, lifecycle active.
+
+## Family 9 evidence and diagnosis
+
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-9.service. Result stamp: 1.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-09/ledgers/mail/slice.jsonl`.
+Attempt: mail:cdbf9fe5be4cec603a24b02e:r0.
+Object: 90fe1bba1664bb79ffe5b6bdca9b720f27ec1e001314cf8788cef57282a2f3f1.
+Source: efa55f979cbcd6ca4f7e58880abce689645daba36a9058e2d36ba71f077a12bb.
+Runtime/frozen policy: 8e31b6b8b054267e41cbe4db098e5a201308accd882bdea2e8f3b91ba580f2ec.
+Ledger SHA-256: 87943da8d7c8b10283008000c1d99ca4a17e411a7824bec520f1f10adae5bc90.
+Retained-attempt digest: 7eede173895745bd4cd82921fcf4bce4216570edcef0e3b4b7335a717e3f6cf6.
+Family-output digest: fa478ee95807e14641d67da6d86ab3887ce601e75a60c14c2c928b5fddc7e59d.
+
+One each family-run-start, family-attempt-start, mail-store-exception,
+family-run-summary and family-acceptance-failure; 634 attachment-type-repair
+rows. Expected/terminal one; unapproved one; engine-failure approved false.
+Zero store passes, child rows, warnings or interruptions. Partial dispositions:
+359 repaired occurrences / 320 distinct digests, 275 unsupported, zero unchanged.
+Retained files: 14,767; repair copies: 321; Tika files: 320; one unmatched
+PDF copy, zero unmatched Tika files. No accepted child reconciliation,
+repair-pair acceptance or atomic promotion is claimed.
+
+Input 456,877,056 bytes; output 1,177,728,174 bytes (2.577779205x).
+Output fits attempt cap 1,827,508,224 and family cap 2,147,483,648 bytes.
+Family elapsed 7,222,485 ms fits 43,200,000-ms family cap; it exceeds the
+7,200,000-ms attempt ceiling. No store-pass attempt-duration field exists.
+Started 2026-10-14T08:42:20.121Z; family start 08:46:59.320Z;
+attempt-start row 08:46:59.338Z; failure seal 10:47:21.815Z.
+Archive re-verification: 279,199 ms. Queue latency is only approximate,
+121 ms from the whole-second submission record, not a precise measurement.
+Pre-launch free bytes 403,566,137,344; diagnosis free bytes 392,097,185,792.
+
+The unmatched PDF copy is 28,712 bytes with SHA-256
+55cb9b03e5af4ebab39985b4d3217fa78fc8e659b267aecc1c55e3b480c5edf2.
+Its modification time is 2026-10-14T10:47:10.161441Z, 7,210,823 ms after
+the attempt-start row. extractAttachmentText checks remaining elapsed time
+before starting Tika; a copy written after the attempt ceiling strongly
+supports attachment-repair elapsed-budget exhaustion. The terminal catch
+replaces the original cause with a generic engine-failure. Exact cause,
+precise attempt clock and parser status remain unresolved. No parser
+reproduction or exception approval is inferred from this timing.
+Private log: four lines, 992 bytes. Journal killed/oom/signal matches zero;
+code=exited one. Only counts were read. No retry or recovery was launched.
+
+## Wave reconciliation
+
+All nine runtime policies match immutable manifests; all nine source
+object/digest/input-size values match sealed archive metadata. Current engine
+versions, Java real path, Tika digest, launcher digest and membership digest
+match all nine records. Eight prior ledger hashes match earlier handoffs.
+Accepted-family child counts and engine counts reconcile, and repair-copy,
+Tika and repaired-digest sets are identical for each accepted family. All
+accepted store output/time ceilings hold. Accepted children total 19,438.
+Wave input total 1,974,633,472 bytes; retained output total 4,974,218,513 bytes.
+Failed-family partial repairs are not accepted children or successful repairs.
+
+Family 5: input-sensitive GIF Tika parser failure, exact cause unresolved.
+Family 7: attachment-repair elapsed-budget exhaustion, exact cause unresolved.
+Family 8: input-sensitive PDF Tika parser failure, exact cause unresolved.
+Family 9: timing supports attachment-repair elapsed-budget exhaustion,
+exact cause unresolved. Each sealed failure remains unapproved and retained.
+
+Execution identity: families 8–9 used the separately committed 06:25Z
+fallback amendment because the unchanged launcher hardcodes this lane.
+Ordinal 9 execution head was 91256cfd1bf4fa7c428b9d568f7a5192c210dd9e;
+its restoration/libpff source diff from amendment head ce71e3cb88 is empty.
+Original immutable codeHead remains 6eb3d036771e868768846b3c56a5aafac69c3b2b.
+No equivalence to original source is claimed; no execution-only worktree exists.
+
+## Decision and remaining scope
+
+Stop on family 9's sealed failure and publish this separate terminal record.
+Do not push to merged #1696. The 08:35:38Z ruling scopes one recovery
+amendment to 5/7/8; it does not authorize family 9 recovery. Record that
+additional failed occurrence for an explicit orchestrator scope decision.
+The amendment must name the next fallback engine before approval and launch.
+No such ordered restoration-engine chain is present in the packet, brief
+or public restore-mail implementation. A model-provider fallback chain is
+not an extraction-engine contract. Preserve this missing dependency rather
+than invent an engine. Eighteen larger occurrences and estate/recycle/DOC
+gates remain open for P3. Reversal: revert packet decisions while retaining
+every ledger, output, claim and immutable manifest.
+
+
+# Bounded recovery amendment for families 5, 7 and 8
+
+Status: blocked on engine binding and orchestrator approval; no execution.
+Scope: exactly failed engine occurrences of first-wave families 5, 7 and 8,
+one fresh recovery family per occurrence, concurrency one. This amendment
+follows the 2026-10-14T08:35:38Z ruling. All sealed first-wave families,
+ledgers, outputs, claims and immutable manifests remain untouched.
+Family 9 is outside this amendment and needs its own scope ruling.
+
+## Execution contract required before approval
+
+Retain ratio four, attempt 7,200,000 ms, family 43,200,000 ms, total output
+2,147,483,648 bytes and 100 GB free-space floor. Renew admitted engine smokes
+and focused tests; verify source metadata and actual engine identities;
+commit complete new freeze records and the launcher digest before launch.
+Use fresh run labels and append-only tool-owned ledgers. Never alter an
+existing sealed family or count a partial derivation as accepted output.
+
+The next extraction-engine identity is UNBOUND: the brief names a
+"next fallback engine in the recorded chain" but the packet and public
+restore-mail code contain no ordered second-pass extraction-engine chain.
+The current second pass invokes Java/Tika only. The existing doc-text
+package has PDF/DOCX extraction capability; its existence does not prove
+it is the approved successor, supports the GIF case, or is wired into this
+restoration ledger contract. No model-provider fallback is an extraction
+engine. The orchestrator must identify the recorded chain or bind the
+specific next engine and the implementation scope before this amendment
+can be executable and receive the required approved reply.
+
+An occurrence still failing on the input-sensitive PDF second pass after
+its single recovery attempt is dispositioned unsupported with retained
+evidence, never retried a third time. That disposition must be explicit
+and supported by a schema/runner contract; no current sealed failure is
+retroactively approved. Synthetic parser/elapsed-budget fixtures and all
+existing real-engine acceptance laws remain required for any engine PR.
+Package-verify and restoration proof precede a new frozen execution.
+
+Reversal before launch: revert this amendment and close its unmerged PR.
+After launch: revert documentation decisions while retaining every corpus
+artifact and new freeze record. No engine change, new launcher, recovery
+run or corpus mutation is authorized by this draft. Eighteen larger
+occurrences and estate/recycle/DOC gates remain open for P3.

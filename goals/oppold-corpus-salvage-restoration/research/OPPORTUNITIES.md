@@ -918,3 +918,17 @@ integrated main commit 96f1f5087beb2b937c640843d502ada843b82958 exactly,
 with no lane edit. The earlier statement that it matches origin/main is
 withdrawn. Inherited provenance is #1685, verified by the empty diff from
 that integrated main commit. No fix or base merge inside the frozen launch.
+
+
+### 2026-10-14: ninth elapsed stop and missing recovery engine binding
+
+- Work: reconcile the ninth bounded family and write the recovery amendment.
+- Evidence: result one; one unapproved engine-failure; family 7,222,485 ms;
+  unmatched PDF repair copy modified after the attempt ceiling. The terminal
+  catch discards its cause; no precise parser status is available.
+- Prevention: retain sanitized exception classes and stage/remaining-budget
+  evidence at the failing boundary, including hashing time before extraction.
+- Recovery friction: the ruling refers to a recorded extraction-engine chain,
+  but packet/source discovery finds only the current Java/Tika second pass.
+  Prevention: name the ordered engine ids, versions, format coverage and
+  ledger contract in the scope ruling. No substitute or recovery launched.
