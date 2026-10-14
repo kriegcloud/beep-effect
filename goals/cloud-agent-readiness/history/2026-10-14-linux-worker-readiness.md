@@ -148,8 +148,9 @@ administration used the existing YubiKey route.
 A 15-minute one-time pairing link was generated into a mode-0600 private file
 and passed to DankStation's clipboard without printing its credential. Native
 T3 saved connections use encrypted Electron storage, so desktop acceptance is
-through Settings → Connections → Add environment. Client pairing confirmation
-is pending; a reachable backend is not yet proof of a saved connected client.
+through Settings → Connections → Add environment. The operator saved beep-worker in DankStation’s native T3 client; the server
+recorded a bearer-access-token session with Electron client metadata. Initial
+connection was blocked by protocol mismatch; see nightly correction below.
 The operator's reference clone at `~/YeeBois/references/effect/t3code` was used
 to verify service, pairing and encrypted catalog behavior. No reference-source
 changes were made. Added the existing beep-effect checkout as a T3 project using
@@ -159,3 +160,27 @@ Rollback: `t3 service uninstall` removes startup while retaining user data;
 `tailscale serve --https=443 off` removes this mapping. Revoke the client session
 in T3 Connections when removing a paired client. Never commit pairing links,
 session tokens or encrypted client catalogs into this goal.
+
+
+### T3 nightly channel and pairing qualification
+
+The operator clarified that DankStation uses a nightly/source build. Both
+installations initially displayed 0.0.45, but DankStation's running descriptor
+reported orchestration protocol 2 and the stable worker release reported 1.
+The desktop Update action failed because it required a newer semantic version.
+Version-label equality alone was insufficient compatibility proof.
+
+Ran `t3 update --channel nightly --yes` on beep-worker. The upstream updater
+verified the download and installed 0.0.46-nightly.20261014.3093. The live tailnet
+descriptor now reports protocol 2 with the same environment id. The existing
+native Electron bearer session subsequently recorded a successful connection;
+no repeat pairing was needed. Repaired service registration with `t3 service
+install` after the release switch; preserved the explicit tool PATH and removed
+SSH agent inheritance. The prior official stable runtime remains for rollback.
+
+Pairing friction: an initial one-time code had been redeemed into a browser
+cookie session before native Add environment, so reuse returned invalid credential.
+A fresh code pasted directly into Host succeeded. All credentials were excluded
+from this receipt. A browser session is not proof of a saved native environment;
+qualification combines the operator's saved-environment screenshot and the
+native Electron session's successful connection after protocol alignment.
