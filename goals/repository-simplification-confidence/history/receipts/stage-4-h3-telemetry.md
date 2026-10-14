@@ -440,4 +440,27 @@ The second publication is one complete base-conflict wave, not a per-file push.
 S11 permits the inherited JSDoc and hosted settings reds after attribution;
 the orchestrator owns the final gate and any consolidated main fix.
 
-Main episode-14 fix #1773 has now merged into the lane at `9a9582fb91`; none of the H3 telemetry source/tests changed across that integration. It fixes the two inherited JSDoc examples. The latest parity refresh is running against that integrated source while the complete conflict wave publishes. Earlier red and green results retain their original provenance; publication resets the review window.
+Main episode-14 fix #1773 merged into the lane at `9a9582fb91`; none of the H3 telemetry source/tests changed across that integration. The subsequent source/inventory comparison shows the two inherited mcp-kit/uspto-mcp JSDoc examples remain; the earlier interpretation of the fix title was incorrect. The latest parity refresh is running against that integrated source while the complete conflict wave publishes. Earlier red and green results retain their original provenance; publication resets the review window.
+
+### final conflict-wave dispatch
+
+The complete conflict wave published `826c032ed6c67e2f479fb4ee33734a317a7f2e5a`
+through Yeet at 21:34:38Z, with green cheap gates and clean-HEAD install preflight.
+Fresh complete thread read returned zero threads and no pagination. The PR
+remains ready and structurally mergeable; its latest push restarts the window.
+
+Final parity completed with local docgen, knowledge refs, Fallow audit/health
+and retired paths passing. The remaining failures are inherited and explicitly
+retained: test-tsgo reports `AgentMessage.runtime.test.ts:322` TS377032, with the
+file byte-identical to main; JSDoc reports the same two mcp-kit/uspto-mcp root
+imports, with both files byte-identical to main. H3 introduces neither finding.
+The exact-head Security job `116117679019` fails hosted ruleset drift for
+`beep-reviewer`, and Vercel deployments fail only their build rate limit. The
+orchestrator owns these S11 attributions and its consolidated fix.
+
+The final delivery keeps all earlier source boundaries. Metrics full audit and
+docgen pass after Opaque integration; both package quick checks and the 76-case
+CLI codec/reconciliation regressions pass. Earlier native runtime proof records
+6432 passing tests before the formatting-only failure. No full post-Opaque CLI
+runtime or full coverage-ratchet pass is claimed. No client has a qualified
+non-use window, and F retains the affected capabilities on demand.
