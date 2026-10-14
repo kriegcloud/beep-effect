@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-14T12:58:25.790Z
+Generated: 2026-10-14T13:17:56.705Z
 
 ## Scope
 
@@ -14,16 +14,16 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 64 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 81 |
-| publicModules | 3467 |
-| publicExports | 23499 |
+| publicModules | 3468 |
+| publicExports | 23522 |
 | openModules | 912 |
-| openExports | 1388 |
+| openExports | 1389 |
 | missingExportExamples | 8 |
 | missingExportCategories | 0 |
 | missingExportSince | 0 |
 | forbiddenTagFindings | 0 |
 | malformedConditionalTagFindings | 0 |
-| exampleImportFindings | 1363 |
+| exampleImportFindings | 1364 |
 | unsafeExampleFindings | 0 |
 | schemaAnnotationFindings | 0 |
 | undescribed-see | 11 |
@@ -40,7 +40,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | duplicate-example | 0 |
 | loose-ts-fence | 0 |
 | forbidden-remarks | 0 |
-| no-root-package-import | 1342 |
+| no-root-package-import | 1343 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -84,7 +84,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 26 | `@beep/ontology-domain` | `packages/ontology/domain` | clean | 6 | 41 | 0 | 0 |
 | 27 | `@beep/shacl` | `packages/drivers/shacl` | clean | 3 | 6 | 0 | 0 |
 | 28 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 31 | 128 | 2 | 2 |
-| 29 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 25 | 166 | 8 | 97 |
+| 29 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 25 | 167 | 8 | 98 |
 | 30 | `@beep/law-practice-domain` | `packages/law-practice/domain` | needs-remediation | 227 | 799 | 9 | 5 |
 | 31 | `@beep/langextract` | `packages/foundation/capability/langextract` | clean | 26 | 126 | 0 | 0 |
 | 32 | `@beep/epistemic-use-cases` | `packages/epistemic/use-cases` | needs-remediation | 38 | 149 | 11 | 0 |
@@ -161,7 +161,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 103 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 15 | 0 | 0 |
 | 104 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 105 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
-| 106 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 386 | 3427 | 47 | 38 |
+| 106 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 387 | 3449 | 47 | 38 |
 | 107 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 108 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
 | 109 | `@beep/brand` | `packages/foundation/ui-system/brand` | needs-remediation | 7 | 50 | 0 | 43 |
@@ -1144,7 +1144,7 @@ Export findings:
 - `src/Logging.ts:242` `layerMinimumLogLevel` (const) - 1 example import violation(s)
 - `src/Logging.ts:261` `RenderLogBannerOptions` (class) - 1 example import violation(s)
 - `src/Logging.ts:371` `renderLogBanner` (const) - 1 example import violation(s)
-- `src/Logging.ts:461` `layerConsoleLogger` (const) - 1 example import violation(s)
+- `src/Logging.ts:464` `layerConsoleLogger` (const) - 1 example import violation(s)
 - `src/Metric.ts:59` `TrackDurationOptions` (class) - 1 example import violation(s)
 - `src/Metric.ts:86` `TrackDurationOptionsInput` (type) - 1 example import violation(s)
 - `src/Metric.ts:160` `statusClass` (const) - 1 example import violation(s)
@@ -1172,6 +1172,7 @@ Export findings:
 - `src/PhaseProfiler.ts:307` `profilePhase` (const) - 1 example import violation(s)
 - `src/server/DevTools.ts:37` `DevToolsSpanFilter` (const) - 1 example import violation(s)
 - `src/server/DevTools.ts:63` `DevToolsSpanFilter` (type) - 1 example import violation(s)
+- `src/server/DevTools.ts:214` `layerFilteredDevToolsTracer` (const) - 1 example import violation(s)
 
 ### @beep/law-practice-domain
 

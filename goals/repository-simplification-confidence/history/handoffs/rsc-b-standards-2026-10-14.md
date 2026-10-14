@@ -1,10 +1,10 @@
 lane: rsc-b-standards
-head: c12a1cf29890136de17be1ac818a8685b21d20f8 (qualified generated candidate; subsequent packet-only qualification commit follows)
+head: 80fe0135fffc988c0dd53bb7a7d2678031d7135e (publication owner-source head; generated candidate commit follows)
 PR: #1616 (merged historical bounded test slice; new refresh PR pending)
 package-verify: not applicable to the current generated refresh; no workspace package edited
-hosted-parity: test-tsgo pass; docgen local pass; jsdoc-ratchet pass; knowledge refs fail (14 inherited, all affected files byte-identical to main); fallow audit pass; fallow health pass (baseline-aware); coverage read not applicable (no touched source/floor); census pass; retired-effect-paths pass
+hosted-parity: previous qualified heads pass except inherited knowledge refs; publication-head test-tsgo/docgen/jsdoc/refs/fallow/retired-paths pending; coverage read not applicable (no touched source/floor)
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-b-standards-2026-10-14.md
-open: final packet-head parity and review closure; publication pending with cap released; R14 serialized merge before later R20 guidance/provenance waves; S5 notification before effect-laws edits; V open cohorts
+open: publication-head qualification and R14 serialized merge; R20 later guidance/provenance/detector waves; S5 notification before effect-laws edits; V open canon cohorts; private proposals remain source-pinned
 
 ## Resume and inbox disposition
 
@@ -268,3 +268,39 @@ ratchet, Fallow audit/health and retired-effect-paths. Knowledge refs retains
 fourteen inherited observations; all affected files are byte-identical to
 main. No source or coverage floor is touched. This final archive-path and
 review-closure commit is rechecked before the single publication push.
+
+## Publication snapshot at 80fe0135ff
+
+The fresh publication fetch integrates main `f21e2a8563b136de8701dbf901501736f002e135`
+at `80fe0135fffc988c0dd53bb7a7d2678031d7135e`, including #1715
+model routing, #1727 observability, #1714 knowledge grouping and #1712 packets.
+Every admitted owner command and full build passes except raw health exit 1,
+which writes its baseline. The cap file remains present. Publication uses
+Yeet's cheap-gates and head-install preflight; pre-final parity must terminate
+and be attributed on the published head before the final report. No queued
+full proof is used as an additional publication gate.
+
+Current candidate measurements: 147 JSDoc packages, 3,468 public modules,
+23,522 public exports, 912 open modules and 1,389 open exports. Example-import
+findings are 1,364 and root-package findings 1,343. The additional finding
+is `layerFilteredDevToolsTracer` in observability's `server/DevTools.ts`,
+whose imported main example uses the `@beep/utils` root. It remains debt;
+no source fix or exception admission is made by this refresh. Catalog entries
+are 7,406. All 126 schema-first entry bodies remain unchanged.
+
+Fallow 3.32.0 dead-code stays zero; health preserves 180 per-file findings
+and thirteen target keys. Raw health is 148 above-threshold functions
+(2 critical / 13 high / 133 moderate) across 5,241 files and 100,317 functions,
+with static-estimated coverage. Census CLI instantiations are 5,208,046,
+growth of 271,655 against the retained 4,936,391. The other five rows are
+unchanged. These are candidate measurements, not accepted program counts.
+
+The earlier model-routing replay is preserved in
+`.beep/rsc-resume/replay-f662e4e1adef/`; the #1709 replay is preserved in
+`.beep/rsc-resume/replay-49ffd94e5f32/`. Current publication owner logs remain
+in `.beep/rsc-resume/integrated/`. Older references to integrated paths bind
+to their named archive, never to the newer run. The original named Claude
+reviews remain pinned to c12/b69; a bounded publication-candidate review
+follows with the updated measured values. Source/registry/coverage edits by
+B remain absent. The private taxonomy/exception/directive preparations are
+not silently recertified after these upstream source changes.

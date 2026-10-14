@@ -3,8 +3,9 @@
 ## Scan baseline
 
 Status: historical first reproduction completed at
-`01b3d54700fa4327472fb7beb0ed169766902c90`. The latest ordered owner replay
-completed at `49ffd94e5f328bcbd112247c1b3b2e444f2622bc` after main #1709;
+`01b3d54700fa4327472fb7beb0ed169766902c90`. The publication owner replay
+completed at `80fe0135fffc988c0dd53bb7a7d2678031d7135e` after main
+`f21e2a8563`;
 committed-candidate qualification is recorded separately below.
 Raw logs and command exits are retained in `.beep/rsc-resume/`. This receipt
 records a candidate refresh. R14 requires the serialized chore to land
@@ -114,7 +115,7 @@ semantic counts and command outcomes. This pinned run is retained in
 `.beep/rsc-resume/replay-a00d3fdaf7/`; subsequent candidate parity is recorded
 separately.
 
-### Latest replay after Skills materialization
+### Historical replay after Skills materialization
 
 Main #1709 adds source/schema inputs and is integrated as `49ffd94e5f32`.
 A new admitted ordered owner pass succeeds except raw health exit 1, which
@@ -196,3 +197,28 @@ counts are historical inputs, not current accepted exception totals.
 
 Pending all source repairs, provenance enforcement and registry reconciliation.
 Passing a baseline-aware gate does not establish zero actionable source debt.
+
+
+## Publication owner snapshot
+
+Source head `80fe0135fffc988c0dd53bb7a7d2678031d7135e` integrates
+freshly fetched main `f21e2a8563`. Installation, full build and all ordered
+owner commands pass except raw health, which writes its baseline and exits 1.
+Current candidate counts are 147 JSDoc packages, 3,468 public modules and
+23,522 exports; open modules/exports are 912/1,389. Example-import/root-package
+findings are 1,364/1,343. The one additional root-package example belongs to
+main's `layerFilteredDevToolsTracer`; it stays unresolved source debt.
+Catalog entries are 7,406. All 126 schema-first entry bodies remain unchanged.
+
+Dead-code is zero under Fallow 3.32.0. Health retains 180 per-file baseline
+findings and thirteen targets, separately from 148 raw above-threshold
+functions (2 critical / 13 high / 133 moderate) across 5,241 files and
+100,317 functions with static-estimated coverage. CLI census is 5,208,046,
+growth of 271,655 against main's 4,936,391; other five rows unchanged.
+Publication-head parity and named review follow. No zero scan or source
+repair is inferred; R14 merge is still required before program counts change.
+
+Archive mapping: source 49ffd -> `.beep/rsc-resume/replay-49ffd94e5f32/`;
+source f662 -> `.beep/rsc-resume/replay-f662e4e1adef/`; current source 80fe ->
+`.beep/rsc-resume/integrated/`. Older historical sections' integrated-path
+references use the archive for their recorded source head.

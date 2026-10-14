@@ -1,5 +1,9 @@
 # Independent review: R20 first-wave generated refresh
 
+Original review log references under `integrated/` now bind to
+`.beep/rsc-resume/replay-49ffd94e5f32/`. Later owner passes do not
+replace this pinned review's evidence.
+
 **Candidate:** `c12a1cf29890136de17be1ac818a8685b21d20f8`
 **Base:** main `4e66575c646c282169021a6d5eb3d01129617bcf`
 **Reviewer:** Claude Opus 5.5 medium, read-only. I made no edits, ran no commands, did not delegate, published nothing and accessed no secrets.

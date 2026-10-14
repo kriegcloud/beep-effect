@@ -45701,6 +45701,14 @@
       "description": "Finding kinds emitted by beep goals doctor and beep explore --check (blocking and advisory; the packet-* kinds are the explore check's stream findings)."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Goals/Doctor.ts",
+      "symbol": "GoalExplorationPathState",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GoalExplorationPathState",
+      "description": "Whether a packet's exploration back-link path exists, is missing, or leaves the repository."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Goals/Goals.errors.ts",
       "symbol": "GoalGraphInputError",
       "kind": "tagged-error",
@@ -47084,6 +47092,14 @@
       "owner": "@beep/repo-cli"
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.grouping.ts",
+      "symbol": "KnowledgeDelegatedRow",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDelegatedRow",
+      "description": "A goals-doctor finding listed as a delegated knowledge-doctor candidate with its severity and cause key."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
       "symbol": "CommandNodeWitness",
       "kind": "tagged-class",
@@ -47117,6 +47133,14 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeCauseGroup",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeCauseGroup",
+      "description": "Every finding sharing one cause key, its delegated root when one exists, and the root's authoring commit."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
       "symbol": "KnowledgeCounterfactualVerdict",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
@@ -47145,7 +47169,7 @@
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "KnowledgeDoctorReport",
-      "description": "Read-only knowledge-doctor report: span-class totals and every classified finding."
+      "description": "Read-only knowledge-doctor report: span-class totals, causal groups, and every classified finding."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
@@ -47237,11 +47261,43 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgePathChange",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgePathChange",
+      "description": "Whether a commit deleted a path or renamed it away."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgePathRemoval",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgePathRemoval",
+      "description": "A path a commit deleted or renamed away, with the commit's subject and any rename target."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
       "symbol": "KnowledgeProducerOutput",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "KnowledgeProducerOutput",
       "description": "A registered producer id and the derived repository path it owns."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeRootAttribution",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeRootAttribution",
+      "description": "The commit that removed a cause group's missing target, plus any rename repair proposal."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
+      "symbol": "KnowledgeRootHistory",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeRootHistory",
+      "description": "Whether Git history was available to attribute cause-group roots."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",

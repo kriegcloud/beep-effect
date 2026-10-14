@@ -1139,3 +1139,14 @@ name its immutable private archive, retitle historical parity and update
 current status together. A qualification record should distinguish owner
 source head, generated candidate and final packet head instead of appending
 new evidence beneath an unchanged current-status sentence.
+
+
+### B final publication snapshot and pre-final proof boundary
+
+The final publication fetch imported #1727 observability, #1714 knowledge
+cause grouping and #1712 packets after #1715 model routing. Repeated global
+source movement displaced earlier full local proofs. Preserve each archive,
+regenerate the fresh publication snapshot, and use Yeet's prescribed cheap
+push preflight while pre-final parity qualifies the exact published head.
+Hosted proof remains authoritative. Candidate counts remain source-pinned;
+new source findings are shown rather than presented as B repairs.

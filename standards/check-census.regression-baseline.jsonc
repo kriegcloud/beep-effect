@@ -7,8 +7,8 @@
 // A write refuses any sample whose compiler output reports a type error.
 {
   "schemaVersion": "check-census-baseline/v1",
-  "measuredAt": "2026-10-14T13:07:34.093Z",
-  "commit": "f662e4e1adef1e2a05f637e4f70dcd49961abac1",
+  "measuredAt": "2026-10-14T13:26:42.837Z",
+  "commit": "80fe0135fffc988c0dd53bb7a7d2678031d7135e",
   "dirtyWorktree": true,
   "compiler": "7.0.2+effect-tsgo.0.51.1",
   "command": "bun run tsc -p <tsconfig> --noEmit --extendedDiagnostics --singleThreaded --tsBuildInfoFile <fresh>",
@@ -19,21 +19,21 @@
       "tsconfig": "packages/foundation/modeling/schema/tsconfig.json",
       "instantiations": 456717,
       "types": 136471,
-      "checkTimeMs": 1119
+      "checkTimeMs": 826
     },
     {
       "name": "@beep/repo-cli",
       "tsconfig": "packages/tooling/tool/cli/tsconfig.json",
-      "instantiations": 5198061,
-      "types": 1334374,
-      "checkTimeMs": 22894
+      "instantiations": 5208046,
+      "types": 1337205,
+      "checkTimeMs": 21003
     },
     {
       "name": "@beep/law-practice-domain",
       "tsconfig": "packages/law-practice/domain/tsconfig.json",
       "instantiations": 896665,
       "types": 267822,
-      "checkTimeMs": 2224
+      "checkTimeMs": 1603
     }
   ],
   "typeperfFixtures": [
@@ -42,7 +42,7 @@
       "tsconfig": "packages/foundation/modeling/schema/test/fixtures/typeperf/tsconfig.baseline.json",
       "instantiations": 17335,
       "types": 6896,
-      "checkTimeMs": 24
+      "checkTimeMs": 22
     },
     {
       "name": "@beep/schema#typeperf/literal-kit-tagged-union",
@@ -56,7 +56,7 @@
       "tsconfig": "packages/foundation/modeling/schema/test/fixtures/typeperf/tsconfig.literal-kit-keyed-api.json",
       "instantiations": 17915,
       "types": 7040,
-      "checkTimeMs": 24
+      "checkTimeMs": 32
     }
   ]
 }

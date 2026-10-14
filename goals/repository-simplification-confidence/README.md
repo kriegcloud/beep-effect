@@ -2,12 +2,11 @@
 
 ## Status
 
-B first-wave owner replay is current to main #1709 at `49ffd94e5f32`. Its
-generated candidate `c12a1cf298` passes local parity except fourteen inherited
-knowledge-refs observations. It remains unpublished pending the final
-packet-head checks and review closure; the publication cap is released. Later R20 guidance
-and detector work remains pending. Counts become accepted program baselines
-only after the serialized R14 merge.
+B first-wave publication snapshot is regenerated at `80fe0135ff` from fetched
+main `f21e2a8563`. Its generated candidate remains subject to publication-head
+parity, named review and the serialized R14 merge. Cap released; later R20
+guidance and detector work stays pending. Candidate counts are not accepted
+program baselines and no zero-debt result is claimed.
 
 Lifecycle: `active`
 

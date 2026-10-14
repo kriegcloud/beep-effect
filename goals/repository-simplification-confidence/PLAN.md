@@ -335,4 +335,4 @@ source/scope review at `3897314253` returned zero actionable findings.
 See `history/handoffs/rsc-d-release-2026-10-09.md` for current terminal results.
 GitHub Packages lacks read:packages; desktop verification remains E-owned.
 
-B status (2026-10-14): historical bounded repair #1616 is merged. First R20 owner refresh completes after main #1709 at `49ffd94e5f32`; candidate `c12a1cf298` passes local parity except fourteen inherited refs observations. Named review packet corrections and final packet-head checks precede publication. Cap released; serialized R14 merge and later guidance/provenance waves remain open. See the current B handoff for pinned results and inherited knowledge-refs attribution.
+B status (2026-10-14): historical #1616 is merged. First R20 owner refresh is regenerated at `80fe0135ff` from fetched main `f21e2a8563`; publication-head parity and named review precede the final report. Cap released. Serialized R14 merge and later guidance/provenance waves remain open. See the current B handoff for pinned results and inherited reds.
