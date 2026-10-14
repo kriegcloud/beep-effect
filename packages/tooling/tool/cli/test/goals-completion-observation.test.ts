@@ -412,7 +412,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       );
     })
   );
-  it.effect("newer merged observations replace stale required-red and pending-rerun receipts", () =>
+  it.effect("newer successful merged observations replace older required-red and pending-rerun receipts", () =>
     Effect.gen(function* () {
       yield* temporaryWorkingDirectory;
       const value = yield* manifest();
@@ -422,7 +422,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
         [true, false],
         Effect.fn("GoalsCompletionTest.replaceStaleReceipt")(function* (red) {
           const stale = yield* observe({ red, preMergePendingRerun: !red });
-          expect(stale.outcome).toBe("unsatisfied");
+          expect(stale.outcome).toBe(red ? "unsatisfied" : "unknown");
           const observed = yield* observe();
           const latest = GoalCompletionReceipt.make({
             ...observed,
@@ -438,6 +438,37 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
               Effect.provideService(GoalCompletionIo, io)
             ),
             latest
+          );
+        })
+      );
+    })
+  );
+  it.effect("degraded merged refreshes retain older positively observed required-red evidence", () =>
+    Effect.gen(function* () {
+      yield* temporaryWorkingDirectory;
+      const value = yield* manifest();
+      const stale = yield* observe({ red: true });
+      expect(stale.outcome).toBe("unsatisfied");
+      const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
+      const staleText = yield* encodeReceipt(stale);
+      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      yield* Effect.forEach(
+        [{ missingHistory: true }, { preMergePendingRerun: true }],
+        Effect.fn("GoalsCompletionTest.retainRequiredRed")(function* (scenario) {
+          const observed = yield* observe(scenario);
+          const degraded = GoalCompletionReceipt.make({
+            ...observed,
+            verifiedAt: DateTime.add(stale.verifiedAt, { seconds: 1 }),
+          });
+          expect(degraded.outcome).toBe("unknown");
+          assertTrue(O.isSome(degraded.merge));
+          const degradedText = yield* encodeReceipt(degraded);
+          yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${staleText}\n${degradedText}\n`);
+          assertSome(
+            yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
+              Effect.provideService(GoalCompletionIo, io)
+            ),
+            stale
           );
         })
       );

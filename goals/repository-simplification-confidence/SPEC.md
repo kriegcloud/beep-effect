@@ -1019,10 +1019,12 @@ remain authoritative.
 
 ### 2026-10-14 — H2 merged unknown receipts supersede stale unsatisfaction
 
-Select the newest matching receipt with a definite outcome or merge facts.
+Select the newest matching receipt with a definite outcome, or with merge facts,
+a required-check snapshot and a definite hosted-required-check observation.
 A successful merged observation can remain unknown because historical inventory
 is incomplete; preserving an older red/pending verdict would misreport that
-new observation. A transient unknown without merge facts remains fallback-only.
+new observation. A transient unknown without merge facts, or with missing/unknown required-check
+observations, remains fallback-only.
 Keep repository, declaration digest, final PR and head revalidation unchanged.
 Reverse by reverting this receipt-reader fix and deleting derived receipts
 before refresh; legacy manifest and lifecycle compatibility is unchanged.

@@ -776,7 +776,17 @@ export const storedGoalCompletion = Effect.fn("Goals.Completion.stored")(functio
       receipt.finalPullRequest === final.number &&
       O.contains(receipt.repository)(repository)
   );
-  const definite = A.filter(matching, (receipt) => receipt.outcome !== "unknown" || O.isSome(receipt.merge));
+  const definite = A.filter(
+    matching,
+    (receipt) =>
+      receipt.outcome !== "unknown" ||
+      (O.isSome(receipt.merge) &&
+        O.isSome(receipt.requiredChecks) &&
+        A.some(
+          receipt.evidence,
+          (check) => check.ref.kind === "hosted-required-checks" && check.ref.gating && check.outcome !== "unknown"
+        ))
+  );
   const candidates = A.isReadonlyArrayNonEmpty(definite) ? definite : matching;
   const newest = A.reduce(candidates, O.none<GoalCompletionReceipt>(), (found, receipt) =>
     O.isNone(found) || DateTime.isGreaterThan(receipt.verifiedAt, found.value.verifiedAt) ? O.some(receipt) : found

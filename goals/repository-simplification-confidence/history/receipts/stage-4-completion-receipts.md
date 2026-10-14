@@ -51,7 +51,8 @@ two H2 admissions run concurrently. Scratch command logs remain lane-local.
 | Changed nested initiative.packetId | different declaration digest |
 | Partial append or stale digest/PR | ignored |
 | Transient unknown refresh with no merge facts following definite receipt | definite evidence retained |
-| Newer merged unknown receipt following required-red or pending-rerun receipt | newest merged facts retained; stale unsatisfaction cleared to unknown |
+| Newer successful merged receipt following required-red or pending-rerun receipt | newest check facts retained; red unsatisfaction becomes unknown, pending overall stays unknown |
+| Degraded merged refresh with missing history or pending checks after required red | older positively observed red retained |
 | Doctor online versus explicit refresh | read-only versus append |
 | All live manifests | decode without rewrite |
 

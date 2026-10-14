@@ -1458,3 +1458,14 @@ on the new head if it appears.
   Do not accept it as brief-pinned medium review evidence or change the model
   to seek a favorable review. Route pin drift and unavailable review to the
   orchestrator alongside source-bound completed prior reviews.
+
+### 2026-10-14 — H2 independent freshness-review corrections
+
+- Approved Cursor model `claude-opus-5-5-medium` confirms Medium in its init
+  event and completes the independent review. Fix every finding: pending
+  at merge is unknown rather than unsatisfied, and a degraded merged lookup
+  must not clear an earlier positively observed required red.
+- Require merge facts, a required-check snapshot and definite hosted check
+  evidence before an unknown receipt joins the newest-first candidate set.
+  Add missing-history and pending-check preservation regressions, correct the
+  pending fixture expectation and receipt table, then requalify the source.
