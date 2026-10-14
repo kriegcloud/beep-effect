@@ -303,3 +303,11 @@ the verified prior manifest backup, and the ordinary worker model check now
 passes with zero findings across 360 models. Existing service launch-time
 defaults and the older root CLI remain outside this verification. One catalog
 effort-ladder change is reported separately; no candidate model was adopted.
+
+The [Box source trace](../history/2026-10-14-box-mcp-source-trace.md) identifies
+the installed, enabled remote Box plugin as the endpoint owner. Explicit
+`mcp_servers` and `codex mcp list` do not expose that remote registration, so
+future MCP inventories must inspect plugin registrations as well. The recorded
+startup connection lacks a token; authenticate and qualify it if needed, or
+evaluate a headless-scoped exclusion with Desktop impact understood. No plugin
+state was changed during the trace.
