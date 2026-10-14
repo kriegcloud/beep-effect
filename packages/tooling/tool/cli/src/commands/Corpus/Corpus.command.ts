@@ -5,11 +5,11 @@
  * @since 0.0.0
  */
 
+import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import { Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { CorpusCommandError } from "./Corpus.errors.ts";
@@ -270,6 +270,18 @@ const restorationChunkSizeFlag = Flag.Int("chunk-size-bytes").pipe(
 const restorationRunLabelFlag = Flag.String("run-label").pipe(
   Flag.withDefault("t7-salvage-2026-08-10"),
   Flag.withDescription("Immutable destination label under corpus raw storage")
+);
+const restorationPreservationLabelFlag = Flag.String("preservation-label").pipe(
+  Flag.optional,
+  Flag.withDescription("Sealed preservation archive label; defaults to --run-label")
+);
+const restorationOccurrenceFlag = Flag.String("occurrence").pipe(
+  Flag.optional,
+  Flag.withDescription("One member objectId from --membership-file, not its content sha256; slice scope only")
+);
+const restorationMembershipFileFlag = Flag.String("membership-file").pipe(
+  Flag.optional,
+  Flag.withDescription("Committed bounded-wave membership JSON required with --occurrence")
 );
 const restorationCrashPointFlag = Flag.ChoiceWithValue("crash-point", [
   ["none", "none"],
@@ -637,8 +649,11 @@ const corpusRestorationMailCommand = Command.make(
     maxElapsedMillis: restorationMaxElapsedFlag,
     maxTotalElapsedMillis: restorationMaxTotalElapsedFlag,
     maxTotalOutputBytes: restorationMaxTotalOutputFlag,
+    occurrence: restorationOccurrenceFlag,
+    membershipFile: restorationMembershipFileFlag,
     pffexport: pffexportFlag,
-    runLabel: restorationRunLabelFlag,
+    preservationLabel: restorationPreservationLabelFlag,
+    runLabel: restorationRunLabelFlag.pipe(Flag.withDescription("Immutable transformation output and ledger label")),
     scope: restorationMailScopeFlag,
     tikaJar: tikaJarFlag,
   },
@@ -651,7 +666,10 @@ const corpusRestorationMailCommand = Command.make(
     maxElapsedMillis,
     maxTotalElapsedMillis,
     maxTotalOutputBytes,
+    occurrence,
+    membershipFile,
     pffexport,
+    preservationLabel,
     runLabel,
     scope,
     tikaJar,
@@ -665,7 +683,9 @@ const corpusRestorationMailCommand = Command.make(
       maxElapsedMillis,
       maxTotalElapsedMillis,
       maxTotalOutputBytes,
+      ...O.getSomesStruct({ occurrence, membershipFile }),
       pffexportPath: O.getOrElse(pffexport, () => "pffexport"),
+      preservationLabel: O.getOrElse(preservationLabel, () => runLabel),
       runLabel,
       scope,
       tikaJarPath: tikaJar,

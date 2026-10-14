@@ -729,7 +729,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("residue reap", (it) => 
         }),
       ],
     });
-    const rendered = renderResidueReportLinesForTesting(applied).join("\n");
+    const rendered = A.join(renderResidueReportLinesForTesting(applied), "\n");
     expect(rendered).toContain("RESIDUE REAP APPLY");
     expect(rendered).toContain("home root: /home/me");
     expect(rendered).toContain("thresholds: default=30d turbo=14d");
@@ -743,9 +743,12 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("residue reap", (it) => 
     expect(rendered).toContain("totals: candidates=2 reaped=1 reclaimed-bytes=4096");
     expect(rendered).toContain("warning: Failed to remove /home/me/.codex/worktrees/stuck.");
 
-    const dryRun = renderResidueReportLinesForTesting(
-      ResidueReapReport.make({ ...base, applied: false, candidates: [], reapedCount: 0, reclaimedBytes: 0 })
-    ).join("\n");
+    const dryRun = A.join(
+      renderResidueReportLinesForTesting(
+        ResidueReapReport.make({ ...base, applied: false, candidates: [], reapedCount: 0, reclaimedBytes: 0 })
+      ),
+      "\n"
+    );
     expect(dryRun).toContain("RESIDUE REAP DRY RUN");
   });
 
@@ -1369,7 +1372,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("residue reap", (it) => 
       reclaimedBytes: 0,
       warnings: [],
     });
-    const rendered = renderResidueReportLinesForTesting(report).join("\n");
+    const rendered = A.join(renderResidueReportLinesForTesting(report), "\n");
     expect(rendered).toContain("checkouts: 2 (fleet)");
     expect(rendered).toContain("== checkout: /repo-a ==");
     expect(rendered).toContain("turbo-cache: candidates=30 eligible=30 skipped=0 eligible-bytes=300");
@@ -1710,6 +1713,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("checkout retention arch
                 pids: Effect.succeedSome([987654]),
                 cwd: F.constant(Effect.succeedNone),
                 status: F.constant(Effect.succeedNone),
+                jobControl: F.constant(Effect.succeedNone),
                 descriptors: Effect.fn("ResidueReapTest.descriptors")(function* () {
                   const destination = yield* Ref.get(holder);
                   if (O.isNone(destination)) return A.empty<string>();
@@ -1727,7 +1731,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("checkout retention arch
                   if (!Str.Equivalence(phase, "intent")) return;
                   const runs = A.filter(
                     yield* fs.readDirectory(path.join(fixture.repoRoot, ".beep", "residue-reap")).pipe(Effect.orDie),
-                    S.is(S.String.check(S.isPattern(/^[a-f0-9-]{36}$/u)))
+                    S.is(RunDirectoryName)
                   );
                   yield* Ref.set(
                     holder,
@@ -2105,15 +2109,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("archive interruption re
               Effect.gen(function* () {
                 const fs = yield* FileSystem.FileSystem;
                 const path = yield* Path.Path;
-                const encoded = yield* S.encodeEffect(
-                  S.fromJsonString(
-                    S.Struct({
-                      repoRoot: S.String,
-                      homeRoot: S.String,
-                      nowMillis: S.Finite,
-                    })
-                  )
-                )(fixture);
+                const encoded = yield* S.encodeEffect(ResidueInvocationJson)(fixture);
                 const script = `
             import { runResidueReap } from "@beep/repo-cli/test/RepoRun";
             import { NodeServices } from "@effect/platform-node";
@@ -2129,10 +2125,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("archive interruption re
                 );
                 expect(killed).toBe(true);
                 const runsRoot = path.join(fixture.repoRoot, ".beep", "residue-reap");
-                const runs = A.filter(
-                  yield* fs.readDirectory(runsRoot),
-                  S.is(S.String.check(S.isPattern(/^[a-f0-9-]{36}$/u)))
-                );
+                const runs = A.filter(yield* fs.readDirectory(runsRoot), S.is(RunDirectoryName));
                 expect(runs).toHaveLength(1);
                 const runId = O.getOrThrow(A.head(runs));
                 expect(yield* fs.exists(path.join(runsRoot, runId, "plan.json"))).toBe(true);
@@ -2340,3 +2333,11 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("retention fences", (it)
     )
   );
 });
+const RunDirectoryName = S.String.check(S.isPattern(/^[a-f0-9-]{36}$/u));
+const ResidueInvocationJson = S.fromJsonString(
+  S.Struct({
+    repoRoot: S.String,
+    homeRoot: S.String,
+    nowMillis: S.Finite,
+  })
+);

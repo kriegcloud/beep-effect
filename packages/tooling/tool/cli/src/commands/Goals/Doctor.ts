@@ -40,6 +40,7 @@ import { reflectionFileNameIsArtifact, reflectionFrontmatterIsValid } from "../L
 import { observeGoalCompletion, storedGoalCompletion } from "./Completion.ts";
 import { GoalsGitError } from "./Goals.errors.ts";
 import { decodeGoalManifest, GoalPhaseStatus, GoalStatus, goalPullRequestRefs } from "./Goals.schemas.ts";
+import { capabilityProviderRows, compileCapabilityProjection, isStrandedProviderSet } from "./Graph.projection.ts";
 import {
   goalManifestPhases,
   isJsonRecord,
@@ -49,6 +50,7 @@ import {
 } from "./Inventory.ts";
 import type { GitCommandErrorAdapter } from "../../internal/repo-run/index.ts";
 import type { GoalCompletionReceipt, GoalManifest, GoalPullRequestRef } from "./Goals.schemas.ts";
+import type { CapabilityProjection } from "./Graph.schemas.ts";
 import type { GoalPacketRecord } from "./Inventory.ts";
 
 const $I = $RepoCliId.create("commands/Goals/Doctor");
@@ -122,10 +124,15 @@ export const GoalDoctorFindingKind = LiteralKit([
   "packet-status-drift",
   "packet-trace-stale",
   "packet-trace-missing",
+  "packet-graduation-pending",
   "packet-fleet-duplicate-slug",
   "packet-fleet-dependency-cycle",
   "packet-fleet-unreachable",
   "packet-fleet-unmigrated-reference",
+  "capability-duplicate-declaration",
+  "capability-packet-id-mismatch",
+  "capability-reference-provides",
+  "capability-stranded",
 ]).pipe(
   $I.annoteSchema("GoalDoctorFindingKind", {
     description:
@@ -777,6 +784,126 @@ const gitAdvisories = Effect.fn("Goals.gitAdvisories")(function* (packets: Reado
   return { findings, notes };
 });
 
+/**
+ * Capability findings over a compiled projection (D5, D8).
+ *
+ * **Details**
+ *
+ * - `capability-duplicate-declaration` (blocking, ratcheted): a packet lists the
+ *   same slug twice in `provides` or in `requires`.
+ * - `capability-reference-provides` (blocking, ratcheted): a `reference` packet
+ *   declares `provides`. Reference packets document; they never build.
+ * - `capability-stranded` (advisory): every provider of a capability is
+ *   superseded, so the superseding packet never re-declared it. One finding per
+ *   superseded provider.
+ *
+ * Keys embed the edge and capability, so each declaration ratchets on its own.
+ *
+ * **Example** (An empty projection has no capability findings)
+ *
+ * ```ts
+ * import { capabilityDoctorFindings } from "@beep/repo-cli/commands/Goals/Doctor"
+ * import { CapabilityProjection } from "@beep/repo-cli/commands/Goals/Graph.schemas"
+ *
+ * const projection = CapabilityProjection.make({ packets: [], capabilities: [], provides: [], requires: [], duplicates: [] })
+ * console.log(capabilityDoctorFindings(projection)) // []
+ * ```
+ *
+ * @param projection - Capability projection compiled from the decodable manifests.
+ * @returns Duplicate, reference-provides, and stranded findings.
+ * @category validation
+ * @since 0.0.0
+ */
+export const capabilityDoctorFindings = (projection: CapabilityProjection): ReadonlyArray<GoalDoctorFinding> => {
+  const duplicates = A.map(projection.duplicates, (duplicate) =>
+    finding(
+      duplicate.packetId,
+      "capability-duplicate-declaration",
+      "blocking",
+      `declares ${duplicate.capability} more than once in ${duplicate.edge}; list each capability once.`,
+      `${duplicate.edge} ${duplicate.capability}`
+    )
+  );
+  const perCapability = A.flatMap(projection.capabilities, (capability) => {
+    const providers = capabilityProviderRows(projection, capability);
+    const referenceProvides = pipe(
+      providers,
+      A.filter((row) => row.providerStatus === "reference"),
+      A.map((row) =>
+        finding(
+          row.provider,
+          "capability-reference-provides",
+          "blocking",
+          `reference packet declares provides ${capability}; reference packets never satisfy readiness, so move the declaration to the packet that builds it.`,
+          capability
+        )
+      )
+    );
+    const stranded = isStrandedProviderSet(providers)
+      ? A.map(providers, (row) =>
+          finding(
+            row.provider,
+            "capability-stranded",
+            "advisory",
+            `${capability} is declared only by superseded packets; the superseding packet must re-declare it.`,
+            capability
+          )
+        )
+      : A.empty<GoalDoctorFinding>();
+    return A.appendAll(referenceProvides, stranded);
+  });
+  return A.appendAll(duplicates, perCapability);
+};
+
+/**
+ * Capability findings over every decodable packet manifest.
+ *
+ * **Details**
+ *
+ * The capability graph only admits a manifest whose `initiative.id` equals its
+ * packet directory, the same law `goals next|explain|catalog` enforces and the
+ * `goals/INDEX.md` graph applies. A manifest that breaks it is left out of the
+ * projection and gets a blocking `capability-packet-id-mismatch` finding. Because
+ * packet directories are unique, this also covers two packets sharing an id, so
+ * the projection never sees a duplicate and the doctor never aborts.
+ *
+ * **Example** (No packets yield no capability findings)
+ *
+ * ```ts
+ * import { capabilityPacketFindings } from "@beep/repo-cli/commands/Goals/Doctor"
+ *
+ * console.log(capabilityPacketFindings([])) // []
+ * ```
+ *
+ * @param packets - Packet slugs with their decoded manifest, when it decoded.
+ * @returns Id-mismatch findings followed by the projection's capability findings.
+ * @category validation
+ * @since 0.0.0
+ */
+export const capabilityPacketFindings = (
+  packets: ReadonlyArray<{ readonly slug: string; readonly manifest: O.Option<GoalManifest> }>
+): ReadonlyArray<GoalDoctorFinding> => {
+  const decoded = A.getSomes(
+    A.map(packets, (packet) => O.map(packet.manifest, (manifest) => ({ slug: packet.slug, manifest })))
+  );
+  const matchesDirectory = (entry: (typeof decoded)[number]) => entry.manifest.initiative.id === entry.slug;
+  const admitted = A.filter(decoded, matchesDirectory);
+  const mismatched = A.filter(decoded, (entry) => !matchesDirectory(entry));
+  const mismatches = A.map(mismatched, (entry) =>
+    finding(
+      entry.slug,
+      "capability-packet-id-mismatch",
+      "blocking",
+      `initiative.id ${entry.manifest.initiative.id} does not match the packet directory goals/${entry.slug}; the capability graph leaves this packet out until they agree.`,
+      entry.manifest.initiative.id
+    )
+  );
+  return A.appendAll(
+    mismatches,
+    capabilityDoctorFindings(compileCapabilityProjection(A.map(admitted, (entry) => entry.manifest)))
+  );
+};
+
 const findingLine = (item: GoalDoctorFinding): string => `- ${item.slug} [${item.kind}] ${item.message}`;
 
 const completionReceiptFindings = (
@@ -896,37 +1023,33 @@ const loadDoctorBaselineKeys = Effect.fn("Goals.loadDoctorBaselineKeys")(functio
   );
 });
 
+// Prints a header and its lines on stderr, or nothing when there are no lines.
+const printErrorSection = Effect.fn("Goals.printErrorSection")(function* (
+  header: string,
+  lines: ReadonlyArray<string>
+) {
+  if (A.isReadonlyArrayEmpty(lines)) {
+    return;
+  }
+  yield* Console.error(header);
+  yield* Effect.forEach(lines, (line) => Console.error(line), { discard: true });
+});
+
 const printNonFatalFindings = Effect.fn("Goals.printNonFatalFindings")(function* (input: {
   readonly notes: ReadonlyArray<string>;
   readonly advisories: ReadonlyArray<GoalDoctorFinding>;
   readonly classified: GoalDoctorClassification;
 }) {
-  for (const note of input.notes) {
-    yield* Console.log(`[goals:doctor] note: ${note}`);
-  }
-
-  if (A.isReadonlyArrayNonEmpty(input.advisories)) {
-    yield* Console.error("[goals:doctor] advisories (non-fatal):");
-    for (const item of input.advisories) {
-      yield* Console.error(findingLine(item));
-    }
-  }
-
-  if (A.isReadonlyArrayNonEmpty(input.classified.inherited)) {
-    yield* Console.error("[goals:doctor] inherited baseline findings (non-fatal, burn down over time):");
-    for (const item of input.classified.inherited) {
-      yield* Console.error(findingLine(item));
-    }
-  }
-
-  if (A.isReadonlyArrayNonEmpty(input.classified.resolved)) {
-    yield* Console.error(
-      `[goals:doctor] ${A.length(input.classified.resolved)} baseline finding(s) resolved — shrink the baseline with --write-baseline:`
-    );
-    for (const key of input.classified.resolved) {
-      yield* Console.error(`- ${key}`);
-    }
-  }
+  yield* Effect.forEach(input.notes, (note) => Console.log(`[goals:doctor] note: ${note}`), { discard: true });
+  yield* printErrorSection("[goals:doctor] advisories (non-fatal):", A.map(input.advisories, findingLine));
+  yield* printErrorSection(
+    "[goals:doctor] inherited baseline findings (non-fatal, burn down over time):",
+    A.map(input.classified.inherited, findingLine)
+  );
+  yield* printErrorSection(
+    `[goals:doctor] ${A.length(input.classified.resolved)} baseline finding(s) resolved — shrink the baseline with --write-baseline:`,
+    A.map(input.classified.resolved, (key) => `- ${key}`)
+  );
 });
 
 /**
@@ -967,8 +1090,12 @@ export const runGoalsDoctor = Effect.fn("Goals.runGoalsDoctor")(function* (optio
   );
   const completionFindings = A.flatMap(structured, (row) => row.findings);
   const structuredSlugs = HashSet.fromIterable(A.map(structured, (row) => row.slug));
+  const capabilityFindings = capabilityPacketFindings(
+    A.map(packets, (packet) => ({ slug: packet.record.slug, manifest: packet.manifest }))
+  );
   const allFindings = [
     ...A.flatMap(packets, (packet) => packet.findings),
+    ...capabilityFindings,
     ...A.filter(
       advisoriesFromGit.findings,
       (item) => item.kind !== "completion-gate-unsatisfied" || !HashSet.has(structuredSlugs, item.slug)

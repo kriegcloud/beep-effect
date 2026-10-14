@@ -4,15 +4,15 @@
     "id": "practice-m365-contacts",
     "packetId": "goal-packet/v1:1b1de9f7d27be1108a8aee793d571f6130298f41784b813a88cccc2f03be1d76",
     "title": "Practice M365 Contacts",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-08-30",
-    "updated": "2026-08-30",
+    "updated": "2026-10-13",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/practice-m365-contacts",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Add the confidential-client auth lane and contacts write verbs to @beep/m365, then seed the attorney's contact folder from the salvaged CSVs with dedup and rollback tags",
-  "statusNote": "Graduated 2026-08-30 from explorations/practice-office-provisioning; P0 not started. First actions: operator-attended Entra registration with RBAC-for-Applications scoping; CSV header census.",
+  "statusNote": "All 480 identifiable CSV contacts resolve mailbox-wide; zero creates, seven unidentifiable skips. Scoped grant/read and 536-contact export proved; contacts-only smoke cleaned up. Empty apply journal and no-op undo receipts persisted; both undo dry-runs passed. PR 2 carries the bounded repair, receipts, reflection and completed-retained flip; Yeet closes the readiness gate. Grant removal is a separate orchestrator action after merge.",
   "blockedBy": [],
   "executionCapable": true,
   "reflectionRequired": true,
@@ -52,27 +52,27 @@
     {
       "id": "P0",
       "name": "Research",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Implement",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

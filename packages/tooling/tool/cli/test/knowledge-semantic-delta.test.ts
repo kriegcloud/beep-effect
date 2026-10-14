@@ -531,14 +531,17 @@ describe("knowledge semantic-delta golden paired fixtures", () => {
           fixture(
             { "docs/guide.md": "No fence.\n" },
             {
-              "docs/guide.md": [
-                "```bash beep:exec",
-                "`docs/missing.md`",
-                "`bun run beep goals doctro`",
-                "<!-- beep:assert path-exists docs/missing.md -->",
-                "```",
-                "",
-              ].join("\n"),
+              "docs/guide.md": A.join(
+                [
+                  "```bash beep:exec",
+                  "`docs/missing.md`",
+                  "`bun run beep goals doctro`",
+                  "<!-- beep:assert path-exists docs/missing.md -->",
+                  "```",
+                  "",
+                ],
+                "\n"
+              ),
             }
           )
         );
@@ -554,17 +557,20 @@ describe("knowledge semantic-delta golden paired fixtures", () => {
           fixture(
             { "docs/guide.md": "No fence.\n" },
             {
-              "docs/guide.md": [
-                "> Quoted note:",
-                "> ```bash beep:exec",
-                "> `docs/decoy.md`",
-                "> `bun run beep goals doctro`",
-                "> <!-- beep:assert path-exists docs/decoy.md -->",
-                "> ```",
-                "",
-                "Back in prose, `docs/missing.md` is real.",
-                "",
-              ].join("\n"),
+              "docs/guide.md": A.join(
+                [
+                  "> Quoted note:",
+                  "> ```bash beep:exec",
+                  "> `docs/decoy.md`",
+                  "> `bun run beep goals doctro`",
+                  "> <!-- beep:assert path-exists docs/decoy.md -->",
+                  "> ```",
+                  "",
+                  "Back in prose, `docs/missing.md` is real.",
+                  "",
+                ],
+                "\n"
+              ),
             }
           )
         );
@@ -582,17 +588,20 @@ describe("knowledge semantic-delta golden paired fixtures", () => {
           fixture(
             { "docs/guide.md": "No fence.\n" },
             {
-              "docs/guide.md": [
-                "- outer item",
-                "    - inner item",
-                "        ```bash",
-                "        `docs/decoy.md`",
-                "        `bun run beep goals doctro`",
-                "        ```",
-                "",
-                "Back in prose, `docs/missing.md` is real.",
-                "",
-              ].join("\n"),
+              "docs/guide.md": A.join(
+                [
+                  "- outer item",
+                  "    - inner item",
+                  "        ```bash",
+                  "        `docs/decoy.md`",
+                  "        `bun run beep goals doctro`",
+                  "        ```",
+                  "",
+                  "Back in prose, `docs/missing.md` is real.",
+                  "",
+                ],
+                "\n"
+              ),
             }
           )
         );
@@ -785,6 +794,54 @@ describe("knowledge semantic-delta negative controls", () => {
           fixture(
             { "docs/guide.md": "No assertion.\n" },
             { "docs/guide.md": "<!-- beep:assert path-exists docs/missing.md unexpected -->\n" }
+          )
+        );
+        expect(introducedIds(report)).toEqual([]);
+      })
+    );
+  });
+
+  it.layer(testLayer, { timeout: "10 seconds" })((it) => {
+    it.effect("only a whole-line assertion comment asserts; quoted, fenced, and mid-line markers are syntax", () =>
+      Effect.gen(function* () {
+        const report = yield* scan(
+          fixture(
+            { "docs/guide.md": "No assertion.\n" },
+            {
+              "docs/guide.md": A.join(
+                [
+                  "Write `<!-- beep:assert path-exists docs/quoted.md -->` to assert a path.",
+                  "```md",
+                  "<!-- beep:assert path-exists docs/fenced.md -->",
+                  "```",
+                  "Prose then <!-- beep:assert path-exists docs/mid-line.md --> mid-line.",
+                  "  <!-- beep:assert path-exists docs/missing.md -->  ",
+                  "",
+                ],
+                "\n"
+              ),
+            }
+          )
+        );
+        expect(introducedIds(report)).toEqual([
+          yield* expectedId("failed-assertion", "base:docs/guide.md", "path-exists:docs/missing.md"),
+        ]);
+      })
+    );
+  });
+
+  it.layer(testLayer, { timeout: "10 seconds" })((it) => {
+    it.effect("an arrow chain of commands is not one command span", () =>
+      Effect.gen(function* () {
+        const report = yield* scan(
+          fixture(
+            { "docs/guide.md": "No command.\n" },
+            {
+              "docs/guide.md": A.join(
+                ["Run `bun run beep goals doctro → index --pr`.", "Run `bun run beep goals doctro -> index --pr`.", ""],
+                "\n"
+              ),
+            }
           )
         );
         expect(introducedIds(report)).toEqual([]);
@@ -1165,13 +1222,16 @@ describe("knowledge semantic-delta current-checkout probes", () => {
         yield* fs.makeDirectory(path.dirname(rootModule), { recursive: true });
         yield* fs.writeFileString(
           rootModule,
-          [
-            'import { Command } from "effect/cli"',
-            `await Bun.write(${encodedMarkerPath}, "executed")`,
-            "const chooseArchiveCode = true",
-            'export const rootCommand = chooseArchiveCode ? Command.make("safe") : Command.make("evil\\u001B[31m\\u202E")',
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { Command } from "effect/cli"',
+              `await Bun.write(${encodedMarkerPath}, "executed")`,
+              "const chooseArchiveCode = true",
+              'export const rootCommand = chooseArchiveCode ? Command.make("safe") : Command.make("evil\\u001B[31m\\u202E")',
+              "",
+            ],
+            "\n"
+          )
         );
 
         const error = yield* Effect.flip(KnowledgeCommandSurface.buildStaticCommandTree(tempRoot));
@@ -1196,18 +1256,21 @@ describe("knowledge semantic-delta current-checkout probes", () => {
         yield* fs.makeDirectory(path.dirname(rootModule), { recursive: true });
         yield* fs.writeFileString(
           rootModule,
-          [
-            'import { A } from "@beep/utils"',
-            'import * as Command from "effect/cli"',
-            'const first = Command.make("first").pipe(Command.withAlias("f"), Command.withAlias("final"))',
-            'const second = Command.make("second")',
-            "const leading = [first]",
-            "const trailing = A.make(second)",
-            'export const rootCommand = Command.make("beep-cli").pipe(',
-            "  Command.withSubcommands([...leading, ...trailing]),",
-            ")",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { A } from "@beep/utils"',
+              'import * as Command from "effect/cli"',
+              'const first = Command.make("first").pipe(Command.withAlias("f"), Command.withAlias("final"))',
+              'const second = Command.make("second")',
+              "const leading = [first]",
+              "const trailing = A.make(second)",
+              'export const rootCommand = Command.make("beep-cli").pipe(',
+              "  Command.withSubcommands([...leading, ...trailing]),",
+              ")",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const tree = yield* KnowledgeCommandSurface.buildStaticCommandTree(tempRoot);
@@ -1295,7 +1358,7 @@ describe("knowledge semantic-delta current-checkout probes", () => {
           const fixtureRoot = path.join(tempRoot, fixture.name);
           const rootModule = path.join(fixtureRoot, ROOT_MODULE_PATH);
           yield* fs.makeDirectory(path.dirname(rootModule), { recursive: true });
-          yield* fs.writeFileString(rootModule, [...fixture.source, ""].join("\n"));
+          yield* fs.writeFileString(rootModule, A.join([...fixture.source, ""], "\n"));
 
           const error = yield* Effect.flip(KnowledgeCommandSurface.buildStaticCommandTree(fixtureRoot));
           assert.strictEqual(error._tag, "KnowledgeOperationalError", fixture.name);
@@ -1317,21 +1380,27 @@ describe("knowledge semantic-delta current-checkout probes", () => {
         yield* fs.makeDirectory(path.dirname(listRoot), { recursive: true });
         yield* fs.writeFileString(
           factoryRoot,
-          [
-            'import { Command } from "effect/cli"',
-            "const recursive = (name: string) => recursive(name)",
-            'export const rootCommand = recursive("beep-cli")',
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { Command } from "effect/cli"',
+              "const recursive = (name: string) => recursive(name)",
+              'export const rootCommand = recursive("beep-cli")',
+              "",
+            ],
+            "\n"
+          )
         );
         yield* fs.writeFileString(
           listRoot,
-          [
-            'import { Command } from "effect/cli"',
-            "const commands = [...commands]",
-            'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands(commands))',
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { Command } from "effect/cli"',
+              "const commands = [...commands]",
+              'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands(commands))',
+              "",
+            ],
+            "\n"
+          )
         );
 
         const [factoryError, listError] = yield* Effect.all([
@@ -1366,14 +1435,17 @@ describe("knowledge semantic-delta current-checkout probes", () => {
         yield* fs.symlink(path.join(repoRoot, "node_modules"), path.join(currentCheckoutRoot, "node_modules"));
         yield* fs.writeFileString(
           rootModule,
-          [
-            'import { Command } from "effect/cli"',
-            `if (process.env.ARCHIVE_DOTENV_SENTINEL === "loaded") await Bun.write(${encodedMarkerPath}, "executed")`,
-            'const doctor = Command.make("doctor")',
-            'const goals = Command.make("goals").pipe(Command.withSubcommands([doctor]))',
-            'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands([goals]))',
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { Command } from "effect/cli"',
+              `if (process.env.ARCHIVE_DOTENV_SENTINEL === "loaded") await Bun.write(${encodedMarkerPath}, "executed")`,
+              'const doctor = Command.make("doctor")',
+              'const goals = Command.make("goals").pipe(Command.withSubcommands([doctor]))',
+              'export const rootCommand = Command.make("beep-cli").pipe(Command.withSubcommands([goals]))',
+              "",
+            ],
+            "\n"
+          )
         );
         yield* fs.writeFileString(path.join(archiveRoot, ".env"), "ARCHIVE_DOTENV_SENTINEL=loaded\n");
         const bunExecutable = yield* processSpawner

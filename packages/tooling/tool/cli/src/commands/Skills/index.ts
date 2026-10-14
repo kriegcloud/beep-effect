@@ -6,6 +6,13 @@
  */
 
 /**
+ * Report models for the Agent Skills frontmatter check.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./SkillFrontmatter.schemas.ts";
+/**
  * Command definitions for repo-local skills management.
  *
  * @category commands
@@ -19,6 +26,13 @@ export * from "./Skills.command.ts";
  * @since 0.0.0
  */
 export * from "./Skills.errors.ts";
+/**
+ * Unified-diff hunks and CODEOWNERS ownership for generated skill patches.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./Skills.patches.ts";
 /**
  * Pure renderers for read-only skill provenance reports.
  *
@@ -34,9 +48,30 @@ export * from "./Skills.render.ts";
  */
 export * from "./Skills.schemas.ts";
 /**
+ * Ratified first-wave provenance resolution seeds.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export * from "./Skills.seeds.ts";
+/**
  * Injectable read-only provenance services.
  *
  * @category services
  * @since 0.0.0
  */
 export * from "./Skills.service.ts";
+/**
+ * skills-lock/v2 document and migration-plan schemas.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./SkillsLock.schemas.ts";
+/**
+ * Reviewed, atomic skills-lock/v2 write.
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export * from "./SkillsLock.write.ts";

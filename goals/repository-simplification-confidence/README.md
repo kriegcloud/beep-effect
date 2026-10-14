@@ -4,7 +4,9 @@
 
 Lifecycle: `active`
 
-Latest E evidence: [GitHub audit](./history/receipts/stage-4-github-audit.md), [settings snapshots](./history/receipts/stage-3-github-settings.md), and [lane handoff](./history/handoffs/rsc-e-github-2026-10-09.md). E source repairs are final in ready PR #1568. Both integrated full package gates and all local hosted-parity lanes pass; focused fixtures pass 127 tests and scoped coverage passes 396 tests across all seven touched baseline files. The actual GITHUB_TOKEN hosted governance step passes. Cross-lane, trusted-main writer and post-merge acceptance remain open; inherited hosted coverage reds remain attributed for the consolidated repair.
+Program resumed on October 14. H2 is integrating current main and requalifying
+reopened PR #1574; historical-inventory completeness remains explicitly unknown.
+Completed lane evidence and remaining program work are tracked in PLAN.md.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -62,6 +64,18 @@ nothing was adopted or discarded. P0 Research is complete.
 ## Latest Evidence
 
 H2 implementation and historical reconciliation are in PR #1574: [stage-4 completion receipts](./history/receipts/stage-4-completion-receipts.md) and [lane handoff](./history/handoffs/rsc-h2-completion-2026-10-09.md). The resumed full package handoff gate passed (audit 989.2s, docgen 27.3s); run-3 delivery was pushed and marked ready; a subsequent hosted review found a deleted-ruleset inventory gap. The local fix requires explicit historical inventory completeness, so live overall outcomes are unknown while the merge/context facts remain verified. Independent review is clear and renewed package/parity qualification is pending. Post-merge refresh remains a clone-scoped closeout action owned by the orchestrator.
+
+B's October 13 bounded baseline repair is published in
+[PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
+codec properties for the three inherited arbitrary-test findings. After
+integrating #1612, the schema-first owner removes their three superseded
+exception rows; the fresh check passes. Integrated local verification is
+settled, with eight inherited JSDoc ratchet increases; hosted requalification
+remains pending.
+[Current B handoff](history/handoffs/rsc-b-standards-2026-10-13.md) records
+terminal package and parity results. The original refresh, guidance, and
+detector/provenance waves remain open.
+
 Lane V [PR #1575](https://github.com/beep-effect/beep-effect/pull/1575) is published and ready. [Stage 4 reconciliation](./history/receipts/stage-4-vitest-reconciliation.md) preserves all 46 source worktrees, records every disposition, and ties the generated 1,853 / 716 open / 1,137 exceptions inventory to final code. Full repo-cli verification and every local parity stage pass; independent source review is terminal zero and both actionable hosted threads are resolved. The R105 repair preview, 716-row R102 frontier, hosted merge gate and retirement remain separate open work.
 
 H1 OSV wave [PR #1562](https://github.com/beep-effect/beep-effect/pull/1562) ready for review;

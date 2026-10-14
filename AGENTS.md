@@ -142,7 +142,8 @@ Runbook: `docs/runbooks/agent-pools.md`.
 
 - Use schema-first domain models; prefer typed errors and tagged unions.
 - Prefer effect helper modules (`String`, `Equal`, ...) over native helpers;
-  import every Effect module from its `effect/<Module>` path. Import `pipe`,
+  import every Effect module from its current `effect/<Module>` path
+  (`.patterns/effect-module-paths.md`). Import `pipe`,
   `flow`, and `identity` from `effect/Function`. Do not import from the root
   `effect` barrel in code, JSDoc examples, or Markdown code blocks.
 - Prefer match helpers over conditional chains; prefer service composition
@@ -163,6 +164,13 @@ Runbook: `docs/runbooks/agent-pools.md`.
   `@beep/*` aliases instead of relative paths into any workspace `src/`;
   relatives only for local helpers, fixtures, snapshots, and other
   non-`src` test files.
+- `.claude/skills/<name>/SKILL.md` frontmatter follows the Agent Skills
+  specification (agentskills.io): `name`, `description`, `license`,
+  `compatibility`, `metadata`, `allowed-tools`, plus Claude Code's native
+  keys. Repo extras such as `version` and `status` go under `metadata`;
+  keep `SKILL.md` under 500 lines and move depth into `references/`.
+  `bun run beep skills update --check` enforces the keys and advises on
+  length.
 
 ## Autonomy
 
@@ -192,8 +200,9 @@ needed only for the escalation list below.
   instead of pushing again.
 - Inherited reds: attribute first, fix them once on `main` (one small PR) and
   tell dependent lanes to merge `main` once; do not copy the fix into each
-  lane. Cancel queued CI on PRs that must re-run anyway so the unblocking PR
-  gets runners.
+  lane. The orchestrator declares one consolidated unblocker per red episode
+  (`unblocks-main` label) and cancels runs, running ones included, on PRs
+  that must re-run anyway so the unblocker gets runners and merges first.
 - One orchestrator session coordinates the rest: it routes threads, reds and
   conflicts to the owning session, merges at the gate, and relays the
   operator's answers. Sessions report blockers to it, not to the operator.
@@ -261,6 +270,12 @@ needed only for the escalation list below.
     since the later of the latest "marked ready for review" event and the
     latest push to the head. No reviewer has to post (review bots never gate);
     a window that cannot be read is unknown, never elapsed.
+
+  S11 exception (operator 2026-10-09, standing repo-wide since 2026-10-13):
+  a PR whose owner called final may merge over failing jobs, required ones
+  included, when the thread and window conditions hold and it has no base
+  conflict; record each red with its attribution. Every required red that
+  reaches `main` gets a named owner and a fix PR the same working day.
 - PR closeout: flip the PR ready at content-final, then, from the checkout you
   are working in, run
   `bun run beep yeet monitor --until-ready --detach` and block on
@@ -297,9 +312,13 @@ needed only for the escalation list below.
   of the lane before removal; the fence exempts the invoking session's
   ancestry and, under Claude Code (`CLAUDE_PID`), everything that session
   spawned into the lane (its MCP servers, tool shells, background jobs), so a
-  desktop session retires its own lane. A desktop terminal panel, an editor,
-  or another session standing in the lane still refuses it and is named in
-  the error: close or `cd` it out, then rerun. A later session retires a
+  desktop session retires its own lane. Run from inside the lane, it also
+  leaves an idle Claude Desktop Terminal panel shell (the app starts one in
+  the session folder even if the panel is never opened) and removes the lane
+  under it. A panel shell running a command, any panel shell under `--lane`,
+  an editor, or another session standing in the lane still refuses it and is
+  named in the error: `cd ~` in it (closing a panel tab starts a new shell in
+  the lane) or close it, then rerun. A later session retires a
   leftover lane with `bun run beep yeet sweep --retire --lane <lane>` from
   any sibling lane of the same clone; when only the clone is at hand and its
   checkout predates `--retire`, run the lane's own CLI:
