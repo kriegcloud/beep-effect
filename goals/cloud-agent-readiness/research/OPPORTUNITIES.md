@@ -283,3 +283,16 @@ this measured shape; ten minutes was insufficient. Keep the existing memory
 limits and one-lane width. Heavy/full proof, reboot recovery, concurrent runs,
 complete cache qualification and post-main runtime/model-policy parity remain
 separate acceptance items. No publication or orchestrator report was implied.
+
+## Post-main runtime compatibility — 2026-10-14
+
+The [fresh headless audit](../history/2026-10-14-post-main-headless-parity.md)
+qualifies native Codex inference, bounded read-only CLI inspection and direct
+host Docker/GitHub/service probes at 3721696041. Ordinary model checking stops
+at the old `muse.optin` role spelling. A privately generated main seed passes
+with zero findings across 360 models, and differs from the installed manifest
+only by that spelling. Deploy the main-owned seed through backup-producing
+adoption, then verify the ordinary path; do not change source policy to accept
+an obsolete role. Separately trace an unauthenticated Box MCP startup connection
+to its owning configuration before remediation. Other-provider post-main
+inference and reboot acceptance remain open.

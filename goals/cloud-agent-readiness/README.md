@@ -138,3 +138,4 @@ qualified by the beep-worker receipts.
 - [Schema-first memory ownership](history/2026-10-14-schema-memory.md): full 3,698-file scan and detached gate pass; complete tier still needs Fallow complexity closeout and a longer bounded runtime.
 
 - [Fallow closeout and complete worker cheap-gate proof](history/2026-10-14-fallow-closeout.md): main merged, complexity and cache integration fixed; full serial cheap tier succeeds in 613.5 seconds with normal finalization and wait exit 0.
+- [Post-main headless parity audit](history/2026-10-14-post-main-headless-parity.md): fresh native Codex and direct runtime probes pass; installed Muse role spelling blocks the ordinary model check, while an isolated main seed reports zero findings. Box MCP startup lacks authentication.
