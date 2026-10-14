@@ -2,6 +2,7 @@ import { OutlookItemRef, OutlookItemRefFromInput } from "@beep/m365";
 import { it } from "@beep/test-runner";
 import { describe } from "@effect/vitest";
 import { deepStrictEqual, strictEqual } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -47,9 +48,18 @@ describe("OutlookItemRefFromInput", () => {
   );
 
   it.effect(
-    "encodes back to the bare id",
+    "takes the kind from a message:/conversation: prefix and gets every reference back from its encoding",
     Effect.fnUntraced(function* () {
-      strictEqual(yield* encode(OutlookItemRef.cases.message.make({ id: "AAMk1" })), "AAMk1");
+      const shaped = OutlookItemRef.cases.message.make({ id: "AAQkMsgShaped" });
+      deepStrictEqual(yield* decode("message:AAQkMsgShaped"), shaped);
+      deepStrictEqual(
+        yield* decode("conversation: AAMkAGI2%2Fx "),
+        OutlookItemRef.cases.conversation.make({ id: "AAMkAGI2-x" })
+      );
+      strictEqual(yield* encode(shaped), "message:AAQkMsgShaped");
+      deepStrictEqual(yield* decode(yield* encode(shaped)), shaped);
+      const conversation = OutlookItemRef.cases.conversation.make({ id: "AAQkAGI2" });
+      deepStrictEqual(yield* decode(yield* encode(conversation)), conversation);
     })
   );
 
@@ -63,10 +73,15 @@ describe("OutlookItemRefFromInput", () => {
           "AAMk%E0%A4%A",
           "two words",
           "",
+          "message:",
+          "ticket:AAMk1",
         ],
         refuses
       );
-      deepStrictEqual(tags, ["SchemaError", "SchemaError", "SchemaError", "SchemaError", "SchemaError"]);
+      deepStrictEqual(
+        tags,
+        A.makeBy(7, () => "SchemaError")
+      );
     })
   );
 });

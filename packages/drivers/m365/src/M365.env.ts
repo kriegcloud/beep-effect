@@ -29,6 +29,16 @@ const $I = $M365Id.create("M365.env");
 
 const UNRESOLVED_REFERENCE_PREFIX = "op://";
 
+// `openssl x509 -fingerprint -sha256` with the colons stripped: 32 bytes as 64 hex digits, either case.
+const CertThumbprintSha256 = S.String.check(
+  S.isPattern(/^[0-9A-Fa-f]{64}$/, {
+    identifier: $I`CertThumbprintSha256Check`,
+    title: "Certificate SHA-256 thumbprint",
+    description: "The certificate's SHA-256 thumbprint as 64 hex digits.",
+    message: "Expected the certificate's SHA-256 thumbprint as 64 hex digits",
+  })
+);
+
 /**
  * Prefix of the app-only environment variables, such as `M365_OUTBOX`.
  *
@@ -198,8 +208,9 @@ const requiredText = (name: string): Effect.Effect<string, M365EnvError> =>
  * **Details**
  *
  * Every one of the five variables is required. A value that still starts with
- * `op://` is refused as `unresolved-reference`, and a mailbox that is not a
- * safe Graph path segment as `invalid`. The result feeds
+ * `op://` is refused as `unresolved-reference`; a mailbox that is not a safe
+ * Graph path segment, or a thumbprint that is not 64 hex digits, as `invalid`,
+ * before any private key reaches the credential. The result feeds
  * `M365.makeAppOnlyLiveLayer(settings.appOnly)`.
  *
  * **Example** (Load the outbox lane settings)
@@ -224,6 +235,9 @@ export const loadM365AppOnlyEnv = Effect.fn("M365.loadAppOnlyEnv")(function* (
   const tenantId = yield* requiredText(names.tenantId);
   const clientId = yield* requiredText(names.clientId);
   const thumbprintSha256 = yield* requiredText(names.certThumbprintSha256);
+  if (!S.is(CertThumbprintSha256)(thumbprintSha256)) {
+    return yield* M365EnvError.of(names.certThumbprintSha256, "invalid");
+  }
   const privateKey = yield* requiredText(names.certPrivateKey);
   const mailbox = yield* requiredText(names.mailbox);
   if (!S.is(GraphPathSegment)(mailbox)) {

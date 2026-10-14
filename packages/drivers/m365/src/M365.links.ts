@@ -6,6 +6,7 @@
  */
 
 import { $M365Id } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { flow, pipe } from "effect/Function";
@@ -25,7 +26,8 @@ const $I = $M365Id.create("M365.links");
  *
  * **Details**
  *
- * The tag is a hint taken from the id prefix: `AAQk` ids are conversation
+ * Unless the input named the kind (`message:<id>` / `conversation:<id>`),
+ * the tag is a hint taken from the id prefix: `AAQk` ids are conversation
  * ids, everything else is treated as a message id. A host should still fall
  * back to the other kind when Graph does not find the item. The id is in
  * Graph's REST alphabet (`-` and `_` instead of `/` and `+`).
@@ -78,6 +80,11 @@ const OUTLOOK_HOSTS = HashSet.make("outlook.cloud.microsoft", "outlook.office.co
 const CONVERSATION_PREFIX = "AAQk";
 const ITEM_ID_QUERY_KEY = "itemid=";
 const REST_ID_PATTERN = /^[A-Za-z0-9_=-]+$/;
+const KIND_SEPARATOR = ":";
+const TAGGED_INPUT_PATTERN = /^([a-z]+):(.*)$/s;
+
+const OutlookItemKind = LiteralKit(["message", "conversation"]);
+type OutlookItemKind = typeof OutlookItemKind.Type;
 
 const issue = (message: string) => new SchemaIssue.InvalidValue({ message });
 
@@ -126,24 +133,35 @@ const parseLink = (input: string): O.Option<URL> =>
 const rawItemId = (input: string): Result.Result<string, SchemaIssue.Issue> =>
   Str.includes("%")(input) ? percentDecode(input) : Result.succeed(input);
 
-const classify = (id: string): Result.Result<OutlookItemRef, SchemaIssue.Issue> =>
-  REST_ID_PATTERN.test(id) && S.is(GraphPathSegment)(id)
-    ? Result.succeed(
-        Str.startsWith(CONVERSATION_PREFIX)(id)
-          ? OutlookItemRef.cases.conversation.make({ id })
-          : OutlookItemRef.cases.message.make({ id })
-      )
-    : Result.fail(issue("Expected an Outlook web link or a Graph message or conversation id."));
+// `message:<id>` / `conversation:<id>` names the kind outright; ids never contain `:`, so the form is unambiguous.
+const explicitKind = (input: string): O.Option<readonly [OutlookItemKind, string]> =>
+  pipe(
+    Str.match(TAGGED_INPUT_PATTERN)(input),
+    O.flatMap((found) => {
+      const kind = found[1];
+      return S.is(OutlookItemKind)(kind) ? O.some([kind, found[2] ?? ""] as const) : O.none();
+    })
+  );
+
+const hintedKind = (id: string): OutlookItemKind =>
+  Str.startsWith(CONVERSATION_PREFIX)(id) ? "conversation" : "message";
+
+const classify =
+  (kind: O.Option<OutlookItemKind>) =>
+  (id: string): Result.Result<OutlookItemRef, SchemaIssue.Issue> =>
+    REST_ID_PATTERN.test(id) && S.is(GraphPathSegment)(id)
+      ? Result.succeed(OutlookItemRef.cases[O.getOrElse(kind, () => hintedKind(id))].make({ id }))
+      : Result.fail(issue("Expected an Outlook web link or a Graph message or conversation id."));
 
 const decodeInput = (input: string): Effect.Effect<OutlookItemRef, SchemaIssue.Issue> => {
   const trimmed = Str.trim(input);
+  const explicit = explicitKind(trimmed);
+  const raw = O.match(explicit, {
+    onNone: () => pipe(parseLink(trimmed), O.match({ onNone: () => rawItemId(trimmed), onSome: linkItemId })),
+    onSome: ([, id]) => rawItemId(Str.trim(id)),
+  });
   return Effect.fromResult(
-    pipe(
-      parseLink(trimmed),
-      O.match({ onNone: () => rawItemId(trimmed), onSome: linkItemId }),
-      Result.map(toRestAlphabet),
-      Result.flatMap(classify)
-    )
+    pipe(raw, Result.map(toRestAlphabet), Result.flatMap(classify(O.map(explicit, ([kind]) => kind))))
   );
 };
 
@@ -154,8 +172,11 @@ const decodeInput = (input: string): Effect.Effect<OutlookItemRef, SchemaIssue.I
  *
  * Accepts `https://outlook.cloud.microsoft/mail/.../id/<id>` and the
  * `outlook.office.com` / `outlook.office365.com` forms, including the classic
- * `?ItemID=<id>` query, and a bare id. The id is percent-decoded and mapped to
- * Graph's REST alphabet. Encoding returns the bare id.
+ * `?ItemID=<id>` query, a bare id, and the tagged `message:<id>` /
+ * `conversation:<id>` form that names the kind instead of taking it from the
+ * id prefix. The id is percent-decoded and mapped to Graph's REST alphabet.
+ * Encoding returns the tagged form, so decoding an encoded reference gives
+ * the reference back, whatever its id looks like.
  *
  * **Example** (Decode a conversation link)
  *
@@ -175,7 +196,7 @@ const decodeInput = (input: string): Effect.Effect<OutlookItemRef, SchemaIssue.I
 export const OutlookItemRefFromInput = S.String.pipe(
   S.decodeTo(OutlookItemRef, {
     decode: SchemaGetter.transformEffect(decodeInput),
-    encode: SchemaGetter.transform((ref: { readonly id: string }) => ref.id),
+    encode: SchemaGetter.transform((ref: OutlookItemRef) => `${ref._tag}${KIND_SEPARATOR}${ref.id}`),
   }),
   $I.annoteSchema("OutlookItemRefFromInput", {
     description: "Codec from a pasted Outlook web link or raw id to a Graph message or conversation reference.",

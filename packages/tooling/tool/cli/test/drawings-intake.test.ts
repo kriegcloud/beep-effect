@@ -39,6 +39,8 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -54,6 +56,8 @@ const CONVERSATION = "AAQkConv1";
 const SUBJECT = "Synthetic round two sheets";
 const SENDER = "reviewer@example.test";
 const NEXT_PAGE = "https://graph.microsoft.com/v1.0/users/drawings@example.test/messages?$skiptoken=page2";
+// A listing that never ends: every page of it links to another.
+const CAPPED_PAGE = "https://graph.microsoft.com/v1.0/users/drawings@example.test/messages?$skiptoken=capped";
 const encoder = new TextEncoder();
 
 const REVIEWER_RAW = "Reviewer@Example.test";
@@ -140,7 +144,8 @@ const unused = Effect.fnUntraced(function* () {
   return yield* Effect.die("not used by drawings intake");
 });
 
-const notFound = (status: number) => M365Error.fromReason("response status", { status, resource: "messages" });
+const notFound = (status: number) =>
+  M365Error.failEffectFromReason("response status", { status, resource: "messages" });
 
 const decodeMessage = S.decodeUnknownEffect(GraphMessage);
 const decodeAttachments = S.decodeUnknownEffect(S.Array(GraphAttachment));
@@ -152,35 +157,40 @@ const page = (value: ReadonlyArray<GraphMessage>, nextLink: O.Option<string>) =>
   value,
 });
 
-const listing = Effect.fnUntraced(function* (request: M365ListMessagesRequest) {
-  const decoded = (ids: ReadonlyArray<string>) => Effect.forEach(ids, (id) => decodeMessage(MESSAGES[id]));
-  if (O.isSome(request.nextLink)) {
-    return page(yield* decoded(["AAMkMsgNew", "AAMkMsgDraft", "AAMkMsgOwn"]), O.none());
-  }
-  const filter = O.getOrElse(request.filter, () => "");
-  if (filter === `conversationId eq '${CONVERSATION}'`) {
-    return page(yield* decoded(["AAMkMsgOld"]), O.some(NEXT_PAGE));
-  }
-  if (filter === "conversationId eq 'PlainConv2'") {
-    return page(yield* decoded(["AAMkMsgSolo"]), O.none());
-  }
-  if (filter === "conversationId eq 'OwnConv'") {
-    return page(yield* decoded(["AAMkOnlyOwn"]), O.none());
-  }
-  if (filter === "conversationId eq 'DraftConv'") {
-    return page(yield* decoded(["AAMkOnlyDraft"]), O.none());
-  }
-  if (filter === "conversationId eq 'AAQkMsgBadList'") {
-    return yield* notFound(400);
-  }
-  if (filter === "conversationId eq 'AAQkGone'") {
-    return yield* notFound(404);
-  }
-  if (filter === "conversationId eq 'AAMkBadFilter'") {
-    return yield* notFound(400);
-  }
-  return page([], O.none());
-});
+const conversationPage = (ids: ReadonlyArray<string>, nextLink: O.Option<string>) =>
+  Effect.map(
+    Effect.forEach(ids, (id) => decodeMessage(MESSAGES[id])),
+    (value) => page(value, nextLink)
+  );
+const cappedPage = Effect.succeed(page([], O.some(CAPPED_PAGE)));
+const emptyPage = Effect.succeed(page([], O.none()));
+type Listing = Effect.Effect<ReturnType<typeof page>, M365Error | S.SchemaError>;
+
+// what the fake mailbox answers for each conversation filter
+const FILTER_LISTINGS: HashMap.HashMap<string, Listing> = HashMap.make(
+  [`conversationId eq '${CONVERSATION}'`, conversationPage(["AAMkMsgOld"], O.some(NEXT_PAGE))],
+  ["conversationId eq 'AAQkCapped'", cappedPage],
+  ["conversationId eq 'PlainConv2'", conversationPage(["AAMkMsgSolo"], O.none())],
+  ["conversationId eq 'OwnConv'", conversationPage(["AAMkOnlyOwn"], O.none())],
+  ["conversationId eq 'DraftConv'", conversationPage(["AAMkOnlyDraft"], O.none())],
+  ["conversationId eq 'AAQkMsgBadList'", notFound(400)],
+  ["conversationId eq 'AAQkGone'", notFound(404)],
+  ["conversationId eq 'AAMkBadFilter'", notFound(400)]
+);
+// a capped listing keeps paging to itself; any other next link is the conversation's second page
+const PAGE_LISTINGS: HashMap.HashMap<string, Listing> = HashMap.make([CAPPED_PAGE, cappedPage]);
+const secondPage: Listing = conversationPage(["AAMkMsgNew", "AAMkMsgDraft", "AAMkMsgOwn"], O.none());
+
+const listing = (request: M365ListMessagesRequest): Listing =>
+  O.match(request.nextLink, {
+    onNone: () =>
+      pipe(
+        request.filter,
+        O.flatMap((filter) => HashMap.get(FILTER_LISTINGS, filter)),
+        O.getOrElse(() => emptyPage)
+      ),
+    onSome: (link) => O.getOrElse(HashMap.get(PAGE_LISTINGS, link), () => secondPage),
+  });
 
 const FakeM365 = Layer.succeed(
   M365,
@@ -415,6 +425,19 @@ describe("DrawingIntake over a fake mailbox", () => {
     );
 
     it.effect(
+      "refuses a conversation still paging at the page cap instead of picking from a cut-off listing",
+      Effect.fnUntraced(function* () {
+        const { root, out } = yield* corpus();
+        const error = yield* Effect.flip(
+          pullWith({ ref: OutlookItemRef.cases.conversation.make({ id: "AAQkCapped" }), outDir: out, corpusRoot: root })
+        );
+        assertInstanceOf(error, DrawingIntakeError);
+        strictEqual(error.reason, "refused");
+        assertInclude(error.message, "more than 1000 messages");
+      })
+    );
+
+    it.effect(
       "falls back between message and conversation, and reports a refused listing instead of not-found",
       Effect.fnUntraced(function* () {
         const { root, out } = yield* corpus();
@@ -506,7 +529,7 @@ const laneEnv = (overrides: Record<string, string> = {}) =>
       env: {
         INTAKE_TEST_TENANT_ID: "00000000-0000-0000-0000-000000000001",
         INTAKE_TEST_CLIENT_ID: "00000000-0000-0000-0000-000000000002",
-        INTAKE_TEST_CERT_THUMBPRINT_SHA256: "AB12CD34",
+        INTAKE_TEST_CERT_THUMBPRINT_SHA256: "AB12CD34".repeat(8),
         INTAKE_TEST_CERT_PRIVATE_KEY: "synthetic-private-key-text",
         INTAKE_TEST_MAILBOX: MAILBOX,
         ...overrides,
@@ -621,7 +644,7 @@ describe("beep drawings intake", () => {
   const emptyEnv = ConfigProvider.layer(ConfigProvider.fromEnv({ env: {} }));
   it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer, emptyEnv), { timeout: "30 seconds" })((it) => {
     it.effect(
-      "the command defaults to the read-only docket-intake registration",
+      "the command defaults to the docket-intake registration (Mail.ReadWrite, no Mail.Send)",
       Effect.fnUntraced(function* () {
         const { root, out } = yield* corpus();
         const error = yield* Effect.flip(

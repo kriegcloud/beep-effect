@@ -68,6 +68,7 @@ const MESSAGE_NOT_FOUND_STATUSES = HashSet.make(400, 404);
 const LISTING_NOT_FOUND_STATUSES = HashSet.make(404);
 const CONVERSATION_PAGE_SIZE = 50;
 const MAX_CONVERSATION_PAGES = 20;
+const MAX_CONVERSATION_MESSAGES = CONVERSATION_PAGE_SIZE * MAX_CONVERSATION_PAGES;
 const RECORD_NAME_PATTERN = /^intake(-\d+)?\.json$/;
 const UNSAFE_NAME_PATTERN = /[\p{Cc}<>:"/\\|?*]+/gu;
 const WHITESPACE_RUN_PATTERN = /\s+/gu;
@@ -89,8 +90,10 @@ const mailError =
 
 const isNotFoundIn =
   (statuses: HashSet.HashSet<number>) =>
-  (error: M365Error): boolean =>
-    error.reason === "response status" && O.exists(error.status, (status) => HashSet.has(statuses, status));
+  (error: M365Error | DrawingIntakeError): boolean =>
+    error._tag === "M365Error" &&
+    error.reason === "response status" &&
+    O.exists(error.status, (status) => HashSet.has(statuses, status));
 
 const isMailFailure = (error: DrawingIntakeError): boolean => error.reason === "mail";
 
@@ -264,29 +267,33 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
       Effect.mapError(mailError("Could not read the message"))
     );
 
+  // Newest-first is applied after the listing, so a conversation cut off at the page cap could hide its
+  // newest message: a page link left after the last allowed page refuses the intake instead.
   const collectPages = (
     mailbox: string,
     request: M365ListMessagesRequest,
     collected: ReadonlyArray<GraphMessage>,
     pagesLeft: number
-  ): Effect.Effect<ReadonlyArray<GraphMessage>, M365Error> =>
+  ): Effect.Effect<ReadonlyArray<GraphMessage>, M365Error | DrawingIntakeError> =>
     m365.listMessages(request).pipe(
       Effect.flatMap((page) => {
         const all = A.appendAll(collected, page.value);
-        return pipe(
-          page["@odata.nextLink"],
-          O.filter(() => pagesLeft > 1),
-          O.match({
-            onNone: () => Effect.succeed(all),
-            onSome: (link) =>
-              collectPages(
-                mailbox,
-                M365ListMessagesRequest.make({ nextLink: O.some(link), userId: O.some(mailbox) }),
-                all,
-                pagesLeft - 1
-              ),
-          })
-        );
+        return O.match(page["@odata.nextLink"], {
+          onNone: () => Effect.succeed(all),
+          onSome: (link) =>
+            pagesLeft > 1
+              ? collectPages(
+                  mailbox,
+                  M365ListMessagesRequest.make({ nextLink: O.some(link), userId: O.some(mailbox) }),
+                  all,
+                  pagesLeft - 1
+                )
+              : Effect.fail(
+                  refused(
+                    `The conversation has more than ${MAX_CONVERSATION_MESSAGES} messages; name the message instead of the conversation.`
+                  )
+                ),
+        });
       })
     );
 
@@ -305,7 +312,7 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
     });
     const messages = yield* collectPages(mailbox, first, [], MAX_CONVERSATION_PAGES).pipe(
       Effect.catchIf(isNotFoundIn(LISTING_NOT_FOUND_STATUSES), () => Effect.succeed(A.empty<GraphMessage>())),
-      Effect.mapError(mailError("Could not list the conversation's messages"))
+      Effect.catchTag("M365Error", flow(mailError("Could not list the conversation's messages"), Effect.fail))
     );
     if (!A.isReadonlyArrayNonEmpty(messages)) {
       return O.none();

@@ -421,7 +421,7 @@ const intakeIncludeOwnFlag = Flag.Boolean("include-own").pipe(
 const intakeEnvPrefixFlag = Flag.String("env-prefix").pipe(
   Flag.withDefault("CLOUD_M365_DOCKET"),
   Flag.withDescription(
-    "Prefix of the app-only settings: <PREFIX>_TENANT_ID, _CLIENT_ID, _CERT_THUMBPRINT_SHA256, _CERT_PRIVATE_KEY, _MAILBOX (run under op run); defaults to the read-only docket-intake registration"
+    "Prefix of the app-only settings: <PREFIX>_TENANT_ID, _CLIENT_ID, _CERT_THUMBPRINT_SHA256, _CERT_PRIVATE_KEY, _MAILBOX (run under op run); defaults to the docket-intake registration (Mail.ReadWrite, no Mail.Send)"
   )
 );
 
@@ -439,7 +439,7 @@ const drawingsIntakeCommand = Command.make(
   runDrawingIntake
 ).pipe(
   Command.withDescription(
-    "Pull a message's file attachments into a directory under the corpus root, deduped by sha256, with intake.json (read-only; app-only settings from CLOUD_M365_DOCKET_* unless --env-prefix names another registration)"
+    "Pull a message's file attachments into a directory under the corpus root, deduped by sha256, with intake.json (reads mail only; app-only settings from CLOUD_M365_DOCKET_*, a Mail.ReadWrite registration without Mail.Send, unless --env-prefix names another)"
   ),
   Command.provide((input) =>
     drawingIntakeLaneLayer({ envPrefix: input.envPrefix, mailLayer: M365.makeAppOnlyLiveLayer })
