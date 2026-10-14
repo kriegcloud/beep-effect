@@ -1079,3 +1079,11 @@ family-7 diagnosis/recovery, two unstarted bounded members, eighteen larger
 occurrences and estate/recycle/DOC obligations remain open. The orchestrator
 decides continuation; no new execution is authorized by this failure report.
 Graft saved approximately 65,334 tokens across two retrievals.
+
+Post-stop publication integration: merged origin/main 9b21df9738 after
+every wave family unit ended. Four packet conflicts were resolved to this
+branch's newer records as the orchestrator note permits; upstream's earlier
+family-5 stop evidence remains present. Manifest status now records family 7.
+This is publication integration only, not a change to any completed execution.
+The newer main may change engine source; any later execution must prove its
+code identity against its governing freeze record before launch.

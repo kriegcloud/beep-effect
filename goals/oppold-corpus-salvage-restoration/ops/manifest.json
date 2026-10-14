@@ -10,7 +10,7 @@
   },
   "packetPath": "goals/oppold-corpus-salvage-restoration",
   "lifecycle": "active",
-  "statusNote": "2026-10-14: P0/P1/P4 complete; P2 in-progress. Run 17 authorizes continuing frozen ordinals 6-9 after renewed preflight. Four accepted families and family 5 sealed-failure retained; never retry or accept family 5. Stop and diagnose any further failure. Separate parser-exception recovery follows the wave; eighteen larger occurrences and estate/recycle/DOC gates remain open. P3 pending, lifecycle active.",
+  "statusNote": "2026-10-14: P0/P1/P4 complete; P2 in-progress, bounded wave stopped at family 7 under Run 17. Seven sealed: five accepted, families 5 and 7 failed, ordinals 8-9 unstarted. Family-7 timing supports attachment-repair elapsed-budget exhaustion; exact cause unresolved. No next launch or retry. Separate family-5 recovery and eighteen larger occurrences remain deferred; estate/recycle/DOC gates open, P3 pending, lifecycle active.",
   "mission": "Preserve and verify the current T7 salvage state, then restore mail, reconcile all three recycle volumes, and convert distinct legacy-Word digests with originals retained.",
   "executionCapable": true,
   "reflectionRequired": true,
