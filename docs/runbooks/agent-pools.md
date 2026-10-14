@@ -8,34 +8,29 @@ signatures. Goal B (`beep agent-pool pick`) automates the picker; until then, ch
 
 ## Pool order
 
-The approved model defaults and delegation policy (operator, 2026-10-01) replaced the
-three-step pool order of 2026-09-24 (Opus only → authorized Cursor → hold). Two chains now
-exist, keyed by the orchestrator that started the work, and each step runs at medium effort
-where the route supports it:
+The 2026-10-14 operator policy keeps Codex substantive work on gpt-6.1-sol
+medium. Claude's orchestrator is claude-fable-5-1 medium; children, Workflow
+workers and QA judges remain claude-opus-5-5 medium. The same-provider default
+must not be silently replaced. Named review panels use Astra/Fable/Grok xhigh
+only when the task assigns that role.
 
 | Originator | 1 | 2 | 3 |
 | --- | --- | --- | --- |
-| Codex | `gpt-6.1-sol` medium through the Codex CLI, plugin, or `claudex` proxy | `cursor-agent --model claude-opus-5-5` | grok-build (`grok -m grok-4.7 --effort medium`) |
-| Claude Code | direct `claude-opus-5-5` medium (Agent tool, Workflow child, `claude -p`) | `cursor-agent --model claude-opus-5-5` | grok-build (`grok -m grok-4.7 --effort medium`) |
+| Codex | gpt-6.1-sol medium through CLI, plugin or claudex | cursor-agent --model claude-opus-5-5-medium | grok -m grok-4.7 --effort medium |
+| Claude Code | claude-opus-5-5 medium child | cursor-agent --model claude-opus-5-5-medium | grok -m grok-4.7 --effort medium |
 
-Defaults: Codex `gpt-6.1-sol` medium (`$HOME/.codex/config.toml`), Claude Code `claude-opus-5-5`
-medium (`$HOME/.claude/settings.json`). Within these routes Codex uses only GPT-6.1-Sol and direct
-Claude uses only Opus 5.5; same-provider substitution (`gpt-6-astra`, `claude-opus-5`, the
-`opus` alias) is a drift, not a fallback. Lightweight routes (`gpt-5.6-luna` default children)
-keep their lightweight tasks.
+Only confirmed quota, availability and unsupported-model failures permit a step
+down the chain. Direct Claude never appears in the Codex chain; direct Codex
+never appears in the Claude chain. Cursor, grok-build and Junie never delegate
+onward. Ordinary failures and unfavorable reviews require remediation on the
+same route, with source evidence and reviewer separation retained. Use existing
+subscriptions and authorized billing; hold when all approved routes are blocked.
 
-Step down a chain only on a confirmed quota, availability, or unsupported-model failure. Direct
-Claude never appears in the Codex chain and direct Codex never in the Claude chain. Cursor and
-grok-build workers never delegate onward: they return a result or blocker to the originating
-orchestrator, which owns every cross-provider decision and launch. An unfavorable review or an
-ordinary code failure is remediated on the same route. Only existing subscriptions and
-explicitly authorized API billing are used; when a chain is exhausted, report the concrete
-blockers and hold the dependent work. Every route may implement, explore, research, and review
-(goal admission reviews included) under the same reviewer separation, source-bound evidence,
-and acceptance gates.
-
-**Codex is no longer opt-in.** The 2026-09-24 restriction is superseded; a Codex orchestrator
-runs its own chain. The meter and recipe below describe that route.
+Keep GPT-6 Luna lightweight routes and Grok 4.7 web research. Graft deep uses
+Opus 5.5 through the proxy. Junie is a bounded spend-down pool when JetBrains
+credits remain, not a fallback; Muse remains opt-in. The manifest's separate
+JSDoc title-migration specialist uses Grok 4.7. Historical probes below retain
+their dates and results; current recipes use the live declared pins.
 
 ## Meters
 
@@ -62,7 +57,7 @@ and one whose login the provider rejects shows as
 running lane the signal is still the request itself. A delegation that fails with `rate_limit_error` ("This request would exceed your
 account's rate limit") marks the Opus pool below floor for the session: finish what is already
 running, then step the Claude chain down (2026-10-01 policy): launch the next bounded lane on
-`cursor-agent --model claude-opus-5-5`, and when Cursor is below floor too, on grok-build
+`cursor-agent --model claude-opus-5-5-medium`, and when Cursor is below floor too, on grok-build
 `grok -m grok-4.7 --effort medium`. Hold and notify only when both fallbacks are exhausted.
 Never route the step onto Codex. `claude` shows the live windows with `/usage`.
 
@@ -86,7 +81,7 @@ hold stdin for about 40 s.
 | Field | Meaning |
 | --- | --- |
 | `ordinaryUsageAllowed` | Boolean gate. `null` means unavailable — do not infer availability from percentages alone. |
-| `rateLimits.primary.usedPercent` | Primary window consumption (0–100). Codex is at or below the floor when `usedPercent` ≥ 95. For a Codex orchestrator that means: finish running lanes, then step the Codex chain down to `cursor-agent --model claude-opus-5-5`, then grok-build; never onto direct Claude. Hold and notify once both fallbacks are exhausted. |
+| `rateLimits.primary.usedPercent` | Primary window consumption (0–100). Codex is at or below the floor when `usedPercent` ≥ 95. For a Codex orchestrator that means: finish running lanes, then step the Codex chain down to `cursor-agent --model claude-opus-5-5-medium`, then grok-build; never onto direct Claude. Hold and notify once both fallbacks are exhausted. |
 | `rateLimits.primary.resetsAt` | ISO timestamp when the primary window resets. |
 | `rateLimits.primary.windowDurationMins` | Window length in minutes (CLI account: 10080 = weekly). |
 | `rateLimits.secondary` | Secondary window with the same shape when present. |
@@ -131,9 +126,9 @@ https://cursor.com/help/models-and-usage/usage-limits):
 
 | Tier | Primary | Fallback | Bucket | Input / output ($/1M) |
 | --- | --- | --- | --- | --- |
-| Volume implementation | `composer-2.5` | `cursor-grok-4.6-xhigh` | Cursor Models | $0.50 / $2.50; $2 / $6 |
-| Fallback (policy 2026-10-01) | `claude-opus-5-5` | — | Other Models | Opus 5.5 list price |
-| Review / adversarial (legacy seat) | `claude-opus-5-thinking-high` | `gpt-5.6-sol-xhigh` | Other Models | $5 / $25; $4 / $20 |
+| Volume implementation | `composer-2.5` | `cursor-grok-4.7-xhigh` | Cursor Models | $0.50 / $2.50; $2 / $6 |
+| Fallback (policy 2026-10-14) | `claude-opus-5-5-medium` | — | Other Models | Opus 5.5 list price |
+| Review / adversarial | `claude-opus-5-5-high` | `gpt-5.6-sol-xhigh` | Other Models | $5 / $25; $4 / $20 |
 | Lightweight mechanical | `composer-2.5` | `gpt-5.6-luna-high` | Cursor Models → Other | $0.50 / $2.50; $0.20 / $1.20 |
 
 Manifest projection of the Cursor seats (tool-owned block):
@@ -141,12 +136,12 @@ Manifest projection of the Cursor seats (tool-owned block):
 <!-- beep-models:begin cursor-seats -->
 | Role | Surface | Model | Effort |
 | --- | --- | --- | --- |
-| fallback.cursor | cursor-seat | `claude-opus-5-5` | — |
+| fallback.cursor | cursor-seat | `claude-opus-5-5-medium` | — |
 | cursor.volume | cursor-seat | `composer-2.5` | — |
-| cursor.review | cursor-seat | `claude-opus-5-thinking-high` | — |
+| cursor.review | cursor-seat | `claude-opus-5-5-high` | — |
 | cursor.mechanical | cursor-seat | `composer-2.5` | — |
 
-superseded: gpt-5.6-sol, gpt-6-astra, grok-4.5, gpt-5.4, gpt-5.4-mini
+superseded: gpt-5.6-sol, gpt-6-sol, grok-4.6, gpt-5.6-luna, claude-opus-5, claude-opus-5-thinking-high, muse-spark-1.3, grok-4.5, gpt-5.4, gpt-5.4-mini
 <!-- beep-models:end cursor-seats -->
 
 **Never list (D16, D18):** any `-fast` id (`composer-2.5-fast` is 6× input), `auto`, `kimi-k3-*`,
@@ -387,10 +382,10 @@ Cursor fallback (step 2 of either chain), verified 2026-10-01:
 
 ```sh
 timeout 1800 cursor-agent -p --trust --force --sandbox enabled --workspace "$PWD" \
-  --model claude-opus-5-5 --output-format stream-json "<bounded task>" </dev/null
+  --model claude-opus-5-5-medium --output-format stream-json "<bounded task>" </dev/null
 ```
 
-`claude-opus-5-5` is absent from `cursor-agent --list-models` yet accepted; the stream-json
+`claude-opus-5-5-medium` is present in the verified Cursor CLI catalog; the stream-json
 init event reports `"model":"Claude Opus 5.5 300K Medium"`, so medium effort is baked into the
 seat and `claude-opus-5-5[effort=medium]` is rejected. grok-build fallback (step 3):
 
@@ -406,13 +401,12 @@ Bounded scope, files written early and refined in place, and the orchestrator st
 the same prompt contract as the Cursor lane. Continue related follow-ups on the same subagent
 (SendMessage) instead of spawning fresh ones.
 
-**Proxy sessions.** `claudex`, `claudeg`, and `claudep` children use the same id, but CLIProxyAPI
-routes only the Claude ids its registry knows: on 2026-09-27 `GET /v1/models` listed
-`claude-opus-5` and not `claude-opus-5-5`, and a `claude-opus-5-5` request returned
-`unknown provider for model`. Until the vendored registry (`internal/registry/models/models.json`
-in the workstation CLIProxyAPI build) carries the id, run Opus 5.5 children from a direct
-`claude` session; `beep models check` reports the `child.heavy` × `proxy-workflow` binding as
-`unknown-model` while the gap stands. Do not set `CLAUDE_CODE_SUBAGENT_MODEL` in proxy wrappers.
+**Proxy sessions.** Current children use `claude-opus-5-5`; the October 14
+registry includes that id. The September 27 probe listed only `claude-opus-5`
+and rejected Opus 5.5 with `unknown provider for model`; that historical gap
+is superseded. Verify the live registry on each worker rather than treating
+one host's catalog as fleet proof. Do not set `CLAUDE_CODE_SUBAGENT_MODEL` in
+proxy wrappers.
 
 ## Codex lane recipe
 
@@ -443,7 +437,7 @@ interactive picker may lag while `-m gpt-6.1-sol` works.
 | Stuck subagent holds `-p` | Single-turn `-p` waits for delegated subagents; kill or avoid Explore subagents. |
 | Cursor Models spill zeros Other | Floor-check dashboard; stop Cursor-bucket lanes before 100%. |
 | `Total usage limit reached` | Mark Cursor below floor; step to grok-build (`grok -m grok-4.7 --effort medium`), then hold and notify when that is exhausted too. |
-| `rate_limit_error` on a `claude-opus-5-5` delegation | Opus pool below floor: finish running children, then step the Claude chain to `cursor-agent --model claude-opus-5-5`, then grok-build; hold and notify only after both. |
+| `rate_limit_error` on a `claude-opus-5-5` delegation | Opus pool below floor: finish running children, then step the Claude chain to `cursor-agent --model claude-opus-5-5-medium`, then grok-build; hold and notify only after both. |
 | Sudo / YubiKey prompt hang | `Shell(sudo)` and `Shell(pkexec)` in deny list (D21). |
 | Workspace trust hang | `--trust` on every headless lane. |
 | Missing `result/success` + exit 0 | Treat as failure; inspect stderr. |

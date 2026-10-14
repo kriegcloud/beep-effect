@@ -7,81 +7,50 @@ workflows in skills.
 
 ## Volume pools
 
-Approved model defaults and delegation policy (operator, 2026-10-01). It
-supersedes the 2026-09-24 Opus-only sub-agent order, the Grok research-only
-reservation, and the Codex opt-in restriction; historical reports, captured
-user requests, completed-run provenance, and model-parsing fixtures keep the
-models and efforts they actually recorded.
+Approved operator policy (2026-10-14), superseding the 2026-10-01 defaults.
+Historical reports, provider probes and completed-run provenance retain the
+models they actually recorded. Full doctrine: `~/.claude/CLAUDE.md`.
 
-**Defaults.** Codex: `gpt-6.1-sol`, `medium` effort. Claude Code:
-`claude-opus-5-5`, `medium` effort. Within these substantive-work routes Codex
-uses only GPT-6.1-Sol and direct Claude uses only Opus 5.5; never silently
-substitute another model from the same provider (no `gpt-6-astra`, no
-`claude-opus-5`, no `opus` alias, which resolved to `claude-opus-5` before
-2026-09-25). Preserve separately configured lightweight routes
-(`child.lightweight` = `gpt-5.6-luna`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`) for
-their lightweight tasks.
+**Defaults.** Codex uses `gpt-6.1-sol`, `medium` for substantive work. Claude
+Code orchestrators use `claude-fable-5-1`, medium; every Claude child, Workflow
+child and QA judge uses the explicit `claude-opus-5-5` medium pin. Never leave
+Codex's interactive picker on another model: it rewrites config.toml.
 
-**Fallback chains**, keyed by the originating orchestrator, medium effort
-wherever the route supports it:
+**Fallback chains**, only on confirmed quota, availability or unsupported-model
+failures, with existing subscriptions and authorized billing:
 
 | Originator | 1 | 2 | 3 |
 | --- | --- | --- | --- |
-| Codex | `gpt-6.1-sol` medium via the approved Codex route | `cursor-agent --model claude-opus-5-5` | grok-build `grok -m grok-4.7 --effort medium` |
-| Claude Code | direct `claude-opus-5-5` medium | `cursor-agent --model claude-opus-5-5` | grok-build `grok -m grok-4.7 --effort medium` |
+| Codex | gpt-6.1-sol medium through the approved Codex route | cursor-agent --model claude-opus-5-5-medium | grok -m grok-4.7 --effort medium |
+| Claude Code | claude-opus-5-5 medium child | cursor-agent --model claude-opus-5-5-medium | grok -m grok-4.7 --effort medium |
 
-- Direct Claude is never a fallback in the Codex chain and direct Codex is
-  never a fallback in the Claude chain. Cursor is the next route after the
-  originating provider; grok-build is the final route.
-- Cursor-agent and grok-build workers never initiate delegation to other
-  providers. The originating orchestrator owns every cross-provider fallback
-  decision and launch; a Cursor or grok-build worker returns its result or
-  blocker to it. Same-provider subagents stay allowed where supported and
-  authorized, under the assigned model pins, task boundaries, and evidence
-  requirements.
-- Automatic fallback is authorized only on confirmed quota, availability, or
-  unsupported-model failures. Ordinary code failures or unfavorable reviews
-  require remediation; they never justify switching models to seek a
-  favorable result. Use existing subscriptions and explicitly authorized API
-  billing only: no credit purchases, no overages, no new paid endpoints. When
-  the chain is exhausted, report the concrete blockers and hold the work.
-- Every approved route may perform implementation, exploration, research, and
-  independent review, including goal admission reviews. Retain separate
-  reviewer sessions, source-bound evidence, existing findings, and identical
-  acceptance gates across fallbacks.
-- Junie has no delegation chain. Include it in policy discovery and
-  question-interface verification, inspect its existing configuration
-  (`$HOME/.junie/settings.json`), and surface any unresolved routing decision
-  rather than inventing one.
+Direct Claude is never a Codex fallback; direct Codex is never a Claude fallback.
+Cursor, grok-build and Junie workers never delegate onward. Ordinary failures
+and unfavorable reviews require remediation on the same route. When the chain
+is exhausted, report the blockers and hold; no purchases, top-ups or new paid
+endpoints. Same-provider subagents retain the assigned pins and evidence rules.
 
-**Pins per surface** (verified identifiers 2026-10-01; `beep models check`
-reports drift against the manifest):
+**Named tiers.** Independent, task-assigned review panels may use gpt-6-astra
+xhigh, claude-fable-5-1 xhigh and grok-4.7 xhigh. These are explicit panel roles,
+not default substitutions or fallback steps. Astra is an active frontier tier.
+Junie is a bounded spend-down volume pool when `bun run beep accounts` shows
+JetBrains credits left, not a fallback. Preserve its interactive launch default
+and require a declared volume-lane pin. Muse remains opt-in.
 
-- Claude native subagents (Agent tool) and Workflow children:
-  `model: "claude-opus-5-5"`; `agent(prompt, { model: "claude-opus-5-5" })`.
-  Proxy sessions (`claudex`, `claudeg`, `claudep`) use the same id once the
-  CLIProxyAPI registry lists it (the `child.heavy` × `proxy-workflow` binding
-  reports the gap). Do not set `CLAUDE_CODE_SUBAGENT_MODEL` in proxy wrappers.
-- Codex CLI `--model gpt-6.1-sol -c 'model_reasoning_effort="medium"'`;
-  plugin/companion `--model gpt-6.1-sol --effort medium`; proxy Workflow
-  children `model: "gpt-6.1-sol(medium)"`; the codex-security scan is Codex by
-  nature and carries the same pin.
-- Cursor: `cursor-agent -p --trust --force --sandbox enabled --workspace <abs>
-  --model claude-opus-5-5 --output-format stream-json` under a host `timeout`,
-  stdin from `/dev/null`. The id is absent from `cursor-agent --list-models`
-  yet accepted; the init event reports "Claude Opus 5.5 300K Medium" (effort
-  is baked in; `claude-opus-5-5[effort=medium]` is rejected). Never: any
-  `-fast` id, `auto`, `kimi-k3-*`, `claude-fable-5-1-*`. Deny list in
-  `.cursor/cli.json`: `Shell(git)`, `Shell(sudo)`, `Shell(pkexec)`. Nothing
-  from the out-of-repo corpus, client documents, or secrets enters a Cursor
-  lane (D11).
-- grok-build: the installed `grok` CLI (Grok Build TUI), `grok -m grok-4.7
-  --effort medium -p "<prompt>" --output-format streaming-json`; `modelUsage`
-  reports `grok-4.7-build`. The `grok-4.6` proxy research route stays for
-  web-research work and is no longer the only Grok use.
+**Specialist routes.** Preserve gpt-6-luna lightweight work and grok-4.7 web
+research; Graft deep uses claude-opus-5-5 through the proxy. The separate
+jsdoc.migrate-titles binding remains grok-4.7. Never run a deep Graft pass from
+an agent just to reconcile these declarations.
 
-Manifest projection (tool-owned; `beep models check` compares it with
-`~/.config/beep/models.yaml`):
+**Surface pins.** Codex CLI uses `--model gpt-6.1-sol` and
+`-c 'model_reasoning_effort="medium"'`; plugins use `--effort medium`; proxy
+Workflow children use `gpt-6.1-sol(medium)`. Native Claude children use the
+explicit Opus id with medium effort. Cursor CLI uses the medium-suffixed id;
+its SDK has a separate model/effort contract. Keep Cursor's existing sandbox,
+D11 corpus boundary and D21 git/sudo/pkexec denials. grok-build uses grok-4.7
+medium and must return its result or blocker without further delegation.
+
+Manifest projection (tool-owned; `beep models check`):
 
 <!-- beep-models:begin volume-pools -->
 | Role | Surface | Model | Effort |
@@ -93,22 +62,28 @@ Manifest projection (tool-owned; `beep models check` compares it with
 | codex.heavy | proxy-workflow | `gpt-6.1-sol` | `medium` |
 | codex.heavy | jetbrains-codex | `gpt-6.1-sol` | `medium` |
 | codex.plan | codex-cli | `gpt-6.1-sol` | `medium` |
-| fallback.cursor | cursor-seat | `claude-opus-5-5` | — |
+| fallback.cursor | cursor-seat | `claude-opus-5-5-medium` | — |
 | fallback.grok | grok-cli | `grok-4.7` | `medium` |
-| child.lightweight | proxy-workflow | `gpt-5.6-luna` | — |
-| research.web | grok-cli | `grok-4.6` | `xhigh` |
-| research.web | proxy-workflow | `grok-4.6` | — |
-| orchestrator | claude-code | `claude-opus-5-5` | `medium` |
+| child.lightweight | proxy-workflow | `gpt-6-luna` | — |
+| research.web | grok-cli | `grok-4.7` | `xhigh` |
+| research.web | proxy-workflow | `grok-4.7` | — |
+| orchestrator | claude-code | `claude-fable-5-1` | `medium` |
 | orchestrator | proxy-workflow | `claude-fable-5-1` | — |
+| review.panel | codex-cli | `gpt-6-astra` | `xhigh` |
+| review.panel | claude-code | `claude-fable-5-1` | `xhigh` |
+| review.panel | grok-cli | `grok-4.7` | `xhigh` |
+| muse.optin | proxy-workflow | `muse-wonder-1.0` | `medium` |
+| junie.default | junie-cli | `gemini-3-flash-preview` | — |
+| junie.volume | junie-cli | `claude-opus-5-5` | — |
 | cursor.volume | cursor-seat | `composer-2.5` | — |
-| cursor.review | cursor-seat | `claude-opus-5-thinking-high` | — |
+| cursor.review | cursor-seat | `claude-opus-5-5-high` | — |
 | cursor.mechanical | cursor-seat | `composer-2.5` | — |
 | qa.judge | claude-code | `claude-opus-5-5` | — |
-| graft.deep | proxy-workflow | `claude-opus-5` | — |
-| jsdoc.migrate-titles | grok-cli | `grok-4.6` | — |
+| graft.deep | proxy-workflow | `claude-opus-5-5` | — |
+| jsdoc.migrate-titles | grok-cli | `grok-4.7` | — |
 | deprecated.routable | proxy-workflow | `gpt-daybreak-blue-latest` | — |
 
-superseded: gpt-5.6-sol, gpt-6-astra, grok-4.5, gpt-5.4, gpt-5.4-mini
+superseded: gpt-5.6-sol, gpt-6-sol, grok-4.6, gpt-5.6-luna, claude-opus-5, claude-opus-5-thinking-high, muse-spark-1.3, grok-4.5, gpt-5.4, gpt-5.4-mini
 <!-- beep-models:end volume-pools -->
 
 Runbook: `docs/runbooks/agent-pools.md`.

@@ -97,6 +97,64 @@ const models = Layer.mergeAll(
 ).pipe(Layer.provide(platform));
 
 layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
+  it.effect("keeps task-assigned panels separate from October 14 defaults and specialist routes", () =>
+    Effect.sync(() => {
+      const pin = (role: string, surface: string) =>
+        A.findFirst(seedModelsManifest.bindings, (entry) => entry.role === role && entry.surface === surface);
+      assertSome(
+        O.map(pin("codex.heavy", "codex-cli"), (entry) => entry.modelId),
+        "gpt-6.1-sol"
+      );
+      assertSome(
+        O.flatMap(pin("codex.heavy", "codex-cli"), (entry) => entry.effort),
+        "medium"
+      );
+      assertSome(
+        O.map(pin("orchestrator", "claude-code"), (entry) => entry.modelId),
+        "claude-fable-5-1"
+      );
+      assertSome(
+        O.map(pin("child.heavy", "claude-code"), (entry) => entry.modelId),
+        "claude-opus-5-5"
+      );
+      assertSome(
+        O.map(pin("fallback.cursor", "cursor-seat"), (entry) => entry.modelId),
+        "claude-opus-5-5-medium"
+      );
+      assertSome(
+        O.map(pin("child.lightweight", "proxy-workflow"), (entry) => entry.modelId),
+        "gpt-6-luna"
+      );
+      assertSome(
+        O.map(pin("research.web", "proxy-workflow"), (entry) => entry.modelId),
+        "grok-4.7"
+      );
+      assertSome(
+        O.map(pin("jsdoc.migrate-titles", "grok-cli"), (entry) => entry.modelId),
+        "grok-4.7"
+      );
+      assertSome(
+        O.map(pin("review.panel", "codex-cli"), (entry) => entry.modelId),
+        "gpt-6-astra"
+      );
+      assertSome(
+        O.flatMap(pin("review.panel", "codex-cli"), (entry) => entry.effort),
+        "xhigh"
+      );
+      assertSome(
+        O.map(pin("muse.optin", "proxy-workflow"), (entry) => entry.modelId),
+        "muse-wonder-1.0"
+      );
+      assertSome(
+        O.map(pin("junie.default", "junie-cli"), (entry) => entry.modelId),
+        "gemini-3-flash-preview"
+      );
+      strictEqual(
+        A.some(seedModelsManifest.superseded, (entry) => entry.id === "gpt-6-astra"),
+        false
+      );
+    })
+  );
   it.effect.prop(
     "round trips schema-derived check reports",
     [ModelsCheckReport],
