@@ -368,12 +368,15 @@ it.layer(CommandTestLayer)("read-only skills lock-plan command", (it) => {
           '{"version":1,"skills":{"local-only":{"source":"beep-effect/beep-effect","sourceType":"local","computedHash":"0000000000000000000000000000000000000000000000000000000000000000"}}}';
         yield* writeProjectFile("skills-lock.json", lock);
         yield* writeProjectFile(".claude/skills/local-only/SKILL.md", "# Local-only fixture\n");
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.makeDirectory(".agents", { recursive: true });
+        yield* fs.symlink("../.claude/skills", ".agents/skills");
         yield* runSkillsCommand(["lock-plan"]);
         const human = yield* TestConsole.logLines;
-        expect(human).toEqual(expect.arrayContaining([expect.stringContaining("local-only")]));
+        expect(human).toEqual(expect.arrayContaining([expect.stringContaining("1 local")]));
         yield* runSkillsCommand(["lock-plan", "--json"]);
         const lines = yield* TestConsole.logLines;
-        expect(lines).toEqual(expect.arrayContaining([expect.stringContaining("skills-lock-migration-plan/v1")]));
+        expect(lines).toEqual(expect.arrayContaining([expect.stringContaining("skills-lock-migration-plan/v2")]));
         expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
         yield* writeProjectFile("skills-lock.json", "not-json");
         const refused = yield* Effect.exit(runSkillsCommand(["lock-plan"]));
