@@ -313,3 +313,84 @@ to this checkout/current regime. Those aggregate ratios are not comparable or
 collection-loss estimates. The lane Claude archive has no countable tool
 observations, not evidence of non-use. No ratio meets a qualified current-window
 and per-tool/surface attribution gate. Unknown collection stays unknown.
+
+The native full CLI command passed build/compile and all 319 test files,
+6432 tests, then exited 1 on three formatting-only artifacts introduced by the
+first merge's older Biome hook. Formatting repair `7aa6085f35` restored all
+three files byte-for-byte to integrated main; no test behavior changed. The
+original full-command exit is retained. Qualification composes that completed
+runtime proof with fresh package lint/check and full docgen after the repair.
+
+Final integration `7d651c59a2` merged main `061d5a40e4`, including the security
+and Junie repairs. H3 telemetry source/tests stayed unchanged. Current dependency
+closure passed, `package-verify @beep/repo-cli --quick` passed lint (4.8 s) and
+check (6.0 s), and full package docgen typechecked 2898 examples and passed.
+Final integrated test-tsgo and local docgen also passed. The full runtime proof
+keeps its prior source-head boundary; hosted CI is the proof for the published
+integrated tip. The Decision Log records why runtime tests were retained after
+formatting-only repair instead of replayed.
+
+After the preceding main integration, actual-checkout direct adapter samples
+were Claude 0.542 s at 20:13:45.527Z, Codex 0.518 s at 20:13:46.045Z, Cursor
+0.499 s at 20:13:46.544Z. Each exited zero, wrote one stamped row and no refusal;
+all three stamps matched the TypeScript oracle. Later main's tracked Claude
+settings changes reset the regime. Final-head scans and adapter samples below
+bind qualification to that configuration; none fill a live session window.
+
+### final integration evidence
+
+All required integrated parity commands passed on the `7d651c59a2` source:
+
+| Command | Result | UTC completion |
+| --- | --- | --- |
+| `beep quality test-tsgo` | Pass | 20:22:48Z |
+| `docgen:local --base origin/main` | Pass | 20:23:29Z |
+| `beep ci lane jsdoc-ratchet` | Pass, zero introduced findings | 20:29:33Z |
+| `CI=true beep knowledge refs --check` | Pass, zero live gated observations | 20:30:02Z |
+| `beep quality fallow audit` | Pass, zero introduced findings | 20:30:12Z |
+| `beep quality fallow health` | Pass, zero introduced findings | 20:30:17Z |
+| `beep laws retired-effect-paths` | Pass | 20:30:20Z |
+| Scoped Node/V8 coverage | Pass, 307 tests across eight files; focused measurement, not full ratchet | 19:48:35Z |
+| Scoped baseline read | Ten touched file rows, no row edited | October 14 |
+
+Package qualification is composed with its command provenance retained:
+metrics full `package-verify` passed. CLI native build/compile and all 6432
+tests passed before the formatter failure; the formatting-only repair is
+followed by passing integrated quick lint/check and full package docgen.
+The full command's historical exit 1 is not relabelled exit 0.
+
+Final current-checkout adapter samples (version `harness-hash-v2`) all exit zero,
+write one stamp and no refusal, and match the actual TypeScript snapshot:
+Claude 0.566 s at 20:26:34.352Z; Codex 0.490 s at 20:26:34.842Z; Cursor
+0.505 s at 20:26:35.347Z. All three stay below the native three-second cap.
+They use disposable evidence roots and contribute no live observations.
+
+The final live census at 20:26:48.926Z counted zero invalid JSON lines:
+
+| Client | Rows | Sessions | Starts / stamped sessions | Surface rows | Distinct stamps |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Claude | 687147 | 2094 | 462 / 462 | 2731 | 197 |
+| Codex | 573797 | 2431 | 3 / 0 | 0 | 0 |
+| Cursor | 2885 | 288 | 0 / 0 | 0 | 0 |
+
+Final per-client `prune-proposals --agent-kind <kind> --json` dry runs all
+return zero qualifying sessions, incomplete 30-session and shared windows,
+`nonUseQualified: false`, 48 candidates, no proposals and `written: false`.
+Each reads 5389 shards and counts 74 schema-undecodable historical rows.
+Claude additionally counts 67 mixed-fingerprint sessions and six below its
+activity floor. Current collection capability remains unknown.
+
+| Client | Stamped | Unstamped by design | Unsupported | Not configured | Disabled | Fingerprint / command / result / UTC |
+| --- | --- | --- | --- | --- | --- | --- |
+| Claude | Current direct adapter; earlier native workflows | None asserted | None asserted for hooks | Global state unknown | Proven only in disposable switch test | v2 / Claude prune dry run / 0 of 30, no write / 20:27:04.186Z |
+| Codex | Current direct adapter | Native metrics cannot count sessions | None asserted for adapter | Ordinary native launch/trust state unknown | Not asserted | v2 / Codex prune dry run / 0 of 30, no write / 20:27:17.058Z |
+| Cursor | Current direct adapter; earlier native start | None asserted | Native OTel source and reconciliation format | Native tool coverage unknown | Not asserted | v2 / Cursor prune dry run / 0 of 30, no write / 20:27:29.927Z |
+| Junie | None asserted | None asserted | Hook/forwarder client | No supported adapter | Not asserted | No supported fingerprint collector / unsupported / October 14 |
+| Grok | None asserted | None asserted | Hook/forwarder client | No supported adapter | Not asserted | No supported fingerprint collector / unsupported / October 14 |
+
+No client is classified genuinely unused. F retains every affected capability
+on demand, owns home trust/namespace/global projection/OTel edits and dispositions,
+and receives these limits before its final panel. A's hook retirement is already
+integrated, so H3 lands after it. The orchestrator owns the S11 merge gate and
+post-merge retirement. Remote Prometheus/Phoenix and restored forwarder export
+remain unknown; no scheduling or home changes were performed by this lane.

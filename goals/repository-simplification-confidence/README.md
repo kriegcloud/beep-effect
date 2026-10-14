@@ -2,12 +2,12 @@
 
 ## Status
 
-Program resumed on October 14. A #1584, H2 #1574, and B #1738 have merged.
-H2 follow-up #1744 remains at the orchestrator gate. H3 is integrating current
-main and refreshing package/parity qualification for reopening #1590. Its
-current windows remain incomplete; no telemetry-based non-use retirement is
-qualified. F and H4 continue their separately owned work. Earlier evidence below
-retains its original head/date and does not certify program completion.
+Program resumed on October 14. A #1584, H2 #1574 and its follow-up #1744,
+and B #1738 have merged. H3's repository repair and local qualification are
+content-final for reopened #1590. Its [current handoff](history/handoffs/rsc-h3-telemetry-2026-10-14.md)
+records proof provenance and the remaining native, home and remote prerequisites.
+All telemetry non-use windows remain incomplete. F and H4 retain their separately
+owned work, and the overall program stays active.
 
 Lifecycle: `active`
 
