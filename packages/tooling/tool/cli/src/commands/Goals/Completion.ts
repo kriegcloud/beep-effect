@@ -12,6 +12,7 @@ import * as Context from "effect/Context";
 import { Command, Flag } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -326,7 +327,7 @@ const readHistoricalRequiredChecks = Effect.fn("Goals.Completion.historicalRequi
   const reads = yield* Effect.forEach(inventory, (ruleset) =>
     readHistoricalRuleset(root, ruleset, base, mergedAt).pipe(Effect.option)
   );
-  const snapshots = A.getSomes(A.getSomes(reads));
+  const snapshots = pipe(reads, A.getSomes, A.getSomes);
   if (A.isReadonlyArrayEmpty(snapshots))
     return yield* YeetCommandError.make({ message: "No historical applicable ruleset observed" });
   return GoalRequiredCheckSnapshot.make({
