@@ -89,3 +89,15 @@ regression proof. Full audit/docgen and all NLP tool annotations are not claimed
   Serena alone would not qualify its JetBrains backend on this headless baseline.
 - Chrome debugging and M365 mailbox operations need separately scoped acceptance.
 - Detached Yeet lifecycle proof remains the next independent readiness task.
+
+## Synchronization boundary
+
+Code and qualification receipt landed as fa5f293974. During synchronization,
+the worker readiness worktree had new edits to Graft helpers, agent settings,
+MCP configuration, skills and AGENTS.md, plus an untracked Grok configuration.
+Preserved these edits rather than attributing or reverting them. Restored only
+this task's checksum-verified WordCount patch before fast-forwarding to the
+committed copy; file hashes prove the other working edits stayed unchanged.
+The worker readiness worktree therefore carries additional configuration dirt;
+this receipt qualifies the inspected profile and snapshot, not every later
+configuration change. Local feat/linux-agent-readiness is clean.
