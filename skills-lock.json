@@ -23,7 +23,7 @@
         ".claude/skills/browser-qa-loop",
         ".agents/skills/browser-qa-loop"
       ],
-      "installedTreeHash": "53b3ccd44193cd1989157c3477fc8d5ecc55635fd07d702701420b397510bb5d"
+      "installedTreeHash": "8cf132761f52bce8dec2f774aecbfec7dd399451bb4ad4b9e50bb5260df85437"
     },
     "closeout": {
       "_tag": "local",
@@ -730,7 +730,7 @@
         ".claude/skills/yeet",
         ".agents/skills/yeet"
       ],
-      "installedTreeHash": "ee99bf7b95520225bee1e8f54273a62fe328a3bfda00e781d4fd0f561817d013"
+      "installedTreeHash": "7e8ac7193f4b7bf87cdbd95a3ca4904c954df242982d82fe33a439b9781c3ccb"
     }
   }
 }

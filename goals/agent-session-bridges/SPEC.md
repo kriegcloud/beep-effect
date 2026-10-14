@@ -258,3 +258,14 @@ The immutable recording basis is `research/MAIN-CONFLICT-INTEGRATION-20261014.md
 The recovery ref is `codex/pr1571-before-conflict-push-20261014`; revert the
 integration merge on a feature branch if reversal is needed. Shared repair work
 stays with its existing owner.
+
+
+### 2026-10-14: refresh the conflict resolution after main retirement work
+
+The operator requested another immediate conflict resolution before reboot.
+Integrate landed main's Knip retirement and completion receipts, preserve the
+messaging contracts and all current main coverage fields, and regenerate the
+managed boundary/cache projections. The second immutable basis is
+`research/MAIN-CONFLICT-INTEGRATION-20261014-2.md`; recovery uses
+`codex/pr1571-before-second-conflict-push-20261014` or a revert of the merge.
+Hosted checks and the complete green merge gate remain required.

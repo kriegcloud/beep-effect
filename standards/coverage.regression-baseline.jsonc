@@ -3513,30 +3513,6 @@
             "functions": 0
           }
         },
-        "packages/foundation/primitive/data/src/internal/data/currency-codes.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/foundation/primitive/data/src/internal/data/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/foundation/primitive/data/src/internal/data/keyboard-shortcuts.ts": {
           "lines": 100,
           "statements": 100,
@@ -3633,18 +3609,6 @@
             "functions": 0
           }
         },
-        "packages/foundation/primitive/data/src/internal/data/timezones.ts": {
-          "lines": 0,
-          "statements": 0,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 1,
-            "statements": 1,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/foundation/primitive/data/src/internal/data/utils.ts": {
           "lines": 100,
           "statements": 100,
@@ -3657,18 +3621,6 @@
             "functions": 0
           }
         },
-        "packages/foundation/primitive/data/src/internal/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        }
       }
     },
     "@beep/db-admin": {
@@ -27172,18 +27124,6 @@
             "statements": 68,
             "branches": 25,
             "functions": 33
-          }
-        },
-        "packages/tooling/tool/cli/src/commands/Quality/internal/KnipRatchet.ts": {
-          "lines": 58.51,
-          "statements": 57.29,
-          "branches": 78.57,
-          "functions": 51.21,
-          "uncovered": {
-            "lines": 39,
-            "statements": 41,
-            "branches": 6,
-            "functions": 20
           }
         },
         "packages/tooling/tool/cli/src/commands/Quality/internal/LaneProofReuse.ts": {

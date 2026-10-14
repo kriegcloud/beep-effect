@@ -485,3 +485,12 @@ unparseable. The Graft launcher failed with `Failed to parse JSON file` before
 it could inspect the identity registry. Resolve the manifest union first, then
 query source and run canonical projection writers. This preserves both workspace
 entries and keeps the conflict inspection available without bypassing the tools.
+
+### 2026-10-14: inherited Knip-retirement receipt digest
+
+During the second current-main conflict integration, `beep cache audit` returned
+`Qualification evidence digest mismatch`. The FreshBooks outside review and its
+Knip-retirement basis both exactly match landed main, but the recorded digest
+starts `f963ef8f` while the actual basis starts `aa3b4096`. Preserve the carried
+review and qualification ledger; route a source-bound correction to the main
+owner. A final receipt hash check before publication would have prevented this.
