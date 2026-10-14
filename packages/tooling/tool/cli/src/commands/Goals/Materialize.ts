@@ -11,7 +11,9 @@
  *   `goals/.staging-<digest>/`, validates the staged tree, claims
  *   `goals/<slug>` with a non-recursive `makeDirectory` (the no-replace
  *   guard), and renames the stage onto the empty claim. Any failure removes
- *   the stage and an empty claim, so a failed write leaves no trace.
+ *   the stage and an empty claim, so a failed write leaves no trace. A retry
+ *   after a crash first sweeps every `goals/.staging-*` (E12) and reclaims an
+ *   empty slug directory (E11), so no crash point blocks the next attempt.
  * - **adopt**: asserts every `preserve` pre-image digest, then writes each
  *   `create` with exclusive-create, so a file that appeared after planning
  *   fails the write instead of being clobbered.
@@ -31,6 +33,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { removeEmptyDirectory } from "../../internal/repo-run/DirectoryHandle.ts";
 import { MaterializationReceipt, MaterializedFile } from "./Bootstrap.schemas.ts";
 import { GoalPlanInputError, GoalPlanOperationalError } from "./Goals.errors.ts";
 import { decodeGoalManifest } from "./Goals.schemas.ts";
@@ -116,11 +119,30 @@ const removeQuietly = Effect.fn("Goals.removeQuietly")(function* (absolutePath: 
   yield* fs.remove(absolutePath, { recursive: true, force: true }).pipe(Effect.ignore);
 });
 
-const removeIfEmpty = Effect.fn("Goals.removeIfEmpty")(function* (absolutePath: string) {
+// An empty-only, atomic removal: a claim that a concurrent creator has started
+// filling is never deleted (no check-then-remove gap).
+const removeIfEmpty = (absolutePath: string) => Effect.asVoid(removeEmptyDirectory(absolutePath));
+
+// E12: a staging directory is never published content, so every leftover
+// `goals/.staging-*` (a foreign digest, or this plan's own from a crashed attempt)
+// is removed before staging.
+const sweepStaleStages = Effect.fn("Goals.sweepStaleStages")(function* (goalsDir: string) {
   const fs = yield* FileSystem.FileSystem;
-  const entries = yield* fs.readDirectory(absolutePath).pipe(Effect.option);
-  if (O.exists(entries, A.isReadonlyArrayEmpty)) {
-    yield* fs.remove(absolutePath).pipe(Effect.ignore);
+  const path = yield* Path.Path;
+  const entries = yield* fs.readDirectory(goalsDir).pipe(Effect.orElseSucceed(A.empty<string>));
+  // Every removal is attempted; the failures are reported together by path.
+  const outcomes = yield* Effect.forEach(A.filter(entries, Str.startsWith(".staging-")), (entry) => {
+    const stage = path.join(goalsDir, entry);
+    return fs.remove(stage, { recursive: true, force: true }).pipe(
+      Effect.as(O.none<string>()),
+      Effect.orElseSucceed(() => O.some(stage))
+    );
+  });
+  const failed = A.getSomes(outcomes);
+  if (A.isReadonlyArrayNonEmpty(failed)) {
+    return yield* GoalPlanOperationalError.new(
+      `Refusing to stage: could not remove stale staging director${A.length(failed) === 1 ? "y" : "ies"} ${A.join(failed, ", ")}.`
+    )(undefined);
   }
 });
 
@@ -167,6 +189,7 @@ export const publishBootstrapPlan = Effect.fn("Goals.publishBootstrapPlan")(func
   const creates = writtenCreates(plan);
 
   const run = Effect.gen(function* () {
+    yield* sweepStaleStages(path.join(repoRoot, GOALS_DIR));
     yield* fs
       .makeDirectory(stage)
       .pipe(Effect.mapError(fileErrorFor(`Refusing to stage: ${stage} already exists or cannot be created.`)));
@@ -176,6 +199,8 @@ export const publishBootstrapPlan = Effect.fn("Goals.publishBootstrapPlan")(func
       { discard: true }
     );
     const validations = yield* validateStage(stage);
+    // E11: an empty slug directory is an abandoned claim from a crashed attempt.
+    yield* removeIfEmpty(target);
     yield* fs
       .makeDirectory(target)
       .pipe(Effect.mapError(fileErrorFor(`Refusing to publish: ${plan.packetPath} already exists.`)));

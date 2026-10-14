@@ -141,7 +141,7 @@ const pageShare = (candidate: SheetCandidate): number =>
  *
  * @param input - Sheet-set hash, every sheet's coverage, and an optional operator FIG.
  * @returns The match, or why the page cannot be tied to one sheet.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const matchSheet = (input: {
@@ -211,7 +211,7 @@ export const matchSheet = (input: {
  *
  * @param text - The flag value.
  * @returns The override, or why the value is malformed.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const parseFigureOverride = (text: string): Result.Result<FigureOverride, string> => {
@@ -239,7 +239,7 @@ const normalize = (text: string): string => Str.toLowerCase(Str.trim(text.replac
  *
  * @param text - Text of one reviewer note, as extracted.
  * @returns True when the text carries the marker.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const isAllSheetsNote = (text: string): boolean => ALL_SHEETS_MARK.test(text);
@@ -270,7 +270,7 @@ const readingOrder = Order.combine(
  *
  * @param input - The reviewer page's blocks, the sheet's blocks, and the page.
  * @returns The added blocks as text-layer notes.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const textLayerNotes = (input: {
@@ -303,7 +303,7 @@ export const textLayerNotes = (input: {
  *
  * @param input - Every annotation of the file and the page to read.
  * @returns The page's comments as annotation notes.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const annotationNotes = (input: {
@@ -398,7 +398,7 @@ const coversEverySheet = (draft: FindingDraft, sheets: ReadonlyArray<number>): b
  *
  * @param input - Round number, the FIG.s of the sent set, and the ingested pages.
  * @returns The findings, or a refusal when they would overflow the two-digit ids.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const buildFindings = (input: {
@@ -445,7 +445,7 @@ export const buildFindings = (input: {
  * @param id - The finding id inside its round.
  * @param sheetSetSha256 - Hash of the sheet set the round reviewed.
  * @returns `A<round>-<nn>@<first 12 hex digits of the hash>`.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const reviewFindingRef: {
@@ -486,7 +486,7 @@ const statusFor: (disposition: Disposition) => ReviewFindingStatus = Disposition
  *
  * @param input - The round's findings and the dispositions file's entries.
  * @returns The planned findings, or the ids that are missing, unknown, or repeated.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const applyDispositions = (input: {
@@ -552,7 +552,7 @@ export const applyDispositions = (input: {
  *
  * @param findings - A round's findings.
  * @returns The findings still blocking sign-off.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const openRequiredFindings = (findings: ReadonlyArray<ReviewFinding>): ReadonlyArray<ReviewFinding> =>
@@ -588,7 +588,7 @@ export const openRequiredFindings = (findings: ReadonlyArray<ReviewFinding>): Re
  *
  * @param input - The target set's hash and spec hash, and every round of the matter with its findings.
  * @returns The refusals (warnings stay empty; the service adds its own).
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const statementGuard = (input: {
@@ -666,7 +666,7 @@ const requestText = (finding: ReviewFinding): string =>
  *
  * @param finding - The finding's scope and figures.
  * @returns "all", or the FIG. numbers joined by commas.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const findingFigures = (finding: Pick<ReviewFinding, "scope" | "figures">): string =>
@@ -693,7 +693,7 @@ export const findingFigures = (finding: Pick<ReviewFinding, "scope" | "figures">
  *
  * @param input - Round number, reviewed set hash, and the round's findings.
  * @returns Markdown: a heading, the judge's instructions, and the table.
- * @category rules
+ * @category utilities
  * @since 0.0.0
  */
 export const reviewerRequestsSection = (input: {

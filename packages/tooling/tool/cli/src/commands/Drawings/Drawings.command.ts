@@ -1,12 +1,14 @@
 /**
  * `beep drawings`: render design-figure sheet sets from a spec, validate
  * sheet-set PDFs against the filing rules, judge them, record deliveries and
- * attorney review rounds, and record approvals.
+ * attorney review rounds, record approvals, and pull reviewer attachments in
+ * from Outlook.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
+import { M365 } from "@beep/m365";
 import { PdfTools } from "@beep/pdf-tools";
 import {
   ConfirmationSource,
@@ -32,6 +34,7 @@ import * as S from "effect/Schema";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { isRequiredSeverity } from "../Qa/Inventory.schemas.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
+import { drawingIntakeLaneLayer, runDrawingIntake } from "./Drawings.intake.ts";
 import { buildDrawingJudgePack, ingestDrawingJudgeInventory } from "./Drawings.judge.ts";
 import { FigureSetLive, MailReaderM365Live, MailReaderUnavailable, sheetSetApprovalLive } from "./Drawings.layer.ts";
 import {
@@ -122,7 +125,8 @@ const projectionNote = (figure: RenderManifest["figures"][number]): string =>
  * **Details**
  *
  * Names the effective sheet format and margin standard, and says when the
- * spec's own sheet options replaced the ones the flags asked for. Pictorial
+ * spec's own sheet options replaced the ones the flags asked for. Each font
+ * embedded for text labels is listed with its file and sha256. Pictorial
  * figures carry their projection (a pictorial camera without a focus is
  * isometric).
  *
@@ -164,6 +168,7 @@ export const renderManifestSummary = ({
   `rendered "${manifest.title}": ${A.length(manifest.figures)} ${manifest.shaded ? "shaded" : "unshaded"} sheet(s) at ${manifest.scale} pt/unit → ${manifest.pdfFile}`,
   `sheet-set sha256 ${manifest.pdfSha256}`,
   ...sheetSummary(manifest, requested),
+  ...A.map(manifest.fonts, (pin) => `label font: ${pin.family} → ${pin.file} (sha256 ${pin.sha256})`),
   ...A.map(
     manifest.figures,
     (f) =>
@@ -263,8 +268,10 @@ const attestedByFlag = Flag.String("attested-by").pipe(
 const deliveredByFlag = Flag.String("delivered-by").pipe(
   Flag.withDescription("Email address the PDF was delivered from; must equal the approver recorded in the spec")
 );
-const corpusRootFlag = Flag.Directory("corpus-root", { mustExist: true }).pipe(
-  Flag.withFallbackConfig(Config.String("BEEP_OPPOLD_CORPUS_ROOT")),
+const corpusRootBaseFlag = Flag.Directory("corpus-root", { mustExist: true }).pipe(
+  Flag.withFallbackConfig(Config.String("BEEP_OPPOLD_CORPUS_ROOT"))
+);
+const corpusRootFlag = corpusRootBaseFlag.pipe(
   Flag.withDescription("Corpus root the confirmation PDF must live under")
 );
 
@@ -462,6 +469,57 @@ const drawingsJudgeIngestCommand = Command.make(
   { pack: packFlag, reply: replyFlag },
   runJudgeIngest
 ).pipe(Command.withDescription("Validate a judge reply as a drawing-rubric qa-inventory/v1 and store it in the pack"));
+
+const intakeMessageFlag = Flag.String("message").pipe(
+  Flag.withDescription("Outlook web link, or a Graph message or conversation id")
+);
+const intakeMailboxFlag = Flag.String("mailbox").pipe(
+  Flag.optional,
+  Flag.withDescription("Mailbox to read (address or user id); defaults to <PREFIX>_MAILBOX")
+);
+const intakeOutFlag = Flag.Directory("out").pipe(
+  Flag.withDescription("Directory under the corpus root for the attachments and intake.json")
+);
+const intakeCorpusRootFlag = corpusRootBaseFlag.pipe(
+  Flag.withDescription("Corpus root the intake directory must lie under")
+);
+const intakePickFlag = Flag.String("pick").pipe(
+  Flag.withDefault("latest"),
+  Flag.withDescription("For a conversation: latest, or n for the n-th newest message")
+);
+const intakeIncludeOwnFlag = Flag.Boolean("include-own").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("For a conversation: let --pick choose the mailbox's own sent mail (drafts are never chosen)")
+);
+// Intake only reads mail, so it defaults to the docket-intake registration (Mail.ReadWrite on the
+// attorney's mailbox, no Mail.Send) rather than the send-capable M365_OUTBOX one.
+const intakeEnvPrefixFlag = Flag.String("env-prefix").pipe(
+  Flag.withDefault("CLOUD_M365_DOCKET"),
+  Flag.withDescription(
+    "Prefix of the app-only settings: <PREFIX>_TENANT_ID, _CLIENT_ID, _CERT_THUMBPRINT_SHA256, _CERT_PRIVATE_KEY, _MAILBOX (run under op run); defaults to the docket-intake registration (Mail.ReadWrite, no Mail.Send)"
+  )
+);
+
+const drawingsIntakeCommand = Command.make(
+  "intake",
+  {
+    message: intakeMessageFlag,
+    mailbox: intakeMailboxFlag,
+    out: intakeOutFlag,
+    corpusRoot: intakeCorpusRootFlag,
+    pick: intakePickFlag,
+    includeOwn: intakeIncludeOwnFlag,
+    envPrefix: intakeEnvPrefixFlag,
+  },
+  runDrawingIntake
+).pipe(
+  Command.withDescription(
+    "Pull a message's file attachments into a directory under the corpus root, deduped by sha256, with intake.json (reads mail only; app-only settings from CLOUD_M365_DOCKET_*, a Mail.ReadWrite registration without Mail.Send, unless --env-prefix names another)"
+  ),
+  Command.provide((input) =>
+    drawingIntakeLaneLayer({ envPrefix: input.envPrefix, mailLayer: M365.makeAppOnlyLiveLayer })
+  )
+);
 
 const matterFlag = Flag.Directory("matter", { mustExist: true }).pipe(
   Flag.withDescription("Matter directory under the corpus root; rounds live in <matter>/review/round-<n>/")
@@ -685,7 +743,7 @@ const drawingsDeliverCommand = Command.make("deliver", {}, () =>
 );
 
 const printDrawingsIndex = () =>
-  printLines(["drawings commands: render, validate, judge, judge-ingest, statement, sign, deliver, review"]);
+  printLines(["drawings commands: render, validate, judge, judge-ingest, statement, sign, deliver, review, intake"]);
 
 /**
  * Design-figure drawings command group.
@@ -704,7 +762,7 @@ const printDrawingsIndex = () =>
  * @since 0.0.0
  */
 export const drawingsCommand = Command.make("drawings", {}, printDrawingsIndex).pipe(
-  Command.withDescription("Design-figure sheet rendering and filing validation"),
+  Command.withDescription("Design-figure sheet rendering, filing validation, approval, and reviewer intake"),
   Command.withSubcommands(
     A.make(
       drawingsRenderCommand,
@@ -714,7 +772,8 @@ export const drawingsCommand = Command.make("drawings", {}, printDrawingsIndex).
       drawingsStatementCommand,
       drawingsSignCommand,
       drawingsDeliverCommand,
-      drawingsReviewCommand
+      drawingsReviewCommand,
+      drawingsIntakeCommand
     )
   )
 );
