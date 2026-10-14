@@ -61,7 +61,8 @@ P4 in progress. Shipped on main so far:
   `goals/skill-contract-gate-certificates` beside the already-published
   `goals/skill-contract-kernel` (E17).
 - **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds.
-- **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`
+- **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
+  FP-eyeball report
   ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
 - **Designs:** B, E, and C Stage 2
   ([`research/p4-skills-warehouse-design.md`](./research/p4-skills-warehouse-design.md),
@@ -69,16 +70,17 @@ P4 in progress. Shipped on main so far:
   [`research/p4-knowledge-doctor-design.md`](./research/p4-knowledge-doctor-design.md)),
   plus E-3 graduation
   ([`research/p4-explore-graduate-design.md`](./research/p4-explore-graduate-design.md)).
+- **D (PR 3):** `beep goals doctor` emits `capability-duplicate-declaration`,
+  `capability-reference-provides` and `capability-packet-id-mismatch` (blocking,
+  ratcheted) and `capability-stranded` (advisory), all zero on the live census; the
+  four missing `provides` are declared.
+- **B-3a:** `skills lock-plan` classifies drift against upstream path history (B11).
 
-The D and B verdicts are recorded. The D verdict unlocked this PR (design PR 3):
-`beep goals doctor` now emits `capability-duplicate-declaration` and
-`capability-reference-provides` (blocking, ratcheted) and `capability-stranded`
-(advisory). All three are zero on the live census, so the baseline is unchanged. A
-separate manifest-only PR declares the four missing `provides`. The B verdict gates the
-lock write on a path-history reclassification (B-3).
-
-Waiting on verdicts: the C report gates PR 2 (domain evaluators and the
-assertion/planned-command classification fixes).
+This PR adds C Stage-2 PR 2, the fixes from the C report's verdict: an assertion
+marker asserts only as a whole comment line (both stages), an arrow chain of commands
+is never one command span (both stages), the accepted doc fixes, and the planned-command
+spelling (`beep <cmd>` in prose) in the `SPEC.md` authoring note. The domain evaluators
+are the next C PR. B-3b (the lock write and flip) is in progress.
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 
