@@ -15,7 +15,7 @@
         ".claude/skills/atom-reactivity-specialist",
         ".agents/skills/atom-reactivity-specialist"
       ],
-      "installedTreeHash": "1a1f6a97778421a322c83fcbd812add005e7007ddd6cfb39babab5e66e274189"
+      "installedTreeHash": "b185910764de5f03f333f39e3b45c74309db59d82914b86e06a6bea9209525e8"
     },
     "browser-qa-loop": {
       "_tag": "local",
