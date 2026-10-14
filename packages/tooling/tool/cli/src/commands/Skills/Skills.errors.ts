@@ -149,6 +149,23 @@ export const SkillInstallStateReason = LiteralKit(["missing-target", "divergent-
 );
 
 /**
+ * Why a skill's installed targets cannot back a lock entry.
+ *
+ * **Example** (Annotate an install-state reason)
+ *
+ * ```ts
+ * import type { SkillInstallStateReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const reason: SkillInstallStateReason = "divergent-targets"
+ * console.log(reason)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SkillInstallStateReason = typeof SkillInstallStateReason.Type;
+
+/**
  * A skill's installed targets are missing or disagree with each other.
  *
  * **Details**

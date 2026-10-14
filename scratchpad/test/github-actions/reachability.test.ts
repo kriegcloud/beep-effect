@@ -181,6 +181,7 @@ describe("bundle reachability", () => {
 			"../github-commands/index.ts",
 			"@beep/identity/packages",
 			"@beep/utils/Option",
+			"effect/Boolean",
 			"effect/Console",
 			"effect/Context",
 			"effect/Effect",
@@ -221,8 +222,10 @@ describe("bundle reachability", () => {
 		assert.deepStrictEqual([...reachableRuntimeImports("BlobStore.ts")].sort(), [
 			"../github-commands/index.ts",
 			"@beep/identity/packages",
+			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
 			"effect/Array",
+			"effect/Boolean",
 			"effect/Config",
 			"effect/Console",
 			"effect/Context",
@@ -253,7 +256,14 @@ describe("bundle reachability", () => {
 			["../github-commands/index.ts"],
 		);
 		// The lab child-env helper uses Effect Record to build core's CommandOptions value.
-		assert.deepStrictEqual([...reachableRuntimeImports("ChildEnv.ts")], ["effect/Record"]);
+		assert.deepStrictEqual([...reachableRuntimeImports("ChildEnv.ts")], [
+			"@beep/identity/packages",
+			"effect/Array",
+			"effect/Option",
+			"effect/Record",
+			"effect/Schema",
+			"effect/String",
+		]);
 		// The default runtime does NOT reach Azure, and that is the reason the
 		// cache, artifact and blob services are left out of it: folding them in
 		// would put a blob-storage client in the bundle of every action that
@@ -261,9 +271,11 @@ describe("bundle reachability", () => {
 		assert.deepStrictEqual([...reachableRuntimeImports("Action.ts")].sort(), [
 			"../github-commands/index.ts",
 			"@beep/identity/packages",
+			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
 			"@effect/platform-node",
 			"effect/Array",
+			"effect/Boolean",
 			"effect/Cause",
 			"effect/Config",
 			"effect/ConfigProvider",
@@ -330,6 +342,7 @@ describe("bundle reachability", () => {
 			"@beep/utils/Option",
 			"effect/Array",
 			"effect/BigInt",
+			"effect/Boolean",
 			"effect/Clock",
 			"effect/Context",
 			"effect/DateTime",
@@ -350,6 +363,8 @@ describe("bundle reachability", () => {
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("GitHubMarkdown.ts")].sort(), [
 			"../markdown/index.ts",
+			"@beep/identity/packages",
+			"@beep/schema/LiteralKit",
 			"effect/Array",
 			"effect/Function",
 			"effect/Predicate",
@@ -357,6 +372,7 @@ describe("bundle reachability", () => {
 			"effect/Result",
 			"effect/Schema",
 			"effect/SchemaAST",
+			"effect/String",
 		]);
 	});
 
@@ -384,6 +400,7 @@ describe("bundle reachability", () => {
 			"../npm/index.ts",
 			"@beep/identity/packages",
 			"@beep/utils/Option",
+			"effect/Boolean",
 			"effect/Config",
 			"effect/ConfigProvider",
 			"effect/Context",
@@ -416,6 +433,8 @@ describe("bundle reachability", () => {
 		// hoisting their fifteen lines of Azure into either one would put the
 		// client on the graph of everything that speaks the protocol.
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/actionsResults.ts")].sort(), [
+			"@beep/identity/packages",
+			"@beep/schema/LiteralKit",
 			"effect/Effect",
 			"effect/Function",
 			"effect/Option",
@@ -428,11 +447,14 @@ describe("bundle reachability", () => {
 		assert.deepStrictEqual(
 			[...reachableRuntimeImports("internal/twirp.ts")].sort(),
 			[
+			"@beep/identity/packages",
+			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
 			"effect/Effect",
 			"effect/Function",
 			"effect/Predicate",
 			"effect/Schedule",
+			"effect/Schema",
 			"effect/http",
 		],
 			"the Twirp client speaks HTTP and nothing heavier",
@@ -441,26 +463,36 @@ describe("bundle reachability", () => {
 		// `BlobStore.githubCache` owns the three RPCs and NOT the Azure transfer
 		// between them — that is the whole point of it being an internal.
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/cacheService.ts")].sort(), [
+			"@beep/identity/packages",
+			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
+			"effect/Boolean",
 			"effect/Effect",
 			"effect/Function",
 			"effect/Option",
 			"effect/Predicate",
 			"effect/Schedule",
+			"effect/Schema",
 			"effect/http",
 		]);
 		// `effect/process` is a type-only import there: the spawner
 		// arrives as a value from the caller.
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/spawn.ts")].sort(), [
+			"@beep/identity/packages",
 			"effect/Effect",
 			"effect/Function",
+			"effect/Schema",
 			"effect/Stream",
 		]);
 		// The command-line half of every archiver call: `ChildProcess.make` is a
 		// VALUE import there, and it is shared by `Artifact` (Azure) and
 		// `ToolInstaller` (light) — exactly the kind of helper that must never
 		// grow a heavier edge.
-		assert.deepStrictEqual([...reachableRuntimeImports("internal/archiveCommands.ts")].sort(), ["effect/process"]);
+		assert.deepStrictEqual([...reachableRuntimeImports("internal/archiveCommands.ts")].sort(), [
+			"@beep/identity/packages",
+			"effect/Schema",
+			"effect/process",
+		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/digest.ts")].sort(), [
 			"effect/Effect",
 			"effect/Function",
@@ -470,6 +502,8 @@ describe("bundle reachability", () => {
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/fsProbe.ts")].sort(), ["effect/Effect", "effect/Function", "effect/Predicate"]);
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/jwt.ts")].sort(), [
+			"@beep/identity/packages",
+			"@beep/schema/LiteralKit",
 			"effect/Function",
 			"effect/Result",
 			"effect/Schema",
