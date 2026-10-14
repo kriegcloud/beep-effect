@@ -14,6 +14,7 @@ import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -244,15 +245,16 @@ describe("worktree remove archive fence", { concurrent: false }, () => {
           })
         );
         expect(inside.selfRetirement).toBe(true);
-        expect(O.isNone(inside.sessionMarker)).toBe(true);
+        assertNone(inside.sessionMarker);
         // Started elsewhere: nothing moves, and a well-formed pid names the session.
         const outside = yield* withRealCwd(
           repoRoot,
           withEnv({ ...env, CLAUDE_PID: String(process.pid) }, invokerExemption(lane, repoRoot))
         );
         expect(outside.selfRetirement).toBe(false);
-        expect(O.map(outside.sessionMarker, (marker) => [marker.name, marker.pid])).toEqual(
-          O.some(["CLAUDE_PID", process.pid])
+        assertSome(
+          O.map(outside.sessionMarker, (marker) => [marker.name, marker.pid]),
+          ["CLAUDE_PID", process.pid]
         );
       })
     )
