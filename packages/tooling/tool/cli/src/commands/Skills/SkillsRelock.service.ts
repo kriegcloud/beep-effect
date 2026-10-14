@@ -252,7 +252,7 @@ const replayEntry = Effect.fn("SkillsRelock.replayEntry")(function* (
  *
  * ```ts
  * import { isSkillReplayClean, SkillGitRevision, SkillReplayReport } from "@beep/repo-cli/commands/Skills"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
