@@ -127,7 +127,9 @@ export type EntityGroupName = typeof EntityGroupName.Type;
  * @category models
  * @since 0.0.0
  */
-export class CustomEntityExample extends S.Class<CustomEntityExample>($I`CustomEntityExample`)(
+export class CustomEntityExample extends S.Class<CustomEntityExample, { readonly brand: unique symbol }>(
+  $I`CustomEntityExample`
+)(
   {
     mark: S.OptionFromOptionalKey(MarkRange).pipe(S.withConstructorDefault(Effect.succeedNone)),
     name: S.NonEmptyString,
@@ -186,7 +188,9 @@ const sameCustomEntityExample = S.toEquivalence(CustomEntityExample);
  * @category models
  * @since 0.0.0
  */
-export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>($I`WinkEngineCustomEntities`)(
+export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities, { readonly brand: unique symbol }>(
+  $I`WinkEngineCustomEntities`
+)(
   {
     name: EntityGroupName,
     patterns: S.Array(CustomEntityExample),

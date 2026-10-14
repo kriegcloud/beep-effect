@@ -26,7 +26,7 @@ const $I = $ScratchpadId.create("effected/github/GraphQL");
  * @category models
  * @since 0.0.0
  */
-export class GraphQLErrorEntry extends S.Class<GraphQLErrorEntry>($I`GraphQLErrorEntry`)({
+export class GraphQLErrorEntry extends S.Class<GraphQLErrorEntry, { readonly brand: unique symbol }>($I`GraphQLErrorEntry`)({
   /** GitHub's prose. */
   message: S.String.annotateKey({ description: "GitHub's prose." }),
   /** GitHub's own classification, e.g. `"NOT_FOUND"` or `"FORBIDDEN"`. */
@@ -58,7 +58,7 @@ export class GraphQLErrorEntry extends S.Class<GraphQLErrorEntry>($I`GraphQLErro
  * @category errors
  * @since 0.0.0
  */
-export class GitHubGraphQLError extends S.TaggedError<GitHubGraphQLError>($I`GitHubGraphQLError`)("GitHubGraphQLError", {
+export class GitHubGraphQLError extends S.TaggedError<GitHubGraphQLError, { readonly brand: unique symbol }>($I`GitHubGraphQLError`)("GitHubGraphQLError", {
   /**
    * Structural routing, mirroring `GitHubError`'s.
    *

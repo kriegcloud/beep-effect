@@ -32,15 +32,19 @@ const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
  * @category workflows
  * @since 0.0.0
  */
-export class ArchitectureLabProofResult extends S.Class<ArchitectureLabProofResult>($I`ArchitectureLabProofResult`)(
-  {
+export class ArchitectureLabProofResult extends S.Opaque<
+  ArchitectureLabProofResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     created: DomainWorkItem.WorkItem,
     summary: WorkItemSummaryViewModel,
-  },
-  $I.annote("ArchitectureLabProofResult", {
-    title: "Architecture lab proof result",
-    description: "Result produced by the architecture lab app contract harness.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchitectureLabProofResult", {
+      title: "Architecture lab proof result",
+      description: "Result produced by the architecture lab app contract harness.",
+    })
+  )
 ) {}
 
 /**

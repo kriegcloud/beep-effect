@@ -41,51 +41,55 @@ const NOTION_VERSION = "2022-06-28";
  * @internal
  * @category models
  */
-export class NotionSavedLink extends S.Class<NotionSavedLink>($I`NotionSavedLink`)(
-  {
+export class NotionSavedLink extends S.Opaque<NotionSavedLink, { readonly brand: unique symbol }>()(
+  S.Struct({
     createdIso: S.String,
     pageId: S.String,
     tags: S.Array(S.String),
     title: S.String,
     url: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("NotionSavedLink", {
-    title: "Notion Saved Link",
-    description: "One saved link extracted from a Notion database page or page block.",
-  })
+  }).pipe(
+    $I.annoteSchema("NotionSavedLink", {
+      title: "Notion Saved Link",
+      description: "One saved link extracted from a Notion database page or page block.",
+    })
+  )
 ) {}
 
-class SearchResult extends S.Class<SearchResult>($I`SearchResult`)(
-  {
+class SearchResult extends S.Opaque<SearchResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     object: S.String,
-  },
-  $I.annote("SearchResult", {
-    title: "Search Result",
-    description: "Minimal Notion search result used to locate the saved-links database.",
-  })
+  }).pipe(
+    $I.annoteSchema("SearchResult", {
+      title: "Search Result",
+      description: "Minimal Notion search result used to locate the saved-links database.",
+    })
+  )
 ) {}
 
-class SearchResponse extends S.Class<SearchResponse>($I`SearchResponse`)(
-  {
+class SearchResponse extends S.Opaque<SearchResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     results: S.Array(S.Unknown),
-  },
-  $I.annote("SearchResponse", {
-    title: "Search Response",
-    description: "Minimal Notion search response containing raw result payloads.",
-  })
+  }).pipe(
+    $I.annoteSchema("SearchResponse", {
+      title: "Search Response",
+      description: "Minimal Notion search response containing raw result payloads.",
+    })
+  )
 ) {}
 
-class QueryResponse extends S.Class<QueryResponse>($I`QueryResponse`)(
-  {
+class QueryResponse extends S.Opaque<QueryResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     has_more: S.Boolean,
     next_cursor: S.NullOr(S.String),
     results: S.Array(S.Unknown),
-  },
-  $I.annote("QueryResponse", {
-    title: "Query Response",
-    description: "Minimal Notion paginated query response used by research notion-pull.",
-  })
+  }).pipe(
+    $I.annoteSchema("QueryResponse", {
+      title: "Query Response",
+      description: "Minimal Notion paginated query response used by research notion-pull.",
+    })
+  )
 ) {}
 
 const decodeQueryResponse = S.decodeUnknownEffect(QueryResponse);
@@ -329,17 +333,18 @@ export const queryPageLinks = Effect.fn("NotionPull.queryPageLinks")(function* (
   );
 });
 
-class SavedLinkInput extends S.Class<SavedLinkInput>($I`SavedLinkInput`)(
-  {
+class SavedLinkInput extends S.Opaque<SavedLinkInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     createdIso: S.String.pipe(S.optionalKey),
     tags: S.Array(S.String).pipe(S.optionalKey),
     title: S.String,
     url: S.String,
-  },
-  $I.annote("SavedLinkInput", {
-    title: "Saved Link Input",
-    description: "Local JSON backfill input row for research notion-pull.",
-  })
+  }).pipe(
+    $I.annoteSchema("SavedLinkInput", {
+      title: "Saved Link Input",
+      description: "Local JSON backfill input row for research notion-pull.",
+    })
+  )
 ) {}
 const decodeSavedLinkInputsJson = S.decodeEffect(S.fromJsonString(S.Array(SavedLinkInput)));
 

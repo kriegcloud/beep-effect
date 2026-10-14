@@ -55,6 +55,7 @@ import {
   ReviewStatus,
 } from "@/content";
 import { OipAtomProvider } from "@/runtime/OipAtomProvider";
+import { HeroClipMedia } from "../src/components/HeroVideo.tsx";
 
 const encodeCapturedLogs = S.encodeEffect(S.fromJsonString(S.Unknown));
 
@@ -599,7 +600,13 @@ describe("@beep/oip-web", { concurrent: false }, () => {
     const { container } = render(
       <OipAtomProvider>
         <HeroVideo
-          clips={[{ poster: "/oip/hero-vid-poster.jpg", mp4: "/oip/hero-vid.mp4", webm: "/oip/hero-vid.webm" }]}
+          clips={[
+            HeroClipMedia.make({
+              poster: "/oip/hero-vid-poster.jpg",
+              mp4: "/oip/hero-vid.mp4",
+              webm: "/oip/hero-vid.webm",
+            }),
+          ]}
         />
       </OipAtomProvider>
     );

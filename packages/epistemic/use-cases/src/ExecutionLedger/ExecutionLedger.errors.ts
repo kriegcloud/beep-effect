@@ -83,9 +83,10 @@ export type ExecutionLedgerOperation = typeof ExecutionLedgerOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class ExecutionLedgerConstraintViolation extends S.TaggedError<ExecutionLedgerConstraintViolation>(
-  $I`ExecutionLedgerConstraintViolation`
-)(
+export class ExecutionLedgerConstraintViolation extends S.TaggedError<
+  ExecutionLedgerConstraintViolation,
+  { readonly brand: unique symbol }
+>($I`ExecutionLedgerConstraintViolation`)(
   "ExecutionLedgerConstraintViolation",
   {
     constraintName: S.NonEmptyString.annotateKey({
@@ -139,9 +140,10 @@ export class ExecutionLedgerConstraintViolation extends S.TaggedError<ExecutionL
  * @category errors
  * @since 0.0.0
  */
-export class ExecutionLedgerUnavailable extends S.TaggedError<ExecutionLedgerUnavailable>(
-  $I`ExecutionLedgerUnavailable`
-)(
+export class ExecutionLedgerUnavailable extends S.TaggedError<
+  ExecutionLedgerUnavailable,
+  { readonly brand: unique symbol }
+>($I`ExecutionLedgerUnavailable`)(
   "ExecutionLedgerUnavailable",
   {
     cause: optionalDefect("Optional underlying driver defect captured when the ledger could not serve a request."),

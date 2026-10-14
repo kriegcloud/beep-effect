@@ -44,7 +44,7 @@ const $I = $GovinfoId.create("domain/values/SearchResponse/SearchResponse.model"
  * @category dtos
  * @since 0.0.0
  */
-export class SearchResponse extends S.Class<SearchResponse>($I`SearchResponse`)(
+export class SearchResponse extends S.Class<SearchResponse, { readonly brand: unique symbol }>($I`SearchResponse`)(
   {
     count: S.Int.pipe(
       S.check(S.makeFilterGroup([S.isInt32(), S.isFinite(), S.isGreaterThanOrEqualTo(0)])),

@@ -1035,22 +1035,25 @@ Since v1.0.0`
           expect(actual).toEqual([
             Domain.Export.new(
               "b",
-              Domain.Doc.new(undefined, {
-                since: ["1.0.0"],
-                deprecated: [],
-                examples: [],
-                category: [],
-                throws: [],
-                sees: [],
-                tags: {
+              Domain.Doc.new(
+                undefined,
+                Domain.DocNewOptions.make({
                   since: ["1.0.0"],
-                },
-              }),
-              {
+                  deprecated: [],
+                  examples: [],
+                  category: [],
+                  throws: [],
+                  sees: [],
+                  tags: {
+                    since: ["1.0.0"],
+                  },
+                })
+              ),
+              Domain.ExportNewOptions.make({
                 signature: "declare const b: 1",
                 position: Domain.Position.new(7, 11),
                 isNamespaceExport: false,
-              }
+              })
             ),
           ]);
         })
@@ -1075,22 +1078,25 @@ Since v1.0.0`
           expect(actual).toEqual([
             Domain.Export.new(
               "'./example'",
-              Domain.Doc.new("Re-exports all named exports from the './example' module.", {
-                since: ["1.0.0"],
-                deprecated: [],
-                examples: [],
-                category: [],
-                throws: [],
-                sees: [],
-                tags: {
+              Domain.Doc.new(
+                "Re-exports all named exports from the './example' module.",
+                Domain.DocNewOptions.make({
                   since: ["1.0.0"],
-                },
-              }),
-              {
+                  deprecated: [],
+                  examples: [],
+                  category: [],
+                  throws: [],
+                  sees: [],
+                  tags: {
+                    since: ["1.0.0"],
+                  },
+                })
+              ),
+              Domain.ExportNewOptions.make({
                 signature: "export * from './example'",
                 position: Domain.Position.new(5, 10),
                 isNamespaceExport: true,
-              }
+              })
             ),
           ]);
         })
@@ -1115,22 +1121,25 @@ Since v1.0.0`
           expect(actual).toEqual([
             Domain.Export.new(
               "example",
-              Domain.Doc.new("Re-exports all named exports from the './example' module as `example`.", {
-                since: ["1.0.0"],
-                deprecated: [],
-                examples: [],
-                category: [],
-                throws: [],
-                sees: [],
-                tags: {
+              Domain.Doc.new(
+                "Re-exports all named exports from the './example' module as `example`.",
+                Domain.DocNewOptions.make({
                   since: ["1.0.0"],
-                },
-              }),
-              {
+                  deprecated: [],
+                  examples: [],
+                  category: [],
+                  throws: [],
+                  sees: [],
+                  tags: {
+                    since: ["1.0.0"],
+                  },
+                })
+              ),
+              Domain.ExportNewOptions.make({
                 signature: "export * as example from './example'",
                 position: Domain.Position.new(5, 11),
                 isNamespaceExport: true,
-              }
+              })
             ),
           ]);
         })

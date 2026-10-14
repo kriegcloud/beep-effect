@@ -103,15 +103,16 @@ type LabelGlyph = typeof LabelGlyph.Type;
  * @internal
  * @since 0.0.0
  */
-export class LabelFace extends S.Class<LabelFace>($I`LabelFace`)(
-  {
+export class LabelFace extends S.Opaque<LabelFace, { readonly brand: unique symbol }>()(
+  S.Struct({
     capHeight: S.Finite.annotateKey({ description: "Cap height in font units." }),
     glyphs: S.Record(S.String, LabelGlyph).annotateKey({ description: "Glyphs of the label alphabet by character." }),
     unitsPerEm: S.Finite.annotateKey({ description: "Font units per em." }),
-  },
-  $I.annote("LabelFace", {
-    description: "Outlines and metrics of the sheet-label alphabet of one face, in font units, y up.",
-  })
+  }).pipe(
+    $I.annoteSchema("LabelFace", {
+      description: "Outlines and metrics of the sheet-label alphabet of one face, in font units, y up.",
+    })
+  )
 ) {}
 
 /**

@@ -15,7 +15,7 @@ import { cva } from "class-variance-authority";
 import { motion } from "framer-motion";
 import { createContext, forwardRef, useContext, useEffect, useRef } from "react";
 import { cn } from "../lib/index.ts";
-import { requireReactContext } from "../lib/react-invariant.ts";
+import { ReactContextInvariantOptions, requireReactContext } from "../lib/react-invariant.ts";
 import type { AudioFormat, CommitStrategy } from "@beep/ui/hooks/use-scribe";
 import type { VariantProps } from "class-variance-authority";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
@@ -77,7 +77,10 @@ const SpeechInputContext = createContext<SpeechInputContextValue | null>(null);
  */
 function useSpeechInput() {
   const context = useContext(SpeechInputContext);
-  return requireReactContext(context, { message: "SpeechInput compound components must be used within a SpeechInput" });
+  return requireReactContext(
+    context,
+    ReactContextInvariantOptions.make({ message: "SpeechInput compound components must be used within a SpeechInput" })
+  );
 }
 
 // Root component

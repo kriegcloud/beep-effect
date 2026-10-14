@@ -38,7 +38,7 @@ const $I = $ScratchpadId.create("effected/semver/Range");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidRangeError extends S.TaggedError<InvalidRangeError>($I`InvalidRangeError`)("InvalidRangeError", {
+export class InvalidRangeError extends S.TaggedError<InvalidRangeError, { readonly brand: unique symbol }>($I`InvalidRangeError`)("InvalidRangeError", {
 	/** The raw input string that failed to parse. */
 	input: S.String.annotateKey({ description: "The raw input string that failed to parse." }),
 	/** The character position where parsing failed, if available. */
@@ -108,7 +108,7 @@ export type ComparatorSet = ReadonlyArray<Comparator>;
  * @category models
  * @since 0.0.0
  */
-export class Range extends S.Class<Range>($I`Range`)({
+export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`Range`)({
 	/** Comparator sets combined with OR semantics; a version matches when it satisfies any set. */
 	sets: Comparator.pipe(S.Array, S.Array).annotateKey({ description: "Comparator sets combined with OR semantics; a version matches when it satisfies any set." }),
 }, $I.annote("Range", { description: "A SemVer range expression: a union (OR) of ComparatorSets. Supports node-semver syntax — hyphen ranges (`1.0.0 - 2.0.0`), X-ranges (`1.x`, `*`), tilde (`~1.2.3`), caret (`^1.2.3`) and `||` unions — which parsing desugars into primitive comparators and normalizes." })) {
@@ -683,7 +683,7 @@ export class Range extends S.Class<Range>($I`Range`)({
  * @category errors
  * @since 0.0.0
  */
-export class UnsatisfiableConstraintError extends S.TaggedError<UnsatisfiableConstraintError>($I`UnsatisfiableConstraintError`)(
+export class UnsatisfiableConstraintError extends S.TaggedError<UnsatisfiableConstraintError, { readonly brand: unique symbol }>($I`UnsatisfiableConstraintError`)(
 	"UnsatisfiableConstraintError",
 	{
 		/** The ranges whose intersection is empty. */

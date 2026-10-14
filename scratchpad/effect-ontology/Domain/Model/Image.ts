@@ -119,8 +119,7 @@ export type ImageOwnerType = typeof ImageOwnerType.Type;
  * @category models
  * @since 0.0.0
  */
-export class ImageCandidate extends S.Class<ImageCandidate>($I`ImageCandidate`)(
-  {
+export class ImageCandidate extends S.Opaque<ImageCandidate, { readonly brand: unique symbol }>()(S.Struct({
     sourceUrl: URLStr.annotateKey({
       description: "Original URL from which the image can be fetched.",
     }),
@@ -141,11 +140,9 @@ export class ImageCandidate extends S.Class<ImageCandidate>($I`ImageCandidate`)(
     referrerUrl: URLStr.annotateKey({
       description: "Page URL on which the image was discovered.",
     }),
-  },
-  $I.annote("ImageCandidate", {
+  }).pipe($I.annoteSchema("ImageCandidate", {
     description: "Raw image discovery record before content-addressed ingestion.",
-  })
-) {
+  }))) {
   /** Schema-derived candidate guard. */
   static readonly is = S.is(ImageCandidate);
 
@@ -177,8 +174,7 @@ export class ImageCandidate extends S.Class<ImageCandidate>($I`ImageCandidate`)(
  * @category models
  * @since 0.0.0
  */
-export class ImageAsset extends S.Class<ImageAsset>($I`ImageAsset`)(
-  {
+export class ImageAsset extends S.Opaque<ImageAsset, { readonly brand: unique symbol }>()(S.Struct({
     hash: Sha256Hex.annotateKey({
       description: "Full SHA-256 digest used as the asset's content identity.",
     }),
@@ -207,11 +203,9 @@ export class ImageAsset extends S.Class<ImageAsset>($I`ImageAsset`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "UTC instant at which the asset was first stored." })
     ),
-  },
-  $I.annote("ImageAsset", {
+  }).pipe($I.annoteSchema("ImageAsset", {
     description: "Content-addressed metadata for one stored image asset.",
-  })
-) {
+  }))) {
   /** Schema-derived asset guard. */
   static readonly is = S.is(ImageAsset);
 
@@ -249,8 +243,7 @@ export class ImageAsset extends S.Class<ImageAsset>($I`ImageAsset`)(
  * @category models
  * @since 0.0.0
  */
-export class ImageRef extends S.Class<ImageRef>($I`ImageRef`)(
-  {
+export class ImageRef extends S.Opaque<ImageRef, { readonly brand: unique symbol }>()(S.Struct({
     ownerType: ImageOwnerType.annotateKey({
       description: "Kind of aggregate that owns this reference.",
     }),
@@ -279,11 +272,9 @@ export class ImageRef extends S.Class<ImageRef>($I`ImageRef`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Context-specific image role when known." })
     ),
-  },
-  $I.annote("ImageRef", {
+  }).pipe($I.annoteSchema("ImageRef", {
     description: "Context-bearing reference from an owner aggregate to a content-addressed image.",
-  })
-) {
+  }))) {
   /** Schema-derived image-reference guard. */
   static readonly is = S.is(ImageRef);
 }
@@ -315,7 +306,7 @@ const imageManifestImagesDefault = A.empty<ImageRef>();
  * @category models
  * @since 0.0.0
  */
-export class ImageManifest extends S.Class<ImageManifest>($I`ImageManifest`)(
+export class ImageManifest extends S.Class<ImageManifest, { readonly brand: unique symbol }>($I`ImageManifest`)(
   {
     ownerType: ImageOwnerType.annotateKey({
       description: "Kind of aggregate represented by the manifest.",
@@ -391,8 +382,7 @@ export class ImageManifest extends S.Class<ImageManifest>($I`ImageManifest`)(
  * @category dtos
  * @since 0.0.0
  */
-export class ImageForPrompt extends S.Class<ImageForPrompt>($I`ImageForPrompt`)(
-  {
+export class ImageForPrompt extends S.Opaque<ImageForPrompt, { readonly brand: unique symbol }>()(S.Struct({
     base64: Base64ImageData.annotateKey({
       description: "Base64-encoded image bytes.",
     }),
@@ -419,11 +409,9 @@ export class ImageForPrompt extends S.Class<ImageForPrompt>($I`ImageForPrompt`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Source asset digest retained for traceability." })
     ),
-  },
-  $I.annote("ImageForPrompt", {
+  }).pipe($I.annoteSchema("ImageForPrompt", {
     description: "Validated base64 image payload and context for multimodal prompting.",
-  })
-) {}
+  }))) {}
 
 /**
  * Successful result of fetching and identifying an image candidate.
@@ -452,8 +440,7 @@ export class ImageForPrompt extends S.Class<ImageForPrompt>($I`ImageForPrompt`)(
  * @category models
  * @since 0.0.0
  */
-export class ImageFetchResult extends S.Class<ImageFetchResult>($I`ImageFetchResult`)(
-  {
+export class ImageFetchResult extends S.Opaque<ImageFetchResult, { readonly brand: unique symbol }>()(S.Struct({
     bytes: S.Uint8Array.annotateKey({
       description: "Fetched image bytes.",
     }),
@@ -466,10 +453,8 @@ export class ImageFetchResult extends S.Class<ImageFetchResult>($I`ImageFetchRes
     candidate: ImageCandidate.annotateKey({
       description: "Discovery record that led to the fetch.",
     }),
-  },
-  $I.annote("ImageFetchResult", {
+  }).pipe($I.annoteSchema("ImageFetchResult", {
     description: "Fetched image bytes paired with their digest, media type, and discovery provenance.",
-  })
-) {
+  }))) {
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(ImageFetchResult);
 }

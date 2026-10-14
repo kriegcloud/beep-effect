@@ -66,12 +66,11 @@ export type PolicySweepProgram = typeof PolicySweepProgram.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class LintPolicySweeps extends S.Class<LintPolicySweeps>($I`LintPolicySweeps`)(
-  {
+export class LintPolicySweeps extends S.Opaque<LintPolicySweeps, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("lint-policy-sweeps/v1"),
     deprecatedApis: PolicySweepProgram,
-  },
-  $I.annote("LintPolicySweeps", { description: "Versioned full-scope lint policy program selection." })
+  }).pipe($I.annoteSchema("LintPolicySweeps", { description: "Versioned full-scope lint policy program selection." }))
 ) {}
 
 /**
@@ -339,15 +338,16 @@ export type RootAuditMode = typeof RootAuditMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class PackageTaskProfile extends S.Class<PackageTaskProfile>($I`PackageTaskProfile`)(
-  {
+export class PackageTaskProfile extends S.Opaque<PackageTaskProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     task: QualityTaskName,
     script: S.String,
     fixScript: S.optionalKey(S.String),
-  },
-  $I.annote("PackageTaskProfile", {
-    description: "Package-local script profile used by the quality task adapter.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageTaskProfile", {
+      description: "Package-local script profile used by the quality task adapter.",
+    })
+  )
 ) {}
 
 /**
@@ -369,15 +369,16 @@ export class PackageTaskProfile extends S.Class<PackageTaskProfile>($I`PackageTa
  * @category models
  * @since 0.0.0
  */
-export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`QualityTaskInvocation`)(
-  {
+export class QualityTaskInvocation extends S.Opaque<QualityTaskInvocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     task: QualityTaskName,
     args: S.Array(S.String),
     fix: S.Boolean,
-  },
-  $I.annote("QualityTaskInvocation", {
-    description: "Result of parsing a quality command invocation.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityTaskInvocation", {
+      description: "Result of parsing a quality command invocation.",
+    })
+  )
 ) {}
 
 /**
@@ -395,15 +396,17 @@ export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`Qua
  * @category models
  * @since 0.0.0
  */
-export class PackageJsonWorkspacesDocument extends S.Class<PackageJsonWorkspacesDocument>(
-  $I`PackageJsonWorkspacesDocument`
-)(
-  {
+export class PackageJsonWorkspacesDocument extends S.Opaque<
+  PackageJsonWorkspacesDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     packages: S.Array(S.String),
-  },
-  $I.annote("PackageJsonWorkspacesDocument", {
-    description: "Object-form package.json workspaces entry used by quality task resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageJsonWorkspacesDocument", {
+      description: "Object-form package.json workspaces entry used by quality task resolution.",
+    })
+  )
 ) {}
 
 /**
@@ -421,15 +424,16 @@ export class PackageJsonWorkspacesDocument extends S.Class<PackageJsonWorkspaces
  * @category models
  * @since 0.0.0
  */
-export class PackageJsonDocument extends S.Class<PackageJsonDocument>($I`PackageJsonDocument`)(
-  {
+export class PackageJsonDocument extends S.Opaque<PackageJsonDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.optionalKey(S.String),
     scripts: S.optionalKey(S.Record(S.String, S.String)),
     workspaces: S.optionalKey(S.Union([S.Array(S.String), PackageJsonWorkspacesDocument])),
-  },
-  $I.annote("PackageJsonDocument", {
-    description: "Minimal package.json shape used by quality task resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageJsonDocument", {
+      description: "Minimal package.json shape used by quality task resolution.",
+    })
+  )
 ) {}
 
 /**
@@ -511,18 +515,19 @@ export type QualityHardwareProfile = typeof QualityHardwareProfile.Type;
  * @category models
  * @since 0.0.0
  */
-export class QualityProfileConfig extends S.Class<QualityProfileConfig>($I`QualityProfileConfig`)(
-  {
+export class QualityProfileConfig extends S.Opaque<QualityProfileConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     profile: QualityHardwareProfile,
     turboConcurrency: S.Finite,
     docgenParallel: S.Finite,
     fullProofSlots: S.Finite,
     reviewFixSlots: S.Finite,
     notes: S.Array(S.String),
-  },
-  $I.annote("QualityProfileConfig", {
-    description: "Static quality scheduling settings for a hardware profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityProfileConfig", {
+      description: "Static quality scheduling settings for a hardware profile.",
+    })
+  )
 ) {}
 
 /**
@@ -552,16 +557,17 @@ export class QualityProfileConfig extends S.Class<QualityProfileConfig>($I`Quali
  * @category models
  * @since 0.0.0
  */
-export class QualityProfileDetection extends S.Class<QualityProfileDetection>($I`QualityProfileDetection`)(
-  {
+export class QualityProfileDetection extends S.Opaque<QualityProfileDetection, { readonly brand: unique symbol }>()(
+  S.Struct({
     profile: QualityHardwareProfile,
     cpuCount: S.Finite,
     memoryGiB: S.Finite,
     config: QualityProfileConfig,
-  },
-  $I.annote("QualityProfileDetection", {
-    description: "Detected quality profile plus host facts.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityProfileDetection", {
+      description: "Detected quality profile plus host facts.",
+    })
+  )
 ) {}
 
 /**
@@ -570,26 +576,28 @@ export class QualityProfileDetection extends S.Class<QualityProfileDetection>($I
  * **Example** (Describe a detection input)
  *
  * ```ts
- * import type { QualityProfileDetectionInput } from "@beep/repo-cli/test/Quality"
+ * import { QualityProfileDetectionInput } from "@beep/repo-cli/commands/Quality"
  *
- * const input: QualityProfileDetectionInput = { ci: false, cpuCount: 8, totalMemoryBytes: 16 }
+ * const input = QualityProfileDetectionInput.make({ ci: false, cpuCount: 8, totalMemoryBytes: 16 })
  * console.log(input.cpuCount)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class QualityProfileDetectionInput extends S.Class<QualityProfileDetectionInput>(
-  $I`QualityProfileDetectionInput`
-)(
-  {
+export class QualityProfileDetectionInput extends S.Opaque<
+  QualityProfileDetectionInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ci: S.Boolean,
     cpuCount: S.Finite,
     totalMemoryBytes: S.Finite,
-  },
-  $I.annote("QualityProfileDetectionInput", {
-    description: "Host facts used when selecting a quality profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityProfileDetectionInput", {
+      description: "Host facts used when selecting a quality profile.",
+    })
+  )
 ) {}
 
 /**
@@ -791,17 +799,19 @@ export type FallowQualityPromotionStatus = typeof FallowQualityPromotionStatus.T
  * @category models
  * @since 0.0.0
  */
-export class GithubChecksFallowFeatureMatrixRow extends S.Class<GithubChecksFallowFeatureMatrixRow>(
-  $I`GithubChecksFallowFeatureMatrixRow`
-)(
-  {
+export class GithubChecksFallowFeatureMatrixRow extends S.Opaque<
+  GithubChecksFallowFeatureMatrixRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     featureFamily: FallowQualityFeatureFamily,
     ciMode: FallowQualityCiMode,
     promotionStatus: FallowQualityPromotionStatus,
-  },
-  $I.annote("GithubChecksFallowFeatureMatrixRow", {
-    description: "Minimal Fallow feature-matrix row used by GitHub check plan contract validation.",
-  })
+  }).pipe(
+    $I.annoteSchema("GithubChecksFallowFeatureMatrixRow", {
+      description: "Minimal Fallow feature-matrix row used by GitHub check plan contract validation.",
+    })
+  )
 ) {}
 
 /**
@@ -819,15 +829,17 @@ export class GithubChecksFallowFeatureMatrixRow extends S.Class<GithubChecksFall
  * @category models
  * @since 0.0.0
  */
-export class GithubChecksFallowFeatureMatrix extends S.Class<GithubChecksFallowFeatureMatrix>(
-  $I`GithubChecksFallowFeatureMatrix`
-)(
-  {
+export class GithubChecksFallowFeatureMatrix extends S.Opaque<
+  GithubChecksFallowFeatureMatrix,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     features: S.Array(GithubChecksFallowFeatureMatrixRow),
-  },
-  $I.annote("GithubChecksFallowFeatureMatrix", {
-    description: "Minimal Fallow feature matrix used by GitHub check plan contract validation.",
-  })
+  }).pipe(
+    $I.annoteSchema("GithubChecksFallowFeatureMatrix", {
+      description: "Minimal Fallow feature matrix used by GitHub check plan contract validation.",
+    })
+  )
 ) {}
 
 /**
@@ -1108,8 +1120,8 @@ export type GateOrderLaneClass = typeof GateOrderLaneClass.Type;
  * @category models
  * @since 0.0.0
  */
-export class GateOrderSeedRow extends S.Class<GateOrderSeedRow>($I`GateOrderSeedRow`)(
-  {
+export class GateOrderSeedRow extends S.Opaque<GateOrderSeedRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     laneId: S.NonEmptyString,
     laneClass: GateOrderLaneClass,
     laneClassBasis: S.NonEmptyString,
@@ -1121,10 +1133,11 @@ export class GateOrderSeedRow extends S.Class<GateOrderSeedRow>($I`GateOrderSeed
     firstRedBasis: S.NonEmptyString,
     firstRedPointer: S.NonEmptyString,
     precisionBasis: S.NonEmptyString,
-  },
-  $I.annote("GateOrderSeedRow", {
-    description: "A1 cost and first-red evidence plus A4 precision attribution for one local proof gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateOrderSeedRow", {
+      description: "A1 cost and first-red evidence plus A4 precision attribution for one local proof gate.",
+    })
+  )
 ) {}
 
 /**
@@ -1148,17 +1161,18 @@ export class GateOrderSeedRow extends S.Class<GateOrderSeedRow>($I`GateOrderSeed
  * @category models
  * @since 0.0.0
  */
-export class GateOrderSeed extends S.Class<GateOrderSeed>($I`GateOrderSeed`)(
-  {
+export class GateOrderSeed extends S.Opaque<GateOrderSeed, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("gate-order/v1"),
     sourcePath: S.NonEmptyString,
     measurementAsOf: S.NonEmptyString,
     firstFailurePopulation: S.Int.check(S.isGreaterThan(0)),
     lanes: S.Array(GateOrderSeedRow),
-  },
-  $I.annote("GateOrderSeed", {
-    description: "Versioned A1 and A4 evidence used to order the local Yeet pre-push lane set.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateOrderSeed", {
+      description: "Versioned A1 and A4 evidence used to order the local Yeet pre-push lane set.",
+    })
+  )
 ) {}
 
 /**
@@ -1481,8 +1495,8 @@ const A1DurationMs = S.Int.check(S.isGreaterThanOrEqualTo(0));
  * @category models
  * @since 0.0.0
  */
-export class EconomicsSeedSourceView extends S.Class<EconomicsSeedSourceView>($I`EconomicsSeedSourceView`)(
-  {
+export class EconomicsSeedSourceView extends S.Opaque<EconomicsSeedSourceView, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("verification-economics/v1"),
     measurementAsOf: S.NonEmptyString,
     hosted: S.Struct({
@@ -1500,10 +1514,11 @@ export class EconomicsSeedSourceView extends S.Class<EconomicsSeedSourceView>($I
         S.Struct({ lane: S.NonEmptyString, attempts: S.Int.check(S.isGreaterThanOrEqualTo(0)) })
       ),
     }),
-  },
-  $I.annote("EconomicsSeedSourceView", {
-    description: "The subset of the A1 economics document the gate-order seed points into.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsSeedSourceView", {
+      description: "The subset of the A1 economics document the gate-order seed points into.",
+    })
+  )
 ) {}
 
 /**
@@ -1544,15 +1559,16 @@ export const EconomicsSeedSourceViewJson = JsonStringCodec(EconomicsSeedSourceVi
  * @category models
  * @since 0.0.0
  */
-export class GateOrderCostSource extends S.Class<GateOrderCostSource>($I`GateOrderCostSource`)(
-  {
+export class GateOrderCostSource extends S.Opaque<GateOrderCostSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     laneId: S.NonEmptyString,
     costBasis: GateOrderCostBasis,
     sourceKey: S.OptionFromNullOr(S.NonEmptyString),
-  },
-  $I.annote("GateOrderCostSource", {
-    description: "The A1 row, by context or wrapper id, a seeded lane's cost P50 is read from, and why.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateOrderCostSource", {
+      description: "The A1 row, by context or wrapper id, a seeded lane's cost P50 is read from, and why.",
+    })
+  )
 ) {}
 
 /**
@@ -1583,18 +1599,19 @@ export class GateOrderCostSource extends S.Class<GateOrderCostSource>($I`GateOrd
  * @category models
  * @since 0.0.0
  */
-export class GateOrderSeedFinding extends S.Class<GateOrderSeedFinding>($I`GateOrderSeedFinding`)(
-  {
+export class GateOrderSeedFinding extends S.Opaque<GateOrderSeedFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: GateOrderSeedFindingKind,
     laneId: S.OptionFromNullOr(S.NonEmptyString),
     pointer: S.OptionFromNullOr(S.NonEmptyString),
     expected: S.OptionFromNullOr(S.Finite),
     actual: S.OptionFromNullOr(S.Finite),
     detail: S.OptionFromNullOr(S.NonEmptyString),
-  },
-  $I.annote("GateOrderSeedFinding", {
-    description: "One disagreement between the gate-order seed, the declared plan and the pinned A1 document.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateOrderSeedFinding", {
+      description: "One disagreement between the gate-order seed, the declared plan and the pinned A1 document.",
+    })
+  )
 ) {}
 
 /**
@@ -1630,17 +1647,18 @@ export class GateOrderSeedFinding extends S.Class<GateOrderSeedFinding>($I`GateO
  * @category models
  * @since 0.0.0
  */
-export class GateOrderHandoffSource extends S.Class<GateOrderHandoffSource>($I`GateOrderHandoffSource`)(
-  {
+export class GateOrderHandoffSource extends S.Opaque<GateOrderHandoffSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     reference: CacheEvidenceReference,
     schemaVersion: S.Literal("verification-economics/v1"),
     measurementAsOf: S.NonEmptyString,
     firstFailurePopulation: S.Int.check(S.isGreaterThan(0)),
     firstFailureRedAttempts: S.Int.check(S.isGreaterThan(0)),
-  },
-  $I.annote("GateOrderHandoffSource", {
-    description: "The pinned A1 document the handoff's seed was verified against.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateOrderHandoffSource", {
+      description: "The pinned A1 document the handoff's seed was verified against.",
+    })
+  )
 ) {}
 
 /**
@@ -1681,8 +1699,8 @@ export class GateOrderHandoffSource extends S.Class<GateOrderHandoffSource>($I`G
  * @category models
  * @since 0.0.0
  */
-export class GateOrderHandoffLane extends S.Class<GateOrderHandoffLane>($I`GateOrderHandoffLane`)(
-  {
+export class GateOrderHandoffLane extends S.Opaque<GateOrderHandoffLane, { readonly brand: unique symbol }>()(
+  S.Struct({
     rank: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     laneId: S.NonEmptyString,
     declarationIndex: S.Int.check(S.isGreaterThanOrEqualTo(0)),
@@ -1693,10 +1711,11 @@ export class GateOrderHandoffLane extends S.Class<GateOrderHandoffLane>($I`GateO
     durationP50Ms: S.OptionFromNullOr(S.Int),
     durationP95Ms: S.OptionFromNullOr(S.Int),
     firstRedSourceLane: S.OptionFromNullOr(S.NonEmptyString),
-  },
-  $I.annote("GateOrderHandoffLane", {
-    description: "One lane of the D1 pre-push order with the key that placed it and its resolved A1 sources.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateOrderHandoffLane", {
+      description: "One lane of the D1 pre-push order with the key that placed it and its resolved A1 sources.",
+    })
+  )
 ) {}
 
 const issueUnless = (holds: boolean, path: ReadonlyArray<PropertyKey>, issue: string) =>
@@ -1816,7 +1835,9 @@ const GateOrderHandoffCoherence = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GateOrderHandoff extends S.Class<GateOrderHandoff>($I`GateOrderHandoff`)(
+export class GateOrderHandoff extends S.Class<GateOrderHandoff, { readonly brand: unique symbol }>(
+  $I`GateOrderHandoff`
+)(
   S.Struct({
     schemaVersion: S.Literal("gate-order-handoff/v1"),
     scope: GateOrderHandoffScope,
@@ -1880,8 +1901,8 @@ const OptionalGateOrderSeedRow = GateOrderSeedRow.pipe(
  * @category models
  * @since 0.0.0
  */
-export class GithubCheckLaneSpec extends S.Class<GithubCheckLaneSpec>($I`GithubCheckLaneSpec`)(
-  {
+export class GithubCheckLaneSpec extends S.Opaque<GithubCheckLaneSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     tier: GithubCheckLaneTier,
     stage: GithubCheckLaneStage,
@@ -1889,10 +1910,11 @@ export class GithubCheckLaneSpec extends S.Class<GithubCheckLaneSpec>($I`GithubC
     blockedBy: S.Array(S.String),
     step: QualityTaskStep,
     orderEstimate: OptionalGateOrderSeedRow,
-  },
-  $I.annote("GithubCheckLaneSpec", {
-    description: "Executable lane specification for GitHub check collectors.",
-  })
+  }).pipe(
+    $I.annoteSchema("GithubCheckLaneSpec", {
+      description: "Executable lane specification for GitHub check collectors.",
+    })
+  )
 ) {}
 
 /**
@@ -1910,14 +1932,15 @@ export class GithubCheckLaneSpec extends S.Class<GithubCheckLaneSpec>($I`GithubC
  * @category models
  * @since 0.0.0
  */
-export class GithubCheckLaneWaveSpec extends S.Class<GithubCheckLaneWaveSpec>($I`GithubCheckLaneWaveSpec`)(
-  {
+export class GithubCheckLaneWaveSpec extends S.Opaque<GithubCheckLaneWaveSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     wave: GithubCheckLaneWave,
     lanes: S.Array(GithubCheckLaneSpec),
-  },
-  $I.annote("GithubCheckLaneWaveSpec", {
-    description: "One ordered execution wave of local GitHub-check lanes.",
-  })
+  }).pipe(
+    $I.annoteSchema("GithubCheckLaneWaveSpec", {
+      description: "One ordered execution wave of local GitHub-check lanes.",
+    })
+  )
 ) {}
 
 /**
@@ -2017,8 +2040,8 @@ const LaneInputPackages = S.Array(S.String).pipe(
  * @category models
  * @since 0.0.0
  */
-export class QualityTaskLaneRun extends S.Class<QualityTaskLaneRun>($I`QualityTaskLaneRun`)(
-  {
+export class QualityTaskLaneRun extends S.Opaque<QualityTaskLaneRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     label: S.String,
     status: GithubCheckLaneRunStatus,
@@ -2030,10 +2053,11 @@ export class QualityTaskLaneRun extends S.Class<QualityTaskLaneRun>($I`QualityTa
     inputPackages: LaneInputPackages,
     redSchedulingDecision: OptionalGateRedSchedulingDecision,
     commandText: OptionalLaneRunString,
-  },
-  $I.annote("QualityTaskLaneRun", {
-    description: "Timing and outcome facts for one lane executed inside a wrapper command.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityTaskLaneRun", {
+      description: "Timing and outcome facts for one lane executed inside a wrapper command.",
+    })
+  )
 ) {}
 
 /**
@@ -2054,15 +2078,16 @@ export class QualityTaskLaneRun extends S.Class<QualityTaskLaneRun>($I`QualityTa
  * @category models
  * @since 0.0.0
  */
-export class QualityTaskLaneRunReport extends S.Class<QualityTaskLaneRunReport>($I`QualityTaskLaneRunReport`)(
-  {
+export class QualityTaskLaneRunReport extends S.Opaque<QualityTaskLaneRunReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("quality-task-lane-run/v1"),
     parentLaneId: OptionalLaneRunString,
     lanes: S.Array(QualityTaskLaneRun),
-  },
-  $I.annote("QualityTaskLaneRunReport", {
-    description: "Machine-readable execution facts emitted by a quality or CI lane wrapper.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityTaskLaneRunReport", {
+      description: "Machine-readable execution facts emitted by a quality or CI lane wrapper.",
+    })
+  )
 ) {}
 
 /**
@@ -2085,16 +2110,17 @@ export class QualityTaskLaneRunReport extends S.Class<QualityTaskLaneRunReport>(
  * @category models
  * @since 0.0.0
  */
-export class GithubCheckLaneRun extends S.Class<GithubCheckLaneRun>($I`GithubCheckLaneRun`)(
-  {
+export class GithubCheckLaneRun extends S.Opaque<GithubCheckLaneRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     stage: GithubCheckLaneStage,
     status: GithubCheckLaneRunStatus,
     wave: GithubCheckLaneWave,
-  },
-  $I.annote("GithubCheckLaneRun", {
-    description: "One lane outcome in a local GitHub-check wave report.",
-  })
+  }).pipe(
+    $I.annoteSchema("GithubCheckLaneRun", {
+      description: "One lane outcome in a local GitHub-check wave report.",
+    })
+  )
 ) {}
 
 /**
@@ -2116,8 +2142,8 @@ export class GithubCheckLaneRun extends S.Class<GithubCheckLaneRun>($I`GithubChe
  * @category models
  * @since 0.0.0
  */
-export class GithubCheckRunReport extends S.Class<GithubCheckRunReport>($I`GithubCheckRunReport`)(
-  {
+export class GithubCheckRunReport extends S.Opaque<GithubCheckRunReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("github-check-run/v1"),
     failurePolicy: GithubCheckFailurePolicy,
     lanes: S.Array(GithubCheckLaneRun),
@@ -2126,8 +2152,9 @@ export class GithubCheckRunReport extends S.Class<GithubCheckRunReport>($I`Githu
       S.withConstructorDefault(EffectRuntime.succeed(0)),
       S.withDecodingDefaultTypeKey(EffectRuntime.succeed(0))
     ),
-  },
-  $I.annote("GithubCheckRunReport", {
-    description: "Machine-readable lane outcomes and failure policy for a local GitHub-check wave run.",
-  })
+  }).pipe(
+    $I.annoteSchema("GithubCheckRunReport", {
+      description: "Machine-readable lane outcomes and failure policy for a local GitHub-check wave run.",
+    })
+  )
 ) {}

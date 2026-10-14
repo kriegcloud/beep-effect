@@ -81,13 +81,14 @@ export type MarkdownLinkMode = typeof MarkdownLinkMode.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class MarkdownOptions extends S.Class<MarkdownOptions>($I`MarkdownOptions`)(
-  {
+export class MarkdownOptions extends S.Opaque<MarkdownOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     linkMode: MarkdownLinkMode,
-  },
-  $I.annote("MarkdownOptions", {
-    description: "Normalized Markdown projection options: link rendering mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkdownOptions", {
+      description: "Normalized Markdown projection options: link rendering mode.",
+    })
+  )
 ) {}
 
 type MarkdownOptionsInput = {

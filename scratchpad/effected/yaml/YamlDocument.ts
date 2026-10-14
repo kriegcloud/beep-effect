@@ -48,7 +48,7 @@ const $I = $ScratchpadId.create("effected/yaml/YamlDocument");
  * @category models
  * @since 0.0.0
  */
-export class YamlDirective extends S.Class<YamlDirective>($I`YamlDirective`)({
+export class YamlDirective extends S.Class<YamlDirective, { readonly brand: unique symbol }>($I`YamlDirective`)({
 	name: S.String.annotateKey({ description: "Directive identifier without the leading `%`, such as `YAML`, `TAG`, or a reserved directive" }),
 	parameters: S.Array(S.String).annotateKey({ description: "Ordered whitespace-separated arguments following the directive identifier, excluding any trailing comment" }),
 }, $I.annote("YamlDirective", { description: "A YAML directive appearing before a document (e.g. `%YAML 1.2` or `%TAG ! tag:example.com,2000:`). `\"YAML\"` and `\"TAG\"` are the YAML 1.2 spec-defined directives; any other name is a reserved directive preserved for round-trip fidelity." })) {}
@@ -87,7 +87,7 @@ export class YamlDirective extends S.Class<YamlDirective>($I`YamlDirective`)({
  * @category models
  * @since 0.0.0
  */
-export class YamlDocument extends S.Class<YamlDocument>($I`YamlDocument`)({
+export class YamlDocument extends S.Class<YamlDocument, { readonly brand: unique symbol }>($I`YamlDocument`)({
 	contents: S.NullOr(S.suspend((): typeof YamlNode => YamlNode)).annotateKey({ description: "Root YAML syntax node, or `null` for an empty document" }),
 	errors: S.Array(YamlDiagnostic).annotateKey({ description: "Error diagnostics retained during document composition; successful parsing retains only non-fatal errors" }),
 	warnings: S.Array(YamlDiagnostic).annotateKey({ description: "Warning diagnostics retained during document composition" }),

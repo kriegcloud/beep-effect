@@ -31,7 +31,7 @@ const $I = $ScratchpadId.create("effected/schema-org/APIReference");
  * @category models
  * @since 0.0.0
  */
-export class APIReference extends S.Class<APIReference>($I`APIReference`)({
+export class APIReference extends S.Class<APIReference, { readonly brand: unique symbol }>($I`APIReference`)({
 	...TechArticleFields,
 	/** The JSON-LD type discriminator, populated automatically. */
 	"@type": S.tag("APIReference").annotateKey({ description: "The JSON-LD type discriminator, populated automatically." }),

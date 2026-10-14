@@ -60,8 +60,8 @@ const $I = $PracticeMailTaggingId.create("PracticeMailTagging.report");
  * @category models
  * @since 0.0.0
  */
-export class MailTaggingStateSummary extends S.Class<MailTaggingStateSummary>($I`MailTaggingStateSummary`)(
-  {
+export class MailTaggingStateSummary extends S.Opaque<MailTaggingStateSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     tagged: S.Natural.annotateKey({
       description: "Tag-ledger entries no undo has retired.",
     }),
@@ -83,10 +83,11 @@ export class MailTaggingStateSummary extends S.Class<MailTaggingStateSummary>($I
     lastCheckpointAt: S.OptionFromNullOr(S.DateTimeUtcFromString).annotateKey({
       description: "Received instant of the last checkpointed message; none before the first page.",
     }),
-  },
-  $I.annote("MailTaggingStateSummary", {
-    description: "Counts read from the mail-tagging ledgers and checkpoint.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailTaggingStateSummary", {
+      description: "Counts read from the mail-tagging ledgers and checkpoint.",
+    })
+  )
 ) {}
 
 const appliedLines: (records: ReadonlyArray<TagLedgerRecord>) => number = flow(

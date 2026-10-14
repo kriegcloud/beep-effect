@@ -130,11 +130,15 @@ const ModelIdentityDimensionCheck = S.makeFilter(
   }
 );
 
-export class ModelIdentity extends S.Class<ModelIdentity>($I`ModelIdentity`)(
-  ModelIdentityFields.mapFields(identity).check(ModelIdentityDimensionCheck),
-  $I.annote("ModelIdentity", {
-    description: "Pinned provider, model name, revision, artifact, task role, and embedding dimension when applicable.",
-  })
+export class ModelIdentity extends S.Opaque<ModelIdentity, { readonly brand: unique symbol }>()(
+  ModelIdentityFields.mapFields(identity)
+    .check(ModelIdentityDimensionCheck)
+    .pipe(
+      $I.annoteSchema("ModelIdentity", {
+        description:
+          "Pinned provider, model name, revision, artifact, task role, and embedding dimension when applicable.",
+      })
+    )
 ) {
   static readonly encodeEffect = S.encodeEffect(ModelIdentity);
 }

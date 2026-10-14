@@ -1,12 +1,16 @@
 import {
+  BindingFilter,
   BOUND_MODEL_SEGMENT,
   bindLocatorModel,
+  EffortDisplayLabel,
   expectedLocatorValue,
   extractGeneratedBlock,
   generatedBlockBegin,
+  LocatorBinding,
   ModelBinding,
   ModelsLocatorReader,
   ModelsLocatorReaderLive,
+  ModelsTargetFile,
   renderGeneratedBlockBody,
 } from "@beep/repo-cli/commands/Models";
 import { NodeServices } from "@effect/platform-node";
@@ -18,7 +22,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { readFixtureText } from "./helpers/models-fixtures.ts";
-import type { Locator, ModelId, ModelsTargetFile } from "@beep/repo-cli/commands/Models";
+import type { Locator, ModelId } from "@beep/repo-cli/commands/Models";
 
 const modelId = (value: string): ModelId => value as ModelId;
 
@@ -44,17 +48,18 @@ const encodeJsonText = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 const verbatim = { _tag: "verbatim" } as const;
 const labels = {
   _tag: "effort-display-label",
-  labels: [{ effort: "medium", label: "Medium" } as const],
+  labels: [EffortDisplayLabel.make({ effort: "medium", label: "Medium" })],
 } as const;
 
 const binding = (field: "model" | "effort" | "model-effort-suffix") =>
   ({ role: "codex.heavy", surface: "codex-cli", field }) as const;
 
-const file = (content: string): ModelsTargetFile => ({
-  root: "home",
-  absolutePath: "/home/op/fixture",
-  content,
-});
+const file = (content: string): ModelsTargetFile =>
+  ModelsTargetFile.make({
+    root: "home",
+    absolutePath: "/home/op/fixture",
+    content,
+  });
 
 const readFixture = Effect.fnUntraced(function* (name: string, locator: Locator) {
   const reader = yield* ModelsLocatorReader;
@@ -67,7 +72,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       const reader = yield* ModelsLocatorReader;
       const locator: Locator = {
         _tag: "line-value",
-        binding: binding("model"),
+        binding: LocatorBinding.make(binding("model")),
         render: verbatim,
         linePrefix: " *",
         before: 'model: "',
@@ -105,7 +110,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertNone(
         yield* reader.read(file("task --model ".repeat(20_000)), {
           _tag: "line-value",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           linePrefix: "",
           before: "task --model ",
@@ -131,7 +136,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       const found = yield* readFixture("locators.md", {
         _tag: "md-generated-block",
         blockId: "routing-doctrine",
-        filter: { roles: [], surfaces: [] },
+        filter: BindingFilter.make({ roles: [], surfaces: [] }),
         includeSuperseded: false,
       } as Locator);
       assertSome(
@@ -143,7 +148,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         yield* readFixture("locators.md", {
           _tag: "md-generated-block",
           blockId: "absent",
-          filter: { roles: [], surfaces: [] },
+          filter: BindingFilter.make({ roles: [], surfaces: [] }),
           includeSuperseded: false,
         } as Locator)
       );
@@ -239,7 +244,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.yaml", {
           _tag: "yaml-path",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           path: ["routing", "default"],
         } as Locator),
@@ -248,7 +253,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.json", {
           _tag: "json-key",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           pointer: ["nested", "model"],
           fallbacks: [],
@@ -260,7 +265,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.json", {
           _tag: "json-key",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           pointer: ["absent", "model"],
           fallbacks: [
@@ -273,7 +278,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.json", {
           _tag: "json-key",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           pointer: ["nested", "model"],
           fallbacks: [["absent", "model"]],
@@ -342,7 +347,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.xml", {
           _tag: "xml-attribute",
-          binding: binding("effort"),
+          binding: LocatorBinding.make(binding("effort")),
           render: labels,
           elementSelector: 'option[name="modelReasoningEffort"]',
           attribute: "value",
@@ -352,7 +357,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators-rollout.xml", {
           _tag: "xml-escaped-json-attribute",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           elementSelector: 'option[name="options"]',
           attribute: "value",
@@ -407,7 +412,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       );
       const locator = {
         _tag: "json-key",
-        binding: binding("effort"),
+        binding: LocatorBinding.make(binding("effort")),
         render: verbatim,
         pointer: ["modelSettings", BOUND_MODEL_SEGMENT, "effortLevel"],
         fallbacks: [["effortLevel"]],

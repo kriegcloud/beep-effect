@@ -45,7 +45,7 @@ const $I = $ScratchpadId.create("effected/workspaces/DependencyGraph");
  * @category errors
  * @since 0.0.0
  */
-export class CyclicDependencyError extends S.TaggedError<CyclicDependencyError>($I`CyclicDependencyError`)("CyclicDependencyError", {
+export class CyclicDependencyError extends S.TaggedError<CyclicDependencyError, { readonly brand: unique symbol }>($I`CyclicDependencyError`)("CyclicDependencyError", {
 	/** The packages participating in the cycle. */
 	cycle: S.Array(S.String).annotateKey({ description: "The packages participating in the cycle." }),
 }, $I.annote("CyclicDependencyError", { description: "Raised when the workspace dependency graph cannot be topologically ordered because it contains a cycle." })) {
@@ -139,7 +139,7 @@ type Edges = typeof Edges.Type;
  * @category models
  * @since 0.0.0
  */
-export class DependencyGraph extends S.Class<DependencyGraph>($I`DependencyGraph`)({
+export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: unique symbol }>($I`DependencyGraph`)({
 	/** The workspace packages the graph is drawn over. */
 	packages: S.Array(WorkspacePackage).annotateKey({ description: "The workspace packages the graph is drawn over." }),
 }, $I.annote("DependencyGraph", { description: "The directed graph of dependencies **between workspace packages**. External npm dependencies are not nodes." })) {

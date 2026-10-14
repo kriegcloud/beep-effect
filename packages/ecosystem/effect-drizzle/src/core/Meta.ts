@@ -16,7 +16,9 @@ import type { TaggedEnum } from "effect/Data";
 
 /** A typed schema expression rendered bound parameters that DDL cannot carry. */
 /** @internal */
-class SqlExpressionError extends TaggedError<SqlExpressionError>("@beep/effect-drizzle/SqlExpressionError")(
+class SqlExpressionError extends TaggedError<SqlExpressionError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/SqlExpressionError"
+)(
   "SqlExpressionError",
   {
     message: StringSchema,

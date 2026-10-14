@@ -54,8 +54,8 @@ const $I = $LawPracticeDomainId.create("values/TreatiseCitation/TreatiseCitation
  * @category models
  * @since 0.0.0
  */
-export class TreatiseCitation extends S.Class<TreatiseCitation>($I`TreatiseCitation`)(
-  {
+export class TreatiseCitation extends S.Opaque<TreatiseCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("treatise"),
     volume: S.Union([S.Natural, S.String]).annotateKey({
@@ -88,10 +88,11 @@ export class TreatiseCitation extends S.Class<TreatiseCitation>($I`TreatiseCitat
         description: "Component spans locating each recognized sub-part within the source text.",
       })
     ),
-  },
-  $I.annote("TreatiseCitation", {
-    description: "A parsed legal treatise citation.",
-  })
+  }).pipe(
+    $I.annoteSchema("TreatiseCitation", {
+      description: "A parsed legal treatise citation.",
+    })
+  )
 ) {}
 
 /**

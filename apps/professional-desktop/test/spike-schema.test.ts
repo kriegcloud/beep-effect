@@ -28,7 +28,7 @@ describe("spike state schemas", () => {
       })
     ).toBe("graph failed");
 
-    const cosmosRendering = CosmosSpikeStatus.cases.rendering.make();
+    const cosmosRendering = CosmosSpikeStatus.cases.rendering.make({});
     expect(CosmosSpikeStatus.guards.rendering(cosmosRendering)).toBe(true);
     expect(
       CosmosSpikeStatus.match(cosmosRendering, {

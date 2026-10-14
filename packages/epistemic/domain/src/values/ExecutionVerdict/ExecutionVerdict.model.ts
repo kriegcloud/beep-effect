@@ -173,8 +173,8 @@ export const denialGuidance: Readonly<Record<DenialReason, string>> = {
  * @category models
  * @since 0.0.0
  */
-export class ExecutionRequest extends S.Class<ExecutionRequest>($I`ExecutionRequest`)(
-  {
+export class ExecutionRequest extends S.Opaque<ExecutionRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     operation: GrantOperation.annotateKey({
       description: "Operation being attempted.",
     }),
@@ -190,11 +190,12 @@ export class ExecutionRequest extends S.Class<ExecutionRequest>($I`ExecutionRequ
     resolvedAudience: SinkAudience.annotateKey({
       description: "Audience resolved by the boundary's resolver, never by the caller.",
     }),
-  },
-  $I.annote("ExecutionRequest", {
-    description:
-      "One governed execution request: principal, operation, sink class, destination, resolver-owned audience.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExecutionRequest", {
+      description:
+        "One governed execution request: principal, operation, sink class, destination, resolver-owned audience.",
+    })
+  )
 ) {
   static readonly is = S.is(ExecutionRequest);
 }

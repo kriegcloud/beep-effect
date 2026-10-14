@@ -5,11 +5,14 @@ import {
   writeExplorationAtlas,
 } from "@beep/repo-cli/commands/Explore";
 import {
+  PacketCreatedBody,
   PacketEvent,
   PacketEventStoreLive,
   packetEventDigest,
   packetEventFileName,
   renderPacketEventFile,
+  StageEnteredBody,
+  StatusSetBody,
 } from "@beep/repo-cli/test/Goals";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
@@ -245,12 +248,15 @@ describe("exploration projections", () => {
         );
         yield* writeStream(root, "looped", [
           {
-            body: { type: "packet-created", status: "active", stage: "shape", ordinal: 3 },
+            body: PacketCreatedBody.make({ type: "packet-created", status: "active", stage: "shape", ordinal: 3 }),
             at: "2026-08-27T00:00:00.000Z",
           },
-          { body: { type: "stage-entered", stage: "research", ordinal: 1 }, at: "2026-08-27T00:01:00.000Z" },
           {
-            body: { type: "status-set", status: "parked", previous: "active" },
+            body: StageEnteredBody.make({ type: "stage-entered", stage: "research", ordinal: 1 }),
+            at: "2026-08-27T00:01:00.000Z",
+          },
+          {
+            body: StatusSetBody.make({ type: "status-set", status: "parked", previous: "active" }),
             at: "2026-08-27T00:02:00.000Z",
           },
         ]);

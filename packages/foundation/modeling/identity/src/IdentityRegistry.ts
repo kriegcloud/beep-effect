@@ -101,16 +101,17 @@ export type IdentityRef = typeof IdentityRef.Type;
  * @category models
  * @since 0.0.0
  */
-export class IdentityEntry extends S.Class<IdentityEntry>("@beep/identity/IdentityRegistry/IdentityEntry")(
-  {
+export class IdentityEntry extends S.Opaque<IdentityEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     identity: S.String,
     iri: S.String,
     curie: S.String,
     fibers: S.Record(S.String, S.String),
-  },
-  $I.annote("IdentityEntry", {
-    description: "One registered identity with its literal IRI and CURIE projections and named string fiber parts.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdentityEntry", {
+      description: "One registered identity with its literal IRI and CURIE projections and named string fiber parts.",
+    })
+  )
 ) {
   /**
    * Copies literal address projections from an already-bound identity composer.
@@ -178,7 +179,7 @@ export declare namespace IdentityEntry {
  * @category errors
  * @since 0.0.0
  */
-export class IdentityNotFoundError extends S.TaggedError<IdentityNotFoundError>(
+export class IdentityNotFoundError extends S.TaggedError<IdentityNotFoundError, { readonly brand: unique symbol }>(
   "@beep/identity/IdentityRegistry/IdentityNotFoundError"
 )(
   "IdentityNotFoundError",
@@ -206,9 +207,10 @@ export class IdentityNotFoundError extends S.TaggedError<IdentityNotFoundError>(
  * @category errors
  * @since 0.0.0
  */
-export class IdentityRegistryConflictError extends S.TaggedError<IdentityRegistryConflictError>(
-  "@beep/identity/IdentityRegistry/IdentityRegistryConflictError"
-)(
+export class IdentityRegistryConflictError extends S.TaggedError<
+  IdentityRegistryConflictError,
+  { readonly brand: unique symbol }
+>("@beep/identity/IdentityRegistry/IdentityRegistryConflictError")(
   "IdentityRegistryConflictError",
   {
     encoding: IdentityEncoding,

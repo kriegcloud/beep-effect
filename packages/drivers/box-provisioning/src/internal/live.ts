@@ -1,4 +1,11 @@
 import * as B from "@beep/box";
+import {
+  GetFolderCollaborationsOptionalsInput,
+  GetFolderCollaborationsQueryParams,
+  GetFolderItemsOptionalsInput,
+  GetFolderItemsQueryParams,
+  GetWebhooksQueryParams,
+} from "@beep/box";
 import { HttpsUrl } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -70,7 +77,9 @@ export const loadFolderItemsPage: {
       box.folders.getFolderItems(
         B.FoldersGetFolderItemsPayload.make({
           folderId,
-          optionalsInput: { queryParams: markerFolderQuery(marker) },
+          optionalsInput: GetFolderItemsOptionalsInput.make({
+            queryParams: GetFolderItemsQueryParams.make(markerFolderQuery(marker)),
+          }),
         })
       )
 );
@@ -90,7 +99,9 @@ export const listFolderCollaborations: {
     box.listCollaborations.getFolderCollaborations(
       B.ListCollaborationsGetFolderCollaborationsPayload.make({
         folderId,
-        optionalsInput: { queryParams: markerQuery(marker) },
+        optionalsInput: GetFolderCollaborationsOptionalsInput.make({
+          queryParams: GetFolderCollaborationsQueryParams.make(markerQuery(marker)),
+        }),
       })
     )
   )
@@ -238,7 +249,9 @@ export const toObservedWebhook = (webhook: unknown): Effect.Effect<BoxObservedWe
 
 export const listObservedWebhooks = (box: B.Box["Service"]) =>
   collectMarkerPages<B.WebhookMini, B.BoxError>((marker) =>
-    box.webhooks.getWebhooks(B.WebhooksGetWebhooksPayload.make({ queryParams: markerQuery(marker) }))
+    box.webhooks.getWebhooks(
+      B.WebhooksGetWebhooksPayload.make({ queryParams: GetWebhooksQueryParams.make(markerQuery(marker)) })
+    )
   ).pipe(
     Effect.flatMap((webhooks) =>
       Effect.forEach(

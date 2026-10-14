@@ -103,7 +103,7 @@ const retryPolicyMaxAttemptsDefault = PosInt.make(3);
  * @category models
  * @since 0.0.0
  */
-export class RetryPolicy extends S.Class<RetryPolicy>($I`RetryPolicy`)(
+export class RetryPolicy extends S.Class<RetryPolicy, { readonly brand: unique symbol }>($I`RetryPolicy`)(
   S.Struct({
     attemptTimeout: PositiveDuration.pipe(
       S.withConstructorDefault(Effect.succeed(retryPolicyAttemptTimeoutDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(retryPolicyAttemptTimeoutDefault)),

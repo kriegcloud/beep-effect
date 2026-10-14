@@ -8,6 +8,14 @@
   ],
   "entries": [
     {
+      "file": "apps/labs/ciops/src/kpi/Sources.ts",
+      "symbol": "KpiAdmissionRow",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/ciops",
+      "reason": "Plain data with a non-literal _tag field (_tag: AdmissionEventTag) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
       "file": "apps/oip-web/src/content/OipSeo.ts",
       "symbol": "oipTwitterHandle",
       "kind": "schema-policy-advisory",
@@ -33,9 +41,257 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 175,
+      "line": 177,
       "owner": "@beep/professional-desktop",
       "reason": "Layer-factory options are runtime capabilities, not a data contract: a Redacted bearer token, an injected egress fetch function, and a test-only mutation-tool allowlist. None crosses a serialization boundary, so an Fn schema would only wrap a function value in S.declare. The file became schema-modeled when OntologyMcpOriginForbidden moved from Data.TaggedError to S.TaggedError."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "DocumentIntakeContext",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "DocumentIntakeInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "DocumentIntakeState",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "DroppedDocumentInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeBatchContext",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeBatchInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeBatchOutput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeCurrentFileContext",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeFileMetadata",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeLogRequest",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeRefusedStateInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeResultEntryDocument",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeResultEntryFailure",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "IntakeSubmittingStateInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "ManualOutcomeCancelled",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "ManualOutcomeSaved",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "PersistVaultRootInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "PickerOutcomeCancelled",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "PickerOutcomeFailed",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "PickerOutcomeManual",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "PickerOutcomeSaved",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "ReadFileInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "VaultConfigFeedInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "VaultFailureContext",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "VaultFailureStateInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "VaultSavingStateInput",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "VaultSelectionChoosing",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "VaultSelectionFailed",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "VaultSelectionIdle",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "VaultSelectionManual",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "apps/professional-desktop/src/intake/DocumentIntake.models.ts",
+      "symbol": "VaultSelectionSaving",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): xstate machine schema family: the exported documentIntakeMachine / intakeBatchMachine have inferred types that map and intersect every data schema reachable from their contexts, inputs, outputs and events, exposing the anonymous `brand: unique symbol` property, which declaration emit cannot name (docgen TS2527; structural brands on the 16 context/input/output schemas alone did not clear it, all 31 data schemas of this file do); two unique-symbol brands also intersect to never. The two TaggedErrors stay branded. Follow-up: annotate the machines or brand with declared symbols. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "apps/professional-desktop/src/intake/Intake.atoms.ts",
@@ -74,6 +330,22 @@
       "line": 28,
       "owner": "@beep/professional-desktop",
       "reason": "Sidecar registration regression decodes fixed RPC payload/result envelopes to prove wiring; schema-derived arbitrary coverage belongs with the use-case schemas."
+    },
+    {
+      "file": "infra/src/CiRunners.ts",
+      "symbol": "CiRunnersNetworkConfig",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/infra",
+      "reason": "Plain data whose fields come from a checked struct const (ciRunnersNetworkConfigStruct.pipe(S.check(...))), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
+      "file": "infra/src/OipWeb.ts",
+      "symbol": "OipPulumiStateBackendConfig",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/infra",
+      "reason": "Stays a branded S.Class (codemod keep reason static-super): its static `make` override calls `super.make`, which S.Opaque replaces with the base method after the first call. Follow-up: drop the override (decode-time defaults) and convert to a branded S.Opaque."
     },
     {
       "file": "packages/_internal/db-admin/test/integration/DocumentsSyncMigration.pglite.test.ts",
@@ -172,12 +444,28 @@
       "reason": "Executable synthetic NDJSON peer used by AiProviderCliSession.test.ts for deterministic launch-policy, persistent-session, and oversized-frame regressions. Its codecs validate fixed startup flags/settings and transport envelopes; this file defines no standalone schema-law test. Arbitrary generation would not exercise those process behaviors. Revisit if reusable domain schemas or schema-law assertions move into this fixture."
     },
     {
+      "file": "packages/drivers/box/src/Box.errors.ts",
+      "symbol": "BoxApiFailureConflict",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/box",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Kept as a class: as S.Opaque its struct type is expanded inside BoxError, whose type then exceeds tsgo 0.51.1 declaration-mode instantiation depth (location-less TS2589 plus unknown BoxError fields in Box.errors.ts during box#build); as a class its instance type stays a named reference. Measured: 9 errors as Opaque, 0 as class (4 runs)."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.errors.ts",
+      "symbol": "BoxApiFailureContext",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/box",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Kept as a class: as S.Opaque its struct type is expanded inside BoxError, whose type then exceeds tsgo 0.51.1 declaration-mode instantiation depth (location-less TS2589 plus unknown BoxError fields in Box.errors.ts during box#build); as a class its instance type stays a named reference. Measured: 9 errors as Opaque, 0 as class (4 runs)."
+    },
+    {
       "file": "packages/drivers/freshbooks/src/Freshbooks.models.ts",
       "symbol": "FreshbooksClient.email",
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-precision-audit",
-      "line": 344,
+      "line": 349,
       "owner": "@beep/freshbooks",
       "reason": "FreshBooks client records carry free-text email addresses populated from the account holder client database; this decode boundary must accept whatever the API returns rather than reject a client on a malformed address."
     },
@@ -187,7 +475,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-precision-audit",
-      "line": 293,
+      "line": 297,
       "owner": "@beep/freshbooks",
       "reason": "The FreshBooks identity (/me) email is external free-text returned by the API; this decode boundary must accept it verbatim rather than fail identity resolution on a non-strict address."
     },
@@ -207,7 +495,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-precision-audit",
-      "line": 96,
+      "line": 99,
       "owner": "@beep/hubspot",
       "reason": "Diagnostic error options intentionally preserve raw submitted email text from request-encoding failures, including values rejected before contact email normalization."
     },
@@ -217,7 +505,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-precision-audit",
-      "line": 204,
+      "line": 210,
       "owner": "@beep/hubspot",
       "reason": "Diagnostic error options intentionally preserve raw submitted email text from request-encoding failures, including values rejected before contact email normalization."
     },
@@ -244,6 +532,62 @@
       "status": "exception",
       "owner": "@beep/occt",
       "reason": "Internal kernel carrier of replicad WASM shape handles (one Shape3D plus its line style); not data, never encoded or persisted."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/Openclaw.models.ts",
+      "symbol": "OpenclawConfigInvalid",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/Openclaw.models.ts",
+      "symbol": "OpenclawConfigValid",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/Openclaw.models.ts",
+      "symbol": "OpenclawSecretsReloadDegraded",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/Openclaw.models.ts",
+      "symbol": "OpenclawSecretsReloaded",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/OpenclawIntent.models.ts",
+      "symbol": "OpenclawProviderApiKeyPlaceholder",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/OpenclawIntent.models.ts",
+      "symbol": "OpenclawProviderApiKeySecretRef",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/runpod/scripts/operations.renderer.ts",
+      "symbol": "JsonSchema",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/runpod",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Self-recursive schema: S.suspend((): S.Codec<JsonSchema, ...>) needs the class Self type (an Opaque cannot satisfy it without retyping ~15 renderer functions)."
     },
     {
       "file": "packages/drivers/wink/src/Wink.service.ts",
@@ -309,7 +653,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 119,
+      "line": 122,
       "owner": "@beep/epistemic-server",
       "reason": "P0 persistence spike decodes fixed commands and rows to prove duplicate suppression, visibility, ordering, and transactional boundaries against PGlite; schema law coverage lives in domain and use-case tests."
     },
@@ -319,7 +663,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 60,
+      "line": 62,
       "owner": "@beep/epistemic-server",
       "reason": "External-Postgres race regression uses deterministic candidate identifiers to prove concurrent repository behavior; arbitrary values would make the race non-reproducible, and schema-derived identifier laws live with the owning domain models."
     },
@@ -329,7 +673,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 93,
+      "line": 94,
       "owner": "@beep/epistemic-server",
       "reason": "Repository integration suite uses fixed schema-decoded fixtures to prove atomic review, races, temporal queries, and restart behavior; schema-derived arbitrary round-trips live with the owning domain and use-case models."
     },
@@ -382,6 +726,22 @@
       "reason": "Native Arbitrary companion (Arbitrary.schema + combinators) for the RPC highlight protocol; it is a generator value, not an object schema."
     },
     {
+      "file": "packages/epistemic/use-cases/src/EdgeAuthority/EdgeAuthority.commands.ts",
+      "symbol": "RecordEdgeFact",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/epistemic-use-cases",
+      "reason": "Plain data whose fields come from a module-level struct const (RecordEdgeFactFields), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
+      "file": "packages/epistemic/use-cases/src/EdgeAuthority/EdgeAuthority.commands.ts",
+      "symbol": "SupersedeEdgeFact",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/epistemic-use-cases",
+      "reason": "Plain data whose fields come from a module-level struct const (SupersedeEdgeFactFields), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
       "file": "packages/foundation/capability/chalk/src/Chalk.browser.ts",
       "symbol": "ChalkInstance",
       "kind": "exported-interface",
@@ -396,6 +756,86 @@
       "status": "exception",
       "owner": "@beep/chalk",
       "reason": "Mixed terminal Chalk runtime: level is data-like, while the recursive styling surface and call signature are executable; color and option domains are already schema-backed."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "BuilderMeta",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "BuilderMeta",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "ChalkAnsi256ColorState",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "ChalkAnsi256ColorState",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "ChalkAnsiColorState",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "ChalkAnsiColorState",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "ChalkNoColorState",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "ChalkNoColorState",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "ChalkTrueColorState",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "ChalkTrueColorState",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "packages/foundation/capability/file-processing/src/PageOcr/PageOcr.service.ts",
@@ -462,6 +902,22 @@
       "reason": "Integration descriptor intentionally couples an Effectful handler with generated JSON-schema objects; the owning Effect AI Tool schemas remain the executable parameter and success truth."
     },
     {
+      "file": "packages/foundation/modeling/html/src/Html.policy.ts",
+      "symbol": "SafeHtmlAttributesStruct",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/html",
+      "reason": "Plain data whose fields come from a module-level struct const (SafeHtmlAttributes), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
+      "file": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+      "symbol": "BaseNode",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/lexical-schema",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Lexical node tree: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
       "file": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
       "symbol": "LexicalNodeWire",
       "kind": "object-struct-schema",
@@ -471,11 +927,275 @@
     },
     {
       "file": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+      "symbol": "SerializedEditorState",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/lexical-schema",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Lexical node tree: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
       "symbol": "SerializedEditorStateWire",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/lexical-schema",
       "reason": "Lossless editor-state envelope whose root and nested nodes admit arbitrary future extension keys. S.StructWithRest preserves those keys exactly; an S.Class would close the envelope and violate the property-tested wire identity contract."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "A",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Admonition",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "BlockQuote",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Br",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Code",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Del",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Document",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Em",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Embed",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "FootnoteDefinition",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "FootnoteReference",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Heading",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Hr",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Img",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "InlineMath",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Li",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "MathBlock",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Ol",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "P",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Pre",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "RawHtml",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "RawMarkdown",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Strong",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Table",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "TableCell",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "TableRow",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "TaskItem",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "TaskList",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Text",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "Ul",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.model.ts",
+      "symbol": "YouTube",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Markdown AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Handoff/Contract.ts",
+      "symbol": "SpanFields",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Private span shape behind the exported Contract.Span refinement; nested `span: { start, end }` literals are built across langextract, file-processing, law-practice and semantica and the class is not nameable outside nlp. Follow-up: export a Span constructor and brand it. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "packages/foundation/modeling/ontology/src/Fold.models.ts",
@@ -502,12 +1222,388 @@
       "reason": "Pure projection wire shape over open-keyed JSON-LD nodes (predicate-open facts compact to arbitrary term keys), emitted by a total catamorphism from the schema-first AssembledOntology, which is the modeled truth. Round-trip/inverse parsing stays bounded to beep's own dialect per the exploration No-Go."
     },
     {
+      "file": "packages/foundation/modeling/ontology/src/TaxonomyLoader.ts",
+      "symbol": "VendorAlignmentManifestEntry",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/ontology",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tagDefaultOmit(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/foundation/modeling/ontology/src/TaxonomyLoader.ts",
+      "symbol": "VendorManifestEntry",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/ontology",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tagDefaultOmit(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/foundation/modeling/ontology/src/internal/ClassificationXml.ts",
+      "symbol": "CpcEntry",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/ontology",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Self-recursive schema: S.suspend((): S.Codec<CpcEntry, Encoded>) needs the class Self type; Opaque's Rebuild type carries no brand (TS2322)."
+    },
+    {
+      "file": "packages/foundation/modeling/ontology/src/internal/ClassificationXml.ts",
+      "symbol": "IpcEntry",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/ontology",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Self-recursive schema: S.suspend((): S.Codec<IpcEntry, Encoded>) needs the class Self type; Opaque's Rebuild type carries no brand (TS2322)."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "BlockQuote",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "BulletList",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Citation",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Cite",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Code",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "CodeBlock",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "DefinitionList",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Div",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Emph",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Figure",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Header",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "HorizontalRule",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Image",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "LineBlock",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "LineBreak",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Link",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Math",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Note",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "OrderedList",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "PandocAttr",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "PandocCaption",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "PandocDocument",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "PandocTarget",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
       "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
       "symbol": "PandocUnknownConstructorWire",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/pandoc-ast",
       "reason": "Exact future-constructor wire schema. S.StructWithRest preserves every unknown top-level Pandoc JSON field unchanged; an S.Class cannot retain arbitrary future keys and would break strict/lossless interchange identity."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Para",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Plain",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Quoted",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "RawBlock",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "RawInline",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "SmallCaps",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "SoftBreak",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Space",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Span",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Str",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Strikeout",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Strong",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Subscript",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Superscript",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Table",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "Underline",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "UnknownBlock",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
+      "symbol": "UnknownInline",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/pandoc-ast",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive Pandoc AST: children are typed by hand-written namespace Types (S.suspend needs them to break the class/base-type cycle), which must stay structurally equal to the node classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Conformance/Conformance.invariant.schema.ts",
+      "symbol": "InvariantDescriptor",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Plain data whose fields come from a module-level checked struct const (InvariantDescriptorValue), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Conformance/Conformance.profile.schema.ts",
+      "symbol": "ConformanceProfile",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Plain data whose fields come from a module-level checked struct const (ConformanceProfileValue), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
     },
     {
       "file": "packages/foundation/modeling/schema/src/SemanticVersion.ts",
@@ -580,12 +1676,20 @@
       "reason": "Mixed React render configuration: id is data, while each Step carries ReactNode content and Popover component-prop values consumed directly by TourProvider."
     },
     {
+      "file": "packages/law-practice/domain/src/values/Citation/Citation.models.ts",
+      "symbol": "Parenthetical",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/law-practice-domain",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Recursive citation union: members are typed by hand-written namespace Types used in S.suspend, which must stay structurally equal to the classes. Follow-up: brand nominally once the blocker above is removed."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/PatentMetadata/PatentMetadata.model.ts",
       "symbol": "extractPatentFigures",
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 1327,
+      "line": 1336,
       "owner": "@beep/law-practice-domain",
       "reason": "Pure in-memory parser over optional API image maps and Markdown content; it normalizes directly into the schema-backed PatentFigure model and neither decodes nor persists the transient option bag."
     },
@@ -595,7 +1699,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 1490,
+      "line": 1499,
       "owner": "@beep/law-practice-domain",
       "reason": "Pure in-memory text parser whose required content and optional title are already strings; the transient option bag is call-site ergonomics and never crosses a decode or persistence boundary."
     },
@@ -605,7 +1709,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 923,
+      "line": 932,
       "owner": "@beep/law-practice-domain",
       "reason": "Pure lookup over optional in-memory office and kind-code strings; it returns Effect Option and the transient option bag is never decoded or persisted."
     },
@@ -615,7 +1719,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 1083,
+      "line": 1092,
       "owner": "@beep/law-practice-domain",
       "reason": "Pure projection from optional API metadata and content into the schema-backed PatentDisplay model; the transient option bag is assembled in-process and never decoded or persisted."
     },
@@ -625,7 +1729,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 840,
+      "line": 849,
       "owner": "@beep/law-practice-domain",
       "reason": "Pure lookup over optional in-memory country text and an Effect Option kind code; it returns the schema-backed PatentStatus literal and the transient option bag is never decoded or persisted."
     },
@@ -635,9 +1739,17 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 1418,
+      "line": 1427,
       "owner": "@beep/law-practice-domain",
       "reason": "Pure parser over in-memory content plus schema-backed PatentSectionKind values; it returns the schema-backed PatentSections model and the transient option bag is never decoded or persisted."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/PinciteInfo/PinciteInfo.model.ts",
+      "symbol": "PinciteInfo",
+      "kind": "unbranded-schema-class",
+      "status": "exception",
+      "owner": "@beep/law-practice-domain",
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Self-recursive pincite: S.suspend is typed by the hand-written PinciteInfo.Type, which must stay structurally equal to the class. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "packages/law-practice/server/test/CandorRecord.test.ts",
@@ -655,7 +1767,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 559,
+      "line": 560,
       "owner": "@beep/law-practice-server",
       "reason": "Competency-question acceptance fixtures assert recorded and derived answers over one deliberately seeded practice; the questions are donor-fixed golden coverage, and schema-derived arbitrary coverage for the underlying entities lives with the law-practice domain model tests."
     },
@@ -678,6 +1790,14 @@
       "line": 51,
       "owner": "@beep/law-practice-server",
       "reason": "Synthetic golden fixture helper decodes branded file-processing IDs and PosixPath values for one deterministic office-action source artifact; property coverage belongs in the file-processing package schemas."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/OfficeActionReview/OfficeActionReview.service.ts",
+      "symbol": "OfficeActionReviewDeps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/law-practice-use-cases",
+      "reason": "Dependency-injection record of service shapes (file processing, claim gate, IR-to-law, claim transition) and a langExtract.extract function, not pure data. Surfaced when the schema-opaque-default codemod changed how a member shape's type resolves under the type-based data-likeness heuristic."
     },
     {
       "file": "packages/law-practice/use-cases/test/CandorPolicy.test.ts",
@@ -722,6 +1842,30 @@
       "reason": "Mixed traversal options intentionally couple runtime inclusion and symlink predicates with local algorithm controls; no independent decode or persistence boundary exists."
     },
     {
+      "file": "packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts",
+      "symbol": "JSDocTagDefinition",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.String) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/tooling/library/repo-utils/src/JSDoc/models/TSCategory.model.ts",
+      "symbol": "TSCategoryDefinition",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "Plain data with a non-literal _tag field (_tag: TSCategoryTagBase) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "TSConfig",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Class semantics: tests assert toBeInstanceOf(TSConfig) and the class decode's excess-property failure message."
+    },
+    {
       "file": "packages/tooling/library/repo-utils/test/JSDocTagDefinition.golden.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",
@@ -764,6 +1908,126 @@
       "status": "exception",
       "owner": "repository-simplification-confidence",
       "reason": "Lane C reviewed exception at source line 68: AccountsSecretsItem must preserve unknown vault-item metadata across decode/encode. Reconsider when lane B's census lands."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "AttachmentTypeRepairRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "FamilyAcceptanceFailureRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "FamilyAcceptancePassRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "FamilyAttemptInterruptedRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "FamilyAttemptStartRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "FamilyRunStartRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "FamilyRunSummaryRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "LegacyWordExceptionRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "LegacyWordPassRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "MailChildPassRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "MailStoreExceptionRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "MailStorePassRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "MailWarningRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "RecycleJoinRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/internal/Restoration.schemas.ts",
+      "symbol": "RecycleMappingRecord",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): TransformationLedgerRecord member: corpus-command clone-boundary tests model S.is rejecting structuredClone copies of every ledger row (class semantics). Follow-up: rewrite that verdict model for plain-object ledger rows, then drop these entries."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.refs.ts",
@@ -934,6 +2198,14 @@
       "reason": "Lossless external thinking metadata boundary (R1). Open records preserve future reasoning fields and unknown levels through exact decode/encode round trips; a closed class would discard them."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.schemas.ts",
+      "symbol": "GateOrderHandoff",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Plain data whose fields come from a checked inline struct (S.Struct({...}).pipe(S.check(...))), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts",
       "symbol": "DocumentationIssue",
       "kind": "object-struct-schema",
@@ -947,7 +2219,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 187,
+      "line": 188,
       "owner": "@beep/repo-cli",
       "reason": "Pure comparison over already schema-decoded record sets; the inline input trio groups arrays of S.Class rows at the call site rather than modeling an IO boundary, and the output is the annotated JSDocMigrateBindingReport class."
     },
@@ -1010,6 +2282,38 @@
       "reason": "Mixed strategy contract: access, description, id, and sourceUrls are modeled by SyncDataTargetMetadata, while acquire remains an Effect."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Source.ts",
+      "symbol": "ParsedCsvRow",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Plain data whose fields come from runtime CSV header columns inside a function (rowFields), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/Reply.schemas.ts",
+      "symbol": "ReplyDraft",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Plain data whose fields come from a checked inline struct with spread fields (S.Struct({ ...replyTargetFields, ... }).pipe(S.check(...))), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/Reply.schemas.ts",
+      "symbol": "ReplyDraftOutcome",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Plain data whose fields come from a checked inline struct with spread fields (S.Struct({ ...replyTargetFields, ... }).pipe(S.check(...))), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/Verdict.ts",
+      "symbol": "YeetMergeReady",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Plain data whose fields come from a checked inline struct (S.Struct({...}).pipe(S.check(...))), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/internal/cli/Progress.ts",
       "symbol": "ProgressBarOptions",
       "kind": "exported-interface",
@@ -1031,7 +2335,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 485,
+      "line": 488,
       "owner": "@beep/repo-cli",
       "reason": "Test service factory consumes already modeled ProcessTableEntry rows and returns filesystem-compatible Effect operations; its output is a live service implementation, not a serialized data boundary."
     },
@@ -1041,7 +2345,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 541,
+      "line": 544,
       "owner": "@beep/repo-cli",
       "reason": "Test service adapter accepts a live ProcessTableShape implementation and returns closures that preserve its attachment operations while substituting schema-modeled lineage rows."
     },
@@ -1149,7 +2453,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 297,
+      "line": 298,
       "owner": "@beep/repo-cli",
       "reason": "Golden/adversarial provenance regression suite uses fixed hash-bound originals, deliberately corrupted receipts, provider envelopes and exact native filesystem/Git/PDF relationships. Codec calls decode fixed receipts to prove the integrity boundary; random schema-generated values would not preserve the independently authored evidence relationships. This suite is intentionally golden/regression-only rather than broad domain-schema law coverage."
     },

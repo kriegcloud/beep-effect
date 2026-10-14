@@ -80,6 +80,8 @@ declare module "claude-code" {
     structuredContent?: unknown;
   };
 
+  export type Timer = { cancel: () => void };
+
   export type Engine = {
     readonly plugin: { readonly name: string; readonly root: string };
     readonly ui: {
@@ -107,6 +109,7 @@ declare module "claude-code" {
     };
     readonly clock: {
       now: () => Promise<number>;
+      every: (ms: number, fn: () => void) => Timer;
     };
   };
 

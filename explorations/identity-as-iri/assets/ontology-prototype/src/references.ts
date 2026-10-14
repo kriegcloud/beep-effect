@@ -62,25 +62,31 @@ export const OntologyReferenceTargetInput = S.Union([
 );
 export type OntologyReferenceTargetInput = typeof OntologyReferenceTargetInput.Type;
 
-class ReferenceResolutionClassMetadata extends S.Class<ReferenceResolutionClassMetadata>(
-  $I`ReferenceResolutionClassMetadata`
-)(
-  {
+class ReferenceResolutionClassMetadata extends S.Opaque<
+  ReferenceResolutionClassMetadata,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     iri: IRI,
-  },
-  $I.annote("ReferenceResolutionClassMetadata", {
-    description: "Class metadata stored in the ontology reference-resolution index.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReferenceResolutionClassMetadata", {
+      description: "Class metadata stored in the ontology reference-resolution index.",
+    })
+  )
 ) {}
 
-export class ReferenceResolutionContext extends S.Class<ReferenceResolutionContext>($I`ReferenceResolutionContext`)(
-  {
+export class ReferenceResolutionContext extends S.Opaque<
+  ReferenceResolutionContext,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseIri: IRI,
     classesBySchemaIdentity: S.Record(S.String, ReferenceResolutionClassMetadata),
-  },
-  $I.annote("ReferenceResolutionContext", {
-    description: "Ontology reference-resolution context built during assembly.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReferenceResolutionContext", {
+      description: "Ontology reference-resolution context built during assembly.",
+    })
+  )
 ) {}
 
 export const schemaIdentifier = (schema: S.Top): O.Option<string> =>
@@ -148,16 +154,17 @@ export const optionalReferenceTargetsOption = (
 ): O.Option<ReadonlyArray<OntologyReferenceTarget>> =>
   pipe(O.fromUndefinedOr(value), O.map(A.map(makeReferenceTarget)));
 
-class FailAssemblyInput extends S.Class<FailAssemblyInput>($I`FailAssemblyInput`)(
-  {
+class FailAssemblyInput extends S.Opaque<FailAssemblyInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     reason: OntologyAssemblyErrorReason,
     message: S.NonEmptyString,
     schemaIdentifier: S.Option(S.String),
     fieldName: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("FailAssemblyInput", {
-    description: "Normalized input payload for ontology assembly failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("FailAssemblyInput", {
+      description: "Normalized input payload for ontology assembly failures.",
+    })
+  )
 ) {}
 
 type FailAssemblyInputConstructorInput = Parameters<typeof FailAssemblyInput.make>[0];
@@ -214,15 +221,16 @@ export const resolveReferenceTarget = Effect.fn("Ontology.resolveReferenceTarget
   });
 });
 
-class ResolveReferenceTargetsInput extends S.Class<ResolveReferenceTargetsInput>($I`ResolveReferenceTargetsInput`)(
-  {
+class ResolveReferenceTargetsInput extends S.Opaque<ResolveReferenceTargetsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     context: ReferenceResolutionContext,
     ownerSchemaId: S.Option(S.String),
     targets: S.Array(OntologyReferenceTarget),
-  },
-  $I.annote("ResolveReferenceTargetsInput", {
-    description: "Input payload for resolving ontology reference targets.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolveReferenceTargetsInput", {
+      description: "Input payload for resolving ontology reference targets.",
+    })
+  )
 ) {}
 
 type ResolveReferenceTargetsConstructorInput = Parameters<typeof ResolveReferenceTargetsInput.make>[0];

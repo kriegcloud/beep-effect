@@ -42,8 +42,8 @@ const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/u;
  * @category value-objects
  * @since 0.0.0
  */
-export class TextInline extends S.Class<TextInline>($I`TextInline`)(
-  {
+export class TextInline extends S.Opaque<TextInline, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("text"),
     text: S.String.annotateKey({ description: "The visible text content" }),
     bold: S.optionalKey(S.Boolean.annotate({ description: "Render bold" })).annotateKey({ description: "Render bold" }),
@@ -53,10 +53,11 @@ export class TextInline extends S.Class<TextInline>($I`TextInline`)(
     code: S.optionalKey(S.Boolean.annotate({ description: "Render as inline code" })).annotateKey({
       description: "Render as inline code",
     }),
-  },
-  $I.annote("TextInline", {
-    description: "A run of styled text.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextInline", {
+      description: "A run of styled text.",
+    })
+  )
 ) {}
 
 /**
@@ -79,15 +80,16 @@ export class TextInline extends S.Class<TextInline>($I`TextInline`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class LinkInline extends S.Class<LinkInline>($I`LinkInline`)(
-  {
+export class LinkInline extends S.Opaque<LinkInline, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("link"),
     url: S.String.annotateKey({ description: "Absolute http(s) url" }),
     text: S.String.annotateKey({ description: "The visible link text" }),
-  },
-  $I.annote("LinkInline", {
-    description: "A hyperlink.",
-  })
+  }).pipe(
+    $I.annoteSchema("LinkInline", {
+      description: "A hyperlink.",
+    })
+  )
 ) {}
 
 const InlineNodeUntagged = pipe(
@@ -118,12 +120,12 @@ export const InlineNode = InlineNodeUntagged.pipe(S.toTaggedUnion("type"));
 /**
  * Type accepted by the {@link InlineNode} schema.
  *
- * **Example** (Satisfy InlineNode type)
+ * **Example** (Annotate a constructed InlineNode)
  *
  * ```ts
- * import type { InlineNode } from "@beep/agents-domain/values/AssistantContent"
+ * import { type InlineNode, TextInline } from "@beep/agents-domain/values/AssistantContent"
  *
- * const inline = { type: "text", text: "Hello" } satisfies InlineNode
+ * const inline: InlineNode = TextInline.make({ text: "Hello" })
  * console.log(inline.type)
  * ```
  *
@@ -199,14 +201,15 @@ export type AssistantHeadingTag = typeof AssistantHeadingTag.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class ParagraphBlock extends S.Class<ParagraphBlock>($I`ParagraphBlock`)(
-  {
+export class ParagraphBlock extends S.Opaque<ParagraphBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("paragraph"),
     children: S.Array(ParagraphBlockInlineNode).annotateKey({ description: "Inline content in order" }),
-  },
-  $I.annote("ParagraphBlock", {
-    description: "A paragraph of inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParagraphBlock", {
+      description: "A paragraph of inline content.",
+    })
+  )
 ) {}
 
 /**
@@ -229,15 +232,16 @@ export class ParagraphBlock extends S.Class<ParagraphBlock>($I`ParagraphBlock`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class HeadingBlock extends S.Class<HeadingBlock>($I`HeadingBlock`)(
-  {
+export class HeadingBlock extends S.Opaque<HeadingBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("heading"),
     level: AssistantHeadingTag.annotateKey({ description: "Heading level" }),
     children: S.Array(HeadingBlockInlineNode).annotateKey({ description: "Inline content in order" }),
-  },
-  $I.annote("HeadingBlock", {
-    description: "A section heading.",
-  })
+  }).pipe(
+    $I.annoteSchema("HeadingBlock", {
+      description: "A section heading.",
+    })
+  )
 ) {}
 
 /**
@@ -259,14 +263,15 @@ export class HeadingBlock extends S.Class<HeadingBlock>($I`HeadingBlock`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class QuoteBlock extends S.Class<QuoteBlock>($I`QuoteBlock`)(
-  {
+export class QuoteBlock extends S.Opaque<QuoteBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("quote"),
     children: S.Array(QuoteBlockInlineNode).annotateKey({ description: "Inline content in order" }),
-  },
-  $I.annote("QuoteBlock", {
-    description: "A block quotation.",
-  })
+  }).pipe(
+    $I.annoteSchema("QuoteBlock", {
+      description: "A block quotation.",
+    })
+  )
 ) {}
 
 /**
@@ -322,13 +327,14 @@ export type AssistantListType = typeof AssistantListType.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class ListItem extends S.Class<ListItem>($I`ListItem`)(
-  {
+export class ListItem extends S.Opaque<ListItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     children: S.Array(ListItemInlineNode).annotateKey({ description: "Inline content of the item" }),
-  },
-  $I.annote("ListItem", {
-    description: "A single item within a list block.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListItem", {
+      description: "A single item within a list block.",
+    })
+  )
 ) {}
 
 /**
@@ -351,15 +357,16 @@ export class ListItem extends S.Class<ListItem>($I`ListItem`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class ListBlock extends S.Class<ListBlock>($I`ListBlock`)(
-  {
+export class ListBlock extends S.Opaque<ListBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("list"),
     listType: AssistantListType.annotateKey({ description: "Bulleted or numbered list" }),
     items: S.Array(ListItem).annotateKey({ description: "List items in order" }),
-  },
-  $I.annote("ListBlock", {
-    description: "A flat list of items.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListBlock", {
+      description: "A flat list of items.",
+    })
+  )
 ) {}
 
 /**
@@ -382,17 +389,18 @@ export class ListBlock extends S.Class<ListBlock>($I`ListBlock`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class CodeBlock extends S.Class<CodeBlock>($I`CodeBlock`)(
-  {
+export class CodeBlock extends S.Opaque<CodeBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("code"),
     language: S.optionalKey(S.String.annotate({ description: "Language identifier, e.g. typescript" })).annotateKey({
       description: "Language identifier, e.g. typescript",
     }),
     code: S.String.annotateKey({ description: "Raw source code without fences" }),
-  },
-  $I.annote("CodeBlock", {
-    description: "A fenced code block.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodeBlock", {
+      description: "A fenced code block.",
+    })
+  )
 ) {}
 
 /**
@@ -413,13 +421,14 @@ export class CodeBlock extends S.Class<CodeBlock>($I`CodeBlock`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class TableCellBlock extends S.Class<TableCellBlock>($I`TableCellBlock`)(
-  {
+export class TableCellBlock extends S.Opaque<TableCellBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     children: S.Array(TableCellBlockInlineNode).annotateKey({ description: "Inline content of the cell" }),
-  },
-  $I.annote("TableCellBlock", {
-    description: "A single table cell in an assistant-generated table.",
-  })
+  }).pipe(
+    $I.annoteSchema("TableCellBlock", {
+      description: "A single table cell in an assistant-generated table.",
+    })
+  )
 ) {}
 
 /**
@@ -440,13 +449,14 @@ export class TableCellBlock extends S.Class<TableCellBlock>($I`TableCellBlock`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class TableRowBlock extends S.Class<TableRowBlock>($I`TableRowBlock`)(
-  {
+export class TableRowBlock extends S.Opaque<TableRowBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     cells: S.Array(TableCellBlock).annotateKey({ description: "Cells in column order" }),
-  },
-  $I.annote("TableRowBlock", {
-    description: "A single row in an assistant-generated table.",
-  })
+  }).pipe(
+    $I.annoteSchema("TableRowBlock", {
+      description: "A single row in an assistant-generated table.",
+    })
+  )
 ) {}
 
 const isRectangularNonEmptyTableRows = (rows: ReadonlyArray<TableRowBlock>): boolean =>
@@ -510,8 +520,8 @@ const YouTubeVideoId = S.String.check(
  * @category value-objects
  * @since 0.0.0
  */
-export class TableBlock extends S.Class<TableBlock>($I`TableBlock`)(
-  {
+export class TableBlock extends S.Opaque<TableBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("table"),
     headerRow: S.optionalKey(S.Boolean.annotate({ description: "Render the first row as a header row" })).annotateKey({
       description: "Render the first row as a header row",
@@ -519,10 +529,11 @@ export class TableBlock extends S.Class<TableBlock>($I`TableBlock`)(
     rows: RectangularTableRows.annotateKey({
       description: "Rows in order; every row must have the same number of cells",
     }),
-  },
-  $I.annote("TableBlock", {
-    description: "A rectangular data table.",
-  })
+  }).pipe(
+    $I.annoteSchema("TableBlock", {
+      description: "A rectangular data table.",
+    })
+  )
 ) {}
 
 /**
@@ -541,16 +552,17 @@ export class TableBlock extends S.Class<TableBlock>($I`TableBlock`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class YouTubeBlock extends S.Class<YouTubeBlock>($I`YouTubeBlock`)(
-  {
+export class YouTubeBlock extends S.Opaque<YouTubeBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("youtube"),
     videoId: YouTubeVideoId.annotateKey({
       description: "The bare 11-character YouTube video id; extract it from watch/share/embed URLs.",
     }),
-  },
-  $I.annote("YouTubeBlock", {
-    description: "An embedded YouTube video.",
-  })
+  }).pipe(
+    $I.annoteSchema("YouTubeBlock", {
+      description: "An embedded YouTube video.",
+    })
+  )
 ) {}
 
 /**
@@ -583,15 +595,14 @@ export const AssistantBlock = pipe(
 /**
  * Type accepted by the {@link AssistantBlock} schema.
  *
- * **Example** (Satisfy AssistantBlock type)
+ * **Example** (Annotate a constructed AssistantBlock)
  *
  * ```ts
- * import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent"
+ * import { type AssistantBlock, ParagraphBlock, TextInline } from "@beep/agents-domain/values/AssistantContent"
  *
- * const block = {
- *   type: "paragraph",
- *   children: [{ type: "text", text: "Hello" }],
- * } satisfies AssistantBlock
+ * const block: AssistantBlock = ParagraphBlock.make({
+ *   children: [TextInline.make({ text: "Hello" })],
+ * })
  * console.log(block.type)
  * ```
  *
@@ -619,13 +630,14 @@ export type AssistantBlock = typeof AssistantBlock.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class AssistantContent extends S.Class<AssistantContent>($I`AssistantContent`)(
-  {
+export class AssistantContent extends S.Opaque<AssistantContent, { readonly brand: unique symbol }>()(
+  S.Struct({
     blocks: S.Array(AssistantBlock).annotateKey({
       description: "The assistant response as an ordered list of rich-text blocks",
     }),
-  },
-  $I.annote("AssistantContent", {
-    description: "A complete assistant turn as structured rich text.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssistantContent", {
+      description: "A complete assistant turn as structured rich text.",
+    })
+  )
 ) {}

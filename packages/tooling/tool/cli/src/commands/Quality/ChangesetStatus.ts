@@ -153,16 +153,17 @@ export const CHANGESET_STATUS_NEUTRAL_BASENAMES: ReadonlyArray<string> = ["turbo
  * @category models
  * @since 0.0.0
  */
-export class ChangesetStatusPartition extends S.Class<ChangesetStatusPartition>($I`ChangesetStatusPartition`)(
-  {
+export class ChangesetStatusPartition extends S.Opaque<ChangesetStatusPartition, { readonly brand: unique symbol }>()(
+  S.Struct({
     labPaths: S.Array(S.String),
     productWorkspaceDirs: S.Array(S.String),
     neutralPaths: S.Array(S.String),
     blockingPaths: S.Array(S.String),
-  },
-  $I.annote("ChangesetStatusPartition", {
-    description: "Changed-file partition used by the path-aware changeset status wrapper.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangesetStatusPartition", {
+      description: "Changed-file partition used by the path-aware changeset status wrapper.",
+    })
+  )
 ) {}
 
 /**
@@ -215,40 +216,45 @@ export type ChangesetStatusVerdict = typeof ChangesetStatusVerdict.Type;
  * @category models
  * @since 0.0.0
  */
-export class ChangesetStatusWorkspacePackage extends S.Class<ChangesetStatusWorkspacePackage>(
-  $I`ChangesetStatusWorkspacePackage`
-)(
-  {
+export class ChangesetStatusWorkspacePackage extends S.Opaque<
+  ChangesetStatusWorkspacePackage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dir: S.String,
     name: S.String,
     version: S.OptionFromOptionalKey(S.String),
     publishEnabled: S.Boolean,
-  },
-  $I.annote("ChangesetStatusWorkspacePackage", {
-    description: "A changed product workspace considered by the in-process changeset check.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangesetStatusWorkspacePackage", {
+      description: "A changed product workspace considered by the in-process changeset check.",
+    })
+  )
 ) {}
 
-class ChangesetStatusPackageJson extends S.Class<ChangesetStatusPackageJson>($I`ChangesetStatusPackageJson`)(
-  {
+class ChangesetStatusPackageJson extends S.Opaque<ChangesetStatusPackageJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.optionalKey(S.String),
     version: S.optionalKey(S.String),
     private: S.optionalKey(S.Boolean),
-  },
-  $I.annote("ChangesetStatusPackageJson", {
-    description: "Minimal package.json shape read by the path-aware changeset status wrapper.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangesetStatusPackageJson", {
+      description: "Minimal package.json shape read by the path-aware changeset status wrapper.",
+    })
+  )
 ) {}
 
-class ChangesetStatusChangesetConfig extends S.Class<ChangesetStatusChangesetConfig>(
-  $I`ChangesetStatusChangesetConfig`
-)(
-  {
+class ChangesetStatusChangesetConfig extends S.Opaque<
+  ChangesetStatusChangesetConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ignore: S.Array(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("ChangesetStatusChangesetConfig", {
-    description: "Minimal .changeset/config.json shape read for the ignored package-name list.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangesetStatusChangesetConfig", {
+      description: "Minimal .changeset/config.json shape read for the ignored package-name list.",
+    })
+  )
 ) {}
 
 const decodePackageJson = S.decodeUnknownEffect(S.fromJsonString(ChangesetStatusPackageJson));

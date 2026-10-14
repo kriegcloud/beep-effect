@@ -85,15 +85,16 @@ export const PACKET_EVENTS_SEGMENTS = ["ops", "events"] as const;
  * @category models
  * @since 0.0.0
  */
-export class PacketStreamLocator extends S.Class<PacketStreamLocator>($I`PacketStreamLocator`)(
-  {
+export class PacketStreamLocator extends S.Opaque<PacketStreamLocator, { readonly brand: unique symbol }>()(
+  S.Struct({
     packet: PacketSlug,
     root: PacketRoot,
     packetPath: S.String,
-  },
-  $I.annote("PacketStreamLocator", {
-    description: "Identity of one packet stream on disk (slug, root, packet directory path).",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketStreamLocator", {
+      description: "Identity of one packet stream on disk (slug, root, packet directory path).",
+    })
+  )
 ) {}
 
 // Called under the packet lock before any mutation can interpret an absent
@@ -223,14 +224,15 @@ export const withPacketEventLock: {
  * @category models
  * @since 0.0.0
  */
-export class PacketStreamListing extends S.Class<PacketStreamListing>($I`PacketStreamListing`)(
-  {
+export class PacketStreamListing extends S.Opaque<PacketStreamListing, { readonly brand: unique symbol }>()(
+  S.Struct({
     events: S.Array(StoredPacketEvent),
     issues: S.Array(PacketChainIssue),
-  },
-  $I.annote("PacketStreamListing", {
-    description: "Verified events plus chain issues from one packet-stream read.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketStreamListing", {
+      description: "Verified events plus chain issues from one packet-stream read.",
+    })
+  )
 ) {}
 
 /**

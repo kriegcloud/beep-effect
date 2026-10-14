@@ -76,8 +76,8 @@ const phoenixConfigInputHeadersDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class PhoenixConfigInput extends S.Class<PhoenixConfigInput>($I`PhoenixConfigInput`)(
-  {
+export class PhoenixConfigInput extends S.Opaque<PhoenixConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.OptionFromOptionalKey(S.NonEmptyString.pipe(S.RedactedFromValue))
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -97,8 +97,9 @@ export class PhoenixConfigInput extends S.Class<PhoenixConfigInput>($I`PhoenixCo
       .annotateKey({
         description: "Additional Phoenix API request headers.",
       }),
-  },
-  $I.annote("PhoenixConfigInput", {
-    description: "Runtime configuration accepted by the Phoenix API driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixConfigInput", {
+      description: "Runtime configuration accepted by the Phoenix API driver layer.",
+    })
+  )
 ) {}

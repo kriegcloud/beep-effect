@@ -110,14 +110,15 @@ export type GithubJobShapeClass = typeof GithubJobShapeClass.Type;
  * @category models
  * @since 0.0.0
  */
-export class GithubJobStepRecord extends S.Class<GithubJobStepRecord>($I`GithubJobStepRecord`)(
-  {
+export class GithubJobStepRecord extends S.Opaque<GithubJobStepRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     conclusion: S.NullOr(S.String),
-  },
-  $I.annote("GithubJobStepRecord", {
-    description: "One step of a GitHub job, carrying the conclusion it reached or null when it never did.",
-  })
+  }).pipe(
+    $I.annoteSchema("GithubJobStepRecord", {
+      description: "One step of a GitHub job, carrying the conclusion it reached or null when it never did.",
+    })
+  )
 ) {}
 
 const githubJobRecordStepsDefault = A.empty();
@@ -149,8 +150,8 @@ const githubJobRecordStepsDefault = A.empty();
  * @category models
  * @since 0.0.0
  */
-export class GithubJobRecord extends S.Class<GithubJobRecord>($I`GithubJobRecord`)(
-  {
+export class GithubJobRecord extends S.Opaque<GithubJobRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     conclusion: S.NullOr(S.String),
     databaseId: S.Finite,
     name: S.String,
@@ -159,10 +160,11 @@ export class GithubJobRecord extends S.Class<GithubJobRecord>($I`GithubJobRecord
       S.withConstructorDefault(Effect.succeed(githubJobRecordStepsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(githubJobRecordStepsDefault))
     ),
-  },
-  $I.annote("GithubJobRecord", {
-    description: "The fields of a GitHub job record from which infrastructure-failure shape classes are read.",
-  })
+  }).pipe(
+    $I.annoteSchema("GithubJobRecord", {
+      description: "The fields of a GitHub job record from which infrastructure-failure shape classes are read.",
+    })
+  )
 ) {}
 
 const SETUP_STEP_NAME_PATTERN = /^set up (?:job|runner)\b/u;

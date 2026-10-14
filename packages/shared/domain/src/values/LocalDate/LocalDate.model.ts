@@ -48,7 +48,7 @@ const LocalDateFields = S.Struct(CalendarParts.fields).check(
  * @category models
  * @since 0.0.0
  */
-export class Model extends S.Class<Model>($I`LocalDateModel`)(
+export class Model extends S.Class<Model, { readonly brand: unique symbol }>($I`LocalDateModel`)(
   LocalDateFields,
   $I.annote("LocalDateModel", {
     description: "Schema class representing a calendar date without time or timezone.",
@@ -99,7 +99,9 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    * @category utilities
    * @since 0.0.0
    */
-  override readonly toString = (): string => this.toISOString();
+  override toString(): string {
+    return this.toISOString();
+  }
 
   /**
    * Compare two LocalDate values by calendar fields.
@@ -191,7 +193,9 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    * @category utilities
    * @since 0.0.0
    */
-  readonly toDate = (): Date => DateTime.toDateUtc(this.toDateTime());
+  toDate(): Date {
+    return DateTime.toDateUtc(this.toDateTime());
+  }
 }
 
 const ModelEquivalence = S.toEquivalence(Model);

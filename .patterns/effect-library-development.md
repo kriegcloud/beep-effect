@@ -408,22 +408,20 @@ bun run build
 Break complex features into validated increments:
 
 ```typescript
-import * as S from "effect/Schema";
 import {$SomePackageId} from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
 const $I = $SomePackageId.create("relative/path/to/file");
 
-export class FeatureConfig extends S.Class<FeatureConfig>($I`FeatureConfig`)(
-  {
+// Plain data: a branded Opaque over an annotated Struct.
+export class FeatureConfig extends S.Opaque<FeatureConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     option1: S.String,
     option2: S.Number
-  },
-  $I.annote(
-    "FeatureConfig",
-    {
+  }).pipe(
+    $I.annoteSchema("FeatureConfig", {
       description: "Configuration for a feature"
-    }
+    })
   )
 ) {}
 
@@ -431,7 +429,7 @@ export class FeatureConfig extends S.Class<FeatureConfig>($I`FeatureConfig`)(
 
 // Step 2: Core implementation
 const createFeature = Effect.fn("createFeature")(function* (
-  config: FeatureConfig // S.Class is opaque and can be used as a type
+  config: FeatureConfig // nominal through the brand; an unbranded schema class is only structural
 ) {
   // Basic implementation
   yield* Console.log("Feature created");

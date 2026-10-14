@@ -1,6 +1,8 @@
 import * as S from "../../../.repos/effect/packages/effect/src/Schema.ts";
 
-class LaneError extends S.TaggedError<LaneError>()("LaneError", { code: S.String }) {}
+class LaneError extends S.TaggedError<LaneError, { readonly brand: unique symbol }>()("LaneError", {
+  code: S.String,
+}) {}
 const a = new LaneError({ code: "same" });
 const b = new LaneError({ code: "same" });
 a.stack = "first-stack";

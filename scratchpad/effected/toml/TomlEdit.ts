@@ -17,7 +17,7 @@ import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/toml/TomlEdit");
 
-class TomlEditInvariantError extends S.TaggedError<TomlEditInvariantError>($I`TomlEditInvariantError`)(
+class TomlEditInvariantError extends S.TaggedError<TomlEditInvariantError, { readonly brand: unique symbol }>($I`TomlEditInvariantError`)(
 	"TomlEditInvariantError",
 	{ message: S.String.annotateKey({ description: "Explanation of the missing or overlapping edit that violates the application invariant." }) },
 	$I.annote("TomlEditInvariantError", { description: "A programmer defect encountered while applying TOML text edits." }),
@@ -61,7 +61,7 @@ export type TomlPath = ReadonlyArray<TomlSegment>;
  * @category models
  * @since 0.0.0
  */
-export class TomlRange extends S.Class<TomlRange>($I`TomlRange`)({
+export class TomlRange extends S.Class<TomlRange, { readonly brand: unique symbol }>($I`TomlRange`)({
 	offset: S.Finite.annotateKey({ description: "Zero-based starting position in UTF-16 code units for selecting expressions to format" }),
 	length: S.Finite.annotateKey({ description: "Extent of the formatting region in UTF-16 code units" }),
 }, $I.annote("TomlRange", { description: "A range within a TOML document, expressed as a zero-based character `offset` and a `length` in UTF-16 code units. Pass to `TomlFormat.format` to restrict formatting to the expressions intersecting a region." })) {}
@@ -90,7 +90,7 @@ export class TomlRange extends S.Class<TomlRange>($I`TomlRange`)({
  * @category models
  * @since 0.0.0
  */
-export class TomlEdit extends S.Class<TomlEdit>($I`TomlEdit`)({
+export class TomlEdit extends S.Class<TomlEdit, { readonly brand: unique symbol }>($I`TomlEdit`)({
 	offset: S.Finite.annotateKey({ description: "Zero-based starting position of the text splice in UTF-16 code units" }),
 	length: S.Finite.annotateKey({ description: "Number of UTF-16 code units to replace, with zero inserting text without removing any" }),
 	content: S.String.annotateKey({ description: "Replacement text for the selected span, with an empty string deleting that span" }),

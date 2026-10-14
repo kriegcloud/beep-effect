@@ -37,9 +37,10 @@ const InteractionMode = LiteralKit(["default", "plan"]);
  * @category models
  * @since 0.0.0
  */
-export class T3CodeOption extends S.Class<T3CodeOption>($I`T3CodeOption`)(
-  { id: Id, value: S.Union([S.String, S.Boolean]) },
-  $I.annote("T3CodeOption", { description: "One effective provider option reported by T3." })
+export class T3CodeOption extends S.Opaque<T3CodeOption, { readonly brand: unique symbol }>()(
+  S.Struct({ id: Id, value: S.Union([S.String, S.Boolean]) }).pipe(
+    $I.annoteSchema("T3CodeOption", { description: "One effective provider option reported by T3." })
+  )
 ) {}
 
 /**
@@ -54,9 +55,10 @@ export class T3CodeOption extends S.Class<T3CodeOption>($I`T3CodeOption`)(
  * @category models
  * @since 0.0.0
  */
-export class T3CodeModelSelection extends S.Class<T3CodeModelSelection>($I`T3CodeModelSelection`)(
-  { instanceId: Id, model: Id, options: T3CodeOption.pipe(S.Array, S.optionalKey) },
-  $I.annote("T3CodeModelSelection", { description: "Provider instance and model selected by the host." })
+export class T3CodeModelSelection extends S.Opaque<T3CodeModelSelection, { readonly brand: unique symbol }>()(
+  S.Struct({ instanceId: Id, model: Id, options: T3CodeOption.pipe(S.Array, S.optionalKey) }).pipe(
+    $I.annoteSchema("T3CodeModelSelection", { description: "Provider instance and model selected by the host." })
+  )
 ) {}
 
 /**
@@ -71,16 +73,17 @@ export class T3CodeModelSelection extends S.Class<T3CodeModelSelection>($I`T3Cod
  * @category models
  * @since 0.0.0
  */
-export class T3CodeConfiguration extends S.Class<T3CodeConfiguration>($I`T3CodeConfiguration`)(
-  {
+export class T3CodeConfiguration extends S.Opaque<T3CodeConfiguration, { readonly brand: unique symbol }>()(
+  S.Struct({
     threadId: Id,
     modelSelection: T3CodeModelSelection,
     runtimeMode: RuntimeMode,
     interactionMode: InteractionMode,
-  },
-  $I.annote("T3CodeConfiguration", {
-    description: "Live host configuration; native permission readback requires separate evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("T3CodeConfiguration", {
+      description: "Live host configuration; native permission readback requires separate evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -95,9 +98,10 @@ export class T3CodeConfiguration extends S.Class<T3CodeConfiguration>($I`T3CodeC
  * @category models
  * @since 0.0.0
  */
-export class T3CodeProject extends S.Class<T3CodeProject>($I`T3CodeProject`)(
-  { id: Id, workspaceRoot: S.NonEmptyString },
-  $I.annote("T3CodeProject", { description: "Workspace binding from an exact project read." })
+export class T3CodeProject extends S.Opaque<T3CodeProject, { readonly brand: unique symbol }>()(
+  S.Struct({ id: Id, workspaceRoot: S.NonEmptyString }).pipe(
+    $I.annoteSchema("T3CodeProject", { description: "Workspace binding from an exact project read." })
+  )
 ) {}
 
 /**
@@ -112,8 +116,8 @@ export class T3CodeProject extends S.Class<T3CodeProject>($I`T3CodeProject`)(
  * @category models
  * @since 0.0.0
  */
-export class T3CodeThread extends S.Class<T3CodeThread>($I`T3CodeThread`)(
-  {
+export class T3CodeThread extends S.Opaque<T3CodeThread, { readonly brand: unique symbol }>()(
+  S.Struct({
     threadId: Id,
     projectId: Id,
     status: Status,
@@ -124,8 +128,11 @@ export class T3CodeThread extends S.Class<T3CodeThread>($I`T3CodeThread`)(
     runtimeMode: RuntimeMode,
     interactionMode: InteractionMode,
     worktreePath: S.NullOr(S.String),
-  },
-  $I.annote("T3CodeThread", { description: "Owned thread projection without invented native session identity." })
+  }).pipe(
+    $I.annoteSchema("T3CodeThread", {
+      description: "Owned thread projection without invented native session identity.",
+    })
+  )
 ) {}
 
 /**
@@ -140,8 +147,8 @@ export class T3CodeThread extends S.Class<T3CodeThread>($I`T3CodeThread`)(
  * @category models
  * @since 0.0.0
  */
-export class T3CodeRun extends S.Class<T3CodeRun>($I`T3CodeRun`)(
-  {
+export class T3CodeRun extends S.Opaque<T3CodeRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: Id,
     ordinal: S.Int.check(S.isGreaterThan(0)),
     status: RunStatus,
@@ -150,8 +157,7 @@ export class T3CodeRun extends S.Class<T3CodeRun>($I`T3CodeRun`)(
     requestedAt: S.String,
     startedAt: S.NullOr(S.String),
     completedAt: S.NullOr(S.String),
-  },
-  $I.annote("T3CodeRun", { description: "Exact run identity and lifecycle reported by the host." })
+  }).pipe($I.annoteSchema("T3CodeRun", { description: "Exact run identity and lifecycle reported by the host." }))
 ) {}
 
 /**
@@ -166,8 +172,8 @@ export class T3CodeRun extends S.Class<T3CodeRun>($I`T3CodeRun`)(
  * @category models
  * @since 0.0.0
  */
-export class T3CodeItem extends S.Class<T3CodeItem>($I`T3CodeItem`)(
-  {
+export class T3CodeItem extends S.Opaque<T3CodeItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     position: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     visibility: S.Literals(["local", "inherited", "synthetic"]),
     sourceThreadId: Id,
@@ -178,8 +184,7 @@ export class T3CodeItem extends S.Class<T3CodeItem>($I`T3CodeItem`)(
     status: S.String,
     text: S.NullOr(S.String.check(S.isMaxLength(50000))),
     textTruncated: S.Boolean,
-  },
-  $I.annote("T3CodeItem", { description: "Bounded timeline item with source and run provenance." })
+  }).pipe($I.annoteSchema("T3CodeItem", { description: "Bounded timeline item with source and run provenance." }))
 ) {}
 
 /**
@@ -194,15 +199,16 @@ export class T3CodeItem extends S.Class<T3CodeItem>($I`T3CodeItem`)(
  * @category models
  * @since 0.0.0
  */
-export class T3CodeRead extends S.Class<T3CodeRead>($I`T3CodeRead`)(
-  {
+export class T3CodeRead extends S.Opaque<T3CodeRead, { readonly brand: unique symbol }>()(
+  S.Struct({
     thread: T3CodeThread,
     recentRuns: S.Array(T3CodeRun).check(S.isMaxLength(50)),
     items: S.Array(T3CodeItem).check(S.isMaxLength(100)),
     nextPosition: S.NullOr(S.Int),
     hasMore: S.Boolean,
-  },
-  $I.annote("T3CodeRead", { description: "Bounded thread read including recent runs and timeline pagination." })
+  }).pipe(
+    $I.annoteSchema("T3CodeRead", { description: "Bounded thread read including recent runs and timeline pagination." })
+  )
 ) {}
 
 /**
@@ -217,9 +223,18 @@ export class T3CodeRead extends S.Class<T3CodeRead>($I`T3CodeRead`)(
  * @category models
  * @since 0.0.0
  */
-export class T3CodeSend extends S.Class<T3CodeSend>($I`T3CodeSend`)(
-  { threadId: Id, messageId: Id, runId: Id, status: Status, delivery: S.Literals(["started", "queued"]) },
-  $I.annote("T3CodeSend", { description: "Queue submission receipt; acceptance alone is not model consumption." })
+export class T3CodeSend extends S.Opaque<T3CodeSend, { readonly brand: unique symbol }>()(
+  S.Struct({
+    threadId: Id,
+    messageId: Id,
+    runId: Id,
+    status: Status,
+    delivery: S.Literals(["started", "queued"]),
+  }).pipe(
+    $I.annoteSchema("T3CodeSend", {
+      description: "Queue submission receipt; acceptance alone is not model consumption.",
+    })
+  )
 ) {}
 
 /**
@@ -234,9 +249,10 @@ export class T3CodeSend extends S.Class<T3CodeSend>($I`T3CodeSend`)(
  * @category models
  * @since 0.0.0
  */
-export class T3CodeWait extends S.Class<T3CodeWait>($I`T3CodeWait`)(
-  { threadId: Id, runId: S.NullOr(Id), status: Status, timedOut: S.Boolean },
-  $I.annote("T3CodeWait", { description: "Exact run observation; timeout does not cancel generation." })
+export class T3CodeWait extends S.Opaque<T3CodeWait, { readonly brand: unique symbol }>()(
+  S.Struct({ threadId: Id, runId: S.NullOr(Id), status: Status, timedOut: S.Boolean }).pipe(
+    $I.annoteSchema("T3CodeWait", { description: "Exact run observation; timeout does not cancel generation." })
+  )
 ) {}
 
 /**
@@ -251,8 +267,8 @@ export class T3CodeWait extends S.Class<T3CodeWait>($I`T3CodeWait`)(
  * @category models
  * @since 0.0.0
  */
-export class T3CodeInterrupt extends S.Class<T3CodeInterrupt>($I`T3CodeInterrupt`)(
-  {
+export class T3CodeInterrupt extends S.Opaque<T3CodeInterrupt, { readonly brand: unique symbol }>()(
+  S.Struct({
     threadId: Id,
     runId: S.NullOr(Id),
     status: S.Literals([
@@ -264,8 +280,9 @@ export class T3CodeInterrupt extends S.Class<T3CodeInterrupt>($I`T3CodeInterrupt
       "interrupted",
       "rolled_back",
     ]),
-  },
-  $I.annote("T3CodeInterrupt", {
-    description: "Interrupt acceptance is separate from a terminal interrupted observation.",
-  })
+  }).pipe(
+    $I.annoteSchema("T3CodeInterrupt", {
+      description: "Interrupt acceptance is separate from a terminal interrupted observation.",
+    })
+  )
 ) {}

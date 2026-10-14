@@ -17,7 +17,7 @@ const assertSchemaRoundTrip = Effect.fn("assertSchemaRoundTrip")(function* <
   expect(S.toEquivalence(schema)(decoded, value), label).toBe(true);
 });
 
-const capabilities: Backend.BackendCapabilities = {
+const capabilities: Backend.BackendCapabilities = Backend.BackendCapabilities.make({
   tokenization: true,
   sentencization: true,
   posTagging: true,
@@ -27,7 +27,7 @@ const capabilities: Backend.BackendCapabilities = {
   relationExtraction: false,
   coreferenceResolution: false,
   constituencyParsing: false,
-};
+});
 
 describe("BackendCapabilities", () => {
   it("supportsCapability reads a single flag", () => {

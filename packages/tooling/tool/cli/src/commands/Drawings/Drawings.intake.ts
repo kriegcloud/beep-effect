@@ -12,6 +12,7 @@ import {
   GraphPathSegment,
   loadM365AppOnlyEnv,
   M365,
+  M365AppOnlyConfigInput,
   M365DownloadMessageAttachmentRequest,
   M365GetMessageRequest,
   M365ListMessageAttachmentsRequest,
@@ -48,14 +49,7 @@ import {
   IntakeResult,
   MessageFacts,
 } from "./Drawings.intake.schemas.ts";
-import type {
-  GraphAttachment,
-  GraphMessage,
-  GraphRecipient,
-  M365AppOnlyConfigInput,
-  M365AppOnlyEnvSettings,
-  M365Error,
-} from "@beep/m365";
+import type { GraphAttachment, GraphMessage, GraphRecipient, M365AppOnlyEnvSettings, M365Error } from "@beep/m365";
 import type { Sha256Hex } from "@beep/schema/Sha256";
 import type { IntakeAttachmentOutcome, IntakePick } from "./Drawings.intake.schemas.ts";
 
@@ -701,7 +695,7 @@ export const drawingIntakeLaneLayer = <E>(options: {
       Effect.mapError((cause) => DrawingsCommandError.new(cause, cause.message)),
       Effect.map((settings) =>
         Layer.merge(
-          DrawingIntake.layer.pipe(Layer.provide(options.mailLayer(settings.appOnly))),
+          DrawingIntake.layer.pipe(Layer.provide(options.mailLayer(M365AppOnlyConfigInput.make(settings.appOnly)))),
           Layer.succeed(DrawingIntakeLane, settings)
         )
       )

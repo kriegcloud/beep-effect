@@ -41,7 +41,7 @@ const $I = $ScratchpadId.create("effected/templates/SectionDocument");
  * @category errors
  * @since 0.0.0
  */
-export class SectionParseError extends S.TaggedError<SectionParseError>($I`SectionParseError`)("SectionParseError", {
+export class SectionParseError extends S.TaggedError<SectionParseError, { readonly brand: unique symbol }>($I`SectionParseError`)("SectionParseError", {
 	/**
 	 * Which ambiguity was found.
 	 *
@@ -184,7 +184,7 @@ export type SectionReconciliation = typeof SectionReconciliation.Type;
  * @category models
  * @since 0.0.0
  */
-export class SectionDocument extends S.Class<SectionDocument>($I`SectionDocument`)({
+export class SectionDocument extends S.Class<SectionDocument, { readonly brand: unique symbol }>($I`SectionDocument`)({
 	/**
 	 * The document's source text, exactly as parsed.
 	 *

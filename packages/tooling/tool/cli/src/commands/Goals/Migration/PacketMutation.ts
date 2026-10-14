@@ -81,9 +81,10 @@ const $I = $RepoCliId.create("commands/Goals/Migration/PacketMutation");
  * @category models
  * @since 0.0.0
  */
-export class PacketForkRepairOutcome extends S.Class<PacketForkRepairOutcome>($I`PacketForkRepairOutcome`)(
-  { plan: PacketForkRepairPlan, revision: S.Int },
-  $I.annote("PacketForkRepairOutcome", { description: "Verified result of one staged packet-fork repair." })
+export class PacketForkRepairOutcome extends S.Opaque<PacketForkRepairOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({ plan: PacketForkRepairPlan, revision: S.Int }).pipe(
+    $I.annoteSchema("PacketForkRepairOutcome", { description: "Verified result of one staged packet-fork repair." })
+  )
 ) {}
 
 /**

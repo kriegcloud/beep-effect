@@ -267,8 +267,8 @@ export type NiceBasicNumber = typeof NiceBasicNumber.Type;
  * @category models
  * @since 0.0.0
  */
-export class ClassificationConcept extends S.Class<ClassificationConcept>($I`ClassificationConcept`)(
-  {
+export class ClassificationConcept extends S.Opaque<ClassificationConcept, { readonly brand: unique symbol }>()(
+  S.Struct({
     iri: IRIReference,
     schemeIri: IRIReference,
     kind: ClassificationSchemeKind,
@@ -277,10 +277,11 @@ export class ClassificationConcept extends S.Class<ClassificationConcept>($I`Cla
     prefLabel: S.NonEmptyString,
     broader: S.Array(IRIReference).check(S.isMaxLength(1)),
     depth: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("ClassificationConcept", {
-    description: "An edition-scoped classification concept and its immediate broader identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClassificationConcept", {
+      description: "An edition-scoped classification concept and its immediate broader identity.",
+    })
+  )
 ) {}
 /**
  * The immutable result of loading one explicitly pinned classification scheme.
@@ -293,16 +294,17 @@ export class ClassificationConcept extends S.Class<ClassificationConcept>($I`Cla
  * @category models
  * @since 0.0.0
  */
-export class ClassificationSnapshot extends S.Class<ClassificationSnapshot>($I`ClassificationSnapshot`)(
-  {
+export class ClassificationSnapshot extends S.Opaque<ClassificationSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemeIri: IRIReference,
     kind: ClassificationSchemeKind,
     edition: S.NonEmptyString,
     concepts: S.Array(ClassificationConcept),
-  },
-  $I.annote("ClassificationSnapshot", {
-    description: "A complete immutable concept set for one explicitly pinned scheme edition.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClassificationSnapshot", {
+      description: "A complete immutable concept set for one explicitly pinned scheme edition.",
+    })
+  )
 ) {}
 const ClassificationPinFields = S.Struct({
   kind: ClassificationSchemeKind,
@@ -333,11 +335,12 @@ const ClassificationPinFields = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class ClassificationPin extends S.Class<ClassificationPin>($I`ClassificationPin`)(
-  ClassificationPinFields,
-  $I.annote("ClassificationPin", {
-    description: "The authority and edition a caller must name before loading or lookup.",
-  })
+export class ClassificationPin extends S.Opaque<ClassificationPin, { readonly brand: unique symbol }>()(
+  ClassificationPinFields.pipe(
+    $I.annoteSchema("ClassificationPin", {
+      description: "The authority and edition a caller must name before loading or lookup.",
+    })
+  )
 ) {}
 const ClassificationFailureReason = LiteralKit([
   "symbol-not-found",
@@ -360,7 +363,9 @@ const ClassificationFailureReason = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class ClassificationError extends S.TaggedError<ClassificationError>($I`ClassificationError`)(
+export class ClassificationError extends S.TaggedError<ClassificationError, { readonly brand: unique symbol }>(
+  $I`ClassificationError`
+)(
   "ClassificationError",
   {
     reason: ClassificationFailureReason,

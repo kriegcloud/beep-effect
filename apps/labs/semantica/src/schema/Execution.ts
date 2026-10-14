@@ -27,11 +27,12 @@ const $I = $SemanticaId.create("schema/Execution");
  * @category models
  * @since 0.0.0
  */
-export class C0ExecutionResult extends S.Class<C0ExecutionResult>($I`C0ExecutionResult`)(
-  { report: EvalReport, snapshot: LedgerSnapshot, telemetry: EvalRunTelemetry },
-  $I.annote("C0ExecutionResult", {
-    description: "C0 report, ledger snapshot, and non-digest telemetry returned to downstream canary stages.",
-  })
+export class C0ExecutionResult extends S.Opaque<C0ExecutionResult, { readonly brand: unique symbol }>()(
+  S.Struct({ report: EvalReport, snapshot: LedgerSnapshot, telemetry: EvalRunTelemetry }).pipe(
+    $I.annoteSchema("C0ExecutionResult", {
+      description: "C0 report, ledger snapshot, and non-digest telemetry returned to downstream canary stages.",
+    })
+  )
 ) {}
 
 /**
@@ -53,14 +54,15 @@ export class C0ExecutionResult extends S.Class<C0ExecutionResult>($I`C0Execution
  * @category models
  * @since 0.0.0
  */
-export class C1ExecutionResult extends S.Class<C1ExecutionResult>($I`C1ExecutionResult`)(
-  {
+export class C1ExecutionResult extends S.Opaque<C1ExecutionResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseTelemetry: EvalRunTelemetry,
     report: C1EvalReport,
     snapshot: LedgerSnapshot,
     telemetry: C1EvalTelemetry,
-  },
-  $I.annote("C1ExecutionResult", {
-    description: "C1 report, source ledger snapshot, and C0/C1 sidecars returned to C2.",
-  })
+  }).pipe(
+    $I.annoteSchema("C1ExecutionResult", {
+      description: "C1 report, source ledger snapshot, and C0/C1 sidecars returned to C2.",
+    })
+  )
 ) {}

@@ -138,7 +138,7 @@ const candidateFor = (
   left: LegalPositionRelator,
   right: LegalPositionRelator
 ): O.Option<LegalOppositionCandidateInput> => {
-  const overlap = scopeOverlap(left.scope, right.scope);
+  const overlap = scopeOverlap(LegalScopeContext.make(left.scope), LegalScopeContext.make(right.scope));
   return overlapsOnEveryAxis(overlap) && isPrimaFacieOpposed(left, right)
     ? O.some(
         LegalOppositionCandidateInput.make({

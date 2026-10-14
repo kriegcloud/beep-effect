@@ -54,9 +54,9 @@ describe("@beep/skill-contract EvidenceLadder", () => {
     const applied = advanceToSemanticallyApplied(delivered, reference(appliedType));
 
     expect(accepted.rung).toBe("Accepted");
-    expect(persisted.accepted).toBe(accepted.accepted);
-    expect(delivered.persisted).toBe(persisted.persisted);
-    expect(applied.delivered).toBe(delivered.delivered);
+    expect(persisted.accepted).toStrictEqual(accepted.accepted);
+    expect(delivered.persisted).toStrictEqual(persisted.persisted);
+    expect(applied.delivered).toStrictEqual(delivered.delivered);
     expect(applied.rung).toBe("SemanticallyApplied");
   });
 

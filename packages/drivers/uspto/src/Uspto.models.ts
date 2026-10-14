@@ -341,8 +341,8 @@ const optionalUsptoMetadataText = (description: string) =>
  * @category models
  * @since 0.0.0
  */
-export class UsptoApplicationMetadata extends S.Class<UsptoApplicationMetadata>($I`UsptoApplicationMetadata`)(
-  {
+export class UsptoApplicationMetadata extends S.Opaque<UsptoApplicationMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationNumberText: UsptoMetadataText.annotateKey({
       description: "USPTO application number associated with the metadata row.",
     }),
@@ -360,10 +360,11 @@ export class UsptoApplicationMetadata extends S.Class<UsptoApplicationMetadata>(
     grantDate: optionalUsptoMetadataText("Patent grant date string when the application has issued."),
     inventionTitle: optionalUsptoMetadataText("Published invention title when included in the wrapper metadata."),
     patentNumber: optionalUsptoMetadataText("Issued patent number associated with the application when present."),
-  },
-  $I.annote("UsptoApplicationMetadata", {
-    description: "Official USPTO application metadata projected from a patent file wrapper response.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoApplicationMetadata", {
+      description: "Official USPTO application metadata projected from a patent file wrapper response.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(this);
 }
@@ -383,18 +384,19 @@ export class UsptoApplicationMetadata extends S.Class<UsptoApplicationMetadata>(
  * @category models
  * @since 0.0.0
  */
-export class UsptoContinuity extends S.Class<UsptoContinuity>($I`UsptoContinuity`)(
-  {
+export class UsptoContinuity extends S.Opaque<UsptoContinuity, { readonly brand: unique symbol }>()(
+  S.Struct({
     childApplicationNumbers: S.Array(UsptoApplicationNumber).annotateKey({
       description: "Normalized child continuity application numbers.",
     }),
     parentApplicationNumbers: S.Array(UsptoApplicationNumber).annotateKey({
       description: "Normalized parent continuity application numbers.",
     }),
-  },
-  $I.annote("UsptoContinuity", {
-    description: "Parent and child continuity application numbers anchoring an application to its patent family.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoContinuity", {
+      description: "Parent and child continuity application numbers anchoring an application to its patent family.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(this);
 }
@@ -413,8 +415,8 @@ export class UsptoContinuity extends S.Class<UsptoContinuity>($I`UsptoContinuity
  * @category models
  * @since 0.0.0
  */
-export class UsptoDocumentReference extends S.Class<UsptoDocumentReference>($I`UsptoDocumentReference`)(
-  {
+export class UsptoDocumentReference extends S.Opaque<UsptoDocumentReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentCode: S.optionalKey(S.String).annotateKey({
       description: "USPTO document code when supplied for the file-wrapper record.",
     }),
@@ -430,10 +432,11 @@ export class UsptoDocumentReference extends S.Class<UsptoDocumentReference>($I`U
     officialDate: S.optionalKey(S.String).annotateKey({
       description: "Official USPTO date string associated with the document record.",
     }),
-  },
-  $I.annote("UsptoDocumentReference", {
-    description: "Reference to one file-wrapper document, including its download URL when published.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoDocumentReference", {
+      description: "Reference to one file-wrapper document, including its download URL when published.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(this);
 }

@@ -239,22 +239,22 @@ describe("@beep/professional-desktop schema parity", () => {
       VaultSyncStatus,
     },
     (values) => {
-      assertSchemaEncodeDecodeRoundTrip(SidecarTransport, values.SidecarTransport);
+      assertSchemaEncodeDecodeRoundTrip(SidecarTransport, SidecarTransport.make(values.SidecarTransport));
       assertSchemaEncodeDecodeRoundTrip(InboundFrame, values.InboundFrame);
       assertSchemaEncodeDecodeRoundTrip(InboundEvent, values.InboundEvent);
-      assertSchemaEncodeDecodeRoundTrip(SidecarClosedPayload, values.SidecarClosedPayload);
+      assertSchemaEncodeDecodeRoundTrip(SidecarClosedPayload, SidecarClosedPayload.make(values.SidecarClosedPayload));
       assertSchemaEncodeDecodeRoundTrip(
         ProfessionalDesktopMigrationOptions,
-        values.ProfessionalDesktopMigrationOptions
+        ProfessionalDesktopMigrationOptions.make(values.ProfessionalDesktopMigrationOptions)
       );
       assertSchemaEncodeDecodeRoundTrip(DerivedThreadTitle, values.DerivedThreadTitle);
       assertSchemaEncodeDecodeRoundTrip(VaultSyncWorkspacePayload, values.VaultSyncWorkspacePayload);
       assertSchemaEncodeDecodeRoundTrip(GetVaultSyncStatusPayload, values.GetVaultSyncStatusPayload);
       assertSchemaEncodeDecodeRoundTrip(
         MarkVaultSyncConflictReviewedPayload,
-        values.MarkVaultSyncConflictReviewedPayload
+        MarkVaultSyncConflictReviewedPayload.make(values.MarkVaultSyncConflictReviewedPayload)
       );
-      assertSchemaEncodeDecodeRoundTrip(VaultSyncStatus, values.VaultSyncStatus);
+      assertSchemaEncodeDecodeRoundTrip(VaultSyncStatus, VaultSyncStatus.make(values.VaultSyncStatus));
     },
     { arbitrary: fcRuns(25) }
   );

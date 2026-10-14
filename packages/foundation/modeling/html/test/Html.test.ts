@@ -11,6 +11,7 @@ import {
   HtmlNode,
   Text,
 } from "@beep/html";
+import { HtmlElementConformanceRules } from "@beep/html/Html.meta";
 import {
   Div,
   Html as HtmlElement,
@@ -296,7 +297,7 @@ describe("HtmlNode AST — schema laws", () => {
             attributeEqualities: [],
             attributeRequirements: [],
             numericAttributeRelationships: [],
-            rules: {},
+            rules: HtmlElementConformanceRules.make({}),
             uniqueAttributes: [],
           })
         )

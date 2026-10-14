@@ -111,7 +111,7 @@ describe("@beep/face-detection", () => {
         topK: 5000,
       })
     );
-    expect(JSON.stringify(Result.getOrThrow(encodeFaceDetectionBoxResult(fakeFace.box)))).toBe(
+    expect(JSON.stringify(Result.getOrThrow(encodeFaceDetectionBoxResult(FaceDetectionBox.make(fakeFace.box))))).toBe(
       JSON.stringify({ height: 24, width: 20, x: 10, y: 12 })
     );
     expect(JSON.stringify(Result.getOrThrow(encodeFaceDetectionResult(fakeFace)))).toBe(
@@ -240,7 +240,7 @@ describe("@beep/face-detection", () => {
 
   it.layer(fakeLayer)((it) => {
     it.effect("runs workflows through the service contract", () =>
-      withDetector({ modelPath: "./model.onnx" }, (detector) =>
+      withDetector(FaceDetectionModelConfig.make({ modelPath: "./model.onnx" }), (detector) =>
         detector.detect(FaceDetectionImageRequest.make({ imagePath: "./photo.jpg" }))
       ).pipe(
         Effect.map((result) => {

@@ -44,6 +44,7 @@ const LibraryProbeEvidenceJson = S.fromJsonString(LibraryProbeEvidence);
 const UnknownJson = S.fromJsonString(S.Unknown);
 const LibraryDispositionImportPayloadJson = S.fromJsonString(LibraryDispositionImportPayload);
 const LibraryIntakeJson = S.fromJsonString(LibraryIntake);
+const libraryArtifactEquivalent = S.toEquivalence(LibraryArtifact);
 
 const webSourceKinds: ReadonlyArray<LibrarySource["kind"]> = ["web", "docs", "endpoint"];
 const fixtureJson = S.Unknown.pipe(S.fromJsonString, S.encodeEffect);
@@ -1624,7 +1625,10 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
         yield* librarySourceEvidenceValid(
           root,
           prSource,
-          LibraryCapture.make({ ...emptyCapture, artifacts: A.filter(emptyCapture.artifacts, (a) => a !== filesProof) })
+          LibraryCapture.make({
+            ...emptyCapture,
+            artifacts: A.filter(emptyCapture.artifacts, (a) => !libraryArtifactEquivalent(a, filesProof)),
+          })
         )
       ).toBe(false);
       const changedPull = yield* make(

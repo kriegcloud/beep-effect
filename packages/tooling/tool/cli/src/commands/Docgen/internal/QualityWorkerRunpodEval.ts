@@ -47,6 +47,7 @@ import {
 import { errorMessage as cliErrorMessage, durationMsSince, timestampIso } from "../../../internal/cli/Timing.ts";
 import { DocgenQualityReport } from "./Quality.ts";
 import {
+  AnalyzeDocgenQualityWorkerEvalOptions,
   analyzeDocgenQualityWorkerEval,
   DocgenQualityWorkerEvalProvider,
   DocgenQualityWorkerEvalReport,
@@ -69,23 +70,25 @@ const OLLAMA_PORT_MAPPING = "11434/http";
 const RUNPOD_PYTORCH_IMAGE = "runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04";
 const OLLAMA_INSTALL_SCRIPT_SHA256 = "25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f";
 
-class OllamaTagsModel extends S.Class<OllamaTagsModel>($I`OllamaTagsModel`)(
-  {
+class OllamaTagsModel extends S.Opaque<OllamaTagsModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     model: S.optionalKey(S.String),
     name: S.String,
-  },
-  $I.annote("OllamaTagsModel", {
-    description: "One Ollama /api/tags model entry.",
-  })
+  }).pipe(
+    $I.annoteSchema("OllamaTagsModel", {
+      description: "One Ollama /api/tags model entry.",
+    })
+  )
 ) {}
 
-class OllamaTagsResponse extends S.Class<OllamaTagsResponse>($I`OllamaTagsResponse`)(
-  {
+class OllamaTagsResponse extends S.Opaque<OllamaTagsResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     models: S.Array(OllamaTagsModel),
-  },
-  $I.annote("OllamaTagsResponse", {
-    description: "Decoded Ollama /api/tags response payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("OllamaTagsResponse", {
+      description: "Decoded Ollama /api/tags response payload.",
+    })
+  )
 ) {}
 const decodeOllamaTagsResponse = S.decodeUnknownEffect(OllamaTagsResponse);
 
@@ -127,26 +130,29 @@ const DocgenQualityWorkerRunpodEvalOtlpStatus = LiteralKit(["disabled", "exporte
   })
 );
 
-class DocgenQualityWorkerRunpodEvalTemplate extends S.Class<DocgenQualityWorkerRunpodEvalTemplate>(
-  $I`DocgenQualityWorkerRunpodEvalTemplate`
-)(
-  {
+class DocgenQualityWorkerRunpodEvalTemplate extends S.Opaque<
+  DocgenQualityWorkerRunpodEvalTemplate,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     imageName: S.String,
     searchIncludedPublicTemplates: S.Boolean,
     searchIncludedRunpodTemplates: S.Boolean,
     strategy: DocgenQualityWorkerRunpodEvalTemplateStrategy,
     templateId: S.NullOr(S.String),
     templateName: S.NullOr(S.String),
-  },
-  $I.annote("DocgenQualityWorkerRunpodEvalTemplate", {
-    description: "Sanitized template or image decision used to create the Runpod eval pod.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerRunpodEvalTemplate", {
+      description: "Sanitized template or image decision used to create the Runpod eval pod.",
+    })
+  )
 ) {}
 
-class DocgenQualityWorkerRunpodEvalPod extends S.Class<DocgenQualityWorkerRunpodEvalPod>(
-  $I`DocgenQualityWorkerRunpodEvalPod`
-)(
-  {
+class DocgenQualityWorkerRunpodEvalPod extends S.Opaque<
+  DocgenQualityWorkerRunpodEvalPod,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseUrl: S.String,
     codexBaseUrl: S.String,
     gpuDisplayName: S.NullOr(S.String),
@@ -156,69 +162,78 @@ class DocgenQualityWorkerRunpodEvalPod extends S.Class<DocgenQualityWorkerRunpod
     podId: S.String,
     podName: S.String,
     templateId: S.NullOr(S.String),
-  },
-  $I.annote("DocgenQualityWorkerRunpodEvalPod", {
-    description: "Sanitized Runpod pod metadata for a worker eval run.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerRunpodEvalPod", {
+      description: "Sanitized Runpod pod metadata for a worker eval run.",
+    })
+  )
 ) {}
 
-class DocgenQualityWorkerRunpodEvalBootstrap extends S.Class<DocgenQualityWorkerRunpodEvalBootstrap>(
-  $I`DocgenQualityWorkerRunpodEvalBootstrap`
-)(
-  {
+class DocgenQualityWorkerRunpodEvalBootstrap extends S.Opaque<
+  DocgenQualityWorkerRunpodEvalBootstrap,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dockerStartCmdHash: S.String,
     model: S.String,
     portMappings: S.Array(S.String),
     readinessPath: S.String,
-  },
-  $I.annote("DocgenQualityWorkerRunpodEvalBootstrap", {
-    description: "Sanitized Ollama bootstrap metadata for the Runpod eval pod.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerRunpodEvalBootstrap", {
+      description: "Sanitized Ollama bootstrap metadata for the Runpod eval pod.",
+    })
+  )
 ) {}
 
-class DocgenQualityWorkerRunpodEvalCleanup extends S.Class<DocgenQualityWorkerRunpodEvalCleanup>(
-  $I`DocgenQualityWorkerRunpodEvalCleanup`
-)(
-  {
+class DocgenQualityWorkerRunpodEvalCleanup extends S.Opaque<
+  DocgenQualityWorkerRunpodEvalCleanup,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     deleteStatus: DocgenQualityWorkerRunpodEvalCleanupStatus,
     durationMs: S.Finite,
     error: S.NullOr(S.String),
     keepPod: S.Boolean,
     stopStatus: DocgenQualityWorkerRunpodEvalCleanupStatus,
-  },
-  $I.annote("DocgenQualityWorkerRunpodEvalCleanup", {
-    description: "Stop and delete outcome for the ephemeral Runpod eval pod.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerRunpodEvalCleanup", {
+      description: "Stop and delete outcome for the ephemeral Runpod eval pod.",
+    })
+  )
 ) {}
 
-class DocgenQualityWorkerRunpodEvalOtlp extends S.Class<DocgenQualityWorkerRunpodEvalOtlp>(
-  $I`DocgenQualityWorkerRunpodEvalOtlp`
-)(
-  {
+class DocgenQualityWorkerRunpodEvalOtlp extends S.Opaque<
+  DocgenQualityWorkerRunpodEvalOtlp,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseUrl: S.NullOr(S.String),
     error: S.NullOr(S.String),
     exportedSpans: S.Finite,
     project: S.String,
     serviceName: S.String,
     status: DocgenQualityWorkerRunpodEvalOtlpStatus,
-  },
-  $I.annote("DocgenQualityWorkerRunpodEvalOtlp", {
-    description: "Phoenix-compatible OTLP export summary for a Runpod worker eval.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerRunpodEvalOtlp", {
+      description: "Phoenix-compatible OTLP export summary for a Runpod worker eval.",
+    })
+  )
 ) {}
 
-class DocgenQualityWorkerRunpodEvalRuntime extends S.Class<DocgenQualityWorkerRunpodEvalRuntime>(
-  $I`DocgenQualityWorkerRunpodEvalRuntime`
-)(
-  {
+class DocgenQualityWorkerRunpodEvalRuntime extends S.Opaque<
+  DocgenQualityWorkerRunpodEvalRuntime,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cleanupDurationMs: S.Finite,
     provisionDurationMs: S.Finite,
     totalDurationMs: S.Finite,
     workerDurationMs: S.Finite,
-  },
-  $I.annote("DocgenQualityWorkerRunpodEvalRuntime", {
-    description: "Runtime measurements for Runpod worker eval orchestration.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerRunpodEvalRuntime", {
+      description: "Runtime measurements for Runpod worker eval orchestration.",
+    })
+  )
 ) {}
 
 /**
@@ -237,10 +252,11 @@ class DocgenQualityWorkerRunpodEvalRuntime extends S.Class<DocgenQualityWorkerRu
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityWorkerRunpodEvalReport extends S.Class<DocgenQualityWorkerRunpodEvalReport>(
-  $I`DocgenQualityWorkerRunpodEvalReport`
-)(
-  {
+export class DocgenQualityWorkerRunpodEvalReport extends S.Opaque<
+  DocgenQualityWorkerRunpodEvalReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal(QUALITY_WORKER_RUNPOD_EVAL_SCHEMA_VERSION),
     bootstrap: DocgenQualityWorkerRunpodEvalBootstrap,
     cleanup: DocgenQualityWorkerRunpodEvalCleanup,
@@ -256,10 +272,11 @@ export class DocgenQualityWorkerRunpodEvalReport extends S.Class<DocgenQualityWo
     sourceQualityReport: S.String,
     template: DocgenQualityWorkerRunpodEvalTemplate,
     workerEval: DocgenQualityWorkerEvalReport,
-  },
-  $I.annote("DocgenQualityWorkerRunpodEvalReport", {
-    description: "Runpod orchestration wrapper around a read-only JSDoc quality worker eval report.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerRunpodEvalReport", {
+      description: "Runpod orchestration wrapper around a read-only JSDoc quality worker eval report.",
+    })
+  )
 ) {}
 
 /**
@@ -281,10 +298,11 @@ export class DocgenQualityWorkerRunpodEvalReport extends S.Class<DocgenQualityWo
  * @category models
  * @since 0.0.0
  */
-export class RunDocgenQualityWorkerRunpodEvalOptions extends S.Class<RunDocgenQualityWorkerRunpodEvalOptions>(
-  $I`RunDocgenQualityWorkerRunpodEvalOptions`
-)(
-  {
+export class RunDocgenQualityWorkerRunpodEvalOptions extends S.Opaque<
+  RunDocgenQualityWorkerRunpodEvalOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     allow24GbFallback: S.optionalKey(S.Boolean),
     confirmRunpodEval: S.Boolean,
     gpuTypeIds: S.Array(S.String).pipe(S.optionalKey),
@@ -302,10 +320,11 @@ export class RunDocgenQualityWorkerRunpodEvalOptions extends S.Class<RunDocgenQu
     allowPublicTemplateSearch: S.optionalKey(S.Boolean),
     skipTemplateSearch: S.optionalKey(S.Boolean),
     templateId: S.optionalKey(S.String),
-  },
-  $I.annote("RunDocgenQualityWorkerRunpodEvalOptions", {
-    description: "Options used to create an ephemeral Runpod pod and execute a read-only worker eval.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunDocgenQualityWorkerRunpodEvalOptions", {
+      description: "Options used to create an ephemeral Runpod pod and execute a read-only worker eval.",
+    })
+  )
 ) {}
 
 type AcquiredRunpodPod = {
@@ -418,20 +437,28 @@ const gpuTypeIdsFor = ({
 
 const minRamPerGpuFor = (allow24GbFallback: boolean): number => (allow24GbFallback ? 24 : 48);
 
-class QualityWorkerRunpodEvalPodCreateInputOptions extends S.Class<QualityWorkerRunpodEvalPodCreateInputOptions>(
-  $I`QualityWorkerRunpodEvalPodCreateInputOptions`
-)(
-  {
+/**
+ * Input options for building a Runpod worker eval create-pod request.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class QualityWorkerRunpodEvalPodCreateInputOptions extends S.Opaque<
+  QualityWorkerRunpodEvalPodCreateInputOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     gpuTypeIds: S.Array(S.String),
     imageName: S.optionalKey(S.String),
     minRamPerGpuGb: S.Finite,
     model: S.String,
     podName: S.String,
     templateId: S.optionalKey(S.String),
-  },
-  $I.annote("QualityWorkerRunpodEvalPodCreateInputOptions", {
-    description: "Input options for building a Runpod worker eval create-pod request.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityWorkerRunpodEvalPodCreateInputOptions", {
+      description: "Input options for building a Runpod worker eval create-pod request.",
+    })
+  )
 ) {}
 
 /**
@@ -702,14 +729,16 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
   yield* Console.log(
     `docgen: creating Runpod pod ${podName} gpuTypeIds=${A.join(resolvedGpuTypeIds, ", ")} minRAMPerGPU=${minRamPerGpuGb}`
   );
-  const createInput = makeQualityWorkerRunpodEvalPodCreateInput({
-    gpuTypeIds: resolvedGpuTypeIds,
-    imageName: template.imageName,
-    minRamPerGpuGb,
-    model,
-    podName,
-    ...(template.templateId === null ? {} : { templateId: template.templateId }),
-  });
+  const createInput = makeQualityWorkerRunpodEvalPodCreateInput(
+    QualityWorkerRunpodEvalPodCreateInputOptions.make({
+      gpuTypeIds: resolvedGpuTypeIds,
+      imageName: template.imageName,
+      minRamPerGpuGb,
+      model,
+      podName,
+      ...(template.templateId === null ? {} : { templateId: template.templateId }),
+    })
+  );
   const bootstrapHash = yield* hashPublicIdentifier(A.join(createInput.dockerStartCmd ?? [], "\n"));
   const created = yield* runpod
     .createPod(CreatePodRequest.make({ body: createInput }))
@@ -1138,15 +1167,17 @@ export const runDocgenQualityWorkerRunpodEval = Effect.fn(
       });
 
       yield* Console.log("docgen: running read-only worker eval packets");
-      const workerEval = yield* analyzeDocgenQualityWorkerEval({
-        baseUrl: acquired.pod.codexBaseUrl,
-        model: options.model,
-        packetLimit: options.packetLimit ?? DEFAULT_RUNPOD_WORKER_PACKET_LIMIT,
-        provider: options.provider,
-        report: options.report,
-        scope: options.scope,
-        sourceQualityReport: options.sourceQualityReport,
-      });
+      const workerEval = yield* analyzeDocgenQualityWorkerEval(
+        AnalyzeDocgenQualityWorkerEvalOptions.make({
+          baseUrl: acquired.pod.codexBaseUrl,
+          model: options.model,
+          packetLimit: options.packetLimit ?? DEFAULT_RUNPOD_WORKER_PACKET_LIMIT,
+          provider: options.provider,
+          report: options.report,
+          scope: options.scope,
+          sourceQualityReport: options.sourceQualityReport,
+        })
+      );
 
       return {
         acquired,

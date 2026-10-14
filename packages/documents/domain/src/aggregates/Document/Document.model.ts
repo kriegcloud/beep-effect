@@ -192,8 +192,8 @@ export type DocumentContentDigest = typeof DocumentContentDigest.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export class Document extends S.Class<Document>($I`Document`)(
-  {
+export class Document extends S.Opaque<Document, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentDigest: DocumentContentDigest.annotateKey({
       description: "Deterministic content digest for the filed source bytes.",
     }),
@@ -206,8 +206,9 @@ export class Document extends S.Class<Document>($I`Document`)(
     vaultPath: ProjectedVaultPath.annotateKey({
       description: "Deterministic vault-relative materialization path.",
     }),
-  },
-  $I.annote("Document", {
-    description: "A document materialized into the workspace vault.",
-  })
+  }).pipe(
+    $I.annoteSchema("Document", {
+      description: "A document materialized into the workspace vault.",
+    })
+  )
 ) {}

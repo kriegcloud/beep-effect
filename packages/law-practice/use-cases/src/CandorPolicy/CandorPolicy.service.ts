@@ -101,7 +101,10 @@ const supersededEventIds = (group: ReadonlyArray<PatentCitationEvent>) =>
               (candidate) =>
                 candidate.id === ref.eventId &&
                 candidate.grounding.source.textDigest === ref.textDigest &&
-                sameIdentifiedPatentReference(event.reference, candidate.reference)
+                sameIdentifiedPatentReference(
+                  PatentReference.make(event.reference),
+                  PatentReference.make(candidate.reference)
+                )
             ),
             (target) => target.id
           )
@@ -266,7 +269,7 @@ export const makeCandorPolicy = (): CandorPolicyShape =>
         events,
         (event) =>
           encodeCitationLineageKey({
-            reference: event.reference,
+            reference: PatentReference.make(event.reference),
             sourceRef: event.grounding.source.sourceRef,
           }).pipe(Effect.map((key) => ({ key, event }))),
         { concurrency: 1 }

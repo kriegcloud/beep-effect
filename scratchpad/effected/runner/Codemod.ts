@@ -91,7 +91,7 @@ const isFunctionExport = (name: string): boolean => A.some(FUNCTION_EXPORTS, (ca
  * @category models
  * @since 0.0.0
  */
-export class ImportRewrite extends S.Class<ImportRewrite>($I`ImportRewrite`)(
+export class ImportRewrite extends S.Class<ImportRewrite, { readonly brand: unique symbol }>($I`ImportRewrite`)(
   {
     file: S.String,
     rewritten: S.Int,

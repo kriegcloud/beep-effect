@@ -13,7 +13,9 @@ export const countCanaries: {
   A.reduce(builders, 0, (count, build) => count + A.length(Str.split(text, build())) - 1)
 );
 
-class CanaryScanError extends S.TaggedError<CanaryScanError>()("CanaryScanError", { message: S.String }) {}
+class CanaryScanError extends S.TaggedError<CanaryScanError, { readonly brand: unique symbol }>()("CanaryScanError", {
+  message: S.String,
+}) {}
 const readSurface = (file: Bun.BunFile) =>
   Effect.tryPromise({
     try: () => file.text(),

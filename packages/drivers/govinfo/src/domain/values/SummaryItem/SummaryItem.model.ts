@@ -37,8 +37,8 @@ const $I = $GovinfoId.create("domain/values/SummaryItem/SummaryItem.model");
  * @category dtos
  * @since 0.0.0
  */
-export class SummaryItem extends S.Class<SummaryItem>($I`SummaryItem`)(
-  {
+export class SummaryItem extends S.Opaque<SummaryItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Short GovInfo collection code used in routes and search filters. */
     collectionCode: S.String.annotateKey({
       description: "Short GovInfo collection code used in routes and search filters.",
@@ -60,10 +60,11 @@ export class SummaryItem extends S.Class<SummaryItem>($I`SummaryItem`)(
         description: "Number of packages reported for the collection.",
       })
     ),
-  },
-  $I.annote("SummaryItem", {
-    description: "GovInfo collection summary row with collection identifiers and counts.",
-  })
+  }).pipe(
+    $I.annoteSchema("SummaryItem", {
+      description: "GovInfo collection summary row with collection identifiers and counts.",
+    })
+  )
 ) {}
 
 /**

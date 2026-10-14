@@ -14,7 +14,9 @@ import * as S from "effect/Schema";
 
 const $I = $UtilsId.create("NodeUrl");
 
-class NodeUrlUnavailableError extends S.TaggedError<NodeUrlUnavailableError>($I`NodeUrlUnavailableError`)(
+class NodeUrlUnavailableError extends S.TaggedError<NodeUrlUnavailableError, { readonly brand: unique symbol }>(
+  $I`NodeUrlUnavailableError`
+)(
   "NodeUrlUnavailableError",
   {
     module: S.Literal("node:url"),

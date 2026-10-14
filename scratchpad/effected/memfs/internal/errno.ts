@@ -169,7 +169,7 @@ export const fallbackErrnoForTag = Match.type<string>().pipe(
  * @category errors
  * @since 0.0.0
  */
-export class ErrnoException extends S.TaggedError<ErrnoException>($I`ErrnoException`)(
+export class ErrnoException extends S.TaggedError<ErrnoException, { readonly brand: unique symbol }>($I`ErrnoException`)(
  "ErrnoException",
  {
   code: ErrnoCode.pipe($I.annoteKey("ErrnoException.code", { description: "The filesystem errno code." })),
@@ -284,7 +284,7 @@ const nodeErrnos: Readonly<Record<ErrnoCode | "EIO", number | undefined>> = {
  * @category errors
  * @since 0.0.0
  */
-export class NodeErrno extends S.TaggedError<NodeErrno>($I`NodeErrno`)(
+export class NodeErrno extends S.TaggedError<NodeErrno, { readonly brand: unique symbol }>($I`NodeErrno`)(
  "NodeErrno",
  {
   message: S.String.pipe($I.annoteKey("NodeErrno.message", { description: "The Node-compatible error message." })),

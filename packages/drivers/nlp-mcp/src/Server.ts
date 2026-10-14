@@ -50,18 +50,19 @@ const $I = $NlpMcpId.create("Server");
  * @category models
  * @since 0.0.0
  */
-export class NlpMcpServerConfig extends S.Class<NlpMcpServerConfig>($I`NlpMcpServerConfig`)(
-  {
+export class NlpMcpServerConfig extends S.Opaque<NlpMcpServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({
       description: "Human-readable MCP server name advertised during stdio initialization.",
     }),
     version: S.NonEmptyString.annotateKey({
       description: "Semantic package or protocol-facing version advertised to MCP clients.",
     }),
-  },
-  $I.annote("NlpMcpServerConfig", {
-    description: "Configuration for the MCP server identity advertised to clients.",
-  })
+  }).pipe(
+    $I.annoteSchema("NlpMcpServerConfig", {
+      description: "Configuration for the MCP server identity advertised to clients.",
+    })
+  )
 ) {}
 
 /**
@@ -85,13 +86,13 @@ export class NlpMcpServerConfig extends S.Class<NlpMcpServerConfig>($I`NlpMcpSer
  *
  * ```ts
  * import * as Layer from "effect/Layer";
- * import { makeServerLayer } from "@beep/nlp-mcp/Server"
+ * import { makeServerLayer, NlpMcpServerConfig } from "@beep/nlp-mcp/Server"
  * import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem"
  * import * as NodePath from "@effect/platform-node/NodePath"
  * import * as NodeStdio from "@effect/platform-node/NodeStdio"
  * import { FetchHttpClient } from "effect/http"
  *
- * const server = makeServerLayer({ name: "beep-nlp", version: "0.0.0" }).pipe(
+ * const server = makeServerLayer(NlpMcpServerConfig.make({ name: "beep-nlp", version: "0.0.0" })).pipe(
  *   Layer.provide(NodeStdio.layer),
  *   Layer.provide(NodeFileSystem.layer),
  *   Layer.provide(NodePath.layer),

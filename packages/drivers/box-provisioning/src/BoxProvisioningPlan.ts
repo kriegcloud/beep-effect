@@ -63,15 +63,16 @@ export type BoxResourceKind = typeof BoxResourceKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxActionPrecondition extends S.Class<BoxActionPrecondition>($I`BoxActionPrecondition`)(
-  {
+export class BoxActionPrecondition extends S.Opaque<BoxActionPrecondition, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: LiteralKit(["absent", "present", "unchanged"]),
     providerId: S.OptionFromOptionalKey(BoxProviderId).pipe(S.withConstructorDefault(Effect.succeedNone)),
     etag: S.OptionFromOptionalKey(BoxProviderRevision).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BoxActionPrecondition", {
-    description: "Redacted resource presence and identity expected when an action is applied.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxActionPrecondition", {
+      description: "Redacted resource presence and identity expected when an action is applied.",
+    })
+  )
 ) {}
 
 /**
@@ -89,15 +90,15 @@ export class BoxActionPrecondition extends S.Class<BoxActionPrecondition>($I`Box
  * @category models
  * @since 0.0.0
  */
-export class BoxBlockedByEntitlement extends S.TaggedClass<BoxBlockedByEntitlement>($I`BoxBlockedByEntitlement`)(
-  "BlockedByEntitlement",
-  {
+export class BoxBlockedByEntitlement extends S.Opaque<BoxBlockedByEntitlement, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("BlockedByEntitlement", {
     entitlement: LiteralKit(["metadata", "retention"]),
     planName: BoxPlanName,
-  },
-  $I.annote("BoxBlockedByEntitlement", {
-    description: "Plan blocker identifying a Box subscription feature unavailable to the tenant.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxBlockedByEntitlement", {
+      description: "Plan blocker identifying a Box subscription feature unavailable to the tenant.",
+    })
+  )
 ) {}
 
 /**
@@ -115,15 +116,15 @@ export class BoxBlockedByEntitlement extends S.TaggedClass<BoxBlockedByEntitleme
  * @category models
  * @since 0.0.0
  */
-export class BoxBlockedByAmbiguity extends S.TaggedClass<BoxBlockedByAmbiguity>($I`BoxBlockedByAmbiguity`)(
-  "BlockedByAmbiguity",
-  {
+export class BoxBlockedByAmbiguity extends S.Opaque<BoxBlockedByAmbiguity, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("BlockedByAmbiguity", {
     matchKind: LiteralKit(["provider-equivalent-name-sibling", "folder-principal", "target-callback"]),
     candidateCount: S.Natural.check(S.isGreaterThan(1)),
-  },
-  $I.annote("BoxBlockedByAmbiguity", {
-    description: "Plan blocker for a live match with more than one candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxBlockedByAmbiguity", {
+      description: "Plan blocker for a live match with more than one candidate.",
+    })
+  )
 ) {}
 
 /**
@@ -141,9 +142,8 @@ export class BoxBlockedByAmbiguity extends S.TaggedClass<BoxBlockedByAmbiguity>(
  * @category models
  * @since 0.0.0
  */
-export class BoxBlockedByPolicy extends S.TaggedClass<BoxBlockedByPolicy>($I`BoxBlockedByPolicy`)(
-  "BlockedByPolicy",
-  {
+export class BoxBlockedByPolicy extends S.Opaque<BoxBlockedByPolicy, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("BlockedByPolicy", {
     policy: LiteralKit([
       "foreign-name-collision",
       "blocked-folder-dependency",
@@ -154,10 +154,11 @@ export class BoxBlockedByPolicy extends S.TaggedClass<BoxBlockedByPolicy>($I`Box
       "metadata-discovery-permission-denied",
       "retention-discovery-permission-denied",
     ]),
-  },
-  $I.annote("BoxBlockedByPolicy", {
-    description: "Plan blocker identifying a reconciler safety policy that forbids a mutation.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxBlockedByPolicy", {
+      description: "Plan blocker identifying a reconciler safety policy that forbids a mutation.",
+    })
+  )
 ) {}
 
 /**
@@ -225,10 +226,10 @@ const actionExampleFields = {
  * @category models
  * @since 0.0.0
  */
-export class BoxNoopAction extends S.TaggedClass<BoxNoopAction>($I`BoxNoopAction`)(
-  "Noop",
-  commonActionFields,
-  $I.annote("BoxNoopAction", { description: "No-op plan action for a desired resource already in sync." })
+export class BoxNoopAction extends S.Opaque<BoxNoopAction, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Noop", commonActionFields).pipe(
+    $I.annoteSchema("BoxNoopAction", { description: "No-op plan action for a desired resource already in sync." })
+  )
 ) {}
 
 /**
@@ -246,10 +247,10 @@ export class BoxNoopAction extends S.TaggedClass<BoxNoopAction>($I`BoxNoopAction
  * @category models
  * @since 0.0.0
  */
-export class BoxCreateAction extends S.TaggedClass<BoxCreateAction>($I`BoxCreateAction`)(
-  "Create",
-  commonActionFields,
-  $I.annote("BoxCreateAction", { description: "Create plan action for one missing desired Box resource." })
+export class BoxCreateAction extends S.Opaque<BoxCreateAction, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Create", commonActionFields).pipe(
+    $I.annoteSchema("BoxCreateAction", { description: "Create plan action for one missing desired Box resource." })
+  )
 ) {}
 
 /**
@@ -267,10 +268,10 @@ export class BoxCreateAction extends S.TaggedClass<BoxCreateAction>($I`BoxCreate
  * @category models
  * @since 0.0.0
  */
-export class BoxUpdateAction extends S.TaggedClass<BoxUpdateAction>($I`BoxUpdateAction`)(
-  "Update",
-  commonActionFields,
-  $I.annote("BoxUpdateAction", { description: "In-place update plan action for an owned Box resource." })
+export class BoxUpdateAction extends S.Opaque<BoxUpdateAction, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Update", commonActionFields).pipe(
+    $I.annoteSchema("BoxUpdateAction", { description: "In-place update plan action for an owned Box resource." })
+  )
 ) {}
 
 /**
@@ -288,10 +289,10 @@ export class BoxUpdateAction extends S.TaggedClass<BoxUpdateAction>($I`BoxUpdate
  * @category models
  * @since 0.0.0
  */
-export class BoxReplaceAction extends S.TaggedClass<BoxReplaceAction>($I`BoxReplaceAction`)(
-  "Replace",
-  commonActionFields,
-  $I.annote("BoxReplaceAction", { description: "Explicitly destructive replacement plan action." })
+export class BoxReplaceAction extends S.Opaque<BoxReplaceAction, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Replace", commonActionFields).pipe(
+    $I.annoteSchema("BoxReplaceAction", { description: "Explicitly destructive replacement plan action." })
+  )
 ) {}
 
 /**
@@ -309,10 +310,10 @@ export class BoxReplaceAction extends S.TaggedClass<BoxReplaceAction>($I`BoxRepl
  * @category models
  * @since 0.0.0
  */
-export class BoxDeleteAction extends S.TaggedClass<BoxDeleteAction>($I`BoxDeleteAction`)(
-  "Delete",
-  commonActionFields,
-  $I.annote("BoxDeleteAction", { description: "Explicitly destructive delete plan action." })
+export class BoxDeleteAction extends S.Opaque<BoxDeleteAction, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Delete", commonActionFields).pipe(
+    $I.annoteSchema("BoxDeleteAction", { description: "Explicitly destructive delete plan action." })
+  )
 ) {}
 
 /**
@@ -337,10 +338,10 @@ export class BoxDeleteAction extends S.TaggedClass<BoxDeleteAction>($I`BoxDelete
  * @category models
  * @since 0.0.0
  */
-export class BoxBlockedAction extends S.TaggedClass<BoxBlockedAction>($I`BoxBlockedAction`)(
-  "Blocked",
-  { ...commonActionFields, reason: BoxBlockReason },
-  $I.annote("BoxBlockedAction", { description: "Visible blocked plan action with a typed technical reason." })
+export class BoxBlockedAction extends S.Opaque<BoxBlockedAction, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Blocked", { ...commonActionFields, reason: BoxBlockReason }).pipe(
+    $I.annoteSchema("BoxBlockedAction", { description: "Visible blocked plan action with a typed technical reason." })
+  )
 ) {}
 
 /**
@@ -395,15 +396,16 @@ export type BoxPlanAction = typeof BoxPlanAction.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxForeignResource extends S.Class<BoxForeignResource>($I`BoxForeignResource`)(
-  {
+export class BoxForeignResource extends S.Opaque<BoxForeignResource, { readonly brand: unique symbol }>()(
+  S.Struct({
     resourceKind: BoxResourceKind,
     providerId: BoxProviderId,
     identityDigest: Sha256Hex,
-  },
-  $I.annote("BoxForeignResource", {
-    description: "Foreign live resource represented without its confidential name or callback.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxForeignResource", {
+      description: "Foreign live resource represented without its confidential name or callback.",
+    })
+  )
 ) {}
 
 /**
@@ -429,8 +431,8 @@ export class BoxForeignResource extends S.Class<BoxForeignResource>($I`BoxForeig
  * @category models
  * @since 0.0.0
  */
-export class BoxProvisioningPlan extends S.Class<BoxProvisioningPlan>($I`BoxProvisioningPlan`)(
-  {
+export class BoxProvisioningPlan extends S.Opaque<BoxProvisioningPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("box-provisioning-plan/v1").pipe(
       S.withConstructorDefault(Effect.succeed("box-provisioning-plan/v1"))
     ),
@@ -447,10 +449,11 @@ export class BoxProvisioningPlan extends S.Class<BoxProvisioningPlan>($I`BoxProv
     destructiveCount: S.Natural,
     declaredExternalCollaboratorCount: S.Natural,
     declaredExternalCollaboratorCreateCount: S.Natural,
-  },
-  $I.annote("BoxProvisioningPlan", {
-    description: "Redacted deterministic dry-run plan sealed by desired, live-state, and plan digests.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxProvisioningPlan", {
+      description: "Redacted deterministic dry-run plan sealed by desired, live-state, and plan digests.",
+    })
+  )
 ) {}
 
 /**

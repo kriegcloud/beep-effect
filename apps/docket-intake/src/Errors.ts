@@ -75,7 +75,10 @@ export const docketIntakeExitCode: (kind: DocketIntakeFailureKind) => number = D
  * @category errors
  * @since 0.0.0
  */
-export class DocketIntakeCommandError extends S.TaggedError<DocketIntakeCommandError>($I`DocketIntakeCommandError`)(
+export class DocketIntakeCommandError extends S.TaggedError<
+  DocketIntakeCommandError,
+  { readonly brand: unique symbol }
+>($I`DocketIntakeCommandError`)(
   "DocketIntakeCommandError",
   {
     kind: DocketIntakeFailureKind.annotateKey({ description: "Whether the command was refused, throttled or failed." }),

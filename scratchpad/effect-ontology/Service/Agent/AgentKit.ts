@@ -61,7 +61,7 @@ const agentInputErrorMissingDefault = A.empty<string>();
  * @category errors
  * @since 0.0.0
  */
-export class AgentInputError extends S.TaggedError<AgentInputError>($I`AgentInputError`)(
+export class AgentInputError extends S.TaggedError<AgentInputError, { readonly brand: unique symbol }>($I`AgentInputError`)(
   "AgentInputError",
   {
     taskId: S.NonEmptyString,

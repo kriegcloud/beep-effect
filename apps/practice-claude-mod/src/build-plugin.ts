@@ -41,7 +41,9 @@ const TopLevelFunctionVar = /^var (\w+) = (async \(|\(|function\b)/gm;
  * @category errors
  * @since 0.0.0
  */
-export class PluginBuildFailed extends S.TaggedError<PluginBuildFailed>($I`PluginBuildFailed`)(
+export class PluginBuildFailed extends S.TaggedError<PluginBuildFailed, { readonly brand: unique symbol }>(
+  $I`PluginBuildFailed`
+)(
   "PluginBuildFailed",
   { message: S.String },
   $I.annote("PluginBuildFailed", { description: "Bundling the plugin's hooks module failed." })
@@ -92,6 +94,8 @@ const program = Effect.gen(function* () {
     [
       "import {",
       "  configure,",
+      "  matterCommand,",
+      "  timeCommand,",
       "  practiceCommand,",
       "  registerCommands,",
       "  rememberAnswer,",
@@ -110,6 +114,8 @@ const program = Effect.gen(function* () {
       "    await rememberAnswer($)(e);",
       "    return next(e);",
       "  });",
+      '  on("command.run", { command: "matter" }, ($, e) => matterCommand($)(e.args));',
+      '  on("command.run", { command: "time" }, ($, e) => timeCommand($)(e.args));',
       '  on("command.run", { command: "right" }, ($, e) => verdictCommand($)("right", e.args));',
       '  on("command.run", { command: "wrong" }, ($, e) => verdictCommand($)("wrong", e.args));',
       '  on("command.run", { command: "partly" }, ($, e) => verdictCommand($)("partly", e.args));',
@@ -164,6 +170,15 @@ const program = Effect.gen(function* () {
     (name) => fs.copyFile(path.join(appRoot, "plugin-test", name), path.join(plugin, "test", name)),
     { discard: true }
   );
+
+  // Skills are plugin components discovered from their directories.
+  const skills = path.join(appRoot, "skills");
+  const pluginSkills = path.join(plugin, "skills");
+  yield* fs.makeDirectory(pluginSkills, { recursive: true });
+  const skillEntries = yield* fs.readDirectory(skills);
+  yield* Effect.forEach(skillEntries, (name) => fs.copy(path.join(skills, name), path.join(pluginSkills, name)), {
+    discard: true,
+  });
 
   const size = yield* fs.stat(hooksJs);
   yield* Effect.log(`built ${PluginName} ${PluginVersion}: hooks module ${size.size} bytes`);

@@ -13,15 +13,35 @@ import { FileFormatFamily, FileProcessingSkipReason } from "../Strategy/Strategy
 
 const $I = $FileProcessingId.create("Extraction");
 
-class TextSpanBase extends S.Class<TextSpanBase>($I`TextSpan`)(
-  {
+/**
+ * Extracted text span with byte or character offsets supplied by the engine.
+ *
+ * **Example** (Compare the unchecked base with the ordered span)
+ *
+ * ```ts
+ * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
+ * import { TextSpan, TextSpanBase } from "@beep/file-processing/Extraction"
+ *
+ * const reversed = { startOffset: 12, endOffset: 4, text: "claim 1" }
+ *
+ * console.log(Exit.isSuccess(S.decodeUnknownExit(TextSpanBase)(reversed))) // => true
+ * console.log(Exit.isSuccess(S.decodeUnknownExit(TextSpan)(reversed))) // => false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TextSpanBase extends S.Opaque<TextSpanBase, { readonly brand: unique symbol }>()(
+  S.Struct({
     endOffset: S.Natural,
     startOffset: S.Natural,
     text: S.String,
-  },
-  $I.annote("TextSpan", {
-    description: "Extracted text span with byte or character offsets supplied by the engine.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextSpan", {
+      description: "Extracted text span with byte or character offsets supplied by the engine.",
+    })
+  )
 ) {}
 
 /**
@@ -86,14 +106,15 @@ export type SourceProcessingStatus = typeof SourceProcessingStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class TextArtifactReference extends S.Class<TextArtifactReference>($I`TextArtifactReference`)(
-  {
+export class TextArtifactReference extends S.Opaque<TextArtifactReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifact: ArtifactReference,
     operationId: OperationId,
-  },
-  $I.annote("TextArtifactReference", {
-    description: "Reference to a text artifact emitted for one extraction operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextArtifactReference", {
+      description: "Reference to a text artifact emitted for one extraction operation.",
+    })
+  )
 ) {}
 
 /**
@@ -165,8 +186,8 @@ export type TextSpan = InstanceType<typeof TextSpanBase>;
  * @category models
  * @since 0.0.0
  */
-export class ExtractionResult extends S.Class<ExtractionResult>($I`ExtractionResult`)(
-  {
+export class ExtractionResult extends S.Opaque<ExtractionResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     engine: S.String,
     engineVersion: S.optionalKey(S.String),
     format: FileFormatFamily,
@@ -176,10 +197,11 @@ export class ExtractionResult extends S.Class<ExtractionResult>($I`ExtractionRes
     text: S.optionalKey(S.String),
     textArtifact: S.optionalKey(TextArtifactReference),
     warnings: S.Array(S.String),
-  },
-  $I.annote("ExtractionResult", {
-    description: "Runtime-neutral text and metadata extraction result.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractionResult", {
+      description: "Runtime-neutral text and metadata extraction result.",
+    })
+  )
 ) {}
 
 /**
@@ -206,17 +228,18 @@ export class ExtractionResult extends S.Class<ExtractionResult>($I`ExtractionRes
  * @category models
  * @since 0.0.0
  */
-export class ArchiveExportResult extends S.Class<ArchiveExportResult>($I`ArchiveExportResult`)(
-  {
+export class ArchiveExportResult extends S.Opaque<ArchiveExportResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     children: S.Array(ArtifactReference),
     engine: S.String,
     operationId: OperationId,
     sourceArtifactId: ArtifactId,
     warnings: S.Array(S.String),
-  },
-  $I.annote("ArchiveExportResult", {
-    description: "Runtime-neutral child artifact export result for archive-like source files.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveExportResult", {
+      description: "Runtime-neutral child artifact export result for archive-like source files.",
+    })
+  )
 ) {}
 
 /**
@@ -260,8 +283,11 @@ export class ArchiveExportResult extends S.Class<ArchiveExportResult>($I`Archive
  * @category models
  * @since 0.0.0
  */
-export class ExtractedProcessFileResult extends S.Class<ExtractedProcessFileResult>($I`ExtractedProcessFileResult`)(
-  {
+export class ExtractedProcessFileResult extends S.Opaque<
+  ExtractedProcessFileResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     engine: S.String,
     extraction: ExtractionResult,
     format: FileFormatFamily,
@@ -269,10 +295,11 @@ export class ExtractedProcessFileResult extends S.Class<ExtractedProcessFileResu
     resultKind: S.Literal("extracted"),
     sourceArtifactId: ArtifactId,
     warnings: S.Array(S.String),
-  },
-  $I.annote("ExtractedProcessFileResult", {
-    description: "Full source processing result for text or metadata extraction.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractedProcessFileResult", {
+      description: "Full source processing result for text or metadata extraction.",
+    })
+  )
 ) {}
 
 /**
@@ -314,10 +341,11 @@ export class ExtractedProcessFileResult extends S.Class<ExtractedProcessFileResu
  * @category models
  * @since 0.0.0
  */
-export class ArchiveExportProcessFileResult extends S.Class<ArchiveExportProcessFileResult>(
-  $I`ArchiveExportProcessFileResult`
-)(
-  {
+export class ArchiveExportProcessFileResult extends S.Opaque<
+  ArchiveExportProcessFileResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archiveExport: ArchiveExportResult,
     engine: S.String,
     format: FileFormatFamily,
@@ -325,10 +353,11 @@ export class ArchiveExportProcessFileResult extends S.Class<ArchiveExportProcess
     resultKind: S.Literal("archive-exported"),
     sourceArtifactId: ArtifactId,
     warnings: S.Array(S.String),
-  },
-  $I.annote("ArchiveExportProcessFileResult", {
-    description: "Full source processing result for archive child export.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveExportProcessFileResult", {
+      description: "Full source processing result for archive child export.",
+    })
+  )
 ) {}
 
 /**
@@ -364,8 +393,8 @@ export class ArchiveExportProcessFileResult extends S.Class<ArchiveExportProcess
  * @category models
  * @since 0.0.0
  */
-export class SkippedProcessFileResult extends S.Class<SkippedProcessFileResult>($I`SkippedProcessFileResult`)(
-  {
+export class SkippedProcessFileResult extends S.Opaque<SkippedProcessFileResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     engine: S.String,
     format: FileFormatFamily,
     operationId: OperationId,
@@ -373,10 +402,11 @@ export class SkippedProcessFileResult extends S.Class<SkippedProcessFileResult>(
     skipReason: FileProcessingSkipReason,
     sourceArtifactId: ArtifactId,
     warnings: S.Array(S.String),
-  },
-  $I.annote("SkippedProcessFileResult", {
-    description: "Full source processing result for intentional skips.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkippedProcessFileResult", {
+      description: "Full source processing result for intentional skips.",
+    })
+  )
 ) {}
 
 /**

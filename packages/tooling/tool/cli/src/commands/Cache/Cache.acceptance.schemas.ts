@@ -26,11 +26,15 @@ const $I = $RepoCliId.create("commands/Cache/Cache.acceptance.schemas");
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerTrustLocations extends S.Class<CacheProducerTrustLocations>($I`CacheProducerTrustLocations`)(
-  { stable: S.NonEmptyString, canary: S.NonEmptyString },
-  $I.annote("CacheProducerTrustLocations", {
-    description: "Operator-selected private stores for the two independently pinned channels.",
-  })
+export class CacheProducerTrustLocations extends S.Opaque<
+  CacheProducerTrustLocations,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ stable: S.NonEmptyString, canary: S.NonEmptyString }).pipe(
+    $I.annoteSchema("CacheProducerTrustLocations", {
+      description: "Operator-selected private stores for the two independently pinned channels.",
+    })
+  )
 ) {}
 
 /**
@@ -45,11 +49,15 @@ export class CacheProducerTrustLocations extends S.Class<CacheProducerTrustLocat
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerImportRequest extends S.Class<CacheProducerImportRequest>($I`CacheProducerImportRequest`)(
-  { observations: S.Record(CacheClientChannel, CacheProducerObservation) },
-  $I.annote("CacheProducerImportRequest", {
-    description: "Stable and canary bundles and envelopes without caller-selected policy or trust roots.",
-  })
+export class CacheProducerImportRequest extends S.Opaque<
+  CacheProducerImportRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ observations: S.Record(CacheClientChannel, CacheProducerObservation) }).pipe(
+    $I.annoteSchema("CacheProducerImportRequest", {
+      description: "Stable and canary bundles and envelopes without caller-selected policy or trust roots.",
+    })
+  )
 ) {}
 
 /**
@@ -68,16 +76,20 @@ export class CacheProducerImportRequest extends S.Class<CacheProducerImportReque
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerImportPreview extends S.Class<CacheProducerImportPreview>($I`CacheProducerImportPreview`)(
-  {
+export class CacheProducerImportPreview extends S.Opaque<
+  CacheProducerImportPreview,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     authority: S.tag("authenticated-import-preview-only"),
     contract: CacheTaskContract,
     fragments: S.Array(CacheProducerEvidenceFragment),
     failures: S.Array(S.NonEmptyString),
-  },
-  $I.annote("CacheProducerImportPreview", {
-    description: "Derived evidence and unfulfilled policy obligations; no persistence or activation authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProducerImportPreview", {
+      description: "Derived evidence and unfulfilled policy obligations; no persistence or activation authority.",
+    })
+  )
 ) {}
 
 /**
@@ -92,13 +104,15 @@ export class CacheProducerImportPreview extends S.Class<CacheProducerImportPrevi
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerAcceptanceReference extends S.Class<CacheProducerAcceptanceReference>(
-  $I`CacheProducerAcceptanceReference`
-)(
-  { schemaVersion: S.tag("cache-producer-acceptance-reference/v1"), sha256: Sha256Hex },
-  $I.annote("CacheProducerAcceptanceReference", {
-    description: "Canonical request-byte identity; a hash is not authentication or qualification authority.",
-  })
+export class CacheProducerAcceptanceReference extends S.Opaque<
+  CacheProducerAcceptanceReference,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ schemaVersion: S.tag("cache-producer-acceptance-reference/v1"), sha256: Sha256Hex }).pipe(
+    $I.annoteSchema("CacheProducerAcceptanceReference", {
+      description: "Canonical request-byte identity; a hash is not authentication or qualification authority.",
+    })
+  )
 ) {}
 
 /**
@@ -113,11 +127,13 @@ export class CacheProducerAcceptanceReference extends S.Class<CacheProducerAccep
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerStoreConfiguration extends S.Class<CacheProducerStoreConfiguration>(
-  $I`CacheProducerStoreConfiguration`
-)(
-  { directory: S.NonEmptyString, trust: CacheProducerTrustLocations },
-  $I.annote("CacheProducerStoreConfiguration", {
-    description: "Operator configuration loaded outside report authority; private paths are verified at use.",
-  })
+export class CacheProducerStoreConfiguration extends S.Opaque<
+  CacheProducerStoreConfiguration,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ directory: S.NonEmptyString, trust: CacheProducerTrustLocations }).pipe(
+    $I.annoteSchema("CacheProducerStoreConfiguration", {
+      description: "Operator configuration loaded outside report authority; private paths are verified at use.",
+    })
+  )
 ) {}

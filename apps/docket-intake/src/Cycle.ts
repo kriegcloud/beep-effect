@@ -53,12 +53,11 @@ const $I = $DocketIntakeId.create("Cycle");
  * @category models
  * @since 0.0.0
  */
-export class DocketCycleReport extends S.Class<DocketCycleReport>($I`DocketCycleReport`)(
-  {
+export class DocketCycleReport extends S.Opaque<DocketCycleReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: DocketRunId.annotateKey({ description: "Id of the run; `undo --run` takes it back." }),
     ...DocketPollReport.fields,
-  },
-  $I.annote("DocketCycleReport", { description: "Run id and counts of one docket intake poll cycle." })
+  }).pipe($I.annoteSchema("DocketCycleReport", { description: "Run id and counts of one docket intake poll cycle." }))
 ) {}
 
 /**
