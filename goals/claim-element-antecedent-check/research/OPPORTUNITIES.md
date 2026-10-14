@@ -23,3 +23,21 @@ They are redacted: no secrets, no absolute home paths, no session ids.
     status only and never the value.
   - Running that probe when a goal that depends on the source graduates.
   - Regenerating an ODP key needs the operator's verified USPTO account, which is a human step.
+
+## 2026-10-14 — Junie lane died on an exhausted JetBrains balance the accounts screen did not show
+
+- **Doing:** running P2a as a bounded Junie lane (`junie --model=claude-opus-5-5 --effort=medium`).
+  The doctrine prefers the JetBrains pool while `beep accounts status` shows credit left in the
+  cycle.
+- **Evidence:**
+  - `beep accounts status` showed JetBrains AI at "23% left" with three days to reset.
+  - Seven minutes and about 40K Opus output tokens into the run, Junie exited 1. Its JSON `errors`
+    held "Insufficient account balance. All tokens in your account have been spent."
+  - The text printed was "Failed to build 'issue.md.junie_standalone'".
+  - No files changed.
+- **Cost:** one lane launch. The work moved to the Claude child route.
+- **Would have prevented it:**
+  - The accounts poller should read the JetBrains balance at launch time, or mark how old its
+    reading is.
+  - Lane launchers should map Junie's "Insufficient account balance" error to a confirmed quota
+    failure, so the fallback is automatic and the summary line is not misleading.
