@@ -138,3 +138,11 @@ workspace/Beep source queries. Reference clones now have equivalent HTTPS
 origins for future agent-free updates. Persistent workload resource guards,
 aggregate freshness policy and the Alchemy parsing failure remain explicit
 follow-up; deep ingestion was not run.
+
+Resource-guard follow-up: [installed guard receipt](../history/2026-10-14-graft-resource-guards.md)
+records a persistent shared slice and PATH wrapper. Sanitized-environment native
+checking, actual cgroup limits and unavailable-runtime refusal pass. The worker's
+systemd uses OOMPolicy=kill; MemoryOOMGroup assignment was rejected before the
+first probe ran. MCP server lifetime is preserved but protocol requests remain
+unqualified. Alchemy parsing and aggregate coverage remain open; explicit native
+entrypoints need inventory before claiming every workload uses the guard.

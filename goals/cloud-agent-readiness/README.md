@@ -97,6 +97,8 @@ qualified by the beep-worker receipts.
   fresh profile comparison, corrected SSH launch isolation and remaining gaps.
 - [Graft/reference qualification](./history/2026-10-14-graft-reference-qualification.md):
   eleven reference clones, structural navigation and explicit resource/coverage limits.
+- [Graft resource guards](./history/2026-10-14-graft-resource-guards.md):
+  persistent PATH wrapper, shared cgroup budget and bounded-execution verification.
 - [Original cloud probe](./research/2026-10-01-container-probe.md): historical
   container restrictions; it does not describe the current Linux worker.
 
