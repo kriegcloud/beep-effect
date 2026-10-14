@@ -428,7 +428,7 @@ const ENV_PROBLEM_TEXT: Record<M365EnvProblem, string> = {
  * @category errors
  * @since 0.0.0
  */
-export class M365EnvError extends S.TaggedError<M365EnvError>($I`M365EnvError`)(
+export class M365EnvError extends S.TaggedError<M365EnvError, { readonly brand: unique symbol }>($I`M365EnvError`)(
   "M365EnvError",
   {
     setting: S.String.annotateKey({ description: "Name of the environment variable at fault; never its value." }),

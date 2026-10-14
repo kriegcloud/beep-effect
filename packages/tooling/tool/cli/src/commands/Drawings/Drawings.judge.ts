@@ -47,8 +47,8 @@ const PHOTO_EXTENSIONS = HashSet.fromIterable([".jpg", ".jpeg", ".png", ".webp"]
  * @category models
  * @since 0.0.0
  */
-export class DrawingJudgeFile extends S.Class<DrawingJudgeFile>($I`DrawingJudgeFile`)(
-  {
+export class DrawingJudgeFile extends S.Opaque<DrawingJudgeFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: JudgeEvidenceKind.pick(["sheet", "screenshot"]).annotateKey({
       description: "`sheet` for a figure, `screenshot` for a photo.",
     }),

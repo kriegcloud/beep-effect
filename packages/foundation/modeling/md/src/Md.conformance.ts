@@ -33,30 +33,51 @@ import {
   MarkdownProfileIds,
 } from "./internal/conformance/Md.profile-registry.ts";
 import {
+  DuplicateFootnoteDefinitionIssue,
+  EmptyListIssue,
   formatMarkdownConformanceIssue,
+  GfmDisallowedRawHtmlIssue,
+  GfmTableAlignmentWidthIssue,
+  GfmTableHeaderIssue,
+  GfmTableRowWidthIssue,
   inspectMarkdownDocumentLosslessly,
   LosslessMarkdownConformanceReport,
   MarkdownConformanceIssue,
   MarkdownConformanceProfile,
   MarkdownExtensionNodeTag,
   markdownConformanceIssues,
+  NestedLinkIssue,
+  OrderedListStartIssue,
+  UndefinedFootnoteReferenceIssue,
+  UnsupportedNodeIssue,
 } from "./internal/conformance/Md.semantic-inspector.ts";
 import { Document } from "./Md.model.ts";
 
 /**
- * Public semantic Markdown conformance schemas, diagnostics, and inspection helpers.
+ * Public semantic Markdown conformance schemas, diagnostics, and inspection helpers,
+ * including every member schema of the {@link MarkdownConformanceIssue} union.
  *
  * @category validation
  * @since 0.0.0
  */
 export {
+  DuplicateFootnoteDefinitionIssue,
+  EmptyListIssue,
   formatMarkdownConformanceIssue,
+  GfmDisallowedRawHtmlIssue,
+  GfmTableAlignmentWidthIssue,
+  GfmTableHeaderIssue,
+  GfmTableRowWidthIssue,
   inspectMarkdownDocumentLosslessly,
   LosslessMarkdownConformanceReport,
   MarkdownConformanceIssue,
   MarkdownConformanceProfile,
   MarkdownExtensionNodeTag,
   markdownConformanceIssues,
+  NestedLinkIssue,
+  OrderedListStartIssue,
+  UndefinedFootnoteReferenceIssue,
+  UnsupportedNodeIssue,
 };
 
 const $I = $MdId.create("Md.conformance");

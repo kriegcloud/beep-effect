@@ -110,11 +110,12 @@ export class ProcessStatus extends S.Opaque<ProcessStatus, { readonly brand: uni
     parent: ProcessParentPid,
     command: S.String,
     contextSwitches: ProcessContextSwitches.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProcessStatus", {
-    description:
-      "A process id with the parent pid, command name, and context-switch count its /proc status file reports.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessStatus", {
+      description:
+        "A process id with the parent pid, command name, and context-switch count its /proc status file reports.",
+    })
+  )
 ) {}
 
 const statusCount = (pattern: RegExp, text: string): O.Option<number> =>
@@ -206,17 +207,18 @@ const ProcessGroupId = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
  * @category models
  * @since 0.0.0
  */
-export class ProcessJobControl extends S.Class<ProcessJobControl>($I`ProcessJobControl`)(
-  {
+export class ProcessJobControl extends S.Opaque<ProcessJobControl, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: ProcessPid,
     processGroup: ProcessGroupId,
     terminal: S.Int,
     foregroundGroup: S.Int,
-  },
-  $I.annote("ProcessJobControl", {
-    description:
-      "A process id with its process group, controlling terminal device (0 for none), and that terminal's foreground group (-1 for none).",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessJobControl", {
+      description:
+        "A process id with its process group, controlling terminal device (0 for none), and that terminal's foreground group (-1 for none).",
+    })
+  )
 ) {}
 
 const decodeProcessJobControl = S.decodeUnknownOption(ProcessJobControl);
@@ -428,11 +430,12 @@ export class ProcessTableEntry extends S.Opaque<ProcessTableEntry, { readonly br
     terminal: S.optionalKey(S.Int),
     foregroundGroup: S.optionalKey(S.Int),
     contextSwitches: S.optionalKey(ProcessContextSwitches),
-  },
-  $I.annote("ProcessTableEntry", {
-    description:
-      "A fake process-table row: pid, parent, command name, the resolved paths it holds, and optional job control.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessTableEntry", {
+      description:
+        "A fake process-table row: pid, parent, command name, the resolved paths it holds, and optional job control.",
+    })
+  )
 ) {}
 
 const entryIndex = (entries: ReadonlyArray<ProcessTableEntry>): HashMap.HashMap<number, ProcessTableEntry> =>

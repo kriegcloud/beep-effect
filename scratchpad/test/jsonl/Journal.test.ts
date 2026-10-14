@@ -420,8 +420,8 @@ for (const [name, data, seedRound, encodedRound] of composedBoxCases) {
   );
 }
 
-class AsNumber extends S.Class<AsNumber>($I`AsNumber`)({ n: S.Finite, keep: S.String }) {}
-class AsString extends S.Class<AsString>($I`AsString`)({ n: S.FiniteFromString, keep: S.String, extra: S.String }) {}
+class AsNumber extends S.Class<AsNumber, { readonly brand: unique symbol }>($I`AsNumber`)({ n: S.Finite, keep: S.String }) {}
+class AsString extends S.Class<AsString, { readonly brand: unique symbol }>($I`AsString`)({ n: S.FiniteFromString, keep: S.String, extra: S.String }) {}
 for (const [name, data] of [
   ["number first", S.Union([AsNumber, AsString])],
   ["string first", S.Union([AsString, AsNumber])],

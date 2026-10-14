@@ -284,3 +284,57 @@ as classes across 4 runs).
   `EditTurnRequest`, and every class converted with a composer but a string ID:
   `$I/<ClassName>` instead of the bare string); JSON Schema `$defs` keys for
   converted classes drop the `Encoded` suffix.
+
+## Post-merge integration pass (HEAD fb660d9a11: 93091da833 + origin/main 9b433fe738, `-X theirs`)
+
+Logs live in the session scratchpad (not committed); each step is appended here as it finishes.
+
+1. **Install + re-run.** `bun install --frozen-lockfile` (5 packages added). `run.ts` on the
+   merged tree converted 74 `S.Class` and 2 `S.TaggedClass` to Opaque and branded 11 more
+   (24 files), but its Biome step reported a parse error in
+   `pdf-tools/src/PdfTools.models.ts`: the `-X theirs` merge had already spliced main's old
+   `S.Class` tail (`}, $I.annote(...)) {}`) onto the lane's Opaque head of
+   `SvgToPdfRequest`, and the rewrite landed on that broken span. A three-way `git merge-file`
+   over the 156 TS files both sides touched found 17 with conflicting hunks (Atlas.ts 4,
+   technical-drawing Geometry/Validation/Sheet/Manifest/FigureSet, ProcessTable,
+   Worktree/Ocr/Sweep/Skills schemas, Drawings.judge, ai-sync schemas, MailTagging
+   correspondents, effected GitBranch and packedInstallPlan, PdfTools). Those 17 were reset to
+   main's version and the codemod re-run (D7): 113 more `S.Class` converted, 5 branded.
+   `run.ts --check`: 0 changes.
+2. **Fix-up.** `turbo run check --continue`: 24 errors (technical-drawing `ModelSpec` x3,
+   repo-cli Drawings intake/review, md `MarkdownConformanceError` TS2527). `fixup.ts`: 8
+   fixed, 10 Md conformance issue classes exported for TS2527, 3 manual. Manual:
+   `Drawings.review.ts` `decodeJson`/`readJson`/`checked` take `S.ConstraintCodec<A, I>`
+   (inferring `A` from `S.Codec<A, I>` picks an Opaque's struct type through `Rebuild`), and
+   the guard builds `ReviewRound.make(status.round)` (`ReviewStatus.round` is an
+   `annotateKey`-ed field, so its brand is dropped). Test fix-up: 7 `ReviewRound.make` wraps in
+   `drawings-review.test.ts`.
+   `beep-heavy bun run check`: **exit 0** (266/266). `lint:package-test-typecheck`: **exit 0**
+   (current=1 baseline=1 introduced=0).
+3. **Lints.** `lint schema-first`: the merge took main's side of the inventory and dropped 7
+   rows (6 openclaw tag-field classes, runpod `JsonSchema`), and 2 `ProcessTable` advisory rows
+   went stale by a line shift. Re-synced with the inventory flow (reasons from
+   `keep-class.jsonc` and the codemod's tag-field/fields-unknown classes; advisory reasons
+   carried by file+symbol+ruleId from the lane, merged and main inventories): **exit 0**, 0
+   candidate rows, missing=0, stale=0. `lint effect-vitest`: **exit 0** (introduced=0).
+4. **Cheap gates.** `yeet verify --tier cheap-gates --detach` (job c860ecd6): red on
+   `quality:knip` and `fallow:audit`.
+   - knip: md switched to `tsc-rs` on main, whose declaration emit raised TS2527 on
+     `MarkdownConformanceError`. The fix-up exported the 10 private issue classes in
+     `internal/conformance/Md.semantic-inspector.ts`, which knip then flagged as unused
+     exports. Fixed by re-exporting them from the public `Md.conformance.ts` export block
+     (they are the members of the already-public `MarkdownConformanceIssue` union):
+     `quality knip` ok, current=42 baseline=42.
+   - fallow audit: 1 "introduced" complexity finding,
+     `Goals/Doctor.ts printNonFatalFindings`. origin/main moved 3 commits past the merged
+     9b433fe738 (now 514a850903), and #1688/#1699 rewrote that function on main; the branch
+     still carries the 9b433fe738 version, so a diff against the moved `origin/main` reads
+     main's old code as introduced. Attribution: stale base, not this change.
+     `quality fallow audit --check --base 9b433fe738`: **ok, 0 introduced** (140 inherited).
+   Re-run (job da754c28, `--base 9b433fe738`, which the fallow lane does not honour): every
+   lane green except the same `fallow:audit` stale-base finding. Clears once `origin/main` is
+   merged again.
+5. **Final re-check after the knip fix.** `run.ts --check`: 0. `beep-heavy bun run check`:
+   **exit 0** (266/266). `lint:package-test-typecheck`: **exit 0**. `docgen:local` refuses the
+   bounded run (docgen tooling changed on main: `Doctest.errors.ts`), so the full proof ran:
+   `bun run docgen` **140/140**.

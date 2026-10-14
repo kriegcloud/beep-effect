@@ -210,15 +210,16 @@ export class LabelFontRecord extends S.Opaque<LabelFontRecord, { readonly brand:
  * @category models
  * @since 0.0.0
  */
-export class FontPin extends S.Class<FontPin>($I`FontPin`)(
-  {
+export class FontPin extends S.Opaque<FontPin, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: S.NonEmptyString.annotateKey({ description: "Font family a text label requested." }),
     file: S.NonEmptyString.annotateKey({ description: "Absolute path of the font file the family resolved to." }),
     sha256: Sha256Hex.annotateKey({ description: "SHA-256 of the font file bytes embedded in the PDF." }),
-  },
-  $I.annote("FontPin", {
-    description: "Requested family, resolved file, and SHA-256 of a font embedded for text labels.",
-  })
+  }).pipe(
+    $I.annoteSchema("FontPin", {
+      description: "Requested family, resolved file, and SHA-256 of a font embedded for text labels.",
+    })
+  )
 ) {}
 
 /**
@@ -296,9 +297,10 @@ export class RenderManifest extends S.Opaque<RenderManifest, { readonly brand: u
           "Fonts resolved and embedded for text labels, with their files and hashes. Empty when every label is outlined.",
       })
     ),
-  },
-  $I.annote("RenderManifest", {
-    description:
-      "Spec hash, engine, model facts, scale, figures, omission proofs, PDF hash, validation, recorded approver, effective sheet options, label font files, and embedded label fonts of a render.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderManifest", {
+      description:
+        "Spec hash, engine, model facts, scale, figures, omission proofs, PDF hash, validation, recorded approver, effective sheet options, label font files, and embedded label fonts of a render.",
+    })
+  )
 ) {}

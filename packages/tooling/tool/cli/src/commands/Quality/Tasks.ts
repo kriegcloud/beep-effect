@@ -3016,17 +3016,18 @@ const listRootEslintCacheKeyFiles = Effect.fnUntraced(function* (repoRoot: strin
 const $I = $RepoCliId.create("commands/Quality/Tasks");
 
 // Installed package metadata is the version authority even when a plugin has no meta.
-class EslintInputPackage extends S.Class<EslintInputPackage>($I`EslintInputPackage`)(
-  {
+class EslintInputPackage extends S.Opaque<EslintInputPackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     version: S.String,
     dependencies: S.optionalKey(S.Record(S.String, S.String)),
     peerDependencies: S.optionalKey(S.Record(S.String, S.String)),
     optionalDependencies: S.optionalKey(S.Record(S.String, S.String)),
-  },
-  $I.annote("EslintInputPackage", {
-    description: "Installed ESLint input package identity and runtime dependency declarations.",
-  })
+  }).pipe(
+    $I.annoteSchema("EslintInputPackage", {
+      description: "Installed ESLint input package identity and runtime dependency declarations.",
+    })
+  )
 ) {}
 
 // Nested module-format markers are not package identities. A failed decode means

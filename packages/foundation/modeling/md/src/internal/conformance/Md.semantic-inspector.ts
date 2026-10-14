@@ -119,7 +119,7 @@ const MarkdownConformancePath = S.Array(DocumentSafetyPathSegment).pipe(
  * @category models
  * @since 0.0.0
  */
-class NestedLinkIssue extends S.Opaque<NestedLinkIssue, { readonly brand: unique symbol }>()(
+export class NestedLinkIssue extends S.Opaque<NestedLinkIssue, { readonly brand: unique symbol }>()(
   S.TaggedStruct("NestedLink", {
     invariantId: S.tag("md.link.nested-links"),
     path: MarkdownConformancePath,
@@ -136,7 +136,7 @@ class NestedLinkIssue extends S.Opaque<NestedLinkIssue, { readonly brand: unique
  * @category models
  * @since 0.0.0
  */
-class UnsupportedNodeIssue extends S.Opaque<UnsupportedNodeIssue, { readonly brand: unique symbol }>()(
+export class UnsupportedNodeIssue extends S.Opaque<UnsupportedNodeIssue, { readonly brand: unique symbol }>()(
   S.TaggedStruct("UnsupportedNode", {
     invariantId: S.tag("md.extensions.nonstandard-members"),
     path: MarkdownConformancePath,
@@ -155,7 +155,7 @@ class UnsupportedNodeIssue extends S.Opaque<UnsupportedNodeIssue, { readonly bra
  * @category models
  * @since 0.0.0
  */
-class EmptyListIssue extends S.Opaque<EmptyListIssue, { readonly brand: unique symbol }>()(
+export class EmptyListIssue extends S.Opaque<EmptyListIssue, { readonly brand: unique symbol }>()(
   S.TaggedStruct("EmptyList", {
     invariantId: S.tag("md.list.nonempty"),
     path: MarkdownConformancePath,
@@ -173,7 +173,7 @@ class EmptyListIssue extends S.Opaque<EmptyListIssue, { readonly brand: unique s
  * @category models
  * @since 0.0.0
  */
-class OrderedListStartIssue extends S.Opaque<OrderedListStartIssue, { readonly brand: unique symbol }>()(
+export class OrderedListStartIssue extends S.Opaque<OrderedListStartIssue, { readonly brand: unique symbol }>()(
   S.TaggedStruct("OrderedListStart", {
     invariantId: S.tag("md.list.ordered-start-range"),
     path: MarkdownConformancePath,
@@ -191,7 +191,7 @@ class OrderedListStartIssue extends S.Opaque<OrderedListStartIssue, { readonly b
  * @category models
  * @since 0.0.0
  */
-class GfmTableHeaderIssue extends S.Opaque<GfmTableHeaderIssue, { readonly brand: unique symbol }>()(
+export class GfmTableHeaderIssue extends S.Opaque<GfmTableHeaderIssue, { readonly brand: unique symbol }>()(
   S.TaggedStruct("GfmTableHeader", {
     invariantId: S.tag("md.gfm.table-header"),
     path: MarkdownConformancePath,
@@ -208,7 +208,7 @@ class GfmTableHeaderIssue extends S.Opaque<GfmTableHeaderIssue, { readonly brand
  * @category models
  * @since 0.0.0
  */
-class GfmTableRowWidthIssue extends S.Opaque<GfmTableRowWidthIssue, { readonly brand: unique symbol }>()(
+export class GfmTableRowWidthIssue extends S.Opaque<GfmTableRowWidthIssue, { readonly brand: unique symbol }>()(
   S.TaggedStruct("GfmTableRowWidth", {
     invariantId: S.tag("md.gfm.table-rectangularity"),
     path: MarkdownConformancePath,
@@ -227,7 +227,10 @@ class GfmTableRowWidthIssue extends S.Opaque<GfmTableRowWidthIssue, { readonly b
  * @category models
  * @since 0.0.0
  */
-class GfmTableAlignmentWidthIssue extends S.Opaque<GfmTableAlignmentWidthIssue, { readonly brand: unique symbol }>()(
+export class GfmTableAlignmentWidthIssue extends S.Opaque<
+  GfmTableAlignmentWidthIssue,
+  { readonly brand: unique symbol }
+>()(
   S.TaggedStruct("GfmTableAlignmentWidth", {
     invariantId: S.tag("md.gfm.table-alignment-width"),
     path: MarkdownConformancePath,
@@ -246,7 +249,7 @@ class GfmTableAlignmentWidthIssue extends S.Opaque<GfmTableAlignmentWidthIssue, 
  * @category models
  * @since 0.0.0
  */
-class GfmDisallowedRawHtmlIssue extends S.Opaque<GfmDisallowedRawHtmlIssue, { readonly brand: unique symbol }>()(
+export class GfmDisallowedRawHtmlIssue extends S.Opaque<GfmDisallowedRawHtmlIssue, { readonly brand: unique symbol }>()(
   S.TaggedStruct("GfmDisallowedRawHtml", {
     invariantId: S.tag("md.gfm.disallowed-raw-html"),
     path: MarkdownConformancePath,
@@ -263,7 +266,7 @@ class GfmDisallowedRawHtmlIssue extends S.Opaque<GfmDisallowedRawHtmlIssue, { re
  * @category models
  * @since 0.0.0
  */
-class DuplicateFootnoteDefinitionIssue extends S.Opaque<
+export class DuplicateFootnoteDefinitionIssue extends S.Opaque<
   DuplicateFootnoteDefinitionIssue,
   { readonly brand: unique symbol }
 >()(
@@ -284,7 +287,7 @@ class DuplicateFootnoteDefinitionIssue extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-class UndefinedFootnoteReferenceIssue extends S.Opaque<
+export class UndefinedFootnoteReferenceIssue extends S.Opaque<
   UndefinedFootnoteReferenceIssue,
   { readonly brand: unique symbol }
 >()(

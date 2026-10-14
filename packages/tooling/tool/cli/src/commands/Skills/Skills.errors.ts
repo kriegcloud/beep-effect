@@ -191,7 +191,9 @@ export type SkillInstallStateReason = typeof SkillInstallStateReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SkillInstallStateError extends S.TaggedError<SkillInstallStateError>($I`SkillInstallStateError`)(
+export class SkillInstallStateError extends S.TaggedError<SkillInstallStateError, { readonly brand: unique symbol }>(
+  $I`SkillInstallStateError`
+)(
   "SkillInstallStateError",
   {
     skill: S.String,
@@ -272,7 +274,10 @@ export type SkillUpstreamContentErrorReason = typeof SkillUpstreamContentErrorRe
  * @category errors
  * @since 0.0.0
  */
-export class SkillUpstreamContentError extends S.TaggedError<SkillUpstreamContentError>($I`SkillUpstreamContentError`)(
+export class SkillUpstreamContentError extends S.TaggedError<
+  SkillUpstreamContentError,
+  { readonly brand: unique symbol }
+>($I`SkillUpstreamContentError`)(
   "SkillUpstreamContentError",
   {
     skill: S.String,
@@ -312,7 +317,9 @@ export class SkillUpstreamContentError extends S.TaggedError<SkillUpstreamConten
  * @category errors
  * @since 0.0.0
  */
-export class SkillFrontmatterError extends S.TaggedError<SkillFrontmatterError>($I`SkillFrontmatterError`)(
+export class SkillFrontmatterError extends S.TaggedError<SkillFrontmatterError, { readonly brand: unique symbol }>(
+  $I`SkillFrontmatterError`
+)(
   "SkillFrontmatterError",
   {
     message: S.String,

@@ -428,14 +428,15 @@ export class SkillUpstreamContent extends S.Opaque<SkillUpstreamContent, { reado
  * @category models
  * @since 0.0.0
  */
-export class SkillPathHistory extends S.Class<SkillPathHistory>($I`SkillPathHistory`)(
-  {
+export class SkillPathHistory extends S.Opaque<SkillPathHistory, { readonly brand: unique symbol }>()(
+  S.Struct({
     revisions: S.NonEmptyArray(SkillGitRevision),
     truncated: S.Boolean,
-  },
-  $I.annote("SkillPathHistory", {
-    description: "Bounded newest-first commits touching a skill's tree path, with a truncation flag.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillPathHistory", {
+      description: "Bounded newest-first commits touching a skill's tree path, with a truncation flag.",
+    })
+  )
 ) {}
 
 /**

@@ -448,11 +448,12 @@ export class WorktreeInvokerExemption extends S.Opaque<WorktreeInvokerExemption,
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("WorktreeInvokerExemption", {
-    description:
-      "Exemption the archive fence grants the invoker: its own ancestry, the subtree of the session process a harness marker proves, and, for a lane retiring itself, an idle desktop Terminal panel shell.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeInvokerExemption", {
+      description:
+        "Exemption the archive fence grants the invoker: its own ancestry, the subtree of the session process a harness marker proves, and, for a lane retiring itself, an idle desktop Terminal panel shell.",
+    })
+  )
 ) {}
 
 /**
@@ -625,10 +626,11 @@ export class WorktreeRemovalReceipt extends S.Opaque<WorktreeRemovalReceipt, { r
       S.withConstructorDefault(Effect.succeed(A.empty<ProcessPid>())),
       S.withDecodingDefaultKey(Effect.succeed(A.empty<ProcessPid>()))
     ),
-  },
-  $I.annote("WorktreeRemovalReceipt", {
-    description: "Completed worktree removal receipt with optional preserved residue manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeRemovalReceipt", {
+      description: "Completed worktree removal receipt with optional preserved residue manifest.",
+    })
+  )
 ) {}
 
 type PorcelainAccumulator = {

@@ -395,10 +395,11 @@ export class Part extends S.Opaque<Part, { readonly brand: unique symbol }>()(
           "How the part's visible edges are drawn: solid, or broken for unclaimed subject matter (37 CFR 1.152). Defaults to solid.",
       })
     ),
-  },
-  $I.annote("Part", {
-    description: "One solid: fused `add` primitives minus `subtract` primitives, drawn in solid or broken lines.",
-  })
+  }).pipe(
+    $I.annoteSchema("Part", {
+      description: "One solid: fused `add` primitives minus `subtract` primitives, drawn in solid or broken lines.",
+    })
+  )
 ) {}
 
 const LengthUnitBase = LiteralKit(["mm", "in"]);
@@ -601,10 +602,11 @@ export class EdgeSet extends S.Opaque<EdgeSet, { readonly brand: unique symbol }
           "Visible edges of broken-line parts (unclaimed subject matter), drawn dashed; empty when no part is broken.",
       })
     ),
-  },
-  $I.annote("EdgeSet", {
-    description: "Canonically ordered visible, hidden, shading, and broken-line projected segments of one view.",
-  })
+  }).pipe(
+    $I.annoteSchema("EdgeSet", {
+      description: "Canonically ordered visible, hidden, shading, and broken-line projected segments of one view.",
+    })
+  )
 ) {}
 
 const ExposureThreshold = S.Finite.check(
@@ -728,8 +730,9 @@ export class ModelSummary extends S.Opaque<ModelSummary, { readonly brand: uniqu
           "Pairs of parts whose common volume exceeds the kernel tolerance; parts that only touch do not count. Defaults to 0.",
       })
     ),
-  },
-  $I.annote("ModelSummary", {
-    description: "Bounding box, volume, topology counts, and part-overlap count of a built model.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelSummary", {
+      description: "Bounding box, volume, topology counts, and part-overlap count of a built model.",
+    })
+  )
 ) {}

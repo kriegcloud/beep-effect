@@ -105,11 +105,12 @@ export class RenderRequest extends S.Opaque<RenderRequest, { readonly brand: uni
           "Whether to render a model whose parts interpenetrate. Defaults to false: overlapping solids double-count volume and confuse hidden-line removal, so the render is refused.",
       })
     ),
-  },
-  $I.annote("RenderRequest", {
-    description:
-      "Spec path, output directory, sheet options, validation and shading switches, and the part-overlap override of a render.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderRequest", {
+      description:
+        "Spec path, output directory, sheet options, validation and shading switches, and the part-overlap override of a render.",
+    })
+  )
 ) {}
 
 /**
@@ -365,7 +366,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       Effect.mapError((cause) => DrawingError.fromUnknown("spec", `Invalid figure-set spec "${specPath}".`, cause))
     );
     const info = yield* engine.info;
-    const model = yield* engine.summarize(spec.model);
+    const model = yield* engine.summarize(ModelSpec.make(spec.model));
     if (model.partOverlaps > 0 && !request.allowPartOverlaps) {
       return yield* DrawingError.make({
         reason: "geometry",

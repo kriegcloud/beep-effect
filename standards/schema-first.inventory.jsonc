@@ -524,6 +524,62 @@
       "reason": "Internal kernel carrier of replicad WASM shape handles (one Shape3D plus its line style); not data, never encoded or persisted."
     },
     {
+      "file": "packages/drivers/openclaw/src/Openclaw.models.ts",
+      "symbol": "OpenclawConfigInvalid",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/Openclaw.models.ts",
+      "symbol": "OpenclawConfigValid",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/Openclaw.models.ts",
+      "symbol": "OpenclawSecretsReloadDegraded",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/Openclaw.models.ts",
+      "symbol": "OpenclawSecretsReloaded",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/OpenclawIntent.models.ts",
+      "symbol": "OpenclawProviderApiKeyPlaceholder",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/openclaw/src/OpenclawIntent.models.ts",
+      "symbol": "OpenclawProviderApiKeySecretRef",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/openclaw",
+      "reason": "Plain data with a non-literal _tag field (_tag: S.tag(...).annotateKey(...)) that the schema-opaque-default codemod cannot promote to S.TaggedStruct (keep reason tag-field), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over S.Struct/S.TaggedStruct."
+    },
+    {
+      "file": "packages/drivers/runpod/scripts/operations.renderer.ts",
+      "symbol": "JsonSchema",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/runpod",
+      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Self-recursive schema: S.suspend((): S.Codec<JsonSchema, ...>) needs the class Self type (an Opaque cannot satisfy it without retyping ~15 renderer functions)."
+    },
+    {
       "file": "packages/drivers/wink/src/Wink.service.ts",
       "symbol": "WinkEngineRuntimeState",
       "kind": "exported-type-literal",
@@ -705,7 +761,7 @@
       "kind": "unbranded-schema-class",
       "status": "exception",
       "owner": "@beep/chalk",
-      "reason": "Keep-as-class with a structural brand (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); Opaque make copies nested fields and a nominal brand rejects the original plain-object state (chalk tests: level validation and propagation across child builders). Follow-up: model the shared builder state outside the schema so it can be branded."
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
@@ -721,7 +777,7 @@
       "kind": "unbranded-schema-class",
       "status": "exception",
       "owner": "@beep/chalk",
-      "reason": "Keep-as-class with a structural brand (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); Opaque make copies nested fields and a nominal brand rejects the original plain-object state (chalk tests: level validation and propagation across child builders). Follow-up: model the shared builder state outside the schema so it can be branded."
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
@@ -737,7 +793,7 @@
       "kind": "unbranded-schema-class",
       "status": "exception",
       "owner": "@beep/chalk",
-      "reason": "Keep-as-class with a structural brand (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); Opaque make copies nested fields and a nominal brand rejects the original plain-object state (chalk tests: level validation and propagation across child builders). Follow-up: model the shared builder state outside the schema so it can be branded."
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
@@ -753,7 +809,7 @@
       "kind": "unbranded-schema-class",
       "status": "exception",
       "owner": "@beep/chalk",
-      "reason": "Keep-as-class with a structural brand (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); Opaque make copies nested fields and a nominal brand rejects the original plain-object state (chalk tests: level validation and propagation across child builders). Follow-up: model the shared builder state outside the schema so it can be branded."
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
@@ -769,7 +825,7 @@
       "kind": "unbranded-schema-class",
       "status": "exception",
       "owner": "@beep/chalk",
-      "reason": "Keep-as-class with a structural brand (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); Opaque make copies nested fields and a nominal brand rejects the original plain-object state (chalk tests: level validation and propagation across child builders). Follow-up: model the shared builder state outside the schema so it can be branded."
+      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "packages/foundation/capability/file-processing/src/PageOcr/PageOcr.service.ts",
@@ -2261,7 +2317,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 485,
+      "line": 488,
       "owner": "@beep/repo-cli",
       "reason": "Test service factory consumes already modeled ProcessTableEntry rows and returns filesystem-compatible Effect operations; its output is a live service implementation, not a serialized data boundary."
     },
@@ -2271,7 +2327,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 541,
+      "line": 544,
       "owner": "@beep/repo-cli",
       "reason": "Test service adapter accepts a live ProcessTableShape implementation and returns closures that preserve its attachment operations while substituting schema-modeled lineage rows."
     },

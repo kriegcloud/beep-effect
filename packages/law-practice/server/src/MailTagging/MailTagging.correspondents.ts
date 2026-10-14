@@ -95,10 +95,11 @@ class AddressContactRow extends S.Opaque<AddressContactRow, { readonly brand: un
     address: S.String,
     ...PracticeKgCorrespondentContact.fields,
     isPracticeAddress: S.Boolean,
-  },
-  $I.annote("AddressContactRow", {
-    description: "One contact that owns one address, as contact_addresses lists it.",
-  })
+  }).pipe(
+    $I.annoteSchema("AddressContactRow", {
+      description: "One contact that owns one address, as contact_addresses lists it.",
+    })
+  )
 ) {}
 
 class AddressLinkRow extends S.Opaque<AddressLinkRow, { readonly brand: unique symbol }>()(

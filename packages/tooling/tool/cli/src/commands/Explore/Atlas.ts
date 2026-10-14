@@ -169,13 +169,14 @@ export type ExplorationProjectionAuthority = typeof ExplorationProjectionAuthori
  * @category models
  * @since 0.0.0
  */
-export class ExplorationManifestLinks extends S.Class<ExplorationManifestLinks>($I`ExplorationManifestLinks`)(
-  {
+export class ExplorationManifestLinks extends S.Opaque<ExplorationManifestLinks, { readonly brand: unique symbol }>()(
+  S.Struct({
     goals: S.Array(S.String),
-  },
-  $I.annote("ExplorationManifestLinks", {
-    description: "Goal packet links recorded by an exploration manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationManifestLinks", {
+      description: "Goal packet links recorded by an exploration manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -199,18 +200,19 @@ export class ExplorationManifestLinks extends S.Class<ExplorationManifestLinks>(
  * @category models
  * @since 0.0.0
  */
-export class ExplorationManifestEntry extends S.Class<ExplorationManifestEntry>($I`ExplorationManifestEntry`)(
-  {
+export class ExplorationManifestEntry extends S.Opaque<ExplorationManifestEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: PacketSlug,
     title: S.NonEmptyString,
     status: ExplorationStatus,
     stage: ExplorationStage,
     updated: S.NonEmptyString,
     links: S.optionalKey(ExplorationManifestLinks),
-  },
-  $I.annote("ExplorationManifestEntry", {
-    description: "Manifest adoption fields and navigation metadata consumed by the exploration projector.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationManifestEntry", {
+      description: "Manifest adoption fields and navigation metadata consumed by the exploration projector.",
+    })
+  )
 ) {}
 
 /**
@@ -239,8 +241,8 @@ export class ExplorationManifestEntry extends S.Class<ExplorationManifestEntry>(
  * @category models
  * @since 0.0.0
  */
-export class ExplorationManifest extends S.Class<ExplorationManifest>($I`ExplorationManifest`)(
-  {
+export class ExplorationManifest extends S.Opaque<ExplorationManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("exploration-manifest/v1"),
     exploration: ExplorationManifestEntry,
   }).pipe(
@@ -326,16 +328,7 @@ export class ExplorationAtlasRow extends S.Opaque<ExplorationAtlasRow, { readonl
   )
 ) {}
 
-/**
- * Existing and deterministic projected bytes for one exploration README.
- *
- * @category models
- * @since 0.0.0
- */
-export class ExplorationReadmeProjection extends S.Opaque<
-  ExplorationReadmeProjection,
-  { readonly brand: unique symbol }
->()(
+class ExplorationReadmeProjection extends S.Opaque<ExplorationReadmeProjection, { readonly brand: unique symbol }>()(
   S.Struct({ path: S.String, existing: S.String, projected: S.String }).pipe(
     $I.annoteSchema("ExplorationReadmeProjection", {
       description: "Existing and deterministic projected bytes for one exploration README.",
@@ -343,16 +336,7 @@ export class ExplorationReadmeProjection extends S.Opaque<
   )
 ) {}
 
-/**
- * Fail-closed reason one exploration cannot be projected from its declared authority.
- *
- * @category models
- * @since 0.0.0
- */
-export class ExplorationProjectionIssue extends S.Opaque<
-  ExplorationProjectionIssue,
-  { readonly brand: unique symbol }
->()(
+class ExplorationProjectionIssue extends S.Opaque<ExplorationProjectionIssue, { readonly brand: unique symbol }>()(
   S.Struct({ slug: S.String, path: S.String, detail: S.String }).pipe(
     $I.annoteSchema("ExplorationProjectionIssue", {
       description: "Fail-closed reason one exploration cannot be projected from its declared authority.",

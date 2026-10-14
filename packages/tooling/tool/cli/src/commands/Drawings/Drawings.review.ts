@@ -49,6 +49,7 @@ import {
   ReviewInventory,
   ReviewPageRef,
   ReviewRound,
+  ReviewRoundLocation,
   ReviewStatus,
   SheetCandidate,
 } from "./Drawings.review.schemas.ts";
@@ -57,7 +58,6 @@ import type {
   ReviewIngestRequest,
   ReviewOpenRequest,
   ReviewPlanRequest,
-  ReviewRoundLocation,
 } from "./Drawings.review.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Drawings/Drawings.review");
@@ -173,11 +173,11 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
   };
 
   const decodeJson =
-    <A, I>(schema: S.Codec<A, I>, file: string, what: string) =>
+    <A, I>(schema: S.ConstraintCodec<A, I>, file: string, what: string) =>
     (text: string) =>
       S.decodeEffect(S.fromJsonString(schema))(text).pipe(Effect.mapError(fail(`"${file}" is not a valid ${what}.`)));
 
-  const readJson = <A, I>(schema: S.Codec<A, I>, file: string, what: string) =>
+  const readJson = <A, I>(schema: S.ConstraintCodec<A, I>, file: string, what: string) =>
     fs
       .readFileString(file)
       .pipe(Effect.mapError(fail(`Could not read ${what} "${file}".`)), Effect.flatMap(decodeJson(schema, file, what)));
@@ -246,7 +246,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
   ) {
     const record = yield* readRound(roundDir, round);
     const checked = Effect.fnUntraced(function* <A, I>(
-      schema: S.Codec<A, I>,
+      schema: S.ConstraintCodec<A, I>,
       name: string,
       what: string,
       recorded: O.Option<Sha256Hex>
@@ -271,7 +271,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
   });
 
   const open = Effect.fn("DrawingReview.open")(function* (request: ReviewOpenRequest) {
-    const { roundDir } = yield* roundDirOf(request.location);
+    const { roundDir } = yield* roundDirOf(ReviewRoundLocation.make(request.location));
     const roundFile = path.join(roundDir, "round.json");
     if (yield* fs.exists(roundFile).pipe(Effect.orElseSucceed(() => false))) {
       return yield* refuse(`Review round ${request.location.round} is already open at "${roundDir}".`);
@@ -354,7 +354,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
   });
 
   const ingest = Effect.fn("DrawingReview.ingest")(function* (request: ReviewIngestRequest) {
-    const { root, roundDir } = yield* roundDirOf(request.location);
+    const { root, roundDir } = yield* roundDirOf(ReviewRoundLocation.make(request.location));
     // Ingest rewrites intake.json and inventory.json, so it reads round.json only.
     const round = yield* readRound(roundDir, request.location.round);
     if (round.status !== "open" && round.status !== "ingested") {
@@ -431,7 +431,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
   });
 
   const plan = Effect.fn("DrawingReview.plan")(function* (request: ReviewPlanRequest) {
-    const { roundDir } = yield* roundDirOf(request.location);
+    const { roundDir } = yield* roundDirOf(ReviewRoundLocation.make(request.location));
     const current = yield* readStatus(roundDir, request.location.round, false);
     const round = current.round;
     if (round.status !== "ingested" && round.status !== "planned") {
@@ -547,7 +547,10 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
         Effect.flatMap((exists) =>
           exists
             ? Effect.map(readStatus(roundDir, 0, true), (status) =>
-                O.some({ round: status.round, findings: O.map(status.inventory, (inventory) => inventory.findings) })
+                O.some({
+                  round: ReviewRound.make(status.round),
+                  findings: O.map(status.inventory, (inventory) => inventory.findings),
+                })
               )
             : Effect.succeedNone
         )

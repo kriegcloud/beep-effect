@@ -500,41 +500,6 @@ export class LabelStyle extends S.Opaque<LabelStyle, { readonly brand: unique sy
           "Font family a `text` label requests, for example `Arial`. Absent, the typeface's metric family: `Arial` for sans, `Times New Roman` for serif.",
       })
     ),
-  }).check(
-    S.makeFilter((style) => labelCapHeightCm(style) >= MIN_LETTER_HEIGHT_CM, {
-      identifier: $I`LabelStyleCapHeightCheck`,
-      title: "Label Cap Height",
-      description: "37 CFR 1.84(p)(3) requires lettering at least 0.32 cm high.",
-      message: "Expected a label size whose cap height is at least 0.32 cm",
-    }),
-    S.makeFilter((style) => style.typeface !== "stroke" || O.isNone(style.fontFile), {
-      identifier: $I`LabelStyleFontFileCheck`,
-      title: "Label Font File Typeface",
-      description: "Only outlined typefaces read a font file.",
-      message: "Expected no font file on a stroke label",
-    }),
-    S.makeFilter((style) => style.render === "outline" || style.typeface !== "stroke", {
-      identifier: $I`LabelStyleTextTypefaceCheck`,
-      title: "Label Text Typeface",
-      description: "A text label is set in a font, so it needs the sans or serif typeface.",
-      message: "Expected the sans or serif typeface on a text label",
-    }),
-    S.makeFilter((style) => style.render === "outline" || O.isNone(style.fontFile), {
-      identifier: $I`LabelStyleTextFontFileCheck`,
-      title: "Label Text Font File",
-      description: "A text label takes its font from the sheet's font directory, not from a font file.",
-      message: "Expected no font file on a text label",
-    }),
-    S.makeFilter((style) => style.render === "text" || O.isNone(style.fontFamily), {
-      identifier: $I`LabelStyleFontFamilyCheck`,
-      title: "Label Font Family",
-      description: "Only a text label requests a font family.",
-      message: "Expected no font family on an outline label",
-    })
-  ),
-  $I.annote("LabelStyle", {
-    description:
-      "Typeface, point size, optional operator font file, render route, and requested font family of one sheet label.",
   })
     .check(
       S.makeFilter((style) => labelCapHeightCm(style) >= MIN_LETTER_HEIGHT_CM, {
@@ -548,11 +513,30 @@ export class LabelStyle extends S.Opaque<LabelStyle, { readonly brand: unique sy
         title: "Label Font File Typeface",
         description: "Only outlined typefaces read a font file.",
         message: "Expected no font file on a stroke label",
+      }),
+      S.makeFilter((style) => style.render === "outline" || style.typeface !== "stroke", {
+        identifier: $I`LabelStyleTextTypefaceCheck`,
+        title: "Label Text Typeface",
+        description: "A text label is set in a font, so it needs the sans or serif typeface.",
+        message: "Expected the sans or serif typeface on a text label",
+      }),
+      S.makeFilter((style) => style.render === "outline" || O.isNone(style.fontFile), {
+        identifier: $I`LabelStyleTextFontFileCheck`,
+        title: "Label Text Font File",
+        description: "A text label takes its font from the sheet's font directory, not from a font file.",
+        message: "Expected no font file on a text label",
+      }),
+      S.makeFilter((style) => style.render === "text" || O.isNone(style.fontFamily), {
+        identifier: $I`LabelStyleFontFamilyCheck`,
+        title: "Label Font Family",
+        description: "Only a text label requests a font family.",
+        message: "Expected no font family on an outline label",
       })
     )
     .pipe(
       $I.annoteSchema("LabelStyle", {
-        description: "Typeface, point size, and optional operator font file of one sheet label.",
+        description:
+          "Typeface, point size, optional operator font file, render route, and requested font family of one sheet label.",
       })
     )
 ) {}
@@ -638,14 +622,15 @@ export class SheetLabelFaces extends S.Opaque<SheetLabelFaces, { readonly brand:
  * @category models
  * @since 0.0.0
  */
-export class LabelFontAlias extends S.Class<LabelFontAlias>($I`LabelFontAlias`)(
-  {
+export class LabelFontAlias extends S.Opaque<LabelFontAlias, { readonly brand: unique symbol }>()(
+  S.Struct({
     requested: S.NonEmptyString.annotateKey({ description: "Family name the SVG `<text>` element requests." }),
     family: S.NonEmptyString.annotateKey({ description: "Family name recorded in the resolved font file." }),
-  },
-  $I.annote("LabelFontAlias", {
-    description: "A requested label font family and the family name of the font file it resolved to.",
-  })
+  }).pipe(
+    $I.annoteSchema("LabelFontAlias", {
+      description: "A requested label font family and the family name of the font file it resolved to.",
+    })
+  )
 ) {}
 
 /**
@@ -673,14 +658,15 @@ export class LabelFontAlias extends S.Class<LabelFontAlias>($I`LabelFontAlias`)(
  * @category models
  * @since 0.0.0
  */
-export class SheetFonts extends S.Class<SheetFonts>($I`SheetFonts`)(
-  {
+export class SheetFonts extends S.Opaque<SheetFonts, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: AbsolutePath.annotateKey({ description: "The only directory the converter reads fonts from." }),
     families: S.Array(LabelFontAlias).annotateKey({ description: "Requested families and their resolved names." }),
-  },
-  $I.annote("SheetFonts", {
-    description: "Font directory and family bindings a PDF converter uses for text labels.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetFonts", {
+      description: "Font directory and family bindings a PDF converter uses for text labels.",
+    })
+  )
 ) {}
 
 /**
@@ -880,9 +866,10 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
           "Gap between dashes of broken (unclaimed) lines, in mm on the sheet, measured before the round caps. Defaults to 1.5.",
       })
     ),
-  },
-  $I.annote("SheetOptions", {
-    description:
-      "Page format, margin standard, stroke and shading widths, shading pitch range, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetOptions", {
+      description:
+        "Page format, margin standard, stroke and shading widths, shading pitch range, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
+    })
+  )
 ) {}

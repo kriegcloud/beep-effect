@@ -454,8 +454,8 @@ export type ClaudeCodeSkillShell = typeof ClaudeCodeSkillShell.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class AgentSkillFrontmatter extends S.Class<AgentSkillFrontmatter>($I`AgentSkillFrontmatter`)(
-  {
+export class AgentSkillFrontmatter extends S.Opaque<AgentSkillFrontmatter, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: AgentSkillName,
     description: AgentSkillDescription,
     license: S.optionalKey(S.String),
@@ -476,11 +476,12 @@ export class AgentSkillFrontmatter extends S.Class<AgentSkillFrontmatter>($I`Age
     hooks: S.optionalKey(S.Record(S.String, S.Unknown)),
     paths: S.optionalKey(AgentSkillStringList),
     shell: S.optionalKey(ClaudeCodeSkillShell),
-  },
-  $I.annote("AgentSkillFrontmatter", {
-    description:
-      "SKILL.md frontmatter: the Agent Skills specification fields shared by Claude Code, Codex, Grok Build, and Junie, plus Claude Code's native extension keys.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentSkillFrontmatter", {
+      description:
+        "SKILL.md frontmatter: the Agent Skills specification fields shared by Claude Code, Codex, Grok Build, and Junie, plus Claude Code's native extension keys.",
+    })
+  )
 ) {
   static readonly normalize = (frontmatter: AgentSkillFrontmatter): AgentSkillFrontmatter =>
     AgentSkillFrontmatter.make({

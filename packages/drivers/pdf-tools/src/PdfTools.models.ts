@@ -167,14 +167,15 @@ const AbsoluteDirectory = S.NonEmptyString.check(
  * @category models
  * @since 0.0.0
  */
-export class FontFamilyAlias extends S.Class<FontFamilyAlias>($I`FontFamilyAlias`)(
-  {
+export class FontFamilyAlias extends S.Opaque<FontFamilyAlias, { readonly brand: unique symbol }>()(
+  S.Struct({
     requested: S.NonEmptyString.annotateKey({ description: "Family name an SVG `font-family` requests." }),
     family: S.NonEmptyString.annotateKey({ description: "Family name of the font file in the pinned directory." }),
-  },
-  $I.annote("FontFamilyAlias", {
-    description: "A requested font family and the pinned family it is bound to.",
-  })
+  }).pipe(
+    $I.annoteSchema("FontFamilyAlias", {
+      description: "A requested font family and the pinned family it is bound to.",
+    })
+  )
 ) {}
 
 /**
@@ -205,14 +206,15 @@ export class FontFamilyAlias extends S.Class<FontFamilyAlias>($I`FontFamilyAlias
  * @category models
  * @since 0.0.0
  */
-export class PinnedFonts extends S.Class<PinnedFonts>($I`PinnedFonts`)(
-  {
+export class PinnedFonts extends S.Opaque<PinnedFonts, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: AbsoluteDirectory.annotateKey({ description: "The only directory fonts are read from." }),
     families: S.Array(FontFamilyAlias).annotateKey({ description: "Requested families and their bindings." }),
-  },
-  $I.annote("PinnedFonts", {
-    description: "Font directory and family bindings an SVG to PDF conversion is pinned to.",
-  })
+  }).pipe(
+    $I.annoteSchema("PinnedFonts", {
+      description: "Font directory and family bindings an SVG to PDF conversion is pinned to.",
+    })
+  )
 ) {}
 
 /**
@@ -234,14 +236,15 @@ export class PinnedFonts extends S.Class<PinnedFonts>($I`PinnedFonts`)(
  * @category models
  * @since 0.0.0
  */
-export class PinnedFontconfigRequest extends S.Class<PinnedFontconfigRequest>($I`PinnedFontconfigRequest`)(
-  {
+export class PinnedFontconfigRequest extends S.Opaque<PinnedFontconfigRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     fonts: PinnedFonts.annotateKey({ description: "The font directory and family bindings to pin." }),
     cacheDirectory: AbsoluteDirectory.annotateKey({ description: "Where fontconfig keeps its cache for this run." }),
-  },
-  $I.annote("PinnedFontconfigRequest", {
-    description: "Pinned fonts and the cache directory a fontconfig file is written from.",
-  })
+  }).pipe(
+    $I.annoteSchema("PinnedFontconfigRequest", {
+      description: "Pinned fonts and the cache directory a fontconfig file is written from.",
+    })
+  )
 ) {}
 
 /**
@@ -293,10 +296,11 @@ export class SvgToPdfRequest extends S.Opaque<SvgToPdfRequest, { readonly brand:
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Font directory and bindings for `<text>`. Absent, the host fontconfig is used." })
     ),
-  },
-  $I.annote("SvgToPdfRequest", {
-    description: "SVG pages to convert into one PDF with a fixed version, creation date, and optional pinned fonts.",
-  })
+  }).pipe(
+    $I.annoteSchema("SvgToPdfRequest", {
+      description: "SVG pages to convert into one PDF with a fixed version, creation date, and optional pinned fonts.",
+    })
+  )
 ) {}
 
 /**
@@ -364,8 +368,8 @@ export class PageSize extends S.Opaque<PageSize, { readonly brand: unique symbol
  * @category models
  * @since 0.0.0
  */
-export class PdfFont extends S.Opaque<PdfFont, { readonly brand: unique symbol }>()(
-  S.Struct({
+export class PdfFont extends S.Class<PdfFont, { readonly brand: unique symbol }>($I`PdfFont`)(
+  {
     name: S.String.annotateKey({ description: "BaseFont name, possibly subset-prefixed." }),
     embedded: S.Boolean.annotateKey({ description: "Whether a font program is embedded." }),
   },
@@ -617,16 +621,17 @@ export class PageTextRequest extends S.Opaque<PageTextRequest, { readonly brand:
  * @category models
  * @since 0.0.0
  */
-export class PdfRect extends S.Class<PdfRect>($I`PdfRect`)(
-  {
+export class PdfRect extends S.Opaque<PdfRect, { readonly brand: unique symbol }>()(
+  S.Struct({
     xMin: S.Finite.annotateKey({ description: "Left edge, points from the page's left edge." }),
     yMin: S.Finite.annotateKey({ description: "Top edge, points down from the page's top edge." }),
     xMax: S.Finite.annotateKey({ description: "Right edge, points from the page's left edge." }),
     yMax: S.Finite.annotateKey({ description: "Bottom edge, points down from the page's top edge." }),
-  },
-  $I.annote("PdfRect", {
-    description: "Rectangle in points from the page's top-left corner, as pdftotext reports it.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfRect", {
+      description: "Rectangle in points from the page's top-left corner, as pdftotext reports it.",
+    })
+  )
 ) {}
 
 /**
@@ -652,14 +657,15 @@ export class PdfRect extends S.Class<PdfRect>($I`PdfRect`)(
  * @category models
  * @since 0.0.0
  */
-export class TextBlock extends S.Class<TextBlock>($I`TextBlock`)(
-  {
+export class TextBlock extends S.Opaque<TextBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({ description: "Words joined by spaces, lines joined by newlines." }),
     rect: PdfRect.annotateKey({ description: "Bounding rectangle of the block." }),
-  },
-  $I.annote("TextBlock", {
-    description: "A text block from `pdftotext -bbox-layout` and its rectangle.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextBlock", {
+      description: "A text block from `pdftotext -bbox-layout` and its rectangle.",
+    })
+  )
 ) {}
 
 /**
@@ -676,14 +682,15 @@ export class TextBlock extends S.Class<TextBlock>($I`TextBlock`)(
  * @category models
  * @since 0.0.0
  */
-export class PdfPageRef extends S.Class<PdfPageRef>($I`PdfPageRef`)(
-  {
+export class PdfPageRef extends S.Opaque<PdfPageRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     pdfPath: S.NonEmptyString.annotateKey({ description: "PDF file." }),
     page: PageNumber.annotateKey({ description: "One-based page." }),
-  },
-  $I.annote("PdfPageRef", {
-    description: "A PDF file and a one-based page in it.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfPageRef", {
+      description: "A PDF file and a one-based page in it.",
+    })
+  )
 ) {}
 
 /**
@@ -713,16 +720,17 @@ export class PdfPageRef extends S.Class<PdfPageRef>($I`PdfPageRef`)(
  * @category models
  * @since 0.0.0
  */
-export class InkCoverageRequest extends S.Class<InkCoverageRequest>($I`InkCoverageRequest`)(
-  {
+export class InkCoverageRequest extends S.Opaque<InkCoverageRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: PdfPageRef.annotateKey({ description: "Page whose ink must be covered (the sheet that was sent)." }),
     marked: PdfPageRef.annotateKey({ description: "Page that may cover it (the page that came back)." }),
     dpi: Dpi.annotateKey({ description: "Resolution both pages are rasterised at." }),
     dilatePx: S.Natural.annotateKey({ description: "Pixels the marked ink is grown by before comparing." }),
-  },
-  $I.annote("InkCoverageRequest", {
-    description: "Two pages, a resolution, and a tolerance for a raster ink-coverage comparison.",
-  })
+  }).pipe(
+    $I.annoteSchema("InkCoverageRequest", {
+      description: "Two pages, a resolution, and a tolerance for a raster ink-coverage comparison.",
+    })
+  )
 ) {}
 
 /**
@@ -747,16 +755,17 @@ export class InkCoverageRequest extends S.Class<InkCoverageRequest>($I`InkCovera
  * @category models
  * @since 0.0.0
  */
-export class InkCoverage extends S.Class<InkCoverage>($I`InkCoverage`)(
-  {
+export class InkCoverage extends S.Opaque<InkCoverage, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseInkPixels: S.Natural.annotateKey({ description: "Ink pixels on the base page." }),
     coveredPixels: S.Natural.annotateKey({ description: "Base ink pixels the dilated marked ink covers." }),
     markedInkPixels: S.Natural.annotateKey({ description: "Ink pixels on the marked page, before dilation." }),
     coverage: S.Finite.annotateKey({ description: "coveredPixels / baseInkPixels; 0 for a blank base page." }),
-  },
-  $I.annote("InkCoverage", {
-    description: "Base ink, covered ink, marked ink, and the covered fraction of a raster comparison.",
-  })
+  }).pipe(
+    $I.annoteSchema("InkCoverage", {
+      description: "Base ink, covered ink, marked ink, and the covered fraction of a raster comparison.",
+    })
+  )
 ) {}
 
 /**
@@ -781,15 +790,16 @@ export class InkCoverage extends S.Class<InkCoverage>($I`InkCoverage`)(
  * @category models
  * @since 0.0.0
  */
-export class PdfAnnotation extends S.Class<PdfAnnotation>($I`PdfAnnotation`)(
-  {
+export class PdfAnnotation extends S.Opaque<PdfAnnotation, { readonly brand: unique symbol }>()(
+  S.Struct({
     page: PageNumber.annotateKey({ description: "One-based page the annotation sits on." }),
     subtype: S.String.annotateKey({ description: "`/Subtype` name, such as Text, FreeText, or Highlight." }),
     rect: PdfRect.annotateKey({ description: "`/Rect`, converted to points from the page's top-left corner." }),
     contents: S.Option(S.String).annotateKey({ description: "`/Contents` text, when present." }),
     author: S.Option(S.String).annotateKey({ description: "`/T` author, when present." }),
-  },
-  $I.annote("PdfAnnotation", {
-    description: "Page, subtype, rectangle, contents, and author of one PDF annotation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfAnnotation", {
+      description: "Page, subtype, rectangle, contents, and author of one PDF annotation.",
+    })
+  )
 ) {}

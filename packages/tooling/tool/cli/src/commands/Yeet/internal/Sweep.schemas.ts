@@ -166,11 +166,12 @@ export class SweepPlanStep extends S.Opaque<SweepPlanStep, { readonly brand: uni
     preconditions: S.Array(SweepPrecondition),
     requiresOperator: S.Boolean,
     alreadyDone: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SweepPlanStep", {
-    description:
-      "One planned sweep step with its action, observed preconditions, operator requirement, and an optional observation that its end state already holds.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepPlanStep", {
+      description:
+        "One planned sweep step with its action, observed preconditions, operator requirement, and an optional observation that its end state already holds.",
+    })
+  )
 ) {}
 
 /**

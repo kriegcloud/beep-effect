@@ -53,8 +53,8 @@ export class PdfPageSize extends S.Opaque<PdfPageSize, { readonly brand: unique 
  * @category validation
  * @since 0.0.0
  */
-export class PdfFontFact extends S.Opaque<PdfFontFact, { readonly brand: unique symbol }>()(
-  S.Struct({
+export class PdfFontFact extends S.Class<PdfFontFact, { readonly brand: unique symbol }>($I`PdfFontFact`)(
+  {
     name: S.String.annotateKey({ description: "BaseFont name." }),
     embedded: S.Boolean.annotateKey({ description: "Whether a font program is embedded." }),
   },
@@ -349,10 +349,11 @@ export class ValidationOptions extends S.Opaque<ValidationOptions, { readonly br
           "Font families text labels were set in; every embedded font's base name must contain one of them (case and spaces ignored). Empty skips the check.",
       })
     ),
-  },
-  $I.annote("ValidationOptions", {
-    description: "Expected page count, tolerances, text labels, and label font families of a validation run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ValidationOptions", {
+      description: "Expected page count, tolerances, text labels, and label font families of a validation run.",
+    })
+  )
 ) {}
 
 /**

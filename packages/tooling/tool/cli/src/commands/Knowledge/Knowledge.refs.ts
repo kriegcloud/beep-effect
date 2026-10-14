@@ -1626,14 +1626,15 @@ const PATH_ASSERTION_LINE_PATTERN = /^( {0,3})<!-- beep:assert path-exists (\S+)
  * @category models
  * @since 0.0.0
  */
-export class KnowledgePathAssertion extends S.Class<KnowledgePathAssertion>($I`KnowledgePathAssertion`)(
-  {
+export class KnowledgePathAssertion extends S.Opaque<KnowledgePathAssertion, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     column: S.Int,
-  },
-  $I.annote("KnowledgePathAssertion", {
-    description: "A whole-line path-exists assertion marker and the 1-based column its comment opens at.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgePathAssertion", {
+      description: "A whole-line path-exists assertion marker and the 1-based column its comment opens at.",
+    })
+  )
 ) {}
 
 /**
