@@ -158,7 +158,7 @@ export const orderRequirements = Effect.fnUntraced(function* (requirements: Read
   if (!Graph.isAcyclic(graph)) {
     return yield* SetupGraphInvalid.make({ problem: "cycle", requirement: O.none() });
   }
-  return A.fromIterable(Graph.values(Graph.topo(graph)));
+  return graph.pipe(Graph.topo(), Graph.values, A.fromIterable);
 });
 
 /**
