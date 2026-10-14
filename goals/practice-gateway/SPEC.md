@@ -117,6 +117,9 @@ them and record each in the Decision Log.
 | 2026-10-14 | Prove on a clean Windows VM first (D8) | Repeatable; Windows never proved | Prove on the attorney's PC instead |
 | 2026-10-14 | New gateway composing practice-kg as a provider (D10) | Keeps the evaluated KG surface decoupled | Fold provider modules into practice-kg-mcp |
 | 2026-10-14 | Credential Manager default store; no agent credentials (D3, D4) | OAuth tokens fit the OS store; credential entry is brittle and unsafe | New decision in the exploration |
+| 2026-10-14 | Box via Box Drive in slice 1; Box API user auth deferred (P0) | Box OAuth exchange needs a client secret; none may ship in a desktop binary | Add a Box OAuth provider once a secret-free path is proven |
+| 2026-10-14 | Credential Manager for small secrets, DPAPI-protected files for blobs, via `bun:ffi` (P0) | Credential blobs cap at 2,560 bytes; the MSAL cache is larger | Adopt `@azure/msal-node-extensions` if it bundles cleanly |
+| 2026-10-14 | Move practice-kg resource layers from the app into a package (P0) | Gateway and practice-kg-mcp must mount the same toolkit | Keep a copy in the gateway instead |
 
 ## Exception Ledger
 
