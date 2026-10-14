@@ -133,10 +133,6 @@
     "packages/ontology/client": {
       "ignoreDependencies": ["@vitest/browser"]
     },
-    "packages/tooling/policy-pack/repo-configs": {
-      // TS7 exit lane B owns dependency retirement after the docs cutover.
-      "ignoreDependencies": ["@typescript-eslint/eslint-plugin"]
-    },
     "packages/tooling/policy-pack/lint-rules": {
       "ignoreDependencies": ["oxlint"]
     }
