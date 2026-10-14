@@ -429,7 +429,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
             verifiedAt: DateTime.add(stale.verifiedAt, { seconds: 1 }),
           });
           expect(latest.outcome).toBe("unknown");
-          assertTrue(O.isSome(latest.merge));
+          latest.merge.pipe(O.isSome, assertTrue);
           const staleText = yield* encodeReceipt(stale);
           const latestText = yield* encodeReceipt(latest);
           yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${staleText}\n${latestText}\n`);
@@ -461,7 +461,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
             verifiedAt: DateTime.add(stale.verifiedAt, { seconds: 1 }),
           });
           expect(degraded.outcome).toBe("unknown");
-          assertTrue(O.isSome(degraded.merge));
+          degraded.merge.pipe(O.isSome, assertTrue);
           const degradedText = yield* encodeReceipt(degraded);
           yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${staleText}\n${degradedText}\n`);
           assertSome(

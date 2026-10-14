@@ -1469,3 +1469,10 @@ on the new head if it appears.
   evidence before an unknown receipt joins the newest-first candidate set.
   Add missing-history and pending-check preservation regressions, correct the
   pending fixture expectation and receipt table, then requalify the source.
+
+### 2026-10-14 — H2 compiler pipeline assertion
+
+- Fresh test-tsgo finds TS377050 on the two canonical Boolean assertions.
+  Use each Option's `pipe(O.isSome, assertTrue)` form, preserving assertion
+  polarity and values. Runtime regressions pass; retain the compiler failure
+  until the corrected compiler run completes. No suppression is introduced.
