@@ -80,3 +80,16 @@
 - Prevention: investigate the silent failure; the session-ledger destination is outside
   this lane's writable roots. Authorize that root in lane launches if required;
   the lane packet and orchestrator-cache report retain the handoff in this session.
+
+## 2026-10-14 — canonical NodeServices layers retain EV010 findings
+
+- Task: repair Lane D wave 2 without refreshing the effect-vitest baseline.
+- Evidence: both Node suites pass 7/7; canonical shared layers eliminate EV002/EV004.
+  `emitPlatformFinding` unconditionally emits EV010 for NodeServices imports; the
+  detector parity tests explicitly require that finding for root/subpath imports.
+- Attribution: detector policy limitation; NodeServices is required for the real
+  native compiler process and fixture access. Replacing it with a memory filesystem
+  would change the integration subject. Timed shared layers leave two EV010 rows.
+- Prevention: distinguish platform services owned by a canonical shared test layer
+  from opaque platform provenance, with a qualified native integration disposition.
+  This lane preserves the baseline and does not broaden the repair into detector code.

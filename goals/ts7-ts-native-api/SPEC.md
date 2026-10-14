@@ -36,6 +36,7 @@ reflection and completion are owned by the other lanes or orchestrator.
 
 | Date | Decision | Reason | How to reverse |
 | --- | --- | --- | --- |
+| 2026-10-14 | Share native test services through timed @effect/vitest layers; build failing layers directly and explicitly close the shutdown-test scope. | Remove per-test Effect.provide and redundant whole-body scopes while retaining all assertions, typed acquisition failures and exactly-once shutdown. | Restore the two tests from the pre-wave revision. |
 | 2026-10-14 | Keep check/build on tsc-rs and resolve the API executable through @effect/tsgo. | Preserve the compiler split and pinned Effect diagnostics after #1675. | Revert service executable resolution; gate scripts are untouched. |
 | 2026-10-14 | Put the service and its models in repo-utils role files and export the service barrel. | Explicit operator target; architecture plan describes synthetic slice packages that do not apply to this tooling library. | Remove new files and exports. |
 | 2026-10-14 | Use sync API parsing with pure-JS AST guards/walkers. | Installed unstable/ast exports no parser or createSourceFile. | Use a future pure-JS parser when upstream provides it. |
@@ -57,6 +58,7 @@ reflection and completion are owned by the other lanes or orchestrator.
 | 2026-10-14 | Replace createRequire with import.meta.resolve and Path.fromFileUrl. | Live repo precedent and Node Vitest execution prove package resolution works without a Node module builtin; the Effect Path service converts file URLs safely. | Restore createRequire only if a supported runtime cannot resolve the package, with evidence and a scoped exception. |
 
 | 2026-10-14 | Add module package documentation to both native API source files. | Hosted full docgen preflight requires module-level @since metadata in addition to symbol documentation; original Lane D omitted it. | Revert these comment blocks if the module metadata policy changes. |
+| 2026-10-14 | Record the two remaining EV010 `platform-resource-provenance-review` judgments (one `NodeServices` import per Node-hosted test file) in `standards/effect-vitest.inventory.jsonc` via `bun run beep lint effect-vitest --write`; the 18 EV002/EV004 findings were fixed with shared `it.layer` layers. | EV010 is a review-class judgment the detector emits for every `@effect/platform-node` import (1,638 baseline rows repo-wide); `it.layer` cannot remove it and the Node-hosted sync API needs `NodeServices`. The refresh adds exactly these two ids; every other diff line is a line-number shift from main. | Remove the two EV010 rows and drop `NodeServices` once the sync API runs under Bun or the detector learns the provenance. |
 
 ## Verification
 

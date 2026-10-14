@@ -1,10 +1,7 @@
-// @effect-diagnostics strictEffectProvide:skip-file
-// Tests are runtime entrypoints and own their native compiler layer scopes.
 /** Executable proof of the ecosystem polarity contract and dialect import DAG. */
 import { TsNativeApi, TsNativeConfig } from "@beep/repo-utils/TsNativeApi";
-import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect } from "@effect/vitest";
+import { describe, expect, layer } from "@effect/vitest";
 import {
   isCallExpression,
   isExportDeclaration,
@@ -84,23 +81,19 @@ const moduleSpecifiers = fn("moduleSpecifiers")(function* (file: string, source:
   return edges;
 }, Effect.scoped);
 
-const sourceEdges = fn("sourceEdges")(
-  function* (directoryUrl: URL, requiredFile: string) {
-    const files = [...new Bun.Glob("**/*.ts").scanSync({ cwd: directoryUrl.pathname })];
-    expect(files).toContain(requiredFile);
-    return yield* forEach(
-      files,
-      (file) =>
-        tryPromise(() => Bun.file(new URL(file, directoryUrl)).text()).pipe(
-          withSpan("EffectDrizzle.boundary.read", { attributes: { file } }),
-          Effect.flatMap((source) => moduleSpecifiers(file, source))
-        ),
-      { concurrency: "unbounded" }
-    ).pipe(map(A.flatten));
-  },
-  Effect.scoped,
-  Effect.provide(nativeLayer)
-);
+const sourceEdges = fn("sourceEdges")(function* (directoryUrl: URL, requiredFile: string) {
+  const files = [...new Bun.Glob("**/*.ts").scanSync({ cwd: directoryUrl.pathname })];
+  expect(files).toContain(requiredFile);
+  return yield* forEach(
+    files,
+    (file) =>
+      tryPromise(() => Bun.file(new URL(file, directoryUrl)).text()).pipe(
+        withSpan("EffectDrizzle.boundary.read", { attributes: { file } }),
+        Effect.flatMap((source) => moduleSpecifiers(file, source))
+      ),
+    { concurrency: "unbounded" }
+  ).pipe(map(A.flatten));
+}, Effect.scoped);
 
 const localModuleUrls = fn("localModuleUrls")(function* (current: URL, source: string) {
   return A.map(
@@ -109,22 +102,18 @@ const localModuleUrls = fn("localModuleUrls")(function* (current: URL, source: s
   );
 });
 
-const localImportClosure = fn("localImportClosure")(
-  function* (entrypoint: URL) {
-    const pending = [entrypoint];
-    let visited = HashSet.empty<string>();
-    while (pending.length > 0) {
-      const current = pending.pop();
-      if (current === undefined || HashSet.has(visited, current.pathname)) continue;
-      visited = HashSet.add(visited, current.pathname);
-      const source = yield* tryPromise(() => Bun.file(current).text());
-      pending.push(...(yield* localModuleUrls(current, source)));
-    }
-    return A.fromIterable(visited);
-  },
-  Effect.scoped,
-  Effect.provide(nativeLayer)
-);
+const localImportClosure = fn("localImportClosure")(function* (entrypoint: URL) {
+  const pending = [entrypoint];
+  let visited = HashSet.empty<string>();
+  while (pending.length > 0) {
+    const current = pending.pop();
+    if (current === undefined || HashSet.has(visited, current.pathname)) continue;
+    visited = HashSet.add(visited, current.pathname);
+    const source = yield* tryPromise(() => Bun.file(current).text());
+    pending.push(...(yield* localModuleUrls(current, source)));
+  }
+  return A.fromIterable(visited);
+}, Effect.scoped);
 
 const workspaceEdges = (edges: ReadonlyArray<ModuleEdge>) =>
   A.filter(edges, ({ specifier }) => Str.startsWith("@beep/")(specifier));
@@ -145,11 +134,11 @@ const forbiddenDialectEdges = fn("forbiddenDialectEdges")(function* (
   return dialectEdges(edges, forbiddenFragments);
 });
 
-describe("boundary scanner controls", () => {
-  it.effect(
-    "detects forbidden edges in each supported module syntax",
-    fnUntraced(
-      function* () {
+layer(nativeLayer, { timeout: "30 seconds" })("native import boundaries", (it) => {
+  describe("boundary scanner controls", () => {
+    it.effect(
+      "detects forbidden edges in each supported module syntax",
+      fnUntraced(function* () {
         const source = `
       import { value } from "@beep/forbidden-import";
       export { value } from "@beep/forbidden-export";
@@ -172,96 +161,94 @@ describe("boundary scanner controls", () => {
           "../pg/index.ts",
           "../sqlite/index.ts",
         ]);
-      },
-      Effect.scoped,
-      Effect.provide(nativeLayer)
-    )
-  );
-});
+      })
+    );
+  });
 
-describe("ecosystem import boundaries", () => {
-  it.effect(
-    "keeps every source module free of @beep/* edges",
-    fnUntraced(function* () {
-      const edges = yield* sourceEdges(new URL("../src/", import.meta.url), "index.ts").pipe(
-        withSpan("EffectDrizzle.boundary.scan", { attributes: { tree: "src" } })
-      );
-      expect(workspaceEdges(edges)).toEqual([]);
-    })
-  );
+  describe("ecosystem import boundaries", () => {
+    it.effect(
+      "keeps every source module free of @beep/* edges",
+      fnUntraced(function* () {
+        const edges = yield* sourceEdges(new URL("../src/", import.meta.url), "index.ts").pipe(
+          withSpan("EffectDrizzle.boundary.scan", { attributes: { tree: "src" } })
+        );
+        expect(workspaceEdges(edges)).toEqual([]);
+      })
+    );
 
-  it.effect(
-    "keeps runtime manifest edges free of @beep/* and forbids bundled fields",
-    fnUntraced(function* () {
-      const manifest = yield* decodeRecord(
-        yield* tryPromise(() => Bun.file(new URL("../package.json", import.meta.url)).json()).pipe(
-          withSpan("EffectDrizzle.boundary.manifest")
-        )
-      );
-      const runtimeSections = ["dependencies", "peerDependencies", "optionalDependencies"];
-      const runtimeKeys: Array<string> = [];
-      const runtimeValues: Array<unknown> = [];
-      for (const section of runtimeSections) {
-        if (section in manifest) {
-          const dependencies = yield* decodeRecord(manifest[section]);
-          runtimeKeys.push(...R.keys(dependencies));
-          runtimeValues.push(...R.values(dependencies));
+    it.effect(
+      "keeps runtime manifest edges free of @beep/* and forbids bundled fields",
+      fnUntraced(function* () {
+        const manifest = yield* decodeRecord(
+          yield* tryPromise(() => Bun.file(new URL("../package.json", import.meta.url)).json()).pipe(
+            withSpan("EffectDrizzle.boundary.manifest")
+          )
+        );
+        const runtimeSections = ["dependencies", "peerDependencies", "optionalDependencies"];
+        const runtimeKeys: Array<string> = [];
+        const runtimeValues: Array<unknown> = [];
+        for (const section of runtimeSections) {
+          if (section in manifest) {
+            const dependencies = yield* decodeRecord(manifest[section]);
+            runtimeKeys.push(...R.keys(dependencies));
+            runtimeValues.push(...R.values(dependencies));
+          }
         }
-      }
-      expect(A.filter(runtimeKeys, (key) => key.startsWith("@beep/"))).toEqual([]);
-      expect(A.filter(runtimeValues, (value) => typeof value === "string" && value.startsWith("npm:@beep/"))).toEqual(
-        []
-      );
-      expect(
-        A.filter(R.keys(manifest), (key) => ["bundleddependencies", "bundledependencies"].includes(key.toLowerCase()))
-      ).toEqual([]);
-    })
-  );
-});
+        expect(A.filter(runtimeKeys, (key) => key.startsWith("@beep/"))).toEqual([]);
+        expect(A.filter(runtimeValues, (value) => typeof value === "string" && value.startsWith("npm:@beep/"))).toEqual(
+          []
+        );
+        expect(
+          A.filter(R.keys(manifest), (key) => ["bundleddependencies", "bundledependencies"].includes(key.toLowerCase()))
+        ).toEqual([]);
+      })
+    );
+  });
 
-describe("dialect import boundaries", () => {
-  it.effect(
-    "keeps core independent of both dialects",
-    fnUntraced(function* () {
-      expect(yield* forbiddenDialectEdges("core", ["../pg", "../sqlite"])).toEqual([]);
-    })
-  );
+  describe("dialect import boundaries", () => {
+    it.effect(
+      "keeps core independent of both dialects",
+      fnUntraced(function* () {
+        expect(yield* forbiddenDialectEdges("core", ["../pg", "../sqlite"])).toEqual([]);
+      })
+    );
 
-  it.effect(
-    "keeps PostgreSQL and SQLite as non-importing siblings",
-    fnUntraced(function* () {
-      const pgBackedges = yield* forbiddenDialectEdges("pg", ["../sqlite"]);
-      const sqliteBackedges = yield* forbiddenDialectEdges("sqlite", ["../pg"]);
-      expect([...pgBackedges, ...sqliteBackedges]).toEqual([]);
-    })
-  );
+    it.effect(
+      "keeps PostgreSQL and SQLite as non-importing siblings",
+      fnUntraced(function* () {
+        const pgBackedges = yield* forbiddenDialectEdges("pg", ["../sqlite"]);
+        const sqliteBackedges = yield* forbiddenDialectEdges("sqlite", ["../pg"]);
+        expect([...pgBackedges, ...sqliteBackedges]).toEqual([]);
+      })
+    );
 
-  it.effect(
-    "keeps each dialect-local kit constructor outside its sibling graph",
-    fnUntraced(function* () {
-      const pg = yield* localImportClosure(new URL("../src/pg/index.ts", import.meta.url));
-      const sqlite = yield* localImportClosure(new URL("../src/sqlite/index.ts", import.meta.url));
-      expect(A.some(pg, (path) => path.endsWith("/pg/kit.ts"))).toBe(true);
-      expect(A.some(sqlite, (path) => path.endsWith("/sqlite/kit.ts"))).toBe(true);
-      expect(A.some(pg, (path) => path.includes("/sqlite/"))).toBe(false);
-      expect(A.some(sqlite, (path) => path.includes("/pg/"))).toBe(false);
-    })
-  );
-});
+    it.effect(
+      "keeps each dialect-local kit constructor outside its sibling graph",
+      fnUntraced(function* () {
+        const pg = yield* localImportClosure(new URL("../src/pg/index.ts", import.meta.url));
+        const sqlite = yield* localImportClosure(new URL("../src/sqlite/index.ts", import.meta.url));
+        expect(A.some(pg, (path) => path.endsWith("/pg/kit.ts"))).toBe(true);
+        expect(A.some(sqlite, (path) => path.endsWith("/sqlite/kit.ts"))).toBe(true);
+        expect(A.some(pg, (path) => path.includes("/sqlite/"))).toBe(false);
+        expect(A.some(sqlite, (path) => path.includes("/pg/"))).toBe(false);
+      })
+    );
+  });
 
-describe("bundle isolation", () => {
-  it.effect(
-    "drops unrelated PostgreSQL column families and SQLite from an integer import",
-    fnUntraced(function* () {
-      const artifact = yield* tryPromise(buildBundleConsumer).pipe(withSpan("EffectDrizzle.boundary.build"));
-      // A vacuous stub (the Bun.build shaker failure mode) cannot pass:
-      // the bundle must carry the real integer implementation.
-      expect(artifact.rawBytes).toBeGreaterThan(1000);
-      expect(artifact.text).toContain("integer");
-      expect(artifact.text).not.toContain("Custom-column identity must agree");
-      expect(artifact.text).not.toContain("Timestamp identity must agree");
-      expect(artifact.text).not.toContain("timestamp_ms");
-      expect(artifact.text).not.toContain("sqlite");
-    })
-  );
+  describe("bundle isolation", () => {
+    it.effect(
+      "drops unrelated PostgreSQL column families and SQLite from an integer import",
+      fnUntraced(function* () {
+        const artifact = yield* tryPromise(buildBundleConsumer).pipe(withSpan("EffectDrizzle.boundary.build"));
+        // A vacuous stub (the Bun.build shaker failure mode) cannot pass:
+        // the bundle must carry the real integer implementation.
+        expect(artifact.rawBytes).toBeGreaterThan(1000);
+        expect(artifact.text).toContain("integer");
+        expect(artifact.text).not.toContain("Custom-column identity must agree");
+        expect(artifact.text).not.toContain("Timestamp identity must agree");
+        expect(artifact.text).not.toContain("timestamp_ms");
+        expect(artifact.text).not.toContain("sqlite");
+      })
+    );
+  });
 });
