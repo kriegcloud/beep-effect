@@ -87,3 +87,10 @@ symbol-scoped Fallow entry on main (`bfe6176ca24c3127151c3192c0c203cee9baa965`).
 The readiness branch adopted that landed repair through main; it did not duplicate
 the competing suppression or waive the gate. Publication must rerun on the merged
 head. Earlier hosted success and the failed local preflight remain source-bound.
+
+The retry after adopting #1781 passed every Fallow check. Main's newly introduced
+observability catalog gate was its sole failure: this branch adds 16 tooling
+span declarations relative to main's generated catalog. The canonical
+`beep observability catalog --write` refreshed the catalog and generated standard
+section; a separate `--check` passed. No policy or regression baseline changed.
+The subsequent publication rerun qualifies the final committed generated inputs.
