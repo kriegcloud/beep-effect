@@ -2,6 +2,7 @@
   "schemaVersion": "policy-tools-fingerprint/v1",
   "inputs": [
     ".fallowrc.jsonc",
+    ".oxlintrc.deprecated-apis.jsonc",
     ".oxlintrc.json",
     "_typos.toml",
     "biome.jsonc",

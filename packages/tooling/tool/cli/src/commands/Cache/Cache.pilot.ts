@@ -1145,6 +1145,7 @@ const runPilot = Effect.fn("CachePilot.run")(
         sourceChange: "readme",
         expectedInputHash: "changed",
       }),
+      // The docs lane still consumes this shared declared env until TS7 exit lane B.
       PilotShadowScenario.make({
         ...unchanged,
         id: "declared-env",

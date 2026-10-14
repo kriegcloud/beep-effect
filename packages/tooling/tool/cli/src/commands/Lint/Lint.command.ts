@@ -30,7 +30,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
-import { isLabsWorkspaceDir, LABS_WORKSPACE_ROOT } from "../../internal/cli/Labs/index.ts";
+import { isLabsWorkspaceDir } from "../../internal/cli/Labs/index.ts";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { PackageScriptsReportFromWire } from "../../internal/package-scripts/PackageScripts.schemas.ts";
 import {
@@ -69,49 +69,11 @@ const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
   "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts",
 ]);
 const ALLOWED_NON_PASCAL_FILENAMES = HashSet.fromIterable(["index", "bin"]);
-const DEPRECATED_API_LINT_CACHE_DIRECTORY = "node_modules/.cache/eslint-deprecated-apis";
-const DEPRECATED_API_LINT_CONCURRENCY = 4;
-const DEPRECATED_API_LINT_ESLINT_BIN = "node_modules/.bin/eslint";
-// The `packages/tooling/tool/cli` shard's type-aware program needs about 10 GB
-// resident (measured 2026-10-06: 9.5 GB on main, 10.2 GB with the drawings
-// commands); an 8 GB heap cap ends it with a V8 out-of-memory abort.
-const DEPRECATED_API_LINT_NODE_OPTIONS = "--max-old-space-size=12288";
-const DEPRECATED_API_LINT_SHARDS = [
-  "apps/architecture-lab-proof",
-  LABS_WORKSPACE_ROOT,
-  "apps/oip-web",
-  "apps/professional-desktop",
-  "infra",
-  "packages/_internal",
-  "packages/agents",
-  "packages/architecture-lab",
-  "packages/drivers",
-  "packages/ecosystem",
-  "packages/epistemic/client",
-  "packages/epistemic/config",
-  "packages/epistemic/domain",
-  "packages/epistemic/server",
-  "packages/epistemic/tables",
-  "packages/epistemic/ui",
-  "packages/epistemic/use-cases",
-  "packages/foundation/capability",
-  "packages/foundation/modeling",
-  "packages/foundation/primitive",
-  "packages/foundation/ui-system",
-  "packages/law-practice",
-  "packages/shared",
-  // One `packages/tooling` shard exhausted the 8 GiB eslint heap on hosted
-  // runners (repo-cli alone is ~1,250 TypeScript files); shard it by subtree.
-  "packages/tooling/library",
-  "packages/tooling/policy-pack",
-  "packages/tooling/test-kit",
-  // CLI and docgen together also exceed 8 GiB on a cold typed scan.
-  "packages/tooling/tool/cli",
-  "packages/tooling/tool/docgen",
-  "packages/workspace",
-] as const;
-const deprecatedApiLintCacheLocation = (shard: string): string =>
-  `${DEPRECATED_API_LINT_CACHE_DIRECTORY}/.eslintcache-${Str.replaceAll("/", "__")(shard)}`;
+const ESLINT_BIN = "node_modules/.bin/eslint";
+// The documentation worker retains its existing heap budget until lane B retires it.
+const ESLINT_NODE_OPTIONS = "--max-old-space-size=12288";
+const OXLINT_DEPRECATED_APIS_CONFIG = ".oxlintrc.deprecated-apis.jsonc";
+
 const REQUIRED_TAGGED_UNIONS = [
   "GenerationAction",
   "TsMorphMutation",
@@ -604,61 +566,31 @@ const runLintCircular = Effect.fn("runLintCircular")(function* () {
   yield* Console.log("No circular dependencies found.");
 });
 
-const runDeprecatedApiLintShard = Effect.fn("runDeprecatedApiLintShard")(function* (shard: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const exists = yield* fs.exists(shard).pipe(Effect.orElseSucceed(() => false));
-
-  if (!exists) {
-    yield* Console.log(`[lint:deprecated-apis] skipping missing shard: ${shard}`);
-    return;
-  }
-
-  const hasLocalEslint = yield* fs.exists(DEPRECATED_API_LINT_ESLINT_BIN).pipe(Effect.orElseSucceed(() => false));
-  const command = hasLocalEslint ? `./${DEPRECATED_API_LINT_ESLINT_BIN}` : "bunx";
-  const eslintArgs = [
-    "--cache",
-    "--cache-location",
-    deprecatedApiLintCacheLocation(shard),
-    "--cache-strategy",
-    "content",
+const runDeprecatedApiLint = Effect.fn("Lint.deprecatedApiWorker")(function* (
+  root: string,
+  targets: ReadonlyArray<string>
+) {
+  if (A.isReadonlyArrayEmpty(targets)) return;
+  const path = yield* Path.Path;
+  const args = [
     "--config",
-    "eslint.config.mjs",
-    // The labs root may exist while holding zero lab apps (README-only
-    // container, goals/lab-apps-lifecycle D3); only the labs shard tolerates
-    // an unmatched pattern so an empty root cannot fail the law lane.
-    ...(shard === LABS_WORKSPACE_ROOT ? ["--no-error-on-unmatched-pattern"] : A.empty<string>()),
-    shard,
+    path.join(root, OXLINT_DEPRECATED_APIS_CONFIG),
+    "--disable-nested-config",
+    "--threads=4",
+    ...(A.every(targets, isLabsWorkspaceDir) ? ["--no-error-on-unmatched-pattern"] : []),
+    ...targets,
   ];
-  const args = hasLocalEslint ? eslintArgs : ["eslint", ...eslintArgs];
-  yield* Console.log(`[lint:deprecated-apis] ${shard}: ${command} ${A.join(args, " ")}`);
-
+  yield* Console.log(`[lint:deprecated-apis] oxlint ${A.join(args, " ")}`);
   const exitCode = yield* runToExit({
-    command,
+    command: path.join(root, "node_modules/.bin/oxlint"),
     args,
-    cwd: process.cwd(),
-    env: {
-      BEEP_ESLINT_PROFILE: "deprecated-apis",
-      NODE_OPTIONS: DEPRECATED_API_LINT_NODE_OPTIONS,
-    },
+    cwd: root,
     extendEnv: true,
     stdio: "inherit",
   });
-
   if (exitCode !== 0) {
-    return yield* failWithReportedExit(`lint deprecated-apis: ${shard} failed with exit code ${exitCode}.`, exitCode);
+    return yield* failWithReportedExit(`lint deprecated-apis: failed with exit code ${exitCode}.`, exitCode);
   }
-});
-
-const runDeprecatedApiLint = Effect.fn("runDeprecatedApiLint")(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  yield* fs.makeDirectory(DEPRECATED_API_LINT_CACHE_DIRECTORY, { recursive: true });
-  yield* Console.log(
-    `[lint:deprecated-apis] running ${A.length(DEPRECATED_API_LINT_SHARDS)} shards with concurrency ${DEPRECATED_API_LINT_CONCURRENCY}`
-  );
-  yield* Effect.forEach(DEPRECATED_API_LINT_SHARDS, runDeprecatedApiLintShard, {
-    concurrency: DEPRECATED_API_LINT_CONCURRENCY,
-  });
-
   yield* Console.log("[lint:deprecated-apis] OK: no deprecated vendor API usage found.");
 });
 
@@ -687,16 +619,13 @@ const runEslintWorker = Effect.fn("Lint.eslintWorker")(function* (
   // so preserve the established 8 GiB default.
   const heapOptions = /--max[-_]old[-_]space[-_]size(?:=|\s+)/.test(nodeOptions)
     ? nodeOptions
-    : `${nodeOptions} ${DEPRECATED_API_LINT_NODE_OPTIONS}`;
+    : `${nodeOptions} ${ESLINT_NODE_OPTIONS}`;
   const exitCode = yield* runToExit({
-    command: path.join(root, DEPRECATED_API_LINT_ESLINT_BIN),
+    command: path.join(root, ESLINT_BIN),
     args: [
       "--config",
       path.join(root, "eslint.config.mjs"),
       ...(profile === "docs" ? ["--max-warnings=0", "--no-warn-ignored"] : []),
-      ...(profile === "deprecated-apis" && A.every(targets, isLabsWorkspaceDir)
-        ? ["--no-error-on-unmatched-pattern"]
-        : []),
       ...targets,
     ],
     cwd: root,
@@ -796,10 +725,12 @@ const lintDeprecatedApisCommand = Command.make(
       const ci = yield* Config.String("CI").pipe(Config.withDefault(""));
       const sweeps = yield* readLintPolicySweeps(yield* findRepoRoot());
       if (!full && ci !== "true") return yield* runRootDeprecatedApisTask(base);
-      return yield* sweeps.deprecatedApis === "shards" ? runDeprecatedApiLint() : runRootDeprecatedApisTask();
+      return yield* sweeps.deprecatedApis === "oxlint"
+        ? runDeprecatedApiLint(yield* findRepoRoot(), ["apps", "packages", "infra"])
+        : runRootDeprecatedApisTask();
     }
     const root = yield* findRepoRoot();
-    yield* runEslintWorker(root, "deprecated-apis", [yield* resolveLintPackage(root, directory.value)]);
+    yield* runDeprecatedApiLint(root, [yield* resolveLintPackage(root, directory.value)]);
   })
 ).pipe(Command.withDescription("Check TypeScript sources for deprecated third-party API usage"));
 
@@ -870,6 +801,7 @@ const rootConfigs = [
   "eslint.config.mjs",
   "tsdoc.json",
   ".oxlintrc.json",
+  OXLINT_DEPRECATED_APIS_CONFIG,
   "_typos.toml",
   "knip.jsonc",
   ".fallowrc.jsonc",

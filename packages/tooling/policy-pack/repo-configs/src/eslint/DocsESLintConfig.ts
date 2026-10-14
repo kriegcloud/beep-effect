@@ -67,7 +67,7 @@ export const DocsESLintConfig: DocsESLintConfigShape = [
     ignores: [
       // Lab apps are ceremony-exempt from the docs/JSDoc lint lane
       // (goals/lab-apps-lifecycle D2); the deprecated-apis LAW profile
-      // (DeprecatedApisESLintConfig) deliberately still lints apps/labs.
+      // (the dedicated type-aware Oxlint profile) deliberately still lints apps/labs.
       // Canonical glob: packages/tooling/tool/cli/src/internal/cli/Labs.
       "apps/labs/**",
       ".next/**",

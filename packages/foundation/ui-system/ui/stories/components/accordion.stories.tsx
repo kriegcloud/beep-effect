@@ -28,17 +28,6 @@ const meta = {
       description: "Disables interaction with every item and dims the accordion.",
       table: { defaultValue: { summary: "false" } },
     },
-    orientation: {
-      control: "select",
-      options: ["vertical", "horizontal"],
-      description: "Visual orientation; controls whether roving focus uses up/down or left/right arrow keys.",
-      table: { defaultValue: { summary: "vertical" } },
-    },
-    loopFocus: {
-      control: "boolean",
-      description: "Whether arrow-key focus loops from the last item back to the first.",
-      table: { defaultValue: { summary: "true" } },
-    },
     keepMounted: {
       control: "boolean",
       description: "Whether closed panels remain in the DOM instead of being unmounted.",

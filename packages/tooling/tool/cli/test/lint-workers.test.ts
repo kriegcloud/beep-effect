@@ -50,16 +50,6 @@ const platform = Layer.mergeAll(FsUtilsLive, TSMorphServiceLive).pipe(Layer.prov
 const runCommand = Command.runWith(lintCommand, { version: "0.0.0" });
 const run = (args: ReadonlyArray<string>, env: Record<string, string> = {}) =>
   runCommand(args).pipe(Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(env)));
-const runShardCommand = Effect.fnUntraced(function* (args: ReadonlyArray<string>, env: Record<string, string>) {
-  const fs = yield* FileSystem.FileSystem;
-  yield* run(args, env).pipe(
-    Effect.provideService(FileSystem.FileSystem, {
-      ...fs,
-      exists: (file) => (Str.startsWith("/")(file) ? fs.exists(file) : Effect.succeed(true)),
-      makeDirectory: () => Effect.void,
-    })
-  );
-});
 const runSweepCommand = Effect.fnUntraced(function* (
   args: ReadonlyArray<string>,
   content: string,
@@ -157,15 +147,20 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "runs package deprecated APIs from the root without a cache and with the default heap cap",
+      "runs package deprecated APIs through one bounded type-aware Oxlint process",
       Effect.fnUntraced(function* () {
         const root = yield* findRepoRoot();
         yield* run(["deprecated-apis", "--package", "."]);
         expect(execution).toHaveBeenCalledExactlyOnceWith({
-          command: `${root}/node_modules/.bin/eslint`,
-          args: ["--config", `${root}/eslint.config.mjs`, prefix],
+          command: `${root}/node_modules/.bin/oxlint`,
+          args: [
+            "--config",
+            `${root}/.oxlintrc.deprecated-apis.jsonc`,
+            "--disable-nested-config",
+            "--threads=4",
+            prefix,
+          ],
           cwd: root,
-          env: { BEEP_ESLINT_PROFILE: "deprecated-apis", NODE_OPTIONS: "--max-old-space-size=12288" },
           extendEnv: true,
           stdio: "inherit",
         });
@@ -206,33 +201,36 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "runs the full standalone deprecated API command through the shard program",
+      "runs the full standalone deprecated API command through one bounded Oxlint process",
       Effect.fnUntraced(function* () {
-        yield* runShardCommand(["deprecated-apis", "--full"], {});
-        expect(execution.mock.calls[0]?.[0]).toMatchObject({
-          command: "./node_modules/.bin/eslint",
+        const root = yield* findRepoRoot();
+        yield* run(["deprecated-apis", "--full"], {});
+        expect(execution).toHaveBeenCalledExactlyOnceWith({
+          command: `${root}/node_modules/.bin/oxlint`,
           args: [
-            "--cache",
-            "--cache-location",
-            "node_modules/.cache/eslint-deprecated-apis/.eslintcache-apps__architecture-lab-proof",
-            "--cache-strategy",
-            "content",
             "--config",
-            "eslint.config.mjs",
-            "apps/architecture-lab-proof",
+            `${root}/.oxlintrc.deprecated-apis.jsonc`,
+            "--disable-nested-config",
+            "--threads=4",
+            "apps",
+            "packages",
+            "infra",
           ],
-          env: { BEEP_ESLINT_PROFILE: "deprecated-apis", NODE_OPTIONS: "--max-old-space-size=12288" },
+          cwd: root,
+          extendEnv: true,
+          stdio: "inherit",
         });
       })
     );
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "runs the hosted standalone deprecated API command through the shard program",
+      "runs the hosted standalone deprecated API command through the same Oxlint process",
       Effect.fnUntraced(function* () {
-        yield* runShardCommand(["deprecated-apis", "--base", "refs/heads/caller-base"], { CI: "true" });
-        expect(execution.mock.calls[0]?.[0].command).toBe("./node_modules/.bin/eslint");
-        expect(execution.mock.calls[0]?.[0].env?.BEEP_ESLINT_PROFILE).toBe("deprecated-apis");
+        yield* run(["deprecated-apis", "--base", "refs/heads/caller-base"], { CI: "true" });
+        expect(execution).toHaveBeenCalledTimes(1);
+        expect(execution.mock.calls[0]?.[0].command).toBe(`${yield* findRepoRoot()}/node_modules/.bin/oxlint`);
+        expect(execution.mock.calls[0]?.[0].env?.BEEP_ESLINT_PROFILE).toBeUndefined();
         expect(execution.mock.calls[0]?.[0].args).not.toContain("--affected");
       })
     );
@@ -292,13 +290,15 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "tolerates unmatched deprecated API targets only for lab packages",
+      "keeps both lab and non-lab packages under the bounded native profile",
       Effect.fnUntraced(function* () {
         const root = yield* findRepoRoot();
         yield* run(["deprecated-apis", "--package", `${root}/apps/labs/ciops`]);
         expect(execution.mock.calls[0]?.[0].args).toEqual([
           "--config",
-          `${root}/eslint.config.mjs`,
+          `${root}/.oxlintrc.deprecated-apis.jsonc`,
+          "--disable-nested-config",
+          "--threads=4",
           "--no-error-on-unmatched-pattern",
           "apps/labs/ciops",
         ]);
@@ -310,12 +310,12 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "retains an explicit heap cap and other Node options",
+      "does not attach ESLint profile or heap settings to the native worker",
       Effect.fnUntraced(function* () {
         yield* run(["deprecated-apis", "--package", "."], {
           NODE_OPTIONS: "--trace-warnings --max-old-space-size=2048",
         });
-        expect(execution.mock.calls[0]?.[0].env?.NODE_OPTIONS).toBe("--trace-warnings --max-old-space-size=2048");
+        expect(execution.mock.calls[0]?.[0].env).toBeUndefined();
       })
     );
   });
@@ -488,15 +488,13 @@ describe("executed lint workers", { concurrent: false }, () => {
             pipe(
               config,
               Str.replace(
-                '"@beep/repo-configs/eslint/DeprecatedApisESLintConfig"',
-                `"./${configPackage}/src/eslint/DeprecatedApisESLintConfig.ts"`
-              ),
-              Str.replace(
                 '"@beep/repo-configs/eslint/DocsESLintConfig"',
                 `"./${configPackage}/src/eslint/DocsESLintConfig.ts"`
               )
             )
           );
+          const nativeProfile = yield* fs.readFileString(`${root}/.oxlintrc.deprecated-apis.jsonc`);
+          yield* fs.writeFileString(`${fixtureRoot}/.oxlintrc.deprecated-apis.jsonc`, nativeProfile);
           yield* fs.writeFileString(`${fixture}/package.json`, '{"name":"@beep/lint-worker-fixture","type":"module"}');
           yield* fs.writeFileString(
             `${fixture}/tsconfig.json`,
@@ -539,9 +537,7 @@ describe("executed lint workers", { concurrent: false }, () => {
               extendEnv: false,
             });
             expect(invalid.exitCode, invalid.output).not.toBe(0);
-            expect(invalid.output).toContain(
-              worker === "jsdoc" ? "jsdoc/require-jsdoc" : "@typescript-eslint/no-deprecated"
-            );
+            expect(invalid.output).toContain(worker === "jsdoc" ? "jsdoc/require-jsdoc" : "typescript(no-deprecated)");
           }
         }),
         EXECUTED_WORKER_TIMEOUT_MILLIS

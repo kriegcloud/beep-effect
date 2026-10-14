@@ -6,14 +6,11 @@
       "path": "tsconfig.packages.json"
     }
   ],
-  // No lane runs this file as a program: tsconfig.configs.json
-  // (repo-sanity:config-typecheck) typechecks the config sources and each
-  // package's own check project owns its test/ tree. The include list stays
-  // because typescript-eslint's project service uses this root project as the
-  // default for any file no package project claims (the deprecated-apis and
-  // jsdoc lint profiles parse test/ and vitest.*.ts through it), and because
-  // tsconfig-sync regenerates the alias paths the stories projects extend.
+  // Package check projects and tsconfig.configs.json own compiler gates. Keep
+  // these roots for strict Oxlint assignment and tsconfig-sync's alias paths,
+  // including fixtures and configuration files outside src-only emit projects.
   "include": [
+    "./packages/_internal/db-admin/drizzle.config.ts",
     "**/vitest.*.ts",
     "./apps/**/test/**/*.ts",
     "./apps/**/test/**/*.tsx",

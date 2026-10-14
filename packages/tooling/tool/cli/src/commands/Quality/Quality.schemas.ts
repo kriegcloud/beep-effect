@@ -32,16 +32,16 @@ const $I = $RepoCliId.create("commands/Quality/Quality.schemas");
 /**
  * Program used for a full policy sweep.
  *
- * **Example** (Select the measured shard program)
+ * **Example** (Select the bounded Oxlint program)
  * ```ts
  * import { PolicySweepProgram } from "@beep/repo-cli/commands/Quality"
- * console.log(PolicySweepProgram.Enum.shards)
+ * console.log(PolicySweepProgram.Enum.oxlint)
  * ```
  *
  * @category configuration
  * @since 0.0.0
  */
-export const PolicySweepProgram = LiteralKit(["shards", "turbo"]).annotate(
+export const PolicySweepProgram = LiteralKit(["oxlint", "turbo"]).annotate(
   $I.annote("PolicySweepProgram", { description: "Executable program selected for a full policy sweep." })
 );
 
@@ -57,10 +57,10 @@ export type PolicySweepProgram = typeof PolicySweepProgram.Type;
 /**
  * Versioned repository policy sweep selection.
  *
- * **Example** (Keep the measured shard sweep)
+ * **Example** (Keep the bounded Oxlint sweep)
  * ```ts
  * import { LintPolicySweeps } from "@beep/repo-cli/commands/Quality"
- * console.log(LintPolicySweeps.make({ schemaVersion: "lint-policy-sweeps/v1", deprecatedApis: "shards" }))
+ * console.log(LintPolicySweeps.make({ schemaVersion: "lint-policy-sweeps/v1", deprecatedApis: "oxlint" }))
  * ```
  *
  * @category configuration

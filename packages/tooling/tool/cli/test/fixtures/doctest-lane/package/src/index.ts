@@ -1,3 +1,5 @@
+import { dual } from "effect/Function";
+
 /**
  * Adds two numbers.
  *
@@ -10,4 +12,7 @@
  * @category utilities
  * @since 0.0.0
  */
-export const add = (left: number, right: number): number => left + right;
+export const add: {
+  (right: number): (left: number) => number;
+  (left: number, right: number): number;
+} = dual(2, (left: number, right: number): number => left + right);

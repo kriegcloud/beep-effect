@@ -234,6 +234,7 @@
     "babel-plugin-transform-next-use-client",
     "@babel/plugin-transform-export-namespace-from",
     "@babel/plugin-transform-modules-commonjs",
+    // Docs profile still consumes this parser; lane B owns its retirement.
     "@typescript-eslint/parser",
     // tsgo >= 0.18 native TypeScript backend: consumed by the effect-tsgo patch
     // step at install time, never imported from source.

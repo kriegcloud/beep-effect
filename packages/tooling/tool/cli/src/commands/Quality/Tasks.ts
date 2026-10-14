@@ -2899,7 +2899,7 @@ const deprecatedApisTurboStep = (repoRoot: string, base?: string): QualityTaskSt
   policyLintTurboStep(repoRoot, "lint:deprecated-apis", ["lint:deprecated-apis"], base);
 
 const decodeLintPolicySweeps = decodeJsoncTextAs(LintPolicySweeps);
-const shardPolicySweeps = LintPolicySweeps.make({ schemaVersion: "lint-policy-sweeps/v1", deprecatedApis: "shards" });
+const oxlintPolicySweeps = LintPolicySweeps.make({ schemaVersion: "lint-policy-sweeps/v1", deprecatedApis: "oxlint" });
 
 /**
  * Read the required repository sweep selection, failing on missing or invalid JSONC.
@@ -3254,7 +3254,7 @@ const rootRepoLintPolicySteps = (
       // Ruling 31 retains the hosted root ESLint program independently of the
       // deprecated-API sweep switch. It has no Turbo summary of its own.
       ...(full ? [bunxStep(repoRoot, "lint:jsdoc", rootEslintArgs(eslintCacheKey))] : []),
-      full && sweeps.deprecatedApis === "shards"
+      full && sweeps.deprecatedApis === "oxlint"
         ? repoCliStep(repoRoot, "lint:deprecated-apis", ["lint", "deprecated-apis", "--full"])
         : deprecatedApisTurboStep(repoRoot, base),
       // The test lane's own Turbo task is `package-test-typecheck` (uncached by tripwire
@@ -3309,7 +3309,7 @@ const runPolicySteps = Effect.fn("QualityTasks.runPolicySteps")(function* (
  * @param repoRoot - Repository root directory.
  * @param files - Compatibility input; Turbo now owns file selection from the caller base.
  * @param base - Caller base for affected Turbo tasks; omitted for full scope.
- * @param sweeps - Explicit sweep selection; pure test plans default to shards.
+ * @param sweeps - Explicit sweep selection; pure test plans default to oxlint.
  * @param hosted - Whether the plan is a hosted (CI) plan; a local full-scope plan leaves the
  *   git-delta knowledge checks to the hosted run. Defaults to the live CI detection.
  * @param eslintCacheKey - Root ESLint cache directory key; the runtime digests the ESLint
@@ -3340,7 +3340,7 @@ export const rootLintPolicyStepsForTesting: {
     repoRoot: string,
     files?: ReadonlyArray<string>,
     base?: string,
-    sweeps = shardPolicySweeps,
+    sweeps = oxlintPolicySweeps,
     hosted = isCi(),
     eslintCacheKey = UNKEYED_ROOT_ESLINT_CACHE
   ): ReadonlyArray<QualityTaskStep> => rootRepoLintPolicySteps(repoRoot, files, base, sweeps, hosted, eslintCacheKey)
@@ -3448,7 +3448,7 @@ const rootLintPolicySteps = (
     return A.empty<QualityTaskStep>();
   }
 
-  return rootRepoLintPolicySteps(repoRoot, undefined, undefined, shardPolicySweeps, isCi(), eslintCacheKey);
+  return rootRepoLintPolicySteps(repoRoot, undefined, undefined, oxlintPolicySweeps, isCi(), eslintCacheKey);
 };
 
 // The one root lint plan: the aggregate Turbo lint (or lint:fix) followed by

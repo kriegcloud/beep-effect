@@ -233,7 +233,9 @@
     "tar": "catalog:",
     "tinyglobby": "catalog:",
     "ts-morph": "catalog:",
-    "yaml": "catalog:"
+    "yaml": "catalog:",
+    "@nodable/entities": "3.1.0",
+    "is-unsafe": "2.0.2"
   },
   "devDependencies": {
     "@beep/fc-runs": "workspace:^",
