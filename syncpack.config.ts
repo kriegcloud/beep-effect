@@ -154,9 +154,14 @@ const config = {
       // minors ahead of a 0.19.0 wrapper.
       // A bump also arms every rule absent from tsconfig.base.json's
       // diagnosticSeverity map, because omitted rules run at their upstream
-      // default rather than off. 0.33.0 is adopted with eleven such rules
-      // parked at "off" pending a one-rule-per-PR ratchet; moving off 0.33.0
-      // without clearing that queue lands them all at once.
+      // default rather than off, and `includeSuggestionsInTsc` turns a
+      // suggestion-level default into a gate failure. 0.51.1 (2026-10-13) is
+      // the effect-tsgo version tsc-rs (pingdotgg/ts-rust) ports; the two
+      // move together, and @effect/tsgo never runs ahead of tsc-rs. 0.52.0's
+      // six new rules sit commented out in the map with their decided
+      // severities (0.51.1 reports unknown keys as TS377134 warnings, which
+      // fail the gate), so the next bump is version-only once ts-rust ports
+      // 0.52 and the schemaClassMissingBrand migration lands.
       // @biomejs/biome 2.5.7 stops formatting JSON piped through
       // `biome format --stdin-file-path`, so `renderBiomeJson` — the writer
       // behind `beep tsconfig-sync` for docgen.json/tsconfig.json — emits

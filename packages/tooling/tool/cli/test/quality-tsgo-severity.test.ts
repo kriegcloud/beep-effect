@@ -12,13 +12,22 @@ const pluginWith = (diagnosticSeverity: Readonly<Record<string, unknown>>, overr
 });
 
 describe("quality tsgo rule severities", () => {
-  it("declares exactly the two stability rules as off", () => {
-    expect(tsgoDisabledRules.map((disabled) => disabled.rule)).toEqual(["experimentalApiUsage", "unstableApiUsage"]);
+  it("declares exactly the three stability rules as off", () => {
+    expect(tsgoDisabledRules.map((disabled) => disabled.rule)).toEqual([
+      "apiStabilityLeak",
+      "experimentalApiUsage",
+      "unstableApiUsage",
+    ]);
     expect(TsgoDisabledRule.make({ rule: "unstableApiUsage", reason: "by design" }).rule).toBe("unstableApiUsage");
   });
 
   it("accepts error rules and the declared-off stability rules", () => {
-    const severity = { floatingEffect: "error", experimentalApiUsage: "off", unstableApiUsage: "off" };
+    const severity = {
+      floatingEffect: "error",
+      apiStabilityLeak: "off",
+      experimentalApiUsage: "off",
+      unstableApiUsage: "off",
+    };
     expect(
       collectTsgoSeverityDiagnosticsForTesting({ plugin: pluginWith(severity), diagnosticSeverity: severity })
     ).toEqual({

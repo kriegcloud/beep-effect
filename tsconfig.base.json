@@ -49,6 +49,9 @@
         "ignoreEffectErrorsInTscExitCode": false,
         "includeSuggestionsInTsc": true,
         "skipDisabledOptimization": false,
+        // 0.51.1 allowlists for unstableApiUsage / experimentalApiUsage; both rules are off, so the lists stay empty on purpose.
+        "allowedUnstableApis": [],
+        "allowedExperimentalApis": [],
         "effectFn": ["span", "inferred-span", "suggested-span"],
         "importAliases": {
           "Array": "A",
@@ -113,6 +116,8 @@
           "acquireReleaseDisposable": "error",
           "allOfMapToForEach": "error",
           "anyUnknownInErrorContext": "error",
+          // 0.51.1 rule for library maintainers (off upstream); listed so the map stays total.
+          "apiStabilityLeak": "off",
           "asyncFunction": "error",
           "catchAllTagDispatchToCatchTag": "error",
           "catchAllToMapError": "error",
@@ -139,12 +144,16 @@
           "effectInVoidSuccess": "error",
           "effectMapFlatten": "error",
           "effectMapVoid": "error",
+          // 0.52.0 rule, kept commented: 0.51.1 reports unknown keys as TS377134 warnings, which fail the gate. Uncomment with the 0.52 bump. Measured 2026-10-13: 0 sites.
+          // "effectSleepZeroToYieldNow": "error",
           "effectSucceedWithVoid": "error",
           "experimentalApiUsage": "off",
           "extendsNativeError": "error",
           "flatMapConditionalToFilterOrFail": "error",
           "flatMapIgnoredParamToAndThen": "error",
           "flatMapToMap": "error",
+          // 0.52.0 rule, kept commented: 0.51.1 reports unknown keys as TS377134 warnings, which fail the gate. Uncomment with the 0.52 bump. Measured 2026-10-13: 2 sites, fixed in the same change.
+          // "flatMapToTap": "error",
           "floatingEffect": "error",
           "floatingEffectInVitest": "error",
           "genericEffectServices": "error",
@@ -188,7 +197,12 @@
           "optionMatchToFromOption": "error",
           "outdatedApi": "error",
           "overriddenSchemaConstructor": "error",
+          // 0.52.0 rules (uncomment with the bump), off upstream: native Array/Object member references are reviewed per package, not globally.
+          // "preferEffectArray": "off",
+          // "preferEffectRecord": "off",
           "preferSchemaOverJson": "error",
+          // 0.52.0 rule (uncomment with the bump), off upstream: Data.TaggedError is still deliberate in non-schema error families.
+          // "preferSchemaTaggedError": "off",
           "preferSchemaTypeProperty": "error",
           "preferSucceedSomeOrNone": "error",
           "preferTypedSchemaDecoder": "error",
@@ -205,6 +219,8 @@
           "runEffectInsideEffect": "error",
           "runOfExitToRunExit": "error",
           "schemaLiteralNonFinite": "error",
+          // 0.52.0 rule (uncomment with the bump; suggestion upstream): 6,682 sites on 2026-10-13; off until the schema-brand migration lands, then "error".
+          // "schemaClassMissingBrand": "off",
           "schemaNumber": "error",
           "schemaOpaqueInstanceMember": "error",
           "schemaStructWithTag": "error",
