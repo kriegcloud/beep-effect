@@ -61,6 +61,9 @@ const run = Effect.fn("KnowledgeMintBootstrapTest.run")(function* (
   const bin = yield* fs.makeTempDirectoryScoped({ prefix: "knowledge-mint-bootstrap-test-" });
   yield* fs.writeFileString(path.join(bin, "op"), fakeOp(opExit));
   yield* fs.chmod(path.join(bin, "op"), 0o700);
+  // A fake op-doctor that marks its one call, so the failure path proves it diagnosed once.
+  yield* fs.writeFileString(path.join(bin, "op-doctor"), "#!/bin/sh\necho op-doctor-ran\n");
+  yield* fs.chmod(path.join(bin, "op-doctor"), 0o700);
   const handle = yield* ChildProcess.make("bun", ["--eval", harness(conversionStatus, expectedStatus, expectedText)], {
     env: { PATH: `${bin}:${ambientPath}` },
     stdin: "ignore",
@@ -85,13 +88,15 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("knowledge mint manifest
     Effect.gen(function* () {
       const { stdout } = yield* run(0, 201, 200, "Stored in 1Password");
       expect(stdout).toContain("App beep-knowledge-mint-2 (app_id 123)");
+      expect(stdout).not.toContain("op-doctor-ran");
     })
   );
 
   it.effect("reports a failed vault write by exit code and forbids a reload", () =>
     Effect.gen(function* () {
-      const { stderr } = yield* run(17, 201, 500, "Do not reload this page");
+      const { stdout, stderr } = yield* run(17, 201, 500, "Do not reload this page");
       expect(stderr).toContain("1Password item creation exited 17");
+      expect(stdout.split("op-doctor-ran").length - 1).toBe(1);
     })
   );
 

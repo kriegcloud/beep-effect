@@ -13,12 +13,14 @@ const PORT = 8787;
 const MANIFEST_URL = new URL("../../../../../scripts/github-app/beep-knowledge-mint.manifest.json", import.meta.url);
 const ITEM_TITLE = "beep-knowledge-mint GitHub App";
 
-class MintConversion extends S.Class<MintConversion>("KnowledgeMintManifestConversion")({
-  id: S.Int,
-  slug: S.NonEmptyString,
-  client_id: S.NonEmptyString,
-  pem: S.RedactedFromValue(S.NonEmptyString),
-}) {}
+class MintConversion extends S.Opaque<MintConversion, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.Int,
+    slug: S.NonEmptyString,
+    client_id: S.NonEmptyString,
+    pem: S.RedactedFromValue(S.NonEmptyString),
+  }).annotate({ identifier: "KnowledgeMintManifestConversion" })
+) {}
 const decodeConversion = S.decodeUnknownEffect(MintConversion);
 const Json = S.fromJsonString(S.Unknown);
 const encodeJson = S.encodeEffect(Json);
@@ -74,6 +76,12 @@ const convertAndStore = Effect.fn("KnowledgeMint.convertAndStore")(function* (co
     stderr: "ignore",
   });
   const exitCode = yield* Effect.promise(() => child.exited);
+  if (exitCode !== 0) {
+    // One safe, count-only diagnosis for the operator; a missing op-doctor changes nothing.
+    yield* Effect.tryPromise(() => Bun.spawn(["op-doctor"], { stdout: "inherit", stderr: "ignore" }).exited).pipe(
+      Effect.ignore
+    );
+  }
   return exitCode === 0
     ? ({ _tag: "Stored", slug: converted.slug, appId: converted.id } satisfies Outcome)
     : ({ _tag: "StoreFailed", slug: converted.slug, exitCode } satisfies Outcome);
