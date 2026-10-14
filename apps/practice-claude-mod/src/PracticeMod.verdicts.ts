@@ -63,6 +63,24 @@ type VerdictLogError = VerdictLocked | VerdictStoreUnreadable | ModHostError;
 /**
  * One verdict to record on one answer.
  *
+ * **Example** (Prepare an undo revision)
+ *
+ * ```ts
+ * import { VerdictInput } from "@/PracticeMod.verdicts"
+ * import { KgAnswerItem } from "@/PracticeMod.values"
+ * import * as O from "effect/Option"
+ *
+ * const item = KgAnswerItem.make({
+ *   itemId: "kg-answer:s-1:t-1",
+ *   sessionId: "s-1",
+ *   turnId: "t-1",
+ *   question: "What changed?",
+ *   matter: O.none(),
+ * })
+ * const input = VerdictInput.make({ item, verdict: O.none(), note: O.none() })
+ * console.log(O.isNone(input.verdict)) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
