@@ -207,6 +207,19 @@
 - Evidence: a red could turn green after recording, making confirmation refuse;
   the next flip skipped reconciliation for an empty attribution list and retained
   the old section. Every flip now reconciles through the bounded writer, and
-  empty attributions remove the section while preserving surrounding text.
+  empty attributions rewrite an existing section to a head-pinned None record
+  while preserving surrounding text and adding no section when none exists.
 - Would have prevented it: a sequence test covering record, post-record refusal,
   and a no-red rerun, rather than checking each refusal in isolation.
+
+## 2026-10-14: Empty-set body reconciliation reached unstubbed scripted fixtures
+
+- Doing: qualifying the head-pinned S11 audit amendment.
+- Evidence: PR #1678 job 115715322044 reported three failures in
+  `yeet-scripted-process.test.ts`: the status/flip fixtures reached the new
+  default REST recorder and had no GitHub identity fixture. The status test also
+  retained its two-read expectation despite the post-record confirmation.
+  Injected the recorder in those transport-isolated tests and required three
+  reads; the dedicated writer and ready-sequence tests retain real reconciliation.
+- Would have prevented it: running the complete scripted-process suite with
+  the empty-set change before publication, rather than only the direct gate tests.

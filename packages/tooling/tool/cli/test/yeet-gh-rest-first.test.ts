@@ -39,6 +39,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 
 // Recorded REST payloads (trimmed to the fields the wire schemas read).
@@ -278,7 +279,7 @@ describe("inherited-red body reconciliation", () => {
       const concurrent = `${source}\n\n<!-- beep:pr-provenance:start -->\nNew provenance\n<!-- beep:pr-provenance:end -->`;
       const reads = yield* Ref.make(0);
       const writes = yield* Ref.make(A.empty<string>());
-      const expected = O.getOrThrow(spliceYeetInheritedRedsSection(concurrent, entries));
+      const expected = O.getOrThrow(spliceYeetInheritedRedsSection(concurrent, entries, pr().headSha));
       const rest = {
         pullRequest: () =>
           Ref.getAndUpdate(reads, (n) => n + 1).pipe(
@@ -287,7 +288,7 @@ describe("inherited-red body reconciliation", () => {
         updatePullRequest: (_number: number, update: { readonly body?: string | undefined }) =>
           Ref.update(writes, A.append(update.body ?? "")).pipe(Effect.as(pr({ body: update.body ?? "" }))),
       };
-      yield* recordInheritedRedsWithRest(rest, 1501, entries);
+      yield* recordInheritedRedsWithRest(rest, 1501, entries, pr().headSha);
       expect(yield* Ref.get(writes)).toEqual([expected]);
       expect(expected).toContain("New provenance");
     })
@@ -304,7 +305,8 @@ describe("inherited-red body reconciliation", () => {
             updatePullRequest: () => Ref.update(writes, (n) => n + 1).pipe(Effect.as(pr())),
           },
           1501,
-          entries
+          entries,
+          pr().headSha
         )
       );
       expect(error.message).toContain("all three");
@@ -327,7 +329,8 @@ describe("inherited-red body reconciliation", () => {
             updatePullRequest: () => Ref.update(writes, (n) => n + 1).pipe(Effect.as(pr())),
           },
           1501,
-          entries
+          entries,
+          pr().headSha
         )
       );
       expect(error.message).toContain("markers");
@@ -349,7 +352,8 @@ describe("inherited-red body reconciliation", () => {
             updatePullRequest: () => Ref.update(writes, (n) => n + 1).pipe(Effect.as(pr())),
           },
           1501,
-          entries
+          entries,
+          pr().headSha
         )
       );
       expect(error.message).toContain("drifted");
@@ -357,9 +361,9 @@ describe("inherited-red body reconciliation", () => {
     })
   );
 
-  it.effect("clears an existing section through the same bounded writer when no reds apply", () =>
+  it.effect("rewrites an existing section to None through the same bounded writer when no reds apply", () =>
     Effect.gen(function* () {
-      const source = O.getOrThrow(spliceYeetInheritedRedsSection("Summary", entries));
+      const source = O.getOrThrow(spliceYeetInheritedRedsSection("Summary", entries, pr().headSha));
       const body = yield* Ref.make(source);
       const writes = yield* Ref.make(0);
       yield* recordInheritedRedsWithRest(
@@ -369,17 +373,35 @@ describe("inherited-red body reconciliation", () => {
             Ref.set(body, update.body ?? "").pipe(Effect.andThen(Ref.update(writes, (n) => n + 1)), Effect.as(pr())),
         },
         1501,
-        []
+        [],
+        pr().headSha
       );
-      expect(yield* Ref.get(body)).not.toContain("yeet-inherited-reds");
+      expect(yield* Ref.get(body)).toContain("None: no required check is red on this head.");
+      expect(yield* Ref.get(body)).toContain(`Inherited reds (S11) at ${Str.slice(0, 10)(pr().headSha)}`);
       expect(yield* Ref.get(body)).toContain("Summary");
       expect(yield* Ref.get(writes)).toBe(1);
     })
   );
 
+  it.effect("writes nothing for an empty set without an existing section", () =>
+    Effect.gen(function* () {
+      const writes = yield* Ref.make(0);
+      yield* recordInheritedRedsWithRest(
+        {
+          pullRequest: () => Effect.succeed(pr({ body: "Summary" })),
+          updatePullRequest: () => Ref.update(writes, (n) => n + 1).pipe(Effect.as(pr())),
+        },
+        1501,
+        [],
+        pr().headSha
+      );
+      expect(yield* Ref.get(writes)).toBe(0);
+    })
+  );
+
   it.effect("confirms an already-current section without writing", () =>
     Effect.gen(function* () {
-      const body = O.getOrThrow(spliceYeetInheritedRedsSection("Summary", entries));
+      const body = O.getOrThrow(spliceYeetInheritedRedsSection("Summary", entries, pr().headSha));
       const writes = yield* Ref.make(0);
       yield* recordInheritedRedsWithRest(
         {
@@ -387,7 +409,8 @@ describe("inherited-red body reconciliation", () => {
           updatePullRequest: () => Ref.update(writes, (n) => n + 1).pipe(Effect.as(pr())),
         },
         1501,
-        entries
+        entries,
+        pr().headSha
       );
       expect(yield* Ref.get(writes)).toBe(0);
     })

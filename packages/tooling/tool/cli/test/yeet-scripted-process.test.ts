@@ -1335,18 +1335,19 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
     });
   });
 
-  it.effect("flips the draft when its own status read holds the gate, twice", () =>
+  it.effect("flips the draft after three status reads with an injected body recorder", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const root = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-ready-flip-" });
       const commands = yield* makeCommands;
       const flips = yield* Ref.make<ReadonlyArray<number>>([]);
       const decision = yield* runYeetReadyGate(contextAt(root), {
+        recordInherited: () => Effect.void,
         markReady: (prNumber) => Ref.update(flips, A.append(prNumber)),
       }).pipe(withProcesses(greenDraft, commands));
       expect(decision).toMatchObject({ _tag: "flip", prNumber: 7 });
       const ran = yield* Ref.get(commands);
-      expect(A.length(A.filter(ran, Str.startsWith("gh pr view --json id,number")))).toBe(2);
+      expect(A.length(A.filter(ran, Str.startsWith("gh pr view --json id,number")))).toBe(3);
       expect(yield* Ref.get(flips)).toEqual([7]);
     })
   );
@@ -1361,6 +1362,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       yield* fs.writeFileString(path.join(root, ".beep", "yeet", "jobs"), "not a directory");
       const commands = yield* makeCommands;
       const decision = yield* runYeetReadyGate(contextAt(root), {
+        recordInherited: () => Effect.void,
         markReady: () => Effect.void,
         read: () => Effect.succeed(readOf(remoteOf())),
       }).pipe(withProcesses([], commands));
@@ -1404,6 +1406,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       });
       const asked = yield* Ref.make<ReadonlyArray<number>>([]);
       const decision = yield* runYeetReadyGate(contextAt("/repo"), {
+        recordInherited: () => Effect.void,
         markReady: () => Effect.void,
         findMonitor: (_context, prNumber) => Ref.update(asked, A.append(prNumber)).pipe(Effect.as(O.some(monitor))),
         read: () => Effect.succeed(readOf(remoteOf())),

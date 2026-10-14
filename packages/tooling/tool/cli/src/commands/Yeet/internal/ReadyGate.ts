@@ -489,8 +489,8 @@ const markReadyThroughBudget = (prNumber: number) =>
   );
 
 // S11 requires the record, so a failed write refuses the flip.
-const recordInheritedThroughRest = (prNumber: number, entries: ReadonlyArray<YeetReadyInheritedRed>) =>
-  recordInheritedRedsInPullRequestBody(prNumber, entries).pipe(
+const recordInheritedThroughRest = (prNumber: number, entries: ReadonlyArray<YeetReadyInheritedRed>, headSha: string) =>
+  recordInheritedRedsInPullRequestBody(prNumber, entries, headSha).pipe(
     Effect.mapError((cause) =>
       YeetCommandError.make({
         message: `yeet ready refused: could not record the inherited reds in the body of #${prNumber} (${cause.message}); S11 requires the record before the flip`,
@@ -513,7 +513,8 @@ interface YeetReadyGateDependencies {
   >;
   readonly recordInherited?: (
     prNumber: number,
-    entries: ReadonlyArray<YeetReadyInheritedRed>
+    entries: ReadonlyArray<YeetReadyInheritedRed>,
+    headSha: string
   ) => Effect.Effect<void, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner>;
 }
 
@@ -524,7 +525,11 @@ const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(fu
   inherited: ReadonlyArray<YeetReadyInheritedRed>
 ) {
   const applied = confirmation.inherited;
-  yield* (dependencies.recordInherited ?? recordInheritedThroughRest)(confirmation.prNumber, applied);
+  yield* (dependencies.recordInherited ?? recordInheritedThroughRest)(
+    confirmation.prNumber,
+    applied,
+    O.getOrElse(confirmation.headSha, () => "unknown")
+  );
   // Recording takes time; confirm the whole gate against the recorded head and
   // attributions before allowing the caller to flip.
   const afterRecord = decideYeetReadyGate(yield* (dependencies.read ?? readPullRequestForReady)(context), inherited);
@@ -557,7 +562,7 @@ const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(fu
  * the applied ones in the PR body (REST), and a failed record refuses the flip
  * with `YeetCommandError`. A second confirmation after the body write requires
  * the same head, a passing gate, and the same applied attributions before flipping.
- * Every flip reconciles the body, including clearing a stale section when no reds apply.
+ * Every flip reconciles the body, rewriting a stale section to a head-pinned None record when no reds apply.
  *
  * **Example** (Build the gate effect)
  *

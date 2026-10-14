@@ -210,20 +210,20 @@ describe("yeet ready --inherited decision (S11)", () => {
 
 describe("spliceYeetInheritedRedsSection", () => {
   const section = (attribution: string) =>
-    `<!-- yeet-inherited-reds:start -->\n## Inherited reds (S11)\n\n- \`Lint\`: ${attribution}\n<!-- yeet-inherited-reds:end -->`;
+    `<!-- yeet-inherited-reds:start -->\n## Inherited reds (S11) at ${headSha}\n\n- \`Lint\`: ${attribution}\n<!-- yeet-inherited-reds:end -->`;
   const provenance = "---\n\n<!-- yeet-provenance:start -->\n## Provenance\n<!-- yeet-provenance:end -->\n";
 
   it("appends the section after one blank line when the body has no marker", () => {
     assertSome(
-      spliceYeetInheritedRedsSection("Summary\n", [lintInherited]),
+      spliceYeetInheritedRedsSection("Summary\n", [lintInherited], headSha),
       `Summary\n\n${section(lintInherited.attribution)}\n`
     );
-    assertSome(spliceYeetInheritedRedsSection("", [lintInherited]), `${section(lintInherited.attribution)}\n`);
+    assertSome(spliceYeetInheritedRedsSection("", [lintInherited], headSha), `${section(lintInherited.attribution)}\n`);
   });
 
   it("inserts the section before the provenance footer, its rule included", () => {
     assertSome(
-      spliceYeetInheritedRedsSection(`Summary\n\n${provenance}`, [lintInherited]),
+      spliceYeetInheritedRedsSection(`Summary\n\n${provenance}`, [lintInherited], headSha),
       `Summary\n\n${section(lintInherited.attribution)}\n\n${provenance}`
     );
   });
@@ -231,24 +231,27 @@ describe("spliceYeetInheritedRedsSection", () => {
   it("replaces an existing section and keeps everything around it", () => {
     const body = `Summary\n\n${section("old")}\n\nNotes\n\n${provenance}`;
     assertSome(
-      spliceYeetInheritedRedsSection([lintInherited])(body),
+      spliceYeetInheritedRedsSection([lintInherited], headSha)(body),
       `Summary\n\n${section(lintInherited.attribution)}\n\nNotes\n\n${provenance}`
     );
   });
 
-  it("clears a stale section when no inherited reds apply and keeps surrounding text", () => {
+  it("rewrites a stale section to None when no inherited reds apply and keeps surrounding text", () => {
     const body = `Summary\n\n${section("old")}\n\nNotes\n\n${provenance}`;
-    assertSome(spliceYeetInheritedRedsSection(body, []), `Summary\n\n\n\nNotes\n\n${provenance}`);
-    assertSome(spliceYeetInheritedRedsSection(`Summary\n\n${provenance}`, []), `Summary\n\n${provenance}`);
-    assertNone(spliceYeetInheritedRedsSection("<!-- yeet-inherited-reds:start -->", []));
+    assertSome(
+      spliceYeetInheritedRedsSection(body, [], headSha),
+      `Summary\n\n<!-- yeet-inherited-reds:start -->\n## Inherited reds (S11) at ${headSha}\n\nNone: no required check is red on this head.\n<!-- yeet-inherited-reds:end -->\n\nNotes\n\n${provenance}`
+    );
+    assertSome(spliceYeetInheritedRedsSection(`Summary\n\n${provenance}`, [], headSha), `Summary\n\n${provenance}`);
+    assertNone(spliceYeetInheritedRedsSection("<!-- yeet-inherited-reds:start -->", [], headSha));
   });
 
   it("refuses an orphan, repeated or out-of-order marker instead of guessing a span", () => {
     const start = "<!-- yeet-inherited-reds:start -->";
     const end = "<!-- yeet-inherited-reds:end -->";
-    assertNone(spliceYeetInheritedRedsSection(`Summary\n${start}\nhand-written notes`, [lintInherited]));
-    assertNone(spliceYeetInheritedRedsSection(`Summary\n${end}\nthen ${start}`, [lintInherited]));
-    assertNone(spliceYeetInheritedRedsSection(`${section("a")}\n\n${section("b")}`, [lintInherited]));
+    assertNone(spliceYeetInheritedRedsSection(`Summary\n${start}\nhand-written notes`, [lintInherited], headSha));
+    assertNone(spliceYeetInheritedRedsSection(`Summary\n${end}\nthen ${start}`, [lintInherited], headSha));
+    assertNone(spliceYeetInheritedRedsSection(`${section("a")}\n\n${section("b")}`, [lintInherited], headSha));
   });
 });
 
@@ -609,15 +612,20 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
   );
 });
 it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation races", (it) => {
-  it.effect("clears a recorded section on a no-red rerun after a post-record refusal", () =>
+  it.effect("rewrites a recorded section to None on a no-red rerun after a post-record refusal", () =>
     Effect.gen(function* () {
       const body = yield* Ref.make("Summary");
       const green = yield* Ref.make(false);
       const flips = yield* Ref.make(0);
+      const currentHead = yield* Ref.make(headSha);
       const dependencies = {
-        read: () => Ref.get(green).pipe(Effect.map((isGreen) => (isGreen ? prView() : redRead([lint])))),
-        recordInherited: (_pr: number, entries: ReadonlyArray<YeetReadyInheritedRed>) =>
-          Ref.update(body, (source) => O.getOrThrow(spliceYeetInheritedRedsSection(source, entries))).pipe(
+        read: () =>
+          Effect.gen(function* () {
+            const sha = yield* Ref.get(currentHead);
+            return (yield* Ref.get(green)) ? prView({ headSha: O.some(sha) }) : redRead([lint]);
+          }),
+        recordInherited: (_pr: number, entries: ReadonlyArray<YeetReadyInheritedRed>, sha: string) =>
+          Ref.update(body, (source) => O.getOrThrow(spliceYeetInheritedRedsSection(source, entries, sha))).pipe(
             Effect.andThen(Ref.set(green, true))
           ),
         markReady: () => Ref.update(flips, (n) => n + 1),
@@ -627,10 +635,46 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       expect(error.message).toContain("changed while recording inherited reds");
       expect(yield* Ref.get(body)).toContain("- `Lint`:");
       expect(yield* Ref.get(flips)).toBe(0);
+      yield* Ref.set(currentHead, "fedcba9876");
       expect((yield* runYeetReadyGate(context, dependencies))._tag).toBe("flip");
-      expect(yield* Ref.get(body)).not.toContain("yeet-inherited-reds");
+      expect(yield* Ref.get(body)).toContain("None: no required check is red on this head.");
+      expect(yield* Ref.get(body)).toContain("Inherited reds (S11) at fedcba9876");
+      expect(yield* Ref.get(body)).not.toContain("- `Lint`:");
       expect(yield* Ref.get(body)).toContain("Summary");
       expect(yield* Ref.get(flips)).toBe(1);
+    })
+  );
+
+  it.effect("rewrites inherited reds after a draft-ready-draft-ready cycle", () =>
+    Effect.gen(function* () {
+      const body = yield* Ref.make("Summary");
+      const draft = yield* Ref.make(true);
+      const green = yield* Ref.make(false);
+      const sha = yield* Ref.make(headSha);
+      const dependencies = {
+        read: () =>
+          Effect.gen(function* () {
+            const isDraft = yield* Ref.get(draft);
+            const current = yield* Ref.get(sha);
+            return (yield* Ref.get(green))
+              ? prView({ isDraft, headSha: O.some(current) })
+              : prView({ checks: [lint], failingRequiredCheckCount: 1, isDraft, headSha: O.some(current) });
+          }),
+        recordInherited: (_pr: number, entries: ReadonlyArray<YeetReadyInheritedRed>, head: string) =>
+          Ref.update(body, (source) => O.getOrThrow(spliceYeetInheritedRedsSection(source, entries, head))),
+        markReady: () => Ref.set(draft, false),
+        findMonitor: () => Effect.succeedNone,
+      };
+      expect((yield* runYeetReadyGate(context, dependencies, [lintInherited]))._tag).toBe("flip");
+      expect(yield* Ref.get(body)).toContain("- `Lint`:");
+      expect((yield* runYeetReadyGate(context, dependencies))._tag).toBe("already-ready");
+      yield* Ref.set(draft, true);
+      yield* Ref.set(green, true);
+      yield* Ref.set(sha, "fedcba9876");
+      expect((yield* runYeetReadyGate(context, dependencies))._tag).toBe("flip");
+      expect(yield* Ref.get(body)).toContain("Inherited reds (S11) at fedcba9876");
+      expect(yield* Ref.get(body)).toContain("None: no required check is red on this head.");
+      expect(yield* Ref.get(body)).not.toContain("- `Lint`:");
     })
   );
 
