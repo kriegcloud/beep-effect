@@ -272,3 +272,14 @@ introduced complexity in recovery readLocked and model bindingProblem. Refactor
 those owners, rerun their focused regressions, and then allow a longer finite
 deadline for the complete serial cheap-gate tier. The final health check was
 interrupted at ten minutes; no green complete verdict exists yet.
+
+## Complete cheap-tier execution — 2026-10-14
+
+The [closeout receipt](../history/2026-10-14-fallow-closeout.md) closes the
+introduced Fallow complexity and reviewed-cache-config integration gaps. The
+worker's complete serial cheap tier passes at bc1ff53d58 in 613.5 seconds with
+normal success publication and wait 0. Use a finite fifteen-minute ceiling for
+this measured shape; ten minutes was insufficient. Keep the existing memory
+limits and one-lane width. Heavy/full proof, reboot recovery, concurrent runs,
+complete cache qualification and post-main runtime/model-policy parity remain
+separate acceptance items. No publication or orchestrator report was implied.

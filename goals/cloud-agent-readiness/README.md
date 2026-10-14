@@ -136,3 +136,5 @@ qualified by the beep-worker receipts.
 - [Bounded import-law scan](history/2026-10-14-import-memory.md): full 8,079-file / 27,822-fence check passes around 1 GiB, including detached gate proof; later schema-first memory is the next blocker.
 
 - [Schema-first memory ownership](history/2026-10-14-schema-memory.md): full 3,698-file scan and detached gate pass; complete tier still needs Fallow complexity closeout and a longer bounded runtime.
+
+- [Fallow closeout and complete worker cheap-gate proof](history/2026-10-14-fallow-closeout.md): main merged, complexity and cache integration fixed; full serial cheap tier succeeds in 613.5 seconds with normal finalization and wait exit 0.
