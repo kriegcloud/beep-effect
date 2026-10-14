@@ -2842,6 +2842,210 @@
           "upstreamBehaviour": "Private invariant errors lack schema and message-field descriptions; the newly modeled payloads and domains lack schema identity metadata.",
           "labBehaviour": "YamlEditFailure and YamlFormatInvariantFailure gain schema/message metadata, and the round-2 lint, CST, raw, render, budget and block schemas gain composer identities and descriptions.",
           "reason": "identity-annotations: Step 4, D5 and EF-12 require identity and descriptive schema/field metadata at these newly touched definitions. Tags, messages and plain-object representations are preserved; this records new sites rather than repeating the existing public-schema annotation row."
+        },
+        {
+          "test": "scratchpad/test/yaml/Yaml.coverage.test.ts:20; scratchpad/test/yaml/Yaml.coverage.test.ts:34",
+          "upstreamBehaviour": "Value extraction re-resolves nested aliases against the current anchor map, re-registers historical anchors during expansion, and an alias cycle can overflow the stack.",
+          "labBehaviour": "Alias targets bind once per extraction at their first source-order visit; historical expansion reuses those bindings without re-registering anchors, and identity-based cycle detection fails with AliasExpansionBudgetExceeded.",
+          "reason": "upstream-bug: alias-history; duplicate-anchor counterexamples across value, stream and document extraction plus source and AST cycles verified in round-3 review (YamlNode.ts)."
+        },
+        {
+          "test": "scratchpad/test/yaml/YamlDocument.coverage.test.ts:17; scratchpad/test/yaml/YamlDocument.coverage.test.ts:22",
+          "upstreamBehaviour": "AST stream parsing discards fatal UnresolvedTag diagnostics, so an undeclared cross-document tag handle parses successfully.",
+          "labBehaviour": "Every fatal stream or document diagnostic (isFatalCode) fails with YamlParseError carrying the UnresolvedTag diagnostic; the former success assertion was corrected.",
+          "reason": "upstream-bug: fatal-stream-errors; cross-document tag-handle acceptance verified, including after an explicit document end (YamlDocument.ts:165)."
+        },
+        {
+          "test": "scratchpad/test/yaml/diagnostic-batch.round-3.test.ts:12; scratchpad/test/yaml/diagnostic-batch.round-3.test.ts:31; scratchpad/test/yaml/diagnostic-batch.round-3.test.ts:66",
+          "upstreamBehaviour": "Each raw diagnostic is converted with its own prefix scan of the source, so position materialization is quadratic in diagnostic count.",
+          "labBehaviour": "YamlDiagnostic gains public static positionIndex and fromRawBatch; Yaml, YamlDocument, YamlVisitor and YamlFormat build one index per operation. Standalone fromRaw keeps its position semantics.",
+          "reason": "upstream-bug: diagnostic-position-index; 4095 duplicate-key diagnostics regression proves one source scan per operation, with LF/CR/CRLF/LS/PS position parity. Adds two public statics to YamlDiagnostic."
+        },
+        {
+          "test": "scratchpad/test/yaml/YamlVisitor.coverage.test.ts:7",
+          "upstreamBehaviour": "The visitor stream captures one generator, so a second execution (or a full run after a partial one) silently yields no or missing events.",
+          "labBehaviour": "Stream.suspend creates a fresh visit generator for every execution, preserving lazy construction and event order.",
+          "reason": "upstream-bug: visitor-stream-reexecution; repeated and partial-then-full collection on the same stream verified to lose events (YamlVisitor.ts:183)."
+        },
+        {
+          "test": "scratchpad/test/yaml/invalid-header.round-3.test.ts:19; scratchpad/test/yaml/invalid-header.round-3.test.ts:39; scratchpad/test/yaml/invalid-header.round-3.test.ts:60",
+          "upstreamBehaviour": "The invalid block-header scan splits on any whitespace-preceded hash, treating a hash inside quotes as a comment start.",
+          "labBehaviour": "The invalid-header scan tracks single quotes (doubled-quote escapes) and double quotes (backslash escapes); hashes split comments only outside quotes, keeping the round-2 unquoted split.",
+          "reason": "upstream-bug: invalid-header-quoted-hash; quoted-hash and unterminated-quote regressions verified (internal/lexer.ts:752)."
+        },
+        {
+          "test": "scratchpad/test/yaml/internal/cst-visitor.coverage.test.ts:18; scratchpad/test/yaml/internal/cst-visitor.coverage.test.ts:22; scratchpad/test/yaml/internal/cst-visitor.coverage.test.ts:23",
+          "upstreamBehaviour": "CST entry tracking misses line breaks absorbed inside a preceding scalar or collection span, so an empty key after a literal/folded scalar, block sequence or nested map is not emitted.",
+          "labBehaviour": "Lookahead and entry tracking inspect LF/CR inside preceding source spans; block scalars stay values and the following empty key is emitted.",
+          "reason": "upstream-bug: cst-block-entry-boundary; literal, folded, CRLF, CR, sequence-span and nested-map counterexamples verified (internal/cst-visitor.ts:364)."
+        },
+        {
+          "test": "scratchpad/test/yaml/internal/fold.property.test.ts:12; scratchpad/test/yaml/stringifier.round-3.test.ts:9",
+          "upstreamBehaviour": "Width folding may split next to a tab, moving an interior tab to a continuation-line start or dropping a line-end tab, which changes the decoded value.",
+          "labBehaviour": "Tab-adjacent split points are skipped; folded output decodes to the original value in the port and the independent yaml parser.",
+          "reason": "upstream-bug: fold-tab-fidelity; block-folded counterexamples at lineWidth 12 verified to change decoded values (internal/fold.ts:68)."
+        },
+        {
+          "test": "scratchpad/test/yaml/stringifier.round-3.test.ts:17; scratchpad/test/yaml/YamlDocument.property.test.ts:42",
+          "upstreamBehaviour": "Nested flow children that span lines are flattened with spaces, so an inner comment consumes subsequent YAML syntax.",
+          "labBehaviour": "Children render once; an enclosing flow map or sequence is promoted to multiline when a child spans lines, child line breaks are kept, and commas and parent trailing comments follow the final child line.",
+          "reason": "upstream-bug: nested-flow-comment-lines; seven nested flow layouts with inner/parent comments verified to round-trip (internal/stringifier.ts:1553)."
+        },
+        {
+          "test": "scratchpad/test/yaml/stringifier.round-3.test.ts:41; scratchpad/test/yaml/e2e/format-properties.e2e.test.ts (WZ62, X38W)",
+          "upstreamBehaviour": "Alias keys and metadata-only empty keys in flow collections are emitted delimiter-tight (*a: val), changing the alias name or producing invalid YAML.",
+          "labBehaviour": "The block-map separator rule applies before either flow layout: alias keys emit '*a : val' and metadata-only empty keys keep separation; WZ62 and X38W leave the known-defect lists.",
+          "reason": "upstream-bug: flow-alias-key-spacing; alias, tag-only and anchor-only flow-key regressions plus corpus cases WZ62/X38W verified (internal/stringifier.ts:1561)."
+        },
+        {
+          "test": "scratchpad/test/yaml/stringifier.round-3.test.ts:61",
+          "upstreamBehaviour": "Canonical empty-document framing always ends with a newline, ignoring finalNewline false.",
+          "labBehaviour": "finalNewline false removes only the terminal newline of assembled empty-document framing, keeping the separator between --- and ....",
+          "reason": "upstream-bug: empty-document-final-newline; start-only and start/end-marker cases verified to break the option contract (internal/stringifier.ts:2133)."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer.round-3.test.ts:28",
+          "upstreamBehaviour": "A node-less explicit flow key delimited by a colon is placed at offset 0.",
+          "labBehaviour": "The key is materialized at its question-indicator offset, skipping intervening comments, so diagnostics carry source positions.",
+          "reason": "upstream-bug: flow-empty-key-span; empty-key position regressions verified (internal/composer/flow.ts:419)."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer.round-3.test.ts:86; scratchpad/test/yaml/composer.round-3.test.ts:97",
+          "upstreamBehaviour": "Tags on aliases are accepted and silently discarded.",
+          "labBehaviour": "A tagged alias records a fatal UnexpectedToken at the tag span while keeping the recovered alias node and the anchor check.",
+          "reason": "upstream-bug: alias-tag-properties; block-map, block-sequence and combined tag/anchor alias counterexamples verified (internal/composer/anchors.ts:45)."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer.round-3.test.ts:104",
+          "upstreamBehaviour": "Quoted multiline keys are rejected even when introduced by an explicit ? indicator.",
+          "labBehaviour": "The explicit-key exemption applies before quoted multiline-key rejection; implicit multiline keys remain rejected.",
+          "reason": "upstream-bug: explicit-multiline-keys; single- and double-quoted explicit multiline keys verified to be wrongly rejected (internal/composer/block.ts:1664)."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer.round-3.test.ts:120; scratchpad/test/yaml/composer.round-3.test.ts:132",
+          "upstreamBehaviour": "Comments between an empty key and its value are dropped from the AST and stringify output.",
+          "labBehaviour": "The consumed-value comment payload is kept and separator-line and leading comments attach using the named-key attribution rules, preserving parse/stringify bytes.",
+          "reason": "upstream-bug: empty-key-value-comments; three empty-key comment regressions with exact stringify bytes verified (internal/composer/block.ts:1212)."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer.round-3.test.ts:158; scratchpad/test/yaml/composer.round-3.test.ts:169",
+          "upstreamBehaviour": "Duplicate anchors or tags on multiline block, root and flow nodes silently collapse to the last property.",
+          "labBehaviour": "Metadata is validated before scalar-slot collapse and outer-slot overwrite through a shared validatePendingProperty, recording fatal diagnostics while retaining the last-property AST and legal container/key splits.",
+          "reason": "upstream-bug: duplicate-node-properties; twelve duplicate-property counterexamples verified (internal/composer/block.ts:610, document.ts, flow.ts)."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer.round-3.test.ts:186; scratchpad/test/yaml/composer.round-3.test.ts:216; scratchpad/test/yaml/composer.round-3.test.ts:229",
+          "upstreamBehaviour": "Composer comment helpers split lines on LF only, dropping or relocating comments and blank lines in CR and CRLF input.",
+          "labBehaviour": "All comment helpers and the block trailing-comment span scans recognize LF, CR and CRLF, so CR/CRLF inputs match their LF twins.",
+          "reason": "upstream-bug: composer-cr-comments; ten CR/CRLF comment-fidelity scenarios verified against LF twins (internal/composer/comments.ts:117)."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer.round-3.test.ts:255; scratchpad/test/yaml/composer.round-3.test.ts:261",
+          "upstreamBehaviour": "In flow mappings, a comment between the structural colon and the value is treated as completed content, demanding a comma.",
+          "labBehaviour": "Completed-content state clears at the structural colon; comments before a value are accepted and missing-comma rejection is kept.",
+          "reason": "upstream-bug: flow-comment-before-value; seven flow comment-before-value acceptance cases verified (internal/composer/flow.ts:111)."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer.round-3.test.ts:70",
+          "upstreamBehaviour": "A property-bearing empty explicit flow key at a comma or closing boundary is materialized inconsistently, mishandling its value, anchor or metadata.",
+          "labBehaviour": "One property-bearing empty key is materialized per boundary, its empty value resolved, its anchor registered and its metadata consumed once.",
+          "reason": "upstream-bug: flow-property-empty-key-once; four property-bearing empty-key regressions verified (internal/composer/flow.ts:368)."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer.round-3.test.ts:272; scratchpad/test/yaml/composer.round-3.test.ts:282; scratchpad/test/yaml/composer.round-3.test.ts:295",
+          "upstreamBehaviour": "Undeclared tag handles in the first document are missed, while tag-shaped plain continuation text in later documents is rejected by a cross-document precheck.",
+          "labBehaviour": "Consumed tag-property offsets are validated during every document composition and the cross-document precheck is removed; QLJ7 is still rejected via first-document parsing.",
+          "reason": "upstream-bug: tag-handle-composition; first-document undeclared handles and later-document continuation counterexamples verified (internal/composer/tags.ts:204)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:13; scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:32",
+          "upstreamBehaviour": "empty-lines diagnoses and deletes blank lines inside composed multiline plain scalars and counts them as layout floors.",
+          "labBehaviour": "Blank lines inside sourceMultiline scalar spans are excluded from checking, fixes and inference; independently parsed values stay unchanged.",
+          "reason": "upstream-bug: plain-scalar-blank-lines; six multiline plain-scalar cases verified to change values (internal/rules/empty-lines.ts:70)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:104; scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:116",
+          "upstreamBehaviour": "Unfinished explicit-key state in the indentation rule survives document markers, suppressing diagnostics and votes in later documents.",
+          "labBehaviour": "explicitKeyColumn resets at document-start and document-end tokens; same-document continuation stays exempt.",
+          "reason": "upstream-bug: indent-document-reset; six document-marker/scalar combinations verified (internal/rules/indentation.ts:146)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:48; scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:74",
+          "upstreamBehaviour": "eof-newline inserts a newline at every missing EOF newline, which adds a retained line to keep-chomp block scalars ending in a blank content line.",
+          "labBehaviour": "The EOF diagnostic stays but the insertion is withheld when it would change a keep-chomp value; safe insertions after content, spaces and tabs are kept.",
+          "reason": "upstream-bug: eof-keep-chomp-fidelity; independent yaml parser shows the retained-content difference (internal/rules/eof-newline.ts:80)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:169; scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:182; scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:189",
+          "upstreamBehaviour": "Descendants of collection-valued mapping keys are visited as values or items, so quote and truthy key policies are applied as value policies.",
+          "labBehaviour": "The scalar traversal gains an optional excludeMappingKeys mode (direct and pipeable) used by quoted-strings and truthy with checkKeys false; default traversal roles are unchanged.",
+          "reason": "upstream-bug: mapping-key-subtree-policy; sequence- and mapping-valued key fixtures verified (internal/rules/util.ts:169, quoted-strings.ts:128, truthy.ts)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:126; scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:132; scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:134",
+          "upstreamBehaviour": "An own-line anchor/tag-only predecessor hides key/sequence pairs from sequence-indentation checking and inference.",
+          "labBehaviour": "Property-only lines are skipped in sequence-pair scans but kept in the indentation-unit stack; aliases still count as content.",
+          "reason": "upstream-bug: indent-own-line-properties; own-line property policy and inference fixtures verified (internal/rules/indentation.ts:305)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:139; scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:145; scratchpad/test/yaml/rules/scalar-layout.round-3.test.ts:152",
+          "upstreamBehaviour": "Indentation width uses trimStart, counting a stream BOM, NBSP or other non-YAML whitespace as indentation.",
+          "labBehaviour": "Only U+0020 counts; one initial stream BOM is excluded and its width carried through token probes, compact columns, diagnostics and inference positions.",
+          "reason": "upstream-bug: indent-bom-and-spaces; BOM, NBSP, EM SPACE and doubled-BOM fixtures verified to yield false diagnostics and votes (internal/rules/indentation.ts:127)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/hyphen-spacing.round-3.test.ts:58",
+          "upstreamBehaviour": "hyphen-spacing scans the token suffix for every hyphen, so cost grows quadratically with nested entries.",
+          "labBehaviour": "Two linear token passes precompute compact-collection and explicit-scalar-parent safety; each hyphen queries it in constant time.",
+          "reason": "upstream-bug: hyphen-scan-scaling; deterministic operation-count regression at 1,024 and 2,048 nested entries (internal/rules/hyphen-spacing.ts:94)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/hyphen-spacing.round-3.test.ts:13; scratchpad/test/yaml/rules/hyphen-spacing.round-3.test.ts:32",
+          "upstreamBehaviour": "Explicit-indent scalar protection judges safety from the wrong indicator, withholding safe nested mapping-value fixes or allowing a moved parent hyphen.",
+          "labBehaviour": "Protection examines the header's immediate preceding indicator, skipping whitespace, tags and anchors: a colon permits the outer-hyphen fix, a moved parent hyphen withholds it.",
+          "reason": "upstream-bug: hyphen-safe-map-fix; decoded-value fidelity regressions across literal/folded scalars verified (internal/rules/hyphen-spacing.ts:106)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/document-end.round-3.test.ts:14; scratchpad/test/yaml/rules/document-end.round-3.test.ts:18",
+          "upstreamBehaviour": "A trailing lone CR leaves document-end EOF coordinates on the preceding line.",
+          "labBehaviour": "A trailing CR is a physical break: diagnostics and inference report the following line at character 0; insertion bytes are unchanged.",
+          "reason": "upstream-bug: document-end-cr-position; single, multiple and mixed CR/CRLF regressions verified (internal/rules/document-end.ts:74)."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/document-end.round-3.test.ts:47; scratchpad/test/yaml/rules/document-end.round-3.test.ts:68; scratchpad/test/yaml/rules/document-end.round-3.test.ts:86",
+          "upstreamBehaviour": "A forbidden end marker alone on its line is removed even when it solely preserves an empty final document, losing a document.",
+          "labBehaviour": "The rule locates the final document by token boundaries; the diagnostic remains but removal is withheld unless an explicit start marker preserves the empty document.",
+          "reason": "upstream-bug: document-end-empty-fidelity; document-count loss verified with an independent parser (internal/rules/document-end.ts:136)."
+        },
+        {
+          "test": "scratchpad/test/yaml/YamlLint.coverage.test.ts:19",
+          "upstreamBehaviour": "Fix selection tracks only the last accepted end/offset, dropping a disjoint earlier-offset fix that comes later in diagnostic order.",
+          "labBehaviour": "Each candidate is compared by interval against every accepted fix; overlaps keep diagnostic-order priority and all disjoint fixes apply via YamlEdit.applyAll.",
+          "reason": "upstream-bug: lint-fix-order; eight reversed disjoint/overlapping custom-rule cases verified (YamlLint.ts:877)."
+        },
+        {
+          "test": "scratchpad/test/yaml/modify-regional.test.ts:19",
+          "upstreamBehaviour": "Regional modify compares scalar values with Object.is.",
+          "labBehaviour": "Equal.equals plus an explicit numeric zero-sign comparison; NaN equality, positive-zero regional CRLF preservation and the negative-zero full rewrite are unchanged.",
+          "reason": "native-runtime: native runtime helpers are replaced by Effect modules (2026-10-09 grilling ruling); behaviour preserved (YamlFormat.ts:776)."
+        },
+        {
+          "test": "scratchpad/test/yaml/internal/requote.round-3.test.ts:9; scratchpad/test/yaml/internal/requote.round-3.test.ts:14; scratchpad/test/yaml/internal/requote.round-3.test.ts:43",
+          "upstreamBehaviour": "The requote payload is a handwritten interface, the requote policy a handwritten string union, and parser state a handwritten interface.",
+          "labBehaviour": "RequoteScalarInput is an annotated structural schema, RequoteMode a LiteralKit (both new runtime exports with schema-derived types), and ParserState a file-local schema with S.mutableKey pos/depth; no per-call decoding.",
+          "reason": "schema-first: D5/D11 require data models as schemas and named literal domains as LiteralKit (internal/requote.ts:57, :94; internal/cst-parser.ts:20)."
+        },
+        {
+          "test": "scratchpad/test/yaml/internal/requote.round-3.test.ts:33",
+          "upstreamBehaviour": "Requote span offset/length and parser pos/depth are plain numbers.",
+          "labBehaviour": "They are S.Finite fields; the schema rejects nonfinite spans. Requoting and parsing do not validate per call, so runtime behaviour is unchanged.",
+          "reason": "numeric-domains: the finite-number ruling requires numeric refinements on modeled coordinates (internal/requote.ts:62; internal/cst-parser.ts)."
+        },
+        {
+          "test": "scratchpad/test/yaml/internal/requote.round-3.test.ts:9",
+          "upstreamBehaviour": "The requote payload, policy and parser state carry no schema identity or field descriptions.",
+          "labBehaviour": "RequoteMode carries a $I.annote identity, and RequoteScalarInput and ParserState fields carry annotateKey descriptions.",
+          "reason": "identity-annotations: schema identity and field-annotation laws (D11) apply to the newly modeled schemas (internal/requote.ts; internal/cst-parser.ts)."
         }
       ],
       "backlog": [
@@ -3030,6 +3234,18 @@
           "round": 2,
           "finding": "section-14-registration — Register round-2 deviations centrally (scratchpad/effected/PORT_LEDGER.json)",
           "reason": "docs: LEFT fix-yaml-g8.md: section-14 registration is outside the port write surface; the report supplies DEVIATION records for central bookkeeping. PORT_LEDGER.json is the inferred destination because the LEFT line supplies no file."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "internal-schema-roundtrip-properties — Add generated round trips for the internal schemas at S3 (scratchpad/effected/yaml/internal/options.ts:30)",
+          "reason": "test: S3 property/coverage work deferred by the merge instruction; add Arbitrary.schema encode/decode round trips for CstNode, ParseOptionsInput, StringifyOptionsInput, RawDirective, RawYamlDocument, RawDiagnostic, RawEdit."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "module-test-gate — Shared-checkout module test failures outside the g4 write surface (scratchpad/test/yaml/e2e/format-properties.e2e.test.ts:84)",
+          "reason": "test: left by g4 as outside its write surface; WZ62/X38W corpus known-defect lists needed central reconciliation (now removed in the working tree) and five sibling-lane CST boundary failures in internal/cst-visitor.coverage.test.ts were reported."
         }
       ],
       "reviewRounds": [
@@ -3066,6 +3282,24 @@
             "fable": {
               "required": 12,
               "backlog": 1
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "c3fc60bdbfd5574dc69623d132dced0a552a586a",
+          "seats": {
+            "grok": {
+              "required": 6,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 28,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 14,
+              "backlog": 0
             }
           }
         }
