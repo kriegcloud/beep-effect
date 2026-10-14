@@ -223,8 +223,8 @@ export interface ProofJobLauncherShape {
 // Missing identity/accounting evidence refuses recovery rather than assuming
 // a loaded unit is empty. systemctl properties are decoded as boundary data.
 const systemdCount = S.String.check(S.isPattern(/^(0|[1-9][0-9]*)$/u));
-class ProofJobUnitObservation extends S.Class<ProofJobUnitObservation>($I`ProofJobUnitObservation`)(
-  {
+class ProofJobUnitObservation extends S.Opaque<ProofJobUnitObservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ActiveState: S.NonEmptyString,
     SubState: S.NonEmptyString,
     MainPID: systemdCount,
@@ -235,10 +235,11 @@ class ProofJobUnitObservation extends S.Class<ProofJobUnitObservation>($I`ProofJ
     ExecMainCode: systemdCount,
     ExecMainStatus: systemdCount,
     InvocationID: S.String,
-  },
-  $I.annote("ProofJobUnitObservation", {
-    description: "Terminal unit state and process/accounting evidence required for dead-job recovery.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobUnitObservation", {
+      description: "Terminal unit state and process/accounting evidence required for dead-job recovery.",
+    })
+  )
 ) {}
 const ProofJobUnitEvidence = S.TaggedUnion({
   absent: {},

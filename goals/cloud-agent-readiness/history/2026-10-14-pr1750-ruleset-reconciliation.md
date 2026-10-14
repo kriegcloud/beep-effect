@@ -72,3 +72,25 @@ Five schema/governance files pass 111 tests after resolution. A new command-leve
 regression separately passes: a production class referenced only by an excluded
 test's instanceof expression is retained, while an otherwise plain class is
 reported. Main's existing class detector unit tests also pass.
+
+## Policy findings at a1bbdb73ef
+
+The merged-head worker job 43df2bd0-19fa-46c5-949c-73ecd0cf1b77 settled red on
+schema-first alone. All other cheap lanes pass. The scan completed in 139,598 ms
+with observed peak 7,353,901,056 bytes, below the existing soft memory limit.
+It reports four real findings: the readiness observation data class lacks a
+brand and should be Opaque; two TaggedError classes inherited from main lack
+brands. Migrate ProofJobUnitObservation to branded S.Opaque over its unchanged
+fields and add brands to MatterLookupUnreadable and TimerStoreUnreadable.
+No finding is waived or admitted to the inventory. Eight recovery/application
+test files pass 143 tests after these changes.
+
+Hosted JSDoc Ratchet job 116106919292 uses a freshly generated inventory and
+reports no-root-package-import 1345 versus baseline 1343. A fresh private local
+inventory reproduces those totals. Comparing finding identities against the
+committed inventory locates exactly two additions, both inherited from main:
+TierGateVerdict's example and MintFetchableHandle's example. Change their
+@beep/mcp-kit root imports to the existing exported TierGate and FieldTier
+module paths. Preserve the totals baseline and all other policy protections.
+The worker's cheap JSDoc gate reads the committed inventory; its success does
+not establish a fresh inventory's compliance. Verify the fresh inventory too.

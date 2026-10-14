@@ -170,7 +170,7 @@ export type DocumentsProjectionOutput = typeof DocumentsProjectionOutput.Type;
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { FetchableHandle } from "@beep/mcp-kit"
+ * import { FetchableHandle } from "@beep/mcp-kit/FieldTier"
  * import { MintFetchableHandle } from "@beep/uspto-mcp/UsptoDocumentTiers"
  *
  * const mint = MintFetchableHandle.implementSync((oversized) =>
