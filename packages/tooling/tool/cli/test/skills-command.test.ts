@@ -3,9 +3,13 @@ import {
   encodeSkillsLockDocumentJson,
   renderCodexConfigWithSkills,
   runSkillsUpdate,
+  SkillEffective,
   SkillsLockDocument,
+  SkillUpstreamContentFile,
   skillsCommand,
+  VendoredSkillLockEntry,
 } from "@beep/repo-cli/commands/Skills";
+import { computeSkillTree, installedTargetsHash } from "@beep/repo-cli/test/Skills";
 import { findRepoRoot } from "@beep/repo-utils";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { it } from "@beep/test-runner";
@@ -401,6 +405,60 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills update over a v2 l
       expect(error._tag).toBe("SkillsCommandError");
       expect(error.message).toContain("neither a valid v2 lock nor a v1 lock");
       expect(yield* readProjectFile(".claude/skills/grill-me/SKILL.md")).toBe("vendored skill\n");
+    }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+  );
+
+  it.effect("reports hand-edited vendored output and names both remedies", () =>
+    Effect.gen(function* () {
+      yield* temporaryRepository;
+      const fs = yield* FileSystem.FileSystem;
+      yield* writeProjectFile(".codex/config.toml", "[skills]\n  include_instructions = true\n");
+      yield* fs.makeDirectory(".agents", { recursive: true });
+      yield* fs.symlink("../.claude/skills", ".agents/skills");
+      yield* writeProjectFile(".claude/skills/demo/SKILL.md", "---\nname: demo\ndescription: Demo.\n---\n");
+      const tree = yield* computeSkillTree(
+        [
+          SkillUpstreamContentFile.make({
+            path: "SKILL.md",
+            mode: "100644",
+            bytes: new TextEncoder().encode(yield* readProjectFile(".claude/skills/demo/SKILL.md")),
+          }),
+        ],
+        "demo"
+      );
+      const fixture = yield* decodeSkillsLockDocumentJson(yield* fs.readFileString(oracleLockFixture));
+      const base = fixture.skills.oracle;
+      assert(base !== undefined && base._tag === "vendored");
+      const targets = [".claude/skills/demo", ".agents/skills/demo"];
+      const demo = VendoredSkillLockEntry.make({
+        ...base,
+        effective: SkillEffective.make({
+          treeHash: tree.treeHash,
+          installedTargets: targets,
+          installedTreeHash: yield* installedTargetsHash(
+            A.map(targets, (target) => [target, tree.treeHash] as const),
+            "demo"
+          ),
+        }),
+      });
+      const lock = SkillsLockDocument.make({ version: 2, skills: { demo } });
+      yield* writeProjectFile("skills-lock.json", `${yield* encodeSkillsLockDocumentJson(lock)}\n`);
+      const vendoredDrift = (drift: ReadonlyArray<{ readonly _tag: string }>) =>
+        A.filter(drift, (entry) => entry._tag === "HandEditedVendoredOutput");
+
+      // The untouched install is not hand-edited output.
+      expect(vendoredDrift(yield* runSkillsUpdate({ mode: "dry-run", skill: O.some("grill-me") }))).toEqual([]);
+
+      yield* writeProjectFile(".claude/skills/demo/SKILL.md", "---\nname: demo\ndescription: Edited by hand.\n---\n");
+      const error = yield* runSkillsUpdate({ mode: "check", skill: O.some("grill-me") }).pipe(Effect.flip);
+
+      expect(error._tag).toBe("SkillsDriftError");
+      const line = A.findFirst(A.filter(yield* TestConsole.logLines, P.isString), Str.startsWith("- hand-edited"));
+      assertSome(
+        line,
+        "- hand-edited-vendored-output: demo no longer matches its effective tree; keep the edit as a patch (beep skills patch add, B-6) or revert it with beep skills materialize --skill demo"
+      );
+      expect(yield* readProjectFile(".claude/skills/demo/SKILL.md")).toContain("Edited by hand.");
     }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
   );
 });
