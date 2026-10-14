@@ -198,8 +198,8 @@ export const termEvidenceFrom: {
  * @category models
  * @since 0.0.0
  */
-export class EvidencedCandidateInput extends S.Class<EvidencedCandidateInput>($I`EvidencedCandidateInput`)(
-  {
+export class EvidencedCandidateInput extends S.Opaque<EvidencedCandidateInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifactFixtureKey: S.NonEmptyString.annotateKey({
       description: "Fixture key of the source artifact the evidence quotes.",
     }),
@@ -224,10 +224,11 @@ export class EvidencedCandidateInput extends S.Class<EvidencedCandidateInput>($I
     startChar: S.Natural.annotateKey({
       description: "Source offset of the evidence quote.",
     }),
-  },
-  $I.annote("EvidencedCandidateInput", {
-    description: "Inputs of one candidate-lifecycle claim and its supporting evidence span.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidencedCandidateInput", {
+      description: "Inputs of one candidate-lifecycle claim and its supporting evidence span.",
+    })
+  )
 ) {}
 
 /**
