@@ -179,6 +179,38 @@ Further acceptance for P2a:
 - A property test checks determinism: decomposing the same claim twice gives `Equal` trees.
 - `bun run beep quality package-verify @beep/law-practice-domain` passes.
 
+## P2a as built (2026-10-14)
+
+The implementation follows this design, with these recorded deviations:
+
+- **Colon split.** A top-level `:` followed by whitespace, or ending the body, also ends a segment,
+  and the colon stays on the left. A segment that is only `:` is dropped. Without this,
+  `colon-sublist` never fires on natural text ("comprising: a lens; and …"). It also handles the
+  normalizer's body shape, which starts with the transition colon.
+- **`claim-not-in-claims`** also fires when the claim's own number is absent from `claims`, as
+  the P1 contract states.
+- **Rule ids.**
+  - Outside-chain findings use `outside-chain`.
+  - Several number-variant matches give `ambiguous-antecedent` with rule
+    `determiner-number-mismatch`.
+  - `chain-unresolvable` has fixture 21, and collapsed duplicate `pattern-not-covered` findings
+    have fixture 16b.
+- **Idioms.** A `the` term is skipped when the first word of its head is an idiom word, so
+  "the same rate" is skipped too. Otherwise "at the same rate" would be a false positive.
+- **Duplicates.** `pattern-not-covered` carries no chain, so findings that would be identical
+  across chains collapse into one.
+- **Participles.** Words of four letters or fewer and `-eed` words ("speed", "feed") are not
+  participles. So "a high speed sensor" keeps the head `high speed sensor`; a regression test
+  covers it.
+- **Lint.** The two bindings carry a one-line suppression of `missingPipeableSignature`, because
+  the P1 signatures are fixed and not pipeable.
+
+Known limits for P2c to measure. Each will be fixed or kept by its measured FP rate, not by guess:
+- `-ing` nouns after the first head token end the head ("a coil spring" gives `coil`; "a bearing
+  housing" gives `bearing`).
+- Verbs outside the boundary set join the head ("the housing holds" gives `housing holds`).
+- The number normalizer turns "lens" into "len", so "lens"/"lenses" are never number variants.
+
 ## Data access status (2026-10-14)
 
 - The USPTO ODP key on this workstation returns `403` (see `OPPORTUNITIES.md`), so the
