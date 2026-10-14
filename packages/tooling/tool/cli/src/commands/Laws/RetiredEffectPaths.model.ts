@@ -1,6 +1,8 @@
 /**
  * Schemas and data for the retired Effect module path law.
  *
+ * **Details**
+ *
  * The retired-to-current mapping and the allowlist live here as data so the
  * scanner in `RetiredEffectPaths.ts` stays a pure function of them. The
  * canonical prose record of the mapping is `.patterns/effect-module-paths.md`.

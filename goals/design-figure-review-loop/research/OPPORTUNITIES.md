@@ -99,3 +99,16 @@ sitting behind bot walls (`goals/design-figure-generation/research/OPPORTUNITIES
   2026-10-14 but `build-spec.ts` kept `lapWidth: 40` until a critic measured the sheet.
 - **Would have prevented it:** the corpus `check-overlap.ts` asserting every numeric answer
   against the generated spec, run by the render chain before a set is packed for review.
+
+## 2026-10-14 — calibration rows and docs drifted from the constants they describe
+
+- **Doing:** answering PR #1671 review round 1 (coderabbit on the Decision Log, the reviewer on
+  the `surface-class` docs).
+- **Evidence:** the log row for the gap growth said 1.3 while `Shading.rules.ts` sets 1.4; the
+  faint tone row said 1-2 lines while `toneSpacing` sets 2-4; three doc sites still described
+  level-line (hinge) hatching after the darkest-edge change. Each was written before a later
+  calibration and never re-read.
+- **Would have prevented it:** a calibration row that names the constant and its file, and a
+  lane step that re-reads every row and doc site naming a changed constant before `final`
+  (`graft grep "<constant>"` over `goals/` and `src/`); a validator floor read from the schema
+  that defines it, never a second literal (`ShadingPlan.clearance` now does this).
