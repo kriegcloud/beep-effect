@@ -778,7 +778,7 @@ const readInstalledTargets = Effect.fn("SkillsProvenance.readInstalledTargets")(
  * **Example** (Inspect the requirements before providing them)
  *
  * ```ts
- * import { SkillsCommandError } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ * import { SkillsCommandError, SkillUpstreamContentError } from "@beep/repo-cli/commands/Skills/Skills.errors"
  * import type { SkillProvenanceReport } from "@beep/repo-cli/commands/Skills/Skills.schemas"
  * import { resolveSkillProvenance, SkillUpstreamContentSource } from "@beep/repo-cli/commands/Skills/Skills.service"
  * import * as Crypto from "effect/Crypto";
@@ -787,7 +787,7 @@ const readInstalledTargets = Effect.fn("SkillsProvenance.readInstalledTargets")(
  * import * as Path from "effect/Path";
  * const resolved: Effect.Effect<
  *   SkillProvenanceReport,
- *   SkillsCommandError,
+ *   SkillsCommandError | SkillUpstreamContentError,
  *   SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
  * > = resolveSkillProvenance("shadcn", "/workspace/beep-effect")
  *
@@ -1082,8 +1082,9 @@ const atRevision = (resolution: SkillProvenanceResolution, revision: SkillGitRev
     upstream: SkillUpstream.make({ ...resolution.upstream, sourceRevision: revision }),
   });
 
-// A drifted path is `upstream-advanced` when the installed bytes (or absence)
-// equal the same path at the tracking ref's current upstream head; otherwise it is local.
+// A drifted path is `matches-upstream-head` when the installed bytes (or absence)
+// equal the same path at the tracking ref's current upstream head; otherwise it is
+// `differs-from-upstream-head`.
 const classifyDrift = Effect.fn("SkillsLock.classifyDrift")(function* (
   resolution: SkillProvenanceResolution,
   repoRoot: string,

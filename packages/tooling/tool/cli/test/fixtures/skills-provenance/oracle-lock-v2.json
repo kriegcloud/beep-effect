@@ -37,11 +37,7 @@
         "confidence": "medium",
         "matchedFileCount": 0,
         "upstreamFileCount": 1,
-        "evidence": [
-          "historical-import",
-          "package-owner",
-          "path-history"
-        ]
+        "evidence": ["historical-import", "package-owner", "path-history"]
       },
       "patches": {
         "required": true,
@@ -58,10 +54,7 @@
       },
       "effective": {
         "treeHash": "5555555555555555555555555555555555555555555555555555555555555555",
-        "installedTargets": [
-          ".claude/skills/oracle",
-          ".agents/skills/oracle"
-        ],
+        "installedTargets": [".claude/skills/oracle", ".agents/skills/oracle"],
         "installedTreeHash": "6666666666666666666666666666666666666666666666666666666666666666"
       }
     }

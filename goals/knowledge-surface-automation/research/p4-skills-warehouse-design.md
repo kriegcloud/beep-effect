@@ -97,6 +97,17 @@ v1 file, because the 29 local skills would lose their installed-tree hash and
 - **Later:** `materialize` + the clearing-house equivalence check (P4); Renovate +
   hunk ledger (P5).
 
+### Tracked follow-ups (from #1633 review, round 3)
+
+- **B-3 input:** a per-skill `SkillsCommandError` from `resolveSkillProvenance`
+  still aborts the whole plan. Catch it per skill, as the content error already is,
+  and emit an `unresolved` row instead.
+- **B-3 input:** `matches-upstream-head` is not yet a safe pin-bump signal, because
+  `classifyDrift` sees only the drifted paths and never the rest of the tree at the
+  head. Before the lock write relies on it, either compare the whole tree at the
+  head or reword the promise. The path-history reclassification in the B verdict
+  (`p1-fp-eyeball-verdicts.md`) subsumes this.
+
 ## Decisions (B5–B10)
 
 - **B5 — tagged-union lock.** Reason: the 29 local skills need the same drift

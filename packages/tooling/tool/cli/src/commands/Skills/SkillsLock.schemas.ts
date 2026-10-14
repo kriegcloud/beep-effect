@@ -15,8 +15,8 @@
  *
  * Migration from v1 is plan-first: {@link SkillsLockMigrationPlan} reports,
  * per skill, the disposition, the computed v2 entry, and every drifted path
- * classified as `upstream-advanced` or `local` against the tracking ref's
- * current upstream head (recorded as `upstreamHead`, the pin-bump target),
+ * classified as `matches-upstream-head` or `differs-from-upstream-head` against
+ * the tracking ref's current upstream head (recorded as `upstreamHead`, the pin-bump target),
  * without writing anything.
  *
  * @packageDocumentation

@@ -276,7 +276,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
     { arbitrary: { runs: 32 } }
   );
 
-  it.effect("classifies every v1 skill and splits drift into local and upstream-advanced", () =>
+  it.effect("classifies every v1 skill and splits drift by whether it matches the upstream head", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -296,7 +296,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
         }),
       ];
       // The pinned revision serves the upstream composition; the current head already
-      // carries the installed composition, so that file is upstream-advanced.
+      // carries the installed composition, so that file matches the upstream head.
       const source = SkillUpstreamContentSource.of({
         load: Effect.fn("SkillsLockPlanTest.load")((resolution) =>
           Effect.succeed(
