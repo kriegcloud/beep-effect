@@ -223,3 +223,23 @@
   reads; the dedicated writer and ready-sequence tests retain real reconciliation.
 - Would have prevented it: running the complete scripted-process suite with
   the empty-set change before publication, rather than only the direct gate tests.
+
+## 2026-10-14: Runtime-green sequence fixtures failed the test compiler
+
+- Doing: running ordered S11 hosted-parity checks after the package audit passed.
+- Evidence: `quality test-tsgo` reported TS377047 for the two new ready-sequence
+  reader callbacks. Converted the generator callbacks to `Effect.fnUntraced`;
+  no production behavior changed.
+- Would have prevented it: applying the Effect callback rule to test dependency
+  fixtures before the full audit, since runtime tests do not enforce it.
+
+## 2026-10-14: Integrating the skills split exposed an inherited host-path gate
+
+- Doing: finishing ordered S11 qualification after resolving the #1685 skill split.
+- Evidence: `knowledge refs --check` reported one live gated observation,
+  `external-mirror-reference` at `.claude/skills/shadcn/design-system.md:31`,
+  introduced on main by 96f1f5087b. The file is unchanged by this lane.
+  Consolidated main repair is tracked in #1695 for the orchestrator and skills
+  owner; dependent lanes should integrate that repair once instead of copying it.
+- Would have prevented it: the skills import proof running the host-path gate
+  on the imported Markdown references before the merge.

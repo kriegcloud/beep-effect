@@ -619,11 +619,10 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       const flips = yield* Ref.make(0);
       const currentHead = yield* Ref.make(headSha);
       const dependencies = {
-        read: () =>
-          Effect.gen(function* () {
-            const sha = yield* Ref.get(currentHead);
-            return (yield* Ref.get(green)) ? prView({ headSha: O.some(sha) }) : redRead([lint]);
-          }),
+        read: Effect.fnUntraced(function* () {
+          const sha = yield* Ref.get(currentHead);
+          return (yield* Ref.get(green)) ? prView({ headSha: O.some(sha) }) : redRead([lint]);
+        }),
         recordInherited: (_pr: number, entries: ReadonlyArray<YeetReadyInheritedRed>, sha: string) =>
           Ref.update(body, (source) => O.getOrThrow(spliceYeetInheritedRedsSection(source, entries, sha))).pipe(
             Effect.andThen(Ref.set(green, true))
@@ -652,14 +651,13 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       const green = yield* Ref.make(false);
       const sha = yield* Ref.make(headSha);
       const dependencies = {
-        read: () =>
-          Effect.gen(function* () {
-            const isDraft = yield* Ref.get(draft);
-            const current = yield* Ref.get(sha);
-            return (yield* Ref.get(green))
-              ? prView({ isDraft, headSha: O.some(current) })
-              : prView({ checks: [lint], failingRequiredCheckCount: 1, isDraft, headSha: O.some(current) });
-          }),
+        read: Effect.fnUntraced(function* () {
+          const isDraft = yield* Ref.get(draft);
+          const current = yield* Ref.get(sha);
+          return (yield* Ref.get(green))
+            ? prView({ isDraft, headSha: O.some(current) })
+            : prView({ checks: [lint], failingRequiredCheckCount: 1, isDraft, headSha: O.some(current) });
+        }),
         recordInherited: (_pr: number, entries: ReadonlyArray<YeetReadyInheritedRed>, head: string) =>
           Ref.update(body, (source) => O.getOrThrow(spliceYeetInheritedRedsSection(source, entries, head))),
         markReady: () => Ref.set(draft, false),
