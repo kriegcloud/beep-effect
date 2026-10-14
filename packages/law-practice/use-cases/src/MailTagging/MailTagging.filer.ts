@@ -215,13 +215,13 @@ const hashFailed = (operation: "sha256" | "sha1") => () =>
  * different content, the first eight hex characters of the hash go before the
  * extension, so a new upload never targets a name the ledger knows.
  *
- * Filing is two-phase in `apply`. New content appends a `FilingIntended` line
+ * Filing is two-phase in `apply`. New content appends a `FilingIntent` line
  * first, then uploads, then appends the `FilingCompleted` line. When that
  * first upload finds its name taken, the name belongs to a file this ledger
  * never stored: the filer appends a `FilingAbandoned` line for the intent and
  * tries once more under the short-hash name, with a new intent. If that name
- * is taken as well it is abandoned too and the filer fails with a
- * `DocumentStore` port error.
+ * is taken as well it is abandoned too and the attachment settles as
+ * `name-held` for operator follow-up.
  *
  * Because every name-taken outcome of a first attempt is abandoned, a pending
  * intent comes from a run that stopped before recording its outcome. The next
@@ -233,16 +233,16 @@ const hashFailed = (operation: "sha256" | "sha1") => () =>
  * It reports the name taken and describes the holder: the filer reconciles
  * only on a content match.
  *
- * The holder is the filer's own earlier upload when the store reports a
- * SHA-1 and it equals the SHA-1 of the attachment's bytes, or, when the store
- * reports no hash, when it reports a size equal to the intent's `byteLength`.
+ * The holder is the filer's own earlier upload only when the store reports a
+ * SHA-1 equal to the SHA-1 of the attachment's bytes. Matching byte length
+ * alone does not prove ownership when the store reports no hash.
  * Then the completion is recorded with the holder's id and
  * `reconciled: true`, counted as `attachmentsReconciled`. A holder with a
- * different hash, a different size, or neither reported is not provably the
+ * different hash or no hash is not provably the
  * attachment: the intent is abandoned as `holder-mismatch` and the content is
  * filed through the same short-hash path a first attempt uses. If the pending
  * intent already carried the short-hash name there is no other name to try,
- * and the filer fails with a `DocumentStore` port error. So a pending intent
+ * and the attachment settles as `name-held`. So a pending intent
  * is never completed against a file that held the name before the first
  * attempt, whether that attempt failed before the store checked the name or
  * its abandonment line was lost.

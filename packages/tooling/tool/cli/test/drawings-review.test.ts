@@ -1163,6 +1163,9 @@ describe("beep drawings review", () => {
         expect(wrong.message).toContain("No attachment of the draft is the sheet-set PDF");
 
         yield* fs.writeFileString(draftFile, yield* draft(corpus.sent.hash));
+        const deliveryFile = path.join(corpus.sent.dir, "delivery.json");
+        const escapedDelivery = path.join(corpus.root, "escaped-delivery.json");
+        yield* fs.symlink(escapedDelivery, deliveryFile);
         yield* runDrawings([
           "deliver",
           "record",
@@ -1174,7 +1177,7 @@ describe("beep drawings review", () => {
           "AAMk-sent",
         ]);
         expect(yield* logged).toContain(`delivery of sheet set ${corpus.sent.hash} recorded`);
-        const deliveryFile = path.join(corpus.sent.dir, "delivery.json");
+        expect(yield* fs.exists(escapedDelivery)).toBe(false);
         const twice = yield* Effect.flip(
           review.deliver(
             DeliverRequest.make({

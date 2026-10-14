@@ -43,8 +43,8 @@ if [ -n "${deny}" ]; then
     agent_message:("`"+$d+"` is denied in this repository for Cursor lanes (any token, any path). Do not retry with a wrapper; report what you needed instead.")}'
 elif [[ "${command_line}" =~ ${expansion_pattern} || -n "${glob}" ]]; then
   jq -cn '{permission:"deny",
-    user_message:"Blocked: shell expansion is denied in Cursor lanes (D21) because the guard cannot see what it produces.",
-    agent_message:"Shell expansion ($name, ${...}, $(...), $'"'"'...'"'"', backticks) is denied in this repository for Cursor lanes. Rewrite the command with literal values; do not retry with another indirection."}'
+    user_message:"Blocked: shell expansion, including pathname globs (* ? [ ]), is denied in Cursor lanes (D21) because the guard cannot see what it produces.",
+    agent_message:"Shell expansion ($name, ${...}, $(...), $'"'"'...'"'"', backticks, pathname globs * ? [ ]) is denied in this repository for Cursor lanes. Rewrite the command with literal values; do not retry with another indirection."}'
 else
   printf '{"permission":"allow"}\n'
 fi

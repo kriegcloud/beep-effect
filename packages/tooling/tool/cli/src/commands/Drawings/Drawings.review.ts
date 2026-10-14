@@ -193,8 +193,8 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
         let temporaryDir: string | undefined;
         try {
           const actualParent = nodeFs.realpathSync(`/proc/self/fd/${directory}`);
-          if (actualParent !== parent || !isWithin(root, actualParent)) {
-            throw refuse("The review directory changed or leaves the corpus root.");
+          if (actualParent !== parent || (actualParent !== root && !isWithin(root, actualParent))) {
+            throw refuse("The output directory changed or leaves its selected root.");
           }
           const heldParent = `/proc/self/fd/${directory}`;
           const target = `${heldParent}/${path.basename(file)}`;
@@ -280,16 +280,13 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
     schema: S.Codec<A, I>,
     file: string,
     value: A,
-    roundRoot?: string
+    writeRoot: string
   ) {
     const json = yield* S.encodeEffect(S.fromJsonString(schema, { space: 2 }))(value).pipe(
       Effect.mapError(fail(`Could not encode "${file}".`))
     );
     const bytes = encoder.encode(`${json}\n`);
-    yield* O.match(O.fromNullishOr(roundRoot), {
-      onNone: () => fs.writeFile(file, bytes).pipe(Effect.mapError(fail(`Could not write "${file}".`))),
-      onSome: (root) => writeRoundFile(root, file, bytes),
-    });
+    yield* writeRoundFile(writeRoot, file, bytes);
     return yield* sha256(bytes);
   });
 
@@ -596,7 +593,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       attachments: draft.attachments,
       deliveredAt: DateTime.formatIso(yield* DateTime.now),
     });
-    yield* writeJson(DeliveryRecord, out, record);
+    yield* writeJson(DeliveryRecord, out, record, path.dirname(out));
     return DeliveryWritten.make({ path: out, record });
   });
 
