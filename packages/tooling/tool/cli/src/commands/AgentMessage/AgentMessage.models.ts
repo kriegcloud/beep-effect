@@ -7,6 +7,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { EffortLevel, ModelId } from "../Models/Models.catalog.schemas.ts";
@@ -658,11 +659,17 @@ export class LaunchGrant extends S.Class<LaunchGrant>($I`LaunchGrant`)(
  * @category policies
  * @since 0.0.0
  */
-export const receivingGrantAllowsEnvelopeScope = (grant: LaunchGrant, envelope: Envelope) =>
-  envelope.to.kind === "direct" &&
-  envelope.to.endpointId === grant.endpointId &&
-  envelope.repositoryScope === grant.repositoryScope &&
-  (O.isNone(grant.conversationScope) || envelope.conversationId === grant.conversationScope.value);
+export const receivingGrantAllowsEnvelopeScope: {
+  (grant: LaunchGrant, envelope: Envelope): boolean;
+  (envelope: Envelope): (grant: LaunchGrant) => boolean;
+} = dual(
+  2,
+  (grant: LaunchGrant, envelope: Envelope): boolean =>
+    envelope.to.kind === "direct" &&
+    envelope.to.endpointId === grant.endpointId &&
+    envelope.repositoryScope === grant.repositoryScope &&
+    (O.isNone(grant.conversationScope) || envelope.conversationId === grant.conversationScope.value)
+);
 
 /**
  * Typed router failure preserving a bounded diagnostic message.
