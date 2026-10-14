@@ -22,18 +22,20 @@
     "build": "bun run beep:build",
     "check": "bun run beep:check",
     "coverage": "bunx vitest run --coverage",
-    "dev": "portless practice-claude-mod.beep sh -c 'bun --watch src/main.ts'",
     "lint": "bun run beep:lint",
     "lint:deprecated-apis": "beep-cli lint deprecated-apis --package .",
     "lint:fix": "bun run beep:lint:fix",
     "lint:jsdoc": "beep-cli lint jsdoc --package .",
     "lint:laws": "beep-cli lint laws --package .",
     "package-test-typecheck": "beep-cli quality test-tsgo-package",
-    "test": "bun run beep:test"
+    "test": "bun run beep:test",
+    "plugin:build": "bun run src/build-plugin.ts",
+    "plugin:test": "bun run plugin:build && claude plugin validate dist/plugin && claude plugin test dist/plugin"
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@effect/platform-bun": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {

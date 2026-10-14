@@ -11,7 +11,6 @@ import { LiteralKit } from "@beep/schema";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import type { Engine } from "claude-code";
 
@@ -100,20 +99,20 @@ const call = <A>(operation: ModHostOperation, run: () => Promise<A>): Effect.Eff
  *
  * Build it per dispatch: `$` belongs to the hook that received it.
  *
- * **Example** (Reference the layer constructor)
+ * **Example** (Reference the constructor)
  *
  * ```ts
  * import * as P from "effect/Predicate"
- * import { modHostLayer } from "@/PracticeMod.host"
+ * import { makeModHost } from "@/PracticeMod.host"
  *
- * console.log(P.isFunction(modHostLayer)) // true
+ * console.log(P.isFunction(makeModHost)) // true
  * ```
  *
- * @category layers
+ * @category constructors
  * @since 0.0.0
  */
-export const modHostLayer = ($: Engine): Layer.Layer<ModHost> =>
-  Layer.succeed(ModHost)({
+export const makeModHost = ($: Engine): ModHost["Service"] =>
+  ModHost.of({
     storeGet: Effect.fn("ModHost.storeGet")((key: string) => call("store-get", () => $.store.get(key))),
     storeSet: Effect.fn("ModHost.storeSet")((key: string, value: unknown) =>
       call("store-set", () => $.store.set(key, value))

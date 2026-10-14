@@ -128,7 +128,22 @@ const latestFor = (rows: ReadonlyArray<VerdictRow>, itemId: string): O.Option<Ve
     A.last
   );
 
-const make = Effect.gen(function* () {
+/**
+ * Builds the verdict log over the mod host's store.
+ *
+ * **Example** (Reference the constructor)
+ *
+ * ```ts
+ * import * as Effect from "effect/Effect"
+ * import { makeVerdictLog } from "@/PracticeMod.verdicts"
+ *
+ * console.log(Effect.isEffect(makeVerdictLog)) // true
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeVerdictLog = Effect.gen(function* () {
   const host = yield* ModHost;
 
   const current = Effect.fn("VerdictLog.current")(function* (itemId: string) {
@@ -186,4 +201,4 @@ const make = Effect.gen(function* () {
  * @category layers
  * @since 0.0.0
  */
-export const verdictLogLayer: Layer.Layer<VerdictLog, never, ModHost> = Layer.effect(VerdictLog)(make);
+export const verdictLogLayer: Layer.Layer<VerdictLog, never, ModHost> = Layer.effect(VerdictLog)(makeVerdictLog);
