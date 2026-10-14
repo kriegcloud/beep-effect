@@ -451,3 +451,19 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
 - Action: route the completed comparator diagnostics to the shared owner and
   coordinator for source attribution and focused tests. Preserve every floor;
   dependent lanes must not duplicate repairs or lower the failing rows.
+
+## 2026-10-14: runner-loss retries delay the numerical coverage verdict
+
+- Work: qualify the integrated router and bridge head in hosted CI.
+- Evidence: #1571 at `f36e6eb538` loses both heavy runners before a verdict.
+  The lint retry loses its runner again. The completed coverage retry then
+  rejects inherited NLP, Knowledge, Skills, timezone and drawing floors and
+  six missing package rows. The failing source paths match bound main; the
+  lane's baseline diff contains only its thirteen additive identities.
+- Prevention: preserve per-attempt runner and terminal-verification receipts
+  separately, and complete the consolidated main coverage repair before
+  dependent lanes spend another full measurement.
+- Action: route numerical evidence to #1666 and the existing drawing owner.
+  Keep all floors and provider holds intact; integrate landed main repairs
+  together and request fresh hosted proof. Runner recovery alone cannot
+  clear a completed comparator failure.
