@@ -31,11 +31,12 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+P1 Implement — first slice (plain-language rows + verdict capture) built, tested in the engine, proven on the operator machine and installed on the attorney's PC; next: matter band + visible timer, then the ported skills.
 
 ## Latest Evidence
 
-Not started.
+- [`history/2026-10-14-engine-contract.md`](./history/2026-10-14-engine-contract.md)
+- [`history/2026-10-14-operator-machine-proof.md`](./history/2026-10-14-operator-machine-proof.md)
 
 ## Notes
 
