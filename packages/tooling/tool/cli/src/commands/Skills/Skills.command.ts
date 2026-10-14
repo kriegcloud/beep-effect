@@ -12,6 +12,7 @@ import { A, O, Str } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Crypto from "effect/Crypto";
 import { Argument, Command, Flag } from "effect/cli";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
@@ -21,6 +22,7 @@ import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as Random from "effect/Random";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -469,9 +471,50 @@ const writeStringFile = Effect.fn("Skills.writeStringFile")(function* (
 ): Effect.fn.Return<void, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
   yield* makeParentDirectory(absolutePath);
   const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const now = yield* DateTime.now;
+  const salt = yield* Random.nextIntBetween(0, 0xffffff);
+  const stamp = now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""));
+  const suffix = `${stamp}-${salt.toString(16)}`;
+  const existing = yield* readExistingFile(absolutePath);
+  if (O.isSome(existing) && existing.value === content) return;
+  const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Cannot locate skill backup root."));
+  const directory = path.join(repoRoot, ".beep", "skills-backups");
   yield* fs
-    .writeFileString(absolutePath, content)
-    .pipe(SkillsCommandError.mapError(`Failed to write ${absolutePath}.`, absolutePath));
+    .makeDirectory(directory, { recursive: true, mode: 0o700 })
+    .pipe(SkillsCommandError.mapError("Cannot create skill backup directory."));
+  if (O.isSome(existing)) {
+    yield* fs
+      .writeFileString(path.join(directory, `${path.basename(absolutePath)}.${suffix}`), existing.value, {
+        flag: "wx",
+        mode: 0o600,
+      })
+      .pipe(SkillsCommandError.mapError("Cannot back up skill projection."));
+  }
+  const temporary = `${absolutePath}.tmp-${suffix}`;
+  yield* Effect.acquireUseRelease(
+    fs
+      .writeFileString(temporary, content, { flag: "wx" })
+      .pipe(SkillsCommandError.mapError("Cannot stage skill projection.")),
+    Effect.fnUntraced(function* () {
+      const current = yield* readExistingFile(absolutePath);
+      if (!S.toEquivalence(S.Option(S.String))(current, existing))
+        return yield* SkillsCommandError.make({
+          message: "Skill projection drifted after planning.",
+          file: absolutePath,
+        });
+      if (O.isSome(existing)) {
+        const info = yield* fs
+          .stat(absolutePath)
+          .pipe(SkillsCommandError.mapError("Cannot read projection permissions."));
+        yield* fs
+          .chmod(temporary, info.mode)
+          .pipe(SkillsCommandError.mapError("Cannot preserve projection permissions."));
+      }
+      yield* fs.rename(temporary, absolutePath).pipe(SkillsCommandError.mapError("Cannot replace skill projection."));
+    }),
+    () => Effect.ignore(fs.remove(temporary))
+  );
 });
 
 const writeByteFile = Effect.fn("Skills.writeByteFile")(function* (
@@ -650,23 +693,55 @@ const writeRemoteSkill = Effect.fn("Skills.writeRemoteSkill")(function* (
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const skillDir = path.resolve(repoRoot, CLAUDE_SKILLS_DIR, source.name);
+  const now = yield* DateTime.now;
+  const salt = yield* Random.nextIntBetween(0, 0xffffff);
+  const suffix = `${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt.toString(16)}`;
+  const backups = path.join(repoRoot, ".beep", "skills-backups");
   yield* fs
-    .remove(skillDir, { recursive: true, force: true })
-    .pipe(SkillsCommandError.mapError(`Failed to remove stale skill directory ${skillDir}.`, skillDir, source.name));
-
-  for (const file of snapshot.files) {
-    const relativePath = yield* validateSkillFilePath(file.path, source.name);
-    const writePath = path.resolve(skillDir, relativePath);
-    const containmentPath = normalizeSlashes(path.relative(skillDir, writePath));
-    if (!isSafeRelativeSkillFilePath(containmentPath)) {
-      return yield* SkillsCommandError.make({
-        message: `Refusing to write remote skill "${source.name}" outside ${skillDir}: ${file.path}`,
-        file: file.path,
-        skill: source.name,
-      });
-    }
-    yield* writeByteFile(writePath, file.bytes);
-  }
+    .makeDirectory(backups, { recursive: true, mode: 0o700 })
+    .pipe(SkillsCommandError.mapError("Cannot create remote skill backup directory."));
+  const backup = path.join(backups, `${source.name}.${suffix}`);
+  const existed = yield* fs.exists(skillDir).pipe(SkillsCommandError.mapError("Cannot inspect remote skill."));
+  if (existed)
+    yield* fs
+      .copy(skillDir, backup, { overwrite: false, preserveTimestamps: true })
+      .pipe(SkillsCommandError.mapError("Cannot back up remote skill."));
+  const stage = path.join(path.dirname(skillDir), `.${source.name}.stage-${suffix}`);
+  const previous = path.join(path.dirname(skillDir), `.${source.name}.previous-${suffix}`);
+  yield* Effect.acquireUseRelease(
+    fs.makeDirectory(stage).pipe(SkillsCommandError.mapError("Cannot stage remote skill.")),
+    Effect.fnUntraced(function* () {
+      for (const file of snapshot.files) {
+        const relativePath = yield* validateSkillFilePath(file.path, source.name);
+        const writePath = path.resolve(stage, relativePath);
+        const containmentPath = normalizeSlashes(path.relative(stage, writePath));
+        if (!isSafeRelativeSkillFilePath(containmentPath))
+          return yield* SkillsCommandError.make({
+            message: "Refusing a remote skill file outside its staged tree.",
+            file: file.path,
+            skill: source.name,
+          });
+        yield* writeByteFile(writePath, file.bytes);
+      }
+      yield* Effect.uninterruptible(
+        Effect.gen(function* () {
+          if (existed)
+            yield* fs
+              .rename(skillDir, previous)
+              .pipe(SkillsCommandError.mapError("Cannot preserve previous remote skill."));
+          yield* fs.rename(stage, skillDir).pipe(
+            Effect.onError(() => (existed ? Effect.ignore(fs.rename(previous, skillDir)) : Effect.void)),
+            SkillsCommandError.mapError("Cannot publish staged remote skill.")
+          );
+          if (existed)
+            yield* fs
+              .remove(previous, { recursive: true })
+              .pipe(SkillsCommandError.mapError("Cannot remove backed-up skill staging tree."));
+        })
+      );
+    }),
+    () => Effect.ignore(fs.remove(stage, { recursive: true, force: true }))
+  );
 });
 
 const readLockFile = Effect.fn("Skills.readLockFile")(function* (
@@ -784,16 +859,70 @@ export const renderCodexConfigWithSkills: {
     return `${trimmed}\n\n${skillsBlock}`;
   }
 
-  const nextTableRelative = A.findFirstIndex(
-    A.drop(lines, start.value + 1),
-    (line) => /^\s*\[/.test(line) && !/^\s*\[\[skills\.config\]\]\s*$/.test(line)
-  );
-  const end = O.match(nextTableRelative, {
+  // Own include_instructions and the generated config rows. Preserve other
+  // parent keys and subtables verbatim instead of replacing the whole [skills] tree.
+  const parentEndRelative = A.findFirstIndex(A.drop(lines, start.value + 1), (line) => /^\s*\[/.test(line));
+  const parentEnd = O.match(parentEndRelative, {
     onNone: () => lines.length,
     onSome: (index) => start.value + 1 + index,
   });
-
-  return A.join([...A.take(lines, start.value), skillsBlock, ...A.drop(lines, end)], "\n");
+  const parentLines = A.filter(
+    A.slice(lines, { start: start.value + 1, end: parentEnd }),
+    (line) => !/^\s*include_instructions\s*=/.test(line)
+  );
+  const remainder = A.drop(lines, parentEnd);
+  let kept: ReadonlyArray<string> = [];
+  let seen = HashSet.empty<string>();
+  let cursor = 0;
+  while (cursor < remainder.length) {
+    const line = O.getOrElse(A.get(remainder, cursor), () => "");
+    if (!/^\s*\[\[skills\.config\]\]\s*$/.test(line)) {
+      kept = A.append(kept, line);
+      cursor += 1;
+      continue;
+    }
+    const next = A.findFirstIndex(A.drop(remainder, cursor + 1), (entry) => /^\s*\[/.test(entry));
+    const end = O.match(next, { onNone: () => remainder.length, onSome: (index) => cursor + 1 + index });
+    const row = A.slice(remainder, { start: cursor, end });
+    const name = O.flatMap(
+      A.findFirst(row, (entry) => /^\s*name\s*=/.test(entry)),
+      (entry) =>
+        O.flatMap(O.fromNullishOr(/^\s*name\s*=\s*["']([^"']*)["']/.exec(entry)), (match) =>
+          O.fromUndefinedOr(match[1])
+        )
+    );
+    const unknown = A.some(A.drop(row, 1), (entry) => !/^\s*(?:(?:name|enabled)\s*=|#|$)/.test(entry));
+    const nextHeader = O.getOrElse(A.get(remainder, end), () => "");
+    const hasNested = /^\s*\[skills\.config\./.test(nextHeader);
+    if (O.isSome(name) && A.contains(names, name.value)) {
+      seen = HashSet.add(seen, name.value);
+      const hasEnabled = A.some(row, (entry) => /^\s*enabled\s*=/.test(entry));
+      kept = A.appendAll(
+        kept,
+        A.map(row, (entry) =>
+          /^\s*enabled\s*=/.test(entry) ? Str.replace(/^(\s*enabled\s*=\s*)(?:true|false)/, "$1true")(entry) : entry
+        )
+      );
+      if (!hasEnabled) kept = A.append(kept, "    enabled = true");
+    } else if (unknown || hasNested || O.isNone(name)) {
+      // An unrecognized row owns native fields. Keep it until an explicit
+      // owner decides its lifecycle; absence from discovery is not non-use.
+      kept = A.appendAll(kept, row);
+    }
+    cursor = end;
+  }
+  const missing = A.filter(names, (name) => !HashSet.has(seen, name));
+  return A.join(
+    [
+      ...A.take(lines, start.value),
+      "[skills]",
+      "  include_instructions = true",
+      ...parentLines,
+      ...(A.isReadonlyArrayEmpty(missing) ? [] : A.drop(Str.split(renderSkillsBlock(missing), "\n"), 2)),
+      ...kept,
+    ],
+    "\n"
+  );
 });
 
 const renderDesiredCodexConfig = Effect.fn("Skills.renderDesiredCodexConfig")(function* (

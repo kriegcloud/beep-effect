@@ -787,6 +787,98 @@ export const Locator = LiteralKit([
 export type Locator = typeof Locator.Type;
 
 /**
+ * A locator write owns only the scalar or generated-block spans it resolves.
+ * Missing and ambiguous scalar addresses fail closed; shell addresses own all matches.
+ *
+ * **Example** (Describe a scalar projection)
+ *
+ * ```ts
+ * import { ModelsLocatorWrite } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * console.log(ModelsLocatorWrite.fields.expected)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsLocatorWrite extends S.Class<ModelsLocatorWrite>($I`ModelsLocatorWrite`)(
+  { locator: Locator, expected: S.String },
+  $I.annote("ModelsLocatorWrite", {
+    description:
+      "One grammar-specific locator and its expected scalar or generated block body; never whole-file ownership.",
+  })
+) {}
+
+/**
+ * One replacement range, measured in UTF-16 offsets into the original text.
+ *
+ * **Example** (Own one quoted value)
+ *
+ * ```ts
+ * import { ModelsWriteSpan } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * console.log(ModelsWriteSpan.make({ start: 8, end: 13, before: '"old"', after: '"new"' }).start)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsWriteSpan extends S.Class<ModelsWriteSpan>($I`ModelsWriteSpan`)(
+  { start: S.Int, end: S.Int, before: S.String, after: S.String },
+  $I.annote("ModelsWriteSpan", { description: "An owned text range with its drift fence and replacement." })
+) {}
+
+/**
+ * Explicit modes for the owned-field writer; the default CLI mode is dry-run.
+ *
+ * **Example** (Check a mode)
+ *
+ * ```ts
+ * import { ModelsApplyMode } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(ModelsApplyMode)("dry-run"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ModelsApplyMode = LiteralKit(["check", "dry-run", "write"]).pipe(
+  $I.annoteSchema("ModelsApplyMode", { description: "Whether to check, preview, or apply owned-field edits." })
+);
+
+/**
+ * Writer mode derived from its schema.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ModelsApplyMode = typeof ModelsApplyMode.Type;
+
+/**
+ * A private recovery record; file contents stay in the exclusive backup.
+ *
+ * **Example** (Inspect recovery fields)
+ *
+ * ```ts
+ * import { ModelsApplyJournal } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * console.log(ModelsApplyJournal.fields.backup)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsApplyJournal extends S.Class<ModelsApplyJournal>($I`ModelsApplyJournal`)(
+  {
+    id: S.NonEmptyString,
+    file: S.NonEmptyString,
+    backup: S.NonEmptyString,
+    beforeHash: S.NonEmptyString,
+    afterHash: S.NonEmptyString,
+    mode: S.Int,
+  },
+  $I.annote("ModelsApplyJournal", {
+    description: "Private recovery metadata written before a native file is replaced.",
+  })
+) {}
+
+/**
  * One file the projection writes, and every locator inside it.
  *
  * **Details**

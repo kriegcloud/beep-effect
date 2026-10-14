@@ -133,16 +133,20 @@ const functionLines = (content: string, name: string): ReadonlyArray<string> => 
 };
 
 const readShellAssign = (content: string, variable: string, within: O.Option<string>): O.Option<string> =>
-  firstMatch(
-    pipe(
-      within,
-      O.map((name) => functionLines(content, name)),
-      O.getOrElse(() => Str.split(content, "\n"))
-    ),
+  pipe(
+    within,
+    O.map((name) => functionLines(content, name)),
+    O.getOrElse(() => Str.split(content, "\n")),
     // `--model 'grok-4.6'` and `KEY=value` are the same shape once the
     // separator is allowed to be a space: the flag or variable name, then the
     // value.
-    new RegExp(`${escapeRegExp(variable)}[= ]['"]?([^'"\\s]+)`)
+    A.flatMap((line) =>
+      A.fromIterable(Str.matchAll(new RegExp(`${escapeRegExp(variable)}[= ]['"]?([^'"\\s]+)`, "g"))(line))
+    ),
+    A.map((match) => O.fromUndefinedOr(match[1])),
+    A.getSomes,
+    A.dedupe,
+    A.match({ onEmpty: O.none<string>, onNonEmpty: (values) => O.some(A.join(values, ", ")) })
   );
 
 const readEnvKey = (content: string, key: string): O.Option<string> =>

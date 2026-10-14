@@ -186,6 +186,27 @@ const readProjectFile = Effect.fn("SkillsCommandTest.readProjectFile")(function*
 });
 
 describe("skills command", () => {
+  it("preserves unknown parent, row, and nested skill fields", () => {
+    const native =
+      '[skills]\ninclude_instructions = false\nfuture_key = "keep"\n[[skills.config]]\nname = "grill-me"\nenabled = false\nfuture_row = "keep-row"\n[skills.config.future]\nvalue = "keep-nested"\n[skills.future]\nvalue = "keep-table"\n[mcp_servers.native]\nurl = "keep-endpoint"\n';
+    const rendered = renderCodexConfigWithSkills(native, ["grill-me", "closeout"]);
+    expect(rendered).toContain('future_key = "keep"');
+    expect(rendered).toContain('future_row = "keep-row"');
+    expect(rendered).toContain('[skills.config.future]\nvalue = "keep-nested"');
+    expect(rendered).toContain('[skills.future]\nvalue = "keep-table"');
+    expect(rendered).toContain('[mcp_servers.native]\nurl = "keep-endpoint"');
+    expect(rendered).toContain('name = "closeout"');
+    expect(rendered).toContain('name = "grill-me"\nenabled = true');
+  });
+
+  it("retains an undiscovered skill row with native metadata", () => {
+    const native =
+      '[skills]\ninclude_instructions = true\n[[skills.config]]\nname = "unowned"\nenabled = false\nowner = "native"\n';
+    expect(renderCodexConfigWithSkills(native, ["closeout"])).toContain(
+      'name = "unowned"\nenabled = false\nowner = "native"'
+    );
+  });
+
   it("renders Codex skills while preserving later tables", () => {
     const rendered = renderCodexConfigWithSkills(
       A.join(

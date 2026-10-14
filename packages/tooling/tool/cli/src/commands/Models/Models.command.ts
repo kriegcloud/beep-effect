@@ -3,9 +3,9 @@
  *
  * **Details**
  *
- * Slice 1 is read-only. `check` reports drift and exits non-zero on it,
+ * `check` reports drift and exits non-zero on it,
  * `catalog` prints the assembled layered catalog, and `init` seeds a manifest
- * only when none exists. No subcommand writes a projection target.
+ * only when none exists. `apply --write` performs journaled owned-field writes; restore rejects native drift.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -23,8 +23,13 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
+import { ModelsApply, ModelsApplyLive } from "./Models.apply.service.ts";
 import { CatalogSnapshot } from "./Models.catalog.schemas.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
+import { bindLocatorModel } from "./Models.locator.service.ts";
+import { ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
+import { ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
+import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
 import { ModelsCheckReport } from "./Models.report.schemas.ts";
 import { seedModelsManifest } from "./Models.seed.ts";
 import {
@@ -32,6 +37,7 @@ import {
   ModelsCatalog,
   ModelsCheck,
   ModelsLive,
+  ModelsLocatorReader,
   ModelsManifestStore,
 } from "./Models.service.ts";
 import type { DriftFinding } from "./Models.report.schemas.ts";
@@ -308,6 +314,114 @@ const initCommand = Command.make(
   Command.withDescription("Seed the routing manifest when none exists; --adopt rewrites an existing one with a backup")
 );
 
+const applyCommand = Command.make(
+  "apply",
+  {
+    ...modelsFlags,
+    check: Flag.Boolean("check").pipe(Flag.withDefault(false)),
+    dryRun: Flag.Boolean("dry-run").pipe(Flag.withDefault(false)),
+    write: Flag.Boolean("write").pipe(Flag.withDefault(false)),
+    target: Flag.String("target").pipe(Flag.optional),
+  },
+  Effect.fn("ModelsCommand.apply")(function* (flags) {
+    if (A.length(A.filter([flags.check, flags.dryRun, flags.write], (value) => value)) > 1)
+      return yield* ModelsCommandError.make({ message: "Choose one of --check, --dry-run, --write." });
+    const paths = yield* resolvePaths(flags);
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const writer = yield* ModelsApply;
+    const store = yield* ModelsManifestStore;
+    const manifest = yield* store.load(paths.manifestPath).pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    const targets = A.filter(manifest.targets, (target) => O.isNone(flags.target) || target.id === flags.target.value);
+    if (A.isReadonlyArrayEmpty(targets))
+      return yield* ModelsCommandError.make({ message: "No manifest target matched." });
+    for (const target of targets) {
+      const file = resolveTargetPath(ModelsTargetLocation.make({ ...paths, root: target.root, path: target.path }));
+      if (O.isNone(file)) return yield* ModelsCommandError.make({ message: `Target ${target.id} escapes its root.` });
+      if (
+        !(yield* fs.exists(file.value).pipe(ModelsCommandError.mapError("Cannot inspect target."))) &&
+        target.optional
+      )
+        continue;
+      const writes = yield* Effect.forEach(
+        target.locators,
+        Effect.fnUntraced(function* (locator) {
+          if (locator._tag === "md-generated-block") {
+            const bindings = A.filter(
+              manifest.bindings,
+              (binding) =>
+                (A.isReadonlyArrayEmpty(locator.filter.roles) || A.contains(locator.filter.roles, binding.role)) &&
+                (A.isReadonlyArrayEmpty(locator.filter.surfaces) ||
+                  A.contains(locator.filter.surfaces, binding.surface))
+            );
+            return ModelsLocatorWrite.make({
+              locator,
+              expected: renderGeneratedBlockBody(bindings, manifest.superseded, locator.includeSuperseded),
+            });
+          }
+          const binding = A.findFirst(
+            manifest.bindings,
+            (entry) => entry.role === locator.binding.role && entry.surface === locator.binding.surface
+          );
+          if (O.isNone(binding)) return yield* ModelsCommandError.make({ message: `Unbound locator in ${target.id}.` });
+          const expected = expectedLocatorValue(binding.value, locator.binding.field, locator.render);
+          if (O.isNone(expected))
+            return yield* ModelsCommandError.make({ message: `Unrenderable locator in ${target.id}.` });
+          return ModelsLocatorWrite.make({
+            locator: bindLocatorModel(locator, binding.value.modelId),
+            expected: expected.value,
+          });
+        }),
+        { concurrency: 1 }
+      );
+      const mode = flags.write ? "write" : flags.check ? "check" : "dry-run";
+      if (mode === "dry-run") {
+        const reader = yield* ModelsLocatorReader;
+        const content = yield* fs
+          .readFileString(file.value)
+          .pipe(ModelsCommandError.mapError("Cannot preview target."));
+        for (const request of writes) {
+          const current = yield* reader
+            .read({ root: target.root, absolutePath: file.value, content }, request.locator)
+            .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+          yield* Console.log(
+            `models: preview ${target.id} [${request.locator._tag}] change=${!O.contains(current, request.expected)} expected=${request.expected}`
+          );
+        }
+      }
+      const journal = yield* writer
+        .apply(file.value, writes, mode, path.join(paths.home, ".config-backups"))
+        .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+      yield* Console.log(
+        `models: ${mode} ${target.id}; ${O.isSome(journal) ? `journal ${journal.value.id}` : "no file written"}`
+      );
+      if (O.isSome(journal)) yield* Console.log(`models: restore --journal ${journal.value.id}`);
+    }
+  })
+).pipe(Command.withDescription("Check or preview owned native fields; --write backs up and journals each replacement"));
+
+const restoreCommand = Command.make(
+  "restore",
+  {
+    ...modelsFlags,
+    journal: Flag.String("journal"),
+  },
+  Effect.fn("ModelsCommand.restore")(function* (flags) {
+    const paths = yield* resolvePaths(flags);
+    const path = yield* Path.Path;
+    const writer = yield* ModelsApply;
+    if (!/^models-[\w-]+$/.test(flags.journal))
+      return yield* ModelsCommandError.make({ message: "Pass a journal id, not a file path." });
+    const directory = path.join(paths.home, ".config-backups");
+    yield* writer
+      .restore(path.join(directory, `${flags.journal}.json`), directory)
+      .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    yield* Console.log(`models: restored ${flags.journal}`);
+  })
+).pipe(
+  Command.withDescription("Restore a writer backup only when the live file still matches its applied fingerprint")
+);
+
 /**
  * The `beep models` command group.
  *
@@ -334,6 +448,7 @@ export const modelsCommand = Command.make(
   Effect.fn(runCheck, Effect.catchTag("ModelsCommandError", failWithModelsError))
 ).pipe(
   Command.withDescription("Check every routing surface against the operator model manifest"),
-  Command.withSubcommands([checkCommand, catalogCommand, initCommand]),
+  Command.withSubcommands([checkCommand, catalogCommand, initCommand, applyCommand, restoreCommand]),
+  Command.provide(ModelsApplyLive),
   Command.provide(ModelsLive)
 );
