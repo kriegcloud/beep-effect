@@ -332,7 +332,7 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
           const snapshot = yield* readPacketSnapshot("no-readme");
           const plan = yield* compileAdoptionPlan(snapshot, O.none());
           const manifest = A.findFirst(plan.entries, (entry) => entry.path === "goals/no-readme/ops/manifest.json");
-          assertTrue(O.isSome(manifest));
+          assertTrue(manifest.pipe(O.isSome));
           if (O.isSome(manifest)) {
             expect(manifest.value.payload).toContain('"title": "no-readme"');
             expect(manifest.value.payload).toContain('"status": "active"');
