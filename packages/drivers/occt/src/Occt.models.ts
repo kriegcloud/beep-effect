@@ -29,6 +29,8 @@ export {
   LengthUnit,
   ModelSpec,
   ModelSummary,
+  OverlayLine,
+  OverlayStyle,
   Part,
   PartLineStyle,
   PositiveLength,

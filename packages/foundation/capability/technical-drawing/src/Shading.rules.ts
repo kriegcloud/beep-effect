@@ -559,25 +559,44 @@ const majorEdgesOf = (face: FaceFacts): ReadonlyArray<FaceEdge> => {
   return A.filter(face.edges, (edge) => edge.length > 0 && edge.length >= MAJOR_EDGE_SHARE * longest);
 };
 
-const darkestEdge = (face: FaceFacts, light: V3): O.Option<FaceEdge> => {
+// The edge of a face whose outward side faces most away from the 1.84(m)
+// light, read on the sheet: both the edge's outward normal and the light drop
+// their components along the sight line, because the light is a sheet
+// convention (from the upper left of the page) and an inclined face seen
+// obliquely can turn a sheet-dark edge into a model-lit one. Ties go to the
+// edge least aligned with the sheet's vertical (upright faces hatch
+// vertically, and a level face's band must not run on from a wall's), then
+// to the longer edge.
+const darkestEdge = (face: FaceFacts, view: ViewFacts): O.Option<FaceEdge> => {
   const normal = unitOf(face.normal);
-  const inPlane = minus(light, times(normal, dot(light, normal)));
+  const onSheet = (v: V3): V3 => minus(v, times(view.eye, dot(v, view.eye)));
+  const sheetLight = onSheet(view.light);
   const darkness = (edge: FaceEdge): number => {
     const along = unitOf(minus(edge.end, edge.start));
     const side = unitOf(crossOf(normal, along));
     const mid = times(plus(edge.start, edge.end), 0.5);
     const outward = dot(side, minus(mid, face.center)) < 0 ? times(side, -1) : side;
-    return -dot(outward, inPlane);
+    const seen = onSheet(outward);
+    const length = Math.hypot(seen[0], seen[1], seen[2]);
+    return length < 1e-9 ? 0 : -dot(times(seen, 1 / length), sheetLight);
+  };
+  const verticality = (edge: FaceEdge): number => {
+    const seen = onSheet(minus(edge.end, edge.start));
+    const length = Math.hypot(seen[0], seen[1], seen[2]);
+    return length < 1e-9 ? 1 : Math.abs(dot(times(seen, 1 / length), view.up));
   };
   const order = Order.combine(
     Order.flip(Order.mapInput(Order.Number, (edge: FaceEdge) => Math.round(darkness(edge) * 1e6) / 1e6)),
-    Order.flip(Order.mapInput(Order.Number, lineLength))
+    Order.combine(
+      Order.mapInput(Order.Number, (edge: FaceEdge) => Math.round(verticality(edge) * 1e6) / 1e6),
+      Order.flip(Order.mapInput(Order.Number, lineLength))
+    )
   );
   return pipe(majorEdgesOf(face), A.sort(order), A.head);
 };
 
-const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> =>
-  O.map(darkestEdge(face, light), (edge) => unitOf(minus(edge.end, edge.start)));
+const darkestEdgeDirection = (face: FaceFacts, view: ViewFacts): O.Option<V3> =>
+  O.map(darkestEdge(face, view), (edge) => unitOf(minus(edge.end, edge.start)));
 
 /**
  * Direction the shading lines run along a face, by hatch axis.
@@ -586,7 +605,7 @@ const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> =>
  *
  * `longest-edge`: the face's longest straight edge. `surface-class`: +Z on
  * upright faces; on inclined and level faces the edge whose outward side
- * faces most away from `light` when a light is given (so a lid's strokes
+ * faces most away from the light, read on the sheet, when a `view` is given (so a lid's strokes
  * bunch on its darkest edge and a hanging flap's run along its lower-right
  * edge instead of shrinking to ticks at its tip), else the level line
  * (`normal × Z`) on an inclined face and the longest edge on a level one (+X
@@ -613,12 +632,12 @@ const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> =>
 export const hatchDirectionOf = (input: {
   readonly face: FaceFacts;
   readonly axis: HatchAxis;
-  readonly light?: Vec3;
+  readonly view?: ViewFacts;
 }): O.Option<Vec3> => {
   const { face } = input;
   const darkest = pipe(
-    O.fromNullishOr(input.light),
-    O.flatMap((light) => darkestEdgeDirection(face, light))
+    O.fromNullishOr(input.view),
+    O.flatMap((view) => darkestEdgeDirection(face, view))
   );
   return HatchAxis.$match(input.axis, {
     "longest-edge": () => longestEdgeDirection(face),
@@ -807,9 +826,13 @@ const gradedTreatment = (input: {
     A.map((point) => dot(minus(point, anchor.point), anchor.step)),
     A.reduce(0, (most, r) => Math.max(most, r))
   );
-  // a visible stretch of the face is shaded as a face of its own, from the side nearest the shadow anchor
-  const start = O.match(window, { onNone: () => 0, onSome: (w) => w.start });
-  const span = O.match(window, { onNone: () => reach, onSome: (w) => w.span }) * factor;
+  // a visible stretch of the face is shaded as a face of its own, from the side nearest the shadow
+  // anchor; a stretch cannot start before the anchor, which the major edges set: a probe through a
+  // tab or chamfer that sticks out past the face's shadow side sees the face begin inside the
+  // appendage, and a band measured from there would put its first stroke in the tab
+  const start = O.match(window, { onNone: () => 0, onSome: (w) => Math.max(0, w.start) });
+  const span =
+    O.match(window, { onNone: () => reach, onSome: (w) => w.span - (Math.max(0, w.start) - w.start) }) * factor;
   const tone = toneOf(dot(face.normal, view.light));
   // a stroke needs the face wide enough where it is cut to keep the minimum
   // stroke, at the fraction of the chord its line would draw, after the kernel
@@ -822,6 +845,12 @@ const gradedTreatment = (input: {
   const keep = (offset: number, index: number) =>
     plan.minStroke <= 0 || chord(start + offset / factor) * seen * (index < fullLines ? 1 : TAPER_TO) >= needed;
   const band = gradedOffsets({ span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone, keep });
+  // a band of one line reads as a doubled outline, never as shading, so a stretch with room for
+  // exactly one is a planned skip rather than a face that later loses its line; a stretch with room
+  // for none is a sliver, below
+  if (A.length(band) === 1) {
+    return skipped("narrow");
+  }
   const extents = gradedExtents({ count: A.length(band), fullLines });
   const cuts = A.map(band, (offset, index) =>
     ShadingCut.make({
@@ -898,7 +927,7 @@ export const treatmentFor = (input: {
     );
   }
   return pipe(
-    hatchDirectionOf({ face, axis: plan.axis, light: view.light }),
+    hatchDirectionOf({ face, axis: plan.axis, view }),
     O.match({
       onNone: () => skipped("no-straight-edge"),
       onSome: (direction) => {
@@ -910,7 +939,7 @@ export const treatmentFor = (input: {
         // under the surface-class axis a level or inclined face follows its darkest edge, and its band bunches there
         const shadowEdge =
           plan.axis === "surface-class" && surfaceClassOf(face.normal) !== "upright"
-            ? darkestEdge(face, view.light)
+            ? darkestEdge(face, view)
             : O.none<FaceEdge>();
         return plan.style === "graded"
           ? gradedTreatment({

@@ -35,6 +35,8 @@ import {
 import { A, O } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import { pipe } from "effect/Function";
+import * as Order from "effect/Order";
 import type { Segment2, Vec3 } from "@beep/technical-drawing";
 
 // A planar quad from four corners in order: straight edges, corner outline, bounds.
@@ -230,6 +232,12 @@ describe("Shading.rules", () => {
     );
     assertSome(O.map(stretch, A.take(3)), O.getOrThrow(O.map(whole, A.take(3))));
     expect(Math.max(...O.getOrThrow(stretch))).toBeLessThanOrEqual(28 - 1);
+    // a stretch cannot start before the anchor: a probe through a tab that sticks out past the
+    // face's shadow side sees the face begin inside the tab, and the band still starts at the edge
+    const proud = offsetsFrom(0)(
+      treatmentFor({ face: wall, view: front, plan: gradedPlan, window: ShadingWindow.make({ start: -2, span: 30 }) })
+    );
+    assertSome(O.map(proud, A.take(3)), O.getOrThrow(O.map(whole, A.take(3))));
   });
 
   it("keeps shading legible after hidden-line removal: fragments and doubled lines go", () => {
@@ -363,7 +371,7 @@ describe("Shading.rules", () => {
       bounds: BoundingBox.make({ min: [-100, -87, 5], max: [100, 87, 5] }),
     });
     const topPlan = viewFactsOf(Camera.make({ eye: [0, 0, 1], up: [1, 0, 0] }));
-    const direction = O.getOrThrow(hatchDirectionOf({ face: lid, axis: "surface-class", light: topPlan.light }));
+    const direction = O.getOrThrow(hatchDirectionOf({ face: lid, axis: "surface-class", view: topPlan }));
     // the edge from the 180° corner to the 240° corner runs along (0.5, -0.866)
     expect(Math.abs(direction[0] * 0.5 + (direction[1] * -Math.sqrt(3)) / 2)).toBeCloseTo(1, 6);
     // without a light the longest edge (the first among equals) is used as before
@@ -385,6 +393,50 @@ describe("Shading.rules", () => {
         [0, 30, 30],
       ]
     );
+    // the darkest edge is read on the sheet: project each edge's outward normal and the light onto
+    // the view plane and take the edge turned most away; from an oblique eye below the article the
+    // in-plane light would pick a different edge of this flap than the sheet does
+    const sub = (a: Vec3, b: Vec3): Vec3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+    const scale = (a: Vec3, k: number): Vec3 => [a[0] * k, a[1] * k, a[2] * k];
+    const dot3 = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const cross3 = (a: Vec3, b: Vec3): Vec3 => [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
+    const unit3 = (a: Vec3): Vec3 => scale(a, 1 / Math.hypot(a[0], a[1], a[2]));
+    const sheetDarkest = (face: FaceFacts, view: ReturnType<typeof viewFactsOf>) => {
+      const onSheet = (v: Vec3): Vec3 => sub(v, scale(view.eye, dot3(v, view.eye)));
+      const light = onSheet(view.light);
+      const normal = unit3(face.normal);
+      const longest = A.reduce(face.edges, 0, (most, edge) => Math.max(most, edge.length));
+      return pipe(
+        face.edges,
+        // the rule reads only major edges (at least a quarter as long as the longest)
+        A.filter((edge) => edge.length >= 0.25 * longest),
+        A.map((edge) => {
+          const along = unit3(sub(edge.end, edge.start));
+          const side = unit3(cross3(normal, along));
+          const mid = scale(
+            [edge.start[0] + edge.end[0], edge.start[1] + edge.end[1], edge.start[2] + edge.end[2]],
+            0.5
+          );
+          const outward = dot3(side, sub(mid, face.center)) < 0 ? scale(side, -1) : side;
+          return { edge, darkness: -dot3(unit3(onSheet(outward)), light) };
+        }),
+        A.sort(Order.flip(Order.mapInput(Order.Number, (e: { readonly darkness: number }) => e.darkness))),
+        A.head,
+        O.map((e) => unit3(sub(e.edge.end, e.edge.start)))
+      );
+    };
+    const oblique = viewFactsOf(Camera.make({ eye: [-0.82, 0, -0.58], up: [0, 0, 1] }));
+    for (const view of [front, oblique]) {
+      const expected = O.map(sheetDarkest(flap, view), (d) => clean(A.map(d, Math.abs) as unknown as Vec3));
+      const chosen = O.map(hatchDirectionOf({ face: flap, axis: "surface-class", view }), (d) =>
+        clean(A.map(d, Math.abs) as unknown as Vec3)
+      );
+      expect(chosen).toEqual(expected);
+    }
     const flapDirection = hatchDirectionOf({ face: flap, axis: "surface-class" });
     assertSome(O.map(flapDirection, clean), [-1, 0, 0]);
     // with the light known, an inclined face runs along the edge turned away from it (here the +X side)
@@ -398,7 +450,7 @@ describe("Shading.rules", () => {
       }).point[0]
     ).toBe(10);
     assertSome(
-      O.map(hatchDirectionOf({ face: flap, axis: "surface-class", light: front.light }), (d) => [
+      O.map(hatchDirectionOf({ face: flap, axis: "surface-class", view: front }), (d) => [
         Math.round(d[0] * 100) / 100,
         Math.round((Math.abs(d[1]) - Math.abs(d[2])) * 100) / 100,
       ]),
@@ -495,6 +547,11 @@ describe("shadingCoverageFindings", () => {
     const lost = ShadingCoverage.make({ shadedFaces: 3, skippedFaces: [], lostFaces: 1 });
     expect(A.map(shadingCoverageFindings({ page: 2, coverage: lost }), (f) => [f.code, f.page])).toEqual([
       ["shading-lost-face", O.some(2)],
+    ]);
+    // a face that kept another stretch is not lost, but the stretch that drew nothing is reported
+    const stretch = ShadingCoverage.make({ shadedFaces: 3, skippedFaces: [], lostStretches: 2 });
+    expect(A.map(shadingCoverageFindings({ page: 4, coverage: stretch }), (f) => [f.code, f.page])).toEqual([
+      ["shading-lost-stretch", O.some(4)],
     ]);
     expect(
       shadingCoverageFindings({ page: 1, coverage: ShadingCoverage.make({ shadedFaces: 3, skippedFaces: [] }) })

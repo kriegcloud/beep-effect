@@ -25,6 +25,14 @@ source, never its content.
 | `cfr-1.84-p` | 37 CFR 1.84(p) — numbers, letters, minimum 0.32 cm height | eCFR | F2, F3 | normative |
 | `cfr-1.152` | 37 CFR 1.152 — design drawings; surface shading; broken lines for unclaimed matter | eCFR | F4, F5, F10 | normative |
 | `mpep-1503.02` | MPEP 1503.02 — drawings in design applications (broken lines, shading, views) | MPEP | F1, F4, F10 | normative |
+| `ecfr-1.84-full` | 37 CFR 1.84 (all paragraphs; last amended 80 FR 17962, 2015) | eCFR (text confirmed via the versioner API as of 2026-10-01 and Cornell LII) | sheet-level `must` checks | normative |
+| `mpep-608.02` | MPEP 608.02 (R-01.2024, page modified 2026-03-09) — drawing requirements, OPAP vs examiner review | MPEP | who objects, and to what | normative |
+| `mpep-507` | MPEP 507 — OPAP drawing review grounds A–G | MPEP | floor, not the design-set standard | reference |
+| `uspto-2012-10-25-memo` | USPTO memo, Elimination of the Notice of Draftsperson's Patent Drawing Review (PTO-948), 2012-10-25 | uspto.gov | PTO-948 categories are historical | reference |
+| `patent-center-pdf` | Patent Center PDF Guidelines (updated 2024-10-02): PDF 1.1–1.6 or PDF/A, embedded fonts, A4/Letter, 300 dpi images | uspto.gov | pdf-version, fonts, PDF/A-1b | normative |
+| `design-guide` | USPTO Design Patent Application Guide (modified 2025-04-21) — shading, broken lines, solid black | uspto.gov | 1.152 restatement | reference |
+| `tc2900-objections-fy23` | USPTO TC 2900 design drawing objections, FY2023 (fetched, not yet mined) | uspto.gov | next research pass: objection frequencies | reference |
+| `research-2026-10-14` | Deep-research digest, 11 verified findings, 7 refuted | `research/uspto-validation-research.md` | the follow-up validator PR | derived |
 
 **How these inform implementation:** the 1993 examples set the graded and surface-class shading
 rules (PR-E); 1.84(g) sets `cfr-strict`; 1.84(p) sets the label cap-height check; 1.152 and MPEP

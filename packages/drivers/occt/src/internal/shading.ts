@@ -19,14 +19,16 @@ import {
   FaceTreatment,
   ShadingProbe,
   ShadingSkipped,
+  ShadingWindow,
   treatmentFor,
   viewFactsOf,
 } from "@beep/technical-drawing";
 import { A, O } from "@beep/utils";
 import { pipe } from "effect/Function";
+import * as Order from "effect/Order";
 import * as replicad from "replicad";
 import { add, cross, scale } from "./vector.ts";
-import type { ShadingCoverage, ShadingLines, ShadingWindow, ViewFacts } from "@beep/technical-drawing";
+import type { ShadingCoverage, ShadingLines, ViewFacts } from "@beep/technical-drawing";
 import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { Camera, ShadingPlan } from "../Occt.models.ts";
 import type { V3 } from "./vector.ts";
@@ -160,7 +162,11 @@ const isPlanar = (face: replicad.Face): boolean => face.geomType === "PLANE";
 
 // Probes cross a graded face at this many heights, evenly spread between its
 // lowest and highest point along its lines.
-const PROBE_HEIGHTS = 5;
+// Nine probes per face: a band planned for one visible area is clipped to the
+// cells of the probes that saw it, so a band can run on past that area by at
+// most half a cell (a ninth of the face's extent along the lines) before the
+// hidden-line pass can stop it.
+const PROBE_HEIGHTS = 9;
 
 // Lowest and highest reach of a face's outline along a unit direction.
 const reachOf = (face: FaceFacts, along: V3): readonly [number, number] =>
@@ -176,9 +182,9 @@ type Probe = { readonly edge: replicad.Edge; readonly probe: ShadingProbe };
 // along its shading step, lifted off the face like its strokes and tagged
 // with the offsets of their ends from the face's shadow anchor.
 const probeFace =
-  (oc: OpenCascadeInstance, view: ViewFacts, plan: ShadingPlan) =>
+  (oc: OpenCascadeInstance, view: ViewFacts, plan: ShadingPlan, isBrokenFace: (face: replicad.Face) => boolean) =>
   (face: replicad.Face, index: number): ReadonlyArray<Probe> => {
-    if (!isPlanar(face)) {
+    if (isBrokenFace(face) || !isPlanar(face)) {
       return A.empty();
     }
     const facts = factsOf(face);
@@ -221,7 +227,8 @@ const probeFace =
  * Probe lines across every graded face of a shape, each with its record, for
  * the hidden-line pass to read each face's visible stretches from. The
  * probes go through that pass as separate shapes, so each one's visible
- * pieces come back on their own.
+ * pieces come back on their own. Faces drawn in broken lines are never
+ * probed.
  *
  * @internal
  */
@@ -230,23 +237,126 @@ export const probeEdges = (options: {
   readonly shape: replicad.AnyShape;
   readonly camera: Camera;
   readonly plan: ShadingPlan;
+  readonly isBrokenFace: (face: replicad.Face) => boolean;
 }): ReadonlyArray<{ readonly edge: replicad.Edge; readonly probe: ShadingProbe }> =>
-  A.flatMap(options.shape.faces, probeFace(options.oc, viewFactsOf(options.camera), options.plan));
+  A.flatMap(
+    options.shape.faces,
+    probeFace(options.oc, viewFactsOf(options.camera), options.plan, options.isBrokenFace)
+  );
 
-// The strokes of one treatment on its face: each cut's chord, trimmed to the
-// cut's extent, kept when long enough on the view plane, lifted off the face.
+// A chord clipped to the stretch's range along the lines (the cells of the
+// probes that saw the stretch): a band planned for one visible area of a
+// face must not run on into another area at the same offsets, and the
+// hidden-line pass only splits a stroke where something stands in front of it.
+const clipTo =
+  (focus: O.Option<readonly [number, number]>, along: V3) =>
+  (edge: replicad.Edge): O.Option<replicad.Edge> =>
+    O.match(focus, {
+      onNone: () => O.some(edge),
+      onSome: ([low, high]) => {
+        const h0 = dotV(vec(edge.startPoint), along);
+        const h1 = dotV(vec(edge.endPoint), along);
+        if (Math.abs(h1 - h0) < 1e-9) {
+          return O.some(edge);
+        }
+        const lo = Math.max(Math.min(h0, h1), low);
+        const hi = Math.min(Math.max(h0, h1), high);
+        if (hi - lo < SHORTEST_STROKE) {
+          return O.none();
+        }
+        const t = (h: number) => (h - h0) / (h1 - h0);
+        const [t0, t1] = h0 < h1 ? [t(lo), t(hi)] : [t(hi), t(lo)];
+        return O.some(replicad.makeLine(edge.pointAt(t0), edge.pointAt(t1)));
+      },
+    });
+
+// `A.reduce` hands the reducer the index as a third argument, which a
+// variadic `Math.min` would take as a value.
+const leastOf = (values: ReadonlyArray<number>) =>
+  A.reduce(values, Number.POSITIVE_INFINITY, (acc, value) => Math.min(acc, value));
+const mostOf = (values: ReadonlyArray<number>) =>
+  A.reduce(values, Number.NEGATIVE_INFINITY, (acc, value) => Math.max(acc, value));
+
+// The strokes of one treatment on its face: each cut's chord, drawn once per
+// run of neighbouring rows that saw the area at the cut's offset and clipped
+// to those rows' cells, trimmed to the cut's extent, cut back to the face's
+// claimed part (`claimed`, on a face merged across a solid and a broken
+// primitive), kept when long enough on the view plane, lifted off the face. A
+// stretch planned over the whole face (no pieces) draws every chord whole.
 const strokesOf =
-  (oc: OpenCascadeInstance, view: ViewFacts, plan: ShadingPlan, face: replicad.Face, facts: FaceFacts) =>
-  (lines: ShadingLines, focus: O.Option<readonly [number, number]>): ReadonlyArray<replicad.Edge> =>
-    A.flatMap(lines.cuts, (cut) =>
-      pipe(
-        sectionEdges(oc, face, add(lines.origin, scale(lines.step, cut.offset)), lines.step),
-        A.map(trimTo(cut.extent, focus, unitV(cross(facts.normal, lines.step)))),
-        A.getSomes,
-        A.filter(longEnough(view, plan.minStroke)),
-        A.map(liftFor(face, plan))
+  <P>(
+    oc: OpenCascadeInstance,
+    view: ViewFacts,
+    plan: ShadingPlan,
+    face: replicad.Face,
+    facts: FaceFacts,
+    claimed: O.Option<(edge: replicad.Edge) => ReadonlyArray<replicad.Edge>>
+  ) =>
+  (lines: ShadingLines, pieces: ReadonlyArray<StretchPiece<P>>): ReadonlyArray<replicad.Edge> => {
+    const along = unitV(cross(facts.normal, lines.step));
+    const runsAt = (offset: number): ReadonlyArray<O.Option<readonly [number, number]>> =>
+      A.isReadonlyArrayNonEmpty(pieces)
+        ? pipe(
+            pieces,
+            A.filter((piece) => piece.from - plan.minPitch <= offset && offset <= piece.to + plan.minPitch),
+            A.sort(Order.mapInput(Order.Number, (piece: StretchPiece<P>) => piece.row)),
+            A.reduce(A.empty<A.NonEmptyReadonlyArray<StretchPiece<P>>>(), (runs, piece) =>
+              O.match(A.last(runs), {
+                onNone: () => [A.of(piece)],
+                onSome: (run) =>
+                  piece.row - A.lastNonEmpty(run).row <= 1
+                    ? [...A.dropRight(runs, 1), A.append(run, piece)]
+                    : [...runs, A.of(piece)],
+              })
+            ),
+            A.map((run) =>
+              O.some([leastOf(A.map(run, (piece) => piece.low)), mostOf(A.map(run, (piece) => piece.high))] as const)
+            )
+          )
+        : [O.none()];
+    return A.flatMap(lines.cuts, (cut) =>
+      A.flatMap(runsAt(cut.offset), (focus) =>
+        pipe(
+          sectionEdges(oc, face, add(lines.origin, scale(lines.step, cut.offset)), lines.step),
+          A.map(clipTo(focus, along)),
+          A.getSomes,
+          A.map(trimTo(cut.extent, focus, along)),
+          A.getSomes,
+          A.flatMap((edge) => O.match(claimed, { onNone: () => [edge], onSome: (claim) => claim(edge) })),
+          A.filter(longEnough(view, plan.minStroke)),
+          A.map(liftFor(face, plan))
+        )
       )
     );
+  };
+
+/**
+ * A visible piece of a face along its shading step, read by one probe of the
+ * hidden-line pass: its offsets from the face's shadow anchor, the probe's
+ * range along the lines, whether the piece starts at the face's own outline
+ * rather than behind a part in front of the face, and the probe (as the
+ * kernel describes it) that saw it, so the kernel can keep the piece's strokes
+ * to what that probe crossed.
+ *
+ * @internal
+ */
+export type StretchPiece<P> = {
+  /** Index of the probe's height among the face's probe heights, lowest first. */
+  readonly row: number;
+  readonly from: number;
+  readonly to: number;
+  readonly low: number;
+  readonly high: number;
+  readonly outline: boolean;
+  readonly probes: ReadonlyArray<P>;
+};
+
+// The strokes of one planned stretch and the probes that saw it (none for a
+// stretch planned over the whole face).
+type StrokeSet<P> = {
+  readonly edges: ReadonlyArray<replicad.Edge>;
+  readonly probes: ReadonlyArray<P>;
+};
 
 // Shading of one face: its treatment and the strokes of each of its planned
 // stretches. With the face's visible stretches known (graded shading after
@@ -254,44 +364,74 @@ const strokesOf =
 // shaded when any stretch gets lines, as hidden when no stretch shows, and as
 // a sliver when each is too narrow.
 const shadeFace =
-  (
+  <P>(
     oc: OpenCascadeInstance,
     view: ViewFacts,
     plan: ShadingPlan,
-    regions: O.Option<(face: number) => ReadonlyArray<ShadingWindow>>
+    regions: O.Option<(face: number) => ReadonlyArray<A.NonEmptyReadonlyArray<StretchPiece<P>>>>,
+    isBrokenFace: (face: replicad.Face) => boolean,
+    claimedOf: (face: replicad.Face) => O.Option<(edge: replicad.Edge) => ReadonlyArray<replicad.Edge>>
   ) =>
   (
     face: replicad.Face,
     index: number
-  ): { readonly treatment: FaceTreatment; readonly strokes: ReadonlyArray<ReadonlyArray<replicad.Edge>> } => {
+  ): { readonly treatment: FaceTreatment; readonly strokes: ReadonlyArray<StrokeSet<P>> } => {
+    // unclaimed matter is never shaded, before any rule reads the face
+    if (isBrokenFace(face)) {
+      return { treatment: ShadingSkipped.make({ reason: "broken-part" }), strokes: A.empty() };
+    }
     if (!isPlanar(face)) {
       return { treatment: ShadingSkipped.make({ reason: "curved" }), strokes: A.empty() };
     }
     const facts = factsOf(face);
     const whole = treatmentFor({ face: facts, view, plan });
-    type Planned = { readonly treatment: FaceTreatment; readonly focus: O.Option<readonly [number, number]> };
+    type Planned = {
+      readonly treatment: FaceTreatment;
+      readonly pieces: ReadonlyArray<StretchPiece<P>>;
+      readonly probes: ReadonlyArray<P>;
+    };
+    // One band for one visible area of the face (the kernel groups the probe pieces into areas). An area that reaches the
+    // face's own outline is banded at the shadow anchor, whatever stands in
+    // front of parts of it (a wall behind a flap keeps its one band); an area
+    // bounded by parts in front of the face on every side (a lid seen through
+    // the cells of a lattice) is banded at its own nearest side. The strokes
+    // are then drawn only in the rows that saw the area at their offset, so a
+    // band tapers along a slanting occluder and never runs on into a
+    // neighbouring area.
+    const plannedFor = (pieces: A.NonEmptyReadonlyArray<StretchPiece<P>>): Planned => {
+      // an area at the outline starts at the face's own edge, which may lie before the anchor's
+      // origin (the rule clamps a negative start); an area behind a part in front starts at its nearest side
+      const from = leastOf(A.map(pieces, (piece) => piece.from));
+      const window = ShadingWindow.make({
+        start: from,
+        span: mostOf(A.map(pieces, (piece) => piece.to)) - from,
+        low: O.some(leastOf(A.map(pieces, (piece) => piece.low))),
+        high: O.some(mostOf(A.map(pieces, (piece) => piece.high))),
+      });
+      return {
+        treatment: treatmentFor({ face: facts, view, plan, window }),
+        pieces,
+        probes: A.flatMap(pieces, (piece) => piece.probes),
+      };
+    };
     const planned: A.NonEmptyReadonlyArray<Planned> = pipe(
       regions,
       O.filter(() => FaceTreatment.guards.lines(whole)),
       O.match({
-        onNone: () => A.of<Planned>({ treatment: whole, focus: O.none() }),
-        onSome: (windows) =>
-          pipe(
-            windows(index),
-            A.map(
-              (window): Planned => ({
-                treatment: treatmentFor({ face: facts, view, plan, window }),
-                focus: O.flatMap(window.low, (low) => O.map(window.high, (high) => [low, high] as const)),
-              })
-            ),
-            (stretches) =>
-              A.isReadonlyArrayNonEmpty(stretches)
-                ? stretches
-                : A.of<Planned>({ treatment: ShadingSkipped.make({ reason: "hidden" }), focus: O.none() })
+        onNone: () => A.of<Planned>({ treatment: whole, pieces: A.empty(), probes: A.empty() }),
+        onSome: (pieces) =>
+          pipe(pieces(index), A.map(plannedFor), (areas) =>
+            A.isReadonlyArrayNonEmpty(areas)
+              ? areas
+              : A.of<Planned>({
+                  treatment: ShadingSkipped.make({ reason: "hidden" }),
+                  pieces: A.empty(),
+                  probes: A.empty(),
+                })
           ),
       })
     );
-    const strokes = strokesOf(oc, view, plan, face, facts);
+    const strokes = strokesOf(oc, view, plan, face, facts, claimedOf(face));
     return {
       treatment: pipe(
         A.findFirst(planned, (p) => FaceTreatment.guards.lines(p.treatment)),
@@ -301,8 +441,13 @@ const shadeFace =
       // one stroke set per planned stretch, so the hidden-line pass reports each stretch on its own
       strokes: pipe(
         planned,
-        A.map((p) => (p.treatment.kind === "lines" ? strokes(p.treatment, p.focus) : A.empty<replicad.Edge>())),
-        A.filter(A.isReadonlyArrayNonEmpty)
+        A.map(
+          (p): StrokeSet<P> => ({
+            edges: p.treatment.kind === "lines" ? strokes(p.treatment, p.pieces) : A.empty<replicad.Edge>(),
+            probes: p.probes,
+          })
+        ),
+        A.filter((set) => A.isReadonlyArrayNonEmpty(set.edges))
       ),
     };
   };
@@ -312,37 +457,51 @@ const shadeFace =
  * lines, one compound of strokes per planned stretch (so the hidden-line
  * pass can report each stretch's visible strokes separately), plus the
  * view's coverage counts. With `regions` (graded shading after the probe
- * pass), each face's visible stretches are shaded one by one.
+ * pass: the chains of overlapping visible pieces of each face), each face's
+ * visible stretches are shaded one by one.
  *
  * **Details**
  *
- * TODO(design-figure-review-loop, PR #1648): once `Part.lineStyle` lands,
- * faces of `broken` parts are skipped with reason `broken-part` before the
- * rules run; this needs the per-part solids, not only the fused compound.
+ * Broken-line parts never reach this pass: the kernel shades the solid
+ * compound only. Faces of solid parts that only broken primitives own
+ * (`isBrokenFace`) are skipped with reason `broken-part` before the rules
+ * run, so they get no lines and are counted under that reason. A face
+ * merged across a solid and a broken primitive is shaded as one face, and
+ * `claimedOf` cuts each of its strokes back to the part on the solid
+ * primitive.
  *
  * @internal
  */
-export const hatchCompound = (options: {
+export const hatchCompound = <P>(options: {
   readonly oc: OpenCascadeInstance;
   readonly shape: replicad.AnyShape;
   readonly camera: Camera;
   readonly plan: ShadingPlan;
-  readonly regions: O.Option<(face: number) => ReadonlyArray<ShadingWindow>>;
+  readonly regions: O.Option<(face: number) => ReadonlyArray<A.NonEmptyReadonlyArray<StretchPiece<P>>>>;
+  readonly isBrokenFace: (face: replicad.Face) => boolean;
+  readonly claimedOf: (face: replicad.Face) => O.Option<(edge: replicad.Edge) => ReadonlyArray<replicad.Edge>>;
 }): {
   readonly faces: ReadonlyArray<{
     readonly treatment: FaceTreatment;
-    readonly stretches: ReadonlyArray<replicad.AnyShape>;
+    readonly stretches: ReadonlyArray<{ readonly shape: replicad.AnyShape; readonly probes: ReadonlyArray<P> }>;
   }>;
   readonly coverage: ShadingCoverage;
 } => {
   const shaded = A.map(
     options.shape.faces,
-    shadeFace(options.oc, viewFactsOf(options.camera), options.plan, options.regions)
+    shadeFace(
+      options.oc,
+      viewFactsOf(options.camera),
+      options.plan,
+      options.regions,
+      options.isBrokenFace,
+      options.claimedOf
+    )
   );
   return {
     faces: A.map(shaded, (face) => ({
       treatment: face.treatment,
-      stretches: A.map(face.strokes, (edges) => replicad.makeCompound([...edges])),
+      stretches: A.map(face.strokes, (set) => ({ shape: replicad.makeCompound([...set.edges]), probes: set.probes })),
     })),
     coverage: coverageOf(A.map(shaded, (face) => face.treatment)),
   };
