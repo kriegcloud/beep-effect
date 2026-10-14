@@ -3731,6 +3731,28 @@
       "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
+      "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.runtime.test.ts:324:provide@10#1",
+      "lens": "resource",
+      "ruleId": "EV002",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/AgentMessage.runtime.test.ts",
+      "line": 324,
+      "endLine": 324,
+      "symbol": "provide",
+      "occurrence": "v2:b93a8b15789ab46739cc5272190cbff628ff750f8f175370222e6e88cbcb911b",
+      "class": "unresolved-layer-provide",
+      "evidence": "Effect.provide(Reactivity.layer)",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "This test mutates the real persisted grant after managed enrollment to prove expiry rejects queued delivery. The SQLite client needs Reactivity for that scoped mutation; providing it at this single dynamic call keeps the existing managed CLI boundary fixture and its provider lifecycle unchanged."
+    },
+    {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:111:fixture@6#1",
       "lens": "resource",
       "ruleId": "EV002",
