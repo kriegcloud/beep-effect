@@ -68,20 +68,25 @@ portfolio can spend them until this lands.
 
 ## Current Phase
 
-P0 Research and P1 Toolchain bootstrap are complete (PR #1378 landed
-`scripts/cloud-session-setup.sh`, proven end to end in a cloud container on
-2026-10-01). Next concrete action: P2 Harness host awareness — guard the
-desktop-only hooks behind `BEEP_AGENT_HOST=cloud` and record the MCP
-expectations (D3, D7).
+Cloud P0/P1 remain complete for their original environment; P2–P6 still need
+cloud qualification. On beep-worker, Linux L0 inventory, L1 secure access and L3
+representative development proof are complete. L2 is in progress: most tools and
+agent accounts are ready, while Azure/Vercel/Cloudflare account access, backend
+parity, and additional agent-environment qualification remain explicit follow-up.
+L4 fleet closeout is pending; dankserver and an isolated tbk worker are not yet
+qualified by the beep-worker receipts.
 
 ## Latest Evidence
 
-[`research/2026-10-01-container-probe.md`](./research/2026-10-01-container-probe.md):
-bun `1.3.14` in the container versus the pinned `1.4.2`; `bun.sh` denied
-(403); the GitHub release archive and `npm install bun@1.4.2` both work;
-`pkg.pr.new` denied (403) so the install is silently incomplete and
-`effect` is missing; the `GH_TOKEN` is invalid; no systemd user bus; no `op`;
-three `.mcp.json` servers fail at session start.
+- [Linux worker setup](./history/2026-10-14-linux-worker-readiness.md): host,
+  toolchain, authentication, security, desktop and T3 service receipts.
+- [Codex headless audit](./history/2026-10-14-headless-codex-audit.md) and
+  [Claude headless audit](./history/2026-10-14-headless-claude-audit.md): initial
+  portability findings, with bounded execution and qualification limits.
+- [Workstation CLI inventory](./research/2026-10-14-workstation-cli-inventory.json)
+  and [opportunities](./research/OPPORTUNITIES.md): parity decisions and friction.
+- [Original cloud probe](./research/2026-10-01-container-probe.md): historical
+  container restrictions; it does not describe the current Linux worker.
 
 ## Notes
 

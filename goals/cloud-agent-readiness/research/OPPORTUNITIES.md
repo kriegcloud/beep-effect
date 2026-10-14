@@ -8,3 +8,28 @@
 | 2026-10-14 | 1Password service-account item reads require --vault even for an item UUID. Doctor confirmed service-account identity; vault-scoped retry follows. | Inventory full UUID references and verify the actual required operation, not a desktop sign-in assumption. |
 | 2026-10-14 | Local op-doctor found shim ordering failure in the systemd fallback surface when the user bus is unavailable. | Include user-systemd PATH and op-lane tests in portability acceptance; do not infer desktop state from an agent failure. |
 | 2026-10-14 | Mise checksum filenames contain a ./ prefix; first exact filename lookup missed it. The correct published checksum subsequently matched. | Fail closed before executing installers and normalize manifest filename prefixes. |
+
+## Headless qualification findings
+
+Two bounded native sessions completed: Codex gpt-6.1-sol/medium in a read-only
+sandbox and Claude Opus 5.5/medium in plan mode. Full sanitized reports are in
+history/2026-10-14-headless-{codex,claude}-audit.md. These are audit results, not
+proof of publish/merge readiness. Codex's sandbox denied network/user-bus access;
+its failed gh/op probes do not contradict the direct SSH authentication proofs.
+Claude's plan session connected to the user manager but ignored untrusted
+project permission entries. The first audit began before the remaining CLI scan
+was complete; missing-tool findings are timestamped initial-wave evidence.
+
+| Finding | Classification | Disposition / next proof |
+| --- | --- | --- |
+| Bun archive setup omitted bunx; shadcn and next-devtools MCP failed with ENOENT. | Introduced provisioning omission | Created bunx beside Bun; version now matches the repo pin. Fresh MCP startup remains a separate proof. |
+| Graft absent at initial startup; Effect references absent. | Host-specific dependency/setup gap | Installed Graft CLI; version passes. Native parser and structural graph qualification plus approved reference provisioning remain needed; never run a deep build as a shortcut. |
+| ~/.config/beep/models.yaml absent. | Host configuration gap | Provision the nonsecret model manifest and qualify native/proxy defaults against current aliases. |
+| Borrowed node_modules symlink made the disposable checkout untracked and redirected Yeet's reported ledger to the source clone. | Introduced audit harness shortcut; source path ownership needs attribution | Replace borrowed dependencies with an independent frozen install before treating checkout/ledger behavior as repository drift. Do not patch Yeet from this ambiguous probe. |
+| Read-only sandbox denied gh/op network and user-systemd bus; op-doctor could not write temporary diagnostics. | Execution-profile restriction | Declare capabilities by execution profile; separate sandbox constraints from actual authentication/service state. |
+| Box MCP lacked host authorization; other MCPs assume IDE/local endpoints or op-backed configuration. | Workflow/host-specific integration gap | Create required/optional MCP matrix and qualify each actual host-scoped workflow. CLI login does not authenticate every connector. |
+| Claude ignored 64 permission entries because project trust had not been established. | Headless bootstrap gap | Add an explicit trusted-checkout enrollment step and record trust separately from provider sign-in. |
+| Retired cloud-session-setup.sh commands still appear in SPEC acceptance; cloud runbook closeout differs from D4. | Inherited contract drift | Reconcile current commands and publish/closeout boundaries per host class; preserve historical evidence as history. |
+| Desktop notifications/hooks lack managed-worker guards and detached Yeet slice/job behavior is unproven. | Inherited workstation coupling | Add explicit supported host capabilities and qualify attached versus detached jobs; never equate help output with full Yeet readiness. |
+| npm skipped native/parser/workerd install scripts. | Package-manager policy difference | Scoped package-script approval plus native runtime proof; no blanket global allow-all. |
+| opencode-ai@2.0.27 absent from npm despite workstation opencode v2.0.27. | Packaging/provenance mismatch | Trace the actual workstation package source and install its correct artifact; do not silently substitute another CLI version or product. |

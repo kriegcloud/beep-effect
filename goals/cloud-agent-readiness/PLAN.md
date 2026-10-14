@@ -116,10 +116,10 @@ bun run beep lint reflection-artifacts
 
 | Phase | Status | Work | Exit |
 | --- | --- | --- | --- |
-| L0 Inventory | in-progress | Compare workstation tooling and live host state; record exact sudo mechanism on dankserver. | Sanitized inventory with explicit reuse decisions. |
-| L1 Access and hardening | in-progress | Finish beep-worker tailnet enrollment, pam_rssh YubiKey sudo and OpenSSH hardening; verify fresh access before retiring bootstrap access. | Fresh SSH and sudo proofs plus recovery receipt. |
-| L2 Tools and authentication | pending | Install language/build/container/agent tools and the approved 1Password shim; reuse the authorized service account securely; prove required provider and registry operations. | Version, runtime and authentication receipts with remaining human sign-ins named. |
-| L3 Development proof | pending | Clean checkout, frozen install, Beep CLI and representative package verification; document resource budgets and tailnet development access. | Real package proof on each admitted worker. |
+| L0 Inventory | complete (beep-worker) | Compare workstation tooling and live host state; record exact sudo mechanism on dankserver. | Sanitized inventory with explicit reuse decisions. |
+| L1 Access and hardening | complete (beep-worker) | Finish beep-worker tailnet enrollment, pam_rssh YubiKey sudo and OpenSSH hardening; verify fresh access before retiring bootstrap access. | Fresh SSH and sudo proofs plus recovery receipt. |
+| L2 Tools and authentication | in-progress | Install language/build/container/agent tools and the approved 1Password shim; reuse the authorized service account securely; prove required provider and registry operations. | Version, runtime and authentication receipts with remaining human sign-ins named. |
+| L3 Development proof | complete (beep-worker) | Clean checkout, frozen install, Beep CLI and representative package verification; document resource budgets and tailnet development access. | Real package proof on each admitted worker. |
 | L4 Fleet closeout | pending | Reconcile Linux and cloud acceptance, PR readiness and reflection. | All admitted surfaces proven or explicitly recorded as blocked; existing closeout gate passes. |
 
 Staking host provisioning stays isolated from its running validators. Do not
@@ -137,3 +137,16 @@ its credentials as a shortcut to making a worker ready.
    host rather than silently teaching agents DankStation's absolute commands.
 4. Convert friction into named additions in this plan and the normative spec.
    Commit progress on feat/linux-agent-readiness; publish only through repo gates.
+
+## Findings-driven additions (headless wave 1)
+
+| Owner / work item | Required proof | State |
+| --- | --- | --- |
+| Linux bootstrap: bunx, native dependencies, model manifest, GUI launch PATH and project trust | Fresh SSH/GUI command resolution and fresh headless startup | in-progress; bunx fixed |
+| Audit harness: independent dependencies and correct ledger attribution | Independent frozen install; intended checkout/state root identified | pending |
+| Managed-host capabilities: systemd/network/write/desktop availability | Same probes per admitted execution profile | pending |
+| MCP workflow matrix and connector authentication | Expected tools connect; optional IDE tools do not stall headless startup | pending |
+| Graft and Effect references | Structural graph and reference query, without deep-model work | pending |
+| Current bootstrap and closeout doctrine | Retired commands historical only; one closeout boundary per host | pending |
+| Detached Yeet qualification | Bounded job/slice lifecycle and terminal receipt | pending |
+| Cloud credentials: Azure/Vercel/Cloudflare/AWS/Pulumi | Actual output-suppressed authenticated operation per selected account/project | pending |

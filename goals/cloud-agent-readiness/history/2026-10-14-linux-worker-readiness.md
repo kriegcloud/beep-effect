@@ -92,3 +92,66 @@ PAM and SSH originals are saved on the worker under the security-bootstrap backu
 directory. Recovery sessions stayed live while changes were verified. Revoke
 worker service-account access by removing its credential or rotating the shared
 account. Disable the user Docker/proxy services to reverse their runtime setup.
+
+## Desktop and cloud CLI follow-up
+
+Installed Google Chrome 155.0.8059.79, 1Password Desktop 8.12.40,
+ChatGPT Desktop 26.1007.71326 from OpenAI's official Ubuntu package, and T3 Code
+0.0.45 from its upstream amd64 release (published SHA256 verified). Google and
+desktop sign-in/Chrome extensions are operator-owned follow-up. The Linux app
+is the official preview; Linux native Computer Use remains unsupported per its
+vendor documentation. Browser integration has a separate Chrome extension.
+
+Installed Azure CLI 2.90.0, Vercel CLI 62.7.0, Wrangler 4.151.0 and cloudflared
+2026.10.0. Version commands pass; cloud account authentication is still separate.
+Npm initially skipped esbuild/workerd install scripts. Reinstalled with a scoped
+allowScripts choice for those required packages rather than enabling every script.
+
+## Human desktop acceptance
+
+The operator confirmed ChatGPT Desktop remote pairing, Google accounts in Chrome,
+1Password Desktop and Claude in Chrome are authenticated. Chrome's default-browser
+setting was verified by xdg-settings; Chrome and 1Password launched successfully.
+This is human-provided desktop acceptance, distinct from CLI/proxy proof.
+
+The Configuration UI showed an ignored session flag and a retired Guardian
+thread-context setting. Both user/project TOML configurations on the worker
+contain no matching stale key. A fresh bundled app-server config/read returned
+no warnings. Vendor application code still emits code_mode_tool_description_first,
+which neither installed Codex runtime lists as supported. The signed stable feed
+matches the installed desktop version. The operator refreshed Settings → Configuration and confirmed both banners
+disappeared. This closes the UI warning report without modifying the signed app.
+
+AWS identity through the canonical op-run reference file succeeded with output
+suppressed. The first Pulumi check targeted the hosted service and failed because
+the workstation actually uses an S3 DIY backend. Backend-specific authentication
+is still being reconciled; no infrastructure was deployed.
+
+
+## T3 remote backend — 2026-10-14
+
+Installed the official T3 CLI 0.0.45 to match the desktop release. Installed and
+started its user systemd service (`t3code.service`); verified enabled, active,
+and user lingering enabled. The server listens on loopback port 3773.
+
+Granted elpresidank Tailscale operator access and published only through
+Tailscale Serve HTTPS: `https://beep-worker.tailc7c348.ts.net` proxies loopback
+3773. Serve reports tailnet-only; no Funnel or LAN firewall port was opened.
+The public environment descriptor responds successfully with label beep-worker
+and server version 0.0.45. Service installation ran without a forwarded admin
+SSH agent; privileged Tailscale administration used the existing YubiKey route.
+
+A 15-minute one-time pairing link was generated into a mode-0600 private file
+and passed to DankStation's clipboard without printing its credential. Native
+T3 saved connections use encrypted Electron storage, so desktop acceptance is
+through Settings → Connections → Add environment. Client pairing confirmation
+is pending; a reachable backend is not yet proof of a saved connected client.
+The operator's reference clone at `~/YeeBois/references/effect/t3code` was used
+to verify service, pairing and encrypted catalog behavior. No reference-source
+changes were made. Added the existing beep-effect checkout as a T3 project using
+`t3 project add`; no T3 agent turn or staking-host development service launched.
+
+Rollback: `t3 service uninstall` removes startup while retaining user data;
+`tailscale serve --https=443 off` removes this mapping. Revoke the client session
+in T3 Connections when removing a paired client. Never commit pairing links,
+session tokens or encrypted client catalogs into this goal.
