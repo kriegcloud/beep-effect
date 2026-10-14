@@ -429,6 +429,28 @@
         "typescript": "catalog:",
       },
     },
+    "apps/practice-setup": {
+      "name": "@beep/practice-setup",
+      "version": "0.0.0",
+      "bin": {
+        "practice-setup": "./src/bin.ts",
+      },
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/mcpb-kit": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-runner": "workspace:^",
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "apps/professional-desktop": {
       "name": "@beep/professional-desktop",
       "version": "0.0.3",
@@ -4290,6 +4312,8 @@
     "@beep/practice-m365-contacts": ["@beep/practice-m365-contacts@workspace:apps/practice-m365-contacts"],
 
     "@beep/practice-mail-tagging": ["@beep/practice-mail-tagging@workspace:apps/practice-mail-tagging"],
+
+    "@beep/practice-setup": ["@beep/practice-setup@workspace:apps/practice-setup"],
 
     "@beep/pretext": ["@beep/pretext@workspace:packages/drivers/pretext"],
 
