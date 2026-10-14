@@ -61,7 +61,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-[A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): latest main is integrated and all ten owner commands pass. The targeted incoming/A suite passes 586 tests in ten files. The live Knip workflow job and FQE helper wiring are removed locally; five obsolete generated coverage rows await the orchestrator splice. The writer artifact is archived and all live floors remain unchanged. The orchestrator also owns required-context removal before merge.
+[A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): latest main is integrated and all ten owner commands pass. The targeted incoming/A suite passes 586 tests in ten files. The live Knip workflow job and FQE helper wiring are removed locally; five obsolete generated coverage rows await the orchestrator splice. The writer artifact is archived and all live floors remain unchanged. Latest CLI quick/type/docgen/Fallow/law checks pass; the newest JSDoc and paper-link reds are inherited and attributed in the handoff. The orchestrator also owns required-context removal before merge.
 B's October 13 bounded baseline repair is published in
 [PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
 codec properties for the three inherited arbitrary-test findings. After

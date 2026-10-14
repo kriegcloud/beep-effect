@@ -161,3 +161,40 @@ Publication remains blocked on the orchestrator-owned splice of exactly these ab
 - `packages/tooling/tool/cli/src/commands/Quality/internal/KnipRatchet.ts`
 
 The tracked baseline matches pinned main `bc7e344fba`. Archived artifacts are `.beep/rsc-a/main3-generated-coverage.jsonc`, `.beep/rsc-a/main3-generated-coverage.patch` and `.beep/rsc-a/main3-coverage-floor-delta.json`. No new baseline tool, manual A pin or waiver is introduced. Current source is reviewed; owner/test proof is complete. Fresh quick CLI and policy/documentation checks follow this owner commit before the blocked report.
+
+## Terminal latest-source checks
+
+Verified checkpoint: `1b263004c56866bc6399e7ec69f8777f15145029`. The report-only commit that follows changes packet prose only.
+
+- CLI package quick gate: lint/check pass at 3.3s/4.1s. Full default audit/docgen for all eleven A packages remains recorded at the preceding source boundaries; CLI full default and serial coverage are bound to `b50dce625c`. No later full-suite pass is invented.
+- Test-tsgo: pass, 350 files in the remaining package; 149 packages covered by their check scripts.
+- Local docgen with planner-required `--full`: pass, metadata, generation and aggregation.
+- CI JSDoc ratchet with the fresh owner inventory: fail inherited, `missingExportExamples: 11 > 9`. Three newly missing examples are `KnowledgeBaselineGroupInput`, `KnowledgeSealGuardInput` and `KnowledgeDoctorCheckInput` in `KnowledgeDoctor.baseline.ts`; that entire source file exactly matches pinned main `bc7e344fba`. The prior A snapshot contained eight missing-example export records. No ratchet limit is raised.
+- Knowledge refs: fail inherited, one observation at `explorations/claim-element-graph/CAPTURE.md:18`, an operator-verbatim paper-download link. The entire file exactly matches pinned main. The preceding fourteen observations were repaired by incoming main; this one is not silently called a pass.
+- Fallow audit: pass, zero introduced and nine inherited-adjacent findings. Fallow health: pass, zero findings.
+- Retired-path law: pass, zero findings across 39,748 text files, 775 binaries skipped and 11 allowlisted files.
+- Scoped coverage: runtime pass on `b50dce625c`, all ten weighted shards / eleven packages. CLI: 307 files passed, 6,207 tests passed and five skipped. Baseline adoption remains blocked; the writer's exit 0 does not waive the live-floor changes.
+
+The latest red attribution is saved in ignored `.beep/rsc-a/main4-attribution.json`. All owned proof units are terminal. No push, publication, thread reply, ready transition, hosted monitor, merge or lane retirement occurred in this resumed run. PR #1584 remains open/ready at remote `1136e51dd208a78c744053444f4421d1165ab25a`; that remote state does not describe this prepared local tree.
+
+### Archived coverage artifact integrity
+
+| Ignored artifact | SHA-256 |
+| --- | --- |
+| `.beep/rsc-a/main3-generated-coverage.jsonc` | `b101a492b4fe4bc9267fae4a5519dd0d76192f01c700a95a5a235b6f9ff28efd` |
+| `.beep/rsc-a/main3-generated-coverage.patch` | `eb471e1fdb937b6297dcd963777fe063964b9eafcc5190268142d871933875c8` |
+| `.beep/rsc-a/main3-coverage-floor-delta.json` | `e45a8cb9e44e334318d3b14488dd503311c5e6a1fb0ff6053750c4e3c69bbe91` |
+
+## Worker report — blocked before publication
+
+lane: rsc-a-retire
+
+head: 1b263004c56866bc6399e7ec69f8777f15145029   PR: #1584 (verified pre-report tree, local only; final docs-only head is in the worker's last message)
+
+package-verify: @beep/box-provisioning: pass; @beep/box: pass; @beep/freshbooks: pass; @beep/occt: pass; @beep/pdf-tools: pass; @beep/wink: pass; @beep/colors: pass; @beep/data: pass; @beep/repo-ai-metrics: pass; @beep/codegen-kit: pass; @beep/repo-cli: pass. These are default gate results at recorded source boundaries; latest CLI quick gate and 586 targeted integration tests also pass.
+
+hosted-parity: test-tsgo: pass | docgen local --full: pass | jsdoc-ratchet: fail(inherited, 11 examples missing vs limit 9; three new main exports) | knowledge refs: fail(inherited, one verbatim paper-link observation) | fallow audit+health: pass | retired-effect-paths: pass | scoped coverage: runtime pass(b50dce625c, all eleven packages), generated baseline adoption blocked.
+
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-a-retire-2026-10-14.md
+
+open items: BLOCKED on the orchestrator-owned removal of the five absent-source coverage rows listed above, preserving all live floors. The owner command adopts whole package blocks and would also weaken 33 live metrics; its artifact is archived, not committed. S5 ended when the effected port and closeout landed; cap release exists. After the splice, fresh-fetch/integrate as required and publish this fully addressed wave once to #1584. Then reply/resolve `PRRT_kwDOPbO_N86sRiIC` and `PRRT_kwDOPbO_N86sRiIH` through Yeet; reply IDs: none (posting follows the push). The orchestrator owns required-context removal and merge. B/orchestrator owns the inherited JSDoc, reference and five FQE health/provenance issues. Later A waves, five patch proofs, retained-tool execution, F/H3 home/hook boundaries and foreign-clone residue remain under their named owners. Parent Graft calls estimate 440,009 tokens saved; this is a tool estimate, not a billing measurement. No final gate marker is written for an unpublished blocked wave.
