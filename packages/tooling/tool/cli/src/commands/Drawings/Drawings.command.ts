@@ -125,7 +125,8 @@ const projectionNote = (figure: RenderManifest["figures"][number]): string =>
  * **Details**
  *
  * Names the effective sheet format and margin standard, and says when the
- * spec's own sheet options replaced the ones the flags asked for. Pictorial
+ * spec's own sheet options replaced the ones the flags asked for. Each font
+ * embedded for text labels is listed with its file and sha256. Pictorial
  * figures carry their projection (a pictorial camera without a focus is
  * isometric).
  *
@@ -167,6 +168,7 @@ export const renderManifestSummary = ({
   `rendered "${manifest.title}": ${A.length(manifest.figures)} ${manifest.shaded ? "shaded" : "unshaded"} sheet(s) at ${manifest.scale} pt/unit → ${manifest.pdfFile}`,
   `sheet-set sha256 ${manifest.pdfSha256}`,
   ...sheetSummary(manifest, requested),
+  ...A.map(manifest.fonts, (pin) => `label font: ${pin.family} → ${pin.file} (sha256 ${pin.sha256})`),
   ...A.map(
     manifest.figures,
     (f) =>
