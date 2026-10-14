@@ -821,3 +821,14 @@ family engine failure; no live family was launched before it was repaired.
   costs for larger members. The current wave's rules and engines stay frozen.
 - Action: recorded the qualified elapsed-budget diagnosis, retained all output,
   stopped before ordinal 8. No cause approval or sealed-family retry.
+
+## 2026-10-14: stop-record integration overlaps an earlier squash merge
+
+- Doing: merge main once after all family units ended, before evidence publication.
+- Evidence: four packet conflicts in PLAN, README, the handoff and manifest.
+  Main carried the earlier family-5 stop; this branch had the later authorized
+  continuation, family-6 acceptance and family-7 stop.
+- Prevention: integrate packet-only history from completed evidence PRs promptly
+  when the frozen execution permits it. Preserve dated decisions on both sides.
+- Action: retained this branch's newer packet records, including the earlier
+  family-5 evidence, and updated current status to the further sealed failure.

@@ -1087,3 +1087,11 @@ family-5 stop evidence remains present. Manifest status now records family 7.
 This is publication integration only, not a change to any completed execution.
 The newer main may change engine source; any later execution must prove its
 code identity against its governing freeze record before launch.
+
+Publication checks: default frozen-lockfile install passed after main integration,
+with no tracked lockfile change. Complete diff against main is seven packet
+files only. Launcher size, manifest JSON, required reference-pattern search,
+whitespace, doctor and index checks pass. Doctor has zero new blockers and
+the same three unrelated advisories. Merge hooks pass with inherited
+large-file Biome warnings and JSDoc warnings from main; no package edited.
+Knowledge refs is awaiting shared beep-heavy admission; no bypass.
