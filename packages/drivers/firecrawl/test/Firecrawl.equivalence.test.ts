@@ -1,4 +1,5 @@
 import { FirecrawlError } from "@beep/firecrawl";
+import { FirecrawlErrorOptionsInput } from "@beep/firecrawl/Firecrawl.errors";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import * as S from "effect/Schema";
@@ -7,9 +8,9 @@ const sameFirecrawlError = S.toEquivalence(FirecrawlError);
 
 describe("Firecrawl declared-field equivalence", () => {
   it("treats field-equal FirecrawlError instances as equivalent and field-different ones as distinct", () => {
-    const a = FirecrawlError.fromReason("transport", { method: "scrape" });
-    const b = FirecrawlError.fromReason("transport", { method: "scrape" });
-    const c = FirecrawlError.fromReason("response status", { method: "scrape" });
+    const a = FirecrawlError.fromReason("transport", FirecrawlErrorOptionsInput.make({ method: "scrape" }));
+    const b = FirecrawlError.fromReason("transport", FirecrawlErrorOptionsInput.make({ method: "scrape" }));
+    const c = FirecrawlError.fromReason("response status", FirecrawlErrorOptionsInput.make({ method: "scrape" }));
 
     expect(sameFirecrawlError(a, b)).toBe(true);
     expect(sameFirecrawlError(a, c)).toBe(false);

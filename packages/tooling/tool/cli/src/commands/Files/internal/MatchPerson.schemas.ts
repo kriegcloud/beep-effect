@@ -303,14 +303,15 @@ export type PersonMatchRuntimeWarningCode = typeof PersonMatchRuntimeWarningCode
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchRuntimeWarning extends S.Class<PersonMatchRuntimeWarning>($I`PersonMatchRuntimeWarning`)(
-  {
+export class PersonMatchRuntimeWarning extends S.Opaque<PersonMatchRuntimeWarning, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: PersonMatchRuntimeWarningCode,
     message: S.NonEmptyString,
-  },
-  $I.annote("PersonMatchRuntimeWarning", {
-    description: "A stable code and explanation for a non-fatal person-matching runtime fallback.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchRuntimeWarning", {
+      description: "A stable code and explanation for a non-fatal person-matching runtime fallback.",
+    })
+  )
 ) {}
 
 const PersonMatchSimilarityScore = S.Finite.check(
@@ -686,16 +687,20 @@ export type PersonMatchModelArtifactName = typeof PersonMatchModelArtifactName.T
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchThresholdProfile extends S.Class<PersonMatchThresholdProfile>($I`PersonMatchThresholdProfile`)(
-  {
+export class PersonMatchThresholdProfile extends S.Opaque<
+  PersonMatchThresholdProfile,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     detectionThreshold: FaceDetectionConfidence,
     matchThreshold: FaceDetectionConfidence,
     reviewThreshold: FaceDetectionConfidence,
     minFaceAreaPct: FaceDetectionPercentage,
-  },
-  $I.annote("PersonMatchThresholdProfile", {
-    description: "Resolved detection, identity, review, and face-area thresholds for one backend profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchThresholdProfile", {
+      description: "Resolved detection, identity, review, and face-area thresholds for one backend profile.",
+    })
+  )
 ) {}
 
 /**
@@ -820,8 +825,8 @@ export type PersonMatchDeviceIndexesFromCsv = typeof PersonMatchDeviceIndexesFro
  * @category models
  * @since 0.0.0
  */
-export class MatchPersonOptions extends S.Class<MatchPersonOptions>($I`MatchPersonOptions`)(
-  {
+export class MatchPersonOptions extends S.Opaque<MatchPersonOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dir: S.NonEmptyString,
     references: S.NonEmptyString,
     manifest: S.NonEmptyString,
@@ -842,10 +847,11 @@ export class MatchPersonOptions extends S.Class<MatchPersonOptions>($I`MatchPers
     acceptModelLicense: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     json: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     overwrite: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-  },
-  $I.annote("MatchPersonOptions", {
-    description: "Validated command inputs for a local person-matching run.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatchPersonOptions", {
+      description: "Validated command inputs for a local person-matching run.",
+    })
+  )
 ) {}
 
 /**
@@ -872,16 +878,17 @@ export class MatchPersonOptions extends S.Class<MatchPersonOptions>($I`MatchPers
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchModelArtifact extends S.Class<PersonMatchModelArtifact>($I`PersonMatchModelArtifact`)(
-  {
+export class PersonMatchModelArtifact extends S.Opaque<PersonMatchModelArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     path: S.NonEmptyString,
     sizeBytes: S.Natural,
     sha256: Sha256Hex,
-  },
-  $I.annote("PersonMatchModelArtifact", {
-    description: "A named, checksummed model artifact consumed by the person-matching worker.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchModelArtifact", {
+      description: "A named, checksummed model artifact consumed by the person-matching worker.",
+    })
+  )
 ) {}
 
 /**
@@ -908,18 +915,19 @@ export class PersonMatchModelArtifact extends S.Class<PersonMatchModelArtifact>(
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchModelComponent extends S.Class<PersonMatchModelComponent>($I`PersonMatchModelComponent`)(
-  {
+export class PersonMatchModelComponent extends S.Opaque<PersonMatchModelComponent, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: PersonMatchArtifactRole,
     name: S.NonEmptyString,
     revision: S.NonEmptyString,
     source: S.NonEmptyString,
     licenseNotice: S.NonEmptyString,
     artifacts: S.Array(PersonMatchModelArtifact),
-  },
-  $I.annote("PersonMatchModelComponent", {
-    description: "A model component and its immutable, checksummed artifacts grouped by semantic role.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchModelComponent", {
+      description: "A model component and its immutable, checksummed artifacts grouped by semantic role.",
+    })
+  )
 ) {}
 
 /**
@@ -939,15 +947,16 @@ export class PersonMatchModelComponent extends S.Class<PersonMatchModelComponent
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchRuntimeDevice extends S.Class<PersonMatchRuntimeDevice>($I`PersonMatchRuntimeDevice`)(
-  {
+export class PersonMatchRuntimeDevice extends S.Opaque<PersonMatchRuntimeDevice, { readonly brand: unique symbol }>()(
+  S.Struct({
     index: S.Natural,
     name: S.NonEmptyString,
     architecture: S.NonEmptyString,
-  },
-  $I.annote("PersonMatchRuntimeDevice", {
-    description: "A runtime device index, display name, and hardware architecture used for inference.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchRuntimeDevice", {
+      description: "A runtime device index, display name, and hardware architecture used for inference.",
+    })
+  )
 ) {}
 
 /**
@@ -974,8 +983,8 @@ export class PersonMatchRuntimeDevice extends S.Class<PersonMatchRuntimeDevice>(
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchOnnxRuntime extends S.Class<PersonMatchOnnxRuntime>($I`PersonMatchOnnxRuntime`)(
-  {
+export class PersonMatchOnnxRuntime extends S.Opaque<PersonMatchOnnxRuntime, { readonly brand: unique symbol }>()(
+  S.Struct({
     framework: S.tag("onnxruntime"),
     packageVersion: S.Literal("1.23.2"),
     actualCompute: S.Literal("cpu"),
@@ -983,10 +992,11 @@ export class PersonMatchOnnxRuntime extends S.Class<PersonMatchOnnxRuntime>($I`P
     providers: S.Tuple([S.Literal("CPUExecutionProvider")]),
     devices: S.Tuple([]),
     warnings: S.Array(PersonMatchRuntimeWarning),
-  },
-  $I.annote("PersonMatchOnnxRuntime", {
-    description: "Pinned CPU ONNX Runtime provenance for the InsightFace Buffalo backend.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchOnnxRuntime", {
+      description: "Pinned CPU ONNX Runtime provenance for the InsightFace Buffalo backend.",
+    })
+  )
 ) {}
 
 /**
@@ -1020,8 +1030,8 @@ export class PersonMatchOnnxRuntime extends S.Class<PersonMatchOnnxRuntime>($I`P
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchPyTorchRuntime extends S.Class<PersonMatchPyTorchRuntime>($I`PersonMatchPyTorchRuntime`)(
-  {
+export class PersonMatchPyTorchRuntime extends S.Opaque<PersonMatchPyTorchRuntime, { readonly brand: unique symbol }>()(
+  S.Struct({
     framework: S.tag("pytorch"),
     distribution: PersonMatchPyTorchDistribution,
     packageVersion: S.NonEmptyString,
@@ -1030,10 +1040,11 @@ export class PersonMatchPyTorchRuntime extends S.Class<PersonMatchPyTorchRuntime
     precision: PersonMatchPrecision,
     devices: S.Array(PersonMatchRuntimeDevice),
     warnings: S.Array(PersonMatchRuntimeWarning),
-  },
-  $I.annote("PersonMatchPyTorchRuntime", {
-    description: "PyTorch version, compute selection, precision, devices, and fallbacks used for AdaFace inference.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchPyTorchRuntime", {
+      description: "PyTorch version, compute selection, precision, devices, and fallbacks used for AdaFace inference.",
+    })
+  )
 ) {}
 
 /**
@@ -1072,8 +1083,8 @@ export class PersonMatchPyTorchRuntime extends S.Class<PersonMatchPyTorchRuntime
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchBuffaloModel extends S.Class<PersonMatchBuffaloModel>($I`PersonMatchBuffaloModel`)(
-  {
+export class PersonMatchBuffaloModel extends S.Opaque<PersonMatchBuffaloModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     backend: S.tag("buffalo-l"),
     name: S.Literal("buffalo_l"),
     packageName: S.Literal("insightface"),
@@ -1082,10 +1093,11 @@ export class PersonMatchBuffaloModel extends S.Class<PersonMatchBuffaloModel>($I
     root: S.NonEmptyString,
     allowedModules: S.Tuple([S.Literal("detection"), S.Literal("recognition")]),
     components: S.Array(PersonMatchModelComponent),
-  },
-  $I.annote("PersonMatchBuffaloModel", {
-    description: "Pinned InsightFace Buffalo model, component, installation, and ONNX Runtime provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchBuffaloModel", {
+      description: "Pinned InsightFace Buffalo model, component, installation, and ONNX Runtime provenance.",
+    })
+  )
 ) {}
 
 /**
@@ -1122,18 +1134,19 @@ export class PersonMatchBuffaloModel extends S.Class<PersonMatchBuffaloModel>($I
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchAdaFaceModel extends S.Class<PersonMatchAdaFaceModel>($I`PersonMatchAdaFaceModel`)(
-  {
+export class PersonMatchAdaFaceModel extends S.Opaque<PersonMatchAdaFaceModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     backend: S.tag("adaface-kprpe"),
     name: S.Literal("cvlface_adaface_vit_base_kprpe_webface12m"),
     codeRevision: S.Literal("308142aa50adf2e187711354f7524635d3414f1e"),
     runtime: PersonMatchPyTorchRuntime,
     root: S.NonEmptyString,
     components: S.Array(PersonMatchModelComponent),
-  },
-  $I.annote("PersonMatchAdaFaceModel", {
-    description: "Pinned CVLFace AdaFace ViT-Base KP-RPE model, component, and PyTorch runtime provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchAdaFaceModel", {
+      description: "Pinned CVLFace AdaFace ViT-Base KP-RPE model, component, and PyTorch runtime provenance.",
+    })
+  )
 ) {}
 
 /**
@@ -1203,8 +1216,8 @@ export type PersonMatchModel = typeof PersonMatchModel.Type;
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchParameters extends S.Class<PersonMatchParameters>($I`PersonMatchParameters`)(
-  {
+export class PersonMatchParameters extends S.Opaque<PersonMatchParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     backend: PersonMatchBackend,
     compute: PersonMatchComputePolicy,
     actualCompute: PersonMatchActualCompute,
@@ -1217,11 +1230,12 @@ export class PersonMatchParameters extends S.Class<PersonMatchParameters>($I`Per
     reviewThreshold: FaceDetectionConfidence,
     minFaceAreaPct: FaceDetectionPercentage,
     recursive: S.Boolean,
-  },
-  $I.annote("PersonMatchParameters", {
-    description:
-      "JSON-safe backend policy, actual selected device ordinals, batching, thresholds, and traversal mode used by the worker.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchParameters", {
+      description:
+        "JSON-safe backend policy, actual selected device ordinals, batching, thresholds, and traversal mode used by the worker.",
+    })
+  )
 ) {}
 
 /**
@@ -1251,18 +1265,19 @@ export class PersonMatchParameters extends S.Class<PersonMatchParameters>($I`Per
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchReference extends S.Class<PersonMatchReference>($I`PersonMatchReference`)(
-  {
+export class PersonMatchReference extends S.Opaque<PersonMatchReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceName: S.NonEmptyString,
     sourcePath: S.NonEmptyString,
     accepted: S.Boolean,
     faceCount: S.Natural,
     detectionScore: S.optionalKey(FaceDetectionConfidence),
     reason: S.optionalKey(PersonMatchReferenceRejectionReason),
-  },
-  $I.annote("PersonMatchReference", {
-    description: "Acceptance and diagnostic metadata for one person-matching reference image.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchReference", {
+      description: "Acceptance and diagnostic metadata for one person-matching reference image.",
+    })
+  )
 ) {}
 
 /**
@@ -1284,16 +1299,17 @@ export class PersonMatchReference extends S.Class<PersonMatchReference>($I`Perso
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchFaceBox extends S.Class<PersonMatchFaceBox>($I`PersonMatchFaceBox`)(
-  {
+export class PersonMatchFaceBox extends S.Opaque<PersonMatchFaceBox, { readonly brand: unique symbol }>()(
+  S.Struct({
     x1: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     y1: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     x2: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     y2: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("PersonMatchFaceBox", {
-    description: "An axis-aligned face bounding box in source-image pixel coordinates.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchFaceBox", {
+      description: "An axis-aligned face bounding box in source-image pixel coordinates.",
+    })
+  )
 ) {}
 
 /**
@@ -1325,8 +1341,8 @@ export class PersonMatchFaceBox extends S.Class<PersonMatchFaceBox>($I`PersonMat
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchFace extends S.Class<PersonMatchFace>($I`PersonMatchFace`)(
-  {
+export class PersonMatchFace extends S.Opaque<PersonMatchFace, { readonly brand: unique symbol }>()(
+  S.Struct({
     box: PersonMatchFaceBox,
     detectionScore: FaceDetectionConfidence,
     faceAreaPct: FaceDetectionPercentage,
@@ -1336,10 +1352,11 @@ export class PersonMatchFace extends S.Class<PersonMatchFace>($I`PersonMatchFace
     bestReferenceScore: PersonMatchSimilarityScore,
     bestReferenceName: S.NonEmptyString,
     qualityFlags: S.Array(PersonMatchQualityFlag),
-  },
-  $I.annote("PersonMatchFace", {
-    description: "Detection, quality, and identity-match evidence for one detected face.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchFace", {
+      description: "Detection, quality, and identity-match evidence for one detected face.",
+    })
+  )
 ) {}
 
 /**
@@ -1371,8 +1388,8 @@ export class PersonMatchFace extends S.Class<PersonMatchFace>($I`PersonMatchFace
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchEntry extends S.Class<PersonMatchEntry>($I`PersonMatchEntry`)(
-  {
+export class PersonMatchEntry extends S.Opaque<PersonMatchEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceName: S.NonEmptyString,
     sourcePath: S.NonEmptyString,
     relativePath: S.NonEmptyString,
@@ -1381,10 +1398,11 @@ export class PersonMatchEntry extends S.Class<PersonMatchEntry>($I`PersonMatchEn
     bestScore: S.optionalKey(PersonMatchSimilarityScore),
     faces: S.Array(PersonMatchFace).check(S.isMaxLength(PERSON_MATCH_MAX_FACES_PER_IMAGE)),
     reason: S.optionalKey(PersonMatchEntryReason),
-  },
-  $I.annote("PersonMatchEntry", {
-    description: "The matching disposition and face evidence for one source image.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchEntry", {
+      description: "The matching disposition and face evidence for one source image.",
+    })
+  )
 ) {}
 
 /**
@@ -1417,8 +1435,8 @@ export class PersonMatchEntry extends S.Class<PersonMatchEntry>($I`PersonMatchEn
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchSummary extends S.Class<PersonMatchSummary>($I`PersonMatchSummary`)(
-  {
+export class PersonMatchSummary extends S.Opaque<PersonMatchSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     totalCount: S.Natural,
     soloMatchCount: S.Natural,
     groupMatchCount: S.Natural,
@@ -1429,10 +1447,11 @@ export class PersonMatchSummary extends S.Class<PersonMatchSummary>($I`PersonMat
     unreadableCount: S.Natural,
     acceptedReferenceCount: S.Natural,
     rejectedReferenceCount: S.Natural,
-  },
-  $I.annote("PersonMatchSummary", {
-    description: "Disposition and reference-acceptance counts for a person-matching run.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchSummary", {
+      description: "Disposition and reference-acceptance counts for a person-matching run.",
+    })
+  )
 ) {}
 
 /**
@@ -1457,14 +1476,15 @@ export class PersonMatchSummary extends S.Class<PersonMatchSummary>($I`PersonMat
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchWorkerError extends S.Class<PersonMatchWorkerError>($I`PersonMatchWorkerError`)(
-  {
+export class PersonMatchWorkerError extends S.Opaque<PersonMatchWorkerError, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: PersonMatchWorkerErrorCode,
     message: S.NonEmptyString,
-  },
-  $I.annote("PersonMatchWorkerError", {
-    description: "A stable worker error code and human-readable failure message.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchWorkerError", {
+      description: "A stable worker error code and human-readable failure message.",
+    })
+  )
 ) {}
 
 /**
@@ -1490,18 +1510,19 @@ export class PersonMatchWorkerError extends S.Class<PersonMatchWorkerError>($I`P
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchWorkerLimits extends S.Class<PersonMatchWorkerLimits>($I`PersonMatchWorkerLimits`)(
-  {
+export class PersonMatchWorkerLimits extends S.Opaque<PersonMatchWorkerLimits, { readonly brand: unique symbol }>()(
+  S.Struct({
     referenceImages: S.Literal(PERSON_MATCH_MAX_REFERENCE_IMAGES),
     candidateImages: S.Literal(PERSON_MATCH_MAX_CANDIDATE_IMAGES),
     facesPerImage: S.Literal(PERSON_MATCH_MAX_FACES_PER_IMAGE),
     reportedFaces: S.Literal(PERSON_MATCH_MAX_REPORTED_FACES),
     reportBytes: S.Literal(PERSON_MATCH_MAX_REPORT_BYTES),
     diagnosticBytes: S.Literal(PERSON_MATCH_MAX_DIAGNOSTIC_BYTES),
-  },
-  $I.annote("PersonMatchWorkerLimits", {
-    description: "Immutable image, face, JSON, and diagnostic limits enforced by the person-match worker protocol.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchWorkerLimits", {
+      description: "Immutable image, face, JSON, and diagnostic limits enforced by the person-match worker protocol.",
+    })
+  )
 ) {}
 
 /**
@@ -1583,8 +1604,8 @@ export class PersonMatchWorkerLimits extends S.Class<PersonMatchWorkerLimits>($I
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchWorkerSuccess extends S.Class<PersonMatchWorkerSuccess>($I`PersonMatchWorkerSuccess`)(
-  {
+export class PersonMatchWorkerSuccess extends S.Opaque<PersonMatchWorkerSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("beep.files.match-person.worker.v3"),
     ok: S.Literal(true),
     limits: PersonMatchWorkerLimits,
@@ -1594,10 +1615,11 @@ export class PersonMatchWorkerSuccess extends S.Class<PersonMatchWorkerSuccess>(
     entries: S.Array(PersonMatchEntry).check(S.isMaxLength(PERSON_MATCH_MAX_CANDIDATE_IMAGES)),
     summary: PersonMatchSummary,
     elapsedSeconds: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("PersonMatchWorkerSuccess", {
-    description: "A successful versioned response from the local person-matching Python worker.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchWorkerSuccess", {
+      description: "A successful versioned response from the local person-matching Python worker.",
+    })
+  )
 ) {}
 
 /**
@@ -1635,17 +1657,18 @@ export class PersonMatchWorkerSuccess extends S.Class<PersonMatchWorkerSuccess>(
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchWorkerFailure extends S.Class<PersonMatchWorkerFailure>($I`PersonMatchWorkerFailure`)(
-  {
+export class PersonMatchWorkerFailure extends S.Opaque<PersonMatchWorkerFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("beep.files.match-person.worker.v3"),
     ok: S.Literal(false),
     limits: PersonMatchWorkerLimits,
     error: PersonMatchWorkerError,
     elapsedSeconds: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("PersonMatchWorkerFailure", {
-    description: "A failed versioned response from the local person-matching Python worker.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchWorkerFailure", {
+      description: "A failed versioned response from the local person-matching Python worker.",
+    })
+  )
 ) {}
 
 /**
@@ -1769,8 +1792,8 @@ export type PersonMatchWorkerReport = typeof PersonMatchWorkerReport.Type;
  * @category models
  * @since 0.0.0
  */
-export class PersonMatchReport extends S.Class<PersonMatchReport>($I`PersonMatchReport`)(
-  {
+export class PersonMatchReport extends S.Opaque<PersonMatchReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("beep.files.match-person.v2"),
     ok: S.Literal(true),
     model: PersonMatchModel,
@@ -1782,10 +1805,11 @@ export class PersonMatchReport extends S.Class<PersonMatchReport>($I`PersonMatch
     manifestPath: S.NonEmptyString,
     manifestWritten: S.Boolean,
     outputDirectory: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("PersonMatchReport", {
-    description: "The versioned public manifest emitted by the person-matching command.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchReport", {
+      description: "The versioned public manifest emitted by the person-matching command.",
+    })
+  )
 ) {}
 
 /**

@@ -51,8 +51,8 @@ const $I = $LawPracticeDomainId.create("values/FederalRuleCitation/FederalRuleCi
  * @category models
  * @since 0.0.0
  */
-export class FederalRuleCitation extends S.Class<FederalRuleCitation>($I`FederalRuleCitation`)(
-  {
+export class FederalRuleCitation extends S.Opaque<FederalRuleCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("federalRule"),
     ruleSet: S.Literals(["civil", "criminal", "evidence", "appellate", "bankruptcy"]).annotateKey({
@@ -75,11 +75,12 @@ export class FederalRuleCitation extends S.Class<FederalRuleCitation>($I`Federal
         description: "Component spans locating each recognized sub-part of the citation within the source text.",
       })
     ),
-  },
-  $I.annote("FederalRuleCitation", {
-    description:
-      "Federal Rules of Procedure citation covering the civil, criminal, evidence, appellate, and bankruptcy rule sets (#576).",
-  })
+  }).pipe(
+    $I.annoteSchema("FederalRuleCitation", {
+      description:
+        "Federal Rules of Procedure citation covering the civil, criminal, evidence, appellate, and bankruptcy rule sets (#576).",
+    })
+  )
 ) {}
 
 /**

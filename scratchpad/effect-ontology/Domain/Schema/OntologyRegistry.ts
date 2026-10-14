@@ -47,8 +47,7 @@ const ontologyEntryImportsDefault = A.empty<IRI>();
  * @category models
  * @since 0.0.0
  */
-export class OntologyEntry extends S.Class<OntologyEntry>($I`OntologyEntry`)(
-  {
+export class OntologyEntry extends S.Opaque<OntologyEntry, { readonly brand: unique symbol }>()(S.Struct({
     id: OntologyName.annotateKey({
       description: "Stable lowercase registry identifier for the ontology.",
     }),
@@ -97,11 +96,9 @@ export class OntologyEntry extends S.Class<OntologyEntry>($I`OntologyEntry`)(
     targetNamespace: AbsoluteIRI.annotateKey({
       description: "Absolute namespace IRI used for extracted resources.",
     }),
-  },
-  $I.annote("OntologyEntry", {
+  }).pipe($I.annoteSchema("OntologyEntry", {
     description: "Validated registry entry for one versioned ontology and its optional companion artifacts.",
-  })
-) {
+  }))) {
   static readonly is = S.is(OntologyEntry);
   static readonly decodeOption = S.decodeUnknownOption(OntologyEntry);
 }
@@ -122,19 +119,16 @@ export class OntologyEntry extends S.Class<OntologyEntry>($I`OntologyEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class SharedResources extends S.Class<SharedResources>($I`SharedResources`)(
-  {
+export class SharedResources extends S.Opaque<SharedResources, { readonly brand: unique symbol }>()(S.Struct({
     externalVocabs: S.OptionFromOptionalNullOr(GcsObject).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
         description: "Optional canonical path to vocabularies shared by all ontologies.",
       })
     ),
-  },
-  $I.annote("SharedResources", {
+  }).pipe($I.annoteSchema("SharedResources", {
     description: "Option-normalized storage resources shared by every ontology in a registry.",
-  })
-) {}
+  }))) {}
 
 const ontologyRegistryOntologiesDefault = A.empty<OntologyEntry>();
 /**
@@ -164,8 +158,7 @@ const ontologyRegistryOntologiesDefault = A.empty<OntologyEntry>();
  * @category models
  * @since 0.0.0
  */
-export class OntologyRegistry extends S.Class<OntologyRegistry>($I`OntologyRegistry`)(
-  {
+export class OntologyRegistry extends S.Opaque<OntologyRegistry, { readonly brand: unique symbol }>()(S.Struct({
     version: SemanticVersion.annotateKey({
       description: "Registry manifest format version.",
     }),
@@ -184,11 +177,9 @@ export class OntologyRegistry extends S.Class<OntologyRegistry>($I`OntologyRegis
         description: "Optional resources shared by all ontology entries.",
       })
     ),
-  },
-  $I.annote("OntologyRegistry", {
+  }).pipe($I.annoteSchema("OntologyRegistry", {
     description: "Versioned, timestamped registry manifest containing validated ontology entries and shared resources.",
-  })
-) {
+  }))) {
   static readonly is = S.is(OntologyRegistry);
   static readonly decodeOption = S.decodeUnknownOption(OntologyRegistry);
 }

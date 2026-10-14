@@ -43,7 +43,7 @@ const $I = $ApiTransportId.create("EgressDenied");
  * @category errors
  * @since 0.0.0
  */
-export class EgressDenied extends S.TaggedError<EgressDenied>($I`EgressDenied`)(
+export class EgressDenied extends S.TaggedError<EgressDenied, { readonly brand: unique symbol }>($I`EgressDenied`)(
   "EgressDenied",
   {},
   $I.annoteError<EgressDenied>("EgressDenied", {

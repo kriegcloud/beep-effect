@@ -43,7 +43,10 @@ type ContactRoutePayloadErrorReason = typeof ContactRoutePayloadErrorReason.Type
  * @category errors
  * @since 0.0.0
  */
-export class ContactRoutePayloadError extends S.TaggedError<ContactRoutePayloadError>($I`ContactRoutePayloadError`)(
+export class ContactRoutePayloadError extends S.TaggedError<
+  ContactRoutePayloadError,
+  { readonly brand: unique symbol }
+>($I`ContactRoutePayloadError`)(
   "ContactRoutePayloadError",
   {
     reason: ContactRoutePayloadErrorReason,

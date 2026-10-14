@@ -52,3 +52,23 @@ Corrected the example to the titled section required by main's binding
 .patterns/jsdoc-documentation.md law, with a Details section for the App-binding
 explanation. The local JSDoc ratchet then reports zero legacy findings and no
 increased totals. Source behavior and test expectations are unchanged.
+
+## Main advancement during proof
+
+Main advanced to d6040249f034a05b2aee014c60230c68a1ad780f while the corrected
+documentation head's proof was running. GitHub reports a merge conflict and
+does not create new pull-request workflow runs until it is resolved. The
+conflict is SchemaFirstScan.ts: main's branded Opaque policy introduced class
+shape checks into the scanner whose memory use this branch had bounded.
+
+Resolve by collecting class-reference names across the full source/test corpus
+in the existing syntax-only pass, releasing each file as before. The production
+semantic pass retains main's new class-shape checks, excludes test roots, and
+releases completed syntax wrappers. Retained class candidates are main's schema
+fact values, not compiler nodes. LiteralKit assertion checks remain intact;
+arbitrary-test findings are collected once. No policy or inventory is waived.
+
+Five schema/governance files pass 111 tests after resolution. A new command-level
+regression separately passes: a production class referenced only by an excluded
+test's instanceof expression is retained, while an otherwise plain class is
+reported. Main's existing class detector unit tests also pass.

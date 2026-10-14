@@ -30,8 +30,7 @@ const $I = $ScratchpadId.create("effect-ontology/Schema/MentionFactory");
  * @category models
  * @since 0.0.0
  */
-export class Mention extends S.Class<Mention>($I`Mention`)(
-  {
+export class Mention extends S.Opaque<Mention, { readonly brand: unique symbol }>()(S.Struct({
     id: S.String.pipe(
       S.check(
         S.isPattern(/^[a-z][a-z0-9_]*$/, {
@@ -49,11 +48,9 @@ export class Mention extends S.Class<Mention>($I`Mention`)(
     context: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Brief source context used to disambiguate the mention.",
     }),
-  },
-  $I.annote("Mention", {
+  }).pipe($I.annoteSchema("Mention", {
     description: "Schema-backed entity mention captured before ontology typing.",
-  })
-) {}
+  }))) {}
 
 /**
  * Schema for mention extraction (entity detection without typing)

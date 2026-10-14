@@ -138,7 +138,9 @@ export type CanonicalizationErrorReason = typeof CanonicalizationErrorReason.Typ
  * @category errors
  * @since 0.0.0
  */
-export class CanonicalizationError extends S.TaggedError<CanonicalizationError>($I`CanonicalizationError`)(
+export class CanonicalizationError extends S.TaggedError<CanonicalizationError, { readonly brand: unique symbol }>(
+  $I`CanonicalizationError`
+)(
   "CanonicalizationError",
   {
     reason: CanonicalizationErrorReason,
@@ -170,19 +172,23 @@ export class CanonicalizationError extends S.TaggedError<CanonicalizationError>(
  * @category models
  * @since 0.0.0
  */
-export class CanonicalizeDatasetRequest extends S.Class<CanonicalizeDatasetRequest>($I`CanonicalizeDatasetRequest`)(
-  {
+export class CanonicalizeDatasetRequest extends S.Opaque<
+  CanonicalizeDatasetRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dataset: Dataset,
     algorithm: CanonicalizationAlgorithm,
     workLimit: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CanonicalizeDatasetRequest", {
-    description: "Dataset canonicalization request.",
-    semanticSchemaMetadata: serviceContractMetadata(
-      "CanonicalizeDatasetRequest",
-      "Request to canonicalize an RDF dataset."
-    ),
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalizeDatasetRequest", {
+      description: "Dataset canonicalization request.",
+      semanticSchemaMetadata: serviceContractMetadata(
+        "CanonicalizeDatasetRequest",
+        "Request to canonicalize an RDF dataset."
+      ),
+    })
+  )
 ) {}
 
 /**
@@ -205,19 +211,20 @@ export class CanonicalizeDatasetRequest extends S.Class<CanonicalizeDatasetReque
  * @category models
  * @since 0.0.0
  */
-export class FingerprintDatasetRequest extends S.Class<FingerprintDatasetRequest>($I`FingerprintDatasetRequest`)(
-  {
+export class FingerprintDatasetRequest extends S.Opaque<FingerprintDatasetRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataset: Dataset,
     algorithm: CanonicalizationAlgorithm,
     workLimit: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("FingerprintDatasetRequest", {
-    description: "Dataset fingerprint request.",
-    semanticSchemaMetadata: serviceContractMetadata(
-      "FingerprintDatasetRequest",
-      "Request to fingerprint an RDF dataset."
-    ),
-  })
+  }).pipe(
+    $I.annoteSchema("FingerprintDatasetRequest", {
+      description: "Dataset fingerprint request.",
+      semanticSchemaMetadata: serviceContractMetadata(
+        "FingerprintDatasetRequest",
+        "Request to fingerprint an RDF dataset."
+      ),
+    })
+  )
 ) {}
 
 /**
@@ -240,15 +247,16 @@ export class FingerprintDatasetRequest extends S.Class<FingerprintDatasetRequest
  * @category models
  * @since 0.0.0
  */
-export class CanonicalDatasetResult extends S.Class<CanonicalDatasetResult>($I`CanonicalDatasetResult`)(
-  {
+export class CanonicalDatasetResult extends S.Opaque<CanonicalDatasetResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalText: S.String,
     dataset: Dataset,
-  },
-  $I.annote("CanonicalDatasetResult", {
-    description: "Canonical dataset output.",
-    semanticSchemaMetadata: serviceContractMetadata("CanonicalDatasetResult", "Canonical dataset output."),
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalDatasetResult", {
+      description: "Canonical dataset output.",
+      semanticSchemaMetadata: serviceContractMetadata("CanonicalDatasetResult", "Canonical dataset output."),
+    })
+  )
 ) {}
 
 /**
@@ -272,15 +280,16 @@ export class CanonicalDatasetResult extends S.Class<CanonicalDatasetResult>($I`C
  * @category models
  * @since 0.0.0
  */
-export class DatasetFingerprint extends S.Class<DatasetFingerprint>($I`DatasetFingerprint`)(
-  {
+export class DatasetFingerprint extends S.Opaque<DatasetFingerprint, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalText: S.String,
     fingerprint: Sha256Hex,
-  },
-  $I.annote("DatasetFingerprint", {
-    description: "Dataset fingerprint output.",
-    semanticSchemaMetadata: serviceContractMetadata("DatasetFingerprint", "Dataset fingerprint output."),
-  })
+  }).pipe(
+    $I.annoteSchema("DatasetFingerprint", {
+      description: "Dataset fingerprint output.",
+      semanticSchemaMetadata: serviceContractMetadata("DatasetFingerprint", "Dataset fingerprint output."),
+    })
+  )
 ) {}
 
 /**

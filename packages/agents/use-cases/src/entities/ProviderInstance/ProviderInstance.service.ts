@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import { ProviderProbeUnavailable, ProviderUnauthenticated } from "./ProviderInstance.errors.ts";
+import { ProviderProbeInput } from "./ProviderInstance.repository.ts";
 import type {
   AddProviderInstanceCommand,
   GetProviderInstanceQuery,
@@ -62,12 +63,14 @@ export const makeProviderInstanceUseCases: {
   }),
   probe: Effect.fn("Agents.ProviderInstance.probe")(function* (command: ProbeProviderInstanceCommand) {
     const current = yield* repository.get(command.id);
-    const snapshot = yield* providerProbe.probe({
-      binaryPath: current.binaryPath,
-      envVars: current.envVars,
-      homePath: current.homePath,
-      kind: current.kind,
-    });
+    const snapshot = yield* providerProbe.probe(
+      ProviderProbeInput.make({
+        binaryPath: current.binaryPath,
+        envVars: current.envVars,
+        homePath: current.homePath,
+        kind: current.kind,
+      })
+    );
     const saved = yield* repository.save(Domain.ProviderInstance.make({ ...current, lastProbe: O.some(snapshot) }));
     return yield* Domain.AuthSnapshot.match(snapshot, {
       authenticated: () => Effect.succeed(saved),

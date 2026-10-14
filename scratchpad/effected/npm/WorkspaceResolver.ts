@@ -62,7 +62,7 @@ const $I = $ScratchpadId.create("effected/npm/WorkspaceResolver");
  * @category errors
  * @since 0.0.0
  */
-export class DependencyResolutionError extends S.TaggedError<DependencyResolutionError>($I`DependencyResolutionError`)(
+export class DependencyResolutionError extends S.TaggedError<DependencyResolutionError, { readonly brand: unique symbol }>($I`DependencyResolutionError`)(
 	"DependencyResolutionError",
 	{
 		specifier: S.String.annotateKey({ description: "The dependency specifier that could not be resolved" }),

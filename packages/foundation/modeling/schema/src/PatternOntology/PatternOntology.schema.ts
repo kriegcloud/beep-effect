@@ -133,15 +133,16 @@ export type PoContainment = typeof PoContainment.Type;
  * @category models
  * @since 0.0.0
  */
-export class PoPatternAxes extends S.Class<PoPatternAxes>($I`PoPatternAxes`)(
-  {
+export class PoPatternAxes extends S.Opaque<PoPatternAxes, { readonly brand: unique symbol }>()(
+  S.Struct({
     textual: S.Boolean.annotateKey({ description: "Whether the pattern may contain text." }),
     structured: S.Boolean.annotateKey({ description: "Whether the pattern may contain other elements." }),
     containedIn: PoContainment.annotateKey({ description: "Where the pattern may appear." }),
-  },
-  $I.annote("PoPatternAxes", {
-    description: "Pattern Ontology content axes and containment for one pattern.",
-  })
+  }).pipe(
+    $I.annoteSchema("PoPatternAxes", {
+      description: "Pattern Ontology content axes and containment for one pattern.",
+    })
+  )
 ) {}
 
 const axes = (textual: boolean, structured: boolean, containedIn: PoContainment) => () =>
@@ -237,8 +238,8 @@ const poPatternAt = (annotations: S.Annotations.Annotations | undefined): O.Opti
  * @category models
  * @since 0.0.0
  */
-export class PoTaggedConstructor extends S.Class<PoTaggedConstructor>($I`PoTaggedConstructor`)(
-  {
+export class PoTaggedConstructor extends S.Opaque<PoTaggedConstructor, { readonly brand: unique symbol }>()(
+  S.Struct({
     tag: S.String.annotateKey({ description: "Discriminant literal of the constructor." }),
     identifier: S.Option(S.String).annotateKey({
       description: "Schema identifier annotation when the constructor carries one.",
@@ -246,10 +247,11 @@ export class PoTaggedConstructor extends S.Class<PoTaggedConstructor>($I`PoTagge
     pattern: S.Option(PoPattern).annotateKey({
       description: "The `po` annotation when present and valid.",
     }),
-  },
-  $I.annote("PoTaggedConstructor", {
-    description: "A tagged constructor discovered in a schema graph with its PO annotation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PoTaggedConstructor", {
+      description: "A tagged constructor discovered in a schema graph with its PO annotation.",
+    })
+  )
 ) {}
 
 // The discriminant of a struct is a required literal property named `tagKey`;

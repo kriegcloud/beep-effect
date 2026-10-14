@@ -51,8 +51,8 @@ const decodeEvidence = S.decodeUnknownEffect(Evidence);
  * @category models
  * @since 0.0.0
  */
-export class PatentClaimCandidateInput extends S.Class<PatentClaimCandidateInput>($I`PatentClaimCandidateInput`)(
-  {
+export class PatentClaimCandidateInput extends S.Opaque<PatentClaimCandidateInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     claim: PatentClaim.annotateKey({
       description: "Typed patent claim produced by the domain normalization boundary.",
     }),
@@ -90,10 +90,11 @@ export class PatentClaimCandidateInput extends S.Class<PatentClaimCandidateInput
     sourceText: S.NonEmptyString.annotateKey({
       description: "Normalized document text containing the claim evidence quote.",
     }),
-  },
-  $I.annote("PatentClaimCandidateInput", {
-    description: "Typed patent claim and provenance required to construct an epistemic candidate with evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentClaimCandidateInput", {
+      description: "Typed patent claim and provenance required to construct an epistemic candidate with evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -113,7 +114,10 @@ export class PatentClaimCandidateInput extends S.Class<PatentClaimCandidateInput
  * @category errors
  * @since 0.0.0
  */
-export class PatentClaimCandidateError extends S.TaggedError<PatentClaimCandidateError>($I`PatentClaimCandidateError`)(
+export class PatentClaimCandidateError extends S.TaggedError<
+  PatentClaimCandidateError,
+  { readonly brand: unique symbol }
+>($I`PatentClaimCandidateError`)(
   "PatentClaimCandidateError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),

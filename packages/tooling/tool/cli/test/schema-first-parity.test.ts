@@ -132,12 +132,12 @@ const defaultWrapperSource = [
   'import * as S from "effect/Schema";',
   'import { SchemaUtils } from "@beep/schema";',
   'import { boolKeyWithDefault as emptyTags } from "@beep/schema/SchemaUtils/withKeyDefaults";',
-  'export class Widget extends S.Class<Widget>("Widget")({',
+  "export class Widget extends S.Opaque<Widget, { readonly brand: unique symbol }>()(S.Struct({",
   "  title: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withEncodeDefault),",
   "  count: S.Finite.pipe(SchemaUtils.optionalKeyWithDefault(0)),",
   '  label: S.String.pipe(SchemaUtils.optionalKeyWithDefault("none")),',
   "  tags: S.Array(S.String).pipe(emptyTags()),",
-  "}) {}",
+  "})) {}",
 ];
 
 // The same class after a formatter pass: wrapped arguments, trailing commas, comments, quote style.
@@ -148,7 +148,7 @@ const reformattedDefaultWrapperSource = [
   "import { SchemaUtils } from '@beep/schema';",
   'import { boolKeyWithDefault as emptyTags } from "@beep/schema/SchemaUtils/withKeyDefaults";',
   "export const unrelated = 1;",
-  'export class Widget extends S.Class<Widget>("Widget")({',
+  "export class Widget extends S.Opaque<Widget, { readonly brand: unique symbol }>()(S.Struct({",
   "  title: S.OptionFromOptionalKey(",
   "    S.String, // the displayed title",
   "  ).pipe(",
@@ -159,7 +159,7 @@ const reformattedDefaultWrapperSource = [
   "  tags: S.Array(S.String).pipe(",
   "    /* no tags by default */ emptyTags(),",
   "  ),",
-  "}) {}",
+  "})) {}",
 ];
 
 const unionSource = (arms: ReadonlyArray<string>) => [
@@ -1007,9 +1007,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("parity occurrence ident
       const base = yield* parityEntries(defaultWrapperSource);
       const grown = yield* parityEntries([
         ...defaultWrapperSource,
-        'export class Extra extends S.Class<Extra>("Extra")({',
+        "export class Extra extends S.Opaque<Extra, { readonly brand: unique symbol }>()(S.Struct({",
         "  note: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withEncodeDefault),",
-        "}) {}",
+        "})) {}",
       ]);
 
       const growth = diffSchemaFirstParity(grown, toSchemaFirstBacklog(base));
@@ -1078,9 +1078,9 @@ const backlogAnchors = Effect.gen(function* () {
 
 const grownDefaultWrapperSource = [
   ...defaultWrapperSource,
-  'export class Extra extends S.Class<Extra>("Extra")({',
+  "export class Extra extends S.Opaque<Extra, { readonly brand: unique symbol }>()(S.Struct({",
   "  note: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withEncodeDefault),",
-  "}) {}",
+  "})) {}",
 ];
 
 it.layer(testLayer, { timeout: "60 seconds" })("schema-first parity ratchet command", (it) => {
@@ -1137,6 +1137,25 @@ it.layer(testLayer, { timeout: "60 seconds" })("schema-first parity ratchet comm
           (entry) => entry.file === "packages/example/test/Codec.test.ts" && entry.ruleId === "SFV4-arbitrary-tests"
         )
       ).toBe(true);
+    })
+  );
+
+  it.effect("keeps schema classes referenced only by excluded test roots", () =>
+    Effect.gen(function* () {
+      yield* enterTempWorkingDirectory;
+      yield* writeFixture([
+        'import * as S from "effect/Schema";',
+        'export class Kept extends S.Class<Kept, { readonly brand: unique symbol }>($I`Kept`)({ id: S.String }, $I.annote("Kept", {})) {}',
+        'export class Plain extends S.Class<Plain, { readonly brand: unique symbol }>($I`Plain`)({ id: S.String }, $I.annote("Plain", {})) {}',
+      ]);
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.makeDirectory("packages/example/test", { recursive: true });
+      yield* fs.writeFileString("packages/example/test/Kept.test.ts", "const check = value instanceof Kept;");
+      yield* runSchemaFirst(["--write"]);
+      const inventory = yield* decodeInventory(yield* fs.readFileString("standards/schema-first.inventory.jsonc"));
+      const candidates = A.filter(inventory.entries, (entry) => entry.kind === "plain-data-schema-class");
+      expect(A.some(candidates, (entry) => entry.symbol === "Plain")).toBe(true);
+      expect(A.some(candidates, (entry) => entry.symbol === "Kept")).toBe(false);
     })
   );
 

@@ -16,7 +16,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/internal/pnpmEnv");
 /**
  * A well-formed env preamble whose recorded dependency cannot be accounted for.
  */
-class PnpmEnvPreambleError extends S.TaggedError<PnpmEnvPreambleError>($I`PnpmEnvPreambleError`)(
+class PnpmEnvPreambleError extends S.TaggedError<PnpmEnvPreambleError, { readonly brand: unique symbol }>($I`PnpmEnvPreambleError`)(
 	"PnpmEnvPreambleError",
 	{ message: S.String.annotateKey({ description: "The env preamble's unaccounted dependency or integrity claim." }) },
 	$I.annote("PnpmEnvPreambleError", { description: "An env preamble whose recorded dependency cannot be accounted for." }),

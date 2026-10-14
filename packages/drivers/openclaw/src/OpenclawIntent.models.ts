@@ -253,8 +253,8 @@ export type OpenclawGatewayBind = typeof OpenclawGatewayBind.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawGatewayIntent extends S.Class<OpenclawGatewayIntent>($I`OpenclawGatewayIntent`)(
-  {
+export class OpenclawGatewayIntent extends S.Opaque<OpenclawGatewayIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     authTokenRef: OpenclawSecretReference.annotateKey({
       description: "op:// reference resolved at runtime into the gateway auth token.",
     }),
@@ -267,10 +267,11 @@ export class OpenclawGatewayIntent extends S.Class<OpenclawGatewayIntent>($I`Ope
     port: OpenclawGatewayPort.annotateKey({
       description: "Loopback TCP port the gateway listens on.",
     }),
-  },
-  $I.annote("OpenclawGatewayIntent", {
-    description: "Desired OpenClaw gateway configuration with a secret-referenced auth token.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawGatewayIntent", {
+      description: "Desired OpenClaw gateway configuration with a secret-referenced auth token.",
+    })
+  )
 ) {}
 
 /**
@@ -363,15 +364,16 @@ export type OpenclawClientDataPolicy = typeof OpenclawClientDataPolicy.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawPersonaIntent extends S.Class<OpenclawPersonaIntent>($I`OpenclawPersonaIntent`)(
-  {
+export class OpenclawPersonaIntent extends S.Opaque<OpenclawPersonaIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientDataPolicy: OpenclawClientDataPolicy,
     confidentialityPolicy: OpenclawConfidentialityPolicy,
     soulMarkdown: S.NonEmptyString,
-  },
-  $I.annote("OpenclawPersonaIntent", {
-    description: "Legal-workstation persona artifact with explicit confidentiality and client-data policies.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawPersonaIntent", {
+      description: "Legal-workstation persona artifact with explicit confidentiality and client-data policies.",
+    })
+  )
 ) {}
 
 /**
@@ -391,14 +393,15 @@ export class OpenclawPersonaIntent extends S.Class<OpenclawPersonaIntent>($I`Ope
  * @category models
  * @since 0.0.0
  */
-export class OpenclawControlUiIntent extends S.Class<OpenclawControlUiIntent>($I`OpenclawControlUiIntent`)(
-  {
+export class OpenclawControlUiIntent extends S.Opaque<OpenclawControlUiIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     allowedOrigins: S.Array(S.NonEmptyString),
     enabled: S.Literal(true),
-  },
-  $I.annote("OpenclawControlUiIntent", {
-    description: "Enabled Control UI with an explicit origin allowlist.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawControlUiIntent", {
+      description: "Enabled Control UI with an explicit origin allowlist.",
+    })
+  )
 ) {}
 
 /**
@@ -420,8 +423,8 @@ export class OpenclawControlUiIntent extends S.Class<OpenclawControlUiIntent>($I
  * @category models
  * @since 0.0.0
  */
-export class OpenclawAgentIntent extends S.Class<OpenclawAgentIntent>($I`OpenclawAgentIntent`)(
-  {
+export class OpenclawAgentIntent extends S.Opaque<OpenclawAgentIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString.check(
       S.isPattern(agentIdentifierPattern, {
         identifier: "OpenclawAgentIdentifier",
@@ -441,10 +444,11 @@ export class OpenclawAgentIntent extends S.Class<OpenclawAgentIntent>($I`Opencla
     workspace: OpenclawAbsolutePath.annotateKey({
       description: "Absolute path of the agent workspace directory.",
     }),
-  },
-  $I.annote("OpenclawAgentIntent", {
-    description: "Desired OpenClaw agent registration.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawAgentIntent", {
+      description: "Desired OpenClaw agent registration.",
+    })
+  )
 ) {}
 
 /**
@@ -536,9 +540,10 @@ export type OpenclawModelInputKind = typeof OpenclawModelInputKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawProviderApiKeySecretRef extends S.Class<OpenclawProviderApiKeySecretRef>(
-  $I`OpenclawProviderApiKeySecretRef`
-)(
+export class OpenclawProviderApiKeySecretRef extends S.Class<
+  OpenclawProviderApiKeySecretRef,
+  { readonly brand: unique symbol }
+>($I`OpenclawProviderApiKeySecretRef`)(
   {
     _tag: S.tag("SecretRef").annotateKey({
       description: "Discriminator for secret-referenced provider API keys.",
@@ -566,9 +571,10 @@ export class OpenclawProviderApiKeySecretRef extends S.Class<OpenclawProviderApi
  * @category models
  * @since 0.0.0
  */
-export class OpenclawProviderApiKeyPlaceholder extends S.Class<OpenclawProviderApiKeyPlaceholder>(
-  $I`OpenclawProviderApiKeyPlaceholder`
-)(
+export class OpenclawProviderApiKeyPlaceholder extends S.Class<
+  OpenclawProviderApiKeyPlaceholder,
+  { readonly brand: unique symbol }
+>($I`OpenclawProviderApiKeyPlaceholder`)(
   {
     _tag: S.tag("Placeholder").annotateKey({
       description: "Discriminator for non-secret placeholder API keys.",
@@ -642,15 +648,19 @@ export type OpenclawProviderApiKey = typeof OpenclawProviderApiKey.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawModelProviderParams extends S.Class<OpenclawModelProviderParams>($I`OpenclawModelProviderParams`)(
-  {
+export class OpenclawModelProviderParams extends S.Opaque<
+  OpenclawModelProviderParams,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     numCtx: S.OptionFromOptionalKey(S.Int).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Context window override (rendered as params.num_ctx), when declared.",
     }),
-  },
-  $I.annote("OpenclawModelProviderParams", {
-    description: "Optional model provider tuning parameters.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawModelProviderParams", {
+      description: "Optional model provider tuning parameters.",
+    })
+  )
 ) {}
 
 /**
@@ -667,8 +677,8 @@ export class OpenclawModelProviderParams extends S.Class<OpenclawModelProviderPa
  * @category models
  * @since 0.0.0
  */
-export class OpenclawModelDeclaration extends S.Class<OpenclawModelDeclaration>($I`OpenclawModelDeclaration`)(
-  {
+export class OpenclawModelDeclaration extends S.Opaque<OpenclawModelDeclaration, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString.annotateKey({
       description: "Provider-scoped model identifier.",
     }),
@@ -678,10 +688,11 @@ export class OpenclawModelDeclaration extends S.Class<OpenclawModelDeclaration>(
     name: S.NonEmptyString.annotateKey({
       description: "Human-readable model display name.",
     }),
-  },
-  $I.annote("OpenclawModelDeclaration", {
-    description: "Model declared under an OpenClaw model provider.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawModelDeclaration", {
+      description: "Model declared under an OpenClaw model provider.",
+    })
+  )
 ) {}
 
 /**
@@ -710,7 +721,10 @@ export class OpenclawModelDeclaration extends S.Class<OpenclawModelDeclaration>(
  * @category models
  * @since 0.0.0
  */
-export class OpenclawModelProviderIntent extends S.Class<OpenclawModelProviderIntent>($I`OpenclawModelProviderIntent`)(
+export class OpenclawModelProviderIntent extends S.Opaque<
+  OpenclawModelProviderIntent,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     api: OpenclawProviderApi.annotateKey({
       description: "Provider API family used to reach the model endpoint.",
@@ -742,17 +756,20 @@ export class OpenclawModelProviderIntent extends S.Class<OpenclawModelProviderIn
       .annotateKey({
         description: "Optional tuning parameters forwarded to the provider.",
       }),
-  }).check(
-    S.makeFilter((provider) => provider.apiKey._tag !== "SecretRef" || Str.startsWith("https://")(provider.baseUrl), {
-      identifier: "OpenclawSecretProviderHttpsInvariant",
-      title: "OpenClaw secret-backed provider transport",
-      description: "Requires secret-backed model providers to use HTTPS.",
-      message: "Expected an HTTPS base URL for a secret-backed provider",
-    })
-  ),
-  $I.annote("OpenclawModelProviderIntent", {
-    description: "Desired OpenClaw model provider configuration.",
   })
+    .check(
+      S.makeFilter((provider) => provider.apiKey._tag !== "SecretRef" || Str.startsWith("https://")(provider.baseUrl), {
+        identifier: "OpenclawSecretProviderHttpsInvariant",
+        title: "OpenClaw secret-backed provider transport",
+        description: "Requires secret-backed model providers to use HTTPS.",
+        message: "Expected an HTTPS base URL for a secret-backed provider",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("OpenclawModelProviderIntent", {
+        description: "Desired OpenClaw model provider configuration.",
+      })
+    )
 ) {}
 
 /**
@@ -809,8 +826,8 @@ export type OpenclawAuthProfileMode = typeof OpenclawAuthProfileMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawAuthProfileIntent extends S.Class<OpenclawAuthProfileIntent>($I`OpenclawAuthProfileIntent`)(
-  {
+export class OpenclawAuthProfileIntent extends S.Opaque<OpenclawAuthProfileIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: OpenclawAuthProfileMode.annotateKey({
       description: "Authentication mode for the profile.",
     }),
@@ -820,10 +837,11 @@ export class OpenclawAuthProfileIntent extends S.Class<OpenclawAuthProfileIntent
     provider: S.NonEmptyString.annotateKey({
       description: "Provider the profile authenticates against.",
     }),
-  },
-  $I.annote("OpenclawAuthProfileIntent", {
-    description: "Non-secret auth.profiles metadata entry.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawAuthProfileIntent", {
+      description: "Non-secret auth.profiles metadata entry.",
+    })
+  )
 ) {}
 
 /**
@@ -913,8 +931,11 @@ export type OpenclawTelegramGroupPolicy = typeof OpenclawTelegramGroupPolicy.Typ
  * @category models
  * @since 0.0.0
  */
-export class OpenclawTelegramGroupIntent extends S.Class<OpenclawTelegramGroupIntent>($I`OpenclawTelegramGroupIntent`)(
-  {
+export class OpenclawTelegramGroupIntent extends S.Opaque<
+  OpenclawTelegramGroupIntent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     groupPolicy: S.OptionFromOptionalKey(OpenclawTelegramGroupPolicy)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -923,10 +944,11 @@ export class OpenclawTelegramGroupIntent extends S.Class<OpenclawTelegramGroupIn
     requireMention: S.Boolean.annotateKey({
       description: "Whether the bot only reacts to messages that mention it.",
     }),
-  },
-  $I.annote("OpenclawTelegramGroupIntent", {
-    description: "Per-group Telegram channel behavior.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawTelegramGroupIntent", {
+      description: "Per-group Telegram channel behavior.",
+    })
+  )
 ) {}
 
 const openclawTelegramIntentGroupsDefault = R.empty();
@@ -948,8 +970,8 @@ const openclawTelegramIntentGroupsDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class OpenclawTelegramIntent extends S.Class<OpenclawTelegramIntent>($I`OpenclawTelegramIntent`)(
-  {
+export class OpenclawTelegramIntent extends S.Opaque<OpenclawTelegramIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     botTokenRef: OpenclawSecretReference.annotateKey({
       description: "op:// reference resolved at runtime into the Telegram bot token.",
     }),
@@ -972,10 +994,11 @@ export class OpenclawTelegramIntent extends S.Class<OpenclawTelegramIntent>($I`O
       .annotateKey({
         description: "Per-group behavior keyed by Telegram group id.",
       }),
-  },
-  $I.annote("OpenclawTelegramIntent", {
-    description: "Desired Telegram channel configuration with a secret-referenced bot token.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawTelegramIntent", {
+      description: "Desired Telegram channel configuration with a secret-referenced bot token.",
+    })
+  )
 ) {}
 
 const openclawSecretsResolverIntentPassEnvDefault = ["OP_SERVICE_ACCOUNT_TOKEN", "PATH"];
@@ -997,10 +1020,11 @@ const openclawSecretsResolverIntentPassEnvDefault = ["OP_SERVICE_ACCOUNT_TOKEN",
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSecretsResolverIntent extends S.Class<OpenclawSecretsResolverIntent>(
-  $I`OpenclawSecretsResolverIntent`
-)(
-  {
+export class OpenclawSecretsResolverIntent extends S.Opaque<
+  OpenclawSecretsResolverIntent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     commandPath: OpenclawAbsolutePath.annotateKey({
       description: "Absolute path of the exec-provider resolver command.",
     }),
@@ -1018,10 +1042,11 @@ export class OpenclawSecretsResolverIntent extends S.Class<OpenclawSecretsResolv
     trustedDir: OpenclawAbsolutePath.annotateKey({
       description: "Directory OpenClaw trusts to contain the resolver command.",
     }),
-  },
-  $I.annote("OpenclawSecretsResolverIntent", {
-    description: "Exec-provider secret resolver wiring for op:// references.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawSecretsResolverIntent", {
+      description: "Exec-provider secret resolver wiring for op:// references.",
+    })
+  )
 ) {}
 
 const openclawGuardrailsIntentToolsDenyDefault = ["*"];
@@ -1039,8 +1064,8 @@ const openclawGuardrailsIntentToolsDenyDefault = ["*"];
  * @category models
  * @since 0.0.0
  */
-export class OpenclawGuardrailsIntent extends S.Class<OpenclawGuardrailsIntent>($I`OpenclawGuardrailsIntent`)(
-  {
+export class OpenclawGuardrailsIntent extends S.Opaque<OpenclawGuardrailsIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     toolsDeny: S.Array(S.String)
       .pipe(
         S.withConstructorDefault(Effect.succeed(openclawGuardrailsIntentToolsDenyDefault)),
@@ -1049,10 +1074,11 @@ export class OpenclawGuardrailsIntent extends S.Class<OpenclawGuardrailsIntent>(
       .annotateKey({
         description: "Tool deny-list rendered into tools.deny; defaults to deny-all.",
       }),
-  },
-  $I.annote("OpenclawGuardrailsIntent", {
-    description: "Deployment guardrails; tools are denied by default.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawGuardrailsIntent", {
+      description: "Deployment guardrails; tools are denied by default.",
+    })
+  )
 ) {}
 
 /**
@@ -1077,8 +1103,8 @@ export class OpenclawGuardrailsIntent extends S.Class<OpenclawGuardrailsIntent>(
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSkillPin extends S.Class<OpenclawSkillPin>($I`OpenclawSkillPin`)(
-  {
+export class OpenclawSkillPin extends S.Opaque<OpenclawSkillPin, { readonly brand: unique symbol }>()(
+  S.Struct({
     integrity: S.NonEmptyString.annotateKey({
       description: "Content integrity pin (sha256 hex or SRI) for the skill artifact.",
     }),
@@ -1091,10 +1117,11 @@ export class OpenclawSkillPin extends S.Class<OpenclawSkillPin>($I`OpenclawSkill
     version: S.NonEmptyString.annotateKey({
       description: "Pinned skill version.",
     }),
-  },
-  $I.annote("OpenclawSkillPin", {
-    description: "Pinned skill artifact reference for workspace provisioning.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawSkillPin", {
+      description: "Pinned skill artifact reference for workspace provisioning.",
+    })
+  )
 ) {}
 
 /**
@@ -1111,15 +1138,16 @@ export class OpenclawSkillPin extends S.Class<OpenclawSkillPin>($I`OpenclawSkill
  * @category models
  * @since 0.0.0
  */
-export class OpenclawLoggingIntent extends S.Class<OpenclawLoggingIntent>($I`OpenclawLoggingIntent`)(
-  {
+export class OpenclawLoggingIntent extends S.Opaque<OpenclawLoggingIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: OpenclawAbsolutePath.annotateKey({
       description: "Absolute path of the gateway log file.",
     }),
-  },
-  $I.annote("OpenclawLoggingIntent", {
-    description: "Desired gateway log file location.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawLoggingIntent", {
+      description: "Desired gateway log file location.",
+    })
+  )
 ) {}
 
 const openclawDeploymentIntentAuthProfilesDefault = A.empty();
@@ -1180,8 +1208,8 @@ const openclawDeploymentIntentSkillsDefault = A.empty();
  * @category models
  * @since 0.0.0
  */
-export class OpenclawDeploymentIntent extends S.Class<OpenclawDeploymentIntent>($I`OpenclawDeploymentIntent`)(
-  {
+export class OpenclawDeploymentIntent extends S.Opaque<OpenclawDeploymentIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     agent: OpenclawAgentIntent.annotateKey({
       description: "Agent registered with the deployment.",
     }),
@@ -1233,8 +1261,9 @@ export class OpenclawDeploymentIntent extends S.Class<OpenclawDeploymentIntent>(
       .annotateKey({
         description: "Telegram channel configuration, when the deployment enables it.",
       }),
-  },
-  $I.annote("OpenclawDeploymentIntent", {
-    description: "Root desired-intent document for one OpenClaw deployment.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawDeploymentIntent", {
+      description: "Root desired-intent document for one OpenClaw deployment.",
+    })
+  )
 ) {}

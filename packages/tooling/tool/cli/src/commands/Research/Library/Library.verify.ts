@@ -25,16 +25,10 @@ import { libraryArtifactIntegrity } from "./Library.integrity.ts";
 import { extractLibraryReferences } from "./Library.inventory.ts";
 import { decodeProviderEvents, validateProviderQualification } from "./Library.provenance.ts";
 import { LibraryProbeEvidence } from "./Library.qualify.ts";
-import { LibraryCapture, LibraryIntake } from "./Library.schemas.ts";
+import { LibraryArtifact, LibraryCapture, LibraryIntake } from "./Library.schemas.ts";
 import { hashBytes, loadCatalog } from "./Library.store.ts";
 import { libraryCitedRevisions } from "./Library.versions.ts";
-import type {
-  LibraryArtifact,
-  LibraryIntakeFile,
-  LibraryOccurrence,
-  LibraryReference,
-  LibrarySource,
-} from "./Library.schemas.ts";
+import type { LibraryIntakeFile, LibraryOccurrence, LibraryReference, LibrarySource } from "./Library.schemas.ts";
 
 const LibraryIntakeJson = S.fromJsonString(LibraryIntake);
 const LibraryCaptureCorrectionJson = S.fromJsonString(LibraryCaptureCorrection);
@@ -43,11 +37,12 @@ const LibraryDispositionImportPayloadJson = S.fromJsonString(LibraryDispositionI
 const LibraryProbeEvidenceJson = S.fromJsonString(LibraryProbeEvidence);
 
 const $I = $RepoCliId.create("commands/Research/Library/Library.verify");
-class RepositoryPin extends S.Class<RepositoryPin>($I`RepositoryPin`)(
-  { remote: S.String, revision: S.String, clone: S.String, requestedRevision: S.String },
-  $I.annote("RepositoryPin", {
-    description: "A requested reference resolved to an immutable Git commit and local object database.",
-  })
+class RepositoryPin extends S.Opaque<RepositoryPin, { readonly brand: unique symbol }>()(
+  S.Struct({ remote: S.String, revision: S.String, clone: S.String, requestedRevision: S.String }).pipe(
+    $I.annoteSchema("RepositoryPin", {
+      description: "A requested reference resolved to an immutable Git commit and local object database.",
+    })
+  )
 ) {}
 const RepositoryPinJson = S.fromJsonString(RepositoryPin);
 
@@ -205,13 +200,15 @@ type VerificationContext = Effect.Success<ReturnType<typeof makeVerificationCont
 const verifyIntakeCensus = Effect.fn("Library.verifyIntakeCensus")(function* (context: VerificationContext) {
   const { root, fs, path, catalog, issue, artifactValid } = context;
   const verifyIntakeFile = Effect.fn("Library.verifyIntakeFile")(function* (file: LibraryIntakeFile) {
-    yield* artifactValid({
-      path: file.snapshotPath,
-      sha256: file.sha256,
-      bytes: file.bytes,
-      role: "intake-input",
-      mediaType: "application/octet-stream",
-    });
+    yield* artifactValid(
+      LibraryArtifact.make({
+        path: file.snapshotPath,
+        sha256: file.sha256,
+        bytes: file.bytes,
+        role: "intake-input",
+        mediaType: "application/octet-stream",
+      })
+    );
     if (
       file.parseable &&
       !A.some(
@@ -253,13 +250,15 @@ const verifyDocumentCitations = Effect.fn("Library.verifyDocumentCitations")(fun
   yield* Effect.forEach(
     catalog.documents,
     Effect.fnUntraced(function* (document) {
-      const valid = yield* artifactValid({
-        path: document.snapshotPath,
-        sha256: document.sha256,
-        bytes: document.bytes,
-        mediaType: "text/markdown",
-        role: "report",
-      });
+      const valid = yield* artifactValid(
+        LibraryArtifact.make({
+          path: document.snapshotPath,
+          sha256: document.sha256,
+          bytes: document.bytes,
+          mediaType: "text/markdown",
+          role: "report",
+        })
+      );
       if (!valid) return;
       const text = yield* fs
         .readFileString(path.resolve(root, document.snapshotPath))

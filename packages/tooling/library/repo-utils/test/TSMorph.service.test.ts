@@ -1,6 +1,7 @@
 import {
   makeSymbolId,
   SymbolId,
+  SymbolIdentityParts,
   SymbolQualifiedName,
   TSMorphService,
   TsMorphDiagnosticsRequest,
@@ -511,11 +512,13 @@ it.layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
           return;
         }
 
-        const missingSymbolId = makeSymbolId({
-          filePath: filePath.value,
-          qualifiedName: yield* decodeSymbolQualifiedName("DefinitelyMissingSymbol"),
-          kind: "ClassDeclaration",
-        });
+        const missingSymbolId = makeSymbolId(
+          SymbolIdentityParts.make({
+            filePath: filePath.value,
+            qualifiedName: yield* decodeSymbolQualifiedName("DefinitelyMissingSymbol"),
+            kind: "ClassDeclaration",
+          })
+        );
         const lookupError = yield* service
           .getSymbolById(
             yield* decodeSymbolLookupRequest({

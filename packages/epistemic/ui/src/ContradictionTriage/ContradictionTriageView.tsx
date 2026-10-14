@@ -202,7 +202,7 @@ interface SourcePaneProps {
 }
 
 interface BeliefCardProps {
-  readonly beliefView: ContradictionTriage.ContradictionBeliefView;
+  readonly beliefView: ContradictionTriage.ContradictionCandidateDetailView["left"];
   readonly label: "Left belief" | "Right belief";
   readonly onEvidenceSelect: ContradictionTriageViewProps["onEvidenceSelect"];
   readonly selectedSource: ContradictionTriageViewProps["selectedSource"];

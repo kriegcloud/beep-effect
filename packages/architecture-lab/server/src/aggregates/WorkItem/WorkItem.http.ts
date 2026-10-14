@@ -92,19 +92,20 @@ export type WorkItemHttpStatus = typeof WorkItemHttpStatus.Type;
  * @category dtos
  * @since 0.0.0
  */
-export class WorkItemHttpResponse extends S.Class<WorkItemHttpResponse>($I`WorkItemHttpResponse`)(
-  {
+export class WorkItemHttpResponse extends S.Opaque<WorkItemHttpResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.Unknown.annotateKey({
       description: "HTTP response body emitted by the proof adapter.",
     }),
     status: WorkItemHttpStatus.annotateKey({
       description: "HTTP status emitted with the body.",
     }),
-  },
-  $I.annote("WorkItemHttpResponse", {
-    title: "WorkItem HTTP response",
-    description: "Minimal protocol response envelope used by the architecture lab proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkItemHttpResponse", {
+      title: "WorkItem HTTP response",
+      description: "Minimal protocol response envelope used by the architecture lab proof.",
+    })
+  )
 ) {}
 
 /**

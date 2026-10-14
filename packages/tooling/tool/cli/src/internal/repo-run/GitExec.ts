@@ -38,28 +38,30 @@ import type { RunCapturedOptions, RunCapturedStreamsOptions } from "../process/S
 const $I = $RepoCliId.create("internal/repo-run/GitExec");
 
 /** One parsed entry from `git ls-tree -r -z --full-tree`. @category models @since 0.0.0 */
-export class GitTreeEntry extends S.Class<GitTreeEntry>($I`GitTreeEntry`)(
-  {
+export class GitTreeEntry extends S.Opaque<GitTreeEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.String,
     objectType: S.String,
     objectId: S.String,
     path: S.String,
-  },
-  $I.annote("GitTreeEntry", {
-    description: "Git tree mode, object type, object id, and exact repository-relative path.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitTreeEntry", {
+      description: "Git tree mode, object type, object id, and exact repository-relative path.",
+    })
+  )
 ) {}
 
 /** One rename from `git diff --name-status -z --find-renames`. @category models @since 0.0.0 */
-export class GitRenameEntry extends S.Class<GitRenameEntry>($I`GitRenameEntry`)(
-  {
+export class GitRenameEntry extends S.Opaque<GitRenameEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourcePath: S.String,
     targetPath: S.String,
     score: S.Natural,
-  },
-  $I.annote("GitRenameEntry", {
-    description: "Rename source, target, and similarity score parsed from Git's NUL-delimited output.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitRenameEntry", {
+      description: "Rename source, target, and similarity score parsed from Git's NUL-delimited output.",
+    })
+  )
 ) {}
 
 const parseGitTreeEntry = (record: string): O.Option<GitTreeEntry> => {

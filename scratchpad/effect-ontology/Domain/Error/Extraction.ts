@@ -67,7 +67,7 @@ const extractionFields = {
  * @category errors
  * @since 0.0.0
  */
-export class ExtractionError extends S.TaggedError<ExtractionError>($I`ExtractionError`)(
+export class ExtractionError extends S.TaggedError<ExtractionError, { readonly brand: unique symbol }>($I`ExtractionError`)(
   "ExtractionError",
   extractionFields,
   $I.annote("ExtractionError", {
@@ -94,7 +94,7 @@ export class ExtractionError extends S.TaggedError<ExtractionError>($I`Extractio
  * @category errors
  * @since 0.0.0
  */
-export class MentionExtractionFailed extends S.TaggedError<MentionExtractionFailed>($I`MentionExtractionFailed`)(
+export class MentionExtractionFailed extends S.TaggedError<MentionExtractionFailed, { readonly brand: unique symbol }>($I`MentionExtractionFailed`)(
   "MentionExtractionFailed",
   extractionFields,
   $I.annote("MentionExtractionFailed", {
@@ -119,7 +119,7 @@ export class MentionExtractionFailed extends S.TaggedError<MentionExtractionFail
  * @category errors
  * @since 0.0.0
  */
-export class EntityExtractionFailed extends S.TaggedError<EntityExtractionFailed>($I`EntityExtractionFailed`)(
+export class EntityExtractionFailed extends S.TaggedError<EntityExtractionFailed, { readonly brand: unique symbol }>($I`EntityExtractionFailed`)(
   "EntityExtractionFailed",
   extractionFields,
   $I.annote("EntityExtractionFailed", {
@@ -144,7 +144,7 @@ export class EntityExtractionFailed extends S.TaggedError<EntityExtractionFailed
  * @category errors
  * @since 0.0.0
  */
-export class RelationExtractionFailed extends S.TaggedError<RelationExtractionFailed>($I`RelationExtractionFailed`)(
+export class RelationExtractionFailed extends S.TaggedError<RelationExtractionFailed, { readonly brand: unique symbol }>($I`RelationExtractionFailed`)(
   "RelationExtractionFailed",
   {
     ...extractionFields,
@@ -174,7 +174,7 @@ export class RelationExtractionFailed extends S.TaggedError<RelationExtractionFa
  * @category errors
  * @since 0.0.0
  */
-export class SchemaGenerationFailed extends S.TaggedError<SchemaGenerationFailed>($I`SchemaGenerationFailed`)(
+export class SchemaGenerationFailed extends S.TaggedError<SchemaGenerationFailed, { readonly brand: unique symbol }>($I`SchemaGenerationFailed`)(
   "SchemaGenerationFailed",
   {
     message: ErrorMessage.annotateKey({
@@ -206,7 +206,7 @@ export class SchemaGenerationFailed extends S.TaggedError<SchemaGenerationFailed
  * @category errors
  * @since 0.0.0
  */
-export class ValidationFailed extends S.TaggedError<ValidationFailed>($I`ValidationFailed`)(
+export class ValidationFailed extends S.TaggedError<ValidationFailed, { readonly brand: unique symbol }>($I`ValidationFailed`)(
   "ValidationFailed",
   {
     message: ErrorMessage.annotateKey({
@@ -248,7 +248,7 @@ export class ValidationFailed extends S.TaggedError<ValidationFailed>($I`Validat
  * @category errors
  * @since 0.0.0
  */
-export class EntityValidationFailed extends S.TaggedError<EntityValidationFailed>($I`EntityValidationFailed`)(
+export class EntityValidationFailed extends S.TaggedError<EntityValidationFailed, { readonly brand: unique symbol }>($I`EntityValidationFailed`)(
   "EntityValidationFailed",
   {
     reason: ErrorMessage.annotateKey({
@@ -290,7 +290,7 @@ export class EntityValidationFailed extends S.TaggedError<EntityValidationFailed
  * @category errors
  * @since 0.0.0
  */
-export class RelationValidationFailed extends S.TaggedError<RelationValidationFailed>($I`RelationValidationFailed`)(
+export class RelationValidationFailed extends S.TaggedError<RelationValidationFailed, { readonly brand: unique symbol }>($I`RelationValidationFailed`)(
   "RelationValidationFailed",
   {
     reason: ErrorMessage.annotateKey({

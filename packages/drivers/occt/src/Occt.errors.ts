@@ -75,7 +75,7 @@ const isOcctError = (cause: unknown): cause is OcctError => S.is(OcctError)(caus
  * @category errors
  * @since 0.0.0
  */
-export class OcctError extends S.TaggedError<OcctError>($I`OcctError`)(
+export class OcctError extends S.TaggedError<OcctError, { readonly brand: unique symbol }>($I`OcctError`)(
   "OcctError",
   {
     reason: OcctErrorReason.annotateKey({ description: "Where the call failed." }),

@@ -44,16 +44,17 @@ const CHROME_EPOCH_OFFSET_SECONDS = 11_644_473_600;
  * @internal
  * @category models
  */
-export class BrowserProfile extends S.Class<BrowserProfile>($I`BrowserProfile`)(
-  {
+export class BrowserProfile extends S.Opaque<BrowserProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     browser: S.Union([S.Literal("brave"), S.Literal("chrome")]),
     historyPath: S.String,
     profile: S.String,
-  },
-  $I.annote("BrowserProfile", {
-    title: "Browser Profile",
-    description: "One discovered Chromium-family browser profile history database.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserProfile", {
+      title: "Browser Profile",
+      description: "One discovered Chromium-family browser profile history database.",
+    })
+  )
 ) {}
 
 /**
@@ -62,17 +63,18 @@ export class BrowserProfile extends S.Class<BrowserProfile>($I`BrowserProfile`)(
  * @internal
  * @category models
  */
-export class HistoryUrlRow extends S.Class<HistoryUrlRow>($I`HistoryUrlRow`)(
-  {
+export class HistoryUrlRow extends S.Opaque<HistoryUrlRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     lastVisitChrome: S.Finite,
     title: S.String,
     url: S.String,
     visitCount: S.Finite,
-  },
-  $I.annote("HistoryUrlRow", {
-    title: "History URL Row",
-    description: "One browser history URL row surviving the configured time cutoff.",
-  })
+  }).pipe(
+    $I.annoteSchema("HistoryUrlRow", {
+      title: "History URL Row",
+      description: "One browser history URL row surviving the configured time cutoff.",
+    })
+  )
 ) {}
 
 const decodeHistoryUrlRows = S.decodeUnknownEffect(S.Array(HistoryUrlRow));

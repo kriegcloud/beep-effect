@@ -107,15 +107,16 @@ type HtmlHeadingTag = typeof HtmlHeadingTag.Type;
  * @category models
  * @since 0.0.0
  */
-export class HtmlHeadingOutlineEntry extends S.Class<HtmlHeadingOutlineEntry>($I`HtmlHeadingOutlineEntry`)(
-  {
+export class HtmlHeadingOutlineEntry extends S.Opaque<HtmlHeadingOutlineEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.Array(S.String),
     tag: HtmlHeadingTag,
     level: HtmlComputedHeadingLevel,
-  },
-  $I.annote("HtmlHeadingOutlineEntry", {
-    description: "Path-addressed HTML heading with its computed semantic level.",
-  })
+  }).pipe(
+    $I.annoteSchema("HtmlHeadingOutlineEntry", {
+      description: "Path-addressed HTML heading with its computed semantic level.",
+    })
+  )
 ) {}
 
 /**
@@ -175,15 +176,16 @@ export type HtmlBestPracticeRule = typeof HtmlBestPracticeRule.Type;
  * @category models
  * @since 0.0.0
  */
-export class HtmlBestPracticeIssue extends S.Class<HtmlBestPracticeIssue>($I`HtmlBestPracticeIssue`)(
-  {
+export class HtmlBestPracticeIssue extends S.Opaque<HtmlBestPracticeIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.Array(S.String),
     rule: HtmlBestPracticeRule,
     message: S.String,
-  },
-  $I.annote("HtmlBestPracticeIssue", {
-    description: "Path-addressed, non-fatal HTML authoring recommendation.",
-  })
+  }).pipe(
+    $I.annoteSchema("HtmlBestPracticeIssue", {
+      description: "Path-addressed, non-fatal HTML authoring recommendation.",
+    })
+  )
 ) {}
 
 const isHeadingOffset = S.is(HeadingOffset);

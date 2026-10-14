@@ -140,15 +140,14 @@ export type LibraryQualificationStatus = typeof LibraryQualificationStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class LibraryArtifact extends S.Class<LibraryArtifact>($I`LibraryArtifact`)(
-  {
+export class LibraryArtifact extends S.Opaque<LibraryArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     sha256: S.String.check(S.isPattern(/^[a-f0-9]{64}$/)),
     bytes: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)),
     mediaType: S.String,
     role: S.String,
-  },
-  $I.annote("LibraryArtifact", { description: "Artifact record for persisted research provenance." })
+  }).pipe($I.annoteSchema("LibraryArtifact", { description: "Artifact record for persisted research provenance." }))
 ) {}
 
 /**
@@ -163,8 +162,8 @@ export class LibraryArtifact extends S.Class<LibraryArtifact>($I`LibraryArtifact
  * @category models
  * @since 0.0.0
  */
-export class LibraryDocument extends S.Class<LibraryDocument>($I`LibraryDocument`)(
-  {
+export class LibraryDocument extends S.Opaque<LibraryDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     originalPath: S.String,
     snapshotPath: S.String,
@@ -187,8 +186,7 @@ export class LibraryDocument extends S.Class<LibraryDocument>($I`LibraryDocument
     ),
 
     expectedOccurrences: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("LibraryDocument", { description: "Document record for persisted research provenance." })
+  }).pipe($I.annoteSchema("LibraryDocument", { description: "Document record for persisted research provenance." }))
 ) {}
 
 /**
@@ -203,8 +201,8 @@ export class LibraryDocument extends S.Class<LibraryDocument>($I`LibraryDocument
  * @category models
  * @since 0.0.0
  */
-export class LibraryReference extends S.Class<LibraryReference>($I`LibraryReference`)(
-  {
+export class LibraryReference extends S.Opaque<LibraryReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     locator: S.String,
     citationText: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
@@ -237,8 +235,7 @@ export class LibraryReference extends S.Class<LibraryReference>($I`LibraryRefere
     column: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(1)),
     endLine: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(1)),
     endColumn: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(1)),
-  },
-  $I.annote("LibraryReference", { description: "Reference record for persisted research provenance." })
+  }).pipe($I.annoteSchema("LibraryReference", { description: "Reference record for persisted research provenance." }))
 ) {}
 
 /**
@@ -253,13 +250,12 @@ export class LibraryReference extends S.Class<LibraryReference>($I`LibraryRefere
  * @category models
  * @since 0.0.0
  */
-export class LibraryVersion extends S.Class<LibraryVersion>($I`LibraryVersion`)(
-  {
+export class LibraryVersion extends S.Opaque<LibraryVersion, { readonly brand: unique symbol }>()(
+  S.Struct({
     revision: S.String,
     canonicalUrl: S.String,
     locators: S.Array(S.String),
-  },
-  $I.annote("LibraryVersion", { description: "A cited resource version with its exact locators." })
+  }).pipe($I.annoteSchema("LibraryVersion", { description: "A cited resource version with its exact locators." }))
 ) {}
 
 /**
@@ -274,8 +270,8 @@ export class LibraryVersion extends S.Class<LibraryVersion>($I`LibraryVersion`)(
  * @category models
  * @since 0.0.0
  */
-export class LibrarySource extends S.Class<LibrarySource>($I`LibrarySource`)(
-  {
+export class LibrarySource extends S.Opaque<LibrarySource, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     kind: LibrarySourceKind,
     canonicalUrl: S.String,
@@ -300,8 +296,7 @@ export class LibrarySource extends S.Class<LibrarySource>($I`LibrarySource`)(
       S.withDecodingDefault(Effect.succeed([]))
     ),
     locators: S.Array(S.String),
-  },
-  $I.annote("LibrarySource", { description: "Source record for persisted research provenance." })
+  }).pipe($I.annoteSchema("LibrarySource", { description: "Source record for persisted research provenance." }))
 ) {}
 
 /**
@@ -316,8 +311,8 @@ export class LibrarySource extends S.Class<LibrarySource>($I`LibrarySource`)(
  * @category models
  * @since 0.0.0
  */
-export class LibraryOccurrence extends S.Class<LibraryOccurrence>($I`LibraryOccurrence`)(
-  {
+export class LibraryOccurrence extends S.Opaque<LibraryOccurrence, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     documentId: S.String,
     revision: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
@@ -357,8 +352,7 @@ export class LibraryOccurrence extends S.Class<LibraryOccurrence>($I`LibraryOccu
     endColumn: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(1)),
     label: S.String,
     form: S.String,
-  },
-  $I.annote("LibraryOccurrence", { description: "Occurrence record for persisted research provenance." })
+  }).pipe($I.annoteSchema("LibraryOccurrence", { description: "Occurrence record for persisted research provenance." }))
 ) {}
 
 /**
@@ -373,8 +367,8 @@ export class LibraryOccurrence extends S.Class<LibraryOccurrence>($I`LibraryOccu
  * @category models
  * @since 0.0.0
  */
-export class LibraryCapture extends S.Class<LibraryCapture>($I`LibraryCapture`)(
-  {
+export class LibraryCapture extends S.Opaque<LibraryCapture, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     sourceId: S.String,
     status: LibraryCaptureStatus,
@@ -389,8 +383,7 @@ export class LibraryCapture extends S.Class<LibraryCapture>($I`LibraryCapture`)(
     complete: S.Boolean,
     artifacts: S.Array(LibraryArtifact),
     reason: S.String,
-  },
-  $I.annote("LibraryCapture", { description: "Capture record for persisted research provenance." })
+  }).pipe($I.annoteSchema("LibraryCapture", { description: "Capture record for persisted research provenance." }))
 ) {}
 
 /**
@@ -405,8 +398,8 @@ export class LibraryCapture extends S.Class<LibraryCapture>($I`LibraryCapture`)(
  * @category models
  * @since 0.0.0
  */
-export class LibraryQualification extends S.Class<LibraryQualification>($I`LibraryQualification`)(
-  {
+export class LibraryQualification extends S.Opaque<LibraryQualification, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     adapter: S.String,
     status: LibraryQualificationStatus,
@@ -414,8 +407,9 @@ export class LibraryQualification extends S.Class<LibraryQualification>($I`Libra
     recordedAt: S.String,
     evidence: S.Array(LibraryArtifact),
     reason: S.String,
-  },
-  $I.annote("LibraryQualification", { description: "Qualification record for persisted research provenance." })
+  }).pipe(
+    $I.annoteSchema("LibraryQualification", { description: "Qualification record for persisted research provenance." })
+  )
 ) {}
 
 /**
@@ -430,15 +424,16 @@ export class LibraryQualification extends S.Class<LibraryQualification>($I`Libra
  * @category models
  * @since 0.0.0
  */
-export class LibraryIntakeFile extends S.Class<LibraryIntakeFile>($I`LibraryIntakeFile`)(
-  {
+export class LibraryIntakeFile extends S.Opaque<LibraryIntakeFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     originalPath: S.String,
     snapshotPath: S.String,
     sha256: S.String.check(S.isPattern(/^[a-f0-9]{64}$/)),
     bytes: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)),
     parseable: S.Boolean,
-  },
-  $I.annote("LibraryIntakeFile", { description: "Input file census entry including nonparseable files." })
+  }).pipe(
+    $I.annoteSchema("LibraryIntakeFile", { description: "Input file census entry including nonparseable files." })
+  )
 ) {}
 /**
  * Repository provenance for one intake root.
@@ -452,9 +447,10 @@ export class LibraryIntakeFile extends S.Class<LibraryIntakeFile>($I`LibraryInta
  * @category models
  * @since 0.0.0
  */
-export class LibraryIntakeRoot extends S.Class<LibraryIntakeRoot>($I`LibraryIntakeRoot`)(
-  { path: S.String, repoCommit: S.String },
-  $I.annote("LibraryIntakeRoot", { description: "Exact input root and source repository commit if available." })
+export class LibraryIntakeRoot extends S.Opaque<LibraryIntakeRoot, { readonly brand: unique symbol }>()(
+  S.Struct({ path: S.String, repoCommit: S.String }).pipe(
+    $I.annoteSchema("LibraryIntakeRoot", { description: "Exact input root and source repository commit if available." })
+  )
 ) {}
 /**
  * Immutable dated intake manifest.
@@ -468,8 +464,8 @@ export class LibraryIntakeRoot extends S.Class<LibraryIntakeRoot>($I`LibraryInta
  * @category models
  * @since 0.0.0
  */
-export class LibraryIntake extends S.Class<LibraryIntake>($I`LibraryIntake`)(
-  {
+export class LibraryIntake extends S.Opaque<LibraryIntake, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     date: S.String,
     createdAt: S.String,
@@ -477,10 +473,11 @@ export class LibraryIntake extends S.Class<LibraryIntake>($I`LibraryIntake`)(
     inputRoots: S.Array(LibraryIntakeRoot),
     manifestPath: S.String,
     files: S.Array(LibraryIntakeFile),
-  },
-  $I.annote("LibraryIntake", {
-    description: "Immutable intake provenance with timestamps, repository commits, roots, and file hashes.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryIntake", {
+      description: "Immutable intake provenance with timestamps, repository commits, roots, and file hashes.",
+    })
+  )
 ) {}
 
 /**
@@ -495,15 +492,14 @@ export class LibraryIntake extends S.Class<LibraryIntake>($I`LibraryIntake`)(
  * @category models
  * @since 0.0.0
  */
-export class LibraryManifest extends S.Class<LibraryManifest>($I`LibraryManifest`)(
-  {
+export class LibraryManifest extends S.Opaque<LibraryManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema: S.Literal("beep.research.library-manifest/v1"),
     createdAt: S.String,
     catalogPath: S.Literal("catalog/library.json"),
     objectRoot: S.Literal("objects/sha256"),
     intakeRoot: S.Literal("intakes"),
-  },
-  $I.annote("LibraryManifest", { description: "Portable library layout and creation provenance." })
+  }).pipe($I.annoteSchema("LibraryManifest", { description: "Portable library layout and creation provenance." }))
 ) {}
 
 /**
@@ -518,8 +514,8 @@ export class LibraryManifest extends S.Class<LibraryManifest>($I`LibraryManifest
  * @category models
  * @since 0.0.0
  */
-export class LibraryCatalog extends S.Class<LibraryCatalog>($I`LibraryCatalog`)(
-  {
+export class LibraryCatalog extends S.Opaque<LibraryCatalog, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema: S.Literal("beep.research.library/v1"),
     documents: S.Array(LibraryDocument),
     artifacts: S.Array(LibraryArtifact).pipe(
@@ -534,8 +530,7 @@ export class LibraryCatalog extends S.Class<LibraryCatalog>($I`LibraryCatalog`)(
     occurrences: S.Array(LibraryOccurrence),
     captures: S.Array(LibraryCapture),
     qualifications: S.Array(LibraryQualification),
-  },
-  $I.annote("LibraryCatalog", { description: "Catalog record for persisted research provenance." })
+  }).pipe($I.annoteSchema("LibraryCatalog", { description: "Catalog record for persisted research provenance." }))
 ) {}
 
 /**
@@ -550,12 +545,15 @@ export class LibraryCatalog extends S.Class<LibraryCatalog>($I`LibraryCatalog`)(
  * @category models
  * @since 0.0.0
  */
-export class LibraryInventoryOptions extends S.Class<LibraryInventoryOptions>($I`LibraryInventoryOptions`)(
-  {
+export class LibraryInventoryOptions extends S.Opaque<LibraryInventoryOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     libraryRoot: S.String,
     inputRoots: S.Array(S.String),
-  },
-  $I.annote("LibraryInventoryOptions", { description: "InventoryOptions record for persisted research provenance." })
+  }).pipe(
+    $I.annoteSchema("LibraryInventoryOptions", {
+      description: "InventoryOptions record for persisted research provenance.",
+    })
+  )
 ) {}
 
 /**
@@ -570,11 +568,14 @@ export class LibraryInventoryOptions extends S.Class<LibraryInventoryOptions>($I
  * @category models
  * @since 0.0.0
  */
-export class LibraryAcquireOptions extends S.Class<LibraryAcquireOptions>($I`LibraryAcquireOptions`)(
-  {
+export class LibraryAcquireOptions extends S.Opaque<LibraryAcquireOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceIds: S.Array(S.String),
     concurrency: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(8)),
     retryFailed: S.Boolean,
-  },
-  $I.annote("LibraryAcquireOptions", { description: "AcquireOptions record for persisted research provenance." })
+  }).pipe(
+    $I.annoteSchema("LibraryAcquireOptions", {
+      description: "AcquireOptions record for persisted research provenance.",
+    })
+  )
 ) {}

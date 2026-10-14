@@ -45,7 +45,7 @@ const $I = $ScratchpadId.create("effected/sbom/IdentityToken");
  * @category errors
  * @since 0.0.0
  */
-export class IdentityTokenError extends S.TaggedError<IdentityTokenError>($I`IdentityTokenError`)("IdentityTokenError", {
+export class IdentityTokenError extends S.TaggedError<IdentityTokenError, { readonly brand: unique symbol }>($I`IdentityTokenError`)("IdentityTokenError", {
 	/** The audience the token was requested for. */
 	audience: S.String.annotateKey({ description: "The audience the token was requested for." }),
 	/** The underlying failure, preserved structurally. */

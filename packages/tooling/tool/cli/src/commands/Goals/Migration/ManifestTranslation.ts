@@ -13,7 +13,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { applyJsoncModification } from "../../../internal/cli/Jsonc.ts";
+import { applyJsoncModification, JsoncModification } from "../../../internal/cli/Jsonc.ts";
 import { GoalManifest, GoalManifestSchemaVersion, isGoalStatus } from "../Goals.schemas.ts";
 import { isJsonRecord, parseGoalManifestText } from "../Inventory.ts";
 import {
@@ -184,7 +184,9 @@ const legacyTranslationPlan = (
     ? A.of<ManifestTranslation["drift"][number]>("breaking")
     : A.empty<ManifestTranslation["drift"][number]>();
   if (needsVersionRewrite) {
-    content = applyJsoncModification({ content, path: ["schemaVersion"], value: "initiative-manifest/v2" });
+    content = applyJsoncModification(
+      JsoncModification.make({ content, path: ["schemaVersion"], value: "initiative-manifest/v2" })
+    );
   }
   let assumptions = A.of(
     TranslationAssumption.make({
@@ -193,7 +195,9 @@ const legacyTranslationPlan = (
     })
   );
   if (O.isNone(fields.lifecycle) && O.isSome(fields.status)) {
-    content = applyJsoncModification({ content, path: ["lifecycle"], value: fields.status.value });
+    content = applyJsoncModification(
+      JsoncModification.make({ content, path: ["lifecycle"], value: fields.status.value })
+    );
     edits = A.append(edits, "add lifecycle from initiative.status");
     drift = A.append(drift, "additive");
     assumptions = A.append(
@@ -205,7 +209,9 @@ const legacyTranslationPlan = (
     );
   }
   if (O.isNone(fields.packetPath)) {
-    content = applyJsoncModification({ content, path: ["packetPath"], value: `goals/${record.slug}` });
+    content = applyJsoncModification(
+      JsoncModification.make({ content, path: ["packetPath"], value: `goals/${record.slug}` })
+    );
     edits = A.append(edits, "add packetPath from the scanned directory");
     drift = A.append(drift, "additive");
     assumptions = A.append(

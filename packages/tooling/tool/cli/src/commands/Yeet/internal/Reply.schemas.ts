@@ -171,7 +171,7 @@ const ReplyTargetPresenceCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class ReplyDraft extends S.Class<ReplyDraft>($I`ReplyDraft`)(
+export class ReplyDraft extends S.Class<ReplyDraft, { readonly brand: unique symbol }>($I`ReplyDraft`)(
   S.Struct({
     ...replyTargetFields,
     body: S.NonEmptyString,
@@ -204,15 +204,16 @@ export class ReplyDraft extends S.Class<ReplyDraft>($I`ReplyDraft`)(
  * @category models
  * @since 0.0.0
  */
-export class ReplyDrafts extends S.Class<ReplyDrafts>($I`ReplyDrafts`)(
-  {
+export class ReplyDrafts extends S.Opaque<ReplyDrafts, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-reply-drafts/v1"),
     prNumber: ReplyPullRequestNumber,
     drafts: S.Array(ReplyDraft),
-  },
-  $I.annote("ReplyDrafts", {
-    description: "Drafted review-thread replies for one pull request, pending post and resolve.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplyDrafts", {
+      description: "Drafted review-thread replies for one pull request, pending post and resolve.",
+    })
+  )
 ) {}
 
 /**
@@ -281,7 +282,9 @@ export type ReplyOutcomeStatus = typeof ReplyOutcomeStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReplyDraftOutcome extends S.Class<ReplyDraftOutcome>($I`ReplyDraftOutcome`)(
+export class ReplyDraftOutcome extends S.Class<ReplyDraftOutcome, { readonly brand: unique symbol }>(
+  $I`ReplyDraftOutcome`
+)(
   S.Struct({
     ...replyTargetFields,
     status: ReplyOutcomeStatus,
@@ -312,16 +315,17 @@ export class ReplyDraftOutcome extends S.Class<ReplyDraftOutcome>($I`ReplyDraftO
  * @category models
  * @since 0.0.0
  */
-export class ReplyReport extends S.Class<ReplyReport>($I`ReplyReport`)(
-  {
+export class ReplyReport extends S.Opaque<ReplyReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-reply-report/v1"),
     prNumber: ReplyPullRequestNumber,
     createdAt: S.String,
     outcomes: S.Array(ReplyDraftOutcome),
-  },
-  $I.annote("ReplyReport", {
-    description: "Result document for one reply run: every drafted reply paired with its outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplyReport", {
+      description: "Result document for one reply run: every drafted reply paired with its outcome.",
+    })
+  )
 ) {}
 
 /**

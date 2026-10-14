@@ -146,7 +146,7 @@ import { applyHeavyAdmissionLabel, ensurePullRequest } from "./PullRequest.ts";
 import { buildQualityIssueIndex } from "./QualityIssueIndex.ts";
 import { collectRemoteChecks, collectYeetStatus, renderYeetStatusSummary, writeYeetStatusSnapshot } from "./Status.ts";
 import { collectTurboPlanSnapshot } from "./TurboQuery.ts";
-import { buildYeetVerdict, YeetExecutedStep, YeetVerdictJson } from "./Verdict.ts";
+import { BuildYeetVerdictInput, buildYeetVerdict, YeetExecutedStep, YeetVerdictJson } from "./Verdict.ts";
 import { classifyYeetCheckOutcome, YeetCheckSignal } from "./WatchStream.ts";
 import type { ChildProcessSpawner } from "effect/process";
 import type { AdmissionOriginGate, MemoryStats, RepoRunPlan } from "../../../internal/repo-run/index.ts";
@@ -1906,44 +1906,46 @@ const writeRunVerdict = Effect.fn("Yeet.writeRunVerdict")(function* (
     )
   );
 
-  const verdict = buildYeetVerdict({
-    attemptId: O.some(attempt.attemptId),
-    base: plan.context.base,
-    branch: plan.context.branch,
-    createdAt: endedAt,
-    startedAt: O.some(attempt.startedAt),
-    endedAt: O.some(endedAt),
-    elapsedMs: O.some(endedAtEpochMillis - startedAtEpochMillis),
-    executed,
-    innerLaneReports,
-    failurePolicy: options.collectAll ? "collect-all" : "fail-fast",
-    flakeQuarantine,
-    head: attempt.head,
-    resolvedHeadSha: attempt.resolvedHeadSha,
-    diffFingerprint: attempt.diffFingerprint,
-    proofTier: attempt.proofTier,
-    message,
-    mode: options.mode,
-    outcome,
-    packetPaths: pipe(
-      artifacts,
-      O.map((result) => result.packetPaths),
-      O.getOrElse(A.empty<string>)
-    ),
-    planned: plan.steps,
-    runId: yield* runIdForContext(plan.context),
-    // Only the publish/monitor paths observe a live status snapshot, so runs
-    // that never read the pull request omit the key rather than asserting an
-    // unknown merge readiness.
-    ...O.getSomesStruct({
-      baseFreshness: extraState.baseFreshness,
-      indexPath,
-      mergeReady: extraState.mergeReady,
-      stash: extraState.stash,
-      failedStepId,
-    }),
-    ...(outcome === "failure" ? { failureKind: O.isSome(failedExecution) ? "step-exit" : "handler-error" } : {}),
-  });
+  const verdict = buildYeetVerdict(
+    BuildYeetVerdictInput.make({
+      attemptId: O.some(attempt.attemptId),
+      base: plan.context.base,
+      branch: plan.context.branch,
+      createdAt: endedAt,
+      startedAt: O.some(attempt.startedAt),
+      endedAt: O.some(endedAt),
+      elapsedMs: O.some(endedAtEpochMillis - startedAtEpochMillis),
+      executed,
+      innerLaneReports,
+      failurePolicy: options.collectAll ? "collect-all" : "fail-fast",
+      flakeQuarantine,
+      head: attempt.head,
+      resolvedHeadSha: attempt.resolvedHeadSha,
+      diffFingerprint: attempt.diffFingerprint,
+      proofTier: attempt.proofTier,
+      message,
+      mode: options.mode,
+      outcome,
+      packetPaths: pipe(
+        artifacts,
+        O.map((result) => result.packetPaths),
+        O.getOrElse(A.empty<string>)
+      ),
+      planned: plan.steps,
+      runId: yield* runIdForContext(plan.context),
+      // Only the publish/monitor paths observe a live status snapshot, so runs
+      // that never read the pull request omit the key rather than asserting an
+      // unknown merge readiness.
+      ...O.getSomesStruct({
+        baseFreshness: extraState.baseFreshness,
+        indexPath,
+        mergeReady: extraState.mergeReady,
+        stash: extraState.stash,
+        failedStepId,
+      }),
+      ...(outcome === "failure" ? { failureKind: O.isSome(failedExecution) ? "step-exit" : "handler-error" } : {}),
+    })
+  );
   const verdictPath = yield* runOutputPathForContext(plan.context, "verdict.json");
   // Encode through the verdict's own schema codec: a generic JSON render of the
   // decoded instance writes Option fields as `{"_id":"Option",...}`, which the
@@ -2454,8 +2456,11 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
  * @category testing
  * @since 0.0.0
  */
-export class BuildYeetRunPlanTestOptions extends S.Class<BuildYeetRunPlanTestOptions>($I`BuildYeetRunPlanTestOptions`)(
-  {
+export class BuildYeetRunPlanTestOptions extends S.Opaque<
+  BuildYeetRunPlanTestOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     amend: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     ciParity: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     collectAll: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
@@ -2470,10 +2475,11 @@ export class BuildYeetRunPlanTestOptions extends S.Class<BuildYeetRunPlanTestOpt
     pushOnly: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     remote: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     tier: YeetProofTier.pipe(S.withConstructorDefault(Effect.succeed("full"))),
-  },
-  $I.annote("BuildYeetRunPlanTestOptions", {
-    description: "Hydrated test context, optional message, and optional mode for building a Yeet run plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildYeetRunPlanTestOptions", {
+      description: "Hydrated test context, optional message, and optional mode for building a Yeet run plan.",
+    })
+  )
 ) {}
 
 /**

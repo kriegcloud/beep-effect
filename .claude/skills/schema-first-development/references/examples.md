@@ -11,13 +11,13 @@ File:
 Use this file when you need:
 
 - `LiteralKit` for a public literal domain
-- `S.Class` payloads with strong annotations
+- branded `S.Opaque` payloads with strong annotations
 - schemas fed directly into CLI and file-generation boundaries
 
 What to copy:
 
 - `RelativePlanPath` for annotated schema filters
-- `PlannedFile` for a clean `S.Class` object model
+- `PlannedFile` for a clean branded `S.Opaque` object model
 - `GenerationActionKind` for annotated literal-kit usage
 
 Why it matters:
@@ -154,7 +154,7 @@ Why it matters:
 
 ## Quick Selection Map
 
-- Need a `S.Class` domain payload:
+- Need a plain-data domain payload (branded `S.Opaque`):
   Start with `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
 - Need schema-driven defaults and transforms:
   Start with the field usage in `packages/foundation/ui-system/dock/src/Minima.ts`

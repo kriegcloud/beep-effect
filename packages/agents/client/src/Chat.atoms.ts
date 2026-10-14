@@ -267,18 +267,19 @@ export const threadTimelineAtoms = Atom.family((threadId: ThreadId) =>
  * @category models
  * @since 0.0.0
  */
-export class CreateThreadAtomInput extends S.Class<CreateThreadAtomInput>($I`CreateThreadAtomInput`)(
-  {
+export class CreateThreadAtomInput extends S.Opaque<CreateThreadAtomInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace where the thread is created.",
     }),
     title: S.String.annotateKey({
       description: "Initial thread title.",
     }),
-  },
-  $I.annote("CreateThreadAtomInput", {
-    description: "Write payload for the client thread-creation atom.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateThreadAtomInput", {
+      description: "Write payload for the client thread-creation atom.",
+    })
+  )
 ) {}
 
 /**
@@ -444,8 +445,8 @@ export const draftRevisionAtoms = Atom.family((_threadId: ThreadId) => Atom.make
  * @category models
  * @since 0.0.0
  */
-export class StreamingTurn extends S.Class<StreamingTurn>($I`StreamingTurn`)(
-  {
+export class StreamingTurn extends S.Opaque<StreamingTurn, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The thread this turn belongs to. */
     threadId: WorkspaceIdentity.ThreadId.annotateKey({
       description: "Thread this locally rendered turn belongs to.",
@@ -472,11 +473,12 @@ export class StreamingTurn extends S.Class<StreamingTurn>($I`StreamingTurn`)(
     blocks: S.Array(AssistantBlock).annotateKey({
       description: "Assistant blocks appended as they stream in.",
     }),
-  },
-  $I.annote("StreamingTurn", {
-    description:
-      "An assistant turn rendered locally while blocks stream, its timeline refresh is pending, or receipt evidence is uncertain.",
-  })
+  }).pipe(
+    $I.annoteSchema("StreamingTurn", {
+      description:
+        "An assistant turn rendered locally while blocks stream, its timeline refresh is pending, or receipt evidence is uncertain.",
+    })
+  )
 ) {}
 
 /**
@@ -593,8 +595,8 @@ const toTurnError = (error: unknown): ChatActionError =>
  * @category models
  * @since 0.0.0
  */
-export class EditTarget extends S.Class<EditTarget>($I`EditTarget`)(
-  {
+export class EditTarget extends S.Opaque<EditTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     threadId: WorkspaceIdentity.ThreadId.annotateKey({
       description:
         "Thread the edited turn belongs to. Edit state is global, so without this a thread change mid-edit submitted the old thread's turn id against the new thread.",
@@ -605,10 +607,11 @@ export class EditTarget extends S.Class<EditTarget>($I`EditTarget`)(
     content: Document.annotateKey({
       description: "Replacement user content for the edited turn.",
     }),
-  },
-  $I.annote("EditTarget", {
-    description: "When set, the composer is editing an existing turn's message.",
-  })
+  }).pipe(
+    $I.annoteSchema("EditTarget", {
+      description: "When set, the composer is editing an existing turn's message.",
+    })
+  )
 ) {}
 
 /**
@@ -715,14 +718,16 @@ export const reportDecodeFailureAtom = ChatClient.runtime.fn<void>()(
  * @category models
  * @since 0.0.0
  */
-export class SendTurnRequest extends S.TaggedClass<SendTurnRequest>("SendTurnRequest")("send", {
-  threadId: WorkspaceIdentity.ThreadId.annotateKey({
-    description: "Thread receiving the new user message.",
-  }),
-  content: SafeDocument.annotateKey({
-    description: "User content to append as a new message.",
-  }),
-}) {}
+export class SendTurnRequest extends S.Opaque<SendTurnRequest, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("send", {
+    threadId: WorkspaceIdentity.ThreadId.annotateKey({
+      description: "Thread receiving the new user message.",
+    }),
+    content: SafeDocument.annotateKey({
+      description: "User content to append as a new message.",
+    }),
+  }).pipe($I.annoteSchema("SendTurnRequest"))
+) {}
 
 /**
  * A request to edit an existing turn's message and regenerate from there.
@@ -747,17 +752,19 @@ export class SendTurnRequest extends S.TaggedClass<SendTurnRequest>("SendTurnReq
  * @category models
  * @since 0.0.0
  */
-export class EditTurnRequest extends S.TaggedClass<EditTurnRequest>("EditTurnRequest")("edit", {
-  threadId: WorkspaceIdentity.ThreadId.annotateKey({
-    description: "Thread containing the turn to edit.",
-  }),
-  turnId: WorkspaceIdentity.TurnId.annotateKey({
-    description: "Turn whose user message is replaced before regenerating.",
-  }),
-  content: SafeDocument.annotateKey({
-    description: "Replacement user content for the edited turn.",
-  }),
-}) {}
+export class EditTurnRequest extends S.Opaque<EditTurnRequest, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("edit", {
+    threadId: WorkspaceIdentity.ThreadId.annotateKey({
+      description: "Thread containing the turn to edit.",
+    }),
+    turnId: WorkspaceIdentity.TurnId.annotateKey({
+      description: "Turn whose user message is replaced before regenerating.",
+    }),
+    content: SafeDocument.annotateKey({
+      description: "Replacement user content for the edited turn.",
+    }),
+  }).pipe($I.annoteSchema("EditTurnRequest"))
+) {}
 
 /**
  * A turn the user wants to run: a fresh send or an edit-regenerate.

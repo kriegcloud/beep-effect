@@ -34,12 +34,15 @@ const $I = $LawPracticeServerId.create("PracticeKg.contacts");
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgContactEmail extends S.Class<PracticeKgContactEmail>($I`PracticeKgContactEmail`)(
-  {
+export class PracticeKgContactEmail extends S.Opaque<PracticeKgContactEmail, { readonly brand: unique symbol }>()(
+  S.Struct({
     address: S.NonEmptyString,
     role: S.Boolean.annotateKey({ description: "True for a shared role mailbox such as docketing@ or info@." }),
-  },
-  $I.annote("PracticeKgContactEmail", { description: "One email address of a contact and its role-mailbox flag." })
+  }).pipe(
+    $I.annoteSchema("PracticeKgContactEmail", {
+      description: "One email address of a contact and its role-mailbox flag.",
+    })
+  )
 ) {}
 
 /**
@@ -67,14 +70,17 @@ export class PracticeKgContactEmail extends S.Class<PracticeKgContactEmail>($I`P
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgContactLink extends S.Class<PracticeKgContactLink>($I`PracticeKgContactLink`)(
-  {
+export class PracticeKgContactLink extends S.Opaque<PracticeKgContactLink, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientNumber: S.String.check(S.isPattern(/^[0-9]{5}$/u, { message: "Expected a five-digit client number" })),
     evidence: S.String,
     familyKey: S.NullOr(S.String),
     source: PracticeKgContactLinkSource,
-  },
-  $I.annote("PracticeKgContactLink", { description: "Contact link to a client number and an optional matter key." })
+  }).pipe(
+    $I.annoteSchema("PracticeKgContactLink", {
+      description: "Contact link to a client number and an optional matter key.",
+    })
+  )
 ) {}
 
 /**
@@ -141,18 +147,19 @@ export type PracticeKgContactOrigin = typeof PracticeKgContactOrigin.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgContact extends S.Class<PracticeKgContact>($I`PracticeKgContact`)(
-  {
+export class PracticeKgContact extends S.Opaque<PracticeKgContact, { readonly brand: unique symbol }>()(
+  S.Struct({
     contactId: S.String.check(S.isPattern(/^c_[0-9a-f]{12}$/u, { message: "Expected c_ and twelve hex digits" })),
     displayName: S.String,
     emails: S.Array(PracticeKgContactEmail),
     links: S.Array(PracticeKgContactLink),
     organization: S.NullOr(S.String),
     sources: S.Array(PracticeKgContactOrigin),
-  },
-  $I.annote("PracticeKgContact", {
-    description: "Contact with its email addresses and its links to clients and matters.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgContact", {
+      description: "Contact with its email addresses and its links to clients and matters.",
+    })
+  )
 ) {}
 
 /**
@@ -182,7 +189,9 @@ export class PracticeKgContact extends S.Class<PracticeKgContact>($I`PracticeKgC
  * @category errors
  * @since 0.0.0
  */
-export class PracticeKgContactsError extends S.TaggedError<PracticeKgContactsError>($I`PracticeKgContactsError`)(
+export class PracticeKgContactsError extends S.TaggedError<PracticeKgContactsError, { readonly brand: unique symbol }>(
+  $I`PracticeKgContactsError`
+)(
   "PracticeKgContactsError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),

@@ -98,7 +98,7 @@ export interface ValidationRule {
  * @category errors
  * @since 0.0.0
  */
-export class PackageValidationError extends S.TaggedError<PackageValidationError>($I`PackageValidationError`)("PackageValidationError", {
+export class PackageValidationError extends S.TaggedError<PackageValidationError, { readonly brand: unique symbol }>($I`PackageValidationError`)("PackageValidationError", {
 	/**
 	 * The aggregated rule failures.
 	 *

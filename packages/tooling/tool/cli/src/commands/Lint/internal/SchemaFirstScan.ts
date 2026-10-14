@@ -11,6 +11,7 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -36,6 +37,7 @@ import { SchemaFirstDetectors } from "./SchemaFirstDetectors.ts";
 import { diffSchemaFirstParity, toSchemaFirstBacklog } from "./SchemaFirstParity.ts";
 import { isSchemaCrispeningPolicyExempt } from "./SchemaFirstPolicy.ts";
 import { isSchemaFirstExcludedFile, makeSchemaFirstOwnerResolver } from "./SchemaFirstProject.ts";
+import { SchemaFirstSchemaClass } from "./SchemaFirstSchemaClass.ts";
 import {
   readCrispeningPolicyDocument,
   readSchemaFirstInventoryDocument,
@@ -51,6 +53,7 @@ import type {
 } from "../Lint.schemas.ts";
 import type { SchemaFirstLintFindings } from "../SchemaFirst.render.ts";
 import type { FunctionLikeDeclarationNode } from "./SchemaFirstDetectors.ts";
+import type { SchemaClassDeclaration } from "./SchemaFirstSchemaClass.ts";
 
 const isLiteralKitConstAssertionArgument = (argument: Node): boolean =>
   Node.isAsExpression(argument) &&
@@ -100,6 +103,7 @@ const collectArbitraryCoverageEntries = Effect.fn("collectArbitraryCoverageEntri
   const ownerResolver = yield* makeSchemaFirstOwnerResolver();
   const { project, sourcePaths } = yield* schemaFirstSourceContext();
   const entries = A.empty<SchemaFirstInventoryEntry>();
+  const referencedClassNames = MutableHashSet.empty<string>();
   // Arbitrary coverage is syntax-only. Keep its full existing source/test corpus
   // while avoiding test roots in the production semantic program.
   for (const filePath of sourcePaths) {
@@ -107,9 +111,13 @@ const collectArbitraryCoverageEntries = Effect.fn("collectArbitraryCoverageEntri
     if (sourceFile === undefined) continue;
     const relativePath = toPosixPath(path.relative(process.cwd(), filePath));
     appendArbitraryEntries(entries, sourceFile, relativePath, ownerResolver(filePath));
+    // Include references from excluded test roots without retaining their ASTs.
+    A.forEach(SchemaFirstSchemaClass.scanSourceFile(sourceFile.compilerNode).referencedNames, (name) =>
+      MutableHashSet.add(referencedClassNames, name)
+    );
     sourceFile.forget();
   }
-  return entries;
+  return { entries, referencedClassNames };
 });
 
 const appendOptionEntry = (entries: Array<SchemaFirstInventoryEntry>, entry: O.Option<SchemaFirstInventoryEntry>) => {
@@ -223,9 +231,49 @@ const appendStructOrBoundaryEntry = (
     filePath,
     SchemaFirstDetectors.inferStructSymbol(callExpression),
     "object-struct-schema",
-    "Object schema should prefer an annotated S.Class over S.Struct.",
+    "Exported bare S.Struct schema should be a branded S.Opaque over that S.Struct with $I.annoteSchema metadata (D1).",
     owner
   );
+};
+
+type PlainDataSchemaClassCandidate = {
+  readonly declaration: SchemaClassDeclaration;
+  readonly file: string;
+  readonly owner: string;
+};
+
+// Records every class name the file references (tests included, so `instanceof` assertions keep a class) and, for
+// scanned files, the brand findings plus the plain-data candidates that are resolved once the whole project is read.
+const appendSchemaClassEntries = (
+  entries: Array<SchemaFirstInventoryEntry>,
+  plainDataCandidates: Array<PlainDataSchemaClassCandidate>,
+  referencedNames: MutableHashSet.MutableHashSet<string>,
+  sourceFile: SourceFile,
+  filePath: string,
+  owner: string,
+  scanned: boolean
+) => {
+  const scan = SchemaFirstSchemaClass.scanSourceFile(sourceFile.compilerNode);
+  A.forEach(scan.referencedNames, (name) => MutableHashSet.add(referencedNames, name));
+  if (!scanned) return;
+  const plainDataEligible =
+    SchemaFirstSchemaClass.isPlainDataEligibleFilePath(filePath) &&
+    !SchemaFirstSchemaClass.isGeneratedSourceText(sourceFile.getFullText());
+  for (const declaration of scan.declarations) {
+    appendOptionEntry(entries, SchemaFirstSchemaClass.unbrandedEntry(declaration, filePath, owner));
+    if (plainDataEligible) A.appendInPlace(plainDataCandidates, { declaration, file: filePath, owner });
+  }
+};
+
+const appendPlainDataSchemaClassEntries = (
+  entries: Array<SchemaFirstInventoryEntry>,
+  plainDataCandidates: ReadonlyArray<PlainDataSchemaClassCandidate>,
+  referencedNames: MutableHashSet.MutableHashSet<string>
+) => {
+  const names = HashSet.fromIterable(referencedNames);
+  for (const { declaration, file, owner } of plainDataCandidates) {
+    appendOptionEntry(entries, SchemaFirstSchemaClass.plainDataEntry(declaration, file, owner, names));
+  }
 };
 
 const appendCallEntries = (
@@ -323,7 +371,8 @@ const appendEquivalenceEntries = (
 const scanSchemaFirstInventory = Effect.fn(function* () {
   const path = yield* Path.Path;
   const ownerResolver = yield* makeSchemaFirstOwnerResolver();
-  const entries = A.fromIterable(yield* collectArbitraryCoverageEntries());
+  const coverage = yield* collectArbitraryCoverageEntries();
+  const entries = A.fromIterable(coverage.entries);
   const { project, sourcePaths } = yield* schemaFirstSourceContext();
   // Production checks need the shared checker. Keep relevant ambient roots too;
   // imported dependencies still resolve normally through the compiler options.
@@ -339,11 +388,23 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
   const literalKitConstAssertionViolations = A.empty<LiteralKitConstAssertionViolation>();
   const scannedFiles = A.empty<string>();
   const parityEntries = A.empty<SchemaFirstInventoryEntry>();
+  const plainDataCandidates = A.empty<PlainDataSchemaClassCandidate>();
+  const referencedClassNames = coverage.referencedClassNames;
 
   for (const sourceFile of project.getSourceFiles()) {
     const filePath = toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath()));
     const owner = ownerResolver(sourceFile.getFilePath());
-    if (isSchemaFirstExcludedFile(filePath)) continue;
+    const excluded = isSchemaFirstExcludedFile(filePath);
+    appendSchemaClassEntries(
+      entries,
+      plainDataCandidates,
+      referencedClassNames,
+      sourceFile,
+      filePath,
+      owner,
+      !excluded
+    );
+    if (excluded) continue;
     appendLiteralKitConstAssertionViolations(literalKitConstAssertionViolations, sourceFile, filePath);
     A.appendInPlace(scannedFiles, filePath);
     A.appendAllInPlace(
@@ -362,6 +423,7 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     // but release this file's completed syntax-wrapper graph.
     sourceFile.forgetDescendants();
   }
+  appendPlainDataSchemaClassEntries(entries, plainDataCandidates, referencedClassNames);
 
   return {
     document: SchemaFirstInventoryDocument.make({

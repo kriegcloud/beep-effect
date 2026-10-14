@@ -100,15 +100,16 @@ const EvidenceSpanQuote = TextAnchorFields.quote
     })
   );
 
-class EvidenceSpanStruct extends S.Class<EvidenceSpanStruct>($I`EvidenceSpanStruct`)(
-  {
+class EvidenceSpanStruct extends S.Opaque<EvidenceSpanStruct, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...TextAnchorFields,
     confidence: Confidence.annotateKey({ description: "Extraction confidence in the unit interval [0, 1]." }),
     quote: EvidenceSpanQuote,
-  },
-  $I.annote("EvidenceSpanStruct", {
-    description: "Internal structural base for a text anchor and its extraction confidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceSpanStruct", {
+      description: "Internal structural base for a text anchor and its extraction confidence.",
+    })
+  )
 ) {}
 
 const EvidenceSpanSchema = EvidenceSpanStruct.mapFields(identity).check(TextAnchorWidthCheck);
@@ -139,11 +140,12 @@ const EvidenceSpanSchema = EvidenceSpanStruct.mapFields(identity).check(TextAnch
  * @category value-objects
  * @since 0.0.0
  */
-export class EvidenceSpan extends S.Class<EvidenceSpan>($I`EvidenceSpan`)(
-  EvidenceSpanSchema,
-  $I.annote("EvidenceSpan", {
-    description: "Char-offset evidence span wrapping a @beep/provenance TextAnchor with an extraction confidence.",
-  })
+export class EvidenceSpan extends S.Opaque<EvidenceSpan, { readonly brand: unique symbol }>()(
+  EvidenceSpanSchema.pipe(
+    $I.annoteSchema("EvidenceSpan", {
+      description: "Char-offset evidence span wrapping a @beep/provenance TextAnchor with an extraction confidence.",
+    })
+  )
 ) {
   /**
    * Whether the span is internally consistent before source-text re-slicing:

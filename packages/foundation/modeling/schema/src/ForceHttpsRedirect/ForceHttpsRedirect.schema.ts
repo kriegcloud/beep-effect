@@ -39,18 +39,19 @@ const defaultMaxAge = 60 * 60 * 24 * 365 * 2;
  * @category models
  * @since 0.0.0
  */
-export class ForceHttpsRedirectConfig extends S.Class<ForceHttpsRedirectConfig>($I`ForceHttpsRedirectConfig`)(
-  {
+export class ForceHttpsRedirectConfig extends S.Opaque<ForceHttpsRedirectConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxAge: S.optionalKey(internal.HeaderMaxAgeSeconds).pipe(
       S.withConstructorDefault(Effect.succeed(defaultMaxAge)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultMaxAge))
     ),
     includeSubDomains: SchemaUtils.BoolKeyDefaultFalse,
     preload: SchemaUtils.BoolKeyDefaultFalse,
-  },
-  $I.annote("ForceHttpsRedirectConfig", {
-    description: "Optional configuration values for the `Strict-Transport-Security` header.",
-  })
+  }).pipe(
+    $I.annoteSchema("ForceHttpsRedirectConfig", {
+      description: "Optional configuration values for the `Strict-Transport-Security` header.",
+    })
+  )
 ) {}
 
 /**
@@ -153,16 +154,18 @@ export type ForceHttpsRedirectOption = typeof ForceHttpsRedirectOption.Type;
  * @category models
  * @since 0.0.0
  */
-export class ForceHttpsRedirectResponseHeader extends S.Class<ForceHttpsRedirectResponseHeader>(
-  $I`ForceHttpsRedirectResponseHeader`
-)(
-  {
+export class ForceHttpsRedirectResponseHeader extends S.Opaque<
+  ForceHttpsRedirectResponseHeader,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ForceHttpsRedirectResponseHeader", {
-    description: "The `Strict-Transport-Security` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("ForceHttpsRedirectResponseHeader", {
+      description: "The `Strict-Transport-Security` response header.",
+    })
+  )
 ) {}
 
 type ForceHttpsRedirectResponseHeaderEncoded = typeof ForceHttpsRedirectResponseHeader.Encoded;
@@ -268,7 +271,7 @@ export const ForceHttpsRedirectHeader = S.Union([ForceHttpsRedirectOption, S.Und
  * import * as O from "effect/Option"
  * import { ForceHttpsRedirectResponseHeader, type ForceHttpsRedirectHeader } from "@beep/schema/ForceHttpsRedirect"
  *
- * const header: ForceHttpsRedirectHeader = new ForceHttpsRedirectResponseHeader({
+ * const header: ForceHttpsRedirectHeader = ForceHttpsRedirectResponseHeader.make({
  *   name: "Strict-Transport-Security",
  *   value: O.some("max-age=31536000"),
  * })
@@ -349,7 +352,7 @@ export const Header = ForceHttpsRedirectHeader;
  * import * as O from "effect/Option"
  * import { ForceHttpsRedirectResponseHeader, type Header } from "@beep/schema/ForceHttpsRedirect"
  *
- * const header: Header = new ForceHttpsRedirectResponseHeader({
+ * const header: Header = ForceHttpsRedirectResponseHeader.make({
  *   name: "Strict-Transport-Security",
  *   value: O.some("max-age=31536000"),
  * })

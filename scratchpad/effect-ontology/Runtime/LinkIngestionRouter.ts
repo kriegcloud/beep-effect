@@ -44,7 +44,7 @@ const CreateBatchFromLinksBody = S.Struct({
 
 const NonTerminalBatchStage = BatchStage.pick(["Pending", "Preprocessing", "Extracting", "Resolving", "Validating", "Ingesting"]);
 
-class BatchNotTerminalError extends S.TaggedError<BatchNotTerminalError>($I`BatchNotTerminalError`)(
+class BatchNotTerminalError extends S.TaggedError<BatchNotTerminalError, { readonly brand: unique symbol }>($I`BatchNotTerminalError`)(
   "BatchNotTerminalError",
   {
     batchId: BatchId.annotateKey({

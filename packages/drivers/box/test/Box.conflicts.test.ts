@@ -236,7 +236,7 @@ describe("@beep/box conflict detail", () => {
       const encoded = Result.getOrThrow(encodeBoxApiFailureConflict(conflict));
       const redecoded = decodeBoxApiFailureConflictOption({ ...encoded, etag, name: itemName });
 
-      assertSome(decodeBoxApiFailureConflictOption(encoded), conflict);
+      assertSome(decodeBoxApiFailureConflictOption(encoded), B.BoxApiFailureConflict.make(conflict));
       assertSome(
         O.map(redecoded, (value) => Result.getOrThrow(encodeBoxApiFailureConflict(value))),
         encoded

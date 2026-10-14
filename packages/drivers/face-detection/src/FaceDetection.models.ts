@@ -343,15 +343,16 @@ export type NonNegativeImageCoordinate = typeof NonNegativeImageCoordinate.Type;
  * @category models
  * @since 0.0.0
  */
-export class FaceDetectionModelConfig extends S.Class<FaceDetectionModelConfig>($I`FaceDetectionModelConfig`)(
-  {
+export class FaceDetectionModelConfig extends S.Opaque<FaceDetectionModelConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     modelPath: S.String.annotateKey({
       description: "Filesystem path to the YuNet-compatible ONNX model.",
     }),
-  },
-  $I.annote("FaceDetectionModelConfig", {
-    description: "Request to load a YuNet-compatible ONNX face detector.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceDetectionModelConfig", {
+      description: "Request to load a YuNet-compatible ONNX face detector.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(FaceDetectionModelConfig);
 }
@@ -371,8 +372,8 @@ export class FaceDetectionModelConfig extends S.Class<FaceDetectionModelConfig>(
  * @category models
  * @since 0.0.0
  */
-export class FaceDetectionImageRequest extends S.Class<FaceDetectionImageRequest>($I`FaceDetectionImageRequest`)(
-  {
+export class FaceDetectionImageRequest extends S.Opaque<FaceDetectionImageRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     imagePath: S.String.annotateKey({
       description: "Filesystem path to the source image.",
     }),
@@ -394,10 +395,11 @@ export class FaceDetectionImageRequest extends S.Class<FaceDetectionImageRequest
     ).annotateKey({
       description: "Maximum number of candidate faces retained before suppression.",
     }),
-  },
-  $I.annote("FaceDetectionImageRequest", {
-    description: "Request to detect faces in one image with a loaded YuNet-compatible detector.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceDetectionImageRequest", {
+      description: "Request to detect faces in one image with a loaded YuNet-compatible detector.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(FaceDetectionImageRequest);
 }
@@ -417,18 +419,19 @@ export class FaceDetectionImageRequest extends S.Class<FaceDetectionImageRequest
  * @category models
  * @since 0.0.0
  */
-export class FaceDetectionPoint extends S.Class<FaceDetectionPoint>($I`FaceDetectionPoint`)(
-  {
+export class FaceDetectionPoint extends S.Opaque<FaceDetectionPoint, { readonly brand: unique symbol }>()(
+  S.Struct({
     x: NonNegativeImageCoordinate.annotateKey({
       description: "Horizontal image coordinate.",
     }),
     y: NonNegativeImageCoordinate.annotateKey({
       description: "Vertical image coordinate.",
     }),
-  },
-  $I.annote("FaceDetectionPoint", {
-    description: "Two-dimensional image point emitted by a face detector.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceDetectionPoint", {
+      description: "Two-dimensional image point emitted by a face detector.",
+    })
+  )
 ) {}
 
 /**
@@ -446,8 +449,8 @@ export class FaceDetectionPoint extends S.Class<FaceDetectionPoint>($I`FaceDetec
  * @category models
  * @since 0.0.0
  */
-export class FaceDetectionBox extends S.Class<FaceDetectionBox>($I`FaceDetectionBox`)(
-  {
+export class FaceDetectionBox extends S.Opaque<FaceDetectionBox, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: NonNegativeImageCoordinate.annotateKey({
       description: "Detected face box height.",
     }),
@@ -460,10 +463,11 @@ export class FaceDetectionBox extends S.Class<FaceDetectionBox>($I`FaceDetection
     y: NonNegativeImageCoordinate.annotateKey({
       description: "Top image coordinate for the detected face box.",
     }),
-  },
-  $I.annote("FaceDetectionBox", {
-    description: "Face bounding box using top-left x/y coordinates plus width and height.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceDetectionBox", {
+      description: "Face bounding box using top-left x/y coordinates plus width and height.",
+    })
+  )
 ) {}
 
 /**
@@ -487,8 +491,8 @@ export class FaceDetectionBox extends S.Class<FaceDetectionBox>($I`FaceDetection
  * @category models
  * @since 0.0.0
  */
-export class FaceDetectionLandmarks extends S.Class<FaceDetectionLandmarks>($I`FaceDetectionLandmarks`)(
-  {
+export class FaceDetectionLandmarks extends S.Opaque<FaceDetectionLandmarks, { readonly brand: unique symbol }>()(
+  S.Struct({
     leftEye: FaceDetectionPoint.annotateKey({
       description: "Left eye landmark point.",
     }),
@@ -504,10 +508,11 @@ export class FaceDetectionLandmarks extends S.Class<FaceDetectionLandmarks>($I`F
     rightMouth: FaceDetectionPoint.annotateKey({
       description: "Right mouth-corner landmark point.",
     }),
-  },
-  $I.annote("FaceDetectionLandmarks", {
-    description: "Five face landmarks emitted by a YuNet-compatible detector.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceDetectionLandmarks", {
+      description: "Five face landmarks emitted by a YuNet-compatible detector.",
+    })
+  )
 ) {}
 
 /**
@@ -535,8 +540,8 @@ export class FaceDetectionLandmarks extends S.Class<FaceDetectionLandmarks>($I`F
  * @category models
  * @since 0.0.0
  */
-export class FaceDetection extends S.Class<FaceDetection>($I`FaceDetection`)(
-  {
+export class FaceDetection extends S.Opaque<FaceDetection, { readonly brand: unique symbol }>()(
+  S.Struct({
     box: FaceDetectionBox.annotateKey({
       description: "Detected face bounding box in source-image coordinates.",
     }),
@@ -546,10 +551,11 @@ export class FaceDetection extends S.Class<FaceDetection>($I`FaceDetection`)(
     landmarks: FaceDetectionLandmarks.annotateKey({
       description: "Five facial landmarks in source-image coordinates.",
     }),
-  },
-  $I.annote("FaceDetection", {
-    description: "One detected face with confidence, bounding box, and landmarks.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceDetection", {
+      description: "One detected face with confidence, bounding box, and landmarks.",
+    })
+  )
 ) {}
 
 /**
@@ -572,8 +578,8 @@ export class FaceDetection extends S.Class<FaceDetection>($I`FaceDetection`)(
  * @category models
  * @since 0.0.0
  */
-export class FaceDetectionResult extends S.Class<FaceDetectionResult>($I`FaceDetectionResult`)(
-  {
+export class FaceDetectionResult extends S.Opaque<FaceDetectionResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     faces: S.Array(FaceDetection).annotateKey({
       description: "Detected faces in descending confidence order after suppression.",
     }),
@@ -586,10 +592,11 @@ export class FaceDetectionResult extends S.Class<FaceDetectionResult>($I`FaceDet
     width: PositivePixelDimension.annotateKey({
       description: "Source image width in pixels.",
     }),
-  },
-  $I.annote("FaceDetectionResult", {
-    description: "Face detection result for one image.",
-  })
+  }).pipe(
+    $I.annoteSchema("FaceDetectionResult", {
+      description: "Face detection result for one image.",
+    })
+  )
 ) {}
 
 /**

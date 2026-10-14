@@ -1,6 +1,7 @@
 import {
   LoggingConfig,
   PrettyLoggerConfig,
+  RenderLogBannerOptions,
   renderLogBanner,
   statusClass,
   summarizeCause,
@@ -35,10 +36,13 @@ void coreConfig;
 void loggingConfig;
 void layerWebSdk(webConfig);
 void PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" });
-void renderLogBanner("Browser Safe", {
-  kind: "startup",
-  pretty: PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" }),
-});
+void renderLogBanner(
+  "Browser Safe",
+  RenderLogBannerOptions.make({
+    kind: "startup",
+    pretty: PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" }),
+  })
+);
 void statusClass(200);
 void summarizeCause(Cause.fail(new Error("fixture")));
 void summarizeExit(Exit.succeed("ok"));

@@ -157,7 +157,7 @@ const InferenceFailureStage = LiteralKit(["parse", "reason", "serialize", "stati
  * @category errors
  * @since 0.0.0
  */
-export class InferenceExecutionError extends S.TaggedError<InferenceExecutionError>($I`InferenceExecutionError`)(
+export class InferenceExecutionError extends S.TaggedError<InferenceExecutionError, { readonly brand: unique symbol }>($I`InferenceExecutionError`)(
   "InferenceExecutionError",
   {
     stage: InferenceFailureStage,

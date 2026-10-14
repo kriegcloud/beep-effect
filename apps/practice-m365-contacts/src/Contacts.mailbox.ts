@@ -38,9 +38,10 @@ const $I = $PracticeM365ContactsId.create("Contacts.mailbox");
  * @category schemas
  * @since 0.0.0
  */
-export class MailboxContact extends S.Class<MailboxContact>($I`MailboxContact`)(
-  { contact: GraphContact, folderId: S.Option(S.NonEmptyString) },
-  $I.annote("MailboxContact", { description: "A contact paired with its precise folder route." })
+export class MailboxContact extends S.Opaque<MailboxContact, { readonly brand: unique symbol }>()(
+  S.Struct({ contact: GraphContact, folderId: S.Option(S.NonEmptyString) }).pipe(
+    $I.annoteSchema("MailboxContact", { description: "A contact paired with its precise folder route." })
+  )
 ) {}
 
 /** Complete read-only contact inventory.
@@ -52,9 +53,10 @@ export class MailboxContact extends S.Class<MailboxContact>($I`MailboxContact`)(
  * @category schemas
  * @since 0.0.0
  */
-export class MailboxInventory extends S.Class<MailboxInventory>($I`MailboxInventory`)(
-  { folders: S.Array(GraphContactFolder), contacts: S.Array(MailboxContact) },
-  $I.annote("MailboxInventory", { description: "Every root and child contact folder and all contact pages." })
+export class MailboxInventory extends S.Opaque<MailboxInventory, { readonly brand: unique symbol }>()(
+  S.Struct({ folders: S.Array(GraphContactFolder), contacts: S.Array(MailboxContact) }).pipe(
+    $I.annoteSchema("MailboxInventory", { description: "Every root and child contact folder and all contact pages." })
+  )
 ) {}
 
 /** Contact capabilities only; the job has no mail or calendar methods.

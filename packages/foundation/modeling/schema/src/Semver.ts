@@ -340,7 +340,8 @@ const decodeSemverFromString = (value: string): Effect.Effect<Semver, SchemaIssu
     )
   );
 
-const encodeSemverToString = (value: Semver): Effect.Effect<string> => Effect.succeed(Semver.format(value));
+const encodeSemverToString = (value: typeof Semver.Encoded): Effect.Effect<string> =>
+  Effect.succeed(Semver.format(value));
 
 /**
  * Structured semantic version value object.
@@ -370,17 +371,18 @@ const encodeSemverToString = (value: Semver): Effect.Effect<string> => Effect.su
  * @category models
  * @since 0.0.0
  */
-export class Semver extends S.Class<Semver>($I`Semver`)(
-  {
+export class Semver extends S.Opaque<Semver, { readonly brand: unique symbol }>()(
+  S.Struct({
     major: SemverNumberSegment,
     minor: SemverNumberSegment,
     patch: SemverNumberSegment,
     prerelease: S.Array(SemverPrereleaseIdentifier),
     build: S.Array(SemverBuildIdentifier),
-  },
-  $I.annote("Semver", {
-    description: "Structured semantic version with core, prerelease, and build metadata segments.",
-  })
+  }).pipe(
+    $I.annoteSchema("Semver", {
+      description: "Structured semantic version with core, prerelease, and build metadata segments.",
+    })
+  )
 ) {
   static readonly decodeOption: {
     (input: unknown, options?: AST.ParseOptions): O.Option<Semver>;
@@ -468,7 +470,7 @@ export class Semver extends S.Class<Semver>($I`Semver`)(
    * @category formatting
    * @since 0.0.0
    */
-  static readonly format = (value: Semver): string => {
+  static readonly format = (value: typeof Semver.Encoded): string => {
     const prerelease = pipe(
       value.prerelease,
       A.match({

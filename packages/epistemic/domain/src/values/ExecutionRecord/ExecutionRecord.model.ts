@@ -427,8 +427,8 @@ export type ExecutionDecisionRecord = typeof ExecutionDecisionRecord.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExecutionOutcomeRecord extends S.Class<ExecutionOutcomeRecord>($I`ExecutionOutcomeRecord`)(
-  {
+export class ExecutionOutcomeRecord extends S.Opaque<ExecutionOutcomeRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     runKey: ExecutionRunKey.annotateKey({
       description: "Governed run the settled execution belonged to.",
     }),
@@ -444,10 +444,11 @@ export class ExecutionOutcomeRecord extends S.Class<ExecutionOutcomeRecord>($I`E
     hash: OutcomeRecordHash.annotateKey({
       description: "Seal over this record's canonical encoding, decisionHash included.",
     }),
-  },
-  $I.annote("ExecutionOutcomeRecord", {
-    description: "Post-settlement outcome record bound to its allowed decision by hash.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExecutionOutcomeRecord", {
+      description: "Post-settlement outcome record bound to its allowed decision by hash.",
+    })
+  )
 ) {
   static readonly is = S.is(ExecutionOutcomeRecord);
 }
@@ -752,7 +753,7 @@ const encodeOutcomeContent = (content: ExecutionOutcomeContent): Record<string, 
  * @category type-level
  * @since 0.0.0
  */
-export type ExecutionOutcomeContent = Omit<ExecutionOutcomeRecord, "hash">;
+export type ExecutionOutcomeContent = Omit<S.Struct.Type<typeof ExecutionOutcomeRecord.fields>, "hash">;
 
 /**
  * Seals an outcome record: hash over the versioned canonical encoding of its

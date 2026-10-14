@@ -133,8 +133,8 @@ export type EffectImportManualReviewKind = typeof EffectImportManualReviewKind.T
  * @category models
  * @since 0.0.0
  */
-export class EffectImportRulesOptions extends S.Class<EffectImportRulesOptions>($I`EffectImportRulesOptions`)(
-  {
+export class EffectImportRulesOptions extends S.Opaque<EffectImportRulesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -172,10 +172,11 @@ export class EffectImportRulesOptions extends S.Class<EffectImportRulesOptions>(
       S.withConstructorDefault(Effect.succeed(EFFECT_IMPORT_PROMOTED_FAMILY_PREFIXES)),
       S.withDecodingDefault(Effect.succeed(EFFECT_IMPORT_PROMOTED_FAMILY_PREFIXES))
     ),
-  },
-  $I.annote("EffectImportRulesOptions", {
-    description: "Runtime options for per-module import migration checks and candidate dry runs.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectImportRulesOptions", {
+      description: "Runtime options for per-module import migration checks and candidate dry runs.",
+    })
+  )
 ) {}
 
 /**
@@ -200,18 +201,19 @@ export class EffectImportRulesOptions extends S.Class<EffectImportRulesOptions>(
  * @category models
  * @since 0.0.0
  */
-export class EffectImportManualReview extends S.Class<EffectImportManualReview>($I`EffectImportManualReview`)(
-  {
+export class EffectImportManualReview extends S.Opaque<EffectImportManualReview, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: EffectImportManualReviewKind,
     file: S.String,
     line: S.Natural,
     moduleSpecifier: S.String,
     binding: S.String,
     reason: S.String,
-  },
-  $I.annote("EffectImportManualReview", {
-    description: "A root import intentionally left unchanged because the migration cannot prove a safe target.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectImportManualReview", {
+      description: "A root import intentionally left unchanged because the migration cannot prove a safe target.",
+    })
+  )
 ) {}
 
 /**
@@ -243,8 +245,8 @@ export class EffectImportManualReview extends S.Class<EffectImportManualReview>(
  * @category models
  * @since 0.0.0
  */
-export class EffectImportRulesSummary extends S.Class<EffectImportRulesSummary>($I`EffectImportRulesSummary`)(
-  {
+export class EffectImportRulesSummary extends S.Opaque<EffectImportRulesSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     mappingTableVersion: S.Literal("root-export-graph/v1"),
     mode: EffectImportCorpusMode,
     write: S.Boolean,
@@ -270,16 +272,18 @@ export class EffectImportRulesSummary extends S.Class<EffectImportRulesSummary>(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
-  },
-  $I.annote("EffectImportRulesSummary", {
-    description: "Structured counts and manual-review findings from one per-module import scan.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectImportRulesSummary", {
+      description: "Structured counts and manual-review findings from one per-module import scan.",
+    })
+  )
 ) {}
 
-class EffectImportSourceTransformSummary extends S.Class<EffectImportSourceTransformSummary>(
-  $I`EffectImportSourceTransformSummary`
-)(
-  {
+class EffectImportSourceTransformSummary extends S.Opaque<
+  EffectImportSourceTransformSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     affected: S.Boolean,
     rewritten: S.Boolean,
     rootImportsRewritten: S.Natural,
@@ -288,10 +292,11 @@ class EffectImportSourceTransformSummary extends S.Class<EffectImportSourceTrans
     emittedExports: S.Natural,
     rootSpecifierCounts: S.Record(S.String, S.Natural),
     manualReviews: S.Array(EffectImportManualReview),
-  },
-  $I.annote("EffectImportSourceTransformSummary", {
-    description: "Internal result of transforming one executable or fenced TypeScript source unit.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectImportSourceTransformSummary", {
+      description: "Internal result of transforming one executable or fenced TypeScript source unit.",
+    })
+  )
 ) {}
 
 type NamespaceImportTarget = {
@@ -1543,10 +1548,11 @@ const transformSourceFile = (
   });
 };
 
-class EffectImportFenceTransformSummary extends S.Class<EffectImportFenceTransformSummary>(
-  $I`EffectImportFenceTransformSummary`
-)(
-  {
+class EffectImportFenceTransformSummary extends S.Opaque<
+  EffectImportFenceTransformSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: S.String,
     scannedFences: S.Natural,
     rootImportsRewritten: S.Natural,
@@ -1556,10 +1562,11 @@ class EffectImportFenceTransformSummary extends S.Class<EffectImportFenceTransfo
     rootSpecifierCounts: S.Record(S.String, S.Natural),
     manualReviews: S.Array(EffectImportManualReview),
     parserWarnings: S.Array(S.String),
-  },
-  $I.annote("EffectImportFenceTransformSummary", {
-    description: "Internal result of parsing and transforming TypeScript fences in one documentation unit.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectImportFenceTransformSummary", {
+      description: "Internal result of parsing and transforming TypeScript fences in one documentation unit.",
+    })
+  )
 ) {}
 
 const markdownImportFencePattern =

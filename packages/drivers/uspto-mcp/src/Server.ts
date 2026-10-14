@@ -42,18 +42,19 @@ const $I = $UsptoMcpId.create("Server");
  * @category models
  * @since 0.0.0
  */
-export class UsptoMcpServerConfig extends S.Class<UsptoMcpServerConfig>($I`UsptoMcpServerConfig`)(
-  {
+export class UsptoMcpServerConfig extends S.Opaque<UsptoMcpServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({
       description: "Human-readable MCP server name advertised during stdio initialization.",
     }),
     version: S.NonEmptyString.annotateKey({
       description: "Semantic package or protocol-facing version advertised to MCP clients.",
     }),
-  },
-  $I.annote("UsptoMcpServerConfig", {
-    description: "Configuration for the MCP server identity advertised to clients.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoMcpServerConfig", {
+      description: "Configuration for the MCP server identity advertised to clients.",
+    })
+  )
 ) {}
 
 /**

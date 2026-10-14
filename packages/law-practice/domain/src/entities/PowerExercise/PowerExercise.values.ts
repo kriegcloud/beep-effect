@@ -173,8 +173,8 @@ export type DeterminationBasis = typeof DeterminationBasis.Type;
  * @category models
  * @since 0.0.0
  */
-export class ConstitutionDetermination extends S.Class<ConstitutionDetermination>($I`ConstitutionDetermination`)(
-  {
+export class ConstitutionDetermination extends S.Opaque<ConstitutionDetermination, { readonly brand: unique symbol }>()(
+  S.Struct({
     basis: S.OptionFromNullOr(DeterminationBasis).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Ground the determination was stated on, absent when none was given.",
     }),
@@ -184,10 +184,11 @@ export class ConstitutionDetermination extends S.Class<ConstitutionDetermination
     outcome: ConstitutionOutcome.annotateKey({
       description: "Whether the act was determined to constitute the legal effect it aimed at.",
     }),
-  },
-  $I.annote("ConstitutionDetermination", {
-    description: "One attributed determination that an act did or did not constitute its intended effect.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConstitutionDetermination", {
+      description: "One attributed determination that an act did or did not constitute its intended effect.",
+    })
+  )
 ) {}
 
 /**
@@ -218,8 +219,8 @@ export class ConstitutionDetermination extends S.Class<ConstitutionDetermination
  * @category models
  * @since 0.0.0
  */
-export class PermissionDetermination extends S.Class<PermissionDetermination>($I`PermissionDetermination`)(
-  {
+export class PermissionDetermination extends S.Opaque<PermissionDetermination, { readonly brand: unique symbol }>()(
+  S.Struct({
     basis: S.OptionFromNullOr(DeterminationBasis).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Ground the determination was stated on, absent when none was given.",
     }),
@@ -229,10 +230,11 @@ export class PermissionDetermination extends S.Class<PermissionDetermination>($I
     status: PermissionStatus.annotateKey({
       description: "Whether the act was determined to be permitted or to breach a duty.",
     }),
-  },
-  $I.annote("PermissionDetermination", {
-    description: "One attributed determination that an act was permitted or breached a duty.",
-  })
+  }).pipe(
+    $I.annoteSchema("PermissionDetermination", {
+      description: "One attributed determination that an act was permitted or breached a duty.",
+    })
+  )
 ) {}
 
 /**
@@ -262,8 +264,8 @@ export class PermissionDetermination extends S.Class<PermissionDetermination>($I
  * @category models
  * @since 0.0.0
  */
-export class DispositionDetermination extends S.Class<DispositionDetermination>($I`DispositionDetermination`)(
-  {
+export class DispositionDetermination extends S.Opaque<DispositionDetermination, { readonly brand: unique symbol }>()(
+  S.Struct({
     basis: S.OptionFromNullOr(DeterminationBasis).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Ground the disposition was stated on, absent when none was given.",
     }),
@@ -273,10 +275,11 @@ export class DispositionDetermination extends S.Class<DispositionDetermination>(
     interpreter: Principal.annotateKey({
       description: "Principal whose disposition this is, including when it is undetermined.",
     }),
-  },
-  $I.annote("DispositionDetermination", {
-    description: "One attributed disposition of a recorded act, including leaving it undetermined.",
-  })
+  }).pipe(
+    $I.annoteSchema("DispositionDetermination", {
+      description: "One attributed disposition of a recorded act, including leaving it undetermined.",
+    })
+  )
 ) {}
 
 /**
@@ -342,8 +345,8 @@ export class DispositionDetermination extends S.Class<DispositionDetermination>(
  * @category models
  * @since 0.0.0
  */
-export class ExerciseResult extends S.Class<ExerciseResult>($I`ExerciseResult`)(
-  {
+export class ExerciseResult extends S.Opaque<ExerciseResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     constitution: S.OptionFromNullOr(ConstitutionDetermination)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -358,10 +361,11 @@ export class ExerciseResult extends S.Class<ExerciseResult>($I`ExerciseResult`)(
         description:
           "Determination about breach, absent while nobody has made one and never implied by the other axis.",
       }),
-  },
-  $I.annote("ExerciseResult", {
-    description: "What was determined about one recorded exercise, on two independent axes plus a disposition.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExerciseResult", {
+      description: "What was determined about one recorded exercise, on two independent axes plus a disposition.",
+    })
+  )
 ) {}
 
 /**
@@ -390,18 +394,19 @@ export class ExerciseResult extends S.Class<ExerciseResult>($I`ExerciseResult`)(
  * @category models
  * @since 0.0.0
  */
-export class PreconditionAssertion extends S.Class<PreconditionAssertion>($I`PreconditionAssertion`)(
-  {
+export class PreconditionAssertion extends S.Opaque<PreconditionAssertion, { readonly brand: unique symbol }>()(
+  S.Struct({
     element: ActFrameElementRef.annotateKey({
       description: "Pointer at the frame precondition this assertion is about.",
     }),
     status: PreconditionAssertionStatus.annotateKey({
       description: "What was asserted about the condition on this occasion.",
     }),
-  },
-  $I.annote("PreconditionAssertion", {
-    description: "What somebody asserted about one of an act frame's preconditions on one occasion.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreconditionAssertion", {
+      description: "What somebody asserted about one of an act frame's preconditions on one occasion.",
+    })
+  )
 ) {}
 
 /**
@@ -429,18 +434,19 @@ export class PreconditionAssertion extends S.Class<PreconditionAssertion>($I`Pre
  * @category models
  * @since 0.0.0
  */
-export class ActFrameSlotAssignment extends S.Class<ActFrameSlotAssignment>($I`ActFrameSlotAssignment`)(
-  {
+export class ActFrameSlotAssignment extends S.Opaque<ActFrameSlotAssignment, { readonly brand: unique symbol }>()(
+  S.Struct({
     player: LawPractice.PartyId.annotateKey({
       description: "Party recorded as filling the slot on this occasion.",
     }),
     slot: ActFrameElementRef.annotateKey({
       description: "Pointer at the frame slot being filled.",
     }),
-  },
-  $I.annote("ActFrameSlotAssignment", {
-    description: "The party recorded as filling one act frame slot on one occasion.",
-  })
+  }).pipe(
+    $I.annoteSchema("ActFrameSlotAssignment", {
+      description: "The party recorded as filling one act frame slot on one occasion.",
+    })
+  )
 ) {}
 
 /**
@@ -496,8 +502,8 @@ export class ActFrameSlotAssignment extends S.Class<ActFrameSlotAssignment>($I`A
  * @category models
  * @since 0.0.0
  */
-export class AssertedAuthorityBasis extends S.Class<AssertedAuthorityBasis>($I`AssertedAuthorityBasis`)(
-  {
+export class AssertedAuthorityBasis extends S.Opaque<AssertedAuthorityBasis, { readonly brand: unique symbol }>()(
+  S.Struct({
     claimedRole: LegalRole.annotateKey({
       description: "Role the actor claimed to be acting in, asserted and never verified.",
     }),
@@ -514,8 +520,9 @@ export class AssertedAuthorityBasis extends S.Class<AssertedAuthorityBasis>($I`A
     sourceNorm: SourceNormRef.annotateKey({
       description: "Opaque reference to the norm the authority is claimed under.",
     }),
-  },
-  $I.annote("AssertedAuthorityBasis", {
-    description: "The authority somebody claimed for an act: role, norm, cited power, and conferring exercise.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssertedAuthorityBasis", {
+      description: "The authority somebody claimed for an act: role, norm, cited power, and conferring exercise.",
+    })
+  )
 ) {}

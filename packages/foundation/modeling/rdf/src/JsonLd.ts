@@ -104,23 +104,24 @@ export type JsonLdKeyword = typeof JsonLdKeyword.Type;
  * @category models
  * @since 0.0.0
  */
-export class JsonLdTermDefinition extends S.Class<JsonLdTermDefinition>($I`JsonLdTermDefinition`)(
-  {
+export class JsonLdTermDefinition extends S.Opaque<JsonLdTermDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@id": S.String,
     "@type": S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("JsonLdTermDefinition", {
-    description: "Normalized JSON-LD term definition used by the bounded context model.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "jsonldConstruct",
-      canonicalName: "JsonLdTermDefinition",
-      overview: "Normalized JSON-LD term definition used by the bounded context model.",
-      status: "stable",
-      specifications: [{ name: "JSON-LD 1.1", section: "Term Definitions", disposition: "normative" }],
-      equivalenceBasis: "Exact @id and optional @type equality.",
-      representations: [{ kind: "JSON-LD" }],
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdTermDefinition", {
+      description: "Normalized JSON-LD term definition used by the bounded context model.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "jsonldConstruct",
+        canonicalName: "JsonLdTermDefinition",
+        overview: "Normalized JSON-LD term definition used by the bounded context model.",
+        status: "stable",
+        specifications: [{ name: "JSON-LD 1.1", section: "Term Definitions", disposition: "normative" }],
+        equivalenceBasis: "Exact @id and optional @type equality.",
+        representations: [{ kind: "JSON-LD" }],
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -145,25 +146,26 @@ export class JsonLdTermDefinition extends S.Class<JsonLdTermDefinition>($I`JsonL
  * @category models
  * @since 0.0.0
  */
-export class JsonLdContext extends S.Class<JsonLdContext>($I`JsonLdContext`)(
-  {
+export class JsonLdContext extends S.Opaque<JsonLdContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@base": S.OptionFromOptionalKey(AbsoluteIRI).pipe(S.withConstructorDefault(Effect.succeedNone)),
     "@vocab": S.OptionFromOptionalKey(IRI).pipe(S.withConstructorDefault(Effect.succeedNone)),
     terms: S.Record(S.String, S.Union([S.String, JsonLdTermDefinition])),
-  },
-  $I.annote("JsonLdContext", {
-    description: "Normalized JSON-LD context model with bounded base, vocab, and term bindings.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "jsonldConstruct",
-      canonicalName: "JsonLdContext",
-      overview: "Normalized JSON-LD context model with bounded base, vocab, and term bindings.",
-      status: "stable",
-      specifications: [{ name: "JSON-LD 1.1", section: "Context Definitions", disposition: "normative" }],
-      equivalenceBasis: "Exact base, vocab, and term binding equality.",
-      representations: [{ kind: "JSON-LD" }],
-      canonicalizationRequired: false,
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdContext", {
+      description: "Normalized JSON-LD context model with bounded base, vocab, and term bindings.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "jsonldConstruct",
+        canonicalName: "JsonLdContext",
+        overview: "Normalized JSON-LD context model with bounded base, vocab, and term bindings.",
+        status: "stable",
+        specifications: [{ name: "JSON-LD 1.1", section: "Context Definitions", disposition: "normative" }],
+        equivalenceBasis: "Exact base, vocab, and term binding equality.",
+        representations: [{ kind: "JSON-LD" }],
+        canonicalizationRequired: false,
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -283,23 +285,24 @@ export type JsonLdNodeIdentifier = typeof JsonLdNodeIdentifier.Type;
  * @category models
  * @since 0.0.0
  */
-export class JsonLdReferenceValue extends S.Class<JsonLdReferenceValue>($I`JsonLdReferenceValue`)(
-  {
+export class JsonLdReferenceValue extends S.Opaque<JsonLdReferenceValue, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@id": JsonLdNodeIdentifier,
-  },
-  $I.annote("JsonLdReferenceValue", {
-    description: "JSON-LD node reference value.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "jsonldConstruct",
-      canonicalName: "JsonLdReferenceValue",
-      overview: "JSON-LD node reference value.",
-      status: "stable",
-      specifications: [{ name: "JSON-LD 1.1", section: "Node References", disposition: "normative" }],
-      equivalenceBasis: "Identifier equality after context-aware compaction or expansion.",
-      representations: [{ kind: "JSON-LD" }],
-      canonicalizationRequired: true,
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdReferenceValue", {
+      description: "JSON-LD node reference value.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "jsonldConstruct",
+        canonicalName: "JsonLdReferenceValue",
+        overview: "JSON-LD node reference value.",
+        status: "stable",
+        specifications: [{ name: "JSON-LD 1.1", section: "Node References", disposition: "normative" }],
+        equivalenceBasis: "Identifier equality after context-aware compaction or expansion.",
+        representations: [{ kind: "JSON-LD" }],
+        canonicalizationRequired: true,
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -321,24 +324,25 @@ export class JsonLdReferenceValue extends S.Class<JsonLdReferenceValue>($I`JsonL
  * @category models
  * @since 0.0.0
  */
-export class JsonLdLiteralValue extends S.Class<JsonLdLiteralValue>($I`JsonLdLiteralValue`)(
-  {
+export class JsonLdLiteralValue extends S.Opaque<JsonLdLiteralValue, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@value": JsonLdScalar,
     "@type": S.OptionFromOptionalKey(IRIReference).pipe(S.withConstructorDefault(Effect.succeedNone)),
     "@language": S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("JsonLdLiteralValue", {
-    description: "JSON-LD literal value object.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "jsonldConstruct",
-      canonicalName: "JsonLdLiteralValue",
-      overview: "JSON-LD literal value object used in bounded document bridging.",
-      status: "stable",
-      specifications: [{ name: "JSON-LD 1.1", section: "Value Objects", disposition: "normative" }],
-      equivalenceBasis: "Exact value, optional @type, and optional @language equality.",
-      representations: [{ kind: "JSON-LD" }],
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdLiteralValue", {
+      description: "JSON-LD literal value object.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "jsonldConstruct",
+        canonicalName: "JsonLdLiteralValue",
+        overview: "JSON-LD literal value object used in bounded document bridging.",
+        status: "stable",
+        specifications: [{ name: "JSON-LD 1.1", section: "Value Objects", disposition: "normative" }],
+        equivalenceBasis: "Exact value, optional @type, and optional @language equality.",
+        representations: [{ kind: "JSON-LD" }],
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -406,25 +410,26 @@ export type JsonLdPropertyValue = typeof JsonLdPropertyValue.Type;
  * @category models
  * @since 0.0.0
  */
-export class JsonLdNodeObject extends S.Class<JsonLdNodeObject>($I`JsonLdNodeObject`)(
-  {
+export class JsonLdNodeObject extends S.Opaque<JsonLdNodeObject, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@id": S.OptionFromOptionalKey(JsonLdNodeIdentifier).pipe(S.withConstructorDefault(Effect.succeedNone)),
     "@type": IRIReference.pipe(S.Array, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     properties: S.Record(S.String, S.Array(JsonLdPropertyValue)),
-  },
-  $I.annote("JsonLdNodeObject", {
-    description: "JSON-LD node object used by bounded document and framing helpers.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "jsonldConstruct",
-      canonicalName: "JsonLdNodeObject",
-      overview: "JSON-LD node object used by bounded document and framing helpers.",
-      status: "stable",
-      specifications: [{ name: "JSON-LD 1.1", section: "Node Objects", disposition: "normative" }],
-      equivalenceBasis: "Exact identifier, type, and property-value equality.",
-      representations: [{ kind: "JSON-LD" }, { kind: "RDF/JS", note: "Bridge source for quad generation." }],
-      canonicalizationRequired: true,
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdNodeObject", {
+      description: "JSON-LD node object used by bounded document and framing helpers.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "jsonldConstruct",
+        canonicalName: "JsonLdNodeObject",
+        overview: "JSON-LD node object used by bounded document and framing helpers.",
+        status: "stable",
+        specifications: [{ name: "JSON-LD 1.1", section: "Node Objects", disposition: "normative" }],
+        equivalenceBasis: "Exact identifier, type, and property-value equality.",
+        representations: [{ kind: "JSON-LD" }, { kind: "RDF/JS", note: "Bridge source for quad generation." }],
+        canonicalizationRequired: true,
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -443,25 +448,26 @@ export class JsonLdNodeObject extends S.Class<JsonLdNodeObject>($I`JsonLdNodeObj
  * @category models
  * @since 0.0.0
  */
-export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
-  {
+export class JsonLdDocument extends S.Opaque<JsonLdDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@context": S.OptionFromOptionalKey(JsonLdContext).pipe(S.withConstructorDefault(Effect.succeedNone)),
     "@graph": S.Array(JsonLdNodeObject),
-  },
-  $I.annote("JsonLdDocument", {
-    description: "Bounded JSON-LD document model with normalized context and graph content.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "jsonldConstruct",
-      canonicalName: "JsonLdDocument",
-      overview: "Bounded JSON-LD document model with normalized context and graph content.",
-      status: "stable",
-      specifications: [{ name: "JSON-LD 1.1", section: "JSON-LD Documents", disposition: "normative" }],
-      equivalenceBasis:
-        "Document-shape equality only; RDF semantic identity requires explicit bridging and canonicalization.",
-      representations: [{ kind: "JSON-LD" }, { kind: "RDF/JS", note: "Produced through document service bridging." }],
-      canonicalizationRequired: true,
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdDocument", {
+      description: "Bounded JSON-LD document model with normalized context and graph content.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "jsonldConstruct",
+        canonicalName: "JsonLdDocument",
+        overview: "Bounded JSON-LD document model with normalized context and graph content.",
+        status: "stable",
+        specifications: [{ name: "JSON-LD 1.1", section: "JSON-LD Documents", disposition: "normative" }],
+        equivalenceBasis:
+          "Document-shape equality only; RDF semantic identity requires explicit bridging and canonicalization.",
+        representations: [{ kind: "JSON-LD" }, { kind: "RDF/JS", note: "Produced through document service bridging." }],
+        canonicalizationRequired: true,
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -483,21 +489,22 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
  * @category models
  * @since 0.0.0
  */
-export class JsonLdFrame extends S.Class<JsonLdFrame>($I`JsonLdFrame`)(
-  {
+export class JsonLdFrame extends S.Opaque<JsonLdFrame, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@type": S.OptionFromOptionalKey(IRIReference).pipe(S.withConstructorDefault(Effect.succeedNone)),
     includeProperties: S.String.pipe(S.Array, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("JsonLdFrame", {
-    description: "Bounded JSON-LD frame model.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "jsonldConstruct",
-      canonicalName: "JsonLdFrame",
-      overview: "Bounded JSON-LD frame model.",
-      status: "stable",
-      specifications: [{ name: "JSON-LD 1.1 Framing", disposition: "informative" }],
-      equivalenceBasis: "Exact frame-shape equality.",
-      representations: [{ kind: "JSON-LD" }],
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdFrame", {
+      description: "Bounded JSON-LD frame model.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "jsonldConstruct",
+        canonicalName: "JsonLdFrame",
+        overview: "Bounded JSON-LD frame model.",
+        status: "stable",
+        specifications: [{ name: "JSON-LD 1.1 Framing", disposition: "informative" }],
+        equivalenceBasis: "Exact frame-shape equality.",
+        representations: [{ kind: "JSON-LD" }],
+      }),
+    })
+  )
 ) {}

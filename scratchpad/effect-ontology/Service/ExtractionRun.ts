@@ -146,7 +146,7 @@ const outputKey = (runId: ExtractionRunId, filename: string): string => runKey(r
  * @category errors
  * @since 0.0.0
  */
-export class ExtractionRunError extends S.TaggedError<ExtractionRunError>($I`ExtractionRunError`)(
+export class ExtractionRunError extends S.TaggedError<ExtractionRunError, { readonly brand: unique symbol }>($I`ExtractionRunError`)(
   "ExtractionRunError",
   {
     message: ErrorMessage.annotateKey({

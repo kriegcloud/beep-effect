@@ -29,7 +29,9 @@ const $I = $AgentsUseCasesId.create("processes/Chat/Chat.errors");
  * @category errors
  * @since 0.0.0
  */
-export class ChatActionError extends S.TaggedError<ChatActionError>($I`ChatActionError`)(
+export class ChatActionError extends S.TaggedError<ChatActionError, { readonly brand: unique symbol }>(
+  $I`ChatActionError`
+)(
   "ChatActionError",
   {
     message: S.String,

@@ -94,12 +94,11 @@ const decodeUUID = S.decodeEffect(UUID);
  * @category models
  * @since 0.0.0
  */
-export class ProofJobWaitSettled extends S.Class<ProofJobWaitSettled>($I`ProofJobWaitSettled`)(
-  {
+export class ProofJobWaitSettled extends S.Opaque<ProofJobWaitSettled, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("settled"),
     record: ProofJobRecord,
-  },
-  $I.annote("ProofJobWaitSettled", { description: "A job wait that returned because the job settled." })
+  }).pipe($I.annoteSchema("ProofJobWaitSettled", { description: "A job wait that returned because the job settled." }))
 ) {}
 
 /**
@@ -108,15 +107,17 @@ export class ProofJobWaitSettled extends S.Class<ProofJobWaitSettled>($I`ProofJo
  * @category models
  * @since 0.0.0
  */
-export class ProofJobWaitWave extends S.Class<ProofJobWaitWave>($I`ProofJobWaitWave`)(
-  {
+export class ProofJobWaitWave extends S.Opaque<ProofJobWaitWave, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("wave"),
     record: ProofJobRecord,
     wave: YeetPrWave,
-  },
-  $I.annote("ProofJobWaitWave", {
-    description: "A job wait that returned on a new P0/P1 inbox wave on the job's pull request; the job keeps running.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofJobWaitWave", {
+      description:
+        "A job wait that returned on a new P0/P1 inbox wave on the job's pull request; the job keeps running.",
+    })
+  )
 ) {}
 
 /**

@@ -40,7 +40,9 @@ import * as Obs from "../../internal/observability.ts";
 import { getChildren, toArray } from "../EffectGraph.ts";
 import { ExecutionError, TimeoutError } from "./Errors.ts";
 import * as ResultStore from "./ResultStore.ts";
+import { AnyOperationResult } from "./ResultStore.ts";
 import * as Types from "./Types.ts";
+import { ValidationResult } from "./Types.ts";
 import type { EffectGraph, GraphNode } from "../EffectGraph.ts";
 import type { GraphOperation } from "./Operation.ts";
 
@@ -305,7 +307,7 @@ const cacheResult: {
       errors: A.empty<unknown>(),
       metrics: Types.ExecutionMetrics.empty(),
     });
-    yield* Effect.mapError(store.store(key, opResult), (e) =>
+    yield* Effect.mapError(store.store(key, AnyOperationResult.make(opResult)), (e) =>
       ExecutionError.make({ cause: O.some(e), message: "Storage store failed" })
     );
   })
@@ -467,7 +469,7 @@ const validate: GraphExecutorShape["validate"] = dual(
   ) {
     const leafNodes = getLeafNodes(graph);
     if (A.isReadonlyArrayEmpty(leafNodes)) {
-      return Types.ValidationResult.withWarnings(Types.ValidationResult.valid(), [
+      return Types.ValidationResult.withWarnings(ValidationResult.make(Types.ValidationResult.valid()), [
         "No leaf nodes to apply operation to",
       ]);
     }

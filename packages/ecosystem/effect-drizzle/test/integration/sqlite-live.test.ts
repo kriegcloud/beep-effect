@@ -75,10 +75,9 @@ const OrganizationRelationRows = ArraySchema(
   })
 );
 
-class SqliteHarnessError extends TaggedError<SqliteHarnessError>("@beep/effect-drizzle/test/SqliteHarnessError")(
-  "SqliteHarnessError",
-  { message: StringSchema, cause: Unknown }
-) {}
+class SqliteHarnessError extends TaggedError<SqliteHarnessError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/test/SqliteHarnessError"
+)("SqliteHarnessError", { message: StringSchema, cause: Unknown }) {}
 
 const invokeFindMany = (query: unknown, config: unknown): Promise<unknown> => {
   if (hasProperty(query, "findMany") && isFunction(query.findMany)) {

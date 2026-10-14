@@ -32,7 +32,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Error/Llm");
  * @category errors
  * @since 0.0.0
  */
-export class LlmError extends S.TaggedError<LlmError>($I`LlmError`)(
+export class LlmError extends S.TaggedError<LlmError, { readonly brand: unique symbol }>($I`LlmError`)(
   "LlmError",
   {
     message: ErrorMessage.annotateKey({
@@ -69,7 +69,7 @@ export class LlmError extends S.TaggedError<LlmError>($I`LlmError`)(
  * @category errors
  * @since 0.0.0
  */
-export class LlmTimeout extends S.TaggedError<LlmTimeout>($I`LlmTimeout`)(
+export class LlmTimeout extends S.TaggedError<LlmTimeout, { readonly brand: unique symbol }>($I`LlmTimeout`)(
   "LlmTimeout",
   {
     message: ErrorMessage.annotateKey({
@@ -106,7 +106,7 @@ export class LlmTimeout extends S.TaggedError<LlmTimeout>($I`LlmTimeout`)(
  * @category errors
  * @since 0.0.0
  */
-export class LlmRateLimit extends S.TaggedError<LlmRateLimit>($I`LlmRateLimit`)(
+export class LlmRateLimit extends S.TaggedError<LlmRateLimit, { readonly brand: unique symbol }>($I`LlmRateLimit`)(
   "LlmRateLimit",
   {
     message: ErrorMessage.annotateKey({
@@ -148,7 +148,7 @@ export class LlmRateLimit extends S.TaggedError<LlmRateLimit>($I`LlmRateLimit`)(
  * @category errors
  * @since 0.0.0
  */
-export class LlmInvalidResponse extends S.TaggedError<LlmInvalidResponse>($I`LlmInvalidResponse`)(
+export class LlmInvalidResponse extends S.TaggedError<LlmInvalidResponse, { readonly brand: unique symbol }>($I`LlmInvalidResponse`)(
   "LlmInvalidResponse",
   {
     message: ErrorMessage.annotateKey({

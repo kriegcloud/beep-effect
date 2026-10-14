@@ -59,10 +59,11 @@ export type AgentEffectivenessEvalViolationSource = typeof AgentEffectivenessEva
  * @category models
  * @since 0.0.0
  */
-class SkillOptTaskCompletionCriteria extends S.Class<SkillOptTaskCompletionCriteria>(
-  $I`SkillOptTaskCompletionCriteria`
-)(
-  {
+class SkillOptTaskCompletionCriteria extends S.Opaque<
+  SkillOptTaskCompletionCriteria,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     requiredExports: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
@@ -75,10 +76,11 @@ class SkillOptTaskCompletionCriteria extends S.Class<SkillOptTaskCompletionCrite
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
-  },
-  $I.annote("SkillOptTaskCompletionCriteria", {
-    description: "Declarative deterministic completion checks from a SkillOpt task manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillOptTaskCompletionCriteria", {
+      description: "Declarative deterministic completion checks from a SkillOpt task manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -87,14 +89,15 @@ class SkillOptTaskCompletionCriteria extends S.Class<SkillOptTaskCompletionCrite
  * @category models
  * @since 0.0.0
  */
-class SkillOptTaskWeights extends S.Class<SkillOptTaskWeights>($I`SkillOptTaskWeights`)(
-  {
+class SkillOptTaskWeights extends S.Opaque<SkillOptTaskWeights, { readonly brand: unique symbol }>()(
+  S.Struct({
     completion: S.Finite,
     law: S.Finite,
-  },
-  $I.annote("SkillOptTaskWeights", {
-    description: "Manifest weighting metadata retained for compatibility; scorer formula remains contract-fixed.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillOptTaskWeights", {
+      description: "Manifest weighting metadata retained for compatibility; scorer formula remains contract-fixed.",
+    })
+  )
 ) {}
 
 /**
@@ -120,8 +123,8 @@ class SkillOptTaskWeights extends S.Class<SkillOptTaskWeights>($I`SkillOptTaskWe
  * @category models
  * @since 0.0.0
  */
-export class SkillOptTaskManifest extends S.Class<SkillOptTaskManifest>($I`SkillOptTaskManifest`)(
-  {
+export class SkillOptTaskManifest extends S.Opaque<SkillOptTaskManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     ruleIds: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
@@ -136,10 +139,11 @@ export class SkillOptTaskManifest extends S.Class<SkillOptTaskManifest>($I`Skill
     entrypoint: S.String,
     completion: SkillOptTaskCompletionCriteria,
     weights: S.optionalKey(SkillOptTaskWeights),
-  },
-  $I.annote("SkillOptTaskManifest", {
-    description: "SkillOpt eval task manifest with deterministic completion criteria.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillOptTaskManifest", {
+      description: "SkillOpt eval task manifest with deterministic completion criteria.",
+    })
+  )
 ) {}
 
 /**
@@ -163,19 +167,21 @@ export class SkillOptTaskManifest extends S.Class<SkillOptTaskManifest>($I`Skill
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessEvalViolation extends S.Class<AgentEffectivenessEvalViolation>(
-  $I`AgentEffectivenessEvalViolation`
-)(
-  {
+export class AgentEffectivenessEvalViolation extends S.Opaque<
+  AgentEffectivenessEvalViolation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     source: AgentEffectivenessEvalViolationSource,
     ruleId: S.String,
     file: S.String,
     line: S.Finite,
     message: S.String,
-  },
-  $I.annote("AgentEffectivenessEvalViolation", {
-    description: "Normalized SkillOpt eval scorer violation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessEvalViolation", {
+      description: "Normalized SkillOpt eval scorer violation.",
+    })
+  )
 ) {}
 
 /**
@@ -283,18 +289,20 @@ export type AgentEffectivenessEvalLaneStatus = typeof AgentEffectivenessEvalLane
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessEvalLaneReport extends S.Class<AgentEffectivenessEvalLaneReport>(
-  $I`AgentEffectivenessEvalLaneReport`
-)(
-  {
+export class AgentEffectivenessEvalLaneReport extends S.Opaque<
+  AgentEffectivenessEvalLaneReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     lane: AgentEffectivenessEvalLawLane,
     status: AgentEffectivenessEvalLaneStatus,
     filesProcessed: S.Natural,
     environmentDiagnostics: S.Array(S.String),
-  },
-  $I.annote("AgentEffectivenessEvalLaneReport", {
-    description: "Run evidence for one law lane, separating environment failures from agent law violations.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessEvalLaneReport", {
+      description: "Run evidence for one law lane, separating environment failures from agent law violations.",
+    })
+  )
 ) {}
 
 /**
@@ -348,18 +356,20 @@ export type AgentEffectivenessEvalReportStatus = typeof AgentEffectivenessEvalRe
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessEvalScoreBreakdown extends S.Class<AgentEffectivenessEvalScoreBreakdown>(
-  $I`AgentEffectivenessEvalScoreBreakdown`
-)(
-  {
+export class AgentEffectivenessEvalScoreBreakdown extends S.Opaque<
+  AgentEffectivenessEvalScoreBreakdown,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     completion: S.Finite,
     schemaFirst: S.Finite,
     tsgo: S.Finite,
     biome: S.Finite,
-  },
-  $I.annote("AgentEffectivenessEvalScoreBreakdown", {
-    description: "Scorer component fractions in the fixed contract output.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessEvalScoreBreakdown", {
+      description: "Scorer component fractions in the fixed contract output.",
+    })
+  )
 ) {}
 
 /**
@@ -382,10 +392,11 @@ export class AgentEffectivenessEvalScoreBreakdown extends S.Class<AgentEffective
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessEvalScoreReport extends S.Class<AgentEffectivenessEvalScoreReport>(
-  $I`AgentEffectivenessEvalScoreReport`
-)(
-  {
+export class AgentEffectivenessEvalScoreReport extends S.Opaque<
+  AgentEffectivenessEvalScoreReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     taskId: S.String,
     score: S.Finite,
     breakdown: AgentEffectivenessEvalScoreBreakdown,
@@ -398,10 +409,11 @@ export class AgentEffectivenessEvalScoreReport extends S.Class<AgentEffectivenes
       S.withConstructorDefault(Effect.succeed(A.empty<AgentEffectivenessEvalLaneReport>())),
       S.withDecodingDefault(Effect.succeed(A.empty<AgentEffectivenessEvalLaneReport>()))
     ),
-  },
-  $I.annote("AgentEffectivenessEvalScoreReport", {
-    description: "Machine-readable SkillOpt eval score report emitted by agent-effectiveness evals score.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessEvalScoreReport", {
+      description: "Machine-readable SkillOpt eval score report emitted by agent-effectiveness evals score.",
+    })
+  )
 ) {}
 
 /**
@@ -418,16 +430,18 @@ export class AgentEffectivenessEvalScoreReport extends S.Class<AgentEffectivenes
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessEvalRecordResult extends S.Class<AgentEffectivenessEvalRecordResult>(
-  $I`AgentEffectivenessEvalRecordResult`
-)(
-  {
+export class AgentEffectivenessEvalRecordResult extends S.Opaque<
+  AgentEffectivenessEvalRecordResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     benchmarkRunId: S.String,
     benchmarkCaseId: S.String,
-  },
-  $I.annote("AgentEffectivenessEvalRecordResult", {
-    description: "Identifiers written by --record after a SkillOpt eval scorer run.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessEvalRecordResult", {
+      description: "Identifiers written by --record after a SkillOpt eval scorer run.",
+    })
+  )
 ) {}
 
 const taskManifestJsonCodec = JsonStringCodec(SkillOptTaskManifest);
@@ -501,8 +515,8 @@ const Count = S.Int.check(S.isGreaterThanOrEqualTo(0));
  * @category models
  * @since 0.0.0
  */
-export class AgentConventionControls extends S.Class<AgentConventionControls>($I`AgentConventionControls`)(
-  {
+export class AgentConventionControls extends S.Opaque<AgentConventionControls, { readonly brand: unique symbol }>()(
+  S.Struct({
     task: SkillOptTaskManifest,
     repositorySnapshot: Sha256Hex,
     harnessDigest: Sha256Hex,
@@ -513,10 +527,11 @@ export class AgentConventionControls extends S.Class<AgentConventionControls>($I
     tokenBudget: Count,
     timeBudgetMs: NonNegativeMeasure,
     acceptanceChecks: S.NonEmptyArray(S.NonEmptyString),
-  },
-  $I.annote("AgentConventionControls", {
-    description: "Declared task, model, safety, acceptance, runtime, and budget controls for a paired comparison.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentConventionControls", {
+      description: "Declared task, model, safety, acceptance, runtime, and budget controls for a paired comparison.",
+    })
+  )
 ) {}
 
 /**
@@ -534,9 +549,12 @@ export class AgentConventionControls extends S.Class<AgentConventionControls>($I
  * @category models
  * @since 0.0.0
  */
-export class AgentConventionVariant extends S.Class<AgentConventionVariant>($I`AgentConventionVariant`)(
-  { guidance: Sha256Hex, navigation: Sha256Hex, handoff: Sha256Hex },
-  $I.annote("AgentConventionVariant", { description: "Content digests of guidance, navigation, and handoff inputs." })
+export class AgentConventionVariant extends S.Opaque<AgentConventionVariant, { readonly brand: unique symbol }>()(
+  S.Struct({ guidance: Sha256Hex, navigation: Sha256Hex, handoff: Sha256Hex }).pipe(
+    $I.annoteSchema("AgentConventionVariant", {
+      description: "Content digests of guidance, navigation, and handoff inputs.",
+    })
+  )
 ) {}
 
 const AcceptanceOutcome = LiteralKit(["passed", "failed", "not-run"]);
@@ -566,18 +584,22 @@ const AcceptanceOutcome = LiteralKit(["passed", "failed", "not-run"]);
  * @category models
  * @since 0.0.0
  */
-export class AgentConventionMeasurements extends S.Class<AgentConventionMeasurements>($I`AgentConventionMeasurements`)(
-  {
+export class AgentConventionMeasurements extends S.Opaque<
+  AgentConventionMeasurements,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     elapsedMs: NonNegativeMeasure,
     inputTokens: S.OptionFromNullOr(Count),
     outputTokens: S.OptionFromNullOr(Count),
     introducedDefects: S.OptionFromNullOr(Count),
     humanInterventions: S.OptionFromNullOr(Count),
     acceptance: S.Record(S.NonEmptyString, AcceptanceOutcome),
-  },
-  $I.annote("AgentConventionMeasurements", {
-    description: "Reported outcomes and resource measurements for one trial.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentConventionMeasurements", {
+      description: "Reported outcomes and resource measurements for one trial.",
+    })
+  )
 ) {}
 
 /**
@@ -601,8 +623,8 @@ export class AgentConventionMeasurements extends S.Class<AgentConventionMeasurem
  * @category models
  * @since 0.0.0
  */
-export class AgentConventionTrial extends S.Class<AgentConventionTrial>($I`AgentConventionTrial`)(
-  {
+export class AgentConventionTrial extends S.Opaque<AgentConventionTrial, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("agent-convention-trial/v1"),
     runId: S.NonEmptyString,
     pairId: S.NonEmptyString,
@@ -610,10 +632,11 @@ export class AgentConventionTrial extends S.Class<AgentConventionTrial>($I`Agent
     variant: AgentConventionVariant,
     evaluation: AgentEffectivenessEvalScoreReport,
     measurements: AgentConventionMeasurements,
-  },
-  $I.annote("AgentConventionTrial", {
-    description: "One independently identified run in a declared paired convention experiment.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentConventionTrial", {
+      description: "One independently identified run in a declared paired convention experiment.",
+    })
+  )
 ) {}
 
 const ConventionSurface = LiteralKit(["guidance", "navigation", "handoff"]);
@@ -641,8 +664,11 @@ const ComparisonRefusal = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class AgentConventionDifferences extends S.Class<AgentConventionDifferences>($I`AgentConventionDifferences`)(
-  {
+export class AgentConventionDifferences extends S.Opaque<
+  AgentConventionDifferences,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     completion: S.Finite,
     schemaFirst: S.Finite,
     tsgo: S.Finite,
@@ -656,10 +682,11 @@ export class AgentConventionDifferences extends S.Class<AgentConventionDifferenc
     outputTokens: S.OptionFromNullOr(S.Int),
     introducedDefects: S.OptionFromNullOr(S.Int),
     humanInterventions: S.OptionFromNullOr(S.Int),
-  },
-  $I.annote("AgentConventionDifferences", {
-    description: "Separate outcome and resource differences; null differences remain unmeasured.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentConventionDifferences", {
+      description: "Separate outcome and resource differences; null differences remain unmeasured.",
+    })
+  )
 ) {}
 
 /**
@@ -682,8 +709,8 @@ export class AgentConventionDifferences extends S.Class<AgentConventionDifferenc
  * @category models
  * @since 0.0.0
  */
-export class AgentConventionComparison extends S.Class<AgentConventionComparison>($I`AgentConventionComparison`)(
-  {
+export class AgentConventionComparison extends S.Opaque<AgentConventionComparison, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("agent-convention-comparison/v1"),
     baseline: AgentConventionTrial,
     candidate: AgentConventionTrial,
@@ -691,8 +718,9 @@ export class AgentConventionComparison extends S.Class<AgentConventionComparison
       Comparable: { changedSurface: ConventionSurface, differences: AgentConventionDifferences },
       Incomparable: { reasons: S.NonEmptyArray(ComparisonRefusal) },
     }),
-  },
-  $I.annote("AgentConventionComparison", {
-    description: "Auditable paired comparison or an explicit refusal to compare unmatched inputs.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentConventionComparison", {
+      description: "Auditable paired comparison or an explicit refusal to compare unmatched inputs.",
+    })
+  )
 ) {}

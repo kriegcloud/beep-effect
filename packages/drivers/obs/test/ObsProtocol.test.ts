@@ -10,8 +10,10 @@ import {
   ObsHelloMessage,
   ObsIdentified,
   ObsIdentifiedMessage,
+  ObsIdentify,
   ObsProtocol,
   ObsRecordStateChangedEvent,
+  ObsRequestEnvelope,
   ObsRequestResponseEnvelope,
   ObsRequestResponseMessage,
   ObsRequestStatus,
@@ -30,7 +32,7 @@ import * as Queue from "effect/Queue";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import { Socket } from "effect/socket";
-import type { ObsIdentify, ObsIncomingMessage, ObsRequestEnvelope } from "@beep/obs";
+import type { ObsIncomingMessage } from "@beep/obs";
 import type * as Cause from "effect/Cause";
 
 const textDecoder = new TextDecoder();
@@ -92,8 +94,8 @@ const makeFakeObsServer = Effect.fnUntraced(function* (options?: FakeObsServerOp
     decodeObsOutgoingMessageJson(text).pipe(
       Effect.flatMap((message) =>
         message.op === 1
-          ? Ref.update(identifies, A.append(message.d)).pipe(Effect.andThen(identifyResponse))
-          : (options?.onRequest?.(message.d, emitMessage) ?? Effect.void)
+          ? Ref.update(identifies, A.append(ObsIdentify.make(message.d))).pipe(Effect.andThen(identifyResponse))
+          : (options?.onRequest?.(ObsRequestEnvelope.make(message.d), emitMessage) ?? Effect.void)
       ),
       Effect.orDie
     );

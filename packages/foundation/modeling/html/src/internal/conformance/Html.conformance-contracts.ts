@@ -9,11 +9,9 @@
 import { $HtmlId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
-import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { Doctype } from "../../Html.nodes.ts";
 
 const $I = $HtmlId.create("Html.conformance");
 
@@ -90,31 +88,6 @@ export const HtmlChildView = S.Struct(htmlChildViewFields).pipe(
 export type HtmlChildView = typeof HtmlChildView.Type;
 
 /**
- * Root structural schema shared by private HTML conformance inspectors.
- *
- * @internal
- * @category models
- * @since 0.0.0
- */
-export const HtmlRootView = S.Struct({
-  ...htmlChildViewFields,
-  doctype: S.OptionFromOptionalKey(Doctype).pipe(S.withConstructorDefault(Effect.succeedNone)),
-}).pipe(
-  $I.annoteSchema("HtmlRootView", {
-    description: "HTML conformance root view with an optional document type declaration.",
-  })
-);
-
-/**
- * Decoded structural root view consumed by private HTML inspectors.
- *
- * @internal
- * @category models
- * @since 0.0.0
- */
-export type HtmlRootView = typeof HtmlRootView.Type;
-
-/**
  * Rules reported by the HTML conformance validator.
  *
  * **Example** (Validate with `HtmlConformanceRule`)
@@ -186,15 +159,16 @@ export type HtmlConformanceRule = typeof HtmlConformanceRule.Type;
  * @category models
  * @since 0.0.0
  */
-export class HtmlConformanceIssue extends S.Class<HtmlConformanceIssue>($I`HtmlConformanceIssue`)(
-  {
+export class HtmlConformanceIssue extends S.Opaque<HtmlConformanceIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.Array(S.String),
     rule: HtmlConformanceRule,
     message: S.String,
-  },
-  $I.annote("HtmlConformanceIssue", {
-    description: "One path-addressed violation of the modeled HTML content rules.",
-  })
+  }).pipe(
+    $I.annoteSchema("HtmlConformanceIssue", {
+      description: "One path-addressed violation of the modeled HTML content rules.",
+    })
+  )
 ) {}
 
 /**

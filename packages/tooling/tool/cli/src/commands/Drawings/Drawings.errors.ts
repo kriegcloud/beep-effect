@@ -29,7 +29,9 @@ const $I = $RepoCliId.create("commands/Drawings/Drawings.errors");
  * @category errors
  * @since 0.0.0
  */
-export class DrawingsCommandError extends S.TaggedError<DrawingsCommandError>($I`DrawingsCommandError`)(
+export class DrawingsCommandError extends S.TaggedError<DrawingsCommandError, { readonly brand: unique symbol }>(
+  $I`DrawingsCommandError`
+)(
   "DrawingsCommandError",
   {
     message: S.String,
@@ -132,7 +134,9 @@ export type DrawingIntakeReason = typeof DrawingIntakeReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class DrawingIntakeError extends S.TaggedError<DrawingIntakeError>($I`DrawingIntakeError`)(
+export class DrawingIntakeError extends S.TaggedError<DrawingIntakeError, { readonly brand: unique symbol }>(
+  $I`DrawingIntakeError`
+)(
   "DrawingIntakeError",
   {
     reason: DrawingIntakeReason,

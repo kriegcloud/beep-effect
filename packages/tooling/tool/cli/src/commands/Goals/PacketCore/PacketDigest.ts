@@ -328,15 +328,16 @@ const isPacketEventType = S.is(PacketEventType);
  * @category models
  * @since 0.0.0
  */
-export class PacketEventFileNameParts extends S.Class<PacketEventFileNameParts>($I`PacketEventFileNameParts`)(
-  {
+export class PacketEventFileNameParts extends S.Opaque<PacketEventFileNameParts, { readonly brand: unique symbol }>()(
+  S.Struct({
     seq: S.Finite,
     type: PacketEventType,
     id: S.String,
-  },
-  $I.annote("PacketEventFileNameParts", {
-    description: "Parsed seq/type/digest segments of a packet-event file name.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketEventFileNameParts", {
+      description: "Parsed seq/type/digest segments of a packet-event file name.",
+    })
+  )
 ) {}
 
 /**

@@ -1,5 +1,5 @@
 import { GroundedExtraction } from "@beep/langextract/Extraction";
-import { toAnnotatedDocument } from "@beep/langextract/Handoff";
+import { AnnotatedDocumentInput, toAnnotatedDocument } from "@beep/langextract/Handoff";
 import { DocumentId } from "@beep/nlp/Core";
 import { Contract, UnitInterval } from "@beep/nlp/Handoff";
 import { it } from "@beep/test-runner";
@@ -25,13 +25,15 @@ describe("toAnnotatedDocument", () => {
       text: "Paris",
     });
 
-    const document = toAnnotatedDocument({
-      documentId,
-      extractions: [aligned, unaligned],
-      generatedBy: "@beep/langextract:test",
-      text: "Ada Lovelace wrote notes.",
-      timestamp: 0,
-    });
+    const document = toAnnotatedDocument(
+      AnnotatedDocumentInput.make({
+        documentId,
+        extractions: [aligned, unaligned],
+        generatedBy: "@beep/langextract:test",
+        text: "Ada Lovelace wrote notes.",
+        timestamp: 0,
+      })
+    );
 
     expect(A.length(document.chunks)).toBe(1);
     expect(A.length(document.entities)).toBe(1);
@@ -52,13 +54,15 @@ describe("toAnnotatedDocument", () => {
       text: "Ada Lovelace",
     });
 
-    const document = toAnnotatedDocument({
-      documentId,
-      extractions: [aligned, GroundedExtraction.cases.unaligned.make({ label: "place", text: "Paris" })],
-      generatedBy: "@beep/langextract:test",
-      text: sourceText,
-      timestamp: 0,
-    });
+    const document = toAnnotatedDocument(
+      AnnotatedDocumentInput.make({
+        documentId,
+        extractions: [aligned, GroundedExtraction.cases.unaligned.make({ label: "place", text: "Paris" })],
+        generatedBy: "@beep/langextract:test",
+        text: sourceText,
+        timestamp: 0,
+      })
+    );
 
     const mention = A.head(document.mentions);
     const entity = A.head(document.entities);

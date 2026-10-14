@@ -27,12 +27,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/DocumentationTagValues")
  * @category models
  * @since 0.0.0
  */
-export class DescriptionValue extends S.TaggedClass<DescriptionValue>($I`DescriptionValue`)(
-  "description",
-  { ...optionalDesc },
-  $I.annote("DescriptionValue", {
-    description: "Occurrence shape for @description — the main description body.",
-  })
+export class DescriptionValue extends S.Opaque<DescriptionValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("description", { ...optionalDesc }).pipe(
+    $I.annoteSchema("DescriptionValue", {
+      description: "Occurrence shape for @description — the main description body.",
+    })
+  )
 ) {}
 
 /**
@@ -51,12 +51,12 @@ export class DescriptionValue extends S.TaggedClass<DescriptionValue>($I`Descrip
  * @category models
  * @since 0.0.0
  */
-export class SummaryValue extends S.TaggedClass<SummaryValue>($I`SummaryValue`)(
-  "summary",
-  { ...optionalDesc },
-  $I.annote("SummaryValue", {
-    description: "Occurrence shape for @summary — a short summary.",
-  })
+export class SummaryValue extends S.Opaque<SummaryValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("summary", { ...optionalDesc }).pipe(
+    $I.annoteSchema("SummaryValue", {
+      description: "Occurrence shape for @summary — a short summary.",
+    })
+  )
 ) {}
 
 /**
@@ -75,12 +75,12 @@ export class SummaryValue extends S.TaggedClass<SummaryValue>($I`SummaryValue`)(
  * @category models
  * @since 0.0.0
  */
-export class RemarksValue extends S.TaggedClass<RemarksValue>($I`RemarksValue`)(
-  "remarks",
-  { ...optionalDesc },
-  $I.annote("RemarksValue", {
-    description: "Occurrence shape for @remarks — additional remarks.",
-  })
+export class RemarksValue extends S.Opaque<RemarksValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("remarks", { ...optionalDesc }).pipe(
+    $I.annoteSchema("RemarksValue", {
+      description: "Occurrence shape for @remarks — additional remarks.",
+    })
+  )
 ) {}
 
 /**
@@ -99,12 +99,12 @@ export class RemarksValue extends S.TaggedClass<RemarksValue>($I`RemarksValue`)(
  * @category models
  * @since 0.0.0
  */
-export class ExampleValue extends S.TaggedClass<ExampleValue>($I`ExampleValue`)(
-  "example",
-  { ...optionalDesc },
-  $I.annote("ExampleValue", {
-    description: "Occurrence shape for @example — a usage example.",
-  })
+export class ExampleValue extends S.Opaque<ExampleValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("example", { ...optionalDesc }).pipe(
+    $I.annoteSchema("ExampleValue", {
+      description: "Occurrence shape for @example — a usage example.",
+    })
+  )
 ) {}
 
 /**
@@ -123,12 +123,12 @@ export class ExampleValue extends S.TaggedClass<ExampleValue>($I`ExampleValue`)(
  * @category models
  * @since 0.0.0
  */
-export class DeprecatedValue extends S.TaggedClass<DeprecatedValue>($I`DeprecatedValue`)(
-  "deprecated",
-  { ...optionalDesc },
-  $I.annote("DeprecatedValue", {
-    description: "Occurrence shape for @deprecated — marks a symbol as deprecated.",
-  })
+export class DeprecatedValue extends S.Opaque<DeprecatedValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("deprecated", { ...optionalDesc }).pipe(
+    $I.annoteSchema("DeprecatedValue", {
+      description: "Occurrence shape for @deprecated — marks a symbol as deprecated.",
+    })
+  )
 ) {}
 
 /**
@@ -147,12 +147,12 @@ export class DeprecatedValue extends S.TaggedClass<DeprecatedValue>($I`Deprecate
  * @category models
  * @since 0.0.0
  */
-export class SeeValue extends S.TaggedClass<SeeValue>($I`SeeValue`)(
-  "see",
-  { ...optionalDesc },
-  $I.annote("SeeValue", {
-    description: "Occurrence shape for @see — a reference to related resources.",
-  })
+export class SeeValue extends S.Opaque<SeeValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("see", { ...optionalDesc }).pipe(
+    $I.annoteSchema("SeeValue", {
+      description: "Occurrence shape for @see — a reference to related resources.",
+    })
+  )
 ) {}
 
 /**
@@ -171,12 +171,12 @@ export class SeeValue extends S.TaggedClass<SeeValue>($I`SeeValue`)(
  * @category models
  * @since 0.0.0
  */
-export class SinceValue extends S.TaggedClass<SinceValue>($I`SinceValue`)(
-  "since",
-  { ...optionalDesc },
-  $I.annote("SinceValue", {
-    description: "Occurrence shape for @since — the version when the symbol was introduced.",
-  })
+export class SinceValue extends S.Opaque<SinceValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("since", { ...optionalDesc }).pipe(
+    $I.annoteSchema("SinceValue", {
+      description: "Occurrence shape for @since — the version when the symbol was introduced.",
+    })
+  )
 ) {}
 
 /**
@@ -195,12 +195,12 @@ export class SinceValue extends S.TaggedClass<SinceValue>($I`SinceValue`)(
  * @category models
  * @since 0.0.0
  */
-export class VersionValue extends S.TaggedClass<VersionValue>($I`VersionValue`)(
-  "version",
-  { ...optionalDesc },
-  $I.annote("VersionValue", {
-    description: "Occurrence shape for @version — the current version of the symbol.",
-  })
+export class VersionValue extends S.Opaque<VersionValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("version", { ...optionalDesc }).pipe(
+    $I.annoteSchema("VersionValue", {
+      description: "Occurrence shape for @version — the current version of the symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -219,12 +219,12 @@ export class VersionValue extends S.TaggedClass<VersionValue>($I`VersionValue`)(
  * @category models
  * @since 0.0.0
  */
-export class AuthorValue extends S.TaggedClass<AuthorValue>($I`AuthorValue`)(
-  "author",
-  { ...optionalDesc },
-  $I.annote("AuthorValue", {
-    description: "Occurrence shape for @author — the author of the symbol.",
-  })
+export class AuthorValue extends S.Opaque<AuthorValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("author", { ...optionalDesc }).pipe(
+    $I.annoteSchema("AuthorValue", {
+      description: "Occurrence shape for @author — the author of the symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -243,10 +243,10 @@ export class AuthorValue extends S.TaggedClass<AuthorValue>($I`AuthorValue`)(
  * @category models
  * @since 0.0.0
  */
-export class TodoValue extends S.TaggedClass<TodoValue>($I`TodoValue`)(
-  "todo",
-  { ...optionalDesc },
-  $I.annote("TodoValue", {
-    description: "Occurrence shape for @todo — a pending task.",
-  })
+export class TodoValue extends S.Opaque<TodoValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("todo", { ...optionalDesc }).pipe(
+    $I.annoteSchema("TodoValue", {
+      description: "Occurrence shape for @todo — a pending task.",
+    })
+  )
 ) {}

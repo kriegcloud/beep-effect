@@ -464,7 +464,9 @@ export type AgentEffectivenessAnnotationValue = typeof AgentEffectivenessAnnotat
  * @category errors
  * @since 0.0.0
  */
-export class AgentEffectivenessError extends S.TaggedError<AgentEffectivenessError>($I`AgentEffectivenessError`)(
+export class AgentEffectivenessError extends S.TaggedError<AgentEffectivenessError, { readonly brand: unique symbol }>(
+  $I`AgentEffectivenessError`
+)(
   "AgentEffectivenessError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -504,10 +506,11 @@ const agentEffectivenessFailure =
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessDoctorInput extends S.Class<AgentEffectivenessDoctorInput>(
-  $I`AgentEffectivenessDoctorInput`
-)(
-  {
+export class AgentEffectivenessDoctorInput extends S.Opaque<
+  AgentEffectivenessDoctorInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dataRoot: S.String,
     noPhoenix: SchemaUtils.BoolKeyDefaultFalse,
     phoenixBaseUrl: S.String.pipe(
@@ -522,10 +525,11 @@ export class AgentEffectivenessDoctorInput extends S.Class<AgentEffectivenessDoc
       S.withConstructorDefault(Effect.succeed(DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH)),
       S.withDecodingDefaultTypeKey(Effect.succeed(DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH))
     ),
-  },
-  $I.annote("AgentEffectivenessDoctorInput", {
-    description: "Local, no-mutation inputs used to build the agent-effectiveness doctor report.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessDoctorInput", {
+      description: "Local, no-mutation inputs used to build the agent-effectiveness doctor report.",
+    })
+  )
 ) {}
 
 /**
@@ -554,19 +558,21 @@ export class AgentEffectivenessDoctorInput extends S.Class<AgentEffectivenessDoc
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessAnnotationPlanInput extends S.Class<AgentEffectivenessAnnotationPlanInput>(
-  $I`AgentEffectivenessAnnotationPlanInput`
-)(
-  {
+export class AgentEffectivenessAnnotationPlanInput extends S.Opaque<
+  AgentEffectivenessAnnotationPlanInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     annotationLimit: S.Int.pipe(
       S.withConstructorDefault(Effect.succeed(defaultAnnotationLimit)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultAnnotationLimit))
     ),
     doctor: AgentEffectivenessDoctorInput,
-  },
-  $I.annote("AgentEffectivenessAnnotationPlanInput", {
-    description: "Input used to render a sanitized, local-only Phoenix annotation plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessAnnotationPlanInput", {
+      description: "Input used to render a sanitized, local-only Phoenix annotation plan.",
+    })
+  )
 ) {
   static readonly new = (doctor: AgentEffectivenessDoctorInput) =>
     AgentEffectivenessAnnotationPlanInput.make({
@@ -609,10 +615,11 @@ export class AgentEffectivenessAnnotationPlanInput extends S.Class<AgentEffectiv
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessPhoenixProject extends S.Class<AgentEffectivenessPhoenixProject>(
-  $I`AgentEffectivenessPhoenixProject`
-)(
-  {
+export class AgentEffectivenessPhoenixProject extends S.Opaque<
+  AgentEffectivenessPhoenixProject,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     hasTraces: S.OptionFromNullOr(S.Boolean).pipe(S.withConstructorDefault(Effect.succeedNone)),
     name: S.String,
     recordCount: S.OptionFromNullOr(S.Finite).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -620,10 +627,11 @@ export class AgentEffectivenessPhoenixProject extends S.Class<AgentEffectiveness
     sessionAnnotationNames: S.Array(S.String),
     traceAnnotationNames: S.Array(S.String),
     traceCount: S.OptionFromNullOr(S.Finite).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AgentEffectivenessPhoenixProject", {
-    description: "Sanitized Phoenix project inventory row used by the agent-effectiveness doctor.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessPhoenixProject", {
+      description: "Sanitized Phoenix project inventory row used by the agent-effectiveness doctor.",
+    })
+  )
 ) {}
 
 /**
@@ -667,10 +675,11 @@ export class AgentEffectivenessPhoenixProject extends S.Class<AgentEffectiveness
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessPhoenixSection extends S.Class<AgentEffectivenessPhoenixSection>(
-  $I`AgentEffectivenessPhoenixSection`
-)(
-  {
+export class AgentEffectivenessPhoenixSection extends S.Opaque<
+  AgentEffectivenessPhoenixSection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseUrl: S.String,
     datasetCount: S.Finite,
     evaluatorCount: S.Finite,
@@ -681,10 +690,11 @@ export class AgentEffectivenessPhoenixSection extends S.Class<AgentEffectiveness
     serverInsufficientStorage: S.Boolean,
     status: AgentEffectivenessStatus,
     version: S.OptionFromNullOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AgentEffectivenessPhoenixSection", {
-    description: "Non-mutating Phoenix readiness section for the agent-effectiveness doctor.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessPhoenixSection", {
+      description: "Non-mutating Phoenix readiness section for the agent-effectiveness doctor.",
+    })
+  )
 ) {}
 
 /**
@@ -724,20 +734,22 @@ export class AgentEffectivenessPhoenixSection extends S.Class<AgentEffectiveness
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessSourceCoverage extends S.Class<AgentEffectivenessSourceCoverage>(
-  $I`AgentEffectivenessSourceCoverage`
-)(
-  {
+export class AgentEffectivenessSourceCoverage extends S.Opaque<
+  AgentEffectivenessSourceCoverage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     acceptedEvents: S.Finite,
     lastTimestamp: S.OptionFromNullOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     rejectedLines: S.Finite,
     sourceFileCount: S.Finite,
     sourceKind: S.String,
     totalLines: S.Finite,
-  },
-  $I.annote("AgentEffectivenessSourceCoverage", {
-    description: "Aggregate source coverage for one transcript source kind.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessSourceCoverage", {
+      description: "Aggregate source coverage for one transcript source kind.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(AgentEffectivenessSourceCoverage));
 }
@@ -774,10 +786,11 @@ export class AgentEffectivenessSourceCoverage extends S.Class<AgentEffectiveness
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessForwarderSummary extends S.Class<AgentEffectivenessForwarderSummary>(
-  $I`AgentEffectivenessForwarderSummary`
-)(
-  {
+export class AgentEffectivenessForwarderSummary extends S.Opaque<
+  AgentEffectivenessForwarderSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archiveObjectCount: S.Finite,
     completedAtEpochMillis: S.Finite,
     configSnapshotId: S.String,
@@ -785,10 +798,11 @@ export class AgentEffectivenessForwarderSummary extends S.Class<AgentEffectivene
     sourceFileCount: S.Finite,
     target: AiMetricsDeployTarget,
     turnCount: S.Finite,
-  },
-  $I.annote("AgentEffectivenessForwarderSummary", {
-    description: "Latest deploy-safe forwarder run summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessForwarderSummary", {
+      description: "Latest deploy-safe forwarder run summary.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(AgentEffectivenessForwarderSummary));
 }
@@ -835,10 +849,11 @@ export class AgentEffectivenessForwarderSummary extends S.Class<AgentEffectivene
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessScorecardSummary extends S.Class<AgentEffectivenessScorecardSummary>(
-  $I`AgentEffectivenessScorecardSummary`
-)(
-  {
+export class AgentEffectivenessScorecardSummary extends S.Opaque<
+  AgentEffectivenessScorecardSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     benchmarkRunCount: S.Finite,
     completionReady: S.Boolean,
     configSnapshotId: S.String,
@@ -849,10 +864,11 @@ export class AgentEffectivenessScorecardSummary extends S.Class<AgentEffectivene
     totalScore: S.Finite,
     windowEndEpochMillis: S.Finite,
     windowStartEpochMillis: S.Finite,
-  },
-  $I.annote("AgentEffectivenessScorecardSummary", {
-    description: "Latest deploy-safe scorecard summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessScorecardSummary", {
+      description: "Latest deploy-safe scorecard summary.",
+    })
+  )
 ) {}
 
 /**
@@ -894,10 +910,11 @@ export class AgentEffectivenessScorecardSummary extends S.Class<AgentEffectivene
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessAiMetricsSection extends S.Class<AgentEffectivenessAiMetricsSection>(
-  $I`AgentEffectivenessAiMetricsSection`
-)(
-  {
+export class AgentEffectivenessAiMetricsSection extends S.Opaque<
+  AgentEffectivenessAiMetricsSection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     benchmarkRunCount: S.Finite,
     dataRoot: S.String,
     derivedDuckDbPath: S.String,
@@ -912,10 +929,11 @@ export class AgentEffectivenessAiMetricsSection extends S.Class<AgentEffectivene
     sourceCoverage: S.Array(AgentEffectivenessSourceCoverage),
     status: AgentEffectivenessStatus,
     unavailableMetrics: S.Array(S.String),
-  },
-  $I.annote("AgentEffectivenessAiMetricsSection", {
-    description: "AI-metrics derived evidence summarized for the agent-effectiveness trust gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessAiMetricsSection", {
+      description: "AI-metrics derived evidence summarized for the agent-effectiveness trust gate.",
+    })
+  )
 ) {}
 
 const agentEffectivenessJsdocWorkerSectionPolicyViolationCodesDefault = A.empty<string>();
@@ -960,10 +978,11 @@ const agentEffectivenessJsdocWorkerSectionPolicyViolationCodesDefault = A.empty<
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessJsdocWorkerSection extends S.Class<AgentEffectivenessJsdocWorkerSection>(
-  $I`AgentEffectivenessJsdocWorkerSection`
-)(
-  {
+export class AgentEffectivenessJsdocWorkerSection extends S.Opaque<
+  AgentEffectivenessJsdocWorkerSection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cleanupDeleteStatus: S.OptionFromNullOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     cleanupStopStatus: S.OptionFromNullOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     completedPackets: S.Finite,
@@ -978,10 +997,11 @@ export class AgentEffectivenessJsdocWorkerSection extends S.Class<AgentEffective
     selectedPackets: S.Finite,
     status: AgentEffectivenessStatus,
     timedOutPackets: S.Finite,
-  },
-  $I.annote("AgentEffectivenessJsdocWorkerSection", {
-    description: "Read-only JSDoc worker-eval evidence summarized for the agent-effectiveness doctor.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessJsdocWorkerSection", {
+      description: "Read-only JSDoc worker-eval evidence summarized for the agent-effectiveness doctor.",
+    })
+  )
 ) {}
 
 /**
@@ -1021,18 +1041,20 @@ export class AgentEffectivenessJsdocWorkerSection extends S.Class<AgentEffective
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessDoctorSummary extends S.Class<AgentEffectivenessDoctorSummary>(
-  $I`AgentEffectivenessDoctorSummary`
-)(
-  {
+export class AgentEffectivenessDoctorSummary extends S.Opaque<
+  AgentEffectivenessDoctorSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     failures: S.Array(S.String),
     status: AgentEffectivenessStatus,
     unavailable: S.Array(S.String),
     warnings: S.Array(S.String),
-  },
-  $I.annote("AgentEffectivenessDoctorSummary", {
-    description: "Human-sized status summary for the agent-effectiveness doctor.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessDoctorSummary", {
+      description: "Human-sized status summary for the agent-effectiveness doctor.",
+    })
+  )
 ) {}
 
 /**
@@ -1110,10 +1132,11 @@ export class AgentEffectivenessDoctorSummary extends S.Class<AgentEffectivenessD
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessDoctorReport extends S.Class<AgentEffectivenessDoctorReport>(
-  $I`AgentEffectivenessDoctorReport`
-)(
-  {
+export class AgentEffectivenessDoctorReport extends S.Opaque<
+  AgentEffectivenessDoctorReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     aiMetrics: AgentEffectivenessAiMetricsSection,
     dataRoot: S.String,
     generatedAt: S.String,
@@ -1128,10 +1151,11 @@ export class AgentEffectivenessDoctorReport extends S.Class<AgentEffectivenessDo
     ),
     summary: AgentEffectivenessDoctorSummary,
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AgentEffectivenessDoctorReport", {
-    description: "Report-only trust gate for repo agent-effectiveness evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessDoctorReport", {
+      description: "Report-only trust gate for repo agent-effectiveness evidence.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDoctorReport));
 }
@@ -1179,10 +1203,11 @@ const agentEffectivenessPlannedAnnotationMetadataDefault = {};
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessPlannedAnnotation extends S.Class<AgentEffectivenessPlannedAnnotation>(
-  $I`AgentEffectivenessPlannedAnnotation`
-)(
-  {
+export class AgentEffectivenessPlannedAnnotation extends S.Opaque<
+  AgentEffectivenessPlannedAnnotation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     annotationId: S.String,
     metadata: S.Record(S.String, S.String).pipe(
       S.withConstructorDefault(Effect.succeed(agentEffectivenessPlannedAnnotationMetadataDefault)),
@@ -1194,10 +1219,11 @@ export class AgentEffectivenessPlannedAnnotation extends S.Class<AgentEffectiven
     targetKind: AgentEffectivenessAnnotationTargetKind,
     targetRef: S.String,
     value: AgentEffectivenessAnnotationValue,
-  },
-  $I.annote("AgentEffectivenessPlannedAnnotation", {
-    description: "Sanitized planned annotation row for future Phoenix mutation phases.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessPlannedAnnotation", {
+      description: "Sanitized planned annotation row for future Phoenix mutation phases.",
+    })
+  )
 ) {}
 
 /**
@@ -1295,10 +1321,11 @@ export class AgentEffectivenessPlannedAnnotation extends S.Class<AgentEffectiven
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessAnnotationPlan extends S.Class<AgentEffectivenessAnnotationPlan>(
-  $I`AgentEffectivenessAnnotationPlan`
-)(
-  {
+export class AgentEffectivenessAnnotationPlan extends S.Opaque<
+  AgentEffectivenessAnnotationPlan,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     annotations: S.Array(AgentEffectivenessPlannedAnnotation),
     doctor: AgentEffectivenessDoctorReport,
     generatedAt: S.String,
@@ -1311,10 +1338,11 @@ export class AgentEffectivenessAnnotationPlan extends S.Class<AgentEffectiveness
       )
     ),
     summary: AgentEffectivenessDoctorSummary,
-  },
-  $I.annote("AgentEffectivenessAnnotationPlan", {
-    description: "Local-only dry-run annotation plan for the agent-effectiveness loop.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessAnnotationPlan", {
+      description: "Local-only dry-run annotation plan for the agent-effectiveness loop.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationPlan));
   static readonly encodeJsonResult = S.encodeUnknownResult(S.fromJsonString(AgentEffectivenessAnnotationPlan));
@@ -1354,17 +1382,19 @@ export class AgentEffectivenessAnnotationPlan extends S.Class<AgentEffectiveness
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessAnnotationCheckFinding extends S.Class<AgentEffectivenessAnnotationCheckFinding>(
-  $I`AgentEffectivenessAnnotationCheckFinding`
-)(
-  {
+export class AgentEffectivenessAnnotationCheckFinding extends S.Opaque<
+  AgentEffectivenessAnnotationCheckFinding,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     annotationId: S.String,
     code: AgentEffectivenessAnnotationCheckFindingCode,
     message: S.String,
-  },
-  $I.annote("AgentEffectivenessAnnotationCheckFinding", {
-    description: "Privacy or schema finding emitted while checking a dry-run annotation plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessAnnotationCheckFinding", {
+      description: "Privacy or schema finding emitted while checking a dry-run annotation plan.",
+    })
+  )
 ) {}
 
 /**
@@ -1397,10 +1427,11 @@ export class AgentEffectivenessAnnotationCheckFinding extends S.Class<AgentEffec
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessAnnotationCheckReport extends S.Class<AgentEffectivenessAnnotationCheckReport>(
-  $I`AgentEffectivenessAnnotationCheckReport`
-)(
-  {
+export class AgentEffectivenessAnnotationCheckReport extends S.Opaque<
+  AgentEffectivenessAnnotationCheckReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     annotationCount: S.Finite,
     findings: S.Array(AgentEffectivenessAnnotationCheckFinding),
     generatedAt: S.String,
@@ -1412,10 +1443,11 @@ export class AgentEffectivenessAnnotationCheckReport extends S.Class<AgentEffect
       )
     ),
     status: AgentEffectivenessStatus,
-  },
-  $I.annote("AgentEffectivenessAnnotationCheckReport", {
-    description: "Report-only privacy/schema check result for a local annotation plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessAnnotationCheckReport", {
+      description: "Report-only privacy/schema check result for a local annotation plan.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationCheckReport));
 }
@@ -1565,10 +1597,11 @@ const agentEffectivenessDatasetExampleOutputDefault = {};
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessDatasetExample extends S.Class<AgentEffectivenessDatasetExample>(
-  $I`AgentEffectivenessDatasetExample`
-)(
-  {
+export class AgentEffectivenessDatasetExample extends S.Opaque<
+  AgentEffectivenessDatasetExample,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: S.String,
     input: S.Record(S.String, S.Unknown),
     metadata: S.Record(S.String, S.Unknown).pipe(
@@ -1583,10 +1616,11 @@ export class AgentEffectivenessDatasetExample extends S.Class<AgentEffectiveness
       S.withConstructorDefault(Effect.succeed("current")),
       S.withDecodingDefaultTypeKey(Effect.succeed("current"))
     ),
-  },
-  $I.annote("AgentEffectivenessDatasetExample", {
-    description: "Sanitized, aggregate-only example destined for a Phoenix dataset.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessDatasetExample", {
+      description: "Sanitized, aggregate-only example destined for a Phoenix dataset.",
+    })
+  )
 ) {}
 
 /**
@@ -1619,18 +1653,20 @@ export class AgentEffectivenessDatasetExample extends S.Class<AgentEffectiveness
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessDatasetSpec extends S.Class<AgentEffectivenessDatasetSpec>(
-  $I`AgentEffectivenessDatasetSpec`
-)(
-  {
+export class AgentEffectivenessDatasetSpec extends S.Opaque<
+  AgentEffectivenessDatasetSpec,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     description: S.String,
     examples: S.Array(AgentEffectivenessDatasetExample),
     kind: AgentEffectivenessDatasetKind,
     name: S.String,
-  },
-  $I.annote("AgentEffectivenessDatasetSpec", {
-    description: "Repo-owned Phoenix dataset specification for the agent-effectiveness loop.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessDatasetSpec", {
+      description: "Repo-owned Phoenix dataset specification for the agent-effectiveness loop.",
+    })
+  )
 ) {}
 
 /**
@@ -1661,10 +1697,11 @@ export class AgentEffectivenessDatasetSpec extends S.Class<AgentEffectivenessDat
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessDatasetBundle extends S.Class<AgentEffectivenessDatasetBundle>(
-  $I`AgentEffectivenessDatasetBundle`
-)(
-  {
+export class AgentEffectivenessDatasetBundle extends S.Opaque<
+  AgentEffectivenessDatasetBundle,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     datasets: S.Array(AgentEffectivenessDatasetSpec),
     generatedAt: S.String,
     projectName: S.String,
@@ -1675,10 +1712,11 @@ export class AgentEffectivenessDatasetBundle extends S.Class<AgentEffectivenessD
         Effect.succeed(AgentEffectivenessArtifactSchemaVersion.Enum["agent-effectiveness-datasets/v1"])
       )
     ),
-  },
-  $I.annote("AgentEffectivenessDatasetBundle", {
-    description: "Full Phoenix dataset bundle derived from agent-effectiveness doctor evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessDatasetBundle", {
+      description: "Full Phoenix dataset bundle derived from agent-effectiveness doctor evidence.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDatasetBundle));
 }
@@ -1748,16 +1786,18 @@ export type AgentEffectivenessPromptRole = typeof AgentEffectivenessPromptRole.T
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessPromptMessage extends S.Class<AgentEffectivenessPromptMessage>(
-  $I`AgentEffectivenessPromptMessage`
-)(
-  {
+export class AgentEffectivenessPromptMessage extends S.Opaque<
+  AgentEffectivenessPromptMessage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: S.String,
     role: AgentEffectivenessPromptRole,
-  },
-  $I.annote("AgentEffectivenessPromptMessage", {
-    description: "One repo-owned Phoenix prompt message.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessPromptMessage", {
+      description: "One repo-owned Phoenix prompt message.",
+    })
+  )
 ) {}
 
 /**
@@ -1788,18 +1828,20 @@ export class AgentEffectivenessPromptMessage extends S.Class<AgentEffectivenessP
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessPromptSpec extends S.Class<AgentEffectivenessPromptSpec>(
-  $I`AgentEffectivenessPromptSpec`
-)(
-  {
+export class AgentEffectivenessPromptSpec extends S.Opaque<
+  AgentEffectivenessPromptSpec,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     description: S.String,
     messages: S.Array(AgentEffectivenessPromptMessage),
     modelName: S.String,
     name: S.String,
-  },
-  $I.annote("AgentEffectivenessPromptSpec", {
-    description: "Repo-owned Phoenix prompt specification for deterministic evaluation workflows.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessPromptSpec", {
+      description: "Repo-owned Phoenix prompt specification for deterministic evaluation workflows.",
+    })
+  )
 ) {}
 
 /**
@@ -1830,10 +1872,11 @@ export class AgentEffectivenessPromptSpec extends S.Class<AgentEffectivenessProm
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessPromptBundle extends S.Class<AgentEffectivenessPromptBundle>(
-  $I`AgentEffectivenessPromptBundle`
-)(
-  {
+export class AgentEffectivenessPromptBundle extends S.Opaque<
+  AgentEffectivenessPromptBundle,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     generatedAt: S.String,
     projectName: S.String,
     prompts: S.Array(AgentEffectivenessPromptSpec),
@@ -1844,10 +1887,11 @@ export class AgentEffectivenessPromptBundle extends S.Class<AgentEffectivenessPr
         Effect.succeed(AgentEffectivenessArtifactSchemaVersion.Enum["agent-effectiveness-prompts/v1"])
       )
     ),
-  },
-  $I.annote("AgentEffectivenessPromptBundle", {
-    description: "Full repo-owned Phoenix prompt bundle for the agent-effectiveness loop.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessPromptBundle", {
+      description: "Full repo-owned Phoenix prompt bundle for the agent-effectiveness loop.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessPromptBundle));
 }
@@ -1880,10 +1924,11 @@ const agentEffectivenessExperimentSpecMetadataDefault = {};
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessExperimentSpec extends S.Class<AgentEffectivenessExperimentSpec>(
-  $I`AgentEffectivenessExperimentSpec`
-)(
-  {
+export class AgentEffectivenessExperimentSpec extends S.Opaque<
+  AgentEffectivenessExperimentSpec,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     datasetName: S.String,
     description: S.String,
     metadata: S.Record(S.String, S.Unknown).pipe(
@@ -1891,10 +1936,11 @@ export class AgentEffectivenessExperimentSpec extends S.Class<AgentEffectiveness
       S.withDecodingDefaultTypeKey(Effect.succeed(agentEffectivenessExperimentSpecMetadataDefault))
     ),
     name: S.String,
-  },
-  $I.annote("AgentEffectivenessExperimentSpec", {
-    description: "Deterministic experiment plan entry that performs no new model work.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessExperimentSpec", {
+      description: "Deterministic experiment plan entry that performs no new model work.",
+    })
+  )
 ) {}
 
 /**
@@ -1924,10 +1970,11 @@ export class AgentEffectivenessExperimentSpec extends S.Class<AgentEffectiveness
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessExperimentBundle extends S.Class<AgentEffectivenessExperimentBundle>(
-  $I`AgentEffectivenessExperimentBundle`
-)(
-  {
+export class AgentEffectivenessExperimentBundle extends S.Opaque<
+  AgentEffectivenessExperimentBundle,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     experiments: S.Array(AgentEffectivenessExperimentSpec),
     generatedAt: S.String,
     projectName: S.String,
@@ -1938,10 +1985,11 @@ export class AgentEffectivenessExperimentBundle extends S.Class<AgentEffectivene
         Effect.succeed(AgentEffectivenessArtifactSchemaVersion.Enum["agent-effectiveness-experiments/v1"])
       )
     ),
-  },
-  $I.annote("AgentEffectivenessExperimentBundle", {
-    description: "Deterministic experiment bundle derived from agent-effectiveness dataset specs.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessExperimentBundle", {
+      description: "Deterministic experiment bundle derived from agent-effectiveness dataset specs.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessExperimentBundle));
 }
@@ -1991,18 +2039,20 @@ type AgentEffectivenessPhoenixSyncNewOptions = {
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessPhoenixSyncInput extends S.Class<AgentEffectivenessPhoenixSyncInput>(
-  $I`AgentEffectivenessPhoenixSyncInput`
-)(
-  {
+export class AgentEffectivenessPhoenixSyncInput extends S.Opaque<
+  AgentEffectivenessPhoenixSyncInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     annotationPlan: AgentEffectivenessAnnotationPlanInput,
     confirmToken: S.String.pipe(S.optionalKey),
     dryRun: SchemaUtils.BoolKeyDefaultTrue,
-  },
-  $I.annote("AgentEffectivenessPhoenixSyncInput", {
-    description:
-      "Input for guarded Phoenix sync of agent-effectiveness datasets, prompts, experiments, and annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessPhoenixSyncInput", {
+      description:
+        "Input for guarded Phoenix sync of agent-effectiveness datasets, prompts, experiments, and annotations.",
+    })
+  )
 ) {
   static readonly new: {
     (
@@ -2060,10 +2110,11 @@ export class AgentEffectivenessPhoenixSyncInput extends S.Class<AgentEffectivene
  * @category models
  * @since 0.0.0
  */
-export class AgentEffectivenessPhoenixSyncResult extends S.Class<AgentEffectivenessPhoenixSyncResult>(
-  $I`AgentEffectivenessPhoenixSyncResult`
-)(
-  {
+export class AgentEffectivenessPhoenixSyncResult extends S.Opaque<
+  AgentEffectivenessPhoenixSyncResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     annotationCount: S.Finite,
     datasetCount: S.Finite,
     dryRun: S.Boolean,
@@ -2075,16 +2126,23 @@ export class AgentEffectivenessPhoenixSyncResult extends S.Class<AgentEffectiven
     writtenDatasetIds: S.Array(S.String),
     writtenExperimentIds: S.Array(S.String),
     writtenPromptVersionIds: S.Array(S.String),
-  },
-  $I.annote("AgentEffectivenessPhoenixSyncResult", {
-    description: "Result from a guarded Phoenix sync attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentEffectivenessPhoenixSyncResult", {
+      description: "Result from a guarded Phoenix sync attempt.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessPhoenixSyncResult));
 }
 
-class ScorecardSummaryRow extends S.Class<ScorecardSummaryRow>($I`ScorecardSummaryRow`)(
-  {
+/**
+ * Internal DuckDB scorecard summary row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class ScorecardSummaryRow extends S.Opaque<ScorecardSummaryRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     benchmarkRunCount: S.Finite,
     completionReady: S.Boolean,
     configSnapshotId: S.String,
@@ -2095,16 +2153,23 @@ class ScorecardSummaryRow extends S.Class<ScorecardSummaryRow>($I`ScorecardSumma
     totalScore: S.Finite,
     windowEndEpochMillis: S.Finite,
     windowStartEpochMillis: S.Finite,
-  },
-  $I.annote("ScorecardSummaryRow", {
-    description: "Internal DuckDB scorecard summary row.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScorecardSummaryRow", {
+      description: "Internal DuckDB scorecard summary row.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(ScorecardSummaryRow));
 }
 
-class OutcomeLabelAnnotationRow extends S.Class<OutcomeLabelAnnotationRow>($I`OutcomeLabelAnnotationRow`)(
-  {
+/**
+ * Internal row used to plan outcome label annotations.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class OutcomeLabelAnnotationRow extends S.Opaque<OutcomeLabelAnnotationRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentTaskId: S.String,
     followUpFix: S.Boolean,
     interventionCount: S.Finite,
@@ -2112,51 +2177,74 @@ class OutcomeLabelAnnotationRow extends S.Class<OutcomeLabelAnnotationRow>($I`Ou
     passed: S.Boolean,
     qualityGate: S.String,
     rating: S.Finite,
-  },
-  $I.annote("OutcomeLabelAnnotationRow", {
-    description: "Internal row used to plan outcome label annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutcomeLabelAnnotationRow", {
+      description: "Internal row used to plan outcome label annotations.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(OutcomeLabelAnnotationRow));
 }
 
-class BenchmarkRunAnnotationRow extends S.Class<BenchmarkRunAnnotationRow>($I`BenchmarkRunAnnotationRow`)(
-  {
+/**
+ * Internal row used to plan benchmark annotations.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class BenchmarkRunAnnotationRow extends S.Opaque<BenchmarkRunAnnotationRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     benchmarkCaseId: S.String,
     benchmarkRunId: S.String,
     configSnapshotId: S.String,
     elapsedMs: S.Finite,
     passed: S.Boolean,
     qualityGate: S.String,
-  },
-  $I.annote("BenchmarkRunAnnotationRow", {
-    description: "Internal row used to plan benchmark annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("BenchmarkRunAnnotationRow", {
+      description: "Internal row used to plan benchmark annotations.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(BenchmarkRunAnnotationRow));
 }
 
-class WorkerEvalSummary extends S.Class<WorkerEvalSummary>($I`WorkerEvalSummary`)(
-  {
+/**
+ * Internal minimal JSDoc worker-eval summary.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class WorkerEvalSummary extends S.Opaque<WorkerEvalSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     completed: S.Finite,
     failed: S.Finite,
     selectedPackets: S.Finite,
     timedOut: S.Finite,
-  },
-  $I.annote("WorkerEvalSummary", {
-    description: "Internal minimal JSDoc worker-eval summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkerEvalSummary", {
+      description: "Internal minimal JSDoc worker-eval summary.",
+    })
+  )
 ) {}
 
-class WorkerEvalPolicyViolationObject extends S.Class<WorkerEvalPolicyViolationObject>(
-  $I`WorkerEvalPolicyViolationObject`
-)(
-  {
+/**
+ * Internal minimal JSDoc worker-eval policy violation row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class WorkerEvalPolicyViolationObject extends S.Opaque<
+  WorkerEvalPolicyViolationObject,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     code: S.String,
-  },
-  $I.annote("WorkerEvalPolicyViolationObject", {
-    description: "Internal minimal JSDoc worker-eval policy violation row.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkerEvalPolicyViolationObject", {
+      description: "Internal minimal JSDoc worker-eval policy violation row.",
+    })
+  )
 ) {}
 
 const WorkerEvalPolicyViolation = S.Union([S.String, WorkerEvalPolicyViolationObject]).pipe(
@@ -2166,22 +2254,35 @@ const WorkerEvalPolicyViolation = S.Union([S.String, WorkerEvalPolicyViolationOb
 );
 
 const workerEvalPacketPolicyViolationCodesDefault = A.empty<string>();
-class WorkerEvalPacket extends S.Class<WorkerEvalPacket>($I`WorkerEvalPacket`)(
-  {
+/**
+ * Internal minimal JSDoc worker-eval packet row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class WorkerEvalPacket extends S.Opaque<WorkerEvalPacket, { readonly brand: unique symbol }>()(
+  S.Struct({
     policyViolationCodes: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(workerEvalPacketPolicyViolationCodesDefault)),
       S.withDecodingDefaultType(Effect.succeed(workerEvalPacketPolicyViolationCodesDefault))
     ),
-  },
-  $I.annote("WorkerEvalPacket", {
-    description: "Internal minimal JSDoc worker-eval packet row.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkerEvalPacket", {
+      description: "Internal minimal JSDoc worker-eval packet row.",
+    })
+  )
 ) {}
 
 const workerEvalReportPacketsDefault = A.empty<WorkerEvalPacket>();
 const workerEvalReportPolicyViolationsDefault = A.empty<typeof WorkerEvalPolicyViolation.Type>();
-class WorkerEvalReport extends S.Class<WorkerEvalReport>($I`WorkerEvalReport`)(
-  {
+/**
+ * Internal minimal nested JSDoc worker eval report.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class WorkerEvalReport extends S.Opaque<WorkerEvalReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     packets: S.Array(WorkerEvalPacket).pipe(
       S.withConstructorDefault(Effect.succeed(workerEvalReportPacketsDefault)),
       S.withDecodingDefaultType(Effect.succeed(workerEvalReportPacketsDefault))
@@ -2191,186 +2292,305 @@ class WorkerEvalReport extends S.Class<WorkerEvalReport>($I`WorkerEvalReport`)(
       S.withDecodingDefaultType(Effect.succeed(workerEvalReportPolicyViolationsDefault))
     ),
     summary: WorkerEvalSummary,
-  },
-  $I.annote("WorkerEvalReport", {
-    description: "Internal minimal nested JSDoc worker eval report.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkerEvalReport", {
+      description: "Internal minimal nested JSDoc worker eval report.",
+    })
+  )
 ) {}
 
-class RunpodWorkerCleanup extends S.Class<RunpodWorkerCleanup>($I`RunpodWorkerCleanup`)(
-  {
+/**
+ * Internal Runpod worker cleanup status wrapper.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class RunpodWorkerCleanup extends S.Opaque<RunpodWorkerCleanup, { readonly brand: unique symbol }>()(
+  S.Struct({
     deleteStatus: S.String,
     stopStatus: S.String,
-  },
-  $I.annote("RunpodWorkerCleanup", {
-    description: "Internal Runpod worker cleanup status wrapper.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodWorkerCleanup", {
+      description: "Internal Runpod worker cleanup status wrapper.",
+    })
+  )
 ) {}
 
-class RunpodWorkerOtlp extends S.Class<RunpodWorkerOtlp>($I`RunpodWorkerOtlp`)(
-  {
+/**
+ * Internal Runpod worker OTLP export status wrapper.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class RunpodWorkerOtlp extends S.Opaque<RunpodWorkerOtlp, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.String,
-  },
-  $I.annote("RunpodWorkerOtlp", {
-    description: "Internal Runpod worker OTLP export status wrapper.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodWorkerOtlp", {
+      description: "Internal Runpod worker OTLP export status wrapper.",
+    })
+  )
 ) {}
 
-class RunpodWorkerEvalReport extends S.Class<RunpodWorkerEvalReport>($I`RunpodWorkerEvalReport`)(
-  {
+/**
+ * Internal minimal Runpod worker-eval wrapper report.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class RunpodWorkerEvalReport extends S.Opaque<RunpodWorkerEvalReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     cleanup: RunpodWorkerCleanup,
     otlp: RunpodWorkerOtlp,
     workerEval: WorkerEvalReport,
-  },
-  $I.annote("RunpodWorkerEvalReport", {
-    description: "Internal minimal Runpod worker-eval wrapper report.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodWorkerEvalReport", {
+      description: "Internal minimal Runpod worker-eval wrapper report.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(RunpodWorkerEvalReport));
 }
 
-class WorkerEvalManifestEvidence extends S.Class<WorkerEvalManifestEvidence>($I`WorkerEvalManifestEvidence`)(
-  {
+/**
+ * Internal initiative manifest evidence row used to resolve the latest worker-eval report.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class WorkerEvalManifestEvidence extends S.Opaque<WorkerEvalManifestEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     raw: S.String,
-  },
-  $I.annote("WorkerEvalManifestEvidence", {
-    description: "Internal initiative manifest evidence row used to resolve the latest worker-eval report.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkerEvalManifestEvidence", {
+      description: "Internal initiative manifest evidence row used to resolve the latest worker-eval report.",
+    })
+  )
 ) {}
 
-class WorkerEvalManifest extends S.Class<WorkerEvalManifest>($I`WorkerEvalManifest`)(
-  {
+/**
+ * Internal JSDoc worker-eval manifest shape used by the agent-effectiveness default.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class WorkerEvalManifest extends S.Opaque<WorkerEvalManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     evidence: S.Array(WorkerEvalManifestEvidence),
-  },
-  $I.annote("WorkerEvalManifest", {
-    description: "Internal JSDoc worker-eval manifest shape used by the agent-effectiveness default.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkerEvalManifest", {
+      description: "Internal JSDoc worker-eval manifest shape used by the agent-effectiveness default.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(WorkerEvalManifest));
 }
 
-class PhoenixGraphqlProjectNode extends S.Class<PhoenixGraphqlProjectNode>($I`PhoenixGraphqlProjectNode`)(
-  {
+/**
+ * Internal Phoenix GraphQL project node (identity and annotation names only).
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlProjectNode extends S.Opaque<PhoenixGraphqlProjectNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     spanAnnotationNames: S.Array(S.String),
     sessionAnnotationNames: S.Array(S.String),
     traceAnnotationsNames: S.Array(S.String),
-  },
-  $I.annote("PhoenixGraphqlProjectNode", {
-    description: "Internal Phoenix GraphQL project node (identity and annotation names only).",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlProjectNode", {
+      description: "Internal Phoenix GraphQL project node (identity and annotation names only).",
+    })
+  )
 ) {}
 
-class PhoenixGraphqlProjectStatsNode extends S.Class<PhoenixGraphqlProjectStatsNode>(
-  $I`PhoenixGraphqlProjectStatsNode`
-)(
-  {
+/**
+ * Internal Phoenix GraphQL per-project aggregate node.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlProjectStatsNode extends S.Opaque<
+  PhoenixGraphqlProjectStatsNode,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     hasTraces: S.Boolean,
     name: S.String,
     recordCount: S.Finite,
     traceCount: S.Finite,
-  },
-  $I.annote("PhoenixGraphqlProjectStatsNode", {
-    description: "Internal Phoenix GraphQL per-project aggregate node.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlProjectStatsNode", {
+      description: "Internal Phoenix GraphQL per-project aggregate node.",
+    })
+  )
 ) {}
 
-class PhoenixGraphqlProjectStatsEdge extends S.Class<PhoenixGraphqlProjectStatsEdge>(
-  $I`PhoenixGraphqlProjectStatsEdge`
-)(
-  {
+/**
+ * Internal Phoenix GraphQL per-project aggregate edge.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlProjectStatsEdge extends S.Opaque<
+  PhoenixGraphqlProjectStatsEdge,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     node: PhoenixGraphqlProjectStatsNode,
-  },
-  $I.annote("PhoenixGraphqlProjectStatsEdge", {
-    description: "Internal Phoenix GraphQL per-project aggregate edge.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlProjectStatsEdge", {
+      description: "Internal Phoenix GraphQL per-project aggregate edge.",
+    })
+  )
 ) {}
 
-class PhoenixGraphqlProjectStatsConnection extends S.Class<PhoenixGraphqlProjectStatsConnection>(
-  $I`PhoenixGraphqlProjectStatsConnection`
-)(
-  {
+/**
+ * Internal Phoenix GraphQL per-project aggregate connection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlProjectStatsConnection extends S.Opaque<
+  PhoenixGraphqlProjectStatsConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     edges: S.Array(PhoenixGraphqlProjectStatsEdge),
-  },
-  $I.annote("PhoenixGraphqlProjectStatsConnection", {
-    description: "Internal Phoenix GraphQL per-project aggregate connection.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlProjectStatsConnection", {
+      description: "Internal Phoenix GraphQL per-project aggregate connection.",
+    })
+  )
 ) {}
 
-class PhoenixGraphqlProjectStatsData extends S.Class<PhoenixGraphqlProjectStatsData>(
-  $I`PhoenixGraphqlProjectStatsData`
-)(
-  {
+/**
+ * Internal Phoenix GraphQL per-project aggregate payload.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlProjectStatsData extends S.Opaque<
+  PhoenixGraphqlProjectStatsData,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     projects: PhoenixGraphqlProjectStatsConnection,
-  },
-  $I.annote("PhoenixGraphqlProjectStatsData", {
-    description: "Internal Phoenix GraphQL per-project aggregate payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlProjectStatsData", {
+      description: "Internal Phoenix GraphQL per-project aggregate payload.",
+    })
+  )
 ) {}
 
-class PhoenixGraphqlProjectStatsResponse extends S.Class<PhoenixGraphqlProjectStatsResponse>(
-  $I`PhoenixGraphqlProjectStatsResponse`
-)(
-  {
+/**
+ * Internal Phoenix GraphQL per-project aggregate response.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlProjectStatsResponse extends S.Opaque<
+  PhoenixGraphqlProjectStatsResponse,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     data: PhoenixGraphqlProjectStatsData,
-  },
-  $I.annote("PhoenixGraphqlProjectStatsResponse", {
-    description: "Internal Phoenix GraphQL per-project aggregate response.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlProjectStatsResponse", {
+      description: "Internal Phoenix GraphQL per-project aggregate response.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(PhoenixGraphqlProjectStatsResponse);
 }
 
-class PhoenixGraphqlProjectEdge extends S.Class<PhoenixGraphqlProjectEdge>($I`PhoenixGraphqlProjectEdge`)(
-  {
+/**
+ * Internal Phoenix GraphQL project edge.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlProjectEdge extends S.Opaque<PhoenixGraphqlProjectEdge, { readonly brand: unique symbol }>()(
+  S.Struct({
     node: PhoenixGraphqlProjectNode,
-  },
-  $I.annote("PhoenixGraphqlProjectEdge", {
-    description: "Internal Phoenix GraphQL project edge.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlProjectEdge", {
+      description: "Internal Phoenix GraphQL project edge.",
+    })
+  )
 ) {}
 
-class PhoenixGraphqlProjectsConnection extends S.Class<PhoenixGraphqlProjectsConnection>(
-  $I`PhoenixGraphqlProjectsConnection`
-)(
-  {
+/**
+ * Internal Phoenix GraphQL projects connection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlProjectsConnection extends S.Opaque<
+  PhoenixGraphqlProjectsConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     edges: S.Array(PhoenixGraphqlProjectEdge),
-  },
-  $I.annote("PhoenixGraphqlProjectsConnection", {
-    description: "Internal Phoenix GraphQL projects connection.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlProjectsConnection", {
+      description: "Internal Phoenix GraphQL projects connection.",
+    })
+  )
 ) {}
 
-class PhoenixGraphqlServerStatus extends S.Class<PhoenixGraphqlServerStatus>($I`PhoenixGraphqlServerStatus`)(
-  {
+/**
+ * Internal Phoenix GraphQL server status.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlServerStatus extends S.Opaque<PhoenixGraphqlServerStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     insufficientStorage: S.Boolean,
-  },
-  $I.annote("PhoenixGraphqlServerStatus", {
-    description: "Internal Phoenix GraphQL server status.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlServerStatus", {
+      description: "Internal Phoenix GraphQL server status.",
+    })
+  )
 ) {}
 
-class PhoenixGraphqlData extends S.Class<PhoenixGraphqlData>($I`PhoenixGraphqlData`)(
-  {
+/**
+ * Internal Phoenix GraphQL inventory data payload.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlData extends S.Opaque<PhoenixGraphqlData, { readonly brand: unique symbol }>()(
+  S.Struct({
     datasetCount: S.Finite,
     evaluatorCount: S.Finite,
     projectCount: S.Finite,
     projects: PhoenixGraphqlProjectsConnection,
     promptCount: S.Finite,
     serverStatus: PhoenixGraphqlServerStatus,
-  },
-  $I.annote("PhoenixGraphqlData", {
-    description: "Internal Phoenix GraphQL inventory data payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlData", {
+      description: "Internal Phoenix GraphQL inventory data payload.",
+    })
+  )
 ) {}
 
-class PhoenixGraphqlResponse extends S.Class<PhoenixGraphqlResponse>($I`PhoenixGraphqlResponse`)(
-  {
+/**
+ * Internal Phoenix GraphQL inventory response.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PhoenixGraphqlResponse extends S.Opaque<PhoenixGraphqlResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: PhoenixGraphqlData,
-  },
-  $I.annote("PhoenixGraphqlResponse", {
-    description: "Internal Phoenix GraphQL inventory response.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoenixGraphqlResponse", {
+      description: "Internal Phoenix GraphQL inventory response.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(PhoenixGraphqlResponse);
 }

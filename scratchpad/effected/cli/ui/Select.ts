@@ -31,7 +31,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/Select");
  * @category errors
  * @since 0.0.0
  */
-export class NoEnabledChoiceError extends S.TaggedError<NoEnabledChoiceError>($I`NoEnabledChoiceError`)(
+export class NoEnabledChoiceError extends S.TaggedError<NoEnabledChoiceError, { readonly brand: unique symbol }>($I`NoEnabledChoiceError`)(
 	"NoEnabledChoiceError",
 	{
 		message: S.String.annotate($I.annote("NoEnabledChoiceError.message", {

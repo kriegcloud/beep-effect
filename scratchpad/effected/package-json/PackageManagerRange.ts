@@ -116,7 +116,7 @@ const SemVerRangeString: S.String = S.String.pipe(
  * @category errors
  * @since 0.0.0
  */
-export class InvalidPackageManagerRangeError extends S.TaggedError<InvalidPackageManagerRangeError>($I`InvalidPackageManagerRangeError`)(
+export class InvalidPackageManagerRangeError extends S.TaggedError<InvalidPackageManagerRangeError, { readonly brand: unique symbol }>($I`InvalidPackageManagerRangeError`)(
 	"InvalidPackageManagerRangeError",
 	{
 		/**
@@ -240,7 +240,7 @@ const fromParts = (
  * @category models
  * @since 0.0.0
  */
-export class PackageManagerRange extends S.Class<PackageManagerRange>($I`PackageManagerRange`)({
+export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly brand: unique symbol }>($I`PackageManagerRange`)({
 	/** The package-manager name (e.g. `pnpm`). Any lowercase name — the same latitude as {@link PackageManager}, for the same evidence. */
 	name: S.String.annotateKey({ description: "The package-manager name (e.g. `pnpm`). Any lowercase name — the same latitude as PackageManager, for the same evidence." }),
 	/**

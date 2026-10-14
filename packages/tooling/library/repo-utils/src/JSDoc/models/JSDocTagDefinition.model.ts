@@ -67,7 +67,9 @@ const singletonRecord = <Key extends string, Value>(key: Key, value: Value): Rea
  * @category models
  * @since 0.0.0
  */
-export class JSDocTagDefinition extends S.Class<JSDocTagDefinition>($I`JSDocTagDefinition`)(
+export class JSDocTagDefinition extends S.Class<JSDocTagDefinition, { readonly brand: unique symbol }>(
+  $I`JSDocTagDefinition`
+)(
   {
     /** Canonical tag name without the at-sign prefix. Used as discriminant. */
     _tag: S.String.annotateKey({

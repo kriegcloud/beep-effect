@@ -29,18 +29,19 @@ import { SourceAuthRegistration } from "./SourceAuth.ts";
 
 const $I = $McpKitId.create("ApiKeyRequired");
 
-class ApiKeyRequiredFailureParams extends S.Class<ApiKeyRequiredFailureParams>($I`ApiKeyRequiredFailureParams`)(
-  {
+class ApiKeyRequiredFailureParams extends S.Opaque<ApiKeyRequiredFailureParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     tool: S.String.annotateKey({
       description: "Name of the tool that could not resolve its credential.",
     }),
     registration: SourceAuthRegistration.annotateKey({
       description: "Source registration whose credential is required by the tool.",
     }),
-  },
-  $I.annote("ApiKeyRequiredFailureParams", {
-    description: "Input payload for building an api_key_required tool failure.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApiKeyRequiredFailureParams", {
+      description: "Input payload for building an api_key_required tool failure.",
+    })
+  )
 ) {}
 
 type ApiKeyRequiredFailureParamsInput = Exclude<(typeof ApiKeyRequiredFailureParams)["~type.make.in"], void>;
@@ -72,8 +73,8 @@ type ApiKeyRequiredFailureParamsInput = Exclude<(typeof ApiKeyRequiredFailurePar
  * @category models
  * @since 0.0.0
  */
-export class ApiKeyRequiredFailure extends S.Class<ApiKeyRequiredFailure>($I`ApiKeyRequiredFailure`)(
-  {
+export class ApiKeyRequiredFailure extends S.Opaque<ApiKeyRequiredFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
     error: S.tag("api_key_required"),
     tool: S.NonEmptyString.annotateKey({
       description: "Name of the tool that could not resolve its credential.",
@@ -84,10 +85,11 @@ export class ApiKeyRequiredFailure extends S.Class<ApiKeyRequiredFailure>($I`Api
     registration: SourceAuthRegistration.annotateKey({
       description: "Full source registration, including any signup URL.",
     }),
-  },
-  $I.annote("ApiKeyRequiredFailure", {
-    description: "Typed api_key_required tool failure for a source whose credential is absent at call time.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApiKeyRequiredFailure", {
+      description: "Typed api_key_required tool failure for a source whose credential is absent at call time.",
+    })
+  )
 ) {
   static readonly forTool = (params: ApiKeyRequiredFailureParamsInput): ApiKeyRequiredFailure =>
     ApiKeyRequiredFailure.make({
@@ -166,14 +168,15 @@ export const isApiKeyRequiredFailure = S.is(ApiKeyRequiredFailure);
  * @category models
  * @since 0.0.0
  */
-export class ToolHandlerPayload extends S.Class<ToolHandlerPayload>($I`ToolHandlerPayload`)(
-  {
+export class ToolHandlerPayload extends S.Opaque<ToolHandlerPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     result: S.Unknown.annotateKey({ description: "Decoded handler result or declared failure value." }),
     encodedResult: S.Unknown.annotateKey({ description: "JSON encoding of `result`, as the Toolkit produced it." }),
-  },
-  $I.annote("ToolHandlerPayload", {
-    description: "Decoded result and its JSON encoding, as carried by a Toolkit handler result.",
-  })
+  }).pipe(
+    $I.annoteSchema("ToolHandlerPayload", {
+      description: "Decoded result and its JSON encoding, as carried by a Toolkit handler result.",
+    })
+  )
 ) {}
 
 /**

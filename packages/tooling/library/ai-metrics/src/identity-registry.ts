@@ -118,8 +118,8 @@ export type AiMetricsRootKind = typeof AiMetricsRootKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsCanonicalRoot extends S.Class<AiMetricsCanonicalRoot>($I`AiMetricsCanonicalRoot`)(
-  {
+export class AiMetricsCanonicalRoot extends S.Opaque<AiMetricsCanonicalRoot, { readonly brand: unique symbol }>()(
+  S.Struct({
     cloneIdHash: S.String,
     excludedFromParentSnapshot: S.Boolean,
     firstSeenAtEpochMillis: S.Finite,
@@ -130,10 +130,11 @@ export class AiMetricsCanonicalRoot extends S.Class<AiMetricsCanonicalRoot>($I`A
     revision: S.optionalKey(S.String),
     rootId: S.String,
     worktreeIdHash: S.String,
-  },
-  $I.annote("AiMetricsCanonicalRoot", {
-    description: "Clone, repository, worktree, and revision identity for one canonical AI metrics root.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsCanonicalRoot", {
+      description: "Clone, repository, worktree, and revision identity for one canonical AI metrics root.",
+    })
+  )
 ) {}
 
 /**
@@ -165,17 +166,18 @@ export class AiMetricsCanonicalRoot extends S.Class<AiMetricsCanonicalRoot>($I`A
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsSourceInstance extends S.Class<AiMetricsSourceInstance>($I`AiMetricsSourceInstance`)(
-  {
+export class AiMetricsSourceInstance extends S.Opaque<AiMetricsSourceInstance, { readonly brand: unique symbol }>()(
+  S.Struct({
     homeDirHash: S.String,
     instanceIdHash: S.String,
     lastSeenAtEpochMillis: S.Finite,
     rootId: S.String,
     sourceKind: AiMetricsTranscriptSource,
-  },
-  $I.annote("AiMetricsSourceInstance", {
-    description: "One machine, canonical root, and agent brand triple producing AI metrics transcripts.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsSourceInstance", {
+      description: "One machine, canonical root, and agent brand triple producing AI metrics transcripts.",
+    })
+  )
 ) {}
 
 /**
@@ -209,8 +211,8 @@ export class AiMetricsSourceInstance extends S.Class<AiMetricsSourceInstance>($I
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsIdentityRegistry extends S.Class<AiMetricsIdentityRegistry>($I`AiMetricsIdentityRegistry`)(
-  {
+export class AiMetricsIdentityRegistry extends S.Opaque<AiMetricsIdentityRegistry, { readonly brand: unique symbol }>()(
+  S.Struct({
     generatedAtEpochMillis: S.Finite,
     hashSaltNamespaceId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     hashSaltStatus: AiMetricsHashSaltStatus,
@@ -219,10 +221,11 @@ export class AiMetricsIdentityRegistry extends S.Class<AiMetricsIdentityRegistry
     ),
     roots: S.Array(AiMetricsCanonicalRoot),
     sourceInstances: S.Array(AiMetricsSourceInstance),
-  },
-  $I.annote("AiMetricsIdentityRegistry", {
-    description: "Persisted registry of canonical AI metrics roots and the source instances writing to them.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsIdentityRegistry", {
+      description: "Persisted registry of canonical AI metrics roots and the source instances writing to them.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsIdentityRegistry));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsIdentityRegistry));
@@ -247,14 +250,18 @@ export class AiMetricsIdentityRegistry extends S.Class<AiMetricsIdentityRegistry
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsCanonicalRootInput extends S.Class<AiMetricsCanonicalRootInput>($I`AiMetricsCanonicalRootInput`)(
-  {
+export class AiMetricsCanonicalRootInput extends S.Opaque<
+  AiMetricsCanonicalRootInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     hashSalt: S.optionalKey(S.String),
     rootPath: S.String,
-  },
-  $I.annote("AiMetricsCanonicalRootInput", {
-    description: "Root path and optional hash salt used to derive one canonical AI metrics root identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsCanonicalRootInput", {
+      description: "Root path and optional hash salt used to derive one canonical AI metrics root identity.",
+    })
+  )
 ) {}
 
 const aiMetricsIdentityRegistryUpsertInputSourceKindsDefault = A.empty<AiMetricsTranscriptSource>();
@@ -279,10 +286,11 @@ const aiMetricsIdentityRegistryUpsertInputSourceKindsDefault = A.empty<AiMetrics
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsIdentityRegistryUpsertInput extends S.Class<AiMetricsIdentityRegistryUpsertInput>(
-  $I`AiMetricsIdentityRegistryUpsertInput`
-)(
-  {
+export class AiMetricsIdentityRegistryUpsertInput extends S.Opaque<
+  AiMetricsIdentityRegistryUpsertInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dataRoot: S.String,
     hashSalt: S.optionalKey(S.String),
     homeDir: S.String,
@@ -291,10 +299,12 @@ export class AiMetricsIdentityRegistryUpsertInput extends S.Class<AiMetricsIdent
       S.withConstructorDefault(Effect.succeed(aiMetricsIdentityRegistryUpsertInputSourceKindsDefault)),
       S.withDecodingDefaultType(Effect.succeed(aiMetricsIdentityRegistryUpsertInputSourceKindsDefault))
     ),
-  },
-  $I.annote("AiMetricsIdentityRegistryUpsertInput", {
-    description: "Data root, home directory, root path, and agent brands merged into the AI metrics identity registry.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsIdentityRegistryUpsertInput", {
+      description:
+        "Data root, home directory, root path, and agent brands merged into the AI metrics identity registry.",
+    })
+  )
 ) {}
 
 /**
@@ -316,9 +326,10 @@ export class AiMetricsIdentityRegistryUpsertInput extends S.Class<AiMetricsIdent
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsIdentityRegistryError extends S.TaggedError<AiMetricsIdentityRegistryError>(
-  $I`AiMetricsIdentityRegistryError`
-)(
+export class AiMetricsIdentityRegistryError extends S.TaggedError<
+  AiMetricsIdentityRegistryError,
+  { readonly brand: unique symbol }
+>($I`AiMetricsIdentityRegistryError`)(
   "AiMetricsIdentityRegistryError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),

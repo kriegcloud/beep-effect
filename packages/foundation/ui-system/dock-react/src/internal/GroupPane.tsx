@@ -23,6 +23,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { useCallback, useEffect, useRef } from "react";
+import { DockPanelApi } from "../DockReact.types.ts";
 import { makeOperation } from "./AdapterState.ts";
 import {
   compileDrop,
@@ -214,16 +215,18 @@ const Tab = (props: {
       const pointer = relativePositionOf(props.state, event);
       props.graph.registry.set(
         props.state.dragAtom,
-        O.some({
-          panelId: props.panel.id,
-          fromGroupId: props.groupId,
-          pointer,
-          origin: pointer,
-          moved: false,
-          concluded: false,
-          pointerId: event.pointerId,
-          // fallow-ignore-next-line code-duplication -- pointer-down captures the drag snapshot for the paired move handler
-        })
+        O.some(
+          TabDrag.make({
+            panelId: props.panel.id,
+            fromGroupId: props.groupId,
+            pointer,
+            origin: pointer,
+            moved: false,
+            concluded: false,
+            pointerId: event.pointerId,
+            // fallow-ignore-next-line code-duplication -- pointer-down captures the drag snapshot for the paired move handler
+          })
+        )
       );
     };
     node.addEventListener("pointerdown", down);
@@ -267,7 +270,7 @@ const Tab = (props: {
               component: ({ input }) => input,
               text: () => ({}),
             })}
-            api={{ id: props.panel.id }}
+            api={DockPanelApi.make({ id: props.panel.id })}
             containerApi={props.state.api}
             title={props.panel.title}
           />
@@ -535,7 +538,7 @@ export const GroupPane = (
     submit(
       makeOperation(
         O.exists(maximized, (groupId) => S.toEquivalence(GroupId)(groupId, props.groupId))
-          ? RestoreMaximizedCommand.make()
+          ? RestoreMaximizedCommand.make({})
           : MaximizeGroupCommand.make({ groupId: props.groupId })
       )
     );

@@ -57,10 +57,11 @@ const $I = $LawPracticeServerId.create("PracticeKg.families");
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgDocumentAttribution extends S.Class<PracticeKgDocumentAttribution>(
-  $I`PracticeKgDocumentAttribution`
-)(
-  {
+export class PracticeKgDocumentAttribution extends S.Opaque<
+  PracticeKgDocumentAttribution,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attributionSource: KgAttributionSource,
     client: S.NullOr(S.String),
     digest: S.NonEmptyString,
@@ -69,10 +70,11 @@ export class PracticeKgDocumentAttribution extends S.Class<PracticeKgDocumentAtt
     family: S.NullOr(S.String),
     familyKey: S.NullOr(S.String),
     recycled: S.Boolean,
-  },
-  $I.annote("PracticeKgDocumentAttribution", {
-    description: "Client, family key, docket key, and attribution source resolved for one catalogued document.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgDocumentAttribution", {
+      description: "Client, family key, docket key, and attribution source resolved for one catalogued document.",
+    })
+  )
 ) {}
 
 /**
@@ -108,8 +110,8 @@ export class PracticeKgDocumentAttribution extends S.Class<PracticeKgDocumentAtt
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgAnchorRecord extends S.Class<PracticeKgAnchorRecord>($I`PracticeKgAnchorRecord`)(
-  {
+export class PracticeKgAnchorRecord extends S.Opaque<PracticeKgAnchorRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationNumber: S.NullOr(S.String),
     candidates: S.Array(S.String),
     firstApplicantName: S.NullOr(S.String),
@@ -118,10 +120,11 @@ export class PracticeKgAnchorRecord extends S.Class<PracticeKgAnchorRecord>($I`P
     numbers: S.Array(S.String),
     parentApplicationNumbers: S.Array(S.String),
     patentNumber: S.NullOr(S.String),
-  },
-  $I.annote("PracticeKgAnchorRecord", {
-    description: "USPTO anchor merged across its application-keyed and patent-keyed enrichment rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgAnchorRecord", {
+      description: "USPTO anchor merged across its application-keyed and patent-keyed enrichment rows.",
+    })
+  )
 ) {}
 
 /**
@@ -166,8 +169,11 @@ export class PracticeKgAnchorRecord extends S.Class<PracticeKgAnchorRecord>($I`P
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgAnchorResolution extends S.Class<PracticeKgAnchorResolution>($I`PracticeKgAnchorResolution`)(
-  {
+export class PracticeKgAnchorResolution extends S.Opaque<
+  PracticeKgAnchorResolution,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     anchor: PracticeKgAnchorRecord,
     attributionSource: KgAttributionSource,
     memberClient: S.NullOr(S.String),
@@ -175,10 +181,11 @@ export class PracticeKgAnchorResolution extends S.Class<PracticeKgAnchorResoluti
     memberFamily: S.NullOr(S.String),
     memberFamilyKey: S.NullOr(S.String),
     mentionedFamilyKeys: S.Array(S.String),
-  },
-  $I.annote("PracticeKgAnchorResolution", {
-    description: "Membership-or-mention placement of one USPTO anchor across keyed docket families.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgAnchorResolution", {
+      description: "Membership-or-mention placement of one USPTO anchor across keyed docket families.",
+    })
+  )
 ) {}
 
 const recycleStubPattern = /^\$R/u;
@@ -302,19 +309,21 @@ const clientsByDigestFor = (
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgAttributeDocumentsInput extends S.Class<PracticeKgAttributeDocumentsInput>(
-  $I`PracticeKgAttributeDocumentsInput`
-)(
-  {
+export class PracticeKgAttributeDocumentsInput extends S.Opaque<
+  PracticeKgAttributeDocumentsInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     catalogRows: S.Array(PracticeKgCatalogRow),
     docketReferences: S.Array(PracticeKgDocketReferenceRow),
     registerRows: S.Array(PracticeKgDocketRegisterRow).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<PracticeKgDocketRegisterRow>()))
     ),
-  },
-  $I.annote("PracticeKgAttributeDocumentsInput", {
-    description: "Catalog rows, the client-prefixed docket references scanned from their text, and register rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgAttributeDocumentsInput", {
+      description: "Catalog rows, the client-prefixed docket references scanned from their text, and register rows.",
+    })
+  )
 ) {}
 
 /**
@@ -334,17 +343,19 @@ export class PracticeKgAttributeDocumentsInput extends S.Class<PracticeKgAttribu
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgResolveAnchorsInput extends S.Class<PracticeKgResolveAnchorsInput>(
-  $I`PracticeKgResolveAnchorsInput`
-)(
-  {
+export class PracticeKgResolveAnchorsInput extends S.Opaque<
+  PracticeKgResolveAnchorsInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     anchors: S.Array(PracticeKgAnchorRecord),
     attributions: S.Array(PracticeKgDocumentAttribution),
     numberMentions: S.Array(PracticeKgNumberMentionRow),
-  },
-  $I.annote("PracticeKgResolveAnchorsInput", {
-    description: "Reconciled anchors, scanned number mentions, and document attributions for anchor placement.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgResolveAnchorsInput", {
+      description: "Reconciled anchors, scanned number mentions, and document attributions for anchor placement.",
+    })
+  )
 ) {}
 
 const afterFamilyPattern = /[^0-9].*$/u;
