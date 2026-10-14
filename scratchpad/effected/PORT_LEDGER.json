@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "cli",
+    "module": "jsonl",
     "stage": 5,
     "commit": null,
-    "at": "2026-10-14T01:15:16.118Z"
+    "at": "2026-10-14T01:28:30.666Z"
   },
   "rows": [
     {
@@ -14,8 +14,8 @@
       "module": "jsonl",
       "wave": 0,
       "position": 1,
-      "stage": 3,
-      "status": "in-progress",
+      "stage": 5,
+      "status": "done",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
         "src": "packages/jsonl/src",
@@ -356,6 +356,12 @@
           "upstreamBehaviour": "Before the allowlist fix, Envelope.ts identity-cached a tag index in WeakMap and froze the caller event array; Journal.Service augmented its Context.Service key with Object.assign and read caller-array membership; internal/merge.ts classified records with Object.prototype.toString and copied safe fields onto the base prototype using Object.create/defineProperty.",
           "labBehaviour": "Envelope.registry owns an A.copy array and compiled HashMap index; Journal.Service snapshots it, retains the public events reference, and subclasses the service key with static events/layer. internal/merge.ts uses predicates and boxed/tag checks: arguments and some foreign-realm builtins are admitted, builtin/function Object-tag spoofing rejected. R.fromEntries/spread creates a plain transient patch; Envelope.encodePatchResult encodes class fields before decoding creates the instance. Tests pin mutation isolation and decoded identity.",
           "reason": "native-runtime: remove native WeakMap and Object.* runtime operations; the 2026-10-09 grilling ruling requires owner-held caches, readonly representations instead of runtime freezing, and removal of all four jsonl allowlist entries. Envelope.registry, Journal.Service, isRecordLike, canMerge and shallowMerge follow that ruling; freeze/prototype assertions are retargeted under D9."
+        },
+        {
+          "test": "scratchpad/test/jsonl/merge.test.ts:100; scratchpad/test/jsonl/EnvelopePatch.test.ts:77; scratchpad/test/jsonl/Journal.test.ts:430",
+          "upstreamBehaviour": "The pinned upstream shallowMerge preserves the decoded base prototype, including inherited schema-class markers used to select its class encoder; those markers are not own enumerable fields of the merged payload.",
+          "labBehaviour": "The transient plain merge now carries own enumerable schema-class marker strings collected from the decoded base prototype chain. Base and patch marker fields are filtered, so patches cannot forge or overwrite provenance. The patch encoder checks the originating class marker and removes marker metadata before field encoding and persisted JSON.",
+          "reason": "native-runtime: The 2026-10-09 ruling prohibits Object.create/Object.defineProperty and requires plain transient records. This round adds protected own provenance metadata to preserve upstream class-union encoder selection without restoring prototypes; the existing ledger entry covers the earlier plain merge, not this new own-field shape."
         }
       ],
       "backlog": [
@@ -382,6 +388,18 @@
           "round": 2,
           "finding": "sol-2-2 — Runtime-boundary documentation describes removed allowlist exceptions (scratchpad/effected/jsonl/README.md:145)",
           "reason": "docs: During the documentation wave, replace those obsolete sentences with the current owned registry, service subclass, and structural patch approach. Do not hand-edit Port notes or the central ledger."
+        },
+        {
+          "seat": "grok",
+          "round": 3,
+          "finding": "grok-3-2 — Repeated patch-codec construction and encoder compilation (scratchpad/effected/jsonl/Envelope.ts:298)",
+          "reason": "perf: Retain one patched codec/encoder per event on the owned registry after correctness fixes; measure before promoting to required. No measurement or algorithmic-class improvement was supplied."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "claude-3-3 — Historical-read guarantee omits the in-place truncate/refill race (scratchpad/effected/jsonl/Journal.ts:960)",
+          "reason": "docs: Narrow the central deviation wording and Journal comment to rename-over pinning and short-page shrink detection; state the in-place truncate/refill limitation. Port notes and ledger are outside the fix lane write surface."
         }
       ],
       "reviewRounds": [
@@ -420,6 +438,24 @@
               "backlog": 1
             }
           }
+        },
+        {
+          "round": 3,
+          "commit": "40074bd59e77fbdfad3df92e95ecc2b7f3408b78",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 1
+            },
+            "sol": {
+              "required": 1,
+              "backlog": 2
+            },
+            "fable": {
+              "required": 2,
+              "backlog": 0
+            }
+          }
         }
       ],
       "commits": [
@@ -433,6 +469,14 @@
         },
         {
           "stage": 2,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 3,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 4,
           "sha": null
         }
       ],
@@ -441,9 +485,11 @@
         "2026-10-07T06:59:18.660Z Deferred to memfs S1 (goal 9.3): upstream __test__/helpers/memfs.ts and MemFsHelper.test.ts import @effected/memfs; restore both into scratchpad/test/jsonl right after memfs reaches S1. Lab-only behaviours (5 added error tags, paging, EOF clamp) get section 14 deviation entries with upstream probes at S2.",
         "2026-10-07T06:59:18.969Z S1: S1 green: restored upstream EnvelopeTypes, LineProperty and integration/Journal.int suites (no upstream assertion failed), jsonl moved onto the generic runner, root imports rewritten, 332 tests.",
         "2026-10-07T08:44:45.052Z S2: S2 green: docgen with every enforcement flag and the JSDoc law; README Port notes rewritten from an executed upstream-vs-lab probe review (26 candidates, adversarially verified): 23 deviations with law or upstream-bug causes and pinning tests, D13/D15/D16(input)/D19/D23 restored to upstream.",
-        "2026-10-07T08:45:02.033Z S3: S3 green on 74d94768ac: 364 tests, every file at 100 percent (coverage summary verified), canon clean with 3 ledgered exceptions (real-platform integration suites, live-clock watcher), property floor 41 properties (checkpoint 106d282f2b) plus deviation pins."
+        "2026-10-07T08:45:02.033Z S3: S3 green on 74d94768ac: 364 tests, every file at 100 percent (coverage summary verified), canon clean with 3 ledgered exceptions (real-platform integration suites, live-clock watcher), property floor 41 properties (checkpoint 106d282f2b) plus deviation pins.",
+        "2026-10-14T01:28:28.935Z S4: S4 closed at review round 3 (operator cap: three rounds)",
+        "2026-10-14T01:28:30.666Z S5: done: final round committed and gated (audit, docgen, per-file coverage)"
       ],
-      "closedAt": null
+      "closedAt": "2026-10-14T01:28:30.666Z"
     },
     {
       "id": "w0-jsonc",
