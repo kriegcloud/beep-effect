@@ -90,7 +90,7 @@ const pageOf = (file: string, figure: number, notes: ReadonlyArray<MarkupNote>) 
 const findingsOf = (pages: ReadonlyArray<ReviewedPage>, sheets: ReadonlyArray<number> = [1, 2, 3]) =>
   Result.getOrElse(buildFindings({ round: 1, sheets, pages }), () => []);
 const nth = <T>(items: ReadonlyArray<T>, index: number): T => O.getOrThrow(A.get(items, index));
-const entry = (id: string, disposition: Disposition, severity: "P0" | "P1" | "P2" = "P1") =>
+const entry = (id: typeof ReviewFindingId.Encoded, disposition: Disposition, severity: "P0" | "P1" | "P2" = "P1") =>
   DispositionEntry.make({ id: ReviewFindingId.make(id), severity, lens: "sheet-compliance", disposition });
 const declined = Disposition.cases.decline.make({ kind: "decline", reason: "Already drawn that way." });
 const specChange = Disposition.cases["spec-change"].make({
@@ -378,28 +378,31 @@ describe("drawing review rules", () => {
     expect(others).toContain("declined: Already drawn that way.");
   });
 
-  it("rejects a finding whose scope and figures disagree", () => {
-    const decode = S.decodeUnknownResult(ReviewFinding);
-    const base = {
-      id: "A1-01",
-      severity: "P1",
-      scope: "all-sheets",
-      figures: [2],
-      notes: [S.encodeSync(MarkupNote)(note("x", "Fig1.pdf"))],
-      status: "open",
-    };
-    assertTrue(Result.isFailure(decode(base)));
-    assertTrue(Result.isFailure(decode({ ...base, scope: "sheet", status: "planned" })));
-    assertTrue(Result.isFailure(decode({ ...base, scope: "sheet", figures: [] })));
-    assertTrue(Result.isSuccess(decode({ ...base, scope: "sheet" })));
-    assertTrue(Result.isSuccess(decode({ ...base, figures: [] })));
-  });
+  it.effect(
+    "rejects a finding whose scope and figures disagree",
+    Effect.fnUntraced(function* () {
+      const decode = S.decodeUnknownResult(ReviewFinding);
+      const base = {
+        id: "A1-01",
+        severity: "P1",
+        scope: "all-sheets",
+        figures: [2],
+        notes: [yield* S.encodeEffect(MarkupNote)(note("x", "Fig1.pdf"))],
+        status: "open",
+      };
+      decode(base).pipe(Result.isFailure, assertTrue);
+      decode({ ...base, scope: "sheet", status: "planned" }).pipe(Result.isFailure, assertTrue);
+      decode({ ...base, scope: "sheet", figures: [] }).pipe(Result.isFailure, assertTrue);
+      decode({ ...base, scope: "sheet" }).pipe(Result.isSuccess, assertTrue);
+      decode({ ...base, figures: [] }).pipe(Result.isSuccess, assertTrue);
+    })
+  );
 
   // The round files are JSON on disk: every value the schemas admit must
   // survive an encode/decode through JSON unchanged.
   const roundTrips = <A, I>(schema: S.Codec<A, I>, value: A) => {
     const codec = S.fromJsonString(schema);
-    const decoded = Result.getOrThrow(S.decodeResult(codec)(Result.getOrThrow(S.encodeResult(codec)(value))));
+    const decoded = S.encodeResult(codec)(value).pipe(Result.getOrThrow, S.decodeResult(codec), Result.getOrThrow);
     expect(S.toEquivalence(schema)(value, decoded)).toBe(true);
   };
 
@@ -453,29 +456,30 @@ const SHEETS: ReadonlyArray<(page: PDFPage) => void> = [
 ];
 
 // The sent set, with `blankPages` extra empty pages to make a different set.
-const sheetSetPdf = (blankPages = 0) =>
-  Effect.gen(function* () {
-    const doc = yield* Effect.promise(() => PDFDocument.create());
-    A.forEach(SHEETS, (draw) => draw(doc.addPage([612, 792])));
-    if (blankPages > 0) {
-      A.forEach(
-        A.makeBy(blankPages, () => 0),
-        () => doc.addPage([612, 792])
-      );
-    }
-    return yield* Effect.promise(() => doc.save());
-  });
+const sheetSetPdf = Effect.fn("DrawingsReviewTest.sheetSetPdf")(function* (blankPages = 0) {
+  const doc = yield* Effect.promise(() => PDFDocument.create());
+  A.forEach(SHEETS, (draw) => draw(doc.addPage([612, 792])));
+  if (blankPages > 0) {
+    A.forEach(
+      A.makeBy(blankPages, () => 0),
+      () => doc.addPage([612, 792])
+    );
+  }
+  return yield* Effect.promise(() => doc.save());
+});
 
 // A reviewer page: the drawing (or a foreign one) with typed notes on top.
-const reviewerPdf = (draw: (page: PDFPage) => void, notes: ReadonlyArray<readonly [string, number, number]>) =>
-  Effect.gen(function* () {
-    const doc = yield* Effect.promise(() => PDFDocument.create());
-    const font = yield* Effect.promise(() => doc.embedFont(StandardFonts.Helvetica));
-    const page = doc.addPage([612, 792]);
-    draw(page);
-    A.forEach(notes, ([text, x, y]) => page.drawText(text, { x, y, font, size: 11 }));
-    return yield* Effect.promise(() => doc.save());
-  });
+const reviewerPdf = Effect.fn("DrawingsReviewTest.reviewerPdf")(function* (
+  draw: (page: PDFPage) => void,
+  notes: ReadonlyArray<readonly [string, number, number]>
+) {
+  const doc = yield* Effect.promise(() => PDFDocument.create());
+  const font = yield* Effect.promise(() => doc.embedFont(StandardFonts.Helvetica));
+  const page = doc.addPage([612, 792]);
+  draw(page);
+  A.forEach(notes, ([text, x, y]) => page.drawText(text, { x, y, font, size: 11 }));
+  return yield* Effect.promise(() => doc.save());
+});
 
 const foreignDrawing = (page: PDFPage) => {
   stroke(page);
@@ -566,13 +570,16 @@ const writeReviewerFiles = Effect.fnUntraced(function* (inputs: string) {
 });
 
 // Writes `value` as JSON and returns the hash of the bytes written.
-const writeJsonFile = <A, I>(schema: S.Codec<A, I>, file: string, value: A) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const bytes = new TextEncoder().encode(yield* S.encodeEffect(S.fromJsonString(schema))(value));
-    yield* fs.writeFile(file, bytes);
-    return Sha256Hex.make(yield* sha256(bytes));
-  });
+const writeJsonFile = Effect.fn("DrawingsReviewTest.writeJsonFile")(function* <A, I>(
+  schema: S.Codec<A, I>,
+  file: string,
+  value: A
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const bytes = new TextEncoder().encode(yield* S.encodeEffect(S.fromJsonString(schema))(value));
+  yield* fs.writeFile(file, bytes);
+  return Sha256Hex.make(yield* sha256(bytes));
+});
 
 const inventoryOf = (round: ReviewRound, findings: ReadonlyArray<ReviewFinding>) =>
   ReviewInventory.make({
@@ -615,16 +622,17 @@ const toolPresent = (command: string) =>
     )
   );
 
-const skipWithoutPoppler = (context: { readonly skip: (note?: string) => void }) =>
-  Effect.gen(function* () {
-    for (const tool of ["pdftoppm", "pdftotext"]) {
-      if (!(yield* toolPresent(tool))) {
-        context.skip(`Missing native prerequisite: ${tool} on PATH`);
-        return true;
-      }
+const skipWithoutPoppler = Effect.fn("DrawingsReviewTest.skipWithoutPoppler")(function* (context: {
+  readonly skip: (note?: string) => void;
+}) {
+  for (const tool of ["pdftoppm", "pdftotext"]) {
+    if (!(yield* toolPresent(tool))) {
+      context.skip(`Missing native prerequisite: ${tool} on PATH`);
+      return true;
     }
-    return false;
-  });
+  }
+  return false;
+});
 
 const runDrawings = Command.runWith(drawingsCommand, { version: "0.0.0" });
 const logged = TestConsole.logLines.pipe(Effect.map((lines) => lines.join("\n")));
@@ -712,7 +720,7 @@ describe("beep drawings review", () => {
             location: corpus.location,
             manifestPath: corpus.sent.manifest,
             pdfPaths: [foreign ?? ""],
-            figureOverrides: [O.getOrThrow(Result.getSuccess(parseFigureOverride("Foreign.pdf=3")))],
+            figureOverrides: [parseFigureOverride("Foreign.pdf=3").pipe(Result.getSuccess, O.getOrThrow)],
           })
         );
         assertSome(
@@ -725,7 +733,7 @@ describe("beep drawings review", () => {
               location: corpus.location,
               manifestPath: corpus.sent.manifest,
               pdfPaths: [fig1 ?? ""],
-              figureOverrides: [O.getOrThrow(Result.getSuccess(parseFigureOverride("Fig9.pdf=3")))],
+              figureOverrides: [parseFigureOverride("Fig9.pdf=3").pipe(Result.getSuccess, O.getOrThrow)],
             })
           )
         );
@@ -872,7 +880,7 @@ describe("beep drawings review", () => {
           ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: dispositionsFile })
         );
         expect(planned.round.status).toBe("planned");
-        assertTrue(O.isSome(planned.round.dispositionsSha256));
+        planned.round.dispositionsSha256.pipe(O.isSome, assertTrue);
         expect(yield* fs.exists(path.join(opened.roundDir, "dispositions.json"))).toBe(true);
         assertSome(
           O.map(planned.inventory, (inventory) => inventory.findings.map((f) => f.status)),
