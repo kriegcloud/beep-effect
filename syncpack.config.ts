@@ -164,6 +164,12 @@ const config = {
       // schemaClassMissingBrand "off" pending the S.Class/S.Struct/S.Opaque
       // decision, drops the removed `debug` option, and must also sweep
       // apps/labs, which `bun run check` filters out.
+      // tsc-rs (pingdotgg/ts-rust) runs `beep:build`, `beep:check` and
+      // `beep:check:tests`; it compiles the Effect rules of one effect-tsgo
+      // version in (0.6.0 ports 0.51.1) and pins its own TypeScript
+      // (7.1.0-dev.20261008.1), so it is held with @effect/tsgo and the two
+      // move together: bump tsc-rs to the release that ports the new rule set
+      // in the same change. Table: docs/runbooks/typescript-toolchain.md.
       // @biomejs/biome 2.5.7 stops formatting JSON piped through
       // `biome format --stdin-file-path`, so `renderBiomeJson` — the writer
       // behind `beep tsconfig-sync` for docgen.json/tsconfig.json — emits
@@ -196,6 +202,7 @@ const config = {
         "@effect/tsgo-linux-x64",
         "@effect/tsgo-win32-arm64",
         "@effect/tsgo-win32-x64",
+        "tsc-rs",
       ],
       isIgnored: true,
     },
