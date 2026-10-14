@@ -215,11 +215,12 @@ describe("drawing review rules", () => {
       ["A1-03", "sheet", [2], 1, "P1", "open"],
     ]);
     // the merged finding keeps each page's text exactly as written
-    expect(O.map(A.get(findings, 1), (finding) => A.map(finding.notes, (n) => [n.text, n.source.file]))).toEqual(
-      O.some([
+    assertSome(
+      O.map(A.get(findings, 1), (finding) => A.map(finding.notes, (n) => [n.text, n.source.file])),
+      [
         ["Margins: 1 in (all sheets)", "Fig1.pdf"],
         ["Margins:  1 in (ALL SHEETS)", "Fig2.pdf"],
-      ])
+      ]
     );
   });
 
