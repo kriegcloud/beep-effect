@@ -1,6 +1,6 @@
 # P4 design — `beep knowledge doctor` (Workstream C Stage 2)
 
-Status: design (2026-10-13), agent-decided under the 2026-10-06 autonomy charter; K1–K31 below carry their reasons and reversals. PR 1 (read-only `--report`) is the first implementation step.
+Status: design (2026-10-13), agent-decided under the 2026-10-06 autonomy charter; K1–K37 below carry their reasons and reversals. PR 1 (read-only `--report`) is the first implementation step.
 
 ## Scope and binding doctrine
 
@@ -236,15 +236,20 @@ and only returns the baseline. Writing the file is the CI job's step.
 ```text
 bun run beep knowledge doctor --report [--tree HEAD] [--json]        # phase 0: no baseline, exit 0
 bun run beep knowledge doctor [--base origin/main] [--json]          # gate: ratchet + seal guard + leases
-bun run beep knowledge doctor mint --at <sha>                        # CI-only: refuses unless CI=true, clean tree, sha ∈ origin/main
+bun run beep knowledge doctor mint [--at HEAD] [--base origin/main] [--write]  # dry run anywhere; --write CI-only (K36)
 bun run beep knowledge doctor verify-mint                            # re-mint at mintedAt, byte-compare
+bun run beep knowledge doctor ci [--base origin/main]                # quality-lane form (K35)
 bun run beep knowledge doctor leases [--json]                        # active / expiring(<=7d) / expired; yeet consumes
 ```
 
 There is deliberately no `--write-baseline`. That is the difference from
-`goals doctor`. Quality wiring: a `knowledge:doctor` step after
-`knowledge:semantic-delta` in `rootRepoLintPolicySteps`. It is report-only until the
-first promotion. Mint workflow: `.github/workflows/knowledge-baseline-mint.yml`
+`goals doctor`: `mint --write` is the file's only writer, and it writes only in CI, on a
+clean checkout whose `HEAD` is the minted commit, at a commit `--base` contains. Quality
+wiring: a `knowledge:doctor` step after `knowledge:semantic-delta` in
+`rootRepoLintPolicySteps`, running `knowledge doctor ci`. It is report-only until the
+merge-base tracks the sealed baseline (K35); under the gate only promoted kinds and
+governance findings block (K24), so findings stay report-only until the first promotion.
+Mint workflow: `.github/workflows/knowledge-baseline-mint.yml`
 (weekly schedule plus `workflow_dispatch`, `fetch-depth: 0`, pinned
 `peter-evans/create-pull-request` to `automation/knowledge-baseline-mint`). It needs a
 dedicated GitHub App token, the same unprovisioned prerequisite that keeps
@@ -352,13 +357,48 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   (K30), the export search names its bound and unfollowed `export *` targets, and the
   human report states that `verified` means checked and lists the unclassified worklist
   per evaluator and per document (verdict risks 2–5).
-- **PR 5 (needs App token):** the mint workflow. Its first CI-generated baseline-only PR
-  is the initial seal.
+- **PR 5 (landed scope):** `knowledge doctor mint [--at] [--base] [--write]`, the only
+  writer of the sealed baseline: a dry run prints entry counts per group, and `--write`
+  refuses with `KnowledgeMintContextRefusal` unless CI, a clean checkout, `HEAD` at the
+  minted commit, and the commit on `--base` all hold (K36). The mint itself is
+  `mintKnowledgeBaseline`, so laundering refuses with `KnowledgeMintRefusal` and the list;
+  an unchanged mint writes nothing (K32). `.github/workflows/knowledge-baseline-mint.yml`
+  mints weekly and on dispatch at the default-branch `HEAD` and opens or updates the
+  baseline-only PR from `automation/knowledge-baseline-mint`, authored by the mint App,
+  signed, and labelled `ready-for-heavy` (K32, K34). `--accept-mint` now checks C8
+  condition (i) itself from the event payload and `KNOWLEDGE_MINT_APP_SLUG` (K33).
+  `knowledge:doctor` runs `knowledge doctor ci`: the read-only report until the merge-base
+  is sealed or the branch touches the baseline or promotions file, then the gate (K35).
+  A live run mints 882 entries (438 `deleted-target-rot`, 380 `unresolved-reference`,
+  49 `prohibition-of-retired-surface`, 14 `skill-provenance`, 1 `packet-claim-drift`);
+  two mints give the same 346,828 bytes. In a scratch clone the CI gate admitted that
+  mint for the App's PR, and reported `baseline-tamper` for the same diff by a human author
+  and for a one-character forgery by the App (`mint-not-reproducible`). The first seal
+  waits only on the operator item below.
+- **First seal (operator item, no code):** create the mint GitHub App and the three names
+  under "Mint App prerequisite", then dispatch the workflow. Its first baseline-only PR is
+  the initial seal; merging it flips `knowledge:doctor` to the gate (K35).
 - **Promotion PRs:** one per extraction form, each after its C7 window, appending one
   row to `goals/knowledge-doctor.promotions.jsonc` (never touching the sealed baseline).
   The next CI mint reads the promotion at its SHA and admits that kind's inherited keys.
 
-## Decisions (K1..K31)
+## Mint App prerequisite (operator)
+
+The mint workflow needs one GitHub App, installed on this repository only, with
+repository permissions **Contents: read and write** and **Pull requests: read and write**
+(nothing else; it needs no webhook). Then set, under the repository's Actions settings:
+
+| Kind | Name | Value |
+| --- | --- | --- |
+| Variable | `KNOWLEDGE_MINT_APP_CLIENT_ID` | the App's client ID |
+| Variable | `KNOWLEDGE_MINT_APP_SLUG` | the App's slug; its PRs are authored by `<slug>[bot]` |
+| Secret | `KNOWLEDGE_MINT_APP_PRIVATE_KEY` | a private key generated for the App |
+
+No other repository change is needed. Until these exist, the token step fails and no PR
+opens; the gate stays report-only. The slug variable also reaches the Lint Policy lane
+(`heavy.yml`), where an unset slug fails condition (i) closed. The App costs nothing.
+
+## Decisions (K1..K37)
 
 - **K1 Witness-mandatory evaluators.** Reason: makes the counterfactual test total;
   vacuous passes cannot be represented. Reverse: if some evaluator legitimately cannot
@@ -560,3 +600,54 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   field. Reason: K22's rule (bump only for consumers that must reject the new shape).
   Reverse: bump to `knowledge-doctor/v2` when a persisted consumer must reject reports
   without a ratchet.
+- **K32 The mint runs weekly and on dispatch, and an unchanged mint writes nothing.**
+  The schedule is Mondays 06:17 UTC. A mint whose note and entries equal the committed
+  file (only `mintedAt` would move) writes nothing, so `create-pull-request` opens no PR.
+  Reason: a per-push mint would open a PR on most main pushes, and restamping
+  `mintedAt` alone adds review load with no new information. Reverse: change the cron, or
+  add a `push` trigger on the promotions file if promotions should seal sooner.
+- **K33 The CLI checks condition (i) itself.** `--accept-mint`, and the `ci` form that
+  sets it, read the `pull_request` event payload (head branch, head repository, author)
+  and the `KNOWLEDGE_MINT_APP_SLUG` variable, and admit only the mint branch in this
+  repository authored by `<slug>[bot]` under `CI=true`. An unset slug, an unreadable
+  payload, or a fork head fails closed. Reason: the facts come from the payload GitHub
+  writes, not from flags a caller supplies, and condition (i) sits next to the code that
+  enforces (ii)–(iv) as one pure, tested predicate. Like every lint, it runs the
+  branch's own code, so a branch that weakens the doctor is a reviewed code change, not
+  a baseline edit. Reverse: move the check into the workflow if the doctor ever runs
+  outside Actions.
+- **K34 The App token comes from `actions/create-github-app-token` v3.2.0 with
+  `client-id`.** The repository had no App usage to match, so the names are new:
+  `KNOWLEDGE_MINT_APP_CLIENT_ID`, `KNOWLEDGE_MINT_APP_SLUG`, and
+  `KNOWLEDGE_MINT_APP_PRIVATE_KEY`. v3 deprecates the `app-id` input in favour of
+  `client-id`, so the variable holds the client ID rather than the numeric App ID. v3.2.0
+  is pinned instead of v3.3.0, which was two days old. Commits are signed through the API
+  (`sign-commits`), and the PR carries `ready-for-heavy` because the seal guard runs in
+  the Lint Policy lane of the heavy matrix. A step fails the run when the token's slug
+  differs from `KNOWLEDGE_MINT_APP_SLUG`. Reason: a PR opened with `GITHUB_TOKEN`
+  triggers no checks, and the guard admits only the configured App. Reverse: switch to
+  `app-id` with an `KNOWLEDGE_MINT_APP_ID` variable if the deprecated input is kept;
+  bump the pin after its cooldown.
+- **K35 The quality lane runs `knowledge doctor ci`.** It is the read-only report until
+  the merge-base tracks `goals/knowledge-doctor.baseline.jsonc`; from then on it is the
+  gate. A branch that changes the baseline or the promotions file gets the gate even
+  before the first seal, so the mint App's first PR passes the seal guard and any other
+  baseline edit is `baseline-tamper`. A promotion before the first seal fails closed
+  with the missing-baseline refusal. Reason: the flip happens when the first seal merges,
+  with no follow-up edit, and under the gate only promoted kinds and governance findings
+  block (K24), so findings stay report-only until their promotions. Reverse: point the
+  step back at `knowledge doctor --report`.
+- **K36 A dry-run mint runs anywhere and never prints the file.** Without `--write` the
+  mint reports the minted commit, entry counts per group, and whether the file would
+  change; it checks no CI context. `--write` refuses unless `CI=true`, no tracked file
+  differs from `HEAD`, `HEAD` is the minted commit, and `--base` contains it, listing
+  every unmet condition. Reason: operators can size a seal before the App exists, and a
+  dry run that printed the text would invite hand-written baselines (which the guard
+  rejects anyway). Reverse: add a `--print` flag if a reviewer needs the text locally.
+- **K37 A stale mint PR is re-minted, not repaired.** The seal guard re-mints at
+  `mintedAt` with the PR checkout's code. If doctor code that changes findings lands on
+  main after the mint, the re-mint differs and the PR reports `mint-not-reproducible`;
+  `verify-mint` on the committed baseline behaves the same way after such a change.
+  Reason: byte equality is defined against the code that judges it, and the next weekly
+  or dispatched mint replaces the PR. Reverse: run the re-mint with the CLI from the
+  `mintedAt` tree if stale PRs become frequent.

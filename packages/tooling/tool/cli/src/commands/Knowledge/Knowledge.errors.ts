@@ -575,3 +575,42 @@ export class KnowledgeSealBroken extends S.TaggedError<KnowledgeSealBroken>($I`K
     description: "The committed knowledge-doctor baseline is not byte-reproducible from its mintedAt commit.",
   })
 ) {}
+
+/**
+ * The mint or `--accept-mint` refusing to run outside the context the seal requires.
+ *
+ * **Details**
+ *
+ * `knowledge doctor mint --write` runs only in CI, on a clean checkout of the minted commit, at a
+ * commit the base ref contains. `--accept-mint` admits a baseline change only for a pull request
+ * from `automation/knowledge-baseline-mint` that the mint App opened (C8 condition i). `reasons`
+ * lists every unmet condition, so one run names them all.
+ *
+ * **Example** (Refuse a local write)
+ *
+ * ```ts
+ * import { KnowledgeMintContextRefusal } from "@beep/repo-cli/commands/Knowledge/Knowledge.errors"
+ *
+ * const refusal = KnowledgeMintContextRefusal.make({
+ *   message: "knowledge doctor mint --write: 1 condition(s) unmet.",
+ *   reasons: ["CI is not true; only the mint workflow writes the sealed baseline."],
+ * })
+ *
+ * console.log(refusal.reasons.length) // 1
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class KnowledgeMintContextRefusal extends S.TaggedError<KnowledgeMintContextRefusal>(
+  $I`KnowledgeMintContextRefusal`
+)(
+  "KnowledgeMintContextRefusal",
+  {
+    message: S.String,
+    reasons: S.Array(S.String),
+  },
+  $I.annoteError<KnowledgeMintContextRefusal>("KnowledgeMintContextRefusal", {
+    description: "The mint write or the CI mint acceptance ran outside the context the seal requires.",
+  })
+) {}
