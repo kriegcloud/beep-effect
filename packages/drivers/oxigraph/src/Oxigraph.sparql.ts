@@ -313,7 +313,7 @@ export const OxigraphSparqlQueryServiceLive = Layer.effect(
   Effect.sync(() => {
     const stores = MutableHashMap.empty<Rdf.Dataset, Oxigraph.Store>();
     return SparqlQueryService.of({
-      execute: Effect.fn("SparqlQueryService.execute")((request) =>
+      execute: Effect.fn("OxigraphSparqlQueryService.execute")((request) =>
         executeSparql(request, stores).pipe(Effect.mapError(semanticError))
       ),
     });

@@ -6,14 +6,11 @@
       "path": "tsconfig.packages.json"
     }
   ],
-  // No lane runs this file as a program: tsconfig.configs.json
-  // (repo-sanity:config-typecheck) typechecks the config sources and each
-  // package's own check project owns its test/ tree. The include list stays
-  // because typescript-eslint's project service uses this root project as the
-  // default for any file no package project claims (the deprecated-apis and
-  // jsdoc lint profiles parse test/ and vitest.*.ts through it), and because
-  // tsconfig-sync regenerates the alias paths the stories projects extend.
+  // Package check projects and tsconfig.configs.json own compiler gates. Keep
+  // these roots for strict Oxlint assignment and tsconfig-sync's alias paths,
+  // including fixtures and configuration files outside src-only emit projects.
   "include": [
+    "./packages/_internal/db-admin/drizzle.config.ts",
     "**/vitest.*.ts",
     "./apps/**/test/**/*.ts",
     "./apps/**/test/**/*.tsx",
@@ -2089,6 +2086,12 @@
       ],
       "@beep/t3-code": ["./packages/drivers/t3-code/src/index.ts"],
       "@beep/t3-code/*": ["./packages/drivers/t3-code/src/*"],
+      "@beep/observability/catalog": [
+        "./packages/foundation/capability/observability/src/catalog/index.ts"
+      ],
+      "@beep/repo-cli/commands/Observability": [
+        "./packages/tooling/tool/cli/src/commands/Observability/index.ts"
+      ],
       "@beep/law-practice-domain/values/PracticeProfile": [
         "./packages/law-practice/domain/src/values/PracticeProfile/index.ts"
       ],
@@ -2101,6 +2104,8 @@
       "@beep/law-practice-use-cases/PracticeSetup": [
         "./packages/law-practice/use-cases/src/PracticeSetup/index.ts"
       ],
+      "@beep/mcpb-kit": ["./packages/tooling/library/mcpb-kit/src/index.ts"],
+      "@beep/mcpb-kit/*": ["./packages/tooling/library/mcpb-kit/src/*"],
       "@beep/practice-gateway": ["./apps/practice-gateway/src/index.ts"],
       "@beep/practice-gateway/*": ["./apps/practice-gateway/src/*"],
       "@beep/windows-secrets": [
@@ -2109,9 +2114,7 @@
       "@beep/windows-secrets/*": ["./packages/drivers/windows-secrets/src/*"],
       "@beep/windows-secrets/internal/*": [
         "./packages/drivers/windows-secrets/src/internal/*"
-      ],
-      "@beep/mcpb-kit": ["./packages/tooling/library/mcpb-kit/src/index.ts"],
-      "@beep/mcpb-kit/*": ["./packages/tooling/library/mcpb-kit/src/*"]
+      ]
     }
   }
 }

@@ -7,6 +7,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { COMMON_HTML, CURRENCY, ENTITY_ACTION, EntityDecoder } from "@nodable/entities";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -16,6 +17,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { XMLParser } from "fast-xml-parser";
 import { SyntaxValidator } from "fast-xml-validator";
+import { HTML as HTML_CONTEXT, isUnsafe, XML as XML_CONTEXT } from "is-unsafe";
 import { decodeLibraryJson, encodeLibraryJson, runLibraryCommand } from "./Library.adapter.ts";
 import { LibraryError } from "./Library.errors.ts";
 import { readLibraryProviderEvents } from "./Library.events.ts";
@@ -301,15 +303,23 @@ const XmlCaptionTranscript = S.Struct({
   transcript: S.Struct({ text: S.Union([XmlCaptionCue, XmlCaptionCues]) }),
 });
 const CaptionTextNode = S.Struct({ r: S.String });
-const captionXmlParser = new XMLParser({
-  ignoreAttributes: false,
-  attributeNamePrefix: "",
-  parseAttributeValue: false,
-  parseTagValue: false,
-  textNodeName: "#text",
-  trimValues: false,
-  htmlEntities: true,
-});
+const makeCaptionXmlParser = () =>
+  new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: "",
+    parseAttributeValue: false,
+    parseTagValue: false,
+    textNodeName: "#text",
+    trimValues: false,
+    // Preserve fast-xml-parser 5.11.2's htmlEntities maps, expansion limit and DOCTYPE filtering.
+    entityDecoder: new EntityDecoder({
+      namedEntities: { ...COMMON_HTML, ...CURRENCY },
+      numericAllowed: true,
+      limit: { maxTotalExpansions: Number.POSITIVE_INFINITY, maxExpandedLength: 100_000, applyLimitsTo: "all" },
+      onInputEntity: (_name, value) =>
+        isUnsafe(value, [HTML_CONTEXT, XML_CONTEXT]) ? ENTITY_ACTION.BLOCK : ENTITY_ACTION.ALLOW,
+    }),
+  });
 const parseCaptionXml = Effect.fn("Library.parseCaptionXml")(function* (text: string) {
   const validation = yield* Effect.try({
     try: () => SyntaxValidator.validate(text),
@@ -319,7 +329,7 @@ const parseCaptionXml = Effect.fn("Library.parseCaptionXml")(function* (text: st
     return yield* LibraryError.make({ message: "Malformed retained caption XML.", cause: validation.err });
   }
   return yield* Effect.try({
-    try: () => captionXmlParser.parse(text),
+    try: () => makeCaptionXmlParser().parse(text),
     catch: (cause) => LibraryError.make({ message: "Malformed retained caption XML.", cause }),
   });
 });

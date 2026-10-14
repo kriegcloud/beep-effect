@@ -272,13 +272,18 @@ if (!shouldRunPgliteIntegration) {
           ).toEqual([fixtureMigrationName, bundleNotesMigration.name]);
 
           // Entries without a timestamped name fail fast instead of silently
-          // re-applying on every boot (v1 journal matching is name-keyed).
+          // re-applying on every boot (v1 journal matching is name-keyed). `make`
+          // validates, so the invalid input is built with checks disabled: the point is
+          // that migrateBundle's own decode rejects an unvalidated config.
           const invalidNameError = yield* migrateBundle(
             db,
-            MigrationBundleConfig.make({
-              migrations: [MigrationBundleEntry.make({ name: "", sql: "SELECT 1;\n" })],
-              migrationsSchema,
-            })
+            MigrationBundleConfig.make(
+              {
+                migrations: [MigrationBundleEntry.make({ name: "", sql: "SELECT 1;\n" }, { disableChecks: true })],
+                migrationsSchema,
+              },
+              { disableChecks: true }
+            )
           ).pipe(Effect.flip);
 
           expect(invalidNameError._tag).toBe("PostgresError");

@@ -1,0 +1,27 @@
+{
+  "previous": "afb5acc6a72982b1ad5d037a500c19bd0a0b080dcc4d4a9e4b755b688a5d1d97",
+  "review": {
+    "reviewer": "Claude Fable 5.1 (practice-gateway, feat/practice-gateway)",
+    "reason": "Re-record this lane's subjects after taking main's baseline in the merge: four new workspaces with standard generated tasks and dependency-only drift on practice-kg-mcp and practice-gateway; no qualification is granted.",
+    "basis": {
+      "path": "goals/practice-gateway/research/cache-baseline-review-main-merge.md",
+      "sha256": "65734917166a149a36828d67bd2cd9da111a1a40a2ef97e0366b732be24168e0"
+    }
+  },
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2",
+  "subjects": [
+    "//",
+    "@beep/mcpb-kit",
+    "@beep/practice-gateway",
+    "@beep/practice-kg-mcp",
+    "@beep/practice-setup",
+    "@beep/windows-secrets"
+  ]
+}
