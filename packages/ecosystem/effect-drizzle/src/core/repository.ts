@@ -428,9 +428,11 @@ export const makeRepository: {
               })
             )
           ),
+          // Static span name per the instrumentation catalog; the per-repository prefix is a bounded
+          // attribute instead of a name segment.
           withSpan(
-            `${options.spanPrefix}.updateOptimistic`,
-            { attributes: { id, expectedVersion } },
+            "EffectDrizzleRepository.updateOptimistic",
+            { attributes: { "repository.entity": options.spanPrefix, id, expectedVersion } },
             { captureStackTrace: false }
           )
         );
