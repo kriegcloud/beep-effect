@@ -4,7 +4,7 @@ PR: #1616 (merged historical bounded test slice; new refresh PR pending)
 package-verify: not applicable to the current generated refresh; no workspace package edited
 hosted-parity: test-tsgo pending; docgen local pending; jsdoc-ratchet pending; knowledge refs pending; fallow audit+health pending; coverage read pending
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-b-standards-2026-10-14.md
-open: owner refresh completed at a00d3fdaf7; committed-head parity pending; RSC-RESUME cap gate absent; later guidance and detector waves pending; effect-laws provenance edits require S5 notification confirmation; V owns open canon cohorts under R102
+open: owner refresh completed at a00d3fdaf7; committed-head parity pending; RSC-RESUME cap gate released at 12:05 UTC; later guidance and detector waves pending; effect-laws provenance edits require S5 notification confirmation; V owns open canon cohorts under R102
 
 ## Resume and inbox disposition
 
@@ -153,3 +153,31 @@ raw health, which writes its baseline and exits 1. The baseline and catalogs
 remain candidate outputs. Current logs/results are retained under
 `.beep/rsc-resume/integrated/`. Required parity runs on the committed candidate
 next. Coverage read is not applicable: no package source or floor is changed.
+
+## Publication cap released
+
+The external cap gate was observed present at 12:10 UTC, with authorization
+recorded at 12:05 UTC on 2026-10-14. It names main `a0838402f5`, already
+integrated locally. Required candidate parity and the brief-named independent
+review still precede publication; the gate alone does not establish readiness.
+The worker will fetch once more immediately before the single push.
+
+## Completed f516 parity and new source integration required
+
+Parity on `f5163d65a2b22c8025ddba5ccffd8ae667c2e003` passes census,
+test-tsgo, bounded docgen, CI JSDoc ratchet, Fallow audit, Fallow health and
+retired-effect-paths. Knowledge refs exits 1 with fourteen live host-path
+observations. Every affected file is byte-identical to pinned main
+`a0838402f5`; no B packet path appears among the fourteen. Exact comparison
+is retained in `.beep/rsc-resume/knowledge-refs-attribution-f516.json`.
+The red is inherited, not a waived or successful refs check. Scope coverage
+read remains not applicable to the generated/packet-only wave.
+
+Main advances to `4e66575c64` (#1709), adding Skills materialization source,
+schemas and its Effect/Vitest inventory update. B must integrate and regenerate
+before publication. Completed parity logs remain in
+`.beep/rsc-resume/parity-f5163d65a2/`. The queued named Claude review of the
+superseded candidate was withdrawn before its process started; no unrelated
+job was stopped. The separate Codex review remains pinned to f516 and is
+retained in the integrated review receipt. Fresh qualification must follow
+integration; none of these results certifies the upcoming source head.

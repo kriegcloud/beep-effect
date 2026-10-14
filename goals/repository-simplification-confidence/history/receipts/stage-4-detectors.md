@@ -91,7 +91,8 @@ every current identity. No proposal changes an exception body in this wave.
 After intervening source changes landed on main, the admitted ordered replay
 at `bea70598228bf617e1f35843332ac222e58e7211` passed installation,
 full build and every owner command except raw health. Health still wrote its
-baseline and exited 1 on 148 above-threshold functions. Completed logs are
+baseline and exited 1 on 148 above-threshold functions, analyzing 5,230 files
+and 99,855 functions. These raw units differ from per-file baseline findings. Completed logs are
 preserved in `.beep/rsc-resume/replay-bea70598228b/`.
 
 Against main's snapshots at `b096cbd99b43`, this candidate has 147 JSDoc
@@ -112,7 +113,12 @@ semantic counts and command outcomes. Current logs/results are retained in
 
 ### Committed-head parity
 
-Pending the candidate commit. Required command results are recorded in the
+The committed candidate is `f5163d65a2b22c8025ddba5ccffd8ae667c2e003`.
+Its parity passes census, test-tsgo, bounded docgen, CI JSDoc ratchet, Fallow
+audit/health and retired-effect-paths. Knowledge refs exits 1 on fourteen
+inherited observations, each affected file byte-identical to pinned main.
+Subsequent main source movement requires new qualification before publication.
+Required command results are recorded in the
 [current handoff](../handoffs/rsc-b-standards-2026-10-14.md).
 
 ## Exception schema

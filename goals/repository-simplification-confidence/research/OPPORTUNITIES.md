@@ -1116,3 +1116,15 @@ on the new head if it appears.
 - Prevention: give a serialized snapshot wave a source-input-bound admission
   or bounded main window. A static slot race offers no stable source window
   for whole-tree owner regeneration while other branches continue landing.
+
+
+### B qualification displaced by a landed source change
+
+During the first generated wave, main landed Skills materialization (#1709)
+after the pinned candidate's JSDoc qualification started. The completed
+candidate checks remain historical; new schema/catalog inputs require another
+owner replay. Only B's queued, unstarted named review was withdrawn. Preserve
+source-head and base provenance for every run so moving shared refs cannot
+turn an earlier pass into current-head proof. Knowledge refs also reported
+fourteen inherited host-path observations; exact byte comparisons establish
+attribution before any repair.
