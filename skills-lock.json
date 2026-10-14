@@ -544,7 +544,7 @@
       "provenance": {
         "status": "exact",
         "confidence": "high",
-        "matchedFileCount": 21,
+        "matchedFileCount": 20,
         "upstreamFileCount": 21,
         "evidence": [
           "exact-tree",
@@ -552,17 +552,25 @@
         ]
       },
       "patches": {
-        "required": false,
-        "patchSetHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "series": []
+        "required": true,
+        "patchSetHash": "dffcb1cd4dd6f39d6c64d489cef5fdae00a7dad33bdac70c38ce2f260f6c6835",
+        "series": [
+          {
+            "path": ".agents/skill-patches/shadcn/0001-design-system-md.patch",
+            "sha256": "df3a2b2c1d6c029315aee72df3b83cd622cd772e513f67bf0439df9b4c1829f8",
+            "label": "temporary-drift",
+            "owner": "@kriegcloud",
+            "dropCondition": "Drop when upstream contains an equivalent change."
+          }
+        ]
       },
       "effective": {
-        "treeHash": "2eb9d12b66677456fcff9d4cbd6247d8bbb9d0935ee61354f1f4f66b23496987",
+        "treeHash": "f8b9671d0ef1f642a59a0c3882f121897e81b2f29c444f05582b0215942c93c8",
         "installedTargets": [
           ".claude/skills/shadcn",
           ".agents/skills/shadcn"
         ],
-        "installedTreeHash": "afb68a11e7d66e77c5a4a21d2f02629b5e6d66ca9c63403bcac4ebd2e07dacfb"
+        "installedTreeHash": "545a75202a2b27669e2e6fa8df04a9c095435808add6543d817028baec52e754"
       }
     },
     "sparql-expert": {
