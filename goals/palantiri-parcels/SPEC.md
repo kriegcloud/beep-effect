@@ -40,7 +40,7 @@ Higher sources outrank lower sources when they conflict.
 - The MCP server and CLI carry their own exporter config (Claude Code strips `OTEL_*` from MCP children).
 - Completeness check downgrades to `Unknown{attribution-incomplete}` when expected emitters are silent; vendor cloud VMs report `Unknown{unreachable}`.
 - Account identity is an ordinal or salted hash, never an email.
-- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against `~/YeeBois/references/effect/effect`; `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
+- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against the local reference checkout of [Effect](https://github.com/Effect-TS/effect); `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
 - Names, metrics, events and attribute keys come from the instrumentation catalog (`goals/observability-kernel-catalog`); names are static literals, never interpolated.
 - Public repo: no client data, tokens, `op://` resolutions, LAN IPs, tailnet suffixes or account identifiers in packet or code.
 - Totals use `increase()` over the panel range; per-process identity never becomes a metric label; promoted labels come only from the registry's metric-safe set.
