@@ -24,7 +24,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit, Sha256Hex } from "@beep/schema";
+import { LiteralKit, SchemaUtils, Sha256Hex } from "@beep/schema";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import {
   SkillEffective,
@@ -36,6 +37,8 @@ import {
   SkillSourceType,
   SkillUpstream,
 } from "./Skills.schemas.ts";
+import type * as Effect from "effect/Effect";
+import type * as AST from "effect/SchemaAST";
 
 const $I = $RepoCliId.create("commands/Skills/SkillsLock.schemas");
 
@@ -158,7 +161,7 @@ export class SkillsLockDocument extends S.Class<SkillsLockDocument>($I`SkillsLoc
     skills: S.Record(S.String, SkillsLockEntry),
   },
   $I.annote("SkillsLockDocument", {
-    description: "Canonical skills-lock/v2 document with vendored and local entries.",
+    description: "The one canonical skills-lock/v2 document, with vendored and local entries.",
   })
 ) {}
 
@@ -208,42 +211,44 @@ export const SkillMigrationDisposition = LiteralKit(["vendored", "local", "unres
 export type SkillMigrationDisposition = typeof SkillMigrationDisposition.Type;
 
 /**
- * Why an installed file differs from its pinned upstream.
+ * How a drifted installed file compares with the tracking ref's current upstream head.
  *
  * **Details**
  *
- * `upstream-advanced`: the installed bytes equal the same path at the
- * tracking ref's current upstream head, so the floating updater pulled newer
- * upstream content; the remedy is a pin bump, not a patch. `local`: no observed
- * upstream revision matches, so the delta is a repo customization and
- * becomes a patch.
+ * Names only what the plan proves. `matches-upstream-head`: the installed bytes
+ * (or absence) equal the same path at the tracking ref's current head, so the
+ * floating updater pulled newer upstream content and the remedy is a pin bump.
+ * `differs-from-upstream-head`: the file matches neither the pin nor the
+ * current head. It may be a repo customization or a pull of an intermediate
+ * upstream revision, so it becomes a conservatively labelled patch candidate
+ * that the HITL hunk review classifies (B8), never an asserted local edit.
  *
  * **Example** (Check a drift class)
  *
  * ```ts
  * import { SkillDriftClass } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
  *
- * console.log(SkillDriftClass.is.local("local")) // true
+ * console.log(SkillDriftClass.is["matches-upstream-head"]("matches-upstream-head")) // true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const SkillDriftClass = LiteralKit(["upstream-advanced", "local"]).pipe(
+export const SkillDriftClass = LiteralKit(["matches-upstream-head", "differs-from-upstream-head"]).pipe(
   $I.annoteSchema("SkillDriftClass", {
-    description: "Whether a drifted installed file matches newer upstream content or is a local customization.",
+    description: "Whether a drifted installed file equals the tracking ref's current upstream head.",
   })
 );
 
 /**
- * Why an installed file differs from its pinned upstream.
+ * How a drifted installed file compares with the tracking ref's current upstream head.
  *
  * **Example** (Annotate a drift class)
  *
  * ```ts
  * import type { SkillDriftClass } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
  *
- * const drift: SkillDriftClass = "upstream-advanced"
+ * const drift: SkillDriftClass = "matches-upstream-head"
  * console.log(drift)
  * ```
  *
@@ -255,12 +260,12 @@ export type SkillDriftClass = typeof SkillDriftClass.Type;
 /**
  * One drifted path of a vendored skill, classified.
  *
- * **Example** (Record a local customization)
+ * **Example** (Record a file that differs from the upstream head)
  *
  * ```ts
  * import { SkillDriftRow } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
  *
- * const row = SkillDriftRow.make({ path: "SKILL.md", driftClass: "local" })
+ * const row = SkillDriftRow.make({ path: "SKILL.md", driftClass: "differs-from-upstream-head" })
  * console.log(row.driftClass)
  * ```
  *
@@ -278,40 +283,133 @@ export class SkillDriftRow extends S.Class<SkillDriftRow>($I`SkillDriftRow`)(
 ) {}
 
 /**
- * The migration outcome for one installed skill.
+ * A skill with a ratified seed: a full warehouse entry plus its classified drift.
  *
- * **Example** (Record an unresolved skill)
+ * **Example** (Inspect the disposition tag)
  *
  * ```ts
- * import { LocalSkillLockEntry, SkillMigrationRow } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
- * import { Sha256Hex } from "@beep/schema"
+ * import { VendoredMigrationRow } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
  *
- * const row = SkillMigrationRow.make({
- *   skill: "adhd",
- *   disposition: "unresolved",
- *   entry: LocalSkillLockEntry.make({ installedTargets: [], installedTreeHash: Sha256Hex.make("0".repeat(64)) }),
- *   drift: [],
- *   note: "v1 github entry without a ratified resolution seed",
- * })
- * console.log(row.disposition)
+ * console.log(typeof VendoredMigrationRow.make) // "function"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class SkillMigrationRow extends S.Class<SkillMigrationRow>($I`SkillMigrationRow`)(
+export class VendoredMigrationRow extends S.Class<VendoredMigrationRow>($I`VendoredMigrationRow`)(
   {
+    disposition: S.tag("vendored"),
     skill: S.String,
-    disposition: SkillMigrationDisposition,
-    entry: S.optionalKey(SkillsLockEntry),
+    entry: VendoredSkillLockEntry,
     drift: S.Array(SkillDriftRow),
-    upstreamHead: S.optionalKey(SkillGitRevision),
-    note: S.optionalKey(S.String),
+    upstreamHead: SkillGitRevision,
   },
-  $I.annote("SkillMigrationRow", {
-    description: "One skill's v1-to-v2 disposition, computed entry, and classified drift.",
+  $I.annote("VendoredMigrationRow", {
+    description:
+      "A seeded skill's computed warehouse entry, classified drift, and the upstream head it was compared with.",
   })
 ) {}
+
+/**
+ * A repo-authored skill: its installed-tree identity, nothing upstream.
+ *
+ * **Example** (Record a local skill row)
+ *
+ * ```ts
+ * import { LocalMigrationRow, LocalSkillLockEntry } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import { Sha256Hex } from "@beep/schema"
+ *
+ * const row = LocalMigrationRow.make({
+ *   skill: "yeet",
+ *   entry: LocalSkillLockEntry.make({ installedTargets: [], installedTreeHash: Sha256Hex.make("0".repeat(64)) }),
+ * })
+ * console.log(row.disposition) // "local"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LocalMigrationRow extends S.Class<LocalMigrationRow>($I`LocalMigrationRow`)(
+  {
+    disposition: S.tag("local"),
+    skill: S.String,
+    entry: LocalSkillLockEntry,
+  },
+  $I.annote("LocalMigrationRow", {
+    description: "A repo-authored skill identified by its installed-tree hash.",
+  })
+) {}
+
+/**
+ * A skill the plan cannot vendor: why, and its local identity when one exists.
+ *
+ * **Details**
+ *
+ * Covers a v1 `github` entry without a ratified seed (it keeps a local entry),
+ * a missing or divergent install, and an upstream that cannot be read at the
+ * pin or the head (no entry is computed). The note names the cause.
+ *
+ * **Example** (Record an unresolved row)
+ *
+ * ```ts
+ * import { UnresolvedMigrationRow } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ *
+ * const row = UnresolvedMigrationRow.make({ skill: "adhd", note: "no ratified resolution seed" })
+ * console.log(row.disposition) // "unresolved"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class UnresolvedMigrationRow extends S.Class<UnresolvedMigrationRow>($I`UnresolvedMigrationRow`)(
+  {
+    disposition: S.tag("unresolved"),
+    skill: S.String,
+    note: S.String,
+    entry: S.optionalKey(LocalSkillLockEntry),
+  },
+  $I.annote("UnresolvedMigrationRow", {
+    description: "A skill that cannot be vendored yet, with the cause and any local identity.",
+  })
+) {}
+
+/**
+ * The migration outcome for one installed skill, keyed by disposition.
+ *
+ * **Example** (Narrow a row)
+ *
+ * ```ts
+ * import { SkillMigrationRow } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.isSchema(SkillMigrationRow)) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const SkillMigrationRow = S.Union([VendoredMigrationRow, LocalMigrationRow, UnresolvedMigrationRow]).pipe(
+  $I.annoteSchema("SkillMigrationRow", {
+    description: "One skill's v1-to-v2 migration outcome; the fields present follow its disposition.",
+  })
+);
+
+/**
+ * The migration outcome for one installed skill, keyed by disposition.
+ *
+ * **Example** (Annotate a row)
+ *
+ * ```ts
+ * import type { SkillMigrationRow } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ *
+ * const skillOf = (row: SkillMigrationRow): string => row.skill
+ * console.log(typeof skillOf) // "function"
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SkillMigrationRow = typeof SkillMigrationRow.Type;
 
 /**
  * `skills-lock-migration-plan/v1`: the read-only v1-to-v2 lock migration report.
@@ -337,3 +435,45 @@ export class SkillsLockMigrationPlan extends S.Class<SkillsLockMigrationPlan>($I
     description: "Read-only per-skill v1-to-v2 lock migration report, sorted by skill name.",
   })
 ) {}
+
+const SkillsLockDocumentJson = S.fromJsonString(SkillsLockDocument);
+
+/**
+ * Decodes a `skills-lock/v2` document from its JSON text.
+ *
+ * **Example** (Build the decode effect)
+ *
+ * ```ts
+ * import { decodeSkillsLockDocumentJson } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(decodeSkillsLockDocumentJson('{"version": 2, "skills": {}}'))) // true
+ * ```
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeSkillsLockDocumentJson: {
+  (options?: AST.ParseOptions): (input: unknown) => Effect.Effect<SkillsLockDocument, S.SchemaError>;
+  (input: unknown, options?: AST.ParseOptions): Effect.Effect<SkillsLockDocument, S.SchemaError>;
+} = dual(SchemaUtils.isCodecDataFirst, S.decodeUnknownEffect(SkillsLockDocumentJson));
+
+/**
+ * Encodes a `skills-lock/v2` document to its JSON text.
+ *
+ * **Example** (Build the encode effect)
+ *
+ * ```ts
+ * import { encodeSkillsLockDocumentJson, SkillsLockDocument } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(encodeSkillsLockDocumentJson(SkillsLockDocument.make({ version: 2, skills: {} })))) // true
+ * ```
+ *
+ * @category encoding
+ * @since 0.0.0
+ */
+export const encodeSkillsLockDocumentJson: {
+  (options?: AST.ParseOptions): (input: SkillsLockDocument) => Effect.Effect<string, S.SchemaError>;
+  (input: SkillsLockDocument, options?: AST.ParseOptions): Effect.Effect<string, S.SchemaError>;
+} = dual(SchemaUtils.isCodecDataFirst, S.encodeEffect(SkillsLockDocumentJson));

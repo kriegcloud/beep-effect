@@ -181,3 +181,38 @@ export class SkillInstallStateError extends S.TaggedError<SkillInstallStateError
     description: "An installed skill's targets are missing or have diverged.",
   })
 ) {}
+
+/**
+ * The pinned or current upstream content of a skill cannot be read.
+ *
+ * **Details**
+ *
+ * Raised by the upstream content source for any fetch, response, tree-decode,
+ * missing-tree-path, or truncated-tree failure. The lock-migration plan turns
+ * it into a per-skill `unresolved` row, so one moved or unreachable upstream
+ * never aborts the plan for every other skill.
+ *
+ * **Example** (Create an upstream-content error)
+ *
+ * ```ts
+ * import { SkillUpstreamContentError } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const error = SkillUpstreamContentError.make({ skill: "oracle", message: "No files found" })
+ * console.log(error.skill)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillUpstreamContentError extends S.TaggedError<SkillUpstreamContentError>($I`SkillUpstreamContentError`)(
+  "SkillUpstreamContentError",
+  {
+    skill: S.String,
+    message: S.String,
+    cause: S.optionalKey(OpaqueDefect),
+  },
+  $I.annoteError<SkillUpstreamContentError>("SkillUpstreamContentError", {
+    title: "Skill Upstream Content Error",
+    description: "A skill's pinned or current upstream content could not be fetched or decoded.",
+  })
+) {}

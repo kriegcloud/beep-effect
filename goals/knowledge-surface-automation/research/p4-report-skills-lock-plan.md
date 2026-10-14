@@ -12,7 +12,7 @@ the patch series (PR B-3) wait for this report's verdict.
 35 skills: 6 vendored, 28 local, 1 unresolved (`adhd`, a v1 `github` entry with no
 ratified resolution).
 
-| Skill | Provenance | Pin | Upstream head now | Local drift (patch candidates) | Upstream-advanced paths |
+| Skill | Provenance | Pin | Upstream head now | Differs from upstream head (patch candidates) | Matches upstream head |
 | --- | --- | --- | --- | --- | --- |
 | `grill-me` | exact/high | `2ab958093e` | `49dd158d10` | none | 1 |
 | `oracle` | inferred/medium | `d6e773a562` | `bf80d4994e` | `SKILL.md`, `agents/openai.yaml` | 0 |
@@ -27,11 +27,11 @@ Every seed's pinned license hash re-verified live (the resolver refuses on a mis
 
 1. **Drift classified against the recorded head.** The first implementation classified
    drift against each seed's `observedHeadRevision` (the head recorded on 2026-07-28).
-   `teach` then showed all five files as `local`, although the floating updater had
+   `teach` then showed all five files as differing, although the floating updater had
    pulled them from upstream `main` since then. Fixed before this report: the source
    contract gained `resolveRevision`, and drift is classified against the tracking
    ref's live head, recorded per row as `upstreamHead`. After the fix `teach` has one
-   real local file (`SKILL.md`) and four upstream-advanced ones. This was a systematic
+   file that differs from the head (`SKILL.md`) and four that match it. This was a systematic
    false-positive class, not an isolated row; the fixture test
    (`skills lock migration plan`) pins both classes.
 
@@ -45,17 +45,19 @@ Every seed's pinned license hash re-verified live (the resolver refuses on a mis
    pins. Design decision B10 (vendored skills stop floating after the lock flip)
    addresses the cause. Whether to restore the turborepo fork from git history is an
    operator content decision, recorded here and not acted on.
-2. **Real local customizations are small.** The patch series at the flip would cover
-   five files across four skills: `oracle` (2), and `portless`, `shadcn`, `teach`
-   (`SKILL.md` each).
+2. **Patch candidates are few.** Five files across four skills differ from the current
+   upstream head: `oracle` (2), and `portless`, `shadcn`, `teach` (`SKILL.md` each).
+   Each is a repo customization or an intermediate upstream pull, and the HITL hunk
+   review decides which (review on #1633).
 3. **`adhd` needs a resolution** before it can be vendored. It stays local and is
    reported as `unresolved`, never guessed.
 
 ## Asks for the verdict
 
-1. Accept the classification (after the fix above) as the B-3 input. Upstream-advanced
-   skills (`grill-me`, `turborepo`) get pin bumps to `upstreamHead` instead of patches,
-   and the five local files become the initial `temporary-drift` patch series.
+1. Accept the classification (after the fix above) as the B-3 input. Skills whose drift
+   all matches the upstream head (`grill-me`, `turborepo`) get pin bumps to
+   `upstreamHead` instead of patches, and the five differing files become the initial
+   `temporary-drift` patch candidates.
 2. Rule on restoring the turborepo local fork (finding 1), or accept upstream as the
    new base.
 3. Queue the `adhd` upstream resolution as its own small research task.

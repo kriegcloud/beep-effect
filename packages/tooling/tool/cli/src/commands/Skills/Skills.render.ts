@@ -12,6 +12,7 @@ import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
 import { SkillsLockMigrationPlan } from "./SkillsLock.schemas.ts";
 import type { SkillProvenanceReport } from "./Skills.schemas.ts";
+import type { VendoredMigrationRow } from "./SkillsLock.schemas.ts";
 
 const encodeUnknownJson = S.encodeUnknownResult(S.fromJsonString(S.Unknown));
 
@@ -238,11 +239,20 @@ export const renderSkillsLockMigrationPlanJson = (plan: SkillsLockMigrationPlan)
 export const renderSkillsLockMigrationPlanSummary = (plan: SkillsLockMigrationPlan): string => {
   const count = (disposition: string): number =>
     A.length(A.filter(plan.rows, (row) => row.disposition === disposition));
+  const describeDrift = (drift: VendoredMigrationRow["drift"]): string => {
+    const differs = A.length(A.filter(drift, (row) => row.driftClass === "differs-from-upstream-head"));
+    const matches = A.length(A.filter(drift, (row) => row.driftClass === "matches-upstream-head"));
+    return A.isReadonlyArrayEmpty(drift) ? "" : ` drift: ${differs} differ from upstream head, ${matches} match it`;
+  };
   const lines = A.map(plan.rows, (row) => {
-    const local = A.length(A.filter(row.drift, (drift) => drift.driftClass === "local"));
-    const advanced = A.length(A.filter(row.drift, (drift) => drift.driftClass === "upstream-advanced"));
-    const drift = A.isReadonlyArrayEmpty(row.drift) ? "" : ` drift: ${local} local, ${advanced} upstream-advanced`;
-    return `  ${row.skill}: ${row.disposition}${drift}${row.note === undefined ? "" : ` (${row.note})`}`;
+    switch (row.disposition) {
+      case "vendored":
+        return `  ${row.skill}: vendored${describeDrift(row.drift)}`;
+      case "unresolved":
+        return `  ${row.skill}: unresolved (${row.note})`;
+      case "local":
+        return `  ${row.skill}: local`;
+    }
   });
   return A.join(
     [

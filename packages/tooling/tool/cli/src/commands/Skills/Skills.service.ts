@@ -21,7 +21,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
-import { SkillInstallStateError, SkillsCommandError } from "./Skills.errors.ts";
+import { SkillInstallStateError, SkillsCommandError, SkillUpstreamContentError } from "./Skills.errors.ts";
 import {
   decodeSkillLockV2Entry,
   SkillGitRevision,
@@ -37,13 +37,16 @@ import {
 } from "./Skills.schemas.ts";
 import { skillResolutionSeeds } from "./Skills.seeds.ts";
 import {
+  LocalMigrationRow,
   LocalSkillLockEntry,
   SkillDriftRow,
-  SkillMigrationRow,
   SkillsLockMigrationPlan,
+  UnresolvedMigrationRow,
+  VendoredMigrationRow,
   VendoredSkillLockEntry,
 } from "./SkillsLock.schemas.ts";
 import type * as Crypto from "effect/Crypto";
+import type { SkillMigrationRow } from "./SkillsLock.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.service");
 
@@ -557,13 +560,15 @@ const loadGitHubContent = Effect.fn("SkillUpstreamContentSource.loadGitHubConten
  */
 export interface SkillUpstreamContentSourceShape {
   /** Load a complete pinned tree and license without consulting a floating ref. */
-  readonly load: (resolution: SkillProvenanceResolution) => Effect.Effect<SkillUpstreamContent, SkillsCommandError>;
+  readonly load: (
+    resolution: SkillProvenanceResolution
+  ) => Effect.Effect<SkillUpstreamContent, SkillUpstreamContentError>;
   /** Resolve a floating ref (such as `main`) to the immutable commit it names right now. */
   readonly resolveRevision: (
     repository: string,
     ref: string,
     skill: string
-  ) => Effect.Effect<SkillGitRevision, SkillsCommandError>;
+  ) => Effect.Effect<SkillGitRevision, SkillUpstreamContentError>;
 }
 
 /**
@@ -635,14 +640,24 @@ export class SkillUpstreamContentSource extends Context.Service<
   SkillUpstreamContentSourceShape
 >()($I`SkillUpstreamContentSource`) {}
 
+// Every failure behind the live source is upstream unavailability (fetch, status,
+// tree decode, missing tree path, truncated tree), so it is typed as such.
+const asUpstreamError =
+  (skill: string) =>
+  (error: SkillsCommandError): SkillUpstreamContentError =>
+    SkillUpstreamContentError.make({ skill, message: error.message, cause: error });
+
 const makeSkillUpstreamContentSource = Effect.gen(function* () {
   const httpContext = yield* Effect.context<HttpClient.HttpClient>();
   return SkillUpstreamContentSource.of({
     load: Effect.fn("SkillUpstreamContentSource.load")((resolution) =>
-      loadGitHubContent(resolution).pipe(Effect.provide(httpContext))
+      loadGitHubContent(resolution).pipe(Effect.provide(httpContext), Effect.mapError(asUpstreamError(resolution.name)))
     ),
     resolveRevision: Effect.fn("SkillUpstreamContentSource.resolveRevision")((repository, ref, skill) =>
-      resolveGitHubRevision(repository, ref, skill).pipe(Effect.provide(httpContext))
+      resolveGitHubRevision(repository, ref, skill).pipe(
+        Effect.provide(httpContext),
+        Effect.mapError(asUpstreamError(skill))
+      )
     ),
   });
 }).pipe(Effect.withSpan("SkillUpstreamContentSource.make"));
@@ -788,7 +803,7 @@ export const resolveSkillProvenance = Effect.fn("SkillsProvenance.resolveSkillPr
   repoRoot: string
 ): Effect.fn.Return<
   SkillProvenanceReport,
-  SkillsCommandError,
+  SkillsCommandError | SkillUpstreamContentError,
   SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
 > {
   const resolution = yield* resolveResolution(skill);
@@ -928,7 +943,12 @@ const makeSkillProvenanceService = Effect.gen(function* () {
   >();
   return SkillProvenanceService.of({
     resolve: Effect.fn("SkillProvenanceService.resolve")((skill, repoRoot) =>
-      resolveSkillProvenance(skill, repoRoot).pipe(Effect.provide(runtimeContext))
+      resolveSkillProvenance(skill, repoRoot).pipe(
+        Effect.provide(runtimeContext),
+        Effect.catchTag("SkillUpstreamContentError", (error) =>
+          Effect.fail(SkillsCommandError.make({ message: error.message, skill: error.skill }))
+        )
+      )
     ),
   });
 }).pipe(Effect.withSpan("SkillProvenanceService.make"));
@@ -1071,7 +1091,7 @@ const classifyDrift = Effect.fn("SkillsLock.classifyDrift")(function* (
   headRevision: SkillGitRevision
 ): Effect.fn.Return<
   ReadonlyArray<SkillDriftRow>,
-  SkillsCommandError,
+  SkillsCommandError | SkillUpstreamContentError,
   SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
 > {
   const source = yield* SkillUpstreamContentSource;
@@ -1089,7 +1109,31 @@ const classifyDrift = Effect.fn("SkillsLock.classifyDrift")(function* (
       onNone: () => O.isNone(atHead),
       onSome: (file) => O.exists(atHead, (headFile) => filesMatch(headFile, file)),
     });
-    return SkillDriftRow.make({ path: filePath, driftClass: matchesHead ? "upstream-advanced" : "local" });
+    return SkillDriftRow.make({
+      path: filePath,
+      driftClass: matchesHead ? "matches-upstream-head" : "differs-from-upstream-head",
+    });
+  });
+});
+
+const vendoredRow = Effect.fn("SkillsLock.vendoredRow")(function* (
+  repoRoot: string,
+  skill: string,
+  seed: SkillProvenanceResolution
+): Effect.fn.Return<
+  VendoredMigrationRow,
+  SkillsCommandError | SkillUpstreamContentError,
+  SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
+> {
+  const report = yield* resolveSkillProvenance(skill, repoRoot);
+  const source = yield* SkillUpstreamContentSource;
+  const upstreamHead = yield* source.resolveRevision(seed.upstream.repository, seed.upstream.trackingRef, skill);
+  const drift = yield* classifyDrift(seed, repoRoot, report.driftPaths, upstreamHead);
+  return VendoredMigrationRow.make({
+    skill,
+    entry: VendoredSkillLockEntry.make({ ...report.entry }),
+    drift,
+    upstreamHead,
   });
 });
 
@@ -1110,44 +1154,29 @@ const migrateSkill = Effect.fn("SkillsLock.migrateSkill")(function* (
     Effect.catchTag("SkillInstallStateError", flow(Result.fail, Effect.succeed))
   );
   if (Result.isFailure(installed)) {
-    return SkillMigrationRow.make({
-      skill,
-      disposition: "unresolved",
-      drift: [],
-      note: `${installed.failure.reason}: ${installed.failure.message}`,
-    });
-  }
-  const seed = A.findFirst(seeds, (candidate) => Str.Equivalence(candidate.name, skill));
-  if (O.isSome(seed)) {
-    const report = yield* resolveSkillProvenance(skill, repoRoot);
-    const source = yield* SkillUpstreamContentSource;
-    const upstreamHead = yield* source.resolveRevision(
-      seed.value.upstream.repository,
-      seed.value.upstream.trackingRef,
-      skill
-    );
-    const drift = yield* classifyDrift(seed.value, repoRoot, report.driftPaths, upstreamHead);
-    return SkillMigrationRow.make({
-      skill,
-      disposition: "vendored",
-      entry: VendoredSkillLockEntry.make({ ...report.entry }),
-      drift,
-      upstreamHead,
-    });
+    return UnresolvedMigrationRow.make({ skill, note: `${installed.failure.reason}: ${installed.failure.message}` });
   }
   const entry = LocalSkillLockEntry.make({
     installedTargets: installed.success.installedTargets,
     installedTreeHash: installed.success.installedTreeHash,
   });
+  const seed = A.findFirst(seeds, (candidate) => Str.Equivalence(candidate.name, skill));
+  if (O.isSome(seed)) {
+    // An upstream that cannot be read at the pin or the head (moved tree path,
+    // truncated tree, network) is likewise reported for this skill only.
+    return yield* vendoredRow(repoRoot, skill, seed.value).pipe(
+      Effect.catchTag("SkillUpstreamContentError", (error) =>
+        Effect.succeed(UnresolvedMigrationRow.make({ skill, note: `upstream-unavailable: ${error.message}`, entry }))
+      )
+    );
+  }
   return Str.Equivalence(v1SourceType, "github")
-    ? SkillMigrationRow.make({
+    ? UnresolvedMigrationRow.make({
         skill,
-        disposition: "unresolved",
         entry,
-        drift: [],
         note: "v1 github entry without a ratified resolution seed; stays local until one is ratified",
       })
-    : SkillMigrationRow.make({ skill, disposition: "local", entry, drift: [] });
+    : LocalMigrationRow.make({ skill, entry });
 });
 
 /**

@@ -2,25 +2,21 @@ import { pathToFileURL } from "node:url";
 import {
   decodeSkillEffective,
   decodeSkillLicense,
-  decodeSkillLockV2Entry,
   decodeSkillPatch,
   decodeSkillPatches,
   decodeSkillProvenance,
   decodeSkillSnapshot,
   decodeSkillSnapshotFile,
-  decodeSkillsLockV2,
-  decodeSkillsLockV2Json,
+  decodeSkillsLockDocumentJson,
   decodeSkillUpstream,
   encodeSkillEffective,
   encodeSkillLicense,
-  encodeSkillLockV2Entry,
   encodeSkillPatch,
   encodeSkillPatches,
   encodeSkillProvenance,
   encodeSkillSnapshot,
   encodeSkillSnapshotFile,
-  encodeSkillsLockV2,
-  encodeSkillsLockV2Json,
+  encodeSkillsLockDocumentJson,
   encodeSkillUpstream,
   findSkillResolutionSeed,
   LocalSkillLockEntry,
@@ -29,9 +25,11 @@ import {
   SkillDriftRow,
   SkillGitRevision,
   SkillUpstreamContent,
+  SkillUpstreamContentError,
   SkillUpstreamContentFile,
   SkillUpstreamContentSource,
   skillResolutionSeeds,
+  VendoredSkillLockEntry,
 } from "@beep/repo-cli/commands/Skills";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import { Sha256HexFromBytes } from "@beep/schema";
@@ -148,11 +146,11 @@ layer(TestLayer)("skills-lock/v2 schemas", (it) => {
   it.effect("round-trips every lock block and the complete document", () =>
     Effect.gen(function* () {
       const fixture = Str.trimEnd(yield* readFixtureText("oracle-lock-v2.json"));
-      const document = yield* decodeSkillsLockV2Json(fixture);
+      const document = yield* decodeSkillsLockDocumentJson(fixture);
       const entry = document.skills.oracle;
 
-      expect(entry).toBeDefined();
-      if (entry === undefined) {
+      expect(entry?._tag).toBe("vendored");
+      if (entry === undefined || entry._tag !== "vendored") {
         return;
       }
 
@@ -168,19 +166,21 @@ layer(TestLayer)("skills-lock/v2 schemas", (it) => {
         entry.patches.series[0]
       );
       expect(yield* decodeSkillEffective(yield* encodeSkillEffective(entry.effective))).toEqual(entry.effective);
-      expect(yield* decodeSkillLockV2Entry(yield* encodeSkillLockV2Entry(entry))).toEqual(entry);
-      expect(yield* decodeSkillsLockV2(yield* encodeSkillsLockV2(document))).toEqual(document);
+      expect(
+        yield* S.decodeEffect(VendoredSkillLockEntry)(yield* S.encodeEffect(VendoredSkillLockEntry)(entry))
+      ).toEqual(entry);
+      expect(yield* decodeSkillsLockDocumentJson(yield* encodeSkillsLockDocumentJson(document))).toEqual(document);
     })
   );
 
   it.effect("preserves oracle's inferred medium-confidence d6e773a representation byte-identically", () =>
     Effect.gen(function* () {
       const fixture = Str.trimEnd(yield* readFixtureText("oracle-lock-v2.json"));
-      const document = yield* decodeSkillsLockV2Json(fixture);
+      const document = yield* decodeSkillsLockDocumentJson(fixture);
       const entry = document.skills.oracle;
 
-      expect(entry).toBeDefined();
-      if (entry === undefined) {
+      expect(entry?._tag).toBe("vendored");
+      if (entry === undefined || entry._tag !== "vendored") {
         return;
       }
 
@@ -188,9 +188,9 @@ layer(TestLayer)("skills-lock/v2 schemas", (it) => {
       expect(entry.provenance.confidence).toBe("medium");
       expect(entry.upstream.sourceRevision).toBe("d6e773a562dc85c2a81b7c571f40ca2d81896679");
       expect(Str.startsWith("d6e773a")(entry.upstream.sourceRevision)).toBe(true);
-      const encoded = yield* encodeSkillsLockV2Json(document);
-      const decodedAgain = yield* decodeSkillsLockV2Json(encoded);
-      expect(yield* encodeSkillsLockV2Json(decodedAgain)).toBe(encoded);
+      const encoded = yield* encodeSkillsLockDocumentJson(document);
+      const decodedAgain = yield* decodeSkillsLockDocumentJson(encoded);
+      expect(yield* encodeSkillsLockDocumentJson(decodedAgain)).toBe(encoded);
     })
   );
 });
@@ -341,10 +341,10 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
       ]);
       const shadcn = A.findFirst(plan.rows, (row) => row.skill === "shadcn");
       shadcn.pipe(O.isSome, assertTrue);
-      if (O.isSome(shadcn)) {
+      if (O.isSome(shadcn) && shadcn.value.disposition === "vendored") {
         expect(A.map(shadcn.value.drift, (row) => [row.path, row.driftClass])).toEqual([
-          ["SKILL.md", "local"],
-          ["rules/composition.md", "upstream-advanced"],
+          ["SKILL.md", "differs-from-upstream-head"],
+          ["rules/composition.md", "matches-upstream-head"],
         ]);
         expect(shadcn.value.upstreamHead).toBe(OBSERVED_HEAD_REVISION);
       }
@@ -382,7 +382,48 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
         ["broken", "unresolved", undefined],
         ["yeet", "local", "local"],
       ]);
-      expect(plan.rows[0]?.note).toContain("missing-target");
+      const broken = plan.rows[0];
+      expect(broken?.disposition === "unresolved" ? broken.note : "").toContain("missing-target");
+    })
+  );
+
+  it.effect("reports an unreadable upstream as unresolved for that skill only", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* fs.makeTempDirectoryScoped({ prefix: "skills-lock-plan-upstream-" });
+      yield* writeFixtureFile(
+        repoRoot,
+        "skills-lock.json",
+        textEncoder.encode(
+          '{"version": 1, "skills": {"shadcn": {"source": "shadcn-ui/ui", "sourceType": "github", "computedHash": "0"}, "yeet": {"source": "x", "sourceType": "local", "computedHash": "0"}}}\n'
+        )
+      );
+      yield* writeFixtureFile(repoRoot, ".claude/skills/shadcn/SKILL.md", textEncoder.encode("# shadcn\n"));
+      yield* writeFixtureFile(repoRoot, ".claude/skills/yeet/SKILL.md", textEncoder.encode("# yeet\n"));
+      yield* fs.makeDirectory(path.join(repoRoot, ".agents"), { recursive: true });
+      yield* fs.symlink("../.claude/skills", path.join(repoRoot, ".agents/skills"));
+
+      const plan = yield* planSkillsLockMigration(repoRoot).pipe(
+        Effect.provideService(
+          SkillUpstreamContentSource,
+          SkillUpstreamContentSource.of({
+            load: Effect.fn("SkillsLockPlanTest.moved.load")((resolution) =>
+              Effect.fail(
+                SkillUpstreamContentError.make({ skill: resolution.name, message: "No files found at the tree path" })
+              )
+            ),
+            resolveRevision: Effect.fn("SkillsLockPlanTest.moved.resolveRevision")(() => Effect.die("unreachable")),
+          })
+        )
+      );
+
+      expect(A.map(plan.rows, (row) => [row.skill, row.disposition, row.entry?._tag])).toEqual([
+        ["shadcn", "unresolved", "local"],
+        ["yeet", "local", "local"],
+      ]);
+      const shadcn = plan.rows[0];
+      expect(shadcn?.disposition === "unresolved" ? shadcn.note : "").toContain("upstream-unavailable");
     })
   );
 
