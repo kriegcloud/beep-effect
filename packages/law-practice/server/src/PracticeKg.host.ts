@@ -26,15 +26,16 @@ const $I = $LawPracticeServerId.create("PracticeKg.host");
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgBundleContext extends S.Class<PracticeKgBundleContext>($I`PracticeKgBundleContext`)(
-  {
+export class PracticeKgBundleContext extends S.Opaque<PracticeKgBundleContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundleDir: S.NonEmptyString,
     corpusRoot: S.optionalKey(S.NonEmptyString),
     manifest: PracticeKgBundleManifest,
-  },
-  $I.annote("PracticeKgBundleContext", {
-    description: "Host-resolved bundle metadata and optional corpus content pointer.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgBundleContext", {
+      description: "Host-resolved bundle metadata and optional corpus content pointer.",
+    })
+  )
 ) {}
 
 /**

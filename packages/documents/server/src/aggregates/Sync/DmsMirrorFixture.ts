@@ -119,8 +119,8 @@ export type DmsMirrorFixtureVerb = typeof DmsMirrorFixtureVerb.Type;
  * @category testing
  * @since 0.0.0
  */
-export class DmsMirrorFixtureCounts extends S.Class<DmsMirrorFixtureCounts>($I`DmsMirrorFixtureCounts`)(
-  {
+export class DmsMirrorFixtureCounts extends S.Opaque<DmsMirrorFixtureCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     ensureFolder: S.Natural.annotateKey({
       description: "Number of ensureFolder calls observed by the fixture.",
     }),
@@ -139,10 +139,11 @@ export class DmsMirrorFixtureCounts extends S.Class<DmsMirrorFixtureCounts>($I`D
     uploadFileVersion: S.Natural.annotateKey({
       description: "Number of uploadFileVersion calls observed by the fixture.",
     }),
-  },
-  $I.annote("DmsMirrorFixtureCounts", {
-    description: "Per-verb call counts observed by the fixture since construction.",
-  })
+  }).pipe(
+    $I.annoteSchema("DmsMirrorFixtureCounts", {
+      description: "Per-verb call counts observed by the fixture since construction.",
+    })
+  )
 ) {}
 
 /**
@@ -165,8 +166,8 @@ export class DmsMirrorFixtureCounts extends S.Class<DmsMirrorFixtureCounts>($I`D
  * @category testing
  * @since 0.0.0
  */
-export class DmsMirrorFixtureNode extends S.Class<DmsMirrorFixtureNode>($I`DmsMirrorFixtureNode`)(
-  {
+export class DmsMirrorFixtureNode extends S.Opaque<DmsMirrorFixtureNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentDigest: S.OptionFromOptionalKey(DocumentContentDigest).annotateKey({
       description: "SHA-256 hex digest of the node's uploaded bytes; none for folders.",
     }),
@@ -179,10 +180,11 @@ export class DmsMirrorFixtureNode extends S.Class<DmsMirrorFixtureNode>($I`DmsMi
     version: S.Natural.annotateKey({
       description: "Number of content versions the node received; folders stay at one.",
     }),
-  },
-  $I.annote("DmsMirrorFixtureNode", {
-    description: "One node of the fixture's synthetic remote tree keyed by mirror-root-relative path.",
-  })
+  }).pipe(
+    $I.annoteSchema("DmsMirrorFixtureNode", {
+      description: "One node of the fixture's synthetic remote tree keyed by mirror-root-relative path.",
+    })
+  )
 ) {}
 
 /**

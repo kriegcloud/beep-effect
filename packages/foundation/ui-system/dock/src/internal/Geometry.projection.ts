@@ -346,7 +346,7 @@ export const project: Dual2<DockNode, GeometryProjectionContext, DockGeometry> =
   2,
   (
     root: DockNode,
-    { container, minima = zeroMinimum, options = GeometryOptions.make() }: GeometryProjectionContext
+    { container, minima = zeroMinimum, options = GeometryOptions.make({}) }: GeometryProjectionContext
   ): DockGeometry => projectNode(root, container, options, minima)
 );
 
@@ -369,7 +369,7 @@ export const projectWorkspace: Dual2<DockWorkspace, GeometryProjectionContext, D
   2,
   (
     workspace: DockWorkspace,
-    { container, minima = zeroMinimum, options = GeometryOptions.make() }: GeometryProjectionContext
+    { container, minima = zeroMinimum, options = GeometryOptions.make({}) }: GeometryProjectionContext
   ): DockGeometry => {
     const context = { container, minima, options };
     const floating = A.map(DockWorkspaceModel.floatingMembers(workspace), (member) => {
@@ -397,15 +397,19 @@ export const projectWorkspace: Dual2<DockWorkspace, GeometryProjectionContext, D
 );
 
 /** One weighted entry in a normalized same-axis row view. */
-class DockRowEntry extends S.Class<DockRowEntry>($I`DockRowEntry`)(
-  { node: DockNodeModel, share: Extent },
-  $I.annote("DockRowEntry", { description: "A dock subtree and its proportional share within a normalized row view." })
+class DockRowEntry extends S.Opaque<DockRowEntry, { readonly brand: unique symbol }>()(
+  S.Struct({ node: DockNodeModel, share: Extent }).pipe(
+    $I.annoteSchema("DockRowEntry", {
+      description: "A dock subtree and its proportional share within a normalized row view.",
+    })
+  )
 ) {}
 
 /** A derived maximal same-axis row view; it is never persisted as tree state. */
-class DockRow extends S.Class<DockRow>($I`DockRow`)(
-  { axis: LiteralKit(["horizontal", "vertical"]), entries: S.Array(DockRowEntry) },
-  $I.annote("DockRow", { description: "A derived flat view of one maximal run of same-axis binary splits." })
+class DockRow extends S.Opaque<DockRow, { readonly brand: unique symbol }>()(
+  S.Struct({ axis: LiteralKit(["horizontal", "vertical"]), entries: S.Array(DockRowEntry) }).pipe(
+    $I.annoteSchema("DockRow", { description: "A derived flat view of one maximal run of same-axis binary splits." })
+  )
 ) {}
 
 const rowEntries = (node: DockNode, axis: DockRow["axis"], share: number): ReadonlyArray<DockRowEntry> =>
@@ -458,7 +462,7 @@ export const rows = (node: DockNode): ReadonlyArray<DockRow> =>
  * @since 0.0.0
  */
 export const makeDockGeometryAtoms = (input: MakeDockGeometryAtomsInput) => {
-  const options = O.getOrElse(O.fromUndefinedOr(input.options), () => GeometryOptions.make());
+  const options = O.getOrElse(O.fromUndefinedOr(input.options), () => GeometryOptions.make({}));
   const minima = O.getOrElse(O.fromUndefinedOr(input.minima), () => zeroMinimum);
   const geometryAtom = Atom.readable((get) => {
     // Reactive per-group minimums compose with the static lookup by max, so

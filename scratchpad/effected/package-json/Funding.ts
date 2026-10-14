@@ -148,7 +148,7 @@ const FieldValue = S.Union([EntryValue, S.Array(EntryValue)]);
  * @category models
  * @since 0.0.0
  */
-export class Funding extends S.Class<Funding>($I`Funding`)({
+export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>($I`Funding`)({
 	/** The funding platform, when the object form carried one (`"github"`, …). */
 	type: S.optionalKey(S.String).annotateKey({ description: "The funding platform, when the object form carried one (`\"github\"`, …)." }),
 	/** Where the money goes, exactly as the manifest wrote it. */

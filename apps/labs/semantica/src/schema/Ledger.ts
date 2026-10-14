@@ -23,16 +23,17 @@ const $I = $SemanticaId.create("schema/Ledger");
  * @category models
  * @since 0.0.0
  */
-export class LedgerDocumentSnapshot extends S.Class<LedgerDocumentSnapshot>($I`LedgerDocumentSnapshot`)(
-  {
+export class LedgerDocumentSnapshot extends S.Opaque<LedgerDocumentSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonical: S.OptionFromNullOr(ResolvedSourceText),
     chunks: S.Array(Chunk),
     document: SourceDocument,
     outcome: ParseOutcome,
-  },
-  $I.annote("LedgerDocumentSnapshot", {
-    description: "One ledger document with its parse outcome, optional canonical text, and verified chunks.",
-  })
+  }).pipe(
+    $I.annoteSchema("LedgerDocumentSnapshot", {
+      description: "One ledger document with its parse outcome, optional canonical text, and verified chunks.",
+    })
+  )
 ) {}
 
 /**
@@ -54,14 +55,15 @@ export class LedgerDocumentSnapshot extends S.Class<LedgerDocumentSnapshot>($I`L
  * @category models
  * @since 0.0.0
  */
-export class LedgerSnapshot extends S.Class<LedgerSnapshot>($I`LedgerSnapshot`)(
-  {
+export class LedgerSnapshot extends S.Opaque<LedgerSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     batches: S.Array(ExtractOutcome),
     documents: S.Array(LedgerDocumentSnapshot),
     events: S.Array(ProvenanceEvent),
     run: RunId,
-  },
-  $I.annote("LedgerSnapshot", {
-    description: "Evaluator read model containing document outcomes, chunks, lane batches, claims, and events.",
-  })
+  }).pipe(
+    $I.annoteSchema("LedgerSnapshot", {
+      description: "Evaluator read model containing document outcomes, chunks, lane batches, claims, and events.",
+    })
+  )
 ) {}

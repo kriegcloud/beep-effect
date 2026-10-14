@@ -30,23 +30,25 @@ const EXPECTED_COVERAGE_INPUTS: ReadonlyArray<string> = [
   "$TURBO_ROOT$/vitest.setup.ts",
 ];
 
-class TurboTaskSummary extends S.Class<TurboTaskSummary>($I`TurboTaskSummary`)(
-  {
+class TurboTaskSummary extends S.Opaque<TurboTaskSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     hash: S.String,
     taskId: S.String,
-  },
-  $I.annote("TurboTaskSummary", {
-    description: "Task identity and input hash read from a Turbo run summary fixture.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboTaskSummary", {
+      description: "Task identity and input hash read from a Turbo run summary fixture.",
+    })
+  )
 ) {}
 
-class TurboRunSummary extends S.Class<TurboRunSummary>($I`TurboRunSummary`)(
-  {
+class TurboRunSummary extends S.Opaque<TurboRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     tasks: S.Array(TurboTaskSummary),
-  },
-  $I.annote("TurboRunSummary", {
-    description: "Subset of a Turbo run summary needed by the coverage input tripwire.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboRunSummary", {
+      description: "Subset of a Turbo run summary needed by the coverage input tripwire.",
+    })
+  )
 ) {}
 
 const TurboConfiguration = S.Struct({

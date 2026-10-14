@@ -46,8 +46,8 @@ const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.model")
  * @category aggregates
  * @since 0.0.0
  */
-export class WorkItem extends S.Class<WorkItem>($I`WorkItem`)(
-  {
+export class WorkItem extends S.Opaque<WorkItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: WorkItemId.annotateKey({
       description: "Stable WorkItem aggregate id.",
     }),
@@ -67,11 +67,12 @@ export class WorkItem extends S.Class<WorkItem>($I`WorkItem`)(
         description: "Relative WorkItem priority, when explicitly carried.",
       })
       .pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("WorkItem", {
-    title: "WorkItem",
-    description: "Canonical architecture lab aggregate used to prove slice topology.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkItem", {
+      title: "WorkItem",
+      description: "Canonical architecture lab aggregate used to prove slice topology.",
+    })
+  )
 ) {}
 
 /**
@@ -97,8 +98,8 @@ export class WorkItem extends S.Class<WorkItem>($I`WorkItem`)(
  * @category aggregates
  * @since 0.0.0
  */
-export class CreateWorkItemInput extends S.Class<CreateWorkItemInput>($I`CreateWorkItemInput`)(
-  {
+export class CreateWorkItemInput extends S.Opaque<CreateWorkItemInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: WorkItemId.annotateKey({
       description: "Stable WorkItem aggregate id.",
     }),
@@ -110,11 +111,12 @@ export class CreateWorkItemInput extends S.Class<CreateWorkItemInput>($I`CreateW
         description: "Optional priority requested for the new WorkItem.",
       })
       .pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CreateWorkItemInput", {
-    title: "Create WorkItem input",
-    description: "Input required to create an open architecture lab WorkItem.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateWorkItemInput", {
+      title: "Create WorkItem input",
+      description: "Input required to create an open architecture lab WorkItem.",
+    })
+  )
 ) {}
 
 /**

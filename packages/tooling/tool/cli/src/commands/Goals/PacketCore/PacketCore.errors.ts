@@ -33,7 +33,9 @@ const $I = $RepoCliId.create("commands/Goals/PacketCore/PacketCore.errors");
  * @category errors
  * @since 0.0.0
  */
-export class PacketStreamError extends S.TaggedError<PacketStreamError>($I`PacketStreamError`)(
+export class PacketStreamError extends S.TaggedError<PacketStreamError, { readonly brand: unique symbol }>(
+  $I`PacketStreamError`
+)(
   "PacketStreamError",
   {
     packet: S.String,
@@ -85,7 +87,9 @@ export class PacketStreamError extends S.TaggedError<PacketStreamError>($I`Packe
  * @category errors
  * @since 0.0.0
  */
-export class PacketCasConflictError extends S.TaggedError<PacketCasConflictError>($I`PacketCasConflictError`)(
+export class PacketCasConflictError extends S.TaggedError<PacketCasConflictError, { readonly brand: unique symbol }>(
+  $I`PacketCasConflictError`
+)(
   "PacketCasConflictError",
   {
     packet: S.String,

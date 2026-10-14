@@ -33,7 +33,7 @@ const $I = $ScratchpadId.create("effected/schema-org/Person");
  * @category models
  * @since 0.0.0
  */
-export class Person extends S.Class<Person>($I`Person`)({
+export class Person extends S.Class<Person, { readonly brand: unique symbol }>($I`Person`)({
 	...ThingFields,
 	/**
 	 * The JSON-LD type discriminator, populated automatically.

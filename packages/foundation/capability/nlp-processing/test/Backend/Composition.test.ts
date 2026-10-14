@@ -21,7 +21,7 @@ const assertSchemaRoundTrip = Effect.fn("assertSchemaRoundTrip")(function* <
   expect(S.toEquivalence(schema)(decoded, value), label).toBe(true);
 });
 
-const baseCapabilities: Backend.BackendCapabilities = {
+const baseCapabilities: Backend.BackendCapabilities = Backend.BackendCapabilities.make({
   constituencyParsing: false,
   coreferenceResolution: false,
   dependencyParsing: false,
@@ -31,7 +31,7 @@ const baseCapabilities: Backend.BackendCapabilities = {
   relationExtraction: false,
   sentencization: false,
   tokenization: false,
-};
+});
 
 const stub = (
   name: string,

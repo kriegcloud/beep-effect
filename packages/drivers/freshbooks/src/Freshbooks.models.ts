@@ -161,18 +161,19 @@ export type FreshbooksPaymentId = typeof FreshbooksPaymentId.Type;
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksMoney extends S.Class<FreshbooksMoney>($I`FreshbooksMoney`)(
-  {
+export class FreshbooksMoney extends S.Opaque<FreshbooksMoney, { readonly brand: unique symbol }>()(
+  S.Struct({
     amount: S.String.annotateKey({
       description: "Decimal money amount preserved as a string.",
     }),
     code: S.NonEmptyString.annotateKey({
       description: "ISO 4217 currency code.",
     }),
-  },
-  $I.annote("FreshbooksMoney", {
-    description: "FreshBooks money amount with currency code.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksMoney", {
+      description: "FreshBooks money amount with currency code.",
+    })
+  )
 ) {}
 
 /**
@@ -198,8 +199,8 @@ export class FreshbooksMoney extends S.Class<FreshbooksMoney>($I`FreshbooksMoney
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksBusiness extends S.Class<FreshbooksBusiness>($I`FreshbooksBusiness`)(
-  {
+export class FreshbooksBusiness extends S.Opaque<FreshbooksBusiness, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: FreshbooksBusinessId.annotateKey({
       description: "Business-namespace identifier (integer).",
     }),
@@ -209,10 +210,11 @@ export class FreshbooksBusiness extends S.Class<FreshbooksBusiness>($I`Freshbook
     name: S.optionalKey(S.String).annotateKey({
       description: "Business display name.",
     }),
-  },
-  $I.annote("FreshbooksBusiness", {
-    description: "FreshBooks business object with distinct account/business namespaces.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksBusiness", {
+      description: "FreshBooks business object with distinct account/business namespaces.",
+    })
+  )
 ) {}
 
 /**
@@ -236,10 +238,11 @@ export class FreshbooksBusiness extends S.Class<FreshbooksBusiness>($I`Freshbook
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksBusinessMembership extends S.Class<FreshbooksBusinessMembership>(
-  $I`FreshbooksBusinessMembership`
-)(
-  {
+export class FreshbooksBusinessMembership extends S.Opaque<
+  FreshbooksBusinessMembership,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: S.Int.annotateKey({
       description: "Business-membership record id (not the business id).",
     }),
@@ -249,10 +252,11 @@ export class FreshbooksBusinessMembership extends S.Class<FreshbooksBusinessMemb
     business: FreshbooksBusiness.annotateKey({
       description: "Business object carrying account/business namespaces.",
     }),
-  },
-  $I.annote("FreshbooksBusinessMembership", {
-    description: "FreshBooks business membership from the Identity Model.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksBusinessMembership", {
+      description: "FreshBooks business membership from the Identity Model.",
+    })
+  )
 ) {}
 
 /**
@@ -279,8 +283,8 @@ export class FreshbooksBusinessMembership extends S.Class<FreshbooksBusinessMemb
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksIdentity extends S.Class<FreshbooksIdentity>($I`FreshbooksIdentity`)(
-  {
+export class FreshbooksIdentity extends S.Opaque<FreshbooksIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Int.annotateKey({
       description: "Identity id.",
     }),
@@ -296,10 +300,11 @@ export class FreshbooksIdentity extends S.Class<FreshbooksIdentity>($I`Freshbook
     business_memberships: S.Array(FreshbooksBusinessMembership).annotateKey({
       description: "Business memberships carrying account/business namespaces.",
     }),
-  },
-  $I.annote("FreshbooksIdentity", {
-    description: "FreshBooks identity resolved from the /me endpoint.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksIdentity", {
+      description: "FreshBooks identity resolved from the /me endpoint.",
+    })
+  )
 ) {}
 
 /**
@@ -327,8 +332,8 @@ export class FreshbooksIdentity extends S.Class<FreshbooksIdentity>($I`Freshbook
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksClient extends S.Class<FreshbooksClient>($I`FreshbooksClient`)(
-  {
+export class FreshbooksClient extends S.Opaque<FreshbooksClient, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: FreshbooksClientId.annotateKey({
       description: "Client identifier.",
     }),
@@ -353,10 +358,11 @@ export class FreshbooksClient extends S.Class<FreshbooksClient>($I`FreshbooksCli
     updated: S.optionalKey(S.String).annotateKey({
       description: "Last-updated timestamp string.",
     }),
-  },
-  $I.annote("FreshbooksClient", {
-    description: "FreshBooks client (customer) record.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksClient", {
+      description: "FreshBooks client (customer) record.",
+    })
+  )
 ) {}
 
 /**
@@ -383,8 +389,8 @@ export class FreshbooksClient extends S.Class<FreshbooksClient>($I`FreshbooksCli
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksInvoice extends S.Class<FreshbooksInvoice>($I`FreshbooksInvoice`)(
-  {
+export class FreshbooksInvoice extends S.Opaque<FreshbooksInvoice, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: FreshbooksInvoiceId.annotateKey({
       description: "Invoice identifier.",
     }),
@@ -418,10 +424,11 @@ export class FreshbooksInvoice extends S.Class<FreshbooksInvoice>($I`FreshbooksI
     currency_code: S.optionalKey(S.String).annotateKey({
       description: "Invoice currency code.",
     }),
-  },
-  $I.annote("FreshbooksInvoice", {
-    description: "FreshBooks invoice record.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksInvoice", {
+      description: "FreshBooks invoice record.",
+    })
+  )
 ) {}
 
 /**
@@ -448,8 +455,8 @@ export class FreshbooksInvoice extends S.Class<FreshbooksInvoice>($I`FreshbooksI
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksPayment extends S.Class<FreshbooksPayment>($I`FreshbooksPayment`)(
-  {
+export class FreshbooksPayment extends S.Opaque<FreshbooksPayment, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: FreshbooksPaymentId.annotateKey({
       description: "Payment identifier.",
     }),
@@ -471,10 +478,11 @@ export class FreshbooksPayment extends S.Class<FreshbooksPayment>($I`FreshbooksP
     note: S.optionalKey(S.String).annotateKey({
       description: "Free-text payment note.",
     }),
-  },
-  $I.annote("FreshbooksPayment", {
-    description: "FreshBooks payment record.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksPayment", {
+      description: "FreshBooks payment record.",
+    })
+  )
 ) {}
 
 /**
@@ -493,18 +501,19 @@ export class FreshbooksPayment extends S.Class<FreshbooksPayment>($I`FreshbooksP
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksPagination extends S.Class<FreshbooksPagination>($I`FreshbooksPagination`)(
-  {
+export class FreshbooksPagination extends S.Opaque<FreshbooksPagination, { readonly brand: unique symbol }>()(
+  S.Struct({
     page: S.Int.annotateKey({ description: "Current 1-based page number." }),
     pages: S.Int.annotateKey({ description: "Total page count." }),
     per_page: S.Int.annotateKey({
       description: "Page size (capped by FreshBooks at 100).",
     }),
     total: S.Int.annotateKey({ description: "Total item count across pages." }),
-  },
-  $I.annote("FreshbooksPagination", {
-    description: "FreshBooks list pagination metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksPagination", {
+      description: "FreshBooks list pagination metadata.",
+    })
+  )
 ) {}
 
 const AccountingResult = <A, I, R>(schema: S.Codec<A, I, R>) =>

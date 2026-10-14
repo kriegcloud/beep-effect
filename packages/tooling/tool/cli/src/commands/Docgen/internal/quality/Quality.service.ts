@@ -148,17 +148,18 @@ const makeRemediationPacket = (
     verificationArgv: ["bun", "run", "beep", "docgen", "quality", "-p", subject.packagePath, "--json"],
   });
 
-class RemediationPacketCandidate extends S.Class<RemediationPacketCandidate>($I`RemediationPacketCandidate`)(
-  {
+class RemediationPacketCandidate extends S.Opaque<RemediationPacketCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     impact: S.Finite,
     isFail: S.Boolean,
     packagePath: S.String,
     packet: DocgenQualityRemediationPacket,
     subjectId: S.String,
-  },
-  $I.annote("RemediationPacketCandidate", {
-    description: "Candidate for remediation packet generation",
-  })
+  }).pipe(
+    $I.annoteSchema("RemediationPacketCandidate", {
+      description: "Candidate for remediation packet generation",
+    })
+  )
 ) {}
 
 const packetCandidateOrder: Order.Order<RemediationPacketCandidate> = docgenPacketCandidateOrder(
@@ -178,13 +179,13 @@ const remediationPacketCandidatesForPackage = (
       const subject = A.findFirst(pkg.subjects, (candidate) => candidate.stableIdentity === review.subjectId);
       return O.isSome(subject)
         ? [
-            {
+            RemediationPacketCandidate.make({
               impact: A.reduce(review.findings, 0, (total, finding) => total + finding.scoreImpact),
               isFail: review.tier === "fail",
               packagePath: pkg.packagePath,
               packet: makeRemediationPacket(subject.value, review),
               subjectId: review.subjectId,
-            },
+            }),
           ]
         : A.empty<RemediationPacketCandidate>();
     })
@@ -206,16 +207,17 @@ const withRemediationPacketCount = (
     summary: summarizeReviews(1, pkg.subjects.length, pkg.reviews, remediationPackets),
   });
 
-class PackageReportOptions extends S.Class<PackageReportOptions>($I`PackageReportOptions`)(
-  {
+class PackageReportOptions extends S.Opaque<PackageReportOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     durationMs: S.Finite,
     error: S.NullOr(S.String),
     status: DocgenQualityPackageStatus,
     timedOut: S.Boolean,
-  },
-  $I.annote("PackageReportOptions", {
-    description: "Options for generating a package quality report",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageReportOptions", {
+      description: "Options for generating a package quality report",
+    })
+  )
 ) {}
 
 const packageReport = (
@@ -288,12 +290,16 @@ export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQual
     const timedOut = candidateResult.timedOut || budgetExceeded(budget);
     const status: DocgenQualityPackageStatus = timedOut ? "partial" : candidateResult.status;
     const error = timedOut ? (candidateResult.error ?? packageTimeoutMessage(target, budget)) : candidateResult.error;
-    return packageReport(target, subjects, {
-      durationMs: budgetDurationMs(budget),
-      error,
-      status,
-      timedOut,
-    });
+    return packageReport(
+      target,
+      subjects,
+      PackageReportOptions.make({
+        durationMs: budgetDurationMs(budget),
+        error,
+        status,
+        timedOut,
+      })
+    );
   }).pipe(
     Effect.result,
     Effect.map(

@@ -41,8 +41,8 @@ const $I = $McpKitId.create("McpCaller");
  * @category models
  * @since 0.0.0
  */
-export class McpCallerIdentity extends S.Class<McpCallerIdentity>($I`McpCallerIdentity`)(
-  {
+export class McpCallerIdentity extends S.Opaque<McpCallerIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientId: S.Natural.annotateKey({
       description: "Server-assigned id of the protocol exchange that carried this dispatch.",
     }),
@@ -53,10 +53,11 @@ export class McpCallerIdentity extends S.Class<McpCallerIdentity>($I`McpCallerId
           "Optional mcp-session-id header echoed by stateful transports; None on stateless and stdio dispatches.",
       })
     ),
-  },
-  $I.annote("McpCallerIdentity", {
-    description: "Transport facts about the MCP caller of one dispatch.",
-  })
+  }).pipe(
+    $I.annoteSchema("McpCallerIdentity", {
+      description: "Transport facts about the MCP caller of one dispatch.",
+    })
+  )
 ) {}
 
 /**

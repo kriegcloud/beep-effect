@@ -203,8 +203,8 @@ const heavyAdmissionEventChangedPathsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class HeavyAdmissionEvent extends S.Class<HeavyAdmissionEvent>($I`HeavyAdmissionEvent`)(
-  {
+export class HeavyAdmissionEvent extends S.Opaque<HeavyAdmissionEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventName: HeavyAdmissionEventName,
     headRepository: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("beep-effect/beep-effect")),
@@ -226,11 +226,12 @@ export class HeavyAdmissionEvent extends S.Class<HeavyAdmissionEvent>($I`HeavyAd
       S.withConstructorDefault(Effect.succeed(heavyAdmissionEventChangedPathsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(heavyAdmissionEventChangedPathsDefault))
     ),
-  },
-  $I.annote("HeavyAdmissionEvent", {
-    description:
-      "The typed event view the heavy admission decision reads: event name, labels, draft flag, merge-base diff.",
-  })
+  }).pipe(
+    $I.annoteSchema("HeavyAdmissionEvent", {
+      description:
+        "The typed event view the heavy admission decision reads: event name, labels, draft flag, merge-base diff.",
+    })
+  )
 ) {}
 
 /**
@@ -254,17 +255,18 @@ export class HeavyAdmissionEvent extends S.Class<HeavyAdmissionEvent>($I`HeavyAd
  * @category models
  * @since 0.0.0
  */
-export class HeavyAdmission extends S.Class<HeavyAdmission>($I`HeavyAdmission`)(
-  {
+export class HeavyAdmission extends S.Opaque<HeavyAdmission, { readonly brand: unique symbol }>()(
+  S.Struct({
     verdict: HeavyAdmissionVerdict,
     admitted: S.Boolean,
     sources: S.Array(HeavyAdmissionSource),
     docsOnly: S.Boolean,
     changedPathCount: S.Int,
-  },
-  $I.annote("HeavyAdmission", {
-    description: "The heavy-matrix admission verdict with its sources and the docs-only classification.",
-  })
+  }).pipe(
+    $I.annoteSchema("HeavyAdmission", {
+      description: "The heavy-matrix admission verdict with its sources and the docs-only classification.",
+    })
+  )
 ) {}
 
 /**
@@ -388,14 +390,15 @@ export const decideHeavyAdmission = (event: HeavyAdmissionEvent): HeavyAdmission
   });
 };
 
-class GhEventLabel extends S.Class<GhEventLabel>($I`GhEventLabel`)(
-  { name: S.String },
-  $I.annote("GhEventLabel", { description: "One label on the pull request of a GitHub event payload." })
+class GhEventLabel extends S.Opaque<GhEventLabel, { readonly brand: unique symbol }>()(
+  S.Struct({ name: S.String }).pipe(
+    $I.annoteSchema("GhEventLabel", { description: "One label on the pull request of a GitHub event payload." })
+  )
 ) {}
 
 const ghEventPullRequestLabelsDefault = A.empty<GhEventLabel>();
-class GhEventPullRequest extends S.Class<GhEventPullRequest>($I`GhEventPullRequest`)(
-  {
+class GhEventPullRequest extends S.Opaque<GhEventPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     draft: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
@@ -406,10 +409,11 @@ class GhEventPullRequest extends S.Class<GhEventPullRequest>($I`GhEventPullReque
     ),
     head: S.optionalKey(S.Struct({ repo: S.NullOr(S.Struct({ full_name: S.String })) })),
     base: S.Struct({ ref: S.String, repo: S.optionalKey(S.Struct({ full_name: S.String })) }),
-  },
-  $I.annote("GhEventPullRequest", {
-    description: "The pull_request fields of a GitHub event payload that admission reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhEventPullRequest", {
+      description: "The pull_request fields of a GitHub event payload that admission reads.",
+    })
+  )
 ) {}
 
 /**
@@ -433,17 +437,18 @@ class GhEventPullRequest extends S.Class<GhEventPullRequest>($I`GhEventPullReque
  * @category models
  * @since 0.0.0
  */
-export class GhPullRequestEventPayload extends S.Class<GhPullRequestEventPayload>($I`GhPullRequestEventPayload`)(
-  {
+export class GhPullRequestEventPayload extends S.Opaque<GhPullRequestEventPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     action: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefaultTypeKey(Effect.succeed(""))
     ),
     pull_request: GhEventPullRequest,
-  },
-  $I.annote("GhPullRequestEventPayload", {
-    description: "Minimal GitHub pull_request event payload: action, draft, labels, base ref.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhPullRequestEventPayload", {
+      description: "Minimal GitHub pull_request event payload: action, draft, labels, base ref.",
+    })
+  )
 ) {}
 
 const decodeGhPullRequestEventPayload = S.decodeUnknownEffect(S.fromJsonString(GhPullRequestEventPayload));
@@ -466,16 +471,17 @@ const decodeGhPullRequestEventPayload = S.decodeUnknownEffect(S.fromJsonString(G
  * @category models
  * @since 0.0.0
  */
-export class HeavyAdmissionReadInput extends S.Class<HeavyAdmissionReadInput>($I`HeavyAdmissionReadInput`)(
-  {
+export class HeavyAdmissionReadInput extends S.Opaque<HeavyAdmissionReadInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventName: HeavyAdmissionEventName,
     eventPath: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     base: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     cwd: S.String,
-  },
-  $I.annote("HeavyAdmissionReadInput", {
-    description: "Resolved event name, optional payload path and base override, and the checkout to diff.",
-  })
+  }).pipe(
+    $I.annoteSchema("HeavyAdmissionReadInput", {
+      description: "Resolved event name, optional payload path and base override, and the checkout to diff.",
+    })
+  )
 ) {}
 
 const SAFE_BRANCH_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/u;

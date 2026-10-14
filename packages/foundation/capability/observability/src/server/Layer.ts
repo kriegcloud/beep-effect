@@ -12,7 +12,7 @@ import * as Otlp from "effect/observability/Otlp";
 import * as OtlpSerialization from "effect/observability/OtlpSerialization";
 import { layerMinimumLogLevel } from "../Logging.ts";
 import { ServerObservabilityConfig, toOtlpResource } from "./Config.ts";
-import { layerFilteredDevTools } from "./DevTools.ts";
+import { LayerFilteredDevToolsOptions, layerFilteredDevTools } from "./DevTools.ts";
 import type * as HttpClient from "effect/http/HttpClient";
 import type { DevToolsSpanFilter } from "./DevTools.ts";
 
@@ -94,10 +94,12 @@ export const layerLocalLgtmServer: {
     // DevTools wraps the tracer it finds while building, so OTLP must sit
     // underneath it; as mergeAll siblings DevTools replaced the OTLP tracer.
     const tracingLayer = config.devtoolsEnabled
-      ? layerFilteredDevTools({
-          url: config.devtoolsUrl,
-          shouldPublish: options?.shouldPublishDevToolsSpan ?? (() => true),
-        }).pipe(Layer.provideMerge(otlpLayer))
+      ? layerFilteredDevTools(
+          LayerFilteredDevToolsOptions.make({
+            url: config.devtoolsUrl,
+            shouldPublish: options?.shouldPublishDevToolsSpan ?? (() => true),
+          })
+        ).pipe(Layer.provideMerge(otlpLayer))
       : otlpLayer;
 
     return Layer.mergeAll(Metric.enableRuntimeMetricsLayer, layerMinimumLogLevel(config.minLogLevel), tracingLayer);

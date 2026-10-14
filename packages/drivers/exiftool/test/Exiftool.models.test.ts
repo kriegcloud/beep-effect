@@ -1,6 +1,8 @@
 import {
   BeepQaProvenance,
   BeepQaTagName,
+  BuildReadTagsArgsOptions,
+  BuildWriteTagsArgsOptions,
   beepQaRawTagKey,
   buildReadTagsArgs,
   buildWriteTagsArgs,
@@ -43,9 +45,9 @@ const encodeExiftoolErrorFromUnknownOptions = S.encodeEffect(ExiftoolErrorFromUn
 
 const assertRoundTrip = Effect.fn("assertRoundTrip")(function* <Schema extends S.Codec<unknown, unknown>>(
   schema: Schema,
-  value: Schema["Type"]
+  value: unknown
 ) {
-  const encoded = yield* S.encodeEffect(schema)(value);
+  const encoded = yield* S.encodeUnknownEffect(schema)(value);
   const decoded = yield* S.decodeEffect(schema)(encoded);
   expect(Equal.equals(decoded, value)).toBe(true);
 });
@@ -221,28 +223,34 @@ describe("@beep/exiftool models", () => {
 
   it("builds read, write, and version arguments with -config first", () => {
     expect(
-      buildReadTagsArgs({
-        configPath: "/tmp/beepqa.config",
-        filePath: "./frame.png",
-        numeric: false,
-      })
+      buildReadTagsArgs(
+        BuildReadTagsArgsOptions.make({
+          configPath: "/tmp/beepqa.config",
+          filePath: "./frame.png",
+          numeric: false,
+        })
+      )
     ).toEqual(["-config", "/tmp/beepqa.config", "-j", "-G1", "./frame.png"]);
 
     expect(
-      buildReadTagsArgs({
-        configPath: "/tmp/beepqa.config",
-        filePath: "./frame.png",
-        numeric: true,
-      })
+      buildReadTagsArgs(
+        BuildReadTagsArgsOptions.make({
+          configPath: "/tmp/beepqa.config",
+          filePath: "./frame.png",
+          numeric: true,
+        })
+      )
     ).toEqual(["-config", "/tmp/beepqa.config", "-j", "-G1", "-n", "./frame.png"]);
 
     expect(
-      buildWriteTagsArgs({
-        assignments: [TagAssignment.make({ tagName: "XMP-beepQA:sessionId", value: "sess-1" })],
-        configPath: "/tmp/beepqa.config",
-        outputPath: "./frames/.tmp/frame.png",
-        sourcePath: "./frames/frame.png",
-      })
+      buildWriteTagsArgs(
+        BuildWriteTagsArgsOptions.make({
+          assignments: [TagAssignment.make({ tagName: "XMP-beepQA:sessionId", value: "sess-1" })],
+          configPath: "/tmp/beepqa.config",
+          outputPath: "./frames/.tmp/frame.png",
+          sourcePath: "./frames/frame.png",
+        })
+      )
     ).toEqual([
       "-config",
       "/tmp/beepqa.config",

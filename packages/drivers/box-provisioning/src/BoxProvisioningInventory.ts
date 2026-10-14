@@ -6,6 +6,16 @@
  */
 
 import * as B from "@beep/box";
+import {
+  GetEnterpriseMetadataTemplatesQueryParams,
+  GetGlobalMetadataTemplatesQueryParams,
+  GetMetadataCascadePoliciesQueryParams,
+  GetRetentionPoliciesQueryParams,
+  GetRetentionPolicyAssignmentsOptionalsInput,
+  GetRetentionPolicyAssignmentsQueryParams,
+  GetSignRequestsQueryParams,
+  GetSignTemplatesQueryParams,
+} from "@beep/box";
 import { $BoxProvisioningId } from "@beep/identity";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -100,17 +110,21 @@ const observeMetadata = (
         folderMetadataCount,
         box.metadataCascadePolicies.getMetadataCascadePolicies(
           B.MetadataCascadePoliciesGetMetadataCascadePoliciesPayload.make({
-            queryParams: { folderId: rootFolderId },
+            queryParams: GetMetadataCascadePoliciesQueryParams.make({ folderId: rootFolderId }),
           })
         ),
         collectMarkerPages<B.MetadataTemplate, B.BoxError>((marker) =>
           box.metadataTemplates.getEnterpriseMetadataTemplates(
-            B.MetadataTemplatesGetEnterpriseMetadataTemplatesPayload.make({ queryParams: markerQuery(marker) })
+            B.MetadataTemplatesGetEnterpriseMetadataTemplatesPayload.make({
+              queryParams: GetEnterpriseMetadataTemplatesQueryParams.make(markerQuery(marker)),
+            })
           )
         ),
         collectMarkerPages<B.MetadataTemplate, B.BoxError>((marker) =>
           box.metadataTemplates.getGlobalMetadataTemplates(
-            B.MetadataTemplatesGetGlobalMetadataTemplatesPayload.make({ queryParams: markerQuery(marker) })
+            B.MetadataTemplatesGetGlobalMetadataTemplatesPayload.make({
+              queryParams: GetGlobalMetadataTemplatesQueryParams.make(markerQuery(marker)),
+            })
           )
         ),
       ],
@@ -137,7 +151,9 @@ const observeRetention = (box: B.Box["Service"]): Effect.Effect<BoxDiscovery, B.
     "retention",
     collectMarkerPages<B.RetentionPolicy, B.BoxError>((marker) =>
       box.retentionPolicies.getRetentionPolicies(
-        B.RetentionPoliciesGetRetentionPoliciesPayload.make({ queryParams: markerQuery(marker) })
+        B.RetentionPoliciesGetRetentionPoliciesPayload.make({
+          queryParams: GetRetentionPoliciesQueryParams.make(markerQuery(marker)),
+        })
       )
     ).pipe(
       Effect.flatMap((policies) =>
@@ -148,7 +164,9 @@ const observeRetention = (box: B.Box["Service"]): Effect.Effect<BoxDiscovery, B.
               box.retentionPolicyAssignments.getRetentionPolicyAssignments(
                 B.RetentionPolicyAssignmentsGetRetentionPolicyAssignmentsPayload.make({
                   retentionPolicyId: policy.id,
-                  optionalsInput: { queryParams: markerQuery(marker) },
+                  optionalsInput: GetRetentionPolicyAssignmentsOptionalsInput.make({
+                    queryParams: GetRetentionPolicyAssignmentsQueryParams.make(markerQuery(marker)),
+                  }),
                 })
               )
             ),
@@ -166,13 +184,17 @@ const observeSimpleMarkerCount = <A>(
 
 const observeSignRequests = (box: B.Box["Service"]) =>
   observeSimpleMarkerCount<B.SignRequest>("signRequests", (marker) =>
-    box.signRequests.getSignRequests(B.SignRequestsGetSignRequestsPayload.make({ queryParams: markerQuery(marker) }))
+    box.signRequests.getSignRequests(
+      B.SignRequestsGetSignRequestsPayload.make({ queryParams: GetSignRequestsQueryParams.make(markerQuery(marker)) })
+    )
   );
 
 const observeSignTemplates = (box: B.Box["Service"]) =>
   observeSimpleMarkerCount<B.SignTemplate>("signTemplates", (marker) =>
     box.signTemplates.getSignTemplates(
-      B.SignTemplatesGetSignTemplatesPayload.make({ queryParams: markerQuery(marker) })
+      B.SignTemplatesGetSignTemplatesPayload.make({
+        queryParams: GetSignTemplatesQueryParams.make(markerQuery(marker)),
+      })
     )
   );
 

@@ -323,15 +323,16 @@ export const buildPrBody = Effect.fn("Yeet.buildPrBody")(function* (
  * @category models
  * @since 0.0.0
  */
-export class YeetEnsuredPullRequest extends S.Class<YeetEnsuredPullRequest>($I`YeetEnsuredPullRequest`)(
-  {
+export class YeetEnsuredPullRequest extends S.Opaque<YeetEnsuredPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     number: S.Finite,
     url: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     created: S.Boolean,
-  },
-  $I.annote("YeetEnsuredPullRequest", {
-    description: "The pull request a publish created or found open for its branch.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetEnsuredPullRequest", {
+      description: "The pull request a publish created or found open for its branch.",
+    })
+  )
 ) {}
 
 interface EnsurePullRequestDependencies {

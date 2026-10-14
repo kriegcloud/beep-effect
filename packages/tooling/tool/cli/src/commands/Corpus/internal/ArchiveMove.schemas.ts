@@ -30,16 +30,17 @@ const $I = $RepoCliId.create("commands/Corpus/internal/ArchiveMove.schemas");
  * @category models
  * @since 0.0.0
  */
-export class CorpusArchiveMoveOptions extends S.Class<CorpusArchiveMoveOptions>($I`CorpusArchiveMoveOptions`)(
-  {
+export class CorpusArchiveMoveOptions extends S.Opaque<CorpusArchiveMoveOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     archiveRoot: S.NonEmptyString,
     provenancePaths: S.Array(S.NonEmptyString),
     sourcePaths: S.Array(S.NonEmptyString),
-  },
-  $I.annote("CorpusArchiveMoveOptions", {
-    title: "Corpus Archive Move Options",
-    description: "Validated source, archive-root, and provenance manifest paths used by corpus archive-move.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusArchiveMoveOptions", {
+      title: "Corpus Archive Move Options",
+      description: "Validated source, archive-root, and provenance manifest paths used by corpus archive-move.",
+    })
+  )
 ) {}
 
 /**
@@ -65,21 +66,23 @@ export class CorpusArchiveMoveOptions extends S.Class<CorpusArchiveMoveOptions>(
  * @category models
  * @since 0.0.0
  */
-export class CorpusArchiveMoveManifestRecord extends S.Class<CorpusArchiveMoveManifestRecord>(
-  $I`CorpusArchiveMoveManifestRecord`
-)(
-  {
+export class CorpusArchiveMoveManifestRecord extends S.Opaque<
+  CorpusArchiveMoveManifestRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archivePath: S.NonEmptyString,
     copiedCount: S.Natural,
     fileCount: S.Natural,
     movedAt: S.NonEmptyString,
     originPath: S.NonEmptyString,
     provenanceOnlyCount: S.Natural,
-  },
-  $I.annote("CorpusArchiveMoveManifestRecord", {
-    title: "Corpus Archive Move Manifest Record",
-    description: "JSONL-safe archive move record for one source moved after provenance verification.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusArchiveMoveManifestRecord", {
+      title: "Corpus Archive Move Manifest Record",
+      description: "JSONL-safe archive move record for one source moved after provenance verification.",
+    })
+  )
 ) {}
 
 /**
@@ -129,15 +132,16 @@ export const encodeCorpusArchiveMoveManifestRecordJson = JsonStringCodec(CorpusA
  * @category models
  * @since 0.0.0
  */
-export class CorpusArchiveMoveSummary extends S.Class<CorpusArchiveMoveSummary>($I`CorpusArchiveMoveSummary`)(
-  {
+export class CorpusArchiveMoveSummary extends S.Opaque<CorpusArchiveMoveSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     copiedRecords: S.Natural,
     filesCovered: S.Natural,
     provenanceOnlyRecords: S.Natural,
     sourcesMoved: S.Natural,
-  },
-  $I.annote("CorpusArchiveMoveSummary", {
-    title: "Corpus Archive Move Summary",
-    description: "Summary counts returned by corpus archive-move after moving provenance-covered sources.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusArchiveMoveSummary", {
+      title: "Corpus Archive Move Summary",
+      description: "Summary counts returned by corpus archive-move after moving provenance-covered sources.",
+    })
+  )
 ) {}

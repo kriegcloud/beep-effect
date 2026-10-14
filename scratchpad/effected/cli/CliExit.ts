@@ -8,7 +8,7 @@ import { isExitCode } from "./internal/isExitCode.ts";
 
 const $I = $ScratchpadId.create("effected/cli/CliExit");
 
-class InvalidExitCodeError extends S.TaggedError<InvalidExitCodeError>($I`InvalidExitCodeError`)(
+class InvalidExitCodeError extends S.TaggedError<InvalidExitCodeError, { readonly brand: unique symbol }>($I`InvalidExitCodeError`)(
 	"InvalidExitCodeError",
 	{
 		message: S.String.annotate({ description: "The invalid exit-code value and the required POSIX integer range." }),

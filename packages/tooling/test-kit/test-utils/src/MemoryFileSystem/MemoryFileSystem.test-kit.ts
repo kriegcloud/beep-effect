@@ -92,9 +92,10 @@ import type * as Cause from "effect/Cause";
 
 const $I = $TestUtilsId.create("MemoryFileSystem/MemoryFileSystem.test-kit");
 
-class MemoryFileSystemInvariantError extends S.TaggedError<MemoryFileSystemInvariantError>(
-  $I`MemoryFileSystemInvariantError`
-)(
+class MemoryFileSystemInvariantError extends S.TaggedError<
+  MemoryFileSystemInvariantError,
+  { readonly brand: unique symbol }
+>($I`MemoryFileSystemInvariantError`)(
   "MemoryFileSystemInvariantError",
   { message: S.String },
   $I.annoteError<MemoryFileSystemInvariantError>("MemoryFileSystemInvariantError", {
@@ -189,8 +190,8 @@ const TemporaryFragment = S.String.check(S.isPattern(/^[^/\u0000]*$/)).annotate(
 type TemporaryFragment = typeof TemporaryFragment.Type;
 const isTemporaryFragment = S.is(TemporaryFragment);
 
-class InodeMetadata extends S.Class<InodeMetadata>($I`InodeMetadata`)(
-  {
+class InodeMetadata extends S.Opaque<InodeMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     ino: Inode,
     mode: S.Finite,
     uid: ModeOrOwner.pipe(S.withConstructorDefault(Effect.succeed(DEFAULT_UID))),
@@ -201,10 +202,11 @@ class InodeMetadata extends S.Class<InodeMetadata>($I`InodeMetadata`)(
     mtime: S.DateTimeUtc,
     ctime: S.DateTimeUtc,
     birthtime: S.DateTimeUtc,
-  },
-  $I.annote("InodeMetadata", {
-    description: "POSIX metadata shared by stored inodes; namespace operations own timestamps and link counts.",
-  })
+  }).pipe(
+    $I.annoteSchema("InodeMetadata", {
+      description: "POSIX metadata shared by stored inodes; namespace operations own timestamps and link counts.",
+    })
+  )
 ) {}
 
 const InodeEntry = S.TaggedUnion({
@@ -262,22 +264,23 @@ const Cursor = S.BigInt.annotate(
 );
 type Cursor = typeof Cursor.Type;
 
-class OpenFileDescriptor extends S.Class<OpenFileDescriptor>($I`OpenFileDescriptor`)(
-  {
+class OpenFileDescriptor extends S.Opaque<OpenFileDescriptor, { readonly brand: unique symbol }>()(
+  S.Struct({
     fd: FileDescriptor,
     inode: Inode,
     readable: S.Boolean,
     writable: S.Boolean,
     append: S.Boolean,
     position: Cursor,
-  },
-  $I.annote("OpenFileDescriptor", {
-    description: "Stored access flags and cursor for an open descriptor, separate from its resource handle.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenFileDescriptor", {
+      description: "Stored access flags and cursor for an open descriptor, separate from its resource handle.",
+    })
+  )
 ) {}
 
-class State extends S.Class<State>($I`State`)(
-  {
+class State extends S.Opaque<State, { readonly brand: unique symbol }>()(
+  S.Struct({
     inodes: S.HashMap(Inode, InodeEntry),
     nextInode: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(FIRST_INODE))),
     descriptors: S.HashMap(FileDescriptor, OpenFileDescriptor).pipe(
@@ -285,62 +288,68 @@ class State extends S.Class<State>($I`State`)(
     ),
     nextDescriptor: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(FIRST_DESCRIPTOR))),
     nextTemporary: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(FIRST_TEMP))),
-  },
-  $I.annote("State", {
-    description: "One committed virtual-volume state; transitions replace maps without cloning all inode data.",
-  })
+  }).pipe(
+    $I.annoteSchema("State", {
+      description: "One committed virtual-volume state; transitions replace maps without cloning all inode data.",
+    })
+  )
 ) {}
 
-class ResolutionPolicy extends S.Class<ResolutionPolicy>($I`ResolutionPolicy`)(
-  {
+class ResolutionPolicy extends S.Opaque<ResolutionPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     followFinalSymbolicLink: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
     method: S.String.pipe(S.withConstructorDefault(Effect.succeed("resolve"))),
-  },
-  $I.annote("ResolutionPolicy", {
-    description: "Private final-symlink and error-method policy for virtual-root path resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolutionPolicy", {
+      description: "Private final-symlink and error-method policy for virtual-root path resolution.",
+    })
+  )
 ) {}
 type ResolveOptions = S.Struct.MakeIn<typeof ResolutionPolicy.fields>;
 
-class ResolvedInode extends S.Class<ResolvedInode>($I`ResolvedInode`)(
-  {
+class ResolvedInode extends S.Opaque<ResolvedInode, { readonly brand: unique symbol }>()(
+  S.Struct({
     inode: Inode,
     entry: InodeEntry,
     path: S.String,
-  },
-  $I.annote("ResolvedInode", {
-    description: "Resolved inode plus its normalized virtual-root path, distinct from the original error path.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedInode", {
+      description: "Resolved inode plus its normalized virtual-root path, distinct from the original error path.",
+    })
+  )
 ) {}
 
-class ResolvedParent extends S.Class<ResolvedParent>($I`ResolvedParent`)(
-  { inode: Inode, entry: InodeEntry.cases.Directory, name: S.String, path: S.String },
-  $I.annote("ResolvedParent", {
-    description: "Resolved containing directory and final component, without requiring the child to exist.",
-  })
+class ResolvedParent extends S.Opaque<ResolvedParent, { readonly brand: unique symbol }>()(
+  S.Struct({ inode: Inode, entry: InodeEntry.cases.Directory, name: S.String, path: S.String }).pipe(
+    $I.annoteSchema("ResolvedParent", {
+      description: "Resolved containing directory and final component, without requiring the child to exist.",
+    })
+  )
 ) {}
 
-class ResolvedEntry extends S.Class<ResolvedEntry>($I`ResolvedEntry`)(
-  {
+class ResolvedEntry extends S.Opaque<ResolvedEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     parent: InodeEntry.cases.Directory,
     name: S.String,
     entry: InodeEntry,
     path: S.String,
-  },
-  $I.annote("ResolvedEntry", {
-    description: "A named child and its parent directory for namespace mutations.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedEntry", {
+      description: "A named child and its parent directory for namespace mutations.",
+    })
+  )
 ) {}
 
-class CloneContext extends S.Class<CloneContext>($I`CloneContext`)(
-  {
+class CloneContext extends S.Opaque<CloneContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     method: S.String,
     sourcePath: S.String,
     preserveTimestamps: S.Boolean,
-  },
-  $I.annote("CloneContext", {
-    description: "Clone error provenance and timestamp policy threaded through bounded directory recursion.",
-  })
+  }).pipe(
+    $I.annoteSchema("CloneContext", {
+      description: "Clone error provenance and timestamp policy threaded through bounded directory recursion.",
+    })
+  )
 ) {}
 
 // =============================================================================
@@ -525,18 +534,20 @@ const allocateInode = Effect.fnUntraced(function* (
 ) {
   const now = yield* DateTime.now;
   const ino = Inode.make(state.nextInode);
-  const entry = create({
-    ino,
-    mode,
-    nlink,
-    uid: DEFAULT_UID,
-    gid: DEFAULT_GID,
-    openCount: 0,
-    atime: now,
-    mtime: now,
-    ctime: now,
-    birthtime: now,
-  });
+  const entry = create(
+    InodeMetadata.make({
+      ino,
+      mode,
+      nlink,
+      uid: DEFAULT_UID,
+      gid: DEFAULT_GID,
+      openCount: 0,
+      atime: now,
+      mtime: now,
+      ctime: now,
+      birthtime: now,
+    })
+  );
   return Tuple.make({ ...state, nextInode: state.nextInode + 1, inodes: HashMap.set(state.inodes, ino, entry) }, ino);
 });
 
@@ -710,25 +721,26 @@ const resolve = Effect.fnUntraced(function* (state: State, path: string, options
   }
   const inode = walkStackInode(walk);
   const entry = yield* getInode(state, inode, method, path);
-  return {
+  return ResolvedInode.make({
     inode,
     entry,
     path: walk.names.length === 0 ? "/" : `/${A.join(walk.names, "/")}`,
-  } satisfies ResolvedInode;
+  });
 });
 
-class OpenMode extends S.Class<OpenMode>($I`OpenMode`)(
-  {
+class OpenMode extends S.Opaque<OpenMode, { readonly brand: unique symbol }>()(
+  S.Struct({
     readable: S.Boolean,
     writable: S.Boolean,
     append: S.Boolean,
     create: S.Boolean,
     exclusive: S.Boolean,
     truncate: S.Boolean,
-  },
-  $I.annote("OpenMode", {
-    description: "The six operational flags interpreted from a supported upstream open flag.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenMode", {
+      description: "The six operational flags interpreted from a supported upstream open flag.",
+    })
+  )
 ) {}
 
 type OpenOptions = Parameters<FileSystem.FileSystem["open"]>[1];
@@ -842,18 +854,23 @@ const resolveParent = Effect.fnUntraced(function* (
   if (!isDirectoryInode(parent.entry)) {
     return yield* badResource(method, errorPath);
   }
-  return { inode: parent.inode, entry: parent.entry, name, path: parent.path } satisfies ResolvedParent;
+  return ResolvedParent.make({
+    inode: parent.inode,
+    entry: parent.entry,
+    name,
+    path: parent.path,
+  });
 });
 
 const resolveEntry = Effect.fnUntraced(function* (state: State, path: string, method: string) {
   const parent = yield* resolveParent(state, path, method);
   const inode = yield* Effect.fromOption(findEntry(parent.entry, parent.name), () => notFound(method, path));
-  return {
+  return ResolvedEntry.make({
     parent: parent.entry,
     name: parent.name,
     entry: yield* getInode(state, inode, method, path),
     path: childPath(parent.path, parent.name),
-  } satisfies ResolvedEntry;
+  });
 });
 
 const validateMode = Effect.fnUntraced(function* (method: string, mode: number | undefined) {
@@ -895,12 +912,12 @@ const detachEntry: (
       const child = yield* getInode(nextState, childInode, method, path);
       nextState = yield* detachEntry(
         nextState,
-        {
+        ResolvedEntry.make({
           parent: directory,
           name: childName,
           entry: child,
           path: childPath(target.path, childName),
-        },
+        }),
         now,
         true,
         method,
@@ -1137,12 +1154,12 @@ const renameDestination = Effect.fnUntraced(function* (
   if (isDirectoryInode(entry) && HashMap.size(entry.entries) > 0) {
     return yield* badResource(method, path, "Directory is not empty");
   }
-  return {
+  return ResolvedEntry.make({
     parent: parent.entry,
     name: parent.name,
     entry,
     path: childPath(parent.path, parent.name),
-  } satisfies ResolvedEntry;
+  });
 });
 
 const relocateEntry = Effect.fnUntraced(function* (
@@ -1357,7 +1374,7 @@ const copyDirectoryChild = Effect.fnUntraced(function* (
     const now = yield* DateTime.now;
     nextState = yield* detachEntry(
       nextState,
-      { parent: destination, name, entry, path: childPath(path, name) },
+      ResolvedEntry.make({ parent: destination, name, entry, path: childPath(path, name) }),
       now,
       false,
       method,
@@ -1390,7 +1407,7 @@ const copyDirectoryContents: (
     return yield* badResource(method, path, "Directory tree exceeds the maximum nesting depth");
   }
   let nextState = state;
-  const context = { method, sourcePath: path, preserveTimestamps } satisfies CloneContext;
+  const context = CloneContext.make({ method, sourcePath: path, preserveTimestamps });
   for (const [name, sourceInode] of A.sort([...source.entries], localeEntryOrder)) {
     const sourceEntry = yield* getInode(nextState, sourceInode, method, path);
     const currentDestination = yield* getDirectory(nextState, destination.ino, method, path);
@@ -1480,11 +1497,15 @@ const copyFileUnlocked = Effect.fnUntraced(function* (state: State, fromPath: st
     );
   }
 
-  const [clonedState, inode] = yield* cloneInode(state, sourceFile, {
-    method,
-    sourcePath: fromPath,
-    preserveTimestamps: false,
-  });
+  const [clonedState, inode] = yield* cloneInode(
+    state,
+    sourceFile,
+    CloneContext.make({
+      method,
+      sourcePath: fromPath,
+      preserveTimestamps: false,
+    })
+  );
   const nextState = yield* linkInode(clonedState, destination.inode, destination.name, inode, method);
   return Tuple.make(nextState, true);
 });
@@ -1531,12 +1552,12 @@ const copyClonedEntry = Effect.fnUntraced(function* (
   if (O.isSome(existing)) {
     nextState = yield* detachEntry(
       nextState,
-      {
+      ResolvedEntry.make({
         parent: destination.entry,
         name: destination.name,
         entry: existing.value,
         path: childPath(destination.path, destination.name),
-      },
+      }),
       now,
       true,
       method,
@@ -1579,7 +1600,7 @@ const copyEntryUnlocked = Effect.fnUntraced(function* (
     source.entry,
     destination,
     existing,
-    { method, sourcePath: fromPath, preserveTimestamps },
+    CloneContext.make({ method, sourcePath: fromPath, preserveTimestamps }),
     toPath
   );
   return Tuple.make(nextState, true);
@@ -1763,14 +1784,14 @@ const selectOpenTarget = Effect.fnUntraced(function* (
 
 const allocateDescriptor = (state: State, entry: FileInode, mode: OpenMode): readonly [State, OpenFileDescriptor] => {
   const fd = FileDescriptor.make(state.nextDescriptor);
-  const descriptor: OpenFileDescriptor = {
+  const descriptor: OpenFileDescriptor = OpenFileDescriptor.make({
     fd,
     inode: entry.ino,
     readable: mode.readable,
     writable: mode.writable,
     append: mode.append,
     position: BigInt(0),
-  };
+  });
   return Tuple.make(
     {
       ...state,
@@ -2548,35 +2569,38 @@ type CompiledGlobSegment = typeof CompiledGlobSegment.Type;
 type GlobSegment = typeof CompiledGlobSegment.cases.Segment.Type;
 type GlobGlobstar = typeof CompiledGlobSegment.cases.Globstar.Type;
 
-class CompiledGlobPattern extends S.Class<CompiledGlobPattern>($I`CompiledGlobPattern`)(
-  {
+class CompiledGlobPattern extends S.Opaque<CompiledGlobPattern, { readonly brand: unique symbol }>()(
+  S.Struct({
     segments: S.Array(CompiledGlobSegment),
     directoryOnly: S.Boolean,
-  },
-  $I.annote("CompiledGlobPattern", {
-    description: "Compiled root-relative path segments and trailing-slash directory restriction.",
-  })
+  }).pipe(
+    $I.annoteSchema("CompiledGlobPattern", {
+      description: "Compiled root-relative path segments and trailing-slash directory restriction.",
+    })
+  )
 ) {}
 
-class BraceExpansion extends S.Class<BraceExpansion>($I`BraceExpansion`)(
-  {
+class BraceExpansion extends S.Opaque<BraceExpansion, { readonly brand: unique symbol }>()(
+  S.Struct({
     start: S.Finite,
     end: S.Finite,
     alternatives: S.Array(S.String),
-  },
-  $I.annote("BraceExpansion", {
-    description: "Code-unit span and alternatives for the next brace substitution.",
-  })
+  }).pipe(
+    $I.annoteSchema("BraceExpansion", {
+      description: "Code-unit span and alternatives for the next brace substitution.",
+    })
+  )
 ) {}
 
-class GlobCharacterClassAtom extends S.Class<GlobCharacterClassAtom>($I`GlobCharacterClassAtom`)(
-  {
+class GlobCharacterClassAtom extends S.Opaque<GlobCharacterClassAtom, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: S.String,
     escaped: S.Boolean,
-  },
-  $I.annote("GlobCharacterClassAtom", {
-    description: "One parsed character with its escape status, preserving literal versus range hyphens.",
-  })
+  }).pipe(
+    $I.annoteSchema("GlobCharacterClassAtom", {
+      description: "One parsed character with its escape status, preserving literal versus range hyphens.",
+    })
+  )
 ) {}
 
 const globSyntaxCharacters = HashSet.make("*", "?", "[", "]", "{", "}", ",", "\\");
@@ -2611,9 +2635,12 @@ const braceDepthChange = Match.type<string>().pipe(
   Match.orElse(() => 0)
 );
 
-class BraceGroup extends S.Class<BraceGroup>($I`BraceGroup`)(
-  { end: S.Finite, commas: S.Array(S.Finite) },
-  $I.annote("BraceGroup", { description: "Closing code-unit offset and top-level commas of a balanced brace group." })
+class BraceGroup extends S.Opaque<BraceGroup, { readonly brand: unique symbol }>()(
+  S.Struct({ end: S.Finite, commas: S.Array(S.Finite) }).pipe(
+    $I.annoteSchema("BraceGroup", {
+      description: "Closing code-unit offset and top-level commas of a balanced brace group.",
+    })
+  )
 ) {}
 
 const scanBraceGroup = (pattern: string, start: number): O.Option<BraceGroup> => {
@@ -2621,7 +2648,7 @@ const scanBraceGroup = (pattern: string, start: number): O.Option<BraceGroup> =>
   const commas: Array<number> = [];
   for (const [end, character] of outsideCharacterClasses(pattern, start + 1)) {
     depth += braceDepthChange(character);
-    if (depth === 0) return O.some({ end, commas });
+    if (depth === 0) return O.some(BraceGroup.make({ end, commas }));
     if (character === "," && depth === 1) commas.push(end);
   }
   return O.none();
@@ -2630,11 +2657,13 @@ const scanBraceGroup = (pattern: string, start: number): O.Option<BraceGroup> =>
 const expandBraceGroup = (pattern: string, start: number, group: BraceGroup): O.Option<BraceExpansion> => {
   const { end, commas } = group;
   if (commas.length === 0) {
-    return O.map(findBraceExpansion(Str.slice(start + 1, end)(pattern)), (nested) => ({
-      start: start + nested.start + 1,
-      end: start + nested.end + 1,
-      alternatives: nested.alternatives,
-    }));
+    return O.map(findBraceExpansion(Str.slice(start + 1, end)(pattern)), (nested) =>
+      BraceExpansion.make({
+        start: start + nested.start + 1,
+        end: start + nested.end + 1,
+        alternatives: nested.alternatives,
+      })
+    );
   }
   const alternatives: Array<string> = [];
   let alternativeStart = start + 1;
@@ -2642,7 +2671,7 @@ const expandBraceGroup = (pattern: string, start: number, group: BraceGroup): O.
     alternatives.push(Str.slice(alternativeStart, comma)(pattern));
     alternativeStart = comma + 1;
   }
-  return O.some({ start, end, alternatives });
+  return O.some(BraceExpansion.make({ start, end, alternatives }));
 };
 
 const findBraceExpansion = (pattern: string): O.Option<BraceExpansion> => {
@@ -2705,7 +2734,7 @@ const readCharacterClassAtom = Effect.fnUntraced(function* (method: string, segm
   const position = escaped ? index + 1 : index;
   if (position === segment.length) return yield* argumentError(method, "character classes must not end with an escape");
   const value = O.getOrThrow(Str.charAt(segment, position));
-  return Tuple.make({ value, escaped } satisfies GlobCharacterClassAtom, position + 1);
+  return Tuple.make(GlobCharacterClassAtom.make({ value, escaped }), position + 1);
 });
 
 const readCharacterClassAtoms = Effect.fnUntraced(function* (method: string, segment: string, start: number) {
@@ -2818,7 +2847,7 @@ const compileGlobPattern = Effect.fnUntraced(function* (method: string, pattern:
     return yield* argumentError(method, "pattern must not contain empty or dot path segments");
   }
   const compiled = yield* Effect.forEach(segments, (segment) => parseGlobSegment(method, segment));
-  return { segments: compiled, directoryOnly } satisfies CompiledGlobPattern;
+  return CompiledGlobPattern.make({ segments: compiled, directoryOnly });
 });
 
 const compileGlobPatterns = Effect.fnUntraced(function* (method: string, pattern: string) {
@@ -2838,16 +2867,17 @@ const matchesGlobToken = (token: GlobToken, value: string): boolean =>
     },
   });
 
-class GlobMatchCursor extends S.Class<GlobMatchCursor>($I`GlobMatchCursor`)(
-  {
+class GlobMatchCursor extends S.Opaque<GlobMatchCursor, { readonly brand: unique symbol }>()(
+  S.Struct({
     patternIndex: S.Finite.pipe(S.mutableKey),
     valueIndex: S.Finite.pipe(S.mutableKey),
     starIndex: S.Finite.pipe(S.mutableKey),
     starValueIndex: S.Finite.pipe(S.mutableKey),
-  },
-  $I.annote("GlobMatchCursor", {
-    description: "Mutable code-unit matcher positions, including the original minus-one no-star sentinels.",
-  })
+  }).pipe(
+    $I.annoteSchema("GlobMatchCursor", {
+      description: "Mutable code-unit matcher positions, including the original minus-one no-star sentinels.",
+    })
+  )
 ) {}
 
 const isStarGlobToken = GlobToken.isAnyOf(["Star"]);
@@ -2876,7 +2906,12 @@ const advanceGlobSegment = (cursor: GlobMatchCursor, tokens: ReadonlyArray<GlobT
 
 const matchesGlobSegment = (pattern: GlobSegment, value: string): boolean => {
   if (Str.startsWith(".")(value) && !pattern.startsWithDot) return false;
-  const cursor: GlobMatchCursor = { patternIndex: 0, valueIndex: 0, starIndex: -1, starValueIndex: -1 };
+  const cursor: GlobMatchCursor = GlobMatchCursor.make({
+    patternIndex: 0,
+    valueIndex: 0,
+    starIndex: -1,
+    starValueIndex: -1,
+  });
   while (cursor.valueIndex < value.length) {
     if (!advanceGlobSegment(cursor, pattern.tokens, value)) return false;
   }
@@ -2927,9 +2962,12 @@ const matchesGlob = (pattern: CompiledGlobPattern, path: ReadonlyArray<string>, 
   return A.headNonEmpty(next);
 };
 
-class GlobSelection extends S.Class<GlobSelection>($I`GlobSelection`)(
-  { includes: S.Array(CompiledGlobPattern), excludes: S.Array(CompiledGlobPattern) },
-  $I.annote("GlobSelection", { description: "Compiled inclusion and exclusion alternatives for one public glob call." })
+class GlobSelection extends S.Opaque<GlobSelection, { readonly brand: unique symbol }>()(
+  S.Struct({ includes: S.Array(CompiledGlobPattern), excludes: S.Array(CompiledGlobPattern) }).pipe(
+    $I.annoteSchema("GlobSelection", {
+      description: "Compiled inclusion and exclusion alternatives for one public glob call.",
+    })
+  )
 ) {}
 
 // These mutable arrays are traversal bookkeeping, not part of the volume model.
@@ -2987,7 +3025,7 @@ const glob = (volume: Volume) =>
       Effect.fnUntraced(function* (state) {
         const resolved = yield* resolve(state, rootPath, { method: "glob" });
         if (!isDirectoryInode(resolved.entry)) return yield* badResource("glob", rootPath);
-        return collectGlob(state, resolved.entry, { includes, excludes });
+        return collectGlob(state, resolved.entry, GlobSelection.make({ includes, excludes }));
       })
     );
   });

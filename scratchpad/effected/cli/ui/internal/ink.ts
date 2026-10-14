@@ -12,13 +12,13 @@ import { inkChalk } from "./inkChalk.ts";
 
 const $I = $ScratchpadId.create("effected/cli/ui/internal/ink");
 
-class InkNotLoaded extends S.TaggedError<InkNotLoaded>($I`InkNotLoaded`)(
+class InkNotLoaded extends S.TaggedError<InkNotLoaded, { readonly brand: unique symbol }>($I`InkNotLoaded`)(
 	"InkNotLoaded",
 	{ message: S.String.annotate({ description: "The required peer-loading step before reading Ink's modules." }) },
 	$I.annote("InkNotLoaded", { description: "Ink's optional peers were read before they were loaded." }),
 ) {}
 
-class MissingInkPeersError extends S.TaggedError<MissingInkPeersError>($I`MissingInkPeersError`)(
+class MissingInkPeersError extends S.TaggedError<MissingInkPeersError, { readonly brand: unique symbol }>($I`MissingInkPeersError`)(
 	"MissingInkPeersError",
 	{
 		message: S.String.annotate({ description: "The missing optional peers and installation instructions." }),

@@ -77,18 +77,19 @@ export type TikaErrorReason = typeof TikaErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class TikaErrorOptions extends S.Class<TikaErrorOptions>($I`TikaErrorOptions`)(
-  {
+export class TikaErrorOptions extends S.Opaque<TikaErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.optionalKey(S.String).annotateKey({
       description: "Sanitized technical cause string when one is safe to retain.",
     }),
     statusCode: S.optionalKey(S.Natural).annotateKey({
       description: "HTTP or process status code associated with the Tika failure when one was available.",
     }),
-  },
-  $I.annote("TikaErrorOptions", {
-    description: "Options for configuring TikaError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("TikaErrorOptions", {
+      description: "Options for configuring TikaError instances.",
+    })
+  )
 ) {}
 
 /**
@@ -106,7 +107,7 @@ export class TikaErrorOptions extends S.Class<TikaErrorOptions>($I`TikaErrorOpti
  * @category errors
  * @since 0.0.0
  */
-export class TikaError extends S.TaggedError<TikaError>($I`TikaError`)(
+export class TikaError extends S.TaggedError<TikaError, { readonly brand: unique symbol }>($I`TikaError`)(
   "TikaError",
   {
     cause: S.OptionFromOptionalKey(S.String).pipe(

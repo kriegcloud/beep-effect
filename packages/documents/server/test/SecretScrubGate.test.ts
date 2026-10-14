@@ -41,12 +41,14 @@ const config = Layer.succeed(
     model: "fixture-model",
   })
 );
-class GateCase extends S.Class<GateCase>("SecretScrubGateCase")({
-  id: S.NonEmptyString,
-  text: S.Option(S.String),
-  coverage: SecretScrub.SecretCoverage,
-  admitted: S.Boolean,
-}) {}
+class GateCase extends S.Opaque<GateCase, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.NonEmptyString,
+    text: S.Option(S.String),
+    coverage: SecretScrub.SecretCoverage,
+    admitted: S.Boolean,
+  }).annotate({ identifier: "SecretScrubGateCase" })
+) {}
 const cases = [
   GateCase.make({ id: "clean", text: O.some("Public complaint."), coverage: "known", admitted: true }),
   GateCase.make({ id: "masked", text: O.some(`API_KEY=${canary()}`), coverage: "known", admitted: true }),

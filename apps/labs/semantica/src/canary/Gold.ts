@@ -104,25 +104,28 @@ const GoldJobSubset = LiteralKit(GOLD_SUBSETS).annotate(
   })
 );
 
-class GoldJob extends S.Class<GoldJob>($I`GoldJob`)(
-  { paperId: CorpusPaperId, subset: GoldJobSubset },
-  $I.annote("GoldJob", {
-    description: "Expected paper and subset identity for one frozen gold output file.",
-  })
+class GoldJob extends S.Opaque<GoldJob, { readonly brand: unique symbol }>()(
+  S.Struct({ paperId: CorpusPaperId, subset: GoldJobSubset }).pipe(
+    $I.annoteSchema("GoldJob", {
+      description: "Expected paper and subset identity for one frozen gold output file.",
+    })
+  )
 ) {}
 
-class GoldReferenceWritten extends S.Class<GoldReferenceWritten>($I`GoldReferenceWritten`)(
-  { status: S.tag("written"), reference: GoldRef },
-  $I.annote("GoldReferenceWritten", {
-    description: "Successful gold reference write backed by all eighteen coherent label files.",
-  })
+class GoldReferenceWritten extends S.Opaque<GoldReferenceWritten, { readonly brand: unique symbol }>()(
+  S.Struct({ status: S.tag("written"), reference: GoldRef }).pipe(
+    $I.annoteSchema("GoldReferenceWritten", {
+      description: "Successful gold reference write backed by all eighteen coherent label files.",
+    })
+  )
 ) {}
 
-class GoldReferenceNotWritten extends S.Class<GoldReferenceNotWritten>($I`GoldReferenceNotWritten`)(
-  { status: S.tag("not-written"), missingJobs: S.Array(GoldJob) },
-  $I.annote("GoldReferenceNotWritten", {
-    description: "Typed partial-run outcome listing any frozen gold jobs still missing on disk.",
-  })
+class GoldReferenceNotWritten extends S.Opaque<GoldReferenceNotWritten, { readonly brand: unique symbol }>()(
+  S.Struct({ status: S.tag("not-written"), missingJobs: S.Array(GoldJob) }).pipe(
+    $I.annoteSchema("GoldReferenceNotWritten", {
+      description: "Typed partial-run outcome listing any frozen gold jobs still missing on disk.",
+    })
+  )
 ) {}
 
 const GoldReferenceOutcome = S.Union([GoldReferenceWritten, GoldReferenceNotWritten]).pipe(

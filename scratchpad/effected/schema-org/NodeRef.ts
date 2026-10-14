@@ -37,7 +37,7 @@ const JsonString = S.fromJsonString(S.String);
  * @category errors
  * @since 0.0.0
  */
-export class InvalidNodeIdError extends S.TaggedError<InvalidNodeIdError>($I`InvalidNodeIdError`)("InvalidNodeIdError", {
+export class InvalidNodeIdError extends S.TaggedError<InvalidNodeIdError, { readonly brand: unique symbol }>($I`InvalidNodeIdError`)("InvalidNodeIdError", {
 	/**
 	 * The string that could not be used as an `@id`.
 	 *
@@ -171,7 +171,7 @@ export interface HasNodeId {
  * @category models
  * @since 0.0.0
  */
-export class NodeRef extends S.Class<NodeRef>($I`NodeRef`)({
+export class NodeRef extends S.Class<NodeRef, { readonly brand: unique symbol }>($I`NodeRef`)({
 	/**
 	 * The identifier of the referenced node.
 	 *

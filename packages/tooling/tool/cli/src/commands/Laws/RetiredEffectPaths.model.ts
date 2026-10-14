@@ -108,16 +108,17 @@ export type RetiredEffectPathMatchKind = typeof RetiredEffectPathMatchKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class RetiredEffectPathMapping extends S.Class<RetiredEffectPathMapping>($I`RetiredEffectPathMapping`)(
-  {
+export class RetiredEffectPathMapping extends S.Opaque<RetiredEffectPathMapping, { readonly brand: unique symbol }>()(
+  S.Struct({
     rule: RetiredEffectPathRule,
     kind: RetiredEffectPathMatchKind,
     retired: S.String,
     current: S.String,
-  },
-  $I.annote("RetiredEffectPathMapping", {
-    description: "One row of the retired-to-current Effect module path mapping.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetiredEffectPathMapping", {
+      description: "One row of the retired-to-current Effect module path mapping.",
+    })
+  )
 ) {}
 
 /**
@@ -177,14 +178,18 @@ export const retiredEffectPathMappings: ReadonlyArray<RetiredEffectPathMapping> 
  * @category models
  * @since 0.0.0
  */
-export class RetiredEffectPathsAllowlist extends S.Class<RetiredEffectPathsAllowlist>($I`RetiredEffectPathsAllowlist`)(
-  {
+export class RetiredEffectPathsAllowlist extends S.Opaque<
+  RetiredEffectPathsAllowlist,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     directoryPrefixes: S.Array(S.String),
     exactPaths: S.Array(S.String),
-  },
-  $I.annote("RetiredEffectPathsAllowlist", {
-    description: "Repository-relative directory prefixes and exact paths the retired Effect path law never scans.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetiredEffectPathsAllowlist", {
+      description: "Repository-relative directory prefixes and exact paths the retired Effect path law never scans.",
+    })
+  )
 ) {}
 
 /**
@@ -242,19 +247,20 @@ export const retiredEffectPathsAllowlist: RetiredEffectPathsAllowlist = RetiredE
  * @category models
  * @since 0.0.0
  */
-export class RetiredEffectPathFinding extends S.Class<RetiredEffectPathFinding>($I`RetiredEffectPathFinding`)(
-  {
+export class RetiredEffectPathFinding extends S.Opaque<RetiredEffectPathFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     line: S.Int,
     column: S.Int,
     match: S.String,
     rule: RetiredEffectPathRule,
     suggestion: S.String,
-  },
-  $I.annote("RetiredEffectPathFinding", {
-    description:
-      "One retired Effect module path found in a repository file, with its 1-based position and replacement.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetiredEffectPathFinding", {
+      description:
+        "One retired Effect module path found in a repository file, with its 1-based position and replacement.",
+    })
+  )
 ) {}
 
 /**
@@ -273,17 +279,18 @@ export class RetiredEffectPathFinding extends S.Class<RetiredEffectPathFinding>(
  * @category models
  * @since 0.0.0
  */
-export class RetiredEffectPathsOptions extends S.Class<RetiredEffectPathsOptions>($I`RetiredEffectPathsOptions`)(
-  {
+export class RetiredEffectPathsOptions extends S.Opaque<RetiredEffectPathsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cwd: S.String,
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
     ),
-  },
-  $I.annote("RetiredEffectPathsOptions", {
-    description: "Runtime options for the retired Effect module path law.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetiredEffectPathsOptions", {
+      description: "Runtime options for the retired Effect module path law.",
+    })
+  )
 ) {}
 
 /**
@@ -307,8 +314,8 @@ export class RetiredEffectPathsOptions extends S.Class<RetiredEffectPathsOptions
  * @category models
  * @since 0.0.0
  */
-export class RetiredEffectPathsSummary extends S.Class<RetiredEffectPathsSummary>($I`RetiredEffectPathsSummary`)(
-  {
+export class RetiredEffectPathsSummary extends S.Opaque<RetiredEffectPathsSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     scannedFiles: S.Int,
     skippedBinaryFiles: S.Int,
     allowlistedFiles: S.Int,
@@ -317,8 +324,9 @@ export class RetiredEffectPathsSummary extends S.Class<RetiredEffectPathsSummary
       S.withConstructorDefault(Effect.succeed(A.empty<RetiredEffectPathFinding>())),
       S.withDecodingDefault(Effect.succeed(A.empty<RetiredEffectPathFinding>()))
     ),
-  },
-  $I.annote("RetiredEffectPathsSummary", {
-    description: "Result of one retired Effect module path law run over the git-tracked text files.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetiredEffectPathsSummary", {
+      description: "Result of one retired Effect module path law run over the git-tracked text files.",
+    })
+  )
 ) {}

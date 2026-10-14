@@ -114,7 +114,7 @@ export type CrossOriginOpenerPolicyOption = typeof CrossOriginOpenerPolicyOption
  * import * as O from "effect/Option"
  * import { CrossOriginOpenerPolicyResponseHeader } from "@beep/schema/CrossOriginOpenerPolicy"
  *
- * const header = new CrossOriginOpenerPolicyResponseHeader({
+ * const header = CrossOriginOpenerPolicyResponseHeader.make({
  *   name: "Cross-Origin-Opener-Policy",
  *   value: O.some("same-origin")
  * })
@@ -124,16 +124,18 @@ export type CrossOriginOpenerPolicyOption = typeof CrossOriginOpenerPolicyOption
  * @category models
  * @since 0.0.0
  */
-export class CrossOriginOpenerPolicyResponseHeader extends S.Class<CrossOriginOpenerPolicyResponseHeader>(
-  $I`CrossOriginOpenerPolicyResponseHeader`
-)(
-  {
+export class CrossOriginOpenerPolicyResponseHeader extends S.Opaque<
+  CrossOriginOpenerPolicyResponseHeader,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CrossOriginOpenerPolicyResponseHeader", {
-    description: "The `Cross-Origin-Opener-Policy` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("CrossOriginOpenerPolicyResponseHeader", {
+      description: "The `Cross-Origin-Opener-Policy` response header.",
+    })
+  )
 ) {}
 
 type CrossOriginOpenerPolicyResponseHeaderEncoded = typeof CrossOriginOpenerPolicyResponseHeader.Encoded;
@@ -218,7 +220,7 @@ export const CrossOriginOpenerPolicyHeader = S.Union([CrossOriginOpenerPolicyOpt
  * import * as O from "effect/Option"
  * import { CrossOriginOpenerPolicyResponseHeader, type CrossOriginOpenerPolicyHeader } from "@beep/schema/CrossOriginOpenerPolicy"
  *
- * const header: CrossOriginOpenerPolicyHeader = new CrossOriginOpenerPolicyResponseHeader({
+ * const header: CrossOriginOpenerPolicyHeader = CrossOriginOpenerPolicyResponseHeader.make({
  *   name: "Cross-Origin-Opener-Policy",
  *   value: O.some("same-origin")
  * })
@@ -266,7 +268,7 @@ export const Header = CrossOriginOpenerPolicyHeader;
  * import * as O from "effect/Option"
  * import { CrossOriginOpenerPolicyResponseHeader, type Header } from "@beep/schema/CrossOriginOpenerPolicy"
  *
- * const header: Header = new CrossOriginOpenerPolicyResponseHeader({
+ * const header: Header = CrossOriginOpenerPolicyResponseHeader.make({
  *   name: "Cross-Origin-Opener-Policy",
  *   value: O.some("same-origin")
  * })

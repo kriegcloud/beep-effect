@@ -98,17 +98,18 @@ export type EvidenceInsert = typeof Table.$inferInsert;
 
 const encodeEvidence = S.encodeResult(Evidence);
 const decodeEvidenceRow = S.decodeUnknownResult(Evidence);
-class LegacyEvidenceSpan extends S.Class<LegacyEvidenceSpan>($I`LegacyEvidenceSpan`)(
-  {
+class LegacyEvidenceSpan extends S.Opaque<LegacyEvidenceSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     confidence: EvidenceSpan.fields.confidence,
     endChar: EvidenceSpan.fields.endChar,
     quote: TextAnchorFields.quote,
     startChar: EvidenceSpan.fields.startChar,
-  },
-  $I.annote("LegacyEvidenceSpan", {
-    description:
-      "Persistence-read compatibility shape for evidence spans written before strict width and quote bounds.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegacyEvidenceSpan", {
+      description:
+        "Persistence-read compatibility shape for evidence spans written before strict width and quote bounds.",
+    })
+  )
 ) {}
 const LegacyEvidence = Evidence.select
   .mapFields((fields) => ({

@@ -29,7 +29,9 @@ const $I = $RepoCliId.create("commands/Corpus/Corpus.errors");
  * @category error-handling
  * @since 0.0.0
  */
-export class CorpusCommandError extends S.TaggedError<CorpusCommandError>($I`CorpusCommandError`)(
+export class CorpusCommandError extends S.TaggedError<CorpusCommandError, { readonly brand: unique symbol }>(
+  $I`CorpusCommandError`
+)(
   "CorpusCommandError",
   {
     message: S.String,
@@ -67,9 +69,10 @@ export class CorpusCommandError extends S.TaggedError<CorpusCommandError>($I`Cor
  * @category error-handling
  * @since 0.0.0
  */
-export class PreservationPreflightMissingError extends S.TaggedError<PreservationPreflightMissingError>(
-  $I`PreservationPreflightMissingError`
-)(
+export class PreservationPreflightMissingError extends S.TaggedError<
+  PreservationPreflightMissingError,
+  { readonly brand: unique symbol }
+>($I`PreservationPreflightMissingError`)(
   "PreservationPreflightMissingError",
   { message: S.NonEmptyString },
   $I.annoteError<PreservationPreflightMissingError>("PreservationPreflightMissingError", {
@@ -92,9 +95,10 @@ export class PreservationPreflightMissingError extends S.TaggedError<Preservatio
  * @category error-handling
  * @since 0.0.0
  */
-export class PreservationPreflightUnapprovedError extends S.TaggedError<PreservationPreflightUnapprovedError>(
-  $I`PreservationPreflightUnapprovedError`
-)(
+export class PreservationPreflightUnapprovedError extends S.TaggedError<
+  PreservationPreflightUnapprovedError,
+  { readonly brand: unique symbol }
+>($I`PreservationPreflightUnapprovedError`)(
   "PreservationPreflightUnapprovedError",
   { message: S.NonEmptyString },
   $I.annoteError<PreservationPreflightUnapprovedError>("PreservationPreflightUnapprovedError", {
@@ -122,9 +126,10 @@ export class PreservationPreflightUnapprovedError extends S.TaggedError<Preserva
  * @category error-handling
  * @since 0.0.0
  */
-export class PreservationCeilingExceededError extends S.TaggedError<PreservationCeilingExceededError>(
-  $I`PreservationCeilingExceededError`
-)(
+export class PreservationCeilingExceededError extends S.TaggedError<
+  PreservationCeilingExceededError,
+  { readonly brand: unique symbol }
+>($I`PreservationCeilingExceededError`)(
   "PreservationCeilingExceededError",
   {
     ceilingBytes: S.Natural,
@@ -151,9 +156,10 @@ export class PreservationCeilingExceededError extends S.TaggedError<Preservation
  * @category error-handling
  * @since 0.0.0
  */
-export class PreservationArchiveIoError extends S.TaggedError<PreservationArchiveIoError>(
-  $I`PreservationArchiveIoError`
-)(
+export class PreservationArchiveIoError extends S.TaggedError<
+  PreservationArchiveIoError,
+  { readonly brand: unique symbol }
+>($I`PreservationArchiveIoError`)(
   "PreservationArchiveIoError",
   {
     cause: OpaqueDefect,
@@ -185,9 +191,10 @@ export class PreservationArchiveIoError extends S.TaggedError<PreservationArchiv
  * @category error-handling
  * @since 0.0.0
  */
-export class PreservationVerificationFailure extends S.TaggedError<PreservationVerificationFailure>(
-  $I`PreservationVerificationFailure`
-)(
+export class PreservationVerificationFailure extends S.TaggedError<
+  PreservationVerificationFailure,
+  { readonly brand: unique symbol }
+>($I`PreservationVerificationFailure`)(
   "PreservationVerificationFailure",
   {
     failedRows: S.Natural,
@@ -217,9 +224,10 @@ export class PreservationVerificationFailure extends S.TaggedError<PreservationV
  * @category error-handling
  * @since 0.0.0
  */
-export class PreservationUnapprovedRowsError extends S.TaggedError<PreservationUnapprovedRowsError>(
-  $I`PreservationUnapprovedRowsError`
-)(
+export class PreservationUnapprovedRowsError extends S.TaggedError<
+  PreservationUnapprovedRowsError,
+  { readonly brand: unique symbol }
+>($I`PreservationUnapprovedRowsError`)(
   "PreservationUnapprovedRowsError",
   {
     message: S.NonEmptyString,
@@ -263,9 +271,10 @@ export type PreservationCommandError =
  * @category error-handling
  * @since 0.0.0
  */
-export class CorpusArchiveMoveUncoveredFileError extends S.TaggedError<CorpusArchiveMoveUncoveredFileError>(
-  $I`CorpusArchiveMoveUncoveredFileError`
-)(
+export class CorpusArchiveMoveUncoveredFileError extends S.TaggedError<
+  CorpusArchiveMoveUncoveredFileError,
+  { readonly brand: unique symbol }
+>($I`CorpusArchiveMoveUncoveredFileError`)(
   "CorpusArchiveMoveUncoveredFileError",
   {
     message: S.String,
@@ -300,9 +309,10 @@ export class CorpusArchiveMoveUncoveredFileError extends S.TaggedError<CorpusArc
  * @category error-handling
  * @since 0.0.0
  */
-export class CorpusArchiveMoveDigestMismatchError extends S.TaggedError<CorpusArchiveMoveDigestMismatchError>(
-  $I`CorpusArchiveMoveDigestMismatchError`
-)(
+export class CorpusArchiveMoveDigestMismatchError extends S.TaggedError<
+  CorpusArchiveMoveDigestMismatchError,
+  { readonly brand: unique symbol }
+>($I`CorpusArchiveMoveDigestMismatchError`)(
   "CorpusArchiveMoveDigestMismatchError",
   {
     actualSha256: Sha256Hex,
@@ -336,9 +346,10 @@ export class CorpusArchiveMoveDigestMismatchError extends S.TaggedError<CorpusAr
  * @category error-handling
  * @since 0.0.0
  */
-export class CorpusArchiveMoveDestinationConflictError extends S.TaggedError<CorpusArchiveMoveDestinationConflictError>(
-  $I`CorpusArchiveMoveDestinationConflictError`
-)(
+export class CorpusArchiveMoveDestinationConflictError extends S.TaggedError<
+  CorpusArchiveMoveDestinationConflictError,
+  { readonly brand: unique symbol }
+>($I`CorpusArchiveMoveDestinationConflictError`)(
   "CorpusArchiveMoveDestinationConflictError",
   {
     archivePath: S.NonEmptyString,

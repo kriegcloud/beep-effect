@@ -27,15 +27,16 @@ const $I = $RepoCliId.create("commands/Corpus/internal/Organize.schemas");
  * @category models
  * @since 0.0.0
  */
-export class CorpusOrganizeOptions extends S.Class<CorpusOrganizeOptions>($I`CorpusOrganizeOptions`)(
-  {
+export class CorpusOrganizeOptions extends S.Opaque<CorpusOrganizeOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientMapPath: S.optionalKey(S.String),
     corpusRoot: S.String,
     overwrite: S.Boolean,
-  },
-  $I.annote("CorpusOrganizeOptions", {
-    description: "Validated options used by corpus organize.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusOrganizeOptions", {
+      description: "Validated options used by corpus organize.",
+    })
+  )
 ) {}
 
 /**
@@ -101,8 +102,8 @@ export type CorpusOrganizeCategory = typeof CorpusOrganizeCategory.Type;
  * @category models
  * @since 0.0.0
  */
-export class CorpusOrganizeRecord extends S.Class<CorpusOrganizeRecord>($I`CorpusOrganizeRecord`)(
-  {
+export class CorpusOrganizeRecord extends S.Opaque<CorpusOrganizeRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: CorpusOrganizeCategory,
     client: S.optionalKey(S.String),
     digest: S.NonEmptyString,
@@ -115,10 +116,11 @@ export class CorpusOrganizeRecord extends S.Class<CorpusOrganizeRecord>($I`Corpu
     sourceLabel: S.NonEmptyString,
     sourceRelativePath: S.NonEmptyString,
     versionIndex: S.optionalKey(S.Natural),
-  },
-  $I.annote("CorpusOrganizeRecord", {
-    description: "JSONL-safe organize manifest row for one canonical corpus artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusOrganizeRecord", {
+      description: "JSONL-safe organize manifest row for one canonical corpus artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -174,8 +176,8 @@ export const encodeCorpusOrganizeRecordJson = JsonStringCodec(CorpusOrganizeReco
  * @category models
  * @since 0.0.0
  */
-export class CorpusOrganizeSummary extends S.Class<CorpusOrganizeSummary>($I`CorpusOrganizeSummary`)(
-  {
+export class CorpusOrganizeSummary extends S.Opaque<CorpusOrganizeSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalArtifacts: S.Natural,
     clientFiles: S.Natural,
     docketFamilies: S.Natural,
@@ -186,10 +188,11 @@ export class CorpusOrganizeSummary extends S.Class<CorpusOrganizeSummary>($I`Cor
     restoredNames: S.Natural,
     unsortedFiles: S.Natural,
     versionGroups: S.Natural,
-  },
-  $I.annote("CorpusOrganizeSummary", {
-    description: "Summary counts returned by corpus organize.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusOrganizeSummary", {
+      description: "Summary counts returned by corpus organize.",
+    })
+  )
 ) {}
 
 /**

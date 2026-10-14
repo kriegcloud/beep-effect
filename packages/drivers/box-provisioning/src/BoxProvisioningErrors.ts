@@ -32,9 +32,10 @@ const $I = $BoxProvisioningId.create("BoxProvisioningErrors");
  * @category errors
  * @since 0.0.0
  */
-export class BoxProvisioningSchemaError extends S.TaggedError<BoxProvisioningSchemaError>(
-  $I`BoxProvisioningSchemaError`
-)(
+export class BoxProvisioningSchemaError extends S.TaggedError<
+  BoxProvisioningSchemaError,
+  { readonly brand: unique symbol }
+>($I`BoxProvisioningSchemaError`)(
   "BoxProvisioningSchemaError",
   {
     stage: LiteralKit([
@@ -77,9 +78,10 @@ export class BoxProvisioningSchemaError extends S.TaggedError<BoxProvisioningSch
  * @category errors
  * @since 0.0.0
  */
-export class BoxProvisioningTenantMismatchError extends S.TaggedError<BoxProvisioningTenantMismatchError>(
-  $I`BoxProvisioningTenantMismatchError`
-)(
+export class BoxProvisioningTenantMismatchError extends S.TaggedError<
+  BoxProvisioningTenantMismatchError,
+  { readonly brand: unique symbol }
+>($I`BoxProvisioningTenantMismatchError`)(
   "BoxProvisioningTenantMismatchError",
   {
     expectedEnterpriseId: BoxProviderId,
@@ -113,9 +115,10 @@ export class BoxProvisioningTenantMismatchError extends S.TaggedError<BoxProvisi
  * @category errors
  * @since 0.0.0
  */
-export class BoxProvisioningSubjectMismatchError extends S.TaggedError<BoxProvisioningSubjectMismatchError>(
-  $I`BoxProvisioningSubjectMismatchError`
-)(
+export class BoxProvisioningSubjectMismatchError extends S.TaggedError<
+  BoxProvisioningSubjectMismatchError,
+  { readonly brand: unique symbol }
+>($I`BoxProvisioningSubjectMismatchError`)(
   "BoxProvisioningSubjectMismatchError",
   {
     expectedSubjectId: BoxProviderId,
@@ -149,7 +152,10 @@ export class BoxProvisioningSubjectMismatchError extends S.TaggedError<BoxProvis
  * @category errors
  * @since 0.0.0
  */
-export class BoxProvisioningDriftError extends S.TaggedError<BoxProvisioningDriftError>($I`BoxProvisioningDriftError`)(
+export class BoxProvisioningDriftError extends S.TaggedError<
+  BoxProvisioningDriftError,
+  { readonly brand: unique symbol }
+>($I`BoxProvisioningDriftError`)(
   "BoxProvisioningDriftError",
   {
     expectedPlanDigest: Sha256Hex,
@@ -179,9 +185,10 @@ export class BoxProvisioningDriftError extends S.TaggedError<BoxProvisioningDrif
  * @category errors
  * @since 0.0.0
  */
-export class BoxProvisioningInvariantError extends S.TaggedError<BoxProvisioningInvariantError>(
-  $I`BoxProvisioningInvariantError`
-)(
+export class BoxProvisioningInvariantError extends S.TaggedError<
+  BoxProvisioningInvariantError,
+  { readonly brand: unique symbol }
+>($I`BoxProvisioningInvariantError`)(
   "BoxProvisioningInvariantError",
   {
     code: LiteralKit([
@@ -224,9 +231,10 @@ export class BoxProvisioningInvariantError extends S.TaggedError<BoxProvisioning
  * @category errors
  * @since 0.0.0
  */
-export class BoxProvisioningBlockerContractError extends S.TaggedError<BoxProvisioningBlockerContractError>(
-  $I`BoxProvisioningBlockerContractError`
-)(
+export class BoxProvisioningBlockerContractError extends S.TaggedError<
+  BoxProvisioningBlockerContractError,
+  { readonly brand: unique symbol }
+>($I`BoxProvisioningBlockerContractError`)(
   "BoxProvisioningBlockerContractError",
   {
     phase: LiteralKit(["pre-apply", "post-apply"]),
@@ -261,9 +269,10 @@ export class BoxProvisioningBlockerContractError extends S.TaggedError<BoxProvis
  * @category errors
  * @since 0.0.0
  */
-export class BoxProvisioningApplyJournalError extends S.TaggedError<BoxProvisioningApplyJournalError>(
-  $I`BoxProvisioningApplyJournalError`
-)(
+export class BoxProvisioningApplyJournalError extends S.TaggedError<
+  BoxProvisioningApplyJournalError,
+  { readonly brand: unique symbol }
+>($I`BoxProvisioningApplyJournalError`)(
   "BoxProvisioningApplyJournalError",
   { operation: LiteralKit(["append", "encode"]) },
   $I.annoteError<BoxProvisioningApplyJournalError>("BoxProvisioningApplyJournalError", {
@@ -295,9 +304,10 @@ export class BoxProvisioningApplyJournalError extends S.TaggedError<BoxProvision
  * @category errors
  * @since 0.0.0
  */
-export class BoxContentMigrationMapError extends S.TaggedError<BoxContentMigrationMapError>(
-  $I`BoxContentMigrationMapError`
-)(
+export class BoxContentMigrationMapError extends S.TaggedError<
+  BoxContentMigrationMapError,
+  { readonly brand: unique symbol }
+>($I`BoxContentMigrationMapError`)(
   "BoxContentMigrationMapError",
   {
     reason: LiteralKit(["duplicate-destination", "file-folder-name-collision", "source-root-not-absolute"]),
@@ -334,9 +344,10 @@ export class BoxContentMigrationMapError extends S.TaggedError<BoxContentMigrati
  * @category errors
  * @since 0.0.0
  */
-export class BoxContentMigrationBudgetError extends S.TaggedError<BoxContentMigrationBudgetError>(
-  $I`BoxContentMigrationBudgetError`
-)(
+export class BoxContentMigrationBudgetError extends S.TaggedError<
+  BoxContentMigrationBudgetError,
+  { readonly brand: unique symbol }
+>($I`BoxContentMigrationBudgetError`)(
   "BoxContentMigrationBudgetError",
   {
     phase: LiteralKit(["plan", "post-plan"]),

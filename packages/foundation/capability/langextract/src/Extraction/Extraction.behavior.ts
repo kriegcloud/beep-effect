@@ -42,13 +42,20 @@ const ModelOutputJson = S.fromJsonString(S.Unknown).pipe(
   })
 );
 
-class ModelOutputObject extends S.Class<ModelOutputObject>($I`ModelOutputObject`)(
-  {
+/**
+ * Internal JSON object shape returned by a language model.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class ModelOutputObject extends S.Opaque<ModelOutputObject, { readonly brand: unique symbol }>()(
+  S.Struct({
     extractions: ModelOutputCandidates,
-  },
-  $I.annote("ModelOutputObject", {
-    description: "Internal JSON object shape returned by a language model.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelOutputObject", {
+      description: "Internal JSON object shape returned by a language model.",
+    })
+  )
 ) {}
 
 const ModelOutput = S.Union([ModelOutputObject, ModelOutputCandidates]).pipe(

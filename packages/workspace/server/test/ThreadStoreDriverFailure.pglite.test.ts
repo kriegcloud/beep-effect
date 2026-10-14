@@ -16,6 +16,11 @@ import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { it } from "@beep/test-runner";
 import { makePgliteSqlTestLayer } from "@beep/test-utils";
 import { makeDrizzleThreadStore } from "@beep/workspace-server/aggregates/Thread";
+import {
+  AppendTurnInput,
+  CreateThreadInput,
+  SetThreadTitleIfEmptyInput,
+} from "@beep/workspace-use-cases/aggregates/Thread/server";
 import * as ThreadStoreServer from "@beep/workspace-use-cases/server";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect } from "@effect/vitest";
@@ -54,16 +59,22 @@ describe("Workspace ThreadStore driver failures", { concurrent: false }, () => {
         const workspaceId = yield* decodeWorkspaceId(2);
         const threadId = yield* decodeThreadId(1);
 
-        const created = yield* Effect.flip(store.createThread({ title: "New thread", workspaceId }));
+        const created = yield* Effect.flip(
+          store.createThread(CreateThreadInput.make({ title: "New thread", workspaceId }))
+        );
         yield* quiesce();
         const listed = yield* Effect.flip(store.listThreads(workspaceId));
         yield* quiesce();
         const retitled = yield* Effect.flip(
-          store.setTitleIfEmpty({ emptyTitle: "New thread", threadId, title: "Matter intake" })
+          store.setTitleIfEmpty(
+            SetThreadTitleIfEmptyInput.make({ emptyTitle: "New thread", threadId, title: "Matter intake" })
+          )
         );
         yield* quiesce();
         const appended = yield* Effect.flip(
-          store.appendTurn({ content: docOf("Hello"), parentTurnId: O.none(), role: "user", threadId })
+          store.appendTurn(
+            AppendTurnInput.make({ content: docOf("Hello"), parentTurnId: O.none(), role: "user", threadId })
+          )
         );
         yield* quiesce();
         const projected = yield* Effect.flip(store.timeline(threadId));

@@ -28,7 +28,9 @@ const $I = $RepoCliId.create("commands/Research/Research.errors");
  * @category error-handling
  * @since 0.0.0
  */
-export class ResearchCommandError extends S.TaggedError<ResearchCommandError>($I`ResearchCommandError`)(
+export class ResearchCommandError extends S.TaggedError<ResearchCommandError, { readonly brand: unique symbol }>(
+  $I`ResearchCommandError`
+)(
   "ResearchCommandError",
   {
     message: S.String,

@@ -177,8 +177,8 @@ type AiMetricsDataRootRung = {
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsDataRootInput extends S.Class<AiMetricsDataRootInput>($I`AiMetricsDataRootInput`)(
-  {
+export class AiMetricsDataRootInput extends S.Opaque<AiMetricsDataRootInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     envDataRoot: OptionalNonBlank,
     flagDataRoot: OptionalNonBlank,
     homeDir: OptionalNonBlank,
@@ -187,10 +187,11 @@ export class AiMetricsDataRootInput extends S.Class<AiMetricsDataRootInput>($I`A
       S.withConstructorDefault(Effect.succeed(AiMetricsDeployTarget.Enum.local)),
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsDeployTarget.Enum.local))
     ),
-  },
-  $I.annote("AiMetricsDataRootInput", {
-    description: "Flag, environment, home, and target inputs consumed by AI metrics data-root precedence.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsDataRootInput", {
+      description: "Flag, environment, home, and target inputs consumed by AI metrics data-root precedence.",
+    })
+  )
 ) {}
 
 /**
@@ -213,15 +214,16 @@ export class AiMetricsDataRootInput extends S.Class<AiMetricsDataRootInput>($I`A
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsDataRoot extends S.Class<AiMetricsDataRoot>($I`AiMetricsDataRoot`)(
-  {
+export class AiMetricsDataRoot extends S.Opaque<AiMetricsDataRoot, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     source: AiMetricsDataRootSource,
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsDataRoot", {
-    description: "Resolved AI metrics data root and the precedence rung that produced it.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsDataRoot", {
+      description: "Resolved AI metrics data root and the precedence rung that produced it.",
+    })
+  )
 ) {}
 
 /**
@@ -243,7 +245,9 @@ export class AiMetricsDataRoot extends S.Class<AiMetricsDataRoot>($I`AiMetricsDa
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsDataRootError extends S.TaggedError<AiMetricsDataRootError>($I`AiMetricsDataRootError`)(
+export class AiMetricsDataRootError extends S.TaggedError<AiMetricsDataRootError, { readonly brand: unique symbol }>(
+  $I`AiMetricsDataRootError`
+)(
   "AiMetricsDataRootError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -278,14 +282,15 @@ export class AiMetricsDataRootError extends S.TaggedError<AiMetricsDataRootError
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsStateHomeInput extends S.Class<AiMetricsStateHomeInput>($I`AiMetricsStateHomeInput`)(
-  {
+export class AiMetricsStateHomeInput extends S.Opaque<AiMetricsStateHomeInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     homeDir: OptionalNonBlank,
     stateHome: OptionalNonBlank,
-  },
-  $I.annote("AiMetricsStateHomeInput", {
-    description: "Home directory and XDG_STATE_HOME inputs consumed by AI metrics state-home resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsStateHomeInput", {
+      description: "Home directory and XDG_STATE_HOME inputs consumed by AI metrics state-home resolution.",
+    })
+  )
 ) {}
 
 const AiMetricsStateHome = Fn({
@@ -322,14 +327,19 @@ const AiMetricsStateHome = Fn({
  * **Example** (Falling back to the home directory)
  *
  * ```ts
- * import { aiMetricsStateHome } from "@beep/repo-ai-metrics"
+ * import { AiMetricsStateHomeInput, aiMetricsStateHome } from "@beep/repo-ai-metrics"
  * import * as O from "effect/Option"
  *
- * console.log(aiMetricsStateHome({ homeDir: O.some("/home/dev"), stateHome: O.none() }))
+ * const fromHome = AiMetricsStateHomeInput.make({ homeDir: O.some("/home/dev"), stateHome: O.none() })
+ * console.log(aiMetricsStateHome(fromHome))
  * // { _id: 'Option', _tag: 'Some', value: '/home/dev/.local/state' }
- * console.log(O.getOrThrow(aiMetricsStateHome({ homeDir: O.some("/home/dev"), stateHome: O.some("/custom/state") })))
+ *
+ * const fromXdg = AiMetricsStateHomeInput.make({ homeDir: O.some("/home/dev"), stateHome: O.some("/custom/state") })
+ * console.log(O.getOrThrow(aiMetricsStateHome(fromXdg)))
  * // /custom/state
- * console.log(O.isNone(aiMetricsStateHome({ homeDir: O.some("  "), stateHome: O.none() }))) // true
+ *
+ * const blank = AiMetricsStateHomeInput.make({ homeDir: O.some("  "), stateHome: O.none() })
+ * console.log(O.isNone(aiMetricsStateHome(blank))) // true
  * ```
  *
  * @param input - Optional home directory and optional `XDG_STATE_HOME` value.
@@ -364,11 +374,11 @@ export const aiMetricsStateHome: (input: AiMetricsStateHomeInput) => O.Option<st
  * **Example** (Locating the canonical store)
  *
  * ```ts
- * import { aiMetricsStateHome, aiMetricsStateRoot } from "@beep/repo-ai-metrics"
- *
+ * import { AiMetricsStateHomeInput, aiMetricsStateHome, aiMetricsStateRoot } from "@beep/repo-ai-metrics"
  * import * as O from "effect/Option"
  *
- * console.log(aiMetricsStateRoot(O.getOrThrow(aiMetricsStateHome({ homeDir: O.some("/home/dev"), stateHome: O.none() }))))
+ * const input = AiMetricsStateHomeInput.make({ homeDir: O.some("/home/dev"), stateHome: O.none() })
+ * console.log(aiMetricsStateRoot(O.getOrThrow(aiMetricsStateHome(input))))
  * // /home/dev/.local/state/beep/ai-metrics
  * ```
  *
@@ -447,7 +457,7 @@ export const resolveAiMetricsDataRoot = (input: AiMetricsDataRootInput): O.Optio
     dankserver: () => O.some(rung(dankserverDataRoot, AiMetricsDataRootSource.Enum["target-default"])),
     local: () =>
       pipe(
-        aiMetricsStateHome(input),
+        aiMetricsStateHome(AiMetricsStateHomeInput.make(input)),
         O.map((stateHome) => rung(aiMetricsStateRoot(stateHome), AiMetricsDataRootSource.Enum["xdg-state-home"]))
       ),
   });

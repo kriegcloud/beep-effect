@@ -8,7 +8,7 @@ import { canMerge, deepMerge, isPlainObject } from "../../../effected/config-fil
 
 const runs = { arbitrary: fcRuns(100) };
 const Fields = S.Struct({ constructor: S.String, prototype: S.String, payload: S.Json });
-class Settings extends S.Class<Settings>("deepMerge.property/Settings")({ port: S.Int, host: S.String }) {
+class Settings extends S.Class<Settings, { readonly brand: unique symbol }>("deepMerge.property/Settings")({ port: S.Int, host: S.String }) {
   #secret = "ready";
   get secret(): string { return this.#secret; }
   get address(): string { return `${this.host}:${this.port}`; }

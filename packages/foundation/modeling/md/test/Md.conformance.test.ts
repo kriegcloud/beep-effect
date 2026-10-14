@@ -238,7 +238,7 @@ describe("Markdown semantic conformance", () => {
     const report = inspectMarkdownDocumentLosslessly(document, CommonMarkProfile);
     const strict = refineStrictMarkdownDocument(document, CommonMarkProfile);
 
-    expect(report.document).toBe(document);
+    expect(report.document).toStrictEqual(document);
     expect(tags(report.issues)).toEqual(["NestedLink"]);
     assertFailure(
       Result.mapError(strict, (error) => error._tag),
@@ -284,7 +284,7 @@ describe("Markdown semantic conformance", () => {
       "UnsupportedNode",
       "EmptyList",
     ]);
-    expect(inspectMarkdownDocumentLosslessly(document, CommonMarkProfile).document).toBe(document);
+    expect(inspectMarkdownDocumentLosslessly(document, CommonMarkProfile).document).toStrictEqual(document);
   });
 
   it("enforces GFM header, rectangularity, and alignment width as tree invariants", () => {

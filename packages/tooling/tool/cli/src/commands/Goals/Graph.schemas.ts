@@ -137,17 +137,18 @@ export type CapabilityEdgeKind = typeof CapabilityEdgeKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class GraphPacketRow extends S.Class<GraphPacketRow>($I`GraphPacketRow`)(
-  {
+export class GraphPacketRow extends S.Opaque<GraphPacketRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     packetId: S.String,
     status: GoalStatus,
     executionCapable: S.Boolean,
     title: S.String,
     mission: S.optionalKey(S.String),
-  },
-  $I.annote("GraphPacketRow", {
-    description: "One packet in the capability projection with its status and execution capability.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraphPacketRow", {
+      description: "One packet in the capability projection with its status and execution capability.",
+    })
+  )
 ) {}
 
 /**
@@ -165,14 +166,15 @@ export class GraphPacketRow extends S.Class<GraphPacketRow>($I`GraphPacketRow`)(
  * @category models
  * @since 0.0.0
  */
-export class GraphCapabilityEdge extends S.Class<GraphCapabilityEdge>($I`GraphCapabilityEdge`)(
-  {
+export class GraphCapabilityEdge extends S.Opaque<GraphCapabilityEdge, { readonly brand: unique symbol }>()(
+  S.Struct({
     packetId: S.String,
     capability: CapabilitySlug,
-  },
-  $I.annote("GraphCapabilityEdge", {
-    description: "One deduplicated provides or requires edge between a packet and a capability.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraphCapabilityEdge", {
+      description: "One deduplicated provides or requires edge between a packet and a capability.",
+    })
+  )
 ) {}
 
 /**
@@ -199,17 +201,19 @@ export class GraphCapabilityEdge extends S.Class<GraphCapabilityEdge>($I`GraphCa
  * @category models
  * @since 0.0.0
  */
-export class DuplicateCapabilityDeclaration extends S.Class<DuplicateCapabilityDeclaration>(
-  $I`DuplicateCapabilityDeclaration`
-)(
-  {
+export class DuplicateCapabilityDeclaration extends S.Opaque<
+  DuplicateCapabilityDeclaration,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     packetId: S.String,
     capability: CapabilitySlug,
     edge: CapabilityEdgeKind,
-  },
-  $I.annote("DuplicateCapabilityDeclaration", {
-    description: "A capability listed more than once in one manifest provides or requires array.",
-  })
+  }).pipe(
+    $I.annoteSchema("DuplicateCapabilityDeclaration", {
+      description: "A capability listed more than once in one manifest provides or requires array.",
+    })
+  )
 ) {}
 
 const UniquePacketIdsCheck = S.makeFilter(
@@ -253,17 +257,20 @@ const UniquePacketIdsCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class CapabilityProjection extends S.Class<CapabilityProjection>($I`CapabilityProjection`)(
+export class CapabilityProjection extends S.Opaque<CapabilityProjection, { readonly brand: unique symbol }>()(
   S.Struct({
     packets: S.Array(GraphPacketRow),
     capabilities: S.Array(CapabilitySlug),
     provides: S.Array(GraphCapabilityEdge),
     requires: S.Array(GraphCapabilityEdge),
     duplicates: S.Array(DuplicateCapabilityDeclaration),
-  }).check(UniquePacketIdsCheck),
-  $I.annote("CapabilityProjection", {
-    description: "Sorted, duplicate-free packet and capability rows compiled from decoded goal manifests.",
   })
+    .check(UniquePacketIdsCheck)
+    .pipe(
+      $I.annoteSchema("CapabilityProjection", {
+        description: "Sorted, duplicate-free packet and capability rows compiled from decoded goal manifests.",
+      })
+    )
 ) {}
 
 /**
@@ -281,14 +288,15 @@ export class CapabilityProjection extends S.Class<CapabilityProjection>($I`Capab
  * @category models
  * @since 0.0.0
  */
-export class UnlockDepth extends S.Class<UnlockDepth>($I`UnlockDepth`)(
-  {
+export class UnlockDepth extends S.Opaque<UnlockDepth, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     depth: S.Int,
-  },
-  $I.annote("UnlockDepth", {
-    description: "A packet reached by an unlock walk, at the minimum depth it was reached.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnlockDepth", {
+      description: "A packet reached by an unlock walk, at the minimum depth it was reached.",
+    })
+  )
 ) {}
 
 /**
@@ -306,14 +314,15 @@ export class UnlockDepth extends S.Class<UnlockDepth>($I`UnlockDepth`)(
  * @category models
  * @since 0.0.0
  */
-export class PacketUnlockWalk extends S.Class<PacketUnlockWalk>($I`PacketUnlockWalk`)(
-  {
+export class PacketUnlockWalk extends S.Opaque<PacketUnlockWalk, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     steps: S.Array(UnlockDepth),
-  },
-  $I.annote("PacketUnlockWalk", {
-    description: "Every packet reachable from a target through unavailable-requirement provider edges.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketUnlockWalk", {
+      description: "Every packet reachable from a target through unavailable-requirement provider edges.",
+    })
+  )
 ) {}
 
 /**
@@ -352,17 +361,18 @@ export class PacketUnlockWalk extends S.Class<PacketUnlockWalk>($I`PacketUnlockW
  * @category models
  * @since 0.0.0
  */
-export class CapabilityGraphAnswers extends S.Class<CapabilityGraphAnswers>($I`CapabilityGraphAnswers`)(
-  {
+export class CapabilityGraphAnswers extends S.Opaque<CapabilityGraphAnswers, { readonly brand: unique symbol }>()(
+  S.Struct({
     available: S.Array(CapabilitySlug),
     fog: S.Array(CapabilitySlug),
     frontier: S.Array(S.String),
     cycles: S.String.pipe(S.Array, S.Array),
     unlock: S.Array(PacketUnlockWalk),
-  },
-  $I.annote("CapabilityGraphAnswers", {
-    description: "Engine-neutral availability, fog, frontier, cycle, and unlock answers over one projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityGraphAnswers", {
+      description: "Engine-neutral availability, fog, frontier, cycle, and unlock answers over one projection.",
+    })
+  )
 ) {}
 
 /**
@@ -385,16 +395,17 @@ export class CapabilityGraphAnswers extends S.Class<CapabilityGraphAnswers>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CapabilityProviderRow extends S.Class<CapabilityProviderRow>($I`CapabilityProviderRow`)(
-  {
+export class CapabilityProviderRow extends S.Opaque<CapabilityProviderRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     capability: CapabilitySlug,
     provider: S.String,
     providerStatus: GoalStatus,
     satisfies: S.Boolean,
-  },
-  $I.annote("CapabilityProviderRow", {
-    description: "One provider of a capability; satisfies is true only for completed-retained providers.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityProviderRow", {
+      description: "One provider of a capability; satisfies is true only for completed-retained providers.",
+    })
+  )
 ) {}
 
 /**
@@ -417,16 +428,17 @@ export class CapabilityProviderRow extends S.Class<CapabilityProviderRow>($I`Cap
  * @category models
  * @since 0.0.0
  */
-export class GoalRequirementRow extends S.Class<GoalRequirementRow>($I`GoalRequirementRow`)(
-  {
+export class GoalRequirementRow extends S.Opaque<GoalRequirementRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     capability: CapabilitySlug,
     satisfied: S.Boolean,
     providers: S.Array(CapabilityProviderRow),
     fog: S.Boolean,
-  },
-  $I.annote("GoalRequirementRow", {
-    description: "A packet requirement with its OR-alternative providers and fog flag.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalRequirementRow", {
+      description: "A packet requirement with its OR-alternative providers and fog flag.",
+    })
+  )
 ) {}
 
 /**
@@ -444,16 +456,17 @@ export class GoalRequirementRow extends S.Class<GoalRequirementRow>($I`GoalRequi
  * @category models
  * @since 0.0.0
  */
-export class GoalFrontierEntry extends S.Class<GoalFrontierEntry>($I`GoalFrontierEntry`)(
-  {
+export class GoalFrontierEntry extends S.Opaque<GoalFrontierEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     title: S.String,
     mission: S.optionalKey(S.String),
     requirements: S.Array(GoalRequirementRow),
-  },
-  $I.annote("GoalFrontierEntry", {
-    description: "An active, execution-capable packet whose requirements are all nominally satisfied.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalFrontierEntry", {
+      description: "An active, execution-capable packet whose requirements are all nominally satisfied.",
+    })
+  )
 ) {}
 
 /**
@@ -471,17 +484,18 @@ export class GoalFrontierEntry extends S.Class<GoalFrontierEntry>($I`GoalFrontie
  * @category models
  * @since 0.0.0
  */
-export class GoalFrontierReport extends S.Class<GoalFrontierReport>($I`GoalFrontierReport`)(
-  {
+export class GoalFrontierReport extends S.Opaque<GoalFrontierReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("goal-frontier/v1"),
     readiness: CapabilityReadiness,
     frontier: S.Array(GoalFrontierEntry),
     fog: S.Array(CapabilitySlug),
     cycles: S.String.pipe(S.Array, S.Array),
-  },
-  $I.annote("GoalFrontierReport", {
-    description: "Actionable goal frontier with fog capabilities and requirement cycles.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalFrontierReport", {
+      description: "Actionable goal frontier with fog capabilities and requirement cycles.",
+    })
+  )
 ) {}
 
 /**
@@ -511,18 +525,19 @@ export class GoalFrontierReport extends S.Class<GoalFrontierReport>($I`GoalFront
  * @category models
  * @since 0.0.0
  */
-export class GoalUnlockStep extends S.Class<GoalUnlockStep>($I`GoalUnlockStep`)(
-  {
+export class GoalUnlockStep extends S.Opaque<GoalUnlockStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     depth: S.Int,
     status: GoalStatus,
     executionCapable: S.Boolean,
     ready: S.Boolean,
     provides: S.Array(CapabilitySlug),
-  },
-  $I.annote("GoalUnlockStep", {
-    description: "A packet on an unlock walk with its depth, status, and execution annotation.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalUnlockStep", {
+      description: "A packet on an unlock walk with its depth, status, and execution annotation.",
+    })
+  )
 ) {}
 
 /**
@@ -554,8 +569,8 @@ export class GoalUnlockStep extends S.Class<GoalUnlockStep>($I`GoalUnlockStep`)(
  * @category models
  * @since 0.0.0
  */
-export class GoalExplainReport extends S.Class<GoalExplainReport>($I`GoalExplainReport`)(
-  {
+export class GoalExplainReport extends S.Opaque<GoalExplainReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("goal-explain/v1"),
     readiness: CapabilityReadiness,
     slug: S.String,
@@ -566,10 +581,11 @@ export class GoalExplainReport extends S.Class<GoalExplainReport>($I`GoalExplain
     requirements: S.Array(GoalRequirementRow),
     unlockPath: S.Array(GoalUnlockStep),
     cycle: S.String.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("GoalExplainReport", {
-    description: "Readiness explanation for one packet: requirements, unlock walk, and cycle membership.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalExplainReport", {
+      description: "Readiness explanation for one packet: requirements, unlock walk, and cycle membership.",
+    })
+  )
 ) {}
 
 /**
@@ -606,8 +622,8 @@ export class GoalExplainReport extends S.Class<GoalExplainReport>($I`GoalExplain
  * @category models
  * @since 0.0.0
  */
-export class CapabilityCatalogEntry extends S.Class<CapabilityCatalogEntry>($I`CapabilityCatalogEntry`)(
-  {
+export class CapabilityCatalogEntry extends S.Opaque<CapabilityCatalogEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     capability: CapabilitySlug,
     providers: S.Array(CapabilityProviderRow),
     consumers: S.Array(S.String),
@@ -617,10 +633,11 @@ export class CapabilityCatalogEntry extends S.Class<CapabilityCatalogEntry>($I`C
     stranded: S.Boolean,
     referenceProviders: S.Array(S.String),
     duplicates: S.Array(DuplicateCapabilityDeclaration),
-  },
-  $I.annote("CapabilityCatalogEntry", {
-    description: "One generated catalog row: providers, consumers, and D4/D5/D8 finding signals.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityCatalogEntry", {
+      description: "One generated catalog row: providers, consumers, and D4/D5/D8 finding signals.",
+    })
+  )
 ) {}
 
 /**
@@ -638,12 +655,13 @@ export class CapabilityCatalogEntry extends S.Class<CapabilityCatalogEntry>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CapabilityCatalogReport extends S.Class<CapabilityCatalogReport>($I`CapabilityCatalogReport`)(
-  {
+export class CapabilityCatalogReport extends S.Opaque<CapabilityCatalogReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("capability-catalog/v1"),
     entries: S.Array(CapabilityCatalogEntry),
-  },
-  $I.annote("CapabilityCatalogReport", {
-    description: "Generated capability catalog derived from goal manifests, sorted by capability.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityCatalogReport", {
+      description: "Generated capability catalog derived from goal manifests, sorted by capability.",
+    })
+  )
 ) {}

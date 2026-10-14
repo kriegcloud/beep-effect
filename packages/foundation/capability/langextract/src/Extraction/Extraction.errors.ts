@@ -72,7 +72,9 @@ type LangExtractErrorFromReason = {
  * @category errors
  * @since 0.0.0
  */
-export class LangExtractError extends S.TaggedError<LangExtractError>($I`LangExtractError`)(
+export class LangExtractError extends S.TaggedError<LangExtractError, { readonly brand: unique symbol }>(
+  $I`LangExtractError`
+)(
   "LangExtractError",
   {
     details: S.Record(S.String, S.String).pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),

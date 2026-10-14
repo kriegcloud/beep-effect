@@ -20,8 +20,14 @@ import { CosmosGraphProjection } from "./Cosmos.projection.ts";
 
 const $I = $CosmosId.create("Cosmos.renderer");
 
-class CosmosGraphConfig extends S.Class<CosmosGraphConfig>($I`CosmosGraphConfig`)(
-  {
+/**
+ * Stable cosmos.gl simulation, appearance, and viewport defaults used for each mounted graph.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class CosmosGraphConfig extends S.Opaque<CosmosGraphConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     enableDrag: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
@@ -81,10 +87,11 @@ class CosmosGraphConfig extends S.Class<CosmosGraphConfig>($I`CosmosGraphConfig`
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
     ),
-  },
-  $I.annote("CosmosGraphConfig", {
-    description: "Stable cosmos.gl simulation, appearance, and viewport defaults used for each mounted graph.",
-  })
+  }).pipe(
+    $I.annoteSchema("CosmosGraphConfig", {
+      description: "Stable cosmos.gl simulation, appearance, and viewport defaults used for each mounted graph.",
+    })
+  )
 ) {}
 
 /** Points: bright enough to read against the workbench's dark canvas. */
@@ -308,36 +315,56 @@ type CosmosGraphModule = {
   readonly Graph: CosmosGraphConstructor;
 };
 
-class GraphologyOptions extends S.Class<GraphologyOptions>($I`GraphologyOptions`)(
-  {
+/**
+ * Directed multi-graph options required by the sigma.js fallback adapter.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class GraphologyOptions extends S.Opaque<GraphologyOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     multi: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
     ),
     type: S.tag("directed"),
-  },
-  $I.annote("GraphologyOptions", {
-    description: "Directed multi-graph options required by the sigma.js fallback adapter.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraphologyOptions", {
+      description: "Directed multi-graph options required by the sigma.js fallback adapter.",
+    })
+  )
 ) {}
 
 const edgeAttributesColorDefault = HexColor.make("#94a3b8");
-class EdgeAttributes extends S.Class<EdgeAttributes>($I`EdgeAttributes`)(
-  {
+/**
+ * Default visual attributes assigned to graphology edges rendered by sigma.js.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class EdgeAttributes extends S.Opaque<EdgeAttributes, { readonly brand: unique symbol }>()(
+  S.Struct({
     color: HexColor.pipe(
       S.withConstructorDefault(Effect.succeed(edgeAttributesColorDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(edgeAttributesColorDefault))
     ),
     size: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(1)), S.withDecodingDefaultTypeKey(Effect.succeed(1))),
-  },
-  $I.annote("EdgeAttributes", {
-    description: "Default visual attributes assigned to graphology edges rendered by sigma.js.",
-  })
+  }).pipe(
+    $I.annoteSchema("EdgeAttributes", {
+      description: "Default visual attributes assigned to graphology edges rendered by sigma.js.",
+    })
+  )
 ) {}
 
 const nodeAttributesColorDefault = HexColor.make("#38bdf8");
-class NodeAttributes extends S.Class<NodeAttributes>($I`NodeAttributes`)(
-  {
+/**
+ * Position, label, and default visual attributes for a sigma.js graph node.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class NodeAttributes extends S.Opaque<NodeAttributes, { readonly brand: unique symbol }>()(
+  S.Struct({
     color: HexColor.pipe(
       S.withConstructorDefault(Effect.succeed(nodeAttributesColorDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(nodeAttributesColorDefault))
@@ -346,10 +373,11 @@ class NodeAttributes extends S.Class<NodeAttributes>($I`NodeAttributes`)(
     size: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(2)), S.withDecodingDefaultTypeKey(Effect.succeed(2))),
     x: S.Finite,
     y: S.Finite,
-  },
-  $I.annote("NodeAttributes", {
-    description: "Position, label, and default visual attributes for a sigma.js graph node.",
-  })
+  }).pipe(
+    $I.annoteSchema("NodeAttributes", {
+      description: "Position, label, and default visual attributes for a sigma.js graph node.",
+    })
+  )
 ) {}
 
 type GraphologyGraph = {
@@ -460,14 +488,14 @@ const makeFpsSampler = (): FpsSampler => {
  * **Example** (Construct a render handle)
  *
  * ```ts
- * import { type CosmosRenderHandle } from "@beep/cosmos"
+ * import { CosmosRenderHandle } from "@beep/cosmos"
  *
- * const handle: CosmosRenderHandle = {
+ * const handle = CosmosRenderHandle.make({
  *   backend: "sigma",
  *   fps: () => 0,
  *   update: () => undefined,
  *   destroy: () => undefined
- * }
+ * })
  *
  * console.log(handle.backend)
  * ```
@@ -475,8 +503,8 @@ const makeFpsSampler = (): FpsSampler => {
  * @category adapters
  * @since 0.0.0
  */
-export class CosmosRenderHandle extends S.Class<CosmosRenderHandle>($I`CosmosRenderHandle`)(
-  {
+export class CosmosRenderHandle extends S.Opaque<CosmosRenderHandle, { readonly brand: unique symbol }>()(
+  S.Struct({
     backend: CosmosBackend,
     destroy: Fn({ output: S.Void }),
     fps: Fn({ output: S.Finite }),
@@ -484,10 +512,11 @@ export class CosmosRenderHandle extends S.Class<CosmosRenderHandle>($I`CosmosRen
       input: CosmosGraphProjection,
       output: S.Void,
     }),
-  },
-  $I.annote("CosmosRenderHandle", {
-    description: "",
-  })
+  }).pipe(
+    $I.annoteSchema("CosmosRenderHandle", {
+      description: "",
+    })
+  )
 ) {}
 
 const renderWithCosmos = Effect.fn("Cosmos.renderWithCosmos")(function* (
@@ -498,7 +527,7 @@ const renderWithCosmos = Effect.fn("Cosmos.renderWithCosmos")(function* (
   // Held as the instance shape this driver declares, not as cosmos.gl's class: the
   // wrapper depends on exactly the members it names here and nothing more.
   const graph: CosmosGraphInstance = yield* Effect.try({
-    try: () => new module.Graph(container, CosmosGraphConfig.make()),
+    try: () => new module.Graph(container, CosmosGraphConfig.make({})),
     catch: CosmosDriverError.fromUnknown("renderFailed")("Failed to construct cosmos.gl graph."),
   });
 
@@ -639,7 +668,7 @@ const renderWithSigma = Effect.fn("Cosmos.renderWithSigma")(function* (
 ) {
   const graphology = yield* loadGraphologyModule;
   const sigma = yield* loadSigmaModule;
-  const graph = new graphology.default(GraphologyOptions.make());
+  const graph = new graphology.default(GraphologyOptions.make({}));
   const populateGraph = (nextProjection: CosmosGraphProjection): void => {
     // crispen: graphology exposes a mutating adapter API and these loops avoid
     // allocating index arrays on the 100k-node benchmark path; keep explicit.
@@ -673,7 +702,7 @@ const renderWithSigma = Effect.fn("Cosmos.renderWithSigma")(function* (
         `e${edgeIndex}`,
         `n${nextProjection.nodeIds[sourceIndex]}`,
         `n${nextProjection.nodeIds[targetIndex]}`,
-        EdgeAttributes.make()
+        EdgeAttributes.make({})
       );
       edgeIndex += 1;
     }
@@ -692,7 +721,7 @@ const renderWithSigma = Effect.fn("Cosmos.renderWithSigma")(function* (
 
   const sampler = makeFpsSampler();
 
-  return {
+  return CosmosRenderHandle.make({
     backend: "sigma",
     fps: sampler.fps,
     update: (nextProjection) => {
@@ -708,7 +737,7 @@ const renderWithSigma = Effect.fn("Cosmos.renderWithSigma")(function* (
         renderer.kill();
       }
     },
-  } satisfies CosmosRenderHandle;
+  });
 });
 
 /**

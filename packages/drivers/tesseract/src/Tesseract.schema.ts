@@ -44,8 +44,8 @@ const wordLevel = "5";
  * @category configuration
  * @since 0.0.0
  */
-export class TesseractConfig extends S.Class<TesseractConfig>($I`TesseractConfig`)(
-  {
+export class TesseractConfig extends S.Opaque<TesseractConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     pageTimeoutMillis: PosInt.pipe(
       S.withConstructorDefault(Effect.succeed(defaultPageTimeoutMillis)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultPageTimeoutMillis))
@@ -54,10 +54,11 @@ export class TesseractConfig extends S.Class<TesseractConfig>($I`TesseractConfig
       S.withConstructorDefault(Effect.succeed("tesseract")),
       S.withDecodingDefaultTypeKey(Effect.succeed("tesseract"))
     ).annotateKey({ description: "Executable path or command name of tesseract." }),
-  },
-  $I.annote("TesseractConfig", {
-    description: "Executable path and per-page timeout for the Tesseract command-line engine.",
-  })
+  }).pipe(
+    $I.annoteSchema("TesseractConfig", {
+      description: "Executable path and per-page timeout for the Tesseract command-line engine.",
+    })
+  )
 ) {}
 
 /**
@@ -155,17 +156,18 @@ export const tesseractLanguagesForScript: (script: TesseractScript) => ReadonlyA
  * @category models
  * @since 0.0.0
  */
-export class TesseractLanguagePlan extends S.Class<TesseractLanguagePlan>($I`TesseractLanguagePlan`)(
-  {
+export class TesseractLanguagePlan extends S.Opaque<TesseractLanguagePlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     missing: S.Array(S.NonEmptyString),
     requested: S.Array(S.NonEmptyString),
     script: S.optionalKey(TesseractScript),
     selected: S.Array(S.NonEmptyString),
-  },
-  $I.annote("TesseractLanguagePlan", {
-    description:
-      "Language choice for one source: the models its script asks for, the installed ones that will be used, and the missing ones.",
-  })
+  }).pipe(
+    $I.annoteSchema("TesseractLanguagePlan", {
+      description:
+        "Language choice for one source: the models its script asks for, the installed ones that will be used, and the missing ones.",
+    })
+  )
 ) {}
 
 /**
@@ -273,15 +275,16 @@ export const parseTesseractScript = (output: string): O.Option<TesseractScript> 
  * @category models
  * @since 0.0.0
  */
-export class TesseractPageReading extends S.Class<TesseractPageReading>($I`TesseractPageReading`)(
-  {
+export class TesseractPageReading extends S.Opaque<TesseractPageReading, { readonly brand: unique symbol }>()(
+  S.Struct({
     meanConfidence: S.optionalKey(UnitInterval),
     text: S.String,
     wordCount: S.Natural,
-  },
-  $I.annote("TesseractPageReading", {
-    description: "Text of one page with its word count and mean word confidence on a zero-to-one scale.",
-  })
+  }).pipe(
+    $I.annoteSchema("TesseractPageReading", {
+      description: "Text of one page with its word count and mean word confidence on a zero-to-one scale.",
+    })
+  )
 ) {}
 
 const groupAdjacent = <T>(

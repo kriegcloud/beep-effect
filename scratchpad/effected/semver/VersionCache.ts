@@ -27,7 +27,7 @@ const $I = $ScratchpadId.create("effected/semver/VersionCache");
  * @category errors
  * @since 0.0.0
  */
-export class EmptyCacheError extends S.TaggedError<EmptyCacheError>($I`EmptyCacheError`)("EmptyCacheError", {}, $I.annote("EmptyCacheError", { description: "Indicates that an extremum (`latest`/`oldest`) was requested from an empty cache." })) {
+export class EmptyCacheError extends S.TaggedError<EmptyCacheError, { readonly brand: unique symbol }>($I`EmptyCacheError`)("EmptyCacheError", {}, $I.annote("EmptyCacheError", { description: "Indicates that an extremum (`latest`/`oldest`) was requested from an empty cache." })) {
 	/**
 	 * Returns the diagnostic message for this cache failure.
 	 *
@@ -63,7 +63,7 @@ export class EmptyCacheError extends S.TaggedError<EmptyCacheError>($I`EmptyCach
  * @category errors
  * @since 0.0.0
  */
-export class VersionNotFoundError extends S.TaggedError<VersionNotFoundError>($I`VersionNotFoundError`)("VersionNotFoundError", {
+export class VersionNotFoundError extends S.TaggedError<VersionNotFoundError, { readonly brand: unique symbol }>($I`VersionNotFoundError`)("VersionNotFoundError", {
 	/** The version that was not found. */
 	version: SemVer.annotateKey({ description: "The version that was not found." }),
 }, $I.annote("VersionNotFoundError", { description: "Indicates that a navigation operation (`diff`/`next`/`prev`) referenced a version that is not in the cache." })) {
@@ -107,7 +107,7 @@ export class VersionNotFoundError extends S.TaggedError<VersionNotFoundError>($I
  * @category errors
  * @since 0.0.0
  */
-export class UnsatisfiedRangeError extends S.TaggedError<UnsatisfiedRangeError>($I`UnsatisfiedRangeError`)("UnsatisfiedRangeError", {
+export class UnsatisfiedRangeError extends S.TaggedError<UnsatisfiedRangeError, { readonly brand: unique symbol }>($I`UnsatisfiedRangeError`)("UnsatisfiedRangeError", {
 	/** The range that could not be satisfied. */
 	range: Range.annotateKey({ description: "The range that could not be satisfied." }),
 	/** The versions that were available for matching. */

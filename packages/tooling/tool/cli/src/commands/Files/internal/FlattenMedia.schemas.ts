@@ -32,15 +32,16 @@ const $I = $RepoCliId.create("commands/Files/internal/FlattenMedia.schemas");
  * @category models
  * @since 0.0.0
  */
-export class FlattenMediaOptions extends S.Class<FlattenMediaOptions>($I`FlattenMediaOptions`)(
-  {
+export class FlattenMediaOptions extends S.Opaque<FlattenMediaOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dir: S.String,
     dryRun: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     outDir: S.String,
-  },
-  $I.annote("FlattenMediaOptions", {
-    description: "Source, destination, and preview options for recursively flattening media files.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlattenMediaOptions", {
+      description: "Source, destination, and preview options for recursively flattening media files.",
+    })
+  )
 ) {}
 
 /**
@@ -59,8 +60,8 @@ export class FlattenMediaOptions extends S.Class<FlattenMediaOptions>($I`Flatten
  * @category models
  * @since 0.0.0
  */
-export class FlattenMediaSummary extends S.Class<FlattenMediaSummary>($I`FlattenMediaSummary`)(
-  {
+export class FlattenMediaSummary extends S.Opaque<FlattenMediaSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     collisionCount: S.Finite,
     destinationDirectory: S.String,
     dryRun: S.Boolean,
@@ -68,10 +69,11 @@ export class FlattenMediaSummary extends S.Class<FlattenMediaSummary>($I`Flatten
     plannedCount: S.Finite,
     skippedCount: S.Finite,
     sourceDirectory: S.String,
-  },
-  $I.annote("FlattenMediaSummary", {
-    description: "Summary counts and resolved directories for a recursive media flattening run.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlattenMediaSummary", {
+      description: "Summary counts and resolved directories for a recursive media flattening run.",
+    })
+  )
 ) {}
 
 /**

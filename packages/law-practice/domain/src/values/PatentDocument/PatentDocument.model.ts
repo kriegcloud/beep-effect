@@ -472,8 +472,8 @@ export type PatentClaims = typeof PatentClaims.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class PatentApplicationSection extends S.Class<PatentApplicationSection>($I`PatentApplicationSection`)(
-  {
+export class PatentApplicationSection extends S.Opaque<PatentApplicationSection, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: PatentApplicationSectionRole.annotateKey({
       description: "Closed section role normalized from the Markdown heading.",
     }),
@@ -489,10 +489,11 @@ export class PatentApplicationSection extends S.Class<PatentApplicationSection>(
     sourceStart: S.Natural.annotateKey({
       description: "Inclusive offset of the section content in the normalized document source text.",
     }),
-  },
-  $I.annote("PatentApplicationSection", {
-    description: "Patent application section normalized from one recognized Markdown heading and its content.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentApplicationSection", {
+      description: "Patent application section normalized from one recognized Markdown heading and its content.",
+    })
+  )
 ) {}
 
 const PatentApplicationSectionIssueKind = LiteralKit(["duplicate-section-role", "out-of-order-section"]);
@@ -666,9 +667,10 @@ const PatentApplicationDocumentCoherenceCheck = S.makeFilter(
  * @category value-objects
  * @since 0.0.0
  */
-export class PatentApplicationDocument extends S.Class<PatentApplicationDocument>($I`PatentApplicationDocument`)(
-  PatentApplicationDocumentFields.check(PatentApplicationDocumentCoherenceCheck),
-  $I.annote("PatentApplicationDocument", {
-    description: "Normalized Markdown patent application with ordered sections and validated claim dependencies.",
-  })
+export class PatentApplicationDocument extends S.Opaque<PatentApplicationDocument, { readonly brand: unique symbol }>()(
+  PatentApplicationDocumentFields.check(PatentApplicationDocumentCoherenceCheck).pipe(
+    $I.annoteSchema("PatentApplicationDocument", {
+      description: "Normalized Markdown patent application with ordered sections and validated claim dependencies.",
+    })
+  )
 ) {}

@@ -82,16 +82,17 @@ export type ClaimGateSeverity = typeof ClaimGateSeverity.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimGateViolation extends S.Class<ClaimGateViolation>($I`ClaimGateViolation`)(
-  {
+export class ClaimGateViolation extends S.Opaque<ClaimGateViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     focusNode: S.String.annotateKey({ description: "SHACL focus node projected as a stable string token." }),
     path: S.String.annotateKey({ description: "SHACL result path projected as a stable string token." }),
     message: S.String.annotateKey({ description: "Human-readable validation message." }),
     severity: ClaimGateSeverity.annotateKey({ description: "Severity assigned by the claim gate." }),
-  },
-  $I.annote("ClaimGateViolation", {
-    description: "A single claim gate violation projected from a SHACL validation violation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimGateViolation", {
+      description: "A single claim gate violation projected from a SHACL validation violation.",
+    })
+  )
 ) {}
 
 const ClaimGateVerdict = LiteralKit(["admitted", "rejected"]).annotate(

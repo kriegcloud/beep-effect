@@ -17,7 +17,7 @@ import { PageOptions } from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/PullRequest");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String.annotateKey({ description: "The test-double member that needs an override." }),
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -76,7 +76,7 @@ export type MergeMethod = typeof MergeMethod.Type;
  * @category models
  * @since 0.0.0
  */
-export class PullRequestInfo extends S.Class<PullRequestInfo>($I`PullRequestInfo`)({
+export class PullRequestInfo extends S.Class<PullRequestInfo, { readonly brand: unique symbol }>($I`PullRequestInfo`)({
 	/** The number in `#123`. */
 	number: S.Int.annotateKey({ description: "The number in `#123`." }),
 	/** The GraphQL node id, which the auto-merge mutations need. */

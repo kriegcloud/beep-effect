@@ -39,8 +39,8 @@ const $I = $DocumentsUseCasesId.create("entities/SyncCursor/SyncCursor.repositor
  * @category repositories
  * @since 0.0.0
  */
-export class SyncCursorSeed extends S.Class<SyncCursorSeed>($I`SyncCursorSeed`)(
-  {
+export class SyncCursorSeed extends S.Opaque<SyncCursorSeed, { readonly brand: unique symbol }>()(
+  S.Struct({
     lastError: S.Option(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Most recent stream-read failure message; none while the cursor is healthy.",
     }),
@@ -59,10 +59,11 @@ export class SyncCursorSeed extends S.Class<SyncCursorSeed>($I`SyncCursorSeed`)(
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose mirror this cursor watches for remote drift.",
     }),
-  },
-  $I.annote("SyncCursorSeed", {
-    description: "Upsert input for one remote-event stream cursor, excluding ProductEntity audit fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncCursorSeed", {
+      description: "Upsert input for one remote-event stream cursor, excluding ProductEntity audit fields.",
+    })
+  )
 ) {}
 
 /**
@@ -80,9 +81,10 @@ export class SyncCursorSeed extends S.Class<SyncCursorSeed>($I`SyncCursorSeed`)(
  * @category errors
  * @since 0.0.0
  */
-export class SyncCursorRepositoryUnavailable extends S.TaggedError<SyncCursorRepositoryUnavailable>(
-  $I`SyncCursorRepositoryUnavailable`
-)(
+export class SyncCursorRepositoryUnavailable extends S.TaggedError<
+  SyncCursorRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`SyncCursorRepositoryUnavailable`)(
   "SyncCursorRepositoryUnavailable",
   {
     reason: S.NonEmptyString.annotateKey({
@@ -117,18 +119,19 @@ export class SyncCursorRepositoryUnavailable extends S.TaggedError<SyncCursorRep
  * @category repositories
  * @since 0.0.0
  */
-export class FindSyncCursorInput extends S.Class<FindSyncCursorInput>($I`FindSyncCursorInput`)(
-  {
+export class FindSyncCursorInput extends S.Opaque<FindSyncCursorInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     provider: DmsProvider.annotateKey({
       description: "DMS provider whose event stream the cursor tracks.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose mirror the cursor watches.",
     }),
-  },
-  $I.annote("FindSyncCursorInput", {
-    description: "Lookup input addressing the cursor of one workspace mirror.",
-  })
+  }).pipe(
+    $I.annoteSchema("FindSyncCursorInput", {
+      description: "Lookup input addressing the cursor of one workspace mirror.",
+    })
+  )
 ) {}
 
 /**

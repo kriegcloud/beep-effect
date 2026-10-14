@@ -46,8 +46,8 @@ const $I = $LawPracticeDomainId.create("values/SubsequentHistoryEntry/Subsequent
  * @category models
  * @since 0.0.0
  */
-export class SubsequentHistoryEntry extends S.Class<SubsequentHistoryEntry>($I`SubsequentHistoryEntry`)(
-  {
+export class SubsequentHistoryEntry extends S.Opaque<SubsequentHistoryEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     signal: HistorySignal.annotateKey({
       description: "Normalized signal classification.",
     }),
@@ -60,10 +60,11 @@ export class SubsequentHistoryEntry extends S.Class<SubsequentHistoryEntry>($I`S
     order: S.Natural.annotateKey({
       description: "Order in the history chain (0-based).",
     }),
-  },
-  $I.annote("SubsequentHistoryEntry", {
-    description: "A single subsequent history entry from a case citation.",
-  })
+  }).pipe(
+    $I.annoteSchema("SubsequentHistoryEntry", {
+      description: "A single subsequent history entry from a case citation.",
+    })
+  )
 ) {}
 
 /**

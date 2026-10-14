@@ -90,7 +90,9 @@ type RemoteHostResolver = (hostname: string) => Effect.Effect<ReadonlyArray<stri
  * @category errors
  * @since 0.0.0
  */
-export class BlockedHostError extends S.TaggedError<BlockedHostError>($I`BlockedHostError`)(
+export class BlockedHostError extends S.TaggedError<BlockedHostError, { readonly brand: unique symbol }>(
+  $I`BlockedHostError`
+)(
   "BlockedHostError",
   {
     host: S.String.annotateKey({

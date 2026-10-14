@@ -309,7 +309,7 @@ const make = (
  * @category models
  * @since 0.0.0
  */
-export class PortableTsconfig extends S.Opaque<PortableTsconfig>()(PortableTsconfigData) {
+export class PortableTsconfig extends S.Opaque<PortableTsconfig, {}>()(PortableTsconfigData) {
 
 	/**
 	 * Project a {@link (ResolvedTsconfig:interface)} or a bare

@@ -21,7 +21,7 @@ import {
   TurtleCodec,
   WriteOntologyFileRequest,
 } from "@beep/ontology-use-cases/aggregates/Session";
-import { makeLiteral, makeNamedNode, makeQuad } from "@beep/rdf/Rdf";
+import { MakeQuadOptionsInput, makeLiteral, makeNamedNode, makeQuad } from "@beep/rdf/Rdf";
 import { OWL_CLASS } from "@beep/rdf/Vocab/Owl";
 import { RDF_TYPE } from "@beep/rdf/Vocab/Rdf";
 import { XSD_STRING } from "@beep/rdf/Vocab/Xsd";
@@ -228,17 +228,21 @@ describe("Ontology server Turtle round-trip", () => {
             path: fixturePath("real-world/prov-o-starting-point.ttl"),
           })
         );
-        const inferredOnly = makeQuad(makeNamedNode("urn:beep:ontology:interop:inferred-only"), RDF_TYPE, {
-          object: OWL_CLASS,
-          graph: makeNamedNode(graphPartitionIri("inferred")),
-        });
+        const inferredOnly = makeQuad(
+          makeNamedNode("urn:beep:ontology:interop:inferred-only"),
+          RDF_TYPE,
+          MakeQuadOptionsInput.make({
+            object: OWL_CLASS,
+            graph: makeNamedNode(graphPartitionIri("inferred")),
+          })
+        );
         const provenanceOnly = makeQuad(
           makeNamedNode("urn:beep:ontology:interop:provenance-only"),
           makeNamedNode("http://purl.org/dc/terms/description"),
-          {
+          MakeQuadOptionsInput.make({
             object: makeLiteral("derived partition sentinel", XSD_STRING.value),
             graph: makeNamedNode(graphPartitionIri("provenance")),
-          }
+          })
         );
         const session = applyChangeOperationsWithDelta(opened.session, [
           ChangeOperation.make({

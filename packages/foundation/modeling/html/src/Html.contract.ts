@@ -125,15 +125,15 @@ export type HtmlDocumentChild = typeof HtmlDocumentChild.Type;
  * @category models
  * @since 0.0.0
  */
-export class HtmlDocument extends S.TaggedClass<HtmlDocument>($I`HtmlDocument`)(
-  "#document",
-  {
+export class HtmlDocument extends S.Opaque<HtmlDocument, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("#document", {
     doctype: S.OptionFromOptionalKey(Doctype).pipe(S.withConstructorDefault(Effect.succeedNone)),
     children: S.Array(DocumentChild),
-  },
-  $I.annote("HtmlDocument", {
-    description: "Canonical HTML document root with document-only direct children.",
-  })
+  }).pipe(
+    $I.annoteSchema("HtmlDocument", {
+      description: "Canonical HTML document root with document-only direct children.",
+    })
+  )
 ) {}
 
 /**

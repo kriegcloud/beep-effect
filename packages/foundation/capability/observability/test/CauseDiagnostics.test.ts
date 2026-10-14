@@ -11,7 +11,7 @@ import * as Cause from "effect/Cause";
 import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";
 
-class TestCauseError extends S.TaggedError<TestCauseError>()("TestCauseError", {
+class TestCauseError extends S.TaggedError<TestCauseError, { readonly brand: unique symbol }>()("TestCauseError", {
   message: S.String,
 }) {}
 

@@ -68,13 +68,14 @@ type RunpodTestHttpShape = {
 
 class RunpodTestHttp extends Context.Service<RunpodTestHttp, RunpodTestHttpShape>()($TestI`RunpodTestHttp`) {}
 
-class CapturedCreatePodBody extends S.Class<CapturedCreatePodBody>($TestI`CapturedCreatePodBody`)(
-  {
+class CapturedCreatePodBody extends S.Opaque<CapturedCreatePodBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
-  },
-  $TestI.annote("CapturedCreatePodBody", {
-    description: "Minimal request body decoded from Runpod create pod test captures.",
-  })
+  }).pipe(
+    $TestI.annoteSchema("CapturedCreatePodBody", {
+      description: "Minimal request body decoded from Runpod create pod test captures.",
+    })
+  )
 ) {}
 
 const decodeCapturedCreatePodBody = S.decodeUnknownEffect(CapturedCreatePodBody);

@@ -149,8 +149,8 @@ export type JudgeEvidenceKind = typeof JudgeEvidenceKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class JudgeEvidenceFile extends S.Class<JudgeEvidenceFile>($I`JudgeEvidenceFile`)(
-  {
+export class JudgeEvidenceFile extends S.Opaque<JudgeEvidenceFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytes: S.Int.pipe(
       $I.annoteKey("JudgeEvidenceFile.bytes", {
         description: "File size on disk.",
@@ -166,10 +166,11 @@ export class JudgeEvidenceFile extends S.Class<JudgeEvidenceFile>($I`JudgeEviden
         description: "Round-relative path the judge opens.",
       })
     ),
-  },
-  $I.annote("JudgeEvidenceFile", {
-    description: "One file the vision judge is instructed to open.",
-  })
+  }).pipe(
+    $I.annoteSchema("JudgeEvidenceFile", {
+      description: "One file the vision judge is instructed to open.",
+    })
+  )
 ) {}
 
 /**
@@ -190,8 +191,8 @@ export class JudgeEvidenceFile extends S.Class<JudgeEvidenceFile>($I`JudgeEviden
  * @category models
  * @since 0.0.0
  */
-export class JudgeDroppedFile extends S.Class<JudgeDroppedFile>($I`JudgeDroppedFile`)(
-  {
+export class JudgeDroppedFile extends S.Opaque<JudgeDroppedFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytes: S.Int.pipe(
       $I.annoteKey("JudgeDroppedFile.bytes", {
         description: "File size that could not be afforded.",
@@ -207,10 +208,11 @@ export class JudgeDroppedFile extends S.Class<JudgeDroppedFile>($I`JudgeDroppedF
         description: "Budget rule that omitted the file.",
       })
     ),
-  },
-  $I.annote("JudgeDroppedFile", {
-    description: "One file omitted from a judge bundle, with the budget rule that omitted it.",
-  })
+  }).pipe(
+    $I.annoteSchema("JudgeDroppedFile", {
+      description: "One file omitted from a judge bundle, with the budget rule that omitted it.",
+    })
+  )
 ) {}
 
 /**
@@ -227,8 +229,8 @@ export class JudgeDroppedFile extends S.Class<JudgeDroppedFile>($I`JudgeDroppedF
  * @category models
  * @since 0.0.0
  */
-export class JudgeEvidenceSelection extends S.Class<JudgeEvidenceSelection>($I`JudgeEvidenceSelection`)(
-  {
+export class JudgeEvidenceSelection extends S.Opaque<JudgeEvidenceSelection, { readonly brand: unique symbol }>()(
+  S.Struct({
     dropped: S.Array(JudgeDroppedFile).pipe(
       $I.annoteKey("JudgeEvidenceSelection.dropped", {
         description: "Candidates the budget could not afford, each with its omission reason.",
@@ -239,10 +241,11 @@ export class JudgeEvidenceSelection extends S.Class<JudgeEvidenceSelection>($I`J
         description: "Candidates that fit the budget, in stable path order.",
       })
     ),
-  },
-  $I.annote("JudgeEvidenceSelection", {
-    description: "Budget-fitted judge evidence split into what is bundled and what was dropped.",
-  })
+  }).pipe(
+    $I.annoteSchema("JudgeEvidenceSelection", {
+      description: "Budget-fitted judge evidence split into what is bundled and what was dropped.",
+    })
+  )
 ) {}
 
 /**
@@ -264,8 +267,8 @@ export class JudgeEvidenceSelection extends S.Class<JudgeEvidenceSelection>($I`J
  * @category models
  * @since 0.0.0
  */
-export class JudgePromptValues extends S.Class<JudgePromptValues>($I`JudgePromptValues`)(
-  {
+export class JudgePromptValues extends S.Opaque<JudgePromptValues, { readonly brand: unique symbol }>()(
+  S.Struct({
     round: S.Int.pipe(
       $I.annoteKey("JudgePromptValues.round", {
         description: "Round number the bundle judges.",
@@ -286,10 +289,11 @@ export class JudgePromptValues extends S.Class<JudgePromptValues>($I`JudgePrompt
         description: "Surface under review, used to scope the judge's lens.",
       })
     ),
-  },
-  $I.annote("JudgePromptValues", {
-    description: "Round placeholders filled into `prompt.md` before a judge run.",
-  })
+  }).pipe(
+    $I.annoteSchema("JudgePromptValues", {
+      description: "Round placeholders filled into `prompt.md` before a judge run.",
+    })
+  )
 ) {}
 
 /**
@@ -312,8 +316,8 @@ export class JudgePromptValues extends S.Class<JudgePromptValues>($I`JudgePrompt
  * @category models
  * @since 0.0.0
  */
-export class JudgeManifest extends S.Class<JudgeManifest>($I`JudgeManifest`)(
-  {
+export class JudgeManifest extends S.Opaque<JudgeManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     dropped: S.Array(JudgeDroppedFile).pipe(
       $I.annoteKey("JudgeManifest.dropped", {
         description: "Evidence omitted for byte budget; the judge must not claim coverage of these.",
@@ -339,10 +343,11 @@ export class JudgeManifest extends S.Class<JudgeManifest>($I`JudgeManifest`)(
         description: "Total size of the bundled files.",
       })
     ),
-  },
-  $I.annote("JudgeManifest", {
-    description: "The exact evidence set handed to one vision-judge run.",
-  })
+  }).pipe(
+    $I.annoteSchema("JudgeManifest", {
+      description: "The exact evidence set handed to one vision-judge run.",
+    })
+  )
 ) {}
 
 const JudgeManifestJson = S.fromJsonString(JudgeManifest);
@@ -484,8 +489,8 @@ const eventLine = (event: ActionEvent, toVideo: (epochMs: number) => number): st
  * @category models
  * @since 0.0.0
  */
-export class RenderTimelineOptions extends S.Class<RenderTimelineOptions>($I`RenderTimelineOptions`)(
-  {
+export class RenderTimelineOptions extends S.Opaque<RenderTimelineOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     clockSync: ClockSync.pipe(
       $I.annoteKey("RenderTimelineOptions.clockSync", {
         description: "Correlation mapping witness epochs onto video seconds.",
@@ -512,10 +517,11 @@ export class RenderTimelineOptions extends S.Class<RenderTimelineOptions>($I`Ren
         description: "Probed video duration clamping every rendered timestamp.",
       })
     ),
-  },
-  $I.annote("RenderTimelineOptions", {
-    description: "Inputs of one `judge/timeline.md` rendering.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderTimelineOptions", {
+      description: "Inputs of one `judge/timeline.md` rendering.",
+    })
+  )
 ) {}
 
 const isScenarioMarker = (event: ActionEvent): boolean =>
@@ -558,7 +564,7 @@ const scenarioNotesFor = (name: string, legacy: O.Option<typeof LegacyManifest.T
  *
  * ```ts
  * import { ClockSync } from "@beep/qa-capture"
- * import { renderTimeline } from "@beep/repo-cli/commands/Qa/JudgePack"
+ * import { RenderTimelineOptions, renderTimeline } from "@beep/repo-cli/commands/Qa/JudgePack"
  * import { QaEventLog } from "@beep/repo-cli/commands/Qa/Qa.session"
  * import * as O from "effect/Option"
  *
@@ -569,13 +575,15 @@ const scenarioNotesFor = (name: string, legacy: O.Option<typeof LegacyManifest.T
  *   residualRmsMs: 4,
  *   slope: 1
  * })
- * const timeline = renderTimeline({
- *   clockSync: clock,
- *   eventLog: QaEventLog.make({ events: [], rejectedCount: 0 }),
- *   legacy: O.none(),
- *   round: 2,
- *   videoDurationSeconds: 30
- * })
+ * const timeline = renderTimeline(
+ *   RenderTimelineOptions.make({
+ *     clockSync: clock,
+ *     eventLog: QaEventLog.make({ events: [], rejectedCount: 0 }),
+ *     legacy: O.none(),
+ *     round: 2,
+ *     videoDurationSeconds: 30
+ *   })
+ * )
  * console.log(timeline.startsWith("# Round 2 timeline")) // true
  * ```
  *
@@ -586,7 +594,7 @@ const scenarioNotesFor = (name: string, legacy: O.Option<typeof LegacyManifest.T
  */
 export const renderTimeline = (options: RenderTimelineOptions): string => {
   const { clockSync, eventLog, legacy, round, videoDurationSeconds } = options;
-  const toVideo = epochToVideoSeconds(clockSync, videoDurationSeconds);
+  const toVideo = epochToVideoSeconds(ClockSync.make(clockSync), videoDurationSeconds);
   const boundaries = A.reduce(eventLog.events, [] as ReadonlyArray<number>, (acc, event, index) =>
     isScenarioMarker(event) ? [...acc, index] : acc
   );
@@ -628,14 +636,17 @@ export const renderTimeline = (options: RenderTimelineOptions): string => {
  *
  * **Example** (Usage)
  * ```ts
- * import { renderJudgePrompt } from "@beep/repo-cli/commands/Qa/JudgePack"
+ * import { JudgePromptValues, renderJudgePrompt } from "@beep/repo-cli/commands/Qa/JudgePack"
  *
- * const rendered = renderJudgePrompt("Round {{ROUND}} of {{SURFACE}} in {{ROUND_DIR}}: {{SCENARIO_NOTES}}", {
- *   round: 3,
- *   roundDir: "/repo/.beep/qa/round-3",
- *   scenarioNotes: "none",
- *   surface: "storybook"
- * })
+ * const rendered = renderJudgePrompt(
+ *   "Round {{ROUND}} of {{SURFACE}} in {{ROUND_DIR}}: {{SCENARIO_NOTES}}",
+ *   JudgePromptValues.make({
+ *     round: 3,
+ *     roundDir: "/repo/.beep/qa/round-3",
+ *     scenarioNotes: "none",
+ *     surface: "storybook"
+ *   })
+ * )
  * console.log(rendered.includes("{{ROUND}}")) // false
  * ```
  *

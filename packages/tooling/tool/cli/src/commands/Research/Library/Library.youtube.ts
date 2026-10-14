@@ -36,17 +36,18 @@ const VideoMetadata = S.Struct({
   requested_subtitles: S.optionalKey(S.Record(S.String, S.Struct({ url: S.String, ext: S.String }))),
 });
 const $I = $RepoCliId.create("commands/Research/Library/Library.youtube");
-class CaptionProvenance extends S.Class<CaptionProvenance>($I`CaptionProvenance`)(
-  {
+class CaptionProvenance extends S.Opaque<CaptionProvenance, { readonly brand: unique symbol }>()(
+  S.Struct({
     language: S.String,
     url: S.String,
     format: S.Literal("vtt"),
     origin: S.Literals(["creator", "automatic"]),
     downloadedFilename: S.String,
-  },
-  $I.annote("CaptionProvenance", {
-    description: "Downloaded caption filename bound to the exact language/format in original extractor metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("CaptionProvenance", {
+      description: "Downloaded caption filename bound to the exact language/format in original extractor metadata.",
+    })
+  )
 ) {}
 
 /**

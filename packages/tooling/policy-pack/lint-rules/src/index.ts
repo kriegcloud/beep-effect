@@ -141,13 +141,15 @@ export const RuleSeveritySchema = S.Literals(["warn", "error"]);
  */
 export type RuleSeverity = typeof RuleSeveritySchema.Type;
 
-class RuleMetadataSchema extends S.Class<RuleMetadataSchema>("RuleMetadataSchema")({
-  name: RuleNameSchema,
-  severity: RuleSeveritySchema,
-  replaces: S.OptionFromNullOr(S.String),
-  summary: S.String,
-  scope: S.OptionFromNullOr(S.String),
-}) {}
+class RuleMetadataSchema extends S.Opaque<RuleMetadataSchema, { readonly brand: unique symbol }>()(
+  S.Struct({
+    name: RuleNameSchema,
+    severity: RuleSeveritySchema,
+    replaces: S.OptionFromNullOr(S.String),
+    summary: S.String,
+    scope: S.OptionFromNullOr(S.String),
+  }).annotate({ identifier: "RuleMetadataSchema" })
+) {}
 
 type RuleMetadata = RuleMetadataSchema;
 
@@ -161,7 +163,7 @@ type RuleMetadata = RuleMetadataSchema;
  * import { RULES, RuleRegistrySchema } from "@beep/lint-rules"
  * import * as S from "effect/Schema"
  *
- * const encoded = S.encodeSync(RuleRegistrySchema)(RULES)
+ * const encoded = S.encodeSync(RuleRegistrySchema)(RuleRegistrySchema.make(RULES))
  *
  * strictEqual(encoded["no-bigint-literals"].replaces, null)
  * ```
@@ -169,16 +171,17 @@ type RuleMetadata = RuleMetadataSchema;
  * @category configuration
  * @since 0.0.0
  */
-export class RuleRegistrySchema extends S.Class<RuleRegistrySchema>("RuleRegistrySchema")(
-  {
+export class RuleRegistrySchema extends S.Opaque<RuleRegistrySchema, { readonly brand: unique symbol }>()(
+  S.Struct({
     "no-native-error": RuleMetadataSchema,
     "no-bigint-literals": RuleMetadataSchema,
     "no-empty-named-blocks": RuleMetadataSchema,
     "prefer-array-flat-map": RuleMetadataSchema,
-  },
-  $I.annote("RuleRegistrySchema", {
-    description: "Schema for the finite rule registry keyed by rule slug.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuleRegistrySchema", {
+      description: "Schema for the finite rule registry keyed by rule slug.",
+    })
+  )
 ) {}
 
 /**

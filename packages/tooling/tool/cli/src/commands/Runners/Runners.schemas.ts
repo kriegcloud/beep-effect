@@ -117,8 +117,8 @@ const defaultTags = S.Record(S.String, S.String).pipe(
  * @category models
  * @since 0.0.0
  */
-export class BakeConfig extends S.Class<BakeConfig>($I`BakeConfig`)(
-  {
+export class BakeConfig extends S.Opaque<BakeConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     region: S.NonEmptyString,
     subnetId: S.NonEmptyString,
     securityGroupId: S.NonEmptyString,
@@ -130,10 +130,11 @@ export class BakeConfig extends S.Class<BakeConfig>($I`BakeConfig`)(
     baseAmiSsmParameter: defaultBaseAmiParameter,
     instanceType: defaultInstanceType,
     tags: defaultTags,
-  },
-  $I.annote("BakeConfig", {
-    description: "Resolved AWS placement and tagging configuration for a temporary runner AMI bake instance.",
-  })
+  }).pipe(
+    $I.annoteSchema("BakeConfig", {
+      description: "Resolved AWS placement and tagging configuration for a temporary runner AMI bake instance.",
+    })
+  )
 ) {}
 
 /**
@@ -163,8 +164,8 @@ export class BakeConfig extends S.Class<BakeConfig>($I`BakeConfig`)(
  * @category models
  * @since 0.0.0
  */
-export class BakeReport extends S.Class<BakeReport>($I`BakeReport`)(
-  {
+export class BakeReport extends S.Opaque<BakeReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     amiId: S.NonEmptyString,
     lockfileSha256: Sha256Hex,
     bunArchiveSha256: Sha256Hex,
@@ -174,10 +175,11 @@ export class BakeReport extends S.Class<BakeReport>($I`BakeReport`)(
     pulumiPinCommand: S.NonEmptyString,
     startedAt: S.NonEmptyString,
     completedAt: S.NonEmptyString,
-  },
-  $I.annote("BakeReport", {
-    description: "Machine-readable provenance and activation recipe for a successfully baked runner AMI.",
-  })
+  }).pipe(
+    $I.annoteSchema("BakeReport", {
+      description: "Machine-readable provenance and activation recipe for a successfully baked runner AMI.",
+    })
+  )
 ) {}
 
 /**
@@ -240,12 +242,11 @@ export const BakeManifestJson = JsonStringCodec(BakeManifest);
  * @category models
  * @since 0.0.0
  */
-export class BakePlanStep extends S.Class<BakePlanStep>($I`BakePlanStep`)(
-  {
+export class BakePlanStep extends S.Opaque<BakePlanStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     argv: S.Array(S.String),
-  },
-  $I.annote("BakePlanStep", { description: "Named argv-only operation in the runner bake plan." })
+  }).pipe($I.annoteSchema("BakePlanStep", { description: "Named argv-only operation in the runner bake plan." }))
 ) {}
 
 /**
@@ -272,8 +273,8 @@ export class BakePlanStep extends S.Class<BakePlanStep>($I`BakePlanStep`)(
  * @category models
  * @since 0.0.0
  */
-export class BakePlan extends S.Class<BakePlan>($I`BakePlan`)(
-  {
+export class BakePlan extends S.Opaque<BakePlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     lockfileSha256: Sha256Hex,
     bunArchiveSha256: Sha256Hex,
     bunVersion: S.NonEmptyString,
@@ -281,8 +282,7 @@ export class BakePlan extends S.Class<BakePlan>($I`BakePlan`)(
     requiredFlags: S.Array(S.NonEmptyString),
     invariants: S.Array(S.NonEmptyString),
     steps: S.Array(BakePlanStep),
-  },
-  $I.annote("BakePlan", { description: "AWS-free execution plan for the runner AMI bake workflow." })
+  }).pipe($I.annoteSchema("BakePlan", { description: "AWS-free execution plan for the runner AMI bake workflow." }))
 ) {}
 
 /**
@@ -331,8 +331,8 @@ export const BakePlanJson = JsonStringCodec(BakePlan);
  * @category models
  * @since 0.0.0
  */
-export class BakeCheckReport extends S.Class<BakeCheckReport>($I`BakeCheckReport`)(
-  {
+export class BakeCheckReport extends S.Opaque<BakeCheckReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     amiId: S.NonEmptyString,
     expectedLockfileSha256: Sha256Hex,
     actualLockfileSha256: S.OptionFromOptionalKey(Sha256Hex),
@@ -344,10 +344,11 @@ export class BakeCheckReport extends S.Class<BakeCheckReport>($I`BakeCheckReport
     bunArchiveMatches: S.Boolean,
     bunVersionMatches: S.Boolean,
     fresh: S.Boolean,
-  },
-  $I.annote("BakeCheckReport", {
-    description: "Lockfile, Bun release archive, and Bun version freshness result for the live runner AMI pin.",
-  })
+  }).pipe(
+    $I.annoteSchema("BakeCheckReport", {
+      description: "Lockfile, Bun release archive, and Bun version freshness result for the live runner AMI pin.",
+    })
+  )
 ) {}
 
 /**
@@ -382,9 +383,10 @@ export const BakeCheckReportJson = JsonStringCodec(BakeCheckReport);
  * @category models
  * @since 0.0.0
  */
-export class AwsGetParameterResponse extends S.Class<AwsGetParameterResponse>($I`AwsGetParameterResponse`)(
-  { Parameter: S.Struct({ Value: S.NonEmptyString }) },
-  $I.annote("AwsGetParameterResponse", { description: "AWS CLI SSM get-parameter response subset." })
+export class AwsGetParameterResponse extends S.Opaque<AwsGetParameterResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ Parameter: S.Struct({ Value: S.NonEmptyString }) }).pipe(
+    $I.annoteSchema("AwsGetParameterResponse", { description: "AWS CLI SSM get-parameter response subset." })
+  )
 ) {}
 
 /**
@@ -403,9 +405,10 @@ export class AwsGetParameterResponse extends S.Class<AwsGetParameterResponse>($I
  * @category models
  * @since 0.0.0
  */
-export class AwsRunInstancesResponse extends S.Class<AwsRunInstancesResponse>($I`AwsRunInstancesResponse`)(
-  { Instances: S.Array(S.Struct({ InstanceId: S.NonEmptyString })) },
-  $I.annote("AwsRunInstancesResponse", { description: "AWS CLI run-instances response subset." })
+export class AwsRunInstancesResponse extends S.Opaque<AwsRunInstancesResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ Instances: S.Array(S.Struct({ InstanceId: S.NonEmptyString })) }).pipe(
+    $I.annoteSchema("AwsRunInstancesResponse", { description: "AWS CLI run-instances response subset." })
+  )
 ) {}
 
 /**
@@ -424,9 +427,10 @@ export class AwsRunInstancesResponse extends S.Class<AwsRunInstancesResponse>($I
  * @category models
  * @since 0.0.0
  */
-export class AwsCreateImageResponse extends S.Class<AwsCreateImageResponse>($I`AwsCreateImageResponse`)(
-  { ImageId: S.NonEmptyString },
-  $I.annote("AwsCreateImageResponse", { description: "AWS CLI create-image response subset." })
+export class AwsCreateImageResponse extends S.Opaque<AwsCreateImageResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ ImageId: S.NonEmptyString }).pipe(
+    $I.annoteSchema("AwsCreateImageResponse", { description: "AWS CLI create-image response subset." })
+  )
 ) {}
 
 /**
@@ -445,9 +449,10 @@ export class AwsCreateImageResponse extends S.Class<AwsCreateImageResponse>($I`A
  * @category models
  * @since 0.0.0
  */
-export class AwsTag extends S.Class<AwsTag>($I`AwsTag`)(
-  { Key: S.NonEmptyString, Value: S.String },
-  $I.annote("AwsTag", { description: "Key/value tag emitted by the AWS CLI." })
+export class AwsTag extends S.Opaque<AwsTag, { readonly brand: unique symbol }>()(
+  S.Struct({ Key: S.NonEmptyString, Value: S.String }).pipe(
+    $I.annoteSchema("AwsTag", { description: "Key/value tag emitted by the AWS CLI." })
+  )
 ) {}
 
 /**
@@ -468,9 +473,10 @@ export class AwsTag extends S.Class<AwsTag>($I`AwsTag`)(
  * @category models
  * @since 0.0.0
  */
-export class AwsDescribeImagesResponse extends S.Class<AwsDescribeImagesResponse>($I`AwsDescribeImagesResponse`)(
-  { Images: S.Array(S.Struct({ Tags: S.optionalKey(AwsTag.pipe(S.Array)) })) },
-  $I.annote("AwsDescribeImagesResponse", { description: "AWS CLI describe-images response subset." })
+export class AwsDescribeImagesResponse extends S.Opaque<AwsDescribeImagesResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ Images: S.Array(S.Struct({ Tags: S.optionalKey(AwsTag.pipe(S.Array)) })) }).pipe(
+    $I.annoteSchema("AwsDescribeImagesResponse", { description: "AWS CLI describe-images response subset." })
+  )
 ) {}
 
 /**
@@ -490,7 +496,8 @@ export class AwsDescribeImagesResponse extends S.Class<AwsDescribeImagesResponse
  * @category models
  * @since 0.0.0
  */
-export class AwsConsoleOutputResponse extends S.Class<AwsConsoleOutputResponse>($I`AwsConsoleOutputResponse`)(
-  { Output: S.OptionFromNullishOr(S.String) },
-  $I.annote("AwsConsoleOutputResponse", { description: "AWS CLI instance console-output response subset." })
+export class AwsConsoleOutputResponse extends S.Opaque<AwsConsoleOutputResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ Output: S.OptionFromNullishOr(S.String) }).pipe(
+    $I.annoteSchema("AwsConsoleOutputResponse", { description: "AWS CLI instance console-output response subset." })
+  )
 ) {}

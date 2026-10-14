@@ -20,16 +20,21 @@ import type { QualityProfileConfig, QualityProfileDetection } from "./Quality.sc
  * **Example** (Serialize config key-value lines)
  *
  * ```ts
+ * import { QualityProfileConfig } from "@beep/repo-cli/commands/Quality"
  * import { renderQualityProfileConfigLines } from "@beep/repo-cli/test/Quality"
  *
- * console.log(renderQualityProfileConfigLines({
- *   profile: "current",
- *   turboConcurrency: 3,
- *   docgenParallel: 3,
- *   fullProofSlots: 1,
- *   reviewFixSlots: 1,
- *   notes: []
- * }))
+ * console.log(
+ *   renderQualityProfileConfigLines(
+ *     QualityProfileConfig.make({
+ *       profile: "current",
+ *       turboConcurrency: 3,
+ *       docgenParallel: 3,
+ *       fullProofSlots: 1,
+ *       reviewFixSlots: 1,
+ *       notes: []
+ *     })
+ *   )
+ * )
  * ```
  *
  * @param config - Resolved quality profile whose fields are serialized into lines.
@@ -52,16 +57,20 @@ export const renderQualityProfileConfigLines = (config: QualityProfileConfig): R
  * **Example** (Print config as Effect)
  *
  * ```ts
+ * import { QualityProfileConfig } from "@beep/repo-cli/commands/Quality"
  * import { printQualityProfileConfig } from "@beep/repo-cli/test/Quality"
  * import * as Effect from "effect/Effect";
- * const program = printQualityProfileConfig({
- *   docgenParallel: 3,
- *   fullProofSlots: 1,
- *   notes: ["local laptop"],
- *   profile: "current",
- *   reviewFixSlots: 1,
- *   turboConcurrency: 3
- * }, false)
+ * const program = printQualityProfileConfig(
+ *   QualityProfileConfig.make({
+ *     docgenParallel: 3,
+ *     fullProofSlots: 1,
+ *     notes: ["local laptop"],
+ *     profile: "current",
+ *     reviewFixSlots: 1,
+ *     turboConcurrency: 3
+ *   }),
+ *   false
+ * )
  * console.log(Effect.isEffect(program)) // true
  * ```
  *
@@ -88,21 +97,25 @@ export const printQualityProfileConfig: {
  * **Example** (Print detection as Effect)
  *
  * ```ts
+ * import { QualityProfileConfig, QualityProfileDetection } from "@beep/repo-cli/commands/Quality"
  * import { printQualityProfileDetection } from "@beep/repo-cli/test/Quality"
  * import * as Effect from "effect/Effect";
- * const program = printQualityProfileDetection({
- *   config: {
- *     docgenParallel: 3,
- *     fullProofSlots: 1,
- *     notes: [],
- *     profile: "current",
- *     reviewFixSlots: 1,
- *     turboConcurrency: 3
- *   },
- *   cpuCount: 12,
- *   memoryGiB: 64,
- *   profile: "current"
- * }, false)
+ * const program = printQualityProfileDetection(
+ *   QualityProfileDetection.make({
+ *     config: QualityProfileConfig.make({
+ *       docgenParallel: 3,
+ *       fullProofSlots: 1,
+ *       notes: [],
+ *       profile: "current",
+ *       reviewFixSlots: 1,
+ *       turboConcurrency: 3
+ *     }),
+ *     cpuCount: 12,
+ *     memoryGiB: 64,
+ *     profile: "current"
+ *   }),
+ *   false
+ * )
  * console.log(Effect.isEffect(program)) // true
  * ```
  *

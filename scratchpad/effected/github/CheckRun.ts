@@ -16,7 +16,7 @@ import * as O from "@beep/utils/Option";
 
 const $I = $ScratchpadId.create("effected/github/CheckRun");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
   message: S.String.annotateKey({ description: "The test-double member that needs an override." }),
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -101,7 +101,7 @@ export type AnnotationLevel = typeof AnnotationLevel.Type;
  * @category models
  * @since 0.0.0
  */
-export class Annotation extends S.Class<Annotation>($I`Annotation`)({
+export class Annotation extends S.Class<Annotation, { readonly brand: unique symbol }>($I`Annotation`)({
   /**
    * Repository-relative path.
    *
@@ -150,7 +150,7 @@ export class Annotation extends S.Class<Annotation>($I`Annotation`)({
  * @category models
  * @since 0.0.0
  */
-export class CheckRunOutput extends S.Class<CheckRunOutput>($I`CheckRunOutput`)({
+export class CheckRunOutput extends S.Class<CheckRunOutput, { readonly brand: unique symbol }>($I`CheckRunOutput`)({
   title: S.String.annotateKey({ description: "The heading GitHub displays above the check run's summary" }),
   /**
    * Markdown shown under the title. Capped at 65535 **bytes**.
@@ -285,7 +285,7 @@ const capBytes = (value: string): string => {
  * @category models
  * @since 0.0.0
  */
-export class CheckRunRef extends S.Class<CheckRunRef>($I`CheckRunRef`)({
+export class CheckRunRef extends S.Class<CheckRunRef, { readonly brand: unique symbol }>($I`CheckRunRef`)({
   id: S.Int.annotateKey({ description: "GitHub's identifier for reading, updating and concluding this check run" }),
   name: S.String.annotateKey({ description: "The label supplied when the check run was created, as reported by GitHub" }),
   /**

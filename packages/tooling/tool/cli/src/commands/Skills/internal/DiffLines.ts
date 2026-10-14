@@ -26,12 +26,11 @@ const $I = $RepoCliId.create("commands/Skills/internal/DiffLines");
  * @category models
  * @since 0.0.0
  */
-export class DiffLine extends S.Class<DiffLine>($I`DiffLine`)(
-  {
+export class DiffLine extends S.Opaque<DiffLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String,
     eol: S.Boolean,
-  },
-  $I.annote("DiffLine", { description: "One text line and whether a newline ends it." })
+  }).pipe($I.annoteSchema("DiffLine", { description: "One text line and whether a newline ends it." }))
 ) {}
 
 /**

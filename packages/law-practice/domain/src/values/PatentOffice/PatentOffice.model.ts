@@ -14,24 +14,26 @@ const $I = $LawPracticeDomainId.create("values/PatentOffice/PatentOffice");
 /**
  * WIPO ST.16 / office logo + flag metadata, used for jurisdiction-aware UI.
  *
- * **Example** (Create empty Metadata instance)
+ * **Example** (Create empty Metadata value)
  *
  * ```ts
  * import { Metadata } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
  * const metadata = Metadata.make({})
- * console.log(metadata instanceof Metadata)
+ * console.log(S.is(Metadata)(metadata))
  * // true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class Metadata extends S.Class<Metadata>($I`Metadata`)(
-  {},
-  $I.annote("Metadata", {
-    description: "WIPO ST.16 / office logo + flag metadata, used for jurisdiction-aware UI.",
-  })
+export class Metadata extends S.Opaque<Metadata, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("Metadata", {
+      description: "WIPO ST.16 / office logo + flag metadata, used for jurisdiction-aware UI.",
+    })
+  )
 ) {}
 // {
 // 				readonly name: string;

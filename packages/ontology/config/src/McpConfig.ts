@@ -64,16 +64,17 @@ export const OntologyMcpMutationsEnabledConfig = Config.Boolean("ONTOLOGY_MCP_MU
  * @category configuration
  * @since 0.0.0
  */
-export class OntologyMcpServerConfig extends S.Class<OntologyMcpServerConfig>($I`OntologyMcpServerConfig`)(
-  {
+export class OntologyMcpServerConfig extends S.Opaque<OntologyMcpServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     mutationsEnabled: S.Boolean.annotateKey({
       description: "Whether ontology mutation tools are registered on the MCP surface at all.",
     }),
-  },
-  $I.annote("OntologyMcpServerConfig", {
-    title: "Ontology MCP server config",
-    description: "Server-only ontology MCP tool-registration settings.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyMcpServerConfig", {
+      title: "Ontology MCP server config",
+      description: "Server-only ontology MCP tool-registration settings.",
+    })
+  )
 ) {}
 
 /**
