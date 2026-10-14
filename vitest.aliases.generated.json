@@ -1915,6 +1915,12 @@
   ],
   "@beep/t3-code": ["./packages/drivers/t3-code/src/index.ts"],
   "@beep/t3-code/*": ["./packages/drivers/t3-code/src/*"],
+  "@beep/observability/catalog": [
+    "./packages/foundation/capability/observability/src/catalog/index.ts"
+  ],
+  "@beep/repo-cli/commands/Observability": [
+    "./packages/tooling/tool/cli/src/commands/Observability/index.ts"
+  ],
   "@beep/repo-cli/commands/Reviewer": [
     "./packages/tooling/tool/cli/src/commands/Reviewer/index.ts"
   ]
