@@ -503,3 +503,9 @@ https://forum.cursor.com/t/possible-bug-in-cursor-token-statistics-other-models-
 https://forum.cursor.com/t/how-much-usage-is-available-on-the-200-subscription/163309
 https://forum.cursor.com/t/does-using-oh-my-pi-s-cursor-provider-or-an-openai-compatible-proxy-to-the-same-endpoints-violate-cursor-s-tos/167778
 https://forum.cursor.com/t/agent-cli-linux-sandbox-preflight-fails-unshare-eperm-unless-run-under-strace-apparmor-restrict-unprivileged-userns-1/160039
+
+## Desktop permission continuity
+
+Use the [permission continuity runbook](./agent-permission-continuity.md) for
+effective-policy readers, disposable Desktop route fixtures, and the rule to
+stop on a mismatch. A visible composer label is not runtime policy evidence.
