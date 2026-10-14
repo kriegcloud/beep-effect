@@ -256,7 +256,7 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
               grandfathered: false,
             })
           );
-          expect(resolved.outcome).toBe(snapshot.inventoryComplete ? "verified" : "unknown");
+          return resolved.outcome === (snapshot.inventoryComplete ? "verified" : "unknown");
         }),
         { numRuns: 20 }
       );
