@@ -251,6 +251,39 @@ describe("skills command", () => {
   });
 
   it.layer(CommandTestLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("fails on frontmatter outside the Agent Skills format and advises on oversized skill files", () =>
+      Effect.gen(function* () {
+        yield* temporaryRepository;
+        yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", remoteGrillMeSkill);
+        yield* writeProjectFile(
+          ".claude/skills/local-only/SKILL.md",
+          "---\nname: local-only\ndescription: Local test skill.\nversion: 0.1.0\n---\n\n# Local\n"
+        );
+        yield* writeProjectFile(
+          ".claude/skills/misnamed/SKILL.md",
+          "---\nname: other-name\ndescription: Misnamed test skill.\n---\n\n# Misnamed\n"
+        );
+        yield* writeProjectFile(
+          ".claude/skills/long-one/SKILL.md",
+          `---\nname: long-one\ndescription: Long test skill.\n---\n${"line\n".repeat(600)}`
+        );
+        yield* writeProjectFile(".codex/config.toml", "[skills]\n  include_instructions = true\n");
+
+        const error = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") }).pipe(Effect.flip);
+        const logs = yield* TestConsole.logLines;
+
+        expect(error._tag).toBe("SkillFrontmatterError");
+        assert(error._tag === "SkillFrontmatterError");
+        expect(A.map(error.issues, (issue) => issue.skill)).toEqual(["local-only", "misnamed"]);
+        expect(logs).toContain("skills:update: frontmatter issues (2)");
+        expect(A.some(logs, (line) => line.startsWith("- local-only:") && line.includes("version"))).toBe(true);
+        expect(A.some(logs, (line) => line.startsWith("- misnamed:") && line.includes("other-name"))).toBe(true);
+        expect(A.some(logs, (line) => line.includes("advisory long-one/SKILL.md has 604 lines"))).toBe(true);
+      }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+    );
+  });
+
+  it.layer(CommandTestLayer, { timeout: "30 seconds" })((it) => {
     it.effect("rejects traversal paths from remote GitHub trees", () =>
       Effect.gen(function* () {
         yield* temporaryRepository;

@@ -2,6 +2,7 @@ import {
   AgentCommandMetadata,
   AgentPluginManifestMetadata,
   AgentSkillFrontmatter,
+  AgentSkillFrontmatterStrictParseOptions,
   AiSyncContentHash,
   AiSyncDriftFinding,
   AiSyncDriftReport,
@@ -19,6 +20,7 @@ import {
   checkSourceDriftWithFetcher,
   claudeMcpJsonToCodexConfig,
   codexMcpServersToClaudeMcpJson,
+  decodeAgentSkillFrontmatter,
   junieMcpJsonToClaudeMcpJson,
   NormalizedAgentInstructionDocument,
   NormalizedAgentInstructionDocumentArbitrary,
@@ -805,4 +807,56 @@ it.layer(Layer.merge(MemoryFileSystem.layer, Path.layer), { timeout: "30 seconds
       })
     );
   }
+);
+
+it.effect(
+  "accepts Agent Skills specification frontmatter with Claude Code extension keys",
+  Effect.fn(function* () {
+    const decoded = yield* decodeAgentSkillFrontmatter(
+      {
+        name: "pdf-processing",
+        description: "Extract PDF text. Use when handling PDFs.",
+        license: "Apache-2.0",
+        compatibility: "Requires git and jq",
+        metadata: { version: "1.0", status: "active" },
+        "allowed-tools": ["Read", "Bash(git:*)"],
+        "argument-hint": "[file]",
+        "disable-model-invocation": true,
+        "user-invocable": false,
+        effort: "medium",
+        context: "fork",
+      },
+      AgentSkillFrontmatterStrictParseOptions
+    );
+    expect(decoded.name).toBe("pdf-processing");
+    expect(decoded.metadata?.version).toBe("1.0");
+    expect(decoded["allowed-tools"]).toEqual(["Read", "Bash(git:*)"]);
+  })
+);
+
+it.effect(
+  "rejects non-spec keys, invalid names, blank descriptions, and non-string metadata under strict options",
+  Effect.fn(function* () {
+    const rejected: ReadonlyArray<unknown> = [
+      { name: "yeet", description: "Ship.", version: "1.0" },
+      { name: "yeet", description: "Ship.", status: "active" },
+      { name: "PDF-Processing", description: "Read PDFs." },
+      { name: "-pdf", description: "Read PDFs." },
+      { name: "pdf-", description: "Read PDFs." },
+      { name: "pdf--processing", description: "Read PDFs." },
+      { name: "a".repeat(65), description: "Read PDFs." },
+      { name: "pdf", description: "   " },
+      { name: "pdf", description: "x".repeat(1025) },
+      { name: "pdf", description: "Read PDFs.", compatibility: "" },
+      { name: "pdf", description: "Read PDFs.", metadata: { version: 1 } },
+      { name: "pdf", description: "Read PDFs.", effort: "ultra" },
+      { description: "Read PDFs." },
+    ];
+    for (const input of rejected) {
+      const exit = yield* decodeAgentSkillFrontmatter(input, AgentSkillFrontmatterStrictParseOptions).pipe(Effect.exit);
+      assertTrue(Exit.isFailure(exit));
+    }
+    const lenient = yield* decodeAgentSkillFrontmatter({ name: "yeet", description: "Ship.", version: "1.0" });
+    expect(lenient.name).toBe("yeet");
+  })
 );
