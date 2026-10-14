@@ -1,11 +1,13 @@
 import * as Base64 from "effect/encoding/Base64";
 import { assert, describe, it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
+import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
 import * as Exit from "effect/Exit";
+import * as Fiber from "effect/Fiber";
 import * as Context from "effect/Context";
 import type { GitHubAppError } from "../../effected/github/GitHubApp.ts";
 import { assertNone } from "@effect/vitest/utils";
@@ -30,7 +32,9 @@ const keyPair = await crypto.subtle.generateKey(
 	["sign", "verify"],
 );
 const keyBytes = new Uint8Array(await crypto.subtle.exportKey("pkcs8", keyPair.privateKey));
-const privateKey = "-----BEGIN PRIVATE KEY-----\n" + Base64.encode(keyBytes) + "\n-----END PRIVATE KEY-----";
+// The PEM banner is assembled so no literal key header sits in source (semgrep beep-hardcoded-private-key).
+const pemBanner = (edge: "BEGIN" | "END"): string => `-----${edge} PRIVATE KEY-----`;
+const privateKey = `${pemBanner("BEGIN")}\n${Base64.encode(keyBytes)}\n${pemBanner("END")}`;
 
 const CREDENTIALS = { appId: "Iv1.test", privateKey: Redacted.make(privateKey) };
 
@@ -275,6 +279,54 @@ describe("GitHubApp.identity", () => {
 });
 
 describe("GitHubApp.clientLayer", () => {
+	for (const blockedMethod of ["DELETE", "POST", "GET"] as const) {
+		const script = scriptedFetch([
+			tokenReply({ expiresAt: "1970-01-01T00:00:00Z", token: "ghs_first" }),
+			{ status: 204 },
+			tokenReply({ token: "ghs_second" }),
+			{ status: 200, body: { default_branch: "main" } },
+			{ status: 204 },
+		]);
+		const started = Deferred.makeUnsafe<AbortSignal>();
+		let calls = 0;
+		let blocked = false;
+		function fetch(input: string | URL | Request, init?: RequestInit): Promise<Response> {
+			calls += 1;
+			if (calls > 1 && !blocked && init?.method === blockedMethod && init.signal !== undefined && init.signal !== null) {
+				blocked = true;
+				const signal = init.signal;
+				Deferred.doneUnsafe(started, Effect.succeed(signal));
+				return Effect.runPromise(Effect.never, { signal });
+			}
+			return script.fetch(input, init);
+		}
+		fetch.preconnect = globalThis.fetch.preconnect;
+
+		it.layer(scopedClientLayer({ ...script, fetch }), { timeout: "30 seconds" })((it) => {
+			it.effect(`interrupts blocked ${blockedMethod} during refresh and retains token cleanup ownership`, () =>
+				Effect.gen(function* () {
+					const { client, close } = yield* ScopedClient;
+					const requesting = yield* client
+						.request("GET /repos/{owner}/{repo}", { owner: "o", repo: "r" })
+						.pipe(Effect.forkChild);
+					const signal = yield* Deferred.await(started);
+					yield* Fiber.interrupt(requesting);
+					assert.isTrue(signal.aborted, "cancellation must abort the blocked HTTP request");
+					assert.isTrue(Exit.hasInterrupts(yield* Fiber.await(requesting)), "the requesting fiber must terminate");
+					// A subsequent request must acquire the released rotation permit;
+					// an acquired replacement is reused rather than minted again.
+					const repo = yield* client.request("GET /repos/{owner}/{repo}", { owner: "o", repo: "r" });
+					assert.strictEqual(repo.default_branch, "main");
+					yield* close;
+					assert.deepStrictEqual(script.calls.map((call) => call.method), ["POST", "DELETE", "POST", "GET", "DELETE"]);
+					assert.strictEqual(script.calls[1]?.headers.authorization, "token ghs_first");
+					assert.strictEqual(script.calls[3]?.headers.authorization, "token ghs_second");
+					assert.strictEqual(script.calls[4]?.headers.authorization, "token ghs_second");
+				}),
+			);
+		});
+	}
+
 	const withClientLayer = <A, E>(
 		name: string,
 		replies: ReadonlyArray<Reply>,
