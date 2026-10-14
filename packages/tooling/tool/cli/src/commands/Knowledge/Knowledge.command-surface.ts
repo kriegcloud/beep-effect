@@ -83,29 +83,90 @@ const StaticCommandAlias = S.NullOr(S.String).pipe(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeStaticCommandFlag extends S.Class<KnowledgeStaticCommandFlag>($I`KnowledgeStaticCommandFlag`)(
-  {
+export class KnowledgeStaticCommandFlag extends S.Opaque<
+  KnowledgeStaticCommandFlag,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.String,
     aliases: S.Array(S.String),
     negatable: S.Boolean,
-  },
-  $I.annote("KnowledgeStaticCommandFlag", {
-    description:
-      "One declared Effect CLI flag: its canonical name, dash-free aliases, and whether a boolean `--no-` form parses.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeStaticCommandFlag", {
+      description:
+        "One declared Effect CLI flag: its canonical name, dash-free aliases, and whether a boolean `--no-` form parses.",
+    })
+  )
 ) {}
 
-class StaticCommandNode extends S.Class<StaticCommandNode>($I`StaticCommandNode`)(
-  {
+/**
+ * One non-executing projection of a CLI command and its ordered descendants.
+ *
+ * **Example** (Project a nested command tree)
+ *
+ * ```ts
+ * import { StaticCommandNode } from "@beep/repo-cli/commands/Knowledge/Knowledge.command-surface"
+ *
+ * const tree = StaticCommandNode.make({
+ *   name: "beep",
+ *   alias: null,
+ *   children: [
+ *     StaticCommandNode.make({ name: "knowledge", alias: null, children: [
+ *       StaticCommandNode.make({ name: "refs", alias: null, children: [] })
+ *     ] })
+ *   ]
+ * })
+ *
+ * console.log(tree.children[0]?.children[0]?.name) // => "refs"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StaticCommandNode extends S.Opaque<StaticCommandNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     alias: StaticCommandAlias,
-    children: S.Array(S.suspend((): S.Codec<StaticCommandNode> => StaticCommandNode)),
+    children: S.Array(
+      S.suspend((): S.ConstraintCodec<StaticCommandNode, StaticCommandNode.Encoded> => StaticCommandNode)
+    ),
     options: KnowledgeStaticCommandFlag.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("StaticCommandNode", {
-    description: "One non-executing projection of a CLI command and its ordered descendants.",
-  })
+  }).pipe(
+    $I.annoteSchema("StaticCommandNode", {
+      description: "One non-executing projection of a CLI command and its ordered descendants.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link StaticCommandNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace StaticCommandNode {
+  /**
+   * Encoded (JSON) form of {@link StaticCommandNode}; its recursive `children` field needs a named type.
+   *
+   * **Example** (Type an encoded command node)
+   *
+   * ```ts
+   * import type { StaticCommandNode } from "@beep/repo-cli/commands/Knowledge/Knowledge.command-surface"
+   *
+   * const node: StaticCommandNode.Encoded = { name: "beep", alias: null, children: [] }
+   * console.log(node.name) // "beep"
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = {
+    readonly name: string;
+    readonly alias: string | null;
+    readonly children: ReadonlyArray<Encoded>;
+    readonly options?: ReadonlyArray<typeof KnowledgeStaticCommandFlag.Encoded>;
+  };
+}
 
 const StaticCommandNodeJson = S.fromJsonString(StaticCommandNode);
 const decodeStaticCommandNodeJson = S.decodeUnknownEffect(StaticCommandNodeJson);

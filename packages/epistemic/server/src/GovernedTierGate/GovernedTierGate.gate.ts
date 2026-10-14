@@ -126,8 +126,8 @@ const $I = $EpistemicServerId.create("GovernedTierGate/GovernedTierGate.gate");
  * @category models
  * @since 0.0.0
  */
-export class GovernedTierGateOptions extends S.Class<GovernedTierGateOptions>($I`GovernedTierGateOptions`)(
-  {
+export class GovernedTierGateOptions extends S.Opaque<GovernedTierGateOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     grantTtl: S.Duration.annotateKey({
       description: "Lifetime of a session's frozen grants, measured from the freeze.",
     }),
@@ -143,10 +143,11 @@ export class GovernedTierGateOptions extends S.Class<GovernedTierGateOptions>($I
     sink: ExecutionSink.annotateKey({
       description: "Governed sink every gated dispatch in this branch targets.",
     }),
-  },
-  $I.annote("GovernedTierGateOptions", {
-    description: "Session-static inputs the composition root supplies to the governed tier gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("GovernedTierGateOptions", {
+      description: "Session-static inputs the composition root supplies to the governed tier gate.",
+    })
+  )
 ) {
   static readonly is = S.is(GovernedTierGateOptions);
 }

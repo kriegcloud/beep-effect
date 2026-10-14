@@ -27,7 +27,7 @@ const $I = $ScratchpadId.create("effected/cli/NotInteractive");
  * @category errors
  * @since 0.0.0
  */
-export class NotInteractive extends S.TaggedError<NotInteractive>($I`NotInteractive`)("NotInteractive", {}, $I.annote("NotInteractive", { description: "A command needed to prompt, but there is no terminal to prompt on." })) {
+export class NotInteractive extends S.TaggedError<NotInteractive, { readonly brand: unique symbol }>($I`NotInteractive`)("NotInteractive", {}, $I.annote("NotInteractive", { description: "A command needed to prompt, but there is no terminal to prompt on." })) {
 	/**
 	 * The one line, `not interactive: run in a terminal or pass the flag`.
 	 *

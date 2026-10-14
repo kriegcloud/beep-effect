@@ -200,19 +200,21 @@ const ConfiguredMaxMaterializedBytes = S.Int.check(S.isGreaterThan(0)).pipe(
  * @category configuration
  * @since 0.0.0
  */
-export class FilingDecisionLlmConfigValue extends S.Class<FilingDecisionLlmConfigValue>(
-  $I`FilingDecisionLlmConfigValue`
-)(
-  {
+export class FilingDecisionLlmConfigValue extends S.Opaque<
+  FilingDecisionLlmConfigValue,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     confidenceThreshold: UnitInterval,
     extractionTimeout: S.Duration,
     maxExcerptChars: ConfiguredExcerptLength,
     maxMaterializedBytes: ConfiguredMaxMaterializedBytes,
     model: S.NonEmptyString,
-  },
-  $I.annote("FilingDecisionLlmConfigValue", {
-    description: "Resolved configuration value for LLM-backed document filing.",
-  })
+  }).pipe(
+    $I.annoteSchema("FilingDecisionLlmConfigValue", {
+      description: "Resolved configuration value for LLM-backed document filing.",
+    })
+  )
 ) {}
 
 /**

@@ -46,16 +46,17 @@ const $I = $PretextId.create("PretextCapture.service");
  * @category models
  * @since 0.0.0
  */
-export class PretextCaptureRequest extends S.Class<PretextCaptureRequest>($I`PretextCaptureRequest`)(
-  {
+export class PretextCaptureRequest extends S.Opaque<PretextCaptureRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     font: S.String,
     lineHeight: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     words: S.Array(S.String),
     sentence: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PretextCaptureRequest", {
-    description: "Font-metrics capture request: font, caller-supplied line height, words to measure.",
-  })
+  }).pipe(
+    $I.annoteSchema("PretextCaptureRequest", {
+      description: "Font-metrics capture request: font, caller-supplied line height, words to measure.",
+    })
+  )
 ) {}
 
 /**

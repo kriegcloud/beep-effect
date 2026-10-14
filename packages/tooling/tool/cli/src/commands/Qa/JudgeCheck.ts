@@ -56,8 +56,8 @@ const $I = $RepoCliId.create("commands/Qa/JudgeCheck");
  * @category models
  * @since 0.0.0
  */
-export class EvidenceCrossCheck extends S.Class<EvidenceCrossCheck>($I`EvidenceCrossCheck`)(
-  {
+export class EvidenceCrossCheck extends S.Opaque<EvidenceCrossCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     missingEventIds: S.Array(S.Int).pipe(
       $I.annoteKey("EvidenceCrossCheck.missingEventIds", {
         description: "Cited witness sequence numbers absent from events.ndjson.",
@@ -68,10 +68,11 @@ export class EvidenceCrossCheck extends S.Class<EvidenceCrossCheck>($I`EvidenceC
         description: "Cited round-relative artifact paths that do not exist.",
       })
     ),
-  },
-  $I.annote("EvidenceCrossCheck", {
-    description: "Everything an inventory cited that its round cannot back up.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceCrossCheck", {
+      description: "Everything an inventory cited that its round cannot back up.",
+    })
+  )
 ) {}
 
 /**

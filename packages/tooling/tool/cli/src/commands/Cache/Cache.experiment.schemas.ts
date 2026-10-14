@@ -25,9 +25,10 @@ const $I = $RepoCliId.create("commands/Cache/Cache.experiment.schemas");
  * @category models
  * @since 0.0.0
  */
-export class CacheFixtureRuntime extends S.Class<CacheFixtureRuntime>($I`CacheFixtureRuntime`)(
-  { executable: S.NonEmptyString, pin: CacheExecutablePin },
-  $I.annote("CacheFixtureRuntime", { description: "Explicit native runtime used by a disposable fixture." })
+export class CacheFixtureRuntime extends S.Opaque<CacheFixtureRuntime, { readonly brand: unique symbol }>()(
+  S.Struct({ executable: S.NonEmptyString, pin: CacheExecutablePin }).pipe(
+    $I.annoteSchema("CacheFixtureRuntime", { description: "Explicit native runtime used by a disposable fixture." })
+  )
 ) {}
 
 /**
@@ -43,17 +44,18 @@ export class CacheFixtureRuntime extends S.Class<CacheFixtureRuntime>($I`CacheFi
  * @category models
  * @since 0.0.0
  */
-export class CacheSyntheticRequest extends S.Class<CacheSyntheticRequest>($I`CacheSyntheticRequest`)(
-  {
+export class CacheSyntheticRequest extends S.Opaque<CacheSyntheticRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     channel: CacheClientChannel,
     client: CacheClientPin,
     executable: S.NonEmptyString,
     bun: CacheFixtureRuntime,
     alternateBun: CacheFixtureRuntime,
-  },
-  $I.annote("CacheSyntheticRequest", {
-    description: "Pinned native Turbo client for a network-isolated local fixture.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSyntheticRequest", {
+      description: "Pinned native Turbo client for a network-isolated local fixture.",
+    })
+  )
 ) {}
 
 /**
@@ -117,8 +119,8 @@ export type CacheCaptureViolation = typeof CacheCaptureViolation.Type;
  * @category models
  * @since 0.0.0
  */
-export class CacheSyntheticRun extends S.Class<CacheSyntheticRun>($I`CacheSyntheticRun`)(
-  {
+export class CacheSyntheticRun extends S.Opaque<CacheSyntheticRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     root: S.NonEmptyString,
     bunSha256: Sha256Hex,
@@ -129,10 +131,11 @@ export class CacheSyntheticRun extends S.Class<CacheSyntheticRun>($I`CacheSynthe
     logSha256: Sha256Hex,
     logBytes: S.Natural,
     violations: S.Array(CacheCaptureViolation),
-  },
-  $I.annote("CacheSyntheticRun", {
-    description: "Observed execution, output and bounded log facts for one local fixture run.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSyntheticRun", {
+      description: "Observed execution, output and bounded log facts for one local fixture run.",
+    })
+  )
 ) {}
 
 /**
@@ -148,9 +151,12 @@ export class CacheSyntheticRun extends S.Class<CacheSyntheticRun>($I`CacheSynthe
  * @category models
  * @since 0.0.0
  */
-export class CacheSyntheticCheck extends S.Class<CacheSyntheticCheck>($I`CacheSyntheticCheck`)(
-  { name: S.NonEmptyString, passed: S.Boolean },
-  $I.annote("CacheSyntheticCheck", { description: "A local fixture assertion derived by the experiment runner." })
+export class CacheSyntheticCheck extends S.Opaque<CacheSyntheticCheck, { readonly brand: unique symbol }>()(
+  S.Struct({ name: S.NonEmptyString, passed: S.Boolean }).pipe(
+    $I.annoteSchema("CacheSyntheticCheck", {
+      description: "A local fixture assertion derived by the experiment runner.",
+    })
+  )
 ) {}
 
 /**
@@ -170,8 +176,11 @@ export class CacheSyntheticCheck extends S.Class<CacheSyntheticCheck>($I`CacheSy
  * @category models
  * @since 0.0.0
  */
-export class CacheSyntheticNonExecution extends S.Class<CacheSyntheticNonExecution>($I`CacheSyntheticNonExecution`)(
-  {
+export class CacheSyntheticNonExecution extends S.Opaque<
+  CacheSyntheticNonExecution,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: S.NonEmptyString,
     processExitCode: S.Int,
     summaryTaskCount: S.Natural,
@@ -183,10 +192,11 @@ export class CacheSyntheticNonExecution extends S.Class<CacheSyntheticNonExecuti
     summarySha256: Sha256Hex,
     processCaptureSha256: Sha256Hex,
     violations: S.Array(CacheCaptureViolation),
-  },
-  $I.annote("CacheSyntheticNonExecution", {
-    description: "Observed graph, process and absent-output facts that confer no execution credit.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSyntheticNonExecution", {
+      description: "Observed graph, process and absent-output facts that confer no execution credit.",
+    })
+  )
 ) {}
 
 /**
@@ -202,8 +212,8 @@ export class CacheSyntheticNonExecution extends S.Class<CacheSyntheticNonExecuti
  * @category models
  * @since 0.0.0
  */
-export class CacheSyntheticReceipt extends S.Class<CacheSyntheticReceipt>($I`CacheSyntheticReceipt`)(
-  {
+export class CacheSyntheticReceipt extends S.Opaque<CacheSyntheticReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema: S.tag("cache-synthetic-local/v3"),
     channel: CacheClientChannel,
     client: CacheClientPin,
@@ -213,8 +223,9 @@ export class CacheSyntheticReceipt extends S.Class<CacheSyntheticReceipt>($I`Cac
     runs: S.NonEmptyArray(CacheSyntheticRun),
     nonExecutions: S.Array(CacheSyntheticNonExecution),
     checks: S.NonEmptyArray(CacheSyntheticCheck),
-  },
-  $I.annote("CacheSyntheticReceipt", {
-    description: "Versioned, bounded local fixture evidence without promotion authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSyntheticReceipt", {
+      description: "Versioned, bounded local fixture evidence without promotion authority.",
+    })
+  )
 ) {}

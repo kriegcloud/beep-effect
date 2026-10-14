@@ -90,7 +90,7 @@ const PackJsonFromString = S.fromJsonString(PackJson);
  * @category models
  * @since 0.0.0
  */
-export class PackedTarball extends S.Class<PackedTarball>($I`PackedTarball`)({
+export class PackedTarball extends S.Class<PackedTarball, { readonly brand: unique symbol }>($I`PackedTarball`)({
 	/** Absolute path to the tarball on disk. */
 	tarballPath: S.String.annotateKey({ description: "Absolute path to the tarball on disk." }),
 	/** Package name, as npm reported it. */
@@ -545,7 +545,7 @@ const make = Effect.fnUntraced(function* () {
 const integrityField = (raw: string | undefined): { integrity?: typeof IntegrityHash.Type } =>
 	O.getSomesStruct({ integrity: O.flatMap(O.fromUndefinedOr(raw), S.decodeOption(IntegrityHash)) });
 
-class UnstubbedPublishMethodError extends S.TaggedError<UnstubbedPublishMethodError>($I`UnstubbedPublishMethodError`)(
+class UnstubbedPublishMethodError extends S.TaggedError<UnstubbedPublishMethodError, { readonly brand: unique symbol }>($I`UnstubbedPublishMethodError`)(
 	"UnstubbedPublishMethodError",
 	{ message: S.String },
 	$I.annote("UnstubbedPublishMethodError", { description: "An unstubbed publish test-double method was invoked." }),

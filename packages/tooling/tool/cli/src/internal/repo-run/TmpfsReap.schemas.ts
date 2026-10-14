@@ -144,8 +144,8 @@ export type TmpfsReapSkipReason = typeof TmpfsReapSkipReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class TmpfsReapCandidate extends S.Class<TmpfsReapCandidate>($I`TmpfsReapCandidate`)(
-  {
+export class TmpfsReapCandidate extends S.Opaque<TmpfsReapCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     root: S.optional(S.String),
     path: S.String,
     reapClass: TmpfsReapClass,
@@ -156,10 +156,11 @@ export class TmpfsReapCandidate extends S.Class<TmpfsReapCandidate>($I`TmpfsReap
     parentRepo: S.optional(S.String),
     ownerRoot: S.optional(S.String),
     bytes: S.optional(S.Finite),
-  },
-  $I.annote("TmpfsReapCandidate", {
-    description: "One classified temporary artifact with the evidence and action chosen by the janitor.",
-  })
+  }).pipe(
+    $I.annoteSchema("TmpfsReapCandidate", {
+      description: "One classified temporary artifact with the evidence and action chosen by the janitor.",
+    })
+  )
 ) {}
 
 /**
@@ -186,8 +187,8 @@ export class TmpfsReapCandidate extends S.Class<TmpfsReapCandidate>($I`TmpfsReap
  * @category models
  * @since 0.0.0
  */
-export class TmpfsReapReport extends S.Class<TmpfsReapReport>($I`TmpfsReapReport`)(
-  {
+export class TmpfsReapReport extends S.Opaque<TmpfsReapReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("tmpfs-reap/v1"),
     scannedAt: S.String,
     tmpRoot: TmpfsSystemRoot,
@@ -197,8 +198,9 @@ export class TmpfsReapReport extends S.Class<TmpfsReapReport>($I`TmpfsReapReport
     reapedCount: S.Int,
     reclaimedBytes: S.Finite,
     warnings: S.Array(S.String),
-  },
-  $I.annote("TmpfsReapReport", {
-    description: "Auditable result of one dry-run or applied tmpfs artifact janitor pass.",
-  })
+  }).pipe(
+    $I.annoteSchema("TmpfsReapReport", {
+      description: "Auditable result of one dry-run or applied tmpfs artifact janitor pass.",
+    })
+  )
 ) {}

@@ -14,8 +14,8 @@ import { AiCorpusSummary, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/CreateCorpus");
 
-class CreateCorpusBM25Config extends S.Class<CreateCorpusBM25Config>($I`CreateCorpusBM25Config`)(
-  {
+class CreateCorpusBM25Config extends S.Opaque<CreateCorpusBM25Config, { readonly brand: unique symbol }>()(
+  S.Struct({
     b: S.optionalKey(UnitInterval).annotateKey({
       description: "Document length normalization parameter in the inclusive range [0, 1].",
     }),
@@ -28,24 +28,26 @@ class CreateCorpusBM25Config extends S.Class<CreateCorpusBM25Config>($I`CreateCo
     norm: S.optionalKey(BM25Norm).annotateKey({
       description: "Optional vector normalization mode override.",
     }),
-  },
-  $I.annote("CreateCorpusBM25Config", {
-    description: "Optional BM25 overrides for a new corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateCorpusBM25Config", {
+      description: "Optional BM25 overrides for a new corpus session.",
+    })
+  )
 ) {}
 
-class CreateCorpusParameters extends S.Class<CreateCorpusParameters>($I`CreateCorpusParameters`)(
-  {
+class CreateCorpusParameters extends S.Opaque<CreateCorpusParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     bm25Config: S.optionalKey(CreateCorpusBM25Config).annotateKey({
       description: "Optional BM25 overrides. Omitted fields use defaults.",
     }),
     corpusId: S.optionalKey(S.String.check(S.isMinLength(1))).annotateKey({
       description: "Optional stable corpus identifier. If omitted, a generated id is returned.",
     }),
-  },
-  $I.annote("CreateCorpusParameters", {
-    description: "Inputs required to create a new stateful BM25-style corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateCorpusParameters", {
+      description: "Inputs required to create a new stateful BM25-style corpus session.",
+    })
+  )
 ) {}
 
 /**

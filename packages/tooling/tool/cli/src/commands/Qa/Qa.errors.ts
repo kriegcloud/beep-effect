@@ -28,7 +28,9 @@ const $I = $RepoCliId.create("commands/Qa/Qa.errors");
  * @category error-handling
  * @since 0.0.0
  */
-export class QaCommandError extends S.TaggedError<QaCommandError>($I`QaCommandError`)(
+export class QaCommandError extends S.TaggedError<QaCommandError, { readonly brand: unique symbol }>(
+  $I`QaCommandError`
+)(
   "QaCommandError",
   {
     message: S.String,

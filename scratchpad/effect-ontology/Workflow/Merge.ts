@@ -65,19 +65,16 @@ const $I = $ScratchpadId.create("effect-ontology/Workflow/Merge");
  * @category models
  * @since 0.0.0
  */
-export class MergeConflict extends S.Class<MergeConflict>($I`MergeConflict`)(
-  {
+export class MergeConflict extends S.Opaque<MergeConflict, { readonly brand: unique symbol }>()(S.Struct({
     entityId: EntityId.annotateKey({ description: "Entity whose attributes conflict." }),
     property: S.NonEmptyString.annotateKey({ description: "Entity property with conflicting values." }),
     values: S.Array(S.Unknown).annotateKey({ description: "Conflicting values observed for the property." }),
     chunkIndexes: S.Array(S.Natural).annotateKey({
       description: "Source chunk indexes that contributed conflicting values.",
     }),
-  },
-  $I.annote("MergeConflict", {
+  }).pipe($I.annoteSchema("MergeConflict", {
     description: "Conflicting entity-property values and the source chunks that produced them.",
-  })
-) {}
+  }))) {}
 
 /**
  * Order instance for Entity (by id)
@@ -106,11 +103,11 @@ const RelationOrder: Order.Order<Relation> = Order.combine(
   )
 );
 
-class RelationSignature extends S.Class<RelationSignature>($I`RelationSignature`)({
+class RelationSignature extends S.Opaque<RelationSignature, { readonly brand: unique symbol }>()(S.Struct({
   subjectId: EntityId,
   predicate: S.String,
   object: RelationObject,
-}) {}
+}).pipe($I.annoteSchema("RelationSignature"))) {}
 
 const relationSignature = (relation: Relation): RelationSignature =>
   RelationSignature.make({

@@ -33,7 +33,7 @@ import type { InlineConstruct, InlineDialect } from "./inlineTypes.ts";
 
 const $I = $ScratchpadId.create("effected/markdown/internal/inlineRegistry");
 
-class UnknownInlineDialectError extends S.TaggedError<UnknownInlineDialectError>($I`UnknownInlineDialectError`)("UnknownInlineDialectError", {
+class UnknownInlineDialectError extends S.TaggedError<UnknownInlineDialectError, { readonly brand: unique symbol }>($I`UnknownInlineDialectError`)("UnknownInlineDialectError", {
 	message: S.String.annotate($I.annote("UnknownInlineDialectMessage", {
 		description: "Identifies the unsupported markdown dialect requested by the inline parser.",
 	})).annotateKey({ description: "Diagnostic message naming the unsupported inline dialect." }),

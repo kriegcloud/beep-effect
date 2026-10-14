@@ -91,7 +91,9 @@ const ReasoningFailureReason = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class DocumentUnavailable extends S.TaggedError<DocumentUnavailable>($I`DocumentUnavailable`)(
+export class DocumentUnavailable extends S.TaggedError<DocumentUnavailable, { readonly brand: unique symbol }>(
+  $I`DocumentUnavailable`
+)(
   "DocumentUnavailable",
   { message: S.NonEmptyString },
   $I.annoteError<DocumentUnavailable>("DocumentUnavailable", {
@@ -114,7 +116,7 @@ export class DocumentUnavailable extends S.TaggedError<DocumentUnavailable>($I`D
  * @category errors
  * @since 0.0.0
  */
-export class ParserFailed extends S.TaggedError<ParserFailed>($I`ParserFailed`)(
+export class ParserFailed extends S.TaggedError<ParserFailed, { readonly brand: unique symbol }>($I`ParserFailed`)(
   "ParserFailed",
   { message: S.NonEmptyString, kind: DegradedKind },
   $I.annoteError<ParserFailed>("ParserFailed", {
@@ -136,7 +138,9 @@ export class ParserFailed extends S.TaggedError<ParserFailed>($I`ParserFailed`)(
  * @category errors
  * @since 0.0.0
  */
-export class AnchorRejected extends S.TaggedError<AnchorRejected>($I`AnchorRejected`)(
+export class AnchorRejected extends S.TaggedError<AnchorRejected, { readonly brand: unique symbol }>(
+  $I`AnchorRejected`
+)(
   "AnchorRejected",
   { message: S.NonEmptyString, cause: VerifiedTextAnchorError },
   $I.annoteError<AnchorRejected>("AnchorRejected", {
@@ -164,7 +168,9 @@ export class AnchorRejected extends S.TaggedError<AnchorRejected>($I`AnchorRejec
  * @category errors
  * @since 0.0.0
  */
-export class ProviderUnavailable extends S.TaggedError<ProviderUnavailable>($I`ProviderUnavailable`)(
+export class ProviderUnavailable extends S.TaggedError<ProviderUnavailable, { readonly brand: unique symbol }>(
+  $I`ProviderUnavailable`
+)(
   "ProviderUnavailable",
   { message: S.NonEmptyString, offline: S.Boolean, cacheKey: Sha256Hex },
   $I.annoteError<ProviderUnavailable>("ProviderUnavailable", {
@@ -187,7 +193,9 @@ export class ProviderUnavailable extends S.TaggedError<ProviderUnavailable>($I`P
  * @category errors
  * @since 0.0.0
  */
-export class ProviderCacheCorrupt extends S.TaggedError<ProviderCacheCorrupt>($I`ProviderCacheCorrupt`)(
+export class ProviderCacheCorrupt extends S.TaggedError<ProviderCacheCorrupt, { readonly brand: unique symbol }>(
+  $I`ProviderCacheCorrupt`
+)(
   "ProviderCacheCorrupt",
   { message: S.NonEmptyString },
   $I.annoteError<ProviderCacheCorrupt>("ProviderCacheCorrupt", {
@@ -210,7 +218,7 @@ export class ProviderCacheCorrupt extends S.TaggedError<ProviderCacheCorrupt>($I
  * @category errors
  * @since 0.0.0
  */
-export class LedgerFailed extends S.TaggedError<LedgerFailed>($I`LedgerFailed`)(
+export class LedgerFailed extends S.TaggedError<LedgerFailed, { readonly brand: unique symbol }>($I`LedgerFailed`)(
   "LedgerFailed",
   { message: S.NonEmptyString, reason: S.NonEmptyString },
   $I.annoteError<LedgerFailed>("LedgerFailed", {
@@ -236,7 +244,9 @@ export class LedgerFailed extends S.TaggedError<LedgerFailed>($I`LedgerFailed`)(
  * @category errors
  * @since 0.0.0
  */
-export class GoldUnavailable extends S.TaggedError<GoldUnavailable>($I`GoldUnavailable`)(
+export class GoldUnavailable extends S.TaggedError<GoldUnavailable, { readonly brand: unique symbol }>(
+  $I`GoldUnavailable`
+)(
   "GoldUnavailable",
   { message: S.NonEmptyString, reason: GoldUnavailableReason },
   $I.annoteError<GoldUnavailable>("GoldUnavailable", {
@@ -263,7 +273,9 @@ export class GoldUnavailable extends S.TaggedError<GoldUnavailable>($I`GoldUnava
  * @category errors
  * @since 0.0.0
  */
-export class ModelRevisionUnpinned extends S.TaggedError<ModelRevisionUnpinned>($I`ModelRevisionUnpinned`)(
+export class ModelRevisionUnpinned extends S.TaggedError<ModelRevisionUnpinned, { readonly brand: unique symbol }>(
+  $I`ModelRevisionUnpinned`
+)(
   "ModelRevisionUnpinned",
   { message: S.NonEmptyString, model: S.NonEmptyString, setting: ModelRevisionPinSetting },
   $I.annoteError<ModelRevisionUnpinned>("ModelRevisionUnpinned", {
@@ -286,7 +298,7 @@ export class ModelRevisionUnpinned extends S.TaggedError<ModelRevisionUnpinned>(
  * @category errors
  * @since 0.0.0
  */
-export class ReportInvalid extends S.TaggedError<ReportInvalid>($I`ReportInvalid`)(
+export class ReportInvalid extends S.TaggedError<ReportInvalid, { readonly brand: unique symbol }>($I`ReportInvalid`)(
   "ReportInvalid",
   { message: S.NonEmptyString },
   $I.annoteError<ReportInvalid>("ReportInvalid", {
@@ -309,7 +321,9 @@ export class ReportInvalid extends S.TaggedError<ReportInvalid>($I`ReportInvalid
  * @category errors
  * @since 0.0.0
  */
-export class C0ExecutionFailed extends S.TaggedError<C0ExecutionFailed>($I`C0ExecutionFailed`)(
+export class C0ExecutionFailed extends S.TaggedError<C0ExecutionFailed, { readonly brand: unique symbol }>(
+  $I`C0ExecutionFailed`
+)(
   "C0ExecutionFailed",
   { message: S.NonEmptyString },
   $I.annoteError<C0ExecutionFailed>("C0ExecutionFailed", {
@@ -335,7 +349,9 @@ export class C0ExecutionFailed extends S.TaggedError<C0ExecutionFailed>($I`C0Exe
  * @category errors
  * @since 0.0.0
  */
-export class RelationPreviewFailed extends S.TaggedError<RelationPreviewFailed>($I`RelationPreviewFailed`)(
+export class RelationPreviewFailed extends S.TaggedError<RelationPreviewFailed, { readonly brand: unique symbol }>(
+  $I`RelationPreviewFailed`
+)(
   "RelationPreviewFailed",
   { message: S.NonEmptyString, reason: RelationPreviewFailureReason },
   $I.annoteError<RelationPreviewFailed>("RelationPreviewFailed", {
@@ -361,7 +377,9 @@ export class RelationPreviewFailed extends S.TaggedError<RelationPreviewFailed>(
  * @category errors
  * @since 0.0.0
  */
-export class ProjectionFailed extends S.TaggedError<ProjectionFailed>($I`ProjectionFailed`)(
+export class ProjectionFailed extends S.TaggedError<ProjectionFailed, { readonly brand: unique symbol }>(
+  $I`ProjectionFailed`
+)(
   "ProjectionFailed",
   { message: S.NonEmptyString, reason: ProjectionFailureReason },
   $I.annoteError<ProjectionFailed>("ProjectionFailed", {
@@ -387,7 +405,9 @@ export class ProjectionFailed extends S.TaggedError<ProjectionFailed>($I`Project
  * @category errors
  * @since 0.0.0
  */
-export class ReasoningFailed extends S.TaggedError<ReasoningFailed>($I`ReasoningFailed`)(
+export class ReasoningFailed extends S.TaggedError<ReasoningFailed, { readonly brand: unique symbol }>(
+  $I`ReasoningFailed`
+)(
   "ReasoningFailed",
   { message: S.NonEmptyString, reason: ReasoningFailureReason },
   $I.annoteError<ReasoningFailed>("ReasoningFailed", {

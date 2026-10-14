@@ -70,8 +70,8 @@ const RETRY_FACTOR = 2;
  * @category models
  * @since 0.0.0
  */
-export class DocketAgentsOptions extends S.Class<DocketAgentsOptions>($I`DocketAgentsOptions`)(
-  {
+export class DocketAgentsOptions extends S.Opaque<DocketAgentsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxBodyChars: PositiveCount.pipe(
       S.withConstructorDefault(Effect.succeed(docketAgentsOptionsMaxBodyCharsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(docketAgentsOptionsMaxBodyCharsDefault))
@@ -91,8 +91,7 @@ export class DocketAgentsOptions extends S.Class<DocketAgentsOptions>($I`DocketA
       S.withConstructorDefault(Effect.succeed(docketAgentsOptionsSecretaryTimeoutDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(docketAgentsOptionsSecretaryTimeoutDefault))
     ).annotateKey({ description: "Time limit of one secretary call; 120 seconds by default." }),
-  },
-  $I.annote("DocketAgentsOptions", { description: "Settings of the docket intake agents." })
+  }).pipe($I.annoteSchema("DocketAgentsOptions", { description: "Settings of the docket intake agents." }))
 ) {}
 
 const DATE_FIELD = "ISO calendar date YYYY-MM-DD copied from the text, or null when the text does not state it.";
@@ -476,7 +475,7 @@ const isRetryable = (error: AiError.AiError): boolean => error.isRetryable;
 // How one agent call failed. `rejected` is true only when the provider refused the request
 // itself (not a timeout, a defect, or a retryable failure that kept coming back): that is the
 // case where sending less can help.
-class AgentCallFailed extends S.TaggedError<AgentCallFailed>($I`AgentCallFailed`)(
+class AgentCallFailed extends S.TaggedError<AgentCallFailed, { readonly brand: unique symbol }>($I`AgentCallFailed`)(
   "AgentCallFailed",
   {
     failure: DocketIntakeError,

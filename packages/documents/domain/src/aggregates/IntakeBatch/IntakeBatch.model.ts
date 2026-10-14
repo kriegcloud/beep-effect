@@ -73,8 +73,8 @@ export type IntakeBatchId = typeof IntakeBatchId.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export class IntakeBatch extends S.Class<IntakeBatch>($I`IntakeBatch`)(
-  {
+export class IntakeBatch extends S.Opaque<IntakeBatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileCount: S.Natural.annotateKey({
       description: "Number of files received in the batch.",
     }),
@@ -84,8 +84,9 @@ export class IntakeBatch extends S.Class<IntakeBatch>($I`IntakeBatch`)(
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace that owns the intake batch.",
     }),
-  },
-  $I.annote("IntakeBatch", {
-    description: "A deterministic local intake batch.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeBatch", {
+      description: "A deterministic local intake batch.",
+    })
+  )
 ) {}

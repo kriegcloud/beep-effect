@@ -17,7 +17,9 @@ const $I = $AiProviderCliId.create("AiProviderCliSession.errors");
  * @category errors
  * @since 0.0.0
  */
-export class ManagedSessionError extends S.TaggedError<ManagedSessionError>($I`ManagedSessionError`)(
+export class ManagedSessionError extends S.TaggedError<ManagedSessionError, { readonly brand: unique symbol }>(
+  $I`ManagedSessionError`
+)(
   "ManagedSessionError",
   {
     reason: S.Literals([

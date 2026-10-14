@@ -11,7 +11,7 @@ import * as O from "@beep/utils/Option";
 
 const $I = $ScratchpadId.create("effected/github/ArtifactMetadata");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -40,7 +40,7 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
  * @category models
  * @since 0.0.0
  */
-export class StorageRecordInput extends S.Class<StorageRecordInput>($I`StorageRecordInput`)({
+export class StorageRecordInput extends S.Class<StorageRecordInput, { readonly brand: unique symbol }>($I`StorageRecordInput`)({
 	/**
 	 * The artifact's package URL (purl).
 	 *

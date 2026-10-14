@@ -62,7 +62,7 @@ import type { FfprobeStream, MediaKind, NormalizeImageFormat, SortableFile } fro
  * @category utilities
  * @since 0.0.0
  */
-export const analyzeSolidBorders = analyzeSolidBordersImpl;
+export const analyzeSolidBorders: typeof analyzeSolidBordersImpl = analyzeSolidBordersImpl;
 
 /**
  * Classify a set of matched border sides.
@@ -86,9 +86,9 @@ export const classifyBorderSides = classifyBorderSidesImpl;
  * **Example** (Convert RGB to hex)
  *
  * ```ts
- * import { rgbToHex } from "@beep/repo-cli/commands/Files"
+ * import { RgbColor, rgbToHex } from "@beep/repo-cli/commands/Files"
  *
- * const color = rgbToHex({ b: 0, g: 128, r: 255 })
+ * const color = rgbToHex(RgbColor.make({ b: 0, g: 128, r: 255 }))
  * ```
  *
  * @category utilities
@@ -110,7 +110,7 @@ export const rgbToHex = rgbToHexImpl;
  * @category utilities
  * @since 0.0.0
  */
-export const assessImageCandidate = assessImageCandidateImpl;
+export const assessImageCandidate: typeof assessImageCandidateImpl = assessImageCandidateImpl;
 
 /**
  * Convert a border detection entry into a crop plan entry.
@@ -174,7 +174,7 @@ export const hasSkippedFiles = hasSkippedFilesImpl;
  * @category utilities
  * @since 0.0.0
  */
-export const makeStripMetadataTempEntries = makeStripMetadataTempEntriesImpl;
+export const makeStripMetadataTempEntries: typeof makeStripMetadataTempEntriesImpl = makeStripMetadataTempEntriesImpl;
 
 /**
  * Round an archive-candidate metric for stable manifests.
@@ -222,7 +222,7 @@ export const selectedCanonicalPathSet = selectedCanonicalPathSetImpl;
  * @category utilities
  * @since 0.0.0
  */
-export const targetNameForEntry = targetNameForEntryImpl;
+export const targetNameForEntry: typeof targetNameForEntryImpl = targetNameForEntryImpl;
 
 /**
  * Render a rename plan entry.

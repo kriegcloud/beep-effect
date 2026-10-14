@@ -21,9 +21,10 @@ import {
   COURT_REPORTER_VOCABULARY_SCHEMA_VERSION,
   classifyVocabularyAliases,
   preserveIssuedVocabularyRecords,
+  VocabularyContextualAlias,
 } from "../internal/FreeLawProjectVocabulary.ts";
 import { fetchSource, formatJson, normalizeJson, outputFile, sourceMetadata } from "../internal/Source.ts";
-import { SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
+import { SyncDataTargetMetadata, SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
 import type { SyncDataTarget } from "../SyncDataToTs.schemas.ts";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/targets/CourtsDb");
@@ -113,8 +114,8 @@ const placeNames = [
 const placePath = (name: string): string => `/courts_db/data/places/${name}.txt`;
 const courtsDbArchivePaths = [courtsPath, variablesPath, utilsPath, ...A.map(placeNames, placePath)] as const;
 
-class CourtDateRange extends S.Class<CourtDateRange>($I`CourtDateRange`)(
-  {
+class CourtDateRange extends S.Opaque<CourtDateRange, { readonly brand: unique symbol }>()(
+  S.Struct({
     end: S.NullOr(S.String),
     name: S.optionalKey(S.String),
     notes: S.optionalKey(S.String),
@@ -123,10 +124,11 @@ class CourtDateRange extends S.Class<CourtDateRange>($I`CourtDateRange`)(
     reorganization: S.Union([S.String, S.Array(S.String)]).pipe(S.optionalKey),
     reorganization_dates: S.Array(S.String).pipe(S.optionalKey),
     start: S.NullOr(S.String),
-  },
-  $I.annote("CourtDateRange", {
-    description: "One dates entry from an assembled courts-db record.",
-  })
+  }).pipe(
+    $I.annoteSchema("CourtDateRange", {
+      description: "One dates entry from an assembled courts-db record.",
+    })
+  )
 ) {}
 
 const nullableStringOrStrings = S.NullOr(S.Union([S.String, S.Array(S.String)]));
@@ -152,8 +154,8 @@ const optionalCourtFields = {
   url: S.optionalKey(S.String),
 } as const;
 
-class RawCourtRecord extends S.Class<RawCourtRecord>($I`RawCourtRecord`)(
-  {
+class RawCourtRecord extends S.Opaque<RawCourtRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...optionalCourtFields,
     citation_string: S.String,
     dates: S.Array(CourtDateRange).pipe(S.optionalKey),
@@ -165,14 +167,15 @@ class RawCourtRecord extends S.Class<RawCourtRecord>($I`RawCourtRecord`)(
     regex: S.Array(S.String),
     system: S.String,
     type: S.String.pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("RawCourtRecord", {
-    description: "One courts-db source record before parent-field inheritance.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawCourtRecord", {
+      description: "One courts-db source record before parent-field inheritance.",
+    })
+  )
 ) {}
 
-class CourtRecord extends S.Class<CourtRecord>($I`CourtRecord`)(
-  {
+class CourtRecord extends S.Opaque<CourtRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...optionalCourtFields,
     citation_string: S.String,
     dates: S.Array(CourtDateRange),
@@ -184,24 +187,15 @@ class CourtRecord extends S.Class<CourtRecord>($I`CourtRecord`)(
     regex: S.Array(S.String),
     system: S.String,
     type: S.NullOr(S.String),
-  },
-  $I.annote("CourtRecord", {
-    description: "One fully assembled official courts-db record.",
-  })
+  }).pipe(
+    $I.annoteSchema("CourtRecord", {
+      description: "One fully assembled official courts-db record.",
+    })
+  )
 ) {}
 
-class VocabularyContextualAlias extends S.Class<VocabularyContextualAlias>($I`VocabularyContextualAlias`)(
-  {
-    alias: S.NonEmptyString,
-    context: S.NonEmptyString,
-  },
-  $I.annote("VocabularyContextualAlias", {
-    description: "Context-bearing alias retained in a generated court or reporter vocabulary.",
-  })
-) {}
-
-class CourtVocabularyOutputRecord extends S.Class<CourtVocabularyOutputRecord>($I`CourtVocabularyOutputRecord`)(
-  {
+class CourtVocabularyOutputRecord extends S.Opaque<CourtVocabularyOutputRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     sourceId: S.NonEmptyString,
     semanticKey: S.NonEmptyString,
@@ -220,10 +214,11 @@ class CourtVocabularyOutputRecord extends S.Class<CourtVocabularyOutputRecord>($
     contextualAliases: S.Array(VocabularyContextualAlias),
     status: S.Literals(["active", "tombstone"]),
     successorId: S.NullOr(S.NonEmptyString),
-  },
-  $I.annote("CourtVocabularyOutputRecord", {
-    description: "Generated court vocabulary row used to preserve previously issued identities across refreshes.",
-  })
+  }).pipe(
+    $I.annoteSchema("CourtVocabularyOutputRecord", {
+      description: "Generated court vocabulary row used to preserve previously issued identities across refreshes.",
+    })
+  )
 ) {}
 
 const PreviousCourtVocabularyArtifact = S.Struct({
@@ -612,9 +607,11 @@ export const projectCourtVocabulary = Effect.fn("SyncDataToTs.CourtsDb.projectVo
  * @since 0.0.0
  */
 export const courtsDbTarget: SyncDataTarget = {
-  id: targetId,
-  access: "public",
-  description: "Sync assembled court records from a pinned courts-db release.",
-  sourceUrls: [COURTS_DB_SOURCE_URL],
+  ...SyncDataTargetMetadata.make({
+    id: targetId,
+    access: "public",
+    description: "Sync assembled court records from a pinned courts-db release.",
+    sourceUrls: [COURTS_DB_SOURCE_URL],
+  }),
   acquire: acquireCourtsDbProjection(),
 };

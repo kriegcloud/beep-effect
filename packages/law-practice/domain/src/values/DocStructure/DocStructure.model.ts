@@ -111,8 +111,8 @@ export type DocStructureSourceModality = typeof DocStructureSourceModality.Type;
  * @category models
  * @since 0.0.0
  */
-export class DocStructureRuleFamily extends S.Class<DocStructureRuleFamily>($I`DocStructureRuleFamily`)(
-  {
+export class DocStructureRuleFamily extends S.Opaque<DocStructureRuleFamily, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Literal("uspto-oa-finality-ssp"),
     version: S.Int.check(
       S.isGreaterThan(0, {
@@ -121,11 +121,12 @@ export class DocStructureRuleFamily extends S.Class<DocStructureRuleFamily>($I`D
         description: "Rules use explicit positive integer versions.",
       })
     ),
-  },
-  $I.annote("DocStructureRuleFamily", {
-    description:
-      "Explicit family and version for replay; unknown versions abstain and never reinterpret stored output.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocStructureRuleFamily", {
+      description:
+        "Explicit family and version for replay; unknown versions abstain and never reinterpret stored output.",
+    })
+  )
 ) {}
 /**
  * Identifies the clean-room v1 paired finality and three-month period rule.
@@ -155,11 +156,16 @@ export const officeActionRuleV1 = DocStructureRuleFamily.make({ id: "uspto-oa-fi
  * @category models
  * @since 0.0.0
  */
-export class DocStructureDocument extends S.Class<DocStructureDocument>($I`DocStructureDocument`)(
-  { documentId: S.NonEmptyString, sourceVersion: S.NonEmptyString, modality: DocStructureSourceModality },
-  $I.annote("DocStructureDocument", {
-    description: "Law-practice document and explicit source version absent from the generic substrate identity.",
-  })
+export class DocStructureDocument extends S.Opaque<DocStructureDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
+    documentId: S.NonEmptyString,
+    sourceVersion: S.NonEmptyString,
+    modality: DocStructureSourceModality,
+  }).pipe(
+    $I.annoteSchema("DocStructureDocument", {
+      description: "Law-practice document and explicit source version absent from the generic substrate identity.",
+    })
+  )
 ) {}
 /**
  * Carries exactly one typed abstention with the rule that declined recognition.
@@ -175,9 +181,12 @@ export class DocStructureDocument extends S.Class<DocStructureDocument>($I`DocSt
  * @category models
  * @since 0.0.0
  */
-export class DocStructureAbstention extends S.Class<DocStructureAbstention>($I`DocStructureAbstention`)(
-  { status: S.tag("abstained"), code: DocStructureAbstentionCode, rule: DocStructureRuleFamily },
-  $I.annote("DocStructureAbstention", { description: "Exactly one typed closed outcome with no candidate payload." })
+export class DocStructureAbstention extends S.Opaque<DocStructureAbstention, { readonly brand: unique symbol }>()(
+  S.Struct({ status: S.tag("abstained"), code: DocStructureAbstentionCode, rule: DocStructureRuleFamily }).pipe(
+    $I.annoteSchema("DocStructureAbstention", {
+      description: "Exactly one typed closed outcome with no candidate payload.",
+    })
+  )
 ) {}
 /**
  * Retains the two raw regex spans awaiting verified-source authorization.
@@ -193,17 +202,18 @@ export class DocStructureAbstention extends S.Class<DocStructureAbstention>($I`D
  * @category models
  * @since 0.0.0
  */
-export class OfficeActionRawPair extends S.Class<OfficeActionRawPair>($I`OfficeActionRawPair`)(
-  {
+export class OfficeActionRawPair extends S.Opaque<OfficeActionRawPair, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("recognized"),
     finality: OfficeActionFinality,
     finalityAnchor: TextAnchor,
     periodAnchor: TextAnchor,
     rule: DocStructureRuleFamily,
-  },
-  $I.annote("OfficeActionRawPair", {
-    description: "Pure raw recognition awaiting exact-anchor verification; never a candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("OfficeActionRawPair", {
+      description: "Pure raw recognition awaiting exact-anchor verification; never a candidate.",
+    })
+  )
 ) {}
 /**
  * Represents an atomic raw pair or one closed abstention without candidate authority.
@@ -382,27 +392,33 @@ export type DocStructureCandidate = typeof DocStructureCandidate.Type;
  * @category models
  * @since 0.0.0
  */
-export class OfficeActionRecognizedPair extends S.Class<OfficeActionRecognizedPair>($I`OfficeActionRecognizedPair`)(
+export class OfficeActionRecognizedPair extends S.Opaque<
+  OfficeActionRecognizedPair,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     status: S.tag("recognized"),
     candidates: S.Tuple([OfficeActionFinalityCandidate, ShortenedStatutoryPeriodCandidate]),
-  }).check(
-    S.makeFilter(
-      ({ candidates }) =>
-        sourceEquivalent(candidates[0].source, candidates[1].source) &&
-        S.toEquivalence(DocStructureDocument)(candidates[0].document, candidates[1].document) &&
-        S.toEquivalence(DocStructureRuleFamily)(candidates[0].rule, candidates[1].rule),
-      {
-        identifier: $I`PairMetadataCheck`,
-        title: "Atomic pair metadata",
-        description: "Both members retain identical source, document and explicit rule metadata.",
-        message: "Pair members disagree on source, document or rule.",
-      }
-    )
-  ),
-  $I.annote("OfficeActionRecognizedPair", {
-    description: "Atomic ordered finality and period pair, verified together by the use-case workflow.",
   })
+    .check(
+      S.makeFilter(
+        ({ candidates }) =>
+          sourceEquivalent(candidates[0].source, candidates[1].source) &&
+          S.toEquivalence(DocStructureDocument)(candidates[0].document, candidates[1].document) &&
+          S.toEquivalence(DocStructureRuleFamily)(candidates[0].rule, candidates[1].rule),
+        {
+          identifier: $I`PairMetadataCheck`,
+          title: "Atomic pair metadata",
+          description: "Both members retain identical source, document and explicit rule metadata.",
+          message: "Pair members disagree on source, document or rule.",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("OfficeActionRecognizedPair", {
+        description: "Atomic ordered finality and period pair, verified together by the use-case workflow.",
+      })
+    )
 ) {}
 /**
  * Exposes the atomic verified pair or one typed abstention.

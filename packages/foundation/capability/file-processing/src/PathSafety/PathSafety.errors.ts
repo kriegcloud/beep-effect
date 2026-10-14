@@ -83,7 +83,9 @@ export type PathSafetyViolationReason = typeof PathSafetyViolationReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class PathSafetyError extends S.TaggedError<PathSafetyError>($I`PathSafetyError`)(
+export class PathSafetyError extends S.TaggedError<PathSafetyError, { readonly brand: unique symbol }>(
+  $I`PathSafetyError`
+)(
   "PathSafetyError",
   {
     candidate: S.String,

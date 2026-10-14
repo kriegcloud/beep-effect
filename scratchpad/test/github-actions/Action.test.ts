@@ -23,7 +23,7 @@ class Extra extends Context.Service<Extra, { readonly describe: Effect.Effect<st
 	"@beep/scratchpad/test/github-actions/Action.test/Extra",
 ) {}
 
-class Boom extends S.TaggedError<Boom>()("Boom", { detail: S.String }) {
+class Boom extends S.TaggedError<Boom, { readonly brand: unique symbol }>()("Boom", { detail: S.String }) {
 	override get message(): string {
 		return `it went wrong: ${this.detail}`;
 	}

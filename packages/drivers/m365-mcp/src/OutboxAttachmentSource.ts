@@ -109,7 +109,9 @@ export type OutboxAttachmentErrorReason = typeof OutboxAttachmentErrorReason.Typ
  * @category errors
  * @since 0.1.0
  */
-export class OutboxAttachmentError extends S.TaggedError<OutboxAttachmentError>($I`OutboxAttachmentError`)(
+export class OutboxAttachmentError extends S.TaggedError<OutboxAttachmentError, { readonly brand: unique symbol }>(
+  $I`OutboxAttachmentError`
+)(
   "OutboxAttachmentError",
   {
     message: S.String.annotateKey({ description: "Human-readable refusal; may name the caller's own path." }),
@@ -146,13 +148,14 @@ export class OutboxAttachmentError extends S.TaggedError<OutboxAttachmentError>(
  * @category models
  * @since 0.1.0
  */
-export class OutboxAttachmentDigest extends S.Class<OutboxAttachmentDigest>($I`OutboxAttachmentDigest`)(
-  {
+export class OutboxAttachmentDigest extends S.Opaque<OutboxAttachmentDigest, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Attachment file name." }),
     sha256: Sha256Hex.annotateKey({ description: "Lowercase hex SHA-256 digest of the attached bytes." }),
     size: S.Natural.annotateKey({ description: "Attachment size in bytes." }),
-  },
-  $I.annote("OutboxAttachmentDigest", { description: "Name, size and SHA-256 digest of one attached file." })
+  }).pipe(
+    $I.annoteSchema("OutboxAttachmentDigest", { description: "Name, size and SHA-256 digest of one attached file." })
+  )
 ) {}
 
 /**
@@ -178,7 +181,9 @@ export class OutboxAttachmentDigest extends S.Class<OutboxAttachmentDigest>($I`O
  * @category models
  * @since 0.1.0
  */
-export class OutboxAttachment extends S.Class<OutboxAttachment>($I`OutboxAttachment`)(
+export class OutboxAttachment extends S.Class<OutboxAttachment, { readonly brand: unique symbol }>(
+  $I`OutboxAttachment`
+)(
   {
     content: S.Uint8Array.annotateKey({ description: "File bytes (never logged)." }),
     contentType: S.NonEmptyString.annotateKey({
@@ -251,8 +256,8 @@ export const OUTBOX_DEFAULT_MAX_ATTACHMENTS: number = 20;
  * @category models
  * @since 0.1.0
  */
-export class OutboxAttachmentPolicy extends S.Class<OutboxAttachmentPolicy>($I`OutboxAttachmentPolicy`)(
-  {
+export class OutboxAttachmentPolicy extends S.Opaque<OutboxAttachmentPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     createMissingRoots: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
@@ -274,10 +279,11 @@ export class OutboxAttachmentPolicy extends S.Class<OutboxAttachmentPolicy>($I`O
     roots: S.NonEmptyArray(S.NonEmptyString).annotateKey({
       description: "Absolute directories attachments may be read from.",
     }),
-  },
-  $I.annote("OutboxAttachmentPolicy", {
-    description: "Attachment roots and size limits of the outbox attachment source.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutboxAttachmentPolicy", {
+      description: "Attachment roots and size limits of the outbox attachment source.",
+    })
+  )
 ) {}
 
 /**

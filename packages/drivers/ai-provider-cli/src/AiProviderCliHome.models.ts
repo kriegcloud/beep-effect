@@ -234,10 +234,11 @@ export type AiProviderCliCodexLocalEntry = typeof AiProviderCliCodexLocalEntry.T
  * @category models
  * @since 0.0.0
  */
-export class AiProviderCliCodexHomeLayout extends S.Class<AiProviderCliCodexHomeLayout>(
-  $I`AiProviderCliCodexHomeLayout`
-)(
-  {
+export class AiProviderCliCodexHomeLayout extends S.Opaque<
+  AiProviderCliCodexHomeLayout,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     effectiveHomePath: S.OptionFromOptionalKey(S.NonEmptyString)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -249,8 +250,9 @@ export class AiProviderCliCodexHomeLayout extends S.Class<AiProviderCliCodexHome
     sharedHomePath: S.NonEmptyString.annotateKey({
       description: "Resolved shared Codex home directory path.",
     }),
-  },
-  $I.annote("AiProviderCliCodexHomeLayout", {
-    description: "Resolved Codex home layout with shared home and optional effective home paths.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiProviderCliCodexHomeLayout", {
+      description: "Resolved Codex home layout with shared home and optional effective home paths.",
+    })
+  )
 ) {}

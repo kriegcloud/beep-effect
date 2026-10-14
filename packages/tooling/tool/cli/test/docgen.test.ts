@@ -1,5 +1,6 @@
 import { docgenCommand } from "@beep/repo-cli/commands/Docgen";
 import {
+  AnalyzeDocgenQualityWorkerEvalOptions,
   aggregateDocgenPackagesForTesting,
   aggregateGeneratedDocs,
   analyzeDocgenQuality,
@@ -14,6 +15,7 @@ import {
   DocgenLocalSelectedPackage,
   DocgenPackageAnalysis,
   DocgenQualityWorkerEvalReport,
+  DocgenQualityWorkerEvalRunnerResult,
   DoctestReport,
   discoverDocgenWorkspacePackages,
   discoverOrphanDocgenConfigPaths,
@@ -27,6 +29,8 @@ import {
   isCanonicalDocgenAggregateConfigForTesting,
   loadDocgenConfigDocument,
   makeQualityWorkerRunpodEvalPodCreateInput,
+  QualityWorkerRunpodEvalPodCreateInputOptions,
+  RunDocgenQualityWorkerRunpodEvalOptions,
   requiredQualityWorkerRunpodEvalModel,
   runDocgenLocal,
   runDocgenQualityWorkerRunpodEval,
@@ -39,7 +43,12 @@ import {
   resolveTurboCachePlan,
   turboCachePlanArgs,
 } from "@beep/repo-cli/test/SharedInternals";
-import { Configuration, DEFAULT_THEME, defaultCompilerOptions } from "@beep/repo-docgen/Configuration";
+import {
+  Configuration,
+  ConfigurationShape,
+  DEFAULT_THEME,
+  defaultCompilerOptions,
+} from "@beep/repo-docgen/Configuration";
 import { Process } from "@beep/repo-docgen/Domain";
 import { verifyDocgenProofManifest, writeDocgenProofManifest } from "@beep/repo-docgen/ProofManifest";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
@@ -812,23 +821,25 @@ export const ProofFixture = 1;
         cwd: Effect.succeed(packageDir),
         platform: Effect.succeed(process.platform),
       });
-      const packageConfiguration = Configuration.of({
-        enableSearch: true,
-        enforceDescriptions: false,
-        enforceExamples: false,
-        enforceVersion: true,
-        examplesCompilerOptions: defaultCompilerOptions,
-        include: [],
-        exclude: [],
-        outDir: "docs",
-        parseCompilerOptions: defaultCompilerOptions,
-        projectHomepage: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema",
-        projectName: "@beep/schema",
-        srcDir: "src",
-        srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
-        theme: DEFAULT_THEME,
-        tscExecutable: "tsc",
-      });
+      const packageConfiguration = Configuration.of(
+        ConfigurationShape.make({
+          enableSearch: true,
+          enforceDescriptions: false,
+          enforceExamples: false,
+          enforceVersion: true,
+          examplesCompilerOptions: defaultCompilerOptions,
+          include: [],
+          exclude: [],
+          outDir: "docs",
+          parseCompilerOptions: defaultCompilerOptions,
+          projectHomepage: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema",
+          projectName: "@beep/schema",
+          srcDir: "src",
+          srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
+          theme: DEFAULT_THEME,
+          tscExecutable: "tsc",
+        })
+      );
       const manifest = yield* writeDocgenProofManifest().pipe(
         Effect.provideService(Configuration, packageConfiguration),
         Effect.provideService(Process, packageProcess)
@@ -3355,28 +3366,32 @@ export type TypeValue = string;
       let observedWorkingDirectories = A.empty<string>();
       const runner: DocgenQualityWorkerEvalRunner = Effect.fnUntraced(function* (input) {
         observedWorkingDirectories = A.append(observedWorkingDirectories, input.workingDirectory);
-        return yield* Effect.succeed({
-          finalResponse: yield* encodeJson({
-            localScore: 8,
-            rationale: "The draft adds an observable example and keeps required tags.",
-            draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
-            policyViolationCodes: [],
-            reviewDisposition: "candidate",
-          }).pipe(Effect.orDie),
-        });
+        return yield* Effect.succeed(
+          DocgenQualityWorkerEvalRunnerResult.make({
+            finalResponse: yield* encodeJson({
+              localScore: 8,
+              rationale: "The draft adds an observable example and keeps required tags.",
+              draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
+              policyViolationCodes: [],
+              reviewDisposition: "candidate",
+            }).pipe(Effect.orDie),
+          })
+        );
       });
 
-      const workerReport = yield* analyzeDocgenQualityWorkerEval({
-        codexSdkVersion: "test-sdk",
-        model: "gpt-5.4-mini",
-        packetLimit: 2,
-        provider: "codex",
-        reasoningEffort: "low",
-        report,
-        runner,
-        scope: "input",
-        sourceQualityReport: "quality.json",
-      });
+      const workerReport = yield* analyzeDocgenQualityWorkerEval(
+        AnalyzeDocgenQualityWorkerEvalOptions.make({
+          codexSdkVersion: "test-sdk",
+          model: "gpt-5.4-mini",
+          packetLimit: 2,
+          provider: "codex",
+          reasoningEffort: "low",
+          report,
+          runner,
+          scope: "input",
+          sourceQualityReport: "quality.json",
+        })
+      );
       const json = yield* generateQualityWorkerEvalJson(workerReport);
       const decoded = yield* decodeWorkerEvalReportJson(json);
       const packetPackages = pipe(
@@ -3397,69 +3412,79 @@ export type TypeValue = string;
       expect(packetPackages).toEqual(["@beep/schema", "@beep/types"]);
       expect(A.every(observedWorkingDirectories, (directory) => directory !== tmpDir)).toBe(true);
 
-      const localProviderReport = yield* analyzeDocgenQualityWorkerEval({
-        codexSdkVersion: "test-sdk",
-        model: "qwen-test",
-        packetLimit: 0,
-        provider: "ollama",
-        report,
-        runner,
-        scope: "input",
-        sourceQualityReport: "quality.json",
-      });
+      const localProviderReport = yield* analyzeDocgenQualityWorkerEval(
+        AnalyzeDocgenQualityWorkerEvalOptions.make({
+          codexSdkVersion: "test-sdk",
+          model: "qwen-test",
+          packetLimit: 0,
+          provider: "ollama",
+          report,
+          runner,
+          scope: "input",
+          sourceQualityReport: "quality.json",
+        })
+      );
 
       expect(localProviderReport.reasoningEffort).toBeNull();
 
       let observedBaseUrl = O.none<string>();
       const baseUrlRunner: DocgenQualityWorkerEvalRunner = Effect.fnUntraced(function* (input) {
         observedBaseUrl = O.fromUndefinedOr(input.baseUrl);
-        return yield* Effect.succeed({
-          finalResponse: yield* encodeJson({
-            localScore: 8,
-            rationale: "The draft adds an observable example and keeps required tags.",
-            draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
-            policyViolationCodes: [],
-            reviewDisposition: "candidate",
-          }).pipe(Effect.orDie),
-        });
+        return yield* Effect.succeed(
+          DocgenQualityWorkerEvalRunnerResult.make({
+            finalResponse: yield* encodeJson({
+              localScore: 8,
+              rationale: "The draft adds an observable example and keeps required tags.",
+              draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
+              policyViolationCodes: [],
+              reviewDisposition: "candidate",
+            }).pipe(Effect.orDie),
+          })
+        );
       });
-      const baseUrlReport = yield* analyzeDocgenQualityWorkerEval({
-        baseUrl: "  https://pod-11434.proxy.runpod.net/v1  ",
-        codexSdkVersion: "test-sdk",
-        model: "qwen3-coder:30b",
-        packetLimit: 1,
-        provider: "ollama",
-        report,
-        runner: baseUrlRunner,
-        scope: "input",
-        sourceQualityReport: "quality.json",
-      });
+      const baseUrlReport = yield* analyzeDocgenQualityWorkerEval(
+        AnalyzeDocgenQualityWorkerEvalOptions.make({
+          baseUrl: "  https://pod-11434.proxy.runpod.net/v1  ",
+          codexSdkVersion: "test-sdk",
+          model: "qwen3-coder:30b",
+          packetLimit: 1,
+          provider: "ollama",
+          report,
+          runner: baseUrlRunner,
+          scope: "input",
+          sourceQualityReport: "quality.json",
+        })
+      );
 
       expect(baseUrlReport.summary.completed).toBe(1);
       expect(O.getOrNull(observedBaseUrl)).toBe("https://pod-11434.proxy.runpod.net/v1");
 
       const outOfRangeScoreRunner: DocgenQualityWorkerEvalRunner = Effect.fnUntraced(function* () {
-        return yield* Effect.succeed({
-          finalResponse: yield* encodeJson({
-            localScore: 11,
-            rationale: "The worker returned an out-of-range score.",
-            draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
-            policyViolationCodes: [],
-            reviewDisposition: "candidate",
-          }).pipe(Effect.orDie),
-        });
+        return yield* Effect.succeed(
+          DocgenQualityWorkerEvalRunnerResult.make({
+            finalResponse: yield* encodeJson({
+              localScore: 11,
+              rationale: "The worker returned an out-of-range score.",
+              draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
+              policyViolationCodes: [],
+              reviewDisposition: "candidate",
+            }).pipe(Effect.orDie),
+          })
+        );
       });
-      const outOfRangeScoreReport = yield* analyzeDocgenQualityWorkerEval({
-        codexSdkVersion: "test-sdk",
-        model: "gpt-5.4-mini",
-        packetLimit: 1,
-        provider: "codex",
-        reasoningEffort: "low",
-        report,
-        runner: outOfRangeScoreRunner,
-        scope: "input",
-        sourceQualityReport: "quality.json",
-      });
+      const outOfRangeScoreReport = yield* analyzeDocgenQualityWorkerEval(
+        AnalyzeDocgenQualityWorkerEvalOptions.make({
+          codexSdkVersion: "test-sdk",
+          model: "gpt-5.4-mini",
+          packetLimit: 1,
+          provider: "codex",
+          reasoningEffort: "low",
+          report,
+          runner: outOfRangeScoreRunner,
+          scope: "input",
+          sourceQualityReport: "quality.json",
+        })
+      );
       const failedPacket = outOfRangeScoreReport.packets[0];
 
       expect(outOfRangeScoreReport.summary.failed).toBe(1);
@@ -3652,12 +3677,14 @@ export const workerEvalValue = 1;
 
       expect(selected.value.id).toBe("template-a");
 
-      const body = makeQualityWorkerRunpodEvalPodCreateInput({
-        gpuTypeIds: ["NVIDIA RTX A6000"],
-        minRamPerGpuGb: 48,
-        model: requiredQualityWorkerRunpodEvalModel(),
-        podName: "beep-jsdoc-worker-eval-test",
-      });
+      const body = makeQualityWorkerRunpodEvalPodCreateInput(
+        QualityWorkerRunpodEvalPodCreateInputOptions.make({
+          gpuTypeIds: ["NVIDIA RTX A6000"],
+          minRamPerGpuGb: 48,
+          model: requiredQualityWorkerRunpodEvalModel(),
+          podName: "beep-jsdoc-worker-eval-test",
+        })
+      );
       const bootstrap = A.join(body.dockerStartCmd ?? [], "\n");
 
       expect(body.computeType).toBe("GPU");
@@ -3732,15 +3759,17 @@ export const parseValue = (value: string): string => value.trim();
       } as never);
       const httpClient = HttpClient.make(() => Effect.die("unexpected docgen quality worker HTTP request"));
 
-      const exit = yield* runDocgenQualityWorkerRunpodEval({
-        confirmRunpodEval: true,
-        model: requiredQualityWorkerRunpodEvalModel(),
-        provider: "ollama",
-        readinessTimeoutMs: 1,
-        report,
-        scope: "package",
-        sourceQualityReport: "quality.json",
-      }).pipe(
+      const exit = yield* runDocgenQualityWorkerRunpodEval(
+        RunDocgenQualityWorkerRunpodEvalOptions.make({
+          confirmRunpodEval: true,
+          model: requiredQualityWorkerRunpodEvalModel(),
+          provider: "ollama",
+          readinessTimeoutMs: 1,
+          report,
+          scope: "package",
+          sourceQualityReport: "quality.json",
+        })
+      ).pipe(
         Effect.provideService(Runpod, runpod),
         Effect.provideService(HttpClient.HttpClient, httpClient),
         Effect.exit
@@ -3991,23 +4020,25 @@ export const ProofFixture = 1;
           cwd: Effect.succeed(packageDir),
           platform: Effect.succeed(process.platform),
         });
-        const packageConfiguration = Configuration.of({
-          enableSearch: true,
-          enforceDescriptions: false,
-          enforceExamples: false,
-          enforceVersion: true,
-          examplesCompilerOptions: defaultCompilerOptions,
-          include: [],
-          exclude: [],
-          outDir: "docs",
-          parseCompilerOptions: defaultCompilerOptions,
-          projectHomepage: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema",
-          projectName: "@beep/schema",
-          srcDir: "src",
-          srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
-          theme: DEFAULT_THEME,
-          tscExecutable: "tsc",
-        });
+        const packageConfiguration = Configuration.of(
+          ConfigurationShape.make({
+            enableSearch: true,
+            enforceDescriptions: false,
+            enforceExamples: false,
+            enforceVersion: true,
+            examplesCompilerOptions: defaultCompilerOptions,
+            include: [],
+            exclude: [],
+            outDir: "docs",
+            parseCompilerOptions: defaultCompilerOptions,
+            projectHomepage: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema",
+            projectName: "@beep/schema",
+            srcDir: "src",
+            srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
+            theme: DEFAULT_THEME,
+            tscExecutable: "tsc",
+          })
+        );
 
         yield* writeDocgenProofManifest().pipe(
           Effect.provideService(Configuration, packageConfiguration),

@@ -58,7 +58,7 @@ export const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]
  * ```ts
  * import { RgbEncoded } from "../../src/Color/Color.shared.ts"
  *
- * const encoded = new RgbEncoded({ r: 0.2, g: 0.4, b: 0.6 })
+ * const encoded = RgbEncoded.make({ r: 0.2, g: 0.4, b: 0.6 })
  * console.log(encoded.r)
  * ```
  *
@@ -66,15 +66,16 @@ export const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]
  * @category models
  * @since 0.0.0
  */
-export class RgbEncoded extends S.Class<RgbEncoded>($I`RgbEncoded`)(
-  {
+export class RgbEncoded extends S.Opaque<RgbEncoded, { readonly brand: unique symbol }>()(
+  S.Struct({
     r: S.Finite,
     g: S.Finite,
     b: S.Finite,
-  },
-  $I.annote("RgbEncoded", {
-    description: "Encoded RGB channel payload used by internal color conversions.",
-  })
+  }).pipe(
+    $I.annoteSchema("RgbEncoded", {
+      description: "Encoded RGB channel payload used by internal color conversions.",
+    })
+  )
 ) {}
 
 /**
@@ -85,7 +86,7 @@ export class RgbEncoded extends S.Class<RgbEncoded>($I`RgbEncoded`)(
  * ```ts
  * import { OklchEncoded } from "../../src/Color/Color.shared.ts"
  *
- * const encoded = new OklchEncoded({ l: 0.7, c: 0.1, h: 240 })
+ * const encoded = OklchEncoded.make({ l: 0.7, c: 0.1, h: 240 })
  * console.log(encoded.h)
  * ```
  *
@@ -93,13 +94,14 @@ export class RgbEncoded extends S.Class<RgbEncoded>($I`RgbEncoded`)(
  * @category models
  * @since 0.0.0
  */
-export class OklchEncoded extends S.Class<OklchEncoded>($I`OklchEncoded`)(
-  {
+export class OklchEncoded extends S.Opaque<OklchEncoded, { readonly brand: unique symbol }>()(
+  S.Struct({
     l: S.Finite,
     c: S.Finite,
     h: S.Finite,
-  },
-  $I.annote("OklchEncoded", {
-    description: "Encoded OKLCH coordinate payload used by internal color conversions.",
-  })
+  }).pipe(
+    $I.annoteSchema("OklchEncoded", {
+      description: "Encoded OKLCH coordinate payload used by internal color conversions.",
+    })
+  )
 ) {}

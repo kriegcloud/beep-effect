@@ -226,16 +226,17 @@ export const boxFolderNamesEquivalent: {
  * @category policies
  * @since 0.0.0
  */
-export class BoxAdoption extends S.Class<BoxAdoption>($I`BoxAdoption`)(
-  {
+export class BoxAdoption extends S.Opaque<BoxAdoption, { readonly brand: unique symbol }>()(
+  S.Struct({
     resourceKind: BoxAdoptionResourceKind,
     logicalKey: BoxLogicalKey,
     expectedProviderId: BoxProviderId,
     expectedParentProviderId: BoxProviderId,
-  },
-  $I.annote("BoxAdoption", {
-    description: "Explicit desired-to-provider identity binding required before adopting an existing Box folder.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxAdoption", {
+      description: "Explicit desired-to-provider identity binding required before adopting an existing Box folder.",
+    })
+  )
 ) {}
 
 const boxAdoptionsEntriesDefault = A.empty<BoxAdoption>();
@@ -254,8 +255,8 @@ const boxAdoptionsEntriesDefault = A.empty<BoxAdoption>();
  * @category policies
  * @since 0.0.0
  */
-export class BoxAdoptions extends S.Class<BoxAdoptions>($I`BoxAdoptions`)(
-  {
+export class BoxAdoptions extends S.Opaque<BoxAdoptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("box-provisioning-adoptions/v1").pipe(
       S.withConstructorDefault(Effect.succeed("box-provisioning-adoptions/v1"))
     ),
@@ -263,10 +264,11 @@ export class BoxAdoptions extends S.Class<BoxAdoptions>($I`BoxAdoptions`)(
       S.withConstructorDefault(Effect.succeed(boxAdoptionsEntriesDefault)),
       S.withDecodingDefaultType(Effect.succeed(boxAdoptionsEntriesDefault))
     ),
-  },
-  $I.annote("BoxAdoptions", {
-    description: "Versioned folder ownership bindings for pre-existing and reconciler-created Box resources.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxAdoptions", {
+      description: "Versioned folder ownership bindings for pre-existing and reconciler-created Box resources.",
+    })
+  )
 ) {}
 
 /**
@@ -418,8 +420,8 @@ export type BoxSourceRevision = typeof BoxSourceRevision.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxEntitlements extends S.Class<BoxEntitlements>($I`BoxEntitlements`)(
-  {
+export class BoxEntitlements extends S.Opaque<BoxEntitlements, { readonly brand: unique symbol }>()(
+  S.Struct({
     planName: BoxPlanName,
     metadata: BoxEntitlementAvailability,
     retention: BoxEntitlementAvailability,
@@ -427,10 +429,11 @@ export class BoxEntitlements extends S.Class<BoxEntitlements>($I`BoxEntitlements
     signCustomIntegrationAnnualAllowance: S.OptionFromOptionalKey(S.Natural).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("BoxEntitlements", {
-    description: "Operator-asserted Box subscription capabilities used by the planner's entitlement gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxEntitlements", {
+      description: "Operator-asserted Box subscription capabilities used by the planner's entitlement gate.",
+    })
+  )
 ) {}
 
 /**
@@ -459,15 +462,16 @@ export class BoxEntitlements extends S.Class<BoxEntitlements>($I`BoxEntitlements
  * @category models
  * @since 0.0.0
  */
-export class BoxFolderIntent extends S.Class<BoxFolderIntent>($I`BoxFolderIntent`)(
-  {
+export class BoxFolderIntent extends S.Opaque<BoxFolderIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     logicalKey: BoxLogicalKey,
     parentKey: S.OptionFromOptionalKey(BoxLogicalKey).pipe(S.withConstructorDefault(Effect.succeedNone)),
     name: BoxFolderName,
-  },
-  $I.annote("BoxFolderIntent", {
-    description: "Desired Box folder identified by an opaque logical key and optional desired parent key.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxFolderIntent", {
+      description: "Desired Box folder identified by an opaque logical key and optional desired parent key.",
+    })
+  )
 ) {}
 
 /**
@@ -497,18 +501,19 @@ export class BoxFolderIntent extends S.Class<BoxFolderIntent>($I`BoxFolderIntent
  * @category models
  * @since 0.0.0
  */
-export class BoxCollaborationIntent extends S.Class<BoxCollaborationIntent>($I`BoxCollaborationIntent`)(
-  {
+export class BoxCollaborationIntent extends S.Opaque<BoxCollaborationIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     logicalKey: BoxLogicalKey,
     folderKey: BoxLogicalKey,
     billingImpact: LiteralKit(["internal", "external"]),
     principalType: LiteralKit(["user", "group"]),
     principal: S.NonEmptyString,
     role: S.NonEmptyString,
-  },
-  $I.annote("BoxCollaborationIntent", {
-    description: "Desired Box collaboration keyed independently from its confidential principal value.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxCollaborationIntent", {
+      description: "Desired Box collaboration keyed independently from its confidential principal value.",
+    })
+  )
 ) {}
 
 /**
@@ -537,16 +542,17 @@ export class BoxCollaborationIntent extends S.Class<BoxCollaborationIntent>($I`B
  * @category models
  * @since 0.0.0
  */
-export class BoxWebhookIntent extends S.Class<BoxWebhookIntent>($I`BoxWebhookIntent`)(
-  {
+export class BoxWebhookIntent extends S.Opaque<BoxWebhookIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     logicalKey: BoxLogicalKey,
     folderKey: BoxLogicalKey,
     address: HttpsUrl,
     triggers: S.NonEmptyArray(S.NonEmptyString).check(S.isUnique()),
-  },
-  $I.annote("BoxWebhookIntent", {
-    description: "Desired Box V2 webhook target, callback, and unique trigger set.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxWebhookIntent", {
+      description: "Desired Box V2 webhook target, callback, and unique trigger set.",
+    })
+  )
 ) {}
 
 /**
@@ -568,15 +574,16 @@ export class BoxWebhookIntent extends S.Class<BoxWebhookIntent>($I`BoxWebhookInt
  * @category models
  * @since 0.0.0
  */
-export class BoxMetadataIntent extends S.Class<BoxMetadataIntent>($I`BoxMetadataIntent`)(
-  {
+export class BoxMetadataIntent extends S.Opaque<BoxMetadataIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     logicalKey: BoxLogicalKey,
     folderKey: BoxLogicalKey,
     templateKey: S.NonEmptyString,
-  },
-  $I.annote("BoxMetadataIntent", {
-    description: "Metadata capability intent that becomes entitlement-blocked on unsupported plans.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxMetadataIntent", {
+      description: "Metadata capability intent that becomes entitlement-blocked on unsupported plans.",
+    })
+  )
 ) {}
 
 /**
@@ -598,15 +605,16 @@ export class BoxMetadataIntent extends S.Class<BoxMetadataIntent>($I`BoxMetadata
  * @category models
  * @since 0.0.0
  */
-export class BoxRetentionIntent extends S.Class<BoxRetentionIntent>($I`BoxRetentionIntent`)(
-  {
+export class BoxRetentionIntent extends S.Opaque<BoxRetentionIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     logicalKey: BoxLogicalKey,
     folderKey: BoxLogicalKey,
     policyKey: S.NonEmptyString,
-  },
-  $I.annote("BoxRetentionIntent", {
-    description: "Retention capability intent that becomes entitlement-blocked on unsupported plans.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxRetentionIntent", {
+      description: "Retention capability intent that becomes entitlement-blocked on unsupported plans.",
+    })
+  )
 ) {}
 
 const allLogicalKeys = (state: {

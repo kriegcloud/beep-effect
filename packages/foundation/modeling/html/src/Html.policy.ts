@@ -94,7 +94,9 @@ export const SafeHtmlAttributes = readonlyStruct({
  * @category schemas
  * @since 0.0.0
  */
-export class SafeHtmlAttributesStruct extends S.Class<SafeHtmlAttributesStruct>($I`SafeHtmlAttributesStruct`)(
+export class SafeHtmlAttributesStruct extends S.Class<SafeHtmlAttributesStruct, { readonly brand: unique symbol }>(
+  $I`SafeHtmlAttributesStruct`
+)(
   SafeHtmlAttributes,
   $I.annote("SafeHtmlAttributesStruct", {
     description: "Global HTML attributes accepted by the conservative safe-output policy.",
@@ -413,15 +415,16 @@ export type HtmlPolicyRule = typeof HtmlPolicyRule.Type;
  * @category models
  * @since 0.0.0
  */
-export class HtmlPolicyIssue extends S.Class<HtmlPolicyIssue>($I`HtmlPolicyIssue`)(
-  {
+export class HtmlPolicyIssue extends S.Opaque<HtmlPolicyIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.Array(S.String),
     rule: HtmlPolicyRule,
     message: S.String,
-  },
-  $I.annote("HtmlPolicyIssue", {
-    description: "One path-addressed conservative HTML policy violation.",
-  })
+  }).pipe(
+    $I.annoteSchema("HtmlPolicyIssue", {
+      description: "One path-addressed conservative HTML policy violation.",
+    })
+  )
 ) {}
 
 /**
@@ -447,7 +450,9 @@ export class HtmlPolicyIssue extends S.Class<HtmlPolicyIssue>($I`HtmlPolicyIssue
  * @category errors
  * @since 0.0.0
  */
-export class HtmlPolicyError extends S.TaggedError<HtmlPolicyError>($I`HtmlPolicyError`)(
+export class HtmlPolicyError extends S.TaggedError<HtmlPolicyError, { readonly brand: unique symbol }>(
+  $I`HtmlPolicyError`
+)(
   "HtmlPolicyError",
   {
     issues: S.NonEmptyArray(HtmlPolicyIssue),

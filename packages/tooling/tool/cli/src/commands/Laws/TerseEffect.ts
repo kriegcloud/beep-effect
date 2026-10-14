@@ -35,8 +35,8 @@ const $I = $RepoCliId.create("commands/Laws/TerseEffect");
  * @category models
  * @since 0.0.0
  */
-export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I`TerseEffectRulesOptions`)(
-  {
+export class TerseEffectRulesOptions extends S.Opaque<TerseEffectRulesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -50,10 +50,11 @@ export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("TerseEffectRulesOptions", {
-    description: "Runtime options for terse Effect style migration checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("TerseEffectRulesOptions", {
+      description: "Runtime options for terse Effect style migration checks.",
+    })
+  )
 ) {}
 
 /**
@@ -68,8 +69,8 @@ export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I
  * @category models
  * @since 0.0.0
  */
-export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I`TerseEffectRulesSummary`)(
-  {
+export class TerseEffectRulesSummary extends S.Opaque<TerseEffectRulesSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     touchedFiles: S.Finite,
     helpersSimplified: S.Finite,
     thunkHelpersSimplified: S.Finite,
@@ -108,10 +109,11 @@ export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
-  },
-  $I.annote("TerseEffectRulesSummary", {
-    description: "Summary of terse Effect style migration results.",
-  })
+  }).pipe(
+    $I.annoteSchema("TerseEffectRulesSummary", {
+      description: "Summary of terse Effect style migration results.",
+    })
+  )
 ) {}
 
 const THUNK_HELPER_NAMES = [

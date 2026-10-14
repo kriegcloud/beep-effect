@@ -95,8 +95,8 @@ export type WorkerStatus = typeof WorkerStatus.Type;
  * @category entities
  * @since 0.0.0
  */
-export class CreateWorkerInput extends S.Class<CreateWorkerInput>($I`CreateWorkerInput`)(
-  {
+export class CreateWorkerInput extends S.Opaque<CreateWorkerInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: WorkerId.annotateKey({
       description: "Worker entity identifier.",
     }),
@@ -106,9 +106,10 @@ export class CreateWorkerInput extends S.Class<CreateWorkerInput>($I`CreateWorke
     displayName: S.NonEmptyString.annotateKey({
       description: "Display name for the Worker.",
     }),
-  },
-  $I.annote("CreateWorkerInput", {
-    title: "Create Worker input",
-    description: "Input required to create an active architecture lab Worker entity.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateWorkerInput", {
+      title: "Create Worker input",
+      description: "Input required to create an active architecture lab Worker entity.",
+    })
+  )
 ) {}

@@ -7,6 +7,7 @@
 
 import { $N3Id } from "@beep/identity/packages";
 import * as Rdf from "@beep/rdf/Rdf";
+import { MakeQuadOptionsInput } from "@beep/rdf/Rdf";
 import { A, O, Str } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -47,14 +48,15 @@ const PrefixMapWithEmptyDefault = Rdf.PrefixMap.pipe(
  * @category models
  * @since 0.0.0
  */
-export class N3ParseTurtleRequest extends S.Class<N3ParseTurtleRequest>($I`N3ParseTurtleRequest`)(
-  {
+export class N3ParseTurtleRequest extends S.Opaque<N3ParseTurtleRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: S.String,
     baseIri: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("N3ParseTurtleRequest", {
-    description: "N3 Turtle parse request.",
-  })
+  }).pipe(
+    $I.annoteSchema("N3ParseTurtleRequest", {
+      description: "N3 Turtle parse request.",
+    })
+  )
 ) {}
 
 /**
@@ -76,14 +78,15 @@ export class N3ParseTurtleRequest extends S.Class<N3ParseTurtleRequest>($I`N3Par
  * @category models
  * @since 0.0.0
  */
-export class N3ParseTurtleResult extends S.Class<N3ParseTurtleResult>($I`N3ParseTurtleResult`)(
-  {
+export class N3ParseTurtleResult extends S.Opaque<N3ParseTurtleResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataset: Rdf.Dataset,
     prefixes: PrefixMapWithEmptyDefault,
-  },
-  $I.annote("N3ParseTurtleResult", {
-    description: "N3 Turtle parse result.",
-  })
+  }).pipe(
+    $I.annoteSchema("N3ParseTurtleResult", {
+      description: "N3 Turtle parse result.",
+    })
+  )
 ) {}
 
 /**
@@ -105,14 +108,15 @@ export class N3ParseTurtleResult extends S.Class<N3ParseTurtleResult>($I`N3Parse
  * @category models
  * @since 0.0.0
  */
-export class N3SerializeTurtleRequest extends S.Class<N3SerializeTurtleRequest>($I`N3SerializeTurtleRequest`)(
-  {
+export class N3SerializeTurtleRequest extends S.Opaque<N3SerializeTurtleRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataset: Rdf.Dataset,
     prefixes: PrefixMapWithEmptyDefault,
-  },
-  $I.annote("N3SerializeTurtleRequest", {
-    description: "N3 Turtle serialize request.",
-  })
+  }).pipe(
+    $I.annoteSchema("N3SerializeTurtleRequest", {
+      description: "N3 Turtle serialize request.",
+    })
+  )
 ) {}
 
 /**
@@ -133,13 +137,14 @@ export class N3SerializeTurtleRequest extends S.Class<N3SerializeTurtleRequest>(
  * @category models
  * @since 0.0.0
  */
-export class N3SerializeTurtleResult extends S.Class<N3SerializeTurtleResult>($I`N3SerializeTurtleResult`)(
-  {
+export class N3SerializeTurtleResult extends S.Opaque<N3SerializeTurtleResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: S.String,
-  },
-  $I.annote("N3SerializeTurtleResult", {
-    description: "N3 Turtle serialize result.",
-  })
+  }).pipe(
+    $I.annoteSchema("N3SerializeTurtleResult", {
+      description: "N3 Turtle serialize result.",
+    })
+  )
 ) {}
 
 /**
@@ -232,10 +237,14 @@ const fromN3Quad = Effect.fn("N3.fromN3Quad")(function* (quad: N3.Quad) {
   const object = yield* fromN3Object(quad.object);
   const graph = yield* fromN3Graph(quad.graph);
 
-  return Rdf.makeQuad(subject, predicate, {
-    object,
-    graph,
-  });
+  return Rdf.makeQuad(
+    subject,
+    predicate,
+    MakeQuadOptionsInput.make({
+      object,
+      graph,
+    })
+  );
 });
 
 const toN3Subject = (subject: Rdf.Subject): N3.Quad_Subject =>

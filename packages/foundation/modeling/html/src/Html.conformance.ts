@@ -78,7 +78,7 @@ const decodeHtmlRootResult = S.decodeResult(HtmlRoot);
 const encodeHtmlRootResult = S.encodeResult(HtmlRoot);
 
 import type { HtmlAttributeRequirement } from "./Html.meta.ts";
-import type { HtmlRootView } from "./internal/conformance/Html.conformance-contracts.ts";
+import type { Doctype } from "./Html.nodes.ts";
 
 const $I = $HtmlId.create("Html.conformance");
 
@@ -122,7 +122,9 @@ export {
  * @category errors
  * @since 0.0.0
  */
-export class HtmlConformanceError extends S.TaggedError<HtmlConformanceError>($I`HtmlConformanceError`)(
+export class HtmlConformanceError extends S.TaggedError<HtmlConformanceError, { readonly brand: unique symbol }>(
+  $I`HtmlConformanceError`
+)(
   "HtmlConformanceError",
   {
     issues: S.NonEmptyArray(HtmlConformanceIssue),
@@ -2207,7 +2209,7 @@ export const inspectConformance = (root: HtmlRoot.Type): ReadonlyArray<HtmlConfo
   }
 
   const view: HtmlChildView = root;
-  const doctype: HtmlRootView["doctype"] = root._tag === "#document" ? root.doctype : O.none();
+  const doctype: O.Option<Doctype.Type> = root._tag === "#document" ? root.doctype : O.none();
   const structuralIssues = Match.value(view._tag).pipe(
     Match.when("#document", (): ReadonlyArray<HtmlConformanceIssue> => {
       const children = childrenOf(view);

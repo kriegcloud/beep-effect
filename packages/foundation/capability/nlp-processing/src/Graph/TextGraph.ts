@@ -83,7 +83,9 @@ export type MutableTextGraph = Graph.MutableDirectedGraph<TextNode, TextEdge>;
  * @category errors
  * @since 0.0.0
  */
-export class GraphCycleError extends S.TaggedError<GraphCycleError>($I`GraphCycleError`)(
+export class GraphCycleError extends S.TaggedError<GraphCycleError, { readonly brand: unique symbol }>(
+  $I`GraphCycleError`
+)(
   "GraphCycleError",
   {
     parentIndex: S.Finite,

@@ -47,8 +47,8 @@ const CommentedOntologyScope = Ontology.create({
   comment: "Scope-level ontology comment.",
 });
 
-class Parent extends S.Class<Parent>($I`Parent`)(
-  {
+class Parent extends S.Opaque<Parent, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.NonEmptyString.pipe(
       $I.annoteKey(
         "Parent.label",
@@ -58,17 +58,18 @@ class Parent extends S.Class<Parent>($I`Parent`)(
         })
       )
     ),
-  },
-  $I.annote(
-    "Parent",
-    Ont.class({
-      description: "Parent ontology class.",
-    })
+  }).pipe(
+    $I.annoteSchema(
+      "Parent",
+      Ont.class({
+        description: "Parent ontology class.",
+      })
+    )
   )
 ) {}
 
-class Child extends S.Class<Child>($I`Child`)(
-  {
+class Child extends S.Opaque<Child, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.NonEmptyString.pipe(
       $I.annoteKey(
         "Child.label",
@@ -87,19 +88,20 @@ class Child extends S.Class<Child>($I`Child`)(
         })
       )
     ),
-  },
-  $I.annote(
-    "Child",
-    Ont.class({
-      description: "Child ontology class.",
-      parents: [Parent],
-      sameAs: [Ont.sameAs("https://schema.org/Thing")],
-    })
+  }).pipe(
+    $I.annoteSchema(
+      "Child",
+      Ont.class({
+        description: "Child ontology class.",
+        parents: [Parent],
+        sameAs: [Ont.sameAs("https://schema.org/Thing")],
+      })
+    )
   )
 ) {}
 
-class RichClass extends S.Class<RichClass>($I`RichClass`)(
-  {
+class RichClass extends S.Opaque<RichClass, { readonly brand: unique symbol }>()(
+  S.Struct({
     title: S.NonEmptyString.pipe(
       $I.annoteKey(
         "RichClass.title",
@@ -144,145 +146,153 @@ class RichClass extends S.Class<RichClass>($I`RichClass`)(
         })
       )
     ),
-  },
-  $I.annote(
-    "RichClass",
-    Ont.class({
-      altLabels: ["Rich alternate label"],
-      children: [Ont.child(Child)],
-      closeMatches: [Ont.closeMatch("https://schema.org/Thing")],
-      comment: "Rich class comment.",
-      definition: "Rich class definition.",
-      deprecated: false,
-      description: "Rich class description.",
-      equivalentClasses: [Ont.equivalentClass(Parent)],
-      exactMatches: [Ont.exact("https://schema.org/CreativeWork")],
-      iri: Ont.iri("https://example.org/custom#", "RichClass"),
-      isDefinedBy: [Ont.ref(makeNamedNode("https://example.org/defined-by"))],
-      label: "Rich Class",
-      parents: [Ont.parent("Parent")],
-      sameAs: [Ont.sameAs("https://schema.org/Thing")],
-      seeAlso: [Ont.ref("https://example.org/see-also")],
-      source: Ont.iri("https://example.org/source"),
-      termName: Ont.termName("RichClass"),
-    })
+  }).pipe(
+    $I.annoteSchema(
+      "RichClass",
+      Ont.class({
+        altLabels: ["Rich alternate label"],
+        children: [Ont.child(Child)],
+        closeMatches: [Ont.closeMatch("https://schema.org/Thing")],
+        comment: "Rich class comment.",
+        definition: "Rich class definition.",
+        deprecated: false,
+        description: "Rich class description.",
+        equivalentClasses: [Ont.equivalentClass(Parent)],
+        exactMatches: [Ont.exact("https://schema.org/CreativeWork")],
+        iri: Ont.iri("https://example.org/custom#", "RichClass"),
+        isDefinedBy: [Ont.ref(makeNamedNode("https://example.org/defined-by"))],
+        label: "Rich Class",
+        parents: [Ont.parent("Parent")],
+        sameAs: [Ont.sameAs("https://schema.org/Thing")],
+        seeAlso: [Ont.ref("https://example.org/see-also")],
+        source: Ont.iri("https://example.org/source"),
+        termName: Ont.termName("RichClass"),
+      })
+    )
   )
 ) {}
 
-class MultilineComment extends S.Class<MultilineComment>($I`MultilineComment`)(
-  {},
-  $I.annote(
-    "MultilineComment",
-    Ont.class({
-      description: "Line one\nLine two\tTabbed\rCarriage",
-    })
+class MultilineComment extends S.Opaque<MultilineComment, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema(
+      "MultilineComment",
+      Ont.class({
+        description: "Line one\nLine two\tTabbed\rCarriage",
+      })
+    )
   )
 ) {}
 
-class DeprecatedClass extends S.Class<DeprecatedClass>($I`DeprecatedClass`)(
-  {},
-  $I.annote(
-    "DeprecatedClass",
-    Ont.class({
-      deprecated: true,
-      description: "Deprecated ontology class.",
-    })
+class DeprecatedClass extends S.Opaque<DeprecatedClass, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema(
+      "DeprecatedClass",
+      Ont.class({
+        deprecated: true,
+        description: "Deprecated ontology class.",
+      })
+    )
   )
 ) {}
 
-class PracticeScheme extends S.Class<PracticeScheme>($I`PracticeScheme`)(
-  {},
-  $I.annote(
-    "PracticeScheme",
-    Ont.class({
-      description: "Practice-area concept scheme.",
-      label: "Practice Scheme",
-      skosProfile: Ont.skosConceptScheme({
-        definitions: [{ value: "Practice-area concept scheme.", language: "en" }],
-        hasTopConcepts: [Ont.ref("PatentConcept")],
-        prefLabels: [{ value: "Practice Scheme", language: "en" }],
-      }),
-    })
+class PracticeScheme extends S.Opaque<PracticeScheme, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema(
+      "PracticeScheme",
+      Ont.class({
+        description: "Practice-area concept scheme.",
+        label: "Practice Scheme",
+        skosProfile: Ont.skosConceptScheme({
+          definitions: [{ value: "Practice-area concept scheme.", language: "en" }],
+          hasTopConcepts: [Ont.ref("PatentConcept")],
+          prefLabels: [{ value: "Practice Scheme", language: "en" }],
+        }),
+      })
+    )
   )
 ) {}
 
-class PatentConcept extends S.Class<PatentConcept>($I`PatentConcept`)(
-  {},
-  $I.annote(
-    "PatentConcept",
-    Ont.class({
-      altLabels: ["Patent alternate"],
-      definition: "Patent concept compatibility definition.",
-      description: "Patent taxonomy concept.",
-      label: "Patent Concept",
-      provenance: Ont.provenance({
-        extractionMethod: "curated",
-        sourceIri: "https://example.org/source#patent",
-        sourceLabel: "Example source",
-        sourceSpan: "p. 12",
-        verificationStatus: "human-reviewed",
-      }),
-      skosProfile: Ont.skosConcept({
-        altLabels: [{ value: "Patents", language: "en" }],
-        broadMatches: [Ont.ref("https://example.org/external#IntellectualProperty")],
-        closeMatches: [Ont.closeMatch("https://schema.org/CreativeWork")],
-        definitions: [{ value: "A patent-related taxonomy concept.", language: "en" }],
-        hiddenLabels: [{ value: "pat.", language: "en" }],
-        inSchemes: [PracticeScheme],
-        prefLabels: [{ value: "Patent", language: "en" }],
-        related: [Ont.ref("https://example.org/external#Inventor")],
-        relatedMatches: [Ont.ref("https://example.org/external#PatentDocument")],
-        scopeNotes: [{ value: "Used for browsing patent concepts.", language: "en" }],
-        topConceptOf: [PracticeScheme],
-      }),
-    })
+class PatentConcept extends S.Opaque<PatentConcept, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema(
+      "PatentConcept",
+      Ont.class({
+        altLabels: ["Patent alternate"],
+        definition: "Patent concept compatibility definition.",
+        description: "Patent taxonomy concept.",
+        label: "Patent Concept",
+        provenance: Ont.provenance({
+          extractionMethod: "curated",
+          sourceIri: "https://example.org/source#patent",
+          sourceLabel: "Example source",
+          sourceSpan: "p. 12",
+          verificationStatus: "human-reviewed",
+        }),
+        skosProfile: Ont.skosConcept({
+          altLabels: [{ value: "Patents", language: "en" }],
+          broadMatches: [Ont.ref("https://example.org/external#IntellectualProperty")],
+          closeMatches: [Ont.closeMatch("https://schema.org/CreativeWork")],
+          definitions: [{ value: "A patent-related taxonomy concept.", language: "en" }],
+          hiddenLabels: [{ value: "pat.", language: "en" }],
+          inSchemes: [PracticeScheme],
+          prefLabels: [{ value: "Patent", language: "en" }],
+          related: [Ont.ref("https://example.org/external#Inventor")],
+          relatedMatches: [Ont.ref("https://example.org/external#PatentDocument")],
+          scopeNotes: [{ value: "Used for browsing patent concepts.", language: "en" }],
+          topConceptOf: [PracticeScheme],
+        }),
+      })
+    )
   )
 ) {}
 
-class WarningConcept extends S.Class<WarningConcept>($I`WarningConcept`)(
-  {},
-  $I.annote(
-    "WarningConcept",
-    Ont.class({
-      description: "Concept with curation warnings.",
-      skosProfile: Ont.skosConcept({
-        broader: [Parent],
-        prefLabels: [{ value: "Warning", language: "en" }],
-        related: [Parent],
-      }),
-    })
+class WarningConcept extends S.Opaque<WarningConcept, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema(
+      "WarningConcept",
+      Ont.class({
+        description: "Concept with curation warnings.",
+        skosProfile: Ont.skosConcept({
+          broader: [Parent],
+          prefLabels: [{ value: "Warning", language: "en" }],
+          related: [Parent],
+        }),
+      })
+    )
   )
 ) {}
 
-class DuplicatePrefLabelConcept extends S.Class<DuplicatePrefLabelConcept>($I`DuplicatePrefLabelConcept`)(
-  {},
-  $I.annote(
-    "DuplicatePrefLabelConcept",
-    Ont.class({
-      description: "Concept with duplicate preferred labels.",
-      skosProfile: Ont.skosConcept({
-        inSchemes: [PracticeScheme],
-        prefLabels: [
-          { value: "Duplicate One", language: "en" },
-          { value: "Duplicate Two", language: "en" },
-        ],
-      }),
-    })
+class DuplicatePrefLabelConcept extends S.Opaque<DuplicatePrefLabelConcept, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema(
+      "DuplicatePrefLabelConcept",
+      Ont.class({
+        description: "Concept with duplicate preferred labels.",
+        skosProfile: Ont.skosConcept({
+          inSchemes: [PracticeScheme],
+          prefLabels: [
+            { value: "Duplicate One", language: "en" },
+            { value: "Duplicate Two", language: "en" },
+          ],
+        }),
+      })
+    )
   )
 ) {}
 
-class ConflictingLabelConcept extends S.Class<ConflictingLabelConcept>($I`ConflictingLabelConcept`)(
-  {},
-  $I.annote(
-    "ConflictingLabelConcept",
-    Ont.class({
-      description: "Concept with conflicting labels.",
-      skosProfile: Ont.skosConcept({
-        altLabels: [{ value: "Conflict", language: "en" }],
-        inSchemes: [PracticeScheme],
-        prefLabels: [{ value: "Conflict", language: "en" }],
-      }),
-    })
+class ConflictingLabelConcept extends S.Opaque<ConflictingLabelConcept, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema(
+      "ConflictingLabelConcept",
+      Ont.class({
+        description: "Concept with conflicting labels.",
+        skosProfile: Ont.skosConcept({
+          altLabels: [{ value: "Conflict", language: "en" }],
+          inSchemes: [PracticeScheme],
+          prefLabels: [{ value: "Conflict", language: "en" }],
+        }),
+      })
+    )
   )
 ) {}
 
@@ -299,13 +309,14 @@ const MissingSchemaIdentityClass = S.String.annotate({
   }),
 });
 
-class MissingClassMetadata extends S.Class<MissingClassMetadata>($I`MissingClassMetadata`)(
-  {
+class MissingClassMetadata extends S.Opaque<MissingClassMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: S.String,
-  },
-  $I.annote("MissingClassMetadata", {
-    description: "Identity annotations without ontology class metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("MissingClassMetadata", {
+      description: "Identity annotations without ontology class metadata.",
+    })
+  )
 ) {}
 
 const InvalidClassMetadata = S.String.annotate(
@@ -365,39 +376,42 @@ const SymbolFieldNameClass = S.Struct({
   )
 );
 
-class MissingPredicateMetadata extends S.Class<MissingPredicateMetadata>($I`MissingPredicateMetadata`)(
-  {
+class MissingPredicateMetadata extends S.Opaque<MissingPredicateMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: S.String,
-  },
-  $I.annote(
-    "MissingPredicateMetadata",
-    Ont.class({
-      description: "Class with an unannotated field.",
-    })
+  }).pipe(
+    $I.annoteSchema(
+      "MissingPredicateMetadata",
+      Ont.class({
+        description: "Class with an unannotated field.",
+      })
+    )
   )
 ) {}
 
-class MissingPredicateSchemaIdentity extends S.Class<MissingPredicateSchemaIdentity>(
-  $I`MissingPredicateSchemaIdentity`
-)(
-  {
+class MissingPredicateSchemaIdentity extends S.Opaque<
+  MissingPredicateSchemaIdentity,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     value: S.String.annotateKey({
       ontologyMetadata: Ont.dataPredicate({
         description: "Predicate metadata without key identity.",
         range: XSD_STRING,
       }),
     }),
-  },
-  $I.annote(
-    "MissingPredicateSchemaIdentity",
-    Ont.class({
-      description: "Class with predicate metadata missing key identity.",
-    })
+  }).pipe(
+    $I.annoteSchema(
+      "MissingPredicateSchemaIdentity",
+      Ont.class({
+        description: "Class with predicate metadata missing key identity.",
+      })
+    )
   )
 ) {}
 
-class MissingPredicateIdentifier extends S.Class<MissingPredicateIdentifier>($I`MissingPredicateIdentifier`)(
-  {
+class MissingPredicateIdentifier extends S.Opaque<MissingPredicateIdentifier, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: S.String.annotateKey({
       ontologyMetadata: Ont.dataPredicate({
         description: "Predicate metadata without key identifier.",
@@ -405,17 +419,18 @@ class MissingPredicateIdentifier extends S.Class<MissingPredicateIdentifier>($I`
       }),
       schemaId: Symbol.for("MissingPredicateIdentifier.value"),
     }),
-  },
-  $I.annote(
-    "MissingPredicateIdentifier",
-    Ont.class({
-      description: "Class with predicate metadata missing key identifier.",
-    })
+  }).pipe(
+    $I.annoteSchema(
+      "MissingPredicateIdentifier",
+      Ont.class({
+        description: "Class with predicate metadata missing key identifier.",
+      })
+    )
   )
 ) {}
 
-class InvalidPredicateMetadata extends S.Class<InvalidPredicateMetadata>($I`InvalidPredicateMetadata`)(
-  {
+class InvalidPredicateMetadata extends S.Opaque<InvalidPredicateMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: S.String.pipe(
       $I.annoteKey("InvalidPredicateMetadata.value", {
         ontologyMetadata: Ont.class({
@@ -423,27 +438,29 @@ class InvalidPredicateMetadata extends S.Class<InvalidPredicateMetadata>($I`Inva
         }),
       })
     ),
-  },
-  $I.annote(
-    "InvalidPredicateMetadata",
-    Ont.class({
-      description: "Class with invalid field metadata.",
-    })
+  }).pipe(
+    $I.annoteSchema(
+      "InvalidPredicateMetadata",
+      Ont.class({
+        description: "Class with invalid field metadata.",
+      })
+    )
   )
 ) {}
 
-class ExternalTarget extends S.Class<ExternalTarget>($I`ExternalTarget`)(
-  {},
-  $I.annote(
-    "ExternalTarget",
-    Ont.class({
-      description: "External class intentionally omitted from an ontology build.",
-    })
+class ExternalTarget extends S.Opaque<ExternalTarget, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema(
+      "ExternalTarget",
+      Ont.class({
+        description: "External class intentionally omitted from an ontology build.",
+      })
+    )
   )
 ) {}
 
-class MissingTargetReference extends S.Class<MissingTargetReference>($I`MissingTargetReference`)(
-  {
+class MissingTargetReference extends S.Opaque<MissingTargetReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     external: ExternalTarget.pipe(
       $I.annoteKey(
         "MissingTargetReference.external",
@@ -453,19 +470,21 @@ class MissingTargetReference extends S.Class<MissingTargetReference>($I`MissingT
         })
       )
     ),
-  },
-  $I.annote(
-    "MissingTargetReference",
-    Ont.class({
-      description: "Class with an omitted target relationship.",
-    })
+  }).pipe(
+    $I.annoteSchema(
+      "MissingTargetReference",
+      Ont.class({
+        description: "Class with an omitted target relationship.",
+      })
+    )
   )
 ) {}
 
-class MissingTargetIdentityReference extends S.Class<MissingTargetIdentityReference>(
-  $I`MissingTargetIdentityReference`
-)(
-  {
+class MissingTargetIdentityReference extends S.Opaque<
+  MissingTargetIdentityReference,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     external: S.String.pipe(
       $I.annoteKey(
         "MissingTargetIdentityReference.external",
@@ -475,12 +494,13 @@ class MissingTargetIdentityReference extends S.Class<MissingTargetIdentityRefere
         })
       )
     ),
-  },
-  $I.annote(
-    "MissingTargetIdentityReference",
-    Ont.class({
-      description: "Class with a relationship target missing identity metadata.",
-    })
+  }).pipe(
+    $I.annoteSchema(
+      "MissingTargetIdentityReference",
+      Ont.class({
+        description: "Class with a relationship target missing identity metadata.",
+      })
+    )
   )
 ) {}
 

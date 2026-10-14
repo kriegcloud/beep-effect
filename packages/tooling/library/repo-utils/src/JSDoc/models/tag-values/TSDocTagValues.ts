@@ -27,12 +27,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TSDocTagValues");
  * @category models
  * @since 0.0.0
  */
-export class AlphaValue extends S.TaggedClass<AlphaValue>($I`AlphaValue`)(
-  "alpha",
-  empty,
-  $I.annote("AlphaValue", {
-    description: "Occurrence shape for @alpha — marks a symbol as alpha-quality.",
-  })
+export class AlphaValue extends S.Opaque<AlphaValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("alpha", empty).pipe(
+    $I.annoteSchema("AlphaValue", {
+      description: "Occurrence shape for @alpha — marks a symbol as alpha-quality.",
+    })
+  )
 ) {}
 
 /**
@@ -51,12 +51,12 @@ export class AlphaValue extends S.TaggedClass<AlphaValue>($I`AlphaValue`)(
  * @category models
  * @since 0.0.0
  */
-export class BetaValue extends S.TaggedClass<BetaValue>($I`BetaValue`)(
-  "beta",
-  empty,
-  $I.annote("BetaValue", {
-    description: "Occurrence shape for @beta — marks a symbol as beta-quality.",
-  })
+export class BetaValue extends S.Opaque<BetaValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("beta", empty).pipe(
+    $I.annoteSchema("BetaValue", {
+      description: "Occurrence shape for @beta — marks a symbol as beta-quality.",
+    })
+  )
 ) {}
 
 /**
@@ -75,12 +75,12 @@ export class BetaValue extends S.TaggedClass<BetaValue>($I`BetaValue`)(
  * @category models
  * @since 0.0.0
  */
-export class ExperimentalValue extends S.TaggedClass<ExperimentalValue>($I`ExperimentalValue`)(
-  "experimental",
-  empty,
-  $I.annote("ExperimentalValue", {
-    description: "Occurrence shape for @experimental — marks a symbol as experimental.",
-  })
+export class ExperimentalValue extends S.Opaque<ExperimentalValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("experimental", empty).pipe(
+    $I.annoteSchema("ExperimentalValue", {
+      description: "Occurrence shape for @experimental — marks a symbol as experimental.",
+    })
+  )
 ) {}
 
 /**
@@ -99,12 +99,12 @@ export class ExperimentalValue extends S.TaggedClass<ExperimentalValue>($I`Exper
  * @category models
  * @since 0.0.0
  */
-export class InternalValue extends S.TaggedClass<InternalValue>($I`InternalValue`)(
-  "internal",
-  empty,
-  $I.annote("InternalValue", {
-    description: "Occurrence shape for @internal — marks a symbol as internal.",
-  })
+export class InternalValue extends S.Opaque<InternalValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("internal", empty).pipe(
+    $I.annoteSchema("InternalValue", {
+      description: "Occurrence shape for @internal — marks a symbol as internal.",
+    })
+  )
 ) {}
 
 /**
@@ -123,12 +123,12 @@ export class InternalValue extends S.TaggedClass<InternalValue>($I`InternalValue
  * @category models
  * @since 0.0.0
  */
-export class SealedValue extends S.TaggedClass<SealedValue>($I`SealedValue`)(
-  "sealed",
-  empty,
-  $I.annote("SealedValue", {
-    description: "Occurrence shape for @sealed — marks a class as sealed.",
-  })
+export class SealedValue extends S.Opaque<SealedValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("sealed", empty).pipe(
+    $I.annoteSchema("SealedValue", {
+      description: "Occurrence shape for @sealed — marks a class as sealed.",
+    })
+  )
 ) {}
 
 /**
@@ -147,12 +147,12 @@ export class SealedValue extends S.TaggedClass<SealedValue>($I`SealedValue`)(
  * @category models
  * @since 0.0.0
  */
-export class VirtualValue extends S.TaggedClass<VirtualValue>($I`VirtualValue`)(
-  "virtual",
-  empty,
-  $I.annote("VirtualValue", {
-    description: "Occurrence shape for @virtual — marks a method as virtual.",
-  })
+export class VirtualValue extends S.Opaque<VirtualValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("virtual", empty).pipe(
+    $I.annoteSchema("VirtualValue", {
+      description: "Occurrence shape for @virtual — marks a method as virtual.",
+    })
+  )
 ) {}
 
 /**
@@ -171,12 +171,12 @@ export class VirtualValue extends S.TaggedClass<VirtualValue>($I`VirtualValue`)(
  * @category models
  * @since 0.0.0
  */
-export class PrivateRemarksValue extends S.TaggedClass<PrivateRemarksValue>($I`PrivateRemarksValue`)(
-  "privateRemarks",
-  { ...optionalDesc },
-  $I.annote("PrivateRemarksValue", {
-    description: "Occurrence shape for @privateRemarks — non-public remarks.",
-  })
+export class PrivateRemarksValue extends S.Opaque<PrivateRemarksValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("privateRemarks", { ...optionalDesc }).pipe(
+    $I.annoteSchema("PrivateRemarksValue", {
+      description: "Occurrence shape for @privateRemarks — non-public remarks.",
+    })
+  )
 ) {}
 
 /**
@@ -195,12 +195,12 @@ export class PrivateRemarksValue extends S.TaggedClass<PrivateRemarksValue>($I`P
  * @category models
  * @since 0.0.0
  */
-export class PackageDocumentationValue extends S.TaggedClass<PackageDocumentationValue>($I`PackageDocumentationValue`)(
-  "packageDocumentation",
-  empty,
-  $I.annote("PackageDocumentationValue", {
-    description: "Occurrence shape for @packageDocumentation — marks file as package entry.",
-  })
+export class PackageDocumentationValue extends S.Opaque<PackageDocumentationValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("packageDocumentation", empty).pipe(
+    $I.annoteSchema("PackageDocumentationValue", {
+      description: "Occurrence shape for @packageDocumentation — marks file as package entry.",
+    })
+  )
 ) {}
 
 /**
@@ -219,12 +219,12 @@ export class PackageDocumentationValue extends S.TaggedClass<PackageDocumentatio
  * @category models
  * @since 0.0.0
  */
-export class LabelValue extends S.TaggedClass<LabelValue>($I`LabelValue`)(
-  "label",
-  { ...nameField },
-  $I.annote("LabelValue", {
-    description: "Occurrence shape for @label — a reference label for cross-referencing.",
-  })
+export class LabelValue extends S.Opaque<LabelValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("label", { ...nameField }).pipe(
+    $I.annoteSchema("LabelValue", {
+      description: "Occurrence shape for @label — a reference label for cross-referencing.",
+    })
+  )
 ) {}
 
 /**
@@ -243,12 +243,12 @@ export class LabelValue extends S.TaggedClass<LabelValue>($I`LabelValue`)(
  * @category models
  * @since 0.0.0
  */
-export class DecoratorValue extends S.TaggedClass<DecoratorValue>($I`DecoratorValue`)(
-  "decorator",
-  { ...optionalDesc },
-  $I.annote("DecoratorValue", {
-    description: "Occurrence shape for @decorator — documents a decorator.",
-  })
+export class DecoratorValue extends S.Opaque<DecoratorValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("decorator", { ...optionalDesc }).pipe(
+    $I.annoteSchema("DecoratorValue", {
+      description: "Occurrence shape for @decorator — documents a decorator.",
+    })
+  )
 ) {}
 
 /**
@@ -267,10 +267,10 @@ export class DecoratorValue extends S.TaggedClass<DecoratorValue>($I`DecoratorVa
  * @category models
  * @since 0.0.0
  */
-export class EventPropertyValue extends S.TaggedClass<EventPropertyValue>($I`EventPropertyValue`)(
-  "eventProperty",
-  empty,
-  $I.annote("EventPropertyValue", {
-    description: "Occurrence shape for @eventProperty — marks a property as an event.",
-  })
+export class EventPropertyValue extends S.Opaque<EventPropertyValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("eventProperty", empty).pipe(
+    $I.annoteSchema("EventPropertyValue", {
+      description: "Occurrence shape for @eventProperty — marks a property as an event.",
+    })
+  )
 ) {}

@@ -137,8 +137,8 @@ const ciWorkflowJobStepsDefault = A.empty();
  * @category models
  * @since 0.0.0
  */
-export class CiWorkflowJob extends S.Class<CiWorkflowJob>($I`CiWorkflowJob`)(
-  {
+export class CiWorkflowJob extends S.Opaque<CiWorkflowJob, { readonly brand: unique symbol }>()(
+  S.Struct({
     completed_at: S.NullOr(S.String),
     conclusion: S.NullOr(S.String),
     created_at: S.String,
@@ -173,10 +173,11 @@ export class CiWorkflowJob extends S.Class<CiWorkflowJob>($I`CiWorkflowJob`)(
       S.withConstructorDefault(Effect.succeed(ciWorkflowJobStepsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(ciWorkflowJobStepsDefault))
     ),
-  },
-  $I.annote("CiWorkflowJob", {
-    description: "One hosted job as returned by the GitHub Actions jobs REST endpoint.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiWorkflowJob", {
+      description: "One hosted job as returned by the GitHub Actions jobs REST endpoint.",
+    })
+  )
 ) {}
 
 const CiWorkflowAttemptOneJob = CiWorkflowJob.mapFields((fields) => ({
@@ -205,17 +206,18 @@ const isCiWorkflowAttemptOneJob = S.is(CiWorkflowAttemptOneJob);
  * @category models
  * @since 0.0.0
  */
-export class CiWorkflowJobsPage extends S.Class<CiWorkflowJobsPage>($I`CiWorkflowJobsPage`)(
-  {
+export class CiWorkflowJobsPage extends S.Opaque<CiWorkflowJobsPage, { readonly brand: unique symbol }>()(
+  S.Struct({
     jobs: S.Array(CiWorkflowJob),
     total_count: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0))
     ),
-  },
-  $I.annote("CiWorkflowJobsPage", {
-    description: "One page of jobs returned by the GitHub Actions jobs REST endpoint.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiWorkflowJobsPage", {
+      description: "One page of jobs returned by the GitHub Actions jobs REST endpoint.",
+    })
+  )
 ) {}
 
 /**
@@ -249,8 +251,8 @@ export class CiWorkflowJobsPage extends S.Class<CiWorkflowJobsPage>($I`CiWorkflo
  * @category models
  * @since 0.0.0
  */
-export class CiLaneTimingRow extends S.Class<CiLaneTimingRow>($I`CiLaneTimingRow`)(
-  {
+export class CiLaneTimingRow extends S.Opaque<CiLaneTimingRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     conclusion: S.String,
     durationSeconds: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     infraFailure: S.Boolean,
@@ -263,10 +265,11 @@ export class CiLaneTimingRow extends S.Class<CiLaneTimingRow>($I`CiLaneTimingRow
     runId: S.Finite,
     runnerClass: CiRunnerClass,
     setupSeconds: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CiLaneTimingRow", {
-    description: "One hosted lane timing row with attempt-filtered pickup latency and per-phase seconds.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingRow", {
+      description: "One hosted lane timing row with attempt-filtered pickup latency and per-phase seconds.",
+    })
+  )
 ) {}
 
 /**
@@ -291,8 +294,8 @@ export class CiLaneTimingRow extends S.Class<CiLaneTimingRow>($I`CiLaneTimingRow
  * @category models
  * @since 0.0.0
  */
-export class CiLaneTimingsReport extends S.Class<CiLaneTimingsReport>($I`CiLaneTimingsReport`)(
-  {
+export class CiLaneTimingsReport extends S.Opaque<CiLaneTimingsReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     attemptOneJobCount: S.Finite,
     jobCount: S.Finite,
     managedInfraFailureCount: S.Finite,
@@ -301,10 +304,11 @@ export class CiLaneTimingsReport extends S.Class<CiLaneTimingsReport>($I`CiLaneT
     medianAttemptOnePickupSeconds: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     rows: S.Array(CiLaneTimingRow),
     schemaVersion: S.Literal("ci-lane-timings/v1"),
-  },
-  $I.annote("CiLaneTimingsReport", {
-    description: "Aggregates over one collected set of hosted lane timing rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingsReport", {
+      description: "Aggregates over one collected set of hosted lane timing rows.",
+    })
+  )
 ) {}
 
 const MANAGED_RUNNER_LABEL_PATTERN = /^(?:self-hosted|beep-)/u;
@@ -761,14 +765,18 @@ export const decodeCiWorkflowJobsPage: {
   (input: unknown, options?: SchemaAST.ParseOptions): Effect.Effect<CiWorkflowJobsPage, S.SchemaError>;
 } = dual(SchemaUtils.isCodecDataFirst, S.decodeUnknownEffect(S.fromJsonString(CiWorkflowJobsPage)));
 
-class CiWorkflowRun extends S.Class<CiWorkflowRun>($I`CiWorkflowRun`)(
-  { id: S.Finite },
-  $I.annote("CiWorkflowRun", { description: "One workflow run identifier read while collecting lane timings." })
+class CiWorkflowRun extends S.Opaque<CiWorkflowRun, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Finite }).pipe(
+    $I.annoteSchema("CiWorkflowRun", { description: "One workflow run identifier read while collecting lane timings." })
+  )
 ) {}
 
-class CiWorkflowRunsPage extends S.Class<CiWorkflowRunsPage>($I`CiWorkflowRunsPage`)(
-  { workflow_runs: S.Array(CiWorkflowRun) },
-  $I.annote("CiWorkflowRunsPage", { description: "One page of workflow runs read while collecting lane timings." })
+class CiWorkflowRunsPage extends S.Opaque<CiWorkflowRunsPage, { readonly brand: unique symbol }>()(
+  S.Struct({ workflow_runs: S.Array(CiWorkflowRun) }).pipe(
+    $I.annoteSchema("CiWorkflowRunsPage", {
+      description: "One page of workflow runs read while collecting lane timings.",
+    })
+  )
 ) {}
 
 const decodeCiWorkflowRunsPage = S.decodeUnknownEffect(S.fromJsonString(CiWorkflowRunsPage));
@@ -837,7 +845,9 @@ const classifyGhApiTransientOutput = (output: string): O.Option<GhApiTransientKi
       ? O.some("transport")
       : O.none();
 
-class CiGhApiTransientExit extends S.TaggedError<CiGhApiTransientExit>($I`CiGhApiTransientExit`)(
+class CiGhApiTransientExit extends S.TaggedError<CiGhApiTransientExit, { readonly brand: unique symbol }>(
+  $I`CiGhApiTransientExit`
+)(
   "CiGhApiTransientExit",
   { endpoint: S.String, exitCode: S.Finite, kind: GhApiTransientKind, output: S.String },
   $I.annoteError<CiGhApiTransientExit>("CiGhApiTransientExit", {
@@ -1125,18 +1135,19 @@ const NonNegativeTimingSeconds = S.Finite.check(S.isGreaterThanOrEqualTo(0)).pip
  * @category models
  * @since 0.0.0
  */
-export class CiLaneTimingWindowOptions extends S.Class<CiLaneTimingWindowOptions>($I`CiLaneTimingWindowOptions`)(
-  {
+export class CiLaneTimingWindowOptions extends S.Opaque<CiLaneTimingWindowOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     branch: S.OptionFromOptionalKey(S.NonEmptyString),
     event: CiLaneTimingWindowEvent,
     headSha: S.OptionFromOptionalKey(S.NonEmptyString),
     since: S.DateTimeUtcFromString,
     until: S.DateTimeUtcFromString,
     workflow: S.NonEmptyString,
-  },
-  $I.annote("CiLaneTimingWindowOptions", {
-    description: "Validated UTC interval, workflow, event, branch, and head filters for a lane-timing census.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingWindowOptions", {
+      description: "Validated UTC interval, workflow, event, branch, and head filters for a lane-timing census.",
+    })
+  )
 ) {}
 
 /**
@@ -1164,14 +1175,15 @@ export class CiLaneTimingWindowOptions extends S.Class<CiLaneTimingWindowOptions
  * @category models
  * @since 0.0.0
  */
-export class CiRulesetHistoryVersion extends S.Class<CiRulesetHistoryVersion>($I`CiRulesetHistoryVersion`)(
-  {
+export class CiRulesetHistoryVersion extends S.Opaque<CiRulesetHistoryVersion, { readonly brand: unique symbol }>()(
+  S.Struct({
     version_id: S.Int.check(S.isGreaterThan(0)),
     updated_at: S.DateTimeUtcFromString,
-  },
-  $I.annote("CiRulesetHistoryVersion", {
-    description: "Ruleset history version and its effective instant, normalized from the API UTC offset.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiRulesetHistoryVersion", {
+      description: "Ruleset history version and its effective instant, normalized from the API UTC offset.",
+    })
+  )
 ) {}
 
 /**
@@ -1215,17 +1227,18 @@ export class CiRulesetHistoryVersion extends S.Class<CiRulesetHistoryVersion>($I
  * @category models
  * @since 0.0.0
  */
-export class CiRulesetPopulationChange extends S.Class<CiRulesetPopulationChange>($I`CiRulesetPopulationChange`)(
-  {
+export class CiRulesetPopulationChange extends S.Opaque<CiRulesetPopulationChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     addedContexts: S.Array(S.NonEmptyString),
     previousVersion: S.Option(CiRulesetHistoryVersion),
     removedContexts: S.Array(S.NonEmptyString),
     version: CiRulesetHistoryVersion,
-  },
-  $I.annote("CiRulesetPopulationChange", {
-    description:
-      "Ruleset version effective inside a census window with the normalized required contexts it added and removed.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiRulesetPopulationChange", {
+      description:
+        "Ruleset version effective inside a census window with the normalized required contexts it added and removed.",
+    })
+  )
 ) {}
 
 const ciRulesetPopulationChangesDefault = A.empty<CiRulesetPopulationChange>();
@@ -1315,10 +1328,11 @@ export type CiLaneTimingWindowGuardReason = typeof CiLaneTimingWindowGuardReason
  * @category models
  * @since 0.0.0
  */
-export class CiLaneTimingWindowGuardVerdict extends S.Class<CiLaneTimingWindowGuardVerdict>(
-  $I`CiLaneTimingWindowGuardVerdict`
-)(
-  {
+export class CiLaneTimingWindowGuardVerdict extends S.Opaque<
+  CiLaneTimingWindowGuardVerdict,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     populationChanges: S.Array(CiRulesetPopulationChange).pipe(
       S.withConstructorDefault(Effect.succeed(ciRulesetPopulationChangesDefault))
     ),
@@ -1326,10 +1340,11 @@ export class CiLaneTimingWindowGuardVerdict extends S.Class<CiLaneTimingWindowGu
     reasons: S.Array(CiLaneTimingWindowGuardReason),
     since: S.DateTimeUtc,
     until: S.DateTimeUtc,
-  },
-  $I.annote("CiLaneTimingWindowGuardVerdict", {
-    description: "Judged census interval with every bound it breached and whether the operator accepted a preview.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingWindowGuardVerdict", {
+      description: "Judged census interval with every bound it breached and whether the operator accepted a preview.",
+    })
+  )
 ) {}
 
 /**
@@ -1354,17 +1369,18 @@ export class CiLaneTimingWindowGuardVerdict extends S.Class<CiLaneTimingWindowGu
  * @category models
  * @since 0.0.0
  */
-export class CiWorkflowWindowRun extends S.Class<CiWorkflowWindowRun>($I`CiWorkflowWindowRun`)(
-  {
+export class CiWorkflowWindowRun extends S.Opaque<CiWorkflowWindowRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     created_at: S.DateTimeUtcFromString,
     event: CiLaneTimingWindowRunEvent,
     head_sha: S.NonEmptyString,
     id: S.Finite,
     run_attempt: S.Finite,
-  },
-  $I.annote("CiWorkflowWindowRun", {
-    description: "Workflow-run identity, event, head, creation time, and attempt retained by the census.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiWorkflowWindowRun", {
+      description: "Workflow-run identity, event, head, creation time, and attempt retained by the census.",
+    })
+  )
 ) {}
 
 /**
@@ -1389,14 +1405,15 @@ export class CiWorkflowWindowRun extends S.Class<CiWorkflowWindowRun>($I`CiWorkf
  * @category models
  * @since 0.0.0
  */
-export class CiWorkflowWindowRunJobs extends S.Class<CiWorkflowWindowRunJobs>($I`CiWorkflowWindowRunJobs`)(
-  {
+export class CiWorkflowWindowRunJobs extends S.Opaque<CiWorkflowWindowRunJobs, { readonly brand: unique symbol }>()(
+  S.Struct({
     jobs: S.Array(CiWorkflowJob),
     run: CiWorkflowWindowRun,
-  },
-  $I.annote("CiWorkflowWindowRunJobs", {
-    description: "One ordered workflow run and the fully paginated jobs fetched into its isolated buffer.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiWorkflowWindowRunJobs", {
+      description: "One ordered workflow run and the fully paginated jobs fetched into its isolated buffer.",
+    })
+  )
 ) {}
 
 const CiLaneTimingAttributionKind = LiteralKit([
@@ -1420,8 +1437,8 @@ const timingRowProvenanceFields = {
   runId: S.Finite,
 };
 
-class CiLaneTimingDurationRow extends S.Class<CiLaneTimingDurationRow>($I`CiLaneTimingDurationRow`)(
-  {
+class CiLaneTimingDurationRow extends S.Opaque<CiLaneTimingDurationRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...timingRowProvenanceFields,
     population: S.tag("duration"),
     conclusion: S.Literal("success"),
@@ -1429,37 +1446,40 @@ class CiLaneTimingDurationRow extends S.Class<CiLaneTimingDurationRow>($I`CiLane
     jobName: S.NonEmptyString,
     pickupSeconds: S.Option(NonNegativeTimingSeconds),
     runAttempt: S.Literal(1),
-  },
-  $I.annote("CiLaneTimingDurationRow", {
-    description: "Attempt-one successful non-negative required-lane duration with complete workflow-run provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingDurationRow", {
+      description: "Attempt-one successful non-negative required-lane duration with complete workflow-run provenance.",
+    })
+  )
 ) {}
 
-class CiLaneTimingAttributionRow extends S.Class<CiLaneTimingAttributionRow>($I`CiLaneTimingAttributionRow`)(
-  {
+class CiLaneTimingAttributionRow extends S.Opaque<CiLaneTimingAttributionRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...timingRowProvenanceFields,
     population: S.tag("attribution"),
     attribution: CiLaneTimingAttributionKind,
     conclusion: S.String,
     jobName: S.NonEmptyString,
-  },
-  $I.annote("CiLaneTimingAttributionRow", {
-    description: "Excluded required-lane observation with provenance and a schema-bounded attribution reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingAttributionRow", {
+      description: "Excluded required-lane observation with provenance and a schema-bounded attribution reason.",
+    })
+  )
 ) {}
 
-class CiLaneTimingPickupRow extends S.Class<CiLaneTimingPickupRow>($I`CiLaneTimingPickupRow`)(
-  {
+class CiLaneTimingPickupRow extends S.Opaque<CiLaneTimingPickupRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...timingRowProvenanceFields,
     population: S.tag("pickup"),
     conclusion: S.String,
     jobName: S.NonEmptyString,
     pickupSeconds: NonNegativeTimingSeconds,
     runAttempt: S.Literal(1),
-  },
-  $I.annote("CiLaneTimingPickupRow", {
-    description: "Attempt-one shard pickup latency retained separately from every required-lane wall duration.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingPickupRow", {
+      description: "Attempt-one shard pickup latency retained separately from every required-lane wall duration.",
+    })
+  )
 ) {}
 
 const CiLaneTimingWindowRow = S.Union([
@@ -1499,8 +1519,8 @@ type CiLaneTimingWindowRow = typeof CiLaneTimingWindowRow.Type;
  * @category models
  * @since 0.0.0
  */
-export class CiLaneTimingWindowStat extends S.Class<CiLaneTimingWindowStat>($I`CiLaneTimingWindowStat`)(
-  {
+export class CiLaneTimingWindowStat extends S.Opaque<CiLaneTimingWindowStat, { readonly brand: unique symbol }>()(
+  S.Struct({
     lane: S.NonEmptyString,
     maxSeconds: S.Option(NonNegativeTimingSeconds),
     n: S.Int.check(S.isGreaterThanOrEqualTo(0)),
@@ -1509,10 +1529,11 @@ export class CiLaneTimingWindowStat extends S.Class<CiLaneTimingWindowStat>($I`C
     pr: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     push: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     state: LiteralKit(["Pass", "Breach"]),
-  },
-  $I.annote("CiLaneTimingWindowStat", {
-    description: "Per-required-lane count split and nearest-rank latency statistics against the 20-minute charter.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingWindowStat", {
+      description: "Per-required-lane count split and nearest-rank latency statistics against the 20-minute charter.",
+    })
+  )
 ) {}
 
 /**
@@ -1540,8 +1561,11 @@ export class CiLaneTimingWindowStat extends S.Class<CiLaneTimingWindowStat>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CiLaneTimingAttributionStat extends S.Class<CiLaneTimingAttributionStat>($I`CiLaneTimingAttributionStat`)(
-  {
+export class CiLaneTimingAttributionStat extends S.Opaque<
+  CiLaneTimingAttributionStat,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cancellations: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     failures: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     incompleteEffectiveSpans: S.Int.check(S.isGreaterThanOrEqualTo(0)),
@@ -1551,10 +1575,12 @@ export class CiLaneTimingAttributionStat extends S.Class<CiLaneTimingAttribution
     laterFailures: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     laterAttempts: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     laterSuccesses: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("CiLaneTimingAttributionStat", {
-    description: "Failure, cancellation, later-attempt outcome, invalid-span, and incomplete-span counts for one lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingAttributionStat", {
+      description:
+        "Failure, cancellation, later-attempt outcome, invalid-span, and incomplete-span counts for one lane.",
+    })
+  )
 ) {}
 
 /**
@@ -1579,17 +1605,18 @@ export class CiLaneTimingAttributionStat extends S.Class<CiLaneTimingAttribution
  * @category models
  * @since 0.0.0
  */
-export class CiLaneTimingPickupStat extends S.Class<CiLaneTimingPickupStat>($I`CiLaneTimingPickupStat`)(
-  {
+export class CiLaneTimingPickupStat extends S.Opaque<CiLaneTimingPickupStat, { readonly brand: unique symbol }>()(
+  S.Struct({
     breached: S.Boolean,
     maxSeconds: S.Option(NonNegativeTimingSeconds),
     n: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     p50Seconds: S.Option(NonNegativeTimingSeconds),
     p95Seconds: S.Option(NonNegativeTimingSeconds),
-  },
-  $I.annote("CiLaneTimingPickupStat", {
-    description: "Nearest-rank shard pickup statistics and the greater-than-five-minute queue tripwire verdict.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingPickupStat", {
+      description: "Nearest-rank shard pickup statistics and the greater-than-five-minute queue tripwire verdict.",
+    })
+  )
 ) {}
 
 /**
@@ -1617,8 +1644,8 @@ export class CiLaneTimingPickupStat extends S.Class<CiLaneTimingPickupStat>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CiLaneTimingWindowReport extends S.Class<CiLaneTimingWindowReport>($I`CiLaneTimingWindowReport`)(
-  {
+export class CiLaneTimingWindowReport extends S.Opaque<CiLaneTimingWindowReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     attribution: S.Array(CiLaneTimingAttributionStat),
     contextCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     laneStats: S.Array(CiLaneTimingWindowStat),
@@ -1631,11 +1658,12 @@ export class CiLaneTimingWindowReport extends S.Class<CiLaneTimingWindowReport>(
     rows: S.Array(CiLaneTimingWindowRow),
     runCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     schemaVersion: S.Literal("ci-lane-timing-window/v1"),
-  },
-  $I.annote("CiLaneTimingWindowReport", {
-    description:
-      "Derived rows and aggregates for a bounded admission census over the required-context set effective at the exclusive window end.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingWindowReport", {
+      description:
+        "Derived rows and aggregates for a bounded admission census over the required-context set effective at the exclusive window end.",
+    })
+  )
 ) {}
 
 const CI_LANE_TIMING_RULESET_ID = 10_240_248;
@@ -1674,17 +1702,19 @@ const HEAVY_LANE_PREFIX = "Heavy / ";
  * @category models
  * @since 0.1.0
  */
-export class CiLaneTimingRatifiedPopulation extends S.Class<CiLaneTimingRatifiedPopulation>(
-  $I`CiLaneTimingRatifiedPopulation`
-)(
-  {
+export class CiLaneTimingRatifiedPopulation extends S.Opaque<
+  CiLaneTimingRatifiedPopulation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     contextCount: S.Int.check(S.isGreaterThan(0)),
     ratifiedOn: S.String,
     versionId: S.Int.check(S.isGreaterThan(0)),
-  },
-  $I.annote("CiLaneTimingRatifiedPopulation", {
-    description: "A ruleset history version and the exact required-context count the packet ratified for it.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneTimingRatifiedPopulation", {
+      description: "A ruleset history version and the exact required-context count the packet ratified for it.",
+    })
+  )
 ) {}
 
 const CI_LANE_TIMING_RATIFIED_POPULATIONS: ReadonlyArray<CiLaneTimingRatifiedPopulation> = [
@@ -1708,15 +1738,16 @@ const CI_LANE_TIMING_RATIFIED_COUNT_LABEL = A.join(
 const ratifiedPopulationFor = (version: CiRulesetHistoryVersion): O.Option<CiLaneTimingRatifiedPopulation> =>
   A.findFirst(CI_LANE_TIMING_RATIFIED_POPULATIONS, (population) => population.versionId === version.version_id);
 
-class CiEffectiveLaneSpec extends S.Class<CiEffectiveLaneSpec>($I`CiEffectiveLaneSpec`)(
-  {
+class CiEffectiveLaneSpec extends S.Opaque<CiEffectiveLaneSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     aggregator: S.NonEmptyString,
     lane: S.NonEmptyString,
     shards: S.NonEmptyArray(S.NonEmptyString),
-  },
-  $I.annote("CiEffectiveLaneSpec", {
-    description: "Required aggregator and complete shard-name set used to derive one effective lane span.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiEffectiveLaneSpec", {
+      description: "Required aggregator and complete shard-name set used to derive one effective lane span.",
+    })
+  )
 ) {}
 
 const CI_EFFECTIVE_LANE_SPECS: ReadonlyArray<CiEffectiveLaneSpec> = [
@@ -1728,67 +1759,76 @@ const CI_EFFECTIVE_LANE_SPECS: ReadonlyArray<CiEffectiveLaneSpec> = [
   }),
 ];
 
-class CiWorkflowWindowRunsPage extends S.Class<CiWorkflowWindowRunsPage>($I`CiWorkflowWindowRunsPage`)(
-  {
+class CiWorkflowWindowRunsPage extends S.Opaque<CiWorkflowWindowRunsPage, { readonly brand: unique symbol }>()(
+  S.Struct({
     total_count: S.Finite,
     workflow_runs: S.Array(CiWorkflowWindowRun),
-  },
-  $I.annote("CiWorkflowWindowRunsPage", {
-    description: "One paginated GitHub Actions workflow-runs response for a bounded census query.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiWorkflowWindowRunsPage", {
+      description: "One paginated GitHub Actions workflow-runs response for a bounded census query.",
+    })
+  )
 ) {}
 
-class CiRequiredStatusCheck extends S.Class<CiRequiredStatusCheck>($I`CiRequiredStatusCheck`)(
-  { context: S.NonEmptyString },
-  $I.annote("CiRequiredStatusCheck", {
-    description: "One required status-check context returned by an effective branch rule.",
-  })
+class CiRequiredStatusCheck extends S.Opaque<CiRequiredStatusCheck, { readonly brand: unique symbol }>()(
+  S.Struct({ context: S.NonEmptyString }).pipe(
+    $I.annoteSchema("CiRequiredStatusCheck", {
+      description: "One required status-check context returned by an effective branch rule.",
+    })
+  )
 ) {}
 
 const ciBranchRuleParametersRequiredStatusChecksDefault = A.empty();
-class CiBranchRuleParameters extends S.Class<CiBranchRuleParameters>($I`CiBranchRuleParameters`)(
-  {
+class CiBranchRuleParameters extends S.Opaque<CiBranchRuleParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     required_status_checks: S.Array(CiRequiredStatusCheck).pipe(
       S.withConstructorDefault(Effect.succeed(ciBranchRuleParametersRequiredStatusChecksDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(ciBranchRuleParametersRequiredStatusChecksDefault))
     ),
-  },
-  $I.annote("CiBranchRuleParameters", {
-    description: "Required-status-check parameters retained from an effective branch rule.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiBranchRuleParameters", {
+      description: "Required-status-check parameters retained from an effective branch rule.",
+    })
+  )
 ) {}
 
-class CiBranchRule extends S.Class<CiBranchRule>($I`CiBranchRule`)(
-  {
+class CiBranchRule extends S.Opaque<CiBranchRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     parameters: S.OptionFromOptionalKey(CiBranchRuleParameters),
     ruleset_id: S.Finite,
     type: S.String,
-  },
-  $I.annote("CiBranchRule", {
-    description: "Effective GitHub branch rule carrying its source ruleset identifier and optional parameters.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiBranchRule", {
+      description: "Effective GitHub branch rule carrying its source ruleset identifier and optional parameters.",
+    })
+  )
 ) {}
 
-class CiRulesetSnapshotRule extends S.Class<CiRulesetSnapshotRule>($I`CiRulesetSnapshotRule`)(
-  {
+class CiRulesetSnapshotRule extends S.Opaque<CiRulesetSnapshotRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Literal("required_status_checks"),
     parameters: CiBranchRuleParameters,
-  },
-  $I.annote("CiRulesetSnapshotRule", {
-    description: "Required-status-check rule selected from a historical ruleset snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiRulesetSnapshotRule", {
+      description: "Required-status-check rule selected from a historical ruleset snapshot.",
+    })
+  )
 ) {}
 
-class CiRulesetSnapshotState extends S.Class<CiRulesetSnapshotState>($I`CiRulesetSnapshotState`)(
-  { rules: S.Array(CiRulesetSnapshotRule) },
-  $I.annote("CiRulesetSnapshotState", {
-    description: "Historical ruleset state projected to required-status-check rules.",
-  })
+class CiRulesetSnapshotState extends S.Opaque<CiRulesetSnapshotState, { readonly brand: unique symbol }>()(
+  S.Struct({ rules: S.Array(CiRulesetSnapshotRule) }).pipe(
+    $I.annoteSchema("CiRulesetSnapshotState", {
+      description: "Historical ruleset state projected to required-status-check rules.",
+    })
+  )
 ) {}
 
-class CiRulesetSnapshot extends S.Class<CiRulesetSnapshot>($I`CiRulesetSnapshot`)(
-  { state: CiRulesetSnapshotState },
-  $I.annote("CiRulesetSnapshot", { description: "Versioned GitHub ruleset snapshot containing its historical state." })
+class CiRulesetSnapshot extends S.Opaque<CiRulesetSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({ state: CiRulesetSnapshotState }).pipe(
+    $I.annoteSchema("CiRulesetSnapshot", {
+      description: "Versioned GitHub ruleset snapshot containing its historical state.",
+    })
+  )
 ) {}
 
 const decodeCiRulesetHistory = S.decodeUnknownEffect(S.fromJsonString(S.Array(CiRulesetHistoryVersion)));
@@ -2033,26 +2073,28 @@ export const collectRequiredContexts = Effect.fn("Ci.collectRequiredContexts")(f
   );
 });
 
-class CiRulesetVersionPopulation extends S.Class<CiRulesetVersionPopulation>($I`CiRulesetVersionPopulation`)(
-  {
+class CiRulesetVersionPopulation extends S.Opaque<CiRulesetVersionPopulation, { readonly brand: unique symbol }>()(
+  S.Struct({
     requiredContextSet: S.HashSet(S.NonEmptyString),
     version: CiRulesetHistoryVersion,
-  },
-  $I.annote("CiRulesetVersionPopulation", {
-    description: "Normalized required contexts read from one historical ruleset version snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiRulesetVersionPopulation", {
+      description: "Normalized required contexts read from one historical ruleset version snapshot.",
+    })
+  )
 ) {}
 
-class CiWindowPopulation extends S.Class<CiWindowPopulation>($I`CiWindowPopulation`)(
-  {
+class CiWindowPopulation extends S.Opaque<CiWindowPopulation, { readonly brand: unique symbol }>()(
+  S.Struct({
     changes: S.Array(CiRulesetPopulationChange),
     requiredContextSet: S.HashSet(S.NonEmptyString),
     version: CiRulesetHistoryVersion,
-  },
-  $I.annote("CiWindowPopulation", {
-    description:
-      "Normalized required contexts and ruleset version selected for the window end, with every version effective inside the window.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiWindowPopulation", {
+      description:
+        "Normalized required contexts and ruleset version selected for the window end, with every version effective inside the window.",
+    })
+  )
 ) {}
 
 const CI_RULESET_HISTORY_PAGE_SIZE = 100;
@@ -2161,7 +2203,8 @@ const resolveWindowPopulation = Effect.fn("Ci.resolveWindowPopulation")(function
   });
 });
 
-const actionConclusion = (job: CiWorkflowJob): string => O.getOrElse(O.fromNullishOr(job.conclusion), () => job.status);
+const actionConclusion = (job: Pick<CiWorkflowJob, "conclusion" | "status">): string =>
+  O.getOrElse(O.fromNullishOr(job.conclusion), () => job.status);
 
 const laterAttemptRowForJob = (
   run: CiWorkflowWindowRun,
@@ -2185,7 +2228,7 @@ const durationRowForAttemptOneJob = (
   lane: string,
   job: CiWorkflowAttemptOneJob
 ): CiLaneTimingWindowRow => {
-  const conclusion = actionConclusion(job);
+  const conclusion = actionConclusion(CiWorkflowJob.make(job));
   if (!Str.equivalence(conclusion, "success")) {
     return CiLaneTimingAttributionRow.make({
       attribution: Str.equivalence(conclusion, "cancelled") ? "cancelled" : "failure",
@@ -2220,7 +2263,7 @@ const durationRowForAttemptOneJob = (
         headSha: run.head_sha,
         jobName: job.name,
         lane,
-        pickupSeconds: attemptOnePickupSeconds(job),
+        pickupSeconds: attemptOnePickupSeconds(CiWorkflowJob.make(job)),
         runAttempt: 1,
         runCreatedAt: run.created_at,
         runId: run.id,
@@ -2331,9 +2374,9 @@ const shardPickupRows = (
       jobs,
       A.filter((job) => A.some(spec.shards, (shardName) => Str.equivalence(shardName, job.name))),
       A.map((job) =>
-        O.map(attemptOnePickupSeconds(job), (pickupSeconds) =>
+        O.map(attemptOnePickupSeconds(CiWorkflowJob.make(job)), (pickupSeconds) =>
           CiLaneTimingPickupRow.make({
-            conclusion: actionConclusion(job),
+            conclusion: actionConclusion(CiWorkflowJob.make(job)),
             event: run.event,
             headSha: run.head_sha,
             jobName: job.name,

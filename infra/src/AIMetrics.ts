@@ -286,8 +286,8 @@ export const AIMetricsPulumiConfigValues = S.Class<AIMetricsPulumiConfigValuesFi
  * @category models
  * @since 0.0.0
  */
-export class AIMetricsRemoteSshConfig extends S.Class<AIMetricsRemoteSshConfig>($I`AIMetricsRemoteSshConfig`)(
-  {
+export class AIMetricsRemoteSshConfig extends S.Opaque<AIMetricsRemoteSshConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentSocketPath: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     host: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultSshHost)),
@@ -297,10 +297,12 @@ export class AIMetricsRemoteSshConfig extends S.Class<AIMetricsRemoteSshConfig>(
       S.withConstructorDefault(Effect.succeed(defaultSshUser)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultSshUser))
     ),
-  },
-  $I.annote("AIMetricsRemoteSshConfig", {
-    description: "Pulumi SSH connection inputs for deploying the AI metrics Phoenix backend with the local SSH agent.",
-  })
+  }).pipe(
+    $I.annoteSchema("AIMetricsRemoteSshConfig", {
+      description:
+        "Pulumi SSH connection inputs for deploying the AI metrics Phoenix backend with the local SSH agent.",
+    })
+  )
 ) {}
 
 /**
@@ -316,10 +318,11 @@ export class AIMetricsRemoteSshConfig extends S.Class<AIMetricsRemoteSshConfig>(
  * @category models
  * @since 0.0.0
  */
-export class AIMetricsRemoteDeploymentConfig extends S.Class<AIMetricsRemoteDeploymentConfig>(
-  $I`AIMetricsRemoteDeploymentConfig`
-)(
-  {
+export class AIMetricsRemoteDeploymentConfig extends S.Opaque<
+  AIMetricsRemoteDeploymentConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     phoenixTailnetHttpsPort: TailnetHttpsPort.pipe(
       S.withConstructorDefault(Effect.succeed(defaultPhoenixTailnetHttpsPort)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultPhoenixTailnetHttpsPort))
@@ -340,10 +343,11 @@ export class AIMetricsRemoteDeploymentConfig extends S.Class<AIMetricsRemoteDepl
       S.withConstructorDefault(Effect.succeed(defaultTailnetFqdn)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultTailnetFqdn))
     ),
-  },
-  $I.annote("AIMetricsRemoteDeploymentConfig", {
-    description: "Remote host, systemd, and Tailscale Serve settings for the AI metrics Phoenix backend.",
-  })
+  }).pipe(
+    $I.annoteSchema("AIMetricsRemoteDeploymentConfig", {
+      description: "Remote host, systemd, and Tailscale Serve settings for the AI metrics Phoenix backend.",
+    })
+  )
 ) {}
 
 /**
@@ -359,17 +363,18 @@ export class AIMetricsRemoteDeploymentConfig extends S.Class<AIMetricsRemoteDepl
  * @category models
  * @since 0.0.0
  */
-export class AIMetricsStackArgs extends S.Class<AIMetricsStackArgs>($I`AIMetricsStackArgs`)(
-  {
+export class AIMetricsStackArgs extends S.Opaque<AIMetricsStackArgs, { readonly brand: unique symbol }>()(
+  S.Struct({
     install: AiMetricsInstallInput,
     remote: AIMetricsRemoteDeploymentConfig.pipe(
       S.withConstructorDefault(Effect.succeed(AIMetricsRemoteDeploymentConfig.make({}))),
       S.withDecodingDefaultKey(Effect.succeed({}))
     ),
-  },
-  $I.annote("AIMetricsStackArgs", {
-    description: "Pulumi-facing AI metrics install arguments resolved before component construction.",
-  })
+  }).pipe(
+    $I.annoteSchema("AIMetricsStackArgs", {
+      description: "Pulumi-facing AI metrics install arguments resolved before component construction.",
+    })
+  )
 ) {
   /**
    * Build Pulumi component args from a schema-first install input.
@@ -511,7 +516,7 @@ export class AIMetricsStack extends pulumi.ComponentResource {
    *
    * @since 0.0.0
    */
-  public readonly installSpec: pulumi.Output<AiMetricsInstallSpec>;
+  public readonly installSpec: pulumi.Output<pulumi.Unwrap<AiMetricsInstallSpec>>;
 
   /**
    * Raw transcript archive root.
@@ -546,14 +551,14 @@ export class AIMetricsStack extends pulumi.ComponentResource {
    *
    * @since 0.0.0
    */
-  public readonly defaultService: pulumi.Output<AiMetricsServiceSpec>;
+  public readonly defaultService: pulumi.Output<pulumi.Unwrap<AiMetricsServiceSpec>>;
 
   /**
    * Default trace-only OTLP endpoint planned for the selected target.
    *
    * @since 0.0.0
    */
-  public readonly otlpEndpoint: pulumi.Output<AiMetricsOtlpEndpointSpec>;
+  public readonly otlpEndpoint: pulumi.Output<pulumi.Unwrap<AiMetricsOtlpEndpointSpec>>;
 
   /**
    * Default trace-only OTLP HTTP endpoint URL.

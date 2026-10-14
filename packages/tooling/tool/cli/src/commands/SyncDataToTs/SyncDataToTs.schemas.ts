@@ -161,8 +161,8 @@ export type SyncDataTargetAccess = typeof SyncDataTargetAccess.Type;
  * @category models
  * @since 0.0.0
  */
-export class SyncDataTargetMetadata extends S.Class<SyncDataTargetMetadata>($I`SyncDataTargetMetadata`)(
-  {
+export class SyncDataTargetMetadata extends S.Opaque<SyncDataTargetMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     access: SyncDataTargetAccess.annotateKey({
       description: "Whether the target can be fetched publicly or requires authenticated source access.",
     }),
@@ -175,10 +175,11 @@ export class SyncDataTargetMetadata extends S.Class<SyncDataTargetMetadata>($I`S
     sourceUrls: S.Array(S.String).annotateKey({
       description: "Upstream source URLs recorded in command reports.",
     }),
-  },
-  $I.annote("SyncDataTargetMetadata", {
-    description: "Schema-backed metadata shared by every checked-in sync-data-to-ts target.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncDataTargetMetadata", {
+      description: "Schema-backed metadata shared by every checked-in sync-data-to-ts target.",
+    })
+  )
 ) {}
 
 /**
@@ -195,17 +196,18 @@ export class SyncDataTargetMetadata extends S.Class<SyncDataTargetMetadata>($I`S
  * @category models
  * @since 0.0.0
  */
-export class SyncDataSourceMetadata extends S.Class<SyncDataSourceMetadata>($I`SyncDataSourceMetadata`)(
-  {
+export class SyncDataSourceMetadata extends S.Opaque<SyncDataSourceMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     url: S.String,
     sha256: S.String,
     version: S.optionalKey(S.String),
     published: S.optionalKey(S.String),
-  },
-  $I.annote("SyncDataSourceMetadata", {
-    description: "Stable metadata for one upstream source used by a sync target.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncDataSourceMetadata", {
+      description: "Stable metadata for one upstream source used by a sync target.",
+    })
+  )
 ) {}
 
 /**
@@ -222,14 +224,15 @@ export class SyncDataSourceMetadata extends S.Class<SyncDataSourceMetadata>($I`S
  * @category models
  * @since 0.0.0
  */
-export class SyncDataOutputFile extends S.Class<SyncDataOutputFile>($I`SyncDataOutputFile`)(
-  {
+export class SyncDataOutputFile extends S.Opaque<SyncDataOutputFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     content: S.String,
-  },
-  $I.annote("SyncDataOutputFile", {
-    description: "Generated file content with its repo-relative output path.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncDataOutputFile", {
+      description: "Generated file content with its repo-relative output path.",
+    })
+  )
 ) {}
 
 /**
@@ -246,18 +249,19 @@ export class SyncDataOutputFile extends S.Class<SyncDataOutputFile>($I`SyncDataO
  * @category models
  * @since 0.0.0
  */
-export class SyncDataTargetProjection extends S.Class<SyncDataTargetProjection>($I`SyncDataTargetProjection`)(
-  {
+export class SyncDataTargetProjection extends S.Opaque<SyncDataTargetProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     files: S.Array(SyncDataOutputFile),
     canonicalPath: S.String,
     canonical: S.Json,
     recordCount: S.Finite,
     summary: S.String,
     sources: S.Array(SyncDataSourceMetadata),
-  },
-  $I.annote("SyncDataTargetProjection", {
-    description: "Rendered target projection ready to compare or write to disk.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncDataTargetProjection", {
+      description: "Rendered target projection ready to compare or write to disk.",
+    })
+  )
 ) {}
 
 /**
@@ -310,14 +314,15 @@ export interface SyncDataTarget extends SyncDataTargetMetadata {
  * @category models
  * @since 0.0.0
  */
-export class SyncDataFileResult extends S.Class<SyncDataFileResult>($I`SyncDataFileResult`)(
-  {
+export class SyncDataFileResult extends S.Opaque<SyncDataFileResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     changed: S.Boolean,
-  },
-  $I.annote("SyncDataFileResult", {
-    description: "Per-file sync result after diffing or writing.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncDataFileResult", {
+      description: "Per-file sync result after diffing or writing.",
+    })
+  )
 ) {}
 
 const SyncDataJsonPatchOperation = LiteralKit(["add", "remove", "replace"])
@@ -376,8 +381,8 @@ const SyncDataJsonPatch = S.Array(SyncDataJsonPatchOperation).pipe(
  * @category models
  * @since 0.0.0
  */
-export class SyncDataTargetResult extends S.Class<SyncDataTargetResult>($I`SyncDataTargetResult`)(
-  {
+export class SyncDataTargetResult extends S.Opaque<SyncDataTargetResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalPatch: SyncDataJsonPatch,
     canonicalPath: S.String,
     changed: S.Boolean,
@@ -389,8 +394,9 @@ export class SyncDataTargetResult extends S.Class<SyncDataTargetResult>($I`SyncD
     sourceUrls: S.Array(S.String),
     summary: S.String,
     targetId: S.String,
-  },
-  $I.annote("SyncDataTargetResult", {
-    description: "Per-target command result after diffing or writing generated data.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncDataTargetResult", {
+      description: "Per-target command result after diffing or writing generated data.",
+    })
+  )
 ) {}

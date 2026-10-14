@@ -72,7 +72,10 @@ export const KNOWLEDGE_HISTORY_REMEDIATION =
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeOperationalError extends S.TaggedError<KnowledgeOperationalError>($I`KnowledgeOperationalError`)(
+export class KnowledgeOperationalError extends S.TaggedError<
+  KnowledgeOperationalError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeOperationalError`)(
   "KnowledgeOperationalError",
   {
     message: S.String,
@@ -168,7 +171,9 @@ export class KnowledgeOperationalError extends S.TaggedError<KnowledgeOperationa
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeProbeBootError extends S.TaggedError<KnowledgeProbeBootError>($I`KnowledgeProbeBootError`)(
+export class KnowledgeProbeBootError extends S.TaggedError<KnowledgeProbeBootError, { readonly brand: unique symbol }>(
+  $I`KnowledgeProbeBootError`
+)(
   "KnowledgeProbeBootError",
   {
     message: S.String,
@@ -204,9 +209,10 @@ export class KnowledgeProbeBootError extends S.TaggedError<KnowledgeProbeBootErr
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeIntroducedFindingsError extends S.TaggedError<KnowledgeIntroducedFindingsError>(
-  $I`KnowledgeIntroducedFindingsError`
-)(
+export class KnowledgeIntroducedFindingsError extends S.TaggedError<
+  KnowledgeIntroducedFindingsError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeIntroducedFindingsError`)(
   "KnowledgeIntroducedFindingsError",
   {
     message: S.String,
@@ -245,9 +251,10 @@ export class KnowledgeIntroducedFindingsError extends S.TaggedError<KnowledgeInt
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeHostPathDebtError extends S.TaggedError<KnowledgeHostPathDebtError>(
-  $I`KnowledgeHostPathDebtError`
-)(
+export class KnowledgeHostPathDebtError extends S.TaggedError<
+  KnowledgeHostPathDebtError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeHostPathDebtError`)(
   "KnowledgeHostPathDebtError",
   {
     message: S.String,
@@ -283,9 +290,10 @@ export class KnowledgeHostPathDebtError extends S.TaggedError<KnowledgeHostPathD
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeCloneAttributesError extends S.TaggedError<KnowledgeCloneAttributesError>(
-  $I`KnowledgeCloneAttributesError`
-)(
+export class KnowledgeCloneAttributesError extends S.TaggedError<
+  KnowledgeCloneAttributesError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeCloneAttributesError`)(
   "KnowledgeCloneAttributesError",
   {
     message: S.String,
@@ -427,7 +435,10 @@ const INPUT_REMEDIATION: Readonly<Record<KnowledgeDoctorInputReason, string>> = 
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeDoctorInputError extends S.TaggedError<KnowledgeDoctorInputError>($I`KnowledgeDoctorInputError`)(
+export class KnowledgeDoctorInputError extends S.TaggedError<
+  KnowledgeDoctorInputError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeDoctorInputError`)(
   "KnowledgeDoctorInputError",
   {
     reason: KnowledgeDoctorInputReason,
@@ -498,7 +509,10 @@ export class KnowledgeDoctorInputError extends S.TaggedError<KnowledgeDoctorInpu
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeDoctorGateError extends S.TaggedError<KnowledgeDoctorGateError>($I`KnowledgeDoctorGateError`)(
+export class KnowledgeDoctorGateError extends S.TaggedError<
+  KnowledgeDoctorGateError,
+  { readonly brand: unique symbol }
+>($I`KnowledgeDoctorGateError`)(
   "KnowledgeDoctorGateError",
   {
     message: S.String,
@@ -535,7 +549,9 @@ export class KnowledgeDoctorGateError extends S.TaggedError<KnowledgeDoctorGateE
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeMintRefusal extends S.TaggedError<KnowledgeMintRefusal>($I`KnowledgeMintRefusal`)(
+export class KnowledgeMintRefusal extends S.TaggedError<KnowledgeMintRefusal, { readonly brand: unique symbol }>(
+  $I`KnowledgeMintRefusal`
+)(
   "KnowledgeMintRefusal",
   {
     message: S.String,
@@ -565,7 +581,9 @@ export class KnowledgeMintRefusal extends S.TaggedError<KnowledgeMintRefusal>($I
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeSealBroken extends S.TaggedError<KnowledgeSealBroken>($I`KnowledgeSealBroken`)(
+export class KnowledgeSealBroken extends S.TaggedError<KnowledgeSealBroken, { readonly brand: unique symbol }>(
+  $I`KnowledgeSealBroken`
+)(
   "KnowledgeSealBroken",
   {
     message: S.String,

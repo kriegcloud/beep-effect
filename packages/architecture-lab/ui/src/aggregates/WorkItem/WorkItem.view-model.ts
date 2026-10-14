@@ -136,8 +136,8 @@ const VisibleActionList = S.Array(WorkItemVisibleAction)
  * @category read-models
  * @since 0.0.0
  */
-export class WorkItemSummaryViewModel extends S.Class<WorkItemSummaryViewModel>($I`WorkItemSummaryViewModel`)(
-  {
+export class WorkItemSummaryViewModel extends S.Opaque<WorkItemSummaryViewModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: DomainWorkItem.WorkItemId.annotateKey({
       description: "Stable identifier of the summarized WorkItem aggregate.",
     }),
@@ -158,11 +158,12 @@ export class WorkItemSummaryViewModel extends S.Class<WorkItemSummaryViewModel>(
     visibleActions: VisibleActionList.annotateKey({
       description: "Unique browser-safe action keys currently visible for the WorkItem.",
     }),
-  },
-  $I.annote("WorkItemSummaryViewModel", {
-    title: "WorkItem summary view model",
-    description: "Client-renderable summary for the canonical architecture lab WorkItem aggregate.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkItemSummaryViewModel", {
+      title: "WorkItem summary view model",
+      description: "Client-renderable summary for the canonical architecture lab WorkItem aggregate.",
+    })
+  )
 ) {}
 
 const makeStatusLabel: (status: DomainWorkItem.WorkItemStatus) => string = Str.toUpperCase;

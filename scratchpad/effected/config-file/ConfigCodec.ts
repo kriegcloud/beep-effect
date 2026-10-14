@@ -34,7 +34,7 @@ const $I = $ScratchpadId.create("effected/config-file/ConfigCodec");
  * @category errors
  * @since 0.0.0
  */
-export class ConfigCodecError extends S.TaggedError<ConfigCodecError>($I`ConfigCodecError`)("ConfigCodecError", {
+export class ConfigCodecError extends S.TaggedError<ConfigCodecError, { readonly brand: unique symbol }>($I`ConfigCodecError`)("ConfigCodecError", {
 	/**
  * The codec that failed, e.g. `"json"`.
  *

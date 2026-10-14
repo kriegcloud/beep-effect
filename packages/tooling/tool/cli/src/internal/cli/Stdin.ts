@@ -30,7 +30,9 @@ const $I = $RepoCliId.create("internal/cli/Stdin");
  * @category errors
  * @since 0.0.0
  */
-export class StdinDocumentError extends S.TaggedError<StdinDocumentError>($I`StdinDocumentError`)(
+export class StdinDocumentError extends S.TaggedError<StdinDocumentError, { readonly brand: unique symbol }>(
+  $I`StdinDocumentError`
+)(
   "StdinDocumentError",
   {
     message: S.String,

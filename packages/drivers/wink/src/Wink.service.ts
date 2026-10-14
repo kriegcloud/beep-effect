@@ -102,14 +102,15 @@ export type InstanceId = typeof InstanceId.Type;
  * @category models
  * @since 0.0.0
  */
-export class WinkEngineState extends S.Class<WinkEngineState>($I`WinkEngineState`)(
-  {
+export class WinkEngineState extends S.Opaque<WinkEngineState, { readonly brand: unique symbol }>()(
+  S.Struct({
     customEntities: S.OptionFromOptionalKey(WinkEngineCustomEntities),
     instanceId: InstanceId,
-  },
-  $I.annote("WinkEngineState", {
-    description: "Serializable metadata describing one live wink engine instance.",
-  })
+  }).pipe(
+    $I.annoteSchema("WinkEngineState", {
+      description: "Serializable metadata describing one live wink engine instance.",
+    })
+  )
 ) {}
 
 /**

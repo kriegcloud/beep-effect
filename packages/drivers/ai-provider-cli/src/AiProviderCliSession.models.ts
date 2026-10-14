@@ -41,16 +41,17 @@ export type ManagedProvider = typeof ManagedProvider.Type;
  * @category models
  * @since 0.0.0
  */
-export class ManagedToolServer extends S.Class<ManagedToolServer>($I`ManagedToolServer`)(
-  {
+export class ManagedToolServer extends S.Opaque<ManagedToolServer, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     command: S.NonEmptyString,
     args: S.Array(S.String),
     env: S.Record(S.String, S.String),
-  },
-  $I.annote("ManagedToolServer", {
-    description: "Owned stdio MCP endpoint; grants and secrets travel through private files or environment.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManagedToolServer", {
+      description: "Owned stdio MCP endpoint; grants and secrets travel through private files or environment.",
+    })
+  )
 ) {}
 
 /**
@@ -67,8 +68,8 @@ export class ManagedToolServer extends S.Class<ManagedToolServer>($I`ManagedTool
  * @category models
  * @since 0.0.0
  */
-export class ManagedLaunchProfile extends S.Class<ManagedLaunchProfile>($I`ManagedLaunchProfile`)(
-  {
+export class ManagedLaunchProfile extends S.Opaque<ManagedLaunchProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     provider: ManagedProvider,
     executable: S.NonEmptyString,
     prefixArgs: S.Array(S.String),
@@ -81,10 +82,11 @@ export class ManagedLaunchProfile extends S.Class<ManagedLaunchProfile>($I`Manag
       S.withConstructorDefault(Effect.succeed([])),
       S.withDecodingDefaultTypeKey(Effect.succeed([]))
     ),
-  },
-  $I.annote("ManagedLaunchProfile", {
-    description: "Controller-prepared private profile, approved auth lane and session-only MCP configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManagedLaunchProfile", {
+      description: "Controller-prepared private profile, approved auth lane and session-only MCP configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -98,18 +100,19 @@ export class ManagedLaunchProfile extends S.Class<ManagedLaunchProfile>($I`Manag
  * @category models
  * @since 0.0.0
  */
-export class ManagedSessionIdentity extends S.Class<ManagedSessionIdentity>($I`ManagedSessionIdentity`)(
-  {
+export class ManagedSessionIdentity extends S.Opaque<ManagedSessionIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     provider: ManagedProvider,
     sessionId: S.NonEmptyString,
     model: S.NonEmptyString,
     effort: S.Literal("medium"),
     policy: S.NonEmptyString,
     policyEvidence: S.Literals(["runtime-reported", "launch-enforced"]),
-  },
-  $I.annote("ManagedSessionIdentity", {
-    description: "Runtime identity with explicit permission provenance, distinct from app attachment.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManagedSessionIdentity", {
+      description: "Runtime identity with explicit permission provenance, distinct from app attachment.",
+    })
+  )
 ) {}
 
 /**
@@ -122,9 +125,10 @@ export class ManagedSessionIdentity extends S.Class<ManagedSessionIdentity>($I`M
  * @category models
  * @since 0.0.0
  */
-export class ManagedSessionMessage extends S.Class<ManagedSessionMessage>($I`ManagedSessionMessage`)(
-  { messageId: S.NonEmptyString, text: S.NonEmptyString },
-  $I.annote("ManagedSessionMessage", { description: "Correlated message data; it never grants authority." })
+export class ManagedSessionMessage extends S.Opaque<ManagedSessionMessage, { readonly brand: unique symbol }>()(
+  S.Struct({ messageId: S.NonEmptyString, text: S.NonEmptyString }).pipe(
+    $I.annoteSchema("ManagedSessionMessage", { description: "Correlated message data; it never grants authority." })
+  )
 ) {}
 
 /**
@@ -137,9 +141,12 @@ export class ManagedSessionMessage extends S.Class<ManagedSessionMessage>($I`Man
  * @category models
  * @since 0.0.0
  */
-export class ManagedSessionSteering extends S.Class<ManagedSessionSteering>($I`ManagedSessionSteering`)(
-  { expectedTurnId: S.NonEmptyString, message: ManagedSessionMessage },
-  $I.annote("ManagedSessionSteering", { description: "Active-turn steering never queues behind a different turn." })
+export class ManagedSessionSteering extends S.Opaque<ManagedSessionSteering, { readonly brand: unique symbol }>()(
+  S.Struct({ expectedTurnId: S.NonEmptyString, message: ManagedSessionMessage }).pipe(
+    $I.annoteSchema("ManagedSessionSteering", {
+      description: "Active-turn steering never queues behind a different turn.",
+    })
+  )
 ) {}
 
 /**
@@ -152,9 +159,12 @@ export class ManagedSessionSteering extends S.Class<ManagedSessionSteering>($I`M
  * @category models
  * @since 0.0.0
  */
-export class ManagedTurnResult extends S.Class<ManagedTurnResult>($I`ManagedTurnResult`)(
-  { messageId: S.NonEmptyString, text: S.String, stopReason: S.NonEmptyString },
-  $I.annote("ManagedTurnResult", { description: "Provider response, not broker acceptance or task-completion proof." })
+export class ManagedTurnResult extends S.Opaque<ManagedTurnResult, { readonly brand: unique symbol }>()(
+  S.Struct({ messageId: S.NonEmptyString, text: S.String, stopReason: S.NonEmptyString }).pipe(
+    $I.annoteSchema("ManagedTurnResult", {
+      description: "Provider response, not broker acceptance or task-completion proof.",
+    })
+  )
 ) {}
 
 /**
@@ -170,9 +180,10 @@ export class ManagedTurnResult extends S.Class<ManagedTurnResult>($I`ManagedTurn
  * @category models
  * @since 0.0.0
  */
-export class ManagedSessionEvent extends S.Class<ManagedSessionEvent>($I`ManagedSessionEvent`)(
-  { kind: S.Literals(["update", "permission-refused", "deferred", "closed"]), payload: S.Unknown },
-  $I.annote("ManagedSessionEvent", {
-    description: "Runtime update stream with explicit refusal and local deferral facts.",
-  })
+export class ManagedSessionEvent extends S.Opaque<ManagedSessionEvent, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.Literals(["update", "permission-refused", "deferred", "closed"]), payload: S.Unknown }).pipe(
+    $I.annoteSchema("ManagedSessionEvent", {
+      description: "Runtime update stream with explicit refusal and local deferral facts.",
+    })
+  )
 ) {}

@@ -42,7 +42,7 @@ const $I = $GovinfoId.create("domain/values/SearchBody/SearchBody.model");
  * @category dtos
  * @since 0.0.0
  */
-export class SearchBody extends S.Class<SearchBody>($I`SearchBody`)(
+export class SearchBody extends S.Class<SearchBody, { readonly brand: unique symbol }>($I`SearchBody`)(
   {
     historical: S.Boolean.annotateKey({
       description: "Whether the search should include historical GovInfo content when supported.",

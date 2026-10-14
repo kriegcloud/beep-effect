@@ -89,7 +89,7 @@ export type XAiErrorReason = typeof XAiErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class XAiError extends S.TaggedError<XAiError>($I`XAiError`)(
+export class XAiError extends S.TaggedError<XAiError, { readonly brand: unique symbol }>($I`XAiError`)(
   "XAiError",
   {
     cause: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -215,14 +215,15 @@ const causeFromUnknown = (cause: unknown): O.Option<string> =>
  * @category errors
  * @since 0.0.0
  */
-export class XAiErrorOptions extends S.Class<XAiErrorOptions>($I`XAiErrorOptions`)(
-  {
+export class XAiErrorOptions extends S.Opaque<XAiErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.OptionFromOptionalKey(
       S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))
     ).pipe(S.withConstructorDefault(Effect.succeedNone)),
     status: S.OptionFromOptionalKey(XAiHttpStatusCode).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("XAiErrorOptions", {
-    description: "Options for configuring XAiError instances, including optional redacted cause and status fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("XAiErrorOptions", {
+      description: "Options for configuring XAiError instances, including optional redacted cause and status fields.",
+    })
+  )
 ) {}

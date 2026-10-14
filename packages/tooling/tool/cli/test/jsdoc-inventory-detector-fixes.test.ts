@@ -1,4 +1,5 @@
 import {
+  JSDocDocumentationInventoryOptions,
   jsdocCommentsFromSource,
   tagsFromComment,
   writeJSDocDocumentationInventory,
@@ -160,12 +161,14 @@ const buildInventory = Effect.fnUntraced(function* (repoRoot: string) {
   const outputJsonPath = path.join(repoRoot, "out", "jsdoc.inventory.jsonc");
   const outputMarkdownPath = path.join(repoRoot, "out", "jsdoc.inventory.md");
 
-  yield* writeJSDocDocumentationInventory({
-    rootDir: repoRoot,
-    outputJsonPath,
-    outputMarkdownPath,
-    generatedAt: fixedGeneratedAt,
-  });
+  yield* writeJSDocDocumentationInventory(
+    JSDocDocumentationInventoryOptions.make({
+      rootDir: repoRoot,
+      outputJsonPath,
+      outputMarkdownPath,
+      generatedAt: fixedGeneratedAt,
+    })
+  );
 
   return parseJsoncText(yield* fs.readFileString(outputJsonPath)) as InventoryJson;
 });

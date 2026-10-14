@@ -32,17 +32,18 @@ const $I = $ObservabilityId.create("web/Config");
  * @category models
  * @since 0.0.0
  */
-export class WebObservabilityConfig extends S.Class<WebObservabilityConfig>($I`WebObservabilityConfig`)(
-  {
+export class WebObservabilityConfig extends S.Opaque<WebObservabilityConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     serviceName: S.String,
     serviceVersion: S.String,
     environment: S.String,
     minLogLevel: S.Literals(LogLevel.values),
     resourceAttributes: S.Record(S.String, S.String),
-  },
-  $I.annote("WebObservabilityConfig", {
-    description: "Browser-only observability configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("WebObservabilityConfig", {
+      description: "Browser-only observability configuration.",
+    })
+  )
 ) {}
 
 /**

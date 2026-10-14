@@ -136,18 +136,22 @@ export const OPENAI_DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small" satisfies
  * @category models
  * @since 0.0.0
  */
-export class OpenAiLanguageModelOptions extends S.Class<OpenAiLanguageModelOptions>($I`OpenAiLanguageModelOptions`)(
-  {
+export class OpenAiLanguageModelOptions extends S.Opaque<
+  OpenAiLanguageModelOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     model: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed(OPENAI_DEFAULT_MODEL)),
       S.withDecodingDefaultTypeKey(Effect.succeed(OPENAI_DEFAULT_MODEL))
     ).annotateKey({
       description: "OpenAI Responses API model identifier used by the language-model Layer.",
     }),
-  },
-  $I.annote("OpenAiLanguageModelOptions", {
-    description: "Options accepted by the OpenAI language-model Layer factory.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiLanguageModelOptions", {
+      description: "Options accepted by the OpenAI language-model Layer factory.",
+    })
+  )
 ) {}
 
 /**
@@ -176,8 +180,11 @@ export class OpenAiLanguageModelOptions extends S.Class<OpenAiLanguageModelOptio
  * @category models
  * @since 0.0.0
  */
-export class OpenAiEmbeddingModelOptions extends S.Class<OpenAiEmbeddingModelOptions>($I`OpenAiEmbeddingModelOptions`)(
-  {
+export class OpenAiEmbeddingModelOptions extends S.Opaque<
+  OpenAiEmbeddingModelOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dimensions: PosInt.annotateKey({
       description: "Positive embedding vector size provided as `EmbeddingModel.Dimensions`.",
     }),
@@ -187,8 +194,9 @@ export class OpenAiEmbeddingModelOptions extends S.Class<OpenAiEmbeddingModelOpt
     ).annotateKey({
       description: "OpenAI embeddings API model identifier used by the embedding-model Layer.",
     }),
-  },
-  $I.annote("OpenAiEmbeddingModelOptions", {
-    description: "Options accepted by the OpenAI embedding-model Layer factory.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiEmbeddingModelOptions", {
+      description: "Options accepted by the OpenAI embedding-model Layer factory.",
+    })
+  )
 ) {}

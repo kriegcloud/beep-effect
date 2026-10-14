@@ -24,7 +24,7 @@ import { hostileFs, recordingFs } from "./helpers.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
-class AppShape extends S.Class<AppShape>("AppShape")({ port: S.Finite }) {}
+class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({ port: S.Finite }) {}
 class AppConfig extends ConfigFile.Service<AppConfig, AppShape>()("test/WriteConfig") {}
 
 const layerFor = (host: RecordingFs, defaultPath?: string, codec: ConfigCodecShape = JsonCodec) =>

@@ -93,9 +93,10 @@ export type CandorRecordOperation = typeof CandorRecordOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class CandorRecordRepositoryUnavailable extends S.TaggedError<CandorRecordRepositoryUnavailable>(
-  $I`CandorRecordRepositoryUnavailable`
-)(
+export class CandorRecordRepositoryUnavailable extends S.TaggedError<
+  CandorRecordRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`CandorRecordRepositoryUnavailable`)(
   "CandorRecordRepositoryUnavailable",
   {
     cause: S.OptionFromOptionalKey(
@@ -197,8 +198,11 @@ export class CandorRecordRepositoryUnavailable extends S.TaggedError<CandorRecor
  * @category repositories
  * @since 0.0.0
  */
-export class CandorRecordRepositoryShape extends S.Class<CandorRecordRepositoryShape>($I`CandorRecordRepositoryShape`)(
-  {
+export class CandorRecordRepositoryShape extends S.Opaque<
+  CandorRecordRepositoryShape,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     listDispositions: Fn({
       input: CandorFilingScope,
       output: EffectOutput<ReadonlyArray<CandorDisposition>, CandorRecordRepositoryUnavailable>(),
@@ -241,10 +245,11 @@ export class CandorRecordRepositoryShape extends S.Class<CandorRecordRepositoryS
     }).annotateKey({
       description: "Read a filing's citation events and dispositions from one protected snapshot.",
     }),
-  },
-  $I.annote("CandorRecordRepositoryShape", {
-    description: "Append-and-read-only service shape over durable candor records for one filing.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandorRecordRepositoryShape", {
+      description: "Append-and-read-only service shape over durable candor records for one filing.",
+    })
+  )
 ) {}
 
 /**

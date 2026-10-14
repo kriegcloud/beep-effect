@@ -35,14 +35,15 @@ const $I = $RepoCliId.create("commands/CreatePackage/TemplateService");
  * @category models
  * @since 0.0.0
  */
-export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
-  {
+export class TemplateSpec extends S.Opaque<TemplateSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     templateName: S.String,
     outputPath: S.String,
-  },
-  $I.annote("TemplateSpec", {
-    description: "Mapping between template source file and output file path.",
-  })
+  }).pipe(
+    $I.annoteSchema("TemplateSpec", {
+      description: "Mapping between template source file and output file path.",
+    })
+  )
 ) {}
 
 /**
@@ -69,14 +70,15 @@ export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
  * @category models
  * @since 0.0.0
  */
-export class StaticAssetSpec extends S.Class<StaticAssetSpec>($I`StaticAssetSpec`)(
-  {
+export class StaticAssetSpec extends S.Opaque<StaticAssetSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     assetName: S.String,
     outputPath: S.String,
-  },
-  $I.annote("StaticAssetSpec", {
-    description: "Mapping between a verbatim template asset and its output file path.",
-  })
+  }).pipe(
+    $I.annoteSchema("StaticAssetSpec", {
+      description: "Mapping between a verbatim template asset and its output file path.",
+    })
+  )
 ) {}
 
 /**
@@ -95,14 +97,15 @@ export class StaticAssetSpec extends S.Class<StaticAssetSpec>($I`StaticAssetSpec
  * @category models
  * @since 0.0.0
  */
-export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTemplate`)(
-  {
+export class RenderedTemplate extends S.Opaque<RenderedTemplate, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputPath: S.String,
     content: S.String,
-  },
-  $I.annote("RenderedTemplate", {
-    description: "Rendered template output.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderedTemplate", {
+      description: "Rendered template output.",
+    })
+  )
 ) {}
 
 /**
@@ -121,18 +124,19 @@ export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTempl
  * @category models
  * @since 0.0.0
  */
-export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`TemplateRenderRequest`)(
-  {
+export class TemplateRenderRequest extends S.Opaque<TemplateRenderRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     templateDir: S.String,
     templates: S.Array(TemplateSpec),
     context: S.Record(S.String, S.Unknown).pipe(
       S.withConstructorDefault(Effect.succeed(thunkEmptyRecord<string, unknown>())),
       S.withDecodingDefault(Effect.succeed(thunkEmptyRecord<string, unknown>()))
     ),
-  },
-  $I.annote("TemplateRenderRequest", {
-    description: "Request payload for template rendering.",
-  })
+  }).pipe(
+    $I.annoteSchema("TemplateRenderRequest", {
+      description: "Request payload for template rendering.",
+    })
+  )
 ) {}
 
 /**

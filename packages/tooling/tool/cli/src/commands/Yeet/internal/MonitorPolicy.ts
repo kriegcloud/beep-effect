@@ -195,14 +195,15 @@ export type YeetMonitorAttachment = typeof YeetMonitorAttachment.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetUntilMergedPolicy extends S.Class<YeetUntilMergedPolicy>($I`YeetUntilMergedPolicy`)(
-  {
+export class YeetUntilMergedPolicy extends S.Opaque<YeetUntilMergedPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("until-merged"),
     settleTimeoutMs: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(YEET_SETTLE_TIMEOUT_DEFAULT_MILLIS))),
-  },
-  $I.annote("YeetUntilMergedPolicy", {
-    description: "Loop policy that ends only on MERGED (after the sweep) or CLOSED.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetUntilMergedPolicy", {
+      description: "Loop policy that ends only on MERGED (after the sweep) or CLOSED.",
+    })
+  )
 ) {}
 
 /**
@@ -213,14 +214,15 @@ export class YeetUntilMergedPolicy extends S.Class<YeetUntilMergedPolicy>($I`Yee
  * @category models
  * @since 0.0.0
  */
-export class YeetUntilReadyPolicy extends S.Class<YeetUntilReadyPolicy>($I`YeetUntilReadyPolicy`)(
-  {
+export class YeetUntilReadyPolicy extends S.Opaque<YeetUntilReadyPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("until-ready"),
     settleTimeoutMs: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(YEET_SETTLE_TIMEOUT_DEFAULT_MILLIS))),
-  },
-  $I.annote("YeetUntilReadyPolicy", {
-    description: "Loop policy that ends with exit 0 on the first merge-ready poll.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetUntilReadyPolicy", {
+      description: "Loop policy that ends with exit 0 on the first merge-ready poll.",
+    })
+  )
 ) {}
 
 /**
@@ -378,15 +380,16 @@ export const yeetMonitorLoopTerminals: {
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorExit extends S.Class<YeetMonitorExit>($I`YeetMonitorExit`)(
-  {
+export class YeetMonitorExit extends S.Opaque<YeetMonitorExit, { readonly brand: unique symbol }>()(
+  S.Struct({
     terminal: YeetMonitorTerminalState,
     exitCode: S.Finite,
     summary: S.NonEmptyString,
-  },
-  $I.annote("YeetMonitorExit", {
-    description: "Exit code and operator summary for one merge-loop terminal state.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorExit", {
+      description: "Exit code and operator summary for one merge-loop terminal state.",
+    })
+  )
 ) {}
 
 /**
@@ -511,8 +514,8 @@ export const yeetMonitorExitTable: ReadonlyArray<YeetMonitorExit> = A.map(
  * @category models
  * @since 0.0.0
  */
-export class YeetHeadTimeline extends S.Class<YeetHeadTimeline>($I`YeetHeadTimeline`)(
-  {
+export class YeetHeadTimeline extends S.Opaque<YeetHeadTimeline, { readonly brand: unique symbol }>()(
+  S.Struct({
     headSha: S.NonEmptyString,
     firstObservedAt: S.String,
     pushedAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -521,10 +524,11 @@ export class YeetHeadTimeline extends S.Class<YeetHeadTimeline>($I`YeetHeadTimel
     settledAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     closeoutAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     readyAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetHeadTimeline", {
-    description: "Push, first-red, settle, closeout, and ready instants for one pull request head.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetHeadTimeline", {
+      description: "Push, first-red, settle, closeout, and ready instants for one pull request head.",
+    })
+  )
 ) {}
 
 /**
@@ -548,14 +552,15 @@ export class YeetHeadTimeline extends S.Class<YeetHeadTimeline>($I`YeetHeadTimel
  * @category models
  * @since 0.0.0
  */
-export class YeetHeadRed extends S.Class<YeetHeadRed>($I`YeetHeadRed`)(
-  {
+export class YeetHeadRed extends S.Opaque<YeetHeadRed, { readonly brand: unique symbol }>()(
+  S.Struct({
     at: S.String,
     lane: S.NonEmptyString,
-  },
-  $I.annote("YeetHeadRed", {
-    description: "The failing required check that stamps a head's red, and GitHub's completedAt for it.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetHeadRed", {
+      description: "The failing required check that stamps a head's red, and GitHub's completedAt for it.",
+    })
+  )
 ) {}
 
 /**
@@ -802,18 +807,19 @@ export type YeetPushToAckStage = typeof YeetPushToAckStage.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetPushToAckTimeline extends S.Class<YeetPushToAckTimeline>($I`YeetPushToAckTimeline`)(
-  {
+export class YeetPushToAckTimeline extends S.Opaque<YeetPushToAckTimeline, { readonly brand: unique symbol }>()(
+  S.Struct({
     headSha: S.NonEmptyString,
     pushedAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     redAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     rowAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     injectedAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     ackedAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetPushToAckTimeline", {
-    description: "Push, first-red, row-written, row-injected, and acked instants for one pull request head.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPushToAckTimeline", {
+      description: "Push, first-red, row-written, row-injected, and acked instants for one pull request head.",
+    })
+  )
 ) {}
 
 const pushToAckInstant = (timeline: YeetPushToAckTimeline, stage: YeetPushToAckStage): O.Option<string> =>

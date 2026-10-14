@@ -101,30 +101,28 @@ const PandocConformanceWire = S.Record(S.String, S.Json).pipe(
   })
 );
 
-class FuturePandocConstructorIssue extends S.TaggedClass<FuturePandocConstructorIssue>(
-  $I`FuturePandocConstructorIssue`
-)(
-  "futureConstructor",
-  {
+class FuturePandocConstructorIssue extends S.Opaque<FuturePandocConstructorIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("futureConstructor", {
     constructor: S.String.annotateKey({
       description: "Future constructor name retained by the open semantic wire lane.",
     }),
-  },
-  $I.annote("FuturePandocConstructorIssue", {
-    description: "Future Pandoc constructor retained losslessly but outside the pinned current AST.",
-  })
+  }).pipe(
+    $I.annoteSchema("FuturePandocConstructorIssue", {
+      description: "Future Pandoc constructor retained losslessly but outside the pinned current AST.",
+    })
+  )
 ) {}
 
-class NonCanonicalPandocWireIssue extends S.TaggedClass<NonCanonicalPandocWireIssue>($I`NonCanonicalPandocWireIssue`)(
-  "nonCanonicalWire",
-  {
+class NonCanonicalPandocWireIssue extends S.Opaque<NonCanonicalPandocWireIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("nonCanonicalWire", {
     message: S.NonEmptyString.annotateKey({
       description: "Explanation of the strict encode fixed-point mismatch.",
     }),
-  },
-  $I.annote("NonCanonicalPandocWireIssue", {
-    description: "Lossless Pandoc JSON which strict decoding would not reproduce exactly.",
-  })
+  }).pipe(
+    $I.annoteSchema("NonCanonicalPandocWireIssue", {
+      description: "Lossless Pandoc JSON which strict decoding would not reproduce exactly.",
+    })
+  )
 ) {}
 
 /**
@@ -160,42 +158,42 @@ export const PandocConformanceIssue = S.Union([FuturePandocConstructorIssue, Non
  */
 export type PandocConformanceIssue = typeof PandocConformanceIssue.Type;
 
-class CompatiblePandocDocument extends S.TaggedClass<CompatiblePandocDocument>($I`CompatiblePandocDocument`)(
-  "compatible",
-  {
+class CompatiblePandocDocument extends S.Opaque<CompatiblePandocDocument, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("compatible", {
     checkedInvariantIds: PandocCheckedInvariantIds,
     document: PandocDocument,
     wire: PandocConformanceWire,
-  },
-  $I.annote("CompatiblePandocDocument", {
-    description: "Pandoc JSON that is an exact fixed point of the pinned strict semantic codec.",
-  })
+  }).pipe(
+    $I.annoteSchema("CompatiblePandocDocument", {
+      description: "Pandoc JSON that is an exact fixed point of the pinned strict semantic codec.",
+    })
+  )
 ) {}
 
-class UnsupportedPandocDocument extends S.TaggedClass<UnsupportedPandocDocument>($I`UnsupportedPandocDocument`)(
-  "unsupported",
-  {
+class UnsupportedPandocDocument extends S.Opaque<UnsupportedPandocDocument, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("unsupported", {
     checkedInvariantIds: PandocCheckedInvariantIds,
     document: PandocDocument,
     issues: S.NonEmptyArray(PandocConformanceIssue),
     wire: PandocConformanceWire,
-  },
-  $I.annote("UnsupportedPandocDocument", {
-    description: "Lossless Pandoc JSON retained outside the pinned exact strict semantic profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnsupportedPandocDocument", {
+      description: "Lossless Pandoc JSON retained outside the pinned exact strict semantic profile.",
+    })
+  )
 ) {}
 
-class InvalidPandocDocument extends S.TaggedClass<InvalidPandocDocument>($I`InvalidPandocDocument`)(
-  "invalid",
-  {
+class InvalidPandocDocument extends S.Opaque<InvalidPandocDocument, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("invalid", {
     checkedInvariantIds: PandocCheckedInvariantIds,
     issues: S.Array(PandocLosslessIssue),
     message: S.NonEmptyString,
     wire: S.OptionFromOptionalKey(PandocConformanceWire).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("InvalidPandocDocument", {
-    description: "Input that fails the Pandoc JSON envelope or a pinned current-constructor payload invariant.",
-  })
+  }).pipe(
+    $I.annoteSchema("InvalidPandocDocument", {
+      description: "Input that fails the Pandoc JSON envelope or a pinned current-constructor payload invariant.",
+    })
+  )
 ) {}
 
 /**

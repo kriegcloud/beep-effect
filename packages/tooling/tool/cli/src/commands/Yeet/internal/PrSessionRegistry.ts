@@ -70,7 +70,9 @@ export const PrSessionRegistryErrorReason = LiteralKit(["io", "decode", "denied"
  * @category errors
  * @since 0.0.0
  */
-export class PrSessionRegistryError extends S.TaggedError<PrSessionRegistryError>($I`PrSessionRegistryError`)(
+export class PrSessionRegistryError extends S.TaggedError<PrSessionRegistryError, { readonly brand: unique symbol }>(
+  $I`PrSessionRegistryError`
+)(
   "PrSessionRegistryError",
   { reason: PrSessionRegistryErrorReason, message: S.String, cause: S.optionalKey(S.Defect({ includeStack: true })) },
   $I.annoteError<PrSessionRegistryError>("PrSessionRegistryError", {
@@ -154,9 +156,12 @@ const decodeRecord = S.decodeUnknownOption(S.fromJsonString(PrSessionRecord));
  * @category models
  * @since 0.0.0
  */
-export class PrSessionRegistryRead extends S.Class<PrSessionRegistryRead>($I`PrSessionRegistryRead`)(
-  { records: S.Array(PrSessionRecord), corruptLineCount: S.Natural },
-  $I.annote("PrSessionRegistryRead", { description: "Valid registry rows and the count of skipped corrupt lines." })
+export class PrSessionRegistryRead extends S.Opaque<PrSessionRegistryRead, { readonly brand: unique symbol }>()(
+  S.Struct({ records: S.Array(PrSessionRecord), corruptLineCount: S.Natural }).pipe(
+    $I.annoteSchema("PrSessionRegistryRead", {
+      description: "Valid registry rows and the count of skipped corrupt lines.",
+    })
+  )
 ) {}
 
 /**

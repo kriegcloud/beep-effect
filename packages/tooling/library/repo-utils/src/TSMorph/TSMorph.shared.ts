@@ -501,14 +501,15 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
  * @category models
  * @since 0.0.0
  */
-export class NamedDeclaration extends S.Class<NamedDeclaration>($I`NamedDeclaration`)(
-  {
+export class NamedDeclaration extends S.Opaque<NamedDeclaration, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     kind: SymbolKind,
-  },
-  $I.annote("NamedDeclaration", {
-    description: "Represents a named declaration with a name and kind",
-  })
+  }).pipe(
+    $I.annoteSchema("NamedDeclaration", {
+      description: "Represents a named declaration with a name and kind",
+    })
+  )
 ) {
   static readonly newOption: {
     (name: string, kind: SymbolKind): O.Option<NamedDeclaration>;

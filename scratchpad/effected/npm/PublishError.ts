@@ -110,7 +110,7 @@ const PublishFailureFromPayload = PublishErrorPayload.pipe(
  * @category errors
  * @since 0.0.0
  */
-export class PublishError extends S.TaggedError<PublishError>($I`PublishError`)("PublishError", PublishErrorPayload, $I.annote("PublishError", { description: "A publish-workflow step failed." })) {
+export class PublishError extends S.TaggedError<PublishError, { readonly brand: unique symbol }>($I`PublishError`)("PublishError", PublishErrorPayload, $I.annote("PublishError", { description: "A publish-workflow step failed." })) {
 	private get variant(): typeof PublishFailure.Type {
 		return pipe(this, S.decodeUnknownResult(PublishFailureFromPayload), Result.getOrThrow);
 	}

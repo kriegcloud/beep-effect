@@ -157,7 +157,7 @@ export type CodeBlockStyle = typeof CodeBlockStyle.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class MarkdownFormattingOptions extends S.Class<MarkdownFormattingOptions>($I`MarkdownFormattingOptions`)({
+export class MarkdownFormattingOptions extends S.Class<MarkdownFormattingOptions, { readonly brand: unique symbol }>($I`MarkdownFormattingOptions`)({
 	dialect: S.optionalKey(MarkdownDialect).annotateKey({ description: "Markdown syntax used to parse the source before formatting; defaults to `gfm`" }),
 	frontmatter: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to capture an opening frontmatter block while parsing for formatting; disabled by default" }),
 	headingStyle: S.optionalKey(HeadingStyle).annotateKey({ description: "Requested `atx` or `setext` heading spelling, applied only where conversion is safe; omission preserves existing spelling" }),
@@ -225,7 +225,7 @@ export type MarkdownModificationErrorCode = typeof MarkdownModificationErrorCode
  * @category errors
  * @since 0.0.0
  */
-export class MarkdownModificationError extends S.TaggedError<MarkdownModificationError>($I`MarkdownModificationError`)(
+export class MarkdownModificationError extends S.TaggedError<MarkdownModificationError, { readonly brand: unique symbol }>($I`MarkdownModificationError`)(
 	"MarkdownModificationError",
 	{
 		code: MarkdownModificationErrorCode.annotateKey({ description: "Reason replacement failed: target absent, unsupported target or context, incompatible fragment category, or unrenderable fragment" }),

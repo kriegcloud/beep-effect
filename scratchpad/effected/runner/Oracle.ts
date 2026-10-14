@@ -74,7 +74,7 @@ export type OracleSource = typeof OracleSource.Type;
  * @category models
  * @since 0.0.0
  */
-export class Oracle extends S.Class<Oracle>($I`Oracle`)(
+export class Oracle extends S.Class<Oracle, { readonly brand: unique symbol }>($I`Oracle`)(
   {
     commit: S.NonEmptyString,
     checkoutCommit: S.NonEmptyString,

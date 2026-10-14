@@ -11,7 +11,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual } from "effect/Function";
 import * as Match from "effect/Match";
-import { applyJsoncModification } from "../../../../internal/cli/Jsonc.ts";
+import { applyJsoncModification, JsoncModification } from "../../../../internal/cli/Jsonc.ts";
 import { VersionSyncError } from "../../VersionSync.schemas.ts";
 import { BunVercelDocument } from "../resolvers/BunResolver.ts";
 
@@ -55,7 +55,9 @@ export const updateVercelBunVersion: {
       Match.exhaustive
     );
     const updatedCommand = Str.replace(/\bbun@[^\s"'$`]+/g, `bun@${version}`)(command);
-    const updated = applyJsoncModification({ content: original, path: [field], value: updatedCommand });
+    const updated = applyJsoncModification(
+      JsoncModification.make({ content: original, path: [field], value: updatedCommand })
+    );
 
     if (updated === original) {
       return false;

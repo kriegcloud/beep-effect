@@ -79,14 +79,15 @@ export type BrowserFailureSource = typeof BrowserFailureSource.Type;
  * @category models
  * @since 0.0.0
  */
-export class BrowserFailure extends S.Class<BrowserFailure>($I`BrowserFailure`)(
-  {
+export class BrowserFailure extends S.Opaque<BrowserFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: BrowserFailureSource,
     cause: S.Unknown,
-  },
-  $I.annote("BrowserFailure", {
-    description: "One browser-global failure awaiting sanitized telemetry reporting.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserFailure", {
+      description: "One browser-global failure awaiting sanitized telemetry reporting.",
+    })
+  )
 ) {}
 
 const browserFailures = Metric.counter("desktop_renderer_failures_total", { incremental: true });

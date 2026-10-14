@@ -46,34 +46,37 @@ const $I = $ProfessionalDesktopId.create("chat/ui/ComposerPolicy");
  */
 export const MAX_MESSAGE_CHARACTERS = 16_000;
 
-class ComposerDecodeErrorNotice extends S.Class<ComposerDecodeErrorNotice>($I`ComposerDecodeErrorNotice`)(
-  {
+class ComposerDecodeErrorNotice extends S.Opaque<ComposerDecodeErrorNotice, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("decode-error"),
     message: S.NonEmptyString,
-  },
-  $I.annote("ComposerDecodeErrorNotice", {
-    description: "A composer schema projection failure that must also update decode-failure telemetry.",
-  })
+  }).pipe(
+    $I.annoteSchema("ComposerDecodeErrorNotice", {
+      description: "A composer schema projection failure that must also update decode-failure telemetry.",
+    })
+  )
 ) {}
 
-class ComposerErrorNotice extends S.Class<ComposerErrorNotice>($I`ComposerErrorNotice`)(
-  {
+class ComposerErrorNotice extends S.Opaque<ComposerErrorNotice, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("error"),
     message: S.NonEmptyString,
-  },
-  $I.annote("ComposerErrorNotice", {
-    description: "An operator-safe composer refusal rendered as an error toast.",
-  })
+  }).pipe(
+    $I.annoteSchema("ComposerErrorNotice", {
+      description: "An operator-safe composer refusal rendered as an error toast.",
+    })
+  )
 ) {}
 
-class ComposerInfoNotice extends S.Class<ComposerInfoNotice>($I`ComposerInfoNotice`)(
-  {
+class ComposerInfoNotice extends S.Opaque<ComposerInfoNotice, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("info"),
     message: S.NonEmptyString,
-  },
-  $I.annote("ComposerInfoNotice", {
-    description: "A non-failing composer notice rendered as an informational toast.",
-  })
+  }).pipe(
+    $I.annoteSchema("ComposerInfoNotice", {
+      description: "A non-failing composer notice rendered as an informational toast.",
+    })
+  )
 ) {}
 
 const ComposerNoticeKind = LiteralKit(["decode-error", "error", "info"]).pipe(
@@ -131,14 +134,15 @@ export type ComposerNotice = typeof ComposerNotice.Type;
  * @category models
  * @since 0.0.0
  */
-export class ComposerSafetyRefusal extends S.Class<ComposerSafetyRefusal>($I`ComposerSafetyRefusal`)(
-  {
+export class ComposerSafetyRefusal extends S.Opaque<ComposerSafetyRefusal, { readonly brand: unique symbol }>()(
+  S.Struct({
     issueCount: S.Int.check(S.isGreaterThan(0)),
     message: S.NonEmptyString,
-  },
-  $I.annote("ComposerSafetyRefusal", {
-    description: "An inline refusal for a draft that fails the Markdown user-content safety boundary.",
-  })
+  }).pipe(
+    $I.annoteSchema("ComposerSafetyRefusal", {
+      description: "An inline refusal for a draft that fails the Markdown user-content safety boundary.",
+    })
+  )
 ) {}
 
 /**
@@ -148,17 +152,18 @@ export class ComposerSafetyRefusal extends S.Class<ComposerSafetyRefusal>($I`Com
  * @category models
  * @since 0.0.0
  */
-class DocumentViolationFlags extends S.Class<DocumentViolationFlags>($I`DocumentViolationFlags`)(
-  {
+class DocumentViolationFlags extends S.Opaque<DocumentViolationFlags, { readonly brand: unique symbol }>()(
+  S.Struct({
     complexity: S.Boolean,
     footnote: S.Boolean,
     htmlProjection: S.Boolean,
     scalar: S.Boolean,
     url: S.Boolean,
-  },
-  $I.annote("DocumentViolationFlags", {
-    description: "Per-category presence flags for a set of document safety violations.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentViolationFlags", {
+      description: "Per-category presence flags for a set of document safety violations.",
+    })
+  )
 ) {
   static readonly empty = DocumentViolationFlags.make({
     complexity: false,

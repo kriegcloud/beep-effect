@@ -6,8 +6,7 @@
  */
 
 import * as S from "effect/Schema";
-import { $I } from "./Color.shared.ts";
-import type { OklchEncoded, RgbEncoded } from "./Color.shared.ts";
+import { $I, OklchEncoded, RgbEncoded } from "./Color.shared.ts";
 
 const OklchLightnessRangeCheck = S.isBetween(
   {
@@ -74,7 +73,7 @@ const srgbToLinear = (value: number): number => {
  * @category utilities
  * @since 0.0.0
  */
-export const rgbToOklchValue = ({ r, g, b }: RgbEncoded): OklchEncoded => {
+export const rgbToOklchValue = ({ r, g, b }: typeof RgbEncoded.Encoded): OklchEncoded => {
   const lr = srgbToLinear(r);
   const lg = srgbToLinear(g);
   const lb = srgbToLinear(b);
@@ -94,11 +93,11 @@ export const rgbToOklchValue = ({ r, g, b }: RgbEncoded): OklchEncoded => {
   const rawHue = Math.atan2(bValue, a) * (180 / Math.PI);
   const hue = rawHue < 0 ? rawHue + 360 : rawHue;
 
-  return {
+  return OklchEncoded.make({
     l: lightness,
     c: chroma,
     h: hue,
-  };
+  });
 };
 
 /**
@@ -117,7 +116,7 @@ export const rgbToOklchValue = ({ r, g, b }: RgbEncoded): OklchEncoded => {
  * @category utilities
  * @since 0.0.0
  */
-export const oklchToRgbValue = ({ l: lightness, c: chroma, h: hue }: OklchEncoded): RgbEncoded => {
+export const oklchToRgbValue = ({ l: lightness, c: chroma, h: hue }: typeof OklchEncoded.Encoded): RgbEncoded => {
   const a = chroma * Math.cos((hue * Math.PI) / 180);
   const bValue = chroma * Math.sin((hue * Math.PI) / 180);
 
@@ -133,11 +132,11 @@ export const oklchToRgbValue = ({ l: lightness, c: chroma, h: hue }: OklchEncode
   const lg = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
   const lb = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3;
 
-  return {
+  return RgbEncoded.make({
     r: linearToSrgb(lr),
     g: linearToSrgb(lg),
     b: linearToSrgb(lb),
-  };
+  });
 };
 
 /**
@@ -323,15 +322,16 @@ export type OklchHue = typeof OklchHue.Type;
  * @category validation
  * @since 0.0.0
  */
-export class OklchInput extends S.Class<OklchInput>($I`OklchInput`)(
-  {
+export class OklchInput extends S.Opaque<OklchInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     l: OklchCoordinate.annotateKey({ description: "Input lightness coordinate." }),
     c: OklchCoordinate.annotateKey({ description: "Input chroma coordinate." }),
     h: OklchCoordinate.annotateKey({ description: "Input hue coordinate." }),
-  },
-  $I.annote("OklchInput", {
-    description: "An OKLCH color object with finite coordinates used by transformation helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("OklchInput", {
+      description: "An OKLCH color object with finite coordinates used by transformation helpers.",
+    })
+  )
 ) {}
 
 /**
@@ -350,13 +350,14 @@ export class OklchInput extends S.Class<OklchInput>($I`OklchInput`)(
  * @category validation
  * @since 0.0.0
  */
-export class OklchColor extends S.Class<OklchColor>($I`OklchColor`)(
-  {
+export class OklchColor extends S.Opaque<OklchColor, { readonly brand: unique symbol }>()(
+  S.Struct({
     l: OklchLightness.annotateKey({ description: "Lightness in the range 0 through 1." }),
     c: OklchChroma.annotateKey({ description: "Non-negative chroma." }),
     h: OklchHue.annotateKey({ description: "Hue in degrees from 0 through 360." }),
-  },
-  $I.annote("OklchColor", {
-    description: "A canonical color in OKLCH space.",
-  })
+  }).pipe(
+    $I.annoteSchema("OklchColor", {
+      description: "A canonical color in OKLCH space.",
+    })
+  )
 ) {}

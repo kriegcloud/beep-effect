@@ -65,7 +65,7 @@ const register = Command.make(
   { stateDir, file },
   Effect.fnUntraced(function* ({ file }) {
     const binding = yield* read(file, EndpointBinding);
-    yield* (yield* AgentMessageStore).register(binding);
+    yield* (yield* AgentMessageStore).register(EndpointBinding.make(binding));
     yield* print({ registered: binding.endpointId, generation: binding.generation });
   })
 ).pipe(
@@ -79,7 +79,7 @@ const grant = Command.make(
   Effect.fnUntraced(function* ({ file }) {
     yield* requirePrivateAgentPath(file, "File");
     const authority = yield* read(file, LaunchGrant);
-    yield* (yield* AgentMessageStore).registerGrant(authority);
+    yield* (yield* AgentMessageStore).registerGrant(LaunchGrant.make(authority));
     yield* print({ granted: authority.grantId, endpoint: authority.endpointId });
   })
 ).pipe(
@@ -92,8 +92,8 @@ const send = Command.make(
   { stateDir, file },
   Effect.fnUntraced(function* ({ file }) {
     const envelope = yield* read(file, Envelope);
-    const receipt = yield* (yield* AgentMessageStore).accept(envelope, yield* Clock.currentTimeMillis);
-    yield* print(yield* encodeEnvelope(envelope));
+    const receipt = yield* (yield* AgentMessageStore).accept(Envelope.make(envelope), yield* Clock.currentTimeMillis);
+    yield* print(yield* encodeEnvelope(Envelope.make(envelope)));
     yield* print(yield* encodeReceipt(receipt));
   })
 ).pipe(
@@ -109,8 +109,8 @@ const reply = Command.make(
     if (O.isNone(envelope.replyTo)) {
       return yield* RouterError.make({ code: "conflict", message: "A reply envelope must name its original message." });
     }
-    const receipt = yield* (yield* AgentMessageStore).accept(envelope, yield* Clock.currentTimeMillis);
-    yield* print(yield* encodeEnvelope(envelope));
+    const receipt = yield* (yield* AgentMessageStore).accept(Envelope.make(envelope), yield* Clock.currentTimeMillis);
+    yield* print(yield* encodeEnvelope(Envelope.make(envelope)));
     yield* print(yield* encodeReceipt(receipt));
   })
 ).pipe(
@@ -163,7 +163,10 @@ const resolveAmbiguity = Command.make(
     const resolution = yield* read(file, AmbiguityResolution);
     yield* print(
       yield* encodeReceipt(
-        yield* (yield* AgentMessageStore).resolveAmbiguity(resolution, yield* Clock.currentTimeMillis)
+        yield* (yield* AgentMessageStore).resolveAmbiguity(
+          AmbiguityResolution.make(resolution),
+          yield* Clock.currentTimeMillis
+        )
       )
     );
   })

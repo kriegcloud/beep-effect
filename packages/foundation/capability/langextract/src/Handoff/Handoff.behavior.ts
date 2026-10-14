@@ -56,16 +56,18 @@ const makeAnnotation =
  * **Example** (Convert to annotated document)
  *
  * ```ts
- * import { toAnnotatedDocument } from "@beep/langextract/Handoff"
+ * import { AnnotatedDocumentInput, toAnnotatedDocument } from "@beep/langextract/Handoff"
  * import { DocumentId } from "@beep/nlp/Core"
  *
- * const annotated = toAnnotatedDocument({
- *   documentId: DocumentId.make("doc-1"),
- *   extractions: [],
- *   generatedBy: "@beep/langextract",
- *   text: "Ada Lovelace wrote notes.",
- *   timestamp: 0
- * })
+ * const annotated = toAnnotatedDocument(
+ *   AnnotatedDocumentInput.make({
+ *     documentId: DocumentId.make("doc-1"),
+ *     extractions: [],
+ *     generatedBy: "@beep/langextract",
+ *     text: "Ada Lovelace wrote notes.",
+ *     timestamp: 0
+ *   })
+ * )
  * console.log(annotated.version)
  * ```
  *

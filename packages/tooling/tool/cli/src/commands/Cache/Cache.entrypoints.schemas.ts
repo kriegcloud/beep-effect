@@ -57,13 +57,15 @@ export type CacheEntrypointArtifactFormat = typeof CacheEntrypointArtifactFormat
  * @category models
  * @since 0.0.0
  */
-export class CacheEntrypointArtifactReference extends S.Class<CacheEntrypointArtifactReference>(
-  $I`CacheEntrypointArtifactReference`
-)(
-  { format: CacheEntrypointArtifactFormat, reference: CacheEvidenceReference },
-  $I.annote("CacheEntrypointArtifactReference", {
-    description: "A portable immutable source snapshot reference and its expected versioned dialect.",
-  })
+export class CacheEntrypointArtifactReference extends S.Opaque<
+  CacheEntrypointArtifactReference,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ format: CacheEntrypointArtifactFormat, reference: CacheEvidenceReference }).pipe(
+    $I.annoteSchema("CacheEntrypointArtifactReference", {
+      description: "A portable immutable source snapshot reference and its expected versioned dialect.",
+    })
+  )
 ) {}
 
 /**
@@ -86,19 +88,21 @@ export class CacheEntrypointArtifactReference extends S.Class<CacheEntrypointArt
  * @category models
  * @since 0.0.0
  */
-export class CacheEntrypointReviewRequest extends S.Class<CacheEntrypointReviewRequest>(
-  $I`CacheEntrypointReviewRequest`
-)(
-  {
+export class CacheEntrypointReviewRequest extends S.Opaque<
+  CacheEntrypointReviewRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.tag("cache-entrypoint-review-request/v1"),
     sources: S.NonEmptyArray(CacheEvidenceReference),
     artifacts: S.NonEmptyArray(CacheEntrypointArtifactReference),
     reviews: S.NonEmptyArray(CacheEvidenceReference),
     unresolved: S.Array(S.NonEmptyString),
-  },
-  $I.annote("CacheEntrypointReviewRequest", {
-    description: "Reviewed source and artifact bindings without runtime or qualification authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheEntrypointReviewRequest", {
+      description: "Reviewed source and artifact bindings without runtime or qualification authority.",
+    })
+  )
 ) {}
 
 /**
@@ -115,11 +119,12 @@ export class CacheEntrypointReviewRequest extends S.Class<CacheEntrypointReviewR
  * @category models
  * @since 0.0.0
  */
-export class CacheEntrypointArtifact extends S.Class<CacheEntrypointArtifact>($I`CacheEntrypointArtifact`)(
-  { ...CacheEntrypointArtifactReference.fields, document: S.JsonObject },
-  $I.annote("CacheEntrypointArtifact", {
-    description: "Complete parsed source document; the original bytes remain bound by reference.",
-  })
+export class CacheEntrypointArtifact extends S.Opaque<CacheEntrypointArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({ ...CacheEntrypointArtifactReference.fields, document: S.JsonObject }).pipe(
+    $I.annoteSchema("CacheEntrypointArtifact", {
+      description: "Complete parsed source document; the original bytes remain bound by reference.",
+    })
+  )
 ) {}
 
 /**
@@ -136,14 +141,18 @@ export class CacheEntrypointArtifact extends S.Class<CacheEntrypointArtifact>($I
  * @category models
  * @since 0.0.0
  */
-export class CacheCensusEntrypointReview extends S.Class<CacheCensusEntrypointReview>($I`CacheCensusEntrypointReview`)(
-  {
+export class CacheCensusEntrypointReview extends S.Opaque<
+  CacheCensusEntrypointReview,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...CacheEntrypointReviewRequest.fields,
     schemaVersion: S.tag("cache-census-entrypoint-review/v1"),
     authority: S.tag("source-review-only"),
     artifacts: S.NonEmptyArray(CacheEntrypointArtifact),
-  },
-  $I.annote("CacheCensusEntrypointReview", {
-    description: "Hash-verified source attachment that cannot assert executions, hosted proof or qualification.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheCensusEntrypointReview", {
+      description: "Hash-verified source attachment that cannot assert executions, hosted proof or qualification.",
+    })
+  )
 ) {}

@@ -89,9 +89,10 @@ export type AiProviderCliHomeFsOperation = typeof AiProviderCliHomeFsOperation.T
  * @category errors
  * @since 0.0.0
  */
-export class AiProviderCliHomeFileSystemError extends S.TaggedError<AiProviderCliHomeFileSystemError>(
-  $I`AiProviderCliHomeFileSystemError`
-)(
+export class AiProviderCliHomeFileSystemError extends S.TaggedError<
+  AiProviderCliHomeFileSystemError,
+  { readonly brand: unique symbol }
+>($I`AiProviderCliHomeFileSystemError`)(
   "AiProviderCliHomeFileSystemError",
   {
     cause: S.OptionFromOptionalKey(
@@ -156,9 +157,10 @@ export class AiProviderCliHomeFileSystemError extends S.TaggedError<AiProviderCl
  * @category errors
  * @since 0.0.0
  */
-export class AiProviderCliHomePathConflictError extends S.TaggedError<AiProviderCliHomePathConflictError>(
-  $I`AiProviderCliHomePathConflictError`
-)(
+export class AiProviderCliHomePathConflictError extends S.TaggedError<
+  AiProviderCliHomePathConflictError,
+  { readonly brand: unique symbol }
+>($I`AiProviderCliHomePathConflictError`)(
   "AiProviderCliHomePathConflictError",
   {
     effectiveHomePath: S.NonEmptyString.annotateKey({
@@ -199,9 +201,10 @@ export class AiProviderCliHomePathConflictError extends S.TaggedError<AiProvider
  * @category errors
  * @since 0.0.0
  */
-export class AiProviderCliHomeEntryConflictError extends S.TaggedError<AiProviderCliHomeEntryConflictError>(
-  $I`AiProviderCliHomeEntryConflictError`
-)(
+export class AiProviderCliHomeEntryConflictError extends S.TaggedError<
+  AiProviderCliHomeEntryConflictError,
+  { readonly brand: unique symbol }
+>($I`AiProviderCliHomeEntryConflictError`)(
   "AiProviderCliHomeEntryConflictError",
   {
     effectiveHomePath: S.NonEmptyString.annotateKey({
@@ -250,9 +253,10 @@ export class AiProviderCliHomeEntryConflictError extends S.TaggedError<AiProvide
  * @category errors
  * @since 0.0.0
  */
-export class AiProviderCliHomePrivateEntrySymlinkError extends S.TaggedError<AiProviderCliHomePrivateEntrySymlinkError>(
-  $I`AiProviderCliHomePrivateEntrySymlinkError`
-)(
+export class AiProviderCliHomePrivateEntrySymlinkError extends S.TaggedError<
+  AiProviderCliHomePrivateEntrySymlinkError,
+  { readonly brand: unique symbol }
+>($I`AiProviderCliHomePrivateEntrySymlinkError`)(
   "AiProviderCliHomePrivateEntrySymlinkError",
   {
     effectiveHomePath: S.NonEmptyString.annotateKey({

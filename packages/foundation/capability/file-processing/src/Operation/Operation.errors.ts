@@ -76,9 +76,10 @@ export type FileProcessingOperationErrorReason = typeof FileProcessingOperationE
  * @category errors
  * @since 0.0.0
  */
-export class FileProcessingOperationError extends S.TaggedError<FileProcessingOperationError>(
-  $I`FileProcessingOperationError`
-)(
+export class FileProcessingOperationError extends S.TaggedError<
+  FileProcessingOperationError,
+  { readonly brand: unique symbol }
+>($I`FileProcessingOperationError`)(
   "FileProcessingOperationError",
   {
     artifactId: S.optionalKey(ArtifactId),

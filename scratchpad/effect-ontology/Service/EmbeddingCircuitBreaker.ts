@@ -87,16 +87,13 @@ const providerCircuitConfigSuccessThresholdDefault = PosInt.make(2);
  * @category configuration
  * @since 0.0.0
  */
-export class ProviderCircuitConfig extends S.Class<ProviderCircuitConfig>($I`ProviderCircuitConfig`)(
-  {
+export class ProviderCircuitConfig extends S.Opaque<ProviderCircuitConfig, { readonly brand: unique symbol }>()(S.Struct({
     maxFailures: PosInt.pipe(S.withConstructorDefault(Effect.succeed(providerCircuitConfigMaxFailuresDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(providerCircuitConfigMaxFailuresDefault))),
     resetTimeout: S.Duration.pipe(S.withConstructorDefault(Effect.succeed(providerCircuitConfigResetTimeoutDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(providerCircuitConfigResetTimeoutDefault))),
     successThreshold: PosInt.pipe(S.withConstructorDefault(Effect.succeed(providerCircuitConfigSuccessThresholdDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(providerCircuitConfigSuccessThresholdDefault))),
-  },
-  $I.annote("ProviderCircuitConfig", {
+  }).pipe($I.annoteSchema("ProviderCircuitConfig", {
     description: "Failure, recovery-delay, and recovery-success thresholds for an embedding provider.",
-  })
-) {}
+  }))) {}
 
 /**
  * Circuit breaker status for observability
@@ -117,16 +114,13 @@ export class ProviderCircuitConfig extends S.Class<ProviderCircuitConfig>($I`Pro
  * @category models
  * @since 0.0.0
  */
-export class CircuitStatus extends S.Class<CircuitStatus>($I`CircuitStatus`)(
-  {
+export class CircuitStatus extends S.Opaque<CircuitStatus, { readonly brand: unique symbol }>()(S.Struct({
     providerId: EmbeddingProviderId,
     state: CircuitState,
     isAvailable: S.Boolean,
-  },
-  $I.annote("CircuitStatus", {
+  }).pipe($I.annoteSchema("CircuitStatus", {
     description: "Current circuit state and availability of one embedding provider.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Default Configuration

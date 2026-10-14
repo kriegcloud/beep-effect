@@ -15,27 +15,28 @@ import type { AssembledClass, AssembledPredicate, Triple } from "@beep/ontology"
 
 const $I = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("patent");
 
-class Claim extends S.Class<Claim>($I`Claim`)(
-  {
+class Claim extends S.Opaque<Claim, { readonly brand: unique symbol }>()(
+  S.Struct({
     prefLabel: S.String.pipe($I.key("skos:prefLabel")),
     children: S.Array(S.String).pipe($I.key("^rdfs:subClassOf")),
     text: S.String.pipe($I.key({ description: "Claim text." })),
-  },
-  $I.class("Claim", { description: "Patent claim\nwith escaped text." })
+  })
+    .annotate({ identifier: $I`Claim` })
+    .annotate($I.class("Claim", { description: "Patent claim\nwith escaped text." }))
 ) {}
 
-class Spec extends S.Class<Spec>($I`Spec`)(
-  {
+class Spec extends S.Opaque<Spec, { readonly brand: unique symbol }>()(
+  S.Struct({
     claim: Claim,
-  },
-  $I.class("Spec", { description: "Patent specification." })
+  })
+    .annotate({ identifier: $I`Spec` })
+    .annotate($I.class("Spec", { description: "Patent specification." }))
 ) {}
 
-class UnsafeLocal extends S.Class<UnsafeLocal>($I.make("Ontology.models/HttpUrl"))(
-  {
+class UnsafeLocal extends S.Opaque<UnsafeLocal, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.String,
-  },
-  $I.annote("Ontology.models/HttpUrl", { description: "Unsafe local." })
+  }).pipe($I.annoteSchema("Ontology.models/HttpUrl", { description: "Unsafe local." }))
 ) {}
 
 const triples = [
@@ -130,18 +131,16 @@ describe("Ontology.fold", () => {
 
   it.effect("fails with a typed unresolvedHandle when a field references a schema outside the fold", () =>
     Effect.gen(function* () {
-      class External extends S.Class<External>($I`External`)(
-        {
+      class External extends S.Opaque<External, { readonly brand: unique symbol }>()(
+        S.Struct({
           name: S.String,
-        },
-        $I.annote("External")
+        }).pipe($I.annoteSchema("External"))
       ) {}
 
-      class WithExternal extends S.Class<WithExternal>($I`WithExternal`)(
-        {
+      class WithExternal extends S.Opaque<WithExternal, { readonly brand: unique symbol }>()(
+        S.Struct({
           external: External,
-        },
-        $I.annote("WithExternal")
+        }).pipe($I.annoteSchema("WithExternal"))
       ) {}
 
       const error = yield* Effect.flip(
@@ -298,18 +297,20 @@ describe("Ontology.fold projections", () => {
 describe("Ontology.fold SKOS gate", () => {
   const $Skos = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("vocab");
 
-  class Concept extends S.Class<Concept>($Skos`Concept`)(
-    {
+  class Concept extends S.Opaque<Concept, { readonly brand: unique symbol }>()(
+    S.Struct({
       label: S.String,
-    },
-    $Skos.class("Concept", { description: "A concept.", skos: "concept" })
+    })
+      .annotate({ identifier: $Skos`Concept` })
+      .annotate($Skos.class("Concept", { description: "A concept.", skos: "concept" }))
   ) {}
 
-  class Scheme extends S.Class<Scheme>($Skos`Scheme`)(
-    {
+  class Scheme extends S.Opaque<Scheme, { readonly brand: unique symbol }>()(
+    S.Struct({
       label: S.String,
-    },
-    $Skos.class("Scheme", { description: "A scheme.", skos: "conceptScheme" })
+    })
+      .annotate({ identifier: $Skos`Scheme` })
+      .annotate($Skos.class("Scheme", { description: "A scheme.", skos: "conceptScheme" }))
   ) {}
 
   it.effect("emits SKOS classification beside rdfs:Class in JSON-LD and Turtle", () =>
@@ -377,11 +378,12 @@ describe("Ontology.fold SKOS gate", () => {
 
   it.effect("rejects a transitive broader cycle spanning three concepts", () =>
     Effect.gen(function* () {
-      class Third extends S.Class<Third>($Skos`Third`)(
-        {
+      class Third extends S.Opaque<Third, { readonly brand: unique symbol }>()(
+        S.Struct({
           label: S.String,
-        },
-        $Skos.class("Third", { description: "A third concept.", skos: "concept" })
+        })
+          .annotate({ identifier: $Skos`Third` })
+          .annotate($Skos.class("Third", { description: "A third concept.", skos: "concept" }))
       ) {}
 
       const error = yield* Effect.flip(
@@ -465,18 +467,20 @@ describe("Ontology.fold SKOS gate", () => {
 describe("Ontology.fold negative fixtures", () => {
   const $Neg = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("negative");
 
-  class LeftDocument extends S.Class<LeftDocument>($Neg`LeftDocument`)(
-    {
+  class LeftDocument extends S.Opaque<LeftDocument, { readonly brand: unique symbol }>()(
+    S.Struct({
       label: S.String,
-    },
-    $Neg.class("LeftDocument", { description: "Document" })
+    })
+      .annotate({ identifier: $Neg`LeftDocument` })
+      .annotate($Neg.class("LeftDocument", { description: "Document" }))
   ) {}
 
-  class RightDocument extends S.Class<RightDocument>($Neg`RightDocument`)(
-    {
+  class RightDocument extends S.Opaque<RightDocument, { readonly brand: unique symbol }>()(
+    S.Struct({
       label: S.String,
-    },
-    $Neg.class("RightDocument", { description: "Document" })
+    })
+      .annotate({ identifier: $Neg`RightDocument` })
+      .annotate($Neg.class("RightDocument", { description: "Document" }))
   ) {}
 
   it.effect("keeps equal-label distinct resources unfolded: no identity edge is synthesized", () =>
@@ -525,11 +529,12 @@ describe("Ontology.fold negative fixtures", () => {
 
   it.effect("rejects a field union with multiple class ranges", () =>
     Effect.gen(function* () {
-      class AmbiguousRange extends S.Class<AmbiguousRange>($Neg`AmbiguousRange`)(
-        {
+      class AmbiguousRange extends S.Opaque<AmbiguousRange, { readonly brand: unique symbol }>()(
+        S.Struct({
           document: S.Union([LeftDocument, RightDocument]),
-        },
-        $Neg.class("AmbiguousRange")
+        })
+          .annotate({ identifier: $Neg`AmbiguousRange` })
+          .annotate($Neg.class("AmbiguousRange"))
       ) {}
 
       const error = yield* Effect.flip(
@@ -634,11 +639,12 @@ describe("Ontology.fold rebase", () => {
         .create("patent")
         .rebase({ iri: "https://opip.law/ns/patent#", prefix: "patent" });
 
-      class PublishedClaim extends S.Class<PublishedClaim>($Patent`PublishedClaim`)(
-        {
+      class PublishedClaim extends S.Opaque<PublishedClaim, { readonly brand: unique symbol }>()(
+        S.Struct({
           text: S.String,
-        },
-        $Patent.class("PublishedClaim", { description: "A published claim." })
+        })
+          .annotate({ identifier: $Patent`PublishedClaim` })
+          .annotate($Patent.class("PublishedClaim", { description: "A published claim." }))
       ) {}
 
       const assembled = yield* fold($Patent, {
@@ -675,11 +681,12 @@ describe("Ontology.fold extended vocabulary", () => {
         vocab,
       }).$CustomId;
 
-      class CustomClass extends S.Class<CustomClass>($Custom`CustomClass`)(
-        {
+      class CustomClass extends S.Opaque<CustomClass, { readonly brand: unique symbol }>()(
+        S.Struct({
           relation: S.String.pipe($Custom.key("ex:relation")),
-        },
-        $Custom.class("CustomClass")
+        })
+          .annotate({ identifier: $Custom`CustomClass` })
+          .annotate($Custom.class("CustomClass"))
       ) {}
 
       const assembled = yield* fold($Custom, {

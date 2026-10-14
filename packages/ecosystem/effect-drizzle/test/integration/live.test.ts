@@ -167,10 +167,9 @@ class PgliteHarness extends Service<
   }
 >()("@beep/effect-drizzle/test/integration/live.test/PgliteHarness") {}
 
-class PgliteHarnessError extends TaggedError<PgliteHarnessError>("@beep/effect-drizzle/test/PgliteHarnessError")(
-  "PgliteHarnessError",
-  { message: StringSchema, cause: Unknown }
-) {}
+class PgliteHarnessError extends TaggedError<PgliteHarnessError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/test/PgliteHarnessError"
+)("PgliteHarnessError", { message: StringSchema, cause: Unknown }) {}
 
 const tryHarness = <A>(phase: string, try_: () => PromiseLike<A>) =>
   tryPromise({

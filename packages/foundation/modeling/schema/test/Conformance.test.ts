@@ -417,11 +417,15 @@ describe("Conformance", () => {
       Effect.fnUntraced(function* ([enforcement, policy, revision]) {
         assertSuccess(
           pipe(encodeEnforcementResult(enforcement), Result.flatMap(decodeUnknownEnforcementResult)),
-          enforcement
+          // Arbitrary values have a null prototype; the decoded value is a plain object.
+          Enforcement.make(enforcement)
         );
-        assertSuccess(pipe(encodePolicyResult(policy), Result.flatMap(decodeUnknownPolicyResult)), policy);
+        assertSuccess(pipe(encodePolicyResult(policy), Result.flatMap(decodeUnknownPolicyResult)), Policy.make(policy));
         assertSuccess(pipe(encodeReportResult(report), Result.flatMap(decodeUnknownReportResult)), report);
-        assertSuccess(pipe(encodeRevisionResult(revision), Result.flatMap(decodeUnknownRevisionResult)), revision);
+        assertSuccess(
+          pipe(encodeRevisionResult(revision), Result.flatMap(decodeUnknownRevisionResult)),
+          Revision.make(revision)
+        );
 
         return true;
       }),

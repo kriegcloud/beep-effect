@@ -143,7 +143,9 @@ const BoxContentSha1 = S.String.check(
  * @category errors
  * @since 0.0.0
  */
-export class BoxApiFailureConflict extends S.Class<BoxApiFailureConflict>($I`BoxApiFailureConflict`)(
+export class BoxApiFailureConflict extends S.Class<BoxApiFailureConflict, { readonly brand: unique symbol }>(
+  $I`BoxApiFailureConflict`
+)(
   {
     id: BoxProviderResourceId,
     type: BoxConflictResourceType,
@@ -192,7 +194,9 @@ const BoxApiFailureContextValues = S.Struct({
  * @category errors
  * @since 0.0.0
  */
-export class BoxApiFailureContext extends S.Class<BoxApiFailureContext>($I`BoxApiFailureContext`)(
+export class BoxApiFailureContext extends S.Class<BoxApiFailureContext, { readonly brand: unique symbol }>(
+  $I`BoxApiFailureContext`
+)(
   {
     values: BoxApiFailureContextValues,
   },
@@ -319,18 +323,39 @@ const BoxErrorContextFields = {
  * @category errors
  * @since 0.0.0
  */
-export class BoxErrorOptions extends S.Class<BoxErrorOptions>($I`BoxErrorOptions`)(
-  {
+export class BoxErrorOptions extends S.Opaque<BoxErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...BoxErrorContextFields,
     sdkVersion: S.OptionFromOptionalKey(BoxSdkVersion).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BoxErrorOptions", {
-    description: "Sanitized options for constructing Box driver errors.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxErrorOptions", {
+      description: "Sanitized options for constructing Box driver errors.",
+    })
+  )
 ) {}
 
-class BoxErrorOptionsInput extends S.Class<BoxErrorOptionsInput>($I`BoxErrorOptionsInput`)(
-  {
+/**
+ * Raw option input accepted by BoxError.fromReason before schema-owned normalization.
+ *
+ * **Example** (Attach request details to a rate-limit failure)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { BoxError, BoxErrorOptionsInput } from "@beep/box/Box.errors"
+ *
+ * const error = BoxError.fromReason(
+ *   "response status",
+ *   BoxErrorOptionsInput.make({ method: "files.getFileById", status: 429, requestId: "a1b2c3d4" })
+ * )
+ *
+ * console.log(O.getOrUndefined(error.status)) // => 429
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BoxErrorOptionsInput extends S.Opaque<BoxErrorOptionsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.Unknown.pipe(S.optionalKey),
     code: S.String.pipe(S.optionalKey),
     context: BoxApiFailureContext.pipe(S.optionalKey),
@@ -339,10 +364,11 @@ class BoxErrorOptionsInput extends S.Class<BoxErrorOptionsInput>($I`BoxErrorOpti
     requestId: S.String.pipe(S.optionalKey),
     sdkVersion: S.String.pipe(S.optionalKey),
     status: S.Finite.pipe(S.optionalKey),
-  },
-  $I.annote("BoxErrorOptionsInput", {
-    description: "Raw option input accepted by BoxError.fromReason before schema-owned normalization.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxErrorOptionsInput", {
+      description: "Raw option input accepted by BoxError.fromReason before schema-owned normalization.",
+    })
+  )
 ) {}
 
 const BoxErrorDiagnosticFields = {
@@ -372,11 +398,12 @@ const BoxErrorDiagnosticFields = {
  * @category diagnostics
  * @since 0.0.0
  */
-export class BoxErrorDiagnostic extends S.Class<BoxErrorDiagnostic>($I`BoxErrorDiagnostic`)(
-  BoxErrorDiagnosticFields,
-  $I.annote("BoxErrorDiagnostic", {
-    description: "Schema-backed Box error projection containing only approved diagnostic classifications.",
-  })
+export class BoxErrorDiagnostic extends S.Opaque<BoxErrorDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct(BoxErrorDiagnosticFields).pipe(
+    $I.annoteSchema("BoxErrorDiagnostic", {
+      description: "Schema-backed Box error projection containing only approved diagnostic classifications.",
+    })
+  )
 ) {}
 
 /**
@@ -385,16 +412,19 @@ export class BoxErrorDiagnostic extends S.Class<BoxErrorDiagnostic>($I`BoxErrorD
  * **Example** (Create error from reason)
  *
  * ```ts
- * import { BoxError } from "@beep/box"
+ * import { BoxError, BoxErrorOptionsInput } from "@beep/box"
  *
- * const error = BoxError.fromReason("transport", { method: "files.getFileById" })
+ * const error = BoxError.fromReason(
+ *   "transport",
+ *   BoxErrorOptionsInput.make({ method: "files.getFileById" })
+ * )
  * console.log(error.reason)
  * ```
  *
  * @category errors
  * @since 0.0.0
  */
-export class BoxError extends S.TaggedError<BoxError>($I`BoxError`)(
+export class BoxError extends S.TaggedError<BoxError, { readonly brand: unique symbol }>($I`BoxError`)(
   "BoxError",
   {
     ...BoxErrorContextFields,
@@ -424,7 +454,10 @@ export class BoxError extends S.TaggedError<BoxError>($I`BoxError`)(
    * @category constructors
    * @since 0.0.0
    */
-  static readonly fromReason = (reason: BoxErrorReason, options: BoxErrorOptionsInput = {}): BoxError => {
+  static readonly fromReason = (
+    reason: BoxErrorReason,
+    options: BoxErrorOptionsInput = BoxErrorOptionsInput.make({})
+  ): BoxError => {
     const input = BoxErrorOptionsInput.make({ ...options });
     return BoxError.make({
       reason,
@@ -492,20 +525,23 @@ export class BoxError extends S.TaggedError<BoxError>($I`BoxError`)(
     const requestId = pipe(responseInfo, O.flatMap(readString("requestId")));
     const status = pipe(responseInfo, O.flatMap(readHttpStatusCode("statusCode")));
 
-    return BoxError.fromReason(reasonFromUnknown(cause), {
-      cause: causeLabel(cause),
-      method,
-      ...O.getSomesStruct({
-        code,
-        requestId,
-      }),
-      ...O.getSomesStruct({
-        context,
-      }),
-      ...O.getSomesStruct({
-        status,
-      }),
-    });
+    return BoxError.fromReason(
+      reasonFromUnknown(cause),
+      BoxErrorOptionsInput.make({
+        cause: causeLabel(cause),
+        method,
+        ...O.getSomesStruct({
+          code,
+          requestId,
+        }),
+        ...O.getSomesStruct({
+          context,
+        }),
+        ...O.getSomesStruct({
+          status,
+        }),
+      })
+    );
   };
 
   override get message(): string {

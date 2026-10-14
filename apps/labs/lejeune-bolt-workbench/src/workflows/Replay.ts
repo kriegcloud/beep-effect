@@ -46,21 +46,22 @@ const $I = $LejeuneBoltWorkbenchId.create("workflows/Replay");
  * @category models
  * @since 0.0.0
  */
-class ReplayBuild extends S.Class<ReplayBuild>($I`ReplayBuild`)(
-  {
+class ReplayBuild extends S.Opaque<ReplayBuild, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundle: ImmutableDemoBundle,
     mutableLedger: MutableReviewLedger,
     retentionMetadata: MutableRetentionMetadata,
     receipt: GoldenReplayReceipt,
-  },
-  $I.annote("ReplayBuild", {
-    description: "One deterministic replay with its review ledger and effective retention metadata outside identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplayBuild", {
+      description: "One deterministic replay with its review ledger and effective retention metadata outside identity.",
+    })
+  )
 ) {}
 
 const ReplayOperation = LiteralKit(["encode-bundle", "hash-bundle"]);
 
-class ReplayError extends S.TaggedError<ReplayError>($I`ReplayError`)(
+class ReplayError extends S.TaggedError<ReplayError, { readonly brand: unique symbol }>($I`ReplayError`)(
   "ReplayError",
   {
     cause: S.Defect({ includeStack: true }),

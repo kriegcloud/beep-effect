@@ -283,19 +283,22 @@ export type AcpProtocolLogEvent = typeof AcpProtocolLogEvent.Type;
  * @category models
  * @since 0.0.0
  */
-export class AcpProtocolLoggingOptions extends S.Class<AcpProtocolLoggingOptions>($I`AcpProtocolLoggingOptions`)(
-  {
+export class AcpProtocolLoggingOptions extends S.Opaque<AcpProtocolLoggingOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     logIncoming: S.optionalKey(S.Boolean).annotateKey({
       description: "Whether incoming ACP protocol payloads should be logged.",
     }),
     logOutgoing: S.optionalKey(S.Boolean).annotateKey({
       description: "Whether outgoing ACP protocol payloads should be logged.",
     }),
-  },
-  $I.annote("AcpProtocolLoggingOptions", {
-    description: "Schema-backed ACP protocol logging flags.",
-  })
+  }).pipe(
+    $I.annoteSchema("AcpProtocolLoggingOptions", {
+      description: "Schema-backed ACP protocol logging flags.",
+    })
+  )
 ) {}
+
+type AcpProtocolLoggingFields = typeof AcpProtocolLoggingOptions.Encoded;
 
 const AcpSessionUpdateNotification = S.TaggedStruct("SessionUpdate", {
   method: S.Literal(CLIENT_METHODS.session_update).annotateKey({
@@ -387,7 +390,7 @@ export type AcpIncomingNotification = typeof AcpIncomingNotification.Type;
  * @category protocols
  * @since 0.0.0
  */
-export interface AcpPatchedProtocolOptions extends AcpProtocolLoggingOptions {
+export interface AcpPatchedProtocolOptions extends AcpProtocolLoggingFields {
   readonly logger?: (event: AcpProtocolLogEvent) => Effect.Effect<void>;
   readonly onExtRequest?: (method: string, params: unknown) => Effect.Effect<unknown, AcpError.AcpError>;
   readonly onNotification?: (notification: AcpIncomingNotification) => Effect.Effect<void, AcpError.AcpError>;

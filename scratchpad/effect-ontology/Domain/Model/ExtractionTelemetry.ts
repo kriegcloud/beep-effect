@@ -87,15 +87,12 @@ export type ProviderTokenUsage = typeof ProviderTokenUsage.Type;
  * @category observability
  * @since 0.0.0
  */
-export class ExtractionTelemetry extends S.Class<ExtractionTelemetry>($I`ExtractionTelemetry`)(
-  {
+export class ExtractionTelemetry extends S.Opaque<ExtractionTelemetry, { readonly brand: unique symbol }>()(S.Struct({
     chunkCount: S.Natural,
     usage: ProviderTokenUsage,
-  },
-  $I.annote("ExtractionTelemetry", {
+  }).pipe($I.annoteSchema("ExtractionTelemetry", {
     description: "Actual chunk count and provider usage captured for one extraction invocation.",
-  })
-) {}
+  }))) {}
 
 /**
  * Successful extraction value returned by the workflow service.
@@ -126,12 +123,9 @@ export class ExtractionTelemetry extends S.Class<ExtractionTelemetry>($I`Extract
  * @category models
  * @since 0.0.0
  */
-export class ExtractionOutcome extends S.Class<ExtractionOutcome>($I`ExtractionOutcome`)(
-  {
+export class ExtractionOutcome extends S.Opaque<ExtractionOutcome, { readonly brand: unique symbol }>()(S.Struct({
     graph: KnowledgeGraph,
     telemetry: ExtractionTelemetry,
-  },
-  $I.annote("ExtractionOutcome", {
+  }).pipe($I.annoteSchema("ExtractionOutcome", {
     description: "Published and audited knowledge graph paired with extraction telemetry.",
-  })
-) {}
+  }))) {}

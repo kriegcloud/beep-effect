@@ -477,7 +477,7 @@ describe("practice KG self-check lines", () => {
       Effect.gen(function* () {
         const line = yield* encodeReportLine(report);
         expect(line).not.toContain("\n");
-        expect(yield* decodeReportLine(line)).toStrictEqual(report);
+        expect(yield* decodeReportLine(line)).toStrictEqual(PracticeKgSelfCheckReport.make(report));
       })
   );
 
@@ -488,7 +488,7 @@ describe("practice KG self-check lines", () => {
       Effect.gen(function* () {
         const line = yield* encodeRefusalLine(refusal);
         expect(line).not.toContain("\n");
-        expect(yield* decodeFailureLine(line)).toStrictEqual(refusal);
+        expect(yield* decodeFailureLine(line)).toStrictEqual(PracticeKgSelfCheckRefusal.make(refusal));
       })
   );
 });

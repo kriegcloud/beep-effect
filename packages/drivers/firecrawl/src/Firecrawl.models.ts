@@ -2075,14 +2075,15 @@ const failureFields = {
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlScrapePayload extends S.Class<FirecrawlScrapePayload>($I`FirecrawlScrapePayload`)(
-  {
+export class FirecrawlScrapePayload extends S.Opaque<FirecrawlScrapePayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     options: S.OptionFromOptionalKey(FirecrawlScrapeOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<ScrapeOptions>()))
     ),
     url: S.String,
-  },
-  $I.annote("FirecrawlScrapePayload", { description: "Payload decoded before calling Firecrawl scrape." })
+  }).pipe(
+    $I.annoteSchema("FirecrawlScrapePayload", { description: "Payload decoded before calling Firecrawl scrape." })
+  )
 ) {}
 /**
  * Firecrawl Scrape Success decoded after a successful Firecrawl SDK call.
@@ -2098,9 +2099,10 @@ export class FirecrawlScrapePayload extends S.Class<FirecrawlScrapePayload>($I`F
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlScrapeSuccess extends S.Class<FirecrawlScrapeSuccess>($I`FirecrawlScrapeSuccess`)(
-  { data: FirecrawlDocument },
-  $I.annote("FirecrawlScrapeSuccess", { description: "Decoded success value returned by Firecrawl scrape." })
+export class FirecrawlScrapeSuccess extends S.Opaque<FirecrawlScrapeSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({ data: FirecrawlDocument }).pipe(
+    $I.annoteSchema("FirecrawlScrapeSuccess", { description: "Decoded success value returned by Firecrawl scrape." })
+  )
 ) {}
 /**
  * Firecrawl Scrape Failure decoded from a Firecrawl API failure body.
@@ -2116,9 +2118,10 @@ export class FirecrawlScrapeSuccess extends S.Class<FirecrawlScrapeSuccess>($I`F
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlScrapeFailure extends S.Class<FirecrawlScrapeFailure>($I`FirecrawlScrapeFailure`)(
-  failureFields,
-  $I.annote("FirecrawlScrapeFailure", { description: "Decoded failure shape returned by Firecrawl scrape." })
+export class FirecrawlScrapeFailure extends S.Opaque<FirecrawlScrapeFailure, { readonly brand: unique symbol }>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlScrapeFailure", { description: "Decoded failure shape returned by Firecrawl scrape." })
+  )
 ) {}
 
 /**
@@ -2135,9 +2138,10 @@ export class FirecrawlScrapeFailure extends S.Class<FirecrawlScrapeFailure>($I`F
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlInteractPayload extends S.Class<FirecrawlInteractPayload>($I`FirecrawlInteractPayload`)(
-  { args: FirecrawlInteractRequest, jobId: S.String },
-  $I.annote("FirecrawlInteractPayload", { description: "Payload decoded before calling Firecrawl interact." })
+export class FirecrawlInteractPayload extends S.Opaque<FirecrawlInteractPayload, { readonly brand: unique symbol }>()(
+  S.Struct({ args: FirecrawlInteractRequest, jobId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlInteractPayload", { description: "Payload decoded before calling Firecrawl interact." })
+  )
 ) {}
 /**
  * Firecrawl Interact Success decoded after a successful Firecrawl SDK call.
@@ -2153,9 +2157,12 @@ export class FirecrawlInteractPayload extends S.Class<FirecrawlInteractPayload>(
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlInteractSuccess extends S.Class<FirecrawlInteractSuccess>($I`FirecrawlInteractSuccess`)(
-  { data: FirecrawlInteractData },
-  $I.annote("FirecrawlInteractSuccess", { description: "Decoded success value returned by Firecrawl interact." })
+export class FirecrawlInteractSuccess extends S.Opaque<FirecrawlInteractSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({ data: FirecrawlInteractData }).pipe(
+    $I.annoteSchema("FirecrawlInteractSuccess", {
+      description: "Decoded success value returned by Firecrawl interact.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Interact Failure decoded from a Firecrawl API failure body.
@@ -2171,9 +2178,12 @@ export class FirecrawlInteractSuccess extends S.Class<FirecrawlInteractSuccess>(
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlInteractFailure extends S.Class<FirecrawlInteractFailure>($I`FirecrawlInteractFailure`)(
-  failureFields,
-  $I.annote("FirecrawlInteractFailure", { description: "Decoded failure shape returned by Firecrawl interact." })
+export class FirecrawlInteractFailure extends S.Opaque<FirecrawlInteractFailure, { readonly brand: unique symbol }>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlInteractFailure", {
+      description: "Decoded failure shape returned by Firecrawl interact.",
+    })
+  )
 ) {}
 
 /**
@@ -2190,13 +2200,15 @@ export class FirecrawlInteractFailure extends S.Class<FirecrawlInteractFailure>(
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStopInteractionPayload extends S.Class<FirecrawlStopInteractionPayload>(
-  $I`FirecrawlStopInteractionPayload`
-)(
-  { jobId: S.String },
-  $I.annote("FirecrawlStopInteractionPayload", {
-    description: "Payload decoded before calling Firecrawl stopInteraction.",
-  })
+export class FirecrawlStopInteractionPayload extends S.Opaque<
+  FirecrawlStopInteractionPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ jobId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlStopInteractionPayload", {
+      description: "Payload decoded before calling Firecrawl stopInteraction.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Stop Interaction Success decoded after a successful Firecrawl SDK call.
@@ -2212,13 +2224,15 @@ export class FirecrawlStopInteractionPayload extends S.Class<FirecrawlStopIntera
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStopInteractionSuccess extends S.Class<FirecrawlStopInteractionSuccess>(
-  $I`FirecrawlStopInteractionSuccess`
-)(
-  { data: FirecrawlStopInteractionData },
-  $I.annote("FirecrawlStopInteractionSuccess", {
-    description: "Decoded success value returned by Firecrawl stopInteraction.",
-  })
+export class FirecrawlStopInteractionSuccess extends S.Opaque<
+  FirecrawlStopInteractionSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlStopInteractionData }).pipe(
+    $I.annoteSchema("FirecrawlStopInteractionSuccess", {
+      description: "Decoded success value returned by Firecrawl stopInteraction.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Stop Interaction Failure decoded from a Firecrawl API failure body.
@@ -2234,13 +2248,15 @@ export class FirecrawlStopInteractionSuccess extends S.Class<FirecrawlStopIntera
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStopInteractionFailure extends S.Class<FirecrawlStopInteractionFailure>(
-  $I`FirecrawlStopInteractionFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlStopInteractionFailure", {
-    description: "Decoded failure shape returned by Firecrawl stopInteraction.",
-  })
+export class FirecrawlStopInteractionFailure extends S.Opaque<
+  FirecrawlStopInteractionFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlStopInteractionFailure", {
+      description: "Decoded failure shape returned by Firecrawl stopInteraction.",
+    })
+  )
 ) {}
 
 /**
@@ -2257,14 +2273,13 @@ export class FirecrawlStopInteractionFailure extends S.Class<FirecrawlStopIntera
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlParsePayload extends S.Class<FirecrawlParsePayload>($I`FirecrawlParsePayload`)(
-  {
+export class FirecrawlParsePayload extends S.Opaque<FirecrawlParsePayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: FirecrawlParseFile,
     options: S.OptionFromOptionalKey(FirecrawlParseOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<ParseOptions>()))
     ),
-  },
-  $I.annote("FirecrawlParsePayload", { description: "Payload decoded before calling Firecrawl parse." })
+  }).pipe($I.annoteSchema("FirecrawlParsePayload", { description: "Payload decoded before calling Firecrawl parse." }))
 ) {}
 /**
  * Firecrawl Parse Success decoded after a successful Firecrawl SDK call.
@@ -2280,9 +2295,10 @@ export class FirecrawlParsePayload extends S.Class<FirecrawlParsePayload>($I`Fir
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlParseSuccess extends S.Class<FirecrawlParseSuccess>($I`FirecrawlParseSuccess`)(
-  { data: FirecrawlDocument },
-  $I.annote("FirecrawlParseSuccess", { description: "Decoded success value returned by Firecrawl parse." })
+export class FirecrawlParseSuccess extends S.Opaque<FirecrawlParseSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({ data: FirecrawlDocument }).pipe(
+    $I.annoteSchema("FirecrawlParseSuccess", { description: "Decoded success value returned by Firecrawl parse." })
+  )
 ) {}
 /**
  * Firecrawl Parse Failure decoded from a Firecrawl API failure body.
@@ -2298,9 +2314,10 @@ export class FirecrawlParseSuccess extends S.Class<FirecrawlParseSuccess>($I`Fir
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlParseFailure extends S.Class<FirecrawlParseFailure>($I`FirecrawlParseFailure`)(
-  failureFields,
-  $I.annote("FirecrawlParseFailure", { description: "Decoded failure shape returned by Firecrawl parse." })
+export class FirecrawlParseFailure extends S.Opaque<FirecrawlParseFailure, { readonly brand: unique symbol }>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlParseFailure", { description: "Decoded failure shape returned by Firecrawl parse." })
+  )
 ) {}
 
 /**
@@ -2317,14 +2334,15 @@ export class FirecrawlParseFailure extends S.Class<FirecrawlParseFailure>($I`Fir
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlSearchPayload extends S.Class<FirecrawlSearchPayload>($I`FirecrawlSearchPayload`)(
-  {
+export class FirecrawlSearchPayload extends S.Opaque<FirecrawlSearchPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     query: S.String,
     request: S.OptionFromOptionalKey(FirecrawlSearchOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<Omit<SearchRequest, "query">>()))
     ),
-  },
-  $I.annote("FirecrawlSearchPayload", { description: "Payload decoded before calling Firecrawl search." })
+  }).pipe(
+    $I.annoteSchema("FirecrawlSearchPayload", { description: "Payload decoded before calling Firecrawl search." })
+  )
 ) {}
 /**
  * Firecrawl Search Success decoded after a successful Firecrawl SDK call.
@@ -2340,9 +2358,10 @@ export class FirecrawlSearchPayload extends S.Class<FirecrawlSearchPayload>($I`F
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlSearchSuccess extends S.Class<FirecrawlSearchSuccess>($I`FirecrawlSearchSuccess`)(
-  { data: FirecrawlSearchData },
-  $I.annote("FirecrawlSearchSuccess", { description: "Decoded success value returned by Firecrawl search." })
+export class FirecrawlSearchSuccess extends S.Opaque<FirecrawlSearchSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({ data: FirecrawlSearchData }).pipe(
+    $I.annoteSchema("FirecrawlSearchSuccess", { description: "Decoded success value returned by Firecrawl search." })
+  )
 ) {}
 /**
  * Firecrawl Search Failure decoded from a Firecrawl API failure body.
@@ -2358,9 +2377,10 @@ export class FirecrawlSearchSuccess extends S.Class<FirecrawlSearchSuccess>($I`F
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlSearchFailure extends S.Class<FirecrawlSearchFailure>($I`FirecrawlSearchFailure`)(
-  failureFields,
-  $I.annote("FirecrawlSearchFailure", { description: "Decoded failure shape returned by Firecrawl search." })
+export class FirecrawlSearchFailure extends S.Opaque<FirecrawlSearchFailure, { readonly brand: unique symbol }>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlSearchFailure", { description: "Decoded failure shape returned by Firecrawl search." })
+  )
 ) {}
 
 /**
@@ -2377,14 +2397,13 @@ export class FirecrawlSearchFailure extends S.Class<FirecrawlSearchFailure>($I`F
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlMapPayload extends S.Class<FirecrawlMapPayload>($I`FirecrawlMapPayload`)(
-  {
+export class FirecrawlMapPayload extends S.Opaque<FirecrawlMapPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     options: S.OptionFromOptionalKey(FirecrawlMapOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<MapOptions>()))
     ),
     url: S.String,
-  },
-  $I.annote("FirecrawlMapPayload", { description: "Payload decoded before calling Firecrawl map." })
+  }).pipe($I.annoteSchema("FirecrawlMapPayload", { description: "Payload decoded before calling Firecrawl map." }))
 ) {}
 /**
  * Firecrawl Map Success decoded after a successful Firecrawl SDK call.
@@ -2400,9 +2419,10 @@ export class FirecrawlMapPayload extends S.Class<FirecrawlMapPayload>($I`Firecra
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlMapSuccess extends S.Class<FirecrawlMapSuccess>($I`FirecrawlMapSuccess`)(
-  { data: FirecrawlMapData },
-  $I.annote("FirecrawlMapSuccess", { description: "Decoded success value returned by Firecrawl map." })
+export class FirecrawlMapSuccess extends S.Opaque<FirecrawlMapSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({ data: FirecrawlMapData }).pipe(
+    $I.annoteSchema("FirecrawlMapSuccess", { description: "Decoded success value returned by Firecrawl map." })
+  )
 ) {}
 /**
  * Firecrawl Map Failure decoded from a Firecrawl API failure body.
@@ -2418,9 +2438,10 @@ export class FirecrawlMapSuccess extends S.Class<FirecrawlMapSuccess>($I`Firecra
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlMapFailure extends S.Class<FirecrawlMapFailure>($I`FirecrawlMapFailure`)(
-  failureFields,
-  $I.annote("FirecrawlMapFailure", { description: "Decoded failure shape returned by Firecrawl map." })
+export class FirecrawlMapFailure extends S.Opaque<FirecrawlMapFailure, { readonly brand: unique symbol }>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlMapFailure", { description: "Decoded failure shape returned by Firecrawl map." })
+  )
 ) {}
 
 /**
@@ -2437,14 +2458,20 @@ export class FirecrawlMapFailure extends S.Class<FirecrawlMapFailure>($I`Firecra
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStartCrawlPayload extends S.Class<FirecrawlStartCrawlPayload>($I`FirecrawlStartCrawlPayload`)(
-  {
+export class FirecrawlStartCrawlPayload extends S.Opaque<
+  FirecrawlStartCrawlPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     request: S.OptionFromOptionalKey(FirecrawlCrawlOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<CrawlOptions>()))
     ),
     url: S.String,
-  },
-  $I.annote("FirecrawlStartCrawlPayload", { description: "Payload decoded before calling Firecrawl startCrawl." })
+  }).pipe(
+    $I.annoteSchema("FirecrawlStartCrawlPayload", {
+      description: "Payload decoded before calling Firecrawl startCrawl.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Start Crawl Success decoded after a successful Firecrawl SDK call.
@@ -2460,9 +2487,15 @@ export class FirecrawlStartCrawlPayload extends S.Class<FirecrawlStartCrawlPaylo
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStartCrawlSuccess extends S.Class<FirecrawlStartCrawlSuccess>($I`FirecrawlStartCrawlSuccess`)(
-  { data: FirecrawlCrawlResponseData },
-  $I.annote("FirecrawlStartCrawlSuccess", { description: "Decoded success value returned by Firecrawl startCrawl." })
+export class FirecrawlStartCrawlSuccess extends S.Opaque<
+  FirecrawlStartCrawlSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlCrawlResponseData }).pipe(
+    $I.annoteSchema("FirecrawlStartCrawlSuccess", {
+      description: "Decoded success value returned by Firecrawl startCrawl.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Start Crawl Failure decoded from a Firecrawl API failure body.
@@ -2478,9 +2511,15 @@ export class FirecrawlStartCrawlSuccess extends S.Class<FirecrawlStartCrawlSucce
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStartCrawlFailure extends S.Class<FirecrawlStartCrawlFailure>($I`FirecrawlStartCrawlFailure`)(
-  failureFields,
-  $I.annote("FirecrawlStartCrawlFailure", { description: "Decoded failure shape returned by Firecrawl startCrawl." })
+export class FirecrawlStartCrawlFailure extends S.Opaque<
+  FirecrawlStartCrawlFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlStartCrawlFailure", {
+      description: "Decoded failure shape returned by Firecrawl startCrawl.",
+    })
+  )
 ) {}
 
 /**
@@ -2497,18 +2536,20 @@ export class FirecrawlStartCrawlFailure extends S.Class<FirecrawlStartCrawlFailu
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCrawlStatusPayload extends S.Class<FirecrawlGetCrawlStatusPayload>(
-  $I`FirecrawlGetCrawlStatusPayload`
-)(
-  {
+export class FirecrawlGetCrawlStatusPayload extends S.Opaque<
+  FirecrawlGetCrawlStatusPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     jobId: S.String,
     pagination: S.OptionFromOptionalKey(FirecrawlPaginationConfig).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<PaginationConfig>()))
     ),
-  },
-  $I.annote("FirecrawlGetCrawlStatusPayload", {
-    description: "Payload decoded before calling Firecrawl getCrawlStatus.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlGetCrawlStatusPayload", {
+      description: "Payload decoded before calling Firecrawl getCrawlStatus.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Crawl Status Success decoded after a successful Firecrawl SDK call.
@@ -2524,13 +2565,15 @@ export class FirecrawlGetCrawlStatusPayload extends S.Class<FirecrawlGetCrawlSta
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCrawlStatusSuccess extends S.Class<FirecrawlGetCrawlStatusSuccess>(
-  $I`FirecrawlGetCrawlStatusSuccess`
-)(
-  { data: FirecrawlCrawlJobData },
-  $I.annote("FirecrawlGetCrawlStatusSuccess", {
-    description: "Decoded success value returned by Firecrawl getCrawlStatus.",
-  })
+export class FirecrawlGetCrawlStatusSuccess extends S.Opaque<
+  FirecrawlGetCrawlStatusSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlCrawlJobData }).pipe(
+    $I.annoteSchema("FirecrawlGetCrawlStatusSuccess", {
+      description: "Decoded success value returned by Firecrawl getCrawlStatus.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Crawl Status Failure decoded from a Firecrawl API failure body.
@@ -2546,13 +2589,15 @@ export class FirecrawlGetCrawlStatusSuccess extends S.Class<FirecrawlGetCrawlSta
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCrawlStatusFailure extends S.Class<FirecrawlGetCrawlStatusFailure>(
-  $I`FirecrawlGetCrawlStatusFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetCrawlStatusFailure", {
-    description: "Decoded failure shape returned by Firecrawl getCrawlStatus.",
-  })
+export class FirecrawlGetCrawlStatusFailure extends S.Opaque<
+  FirecrawlGetCrawlStatusFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetCrawlStatusFailure", {
+      description: "Decoded failure shape returned by Firecrawl getCrawlStatus.",
+    })
+  )
 ) {}
 
 /**
@@ -2569,9 +2614,15 @@ export class FirecrawlGetCrawlStatusFailure extends S.Class<FirecrawlGetCrawlSta
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCancelCrawlPayload extends S.Class<FirecrawlCancelCrawlPayload>($I`FirecrawlCancelCrawlPayload`)(
-  { jobId: S.String },
-  $I.annote("FirecrawlCancelCrawlPayload", { description: "Payload decoded before calling Firecrawl cancelCrawl." })
+export class FirecrawlCancelCrawlPayload extends S.Opaque<
+  FirecrawlCancelCrawlPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ jobId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlCancelCrawlPayload", {
+      description: "Payload decoded before calling Firecrawl cancelCrawl.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Cancel Crawl Success decoded after a successful Firecrawl SDK call.
@@ -2587,9 +2638,15 @@ export class FirecrawlCancelCrawlPayload extends S.Class<FirecrawlCancelCrawlPay
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCancelCrawlSuccess extends S.Class<FirecrawlCancelCrawlSuccess>($I`FirecrawlCancelCrawlSuccess`)(
-  { cancelled: S.Boolean },
-  $I.annote("FirecrawlCancelCrawlSuccess", { description: "Decoded success value returned by Firecrawl cancelCrawl." })
+export class FirecrawlCancelCrawlSuccess extends S.Opaque<
+  FirecrawlCancelCrawlSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ cancelled: S.Boolean }).pipe(
+    $I.annoteSchema("FirecrawlCancelCrawlSuccess", {
+      description: "Decoded success value returned by Firecrawl cancelCrawl.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Cancel Crawl Failure decoded from a Firecrawl API failure body.
@@ -2605,9 +2662,15 @@ export class FirecrawlCancelCrawlSuccess extends S.Class<FirecrawlCancelCrawlSuc
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCancelCrawlFailure extends S.Class<FirecrawlCancelCrawlFailure>($I`FirecrawlCancelCrawlFailure`)(
-  failureFields,
-  $I.annote("FirecrawlCancelCrawlFailure", { description: "Decoded failure shape returned by Firecrawl cancelCrawl." })
+export class FirecrawlCancelCrawlFailure extends S.Opaque<
+  FirecrawlCancelCrawlFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlCancelCrawlFailure", {
+      description: "Decoded failure shape returned by Firecrawl cancelCrawl.",
+    })
+  )
 ) {}
 
 /**
@@ -2624,16 +2687,15 @@ export class FirecrawlCancelCrawlFailure extends S.Class<FirecrawlCancelCrawlFai
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCrawlPayload extends S.Class<FirecrawlCrawlPayload>($I`FirecrawlCrawlPayload`)(
-  {
+export class FirecrawlCrawlPayload extends S.Opaque<FirecrawlCrawlPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     request: S.OptionFromOptionalKey(FirecrawlCrawlWaitOptions).pipe(
       S.withConstructorDefault(
         Effect.succeed(O.none<CrawlOptions & { readonly pollInterval?: number; readonly timeout?: number }>())
       )
     ),
     url: S.String,
-  },
-  $I.annote("FirecrawlCrawlPayload", { description: "Payload decoded before calling Firecrawl crawl." })
+  }).pipe($I.annoteSchema("FirecrawlCrawlPayload", { description: "Payload decoded before calling Firecrawl crawl." }))
 ) {}
 /**
  * Firecrawl Crawl Success decoded after a successful Firecrawl SDK call.
@@ -2649,9 +2711,10 @@ export class FirecrawlCrawlPayload extends S.Class<FirecrawlCrawlPayload>($I`Fir
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCrawlSuccess extends S.Class<FirecrawlCrawlSuccess>($I`FirecrawlCrawlSuccess`)(
-  { data: FirecrawlCrawlJobData },
-  $I.annote("FirecrawlCrawlSuccess", { description: "Decoded success value returned by Firecrawl crawl." })
+export class FirecrawlCrawlSuccess extends S.Opaque<FirecrawlCrawlSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({ data: FirecrawlCrawlJobData }).pipe(
+    $I.annoteSchema("FirecrawlCrawlSuccess", { description: "Decoded success value returned by Firecrawl crawl." })
+  )
 ) {}
 /**
  * Firecrawl Crawl Failure decoded from a Firecrawl API failure body.
@@ -2667,9 +2730,10 @@ export class FirecrawlCrawlSuccess extends S.Class<FirecrawlCrawlSuccess>($I`Fir
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCrawlFailure extends S.Class<FirecrawlCrawlFailure>($I`FirecrawlCrawlFailure`)(
-  failureFields,
-  $I.annote("FirecrawlCrawlFailure", { description: "Decoded failure shape returned by Firecrawl crawl." })
+export class FirecrawlCrawlFailure extends S.Opaque<FirecrawlCrawlFailure, { readonly brand: unique symbol }>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlCrawlFailure", { description: "Decoded failure shape returned by Firecrawl crawl." })
+  )
 ) {}
 
 /**
@@ -2686,13 +2750,15 @@ export class FirecrawlCrawlFailure extends S.Class<FirecrawlCrawlFailure>($I`Fir
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCrawlErrorsPayload extends S.Class<FirecrawlGetCrawlErrorsPayload>(
-  $I`FirecrawlGetCrawlErrorsPayload`
-)(
-  { crawlId: S.String },
-  $I.annote("FirecrawlGetCrawlErrorsPayload", {
-    description: "Payload decoded before calling Firecrawl getCrawlErrors.",
-  })
+export class FirecrawlGetCrawlErrorsPayload extends S.Opaque<
+  FirecrawlGetCrawlErrorsPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ crawlId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlGetCrawlErrorsPayload", {
+      description: "Payload decoded before calling Firecrawl getCrawlErrors.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Crawl Errors Success decoded after a successful Firecrawl SDK call.
@@ -2708,13 +2774,15 @@ export class FirecrawlGetCrawlErrorsPayload extends S.Class<FirecrawlGetCrawlErr
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCrawlErrorsSuccess extends S.Class<FirecrawlGetCrawlErrorsSuccess>(
-  $I`FirecrawlGetCrawlErrorsSuccess`
-)(
-  { data: FirecrawlCrawlErrorsData },
-  $I.annote("FirecrawlGetCrawlErrorsSuccess", {
-    description: "Decoded success value returned by Firecrawl getCrawlErrors.",
-  })
+export class FirecrawlGetCrawlErrorsSuccess extends S.Opaque<
+  FirecrawlGetCrawlErrorsSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlCrawlErrorsData }).pipe(
+    $I.annoteSchema("FirecrawlGetCrawlErrorsSuccess", {
+      description: "Decoded success value returned by Firecrawl getCrawlErrors.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Crawl Errors Failure decoded from a Firecrawl API failure body.
@@ -2730,13 +2798,15 @@ export class FirecrawlGetCrawlErrorsSuccess extends S.Class<FirecrawlGetCrawlErr
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCrawlErrorsFailure extends S.Class<FirecrawlGetCrawlErrorsFailure>(
-  $I`FirecrawlGetCrawlErrorsFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetCrawlErrorsFailure", {
-    description: "Decoded failure shape returned by Firecrawl getCrawlErrors.",
-  })
+export class FirecrawlGetCrawlErrorsFailure extends S.Opaque<
+  FirecrawlGetCrawlErrorsFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetCrawlErrorsFailure", {
+      description: "Decoded failure shape returned by Firecrawl getCrawlErrors.",
+    })
+  )
 ) {}
 
 /**
@@ -2753,13 +2823,15 @@ export class FirecrawlGetCrawlErrorsFailure extends S.Class<FirecrawlGetCrawlErr
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetActiveCrawlsPayload extends S.Class<FirecrawlGetActiveCrawlsPayload>(
-  $I`FirecrawlGetActiveCrawlsPayload`
-)(
-  {},
-  $I.annote("FirecrawlGetActiveCrawlsPayload", {
-    description: "Payload decoded before calling Firecrawl getActiveCrawls.",
-  })
+export class FirecrawlGetActiveCrawlsPayload extends S.Opaque<
+  FirecrawlGetActiveCrawlsPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("FirecrawlGetActiveCrawlsPayload", {
+      description: "Payload decoded before calling Firecrawl getActiveCrawls.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Active Crawls Success decoded after a successful Firecrawl SDK call.
@@ -2775,13 +2847,15 @@ export class FirecrawlGetActiveCrawlsPayload extends S.Class<FirecrawlGetActiveC
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetActiveCrawlsSuccess extends S.Class<FirecrawlGetActiveCrawlsSuccess>(
-  $I`FirecrawlGetActiveCrawlsSuccess`
-)(
-  { data: FirecrawlActiveCrawlsData },
-  $I.annote("FirecrawlGetActiveCrawlsSuccess", {
-    description: "Decoded success value returned by Firecrawl getActiveCrawls.",
-  })
+export class FirecrawlGetActiveCrawlsSuccess extends S.Opaque<
+  FirecrawlGetActiveCrawlsSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlActiveCrawlsData }).pipe(
+    $I.annoteSchema("FirecrawlGetActiveCrawlsSuccess", {
+      description: "Decoded success value returned by Firecrawl getActiveCrawls.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Active Crawls Failure decoded from a Firecrawl API failure body.
@@ -2797,13 +2871,15 @@ export class FirecrawlGetActiveCrawlsSuccess extends S.Class<FirecrawlGetActiveC
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetActiveCrawlsFailure extends S.Class<FirecrawlGetActiveCrawlsFailure>(
-  $I`FirecrawlGetActiveCrawlsFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetActiveCrawlsFailure", {
-    description: "Decoded failure shape returned by Firecrawl getActiveCrawls.",
-  })
+export class FirecrawlGetActiveCrawlsFailure extends S.Opaque<
+  FirecrawlGetActiveCrawlsFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetActiveCrawlsFailure", {
+      description: "Decoded failure shape returned by Firecrawl getActiveCrawls.",
+    })
+  )
 ) {}
 
 /**
@@ -2820,13 +2896,15 @@ export class FirecrawlGetActiveCrawlsFailure extends S.Class<FirecrawlGetActiveC
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCrawlParamsPreviewPayload extends S.Class<FirecrawlCrawlParamsPreviewPayload>(
-  $I`FirecrawlCrawlParamsPreviewPayload`
-)(
-  { prompt: S.String, url: S.String },
-  $I.annote("FirecrawlCrawlParamsPreviewPayload", {
-    description: "Payload decoded before calling Firecrawl crawlParamsPreview.",
-  })
+export class FirecrawlCrawlParamsPreviewPayload extends S.Opaque<
+  FirecrawlCrawlParamsPreviewPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ prompt: S.String, url: S.String }).pipe(
+    $I.annoteSchema("FirecrawlCrawlParamsPreviewPayload", {
+      description: "Payload decoded before calling Firecrawl crawlParamsPreview.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Crawl Params Preview Success decoded after a successful Firecrawl SDK call.
@@ -2842,13 +2920,15 @@ export class FirecrawlCrawlParamsPreviewPayload extends S.Class<FirecrawlCrawlPa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCrawlParamsPreviewSuccess extends S.Class<FirecrawlCrawlParamsPreviewSuccess>(
-  $I`FirecrawlCrawlParamsPreviewSuccess`
-)(
-  { data: S.Record(S.String, S.Unknown) },
-  $I.annote("FirecrawlCrawlParamsPreviewSuccess", {
-    description: "Decoded success value returned by Firecrawl crawlParamsPreview.",
-  })
+export class FirecrawlCrawlParamsPreviewSuccess extends S.Opaque<
+  FirecrawlCrawlParamsPreviewSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: S.Record(S.String, S.Unknown) }).pipe(
+    $I.annoteSchema("FirecrawlCrawlParamsPreviewSuccess", {
+      description: "Decoded success value returned by Firecrawl crawlParamsPreview.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Crawl Params Preview Failure decoded from a Firecrawl API failure body.
@@ -2864,13 +2944,15 @@ export class FirecrawlCrawlParamsPreviewSuccess extends S.Class<FirecrawlCrawlPa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCrawlParamsPreviewFailure extends S.Class<FirecrawlCrawlParamsPreviewFailure>(
-  $I`FirecrawlCrawlParamsPreviewFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlCrawlParamsPreviewFailure", {
-    description: "Decoded failure shape returned by Firecrawl crawlParamsPreview.",
-  })
+export class FirecrawlCrawlParamsPreviewFailure extends S.Opaque<
+  FirecrawlCrawlParamsPreviewFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlCrawlParamsPreviewFailure", {
+      description: "Decoded failure shape returned by Firecrawl crawlParamsPreview.",
+    })
+  )
 ) {}
 
 /**
@@ -2887,11 +2969,15 @@ export class FirecrawlCrawlParamsPreviewFailure extends S.Class<FirecrawlCrawlPa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCreateMonitorPayload extends S.Class<FirecrawlCreateMonitorPayload>(
-  $I`FirecrawlCreateMonitorPayload`
-)(
-  { request: FirecrawlCreateMonitorRequest },
-  $I.annote("FirecrawlCreateMonitorPayload", { description: "Payload decoded before calling Firecrawl createMonitor." })
+export class FirecrawlCreateMonitorPayload extends S.Opaque<
+  FirecrawlCreateMonitorPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ request: FirecrawlCreateMonitorRequest }).pipe(
+    $I.annoteSchema("FirecrawlCreateMonitorPayload", {
+      description: "Payload decoded before calling Firecrawl createMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Create Monitor Success decoded after a successful Firecrawl SDK call.
@@ -2907,13 +2993,15 @@ export class FirecrawlCreateMonitorPayload extends S.Class<FirecrawlCreateMonito
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCreateMonitorSuccess extends S.Class<FirecrawlCreateMonitorSuccess>(
-  $I`FirecrawlCreateMonitorSuccess`
-)(
-  { data: FirecrawlMonitorData },
-  $I.annote("FirecrawlCreateMonitorSuccess", {
-    description: "Decoded success value returned by Firecrawl createMonitor.",
-  })
+export class FirecrawlCreateMonitorSuccess extends S.Opaque<
+  FirecrawlCreateMonitorSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlMonitorData }).pipe(
+    $I.annoteSchema("FirecrawlCreateMonitorSuccess", {
+      description: "Decoded success value returned by Firecrawl createMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Create Monitor Failure decoded from a Firecrawl API failure body.
@@ -2929,13 +3017,15 @@ export class FirecrawlCreateMonitorSuccess extends S.Class<FirecrawlCreateMonito
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCreateMonitorFailure extends S.Class<FirecrawlCreateMonitorFailure>(
-  $I`FirecrawlCreateMonitorFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlCreateMonitorFailure", {
-    description: "Decoded failure shape returned by Firecrawl createMonitor.",
-  })
+export class FirecrawlCreateMonitorFailure extends S.Opaque<
+  FirecrawlCreateMonitorFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlCreateMonitorFailure", {
+      description: "Decoded failure shape returned by Firecrawl createMonitor.",
+    })
+  )
 ) {}
 
 /**
@@ -2952,15 +3042,19 @@ export class FirecrawlCreateMonitorFailure extends S.Class<FirecrawlCreateMonito
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlListMonitorsPayload extends S.Class<FirecrawlListMonitorsPayload>(
-  $I`FirecrawlListMonitorsPayload`
-)(
-  {
+export class FirecrawlListMonitorsPayload extends S.Opaque<
+  FirecrawlListMonitorsPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     options: S.OptionFromOptionalKey(FirecrawlListMonitorsOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<ListMonitorsOptions>()))
     ),
-  },
-  $I.annote("FirecrawlListMonitorsPayload", { description: "Payload decoded before calling Firecrawl listMonitors." })
+  }).pipe(
+    $I.annoteSchema("FirecrawlListMonitorsPayload", {
+      description: "Payload decoded before calling Firecrawl listMonitors.",
+    })
+  )
 ) {}
 /**
  * Firecrawl List Monitors Success decoded after a successful Firecrawl SDK call.
@@ -2976,13 +3070,15 @@ export class FirecrawlListMonitorsPayload extends S.Class<FirecrawlListMonitorsP
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlListMonitorsSuccess extends S.Class<FirecrawlListMonitorsSuccess>(
-  $I`FirecrawlListMonitorsSuccess`
-)(
-  { data: FirecrawlMonitorListData },
-  $I.annote("FirecrawlListMonitorsSuccess", {
-    description: "Decoded success value returned by Firecrawl listMonitors.",
-  })
+export class FirecrawlListMonitorsSuccess extends S.Opaque<
+  FirecrawlListMonitorsSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlMonitorListData }).pipe(
+    $I.annoteSchema("FirecrawlListMonitorsSuccess", {
+      description: "Decoded success value returned by Firecrawl listMonitors.",
+    })
+  )
 ) {}
 /**
  * Firecrawl List Monitors Failure decoded from a Firecrawl API failure body.
@@ -2998,13 +3094,15 @@ export class FirecrawlListMonitorsSuccess extends S.Class<FirecrawlListMonitorsS
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlListMonitorsFailure extends S.Class<FirecrawlListMonitorsFailure>(
-  $I`FirecrawlListMonitorsFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlListMonitorsFailure", {
-    description: "Decoded failure shape returned by Firecrawl listMonitors.",
-  })
+export class FirecrawlListMonitorsFailure extends S.Opaque<
+  FirecrawlListMonitorsFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlListMonitorsFailure", {
+      description: "Decoded failure shape returned by Firecrawl listMonitors.",
+    })
+  )
 ) {}
 
 /**
@@ -3021,9 +3119,15 @@ export class FirecrawlListMonitorsFailure extends S.Class<FirecrawlListMonitorsF
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetMonitorPayload extends S.Class<FirecrawlGetMonitorPayload>($I`FirecrawlGetMonitorPayload`)(
-  { monitorId: S.String },
-  $I.annote("FirecrawlGetMonitorPayload", { description: "Payload decoded before calling Firecrawl getMonitor." })
+export class FirecrawlGetMonitorPayload extends S.Opaque<
+  FirecrawlGetMonitorPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ monitorId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlGetMonitorPayload", {
+      description: "Payload decoded before calling Firecrawl getMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Monitor Success decoded after a successful Firecrawl SDK call.
@@ -3039,9 +3143,15 @@ export class FirecrawlGetMonitorPayload extends S.Class<FirecrawlGetMonitorPaylo
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetMonitorSuccess extends S.Class<FirecrawlGetMonitorSuccess>($I`FirecrawlGetMonitorSuccess`)(
-  { data: FirecrawlMonitorData },
-  $I.annote("FirecrawlGetMonitorSuccess", { description: "Decoded success value returned by Firecrawl getMonitor." })
+export class FirecrawlGetMonitorSuccess extends S.Opaque<
+  FirecrawlGetMonitorSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlMonitorData }).pipe(
+    $I.annoteSchema("FirecrawlGetMonitorSuccess", {
+      description: "Decoded success value returned by Firecrawl getMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Monitor Failure decoded from a Firecrawl API failure body.
@@ -3057,9 +3167,15 @@ export class FirecrawlGetMonitorSuccess extends S.Class<FirecrawlGetMonitorSucce
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetMonitorFailure extends S.Class<FirecrawlGetMonitorFailure>($I`FirecrawlGetMonitorFailure`)(
-  failureFields,
-  $I.annote("FirecrawlGetMonitorFailure", { description: "Decoded failure shape returned by Firecrawl getMonitor." })
+export class FirecrawlGetMonitorFailure extends S.Opaque<
+  FirecrawlGetMonitorFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetMonitorFailure", {
+      description: "Decoded failure shape returned by Firecrawl getMonitor.",
+    })
+  )
 ) {}
 
 /**
@@ -3076,11 +3192,15 @@ export class FirecrawlGetMonitorFailure extends S.Class<FirecrawlGetMonitorFailu
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlUpdateMonitorPayload extends S.Class<FirecrawlUpdateMonitorPayload>(
-  $I`FirecrawlUpdateMonitorPayload`
-)(
-  { monitorId: S.String, request: FirecrawlUpdateMonitorRequest },
-  $I.annote("FirecrawlUpdateMonitorPayload", { description: "Payload decoded before calling Firecrawl updateMonitor." })
+export class FirecrawlUpdateMonitorPayload extends S.Opaque<
+  FirecrawlUpdateMonitorPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ monitorId: S.String, request: FirecrawlUpdateMonitorRequest }).pipe(
+    $I.annoteSchema("FirecrawlUpdateMonitorPayload", {
+      description: "Payload decoded before calling Firecrawl updateMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Update Monitor Success decoded after a successful Firecrawl SDK call.
@@ -3096,13 +3216,15 @@ export class FirecrawlUpdateMonitorPayload extends S.Class<FirecrawlUpdateMonito
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlUpdateMonitorSuccess extends S.Class<FirecrawlUpdateMonitorSuccess>(
-  $I`FirecrawlUpdateMonitorSuccess`
-)(
-  { data: FirecrawlMonitorData },
-  $I.annote("FirecrawlUpdateMonitorSuccess", {
-    description: "Decoded success value returned by Firecrawl updateMonitor.",
-  })
+export class FirecrawlUpdateMonitorSuccess extends S.Opaque<
+  FirecrawlUpdateMonitorSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlMonitorData }).pipe(
+    $I.annoteSchema("FirecrawlUpdateMonitorSuccess", {
+      description: "Decoded success value returned by Firecrawl updateMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Update Monitor Failure decoded from a Firecrawl API failure body.
@@ -3118,13 +3240,15 @@ export class FirecrawlUpdateMonitorSuccess extends S.Class<FirecrawlUpdateMonito
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlUpdateMonitorFailure extends S.Class<FirecrawlUpdateMonitorFailure>(
-  $I`FirecrawlUpdateMonitorFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlUpdateMonitorFailure", {
-    description: "Decoded failure shape returned by Firecrawl updateMonitor.",
-  })
+export class FirecrawlUpdateMonitorFailure extends S.Opaque<
+  FirecrawlUpdateMonitorFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlUpdateMonitorFailure", {
+      description: "Decoded failure shape returned by Firecrawl updateMonitor.",
+    })
+  )
 ) {}
 
 /**
@@ -3141,11 +3265,15 @@ export class FirecrawlUpdateMonitorFailure extends S.Class<FirecrawlUpdateMonito
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlDeleteMonitorPayload extends S.Class<FirecrawlDeleteMonitorPayload>(
-  $I`FirecrawlDeleteMonitorPayload`
-)(
-  { monitorId: S.String },
-  $I.annote("FirecrawlDeleteMonitorPayload", { description: "Payload decoded before calling Firecrawl deleteMonitor." })
+export class FirecrawlDeleteMonitorPayload extends S.Opaque<
+  FirecrawlDeleteMonitorPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ monitorId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlDeleteMonitorPayload", {
+      description: "Payload decoded before calling Firecrawl deleteMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Delete Monitor Success decoded after a successful Firecrawl SDK call.
@@ -3161,13 +3289,15 @@ export class FirecrawlDeleteMonitorPayload extends S.Class<FirecrawlDeleteMonito
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlDeleteMonitorSuccess extends S.Class<FirecrawlDeleteMonitorSuccess>(
-  $I`FirecrawlDeleteMonitorSuccess`
-)(
-  { deleted: S.Boolean },
-  $I.annote("FirecrawlDeleteMonitorSuccess", {
-    description: "Decoded success value returned by Firecrawl deleteMonitor.",
-  })
+export class FirecrawlDeleteMonitorSuccess extends S.Opaque<
+  FirecrawlDeleteMonitorSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ deleted: S.Boolean }).pipe(
+    $I.annoteSchema("FirecrawlDeleteMonitorSuccess", {
+      description: "Decoded success value returned by Firecrawl deleteMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Delete Monitor Failure decoded from a Firecrawl API failure body.
@@ -3183,13 +3313,15 @@ export class FirecrawlDeleteMonitorSuccess extends S.Class<FirecrawlDeleteMonito
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlDeleteMonitorFailure extends S.Class<FirecrawlDeleteMonitorFailure>(
-  $I`FirecrawlDeleteMonitorFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlDeleteMonitorFailure", {
-    description: "Decoded failure shape returned by Firecrawl deleteMonitor.",
-  })
+export class FirecrawlDeleteMonitorFailure extends S.Opaque<
+  FirecrawlDeleteMonitorFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlDeleteMonitorFailure", {
+      description: "Decoded failure shape returned by Firecrawl deleteMonitor.",
+    })
+  )
 ) {}
 
 /**
@@ -3206,9 +3338,15 @@ export class FirecrawlDeleteMonitorFailure extends S.Class<FirecrawlDeleteMonito
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlRunMonitorPayload extends S.Class<FirecrawlRunMonitorPayload>($I`FirecrawlRunMonitorPayload`)(
-  { monitorId: S.String },
-  $I.annote("FirecrawlRunMonitorPayload", { description: "Payload decoded before calling Firecrawl runMonitor." })
+export class FirecrawlRunMonitorPayload extends S.Opaque<
+  FirecrawlRunMonitorPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ monitorId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlRunMonitorPayload", {
+      description: "Payload decoded before calling Firecrawl runMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Run Monitor Success decoded after a successful Firecrawl SDK call.
@@ -3224,9 +3362,15 @@ export class FirecrawlRunMonitorPayload extends S.Class<FirecrawlRunMonitorPaylo
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlRunMonitorSuccess extends S.Class<FirecrawlRunMonitorSuccess>($I`FirecrawlRunMonitorSuccess`)(
-  { data: FirecrawlMonitorCheckData },
-  $I.annote("FirecrawlRunMonitorSuccess", { description: "Decoded success value returned by Firecrawl runMonitor." })
+export class FirecrawlRunMonitorSuccess extends S.Opaque<
+  FirecrawlRunMonitorSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlMonitorCheckData }).pipe(
+    $I.annoteSchema("FirecrawlRunMonitorSuccess", {
+      description: "Decoded success value returned by Firecrawl runMonitor.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Run Monitor Failure decoded from a Firecrawl API failure body.
@@ -3242,9 +3386,15 @@ export class FirecrawlRunMonitorSuccess extends S.Class<FirecrawlRunMonitorSucce
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlRunMonitorFailure extends S.Class<FirecrawlRunMonitorFailure>($I`FirecrawlRunMonitorFailure`)(
-  failureFields,
-  $I.annote("FirecrawlRunMonitorFailure", { description: "Decoded failure shape returned by Firecrawl runMonitor." })
+export class FirecrawlRunMonitorFailure extends S.Opaque<
+  FirecrawlRunMonitorFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlRunMonitorFailure", {
+      description: "Decoded failure shape returned by Firecrawl runMonitor.",
+    })
+  )
 ) {}
 
 /**
@@ -3261,18 +3411,20 @@ export class FirecrawlRunMonitorFailure extends S.Class<FirecrawlRunMonitorFailu
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlListMonitorChecksPayload extends S.Class<FirecrawlListMonitorChecksPayload>(
-  $I`FirecrawlListMonitorChecksPayload`
-)(
-  {
+export class FirecrawlListMonitorChecksPayload extends S.Opaque<
+  FirecrawlListMonitorChecksPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     monitorId: S.String,
     options: S.OptionFromOptionalKey(FirecrawlListMonitorChecksOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<ListMonitorChecksOptions>()))
     ),
-  },
-  $I.annote("FirecrawlListMonitorChecksPayload", {
-    description: "Payload decoded before calling Firecrawl listMonitorChecks.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlListMonitorChecksPayload", {
+      description: "Payload decoded before calling Firecrawl listMonitorChecks.",
+    })
+  )
 ) {}
 /**
  * Firecrawl List Monitor Checks Success decoded after a successful Firecrawl SDK call.
@@ -3288,13 +3440,15 @@ export class FirecrawlListMonitorChecksPayload extends S.Class<FirecrawlListMoni
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlListMonitorChecksSuccess extends S.Class<FirecrawlListMonitorChecksSuccess>(
-  $I`FirecrawlListMonitorChecksSuccess`
-)(
-  { data: FirecrawlMonitorCheckListData },
-  $I.annote("FirecrawlListMonitorChecksSuccess", {
-    description: "Decoded success value returned by Firecrawl listMonitorChecks.",
-  })
+export class FirecrawlListMonitorChecksSuccess extends S.Opaque<
+  FirecrawlListMonitorChecksSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlMonitorCheckListData }).pipe(
+    $I.annoteSchema("FirecrawlListMonitorChecksSuccess", {
+      description: "Decoded success value returned by Firecrawl listMonitorChecks.",
+    })
+  )
 ) {}
 /**
  * Firecrawl List Monitor Checks Failure decoded from a Firecrawl API failure body.
@@ -3310,13 +3464,15 @@ export class FirecrawlListMonitorChecksSuccess extends S.Class<FirecrawlListMoni
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlListMonitorChecksFailure extends S.Class<FirecrawlListMonitorChecksFailure>(
-  $I`FirecrawlListMonitorChecksFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlListMonitorChecksFailure", {
-    description: "Decoded failure shape returned by Firecrawl listMonitorChecks.",
-  })
+export class FirecrawlListMonitorChecksFailure extends S.Opaque<
+  FirecrawlListMonitorChecksFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlListMonitorChecksFailure", {
+      description: "Decoded failure shape returned by Firecrawl listMonitorChecks.",
+    })
+  )
 ) {}
 
 /**
@@ -3333,19 +3489,21 @@ export class FirecrawlListMonitorChecksFailure extends S.Class<FirecrawlListMoni
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetMonitorCheckPayload extends S.Class<FirecrawlGetMonitorCheckPayload>(
-  $I`FirecrawlGetMonitorCheckPayload`
-)(
-  {
+export class FirecrawlGetMonitorCheckPayload extends S.Opaque<
+  FirecrawlGetMonitorCheckPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     checkId: S.String,
     monitorId: S.String,
     options: S.OptionFromOptionalKey(FirecrawlGetMonitorCheckOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<GetMonitorCheckOptions>()))
     ),
-  },
-  $I.annote("FirecrawlGetMonitorCheckPayload", {
-    description: "Payload decoded before calling Firecrawl getMonitorCheck.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlGetMonitorCheckPayload", {
+      description: "Payload decoded before calling Firecrawl getMonitorCheck.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Monitor Check Success decoded after a successful Firecrawl SDK call.
@@ -3361,13 +3519,15 @@ export class FirecrawlGetMonitorCheckPayload extends S.Class<FirecrawlGetMonitor
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetMonitorCheckSuccess extends S.Class<FirecrawlGetMonitorCheckSuccess>(
-  $I`FirecrawlGetMonitorCheckSuccess`
-)(
-  { data: FirecrawlMonitorCheckDetailData },
-  $I.annote("FirecrawlGetMonitorCheckSuccess", {
-    description: "Decoded success value returned by Firecrawl getMonitorCheck.",
-  })
+export class FirecrawlGetMonitorCheckSuccess extends S.Opaque<
+  FirecrawlGetMonitorCheckSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlMonitorCheckDetailData }).pipe(
+    $I.annoteSchema("FirecrawlGetMonitorCheckSuccess", {
+      description: "Decoded success value returned by Firecrawl getMonitorCheck.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Monitor Check Failure decoded from a Firecrawl API failure body.
@@ -3383,13 +3543,15 @@ export class FirecrawlGetMonitorCheckSuccess extends S.Class<FirecrawlGetMonitor
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetMonitorCheckFailure extends S.Class<FirecrawlGetMonitorCheckFailure>(
-  $I`FirecrawlGetMonitorCheckFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetMonitorCheckFailure", {
-    description: "Decoded failure shape returned by Firecrawl getMonitorCheck.",
-  })
+export class FirecrawlGetMonitorCheckFailure extends S.Opaque<
+  FirecrawlGetMonitorCheckFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetMonitorCheckFailure", {
+      description: "Decoded failure shape returned by Firecrawl getMonitorCheck.",
+    })
+  )
 ) {}
 
 /**
@@ -3406,18 +3568,20 @@ export class FirecrawlGetMonitorCheckFailure extends S.Class<FirecrawlGetMonitor
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStartBatchScrapePayload extends S.Class<FirecrawlStartBatchScrapePayload>(
-  $I`FirecrawlStartBatchScrapePayload`
-)(
-  {
+export class FirecrawlStartBatchScrapePayload extends S.Opaque<
+  FirecrawlStartBatchScrapePayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     options: S.OptionFromOptionalKey(FirecrawlBatchScrapeOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<BatchScrapeOptions>()))
     ),
     urls: S.Array(S.String),
-  },
-  $I.annote("FirecrawlStartBatchScrapePayload", {
-    description: "Payload decoded before calling Firecrawl startBatchScrape.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlStartBatchScrapePayload", {
+      description: "Payload decoded before calling Firecrawl startBatchScrape.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Start Batch Scrape Success decoded after a successful Firecrawl SDK call.
@@ -3433,13 +3597,15 @@ export class FirecrawlStartBatchScrapePayload extends S.Class<FirecrawlStartBatc
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStartBatchScrapeSuccess extends S.Class<FirecrawlStartBatchScrapeSuccess>(
-  $I`FirecrawlStartBatchScrapeSuccess`
-)(
-  { data: FirecrawlBatchScrapeResponseData },
-  $I.annote("FirecrawlStartBatchScrapeSuccess", {
-    description: "Decoded success value returned by Firecrawl startBatchScrape.",
-  })
+export class FirecrawlStartBatchScrapeSuccess extends S.Opaque<
+  FirecrawlStartBatchScrapeSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlBatchScrapeResponseData }).pipe(
+    $I.annoteSchema("FirecrawlStartBatchScrapeSuccess", {
+      description: "Decoded success value returned by Firecrawl startBatchScrape.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Start Batch Scrape Failure decoded from a Firecrawl API failure body.
@@ -3455,13 +3621,15 @@ export class FirecrawlStartBatchScrapeSuccess extends S.Class<FirecrawlStartBatc
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStartBatchScrapeFailure extends S.Class<FirecrawlStartBatchScrapeFailure>(
-  $I`FirecrawlStartBatchScrapeFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlStartBatchScrapeFailure", {
-    description: "Decoded failure shape returned by Firecrawl startBatchScrape.",
-  })
+export class FirecrawlStartBatchScrapeFailure extends S.Opaque<
+  FirecrawlStartBatchScrapeFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlStartBatchScrapeFailure", {
+      description: "Decoded failure shape returned by Firecrawl startBatchScrape.",
+    })
+  )
 ) {}
 
 /**
@@ -3478,18 +3646,20 @@ export class FirecrawlStartBatchScrapeFailure extends S.Class<FirecrawlStartBatc
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetBatchScrapeStatusPayload extends S.Class<FirecrawlGetBatchScrapeStatusPayload>(
-  $I`FirecrawlGetBatchScrapeStatusPayload`
-)(
-  {
+export class FirecrawlGetBatchScrapeStatusPayload extends S.Opaque<
+  FirecrawlGetBatchScrapeStatusPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     jobId: S.String,
     pagination: S.OptionFromOptionalKey(FirecrawlPaginationConfig).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<PaginationConfig>()))
     ),
-  },
-  $I.annote("FirecrawlGetBatchScrapeStatusPayload", {
-    description: "Payload decoded before calling Firecrawl getBatchScrapeStatus.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlGetBatchScrapeStatusPayload", {
+      description: "Payload decoded before calling Firecrawl getBatchScrapeStatus.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Batch Scrape Status Success decoded after a successful Firecrawl SDK call.
@@ -3505,13 +3675,15 @@ export class FirecrawlGetBatchScrapeStatusPayload extends S.Class<FirecrawlGetBa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetBatchScrapeStatusSuccess extends S.Class<FirecrawlGetBatchScrapeStatusSuccess>(
-  $I`FirecrawlGetBatchScrapeStatusSuccess`
-)(
-  { data: FirecrawlBatchScrapeJobData },
-  $I.annote("FirecrawlGetBatchScrapeStatusSuccess", {
-    description: "Decoded success value returned by Firecrawl getBatchScrapeStatus.",
-  })
+export class FirecrawlGetBatchScrapeStatusSuccess extends S.Opaque<
+  FirecrawlGetBatchScrapeStatusSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlBatchScrapeJobData }).pipe(
+    $I.annoteSchema("FirecrawlGetBatchScrapeStatusSuccess", {
+      description: "Decoded success value returned by Firecrawl getBatchScrapeStatus.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Batch Scrape Status Failure decoded from a Firecrawl API failure body.
@@ -3527,13 +3699,15 @@ export class FirecrawlGetBatchScrapeStatusSuccess extends S.Class<FirecrawlGetBa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetBatchScrapeStatusFailure extends S.Class<FirecrawlGetBatchScrapeStatusFailure>(
-  $I`FirecrawlGetBatchScrapeStatusFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetBatchScrapeStatusFailure", {
-    description: "Decoded failure shape returned by Firecrawl getBatchScrapeStatus.",
-  })
+export class FirecrawlGetBatchScrapeStatusFailure extends S.Opaque<
+  FirecrawlGetBatchScrapeStatusFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetBatchScrapeStatusFailure", {
+      description: "Decoded failure shape returned by Firecrawl getBatchScrapeStatus.",
+    })
+  )
 ) {}
 
 /**
@@ -3550,13 +3724,15 @@ export class FirecrawlGetBatchScrapeStatusFailure extends S.Class<FirecrawlGetBa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetBatchScrapeErrorsPayload extends S.Class<FirecrawlGetBatchScrapeErrorsPayload>(
-  $I`FirecrawlGetBatchScrapeErrorsPayload`
-)(
-  { jobId: S.String },
-  $I.annote("FirecrawlGetBatchScrapeErrorsPayload", {
-    description: "Payload decoded before calling Firecrawl getBatchScrapeErrors.",
-  })
+export class FirecrawlGetBatchScrapeErrorsPayload extends S.Opaque<
+  FirecrawlGetBatchScrapeErrorsPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ jobId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlGetBatchScrapeErrorsPayload", {
+      description: "Payload decoded before calling Firecrawl getBatchScrapeErrors.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Batch Scrape Errors Success decoded after a successful Firecrawl SDK call.
@@ -3572,13 +3748,15 @@ export class FirecrawlGetBatchScrapeErrorsPayload extends S.Class<FirecrawlGetBa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetBatchScrapeErrorsSuccess extends S.Class<FirecrawlGetBatchScrapeErrorsSuccess>(
-  $I`FirecrawlGetBatchScrapeErrorsSuccess`
-)(
-  { data: FirecrawlCrawlErrorsData },
-  $I.annote("FirecrawlGetBatchScrapeErrorsSuccess", {
-    description: "Decoded success value returned by Firecrawl getBatchScrapeErrors.",
-  })
+export class FirecrawlGetBatchScrapeErrorsSuccess extends S.Opaque<
+  FirecrawlGetBatchScrapeErrorsSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlCrawlErrorsData }).pipe(
+    $I.annoteSchema("FirecrawlGetBatchScrapeErrorsSuccess", {
+      description: "Decoded success value returned by Firecrawl getBatchScrapeErrors.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Batch Scrape Errors Failure decoded from a Firecrawl API failure body.
@@ -3594,13 +3772,15 @@ export class FirecrawlGetBatchScrapeErrorsSuccess extends S.Class<FirecrawlGetBa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetBatchScrapeErrorsFailure extends S.Class<FirecrawlGetBatchScrapeErrorsFailure>(
-  $I`FirecrawlGetBatchScrapeErrorsFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetBatchScrapeErrorsFailure", {
-    description: "Decoded failure shape returned by Firecrawl getBatchScrapeErrors.",
-  })
+export class FirecrawlGetBatchScrapeErrorsFailure extends S.Opaque<
+  FirecrawlGetBatchScrapeErrorsFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetBatchScrapeErrorsFailure", {
+      description: "Decoded failure shape returned by Firecrawl getBatchScrapeErrors.",
+    })
+  )
 ) {}
 
 /**
@@ -3617,13 +3797,15 @@ export class FirecrawlGetBatchScrapeErrorsFailure extends S.Class<FirecrawlGetBa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCancelBatchScrapePayload extends S.Class<FirecrawlCancelBatchScrapePayload>(
-  $I`FirecrawlCancelBatchScrapePayload`
-)(
-  { jobId: S.String },
-  $I.annote("FirecrawlCancelBatchScrapePayload", {
-    description: "Payload decoded before calling Firecrawl cancelBatchScrape.",
-  })
+export class FirecrawlCancelBatchScrapePayload extends S.Opaque<
+  FirecrawlCancelBatchScrapePayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ jobId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlCancelBatchScrapePayload", {
+      description: "Payload decoded before calling Firecrawl cancelBatchScrape.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Cancel Batch Scrape Success decoded after a successful Firecrawl SDK call.
@@ -3639,13 +3821,15 @@ export class FirecrawlCancelBatchScrapePayload extends S.Class<FirecrawlCancelBa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCancelBatchScrapeSuccess extends S.Class<FirecrawlCancelBatchScrapeSuccess>(
-  $I`FirecrawlCancelBatchScrapeSuccess`
-)(
-  { cancelled: S.Boolean },
-  $I.annote("FirecrawlCancelBatchScrapeSuccess", {
-    description: "Decoded success value returned by Firecrawl cancelBatchScrape.",
-  })
+export class FirecrawlCancelBatchScrapeSuccess extends S.Opaque<
+  FirecrawlCancelBatchScrapeSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ cancelled: S.Boolean }).pipe(
+    $I.annoteSchema("FirecrawlCancelBatchScrapeSuccess", {
+      description: "Decoded success value returned by Firecrawl cancelBatchScrape.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Cancel Batch Scrape Failure decoded from a Firecrawl API failure body.
@@ -3661,13 +3845,15 @@ export class FirecrawlCancelBatchScrapeSuccess extends S.Class<FirecrawlCancelBa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCancelBatchScrapeFailure extends S.Class<FirecrawlCancelBatchScrapeFailure>(
-  $I`FirecrawlCancelBatchScrapeFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlCancelBatchScrapeFailure", {
-    description: "Decoded failure shape returned by Firecrawl cancelBatchScrape.",
-  })
+export class FirecrawlCancelBatchScrapeFailure extends S.Opaque<
+  FirecrawlCancelBatchScrapeFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlCancelBatchScrapeFailure", {
+      description: "Decoded failure shape returned by Firecrawl cancelBatchScrape.",
+    })
+  )
 ) {}
 
 /**
@@ -3684,16 +3870,22 @@ export class FirecrawlCancelBatchScrapeFailure extends S.Class<FirecrawlCancelBa
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlBatchScrapePayload extends S.Class<FirecrawlBatchScrapePayload>($I`FirecrawlBatchScrapePayload`)(
-  {
+export class FirecrawlBatchScrapePayload extends S.Opaque<
+  FirecrawlBatchScrapePayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     options: S.OptionFromOptionalKey(FirecrawlBatchScrapeWaitOptions).pipe(
       S.withConstructorDefault(
         Effect.succeed(O.none<BatchScrapeOptions & { readonly pollInterval?: number; readonly timeout?: number }>())
       )
     ),
     urls: S.Array(S.String),
-  },
-  $I.annote("FirecrawlBatchScrapePayload", { description: "Payload decoded before calling Firecrawl batchScrape." })
+  }).pipe(
+    $I.annoteSchema("FirecrawlBatchScrapePayload", {
+      description: "Payload decoded before calling Firecrawl batchScrape.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Batch Scrape Success decoded after a successful Firecrawl SDK call.
@@ -3709,9 +3901,15 @@ export class FirecrawlBatchScrapePayload extends S.Class<FirecrawlBatchScrapePay
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlBatchScrapeSuccess extends S.Class<FirecrawlBatchScrapeSuccess>($I`FirecrawlBatchScrapeSuccess`)(
-  { data: FirecrawlBatchScrapeJobData },
-  $I.annote("FirecrawlBatchScrapeSuccess", { description: "Decoded success value returned by Firecrawl batchScrape." })
+export class FirecrawlBatchScrapeSuccess extends S.Opaque<
+  FirecrawlBatchScrapeSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlBatchScrapeJobData }).pipe(
+    $I.annoteSchema("FirecrawlBatchScrapeSuccess", {
+      description: "Decoded success value returned by Firecrawl batchScrape.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Batch Scrape Failure decoded from a Firecrawl API failure body.
@@ -3727,9 +3925,15 @@ export class FirecrawlBatchScrapeSuccess extends S.Class<FirecrawlBatchScrapeSuc
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlBatchScrapeFailure extends S.Class<FirecrawlBatchScrapeFailure>($I`FirecrawlBatchScrapeFailure`)(
-  failureFields,
-  $I.annote("FirecrawlBatchScrapeFailure", { description: "Decoded failure shape returned by Firecrawl batchScrape." })
+export class FirecrawlBatchScrapeFailure extends S.Opaque<
+  FirecrawlBatchScrapeFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlBatchScrapeFailure", {
+      description: "Decoded failure shape returned by Firecrawl batchScrape.",
+    })
+  )
 ) {}
 
 /**
@@ -3746,9 +3950,15 @@ export class FirecrawlBatchScrapeFailure extends S.Class<FirecrawlBatchScrapeFai
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStartAgentPayload extends S.Class<FirecrawlStartAgentPayload>($I`FirecrawlStartAgentPayload`)(
-  { request: FirecrawlAgentRequest },
-  $I.annote("FirecrawlStartAgentPayload", { description: "Payload decoded before calling Firecrawl startAgent." })
+export class FirecrawlStartAgentPayload extends S.Opaque<
+  FirecrawlStartAgentPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ request: FirecrawlAgentRequest }).pipe(
+    $I.annoteSchema("FirecrawlStartAgentPayload", {
+      description: "Payload decoded before calling Firecrawl startAgent.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Start Agent Success decoded after a successful Firecrawl SDK call.
@@ -3764,9 +3974,15 @@ export class FirecrawlStartAgentPayload extends S.Class<FirecrawlStartAgentPaylo
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStartAgentSuccess extends S.Class<FirecrawlStartAgentSuccess>($I`FirecrawlStartAgentSuccess`)(
-  { data: FirecrawlAgentResponseData },
-  $I.annote("FirecrawlStartAgentSuccess", { description: "Decoded success value returned by Firecrawl startAgent." })
+export class FirecrawlStartAgentSuccess extends S.Opaque<
+  FirecrawlStartAgentSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlAgentResponseData }).pipe(
+    $I.annoteSchema("FirecrawlStartAgentSuccess", {
+      description: "Decoded success value returned by Firecrawl startAgent.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Start Agent Failure decoded from a Firecrawl API failure body.
@@ -3782,9 +3998,15 @@ export class FirecrawlStartAgentSuccess extends S.Class<FirecrawlStartAgentSucce
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlStartAgentFailure extends S.Class<FirecrawlStartAgentFailure>($I`FirecrawlStartAgentFailure`)(
-  failureFields,
-  $I.annote("FirecrawlStartAgentFailure", { description: "Decoded failure shape returned by Firecrawl startAgent." })
+export class FirecrawlStartAgentFailure extends S.Opaque<
+  FirecrawlStartAgentFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlStartAgentFailure", {
+      description: "Decoded failure shape returned by Firecrawl startAgent.",
+    })
+  )
 ) {}
 
 /**
@@ -3801,13 +4023,15 @@ export class FirecrawlStartAgentFailure extends S.Class<FirecrawlStartAgentFailu
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetAgentStatusPayload extends S.Class<FirecrawlGetAgentStatusPayload>(
-  $I`FirecrawlGetAgentStatusPayload`
-)(
-  { jobId: S.String },
-  $I.annote("FirecrawlGetAgentStatusPayload", {
-    description: "Payload decoded before calling Firecrawl getAgentStatus.",
-  })
+export class FirecrawlGetAgentStatusPayload extends S.Opaque<
+  FirecrawlGetAgentStatusPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ jobId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlGetAgentStatusPayload", {
+      description: "Payload decoded before calling Firecrawl getAgentStatus.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Agent Status Success decoded after a successful Firecrawl SDK call.
@@ -3823,13 +4047,15 @@ export class FirecrawlGetAgentStatusPayload extends S.Class<FirecrawlGetAgentSta
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetAgentStatusSuccess extends S.Class<FirecrawlGetAgentStatusSuccess>(
-  $I`FirecrawlGetAgentStatusSuccess`
-)(
-  { data: FirecrawlAgentStatusData },
-  $I.annote("FirecrawlGetAgentStatusSuccess", {
-    description: "Decoded success value returned by Firecrawl getAgentStatus.",
-  })
+export class FirecrawlGetAgentStatusSuccess extends S.Opaque<
+  FirecrawlGetAgentStatusSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlAgentStatusData }).pipe(
+    $I.annoteSchema("FirecrawlGetAgentStatusSuccess", {
+      description: "Decoded success value returned by Firecrawl getAgentStatus.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Agent Status Failure decoded from a Firecrawl API failure body.
@@ -3845,13 +4071,15 @@ export class FirecrawlGetAgentStatusSuccess extends S.Class<FirecrawlGetAgentSta
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetAgentStatusFailure extends S.Class<FirecrawlGetAgentStatusFailure>(
-  $I`FirecrawlGetAgentStatusFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetAgentStatusFailure", {
-    description: "Decoded failure shape returned by Firecrawl getAgentStatus.",
-  })
+export class FirecrawlGetAgentStatusFailure extends S.Opaque<
+  FirecrawlGetAgentStatusFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetAgentStatusFailure", {
+      description: "Decoded failure shape returned by Firecrawl getAgentStatus.",
+    })
+  )
 ) {}
 
 /**
@@ -3868,9 +4096,10 @@ export class FirecrawlGetAgentStatusFailure extends S.Class<FirecrawlGetAgentSta
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlAgentPayload extends S.Class<FirecrawlAgentPayload>($I`FirecrawlAgentPayload`)(
-  { request: FirecrawlAgentWaitRequest },
-  $I.annote("FirecrawlAgentPayload", { description: "Payload decoded before calling Firecrawl agent." })
+export class FirecrawlAgentPayload extends S.Opaque<FirecrawlAgentPayload, { readonly brand: unique symbol }>()(
+  S.Struct({ request: FirecrawlAgentWaitRequest }).pipe(
+    $I.annoteSchema("FirecrawlAgentPayload", { description: "Payload decoded before calling Firecrawl agent." })
+  )
 ) {}
 /**
  * Firecrawl Agent Success decoded after a successful Firecrawl SDK call.
@@ -3886,9 +4115,10 @@ export class FirecrawlAgentPayload extends S.Class<FirecrawlAgentPayload>($I`Fir
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlAgentSuccess extends S.Class<FirecrawlAgentSuccess>($I`FirecrawlAgentSuccess`)(
-  { data: FirecrawlAgentStatusData },
-  $I.annote("FirecrawlAgentSuccess", { description: "Decoded success value returned by Firecrawl agent." })
+export class FirecrawlAgentSuccess extends S.Opaque<FirecrawlAgentSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({ data: FirecrawlAgentStatusData }).pipe(
+    $I.annoteSchema("FirecrawlAgentSuccess", { description: "Decoded success value returned by Firecrawl agent." })
+  )
 ) {}
 /**
  * Firecrawl Agent Failure decoded from a Firecrawl API failure body.
@@ -3904,9 +4134,10 @@ export class FirecrawlAgentSuccess extends S.Class<FirecrawlAgentSuccess>($I`Fir
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlAgentFailure extends S.Class<FirecrawlAgentFailure>($I`FirecrawlAgentFailure`)(
-  failureFields,
-  $I.annote("FirecrawlAgentFailure", { description: "Decoded failure shape returned by Firecrawl agent." })
+export class FirecrawlAgentFailure extends S.Opaque<FirecrawlAgentFailure, { readonly brand: unique symbol }>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlAgentFailure", { description: "Decoded failure shape returned by Firecrawl agent." })
+  )
 ) {}
 
 /**
@@ -3923,9 +4154,15 @@ export class FirecrawlAgentFailure extends S.Class<FirecrawlAgentFailure>($I`Fir
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCancelAgentPayload extends S.Class<FirecrawlCancelAgentPayload>($I`FirecrawlCancelAgentPayload`)(
-  { jobId: S.String },
-  $I.annote("FirecrawlCancelAgentPayload", { description: "Payload decoded before calling Firecrawl cancelAgent." })
+export class FirecrawlCancelAgentPayload extends S.Opaque<
+  FirecrawlCancelAgentPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ jobId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlCancelAgentPayload", {
+      description: "Payload decoded before calling Firecrawl cancelAgent.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Cancel Agent Success decoded after a successful Firecrawl SDK call.
@@ -3941,9 +4178,15 @@ export class FirecrawlCancelAgentPayload extends S.Class<FirecrawlCancelAgentPay
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCancelAgentSuccess extends S.Class<FirecrawlCancelAgentSuccess>($I`FirecrawlCancelAgentSuccess`)(
-  { cancelled: S.Boolean },
-  $I.annote("FirecrawlCancelAgentSuccess", { description: "Decoded success value returned by Firecrawl cancelAgent." })
+export class FirecrawlCancelAgentSuccess extends S.Opaque<
+  FirecrawlCancelAgentSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ cancelled: S.Boolean }).pipe(
+    $I.annoteSchema("FirecrawlCancelAgentSuccess", {
+      description: "Decoded success value returned by Firecrawl cancelAgent.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Cancel Agent Failure decoded from a Firecrawl API failure body.
@@ -3959,9 +4202,15 @@ export class FirecrawlCancelAgentSuccess extends S.Class<FirecrawlCancelAgentSuc
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlCancelAgentFailure extends S.Class<FirecrawlCancelAgentFailure>($I`FirecrawlCancelAgentFailure`)(
-  failureFields,
-  $I.annote("FirecrawlCancelAgentFailure", { description: "Decoded failure shape returned by Firecrawl cancelAgent." })
+export class FirecrawlCancelAgentFailure extends S.Opaque<
+  FirecrawlCancelAgentFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlCancelAgentFailure", {
+      description: "Decoded failure shape returned by Firecrawl cancelAgent.",
+    })
+  )
 ) {}
 
 /**
@@ -3978,13 +4227,14 @@ export class FirecrawlCancelAgentFailure extends S.Class<FirecrawlCancelAgentFai
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlBrowserPayload extends S.Class<FirecrawlBrowserPayload>($I`FirecrawlBrowserPayload`)(
-  {
+export class FirecrawlBrowserPayload extends S.Opaque<FirecrawlBrowserPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     options: S.OptionFromOptionalKey(FirecrawlBrowserOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<FirecrawlBrowserOptions>()))
     ),
-  },
-  $I.annote("FirecrawlBrowserPayload", { description: "Payload decoded before calling Firecrawl browser." })
+  }).pipe(
+    $I.annoteSchema("FirecrawlBrowserPayload", { description: "Payload decoded before calling Firecrawl browser." })
+  )
 ) {}
 /**
  * Firecrawl Browser Success decoded after a successful Firecrawl SDK call.
@@ -4000,9 +4250,10 @@ export class FirecrawlBrowserPayload extends S.Class<FirecrawlBrowserPayload>($I
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlBrowserSuccess extends S.Class<FirecrawlBrowserSuccess>($I`FirecrawlBrowserSuccess`)(
-  { data: FirecrawlBrowserCreateData },
-  $I.annote("FirecrawlBrowserSuccess", { description: "Decoded success value returned by Firecrawl browser." })
+export class FirecrawlBrowserSuccess extends S.Opaque<FirecrawlBrowserSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({ data: FirecrawlBrowserCreateData }).pipe(
+    $I.annoteSchema("FirecrawlBrowserSuccess", { description: "Decoded success value returned by Firecrawl browser." })
+  )
 ) {}
 /**
  * Firecrawl Browser Failure decoded from a Firecrawl API failure body.
@@ -4018,9 +4269,10 @@ export class FirecrawlBrowserSuccess extends S.Class<FirecrawlBrowserSuccess>($I
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlBrowserFailure extends S.Class<FirecrawlBrowserFailure>($I`FirecrawlBrowserFailure`)(
-  failureFields,
-  $I.annote("FirecrawlBrowserFailure", { description: "Decoded failure shape returned by Firecrawl browser." })
+export class FirecrawlBrowserFailure extends S.Opaque<FirecrawlBrowserFailure, { readonly brand: unique symbol }>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlBrowserFailure", { description: "Decoded failure shape returned by Firecrawl browser." })
+  )
 ) {}
 
 /**
@@ -4037,13 +4289,15 @@ export class FirecrawlBrowserFailure extends S.Class<FirecrawlBrowserFailure>($I
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlBrowserExecutePayload extends S.Class<FirecrawlBrowserExecutePayload>(
-  $I`FirecrawlBrowserExecutePayload`
-)(
-  { request: FirecrawlBrowserExecuteRequest, sessionId: S.String },
-  $I.annote("FirecrawlBrowserExecutePayload", {
-    description: "Payload decoded before calling Firecrawl browserExecute.",
-  })
+export class FirecrawlBrowserExecutePayload extends S.Opaque<
+  FirecrawlBrowserExecutePayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ request: FirecrawlBrowserExecuteRequest, sessionId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlBrowserExecutePayload", {
+      description: "Payload decoded before calling Firecrawl browserExecute.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Browser Execute Success decoded after a successful Firecrawl SDK call.
@@ -4059,13 +4313,15 @@ export class FirecrawlBrowserExecutePayload extends S.Class<FirecrawlBrowserExec
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlBrowserExecuteSuccess extends S.Class<FirecrawlBrowserExecuteSuccess>(
-  $I`FirecrawlBrowserExecuteSuccess`
-)(
-  { data: FirecrawlBrowserExecuteData },
-  $I.annote("FirecrawlBrowserExecuteSuccess", {
-    description: "Decoded success value returned by Firecrawl browserExecute.",
-  })
+export class FirecrawlBrowserExecuteSuccess extends S.Opaque<
+  FirecrawlBrowserExecuteSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlBrowserExecuteData }).pipe(
+    $I.annoteSchema("FirecrawlBrowserExecuteSuccess", {
+      description: "Decoded success value returned by Firecrawl browserExecute.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Browser Execute Failure decoded from a Firecrawl API failure body.
@@ -4081,13 +4337,15 @@ export class FirecrawlBrowserExecuteSuccess extends S.Class<FirecrawlBrowserExec
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlBrowserExecuteFailure extends S.Class<FirecrawlBrowserExecuteFailure>(
-  $I`FirecrawlBrowserExecuteFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlBrowserExecuteFailure", {
-    description: "Decoded failure shape returned by Firecrawl browserExecute.",
-  })
+export class FirecrawlBrowserExecuteFailure extends S.Opaque<
+  FirecrawlBrowserExecuteFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlBrowserExecuteFailure", {
+      description: "Decoded failure shape returned by Firecrawl browserExecute.",
+    })
+  )
 ) {}
 
 /**
@@ -4104,11 +4362,15 @@ export class FirecrawlBrowserExecuteFailure extends S.Class<FirecrawlBrowserExec
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlDeleteBrowserPayload extends S.Class<FirecrawlDeleteBrowserPayload>(
-  $I`FirecrawlDeleteBrowserPayload`
-)(
-  { sessionId: S.String },
-  $I.annote("FirecrawlDeleteBrowserPayload", { description: "Payload decoded before calling Firecrawl deleteBrowser." })
+export class FirecrawlDeleteBrowserPayload extends S.Opaque<
+  FirecrawlDeleteBrowserPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ sessionId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlDeleteBrowserPayload", {
+      description: "Payload decoded before calling Firecrawl deleteBrowser.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Delete Browser Success decoded after a successful Firecrawl SDK call.
@@ -4124,13 +4386,15 @@ export class FirecrawlDeleteBrowserPayload extends S.Class<FirecrawlDeleteBrowse
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlDeleteBrowserSuccess extends S.Class<FirecrawlDeleteBrowserSuccess>(
-  $I`FirecrawlDeleteBrowserSuccess`
-)(
-  { data: FirecrawlBrowserDeleteData },
-  $I.annote("FirecrawlDeleteBrowserSuccess", {
-    description: "Decoded success value returned by Firecrawl deleteBrowser.",
-  })
+export class FirecrawlDeleteBrowserSuccess extends S.Opaque<
+  FirecrawlDeleteBrowserSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlBrowserDeleteData }).pipe(
+    $I.annoteSchema("FirecrawlDeleteBrowserSuccess", {
+      description: "Decoded success value returned by Firecrawl deleteBrowser.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Delete Browser Failure decoded from a Firecrawl API failure body.
@@ -4146,13 +4410,15 @@ export class FirecrawlDeleteBrowserSuccess extends S.Class<FirecrawlDeleteBrowse
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlDeleteBrowserFailure extends S.Class<FirecrawlDeleteBrowserFailure>(
-  $I`FirecrawlDeleteBrowserFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlDeleteBrowserFailure", {
-    description: "Decoded failure shape returned by Firecrawl deleteBrowser.",
-  })
+export class FirecrawlDeleteBrowserFailure extends S.Opaque<
+  FirecrawlDeleteBrowserFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlDeleteBrowserFailure", {
+      description: "Decoded failure shape returned by Firecrawl deleteBrowser.",
+    })
+  )
 ) {}
 
 /**
@@ -4169,15 +4435,19 @@ export class FirecrawlDeleteBrowserFailure extends S.Class<FirecrawlDeleteBrowse
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlListBrowsersPayload extends S.Class<FirecrawlListBrowsersPayload>(
-  $I`FirecrawlListBrowsersPayload`
-)(
-  {
+export class FirecrawlListBrowsersPayload extends S.Opaque<
+  FirecrawlListBrowsersPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     options: S.OptionFromOptionalKey(FirecrawlListBrowsersOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<FirecrawlListBrowsersOptions>()))
     ),
-  },
-  $I.annote("FirecrawlListBrowsersPayload", { description: "Payload decoded before calling Firecrawl listBrowsers." })
+  }).pipe(
+    $I.annoteSchema("FirecrawlListBrowsersPayload", {
+      description: "Payload decoded before calling Firecrawl listBrowsers.",
+    })
+  )
 ) {}
 /**
  * Firecrawl List Browsers Success decoded after a successful Firecrawl SDK call.
@@ -4193,13 +4463,15 @@ export class FirecrawlListBrowsersPayload extends S.Class<FirecrawlListBrowsersP
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlListBrowsersSuccess extends S.Class<FirecrawlListBrowsersSuccess>(
-  $I`FirecrawlListBrowsersSuccess`
-)(
-  { data: FirecrawlBrowserListData },
-  $I.annote("FirecrawlListBrowsersSuccess", {
-    description: "Decoded success value returned by Firecrawl listBrowsers.",
-  })
+export class FirecrawlListBrowsersSuccess extends S.Opaque<
+  FirecrawlListBrowsersSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlBrowserListData }).pipe(
+    $I.annoteSchema("FirecrawlListBrowsersSuccess", {
+      description: "Decoded success value returned by Firecrawl listBrowsers.",
+    })
+  )
 ) {}
 /**
  * Firecrawl List Browsers Failure decoded from a Firecrawl API failure body.
@@ -4215,13 +4487,15 @@ export class FirecrawlListBrowsersSuccess extends S.Class<FirecrawlListBrowsersS
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlListBrowsersFailure extends S.Class<FirecrawlListBrowsersFailure>(
-  $I`FirecrawlListBrowsersFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlListBrowsersFailure", {
-    description: "Decoded failure shape returned by Firecrawl listBrowsers.",
-  })
+export class FirecrawlListBrowsersFailure extends S.Opaque<
+  FirecrawlListBrowsersFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlListBrowsersFailure", {
+      description: "Decoded failure shape returned by Firecrawl listBrowsers.",
+    })
+  )
 ) {}
 
 /**
@@ -4238,13 +4512,15 @@ export class FirecrawlListBrowsersFailure extends S.Class<FirecrawlListBrowsersF
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetConcurrencyPayload extends S.Class<FirecrawlGetConcurrencyPayload>(
-  $I`FirecrawlGetConcurrencyPayload`
-)(
-  {},
-  $I.annote("FirecrawlGetConcurrencyPayload", {
-    description: "Payload decoded before calling Firecrawl getConcurrency.",
-  })
+export class FirecrawlGetConcurrencyPayload extends S.Opaque<
+  FirecrawlGetConcurrencyPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("FirecrawlGetConcurrencyPayload", {
+      description: "Payload decoded before calling Firecrawl getConcurrency.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Concurrency Success decoded after a successful Firecrawl SDK call.
@@ -4260,13 +4536,15 @@ export class FirecrawlGetConcurrencyPayload extends S.Class<FirecrawlGetConcurre
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetConcurrencySuccess extends S.Class<FirecrawlGetConcurrencySuccess>(
-  $I`FirecrawlGetConcurrencySuccess`
-)(
-  { data: FirecrawlConcurrencyData },
-  $I.annote("FirecrawlGetConcurrencySuccess", {
-    description: "Decoded success value returned by Firecrawl getConcurrency.",
-  })
+export class FirecrawlGetConcurrencySuccess extends S.Opaque<
+  FirecrawlGetConcurrencySuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlConcurrencyData }).pipe(
+    $I.annoteSchema("FirecrawlGetConcurrencySuccess", {
+      description: "Decoded success value returned by Firecrawl getConcurrency.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Concurrency Failure decoded from a Firecrawl API failure body.
@@ -4282,13 +4560,15 @@ export class FirecrawlGetConcurrencySuccess extends S.Class<FirecrawlGetConcurre
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetConcurrencyFailure extends S.Class<FirecrawlGetConcurrencyFailure>(
-  $I`FirecrawlGetConcurrencyFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetConcurrencyFailure", {
-    description: "Decoded failure shape returned by Firecrawl getConcurrency.",
-  })
+export class FirecrawlGetConcurrencyFailure extends S.Opaque<
+  FirecrawlGetConcurrencyFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetConcurrencyFailure", {
+      description: "Decoded failure shape returned by Firecrawl getConcurrency.",
+    })
+  )
 ) {}
 
 /**
@@ -4305,13 +4585,15 @@ export class FirecrawlGetConcurrencyFailure extends S.Class<FirecrawlGetConcurre
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCreditUsagePayload extends S.Class<FirecrawlGetCreditUsagePayload>(
-  $I`FirecrawlGetCreditUsagePayload`
-)(
-  {},
-  $I.annote("FirecrawlGetCreditUsagePayload", {
-    description: "Payload decoded before calling Firecrawl getCreditUsage.",
-  })
+export class FirecrawlGetCreditUsagePayload extends S.Opaque<
+  FirecrawlGetCreditUsagePayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("FirecrawlGetCreditUsagePayload", {
+      description: "Payload decoded before calling Firecrawl getCreditUsage.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Credit Usage Success decoded after a successful Firecrawl SDK call.
@@ -4327,13 +4609,15 @@ export class FirecrawlGetCreditUsagePayload extends S.Class<FirecrawlGetCreditUs
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCreditUsageSuccess extends S.Class<FirecrawlGetCreditUsageSuccess>(
-  $I`FirecrawlGetCreditUsageSuccess`
-)(
-  { data: FirecrawlCreditUsageData },
-  $I.annote("FirecrawlGetCreditUsageSuccess", {
-    description: "Decoded success value returned by Firecrawl getCreditUsage.",
-  })
+export class FirecrawlGetCreditUsageSuccess extends S.Opaque<
+  FirecrawlGetCreditUsageSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlCreditUsageData }).pipe(
+    $I.annoteSchema("FirecrawlGetCreditUsageSuccess", {
+      description: "Decoded success value returned by Firecrawl getCreditUsage.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Credit Usage Failure decoded from a Firecrawl API failure body.
@@ -4349,13 +4633,15 @@ export class FirecrawlGetCreditUsageSuccess extends S.Class<FirecrawlGetCreditUs
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCreditUsageFailure extends S.Class<FirecrawlGetCreditUsageFailure>(
-  $I`FirecrawlGetCreditUsageFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetCreditUsageFailure", {
-    description: "Decoded failure shape returned by Firecrawl getCreditUsage.",
-  })
+export class FirecrawlGetCreditUsageFailure extends S.Opaque<
+  FirecrawlGetCreditUsageFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetCreditUsageFailure", {
+      description: "Decoded failure shape returned by Firecrawl getCreditUsage.",
+    })
+  )
 ) {}
 
 /**
@@ -4372,11 +4658,15 @@ export class FirecrawlGetCreditUsageFailure extends S.Class<FirecrawlGetCreditUs
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetTokenUsagePayload extends S.Class<FirecrawlGetTokenUsagePayload>(
-  $I`FirecrawlGetTokenUsagePayload`
-)(
-  {},
-  $I.annote("FirecrawlGetTokenUsagePayload", { description: "Payload decoded before calling Firecrawl getTokenUsage." })
+export class FirecrawlGetTokenUsagePayload extends S.Opaque<
+  FirecrawlGetTokenUsagePayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("FirecrawlGetTokenUsagePayload", {
+      description: "Payload decoded before calling Firecrawl getTokenUsage.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Token Usage Success decoded after a successful Firecrawl SDK call.
@@ -4392,13 +4682,15 @@ export class FirecrawlGetTokenUsagePayload extends S.Class<FirecrawlGetTokenUsag
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetTokenUsageSuccess extends S.Class<FirecrawlGetTokenUsageSuccess>(
-  $I`FirecrawlGetTokenUsageSuccess`
-)(
-  { data: FirecrawlTokenUsageData },
-  $I.annote("FirecrawlGetTokenUsageSuccess", {
-    description: "Decoded success value returned by Firecrawl getTokenUsage.",
-  })
+export class FirecrawlGetTokenUsageSuccess extends S.Opaque<
+  FirecrawlGetTokenUsageSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlTokenUsageData }).pipe(
+    $I.annoteSchema("FirecrawlGetTokenUsageSuccess", {
+      description: "Decoded success value returned by Firecrawl getTokenUsage.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Token Usage Failure decoded from a Firecrawl API failure body.
@@ -4414,13 +4706,15 @@ export class FirecrawlGetTokenUsageSuccess extends S.Class<FirecrawlGetTokenUsag
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetTokenUsageFailure extends S.Class<FirecrawlGetTokenUsageFailure>(
-  $I`FirecrawlGetTokenUsageFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetTokenUsageFailure", {
-    description: "Decoded failure shape returned by Firecrawl getTokenUsage.",
-  })
+export class FirecrawlGetTokenUsageFailure extends S.Opaque<
+  FirecrawlGetTokenUsageFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetTokenUsageFailure", {
+      description: "Decoded failure shape returned by Firecrawl getTokenUsage.",
+    })
+  )
 ) {}
 
 /**
@@ -4437,13 +4731,15 @@ export class FirecrawlGetTokenUsageFailure extends S.Class<FirecrawlGetTokenUsag
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCreditUsageHistoricalPayload extends S.Class<FirecrawlGetCreditUsageHistoricalPayload>(
-  $I`FirecrawlGetCreditUsageHistoricalPayload`
-)(
-  { byApiKey: optionalBoolean },
-  $I.annote("FirecrawlGetCreditUsageHistoricalPayload", {
-    description: "Payload decoded before calling Firecrawl getCreditUsageHistorical.",
-  })
+export class FirecrawlGetCreditUsageHistoricalPayload extends S.Opaque<
+  FirecrawlGetCreditUsageHistoricalPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ byApiKey: optionalBoolean }).pipe(
+    $I.annoteSchema("FirecrawlGetCreditUsageHistoricalPayload", {
+      description: "Payload decoded before calling Firecrawl getCreditUsageHistorical.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Credit Usage Historical Success decoded after a successful Firecrawl SDK call.
@@ -4459,13 +4755,15 @@ export class FirecrawlGetCreditUsageHistoricalPayload extends S.Class<FirecrawlG
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCreditUsageHistoricalSuccess extends S.Class<FirecrawlGetCreditUsageHistoricalSuccess>(
-  $I`FirecrawlGetCreditUsageHistoricalSuccess`
-)(
-  { data: FirecrawlCreditUsageHistoricalData },
-  $I.annote("FirecrawlGetCreditUsageHistoricalSuccess", {
-    description: "Decoded success value returned by Firecrawl getCreditUsageHistorical.",
-  })
+export class FirecrawlGetCreditUsageHistoricalSuccess extends S.Opaque<
+  FirecrawlGetCreditUsageHistoricalSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlCreditUsageHistoricalData }).pipe(
+    $I.annoteSchema("FirecrawlGetCreditUsageHistoricalSuccess", {
+      description: "Decoded success value returned by Firecrawl getCreditUsageHistorical.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Credit Usage Historical Failure decoded from a Firecrawl API failure body.
@@ -4481,13 +4779,15 @@ export class FirecrawlGetCreditUsageHistoricalSuccess extends S.Class<FirecrawlG
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetCreditUsageHistoricalFailure extends S.Class<FirecrawlGetCreditUsageHistoricalFailure>(
-  $I`FirecrawlGetCreditUsageHistoricalFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetCreditUsageHistoricalFailure", {
-    description: "Decoded failure shape returned by Firecrawl getCreditUsageHistorical.",
-  })
+export class FirecrawlGetCreditUsageHistoricalFailure extends S.Opaque<
+  FirecrawlGetCreditUsageHistoricalFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetCreditUsageHistoricalFailure", {
+      description: "Decoded failure shape returned by Firecrawl getCreditUsageHistorical.",
+    })
+  )
 ) {}
 
 /**
@@ -4504,13 +4804,15 @@ export class FirecrawlGetCreditUsageHistoricalFailure extends S.Class<FirecrawlG
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetTokenUsageHistoricalPayload extends S.Class<FirecrawlGetTokenUsageHistoricalPayload>(
-  $I`FirecrawlGetTokenUsageHistoricalPayload`
-)(
-  { byApiKey: optionalBoolean },
-  $I.annote("FirecrawlGetTokenUsageHistoricalPayload", {
-    description: "Payload decoded before calling Firecrawl getTokenUsageHistorical.",
-  })
+export class FirecrawlGetTokenUsageHistoricalPayload extends S.Opaque<
+  FirecrawlGetTokenUsageHistoricalPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ byApiKey: optionalBoolean }).pipe(
+    $I.annoteSchema("FirecrawlGetTokenUsageHistoricalPayload", {
+      description: "Payload decoded before calling Firecrawl getTokenUsageHistorical.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Token Usage Historical Success decoded after a successful Firecrawl SDK call.
@@ -4526,13 +4828,15 @@ export class FirecrawlGetTokenUsageHistoricalPayload extends S.Class<FirecrawlGe
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetTokenUsageHistoricalSuccess extends S.Class<FirecrawlGetTokenUsageHistoricalSuccess>(
-  $I`FirecrawlGetTokenUsageHistoricalSuccess`
-)(
-  { data: FirecrawlTokenUsageHistoricalData },
-  $I.annote("FirecrawlGetTokenUsageHistoricalSuccess", {
-    description: "Decoded success value returned by Firecrawl getTokenUsageHistorical.",
-  })
+export class FirecrawlGetTokenUsageHistoricalSuccess extends S.Opaque<
+  FirecrawlGetTokenUsageHistoricalSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlTokenUsageHistoricalData }).pipe(
+    $I.annoteSchema("FirecrawlGetTokenUsageHistoricalSuccess", {
+      description: "Decoded success value returned by Firecrawl getTokenUsageHistorical.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Token Usage Historical Failure decoded from a Firecrawl API failure body.
@@ -4548,13 +4852,15 @@ export class FirecrawlGetTokenUsageHistoricalSuccess extends S.Class<FirecrawlGe
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetTokenUsageHistoricalFailure extends S.Class<FirecrawlGetTokenUsageHistoricalFailure>(
-  $I`FirecrawlGetTokenUsageHistoricalFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetTokenUsageHistoricalFailure", {
-    description: "Decoded failure shape returned by Firecrawl getTokenUsageHistorical.",
-  })
+export class FirecrawlGetTokenUsageHistoricalFailure extends S.Opaque<
+  FirecrawlGetTokenUsageHistoricalFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetTokenUsageHistoricalFailure", {
+      description: "Decoded failure shape returned by Firecrawl getTokenUsageHistorical.",
+    })
+  )
 ) {}
 
 /**
@@ -4571,13 +4877,15 @@ export class FirecrawlGetTokenUsageHistoricalFailure extends S.Class<FirecrawlGe
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetQueueStatusPayload extends S.Class<FirecrawlGetQueueStatusPayload>(
-  $I`FirecrawlGetQueueStatusPayload`
-)(
-  {},
-  $I.annote("FirecrawlGetQueueStatusPayload", {
-    description: "Payload decoded before calling Firecrawl getQueueStatus.",
-  })
+export class FirecrawlGetQueueStatusPayload extends S.Opaque<
+  FirecrawlGetQueueStatusPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("FirecrawlGetQueueStatusPayload", {
+      description: "Payload decoded before calling Firecrawl getQueueStatus.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Queue Status Success decoded after a successful Firecrawl SDK call.
@@ -4593,13 +4901,15 @@ export class FirecrawlGetQueueStatusPayload extends S.Class<FirecrawlGetQueueSta
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetQueueStatusSuccess extends S.Class<FirecrawlGetQueueStatusSuccess>(
-  $I`FirecrawlGetQueueStatusSuccess`
-)(
-  { data: FirecrawlQueueStatusData },
-  $I.annote("FirecrawlGetQueueStatusSuccess", {
-    description: "Decoded success value returned by Firecrawl getQueueStatus.",
-  })
+export class FirecrawlGetQueueStatusSuccess extends S.Opaque<
+  FirecrawlGetQueueStatusSuccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: FirecrawlQueueStatusData }).pipe(
+    $I.annoteSchema("FirecrawlGetQueueStatusSuccess", {
+      description: "Decoded success value returned by Firecrawl getQueueStatus.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Get Queue Status Failure decoded from a Firecrawl API failure body.
@@ -4615,13 +4925,15 @@ export class FirecrawlGetQueueStatusSuccess extends S.Class<FirecrawlGetQueueSta
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlGetQueueStatusFailure extends S.Class<FirecrawlGetQueueStatusFailure>(
-  $I`FirecrawlGetQueueStatusFailure`
-)(
-  failureFields,
-  $I.annote("FirecrawlGetQueueStatusFailure", {
-    description: "Decoded failure shape returned by Firecrawl getQueueStatus.",
-  })
+export class FirecrawlGetQueueStatusFailure extends S.Opaque<
+  FirecrawlGetQueueStatusFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlGetQueueStatusFailure", {
+      description: "Decoded failure shape returned by Firecrawl getQueueStatus.",
+    })
+  )
 ) {}
 
 /**
@@ -4638,16 +4950,17 @@ export class FirecrawlGetQueueStatusFailure extends S.Class<FirecrawlGetQueueSta
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlWatcherPayload extends S.Class<FirecrawlWatcherPayload>($I`FirecrawlWatcherPayload`)(
-  {
+export class FirecrawlWatcherPayload extends S.Opaque<FirecrawlWatcherPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     jobId: S.String,
     options: S.OptionFromOptionalKey(FirecrawlWatcherOptions).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<WatcherOptions>()))
     ),
-  },
-  $I.annote("FirecrawlWatcherPayload", {
-    description: "Payload decoded before constructing a Firecrawl watcher stream.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlWatcherPayload", {
+      description: "Payload decoded before constructing a Firecrawl watcher stream.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Watcher Success decoded after a successful Firecrawl SDK call.
@@ -4663,9 +4976,12 @@ export class FirecrawlWatcherPayload extends S.Class<FirecrawlWatcherPayload>($I
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlWatcherSuccess extends S.Class<FirecrawlWatcherSuccess>($I`FirecrawlWatcherSuccess`)(
-  { jobId: S.String },
-  $I.annote("FirecrawlWatcherSuccess", { description: "Decoded success value for Firecrawl watcher construction." })
+export class FirecrawlWatcherSuccess extends S.Opaque<FirecrawlWatcherSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({ jobId: S.String }).pipe(
+    $I.annoteSchema("FirecrawlWatcherSuccess", {
+      description: "Decoded success value for Firecrawl watcher construction.",
+    })
+  )
 ) {}
 /**
  * Firecrawl Watcher Failure decoded from a Firecrawl API failure body.
@@ -4681,11 +4997,12 @@ export class FirecrawlWatcherSuccess extends S.Class<FirecrawlWatcherSuccess>($I
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlWatcherFailure extends S.Class<FirecrawlWatcherFailure>($I`FirecrawlWatcherFailure`)(
-  failureFields,
-  $I.annote("FirecrawlWatcherFailure", {
-    description: "Decoded failure shape emitted while constructing or running a Firecrawl watcher.",
-  })
+export class FirecrawlWatcherFailure extends S.Opaque<FirecrawlWatcherFailure, { readonly brand: unique symbol }>()(
+  S.Struct(failureFields).pipe(
+    $I.annoteSchema("FirecrawlWatcherFailure", {
+      description: "Decoded failure shape emitted while constructing or running a Firecrawl watcher.",
+    })
+  )
 ) {}
 
 /**
@@ -4702,15 +5019,15 @@ export class FirecrawlWatcherFailure extends S.Class<FirecrawlWatcherFailure>($I
  * @category schemas
  * @since 0.0.0
  */
-export class FirecrawlWatcherDocumentEvent extends S.Class<FirecrawlWatcherDocumentEvent>(
-  $I`FirecrawlWatcherDocumentEvent`
-)(
-  {
+export class FirecrawlWatcherDocumentEvent extends S.Opaque<
+  FirecrawlWatcherDocumentEvent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     document: FirecrawlDocument,
     id: optionalString,
     type: S.Literal("document"),
-  },
-  $I.annote("FirecrawlWatcherDocumentEvent", { description: "Firecrawl watcher document event." })
+  }).pipe($I.annoteSchema("FirecrawlWatcherDocumentEvent", { description: "Firecrawl watcher document event." }))
 ) {}
 
 /**
@@ -4727,14 +5044,14 @@ export class FirecrawlWatcherDocumentEvent extends S.Class<FirecrawlWatcherDocum
  * @category schemas
  * @since 0.0.0
  */
-export class FirecrawlWatcherSnapshotEvent extends S.Class<FirecrawlWatcherSnapshotEvent>(
-  $I`FirecrawlWatcherSnapshotEvent`
-)(
-  {
+export class FirecrawlWatcherSnapshotEvent extends S.Opaque<
+  FirecrawlWatcherSnapshotEvent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     snapshot: S.Unknown,
     type: S.Literal("snapshot"),
-  },
-  $I.annote("FirecrawlWatcherSnapshotEvent", { description: "Firecrawl watcher snapshot event." })
+  }).pipe($I.annoteSchema("FirecrawlWatcherSnapshotEvent", { description: "Firecrawl watcher snapshot event." }))
 ) {}
 
 /**
@@ -4751,8 +5068,8 @@ export class FirecrawlWatcherSnapshotEvent extends S.Class<FirecrawlWatcherSnaps
  * @category schemas
  * @since 0.0.0
  */
-export class FirecrawlWatcherDoneEvent extends S.Class<FirecrawlWatcherDoneEvent>($I`FirecrawlWatcherDoneEvent`)(
-  {
+export class FirecrawlWatcherDoneEvent extends S.Opaque<FirecrawlWatcherDoneEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     completed: optionalNumber,
     creditsUsed: optionalNumber,
     data: S.OptionFromOptionalKey(FirecrawlDocument.pipe(S.Array)).pipe(
@@ -4762,8 +5079,7 @@ export class FirecrawlWatcherDoneEvent extends S.Class<FirecrawlWatcherDoneEvent
     status: optionalString,
     total: optionalNumber,
     type: S.Literal("done"),
-  },
-  $I.annote("FirecrawlWatcherDoneEvent", { description: "Firecrawl watcher terminal done event." })
+  }).pipe($I.annoteSchema("FirecrawlWatcherDoneEvent", { description: "Firecrawl watcher terminal done event." }))
 ) {}
 
 /**
@@ -4780,14 +5096,16 @@ export class FirecrawlWatcherDoneEvent extends S.Class<FirecrawlWatcherDoneEvent
  * @category schemas
  * @since 0.0.0
  */
-export class FirecrawlWatcherErrorEvent extends S.Class<FirecrawlWatcherErrorEvent>($I`FirecrawlWatcherErrorEvent`)(
-  {
+export class FirecrawlWatcherErrorEvent extends S.Opaque<
+  FirecrawlWatcherErrorEvent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     error: S.String,
     id: optionalString,
     status: optionalString,
     type: S.Literal("error"),
-  },
-  $I.annote("FirecrawlWatcherErrorEvent", { description: "Firecrawl watcher error event." })
+  }).pipe($I.annoteSchema("FirecrawlWatcherErrorEvent", { description: "Firecrawl watcher error event." }))
 ) {}
 
 /**

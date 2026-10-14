@@ -40,8 +40,8 @@ const $I = $LawPracticeDomainId.create("values/StructuredDate/StructuredDate.mod
  * @category models
  * @since 0.0.0
  */
-export class ParsedDate extends S.Class<ParsedDate>($I`ParsedDate`)(
-  {
+export class ParsedDate extends S.Opaque<ParsedDate, { readonly brand: unique symbol }>()(
+  S.Struct({
     year: S.Natural.annotateKey({
       description: "Four-digit calendar year.",
     }),
@@ -59,10 +59,11 @@ export class ParsedDate extends S.Class<ParsedDate>($I`ParsedDate`)(
         description: "Calendar day of month (1-31); absent for year-only or month-only dates.",
       })
     ),
-  },
-  $I.annote("ParsedDate", {
-    description: "Structured date components with optional month and day for year-only dates.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParsedDate", {
+      description: "Structured date components with optional month and day for year-only dates.",
+    })
+  )
 ) {}
 
 /**
@@ -128,18 +129,19 @@ export declare namespace ParsedDate {
  * @category models
  * @since 0.0.0
  */
-export class StructuredDate extends S.Class<StructuredDate>($I`StructuredDate`)(
-  {
+export class StructuredDate extends S.Opaque<StructuredDate, { readonly brand: unique symbol }>()(
+  S.Struct({
     iso: S.String.annotateKey({
       description: "ISO 8601 format: YYYY-MM-DD, YYYY-MM, or YYYY.",
     }),
     parsed: ParsedDate.annotateKey({
       description: "Structured date components.",
     }),
-  },
-  $I.annote("StructuredDate", {
-    description: "Date in both ISO string and structured format.",
-  })
+  }).pipe(
+    $I.annoteSchema("StructuredDate", {
+      description: "Date in both ISO string and structured format.",
+    })
+  )
 ) {}
 
 /**

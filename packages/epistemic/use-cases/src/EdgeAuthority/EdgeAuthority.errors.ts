@@ -144,7 +144,9 @@ export type EdgeWriteOperation = typeof EdgeWriteOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SupersessionConflict extends S.TaggedError<SupersessionConflict>($I`SupersessionConflict`)(
+export class SupersessionConflict extends S.TaggedError<SupersessionConflict, { readonly brand: unique symbol }>(
+  $I`SupersessionConflict`
+)(
   "SupersessionConflict",
   {
     cause: optionalDefect("Optional underlying defect captured when a database backstop rejected the supersession."),
@@ -274,7 +276,9 @@ export class SupersessionConflict extends S.TaggedError<SupersessionConflict>($I
  * @category errors
  * @since 0.0.0
  */
-export class EdgeConstraintViolation extends S.TaggedError<EdgeConstraintViolation>($I`EdgeConstraintViolation`)(
+export class EdgeConstraintViolation extends S.TaggedError<EdgeConstraintViolation, { readonly brand: unique symbol }>(
+  $I`EdgeConstraintViolation`
+)(
   "EdgeConstraintViolation",
   {
     constraintName: S.NonEmptyString.annotateKey({
@@ -328,7 +332,10 @@ export class EdgeConstraintViolation extends S.TaggedError<EdgeConstraintViolati
  * @category errors
  * @since 0.0.0
  */
-export class EdgeRepositoryUnavailable extends S.TaggedError<EdgeRepositoryUnavailable>($I`EdgeRepositoryUnavailable`)(
+export class EdgeRepositoryUnavailable extends S.TaggedError<
+  EdgeRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`EdgeRepositoryUnavailable`)(
   "EdgeRepositoryUnavailable",
   {
     cause: optionalDefect("Optional underlying driver defect captured when the repository could not serve a request."),

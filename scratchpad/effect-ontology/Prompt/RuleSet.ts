@@ -59,7 +59,7 @@ const allowedIriSetEntityIdsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class AllowedIriSet extends S.Class<AllowedIriSet>($I`AllowedIriSet`)(
+export class AllowedIriSet extends S.Class<AllowedIriSet, { readonly brand: unique symbol }>($I`AllowedIriSet`)(
   {
     /** Canonical class IRIs accepted during entity extraction. */
     classIris: S.Array(IRI).pipe(
@@ -174,7 +174,7 @@ export class AllowedIriSet extends S.Class<AllowedIriSet>($I`AllowedIriSet`)(
 }
 
 /** Shared schema-backed collections and behavior for stage-specific rule sets. */
-class RuleSetBase extends S.Class<RuleSetBase>($I`RuleSetBase`)(
+class RuleSetBase extends S.Class<RuleSetBase, { readonly brand: unique symbol }>($I`RuleSetBase`)(
   {
     /** Rules that do not depend on ontology content. */
     staticRules: S.Array(ExtractionRule).pipe(

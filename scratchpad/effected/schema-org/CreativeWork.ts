@@ -123,7 +123,7 @@ export const CreativeWorkFields = {
  * @category models
  * @since 0.0.0
  */
-export class CreativeWork extends S.Class<CreativeWork>($I`CreativeWork`)({
+export class CreativeWork extends S.Class<CreativeWork, { readonly brand: unique symbol }>($I`CreativeWork`)({
 	...CreativeWorkFields,
 	/** The JSON-LD type discriminator, populated automatically. */
 	"@type": S.tag("CreativeWork").annotateKey({ description: "The JSON-LD type discriminator, populated automatically." }),

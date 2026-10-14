@@ -25,7 +25,7 @@ import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/markdown/MarkdownEdit");
 
-class OverlappingMarkdownEditsError extends S.TaggedError<OverlappingMarkdownEditsError>($I`OverlappingMarkdownEditsError`)("OverlappingMarkdownEditsError", {
+class OverlappingMarkdownEditsError extends S.TaggedError<OverlappingMarkdownEditsError, { readonly brand: unique symbol }>($I`OverlappingMarkdownEditsError`)("OverlappingMarkdownEditsError", {
 	message: S.String.annotateKey({ description: "Explanation identifying the overlapping edit offsets and the programmer-error contract" }),
 }, $I.annote("OverlappingMarkdownEditsError", { description: "Rejects intersecting source edits before MarkdownEdit.applyAll can splice ambiguous replacements." })) {}
 
@@ -67,7 +67,7 @@ export type MarkdownPath = ReadonlyArray<MarkdownSegment>;
  * @category models
  * @since 0.0.0
  */
-export class MarkdownRange extends S.Class<MarkdownRange>($I`MarkdownRange`)({
+export class MarkdownRange extends S.Class<MarkdownRange, { readonly brand: unique symbol }>($I`MarkdownRange`)({
 	offset: S.Finite.annotateKey({ description: "Zero-based start of the formatting region in the source string, measured in UTF-16 code units" }),
 	length: S.Finite.annotateKey({ description: "Extent of the formatting region in UTF-16 code units, used to select intersecting nodes" }),
 }, $I.annote("MarkdownRange", { description: "A range within a markdown document, expressed as a zero-based character `offset` and a `length` in UTF-16 code units. Pass to `MarkdownFormat.format` to restrict formatting to a region." })) {}
@@ -97,7 +97,7 @@ export class MarkdownRange extends S.Class<MarkdownRange>($I`MarkdownRange`)({
  * @category models
  * @since 0.0.0
  */
-export class MarkdownEdit extends S.Class<MarkdownEdit>($I`MarkdownEdit`)({
+export class MarkdownEdit extends S.Class<MarkdownEdit, { readonly brand: unique symbol }>($I`MarkdownEdit`)({
 	offset: S.Finite.annotateKey({ description: "Zero-based start of the span to replace in the original source, measured in UTF-16 code units" }),
 	length: S.Finite.annotateKey({ description: "Number of UTF-16 code units to replace in the original source; `0` inserts without removing text" }),
 	content: S.String.annotateKey({ description: "Replacement text for the source span; an empty string deletes the span" }),

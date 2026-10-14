@@ -27,7 +27,10 @@ const $I = $DocumentsUseCasesId.create("aggregates/Document/Document.errors");
  * @category errors
  * @since 0.0.0
  */
-export class FilingDecisionUnavailable extends S.TaggedError<FilingDecisionUnavailable>($I`FilingDecisionUnavailable`)(
+export class FilingDecisionUnavailable extends S.TaggedError<
+  FilingDecisionUnavailable,
+  { readonly brand: unique symbol }
+>($I`FilingDecisionUnavailable`)(
   "FilingDecisionUnavailable",
   {
     reason: S.NonEmptyString,
@@ -52,9 +55,10 @@ export class FilingDecisionUnavailable extends S.TaggedError<FilingDecisionUnava
  * @category errors
  * @since 0.0.0
  */
-export class DocumentMaterializationFailed extends S.TaggedError<DocumentMaterializationFailed>(
-  $I`DocumentMaterializationFailed`
-)(
+export class DocumentMaterializationFailed extends S.TaggedError<
+  DocumentMaterializationFailed,
+  { readonly brand: unique symbol }
+>($I`DocumentMaterializationFailed`)(
   "DocumentMaterializationFailed",
   {
     reason: S.NonEmptyString,
@@ -122,7 +126,10 @@ export type DocumentIntakeError = typeof DocumentIntakeError.Type;
  * @category errors
  * @since 0.0.0
  */
-export class DocumentIntakeActionError extends S.TaggedError<DocumentIntakeActionError>($I`DocumentIntakeActionError`)(
+export class DocumentIntakeActionError extends S.TaggedError<
+  DocumentIntakeActionError,
+  { readonly brand: unique symbol }
+>($I`DocumentIntakeActionError`)(
   "DocumentIntakeActionError",
   {
     message: S.String,

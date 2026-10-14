@@ -1,6 +1,6 @@
-import type * as Configuration from "@beep/repo-docgen/Configuration";
+import * as Configuration from "@beep/repo-docgen/Configuration";
 
-export const defaultDocgenConfig: Configuration.ConfigurationShape = {
+export const defaultDocgenConfig: Configuration.ConfigurationShape = Configuration.ConfigurationShape.make({
   projectName: "docgen",
   projectHomepage: "https://github.com/effect-ts/docgen",
   srcLink: "https://github.com/effect-ts/docgen/blob/main/src/",
@@ -16,4 +16,4 @@ export const defaultDocgenConfig: Configuration.ConfigurationShape = {
   exclude: [],
   parseCompilerOptions: {},
   examplesCompilerOptions: {},
-};
+});

@@ -114,8 +114,8 @@ export const SchemaFirstPolicySeverity = LiteralKit(["warn", "warning", "error"]
  * @category models
  * @since 0.0.0
  */
-export class SchemaFirstPolicyFinding extends S.Class<SchemaFirstPolicyFinding>($I`SchemaFirstPolicyFinding`)(
-  {
+export class SchemaFirstPolicyFinding extends S.Opaque<SchemaFirstPolicyFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.Literal("schema-first-policy"),
     ruleId: S.String,
     severity: S.optionalKey(SchemaFirstPolicySeverity),
@@ -125,10 +125,11 @@ export class SchemaFirstPolicyFinding extends S.Class<SchemaFirstPolicyFinding>(
     occurrence: S.optionalKey(S.String),
     message: S.String,
     remediation: S.optionalKey(S.String),
-  },
-  $I.annote("SchemaFirstPolicyFinding", {
-    description: "Machine-readable schema-first policy finding shared by the lint emitter and its consumers.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaFirstPolicyFinding", {
+      description: "Machine-readable schema-first policy finding shared by the lint emitter and its consumers.",
+    })
+  )
 ) {}
 
 const codec = JsonStringCodec(SchemaFirstPolicyFinding);

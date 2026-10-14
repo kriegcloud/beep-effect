@@ -25,6 +25,7 @@ import * as O from "effect/Option";
 import { BOUND_MODEL_SEGMENT } from "./Models.locator.service.ts";
 import {
   BindingFilter,
+  EffortDisplayLabel,
   LocatorBinding,
   ModelBinding,
   ModelSyncTarget,
@@ -50,12 +51,12 @@ const verbatim: LocatorRender = { _tag: "verbatim" };
 const jetBrainsEffortLabels: LocatorRender = {
   _tag: "effort-display-label",
   labels: [
-    { effort: "low", label: "Low" },
-    { effort: "medium", label: "Medium" },
-    { effort: "high", label: "High" },
-    { effort: "xhigh", label: "Extra High" },
-    { effort: "max", label: "Max" },
-    { effort: "ultra", label: "Ultra" },
+    EffortDisplayLabel.make({ effort: "low", label: "Low" }),
+    EffortDisplayLabel.make({ effort: "medium", label: "Medium" }),
+    EffortDisplayLabel.make({ effort: "high", label: "High" }),
+    EffortDisplayLabel.make({ effort: "xhigh", label: "Extra High" }),
+    EffortDisplayLabel.make({ effort: "max", label: "Max" }),
+    EffortDisplayLabel.make({ effort: "ultra", label: "Ultra" }),
   ],
 };
 

@@ -536,7 +536,7 @@ const inlineNodeToMd: (node: LexicalNode) => Md.Inline = LexicalNode.match({
       node.format
     ),
   tab: () => Md.Text.make({ value: "\t" }),
-  linebreak: () => Md.Br.make(),
+  linebreak: () => Md.Br.make({}),
   link: (node) => Md.A.make({ href: node.url, children: textRunToInlines(node.children), title: node.title }),
   "artifact-ref": (node) =>
     Md.A.make({

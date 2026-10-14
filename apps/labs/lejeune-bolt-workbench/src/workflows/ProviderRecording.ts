@@ -50,9 +50,10 @@ const ProviderRecordingIntegrityIssue = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class ProviderRecordingIntegrityError extends S.TaggedError<ProviderRecordingIntegrityError>(
-  $I`ProviderRecordingIntegrityError`
-)(
+export class ProviderRecordingIntegrityError extends S.TaggedError<
+  ProviderRecordingIntegrityError,
+  { readonly brand: unique symbol }
+>($I`ProviderRecordingIntegrityError`)(
   "ProviderRecordingIntegrityError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),

@@ -30,7 +30,9 @@ const $I = $RepoCliId.create("internal/cli/ExitCodeError");
  * @category errors
  * @since 0.0.0
  */
-export class CliReportedExit extends S.TaggedError<CliReportedExit>($I`CliReportedExit`)(
+export class CliReportedExit extends S.TaggedError<CliReportedExit, { readonly brand: unique symbol }>(
+  $I`CliReportedExit`
+)(
   "CliReportedExit",
   {
     message: S.String,

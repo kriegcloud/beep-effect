@@ -132,7 +132,7 @@ const validateRulesMap = (rules: { readonly [id: string]: YamlLintRuleSetting })
  * @category configuration
  * @since 0.0.0
  */
-export class YamlLintConfig extends S.Class<YamlLintConfig>($I`YamlLintConfig`)({
+export class YamlLintConfig extends S.Class<YamlLintConfig, { readonly brand: unique symbol }>($I`YamlLintConfig`)({
 	rules: S.Record(S.String, YamlLintRuleSetting).pipe(S.check(S.makeFilter(validateRulesMap))).annotateKey({ description: "Rule identifiers mapped to severities, `off`, or per-rule options, with built-in options validated and `parse-validity` always enforced" }),
 }, $I.annote("YamlLintConfig", { description: "The lint configuration: a `rules` map keying rule ids (built-in or custom) to a severity literal or a typed per-rule options object." })) {
 	/**
@@ -272,7 +272,7 @@ const encodeStyleCandidateJson = S.encodeResult(S.fromJsonString(StyleCandidateV
  * @category models
  * @since 0.0.0
  */
-export class StyleVoteTally extends S.Class<StyleVoteTally>($I`StyleVoteTally`)({
+export class StyleVoteTally extends S.Class<StyleVoteTally, { readonly brand: unique symbol }>($I`StyleVoteTally`)({
 	rule: S.String.annotateKey({ description: "Identifier of the lint rule that supplied the accumulated style observations" }),
 	dimension: S.String.annotateKey({ description: "Rule option key whose observed choices are being tallied" }),
 	value: StyleCandidateValue.annotateKey({ description: "Observed option choice shared by the occurrences counted in this tally" }),
@@ -302,7 +302,7 @@ export class StyleVoteTally extends S.Class<StyleVoteTally>($I`StyleVoteTally`)(
  * @category models
  * @since 0.0.0
  */
-export class StyleFloorTally extends S.Class<StyleFloorTally>($I`StyleFloorTally`)({
+export class StyleFloorTally extends S.Class<StyleFloorTally, { readonly brand: unique symbol }>($I`StyleFloorTally`)({
 	rule: S.String.annotateKey({ description: "Identifier of the lint rule that supplied the measured lower bound" }),
 	dimension: S.String.annotateKey({ description: "Rule option key whose lower bound is measured from the observed sources" }),
 	value: S.Finite.annotateKey({ description: "Largest observed lower bound for the rule option; retained as evidence without setting the configured limit" }),
@@ -397,7 +397,7 @@ const byDescendingCount = Order.mapInput(Order.flip(Order.Number), (tally: Style
  * @category models
  * @since 0.0.0
  */
-export class StyleEvidence extends S.Class<StyleEvidence>($I`StyleEvidence`)({
+export class StyleEvidence extends S.Class<StyleEvidence, { readonly brand: unique symbol }>($I`StyleEvidence`)({
 	votes: S.Array(StyleVoteTally).annotateKey({ description: "Accumulated option-choice counts and first-seen source positions used to resolve inferred lint settings" }),
 	floors: S.Array(StyleFloorTally).annotateKey({ description: "Measured lower bounds per rule option, retained for inspection without resolving them into configuration" }),
 }, $I.annote("StyleEvidence", { description: "Per-dimension style evidence: what the observed sources say about each inferable `(rule, dimension)` — vote histograms with first-seen positions, and measured floors." })) {
@@ -457,9 +457,10 @@ export class StyleEvidence extends S.Class<StyleEvidence>($I`StyleEvidence`)({
 	 *
 	 * ```ts
 	 * import { StyleEvidence } from "@beep/scratchpad/effected/yaml/YamlLint";
+	 * import { StyleVote } from "@beep/scratchpad/effected/yaml/YamlLintRule";
 	 *
 	 * const evidence = StyleEvidence.fromObservations("custom", [
-	 *   { _tag: "StyleVote", dimension: "spacing", value: 2, offset: 0, length: 2, line: 0, character: 0 },
+	 *   StyleVote.make({ dimension: "spacing", value: 2, offset: 0, length: 2, line: 0, character: 0 }),
 	 * ]);
 	 * console.log(evidence.votes[0]?.count); // 1
 	 * ```
@@ -495,7 +496,7 @@ export class StyleEvidence extends S.Class<StyleEvidence>($I`StyleEvidence`)({
  * @category models
  * @since 0.0.0
  */
-export class StyleConflict extends S.Class<StyleConflict>($I`StyleConflict`)({
+export class StyleConflict extends S.Class<StyleConflict, { readonly brand: unique symbol }>($I`StyleConflict`)({
 	rule: S.String.annotateKey({ description: "Identifier of the lint rule whose observed option choices disagree" }),
 	dimension: S.String.annotateKey({ description: "Rule option key with multiple conflicting observed choices" }),
 	candidates: S.Array(StyleVoteTally).annotateKey({ description: "All conflicting option choices with counts and first-seen positions, ordered by descending count" }),
@@ -529,7 +530,7 @@ export class StyleConflict extends S.Class<StyleConflict>($I`StyleConflict`)({
  * @category errors
  * @since 0.0.0
  */
-export class YamlStyleConflictError extends S.TaggedError<YamlStyleConflictError>($I`YamlStyleConflictError`)("YamlStyleConflictError", {
+export class YamlStyleConflictError extends S.TaggedError<YamlStyleConflictError, { readonly brand: unique symbol }>($I`YamlStyleConflictError`)("YamlStyleConflictError", {
 	conflicts: S.Array(StyleConflict).annotateKey({ description: "Every rule option with disagreeing observations that prevents strict configuration inference" }),
 }, $I.annote("YamlStyleConflictError", { description: "Raised by strict config inference when observed evidence is not unanimous: carries every conflicting `(rule, dimension)` as a structured StyleConflict — dimension, all spellings, counts and positions — never a collapsed `reason` string (the structure-preserving-errors house rule). Unobserved dimensions never conflict: they fall back to the base config's defaults." })) {
 	/**

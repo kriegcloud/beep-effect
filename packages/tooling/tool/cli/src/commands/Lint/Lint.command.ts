@@ -8,7 +8,7 @@
 /// <reference path="../../../madge.d.ts" />
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { FsUtils, findRepoRoot, jsonStringifyPretty, resolveWorkspaceDirs } from "@beep/repo-utils";
+import { FsUtils, findRepoRoot, GlobOptions, jsonStringifyPretty, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { isExcludedTypeScriptSourcePath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { normalizePath } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
@@ -45,6 +45,7 @@ import { lintEcosystemPolarityCommand } from "./EcosystemPolarity.ts";
 import { lintEffectSchemaInventoryCommand } from "./EffectSchemaInventory.ts";
 import { lintEffectVitestCommand } from "./EffectVitest.ts";
 import { lintIdentityRegistryCommand } from "./IdentityRegistry.ts";
+import { SchemaFirstSchemaClass } from "./internal/SchemaFirstSchemaClass.ts";
 import { lintJudgeRubricCommand } from "./JudgeRubric.ts";
 import { LintCircularAnalysisError, LintFileDiscoveryError } from "./Lint.errors.ts";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.ts";
@@ -137,16 +138,17 @@ const REQUIRED_TAGGED_UNIONS = [
  * @category models
  * @since 0.0.0
  */
-class LintViolation extends S.Class<LintViolation>($I`LintViolation`)(
-  {
+class LintViolation extends S.Opaque<LintViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     line: S.Finite,
     kind: S.String,
     detail: S.String,
-  },
-  $I.annote("LintViolation", {
-    description: "Lint violation report row.",
-  })
+  }).pipe(
+    $I.annoteSchema("LintViolation", {
+      description: "Lint violation report row.",
+    })
+  )
 ) {}
 
 const lineNumberAt = (content: string, offset: number): number =>
@@ -379,14 +381,16 @@ const serviceIdentityViolations = (file: string, content: string): ReadonlyArray
     "Context.Service tag must use $I`ServiceName` identity."
   );
 
+// Parsed rather than matched with `<[^>]+>`, so brand type arguments and nested generics never hide a class.
 const schemaAnnotationViolations = (file: string, content: string): ReadonlyArray<LintViolation> =>
-  patternViolations(
-    file,
-    content,
-    /S\.Class<[^>]+>\(\$I`[^`]+`\)\(/g,
-    (offset) => /\$I\.annote\(/.test(Str.slice(offset, offset + 2400)(content)),
-    "schema-annotation",
-    "S.Class schema is missing $I.annote(...) metadata."
+  A.map(SchemaFirstSchemaClass.missingIdentityAnnotationOffsets(file, content), (offset) =>
+    lintViolation(
+      file,
+      content,
+      "schema-annotation",
+      "Schema class is missing $I.annote(...) / $I.annoteSchema(...) metadata.",
+      offset
+    )
   );
 
 const runtimeSchemaFirstViolationKinds = (file: string, content: string): ReadonlyArray<string> =>
@@ -725,15 +729,21 @@ const lintJsdocCommand = Command.make(
     const fsUtils = yield* FsUtils;
     const path = yield* Path.Path;
     const workspaces = yield* resolveWorkspaceDirs(root);
-    const files = yield* fsUtils.globFiles(["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"], {
-      cwd: root,
-      ignore: [
-        "apps/labs/**",
-        "**/node_modules/**",
-        "**/.context/**",
-        ...A.map(A.fromIterable(HashMap.values(workspaces)), (dir) => `${normalizePath(path.relative(root, dir))}/**`),
-      ],
-    });
+    const files = yield* fsUtils.globFiles(
+      ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+      GlobOptions.make({
+        cwd: root,
+        ignore: [
+          "apps/labs/**",
+          "**/node_modules/**",
+          "**/.context/**",
+          ...A.map(
+            A.fromIterable(HashMap.values(workspaces)),
+            (dir) => `${normalizePath(path.relative(root, dir))}/**`
+          ),
+        ],
+      })
+    );
     yield* runEslintWorker(root, "docs", A.sort(files, Order.String));
   })
 ).pipe(Command.withDescription("Check package or non-workspace documentation with the docs ESLint profile"));
@@ -889,14 +899,15 @@ const rootConfigs = [
  * @category models
  * @since 0.0.0
  */
-export class PolicyToolsFingerprint extends S.Class<PolicyToolsFingerprint>($I`PolicyToolsFingerprint`)(
-  {
+export class PolicyToolsFingerprint extends S.Opaque<PolicyToolsFingerprint, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("policy-tools-fingerprint/v1"),
     inputs: S.Array(S.String),
-  },
-  $I.annote("PolicyToolsFingerprint", {
-    description: "Declared checker workspace dependency closure and root configuration inputs.",
-  })
+  }).pipe(
+    $I.annoteSchema("PolicyToolsFingerprint", {
+      description: "Declared checker workspace dependency closure and root configuration inputs.",
+    })
+  )
 ) {}
 
 /**
@@ -912,17 +923,19 @@ export class PolicyToolsFingerprint extends S.Class<PolicyToolsFingerprint>($I`P
  * @category configuration
  * @since 0.0.0
  */
-export class PolicyFingerprintTurboConfiguration extends S.Class<PolicyFingerprintTurboConfiguration>(
-  $I`PolicyFingerprintTurboConfiguration`
-)(
-  {
+export class PolicyFingerprintTurboConfiguration extends S.Opaque<
+  PolicyFingerprintTurboConfiguration,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     tasks: S.Struct({
       "//#lint:policy-fingerprint": S.Struct({ inputs: PolicyToolsFingerprint.fields.inputs }),
     }),
-  },
-  $I.annote("PolicyFingerprintTurboConfiguration", {
-    description: "Only the root fingerprint task inputs are decoded; unrelated Turbo configuration is preserved.",
-  })
+  }).pipe(
+    $I.annoteSchema("PolicyFingerprintTurboConfiguration", {
+      description: "Only the root fingerprint task inputs are decoded; unrelated Turbo configuration is preserved.",
+    })
+  )
 ) {}
 
 interface PolicyToolsFingerprintPolicyShape {
