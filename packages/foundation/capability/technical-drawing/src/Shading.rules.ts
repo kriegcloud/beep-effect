@@ -557,7 +557,7 @@ const majorEdgesOf = (face: FaceFacts): ReadonlyArray<FaceEdge> => {
   return A.filter(face.edges, (edge) => edge.length > 0 && edge.length >= MAJOR_EDGE_SHARE * longest);
 };
 
-const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> => {
+const darkestEdge = (face: FaceFacts, light: V3): O.Option<FaceEdge> => {
   const normal = unitOf(face.normal);
   const inPlane = minus(light, times(normal, dot(light, normal)));
   const darkness = (edge: FaceEdge): number => {
@@ -571,13 +571,11 @@ const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> => {
     Order.flip(Order.mapInput(Order.Number, (edge: FaceEdge) => Math.round(darkness(edge) * 1e6) / 1e6)),
     Order.flip(Order.mapInput(Order.Number, lineLength))
   );
-  return pipe(
-    majorEdgesOf(face),
-    A.sort(order),
-    A.head,
-    O.map((edge) => unitOf(minus(edge.end, edge.start)))
-  );
+  return pipe(majorEdgesOf(face), A.sort(order), A.head);
 };
+
+const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> =>
+  O.map(darkestEdge(face, light), (edge) => unitOf(minus(edge.end, edge.start)));
 
 /**
  * Direction the shading lines run along a face, by hatch axis.
@@ -662,7 +660,9 @@ const sign = (value: number): number => (value < 0 ? -1 : 1);
  * farthest the other way along `step`, and
  * the returned step points from it into the face. When the light has no
  * component along `step` (a face lit edge-on to its lines), the shadow side
- * is the sheet's lower right. The anchor is taken from the face's major
+ * is the sheet's lower right. With a `shadowEdge` (the darkest edge the
+ * lines follow), the shadow side is that edge's side of the face, so the band
+ * bunches on the edge its lines run along. The anchor is taken from the face's major
  * straight edges (at least a quarter as long as its longest), so a tab or
  * chamfer sticking out past a side does not move the band; a face without
  * straight edges anchors on its outline. The anchor edge is the first
@@ -692,6 +692,7 @@ export const anchorOf = (input: {
   readonly face: FaceFacts;
   readonly view: ViewFacts;
   readonly direction: Vec3;
+  readonly shadowEdge?: FaceEdge;
 }): FaceAnchor => {
   const { face, view, direction } = input;
   const normal = unitOf(face.normal);
@@ -705,7 +706,13 @@ export const anchorOf = (input: {
   // bottom when its step runs straight up the sheet
   const sheetRight = dot(across, view.right);
   const sheetShadow = Math.abs(sheetRight) > 1e-6 ? sheetRight : -dot(across, view.up);
-  const toShadow = Math.abs(toLight) > EDGE_ON_LIGHT ? -sign(toLight) : sign(sheetShadow);
+  // lines that follow the face's darkest edge bunch on that edge's side
+  const edgeSide = O.map(O.fromNullishOr(input.shadowEdge), (edge) =>
+    sign(dot(across, minus(times(plus(edge.start, edge.end), 0.5), face.center)))
+  );
+  const toShadow = O.getOrElse(edgeSide, () =>
+    Math.abs(toLight) > EDGE_ON_LIGHT ? -sign(toLight) : sign(sheetShadow)
+  );
   const shadow = times(across, toShadow);
   // the anchor is read from the face's major edges, so a tab or chamfer that
   // sticks out past the face's side cannot pull the band outside it
@@ -784,9 +791,15 @@ const gradedTreatment = (input: {
   readonly direction: V3;
   readonly factor: number;
   readonly window: O.Option<ShadingWindow>;
+  readonly shadowEdge: O.Option<FaceEdge>;
 }): FaceTreatment => {
   const { face, view, plan, direction, factor, window } = input;
-  const anchor = anchorOf({ face, view, direction });
+  const anchor = anchorOf({
+    face,
+    view,
+    direction,
+    ...O.match(input.shadowEdge, { onNone: () => ({}), onSome: (shadowEdge) => ({ shadowEdge }) }),
+  });
   const reach = pipe(
     face.outline,
     A.map((point) => dot(minus(point, anchor.point), anchor.step)),
@@ -892,6 +905,11 @@ export const treatmentFor = (input: {
         if (factor < MIN_SPREAD) {
           return skipped("edge-on");
         }
+        // under the surface-class axis a level or inclined face follows its darkest edge, and its band bunches there
+        const shadowEdge =
+          plan.axis === "surface-class" && surfaceClassOf(face.normal) !== "upright"
+            ? darkestEdge(face, view.light)
+            : O.none<FaceEdge>();
         return plan.style === "graded"
           ? gradedTreatment({
               face,
@@ -900,6 +918,7 @@ export const treatmentFor = (input: {
               direction,
               factor,
               window: input.window === undefined ? O.none() : O.some(input.window),
+              shadowEdge,
             })
           : centredLines(face, step, O.getOrElse(pitch, () => plan.maxPitch) / factor);
       },

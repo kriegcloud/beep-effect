@@ -387,7 +387,16 @@ describe("Shading.rules", () => {
     );
     const flapDirection = hatchDirectionOf({ face: flap, axis: "surface-class" });
     assertSome(O.map(flapDirection, clean), [-1, 0, 0]);
-    // with the light known, an inclined face runs along the edge turned away from it: here the +X side
+    // with the light known, an inclined face runs along the edge turned away from it (here the +X side)
+    // and its band anchors on that edge
+    expect(
+      anchorOf({
+        face: flap,
+        view: front,
+        direction: [0, Math.SQRT1_2, Math.SQRT1_2],
+        shadowEdge: FaceEdge.make({ start: [10, 0, 0], end: [10, 30, 30], length: Math.hypot(30, 30) }),
+      }).point[0]
+    ).toBe(10);
     assertSome(
       O.map(hatchDirectionOf({ face: flap, axis: "surface-class", light: front.light }), (d) => [
         Math.round(d[0] * 100) / 100,
