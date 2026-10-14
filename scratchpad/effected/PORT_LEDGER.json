@@ -730,6 +730,36 @@
           "round": 2,
           "finding": "grok-2-2 / fable-2-2 JsoncStringifyError.detail carries the codec's sentence instead of the engine's message",
           "reason": "recorded as a deviation (law: JSON codec rule forbids the direct JSON.stringify that alone can observe the thrown message); revisit if Effect's stringifyJson getter starts carrying the cause"
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "B1 — Formatter documentation overpromises totality (scratchpad/effected/jsonc/JsoncFormatter.ts:6,25,65)",
+          "reason": "jsdoc: During S2, qualify totality to finite widths and document the synchronous non-finite-tabSize constructor failure on format and formatToString. This is a concrete prose correctness issue, but the merge instruction makes it backlog rather than a round-3 required fix."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "B2 — Measure default-options and codec construction cost (scratchpad/effected/jsonc/Jsonc.ts:353,630,648)",
+          "reason": "perf: Hoist immutable default parse/stringify options where safe, then benchmark a reusable codec design against upstream before changing per-call replacer state. Preserve the schema JSON codec and caller isolation."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "B3 — Measure per-property descriptor overhead (scratchpad/effected/jsonc/internal/parser.ts:448)",
+          "reason": "perf: Benchmark wide-object parsing/evaluation against the pinned oracle; if worthwhile, restrict the descriptor path to __proto__ and use the ordinary-key store elsewhere while preserving own-data-property semantics. Coordinate any eventual JsoncNode change with its then-current owner."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "R5 — Visitor recovery must terminate at a mismatched brace (scratchpad/effected/jsonc/JsoncVisitor.ts:316)",
+          "reason": "bug: The prerequisite section-14 upstream-bug registration is absent from PORT_LEDGER.json, and registration was not confirmed. Central metadata is outside the port's write surface. The loop remains unchanged; terminating regressions await registration."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "C1 — Record the law-forced finite-number remainder centrally (scratchpad/effected/jsonc/JsoncModifier.ts:54)",
+          "reason": "schema: outside the port's write surface; PORT_LEDGER.json and README Port notes require the central deviation codemod."
         }
       ],
       "reviewRounds": [
@@ -766,6 +796,24 @@
             "fable": {
               "required": 3,
               "backlog": 6
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "a67fdb1f52f7bd981bd8345a5f3ba4ef3bd6cd56",
+          "seats": {
+            "grok": {
+              "required": 3,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 5,
+              "backlog": 2
             }
           }
         }
