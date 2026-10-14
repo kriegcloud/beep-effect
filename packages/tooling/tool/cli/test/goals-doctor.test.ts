@@ -190,8 +190,10 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
       expect(output).not.toContain("use doctor --online");
     })
   );
-  it.effect("stored incomplete inventory explains why refresh cannot verify completion", () =>
-    Effect.gen(function* () {
+  it.effect.prop(
+    "stored incomplete inventory explains why refresh cannot verify completion",
+    [Arbitrary.schema(GoalRequiredCheckSnapshot)],
+    Effect.fn("GoalsDoctorTest.storedIncompleteInventory")(function* ([snapshot]) {
       yield* temporaryWorkingDirectory;
       yield* runGit(["init", "-b", "main"]);
       const manifest = yield* S.decodeEffect(GoalManifest)({
@@ -245,22 +247,15 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
         outcome: "unknown",
         verifiedAt: time,
       });
-      const inventoryProperty = yield* Arbitrary.checkEffect(
-        Arbitrary.schema(GoalRequiredCheckSnapshot),
-        Effect.fn("GoalsDoctorTest.inventoryOutcome")(function* (snapshot) {
-          const resolved = yield* GoalCompletionVerifier.resolve(
-            GoalCompletionObservation.make({
-              ...receipt,
-              requiredChecks: O.some(snapshot),
-              merged: O.some(true),
-              grandfathered: false,
-            })
-          );
-          return resolved.outcome === (snapshot.inventoryComplete ? "verified" : "unknown");
-        }),
-        { runs: 20 }
+      const resolved = yield* GoalCompletionVerifier.resolve(
+        GoalCompletionObservation.make({
+          ...receipt,
+          requiredChecks: O.some(snapshot),
+          merged: O.some(true),
+          grandfathered: false,
+        })
       );
-      expect(inventoryProperty._tag, Arbitrary.formatCheckFailure(inventoryProperty)).toBe("Passed");
+      expect(resolved.outcome).toBe(snapshot.inventoryComplete ? "verified" : "unknown");
       const text = yield* S.encodeEffect(S.fromJsonString(GoalCompletionReceipt))(receipt);
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
       const output = yield* captureOutput(
@@ -281,7 +276,8 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
       expect(output).toContain("Online doctor inspects facts and completion refresh persists them");
       expect(output).not.toContain("Online reads and refresh record");
       expect(output).not.toContain("No matching clone receipt");
-    })
+    }),
+    { arbitrary: { runs: 20 } }
   );
   it.effect(
     "ignores hidden editor directories under goals",
