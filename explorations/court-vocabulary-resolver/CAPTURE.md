@@ -12,7 +12,7 @@ dated heading at the bottom.
 Seeded from the gold-intake pass. Full narrative context lives in the
 GOLD_SYNTHESIS: see `explorations/_gold-intake/GOLD_SYNTHESIS.md` — Executive
 summary "Top ~12 highest-ROI items" item **#2 "Court / jurisdiction controlled
-vocabulary"** (`courts-db` → seed `@beep/law-practice` placeholder vocabularies
+vocabulary"** (`courts-db` → seed `@beep/law-practice-domain` placeholder vocabularies
 + a court-string resolver; "Unblocks every citation/venue feature"), plus the
 gap-map "TRUE GAPS the gold fills" row **"Court / jurisdiction / reporter
 taxonomies | placeholder single-literal vocabularies in law-practice |
