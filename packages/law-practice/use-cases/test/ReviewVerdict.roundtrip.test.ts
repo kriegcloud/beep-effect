@@ -135,6 +135,9 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
         const relock = yield* Effect.flip(queue.lockBatch(BATCH_A));
         expect(relock._tag).toBe("VerdictBatchLockedError");
 
+        const emptyLock = yield* Effect.flip(queue.lockBatch("sitting-2026-10-14-empty"));
+        expect(emptyLock._tag).toBe("VerdictBatchEmptyError");
+
         const lockedProjection = projector.projectItem({ item, resolvedBy, rows: yield* queue.readLog });
         assertSome(
           O.map(lockedProjection, (p) => DateTime.toEpochMillis(p.resolvedAt)),
