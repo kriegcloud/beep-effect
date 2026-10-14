@@ -1741,3 +1741,25 @@ it before commit. Corrected to chore and committed without bypassing hooks.
 Graft saved approximately 150,197 tokens across four retrievals.
 Publication and independent rehash are queued under beep-heavy; admission
 is never bypassed and no other lane's work is terminated.
+
+
+## Terminal wave publication final report
+
+lane: corpus-restore
+head: ff1da2c63826fbf955bec3f8ed22773ae7f03e33 (exact published PR head)
+PR(s): #1718 OPEN, ready for review | #1696 MERGED | #1683 MERGED | #1646 MERGED
+package-verify: not run (docs-only: no package source edited)
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet dedicated lane not run (docs-only); committed publication gate pass | knowledge refs pass at the exact PR head, zero live gated observations | fallow audit+health pass in publication gates | scoped coverage not run (docs-only: no package source changed)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+open items: The first bounded wave ended with nine immutable seals: five accepted (1/2/3/4/6), four sealed failures (5/7/8/9). Accepted families reconcile 19,438 children and matching repair-copy/Tika/repaired-digest sets. Wave input totals 1,974,633,472 bytes; retained output totals 4,974,218,513 bytes. P2 remains in-progress, P0/P1/P4 complete, P3 pending. No sealed family was retried, corpus artifact mutated, engine/launcher changed or recovery launched.
+
+Ordinal 9 result is 1, with one unapproved engine-failure, zero store passes, child rows, warnings or interruptions. Input 456,877,056 bytes; retained output 1,177,728,174 bytes (2.577779205x); family elapsed 7,222,485 ms. Output and family ceilings hold. One unmatched 28,712-byte PDF copy was modified after the attempt ceiling; timing supports attachment-repair elapsed-budget exhaustion. Exact cause and parser status remain unresolved because the terminal catch discards the original cause. Partial dispositions: 359 repaired occurrences / 320 distinct digests, 275 unsupported, zero unchanged; 321 repair copies and 320 Tika files. Partial repairs are not accepted children. Ledger SHA-256: 87943da8d7c8b10283008000c1d99ca4a17e411a7824bec520f1f10adae5bc90. Independent admitted rehash confirms retained-attempt digest, family-output digest and byte count. Archive re-verification lasted 279,199 ms. Capacity at diagnosis was 392,097,185,792 bytes, above the 100 GB floor. Private logs and journal were read only as counts.
+
+All nine runtime policies, archive metadata identities, engine versions, Java real path, Tika digest, launcher and membership digests match their immutable records. The eight prior ledger hashes are unchanged. Ordinal 9 executed at 91256cfd1bf4fa7c428b9d568f7a5192c210dd9e under the committed 06:25Z fallback amendment; its restoration/libpff source matches amendment head ce71e3cb88. Original manifest codeHead remains 6eb3d036771e868768846b3c56a5aafac69c3b2b; no source equivalence is claimed.
+
+The bounded recovery amendment is committed at history/p2/2026-10-14-bounded-recovery-amendment.md and covers only families 5/7/8. It is blocked on a missing extraction-engine binding: the ruling refers to a next fallback engine in a recorded chain, but the packet and public restore-mail implementation name no ordered second-pass extraction-engine chain. The current second pass is Java/Tika only. The orchestrator must bind the next extraction engine and implementation scope, then reply approved before launch. Family 9 needs an additional recovery scope ruling. A repeated input-sensitive PDF failure in the single recovery attempt receives explicit unsupported disposition with retained evidence, never a third attempt. Eighteen larger occurrences and estate/recycle/DOC gates remain open for P3. Reversal: revert packet decisions while retaining every ledger, output, claim and immutable manifest.
+
+Main was integrated on a fresh follow-up branch after #1696 merged; four packet conflicts retained newer lane records and dated history. Lane frozen-lockfile install, all 17 Yeet cheap gates, head-install preflight, packet checks and commit hooks passed. Doctor has zero blockers and seven unrelated inherited advisories. One push created #1718; yeet ready succeeded and REST confirms the exact ready head. A complete thread read found zero threads. Three Vercel build-rate-limit rows were acknowledged environment-only. Hosted readiness and review-window completion are not claimed; no PR merged. The worker-owned monitor was cancelled, confirmed terminated and its proof-job receipt acknowledged for orchestrator handoff. No worker-owned unit or gate remains running. The committed handoff preserves the terminal evidence and recovery draft; this final report and completed rehash/publication receipts are appended locally for the next evidence commit.
+
+Graft saved approximately 150,197 tokens across four retrievals.
+blocked: family 9 sealed failure — elapsed-budget exhaustion supported; recovery engine binding and family-9 scope require orchestrator ruling
