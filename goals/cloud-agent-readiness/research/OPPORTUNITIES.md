@@ -189,3 +189,29 @@ read-only/never-approval session now calls WordCount and Phoenix docs successful
   replacement for rerunning that provider profile later.
 - Chrome debugging and M365 outbox startup do not qualify browser or mailbox
   operations. Preserve their explicit workflow/authorization boundaries.
+
+
+## Detached Yeet follow-up — 2026-10-14
+
+[Receipt](../history/2026-10-14-detached-yeet.md) records three real jobs,
+terminal wait semantics, kernel budget evidence and archived cleanup receipts.
+
+- Direct SSH submission fails the user-manager GetUnitByPID ownership probe.
+  The installed beep-worker-yeet wrapper submits from a user-owned scope;
+  decide whether core detached support should test manager reachability separately
+  from current-process adoption.
+- User-manager environment inheritance preserved an SSH agent despite an unset
+  submitter variable. The worker-only proof-service prefix drop-in now removes
+  it, with live-process proof.
+- A 6 GiB MemoryHigh threshold stalled child cleanup and finalization. Final
+  worker soft threshold is 7 GiB, with the 8 GiB hard ceiling retained. Qualify
+  pressure-safe finalization separately from workload resource limits.
+- A dead runner's loaded failed unit is not reconciled by the current read path,
+  which requires not-found. Add safe failed/inactive-unit recovery using live
+  main/control identity evidence and retain the observed systemd result.
+- Cheap-gate refresh unshallows a fresh worker clone. Include history preparation
+  in bootstrap cost/budget evidence; a three-minute ceiling did not complete all
+  gates even on the rerun. No green proof was claimed.
+- Normal failure and timeout wait paths pass; full green proof, cancellation and
+  reboot recovery remain explicit acceptance work. Do not publish from these
+  fixture receipts.

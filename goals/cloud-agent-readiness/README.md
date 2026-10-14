@@ -97,6 +97,9 @@ qualified by the beep-worker receipts.
   fresh profile comparison, corrected SSH launch isolation and remaining gaps.
 - [Graft/reference qualification](./history/2026-10-14-graft-reference-qualification.md):
   eleven reference clones, structural navigation and explicit resource/coverage limits.
+- [Detached Yeet execution](./history/2026-10-14-detached-yeet.md):
+  real transient jobs, worker budgets, SSH-agent isolation, terminal receipts and
+  a documented pressure/finalizer recovery gap; full green proof remains open.
 - [MCP qualification](./history/2026-10-14-mcp-qualification.md):
   seven successful read-only tool paths, native Codex proof, corrected WordCount
   approval metadata and explicit optional/authentication gaps.

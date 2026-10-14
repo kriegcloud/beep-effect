@@ -145,8 +145,8 @@ its credentials as a shortcut to making a worker ready.
 | Linux bootstrap: bunx, native dependencies, model manifest, GUI launch PATH and project trust | Fresh SSH/GUI command resolution and fresh headless startup | in-progress; bunx fixed |
 | Audit harness: independent dependencies and correct ledger attribution | Independent frozen install; intended checkout/state root identified | pending |
 | Managed-host capabilities: systemd/network/write/desktop availability | Same probes per admitted execution profile | pending |
-| MCP workflow matrix and connector authentication | Expected tools connect; optional IDE tools do not stall headless startup | pending |
+| MCP workflow matrix and connector authentication | Expected tools connect; optional IDE tools do not stall headless startup | Seven read-only worker tool paths and native Codex calls pass; Stately OAuth, optional IDE/browser/outbox workflows and Claude quota rerun remain open |
 | Graft and Effect references | Structural graph and reference query, without deep-model work | worker Beep/Effect and scoped federation qualified; eleven member graphs fresh; Alchemy parse coverage and aggregate resource limits remain open |
 | Current bootstrap and closeout doctrine | Retired commands historical only; one closeout boundary per host | pending |
-| Detached Yeet qualification | Bounded job/slice lifecycle and terminal receipt | pending |
+| Detached Yeet qualification | Bounded job/slice lifecycle and terminal receipt | partial: detached execution, normal-error and deadline receipts proven; pressure-starved finalizer recovered; green proof and automatic loaded-failed recovery remain open |
 | Cloud credentials: Azure/Vercel/Cloudflare/AWS/Pulumi | Actual output-suppressed authenticated operation per selected account/project | complete for worker read-only access: Azure/Vercel/Cloudflare checks, AWS identity/state bucket, and S3 Pulumi stack discovery pass; deployments remain separate |
