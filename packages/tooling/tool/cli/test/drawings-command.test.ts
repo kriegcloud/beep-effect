@@ -109,7 +109,7 @@ describe("beep drawings command", () => {
         yield* runDrawings([]);
         yield* runDrawings(["sign"]);
         const output = yield* logged;
-        expect(output).toContain("drawings commands: render, validate, judge, judge-ingest, statement, sign");
+        expect(output).toContain("drawings commands: render, validate, judge, judge-ingest, statement, sign, intake");
         expect(output).toContain("drawings sign commands: email, pdf");
       })
     );
