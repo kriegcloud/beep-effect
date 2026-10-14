@@ -200,6 +200,10 @@
   // moved to tsc-rs (goals/tsc-rs-gates) no root script names it.
   "ignoreDependencies": [
     "@beep/tsgo-shim",
+    // The root install owns the TypeScript 7 package that `prepare` patches with
+    // effect-tsgo and that provides the root `tsc` bin; workspaces that import its
+    // unstable API declare their own `@typescript/native` (goals/ts7-ts-native-api).
+    "@typescript/native",
     "@effect/language-service",
     "babel-plugin-annotate-pure-calls",
     "statelyai"

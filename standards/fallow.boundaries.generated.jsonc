@@ -1849,12 +1849,14 @@
           "@beep/effect-drizzle",
           "@beep/fc-runs",
           "@beep/pglite",
+          "@beep/repo-utils",
           "@beep/test-runner"
         ],
         "allowTypeOnly": [
           "@beep/effect-drizzle",
           "@beep/fc-runs",
           "@beep/pglite",
+          "@beep/repo-utils",
           "@beep/test-runner"
         ]
       },
