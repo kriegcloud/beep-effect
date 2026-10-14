@@ -95,8 +95,8 @@ it.layer(ConsumerLive, { timeout: "10 seconds", concurrent: false })("office-act
         const fs = yield* FileSystem.FileSystem;
         const initial = yield* store.read;
         const first = yield* Effect.fromOption(A.head(initial), () => "missing first attempt");
-        const encoded = yield* S.encodeEffect(S.fromJsonString(OfficeActionStructureAttempt))(first);
-        const decoded = yield* S.decodeEffect(S.fromJsonString(OfficeActionStructureAttempt))(encoded);
+        const encoded = yield* S.encodeEffect(AttemptJson)(first);
+        const decoded = yield* S.decodeEffect(AttemptJson)(encoded);
         expect(decoded).toEqual(first);
         const contradicted = OfficeActionStructureAttempt.make({
           ...first,
@@ -263,13 +263,10 @@ it.layer(ConsumerLive, { timeout: "10 seconds", concurrent: false })("office-act
         expect((yield* store.read.pipe(Effect.flip))._tag).toBe("OfficeActionStructureStorageError");
         const first = yield* Effect.fromOption(A.head(rows), () => "missing first");
         const corrupt = OfficeActionStructureAttempt.make({ ...first, previousAttemptId: O.some("missing") });
-        yield* fs.writeFileString(
-          filename,
-          `${yield* S.encodeEffect(S.fromJsonString(OfficeActionStructureAttempt))(corrupt)}\n`
-        );
+        yield* fs.writeFileString(filename, `${yield* S.encodeEffect(AttemptJson)(corrupt)}\n`);
         expect((yield* store.read.pipe(Effect.flip))._tag).toBe("OfficeActionStructureStorageError");
 
-        const firstLine = `${yield* S.encodeEffect(S.fromJsonString(OfficeActionStructureAttempt))(first)}\n`;
+        const firstLine = `${yield* S.encodeEffect(AttemptJson)(first)}\n`;
         yield* fs.writeFileString(filename, firstLine + firstLine);
         expect((yield* store.read.pipe(Effect.flip))._tag).toBe("OfficeActionStructureStorageError");
         yield* fs.writeFileString(filename, "");
@@ -334,3 +331,4 @@ it.effect.prop(
       expect("candidates" in restored).toBe(false);
     })
 );
+const AttemptJson = S.fromJsonString(OfficeActionStructureAttempt);

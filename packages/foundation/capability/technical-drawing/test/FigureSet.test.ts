@@ -42,10 +42,13 @@ import { describe, expect } from "@effect/vitest";
 import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // A fake engine: every view projects a unit square, except that the "rear"
 // camera (eye +Y) projects the square shifted, so omission proofs can fail.
@@ -101,36 +104,42 @@ const cleanMetrics = (dpi: number, antiAliased: boolean) =>
     largestBlackSquare: 4,
   });
 
-const fakeBackend = (pageCount: { current: number }) =>
-  Layer.effect(
-    PdfBackend,
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      return PdfBackend.of({
-        svgToPdf: Effect.fnUntraced(function* (svgPaths, outputPath) {
-          pageCount.current = A.length(svgPaths);
-          yield* fs.writeFileString(outputPath, `%PDF-1.6 fake ${A.length(svgPaths)} pages`);
-        }, Effect.orDie),
-        inspect: Effect.fnUntraced(function* () {
-          return PdfFacts.make({
-            headerVersion: "1.6",
-            // `A.makeBy(0, f)` still yields one element, so the empty case is explicit
-            pages: pageCount.current === 0 ? [] : A.makeBy(pageCount.current, () => letter),
-            fonts: [],
-            annotationCount: 0,
-            hasOptionalContent: false,
-            encrypted: false,
-          });
-        }),
-        measurePage: Effect.fnUntraced(function* ({ dpi, antiAlias }) {
-          return cleanMetrics(dpi, antiAlias);
-        }),
-        pageText: Effect.fnUntraced(function* () {
-          return "";
-        }),
-      });
-    })
-  );
+const fakeBackend = Layer.effect(
+  PdfBackend,
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    return PdfBackend.of({
+      svgToPdf: Effect.fnUntraced(function* (svgPaths, outputPath) {
+        yield* fs.writeFileString(outputPath, `%PDF-1.6 fake ${A.length(svgPaths)} pages`);
+      }, Effect.orDie),
+      inspect: Effect.fnUntraced(function* (pdfPath) {
+        const contents = yield* fs.readFileString(pdfPath);
+        const pageCount = pipe(
+          contents,
+          Str.match(/fake (\d+) pages$/),
+          O.flatMap(A.get(1)),
+          O.flatMap(Num.parse),
+          O.getOrElse(() => 0)
+        );
+        return PdfFacts.make({
+          headerVersion: "1.6",
+          // `A.makeBy(0, f)` still yields one element, so the empty case is explicit
+          pages: pageCount === 0 ? [] : A.makeBy(pageCount, () => letter),
+          fonts: [],
+          annotationCount: 0,
+          hasOptionalContent: false,
+          encrypted: false,
+        });
+      }, Effect.orDie),
+      measurePage: Effect.fnUntraced(function* ({ dpi, antiAlias }) {
+        return cleanMetrics(dpi, antiAlias);
+      }),
+      pageText: Effect.fnUntraced(function* () {
+        return "";
+      }),
+    });
+  })
+);
 
 const spec = (
   figures: ReadonlyArray<{ view: string; description: string; projection?: string }>,
@@ -191,13 +200,8 @@ const labelAlphabetFont = Effect.gen(function* () {
   return new Uint8Array(font.toArrayBuffer());
 });
 
-const makeLayer = () => {
-  const pages = { current: 0 };
-  return FigureSet.layer.pipe(
-    Layer.provide(Layer.merge(fakeEngine, fakeBackend(pages))),
-    Layer.provideMerge(NodeServices.layer)
-  );
-};
+const makeLayer = () =>
+  FigureSet.layer.pipe(Layer.provide(Layer.merge(fakeEngine, fakeBackend)), Layer.provideMerge(NodeServices.layer));
 
 // Outline path helpers for the label tests: exact ink extrema of an SVG path
 // made of M/L/Q/Z, and the largest all-ink square of its nonzero fill.
@@ -246,12 +250,23 @@ const inkBox = (d: string, keep: (piece: ReadonlyArray<Pt>) => boolean = () => t
     kept,
     (piece): ReadonlyArray<Pt> => (piece.length === 2 ? piece : A.map(A.range(0, 2000), (k) => quadAt(piece, k / 2000)))
   );
-  return {
-    minX: Math.min(...A.map(points, (p) => p[0])),
-    minY: Math.min(...A.map(points, (p) => p[1])),
-    maxX: Math.max(...A.map(points, (p) => p[0])),
-    maxY: Math.max(...A.map(points, (p) => p[1])),
-  };
+  // Reduce instead of spreading: a label's sampled outline has hundreds of
+  // thousands of points, more than one call can take as arguments.
+  return A.reduce(
+    points,
+    {
+      minX: Number.POSITIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY,
+    },
+    (box, p) => ({
+      minX: Math.min(box.minX, p[0]),
+      minY: Math.min(box.minY, p[1]),
+      maxX: Math.max(box.maxX, p[0]),
+      maxY: Math.max(box.maxY, p[1]),
+    })
+  );
 };
 // Largest all-ink square (in points) of the nonzero fill, sampled every `step` points.
 const largestInkSquarePt = (d: string, step: number): number => {
@@ -646,6 +661,35 @@ describe("@beep/technical-drawing", () => {
   describe("render through fake ports", () => {
     it.layer(makeLayer(), { timeout: "30 seconds" })((it) => {
       it.effect(
+        "inspects each PDF independently after writing a different output",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          const twoPages = path.join(dir, "two", "sheets.pdf");
+          const onePage = path.join(dir, "one", "sheets.pdf");
+          const empty = path.join(dir, "empty.pdf");
+          const service = yield* FigureSet;
+          yield* fs.writeFileString(
+            specPath,
+            spec([
+              { view: "front", description: "is a front elevation view" },
+              { view: "top-plan", description: "is a top plan view" },
+            ])
+          );
+          yield* service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "two"), validate: false }));
+          yield* fs.writeFileString(specPath, spec([{ view: "front", description: "is a front elevation view" }]));
+          yield* service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "one"), validate: false }));
+          yield* fs.writeFileString(empty, "%PDF-1.6 no pages");
+          const options = ValidationOptions.make({ expectedPages: O.none() });
+          expect((yield* service.validate(twoPages, options)).pageCount).toBe(2);
+          expect((yield* service.validate(onePage, options)).pageCount).toBe(1);
+          expect((yield* service.validate(empty, options)).pageCount).toBe(0);
+        })
+      );
+
+      it.effect(
         "renders sheets, proves omissions, writes a manifest, and validates",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -954,7 +998,7 @@ describe("@beep/technical-drawing approver binding and empty documents", () => {
         const dir = yield* fs.makeTempDirectoryScoped();
         const pdfPath = path.join(dir, "empty.pdf");
         yield* fs.writeFileString(pdfPath, "%PDF-1.6 no pages");
-        // the fake backend reports zero pages until a render sets the count
+        // the fake backend reads the empty document's own page count
         const service = yield* FigureSet;
         const report = yield* service.validate(pdfPath, ValidationOptions.make({ expectedPages: O.none() }));
         expect(report.pageCount).toBe(0);

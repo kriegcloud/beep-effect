@@ -9,11 +9,11 @@ digests while retaining the originals.
 
 ## Next action
 
-P1 is complete and PR4 #1609 merged. Run-8 authorizes P2 with the retained
-ceilings and a first wave of at most ten distinct remaining stores. Its plan is
-recorded in SPEC; launch is blocked because the public command has no bounded
-occurrence selector. Zero P2 families started. The orchestrator owns the missing
-selection contract; retain both sealed P1 families and freeze records.
+P1 is complete. Run-9 corrects the first P2 wave to nine occurrences within
+both retained output ceilings and authorizes a bounded occurrence selector in
+PR6. The committed membership pins source identities and sizes. Run 10 owns
+the sequential wave after the selector is content-final; no P2 family has started.
+Retain both sealed P1 families and freeze records.
 
 ## Launcher
 

@@ -598,3 +598,142 @@ Fifteen cheap gates pass; `lint:schema-first: exit 1` alone stops publication
 after the local commit. Three codec-test advisories match main. Use the standing
 direct-push fallback; consolidated main repair prevents this repeated scanner
 wave. Reversal: revert the correction, retaining sealed P1 evidence.
+
+
+### 2026-10-10: selector preflight compiled a schema per call
+
+Focused Oxlint found `no-inline-schema-compile` on the new membership JSON
+codec inside the occurrence preflight. Attribution: introduced. Hoisted the
+schema decoder to module scope, preserving behavior and parser caching.
+A targeted source lint before the full dependency-build closure would have
+prevented the wasted package proof; both cancelled wrappers are terminal,
+not counted as proof. No suppression or inventory baseline was added.
+Reversal: revert the selector implementation; no P2 family was started.
+
+
+### 2026-10-10: successful JSDoc inventory exposes inherited total growth
+
+Run-9 JSDoc parity generated the live inventory, then failed eight total
+ratchets. All finding-bearing files match main; zero introduced file findings.
+Package docgen compiles the new membership models successfully. Main's S11
+burn-down owns the existing documentation debt; no baseline is changed here.
+Prevention: qualify generated totals in the consolidated main repair, alongside
+inventory-generation health. Reversal: supersede this attribution after repair.
+
+
+### 2026-10-10: parity launch briefly exceeded the lane's own slot count
+
+Started knowledge-reference verification before the two active heavy proofs had
+both settled. Stopped that exact worker-owned unit immediately and observed exit
+130; no result is counted. Queue follow-up commands only after observing a freed
+slot. Machine-wide limits were unchanged; no corpus command ran.
+Reversal: rerun the same check inside the two-command bound.
+
+
+### 2026-10-10: package coverage gain masked an introduced per-file gap
+
+Stock scoped coverage passed 295 files and 5898 tests in 1712.33 seconds.
+Package percentages exceeded all committed floors, but the touched transformation
+file fell from 100 percent to 99.93 lines, 99.82 statements, 99.87 branches and
+99.52 functions. Attribution: introduced. The plan reader contained an unreachable
+empty-selection callback after its length guard; archive-kind refusal and the
+implicit preservation-label path lacked tests. Moved the empty check before the
+uniqueness check, added boundary tests and retained every baseline unchanged.
+Prevention: compare touched-file rows before accepting package-wide improvements.
+Default package proof and stock coverage are repeated on the corrected source.
+
+
+### 2026-10-10: focused Vitest must run from the package root
+
+A two-file refresh passed the package config from the repository root and exited
+1 with “No test files found”; no tests executed. The package-relative include
+pattern requires the package working directory. Relaunched there through
+beep-heavy with the prescribed Bun runtime. Prevention: keep the focused test
+command package-relative rather than combining root paths with package config.
+
+
+### 2026-10-10: legacy per-file coverage floors also carry inherited drift
+
+The full comparison of the first scoped summary found 28 metric drops across
+12 untouched files in addition to the introduced transformation gap. Every
+inherited file matches origin/main. Package floors pass; their improvement does
+not clear stale surviving-file floors. Attribution: inherited under S11, retained
+for the consolidated main burn-down. Prevention: report package and file results
+separately, and refresh an inherited-only baseline in its owning lane. This lane
+changes no baseline and repeats stock coverage to prove its touched-file repair.
+
+
+### 2026-10-10: global Effect Vitest gate caught two introduced assertions
+
+The first unpublished selector commit passed 14 of 16 cheap gates. The two
+failed lanes carried the three inherited schema advisories and two new Effect
+Vitest findings in the selector test. Replaced a Boolean Exit matcher with the canonical assertTrue pipeline;
+replaced a negative Option equality assertion with explicit required start rows
+and a policy-digest inequality. Focused tests and compiler parity pass; the
+global detector reports introduced zero. No detector baseline edit.
+Prevention: run the global test-style detector before long source proofs.
+The failed attempt is acknowledged as superseded, with no permission to push
+until a fresh cheap scan proves that only inherited schema advisories remain.
+
+
+### Run-9B publication fence fallback
+
+Fresh publication attempt passes fifteen of sixteen cheap gates, including
+Effect Vitest with introduced zero, Fallow and committed-inventory JSDoc.
+Only lint:schema-first fails: three advisory fixture files match origin/main
+exactly. The failed command is the schema-first Turbo lane; refusal text is
+“yeet publish cheap-gates failed after creating the local commit; nothing was
+pushed.” Attribution: inherited, not introduced. Inbox row acknowledged
+under S11/S12. Authorized fallback: one direct feature-branch push, labelled
+PR creation, ready and bounded detached readiness monitor. No unrelated repair
+or baseline/CI waiver. Final default package audit is still active.
+
+
+### Run-9B hosted inherited Repo Sanity red
+
+Read completed job 114169343496 immediately, before the full run completed.
+Repo Sanity fails only at syncpack: root minimatch override 10.2.5 versus
+10.2.6, and scratchpad smol-toml 1.9.0 versus ^1.9.0. Both manifests exactly
+match origin/main; no manifest or lockfile changed in this lane. Attribution:
+inherited S11 debt, acknowledged for the orchestrator burn-down. The bounded
+monitor surfaced the row and stays active; wait is resumed on the same job.
+Prevention: repair these two ranges once on main rather than in corpus lanes.
+
+
+### Run-9B final proof and hosted inventory diagnosis limit
+
+Final default package-verify passes on canonical assertions: audit 846.3
+seconds, docgen 22.0 seconds, exit zero. Implementation remains unchanged
+from the 295-file/5899-test coverage proof; transformation/schema metrics 100.
+Knowledge refs pass on published head, zero live gated observations.
+Hosted JSDoc job 114169343752 fails inventory generation before totals
+comparison, with only “Failed to generate JSDoc documentation inventory.”
+The completed log was read immediately; no underlying cause or inventory
+artifact was emitted. Local inventory succeeded twice, and all 1052 local
+finding-bearing files match main. Hosted cause is unclassified, acknowledged
+for S11 triage, not relabelled environment-only or as the local eight-total red.
+Prevention: surface the underlying typed cause in the generator failure report.
+Both P1 ledger hashes, engine identities and Tika digest remain unchanged.
+Free bytes 204492922880, above retained floor. Zero P2 families started.
+
+
+## 2026-10-13 — Review exposed two occurrence-plan integrity gaps
+
+- **Doing:** closing the three PR6 round-two review threads before expansion.
+- **Evidence:** explicit selection silently replaced expectedStoreCount 99
+  with one, and duplicate unselected objectIds passed membership decoding.
+  Both contracts now reject with a typed boundary error before family state.
+  The first new regression failed because its fixture omitted the larger
+  synthetic PST required by the membership helper; the corrected fixture
+  passes without changing production selection.
+- **Prevented by:** test contradictory explicit denominators and whole-plan
+  identity uniqueness at decode time, including unselected duplicate entries.
+
+## 2026-10-13 — Worker environment omitted user-manager variables
+
+- **Doing:** launching the required quick package proof through beep-heavy.
+- **Evidence:** the wrapper refused before starting work because the user bus
+  variables were absent. Supplying the existing runtime directory and bus
+  socket for the current user restored the approved heavy lane.
+- **Prevented by:** preserve XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS in
+  every worker launch, as the lane mechanics specify. No unit/config changed.

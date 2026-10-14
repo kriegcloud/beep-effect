@@ -362,6 +362,14 @@ export const ProcessId = S.Number.pipe(
 );
 
 /**
+ * Decoded value produced by {@link ProcessId}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ProcessId = typeof ProcessId.Type;
+
+/**
  * How a detached child is started.
  *
  * @public
@@ -549,8 +557,7 @@ const dies = unstubbed("DetachedProcess.makeTestOps");
  * @category processes
  * @since 0.0.0
  */
-export class DetachedProcess {
-	private constructor() {}
+export abstract class DetachedProcess {
 
 	/**
 	 * Start a detached child with its output routed to a log file.
