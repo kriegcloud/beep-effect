@@ -382,3 +382,30 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
 - Action: retain every case and assertion, simplify the scenario structure,
   rerun tests and V8 coverage, and recheck the actual Fallow gates. Do not add
   suppressions or change complexity or coverage baselines.
+
+## 2026-10-13: fresh CI exposes an inherited index contract and hidden example
+
+- Work: publish the reviewed integration and inspect completed red jobs while
+  sibling hosted jobs continue.
+- Evidence: #1571 at `4800b6a21b` passes publication gates, but hosted CLI shard
+  one rejects case 9 in `goals-manifest-capabilities.test.ts`. The test still
+  expects the whole index to ignore capability fields after #1625 deliberately
+  added a capability graph. Source and test are unchanged from main. JSDoc
+  inventory succeeds, then its totals gate reports `unsafeExampleFindings: 1 > 0`
+  without identifying the symbol in the job log.
+- Prevention: test legacy portfolio parity separately from the graph's
+  intended differences, and print source-bound inventory findings beside totals
+  regressions. A replayed green check does not prove the current source contract.
+- Action: route the index test repair to its existing owner, locate the exact
+  unsafe example before editing, and retain the complete merge gate. No
+  baseline relaxation, source rollback or duplicate lane repair is warranted.
+- Attribution: #1631's SAST correction in the `GitHubApp` example replaces a
+  PEM placeholder with `declare const appPrivateKeyPem: string`. The canonical
+  example classifier rejects the declaration. The file matches main exactly;
+  route a compilable configuration-input example to the Effected owner while
+  preserving both the SAST repair and the zero-unsafe-example baseline.
+- Follow-through: #1634 lands the corrected index contract after this wave's
+  main integration. Its suite edit changes the existing open EV014 occurrence
+  anchor: current and baseline counts remain two, with one introduced and one
+  resolved fingerprint. Route a reviewed canonical anchor refresh to the owner;
+  preserve the finding's open status and the corrected test behavior.
