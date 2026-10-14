@@ -37,6 +37,7 @@ class CheckRun extends S.Class<CheckRun>($I`CheckRun`)(
     status: S.String,
     conclusion: S.NullOr(S.String),
     app: AppIdentity,
+    pull_requests: S.Array(S.Struct({ number: S.Int })),
   },
   $I.annote("CheckRun", { description: "App-owned check run response." })
 ) {}
@@ -238,14 +239,22 @@ export const ReviewerLive = Layer.effect(
       },
       Effect.mapError(() => error("Cannot start reviewer check; verify PR head and App access."))
     );
+    const active = Effect.fn("Reviewer.activeCheck")(function* (id: number) {
+      const check = yield* owned(id);
+      if (check.status !== "in_progress" || A.isReadonlyArrayEmpty(check.pull_requests))
+        return yield* error("Check is no longer active or has no associated PR.");
+      for (const pull of check.pull_requests) yield* currentHead(pull.number, check.head_sha);
+    });
     const complete = Effect.fn("Reviewer.complete")(
       function* (id: number, result: ReviewerResult) {
-        yield* owned(id);
+        yield* active(id);
         const title = `${result.score}/5 · ${result.tier} · P0 ${result.p0} · P1 ${result.p1} · P2 ${result.p2}`;
         // Append annotations before completing: a failed batch leaves an in-progress run, never false green.
         for (const annotations of A.chunksOf(result.annotations, 50)) {
           yield* request("PATCH", `/check-runs/${id}`, { output: { title, summary: result.summary, annotations } });
         }
+        // Recheck after annotation requests so a cancellation or push during publication stays closed.
+        yield* active(id);
         yield* request("PATCH", `/check-runs/${id}`, {
           status: "completed",
           conclusion: reviewerConclusion(result),

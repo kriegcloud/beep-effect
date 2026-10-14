@@ -41,7 +41,7 @@ const Requests = S.Array(
   })
 );
 const decodeRequests = S.decodeUnknownEffect(Requests);
-const decodeReview = S.decodeUnknownEffect(S.fromJsonString(ReviewerReview));
+const decodeReview = ReviewerReview.pipe(S.fromJsonString, S.decodeUnknownEffect);
 const ReviewerResultJson = S.fromJsonString(ReviewerResult);
 const ReviewerResultArbitrary = Arbitrary.schema(ReviewerResult);
 const encodeReviewerResult = S.encodeResult(ReviewerResultJson);
@@ -55,6 +55,7 @@ const check = (id: number, app = 42, status = "in_progress", conclusion: string 
   status,
   conclusion,
   app: { id: app },
+  pull_requests: [{ number: 7 }],
 });
 const summary = (
   app: number | null = 42,
@@ -95,7 +96,9 @@ const client = (handler: (method: string, url: URL, body: unknown) => unknown) =
       );
     }).pipe(Effect.orDie)
   );
-class MockClient extends Context.Service<MockClient, Ref.Ref<HttpClient.HttpClient>>()("ReviewerTest/MockClient") {}
+class MockClient extends Context.Service<MockClient, Ref.Ref<HttpClient.HttpClient>>()(
+  "@beep/repo-cli/test/reviewer.test/MockClient"
+) {}
 const MockClientLive = Layer.effect(MockClient, Ref.make(client(() => ({}))));
 const HttpProxy = Layer.effect(
   HttpClient.HttpClient,
@@ -156,6 +159,42 @@ describe("reviewer conclusions and identity", () => {
       expect(reviewerDocsOnly([{ filename: "docs/app.md", previous_filename: "src/app.ts" }])).toBe(false);
       expect(reviewerDocsOnly([{ filename: ".github/agents/gate.md" }])).toBe(false);
       expect(reviewerDocsOnly([])).toBe(false);
+    })
+  );
+  it.effect("requires review for agent instructions, release metadata, and test inputs", () =>
+    Effect.sync(() => {
+      for (const filename of [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "GEMINI.md",
+        "SKILL.md",
+        "packages/foo/AGENTS.md",
+        ".agents/guide.md",
+        ".codex/guide.md",
+        ".cursor/rules.md",
+        ".grok/skills/review/SKILL.md",
+        ".changeset/release.md",
+        "apps/labs/semantica/fixtures/input.txt",
+        "test/README.md",
+        "tests/data.md",
+        "docs/fixtures/input.md",
+        "docs/test/example.md",
+        "docs/.config/readme.md",
+        "docs/AGENTS.md",
+        "src/input.txt",
+      ]) {
+        expect(reviewerDocsOnly([{ filename }]), filename).toBe(false);
+        expect(reviewerDocsOnly([{ filename: "docs/moved.md", previous_filename: filename }]), filename).toBe(false);
+      }
+      for (const filename of [
+        "docs/ops/reviewer.md",
+        "docs/reference.mdx",
+        "docs/manual.rst",
+        "README.md",
+        "packages/foo/README.en.md",
+      ]) {
+        expect(reviewerDocsOnly([{ filename }]), filename).toBe(true);
+      }
     })
   );
   it.effect("rejects APPROVE and REQUEST_CHANGES at the JSON boundary", () =>
@@ -235,7 +274,8 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
   it.effect("batches 101 annotations as 50, 50, 1 before completing", () =>
     Effect.gen(function* () {
       const bodies: Array<unknown> = [];
-      const http = client((method, _url, body) => {
+      const http = client((method, url, body) => {
+        if (url.pathname.endsWith("/pulls/7")) return { head: { sha } };
         if (method === "GET") return check(2);
         bodies.push(body);
         return { id: 2 };
@@ -254,6 +294,54 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       expect(A.map(requests, (body) => body.output?.annotations?.length ?? 0)).toEqual([50, 50, 1, 0]);
       const last = yield* decodeObject(bodies[3]);
       expect(last.conclusion).toBe("success");
+    })
+  );
+  it.effect("rejects completed, unassociated, and stale check runs without writes", () =>
+    Effect.gen(function* () {
+      for (const state of ["cancelled", "success", "stale", "unassociated"]) {
+        let writes = 0;
+        const http = client((method, url) => {
+          if (method !== "GET") writes += 1;
+          if (url.pathname.endsWith("/pulls/7")) return { head: { sha: "b".repeat(40) } };
+          if (state === "unassociated") return { ...check(2), pull_requests: [] };
+          return state === "stale" ? check(2) : check(2, 42, "completed", state);
+        });
+        const outcome = yield* Reviewer.use((reviewer) => reviewer.complete(2, result())).pipe(
+          usingHttp(http),
+          Effect.result
+        );
+        expect(outcome._tag, state).toBe("Failure");
+        expect(writes, state).toBe(0);
+      }
+    })
+  );
+  it.effect("does not complete if the check is cancelled while annotations publish", () =>
+    Effect.gen(function* () {
+      let cancelled = false;
+      let completions = 0;
+      const http = client((method, url) => {
+        if (url.pathname.endsWith("/pulls/7")) return { head: { sha } };
+        if (method === "GET")
+          return check(2, 42, cancelled ? "completed" : "in_progress", cancelled ? "cancelled" : null);
+        if (cancelled) completions += 1;
+        cancelled = true;
+        return { id: 2 };
+      });
+      const annotations = [
+        ReviewerAnnotation.make({
+          path: "README.md",
+          start_line: 1,
+          end_line: 1,
+          annotation_level: "warning",
+          message: "Clarify",
+        }),
+      ];
+      const outcome = yield* Reviewer.use((reviewer) => reviewer.complete(2, { ...result(), annotations })).pipe(
+        usingHttp(http),
+        Effect.result
+      );
+      expect(outcome._tag).toBe("Failure");
+      expect(completions).toBe(0);
     })
   );
   it.effect("refuses to mutate another App's check", () =>
@@ -352,7 +440,7 @@ class TokenFixture extends Context.Service<
     readonly jwts: Array<string>;
     readonly exchanges: () => number;
   }
->()("ReviewerTest/TokenFixture") {}
+>()("@beep/repo-cli/test/reviewer.test/TokenFixture") {}
 const TokenTestLayer = Layer.unwrap(
   Effect.gen(function* () {
     // Generated in memory for this test; neither private key nor installation token is persisted.
@@ -421,17 +509,15 @@ it.layer(TokenTestLayer, { timeout: "30 seconds" })("installation token cache", 
     Effect.gen(function* () {
       const fixture = yield* TokenFixture;
       const { jwts, requestBodies } = fixture;
-      yield* Effect.gen(function* () {
-        const service = yield* GitHubAppAuth;
-        const first = yield* service.token;
-        expect(Redacted.value(first)).toBe("opaque-1");
-        // A single test owns this layer clock; assert the absolute refresh boundary.
-        yield* TestClock.setTime(Duration.toMillis(Duration.minutes(54)));
-        expect(Redacted.value(yield* service.token)).toBe("opaque-1");
-        yield* TestClock.setTime(Duration.toMillis(Duration.minutes(55)));
-        const tokens = yield* Effect.all([service.token, service.token], { concurrency: 2 });
-        expect(A.map(tokens, Redacted.value)).toEqual(["opaque-2", "opaque-2"]);
-      });
+      const service = yield* GitHubAppAuth;
+      const first = yield* service.token;
+      expect(Redacted.value(first)).toBe("opaque-1");
+      // A single test owns this layer clock; assert the absolute refresh boundary.
+      yield* TestClock.setTime(Duration.minutes(54).pipe(Duration.toMillis));
+      expect(Redacted.value(yield* service.token)).toBe("opaque-1");
+      yield* TestClock.setTime(Duration.minutes(55).pipe(Duration.toMillis));
+      const tokens = yield* Effect.all([service.token, service.token], { concurrency: 2 });
+      expect(A.map(tokens, Redacted.value)).toEqual(["opaque-2", "opaque-2"]);
       expect(fixture.exchanges()).toBe(2);
       expect(requestBodies[0]).toMatchObject({ repositories: ["beep-effect"], permissions: { checks: "write" } });
       const jwt = (jwts[0] ?? "").slice(7).split(".");

@@ -535,7 +535,7 @@ const workflowRunPages = (additionalActiveRuns: GhScript["additionalActiveRuns"]
 
 // The recorded answer for each `gh` call, matched on a fragment of its argv, first match wins.
 const scriptReviewerRules = (script: GhScript) =>
-  script.reviewerRequired
+  script.reviewerRequired === true
     ? [
         ...rulesFixture,
         {

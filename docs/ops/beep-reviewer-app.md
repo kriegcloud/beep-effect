@@ -136,6 +136,8 @@ title such as `4/5 · L2 · P0 0 · P1 0 · P2 2`; `auto` fails when `p0+p1 > 0`
 succeeds otherwise. Optional `--annotations-file annotations.json` accepts an array
 of Checks API annotations. Batches contain at most 50 annotations and are appended
 before the final completion request. A failed batch cannot publish a green check.
+Completion rejects completed or unassociated checks and verifies the associated PR
+heads before annotation publication and again before the final status change.
 
 The comment marker is `<!-- beep-reviewer:summary -->`. Upsert searches all comment
 pages and edits only a matching comment from `beep-reviewer[bot]` whose
@@ -179,8 +181,11 @@ beep reviewer l0 --pr "$PR" --sha "$SHA"
 This command reads every changed path, including rename sources. Documentation-only
 changes get an immediate successful `L0` check from the reviewer App. Other changes
 print `Non-L0: review required.` and follow the normal start/review/complete path.
-Changes under `.github/` and `.claude/` do not auto-pass. Do not trust a PR title,
-label, user-provided tier, or a same-named commit status to classify L0.
+Only Markdown, MDX, reStructuredText and text under `docs/`, plus `README*.md`
+files, are eligible. Dot-directories, agent instruction filenames (`AGENTS.md`,
+`CLAUDE.md`, `GEMINI.md`, `SKILL.md`), and test/fixture directories always require
+review, including rename sources. Do not trust a PR title, label, user-provided
+tier, or a same-named commit status to classify L0.
 
 Before any non-L0 merge, `beep-fleet-orchestrator` calls:
 

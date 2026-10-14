@@ -72,7 +72,11 @@ class PrHead extends S.Class<PrHead>($I`PrHead`)(
   $I.annote("PrHead", { description: "Live pull request head and target branch." })
 ) {}
 const decodePr = S.decodeUnknownEffect(PrHead);
-const DocumentationPath = S.String.check(S.isPattern(/^(?!\.github\/|\.claude\/).+\.(?:md|mdx|rst|txt)$/)).pipe(
+const DocumentationPath = S.String.check(
+  S.isPattern(
+    /^(?!.*(?:^|\/)(?:\.[^/]+|__tests__|__fixtures__|tests?|fixtures?)(?:\/|$))(?!.*(?:^|\/)(?:AGENTS|CLAUDE|GEMINI|SKILL)\.md$)(?:docs\/.+\.(?:md|mdx|rst|txt)|(?:[^/]+\/)*README(?:[.-][^/]*)?\.md)$/i
+  )
+).pipe(
   $I.annoteSchema("DocumentationPath", { description: "Documentation paths outside agent and workflow configuration." })
 );
 const isDocumentationPath = S.is(DocumentationPath);
