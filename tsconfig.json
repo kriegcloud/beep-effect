@@ -2083,6 +2083,12 @@
       ],
       "@beep/epistemic-domain/values/ContradictionDetection": [
         "./packages/epistemic/domain/src/values/ContradictionDetection/index.ts"
+      ],
+      "@beep/law-practice-domain/values/ClaimElement": [
+        "./packages/law-practice/domain/src/values/ClaimElement/index.ts"
+      ],
+      "@beep/law-practice-use-cases/ClaimSelfCheck": [
+        "./packages/law-practice/use-cases/src/ClaimSelfCheck/index.ts"
       ]
     }
   }
