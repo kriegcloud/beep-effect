@@ -37,6 +37,7 @@ import {
 } from "./Skills.errors.ts";
 import { SkillPatchOwnerSourceLive } from "./Skills.patches.ts";
 import {
+  renderSkillMaterializeSummary,
   renderSkillProvenanceJson,
   renderSkillProvenanceSummary,
   renderSkillsLockMigrationPlanJson,
@@ -53,6 +54,7 @@ import {
 } from "./Skills.service.ts";
 import { decodeSkillsLockDocumentJson, SkillsLockDocument } from "./SkillsLock.schemas.ts";
 import { renderSkillsLockDocumentText, writeSkillsLockMigration } from "./SkillsLock.write.ts";
+import { SkillMaterializer, SkillMaterializerLive } from "./SkillsMaterialize.service.ts";
 import type { SkillFrontmatterReport } from "./SkillFrontmatter.schemas.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
 import type { SkillsLockEntry, VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
@@ -97,7 +99,7 @@ type SkillDrift =
       readonly _tag: "AgentsMirrorDrift";
     }
   | {
-      readonly _tag: "VendoredTreeDrift";
+      readonly _tag: "HandEditedVendoredOutput";
       readonly name: string;
     };
 
@@ -859,8 +861,8 @@ const driftLineFormatters = {
   LockDrift: (): string => `- ${SKILLS_LOCK_PATH}`,
   CodexConfigDrift: (): string => `- ${CODEX_CONFIG_PATH}`,
   AgentsMirrorDrift: (): string => `- ${AGENTS_SKILLS_DIR}`,
-  VendoredTreeDrift: (drift): string =>
-    `- vendored skill ${drift.name} differs from its pinned entry (repair through a pinned bump, not skills update)`,
+  HandEditedVendoredOutput: (drift): string =>
+    `- hand-edited-vendored-output: ${drift.name} no longer matches its effective tree; revert it with beep skills materialize --skill ${drift.name}, or keep it as a patch under .agents/skill-patches/${drift.name} and re-record the lock with beep skills lock-plan (beep skills patch add is not available yet)`,
 } satisfies { readonly [Tag in SkillDrift["_tag"]]: SkillDriftLineFormatter<Tag> };
 
 const driftLine = (drift: SkillDrift): string => {
@@ -1093,8 +1095,9 @@ const evaluateLockDriftV2 = Effect.fnUntraced(function* (
   return O.some<SkillDrift>({ _tag: "LockDrift" });
 });
 
-// A vendored skill whose installed tree moved away from its entry is drift only a pinned bump
-// repairs, so it is reported in every mode and never rewritten.
+// A vendored skill whose installed tree moved away from its effective tree was hand-edited
+// (contract 3). It is reported in every mode and never rewritten here: the remedies are a
+// patch that records the edit, or `skills materialize`, which rebuilds the verified tree.
 const evaluateVendoredTreeDrift = Effect.fnUntraced(function* (repoRoot: string, current: SkillsLockDocument) {
   const vendored = A.flatMap(R.toEntries(current.skills), ([name, entry]) =>
     entry._tag === "vendored" ? [[name, entry] as const] : []
@@ -1105,7 +1108,7 @@ const evaluateVendoredTreeDrift = Effect.fnUntraced(function* (repoRoot: string,
       const installed = yield* computeLocalSkillLockEntry(repoRoot, name);
       return installed.installedTreeHash === entry.effective.installedTreeHash
         ? A.empty<SkillDrift>()
-        : A.of<SkillDrift>({ _tag: "VendoredTreeDrift", name });
+        : A.of<SkillDrift>({ _tag: "HandEditedVendoredOutput", name });
     })
   );
   return A.flatten(drift);
@@ -1134,9 +1137,10 @@ const evaluateLockState = Effect.fnUntraced(function* (
  * floating ref and the v1 lock is rewritten. Over a `skills-lock/v2` lock the
  * vendored entries are pinned: naming one with `skill` refuses with
  * {@link SkillVendoredRefetchError}, a bulk run skips them, their entries are
- * kept verbatim, and an installed tree that moved away from its entry is
- * reported as drift that only a pinned bump repairs. Local entries are
- * recomputed from the installed trees.
+ * kept verbatim, and an installed tree that moved away from its effective
+ * tree is reported as `hand-edited-vendored-output`, naming both remedies: a
+ * patch that keeps the edit, or `skills materialize`, which reverts it. Local
+ * entries are recomputed from the installed trees.
  *
  * **Example** (Create the skills update workflow)
  *
@@ -1325,6 +1329,66 @@ const skillsLockPlanCommand = Command.make(
   Command.provide(Layer.mergeAll(SkillUpstreamContentSourceLive, SkillPatchOwnerSourceLive))
 );
 
+const runSkillsMaterializeCommand = Effect.fn("Skills.runSkillsMaterializeCommand")(function* (options: {
+  readonly check: boolean;
+  readonly skill: O.Option<string>;
+}) {
+  const repoRoot = yield* findRepoRoot().pipe(
+    SkillsCommandError.mapError("Failed to locate repository root for skills materialize.")
+  );
+  const materializer = yield* SkillMaterializer;
+  const report = yield* materializer.materialize(repoRoot, options.check ? "check" : "write", options.skill);
+  yield* Console.log(renderSkillMaterializeSummary(report));
+  // --check fails on any difference; a write run fails only on what it cannot repair (local drift).
+  const failing = A.filter(report.rows, (row) =>
+    options.check ? row.status !== "current" : row.status === "local-drift"
+  );
+  if (A.isReadonlyArrayNonEmpty(failing)) {
+    return yield* SkillsDriftError.new(
+      A.length(failing),
+      `${A.length(failing)} skill(s) differ from skills-lock.json: ${A.join(
+        A.map(failing, (row) => `${row.skill} (${row.status})`),
+        ", "
+      )}. Vendored: run beep skills materialize. Local: run beep skills update.`
+    );
+  }
+});
+
+const reportMaterializeError = Effect.fn("Skills.materializeCommand.reportError")(function* (error: {
+  readonly message: string;
+}) {
+  const message = `skills:materialize: ${error.message}`;
+  yield* Console.error(message);
+  return yield* failWithReportedExit(message);
+});
+
+const skillsMaterializeCommand = Command.make(
+  "materialize",
+  {
+    check: Flag.Boolean("check").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Verify every installed tree against the lock without writing; fail on any difference")
+    ),
+    skill: Flag.String("skill").pipe(Flag.withDescription("Materialize or check one lock entry"), Flag.optional),
+  },
+  Effect.fn("Skills.materializeCommand")(function* (options) {
+    yield* runSkillsMaterializeCommand(options).pipe(
+      Effect.catchTags({
+        SkillsCommandError: reportMaterializeError,
+        SkillsDriftError: reportMaterializeError,
+        SkillMaterializeRefusal: reportMaterializeError,
+        SkillPatchApplyError: reportMaterializeError,
+        SkillUpstreamContentError: reportMaterializeError,
+      })
+    );
+  })
+).pipe(
+  Command.withDescription(
+    "Rebuild vendored skill trees from their pinned upstream plus patch series, verified before written; --check verifies only"
+  ),
+  Command.provide(SkillMaterializerLive)
+);
+
 /**
  * Skills command group.
  *
@@ -1343,9 +1407,14 @@ const skillsLockPlanCommand = Command.make(
  */
 export const skillsCommand = Command.make("skills", {}, () =>
   Console.log(
-    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>"
+    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>\n- bun run beep skills materialize [--check] [--skill <name>]"
   )
 ).pipe(
   Command.withDescription("Manage repo-local Claude and Codex skill mirrors"),
-  Command.withSubcommands([skillsUpdateCommand, skillsProvenanceCommand, skillsLockPlanCommand])
+  Command.withSubcommands([
+    skillsUpdateCommand,
+    skillsProvenanceCommand,
+    skillsLockPlanCommand,
+    skillsMaterializeCommand,
+  ])
 );
