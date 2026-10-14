@@ -2,10 +2,10 @@
 
 ```text
 lane: rsc-h2-completion
-head: ea4041cdb610d1e90bd8e1d9457e8d34b4400d90 (qualified code; report-only delivery tip in final dispatch)   PR: #1574
+head: 69d4ba88008ac5c603cb13b2f760987459abc733 (qualified code; report-only delivery tip in final dispatch)   PR: #1574
 package-verify @beep/repo-cli: pass (full audit 1096.1s/docgen 73.6s at 44581cec72; final copy/type-only lint 5.0s/check 5.8s)
-hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=fail inherited 11 main packet host paths fallow=pass coverage=pass (287 tests; every existing touched floor/ceiling met or improved)
-doctor before/after: original 3 unsatisfied; final 223 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
+hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=fail inherited 15 main host paths fallow=pass coverage=pass (287 tests; every existing touched floor/ceiling met or improved)
+doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
 advisories: #1429=unknown (draft-ready/window verified) #1462=unknown (window unsatisfied, seven seconds) #1427=unknown (draft-ready/window verified; merge-ready verdict unknown)
 post-merge refresh: pending merge; orchestrator owns three-packet refresh
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h2-completion-2026-10-14.md
@@ -162,3 +162,49 @@ First-head monitor termination at the 40-minute ceiling is observed through
 acknowledged with the attributions above and the same job was resumed. A new
 bounded monitor follows the final publication. The source is content-final;
 H2 does not merge, invent completeness, or run the orchestrator-owned refresh.
+
+## Schema-first publication repair
+
+The complete publisher at `463ecf3eb0` passed 16 cheap lanes and failed only
+`SFV4-arbitrary-tests`: the new doctor fixture crossed the schema-codec test
+threshold without schema-derived property coverage. It created the metadata
+commit but pushed nothing. Inbox row `local-shard-7bc911b7a5cd` is acknowledged
+against the added property commit; the acknowledgement does not replace proof.
+
+The final property is derived from `GoalRequiredCheckSnapshot` and exercises
+completeness across arbitrary valid snapshots while the other acceptance
+conditions remain satisfied. The callback returns the invariant predicate, uses
+the current Effect v4 `runs` option, and asserts the returned `CheckResult` is
+`Passed`, with the shrunk failure description. The intermediate compiler
+failures and ignored-result review finding remain recorded, not counted as passes.
+
+Final test source `4178066e629509166e775d844d08ea0afc1e5fc1` passes schema-first,
+test-tsgo and all 51 focused tests. Independent pinned Opus follow-up of the
+completed property returns ZERO ACTIONABLE FINDINGS. Production source and its
+287-test scoped coverage are unchanged from the qualified code described above.
+No inventory exception, waiver or baseline change was added. The final dispatch
+binds the report-only delivery tip, actual push, fresh thread read and monitor.
+
+## Current-main packet-reader integration
+
+The publisher refuses a stale overlap in Doctor.ts before pushing. Main #1714
+extracts a packet-local reader/core shared with knowledge doctor; it does not
+replace H2 completion evidence. Merge `69d4ba8800` preserves both the filesystem
+reader and online/stored completion advisories without a conflict. The preserved
+stash is reapplied and frozen installation passes. There is no H2 edit to the
+main reader design or dependency manifests.
+
+Combined-head test-tsgo, docgen, JSDoc ratchet, Fallow audit/health and retired-path
+law all pass. Scoped coverage passes 287 tests across 13 files. Doctor is now
+85.2% lines, 85.15% statements, 73.91% branches, 87.62% functions; uncovered
+46/49/36/12 versus ceilings 81/83/57/12. Every other existing touched row remains
+met or improved. New Completion's read is unchanged. The new doctor scan has
+226 packets, zero blocking findings and six nonfatal advisories.
+
+The integrated knowledge check has 15 inherited host paths (four newly exposed
+from main's practice runbook/claim-element/harness packets). None is authored by
+H2. The program orchestrator owns the consolidated repair. The earlier 11-row
+result remains its actual historical observation, not a current result.
+The fresh full package audit on the combined head is running while publication
+proceeds; final dispatch records its terminal result. No queued full proof gates
+the push, and no local proof is presented as a hosted pass.

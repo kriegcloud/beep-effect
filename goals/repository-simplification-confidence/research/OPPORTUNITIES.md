@@ -1377,3 +1377,29 @@ on the new head if it appears.
   verdict. Treat it as terminated, not merge-ready; submit a new bounded monitor
   after the complete review-fix wave publishes. Canonical heavy admission delayed
   the second package command for over 30 minutes before it ran and passed.
+
+### 2026-10-14 — H2 schema-derived property gate
+
+- The complete publisher collects 16 green lanes and one introduced
+  `SFV4-arbitrary-tests` finding: the added doctor regression crosses the
+  schema-codec threshold without schema-derived property coverage. No push occurs.
+- Add a property derived from `GoalRequiredCheckSnapshot`: with all other
+  acceptance evidence satisfied, completeness true verifies and false is unknown.
+  Keep the regression's filesystem fixture and offline network refusal.
+- Current Effect source requires a boolean callback, `CheckOptions.runs`, and
+  explicit inspection of the returned `CheckResult`; a falsification does not fail
+  the effect's error channel. Correct the callback and assert `Passed`, with
+  `formatCheckFailure` for shrunk failure context. Retain both compiler failures.
+- Independent Opus review catches the ignored property result; the follow-up
+  on `4178066e62` returns zero actionable findings. Do not add an inventory
+  exception, waiver or baseline change to bypass the finding.
+
+### 2026-10-14 — H2 current-main reader overlap
+
+- Publisher refuses Doctor.ts overlap after main #1714 lands while the lane's
+  validation runs. Preserve both the main packet-reader core and H2 completion
+  reads through a clean merge; requalify the combined tree. The refusal pushes
+  nothing and is not a source-regression result.
+- Combined parity passes except 15 inherited knowledge host paths. Keep the
+  prior 11-row observation at its own head; the four additional main paths
+  belong to the consolidated main repair, not an H2 baseline reset.

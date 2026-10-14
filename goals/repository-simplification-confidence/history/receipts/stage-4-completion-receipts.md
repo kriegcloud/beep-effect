@@ -356,3 +356,20 @@ findings and six advisories: the three specified unknowns and three unrelated
 legacy declarations. Reply `4270777426` resolves the hint thread; reply
 `4269791012` resolves the earlier inventory thread. Final-head hosted readiness
 is reported separately by the worker dispatch.
+
+The subsequent publisher detects the new schema-heavy doctor fixture's missing
+property coverage and stops before pushing (16 cheap lanes green, one introduced
+`SFV4-arbitrary-tests` finding). `4178066e62` completes a schema-derived inventory
+acceptance property using the current Effect v4 boolean/result contract. Final
+schema-first and test-tsgo pass, as do all 51 focused tests. Independent Opus
+follow-up returns zero actionable findings. No suppression or baseline refresh
+is used; production source and the scoped coverage read remain unchanged.
+
+Main #1714's shared packet reader is integrated without replacing completion
+advisories. Combined source `69d4ba8800` passes test-tsgo, docgen, JSDoc,
+Fallow audit/health, retired-path law and 287 scoped coverage tests. Doctor
+percentages are 85.2/85.15/73.91/87.62, uncovered 46/49/36/12; every existing
+touched floor/ceiling holds. Knowledge refs separately reports 15 inherited
+main host-path observations. The current doctor census is 226 packets, zero
+blocking findings and six nonfatal advisories. Fresh combined full-package
+qualification and final-head hosted readiness are bound by final dispatch.
