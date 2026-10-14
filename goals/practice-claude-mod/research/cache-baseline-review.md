@@ -19,10 +19,3 @@ subject only; no qualification is granted and no other subject changes.
 The root subject `//` changes too: the root `package.json` workspaces list
 gains `apps/practice-claude-mod`, which moves the shared root digest. No root
 command, input, output, env, dependency edge or cache flag changes.
-
-## Re-record after the gate repair (same day)
-
-The gate repair added the `@beep/test-runner` dev dependency and its
-tsconfig reference, which moves the dependency digest of
-`#build`, `#check`, `#lint:deprecated-apis` and `#test`. Commands, outputs,
-env and cache flags are unchanged; no qualification is granted.
