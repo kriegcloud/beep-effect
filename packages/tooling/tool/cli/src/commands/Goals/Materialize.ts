@@ -33,6 +33,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { removeEmptyDirectory } from "../../internal/repo-run/DirectoryHandle.ts";
 import { MaterializationReceipt, MaterializedFile } from "./Bootstrap.schemas.ts";
 import { GoalPlanInputError, GoalPlanOperationalError } from "./Goals.errors.ts";
 import { decodeGoalManifest } from "./Goals.schemas.ts";
@@ -118,15 +119,9 @@ const removeQuietly = Effect.fn("Goals.removeQuietly")(function* (absolutePath: 
   yield* fs.remove(absolutePath, { recursive: true, force: true }).pipe(Effect.ignore);
 });
 
-const removeIfEmpty = Effect.fn("Goals.removeIfEmpty")(function* (absolutePath: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const entries = yield* fs.readDirectory(absolutePath).pipe(Effect.option);
-  // Node's rm refuses a directory without `recursive`, even an empty one; the
-  // emptiness check above is what keeps this from removing content.
-  if (O.exists(entries, A.isReadonlyArrayEmpty)) {
-    yield* fs.remove(absolutePath, { recursive: true }).pipe(Effect.ignore);
-  }
-});
+// An empty-only, atomic removal: a claim that a concurrent creator has started
+// filling is never deleted (no check-then-remove gap).
+const removeIfEmpty = (absolutePath: string) => Effect.asVoid(removeEmptyDirectory(absolutePath));
 
 // E12: a staging directory is never published content, so every leftover
 // `goals/.staging-*` (a foreign digest, or this plan's own from a crashed attempt)
@@ -135,11 +130,20 @@ const sweepStaleStages = Effect.fn("Goals.sweepStaleStages")(function* (goalsDir
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const entries = yield* fs.readDirectory(goalsDir).pipe(Effect.orElseSucceed(A.empty<string>));
-  yield* Effect.forEach(
-    A.filter(entries, Str.startsWith(".staging-")),
-    (entry) => removeQuietly(path.join(goalsDir, entry)),
-    { discard: true }
-  );
+  // Every removal is attempted; the failures are reported together by path.
+  const outcomes = yield* Effect.forEach(A.filter(entries, Str.startsWith(".staging-")), (entry) => {
+    const stage = path.join(goalsDir, entry);
+    return fs.remove(stage, { recursive: true, force: true }).pipe(
+      Effect.as(O.none<string>()),
+      Effect.orElseSucceed(() => O.some(stage))
+    );
+  });
+  const failed = A.getSomes(outcomes);
+  if (A.isReadonlyArrayNonEmpty(failed)) {
+    return yield* GoalPlanOperationalError.new(
+      `Refusing to stage: could not remove stale staging director${A.length(failed) === 1 ? "y" : "ies"} ${A.join(failed, ", ")}.`
+    )(undefined);
+  }
 });
 
 /**

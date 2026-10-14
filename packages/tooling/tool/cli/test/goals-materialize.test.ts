@@ -142,6 +142,24 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
         })
       )
     );
+
+    it.effect("names every stale stage it could not remove instead of failing later", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const plan = yield* compileMaterializationPlan(input, []);
+          yield* writeProjectFile("goals/.staging-0000000000000000/GOAL.md", "foreign\n");
+          // A read-only goals/ makes the stale stage unremovable.
+          yield* fs.chmod("goals", 0o555);
+          const exit = yield* Effect.exit(publishBootstrapPlan(plan));
+          yield* fs.chmod("goals", 0o755);
+          exit.pipe(Exit.isFailure, assertTrue);
+          expect(String(exit)).toContain("could not remove stale staging directory goals/.staging-0000000000000000");
+          expect(yield* listGoals).toEqual([".staging-0000000000000000"]);
+        })
+      )
+    );
   });
 
   describe("goals adopt --write", { concurrent: false }, () => {
