@@ -7,6 +7,9 @@ import { listGoalPackets } from "@beep/repo-cli/commands/Goals/Inventory";
 import {
   encodeKnowledgeDoctorReportJson,
   groupKnowledgeDoctorFindings,
+  KnowledgeDoctorFinding,
+  KnowledgeDoctorReport,
+  KnowledgeFinding,
   KnowledgePathRemoval,
   makeKnowledgeDoctorMemoryTree,
   makeKnowledgeDoctorTree,
@@ -27,7 +30,6 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
-import type { KnowledgeDoctorFinding, KnowledgeDoctorReport } from "@beep/repo-cli/commands/Knowledge";
 
 const testLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer);
 
@@ -93,6 +95,23 @@ describe("knowledge doctor causal grouping", () => {
         const rendered = renderKnowledgeDoctorHumanReport(report);
         assert.include(rendered, "blocking findings (40) under 1 root(s):");
         assert.include(rendered, `    40 path:docs/gone.md [owned] renamed docs/gone.md in ${REMOVER.slice(0, 10)}`);
+        // Advisory dependents under the same cause key stay out of the per-root blocking count.
+        const mixed = renderKnowledgeDoctorHumanReport(
+          KnowledgeDoctorReport.make({
+            ...report,
+            findings: A.map(report.findings, (row, index) =>
+              index < 3
+                ? KnowledgeDoctorFinding.make({
+                    ...row,
+                    finding: KnowledgeFinding.make({ ...row.finding, severity: "advisory" }),
+                  })
+                : row
+            ),
+          })
+        );
+        assert.include(mixed, "blocking findings (37) under 1 root(s):");
+        assert.include(mixed, "    37 path:docs/gone.md [owned] renamed docs/gone.md in ");
+        assert.include(mixed, "(+3 advisory)");
       })
     );
 

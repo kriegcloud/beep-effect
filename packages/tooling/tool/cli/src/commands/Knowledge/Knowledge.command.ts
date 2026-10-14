@@ -11,6 +11,7 @@ import { Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
 import { dual, flow, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -628,29 +629,42 @@ const renderAttribution = (attribution: KnowledgeRootAttribution): string =>
       ` ${attribution.change} ${attribution.removedPath} in ${Str.slice(0, 10)(attribution.commit)} "${attribution.subject}"${repair}`
   );
 
-const renderRoot = (group: KnowledgeCauseGroup): string =>
-  `  ${Str.padStart(6)(`${A.length(group.dependents)}`)} ${group.causeKey} [${group.rootOrigin}]${pipe(
+// One blocking root: its group and the split of its dependents by severity.
+interface BlockingRoot {
+  readonly advisory: number;
+  readonly blocking: number;
+  readonly group: KnowledgeCauseGroup;
+}
+
+// The per-root number counts blocking dependents only, so the lines add up to the
+// headline; advisory dependents under the same cause key are named beside it.
+const renderRoot = ({ advisory, blocking, group }: BlockingRoot): string =>
+  `  ${Str.padStart(6)(`${blocking}`)} ${group.causeKey} [${group.rootOrigin}]${pipe(
     group.attribution,
     O.map(renderAttribution),
     O.getOrElse(() => "")
-  )}`;
+  )}${advisory > 0 ? ` (+${advisory} advisory)` : ""}`;
 
-// Roots with the most dependents first; ties read in cause-key order.
-const rootListingOrder: Order.Order<KnowledgeCauseGroup> = Order.combine(
-  Order.flip(Order.mapInput(Order.Number, (group: KnowledgeCauseGroup) => A.length(group.dependents))),
-  Order.mapInput(Order.String, (group: KnowledgeCauseGroup) => group.causeKey)
+// Roots with the most blocking dependents first; ties read in cause-key order.
+const rootListingOrder: Order.Order<BlockingRoot> = Order.combine(
+  Order.flip(Order.mapInput(Order.Number, (root: BlockingRoot) => root.blocking)),
+  Order.mapInput(Order.String, (root: BlockingRoot) => root.group.causeKey)
 );
 
 // A group is blocking when its delegated root or any dependent is a blocking finding.
-const blockingGroups = (report: KnowledgeDoctorReport): ReadonlyArray<KnowledgeCauseGroup> => {
-  const blockingIds = HashMap.fromIterable(
+const blockingRoots = (report: KnowledgeDoctorReport): ReadonlyArray<BlockingRoot> => {
+  const blockingIds = HashSet.fromIterable(
     A.map(
       A.filter(report.findings, (row) => row.finding.severity === "blocking"),
-      (row) => [row.finding.findingId, true] as const
+      (row) => row.finding.findingId
     )
   );
-  const isBlocking = (id: KnowledgeFindingId) => HashMap.has(blockingIds, id);
-  return A.filter(report.groups, (group) => O.exists(group.root, isBlocking) || A.some(group.dependents, isBlocking));
+  const isBlocking = (id: KnowledgeFindingId) => HashSet.has(blockingIds, id);
+  const roots = A.map(report.groups, (group): BlockingRoot => {
+    const blocking = A.length(A.filter(group.dependents, isBlocking));
+    return { group, blocking, advisory: A.length(group.dependents) - blocking };
+  });
+  return A.filter(roots, (root) => O.exists(root.group.root, isBlocking) || root.blocking > 0);
 };
 
 const rootSummary = (report: KnowledgeDoctorReport): string => {
@@ -666,7 +680,8 @@ const rootSummary = (report: KnowledgeDoctorReport): string => {
  *
  * The headline names the tree, the per-class span totals, the unchecked option tokens, and the
  * per-kind finding totals. Blocking findings are shown as their causal roots, one line per cause
- * group with its dependent count, origin, and authoring commit, most dependents first; advisory-only
+ * group with its blocking dependent count (advisory dependents named beside it), origin, and
+ * authoring commit, most blocking dependents first; advisory-only
  * groups (the unclassified worklist) fold into one count line, because `--json` carries every row.
  *
  * **Example** (Render an empty report)
@@ -704,7 +719,7 @@ const rootSummary = (report: KnowledgeDoctorReport): string => {
  */
 export const renderKnowledgeDoctorHumanReport = (report: KnowledgeDoctorReport): string => {
   const blocking = A.length(A.filter(report.findings, (row) => row.finding.severity === "blocking"));
-  const roots = A.sort(blockingGroups(report), rootListingOrder);
+  const roots = A.sort(blockingRoots(report), rootListingOrder);
   const advisory = A.length(report.findings) - blocking;
   return A.join(
     [

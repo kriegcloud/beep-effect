@@ -240,13 +240,26 @@ describe("knowledge doctor domain evaluators", () => {
             "export const AfterLineComment = 2;",
             "const pattern = /a\\/*b/;",
             "export const AfterRegex = 3;",
+            "const sum = a+/a\\/*b/;",
+            "export const AfterBinaryRegex = 4;",
+            "const kind = typeof /c\\/*d/;",
+            "export const AfterKeywordRegex = 5;",
+            "const half = total / 2 /* trailing */;",
+            "export const AfterDivision = 6;",
             "/* real",
-            "export const Hidden = 4;",
+            "export const Hidden = 7;",
             "*/",
           ].join("\n"),
           HashSet.empty<string>()
         );
-        assert.deepStrictEqual(decoys.names, ["AfterString", "AfterLineComment", "AfterRegex"]);
+        assert.deepStrictEqual(decoys.names, [
+          "AfterString",
+          "AfterLineComment",
+          "AfterRegex",
+          "AfterBinaryRegex",
+          "AfterKeywordRegex",
+          "AfterDivision",
+        ]);
       })
     );
 

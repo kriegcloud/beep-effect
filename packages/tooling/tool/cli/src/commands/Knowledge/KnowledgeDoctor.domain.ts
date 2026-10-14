@@ -634,21 +634,26 @@ const resolveStar = (paths: HashSet.HashSet<string>, file: string, specifier: st
 // the comment (newlines kept) leaves every real line where it was.
 // Block comments are found with TypeScript's own scanner, so a `/*` inside a string,
 // a template, a `//` comment, or a regex literal is never mistaken for an opener (#1702).
-const REGEX_ALLOWED_AFTER = HashSet.make(
-  ts.SyntaxKind.Unknown,
-  ts.SyntaxKind.OpenParenToken,
-  ts.SyntaxKind.CommaToken,
-  ts.SyntaxKind.EqualsToken,
-  ts.SyntaxKind.ColonToken,
-  ts.SyntaxKind.OpenBracketToken,
-  ts.SyntaxKind.ExclamationToken,
-  ts.SyntaxKind.AmpersandAmpersandToken,
-  ts.SyntaxKind.BarBarToken,
-  ts.SyntaxKind.QuestionToken,
-  ts.SyntaxKind.OpenBraceToken,
-  ts.SyntaxKind.CloseBraceToken,
-  ts.SyntaxKind.SemicolonToken,
-  ts.SyntaxKind.ReturnKeyword
+// A `/` starts a regex literal unless the previous token ends an operand; listing the operand
+// enders instead of regex contexts covers every binary operator (`a+/re/`) and keyword operator.
+const OPERAND_ENDERS = HashSet.make(
+  ts.SyntaxKind.Identifier,
+  ts.SyntaxKind.PrivateIdentifier,
+  ts.SyntaxKind.NumericLiteral,
+  ts.SyntaxKind.BigIntLiteral,
+  ts.SyntaxKind.StringLiteral,
+  ts.SyntaxKind.NoSubstitutionTemplateLiteral,
+  ts.SyntaxKind.TemplateTail,
+  ts.SyntaxKind.RegularExpressionLiteral,
+  ts.SyntaxKind.CloseParenToken,
+  ts.SyntaxKind.CloseBracketToken,
+  ts.SyntaxKind.PlusPlusToken,
+  ts.SyntaxKind.MinusMinusToken,
+  ts.SyntaxKind.ThisKeyword,
+  ts.SyntaxKind.SuperKeyword,
+  ts.SyntaxKind.TrueKeyword,
+  ts.SyntaxKind.FalseKeyword,
+  ts.SyntaxKind.NullKeyword
 );
 const isSlash = (kind: ts.SyntaxKind): boolean =>
   kind === ts.SyntaxKind.SlashToken || kind === ts.SyntaxKind.SlashEqualsToken;
@@ -661,7 +666,7 @@ const blockCommentRanges = (text: string): ReadonlyArray<readonly [number, numbe
   let previous: ts.SyntaxKind = ts.SyntaxKind.Unknown;
   for (let kind = scanner.scan(); kind !== ts.SyntaxKind.EndOfFileToken; kind = scanner.scan()) {
     const token: ts.SyntaxKind =
-      isSlash(kind) && HashSet.has(REGEX_ALLOWED_AFTER, previous) ? scanner.reScanSlashToken() : kind;
+      isSlash(kind) && !HashSet.has(OPERAND_ENDERS, previous) ? scanner.reScanSlashToken() : kind;
     if (token === ts.SyntaxKind.MultiLineCommentTrivia) {
       ranges.push([scanner.getTokenStart(), scanner.getTokenEnd()]);
     }
