@@ -439,3 +439,5 @@ codec/regression and compile/docgen evidence covers the schema resolution.
 The second publication is one complete base-conflict wave, not a per-file push.
 S11 permits the inherited JSDoc and hosted settings reds after attribution;
 the orchestrator owns the final gate and any consolidated main fix.
+
+Main episode-14 fix #1773 has now merged into the lane at `9a9582fb91`; none of the H3 telemetry source/tests changed across that integration. It fixes the two inherited JSDoc examples. The latest parity refresh is running against that integrated source while the complete conflict wave publishes. Earlier red and green results retain their original provenance; publication resets the review window.
