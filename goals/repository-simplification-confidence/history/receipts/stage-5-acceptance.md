@@ -28,11 +28,11 @@ Verification: the same hashes remain after the ignore edits; `git ls-files harne
 ## Package gates
 
 H4, 2026-10-14: the default `@beep/repo-cli` package gate passes audit in
-1,257.0 seconds and docgen in 42.2 seconds. The reader's 13 synthetic cases
-pass; a separate source review has zero outstanding findings. Subsequent
+1,257.0 seconds and docgen in 42.2 seconds. The final scoped run passes 39 cases, including 14 census cases; a separate source review has zero outstanding findings. Subsequent
 bounded docgen and all nine doctest marker checks pass. The test helper's
-introduced tsgo diagnostics are repaired; the fresh 354-file typecheck passes.
-Remaining parity, integration and publication results are recorded in the
+introduced tsgo diagnostics are repaired; the final 363-file typecheck passes.
+All local parity gates pass. Integrated quick verification passes after
+restoring the new main declaration outputs. Publication results are recorded in the
 [H4 handoff](../handoffs/rsc-h4-permissions-2026-10-14.md). These are reader
 qualification results; Desktop route acceptance remains open below.
 

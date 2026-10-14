@@ -4,8 +4,8 @@
 
 Program active after the October 14 resume. H4's read-only permission census,
 runbook and synthetic regressions are implemented, with a passing full CLI
-package gate and terminal source review. Integrated parity and publication
-are being finalized. Desktop route verification and F's owned-field config
+package gate and terminal source review. Integrated parity passes, including 39 scoped tests and every incumbent
+coverage floor/ceiling. Publication and hosted review are being finalized. Desktop route verification and F's owned-field config
 repair remain external dependencies; Permission continuity is open.
 H2's #1574 merge and #1744 evidence follow-up are in current main.
 

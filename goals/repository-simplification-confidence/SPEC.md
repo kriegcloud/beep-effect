@@ -1244,3 +1244,15 @@ The worker's checkout-only boundary and R96/S8 leave Desktop fixture roots,
 GUI actions and restarts with the orchestrator. Publish useful census and
 fixture documentation without claiming Permission continuity complete.
 Reversal: revert the H4 PR; no workstation rollback is required for this lane.
+
+### 2026-10-14 — H4 records integrated qualification without rewriting proof history
+
+Retain the passing default package audit/docgen as pre-integration worktree
+proof. After integrating current main, requalify the small redundant-guard
+cleanup and CLI regression with the package's quick lint/check, all named
+hosted-parity commands and 39 scoped cases. The canonical upstream closure
+restores new main declaration outputs before the quick check passes. Every
+incumbent touched coverage floor and uncovered ceiling is met; no baseline
+or generated inventory is changed. This avoids presenting historical full
+proof as an integrated-head result. Reversal: revert H4's PR and retain the
+historical receipts; no workstation config rollback is required.

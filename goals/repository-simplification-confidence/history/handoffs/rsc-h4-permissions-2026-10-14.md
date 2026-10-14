@@ -2,13 +2,13 @@
 
 ```text
 lane: rsc-h4-permissions
-head: pending   pr: none
-package-verify: @beep/repo-cli pass (audit 1257.0s; docgen 42.2s)
-hosted-parity: test-tsgo=pass (354 files); docgen local=pass; jsdoc-ratchet / knowledge refs / fallow audit+health / coverage read=pending
+head: 64079959cfe9c0210a38004a468642ba020978be   pr: pending publication
+package-verify: @beep/repo-cli pass (full pre-integration audit 1257.0s/docgen 42.2s; integrated quick lint 5.2s/check 5.3s)
+hosted-parity: test-tsgo=pass (363 files); docgen local=pass; jsdoc-ratchet=pass; knowledge refs=pass; fallow audit+health=pass (zero findings); coverage read=pass (39 tests; incumbent row 100% in every metric, zero uncovered)
 routes: ChatGPT Desktop x fresh/dormant-idle/dormant-relaunch/background/subagent-followup -> unknown, build 26.1007.71326-1, fixture none; Claude Desktop x same routes in bypass/auto -> unknown, build 2.37337.1-1, fixture none
 config: no backups created or writes; legacy sandbox_mode still present with default_permissions; F writer and drift check pending
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h4-permissions-2026-10-14.md
-open: local gates, publication, operator Desktop fixture batch, F owned-field config repair
+open: publication/hosted review; operator Desktop fixture batch; F owned-field config repair; overall Permission continuity remains open
 ```
 
 ## Delivered scope
@@ -96,3 +96,43 @@ The known inherited resume-wave reds (skills test HttpClient, schema-hoist
 on tests, cache-policy receipt digest, and Coverage Regression) belong to
 the consolidated main owner. Actual local results will be recorded separately;
 no diagnostic is assumed inherited merely because its category is listed.
+
+## Final source qualification
+
+Executable source is qualified at `64079959cfe9c0210a38004a468642ba020978be`,
+with current main `061d5a40e425b7c03702a8ca03c4459e31166815` integrated.
+The last fetch before publication found no newer main commit. Later receipt
+updates change only packet prose; they do not change the qualified source.
+
+| Gate | Result |
+| --- | --- |
+| Default package verification before main integration | Audit 1,257.0s and docgen 42.2s pass. This is historical worktree proof, not a full audit of the integrated source commit. |
+| Integrated upstream closure | Canonical `turbo run build --filter=@beep/repo-cli^...`: 44 tasks pass, 43 cached. |
+| Integrated `package-verify @beep/repo-cli --quick` | Lint 5.2s and check 5.3s pass after restoring the new main declaration outputs. |
+| `quality test-tsgo` | Exit 0, 363 files; the initial introduced diagnostics are repaired. |
+| `docgen local --base origin/main` | Exit 0; CLI and scratchpad examples compile; only canonical CLI output is aggregated. |
+| Doctest owner/verification | Nine pure examples marked by the owner command; verification exits 0. |
+| `ci lane jsdoc-ratchet` | Exit 0, 21 tracked totals, zero increased, zero non-generated legacy findings. No baseline rewrite. |
+| `CI=true knowledge refs --check` | Exit 0; zero live gated observations. |
+| Fallow audit and health, `--check --base origin/main` | Both exit 0 with zero findings after removing redundant Claude incompleteness checks. No suppressions or baseline changes. |
+| `laws retired-effect-paths` | Exit 0. |
+| Scoped Node/V8 coverage | Three files and 39 tests pass in 22.61s, including 14 census cases and the actual wired CLI command. |
+| Existing Session.command baseline row | Lines/statements/branches/functions all 100%, all uncovered counts zero. Meets every floor and ceiling; baseline unchanged. |
+
+The quick check initially failed with TS6305 because new main dependency
+outputs were absent. The failure was acknowledged as environment-only with
+that diagnosis, the canonical closure restored the outputs, and the rerun
+passed. There is no unacknowledged P0. The initial Fallow complexity finding
+was introduced and repaired, not relabelled inherited. Source review of that
+cleanup returned zero outstanding actionable findings.
+
+The 39-test coverage totals across the selected production files are 95.89%
+statements, 98.76% branches, 91.3% functions and 95.78% lines. New command
+coverage is 85.71% statements/lines, 100% branches and 66.66% functions. The
+service is 94.26% statements, 98.41% branches, 89.13% functions and 93.93%
+lines. Only the incumbent Session.command row has a published touched-file
+baseline; no new floor is silently minted.
+
+No hosted review thread exists before publication. Reply/thread IDs will be
+recorded if publication produces actionable review. The orchestrator owns
+merge-gate and retirement; the lane never merges itself.
