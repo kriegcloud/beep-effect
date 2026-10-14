@@ -691,7 +691,8 @@ const blankBlockComments = (text: string): string =>
  *
  * Declarations are read only at the start of a line, so JSDoc example text indented under `*` is never
  * read as an export. `export * from` re-exports with a relative specifier that resolves in the tree
- * become `stars`; package specifiers are not followed.
+ * become `stars`; every other star specifier (a package, or an unresolved relative path) is kept in
+ * `opaqueStars`, because it is not followed.
  *
  * **Example** (Scan declarations and re-exports)
  *
@@ -724,21 +725,21 @@ export const scanKnowledgeFileExports: {
   const listed = A.flatMap(captured(EXPORT_LIST_PATTERN, text), (list) =>
     A.getSomes(A.map(A.filter(Str.split(",")(list), Str.isNonEmpty), listItemName))
   );
+  const starSpecifiers = captured(EXPORT_STAR_PATTERN, text);
   return KnowledgeFileExports.make({
     file,
     names: A.dedupe(
       A.appendAll(A.appendAll(captured(DECLARATION_PATTERN, text), listed), captured(EXPORT_NAMESPACE_PATTERN, text))
     ),
-    stars: A.dedupe(
-      A.getSomes(A.map(captured(EXPORT_STAR_PATTERN, text), (specifier) => resolveStar(paths, file, specifier)))
-    ),
+    stars: A.dedupe(A.getSomes(A.map(starSpecifiers, (specifier) => resolveStar(paths, file, specifier)))),
+    opaqueStars: A.dedupe(A.filter(starSpecifiers, (specifier) => O.isNone(resolveStar(paths, file, specifier)))),
   });
 });
 
 const deriveFileExports = (oracle: KnowledgeTreeOracle, paths: HashSet.HashSet<string>, file: string) =>
   Effect.map(readTextIfTracked(oracle, paths, file), (text) =>
     O.match(text, {
-      onNone: () => KnowledgeFileExports.make({ file, names: [], stars: [] }),
+      onNone: () => KnowledgeFileExports.make({ file, names: [], stars: [], opaqueStars: [] }),
       onSome: (value) => scanKnowledgeFileExports(file, value, paths),
     })
   );

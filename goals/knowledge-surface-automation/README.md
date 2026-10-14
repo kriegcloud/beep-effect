@@ -81,22 +81,27 @@ P4 in progress. Shipped on main so far:
 - **B-3a:** `skills lock-plan` classifies drift against upstream path history (B11).
 - **B-3b:** `lock-plan --write --expect <planDigest>` flipped `skills-lock.json` to v2
   (#1679).
-- **B-4 (this PR):** `beep skills materialize [--check] [--skill <name>]` rebuilds every
+- **B-4 (#1709):** `beep skills materialize [--check] [--skill <name>]` rebuilds every
   vendored skill from its pinned upstream plus its patch series, verified before it
   writes, through one clearing-house writer for both install targets; `skills update
   --check` reports hand-edited vendored output (`hand-edited-vendored-output`) and
   names both remedies. Decisions B24–B27 in
   [`research/p5-warehouse-update-train-design.md`](./research/p5-warehouse-update-train-design.md).
+- **C (PR 4, this PR):** the knowledge-doctor gate. It has the sealed-baseline,
+  promotions, identity, and lease schemas, the seal guard, `verify-mint`, and
+  `leases [--json]`, with `knowledge:doctor` running report-only in `lint:policy` and
+  lease warnings in yeet's verify step. Nothing is sealed yet: PR 5's CI mint opens
+  the first baseline (882 entries in six named groups on the live tree,
+  [`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
 
 C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
 command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling),
 C Stage-2 PR 2b (the domain evaluators), and B-3b (the skills lock write and flip) are
 on main.
 
-This PR is B-4: `beep skills materialize [--check]` rebuilds vendored skills from their
-pristine trees and patch series through one clearing-house writer, and
-`skills update --check` reports hand-edited vendored output. B-5 (`skills relock`, the
-Renovate manager, and the reconstruction workflow) is next for Workstream B.
+B-4 (`beep skills materialize`) is on main (#1709); B-5 (`skills relock`, the Renovate
+manager, and the reconstruction workflow) is in review (#1732). This PR is C Stage-2 PR 4,
+the knowledge-doctor gate.
 
 C Stage-2 PR 3 (stacked on PR 2b) adds causal grouping and root attribution,
 report-only: one cause group per missing target or delegated goals-doctor finding, each

@@ -242,6 +242,93 @@ The commits that removed the most attributed roots: `cd7670d5d0` (#401) 26,
 9. Rule on 16: key skill causes by lock entry.
 10. Accept 17 and 18 as known limits (attribution is path lineage only, per C6 tier 2).
 
+## PR 4 — sealed baseline, leases, and the gate
+
+PR 4 adds the gate (design contracts 8–11 and 13, K24–K31) but seals nothing: no
+baseline is committed, so `bun run beep knowledge doctor` (without `--report`) still
+refuses with the PR 1 message. The first seal is PR 5's CI mint. To measure what that
+mint would seal, the pure `mintKnowledgeBaseline` ran over tree `49278c96dd` on
+2026-10-14 as a first seal (no previous baseline, no promotions, no leases). Two runs
+produced byte-identical text (346,828 characters).
+
+| Measure | Value |
+| --- | --- |
+| Spans: verified / unclassified | 16,462 / 30,220 (`verified` counts checked spans, failing ones included) |
+| Blocking findings / sealable entries | 882 / 882 (every blocking finding is owned, verified, and non-governance) |
+| Delegated findings | 0 (never sealed, K4) |
+| Unclassified worklist by evaluator | paths 17,678, symbols 10,823, commands 1,697, packet-status 22 |
+
+Sealable entries by named group (K25):
+
+| Group | Entries | By kind |
+| --- | --- | --- |
+| `deleted-target-rot` | 438 | 239 broken paths, 199 `@beep` symbols |
+| `unresolved-reference` | 380 | 270 broken paths, 101 `@beep` symbols, 9 commands |
+| `prohibition-of-retired-surface` | 49 | 28 `@beep` symbols, 20 broken paths, 1 command |
+| `skill-provenance` | 14 | 6 floating sources, 6 missing licenses, 2 lock-coverage drifts |
+| `packet-claim-drift` | 1 | 1 packet-status claim |
+| `historical-claim` | 0 | no historical citations on archival paths yet |
+
+The rot group is the burn-down list with a known cause: 239 paths whose removal is in
+history and 199 symbol findings naming packages whose `package.json` was deleted (the
+CourtListener, DOL, and Federal Register drivers, the canvas family, and others). The
+prohibition group is the risk-1 bulk fallback; it is lexical, so it also catches
+narration such as "was removed in #N" next to a stale path. The PR 2b verdict branch
+respells 22 standards prohibitions as prose; once it lands, those entries leave the group
+before the first mint.
+
+The densest unclassified documents are archival research tables:
+`goals/per-module-imports/research/import-census.md` (778 spans),
+`goals/effect-vitest-canon/research/consolidated-cache-review.md` (278), and
+`goals/lab-apps-lifecycle/research/05-deletion-prior-art.md` (247). Per-file historical
+markers stay the planned bulk tool (risk 3).
+
+What the gate checks, with a test for each rule:
+
+- **Ratchet.** Inherited keys stay advisory. Leased keys need an effective lease on the
+  finding's own document. Introduced keys block only for kinds promoted at the
+  merge-base; the rest are `pending` (K24). Removing a key from the baseline makes its
+  finding introduced again (the counterfactual test).
+- **Seal guard.** Adding, relabeling (kind, subject, class, or group), changing `mintedAt`,
+  editing the note, adding the file, or removing it is `baseline-tamper`. Pure deletion
+  and key reordering pass. `--accept-mint` admits a change only when the diff is
+  baseline-only, `mintedAt` is an ancestor of the merge-base, and the re-mint reproduces
+  the bytes; the command also requires `CI=true`. Promotion rows are append-only: one row,
+  promotions-only diff, kind not yet promoted.
+- **Leases.** The owner must be a merge-base CODEOWNERS owner of the lease's document (a
+  branch's own CODEOWNERS is never read). The lifetime is at most 30 days and `issued` is
+  pinned to the merge-base row. Quotas are 2 per document and 20 per repo, earliest
+  `issued` first. Expiry drops the lease, the finding is introduced again, and
+  `lease-expired` joins its cause group. `leases --json` reports `expiring` within 7 days.
+- **Typed failures.** An absent base ref, shallow history, a non-UTF-8 seal file, an
+  undecodable baseline, promotions, lease, or identity file, missing CODEOWNERS while
+  leases exist, and the missing baseline each raise `KnowledgeDoctorInputError` with its
+  reason and remediation. None of them becomes a finding.
+
+Wiring: `knowledge:doctor` runs `knowledge doctor --report` in `lint:policy` right after
+the phase that runs the semantic delta (the scoped state phase, or the hosted
+full-scope medium phase). Like the semantic delta, it is left out of a local full-scope
+run. It exits 0. Yeet's verify step runs `knowledge doctor leases --json` after a passing
+proof and prints one warning per expiring, expired, or violating lease. It never fails
+the proof.
+
+Folded in from the PR 2b verdict's follow-up risks:
+
+- **Risk 2.** The export search reports when it stopped at its 256-file bound, and which
+  `export *` specifiers it could not follow, instead of "does not export". Failure-path
+  fixtures cover both. Finding identities are unchanged.
+- **Risk 3.** The human report lists the unclassified worklist per evaluator and its ten
+  densest documents.
+- **Risk 4.** The human report states that `verified` counts checked spans and how many
+  of them failed.
+- **Risk 5.** A span introduced as a branch is a ref (K29). This removed 21 spans, one of
+  them a blocking broken path.
+
+Deferred: re-checking promotion window evidence at the merge-base (K12 says CI re-checks
+it; PR 4 only requires a non-empty `windowEvidence`), the C7 window evidence format
+itself, attribution bounded to `mintedAt..HEAD` (K21's reversal, once a baseline exists),
+and one shared CODEOWNERS resolver (K28).
+
 ## Deviations from the design (recorded)
 
 - Historical-marker block scope is line-based (Stage-1 fence reader plus blank lines),
@@ -254,6 +341,10 @@ The commits that removed the most attributed roots: `cd7670d5d0` (#401) 26,
 - `Failed` can carry several failures, so one command with two bad options yields two
   findings.
 - Running without `--report` fails on purpose until the sealed baseline exists.
+- PR 4: there is no `mint` command; `mintKnowledgeBaseline` is pure and PR 5's workflow
+  owns writing the file. `verify-mint` re-mints with the current checkout's evaluators, so
+  an evaluator change that alters findings at `mintedAt` breaks the seal until the next
+  mint (K2's reversal condition).
 
 ## Asks for the verdict
 

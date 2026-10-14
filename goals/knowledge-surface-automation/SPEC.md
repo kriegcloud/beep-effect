@@ -369,3 +369,7 @@ Each entry names its record, which carries the reason and the reversal path.
   stages live in a sibling `.skills-materialize/` work directory; local drift fails
   `materialize` in both modes; the applier is exact and never fuzzes):
   `research/p5-warehouse-update-train-design.md`.
+- 2026-10-14 — Workstream C Stage-2 PR 4 K24–K31 (only promoted kinds block, named
+  baseline groups including the retired-surface prohibition group, empty C6 tier 1,
+  document-bound leases, the doctor's own CODEOWNERS resolver, branch-introduced spans
+  as refs, `ops/reports/` stays live, report stays v1): `research/p4-knowledge-doctor-design.md`.
