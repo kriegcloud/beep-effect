@@ -18815,6 +18815,12 @@
           "round": 3,
           "finding": "cli-r3-15 — KeyInput has no executable production schema. (scratchpad/effected/cli/TestTerminal.ts:16)",
           "reason": "schema: (follow-on) scratchpad/test/cli/entrypoints.test.ts:77 is outside the port's write surface. The value re-export the finding requires changes the testing entry's exports to [\"CliTest\", \"KeyInput\", \"TestTerminal\"]; the test still expects [\"CliTest\", \"TestTerminal\"]. The owner of that file needs to add \"KeyInput\" (an addition, not a weakening)."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "central — CliUiTest.live publish-settles test races under machine load (scratchpad/test/cli/ui/CliUiTest.live.test.ts:47)",
+          "reason": "test: the live ink harness frame was still empty after publish(Start) once in the final sweep, with three module audits running at once; the file passes alone (13/13) and the full cli audit is green alone (2051/2051). Root-cause the render settle (event-driven wait on the frame, not a timing assumption) before promotion."
         }
       ],
       "reviewRounds": [
