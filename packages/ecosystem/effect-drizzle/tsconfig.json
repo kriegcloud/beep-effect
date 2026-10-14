@@ -122,10 +122,11 @@
           "lazyPromiseInEffectSync": "error",
           "leakingRequirements": "error",
           "mapSomeToAsSome": "error",
-          // Family delta: the published DSL intentionally exposes data-first
-          // factory forms, so this style-only rule is the sole allowed `off`.
           "matchEffectToMapBoth": "error",
           "matchEffectToMatch": "error",
+          // Family delta: the published DSL intentionally exposes data-first factory
+          // forms, so this style-only rule is the one package-local `off` beyond the
+          // base profile's declared-off rules.
           "missedPipeableOpportunity": "off",
           "missingEffectContext": "error",
           "missingEffectError": "error",

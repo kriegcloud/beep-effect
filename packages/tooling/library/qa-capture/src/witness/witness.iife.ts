@@ -182,10 +182,11 @@ declare const decodeURIComponent: (value: string) => string;
 
 // The whole in-page witness is one IIFE by construction: it is bundled to a
 // browser script and guarded by `window.__beepQa`, so its helpers cannot be
-// hoisted to module scope without breaking the zero-import bundling contract.
+// hoisted to module scope without breaking the bundling contract (one IIFE whose
+// only import, the pure `effect/Array` module, `Bun.build` inlines).
 // The arrow is the module body rather than a unit of logic, and the script is
 // exercised by live capture rounds, not by Node unit tests.
-// fallow-ignore-next-line complexity -- browser IIFE bundled by Bun.build; its helpers cannot hoist to module scope without breaking the zero-import contract
+// fallow-ignore-next-line complexity -- browser IIFE bundled by Bun.build; its helpers cannot hoist to module scope without breaking the single-IIFE bundling contract
 (() => {
   if (window.__beepQa !== undefined) {
     return;
