@@ -29,7 +29,7 @@ import * as McpSchema from "effect/ai/McpSchema";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { fakeHost, fakeM365SignIn, fullProfile, m365NotConfigured, settingsLayer } from "./fixtures.ts";
-import type { M365SignIn } from "@beep/practice-gateway/M365SignIn";
+import type { M365SignIn, M365SignInOutcome } from "@beep/practice-gateway/M365SignIn";
 import type { GatewayRequirementId } from "@beep/practice-gateway/Requirements";
 import type { FakeMachine } from "./fixtures.ts";
 
@@ -143,27 +143,6 @@ describe("gateway probes", () => {
     })
   );
 
-  it.effect("repairs Microsoft 365 consent through the sign-in, in plain language", () =>
-    Effect.gen(function* () {
-      const repair = (m365: Layer.Layer<M365SignIn>) =>
-        SetupProbes.use((probes) => probes.repair(requirementFromCatalog("m365-consented", "mail-calendar"))).pipe(
-          provideScopedLayer(probesFor({}, {}, WindowsSecretStore.layerMemory, m365))
-        );
-      yield* repair(fakeM365SignIn({ signIn: Effect.succeed("connected") }));
-      const waiting = yield* repair(fakeM365SignIn({ signIn: Effect.succeed("waiting-for-browser") })).pipe(
-        Effect.flip
-      );
-      expect(waiting).toBeInstanceOf(SetupRepairFailed);
-      expect(waiting.reason).toContain("Finish signing in there");
-      const declined = yield* repair(
-        fakeM365SignIn({
-          signIn: Effect.fail(M365SignInFailure.make({ message: "Access to Microsoft 365 was not approved." })),
-        })
-      ).pipe(Effect.flip);
-      expect(declined.reason).toBe("Access to Microsoft 365 was not approved.");
-    })
-  );
-
   it.effect("reads BitLocker protection", () =>
     Effect.gen(function* () {
       expect(yield* probe("bitlocker-on", probesFor({ bitLocker: "on" }))).toEqual(satisfied);
@@ -211,6 +190,48 @@ describe("gateway probes", () => {
       expect(error.reason).toBe("The practice gateway has no check for this requirement.");
     })
   );
+});
+
+const repairM365 = SetupProbes.use((probes) =>
+  probes.repair(requirementFromCatalog("m365-consented", "mail-calendar"))
+);
+
+const probesWithSignIn = (signIn: Effect.Effect<M365SignInOutcome, M365SignInFailure>) =>
+  probesFor({}, {}, WindowsSecretStore.layerMemory, fakeM365SignIn({ signIn }));
+
+describe("Microsoft 365 consent repair", () => {
+  it.layer(probesWithSignIn(Effect.succeed("connected")), { timeout: layerTimeout })(
+    "after a finished sign-in",
+    (it) => {
+      it.effect("succeeds", () => repairM365);
+    }
+  );
+
+  it.layer(probesWithSignIn(Effect.succeed("waiting-for-browser")), { timeout: layerTimeout })(
+    "while the sign-in page is still open",
+    (it) => {
+      it.effect("tells the lawyer to finish in the browser", () =>
+        Effect.gen(function* () {
+          const waiting = yield* Effect.flip(repairM365);
+          expect(waiting).toBeInstanceOf(SetupRepairFailed);
+          expect(waiting.reason).toContain("Finish signing in there");
+        })
+      );
+    }
+  );
+
+  it.layer(
+    probesWithSignIn(
+      M365SignInFailure.make({ message: "Access to Microsoft 365 was not approved." }).pipe(Effect.fail)
+    ),
+    { timeout: layerTimeout }
+  )("after a declined consent", (it) => {
+    it.effect("passes the sign-in's plain reason through", () =>
+      Effect.gen(function* () {
+        expect((yield* Effect.flip(repairM365)).reason).toBe("Access to Microsoft 365 was not approved.");
+      })
+    );
+  });
 });
 
 const doctorWith = (approvals: Layer.Layer<SetupApprovals>) =>

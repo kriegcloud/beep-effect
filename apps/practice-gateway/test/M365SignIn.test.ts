@@ -8,8 +8,8 @@ import {
 import { SystemBrowser } from "@beep/practice-gateway/SystemBrowser";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
+import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { WindowsSecretStore } from "@beep/windows-secrets";
-import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
@@ -22,7 +22,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import { m365NotConfigured, settingsLayer } from "./fixtures.ts";
 
-const Platform = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
+const Platform = Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer);
 const layerTimeout = "30 seconds";
 
 // A browser that plays Microsoft: it follows the authorization URL straight
@@ -57,7 +57,7 @@ const authorize = (answer: (state: string) => Record<string, string>) =>
       .authorizer(M365AuthorizationRequest.make({ authUrl, redirectUri: loopback.redirectUri }))
       .pipe(Effect.option);
     return { code, problem: yield* loopback.problem };
-  }).pipe(Effect.scoped, provideScopedLayer(answeringBrowser(answer)));
+  }).pipe(provideScopedLayer(answeringBrowser(answer)));
 
 describe("loopback authorizer", () => {
   it.effect("captures the authorization code from the redirect", () =>
@@ -72,8 +72,9 @@ describe("loopback authorizer", () => {
     Effect.gen(function* () {
       const { code, problem } = yield* authorize((state) => ({ error: "access_denied", state }));
       assertNone(code);
-      expect(O.map(problem, (failure) => failure.message)).toEqual(
-        O.some("Access to Microsoft 365 was not approved in the browser, so nothing was connected.")
+      assertSome(
+        O.map(problem, (failure) => failure.message),
+        "Access to Microsoft 365 was not approved in the browser, so nothing was connected."
       );
     })
   );
@@ -82,8 +83,9 @@ describe("loopback authorizer", () => {
     Effect.gen(function* () {
       const { code, problem } = yield* authorize(() => ({ code: "auth-code-2", state: "forged" }));
       assertNone(code);
-      expect(O.map(problem, (failure) => failure.message)).toEqual(
-        O.some("The Microsoft sign-in answer did not match this request. Try again.")
+      assertSome(
+        O.map(problem, (failure) => failure.message),
+        "The Microsoft sign-in answer did not match this request. Try again."
       );
     })
   );
@@ -103,7 +105,7 @@ describe("DPAPI token cache", () => {
         yield* cache.save('{"Account":{}}');
         assertSome(yield* cache.load, '{"Account":{}}');
         expect(yield* fs.exists(`${file}.tmp`)).toBe(false);
-      }).pipe(Effect.scoped)
+      })
     );
   });
 });

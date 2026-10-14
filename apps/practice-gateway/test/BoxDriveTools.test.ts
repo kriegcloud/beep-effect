@@ -10,9 +10,12 @@ import {
 } from "@beep/practice-gateway/BoxDriveTools";
 import { ProfileStore } from "@beep/practice-gateway/ProfileStore";
 import { it } from "@beep/test-runner";
-import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import { fcRuns } from "@beep/test-utils";
+import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
+import { deepStrictEqual } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as McpServer from "effect/ai/McpServer";
 import * as Context from "effect/Context";
@@ -27,7 +30,7 @@ import * as Stream from "effect/Stream";
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { fakeHost, gapProfile, itLimits, settingsLayer } from "./fixtures.ts";
 
-const Platform = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
+const Platform = Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer);
 const layerTimeout = "30 seconds";
 
 const makePdf = (text: string) =>
@@ -90,12 +93,10 @@ describe("Box Drive tools", () => {
           ["photo.png", "file"],
           ["readme.txt", "file"],
         ]);
-        expect(A.map(root.entries, (entry) => entry.sizeBytes)).toEqual([
-          O.none(),
-          O.some(BOX_READ_MAX_CHARACTERS + 10),
-          O.some(4),
-          O.some(13),
-        ]);
+        deepStrictEqual(
+          A.map(root.entries, (entry) => entry.sizeBytes),
+          [O.none(), O.some(BOX_READ_MAX_CHARACTERS + 10), O.some(4), O.some(13)]
+        );
         const smith = yield* listing("Clients\\Smith");
         expect(A.map(smith.entries, (entry) => entry.path)).toEqual([
           "Clients/Smith/letter.pdf",
@@ -191,5 +192,20 @@ describe("Box Drive provider", () => {
       });
       expect(yield* mountedFor(O.some(kgOnly))).toEqual([]);
     })
+  );
+});
+
+describe("Box tool results", () => {
+  it.effect.prop(
+    "round-trip every generated listing and document through their JSON form",
+    { listing: Arbitrary.schema(BoxListing), document: Arbitrary.schema(BoxDocument) },
+    ({ listing, document }) =>
+      Effect.gen(function* () {
+        const ListingJson = S.fromJsonString(BoxListing);
+        const DocumentJson = S.fromJsonString(BoxDocument);
+        deepStrictEqual(yield* S.decodeEffect(ListingJson)(yield* S.encodeEffect(ListingJson)(listing)), listing);
+        deepStrictEqual(yield* S.decodeEffect(DocumentJson)(yield* S.encodeEffect(DocumentJson)(document)), document);
+      }),
+    { arbitrary: fcRuns(50) }
   );
 });

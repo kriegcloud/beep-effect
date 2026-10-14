@@ -1,7 +1,7 @@
 import { CapabilityGap, CapabilitySupported, ItLimits, PracticeProfile } from "@beep/law-practice-domain";
 import { M365ConfigInput } from "@beep/m365";
 import { GatewaySettings, GatewaySettingsValues } from "@beep/practice-gateway/GatewaySettings";
-import { M365SignIn } from "@beep/practice-gateway/M365SignIn";
+import { M365Connection, M365SignIn } from "@beep/practice-gateway/M365SignIn";
 import { M365SignInFailure, WindowsHostFailure } from "@beep/practice-gateway/PracticeGateway.errors";
 import { BitLockerProtection, WindowsHost, WindowsHostShape } from "@beep/practice-gateway/WindowsHost";
 import * as A from "effect/Array";
@@ -115,10 +115,12 @@ export const fakeM365SignIn = (options: {
       connection:
         options.configured === false
           ? Effect.fail(M365SignInFailure.make({ message: m365NotConfigured }))
-          : Effect.succeed({
-              config: M365ConfigInput.make({ tenantId: "organizations", clientId: "test-client" }),
-              tokenCache: { load: Effect.succeedNone, save: () => Effect.void },
-            }),
+          : Effect.succeed(
+              M365Connection.make({
+                config: M365ConfigInput.make({ tenantId: "organizations", clientId: "test-client" }),
+                tokenCache: { load: Effect.succeedNone, save: () => Effect.void },
+              })
+            ),
       signIn: options.signIn ?? Effect.succeed("connected"),
     })
   );

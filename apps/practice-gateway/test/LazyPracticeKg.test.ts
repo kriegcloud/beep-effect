@@ -12,6 +12,7 @@ import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { WindowsSecretStore } from "@beep/windows-secrets";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as McpServer from "effect/ai/McpServer";
 import * as Context from "effect/Context";
@@ -24,9 +25,9 @@ import * as Stream from "effect/Stream";
 import { vi } from "vitest";
 import { fakeHost, fakeM365SignIn, fullProfile, settingsLayer } from "./fixtures.ts";
 
-// The DuckDB native binding is missing, as on a machine without the sidecar:
+// The DuckDB driver cannot load, as on a machine without the native sidecar:
 // evaluating any module that imports it throws.
-vi.mock("@duckdb/node-api", () => {
+vi.mock("@beep/duckdb", () => {
   throw new Error("Cannot find module '@duckdb/node-bindings-win32-x64/duckdb.node'");
 });
 
@@ -93,7 +94,7 @@ describe("practice-kg provider without the DuckDB sidecar", () => {
         expect(first.isFailure).toBe(false);
         const status = yield* S.decodeUnknownEffect(SetupStatus)(first.encodedResult);
         const selfCheck = A.findFirst(status.report.checks, (check) => check.requirement === "practice-kg-self-check");
-        expect(O.flatMap(selfCheck, statusOf)).toEqual(O.some(ProbeBroken.make({ detail: unavailableMessage })));
+        assertSome(O.flatMap(selfCheck, statusOf), ProbeBroken.make({ detail: unavailableMessage }));
         expect(status.report.checks).toHaveLength(10);
       })
     );

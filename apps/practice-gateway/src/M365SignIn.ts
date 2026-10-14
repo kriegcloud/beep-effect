@@ -24,6 +24,7 @@ import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as SynchronizedRef from "effect/SynchronizedRef";
@@ -240,13 +241,8 @@ export const makeDpapiTokenCache = Effect.fnUntraced(function* (filePath: string
   return persistence;
 });
 
-/**
- * One open loopback listener and the authorizer that uses it.
- *
- * @category models
- * @since 0.0.0
- */
-export interface LoopbackSignIn {
+// One open loopback listener and the authorizer that uses it.
+interface LoopbackSignIn {
   /**
    * Opens the sign-in page and waits for its redirect; hand it to the driver.
    */
@@ -355,23 +351,51 @@ export const openLoopbackSignIn = Effect.gen(function* () {
   return loopback;
 });
 
+const TokenCachePersistenceFromSelf = S.declare(
+  (u: unknown): u is M365TokenCachePersistence =>
+    P.isObject(u) &&
+    P.hasProperty(u, "load") &&
+    Effect.isEffect(u.load) &&
+    P.hasProperty(u, "save") &&
+    P.isFunction(u.save)
+).pipe(
+  $I.annoteSchema("TokenCachePersistenceFromSelf", {
+    description: "In-process MSAL token cache storage handed to the Microsoft 365 driver.",
+  })
+);
+
 /**
  * Microsoft 365 connection settings, present when the extension settings
  * name an app (client) id and the Windows secret store is available.
  *
+ * **Example** (A connection over an in-memory cache)
+ *
+ * ```ts
+ * import { M365ConfigInput } from "@beep/m365"
+ * import { M365Connection } from "@beep/practice-gateway/M365SignIn"
+ * import * as Effect from "effect/Effect"
+ *
+ * const connection = M365Connection.make({
+ *   config: M365ConfigInput.make({ tenantId: "organizations", clientId: "client-id" }),
+ *   tokenCache: { load: Effect.succeedNone, save: () => Effect.void },
+ * })
+ * console.log(connection.config.tenantId) // "organizations"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export interface M365Connection {
-  /**
-   * Driver configuration: the configured client id and {@link M365_TENANT_ID}.
-   */
-  readonly config: M365ConfigInput;
-  /**
-   * The DPAPI-protected token cache.
-   */
-  readonly tokenCache: M365TokenCachePersistence;
-}
+export class M365Connection extends S.Class<M365Connection>($I`M365Connection`)(
+  {
+    config: M365ConfigInput.annotateKey({
+      description: "Driver configuration: the configured client id and the organizations tenant.",
+    }),
+    tokenCache: TokenCachePersistenceFromSelf.annotateKey({ description: "The DPAPI-protected token cache." }),
+  },
+  $I.annote("M365Connection", {
+    description: "Microsoft 365 connection settings of the practice gateway.",
+  })
+) {}
 
 /**
  * Operations of {@link M365SignIn}.
@@ -474,8 +498,7 @@ export class M365SignIn extends Context.Service<M365SignIn, M365SignInShape>()($
           Effect.provideContext(platform)
         );
         const config = M365ConfigInput.make({ tenantId: M365_TENANT_ID, clientId });
-        const value: M365Connection = { config, tokenCache };
-        return value;
+        return M365Connection.make({ config, tokenCache });
       });
 
       const didNotFinish = M365SignInFailure.make({
