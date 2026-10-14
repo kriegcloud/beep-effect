@@ -1143,6 +1143,38 @@ describe("beep drawings review", () => {
     );
 
     it.effect(
+      "records a delivery through a symlinked manifest directory",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const linkedDir = path.join(corpus.root, "linked-sent");
+        yield* fs.symlink(corpus.sent.dir, linkedDir);
+        const draftFile = path.join(corpus.matter, "linked-draft.json");
+        yield* fs.writeFileString(
+          draftFile,
+          yield* toJson({
+            draftId: "AAMk-linked",
+            webLink: "https://example.test/draft",
+            attachments: [{ name: "sheets.pdf", size: 1234, sha256: corpus.sent.hash }],
+          })
+        );
+        const written = yield* review.deliver(
+          DeliverRequest.make({
+            manifestPath: path.join(linkedDir, "manifest.json"),
+            draftPath: draftFile,
+            sentMessageId: O.none(),
+            internetMessageId: O.none(),
+            outPath: O.none(),
+          })
+        );
+        expect(written.path).toBe(path.join(corpus.sent.dir, "delivery.json"));
+        expect(yield* fs.exists(written.path)).toBe(true);
+      })
+    );
+
+    it.effect(
       "records a delivery from an outbox draft and opens the round from it",
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;

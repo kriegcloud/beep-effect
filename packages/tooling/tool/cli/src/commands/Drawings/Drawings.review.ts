@@ -585,8 +585,10 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       );
     }
     const out = O.getOrElse(O.map(request.outPath, path.resolve), () => path.join(set.manifestDir, "delivery.json"));
-    if (yield* fs.exists(out).pipe(Effect.orElseSucceed(() => false))) {
-      return yield* refuse(`"${out}" already exists; pass --out to record another delivery.`);
+    const dir = yield* realPath(path.dirname(out), "The delivery directory");
+    const target = path.join(dir, path.basename(out));
+    if (yield* fs.exists(target).pipe(Effect.orElseSucceed(() => false))) {
+      return yield* refuse(`"${target}" already exists; pass --out to record another delivery.`);
     }
     const record = DeliveryRecord.make({
       schemaVersion: "drawing-delivery/v1",
@@ -598,8 +600,8 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       attachments: draft.attachments,
       deliveredAt: DateTime.formatIso(yield* DateTime.now),
     });
-    yield* writeJson(DeliveryRecord, out, record, path.dirname(out));
-    return DeliveryWritten.make({ path: out, record });
+    yield* writeJson(DeliveryRecord, target, record, dir);
+    return DeliveryWritten.make({ path: target, record });
   });
 
   const ancestorsOf = (dir: string): A.NonEmptyReadonlyArray<string> => {
