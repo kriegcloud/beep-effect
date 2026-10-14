@@ -416,7 +416,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
       );
       expect(decision._tag).toBe("flip");
       // The confirmation decided with the same --inherited list, or it would have refused on Lint.
-      expect(yield* Ref.get(reads)).toBe(2);
+      expect(yield* Ref.get(reads)).toBe(3);
       expect(yield* Ref.get(calls)).toEqual([
         ["record", "42", "Lint"],
         ["ready", "42"],
@@ -586,6 +586,58 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
   );
 });
 it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation races", (it) => {
+  it.effect("refuses a head change during the inherited-red body write", () =>
+    Effect.gen(function* () {
+      const reads = yield* Ref.make(0);
+      const error = yield* runYeetReadyGate(
+        context,
+        {
+          read: () =>
+            Ref.getAndUpdate(reads, (n) => n + 1).pipe(
+              Effect.map((n) => (n < 2 ? redRead([lint]) : prView({ headSha: O.some("b".repeat(40)) })))
+            ),
+          recordInherited: () => Effect.void,
+          markReady: () => Effect.die("a moved head must not flip"),
+        },
+        [lintInherited]
+      ).pipe(Effect.flip);
+      expect(error.message).toContain("changed while recording inherited reds");
+    })
+  );
+  it.effect("refuses a new blocker during the inherited-red body write", () =>
+    Effect.gen(function* () {
+      const reads = yield* Ref.make(0);
+      const error = yield* runYeetReadyGate(
+        context,
+        {
+          read: () =>
+            Ref.getAndUpdate(reads, (n) => n + 1).pipe(
+              Effect.map((n) => (n < 2 ? redRead([lint]) : redRead([lint, knip])))
+            ),
+          recordInherited: () => Effect.void,
+          markReady: () => Effect.die("a new red must not flip"),
+        },
+        [lintInherited]
+      ).pipe(Effect.flip);
+      expect(error.message).toContain("changed while recording inherited reds");
+    })
+  );
+  it.effect("refuses changed applied attributions after the body write even when the gate passes", () =>
+    Effect.gen(function* () {
+      const reads = yield* Ref.make(0);
+      const error = yield* runYeetReadyGate(
+        context,
+        {
+          read: () =>
+            Ref.getAndUpdate(reads, (n) => n + 1).pipe(Effect.map((n) => (n < 2 ? redRead([lint]) : prView()))),
+          recordInherited: () => Effect.void,
+          markReady: () => Effect.die("stale attributions must not flip"),
+        },
+        [lintInherited]
+      ).pipe(Effect.flip);
+      expect(error.message).toContain("changed while recording inherited reds");
+    })
+  );
   it.effect("refuses another flip after an actor already marked the PR ready", () =>
     Effect.gen(function* () {
       const count = yield* Ref.make(0);

@@ -71,6 +71,7 @@ import type { ChildProcessSpawner } from "effect/process";
 import type { CliReportedExit } from "../../../internal/cli/ExitCodeError.ts";
 import type {
   GithubIdentityError,
+  GithubRestShape,
   GithubReviewThreads,
   GraphqlBudgetExhausted,
 } from "../../../internal/github/index.ts";
@@ -706,15 +707,84 @@ export const spliceYeetInheritedRedsSection: {
 });
 
 /**
- * Record S11 inherited reds in a pull request's body over REST: read the
- * body, upsert the marked section, write it back.
+ * Upsert the inherited-red section against a stable REST body snapshot.
+ *
+ * **Details**
+ *
+ * Re-splices concurrent edits up to three times before refusing without a write.
+ * A REST PATCH has no conditional-write guarantee: an edit between the last read
+ * and PATCH can still be overwritten. Readback detects subsequent drift and
+ * refuses the ready flip; it cannot recover an edit overtaken by the PATCH.
+ *
+ * **Example** (Use the selected REST service)
+ *
+ * ```ts
+ * import { GithubRest } from "@beep/repo-cli/test/SharedInternals"
+ * import { recordInheritedRedsWithRest } from "@beep/repo-cli/test/Yeet"
+ * import * as Effect from "effect/Effect"
+ * const recording = GithubRest.use((rest) => recordInheritedRedsWithRest(rest, 42, []))
+ * console.log(Effect.isEffect(recording)) // true
+ * ```
+ *
+ * @param rest - Selected REST transport, injectable for concurrent-edit tests.
+ * @param prNumber - Pull request whose marked section is updated.
+ * @param entries - Required-check attributions to persist.
+ * @returns Nothing after a stable write and matching readback.
+ * @category commands
+ * @since 0.0.0
+ */
+export const recordInheritedRedsWithRest = Effect.fn("YeetGh.recordInheritedRedsWithRest")(function* (
+  rest: Pick<GithubRestShape, "pullRequest" | "updatePullRequest">,
+  prNumber: number,
+  entries: ReadonlyArray<YeetReadyInheritedRed>
+) {
+  let source = (yield* rest.pullRequest(prNumber)).body;
+  for (let round = 0; round < 3; round += 1) {
+    const body = spliceYeetInheritedRedsSection(source, entries);
+    if (O.isNone(body)) {
+      return yield* YeetCommandError.make({
+        message: `the body of #${prNumber} has unmatched or repeated yeet-inherited-reds markers; repair them by hand first`,
+        exitCode: 1,
+      });
+    }
+    const fresh = (yield* rest.pullRequest(prNumber)).body;
+    if (!Str.Equivalence(source, fresh)) {
+      source = fresh;
+      continue;
+    }
+    if (!Str.Equivalence(source, body.value)) {
+      yield* rest.updatePullRequest(prNumber, { body: body.value });
+    }
+    const readback = (yield* rest.pullRequest(prNumber)).body;
+    if (!Str.Equivalence(readback, body.value)) {
+      return yield* YeetCommandError.make({
+        message: `the body of #${prNumber} drifted while recording inherited reds; re-run yeet ready to record against the latest body`,
+        exitCode: 1,
+      });
+    }
+    return;
+  }
+  return yield* YeetCommandError.make({
+    message: `the body of #${prNumber} changed during all three inherited-red reconciliation rounds; nothing was written`,
+    exitCode: 1,
+  });
+});
+
+/**
+ * Record S11 inherited reds through the selected GitHub REST identity.
+ *
+ * **Details**
+ *
+ * Uses {@link recordInheritedRedsWithRest} to preserve edits observed before
+ * the PATCH and fail closed on malformed markers, persistent contention or
+ * readback drift. An edit between the final read and PATCH remains a race
+ * because the GitHub body update is not an atomic compare-and-swap.
  *
  * **Example** (Build the record)
  *
  * ```ts
  * import { recordInheritedRedsInPullRequestBody, YeetReadyInheritedRed } from "@beep/repo-cli/test/Yeet"
  * import * as Effect from "effect/Effect";
- *
  * const record = recordInheritedRedsInPullRequestBody(42, [
  *   YeetReadyInheritedRed.make({ check: "Lint", attribution: "red on main since 2c1cb448ba" }),
  * ])
@@ -723,7 +793,7 @@ export const spliceYeetInheritedRedsSection: {
  *
  * @param prNumber - Which pull request to record on.
  * @param entries - The inherited reds to record.
- * @returns Nothing once the body is written.
+ * @returns Nothing once the body is written and verified.
  * @category commands
  * @since 0.0.0
  */
@@ -731,16 +801,7 @@ export const recordInheritedRedsInPullRequestBody = Effect.fn("YeetGh.recordInhe
   prNumber: number,
   entries: ReadonlyArray<YeetReadyInheritedRed>
 ) {
-  const rest = yield* GithubRest;
-  const pr = yield* rest.pullRequest(prNumber);
-  const body = spliceYeetInheritedRedsSection(pr.body, entries);
-  if (O.isNone(body)) {
-    return yield* YeetCommandError.make({
-      message: `the body of #${prNumber} has unmatched or repeated yeet-inherited-reds markers; repair them by hand first`,
-      exitCode: 1,
-    });
-  }
-  yield* rest.updatePullRequest(prNumber, { body: body.value });
+  return yield* recordInheritedRedsWithRest(yield* GithubRest, prNumber, entries);
 }, withYeetGh(O.none()));
 
 const report = (exitCode: number) => (message: string) => failWithReportedExit(message, exitCode);

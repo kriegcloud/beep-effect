@@ -170,6 +170,9 @@ export const parseAttributedCheck =
  */
 export const parseMergeGateTolerance = parseAttributedCheck((fields) => MergeGateTolerance.make(fields));
 
+const AttributedCheckJson = S.fromJsonString(S.String);
+const encodeAttributedCheckJson = S.encodeEffect(AttributedCheckJson);
+
 /**
  * Decode every value of one repeatable `"<check>=<attribution>"` flag, or
  * refuse naming each malformed value before anything is read.
@@ -200,7 +203,7 @@ export const decodeAttributedCheckFlags = Effect.fnUntraced(function* <A>(
   const malformed = A.filter(A.zip(values, parsed), ([, value]) => O.isNone(value));
   if (A.isReadonlyArrayNonEmpty(malformed)) {
     const quoted = yield* Effect.forEach(malformed, ([value]) =>
-      S.encodeEffect(S.fromJsonString(S.String))(value).pipe(
+      encodeAttributedCheckJson(value).pipe(
         Effect.mapError(YeetCommandError.new("Failed to encode a malformed attributed check."))
       )
     );
@@ -916,13 +919,15 @@ const GhThreads = S.Struct({
   }),
 });
 const GhMergeResult = S.Struct({ merged: S.Boolean, sha: S.optionalKey(S.String), message: S.optionalKey(S.String) });
-const GhWorkflowRuns = S.Struct({ workflow_runs: S.Array(S.Struct({ id: S.Finite, head_sha: S.String })) });
+const GhWorkflowRuns = S.Struct({
+  workflow_runs: S.Array(S.Struct({ id: S.Finite, head_sha: S.String, status: S.String })),
+});
 
 const decodePull = S.decodeUnknownEffect(S.fromJsonString(GhPull));
 const decodeCheckRunPages = S.decodeUnknownEffect(S.fromJsonString(S.Array(GhCheckRuns)));
 const decodeThreads = S.decodeUnknownEffect(S.fromJsonString(GhThreads));
 const decodeMergeResult = S.decodeUnknownEffect(S.fromJsonString(GhMergeResult));
-const decodeWorkflowRuns = S.decodeUnknownEffect(S.fromJsonString(GhWorkflowRuns));
+const decodeWorkflowRunPages = S.decodeUnknownEffect(S.fromJsonString(S.Array(GhWorkflowRuns)));
 
 // AGENTS.md "Mergeable": an unresolved thread, or one the author resolved
 // that a human commented on afterwards, still owes a reply. Same rule as
@@ -1199,26 +1204,29 @@ const postS11MergeComment = Effect.fn("Yeet.postS11MergeComment")(function* (
   yield* Console.log(`[yeet] recorded the S11 merge in a comment on #${decision.prNumber}`);
 });
 
-// The merged head's queued and in-progress runs only spend the queue now. Each
-// listing is best effort on its own, and only runs whose head is the merged
-// sha are cancelled, whatever the server-side filter returned.
+// Only decoded non-terminal runs on the merged head are cancelled. Listing
+// and each cancellation are independently best effort after the merge.
 const cancelMergedHeadRuns = Effect.fn("Yeet.cancelMergedHeadRuns")(function* (
   context: RepoRunContext,
   headSha: string
 ) {
-  const [pages, listingFailures] = yield* Effect.partition(["queued", "in_progress"], (status) =>
-    gh(context, `gh api ${status} runs`, [
-      "api",
-      `repos/{owner}/{repo}/actions/runs?head_sha=${headSha}&status=${status}&per_page=50`,
-    ]).pipe(Effect.flatMap((output) => decodeOrFail(`the ${status} workflow runs`, decodeWorkflowRuns, output)))
+  const pages = yield* gh(context, "gh api merged head runs", [
+    "api",
+    `repos/{owner}/{repo}/actions/runs?head_sha=${headSha}&per_page=100`,
+    "--paginate",
+    "--slurp",
+  ]).pipe(
+    Effect.flatMap((output) => decodeOrFail("the merged head's workflow runs", decodeWorkflowRunPages, output)),
+    Effect.catch((error) =>
+      warnAfterMerge("listing the merged head's workflow runs")(error).pipe(
+        Effect.as(A.empty<typeof GhWorkflowRuns.Type>())
+      )
+    )
   );
-  yield* Effect.forEach(listingFailures, warnAfterMerge("listing the merged head's workflow runs"), {
-    discard: true,
-  });
   const runIds = A.dedupe(
     A.flatMap(pages, (page) =>
       A.map(
-        A.filter(page.workflow_runs, (run) => run.head_sha === headSha),
+        A.filter(page.workflow_runs, (run) => run.head_sha === headSha && run.status !== "completed"),
         (run) => run.id
       )
     )
@@ -1233,7 +1241,7 @@ const cancelMergedHeadRuns = Effect.fn("Yeet.cancelMergedHeadRuns")(function* (
   );
   yield* Effect.forEach(failures, warnAfterMerge("cancelling a leftover workflow run"), { discard: true });
   yield* Console.log(
-    `[yeet] cancelled ${A.length(cancelled)} of ${A.length(runIds)} queued or in-progress workflow run(s) on ${headSha.slice(0, 10)}`
+    `[yeet] cancelled ${A.length(cancelled)} of ${A.length(runIds)} active workflow run(s) on ${headSha.slice(0, 10)}`
   );
 });
 
@@ -1247,7 +1255,7 @@ const cancelMergedHeadRuns = Effect.fn("Yeet.cancelMergedHeadRuns")(function* (
  * relaxed merge prints its at-merge lists instead). The
  * window override is printed whenever it was used. After a relaxed (S11)
  * merge it posts one PR comment recording the checks that were not green and
- * cancels the merged head's queued and in-progress workflow runs; both are
+ * cancels the merged head's active workflow runs across all pages; both are
  * best effort, so a failure prints a warning and the command still succeeds.
  * A dry run does neither.
  *

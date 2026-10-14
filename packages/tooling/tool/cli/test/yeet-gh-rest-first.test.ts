@@ -20,7 +20,10 @@ import {
   decideYeetGhMergeGate,
   foldCommitMessage,
   latestCheckRunsByName,
+  recordInheritedRedsWithRest,
+  spliceYeetInheritedRedsSection,
   YeetGhGateFacts,
+  YeetReadyInheritedRed,
 } from "@beep/repo-cli/test/Yeet";
 import { describe, expect, it } from "@effect/vitest";
 import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
@@ -265,6 +268,111 @@ const pr = (overrides: Partial<ConstructorParameters<typeof GithubPullRequestRec
     updatedAt: DateTime.makeUnsafe("2026-10-06T16:00:00Z"),
     ...overrides,
   });
+
+describe("inherited-red body reconciliation", () => {
+  const entries = [YeetReadyInheritedRed.make({ check: "Lint", attribution: "inherited from main" })];
+
+  it.effect("re-splices a concurrent provenance edit before writing", () =>
+    Effect.gen(function* () {
+      const source = "Summary";
+      const concurrent = `${source}\n\n<!-- beep:pr-provenance:start -->\nNew provenance\n<!-- beep:pr-provenance:end -->`;
+      const reads = yield* Ref.make(0);
+      const writes = yield* Ref.make(A.empty<string>());
+      const expected = O.getOrThrow(spliceYeetInheritedRedsSection(concurrent, entries));
+      const rest = {
+        pullRequest: () =>
+          Ref.getAndUpdate(reads, (n) => n + 1).pipe(
+            Effect.map((n) => pr({ body: n === 0 ? source : n < 3 ? concurrent : expected }))
+          ),
+        updatePullRequest: (_number: number, update: { readonly body?: string | undefined }) =>
+          Ref.update(writes, A.append(update.body ?? "")).pipe(Effect.as(pr({ body: update.body ?? "" }))),
+      };
+      yield* recordInheritedRedsWithRest(rest, 1501, entries);
+      expect(yield* Ref.get(writes)).toEqual([expected]);
+      expect(expected).toContain("New provenance");
+    })
+  );
+
+  it.effect("refuses persistent contention after three rounds without writing", () =>
+    Effect.gen(function* () {
+      const reads = yield* Ref.make(0);
+      const writes = yield* Ref.make(0);
+      const error = yield* Effect.flip(
+        recordInheritedRedsWithRest(
+          {
+            pullRequest: () => Ref.getAndUpdate(reads, (n) => n + 1).pipe(Effect.map((n) => pr({ body: `Edit ${n}` }))),
+            updatePullRequest: () => Ref.update(writes, (n) => n + 1).pipe(Effect.as(pr())),
+          },
+          1501,
+          entries
+        )
+      );
+      expect(error.message).toContain("all three");
+      expect(yield* Ref.get(reads)).toBe(4);
+      expect(yield* Ref.get(writes)).toBe(0);
+    })
+  );
+
+  it.effect("refuses malformed markers on a fresh concurrent body without writing", () =>
+    Effect.gen(function* () {
+      const reads = yield* Ref.make(0);
+      const writes = yield* Ref.make(0);
+      const error = yield* Effect.flip(
+        recordInheritedRedsWithRest(
+          {
+            pullRequest: () =>
+              Ref.getAndUpdate(reads, (n) => n + 1).pipe(
+                Effect.map((n) => pr({ body: n === 0 ? "Summary" : "<!-- yeet-inherited-reds:start -->" }))
+              ),
+            updatePullRequest: () => Ref.update(writes, (n) => n + 1).pipe(Effect.as(pr())),
+          },
+          1501,
+          entries
+        )
+      );
+      expect(error.message).toContain("markers");
+      expect(yield* Ref.get(writes)).toBe(0);
+    })
+  );
+
+  it.effect("refuses readback drift after a write", () =>
+    Effect.gen(function* () {
+      const reads = yield* Ref.make(0);
+      const writes = yield* Ref.make(0);
+      const error = yield* Effect.flip(
+        recordInheritedRedsWithRest(
+          {
+            pullRequest: () =>
+              Ref.getAndUpdate(reads, (n) => n + 1).pipe(
+                Effect.map((n) => pr({ body: n < 2 ? "Summary" : "Concurrent edit after PATCH" }))
+              ),
+            updatePullRequest: () => Ref.update(writes, (n) => n + 1).pipe(Effect.as(pr())),
+          },
+          1501,
+          entries
+        )
+      );
+      expect(error.message).toContain("drifted");
+      expect(yield* Ref.get(writes)).toBe(1);
+    })
+  );
+
+  it.effect("confirms an already-current section without writing", () =>
+    Effect.gen(function* () {
+      const body = O.getOrThrow(spliceYeetInheritedRedsSection("Summary", entries));
+      const writes = yield* Ref.make(0);
+      yield* recordInheritedRedsWithRest(
+        {
+          pullRequest: () => Effect.succeed(pr({ body })),
+          updatePullRequest: () => Ref.update(writes, (n) => n + 1).pipe(Effect.as(pr())),
+        },
+        1501,
+        entries
+      );
+      expect(yield* Ref.get(writes)).toBe(0);
+    })
+  );
+});
 
 const run = (id: number, name: string, status: string, conclusion: string | null) =>
   GithubCheckRunRecord.make({ id, name, status, conclusion: O.fromNullishOr(conclusion) });

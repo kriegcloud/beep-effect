@@ -121,3 +121,60 @@
   release notes." Removed the note and recorded the release-policy decision in `SPEC.md`.
 - Would have prevented it: including `quality changeset-graph` in the publish cheap
   gates, and checking package privacy before a brief requires a changeset.
+
+## 2026-10-14: Inherited drawing reds reached the S11 hosted proof
+
+- Doing: reading #1678 failed jobs before acknowledging their inbox rows.
+- Evidence: Heavy / Check failed on `drawings-review.test.ts:388` (`MarkupNote.pipe`),
+  introduced on main by #1674; Test Unit / repo-cli-1 failed on the stale help
+  expectation at `drawings-command.test.ts:112`, introduced on main by #1649.
+  The aggregate Test Unit job only reported its failed shard. Assigned both source
+  repairs to the design-figure-review-loop main repair lane; S11 files passed.
+- Would have prevented it: a main repair lane verifying the test compiler and help
+  assertions before landing the drawing routes, followed by dependent lanes merging
+  the consolidated main fix once.
+
+## 2026-10-14: Headless heavy admission needs the user-session bus
+
+- Doing: running the round-one S11 regression tests through `beep-heavy`.
+- Evidence: the wrapper refused before launching tests because
+  `DBUS_SESSION_BUS_ADDRESS` and `XDG_RUNTIME_DIR` were undefined. Supplying
+  the existing user-session bus admitted the same command without bypassing
+  the five-slot queue.
+- Would have prevented it: the headless worker launcher supplying the
+  user-session environment before invoking the heavy wrapper.
+
+## 2026-10-14: An older audit observed mixed review revisions
+
+- Doing: qualifying the round-one S11 fixes after the main merge.
+- Evidence: an older audit completed during this worker's proof and armed
+  `package:@beep/repo-cli:audit`; its log showed new tests calling missing
+  `recordInheritedRedsWithRest` and `capabilityDoctorFindings` exports, plus
+  the previous workflow-cancellation implementation. The test runner had
+  loaded modules before the main merge and review edits settled. The fresh
+  S11 run passed all 135 tests; a new full audit runs against stable source.
+- Would have prevented it: stopping or handing off the prior lane verifier
+  before a successor edits the same checkout, and retaining a source digest
+  alongside every package-audit receipt.
+
+## 2026-10-14: Passing runtime fixtures still need the REST return contract
+
+- Doing: running test typechecking after the full package audit passed.
+- Evidence: the new body-reconciliation REST fakes returned `Effect<void>`
+  although `updatePullRequest` returns a pull-request record; the optional
+  pagination fixture flag also failed strict boolean expressions. Corrected
+  the fakes' return values and compared the flag explicitly with `true`.
+- Would have prevented it: typechecking the new test transport fakes before
+  launching the full runtime audit.
+
+## 2026-10-14: Hosted lint found a codec allocation after local qualification
+
+- Doing: publishing the S11 round-one repair when the previous head's Lint
+  Policy job completed.
+- Evidence: `MergeGate.ts` constructed the JSON-string schema inside the
+  attributed-flag decoder callback, violating the parser-cache lint. Stopped
+  the owned publish unit before any push, hoisted the schema and encoder,
+  and kept the repair in the same review wave. Other logged failures were
+  inherited Quality/Tasks and drawing code.
+- Would have prevented it: including touched-package laws and Oxlint checks
+  in local package qualification before publication.

@@ -420,6 +420,7 @@ interface ScriptedAnswer {
 }
 
 interface GhScript {
+  readonly additionalActiveRuns?: boolean;
   readonly cancelFailId?: number;
   readonly checkRuns?: unknown;
   readonly commentExit?: number;
@@ -458,28 +459,32 @@ const ghAnswers = (script: GhScript): ReadonlyArray<readonly [string, ScriptedAn
   [`/issues/${pullFixture.number}/comments`, { exitCode: script.commentExit ?? 0, output: "{}" }],
   // Run 14 belongs to another head; the server-side filter should not return it, and the gate never cancels it.
   [
-    "status=queued",
+    "/actions/runs?",
     {
       exitCode: script.queuedExit ?? 0,
-      output: encodeJson({
-        workflow_runs: [
-          { id: 11, head_sha: pullFixture.head.sha },
-          { id: 12, head_sha: pullFixture.head.sha },
-          { id: 14, head_sha: "0".repeat(40) },
-        ],
-      }),
-    },
-  ],
-  [
-    "status=in_progress",
-    {
-      exitCode: 0,
-      output: encodeJson({
-        workflow_runs: [
-          { id: 12, head_sha: pullFixture.head.sha },
-          { id: 13, head_sha: pullFixture.head.sha },
-        ],
-      }),
+      output: encodeJson([
+        {
+          workflow_runs: [
+            { id: 11, head_sha: pullFixture.head.sha, status: "queued" },
+            { id: 12, head_sha: pullFixture.head.sha, status: "in_progress" },
+            { id: 12, head_sha: pullFixture.head.sha, status: "in_progress" },
+            { id: 13, head_sha: pullFixture.head.sha, status: "in_progress" },
+            { id: 14, head_sha: "0".repeat(40), status: "waiting" },
+            { id: 19, head_sha: pullFixture.head.sha, status: "completed" },
+          ],
+        },
+        ...(script.additionalActiveRuns === true
+          ? [
+              {
+                workflow_runs: A.map(["waiting", "requested", "pending", "future_status"], (status, index) => ({
+                  id: 15 + index,
+                  head_sha: pullFixture.head.sha,
+                  status,
+                })),
+              },
+            ]
+          : []),
+      ]),
     },
   ],
   [`/runs/${script.cancelFailId ?? -1}/cancel`, { exitCode: 1, output: "cancel refused" }],
@@ -811,16 +816,31 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           expect(comment).toContain("yeet merge-gate (S11): merged 212fe39b4f as feedfacefe.");
           expect(comment).toContain(`reds at merge: Lint [${MERGE_GATE_S11_DEFAULT_ATTRIBUTION}]`);
           expect(comment).toContain('Merged under operator ruling S11 (AGENTS.md "Mergeable")');
-          expect(indexOf(lines, `head_sha=${headSha}&status=queued`)).toBeGreaterThan(mergeAt);
-          expect(indexOf(lines, `head_sha=${headSha}&status=in_progress`)).toBeGreaterThan(mergeAt);
-          // Run 12 is both queued and in progress in the recorded listings; it is cancelled once.
+          expect(indexOf(lines, `head_sha=${headSha}&per_page=100`)).toBeGreaterThan(mergeAt);
+          // A duplicate run in the listing is cancelled once.
           expect(A.filter(lines, Str.includes("/cancel"))).toEqual(
             A.map([11, 12, 13], (id) => `gh api -X POST repos/{owner}/{repo}/actions/runs/${id}/cancel`)
           );
           expect(comment).toContain("review window elapsed");
           const printed = A.join(A.map(yield* TestConsole.logLines, String), "\n");
           expect(printed).toContain("GATE-MET (S11)");
-          expect(printed).toContain("cancelled 3 of 3 queued or in-progress workflow run(s) on 212fe39b4f");
+          expect(printed).toContain("cancelled 3 of 3 active workflow run(s) on 212fe39b4f");
+        })
+      )
+    );
+
+    it.effect("cancels every active status across pages while retaining the head guard", () =>
+      withScriptedGh({ ...defaultScript, additionalActiveRuns: true }, (calls) =>
+        Effect.gen(function* () {
+          expect((yield* relaxedRun(false))._tag).toBe("merge");
+          const lines = yield* Ref.get(calls);
+          const listings = A.filter(lines, Str.includes("/actions/runs?"));
+          expect(listings).toHaveLength(1);
+          expect(listings[0]).toContain("per_page=100");
+          expect(A.every(listings, Str.includes("--paginate --slurp"))).toBe(true);
+          expect(A.filter(lines, Str.includes("/cancel"))).toEqual(
+            A.map([11, 12, 13, 15, 16, 17, 18], (id) => `gh api -X POST repos/{owner}/{repo}/actions/runs/${id}/cancel`)
+          );
         })
       )
     );
@@ -837,18 +857,16 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
       )
     );
 
-    it.effect("a failed run listing only warns, and the other listing's runs are still cancelled", () =>
+    it.effect("a failed paginated run listing only warns after the merge", () =>
       withScriptedGh({ ...defaultScript, checkRuns: lintRed, queuedExit: 1 }, (calls) =>
         Effect.gen(function* () {
           expect((yield* relaxedRun(false))._tag).toBe("merge");
           const lines = yield* Ref.get(calls);
-          expect(A.filter(lines, Str.includes("/cancel"))).toEqual(
-            A.map([12, 13], (id) => `gh api -X POST repos/{owner}/{repo}/actions/runs/${id}/cancel`)
-          );
+          expect(A.filter(lines, Str.includes("/cancel"))).toEqual([]);
           const warned = A.join(A.map(yield* TestConsole.errorLines, String), "\n");
           expect(warned).toContain("[yeet] warning: listing the merged head's workflow runs failed after the merge");
           const printed = A.join(A.map(yield* TestConsole.logLines, String), "\n");
-          expect(printed).toContain("cancelled 2 of 2 queued or in-progress workflow run(s)");
+          expect(printed).toContain("cancelled 0 of 0 active workflow run(s)");
         })
       )
     );
@@ -863,7 +881,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           const warned = A.join(A.map(yield* TestConsole.errorLines, String), "\n");
           expect(warned).toContain("[yeet] warning: cancelling a leftover workflow run failed after the merge");
           const printed = A.join(A.map(yield* TestConsole.logLines, String), "\n");
-          expect(printed).toContain("cancelled 2 of 3 queued or in-progress workflow run(s)");
+          expect(printed).toContain("cancelled 2 of 3 active workflow run(s)");
         })
       )
     );

@@ -314,6 +314,8 @@ export class YeetReadyGateRefused extends S.TaggedError<YeetReadyGateRefused>($I
   override readonly [Runtime.errorExitCode] = 1;
 }
 
+const inheritedRedsEquivalence = S.toEquivalence(S.Array(YeetReadyInheritedRed));
+
 const countOf = (value: number | undefined): number => value ?? 0;
 
 const failingRequiredChecks = (remote: YeetStatusRemote) =>
@@ -527,7 +529,8 @@ interface YeetReadyGateDependencies {
  * `markPullRequestReadyForReview`, spent through the budget guard) fails with
  * `YeetCommandError`. With S11 `inherited` attributions, a flip first records
  * the applied ones in the PR body (REST), and a failed record refuses the flip
- * with `YeetCommandError`.
+ * with `YeetCommandError`. A second confirmation after the body write requires
+ * the same head, a passing gate, and the same applied attributions before flipping.
  *
  * **Example** (Build the gate effect)
  *
@@ -601,6 +604,22 @@ export const runYeetReadyGate = Effect.fn("Yeet.runYeetReadyGate")(function* (
       const applied = confirmation.inherited;
       if (A.isReadonlyArrayNonEmpty(applied)) {
         yield* (dependencies.recordInherited ?? recordInheritedThroughRest)(prNumber, applied);
+        // The REST body write takes time; re-gate after it rather than flipping
+        // from the snapshot taken before the write.
+        const afterRecord = decideYeetReadyGate(
+          yield* (dependencies.read ?? readPullRequestForReady)(context),
+          inherited
+        );
+        if (
+          afterRecord._tag !== "flip" ||
+          !O.contains(afterRecord.headSha, sameHead) ||
+          !inheritedRedsEquivalence(afterRecord.inherited, applied)
+        ) {
+          return yield* YeetCommandError.make({
+            message: `yeet ready refused: the pull request changed while recording inherited reds; re-run \`${YEET_READY_COMMAND}\` so the current state is gated and recorded.`,
+            exitCode: 1,
+          });
+        }
       }
       // markPullRequestReadyForReview is GraphQL-only; the default flip spends it
       // through the GraphQL budget guard, waiting for the hourly reset when the
