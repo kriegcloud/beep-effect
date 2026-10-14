@@ -89,9 +89,14 @@ P4 in progress. Shipped on main so far:
   [`research/p5-warehouse-update-train-design.md`](./research/p5-warehouse-update-train-design.md).
 
 C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
-command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling) is on
-main. The domain evaluators are the next C PR. This PR is B-4; B-5 (`skills relock`,
-the Renovate manager, and the reconstruction workflow) is next for Workstream B.
+command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling),
+C Stage-2 PR 2b (the domain evaluators), and B-3b (the skills lock write and flip) are
+on main.
+
+This PR is B-4: `beep skills materialize [--check]` rebuilds vendored skills from their
+pristine trees and patch series through one clearing-house writer, and
+`skills update --check` reports hand-edited vendored output. B-5 (`skills relock`, the
+Renovate manager, and the reconstruction workflow) is next for Workstream B.
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 
