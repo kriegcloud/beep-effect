@@ -409,3 +409,17 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
   anchor: current and baseline counts remain two, with one introduced and one
   resolved fingerprint. Route a reviewed canonical anchor refresh to the owner;
   preserve the finding's open status and the corrected test behavior.
+
+## 2026-10-14: shared coverage exposes existing Goals adoption gaps
+
+- Work: wait for the consolidated main repair before another integration wave.
+- Evidence: #1640's hosted coverage job accepts the two new file identities,
+  then rejects existing `Goals/Adopt.ts` floors: branches 78.57 versus 82.5,
+  lines 93.33 versus 95.38, and statements 93.91 versus 95.74. The tests
+  complete successfully; the numerical comparison is the failing boundary.
+- Prevention: run the complete package measurement and comparator before
+  declaring the shared coverage repair final. New identity admission alone
+  cannot prove preservation of old floors across recently landed source changes.
+- Action: route the exact completed-job diagnostics to the shared owner for
+  focused test coverage. Preserve all baseline floors and avoid duplicate repairs
+  in dependent lanes.
