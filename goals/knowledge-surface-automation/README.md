@@ -48,16 +48,13 @@ P4 in progress. Shipped on main so far:
   adoption). This packet adopted itself with its own executor (self-hosting test case
   #1).
 - **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds.
-- **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`
+- **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
+  FP-eyeball report
   ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
 - **Designs:** B, E, and C Stage 2
   ([`research/p4-skills-warehouse-design.md`](./research/p4-skills-warehouse-design.md),
   [`research/p4-goals-materialize-design.md`](./research/p4-goals-materialize-design.md),
   [`research/p4-knowledge-doctor-design.md`](./research/p4-knowledge-doctor-design.md)).
-
-- **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
-  FP-eyeball report
-  ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
 - **D (PR 3):** `beep goals doctor` emits `capability-duplicate-declaration`,
   `capability-reference-provides` and `capability-packet-id-mismatch` (blocking,
   ratcheted) and `capability-stranded` (advisory), all zero on the live census; the

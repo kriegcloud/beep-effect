@@ -1569,7 +1569,9 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  *
  * A span qualifies only when it starts with the exact command prefix and carries no shell
  * composition — pipes, sequencing, redirection, substitution, or a comment — and no arrow-chain
- * notation (`→` or `->`), which writes a pipeline of several commands rather than one invocation.
+ * notation (a whitespace-delimited `→`, or `->`), which writes a pipeline of several commands
+ * rather than one invocation. An arrow inside a single argument, such as a quoted description,
+ * does not make a chain.
  * Everything else is read by the path bus instead, which is why the two readers share this one
  * predicate.
  *
@@ -1581,6 +1583,7 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  * console.log(isKnowledgeCommandSpan("bun run beep goals doctor")) // true
  * console.log(isKnowledgeCommandSpan("goals/INDEX.md")) // false
  * console.log(isKnowledgeCommandSpan("bun run beep yeet repair → verify → publish --pr")) // false
+ * console.log(isKnowledgeCommandSpan('bun run beep create-package demo --description "Doc→KG"')) // true
  * ```
  *
  * @param span - Inline code span content, with CommonMark padding already stripped.
@@ -1589,9 +1592,11 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  * @since 0.0.0
  */
 export const isKnowledgeCommandSpan = (span: string): boolean =>
-  /^bun run beep(?:$|[ \t])/u.test(span) && !/[|;&<>→]|\$\(|(?:^|[ \t])#/u.test(span);
+  /^bun run beep(?:$|[ \t])/u.test(span) && !/[|;&<>]|[ \t]→[ \t]|\$\(|(?:^|[ \t])#/u.test(span);
 
-const PATH_ASSERTION_LINE_PATTERN = /^([ \t]*)<!-- beep:assert path-exists (\S+) -->[ \t]*$/u;
+// CommonMark starts an HTML block at up to three spaces of indentation; four spaces or a
+// tab make the line an indented code block, which is literal syntax and asserts nothing.
+const PATH_ASSERTION_LINE_PATTERN = /^( {0,3})<!-- beep:assert path-exists (\S+) -->[ \t]*$/u;
 
 /**
  * A `beep:assert path-exists` marker and the 1-based column its comment opens at.
@@ -1624,9 +1629,11 @@ export class KnowledgePathAssertion extends S.Class<KnowledgePathAssertion>($I`K
  *
  * **Details**
  *
- * A line asserts only when the whole line, ignoring surrounding spaces and tabs, is the HTML comment
- * `<!-- beep:assert path-exists <path> -->`. A marker quoted inside an inline code span, written
- * mid-line in prose, or followed by extra tokens is syntax documentation and asserts nothing. Fenced
+ * A line asserts only when the whole line is the HTML comment
+ * `<!-- beep:assert path-exists <path> -->`, indented by at most three spaces and followed only by
+ * spaces or tabs. A marker quoted inside an inline code span, written mid-line in prose, followed
+ * by extra tokens, or indented four spaces or a tab (a CommonMark indented code block) is syntax
+ * documentation and asserts nothing. Fenced
  * lines never reach this reader. Stage-1 refs and semantic delta and the Stage-2 doctor share this
  * one reader so the two stages agree on what an assertion is.
  *

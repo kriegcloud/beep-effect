@@ -64,7 +64,8 @@ Acceptance gate:
 Status: recorded won't-do until a real agent-config drift incident.
 
 - Add an `ai-sync` command group to `@beep/repo-cli`.
-- Implement:
+- Implement (planned names; the root CLI does not register `ai-sync` today, so these
+  are not runnable yet — the live entry point is the root `bun run ai-sync ...` delegate):
   - `beep ai-sync audit [--json]`
   - `beep ai-sync check [--json]`
   - `beep ai-sync drift [--strict] [--json]`

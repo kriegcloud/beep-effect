@@ -266,12 +266,21 @@ describe("knowledge doctor span extraction", () => {
           "<!-- beep:assert path-exists docs/fenced.md -->",
           FENCE,
           "Prose then <!-- beep:assert path-exists docs/mid-line.md --> mid-line.",
-          "<!-- beep:assert path-exists docs/real.md -->"
+          "<!-- beep:assert path-exists docs/real.md -->",
+          "",
+          "    <!-- beep:assert path-exists docs/code-indented.md -->",
+          "\t<!-- beep:assert path-exists docs/tab-indented.md -->",
+          "",
+          "   <!-- beep:assert path-exists docs/three-spaces.md -->"
         )
       );
+      // Four spaces or a tab make a CommonMark indented code block; three spaces still assert.
       assert.deepStrictEqual(
         A.map(spans, (span) => [span.form, span.raw, span.location.line, span.location.column]),
-        [["path-assertion", "docs/real.md", 6, 1]]
+        [
+          ["path-assertion", "docs/real.md", 6, 1],
+          ["path-assertion", "docs/three-spaces.md", 11, 4],
+        ]
       );
       // Counterfactual: the pre-fix unanchored pattern read the quoted marker as an assertion.
       assert.isNotNull(/<!-- beep:assert path-exists ([^\s]+) -->/u.exec(quoted));
@@ -286,12 +295,17 @@ describe("knowledge doctor span extraction", () => {
         doc(
           "`bun run beep yeet repair → verify → publish --pr → monitor`",
           "`bun run beep yeet repair -> verify -> publish --pr -> monitor`",
-          "`bun run beep yeet publish --pr`"
+          "`bun run beep yeet publish --pr`",
+          '`bun run beep create-package demo --description "Doc→KG→eval"`'
         )
       );
+      // An arrow inside one argument is not a chain: that invocation is still probed.
       assert.deepStrictEqual(
         A.map(spans, (span) => [span.form, span.raw]),
-        [["command", "bun run beep yeet publish --pr"]]
+        [
+          ["command", "bun run beep yeet publish --pr"],
+          ["command", 'bun run beep create-package demo --description "Doc→KG→eval"'],
+        ]
       );
     })
   );
