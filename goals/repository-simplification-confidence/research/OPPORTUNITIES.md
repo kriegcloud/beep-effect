@@ -1103,3 +1103,16 @@ on the new head if it appears.
 - Prevention: coordinate the serialized snapshot wave with a bounded base
   window, or qualify owner outputs against their precise source inputs, so
   unrelated publication does not force repeated whole-tree scans.
+
+
+### B regeneration queue outlives source-base movement, 2026-10-14
+
+- Work: requalify the shared generated snapshots after main integration.
+- Evidence: the first replay remained unstarted in `beep-heavy` while main
+  gained #1720, #1721 and #1716. No replay head or command-result file existed.
+- Action: stop only that owned queued unit, confirm it ran no commands,
+  preserve the first measured candidate, merge main and re-submit. No other
+  heavy job or capacity setting is changed.
+- Prevention: give a serialized snapshot wave a source-input-bound admission
+  or bounded main window. A static slot race offers no stable source window
+  for whole-tree owner regeneration while other branches continue landing.

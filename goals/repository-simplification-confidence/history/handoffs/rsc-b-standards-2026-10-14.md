@@ -49,7 +49,7 @@ session has been notified of planned allowlist provenance/snapshot edits.
 No such file has been edited. Independent guidance reconciliation is running
 read-only; its result remains a preview until the generated wave lands.
 
-## Current refresh results
+## First refresh results at 01b3d54700
 
 The admitted serial refresh completed. Install, Sherif, traversal fixtures,
 JSDoc generation, schema-first, five supporting laws, dead-code and full build
@@ -85,3 +85,18 @@ lockfile moved on main, so fresh admitted install/build and all touched
 owner regenerations are queued under `.beep/rsc-resume/integrated/`.
 The earlier raw scans remain attributed to `01b3d54700`. They are not
 successful requalification of this later integrated head.
+
+## Later-wave review preparation
+
+Private source-bound proposals now cover every schema-first row at the first
+reproduction head, every PosInt copy at `aeaa911d51`, and every effect-laws
+registry row at that same integrated head. Each retained proposal has an
+individual owner, reason, evidence and reconsideration condition. Unsupported
+findings remain actionable; pure weak collections remain FP-6 candidates;
+ordinary Map/Set detection is preserved. None is admitted by the refresh.
+
+Primary-body fingerprints also identify stale inline-directive and
+Effect/Vitest proposal inputs. Those checks establish only body freshness,
+not a new semantic review. The newer registry/source delta still needs
+reconciliation before the detector wave. No effect-laws or snapshot edit
+is made before S5 notification confirmation.
