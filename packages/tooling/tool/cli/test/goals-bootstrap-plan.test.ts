@@ -367,6 +367,7 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
             const plan = yield* compileAdoptionPlan(snapshot, O.none());
 
             const creates = A.filter(plan.entries, (entry) => entry.action === "create");
+            expect(plan.validations).not.toContain("reflection-frontmatter-valid");
             const manifestCreate = A.filter(creates, (entry) => entry.path === "goals/hand-rolled/ops/manifest.json");
             expect(A.length(manifestCreate)).toBe(1);
             expect(manifestCreate[0]?.ownership).toBe("generated");
