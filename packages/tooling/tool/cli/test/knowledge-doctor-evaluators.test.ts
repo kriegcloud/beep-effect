@@ -14,6 +14,7 @@ import {
   overlayWithout,
   readKnowledgeGoalPacketRecords,
   scanKnowledgeDoctorTree,
+  scanKnowledgeFileExports,
 } from "@beep/repo-cli/commands/Knowledge";
 import { findRepoRoot } from "@beep/repo-utils";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
@@ -202,17 +203,33 @@ describe("knowledge doctor domain evaluators", () => {
           `  "initiative": { "id": "keyed", "status": "active" },`,
           `  "lifecycle": "active",`,
           `  "completionGate": { "operator": "yeet", "requiresPullRequest": true, "requiresMergeable": true, "statement": "Ship.", "grandfathered": false },`,
-          `  "phases": { "P1": { "status": "complete" }, "P2": { "status": "pending" } }`,
+          `  "phases": { "p1": { "status": "complete" }, "p2": { "status": "pending" } }`,
           "}"
         );
         const tree = makeKnowledgeDoctorMemoryTree({
           files: {
             "goals/keyed/ops/manifest.json": keyed,
-            "goals/keyed/README.md": doc("# Keyed", "", "## Current Phase", "", "P2 Implement."),
+            // A lowercase record key matches an uppercase claim, under a titled lowercase heading.
+            "goals/keyed/README.md": doc("# Keyed", "", "## Current phase — Build out", "", "P2 Implement."),
+            "goals/lower/ops/manifest.json": manifest("lower", "active", ["P0"]),
+            // The lowercase heading is read, so a wrong phase still drifts.
+            "goals/lower/README.md": doc("# Lower", "", "## Current phase", "", "P9 Ship."),
           },
         });
         const report = yield* scanKnowledgeDoctorTree(tree);
-        assert.deepStrictEqual(subjects(report, "packet-status-claim-drift"), []);
+        assert.deepStrictEqual(subjects(report, "packet-status-claim-drift"), ["packet-phase:lower:P9"]);
+      })
+    );
+
+    it.effect(
+      "ignores export declarations inside block comments",
+      Effect.fnUntraced(function* () {
+        const exports = scanKnowledgeFileExports(
+          "packages/a/src/index.ts",
+          ["/*", "export const Hidden = 1", "*/", "export const Real = 2"].join("\n"),
+          HashSet.empty<string>()
+        );
+        assert.deepStrictEqual(exports.names, ["Real"]);
       })
     );
 

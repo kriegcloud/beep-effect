@@ -160,7 +160,9 @@ const CLAIM_GAP_PATTERN = /^[\s(:=,]*(?:(?:is|now|currently|lifecycle|status|sta
 const SYMBOL_SPAN_PATTERN = /^@beep\/[a-z0-9][a-z0-9-]*(?:\/[A-Za-z0-9._-]+)*(?:#[\w:.-]+)?$/u;
 const SYMBOL_EXPORT_CLAIM_PATTERN = /`([A-Za-z_$][\w$]*)` from `(@beep\/[a-z0-9][a-z0-9-]*(?:\/[A-Za-z0-9._-]+)*)`/gu;
 const PACKET_README_PATTERN = /^goals\/([a-z0-9][a-z0-9-]*)\/README\.md$/u;
-const CURRENT_PHASE_HEADING_PATTERN = /^##[ \t]+Current Phase[ \t]*$/u;
+// Live READMEs write `## Current Phase`, `## Current phase`, and titled variants such as
+// `## Current phase — MCP toolkit expansion`; the phase id itself is on the body line.
+const CURRENT_PHASE_HEADING_PATTERN = /^##[ \t]+current[ \t]+phase\b.*$/iu;
 const PHASE_CLAIM_PATTERN = /^(?:\*\*|`)?(P\d+)\b/u;
 
 type DomainLineSpan = readonly [KnowledgeSpanForm, string, number];
@@ -371,14 +373,21 @@ const evaluatePhaseClaim = (
   claim: PacketClaim,
   facts: KnowledgePacketFacts
 ): KnowledgeEvaluationOutcome =>
-  A.contains(facts.phaseIds, claim.value)
-    ? resolvedBy(ManifestFieldWitness.make({ slug: claim.slug, field: `phases.${claim.value}` }))
-    : packetFailure(
-        span,
-        claim,
-        `goals/${claim.slug} declares no phase ${claim.value} (phases: ${A.join(facts.phaseIds, ", ") || "none"}).`,
-        `packet-phase:${claim.slug}:${claim.value}`
-      );
+  // Phase ids compare case-insensitively (record keys such as `p1` vs a `P1` claim); the
+  // witness names the manifest's own spelling so removing it flips the claim.
+  O.match(
+    A.findFirst(facts.phaseIds, (id) => Str.toUpperCase(id) === Str.toUpperCase(claim.value)),
+    {
+      onSome: (id) => resolvedBy(ManifestFieldWitness.make({ slug: claim.slug, field: `phases.${id}` })),
+      onNone: () =>
+        packetFailure(
+          span,
+          claim,
+          `goals/${claim.slug} declares no phase ${claim.value} (phases: ${A.join(facts.phaseIds, ", ") || "none"}).`,
+          `packet-phase:${claim.slug}:${claim.value}`
+        ),
+    }
+  );
 
 const evaluateClaimAgainst = (
   span: KnowledgeSpan,

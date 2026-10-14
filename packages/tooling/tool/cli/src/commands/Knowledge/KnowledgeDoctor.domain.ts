@@ -493,6 +493,12 @@ const resolveStar = (paths: HashSet.HashSet<string>, file: string, specifier: st
       )
     : O.none();
 
+// A line-leading `export` inside a `/* … */` block is commentary, not a declaration. Blanking
+// the comment (newlines kept) leaves every real line where it was.
+const BLOCK_COMMENT_PATTERN = /\/\*[\s\S]*?\*\//gu;
+const blankCommentText = Str.replace(/[^\n]/gu, " ");
+const blankBlockComments = (text: string): string => text.replace(BLOCK_COMMENT_PATTERN, blankCommentText);
+
 /**
  * Scans one source file's export declarations without the compiler.
  *
@@ -528,7 +534,8 @@ const resolveStar = (paths: HashSet.HashSet<string>, file: string, specifier: st
 export const scanKnowledgeFileExports: {
   (text: string, paths: HashSet.HashSet<string>): (file: string) => KnowledgeFileExports;
   (file: string, text: string, paths: HashSet.HashSet<string>): KnowledgeFileExports;
-} = dual(3, (file: string, text: string, paths: HashSet.HashSet<string>): KnowledgeFileExports => {
+} = dual(3, (file: string, source: string, paths: HashSet.HashSet<string>): KnowledgeFileExports => {
+  const text = blankBlockComments(source);
   const listed = A.flatMap(captured(EXPORT_LIST_PATTERN, text), (list) =>
     A.getSomes(A.map(A.filter(Str.split(",")(list), Str.isNonEmpty), listItemName))
   );
