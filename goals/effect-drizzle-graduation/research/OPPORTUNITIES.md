@@ -64,6 +64,8 @@ done, the evidence, what would have prevented it.
   supersedes the earlier target with the orchestrator's 7.1 ruling. Pin an
   exact supported 7.1 beta/stable when listed; next remains a moving target.
   Evidence: `goals/ts7-tstyche8-type-tests/history/type-test-next.log`.
+  The hosted matrix keeps the two exact targets; `next` runs on demand with
+  `beep:type-test --target next` so `beep:check` stays reproducible.
 
 ## 2026-08-11 — `bunx --bun vitest` shadows `node` for child processes
 

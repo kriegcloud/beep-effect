@@ -1,7 +1,8 @@
 # effect-drizzle type tests on tstyche 8
 
 Lifecycle: completed-retained. Lane implementation now runs on exact 8.0.0-beta.0 with
-`5.9.3 || 6.0.3 || next`. Next resolved to 7.1.0-dev.20261014.1 on 2026-10-14.
+`5.9.3 || 6.0.3` in the hosted matrix; TypeScript 7 runs on demand with `--target next`,
+which resolved to 7.1.0-dev.20261014.1 on 2026-10-14.
 All three targets passed unchanged assertions: 36 tests, 234 assertions.
 Full package verification passed (audit 15.0s, docgen 4.0s). Publication is
 orchestrator-owned.

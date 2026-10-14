@@ -1,7 +1,8 @@
 # GOAL: effect-drizzle type tests on tstyche 8
 
 Outcome: run @beep/effect-drizzle's existing assertions on exact tstyche
-8.0.0-beta.0 with `5.9.3 || 6.0.3 || next`, independent of the root
+8.0.0-beta.0 with a hosted `5.9.3 || 6.0.3` matrix plus an on-demand
+`--target next` TypeScript 7 run, independent of the root
 TypeScript 6 compiler API for these explicit targets.
 
 Read SPEC.md, PLAN.md, README.md, ops/manifest.json and research/SOURCES.md.

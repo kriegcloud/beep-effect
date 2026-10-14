@@ -96,7 +96,7 @@ checked 2026-09-24:
 | Tool | Needs `typescript@6`? | Why |
 | --- | --- | --- |
 | typescript-eslint 8.70.x | yes | peer `>=4.8.4 <6.1.0` via typescript-estree and ts-api-utils; TS7 support tracked in typescript-eslint/typescript-eslint#10940 (open) |
-| tstyche 8.0.0-beta.0 | no, for effect-drizzle's explicit targets | downloads `5.9.3`, `6.0.3` and `next` to its own store; TS7 backend uses the 7.1 sync/ast API. No root `typescript@6` API is loaded for this matrix. |
+| tstyche 8.0.0-beta.0 | no, for effect-drizzle's explicit targets | downloads `5.9.3` and `6.0.3` (hosted matrix) plus `next` (on demand) to its own store; TS7 backend uses the 7.1 sync/ast API. No root `typescript@6` API is loaded for this matrix. |
 | commitlint (`cosmiconfig-typescript-loader`) | yes | peer `>=5` on the JS API |
 | ts-morph 28 | no | `@ts-morph/common` vendors its own TypeScript 6.0.2 |
 | knip 6 | no | parses with oxc-parser, no `typescript` dependency |
@@ -109,15 +109,16 @@ re-point consumers that resolve the `typescript` name at the native package.
 The separate exact tstyche beta hold ends when stable 8.0 passes the same
 effect-drizzle assertions.
 
-Effect-drizzle's matrix is `5.9.3 || 6.0.3 || next`. On 2026-10-14, `next`
-resolved to `7.1.0-dev.20261014.1`; all 234 assertions passed across the three
-targets without assertion edits. The beta refuses the exact tsc-rs-matching
-`7.1.0-dev.20261008.1` target because its manifest excludes explicit prerelease
-versions; `next` is therefore a moving target, not exact compiler parity with
-the gates. Pin an exact 7.1 version once a supported beta/stable is listed and
-re-run the matrix. The beta intentionally excludes 7.0, including 7.0.2.
-Only the `*` target can select the installed/default TypeScript specifier;
-explicit targets use stock store compilers, without the repo's Effect patch.
+Effect-drizzle's hosted matrix is `5.9.3 || 6.0.3`, both exact, so `beep:check`
+stays reproducible. TypeScript 7 coverage is an on-demand local run:
+`bun run --cwd packages/ecosystem/effect-drizzle beep:type-test --target next`.
+On 2026-10-14 `next` resolved to `7.1.0-dev.20261014.1` and all 78 assertions
+passed. It stays out of the hosted matrix because `next` moves daily and the beta
+refuses exact prerelease targets, including the tsc-rs pin
+`7.1.0-dev.20261008.1`. When tstyche lists a 7.1 beta or stable, add that exact
+version to the hosted matrix. The beta intentionally excludes 7.0, including
+7.0.2. Only the `*` target selects the installed TypeScript; explicit targets
+use stock store compilers, without the repo's Effect patch.
 See `goals/ts7-tstyche8-type-tests` for the errors and migration evidence.
 
 Microsoft's `@typescript/typescript6` bridge (alias `typescript` to 7 and give

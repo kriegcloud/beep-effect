@@ -3,7 +3,7 @@
 ## Objective
 
 Move @beep/effect-drizzle to exact tstyche 8.0.0-beta.0 and run its existing
-assertions on `5.9.3 || 6.0.3 || next` without loading the root 6.x API
+assertions on `5.9.3 || 6.0.3` (hosted) and `next` (on demand) without loading the root 6.x API
 for explicit targets. Next resolved to 7.1.0-dev.20261014.1 on 2026-10-14.
 
 ## Non-Goals
@@ -82,6 +82,7 @@ spend beyond existing authorization still stop this lane.
 | 2026-10-14 | Select authorized second preference `5.9.3 || 6.0.3 || next`; record moving target and exact-pin follow-up. | Exact 7.1.0-dev.20261008.1 is rejected before assertions; next resolves to 7.1.0-dev.20261014.1 in beta's manifest. | Pin an accepted exact 7.1 beta/stable after running the same assertions; if next cannot run, use the authorized legacy-only matrix and record its error. |
 
 | 2026-10-14 | Redact home paths and trim trailing whitespace from public evidence logs; use the specified report for closeout. | Captured CLI code frames contain trailing spaces; the lane cannot write the global session ledger, and publication belongs to the orchestrator. | Keep raw logs in ignored tmp/ for comparison; orchestrator writes the global ledger from its authorized session. |
+| 2026-10-14 | Hosted matrix pinned to `5.9.3 || 6.0.3`; `next` moves to an on-demand local run (`beep:type-test --target next`). Resolved version recorded: 7.1.0-dev.20261014.1 on 2026-10-14, 78/78 assertions. | Repo-orchestrator review of #1701: a floating `next` in hosted `beep:check` changes results day to day with no diff and could turn main red from an upstream dev build. | Add `next` (or an exact 7.1 version once tstyche lists one) back to `target` in tstyche.config.json. |
 
 ## Exception Ledger
 
