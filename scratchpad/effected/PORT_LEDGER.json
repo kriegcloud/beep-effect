@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "jsonc",
+    "module": "yaml",
     "stage": 5,
     "commit": null,
-    "at": "2026-10-14T00:25:15.049Z"
+    "at": "2026-10-14T00:44:06.680Z"
   },
   "rows": [
     {
@@ -1480,8 +1480,8 @@
       "module": "yaml",
       "wave": 1,
       "position": 2,
-      "stage": 3,
-      "status": "in-progress",
+      "stage": 5,
+      "status": "done",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
         "src": "packages/yaml/src",
@@ -3315,6 +3315,14 @@
         },
         {
           "stage": 2,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 3,
+          "sha": "7a6b586acb973cb2dba3c312d08074eaa26fb040"
+        },
+        {
+          "stage": 4,
           "sha": null
         }
       ],
@@ -3322,9 +3330,11 @@
       "notes": [
         "2026-10-09T11:20:24.365Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
         "2026-10-09T16:17:34.068Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
-        "2026-10-10T00:27:14.882Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (5 ledgered exceptions), property floor"
+        "2026-10-10T00:27:14.882Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (5 ledgered exceptions), property floor",
+        "2026-10-14T00:44:03.933Z S4: S4 closed at review round 3 (operator cap: three rounds)",
+        "2026-10-14T00:44:06.680Z S5: done: final round committed and gated (audit, docgen, per-file coverage)"
       ],
-      "closedAt": null
+      "closedAt": "2026-10-14T00:44:06.680Z"
     },
     {
       "id": "w1-toml",
