@@ -255,6 +255,48 @@ describe("knowledge doctor span extraction", () => {
   );
 
   it.effect(
+    "reads an assertion only from a whole comment line: quoted, fenced, and mid-line markers are syntax",
+    Effect.fnUntraced(function* () {
+      const quoted = "Write `<!-- beep:assert path-exists docs/quoted.md -->` to assert a path.";
+      const spans = spansOf(
+        "docs/guide.md",
+        doc(
+          quoted,
+          FENCE,
+          "<!-- beep:assert path-exists docs/fenced.md -->",
+          FENCE,
+          "Prose then <!-- beep:assert path-exists docs/mid-line.md --> mid-line.",
+          "<!-- beep:assert path-exists docs/real.md -->"
+        )
+      );
+      assert.deepStrictEqual(
+        A.map(spans, (span) => [span.form, span.raw, span.location.line, span.location.column]),
+        [["path-assertion", "docs/real.md", 6, 1]]
+      );
+      // Counterfactual: the pre-fix unanchored pattern read the quoted marker as an assertion.
+      assert.isNotNull(/<!-- beep:assert path-exists ([^\s]+) -->/u.exec(quoted));
+    })
+  );
+
+  it.effect(
+    "never reads an arrow chain of commands as one command span",
+    Effect.fnUntraced(function* () {
+      const spans = spansOf(
+        "docs/guide.md",
+        doc(
+          "`bun run beep yeet repair → verify → publish --pr → monitor`",
+          "`bun run beep yeet repair -> verify -> publish --pr -> monitor`",
+          "`bun run beep yeet publish --pr`"
+        )
+      );
+      assert.deepStrictEqual(
+        A.map(spans, (span) => [span.form, span.raw]),
+        [["command", "bun run beep yeet publish --pr"]]
+      );
+    })
+  );
+
+  it.effect(
     "never reads a span that exactly names a Git ref as a path",
     Effect.fnUntraced(function* () {
       const extraction = extractKnowledgeDocumentSpans(

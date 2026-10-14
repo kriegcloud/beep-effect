@@ -155,6 +155,11 @@ command, assertion) proving only semantic additions surface.
 Authoring note (ratified doc-fix, not a normalizer change): the scanner probes every inline
 `bun run beep` span as a real command, so placeholder tails are written `<command>`, never
 `...` — a bare ellipsis resolves to no subcommand and reports `unknown-beep-command`.
+A command that does not exist yet is written in prose as `beep <cmd>` (the #1154 Stage-1
+spelling), never as an inline span that starts with `bun run beep`: only such spans are
+probed, so the planned spelling is never read as a command. The doctor has no `planned`
+span class (orchestrator ruling on the C Stage-2 report, 2026-10-14, recorded in
+`./research/p1-fp-eyeball-verdicts.md`).
 
 **Stage 2 — full `beep knowledge doctor`, hardened against gaming from day one:**
 

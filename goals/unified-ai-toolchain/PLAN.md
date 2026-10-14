@@ -65,10 +65,10 @@ Status: recorded won't-do until a real agent-config drift incident.
 
 - Add an `ai-sync` command group to `@beep/repo-cli`.
 - Implement:
-  - `bun run beep ai-sync audit [--json]`
-  - `bun run beep ai-sync check [--json]`
-  - `bun run beep ai-sync drift [--strict] [--json]`
-  - `bun run beep ai-sync refresh-pr [--json]`
+  - `beep ai-sync audit [--json]`
+  - `beep ai-sync check [--json]`
+  - `beep ai-sync drift [--strict] [--json]`
+  - `beep ai-sync refresh-pr [--json]`
 - Keep `@beep/ai-sync` as the reusable library and source of schema/drift
   primitives.
 - Preserve the root `bun run ai-sync ...` delegate as a low-level compatibility
@@ -96,7 +96,7 @@ Status: recorded won't-do until a real agent-config drift incident.
 
 Acceptance gate:
 
-- `bun run beep ai-sync check --json` reports all five files.
+- `beep ai-sync check --json` reports all five files.
 - `bun run --cwd packages/tooling/library/ai-sync check` validates all
   mandatory files or delegates to an equivalent package-local helper.
 - `bun run check` includes the broadened dogfood gate.

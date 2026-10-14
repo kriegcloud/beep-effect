@@ -306,7 +306,12 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   adversarial fixtures, and `knowledge doctor --report --json`. Also the committed
   `research/p4-report-knowledge-doctor.md`: full-corpus run with annotated candidate FPs
   per class, span-class counts, and the unclassified worklist. Nothing seals.
-- **PR 2:** the domain evaluators (goals packet core on a tree reader,
+- **PR 2 (landed scope):** the FP fixes the PR 1 report's verdict accepted
+  (`research/p1-fp-eyeball-verdicts.md`, Workstream C knowledge doctor): whole-line
+  assertion markers (K13) and arrow-chain command-span eligibility, both shared by
+  Stage 1 and Stage 2, plus the accepted doc fixes and the planned-command spelling note.
+  Report-only.
+- **PR 2b:** the domain evaluators (goals packet core on a tree reader,
   `evaluateSkillsLocal` with licenses, `@beep/*` symbols), with parity tests. Report-only.
 - **PR 3:** causal grouping plus root attribution in the report.
 - **PR 4:** baseline/identity/lease schemas, `check`, the seal guard, `verify-mint`,
@@ -318,7 +323,7 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   row to `goals/knowledge-doctor.promotions.jsonc` (never touching the sealed baseline).
   The next CI mint reads the promotion at its SHA and admits that kind's inherited keys.
 
-## Decisions (K1..K12)
+## Decisions (K1..K13)
 
 - **K1 Witness-mandatory evaluators.** Reason: makes the counterfactual test total;
   vacuous passes cannot be represented. Reverse: if some evaluator legitimately cannot
@@ -371,3 +376,11 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   Reason: without these rules any branch could append a promotion and reopen the
   laundering route the seal closed (review round 3 on #1626). Reverse: relax the
   single-file rule only if promotions start being minted by the CI App.
+- **K13 An assertion is a whole comment line.** A `beep:assert path-exists` marker asserts
+  only when the whole prose line, ignoring surrounding spaces and tabs, is the HTML
+  comment. One shared reader serves Stage 1 and Stage 2. Reason: the grammar's "an HTML
+  comment outside fences" already excludes inline code (whose text is literal), but a
+  mid-line or list-prefixed marker would still be ambiguous, and the live corpus had four
+  quoted markers and no real one (C PR 1 report, verdict 2026-10-14). Reverse: widen the
+  reader to quote and list containers if a real assertion ever needs one; no live marker
+  depends on the narrow form.

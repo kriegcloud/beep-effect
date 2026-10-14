@@ -53,15 +53,17 @@ P4 in progress. Shipped on main so far:
   [`research/p4-goals-materialize-design.md`](./research/p4-goals-materialize-design.md),
   [`research/p4-knowledge-doctor-design.md`](./research/p4-knowledge-doctor-design.md)).
 
-This PR adds C Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
-FP-eyeball report
-([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
+- **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
+  FP-eyeball report
+  ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
 
-Waiting on verdicts:
+This PR adds C Stage-2 PR 2, the fixes from the C report's verdict: an assertion
+marker asserts only as a whole comment line (both stages), an arrow chain of commands
+is never one command span (both stages), the accepted doc fixes, and the planned-command
+spelling (`beep <cmd>` in prose) in the `SPEC.md` authoring note. The domain evaluators
+are the next C PR.
 
-- the D and B reports gate D's doctor findings and B's lock write;
-- the C report gates PR 2 (domain evaluators and the assertion/planned-command
-  classification fixes).
+Waiting on verdicts: the D and B reports gate D's doctor findings and B's lock write.
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 

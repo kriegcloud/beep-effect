@@ -150,3 +150,47 @@ subagent, with the orchestrator ruling on ask 2.
 3. **adhd: queued.** The report alone cannot settle it (NEEDS-EVIDENCE), but the
    reviewer verified the installed file matches `UditAkhourii/adhd@55ed38514c` (a single
    MIT file). Its resolution seed is a bounded follow-up task (about one hour).
+
+## Workstream C knowledge doctor — `p4-report-knowledge-doctor.md` (recorded 2026-10-14)
+
+**Verdict: ask 1 accepted; ask 2 ruled (no `planned` class); ask 3 partial.**
+Independent reviewer: an Opus 5.5 subagent run by the orchestrator session, read-only on
+`main`. The orchestrator session ruled on ask 2. The full review is kept outside the repo
+in the orchestrator's gate records. The fixes land in C Stage-2 PR 2.
+
+1. **Assertion inside inline code: ACCEPTED as a true FP class.** The live corpus had four
+   markers, all syntax documentation (one blocking `failed-assertion` in this packet's
+   `SPEC.md`, three advisory) and no real assertion. Both readers ran the same unanchored
+   pattern over raw prose, so the Stage-1 extractor (refs and semantic delta) is fixed in
+   the same PR. A marker now asserts only when it is a whole HTML-comment line outside
+   fences: quoted in an inline code span, written mid-line, or behind a quote or list
+   prefix, it asserts nothing. This is stricter than the grammar's "an HTML comment
+   outside fences"; the reason and reversal are design decision K13.
+2. **Planned commands: RULED, no `planned` span class.** The premise failed: 10 of the 16
+   spans name commands that existed and were removed (`laws dual-arity` 5, `reuse
+   clones` 2, `quality repo-exports-catalog` 2, `graphiti proxy` 1). They are rot and
+   belong to the baseline burn-down with candidates 6–7. The 6 `ai-sync` spans (deferred
+   V2 plans) and line 45 of `goals/lane-bootstrap/SPEC.md` (`worktree add`, the one genuinely
+   planned command) are re-spelled as prose `beep <cmd>`, the #1154 Stage-1 spelling,
+   which is not a command span. The packet `SPEC.md` authoring note now records that
+   spelling. Reversal: a K-decision adding a `planned` class; nothing depends on its
+   absence, so reversing costs one doc change.
+3. **Candidates 3–7: PARTIAL.**
+   - 3 (`…` tails, 3 spans): accepted; rewritten to `<command>`.
+   - 4 (`worktree add`): rejected. It is not a typo for `worktree new`; it is the command
+     `goals/lane-bootstrap` exists to build (see ask 2).
+   - 5 (13 unknown options): split. Accepted 8: `yeet publish --start-pr-early` (7,
+     removed by push-first #1427; the flag is dropped from the spans) and
+     `qa extract --round` (1, in the live browser-qa-loop skill; now `--session` with the
+     round directory). Rejected 5: every `yeet repair --pr` span is the arrow-chain
+     pipeline `repair → verify → publish --pr → monitor`, and `--pr` belongs to
+     `publish`. That is a fifth FP class (arrow-chain notation). The shared command-span
+     eligibility now treats `→` like a shell operator (`->` was already excluded through
+     `>`), so neither stage reads such a chain as one command.
+   - 6 (530 broken paths) and 7 (unclassified spans): accepted as the baseline and K9
+     classification burn-down; not rewritten here.
+
+Reviewer riders carried forward: the `verified` span class counts spans the evaluators
+checked, failing ones included (rename or document it before the report becomes a gate
+input), and whether `goals/*/ops/reports/` is archival must be decided before PR 4 seals
+a baseline.
