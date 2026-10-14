@@ -811,6 +811,7 @@
     {"name":"CanaryC2.run","owner":"@beep/semantica","family":"lab","conforms":true},
     {"name":"CanaryC2.runCrashProbe","owner":"@beep/semantica","family":"lab","conforms":true},
     {"name":"CanaryC2.runProjectionProbe","owner":"@beep/semantica","family":"lab","conforms":true},
+    {"name":"CanaryC2.sealReport","owner":"@beep/semantica","family":"lab","conforms":true},
     {"name":"CanaryC2.statement","owner":"@beep/semantica","family":"lab","conforms":true},
     {"name":"CandorPolicy.coverageReason","owner":"@beep/law-practice-use-cases","family":"slice","conforms":true},
     {"name":"CandorPolicy.evaluate","owner":"@beep/law-practice-use-cases","family":"slice","conforms":true},
