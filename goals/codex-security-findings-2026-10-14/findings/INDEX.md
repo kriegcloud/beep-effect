@@ -29,30 +29,30 @@ auth values, email addresses, and raw local paths.
 | [CSF-010](./CSF-010.md) | Low | repair implemented | Mail attachment names inject terminal controls during intake | drawing intake terminal summary |
 | [CSF-011](./CSF-011.md) | Low | repair implemented | Source checkout preloads can forge signed pilot evidence | signed cache pilot supervisor |
 | [CSF-012](./CSF-012.md) | Low | captured | Hook resolver executes code from an untrusted current checkout | _pending P2_ |
-| [CSF-013](./CSF-013.md) | Low | captured | Aliased packages bypass the exact\-version Bun audit ignore guard | _pending P2_ |
+| [CSF-013](./CSF-013.md) | Low | repair implemented | Aliased packages bypass the exact\-version Bun audit ignore guard | Bun audit OSV override selection |
 | [CSF-014](./CSF-014.md) | Low | repair implemented | Backdated commits bypass the new merge review window | Yeet REST merge review window |
-| [CSF-015](./CSF-015.md) | Low | captured | Address substring parsing bypasses attachment sender restrictions | _pending P2_ |
+| [CSF-015](./CSF-015.md) | Low | repair implemented | Address substring parsing bypasses attachment sender restrictions | mail sender address normalization |
 | [CSF-016](./CSF-016.md) | Low | captured | Publisher PDF discovery bypasses internal\-source restrictions | _pending P2_ |
-| [CSF-017](./CSF-017.md) | Low | captured | Correspondent parser allows CPU\-exhausting regex backtracking | _pending P2_ |
-| [CSF-018](./CSF-018.md) | Informational | captured | Backslash filenames escape scorer staging and enable code execution | _pending P2_ |
-| [CSF-019](./CSF-019.md) | Informational | captured | Repository\-controlled ignore globs can hang Graft via ReDoS | _pending P2_ |
-| [CSF-020](./CSF-020.md) | Informational | captured | Adoption writes outside the packet through directory symlinks | _pending P2_ |
+| [CSF-017](./CSF-017.md) | Low | repair implemented | Correspondent parser allows CPU\-exhausting regex backtracking | practice KG correspondent parser |
+| [CSF-018](./CSF-018.md) | Informational | repair implemented | Backslash filenames escape scorer staging and enable code execution | agent effectiveness law-lane staging |
+| [CSF-019](./CSF-019.md) | Informational | repair implemented | Repository\-controlled ignore globs can hang Graft via ReDoS | Graft deep-ignore patch |
+| [CSF-020](./CSF-020.md) | Informational | repair implemented | Adoption writes outside the packet through directory symlinks | goal adoption materializer |
 | [CSF-021](./CSF-021.md) | Informational | captured | Predictable codemod staging paths allow symlink file overwrite | _pending P2_ |
 | [CSF-022](./CSF-022.md) | Informational | captured | Quadratic overlap enumeration enables drawing\-spec denial of service | _pending P2_ |
 | [CSF-023](./CSF-023.md) | Informational | captured | Intake inspector can leak document bytes to the hosted relay | _pending P2_ |
 | [CSF-024](./CSF-024.md) | Informational | captured | New line\-value locator permits repository\-triggered ReDoS | _pending P2_ |
-| [CSF-025](./CSF-025.md) | Informational | captured | Artifact upload allows command execution through zip filenames | _pending P2_ |
-| [CSF-026](./CSF-026.md) | Informational | captured | Event deletion permits traversal to other Graph resources | _pending P2_ |
-| [CSF-027](./CSF-027.md) | Informational | captured | Bootstrap executes unverified op during status logging | _pending P2_ |
-| [CSF-028](./CSF-028.md) | Informational | captured | Staging cleanup can delete data through a symlinked goals root | _pending P2_ |
-| [CSF-029](./CSF-029.md) | Informational | captured | Model report symlinks can overwrite operator files | _pending P2_ |
-| [CSF-030](./CSF-030.md) | Informational | captured | Quadratic regex permits denial of service in OA recognition | _pending P2_ |
+| [CSF-025](./CSF-025.md) | Informational | already fixed | Artifact upload allows command execution through zip filenames | scratchpad artifact archive command |
+| [CSF-026](./CSF-026.md) | Informational | repair implemented | Event deletion permits traversal to other Graph resources | M365 Graph path segment schema |
+| [CSF-027](./CSF-027.md) | Informational | repair implemented | Bootstrap executes unverified op during status logging | cloud bootstrap 1Password status |
+| [CSF-028](./CSF-028.md) | Informational | repair implemented | Staging cleanup can delete data through a symlinked goals root | goal bootstrap staging sweep |
+| [CSF-029](./CSF-029.md) | Informational | repair implemented | Model report symlinks can overwrite operator files | models report writer |
+| [CSF-030](./CSF-030.md) | Informational | repair implemented | Quadratic regex permits denial of service in OA recognition | office action text recognizer |
 | [CSF-031](./CSF-031.md) | Informational | captured | Undo can delete calendar entries verified after planning | _pending P2_ |
 | [CSF-032](./CSF-032.md) | Informational | repair implemented | Boundary\-date input can repeatedly abort docket intake polls | docket reminder ladder |
-| [CSF-033](./CSF-033.md) | Informational | captured | New Bash grants bypass the Beep\-only log access restriction | _pending P2_ |
-| [CSF-034](./CSF-034.md) | Informational | captured | Crafted PDF font graphs cause exponential validation work | _pending P2_ |
+| [CSF-033](./CSF-033.md) | Informational | repair implemented | New Bash grants bypass the Beep\-only log access restriction | Claude Bash permission allowlist |
+| [CSF-034](./CSF-034.md) | Informational | repair implemented | Crafted PDF font graphs cause exponential validation work | PDF font structure inspector |
 | [CSF-035](./CSF-035.md) | Informational | captured | Historical citations cause unbounded repository archive copies | _pending P2_ |
-| [CSF-036](./CSF-036.md) | Informational | captured | Unsafe shell quoting in PR\-title recovery commands | _pending P2_ |
+| [CSF-036](./CSF-036.md) | Informational | repair implemented | Unsafe shell quoting in PR\-title recovery commands | Yeet PR title recovery |
 | [CSF-037](./CSF-037.md) | Informational | captured | Checkout\-root swaps bypass residue\-reap containment | _pending P2_ |
 | [CSF-038](./CSF-038.md) | Informational | captured | Font metadata can inject executable generated TypeScript | _pending P2_ |
 | [CSF-039](./CSF-039.md) | Informational | captured | Corpus resume follows output symlinks outside its root | _pending P2_ |

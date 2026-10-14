@@ -109,11 +109,12 @@ const packageOverrideAuditId = (
       // and nested resolutions of this package match the reviewed version.
       const resolutions = A.filter(
         R.toEntries(packages),
-        ([key]) =>
+        ([key, tuple]) =>
           key === name ||
           Str.endsWith(`/${name}`)(key) ||
           Str.startsWith(`${name}@`)(key) ||
-          Str.includes(`/${name}@`)(key)
+          Str.includes(`/${name}@`)(key) ||
+          (S.is(S.String)(tuple[0]) && Str.startsWith(`${name}@`)(tuple[0]))
       );
       return (
         A.isReadonlyArrayNonEmpty(resolutions) &&

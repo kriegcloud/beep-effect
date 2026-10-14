@@ -1,5 +1,6 @@
 import {
   GraphEvent,
+  GraphPathSegment,
   M365,
   M365_IDEMPOTENCY_KEY_PROPERTY_ID,
   M365AppOnlyConfigInput,
@@ -200,6 +201,15 @@ const encodeGraphEvent = S.encodeEffect(GraphEvent);
 const DayOffset = S.Int.check(S.isBetween({ maximum: 40_000, minimum: -40_000 }));
 
 describe("@beep/m365 app-only lane and write verbs", () => {
+  it("rejects URL-normalized traversal in Graph path identifiers", () => {
+    expect(S.is(GraphPathSegment)("event-id")).toBe(true);
+    expect(S.is(GraphPathSegment)(".\t.\\messages\\message-id")).toBe(false);
+    expect(S.is(GraphPathSegment)("event\\other")).toBe(false);
+    expect(S.is(GraphPathSegment)("event\nother")).toBe(false);
+    expect(S.is(GraphPathSegment)("event?other")).toBe(false);
+    expect(S.is(GraphPathSegment)("event#other")).toBe(false);
+  });
+
   it("derives the app-only scope and authority from configuration", () => {
     expect(m365AppOnlyScope(GRAPH_BASE_URL)).toBe("https://graph.microsoft.com/.default");
     expect(resolveM365AppOnlyAuthority(appOnlyConfig())).toBe("https://login.microsoftonline.com/tenant-id");

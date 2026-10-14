@@ -175,7 +175,14 @@ const PROTECTED_EXTENSIONS: ReadonlyArray<string> = [
 ];
 
 const isGraphPathSegment = (value: string): boolean =>
-  !Str.isEmpty(value) && !Str.includes("/")(value) && !Str.includes("..")(value) && !Str.includes("%")(value);
+  !Str.isEmpty(value) &&
+  !Str.includes("/")(value) &&
+  !Str.includes("\\")(value) &&
+  !Str.includes("..")(value) &&
+  !Str.includes("%")(value) &&
+  !Str.includes("?")(value) &&
+  !Str.includes("#")(value) &&
+  !/[\u0000-\u001f\u007f]/u.test(value);
 
 /**
  * A Microsoft Graph id that is safe to put in a URL path.
@@ -204,7 +211,8 @@ export const GraphPathSegment = S.String.check(
     identifier: $I`GraphPathSegment`,
     title: "Graph path segment",
     description: "A Microsoft Graph path identifier that cannot traverse or inject URL path segments.",
-    message: "Graph path identifiers must be non-empty and must not contain '/', '..', or percent-encoded input.",
+    message:
+      "Graph path identifiers must be non-empty and must not contain URL delimiters, controls, '..', or percent-encoded input.",
   })
 ).pipe(
   $I.annoteSchema("GraphPathSegment", {

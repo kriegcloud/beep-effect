@@ -50,6 +50,62 @@
     "L10": {
       "status": "implemented",
       "findings": ["CSF-011"]
+    },
+    "L11": {
+      "status": "implemented",
+      "findings": ["CSF-013"]
+    },
+    "L12": {
+      "status": "implemented",
+      "findings": ["CSF-015"]
+    },
+    "L13": {
+      "status": "implemented",
+      "findings": ["CSF-017"]
+    },
+    "L14": {
+      "status": "already-fixed",
+      "findings": ["CSF-025"]
+    },
+    "L15": {
+      "status": "implemented",
+      "findings": ["CSF-018"]
+    },
+    "L16": {
+      "status": "implemented",
+      "findings": ["CSF-019"]
+    },
+    "L17": {
+      "status": "implemented",
+      "findings": ["CSF-026"]
+    },
+    "L18": {
+      "status": "implemented",
+      "findings": ["CSF-020", "CSF-028"]
+    },
+    "L19": {
+      "status": "implemented",
+      "findings": ["CSF-027"]
+    },
+    "L20": {
+      "status": "implemented",
+      "findings": ["CSF-029"]
+    },
+    "L21": {
+      "status": "implemented",
+      "findings": ["CSF-030"]
+    },
+    "L22": {
+      "status": "implemented",
+      "findings": ["CSF-033"]
+    },
+    "L23": {
+      "status": "implemented",
+      "findings": ["CSF-034"]
+    },
+    "L24": {
+      "status": "implemented",
+      "findings": ["CSF-036"]
     }
   },
   "findings": [
@@ -381,15 +437,26 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "f7d91408be3ac2fb4ec3de0da407f1b74e5d87a8",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current selector matched lock entries only by key, omitting alias keys whose tuple resolves to the reviewed package at another version. The report reproduced this guard gap offline; the current lockfile has no such alias."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Quality/Quality.osv-ignore.ts",
+          "packages/tooling/tool/cli/test/quality-tasks.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/quality-tasks.test.ts --pool=threads --maxWorkers=1 -t 'mirrors exact package overrides only'"
+        ],
+        "summary": "Include resolved tuple identity when checking every version of a package before mirroring an advisory-wide Bun ignore."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Bun audit OSV override selection",
+      "lane": "L11"
     },
     {
       "id": "CSF-014",
@@ -427,15 +494,26 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "1a4aa495f845423178258e62a78a283416863451",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current helper extracted an arbitrary angle-bracket substring before validating the sender address. A quoted local part can contain that substring while its actual domain differs; Microsoft 365 preservation remains unverified."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/law-practice/server/src/internal/MailAddress.ts",
+          "packages/law-practice/server/test/MailTagging.mailbox.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/MailTagging.mailbox.test.ts --pool=threads --maxWorkers=1 -t 'reads quoted and Name|does not treat an angle-bracket'"
+        ],
+        "summary": "Anchor header-form parsing to the complete trimmed provider value; reject bracket fragments inside a different address."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "mail sender address normalization",
+      "lane": "L12"
     },
     {
       "id": "CSF-016",
@@ -461,15 +539,26 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "cf106e28a726acb68430a5aa6a15260dc346ba5f",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The unanchored display-name regexp overlapped whitespace quantifiers and was observed taking seconds on a few thousand spaces before lookup input validation. The path is used by lookup and imported email metadata."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/law-practice/server/src/PracticeKg.correspondents.ts",
+          "packages/law-practice/server/test/PracticeKg.correspondents.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/PracticeKg.correspondents.test.ts --pool=threads --maxWorkers=1 -t 'reads one address from a bare address'"
+        ],
+        "summary": "Split entries in a linear scan, use anchored address patterns, and reject oversized headers before parsing."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "practice KG correspondent parser",
+      "lane": "L13"
     },
     {
       "id": "CSF-018",
@@ -478,15 +567,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "2476ffa8c9a6115013a84a489fe33a57a0ce80bb",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current snapshot normalizer converted literal POSIX backslashes to separators, and the law-lane copy joined the resulting relative path without containment checks. The report reproduced path transformation; complete scorer execution was not tested there."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/AgentEffectiveness/internal/EvalLawLanes.ts",
+          "packages/tooling/tool/cli/test/agent-effectiveness-eval-scorer.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/agent-effectiveness-eval-scorer.test.ts --pool=threads --maxWorkers=1 -t 'refuses a backslash-normalized traversal'"
+        ],
+        "summary": "Resolve both source and staging copy paths under their canonical roots before copying any fixture file."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "agent effectiveness law-lane staging",
+      "lane": "L15"
     },
     {
       "id": "CSF-019",
@@ -495,15 +595,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "3f4b0b6cb66960fb69016f828bf71075447f4180",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current 0.21.1 deep-ignore dist patch still compiled untrusted glob rules to overlapping regex repetitions. The same sink remained after the report's older version."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "scripts/graft/patches/0.21.1/util-deep-ignore.patch",
+          "scripts/graft/tests/deep-ignore.test.mjs"
+        ],
+        "verificationCommands": [
+          "node --test scripts/graft/tests/deep-ignore.test.mjs",
+          "scripts/graft/apply-dist-patches.sh --check"
+        ],
+        "summary": "Use memoized glob matching instead of a backtracking regular expression."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Graft deep-ignore patch",
+      "lane": "L16"
     },
     {
       "id": "CSF-020",
@@ -512,15 +624,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "5ae1dd96d0160ed445c286edf3a2bbfc7f4eb4b2",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "A packet ops symlink to an external writable directory would be followed by recursive parent creation and exclusive file creation. The final wx flag prevented overwrite but not external creation."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/internal/cli/FsGuards.ts",
+          "packages/tooling/tool/cli/src/commands/Goals/Materialize.ts",
+          "packages/tooling/tool/cli/test/goals-materialize.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/goals-materialize.test.ts --pool=forks --maxWorkers=1"
+        ],
+        "summary": "Route exclusive creation through the shared symlink-free contained filesystem guard. The helper creates missing parents component by component, rejects links and escapes, rechecks containment, and retains wx."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "goal adoption materializer",
+      "lane": "L18"
     },
     {
       "id": "CSF-021",
@@ -597,15 +721,23 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "7929b1f529759c823571d90423d9aaa5afbcbbb8",
-      "disposition": "untriaged",
+      "disposition": "already-fixed",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current POSIX zip command places -- before every file operand. Commit 58766950c5 added the terminator after the reported source commit, and a focused scratchpad test covers leading-dash filenames."
       },
       "remediation": {
-        "status": "pending",
+        "status": "already-fixed",
         "changedFiles": [],
-        "verificationCommands": []
-      }
+        "verificationCommands": [
+          "bunx vitest run --config scratchpad/vitest.config.ts scratchpad/test/github-actions/archiveCommands.test.ts --pool=threads --maxWorkers=1 -t 'leading-dash paths follow'"
+        ],
+        "summary": "The current command already terminates Info-ZIP option parsing before attacker-influenced relative filenames."
+      },
+      "verdict": "already-fixed",
+      "ownerArea": "scratchpad artifact archive command",
+      "lane": "L14"
     },
     {
       "id": "CSF-026",
@@ -614,15 +746,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "6081174d05f7d0923c0034b358f6cbf8be365ac0",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current public deleteEvent method interpolates a GraphPathSegment into DELETE. The old schema accepted tab/backslash traversal that WHATWG URL normalizes to a different Graph resource."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/drivers/m365/src/M365.service.ts",
+          "packages/drivers/m365/test/M365.write.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/M365.write.test.ts --pool=threads --maxWorkers=1 -t 'rejects URL-normalized traversal'"
+        ],
+        "summary": "Reject URL delimiters and ASCII controls in Graph path identifiers."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "M365 Graph path segment schema",
+      "lane": "L17"
     },
     {
       "id": "CSF-027",
@@ -631,15 +774,21 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "b877057bc49dca15be45cc7c494e6c9326e5cc92",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current bootstrap script executed op from PATH unconditionally, including after a verification failure. This could run an unverified executable inherited from a reused environment."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": ["scripts/cloud/bootstrap.sh"],
+        "verificationCommands": ["bash -n scripts/cloud/bootstrap.sh"],
+        "summary": "Record the absolute destination only after a verified install and query that exact path for status. Report missing without invoking any PATH op when verification or installation did not succeed."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "cloud bootstrap 1Password status",
+      "lane": "L19"
     },
     {
       "id": "CSF-028",
@@ -648,15 +797,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "ec2993d18b35d5368d79e5feff90f6d48c8f34af",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current sweep followed the goals root when enumerating .staging-* names. The review plan did not bind that directory identity."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Goals/Materialize.ts",
+          "packages/tooling/tool/cli/test/goals-materialize.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/goals-materialize.test.ts --pool=forks --maxWorkers=1"
+        ],
+        "summary": "Reject a symlinked goals root before reading or deleting staging entries. A regression preserves an external .staging-* tree."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "goal bootstrap staging sweep",
+      "lane": "L18"
     },
     {
       "id": "CSF-029",
@@ -665,15 +825,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "ae35cf909cf42dd2620a721fc21d395b95348e43",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current command wrote both reports with ordinary writeFileString after creating the directory. Existing final-component symlinks were followed even when the model check later reported drift."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Models/Models.command.ts",
+          "packages/tooling/tool/cli/test/models-init-command.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/models-init-command.test.ts --pool=forks --maxWorkers=1 -t 'does not overwrite a file through a symlinked report name'"
+        ],
+        "summary": "Use the shared contained atomic writer for each report. It rejects symlink destinations and symlinked path entries and never truncates a linked target."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "models report writer",
+      "lane": "L20"
     },
     {
       "id": "CSF-030",
@@ -682,15 +853,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "5bb194eba8b2dc3cf85e998c5b48abd2300caf3c",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current recognizer passed document-controlled text to an unanchored regex whose lazy suffix search restarted at each marker. Repeated incomplete markers forced quadratic work."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/law-practice/domain/src/values/DocStructure/DocStructure.behavior.ts",
+          "packages/law-practice/domain/test/DocStructure.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/DocStructure.test.ts --pool=threads --maxWorkers=1 -t 'handles repeated incomplete statutory-period markers'"
+        ],
+        "summary": "Split text once at period boundaries and check each disjoint segment with direct substring searches. The regression covers a long repeated-marker input and the supported ELEVEN terminator."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "office action text recognizer",
+      "lane": "L21"
     },
     {
       "id": "CSF-031",
@@ -744,15 +926,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "153a4500844d9d259d0d74475a191080acf9ff58",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current checked-in settings and ai-sync allow domain contained both raw prefix grants. Repeated journalctl -u selectors combine as an OR filter, so the Beep prefix did not confine later arguments."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          ".claude/settings.json",
+          "packages/tooling/library/ai-sync/src/validation.ts",
+          "packages/tooling/library/ai-sync/test/ai-sync.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/ai-sync.test.ts --pool=threads --maxWorkers=1 -t 'keeps checked-in Claude grants'"
+        ],
+        "summary": "Remove the two unsafe automatic grants from checked-in settings and the exact ai-sync allow domain. The read-only list-timers grant remains. A constrained wrapper can be added separately if log access is needed."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Claude Bash permission allowlist",
+      "lane": "L22"
     },
     {
       "id": "CSF-034",
@@ -761,15 +955,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "b79308975cdc18b24c90c2938c7755df43c9e131",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current inspector recursively revisited the same PDFDict for each repeated DescendantFonts edge and had no cycle or traversal limit. The attack can be reached by a crafted PDF submitted for drawing validation."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/drivers/pdf-tools/src/internal/structure.ts",
+          "packages/drivers/pdf-tools/test/PdfTools.service.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/PdfTools.service.test.ts --pool=threads --maxWorkers=1 -t 'descendant-font graphs'"
+        ],
+        "summary": "Memoize embedded results by PDF dictionary identity, reject cycles, and cap distinct node visits and depth. A generated PDF regression uses a deep shared graph; another checks a cycle."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "PDF font structure inspector",
+      "lane": "L23"
     },
     {
       "id": "CSF-035",
@@ -795,15 +1000,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "5479af40a41788fc2b8014ff658e4eed8da4b3a4",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current publish path used argument arrays for its own GitHub requests, but both recovery messages interpolated the title into shell text. A failure during PR rename made that text visible to an operator."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Yeet/internal/PullRequest.ts",
+          "packages/tooling/tool/cli/test/yeet-scripted-process.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/yeet-scripted-process.test.ts --pool=threads --maxWorkers=1 -t 'reports a refused rename without failing the publish'"
+        ],
+        "summary": "Replace both runnable recovery commands with a GitHub title-edit instruction that includes no untrusted title bytes. A regression uses a command-substitution title and asserts it is absent from the failure message."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Yeet PR title recovery",
+      "lane": "L24"
     },
     {
       "id": "CSF-037",

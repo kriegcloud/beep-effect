@@ -6,6 +6,7 @@ import { expect, layer } from "@effect/vitest";
 import * as Console from "effect/Console";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import { FetchHttpClient } from "effect/http";
 import * as Layer from "effect/Layer";
@@ -103,6 +104,38 @@ layer(testLayer, { timeout: "30 seconds" })("models init command", (it) => {
       expect(A.filter(siblings, Str.startsWith("models.yaml.bak-"))).toHaveLength(0);
       const lines = A.filter(yield* TestConsole.logLines, P.isString);
       expect(A.some(lines, Str.startsWith("models: seeded"))).toBe(true);
+    }).pipe(withFreshConsole)
+  );
+
+  it.effect("does not overwrite a file through a symlinked report name", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const home = yield* fs.makeTempDirectoryScoped({ prefix: "models-report-" });
+      const manifestPath = path.join(home, "config", "models.yaml");
+      const reportDir = path.join(home, "reports");
+      const sentinel = path.join(home, "sentinel.yaml");
+      yield* runModelsCommand(["init", "--home", home, "--repo", home, "--manifest", manifestPath]);
+      yield* fs.makeDirectory(reportDir);
+      yield* fs.writeFileString(sentinel, "operator routing stays intact\n");
+      yield* fs.symlink(sentinel, path.join(reportDir, "models-report.json"));
+
+      const exit = yield* Effect.exit(
+        runModelsCommand([
+          "check",
+          "--offline",
+          "--home",
+          home,
+          "--repo",
+          home,
+          "--manifest",
+          manifestPath,
+          "--report-dir",
+          reportDir,
+        ])
+      );
+      expect(Exit.isFailure(exit)).toBe(true);
+      expect(yield* fs.readFileString(sentinel)).toBe("operator routing stays intact\n");
     }).pipe(withFreshConsole)
   );
 });

@@ -14,6 +14,7 @@ import {
   evaluateSkillOptCompletion,
   LawEvaluation,
   lawComponentScore,
+  readSourceSnapshots,
   runAgentEffectivenessEvalScoreCommand,
   SkillOptTaskManifest,
 } from "@beep/repo-cli/test/AgentEffectiveness";
@@ -702,6 +703,24 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
       expect(isScorerError(error) ? error.message : "").toContain(
         "Scorer law lanes could not measure the fixture: biome (Biome exited 0 without a JSON report"
       );
+    })
+  );
+
+  it.effect("refuses a backslash-normalized traversal before staging fixture sources", () =>
+    Effect.gen(function* () {
+      const fixtureDir = yield* temporaryFixture;
+      const path = yield* Path.Path;
+      const repoRoot = yield* findRepoRoot();
+      if (process.platform === "win32") return;
+      yield* writeText(path.join(fixtureDir, "..\\..\\outside.ts"), "export const outside = true;\n");
+      const paths = A.map(yield* readSourceSnapshots(fixtureDir), (snapshot) => snapshot.relativePath);
+      expect(paths).toEqual(["../../outside.ts"]);
+      const result = yield* evaluateLaw(fixtureDir, repoRoot, paths).pipe(Effect.result);
+
+      expect(Result.isFailure(result)).toBe(true);
+      if (Result.isFailure(result)) {
+        expect(result.failure.message).toContain("Fixture source escaped its root");
+      }
     })
   );
 

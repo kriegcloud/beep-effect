@@ -534,6 +534,63 @@ export const writeContainedFileString = makeContainedFileStringOperation(
   writePreparedFileString
 );
 
+/**
+ * Exclusively create a text file beneath a symlink-free root.
+ *
+ * **Details**
+ *
+ * Each ancestor is checked without following links and the final write uses
+ * `wx`, so an existing file or final-component symlink is never replaced.
+ * The parent is checked again immediately before creation. Callers must keep
+ * concurrent writers away from the root when stronger directory-handle
+ * guarantees are required.
+ *
+ * **Example** (Build an exclusive contained write)
+ *
+ * ```ts
+ * import { createContainedFileString } from "@beep/repo-cli/test/Cli"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(createContainedFileString("/repo", "/repo/new.txt", "ready")))
+ * ```
+ *
+ * @category filesystem
+ * @since 0.0.0
+ */
+export const createContainedFileString = Effect.fn("RepoCli.FsGuards.createContainedFileString")(function* (
+  expectedRoot: string,
+  target: string,
+  contents: string
+): Effect.fn.Return<string, FsGuardError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const prepared = yield* requirePreparedContainedTarget(fs, path, expectedRoot, target);
+  const checked = yield* prepareContainedTarget(fs, path, prepared.root, prepared.target, false);
+  if (O.isNone(checked)) {
+    return yield* fsGuardError(
+      prepared.root,
+      prepared.target,
+      prepared.parent,
+      "parent-not-directory",
+      `Target parent "${prepared.parent}" disappeared before the exclusive write.`
+    );
+  }
+  yield* fs
+    .writeFileString(checked.value.target, contents, { flag: "wx" })
+    .pipe(
+      Effect.mapError((cause) =>
+        fsGuardError(
+          checked.value.root,
+          checked.value.target,
+          checked.value.target,
+          "filesystem-failure",
+          `Refused exclusive creation of "${checked.value.target}".`,
+          cause
+        )
+      )
+    );
+  return checked.value.target;
+});
+
 const appendPreparedFileString = Effect.fnUntraced(function* (
   fs: FileSystem.FileSystem,
   path: Path.Path,

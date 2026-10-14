@@ -32,8 +32,8 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P2 validate` - all 47 findings are captured; twelve have confirmed verdicts
-and implemented repairs. Reproduce the remaining reports at current HEAD, then
+`P2 validate` - all 47 findings are captured; seventeen have current-HEAD verdicts
+(16 repairs implemented, one already fixed). Reproduce the remaining reports, then
 record a verdict, disposition, and owner surface.
 
 ## Findings at a glance

@@ -20,6 +20,7 @@ import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -30,7 +31,7 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import { TestClock } from "effect/testing";
-import { PDFDocument, PDFHexString, PDFString, StandardFonts } from "pdf-lib";
+import { PDFDict, PDFDocument, PDFHexString, PDFName, PDFString, StandardFonts } from "pdf-lib";
 import type * as PlatformError from "effect/PlatformError";
 
 const encoder = new TextEncoder();
@@ -426,6 +427,52 @@ describe("@beep/pdf-tools service", () => {
           expect(structure.hasOptionalContent).toBe(false);
           expect(structure.encrypted).toBe(false);
           expect(commands.length).toBe(0);
+        })
+      );
+
+      it.effect(
+        "inspects shared descendant-font graphs without exponential revisits",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const file = path.join(dir, "shared-font.pdf");
+          const doc = yield* Effect.promise(() => PDFDocument.create());
+          const font = yield* Effect.promise(() => doc.embedFont(StandardFonts.Helvetica));
+          doc.addPage([612, 792]).drawText("A", { font });
+          yield* Effect.promise(() => doc.save({ useObjectStreams: false }));
+          let child = doc.context.register(doc.context.obj({}));
+          for (let depth = 0; depth < 22; depth += 1) {
+            child = doc.context.register(doc.context.obj({ DescendantFonts: [child, child] }));
+          }
+          const root = doc.context.lookup(font.ref, PDFDict);
+          root.set(PDFName.of("DescendantFonts"), doc.context.obj([child, child]));
+          yield* fs.writeFile(file, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
+
+          const started = performance.now();
+          const structure = yield* (yield* PdfTools).inspect(file);
+          expect(A.map(structure.fonts, (entry) => entry.embedded)).toEqual([false]);
+          expect(performance.now() - started).toBeLessThan(2_000);
+        })
+      );
+
+      it.effect(
+        "rejects cyclic descendant-font graphs",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const file = path.join(dir, "cyclic-font.pdf");
+          const doc = yield* Effect.promise(() => PDFDocument.create());
+          const font = yield* Effect.promise(() => doc.embedFont(StandardFonts.Helvetica));
+          doc.addPage([612, 792]).drawText("A", { font });
+          yield* Effect.promise(() => doc.save({ useObjectStreams: false }));
+          doc.context.lookup(font.ref, PDFDict).set(PDFName.of("DescendantFonts"), doc.context.obj([font.ref]));
+          yield* fs.writeFile(file, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
+
+          const exit = yield* Effect.exit((yield* PdfTools).inspect(file));
+          expect(Exit.isFailure(exit)).toBe(true);
+          expect(String(exit)).toContain("Cyclic PDF descendant-font graph");
         })
       );
 
