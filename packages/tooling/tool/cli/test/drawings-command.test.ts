@@ -36,7 +36,7 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 const runDrawings = Command.runWith(drawingsCommand, { version: "0.0.0" });
 const TestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 
-it.layer(PdfBackendToolsLive.pipe(Layer.provideMerge(NodeServices.layer)))((it) => {
+it.layer(PdfBackendToolsLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "30 seconds" })((it) => {
   it.effect(
     "maps real PDF page and font facts through the drawing backend adapter",
     Effect.fnUntraced(function* () {

@@ -30917,6 +30917,18 @@
             "branches": 2,
             "functions": 5
           }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/internal/SkillFrontmatterCheck.ts": {
+          "lines": 96.15,
+          "statements": 96.15,
+          "branches": 83.33,
+          "functions": 85.71,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 2,
+            "functions": 1
+          }
         }
       }
     },
