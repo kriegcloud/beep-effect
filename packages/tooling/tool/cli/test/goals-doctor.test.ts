@@ -191,7 +191,7 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
     Effect.gen(function* () {
       yield* temporaryWorkingDirectory;
       yield* runGit(["init", "-b", "main"]);
-      const manifest = yield* S.decodeUnknownEffect(GoalManifest)({
+      const manifest = yield* S.decodeEffect(GoalManifest)({
         initiative: { id: "typed", status: "completed-retained" },
         lifecycle: "completed-retained",
         completionGate: { ...COMPLETION_GATE, pullRequests: [{ number: 7, role: "final" }] },
