@@ -64,7 +64,7 @@ The [observed after data](stage-5-f-observed-after.json) repeats the same
 historical-store collector. It is not a matched intervention study. The
 [frozen configuration set](stage-5-f-config-fingerprint.json) covers native
 files plus repository instructions, hooks, specialist bodies and skill lock.
-Its set digest is `559eaa31dab31e279ae0c808905a0d58e4e5370282c35852860924ac7a142025`.
+Its set digest is `0a07cf6f5ce2affab597654e0aed42db37fdb503951be128e6c8dbbe27f4d295`.
 A changed native file invalidates that set for panel acceptance.
 
 | Surface | After n | Median first recorded input tokens |
@@ -111,7 +111,7 @@ state-isolation boundary.
 
 
 The observed configuration set was captured at
-`2026-10-14T22:37:38.214763Z` and has passed a fresh equality recheck. The
+`2026-10-14T22:47:02.763050Z` and has passed a fresh equality recheck. The
 current-fingerprint window is open since that capture. Its qualifying session
 count remains unknown; no retirement gate is met by elapsed wall-clock time.
 
@@ -131,3 +131,28 @@ These are native callback witnesses, not 30-session qualification evidence;
 root/child attribution and ordinary SessionStart qualification remain open.
 The native legacy-key check and complete configuration-set equality were
 rechecked after the probe.
+
+
+Final main integration changed the repository instruction/skill inputs. Live
+native clients also changed their own config fingerprints during verification.
+The integrated set supersedes the earlier capture before any panel verdict.
+Online model drift is still zero and the legacy-key check passes. No F model
+pin write or additional home apply occurred. A new exact set, not a relaxed
+comparison, is supplied for the final driver panel.
+
+
+The final collector also includes the user Claude MCP registry and installed
+plugin index, Claude Desktop MCP config, the actual Junie mcp/mcp.json path,
+and discovered Kiro/Copilot/Gemini/OpenCode native config files when present.
+These are hash-only reads; no file in those homes is changed by the collector.
+They make the configuration boundary explicit rather than leaving MCP owners
+outside the final set. Live native-client writes can invalidate this observed
+set, and the driver must compare it before accepting a panel verdict.
+
+
+Final expanded capture: `2026-10-14T22:54:37.633568Z`, set `0a07cf6f5ce2affab597654e0aed42db37fdb503951be128e6c8dbbe27f4d295`,
+355 files. This supersedes the earlier narrower captures and starts the
+recorded current-fingerprint qualification window. Native qualifying count is
+unknown. The set includes canonical hook bodies, Cursor hook scripts, Grok
+workflow definitions, Junie repo state and native agent/hook definitions.
+A change in a delegated canonical hook therefore changes the reviewed set.

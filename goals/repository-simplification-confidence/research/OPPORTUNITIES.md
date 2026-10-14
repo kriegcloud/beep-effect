@@ -2211,3 +2211,12 @@ TS377032 `strictEffectProvide`. The file matches main; blame binds the call
 to #1766 (`55b1836e40`). Route this to its owner instead of inserting a
 suppression or copying a fix into H4. Main-owned test entry points need the
 same dedicated test typecheck before their publication.
+
+### F recovery references and mirror validation (2026-10-14)
+
+The integrated refs gate reports three live external-mirror observations for
+the required native backup paths in SPEC. These are recovery artifacts, not
+knowledge mirrors. The receipt now defines the operator-home base explicitly
+and retains each exact relative recovery path. No backup, restore instruction,
+observation history or gate rule was removed. A typed recovery-artifact
+reference would prevent this ambiguity in future packet receipts.

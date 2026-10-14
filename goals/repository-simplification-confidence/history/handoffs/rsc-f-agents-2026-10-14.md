@@ -1,15 +1,15 @@
 # F authorized native configuration handoff (2026-10-14)
 
-Source content is final for this wave; publication metadata is filled after the final main integration. Program operational
+Source content is final for this wave; publication metadata is filled after the final integrated proof. Program operational
 acceptance remains open for the explicit measured and external-owner gates.
 The driver owns the independent panel, merge, and any later retirement.
 
 ```text
 lane: rsc-f-agents
-head: pending publication   PR: none yet
+head: 4aa6f2a9e2f4450a3afb252015b417e240827f2c (integrated source)   PR: pending publication
 package-verify: @beep/repo-cli: pass (default audit 1076.0s; full docgen 39.2s)
 hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> inherited fail (AgentMessage TS377032) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
-config fingerprint (final): 559eaa31dab31e279ae0c808905a0d58e4e5370282c35852860924ac7a142025   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
+config fingerprint (final): 0a07cf6f5ce2affab597654e0aed42db37fdb503951be128e6c8dbbe27f4d295   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-14.md
 open items: incomplete current-fingerprint 30-session windows; Junie authorization; native SessionStart/root-child and namespace/OTel/archive qualification; Cursor isolated-state qualification; external gateway and operator-run Claude transformations; retained agent projections and native links; matched native measurements; driver panel; hosted PR review
 ```
@@ -42,7 +42,7 @@ online model check has **0 findings**, and the required pinned read-only Codex
 probe **passes**. Codex remains **gpt-6.1-sol / medium**. These checks were
 repeated after native callback probing.
 
-The final configuration set covers 327 files and is recorded in
+The final configuration set covers 355 files and is recorded in
 `history/receipts/stage-5-f-config-fingerprint.json`. The collector reports
 paths, sizes and SHA-256 only. Its final set is rechecked before publication.
 Any change after this freeze requires a new panel input; no earlier panel
@@ -148,3 +148,13 @@ service unit was edited. No merge or lane retirement is performed by F.
 The driver runs the three-model panel at this source/configuration pair.
 
 Graft retrieval saved approximately 27,822 tokens in two successful queries.
+
+
+## Latest main integration boundary
+
+Merge 4aa6f2a9e2 includes main through 7b24ac4133, including the Fallow fix,
+observability work, episode-16 repairs and type-aware deprecation lint. No F
+Models/Skills implementation changed in that merge. Fallow audit and health
+pass again. Verification is re-bound to this resolved main revision before
+publication. The refs gate reads the committed recovery notation; its final
+recheck follows this receipt commit. No gate or observation history is waived.

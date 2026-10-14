@@ -1,5 +1,5 @@
 {
-  "description": "Checkout-local Yeet inbox backpressure, agent-effectiveness pulses, and UI design hooks.",
+  "description": "Checkout-local Yeet inbox backpressure and agent-effectiveness pulses.",
   "hooks": {
     "SessionStart": [
       {

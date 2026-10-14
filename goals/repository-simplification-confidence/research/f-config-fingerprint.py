@@ -1,17 +1,21 @@
 """Read-only configuration fingerprint; output contains paths, sizes and hashes only."""
-import hashlib,json
+import hashlib,json,datetime
 from pathlib import Path
 H=Path.home();R=Path.cwd()
-native=['.codex/config.toml','.codex/AGENTS.md','.claude/settings.json','.claude/CLAUDE.md','.claude/memory/beep-effect/MEMORY.md','.grok/config.toml','.junie/settings.json','.junie/AGENTS.md','.junie/mcp.json','.cursor/cli-config.json','.cursor/mcp.json','.config/JetBrains/Air/.codex/config.toml','.config/beep/models.yaml']
+native=['.codex/config.toml','.codex/AGENTS.md','.claude/settings.json','.claude/CLAUDE.md','.claude/memory/beep-effect/MEMORY.md','.grok/config.toml','.junie/settings.json','.junie/AGENTS.md','.junie/mcp/mcp.json','.cursor/cli-config.json','.cursor/mcp.json','.config/JetBrains/Air/.codex/config.toml','.config/beep/models.yaml','.claude.json','.claude/plugins/installed_plugins.json','.config/Claude/claude_desktop_config.json','.kiro/settings/mcp.json','.copilot/mcp-config.json','.gemini/settings.json','.config/opencode/opencode.json']
 rows=[]
 def add(p,label):
  if p.is_file():
-  b=p.read_bytes();rows.append({'path':label,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
- elif p.is_symlink():rows.append({'path':label,'missingTarget':True})
+  b=p.read_bytes();row={'path':label,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+  if p.is_symlink():row['linkSha256']=hashlib.sha256(str(p.readlink()).encode()).hexdigest()
+  rows.append(row)
+ elif p.is_symlink():rows.append({'path':label,'symlinkDirectory':p.is_dir(),'missingTarget':not p.exists(),'sha256':hashlib.sha256(str(p.readlink()).encode()).hexdigest()})
 for name in native:add(H/name,'~/'+name)
 for name in ['AGENTS.md','.codex/config.toml','.codex/hooks.json','.cursor/cli.json','.cursor/hooks.json','.mcp.json','.claude/settings.json','skills-lock.json']:add(R/name,name)
-for prefix in ['.codex/agents','.codex/hooks','.claude/agents','.claude/skills','.grok/skills']:
+for prefix in ['.codex/agents','.codex/hooks','.claude/agents','.claude/hooks','.claude/skills','.cursor/hooks','.grok/skills','.grok/workflows','.junie']:
  for p in sorted((R/prefix).rglob('*')):add(p,p.relative_to(R).as_posix())
+for prefix in ['.codex/agents','.codex/hooks','.claude/agents','.junie/agents']:
+ for p in sorted((H/prefix).rglob('*')):add(p,'~/'+p.relative_to(H).as_posix())
 rows.sort(key=lambda x:x['path'])
-fingerprint=hashlib.sha256(''.join(x['path']+' '+x.get('sha256','missing')+'\n' for x in rows).encode()).hexdigest()
-print(json.dumps({'format':'rsc-f-config-fingerprint/v1','setSha256':fingerprint,'files':rows},indent=2))
+fingerprint=hashlib.sha256(''.join(x['path']+' '+x.get('sha256','missing')+' '+x.get('linkSha256','')+'\n' for x in rows).encode()).hexdigest()
+print(json.dumps({'format':'rsc-f-config-fingerprint/v1','capturedAt':datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z'),'setSha256':fingerprint,'files':rows},indent=2))

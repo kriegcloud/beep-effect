@@ -1332,6 +1332,10 @@ an ordinary external temporary directory. No unrelated scratch is deleted.
 
 ### RSC-F-NATIVE-20261014 (2026-10-14): owned Codex permission cleanup
 
+All `.config-backups` recovery paths in this decision are relative to the
+operator home directory. Exact backup names and the drift-fenced restore
+commands remain recorded below.
+
 The operator's explicit F scope grant and wave-2 routing ruling authorize the
 named non-Claude native surfaces. The October 14 manifest supersedes older
 brief pins; Codex stays `gpt-6.1-sol` / `medium`. ModelsApply removes only the
@@ -1339,7 +1343,7 @@ legacy `sandbox_mode` assignment with a validated same-directory atomic rename.
 Native project/trust state and all non-owned bytes are preserved. No model pin
 is written. Reversal: `beep models restore --journal
 models-2026-10-14T222221002Z-16103436`, backed by
-`~/.config-backups/models-2026-10-14T222221002Z-16103436.backup`.
+`.config-backups/models-2026-10-14T222221002Z-16103436.backup`.
 Synthetic restoration is byte-exact and refuses later drift. Online models
 check: zero findings; pinned read-only native Codex probe: pass. Detect return
 of the legacy key with `beep models codex-permissions --check`.
@@ -1380,9 +1384,9 @@ Native rollback was then verified against the actual Codex file, preserving a
 fresh pre-rollback copy first. Restoration matched the original backup exactly;
 reapply matched the pre-rollback cleaned bytes exactly. The final apply uses
 journal `models-2026-10-14T222525456Z-12665845`, with reversal backup
-`~/.config-backups/models-2026-10-14T222525456Z-12665845.backup`.
+`.config-backups/models-2026-10-14T222525456Z-12665845.backup`.
 The fresh safety copy is
-`~/.config-backups/rsc-f-pre-rollback-20261014T222520875693Z.backup`.
+`.config-backups/rsc-f-pre-rollback-20261014T222520875693Z.backup`.
 Both restore and final apply parse the staged temporary TOML before rename.
 
 | Decision id | Surface / owner | Disposition, reason, and reconsideration gate |
@@ -1394,7 +1398,7 @@ Both restore and final apply parse the staged temporary TOML before rename.
 | --- | --- | --- |
 | F-GROK-COMPAT | Native Grok compatibility / Grok owner | Preserve current compat fields. The native config has only the explicit Cursor MCP false field; Claude MCP/hook toggles are absent. F's scalar writer refuses missing addresses rather than guessing version-dependent insertion semantics. A pinned native OK probe passes with no tool invocation. Reconsider after the installed client's compatibility schema and plan-session activation steps are proved; reverse any later apply through its writer journal. |
 
-The current set was captured at 2026-10-14T22:37:38.214763Z. This begins the
+The current set was captured at 2026-10-14T22:47:02.763050Z. This begins the
 recorded qualification window; it does not create qualifying sessions. Native
 config equality must hold at the driver panel input and again at acceptance.
 
@@ -1453,3 +1457,16 @@ Chronological valid tuples render first, followed by retained untimed tuples.
 Reason: hosted and independent review demonstrated two false-safe cases and
 a rendering regression. Reversal: revert the H4 PR; no workstation state was
 changed. Full package and parity qualification is repeated for this wave.
+
+
+### RSC-F-FREEZE-20261014 (2026-10-14): final review input boundary
+
+The final expanded configuration set is `0a07cf6f5ce2affab597654e0aed42db37fdb503951be128e6c8dbbe27f4d295`, captured at
+2026-10-14T22:54:37.633568Z across 355 files. It includes native MCP registries,
+installed plugin indices, instructions, specialist definitions, canonical
+hook implementations and their adapters. This supersedes earlier captures;
+the qualification window opens at this capture and its qualifying count is
+unknown. The driver compares the set again before panel acceptance. Any
+mutation requires a new input set and review; no earlier verdict closes it.
+Reversal is to recapture through the read-only collector and submit the changed
+set, preserving earlier evidence. No native file is written by collection.

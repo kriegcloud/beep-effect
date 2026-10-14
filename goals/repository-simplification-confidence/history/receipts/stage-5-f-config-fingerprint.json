@@ -1,6 +1,7 @@
 {
   "format": "rsc-f-config-fingerprint/v1",
-  "setSha256": "559eaa31dab31e279ae0c808905a0d58e4e5370282c35852860924ac7a142025",
+  "capturedAt": "2026-10-14T22:54:37.633568Z",
+  "setSha256": "0a07cf6f5ce2affab597654e0aed42db37fdb503951be128e6c8dbbe27f4d295",
   "files": [
     {
       "path": ".claude/agents/architecture-guardian.md",
@@ -36,6 +37,51 @@
       "path": ".claude/agents/schema-first-developer.md",
       "bytes": 2855,
       "sha256": "d41fb76ebc114706888b48f1a694d67ec85ae766d7e70cf6b8caf5ea8c087ac6"
+    },
+    {
+      "path": ".claude/hooks/circuit-breaker.sh",
+      "bytes": 8218,
+      "sha256": "28cf156c7ac17a0af0b4c8ce0199294acf0d8b2ae38b46d1543f635763da13f8"
+    },
+    {
+      "path": ".claude/hooks/hook-pulse-switch.sh",
+      "bytes": 9266,
+      "sha256": "2a55f692d36f62b05e1e8aedf51f6c3ce2656920abd450863c6ba4bcc77145c8"
+    },
+    {
+      "path": ".claude/hooks/hook-pulse.sh",
+      "bytes": 40023,
+      "sha256": "341ab3c30f33bc1113f0541ed9d57ee5659af802ec6d70ddbec5fb5f27437de5"
+    },
+    {
+      "path": ".claude/hooks/law-pulse.sh",
+      "bytes": 2429,
+      "sha256": "29707af5d4599cd235fa544bab4e6118bd0095683fcb9e7e526455d289fddb55"
+    },
+    {
+      "path": ".claude/hooks/packet-projections.sh",
+      "bytes": 435,
+      "sha256": "618eff5e6329b9ebaa24ce5ff2611b3c244d181795e67ae22e6d8c38d8ae6b32"
+    },
+    {
+      "path": ".claude/hooks/sequence-break-notifier.sh",
+      "bytes": 32917,
+      "sha256": "d4a69e4d18f70d2d769014ed54d79cb2a45ed1eccbe9d39fe3663cb1a2b72a64"
+    },
+    {
+      "path": ".claude/hooks/session-ledger.sh",
+      "bytes": 1548,
+      "sha256": "b7be89bd54ce58ad7974506898c6ffe7ff6cbca78979bbab9a7e852b70385ea2"
+    },
+    {
+      "path": ".claude/hooks/yeet-inbox.sh",
+      "bytes": 13892,
+      "sha256": "cb0f9e4958a7a7c7cffae37d527bc942e6e4eb936e8528b26827a4ddfbcdfd7d"
+    },
+    {
+      "path": ".claude/hooks/yeet-pr-wave-notifier.sh",
+      "bytes": 15031,
+      "sha256": "043af786aafeccb355058238beabe6d15bab915da0b912168f91f0799d010acd"
     },
     {
       "path": ".claude/settings.json",
@@ -1474,8 +1520,8 @@
     },
     {
       "path": ".claude/skills/yeet/references/sweep-retire.md",
-      "bytes": 3377,
-      "sha256": "9d2219ab3f5eb5c6e8bce636e0554c063b4619fb412308fd1c6b16e29b2f1c4d"
+      "bytes": 4026,
+      "sha256": "00dc361486b2be9fcb032f4a9e67b729a15c57a6ba48c0a184fbf4f9026bd171"
     },
     {
       "path": ".codex/agents/architecture-guardian.toml",
@@ -1519,8 +1565,8 @@
     },
     {
       "path": ".codex/hooks.json",
-      "bytes": 3779,
-      "sha256": "60e05189187d7314d97412ca778144f5d8f5609f086d3b556bd3fb11a8399472"
+      "bytes": 3761,
+      "sha256": "82e0fe64a9855e7dc06ffbcad174157f6c401aa6b2fb8a18653890233e39eef1"
     },
     {
       "path": ".codex/hooks/circuit-breaker.sh",
@@ -1558,9 +1604,53 @@
       "sha256": "dab2c6be7734969f57441a9f58d257597d7ca93abbc4ad8c28fb4d845a820892"
     },
     {
+      "path": ".cursor/hooks/deny-shell.sh",
+      "bytes": 3053,
+      "sha256": "58638627820495a8d5086c052a65667e7588a5de9f98482c8987a06b4ecb5c8a"
+    },
+    {
+      "path": ".cursor/hooks/hook-pulse.sh",
+      "bytes": 2572,
+      "sha256": "573e5766224123acc9a3c11c93e7f14580ed7964d09b0ba8dc38f18964f7e484"
+    },
+    {
       "path": ".grok/skills/graft/SKILL.md",
       "bytes": 10749,
       "sha256": "705addc0d77090ea3d3587d3c28d71a94d3e535809a29da07bc7b9647d593f34"
+    },
+    {
+      "path": ".grok/workflows/omi-model-port.rhai",
+      "bytes": 9251,
+      "sha256": "e901703e966e76ea9f4d99e72fb43d1ae3a4ed81c04e11a610efd798403b977a"
+    },
+    {
+      "path": ".junie/memory/errors.md",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".junie/memory/feedback.md",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".junie/memory/language.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": ".junie/memory/memory.version",
+      "bytes": 3,
+      "sha256": "a416ea84421fa7e1351582da48235bac88380a337ec5cb5a9239dc7d57908b4b"
+    },
+    {
+      "path": ".junie/memory/tasks.md",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".junie/skills/adhd",
+      "missingTarget": true
     },
     {
       "path": ".mcp.json",
@@ -1569,13 +1659,18 @@
     },
     {
       "path": "AGENTS.md",
-      "bytes": 31078,
-      "sha256": "272473ac95b5e4eba5f2ae56d5499e002eb34fdfb8deff2ef8c33f01d5213be9"
+      "bytes": 31365,
+      "sha256": "eecdf90c991015500d666a02b37fa045875abc37771c746d600179596c444d9e"
     },
     {
       "path": "skills-lock.json",
       "bytes": 25887,
-      "sha256": "fbef5b95f9a8b9b4818c0b7d6493dc9a624fededd3e04b2e5d7e5a6d7bbffa49"
+      "sha256": "f2570b66d944d369d4d0ff073dee9fc7f3ea9f40aa6be6c6a2ac61d17ab32f15"
+    },
+    {
+      "path": "~/.claude.json",
+      "bytes": 369518,
+      "sha256": "2ddefaf354b4b51a3cbf930a9d0ac2d38afcb2a400138fcfe81df407671dd95a"
     },
     {
       "path": "~/.claude/CLAUDE.md",
@@ -1583,9 +1678,19 @@
       "sha256": "d6132443fc0308d0eb9ae40ff41ca7a90d4e50e95ac6f5368ec11e5a5942a4e9"
     },
     {
+      "path": "~/.claude/agents/effect-code-writer.md",
+      "bytes": 9592,
+      "sha256": "04119b0cf2a970c932ae55e58aebfc2725f9cb60975fa95466829f6257b9f69b"
+    },
+    {
       "path": "~/.claude/memory/beep-effect/MEMORY.md",
-      "bytes": 38380,
-      "sha256": "d5417909bfac61368ed21977ba2bb0a5e809227971ba71357c2998fca5dc9233"
+      "bytes": 38398,
+      "sha256": "498501b3ed49aad6385c0c5bc899784f3ed4f9043c07e2420a1a4fc3db3d6c5e"
+    },
+    {
+      "path": "~/.claude/plugins/installed_plugins.json",
+      "bytes": 13715,
+      "sha256": "cb788b891efb2ac290d2c4a221c1d136df4fbe17f74d7a470c2ff564be1d0b0e"
     },
     {
       "path": "~/.claude/settings.json",
@@ -1599,8 +1704,13 @@
     },
     {
       "path": "~/.codex/config.toml",
-      "bytes": 122932,
-      "sha256": "ea685ebeed588734dd0de6c0bc16be41c0bfbc17a9a20d8d6b25bc401b59bb60"
+      "bytes": 122993,
+      "sha256": "5c3bba907303533cd7d2a528eac2824bdb79833e1637918b10061c654e194fb1"
+    },
+    {
+      "path": "~/.config/Claude/claude_desktop_config.json",
+      "bytes": 18964,
+      "sha256": "7dd1a2a16f7a81fd4fb3c8f988649f709f8ee1984c40d63da195949d14d6eebf"
     },
     {
       "path": "~/.config/JetBrains/Air/.codex/config.toml",
@@ -1613,14 +1723,29 @@
       "sha256": "cb1b05476db9cc4ff280d40d57bd2041899b24c01791d995ed265b4ff3f9a16b"
     },
     {
+      "path": "~/.config/opencode/opencode.json",
+      "bytes": 1181,
+      "sha256": "6cf7dacb3ccd89f604ded9c3e7f87dca7ac19f769b0589d6d0692c08396ee179"
+    },
+    {
+      "path": "~/.copilot/mcp-config.json",
+      "bytes": 1100,
+      "sha256": "c556ca9c8f4f327fa5b1d89fe45478b2ca16c4eec75c7bfd93c3398d5426937e"
+    },
+    {
       "path": "~/.cursor/cli-config.json",
       "bytes": 3996,
-      "sha256": "5e15bbd9e26204b3aab0b8d3372edfe773b8ace696d4a4fc170bf2684a23b28c"
+      "sha256": "193c66ea432a2496def578f3c7cf80f2330337b716f7194711aa283902d6c373"
     },
     {
       "path": "~/.cursor/mcp.json",
       "bytes": 1198,
       "sha256": "1f3ce87473908de81ed71ee8833dc215a19c1d651fd006d767b1bce9a538e6ef"
+    },
+    {
+      "path": "~/.gemini/settings.json",
+      "bytes": 161,
+      "sha256": "09237a8c19625daeb677211c6ca9b38e01aa12eede0f4b5f2c26ed6ec7b449e6"
     },
     {
       "path": "~/.grok/config.toml",
@@ -1633,9 +1758,24 @@
       "sha256": "926d43099022498cc6c5286bd4afef810300d4a9e70d5831d7390f45010ddbb1"
     },
     {
+      "path": "~/.junie/agents/effect-code-writer.md",
+      "bytes": 9592,
+      "sha256": "04119b0cf2a970c932ae55e58aebfc2725f9cb60975fa95466829f6257b9f69b"
+    },
+    {
+      "path": "~/.junie/mcp/mcp.json",
+      "bytes": 890,
+      "sha256": "48608ac31ffa7bba258743d130f6abd67452e55781e9bc752d00c82b30c1142f"
+    },
+    {
       "path": "~/.junie/settings.json",
       "bytes": 196,
       "sha256": "1f0211d6f99b0f9a9179bfe6ab968d209a20f1a76937abcf57f2c4593d2ffb87"
+    },
+    {
+      "path": "~/.kiro/settings/mcp.json",
+      "bytes": 161,
+      "sha256": "09237a8c19625daeb677211c6ca9b38e01aa12eede0f4b5f2c26ed6ec7b449e6"
     }
   ]
 }

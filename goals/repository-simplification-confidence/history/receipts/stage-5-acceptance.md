@@ -670,3 +670,19 @@ writer, preserve `default_permissions`, retain its config-backup name and
 check for key return. No backup or successful drift check is claimed by H4.
 Project Claude `permissions.defaultMode` remains `default` (R97); its edit deny
 rule is untouched. Reversal of this lane is `git revert` of its PR.
+
+### F final integrated local proof
+
+The final main merge preserves the F and H4 packet records as a union; no F
+implementation conflict occurred. The source merge head is `9d6b26dd4d`.
+Default CLI package verification passes its full audit in 1,076.0s and full
+docgen in 39.2s. After main integration, package lint/check pass, local docgen
+passes in 41.6s, and all 154 scoped coverage tests pass again. The four touched
+baseline rows still exceed their current recorded floors. Test-tsgo reports
+only the byte-identical inherited AgentMessage TS377032 diagnostic. The final
+JSDoc, refs and Fallow results are recorded in the handoff.
+
+H3 #1590 remains open at this read. Its native/global delivery items remain
+explicit measured gates under RSC-F-DISPOSITIONS-20261014; the local Codex pulse
+adapter and native callbacks do not imply that unmerged collector changes or
+namespace/OTel/archive work have landed.
