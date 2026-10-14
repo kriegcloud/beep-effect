@@ -88,6 +88,31 @@ locally for the upcoming integrated delivery wave. The final worker dispatch
 records the exact published tip and fresh readiness/thread observation.
 The report-only delivery commit changes no qualified source or fixtures.
 
+The canonical publisher failed twice before any push. The first invocation
+combined `--job-max-runtime "40 minutes"` with the standard publisher; this
+CLI rejects that combination unless `--detach` is set. The corrected standard
+publisher then refused because the path list since the old remote lane tip
+exceeded the command runner's capture limit:
+
+```text
+git diff --name-only -z origin/chore/rsc-h2-completion..HEAD output exceeded the repo-run capture limit.
+```
+
+The lane preserves that limit and uses its authorized direct-push fallback,
+with `yeet verify --tier cheap-gates` run independently and the exact outcome
+reported in the final dispatch. The independent tier passes all 17 lanes.
+`bun install --frozen-lockfile` passes in the
+clean committed workspace. The publisher's isolated head-install preflight
+was not reached; this local frozen install is recorded separately, not as
+that isolated proof. No shared runner code, waiver or baseline was changed.
+The parity rerun retains 286 passing tests and all prior passing lanes, with
+only the same inherited test compiler diagnostic. Final main integration `372f3e92ce` includes #1711/#1713 packet graduations,
+#1707 TypeScript API dependency work, and #1666 inherited coverage/command
+repairs. #1666 fixes the previously attributed #1710 test compiler diagnostic.
+H2 source remains unchanged. Fresh full-package and parity requalification
+against these dependencies is recorded by the final worker dispatch, separately
+from the earlier qualified-source results above.
+
 ## Recovery and remaining ownership
 
 Revert the owning H2 PR to restore the previous reader; optional additions

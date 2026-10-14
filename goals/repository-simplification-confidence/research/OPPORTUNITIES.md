@@ -1320,3 +1320,13 @@ on the new head if it appears.
 - Prevention: use the canonical publisher invocation; configure the detached
   readiness monitor through its own job options. Shared help lists job flags
   without distinguishing the publisher's automatically detached monitor.
+
+### 2026-10-14 — H2 long-lived branch path capture
+
+- Work: publish the integrated October 14 wave to reopened #1574.
+- Evidence: publisher exits before pushing: `git diff --name-only -z
+  origin/chore/rsc-h2-completion..HEAD output exceeded the repo-run capture limit.`
+  The remote lane tip predates the five-day main integration.
+- Prevention: size or stream NUL-delimited path inventories independently of
+  bounded diagnostic output. H2 does not widen the shared command runner here;
+  preserve qualification and use the lane's authorized publication fallback.

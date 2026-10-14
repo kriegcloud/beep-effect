@@ -665,6 +665,25 @@ without claiming completion.
 
 ## Decision Log
 
+### 2026-10-14 — H2 resumed publication capture boundary
+
+Decision: retain the command runner's bounded capture and publish the qualified
+H2 wave through the lane's authorized named-path commit/direct-push fallback.
+Run the cheap tier independently and record its actual outcome; retain the
+separate frozen-lockfile workspace install result. No isolated head-install
+preflight pass is inferred from that install.
+
+Reason: the canonical publisher refuses before pushing because the NUL-delimited
+path inventory since the old remote lane tip exceeds its capture limit. The
+resumed main integration spans five days; widening shared command execution
+belongs to its own owner, not this completion-evidence lane. The brief's run-3
+fallback and RSC-RESUME authorize delivery to reopened #1574; source-bound
+qualification and inherited-red attribution remain required.
+
+Reversal: revert the owning H2 PR through the normal PR route. Do not rewrite
+published history; restore the canonical publisher when its owner repairs
+bounded path-inventory handling.
+
 | Date | Decision | Reason | How to reverse |
 | --- | --- | --- | --- |
 | 2026-10-09 | Create this coordinating packet through `bun run beep goals bootstrap --plan --json`; generated payloads written byte-for-byte, seeds rewritten to carry the brief. | Brief section 1 item 2: supported goal workflow; the plan is the supported materialization. | `git revert` of the landing PR; the plan is reproducible from the same command. |
