@@ -179,6 +179,16 @@ Further acceptance for P2a:
 - A property test checks determinism: decomposing the same claim twice gives `Equal` trees.
 - `bun run beep quality package-verify @beep/law-practice-domain` passes.
 
+## Data access status (2026-10-14)
+
+- The USPTO ODP key on this workstation returns `403` (see `OPPORTUNITIES.md`), so the
+  `UsptoClaims` `application` source and office-action provenance wait for the operator to
+  regenerate the key.
+- P2a and the `ClaimSelfCheck` Layer (tested with an in-memory `UsptoClaims`) proceed without
+  data.
+- The adapter is written against the ODP documents shape. Its XML handling is fixed only after one
+  live probe shows which `CLM` download options carry XML.
+
 ## Out of scope for P2a
 
 - The use-cases Layer and the server adapter (P2b).
