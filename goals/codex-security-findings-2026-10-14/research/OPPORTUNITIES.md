@@ -19,3 +19,14 @@
   exceeded`; the REST `/pulls/1678/files` call supplied the file list.
 - Would have prevented it: a REST fallback for the read-only PR-file lookup
   when GraphQL quota is exhausted.
+
+## 2026-10-14: Bun config flag silently changed command interpretation
+
+- Doing: blocking an untrusted source checkout from loading a Bun preload
+  before the signed pilot worker starts.
+- Evidence: with Bun 1.4.2, `--config <path>` still loaded the source checkout's
+  `bunfig.toml` and did not run the worker, while `--config=<path>` suppressed
+  the preload and ran the worker. Both forms exited zero in the small isolated
+  reproduction.
+- Would have prevented it: CLI argument-shape tests that execute the pinned
+  Bun version instead of checking only a mocked process argument list.

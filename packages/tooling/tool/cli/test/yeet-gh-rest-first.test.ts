@@ -73,6 +73,7 @@ const timelinePayload = [
   { event: "labeled", created_at: "2026-10-06T16:01:00Z" },
   { event: "ready_for_review", created_at: "2026-10-06T16:10:00Z" },
   { event: "ready_for_review", created_at: "2026-10-06T16:20:00Z" },
+  { event: "head_ref_force_pushed", created_at: "2026-10-06T16:35:00Z" },
 ];
 
 const repoLayer = Repo.layer(RepoRef.make({ owner: "beep-effect", repo: "beep-effect" }));
@@ -85,6 +86,9 @@ it.layer(
     request: {
       "GET /repos/{owner}/{repo}/pulls/{pull_number}": pullPayload,
       "GET /repos/{owner}/{repo}/pulls/{pull_number}/comments": [],
+      "GET /repos/{owner}/{repo}/commits/{ref}/check-suites": {
+        check_suites: [{ created_at: "2026-10-06T16:30:00Z" }],
+      },
       "DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}": GitHubError.notFound("DELETE label", "label"),
     },
     paginate: {
@@ -106,7 +110,10 @@ it.layer(
       assertSome(pr.mergeableState, "clean");
       expect(A.length(yield* rest.checkRuns(pr.headSha))).toBe(3);
       expect(yield* rest.requiredStatusContexts("main")).toEqual(["Lint", "Test Unit"]);
-      assertSome(O.map(yield* rest.readyForReviewAt(1501), DateTime.formatIso), "2026-10-06T16:20:00.000Z");
+      const timeline = yield* rest.reviewTimeline(1501);
+      assertSome(O.map(timeline.readyAt, DateTime.formatIso), "2026-10-06T16:20:00.000Z");
+      assertSome(O.map(timeline.forcedAt, DateTime.formatIso), "2026-10-06T16:35:00.000Z");
+      assertSome(O.map(yield* rest.headFirstReceivedAt(pr.headSha), DateTime.formatIso), "2026-10-06T16:30:00.000Z");
     })
   );
 
@@ -276,7 +283,7 @@ const facts = (overrides: Partial<ConstructorParameters<typeof YeetGhGateFacts>[
     requiredContexts: O.some(["Lint", "Test Unit"]),
     checkRuns: [run(1, "Lint", "completed", "success"), run(2, "Test Unit", "completed", "skipped")],
     readyAt: O.some(DateTime.makeUnsafe("2026-10-06T16:10:00Z")),
-    headCommittedAt: O.some(DateTime.makeUnsafe("2026-10-06T16:05:00Z")),
+    headPushedAt: O.some(DateTime.makeUnsafe("2026-10-06T16:05:00Z")),
     outstandingThreads: O.some(0),
     totalThreads: O.some(2),
     tolerated: [],
@@ -300,6 +307,11 @@ describe("REST merge gate", () => {
     const verdict = decideYeetGhMergeGate(facts());
     expect(verdict.met).toBe(true);
     expect(verdict.requiredGreen).toBe(2);
+  });
+
+  it("holds a ready pull request for a newly received head even when its commit metadata is old", () => {
+    const verdict = decideYeetGhMergeGate(facts({ headPushedAt: O.some(DateTime.makeUnsafe("2026-10-06T16:39:00Z")) }));
+    expect(A.map(verdict.findings, (finding) => finding.reason)).toEqual(["review-window-open"]);
   });
 
   it("keeps the newest run per check name", () => {

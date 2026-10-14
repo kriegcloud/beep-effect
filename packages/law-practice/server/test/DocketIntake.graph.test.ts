@@ -649,6 +649,26 @@ describe("@beep/law-practice-server DocketIntake Graph adapters", () => {
 
   it.layer(graphLayer(), { timeout: "5 seconds" })((it) => {
     it.effect(
+      "rejects an all-day start whose exclusive end is outside LocalDate before calling Graph",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* GraphTestHttp;
+        const calendar = yield* DocketCalendar;
+        const entry = DocketCalendarEntry.make({
+          ...calendarEntry(true),
+          date: LocalDate.make({ year: 9999, month: 12, day: 31 }),
+        });
+
+        const failure = yield* failureOf(calendar.create(entry));
+
+        assertSome(
+          O.map(failure, (error) => [error.stage, error.cause]),
+          ["calendar", "all-day-date-out-of-range"]
+        );
+        expect(yield* testHttp.calls).toStrictEqual([]);
+      })
+    );
+
+    it.effect(
       "creates an all-day entry in the practice time zone with its category, status and idempotency key",
       Effect.fnUntraced(function* () {
         const testHttp = yield* GraphTestHttp;

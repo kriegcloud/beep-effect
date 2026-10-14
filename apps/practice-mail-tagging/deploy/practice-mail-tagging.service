@@ -12,6 +12,7 @@ Wants=network-online.target
 
 [Service]
 Type=exec
+UMask=0077
 # PLACEHOLDER: absolute path of the beep-effect checkout the job runs from.
 WorkingDirectory=/REPLACE_WITH_CHECKOUT_PATH
 # PLACEHOLDER: the environment file shared with docket-intake (mode 0600).

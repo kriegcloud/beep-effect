@@ -69,6 +69,7 @@ import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import sharp from "sharp";
 import { hashFileSha256 as sharedHashFileSha256 } from "../../../internal/cli/FsGuards.ts";
 import { withDuckDb } from "../../../internal/duckdb/WithDuckDb.ts";
 import {
@@ -1230,17 +1231,30 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
   // A single-frame TIFF is one page. A multi-frame TIFF would be read whole by
   // Tesseract under one page timeout and one digest, so it keeps its first
   // reading until frames are rendered one by one.
-  const imagePages = (extension: string | undefined, sourceBytes: Uint8Array, digest: ContentDigest) =>
+  const imagePages = (extension: string | undefined, sourceBytes: Uint8Array) =>
     pipe(
       ocrImageMediaType(extension),
       O.filter((mediaType) => mediaType !== "image/tiff" || O.contains(tiffFrameCount(sourceBytes), 1)),
-      O.map(
-        (mediaType): Omit<OcrPages, "format"> => ({
-          pageCount: 1,
-          render: (_pageNumber: number): Effect.Effect<PageImage, PopplerError> =>
-            Effect.succeed(PageImage.make({ bytes: sourceBytes, digest, mediaType })),
-        })
-      )
+      O.match({
+        onNone: () => Effect.succeed(O.none<Omit<OcrPages, "format">>()),
+        onSome: () =>
+          Effect.tryPromise({
+            try: () =>
+              sharp(Buffer.from(sourceBytes), { failOn: "error", limitInputPixels: 40_000_000 }).png().toBuffer(),
+            catch: () => undefined,
+          }).pipe(
+            Effect.map((normalized) => {
+              const bytes = new Uint8Array(normalized);
+              const digest = ContentDigest.make(`sha256:${bytesToHex(sha256(bytes))}`);
+              return O.some<Omit<OcrPages, "format">>({
+                pageCount: 1,
+                render: (_pageNumber: number): Effect.Effect<PageImage, PopplerError> =>
+                  Effect.succeed(PageImage.make({ bytes, digest, mediaType: "image/png" })),
+              });
+            }),
+            Effect.orElseSucceed(() => O.none<Omit<OcrPages, "format">>())
+          ),
+      })
     );
 
   // Only PDFs and images whose first reading failed in a driver, or produced
@@ -1248,7 +1262,6 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
   // no engine routes keep their outcome.
   const pagesToRead = Effect.fn("CorpusCommandService.ocrPagesToRead")(function* ({
     first,
-    ids,
     record,
     sourceBytes,
     sourcePath,
@@ -1277,7 +1290,7 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
       return OcrPlan.Keep();
     }
     if (format === "image-metadata") {
-      return plan(imagePages(extension, sourceBytes, ids.digest));
+      return plan(yield* imagePages(extension, sourceBytes));
     }
     if (format !== "pdf-text-layer") {
       return OcrPlan.Keep();

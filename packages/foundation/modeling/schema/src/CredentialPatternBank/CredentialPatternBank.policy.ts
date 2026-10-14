@@ -37,15 +37,12 @@ const rule = (
 export const credentialRules: ReadonlyArray<CredentialRule> = [
   rule(
     "secret-assignment",
-    /\b([A-Za-z0-9_-]*(?:api[_-]?key|key|token|secret|password|passwd|pass|pwd|auth|credential|session)[A-Za-z0-9_-]*)(\s*[=:]\s*)("[^"]*"|'[^']*'|[^\s;&|]+)/
-      .source,
+    /(?<![A-Za-z0-9_-])([A-Za-z0-9_-]+)(\s*[=:]\s*)("[^"]*"|'[^']*'|[^\s;&|]+)/.source,
     "giu",
     [3],
     [
-      /\b[A-Za-z0-9_-]*(?:api[_-]?key|key|token|secret|password|passwd|pass|pwd|auth|credential|session)[A-Za-z0-9_-]*\s*[=:]\s*"[^"]*$/
-        .source,
-      /\b[A-Za-z0-9_-]*(?:api[_-]?key|key|token|secret|password|passwd|pass|pwd|auth|credential|session)[A-Za-z0-9_-]*\s*[=:]\s*'[^']*$/
-        .source,
+      /(?<![A-Za-z0-9_-])([A-Za-z0-9_-]+)\s*[=:]\s*"[^"]*$/.source,
+      /(?<![A-Za-z0-9_-])([A-Za-z0-9_-]+)\s*[=:]\s*'[^']*$/.source,
     ]
   ),
   rule("auth-header", /\b(authorization|proxy-authorization|cookie|set-cookie)(\s*:\s*)([^\n\r]+)/.source, "giu", [3]),
@@ -64,6 +61,7 @@ export const credentialRules: ReadonlyArray<CredentialRule> = [
 const RedactionMarker = LiteralKit(["[REDACTED]", "[REDACTED_SECRET]"]);
 const isRedactionMarker = S.is(RedactionMarker);
 const isMarker = (text: string) => isRedactionMarker(Str.replaceAll(/^["']|["']$/gu, "")(Str.trim(text)));
+const assignmentKeyPattern = /(?:api[_-]?key|key|token|secret|password|passwd|pass|pwd|auth|credential|session)/iu;
 const rawMatches = (text: string, grammar: CredentialRule): ReadonlyArray<RegExpMatchArray> => {
   const pattern = new RegExp(grammar.pattern, grammar.flags);
   if (!CredentialCategory.is["secret-assignment"](grammar.category)) {
@@ -76,13 +74,13 @@ const rawMatches = (text: string, grammar: CredentialRule): ReadonlyArray<RegExp
     const valueStart = match.value.index + Str.length(capture(match.value, 1)) + Str.length(capture(match.value, 2));
     const valueEnd = valueStart + Str.length(capture(match.value, 3));
     const span = `${valueStart}:${valueEnd}`;
-    if (!HashSet.has(seen, span)) {
+    if (assignmentKeyPattern.test(capture(match.value, 1)) && !HashSet.has(seen, span)) {
       found = A.append(found, match.value);
       seen = HashSet.add(seen, span);
     }
     // Search from the next ASCII key position so a newly recognized prefix cannot
     // consume a nested assignment that either original bank would have matched.
-    pattern.lastIndex = match.value.index + 1;
+    pattern.lastIndex = match.value.index + Str.length(capture(match.value, 1));
     match = O.fromNullOr(pattern.exec(text));
   }
   return found;
@@ -167,8 +165,12 @@ export const detectCredentials = (text: string): ReadonlyArray<CredentialMatch> 
         A.filterMap((match) => {
           const start = offset(match);
           const end = start + Str.length(capture(match, 0));
-          return !CredentialCategory.is["secret-assignment"](grammar.category) &&
-            A.some(complete, (item) => item.start <= start && item.end >= end)
+          if (CredentialCategory.is["secret-assignment"](grammar.category)) {
+            return assignmentKeyPattern.test(capture(match, 1))
+              ? Result.succeed(makeMatch(grammar.category, start, end, "residue"))
+              : Result.failVoid;
+          }
+          return A.some(complete, (item) => item.start <= start && item.end >= end)
             ? Result.failVoid
             : Result.succeed(makeMatch(grammar.category, start, end, "residue"));
         })
@@ -215,7 +217,7 @@ const renderAssignmentUnion = (text: string, grammar: CredentialRule, replacemen
       continue;
     }
     if (O.isSome(selected)) {
-      output += Str.replaceAll(new RegExp(grammar.pattern, grammar.flags), replacement)(capture(selected.value, 0));
+      output += Str.replace(new RegExp(grammar.pattern, "iu"), replacement)(capture(selected.value, 0));
       cursor = end;
     }
     output += Str.slice(cursor, start)(text);
@@ -223,7 +225,7 @@ const renderAssignmentUnion = (text: string, grammar: CredentialRule, replacemen
     end = nextEnd;
   }
   if (O.isSome(selected)) {
-    output += Str.replaceAll(new RegExp(grammar.pattern, grammar.flags), replacement)(capture(selected.value, 0));
+    output += Str.replace(new RegExp(grammar.pattern, "iu"), replacement)(capture(selected.value, 0));
     cursor = end;
   }
   return output + Str.slice(cursor)(text);

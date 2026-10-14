@@ -164,7 +164,7 @@ export class YeetGhGateFinding extends S.Class<YeetGhGateFinding>($I`YeetGhGateF
  *
  * `requiredContexts` is none when the ruleset read failed; `outstandingThreads`
  * is none when the GraphQL thread read failed or was not attempted;
- * `headCommittedAt` is none when the head commit read failed.
+ * `headPushedAt` is none when GitHub has no check-suite receipt for the head.
  *
  * @category models
  * @since 0.0.0
@@ -176,7 +176,7 @@ export class YeetGhGateFacts extends S.Class<YeetGhGateFacts>($I`YeetGhGateFacts
     requiredContexts: S.String.pipe(S.Array, S.Option),
     checkRuns: S.Array(GithubCheckRunRecord),
     readyAt: S.Option(S.DateTimeUtc),
-    headCommittedAt: S.Option(S.DateTimeUtc),
+    headPushedAt: S.Option(S.DateTimeUtc),
     outstandingThreads: S.Option(S.Int),
     totalThreads: S.Option(S.Int),
     tolerated: S.Array(S.String),
@@ -381,7 +381,7 @@ const otherCheckFindings = (
 };
 
 const reviewWindowAge = (facts: YeetGhGateFacts): O.Option<Duration.Duration> =>
-  O.map(facts.headCommittedAt, (head) => {
+  O.map(facts.headPushedAt, (head) => {
     const start = DateTime.max(
       O.getOrElse(facts.readyAt, () => facts.pullRequest.createdAt),
       head
@@ -396,7 +396,7 @@ const reviewWindowFindings = (
   forceWindow
     ? []
     : O.match(windowAge, {
-        onNone: () => [finding("review-window-unknown", "the head commit time could not be read")],
+        onNone: () => [finding("review-window-unknown", "GitHub has no trusted head push time")],
         onSome: (age) =>
           when(
             Duration.isLessThan(age, YEET_GH_REVIEW_WINDOW),
@@ -693,23 +693,37 @@ const readGateFacts = Effect.fn("YeetGh.readGateFacts")(function* (options: {
         Console.error(`[gh] ${label} unknown for #${options.number}: ${error.message}`).pipe(Effect.as(O.none<A>()))
       )
     );
-  const [requiredContexts, checkRuns, readyAt, headCommittedAt] = yield* Effect.all(
+  const [requiredContexts, checkRuns, timeline, firstReceivedAt] = yield* Effect.all(
     [
       optional("required contexts", rest.requiredStatusContexts(pr.baseRef)),
       rest.checkRuns(pr.headSha),
-      rest.readyForReviewAt(options.number),
-      optional("head commit time", rest.commitCommittedAt(pr.headSha)),
+      rest.reviewTimeline(options.number),
+      rest
+        .headFirstReceivedAt(pr.headSha)
+        .pipe(
+          Effect.catch((error) =>
+            Console.error(`[gh] head check suites unknown for #${options.number}: ${error.message}`).pipe(
+              Effect.as(O.none<DateTime.Utc>())
+            )
+          )
+        ),
     ],
     { concurrency: 4 }
   );
   const threads = options.readThreads ? yield* readOutstandingThreads(options.number, options.policy) : O.none();
+  const headPushedAt = O.map(firstReceivedAt, (received) =>
+    O.getOrElse(
+      O.map(timeline.forcedAt, (forced) => DateTime.max(received, forced)),
+      () => received
+    )
+  );
   return YeetGhGateFacts.make({
     pullRequest: pr,
     pinnedSha: O.getOrElse(options.pinnedSha, () => pr.headSha),
     requiredContexts,
     checkRuns,
-    readyAt,
-    headCommittedAt,
+    readyAt: timeline.readyAt,
+    headPushedAt,
     outstandingThreads: O.map(threads, (read) => read.outstanding),
     totalThreads: O.map(threads, (read) => read.total),
     tolerated: options.tolerated,
@@ -723,7 +737,7 @@ const renderVerdictLines = (facts: YeetGhGateFacts, verdict: YeetGhGateVerdict):
   return [
     `#${pr.number} ${pr.state}${pr.merged ? " merged" : ""} ${pr.draft ? "DRAFT" : "ready"} head=${Str.slice(0, 10)(pr.headSha)} mergeable=${O.getOrElse(pr.mergeableState, () => "?")} labels=[${A.join(pr.labels, ",")}]`,
     `  required: ${verdict.requiredGreen}/${verdict.requiredTotal} green`,
-    `  review window: ready=${O.match(facts.readyAt, { onNone: () => "never(created)", onSome: DateTime.formatIso })} head=${O.match(facts.headCommittedAt, { onNone: () => "?", onSome: DateTime.formatIso })} age=${O.match(verdict.windowAge, { onNone: () => "?", onSome: formatAge })}${facts.forceWindow ? " (forced)" : ""}`,
+    `  review window: ready=${O.match(facts.readyAt, { onNone: () => "never(created)", onSome: DateTime.formatIso })} pushed=${O.match(facts.headPushedAt, { onNone: () => "?", onSome: DateTime.formatIso })} age=${O.match(verdict.windowAge, { onNone: () => "?", onSome: formatAge })}${facts.forceWindow ? " (forced)" : ""}`,
     `  threads: ${O.match(facts.outstandingThreads, {
       onNone: () => "unknown",
       onSome: (count) => `${count} outstanding / ${O.getOrElse(facts.totalThreads, () => 0)}`,

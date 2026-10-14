@@ -14,6 +14,42 @@
     "L1": {
       "status": "implemented",
       "findings": ["CSF-001"]
+    },
+    "L2": {
+      "status": "implemented",
+      "findings": ["CSF-002"]
+    },
+    "L3": {
+      "status": "implemented",
+      "findings": ["CSF-004"]
+    },
+    "L4": {
+      "status": "implemented",
+      "findings": ["CSF-005", "CSF-032"]
+    },
+    "L5": {
+      "status": "implemented",
+      "findings": ["CSF-006", "CSF-007"]
+    },
+    "L6": {
+      "status": "implemented",
+      "findings": ["CSF-008"]
+    },
+    "L7": {
+      "status": "implemented",
+      "findings": ["CSF-014"]
+    },
+    "L8": {
+      "status": "implemented",
+      "findings": ["CSF-009"]
+    },
+    "L9": {
+      "status": "implemented",
+      "findings": ["CSF-010"]
+    },
+    "L10": {
+      "status": "implemented",
+      "findings": ["CSF-011"]
     }
   },
   "findings": [
@@ -52,15 +88,27 @@
       "severity": "Medium",
       "codexStatus": "New",
       "commit": "494d134760689cb62c222172bcd037be618b4a9a",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Security Cloud evidence identifies backtracking in the canonical secret-assignment regex on a 4 KiB key-like token. The source at current HEAD retained the ambiguous regex prefix, and the focused regression covers detection, counting, and replacement plus a nested true match."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/foundation/modeling/schema/src/CredentialPatternBank/CredentialPatternBank.policy.ts",
+          "packages/foundation/modeling/schema/test/CredentialPatternBank.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/CredentialPatternBank.test.ts --pool=threads --maxWorkers=1",
+          "bun run beep quality package-verify @beep/schema"
+        ],
+        "summary": "Scan candidate assignment keys with a linear token grammar, then classify captured keys against credential keywords before producing matches."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "canonical credential pattern bank",
+      "lane": "L2"
     },
     {
       "id": "CSF-003",
@@ -86,15 +134,28 @@
       "severity": "Medium",
       "codexStatus": "New",
       "commit": "0f5b4d5ae1235eaedcb7d633ae4e62fb04d4237f",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Security Cloud established a three-message deterministic filename collision against the create-only DocumentStore contract. The current filer exhausted two candidate names and failed before tagging or checkpointing; the existing test demonstrated repeatable failure."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/law-practice/domain/src/values/MailTagging/MailTagging.ledger.model.ts",
+          "packages/law-practice/domain/src/values/MailTagging/MailTagging.report.model.ts",
+          "packages/law-practice/use-cases/src/MailTagging/MailTagging.filer.ts",
+          "packages/law-practice/use-cases/test/MailTagging.filer.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/MailTagging.filer.test.ts --pool=threads --maxWorkers=1"
+        ],
+        "summary": "Record exhausted names as durable abandonments plus a named attachment skip, so the poison message cannot block later mail."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "mail attachment filing",
+      "lane": "L3"
     },
     {
       "id": "CSF-005",
@@ -103,15 +164,26 @@
       "severity": "Medium",
       "codexStatus": "New",
       "commit": "a9b6f6cc48255d51f78fe51fa6418faa061e27fa",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current Graph adapter still passed the accepted maximum LocalDate into all-day window construction, where exclusive-end arithmetic exceeds the supported year range and throws outside typed error handling. Live model extraction remains untested."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/law-practice/server/src/DocketIntake/DocketIntake.graph.ts",
+          "packages/law-practice/server/test/DocketIntake.graph.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/DocketIntake.graph.test.ts --pool=threads --maxWorkers=1"
+        ],
+        "summary": "Reject an unrepresentable all-day exclusive end as a typed calendar error before sending a Graph request."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "docket Graph calendar adapter",
+      "lane": "L4"
     },
     {
       "id": "CSF-006",
@@ -120,15 +192,27 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "d413c39afe6e3c53ddf9d2727ae207cf251e5f00",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Security Cloud traced source-bearing review rounds into the live file store. Current HEAD still created the state directory and atomic replacement without explicit private modes; exposure depends on traversable ancestors and a permissive umask."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/law-practice/server/src/DocketIntake/DocketIntake.store.ts",
+          "packages/law-practice/server/test/DocketIntake.store.test.ts",
+          "apps/docket-intake/README.md"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/DocketIntake.store.test.ts test/MailTagging.files.test.ts --pool=threads --maxWorkers=1"
+        ],
+        "summary": "Enforce owner-only state and digest directories and atomic file modes, including pre-existing state-directory permissions."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "docket intake file store",
+      "lane": "L5"
     },
     {
       "id": "CSF-007",
@@ -137,15 +221,29 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "6008faca1d0927aa2aed947e23cbf203a34629ae",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Security Cloud traced the CLI lock and state-file adapter to plaintext metadata files created without explicit modes. Current HEAD retained that behavior; exposure depends on traversable ancestors and a permissive umask."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "apps/practice-mail-tagging/src/PracticeMailTagging.lock.ts",
+          "apps/practice-mail-tagging/deploy/practice-mail-tagging.service",
+          "packages/law-practice/server/src/internal/MailTaggingStateFile.ts",
+          "packages/law-practice/server/test/MailTagging.files.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/PracticeMailTagging.lock.test.ts --pool=threads --maxWorkers=1",
+          "bunx vitest run test/DocketIntake.store.test.ts test/MailTagging.files.test.ts --pool=threads --maxWorkers=1"
+        ],
+        "summary": "Enforce owner-only state-directory and ledger modes for attended commands and the sample user service."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "mail-tagging state and lock",
+      "lane": "L5"
     },
     {
       "id": "CSF-008",
@@ -154,15 +252,26 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "21813b5cbab3057a624ef41e4ec4e819003449ab",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current sanitizer removed ANSI sequences once, allowing nested OSC and CSI bytes to join into terminal controls. A stubbed job-log regression reproduces the reconstruction; live terminal clipboard mutation was not established."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "plugins/github/skills/gh-fix-ci/scripts/inspect_pr_checks.py",
+          "plugins/github/skills/gh-fix-ci/tests/test_inspect_pr_checks.py"
+        ],
+        "verificationCommands": [
+          "python3 -m unittest discover -s plugins/github/skills/gh-fix-ci/tests -v"
+        ],
+        "summary": "Remove residual C0/C1 terminal controls after ANSI substitution so reconstructed escape sequences are inert."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "gh-fix-ci job-log inspector",
+      "lane": "L6"
     },
     {
       "id": "CSF-009",
@@ -171,15 +280,26 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "2dffb2827cd4a07a8b571c1d4f765f61410b81f3",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current corpus OCR path selected images by extension and passed unvalidated bytes to Tesseract after the source-path guard. The report traced the input to the native image-or-file-list argument, while noting its native execution proof gap."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Corpus/internal/ServicePrograms.ts",
+          "packages/tooling/tool/cli/test/corpus-command.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/corpus-command.test.ts --pool=threads --maxWorkers=1 -t 'reads scans and images|rejects image-named|reads a single-frame TIFF'"
+        ],
+        "summary": "Decode and re-encode bounded raster input as PNG before it reaches Tesseract; skip malformed images."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "corpus OCR raster intake",
+      "lane": "L8"
     },
     {
       "id": "CSF-010",
@@ -188,15 +308,26 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "08fb0d175463dc86ee6243ce5747bcff59ac0971",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current Graph attachment schema permits control characters and skipped/duplicate row names reached the terminal formatter without escaping. The report demonstrated the exact formatter in isolation; live Graph name preservation was not tested."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Drawings/Drawings.intake.ts",
+          "packages/tooling/tool/cli/test/drawings-intake.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/drawings-intake.test.ts --pool=threads --maxWorkers=1 -t 'saves the newest reviewer|pulls through the lane'"
+        ],
+        "summary": "Replace control and format characters in printed attachment and duplicate names while preserving raw names in JSON provenance."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "drawing intake terminal summary",
+      "lane": "L9"
     },
     {
       "id": "CSF-011",
@@ -205,15 +336,26 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "28b28fa551a4aa30c3cfd5b5a3a899a739328aa2",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current supervisor ran Bun with the separate source checkout as cwd and no trusted config, allowing its preload to run before the worker. Security Cloud reproduced the startup primitive and traced forgeable receipt fields; full envelope issuance was not executed."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Cache/Cache.pilot.runner.ts",
+          "packages/tooling/tool/cli/test/cache-signed-runner.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/cache-signed-runner.test.ts --pool=threads --maxWorkers=1"
+        ],
+        "summary": "Pass an empty supervisor-owned Bun configuration with the exact --config=<path> form."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "signed cache pilot supervisor",
+      "lane": "L10"
     },
     {
       "id": "CSF-012",
@@ -256,15 +398,27 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "3c65e30092285e15ed600470ccc29538c11c2f4a",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current REST merge gate used attacker-controlled committer metadata as the head review-window time. The report reproduced backdating at a local receiver and the affected gate path remains live."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/internal/github/GithubRest.ts",
+          "packages/tooling/tool/cli/src/commands/Yeet/internal/GhOps.ts",
+          "packages/tooling/tool/cli/test/yeet-gh-rest-first.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/yeet-gh-rest-first.test.ts --pool=threads --maxWorkers=1"
+        ],
+        "summary": "Anchor the REST review window to GitHub check-suite receipt and force-push timeline evidence; fail closed when receipt evidence is unavailable."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Yeet REST merge review window",
+      "lane": "L7"
     },
     {
       "id": "CSF-015",
@@ -562,15 +716,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "793b1efffb26a55f67bc64d49632a9089df4ab26",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The current reminder ladder subtracted every offset before filtering past results. A valid year-one deadline underflows LocalDate during that subtraction, and the focused boundary test exercises the policy."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/law-practice/domain/src/values/DocketDeadline/DocketDeadline.model.ts",
+          "packages/law-practice/domain/test/DocketDeadline.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/DocketDeadline.test.ts --pool=threads --maxWorkers=1"
+        ],
+        "summary": "Filter reminder offsets by distance to the due date before subtracting from a potentially boundary-year date."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "docket reminder ladder",
+      "lane": "L4"
     },
     {
       "id": "CSF-033",

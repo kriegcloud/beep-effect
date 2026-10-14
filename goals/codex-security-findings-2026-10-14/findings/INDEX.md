@@ -18,19 +18,19 @@ auth values, email addresses, and raw local paths.
 | ID | Severity | Status | Title | Owner area |
 | --- | --- | --- | --- | --- |
 | [CSF-001](./CSF-001.md) | Medium | repair implemented | Crafted review counts can crash Yeet closeout and monitoring | Yeet review body parsing |
-| [CSF-002](./CSF-002.md) | Medium | captured | Credential\-bank regex enables small\-input denial of service | _pending P2_ |
+| [CSF-002](./CSF-002.md) | Medium | repair implemented | Credential\-bank regex enables small\-input denial of service | canonical credential pattern bank |
 | [CSF-003](./CSF-003.md) | Medium | captured | Draft edits can bypass the outbox send expectation guard | _pending P2_ |
-| [CSF-004](./CSF-004.md) | Medium | captured | Crafted attachment names persistently block mail tagging | _pending P2_ |
-| [CSF-005](./CSF-005.md) | Medium | captured | Boundary\-date emails can crash the docket intake service | _pending P2_ |
-| [CSF-006](./CSF-006.md) | Low | captured | Review checkpoints expose mail content through permissive files | _pending P2_ |
-| [CSF-007](./CSF-007.md) | Low | captured | Mail\-tagging state can be readable by other local users | _pending P2_ |
-| [CSF-008](./CSF-008.md) | Low | captured | Job\-log ANSI filter can reconstruct terminal control sequences | _pending P2_ |
-| [CSF-009](./CSF-009.md) | Low | captured | Tesseract file\-list input bypasses the corpus read boundary | _pending P2_ |
-| [CSF-010](./CSF-010.md) | Low | captured | Mail attachment names inject terminal controls during intake | _pending P2_ |
-| [CSF-011](./CSF-011.md) | Low | captured | Source checkout preloads can forge signed pilot evidence | _pending P2_ |
+| [CSF-004](./CSF-004.md) | Medium | repair implemented | Crafted attachment names persistently block mail tagging | mail attachment filing |
+| [CSF-005](./CSF-005.md) | Medium | repair implemented | Boundary\-date emails can crash the docket intake service | docket Graph calendar adapter |
+| [CSF-006](./CSF-006.md) | Low | repair implemented | Review checkpoints expose mail content through permissive files | docket intake file store |
+| [CSF-007](./CSF-007.md) | Low | repair implemented | Mail\-tagging state can be readable by other local users | mail-tagging state and lock |
+| [CSF-008](./CSF-008.md) | Low | repair implemented | Job\-log ANSI filter can reconstruct terminal control sequences | gh-fix-ci job-log inspector |
+| [CSF-009](./CSF-009.md) | Low | repair implemented | Tesseract file\-list input bypasses the corpus read boundary | corpus OCR raster intake |
+| [CSF-010](./CSF-010.md) | Low | repair implemented | Mail attachment names inject terminal controls during intake | drawing intake terminal summary |
+| [CSF-011](./CSF-011.md) | Low | repair implemented | Source checkout preloads can forge signed pilot evidence | signed cache pilot supervisor |
 | [CSF-012](./CSF-012.md) | Low | captured | Hook resolver executes code from an untrusted current checkout | _pending P2_ |
 | [CSF-013](./CSF-013.md) | Low | captured | Aliased packages bypass the exact\-version Bun audit ignore guard | _pending P2_ |
-| [CSF-014](./CSF-014.md) | Low | captured | Backdated commits bypass the new merge review window | _pending P2_ |
+| [CSF-014](./CSF-014.md) | Low | repair implemented | Backdated commits bypass the new merge review window | Yeet REST merge review window |
 | [CSF-015](./CSF-015.md) | Low | captured | Address substring parsing bypasses attachment sender restrictions | _pending P2_ |
 | [CSF-016](./CSF-016.md) | Low | captured | Publisher PDF discovery bypasses internal\-source restrictions | _pending P2_ |
 | [CSF-017](./CSF-017.md) | Low | captured | Correspondent parser allows CPU\-exhausting regex backtracking | _pending P2_ |
@@ -48,7 +48,7 @@ auth values, email addresses, and raw local paths.
 | [CSF-029](./CSF-029.md) | Informational | captured | Model report symlinks can overwrite operator files | _pending P2_ |
 | [CSF-030](./CSF-030.md) | Informational | captured | Quadratic regex permits denial of service in OA recognition | _pending P2_ |
 | [CSF-031](./CSF-031.md) | Informational | captured | Undo can delete calendar entries verified after planning | _pending P2_ |
-| [CSF-032](./CSF-032.md) | Informational | captured | Boundary\-date input can repeatedly abort docket intake polls | _pending P2_ |
+| [CSF-032](./CSF-032.md) | Informational | repair implemented | Boundary\-date input can repeatedly abort docket intake polls | docket reminder ladder |
 | [CSF-033](./CSF-033.md) | Informational | captured | New Bash grants bypass the Beep\-only log access restriction | _pending P2_ |
 | [CSF-034](./CSF-034.md) | Informational | captured | Crafted PDF font graphs cause exponential validation work | _pending P2_ |
 | [CSF-035](./CSF-035.md) | Informational | captured | Historical citations cause unbounded repository archive copies | _pending P2_ |

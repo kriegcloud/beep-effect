@@ -383,7 +383,9 @@ export const makeAttachmentFiler: Effect.Effect<
     names: ReadonlyArray<string>
   ) => Effect.Effect<FilingState, FilingError> = (target, state, payload, names) =>
     A.matchLeft(names, {
-      onEmpty: () => nameHeld("every candidate name is held by a file the ledger did not store"),
+      // Every attempted name was durably abandoned. Let the message settle and
+      // retain the abandoned attachment identities for operator follow-up.
+      onEmpty: () => Effect.succeed(skipped(state, "name-held")),
       onNonEmpty: (fileName, rest) =>
         Effect.flatMap(attempt(target, payload, fileName), (stored) =>
           stored

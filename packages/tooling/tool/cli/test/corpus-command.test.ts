@@ -73,6 +73,7 @@ import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import * as TestClock from "effect/testing/TestClock";
+import sharp from "sharp";
 import { expect } from "vitest";
 import type * as PlatformError from "effect/PlatformError";
 
@@ -1415,7 +1416,9 @@ const readProvenanceLines = Effect.fn("CorpusTest.readProvenanceLines")(function
   return A.filter(Str.split(text, "\n"), Str.isNonEmpty);
 });
 
-const contentDigest = (content: string): string => bytesToHex(sha256(utf8ToBytes(content)));
+const fixtureBytes = (content: string | Uint8Array): Uint8Array =>
+  typeof content === "string" ? utf8ToBytes(content) : content;
+const contentDigest = (content: string | Uint8Array): string => bytesToHex(sha256(fixtureBytes(content)));
 
 const summaryCountKeys = [
   "alreadyCompleteCount",
@@ -1454,11 +1457,11 @@ const syntheticTiff = (frames: number): string => {
 // under raw/source-a whose manifest digest is the real digest of its content.
 // A source with `present: false` is listed in the manifest but missing on
 // disk, which aborts a run at that source the way a killed process would.
-const operationIdFor = (content: string): string =>
+const operationIdFor = (content: string | Uint8Array): string =>
   `operation:${contentDigest(`corpus-extract:${contentDigest(content)}`)}`;
 
 const makeExtractResumeFixture = Effect.fn("CorpusTest.makeExtractResumeFixture")(function* (
-  sources: ReadonlyArray<{ readonly content: string; readonly name: string; readonly present?: boolean }>,
+  sources: ReadonlyArray<{ readonly content: string | Uint8Array; readonly name: string; readonly present?: boolean }>,
   ocrLanguages: ReadonlyArray<string> = ["eng", "osd"]
 ) {
   const fs = yield* FileSystem.FileSystem;
@@ -1482,7 +1485,7 @@ const makeExtractResumeFixture = Effect.fn("CorpusTest.makeExtractResumeFixture"
 
   yield* Effect.forEach(
     A.filter(sources, (source) => source.present !== false),
-    (source) => fs.writeFileString(path.join(rawDir, source.name), source.content),
+    (source) => fs.writeFile(path.join(rawDir, source.name), fixtureBytes(source.content)),
     { discard: true }
   );
   const manifestLines = yield* Effect.forEach(sources, (source) =>
@@ -1492,7 +1495,7 @@ const makeExtractResumeFixture = Effect.fn("CorpusTest.makeExtractResumeFixture"
         originPath: `/origin/source-a/${source.name}`,
         relativePath: source.name,
         sha256: contentDigest(source.content),
-        sizeBytes: utf8ToBytes(source.content).byteLength,
+        sizeBytes: fixtureBytes(source.content).byteLength,
         sourceLabel: "source-a",
       })
     )
@@ -2109,9 +2112,16 @@ it.layer(testLayer, { excludeTestServices: true, timeout: "60 seconds" })("corpu
     Effect.fnUntraced(function* () {
       const scan = "pages=3 synthetic scan";
       const digital = "pages=1 extract-long-text";
+      const image = new Uint8Array(
+        yield* Effect.promise(() =>
+          sharp({ create: { width: 1, height: 1, channels: 3, background: "white" } })
+            .png()
+            .toBuffer()
+        )
+      );
       const fixture = yield* makeExtractResumeFixture([
         { content: scan, name: "scan.pdf" },
-        { content: "clean", name: "photo.png" },
+        { content: image, name: "photo.png" },
         { content: digital, name: "digital.pdf" },
         { content: "note body", name: "note.txt" },
         { content: "bitmap bytes", name: "drawing.bmp" },
@@ -2370,9 +2380,27 @@ it.layer(testLayer, { excludeTestServices: true, timeout: "60 seconds" })("corpu
   );
 
   it.effect(
+    "rejects image-named filename lists before invoking Tesseract",
+    Effect.fnUntraced(function* () {
+      const fixture = yield* makeExtractResumeFixture([{ content: "/outside/private-image.png\n", name: "image.png" }]);
+
+      const summary = yield* fixture.run({ ocr: true });
+
+      expect(summary.ocrSourceCount).toBe(0);
+      expect(yield* fixture.recognitionCalls()).toEqual([]);
+    })
+  );
+
+  it.effect(
     "reads a single-frame TIFF and leaves a multi-frame TIFF on its first reading",
     Effect.fnUntraced(function* () {
-      const single = syntheticTiff(1);
+      const single = new Uint8Array(
+        yield* Effect.promise(() =>
+          sharp({ create: { width: 1, height: 1, channels: 3, background: "white" } })
+            .tiff()
+            .toBuffer()
+        )
+      );
       const multi = syntheticTiff(3);
       const fixture = yield* makeExtractResumeFixture([
         { content: single, name: "single.tif" },

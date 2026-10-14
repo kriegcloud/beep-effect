@@ -32,8 +32,8 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P2 validate` - all 47 findings are captured; CSF-001 has a confirmed verdict
-and implemented repair. Reproduce the remaining reports at current HEAD, then
+`P2 validate` - all 47 findings are captured; twelve have confirmed verdicts
+and implemented repairs. Reproduce the remaining reports at current HEAD, then
 record a verdict, disposition, and owner surface.
 
 ## Findings at a glance
