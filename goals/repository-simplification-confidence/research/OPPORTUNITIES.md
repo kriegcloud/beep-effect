@@ -2048,3 +2048,17 @@ missing resource-layer timeout. The earlier package/parity commands did not
 include this full-scan ratchet. Use the existing in-memory filesystem, rely
 on the harness's per-test scope and set the layer hook budget. No inventory
 refresh or exception was used; rerun the canon ratchet before publication.
+The dedicated test typecheck then caught the wired CLI command's remaining
+static platform requirements, which the normal package audit does not check.
+Keep test-tsgo separate: its correction supplies test stdio/terminal/spawner
+and narrow crypto while retaining virtual files and fail-on-input/spawn.
+
+### H4 — hosted Security blocked by shared ruleset drift (2026-10-14)
+
+PR #1770 job 116095380764 passed OSV and dependency review, then failed
+`ci ruleset --check`: the live required-check set differs from the declared
+set, including an extra `beep-reviewer`. The same command reproduces the
+drift locally; the lane has no diff in CI/ruleset source or workflows against
+main. Route reconciliation to the shared owner and rerun Security after it
+lands. A shared settings/declaration preflight would expose this before
+spending a full hosted run. No lane-local ruleset or workflow repair was made.

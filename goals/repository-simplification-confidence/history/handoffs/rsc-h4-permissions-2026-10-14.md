@@ -2,13 +2,13 @@
 
 ```text
 lane: rsc-h4-permissions
-head: 64079959cfe9c0210a38004a468642ba020978be   pr: pending publication
-package-verify: @beep/repo-cli pass (full pre-integration audit 1257.0s/docgen 42.2s; integrated quick lint 5.2s/check 5.3s)
+head: 00209410a861eb39b7050e7902524731593a44ce (qualified source; receipt commits follow)   pr: #1770
+package-verify: @beep/repo-cli pass (integrated full audit 1045.0s/docgen 30.8s; explicit CLI environment quick lint 5.6s/check 6.2s)
 hosted-parity: test-tsgo=pass (363 files); docgen local=pass; jsdoc-ratchet=pass; knowledge refs=pass; fallow audit+health=pass (zero findings); coverage read=pass (39 tests; incumbent row 100% in every metric, zero uncovered)
 routes: ChatGPT Desktop x fresh/dormant-idle/dormant-relaunch/background/subagent-followup -> unknown, build 26.1007.71326-1, fixture none; Claude Desktop x same routes in bypass/auto -> unknown, build 2.37337.1-1, fixture none
 config: no backups created or writes; legacy sandbox_mode still present with default_permissions; F writer and drift check pending
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h4-permissions-2026-10-14.md
-open: publication/hosted review; operator Desktop fixture batch; F owned-field config repair; overall Permission continuity remains open
+open: corrected wave publication/hosted review; shared Security ruleset drift; post-#1758 main integration and parity; operator Desktop fixture batch; F owned-field config repair; overall Permission continuity remains open
 ```
 
 ## Delivered scope
@@ -155,3 +155,60 @@ previous qualification until the new sequence returns. Per the MAIN MERGE
 FREEZE ruling, a `final` marker must also wait for #1758 to merge, a main
 integration and another parity pass. Desktop fixture and F-writer dependencies
 remain open independently.
+
+## First published head and shared CI blocker
+
+PR #1770 is ready for review at
+`269e79969838c343efc16fd1f88c4b78ce1a50d1`, with `ready-for-heavy` applied.
+The successful retry's Effect Vitest ratchet has zero introduced findings.
+Readiness monitor: `4d4e66fc-ea4f-4506-859d-4867c432f9db`. Hosted Security
+job 116095380764 passed vulnerability/dependency checks and failed only on
+live ruleset/declaration drift. Local `ci ruleset --check` reproduces an extra
+live `beep-reviewer`; the lane has no CI/ruleset/workflow diff from main.
+The Security row is acknowledged as environment-only, but remains a failing
+merge gate. Shared reconciliation belongs to the orchestrator/main owner.
+The two failing Vercel deployments explicitly report rate limiting; those
+rows are acknowledged under the existing canonical exception.
+
+## Explicit CLI environment correction
+
+The repeated default package gate passed audit in 1,045.0s and docgen in
+30.8s. The separate test-tsgo then found an introduced static service-context
+diagnostic in the wired CLI test; it was not classified as inherited. Commit
+`00209410a8` supplies the CLI environment explicitly: the existing memory
+filesystem, Path, narrow Node Crypto, test stdio, deterministic terminal
+dimensions with fail-on-input, and a spawner that fails on any invocation.
+The test continues to exercise the actual Session command registration.
+Dedicated test-tsgo now exits 0 across 363 files; quick package lint/check
+pass in 5.6s/6.2s, and the Effect Vitest ratchet again has zero introduced
+findings. Independent pinned review of this correction has zero actionable
+findings. The PR was returned to draft while this wave is qualified and
+prepared for publication. Production census source remains unchanged.
+
+## Corrected-wave qualification checkpoint
+
+Qualified source/test commit:
+`00209410a861eb39b7050e7902524731593a44ce`. Production code is unchanged
+from the previously reviewed census commit. The following results supersede
+the earlier partial checkpoint:
+
+- Default integrated package audit/docgen pass (1,045.0s / 30.8s).
+- Explicit CLI environment quick package lint/check pass (5.6s / 6.2s).
+- Dedicated test-tsgo rerun passes all 363 files. The first sequence's
+  `test-tsgo=1` is retained in its raw receipt and superseded by the exit-0
+  environment-correction rerun.
+- Effect Vitest canon ratchet passes with zero introduced findings.
+- Doctest verification, bounded docgen, JSDoc ratchet (21 tracked totals,
+  zero increased, zero non-generated legacy findings), CI knowledge refs,
+  retired paths, Fallow audit and health all pass; Fallow has zero findings.
+- Scoped V8 run passes all 39 tests in 15.00s. Existing Session command
+  coverage remains 100% across all four metrics, with zero uncovered counts;
+  no baseline changed.
+- Independent source review has zero outstanding actionable findings.
+
+This is a blocked checkpoint, not an orchestrator `final` marker. At this
+checkpoint #1758 remains open. After it merges, integrate main, rerun the
+required parity list, publish the integration wave and then issue the marker.
+The shared Security drift, operator fixture batch and F writer/drift check
+remain separate dependencies. The source/report head above identifies the
+qualified code; later packet-only commits carry the qualification receipt.
