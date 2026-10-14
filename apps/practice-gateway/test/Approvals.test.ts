@@ -1,12 +1,17 @@
+import { Remediation, SetupRequirement } from "@beep/law-practice-domain";
 import { SetupApprovals } from "@beep/law-practice-use-cases/PracticeSetup";
 import { approvalMessage, ElicitedApprovals } from "@beep/practice-gateway/Approvals";
 import { requirementFromCatalog } from "@beep/practice-gateway/Requirements";
 import { it } from "@beep/test-runner";
-import { provideScopedLayer } from "@beep/test-utils";
+import { fcRuns, provideScopedLayer } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as McpSchema from "effect/ai/McpSchema";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const boxInstall = requirementFromCatalog("box-drive-installed", "documents");
 const clientInfo = { name: "approvals-test-client", version: "0.0.0" };
@@ -63,6 +68,20 @@ describe("ElicitedApprovals", () => {
       expect(yield* approveWith({ action: "accept", content: { approve: true } }, {})).toBe("declined");
       expect(yield* approve).toBe("declined");
     })
+  );
+
+  it.prop(
+    "always shows the remediation text and the reason",
+    { requirement: Arbitrary.schema(SetupRequirement) },
+    ({ requirement }) => {
+      const message = approvalMessage(requirement);
+      const text = Remediation.guards.automatic(requirement.remediation)
+        ? requirement.remediation.summary
+        : requirement.remediation.instruction;
+      assertTrue(Str.startsWith(text)(message));
+      assertTrue(F.pipe(message, Str.includes(`Why: ${requirement.explain}`)));
+    },
+    { arbitrary: fcRuns(50) }
   );
 
   it("shows the repair summary and the reason", () => {

@@ -1,6 +1,6 @@
 import { parseBitLockerProtection, parseRegistryValue, tasklistHasImage } from "@beep/practice-gateway/WindowsHost";
 import { describe, expect, it } from "@effect/vitest";
-import * as O from "effect/Option";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 
 const regOutput = [
   "",
@@ -12,9 +12,9 @@ const regOutput = [
 
 describe("Windows command output parsing", () => {
   it("reads one registry value and ignores its neighbours", () => {
-    expect(parseRegistryValue(regOutput, "DisplayVersion")).toEqual(O.some("0.14.10"));
-    expect(parseRegistryValue("DisplayName")(regOutput)).toEqual(O.some("Claude"));
-    expect(parseRegistryValue(regOutput, "InstallLocation")).toEqual(O.none());
+    assertSome(parseRegistryValue(regOutput, "DisplayVersion"), "0.14.10");
+    assertSome(parseRegistryValue("DisplayName")(regOutput), "Claude");
+    assertNone(parseRegistryValue(regOutput, "InstallLocation"));
   });
 
   it("maps the BitLocker shell property", () => {

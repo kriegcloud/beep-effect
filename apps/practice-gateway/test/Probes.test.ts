@@ -19,8 +19,8 @@ import { CLAUDE_UNINSTALL_KEY, GatewaySetupProbes } from "@beep/practice-gateway
 import { requirementFromCatalog, requirementsFor } from "@beep/practice-gateway/Requirements";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
+import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { WindowsSecretStore } from "@beep/windows-secrets";
-import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
@@ -31,7 +31,7 @@ import { fakeHost, fullProfile, settingsLayer } from "./fixtures.ts";
 import type { GatewayRequirementId } from "@beep/practice-gateway/Requirements";
 import type { FakeMachine } from "./fixtures.ts";
 
-const Platform = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
+const Platform = Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer);
 
 const probesFor = (
   machine: FakeMachine,
@@ -40,8 +40,13 @@ const probesFor = (
 ) =>
   GatewaySetupProbes.pipe(Layer.provide(Layer.mergeAll(fakeHost(machine), settingsLayer(settings), Platform, secrets)));
 
+const probeRequirement = (requirement: SetupRequirement, layer: Layer.Layer<SetupProbes>) =>
+  SetupProbes.use((probes) => probes.probe(requirement)).pipe(provideScopedLayer(layer));
+
 const probe = (id: GatewayRequirementId, layer: Layer.Layer<SetupProbes>) =>
-  SetupProbes.use((probes) => probes.probe(requirementFromCatalog(id, "documents"))).pipe(provideScopedLayer(layer));
+  probeRequirement(requirementFromCatalog(id, "documents"), layer);
+
+const layerTimeout = "30 seconds";
 
 const satisfied = ProbeSatisfied.make({});
 
@@ -151,7 +156,7 @@ describe("gateway probes", () => {
       );
       const configured = probesFor({ files: ["/bundle/bundle.manifest.json"] }, { bundleDir: "/bundle" });
       expect(yield* probe("practice-kg-bundle-present", configured)).toEqual(satisfied);
-      // The real self-check runs against the real file system, where /bundle does not exist.
+      // The real self-check reads the file system, where /bundle does not exist.
       const selfCheck = yield* probe("practice-kg-self-check", configured);
       expect(ProbeResult.guards.broken(selfCheck)).toBe(true);
     })
@@ -160,9 +165,10 @@ describe("gateway probes", () => {
   it.effect("has no probe for an id outside the catalog", () =>
     Effect.gen(function* () {
       const requirement = requirementFromCatalog("bitlocker-on", "workstation");
-      const error = yield* SetupProbes.use((probes) =>
-        probes.probe(SetupRequirement.make({ ...requirement, id: SetupRequirementId.make("unknown-thing") }))
-      ).pipe(provideScopedLayer(probesFor({})), Effect.flip);
+      const error = yield* probeRequirement(
+        SetupRequirement.make({ ...requirement, id: SetupRequirementId.make("unknown-thing") }),
+        probesFor({})
+      ).pipe(Effect.flip);
       expect(error.reason).toBe("The practice gateway has no check for this requirement.");
     })
   );
@@ -178,37 +184,43 @@ const repairBoxDrive = SetupDoctor.use((doctor) =>
   })
 );
 
+const approveAll = Layer.succeed(
+  SetupApprovals,
+  makeSetupApprovals(() => Effect.succeed("approved"))
+);
+
 describe("setup doctor over the gateway probes", () => {
-  it.effect("reports the full profile with the lawyer's steps batched", () =>
-    Effect.gen(function* () {
-      const report = yield* SetupDoctor.use((doctor) => doctor.check(requirementsFor(fullProfile))).pipe(
-        provideScopedLayer(doctorWith(ElicitedApprovals))
+  it.layer(doctorWith(ElicitedApprovals), { timeout: layerTimeout })(
+    "with approvals elicited from the client",
+    (it) => {
+      it.effect("reports the full profile with the lawyer's steps batched", () =>
+        Effect.gen(function* () {
+          const report = yield* SetupDoctor.use((doctor) => doctor.check(requirementsFor(fullProfile)));
+          expect(report.complete).toBe(false);
+          expect(A.map(report.checks, (check) => `${check.requirement}:${check.state}`)).toContain(
+            "box-drive-signed-in:blocked"
+          );
+          expect(A.map(report.humanSteps, (step) => step.requirement)).toContain("claude-signed-in");
+        })
       );
-      expect(report.complete).toBe(false);
-      expect(A.map(report.checks, (check) => `${check.requirement}:${check.state}`)).toContain(
-        "box-drive-signed-in:blocked"
+
+      it.effect("declines a repair when no MCP client can show the approval prompt", () =>
+        Effect.gen(function* () {
+          const error = yield* repairBoxDrive.pipe(Effect.flip);
+          expect(error).toBeInstanceOf(SetupRepairRefused);
+          expect(error._tag === "SetupRepairRefused" && error.refusal).toBe("declined");
+        })
       );
-      expect(A.map(report.humanSteps, (step) => step.requirement)).toContain("claude-signed-in");
-    })
+    }
   );
 
-  it.effect("declines a repair when no MCP client can show the approval prompt", () =>
-    Effect.gen(function* () {
-      const error = yield* repairBoxDrive.pipe(provideScopedLayer(doctorWith(ElicitedApprovals)), Effect.flip);
-      expect(error).toBeInstanceOf(SetupRepairRefused);
-      expect(error._tag === "SetupRepairRefused" && error.refusal).toBe("declined");
-    })
-  );
-
-  it.effect("fails the approved Box Drive install with a plain reason", () =>
-    Effect.gen(function* () {
-      const approveAll = Layer.succeed(
-        SetupApprovals,
-        makeSetupApprovals(() => Effect.succeed("approved"))
-      );
-      const error = yield* repairBoxDrive.pipe(provideScopedLayer(doctorWith(approveAll)), Effect.flip);
-      expect(error).toBeInstanceOf(SetupRepairFailed);
-      expect(error._tag === "SetupRepairFailed" && error.reason).toContain("box.com/drive");
-    })
-  );
+  it.layer(doctorWith(approveAll), { timeout: layerTimeout })("with every repair approved", (it) => {
+    it.effect("fails the approved Box Drive install with a plain reason", () =>
+      Effect.gen(function* () {
+        const error = yield* repairBoxDrive.pipe(Effect.flip);
+        expect(error).toBeInstanceOf(SetupRepairFailed);
+        expect(error._tag === "SetupRepairFailed" && error.reason).toContain("box.com/drive");
+      })
+    );
+  });
 });

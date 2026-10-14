@@ -7,7 +7,7 @@
  */
 
 import { $PracticeGatewayId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { Fn, LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
@@ -17,6 +17,7 @@ import { dual, flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { GatewaySettings } from "./GatewaySettings.ts";
@@ -100,43 +101,125 @@ export const BitLockerProtection = LiteralKit(["on", "off", "unknown"]).pipe(
 export type BitLockerProtection = typeof BitLockerProtection.Type;
 
 /**
- * Service shape of {@link WindowsHost}.
+ * Declare the `Effect` a {@link WindowsHost} method returns as a `Fn` output
+ * schema.
+ *
+ * **Details**
+ *
+ * Only "is an Effect" is checked at runtime. The success channel exists for
+ * the type checker; the failure channel is always {@link WindowsHostFailure}.
+ *
+ * **Example** (Guard a host answer)
+ *
+ * ```ts
+ * import { WindowsHostOutput } from "@beep/practice-gateway/WindowsHost"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ *
+ * const isHostOutput = S.is(WindowsHostOutput<boolean>())
+ * console.log(isHostOutput(Effect.succeed(true))) // true
+ * console.log(isHostOutput(true)) // false
+ * ```
+ *
+ * @returns A schema accepting any Effect, typed to the host's channels.
+ * @category schemas
+ * @since 0.0.0
+ */
+export const WindowsHostOutput = <A>() =>
+  S.declare(
+    (u): u is Effect.Effect<A, WindowsHostFailure> => Effect.isEffect(u),
+    $I.annote("WindowsHostOutput", {
+      description: "An Effect returned by a Windows host method; its channels are not checked at runtime.",
+    })
+  );
+
+/**
+ * One registry value to read: the key path and the value name under it.
+ *
+ * **Example** (Name a registry value)
+ *
+ * ```ts
+ * import { RegistryValueQuery } from "@beep/practice-gateway/WindowsHost"
+ *
+ * const query = RegistryValueQuery.make({ key: "HKCU\\Software\\Example", name: "DisplayVersion" })
+ * console.log(query.name) // "DisplayVersion"
+ * ```
  *
  * @category models
  * @since 0.0.0
  */
-export interface WindowsHostShape {
-  /**
-   * Read a drive's BitLocker protection without administrator rights.
-   */
-  readonly bitLocker: (drive: string) => Effect.Effect<BitLockerProtection, WindowsHostFailure>;
-  /**
-   * Whether a file or directory exists.
-   */
-  readonly exists: (path: string) => Effect.Effect<boolean, WindowsHostFailure>;
-  /**
-   * Resolve a known folder from the environment.
-   */
-  readonly folder: (folder: KnownFolder) => Effect.Effect<O.Option<string>, WindowsHostFailure>;
-  /**
-   * True on Windows. Probes for Windows-only facts answer "only on Windows"
-   * instead of querying when this is false.
-   */
-  readonly isWindows: boolean;
-  /**
-   * Whether a process with this image name runs for the current user.
-   */
-  readonly processRunning: (imageName: string) => Effect.Effect<boolean, WindowsHostFailure>;
-  /**
-   * Read a file's bytes; `None` when it does not exist.
-   */
-  readonly readFile: (path: string) => Effect.Effect<O.Option<Uint8Array>, WindowsHostFailure>;
-  /**
-   * Read one registry value through `reg.exe query`; `None` when the key or
-   * value does not exist.
-   */
-  readonly registryValue: (key: string, name: string) => Effect.Effect<O.Option<string>, WindowsHostFailure>;
-}
+export class RegistryValueQuery extends S.Class<RegistryValueQuery>($I`RegistryValueQuery`)(
+  {
+    key: S.String.annotateKey({ description: "Registry key path, such as `HKCU\\Software\\Example`." }),
+    name: S.String.annotateKey({ description: "Value name under the key." }),
+  },
+  $I.annote("RegistryValueQuery", {
+    description: "One registry value to read: the key path and the value name under it.",
+  })
+) {}
+
+/**
+ * Service shape of {@link WindowsHost}.
+ *
+ * **Example** (Build a host shape)
+ *
+ * ```ts
+ * import { WindowsHostShape } from "@beep/practice-gateway/WindowsHost"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ *
+ * const shape = WindowsHostShape.make({
+ *   isWindows: false,
+ *   folder: () => Effect.succeedNone,
+ *   exists: () => Effect.succeed(false),
+ *   readFile: () => Effect.succeedNone,
+ *   registryValue: () => Effect.succeed(O.none()),
+ *   bitLocker: () => Effect.succeed("unknown"),
+ *   processRunning: () => Effect.succeed(false),
+ * })
+ * console.log(shape.isWindows) // false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class WindowsHostShape extends S.Class<WindowsHostShape>($I`WindowsHostShape`)(
+  {
+    bitLocker: Fn({
+      input: S.String,
+      output: WindowsHostOutput<BitLockerProtection>(),
+    }).annotateKey({ description: "Read a drive's BitLocker protection without administrator rights." }),
+    exists: Fn({
+      input: S.String,
+      output: WindowsHostOutput<boolean>(),
+    }).annotateKey({ description: "Whether a file or directory exists." }),
+    folder: Fn({
+      input: KnownFolder,
+      output: WindowsHostOutput<O.Option<string>>(),
+    }).annotateKey({ description: "Resolve a known folder from the environment." }),
+    isWindows: S.Boolean.annotateKey({
+      description:
+        'True on Windows. Probes for Windows-only facts answer "only on Windows" instead of querying when this is false.',
+    }),
+    processRunning: Fn({
+      input: S.String,
+      output: WindowsHostOutput<boolean>(),
+    }).annotateKey({ description: "Whether a process with this image name runs for the current user." }),
+    readFile: Fn({
+      input: S.String,
+      output: WindowsHostOutput<O.Option<Uint8Array>>(),
+    }).annotateKey({ description: "Read a file's bytes; `None` when it does not exist." }),
+    registryValue: Fn({
+      input: RegistryValueQuery,
+      output: WindowsHostOutput<O.Option<string>>(),
+    }).annotateKey({
+      description: "Read one registry value through `reg.exe query`; `None` when the key or value does not exist.",
+    }),
+  },
+  $I.annote("WindowsHostShape", {
+    description: "The Windows facts the setup probes read.",
+  })
+) {}
 
 /**
  * Pick one value out of `reg.exe query <key> /v <name>` output.
@@ -254,19 +337,19 @@ const notWindows = (operation: string) =>
  * and shells out to `reg.exe`, `powershell.exe` and `tasklist.exe` through
  * `ChildProcessSpawner`. Off Windows the shell-backed queries fail with
  * {@link WindowsHostFailure}; probes check `isWindows` first and never reach
- * them. Tests provide a fake shape with `WindowsHost.of`.
+ * them. Tests provide a fake shape with `WindowsHostShape.make`.
  *
  * **Example** (A fake host for tests)
  *
  * ```ts
- * import { WindowsHost } from "@beep/practice-gateway/WindowsHost"
+ * import { WindowsHost, WindowsHostShape } from "@beep/practice-gateway/WindowsHost"
  * import * as Effect from "effect/Effect"
  * import * as Layer from "effect/Layer"
  * import * as O from "effect/Option"
  *
  * const fake = Layer.succeed(
  *   WindowsHost,
- *   WindowsHost.of({
+ *   WindowsHostShape.make({
  *     isWindows: true,
  *     folder: () => Effect.succeed(O.some("C:\\Users\\lawyer")),
  *     exists: () => Effect.succeed(false),
@@ -349,7 +432,7 @@ export class WindowsHost extends Context.Service<WindowsHost, WindowsHostShape>(
           )
         );
 
-      const registryValue = (key: string, name: string) =>
+      const registryValue = ({ key, name }: RegistryValueQuery) =>
         isWindows
           ? run("reg.exe", ["query", key, "/v", name]).pipe(
               // reg.exe exits 1 when the key or value is absent.
@@ -375,7 +458,7 @@ export class WindowsHost extends Context.Service<WindowsHost, WindowsHostShape>(
             )
           : notWindows("Listing processes");
 
-      return WindowsHost.of({ isWindows, folder, exists, readFile, registryValue, bitLocker, processRunning });
+      return WindowsHostShape.make({ isWindows, folder, exists, readFile, registryValue, bitLocker, processRunning });
     })
   );
 }

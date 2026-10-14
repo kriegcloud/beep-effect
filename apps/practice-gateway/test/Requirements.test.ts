@@ -1,4 +1,9 @@
-import { CapabilityDeclined, CapabilitySupported, PracticeProfile } from "@beep/law-practice-domain";
+import {
+  CapabilityDeclined,
+  CapabilitySupported,
+  PracticeProfile,
+  SetupRequirementId,
+} from "@beep/law-practice-domain";
 import {
   baseRequirements,
   profileSelects,
@@ -7,6 +12,7 @@ import {
   requirementsForSaved,
 } from "@beep/practice-gateway/Requirements";
 import { describe, expect, it } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -44,8 +50,14 @@ describe("requirementsFor", () => {
       requirementsFor(fullProfile),
       (requirement) => requirement.id === "box-drive-signed-in"
     );
-    expect(O.map(signedIn, (requirement) => requirement.capability)).toEqual(O.some("documents"));
-    expect(O.map(signedIn, (requirement) => requirement.dependsOn)).toEqual(O.some(["box-drive-installed"]));
+    assertSome(
+      O.map(signedIn, (requirement) => requirement.capability),
+      "documents"
+    );
+    assertSome(
+      O.map(signedIn, (requirement) => requirement.dependsOn),
+      [SetupRequirementId.make("box-drive-installed")]
+    );
   });
 
   it("serves a gap through its fallback provider", () => {

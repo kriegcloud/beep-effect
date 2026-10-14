@@ -36,7 +36,7 @@ Contract: `goals/practice-gateway/SPEC.md`, tool design
      `WindowsHost` service (file existence under `%ProgramFiles%` /
      `%USERPROFILE%`, registry reads via `reg.exe query`, BitLocker via
      `manage-bde -status C:` or `Get-BitLockerVolume`, process checks), so
-     tests run on Linux with a fake host. Use `effect/unstable/process`
+     tests run on Linux with a fake host. Use `effect/process`
      or the repo's process abstraction — check what the repo uses; never
      raw `child_process` if an Effect wrapper exists.
    - `box-drive-installed` automatic repair: download-free placeholder that

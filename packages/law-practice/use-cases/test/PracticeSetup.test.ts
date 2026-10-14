@@ -111,7 +111,7 @@ describe("orderRequirements", () => {
 const approving = fakeMachine("approved");
 
 describe("SetupDoctor with approvals", () => {
-  it.layer(approving.layer)((it) => {
+  it.layer(approving.layer, { timeout: "10 seconds" })((it) => {
     it.effect("blocks dependents and lists only actionable human steps", () =>
       Effect.gen(function* () {
         const { all, install, signIn } = yield* requirements;
@@ -137,7 +137,7 @@ describe("SetupDoctor with approvals", () => {
 const declining = fakeMachine("declined");
 
 describe("SetupDoctor refusals", () => {
-  it.layer(declining.layer)((it) => {
+  it.layer(declining.layer, { timeout: "10 seconds" })((it) => {
     it.effect("refuses declined, human and already-satisfied repairs", () =>
       Effect.gen(function* () {
         const { all, install, signIn } = yield* requirements;

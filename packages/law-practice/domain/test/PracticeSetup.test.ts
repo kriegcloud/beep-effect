@@ -17,7 +17,10 @@ import {
   SetupRequirementId,
 } from "@beep/law-practice-domain/values/SetupRequirement";
 import { it } from "@beep/test-runner";
+import { fcRuns } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
+import { deepStrictEqual } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -28,6 +31,16 @@ const encodeProfile = S.encodeEffect(PracticeProfile);
 const decodeRequirementId = S.decodeUnknownEffect(SetupRequirementId);
 
 describe("PracticeProfile", () => {
+  it.effect.prop(
+    "round-trips any profile through its encoded form",
+    { profile: Arbitrary.schema(PracticeProfile) },
+    Effect.fnUntraced(function* ({ profile }) {
+      const decoded = yield* decodeProfile(yield* encodeProfile(profile));
+      deepStrictEqual(yield* encodeProfile(decoded), yield* encodeProfile(profile));
+    }),
+    { arbitrary: fcRuns(50) }
+  );
+
   it.effect("round-trips supported, gap and declined choices", () =>
     Effect.gen(function* () {
       const profile = PracticeProfile.make({

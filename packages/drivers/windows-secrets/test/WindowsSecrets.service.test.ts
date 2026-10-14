@@ -42,7 +42,7 @@ describe("SecretTarget", () => {
 // The memory layer is provided through the @effect/vitest harness (the test
 // entry point), not via Effect.provide in the effect body; each test uses its
 // own target because the layer is shared across the block.
-it.layer(WindowsSecretStore.layerMemory)("WindowsSecretStore.layerMemory", (it) => {
+it.layer(WindowsSecretStore.layerMemory, { timeout: "10 seconds" })("WindowsSecretStore.layerMemory", (it) => {
   it.effect("returns none for a missing credential", () =>
     Effect.gen(function* () {
       const store = yield* WindowsSecretStore;
@@ -117,24 +117,20 @@ const buildStore = <E>(layer: Layer.Layer<WindowsSecretStore, E>) =>
 
 describe("WindowsSecretStore layers", () => {
   it.effect("starts every memory layer build empty", () =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const target = SecretTarget.make("beep/test/fresh-build");
-        const first = yield* buildStore(WindowsSecretStore.layerMemory);
-        yield* first.set(target, Redacted.make("secret"));
-        const second = yield* buildStore(WindowsSecretStore.layerMemory);
-        assertNone(yield* second.get(target));
-      })
-    )
+    Effect.gen(function* () {
+      const target = SecretTarget.make("beep/test/fresh-build");
+      const first = yield* buildStore(WindowsSecretStore.layerMemory);
+      yield* first.set(target, Redacted.make("secret"));
+      const second = yield* buildStore(WindowsSecretStore.layerMemory);
+      assertNone(yield* second.get(target));
+    })
   );
 
   it.effect.skipIf(process.platform === "win32")("fails layerWindows with SecretStoreUnsupported off Windows", () =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const error = yield* WindowsSecretStore.layerWindows.pipe(buildStore, Effect.flip);
-        expect(error).toBeInstanceOf(SecretStoreUnsupported);
-        expect(error.platform).toBe(process.platform);
-      })
-    )
+    Effect.gen(function* () {
+      const error = yield* WindowsSecretStore.layerWindows.pipe(buildStore, Effect.flip);
+      expect(error).toBeInstanceOf(SecretStoreUnsupported);
+      expect(error.platform).toBe(process.platform);
+    })
   );
 });

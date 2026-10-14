@@ -21,7 +21,6 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
 const TestServices = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
@@ -143,19 +142,15 @@ for (const [adapter, services] of [
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-" });
-          const missing = yield* Effect.result(loadPracticeKgBundleContext(bundleDir));
+          const missing = yield* Effect.flip(loadPracticeKgBundleContext(bundleDir));
 
           yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), "not-json");
-          const invalid = yield* Effect.result(loadPracticeKgBundleContext(bundleDir));
+          const invalid = yield* Effect.flip(loadPracticeKgBundleContext(bundleDir));
 
-          missing.pipe(Result.isFailure, assertTrue);
-          invalid.pipe(Result.isFailure, assertTrue);
-          if (Result.isFailure(missing) && Result.isFailure(invalid)) {
-            expect(missing.failure).toBeInstanceOf(PracticeKgHostError);
-            expect(missing.failure.message).toContain("Failed reading practice KG bundle manifest");
-            expect(invalid.failure).toBeInstanceOf(PracticeKgHostError);
-            expect(invalid.failure.message).toContain("bundle manifest");
-          }
+          expect(missing).toBeInstanceOf(PracticeKgHostError);
+          expect(missing.message).toContain("Failed reading practice KG bundle manifest");
+          expect(invalid).toBeInstanceOf(PracticeKgHostError);
+          expect(invalid.message).toContain("bundle manifest");
         })
       );
       it.effect(
@@ -165,10 +160,9 @@ for (const [adapter, services] of [
           const path = yield* Path.Path;
           const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-" });
           yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), "{}");
-          const invalid = yield* Effect.result(loadPracticeKgBundleContext(bundleDir));
-          if (!Result.isFailure(invalid)) throw new Error("Expected a failed manifest result");
-          expect(invalid.failure).toBeInstanceOf(PracticeKgHostError);
-          expect(invalid.failure.message).toBe(
+          const invalid = yield* Effect.flip(loadPracticeKgBundleContext(bundleDir));
+          expect(invalid).toBeInstanceOf(PracticeKgHostError);
+          expect(invalid.message).toBe(
             `Practice KG bundle manifest at "${path.join(bundleDir, "bundle.manifest.json")}" is invalid.`
           );
         })

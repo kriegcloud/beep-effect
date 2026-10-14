@@ -25,7 +25,7 @@ import * as Path from "effect/Path";
 import { GatewaySettings } from "./GatewaySettings.ts";
 import { GatewayRequirementId } from "./Requirements.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
-import { BitLockerProtection, WindowsHost } from "./WindowsHost.ts";
+import { BitLockerProtection, RegistryValueQuery, WindowsHost } from "./WindowsHost.ts";
 import type { ProbeResult, SetupRequirement } from "@beep/law-practice-domain";
 import type * as FileSystem from "effect/FileSystem";
 import type { WindowsHostFailure } from "./PracticeGateway.errors.ts";
@@ -163,7 +163,9 @@ export const makeGatewayProbes = Effect.gen(function* () {
     "claude-desktop-installed",
     Effect.gen(function* () {
       const executable = yield* fileUnder("LOCALAPPDATA", "AnthropicClaude", "claude.exe");
-      const registered = yield* host.registryValue(CLAUDE_UNINSTALL_KEY, "DisplayVersion");
+      const registered = yield* host.registryValue(
+        RegistryValueQuery.make({ key: CLAUDE_UNINSTALL_KEY, name: "DisplayVersion" })
+      );
       return executable || O.isSome(registered)
         ? satisfied
         : missing("Claude Desktop is not installed for this Windows account.");

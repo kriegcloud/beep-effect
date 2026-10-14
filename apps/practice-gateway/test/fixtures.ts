@@ -1,7 +1,7 @@
 import { CapabilityGap, CapabilitySupported, ItLimits, PracticeProfile } from "@beep/law-practice-domain";
 import { GatewaySettings, GatewaySettingsValues } from "@beep/practice-gateway/GatewaySettings";
 import { WindowsHostFailure } from "@beep/practice-gateway/PracticeGateway.errors";
-import { BitLockerProtection, WindowsHost } from "@beep/practice-gateway/WindowsHost";
+import { BitLockerProtection, WindowsHost, WindowsHostShape } from "@beep/practice-gateway/WindowsHost";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -9,9 +9,9 @@ import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import type { KnownFolder } from "@beep/practice-gateway/WindowsHost";
+import type { KnownFolder, RegistryValueQuery } from "@beep/practice-gateway/WindowsHost";
 
-export const folders = HashMap.make<ReadonlyArray<readonly [KnownFolder, string]>>(
+const folders = HashMap.make<ReadonlyArray<readonly [KnownFolder, string]>>(
   ["ProgramFiles", "/pf"],
   ["LOCALAPPDATA", "/local"],
   ["APPDATA", "/roaming"],
@@ -36,12 +36,12 @@ export const fakeHost = (machine: FakeMachine) => {
   const processes = HashSet.fromIterable(machine.processes ?? []);
   return Layer.succeed(
     WindowsHost,
-    WindowsHost.of({
+    WindowsHostShape.make({
       isWindows: machine.isWindows ?? true,
       folder: Effect.fn("FakeWindowsHost.folder")((name: KnownFolder) => Effect.succeed(HashMap.get(folders, name))),
       exists: Effect.fn("FakeWindowsHost.exists")((path: string) => Effect.succeed(HashSet.has(files, path))),
       readFile: Effect.fn("FakeWindowsHost.readFile")((path: string) => Effect.succeed(HashMap.get(bytes, path))),
-      registryValue: Effect.fn("FakeWindowsHost.registryValue")(function* (key: string, name: string) {
+      registryValue: Effect.fn("FakeWindowsHost.registryValue")(function* ({ key, name }: RegistryValueQuery) {
         if (machine.registryFails === true) {
           return yield* WindowsHostFailure.make({ message: "reg.exe could not be run." });
         }
