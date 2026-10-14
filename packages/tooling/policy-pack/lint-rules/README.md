@@ -46,8 +46,8 @@ therefore repeats the root exclusions, replacing only `scratchpad/**` with
 `!scratchpad/**`. Keep that admission first so the generated, build, and cache
 exclusions below it still apply inside scratchpad.
 
-`test/oxlint-effected-profile.test.ts` copies both profiles into a disposable tree
-and runs the installed Oxlint binary with the runner's `--disable-nested-config`
+The Effected profile tests in `test/oxlint-rules.test.ts` copy both profiles into
+a disposable tree and run the installed Oxlint binary with the runner's `--disable-nested-config`
 flag. Every fixture contains the same inline-schema violation. Ordinary source,
 ordinary scratchpad source, and the explicit canary must be reported; generated,
 build, cache, and other excluded paths must remain absent. With the previous
