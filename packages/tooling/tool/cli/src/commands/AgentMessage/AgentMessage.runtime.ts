@@ -17,6 +17,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as Ref from "effect/Ref";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import { agentMessageStoreLayer, requirePrivateAgentPath } from "./AgentMessage.layer.ts";
@@ -232,6 +233,7 @@ export const agentMessageServeCommand = Command.make(
       yield* store.register(binding);
       yield* store.registerGrant(expectedGrant);
       yield* store.validateGrant(expectedGrant.grantId, yield* Clock.currentTimeMillis);
+      const invalidReceivingGrant = yield* Ref.make(O.none<RouterError>());
       const submit = Effect.fn("AgentMessage.nativeSubmit")(function* (
         claim: import("./AgentMessage.models.ts").Claim
       ) {
@@ -248,7 +250,11 @@ export const agentMessageServeCommand = Command.make(
         }
         const receivingGrant = yield* store.validateGrant(expectedGrant.grantId, yield* Clock.currentTimeMillis).pipe(
           Effect.map(O.some),
-          Effect.catchTag("RouterError", (error) => (error.code === "invalidGrant" ? Effect.succeed(O.none()) : error))
+          Effect.catchTag("RouterError", (error) =>
+            error.code === "invalidGrant"
+              ? Ref.set(invalidReceivingGrant, O.some(error)).pipe(Effect.as(O.none<LaunchGrant>()))
+              : error
+          )
         );
         if (O.isNone(receivingGrant) || !receivingGrantAllowsEnvelopeScope(receivingGrant.value, claim.envelope)) {
           return "failed";
@@ -288,7 +294,25 @@ export const agentMessageServeCommand = Command.make(
       });
       yield* Console.log(yield* S.encodeEffect(BindingJson)(binding));
       return yield* runAgentMessageDispatchLoop(endpointId, ownerId).pipe(
-        Effect.provideService(EndpointDispatch, { submit })
+        Effect.provideService(EndpointDispatch, { submit }),
+        Effect.provideService(AgentMessageStore, {
+          ...store,
+          complete: (claim, status, at, detail) =>
+            Effect.gen(function* () {
+              const invalid = yield* Ref.get(invalidReceivingGrant);
+              const receipt = yield* store.complete(
+                claim,
+                status,
+                at,
+                O.isSome(invalid) ? O.some("invalidGrant: receiving grant expired or enrollment replaced.") : detail
+              );
+              if (O.isSome(invalid)) {
+                yield* Console.log(yield* S.encodeEffect(ReceiptJson)(receipt));
+                return yield* invalid.value;
+              }
+              return receipt;
+            }),
+        })
       );
     }).pipe(Effect.scoped)
 ).pipe(

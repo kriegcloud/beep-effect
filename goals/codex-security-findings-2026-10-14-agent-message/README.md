@@ -32,8 +32,10 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P2 validate` - all 1 findings are captured and untriaged. Reproduce each
-report at current HEAD, then record a verdict, disposition, and owner surface.
+`P7 monitor` - the one Medium finding is validated and repaired in PR
+[#1766](https://github.com/beep-effect/beep-effect/pull/1766). Focused tests and
+Yeet cheap gates pass; exact-head hosted checks, review and the merge window
+remain active. Cloud status changes only after merge.
 
 ## Findings at a glance
 

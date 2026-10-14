@@ -30,7 +30,7 @@
     "goals/codex-security-findings-2026-10-14-agent-message/GOAL.md",
     "goals/codex-security-findings-2026-10-14-agent-message/research/SOURCES.md"
   ],
-  "researchReports": ["research/SOURCES.md"],
+  "researchReports": ["research/SOURCES.md", "research/OPPORTUNITIES.md"],
   "agentLaunchers": [
     {
       "kind": "codex-goal",
@@ -114,17 +114,17 @@
     {
       "id": "P5",
       "name": "Repo proof",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P6",
       "name": "Publish",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P7",
       "name": "Monitor",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P8",

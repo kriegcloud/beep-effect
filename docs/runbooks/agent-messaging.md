@@ -49,6 +49,10 @@ The driver starts and verifies its native session before registering the endpoin
 Managed `serve` then registers and validates its host-issued receiving grant
 before dispatch. Out-of-scope queued messages fail before any native prompt and
 release their claim, so they cannot inject context or leave an ambiguity hold.
+If the receiving grant expires or is replaced, the current claim receives a
+definite failed receipt with an `invalidGrant` detail, then `serve` exits. Later
+queued messages remain untouched by that worker; normal generation replacement
+and reconciliation rules govern them.
 MCP startup may happen before registration; tool calls remain unauthorized until
 the host registers a current grant. The grant binds one endpoint generation and
 owner to a repository scope, allowed recipient list, expiry and persistent message

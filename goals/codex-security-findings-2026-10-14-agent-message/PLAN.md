@@ -2,8 +2,8 @@
 
 ## Status
 
-Status: `active`. The finding is validated and the fix passes focused tests;
-publication and hosted proof are next.
+Status: `active`. The finding is validated and repaired on PR #1766; hosted
+proof and review are active before merge and Cloud closure.
 
 ## Phases
 
@@ -14,9 +14,9 @@ publication and hosted proof are next.
 | P2 validate | complete | Reproduce each report at current HEAD. | Every item has strict verdict, disposition, rationale, and owner surface. |
 | P3 lane-partition | complete | Group shared root causes and disjoint paths. | One receiver lane owns the finding. |
 | P4 remediate | complete | Fix all real findings with focused checks. | Changed files and passing targeted proof recorded per finding. |
-| P5 repo-proof | pending | Run packet validation and Yeet repair/verify. | No packet drift; local proof green. |
-| P6 publish | pending | Publish one intentional PR through Yeet. | Exact branch head pushed and PR opened. |
-| P7 monitor | pending | Close hosted checks and actionable reviews. | PR green and mergeable. |
+| P5 repo-proof | complete | Run packet validation and Yeet checks. | Focused managed and attached tests, scoped docgen and cheap gates passed; package quick check had worktree dependency-build limits. |
+| P6 publish | complete | Publish one intentional PR through Yeet. | PR #1766 opened and review fixes pushed. |
+| P7 monitor | in progress | Close hosted checks and actionable reviews. | Three review threads resolved; exact-head checks and review window pending. |
 | P8 merge-and-close | pending | Merge and close captured findings. | PR merged; all 1 IDs resolved. |
 | P9 close | pending | Record evidence, reflection, and lifecycle. | Packet set to `completed-retained` in the same closeout PR state. |
 

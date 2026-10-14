@@ -199,7 +199,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
       }).pipe(TestClock.withLive)
     );
 
-    it.effect("enrolls a real Bun synthetic native worker and terminates it when serve is cancelled", () =>
+    it.effect("enrolls a real Bun worker and stops it after receiving-grant expiry", () =>
       Effect.gen(function* () {
         const f = yield* managedCommandFixture();
         const path = yield* Path.Path;
@@ -209,7 +209,6 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
         const rejected = yield* Deferred.make<Receipt, S.SchemaError>();
         const delivered = yield* Deferred.make<Receipt, S.SchemaError>();
         const expired = yield* Deferred.make<Receipt, S.SchemaError>();
-        const afterExpired = yield* Deferred.make<Receipt, S.SchemaError>();
         const watched = ChildProcessSpawner.make((command) =>
           spawner.spawn(command).pipe(Effect.tap((child) => Deferred.succeed(started, child)))
         );
@@ -223,7 +222,6 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
             if (++printed === 2) Deferred.doneUnsafe(rejected, S.decodeUnknownEffect(ReceiptJson)(args[0]));
             if (printed === 3) Deferred.doneUnsafe(delivered, S.decodeUnknownEffect(ReceiptJson)(args[0]));
             if (printed === 4) Deferred.doneUnsafe(expired, S.decodeUnknownEffect(ReceiptJson)(args[0]));
-            if (printed === 5) Deferred.doneUnsafe(afterExpired, S.decodeUnknownEffect(ReceiptJson)(args[0]));
           },
         });
         const fiber = yield* f.execute.pipe(
@@ -340,8 +338,11 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
           policyFingerprint: binding.policyFingerprint,
         });
         yield* store.accept(expiredEnvelope, now);
-        expect(yield* Deferred.await(expired)).toMatchObject({ messageId: "expired-grant-delivery", status: "failed" });
-        yield* store.accept(
+        const expiredReceipt = yield* Deferred.await(expired);
+        expect(expiredReceipt).toMatchObject({ messageId: "expired-grant-delivery", status: "failed" });
+        assertSome(expiredReceipt.detail, "invalidGrant: receiving grant expired or enrollment replaced.");
+        expect(yield* Fiber.join(fiber).pipe(Effect.flip)).toMatchObject({ code: "invalidGrant" });
+        const next = yield* store.accept(
           Envelope.make({
             ...expiredEnvelope,
             messageId: "after-expired-grant",
@@ -349,12 +350,8 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
           }),
           now
         );
-        expect(yield* Deferred.await(afterExpired)).toMatchObject({
-          messageId: "after-expired-grant",
-          status: "failed",
-        });
-        expect(yield* child.isRunning).toBe(true);
-        yield* Fiber.interrupt(fiber);
+        expect(next).toMatchObject({ messageId: "after-expired-grant", status: "accepted" });
+        expect((yield* store.receipts("after-expired-grant"))[0]?.status).toBe("accepted");
         expect(yield* child.isRunning).toBe(false);
       }).pipe(TestClock.withLive)
     );
