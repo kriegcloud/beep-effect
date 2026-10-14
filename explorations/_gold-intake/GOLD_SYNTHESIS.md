@@ -646,7 +646,7 @@ return {"original_claims": sorted_claims[0], "final_claims": sorted_claims[-1],
 relevance: direct · partial · recommend: adopt · P2
 `extract_from_pdf` runs pdftotext first, repairs mojibake when OCR is off, else runs OCR and keeps whichever output is longer — tracking an `extracted_by_ocr` boolean lineage flag. beep's `@beep/file-processing` has the Strategy/Operation pipeline but no text-vs-OCR origin flag; that boolean ("human-rendered or OCR-guessed?") maps straight onto evidence provenance for downstream confidence.
 - source: `doctor/doctor/tasks.py:197-218`
-- beep-target: `@beep/file-processing` extraction provenance; `packages/epistemic/` GroundedExtraction origin flag
+- beep-target: `@beep/file-processing` extraction provenance; `packages/foundation/capability/langextract/src/Extraction` GroundedExtraction origin flag
 ```python
 if ocr_needed(path, content):
     success, ocr_content = await extract_by_ocr(path)
@@ -690,7 +690,7 @@ class Source { quality_score int; authority_level "high"|"medium"|"low";
 relevance: adjacent · partial · recommend: study · P2
 `validateToolInputEffect` validates each tool call against its domain schema, accepts optional provenance metadata (`sourceFile`, `lineNumber`, `timestamp`, `agentName`), and never fails (errors captured in the result) — splitting hard errors from soft warnings. Mirrors beep's need to attach line/char spans and SHACL-style severity (Violation vs Warning) to candidate claims; `@beep/semantic-web` already has a bounded SHACL but no source-line provenance on results.
 - source: `research-squad/src/validation/validators/tool-validator.effect.ts:36-45`
-- beep-target: `@beep/semantic-web` SHACL severity reporting; `packages/epistemic/` GroundedExtraction.span metadata
+- beep-target: `@beep/semantic-web` SHACL severity reporting; `packages/foundation/capability/langextract/src/Extraction` GroundedExtraction.span metadata
 ```ts
 export const validateToolInputEffect = (toolName, toolInput,
   metadata?: { sourceFile?: string; lineNumber?: number; timestamp?: string; agentName?: string }
@@ -899,7 +899,7 @@ Mined patterns for turning legal prose into grounded, candidate-gated facts. bee
 direct · partial · recommend: port · P1
 Pure-regex extraction of a contract's self-describing graph (defined terms, Section/Article cross-refs, party names + parenthetical roles, amendment recitals) where every row carries verbatim text + char offsets and NO model is in the loop, so a miss is an absent row, never a wrong fact — with a built-in versioned re-extraction migration. This is the deterministic LOGIC-side complement to beep's LLM-based `@beep/langextract`: port as a deterministic extractor module emitting `GroundedExtraction` spans into `epistemic.CandidateClaim`, and feed `@beep/law-practice-domain` Claim/Distinction/party models.
 - source: `doc-haus/services/ingest/src/structure.ts:13-49`
-- beep-target: @beep/langextract deterministic extractors (new) + epistemic GroundedExtraction; @beep/law-practice clause/party models
+- beep-target: @beep/langextract deterministic extractors (new) + langextract GroundedExtraction; @beep/law-practice-domain clause/party models
 ```ts
 export const VERSION = "2"
 const TERM = `[“"]([A-Z][^”"\n]{0,60}?)[”"]`
@@ -1023,7 +1023,7 @@ if (["q","query","search","text","term"].includes(nameLower))
 direct · gap · recommend: port · P2
 `get_header_stamp` (pdfplumber font/position filter: LiberationSans or y0>750) isolates the court-applied header stamp, then regex-extracts the docket document number across `Document:`/`Doc:`/`DktEntry:` variants. beep has `@beep/file-processing` extraction but no header-stamp docket parser — port to ground a court filing to its docket entry, feeding `@beep/law-practice-domain` docket/document-number fields and `@beep/provenance` source linkage.
 - source: `doctor/doctor/tasks.py:673-691`
-- beep-target: @beep/law-practice docket/document-number parsing; @beep/provenance source linkage
+- beep-target: @beep/law-practice-domain docket/document-number parsing; @beep/provenance source linkage
 ```python
 regex = r"Document:(.[0-9.\-.\#]+)|Doc:(.[0-9.\-.\#]+)|DktEntry:(.[0-9.\-.\#]+)"
 document_number_matches = re.findall(regex, header_stamp)
@@ -1033,7 +1033,7 @@ document_number_matches = re.findall(regex, header_stamp)
 adjacent · partial · recommend: study · P2
 A relational model of grounded extraction at scale: `tabular_reviews.columns_config` defines the extraction schema, `tabular_cells` stores one value per (document, column) carrying `content`, a `citations` jsonb (provenance back to source), and a `status`. Each datum carries provenance + an approval status — close to beep's `GroundedExtraction` grid with spans and a candidate gate. Study as the persistence shape for an `@beep/law-practice-tables` OfficeAction/Rejection extraction table over `epistemic.Evidence`.
 - source: `mike/backend/schema.sql:619-628`
-- beep-target: @beep/langextract extraction grid; @beep/law-practice OfficeAction/Rejection extraction tables; epistemic Evidence/gate
+- beep-target: @beep/langextract extraction grid; @beep/law-practice-domain OfficeAction/Rejection extraction tables; epistemic Evidence/gate
 ```sql
 create table public.tabular_cells (
   document_id uuid references documents(id), column_index integer not null,
@@ -1110,7 +1110,7 @@ valid_from="ISO|unknown" valid_to="ISO|current"
 adjacent · gap · recommend: reference · P3
 `adjust_caption_lines` re-aligns the vertical separator column in legal captions, with documented per-jurisdiction separators (§ Texas, : NY, ) most courts). A concrete normalization that improves downstream parsing of styled captions in opinions/office actions. beep has no caption parsing — reference when adding `packages/law-practice/` caption/party parsing.
 - source: `doctor/doctor/lib/text_extraction.py:100-129`
-- beep-target: @beep/law-practice caption/party parsing normalization
+- beep-target: @beep/law-practice-domain caption/party parsing normalization
 ```python
 for separator in [r")", "§", ":"]:
     pattern = rf"(.* +{re.escape(separator)} .*\n)"

@@ -12,7 +12,7 @@ dated heading at the bottom.
 Seeded from the gold-intake pass. Full narrative context lives in the
 GOLD_SYNTHESIS: see `explorations/_gold-intake/GOLD_SYNTHESIS.md` — Executive
 summary "Top ~12 highest-ROI items" item **#2 "Court / jurisdiction controlled
-vocabulary"** (`courts-db` → seed `@beep/law-practice-domain` placeholder vocabularies
+vocabulary"** (`courts-db` → seed `@beep/law-practice` placeholder vocabularies
 + a court-string resolver; "Unblocks every citation/venue feature"), plus the
 gap-map "TRUE GAPS the gold fills" row **"Court / jurisdiction / reporter
 taxonomies | placeholder single-literal vocabularies in law-practice |
@@ -76,3 +76,9 @@ official-data-sync-foundation and lands in/alongside the courtlistener driver.
 ## YYYY-MM-DD
 
 <dump>
+
+## 2026-10-14 — correction (knowledge doctor verdict)
+
+The `@beep/law-practice` name above is a package family, not a package. The domain
+models it refers to live in `@beep/law-practice-domain` (`packages/law-practice/`).
+The entry above is kept as captured.
