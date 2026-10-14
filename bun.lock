@@ -290,6 +290,22 @@
         "typescript": "catalog:",
       },
     },
+    "apps/practice-claude-mod": {
+      "name": "@beep/practice-claude-mod",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-runner": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "apps/practice-identify": {
       "name": "@beep/practice-identify",
       "version": "0.0.0",
@@ -4183,6 +4199,8 @@
     "@beep/poppler": ["@beep/poppler@workspace:packages/drivers/poppler"],
 
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
+
+    "@beep/practice-claude-mod": ["@beep/practice-claude-mod@workspace:apps/practice-claude-mod"],
 
     "@beep/practice-identify": ["@beep/practice-identify@workspace:apps/practice-identify"],
 
