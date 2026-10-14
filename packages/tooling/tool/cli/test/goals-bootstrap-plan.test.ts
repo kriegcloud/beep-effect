@@ -39,6 +39,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import {
   expectReportedExit,
@@ -320,6 +321,31 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
   });
 
   describe("goals adopt --plan manifest-less packet", { concurrent: false }, () => {
+    it.effect("seeds missing README fields and requires validation for an authored reflection", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* writeProjectFile("goals/_template/ops/manifest.json", "{}\n");
+          yield* writeProjectFile("goals/_template/SPEC.md", "# Specification\n");
+          yield* writeProjectFile("goals/_template/history/reflections/_TEMPLATE.md", "# Reflection\n");
+          yield* writeProjectFile("goals/no-readme/history/reflections/review.md", "# Authored reflection\n");
+          const snapshot = yield* readPacketSnapshot("no-readme");
+          const plan = yield* compileAdoptionPlan(snapshot, O.none());
+          const manifest = A.findFirst(plan.entries, (entry) => entry.path === "goals/no-readme/ops/manifest.json");
+          assertTrue(O.isSome(manifest));
+          if (O.isSome(manifest)) {
+            expect(manifest.value.payload).toContain('"title": "no-readme"');
+            expect(manifest.value.payload).toContain('"status": "active"');
+          }
+          expect(plan.validations).toContain("reflection-frontmatter-valid");
+          expect(A.findFirst(plan.entries, (entry) => entry.path === "goals/no-readme/SPEC.md")).toMatchObject({
+            _tag: "Some",
+            value: { action: "report", ownership: "authored" },
+          });
+          expect(A.some(plan.entries, (entry) => Str.endsWith("_TEMPLATE.md")(entry.path))).toBe(false);
+        })
+      )
+    );
     it.effect(
       "plans exactly one generated manifest plus report rows, never writing the README",
       () =>
