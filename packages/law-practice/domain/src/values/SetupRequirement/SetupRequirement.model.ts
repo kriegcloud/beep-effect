@@ -366,3 +366,179 @@ export const ProbeResult = S.Union([ProbeSatisfied, ProbeMissing, ProbeBroken]).
  * @since 0.0.0
  */
 export type ProbeResult = typeof ProbeResult.Type;
+
+/**
+ * A requirement the doctor probed, with what the probe found.
+ *
+ * **Example** (Record a probed requirement)
+ *
+ * ```ts
+ * import { CheckProbed, ProbeSatisfied, SetupRequirementId } from "@beep/law-practice-domain"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.map(S.decodeUnknownEffect(SetupRequirementId)("box-drive-installed"), (id) =>
+ *   CheckProbed.make({ requirement: id, result: ProbeSatisfied.make({}) })
+ * )
+ * Effect.runPromise(program).then((check) => console.log(check.state)) // "probed"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CheckProbed extends S.Class<CheckProbed>($I`CheckProbed`)(
+  {
+    state: S.tag("probed"),
+    requirement: SetupRequirementId.annotateKey({ description: "The requirement that was probed." }),
+    result: ProbeResult.annotateKey({ description: "What the probe found." }),
+  },
+  $I.annote("CheckProbed", {
+    description: "A requirement the doctor probed, with what the probe found.",
+  })
+) {}
+
+/**
+ * A requirement the doctor did not probe because a dependency is not satisfied.
+ *
+ * **Example** (Record a blocked requirement)
+ *
+ * ```ts
+ * import { CheckBlocked, SetupRequirementId } from "@beep/law-practice-domain"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ *
+ * const id = S.decodeUnknownEffect(SetupRequirementId)
+ * const program = Effect.map(Effect.all([id("box-drive-signed-in"), id("box-drive-installed")]), ([requirement, dep]) =>
+ *   CheckBlocked.make({ requirement, waitingOn: [dep] })
+ * )
+ * Effect.runPromise(program).then((check) => console.log(check.state)) // "blocked"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CheckBlocked extends S.Class<CheckBlocked>($I`CheckBlocked`)(
+  {
+    state: S.tag("blocked"),
+    requirement: SetupRequirementId.annotateKey({ description: "The requirement that was not probed." }),
+    waitingOn: S.NonEmptyArray(SetupRequirementId).annotateKey({
+      description: "Unsatisfied requirements this one depends on.",
+    }),
+  },
+  $I.annote("CheckBlocked", {
+    description: "A requirement not probed because a dependency is not satisfied.",
+  })
+) {}
+
+/**
+ * The doctor's verdict for one requirement, discriminated on `state`.
+ *
+ * **Example** (Branch on a requirement check)
+ *
+ * ```ts
+ * import { CheckProbed, ProbeSatisfied, RequirementCheck, SetupRequirementId } from "@beep/law-practice-domain"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.map(S.decodeUnknownEffect(SetupRequirementId)("practice-kg-ready"), (requirement) =>
+ *   RequirementCheck.guards.probed(CheckProbed.make({ requirement, result: ProbeSatisfied.make({}) }))
+ * )
+ * Effect.runPromise(program).then(console.log) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const RequirementCheck = S.Union([CheckProbed, CheckBlocked]).pipe(
+  S.toTaggedUnion("state"),
+  $I.annoteSchema("RequirementCheck", {
+    description: "The doctor's verdict for one setup requirement.",
+  })
+);
+
+/**
+ * Decoded type of {@link RequirementCheck}.
+ *
+ * **Example** (Accept any check)
+ *
+ * ```ts
+ * import type { RequirementCheck } from "@beep/law-practice-domain"
+ *
+ * const stateOf = (check: RequirementCheck) => check.state
+ * console.log(typeof stateOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type RequirementCheck = typeof RequirementCheck.Type;
+
+/**
+ * A step the lawyer must take, tied to the requirement it repairs.
+ *
+ * **Example** (Ask for a Microsoft 365 consent)
+ *
+ * ```ts
+ * import { HumanRemediation, PendingHumanStep, SetupRequirementId } from "@beep/law-practice-domain"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.map(S.decodeUnknownEffect(SetupRequirementId)("m365-consented"), (requirement) =>
+ *   PendingHumanStep.make({
+ *     requirement,
+ *     remediation: HumanRemediation.make({ step: "consent", instruction: "Approve access to your mail and calendar." }),
+ *   })
+ * )
+ * Effect.runPromise(program).then((step) => console.log(step.remediation.step)) // "consent"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PendingHumanStep extends S.Class<PendingHumanStep>($I`PendingHumanStep`)(
+  {
+    requirement: SetupRequirementId.annotateKey({ description: "The requirement the step repairs." }),
+    remediation: HumanRemediation.annotateKey({ description: "What the lawyer must do." }),
+  },
+  $I.annote("PendingHumanStep", {
+    description: "A step the lawyer must take, tied to the requirement it repairs.",
+  })
+) {}
+
+/**
+ * One doctor pass: a verdict per requirement in dependency order, the human
+ * steps that can be asked for now, and whether setup is complete.
+ *
+ * **Details**
+ *
+ * The doctor keeps no state of its own: each pass re-probes the machine, so a
+ * reboot mid-setup resumes from whatever is actually true. `humanSteps` only
+ * lists steps whose requirements are probed and not satisfied, so every batch
+ * is actionable.
+ *
+ * **Example** (A complete report)
+ *
+ * ```ts
+ * import { SetupReport } from "@beep/law-practice-domain"
+ *
+ * const report = SetupReport.make({ checks: [], humanSteps: [], complete: true })
+ * console.log(report.complete) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SetupReport extends S.Class<SetupReport>($I`SetupReport`)(
+  {
+    checks: S.Array(RequirementCheck).annotateKey({
+      description: "A verdict per requirement, in dependency order.",
+    }),
+    humanSteps: S.Array(PendingHumanStep).annotateKey({
+      description: "Human steps that can be asked for now, batched.",
+    }),
+    complete: S.Boolean.annotateKey({ description: "True when every requirement is satisfied." }),
+  },
+  $I.annote("SetupReport", {
+    description: "One setup doctor pass over a practice's requirements.",
+  })
+) {}
