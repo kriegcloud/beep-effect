@@ -9,7 +9,7 @@ import { $TechnicalDrawingId } from "@beep/identity/packages";
 import { EmailString } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Camera, ModelSummary } from "./Geometry.schemas.ts";
+import { Camera, ModelSummary, ShadingCoverage } from "./Geometry.schemas.ts";
 import { SheetOptions } from "./Sheet.schemas.ts";
 import { ValidationReport } from "./Validation.schemas.ts";
 import { ViewName } from "./View.schemas.ts";
@@ -129,11 +129,18 @@ export class FigureRecord extends S.Opaque<FigureRecord, { readonly brand: uniqu
           "Camera the figure was projected with. Absent on manifests rendered before design-figure review round 1.",
       })
     ),
-  }).pipe(
-    $I.annoteSchema("FigureRecord", {
-      description: "FIG. number, view, description, sheet file, hash, segment counts, and camera of one figure.",
-    })
-  )
+    shadingCoverage: S.OptionFromOptionalKey(ShadingCoverage).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Faces given shading lines and faces skipped per reason. Absent on unshaded renders and on manifests rendered before graded shading.",
+      })
+    ),
+  },
+  $I.annote("FigureRecord", {
+    description:
+      "FIG. number, view, description, sheet file, hash, segment counts, camera, and shading coverage of one figure.",
+  })
 ) {}
 
 /**

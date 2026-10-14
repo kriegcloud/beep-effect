@@ -10,6 +10,7 @@ import { Fn, LiteralKit, SchemaUtils } from "@beep/schema";
 import { O, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import { HatchAxis, ShadingStyle } from "./Geometry.schemas.ts";
 import { SANS_FACE, SERIF_FACE } from "./internal/LabelGlyphs.ts";
 import { LabelFace } from "./internal/LabelOutline.ts";
 
@@ -836,7 +837,53 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
       S.withDecodingDefaultTypeKey(Effect.succeed(0.55)),
       S.annotateKey({
         description:
-          "Exposure above which a face stays unshaded. Defaults to 0.55, just below a face seen square-on (1/√3 under the 45° light), so plans and elevations stay line drawings and only oblique faces are shaded.",
+          "Exposure above which a face stays unshaded under the uniform style. Defaults to 0.55, just below a face seen square-on (1/√3 under the 45° light), so plans and elevations stay line drawings and only oblique faces are shaded. Graded shading ignores it.",
+      })
+    ),
+    shadingStyle: ShadingStyle.pipe(
+      S.withConstructorDefault(Effect.succeed("uniform" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("uniform" as const)),
+      S.annotateKey({
+        description:
+          "Shading line spacing: `uniform` (the default, evenly spaced, lit faces blank) or `graded` (every visible planar face, lines from the shadow edge).",
+      })
+    ),
+    shadingAxis: HatchAxis.pipe(
+      S.withConstructorDefault(Effect.succeed("longest-edge" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("longest-edge" as const)),
+      S.annotateKey({
+        description:
+          "Shading line direction: `longest-edge` (the default) or `surface-class` (walls vertical; inclined and level faces along their darkest major edge).",
+      })
+    ),
+    shadingMinFaceSpanMm: S.Finite.check(
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`ShadingMinFaceSpanMmCheck`,
+        title: "Shading Minimum Face Span",
+        description: "A face narrower than this on the sheet is a sliver and gets no shading lines.",
+        message: "Expected a non-negative minimum face span",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Width in mm on the sheet below which a face (a thin board edge, a tab root) gets no shading lines. Defaults to 0 (no slivers).",
+      })
+    ),
+    shadingMinStrokeMm: S.Finite.check(
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`ShadingMinStrokeMmCheck`,
+        title: "Shading Minimum Stroke",
+        description: "A shading stroke shorter than this on the sheet is not drawn.",
+        message: "Expected a non-negative minimum stroke length",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Length in mm on the sheet below which a shading stroke (a chord near a face's pointed corner) is dropped. Defaults to 0 (every chord is drawn).",
       })
     ),
     brokenDashMm: S.Finite.check(
@@ -866,10 +913,9 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
           "Gap between dashes of broken (unclaimed) lines, in mm on the sheet, measured before the round caps. Defaults to 1.5.",
       })
     ),
-  }).pipe(
-    $I.annoteSchema("SheetOptions", {
-      description:
-        "Page format, margin standard, stroke and shading widths, shading pitch range, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
-    })
-  )
+  },
+  $I.annote("SheetOptions", {
+    description:
+      "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
+  })
 ) {}

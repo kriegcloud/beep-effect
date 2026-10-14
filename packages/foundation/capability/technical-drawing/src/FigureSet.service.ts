@@ -16,7 +16,7 @@ import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { ModelSpec, ShadingPlan } from "./Geometry.schemas.ts";
+import { Segment2, ShadingPlan } from "./Geometry.schemas.ts";
 import { mirrorSegments, sameSegments } from "./Geometry.segments.ts";
 import { fontNamesOf, outlineFontFile } from "./internal/LabelOutline.ts";
 import { sha256Hex } from "./Manifest.digest.ts";
@@ -34,13 +34,22 @@ import {
 } from "./Sheet.schemas.ts";
 import { DrawingError } from "./TechnicalDrawing.errors.ts";
 import { GeometryEngine, PdfBackend } from "./TechnicalDrawing.ports.ts";
-import { labelTextFindings, marginFindings, purityFindings, structuralFindings } from "./Validation.rules.ts";
+import {
+  labelTextFindings,
+  marginFindings,
+  purityFindings,
+  shadingCoverageFindings,
+  shadingLoneLineFindings,
+  shadingOutlineClearanceFindings,
+  shadingSpacingFindings,
+  structuralFindings,
+} from "./Validation.rules.ts";
 import { ValidationOptions, ValidationReport } from "./Validation.schemas.ts";
 import { cameraForView, FigureSetSpec, PictorialProjection } from "./View.schemas.ts";
-import type { EdgeSet, Segment2 } from "./Geometry.schemas.ts";
+import type { EdgeSet } from "./Geometry.schemas.ts";
 import type { LabelFace } from "./internal/LabelOutline.ts";
 import type { LabelStyle } from "./Sheet.schemas.ts";
-import type { SheetLabel } from "./Validation.schemas.ts";
+import type { SheetFinding, SheetLabel } from "./Validation.schemas.ts";
 import type { FigureSpec, OmissionClaim, ViewName } from "./View.schemas.ts";
 
 const $I = $TechnicalDrawingId.create("FigureSet.service");
@@ -136,8 +145,13 @@ export interface FigureSetShape {
   readonly validate: (pdfPath: string, options: ValidationOptions) => Effect.Effect<ValidationReport, DrawingError>;
 }
 
-// Shading pitch is a paper quantity: convert the sheet's mm range to model
-// units at the common scale (points per model unit), then project once more.
+// Shading pitch and sliver width are paper quantities: convert the sheet's mm
+// to model units at the common scale (points per model unit), then project
+// once more.
+// The validator's default spacing floor (`ValidationOptions.minShadingSpacingMm`),
+// read from the schema so the kernel's clearance and the check cannot drift apart.
+const shadingClearanceFloorMm = ValidationOptions.make({ expectedPages: O.none() }).minShadingSpacingMm;
+
 const shadingFor = (input: {
   readonly shade: boolean;
   readonly sheet: SheetOptions;
@@ -154,6 +168,13 @@ const shadingFor = (input: {
       minPitch: toModel(sheet.shadingMinPitchMm),
       maxPitch: toModel(Math.max(sheet.shadingMaxPitchMm, sheet.shadingMinPitchMm)),
       litThreshold: sheet.shadingLitThreshold,
+      style: sheet.shadingStyle,
+      axis: sheet.shadingAxis,
+      minFaceSpan: toModel(sheet.shadingMinFaceSpanMm),
+      minStroke: toModel(sheet.shadingMinStrokeMm),
+      // graded stroke ends stand half a pitch clear of the outlines, and never
+      // less than the validator's spacing floor, so the render passes its own check
+      clearance: O.some(toModel(Math.max(sheet.shadingMinPitchMm / 2, shadingClearanceFloorMm))),
     })
   );
 };
@@ -464,8 +485,9 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       spec.figures,
       Effect.fnUntraced(function* (figure: FigureSpec, index: number) {
         const edges = yield* edgesOf(index);
+        const shadedView = A.get(shading, index);
         const shadingLines = pipe(
-          A.get(shading, index),
+          shadedView,
           O.map((view) => view.shading),
           O.getOrElse(A.empty<Segment2>)
         );
@@ -495,6 +517,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           shadingSegments: A.length(shadingLines),
           brokenSegments: A.length(edges.broken),
           camera: A.get(cameras, index),
+          shadingCoverage: O.flatMap(shadedView, (view) => view.shadingCoverage),
         });
       })
     );
@@ -507,18 +530,49 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     );
     const pdfBytes = yield* fs.readFile(pdfPath).pipe(Effect.mapError(io(`Could not read "${pdfPath}".`)));
     const pdfSha256 = yield* sha256Hex(pdfBytes);
+    const validationOptions = ValidationOptions.make({
+      expectedPages: O.some(sheets),
+      textLabels: O.match(textFonts, { onNone: A.empty, onSome: (t) => t.labels }),
+      expectedLabelFonts: O.match(textFonts, {
+        onNone: A.empty,
+        onSome: (t) => A.map(t.pins, (pin) => pin.family),
+      }),
+    });
+    // Shading is checked on the render's own vectors, in mm on the sheet: line
+    // spacing, stroke ends clear of outlines, no stroke alone beside an outline,
+    // and no face that planned lines and drew none.
+    const mm = scale / PT_PER_MM;
+    const inMm = (segments: ReadonlyArray<Segment2>) =>
+      A.map(segments, ([x1, y1, x2, y2]) => Segment2.make([x1 * mm, y1 * mm, x2 * mm, y2 * mm]));
+    // The outline, lone-line and lost-face checks describe graded strokes (drawn back from
+    // outlines and planned per visible stretch); uniform strokes end on the face outline by
+    // design and have no probe pass, so those checks would fail every default render.
+    const graded = sheet.shadingStyle === "graded";
+    const shadingFindings = A.flatMap(shading, (view, index) => {
+      const page = index + 1;
+      const shadingMm = inMm(view.shading);
+      const outlineMm = inMm([...view.visible, ...view.broken]);
+      const gradedFindings = graded
+        ? [
+            ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),
+            ...shadingLoneLineFindings({ page, shadingMm, outlineMm, options: validationOptions }),
+            ...O.match(view.shadingCoverage, {
+              onNone: () => A.empty<SheetFinding>(),
+              onSome: (coverage) => shadingCoverageFindings({ page, coverage }),
+            }),
+          ]
+        : A.empty<SheetFinding>();
+      return [
+        ...shadingSpacingFindings({ page, segmentsMm: shadingMm, options: validationOptions }),
+        ...gradedFindings,
+      ];
+    });
     const validation = request.validate
       ? O.some(
-          yield* validate(
-            pdfPath,
-            ValidationOptions.make({
-              expectedPages: O.some(sheets),
-              textLabels: O.match(textFonts, { onNone: A.empty, onSome: (t) => t.labels }),
-              expectedLabelFonts: O.match(textFonts, {
-                onNone: A.empty,
-                onSome: (t) => A.map(t.pins, (pin) => pin.family),
-              }),
-            })
+          yield* validate(pdfPath, validationOptions).pipe(
+            Effect.map((report) =>
+              ValidationReport.make({ ...report, findings: [...report.findings, ...shadingFindings] })
+            )
           )
         )
       : O.none<ValidationReport>();

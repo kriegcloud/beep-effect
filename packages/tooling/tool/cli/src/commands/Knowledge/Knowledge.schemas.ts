@@ -126,8 +126,10 @@ type KnowledgePublicDetail = typeof KnowledgePublicDetail.Type;
  * local branch, remote-tracking branch, or tag. The Stage-2 knowledge doctor additionally emits
  * `unknown-beep-option` and the span-classification kinds (`historical-claim-unverified`,
  * `historical-commit-not-ancestor`, `historical-marker-on-live-surface`, and
- * `unclassified-reference-span`); members are only ever added, never repurposed. The remaining
- * members are reserved for later evaluators.
+ * `unclassified-reference-span`), and its domain evaluators emit `unknown-beep-symbol`,
+ * `packet-status-claim-drift`, `skill-lock-coverage-drift`, `unresolvable-skill-source`,
+ * `floating-github-skill-source`, and `skill-license-unrecorded`; members are only ever added, never
+ * repurposed. The remaining members are reserved for later evaluators.
  *
  * **Example** (Classify a Stage-1 finding kind)
  *
@@ -135,7 +137,7 @@ type KnowledgePublicDetail = typeof KnowledgePublicDetail.Type;
  * import { KnowledgeFindingKind } from "@beep/repo-cli/commands/Knowledge/Knowledge.schemas"
  *
  * console.log(KnowledgeFindingKind.is["index-drift"]("index-drift")) // true
- * console.log(KnowledgeFindingKind.literals.length) // 18
+ * console.log(KnowledgeFindingKind.literals.length) // 21
  * ```
  *
  * @category models
@@ -160,6 +162,9 @@ export const KnowledgeFindingKind = LiteralKit([
   "historical-commit-not-ancestor",
   "historical-marker-on-live-surface",
   "unclassified-reference-span",
+  "unknown-beep-symbol",
+  "packet-status-claim-drift",
+  "skill-license-unrecorded",
 ]).pipe(
   $I.annoteSchema("KnowledgeFindingKind", {
     description: "Stable classes emitted or reserved by knowledge-surface evaluators.",

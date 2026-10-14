@@ -1571,7 +1571,7 @@ def __getattr__(name):
 
 ### MCP server design
 
-beep already ships two working Effect-native MCP servers (`@beep/nlp-mcp`, `@beep/m365-mcp`) built on `effect/unstable/ai` `Tool`/`Toolkit` + `McpServer.layerStdio`, so the bare-scaffold lessons are dups. The high-value gaps the reference repos fill are: conditional/auth-gated tool registration, a shared multi-provider LLM fallback layer over the four LLM drivers, governance permission matrices, progressive-disclosure/context-reduction tactics, and OpenAPI->driver+MCP codegen for the bare CourtListener/eCFR/DOL/Federal-Register skeletons.
+beep already ships two working Effect-native MCP servers (`@beep/nlp-mcp`, `@beep/m365-mcp`) built on `effect/ai` `Tool`/`Toolkit` + `McpServer.layerStdio`, so the bare-scaffold lessons are dups. The high-value gaps the reference repos fill are: conditional/auth-gated tool registration, a shared multi-provider LLM fallback layer over the four LLM drivers, governance permission matrices, progressive-disclosure/context-reduction tactics, and OpenAPI->driver+MCP codegen for the bare CourtListener/eCFR/DOL/Federal-Register skeletons.
 
 #### Conditional, auth-gated tool registration (only expose tools whose credentials exist)
 What it is: registration that checks configured auth/tier before a tool is ever advertised, so the client never sees broken or unauthorized tools. beep's MCP servers register all tools unconditionally today; this is the cleanest fit for the multi-provider legal driver fleet where each source (CourtListener public, GovInfo/DOL keyed, USPTO keyed) has different credential needs. Port as Effect: build the `Toolkit` from the set of driver Layers whose Config resolved successfully, and tier-gate write-vs-read tools at the candidate→approved wall.
@@ -1612,7 +1612,7 @@ What it is: tool descriptions that teach the model when to call (USE WHEN / DO N
 - source: `screenpipe/packages/screenpipe-mcp/src/index.ts:286`
 - source: `patent-search-mcp-server/src/tools/claimChart.ts:39`
 - source: `us-legal-tools/packages/courtlistener-sdk/src/mcp/tool-schemas.zod.ts:15`
-- beep-target: `@beep/nlp-mcp` / `@beep/m365-mcp` tool-definition conventions; encode hints + USE WHEN prose in `effect/unstable/ai` `Tool` annotations and `effect/Schema` field descriptions
+- beep-target: `@beep/nlp-mcp` / `@beep/m365-mcp` tool-definition conventions; encode hints + USE WHEN prose in `effect/ai` `Tool` annotations and `effect/Schema` field descriptions
 - gapStatus: partial · recommend: adopt · P1
 ```ts
 description: "... USE WHEN: you need the actual text/content of a moment. "
@@ -1772,7 +1772,7 @@ function parseFilter(s) { const i = s.indexOf(" "); const name = s.slice(0,i);
 ```
 
 #### Minimal/hand-rolled MCP transport scaffold (client-compat reference)
-What it is: the bare structure of an MCP server — capabilities, `initialize`/`tools/list`/`tools/call`/`ping`, content[{type:text}] envelope, JSON-RPC error mapping, and crucially explicit empty `ListResources`/`ListPrompts` handlers some clients (Claude Desktop) require. beep already has working stdio servers via `effect/unstable/ai` `McpServer.layerStdio`, so this is a dup — keep only as a client-compat checklist and as a lightweight dependency-free transport reference if embedding inside a Tauri sidecar/Worker (pins protocolVersion 2025-06-18).
+What it is: the bare structure of an MCP server — capabilities, `initialize`/`tools/list`/`tools/call`/`ping`, content[{type:text}] envelope, JSON-RPC error mapping, and crucially explicit empty `ListResources`/`ListPrompts` handlers some clients (Claude Desktop) require. beep already has working stdio servers via `effect/ai` `McpServer.layerStdio`, so this is a dup — keep only as a client-compat checklist and as a lightweight dependency-free transport reference if embedding inside a Tauri sidecar/Worker (pins protocolVersion 2025-06-18).
 - source: `google-patents-mcp/src/index.ts:239`
 - source: `uspto-patents-mcp/src/mcp-server.ts:45`
 - beep-target: existing `@beep/nlp-mcp`/`@beep/m365-mcp` Server.ts (`McpServer.layerStdio`) — reference only; client-compat checklist + sidecar transport option

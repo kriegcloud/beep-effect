@@ -144,10 +144,15 @@ bun run beep yeet publish --prove-first --message "type(scope): summary"
 bun run beep yeet ready
 ```
 
-  Under S11 (AGENTS.md "Mergeable"), when the only refusing red is inherited
-  from `main` and every review thread is answered, call final, flip with
-  `bun run beep yeet gh pr ready <n>`, and record each inherited red with its
-  attribution in the PR body.
+  Under S11 (AGENTS.md "Mergeable"), when the refusing red is inherited from
+  `main`, call final and attribute each inherited red (repeatable). The flip
+  records them in a marked "Inherited reds (S11)" section of the PR body
+  first, refuses if that write fails, and still requires every review thread
+  to be answered:
+
+```bash
+bun run beep yeet ready --inherited "<check name>=<attribution>"
+```
 
 - Publish exactly the staged index from a dirty worktree (unstaged/untracked
   residue is parked in a marked stash after the commit, the clean tree is

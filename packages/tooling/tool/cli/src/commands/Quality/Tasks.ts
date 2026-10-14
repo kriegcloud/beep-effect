@@ -2949,6 +2949,7 @@ const policyMediumTasks = [
   "lint:circular",
   "lint:effect-imports",
   "lint:effect-imports-markdown",
+  "lint:retired-effect-paths",
   "lint:tsconfig-overlay",
   "lint:package-test-typecheck",
   "lint:effect-vitest",
