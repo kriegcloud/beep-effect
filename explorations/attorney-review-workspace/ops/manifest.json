@@ -8,7 +8,10 @@
     "openQuestions": [],
     "sources": ["research/SOURCES.md"],
     "links": {
-      "goals": ["goals/review-verdict-envelope"],
+      "goals": [
+        "goals/review-verdict-envelope",
+        "goals/attorney-question-loop"
+      ],
       "docs": [],
       "supersededBy": null
     },
