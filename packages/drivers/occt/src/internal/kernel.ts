@@ -194,7 +194,8 @@ export const project = (options: {
   readonly shading: O.Option<ShadingPlan>;
 }): EdgeSet => {
   const { oc, compound, camera, withHidden } = options;
-  const hatch = O.flatMap(options.shading, (plan) => hatchCompound({ oc, shape: compound, camera, plan }));
+  const shaded = O.map(options.shading, (plan) => hatchCompound({ oc, shape: compound, camera, plan }));
+  const hatch = O.flatMap(shaded, (view) => view.compound);
   const algo = new oc.HLRBRep_Algo();
   algo.Add(compound.wrapped, 0);
   O.map(hatch, (shape) => algo.Add(shape.wrapped, 0));
@@ -219,5 +220,10 @@ export const project = (options: {
     onNone: () => [],
     onSome: (shape) => edgesOf(shapes.VCompound(shape.wrapped), oc),
   });
-  return EdgeSet.make({ visible: toSegments(visible), hidden: toSegments(hidden), shading: toSegments(shading) });
+  return EdgeSet.make({
+    visible: toSegments(visible),
+    hidden: toSegments(hidden),
+    shading: toSegments(shading),
+    shadingCoverage: O.map(shaded, (view) => view.coverage),
+  });
 };

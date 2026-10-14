@@ -25,9 +25,12 @@ import {
   PdfFacts,
   PdfFontFact,
   PdfPageSize,
+  PT_PER_MM,
   purityFindings,
   RenderManifest,
   RenderRequest,
+  ShadingCoverage,
+  ShadingSkip,
   SheetMargins,
   SheetOptions,
   sameSegments,
@@ -49,6 +52,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import type { ShadingPlan } from "@beep/technical-drawing";
 
 // A fake engine: every view projects a unit square, except that the "rear"
 // camera (eye +Y) projects the square shifted, so omission proofs can fail.
@@ -62,27 +66,48 @@ const square: ReadonlyArray<readonly [number, number, number, number]> = [
 ];
 const shifted = A.map(square, ([a, b, c, d]) => [a + 1, b, c + 1, d] as const);
 
-const fakeEngine = Layer.succeed(
-  GeometryEngine,
-  GeometryEngine.of({
-    info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
-    summarize: Effect.fnUntraced(function* () {
-      return ModelSummary.make({
-        boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
-        volume: 250,
-        faceCount: 6,
-        edgeCount: 12,
-      });
-    }),
-    project: Effect.fnUntraced(function* (_, cameras, shading) {
-      // shaded projections carry one diagonal hatch line per view
-      const hatch = O.match(shading, { onNone: () => [], onSome: () => [[1, 1, 4, 4] as const] });
-      return A.map(cameras, (camera) =>
-        EdgeSet.make({ visible: camera.eye[1] > 0 ? shifted : square, hidden: [], shading: hatch })
-      );
-    }),
-  })
-);
+// `plans` collects every shading plan the engine is asked for, per layer.
+const fakeEngineWith = (plans: Array<ShadingPlan>) =>
+  Layer.succeed(
+    GeometryEngine,
+    GeometryEngine.of({
+      info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
+      summarize: Effect.fnUntraced(function* () {
+        return ModelSummary.make({
+          boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
+          volume: 250,
+          faceCount: 6,
+          edgeCount: 12,
+        });
+      }),
+      project: Effect.fnUntraced(function* (_, cameras, shading) {
+        // uniform shading carries one diagonal hatch line per view; graded shading
+        // two lines a hair apart, which the spacing rule must flag
+        O.map(shading, (plan) => plans.push(plan));
+        const hatch = O.match(shading, {
+          onNone: () => [],
+          onSome: (plan) =>
+            plan.style === "graded" ? [[1, 1, 9, 1] as const, [1, 1.01, 9, 1.01] as const] : [[1, 1, 4, 4] as const],
+        });
+        const coverage = O.map(shading, () =>
+          ShadingCoverage.make({
+            shadedFaces: 1,
+            skippedFaces: [ShadingSkip.make({ reason: "back-facing", faces: 5 })],
+          })
+        );
+        return A.map(cameras, (camera) =>
+          EdgeSet.make({
+            visible: camera.eye[1] > 0 ? shifted : square,
+            hidden: [],
+            shading: hatch,
+            shadingCoverage: coverage,
+          })
+        );
+      }),
+    })
+  );
+
+const fakeEngine = fakeEngineWith([]);
 
 const letter = PdfPageSize.make({ widthPt: 612, heightPt: 792 });
 const cleanMetrics = (dpi: number, antiAliased: boolean) =>
@@ -304,7 +329,7 @@ const rowInk = (
 const rowSquares = (ink: ReadonlyArray<boolean>, previous: ReadonlyArray<number>): ReadonlyArray<number> => {
   const current: Array<number> = [];
   for (let c = 0; c < ink.length; c++) {
-    current[c] = ink[c] ? 1 + Math.min(previous[c] ?? 0, current[c - 1] ?? 0, previous[c - 1] ?? 0) : 0;
+    current[c] = ink[c] === true ? 1 + Math.min(previous[c] ?? 0, current[c - 1] ?? 0, previous[c - 1] ?? 0) : 0;
   }
   return current;
 };
@@ -1053,6 +1078,62 @@ describe("@beep/technical-drawing approver binding and empty documents", () => {
         const unbound = yield* render("unbound", spec(figures));
         expect(O.isNone(unbound.manifest.approver)).toBe(true);
         expect(unbound.written).not.toContain("approver");
+      })
+    );
+  });
+});
+
+// The engine records the plans it is asked for; only this block's one test uses this layer,
+// so concurrent tests elsewhere cannot add to it.
+const gradedPlans = A.empty<ShadingPlan>();
+
+describe("graded shading through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(fakeEngineWith(gradedPlans), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "passes a spec's graded shading options to the engine, records coverage, and flags close shading lines",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(
+          specPath,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {
+            sheet: { shadingStyle: "graded", shadingAxis: "surface-class", shadingMinFaceSpanMm: 1.5 },
+          })
+        );
+        const service = yield* FigureSet;
+        const manifest = yield* service.render(
+          RenderRequest.make({ specPath, outputDir: path.join(dir, "out"), shade: true })
+        );
+        expect(A.length(gradedPlans)).toBe(1);
+        const plan = gradedPlans[0];
+        expect([plan?.style, plan?.axis]).toEqual(["graded", "surface-class"]);
+        expect(plan?.minFaceSpan).toBeCloseTo((1.5 * PT_PER_MM) / manifest.scale, 9);
+        assertSome(
+          manifest.figures[0]!.shadingCoverage,
+          ShadingCoverage.make({
+            shadedFaces: 1,
+            skippedFaces: [ShadingSkip.make({ reason: "back-facing", faces: 5 })],
+          })
+        );
+        assertSome(
+          O.map(manifest.validation, (v) => A.map(v.findings, (f) => [f.code, f.page])),
+          [["shading-spacing", O.some(1)]]
+        );
+        // the unshaded render records no coverage and no spacing finding
+        const plain = yield* service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "plain") }));
+        assertNone(plain.figures[0]!.shadingCoverage);
+        assertSome(
+          O.map(plain.validation, (v) => v.findings.length),
+          0
+        );
       })
     );
   });

@@ -487,6 +487,124 @@ export const Segment2 = S.Tuple([S.Finite, S.Finite, S.Finite, S.Finite]).pipe(
  */
 export type Segment2 = typeof Segment2.Type;
 
+const ShadingSkipReasonBase = LiteralKit([
+  "back-facing",
+  "curved",
+  "broken-part",
+  "sliver",
+  "lit",
+  "no-straight-edge",
+  "edge-on",
+]);
+
+/**
+ * Why a face of a shaded view got no shading lines.
+ *
+ * **Details**
+ *
+ * `back-facing`: turned away from the viewer. `curved`: not planar.
+ * `broken-part`: belongs to a part drawn in broken lines. `sliver`: narrower
+ * on the sheet than the plan's minimum face span, or too narrow for one
+ * graded line. `lit`: above the uniform style's lit threshold.
+ * `no-straight-edge`: the hatch axis needs a straight edge the face lacks.
+ * `edge-on`: the hatch step is too foreshortened to keep lines apart.
+ *
+ * **Example** (Read the reasons)
+ *
+ * ```ts
+ * import { ShadingSkipReason } from "@beep/technical-drawing"
+ *
+ * console.log(ShadingSkipReason.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ShadingSkipReason = ShadingSkipReasonBase.pipe(
+  $I.annoteSchema("ShadingSkipReason", {
+    description:
+      "Why a face got no shading lines: back-facing, curved, broken-part, sliver, lit, no-straight-edge, or edge-on.",
+  }),
+  SchemaUtils.withLiteralKitStatics(ShadingSkipReasonBase)
+);
+
+/**
+ * Type for {@link ShadingSkipReason}.
+ *
+ * **Example** (Annotate a reason)
+ *
+ * ```ts
+ * import type { ShadingSkipReason } from "@beep/technical-drawing"
+ *
+ * const reason: ShadingSkipReason = "sliver"
+ * console.log(reason)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ShadingSkipReason = typeof ShadingSkipReason.Type;
+
+/**
+ * Number of faces of one view skipped for one reason.
+ *
+ * **Example** (Three back faces)
+ *
+ * ```ts
+ * import { ShadingSkip } from "@beep/technical-drawing"
+ *
+ * console.log(ShadingSkip.make({ reason: "back-facing", faces: 3 }).faces)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingSkip extends S.Class<ShadingSkip>($I`ShadingSkip`)(
+  {
+    reason: ShadingSkipReason.annotateKey({ description: "Why the faces got no lines." }),
+    faces: S.Natural.annotateKey({ description: "Faces skipped for this reason." }),
+  },
+  $I.annote("ShadingSkip", {
+    description: "Count of faces in one view left unshaded for one reason.",
+  })
+) {}
+
+/**
+ * Shading coverage of one view: faces given lines and faces skipped by reason.
+ *
+ * **Details**
+ *
+ * Counted before hidden-line removal, so a shaded face may still be hidden
+ * by another part. Skips are listed in {@link ShadingSkipReason} order with
+ * zero counts left out.
+ *
+ * **Example** (Five shaded faces, one sliver)
+ *
+ * ```ts
+ * import { ShadingCoverage, ShadingSkip } from "@beep/technical-drawing"
+ *
+ * const coverage = ShadingCoverage.make({
+ *   shadedFaces: 5,
+ *   skippedFaces: [ShadingSkip.make({ reason: "sliver", faces: 1 })]
+ * })
+ * console.log(coverage.shadedFaces)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingCoverage extends S.Class<ShadingCoverage>($I`ShadingCoverage`)(
+  {
+    shadedFaces: S.Natural.annotateKey({ description: "Faces given shading lines." }),
+    skippedFaces: S.Array(ShadingSkip).annotateKey({
+      description: "Faces left unshaded, per reason, in reason order; zero counts left out.",
+    }),
+  },
+  $I.annote("ShadingCoverage", {
+    description: "Faces of one view given shading lines, and faces skipped per reason.",
+  })
+) {}
+
 /**
  * Visible and hidden projected edges of one view.
  *
@@ -517,11 +635,111 @@ export class EdgeSet extends S.Class<EdgeSet>($I`EdgeSet`)(
       S.withDecodingDefaultTypeKey(Effect.succeed([])),
       S.annotateKey({ description: "Visible surface-shading lines; empty when the view was not shaded." })
     ),
+    shadingCoverage: S.OptionFromOptionalKey(ShadingCoverage).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({ description: "Faces shaded and skipped; absent when the view was not shaded." })
+    ),
   },
   $I.annote("EdgeSet", {
     description: "Canonically ordered visible and hidden projected segments of one view.",
   })
 ) {}
+
+const ShadingStyleBase = LiteralKit(["uniform", "graded"]);
+
+/**
+ * How shading lines are spaced on a face.
+ *
+ * **Details**
+ *
+ * `uniform` (the default) spaces lines evenly across the face at a pitch set
+ * by its exposure and leaves faces above the lit threshold blank. `graded`
+ * shades every visible planar face: the first line sits one minimum pitch
+ * from the shadow edge and the gaps grow toward the lit side, in the manner
+ * of the USPTO Guide's 1.84(m) spaced-line examples.
+ *
+ * **Example** (Read the styles)
+ *
+ * ```ts
+ * import { ShadingStyle } from "@beep/technical-drawing"
+ *
+ * console.log(ShadingStyle.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ShadingStyle = ShadingStyleBase.pipe(
+  $I.annoteSchema("ShadingStyle", {
+    description: "`uniform` evenly spaced lines with a lit threshold, or `graded` lines from the shadow edge.",
+  }),
+  SchemaUtils.withLiteralKitStatics(ShadingStyleBase)
+);
+
+/**
+ * Type for {@link ShadingStyle}.
+ *
+ * **Example** (Annotate a style)
+ *
+ * ```ts
+ * import type { ShadingStyle } from "@beep/technical-drawing"
+ *
+ * const style: ShadingStyle = "graded"
+ * console.log(style)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ShadingStyle = typeof ShadingStyle.Type;
+
+const HatchAxisBase = LiteralKit(["longest-edge", "surface-class"]);
+
+/**
+ * Which way shading lines run on a face.
+ *
+ * **Details**
+ *
+ * `longest-edge` (the default) runs lines along the face's longest straight
+ * edge. `surface-class` runs them along +Z on upright faces (walls read
+ * vertical in every elevation and pictorial), along the level line on
+ * inclined faces (a hinged flap is hatched parallel to its hinge), and along
+ * the longest edge on level faces.
+ *
+ * **Example** (Read the axes)
+ *
+ * ```ts
+ * import { HatchAxis } from "@beep/technical-drawing"
+ *
+ * console.log(HatchAxis.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const HatchAxis = HatchAxisBase.pipe(
+  $I.annoteSchema("HatchAxis", {
+    description: "`longest-edge` lines along a face's longest edge, or `surface-class` lines by face orientation.",
+  }),
+  SchemaUtils.withLiteralKitStatics(HatchAxisBase)
+);
+
+/**
+ * Type for {@link HatchAxis}.
+ *
+ * **Example** (Annotate an axis)
+ *
+ * ```ts
+ * import type { HatchAxis } from "@beep/technical-drawing"
+ *
+ * const axis: HatchAxis = "surface-class"
+ * console.log(axis)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type HatchAxis = typeof HatchAxis.Type;
 
 const ExposureThreshold = S.Finite.check(
   S.isGreaterThanOrEqualTo(-1, {
@@ -545,11 +763,15 @@ const ExposureThreshold = S.Finite.check(
  *
  * Exposure is the cosine between a face's outward normal and the 37 CFR
  * 1.84(m) light (upper left, toward the viewer, 45°) in the camera frame.
- * Faces whose exposure exceeds `litThreshold` stay unshaded; the rest get
- * parallel lines whose pitch runs from `minPitch` (exposure -1, darkest) to
- * `maxPitch` (exposure at the threshold). Only planar faces turned toward the
- * camera are shaded, and the lines pass through the same hidden-line removal
- * as the outlines.
+ * Under the default `uniform` style, faces whose exposure exceeds
+ * `litThreshold` stay unshaded and the rest get parallel lines whose pitch
+ * runs from `minPitch` (exposure -1, darkest) to `maxPitch` (exposure at the
+ * threshold). The `graded` style shades every visible planar face from its
+ * shadow edge (see {@link ShadingStyle}); `axis` picks the line direction
+ * (see {@link HatchAxis}); faces narrower than `minFaceSpan` are never
+ * hatched. Only planar faces turned toward the camera are shaded, and the
+ * lines pass through the same hidden-line removal as the outlines. The
+ * defaults reproduce the original hatch exactly.
  *
  * **Example** (A plan in millimetres)
  *
@@ -570,11 +792,40 @@ export class ShadingPlan extends S.Class<ShadingPlan>($I`ShadingPlan`)(
     litThreshold: ExposureThreshold.pipe(
       S.withConstructorDefault(Effect.succeed(0.75)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0.75)),
-      S.annotateKey({ description: "Exposure above which a face stays unshaded. Defaults to 0.75." })
+      S.annotateKey({
+        description:
+          "Exposure above which a face stays unshaded under the uniform style; graded shading ignores it. Defaults to 0.75.",
+      })
+    ),
+    style: ShadingStyle.pipe(
+      S.withConstructorDefault(Effect.succeed("uniform" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("uniform" as const)),
+      S.annotateKey({ description: "Line spacing style. Defaults to `uniform`." })
+    ),
+    axis: HatchAxis.pipe(
+      S.withConstructorDefault(Effect.succeed("longest-edge" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("longest-edge" as const)),
+      S.annotateKey({ description: "Which way lines run on a face. Defaults to `longest-edge`." })
+    ),
+    minFaceSpan: S.Finite.check(
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`ShadingMinFaceSpanCheck`,
+        title: "Shading Minimum Face Span",
+        description: "A face narrower than this on the view plane is a sliver and gets no lines.",
+        message: "Expected a non-negative minimum face span",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Projected width, in model units, below which a face is a sliver and gets no lines. Defaults to 0 (no slivers).",
+      })
     ),
   },
   $I.annote("ShadingPlan", {
-    description: "Pitch range and lit threshold of procedural straight-line shading, in model units.",
+    description:
+      "Pitch range, lit threshold, style, hatch axis, and sliver width of straight-line shading, in model units.",
   })
 ) {}
 

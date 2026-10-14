@@ -15,7 +15,7 @@ import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { ShadingPlan } from "./Geometry.schemas.ts";
+import { Segment2, ShadingPlan } from "./Geometry.schemas.ts";
 import { mirrorSegments, sameSegments } from "./Geometry.segments.ts";
 import { outlineFontFile } from "./internal/LabelOutline.ts";
 import { FigureRecord, LabelFontRecord, OmissionProof, RenderManifest, Sha256Hex } from "./Manifest.schemas.ts";
@@ -23,10 +23,10 @@ import { commonScale, composeSheet } from "./Sheet.compose.ts";
 import { MIN_LETTER_HEIGHT_CM, PT_PER_CM, PT_PER_MM, SheetLabelFaces, SheetOptions } from "./Sheet.schemas.ts";
 import { DrawingError } from "./TechnicalDrawing.errors.ts";
 import { GeometryEngine, PdfBackend } from "./TechnicalDrawing.ports.ts";
-import { marginFindings, purityFindings, structuralFindings } from "./Validation.rules.ts";
+import { marginFindings, purityFindings, shadingSpacingFindings, structuralFindings } from "./Validation.rules.ts";
 import { ValidationOptions, ValidationReport } from "./Validation.schemas.ts";
 import { cameraForView, FigureSetSpec, PictorialProjection } from "./View.schemas.ts";
-import type { EdgeSet, Segment2 } from "./Geometry.schemas.ts";
+import type { EdgeSet } from "./Geometry.schemas.ts";
 import type { LabelFace } from "./internal/LabelOutline.ts";
 import type { LabelStyle } from "./Sheet.schemas.ts";
 import type { FigureSpec, OmissionClaim, ViewName } from "./View.schemas.ts";
@@ -114,8 +114,9 @@ const sha256 = (bytes: Uint8Array): Effect.Effect<Sha256Hex> =>
     Effect.map((digest) => Sha256Hex.make(hexOf(digest)))
   );
 
-// Shading pitch is a paper quantity: convert the sheet's mm range to model
-// units at the common scale (points per model unit), then project once more.
+// Shading pitch and sliver width are paper quantities: convert the sheet's mm
+// to model units at the common scale (points per model unit), then project
+// once more.
 const shadingFor = (input: {
   readonly shade: boolean;
   readonly sheet: SheetOptions;
@@ -132,6 +133,9 @@ const shadingFor = (input: {
       minPitch: toModel(sheet.shadingMinPitchMm),
       maxPitch: toModel(Math.max(sheet.shadingMaxPitchMm, sheet.shadingMinPitchMm)),
       litThreshold: sheet.shadingLitThreshold,
+      style: sheet.shadingStyle,
+      axis: sheet.shadingAxis,
+      minFaceSpan: toModel(sheet.shadingMinFaceSpanMm),
     })
   );
 };
@@ -307,8 +311,9 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       spec.figures,
       Effect.fnUntraced(function* (figure: FigureSpec, index: number) {
         const edges = yield* edgesOf(index);
+        const shadedView = A.get(shading, index);
         const shadingLines = pipe(
-          A.get(shading, index),
+          shadedView,
           O.map((view) => view.shading),
           O.getOrElse(A.empty<Segment2>)
         );
@@ -336,6 +341,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           visibleSegments: A.length(edges.visible),
           shadingSegments: A.length(shadingLines),
           camera: A.get(cameras, index),
+          shadingCoverage: O.flatMap(shadedView, (view) => view.shadingCoverage),
         });
       })
     );
@@ -347,8 +353,24 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     );
     const pdfBytes = yield* fs.readFile(pdfPath).pipe(Effect.mapError(io(`Could not read "${pdfPath}".`)));
     const pdfSha256 = yield* sha256(pdfBytes);
+    const validationOptions = ValidationOptions.make({ expectedPages: O.some(sheets) });
+    // Shading spacing is checked on the render's own vectors, in mm on the sheet.
+    const mm = scale / PT_PER_MM;
+    const spacingFindings = A.flatMap(shading, (view, index) =>
+      shadingSpacingFindings({
+        page: index + 1,
+        segmentsMm: A.map(view.shading, ([x1, y1, x2, y2]) => Segment2.make([x1 * mm, y1 * mm, x2 * mm, y2 * mm])),
+        options: validationOptions,
+      })
+    );
     const validation = request.validate
-      ? O.some(yield* validate(pdfPath, ValidationOptions.make({ expectedPages: O.some(sheets) })))
+      ? O.some(
+          yield* validate(pdfPath, validationOptions).pipe(
+            Effect.map((report) =>
+              ValidationReport.make({ ...report, findings: [...report.findings, ...spacingFindings] })
+            )
+          )
+        )
       : O.none<ValidationReport>();
     const manifest = RenderManifest.make({
       title: spec.title,

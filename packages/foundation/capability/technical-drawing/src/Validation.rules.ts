@@ -8,7 +8,8 @@
  * every page the same permitted size. Raster tier (1.84(g), (l), (m)): ink
  * inside the margins measured on the anti-aliased render; only pure black or
  * white pixels and no solid-black area measured on the non-anti-aliased
- * renders.
+ * renders. Shading tier (1.84(m)): side-by-side shading lines on a sheet stay
+ * at least the minimum spacing apart, measured on the render's own vectors.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -18,6 +19,7 @@ import { A, O } from "@beep/utils";
 import { pipe } from "effect/Function";
 import { MARGINS_CM, pageSizePt } from "./Sheet.schemas.ts";
 import { SheetFinding } from "./Validation.schemas.ts";
+import type { Segment2 } from "./Geometry.schemas.ts";
 import type { SheetFormat } from "./Sheet.schemas.ts";
 import type { PageMetrics, PdfFacts, ValidationOptions } from "./Validation.schemas.ts";
 
@@ -214,4 +216,83 @@ export const purityFindings = (input: {
         ]
       : [];
   return [...impure, ...solid];
+};
+
+// Two shading segments sit side by side when they run within two degrees of
+// each other and overlap along their length by more than the minimum spacing;
+// their distance is the second segment's midpoint off the first one's line.
+// Collinear pieces (one line split by a hidden part) are 0.01 mm apart or
+// less and do not count.
+const PARALLEL_SINE = Math.sin((2 * Math.PI) / 180);
+const COLLINEAR_MM = 0.01;
+
+const sideBySideGap = (a: Segment2, b: Segment2, minSpacingMm: number): O.Option<number> => {
+  const [ax, ay, bx, by] = a;
+  const length = Math.hypot(bx - ax, by - ay);
+  const otherLength = Math.hypot(b[2] - b[0], b[3] - b[1]);
+  if (length < COLLINEAR_MM || otherLength < COLLINEAR_MM) {
+    return O.none();
+  }
+  const ux = (bx - ax) / length;
+  const uy = (by - ay) / length;
+  const sine = Math.abs(ux * (b[3] - b[1]) - uy * (b[2] - b[0])) / otherLength;
+  const along = (x: number, y: number) => (x - ax) * ux + (y - ay) * uy;
+  const start = along(b[0], b[1]);
+  const end = along(b[2], b[3]);
+  const overlap = Math.min(length, Math.max(start, end)) - Math.max(0, Math.min(start, end));
+  const distance = Math.abs(((b[1] + b[3]) / 2 - ay) * ux - ((b[0] + b[2]) / 2 - ax) * uy);
+  return sine <= PARALLEL_SINE && overlap > minSpacingMm && distance > COLLINEAR_MM && distance < minSpacingMm
+    ? O.some(distance)
+    : O.none();
+};
+
+/**
+ * Findings from the shading lines of one sheet, in mm on the sheet: side by
+ * side lines closer than the minimum spacing read as a solid black area.
+ *
+ * **Details**
+ *
+ * Two lines are side by side when they run within 2° of each other and
+ * overlap along their length by more than the minimum spacing. One finding
+ * per sheet names the number of close pairs and the closest gap.
+ *
+ * **Example** (Two lines 0.3 mm apart)
+ *
+ * ```ts
+ * import { ValidationOptions, shadingSpacingFindings } from "@beep/technical-drawing"
+ * import * as O from "effect/Option"
+ *
+ * const segmentsMm = [[0, 0, 10, 0], [0, 0.3, 10, 0.3]] as const
+ * console.log(shadingSpacingFindings({ page: 1, segmentsMm, options: ValidationOptions.make({ expectedPages: O.none() }) }).map((f) => f.code))
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const shadingSpacingFindings = (input: {
+  readonly page: number;
+  readonly segmentsMm: ReadonlyArray<Segment2>;
+  readonly options: ValidationOptions;
+}): ReadonlyArray<SheetFinding> => {
+  const { page, segmentsMm, options } = input;
+  const minSpacing = options.minShadingSpacingMm;
+  const gaps = pipe(
+    segmentsMm,
+    A.flatMap((a, i) =>
+      pipe(
+        A.drop(segmentsMm, i + 1),
+        A.map((b) => sideBySideGap(a, b, minSpacing)),
+        A.getSomes
+      )
+    )
+  );
+  return A.isReadonlyArrayNonEmpty(gaps)
+    ? [
+        pageFinding(
+          "shading-spacing",
+          page,
+          `${A.length(gaps)} pair(s) of shading lines sit closer than ${minSpacing} mm; the closest are ${Math.min(...gaps).toFixed(2)} mm apart.`
+        ),
+      ]
+    : [];
 };

@@ -10,6 +10,7 @@ import { Fn, LiteralKit, SchemaUtils } from "@beep/schema";
 import { O, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import { HatchAxis, ShadingStyle } from "./Geometry.schemas.ts";
 import { SANS_FACE, SERIF_FACE } from "./internal/LabelGlyphs.ts";
 import { LabelFace } from "./internal/LabelOutline.ts";
 
@@ -632,12 +633,43 @@ export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(0.55)),
       S.annotateKey({
         description:
-          "Exposure above which a face stays unshaded. Defaults to 0.55, just below a face seen square-on (1/√3 under the 45° light), so plans and elevations stay line drawings and only oblique faces are shaded.",
+          "Exposure above which a face stays unshaded under the uniform style. Defaults to 0.55, just below a face seen square-on (1/√3 under the 45° light), so plans and elevations stay line drawings and only oblique faces are shaded. Graded shading ignores it.",
+      })
+    ),
+    shadingStyle: ShadingStyle.pipe(
+      S.withConstructorDefault(Effect.succeed("uniform" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("uniform" as const)),
+      S.annotateKey({
+        description:
+          "Shading line spacing: `uniform` (the default, evenly spaced, lit faces blank) or `graded` (every visible planar face, lines from the shadow edge).",
+      })
+    ),
+    shadingAxis: HatchAxis.pipe(
+      S.withConstructorDefault(Effect.succeed("longest-edge" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("longest-edge" as const)),
+      S.annotateKey({
+        description:
+          "Shading line direction: `longest-edge` (the default) or `surface-class` (walls vertical, inclined faces along their level line).",
+      })
+    ),
+    shadingMinFaceSpanMm: S.Finite.check(
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`ShadingMinFaceSpanMmCheck`,
+        title: "Shading Minimum Face Span",
+        description: "A face narrower than this on the sheet is a sliver and gets no shading lines.",
+        message: "Expected a non-negative minimum face span",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Width in mm on the sheet below which a face (a thin board edge, a tab root) gets no shading lines. Defaults to 0 (no slivers).",
       })
     ),
   },
   $I.annote("SheetOptions", {
     description:
-      "Page format, margin standard, stroke and shading widths, shading pitch range, lettering height, label gap and styles, and margin safety gap of a render.",
+      "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis and sliver width, lettering height, label gap and styles, and margin safety gap of a render.",
   })
 ) {}
