@@ -249,3 +249,67 @@ findings), CI knowledge refs (zero live gated observations), Fallow audit and
 health (zero introduced findings), and retired Effect paths. The scoped baseline
 read covered 10 touched source files without editing any row. Current scoped
 coverage and the final package rerun follow below when terminal.
+
+Final repaired ai-metrics `package-verify` passed audit (26.1 s) and docgen
+(6.4 s) after test cleanup commit `2cdc5ce44d`. The earlier finalizer compiler
+failure was introduced, fixed, and acknowledged with that commit; it is not
+attributed to main. Scoped Node/V8 coverage passed 231 metrics tests and 76
+CLI tests across eight files; test-tsgo passed again. The focused coverage
+summaries do not establish the full package floors: snapshot, hook and prune
+function/branch coverage plus EvalRecord still have lower focused measurements
+than the committed full-suite rows. No row was lowered, and no full Coverage
+Regression pass is claimed. The inherited program-wide hosted Coverage red
+remains owned by the orchestrator, separately from this scoped limitation.
+
+A second required main merge at `8cd9d1329b` integrated current main
+`83dde3b1f3`, including #1571's AgentMessage surface and #1744's H2 records.
+H3 source/tests are unchanged by that merge. Packet conflicts preserve H3
+status and the updated H2 row. The full CLI audit began before that merge;
+its source-head boundary is retained rather than labelled an exact integrated
+package proof. A post-merge quick package gate and all required parity commands
+are being refreshed; the final handoff gives their terminal states.
+
+The full private-namespace CLI audit terminated after 1273.19 s: 310 files and
+6340 tests passed, with three failures in unchanged `graft-hooks.test.ts` and
+`effect-fn.test.ts`. The two Graft failures were native root ownership projected
+as UID 65534 in a private user namespace; the trust guard correctly refuses it.
+The Effect law CLI fixture could not resolve newly merged `@beep/t3-code`.
+All three were acknowledged as environment boundaries, not repaired in source.
+The current dependency closure passed 44 build tasks (42 cached); all ten tests
+in the two failing files then passed with native `/tmp`, at 19:59:21Z. A new full
+native CLI package verification follows that corrected preflight. Temp fixtures
+are small test repositories, never full repo clones; home metadata is untouched.
+
+Current installed Codex is 0.162.1 (`hooks` feature enabled). Five disposable
+native executions on October 14 completed their read-only command successfully
+but emitted zero hook rows: primary full-access at 20:06:11.437Z, primary
+workspace-write at 20:06:19.695Z, linked full-access at 20:06:34.033Z, linked
+workspace-write at 20:06:44.331Z, and an invocation-only source-vetted hook-trust
+bypass at 20:06:55.377Z. Each selected GPT-6.1-Sol medium, used ephemeral
+sessions and fixture registrations with no persisted trust entry, and kept the
+existing authentication route. No home config was edited. User config was
+ignored for isolation, so these runs do not establish collection under the
+operator's ordinary launch configuration. The bypass also returning zero
+prevents assigning the cause solely to persisted hook trust. Native collection
+remains unknown; this is not proof of disabled collection or unused capability.
+Direct adapters remain independently stamped and schema-qualified.
+
+The integrated cheap-gates verification passed all 16 lanes at 20:06:59Z,
+including schema-first, Effect/Vitest, retired paths, changeset status, cache
+policy, goals, JSDoc and Fallow. Both edited packages are private after D's
+merged policy; no publish-enabled patch changeset was required by that gate.
+
+Current read-only reconciliation completed for all supported hook client kinds:
+
+| Client / transcript scope | Files | Transcript tool events | Matched terminal hooks | Sessions without hooks | Ratio | Result / UTC |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| Claude / lane archive | 18 | 0 | 0 | 0 | Not available | Advisory, non-use false / 20:11:18Z |
+| Codex / local sessions archive | 346 | 53832 | 2488 | 271 | 0.046218 | Failed-or-interrupted exec wrappers; non-use false / 20:11:46Z |
+| Cursor / projects archive | 81 | 3539 | 0 | 48 | 0 | Unsupported transcript format; non-use false / 20:12:04Z |
+
+All scans counted 74 schema-undecodable hook rows and wrote no evidence. The
+archive scopes are explicitly different, and the Codex archive is not filtered
+to this checkout/current regime. Those aggregate ratios are not comparable or
+collection-loss estimates. The lane Claude archive has no countable tool
+observations, not evidence of non-use. No ratio meets a qualified current-window
+and per-tool/surface attribution gate. Unknown collection stays unknown.
