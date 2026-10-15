@@ -1,5 +1,5 @@
 lane: rsc-h3-telemetry
-head: round-2 source 4de40d71f9; exact pushed delivery SHA follows publication
+head: round-2 source 2587e2445f; exact pushed delivery SHA follows publication
 pr: #1590 (OPEN, ready for review; round 2 pending the single publication)
 package-verify: @beep/repo-ai-metrics pass (full audit 37.0 s, docgen 8.7 s); @beep/repo-cli pass (full audit 1294.0 s, docgen 43.0 s)
 hosted-parity: test-tsgo pass; docgen local pass; jsdoc-ratchet pass; knowledge refs pass; fallow audit/health pass; coverage read pass (70 metrics and 76 CLI tests, seven matching baseline rows read; no full coverage-ratchet claim)
@@ -18,3 +18,7 @@ Fresh dry-run pruning for Claude, Codex and Cursor reports 0/30 qualifying sessi
 Original round-1 REST replies remain 4277634220, 4277634390 and 4277634543. Round-2 replies and the full final thread read follow publication. Round 2 is the last fix round; round-3 P2-and-below findings become tracked follow-ups and are answered/resolved without another push. Recovery: revert the H3 review commits; additive evidence remains readable. The worker does not merge or retire #1590.
 
 All integrated verification is terminal and green. Commands: full `beep quality package-verify` for both edited packages; the 44-task CLI dependency build; scoped CLI regressions; `beep quality test-tsgo`; `docgen:local --base origin/main`; `beep ci lane jsdoc-ratchet`; `CI=true beep knowledge refs --check`; `beep quality fallow audit`; `beep quality fallow health`; `beep laws retired-effect-paths`. Heavy commands used `beep-heavy`; verification ended at 02:06:59 UTC. Fallow reports zero findings in each lane, and the retired-paths law reports zero findings. No inherited test-tsgo or JSDoc red appears in this rerun. Hosted results remain separate from local proof.
+
+The first resumed Yeet invocation refused before push because main advanced by two catalog-only commits (#1803/#1804). Merged main a4b3aa1fcc into 2587e2445f, installed again, regenerated both catalog artifacts, and installed after completing the merge. The resulting tree is identical to d7661af356, preserving all full-package and coverage proof. Refreshed parity is recorded as round2-pushhead. No stale-base bypass was used and no push was consumed by the refusal.
+
+The post-catalog-merge parity refresh passes every required lane, terminating at 02:10:06 UTC. All owned local verification runners have terminated.

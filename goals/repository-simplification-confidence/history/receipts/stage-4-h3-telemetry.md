@@ -551,3 +551,5 @@ The installed integrated parity sequence is entirely green: test-tsgo
 (02:06:59 UTC). Both Fallow lanes and the retired-paths law report zero
 findings. All owned local verification runners terminated. The prior stale
 Crypto diagnosis is superseded; no inherited test-tsgo/JSDoc red appears.
+
+After the pre-push catalog-only main advance, merged main a4b3aa1fcc and reinstalled. Owner regeneration yields a tree-identical integration in 2587e2445f. The repeated test-tsgo, local docgen, JSDoc ratchet, CI knowledge refs, Fallow audit/health and retired-paths checks all pass, ending at 02:10:06 UTC.
