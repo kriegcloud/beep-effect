@@ -25,6 +25,22 @@ const encodeString = S.encodeEffect(S.fromJsonString(S.String));
 const escape = (value: string) => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 const error = (message: string) => ModelsLocatorError.make({ message });
 
+/**
+ * Match the complete shell word owned by an assignment or model flag.
+ *
+ * **Example** (Respect assignment boundaries)
+ *
+ * ```ts
+ * import { modelsShellWordPattern } from "@beep/repo-cli/commands/Models/Models.spans"
+ * console.log(modelsShellWordPattern("MODEL").test("MODEL='example';")) // true
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsShellWordPattern = (variable: string): RegExp =>
+  new RegExp(`(?<![\\w-])${escape(variable)}(?:=|[ \\t]+)("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^'"\\s;]+)`, "gd");
+
 const span = (content: string, start: number, end: number, after: string) =>
   ModelsWriteSpan.make({ start, end, before: Str.slice(start, end)(content), after });
 
@@ -302,7 +318,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
             content,
             start,
             end,
-            new RegExp(`(?<![\\w-])${escape(variable)}(?:=|[ \\t]+)("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^'"\\s;]+)`, "gd"),
+            modelsShellWordPattern(variable),
             /^[a-zA-Z0-9_./:+,-]+$/.test(expected) ? expected : `'${Str.replace(/'/g, "'\\''")(expected)}'`
           );
           return A.isReadonlyArrayEmpty(spans)

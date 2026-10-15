@@ -303,6 +303,26 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
+  it.effect("rejects a replacement that changes its own re-resolved delimiter", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "unstable-span-" });
+      const file = path.join(root, "example.txt");
+      const text = 'model: "old"\n';
+      yield* fs.writeFileString(file, text);
+      const writer = yield* writerWithFs(fs);
+      const request = write(
+        { _tag: "line-value", binding, render, linePrefix: "model:", before: 'model: "', after: '"' },
+        'new"tail'
+      );
+      const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
+      expect(error.message).toBe("Owned projection is not stable after re-resolving its addresses.");
+      expect(yield* fs.readFileString(file)).toBe(text);
+      expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
+    })
+  );
+
   it.effect("refuses a tampered recovery backup without replacing the live file", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;

@@ -125,6 +125,8 @@ const assertOwnedBytes = Effect.fnUntraced(function* (
     const resolved = yield* modelsWriteSpans(after, write);
     if (write.remove === true && A.isReadonlyArrayNonEmpty(resolved))
       return yield* failure("Removed native key returned during projection.");
+    if ((yield* modelsApplySpans(after, resolved)) !== after)
+      return yield* failure("Owned projection is not stable after re-resolving its addresses.");
   }
   if ((yield* modelsApplySpans(after, reversed)) !== before) return yield* failure("Non-owned native bytes changed.");
 });

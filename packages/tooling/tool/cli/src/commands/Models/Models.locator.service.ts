@@ -24,6 +24,7 @@ import { parseDocument } from "yaml";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { parseJsonText } from "./Models.paths.ts";
 import { extractGeneratedBlock } from "./Models.render.ts";
+import { modelsShellWordPattern } from "./Models.spans.ts";
 import type { Locator } from "./Models.manifest.schemas.ts";
 import type { ModelsTargetFile } from "./Models.paths.ts";
 
@@ -140,11 +141,10 @@ const readShellAssign = (content: string, variable: string, within: O.Option<str
     // `--model 'grok-4.6'` and `KEY=value` are the same shape once the
     // separator is allowed to be a space: the flag or variable name, then the
     // value.
-    A.flatMap((line) =>
-      A.fromIterable(Str.matchAll(new RegExp(`${escapeRegExp(variable)}[= ]['"]?([^'"\\s]+)`, "g"))(line))
-    ),
+    A.flatMap((line) => A.fromIterable(Str.matchAll(modelsShellWordPattern(variable))(line))),
     A.map((match) => O.fromUndefinedOr(match[1])),
     A.getSomes,
+    A.map(unquote),
     A.dedupe,
     A.match({ onEmpty: O.none<string>, onNonEmpty: (values) => O.some(A.join(values, ", ")) })
   );

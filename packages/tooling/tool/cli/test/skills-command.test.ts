@@ -254,7 +254,7 @@ describe("skills command", () => {
   });
 
   it.layer(CommandTestLayer, { timeout: "30 seconds" })((it) => {
-    for (const scenario of ["backup and mode", "projection drift", "publish failure"]) {
+    for (const scenario of ["backup and mode", "projection drift", "publish failure", "cleanup failure"]) {
       it.effect(`protects skill projection and remote publication during ${scenario}`, () =>
         Effect.gen(function* () {
           const root = yield* temporaryRepository;
@@ -284,16 +284,25 @@ describe("skills command", () => {
                 : fs.rename(from, to)
             ),
           });
+          const observed = FileSystem.FileSystem.of({
+            ...wrapped,
+            remove: Effect.fn("SkillsTest.remove")((target, options) =>
+              scenario === "cleanup failure" && target.endsWith(".previous")
+                ? fs.remove(path.join(root, "missing-cleanup"))
+                : fs.remove(target, options)
+            ),
+          });
           const result = yield* runSkillsCommand(["update", "--skill", "grill-me"]).pipe(
-            Effect.provideService(FileSystem.FileSystem, wrapped),
+            Effect.provideService(FileSystem.FileSystem, observed),
             Effect.result
           );
           const backupRoot = path.join(root, ".beep/skills-backups");
           const entries = yield* fs.readDirectory(backupRoot);
           const skillBackup = O.getOrThrow(A.findFirst(entries, (entry) => entry.startsWith("grill-me.")));
           expect(yield* fs.readFileString(path.join(backupRoot, skillBackup, "SKILL.md"))).toBe("old skill\n");
-          if (scenario === "backup and mode") {
-            expect(result._tag).toBe("Success");
+          if (scenario === "backup and mode" || scenario === "cleanup failure") {
+            expect(result).toMatchObject({ _tag: "Success" });
+            expect(yield* fs.readFileString(skill)).toBe(remoteGrillMeSkill);
             expect((yield* fs.stat(config)).mode & 0o777).toBe(0o644);
             const configBackup = O.getOrThrow(A.findFirst(entries, (entry) => entry.startsWith("config.toml.")));
             expect(yield* fs.readFileString(path.join(backupRoot, configBackup))).toBe(

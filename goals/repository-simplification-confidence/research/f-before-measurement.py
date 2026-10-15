@@ -42,7 +42,10 @@ for p in sorted((H/'.codex/sessions').rglob('rollout-*.jsonl'),key=lambda p:p.st
     if d.get('type')=='session_meta' and meta is None:
      meta=q
      if not repo(q.get('cwd')) or isinstance(q.get('source'),dict):break
-    if d.get('type')=='event_msg' and q.get('type')=='token_count' and usage is None:usage=(q.get('info') or {}).get('last_token_usage',{}).get('input_tokens')
+    if d.get('type')=='event_msg' and q.get('type')=='token_count' and usage is None:
+     candidate=(q.get('info') or {}).get('last_token_usage',{}).get('input_tokens')
+     if isinstance(candidate,(int,float)) and candidate>0:
+      usage=candidate
     if d.get('type')=='event_msg' and q.get('type')=='task_complete':ttft=q.get('time_to_first_token_ms');break
     if i>1000:break
  except OSError:continue

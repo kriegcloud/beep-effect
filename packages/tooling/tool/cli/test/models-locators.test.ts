@@ -297,6 +297,21 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
     })
   );
 
+  it.effect("reads exactly the shell words the projection owns", () =>
+    Effect.gen(function* () {
+      const reader = yield* ModelsLocatorReader;
+      const locator: Locator = {
+        _tag: "shell-assign",
+        binding: LocatorBinding.make(binding("model")),
+        render: verbatim,
+        variable: "MODEL",
+        within: O.none(),
+      };
+      assertSome(yield* reader.read(file("OTHER_MODEL=ignored\nMODEL=x;\nMODEL\t'x'\nMODEL  x\n"), locator), "x");
+      assertSome(yield* reader.read(file('MODEL="gpt-6.1-sol(medium)";\n'), locator), "gpt-6.1-sol(medium)");
+    })
+  );
+
   it.effect("scopes a shell assignment to its own function", () =>
     Effect.gen(function* () {
       assertSome(

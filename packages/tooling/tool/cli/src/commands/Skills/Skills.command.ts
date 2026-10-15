@@ -717,7 +717,8 @@ const writeRemoteSkill = Effect.fn("Skills.writeRemoteSkill")(function* (
       .copy(skillDir, backup, { overwrite: false, preserveTimestamps: true })
       .pipe(SkillsCommandError.mapError("Cannot back up remote skill."));
   const stage = path.join(path.dirname(skillDir), `.${source.name}.stage-${suffix}`);
-  const previous = path.join(path.dirname(skillDir), `.${source.name}.previous-${suffix}`);
+  // Keep deferred cleanup outside discovery: it is recovery state, not an installed skill.
+  const previous = path.join(backups, `${source.name}.${suffix}.previous`);
   yield* makeParentDirectory(stage);
   yield* Effect.acquireUseRelease(
     fs.makeDirectory(stage).pipe(SkillsCommandError.mapError("Cannot stage remote skill.")),
@@ -744,10 +745,7 @@ const writeRemoteSkill = Effect.fn("Skills.writeRemoteSkill")(function* (
             Effect.onError(() => (existed ? Effect.ignore(fs.rename(previous, skillDir)) : Effect.void)),
             SkillsCommandError.mapError("Cannot publish staged remote skill.")
           );
-          if (existed)
-            yield* fs
-              .remove(previous, { recursive: true })
-              .pipe(SkillsCommandError.mapError("Cannot remove backed-up skill staging tree."));
+          if (existed) yield* Effect.ignore(fs.remove(previous, { recursive: true, force: true }));
         })
       );
     }),
