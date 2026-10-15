@@ -6,6 +6,8 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { chosenMatterOf, decodeMatterLookup } from "@/PracticeMod.matters";
 
+const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
+
 const columns = ["familyKey", "docketKey", "resolution", "client"];
 const unique = { data: { columns, rows: [["12345.10008", "12345.10008US01", "unique", "12345"]] } };
 const result = (structuredContent: unknown) => ({ content: [], isError: false, structuredContent });
@@ -28,7 +30,7 @@ describe("matter lookup", () => {
   it.effect(
     "decodes the real server's JSON text fallback",
     Effect.fnUntraced(function* () {
-      const text = yield* S.encodeEffect(S.fromJsonString(S.Unknown))(unique);
+      const text = yield* encodeUnknownJson(unique);
       const rows = yield* decodeMatterLookup({ isError: false, content: [{ type: "text", text }] });
       expect(rows.length).toBe(1);
       assertSome(

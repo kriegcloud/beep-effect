@@ -93,6 +93,7 @@
     "eslint.config.mjs",
     "scripts/changeset-changelog.cjs",
     // Human-operated, memory-only GitHub App registration, invoked directly with Bun.
+    "scripts/github-app/create-beep-reviewer.ts",
     "scripts/github-app/create-beep-knowledge-mint.ts",
     "packages/tooling/tool/cli/test/global-cleanup.ts",
     // Standalone article builder, invoked by path rather than imported.

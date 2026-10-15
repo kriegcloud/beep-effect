@@ -3310,12 +3310,14 @@
         "from": "@beep/practice-claude-mod",
         "allow": [
           "@beep/identity",
+          "@beep/law-practice-domain",
           "@beep/practice-claude-mod",
           "@beep/schema",
           "@beep/test-runner"
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/law-practice-domain",
           "@beep/practice-claude-mod",
           "@beep/schema",
           "@beep/test-runner"

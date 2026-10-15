@@ -40,6 +40,7 @@
     "./server": "./src/server.ts",
     "./CandorPolicy": "./src/CandorPolicy/index.ts",
     "./CandorRecord": "./src/CandorRecord/index.ts",
+    "./ClaimSelfCheck": "./src/ClaimSelfCheck/index.ts",
     "./DocketIntake": "./src/DocketIntake/index.ts",
     "./IrToLaw": "./src/IrToLaw/index.ts",
     "./LegalPositionRecord": "./src/LegalPositionRecord/index.ts",
@@ -49,9 +50,11 @@
     "./OfficeActionReview": "./src/OfficeActionReview/index.ts",
     "./PatentClaimCandidate": "./src/PatentClaimCandidate/index.ts",
     "./PracticeSetup": "./src/PracticeSetup/index.ts",
+    "./ReviewQueue": "./src/ReviewQueue/index.ts",
     "./test": "./src/test.ts",
     "./internal/*": null,
     "./OfficeActionStructure": "./src/OfficeActionStructure/index.ts",
+    "./VerdictProjector": "./src/VerdictProjector/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
