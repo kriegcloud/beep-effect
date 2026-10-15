@@ -36,8 +36,16 @@ const native = A.join(
   "\r\n"
 );
 
-const writerWithFs = Effect.fn("ModelsApplyTest.writerWithFs")(function* (fs: FileSystem.FileSystem) {
-  const services = yield* Layer.build(ModelsApplyLive.pipe(Layer.provide(Layer.succeed(FileSystem.FileSystem, fs))));
+const writerWithFs = Effect.fn("ModelsApplyTest.writerWithFs")(function* (
+  fs: FileSystem.FileSystem,
+  spawner?: Context.Service.Shape<typeof ChildProcessSpawner.ChildProcessSpawner>
+) {
+  const configured = ModelsApplyLive.pipe(Layer.provide(Layer.succeed(FileSystem.FileSystem, fs)));
+  const services = yield* Layer.build(
+    spawner === undefined
+      ? configured
+      : configured.pipe(Layer.provide(Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, spawner)))
+  );
   return Context.get(services, ModelsApply);
 });
 
@@ -262,11 +270,12 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("fences planning, recovers the original inode race in apply and restore, and retains journals", () =>
+  it.effect("preserves in-place and replacing writers during apply, restore and recovery", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      for (const phase of ["planned", "rename", "post", "restore"]) {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      for (const phase of ["planned", "in-place", "post", "replace", "restore", "recovery"]) {
         const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "native-race-" });
         const file = path.join(root, "config.toml");
         const backups = path.join(root, "backups");
@@ -274,26 +283,40 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const writer = yield* writerWithFs(fs);
         const journal =
           phase === "restore" ? O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups)) : undefined;
-        let injected = false;
-        const inject = Effect.gen(function* () {
-          injected = true;
-          yield* fs.writeFileString(file, (yield* fs.readFileString(file)) + "new_native_key = true\n");
+        let exchanges = 0;
+        const competitor = 'model = "competitor"\nnew_native_key = true\n';
+        const newest = 'model = "newest"\nnewest_native_key = true\n';
+        const replace = Effect.fnUntraced(function* (bytes: string) {
+          const other = path.join(root, "competitor");
+          yield* fs.writeFileString(other, bytes);
+          yield* fs.rename(other, file);
         });
-        const wrapped = FileSystem.FileSystem.of({
+        const wrappedFs = FileSystem.FileSystem.of({
           ...fs,
           chmod: Effect.fn("ModelsApplyTest.chmod")((target, mode) =>
             fs
               .chmod(target, mode)
-              .pipe(Effect.andThen(phase === "planned" && target.endsWith(".tmp") ? inject : Effect.void))
+              .pipe(Effect.andThen(phase === "planned" && target.endsWith(".tmp") ? replace(competitor) : Effect.void))
           ),
-          rename: Effect.fn("ModelsApplyTest.rename")(function* (from, to) {
-            const publish = to === file && from.endsWith(".tmp") && !injected;
-            if (publish && phase !== "post") yield* inject;
-            yield* fs.rename(from, to);
-            if (publish && phase === "post") yield* inject;
+        });
+        const wrappedSpawner = ChildProcessSpawner.ChildProcessSpawner.of({
+          ...spawner,
+          exitCode: Effect.fnUntraced(function* (command) {
+            const publication =
+              command._tag === "StandardCommand" && command.command === "mv" && A.contains(command.args, file);
+            if (publication) {
+              exchanges += 1;
+              if (exchanges === 1 && phase === "in-place") yield* fs.writeFileString(file, competitor);
+              if (exchanges === 1 && (phase === "replace" || phase === "restore" || phase === "recovery"))
+                yield* replace(competitor);
+              if (exchanges === 2 && phase === "recovery") yield* replace(newest);
+            }
+            const code = yield* spawner.exitCode(command);
+            if (publication && exchanges === 1 && phase === "post") yield* fs.writeFileString(file, competitor);
+            return code;
           }),
         });
-        const racer = yield* writerWithFs(wrapped);
+        const racer = yield* writerWithFs(wrappedFs, wrappedSpawner);
         const error = yield* Effect.flip(
           journal === undefined
             ? racer.apply(file, [topLevel], "write", backups)
@@ -304,10 +327,120 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const journals = A.filter(entries, (entry) => entry.endsWith(".json"));
         expect(journals).toHaveLength(1);
         expect(error.message).toContain(journals[0]?.slice(0, -5));
-        expect(yield* fs.readFileString(file)).toContain("new_native_key = true");
-        if (phase === "rename" || phase === "restore")
+        if (phase !== "planned" && phase !== "post")
+          expect(
+            A.some(
+              entries,
+              (entry) => entry.startsWith(journals[0]?.slice(0, -5) ?? "missing") && entry.endsWith(".concurrent")
+            )
+          ).toBe(true);
+        expect(yield* fs.readFileString(file)).toBe(phase === "recovery" ? newest : competitor);
+        if (phase === "planned")
+          expect(A.filter(yield* fs.readDirectory(root), (entry) => entry.endsWith(".preimage"))).toHaveLength(0);
+        if (phase !== "planned" && phase !== "post")
           expect(A.some(entries, (entry) => entry.endsWith(".concurrent"))).toBe(true);
       }
+    })
+  );
+
+  it.effect("fails closed and caches an unsupported exchange probe", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "unsupported-exchange-",
+      });
+      const file = path.join(root, "config.toml");
+      const backups = path.join(root, "backups");
+      yield* fs.writeFileString(file, native);
+      let probes = 0;
+      const wrapped = ChildProcessSpawner.ChildProcessSpawner.of({
+        ...spawner,
+        exitCode: Effect.fn("ModelsApplyTest.exitCode")((command) => {
+          if (command._tag === "StandardCommand" && command.command === "mv") {
+            probes += 1;
+            return Effect.succeed(ChildProcessSpawner.ExitCode(1));
+          }
+          return spawner.exitCode(command);
+        }),
+      });
+      const writer = yield* writerWithFs(fs, wrapped);
+      for (const _attempt of [0, 1]) {
+        const error = yield* Effect.flip(writer.apply(file, [topLevel], "write", backups));
+        expect(error._tag).toBe("ModelsLocatorError");
+        expect(error.message).toContain("Atomic exchange unsupported");
+        expect(error.message).toContain("Journal:");
+        expect(yield* fs.readFileString(file)).toBe(native);
+      }
+      expect(probes).toBe(1);
+    })
+  );
+
+  it.effect("refuses adjacent shell operators and concatenated words before any backup", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "ambiguous-shell-" });
+      const file = path.join(root, "launcher");
+      const backups = path.join(root, "backups");
+      const request = write({ _tag: "shell-assign", binding, render, variable: "--model", within: O.none() });
+      const writer = yield* writerWithFs(fs);
+      for (const text of [
+        "claude --model old&&printf native\n",
+        "claude --model old> /dev/null\n",
+        "claude --model 'old'-suffix\n",
+        "claude --model old||true\n",
+        "claude --model 'old\n",
+      ]) {
+        yield* fs.writeFileString(file, text);
+        const error = yield* Effect.flip(writer.apply(file, [request], "write", backups));
+        expect(error._tag).toBe("ModelsLocatorError");
+        expect(yield* fs.readFileString(file)).toBe(text);
+        expect(yield* fs.exists(backups)).toBe(false);
+      }
+      const comments =
+        "# claude --model ignored\nclaude --model old # trailing native\nprintf '%s' 'claude --model untouched'\n";
+      const commentProjection = yield* modelsApplySpans(comments, yield* modelsWriteSpans(comments, request));
+      expect(commentProjection).toBe(comments.replace("--model old", "--model gpt-6.1-sol"));
+      for (const word of ["old", "'old'", '"old"', "o\\ld"]) {
+        const text = `claude --model ${word} ; printf native\n`;
+        const projected = yield* modelsApplySpans(text, yield* modelsWriteSpans(text, request));
+        expect(projected).toBe("claude --model gpt-6.1-sol ; printf native\n");
+        expect(yield* modelsApplySpans(projected, yield* modelsWriteSpans(projected, request))).toBe(projected);
+      }
+    })
+  );
+
+  it.effect("validates the transformed shell candidate before creating a backup", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "shell-validation-" });
+      const file = path.join(root, "launcher");
+      const backups = path.join(root, "backups");
+      const text = "claude --model old\n";
+      yield* fs.writeFileString(file, text);
+      let parses = 0;
+      const wrapped = ChildProcessSpawner.ChildProcessSpawner.of({
+        ...spawner,
+        exitCode: Effect.fn("ModelsApplyTest.exitCode")((command) => {
+          if (command._tag === "StandardCommand" && command.command === "zsh") {
+            parses += 1;
+            if (parses === 2) return Effect.succeed(ChildProcessSpawner.ExitCode(1));
+          }
+          return spawner.exitCode(command);
+        }),
+      });
+      const writer = yield* writerWithFs(fs, wrapped);
+      const request = write({ _tag: "shell-assign", binding, render, variable: "--model", within: O.none() });
+      const error = yield* Effect.flip(writer.apply(file, [request], "write", backups));
+      expect(error.message).toBe("Invalid shell target.");
+      expect(parses).toBe(2);
+      expect(yield* fs.readFileString(file)).toBe(text);
+      expect(yield* fs.exists(backups)).toBe(false);
     })
   );
 
@@ -346,6 +479,25 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       const error = yield* Effect.flip(writer.restore(path.join(backups, `${journal.id}.json`), backups));
       expect(error.message).toBe("Recovery backup hash does not match.");
       expect(yield* fs.readFileString(file)).toBe(applied);
+    })
+  );
+
+  it.effect("leaves dotted and table TOML keys outside scalar removal ownership", () =>
+    Effect.gen(function* () {
+      const request = ModelsLocatorWrite.make({
+        ...topLevel,
+        locator: { _tag: "toml-top-level-key", binding, render, key: "sandbox_mode" },
+        remove: true,
+      });
+      for (const text of [
+        'sandbox_mode.foo = "native"\n',
+        '[sandbox_mode]\nfoo = "native"\n',
+        '"sandbox_mode.foo" = "native"\n',
+      ]) {
+        const spans = yield* modelsWriteSpans(text, request);
+        expect(spans).toHaveLength(0);
+        expect(yield* modelsApplySpans(text, spans)).toBe(text);
+      }
     })
   );
 

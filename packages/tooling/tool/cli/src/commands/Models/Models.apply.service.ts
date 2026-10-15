@@ -160,16 +160,15 @@ export interface ModelsApplyShape {
  *
  * **Details**
  *
- * A same-directory exclusive hard link retains the original inode before staging.
- * Apply and restore fence the live and retained bytes before atomic replacement,
- * then inspect the retained inode again. An in-place write observed in that window
- * fails with its journal id and restores the newer pre-image when our replacement
- * still owns the live path. A later rename-replacing writer wins; its bytes are
- * never intentionally rolled back. Recovery artifacts remain on failure.
- * This is detection and recovery, not mutual exclusion with native clients:
- * writers holding the old inode may write after the final observation, and the
- * identity check and recovery rename are not a filesystem compare-and-swap.
- * Such writers require an external maintenance boundary for a strict guarantee.
+ * A same-directory exclusive hard link retains the planned inode. Publication
+ * uses GNU mv --exchange (renameat2 RENAME_EXCHANGE), then verifies the actual
+ * displaced inode and bytes. Apply, restore and recovery exchange rather than
+ * overwriting a pathname. A competing replacement is returned to the live path;
+ * every detected race fails with a journal id and retains recovery artifacts.
+ * Capability is probed once per service; unsupported atomic exchange fails closed
+ * for every write, including home writes. There is no unverified fallback.
+ * Writers holding an inode can still mutate it after its final observation;
+ * strict exclusion of such writers requires an external maintenance boundary.
  *
  * **Example** (Access the writer)
  *
@@ -263,6 +262,33 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     return `models-${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
   });
 
+  const exchange = Effect.fnUntraced(function* (left: string, right: string) {
+    const code = yield* spawner
+      .exitCode(
+        ChildProcess.make("mv", ["--exchange", "--no-copy", "--", left, right], {
+          stdout: "ignore",
+          stderr: "ignore",
+        })
+      )
+      .pipe(ModelsLocatorError.mapError("Atomic exchange failed; retain recovery artifacts."));
+    if (code !== 0) return yield* failure("Atomic exchange failed; retain recovery artifacts.");
+  });
+  const supported = yield* Effect.gen(function* () {
+    const root = yield* fs.makeTempDirectoryScoped().pipe(io);
+    const left = path.join(root, "left");
+    const right = path.join(root, "right");
+    yield* fs.writeFileString(left, "left", { flag: "wx", mode: 0o600 }).pipe(io);
+    yield* fs.writeFileString(right, "right", { flag: "wx", mode: 0o600 }).pipe(io);
+    yield* exchange(left, right);
+    return (yield* readNative(left)) === "right" && (yield* readNative(right)) === "left";
+  }).pipe(
+    Effect.scoped,
+    Effect.catchTag("ModelsLocatorError", () => Effect.succeed(false)),
+    Effect.cached
+  );
+  const sameInode = (left: FileSystem.File.Info, right: FileSystem.File.Info) =>
+    O.isSome(left.ino) && O.isSome(right.ino) && left.dev === right.dev && left.ino.value === right.ino.value;
+
   const atomic = Effect.fnUntraced(function* (
     file: string,
     beforeHash: string,
@@ -272,11 +298,14 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     backupDirectory: string,
     writes: ReadonlyArray<ModelsLocatorWrite> = []
   ) {
-    const operation = yield* suffix;
+    if (!(yield* supported))
+      return yield* failure(`Atomic exchange unsupported; refusing native write. Journal: ${journal.id}`);
+    const operation = `${journal.id}-${yield* suffix}`;
     const temporary = `${file}.${operation}.tmp`;
     const retained = `${file}.${operation}.preimage`;
-    // link is exclusive and keeps the original inode observable after rename.
     yield* fs.link(file, retained).pipe(io);
+    const plannedInfo = yield* fs.stat(retained).pipe(io);
+    let exchanged = false;
     let completed = false;
     yield* Effect.acquireUseRelease(
       Effect.succeed(retained),
@@ -293,36 +322,54 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
               );
             yield* fs.chmod(temporary, mode).pipe(io);
             const stagedInfo = yield* fs.stat(temporary).pipe(io);
-            const current = yield* readNative(file);
-            if ((yield* hash(current)) !== beforeHash || (yield* hash(yield* readNative(retained))) !== beforeHash)
+            if (
+              (yield* hash(yield* readNative(file))) !== beforeHash ||
+              (yield* hash(yield* readNative(retained))) !== beforeHash
+            )
               return yield* failure(`Native file drifted after planning; refusing replacement. Journal: ${journal.id}`);
             yield* Effect.uninterruptible(
               Effect.gen(function* () {
-                yield* fs.rename(temporary, file).pipe(io);
-                if ((yield* hash(yield* readNative(retained))) !== beforeHash) {
-                  // Persist the recovery path before attempting recovery. Never erase a
-                  // later rename-replacement or a write to our newly published inode.
+                // Once publication starts, a failed process observation is uncertain:
+                // retain both occupants even if mv cannot report its final status.
+                exchanged = true;
+                yield* exchange(temporary, file);
+                const displacedInfo = yield* fs.stat(temporary).pipe(io);
+                if (
+                  !sameInode(plannedInfo, displacedInfo) ||
+                  (yield* hash(yield* readNative(temporary))) !== beforeHash
+                ) {
                   yield* fs
                     .writeFileString(
                       path.join(backupDirectory, `${operation}.concurrent`),
-                      `journal=${journal.id}\nretained=${retained}\nevent=original-inode-changed\n`,
+                      `journal=${journal.id}\nretained=${retained}\ndisplaced=${temporary}\nevent=concurrent-native-write\n`,
                       { flag: "wx", mode: 0o600 }
                     )
                     .pipe(io);
-                  const liveInfo = yield* fs.stat(file).pipe(io);
-                  if (
-                    O.isSome(stagedInfo.ino) &&
-                    O.isSome(liveInfo.ino) &&
-                    stagedInfo.dev === liveInfo.dev &&
-                    stagedInfo.ino.value === liveInfo.ino.value &&
-                    (yield* readNative(file)) === after
-                  )
-                    yield* fs.rename(retained, file).pipe(io);
+                  // Each recovery exchange retains the actual current occupant. If a
+                  // newer writer intervenes, return that occupant with another exchange.
+                  let expectedInfo = stagedInfo;
+                  let expectedHash = yield* hash(after);
+                  for (let attempt = 0; attempt < 8; attempt += 1) {
+                    const liveInfo = yield* fs.stat(file).pipe(io);
+                    if (!sameInode(expectedInfo, liveInfo) || (yield* hash(yield* readNative(file))) !== expectedHash)
+                      break;
+                    const returningInfo = yield* fs.stat(temporary).pipe(io);
+                    const returningHash = yield* hash(yield* readNative(temporary));
+                    yield* exchange(temporary, file);
+                    const recoveredInfo = yield* fs.stat(temporary).pipe(io);
+                    if (
+                      sameInode(expectedInfo, recoveredInfo) &&
+                      (yield* hash(yield* readNative(temporary))) === expectedHash
+                    )
+                      break;
+                    expectedInfo = returningInfo;
+                    expectedHash = returningHash;
+                  }
                   return yield* failure(
                     `Concurrent native write detected; recovery event retained. Journal: ${journal.id}`
                   );
                 }
-                if ((yield* readNative(file)) !== after)
+                if (!sameInode(stagedInfo, yield* fs.stat(file).pipe(io)) || (yield* readNative(file)) !== after)
                   return yield* failure(
                     `Native file changed after replacement; preserve journal for recovery. Journal: ${journal.id}`
                   );
@@ -330,10 +377,10 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
               })
             );
           }),
-          () => Effect.ignore(fs.remove(temporary))
+          () => (!exchanged || completed ? Effect.ignore(fs.remove(temporary)) : Effect.void)
         ),
-      () => (completed ? Effect.ignore(fs.remove(retained)) : Effect.void)
-    );
+      () => (!exchanged || completed ? Effect.ignore(fs.remove(retained)) : Effect.void)
+    ).pipe(Effect.mapError((error) => failure(`${error.message} Journal: ${journal.id}`)));
   });
 
   const apply: ModelsApplyShape["apply"] = Effect.fn("ModelsApply.apply")(

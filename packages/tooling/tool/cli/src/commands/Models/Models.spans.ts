@@ -9,7 +9,9 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as Regex from "effect/RegExp";
 import * as S from "effect/Schema";
 import { findNodeAtLocation, parseTree } from "jsonc-parser";
 import { isScalar, parseDocument } from "yaml";
@@ -22,7 +24,6 @@ import type { ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const decodeToml = decodeTomlTextWith(S.decodeUnknownEffect(S.Record(S.String, S.Unknown)));
 const encodeString = S.encodeEffect(S.fromJsonString(S.String));
-const escape = (value: string) => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 const error = (message: string) => ModelsLocatorError.make({ message });
 
 /**
@@ -39,7 +40,76 @@ const error = (message: string) => ModelsLocatorError.make({ message });
  * @since 0.0.0
  */
 export const modelsShellWordPattern = (variable: string): RegExp =>
-  new RegExp(`(?<![\\w-])${escape(variable)}(?:=|[ \\t]+)("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^'"\\s;]+)`, "gd");
+  new RegExp(
+    `${/(?<![\w-])/.source}${Regex.escape(variable)}${/(?:=|[ \t]+)((?:"(?:\\.|[^"\\])*"|'[^']*'|\\.|[^'"\\\s;&|<>])+)/.source}`,
+    "gd"
+  );
+
+// A deliberately bounded shell lexer: one bare or wholly quoted scalar.
+// Concatenated quote components and expansion syntax need a shell AST owner.
+const shellWordValue = Effect.fnUntraced(function* (token: string) {
+  let quote = "";
+  let quotedParts = 0;
+  let bare = false;
+  let value = "";
+  for (let index = 0; index < token.length; index += 1) {
+    const char = O.getOrElse(Str.charAt(index)(token), () => "");
+    if (char === "\\" && quote !== "'") {
+      index += 1;
+      if (index >= token.length) return yield* error("Ambiguous shell word: trailing escape.");
+      const escaped = O.getOrElse(Str.charAt(index)(token), () => "");
+      if (quote === '"' && !/["\\$`]/.test(escaped)) value += "\\";
+      value += escaped;
+      if (quote === "") bare = true;
+    } else if (char === quote) {
+      quote = "";
+    } else if (quote === "" && (char === "'" || char === '"')) {
+      quote = char;
+      quotedParts += 1;
+    } else {
+      if (quote !== "'" && /[$`]/.test(char)) return yield* error("Ambiguous shell word: expansion.");
+      if (quote === "") bare = true;
+      value += char;
+    }
+  }
+  if (quote !== "" || quotedParts > 1 || (quotedParts > 0 && bare))
+    return yield* error("Ambiguous shell word: concatenated or unbalanced quoting.");
+  return value;
+});
+
+// Ignore locator-shaped text inside comments and quoted shell data. Values
+// themselves are parsed separately, starting at the capture boundary.
+const isShellCode = (content: string, end: number): boolean => {
+  let quote = "";
+  let comment = false;
+  let boundary = true;
+  for (let index = 0; index < end; index += 1) {
+    const char = O.getOrElse(Str.charAt(index)(content), () => "");
+    if (comment) {
+      if (char === "\n") {
+        comment = false;
+        boundary = true;
+      }
+      continue;
+    }
+    if (char === "\\" && quote !== "'") {
+      index += 1;
+      boundary = false;
+      continue;
+    }
+    if (quote !== "") {
+      if (char === quote) quote = "";
+      continue;
+    }
+    if (char === "#" && boundary) {
+      comment = true;
+      continue;
+    }
+    if (char === "'" || char === '"') quote = char;
+    boundary = /[\s;&|<>()]/.test(char);
+  }
+  return !comment && quote === "";
+};
 
 const span = (content: string, start: number, end: number, after: string) =>
   ModelsWriteSpan.make({ start, end, before: Str.slice(start, end)(content), after });
@@ -82,7 +152,7 @@ const tableRegion = Effect.fn("Models.tableRegion")(
         ),
       ]);
     const matches = A.filter(headers, (m) =>
-      new RegExp(`^[ \\t]*\\[${escape(table.value)}\\][ \\t]*(?:#[^\\r\\n]*)?\\r?$`).test(m[0])
+      new RegExp(`^[ \\t]*\\[${Regex.escape(table.value)}\\][ \\t]*(?:#[^\\r\\n]*)?\\r?$`).test(m[0])
     );
     if (A.length(matches) !== 1) return Effect.fail(error("TOML table is missing or ambiguous."));
     const found = O.getOrThrow(A.head(matches));
@@ -116,7 +186,7 @@ const tomlSpans = Effect.fnUntraced(function* (
       start,
       end,
       new RegExp(
-        `^[ \\t]*${escape(key)}[ \\t]*=[ \\t]*("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^#\\r\\n]+?)(?=[ \\t]*(?:#|\\r?$))`,
+        `^[ \\t]*${Regex.escape(key)}[ \\t]*=[ \\t]*("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^#\\r\\n]+?)(?=[ \\t]*(?:#|\\r?$))`,
         "gmd"
       ),
       after
@@ -172,15 +242,17 @@ const xmlSpans = Effect.fn("Models.xmlSpans")(
     const tag = O.getOrElse(O.fromUndefinedOr(selected[1]), () => "");
     const key = O.getOrElse(O.fromUndefinedOr(selected[2]), () => "");
     const value = O.getOrElse(O.fromUndefinedOr(selected[3]), () => "");
-    const elements = A.fromIterable(Str.matchAll(new RegExp(`<${escape(tag)}\\b[^>]*>`, "gd"))(content));
+    const elements = A.fromIterable(Str.matchAll(new RegExp(`<${Regex.escape(tag)}\\b[^>]*>`, "gd"))(content));
     const spans = A.flatMap(
-      A.filter(elements, (m: RegExpMatchArray) => new RegExp(`\\s${escape(key)}="${escape(value)}"`).test(m[0])),
+      A.filter(elements, (m: RegExpMatchArray) =>
+        new RegExp(`\\s${Regex.escape(key)}="${Regex.escape(value)}"`).test(m[0])
+      ),
       (m: RegExpMatchArray) =>
         region(
           content,
           O.getOrElse(O.fromUndefinedOr(m.index), () => 0),
           O.getOrElse(O.fromUndefinedOr(m.index), () => 0) + Str.length(m[0]),
-          new RegExp(`\\s${escape(attribute)}="([^"]*)"`, "gd"),
+          new RegExp(`\\s${Regex.escape(attribute)}="([^"]*)"`, "gd"),
           after
         )
     );
@@ -217,7 +289,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
     const bounds = yield* tableRegion(content, O.none());
     const end = O.getOrElse(A.get(bounds, 1), () => Str.length(content));
     const parsed = yield* decodeToml(content).pipe(ModelsLocatorError.mapError("Invalid TOML removal target."));
-    if (!R.has(parsed, request.locator.key)) return [];
+    if (!R.has(parsed, ownedKey) || P.isObject(parsed[ownedKey])) return [];
     // Match the source spelling, then use the TOML parser to establish key identity.
     const assignments = captures(
       Str.slice(0, end)(content),
@@ -234,7 +306,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
         const fields = yield* decodeToml(`${key}= true`).pipe(
           ModelsLocatorError.mapError("Cannot resolve TOML removal key.")
         );
-        return R.has(fields, ownedKey);
+        return O.contains(R.get(fields, ownedKey), true);
       })
     );
     return yield* one(matches);
@@ -276,7 +348,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
         captures(
           content,
           new RegExp(
-            `^[ \\t]*(?:export[ \\t]+)?${escape(key)}=("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^#\\r\\n]*)(?=[ \\t]*(?:#|\\r?$))`,
+            `^[ \\t]*(?:export[ \\t]+)?${Regex.escape(key)}=("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^#\\r\\n]*)(?=[ \\t]*(?:#|\\r?$))`,
             "gmd"
           ),
           quoted
@@ -295,7 +367,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
       one(
         captures(
           content,
-          new RegExp(`export\\s+const\\s+${escape(symbol)}\\s*(?::[^=]+)?=\\s*("(?:\\\\.|[^"\\\\])*")`, "gd"),
+          new RegExp(`export\\s+const\\s+${Regex.escape(symbol)}\\s*(?::[^=]+)?=\\s*("(?:\\\\.|[^"\\\\])*")`, "gd"),
           quoted
         )
       )
@@ -306,7 +378,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
         onSome: (name) => {
           const functions = captures(
             content,
-            new RegExp(`^[ \\t]*(?:function\\s+)?${escape(name)}\\s*(?:\\(\\s*\\))?\\s*\\{([^]*?)^\\}`, "gmd"),
+            new RegExp(`^[ \\t]*(?:function\\s+)?${Regex.escape(name)}\\s*(?:\\(\\s*\\))?\\s*\\{([^]*?)^\\}`, "gmd"),
             ""
           );
           return one(functions).pipe(Effect.map((entries) => O.getOrThrow(A.head(entries))));
@@ -314,36 +386,44 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
       });
       return body.pipe(
         Effect.flatMap(({ start, end }) => {
-          const spans = region(
-            content,
-            start,
-            end,
-            modelsShellWordPattern(variable),
-            /^[a-zA-Z0-9_./:+,-]+$/.test(expected) ? expected : `'${Str.replace(/'/g, "'\\''")(expected)}'`
+          const spans = A.filter(
+            region(
+              content,
+              start,
+              end,
+              modelsShellWordPattern(variable),
+              /^[a-zA-Z0-9_./:+,-]+$/.test(expected) ? expected : `'${Str.replace(/'/g, "'\\''")(expected)}'`
+            ),
+            (entry) => isShellCode(content, entry.start)
           );
-          return A.isReadonlyArrayEmpty(spans)
-            ? Effect.fail(error("Shell locator has no matches."))
-            : Effect.succeed(
-                A.map(spans, (entry) => {
-                  const token = entry.before;
-                  const quotedWord = Str.startsWith('"')(token) || Str.startsWith("'")(token);
-                  const value = quotedWord ? Str.slice(1, -1)(token) : token;
-                  return quotedWord && value === expected
-                    ? ModelsWriteSpan.make({ ...entry, after: entry.before })
-                    : entry;
-                })
-              );
+          if (A.isReadonlyArrayEmpty(spans)) return Effect.fail(error("Shell locator has no matches."));
+          return Effect.forEach(
+            spans,
+            Effect.fnUntraced(function* (entry) {
+              const next = O.getOrElse(Str.charAt(entry.end)(content), () => "");
+              if (/[&|<>()'"]/.test(next)) return yield* error("Ambiguous shell word: adjacent operator.");
+              const value = yield* shellWordValue(entry.before);
+              // Accept the existing bare parenthesized model spelling only when
+              // already equal, then quote it; other operator-like words refuse.
+              if (/[()]/.test(entry.before) && value !== expected && !/^["']/.test(entry.before))
+                return yield* error("Ambiguous shell word: parentheses.");
+              return value === expected && (/^["']/.test(entry.before) || !/[()]/.test(entry.before))
+                ? ModelsWriteSpan.make({ ...entry, after: entry.before })
+                : entry;
+            }),
+            { concurrency: 1 }
+          );
         })
       );
     }),
     Match.tag("line-value", ({ linePrefix, before, after }) => {
-      const lines = A.fromIterable(Str.matchAll(new RegExp(`^${escape(linePrefix)}[^\\r\\n]*`, "gmd"))(content));
+      const lines = A.fromIterable(Str.matchAll(new RegExp(`^${Regex.escape(linePrefix)}[^\\r\\n]*`, "gmd"))(content));
       const spans = A.flatMap(lines, (m) =>
         region(
           content,
           O.getOrElse(O.fromUndefinedOr(m.index), () => 0),
           O.getOrElse(O.fromUndefinedOr(m.index), () => 0) + Str.length(m[0]),
-          new RegExp(`${escape(before)}(.*?)${escape(after)}`, "gd"),
+          new RegExp(`${Regex.escape(before)}(.*?)${Regex.escape(after)}`, "gd"),
           expected
         )
       );

@@ -19,6 +19,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as Regex from "effect/RegExp";
 import { XMLParser } from "fast-xml-parser";
 import { parseDocument } from "yaml";
 import { ModelsLocatorError } from "./Models.errors.ts";
@@ -78,8 +79,6 @@ export class ModelsLocatorReader extends Context.Service<ModelsLocatorReader, Mo
   $I`ModelsLocatorReader`
 ) {}
 
-const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 const unquote = (value: string): string =>
   pipe(Str.trim(value), (trimmed) =>
     (Str.startsWith('"')(trimmed) && Str.endsWith('"')(trimmed)) ||
@@ -105,7 +104,7 @@ const stripInlineComment = (value: string): string =>
 
 const readKeyFromLines = (lines: ReadonlyArray<string>, key: string): O.Option<string> =>
   O.map(
-    firstMatch(lines, new RegExp(`^\\s*${escapeRegExp(key)}\\s*=\\s*(.+?)\\s*$`)),
+    firstMatch(lines, new RegExp(`^\\s*${Regex.escape(key)}\\s*=\\s*(.+?)\\s*$`)),
     flow(stripInlineComment, unquote)
   );
 
@@ -124,7 +123,7 @@ const tableLines = (content: string, table: string): ReadonlyArray<string> =>
   );
 
 const functionLines = (content: string, name: string): ReadonlyArray<string> => {
-  const opener = new RegExp(`^\\s*(?:function\\s+)?${escapeRegExp(name)}\\s*(?:\\(\\s*\\))?\\s*\\{`);
+  const opener = new RegExp(`^\\s*(?:function\\s+)?${Regex.escape(name)}\\s*(?:\\(\\s*\\))?\\s*\\{`);
   return pipe(
     Str.split(content, "\n"),
     A.dropWhile((line) => !opener.test(line)),
@@ -150,10 +149,10 @@ const readShellAssign = (content: string, variable: string, within: O.Option<str
   );
 
 const readEnvKey = (content: string, key: string): O.Option<string> =>
-  O.map(firstMatch(Str.split(content, "\n"), new RegExp(`^\\s*(?:export\\s+)?${escapeRegExp(key)}=(.*)$`)), unquote);
+  O.map(firstMatch(Str.split(content, "\n"), new RegExp(`^\\s*(?:export\\s+)?${Regex.escape(key)}=(.*)$`)), unquote);
 
 const readTsLiteral = (content: string, symbol: string): O.Option<string> =>
-  firstMatch([content], new RegExp(`export\\s+const\\s+${escapeRegExp(symbol)}\\s*(?::[^=]+)?=\\s*"([^"]*)"`));
+  firstMatch([content], new RegExp(`export\\s+const\\s+${Regex.escape(symbol)}\\s*(?::[^=]+)?=\\s*"([^"]*)"`));
 
 // Literal delimiters keep this read-only locator bounded to named examples
 // and doctrine spellings (R9). Keep every distinct value, so a mixed file

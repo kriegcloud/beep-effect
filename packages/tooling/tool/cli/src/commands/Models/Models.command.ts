@@ -30,7 +30,7 @@ import { ModelsCatalogOptions } from "./Models.catalog.service.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
 import { bindLocatorModel } from "./Models.locator.service.ts";
 import { LocatorBinding, ModelSyncTarget, ModelsLocatorWrite, TargetId } from "./Models.manifest.schemas.ts";
-import { ModelsTargetFile, ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
+import { ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
 import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
 import { ModelsCheckReport } from "./Models.report.schemas.ts";
 import { seedModelsManifest } from "./Models.seed.ts";
@@ -41,9 +41,9 @@ import {
   ModelsCheck,
   ModelsCheckOptions,
   ModelsLive,
-  ModelsLocatorReader,
   ModelsManifestStore,
 } from "./Models.service.ts";
+import { modelsWriteSpans } from "./Models.spans.ts";
 import type { Locator, ModelsApplyMode, ModelsManifest } from "./Models.manifest.schemas.ts";
 import type { DriftFinding } from "./Models.report.schemas.ts";
 
@@ -371,14 +371,12 @@ const previewModelWrites = Effect.fnUntraced(function* (
   writes: ReadonlyArray<ModelsLocatorWrite>
 ) {
   const fs = yield* FileSystem.FileSystem;
-  const reader = yield* ModelsLocatorReader;
   const content = yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
   for (const request of writes) {
-    const current = yield* reader
-      .read(ModelsTargetFile.make({ root: target.root, absolutePath: file, content }), request.locator)
-      .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    const spans = yield* modelsWriteSpans(content, request).pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    const change = A.some(spans, (entry) => entry.before !== entry.after);
     yield* Console.log(
-      `models: preview ${target.id} [${request.locator._tag}] change=${request.remove === true ? O.isSome(current) : !O.contains(current, request.expected)} expected=${request.remove === true ? "<absent>" : request.expected}`
+      `models: preview ${target.id} [${request.locator._tag}] change=${change} expected=${request.remove === true ? "<absent>" : request.expected}`
     );
   }
 });

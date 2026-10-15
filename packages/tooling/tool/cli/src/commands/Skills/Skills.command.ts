@@ -910,7 +910,7 @@ export const renderCodexConfigWithSkills: {
     const unknown = A.some(A.drop(row, 1), (entry) => !/^\s*(?:(?:name|enabled)\s*=|#|$)/.test(entry));
     const nextHeader = O.getOrElse(A.get(remainder, end), () => "");
     const hasNested = /^\s*\[skills\.config\./.test(nextHeader);
-    const managed = O.filter(name, (value) => inManagedBlock && A.contains(names, value));
+    const managed = O.filter(name, (value) => A.contains(names, value));
     const rendered = O.match(managed, {
       onSome: (value) => {
         seen = HashSet.add(seen, value);

@@ -228,6 +228,17 @@ describe("skills command", () => {
     expect(rendered).toContain('name = "native-metadata"\nenabled = false\nowner = "operator"');
   });
 
+  it("does not duplicate a desired native row after another table", () => {
+    const native =
+      '[skills]\ninclude_instructions = true\n[mcp_servers.native]\nurl = "native"\n[[skills.config]]\nname = "closeout"\nenabled = false\nowner = "operator"\n';
+    const rendered = renderCodexConfigWithSkills(native, ["closeout"]);
+    expect(Toml.parse(rendered)).toMatchObject({
+      skills: { config: [{ name: "closeout", enabled: true, owner: "operator" }] },
+    });
+    expect(rendered.match(/name = "closeout"/g)).toHaveLength(1);
+    expect(renderCodexConfigWithSkills(rendered, ["closeout"])).toBe(rendered);
+  });
+
   it("renders Codex skills while preserving later tables", () => {
     const rendered = renderCodexConfigWithSkills(
       A.join(
@@ -265,8 +276,8 @@ describe("skills command", () => {
           const path = yield* Path.Path;
           const config = path.join(root, ".codex/config.toml");
           const skill = path.join(root, ".claude/skills/grill-me/SKILL.md");
-          yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", "old skill\n");
-          yield* writeProjectFile(".codex/config.toml", "[skills]\ninclude_instructions = false\n");
+          yield* writeProjectFile(root, ".claude/skills/grill-me/SKILL.md", "old skill\n");
+          yield* writeProjectFile(root, ".codex/config.toml", "[skills]\ninclude_instructions = false\n");
           yield* fs.chmod(config, 0o644);
           const wrapped = FileSystem.FileSystem.of({
             ...fs,

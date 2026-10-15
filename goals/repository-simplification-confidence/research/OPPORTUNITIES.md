@@ -2669,3 +2669,21 @@ Read the live PR comments together with the panel verdicts before starting an
 expensive proof to avoid this repeated work. Completed focused coverage stayed
 useful as regression evidence; interrupted full proofs are not reported as
 passes. The final package audit is a full-suite run, not a quick substitute.
+
+### F panel round 2 integration friction (2026-10-15)
+
+Merging current main changed the skills test helper to take an explicit fixture
+root. Two round-1 race fixtures still passed two arguments, producing `EISDIR`
+while reading the backup. Updated both callers to the new contract. A helper
+signature change should migrate unpublished review fixtures as part of integration;
+the scoped suite and test-tsgo expose this before publication. The post-merge
+hook also reports 17 inherited Turbo schema-version drifts; F does not rewrite
+unrelated workspace configuration. Local heavy admission requires the user-bus
+environment; the initial invocation failed before work started and was rerun
+through the same wrapper with the documented bus variables.
+
+The instrumentation catalog owner is `beep observability catalog --write`.
+The guessed `beep lint instrumentation-catalog --write` instead routes into the
+broad lint workflow. Stopped only that invocation's owned process subtree and
+ran the documented owner through heavy admission. Rejecting unknown lint task
+names would prevent this accidental broad work; no catalog was hand-edited.

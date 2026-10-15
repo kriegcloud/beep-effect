@@ -516,3 +516,31 @@ https://forum.cursor.com/t/agent-cli-linux-sandbox-preflight-fails-unshare-eperm
 Use the [permission continuity runbook](./agent-permission-continuity.md) for
 effective-policy readers, disposable Desktop route fixtures, and the rule to
 stop on a mismatch. A visible composer label is not runtime policy evidence.
+
+## Native model configuration writes and recovery
+
+`bun run beep models apply` validates owned spans and native syntax before writing.
+`bun run beep models restore --journal <id>` uses the same publication protocol.
+Both require GNU `mv --exchange --no-copy` (Linux `renameat2(RENAME_EXCHANGE)`);
+the service probes support once using disposable files. Unsupported exchange
+fails closed with a typed `ModelsLocatorError`; there is no unverified-concurrency
+fallback for home or repository files.
+
+Publication atomically exchanges the staged file and live path, then checks the
+actual displaced inode and hash against the planned pre-image. A mismatch is a
+concurrent-write failure, even if recovery succeeds. Recovery exchanges files
+again and verifies what it displaced; a newer writer encountered during recovery
+is returned through a further exchange. Recovery is bounded to eight exchanges;
+continuing contention fails and retains both path occupants rather than deleting
+recovery state. Errors name the journal id. The `.concurrent` event records the
+retained and displaced artifact paths; inspect these and the current native file
+before manual recovery. Never blindly copy a stale backup over a newer file.
+
+Native clients that hold an already displaced inode may still write after its
+last observation. Use a maintenance boundary excluding those clients when strict
+mutual exclusion is required. The writer detects observed races and preserves
+recovery artifacts; it does not lock native clients out.
+
+Shell projection accepts a single complete bare, escaped, or wholly quoted scalar.
+Adjacent operators, concatenated quoted components, expansions, and unbalanced
+quotes fail closed. Separate operators from the owned scalar with whitespace.

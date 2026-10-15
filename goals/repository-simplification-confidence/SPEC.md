@@ -1744,3 +1744,32 @@ suffixed value with parentheses is rendered with quotes even if its raw text
 already matches; it is not treated as an equivalent shell literal. The
 launcher fixture now covers old and already-expected values in all three
 quote forms and verifies the exact argument received by a stub launcher.
+
+### F-R2-ATOMIC-SHELL — panel round 2 fix wave (2026-10-15)
+
+Decision: replace ModelsApply publication and recovery renames with argv-only
+GNU `mv --exchange --no-copy`, backed by a once-per-service capability probe.
+Unsupported exchange fails closed for every write. Verify the actual displaced
+inode and hash, return competing pathname occupants through verified recovery
+exchanges, retain both artifacts on uncertain publication or detected contention,
+and fail with the journal id. Remove pre-image links on pre-publication refusal.
+Artifact names begin with the journal id and include a unique operation suffix
+so restore/retry does not overwrite earlier evidence. Reason: F-ASTRA-01 and
+review 4282684659 demonstrate that retaining only the planned inode misses a
+native writer that atomically replaces the pathname. Recovery is bounded to
+eight exchanges and retains recovery state if contention persists. Inode holders
+writing after the last observation still require a maintenance boundary.
+
+Decision: tokenize complete shell scalar words, decode quotes and escapes,
+preserve comments/quoted data, and refuse adjacent operators, concatenated quote
+components and expansions. Keep the six round-1 quoting cases and re-projection
+identity. Reason: F-ASTRA-R2-02 shows syntactically valid projections can erase
+operators or retain an unintended suffix. Use the authoritative span projection
+for removal previews, distinguish top-level scalar keys from dotted/table keys,
+keep desired skill rows after unrelated tables without duplication, and reuse
+Effect RegExp.escape for all three duplicate helper bodies. These also close
+Fable R2-F1 through R2-F5, Grok R2-GROK-01 through R2-GROK-03, and review
+4282684687. Reversal: revert this review wave's implementation commit; no home
+file is written and no new native backup is needed. The driver repeats the full
+three-model panel on the new head and fingerprint. Earlier verdicts do not
+clear this revision.

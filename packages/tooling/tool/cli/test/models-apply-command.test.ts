@@ -110,6 +110,25 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
     })
   );
 
+  it.effect("previews quoted legacy keys as removals", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      for (const key of ['"sandbox_mode"', "'sandbox_mode'"]) {
+        const [home, , manifest] = yield* fixture();
+        yield* fs.makeDirectory(path.join(home, ".codex"));
+        const file = path.join(home, ".codex", "config.toml");
+        const before = `${key}="danger-full-access"\n${native}`;
+        yield* fs.writeFileString(file, before);
+        yield* run(["codex-permissions", "--home", home, "--repo", home, "--manifest", manifest, "--dry-run"]);
+        expect(yield* TestConsole.logLines).toContain(
+          "models: preview home.codex.config [toml-top-level-key] change=true expected=<absent>"
+        );
+        expect(yield* fs.readFileString(file)).toBe(before);
+      }
+    })
+  );
+
   it.effect("previews every owned target, writes one target idempotently, and restores its journal", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
