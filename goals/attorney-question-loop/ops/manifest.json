@@ -60,7 +60,7 @@
     {
       "id": "P2",
       "name": "Implementation",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
@@ -98,5 +98,5 @@
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "P0 schema (#1801) and P1 contract complete 2026-10-14 (QuestionQueue, QuestionWrites, AnswerLog and QuestionCalendar ports); P2 implementation next."
+  "statusNote": "P0 schema (#1801), P1 contract and P2 implementation complete 2026-10-14; P3 (docket-intake producer, daily notice, answer-log transport decision) next."
 }

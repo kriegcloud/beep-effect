@@ -40,8 +40,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P2 Implementation. The P0 schema (#1801) and the P1 contract
-([`research/P1-CONTRACT.md`](./research/P1-CONTRACT.md)) are complete.
+P3 Producer + notice. P0–P2 are complete.
 
 ## Latest Evidence
 
@@ -54,6 +53,13 @@ P2 Implementation. The P0 schema (#1801) and the P1 contract
 - 2026-10-14 P1: the `QuestionQueue` and `QuestionWrites` contracts (schemas, errors, the
   `AnswerLog` and `QuestionCalendar` ports, and service shapes) in `@beep/law-practice-use-cases`;
   `test/QuestionLoop.contract.test.ts` (9 tests).
+- 2026-10-14 P2:
+  - `QuestionQueueLive` and `QuestionWritesLive` (all-or-nothing apply with rollback, undo in
+    reverse order).
+  - `makeQuestionCalendarLayer` over `@beep/m365` (provisional events only; undo never overrides
+    the attorney).
+  - The first vertical slice in `test/QuestionLoop.slice.test.ts` (5 tests), plus
+    `server/test/QuestionCalendar.test.ts` (3 tests).
 
 ## Notes
 

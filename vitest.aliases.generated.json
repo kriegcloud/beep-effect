@@ -1956,5 +1956,8 @@
   ],
   "@beep/law-practice-use-cases/QuestionWrites": [
     "./packages/law-practice/use-cases/src/QuestionWrites/index.ts"
+  ],
+  "@beep/law-practice-server/QuestionCalendar": [
+    "./packages/law-practice/server/src/QuestionCalendar/index.ts"
   ]
 }

@@ -24,6 +24,52 @@
  */
 export { EffectOutput } from "./internal/effectOutput.ts";
 /**
+ * In-memory verdict-log store for review-queue tests: an append-only chunk of
+ * rows held in a `Ref`, empty on every build of the layer.
+ *
+ * **Example** (Provide the in-memory store to the review queue)
+ *
+ * ```ts
+ * import { RecordVerdictInput, ReviewQueue, ReviewQueueLive } from "@beep/law-practice-use-cases/ReviewQueue"
+ * import { VerdictLogMemory } from "@beep/law-practice-use-cases/test"
+ * import * as Effect from "effect/Effect"
+ * import * as Layer from "effect/Layer"
+ *
+ * const program = Effect.gen(function* () {
+ *   const queue = yield* ReviewQueue
+ *   yield* queue.recordVerdict(
+ *     RecordVerdictInput.make({ itemId: "claim-finding:1", batchId: "sitting-1", verdict: "partly" })
+ *   )
+ *   console.log((yield* queue.readLog).length) // 1
+ * }).pipe(Effect.provide(ReviewQueueLive.pipe(Layer.provide(VerdictLogMemory))))
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+/**
+ * In-memory answer-log store for question-queue tests: an append-only chunk
+ * of rows held in a `Ref`, empty on every build of the layer.
+ *
+ * **Example** (Provide the in-memory store to the question queue)
+ *
+ * ```ts
+ * import { AnswerLogMemory } from "@beep/law-practice-use-cases/test"
+ * import { QuestionQueue, QuestionQueueLive } from "@beep/law-practice-use-cases/QuestionQueue"
+ * import * as Effect from "effect/Effect"
+ * import * as Layer from "effect/Layer"
+ *
+ * const program = Effect.gen(function* () {
+ *   const queue = yield* QuestionQueue
+ *   console.log((yield* queue.readLog).length) // 0
+ * }).pipe(Effect.provide(QuestionQueueLive.pipe(Layer.provide(AnswerLogMemory))))
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export { AnswerLogMemory, VerdictLogMemory } from "./internal/logMemory.ts";
+/**
  * Spike entity input schema exported for package-local schema parity tests.
  *
  * **Example** (Decode entity input schema)
@@ -52,31 +98,6 @@ export { EffectOutput } from "./internal/effectOutput.ts";
  * @since 0.0.0
  */
 export { EntityInput } from "./internal/spikeEntity.ts";
-/**
- * In-memory verdict-log store for review-queue tests: an append-only chunk of
- * rows held in a `Ref`, empty on every build of the layer.
- *
- * **Example** (Provide the in-memory store to the review queue)
- *
- * ```ts
- * import { RecordVerdictInput, ReviewQueue, ReviewQueueLive } from "@beep/law-practice-use-cases/ReviewQueue"
- * import { VerdictLogMemory } from "@beep/law-practice-use-cases/test"
- * import * as Effect from "effect/Effect"
- * import * as Layer from "effect/Layer"
- *
- * const program = Effect.gen(function* () {
- *   const queue = yield* ReviewQueue
- *   yield* queue.recordVerdict(
- *     RecordVerdictInput.make({ itemId: "claim-finding:1", batchId: "sitting-1", verdict: "partly" })
- *   )
- *   console.log((yield* queue.readLog).length) // 1
- * }).pipe(Effect.provide(ReviewQueueLive.pipe(Layer.provide(VerdictLogMemory))))
- * ```
- *
- * @category testing
- * @since 0.0.0
- */
-export { VerdictLogMemory } from "./internal/verdictLogMemory.ts";
 /**
  * Fixed office-action review spike candidates.
  *

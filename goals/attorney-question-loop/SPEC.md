@@ -86,7 +86,7 @@ Higher sources outrank lower sources when they conflict.
   - Round-trip tests pass.
 - [x] **P1 contract.** `QuestionQueue` and the write-proposal batch are `Context.Service` contracts
   with typed errors. The answer log is a port.
-- [ ] **P2 implementation.** The first vertical slice (exploration MAP, re-entry section) passes in
+- [x] **P2 implementation.** The first vertical slice (exploration MAP, re-entry section) passes in
   tests:
   - raise a question;
   - the digest selects it;
@@ -147,6 +147,9 @@ Seeded from [`explorations/attorney-review-workspace/DECISIONS.md`](../../explor
 | 2026-10-14 | P0 `AnswerRow` has no `batchId` and no lock; the current answer is the latest `recordedAt`, then append order. | An answer can always be revised by a later row; sittings and locks belong to verdicts. | Add a batch and lock as on `VerdictRow`. |
 | 2026-10-14 | P1 `QuestionWrites.propose` returns a plain list of `ProposedWrite`s; the caller forms the `ProposedWriteBatch` (with its id) before `apply`. | A pure function has no source for batch ids. | Make `propose` effectful and mint the batch id. |
 | 2026-10-14 | P1 adds a `QuestionCalendar` port (`upsert` by key `question:<itemId>:<optionId>`, `restore`) instead of reusing `DocketCalendar`. | `DocketCalendar` only creates and looks up; options can name an event to update, and undo needs the prior state. | Extend `DocketCalendar` with update and restore. |
+| 2026-10-14 | P2 `QuestionWrites.apply` is all-or-nothing: if a later write fails, the writes already applied in that call are restored in reverse before the failure returns. | A partial apply would leave calendar changes with no journal record to undo. | Return partial results and let the operator undo. |
+| 2026-10-14 | P2 calendar writes land as docket-intake's provisional all-day tentative entries; a write may update a named event only while all its docket categories are provisional, and undo refuses (`restore-failed`) once the attorney has moved an event out of them. | Never override an entry the attorney has verified. | Allow writes to verified events with explicit operator approval. |
+| 2026-10-14 | P2 server layer is `makeQuestionCalendarLayer(config)` (mailbox and time zone), like `makeDocketGraphLayer`. | The calendar adapter needs per-deployment config. | Read the config from the environment inside a fixed Layer. |
 
 ## Exception Ledger
 

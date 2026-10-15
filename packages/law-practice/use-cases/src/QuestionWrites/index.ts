@@ -1,6 +1,6 @@
 /**
  * Question write exports: proposed and applied writes, typed errors, the
- * calendar port and the write contract.
+ * calendar port, the write contract and its layer.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -27,3 +27,10 @@ export * from "./QuestionWrites.ports.ts";
  * @since 0.0.0
  */
 export * from "./QuestionWrites.schemas.ts";
+/**
+ * QuestionWrites implementation layer.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./QuestionWrites.service.ts";

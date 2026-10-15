@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` (P0 complete; P1 contract complete 2026-10-14; P2 implementation next)
+Status: `active` (P0–P2 complete 2026-10-14; P3 producer and notice next)
 
 ## Binding Sequencing
 
@@ -17,7 +17,7 @@ because the `question` member extends its `ReviewItem` union.
 | --- | --- | --- | --- | --- |
 | P0 Schema | complete | `question` ReviewItem member; `AnswerRow`, `AnswerState` (`LiteralKit`) and `QuestionOption` in `@beep/law-practice-domain` `values/`. | #1761 merged. | SPEC P0 criterion; `package-verify @beep/law-practice-domain` passes. |
 | P1 Contract | complete | `QuestionQueue` and write-proposal `Context.Service` contracts, the `AnswerLog` port and typed errors. No implementation bodies. | P0 exit met. | SPEC P1 criterion; the contracts type-check. |
-| P2 Implementation | pending | Layers, digest selection, the proposal batch and the apply through the docket-intake calendar adapter. Tests cover the first vertical slice. | P1 exit met. | SPEC P2 criterion; `package-verify` passes for use-cases and server. |
+| P2 Implementation | complete | Layers, digest selection, the proposal batch and the apply through the docket-intake calendar adapter. Tests cover the first vertical slice. | P1 exit met. | SPEC P2 criterion; `package-verify` passes for use-cases and server. |
 | P3 Producer + notice | pending | docket-intake raises questions for unsettled items; the daily notice job runs as a practice service. | P2 exit met. | SPEC P3 criterion. |
 | P4 Handoff | pending | Deliver `AMENDMENT-question-card.md` to the `practice-claude-mod-review-queue` owner. | P0 merged and that follow-on opened. | SPEC P4 criterion. |
 | P5 Yeet: PR to mergeable | pending | Publish through Yeet and drive the PR to mergeable. | P0–P4 content final. | Mergeable per `AGENTS.md`. |

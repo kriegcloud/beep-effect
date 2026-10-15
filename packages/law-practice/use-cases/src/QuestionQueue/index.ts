@@ -1,6 +1,6 @@
 /**
  * Question queue exports: answer submissions, typed errors, the answer-log
- * port and the queue contract.
+ * port, the queue contract and its layer.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -27,3 +27,10 @@ export * from "./QuestionQueue.ports.ts";
  * @since 0.0.0
  */
 export * from "./QuestionQueue.schemas.ts";
+/**
+ * QuestionQueue implementation layer.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./QuestionQueue.service.ts";
