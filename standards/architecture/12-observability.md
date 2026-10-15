@@ -48,9 +48,9 @@ Naming rules the catalog check enforces:
 | driver | 569 | 465 | 104 |
 | tooling | 3800 | 3551 | 249 |
 | ecosystem | 1 | 1 | 0 |
-| app | 146 | 107 | 39 |
+| app | 147 | 108 | 39 |
 | lab | 176 | 165 | 11 |
-| **total** | 5387 | 4872 | 515 |
+| **total** | 5388 | 4873 | 515 |
 
 Declared: 6 attribute keys, 6 metrics, 0 events, 3 spans.
 

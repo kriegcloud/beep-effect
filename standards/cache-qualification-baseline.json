@@ -850,11 +850,11 @@
       }
     },
     "@beep/practice-claude-mod": {
-      "reviewer": "Codex lane A (feat/ts7-oxlint-deprecated-apis)",
-      "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
+      "reviewer": "Claude Opus 5.5 (feat/practice-claude-mod-close)",
+      "reason": "Re-record @beep/practice-claude-mod after the shared-envelope promotion added its @beep/law-practice-domain dependency; no qualification is granted.",
       "basis": {
-        "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
+        "path": "goals/practice-claude-mod/research/verdict-promotion-cache-review-2.md",
+        "sha256": "6c6086db9b8d1f45d3445e634bfef28ea04ebe3c6404565871cef8eb4f005840"
       }
     },
     "@beep/practice-identify": {
@@ -72946,6 +72946,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#audit",
+          "@beep/law-practice-domain#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit"
         ],
@@ -73009,6 +73010,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/law-practice-domain#build",
           "@beep/schema#build",
           "@beep/test-runner#build"
         ],
@@ -73046,6 +73048,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/law-practice-domain#build",
           "@beep/schema#build",
           "@beep/test-runner#build"
         ],
@@ -73083,6 +73086,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/law-practice-domain#build",
           "@beep/schema#build",
           "@beep/test-runner#build"
         ],
@@ -73168,6 +73172,7 @@
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/identity#transit",
+          "@beep/law-practice-domain#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit"
         ],
@@ -73371,6 +73376,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#transit",
+          "@beep/law-practice-domain#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit"
         ],
@@ -73414,6 +73420,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#transit",
+          "@beep/law-practice-domain#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/utils#transit"
