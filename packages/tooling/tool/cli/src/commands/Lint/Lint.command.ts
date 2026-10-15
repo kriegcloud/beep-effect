@@ -1089,16 +1089,25 @@ const gateFlags = {
 const printScriptsReport = Effect.fnUntraced(function* (
   report: PackageScriptsReportFromWire,
   wire: typeof PackageScriptsReportFromWire.Encoded,
-  json: boolean
+  json: boolean,
+  implDrift: boolean
 ) {
+  if (json) return yield* Console.log(yield* jsonStringifyPretty(wire));
   yield* Console.log(
-    json
-      ? yield* jsonStringifyPretty(wire)
-      : `package-scripts: ${report.manifests} manifests, ${HashMap.size(report.drift)} drifting, ${HashSet.size(report.written)} written`
+    `package-scripts: ${report.manifests} manifests, ${HashMap.size(report.drift)} drifting, ${HashSet.size(report.written)} written, ${HashMap.size(report.implDrift)} with advisory impl drift`
   );
-  if (!json)
-    for (const [manifest, rows] of report.drift)
-      for (const row of rows) yield* Console.log(`${manifest}: ${row.name}: ${row._tag}`);
+  const violations = A.flatMap(HashMap.toEntries(report.drift), ([manifest, rows]) =>
+    A.map(rows, (row) => `${manifest}: ${row.name}: ${row._tag}`)
+  );
+  const advisories = implDrift
+    ? A.flatMap(HashMap.toEntries(report.implDrift), ([manifest, rows]) =>
+        A.map(
+          rows,
+          (row) => `${manifest}: ${row.name}: advisory impl drift: actual=${row.actual}; default=${row.expected}`
+        )
+      )
+    : [];
+  yield* Effect.forEach([...violations, ...advisories], Console.log, { discard: true });
 });
 
 /**
@@ -1117,17 +1126,22 @@ export const lintPackageScriptsCommand = Command.make(
   {
     ...gateFlags,
     json: Flag.Boolean("json").pipe(Flag.withDefault(false)),
+    implDrift: Flag.Boolean("impl-drift").pipe(Flag.withDefault(false)),
   },
-  Effect.fn("lintPackageScripts")(function* ({ check, write, json }) {
+  Effect.fn("lintPackageScripts")(function* ({ check, write, json, implDrift }) {
     if (check && write) return yield* failWithReportedExit("Choose --check or --write, not both.");
     const root = yield* findRepoRoot();
     const policy = yield* PackageScriptsPolicy.make(root);
     const report = yield* write ? policy.write(root) : policy.check(root);
     const wire = yield* encodeScriptsReport(report);
-    yield* printScriptsReport(report, wire, json);
+    yield* printScriptsReport(report, wire, json, implDrift);
     if (HashMap.size(report.drift) > 0) return yield* failWithReportedExit("Package scripts policy drift.");
   })
-).pipe(Command.withDescription("Check or repair canonical workspace scripts"));
+).pipe(
+  Command.withDescription(
+    "Check or repair canonical workspace scripts; impl differences from scaffold defaults are advisory (counted on the summary line; --impl-drift lists them). --write seeds missing impls and preserves existing values; --json includes implDrift."
+  )
+);
 
 /**
  * Fails on changed declared checker inputs or writes the current declaration.
