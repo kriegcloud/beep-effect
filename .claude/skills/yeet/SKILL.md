@@ -321,6 +321,13 @@ run it to reproduce a hosted red, never to unblock a publish. Package-scoped
 alone are inner-loop tools, not proof. Details, what the full proof does not
 replay, and plan mode: [`references/gates-and-proof.md`](references/gates-and-proof.md).
 
+## Cache baseline after a script-word or root-config change
+
+Run `bun run beep cache audit`; review configuration-drift BLOCKs against the
+changed inputs before requesting a baseline update. Follow
+[the reviewed baseline recipe](references/gates-and-proof.md#cache-baseline-after-a-script-word-or-root-config-change)
+for S31b subject limits, exact-text hashes and main-merge changes.
+
 ## CI / security fixes: validate against the CI token's permissions
 
 A change that alters CI or security-gate behavior (for example making a `gh api`
