@@ -891,6 +891,49 @@ const existingCatalogFiles = Effect.fn("SchemaCatalog.existingFiles")(function* 
   );
 });
 
+const syncShard = Effect.fn("SchemaCatalog.syncShard")(function* (
+  write: boolean,
+  repoRoot: string,
+  shard: { readonly path: string; readonly content: string }
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const absolute = path.join(repoRoot, shard.path);
+  const current = (yield* fs.exists(absolute)) ? O.some(yield* fs.readFileString(absolute)) : O.none<string>();
+  if (O.contains(current, shard.content)) {
+    return O.none<string>();
+  }
+  if (!write) {
+    return O.some(`[schema-catalog] ${O.isSome(current) ? "stale" : "missing"} ${shard.path}`);
+  }
+  yield* fs.makeDirectory(path.dirname(absolute), { recursive: true });
+  yield* fs.writeFileString(absolute, shard.content);
+  return O.some(`[schema-catalog] wrote ${shard.path}`);
+});
+
+const retireFile = Effect.fn("SchemaCatalog.retireFile")(function* (write: boolean, repoRoot: string, file: string) {
+  if (!write) {
+    return O.some(`[schema-catalog] orphaned ${file}`);
+  }
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* fs.remove(path.join(repoRoot, file));
+  return O.some(`[schema-catalog] removed ${file}`);
+});
+
+const reportDrift = Effect.fn("SchemaCatalog.reportDrift")(function* (write: boolean, drift: ReadonlyArray<string>) {
+  if (!write && A.isReadonlyArrayNonEmpty(drift)) {
+    yield* Effect.forEach(drift, (line) => Console.error(line), { discard: true });
+    return yield* failWithReportedExit(
+      `schema-catalog: ${A.length(drift)} shard(s) under ${SCHEMA_CATALOG_DIR} are stale, missing or orphaned; run ${SCHEMA_CATALOG_GENERATED_BY}.`
+    );
+  }
+  yield* Effect.forEach(drift, (line) => Console.log(line), { discard: true });
+  yield* Console.log(
+    write ? `[schema-catalog] wrote ${SCHEMA_CATALOG_DIR}` : `[schema-catalog] ${SCHEMA_CATALOG_DIR} is current`
+  );
+});
+
 /**
  * Run schema catalog write/check mode.
  *
@@ -915,50 +958,16 @@ const existingCatalogFiles = Effect.fn("SchemaCatalog.existingFiles")(function* 
  */
 export const runSchemaCatalog = Effect.fn("SchemaCatalog.run")(function* (options: SchemaCatalogOptions) {
   return yield* Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot();
     const document = yield* generateSchemaCatalogDocument();
     const shards = yield* generateSchemaCatalogShards(document);
     const expected = A.map(shards, (shard) => shard.path);
     const orphans = A.filter(yield* existingCatalogFiles(repoRoot), (file) => !A.contains(expected, file));
-    const drift = A.empty<string>();
-
-    for (const shard of shards) {
-      const absolute = path.join(repoRoot, shard.path);
-      const current = (yield* fs.exists(absolute)) ? O.some(yield* fs.readFileString(absolute)) : O.none<string>();
-      if (O.contains(current, shard.content)) {
-        continue;
-      }
-      if (options.write) {
-        yield* fs.makeDirectory(path.dirname(absolute), { recursive: true });
-        yield* fs.writeFileString(absolute, shard.content);
-        A.appendInPlace(drift, `[schema-catalog] wrote ${shard.path}`);
-      } else {
-        A.appendInPlace(drift, `[schema-catalog] ${O.isSome(current) ? "stale" : "missing"} ${shard.path}`);
-      }
-    }
-    for (const orphan of orphans) {
-      if (options.write) {
-        yield* fs.remove(path.join(repoRoot, orphan));
-        A.appendInPlace(drift, `[schema-catalog] removed ${orphan}`);
-      } else {
-        A.appendInPlace(drift, `[schema-catalog] orphaned ${orphan}`);
-      }
-    }
-
-    if (!options.write && A.isReadonlyArrayNonEmpty(drift)) {
-      yield* Effect.forEach(drift, (line) => Console.error(line), { discard: true });
-      return yield* failWithReportedExit(
-        `schema-catalog: ${A.length(drift)} shard(s) under ${SCHEMA_CATALOG_DIR} are stale, missing or orphaned; run ${SCHEMA_CATALOG_GENERATED_BY}.`
-      );
-    }
-    yield* Effect.forEach(drift, (line) => Console.log(line), { discard: true });
-    yield* Console.log(
-      options.write
-        ? `[schema-catalog] wrote ${SCHEMA_CATALOG_DIR}`
-        : `[schema-catalog] ${SCHEMA_CATALOG_DIR} is current`
-    );
+    const drift = A.getSomes([
+      ...(yield* Effect.forEach(shards, (shard) => syncShard(options.write, repoRoot, shard))),
+      ...(yield* Effect.forEach(orphans, (file) => retireFile(options.write, repoRoot, file))),
+    ]);
+    yield* reportDrift(options.write, drift);
 
     const summary = SchemaCatalogSummary.make({
       entries: A.length(document.entries),
