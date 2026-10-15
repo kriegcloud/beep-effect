@@ -28,8 +28,9 @@ import {
   OpenApi,
 } from "effect/http-api";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { ParcelBudget, ParcelReadOptions } from "./Parcel.models.ts";
+import { ParcelBudget, ParcelReadOptions, SessionKey } from "./Parcel.models.ts";
 import { ParcelEnvelope } from "./ParcelEnvelope.models.ts";
 import { UnknownParcel } from "./Parcels.errors.ts";
 import { Parcels } from "./Parcels.service.ts";
@@ -38,7 +39,8 @@ import type { HttpApiClient } from "effect/http-api";
 const $I = $PalantiriId.create("Parcels.api");
 
 /**
- * The `parcels` group: `GET /parcels/:id`, with an optional `budget` query.
+ * The `parcels` group: `GET /parcels/:id`, with optional `budget` and
+ * `session` queries (`session` is read by `since-last-check`).
  *
  * **Example** (Read the group identifier)
  *
@@ -54,7 +56,10 @@ const $I = $PalantiriId.create("Parcels.api");
 export const ParcelsApiGroup = HttpApiGroup.make("parcels").add(
   HttpApiEndpoint.get("read", "/parcels/:id", {
     params: { id: S.String },
-    query: { budget: S.optionalKey(S.FiniteFromString.pipe(S.decodeTo(ParcelBudget))) },
+    query: {
+      budget: S.optionalKey(S.FiniteFromString.pipe(S.decodeTo(ParcelBudget))),
+      session: S.optionalKey(SessionKey),
+    },
     success: ParcelEnvelope,
     error: UnknownParcel.pipe(HttpApiSchema.status(404)),
   }).annotate(OpenApi.Summary, "Read one parcel: summary, freshness, budget-capped items and an N-of-M receipt.")
@@ -99,7 +104,9 @@ export const layerParcelsHandlers = HttpApiBuilder.group(
   "parcels",
   Effect.fnUntraced(function* (handlers) {
     const parcels = yield* Parcels;
-    return handlers.handle("read", ({ params, query }) => parcels.read(params.id, ParcelReadOptions.make(query)));
+    return handlers.handle("read", ({ params, query }) =>
+      parcels.read(params.id, ParcelReadOptions.make({ ...query, session: O.fromUndefinedOr(query.session) }))
+    );
   })
 );
 

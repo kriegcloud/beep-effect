@@ -85,7 +85,8 @@ describe("native linter process outcomes", () => {
   for (const { name, ...termination } of [
     { name: "timeout", exitedDueToTimeout: true },
     { name: "buffer limit", exitedDueToMaxBuffer: true },
-    { name: "signal", signalCode: "SIGTERM" },
+    { name: "signal", signalCode: "SIGTERM" as const },
+    { name: "numeric signal", signalCode: 15 },
   ]) {
     it.effect(`rejects interrupted output ${name}`, () =>
       Effect.gen(function* () {
