@@ -121,6 +121,7 @@ const config = {
     "apps/practice-m365-contacts/package.json",
     "apps/practice-claude-mod/package.json",
     "packages/drivers/t3-code/package.json",
+    "apps/practice-review-hub/package.json",
   ],
   customTypes: {
     catalog: {
