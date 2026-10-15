@@ -6,6 +6,15 @@
  */
 
 /**
+ * Agent-attribution attribute keys and their closed value domains, declared
+ * for the instrumentation catalog. Examples live on the owning declarations in
+ * `./AiMetrics.instruments.ts`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./AiMetrics.instruments.ts";
+/**
  * Agent-effectiveness doctor reports and JSDoc annotation plans derived from
  * goal-packet manifests. Examples live on the owning declarations in
  * `./agent-effectiveness.ts`.

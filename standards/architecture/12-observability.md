@@ -46,13 +46,13 @@ Naming rules the catalog check enforces:
 | slice | 458 | 390 | 68 |
 | foundation | 253 | 209 | 44 |
 | driver | 574 | 470 | 104 |
-| tooling | 3855 | 3603 | 252 |
+| tooling | 3866 | 3614 | 252 |
 | ecosystem | 1 | 1 | 0 |
 | app | 165 | 120 | 45 |
 | lab | 176 | 165 | 11 |
-| **total** | 5482 | 4958 | 524 |
+| **total** | 5493 | 4969 | 524 |
 
-Declared: 6 attribute keys, 6 metrics, 0 events, 3 spans.
+Declared: 15 attribute keys, 7 metrics, 0 events, 3 spans.
 
 <!-- END GENERATED: INSTRUMENTATION CATALOG -->
 

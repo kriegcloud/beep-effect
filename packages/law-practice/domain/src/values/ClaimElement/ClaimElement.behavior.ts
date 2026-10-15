@@ -557,7 +557,7 @@ const decodeTree = S.decodeEffect(ClaimElementTree);
  * console.log(A.map(tree.edges, ({ kind }) => kind)) // ["part-of", "part-of", "antecedent"]
  * ```
  *
- * @category behavior
+ * @category domain-logic
  * @since 0.0.0
  */
 // Binds the fixed data-first `ClaimElementDecomposer` contract; the claim set is context, not a piped operand.
