@@ -34,6 +34,7 @@ import {
   SkillUpstreamContent,
   SkillUpstreamContentFile,
   SkillUpstreamContentSource,
+  skillPatchDropCondition,
   skillPatchOwnerSourceFromCodeowners,
   skillReviewDeciderFromScript,
   VendoredSkillLockEntry,
@@ -734,6 +735,8 @@ layer(TestLayer, { timeout: "60 seconds" })("skills patch", (it) => {
         ["policy"],
         patchSetBefore,
       ]);
+      // The drop condition follows the label (B42): a policy patch is replayed on every bump.
+      expect(A.map(entry.patches.series, (patch) => patch.dropCondition)).toEqual([skillPatchDropCondition("policy")]);
       const replanned = yield* recorder.label(repoRoot, SKILL, O.none());
       expect((yield* recorder.label(repoRoot, SKILL, O.some(replanned.planDigest))).outcome).toBe("already-current");
 

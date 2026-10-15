@@ -49,7 +49,7 @@ import { applySkillPatch, listSkillPatchHunks } from "./SkillPatches.apply.ts";
 import { SkillPatchRefusal, SkillsCommandError, SkillsLockWriteRefusal } from "./Skills.errors.ts";
 import { SkillPatchOwnerSourceLive } from "./Skills.patches.ts";
 import { SkillEffective, SkillPatch, SkillPatches } from "./Skills.schemas.ts";
-import { buildSkillPatchAdditions, SkillUpstreamContentSourceLive } from "./Skills.service.ts";
+import { buildSkillPatchAdditions, SkillUpstreamContentSourceLive, skillPatchDropCondition } from "./Skills.service.ts";
 import { VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
 import { publishSkillsLockEntry } from "./SkillsLock.write.ts";
 import { reconstructVendoredSkill } from "./SkillsMaterialize.service.ts";
@@ -381,7 +381,9 @@ const labelPatches = Effect.fn("SkillsPatch.labelPatches")(function* (
     Effect.map(classifyPatch(skill, ledger, patch, file.bytes), (verdict) => [patch, verdict] as const)
   );
   const changes = A.flatMap(verdicts, ([patch, verdict]) =>
-    verdict._tag === "label" && verdict.label !== patch.label
+    // A moved label, or a label whose recorded drop condition no longer matches it (B42).
+    verdict._tag === "label" &&
+    (verdict.label !== patch.label || !Str.Equivalence(patch.dropCondition, skillPatchDropCondition(verdict.label)))
       ? [SkillPatchLabelChange.make({ patch: patch.path, from: patch.label, to: verdict.label })]
       : A.empty<SkillPatchLabelChange>()
   );
@@ -421,7 +423,8 @@ const labelPatches = Effect.fn("SkillsPatch.labelPatches")(function* (
       A.findFirst(changes, (change) => Str.Equivalence(change.patch, patch.path)),
       {
         onNone: () => patch,
-        onSome: (change) => SkillPatch.make({ ...patch, label: change.to }),
+        onSome: (change) =>
+          SkillPatch.make({ ...patch, label: change.to, dropCondition: skillPatchDropCondition(change.to) }),
       }
     );
   const relabelled = VendoredSkillLockEntry.make({
