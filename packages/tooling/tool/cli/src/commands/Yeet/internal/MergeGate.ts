@@ -47,6 +47,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ghOutput } from "../../../internal/github/index.ts";
 import { RepoRunContext } from "../../../internal/repo-run/index.ts";
+import { enforceReviewerGate } from "../../Reviewer/ReviewerRuleset.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
 import { hydrateYeetReadOnlyContext } from "./Handler.ts";
 import { MergeGateCheckRun } from "./MergeGate.schemas.ts";
@@ -1085,6 +1086,11 @@ export const executeMergeGate = Effect.fn("Yeet.executeMergeGate")(function* (
   context: RepoRunContext,
   decision: MergeGateMerge
 ): Effect.fn.Return<MergeGateMerged, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
+  yield* enforceReviewerGate(decision.prNumber, decision.headSha).pipe(
+    Effect.mapError(() =>
+      YeetCommandError.make({ message: "beep-reviewer gate held on the current head.", exitCode: 1 })
+    )
+  );
   const result = yield* decodeOrFail(
     "the merge result",
     decodeMergeResult,
