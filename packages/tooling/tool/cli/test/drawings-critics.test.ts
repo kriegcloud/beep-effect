@@ -1,11 +1,16 @@
 import {
   CriticFinding,
   CriticFindingRelation,
+  CriticPackRequest,
   CriticReport,
+  CriticReportSource,
   CriticReviewer,
+  CriticRunRequest,
+  CriticZoom,
   criticInvocation,
   criticReportJsonSchema,
   DEFAULT_CRITIC_REVIEWERS,
+  DrawingsCommandError,
   decodeCriticReport,
   extractReportText,
   parseZoomFlag,
@@ -16,9 +21,11 @@ import {
 } from "@beep/repo-cli/commands/Drawings";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -102,8 +109,12 @@ describe("critic report contract", () => {
         ...accept("x"),
         findings: [{ ...finding("X-01"), relation: { kind: "new", of: null }, category: "taste" }],
       });
-      const result = yield* Effect.result(decodeCriticReport(text));
-      expect(result._tag).toBe("Failure");
+      const exit = yield* Effect.exit(decodeCriticReport(text));
+      // The decoder fails on exactly the offending key, naming the category domain it expected.
+      assertSome(
+        O.map(Exit.findErrorOption(exit), (error) => error.message),
+        'Expected @beep/repo-cli/commands/Drawings/Drawings.critics.schemas/CriticCategory\n  at ["findings"][0]["category"]'
+      );
     })
   );
 });
@@ -215,10 +226,11 @@ describe("invocations", () => {
     expect(astra.args).toContain('model_reasoning_effort="xhigh"');
     expect(astra.args).toContain("read-only");
     expect(astra.args).toContain("/pack/render/pg-1.png");
-    expect(astra.reportFrom).toStrictEqual({ kind: "file", path: "/loop/r.json" });
+    // codex writes its report to the file it was handed; the other routes print it on stdout
+    expect(astra.reportFrom).toStrictEqual(CriticReportSource.cases.file.make({ kind: "file", path: base.reportPath }));
     const grok = criticInvocation({ ...base, reviewer: O.getOrThrow(byName("grok-4.7")) });
     expect(grok.args).toContain("--json-schema");
-    expect(grok.reportFrom).toStrictEqual({ kind: "stdout" });
+    expect(grok.reportFrom).toStrictEqual(CriticReportSource.cases.stdout.make({ kind: "stdout" }));
     const fable = criticInvocation({ ...base, reviewer: O.getOrThrow(byName("claude-fable-5.1")) });
     expect(fable.args).toContain("claude-fable-5-1");
     expect(fable.env).toStrictEqual({ HOME: "/home/x" });
@@ -234,8 +246,16 @@ describe("invocations", () => {
     Effect.gen(function* () {
       const two = yield* selectReviewers(["claude-opus-5.5", "grok-4.7"]);
       expect(A.map(two, (r) => r.idPrefix)).toStrictEqual(["O", "G"]);
-      const unknown = yield* Effect.result(selectReviewers(["gpt-3"]));
-      expect(unknown._tag).toBe("Failure");
+      const unknown = yield* Effect.exit(selectReviewers(["gpt-3"]));
+      assertExitFailure(
+        unknown,
+        Cause.fail(
+          DrawingsCommandError.make({
+            message:
+              '"gpt-3" is not a known reviewer; known: codex-gpt-6-astra, grok-4.7, claude-fable-5.1, kimi-k3, claude-opus-5.5.',
+          })
+        )
+      );
     })
   );
 
@@ -250,17 +270,46 @@ describe("invocations", () => {
         1400,
         "walls",
       ]);
-      const bad = yield* Effect.result(parseZoomFlag("1:500,1500:walls"));
-      expect(bad._tag).toBe("Failure");
+      const bad = yield* Effect.exit(parseZoomFlag("1:500,1500:walls"));
+      assertExitFailure(
+        bad,
+        Cause.fail(DrawingsCommandError.make({ message: '"1:500,1500:walls" is not fig:x,y,width,height:label.' }))
+      );
     })
   );
 
   it("names a reviewer's model and scope in the default sequence", () => {
     const kimi = A.findFirst(DEFAULT_CRITIC_REVIEWERS, (r) => r.route === "cursor");
-    expect(O.map(kimi, (r) => r.scope)).toStrictEqual(O.some("synthetic"));
+    assertSome(
+      O.map(kimi, (r) => r.scope),
+      "synthetic"
+    );
     expect(A.map(DEFAULT_CRITIC_REVIEWERS, (r) => r.idPrefix)).toStrictEqual(["A", "G", "F", "K", "O"]);
-    expect(
+    assertNone(
       CriticReviewer.make({ name: "x", idPrefix: "X", route: "grok", model: "grok-4.7", scope: "matter" }).effort
-    ).toStrictEqual(O.none());
+    );
+  });
+
+  it("builds pack and run requests through their schemas, absent directories as none", () => {
+    const pack = CriticPackRequest.make({
+      manifestPath: "render/manifest.json",
+      outDir: "packs/loop-1",
+      briefPath: "BRIEF.md",
+      imagesDirs: ["markup"],
+      zooms: [CriticZoom.make({ figure: 1, label: "walls", x: 500, y: 1500, width: 1700, height: 1400 })],
+    });
+    assertNone(pack.contextDir);
+    const run = CriticRunRequest.make({
+      loop: 2,
+      loopDir: "loops/2",
+      packDir: "packs/loop-1",
+      reviewers: DEFAULT_CRITIC_REVIEWERS,
+      timeoutMinutes: 90,
+    });
+    assertNone(run.workspace);
+    assertNone(run.syntheticPack);
+    // loop numbers and timeouts start at 1, as the loop record requires
+    assertNone(CriticRunRequest.makeOption({ ...run, loop: 0 }));
+    assertNone(CriticRunRequest.makeOption({ ...run, timeoutMinutes: 0 }));
   });
 });

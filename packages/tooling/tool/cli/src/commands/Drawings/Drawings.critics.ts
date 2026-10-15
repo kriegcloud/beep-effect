@@ -37,8 +37,10 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { collectText } from "../../internal/process/StepExec.ts";
 import {
+  CriticInvocation,
   CriticLoopRecord,
   CriticPackManifest,
+  CriticReportSource,
   CriticReviewer,
   CriticRunRecord,
   CriticZoom,
@@ -50,7 +52,7 @@ import {
   encodeCriticReport,
 } from "./Drawings.critics.schemas.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
-import type { CriticReport, CriticRoute } from "./Drawings.critics.schemas.ts";
+import type { CriticPackRequest, CriticReport, CriticRoute, CriticRunRequest } from "./Drawings.critics.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Drawings/Drawings.critics");
 
@@ -110,22 +112,6 @@ export const CRITIC_HARD_RULES =
 // ---------------------------------------------------------------------------
 // Pure helpers (exported for tests)
 // ---------------------------------------------------------------------------
-
-/**
- * A reviewer's invocation: what to spawn, where, with which environment, and
- * how its report comes back.
- *
- * @category models
- * @since 0.0.0
- */
-export interface CriticInvocation {
-  readonly args: ReadonlyArray<string>;
-  readonly cwd: string;
-  readonly env: Readonly<Record<string, string>>;
-  readonly executable: string;
-  /** Where the route writes its report: a file it was told to write, or its stdout. */
-  readonly reportFrom: { readonly kind: "file"; readonly path: string } | { readonly kind: "stdout" };
-}
 
 // The stroke row of one drawn segment of the shading path, in sheet millimetres; none for a zero-length segment.
 const rowOf = (from: readonly [number, number], to: readonly [number, number]): O.Option<StrokeRow> => {
@@ -458,6 +444,14 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
  * believe it is this one, and `cursor-agent` runs inside its sandbox with the
  * repository's `.cursor/cli.json` deny list.
  *
+ * **Gotchas**
+ *
+ * `packDir`, `reportPath`, and the `workspace` a synthetic-scope reviewer runs
+ * in must be non-empty paths. The result is built with `CriticInvocation.make`,
+ * which throws on an empty one instead of failing in a typed channel. The
+ * critics run resolves every path before it calls this, so only a direct
+ * caller can hit that throw.
+ *
  * **Example** (The Grok route reads the schema inline)
  *
  * ```ts
@@ -486,10 +480,10 @@ export const criticInvocation = (input: {
 }): CriticInvocation => {
   const effort = O.getOrElse(input.reviewer.effort, () => "medium");
   const cwd = input.reviewer.scope === "synthetic" ? O.getOrElse(input.workspace, () => input.packDir) : input.packDir;
+  const stdout = CriticReportSource.cases.stdout.make({ kind: "stdout" });
   return Match.value(input.reviewer.route).pipe(
-    Match.when(
-      "codex",
-      (): CriticInvocation => ({
+    Match.when("codex", () =>
+      CriticInvocation.make({
         executable: "codex",
         args: [
           "exec",
@@ -511,12 +505,11 @@ export const criticInvocation = (input: {
         ],
         cwd,
         env: input.env,
-        reportFrom: { kind: "file", path: input.reportPath },
+        reportFrom: CriticReportSource.cases.file.make({ kind: "file", path: input.reportPath }),
       })
     ),
-    Match.when(
-      "grok",
-      (): CriticInvocation => ({
+    Match.when("grok", () =>
+      CriticInvocation.make({
         executable: "grok",
         args: [
           "-m",
@@ -538,12 +531,11 @@ export const criticInvocation = (input: {
         ],
         cwd,
         env: input.env,
-        reportFrom: { kind: "stdout" },
+        reportFrom: stdout,
       })
     ),
-    Match.when(
-      "claude",
-      (): CriticInvocation => ({
+    Match.when("claude", () =>
+      CriticInvocation.make({
         executable: "claude",
         args: [
           "-p",
@@ -564,12 +556,11 @@ export const criticInvocation = (input: {
         ],
         cwd,
         env: R.filter(input.env, (_, key) => !HashSet.has(SCRUBBED_ENV, key)),
-        reportFrom: { kind: "stdout" },
+        reportFrom: stdout,
       })
     ),
-    Match.when(
-      "cursor",
-      (): CriticInvocation => ({
+    Match.when("cursor", () =>
+      CriticInvocation.make({
         executable: "cursor-agent",
         args: [
           "-p",
@@ -588,7 +579,7 @@ export const criticInvocation = (input: {
         ],
         cwd,
         env: input.env,
-        reportFrom: { kind: "stdout" },
+        reportFrom: stdout,
       })
     ),
     Match.exhaustive
@@ -598,37 +589,6 @@ export const criticInvocation = (input: {
 // ---------------------------------------------------------------------------
 // Service
 // ---------------------------------------------------------------------------
-
-/**
- * A request to build a critic pack from a render manifest.
- *
- * @category models
- * @since 0.0.0
- */
-export interface CriticPackRequest {
-  readonly briefPath: string;
-  readonly contextDir: O.Option<string>;
-  readonly imagesDirs: ReadonlyArray<string>;
-  readonly manifestPath: string;
-  readonly outDir: string;
-  readonly zooms: ReadonlyArray<CriticZoom>;
-}
-
-/**
- * A request to run reviewers on a pack.
- *
- * @category models
- * @since 0.0.0
- */
-export interface CriticRunRequest {
-  readonly loop: number;
-  readonly loopDir: string;
-  readonly packDir: string;
-  readonly reviewers: ReadonlyArray<CriticReviewer>;
-  readonly syntheticPack: O.Option<string>;
-  readonly timeoutMinutes: number;
-  readonly workspace: O.Option<string>;
-}
 
 /**
  * What the critic service does.
@@ -945,16 +905,14 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     );
     yield* write(path.join(loopDir, `${reviewer.name}.log`), stderr);
     yield* write(path.join(loopDir, `${reviewer.name}.raw`), stdout);
-    const rawReport = yield* Match.value(invocation.reportFrom).pipe(
-      Match.when({ kind: "file" }, ({ path: file }) =>
+    const rawReport = yield* CriticReportSource.match(invocation.reportFrom, {
+      file: ({ path: file }) =>
         fs.exists(file).pipe(
           Effect.mapError(fail(`Could not stat "${file}".`)),
           Effect.flatMap((exists) => (exists ? read(file).pipe(Effect.asSome) : Effect.succeedNone))
-        )
-      ),
-      Match.when({ kind: "stdout" }, () => Effect.succeedSome(stdout)),
-      Match.exhaustive
-    );
+        ),
+      stdout: () => Effect.succeedSome(stdout),
+    });
     const report = yield* pipe(
       rawReport,
       O.flatMap((text) => extractReportText({ route: reviewer.route, text })),

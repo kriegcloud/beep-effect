@@ -33,6 +33,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { isRequiredSeverity } from "../Qa/Inventory.schemas.ts";
+import { CriticPackRequest, CriticRunRequest } from "./Drawings.critics.schemas.ts";
 import { DEFAULT_CRITIC_REVIEWERS, DrawingCritics, parseZoomFlag, selectReviewers } from "./Drawings.critics.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
 import { drawingIntakeLaneLayer, runDrawingIntake } from "./Drawings.intake.ts";
@@ -830,14 +831,15 @@ const runCriticsPack = Effect.fn("DrawingsCommand.criticsPack")(function* (optio
 }) {
   const critics = yield* DrawingCritics;
   const zooms = yield* Effect.forEach(options.zoom, parseZoomFlag);
-  const pack = yield* critics.buildPack({
+  const request = yield* CriticPackRequest.makeEffect({
     manifestPath: options.manifest,
     outDir: options.out,
     briefPath: options.brief,
     contextDir: options.context,
     imagesDirs: options.images,
     zooms,
-  });
+  }).pipe(DrawingsCommandError.mapError("The critic pack flags do not form a pack request."));
+  const pack = yield* critics.buildPack(request);
   yield* say(
     `critic pack ${options.out}: ${A.length(pack.sheets)} sheet(s), ${A.length(pack.zooms)} zoom(s), ${A.length(pack.images)} image(s); sheet-set ${pack.sheetSetSha256}`
   );
@@ -856,7 +858,7 @@ const runCriticsRun = Effect.fn("DrawingsCommand.criticsRun")(function* (options
   const reviewers = yield* selectReviewers(
     pipe(Str.split(options.reviewers, ","), A.map(Str.trim), A.filter(Str.isNonEmpty))
   );
-  const record = yield* critics.runSequence({
+  const request = yield* CriticRunRequest.makeEffect({
     packDir: options.pack,
     loopDir: options.loopDir,
     loop: options.loop,
@@ -864,7 +866,12 @@ const runCriticsRun = Effect.fn("DrawingsCommand.criticsRun")(function* (options
     workspace: options.workspace,
     syntheticPack: options.syntheticPack,
     timeoutMinutes: options.timeoutMinutes,
-  });
+  }).pipe(
+    DrawingsCommandError.mapError(
+      "The critic run flags do not form a run request; --loop and --timeout-minutes must be at least 1."
+    )
+  );
+  const record = yield* critics.runSequence(request);
   yield* Effect.forEach(record.runs, (run) =>
     say(
       `${run.order}. ${run.reviewer.name}: exit ${run.exitCode}, ${run.findings} finding(s)${O.isNone(run.report) ? " (no report)" : ""}`

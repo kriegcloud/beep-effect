@@ -685,3 +685,177 @@ export const decodeCriticLoopRecord = (text: string) => decodeCriticLoopRecordJs
  * @since 0.0.0
  */
 export const encodeCriticLoopRecord = (record: CriticLoopRecord) => encodeCriticLoopRecordJson(record);
+
+const optionalDirectory = (description: string) =>
+  S.OptionFromOptionalKey(S.NonEmptyString).pipe(
+    S.withConstructorDefault(Effect.succeedNone),
+    S.annotateKey({ description })
+  );
+
+/**
+ * A request to build a critic pack from a render manifest: the manifest, the
+ * pack directory to create, the brief, an optional context directory, the
+ * context-image directories, and the 300 dpi zooms to cut.
+ *
+ * **Example** (A pack with one zoom and no context directory)
+ *
+ * ```ts
+ * import { CriticPackRequest, CriticZoom } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const request = CriticPackRequest.make({
+ *   manifestPath: "render/manifest.json",
+ *   outDir: "packs/loop-1",
+ *   briefPath: "BRIEF.md",
+ *   imagesDirs: [],
+ *   zooms: [CriticZoom.make({ figure: 1, label: "walls", x: 500, y: 1500, width: 1700, height: 1400 })],
+ * })
+ * console.log(O.isNone(request.contextDir)) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticPackRequest extends S.Opaque<CriticPackRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    manifestPath: S.NonEmptyString.annotateKey({ description: "Render manifest.json of the sheet set to review." }),
+    outDir: S.NonEmptyString.annotateKey({ description: "Pack directory to create." }),
+    briefPath: S.NonEmptyString.annotateKey({ description: "Brief copied into the pack as BRIEF.md." }),
+    contextDir: optionalDirectory("Directory copied into the pack as context/, when given."),
+    imagesDirs: S.Array(S.NonEmptyString).annotateKey({
+      description: "Directories of context images copied under images/<name>/.",
+    }),
+    zooms: S.Array(CriticZoom).annotateKey({ description: "300 dpi crops cut from the sheet set." }),
+  }).pipe(
+    $I.annoteSchema("CriticPackRequest", {
+      description: "Manifest, pack directory, brief, context directory, image directories, and zooms of a pack build.",
+    })
+  )
+) {}
+
+/**
+ * A request to run reviewers on a pack: the loop number and directory, the
+ * pack, the reviewers in order, the synthetic pack and workspace a
+ * synthetic-scope reviewer uses, and the minutes each reviewer may run.
+ *
+ * **Example** (The default sequence on loop 1)
+ *
+ * ```ts
+ * import { CriticRunRequest, DEFAULT_CRITIC_REVIEWERS } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const request = CriticRunRequest.make({
+ *   loop: 1,
+ *   loopDir: "loops/1",
+ *   packDir: "packs/loop-1",
+ *   reviewers: DEFAULT_CRITIC_REVIEWERS,
+ *   timeoutMinutes: 90,
+ * })
+ * console.log(request.reviewers.length) // 5
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticRunRequest extends S.Opaque<CriticRunRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    loop: S.Int.check(S.isGreaterThanOrEqualTo(1)).annotateKey({ description: "One-based loop number." }),
+    loopDir: S.NonEmptyString.annotateKey({
+      description: "Directory that receives this loop's reports, logs, prior/ and loop.json.",
+    }),
+    packDir: S.NonEmptyString.annotateKey({ description: "Pack directory built by the pack step." }),
+    reviewers: S.Array(CriticReviewer).annotateKey({ description: "Reviewers, run in this order." }),
+    syntheticPack: optionalDirectory("Client-free pack a synthetic-scope reviewer reviews, when given."),
+    timeoutMinutes: S.Int.check(S.isGreaterThan(0)).annotateKey({ description: "Minutes a reviewer may run." }),
+    workspace: optionalDirectory("Repository checkout a synthetic-scope reviewer works in, when given."),
+  }).pipe(
+    $I.annoteSchema("CriticRunRequest", {
+      description: "Loop, loop directory, pack, reviewers, synthetic pack, timeout, and workspace of a critic run.",
+    })
+  )
+) {}
+
+const CriticReportSourceKind = LiteralKit(["file", "stdout"]);
+
+/**
+ * Where a route leaves its report, tagged on `kind`: a file it was told to
+ * write, or its stdout.
+ *
+ * **Example** (A report file)
+ *
+ * ```ts
+ * import { CriticReportSource } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const source = CriticReportSource.cases.file.make({ kind: "file", path: "/loop/codex-gpt-6-astra.json" })
+ * console.log(source.kind) // "file"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const CriticReportSource = CriticReportSourceKind.toTaggedUnion("kind")({
+  file: {
+    path: S.NonEmptyString.annotateKey({ description: "Report file the route was told to write." }),
+  },
+  stdout: {},
+}).pipe(
+  $I.annoteSchema("CriticReportSource", {
+    description: "file: the route writes the report to a path; stdout: the report is read from its standard output.",
+  })
+);
+
+/**
+ * Type for {@link CriticReportSource}.
+ *
+ * **Example** (Annotate a stdout source)
+ *
+ * ```ts
+ * import { CriticReportSource } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const source: CriticReportSource = CriticReportSource.cases.stdout.make({ kind: "stdout" })
+ * console.log(source.kind) // "stdout"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CriticReportSource = typeof CriticReportSource.Type;
+
+/**
+ * A reviewer's invocation: what to spawn, where, with which environment, and
+ * how its report comes back.
+ *
+ * **Example** (A Grok invocation that reports on stdout)
+ *
+ * ```ts
+ * import { CriticInvocation, CriticReportSource } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const invocation = CriticInvocation.make({
+ *   executable: "grok",
+ *   args: ["-m", "grok-4.7", "-p", "review"],
+ *   cwd: "/pack",
+ *   env: { HOME: "/home/reviewer" },
+ *   reportFrom: CriticReportSource.cases.stdout.make({ kind: "stdout" }),
+ * })
+ * console.log(invocation.reportFrom.kind) // "stdout"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticInvocation extends S.Opaque<CriticInvocation, { readonly brand: unique symbol }>()(
+  S.Struct({
+    executable: S.NonEmptyString.annotateKey({ description: "CLI to spawn." }),
+    args: S.Array(S.String).annotateKey({ description: "Arguments passed to the CLI, in order." }),
+    cwd: S.NonEmptyString.annotateKey({ description: "Working directory of the spawned CLI." }),
+    env: S.Record(S.String, S.String).annotateKey({
+      description: "The whole environment the CLI runs with; nothing else is inherited.",
+    }),
+    reportFrom: CriticReportSource.annotateKey({
+      description: "Where the route writes its report: a file it was told to write, or its stdout.",
+    }),
+  }).pipe(
+    $I.annoteSchema("CriticInvocation", {
+      description: "Executable, arguments, working directory, environment, and report source of one reviewer run.",
+    })
+  )
+) {}
