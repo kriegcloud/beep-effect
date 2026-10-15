@@ -504,7 +504,7 @@ const writeStringFile = Effect.fn("Skills.writeStringFile")(function* (
   const temporary = `${absolutePath}.tmp-${suffix}`;
   yield* Effect.acquireUseRelease(
     fs
-      .writeFileString(temporary, content, { flag: "wx" })
+      .writeFileString(temporary, content, { flag: "wx", mode: 0o600 })
       .pipe(SkillsCommandError.mapError("Cannot stage skill projection.")),
     Effect.fnUntraced(function* () {
       const current = yield* readExistingFile(absolutePath);

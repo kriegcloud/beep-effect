@@ -33,6 +33,7 @@ const decodeJournal = S.decodeEffect(S.fromJsonString(ModelsApplyJournal));
 const failure = (message: string) => ModelsLocatorError.make({ message });
 const nativeFields = S.Record(S.String, S.Unknown);
 const encodeValue = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
+const decodeJsonText = S.decodeEffect(S.fromJsonString(S.Unknown));
 
 // Mask exactly the owned leaves in parsed native data. This assertion is
 // independent of the stronger byte-preservation assertion below.
@@ -87,10 +88,9 @@ const assertNativeFields = Effect.fnUntraced(function* (
     );
   }
   if (A.isReadonlyArrayNonEmpty(jsonPaths)) {
-    const decode = S.decodeEffect(S.fromJsonString(S.Unknown));
     yield* compare(
-      yield* decode(before).pipe(Effect.mapError(() => failure("Invalid native JSON."))),
-      yield* decode(after).pipe(Effect.mapError(() => failure("Invalid native JSON."))),
+      yield* decodeJsonText(before).pipe(Effect.mapError(() => failure("Invalid native JSON."))),
+      yield* decodeJsonText(after).pipe(Effect.mapError(() => failure("Invalid native JSON."))),
       jsonPaths
     );
   }
@@ -178,7 +178,7 @@ const validate = Effect.fn("ModelsApply.validate")((text: string, writes: Readon
           )
         ),
         Match.tag("json-key", () =>
-          S.decodeEffect(S.fromJsonString(S.Unknown))(text).pipe(
+          decodeJsonText(text).pipe(
             Effect.mapError(() => failure("Invalid JSON target.")),
             Effect.asVoid
           )

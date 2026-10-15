@@ -91,11 +91,18 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       const flags = ["--home", home, "--repo", home, "--manifest", manifest];
       yield* run(["codex-permissions", ...flags]);
       expect(yield* fs.readFileString(file)).toBe(before);
+      expect(yield* TestConsole.logLines).toContain(
+        "models: preview home.codex.config [toml-top-level-key] change=true expected=<absent>"
+      );
       yield* Effect.flip(run(["codex-permissions", ...flags, "--check"]));
       yield* Effect.flip(run(["codex-permissions", ...flags, "--check", "--write"]));
       yield* run(["codex-permissions", ...flags, "--write"]);
       expect(yield* fs.readFileString(file)).toBe(native);
       yield* run(["codex-permissions", ...flags, "--check"]);
+      yield* run(["codex-permissions", ...flags, "--dry-run"]);
+      expect(yield* TestConsole.logLines).toContain(
+        "models: preview home.codex.config [toml-top-level-key] change=false expected=<absent>"
+      );
       const journals = yield* fs.readDirectory(path.join(home, ".config-backups"));
       expect(journals).toHaveLength(2);
       yield* run(["codex-permissions", ...flags, "--write"]);

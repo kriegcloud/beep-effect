@@ -29,7 +29,7 @@ import { CatalogSnapshot } from "./Models.catalog.schemas.ts";
 import { ModelsCatalogOptions } from "./Models.catalog.service.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
 import { bindLocatorModel } from "./Models.locator.service.ts";
-import { LocatorBinding, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
+import { LocatorBinding, ModelSyncTarget, ModelsLocatorWrite, TargetId } from "./Models.manifest.schemas.ts";
 import { ModelsTargetFile, ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
 import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
 import { ModelsCheckReport } from "./Models.report.schemas.ts";
@@ -44,7 +44,7 @@ import {
   ModelsLocatorReader,
   ModelsManifestStore,
 } from "./Models.service.ts";
-import type { Locator, ModelSyncTarget, ModelsApplyMode, ModelsManifest } from "./Models.manifest.schemas.ts";
+import type { Locator, ModelsApplyMode, ModelsManifest } from "./Models.manifest.schemas.ts";
 import type { DriftFinding } from "./Models.report.schemas.ts";
 
 const encodeReport = S.encodeUnknownEffect(ModelsCheckReport);
@@ -378,7 +378,7 @@ const previewModelWrites = Effect.fnUntraced(function* (
       .read(ModelsTargetFile.make({ root: target.root, absolutePath: file, content }), request.locator)
       .pipe(Effect.mapError(ModelsCommandError.fromInternal));
     yield* Console.log(
-      `models: preview ${target.id} [${request.locator._tag}] change=${!O.contains(current, request.expected)} expected=${request.expected}`
+      `models: preview ${target.id} [${request.locator._tag}] change=${request.remove === true ? O.isSome(current) : !O.contains(current, request.expected)} expected=${request.remove === true ? "<absent>" : request.expected}`
     );
   }
 });
@@ -460,6 +460,18 @@ const codexPermissionsCommand = Command.make(
       remove: true,
     });
     const mode = flags.write ? "write" : flags.check ? "check" : "dry-run";
+    if (mode === "dry-run")
+      yield* previewModelWrites(
+        file,
+        ModelSyncTarget.make({
+          id: TargetId.make("home.codex.config"),
+          root: "home",
+          path: "$HOME/.codex/config.toml",
+          optional: false,
+          locators: [request.locator],
+        }),
+        [request]
+      );
     const journal = yield* writer
       .apply(file, [request], mode, path.join(paths.home, ".config-backups"))
       .pipe(Effect.mapError(ModelsCommandError.fromInternal));
