@@ -1,4 +1,76 @@
 lane: rsc-f-agents
+head: 0233b60f67cbc8f48ab82c9bc818ffef9f4f7c7d (integrated verification revision; report commit is an evidence-only descendant)   PR: #1797
+package-verify: @beep/repo-cli: pass at 98fcf60164 (audit 1294.0s, docgen 43.2s); full proof on newer integrated head remains required before publication
+hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> fail(inherited Palantiri TS377047) | pass at 0233b60f67 | fail(inherited Palantiri/review-hub docs at 98fcf60164) | pass at 98fcf60164 | pass at 98fcf60164 | pass at 0233b60f67 (155 tests; all four existing floors exceeded)
+config fingerprint (final): BLOCKED; candidate eb2f857107a0857b96d9ccf6945bf319daa94661efb2b194eee7a9ec268a6001 (356 equality inputs, 1 observed-only); immediate equality pass   backups: no new home writes; prior backup names below
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: 3 native model drifts; remaining exact-head full proof before publication; incomplete 30-session windows; four F-owned H3 measured gates; driver-owned independent panel, merge and retirement
+
+Status: BLOCKED. Models check reports 3 findings across 492 catalog models:
+Grok effort, Claude model alias, and shell lightweight route. Claude harness
+writes are explicitly forbidden, and shell configuration is outside this
+run's grant. Grok effort changed during the run; preserve it alongside the
+owner-only drifts until configuration owners coordinate the final set. All
+three ModelsApply dry-runs succeed and each previews one changed field.
+No native file is written. The pinned read-only Codex probe passes (exit 0,
+OK); both protected pins and legacy sandbox_mode absence pass.
+
+Main #1825 was integrated after resolving the interrupted merge. Main's
+observability architecture document is retained, both monolithic catalogs
+are absent, and both catalog owners run successfully. After the admitted
+full audit passed, newer main 94f1b6adbf was integrated at 0233b60f67. Both
+catalog owners and bun install ran again; no new catalog drift remained.
+The earlier full audit is not relabelled as an exact-head proof of this
+newer integration. Bounded package check passes all 47 tasks, local docgen
+passes, and scoped coverage passes 155 tests in 11 files on 0233b60f67.
+
+Oxlint: 19 findings globally, 0 in F-changed files; every finding source
+matches main. Test-tsgo's sole TS377047 is in unchanged
+palantiri-command.test.ts:74. JSDoc's two attributed main sources are
+Palantiri's package documentation and TAILSCALE_LOGIN_HEADER in the review
+hub. Schema-first, changeset-graph, knowledge refs, Fallow audit/health and
+retired-effect-paths pass on the recorded revisions. The codemod found 19
+already-branded declarations, zero new sites, and zero changes; fixup found
+zero diagnostics or repairs. No inventory, baseline or allowlist is grown.
+
+S31 inventory diff: base 94f1b6adbfef94b4c37c19a93232b1bd3bd19f9e;
+15 files compared; 0 changed files; 0 added rows; 0 removed rows.
+Regenerated package catalogs are excluded. The temporary comparison skew
+while main advanced is resolved by the second integration.
+
+The candidate is retained separately from the historical frozen receipt.
+Claude Desktop's app-written configuration is observed-only; every owned
+input remains in equality, including the shell route. Controls accept an
+observed-only hash change and reject an owned-input change. Native changes
+outside F during verification prevent any stability claim beyond a dated
+capture. Models drift prevents panel admission even when immediate equality
+passes. No capability is retired for incomplete telemetry windows; the four
+H3 measured gates remain individually owned in SPEC.md. H4's legacy-key
+repair remains intact.
+
+Prior backups are present: models-2026-10-14T222221002Z-16103436.backup, rsc-f-pre-rollback-20261014T222520875693Z.backup, models-2026-10-14T222525456Z-12665845.backup.
+No new backup or rollback is claimed. Prior reversal remains the ModelsApply
+journal recorded in SPEC.md; later drift must be refused rather than blindly
+overwritten. Repository reversal is revert of the F PR/integration wave.
+
+REST comment reads succeed. Comments 4277729082 and 4277729090 have local
+fixes but remain pending publication and REST replies. PR #1797's remote
+head remains the earlier e9216b4a81; this run makes 0 pushes and starts no
+readiness monitor. No final marker or gate file is issued. Configuration
+owners must clear native drift, then the lane repeats remaining exact-head
+gates, recaptures the fingerprint and makes its single push. The driver
+owns the independent panel and merge gate. Plugin-owned .impeccable/live/
+residue is preserved.
+
+Receipts: stage-5-f-shards-verification.json, stage-5-f-shards-attribution.json,
+stage-5-f-final-coverage.json, stage-5-f-s31-diff.json, and the separate
+stage-5-f-post1590-candidate-fingerprint.json under history/receipts/.
+
+Graft estimated 25,869 tokens saved in two calls during this resume.
+
+## Earlier checkpoints (preserved; superseded by blocked report above)
+
+lane: rsc-f-agents
 head: 92e8bc601f (integrated source; checkpoint SHA follows)   PR: #1797
 package-verify: @beep/repo-cli: post-#1825 proof running
 hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> post-#1825 proof running

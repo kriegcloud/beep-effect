@@ -1673,3 +1673,15 @@ candidate separate from the historical frozen receipt; no panel clearance or
 zero-drift result is claimed. Configuration owners must clear drift before
 final publication. Reversal: recapture after those owner changes and retain
 the superseded hashes as historical evidence; no new home rollback is needed.
+
+
+After the admitted audit completed, integrate the newer main 94f1b6adbf at
+0233b60f67 and run both catalog owners plus dependency install again. Reason:
+preserve main's newer inventory decisions and leave S31 at zero changed
+files, added rows and removed rows across all 15 files. The earlier full
+package pass belongs to source 98fcf60164 (audit 1294.0s, docgen 43.2s); it is
+not recast as an exact-head full proof for the new integration. Repeat bounded
+package check, test-tsgo, local docgen, oxlint and scoped coverage. Keep final
+publication blocked on the three native drifts, and require the remaining
+exact-head gates before the single push. Reversal: revert this integration
+wave; preserve historical proof and all native files.

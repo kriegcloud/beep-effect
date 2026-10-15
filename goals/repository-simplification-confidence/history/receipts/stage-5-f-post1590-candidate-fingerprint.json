@@ -1,7 +1,7 @@
 {
   "format": "rsc-f-config-fingerprint/v3",
-  "capturedAt": "2026-10-15T09:22:09.161438Z",
-  "setSha256": "495a1a46ec755c3ba65e8e0e06a4a308b9bb8bc02bfe97068864ce2ac9d6c010",
+  "capturedAt": "2026-10-15T09:49:00.200470Z",
+  "setSha256": "eb2f857107a0857b96d9ccf6945bf319daa94661efb2b194eee7a9ec268a6001",
   "files": [
     {
       "path": ".claude/agents/architecture-guardian.md",
@@ -1672,14 +1672,14 @@
     },
     {
       "path": "skills-lock.json",
-      "bytes": 25887,
-      "sha256": "a19e0de1935b91bdd639e22cada3f19bfd91b9002f2585e3d1c4c40d3edfbb62"
+      "bytes": 25871,
+      "sha256": "188b9079d4b8582dfd4231067614a7fec9c1b6fa55443e66fe812bb41fbabe1f"
     },
     {
       "path": "~/.claude.json",
-      "bytes": 369586,
-      "sha256": "06cd0692dea1ec53900c77f44de9d53e8943a74269606a401c8bedfbf2b120ee",
-      "rawSha256": "b486e57fb612eb4ba1b93bd27f56c4307a1deebeb7c07f95624337b1782513bf",
+      "bytes": 369722,
+      "sha256": "804d8d72c2472094080249d3f191cb6f3cd32094549c030a783078dd08b3ccfc",
+      "rawSha256": "90ed4bcb9b136b3fd64ca0299fedf4f798da677b0fc1e3a55455832fc9330044",
       "hashProjection": "canonical JSON excluding only pluginUsage runtime counter"
     },
     {
@@ -1694,8 +1694,8 @@
     },
     {
       "path": "~/.claude/memory/beep-effect/MEMORY.md",
-      "bytes": 39265,
-      "sha256": "59cc7014afef623eca3ada3fa49334cc9003078fad8e9892bbd302526a214ca6"
+      "bytes": 39231,
+      "sha256": "b5b77ae27b6d658088f2cd616ac1d45388cd80cb3127f2d4475b5ccc05ecc798"
     },
     {
       "path": "~/.claude/plugins/installed_plugins.json",
@@ -1740,7 +1740,7 @@
     {
       "path": "~/.cursor/cli-config.json",
       "bytes": 3810,
-      "sha256": "06e079fac65c416ccfa088aaf860dd917e95b90160f9b4fcaf656408e269f06c"
+      "sha256": "d2aa67c63d07d3397ed4b0b5ac025619821da1c891e576ba4d972cd74e562548"
     },
     {
       "path": "~/.cursor/mcp.json",
@@ -1754,8 +1754,8 @@
     },
     {
       "path": "~/.grok/config.toml",
-      "bytes": 2287,
-      "sha256": "bf1342d18a527bed869d32a61551baa9f2ff26cf7291e7cee4b0ee237289d7a7"
+      "bytes": 2289,
+      "sha256": "59847c9a886be48a9c29c953ca989a4201fa11133a739f20507f1b2153b6491e"
     },
     {
       "path": "~/.junie/AGENTS.md",
@@ -1784,8 +1784,8 @@
     },
     {
       "path": "~/.zshrc",
-      "bytes": 10429,
-      "sha256": "5577eae8a8008b06de0e9e8acf00a4840f55d527f4c9b4e23c78f94c29f18c0e"
+      "bytes": 10929,
+      "sha256": "a47c1fb48322314724ce2b3f78d01eb9d8f1fbf8b23e9b2c36384510984bcfd1"
     }
   ],
   "observedOnly": [

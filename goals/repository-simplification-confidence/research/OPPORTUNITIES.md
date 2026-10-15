@@ -2604,3 +2604,46 @@ Retain the observed candidate, finish source verification, and hand the exact
 findings to their configuration owners. No home apply is performed merely to
 partially repair an otherwise blocked set. Prevention: coordinate native
 configuration owners with the final fingerprint capture and manifest check.
+
+
+### F inherited post-#1825 Palantiri test diagnostic
+
+The integrated package check passes all 47 tasks, while `quality test-tsgo`
+reports TS377047 at `test/palantiri-command.test.ts:74` in repo-cli. That source
+is byte-identical to main and is owned by the Palantiri lane (#1817). Oxlint
+reports 19 findings across unchanged main sources, including the new Palantiri
+files; zero findings are in F-changed files. The
+[attribution receipt](../history/receipts/stage-5-f-shards-attribution.json)
+records exact blob identity. Repair the owning source rather than adding
+allowlist rows; F preserves the S31 zero-growth result.
+
+
+The post-#1825 JSDoc ratchet adds a second inherited source finding: Palantiri's
+`src/index.ts` package documentation has multiple description paragraphs. The
+three regressed totals are missingExportExamples 9 > 8,
+multiple-description-paragraphs 426 > 425, and packagesNeedingRemediation
+83 > 81. Both finding sources are byte-identical to main. The owning lane
+repairs its documentation; F adds no inventory or baseline allowance.
+
+
+### F source proof overtaken by new main inventory revisions
+
+While the admitted full audit runs on the integrated #1825 checkout, main
+advances to 94f1b6adbf (#1826/#1832/#1829). It includes new CLI skill source
+and changes two standards inventories. S31 was zero versus the integrated
+0ef6191ccc base; comparison against the newer main is 2 changed files,
+2,659 added lines and 1,792 removed lines. These are main-integration skew,
+not new F exception decisions. Keep the running checkout unchanged for
+attributable evidence. The next publication attempt must merge current main,
+regenerate the package catalogs and re-run S31 and exact-head verification.
+A coordinated integration slot around the long package audit would avoid
+repeated proof invalidation. Native configuration drift independently blocks
+this publication attempt.
+
+
+Resolution of the base skew above: after full package verification passed
+(audit 1294.0s, docgen 43.2s), merge main 94f1b6adbf at 0233b60f67 and rerun
+the catalog owners plus install. S31 is zero again across all 15 files.
+Bounded checks qualify the integration without mislabelling the earlier
+full package result as exact-head proof. Native drift remains the independent
+publication blocker; the next final wave still requires exact-head gates.

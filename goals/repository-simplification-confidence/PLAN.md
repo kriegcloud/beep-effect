@@ -406,3 +406,10 @@ three drifts; Claude and shell repairs are outside F's grant. Keep the
 observed candidate separate from the historical frozen receipt and withhold
 final publication until the configuration owners clear the model gate.
 Current integrated proof and handoff: `history/handoffs/rsc-f-agents-2026-10-15.md`.
+
+
+F's full audit completes successfully at 98fcf60164. Main 94f1b6adbf is then
+integrated at 0233b60f67, both catalog owners and install run again, and all
+15 S31 inventory files exactly match that main. Bounded integrated proof
+follows; a final full proof and publication remain held on three native
+configuration drifts. No push or readiness monitor is issued.

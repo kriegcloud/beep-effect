@@ -1,5 +1,5 @@
 {
-  "base": "4052da587f4ebf8fa5ccf4d6e7715e3943c03c2f",
+  "base": "94f1b6adbfef94b4c37c19a93232b1bd3bd19f9e",
   "filesCompared": 15,
   "changedFiles": 0,
   "addedRows": 0,
@@ -23,7 +23,7 @@
   ],
   "changes": [],
   "catalogsExcluded": [
-    "standards/schema-catalog.generated.jsonc",
-    "standards/instrumentation-catalog.generated.jsonc"
+    "standards/schema-catalog/",
+    "standards/instrumentation-catalog/"
   ]
 }
