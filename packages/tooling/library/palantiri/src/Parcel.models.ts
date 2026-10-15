@@ -52,9 +52,13 @@ export type ParcelKey = typeof ParcelKey.Type;
  * @category models
  * @since 0.0.0
  */
-export const ParcelId = LiteralKit(["account-headroom"]).pipe(
-  $I.annoteSchema("ParcelId", { description: "Identifier of a parcel Palantiri serves." })
-);
+export const ParcelId = LiteralKit([
+  "account-headroom",
+  "lane-reds",
+  "host-pressure",
+  "app-error-classes",
+  "since-last-check",
+]).pipe($I.annoteSchema("ParcelId", { description: "Identifier of a parcel Palantiri serves." }));
 
 /**
  * Runtime type for {@link ParcelId}.
@@ -71,7 +75,13 @@ export type ParcelId = typeof ParcelId.Type;
  *
  * `accounts-poll` is a live poll of an account; `accounts-retained` is an
  * earlier reading the accounts report kept (a collector snapshot, or the last
- * good poll of an account whose newest poll failed).
+ * good poll of an account whose newest poll failed). `yeet-inbox` and
+ * `proof-jobs` are a checkout's `.beep/inbox` rows and `.beep/yeet/jobs`
+ * records. `proc-pressure` and `proc-meminfo` are the kernel's pressure stall
+ * and memory files; `admission-slots` is the machine-wide admission state.
+ * `grafana-query` is the app telemetry query adapter, which does not exist
+ * yet. `session-ledger` is the workstation session ledger and
+ * `session-cursor` a session's last-read mark.
  *
  * **Example** (Narrow a source)
  *
@@ -84,9 +94,18 @@ export type ParcelId = typeof ParcelId.Type;
  * @category models
  * @since 0.0.0
  */
-export const ParcelSource = LiteralKit(["accounts-poll", "accounts-retained"]).pipe(
-  $I.annoteSchema("ParcelSource", { description: "A source a parcel reads from." })
-);
+export const ParcelSource = LiteralKit([
+  "accounts-poll",
+  "accounts-retained",
+  "yeet-inbox",
+  "proof-jobs",
+  "proc-pressure",
+  "proc-meminfo",
+  "admission-slots",
+  "grafana-query",
+  "session-ledger",
+  "session-cursor",
+]).pipe($I.annoteSchema("ParcelSource", { description: "A source a parcel reads from." }));
 
 /**
  * Runtime type for {@link ParcelSource}.
@@ -160,14 +179,52 @@ export const ParcelBudget = S.Int.check(S.isBetween({ minimum: 1, maximum: 500 }
 export type ParcelBudget = typeof ParcelBudget.Type;
 
 /**
- * Options for one parcel read. The budget defaults to 20 items.
+ * A harness session id, safe to use as a file name: letters, digits, dots,
+ * underscores and hyphens, at most 128 characters.
+ *
+ * **Example** (Guard a session id)
+ *
+ * ```ts
+ * import { SessionKey } from "@beep/palantiri/Parcel.models"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(SessionKey)("0b5f6c1e-2d4a-4f1b-9c3e-7a8d9e0f1a2b")) // true
+ * console.log(S.is(SessionKey)("../escape")) // false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const SessionKey = S.String.check(
+  S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/, {
+    identifier: $I`SessionKeyPattern`,
+    title: "Session key",
+    description: "Letters, digits, dots, underscores and hyphens, starting with a letter or digit.",
+    message: "a session id uses letters, digits, dots, underscores and hyphens",
+  })
+).pipe($I.annoteSchema("SessionKey", { description: "A harness session id, safe to use as a file name." }));
+
+/**
+ * Runtime type for {@link SessionKey}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SessionKey = typeof SessionKey.Type;
+
+/**
+ * Options for one parcel read. The budget defaults to 20 items; `session`
+ * names the reading session for session-keyed parcels.
  *
  * **Example** (Default the budget)
  *
  * ```ts
  * import { ParcelReadOptions } from "@beep/palantiri/Parcel.models"
+ * import * as O from "effect/Option"
  *
- * console.log(ParcelReadOptions.make({}).budget) // 20
+ * const options = ParcelReadOptions.make({})
+ * console.log(options.budget) // 20
+ * console.log(O.isNone(options.session)) // true
  * ```
  *
  * @category models
@@ -179,6 +236,7 @@ export class ParcelReadOptions extends S.Opaque<ParcelReadOptions, { readonly br
       S.withDecodingDefaultKey(Effect.succeed(20)),
       S.withConstructorDefault(Effect.succeed(20))
     ),
+    session: SessionKey.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
   }).pipe($I.annoteSchema("ParcelReadOptions", { description: "Options for one parcel read." }))
 ) {}
 
