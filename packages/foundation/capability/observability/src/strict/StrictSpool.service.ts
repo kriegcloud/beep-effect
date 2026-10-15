@@ -397,15 +397,19 @@ export const makeStrictSpool = Effect.fn("StrictSpool.make")(function* (options:
     fs.readFileString(path.join(directory, name)).pipe(
       Effect.flatMap(decodeSegment),
       Effect.mapError(() => TelemetryRefusalTag.Enum["spool-segment-invalid"]),
-      Effect.flatMap((segment) => {
-        if (segment.keyEpoch !== key.epoch) {
-          return Effect.fail(TelemetryRefusalTag.Enum["spool-segment-invalid"]);
-        }
-        if (isStricterTier(options.tier, segment.tier)) {
-          return Effect.fail(TelemetryRefusalTag.Enum["spool-tier-refused"]);
-        }
-        return open(segment);
-      }),
+      // Authenticate before trusting any header field: the tier is bound as
+      // additional data, so an edited tier fails here as an invalid segment
+      // and only a genuine segment sealed under a looser tier is tier-refused.
+      Effect.flatMap((segment) =>
+        segment.keyEpoch !== key.epoch
+          ? Effect.fail(TelemetryRefusalTag.Enum["spool-segment-invalid"])
+          : open(segment).pipe(
+              Effect.filterOrFail(
+                () => !isStricterTier(options.tier, segment.tier),
+                () => TelemetryRefusalTag.Enum["spool-tier-refused"]
+              )
+            )
+      ),
       Effect.result
     );
 
