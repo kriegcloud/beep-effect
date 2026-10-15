@@ -115,10 +115,9 @@ Each project runs the installed `effect-tsgo diagnostics --project <config>
 including effect-drizzle's documented missedPipeableOpportunity exception.
 Malformed JSON, unexpected exits, zero coverage and files without a plugin fail
 the lane. Errors and warnings fail; the configured map promotes enabled rules
-to error. Five 0.52 rules are armed at error. `schemaClassMissingBrand` remains
-off in the lane profile as of 2026-10-14; the schema-opaque-default closing PR
-flips that one key
-(the post-#1758 spike found zero sites). The public catalog payload rename landed
+to error. All six 0.52 rules are armed at error; the schema-opaque-default
+closing PR armed `schemaClassMissingBrand` on 2026-10-15 (the post-#1758 spike
+and a full lane run found zero sites). The public catalog payload rename landed
 in #1807; no catalog suppression exception remains. The two 0.53 import-style
 rules remain explicitly off. Intentional named helper imports are pervasive,
 and Effect barrel imports violate the code law.

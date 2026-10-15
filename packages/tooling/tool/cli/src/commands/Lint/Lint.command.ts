@@ -48,6 +48,7 @@ import { lintIdentityRegistryCommand } from "./IdentityRegistry.ts";
 import { SchemaFirstSchemaClass } from "./internal/SchemaFirstSchemaClass.ts";
 import { lintJudgeRubricCommand } from "./JudgeRubric.ts";
 import { LintCircularAnalysisError, LintFileDiscoveryError, LintProgramAssignmentError } from "./Lint.errors.ts";
+import { lintOpaqueRoundtripsCommand } from "./OpaqueRoundtrips.ts";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.ts";
 import { lintPackageTestTypecheckCommand } from "./PackageTestTypecheck.ts";
 import { lintReflectionArtifactsCommand } from "./ReflectionArtifact.ts";
@@ -1147,6 +1148,7 @@ const lintSubcommands = [
   lintEcosystemPolarityCommand,
   lintEffectSchemaInventoryCommand,
   lintEffectVitestCommand,
+  lintOpaqueRoundtripsCommand,
   lintGoalPacketsCommand,
   lintIdentityRegistryCommand,
   lintJudgeRubricCommand,

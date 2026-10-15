@@ -1107,6 +1107,21 @@
         "!**/test/fixtures/**"
       ]
     },
+    "//#lint:opaque-roundtrips": {
+      "cache": true,
+      "outputs": [],
+      "dependsOn": ["//#lint:policy-fingerprint"],
+      "inputs": [
+        "{apps,packages,infra}/**/*.{test,spec}.{ts,tsx}",
+        "{apps,packages,infra}/**/test/**/*.{ts,tsx}",
+        "{apps,packages,infra}/**/src/**/*.{ts,tsx}",
+        "{apps,packages,infra}/**/tsconfig*.json",
+        "tsconfig*.json",
+        "tsconfig.base.json",
+        "packages/tooling/tool/cli/src/commands/Lint/OpaqueRoundtrips.ts",
+        "!**/node_modules/**"
+      ]
+    },
     "//#lint:effect-vitest": {
       "cache": true,
       "outputs": [],

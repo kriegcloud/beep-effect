@@ -4,13 +4,13 @@
     "id": "schema-opaque-default",
     "packetId": "goal-packet/v1:753e7e8db24104e2a341effd9d6c49804f67ab806ff131cc1ad919feb3b342e2",
     "title": "Schema shape default: branded S.Opaque for data",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
-    "updated": "2026-10-14",
+    "updated": "2026-10-15",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/schema-opaque-default",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Make branded S.Opaque the default shape for plain data schemas, brand every schema class, and arm schemaClassMissingBrand",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -61,12 +61,12 @@
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
@@ -81,5 +81,5 @@
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "2026-10-14: migration, codemod, docs and lint landed with the PR that carries this note (S25). Arming schemaClassMissingBrand at error waits on the @effect/tsgo 0.52.0 bump, which waits on tsc-rs porting the 0.52 rule set (syncpack.config.ts hold comment); the D7 proof already shows 0 hits. P4 Close and the reflection land with that bump."
+  "statusNote": "2026-10-15: closed. #1758 landed the codemod and its output; #1776 cleared the 0.52 preferEffectArray sites and the apps/labs fallout; #1783 and #1798 fixed the main reds #1758 caused. The closing PR arms schemaClassMissingBrand at error in standards/effect-diagnostics.profile.json (the @effect/tsgo 0.53 Effect diagnostics lane from #1810; tsc-rs 0.6.0 does not know the rule) and adds lint:opaque-roundtrips."
 }
