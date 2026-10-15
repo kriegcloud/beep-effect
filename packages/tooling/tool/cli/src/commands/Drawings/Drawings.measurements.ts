@@ -225,8 +225,8 @@ const byAngleThenOffset = Order.combine(
  * console.log(table.includes("FIG 1 (front) — 0 shading strokes")) // true
  * ```
  *
- * @param input - The set's title and hashes, and every figure's SVG text and shading coverage.
- * @returns The markdown of `render/RENDER.md`.
+ * @param input - Drawing title, provenance hashes, and figure SVGs with coverage descriptions.
+ * @returns Markdown for `render/RENDER.md` listing shading strokes in millimetres, grouped by figure.
  * @category formatting
  * @since 0.0.0
  */
@@ -252,20 +252,26 @@ export const strokeTableMarkdown = (input: {
       A.length(lengths) === 0
         ? ""
         : `\nShortest strokes: ${JSON.stringify(A.take(lengths, 5))}; longest: ${JSON.stringify(A.takeRight(lengths, 3))}.\n`;
-    return [
-      `\n## FIG ${figure.figure} (${figure.view}) — ${A.length(rows)} shading strokes; coverage ${figure.coverage}\n`,
-      "Strokes grouped by direction (angle from the page x axis), with the perpendicular offset of each line (mm, same family = parallel lines; consecutive offsets give the gaps), length (mm), and endpoints (mm from the page's top-left):\n",
-      "| angle | offset | length | x1 | y1 | x2 | y2 |",
-      "| --- | --- | --- | --- | --- | --- | --- |",
-      ...A.map(rows, (r) => `| ${r.angle} | ${r.offset} | ${r.length} | ${r.x1} | ${r.y1} | ${r.x2} | ${r.y2} |`),
-      extremes,
-    ].join("\n");
+    return A.join(
+      [
+        `\n## FIG ${figure.figure} (${figure.view}) — ${A.length(rows)} shading strokes; coverage ${figure.coverage}\n`,
+        "Strokes grouped by direction (angle from the page x axis), with the perpendicular offset of each line (mm, same family = parallel lines; consecutive offsets give the gaps), length (mm), and endpoints (mm from the page's top-left):\n",
+        "| angle | offset | length | x1 | y1 | x2 | y2 |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+        ...A.map(rows, (r) => `| ${r.angle} | ${r.offset} | ${r.length} | ${r.x1} | ${r.y1} | ${r.x2} | ${r.y2} |`),
+        extremes,
+      ],
+      "\n"
+    );
   });
-  return [
-    `# RENDER.md — measurements of "${input.title}"\n`,
-    `sheet-set sha256 ${input.sheetSetSha256}; spec sha256 ${input.specSha256}. Shading strokes are drawn 0.2 mm wide (0.567 pt); visible outlines 0.35 mm (0.992 pt); 72 pt = 25.4 mm. render/MEASUREMENTS.md carries the PDF facts, margins, layers, shading statistics, and labels.\n`,
-    ...sections,
-  ].join("\n");
+  return A.join(
+    [
+      `# RENDER.md — measurements of "${input.title}"\n`,
+      `sheet-set sha256 ${input.sheetSetSha256}; spec sha256 ${input.specSha256}. Shading strokes are drawn 0.2 mm wide (0.567 pt); visible outlines 0.35 mm (0.992 pt); 72 pt = 25.4 mm. render/MEASUREMENTS.md carries the PDF facts, margins, layers, shading statistics, and labels.\n`,
+      ...sections,
+    ],
+    "\n"
+  );
 };
 
 // Distance from a point to the infinite line through a stroke.
@@ -327,15 +333,13 @@ const parallelCandidates = (rows: ReadonlyArray<StrokeRow>): ReadonlyArray<reado
       (row): StrokeRow => ({ ...row, direction: row.direction + 180 })
     )
   );
-  return A.flatMap(sorted, (row, i) => {
-    const within: Array<readonly [StrokeRow, StrokeRow]> = [];
-    for (let j = i + 1; j < wrapped.length; j += 1) {
-      const other = wrapped[j];
-      if (other === undefined || other.direction - row.direction > PARALLEL_DEG) break;
-      within.push([row, other]);
-    }
-    return within;
-  });
+  return A.flatMap(sorted, (row, i) =>
+    pipe(
+      A.drop(wrapped, i + 1),
+      A.takeWhile((other) => !(other.direction - row.direction > PARALLEL_DEG)),
+      A.map((other): readonly [StrokeRow, StrokeRow] => [row, other])
+    )
+  );
 };
 
 // The smallest perpendicular gap between a stroke and a facing stroke within PARALLEL_DEG of its direction.

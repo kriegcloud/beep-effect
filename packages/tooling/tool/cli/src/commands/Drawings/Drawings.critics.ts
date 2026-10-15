@@ -20,7 +20,7 @@ import { PdfTools, PngRequest } from "@beep/pdf-tools";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import { Sha256Hex } from "@beep/schema";
 import { RenderManifest, sha256Hex } from "@beep/technical-drawing";
-import { A, O, P, Str } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -31,6 +31,7 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -141,6 +142,8 @@ export const CRITIC_HARD_RULES =
  * Effect.runPromise(parseZoomFlag("1:500,1500,1700,1400:walls")).then((zoom) => console.log(zoom.label)) // "walls"
  * ```
  *
+ * @param text - One zoom flag in fig:x,y,width,height:label form, using pixel coordinates.
+ * @returns An effect yielding a validated zoom, or a command error for malformed or invalid values.
  * @category parsing
  * @since 0.0.0
  */
@@ -192,6 +195,8 @@ const GROK_REFUSING = "refusing to start";
  * console.log(O.flatMap(grokSandboxRefusal(stderr), (seat) => seat.path)) // Some("/run/example/runtime.sock")
  * ```
  *
+ * @param stderr - Everything the Grok CLI wrote to stderr for one failed run.
+ * @returns The unavailable-seat record with the denied path when one is named, or None for any other failure.
  * @category parsing
  * @since 0.0.0
  */
@@ -266,6 +271,8 @@ const missingSeatLines = (runs: ReadonlyArray<CriticRunRecord>): ReadonlyArray<s
  * console.log(loopSummaryMarkdown({ reports: [], runs: [grok] }).includes("grok-4.7 (ids G-…) did not run")) // true
  * ```
  *
+ * @param input - The reports written so far, in seat order, and the run records of the loop's seats.
+ * @returns Markdown naming each seat that could not run, then every earlier finding, stance, and unassessed item.
  * @category formatting
  * @since 0.0.0
  */
@@ -284,19 +291,25 @@ export const loopSummaryMarkdown = (input: {
     const stances = A.map(report.priorAssessment, (p) => `  - on ${p.id}: ${p.stance} — ${p.note}`);
     const unassessed =
       A.length(report.couldNotAssess) === 0 ? [] : [`  - could_not_assess: ${A.join(report.couldNotAssess, " | ")}`];
-    return [
-      `\n## ${report.reviewer} — verdict ${report.verdict} — blockers: ${JSON.stringify(report.blockers)}\n`,
-      ...findings,
-      ...stances,
-      ...unassessed,
-    ].join("\n");
+    return A.join(
+      [
+        `\n## ${report.reviewer} — verdict ${report.verdict} — blockers: ${JSON.stringify(report.blockers)}\n`,
+        ...findings,
+        ...stances,
+        ...unassessed,
+      ],
+      "\n"
+    );
   });
-  return [
-    "# Findings already reported in this loop (dedupe against these; confirm or refute each)\n",
-    ...seats,
-    ...sections,
-    "",
-  ].join("\n");
+  return A.join(
+    [
+      "# Findings already reported in this loop (dedupe against these; confirm or refute each)\n",
+      ...seats,
+      ...sections,
+      "",
+    ],
+    "\n"
+  );
 };
 
 /**
@@ -313,8 +326,8 @@ export const loopSummaryMarkdown = (input: {
  * console.log(priorSummaryMarkdown([]).startsWith("# Findings already reported")) // true
  * ```
  *
- * @param reports - The reports of the seats that ran so far, in seat order.
- * @returns The markdown the next reviewer reads as `prior/SUMMARY.md`.
+ * @param reports - Earlier reviewer reports in the order later reviewers should read them.
+ * @returns Markdown preserving findings, prior assessments, and unassessed items in report order, with no missing-seat section.
  * @category formatting
  * @since 0.0.0
  */
@@ -333,19 +346,24 @@ export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): stri
  * console.log(priorIdsMarkdown([]).startsWith("# Finding ids already reported")) // true
  * ```
  *
+ * @param reports - Earlier reports whose finding identifiers and categories may reach synthetic reviewers.
+ * @returns Markdown listing finding ids, categories, and bases while excluding the full matter summary.
  * @category formatting
  * @since 0.0.0
  */
 export const priorIdsMarkdown = (reports: ReadonlyArray<CriticReport>): string =>
-  [
-    "# Finding ids already reported by earlier reviewers (categories only; the matter set is not shown to you)\n",
-    ...pipe(
-      reports,
-      A.flatMap((report) => report.findings),
-      A.map((f) => `- ${f.id} ${f.severity} ${f.category} — basis: ${f.basis}`)
-    ),
-    "",
-  ].join("\n");
+  A.join(
+    [
+      "# Finding ids already reported by earlier reviewers (categories only; the matter set is not shown to you)\n",
+      ...pipe(
+        reports,
+        A.flatMap((report) => report.findings),
+        A.map((f) => `- ${f.id} ${f.severity} ${f.category} — basis: ${f.basis}`)
+      ),
+      "",
+    ],
+    "\n"
+  );
 
 const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
 
@@ -395,6 +413,8 @@ const isClaudeEvent = S.is(CriticClaudeEvent);
  * console.log(O.getOrElse(extractReportText({ route: "claude", text: envelope }), () => "")) // {"reviewer":"x"}
  * ```
  *
+ * @param input - Reviewer route and its captured output, including any route-specific wrapper.
+ * @returns The extracted report JSON text, or None when no report document can be located.
  * @category parsing
  * @since 0.0.0
  */
@@ -480,6 +500,8 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
  * console.log(invocation.executable) // "grok"
  * ```
  *
+ * @param input - Reviewer configuration, pack paths, prompt, attachments, workspace choices, and environment.
+ * @returns The executable, arguments, working directory, environment, and report source for the selected reviewer route.
  * @category constructors
  * @since 0.0.0
  */
@@ -922,13 +944,16 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
             ),
             Match.exhaustive
           );
-          return [
-            input.template,
-            `You are reviewer "${reviewer.name}": ids ${reviewer.idPrefix}-01, ${reviewer.idPrefix}-02, …`,
-            hint,
-            CRITIC_HARD_RULES,
-            O.getOrElse(input.extra, () => ""),
-          ].join("\n");
+          return A.join(
+            [
+              input.template,
+              `You are reviewer "${reviewer.name}": ids ${reviewer.idPrefix}-01, ${reviewer.idPrefix}-02, …`,
+              hint,
+              CRITIC_HARD_RULES,
+              O.getOrElse(input.extra, () => ""),
+            ],
+            "\n"
+          );
         })
       ),
       Match.when(
@@ -943,7 +968,7 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
           );
           yield* write(path.join(syntheticPack, "prior-ids.md"), priorIdsMarkdown(prior));
           const brief = yield* read(path.join(syntheticPack, "BRIEF-synthetic.md"));
-          return [brief, CRITIC_HARD_RULES].join("\n");
+          return A.join([brief, CRITIC_HARD_RULES], "\n");
         })
       ),
       Match.exhaustive
@@ -1077,17 +1102,21 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
       Effect.mapError(fail(`Could not stat "${extraPath}".`)),
       Effect.flatMap((exists) => (exists ? read(extraPath).pipe(Effect.asSome) : Effect.succeedNone))
     );
-    const runs: Array<CriticRunRecord> = [];
-    for (const [index, reviewer] of A.entries(request.reviewers)) {
-      yield* Effect.logInfo(
-        `critics: ${index + 1}/${A.length(request.reviewers)} ${reviewer.name} (${reviewer.route})`
-      );
-      const run = yield* runReviewer({ request, pack, reviewer, order: index + 1, template, extra, earlier: runs });
-      runs.push(run);
-      yield* Effect.logInfo(
-        `critics: ${reviewer.name} exit ${run.exitCode}, ${run.findings} finding(s)${O.isSome(run.unavailable) ? ", seat unavailable on this host" : O.isNone(run.report) ? ", no report" : ""}`
-      );
-    }
+    // Each seat runs after the ones before it and reads their runs, so a seat that could not run is named.
+    const runs = yield* Effect.reduce(
+      request.reviewers,
+      (): ReadonlyArray<CriticRunRecord> => A.empty(),
+      Effect.fnUntraced(function* (earlier, reviewer, index) {
+        yield* Effect.logInfo(
+          `critics: ${index + 1}/${A.length(request.reviewers)} ${reviewer.name} (${reviewer.route})`
+        );
+        const run = yield* runReviewer({ request, pack, reviewer, order: index + 1, template, extra, earlier });
+        yield* Effect.logInfo(
+          `critics: ${reviewer.name} exit ${run.exitCode}, ${run.findings} finding(s)${O.isSome(run.unavailable) ? ", seat unavailable on this host" : O.isNone(run.report) ? ", no report" : ""}`
+        );
+        return A.append(earlier, run);
+      })
+    );
     const record = CriticLoopRecord.make({
       schemaVersion: "drawing-critic-loop/v1",
       loop: request.loop,
@@ -1239,6 +1268,8 @@ export const DEFAULT_CRITIC_REVIEWERS: ReadonlyArray<CriticReviewer> = [
  * Effect.runPromise(selectReviewers(["grok-4.7", "claude-opus-5.5"])).then((rs) => console.log(rs.length)) // 2
  * ```
  *
+ * @param names - Reviewer names in the desired execution order; every name must match a default reviewer.
+ * @returns An effect yielding reviewers in requested order, or a command error naming an unknown reviewer.
  * @category constructors
  * @since 0.0.0
  */

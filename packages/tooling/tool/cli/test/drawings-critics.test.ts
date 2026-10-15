@@ -446,11 +446,14 @@ describe("invocations", () => {
 
 // The refusal grok prints when its strict sandbox cannot resolve a runtime-socket deny path (synthetic path).
 const sandboxRefusal = (deniedPath: string) =>
-  [
-    `Error: sandbox profile resolve failed: socket deny resolution failed: could not resolve runtime-socket deny path${deniedPath}: Permission denied (os error 13)`,
-    "error: this sandbox could not enforce its deny list on Linux: the required bwrap plan could not be prepared; see the error above for the specific cause. Refusing to start with denied paths unprotected.",
-    "",
-  ].join("\n");
+  A.join(
+    [
+      `Error: sandbox profile resolve failed: socket deny resolution failed: could not resolve runtime-socket deny path${deniedPath}: Permission denied (os error 13)`,
+      "error: this sandbox could not enforce its deny list on Linux: the required bwrap plan could not be prepared; see the error above for the specific cause. Refusing to start with denied paths unprotected.",
+      "",
+    ],
+    "\n"
+  );
 
 describe("grokSandboxRefusal", () => {
   it("recognises the strict-sandbox refusal and the deny path it names", () => {
@@ -702,16 +705,19 @@ describe("critic sequence seats", () => {
 // A Letter sheet in points: a 100 × 140 mm outline from (50, 60) mm, a dashed broken line inside it, six
 // shading strokes (three parallel 1.5 mm apart, one collinear piece, one far parallel, one horizontal), a
 // stroked label above the top margin, an outlined label, and one text label.
-const syntheticSheet = [
-  '<svg xmlns="http://www.w3.org/2000/svg" width="612.000pt" height="792.000pt" viewBox="0 0 612.000 792.000">',
-  '<path id="labels" d="M300 60L312 60" fill="none" stroke="#000000" stroke-width="0.992"/>',
-  '<path id="label-outlines" d="M290 740Q295 730 300 740Z" fill="#000000" stroke="none"/>',
-  '<path id="shading" d="M170.079 226.772L170.079 283.465M174.331 226.772L174.331 283.465M178.583 226.772L178.583 283.465M198.425 425.197L198.425 453.543M170.079 289.134L170.079 294.803M283.465 340.157L311.811 340.157" fill="none" stroke="#000000" stroke-width="0.567"/>',
-  '<path id="broken" d="M200 300L300 300" fill="none" stroke="#000000" stroke-width="0.992" stroke-dasharray="8.504 4.252"/>',
-  '<path id="figure" d="M141.732 170.079L425.197 170.079L425.197 566.929L141.732 566.929Z" fill="none" stroke="#000000" stroke-width="0.992"/>',
-  '<text x="306" y="760" font-family="DejaVu Sans" font-size="12" text-anchor="middle" fill="#000000">FIG. 1 &amp; 2</text>',
-  "</svg>",
-].join("\n");
+const syntheticSheet = A.join(
+  [
+    '<svg xmlns="http://www.w3.org/2000/svg" width="612.000pt" height="792.000pt" viewBox="0 0 612.000 792.000">',
+    '<path id="labels" d="M300 60L312 60" fill="none" stroke="#000000" stroke-width="0.992"/>',
+    '<path id="label-outlines" d="M290 740Q295 730 300 740Z" fill="#000000" stroke="none"/>',
+    '<path id="shading" d="M170.079 226.772L170.079 283.465M174.331 226.772L174.331 283.465M178.583 226.772L178.583 283.465M198.425 425.197L198.425 453.543M170.079 289.134L170.079 294.803M283.465 340.157L311.811 340.157" fill="none" stroke="#000000" stroke-width="0.567"/>',
+    '<path id="broken" d="M200 300L300 300" fill="none" stroke="#000000" stroke-width="0.992" stroke-dasharray="8.504 4.252"/>',
+    '<path id="figure" d="M141.732 170.079L425.197 170.079L425.197 566.929L141.732 566.929Z" fill="none" stroke="#000000" stroke-width="0.992"/>',
+    '<text x="306" y="760" font-family="DejaVu Sans" font-size="12" text-anchor="middle" fill="#000000">FIG. 1 &amp; 2</text>',
+    "</svg>",
+  ],
+  "\n"
+);
 
 describe("figure measurements", () => {
   it("measures the ink boxes against the 1.84(g) margins, the path layers, the shading, and the labels", () => {
@@ -791,11 +797,14 @@ describe("figure measurements", () => {
       "M141.732 340.157L254.977 334.495",
       "M141.732 342.992L254.015 327.212",
     ];
-    const svg = [
-      '<svg xmlns="http://www.w3.org/2000/svg" width="612.000pt" height="792.000pt" viewBox="0 0 612.000 792.000">',
-      `<path id="shading" d="${A.join(strokes, " ")}" fill="none" stroke="#000000" stroke-width="0.567"/>`,
-      "</svg>",
-    ].join("\n");
+    const svg = A.join(
+      [
+        '<svg xmlns="http://www.w3.org/2000/svg" width="612.000pt" height="792.000pt" viewBox="0 0 612.000 792.000">',
+        `<path id="shading" d="${A.join(strokes, " ")}" fill="none" stroke="#000000" stroke-width="0.567"/>`,
+        "</svg>",
+      ],
+      "\n"
+    );
     const figure = figureMeasurements({ figure: 1, view: "top-perspective", svgFile: "render/fig-1.svg", svg });
     expect(figure.shading.count).toBe(12);
     assertSome(figure.shading.minLengthMm, 40);
@@ -819,17 +828,20 @@ describe("figure measurements", () => {
 
 describe("PDF tool output", () => {
   it("reads every page's MediaBox and CropBox from pdfinfo -box", () => {
-    const text = [
-      "Producer:        cairo 1.18.6",
-      "Pages:           2",
-      "Page    1 size:  612 x 792 pts (letter)",
-      "Page    1 MediaBox:      0.00     0.00   612.00   792.00",
-      "Page    1 CropBox:       0.00     0.00   612.00   792.00",
-      "Page    1 BleedBox:      0.00     0.00   612.00   792.00",
-      "Page    2 MediaBox:      0.00     0.00   612.00   792.00",
-      "Page    2 CropBox:      10.00    20.00   602.00   772.00",
-      "PDF version:     1.6",
-    ].join("\n");
+    const text = A.join(
+      [
+        "Producer:        cairo 1.18.6",
+        "Pages:           2",
+        "Page    1 size:  612 x 792 pts (letter)",
+        "Page    1 MediaBox:      0.00     0.00   612.00   792.00",
+        "Page    1 CropBox:       0.00     0.00   612.00   792.00",
+        "Page    1 BleedBox:      0.00     0.00   612.00   792.00",
+        "Page    2 MediaBox:      0.00     0.00   612.00   792.00",
+        "Page    2 CropBox:      10.00    20.00   602.00   772.00",
+        "PDF version:     1.6",
+      ],
+      "\n"
+    );
     const pages = parsePdfInfoBoxes(text);
     expect(A.map(pages, (page) => page.page)).toStrictEqual([1, 2]);
     expect(A.map(pages, (page) => [page.mediaBox.widthMm, page.mediaBox.heightMm])).toStrictEqual([
@@ -846,14 +858,17 @@ describe("PDF tool output", () => {
   });
 
   it("reads each pdffonts row from the right, so a type with a space parses", () => {
-    const text = [
-      "name                                 type              encoding         emb sub uni object ID",
-      "------------------------------------ ----------------- ---------------- --- --- --- ---------",
-      "KKISDR+DejaVuSans                    TrueType          WinAnsi          yes yes yes      7  0",
-      "ABCDEF+LiberationSans-Bold           CID TrueType      Identity-H       yes yes yes     12  0",
-      "Helvetica                            Type 1            Standard         no  no  no      15  0",
-      "",
-    ].join("\n");
+    const text = A.join(
+      [
+        "name                                 type              encoding         emb sub uni object ID",
+        "------------------------------------ ----------------- ---------------- --- --- --- ---------",
+        "KKISDR+DejaVuSans                    TrueType          WinAnsi          yes yes yes      7  0",
+        "ABCDEF+LiberationSans-Bold           CID TrueType      Identity-H       yes yes yes     12  0",
+        "Helvetica                            Type 1            Standard         no  no  no      15  0",
+        "",
+      ],
+      "\n"
+    );
     expect(A.map(parsePdfFonts(text), (font) => [font.name, font.type, font.embedded, font.subset])).toStrictEqual([
       ["KKISDR+DejaVuSans", "TrueType", true, true],
       ["ABCDEF+LiberationSans-Bold", "CID TrueType", true, true],
