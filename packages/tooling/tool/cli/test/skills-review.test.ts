@@ -39,6 +39,7 @@ import {
   VendoredSkillLockEntry,
 } from "@beep/repo-cli/commands/Skills";
 import {
+  appendHunkLedgerRows,
   computeSkillTree,
   HUNK_LEDGER_PATH,
   hashBytes,
@@ -526,6 +527,49 @@ layer(TestLayer, { timeout: "60 seconds" })("skills review", (it) => {
       yield* fs.writeFileString(path.join(repoRoot, HUNK_LEDGER_PATH), "\n{not json}\n");
       const error = yield* readHunkLedger(repoRoot).pipe(Effect.flip);
       expect(error.message).toContain(`${HUNK_LEDGER_PATH}:2`);
+    })
+  );
+
+  it.effect("rejects a dangling ledger symlink before reading or appending a decision", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* makeRepo();
+      const outside = yield* fs.makeTempDirectoryScoped({ prefix: "skills-ledger-outside-" });
+      const target = path.join(outside, ".bash_profile");
+      const ledger = path.join(repoRoot, HUNK_LEDGER_PATH);
+      const review = yield* reviewWith(pristineFiles);
+      const listed = yield* list(review, repoRoot);
+      const recorded = yield* decideWith(review, repoRoot, [answer(itemAt(listed, 1), "drop")]);
+      const row = O.getOrThrow(A.head(recorded.recorded));
+      yield* fs.remove(ledger);
+      yield* fs.symlink(target, ledger);
+
+      expect((yield* readHunkLedger(repoRoot).pipe(Effect.result))._tag).toBe("Failure");
+      expect((yield* appendHunkLedgerRows(repoRoot, [row]).pipe(Effect.result))._tag).toBe("Failure");
+      expect(yield* fs.exists(target)).toBe(false);
+    })
+  );
+
+  it.effect("rejects symlinked ledger ancestors without writing outside the checkout", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const source = yield* makeRepo();
+      const review = yield* reviewWith(pristineFiles);
+      const listed = yield* list(review, source);
+      const recorded = yield* decideWith(review, source, [answer(itemAt(listed, 1), "drop")]);
+      const row = O.getOrThrow(A.head(recorded.recorded));
+      const outside = yield* fs.makeTempDirectoryScoped({ prefix: "skills-ledger-outside-" });
+
+      for (const ancestor of [".agents", ".agents/skill-patches"]) {
+        const repoRoot = yield* fs.makeTempDirectoryScoped({ prefix: "skills-ledger-link-" });
+        if (ancestor === ".agents/skill-patches") yield* fs.makeDirectory(path.join(repoRoot, ".agents"));
+        yield* fs.symlink(outside, path.join(repoRoot, ancestor));
+        expect((yield* readHunkLedger(repoRoot).pipe(Effect.result))._tag, ancestor).toBe("Failure");
+        expect((yield* appendHunkLedgerRows(repoRoot, [row]).pipe(Effect.result))._tag, ancestor).toBe("Failure");
+        expect(yield* fs.exists(path.join(outside, "ledger.jsonl")), ancestor).toBe(false);
+      }
     })
   );
 });

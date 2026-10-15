@@ -9,12 +9,14 @@ import {
   ReviewerResult,
   ReviewerReview,
   requireReviewerInRuleset,
+  reviewerCheckExternalId,
   reviewerCheckSatisfied,
   reviewerConclusion,
   reviewerDocsOnly,
 } from "@beep/repo-cli/commands/Reviewer";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
@@ -24,6 +26,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
@@ -46,14 +49,27 @@ const encodeReviewerResult = S.encodeResult(ReviewerResultJson);
 const decodeReviewerResult = S.decodeResult(ReviewerResultJson);
 const sameReviewerResult = S.toEquivalence(ReviewerResult);
 const sha = "a".repeat(40);
-const check = (id: number, app = 42, status = "in_progress", conclusion: string | null = null) => ({
+const baseSha = "b".repeat(40);
+const check = (id: number, app = 42, status = "in_progress", conclusion: string | null = null, pr = 7) => ({
   id,
   name: "beep-reviewer",
   head_sha: sha,
   status,
   conclusion,
   app: { id: app },
-  external_id: `pr-7-${sha.slice(0, 7)}`,
+  external_id: reviewerCheckExternalId(pr, sha, baseSha),
+});
+const completionFixture = (state: string) => ({
+  pull: {
+    head: { sha: state === "stale" ? "c".repeat(40) : sha },
+    base: { sha: state === "base-moved" ? "d".repeat(40) : baseSha },
+  },
+  run:
+    state === "unassociated"
+      ? { ...check(2), external_id: "invalid-association" }
+      : state === "stale" || state === "base-moved"
+        ? check(2)
+        : check(2, 42, "completed", state),
 });
 const summary = (
   app: number | null = 42,
@@ -143,12 +159,19 @@ describe("reviewer conclusions and identity", () => {
       expect(isReviewerSummary(summary(42, "beep-reviewer[bot]", "No marker"), 42)).toBe(false);
     })
   );
-  it.effect("requires newest run on the exact head from the exact App", () =>
+  it.effect("requires the newest run for the exact App, PR, head, and base", () =>
     Effect.sync(() => {
-      expect(reviewerCheckSatisfied([check(1, 99, "completed", "success")], sha, 42)).toBe(false);
-      expect(reviewerCheckSatisfied([check(1, 42, "completed", "success")], "b".repeat(40), 42)).toBe(false);
-      expect(reviewerCheckSatisfied([check(1, 42, "completed", "success"), check(2)], sha, 42)).toBe(false);
-      expect(reviewerCheckSatisfied([check(1, 42, "completed", "success")], sha, 42)).toBe(true);
+      expect(reviewerCheckSatisfied([check(1, 99, "completed", "success")], sha, 42, 7, baseSha)).toBe(false);
+      expect(reviewerCheckSatisfied([check(1, 42, "completed", "success")], "c".repeat(40), 42, 7, baseSha)).toBe(
+        false
+      );
+      expect(reviewerCheckSatisfied([check(1, 42, "completed", "success"), check(2)], sha, 42, 7, baseSha)).toBe(false);
+      expect(reviewerCheckSatisfied([check(1, 42, "completed", "success")], sha, 42, 7, baseSha)).toBe(true);
+      const codeFailure = check(1, 42, "completed", "failure");
+      const newerDocsSuccess = check(2, 42, "completed", "success", 8);
+      expect(reviewerCheckSatisfied([codeFailure, newerDocsSuccess], sha, 42, 7, baseSha)).toBe(false);
+      expect(reviewerCheckSatisfied([newerDocsSuccess], sha, 42, 7, baseSha)).toBe(false);
+      expect(reviewerCheckSatisfied([check(3, 42, "completed", "success")], sha, 42, 7, "d".repeat(40))).toBe(false);
     })
   );
   it.effect("does not classify a code-to-doc rename or empty file list as L0", () =>
@@ -210,31 +233,40 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
     Effect.gen(function* () {
       const files = [{ filename: "docs/app.md" }, { filename: "README.md" }];
       const http = client((_method, url) =>
-        url.pathname.endsWith("/files") ? files : { head: { sha }, changed_files: 2 }
+        url.pathname.endsWith("/files") ? files : { head: { sha }, base: { sha: baseSha }, changed_files: 2 }
       );
-      expect(yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(http))).toBe(true);
+      assertSome(yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(http)), baseSha);
       let reads = 0;
       const moved = client((_method, url) => {
         if (url.pathname.endsWith("/files")) return files;
         reads += 1;
-        return { head: { sha: reads === 1 ? sha : "b".repeat(40) }, changed_files: 2 };
+        return { head: { sha: reads === 1 ? sha : "c".repeat(40) }, base: { sha: baseSha }, changed_files: 2 };
       });
       const outcome = yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(
         usingHttp(moved),
         Effect.result
       );
       expect(outcome._tag).toBe("Failure");
-      const truncated = client(() => ({ head: { sha }, changed_files: 3000 }));
+      let baseReads = 0;
+      const movedBase = client((_method, url) => {
+        if (url.pathname.endsWith("/files")) return files;
+        baseReads += 1;
+        return { head: { sha }, base: { sha: baseReads === 1 ? baseSha : "d".repeat(40) }, changed_files: 2 };
+      });
+      expect(
+        (yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(movedBase), Effect.result))._tag
+      ).toBe("Failure");
+      const truncated = client(() => ({ head: { sha }, base: { sha: baseSha }, changed_files: 3000 }));
       expect(
         (yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(truncated), Effect.result))._tag
       ).toBe("Failure");
     })
   );
-  it.effect("reuses only this App's in-progress check", () =>
+  it.effect("reuses only this PR and base's in-progress check", () =>
     Effect.gen(function* () {
       let creates = 0;
       const http = client((method, url) => {
-        if (url.pathname.endsWith("/pulls/7")) return { head: { sha } };
+        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
         if (method === "POST") {
           creates += 1;
           return { id: 44 };
@@ -244,6 +276,27 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       const id = yield* Reviewer.use((reviewer) => reviewer.start(7, sha)).pipe(usingHttp(http));
       expect(id).toBe(2);
       expect(creates).toBe(0);
+      let postedBody: unknown;
+      const otherPr = client((method, url, body) => {
+        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
+        if (method === "POST") {
+          postedBody = body;
+          return { id: 44 };
+        }
+        return { total_count: 1, check_runs: [check(3, 42, "in_progress", null, 8)] };
+      });
+      expect(yield* Reviewer.use((reviewer) => reviewer.start(7, sha)).pipe(usingHttp(otherPr))).toBe(44);
+      expect((yield* decodeObject(postedBody)).external_id).toBe(reviewerCheckExternalId(7, sha, baseSha));
+      const changedSinceClassification = client((_method, url) => {
+        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: "d".repeat(40) } };
+        return { total_count: 0, check_runs: [] };
+      });
+      expect(
+        (yield* Reviewer.use((reviewer) => reviewer.start(7, sha, O.some(baseSha))).pipe(
+          usingHttp(changedSinceClassification),
+          Effect.result
+        ))._tag
+      ).toBe("Failure");
     })
   );
   it.effect("edits the same owned summary twice and ignores copied markers", () =>
@@ -273,7 +326,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
     Effect.gen(function* () {
       const bodies: Array<unknown> = [];
       const http = client((method, url, body) => {
-        if (url.pathname.endsWith("/pulls/7")) return { head: { sha } };
+        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
         if (method === "GET") return check(2);
         bodies.push(body);
         return { id: 2 };
@@ -294,15 +347,14 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       expect(last.conclusion).toBe("success");
     })
   );
-  it.effect("rejects completed, unassociated, and stale check runs without writes", () =>
+  it.effect("rejects completed, unassociated, and stale head/base check runs without writes", () =>
     Effect.gen(function* () {
-      for (const state of ["cancelled", "success", "stale", "unassociated"]) {
+      for (const state of ["cancelled", "success", "stale", "base-moved", "unassociated"]) {
         let writes = 0;
+        const { pull, run } = completionFixture(state);
         const http = client((method, url) => {
           if (method !== "GET") writes += 1;
-          if (url.pathname.endsWith("/pulls/7")) return { head: { sha: "b".repeat(40) } };
-          if (state === "unassociated") return { ...check(2), external_id: "invalid-association" };
-          return state === "stale" ? check(2) : check(2, 42, "completed", state);
+          return url.pathname.endsWith("/pulls/7") ? pull : run;
         });
         const outcome = yield* Reviewer.use((reviewer) => reviewer.complete(2, result())).pipe(
           usingHttp(http),
@@ -318,7 +370,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       let cancelled = false;
       let completions = 0;
       const http = client((method, url) => {
-        if (url.pathname.endsWith("/pulls/7")) return { head: { sha } };
+        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
         if (method === "GET")
           return check(2, 42, cancelled ? "completed" : "in_progress", cancelled ? "cancelled" : null);
         if (cancelled) completions += 1;
@@ -361,11 +413,11 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
     Effect.gen(function* () {
       const bodies: Array<unknown> = [];
       const http = client((method) => {
-        if (method === "GET") return { head: { sha } };
+        if (method === "GET") return { head: { sha }, base: { sha: baseSha } };
         return (body: unknown) => body;
       });
       const posting = client((method, _url, body) => {
-        if (method === "GET") return { head: { sha } };
+        if (method === "GET") return { head: { sha }, base: { sha: baseSha } };
         bodies.push(body);
         return { id: 55 };
       });
