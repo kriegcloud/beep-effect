@@ -138,9 +138,27 @@ const collectArgumentSamples = (node: ts.Node, names: HashSet.HashSet<string>): 
   return ts.isCallExpression(node) ? A.reduce(node.arguments, scope, collectParameters) : scope;
 };
 
-const sampleScope = (node: ts.Node, names: HashSet.HashSet<string>): HashSet.HashSet<string> => {
-  if (!ts.isCallExpression(node)) return names;
-  if (!A.some(node.arguments, (argument) => /\bArbitrary\.\w+\(/.test(argument.getText()))) return names;
+// A call is a property run when an argument's type is an Arbitrary (effect/Arbitrary and fast-check
+// both name it so), directly or as an array/tuple element. Resolving the type rather than matching
+// the argument text also catches a hoisted `const arb = Arbitrary.schema(X)` passed by name.
+const isArbitraryType = (type: ts.Type): boolean => (type.aliasSymbol ?? type.getSymbol())?.getName() === "Arbitrary";
+
+const elementTypes = (checker: ts.TypeChecker, type: ts.Type): ReadonlyArray<ts.Type> =>
+  (checker.isArrayType(type) || checker.isTupleType(type)) && isReference(type) ? checker.getTypeArguments(type) : [];
+
+const holdsArbitrary =
+  (checker: ts.TypeChecker) =>
+  (argument: ts.Expression): boolean => {
+    const type = checker.getTypeAtLocation(argument);
+    return isArbitraryType(type) || A.some(elementTypes(checker, type), isArbitraryType);
+  };
+
+const sampleScope = (
+  checker: ts.TypeChecker,
+  node: ts.Node,
+  names: HashSet.HashSet<string>
+): HashSet.HashSet<string> => {
+  if (!ts.isCallExpression(node) || !A.some(node.arguments, holdsArbitrary(checker))) return names;
   return A.reduce(node.arguments, names, (scope, argument) => collectArgumentSamples(argument, scope));
 };
 
@@ -201,7 +219,7 @@ export const detectOpaqueRoundtrips =
     const checker = program.getTypeChecker();
     const findings = A.empty<OpaqueRoundtripFinding>();
     const visit = (node: ts.Node, samples: HashSet.HashSet<string>): void => {
-      const scope = sampleScope(node, samples);
+      const scope = sampleScope(checker, node, samples);
       O.map(assertionFinding(checker, scope, node), (finding) => findings.push(finding));
       ts.forEachChild(node, (child) => visit(child, scope));
     };

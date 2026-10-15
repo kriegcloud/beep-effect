@@ -44,6 +44,39 @@ describe("opaque-roundtrips", () => {
   );
 
   it.effect(
+    "reports a hoisted Arbitrary passed by name",
+    Effect.fnUntraced(function* () {
+      const findings = yield* Effect.sync(() =>
+        detect(`
+      const arb = Arbitrary.schema(Value);
+      FastCheck.assert(FastCheck.property(arb, (sample) => {
+        const decoded = Result.getOrThrow(S.decodeUnknownResult(Value)(sample));
+        expect(decoded).toStrictEqual(sample);
+      }));
+    `)
+      );
+      expect(A.map(findings, (finding) => finding.opaque)).toEqual([["Value"]]);
+    })
+  );
+
+  it.effect(
+    "reports samples from a hoisted array of arbitraries",
+    Effect.fnUntraced(function* () {
+      const findings = yield* Effect.sync(() =>
+        detect(`
+      const arbitraries = [Arbitrary.schema(Value)] as const;
+      const prop = (arbs: typeof arbitraries, run: (values: readonly [Value]) => void) => run;
+      prop(arbitraries, ([sample]) => {
+        const decoded = Result.getOrThrow(S.decodeUnknownResult(Value)(sample));
+        expect(decoded).toStrictEqual(sample);
+      });
+    `)
+      );
+      expect(findings).toHaveLength(1);
+    })
+  );
+
+  it.effect(
     "accepts samples normalised with make",
     Effect.fnUntraced(function* () {
       const findings = yield* Effect.sync(() =>

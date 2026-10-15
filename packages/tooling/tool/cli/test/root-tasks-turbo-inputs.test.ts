@@ -462,6 +462,8 @@ describe("Stage C root task inputs", { concurrent: false }, () => {
           Tuple.make("//#lint:opaque-roundtrips", "apps/fixture/tsconfig.test.json"),
           Tuple.make("//#lint:opaque-roundtrips", "infra/fixture/test/opaque.test.tsx"),
           Tuple.make("//#lint:opaque-roundtrips", "tsconfig.base.json"),
+          Tuple.make("//#lint:opaque-roundtrips", "scratchpad/fixture/opaque.test.ts"),
+          Tuple.make("//#lint:opaque-roundtrips", "goals/fixture/ops/opaque.test.ts"),
         ];
         for (const [taskId, input] of probes) {
           const baseline = yield* dryRun(root, binary, [taskId], false);
