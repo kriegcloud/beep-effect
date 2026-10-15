@@ -567,7 +567,7 @@ export const harnessLedgerPruneProposalsCommand = Command.make(
           stateDir,
           windowSessions: input.window,
           agentKind: yield* S.decodeUnknownEffect(HookPulseAgentKind)(input.agentKind).pipe(
-            Effect.mapError(HarnessLedgerIoError.wrap("Unknown --agent-kind."))
+            Effect.mapError(() => HarnessLedgerInputError.new(`Unknown --agent-kind "${input.agentKind}".`))
           ),
           write: input.write,
           modelId: optionalNonEmpty(input.model),
@@ -623,15 +623,24 @@ export const harnessLedgerReconcileCommand = Command.make(
     ),
   },
   Effect.fn("HarnessLedger.reconcileCommand")(function* (input) {
-    const kind = yield* S.decodeUnknownEffect(HookPulseAgentKind)(input.agentKind).pipe(
-      Effect.mapError(HarnessLedgerIoError.wrap("Unknown --agent-kind."))
+    return yield* Effect.gen(function* () {
+      const kind = yield* S.decodeUnknownEffect(HookPulseAgentKind)(input.agentKind).pipe(
+        Effect.mapError(() => HarnessLedgerInputError.new(`Unknown --agent-kind "${input.agentKind}".`))
+      );
+      const ledger = yield* HarnessLedgerService;
+      const report = yield* ledger.reconcile(input.stateDir, input.transcriptDir, kind);
+      const encoded = yield* S.encodeUnknownEffect(S.fromJsonString(HarnessTelemetryReconciliation))(report).pipe(
+        Effect.mapError(HarnessLedgerIoError.wrap("Cannot encode reconciliation."))
+      );
+      yield* printCommandJson(encoded);
+    }).pipe(
+      Effect.catchTags({
+        HarnessLedgerBusyError: reportFailure("reconcile"),
+        HarnessLedgerInputError: reportFailure("reconcile"),
+        HarnessLedgerChainError: reportFailure("reconcile"),
+        HarnessLedgerIoError: reportFailure("reconcile"),
+      })
     );
-    const ledger = yield* HarnessLedgerService;
-    const report = yield* ledger.reconcile(input.stateDir, input.transcriptDir, kind);
-    const encoded = yield* S.encodeUnknownEffect(S.fromJsonString(HarnessTelemetryReconciliation))(report).pipe(
-      Effect.mapError(HarnessLedgerIoError.wrap("Cannot encode reconciliation."))
-    );
-    yield* printCommandJson(encoded);
   })
 ).pipe(
   Command.withDescription("Read-only transcript versus hook counts, including all nested children"),
@@ -658,10 +667,13 @@ export const harnessLedgerCommand = Command.make("harness-ledger", {}, () =>
     "- bun run beep harness-ledger propose --mechanism <class> --edit <commit:<sha>|diff:<sha256>|pending> [--hypothesis <claim> --expected-surface <kind> --expected-metric <name>] [--model <id>] [--reasoning-effort <level>] [--repo-revision <sha>] [--json]",
     '- bun run beep harness-ledger disposition --row <rowId> --to <accepted|rejected|deferred|waived|tombstoned> --evidence "<text>" [--score <n> --cost <n>] [--resurrect-when "<text>"] [--touched <kind>:<name> ...] [--json]',
     "- bun run beep harness-ledger list [--stale] [--disposition <d>] [--month YYYY-MM] [--model <id>] [--reasoning-effort <level>] [--json]",
-    "- bun run beep harness-ledger prune-proposals [--window <sessions>] [--state-dir <dir>] [--write] [--json]",
+    "- bun run beep harness-ledger prune-proposals [--window <sessions>] [--state-dir <dir>] [--agent-kind <kind>] [--write] [--json]",
+    "- bun run beep harness-ledger reconcile --state-dir <dir> --transcript-dir <dir> [--agent-kind <kind>]",
   ])
 ).pipe(
-  Command.withDescription("Append-only harness evidence ledger (propose, disposition, list, prune-proposals)"),
+  Command.withDescription(
+    "Append-only harness evidence ledger (propose, disposition, list, prune-proposals, reconcile)"
+  ),
   Command.withSubcommands([
     harnessLedgerProposeCommand,
     harnessLedgerDispositionCommand,

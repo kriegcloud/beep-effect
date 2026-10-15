@@ -264,6 +264,16 @@ const createTableStatements = [
 
 const migrationColumns = [
   {
+    columnDefinition: "session_stamp_collection_complete BOOLEAN DEFAULT FALSE",
+    columnName: "session_stamp_collection_complete",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "session_stamp_collection_complete BOOLEAN DEFAULT FALSE",
+    columnName: "session_stamp_collection_complete",
+    tableName: "ai_metrics_source_files",
+  },
+  {
     columnDefinition: "session_harness_hash VARCHAR",
     columnName: "session_harness_hash",
     tableName: "ai_metrics_sessions",
@@ -800,10 +810,15 @@ export class AiMetricsDerivedTranscriptRecord extends S.Opaque<
   S.Struct({
     archiveObject: AiMetricsRawArchiveObject,
     sessionHarnessHash: S.OptionFromOptionalKey(HarnessHash).pipe(S.withConstructorDefault(Effect.succeedNone)),
+    sessionStampCollectionComplete: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
     privacy: AiMetricsPrivacyCheckResult,
   }).pipe(
     $I.annoteSchema("AiMetricsDerivedTranscriptRecord", {
-      description: "Sanitized transcript projection plus encrypted raw archive metadata.",
+      description:
+        "Sanitized transcript projection, encrypted raw archive metadata and explicit session-stamp collection completeness. Historical records remain unverified.",
     })
   )
 ) {}
@@ -1247,7 +1262,8 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
       event_names_json,
       redaction_safe_for_derived_ui,
       config_snapshot_id,
-      session_harness_hash
+      session_harness_hash,
+      session_stamp_collection_complete
     ) VALUES (
       $sourceFileId,
       $ingestRunId,
@@ -1269,7 +1285,8 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
       $eventNamesJson,
       $redactionSafeForDerivedUi,
       $configSnapshotId,
-      $sessionHarnessHash
+      $sessionHarnessHash,
+      $sessionStampCollectionComplete
     )`,
     {
       acceptedEvents: sanitized.acceptedEvents,
@@ -1277,6 +1294,7 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
       agentRoleHash: O.getOrNull(sanitized.agentRoleHash),
       configSnapshotId: input.configSnapshot.snapshotId,
       sessionHarnessHash: O.getOrNull(record.sessionHarnessHash),
+      sessionStampCollectionComplete: record.sessionStampCollectionComplete,
       eventNamesJson,
       firstTimestamp: O.getOrNull(sanitized.firstTimestamp),
       forkedFromIdHash: O.getOrNull(sanitized.forkedFromIdHash),
@@ -1369,7 +1387,8 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       agent_nickname_hash,
       started_at,
       config_snapshot_id,
-      session_harness_hash
+      session_harness_hash,
+      session_stamp_collection_complete
     ) VALUES (
       $agentSessionId,
       $agentTaskId,
@@ -1386,7 +1405,8 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       $agentNicknameHash,
       $startedAt,
       $configSnapshotId,
-      $sessionHarnessHash
+      $sessionHarnessHash,
+      $sessionStampCollectionComplete
     )`,
     {
       agentSessionId,
@@ -1395,6 +1415,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       agentRoleHash: O.getOrNull(sanitized.agentRoleHash),
       configSnapshotId: input.configSnapshot.snapshotId,
       sessionHarnessHash: O.getOrNull(record.sessionHarnessHash),
+      sessionStampCollectionComplete: record.sessionStampCollectionComplete,
       forkedFromIdHash: O.getOrNull(sanitized.forkedFromIdHash),
       ingestRunId: input.ingestRunId,
       parentSessionIdHash: O.getOrNull(sanitized.parentSessionIdHash),

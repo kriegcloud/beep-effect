@@ -59,6 +59,7 @@ export const AiMetricsOtlpAttributeKey = LiteralKit([
   "ai_metrics.agent_role_hash",
   "ai_metrics.config_snapshot_id",
   "ai_metrics.session_harness_hash",
+  "ai_metrics.session_stamp_collection_complete",
   "ai_metrics.event_name",
   "ai_metrics.forked_from_id_hash",
   "ai_metrics.ingest_run_id",
@@ -385,6 +386,7 @@ class AiMetricsOtlpTurnExportRow extends S.Opaque<AiMetricsOtlpTurnExportRow, { 
     agentSessionId: S.String,
     configSnapshotId: S.String,
     sessionHarnessHash: S.OptionFromNullOr(HarnessHash),
+    sessionStampCollectionComplete: S.Boolean,
     eventName: S.String,
     forkedFromIdHash: S.OptionFromNullOr(S.String),
     ingestRunId: S.String,
@@ -489,7 +491,8 @@ const readTurnRows = Effect.fn("AiMetrics.otlp.readTurnRows")(function* () {
          s.agent_role_hash AS "agentRoleHash",
          s.agent_nickname_hash AS "agentNicknameHash",
          s.config_snapshot_id AS "configSnapshotId",
-         s.session_harness_hash AS "sessionHarnessHash"
+         s.session_harness_hash AS "sessionHarnessHash",
+         COALESCE(s.session_stamp_collection_complete, FALSE) AS "sessionStampCollectionComplete"
        FROM ai_metrics_turns t
        JOIN ai_metrics_sessions s ON s.agent_session_id = t.agent_session_id
        WHERE t.otlp_exported_at_epoch_ms IS NULL
@@ -565,6 +568,7 @@ const sessionProjection = (
       }),
       "ai_metrics.config_snapshot_id": row.configSnapshotId,
       ...O.getSomesStruct({ "ai_metrics.session_harness_hash": row.sessionHarnessHash }),
+      "ai_metrics.session_stamp_collection_complete": row.sessionStampCollectionComplete,
       "ai_metrics.ingest_run_id": row.ingestRunId,
       "ai_metrics.source_kind": row.sourceKind,
       "ai_metrics.source_path_hash": row.sourcePathHash,
@@ -594,6 +598,7 @@ const turnProjection = Effect.fnUntraced(function* (
       }),
       "ai_metrics.config_snapshot_id": row.configSnapshotId,
       ...O.getSomesStruct({ "ai_metrics.session_harness_hash": row.sessionHarnessHash }),
+      "ai_metrics.session_stamp_collection_complete": row.sessionStampCollectionComplete,
       "ai_metrics.event_name": row.eventName,
       "ai_metrics.ingest_run_id": row.ingestRunId,
       "ai_metrics.line_number": row.lineNumber,

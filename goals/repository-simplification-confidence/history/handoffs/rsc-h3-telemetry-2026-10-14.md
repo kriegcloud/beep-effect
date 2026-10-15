@@ -1,22 +1,31 @@
 lane: rsc-h3-telemetry
-head: fc8b8289db009320b3d11d05ad9a357fa9935c6d (frozen validation source; exact publication dispatch follows)
-pr: #1590 (OPEN, ready for review; review round 1 fixes complete; one push pending final gates)
-package-verify: @beep/repo-ai-metrics pass (fresh full audit 23.3s / docgen 5.4s); @beep/repo-cli pending frozen full retry
-hosted-parity: test-tsgo inherited fail (AgentMessage.runtime.test.ts:322 TS377032); docgen local retry after exit 137; jsdoc-ratchet pass; knowledge refs pass; fallow audit/health pass; coverage read pass (four matching baseline rows, 67 metrics + 76 CLI scoped tests; no full coverage-ratchet pass claimed)
+head: c2dd59aaede3bbca6867c2be0dd40859dc7add7a
+pr: #1590 (OPEN, ready for review; one review-wave push; all three assigned threads resolved)
+package-verify: @beep/repo-ai-metrics pass (fresh full audit 46.0s / docgen 6.5s); @beep/repo-cli fail (full invocation: environment-only shared-temp Git metadata; 6,494 tests passed, 28 fixtures failed). Composed CLI verification passes: independent-temp affected suite 76/76, fresh compile/lint, dependency build and full package docgen through docgen:local. The original nonzero full command is retained; no full-command pass is claimed.
+hosted-parity: test-tsgo pass; docgen local pass; jsdoc-ratchet pass; knowledge refs pass; fallow audit/health pass; coverage read pass (four matching baseline rows, 67 metrics + 76 CLI scoped tests; no full coverage-ratchet pass claimed); retired Effect paths pass
 receipt: goals/repository-simplification-confidence/history/receipts/stage-4-h3-telemetry.md
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h3-telemetry-2026-10-14.md
-per-client buckets: claude stamped direct adapter and earlier native workflows, current live 0/30; codex stamped direct adapter, ordinary native hooks/ancestry unknown, native metrics unstamped-by-design; cursor stamped direct adapter and earlier native start, native tools unqualified, native OTel/reconciliation unsupported; junie unsupported; grok unsupported
-requests to rsc-f-agents / rsc-shared: F owns native Codex trust/root-child attribution, dated namespace cutover/global projection, desktop/Codex OTel fields and the current archive-key reference; orchestrator/shared owns inherited AgentMessage repair, S11 merge and retirement
-open items: frozen CLI package gate and serialized docgen retry; one publication and three REST replies/resolutions; latest-push review window and hosted exact-head checks; all 30-session windows remain incomplete; no capability is classified genuinely unused
+per-client buckets: claude stamped in recorded adapter/native workflows, last recorded live window 0/30; codex stamped direct adapter, native trust/ancestry unknown, native metrics unstamped-by-design; cursor stamped direct adapter/native start, native tools unqualified, native OTel/reconciliation unsupported; junie unsupported; grok unsupported
+requests to rsc-f-agents / rsc-shared: F retains native Codex trust/root-child attribution, namespace cutover/global projection, desktop/Codex OTel fields and archive-key reference ownership; shared/orchestrator owns serialization of regenerated instrumentation catalog/architecture section, exact-head hosted gate, merge and retirement
+open items: hosted checks and latest-push review window; full CLI invocation retains the diagnosed environmental exit; existing native/home/remote qualification limits and incomplete 30-session windows. No capability is classified genuinely unused. No home configuration, installed timer or remote deployment was changed.
 
-Review round 1 addresses all three comments read in full: 4276613162 / PRRT_kwDOPbO_N86siFMt, 4276613174 / PRRT_kwDOPbO_N86siFM1, and 4276613187 / PRRT_kwDOPbO_N86siFM_. Hook ingestion degrades per shard/record while keeping valid stamps and reporting failed shard names, rejected-record counts and collection completeness. Refusal decoding keeps valid records and reports rejects; unreadable gap evidence remains fail-closed. Run/status JSON and the OTLP wrapper preserve the diagnostics. Prune coverage emits stamped from qualifying observations and unsupported for Junie/Grok. Supported-client absence stays unknown; non-use qualification is unchanged.
+Review wave: all three findings fixed in one successful push. Hook collection keeps decodable stamps per shard and reports failed shards/rejected records/completeness in run and status JSON. Refusal decoding keeps valid records and reports rejects; valid intersecting gaps still suppress stamps and unreadable gap evidence stays fail-closed. Prune coverage now emits stamped from qualifying evidence and unsupported for Junie/Grok. Supported-client absence stays unknown.
 
-The end-to-end stamp fixture verifies corrupt/unreadable shards beside good evidence, mixed invalid/valid refusals, valid gap suppression, surviving unrelated stamps, DuckDB/OTLP projection and status JSON. Focused runtime suites pass 67 metrics tests and 76 CLI tests. The initial introduced Result/Option compile mismatch and three introduced Fallow complexity findings are fixed; fresh metrics package verification, all 47 compile tasks, Fallow audit/health and schema-first pass. The codemod/fixup reports no new schema sites or manual errors.
+REST replies and resolved threads:
+- comment 4276613162 -> reply 4277634220; PRRT_kwDOPbO_N86siFMt
+- comment 4276613174 -> reply 4277634390; PRRT_kwDOPbO_N86siFM1
+- comment 4276613187 -> reply 4277634543; PRRT_kwDOPbO_N86siFM_
 
-The first long CLI audit passed 6,444 tests but straddled a main merge. Newly landed governance/retirement tests saw old cached exports and ledger behavior. All three affected files match main, and a fresh same-runtime process passes all 70 tests. The failed full command remains recorded; a full retry runs on frozen source. Local docgen first passed, then a parallel retry was SIGKILLed with exit 137; the retry serializes package concurrency. Test-tsgo reports only the known main AgentMessage diagnostic. JSDoc's former inherited root-import red is now clear, with zero increases and zero legacy findings; Security ruleset repair #1775 is integrated.
+Complete post-resolution thread reads succeeded: exactly three threads, all resolved, no thread/comment pagination. GitHub confirms the exact published SHA and ready state. Structural mergeability is MERGEABLE; complete merge readiness is not claimed. Hosted checks remain pending; the only observed failures are Vercel build-rate-limit deployments, acknowledged as environment-only.
 
-Main merges preserve H3 decisions and H4's landed census/runbook packet evidence. No home configuration, installed timer, remote deployment or live telemetry evidence is changed. F retains affected capabilities on demand. Recovery is revert of the H3 review commits/PR; additive logs and versioned history remain readable. The orchestrator owns merge and lane retirement.
+All final parity commands ran on the publication head. Main's test typecheck repair cleared the former AgentMessage diagnostic; JSDoc is also green. The newly introduced instrumentation catalog gate was repaired through its owner command, with generated artifacts committed. Earlier publication attempts refused before push; no second push occurred. Yeet's successful publication passed cheap gates and the clean-head install preflight.
 
-REST reply ids are filled in the exact-head delivery dispatch after the single push. All gate logs and intermediate failures are retained privately under .beep/h3-resume/. Committed receipts bind validation source; the final local dispatch records the self-referential published SHA and post-push thread state.
+The local readiness monitor cfa0f042-7fff-49f7-843f-d446b2c34e9c was stopped for orchestrator handoff; job wait returned terminal exit 3 and its service is inactive. No owned local gate remains running. External hosted runs were left intact. The committed handoff binds validation source; this exact-SHA, post-push delivery update is the sole uncommitted metadata file.
 
-graft: approximately 95,961 tokens saved by one query in this review wave.
+Recovery: revert the H3 review commits/PR; additive evidence remains readable. The orchestrator re-reads threads and enforces the latest-push review window before merging, then tells this lane to retire.
+
+graft: approximately 106,592 tokens saved (two queries) in this review wave.
+
+final c2dd59aaede3bbca6867c2be0dd40859dc7add7a #1590
+
+Round-2 work opened after final re-read: six total threads; the original three are resolved, new threads PRRT_kwDOPbO_N86skjHQ / PRRT_kwDOPbO_N86skk4_ / PRRT_kwDOPbO_N86skk5F are being addressed. The prior final dispatch certifies round 1 only.

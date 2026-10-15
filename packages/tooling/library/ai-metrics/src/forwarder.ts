@@ -1506,6 +1506,10 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       return AiMetricsDerivedTranscriptRecord.make({
         ...record,
         sessionHarnessHash: O.map(sessionHarnessHash, HarnessHash.make),
+        sessionStampCollectionComplete:
+          O.isSome(sessionHarnessHash) &&
+          hookCollectionComplete &&
+          O.exists(stampGaps, (loaded) => loaded.rejectedRecords === 0),
       });
     });
     const ingestRunId = `forwarder-${startedAtEpochMillis}`;

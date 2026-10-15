@@ -888,6 +888,11 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
             ? stamp
             : null;
           const db = yield* DuckDb;
+          const complete = expected !== null && result.hookCollectionComplete && result.stampGapCollectionComplete;
+          for (const table of ["ai_metrics_sessions", "ai_metrics_source_files"])
+            expect(yield* db.query(`SELECT session_stamp_collection_complete AS complete FROM ${table}`)).toEqual([
+              { complete },
+            ]);
           expect(yield* db.query("SELECT session_harness_hash AS stamp FROM ai_metrics_sessions")).toEqual([
             { stamp: expected },
           ]);
@@ -896,8 +901,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
           ]);
           const projection = yield* readAiMetricsOtlpSpanProjections;
           expect(projection.projections.length).toBeGreaterThan(0);
-          for (const span of projection.projections)
+          for (const span of projection.projections) {
             expect(span.attributes["ai_metrics.session_harness_hash"]).toBe(expected ?? undefined);
+            expect(span.attributes["ai_metrics.session_stamp_collection_complete"]).toBe(complete);
+          }
         }).pipe(
           Effect.provideService(ConfigProvider.ConfigProvider, provider),
           provideScopedLayer(
