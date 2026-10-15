@@ -38,6 +38,7 @@ import {
   labelTextFindings,
   marginFindings,
   purityFindings,
+  shadingBandLadderFindings,
   shadingCoverageFindings,
   shadingLoneLineFindings,
   shadingOutlineClearanceFindings,
@@ -148,9 +149,12 @@ export interface FigureSetShape {
 // Shading pitch and sliver width are paper quantities: convert the sheet's mm
 // to model units at the common scale (points per model unit), then project
 // once more.
-// The validator's default spacing floor (`ValidationOptions.minShadingSpacingMm`),
-// read from the schema so the kernel's clearance and the check cannot drift apart.
-const shadingClearanceFloorMm = ValidationOptions.make({ expectedPages: O.none() }).minShadingSpacingMm;
+// The validator's default spacing floor (`ValidationOptions.minShadingSpacingMm`) and
+// ladder reach (`ladderReachMm`), read from the schema so the kernel's clearance and
+// gutter and the checks cannot drift apart.
+const validationDefaults = ValidationOptions.make({ expectedPages: O.none() });
+const shadingClearanceFloorMm = validationDefaults.minShadingSpacingMm;
+const shadingLadderReachMm = validationDefaults.ladderReachMm;
 
 const shadingFor = (input: {
   readonly shade: boolean;
@@ -175,6 +179,9 @@ const shadingFor = (input: {
       // graded stroke ends stand half a pitch clear of the outlines, and never
       // less than the validator's spacing floor, so the render passes its own check
       clearance: O.some(toModel(Math.max(sheet.shadingMinPitchMm / 2, shadingClearanceFloorMm))),
+      // a band whose edge has drawn lines this close beyond it starts behind a gutter, the
+      // same reach the ladder check reads
+      ladderReach: O.some(toModel(shadingLadderReachMm)),
     })
   );
 };
@@ -431,6 +438,8 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
         box: model.boundingBox,
         projection,
         azimuthDeg: spec.pictorialAzimuthDeg,
+        elevationDeg: spec.pictorialElevationDeg,
+        focusDiagonals: spec.pictorialFocusDiagonals,
         planFacing: spec.planFacing,
       })
     );
@@ -548,7 +557,8 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     });
     // Shading is checked on the render's own vectors, in mm on the sheet: line
     // spacing, stroke ends clear of outlines, no stroke alone beside an outline,
-    // and no face that planned lines and drew none.
+    // no band reading as one ladder with the lines beyond its edge, and no face
+    // that planned lines and drew none.
     const mm = scale / PT_PER_MM;
     const inMm = (segments: ReadonlyArray<Segment2>) =>
       A.map(segments, ([x1, y1, x2, y2]) => Segment2.make([x1 * mm, y1 * mm, x2 * mm, y2 * mm]));
@@ -564,6 +574,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
         ? [
             ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),
             ...shadingLoneLineFindings({ page, shadingMm, outlineMm, options: validationOptions }),
+            ...shadingBandLadderFindings({ page, shadingMm, outlineMm, options: validationOptions }),
             ...O.match(view.shadingCoverage, {
               onNone: A.empty<SheetFinding>,
               onSome: (coverage) => shadingCoverageFindings({ page, coverage }),

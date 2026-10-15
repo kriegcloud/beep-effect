@@ -1,4 +1,5 @@
 import {
+  BoundingBox,
   Box,
   Camera,
   Cylinder,
@@ -13,11 +14,12 @@ import {
   Segment2,
   ShadingPlan,
 } from "@beep/occt";
+import { cameraForView } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
-import { assertInstanceOf, assertNone } from "@effect/vitest/utils";
+import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
@@ -56,6 +58,46 @@ const persp = (focus: number) =>
 const TestLayer = Occt.layer.pipe(Layer.provide(NodeServices.layer));
 
 type Seg = readonly [number, number, number, number];
+type Point3 = readonly [number, number, number];
+
+// Where a camera draws a model point: the projector's own frame (right = up × eye, sheet up = eye × right, both about
+// the target) under its own projection, as the kernel's view mapping reads it.
+const drawnAt = (camera: Camera, p: Point3): readonly [number, number] => {
+  const unit = (v: Point3): Point3 => [v[0] / Math.hypot(...v), v[1] / Math.hypot(...v), v[2] / Math.hypot(...v)];
+  const cross = (a: Point3, b: Point3): Point3 => [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
+  const dot = (a: Point3, b: Point3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const direction = unit(camera.eye);
+  const right = unit(cross(unit(camera.up), direction));
+  const up = cross(direction, right);
+  const d: Point3 = [p[0] - camera.target[0], p[1] - camera.target[1], p[2] - camera.target[2]];
+  const [u, v, w] = [dot(d, right), dot(d, up), dot(d, direction)];
+  return O.match(camera.focus, {
+    onNone: () => [u, v] as const,
+    onSome: (focus) => [(u * focus) / (focus - w), (v * focus) / (focus - w)] as const,
+  });
+};
+
+// The drawn segment that joins two model points (the kernel rounds to 0.001), if any.
+const joining =
+  (camera: Camera, segments: ReadonlyArray<Seg>) =>
+  (a: Point3, b: Point3): O.Option<Seg> => {
+    const [p, q] = [drawnAt(camera, a), drawnAt(camera, b)];
+    const near = (x: number, y: number, at: readonly [number, number]) =>
+      Math.abs(x - at[0]) < 2e-3 && Math.abs(y - at[1]) < 2e-3;
+    return A.findFirst(
+      segments,
+      ([x1, y1, x2, y2]) => (near(x1, y1, p) && near(x2, y2, q)) || (near(x1, y1, q) && near(x2, y2, p))
+    );
+  };
+
+// Sine of the angle between two drawn segments: 0 when parallel.
+const turnBetween = ([ax1, ay1, ax2, ay2]: Seg, [bx1, by1, bx2, by2]: Seg): number =>
+  Math.abs((ax2 - ax1) * (by2 - by1) - (ay2 - ay1) * (bx2 - bx1)) /
+  (Math.hypot(ax2 - ax1, ay2 - ay1) * Math.hypot(bx2 - bx1, by2 - by1));
 const totalLength = (segments: ReadonlyArray<Seg>): number =>
   A.reduce(segments, 0, (sum, [x1, y1, x2, y2]) => sum + Math.hypot(x2 - x1, y2 - y1));
 
@@ -214,6 +256,220 @@ describe("@beep/occt service", () => {
           );
         expect(directionSpread(axo?.visible ?? [])).toBeLessThan(1e-6);
         expect(directionSpread(near?.visible ?? [])).toBeGreaterThan(1e-3);
+      })
+    );
+
+    it.effect(
+      "keeps every vertical edge vertical in a two-point pictorial, converges level edges, and shows the top or bottom",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const block = ModelSpec.make({ parts: [Part.make({ name: "block", add: [box([0, 0, 0], [40, 30, 20])] })] });
+        const bounds = BoundingBox.make({ min: [0, 0, 0], max: [40, 30, 20] });
+        const pictorial = (view: "top-perspective" | "bottom-perspective", projection: "two-point" | "isometric") =>
+          cameraForView({ view, box: bounds, projection, azimuthDeg: O.some(30), elevationDeg: O.some(20) });
+        const cameras = [
+          pictorial("top-perspective", "two-point"),
+          pictorial("bottom-perspective", "two-point"),
+          pictorial("top-perspective", "isometric"),
+        ] as const;
+        const views = yield* occt.project(
+          ProjectionRequest.make({ solid: block, cameras: [...cameras], withHidden: true })
+        );
+        expect(views).toHaveLength(3);
+        const drawn = A.map(views, (view) => [...view.visible, ...view.hidden]);
+        const corners = [
+          [0, 0],
+          [40, 0],
+          [0, 30],
+          [40, 30],
+        ] as const;
+        const isVertical = ([x1, , x2]: Seg) => Math.abs(x2 - x1) < 1e-6;
+        A.forEach([0, 1], (index) => {
+          const camera = cameras[index]!;
+          const segments = drawn[index]!;
+          // every vertical model edge is drawn as a vertical segment, and no other edge is
+          A.forEach(corners, ([x, y]) => {
+            const edge = joining(camera, segments)([x, y, 0], [x, y, 20]);
+            expect(O.exists(edge, isVertical)).toBe(true);
+          });
+          expect(A.length(A.filter(segments, isVertical))).toBe(4);
+          // level edges that are parallel on the model run toward a vanishing point on the sheet
+          const pairs = [
+            [
+              [0, 0, 0],
+              [40, 0, 0],
+              [0, 0, 20],
+              [40, 0, 20],
+            ],
+            [
+              [0, 0, 0],
+              [0, 30, 0],
+              [0, 0, 20],
+              [0, 30, 20],
+            ],
+          ] as const;
+          A.forEach(pairs, ([a, b, c, d]) => {
+            const lower = O.getOrThrow(joining(camera, segments)(a, b));
+            const upper = O.getOrThrow(joining(camera, segments)(c, d));
+            expect(turnBetween(lower, upper)).toBeGreaterThan(0.02);
+          });
+        });
+        // the isometric keeps them parallel
+        const iso = cameras[2];
+        const isoFront = O.getOrThrow(joining(iso, drawn[2]!)([0, 0, 0], [40, 0, 0]));
+        const isoFrontTop = O.getOrThrow(joining(iso, drawn[2]!)([0, 0, 20], [40, 0, 20]));
+        expect(turnBetween(isoFront, isoFrontTop)).toBeLessThan(1e-4);
+        // the eye stands at the front-left, so the far corner is (40, 30): its top end closes the visible top face in
+        // the top view and is hidden in the bottom view, and the other way round for its bottom end
+        const touching = (camera: Camera, segments: ReadonlyArray<Seg>, p: Point3) => {
+          const [x, y] = drawnAt(camera, p);
+          return A.length(
+            A.filter(
+              segments,
+              ([x1, y1, x2, y2]) =>
+                (Math.abs(x1 - x) < 2e-3 && Math.abs(y1 - y) < 2e-3) ||
+                (Math.abs(x2 - x) < 2e-3 && Math.abs(y2 - y) < 2e-3)
+            )
+          );
+        };
+        const [upperView, lowerView] = views;
+        expect(touching(cameras[0], upperView?.visible ?? [], [40, 30, 20])).toBe(2);
+        expect(touching(cameras[0], upperView?.visible ?? [], [40, 30, 0])).toBe(0);
+        expect(touching(cameras[1], lowerView?.visible ?? [], [40, 30, 0])).toBe(2);
+        expect(touching(cameras[1], lowerView?.visible ?? [], [40, 30, 20])).toBe(0);
+        expect(A.map(views, (view) => A.length(view.visible))).toEqual([9, 9, 9]);
+      })
+    );
+
+    it.effect(
+      "lets shading and faced overlays see the top face a two-point camera looks level across",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const lid = OverlayLine.make({
+          name: "lid",
+          style: "emphasis",
+          points: [
+            [10, 15, 20],
+            [30, 15, 20],
+          ],
+          facing: O.some([0, 0, 1]),
+        });
+        const block = ModelSpec.make({
+          parts: [Part.make({ name: "block", add: [box([0, 0, 0], [40, 30, 20])] })],
+          overlays: [lid],
+        });
+        const level = cameraForView({
+          view: "top-perspective",
+          box: BoundingBox.make({ min: [0, 0, 0], max: [40, 30, 20] }),
+          projection: "two-point",
+          azimuthDeg: O.some(30),
+          elevationDeg: O.some(20),
+        });
+        // the same camera without its sight reads the top face edge-on; it keeps its hidden-line pass about the target,
+        // so only what it reads as facing changes
+        const blind = Camera.make({ ...level, sight: O.none() });
+        expect(blind.hiddenLinePassAbout).toBe("target");
+        const [seen, unseen] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: block,
+            cameras: [level, blind],
+            shading: O.some(ShadingPlan.make({ minPitch: 1, maxPitch: 3, litThreshold: 1 })),
+          })
+        );
+        const backFacing = (view: EdgeSet | undefined) =>
+          pipe(
+            O.fromNullishOr(view),
+            O.flatMap((v) => v.shadingCoverage),
+            O.flatMap((coverage) => A.findFirst(coverage.skippedFaces, (skip) => skip.reason === "back-facing")),
+            O.map((skip) => skip.faces)
+          );
+        // bottom, rear and right turn away; the level eye alone would add the top
+        assertSome(backFacing(seen), 3);
+        assertSome(backFacing(unseen), 4);
+        expect(totalLength(seen?.emphasis ?? [])).toBeGreaterThan(10);
+        expect(unseen?.emphasis).toEqual([]);
+        // with the pass origin held, the sight changes what is shaded, never the outline
+        expect(seen?.visible).toEqual(unseen?.visible);
+      })
+    );
+
+    it.effect(
+      "hides what a two-point pictorial's near slab covers wherever the model sits about the origin",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        type Corner = readonly [number, number, number];
+        // A block on a plate whose underside is the model's z = 0, seen from below, and a table whose top is z = 0,
+        // seen from above: OCCT's own perspective eye stands level with the slab's near face in both, so only a pass
+        // run about the camera's target hides the block's face against the slab.
+        const cases = [
+          { view: "bottom-perspective", slab: [0, 4], block: [4, 14], contact: 4 },
+          { view: "top-perspective", slab: [-4, 0], block: [-14, -4], contact: -4 },
+        ] as const;
+        yield* Effect.forEach(
+          cases,
+          Effect.fnUntraced(function* ({ view, slab, block, contact }) {
+            const at = ([tx, ty, tz]: Corner) =>
+              ModelSpec.make({
+                parts: [
+                  Part.make({ name: "slab", add: [box([tx, ty, slab[0] + tz], [40 + tx, 30 + ty, slab[1] + tz])] }),
+                  Part.make({
+                    name: "block",
+                    add: [box([10 + tx, 10 + ty, block[0] + tz], [20 + tx, 20 + ty, block[1] + tz])],
+                  }),
+                ],
+              });
+            const camera = cameraForView({
+              view,
+              box: BoundingBox.make({
+                min: [0, 0, Math.min(slab[0], block[0])],
+                max: [40, 30, Math.max(slab[1], block[1])],
+              }),
+              projection: "two-point",
+              azimuthDeg: O.some(30),
+              elevationDeg: O.some(20),
+            });
+            const [placed] = yield* occt.project(
+              ProjectionRequest.make({ solid: at([0, 0, 0]), cameras: [camera], withHidden: false })
+            );
+            // the same view of the model moved so the camera's target is the origin
+            const [centred] = yield* occt.project(
+              ProjectionRequest.make({
+                solid: at([-camera.target[0], -camera.target[1], -camera.target[2]]),
+                cameras: [Camera.make({ ...camera, target: [0, 0, 0] })],
+                withHidden: false,
+              })
+            );
+            const visible = placed?.visible ?? [];
+            const footprint = [
+              [10, 10],
+              [20, 10],
+              [20, 20],
+              [10, 20],
+            ] as const;
+            A.forEach(footprint, ([x, y], index) => {
+              const [nx, ny] = footprint[(index + 1) % 4]!;
+              assertNone(joining(camera, visible)([x, y, contact], [nx, ny, contact]));
+            });
+            expect(A.length(visible)).toBe(A.length(centred?.visible ?? []));
+            expect(totalLength(visible)).toBeCloseTo(totalLength(centred?.visible ?? []), 2);
+            // the pass origin, not the sight, decides it: the same camera run about the model's origin draws the
+            // block's face against the slab
+            const [aboutOrigin] = yield* occt.project(
+              ProjectionRequest.make({
+                solid: at([0, 0, 0]),
+                cameras: [Camera.make({ ...camera, hiddenLinePassAbout: "origin" })],
+                withHidden: false,
+              })
+            );
+            expect(
+              A.some(footprint, ([x, y], index) => {
+                const [nx, ny] = footprint[(index + 1) % 4]!;
+                return O.isSome(joining(camera, aboutOrigin?.visible ?? [])([x, y, contact], [nx, ny, contact]));
+              })
+            ).toBe(true);
+          }),
+          { discard: true }
+        );
       })
     );
 

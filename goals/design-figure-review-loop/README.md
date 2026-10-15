@@ -45,7 +45,10 @@ given the earlier reports) over the merged pipeline's render, judged by the sess
 pass yields no new accepted finding; the harness lands as `beep drawings critics`; the research digest
 on deterministic USPTO validation is in `research/uspto-validation-research.md`. Next: P11 verified
 sheet-level checks, P12 cited rules registry, P13 seeded-defect mutation suite, P14 stroke-intent
-sidecar (SPEC Decision Log rows of 2026-10-14). Open with the attorney: the bottom-edge question (Q7)
+sidecar (SPEC Decision Log rows of 2026-10-14). Loop 3 (#1816, 2026-10-15) adds the `two-point`
+pictorial for the 2026-10-15 revision of F1 (the matter set now uses it), one
+`rsvg-convert` run per sheet set with a strict-inflate stream check, measured critic packs, and a Grok
+seat fallback when its strict sandbox cannot start on the host. Open with the attorney: the bottom-edge question (Q7)
 and the overlay's edge extent; PR-K (embedded label text) and PR-L (edge emphasis, corrugation) pending.
 
 ## Latest Evidence
