@@ -84,9 +84,9 @@ Higher sources outrank lower sources when they conflict.
   - `AnswerRow` decodes all four states and enforces the state fields: `decided` requires an
     `optionId`, and `pending-on-client` requires `resurfaceOn`.
   - Round-trip tests pass.
-- [ ] **P1 contract.** `QuestionQueue` and the write-proposal batch are `Context.Service` contracts
+- [x] **P1 contract.** `QuestionQueue` and the write-proposal batch are `Context.Service` contracts
   with typed errors. The answer log is a port.
-- [ ] **P2 implementation.** The first vertical slice (exploration MAP, re-entry section) passes in
+- [x] **P2 implementation.** The first vertical slice (exploration MAP, re-entry section) passes in
   tests:
   - raise a question;
   - the digest selects it;
@@ -145,6 +145,15 @@ Seeded from [`explorations/attorney-review-workspace/DECISIONS.md`](../../explor
 | 2026-10-14 | P0 dates encode as ISO `YYYY-MM-DD` via `LocalDateFromString` plus a day-in-month check (`src/internal/CalendarDate.ts`). | The format docket-intake already uses; the bare `LocalDate` class encodes as an object and accepts February 31. | Use the bare `LocalDate` class. |
 | 2026-10-14 | P0 `OptionWrite` has one kind, `calendar-date` (`title`, `dueOn`, optional `eventId`), as a `LiteralKit` tagged union. | Calendar dates are the only writes answers drove on 2026-10-14; the union leaves room for docket writes. | Add kinds to `OptionWriteKind`. |
 | 2026-10-14 | P0 `AnswerRow` has no `batchId` and no lock; the current answer is the latest `recordedAt`, then append order. | An answer can always be revised by a later row; sittings and locks belong to verdicts. | Add a batch and lock as on `VerdictRow`. |
+| 2026-10-14 | P1 `QuestionWrites.propose` returns a plain list of `ProposedWrite`s; the caller forms the `ProposedWriteBatch` (with its id) before `apply`. | A pure function has no source for batch ids. | Make `propose` effectful and mint the batch id. |
+| 2026-10-14 | P1 adds a `QuestionCalendar` port (`upsert` by key `question:<itemId>:<optionId>`, `restore`) instead of reusing `DocketCalendar`. | `DocketCalendar` only creates and looks up; options can name an event to update, and undo needs the prior state. | Extend `DocketCalendar` with update and restore. |
+| 2026-10-14 | P2 `QuestionWrites.apply` is all-or-nothing: if a later write fails, the writes already applied in that call are restored in reverse before the failure returns. | A partial apply would leave calendar changes with no journal record to undo. | Return partial results and let the operator undo. |
+| 2026-10-14 | P2 calendar writes land as docket-intake's provisional all-day tentative entries; a write may update a named event only while all its docket categories are provisional, and undo refuses (`restore-failed`) once the attorney has moved an event out of them. | Never override an entry the attorney has verified. | Allow writes to verified events with explicit operator approval. |
+| 2026-10-14 | P2 server layer is `makeQuestionCalendarLayer(config)` (mailbox and time zone), like `makeDocketGraphLayer`. | The calendar adapter needs per-deployment config. | Read the config from the environment inside a fixed Layer. |
+| 2026-10-14 | data-plane (operator ruling): a workstation review hub over the tailnet is the one source of truth. Producers write items there; the attorney's review pane reads items and appends answers and verdicts through an authenticated HTTP MCP tool exposed only on the tailnet (`tailscale serve`); the answer, verdict and item logs are JSONL on the workstation. | One source of truth for the digest, calendar writes and projections. The building blocks exist: `@beep/mcp-kit` HTTP layers and the `@beep/tailscale` `serve` driver. Rejected: mail as the return channel, and an M365 file store that needs new Graph write scopes. | Move the logs to an M365 file store, or add mail ingestion. |
+| 2026-10-14 | P3b hub auth: it listens on loopback only, and `tailscale serve` plus an exact, case-sensitive `Tailscale-User-Login` allow-list is the boundary; there is no bearer token. Anything else gets an empty 403 before any route runs. | The tailnet already authenticates the device and user; a token would be a second secret to rotate on the attorney's PC. | Add a bearer token from 1Password checked beside the login. |
+| 2026-10-14 | P3b tool contract for the review pane: `review_open_items`, `review_record_verdict`, `review_lock_batch`, `review_record_answer`, with `ReviewHubToolError` codes `not-found`, `locked`, `unknown-option` and `store-unavailable` (`research/P3B-HUB.md`, as built). | One stable contract for the `practice-claude-mod-review-queue` follow-on. | Version the tools (`*_v2`) on a breaking change. |
+| 2026-10-14 | P3b `ReviewItemStore.upsert` skips items equal to their stored latest version. | Producers re-raise the same items every cycle; without the skip, `items.jsonl` grows forever. | Append every upsert and compact on read. |
 
 ## Exception Ledger
 
