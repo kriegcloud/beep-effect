@@ -2,11 +2,13 @@
   "schemaVersion": "policy-tools-fingerprint/v1",
   "inputs": [
     ".fallowrc.jsonc",
+    ".oxlintrc.circular.json",
     ".oxlintrc.deprecated-apis.jsonc",
     ".oxlintrc.docs.json",
     ".oxlintrc.json",
     "_typos.toml",
     "biome.jsonc",
+    "fallow-plugin-manual-development-tools.json",
     "package.json",
     "packages/drivers/acp/package.json",
     "packages/drivers/acp/src/**",

@@ -5,7 +5,7 @@
  */
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
-import ts from "typescript";
+import ts from "@typescript/typescript6";
 
 const repoRoot = join(import.meta.dir, "../..");
 const scratchpadRoot = join(repoRoot, "scratchpad");
@@ -589,4 +589,8 @@ const main = async (): Promise<void> => {
   console.log(JSON.stringify(summary, null, 2));
 };
 
-await main();
+if (process.argv.includes("--help")) {
+  console.log("Usage: bun scratchpad/.jsdoc-loop/census.ts [--help]");
+} else {
+  await main();
+}

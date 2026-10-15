@@ -132,6 +132,8 @@
     ".claude/teaching/**",
     "goals/**",
     "scratchpad/**",
+    "!goals/schema-opaque-default/ops/codemod/**",
+    "!scratchpad/.jsdoc-loop/census.ts",
     "infra/ci-runners/sdks/**",
     // Self-contained Lambda bundle source (own package.json + lockfile, not a workspace
     // member): esbuild bundles it into the deployed ZIP via infra/lambda/turbo-cache/build.sh,
@@ -247,9 +249,8 @@
     "babel-plugin-transform-next-use-client",
     "@babel/plugin-transform-export-namespace-from",
     "@babel/plugin-transform-modules-commonjs",
-    // Docs profile still consumes this parser; lane B owns its retirement.
-    // tsgo >= 0.18 native TypeScript backend: consumed by the effect-tsgo patch
-    // step at install time, never imported from source.
+    // TypeScript 7 is installed under two names; retain the native alias for
+    // effect-tsgo patching and unstable API consumers until alias consolidation.
     "@typescript/native",
     // Repo-local `tsgo` bin shim over the patched @typescript/native backend;
     // consumed via node_modules/.bin, never imported from source.
