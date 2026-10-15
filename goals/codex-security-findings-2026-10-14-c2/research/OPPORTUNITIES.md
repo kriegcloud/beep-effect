@@ -1,0 +1,9 @@
+# Friction receipts
+
+| Task | Evidence | Prevention |
+| --- | --- | --- |
+| Run the complete C2 offline canary in a fresh worktree | C0 stopped in `EvaluatorLive` before C2 report assembly because hosted structure coverage was absent from the local replay data. The focused committed-report sealing test passed. | Provide a small, committed C2 report fixture regression test for the seal path and document the external replay-data prerequisite for full canary runs. |
+| Type-check `@beep/semantica` after a fresh install | The first check emitted `TS6305` for unbuilt workspace dependency declarations; a dependency build followed by the same check passed. | Make package verification prepare its transitive declaration builds, or document the required build step in the package runbook. |
+| Publish a focused security fix after unrelated merges | The first Yeet cheap-gates pass found stale generated observability catalog files on main. A separate main unblocker regenerated them. | Have the merge owner refresh generated catalog projections in the source PR or let the merge queue run the catalog check before landing. |
+| Add a C2 report regression test | Inserting the test into `Reasoning.test.ts` crossed the schema-first advisory threshold and lacked the Vitest layer timeout and Boolean assertion helper. A dedicated focused test file passed both lints. | Place a golden report regression in its own focused file and use the established `it.layer` timeout and assertion helpers from the start. |
+| Merge a generated-catalog unblocker while other PRs land | #1780 added 12 drawing-review spans before #1786 merged, after #1786 generated its projection. Main was stale again immediately. | Have the merge queue re-run the catalog generator against the final base or regenerate in the next main-line PR after each source merge. |

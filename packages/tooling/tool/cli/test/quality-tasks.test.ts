@@ -177,7 +177,6 @@ import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import { flow, identity, pipe } from "effect/Function";
 import * as HM from "effect/HashMap";
-import * as Inspectable from "effect/Inspectable";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -2343,7 +2342,10 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             const cryptoFailure = PlatformError.badArgument({ module: "Crypto", method: "test" });
 
             const withoutIndexIdentity = yield* prepareLaneProofSession([lane], "active").pipe(
-              Effect.provideService(Crypto.Crypto, { ...platformCrypto, randomUUIDv4: Effect.fail(cryptoFailure) })
+              Effect.provideService(Crypto.Crypto, {
+                ...platformCrypto,
+                randomUUIDv4: () => Effect.fail(cryptoFailure),
+              })
             );
             assertNone(withoutIndexIdentity);
 
@@ -2358,10 +2360,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             const stagingFailure = yield* persistLaneProofs(session, [[lane, 12]]).pipe(
               Effect.provideService(Crypto.Crypto, {
                 ...platformCrypto,
-                randomUUIDv4: Effect.suspend(() => {
-                  identityCalls = identityCalls + 1;
-                  return identityCalls > 1 ? Effect.fail(cryptoFailure) : platformCrypto.randomUUIDv4;
-                }),
+                randomUUIDv4: () =>
+                  Effect.suspend(() => {
+                    identityCalls = identityCalls + 1;
+                    return identityCalls > 1 ? Effect.fail(cryptoFailure) : platformCrypto.randomUUIDv4();
+                  }),
               }),
               Effect.flip
             );
@@ -4614,7 +4617,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             assert.include(error.message, "Failed to parse coverage summary fixture");
             assert.isAtMost(Str.length(error.message), 4_096);
             assert.isDefined(error.cause);
-            assert.isAbove(Str.length(Inspectable.toStringUnknown(error.cause, 0)), 16_384);
+            // Effect 4.0.4 abbreviates the offending value when it renders a SchemaError, so
+            // assert the typed cause is kept rather than the length of its rendering.
+            assert.isTrue(S.isSchemaError(error.cause));
           }
         }),
         Effect.provideServiceEffect(Console.Console, TestConsole.make)

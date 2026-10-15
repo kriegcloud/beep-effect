@@ -19,6 +19,8 @@ const $I = $PracticeClaudeModId.create("PracticeMod.matters");
 const Envelope = S.Struct({
   data: S.Struct({ columns: S.Array(S.String), rows: S.Unknown.pipe(S.Array, S.Array) }),
 });
+const decodeEnvelopeJson = S.decodeUnknownEffect(S.fromJsonString(Envelope));
+
 const MatterRow = S.Struct({
   resolution: S.Literals(["unique", "ambiguous", "none"]),
   docketKey: S.NullOr(S.NonEmptyString),
@@ -62,7 +64,7 @@ export const decodeMatterLookup = Effect.fn("PracticeMod.decodeMatterLookup")(fu
       O.match(
         A.findFirst(result.content, (block) => block.type === "text" && block.text !== undefined),
         {
-          onSome: (block) => S.decodeUnknownEffect(S.fromJsonString(Envelope))(block.text),
+          onSome: (block) => decodeEnvelopeJson(block.text),
           onNone: () => Effect.fail(unreadable("Missing lookup content.")),
         }
       ),

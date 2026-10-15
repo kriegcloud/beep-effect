@@ -216,6 +216,189 @@ describe("@beep/occt shading", () => {
     );
 
     it.effect(
+      "measures a graded band from the face's own edge, not from a tab that sticks out past it",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // a wall whose front face carries a coplanar bump 2 wide and 8 tall on its right (shadow) side:
+        // a minor appendage, like a locking tab proud of a flap's edge. The probes through the bump see
+        // the face reach x = 22, but the band must still start one pitch inside the wall's edge at x = 20.
+        const wall = Part.make({
+          name: "wall",
+          add: [
+            Box.make({ min: [-20, -15, 0], max: [20, 15, 20] }),
+            Box.make({ min: [20, -15, 5], max: [22, -13, 13] }),
+          ],
+        });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [wall] }),
+            cameras: [front],
+            shading: O.some(graded()),
+          })
+        );
+        const xs = pipe(
+          view?.shading ?? [],
+          A.filter(isVertical),
+          A.map((s) => s[0]),
+          A.sort(Order.Number)
+        );
+        expect(A.isReadonlyArrayNonEmpty(xs)).toBe(true);
+        // no stroke inside the bump, and the first one a minimum pitch inside the face's edge
+        expect(Math.max(...xs)).toBeLessThan(20);
+        expect(Math.max(...xs)).toBeCloseTo(19, 1);
+      })
+    );
+
+    it.effect(
+      "bands every separately bounded visible area of a face seen through a lattice, without leaking into its neighbours",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // a 120 x 60 plate seen from above with thin walls standing on it (their tops are slivers and
+        // draw nothing of their own): across the right half at y = 0, across the left half at y = 10,
+        // and up the middle from y = 0 to the plate's top edge. The plate's top shows as three areas:
+        // the lower one (y < 0 on the right, y < 10 on the left, in one piece below the middle wall),
+        // the upper-right one and the upper-left one.
+        // Under the upper-left light the plate's right and bottom edges are equally dark and the tie
+        // goes to the edge least aligned with the sheet's vertical, the bottom one: lines run
+        // horizontally and the step runs up the sheet. The lower area starts at the plate's own edge
+        // and gets one band there; each upper area starts behind its own wall and gets a band hugging
+        // that wall, drawn only in the rows that saw it; and no band runs on into another area.
+        const plate = Part.make({ name: "plate", add: [Box.make({ min: [-60, -30, 0], max: [60, 30, 2] })] });
+        const right = Part.make({ name: "right", add: [Box.make({ min: [0, -0.5, 2], max: [60, 0.5, 12] })] });
+        const bridge = Part.make({ name: "bridge", add: [Box.make({ min: [-0.5, -0.5, 2], max: [0.5, 30, 12] })] });
+        const left = Part.make({ name: "left", add: [Box.make({ min: [-60, 9.5, 2], max: [0, 10.5, 12] })] });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [plate, right, bridge, left] }),
+            cameras: [top],
+            shading: O.some(graded({ minStroke: 0.5 })),
+          })
+        );
+        // strokes on the plate, not on the walls' own top faces
+        const onPlate = A.filter(view?.shading ?? [], ([x1, y1, x2, y2]) => {
+          const x = (x1 + x2) / 2;
+          const y = (y1 + y2) / 2;
+          return !(
+            (y > -0.5 && y < 0.5 && x > 0) ||
+            (y > 9.5 && y < 10.5 && x < 0) ||
+            (x > -0.5 && x < 0.5 && y > -0.5)
+          );
+        });
+        expect(A.isReadonlyArrayNonEmpty(onPlate) && A.every(onPlate, isHorizontal)).toBe(true);
+        // strokes (horizontal) that run through a box of the plate
+        const through = (x0: number, x1: number, y0: number, y1: number) =>
+          A.length(
+            A.filter(onPlate, ([xa, y, xb]) => y > y0 && y < y1 && Math.max(xa, xb) > x0 && Math.min(xa, xb) < x1)
+          );
+        // the lower area: one band at the plate's bottom edge, running through both halves
+        expect(through(2, 60, -30, -20)).toBeGreaterThanOrEqual(2);
+        expect(through(-60, -2, -30, -20)).toBeGreaterThanOrEqual(2);
+        // the upper area: a band above the right wall on the right, and above the left wall on the left
+        expect(through(2, 60, 2, 13)).toBeGreaterThanOrEqual(2);
+        expect(through(-60, -2, 12, 23)).toBeGreaterThanOrEqual(2);
+        // nothing leaks: the right wall's band does not run on into the left half (the lower area's
+        // lit side there), the left wall's band does not run on into the right half, and the lower
+        // area's lit side stays bare. A band is drawn in the cells of the probes that saw its area,
+        // so it may run on past the middle wall by up to half a cell (120 / 18 here) and no further.
+        expect(through(-60, -9, 2, 8)).toBe(0);
+        expect(through(9, 60, 14, 30)).toBe(0);
+        expect(through(-60, 60, -18, -3)).toBe(0);
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) => O.map(v.shadingCoverage, (c) => c.lostFaces)),
+          0
+        );
+      })
+    );
+
+    it.effect(
+      "bands a wall beside a fin standing on it, where the fin's probe chords start inside the fin",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // an 80 x 40 wall (front face y = 0) with a 4-thick fin standing on its front face, seen from the
+        // front-left above. Every probe across the wall's front face starts or runs inside the fin, which
+        // abuts the face; drawn as one long chord the hidden-line pass misread where the fin hides the
+        // wall, so the band of the area left of the fin was planned behind the fin and drew nothing
+        // (review loop 2, K-01). Probes go through the pass in short pieces.
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [-40, 0, 0], max: [40, 4, 40] })] });
+        const fin = Part.make({ name: "fin", add: [Box.make({ min: [-2, -30, 0], max: [2, 0, 30] })] });
+        const camera = Camera.make({ eye: [-1, -1, 1], up: [0, 0, 1] });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [wall, fin] }),
+            cameras: [camera],
+            shading: O.some(graded({ minStroke: 1, minFaceSpan: 6 })),
+          })
+        );
+        const strokes = view?.shading ?? [];
+        // the fin covers the sheet from (x - y)/sqrt(2) = -2/sqrt(2) rightward; strokes left of it lie on the wall
+        const finLeft = -2 / Math.SQRT2;
+        const sheetX = ([x1, , x2]: Segment) => (x1 + x2) / 2;
+        const onWallLeft = A.filter(strokes, (s) => isVertical(s) && Math.abs(sheetX(s) - finLeft) > 0.5);
+        expect(A.length(onWallLeft)).toBeGreaterThanOrEqual(2);
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) =>
+            O.map(v.shadingCoverage, (c) => [c.lostFaces, c.lostStretches] as const)
+          ),
+          [0, 0] as const
+        );
+      })
+    );
+
+    it.effect(
+      "bands a cell walled off by slanting walls on its own, apart from the area outside the walls",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // a 120 x 120 plate seen from above with a hexagonal ring wall standing on it (inner radius 28,
+        // outer 30, vertices on the x axis). The plate shows as the area outside the ring and the cell
+        // inside it. Probe rows a pitch apart see the cell's pieces and the outside pieces overlap in
+        // range across the slanting walls; only the link test keeps the cell its own area, banded at its
+        // own nearest side, instead of folding it into the outside band at the plate's edge.
+        const hexagon = (radius: number, z: number) =>
+          A.makeBy(6, (k) => [radius * Math.cos((k * Math.PI) / 3), radius * Math.sin((k * Math.PI) / 3), z] as const);
+        const plate = Part.make({ name: "plate", add: [Box.make({ min: [-60, -60, 0], max: [60, 60, 2] })] });
+        const ring = Part.make({
+          name: "ring",
+          add: [Prism.make({ profile: A.map(hexagon(30, 2), (p) => [...p]), extrusion: [0, 0, 10] })],
+          subtract: [Prism.make({ profile: A.map(hexagon(28, 1), (p) => [...p]), extrusion: [0, 0, 12] })],
+        });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [plate, ring] }),
+            cameras: [top],
+            shading: O.some(graded({ minStroke: 0.5, minFaceSpan: 6 })),
+          })
+        );
+        const strokes = view?.shading ?? [];
+        const radiusOf = ([x1, y1, x2, y2]: Segment) => Math.hypot((x1 + x2) / 2, (y1 + y2) / 2);
+        // the cell (inside the inner wall, apothem 24.2) carries its own band
+        expect(A.length(A.filter(strokes, (s) => radiusOf(s) < 24))).toBeGreaterThanOrEqual(2);
+        // the outside area keeps its band at the plate's edge
+        expect(A.length(A.filter(strokes, (s) => radiusOf(s) > 40))).toBeGreaterThanOrEqual(2);
+        // no stroke runs across the ring: none has one end inside the cell and the other outside the ring
+        const within = (radius: number) => (x: number, y: number) =>
+          A.every(
+            A.makeBy(6, (k) => (Math.PI / 6) * (2 * k + 1)),
+            (a) => x * Math.cos(a) + y * Math.sin(a) <= radius * Math.cos(Math.PI / 6) + 1e-6
+          );
+        const inCell = within(28);
+        const inRing = within(30);
+        expect(
+          A.some(
+            strokes,
+            ([x1, y1, x2, y2]) => (inCell(x1, y1) && !inRing(x2, y2)) || (inCell(x2, y2) && !inRing(x1, y1))
+          )
+        ).toBe(false);
+        // the ring's own 2 mm top face shows only short chords: a sliver, bare by design and never counted lost
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) =>
+            O.map(v.shadingCoverage, (c) => [c.lostFaces, c.lostStretches] as const)
+          ),
+          [0, 0] as const
+        );
+      })
+    );
+
+    it.effect(
       "shades every visible stretch of a wall at the side nearest its shadow edge",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;
@@ -330,9 +513,11 @@ describe("@beep/occt shading", () => {
         // the camera's own projection, not read as a fraction of the projected line
         expect(summary(views[1]!)).toEqual(summary(views[0]!));
         expect(summary(views[3]!)).toEqual(summary(views[2]!));
-        // from the pictorial eye the post's 4 mm faces plan a single stroke each and are
-        // dropped by design (a lone line beside an outline reads as a doubled edge)
-        expect(summary(views[2]!)).toEqual([13, 6, 2]);
+        // from the pictorial eye the post's 4 mm faces have room for a single stroke each and are
+        // skipped as narrow by design (a lone line beside an outline reads as a doubled edge), so
+        // they count neither as shaded nor as lost; the wall's strokes are drawn only in the probe
+        // rows that saw each area, which leaves the band one stroke short of the whole-chord count
+        expect(summary(views[2]!)).toEqual([12, 4, 0]);
       })
     );
 

@@ -1359,6 +1359,12 @@
       "description": "Expected successful parse or declared typed degradation for an F1 fixture."
     },
     {
+      "file": "apps/labs/semantica/src/layers/CanaryC2Live.ts",
+      "symbol": "sealC2EvalReport",
+      "kind": "struct-const",
+      "owner": "@beep/semantica"
+    },
+    {
       "file": "apps/labs/semantica/src/layers/LedgerLive.ts",
       "symbol": "LedgerLiveOptions",
       "kind": "struct-const",
@@ -2205,12 +2211,6 @@
       "owner": "@beep/practice-claude-mod",
       "identity": "ModHostError",
       "description": "A mod engine call rejected."
-    },
-    {
-      "file": "apps/practice-claude-mod/src/PracticeMod.matters.ts",
-      "symbol": "decodeMatterLookup",
-      "kind": "codec",
-      "owner": "@beep/practice-claude-mod"
     },
     {
       "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
@@ -17858,7 +17858,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "EdgeSet",
-      "description": "Canonically ordered visible, hidden, shading, and broken-line projected segments of one view."
+      "description": "Canonically ordered visible, hidden, shading, broken-line, and emphasis projected segments of one view."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17882,7 +17882,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "ModelSpec",
-      "description": "Compound of named parts built from primitives."
+      "description": "Compound of named parts built from primitives, plus authored overlay lines."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17891,6 +17891,22 @@
       "owner": "@beep/technical-drawing",
       "identity": "ModelSummary",
       "description": "Bounding box, volume, topology counts, and part-overlap count of a built model."
+    },
+    {
+      "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
+      "symbol": "OverlayLine",
+      "kind": "struct-const",
+      "owner": "@beep/technical-drawing",
+      "identity": "OverlayLine",
+      "description": "Authored open 3D polyline drawn as an emphasis or broken line, culled by an optional face normal and lifted off its face."
+    },
+    {
+      "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
+      "symbol": "OverlayStyle",
+      "kind": "literal-kit",
+      "owner": "@beep/technical-drawing",
+      "identity": "OverlayStyle",
+      "description": "Line class of an overlay line: emphasis (heavier than outlines) or broken (dashed, unclaimed, 37 CFR 1.152)."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17946,7 +17962,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "ShadingCoverage",
-      "description": "Faces of one view given shading lines, faces skipped per reason, and faces whose lines were all lost after hidden-line removal."
+      "description": "Faces of one view given shading lines, faces skipped per reason, faces whose lines were all lost after hidden-line removal, and planned stretches that drew nothing."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -18226,7 +18242,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "SheetOptions",
-      "description": "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render."
+      "description": "Page format, margin standard, stroke, shading and emphasis widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/TechnicalDrawing.errors.ts",
@@ -29761,6 +29777,14 @@
       "description": "A portable, host-agnostic locator for a citation, in the style of W3C Web Annotation selectors."
     },
     {
+      "file": "packages/law-practice/domain/src/values/DurableLocator/DurableLocator.model.ts",
+      "symbol": "TextQuote",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "TextQuote",
+      "description": "W3C TextQuoteSelector: the exact quoted text with optional prefix and suffix context."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/DurableLocatorOptions/DurableLocatorOptions.model.ts",
       "symbol": "DurableLocatorOptions",
       "kind": "tagged-union",
@@ -30680,6 +30704,22 @@
       "description": "Restatement citation: secondary authority published by the American Law Institute (#578)."
     },
     {
+      "file": "packages/law-practice/domain/src/values/ReviewItem/ReviewItem.model.ts",
+      "symbol": "ReviewItem",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ReviewItem",
+      "description": "One piece of agent work awaiting the attorney's verdict, discriminated on its kind."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ReviewItem/ReviewItem.model.ts",
+      "symbol": "ReviewItemKind",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ReviewItemKind",
+      "description": "Kinds of agent work product that reach the attorney review queue."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/Segment/Segment.model.ts",
       "symbol": "Segment",
       "kind": "struct-const",
@@ -30726,6 +30766,30 @@
       "owner": "@beep/law-practice-domain",
       "identity": "SourceNormRef",
       "description": "Opaque reference to the norm that prescribes a legal position or role."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/SourceRef/SourceRef.model.ts",
+      "symbol": "PageCrop",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "PageCrop",
+      "description": "A pre-rendered, size-bounded image of the passage region on one page."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/SourceRef/SourceRef.model.ts",
+      "symbol": "PageCropMimeType",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "PageCropMimeType",
+      "description": "Image formats a pre-rendered page crop may carry."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/SourceRef/SourceRef.model.ts",
+      "symbol": "SourceRef",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "SourceRef",
+      "description": "Where a review item's evidence lives: a Box file, an optional page, the quote, and an optional crop."
     },
     {
       "file": "packages/law-practice/domain/src/values/Span/Span.model.ts",
@@ -30822,6 +30886,22 @@
       "owner": "@beep/law-practice-domain",
       "identity": "TreatyCitation",
       "description": "Treaty-series citation (#309): T.I.A.S. No. 1502, 1155 U.N.T.S. 331."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/VerdictRow/VerdictRow.model.ts",
+      "symbol": "Verdict",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "Verdict",
+      "description": "The attorney's judgement of a review item: right, wrong, partly right, or withdrawn (no current judgement)."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/VerdictRow/VerdictRow.model.ts",
+      "symbol": "VerdictRow",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "VerdictRow",
+      "description": "One append-only entry in the attorney's verdict log for a review item."
     },
     {
       "file": "packages/law-practice/server/src/CandorPromotionGate/CandorPromotionGate.ports.ts",
@@ -33607,6 +33687,57 @@
       "file": "packages/law-practice/use-cases/src/PracticeKg.tools.ts",
       "symbol": "practiceKgMatterFieldTiers",
       "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictBatchEmptyError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictBatchEmptyError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictBatchLockedError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictBatchLockedError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictLogError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictLogError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictLogOperation",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictLogOperation",
+      "description": "Verdict-log store operation that failed: reading the rows or appending one."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.ports.ts",
+      "symbol": "RecordVerdictInput",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "RecordVerdictInput",
+      "description": "The attorney's verdict on one review item, before the queue assigns its revision and timestamp."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/VerdictProjector/VerdictProjector.schemas.ts",
+      "symbol": "ClaimDispositionProjection",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ClaimDispositionProjection",
+      "description": "The disposition an attorney's final verdict implies for one candidate claim, before persistence."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/internal/DefectCause.ts",
+      "symbol": "DefectCause",
+      "kind": "schema-const",
       "owner": "@beep/law-practice-use-cases"
     },
     {
@@ -42223,6 +42354,14 @@
       "description": "Failure classification for transactional routing and enrollment checks."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.store.ts",
+      "symbol": "AgentMessageStoreLimits",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "AgentMessageStoreLimits",
+      "description": "Queue limits for a file-backed agent-message store."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.tools.ts",
       "symbol": "EmptyInput",
       "kind": "struct-const",
@@ -46025,6 +46164,134 @@
       "owner": "@beep/repo-cli",
       "identity": "DocsSection",
       "description": "A section of documentation."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticCategory",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticCategory",
+      "description": "Convention family of a finding."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticFinding",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticFinding",
+      "description": "Id, relation, severity, scope, category, figures, location, basis, observation, fix, and confidence."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticFindingRelation",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticFindingRelation",
+      "description": "new, or extends an earlier finding by id."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticFindingScope",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticFindingScope",
+      "description": "this-render, or pending-branch for items the brief defers."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticLoopRecord",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticLoopRecord",
+      "description": "Loop number, sheet-set hash, and runs of one loop."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticPackManifest",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticPackManifest",
+      "description": "Hashes and pack-relative files of a critic pack."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticPriorAssessment",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticPriorAssessment",
+      "description": "Stance and note on one earlier finding."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticPriorStance",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticPriorStance",
+      "description": "confirm (measured and agree), refute (say what was measured), or cannot-verify."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticRelationKind",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticRelationKind",
+      "description": "new, or extends an earlier finding of this loop."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticReport",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticReport",
+      "description": "Reviewer, verdict, blockers, assessment of earlier findings, findings, and what could not be assessed."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticReviewer",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticReviewer",
+      "description": "Name, id prefix, route, model, effort, and scope of one reviewer."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticRoute",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticRoute",
+      "description": "The CLI a reviewer runs on: codex exec, the grok CLI, claude -p, or cursor-agent."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticRunRecord",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticRunRecord",
+      "description": "Order, reviewer, exit code, report file, hash, count, and times of one run."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticScope",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticScope",
+      "description": "matter: the reviewer sees the matter pack; synthetic: only the public synthetic pack and the repo."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticVerdict",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticVerdict",
+      "description": "accept, accept-with-fixes, or reject."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticZoom",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticZoom",
+      "description": "Figure, label, and crop rectangle of a 300 dpi zoom."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.errors.ts",
@@ -54224,12 +54491,6 @@
       "owner": "@beep/repo-cli",
       "identity": "PermissionTuple",
       "description": "Effective approval, sandbox and permission profile recorded by a Codex turn."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.service.ts",
-      "symbol": "PermissionContinuityLive",
-      "kind": "codec",
-      "owner": "@beep/repo-cli"
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Session/Register.schemas.ts",
