@@ -1,4 +1,5 @@
 import {
+  BoundingBox,
   Box,
   Camera,
   Cylinder,
@@ -12,6 +13,7 @@ import {
   ShadingPlan,
 } from "@beep/occt";
 import {
+  cameraForView,
   ShadingCoverage,
   ShadingSkip,
   shadingBandLadderFindings,
@@ -535,6 +537,56 @@ describe("@beep/occt shading", () => {
         // and the band keeps its taper: the stroke nearest the shadow edge is the longer
         const [first = 0, second = 0] = A.map(strokes, lengthOf);
         expect(first).toBeGreaterThan(second);
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) =>
+            O.map(v.shadingCoverage, (c) => [c.lostFaces, c.lostStretches] as const)
+          ),
+          [0, 0] as const
+        );
+      })
+    );
+
+    it.effect(
+      "redraws a tapered band a slot shows only at a wall's foot on its whole chords in a two-point bottom view",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // A plate 2 thick with a slot 22.5 deep across it, and a wall 20 wide and 90 tall standing on the plate along
+        // the slot's far edge (front face y = -10, outward normal -y), seen from below in a two-point pictorial looking
+        // along +y. Through the slot the wall shows only a strip about 6 tall at its foot; the plate hides it above
+        // that, and the wall shows again above the plate's front edge. Of the nine probe rows (cells 10 tall) only the
+        // lowest sees the strip. Lit (faint), the strip's band is tapered to 0.6 and 0.4 of that cell and centred on
+        // its probe: both strokes had room as planned, but the plate hid each above the strip and the legibility pass
+        // dropped what showed, so the stretch drew nothing and counted lost. The band is drawn again on its whole
+        // clipped chords, which hidden-line removal cuts to the strip.
+        const plate = Part.make({
+          name: "plate",
+          add: [Box.make({ min: [-30, -52.5, 0], max: [30, 30, 2] })],
+          subtract: [Box.make({ min: [-20, -32.5, -1], max: [20, -10, 3] })],
+        });
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [-10, -10, 2], max: [10, -8, 92] })] });
+        const camera = cameraForView({
+          view: "bottom-perspective",
+          box: BoundingBox.make({ min: [-30, -52.5, 0], max: [30, 30, 92] }),
+          projection: "two-point",
+          azimuthDeg: O.some(0),
+        });
+        // the wall's front face, the only face the view hatches vertically, is lit
+        expect(toneOf(-viewFactsOf(camera).light[1])).toBe("faint");
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [plate, wall] }),
+            cameras: [camera],
+            shading: O.some(graded({ minStroke: 1.5 })),
+          })
+        );
+        const strokes = A.filter(view?.shading ?? [], isVertical);
+        // the strip's band is shorter than one probe cell; the band above the plate runs over several
+        const strip = A.filter(strokes, (s) => lengthOf(s) < 10);
+        const above = A.filter(strokes, (s) => lengthOf(s) >= 10);
+        expect(A.length(strip)).toBeGreaterThanOrEqual(2);
+        expect(A.length(above)).toBeGreaterThanOrEqual(2);
+        const heights = (segments: ReadonlyArray<Segment>) => A.flatMap(segments, ([, y1, , y2]) => [y1, y2]);
+        expect(Math.max(...heights(strip))).toBeLessThan(Math.min(...heights(above)));
         assertSome(
           O.flatMap(O.fromNullishOr(view), (v) =>
             O.map(v.shadingCoverage, (c) => [c.lostFaces, c.lostStretches] as const)

@@ -22,6 +22,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { QaSeverity } from "../Qa/Inventory.schemas.ts";
@@ -463,13 +464,12 @@ const STRICT_KEYWORDS = HashSet.fromIterable([
   "description",
 ]);
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value);
 
 // Keep only the keywords the strict structured-output modes accept, recursively;
 // the children of `properties` are property names, not keywords, and stay.
 const strictKeywords = (node: unknown): unknown =>
-  Array.isArray(node)
+  A.isArray(node)
     ? A.map(node, strictKeywords)
     : isRecord(node)
       ? pipe(
@@ -534,6 +534,13 @@ export class CriticPackManifest extends S.Opaque<CriticPackManifest, { readonly 
       description: "Pack-relative context images (markup pages, photographs) attached to image-taking routes.",
     }),
     strokeTable: S.NonEmptyString.annotateKey({ description: "Pack-relative stroke table (RENDER.md)." }),
+    measurements: S.OptionFromOptionalKey(S.NonEmptyString).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Pack-relative MEASUREMENTS.md (beside measurements.json) the harness measured; absent in packs built before it did.",
+      })
+    ),
     brief: S.NonEmptyString.annotateKey({ description: "Pack-relative brief every reviewer reads first." }),
   }).pipe($I.annoteSchema("CriticPackManifest", { description: "Hashes and pack-relative files of a critic pack." }))
 ) {}
@@ -584,8 +591,80 @@ export const decodeCriticPackManifest = (text: string) => decodeCriticPackManife
  */
 export const encodeCriticPackManifest = (manifest: CriticPackManifest) => encodeCriticPackManifestJson(manifest);
 
+const CriticSeatUnavailableReasonBase = LiteralKit(["sandbox-deny-path-unresolved"]);
+
+/**
+ * Why a reviewer's seat could not run on this host.
+ *
+ * **Details**
+ *
+ * `sandbox-deny-path-unresolved`: the Grok CLI refused to start because its
+ * `--sandbox strict` profile could not resolve a runtime-socket path it must
+ * deny, so it would not run with its protections missing.
+ *
+ * **Example** (Reason literals)
+ *
+ * ```ts
+ * import { CriticSeatUnavailableReason } from "@beep/repo-cli/commands/Drawings"
+ *
+ * console.log(CriticSeatUnavailableReason.literals) // ["sandbox-deny-path-unresolved"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const CriticSeatUnavailableReason = CriticSeatUnavailableReasonBase.pipe(
+  $I.annoteSchema("CriticSeatUnavailableReason", {
+    description: "Why a reviewer seat could not run on this host.",
+  }),
+  SchemaUtils.withLiteralKitStatics(CriticSeatUnavailableReasonBase)
+);
+
+/**
+ * A reviewer seat that could not run on this host: the reason, the path the
+ * failure names (when it names one), and a sentence for the loop record and
+ * the summary.
+ *
+ * **Example** (The Grok seat whose sandbox could not resolve a deny path)
+ *
+ * ```ts
+ * import { CriticSeatUnavailable } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const seat = CriticSeatUnavailable.make({
+ *   reason: "sandbox-deny-path-unresolved",
+ *   path: O.some("/run/example/runtime.sock"),
+ *   detail: "grok refused to start: its --sandbox strict profile could not resolve the runtime-socket deny path /run/example/runtime.sock on this host",
+ * })
+ * console.log(seat.reason) // "sandbox-deny-path-unresolved"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticSeatUnavailable extends S.Opaque<CriticSeatUnavailable, { readonly brand: unique symbol }>()(
+  S.Struct({
+    reason: CriticSeatUnavailableReason.annotateKey({ description: "Why the seat could not run." }),
+    path: S.OptionFromNullOr(S.NonEmptyString).annotateKey({
+      description: "The path the failure names; null when the message names none.",
+    }),
+    detail: S.NonEmptyString.annotateKey({ description: "One sentence for the loop record and the summary." }),
+  }).pipe(
+    $I.annoteSchema("CriticSeatUnavailable", {
+      description: "Reason, named path, and explanation of a reviewer seat that could not run on this host.",
+    })
+  )
+) {}
+
 /**
  * One reviewer's run inside a loop.
+ *
+ * **Details**
+ *
+ * `unavailable` is set when the reviewer's seat could not run on this host
+ * (the run then carries no report); it is `null` for every run that started,
+ * whatever its exit code. A record written before the key existed decodes it
+ * as `null`.
  *
  * **Example** (Reference the class)
  *
@@ -610,9 +689,14 @@ export class CriticRunRecord extends S.Opaque<CriticRunRecord, { readonly brand:
     findings: S.Natural.annotateKey({ description: "Findings in the report; 0 when absent." }),
     startedAt: S.NonEmptyString.annotateKey({ description: "ISO-8601 start." }),
     finishedAt: S.NonEmptyString.annotateKey({ description: "ISO-8601 end." }),
+    unavailable: S.OptionFromNullOr(CriticSeatUnavailable).pipe(
+      S.withDecodingDefaultKey(Effect.succeed(null)),
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({ description: "Why the seat could not run on this host; null when it ran." })
+    ),
   }).pipe(
     $I.annoteSchema("CriticRunRecord", {
-      description: "Order, reviewer, exit code, report file, hash, count, and times of one run.",
+      description: "Order, reviewer, exit code, report file, hash, count, times, and seat availability of one run.",
     })
   )
 ) {}
@@ -856,6 +940,81 @@ export class CriticInvocation extends S.Opaque<CriticInvocation, { readonly bran
   }).pipe(
     $I.annoteSchema("CriticInvocation", {
       description: "Executable, arguments, working directory, environment, and report source of one reviewer run.",
+    })
+  )
+) {}
+
+/**
+ * The `result` event `claude -p` prints when a run ends: the whole
+ * `--output-format json` envelope, or the last `result` event of a
+ * `--verbose` run (a JSON array, or one event per line with `stream-json`).
+ *
+ * **Details**
+ *
+ * Only the keys the critic loop reads are modeled; the CLI's other keys
+ * (`subtype`, `duration_ms`, `session_id`, …) are ignored on decode. An
+ * absent `is_error` decodes as `false`. An event without `result` (an
+ * `error_max_turns` stop, for one) carries no final message.
+ *
+ * **Example** (Decode a successful envelope)
+ *
+ * ```ts
+ * import { CriticClaudeResult } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * const event = S.decodeUnknownSync(CriticClaudeResult)({ type: "result", subtype: "success", is_error: false, result: "{}" })
+ * console.log(event.is_error, O.getOrElse(event.result, () => "")) // false "{}"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticClaudeResult extends S.Opaque<CriticClaudeResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    type: S.Literal("result").annotateKey({ description: "Event kind; only the result event ends a run." }),
+    is_error: S.Boolean.pipe(
+      S.withDecodingDefaultKey(Effect.succeed(false)),
+      S.annotateKey({ description: "Whether the run ended in an error; absent means it did not." })
+    ),
+    result: S.OptionFromOptionalKey(S.String).annotateKey({
+      description: "The reviewer's final message, absent when the run stopped without one.",
+    }),
+  }).pipe(
+    $I.annoteSchema("CriticClaudeResult", {
+      description: "Error flag and final message of the result event a claude -p run prints.",
+    })
+  )
+) {}
+
+/**
+ * Any event `claude -p` prints with `--output-format stream-json --verbose`:
+ * a JSON object whose `type` is a string.
+ *
+ * **Details**
+ *
+ * Only `type` is modeled, so every event kind (`system`, `assistant`,
+ * `user`, `result`) decodes; a line that is JSON but not such an object
+ * (a bare number, an array) is not an event.
+ *
+ * **Example** (Tell an event from other JSON)
+ *
+ * ```ts
+ * import { CriticClaudeEvent } from "@beep/repo-cli/commands/Drawings"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(CriticClaudeEvent)({ type: "system", subtype: "init" }), S.is(CriticClaudeEvent)([1])) // true false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticClaudeEvent extends S.Opaque<CriticClaudeEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
+    type: S.String.annotateKey({ description: "Event kind." }),
+  }).pipe(
+    $I.annoteSchema("CriticClaudeEvent", {
+      description: "Any claude -p stream-json event: a JSON object with a string `type`.",
     })
   )
 ) {}

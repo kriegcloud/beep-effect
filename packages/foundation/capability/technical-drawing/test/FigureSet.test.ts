@@ -29,6 +29,7 @@ import {
   PdfFacts,
   PdfFontFact,
   PdfPageSize,
+  PdfStreamFact,
   PT_PER_MM,
   purityFindings,
   RenderManifest,
@@ -46,7 +47,7 @@ import {
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, vi } from "@effect/vitest";
-import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
+import { assertInstanceOf, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -742,6 +743,134 @@ describe("@beep/technical-drawing", () => {
     );
 
     it.effect(
+      "cameras: a set elevation lowers the isometric; without one every pictorial camera is unchanged",
+      Effect.fnUntraced(function* () {
+        const box = BoundingBox.make({ min: [0, 0, 0], max: [40, 30, 20] });
+        const elevationOf = (eye: readonly [number, number, number]) =>
+          (Math.asin(eye[2] / Math.hypot(...eye)) * 180) / Math.PI;
+        const top = cameraForView({ view: "top-perspective", box, projection: "isometric", elevationDeg: O.some(20) });
+        const bottom = cameraForView({
+          view: "bottom-perspective",
+          box,
+          projection: "isometric",
+          elevationDeg: O.some(20),
+        });
+        assertNone(top.focus);
+        expect(elevationOf(top.eye)).toBeCloseTo(20, 9);
+        expect(elevationOf(bottom.eye)).toBeCloseTo(-20, 9);
+        // the azimuth still swings it: 45° by default
+        expect(top.eye[0]).toBeCloseTo(top.eye[1], 12);
+        // without an elevation the isometric is the camera written before the field existed, bit for bit, and it
+        // ignores a set focus
+        const az = (45 * Math.PI) / 180;
+        const el = Math.atan(1 / Math.SQRT2);
+        const isometricOf = (zSign: 1 | -1) =>
+          Camera.make({
+            eye: [-Math.sin(az) * Math.cos(el), -Math.cos(az) * Math.cos(el), Math.sin(el) * zSign],
+            up: [0, 0, 1],
+          });
+        A.forEach(
+          [
+            ["top-perspective", 1],
+            ["bottom-perspective", -1],
+          ] as const,
+          ([view, zSign]) => {
+            const isometric = cameraForView({ view, box, projection: "isometric" });
+            expect(isometric).toEqual(isometricOf(zSign));
+            expect(cameraForView({ view, box, projection: "isometric", focusDiagonals: O.some(4) })).toEqual(
+              isometricOf(zSign)
+            );
+            assertNone(isometric.sight);
+            expect(isometric.hiddenLinePassAbout).toBe("origin");
+          }
+        );
+        // a perspective ignores a set elevation (a set passes its elevation to every view; the spec refuses one that
+        // no pictorial reads), so it keeps the camera written before the field existed, bit for bit
+        const perspective = Camera.make({
+          eye: [-1, -1.2, 0.85],
+          up: [0, 0, 1],
+          target: [20, 15, 10],
+          focus: O.some(Math.max(Math.hypot(40, 30, 20) * 2.5, 1)),
+        });
+        expect(cameraForView({ view: "top-perspective", box, elevationDeg: O.some(20) })).toEqual(perspective);
+        // a set focus moves a perspective's eye in or out
+        assertSome(
+          cameraForView({ view: "top-perspective", box, focusDiagonals: O.some(4) }).focus,
+          4 * Math.hypot(40, 30, 20)
+        );
+      })
+    );
+
+    it.effect(
+      "cameras: a two-point pictorial looks level from above the top or below the bottom, seeing the box's near corner at the elevation",
+      Effect.fnUntraced(function* () {
+        const box = BoundingBox.make({ min: [0, 0, 0], max: [40, 30, 20] });
+        const diagonal = Math.hypot(40, 30, 20);
+        const az = Math.PI / 6;
+        const el = (20 * Math.PI) / 180;
+        const level = (view: "top-perspective" | "bottom-perspective") =>
+          cameraForView({ view, box, projection: "two-point", azimuthDeg: O.some(30), elevationDeg: O.some(20) });
+        const top = level("top-perspective");
+        const bottom = level("bottom-perspective");
+        // a level line of sight along the azimuth, up +Z: the view plane is upright, so verticals stay vertical
+        A.forEach([top, bottom], (camera) => {
+          expect(camera.eye[0]).toBeCloseTo(-Math.sin(az), 12);
+          expect(camera.eye[1]).toBeCloseTo(-Math.cos(az), 12);
+          expect(camera.eye[2]).toBe(0);
+          expect(camera.up).toEqual([0, 0, 1]);
+          assertSome(camera.focus, 2.5 * diagonal);
+          expect([camera.target[0], camera.target[1]]).toEqual([20, 15]);
+        });
+        // the eye stands `focus` from the target along the eye direction, so its depth to the face's nearest point
+        // (the near corner, `reach` from the centre along the sight line) is focus − reach, and that point sits `el`
+        // below (above) it
+        const reach = (Math.sin(az) * 40 + Math.cos(az) * 30) / 2;
+        const depth = 2.5 * diagonal - reach;
+        expect(Math.atan2(top.target[2] - 20, depth)).toBeCloseTo(el, 12);
+        expect(Math.atan2(0 - bottom.target[2], depth)).toBeCloseTo(el, 12);
+        // the near corner of the top face, through the camera: depth along the sight line and drop below the eye
+        const nearTop = [0, 0, 20] as const;
+        const along = (p: readonly [number, number, number]) =>
+          (p[0] - top.target[0]) * top.eye[0] + (p[1] - top.target[1]) * top.eye[1];
+        expect(along(nearTop)).toBeCloseTo(reach, 9);
+        expect(Math.atan2(top.target[2] - nearTop[2], 2.5 * diagonal - along(nearTop))).toBeCloseTo(el, 12);
+        // the sight runs from the box centre to the eye point, above (below) the box centre
+        const sightOf = (camera: typeof top) => O.getOrThrow(camera.sight);
+        expect(sightOf(top)[0] / sightOf(top)[1]).toBeCloseTo(Math.tan(az), 12);
+        expect(sightOf(top)[2]).toBeCloseTo(top.target[2] - 10, 9);
+        expect(sightOf(bottom)[2]).toBeCloseTo(bottom.target[2] - 10, 9);
+        expect(sightOf(bottom)[2]).toBeLessThan(0);
+        // its hidden-line pass runs about its target, which stands well clear of the model
+        expect(top.hiddenLinePassAbout).toBe("target");
+        expect(bottom.hiddenLinePassAbout).toBe("target");
+        // without an elevation it sees the near corner at 20°, and without an azimuth looks along 45°
+        const plain = cameraForView({ view: "top-perspective", box, projection: "two-point" });
+        const plainReach = (Math.SQRT1_2 * 40 + Math.SQRT1_2 * 30) / 2;
+        expect(Math.atan2(plain.target[2] - 20, 2.5 * diagonal - plainReach)).toBeCloseTo(el, 12);
+        expect(plain.eye[0]).toBeCloseTo(plain.eye[1], 12);
+        // its field stays within half the 60° cone of vision; an isometric takes any elevation below a plan
+        expect(
+          Math.atan2(
+            cameraForView({ view: "top-perspective", box, projection: "two-point", elevationDeg: O.some(30) })
+              .target[2] - 20,
+            2.5 * diagonal - plainReach
+          )
+        ).toBeCloseTo(Math.PI / 6, 12);
+        expect(() =>
+          cameraForView({ view: "top-perspective", box, projection: "two-point", elevationDeg: O.some(31) })
+        ).toThrow();
+        expect(
+          cameraForView({ view: "top-perspective", box, projection: "isometric", elevationDeg: O.some(60) }).eye[2]
+        ).toBeCloseTo(Math.sin(Math.PI / 3), 12);
+        // a set focus moves the eye; a nearer eye converges more
+        assertSome(
+          cameraForView({ view: "top-perspective", box, projection: "two-point", focusDiagonals: O.some(1.5) }).focus,
+          1.5 * diagonal
+        );
+      })
+    );
+
+    it.effect(
       "cameras: both plans share the up vector planFacing sets, front by default",
       Effect.fnUntraced(function* () {
         const box = BoundingBox.make({ min: [0, 0, 0], max: [40, 30, 20] });
@@ -1016,6 +1145,51 @@ describe("@beep/technical-drawing", () => {
         expect(
           structuralFindings({ facts: clean, options: ValidationOptions.make({ expectedPages: O.some(1) }) })
         ).toEqual([]);
+        // a FlateDecode stream a strict reader refuses fails the set, with every such stream named
+        const truncated = PdfFacts.make({
+          ...clean,
+          undecodableStreams: [
+            PdfStreamFact.make({ objectNumber: 5, generation: 0, reason: "unexpected end of file" }),
+            PdfStreamFact.make({ objectNumber: 9, generation: 0, reason: "incorrect header check" }),
+          ],
+        });
+        const undecodable = structuralFindings({
+          facts: truncated,
+          options: ValidationOptions.make({ expectedPages: O.some(1) }),
+        });
+        expect(A.map(undecodable, (f) => f.code)).toEqual(["pdf-stream-undecodable"]);
+        assertNone(undecodable[0]!.page);
+        expect(undecodable[0]!.message).toBe(
+          "2 FlateDecode stream(s) fail a strict inflate: 5 0 R (unexpected end of file), 9 0 R (incorrect header check)."
+        );
+        // a check that stopped at the inflate limit leaves later streams unverified: it fails the set too
+        const unchecked = structuralFindings({
+          facts: PdfFacts.make({ ...clean, streamCheck: "limit-reached" }),
+          options: ValidationOptions.make({ expectedPages: O.some(1) }),
+        });
+        expect(A.map(unchecked, (f) => [f.code, f.message])).toEqual([
+          [
+            "pdf-stream-undecodable",
+            "The strict-inflate check stopped at the inflate limit before every FlateDecode stream was checked, so the file is unverified.",
+          ],
+        ]);
+        const truncatedAndUnchecked = structuralFindings({
+          facts: PdfFacts.make({ ...truncated, streamCheck: "limit-reached" }),
+          options: ValidationOptions.make({ expectedPages: O.some(1) }),
+        });
+        expect(A.map(truncatedAndUnchecked, (f) => f.message)).toEqual([
+          "2 FlateDecode stream(s) fail a strict inflate: 5 0 R (unexpected end of file), 9 0 R (incorrect header check). The check stopped at the inflate limit, so the FlateDecode streams after it were not checked.",
+        ]);
+        // an encrypted file's streams are not checked; the encrypted finding alone fails it
+        expect(
+          A.map(
+            structuralFindings({
+              facts: PdfFacts.make({ ...clean, encrypted: true, streamCheck: "encrypted" }),
+              options: ValidationOptions.make({ expectedPages: O.some(1) }),
+            }),
+            (f) => f.code
+          )
+        ).toEqual(["encrypted"]);
       })
     );
 
@@ -1618,6 +1792,113 @@ describe("@beep/technical-drawing", () => {
       );
 
       it.effect(
+        "threads the set elevation and focus into two-point pictorials, and checks them",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          const service = yield* FigureSet;
+          const renderSpec = (contents: string) =>
+            fs
+              .writeFileString(specPath, contents)
+              .pipe(
+                Effect.andThen(
+                  service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "out"), validate: false }))
+                )
+              );
+          const figures = [
+            { view: "top-perspective", description: "is a top view", projection: "two-point" },
+            { view: "front", description: "is a front elevation view" },
+          ];
+          const manifest = yield* renderSpec(
+            spec(figures, [{ omitted: "bottom-perspective", shown: "top-perspective", relation: "identical" }], {
+              pictorialAzimuthDeg: 30,
+              pictorialElevationDeg: 20,
+              pictorialFocusDiagonals: 3,
+            })
+          );
+          // the fake engine's model box is 10 × 5 × 5
+          const diagonal = Math.hypot(10, 5, 5);
+          const camera = O.getOrThrow(manifest.figures[0]!.camera);
+          expect(camera.eye[2]).toBe(0);
+          assertSome(camera.focus, 3 * diagonal);
+          const reach = (Math.sin(Math.PI / 6) * 10 + Math.cos(Math.PI / 6) * 5) / 2;
+          expect(Math.atan2(camera.target[2] - 5, 3 * diagonal - reach)).toBeCloseTo((20 * Math.PI) / 180, 12);
+          assertSome(
+            O.map(camera.sight, (sight) => sight[2] > 0),
+            true
+          );
+          // the camera, sight included, round-trips through the manifest
+          const written = yield* fs.readFileString(path.join(dir, "out", "manifest.json"));
+          expect(written).toContain('"sight"');
+          expect(yield* S.decodeEffect(RenderManifestJson)(written)).toEqual(manifest);
+          // a set without a two-point pictorial writes no sight
+          const plain = yield* renderSpec(
+            spec(
+              [{ view: "top-perspective", description: "is a top view", projection: "isometric" }, figures[1]!],
+              [],
+              {
+                pictorialElevationDeg: 20,
+              }
+            )
+          );
+          assertNone(O.getOrThrow(plain.figures[0]!.camera).sight);
+          const plainWritten = yield* fs.readFileString(path.join(dir, "out", "manifest.json"));
+          expect(plainWritten).not.toContain('"sight"');
+          expect(plainWritten).not.toContain('"hiddenLinePassAbout"');
+          expect(written).toContain('"hiddenLinePassAbout":"target"');
+          // the elevation lies strictly between level and plan; the focus keeps the eye a diagonal clear; a
+          // two-point projection belongs to a pictorial only
+          const refused = (contents: string) => Effect.flip(renderSpec(contents)).pipe(Effect.map((e) => e.reason));
+          expect(yield* refused(spec(figures, [], { pictorialElevationDeg: 0 }))).toBe("spec");
+          expect(yield* refused(spec(figures, [], { pictorialElevationDeg: 90 }))).toBe("spec");
+          expect(yield* refused(spec(figures, [], { pictorialFocusDiagonals: 0.9 }))).toBe("spec");
+          expect(
+            yield* refused(spec([{ view: "front", description: "is a front elevation view", projection: "two-point" }]))
+          ).toBe("spec");
+          // a two-point field stays within half the 60° cone of vision, also for an omitted pictorial claimed from a
+          // two-point figure
+          expect(yield* refused(spec(figures, [], { pictorialElevationDeg: 31 }))).toBe("spec");
+          const isometricTop = { view: "top-perspective", description: "is a top view", projection: "isometric" };
+          const perspectiveTop = { view: "top-perspective", description: "is a top view" };
+          // an elevation needs an isometric or two-point pictorial to read it, and a focus a perspective or two-point
+          // one: on a set without one, either would render the set unchanged
+          expect(yield* refused(spec([perspectiveTop, figures[1]!], [], { pictorialElevationDeg: 20 }))).toBe("spec");
+          expect(yield* refused(spec([isometricTop, figures[1]!], [], { pictorialFocusDiagonals: 3 }))).toBe("spec");
+          expect(
+            yield* refused(
+              spec([figures[1]!], [{ omitted: "rear", shown: "front", relation: "identical" }], {
+                pictorialElevationDeg: 20,
+                pictorialFocusDiagonals: 3,
+              })
+            )
+          ).toBe("spec");
+          // an omitted pictorial reads them as the figure it is claimed from does
+          const mirrored = yield* renderSpec(
+            spec(
+              [perspectiveTop, figures[1]!],
+              [{ omitted: "bottom-perspective", shown: "top-perspective", relation: "identical" }],
+              { pictorialFocusDiagonals: 3 }
+            )
+          );
+          assertSome(
+            O.flatMap(mirrored.figures[0]!.camera, (camera) => camera.focus),
+            3 * diagonal
+          );
+          // a set mixing an isometric and a perspective pictorial takes both, each read by its own figure
+          const mixed = yield* renderSpec(
+            spec([isometricTop, { view: "bottom-perspective", description: "is a bottom view" }, figures[1]!], [], {
+              pictorialElevationDeg: 20,
+              pictorialFocusDiagonals: 3,
+            })
+          );
+          assertNone(O.getOrThrow(mixed.figures[0]!.camera).focus);
+          assertSome(O.getOrThrow(mixed.figures[1]!.camera).focus, 3 * diagonal);
+        })
+      );
+
+      it.effect(
         "refuses an omission claim the projections disprove",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1877,12 +2158,11 @@ describe("graded shading ladder through fake ports", () => {
         const mmPerUnit = manifest.scale / PT_PER_MM;
         expect(mmPerUnit).toBeGreaterThan(5);
         expect(mmPerUnit).toBeLessThan(24);
-        expect(
-          O.getOrElse(
-            O.map(manifest.validation, (v) => A.map(v.findings, (f) => [f.code, f.page] as const)),
-            A.empty
+        assertTrue(
+          O.exists(manifest.validation, (v) =>
+            A.some(v.findings, (f) => f.code === "shading-band-ladder" && O.contains(f.page, 1))
           )
-        ).toContainEqual(["shading-band-ladder", O.some(1)]);
+        );
       })
     );
   });

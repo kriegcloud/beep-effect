@@ -8,6 +8,7 @@
 
 import {
   coverageOf,
+  HiddenLinePassAbout,
   ladderPitch,
   legibleShading,
   nearestOutlineDistance,
@@ -28,6 +29,7 @@ import { claimedPartOf, claimedStrokes, makeSurveyor, pieceStyles, sightOf, uncl
 import { hasBandRoom, hatchCompound, probeEdges } from "./shading.ts";
 import { add, cross, scale } from "./vector.ts";
 import type { FaceTreatment, ShadingProbe } from "@beep/technical-drawing";
+import type { LazyArg } from "effect/Function";
 import type { HLRBRep_HLRToShape, OpenCascadeInstance, TopoDS_Shape } from "replicad-opencascadejs";
 import type {
   Camera,
@@ -333,6 +335,47 @@ const normalize = (v: readonly [number, number, number]): [number, number, numbe
 };
 
 /**
+ * The point a camera's hidden-line pass runs about, when it is not the model's
+ * own origin.
+ *
+ * **Details**
+ *
+ * OCCT's perspective pass finds curved faces' silhouettes, and which way
+ * every face turns, from an eye `focus` along the view direction from its
+ * world origin, not from the projector's origin (the camera's target). A
+ * camera whose `hiddenLinePassAbout` is `target` (a two-point camera, whose
+ * target stands well above or below the model) runs the pass about its own
+ * target: the model is moved by −target and the projector stands at the
+ * origin, so the pass's eye is the camera's own and the drawn frame is
+ * unchanged. A camera left at `origin` keeps the model where it is, so its
+ * renders stay byte-equal to the ones written before the field existed.
+ *
+ * @internal
+ */
+const passOrigin = (camera: Camera): O.Option<V3> =>
+  HiddenLinePassAbout.$match(camera.hiddenLinePassAbout, {
+    origin: (): O.Option<V3> => O.none(),
+    target: () => O.some(camera.target),
+  });
+
+// A shape as the hidden-line pass holds it: moved by −origin, or itself about the model's own origin.
+const heldAbout =
+  (oc: OpenCascadeInstance, origin: O.Option<V3>) =>
+  (shape: TopoDS_Shape): TopoDS_Shape =>
+    O.match(origin, {
+      onNone: () => shape,
+      onSome: ([x, y, z]) => {
+        const by = new oc.gp_Vec(-x, -y, -z);
+        const trsf = new oc.gp_Trsf();
+        trsf.SetTranslation(by);
+        const moved = new oc.BRepBuilderAPI_Transform(shape, trsf, false, false).ModifiedShape(shape);
+        by.delete();
+        trsf.delete();
+        return moved;
+      },
+    });
+
+/**
  * Build the OCCT projector for a camera.
  *
  * **Details**
@@ -341,7 +384,9 @@ const normalize = (v: readonly [number, number, number]): [number, number, numbe
  * main direction pointing from the target toward the eye, and its X direction
  * as the horizontal screen axis. The screen Y axis is then `direction × x`,
  * which is the camera's up vector. With a focus, `HLRAlgo_Projector` places
- * the eye `focus` units along the direction and projects in perspective.
+ * the eye `focus` units along the direction and projects in perspective. A
+ * camera the pass runs about its own target ({@link passOrigin}) sees the
+ * model moved by −target, so its projector stands at the origin.
  *
  * @internal
  */
@@ -349,7 +394,8 @@ const makeProjector = (oc: OpenCascadeInstance, camera: Camera) => {
   const direction = normalize(camera.eye);
   const up = normalize(camera.up);
   const right = normalize(cross(up, direction));
-  const origin = new oc.gp_Pnt(camera.target[0], camera.target[1], camera.target[2]);
+  const at = O.match(passOrigin(camera), { onNone: () => camera.target, onSome: (): V3 => [0, 0, 0] });
+  const origin = new oc.gp_Pnt(at[0], at[1], at[2]);
   const mainDir = new oc.gp_Dir(direction[0], direction[1], direction[2]);
   const xDir = new oc.gp_Dir(right[0], right[1], right[2]);
   const ax2 = new oc.gp_Ax2(origin, mainDir, xDir);
@@ -532,9 +578,9 @@ const regionsOf = (options: {
     readonly ends: readonly [End, End];
   };
   const pieces: ReadonlyArray<Piece> = A.flatMap(options.probes, ({ probe, pieces }) =>
-    O.match(projectedProbe(options.camera, probe), {
-      onNone: A.empty<Piece>,
-      onSome: (line) => {
+    pipe(
+      projectedProbe(options.camera, probe),
+      O.map((line): ReadonlyArray<Piece> => {
         // each visible piece as a run along the step, its lower end first; the probe went through the pass in
         // short pieces, so the runs that touch are joined again
         type Span = { readonly from: number; readonly to: number; readonly ends: readonly [End, End] };
@@ -577,8 +623,9 @@ const regionsOf = (options: {
             probes: [line],
           })
         );
-      },
-    })
+      }),
+      O.getOrElse(A.empty<Piece>)
+    )
   );
   // the point of a piece at an offset inside its range
   const pointAt = (piece: Piece, offset: number): readonly [number, number] => {
@@ -647,15 +694,13 @@ const regionsOf = (options: {
     return pipe(
       Graph.connectedComponents(graph),
       A.map(
-        (component): ReadonlyArray<StretchPiece<ProbeLine>> =>
-          pipe(
-            component,
-            A.map((index) => Graph.getNode(graph, index)),
-            A.getSomes,
-            A.map(({ face: _face, height: _height, ends: _ends, ...piece }): StretchPiece<ProbeLine> => piece)
-          )
+        flow(
+          A.map((index: Graph.NodeIndex) => Graph.getNode(graph, index)),
+          A.getSomes,
+          A.map(({ face: _face, height: _height, ends: _ends, ...piece }): StretchPiece<ProbeLine> => piece)
+        )
       ),
-      A.filter((area): area is A.NonEmptyReadonlyArray<StretchPiece<ProbeLine>> => A.isReadonlyArrayNonEmpty(area))
+      A.filter(A.isArrayNonEmpty)
     );
   };
   return pipe(
@@ -696,7 +741,8 @@ const crosses = (line: ProbeLine, piece: Segment2, tolerance: number): boolean =
 // would otherwise print over an outline.
 const OVERLAY_MIN_FACING = 0.2;
 
-// Whether an overlay line is drawn in this camera's view.
+// Whether an overlay line is drawn in this camera's view: its facing is read against the camera's sight when it
+// carries one (a two-point camera's level eye would turn every level face edge-on).
 const facesEye =
   (camera: Camera) =>
   (overlay: OverlayLine): boolean =>
@@ -704,7 +750,7 @@ const facesEye =
       onNone: () => true,
       onSome: (facing) => {
         const n = normalize(facing);
-        const eye = normalize(camera.eye);
+        const eye = normalize(O.getOrElse(camera.sight, () => camera.eye));
         return n[0] * eye[0] + n[1] * eye[1] + n[2] * eye[2] > OVERLAY_MIN_FACING;
       },
     });
@@ -907,34 +953,39 @@ const hiddenLines = (options: {
   readonly extras: ReadonlyArray<AnyShape>;
 }): Lines => {
   const { oc, built, camera } = options;
+  // every shape as the pass holds it, about its origin; the edges come back in the projector's frame either way
+  const held = heldAbout(oc, passOrigin(camera));
+  const solid = O.map(built.solid, (s) => held(s.wrapped));
+  const broken = O.map(built.broken, (s) => held(s.wrapped));
+  const extras = A.map(options.extras, (shape) => held(shape.wrapped));
   const algo = new oc.HLRBRep_Algo();
-  A.forEach([built.solid, built.broken], (shape) => O.map(shape, (s) => algo.Add(s.wrapped, 0)));
-  A.forEach(options.extras, (shape) => algo.Add(shape.wrapped, 0));
+  A.forEach([solid, broken], (shape) => O.map(shape, (s) => algo.Add(s, 0)));
+  A.forEach(extras, (shape) => algo.Add(shape, 0));
   algo.Projector(makeProjector(oc, camera));
   algo.Update();
   algo.Hide();
   const shapes = new oc.HLRBRep_HLRToShape(algo);
   return {
-    visible: O.match(built.solid, {
+    visible: O.match(solid, {
       onNone: A.empty<replicad.Edge>,
-      onSome: (s) => visibleEdges(shapes, s.wrapped, oc),
+      onSome: (s) => visibleEdges(shapes, s, oc),
     }),
     hidden: O.match(
-      O.filter(built.solid, () => options.withHidden),
+      O.filter(solid, () => options.withHidden),
       {
         onNone: A.empty<replicad.Edge>,
         onSome: (s) => [
-          ...edgesOf(shapes.HCompound(s.wrapped), oc),
-          ...edgesOf(shapes.Rg1LineHCompound(s.wrapped), oc),
-          ...edgesOf(shapes.OutLineHCompound(s.wrapped), oc),
+          ...edgesOf(shapes.HCompound(s), oc),
+          ...edgesOf(shapes.Rg1LineHCompound(s), oc),
+          ...edgesOf(shapes.OutLineHCompound(s), oc),
         ],
       }
     ),
-    broken: O.match(built.broken, {
+    broken: O.match(broken, {
       onNone: A.empty<replicad.Edge>,
-      onSome: (s) => visibleEdges(shapes, s.wrapped, oc),
+      onSome: (s) => visibleEdges(shapes, s, oc),
     }),
-    extras: A.map(options.extras, (shape) => edgesOf(shapes.VCompound(shape.wrapped), oc)),
+    extras: A.map(extras, (shape) => edgesOf(shapes.VCompound(shape), oc)),
   };
 };
 
@@ -1075,6 +1126,7 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
       readonly planned: ReadonlyArray<readonly [V3, V3]>;
       readonly shape: AnyShape;
       readonly probes: ReadonlyArray<ProbeLine>;
+      readonly untapered: O.Option<LazyArg<AnyShape>>;
     }>;
   }> = O.match(shaded, { onNone: () => [], onSome: (view) => view.faces });
   const stroked = A.flatMap(faces, (face, index) => A.map(face.stretches, (stretch) => ({ index, ...stretch })));
@@ -1108,7 +1160,7 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
           oc,
           styles,
           view: onView,
-          sight: sightOf({ direction: normalize(camera.eye), focus: camera.focus }),
+          sight: sightOf({ direction: normalize(camera.eye), focus: camera.focus, origin: passOrigin(camera) }),
           surveyor: s,
           visible: lines.visible,
         })
@@ -1175,21 +1227,56 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
   // alone would empty arrives re-planned or untapered (review loop 3, J-01).
   const hasRoom = (planned: ReadonlyArray<readonly [V3, V3]>): boolean =>
     O.exists(options.shading, (plan) => hasBandRoom({ plan, viewedLength, planned }));
-  const drawn = A.zipWith(stroked, strokePieces, (stretch, edges) => {
+  type Stroked = (typeof stroked)[number];
+  // a stretch's strokes as the sheet draws them: its own pieces, kept legible, and none at all below two strokes
+  const strokesOf = (stretch: Stroked, edges: ReadonlyArray<replicad.Edge>): ReadonlyArray<Segment2> => {
     const pieces = toSegments(edges);
     const own = A.isReadonlyArrayNonEmpty(stretch.probes)
       ? A.filter(pieces, (piece) => A.some(stretch.probes, (line) => crosses(line, piece, tolerance)))
       : pieces;
-    if (graded && !hasRoom(stretch.planned)) {
-      return { index: stretch.index, sliver: true, segments: A.empty<Segment2>() };
-    }
     const segments = legible(own);
-    return {
-      index: stretch.index,
-      sliver: false,
-      segments: graded && A.length(segments) < 2 ? A.empty<Segment2>() : segments,
-    };
-  });
+    return graded && A.length(segments) < 2 ? A.empty<Segment2>() : segments;
+  };
+  const tapered = A.zipWith(stroked, strokePieces, (stretch, edges) =>
+    graded && !hasRoom(stretch.planned)
+      ? { index: stretch.index, sliver: true, segments: A.empty<Segment2>() }
+      : { index: stretch.index, sliver: false, segments: strokesOf(stretch, edges) }
+  );
+  // The taper may shorten a band but never empty it (review loop 3, J-01), and the planner judges a tapered band's room
+  // on its rows' cells, as if each showed in full wherever its probe saw the face. A part in front can cut a cell
+  // anywhere between the probe that saw the face and the row beyond that did not: each stroke, centred on the cell,
+  // then shows only its near end, and the legibility pass drops what is left (the two-point bottom view of a wall
+  // glimpsed at its foot through an opening in a plate in front of it). A stretch planned with room that drew nothing
+  // that way is drawn again on its whole clipped chords, through one more hidden-line pass that runs only when such a
+  // stretch exists; the pass cuts the chords to what shows. Room still comes from the plan, so a stretch whose whole
+  // chords draw nothing too stays a lost stretch (K-03), never a sliver.
+  const emptied = graded
+    ? pipe(
+        A.zip(stroked, tapered),
+        A.map(([stretch, drawnFirst], k) =>
+          !drawnFirst.sliver && !A.isReadonlyArrayNonEmpty(drawnFirst.segments)
+            ? O.map(stretch.untapered, (untapered) => ({ k, stretch, shape: untapered() }))
+            : O.none()
+        ),
+        A.getSomes
+      )
+    : A.empty<{ readonly k: number; readonly stretch: Stroked; readonly shape: AnyShape }>();
+  const redrawn = A.isReadonlyArrayNonEmpty(emptied)
+    ? HashMap.fromIterable(
+        A.zipWith(
+          hiddenLines({ oc, built, camera, withHidden: false, extras: A.map(emptied, (stretch) => stretch.shape) })
+            .extras,
+          emptied,
+          (edges, { k, stretch }) => [k, strokesOf(stretch, edges)] as const
+        )
+      )
+    : HashMap.empty<number, ReadonlyArray<Segment2>>();
+  const drawn = A.map(tapered, (stretch, k) =>
+    O.match(HashMap.get(redrawn, k), {
+      onNone: () => stretch,
+      onSome: (segments) => ({ ...stretch, segments }),
+    })
+  );
   // a planned stretch that drew nothing: its band was hidden, or clipped below two legible strokes
   const lostStretches = graded
     ? A.length(A.filter(drawn, (stretch) => !stretch.sliver && !A.isReadonlyArrayNonEmpty(stretch.segments)))
@@ -1275,9 +1362,14 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
  * its visible pieces give the face's visible stretches; the strokes are then
  * planned per stretch and projected with the outlines. A stretch left with
  * fewer than two legible strokes carries none, and a face whose every stroke
- * is lost is counted in the coverage. A face whose every planned stretch has
- * room for fewer than two legible strokes draws nothing by design and is
- * counted a sliver, not a shaded face. The uniform style keeps one pass.
+ * is lost is counted in the coverage. A tapered band that hidden-line removal
+ * and the legibility pass leave with fewer than two strokes (a part in front
+ * cut its probe row's cell short) is drawn again on its whole clipped chords
+ * in a third pass, which runs only when such a band exists; it is counted
+ * lost only when those draw nothing either. A face whose every planned
+ * stretch has room for fewer than two legible strokes draws nothing by design
+ * and is counted a sliver, not a shaded face. The uniform style keeps one
+ * pass.
  *
  * @internal
  */

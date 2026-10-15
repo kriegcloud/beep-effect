@@ -14,8 +14,10 @@
 
 import { $TechnicalDrawingId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { O } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 
 const $I = $TechnicalDrawingId.create("Geometry.schemas");
 
@@ -693,6 +695,70 @@ export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symb
   )
 ) {}
 
+const HiddenLinePassAboutBase = LiteralKit(["origin", "target"]);
+
+/**
+ * Point a camera's hidden-line pass runs about.
+ *
+ * **Details**
+ *
+ * `origin` runs the pass about the model's own origin, as every camera did
+ * before the field existed. `target` runs it about the camera's target: a
+ * kernel whose perspective pass places its eye relative to the pass origin
+ * then sees the model from the camera's own eye point. A camera whose target
+ * stands well clear of the model (a two-point pictorial) needs `target`.
+ *
+ * **Example** (Read the pass origins)
+ *
+ * ```ts
+ * import { HiddenLinePassAbout } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(HiddenLinePassAbout.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const HiddenLinePassAbout = HiddenLinePassAboutBase.pipe(
+  $I.annoteSchema("HiddenLinePassAbout", {
+    description: "Point a camera's hidden-line pass runs about: the model's `origin` or the camera's `target`.",
+  }),
+  SchemaUtils.withLiteralKitStatics(HiddenLinePassAboutBase)
+);
+
+/**
+ * Type for {@link HiddenLinePassAbout}.
+ *
+ * **Example** (Annotate a pass origin)
+ *
+ * ```ts
+ * import type { HiddenLinePassAbout } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * const about: HiddenLinePassAbout = "target"
+ * console.log(about)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type HiddenLinePassAbout = typeof HiddenLinePassAbout.Type;
+
+// Encoded only when it is not `origin`, so cameras written before the field existed encode byte for byte as before.
+const hiddenLinePassAboutKey = S.optionalKey(HiddenLinePassAbout).pipe(
+  S.decodeTo(
+    HiddenLinePassAbout,
+    SchemaTransformation.transformOptional<HiddenLinePassAbout, HiddenLinePassAbout>({
+      decode: (about) => O.some(O.getOrElse(about, () => HiddenLinePassAbout.Enum.origin)),
+      encode: O.filter((about) => about !== HiddenLinePassAbout.Enum.origin),
+    })
+  ),
+  S.withConstructorDefault(Effect.succeed(HiddenLinePassAbout.Enum.origin)),
+  S.annotateKey({
+    description:
+      "Point the hidden-line pass runs about: `origin` (the model's, the default, omitted when encoded) or `target`.",
+  })
+);
+
 /**
  * Viewing camera for hidden-line projection.
  *
@@ -701,6 +767,14 @@ export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symb
  * `eye` points from the target toward the viewer and `up` fixes the roll;
  * neither needs normalising. `focus` is the eye-to-target distance of a
  * perspective camera in model units; absent, the projection is orthographic.
+ * `sight` is the direction toward the viewer that face-facing decisions
+ * (shading, faced overlay lines) read in place of `eye`. A camera aimed at
+ * the model's centre needs none; a two-point camera, whose level line of
+ * sight would read every level face as edge-on, carries the direction from
+ * the box centre to its eye point. `hiddenLinePassAbout` says where the
+ * hidden-line pass runs (see {@link HiddenLinePassAbout}); it is set apart
+ * from `sight`, so a camera can change what it reads as facing without
+ * moving its pass.
  *
  * **Example** (Front orthographic and an upper-left perspective)
  *
@@ -710,7 +784,7 @@ export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symb
  *
  * const front = Camera.make({ eye: [0, -1, 0], up: [0, 0, 1] })
  * const persp = Camera.make({ eye: [-1, -1.3, 0.9], up: [0, 0, 1], target: [20, 15, 10], focus: O.some(250) })
- * console.log(front.focus, persp.focus)
+ * console.log(front.focus, persp.focus, persp.hiddenLinePassAbout)
  * ```
  *
  * @category models
@@ -729,9 +803,18 @@ export class Camera extends S.Opaque<Camera, { readonly brand: unique symbol }>(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Perspective eye distance from the target; none means orthographic." })
     ),
+    sight: S.OptionFromOptionalKey(Vec3).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Direction toward the viewer that shading and faced overlay lines read for which way a face turns; none means `eye`.",
+      })
+    ),
+    hiddenLinePassAbout: hiddenLinePassAboutKey,
   }).pipe(
     $I.annoteSchema("Camera", {
-      description: "Hidden-line projection camera: eye direction, up vector, target, optional perspective focus.",
+      description:
+        "Hidden-line projection camera: eye direction, up vector, target, optional perspective focus, optional facing sight, and the point its hidden-line pass runs about.",
     })
   )
 ) {}

@@ -36,6 +36,7 @@ import * as Order from "effect/Order";
 import * as replicad from "replicad";
 import { add, cross, scale } from "./vector.ts";
 import type { BandTaper, ViewFacts } from "@beep/technical-drawing";
+import type { LazyArg } from "effect/Function";
 import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { Camera, ShadingPlan } from "../Occt.models.ts";
 import type { V3 } from "./vector.ts";
@@ -413,11 +414,13 @@ export type StretchPiece<P> = {
   readonly probes: ReadonlyArray<P>;
 };
 
-// The strokes of one planned stretch and the probes that saw it (none for a
-// stretch planned over the whole face).
+// The strokes of one planned stretch, the probes that saw it (none for a
+// stretch planned over the whole face), and, for a tapered band, the same
+// band's strokes as whole clipped chords.
 type StrokeSet<P> = {
   readonly edges: ReadonlyArray<replicad.Edge>;
   readonly probes: ReadonlyArray<P>;
+  readonly untapered: O.Option<LazyArg<ReadonlyArray<replicad.Edge>>>;
 };
 
 // One face shaded under one band taper: its treatment, the strokes of each planned stretch, and, when the face is
@@ -472,7 +475,19 @@ const shadeFace =
       readonly treatment: FaceTreatment;
       readonly edges: ReadonlyArray<replicad.Edge>;
       readonly probes: ReadonlyArray<P>;
+      readonly untapered: O.Option<LazyArg<ReadonlyArray<replicad.Edge>>>;
     };
+    // A tapered band's strokes again as whole clipped chords, made only when asked for: the kernel draws them where
+    // hidden-line removal cut a band planned with room below two legible strokes. None for a band without a taper.
+    const untaperedOf = (
+      treatment: FaceTreatment,
+      pieces: ReadonlyArray<StretchPiece<P>>
+    ): O.Option<LazyArg<ReadonlyArray<replicad.Edge>>> =>
+      pipe(
+        O.liftPredicate(treatment, FaceTreatment.guards.lines),
+        O.filter((lines) => A.some(lines.cuts, (cut) => cut.extent < 1)),
+        O.map(() => () => drawn(treatment, pieces, false))
+      );
     // One band for one visible area of the face (the kernel groups the probe pieces into areas), measured from
     // `start` along the step to the area's far end. The strokes are then drawn only in the rows that saw the area
     // at their offset, so a band tapers along a slanting occluder and never runs on into a neighbouring area.
@@ -542,16 +557,21 @@ const shadeFace =
     // no room for a band in the kernel's eyes (`hasBandRoom`), the band is first re-planned from the start of a
     // later row of the area, nearest first, where the tapered strokes have room: the start's own rows can be a
     // narrow tip of the area. With no such row, every stroke is drawn as its whole clipped chord, and hidden-line
-    // removal cuts it to what shows. An area whose whole clipped chords lack room too stays a sliver.
+    // removal cuts it to what shows. An area whose whole clipped chords lack room too stays a sliver. A band drawn
+    // tapered keeps its whole clipped chords at hand (`untapered`) for the kernel, which only sees after hidden-line
+    // removal whether a part in front cut the band's rows below what the taper needs.
     const plannedFor = (pieces: A.NonEmptyReadonlyArray<StretchPiece<P>>): Planned => {
       const probes = A.flatMap(pieces, (piece) => piece.probes);
       const from = leastOf(A.map(pieces, (piece) => piece.from));
       const treatment = planAt(pieces, from);
       const tapered = drawn(treatment, pieces, true);
-      const banded = (chosen: FaceTreatment, edges: ReadonlyArray<replicad.Edge>): O.Option<Planned> =>
-        hasRoom(edges) ? O.some({ treatment: chosen, edges, probes }) : O.none();
+      const banded = (
+        chosen: FaceTreatment,
+        edges: ReadonlyArray<replicad.Edge>,
+        untapered: O.Option<LazyArg<ReadonlyArray<replicad.Edge>>>
+      ): O.Option<Planned> => (hasRoom(edges) ? O.some({ treatment: chosen, edges, probes, untapered }) : O.none());
       return !FaceTreatment.guards.lines(treatment) || hasRoom(tapered)
-        ? { treatment, edges: tapered, probes }
+        ? { treatment, edges: tapered, probes, untapered: untaperedOf(treatment, pieces) }
         : pipe(
             A.map(pieces, (piece) => piece.from),
             A.dedupe,
@@ -559,17 +579,25 @@ const shadeFace =
             A.sort(Order.Number),
             A.findFirst((start) => {
               const later = planAt(pieces, start);
-              return FaceTreatment.guards.lines(later) ? banded(later, drawn(later, pieces, true)) : O.none();
+              return FaceTreatment.guards.lines(later)
+                ? banded(later, drawn(later, pieces, true), untaperedOf(later, pieces))
+                : O.none();
             }),
-            O.orElse(() => banded(treatment, drawn(treatment, pieces, false))),
-            O.getOrElse((): Planned => ({ treatment, edges: tapered, probes }))
+            O.orElse(() => banded(treatment, drawn(treatment, pieces, false), O.none())),
+            O.getOrElse((): Planned => ({ treatment, edges: tapered, probes, untapered: O.none() }))
           );
     };
     const planned: A.NonEmptyReadonlyArray<Planned> = pipe(
       regions,
       O.filter(() => FaceTreatment.guards.lines(whole)),
       O.match({
-        onNone: () => A.of<Planned>({ treatment: whole, edges: drawn(whole, A.empty(), true), probes: A.empty() }),
+        onNone: () =>
+          A.of<Planned>({
+            treatment: whole,
+            edges: drawn(whole, A.empty(), true),
+            probes: A.empty(),
+            untapered: O.none(),
+          }),
         onSome: (pieces) =>
           pipe(pieces(index), A.map(plannedFor), (areas) =>
             A.isReadonlyArrayNonEmpty(areas)
@@ -578,6 +606,7 @@ const shadeFace =
                   treatment: ShadingSkipped.make({ reason: "hidden" }),
                   edges: A.empty(),
                   probes: A.empty(),
+                  untapered: O.none(),
                 })
           ),
       })
@@ -614,7 +643,7 @@ const shadeFace =
       // one stroke set per planned stretch, so the hidden-line pass reports each stretch on its own
       strokes: pipe(
         planned,
-        A.map((p): StrokeSet<P> => ({ edges: p.edges, probes: p.probes })),
+        A.map((p): StrokeSet<P> => ({ edges: p.edges, probes: p.probes, untapered: p.untapered })),
         A.filter((set) => A.isReadonlyArrayNonEmpty(set.edges))
       ),
       ink,
@@ -640,7 +669,11 @@ const shadeFace =
  * primitive. `viewedLength` is the kernel's measure of a planned stroke on
  * the view plane: a graded stretch whose tapered strokes leave no room for a
  * band by that measure is re-planned or drawn untapered before the kernel
- * reads it.
+ * reads it. A stretch drawn tapered also carries the same band as whole
+ * clipped chords (`untapered`), made only on request: the kernel draws them
+ * where hidden-line removal and the legibility pass leave the tapered band
+ * fewer than two strokes, since a part in front can cut a probe row's cell
+ * anywhere between the row and its unseen neighbour.
  *
  * `neighbours` are the pairs of faces that share an edge visible in the view.
  * A face turned toward the light must never carry more ink than a darker face
@@ -679,6 +712,7 @@ export const hatchCompound = <P>(options: {
       readonly planned: ReadonlyArray<readonly [V3, V3]>;
       readonly shape: replicad.AnyShape;
       readonly probes: ReadonlyArray<P>;
+      readonly untapered: O.Option<LazyArg<replicad.AnyShape>>;
     }>;
   }>;
 } => {
@@ -719,6 +753,7 @@ export const hatchCompound = <P>(options: {
         planned: A.map(set.edges, endsOf),
         shape: replicad.makeCompound([...set.edges]),
         probes: set.probes,
+        untapered: O.map(set.untapered, (edges) => () => replicad.makeCompound([...edges()])),
       })),
     })),
   };

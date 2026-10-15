@@ -86,6 +86,28 @@ const FAINT_TO = 0.7;
 /**
  * Sheet frame and 1.84(m) light of a camera, in model coordinates.
  *
+ * **Details**
+ *
+ * The frame is that of a parallel view along the camera's `sight` when it
+ * carries one, else along its `eye`: a two-point camera looks level, and
+ * every face turned toward its raised eye must still read as seen.
+ *
+ * A two-point camera's sheet is a vertical picture plane, not one square to
+ * its sight. Near the article it maps a model vector `v` to
+ * `(v·right, v_z − tan(β)·(v·ê))` for a raised eye (`+` for a lowered one),
+ * where `ê` is the level eye direction and `β` the angle between the sight
+ * and `ê`; that is this frame's
+ * `(v·right, v·up / cos β)`, the same frame stretched vertically by
+ * `1 / cos β`. The stretch keeps every sign, so lit and shaded sides and the
+ * band's side are the frame's; it scales vertical measures. The light's up
+ * term is scaled by `cos β`, so on the sheet it still falls at 45° from the
+ * upper left. Every other on-sheet measure read from the frame (the
+ * projected span of a face, the stroke-length floor, the area a band's ink
+ * is spread over) reads vertical lengths `cos β` short. `β` is steeper than
+ * the camera's field, since the sight runs from the box centre rather than
+ * from the box's near top corner. A camera without a `sight` keeps
+ * `cos β = 1` and its light exactly as before.
+ *
  * **Example** (The front elevation's light)
  *
  * ```ts
@@ -98,12 +120,23 @@ const FAINT_TO = 0.7;
  * @category utilities
  * @since 0.0.0
  */
-export const viewFactsOf = (camera: Camera): ViewFacts => {
-  const eye = unitOf(camera.eye);
-  const right = unitOf(crossOf(unitOf(camera.up), eye));
-  const up = crossOf(eye, right);
-  return ViewFacts.make({ eye, right, up, light: unitOf(plus(plus(times(right, -1), up), eye)) });
-};
+export const viewFactsOf = (camera: Camera): ViewFacts =>
+  O.match(camera.sight, {
+    onNone: () => {
+      const eye = unitOf(camera.eye);
+      const right = unitOf(crossOf(unitOf(camera.up), eye));
+      const up = crossOf(eye, right);
+      return ViewFacts.make({ eye, right, up, light: unitOf(plus(plus(times(right, -1), up), eye)) });
+    },
+    onSome: (sight) => {
+      const eye = unitOf(sight);
+      const right = unitOf(crossOf(unitOf(camera.up), eye));
+      const up = crossOf(eye, right);
+      // cos β between the sight and the level eye: the vertical picture plane stretches `up` by 1 / cos β
+      const lean = Math.abs(dot(unitOf(camera.eye), eye));
+      return ViewFacts.make({ eye, right, up, light: unitOf(plus(plus(times(right, -1), times(up, lean)), eye)) });
+    },
+  });
 
 /**
  * Orientation class of a face normal against model +Z, within one degree.

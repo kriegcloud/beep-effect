@@ -438,6 +438,8 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
         box: model.boundingBox,
         projection,
         azimuthDeg: spec.pictorialAzimuthDeg,
+        elevationDeg: spec.pictorialElevationDeg,
+        focusDiagonals: spec.pictorialFocusDiagonals,
         planFacing: spec.planFacing,
       })
     );

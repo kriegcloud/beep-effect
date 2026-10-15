@@ -5,7 +5,9 @@
  *
  * Structural tier (37 CFR 1.84(f), Patent Center PDF rules): header version
  * 1.1–1.6, no encryption, no layers, no annotations, every font embedded,
- * every page the same permitted size, and, for text labels, every embedded
+ * every FlateDecode stream inflating under a strict inflate (and the check
+ * reaching the last one), every page the same permitted size, and, for text
+ * labels, every embedded
  * font one of the expected label families. Text tier: a page whose labels are
  * embedded text carries `FIG. n` and `n/N` in its extracted text (a missing
  * font makes the converter drop the text silently). Raster tier (1.84(g), (l), (m)): ink
@@ -81,6 +83,33 @@ export const structuralFindings = (input: {
     : [fileFinding("pdf-version", `PDF header version "${facts.headerVersion}" is outside 1.1–1.6.`)];
   const encrypted = facts.encrypted ? [fileFinding("encrypted", "The PDF is encrypted.")] : [];
   const layers = facts.hasOptionalContent ? [fileFinding("optional-content", "The PDF declares layers.")] : [];
+  // A stream a strict reader refuses can fail intake although lenient viewers still show the page, and a check
+  // that stopped at the inflate limit leaves the streams after it unverified, so either fails the file.
+  const unchecked =
+    facts.streamCheck === "limit-reached"
+      ? " The check stopped at the inflate limit, so the FlateDecode streams after it were not checked."
+      : "";
+  const undecodable = A.isReadonlyArrayNonEmpty(facts.undecodableStreams)
+    ? [
+        fileFinding(
+          "pdf-stream-undecodable",
+          `${A.length(facts.undecodableStreams)} FlateDecode stream(s) fail a strict inflate: ${A.join(
+            A.map(
+              facts.undecodableStreams,
+              (stream) => `${stream.objectNumber} ${stream.generation} R (${stream.reason})`
+            ),
+            ", "
+          )}.${unchecked}`
+        ),
+      ]
+    : facts.streamCheck === "limit-reached"
+      ? [
+          fileFinding(
+            "pdf-stream-undecodable",
+            "The strict-inflate check stopped at the inflate limit before every FlateDecode stream was checked, so the file is unverified."
+          ),
+        ]
+      : [];
   const annotations =
     facts.annotationCount > 0
       ? [fileFinding("annotations", `The PDF carries ${facts.annotationCount} annotation(s).`)]
@@ -143,6 +172,7 @@ export const structuralFindings = (input: {
     ...annotations,
     ...fonts,
     ...unexpected,
+    ...undecodable,
     ...pageCount,
     ...noPages,
     ...sizes,

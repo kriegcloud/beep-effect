@@ -1,7 +1,11 @@
+import { PdfTools, UndecodableStream } from "@beep/pdf-tools";
 import {
   CriticFinding,
   CriticFindingRelation,
+  CriticMeasurements,
+  CriticPackManifest,
   CriticPackRequest,
+  CriticPdfMeasurements,
   CriticReport,
   CriticReportSource,
   CriticReviewer,
@@ -10,24 +14,47 @@ import {
   criticInvocation,
   criticReportJsonSchema,
   DEFAULT_CRITIC_REVIEWERS,
+  DRAWING_CRITIC_PROMPT_TEMPLATE,
+  DrawingCritics,
   DrawingsCommandError,
+  decodeCriticLoopRecord,
+  decodeCriticMeasurements,
   decodeCriticReport,
+  encodeCriticMeasurements,
+  encodeCriticPackManifest,
+  encodeCriticReport,
   extractReportText,
+  figureMeasurements,
+  grokSandboxRefusal,
+  measurementsMarkdown,
+  parsePdfFonts,
+  parsePdfInfoBoxes,
   parseZoomFlag,
   priorIdsMarkdown,
   priorSummaryMarkdown,
   selectReviewers,
   strokeTableMarkdown,
 } from "@beep/repo-cli/commands/Drawings";
+import { Sha256Hex } from "@beep/schema";
 import { it } from "@beep/test-runner";
+import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
+import * as Path from "effect/Path";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as S from "effect/Schema";
+import * as Sink from "effect/Sink";
+import * as Stream from "effect/Stream";
 
 const UnknownJson = S.fromJsonString(S.Unknown);
 const encodeJson = S.encodeUnknownEffect(UnknownJson);
@@ -59,8 +86,9 @@ const finding = (id: string, of: O.Option<string> = O.none()): CriticFinding =>
   });
 
 describe("critic report contract", () => {
-  it.effect("round-trips a report with a new and an extending finding through JSON", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "round-trips a report with a new and an extending finding through JSON",
+    Effect.fnUntraced(function* () {
       const report = CriticReport.make({
         ...accept("grok-4.7"),
         priorAssessment: [{ id: "A-01", stance: "confirm", note: "Measured 1.50 mm." }],
@@ -84,8 +112,9 @@ describe("critic report contract", () => {
     })
   );
 
-  it.effect("derives a JSON Schema in which every key is required and no excess property is allowed", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "derives a JSON Schema in which every key is required and no excess property is allowed",
+    Effect.fnUntraced(function* () {
       const schema = yield* decodeJson(criticReportJsonSchema());
       expect(schema).toHaveProperty("required", [
         "reviewer",
@@ -103,8 +132,9 @@ describe("critic report contract", () => {
     })
   );
 
-  it.effect("rejects a report whose finding carries an unknown category", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects a report whose finding carries an unknown category",
+    Effect.fnUntraced(function* () {
       const text = yield* encodeJson({
         ...accept("x"),
         findings: [{ ...finding("X-01"), relation: { kind: "new", of: null }, category: "taste" }],
@@ -122,8 +152,9 @@ describe("critic report contract", () => {
 describe("extractReportText", () => {
   const document = '{"reviewer":"x","verdict":"accept"}';
 
-  it.effect("reads a Grok wrapper's structuredOutput, or its text when absent", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "reads a Grok wrapper's structuredOutput, or its text when absent",
+    Effect.fnUntraced(function* () {
       assertSome(
         extractReportText({
           route: "grok",
@@ -138,14 +169,78 @@ describe("extractReportText", () => {
     })
   );
 
-  it.effect("reads the last result event of a claude -p stream-json array", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "reads the report out of the single result envelope claude -p prints with --output-format json",
+    Effect.fnUntraced(function* () {
+      const report = accept("claude-opus-5.5");
+      const reportText = yield* encodeCriticReport(report);
+      const envelope = yield* encodeJson({
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        duration_ms: 1200,
+        num_turns: 4,
+        result: `Review complete.\n\n${reportText}\n`,
+        session_id: "00000000-0000-0000-0000-000000000000",
+        total_cost_usd: 0.42,
+      });
+      const extracted = extractReportText({ route: "claude", text: envelope });
+      assertSome(extracted, reportText);
+      // The extracted text is the reviewer's report, not the envelope around it.
+      expect(yield* extracted.pipe(O.getOrThrow, decodeCriticReport)).toStrictEqual(report);
+    })
+  );
+
+  it.effect(
+    "reads the last result event of a claude -p --verbose event array, an absent is_error meaning success",
+    Effect.fnUntraced(function* () {
       const events = yield* encodeJson([
         { type: "system", subtype: "init" },
         { type: "result", result: "not this one {}" },
         { type: "result", result: `Final:\n${document}\n` },
       ]);
       assertSome(extractReportText({ route: "claude", text: events }), document);
+    })
+  );
+
+  it.effect(
+    "reads the last result event of claude -p stream-json output, one event per line",
+    Effect.fnUntraced(function* () {
+      const lines = (events: ReadonlyArray<unknown>) =>
+        Effect.map(
+          Effect.forEach(events, (event) => encodeJson(event)),
+          (encoded) => `${A.join(encoded, "\n")}\n`
+        );
+      const stream = yield* lines([
+        { type: "system", subtype: "init", session_id: "00000000-0000-0000-0000-000000000000" },
+        { type: "assistant", message: { content: [{ type: "text", text: "Reading the sheets {}" }] } },
+        { type: "result", subtype: "success", is_error: false, result: `Final:\n${document}\n` },
+      ]);
+      // Not one JSON value: the events are read line by line, never as the outermost braces of the text.
+      assertSome(extractReportText({ route: "claude", text: stream }), document);
+      const failed = yield* lines([
+        { type: "system", subtype: "init" },
+        { type: "result", subtype: "success", is_error: true, result: `API Error ${document}` },
+      ]);
+      assertNone(extractReportText({ route: "claude", text: failed }));
+      // A stream cut off before its result event holds no report.
+      const cut = yield* lines([{ type: "system", subtype: "init" }]);
+      assertNone(extractReportText({ route: "claude", text: `${cut}{"type":"assistant","message":{"con` }));
+    })
+  );
+
+  it.effect(
+    "finds no report in a claude -p envelope flagged is_error or carrying no result",
+    Effect.fnUntraced(function* () {
+      const failed = yield* encodeJson({
+        type: "result",
+        subtype: "success",
+        is_error: true,
+        result: 'API Error: 500 {"type":"error","error":{"type":"api_error"}}',
+      });
+      assertNone(extractReportText({ route: "claude", text: failed }));
+      const maxTurns = yield* encodeJson({ type: "result", subtype: "error_max_turns", is_error: false });
+      assertNone(extractReportText({ route: "claude", text: maxTurns }));
     })
   );
 
@@ -272,8 +367,9 @@ describe("invocations", () => {
     expect(claude.args).not.toContain("bypassPermissions");
   });
 
-  it.effect("selects reviewers by name in the order given and refuses an unknown one", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "selects reviewers by name in the order given and refuses an unknown one",
+    Effect.fnUntraced(function* () {
       const two = yield* selectReviewers(["claude-opus-5.5", "grok-4.7"]);
       expect(A.map(two, (r) => r.idPrefix)).toStrictEqual(["O", "G"]);
       const unknown = yield* Effect.exit(selectReviewers(["gpt-3"]));
@@ -289,8 +385,9 @@ describe("invocations", () => {
     })
   );
 
-  it.effect("parses a zoom flag and refuses a malformed one", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "parses a zoom flag and refuses a malformed one",
+    Effect.fnUntraced(function* () {
       const zoom = yield* parseZoomFlag("1:500,1500,1700,1400:walls");
       expect([zoom.figure, zoom.x, zoom.y, zoom.width, zoom.height, zoom.label]).toStrictEqual([
         1,
@@ -342,4 +439,467 @@ describe("invocations", () => {
     assertNone(CriticRunRequest.makeOption({ ...run, loop: 0 }));
     assertNone(CriticRunRequest.makeOption({ ...run, timeoutMinutes: 0 }));
   });
+});
+
+// The refusal grok prints when its strict sandbox cannot resolve a runtime-socket deny path (synthetic path).
+const sandboxRefusal = (deniedPath: string) =>
+  [
+    `Error: sandbox profile resolve failed: socket deny resolution failed: could not resolve runtime-socket deny path${deniedPath}: Permission denied (os error 13)`,
+    "error: this sandbox could not enforce its deny list on Linux: the required bwrap plan could not be prepared; see the error above for the specific cause. Refusing to start with denied paths unprotected.",
+    "",
+  ].join("\n");
+
+describe("grokSandboxRefusal", () => {
+  it("recognises the strict-sandbox refusal and the deny path it names", () => {
+    const seat = grokSandboxRefusal(sandboxRefusal(" /run/example/runtime.sock"));
+    assertSome(
+      O.map(seat, (s) => s.reason),
+      "sandbox-deny-path-unresolved"
+    );
+    assertSome(
+      O.flatMap(seat, (s) => s.path),
+      "/run/example/runtime.sock"
+    );
+    assertSome(
+      O.map(seat, (s) => s.detail),
+      "grok refused to start: its --sandbox strict profile could not resolve the runtime-socket deny path /run/example/runtime.sock on this host"
+    );
+  });
+
+  it("recognises the refusal when the message names no path", () => {
+    const seat = grokSandboxRefusal(sandboxRefusal(""));
+    assertSome(
+      O.map(seat, (s) => s.reason),
+      "sandbox-deny-path-unresolved"
+    );
+    assertNone(O.flatMap(seat, (s) => s.path));
+    assertSome(
+      O.map(seat, (s) => s.detail),
+      "grok refused to start: its --sandbox strict profile could not resolve a runtime-socket deny path on this host (the message names no path)"
+    );
+  });
+
+  it("does not swallow any other grok failure", () => {
+    assertNone(grokSandboxRefusal("Error: 401 Unauthorized: run grok login again\n"));
+    // the same deny-list refusal for another cause is not the runtime-socket failure
+    assertNone(
+      grokSandboxRefusal(
+        "error: sandbox deny-glob expansion failed; refusing to start\nerror: this sandbox could not enforce its deny list on Linux: the required bwrap plan could not be prepared. Refusing to start with denied paths unprotected.\n"
+      )
+    );
+    // the deny-path line without the refusal to start is not a startup failure
+    assertNone(
+      grokSandboxRefusal(
+        "warning: could not resolve runtime-socket deny path /run/example/runtime.sock: Permission denied\n"
+      )
+    );
+  });
+});
+
+const textStream = (text: string) => (text === "" ? Stream.empty : Stream.make(new TextEncoder().encode(text)));
+
+type SeatOutput = { readonly stdout: string; readonly stderr: string; readonly exitCode: number };
+
+const seatHandle = ({ stdout, stderr, exitCode }: SeatOutput) =>
+  ChildProcessSpawner.makeHandle({
+    all: Stream.empty,
+    stdout: textStream(stdout),
+    stderr: textStream(stderr),
+    stdin: Sink.drain,
+    exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(exitCode)),
+    getInputFd: () => Sink.drain,
+    getOutputFd: () => Stream.empty,
+    isRunning: Effect.succeed(false),
+    kill: () => Effect.void,
+    pid: ChildProcessSpawner.ProcessId(1),
+    unref: Effect.succeed(Effect.void),
+  });
+
+const opusReport = JSON.stringify({
+  reviewer: "claude-opus-5.5",
+  verdict: "accept",
+  blockers: [],
+  priorAssessment: [],
+  findings: [],
+  couldNotAssess: [],
+});
+
+const flagValue = (args: ReadonlyArray<string>, flag: string) =>
+  O.flatMap(
+    A.findFirstIndex(args, (arg) => arg === flag),
+    (index) => A.get(args, index + 1)
+  );
+
+// Every spawn the fake seats received, keyed by "<cwd> <executable>".
+const spawned = MutableHashMap.empty<string, ReadonlyArray<string>>();
+
+// Fake reviewer CLIs: the grok model name picks the failure, claude answers with an accept report.
+const seatOutput = (command: ChildProcess.StandardCommand): SeatOutput =>
+  Match.value(command.command).pipe(
+    Match.when("grok", () =>
+      O.contains(flagValue(command.args, "-m"), "grok-sandbox-refused")
+        ? { stdout: "", stderr: sandboxRefusal(" /run/example/runtime.sock"), exitCode: 1 }
+        : { stdout: "", stderr: "Error: 401 Unauthorized: run grok login again\n", exitCode: 1 }
+    ),
+    Match.when("claude", () => ({
+      stdout: JSON.stringify({ type: "result", subtype: "success", is_error: false, result: opusReport }),
+      stderr: "",
+      exitCode: 0,
+    })),
+    Match.orElse(() => ({ stdout: "", stderr: `unexpected ${command.command}`, exitCode: 127 }))
+  );
+
+const fakeSeats = ChildProcessSpawner.make((command) =>
+  ChildProcess.isStandardCommand(command)
+    ? Effect.sync(() => {
+        MutableHashMap.set(spawned, `${command.options.cwd ?? ""} ${command.command}`, command.args);
+        return command.pipe(seatOutput, seatHandle);
+      })
+    : Effect.die("unexpected piped command")
+);
+
+const SeatsLayer = DrawingCritics.layer.pipe(
+  Layer.provide(PdfTools.makeLayer()),
+  Layer.provide(Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, fakeSeats)),
+  Layer.provideMerge(Layer.mergeAll(MemoryFileSystem.layer, Path.layer))
+);
+
+const grokSeat = (model: string) =>
+  CriticReviewer.make({
+    name: "grok-4.7",
+    idPrefix: "G",
+    route: "grok",
+    model,
+    effort: O.some("xhigh"),
+    scope: "matter",
+  });
+
+const opusSeat = CriticReviewer.make({
+  name: "claude-opus-5.5",
+  idPrefix: "O",
+  route: "claude",
+  model: "claude-opus-5-5",
+  effort: O.some("xhigh"),
+  scope: "matter",
+});
+
+// A repository root holding the critic prompt, and a pack and loop directory for one scenario, all in memory.
+const seatScenario = Effect.fnUntraced(function* (name: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const root = path.resolve(".");
+  const template = path.join(root, DRAWING_CRITIC_PROMPT_TEMPLATE);
+  yield* fs.makeDirectory(path.join(root, ".git"), { recursive: true });
+  yield* fs.makeDirectory(path.dirname(template), { recursive: true });
+  yield* fs.writeFileString(template, "Review the drawing set. Read prior/SUMMARY.md first.\n");
+  const packDir = path.join("/work", name, "pack");
+  const loopDir = path.join("/work", name, "loop-1");
+  yield* fs.makeDirectory(packDir, { recursive: true });
+  const pack = yield* encodeCriticPackManifest(
+    CriticPackManifest.make({
+      schemaVersion: "drawing-critic-pack/v1",
+      title: "Synthetic bracket",
+      sheetSetSha256: Sha256Hex.make("a".repeat(64)),
+      specSha256: Sha256Hex.make("b".repeat(64)),
+      sheets: ["render/pg-1.png"],
+      zooms: [],
+      svgs: ["render/fig-1.svg"],
+      images: [],
+      strokeTable: "render/RENDER.md",
+      measurements: O.some("render/MEASUREMENTS.md"),
+      brief: "BRIEF.md",
+    })
+  );
+  yield* fs.writeFileString(path.join(packDir, "pack.json"), pack);
+  return { packDir, loopDir };
+});
+
+// The last argument (the prompt) a fake seat was spawned with.
+const promptOf = (args: O.Option<ReadonlyArray<string>>) =>
+  O.getOrElse(
+    O.flatMap(args, (all) => A.last(all)),
+    () => ""
+  );
+
+const runSeats = Effect.fnUntraced(function* (name: string, grokModel: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const critics = yield* DrawingCritics;
+  const { packDir, loopDir } = yield* seatScenario(name);
+  const record = yield* critics.runSequence(
+    CriticRunRequest.make({
+      loop: 1,
+      loopDir,
+      packDir,
+      reviewers: [grokSeat(grokModel), opusSeat],
+      timeoutMinutes: 5,
+    })
+  );
+  const outcomes = A.map(record.runs, (run) => [run.reviewer.name, run.exitCode, O.getOrNull(run.report)] as const);
+  const priorFiles = A.sort(yield* fs.readDirectory(path.join(loopDir, "prior")), Order.String);
+  const allFindings = yield* fs.readFileString(path.join(loopDir, "ALL-FINDINGS.md"));
+  const loop = yield* fs.readFileString(path.join(loopDir, "loop.json")).pipe(Effect.flatMap(decodeCriticLoopRecord));
+  const summary = yield* critics.summary(loopDir);
+  const opusPrompt = promptOf(MutableHashMap.get(spawned, `${packDir} claude`));
+  return { record, outcomes, priorFiles, allFindings, loop, summary, opusPrompt, packDir, loopDir };
+});
+
+describe("critic sequence seats", () => {
+  it.layer(SeatsLayer, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "skips a Grok seat whose strict sandbox cannot start, records why, and runs the next reviewer",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const run = yield* runSeats("refused", "grok-sandbox-refused");
+        // the sequence went on: grok exited 1 without a report, opus reported
+        expect(run.outcomes).toStrictEqual([
+          ["grok-4.7", 1, null],
+          ["claude-opus-5.5", 0, "claude-opus-5.5.json"],
+        ]);
+        assertSome(
+          O.flatMap(A.head(run.record.runs), (grok) => O.flatMap(grok.unavailable, (seat) => seat.path)),
+          "/run/example/runtime.sock"
+        );
+        assertNone(O.flatMap(A.last(run.record.runs), (opus) => opus.unavailable));
+        // loop.json states which seat was missing and why
+        expect(run.loop.runs).toEqual(run.record.runs);
+        const missing =
+          "grok-4.7 (ids G-…) did not run: grok refused to start: its --sandbox strict profile could not resolve the runtime-socket deny path /run/example/runtime.sock on this host.";
+        expect(run.allFindings).toContain(missing);
+        expect(run.summary).toContain(missing);
+        // the summary opus read names the missing seat; nothing points it at a grok report
+        expect(yield* fs.readFileString(path.join(run.packDir, "prior", "SUMMARY.md"))).toContain(missing);
+        expect(run.opusPrompt).toContain("Review the drawing set.");
+        expect(run.opusPrompt).not.toContain("grok-4.7.json");
+        expect(run.opusPrompt).toContain("render/MEASUREMENTS.md");
+        expect(run.priorFiles).toStrictEqual(["2-claude-opus-5.5.json"]);
+      })
+    );
+
+    it.effect(
+      "keeps any other Grok failure a plain failed run",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const run = yield* runSeats("unauthorized", "grok-4.7");
+        expect(run.outcomes).toStrictEqual([
+          ["grok-4.7", 1, null],
+          ["claude-opus-5.5", 0, "claude-opus-5.5.json"],
+        ]);
+        assertNone(O.flatMap(A.head(run.record.runs), (grok) => grok.unavailable));
+        expect(run.allFindings).not.toContain("did not run");
+        expect(run.summary).not.toContain("did not run");
+        expect(yield* fs.readFileString(path.join(run.loopDir, "grok-4.7.log"))).toContain("401 Unauthorized");
+      })
+    );
+  });
+});
+
+// A Letter sheet in points: a 100 × 140 mm outline from (50, 60) mm, a dashed broken line inside it, six
+// shading strokes (three parallel 1.5 mm apart, one collinear piece, one far parallel, one horizontal), a
+// stroked label above the top margin, an outlined label, and one text label.
+const syntheticSheet = [
+  '<svg xmlns="http://www.w3.org/2000/svg" width="612.000pt" height="792.000pt" viewBox="0 0 612.000 792.000">',
+  '<path id="labels" d="M300 60L312 60" fill="none" stroke="#000000" stroke-width="0.992"/>',
+  '<path id="label-outlines" d="M290 740Q295 730 300 740Z" fill="#000000" stroke="none"/>',
+  '<path id="shading" d="M170.079 226.772L170.079 283.465M174.331 226.772L174.331 283.465M178.583 226.772L178.583 283.465M198.425 425.197L198.425 453.543M170.079 289.134L170.079 294.803M283.465 340.157L311.811 340.157" fill="none" stroke="#000000" stroke-width="0.567"/>',
+  '<path id="broken" d="M200 300L300 300" fill="none" stroke="#000000" stroke-width="0.992" stroke-dasharray="8.504 4.252"/>',
+  '<path id="figure" d="M141.732 170.079L425.197 170.079L425.197 566.929L141.732 566.929Z" fill="none" stroke="#000000" stroke-width="0.992"/>',
+  '<text x="306" y="760" font-family="DejaVu Sans" font-size="12" text-anchor="middle" fill="#000000">FIG. 1 &amp; 2</text>',
+  "</svg>",
+].join("\n");
+
+describe("figure measurements", () => {
+  it("measures the ink boxes against the 1.84(g) margins, the path layers, the shading, and the labels", () => {
+    const figure = figureMeasurements({ figure: 1, view: "front", svgFile: "render/fig-1.svg", svg: syntheticSheet });
+    expect([figure.sheetWidthMm, figure.sheetHeightMm]).toStrictEqual([215.9, 279.4]);
+    // the view's box: the outline widened by half its 0.35 mm stroke
+    assertSome(
+      O.map(figure.drawing, (box) => [box.minXMm, box.minYMm, box.maxXMm, box.maxYMm]),
+      [49.825, 59.825, 150.175, 200.175]
+    );
+    assertSome(
+      O.map(figure.drawing, (box) => [box.top.meets, box.left.meets, box.right.meets, box.bottom.meets]),
+      [true, true, true, true]
+    );
+    assertSome(
+      O.map(figure.drawing, (box) => [box.right.distanceMm, box.right.minimumMm]),
+      [65.725, 15]
+    );
+    // the stroked label sits 20.99 mm from the top edge: inside the 2.5 cm top margin
+    assertSome(
+      O.map(figure.ink, (box) => [box.top.distanceMm, box.top.minimumMm, box.top.meets]),
+      [20.992, 25, false]
+    );
+    assertSome(
+      O.map(figure.ink, (box) => [box.bottom.distanceMm, box.bottom.meets]),
+      [18.344, true]
+    );
+    const layers = A.map(figure.layers, (layer) => [
+      layer.id,
+      O.getOrNull(layer.strokeWidthMm),
+      layer.dashArrayMm,
+      layer.segments,
+    ]);
+    expect(layers).toStrictEqual([
+      ["labels", 0.35, [], 1],
+      ["label-outlines", null, [], 2],
+      ["shading", 0.2, [], 6],
+      ["broken", 0.35, [3, 1.5], 1],
+      ["figure", 0.35, [], 4],
+    ]);
+    const outlineLength = O.getOrElse(
+      O.map(
+        A.findFirst(figure.layers, (layer) => layer.id === "figure"),
+        (layer) => layer.lengthMm
+      ),
+      () => 0
+    );
+    expect(outlineLength).toBeCloseTo(480, 2);
+    const shading = [
+      figure.shading.count,
+      O.getOrNull(figure.shading.minLengthMm),
+      O.getOrNull(figure.shading.medianLengthMm),
+      O.getOrNull(figure.shading.maxLengthMm),
+      O.getOrNull(figure.shading.minParallelGapMm),
+    ];
+    expect(shading).toStrictEqual([6, 2, 15, 20, 1.5]);
+    expect(figure.labels).toEqual([
+      { text: "FIG. 1 & 2", fontFamily: "DejaVu Sans", sizePt: 12, xMm: 107.95, yMm: 268.111, anchor: "middle" },
+    ]);
+  });
+
+  it("pairs the converging hatch strokes of a two-point face and measures their gap across the strokes", () => {
+    // Eleven 40 mm strokes start 2 mm apart at x = 50 mm, all aimed at one vanishing point 200 mm to the right:
+    // each turns about 0.57° from the next, across 0° (a direction wraps at 180°), and half-way along they stand
+    // 1.8 mm apart. A twelfth stroke 8° off the band crosses its last stroke and is no parallel neighbour.
+    const strokes = [
+      "M141.732 283.465L254.977 289.127",
+      "M141.732 289.134L255.028 293.666",
+      "M141.732 294.803L255.067 298.203",
+      "M141.732 300.472L255.095 302.74",
+      "M141.732 306.142L255.112 307.276",
+      "M141.732 311.811L255.118 311.811",
+      "M141.732 317.48L255.112 316.347",
+      "M141.732 323.15L255.095 320.882",
+      "M141.732 328.819L255.067 325.419",
+      "M141.732 334.488L255.028 329.956",
+      "M141.732 340.157L254.977 334.495",
+      "M141.732 342.992L254.015 327.212",
+    ];
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" width="612.000pt" height="792.000pt" viewBox="0 0 612.000 792.000">',
+      `<path id="shading" d="${A.join(strokes, " ")}" fill="none" stroke="#000000" stroke-width="0.567"/>`,
+      "</svg>",
+    ].join("\n");
+    const figure = figureMeasurements({ figure: 1, view: "top-perspective", svgFile: "render/fig-1.svg", svg });
+    expect(figure.shading.count).toBe(12);
+    assertSome(figure.shading.minLengthMm, 40);
+    assertSome(figure.shading.minParallelGapMm, 1.8);
+  });
+
+  it("reports no box, no layers and no shading for an empty sheet", () => {
+    const figure = figureMeasurements({
+      figure: 2,
+      view: "rear",
+      svgFile: "render/fig-2.svg",
+      svg: '<svg width="612pt" height="792pt" viewBox="0 0 612 792"></svg>',
+    });
+    assertNone(figure.ink);
+    assertNone(figure.drawing);
+    expect(figure.layers).toStrictEqual([]);
+    assertNone(figure.shading.minParallelGapMm);
+    expect(figure.shading.count).toBe(0);
+  });
+});
+
+describe("PDF tool output", () => {
+  it("reads every page's MediaBox and CropBox from pdfinfo -box", () => {
+    const text = [
+      "Producer:        cairo 1.18.6",
+      "Pages:           2",
+      "Page    1 size:  612 x 792 pts (letter)",
+      "Page    1 MediaBox:      0.00     0.00   612.00   792.00",
+      "Page    1 CropBox:       0.00     0.00   612.00   792.00",
+      "Page    1 BleedBox:      0.00     0.00   612.00   792.00",
+      "Page    2 MediaBox:      0.00     0.00   612.00   792.00",
+      "Page    2 CropBox:      10.00    20.00   602.00   772.00",
+      "PDF version:     1.6",
+    ].join("\n");
+    const pages = parsePdfInfoBoxes(text);
+    expect(A.map(pages, (page) => page.page)).toStrictEqual([1, 2]);
+    expect(A.map(pages, (page) => [page.mediaBox.widthMm, page.mediaBox.heightMm])).toStrictEqual([
+      [215.9, 279.4],
+      [215.9, 279.4],
+    ]);
+    expect(A.map(pages, (page) => [page.cropBox.leftPt, page.cropBox.bottomPt, page.cropBox.widthMm])).toStrictEqual([
+      [0, 0, 215.9],
+      [10, 20, 208.844],
+    ]);
+    // a page that lists no CropBox gets its MediaBox
+    const mediaOnly = parsePdfInfoBoxes("Page    1 MediaBox:      0.00     0.00   612.00   792.00\n");
+    expect(A.map(mediaOnly, (page) => page.cropBox.heightPt)).toStrictEqual([792]);
+  });
+
+  it("reads each pdffonts row from the right, so a type with a space parses", () => {
+    const text = [
+      "name                                 type              encoding         emb sub uni object ID",
+      "------------------------------------ ----------------- ---------------- --- --- --- ---------",
+      "KKISDR+DejaVuSans                    TrueType          WinAnsi          yes yes yes      7  0",
+      "ABCDEF+LiberationSans-Bold           CID TrueType      Identity-H       yes yes yes     12  0",
+      "Helvetica                            Type 1            Standard         no  no  no      15  0",
+      "",
+    ].join("\n");
+    expect(A.map(parsePdfFonts(text), (font) => [font.name, font.type, font.embedded, font.subset])).toStrictEqual([
+      ["KKISDR+DejaVuSans", "TrueType", true, true],
+      ["ABCDEF+LiberationSans-Bold", "CID TrueType", true, true],
+      ["Helvetica", "Type 1", false, false],
+    ]);
+    expect(parsePdfFonts("name type encoding emb sub uni object ID\n--- --- ---\n")).toStrictEqual([]);
+  });
+});
+
+describe("MEASUREMENTS.md", () => {
+  it.effect(
+    "renders the PDF facts and every figure, and round-trips measurements.json",
+    Effect.fnUntraced(function* () {
+      const measurements = CriticMeasurements.make({
+        schemaVersion: "drawing-critic-measurements/v1",
+        title: "Synthetic bracket",
+        sheetSetSha256: Sha256Hex.make("a".repeat(64)),
+        specSha256: Sha256Hex.make("b".repeat(64)),
+        pdf: CriticPdfMeasurements.make({
+          file: "render/sheets.pdf",
+          version: "1.6",
+          pageCount: 1,
+          pages: parsePdfInfoBoxes(
+            "Page    1 MediaBox:      0.00     0.00   612.00   792.00\nPage    1 CropBox:       0.00     0.00   612.00   792.00\n"
+          ),
+          fonts: parsePdfFonts(
+            "name type encoding emb sub uni object ID\n--- ---\nKKISDR+DejaVuSans TrueType WinAnsi yes yes yes 7 0\n"
+          ),
+          undecodableStreams: [
+            UndecodableStream.make({ objectNumber: 52, generation: 0, reason: "unexpected end of file" }),
+          ],
+          streamCheck: "complete",
+        }),
+        figures: [figureMeasurements({ figure: 1, view: "front", svgFile: "render/fig-1.svg", svg: syntheticSheet })],
+      });
+      const markdown = measurementsMarkdown(measurements);
+      expect(markdown).toContain("PDF version: 1.6; pages: 1; FlateDecode stream check: complete.");
+      expect(markdown).toContain("- object 52 0 R: unexpected end of file");
+      expect(markdown).toContain("| 1 | 0 0 612 792 | 215.9 × 279.4 | 0 0 612 792 | 215.9 × 279.4 |");
+      expect(markdown).toContain("| KKISDR+DejaVuSans | TrueType | yes | yes |");
+      expect(markdown).toContain("## FIG 1 (front) — render/fig-1.svg");
+      expect(markdown).toContain("| top | 20.992 | 25 | no |");
+      expect(markdown).toContain("| broken | 0.35 | 3 1.5 | 1 |");
+      expect(markdown).toContain(
+        "Shading strokes: 6; length min 2 / median 15 / max 20 mm; smallest gap between parallel neighbours (directions within 2.5°) 1.5 mm."
+      );
+      expect(markdown).toContain("| FIG. 1 & 2 | DejaVu Sans | 12 | 107.95 | 268.111 | middle |");
+      const json = yield* encodeCriticMeasurements(measurements);
+      expect(yield* decodeCriticMeasurements(json)).toEqual(measurements);
+    })
+  );
 });

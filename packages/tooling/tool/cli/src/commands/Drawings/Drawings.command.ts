@@ -55,7 +55,7 @@ import {
 import { DrawingReview } from "./Drawings.review.ts";
 import type { OcctError } from "@beep/occt";
 import type { Sha256Hex } from "@beep/schema";
-import type { DrawingError, RenderManifest, ValidationReport } from "@beep/technical-drawing";
+import type { Camera, DrawingError, RenderManifest, ValidationReport } from "@beep/technical-drawing";
 import type { ReviewFinding, ReviewStatus } from "./Drawings.review.schemas.ts";
 
 const specFlag = Flag.File("spec", { mustExist: true }).pipe(Flag.withDescription("Figure-set spec JSON"));
@@ -113,14 +113,21 @@ const sheetSummary = (manifest: RenderManifest, requested: SheetOptions): Readon
     })
   );
 
-// A pictorial camera without a focus is the isometric projection.
+// A pictorial camera without a focus is the isometric projection; a converging one that carries a facing sight is
+// the two-point perspective (only a two-point camera carries one).
+const cameraProjectionNote = (camera: Camera): string =>
+  O.match(camera.focus, {
+    onNone: () => ", isometric",
+    onSome: () => (O.isSome(camera.sight) ? ", two-point" : ", perspective"),
+  });
+
 const projectionNote = (figure: RenderManifest["figures"][number]): string =>
   isPerspectiveView(figure.view)
     ? pipe(
         figure.camera,
         O.match({
           onNone: () => "",
-          onSome: (camera) => (O.isNone(camera.focus) ? ", isometric" : ", perspective"),
+          onSome: cameraProjectionNote,
         })
       )
     : "";
@@ -134,7 +141,7 @@ const projectionNote = (figure: RenderManifest["figures"][number]): string =>
  * spec's own sheet options replaced the ones the flags asked for. Each font
  * embedded for text labels is listed with its file and sha256. Pictorial
  * figures carry their projection (a pictorial camera without a focus is
- * isometric).
+ * isometric; one with a focus and a facing sight is two-point).
  *
  * **Example** (Summarise a manifest)
  *
@@ -841,7 +848,7 @@ const runCriticsPack = Effect.fn("DrawingsCommand.criticsPack")(function* (optio
   }).pipe(DrawingsCommandError.mapError("The critic pack flags do not form a pack request."));
   const pack = yield* critics.buildPack(request);
   yield* say(
-    `critic pack ${options.out}: ${A.length(pack.sheets)} sheet(s), ${A.length(pack.zooms)} zoom(s), ${A.length(pack.images)} image(s); sheet-set ${pack.sheetSetSha256}`
+    `critic pack ${options.out}: ${A.length(pack.sheets)} sheet(s), ${A.length(pack.zooms)} zoom(s), ${A.length(pack.images)} image(s), measurements ${O.getOrElse(pack.measurements, () => "none")}; sheet-set ${pack.sheetSetSha256}`
   );
 });
 
@@ -874,7 +881,11 @@ const runCriticsRun = Effect.fn("DrawingsCommand.criticsRun")(function* (options
   const record = yield* critics.runSequence(request);
   yield* Effect.forEach(record.runs, (run) =>
     say(
-      `${run.order}. ${run.reviewer.name}: exit ${run.exitCode}, ${run.findings} finding(s)${O.isNone(run.report) ? " (no report)" : ""}`
+      O.match(run.unavailable, {
+        onNone: () =>
+          `${run.order}. ${run.reviewer.name}: exit ${run.exitCode}, ${run.findings} finding(s)${O.isNone(run.report) ? " (no report)" : ""}`,
+        onSome: (seat) => `${run.order}. ${run.reviewer.name}: seat unavailable on this host, skipped (${seat.detail})`,
+      })
     )
   );
   yield* say(
@@ -908,7 +919,7 @@ const drawingsCriticsCommand = Command.make("critics", {}, () =>
         runCriticsPack
       ).pipe(
         Command.withDescription(
-          "Build a critic pack: sheet rasters, zooms, SVGs, stroke tables, context, brief, schema"
+          "Build a critic pack: sheet rasters, zooms, SVGs, stroke tables, measurements, context, brief, schema"
         )
       ),
       Command.make(

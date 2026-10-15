@@ -82,6 +82,90 @@ export class PdfFontFact extends S.Class<PdfFontFact, { readonly brand: unique s
 }
 
 /**
+ * A FlateDecode stream a strict reader refuses: its bytes fail a strict
+ * zlib inflate.
+ *
+ * **Details**
+ *
+ * A strict inflate needs the whole zlib stream, its trailing Adler-32
+ * checksum included, so a stream cut short by a single byte is reported
+ * although lenient viewers still show the page.
+ *
+ * **Example** (A truncated font program)
+ *
+ * ```ts
+ * import { PdfStreamFact } from "@beep/technical-drawing/Validation.schemas"
+ *
+ * console.log(PdfStreamFact.make({ objectNumber: 52, generation: 0, reason: "unexpected end of file" }).reason)
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export class PdfStreamFact extends S.Opaque<PdfStreamFact, { readonly brand: unique symbol }>()(
+  S.Struct({
+    objectNumber: S.Natural.annotateKey({ description: "Object number of the stream." }),
+    generation: S.Natural.annotateKey({ description: "Generation number of the stream." }),
+    reason: S.NonEmptyString.annotateKey({ description: "Why the strict inflate failed." }),
+  }).pipe(
+    $I.annoteSchema("PdfStreamFact", {
+      description: "Object reference and inflate error of a FlateDecode stream a strict reader refuses.",
+    })
+  )
+) {}
+
+const PdfStreamCheckBase = LiteralKit(["complete", "encrypted", "limit-reached"]);
+
+/**
+ * How far the backend's strict-inflate check of a file's FlateDecode streams
+ * got.
+ *
+ * **Details**
+ *
+ * `complete`: every FlateDecode stream was inflated, so the undecodable
+ * streams listed are all there are. `encrypted`: the streams are ciphertext
+ * and were not checked; the `encrypted` finding already fails such a file.
+ * `limit-reached`: the check stopped at the backend's inflate limit, so
+ * streams later in the file were never checked, and the file fails
+ * `pdf-stream-undecodable` as unverified.
+ *
+ * **Example** (Read the outcomes)
+ *
+ * ```ts
+ * import { PdfStreamCheck } from "@beep/technical-drawing/Validation.schemas"
+ *
+ * console.log(PdfStreamCheck.literals) // ["complete", "encrypted", "limit-reached"]
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const PdfStreamCheck = PdfStreamCheckBase.pipe(
+  $I.annoteSchema("PdfStreamCheck", {
+    description:
+      "Whether the strict-inflate check covered every FlateDecode stream, skipped them as ciphertext, or stopped at the inflate limit.",
+  }),
+  SchemaUtils.withLiteralKitStatics(PdfStreamCheckBase)
+);
+
+/**
+ * Type for {@link PdfStreamCheck}.
+ *
+ * **Example** (Annotate an outcome)
+ *
+ * ```ts
+ * import type { PdfStreamCheck } from "@beep/technical-drawing/Validation.schemas"
+ *
+ * const check: PdfStreamCheck = "limit-reached"
+ * console.log(check)
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export type PdfStreamCheck = typeof PdfStreamCheck.Type;
+
+/**
  * Structural facts about a PDF file, as reported by the backend.
  *
  * **Example** (A clean two-page file)
@@ -111,9 +195,24 @@ export class PdfFacts extends S.Opaque<PdfFacts, { readonly brand: unique symbol
     annotationCount: S.Natural.annotateKey({ description: "Total annotations across pages." }),
     hasOptionalContent: S.Boolean.annotateKey({ description: "Whether the file declares layers." }),
     encrypted: S.Boolean.annotateKey({ description: "Whether the file is encrypted." }),
+    undecodableStreams: S.Array(PdfStreamFact).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "FlateDecode streams a strict inflate rejects, in object order; empty when none (and for an encrypted file, whose streams are not checked). `streamCheck` says how many were checked.",
+      })
+    ),
+    streamCheck: PdfStreamCheck.pipe(
+      S.withConstructorDefault(Effect.succeed("complete" as const)),
+      S.annotateKey({
+        description:
+          "Whether the strict-inflate check covered every FlateDecode stream (`complete`), none because the file is encrypted (`encrypted`), or stopped at the backend's inflate limit (`limit-reached`).",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("PdfFacts", {
-      description: "Header version, page sizes, fonts, annotations, layers, and encryption of a PDF.",
+      description:
+        "Header version, page sizes, fonts, annotations, layers, encryption, undecodable streams, and how far their check got, of a PDF.",
     })
   )
 ) {}
@@ -187,6 +286,7 @@ const FindingCodeBase = LiteralKit([
   "optional-content",
   "annotations",
   "font-not-embedded",
+  "pdf-stream-undecodable",
   "page-size",
   "page-size-mixed",
   "page-count",

@@ -121,6 +121,42 @@ describe("Shading.rules", () => {
     A.forEach(front.light, (v, i) => expect(v).toBeCloseTo([-k, -k, k][i] ?? 0, 12));
   });
 
+  it("frames a two-point camera along its sight, keeps sheet-right level, and lands its light at 45° on the sheet", () => {
+    const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const unit = (v: Vec3): Vec3 => [v[0] / Math.hypot(...v), v[1] / Math.hypot(...v), v[2] / Math.hypot(...v)];
+    const level: Vec3 = [-Math.sin(Math.PI / 6), -Math.cos(Math.PI / 6), 0];
+    A.forEach([1, -1] as const, (zSign) => {
+      const sight: Vec3 = [level[0] * 120, level[1] * 120, 45 * zSign];
+      const camera = Camera.make({
+        eye: level,
+        up: [0, 0, 1],
+        target: [20, 15, 20 + 45 * zSign],
+        focus: O.some(120),
+        sight: O.some(sight),
+        hiddenLinePassAbout: "target",
+      });
+      const view = viewFactsOf(camera);
+      // the facing direction is the sight, not the level eye
+      A.forEach(view.eye, (v, i) => expect(v).toBeCloseTo(unit(sight)[i] ?? 0, 12));
+      // sheet right stays level, square to the sight, and sheet up leans with it
+      expect(view.right[2]).toBeCloseTo(0, 12);
+      expect(dot(view.right, view.eye)).toBeCloseTo(0, 12);
+      expect(dot(view.right, level)).toBeCloseTo(0, 12);
+      expect(dot(view.up, view.eye)).toBeCloseTo(0, 12);
+      expect(view.up[2]).toBeGreaterThan(0);
+      // the vertical picture plane is this frame stretched by 1 / cos β: there the light falls at 45° upper left
+      const cosBeta = Math.abs(dot(level, view.eye));
+      expect(cosBeta).toBeLessThan(1);
+      const sheetLight = [dot(view.light, view.right), dot(view.light, view.up) / cosBeta] as const;
+      expect(sheetLight[0]).toBeLessThan(0);
+      expect(-sheetLight[0]).toBeCloseTo(sheetLight[1], 12);
+      expect(dot(view.light, view.eye)).toBeGreaterThan(0);
+      // the same camera without its sight reads the level eye
+      const blind = viewFactsOf(Camera.make({ ...camera, sight: O.none() }));
+      A.forEach(blind.eye, (v, i) => expect(v).toBeCloseTo(level[i] ?? 0, 12));
+    });
+  });
+
   it("classes faces against +Z within a degree", () => {
     expect(surfaceClassOf([0, 0, 1])).toBe("level");
     expect(surfaceClassOf([0, 0.01, -1])).toBe("level");
@@ -757,7 +793,8 @@ describe("faint ramp", () => {
 
   it("bands a wall alike in any two default views that light it within 0.01 of each other", () => {
     // Upright walls turned 0.1° at a time through each default camera set (the pictorials at the original perspective
-    // eye, as isometrics at 45° and as isometrics at 90°, each with the elevations and plans). The 1.84(m) light is
+    // eye, as isometrics at 45° and as isometrics at 90°, as two-point perspectives at their 20° default and at the 30°
+    // bound, and as isometrics lowered to 20°, each with the elevations and plans). The 1.84(m) light is
     // each view's own, so one wall is lit differently from view to view; but whenever two views facing it light it
     // within 0.01 of each other, their bands differ by at most one stroke (in line count, and in ink by at most one
     // chord length) and sit at the same model edge of the wall: no hard edge of a recipe, nor of the side a band takes
@@ -770,6 +807,9 @@ describe("faint ramp", () => {
       {},
       { projection: "isometric" as const },
       { projection: "isometric" as const, azimuthDeg: O.some(90) },
+      { projection: "two-point" as const },
+      { projection: "two-point" as const, elevationDeg: O.some(30) },
+      { projection: "isometric" as const, elevationDeg: O.some(20) },
     ];
     const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
     const uprightWall = (deg: number) => {
