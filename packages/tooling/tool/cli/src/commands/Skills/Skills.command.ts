@@ -890,9 +890,11 @@ export const renderCodexConfigWithSkills: {
   let kept: ReadonlyArray<string> = [];
   let seen = HashSet.empty<string>();
   let cursor = 0;
+  let inManagedBlock = true;
   while (cursor < remainder.length) {
     const line = O.getOrElse(A.get(remainder, cursor), () => "");
     if (!/^\s*\[\[skills\.config\]\]\s*$/.test(line)) {
+      if (/^\s*\[/.test(line)) inManagedBlock = false;
       kept = A.append(kept, line);
       cursor += 1;
       continue;
@@ -910,14 +912,14 @@ export const renderCodexConfigWithSkills: {
     const unknown = A.some(A.drop(row, 1), (entry) => !/^\s*(?:(?:name|enabled)\s*=|#|$)/.test(entry));
     const nextHeader = O.getOrElse(A.get(remainder, end), () => "");
     const hasNested = /^\s*\[skills\.config\./.test(nextHeader);
-    const managed = O.filter(name, (value) => A.contains(names, value));
+    const managed = O.filter(name, (value) => inManagedBlock && A.contains(names, value));
     const rendered = O.match(managed, {
       onSome: (value) => {
         seen = HashSet.add(seen, value);
         return renderEnabledSkillRow(row);
       },
       // Unknown native fields keep their owner until an explicit lifecycle decision.
-      onNone: () => (unknown || hasNested || O.isNone(name) ? row : []),
+      onNone: () => (!inManagedBlock || unknown || hasNested || O.isNone(name) ? row : []),
     });
     kept = A.appendAll(kept, rendered);
     cursor = end;

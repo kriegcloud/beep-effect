@@ -1383,8 +1383,9 @@ of the legacy key with `beep models codex-permissions --check`.
 ### RSC-F-HOOKS-20261014 (2026-10-14): repair observable event registration
 
 Register Codex PostToolUseFailure and SessionStart pulse callbacks and delegate
-the Codex pulse body to the existing canonical writer. Remove stale guarded
-repository Impeccable callbacks under the approved A retirement. This fixes
+the Codex pulse body to the existing canonical writer. Remove live repository
+Impeccable callbacks under the locked A disposition; payload removal remains
+A-owned. This fixes
 local wiring; native execution and root/child attribution remain a measured
 qualification gate owned by F and H3, with failure rate **not recorded** until
 ordinary native rows are witnessed. Reversal: revert the F hook diff. No

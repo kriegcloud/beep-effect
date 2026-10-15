@@ -21,6 +21,7 @@ import * as Cause from "effect/Cause";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as Toml from "effect/encoding/Toml";
 import * as FileSystem from "effect/FileSystem";
 import { HttpClient, HttpClientError, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
@@ -207,6 +208,23 @@ describe("skills command", () => {
     );
   });
 
+  it("preserves native registrations after an unrelated table", () => {
+    const native =
+      '[skills]\ninclude_instructions = true\n[[skills.config]]\nname = "closeout"\nenabled = true\n[mcp_servers.native]\nurl = "native"\n[[skills.config]]\nname = "operator-skill"\nenabled = false\n[[skills.config]]\nname = "native-metadata"\nenabled = false\nowner = "operator"\n';
+    const rendered = renderCodexConfigWithSkills(native, ["closeout"]);
+    expect(Toml.parse(rendered)).toMatchObject({
+      skills: {
+        config: [
+          { name: "closeout", enabled: true },
+          { name: "operator-skill", enabled: false },
+          { name: "native-metadata", enabled: false, owner: "operator" },
+        ],
+      },
+    });
+    expect(rendered).toContain('name = "operator-skill"\nenabled = false');
+    expect(rendered).toContain('name = "native-metadata"\nenabled = false\nowner = "operator"');
+  });
+
   it("renders Codex skills while preserving later tables", () => {
     const rendered = renderCodexConfigWithSkills(
       A.join(
@@ -236,6 +254,59 @@ describe("skills command", () => {
   });
 
   it.layer(CommandTestLayer, { timeout: "30 seconds" })((it) => {
+    for (const scenario of ["backup and mode", "projection drift", "publish failure"]) {
+      it.effect(`protects skill projection and remote publication during ${scenario}`, () =>
+        Effect.gen(function* () {
+          const root = yield* temporaryRepository;
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const config = path.join(root, ".codex/config.toml");
+          const skill = path.join(root, ".claude/skills/grill-me/SKILL.md");
+          yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", "old skill\n");
+          yield* writeProjectFile(".codex/config.toml", "[skills]\ninclude_instructions = false\n");
+          yield* fs.chmod(config, 0o644);
+          const wrapped = FileSystem.FileSystem.of({
+            ...fs,
+            writeFileString: (target, content, options) =>
+              fs
+                .writeFileString(target, content, options)
+                .pipe(
+                  Effect.andThen(
+                    scenario === "projection drift" && target.startsWith(`${config}.tmp-`)
+                      ? fs.writeFileString(config, "[skills]\ninclude_instructions = false\nnew_native_key = true\n")
+                      : Effect.void
+                  )
+                ),
+            rename: (from, to) =>
+              scenario === "publish failure" && from.includes(".grill-me.stage-")
+                ? fs.rename(path.join(root, "missing-stage"), to)
+                : fs.rename(from, to),
+          });
+          const result = yield* runSkillsCommand(["update", "--skill", "grill-me"]).pipe(
+            Effect.provideService(FileSystem.FileSystem, wrapped),
+            Effect.result
+          );
+          const backupRoot = path.join(root, ".beep/skills-backups");
+          const entries = yield* fs.readDirectory(backupRoot);
+          const skillBackup = O.getOrThrow(A.findFirst(entries, (entry) => entry.startsWith("grill-me.")));
+          expect(yield* fs.readFileString(path.join(backupRoot, skillBackup, "SKILL.md"))).toBe("old skill\n");
+          if (scenario === "backup and mode") {
+            expect(result._tag).toBe("Success");
+            expect((yield* fs.stat(config)).mode & 0o777).toBe(0o644);
+            const configBackup = O.getOrThrow(A.findFirst(entries, (entry) => entry.startsWith("config.toml.")));
+            expect(yield* fs.readFileString(path.join(backupRoot, configBackup))).toBe(
+              "[skills]\ninclude_instructions = false\n"
+            );
+          } else {
+            expect(result._tag).toBe("Failure");
+            if (scenario === "projection drift")
+              expect(yield* fs.readFileString(config)).toContain("new_native_key = true");
+            else expect(yield* fs.readFileString(skill)).toBe("old skill\n");
+          }
+        }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+      );
+    }
+
     it.effect("updates a selected remote skill, lockfile, Codex config, and agents mirror", () =>
       Effect.gen(function* () {
         yield* temporaryRepository;

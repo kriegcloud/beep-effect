@@ -9,15 +9,18 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { findNodeAtLocation, parseTree } from "jsonc-parser";
 import { isScalar, parseDocument } from "yaml";
+import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { ModelsWriteSpan } from "./Models.manifest.schemas.ts";
 import { generatedBlockBegin, generatedBlockEnd } from "./Models.render.ts";
 import type { Node as JsonNode } from "jsonc-parser";
 import type { ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
+const decodeToml = decodeTomlTextWith(S.decodeUnknownEffect(S.Record(S.String, S.Unknown)));
 const encodeString = S.encodeEffect(S.fromJsonString(S.String));
 const escape = (value: string) => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 const error = (message: string) => ModelsLocatorError.make({ message });
@@ -81,11 +84,17 @@ const tableRegion = Effect.fn("Models.tableRegion")(
   }
 );
 
-const tomlSpans = Effect.fnUntraced(function* (content: string, key: string, table: O.Option<string>, after: string) {
+const tomlSpans = Effect.fnUntraced(function* (
+  content: string,
+  key: string,
+  table: O.Option<string>,
+  after: string,
+  expected: string
+) {
   const bounds = yield* tableRegion(content, table);
   const start = O.getOrElse(A.get(bounds, 0), () => 0);
   const end = O.getOrElse(A.get(bounds, 1), () => Str.length(content));
-  return yield* one(
+  const spans = yield* one(
     region(
       content,
       start,
@@ -96,6 +105,15 @@ const tomlSpans = Effect.fnUntraced(function* (content: string, key: string, tab
       ),
       after
     )
+  );
+  return yield* Effect.forEach(
+    spans,
+    Effect.fnUntraced(function* (entry) {
+      const parsed = yield* decodeToml(`value = ${entry.before}`).pipe(
+        ModelsLocatorError.mapError("Invalid TOML scalar.")
+      );
+      return parsed.value === expected ? ModelsWriteSpan.make({ ...entry, after: entry.before }) : entry;
+    })
   );
 });
 
@@ -179,20 +197,37 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
   if (request.remove === true) {
     if (request.locator._tag !== "toml-top-level-key")
       return yield* error("Removal owns only a top-level TOML assignment.");
+    const ownedKey = request.locator.key;
     const bounds = yield* tableRegion(content, O.none());
     const end = O.getOrElse(A.get(bounds, 1), () => Str.length(content));
-    const matches = captures(
+    const parsed = yield* decodeToml(content).pipe(ModelsLocatorError.mapError("Invalid TOML removal target."));
+    if (!R.has(parsed, request.locator.key)) return [];
+    // Match the source spelling, then use the TOML parser to establish key identity.
+    const assignments = captures(
       Str.slice(0, end)(content),
-      new RegExp(`(^[ \t]*${escape(request.locator.key)}[ \t]*=[^\r\n]*(?:\r?\n|$))`, "gmd"),
+      /(^[ \t]*(?:[\w-]+|"(?:\\.|[^"\\])*"|'[^']*')[ \t]*=[^\r\n]*(?:\r?\n|$))/dgm,
       ""
     );
-    return A.length(matches) > 1 ? yield* error("Removal address is ambiguous.") : matches;
+    const matches = yield* Effect.filter(
+      assignments,
+      Effect.fnUntraced(function* (entry) {
+        const key = Str.slice(
+          0,
+          O.getOrElse(Str.indexOf("=")(entry.before), () => 0)
+        )(entry.before);
+        const fields = yield* decodeToml(`${key}= true`).pipe(
+          ModelsLocatorError.mapError("Cannot resolve TOML removal key.")
+        );
+        return R.has(fields, ownedKey);
+      })
+    );
+    return yield* one(matches);
   }
   const quoted = yield* encodeString(request.expected).pipe(ModelsLocatorError.mapError("Cannot encode scalar."));
   const expected = request.expected;
   return yield* Match.value(request.locator).pipe(
-    Match.tag("toml-top-level-key", ({ key }) => tomlSpans(content, key, O.none(), quoted)),
-    Match.tag("toml-table-key", ({ key, table }) => tomlSpans(content, key, O.some(table), quoted)),
+    Match.tag("toml-top-level-key", ({ key }) => tomlSpans(content, key, O.none(), quoted, expected)),
+    Match.tag("toml-table-key", ({ key, table }) => tomlSpans(content, key, O.some(table), quoted, expected)),
     Match.tag("json-key", ({ pointer }) => jsonSpans(content, pointer, quoted)),
     Match.tag("yaml-path", ({ path }) =>
       Effect.try({
@@ -200,7 +235,14 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
           const doc = parseDocument(content);
           const node = doc.getIn([...path], true);
           return A.isReadonlyArrayEmpty(doc.errors) && isScalar(node) && node.range !== undefined && node.range !== null
-            ? O.some(span(content, node.range[0], node.range[1], quoted))
+            ? O.some(
+                span(
+                  content,
+                  node.range[0],
+                  node.range[1],
+                  node.value === expected ? Str.slice(node.range[0], node.range[1])(content) : quoted
+                )
+              )
             : O.none<ModelsWriteSpan>();
         },
         catch: () => error("Cannot parse YAML target."),
@@ -222,6 +264,14 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
             "gmd"
           ),
           quoted
+        )
+      ).pipe(
+        Effect.map(
+          A.map((entry) => {
+            const token = Str.trim(entry.before);
+            const decoded = Str.startsWith('"')(token) || Str.startsWith("'")(token) ? Str.slice(1, -1)(token) : token;
+            return decoded === expected ? ModelsWriteSpan.make({ ...entry, after: entry.before }) : entry;
+          })
         )
       )
     ),
@@ -252,8 +302,8 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
             content,
             start,
             end,
-            new RegExp(`(?<![\\w-])${escape(variable)}(?:=|[ \\t]+)["']?([^'"\\s;]+)`, "gd"),
-            expected
+            new RegExp(`(?<![\\w-])${escape(variable)}(?:=|[ \\t]+)("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^'"\\s;]+)`, "gd"),
+            /^[a-zA-Z0-9_./:+,-]+$/.test(expected) ? expected : `'${Str.replace(/'/g, "'\\''")(expected)}'`
           );
           return A.isReadonlyArrayEmpty(spans)
             ? Effect.fail(error("Shell locator has no matches."))

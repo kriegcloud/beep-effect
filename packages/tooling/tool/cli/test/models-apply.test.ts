@@ -14,6 +14,9 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Stream from "effect/Stream";
 import type { Locator, LocatorRender } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 
 const binding: LocatorBinding = LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" });
@@ -32,7 +35,7 @@ const native = A.join(
   "\r\n"
 );
 
-layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "30 seconds" })((it) => {
+layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
   it.effect("preserves every native byte outside a top-level scalar with 494 projects and 311 hook states", () =>
     Effect.gen(function* () {
       const spans = yield* modelsWriteSpans(native, topLevel);
@@ -48,7 +51,7 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
       const spans = yield* modelsWriteSpans(content, request);
       expect(spans).toHaveLength(2);
       expect(yield* modelsApplySpans(content, spans)).toBe(
-        'export MODEL="gpt-6.1-sol"\nMODEL=gpt-6.1-sol command\n# native suffix\n'
+        "export MODEL=gpt-6.1-sol\nMODEL=gpt-6.1-sol command\n# native suffix\n"
       );
     })
   );
@@ -127,16 +130,17 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
       const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "models-fixture-" });
       const file = path.join(root, "config.toml");
       const backupDirectory = path.join(root, ".config-backups");
-      yield* fs.writeFileString(file, native, { mode: 0o600 });
-      const writer = yield* ModelsApply;
+      yield* fs.writeFileString(file, native, { mode: 0o644 });
+      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
       assertNone(yield* writer.apply(file, [topLevel], "dry-run", backupDirectory));
       expect(yield* fs.exists(backupDirectory)).toBe(false);
       const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backupDirectory));
       expect(yield* fs.readFileString(journal.backup)).toBe(native);
-      expect((yield* fs.stat(file)).mode & 0o777).toBe(0o600);
+      expect((yield* fs.stat(file)).mode & 0o777).toBe(0o644);
       const journalFile = path.join(backupDirectory, `${journal.id}.json`);
       yield* writer.restore(journalFile, backupDirectory);
       expect(yield* fs.readFileString(file)).toBe(native);
+      expect((yield* fs.stat(file)).mode & 0o777).toBe(0o644);
       yield* writer.restore(journalFile, backupDirectory);
       const second = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backupDirectory));
       yield* fs.writeFileString(file, `${native}\n# external native write\n`);
@@ -152,21 +156,28 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
       const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "remove-fixture-" });
       const file = path.join(root, "config.toml");
       const backups = path.join(root, "backups");
-      const before = 'sandbox_mode = "danger-full-access" # legacy\r\n' + native;
-      yield* fs.writeFileString(file, before);
+      for (const key of ["sandbox_mode", '"sandbox_mode"', "'sandbox_mode'"]) {
+        const before = `${key} = "danger-full-access" # legacy\r\n` + native;
+        yield* fs.writeFileString(file, before);
+        const request = ModelsLocatorWrite.make({
+          locator: { _tag: "toml-top-level-key", binding, render, key: "sandbox_mode" },
+          expected: "",
+          remove: true,
+        });
+        const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+        yield* Effect.flip(writer.apply(file, [request], "check", backups));
+        const journal = O.getOrThrow(yield* writer.apply(file, [request], "write", backups));
+        expect(yield* fs.readFileString(file)).toBe(native);
+        assertNone(yield* writer.apply(file, [request], "check", backups));
+        yield* writer.restore(path.join(backups, `${journal.id}.json`), backups);
+        expect(yield* fs.readFileString(file)).toBe(before);
+        yield* Effect.flip(writer.apply(file, [request], "check", backups));
+      }
       const request = ModelsLocatorWrite.make({
         locator: { _tag: "toml-top-level-key", binding, render, key: "sandbox_mode" },
         expected: "",
         remove: true,
       });
-      const writer = yield* ModelsApply;
-      yield* Effect.flip(writer.apply(file, [request], "check", backups));
-      const journal = O.getOrThrow(yield* writer.apply(file, [request], "write", backups));
-      expect(yield* fs.readFileString(file)).toBe(native);
-      assertNone(yield* writer.apply(file, [request], "check", backups));
-      yield* writer.restore(path.join(backups, `${journal.id}.json`), backups);
-      expect(yield* fs.readFileString(file)).toBe(before);
-      yield* Effect.flip(writer.apply(file, [request], "check", backups));
       yield* Effect.flip(modelsWriteSpans('sandbox_mode="a"\nsandbox_mode="b"\n', request));
       yield* Effect.flip(
         modelsWriteSpans(
@@ -178,6 +189,133 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
           })
         )
       );
+    })
+  );
+
+  it.effect("keeps equal env, YAML plain, and TOML literal scalar spellings without a write", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "equal-scalars-" });
+      const cases: ReadonlyArray<readonly [string, string, Locator]> = [
+        ["env", "MODEL=gpt-6.1-sol\n", { _tag: "env-key", binding, render, key: "MODEL" }],
+        ["yaml", "model: gpt-6.1-sol\n", { _tag: "yaml-path", binding, render, path: ["model"] }],
+        ["toml", "model = 'gpt-6.1-sol'\n", { _tag: "toml-top-level-key", binding, render, key: "model" }],
+      ];
+      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+      for (const [extension, text, locator] of cases) {
+        const file = path.join(root, `config.${extension}`);
+        yield* fs.writeFileString(file, text);
+        assertNone(yield* writer.apply(file, [write(locator)], "check", path.join(root, "backups")));
+        assertNone(yield* writer.apply(file, [write(locator)], "write", path.join(root, "backups")));
+        expect(yield* fs.readFileString(file)).toBe(text);
+      }
+      expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
+    })
+  );
+
+  it.effect("quotes the complete shell word and parses launchers before publication", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "shell-word-" });
+      const file = path.join(root, "launcher");
+      const request = write(
+        {
+          _tag: "shell-assign",
+          binding: LocatorBinding.make({ ...binding, field: "model-effort-suffix" }),
+          render,
+          variable: "--model",
+          within: O.none(),
+        },
+        "gpt-6.1-sol(medium)"
+      );
+      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+      for (const word of ["old", "'old'", '"old"']) {
+        const text = `claude() { printf '%s\\n' "$#" "$2"; }\nclaude --model ${word} "$@"\n`;
+        yield* fs.writeFileString(file, text);
+        yield* writer.apply(file, [request], "write", path.join(root, "backups"));
+        const rendered = yield* fs.readFileString(file);
+        const output = yield* spawner.string(
+          ChildProcess.make("zsh", ["-f"], { stdin: Stream.make(new TextEncoder().encode(rendered)) })
+        );
+        expect(output).toBe("2\ngpt-6.1-sol(medium)\n");
+      }
+      yield* fs.writeFileString(file, "claude --model old\nif\n");
+      const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
+      expect(error.message).toBe("Invalid shell target.");
+    })
+  );
+
+  it.effect("fences planning, recovers the original inode race in apply and restore, and retains journals", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      for (const phase of ["planned", "rename", "post", "restore"]) {
+        const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "native-race-" });
+        const file = path.join(root, "config.toml");
+        const backups = path.join(root, "backups");
+        yield* fs.writeFileString(file, 'model = "old"\n', { mode: 0o644 });
+        const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+        const journal =
+          phase === "restore" ? O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups)) : undefined;
+        let injected = false;
+        const inject = Effect.gen(function* () {
+          injected = true;
+          yield* fs.writeFileString(file, (yield* fs.readFileString(file)) + "new_native_key = true\n");
+        });
+        const wrapped = FileSystem.FileSystem.of({
+          ...fs,
+          chmod: (target, mode) =>
+            fs
+              .chmod(target, mode)
+              .pipe(Effect.andThen(phase === "planned" && target.endsWith(".tmp") ? inject : Effect.void)),
+          rename: (from, to) =>
+            Effect.gen(function* () {
+              const publish = to === file && from.endsWith(".tmp") && !injected;
+              if (publish && phase !== "post") yield* inject;
+              yield* fs.rename(from, to);
+              if (publish && phase === "post") yield* inject;
+            }),
+        });
+        const operation = ModelsApply.use((racer) =>
+          journal === undefined
+            ? racer.apply(file, [topLevel], "write", backups)
+            : racer.restore(path.join(backups, `${journal.id}.json`), backups)
+        );
+        const error = yield* Effect.flip(
+          operation.pipe(
+            Effect.provide(ModelsApplyLive.pipe(Layer.provide(Layer.succeed(FileSystem.FileSystem, wrapped))))
+          )
+        );
+        expect(error._tag).toBe("ModelsLocatorError");
+        const entries = yield* fs.readDirectory(backups);
+        const journals = A.filter(entries, (entry) => entry.endsWith(".json"));
+        expect(journals).toHaveLength(1);
+        expect(error.message).toContain(journals[0]?.slice(0, -5));
+        expect(yield* fs.readFileString(file)).toContain("new_native_key = true");
+        if (phase === "rename" || phase === "restore")
+          expect(A.some(entries, (entry) => entry.endsWith(".concurrent"))).toBe(true);
+      }
+    })
+  );
+
+  it.effect("refuses a tampered recovery backup without replacing the live file", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "backup-tamper-" });
+      const file = path.join(root, "config.toml");
+      const backups = path.join(root, "backups");
+      yield* fs.writeFileString(file, 'model = "old"\n');
+      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+      const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
+      const applied = yield* fs.readFileString(file);
+      yield* fs.writeFileString(journal.backup, "tampered");
+      const error = yield* Effect.flip(writer.restore(path.join(backups, `${journal.id}.json`), backups));
+      expect(error.message).toBe("Recovery backup hash does not match.");
+      expect(yield* fs.readFileString(file)).toBe(applied);
     })
   );
 
@@ -224,7 +362,7 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
       const file = path.join(root, "config.json");
       yield* fs.writeFileString(file, '{"model":"old", "unownedCredential":"__SYNTHETIC_PRIVATE__", malformed');
       const request = write({ _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] });
-      const writer = yield* ModelsApply;
+      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
       const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
       expect(error.message).toBe("Invalid JSON target.");
       expect(error.cause).toBeUndefined();
@@ -240,7 +378,7 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
       const file = path.join(root, "config.toml");
       const bytes = new Uint8Array([0xff, 0xfe, 0x23]);
       yield* fs.writeFile(file, bytes);
-      const writer = yield* ModelsApply;
+      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
       yield* Effect.flip(writer.apply(file, [topLevel], "write", path.join(root, "backups")));
       expect(A.fromIterable(yield* fs.readFile(file))).toEqual(A.fromIterable(bytes));
       expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
