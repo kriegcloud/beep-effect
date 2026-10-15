@@ -94,8 +94,29 @@ export const temporaryWorkingDirectory = Effect.gen(function* () {
   return workingDirectory;
 }).pipe(Effect.withSpan("CommandTest.temporaryWorkingDirectory"));
 
-export const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
-  Effect.scoped(Effect.andThen(temporaryWorkingDirectory, use));
+/**
+ * Runs a test body in an owned temporary directory, passing its absolute root to fixture builders.
+ *
+ * **Example** (Write beneath the allocated root)
+ * ```ts
+ * import { withTempWorkingDirectory } from "./CommandTest.ts";
+ * import * as Effect from "effect/Effect";
+ * import * as FileSystem from "effect/FileSystem";
+ * import * as Path from "effect/Path";
+ *
+ * const fixture = withTempWorkingDirectory((root) => Effect.gen(function* () {
+ *   const fs = yield* FileSystem.FileSystem;
+ *   const path = yield* Path.Path;
+ *   yield* fs.writeFileString(path.join(root, "fixture.txt"), "fixture");
+ * }));
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const withTempWorkingDirectory = <A, E, R>(
+  use: Effect.Effect<A, E, R> | ((root: string) => Effect.Effect<A, E, R>)
+) => Effect.scoped(Effect.flatMap(temporaryWorkingDirectory, (root) => (Effect.isEffect(use) ? use : use(root))));
 
 const projectFilePath = Effect.fn("CommandTest.projectFilePath")(function* (relativePath: string) {
   const path = yield* Path.Path;

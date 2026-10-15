@@ -27,6 +27,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
+import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import { NodeTestLayer, withTempWorkingDirectory } from "./support/CommandTest.ts";
@@ -78,8 +79,8 @@ const testLayer = Layer.mergeAll(NodeCrypto.layer, NodeChildProcessSpawner.layer
   Layer.provideMerge(NodeTestLayer)
 );
 
-const testEffect = <A, E>(effect: Effect.Effect<A, E, Layer.Success<typeof testLayer>>) =>
-  withTempWorkingDirectory(effect).pipe(provideScopedLayer(testLayer));
+const testEffect = <A, E>(use: (repoRoot: string) => Effect.Effect<A, E, Layer.Success<typeof testLayer>>) =>
+  withTempWorkingDirectory(use).pipe(provideScopedLayer(testLayer));
 
 const planFor = (findings: ReadonlyArray<CaptureFinding>, source?: CodexRefreshLedgerSource, expectedCount?: number) =>
   decodeCodexFindingsCapturePayload({
@@ -157,14 +158,15 @@ const csvRow = (finding: CaptureFinding): string =>
 const csvSnapshot = (findings: ReadonlyArray<CaptureFinding>): string =>
   `${A.join([A.join(CODEX_CSV_COLUMNS, ","), ...A.map(findings, csvRow)], "\n")}\n`;
 
-const bootstrapAuthoredPacket = Effect.fnUntraced(function* () {
+const bootstrapAuthoredPacket = Effect.fnUntraced(function* (repoRoot: string) {
   const fs = yield* FileSystem.FileSystem;
-  yield* fs.makeDirectory("goals", { recursive: true });
+  const path = yield* Path.Path;
+  yield* fs.makeDirectory(path.join(repoRoot, "goals"), { recursive: true });
   const plan = yield* planFor([alpha, beta]);
   const documents = yield* documentsFor(plan);
-  yield* writePacket({ repoRoot: process.cwd(), slug: SLUG, documents, dryRun: false });
+  yield* writePacket({ repoRoot, slug: SLUG, documents, dryRun: false });
 
-  const source = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+  const source = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
   const first = source.ledger.findings[0];
   assert(first !== undefined);
   const authoredFirst = CodexTriageFinding.make({
@@ -195,19 +197,22 @@ const bootstrapAuthoredPacket = Effect.fnUntraced(function* () {
     findings: [authoredFirst, ...A.drop(source.ledger.findings, 1)],
   });
   const authoredTriageText = yield* encodeLedgerText(authoredLedger);
-  yield* fs.writeFileString(`goals/${SLUG}/ops/triage.json`, authoredTriageText);
+  yield* fs.writeFileString(path.join(repoRoot, `goals/${SLUG}/ops/triage.json`), authoredTriageText);
 
   const alphaPath = `goals/${SLUG}/findings/CSF-001.md`;
-  const alphaText = `${yield* fs.readFileString(alphaPath)}\nAUTHORED CSF PROSE MUST SURVIVE BYTE FOR BYTE\n`;
-  yield* fs.writeFileString(alphaPath, alphaText);
+  const alphaText = `${yield* fs.readFileString(path.join(repoRoot, alphaPath))}\nAUTHORED CSF PROSE MUST SURVIVE BYTE FOR BYTE\n`;
+  yield* fs.writeFileString(path.join(repoRoot, alphaPath), alphaText);
 
   const readmePath = `goals/${SLUG}/README.md`;
-  yield* fs.writeFileString(readmePath, `${yield* fs.readFileString(readmePath)}\nAUTHORED PACKET NOTE MUST SURVIVE\n`);
+  yield* fs.writeFileString(
+    path.join(repoRoot, readmePath),
+    `${yield* fs.readFileString(path.join(repoRoot, readmePath))}\nAUTHORED PACKET NOTE MUST SURVIVE\n`
+  );
 
   const manifestPath = `goals/${SLUG}/ops/manifest.json`;
-  const manifest = yield* fs.readFileString(manifestPath);
+  const manifest = yield* fs.readFileString(path.join(repoRoot, manifestPath));
   yield* fs.writeFileString(
-    manifestPath,
+    path.join(repoRoot, manifestPath),
     Str.replace(
       '"id": "P4",\n      "name": "Remediate",\n      "status": "pending"',
       '"id": "P4",\n      "name": "Remediate",\n      "status": "complete"'
@@ -216,10 +221,10 @@ const bootstrapAuthoredPacket = Effect.fnUntraced(function* () {
 
   const qualityReviewPath = `goals/${SLUG}/research/QUALITY_REVIEW.md`;
   const qualityReviewText = "# Authored quality review\n\nHistorical proof must remain byte-identical.\n";
-  yield* fs.writeFileString(qualityReviewPath, qualityReviewText);
+  yield* fs.writeFileString(path.join(repoRoot, qualityReviewPath), qualityReviewText);
   const rawGitignorePath = `goals/${SLUG}/raw/.gitignore`;
-  const rawGitignoreText = `${yield* fs.readFileString(rawGitignorePath)}# AUTHORED IGNORE NOTE\n`;
-  yield* fs.writeFileString(rawGitignorePath, rawGitignoreText);
+  const rawGitignoreText = `${yield* fs.readFileString(path.join(repoRoot, rawGitignorePath))}# AUTHORED IGNORE NOTE\n`;
+  yield* fs.writeFileString(path.join(repoRoot, rawGitignorePath), rawGitignoreText);
 
   return {
     alphaText,
@@ -229,59 +234,66 @@ const bootstrapAuthoredPacket = Effect.fnUntraced(function* () {
   };
 });
 
-const refreshPlan = Effect.fnUntraced(function* () {
-  const source = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+const refreshPlan = Effect.fnUntraced(function* (repoRoot: string) {
+  const source = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
   const plan = yield* planFor([arrivingHigh, alpha, beta, arrivingInfo], source);
   const documents = yield* documentsFor(plan);
   return { source, plan, documents };
 });
 
-const packetSnapshot = Effect.fnUntraced(function* (includeRaw = true) {
+const packetSnapshot = Effect.fnUntraced(function* (repoRoot: string, includeRaw = true) {
   const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
   const root = `goals/${SLUG}`;
-  const entries = A.sort(yield* fs.readDirectory(root, { recursive: true }), Order.String);
+  const entries = A.sort(yield* fs.readDirectory(path.join(repoRoot, root), { recursive: true }), Order.String);
   const files: Array<string> = [];
   for (const entry of entries) {
     if (includeRaw === false && Str.startsWith("raw/")(entry)) {
       continue;
     }
-    const info = yield* fs.stat(`${root}/${entry}`);
+    const info = yield* fs.stat(path.join(repoRoot, `${root}/${entry}`));
     if (info.type === "File") {
-      files.push(`${entry}\u0000${yield* fs.readFileString(`${root}/${entry}`)}`);
+      files.push(`${entry}\u0000${yield* fs.readFileString(path.join(repoRoot, `${root}/${entry}`))}`);
     }
   }
   return A.join(files, "\u0000");
 });
 
-const setPacketBranch = Effect.fnUntraced(function* (branch: string) {
+const setPacketBranch = Effect.fnUntraced(function* (repoRoot: string, branch: string) {
   const fs = yield* FileSystem.FileSystem;
-  const source = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+  const path = yield* Path.Path;
+  const source = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
   const ledger = CodexTriageLedger.make({
     ...source.ledger,
     meta: CodexTriageMeta.make({ ...source.ledger.meta, branch }),
   });
-  yield* fs.writeFileString(`goals/${SLUG}/ops/triage.json`, yield* encodeLedgerText(ledger));
+  yield* fs.writeFileString(path.join(repoRoot, `goals/${SLUG}/ops/triage.json`), yield* encodeLedgerText(ledger));
   const manifestPath = `goals/${SLUG}/ops/manifest.json`;
-  const manifest = yield* fs.readFileString(manifestPath);
+  const manifest = yield* fs.readFileString(path.join(repoRoot, manifestPath));
   yield* fs.writeFileString(
-    manifestPath,
+    path.join(repoRoot, manifestPath),
     Str.replace('"branch": "security/codex-findings-2026-08-04"', `"branch": "${branch}"`)(manifest)
   );
 });
 
 describe("codex findings preservation-safe refresh", () => {
   it.effect("preserves prior authored prose and appends sticky untriaged findings", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        const { alphaText, firstTriageEntry, qualityReviewText, rawGitignoreText } = yield* bootstrapAuthoredPacket();
+        const path = yield* Path.Path;
+        const { alphaText, firstTriageEntry, qualityReviewText, rawGitignoreText } =
+          yield* bootstrapAuthoredPacket(repoRoot);
         const sourcesPath = `goals/${SLUG}/research/SOURCES.md`;
-        const sourceProse = Str.replace("2-record", "2-record full-snapshot")(yield* fs.readFileString(sourcesPath));
-        yield* fs.writeFileString(sourcesPath, sourceProse);
-        const { source, plan, documents } = yield* refreshPlan();
+        const sourceProse = Str.replace(
+          "2-record",
+          "2-record full-snapshot"
+        )(yield* fs.readFileString(path.join(repoRoot, sourcesPath)));
+        yield* fs.writeFileString(path.join(repoRoot, sourcesPath), sourceProse);
+        const { source, plan, documents } = yield* refreshPlan(repoRoot);
 
         const outcome = yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           source,
           plan,
@@ -291,13 +303,28 @@ describe("codex findings preservation-safe refresh", () => {
 
         assert.strictEqual(outcome.committed, true);
         assert.deepStrictEqual(outcome.reconciliation.appendedIds, ["CSF-003", "CSF-004"]);
-        assert.strictEqual(yield* fs.readFileString(`goals/${SLUG}/findings/CSF-001.md`), alphaText);
-        assert.strictEqual(yield* fs.readFileString(`goals/${SLUG}/research/QUALITY_REVIEW.md`), qualityReviewText);
-        assert.strictEqual(yield* fs.readFileString(`goals/${SLUG}/raw/.gitignore`), rawGitignoreText);
-        assert.strictEqual(yield* fs.readFileString(sourcesPath), Str.replace("2-record", "4-record")(sourceProse));
-        assert.match(yield* fs.readFileString(`goals/${SLUG}/README.md`), /AUTHORED PACKET NOTE MUST SURVIVE/u);
+        assert.strictEqual(
+          yield* fs.readFileString(path.join(repoRoot, `goals/${SLUG}/findings/CSF-001.md`)),
+          alphaText
+        );
+        assert.strictEqual(
+          yield* fs.readFileString(path.join(repoRoot, `goals/${SLUG}/research/QUALITY_REVIEW.md`)),
+          qualityReviewText
+        );
+        assert.strictEqual(
+          yield* fs.readFileString(path.join(repoRoot, `goals/${SLUG}/raw/.gitignore`)),
+          rawGitignoreText
+        );
+        assert.strictEqual(
+          yield* fs.readFileString(path.join(repoRoot, sourcesPath)),
+          Str.replace("2-record", "4-record")(sourceProse)
+        );
+        assert.match(
+          yield* fs.readFileString(path.join(repoRoot, `goals/${SLUG}/README.md`)),
+          /AUTHORED PACKET NOTE MUST SURVIVE/u
+        );
 
-        const refreshed = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+        const refreshed = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
         assert.strictEqual(findingEntryWindow(refreshed.contents, "CSF-001", "CSF-002"), firstTriageEntry);
         assert.deepStrictEqual(
           A.map(refreshed.ledger.findings, (finding) => finding.id),
@@ -313,7 +340,7 @@ describe("codex findings preservation-safe refresh", () => {
         assert.strictEqual(refreshed.ledger.findings[2]?.validation.status, "pending");
         assert.strictEqual(refreshed.ledger.findings[2]?.ownerArea, undefined);
 
-        const manifest = yield* fs.readFileString(`goals/${SLUG}/ops/manifest.json`);
+        const manifest = yield* fs.readFileString(path.join(repoRoot, `goals/${SLUG}/ops/manifest.json`));
         assert.match(manifest, /"capturedCount": 4/u);
         assert.match(manifest, /"id": "P4",\n\s+"name": "Remediate",\n\s+"status": "complete"/u);
         assert.match(manifest, /"id": "P2",\n\s+"name": "Validate",\n\s+"status": "in-progress"/u);
@@ -322,22 +349,22 @@ describe("codex findings preservation-safe refresh", () => {
   );
 
   it.effect("is byte-idempotent when a full snapshot contains no unseen IDs", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
-        yield* bootstrapAuthoredPacket();
-        const first = yield* refreshPlan();
+        yield* bootstrapAuthoredPacket(repoRoot);
+        const first = yield* refreshPlan(repoRoot);
         yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           ...first,
           dryRun: false,
         });
-        const before = yield* packetSnapshot();
+        const before = yield* packetSnapshot(repoRoot);
 
-        const source = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+        const source = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
         const plan = yield* planFor([arrivingHigh, alpha, beta, arrivingInfo], source);
         const outcome = yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           source,
           plan,
@@ -348,20 +375,20 @@ describe("codex findings preservation-safe refresh", () => {
         assert.strictEqual(outcome.committed, false);
         assert.strictEqual(outcome.reconciliation.status, "no-new-findings");
         assert.deepStrictEqual(outcome.reconciliation.updatedPaths, []);
-        assert.strictEqual(yield* packetSnapshot(), before);
+        assert.strictEqual(yield* packetSnapshot(repoRoot), before);
       })
     )
   );
 
   it.effect("runs full reconciliation in dry-run mode without changing any packet byte", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
-        yield* bootstrapAuthoredPacket();
-        const before = yield* packetSnapshot();
-        const refresh = yield* refreshPlan();
+        yield* bootstrapAuthoredPacket(repoRoot);
+        const before = yield* packetSnapshot(repoRoot);
+        const refresh = yield* refreshPlan(repoRoot);
 
         const outcome = yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           ...refresh,
           dryRun: true,
@@ -369,7 +396,7 @@ describe("codex findings preservation-safe refresh", () => {
 
         assert.strictEqual(outcome.committed, false);
         assert.deepStrictEqual(outcome.reconciliation.appendedIds, ["CSF-003", "CSF-004"]);
-        assert.strictEqual(yield* packetSnapshot(), before);
+        assert.strictEqual(yield* packetSnapshot(repoRoot), before);
       })
     )
   );
@@ -377,16 +404,17 @@ describe("codex findings preservation-safe refresh", () => {
   it.effect(
     "uses existing branch provenance by default and leaves a repeated command plus goals index byte-identical",
     () =>
-      testEffect(
+      testEffect((repoRoot) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
-          yield* fs.makeDirectory(".git", { recursive: true });
-          yield* bootstrapAuthoredPacket();
+          const path = yield* Path.Path;
+          yield* fs.makeDirectory(path.join(repoRoot, ".git"), { recursive: true });
+          yield* bootstrapAuthoredPacket(repoRoot);
           const branch = "codex/existing-packet-branch";
-          yield* setPacketBranch(branch);
-          yield* fs.writeFileString("goals/INDEX.md", "# Authored goals index sentinel\n");
+          yield* setPacketBranch(repoRoot, branch);
+          yield* fs.writeFileString(path.join(repoRoot, "goals/INDEX.md"), "# Authored goals index sentinel\n");
           const csvPath = "codex-security-findings-2026-08-04T16-06-15.518Z.csv";
-          yield* fs.writeFileString(csvPath, csvSnapshot([alpha, beta]));
+          yield* fs.writeFileString(path.join(repoRoot, csvPath), csvSnapshot([alpha, beta]));
           const options = {
             from: csvPath,
             slug: O.none<string>(),
@@ -402,31 +430,31 @@ describe("codex findings preservation-safe refresh", () => {
           // The first run canonicalizes ignored raw evidence. The second is the
           // exact no-new fixed point whose bytes and global index must not move.
           yield* runCodexFindingsIngest(options);
-          const beforePacket = yield* packetSnapshot();
-          const beforeIndex = yield* fs.readFileString("goals/INDEX.md");
+          const beforePacket = yield* packetSnapshot(repoRoot);
+          const beforeIndex = yield* fs.readFileString(path.join(repoRoot, "goals/INDEX.md"));
           yield* runCodexFindingsIngest(options);
 
-          assert.strictEqual(yield* packetSnapshot(), beforePacket);
-          assert.strictEqual(yield* fs.readFileString("goals/INDEX.md"), beforeIndex);
-          const source = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+          assert.strictEqual(yield* packetSnapshot(repoRoot), beforePacket);
+          assert.strictEqual(yield* fs.readFileString(path.join(repoRoot, "goals/INDEX.md")), beforeIndex);
+          const source = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
           assert.strictEqual(source.ledger.meta.branch, branch);
         })
       )
   );
 
   it.effect("refreshes ignored normalized evidence without rewriting tracked packet prose", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
-        yield* bootstrapAuthoredPacket();
-        const first = yield* refreshPlan();
+        yield* bootstrapAuthoredPacket(repoRoot);
+        const first = yield* refreshPlan(repoRoot);
         yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           ...first,
           dryRun: false,
         });
-        const trackedBefore = yield* packetSnapshot(false);
-        const source = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+        const trackedBefore = yield* packetSnapshot(repoRoot, false);
+        const source = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
         const plan = yield* planFor([arrivingHigh, alpha, beta, arrivingInfo], source);
         const documents = A.map(yield* documentsFor(plan), (document) =>
           document.path === "raw/payload.json"
@@ -438,7 +466,7 @@ describe("codex findings preservation-safe refresh", () => {
         );
 
         const outcome = yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           source,
           plan,
@@ -449,7 +477,7 @@ describe("codex findings preservation-safe refresh", () => {
         assert.strictEqual(outcome.committed, true);
         assert.strictEqual(outcome.reconciliation.status, "no-new-findings");
         assert.deepStrictEqual(outcome.reconciliation.updatedPaths, ["raw/payload.json"]);
-        assert.strictEqual(yield* packetSnapshot(false), trackedBefore);
+        assert.strictEqual(yield* packetSnapshot(repoRoot, false), trackedBefore);
       })
     )
   );
@@ -463,19 +491,20 @@ describe("codex findings preservation-safe refresh", () => {
   );
 
   it.effect("requires an existing packet and a decodable bijective ledger", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        yield* fs.makeDirectory("goals", { recursive: true });
-        const missing = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG }).pipe(
+        const path = yield* Path.Path;
+        yield* fs.makeDirectory(path.join(repoRoot, "goals"), { recursive: true });
+        const missing = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG }).pipe(
           Effect.map(() => "accepted"),
           Effect.catchTag("CodexFindingsIngestError", (error) => Effect.succeed(error.reason))
         );
         assert.strictEqual(missing, "packet-missing");
 
-        yield* fs.makeDirectory(`goals/${SLUG}/ops`, { recursive: true });
-        yield* fs.writeFileString(`goals/${SLUG}/ops/triage.json`, "{ malformed");
-        const malformed = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG }).pipe(
+        yield* fs.makeDirectory(path.join(repoRoot, `goals/${SLUG}/ops`), { recursive: true });
+        yield* fs.writeFileString(path.join(repoRoot, `goals/${SLUG}/ops/triage.json`), "{ malformed");
+        const malformed = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG }).pipe(
           Effect.map(() => "accepted"),
           Effect.catchTag("CodexFindingsIngestError", (error) => Effect.succeed(error.reason))
         );
@@ -485,20 +514,24 @@ describe("codex findings preservation-safe refresh", () => {
   );
 
   it.effect("rejects duplicate prior Codex and CSF identity bindings", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        yield* bootstrapAuthoredPacket();
-        const source = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+        const path = yield* Path.Path;
+        yield* bootstrapAuthoredPacket(repoRoot);
+        const source = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
         const first = source.ledger.findings[0];
         const second = source.ledger.findings[1];
         assert(first !== undefined);
         assert(second !== undefined);
         const duplicate = CodexTriageFinding.make({ ...second, codexId: first.codexId, id: first.id });
         const ledger = CodexTriageLedger.make({ ...source.ledger, findings: [first, duplicate] });
-        yield* fs.writeFileString(`goals/${SLUG}/ops/triage.json`, yield* encodeLedgerText(ledger));
+        yield* fs.writeFileString(
+          path.join(repoRoot, `goals/${SLUG}/ops/triage.json`),
+          yield* encodeLedgerText(ledger)
+        );
 
-        const reason = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG }).pipe(
+        const reason = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG }).pipe(
           Effect.map(() => "accepted"),
           Effect.catchTag("CodexFindingsIngestError", (error) => Effect.succeed(error.reason))
         );
@@ -508,14 +541,14 @@ describe("codex findings preservation-safe refresh", () => {
   );
 
   it.effect("rejects removals and captured metadata drift", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
-        yield* bootstrapAuthoredPacket();
-        const source = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+        yield* bootstrapAuthoredPacket(repoRoot);
+        const source = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
 
         const removalPlan = yield* planFor([alpha], source);
         const removal = yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           source,
           plan: removalPlan,
@@ -529,7 +562,7 @@ describe("codex findings preservation-safe refresh", () => {
 
         const driftPlan = yield* planFor([{ ...alpha, title: "Changed prior title" }, beta], source);
         const drift = yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           source,
           plan: driftPlan,
@@ -543,7 +576,7 @@ describe("codex findings preservation-safe refresh", () => {
 
         const countDriftPlan = yield* planFor([arrivingHigh, alpha, beta, arrivingInfo], source, 3);
         const countDrift = yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           source,
           plan: countDriftPlan,
@@ -559,18 +592,19 @@ describe("codex findings preservation-safe refresh", () => {
   );
 
   it.effect("rejects source URL drift before rewriting an existing packet", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        const { alphaText } = yield* bootstrapAuthoredPacket();
-        const source = yield* loadCodexRefreshLedgerSource({ repoRoot: process.cwd(), slug: SLUG });
+        const path = yield* Path.Path;
+        const { alphaText } = yield* bootstrapAuthoredPacket(repoRoot);
+        const source = yield* loadCodexRefreshLedgerSource({ repoRoot, slug: SLUG });
         const stable = yield* planFor([alpha, beta], source);
         const plan = CodexPacketPlan.make({
           ...stable,
           sourceUrl: "https://chatgpt.com/mcp-app/connector_openai_defense_factory/open_defense_factory#/findings",
         });
         const reason = yield* refreshCodexFindingsPacket({
-          repoRoot: process.cwd(),
+          repoRoot,
           slug: SLUG,
           source,
           plan,
@@ -581,18 +615,22 @@ describe("codex findings preservation-safe refresh", () => {
           Effect.catchTag("CodexFindingsIngestError", (error) => Effect.succeed(error.reason))
         );
         assert.strictEqual(reason, "refresh-metadata-drift");
-        assert.strictEqual(yield* fs.readFileString(`goals/${SLUG}/findings/CSF-001.md`), alphaText);
+        assert.strictEqual(
+          yield* fs.readFileString(path.join(repoRoot, `goals/${SLUG}/findings/CSF-001.md`)),
+          alphaText
+        );
       })
     )
   );
 
   it.effect("restores the only original copy when staged promotion fails", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        const { alphaText } = yield* bootstrapAuthoredPacket();
-        const refresh = yield* refreshPlan();
-        const packetDir = `${process.cwd()}/goals/${SLUG}`;
+        const path = yield* Path.Path;
+        const { alphaText } = yield* bootstrapAuthoredPacket(repoRoot);
+        const refresh = yield* refreshPlan(repoRoot);
+        const packetDir = `${repoRoot}/goals/${SLUG}`;
         const failingFileSystem = FileSystem.FileSystem.of({
           ...fs,
           rename: Effect.fn("CodexFindingsRefreshTest.failingRename")((from, to) =>
@@ -611,7 +649,7 @@ describe("codex findings preservation-safe refresh", () => {
 
         const exit = yield* Effect.exit(
           refreshCodexFindingsPacket({
-            repoRoot: process.cwd(),
+            repoRoot,
             slug: SLUG,
             ...refresh,
             dryRun: false,
@@ -619,10 +657,13 @@ describe("codex findings preservation-safe refresh", () => {
         );
 
         assert.strictEqual(exit._tag, "Failure");
-        assert.strictEqual(yield* fs.readFileString(`goals/${SLUG}/findings/CSF-001.md`), alphaText);
-        assert.strictEqual(yield* fs.exists(`goals/${SLUG}`), true);
+        assert.strictEqual(
+          yield* fs.readFileString(path.join(repoRoot, `goals/${SLUG}/findings/CSF-001.md`)),
+          alphaText
+        );
+        assert.strictEqual(yield* fs.exists(path.join(repoRoot, `goals/${SLUG}`)), true);
         assert.deepStrictEqual(
-          A.filter(yield* fs.readDirectory("goals"), (entry) => Str.includes("-previous")(entry)),
+          A.filter(yield* fs.readDirectory(path.join(repoRoot, "goals")), (entry) => Str.includes("-previous")(entry)),
           []
         );
       })
@@ -645,19 +686,20 @@ describe("codex findings first-capture ingest", () => {
   };
 
   it.effect("bootstraps a packet from a cloud export, then refuses to renumber over an unreadable ledger", () =>
-    testEffect(
+    testEffect((repoRoot) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        yield* fs.makeDirectory(".git", { recursive: true });
-        yield* fs.makeDirectory("goals", { recursive: true });
-        yield* fs.writeFileString(csvPath, csvSnapshot([alpha, beta]));
+        const path = yield* Path.Path;
+        yield* fs.makeDirectory(path.join(repoRoot, ".git"), { recursive: true });
+        yield* fs.makeDirectory(path.join(repoRoot, "goals"), { recursive: true });
+        yield* fs.writeFileString(path.join(repoRoot, csvPath), csvSnapshot([alpha, beta]));
 
         yield* runCodexFindingsIngest(ingestOptions);
-        assert.strictEqual(yield* fs.exists(`goals/${SLUG}/ops/triage.json`), true);
+        assert.strictEqual(yield* fs.exists(path.join(repoRoot, `goals/${SLUG}/ops/triage.json`)), true);
 
         // A ledger that exists but does not decode must stop the ingest rather
         // than reassign every CSF-NNN from the current sort order.
-        yield* fs.writeFileString(`goals/${SLUG}/ops/triage.json`, "{ malformed");
+        yield* fs.writeFileString(path.join(repoRoot, `goals/${SLUG}/ops/triage.json`), "{ malformed");
         const reason = yield* runCodexFindingsIngest(ingestOptions).pipe(
           Effect.map(() => "accepted"),
           Effect.catchTag("CodexFindingsIngestError", (error) => Effect.succeed(error.reason))
