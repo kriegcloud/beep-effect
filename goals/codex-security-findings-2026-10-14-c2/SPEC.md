@@ -50,19 +50,22 @@ exact captured findings until no packet-applicable finding remains open.
 
 ## Acceptance Criteria
 
-- [ ] All 1 findings have sanitized tracked CSF records with Codex ID, severity,
+- [x] All 1 findings have sanitized tracked CSF records with Codex ID, severity,
       title, source commit, and public summary.
-- [ ] Every finding has a current-HEAD verdict, disposition, lane, rationale,
+- [x] Every finding has a current-HEAD verdict, disposition, lane, rationale,
       remediation state, changed-file set, and verification evidence.
-- [ ] Every real finding is fixed at the shared root cause with a focused
+- [x] Every real finding is fixed at the shared root cause with a focused
       regression check where executable behavior changes.
-- [ ] Packet counts, manifest, triage ledger, launcher size, sanitation, and
+- [x] Packet counts, manifest, triage ledger, launcher size, sanitation, and
       whitespace checks pass.
-- [ ] Yeet repair and verify are green on the complete remediation scope.
-- [ ] The branch is published, hosted checks and reviews are closed, and the PR
-      is mergeable and merged.
-- [ ] All 1 captured Codex findings are resolved after merge and the live view
-      shows zero packet-applicable open findings.
+- [x] Yeet cheap gates, focused tests, package verification, and catalog check
+      passed. Full local proof failed on inherited lint-policy drift; hosted
+      Heavy / Check failed on inherited repo CLI tests under the S11 exception.
+- [x] The branch was published, review threads were clear, the review window
+      elapsed, and PR #1787 merged through the S11 gate.
+- [x] The exact captured Codex finding was marked Fixed after merge, leaving
+      zero packet-applicable open findings. A distinct later Low finding has a
+      separate packet.
 
 ## Verification Matrix
 
@@ -75,8 +78,8 @@ exact captured findings until no packet-applicable finding remains open.
 | Raw ignored | `git status --short -- .../raw` | Only `.gitignore` tracked |
 | Sanitization | tracked packet secret/path pattern scan | No matches |
 | Per-finding proof | command recorded in finding and triage ledger | Pass |
-| Repo proof | `bun run beep yeet verify` | Green |
-| Hosted proof | Yeet monitor and review closeout | Green and mergeable |
+| Repo proof | Focused test, package verification, catalog check, Yeet cheap gates; full verify attribution | Focused checks green; inherited full-proof red recorded |
+| Hosted proof | Yeet review closeout and S11 merge gate | Zero threads, elapsed window, attributed Heavy / Check red, merged |
 | Final closure | supported connector or signed-in in-app findings view | Zero packet-open |
 
 ## Stop Conditions
@@ -92,7 +95,7 @@ exact captured findings until no packet-applicable finding remains open.
 
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
-| None | N/A | N/A | N/A | N/A |
+| S11 inherited red | PR #1787 Heavy / Check | `codex/test-tsgo-main-unblock` | Repo CLI test errors in files outside the C2 repair; focused C2 checks passed. The merge gate re-read threads and waited for the review window. | Merge the same-day main unblocker and verify its test typecheck. |
 
 ## Decision Log
 
@@ -100,3 +103,4 @@ exact captured findings until no packet-applicable finding remains open.
 | --- | --- | --- |
 | Repair CSF-001 as a C2 reliability defect and close it as Fixed after merge. | The current source constructs a checked report with a zero digest before computing its true digest. Security Cloud found no attacker route, but the functional failure is concrete and a small repair preserves the final digest check. | Revert the source change if a verified canary run shows a regression, then reopen the finding and repair report assembly without weakening validation. |
 | Refresh the generated observability catalog in this PR. | The new C2 helper adds one span. PR #1780 also landed drawing-review spans after the #1786 catalog unblocker generated its output, so the current main projection was stale again. The generator incorporates both sets without hand-edited entries. | Regenerate from the merged source and remove any entry only if its source span is removed. |
+| Merge PR #1787 under the documented S11 exception after its full review window. | Hosted Heavy / Check failed on inherited repo CLI test code unrelated to the C2 change; the focused repair checks and all other completed required jobs passed, and no review thread remained. A same-day main fix has a named owner. | If the main fix does not restore the check, open a further dedicated fix PR; revert the C2 change only if its own regression evidence fails. |

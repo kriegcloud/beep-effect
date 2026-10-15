@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -32,17 +32,17 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P5 repo-proof` - the one finding is a confirmed C2 canary reliability
-regression. The Security Cloud analysis found no supported security exploit.
-The repair passed its focused regression test and package lint/type check.
-The generated catalog main unblocker #1786 merged. This branch includes the
-new C2 span and drawing-review spans that landed concurrently on main.
+`P9 close` - PR #1787 merged at `cb37212785`; the exact captured C2 finding
+was then marked Fixed in Security Cloud. Focused tests, package verification,
+and Yeet cheap gates passed. The PR used the repository's S11 merge exception
+for an inherited repo CLI test typecheck red, with a same-day main fix owned
+separately. The analysis found no supported security exploit; the repaired
+defect was local C2 canary reliability.
 
 ## Findings at a glance
 
-1 Informational findings. Accepted risk is unavailable; each item must be
-fixed or closed only with strict proof that the report is already fixed or
-materially invalid.
+The one Informational finding captured by this packet is Fixed. A distinct Low
+finding appeared afterward and is tracked in its own drawing-critics packet.
 
 ## Notes
 
