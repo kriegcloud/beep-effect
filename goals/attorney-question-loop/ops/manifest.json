@@ -55,17 +55,17 @@
     {
       "id": "P1",
       "name": "Contract",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Implementation",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Producer + notice",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P4",
@@ -98,5 +98,5 @@
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "P0 schema complete 2026-10-14 (question ReviewItem, AnswerRow, Question values); P1 contract next."
+  "statusNote": "P0 merged (#1801). P1 contract, P2 services, P3a producer and notice, and P3b review hub complete 2026-10-14; P3c (systemd units, tailscale serve) next."
 }
