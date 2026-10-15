@@ -48,7 +48,10 @@ sheet-level checks, P12 cited rules registry, P13 seeded-defect mutation suite, 
 sidecar (SPEC Decision Log rows of 2026-10-14). Loop 3 (#1816, 2026-10-15) adds the `two-point`
 pictorial for the 2026-10-15 revision of F1 (the matter set now uses it), one
 `rsvg-convert` run per sheet set with a strict-inflate stream check, measured critic packs, and a Grok
-seat fallback when its strict sandbox cannot start on the host. Open with the attorney: the bottom-edge question (Q7)
+seat fallback when its strict sandbox cannot start on the host. Loop 4 (lane `drawings-loop-4`, pass 3) measures
+the room of areas glimpsed through an opening and counts every skipped one, opens outline pairs printed closer than
+0.7 mm, lights two-point views on their picture plane, and cuts redrawn bands back to their taper; the measured room
+only rescues areas the ordinary plan leaves bare (R4-08), and O-02 and O-04 are deferred P2 follow-ups. Open with the attorney: the bottom-edge question (Q7)
 and the overlay's edge extent; PR-K (embedded label text) and PR-L (edge emphasis, corrugation) pending.
 
 ## Latest Evidence

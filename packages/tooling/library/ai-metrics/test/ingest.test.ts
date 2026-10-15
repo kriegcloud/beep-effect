@@ -150,6 +150,8 @@ const ForwarderStampScenario = LiteralKit([
 ]);
 
 const encodeUnknownJsonEffect = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
+const encodeHookPulseRefusal = S.encodeEffect(S.fromJsonString(HookPulseRefusal));
+const decodeForwarderRunResult = S.decodeEffect(S.fromJsonString(AiMetricsForwarderRunResult));
 
 const expectSchemaMakeToFail = (run: () => unknown, messagePart: string): void => {
   const formatIssue = SchemaIssue.makeFormatterDefault();
@@ -742,7 +744,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
         if (A.contains(["refused", "trailing-refusal", "closed-before-refusal"], scenario))
           yield* writeText(
             path.join(hookRoot, "hook-pulse-refusals-fixture.ndjson"),
-            yield* S.encodeEffect(S.fromJsonString(HookPulseRefusal))(
+            yield* encodeHookPulseRefusal(
               HookPulseRefusal.make({
                 ts: DateTime.makeUnsafe(scenario === "refused" ? "2026-10-09T10:00:30Z" : "2026-10-09T10:02:00Z"),
                 agentKind: "codex-cli",
@@ -793,12 +795,15 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
         yield* fs.makeDirectory(hookDir, { recursive: true });
         yield* writeText(
           sourcePath,
-          [
-            scenario === "prefix"
-              ? '{"type":"session_meta","timestamp":"2026-10-09T09:59:00Z","payload":{"id":"current"}}'
-              : '{"type":"session_meta","timestamp":"2026-10-09T10:00:00Z","payload":{"id":"current"}}',
-            '{"type":"response_item","timestamp":"2026-10-09T10:01:00Z","payload":{"type":"function_call","name":"fixture","arguments":"{}"}}',
-          ].join("\n")
+          A.join(
+            [
+              scenario === "prefix"
+                ? '{"type":"session_meta","timestamp":"2026-10-09T09:59:00Z","payload":{"id":"current"}}'
+                : '{"type":"session_meta","timestamp":"2026-10-09T10:00:00Z","payload":{"id":"current"}}',
+              '{"type":"response_item","timestamp":"2026-10-09T10:01:00Z","payload":{"type":"function_call","name":"fixture","arguments":"{}"}}',
+            ],
+            "\n"
+          )
         );
         const provider = ConfigProvider.fromUnknown({
           BEEP_HOOK_PULSE_HASH_SALT: "hook-fixture-namespace",
@@ -861,7 +866,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
           });
           yield* writeText(
             path.join(hookDir, "fixture.ndjson"),
-            (yield* Effect.forEach(rows, (row) => HookPulseV1.encodeJsonEffect(row))).join("\n")
+            A.join(yield* Effect.forEach(rows, (row) => HookPulseV1.encodeJsonEffect(row)), "\n")
           );
           yield* writeScenarioGaps(scenario, hookRoot, hookDir);
           const result = yield* runAiMetricsForwarder(
@@ -877,9 +882,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
               rawArchiveKey: Redacted.make(Base64.encode(new Uint8Array(32).fill(7))),
             })
           );
-          const status = yield* S.decodeEffect(S.fromJsonString(AiMetricsForwarderRunResult))(
-            yield* forwarderRunResultToJson(result)
-          );
+          const status = yield* decodeForwarderRunResult(yield* forwarderRunResultToJson(result));
           assertScenarioCollection(scenario, result, status);
           const expected = A.contains(
             ["qualified", "closed-before-refusal", "corrupt", "unreadable", "rejected-refusal"],

@@ -7,13 +7,23 @@
  */
 
 import {
+  BandInk,
+  BandRun,
+  bandRunLengths,
   coverageOf,
+  gradedExtents,
   HiddenLinePassAbout,
+  inkOrderSteps,
+  inkTwins,
   ladderPitch,
   legibleShading,
   nearestOutlineDistance,
+  ShadingBand,
   ShadingCoverage,
+  ShadingRoom,
   ShadingSkipped,
+  ShadingStretchSkip,
+  ShadingStretchSkipReason,
 } from "@beep/technical-drawing";
 import { A, N, O } from "@beep/utils";
 import { flow, pipe } from "effect/Function";
@@ -26,10 +36,9 @@ import * as replicad from "replicad";
 import { OcctError } from "../Occt.errors.ts";
 import { BoundingBox, EdgeSet, ModelSummary, Primitive } from "../Occt.models.ts";
 import { claimedPartOf, claimedStrokes, makeSurveyor, pieceStyles, sightOf, unclaimedOf } from "./claim.ts";
-import { hasBandRoom, hatchCompound, probeEdges } from "./shading.ts";
+import { hasBandRoom, hatchCompound, probeEdges, roomColumns } from "./shading.ts";
 import { add, cross, scale } from "./vector.ts";
-import type { FaceTreatment, ShadingProbe } from "@beep/technical-drawing";
-import type { LazyArg } from "effect/Function";
+import type { ShadingProbe } from "@beep/technical-drawing";
 import type { HLRBRep_HLRToShape, OpenCascadeInstance, TopoDS_Shape } from "replicad-opencascadejs";
 import type {
   Camera,
@@ -43,7 +52,7 @@ import type {
   ShadingPlan,
 } from "../Occt.models.ts";
 import type { Run, Styles, Surveyor, Unclaimed, Viewed } from "./claim.ts";
-import type { GroupBeyond, StretchPiece } from "./shading.ts";
+import type { GroupBeyond, HatchedFace, StretchPiece } from "./shading.ts";
 import type { V3 } from "./vector.ts";
 
 type Shape3D = replicad.Shape3D;
@@ -476,23 +485,35 @@ const visibleEdges = (shapes: HLRBRep_HLRToShape, own: TopoDS_Shape, oc: OpenCas
   ...edgesOf(shapes.OutLineVCompound(own), oc),
 ];
 
-type ProbeLine = {
-  readonly probe: ShadingProbe;
+// A model segment's line on the view plane: where its first end lands, the unit direction to its second end and the
+// projected length between them.
+type ViewedLine = {
   readonly point: readonly [number, number];
   readonly along: readonly [number, number];
   readonly length: number;
   // the two ends' distances from the eye along the view direction under a
   // perspective camera (both 1 for an orthographic one), for walking back
-  // from a view-plane fraction to a fraction of the probe in space
+  // from a view-plane fraction to a fraction of the segment in space
   readonly depth: readonly [number, number];
 };
 
-// A probe's line on the view plane, in the projector's own frame (the frame
-// the hidden-line pass reports its edges in) and under its own projection: a
-// camera with a focus projects in perspective, the eye `focus` along the view
-// direction from the target, exactly as `makeProjector` sets the HLR up.
-// None when the probe projects to a point.
-const projectedProbe = (camera: Camera, probe: ShadingProbe): O.Option<ProbeLine> => {
+type ProbeLine = ViewedLine & { readonly probe: ShadingProbe };
+
+// A planned stroke of a band as the stroke pass hands it over, with its line's planned extent and rank.
+type PlannedStroke = HatchedFace<ProbeLine>["stretches"][number]["planned"][number];
+
+// A visible stretch the stroke pass skipped by design, with its reason and whether its measured room fits a band.
+type SkippedStretch = HatchedFace<ProbeLine>["skipped"][number];
+
+// A chord along a glimpsed area's lines, for the hidden-line pass to measure the area's room for a stroke.
+type RoomColumn = ReturnType<typeof roomColumns>[number];
+
+// A model segment's line on the view plane, in the projector's own frame (the
+// frame the hidden-line pass reports its edges in) and under its own
+// projection: a camera with a focus projects in perspective, the eye `focus`
+// along the view direction from the target, exactly as `makeProjector` sets
+// the HLR up. None when the segment projects to a point.
+const viewedLine = (camera: Camera, from: V3, to: V3): O.Option<ViewedLine> => {
   const direction = normalize(camera.eye);
   const right = normalize(cross(normalize(camera.up), direction));
   const up = cross(direction, right);
@@ -511,19 +532,22 @@ const projectedProbe = (camera: Camera, probe: ShadingProbe): O.Option<ProbeLine
       onSome: (focus) => ({ at: [(u * focus) / (focus - w), (v * focus) / (focus - w)] as const, depth: focus - w }),
     });
   };
-  const from = project(probe.from);
-  const to = project(probe.to);
-  const length = Math.hypot(to.at[0] - from.at[0], to.at[1] - from.at[1]);
+  const a = project(from);
+  const b = project(to);
+  const length = Math.hypot(b.at[0] - a.at[0], b.at[1] - a.at[1]);
   return length < 1e-9
     ? O.none()
     : O.some({
-        probe,
-        point: from.at,
+        point: a.at,
         length,
-        along: [(to.at[0] - from.at[0]) / length, (to.at[1] - from.at[1]) / length],
-        depth: [from.depth, to.depth],
+        along: [(b.at[0] - a.at[0]) / length, (b.at[1] - a.at[1]) / length],
+        depth: [a.depth, b.depth],
       });
 };
+
+// A probe's line on the view plane; none when the probe projects to a point.
+const projectedProbe = (camera: Camera, probe: ShadingProbe): O.Option<ProbeLine> =>
+  O.map(viewedLine(camera, probe.from, probe.to), (line) => ({ probe, ...line }));
 
 // Where a model point lands on the view plane, in the projector's own frame and under its own projection (as
 // `projectedProbe` reads a probe's ends), with its nearness to the eye along the view direction.
@@ -543,20 +567,21 @@ const viewOf = (camera: Camera): ((p: V3) => Viewed) => {
   };
 };
 
-// Offset along the face's step, from its shadow anchor, of the point of a
-// probe's line nearest a view-plane point. A fraction of the projected line
-// is a fraction of the probe in space only under an orthographic camera;
-// under perspective the far end is foreshortened, so the fraction is walked
-// back through the two ends' depths.
-const offsetAt = (line: ProbeLine, x: number, y: number): number => {
+// Fraction of a segment in space at the point of its line nearest a view-plane point. A fraction of the projected
+// line is a fraction of the segment in space only under an orthographic camera; under perspective the far end is
+// foreshortened, so the fraction is walked back through the two ends' depths.
+const fractionAt = (line: ViewedLine, x: number, y: number): number => {
   const t = Math.min(
     Math.max(((x - line.point[0]) * line.along[0] + (y - line.point[1]) * line.along[1]) / line.length, 0),
     1
   );
   const [near, far] = line.depth;
-  const s = (t * near) / (t * near + (1 - t) * far);
-  return line.probe.start + s * (line.probe.end - line.probe.start);
+  return (t * near) / (t * near + (1 - t) * far);
 };
+
+// Offset along the face's step, from its shadow anchor, of the point of a probe's line nearest a view-plane point.
+const offsetAt = (line: ProbeLine, x: number, y: number): number =>
+  line.probe.start + fractionAt(line, x, y) * (line.probe.end - line.probe.start);
 
 // The visible areas of every probed face along its shading step: each visible
 // run of a probe mapped back to offsets from the face's shadow anchor, and the
@@ -933,6 +958,325 @@ const groupBeyondOf =
     );
   };
 
+// A stretch of a line, as positions along it.
+type Interval = { readonly from: number; readonly to: number };
+
+// Intervals joined where they touch or overlap: a line that went through the hidden-line pass in short pieces.
+const joinedIntervals = (intervals: ReadonlyArray<Interval>): ReadonlyArray<Interval> =>
+  pipe(
+    intervals,
+    A.sort(Order.mapInput(Order.Number, (interval: Interval) => interval.from)),
+    A.reduce(
+      A.empty<Interval>(),
+      (joined: ReadonlyArray<Interval>, next): ReadonlyArray<Interval> =>
+        pipe(
+          A.last(joined),
+          O.filter((last) => next.from - last.to <= JOIN_TOLERANCE),
+          O.match({
+            onNone: () => A.append(joined, next),
+            onSome: (last) => A.append(A.dropRight(joined, 1), { from: last.from, to: Math.max(last.to, next.to) }),
+          })
+        )
+    )
+  );
+
+// The room one column measured: the longest run of its visible pieces along it, in model units, each piece's ends
+// walked back from the view plane to the column in space.
+const columnRoom = (camera: Camera, column: RoomColumn, pieces: ReadonlyArray<Segment2>): number => {
+  const length = Math.hypot(
+    column.to[0] - column.from[0],
+    column.to[1] - column.from[1],
+    column.to[2] - column.from[2]
+  );
+  return O.match(viewedLine(camera, column.from, column.to), {
+    onNone: () => 0,
+    onSome: (line) =>
+      pipe(
+        pieces,
+        A.map(([x1, y1, x2, y2]): Interval => {
+          const a = fractionAt(line, x1, y1) * length;
+          const b = fractionAt(line, x2, y2) * length;
+          return { from: Math.min(a, b), to: Math.max(a, b) };
+        }),
+        joinedIntervals,
+        A.reduce(0, (most, interval) => Math.max(most, interval.to - interval.from))
+      ),
+  });
+};
+
+const roomKey = (face: number, area: number): string => `${face}:${area}`;
+
+// The measured room of every glimpsed visible area, keyed by face and area: at each offset of its columns the longest
+// visible run any of the columns there showed, in offset order.
+const measuredRooms = (
+  camera: Camera,
+  columns: ReadonlyArray<RoomColumn>,
+  pieces: ReadonlyArray<ReadonlyArray<Segment2>>
+): HashMap.HashMap<string, ReadonlyArray<ShadingRoom>> =>
+  pipe(
+    A.zipWith(columns, pieces, (column, seen) => ({
+      key: roomKey(column.face, column.area),
+      offset: column.offset,
+      length: columnRoom(camera, column, seen),
+    })),
+    A.groupBy((reading) => reading.key),
+    R.toEntries,
+    A.map(
+      ([key, readings]) =>
+        [
+          key,
+          pipe(
+            readings,
+            A.groupBy((reading) => `${reading.offset}`),
+            R.values,
+            A.map((same) =>
+              ShadingRoom.make({
+                offset: A.headNonEmpty(same).offset,
+                length: A.reduce(same, 0, (most, reading) => Math.max(most, reading.length)),
+              })
+            ),
+            A.sort(Order.mapInput(Order.Number, (room: ShadingRoom) => room.offset))
+          ),
+        ] as const
+    ),
+    HashMap.fromIterable
+  );
+
+// A legible run of a band redrawn on its whole chords, with the planned extent and rank of the stroke it was cut from.
+type RedrawnRun = { readonly run: Segment2; readonly extent: number; readonly rank: number };
+
+// Distance on the view plane from a run's middle to the line through a planned stroke.
+const offLine =
+  (run: Segment2) =>
+  (line: { readonly a: Viewed; readonly b: Viewed }): number => {
+    const dx = line.b.x - line.a.x;
+    const dy = line.b.y - line.a.y;
+    const length = Math.hypot(dx, dy);
+    const mx = (run[0] + run[2]) / 2;
+    const my = (run[1] + run[3]) / 2;
+    return length < 1e-12 ? Number.POSITIVE_INFINITY : Math.abs(dx * (my - line.a.y) - dy * (mx - line.a.x)) / length;
+  };
+
+// Each legible run of a band redrawn on its whole chords, matched to the planned stroke whose line on the view plane it
+// lies on: the nearest by the run's middle. The strokes of one band are parallel and at least a pitch apart.
+const matchedRuns = (input: {
+  readonly runs: ReadonlyArray<Segment2>;
+  readonly strokes: ReadonlyArray<PlannedStroke>;
+  readonly view: (p: V3) => Viewed;
+}): ReadonlyArray<RedrawnRun> => {
+  const lines = A.map(input.strokes, (stroke) => ({
+    stroke,
+    a: input.view(stroke.ends[0]),
+    b: input.view(stroke.ends[1]),
+  }));
+  return pipe(
+    input.runs,
+    A.map((run) =>
+      pipe(
+        lines,
+        A.map((line) => ({ stroke: line.stroke, off: offLine(run)(line) })),
+        A.sort(Order.mapInput(Order.Number, (match: { readonly off: number }) => match.off)),
+        A.head,
+        O.map(({ stroke }): RedrawnRun => ({ run, extent: stroke.extent, rank: stroke.rank }))
+      )
+    ),
+    A.getSomes
+  );
+};
+
+const segmentLength = ([x1, y1, x2, y2]: Segment2): number => Math.hypot(x2 - x1, y2 - y1);
+
+// A run cut to `length`, centred on it and never longer than the run, its ends rounded like every drawn line.
+const cutTo = (run: Segment2, length: number): Segment2 => {
+  const [x1, y1, x2, y2] = run;
+  const whole = Math.hypot(x2 - x1, y2 - y1);
+  const trim = whole > 0 ? (whole - Math.min(whole, length)) / (2 * whole) : 0;
+  return [
+    round(x1 + (x2 - x1) * trim),
+    round(y1 + (y2 - y1) * trim),
+    round(x2 - (x2 - x1) * trim),
+    round(y2 - (y2 - y1) * trim),
+  ];
+};
+
+// The runs of a redrawn band cut back to the band's taper, measured against the band's longest run so runs of unequal
+// length keep the taper's order (review loop 4, K-08, R4-07, F11-05: `bandRunLengths`).
+const retapered = (runs: ReadonlyArray<RedrawnRun>, minStroke: number): ReadonlyArray<Segment2> =>
+  A.zipWith(
+    runs,
+    bandRunLengths({
+      runs: A.map(runs, (run) => BandRun.make({ length: segmentLength(run.run), extent: run.extent, rank: run.rank })),
+      minStroke,
+    }),
+    (run, length) => cutTo(run.run, length)
+  );
+
+// The runs of a redrawn band stepped to the lit floor: the two lines nearest its shadow edge only, at the floor's
+// taper (0.6 and 0.4, `gradedExtents` with no full-length line), cut like any redrawn band.
+const litFloorOf = (runs: ReadonlyArray<RedrawnRun>, minStroke: number): ReadonlyArray<Segment2> => {
+  const ranks = pipe(
+    A.map(runs, (run) => run.rank),
+    A.dedupe,
+    A.sort(Order.Number),
+    A.take(2)
+  );
+  const extents = gradedExtents({ count: 2, fullLines: 0 });
+  return retapered(
+    pipe(
+      runs,
+      A.map((run) =>
+        pipe(
+          A.findFirstIndex(ranks, (rank) => rank === run.rank),
+          O.flatMap((position) => A.get(extents, position)),
+          O.map((extent): RedrawnRun => ({ ...run, extent }))
+        )
+      ),
+      A.getSomes
+    ),
+    minStroke
+  );
+};
+
+// One planned stretch as the sheet draws it: its face, whether it lacked planned room for a band (a sliver, bare by
+// design), its drawn strokes, the legible runs of a tapered band drawn on its whole chords (`relaxed`: by the planner,
+// whose taper alone left no room, or `redrawn` by the kernel, where the hidden-line and legibility passes emptied the
+// tapered band), whether it was left bare to keep the ink order, and whether its measured room fits a band.
+type DrawnStretch = {
+  readonly index: number;
+  readonly sliver: boolean;
+  readonly segments: ReadonlyArray<Segment2>;
+  readonly relaxed: O.Option<ReadonlyArray<RedrawnRun>>;
+  readonly redrawn: boolean;
+  readonly inkOrder: boolean;
+  readonly fits: boolean;
+};
+
+// A stretch drawn on whole chords cut back to its taper that drew something.
+const isRelaxed = (stretch: DrawnStretch): boolean =>
+  O.isSome(stretch.relaxed) && A.isReadonlyArrayNonEmpty(stretch.segments);
+
+const isRedrawn = (stretch: DrawnStretch): boolean => stretch.redrawn && A.isReadonlyArrayNonEmpty(stretch.segments);
+
+// A drawn stroke and the place of the stretch that drew it among the stretches with ink.
+type BandStroke = { readonly segment: Segment2; readonly band: number };
+
+const strokeOrder = Order.mapInput(segmentOrder, (stroke: BandStroke) => stroke.segment);
+const bandOrder = Order.mapInput(Order.Number, (stroke: { readonly band: number }) => stroke.band);
+
+// The view's strokes in canonical order, and one band per stretch that drew ink: its face and its strokes' places in
+// that order. The sort is stable, so the strokes are those the kernel drew before bands, in the same order. A pass
+// after projection (the sheet's re-clip beside separated outlines, PR #1842) reads through the bands which stretch
+// and which face it left bare.
+const bandedShading = (
+  stretches: ReadonlyArray<DrawnStretch>
+): { readonly shading: ReadonlyArray<Segment2>; readonly bands: ReadonlyArray<ShadingBand> } => {
+  const inked = A.filter(stretches, (stretch) => A.isReadonlyArrayNonEmpty(stretch.segments));
+  const strokes = pipe(
+    inked,
+    A.flatMap((stretch, band) => A.map(stretch.segments, (segment): BandStroke => ({ segment, band }))),
+    A.sort(strokeOrder)
+  );
+  // every inked stretch draws at least one stroke, so the groups, in band order, pair with the inked stretches
+  const groups = A.match(
+    A.sort(
+      A.map(strokes, (stroke, at) => ({ band: stroke.band, at })),
+      bandOrder
+    ),
+    {
+      onEmpty: () => [],
+      onNonEmpty: A.groupWith((a, b) => a.band === b.band),
+    }
+  );
+  return {
+    shading: A.map(strokes, (stroke) => stroke.segment),
+    bands: A.zipWith(inked, groups, (stretch, group) =>
+      ShadingBand.make({ face: stretch.index, strokes: A.map(group, (stroke) => stroke.at) })
+    ),
+  };
+};
+
+// Each face's drawn ink, as the planner reads planned ink: the length of its drawn strokes on the view plane times the
+// minimum pitch, over its visible area on the view plane.
+const drawnInkOf = (
+  faces: ReadonlyArray<HatchedFace<ProbeLine>>,
+  stretches: ReadonlyArray<DrawnStretch>,
+  minPitch: number
+): ReadonlyArray<BandInk> =>
+  pipe(
+    faces,
+    A.map((face, index) => {
+      const length = pipe(
+        stretches,
+        A.filter((stretch) => stretch.index === index),
+        A.flatMap((stretch) => stretch.segments),
+        A.reduce(0, (sum, segment: Segment2) => sum + segmentLength(segment))
+      );
+      return face.seen > 0 && length > 0
+        ? O.some(BandInk.make({ face: index, exposure: face.exposure, density: (length * minPitch) / face.seen }))
+        : O.none();
+    }),
+    A.getSomes
+  );
+
+// A band drawn on whole chords and cut back to its taper can still carry more ink than the darker face beside it, since
+// the tapers were settled on planned ink (review loop 4, K-08). The ink order is checked again on drawn ink: a face with
+// such a band that out-inks a darker neighbour has that band stepped to the lit floor, and, when it still out-inks the
+// neighbour, left bare as a planned skip.
+const settleRedrawnInk = (input: {
+  readonly stretches: ReadonlyArray<DrawnStretch>;
+  readonly faces: ReadonlyArray<HatchedFace<ProbeLine>>;
+  readonly neighbours: ReadonlyArray<readonly [number, number]>;
+  readonly plan: ShadingPlan;
+}): ReadonlyArray<DrawnStretch> => {
+  const { faces, neighbours, plan } = input;
+  const relaxedFaces = HashSet.fromIterable(A.map(A.filter(input.stretches, isRelaxed), (stretch) => stretch.index));
+  // drawn ink is compared across shared edges and between faces of one seen area a tone step apart (F11-04)
+  const outInking = (stretches: ReadonlyArray<DrawnStretch>): HashSet.HashSet<number> => {
+    const bands = drawnInkOf(faces, stretches, plan.minPitch);
+    const seen = (face: number) => O.match(A.get(faces, face), { onNone: () => 0, onSome: (hatched) => hatched.seen });
+    return HashSet.intersection(
+      inkOrderSteps({ bands, shared: [...neighbours, ...inkTwins({ bands, seen })] }),
+      relaxedFaces
+    );
+  };
+  const stepAt = (
+    stretches: ReadonlyArray<DrawnStretch>,
+    stepped: HashSet.HashSet<number>,
+    step: (stretch: DrawnStretch, runs: ReadonlyArray<RedrawnRun>) => DrawnStretch
+  ): ReadonlyArray<DrawnStretch> =>
+    A.map(stretches, (stretch) =>
+      HashSet.has(stepped, stretch.index) && isRelaxed(stretch)
+        ? O.match(stretch.relaxed, { onNone: () => stretch, onSome: (runs) => step(stretch, runs) })
+        : stretch
+    );
+  const stepped = outInking(input.stretches);
+  const floored = stepAt(input.stretches, stepped, (stretch, runs) => ({
+    ...stretch,
+    segments: litFloorOf(runs, plan.minStroke),
+  }));
+  return stepAt(floored, HashSet.intersection(outInking(floored), stepped), (stretch) => ({
+    ...stretch,
+    segments: A.empty(),
+    inkOrder: true,
+  }));
+};
+
+// The view's skipped stretches per reason, in reason order with zero counts left out, each with how many had measured
+// room for a band.
+const stretchSkipsOf = (skips: ReadonlyArray<SkippedStretch>): ReadonlyArray<ShadingStretchSkip> =>
+  pipe(
+    ShadingStretchSkipReason.literals,
+    A.map((reason) => {
+      const of = A.filter(skips, (skip) => skip.reason === reason);
+      return ShadingStretchSkip.make({
+        reason,
+        stretches: A.length(of),
+        fitting: A.length(A.filter(of, (skip) => skip.fits)),
+      });
+    }),
+    A.filter((skip) => skip.stretches > 0)
+  );
+
 type Lines = {
   readonly visible: ReadonlyArray<replicad.Edge>;
   readonly hidden: ReadonlyArray<replicad.Edge>;
@@ -1062,8 +1406,37 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
             // a link between two pieces that crosses a drawn outline is not a link
             outlines: drawnOutlines,
           });
+          // One more hidden-line pass, run only when some visible area was glimpsed by fewer than three probe rows,
+          // measures the room each such area leaves a stroke at offsets across it: the rows' cells can overstate a
+          // pointed glimpse of a face by up to a cell (review loop 4, G-01).
+          const columns = roomColumns({
+            oc,
+            shape: solid,
+            camera,
+            plan,
+            isBrokenFace,
+            regions: (face) =>
+              O.getOrElse(HashMap.get(regions, face), A.empty<A.NonEmptyReadonlyArray<StretchPiece<ProbeLine>>>),
+          });
+          const rooms = A.isReadonlyArrayNonEmpty(columns)
+            ? measuredRooms(
+                camera,
+                columns,
+                A.map(
+                  hiddenLines({
+                    oc,
+                    built,
+                    camera,
+                    withHidden: false,
+                    extras: A.map(columns, (column) => column.shape),
+                  }).extras,
+                  toSegments
+                )
+              )
+            : HashMap.empty<string, ReadonlyArray<ShadingRoom>>();
           return {
             regions,
+            rooms,
             // a band's first line reads every line the sheet draws beyond its edge: the outlines and the overlays,
             // as the validator's ladder check does
             groupBeyond: groupBeyondOf({ view: onView, outlines: [...drawnOutlines, ...overlaid], plan }),
@@ -1100,6 +1473,8 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
           isBrokenFace,
           claimedOf,
           viewedLength,
+          // the room measured across each glimpsed visible area, by face and area
+          rooms: (face, area) => O.flatMap(probed, (p) => HashMap.get(p.rooms, roomKey(face, area))),
           // the faces that share a visible edge: a lighter face's band must not out-ink its darker neighbour's
           neighbours: O.match(probed, { onNone: A.empty, onSome: (p) => p.neighbours }),
           // a band whose edge has drawn lines running alongside it just beyond starts behind a gutter
@@ -1120,15 +1495,10 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
   // of their own, so a stretch left with a single stroke can be emptied (one
   // line beside an outline reads as a doubled edge, never as shading) and a
   // face whose every stroke is lost can be counted.
-  const faces: ReadonlyArray<{
-    readonly treatment: FaceTreatment;
-    readonly stretches: ReadonlyArray<{
-      readonly planned: ReadonlyArray<readonly [V3, V3]>;
-      readonly shape: AnyShape;
-      readonly probes: ReadonlyArray<ProbeLine>;
-      readonly untapered: O.Option<LazyArg<AnyShape>>;
-    }>;
-  }> = O.match(shaded, { onNone: () => [], onSome: (view) => view.faces });
+  const faces: ReadonlyArray<HatchedFace<ProbeLine>> = O.match(shaded, {
+    onNone: () => [],
+    onSome: (view) => view.faces,
+  });
   const stroked = A.flatMap(faces, (face, index) => A.map(face.stretches, (stretch) => ({ index, ...stretch })));
   // the overlays go through the same pass as the strokes, after them
   const lines = hiddenLines({
@@ -1225,8 +1595,10 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
   // survived the pass, so a band planned with room and hidden all the same is the loss the coverage reports (review
   // loop 2, K-03). The stroke pass asks the same `hasBandRoom` before it hands a stretch over, so a band its taper
   // alone would empty arrives re-planned or untapered (review loop 3, J-01).
-  const hasRoom = (planned: ReadonlyArray<readonly [V3, V3]>): boolean =>
-    O.exists(options.shading, (plan) => hasBandRoom({ plan, viewedLength, planned }));
+  const hasRoom = (planned: ReadonlyArray<PlannedStroke>): boolean =>
+    O.exists(options.shading, (plan) =>
+      hasBandRoom({ plan, viewedLength, planned: A.map(planned, (stroke) => stroke.ends) })
+    );
   type Stroked = (typeof stroked)[number];
   // a stretch's strokes as the sheet draws them: its own pieces, kept legible, and none at all below two strokes
   const strokesOf = (stretch: Stroked, edges: ReadonlyArray<replicad.Edge>): ReadonlyArray<Segment2> => {
@@ -1237,87 +1609,151 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
     const segments = legible(own);
     return graded && A.length(segments) < 2 ? A.empty<Segment2>() : segments;
   };
-  const tapered = A.zipWith(stroked, strokePieces, (stretch, edges) =>
-    graded && !hasRoom(stretch.planned)
-      ? { index: stretch.index, sliver: true, segments: A.empty<Segment2>() }
-      : { index: stretch.index, sliver: false, segments: strokesOf(stretch, edges) }
-  );
+  const minStroke = O.match(options.shading, { onNone: () => 0, onSome: (plan) => plan.minStroke });
+  // a tapered band the planner drew on its whole clipped chords is cut back to its taper, like a redrawn one (below)
+  const firstPassOf = (stretch: Stroked, edges: ReadonlyArray<replicad.Edge>): DrawnStretch => {
+    const sliver = graded && !hasRoom(stretch.planned);
+    const segments = sliver ? A.empty<Segment2>() : strokesOf(stretch, edges);
+    const relaxed =
+      graded && stretch.whole
+        ? O.some(matchedRuns({ runs: segments, strokes: stretch.planned, view: onView }))
+        : O.none<ReadonlyArray<RedrawnRun>>();
+    return {
+      index: stretch.index,
+      sliver,
+      segments: O.match(relaxed, { onNone: () => segments, onSome: (runs) => retapered(runs, minStroke) }),
+      relaxed,
+      redrawn: false,
+      inkOrder: false,
+      fits: stretch.fits,
+    };
+  };
+  const tapered = A.zipWith(stroked, strokePieces, firstPassOf);
   // The taper may shorten a band but never empty it (review loop 3, J-01), and the planner judges a tapered band's room
   // on its rows' cells, as if each showed in full wherever its probe saw the face. A part in front can cut a cell
   // anywhere between the probe that saw the face and the row beyond that did not: each stroke, centred on the cell,
   // then shows only its near end, and the legibility pass drops what is left (the two-point bottom view of a wall
   // glimpsed at its foot through an opening in a plate in front of it). A stretch planned with room that drew nothing
   // that way is drawn again on its whole clipped chords, through one more hidden-line pass that runs only when such a
-  // stretch exists; the pass cuts the chords to what shows. Room still comes from the plan, so a stretch whose whole
-  // chords draw nothing too stays a lost stretch (K-03), never a sliver.
+  // stretch exists; the pass cuts the chords to what shows. Each legible run is then cut back to its planned stroke's
+  // taper, centred on the run and never below the minimum stroke, so the redraw keeps the band's taper and its order
+  // of lengths (review loop 4, K-08). Room still comes from the plan, so a stretch whose whole chords draw nothing too
+  // stays a lost stretch (K-03), never a sliver.
   const emptied = graded
     ? pipe(
-        A.zip(stroked, tapered),
-        A.map(([stretch, drawnFirst], k) =>
+        tapered,
+        A.map((drawnFirst, k) =>
           !drawnFirst.sliver && !A.isReadonlyArrayNonEmpty(drawnFirst.segments)
-            ? O.map(stretch.untapered, (untapered) => ({ k, stretch, shape: untapered() }))
+            ? O.flatMap(A.get(stroked, k), (stretch) =>
+                O.map(stretch.untapered, (untapered) => ({ k, stretch, made: untapered() }))
+              )
             : O.none()
         ),
         A.getSomes
       )
-    : A.empty<{ readonly k: number; readonly stretch: Stroked; readonly shape: AnyShape }>();
+    : A.empty<{
+        readonly k: number;
+        readonly stretch: Stroked;
+        readonly made: { readonly shape: AnyShape; readonly strokes: ReadonlyArray<PlannedStroke> };
+      }>();
   const redrawn = A.isReadonlyArrayNonEmpty(emptied)
     ? HashMap.fromIterable(
         A.zipWith(
-          hiddenLines({ oc, built, camera, withHidden: false, extras: A.map(emptied, (stretch) => stretch.shape) })
+          hiddenLines({ oc, built, camera, withHidden: false, extras: A.map(emptied, (stretch) => stretch.made.shape) })
             .extras,
           emptied,
-          (edges, { k, stretch }) => [k, strokesOf(stretch, edges)] as const
+          (edges, { k, stretch, made }) =>
+            [k, matchedRuns({ runs: strokesOf(stretch, edges), strokes: made.strokes, view: onView })] as const
         )
       )
-    : HashMap.empty<number, ReadonlyArray<Segment2>>();
-  const drawn = A.map(tapered, (stretch, k) =>
+    : HashMap.empty<number, ReadonlyArray<RedrawnRun>>();
+  const redrawnFirst = A.map(tapered, (stretch, k) =>
     O.match(HashMap.get(redrawn, k), {
       onNone: () => stretch,
-      onSome: (segments) => ({ ...stretch, segments }),
+      onSome: (runs): DrawnStretch => ({
+        ...stretch,
+        segments: retapered(runs, minStroke),
+        relaxed: O.some(runs),
+        redrawn: true,
+      }),
+    })
+  );
+  // the ink order checked again on drawn ink, where a band was redrawn
+  const drawn = pipe(
+    options.shading,
+    O.filter(() => graded && A.some(redrawnFirst, isRelaxed)),
+    O.match({
+      onNone: () => redrawnFirst,
+      onSome: (plan) =>
+        settleRedrawnInk({
+          stretches: redrawnFirst,
+          faces,
+          neighbours: O.match(probed, { onNone: A.empty, onSome: (p) => p.neighbours }),
+          plan,
+        }),
     })
   );
   // a planned stretch that drew nothing: its band was hidden, or clipped below two legible strokes
   const lostStretches = graded
-    ? A.length(A.filter(drawn, (stretch) => !stretch.sliver && !A.isReadonlyArrayNonEmpty(stretch.segments)))
+    ? A.length(
+        A.filter(
+          drawn,
+          (stretch) => !stretch.sliver && !stretch.inkOrder && !A.isReadonlyArrayNonEmpty(stretch.segments)
+        )
+      )
     : 0;
   const drawnFaces = pipe(
     A.filter(drawn, (stretch) => A.isReadonlyArrayNonEmpty(stretch.segments)),
     A.map((stretch) => stretch.index),
     HashSet.fromIterable
   );
+  // The graded faces given lines that draw nothing by design: every stretch they handed over is bare by design (vacuously
+  // so when the planner skipped every visible area itself, each with its verdict in the coverage), and none drew.
+  const bareBy = (byDesign: (stretch: DrawnStretch) => boolean): HashSet.HashSet<number> =>
+    graded
+      ? pipe(
+          faces,
+          A.map((face, index) => ({ face, of: A.filter(drawn, (stretch) => stretch.index === index), index })),
+          A.filter(({ face, of }) => face.treatment.kind === "lines" && A.every(of, byDesign)),
+          A.map(({ index }) => index),
+          HashSet.fromIterable
+        )
+      : HashSet.empty<number>();
   // a face whose every planned stretch turned out a sliver is bare by design, not lost: its rules gave it lines, but
   // it draws nothing, so the coverage counts it a sliver, never a shaded face (review loop 3, J-01)
-  const sliverFaces = pipe(
-    A.filter(drawn, (stretch) => stretch.sliver),
-    A.map((stretch) => stretch.index),
-    HashSet.fromIterable,
-    HashSet.filter((index) =>
-      A.every(
-        A.filter(drawn, (stretch) => stretch.index === index),
-        (stretch) => stretch.sliver
-      )
-    )
-  );
+  const sliverFaces = bareBy((stretch) => stretch.sliver);
+  // a face whose redrawn band was left bare to keep the ink order is bare by design too, but still a shaded face
+  const bareFaces = bareBy((stretch) => stretch.sliver || stretch.inkOrder);
   // only graded faces are planned per visible stretch; a uniform face hidden behind another part is not lost
   const lostFaces = graded
     ? pipe(
         faces,
         A.filter(
           (face, index) =>
-            face.treatment.kind === "lines" && !HashSet.has(drawnFaces, index) && !HashSet.has(sliverFaces, index)
+            face.treatment.kind === "lines" && !HashSet.has(drawnFaces, index) && !HashSet.has(bareFaces, index)
         ),
         A.length
       )
     : 0;
+  // every visible stretch of a face given lines that drew no band by design: the planner's skips, the slivers the
+  // kernel finds without room, and the bands left bare to keep the ink order (review loop 4, A-01, K-08)
+  const skippedStretches = stretchSkipsOf([
+    ...A.flatMap(faces, (face) => face.skipped),
+    ...pipe(
+      drawn,
+      A.filter((stretch) => graded && (stretch.sliver || stretch.inkOrder)),
+      A.map(
+        (stretch): SkippedStretch =>
+          stretch.inkOrder ? { reason: "ink-order", fits: false } : { reason: "no-room", fits: stretch.fits }
+      )
+    ),
+  ]);
+  const banded = bandedShading(drawn);
   return EdgeSet.make({
     visible,
     hidden: canonicalSegments(behind.claimed),
-    shading: pipe(
-      drawn,
-      A.flatMap((stretch) => stretch.segments),
-      A.sort(segmentOrder)
-    ),
+    shading: banded.shading,
+    shadingBands: banded.bands,
     broken,
     emphasis,
     shadingCoverage: O.map(shaded, () =>
@@ -1331,6 +1767,8 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
         ),
         lostFaces,
         lostStretches,
+        skippedStretches,
+        redrawnStretches: A.length(A.filter(drawn, isRedrawn)),
       })
     ),
   });
@@ -1360,16 +1798,26 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
  * shading takes two passes: a probe across every graded face at several
  * heights goes through hidden-line removal first, as a shape of its own, and
  * its visible pieces give the face's visible stretches; the strokes are then
- * planned per stretch and projected with the outlines. A stretch left with
- * fewer than two legible strokes carries none, and a face whose every stroke
- * is lost is counted in the coverage. A tapered band that hidden-line removal
- * and the legibility pass leave with fewer than two strokes (a part in front
- * cut its probe row's cell short) is drawn again on its whole clipped chords
- * in a third pass, which runs only when such a band exists; it is counted
- * lost only when those draw nothing either. A face whose every planned
- * stretch has room for fewer than two legible strokes draws nothing by design
- * and is counted a sliver, not a shaded face. The uniform style keeps one
- * pass.
+ * planned per stretch and projected with the outlines. A visible stretch
+ * that fewer than three probe rows saw has its room for a stroke measured
+ * first, by chords along the face's lines through one more hidden-line pass
+ * that runs only when such a stretch exists, so its band goes where the view
+ * shows enough of the face for a stroke. A stretch left with fewer than two
+ * legible strokes carries none, and a face whose every stroke is lost is
+ * counted in the coverage. A tapered band that hidden-line removal and the
+ * legibility pass leave with fewer than two strokes (a part in front cut its
+ * probe row's cell short) is drawn again on its whole clipped chords in a
+ * further pass, which runs only when such a band exists; it is counted lost
+ * only when those draw nothing either. A band drawn on whole chords, by that
+ * pass or by the planner, is cut back to its taper on what shows, and its
+ * face's ink is read again against its darker neighbours: a face that out-inks
+ * one has the band stepped to the lit floor, or left bare as a planned skip. A
+ * face whose every planned stretch has room for fewer than two legible strokes
+ * draws nothing by design and is counted a sliver, not a shaded face. Every
+ * visible stretch skipped by design is counted with its reason and whether its
+ * measured room fits a band. The uniform style keeps one pass. The drawn
+ * strokes come in one canonical order, with one band per stretch that drew
+ * ink naming its face and its strokes' places in that order.
  *
  * @internal
  */

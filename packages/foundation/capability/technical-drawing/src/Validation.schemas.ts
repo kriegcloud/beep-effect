@@ -300,9 +300,11 @@ const FindingCodeBase = LiteralKit([
   "shading-spacing",
   "shading-lost-face",
   "shading-lost-stretch",
+  "shading-skipped-stretch",
   "shading-outline-clearance",
   "shading-lone-line",
   "shading-band-ladder",
+  "outline-spacing",
   "label-missing",
   "font-unexpected",
 ]);
@@ -474,6 +476,20 @@ export class ValidationOptions extends S.Opaque<ValidationOptions, { readonly br
       S.annotateKey({
         description:
           "Least ratio of a band's gap to its edge (from its first stroke) to the larger of the band's first gap and the spacing of the lines beyond its edge; a smaller gutter lets band and lines read as one ladder. Defaults to 1.4, a margin under the renderer's 1.5 for perspective views.",
+      })
+    ),
+    minOutlineSpacingMm: S.Finite.check(S.isGreaterThan(0)).pipe(
+      S.withConstructorDefault(Effect.succeed(0.7)),
+      S.annotateKey({
+        description:
+          "Least centre spacing, in mm, of two drawn lines (outlines, broken and emphasis lines) running side by side; closer, the pair prints as one line of the emphasis weight. Twice the 0.35 mm line, the ISO 128 least spacing of parallel lines. Defaults to 0.7.",
+      })
+    ),
+    minOutlineOverlapMm: S.Finite.check(S.isGreaterThan(0)).pipe(
+      S.withConstructorDefault(Effect.succeed(1)),
+      S.annotateKey({
+        description:
+          "How far, in mm, two drawn lines must run alongside each other before their spacing is held to `minOutlineSpacingMm`; shorter runs (a corner return) read as two lines. Defaults to 1.",
       })
     ),
     textLabels: S.Array(SheetLabel).pipe(

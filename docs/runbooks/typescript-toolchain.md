@@ -87,8 +87,9 @@ bun run beep quality effect-diagnostics --filter @beep/observability
 ```
 
 `Heavy / Effect Diagnostics` is an independent parallel matrix job, outside
-Heavy / Check and root `bun run check`. It remains non-required during promotion;
-required Check still gates its embedded 0.51.1 Effect rules. PRs pass
+Heavy / Check and root `bun run check`. It is a required context and the only
+gate for Effect rules; tsc-rs in Heavy / Check reports them but no longer fails
+on them. PRs pass
 `--base origin/<base>`; trusted main pushes run the full inventory. The CLI reuses the coverage lane's workspace
 inventory and transitive dependent helper, including packages without coverage
 scripts and lab apps. Root compiler/lockfile/runner changes select all projects;
@@ -109,9 +110,28 @@ For historical comparison, the 2026-10-14 serial spike took 1,423.881 seconds an
 coverage, project-profile corrections and the new-rule census live in
 `goals/effect-rules-diagnostics-lane/history/2026-10-14-spike.md`.
 
-Discovery uses declared workspace roots, including lab apps, and selects every
-`tsconfig.check.json`, `tsconfig.test.json` and existing `test/tsconfig.json`.
-The last form covers the CLI tests. It excludes nested test-fixture packages.
+Discovery uses declared workspace roots, including lab apps, and the repository
+root manifest. Candidates come from both `tsc-rs` and `tsgo` invocations in
+canonical `check` / `beep:check` entrypoints and the scripts they invoke, plus
+the root check scripts. `-p` / `--project` selects a program; `-b` / `--build`
+expands project references recursively. Optional workspace audits that these
+entrypoints never invoke are excluded. This covers check, test, scripts,
+stories, examples, drizzle and root configs programs without a parallel list of
+config kinds, including t3-code's Go compiler check and test programs.
+
+The lane also reuses `test-tsgo` and `test-tsgo-package`'s test-file discovery,
+package ownership, coverage partition and synthetic-config renderer. Tests
+already covered by canonical checks reuse those programs. Uncovered tests run
+with the same inherited config and exact file list as the Go test gate; this
+includes repo-cli's `test/tsconfig.json` overlay. `tsgo-smoke` compiles an
+intentional canary created entirely in a temporary directory, so it contributes
+no persistent repository program. Missing declared projects fail discovery.
+A real-repository parity test asserts equality with the union of compiler-script
+and fallback test programs, verifies every candidate exists on disk, and keeps
+every existing project from the former check/test fixed-name inventory.
+Nested test-fixture packages are excluded unless declared as workspaces.
+Root files select the root configs owner; workspace changes also select that
+owner because its configs program includes workspace Vitest configs.
 Each project runs the installed `effect-tsgo diagnostics --project <config>
 --format json --strict` command with bounded Effect concurrency. Project settings are authoritative,
 including effect-drizzle's documented missedPipeableOpportunity exception.
@@ -124,12 +144,12 @@ in #1807; no catalog suppression exception remains. The two 0.53 import-style
 rules remain explicitly off. Intentional named helper imports are pervasive,
 and Effect barrel imports violate the code law.
 
-All three `ignoreEffect*InTscExitCode` options remain **false** in the root and
-copied profiles. Required `Heavy / Check` therefore continues failing on the
-shared embedded 0.51.1 rules as well as TypeScript errors. The 0.52/0.53 rules
-are absent from its map and run only in the non-required diagnostics lane.
-A policy fixture proves a shared Effect-only finding and a TypeScript error
-each fail tsc-rs; standalone diagnostics also rejects the shared finding.
+All three `ignoreEffect*InTscExitCode` options are **true** in the root and
+copied profiles. Compiler checks fail on TypeScript errors only; `tsc-rs` and `tsgo`
+still print their Effect findings, but every enabled Effect rule, shared or
+newer, gates through the required diagnostics lane across these programs. A policy fixture proves an
+Effect-only finding leaves tsc-rs at exit 0 while standalone diagnostics rejects
+it, and a TypeScript error still fails tsc-rs.
 
 The root and all copied compiler profiles contain only rule names known by
 tsc-rs 0.6.0's embedded 0.51.1 rule set. The nine newer keys live in
@@ -143,13 +163,15 @@ The profile participates in affected selection, so changing it selects all proje
 The rule-parity checker validates the combined root and lane maps against the
 installed 0.53.0 catalog, while copied compiler profiles match the shared root map.
 
-After one green main run of `Heavy / Effect Diagnostics`, promote it in this
-order: mark its descriptor required, add `Heavy / Effect Diagnostics` to the
-main ruleset through `beep ci ruleset`, fold the lane profile into
-`tsconfig.base.json` and the copied profiles, then set all three ignore flags
-true and delete the standalone profile and its overlay loader. Keep the flags false until both the
-descriptor and live ruleset require the diagnostics context. The empty-project
-policy canary proves the interim root map produces no unknown-rule warnings.
+Promotion followed the first green main run (job 116271099290 on ce5780ed67:
+291 projects, 73,884 file visits, zero findings, 14m17s). The descriptor and
+ruleset 10240248 both require `Heavy / Effect Diagnostics`, and the three
+ignore flags are true. The standalone profile stays: an empty-project canary
+with the nine keys folded into the root map exits 0 with the flags true, but
+tsc-rs 0.6.0 prints nine TS377134 unknown-rule warnings for every project.
+Fold the profile into `tsconfig.base.json` and delete it, with its overlay
+loader, when tsc-rs ports those rules. The empty-project policy canary keeps
+proving that the root map produces no unknown-rule warnings.
 
 The eight Effect packages stay synchronized, but they no longer move with
 `tsc-rs`. Both remain independently held for reviewed upgrades. The tsc-rs 0.6.0

@@ -57,6 +57,7 @@ export {
   RootAuditMode,
 } from "@beep/repo-cli/commands/Quality/Quality.schemas";
 export * from "@beep/repo-cli/commands/Quality/Tasks";
+export { effectDiagnosticsAffectedPackages, effectDiagnosticsProjects } from "../commands/Quality/EffectDiagnostics.ts";
 export { reportInvariantDiagnosticsForTesting } from "../commands/Quality/FallowQuality.command.ts";
 export * from "../commands/Quality/internal/CheckCensusOutput.ts";
 export * from "../commands/Quality/internal/CoverageRegression.ts";
@@ -80,11 +81,13 @@ export * from "../commands/Quality/internal/JSDocRatchet.ts";
 export * from "../commands/Quality/internal/LaneProofReuse.ts";
 export * from "../commands/Quality/internal/PackageVerify.ts";
 export {
+  collectFiles,
   fencedLineState,
   jsdocCommentsFromSource,
   listSourceFiles,
   tagsFromComment,
 } from "../commands/Quality/internal/QualityArtifactSupport.ts";
+export { testTsgoPrograms } from "../commands/Quality/internal/TestTsgoPrograms.ts";
 export * from "../commands/Quality/internal/TurboConfigProof.ts";
 export * from "../commands/Quality/internal/TurboLaneDigest.ts";
 export {
