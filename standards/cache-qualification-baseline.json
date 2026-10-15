@@ -938,11 +938,11 @@
       }
     },
     "@beep/repo-ai-metrics": {
-      "reviewer": "Codex lane A (feat/ts7-oxlint-deprecated-apis)",
-      "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
+      "reviewer": "Claude Fable 5.1 (observability-kernel-catalog, feat/observability-catalog-p2b)",
+      "reason": "Re-record @beep/repo-ai-metrics after it gained a workspace dependency on @beep/observability for its catalog declarations; task commands, inputs, outputs, env and cache flags are unchanged and no qualification is granted.",
       "basis": {
-        "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
+        "path": "goals/observability-kernel-catalog/research/cache-baseline-review-ai-metrics-catalog.md",
+        "sha256": "c0ff206cc8bf2400aa20806aed00134ff9fba3ed992a4c2a55182722942516f1"
       }
     },
     "@beep/repo-cli": {
@@ -80330,6 +80330,7 @@
           "@beep/fc-runs#audit",
           "@beep/file-processing#audit",
           "@beep/identity#audit",
+          "@beep/observability#audit",
           "@beep/phoenix#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit",
@@ -80399,6 +80400,7 @@
           "@beep/fc-runs#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
+          "@beep/observability#build",
           "@beep/phoenix#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -80455,6 +80457,7 @@
           "@beep/fc-runs#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
+          "@beep/observability#build",
           "@beep/phoenix#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -80498,6 +80501,7 @@
           "@beep/fc-runs#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
+          "@beep/observability#build",
           "@beep/phoenix#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -80628,6 +80632,7 @@
           "@beep/fc-runs#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
+          "@beep/observability#transit",
           "@beep/phoenix#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -80837,6 +80842,7 @@
           "@beep/fc-runs#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
+          "@beep/observability#transit",
           "@beep/phoenix#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -80886,6 +80892,7 @@
           "@beep/fc-runs#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
+          "@beep/observability#transit",
           "@beep/phoenix#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -80938,6 +80945,7 @@
           "@beep/fc-runs#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
+          "@beep/observability#transit",
           "@beep/phoenix#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
