@@ -401,10 +401,15 @@
     // while its module graph remains visible to dead-code dependency analysis.
     // The graft shims are generated; the loader's platform trust checks are
     // security-boundary code kept whole rather than split for a ceiling.
+    // The manual TS6-bridge tools (goal codemod, JSDoc census) entered discovery
+    // only so dead-code analysis sees the bridge's consumers; complexity scope
+    // stays as on main, where both paths were never health-scored.
     "ignore": [
       ".claude/skills/impeccable/**",
       ".claude/skills/shadcn/**",
-      ".claude/helpers/**"
+      ".claude/helpers/**",
+      "goals/schema-opaque-default/ops/codemod/**",
+      "scratchpad/.jsdoc-loop/census.ts"
     ],
     "thresholdOverrides": [
       {
