@@ -171,8 +171,15 @@ const config = {
       // instance of EventTarget" from vitest's catchWindowErrors), so no
       // React test file runs. Pinned exactly at 30.0.1 (a range resolves
       // straight back to the broken release) until vitest or jsdom ships the fix.
+      // @pulumi/pulumi is pinned exactly at 3.268.0 because
+      // patches/@pulumi%2Fpulumi@3.268.0.patch points its typescript-shim.js and
+      // tsutils.js at the @typescript/typescript6 bridge (the root `typescript`
+      // is TS7 without the classic API). A bump must re-apply or drop that patch
+      // and re-run a local-backend `pulumi preview`; the hold goes with Pulumi
+      // in the Alchemy migration (docs/runbooks/typescript-toolchain.md).
       label: "Held back — do not auto-update (see changeset portless-default-react-grab-storybook)",
       dependencies: [
+        "@pulumi/pulumi",
         "tstyche",
         "lexical",
         "@lexical/**",
@@ -195,9 +202,10 @@ const config = {
   ],
   versionGroups: [
     {
-      // Pulumi's nodejs runtime requires the classic compiler API until the
-      // Alchemy migration removes Pulumi. Keep only infra/typescript on TS6.
-      label: "Pulumi nodejs runtime requires TypeScript 6 until Alchemy migration",
+      // infra keeps TypeScript 6 for the ghaRunners SDK build, whose helper
+      // guards a 6.x compiler. The Pulumi runtime itself loads TS6 through the
+      // patched @pulumi/pulumi (held above). Drop with the Alchemy migration.
+      label: "infra ghaRunners SDK build requires TypeScript 6 until Alchemy migration",
       packages: ["@beep/infra"],
       dependencies: ["typescript"],
       dependencyTypes: ["dev"],
