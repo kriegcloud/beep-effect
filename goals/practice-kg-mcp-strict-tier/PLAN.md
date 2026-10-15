@@ -52,7 +52,9 @@ Before marking the packet closed:
   fields; values are floored onto the 1/2.5/5-per-decade ladder (saturating at
   10^12) under the new `metric-values` gate rule; histograms drop `sum`/`min`/
   `max` (`metric-value-dropped`); exponential histograms and summaries are
-  refused (`metric-not-allowed`).
+  refused (`metric-not-allowed`). Round 2: an exported metric's `description`
+  and `unit` come from its catalog `MetricInstrument`, never the input series
+  (input passes only with the `metric-names` rule off).
 - Finding: no canary reaches pre-gate telemetry today (handler errors use
   canned messages, SQL spans carry statements without parameters, and mcp-kit
   strips `parameters`); with the content rules turned off the canary test
