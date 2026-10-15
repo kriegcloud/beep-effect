@@ -11,10 +11,14 @@ import {
 } from "@beep/law-practice-server";
 import { connectStdio, withStdioServer } from "@beep/mcp-kit/test/Conformance";
 import {
+  GateRule,
   layerDevMemoryStrictSpoolKey,
+  layerInMemoryEgressSink,
   layerStrictSpool,
   layerStrictSpoolSink,
   StrictEgressSink,
+  StrictGateConfig,
+  StrictGateRulesOn,
   StrictSpool,
   StrictSpoolOptions,
 } from "@beep/observability/strict";
@@ -27,12 +31,15 @@ import { describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as Clock from "effect/Clock";
+import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { Base64 } from "effect/encoding";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
+import * as Metric from "effect/Metric";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -42,6 +49,7 @@ import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as Tracer from "effect/Tracer";
 import * as TestConsole from "effect/testing/TestConsole";
 import { SelfCheckFailure } from "../src/PracticeKgMcp.errors.ts";
 import {
@@ -49,16 +57,27 @@ import {
   makePracticeKgHostServerLayer,
   PracticeKgHostError,
 } from "../src/runtime/Host.ts";
+import { processCpuGauge, processRssGauge } from "../src/runtime/ProcessMetrics.ts";
 import {
   PracticeKgSelfCheckRefusal,
   PracticeKgSelfCheckReport,
   printPracticeKgSelfCheck,
   runPracticeKgSelfCheck,
 } from "../src/runtime/SelfCheck.ts";
-import { layerInMemoryStrictSalt, layerPracticeKgTelemetry, shapeOnlyLogLine } from "../src/runtime/Telemetry.ts";
+import {
+  layerInMemoryStrictSalt,
+  layerPracticeKgTelemetryFor,
+  PracticeKgStrictGateConfig,
+  shapeOnlyLogLine,
+} from "../src/runtime/Telemetry.ts";
 import { makePracticeKgSmokeBundle } from "../src/smoke.ts";
-import { PracticeKgToolId } from "../src/telemetry/PracticeKgTelemetry.instruments.ts";
+import {
+  PracticeKgProcessRss,
+  PracticeKgToolId,
+  PracticeKgToolKey,
+} from "../src/telemetry/PracticeKgTelemetry.instruments.ts";
 import { PRACTICE_KG_EXTENSION_VERSION } from "../src/Version.ts";
+import type { GateRules } from "@beep/observability/strict";
 
 const TestServices = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 const textDecoder = new TextDecoder();
@@ -541,6 +560,7 @@ const canaries = {
   digest: canary("Digest"),
   key: canary("Natural"),
   path: canary("Organized"),
+  leak: canary("Leak"),
 };
 
 const encodeUnknownJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
@@ -612,15 +632,104 @@ const ExportedSpans = S.fromJsonString(
 );
 const decodeExportedSpans = S.decodeUnknownEffect(ExportedSpans);
 
-// Runs the production server over one bundle under the strict telemetry,
+// Test-only pre-gate leak path. Nothing in the production host puts a canary
+// into telemetry before the gate (handler errors use canned messages, SQL
+// spans carry no parameters, mcp-kit strips arguments), so with a content rule
+// off the canary test would still pass. This probe runs beside the server,
+// under the same telemetry layer, and writes the leak canary, or a linkage
+// needle, into every channel a gate rule guards: a span name, span
+// attributes, an event, a link, a status message, a log body, the resource
+// (through `OTEL_RESOURCE_ATTRIBUTES`, which the OTLP exporters read), a
+// metric name, a metric label and a raw metric value, under an external
+// parent with a known trace id and a clock with an unaligned start time.
+const leakTraceId = "6c65616b6c65616b6c65616b6c65616b";
+const leakParentSpanId = "6c65616b6c65616b";
+const leakLinkTraceId = "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f";
+const leakLinkSpanId = "0f0f0f0f0f0f0f0f";
+const leakStartNanos = BigInt("1700000123456789000");
+const leakMetricValue = 73_519_024;
+
+class LeakProbeFailure extends S.TaggedError<LeakProbeFailure, { readonly brand: unique symbol }>()(
+  "LeakProbeFailure",
+  { message: S.String }
+) {}
+
+const leakClock: Clock.Clock = {
+  currentTimeMillisUnsafe: () => Number(leakStartNanos / BigInt(1_000_000)),
+  currentTimeMillis: Effect.sync(() => Number(leakStartNanos / BigInt(1_000_000))),
+  currentTimeNanosUnsafe: () => leakStartNanos,
+  currentTimeNanos: Effect.succeed(leakStartNanos),
+  monotonicTimeNanosUnsafe: () => leakStartNanos,
+  monotonicTimeNanos: Effect.succeed(leakStartNanos),
+  sleep: () => Effect.void,
+};
+
+const leakProbe = Effect.gen(function* () {
+  const leak = canaries.leak;
+  yield* Effect.void.pipe(Effect.withSpan(`leak.${leak}`));
+  yield* Effect.gen(function* () {
+    const span = yield* Effect.currentSpan;
+    span.event(leak, leakStartNanos, { "leak.event": leak });
+    yield* Effect.logError(leak);
+    return yield* LeakProbeFailure.make({ message: leak });
+  }).pipe(
+    Effect.withSpan("PracticeKgTools.kg_find", {
+      parent: Tracer.externalSpan({ traceId: leakTraceId, spanId: leakParentSpanId }),
+      attributes: { [PracticeKgToolKey]: leak },
+      links: [
+        {
+          span: Tracer.externalSpan({ traceId: leakLinkTraceId, spanId: leakLinkSpanId }),
+          attributes: { "leak.link": leak },
+        },
+      ],
+    }),
+    Effect.provideService(Clock.Clock, leakClock),
+    Effect.ignore
+  );
+  yield* Metric.update(Metric.counter(`leak.${leak}`), 1);
+  yield* Metric.update(Metric.withAttributes(processCpuGauge, { "leak.label": leak }), 5);
+  yield* Metric.update(processRssGauge, leakMetricValue);
+});
+
+const leakResource = ConfigProvider.layer(
+  ConfigProvider.fromEnv({ env: { OTEL_RESOURCE_ATTRIBUTES: `host.name=${canaries.leak}` } })
+);
+
+// Acceptance #3 at the host: one needle per gate rule. With every rule on no
+// needle reaches an exported byte; with exactly one rule off, its needle does.
+// The mapped type makes a new rule without a needle a type error.
+const hostNeedles: { readonly [Rule in GateRule]: string } = {
+  "span-name": canaries.leak,
+  "span-attributes": canaries.leak,
+  "span-events": canaries.leak,
+  "span-links": canaries.leak,
+  "span-status-message": canaries.leak,
+  "span-ids": leakTraceId,
+  "span-timestamps": `${leakStartNanos}`,
+  resource: canaries.leak,
+  logs: canaries.leak,
+  "metric-names": canaries.leak,
+  "metric-attributes": canaries.leak,
+  "metric-values": `${leakMetricValue}`,
+};
+
+// Runs the production server over one bundle under the strict telemetry with
+// the given gate rules (production: all on) and the leak probe beside it,
 // sends every call, and returns the encoded results. The server's scope closes
 // before this returns, which runs the final export into the sink.
-const runStrictHost = Effect.fnUntraced(function* (bundleDir: string, calls: ReadonlyArray<ToolCall>) {
+const runStrictHost = Effect.fnUntraced(function* (
+  bundleDir: string,
+  calls: ReadonlyArray<ToolCall>,
+  rules: GateRules = StrictGateRulesOn
+) {
   const sink = yield* StrictEgressSink;
   const path = yield* Path.Path;
   const context = yield* loadPracticeKgBundleContext(bundleDir, path.join(path.dirname(bundleDir), "corpus"));
-  const host = makePracticeKgHostServerLayer(context).pipe(
-    Layer.provide(layerPracticeKgTelemetry.pipe(Layer.provide(layerInMemoryStrictSalt))),
+  const telemetry = layerPracticeKgTelemetryFor(StrictGateConfig.make({ ...PracticeKgStrictGateConfig, rules })).pipe(
+    Layer.provide(Layer.mergeAll(layerInMemoryStrictSalt, leakResource))
+  );
+  const host = Layer.mergeAll(makePracticeKgHostServerLayer(context), Layer.effectDiscard(leakProbe)).pipe(
+    Layer.provide(telemetry),
     Layer.provide(Layer.mergeAll(TestServices, Layer.succeed(StrictEgressSink, sink)))
   );
   return yield* withStdioServer(host)((io) =>
@@ -730,7 +839,42 @@ describe("practice KG strict tier canary", () => {
 
         expect(countCanaries(exported, forms)).toBe(0);
         expect(countCanaries(printed, forms)).toBe(0);
+        // The leak probe ran, and with every rule on none of its needles got out.
+        expect(Str.includes(`"${PracticeKgProcessRss.name}"`)(exported)).toBe(true);
+        expect(A.filter(A.dedupe(R.values(hostNeedles)), (needle) => Str.includes(needle)(exported))).toEqual([]);
       })
     );
   });
+});
+
+describe("practice KG strict tier mutation table", () => {
+  it.effect("has a host needle for every gate rule", () =>
+    Effect.sync(() => {
+      expect(A.sort(R.keys(hostNeedles), Order.String)).toEqual(A.sort(GateRule.literals, Order.String));
+    })
+  );
+
+  // Each rule gets a fresh egress sink of its own, so no needle carries over.
+  for (const rule of GateRule.literals) {
+    it.layer(Layer.mergeAll(TestServices, layerInMemoryEgressSink(4096)), { timeout: "3 minutes" })((it) => {
+      it.effect(
+        `exports the ${rule} needle when only the ${rule} rule is off`,
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-strict-mutant-" });
+          const bundle = yield* makePracticeKgSmokeBundle(root);
+          yield* runStrictHost(bundle, [["kg_find", { query: canaries.query }]], {
+            ...StrictGateRulesOn,
+            [rule]: false,
+          }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make));
+          const records = yield* (yield* StrictEgressSink).records;
+          const exported = A.join(
+            A.map(records, (record) => record.body),
+            "\n"
+          );
+          expect(Str.includes(hostNeedles[rule])(exported)).toBe(true);
+        })
+      );
+    });
+  }
 });

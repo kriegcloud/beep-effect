@@ -17,6 +17,7 @@ import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -29,7 +30,15 @@ import { isStricterTier } from "../catalog/Catalog.literals.ts";
 import { TelemetryRefusalTag } from "../Observability.instruments.ts";
 import { StrictEgressRecord } from "./StrictGate.schemas.ts";
 import { StrictSpoolError } from "./StrictSpool.errors.ts";
-import { StrictSpoolAlgorithm, StrictSpoolReplay, StrictSpoolSegment } from "./StrictSpool.schemas.ts";
+import {
+  StrictSpoolAlgorithm,
+  StrictSpoolOutcome,
+  StrictSpoolReplay,
+  StrictSpoolSegment,
+  StrictSpoolSurvey,
+  StrictSpoolSurveyEntry,
+} from "./StrictSpool.schemas.ts";
+import type { TelemetryTier } from "../catalog/Catalog.literals.ts";
 import type { RefusalLedger } from "./StrictGate.schemas.ts";
 import type { StrictSpoolOperation } from "./StrictSpool.errors.ts";
 import type { StrictKeyProtection, StrictSpoolOptions } from "./StrictSpool.schemas.ts";
@@ -266,6 +275,91 @@ export const refusalLedgerOf = (tags: ReadonlyArray<TelemetryRefusalTag>): Refus
     HashMap.set(ledger, tag, O.getOrElse(HashMap.get(ledger, tag), () => 0) + 1)
   );
 
+type SegmentReader = {
+  readonly fs: FileSystem.FileSystem;
+  readonly path: Path.Path;
+  readonly key: Context.Service.Shape<typeof StrictSpoolKey>;
+  readonly aesKey: CryptoKey;
+  readonly directory: string;
+  readonly tier: TelemetryTier;
+};
+
+const segmentNamesIn = (fs: FileSystem.FileSystem, directory: string) =>
+  fs
+    .readDirectory(directory)
+    .pipe(Effect.map((entries) => A.sort(A.filter(entries, Str.endsWith(segmentSuffix)), Order.String)));
+
+const isNatural = S.is(S.Natural);
+
+// The seal time a segment name starts with, or 0 for a name without one.
+const sealedAtOfName = (name: string): number =>
+  pipe(
+    Str.slice(0, millisWidth)(name),
+    Num.parse,
+    O.filter(isNatural),
+    O.getOrElse(() => 0)
+  );
+
+const openSegment = Effect.fnUntraced(function* (aesKey: CryptoKey, segment: StrictSpoolSegment) {
+  const nonce = Base64.decode(segment.nonceBase64);
+  const ciphertext = Base64.decode(segment.ciphertextBase64);
+  if (Result.isFailure(nonce) || Result.isFailure(ciphertext)) {
+    return yield* Effect.fail(TelemetryRefusalTag.Enum["spool-segment-invalid"]);
+  }
+  const plaintext = yield* Effect.tryPromise({
+    try: () =>
+      globalThis.crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: cryptoBytes(nonce.success), additionalData: additionalData(segment) },
+        aesKey,
+        cryptoBytes(ciphertext.success)
+      ),
+    catch: () => TelemetryRefusalTag.Enum["spool-segment-invalid"],
+  });
+  return StrictEgressRecord.make({ signal: segment.signal, body: textDecoder.decode(plaintext) });
+});
+
+// Decodes, checks and opens one segment's text; every failure is a refusal tag.
+const outcomeOf = (reader: SegmentReader, text: string): Effect.Effect<StrictSpoolOutcome> =>
+  decodeSegment(text).pipe(
+    Effect.mapError(() => TelemetryRefusalTag.Enum["spool-segment-invalid"]),
+    Effect.flatMap((segment) => {
+      if (segment.keyEpoch !== reader.key.epoch) {
+        return Effect.fail(TelemetryRefusalTag.Enum["spool-segment-invalid"]);
+      }
+      if (isStricterTier(reader.tier, segment.tier)) {
+        return Effect.fail(TelemetryRefusalTag.Enum["spool-tier-refused"]);
+      }
+      return openSegment(reader.aesKey, segment);
+    }),
+    Effect.match({
+      onFailure: (tag) => StrictSpoolOutcome.cases.refused.make({ tag }),
+      onSuccess: (record) => StrictSpoolOutcome.cases.opened.make({ record }),
+    })
+  );
+
+const readSegment = Effect.fnUntraced(function* (reader: SegmentReader, name: string) {
+  const text = yield* Effect.option(reader.fs.readFileString(reader.path.join(reader.directory, name)));
+  const outcome = yield* O.match(text, {
+    onNone: () => Effect.succeed(StrictSpoolOutcome.cases.refused.make({ tag: "spool-segment-invalid" })),
+    onSome: (body) => outcomeOf(reader, body),
+  });
+  return StrictSpoolSurveyEntry.make({
+    sealedAtMillis: sealedAtOfName(name),
+    sizeBytes: O.match(text, { onNone: () => 0, onSome: (body) => textEncoder.encode(body).byteLength }),
+    outcome,
+  });
+});
+
+// Reads every named segment, in name order, without writing anything.
+const readSegments = <E>(
+  reader: SegmentReader,
+  names: Effect.Effect<ReadonlyArray<string>, E>
+): Effect.Effect<StrictSpoolSurvey, E> =>
+  names.pipe(
+    Effect.flatMap((sorted) => Effect.forEach(sorted, (name) => readSegment(reader, name))),
+    Effect.map((entries) => StrictSpoolSurvey.make({ entries }))
+  );
+
 /**
  * Opens the strict spool in `options.directory`.
  *
@@ -314,9 +408,7 @@ export const makeStrictSpool = Effect.fn("StrictSpool.make")(function* (options:
       Effect.mapError(spoolFailure("open", "The strict spool directory could not be created."))
     );
 
-  const segmentNames = fs
-    .readDirectory(directory)
-    .pipe(Effect.map((entries) => A.sort(A.filter(entries, Str.endsWith(segmentSuffix)), Order.String)));
+  const segmentNames = segmentNamesIn(fs, directory);
 
   const evict = Effect.fnUntraced(function* () {
     const names = yield* segmentNames;
@@ -375,47 +467,72 @@ export const makeStrictSpool = Effect.fn("StrictSpool.make")(function* (options:
     return refusalLedgerOf(A.map(evicted, () => TelemetryRefusalTag.Enum["spool-evicted"]));
   });
 
-  const open = Effect.fnUntraced(function* (segment: StrictSpoolSegment) {
-    const nonce = Base64.decode(segment.nonceBase64);
-    const ciphertext = Base64.decode(segment.ciphertextBase64);
-    if (Result.isFailure(nonce) || Result.isFailure(ciphertext)) {
-      return yield* Effect.fail(TelemetryRefusalTag.Enum["spool-segment-invalid"]);
-    }
-    const plaintext = yield* Effect.tryPromise({
-      try: () =>
-        globalThis.crypto.subtle.decrypt(
-          { name: "AES-GCM", iv: cryptoBytes(nonce.success), additionalData: additionalData(segment) },
-          aesKey,
-          cryptoBytes(ciphertext.success)
+  const replay = readSegments(
+    { fs, path, key, aesKey, directory, tier: options.tier },
+    segmentNames.pipe(Effect.mapError(spoolFailure("replay", "The strict spool directory could not be read.")))
+  ).pipe(
+    Effect.map((survey) => {
+      const outcomes = A.map(survey.entries, (entry) => entry.outcome);
+      return StrictSpoolReplay.make({
+        records: A.filterMap(outcomes, (outcome) =>
+          StrictSpoolOutcome.guards.opened(outcome) ? Result.succeed(outcome.record) : Result.failVoid
         ),
-      catch: () => TelemetryRefusalTag.Enum["spool-segment-invalid"],
-    });
-    return StrictEgressRecord.make({ signal: segment.signal, body: textDecoder.decode(plaintext) });
-  });
-
-  const replayOne = (name: string): Effect.Effect<Result.Result<StrictEgressRecord, TelemetryRefusalTag>> =>
-    fs.readFileString(path.join(directory, name)).pipe(
-      Effect.flatMap(decodeSegment),
-      Effect.mapError(() => TelemetryRefusalTag.Enum["spool-segment-invalid"]),
-      Effect.flatMap((segment) => {
-        if (segment.keyEpoch !== key.epoch) {
-          return Effect.fail(TelemetryRefusalTag.Enum["spool-segment-invalid"]);
-        }
-        if (isStricterTier(options.tier, segment.tier)) {
-          return Effect.fail(TelemetryRefusalTag.Enum["spool-tier-refused"]);
-        }
-        return open(segment);
-      }),
-      Effect.result
-    );
-
-  const replay = segmentNames.pipe(
-    Effect.mapError(spoolFailure("replay", "The strict spool directory could not be read.")),
-    Effect.flatMap((names) => Effect.forEach(names, replayOne)),
-    Effect.map((results) =>
-      StrictSpoolReplay.make({ records: A.getSuccesses(results), refused: refusalLedgerOf(A.getFailures(results)) })
-    )
+        refused: refusalLedgerOf(
+          A.filterMap(outcomes, (outcome) =>
+            StrictSpoolOutcome.guards.refused(outcome) ? Result.succeed(outcome.tag) : Result.failVoid
+          )
+        ),
+      });
+    })
   );
 
   return StrictSpool.of({ append, replay });
+});
+
+/**
+ * Reads a strict spool directory without writing to it: every segment,
+ * oldest first, with its seal time, its size and what reading it came to.
+ *
+ * **Details**
+ *
+ * - Unlike {@link makeStrictSpool}, it never creates the directory: a
+ *   missing directory surveys as empty.
+ * - A segment is opened under the same rules as a replay: one from another
+ *   key epoch, or one that does not decode or authenticate, is refused as
+ *   `spool-segment-invalid`, and one sealed under a looser tier than
+ *   `options.tier` as `spool-tier-refused`.
+ * - `options.maxBytes` is not read.
+ *
+ * **Example** (Survey a spool)
+ *
+ * ```ts
+ * import { StrictSpoolOptions, surveyStrictSpool } from "@beep/observability/strict"
+ * import * as Effect from "effect/Effect"
+ *
+ * const survey = surveyStrictSpool(StrictSpoolOptions.make({ directory: "/state/spool", tier: "shape-only" }))
+ * console.log(Effect.isEffect(survey)) // true
+ * ```
+ *
+ * @param options - Directory and tier ceiling of the spool.
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const surveyStrictSpool = Effect.fn("StrictSpool.survey")(function* (options: StrictSpoolOptions) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const key = yield* StrictSpoolKey;
+  const directory = options.directory;
+  const present = yield* fs
+    .exists(directory)
+    .pipe(Effect.mapError(spoolFailure("replay", "The strict spool directory could not be read.")));
+  if (!present) {
+    return StrictSpoolSurvey.make({ entries: [] });
+  }
+  const aesKey = yield* deriveSpoolKey(key);
+  return yield* readSegments(
+    { fs, path, key, aesKey, directory, tier: options.tier },
+    segmentNamesIn(fs, directory).pipe(
+      Effect.mapError(spoolFailure("replay", "The strict spool directory could not be read."))
+    )
+  );
 });

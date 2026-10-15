@@ -12,7 +12,9 @@ import {
   StrictSpoolError,
   StrictSpoolKey,
   StrictSpoolOptions,
+  StrictSpoolOutcome,
   StrictSpoolSegment,
+  surveyStrictSpool,
 } from "@beep/observability/strict";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
@@ -43,11 +45,11 @@ const textDecoder = new TextDecoder();
 const decodeSegment = S.decodeUnknownEffect(S.fromJsonString(StrictSpoolSegment));
 const encodeSegment = S.encodeEffect(S.fromJsonString(StrictSpoolSegment));
 
+const keyOf = (epoch: string, fill: number) =>
+  StrictSpoolKey.of({ epoch, protection: "dev-memory", material: Redacted.make(new Uint8Array(32).fill(fill)) });
+
 const keyLayer = (epoch: string, fill: number): Layer.Layer<StrictSpoolKey> =>
-  Layer.succeed(
-    StrictSpoolKey,
-    StrictSpoolKey.of({ epoch, protection: "dev-memory", material: Redacted.make(new Uint8Array(32).fill(fill)) })
-  );
+  Layer.succeed(StrictSpoolKey, keyOf(epoch, fill));
 
 const defaultKey = keyLayer("1", 7);
 
@@ -139,6 +141,39 @@ describe("StrictSpool", () => {
         const replay = yield* spool.replay;
         expect(replay.records).toEqual([tracesRecord]);
         expect(countOf(replay.refused, "spool-segment-invalid")).toBe(2);
+      })
+    );
+
+    it.effect("surveys a spool without writing to it: seal times, sizes and outcomes, oldest first", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const survey = surveyStrictSpool(StrictSpoolOptions.make({ directory: "/survey", tier: "shape-only" })).pipe(
+          Effect.provideService(StrictSpoolKey, keyOf("1", 7))
+        );
+        expect((yield* survey).entries).toEqual([]);
+        expect(yield* fs.exists("/survey")).toBe(false);
+
+        const spool = yield* spoolWith("/survey");
+        yield* spool.append(tracesRecord);
+        yield* spool.append(metricsRecord);
+        // The seal time is read from the name, so renaming a segment moves it.
+        const [first] = yield* segmentFiles("/survey");
+        yield* fs.rename(`/survey/${first ?? ""}`, `/survey/000001700000000-${Str.slice(16)(first ?? "")}`);
+        yield* fs.writeFileString("/survey/zzz-garbage.seg", "{not json");
+        const before = yield* fs.readDirectory("/survey");
+
+        const { entries } = yield* survey;
+        expect(yield* fs.readDirectory("/survey")).toEqual(before);
+        expect(A.map(entries, (entry) => entry.sealedAtMillis)).toEqual([0, 1_700_000_000, 0]);
+        const sizes = yield* Effect.forEach(yield* segmentFiles("/survey"), (name) =>
+          fs.stat(`/survey/${name}`).pipe(Effect.map((info) => ByteSize.toNumberUnsafe(info.size)))
+        );
+        expect(A.map(entries, (entry) => entry.sizeBytes)).toEqual(sizes);
+        expect(A.map(entries, (entry) => entry.outcome)).toEqual([
+          StrictSpoolOutcome.cases.opened.make({ record: metricsRecord }),
+          StrictSpoolOutcome.cases.opened.make({ record: tracesRecord }),
+          StrictSpoolOutcome.cases.refused.make({ tag: "spool-segment-invalid" }),
+        ]);
       })
     );
 

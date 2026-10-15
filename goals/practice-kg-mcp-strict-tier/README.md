@@ -31,8 +31,9 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P2 Spool + tier — complete (2026-10-15). Next: P3 Proof. Acceptance #4
-waits on the operator's DPAPI smoke on `tom-pc-1` (`PLAN.md` execution notes).
+P3 Proof — complete (2026-10-15). Next: P4 Yeet, then P5 Close. Acceptance
+#4 waits on the operator's DPAPI smoke on `tom-pc-1` (`PLAN.md` execution
+notes); the goal cannot close until it is recorded.
 
 ## Latest Evidence
 
@@ -44,7 +45,11 @@ looser-tier, epoch, eviction and permission tests
 341-case tier resolver table (`test/StrictTier.test.ts`), DPAPI key wrap and
 rotation through injected ports, the PowerShell stdin path, the bundle-graph
 check and the spooled canary (`apps/practice-kg-mcp/test/TelemetryKey.test.ts`,
-`test/Host.test.ts`). See `PLAN.md` execution notes.
+`test/Host.test.ts`). P3: the kernel and host mutation tables (one red test
+per gate rule, `test/StrictGate.test.ts`, `apps/practice-kg-mcp/test/Host.test.ts`),
+the privacy receipt golden and end-to-end tests
+(`apps/practice-kg-mcp/test/PrivacyReceipt.test.ts`) and the process-metrics
+TestClock tests (`test/ProcessMetrics.test.ts`). See `PLAN.md` execution notes.
 
 ## Notes
 

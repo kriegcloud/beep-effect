@@ -11,7 +11,7 @@ Status: `active`
 | P0 Research | complete | Seam pin test; DPAPI feasibility; tool enum. | Facts recorded. |
 | P1 Gate | complete | Serializer gate + egress client + stderr logger. | Golden + canary tests green. |
 | P2 Spool + tier | complete | Encrypted spool; fail-closed tier resolution. | Spool round-trip + tier tests green. |
-| P3 Proof | pending | Mutation tests; privacy receipt; Windows smoke. | All proofs green. |
+| P3 Proof | complete | Mutation tests; privacy receipt; Windows smoke. | All proofs green. |
 | P4 Yeet | pending | PR to mergeable. | Merge gate passes. |
 | P5 Close | pending | Reflection; packet flip. | completed-retained. |
 
@@ -70,13 +70,30 @@ Before marking the packet closed:
   check run by `src/package.ts` and a test). The canary acceptance test in
   `test/Host.test.ts` now exports through the spool and scans it at rest.
   Decisions in `SPEC.md`.
+- P3 (2026-10-15): mutation tables keyed by `GateRule` with completeness
+  tests, one red-when-off test per rule in the kernel
+  (`packages/foundation/capability/observability/test/StrictGate.test.ts`,
+  synthetic batches) and at the host (`apps/practice-kg-mcp/test/Host.test.ts`,
+  a test-only leak probe beside the production server; the canary test runs it
+  with every rule on). Privacy receipt: `practice-kg-mcp --privacy-receipt`
+  (`src/runtime/PrivacyReceipt.ts`, golden `test/__golden__/privacy-receipt.golden.json`,
+  canary scan, end-to-end over a real spool in `test/PrivacyReceipt.test.ts`),
+  read-only key look (`readPracticeKgSpoolKey`) and kernel spool survey
+  (`surveyStrictSpool`, which `StrictSpool.replay` now reads through); runbook
+  section "Weekly privacy receipt" in
+  `goals/practice-kg-mcp/research/install-runbook.md`. Process metrics:
+  `src/runtime/ProcessMetrics.ts` (10 s Bun sampler port, 5-minute windows,
+  5% / 32 MiB floors) on two label-free gauges in the app instruments file,
+  wired into the host telemetry; TestClock tests with a scripted sampler in
+  `test/ProcessMetrics.test.ts`. Acceptance #3 and #5 met; #4 still waits on
+  the operator smoke below, so the goal cannot close until it is recorded.
 - Operator smoke for acceptance #4 (not run by an agent; recorded in
   `goals/practice-kg-mcp/research/install-runbook.md`, "Telemetry key smoke"):
   on `tom-pc-1`, as the attorney's Windows user in the desktop session, from the
   unpacked extension folder run `practice-kg-mcp.exe --self-check-telemetry`.
   Pass: exit 0 and `{"ok":true,"keyPath":"dpapi-ffi"|"dpapi-powershell",…}`;
   record the `keyPath` (a `dpapi-powershell` result records the fallback).
-- Finding: no canary reaches pre-gate telemetry today (handler errors use
+- Finding (resolved in P3 by the host leak probe): no canary reaches pre-gate telemetry today (handler errors use
   canned messages, SQL spans carry statements without parameters, and mcp-kit
   strips `parameters`); with the content rules turned off the canary test
   still passes. The per-rule sensitivity lives in the kernel tests over

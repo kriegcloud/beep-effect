@@ -18,11 +18,14 @@ import { describe, expect } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Metric from "effect/Metric";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as OtlpExporter from "effect/observability/OtlpExporter";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import {
@@ -99,8 +102,60 @@ const leaks = Effect.fnUntraced(function* (rules: GateRules) {
 
 const encodeUnknownJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 
+const tracesText = (gate: Gate): string => bodyText(gate.serialization.traces(representativeTraces()));
+const metricsText = (gate: Gate): string => bodyText(gate.serialization.metrics(representativeMetrics()));
+const logsText = (gate: Gate): string => bodyText(gate.serialization.logs(representativeLogs()));
+
+// Acceptance #3: one mutant per gate rule. Each names the batch to serialize
+// and the bytes that rule alone keeps out of it, so turning exactly that rule
+// off makes the needle appear. The mapped type makes a new rule without a
+// mutant a type error, and the completeness test makes it a red test.
+type GateMutant = { readonly exported: (gate: Gate) => string; readonly needle: () => string };
+
+const gateMutants: { readonly [Rule in GateRule]: GateMutant } = {
+  "span-name": { exported: tracesText, needle: () => '"name":"db.query"' },
+  "span-attributes": { exported: tracesText, needle: batchCanary },
+  "span-events": { exported: tracesText, needle: batchCanary },
+  "span-links": { exported: tracesText, needle: batchCanary },
+  "span-status-message": { exported: tracesText, needle: batchCanary },
+  "span-ids": { exported: tracesText, needle: () => '"spanId":"b7ad6b7169203331"' },
+  "span-timestamps": { exported: tracesText, needle: () => '"startTimeUnixNano":"1700000123456789000"' },
+  resource: { exported: tracesText, needle: batchCanary },
+  logs: { exported: logsText, needle: batchCanary },
+  "metric-names": { exported: metricsText, needle: batchCanary },
+  "metric-attributes": { exported: metricsText, needle: batchCanary },
+  "metric-values": { exported: metricsText, needle: () => '"asInt":1234567' },
+};
+
+const exportsNeedle = Effect.fnUntraced(function* (rules: GateRules, mutant: GateMutant) {
+  const gate = yield* makeStrictGate(demoConfig(rules));
+  return F.pipe(mutant.exported(gate), Str.includes(mutant.needle()));
+});
+
 describe("StrictGate", () => {
   it.layer(layerTestSalt, { timeout: "10 seconds" })((it) => {
+    it.effect("has a mutant for every gate rule", () =>
+      Effect.sync(() => {
+        expect(A.sort(R.keys(gateMutants), Order.String)).toEqual(A.sort(GateRule.literals, Order.String));
+      })
+    );
+
+    it.effect("exports no mutant's needle with every rule on", () =>
+      Effect.gen(function* () {
+        for (const rule of GateRule.literals) {
+          expect([rule, yield* exportsNeedle(StrictGateRulesOn, gateMutants[rule])]).toEqual([rule, false]);
+        }
+      })
+    );
+
+    for (const rule of GateRule.literals) {
+      it.effect(`goes red when only the ${rule} rule is off`, () =>
+        Effect.gen(function* () {
+          expect(yield* exportsNeedle({ ...StrictGateRulesOn, [rule]: false }, gateMutants[rule])).toBe(true);
+        })
+      );
+    }
+
     it.effect("exports only tool spans, in the shape-only wire shape, under their tool ids", () =>
       Effect.gen(function* () {
         const gate = yield* makeStrictGate(demoConfig());
@@ -189,15 +244,6 @@ describe("StrictGate", () => {
       })
     );
 
-    it.effect("leaks nothing with every rule on and lets the canary through when any content rule is off", () =>
-      Effect.gen(function* () {
-        expect(yield* leaks(StrictGateRulesOn)).toBe(false);
-        for (const rule of contentRules) {
-          expect([rule, yield* leaks({ ...StrictGateRulesOn, [rule]: false })]).toEqual([rule, true]);
-        }
-      })
-    );
-
     it.effect.prop(
       "leaks the canary exactly when some content rule is off, for any rule table",
       [Arbitrary.schema(GateRules)],
@@ -259,19 +305,6 @@ describe("StrictGate", () => {
         const latencyText = yield* encodeUnknownJson(latency);
         expect(Str.includes('"sum":98765.4')(latencyText)).toBe(true);
         expect(Str.includes("exponentialHistogram")(latencyText)).toBe(true);
-      })
-    );
-
-    it.effect("exports raw ids, raw times and unmapped names when those rules are off", () =>
-      Effect.gen(function* () {
-        const off = (rule: "span-ids" | "span-timestamps" | "span-name") =>
-          makeStrictGate(demoConfig({ ...StrictGateRulesOn, [rule]: false })).pipe(
-            Effect.flatMap(exportedSpans),
-            Effect.flatMap(encodeUnknownJson)
-          );
-        expect(Str.includes('"spanId":"b7ad6b7169203331"')(yield* off("span-ids"))).toBe(true);
-        expect(Str.includes('"startTimeUnixNano":"1700000123456789000"')(yield* off("span-timestamps"))).toBe(true);
-        expect(Str.includes('"name":"db.query"')(yield* off("span-name"))).toBe(true);
       })
     );
   });

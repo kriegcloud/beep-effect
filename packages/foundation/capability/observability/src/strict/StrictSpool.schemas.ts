@@ -23,6 +23,7 @@ import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { TelemetryTier } from "../catalog/Catalog.literals.ts";
+import { TelemetryRefusalTag } from "../Observability.instruments.ts";
 import { RefusalLedger, StrictEgressRecord, StrictSignal } from "./StrictGate.schemas.ts";
 
 const $I = $ObservabilityId.create("strict/StrictSpool.schemas");
@@ -232,6 +233,102 @@ export class StrictSpoolReplay extends S.Opaque<StrictSpoolReplay, { readonly br
   }).pipe(
     $I.annoteSchema("StrictSpoolReplay", {
       description: "Strict spool replay: the bodies that passed, oldest first, and refusal counts by tag.",
+    })
+  )
+) {}
+
+/**
+ * What reading one spool segment came to: the body it sealed, or the refusal
+ * tag it was counted under.
+ *
+ * **Example** (Match an outcome)
+ *
+ * ```ts import.meta.vitest name="Match an outcome"
+ * import { StrictSpoolOutcome } from "@beep/observability/strict"
+ *
+ * const outcome = StrictSpoolOutcome.cases.refused.make({ tag: "spool-segment-invalid" })
+ * StrictSpoolOutcome.guards.refused(outcome) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const StrictSpoolOutcome = S.TaggedUnion({
+  opened: { record: StrictEgressRecord },
+  refused: { tag: TelemetryRefusalTag },
+}).pipe(
+  $I.annoteSchema("StrictSpoolOutcome", {
+    description: "Outcome of reading one strict spool segment: its sealed body, or the tag it was refused under.",
+  })
+);
+
+/**
+ * Runtime type for {@link StrictSpoolOutcome}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type StrictSpoolOutcome = typeof StrictSpoolOutcome.Type;
+
+/**
+ * One spool segment as a survey reads it: when it was sealed, its size on
+ * disk, and its outcome.
+ *
+ * **Details**
+ *
+ * `sealedAtMillis` comes from the segment's file name, so a segment whose
+ * contents no longer decode still has a time; a file name without one reads
+ * as `0`.
+ *
+ * **Example** (Describe a refused segment)
+ *
+ * ```ts import.meta.vitest name="Describe a refused segment"
+ * import { StrictSpoolOutcome, StrictSpoolSurveyEntry } from "@beep/observability/strict"
+ *
+ * const entry = StrictSpoolSurveyEntry.make({
+ *   sealedAtMillis: 1_700_000_000_000,
+ *   sizeBytes: 512,
+ *   outcome: StrictSpoolOutcome.cases.refused.make({ tag: "spool-tier-refused" }),
+ * })
+ * entry.sizeBytes // => 512
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StrictSpoolSurveyEntry extends S.Opaque<StrictSpoolSurveyEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
+    sealedAtMillis: S.Natural,
+    sizeBytes: S.Natural,
+    outcome: StrictSpoolOutcome,
+  }).pipe(
+    $I.annoteSchema("StrictSpoolSurveyEntry", {
+      description: "One strict spool segment: seal time from its name, size on disk, and its read outcome.",
+    })
+  )
+) {}
+
+/**
+ * Every segment in a spool directory, oldest first, as a read-only survey
+ * finds it.
+ *
+ * **Example** (An empty survey)
+ *
+ * ```ts import.meta.vitest name="An empty survey"
+ * import { StrictSpoolSurvey } from "@beep/observability/strict"
+ *
+ * StrictSpoolSurvey.make({ entries: [] }).entries.length // => 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StrictSpoolSurvey extends S.Opaque<StrictSpoolSurvey, { readonly brand: unique symbol }>()(
+  S.Struct({
+    entries: S.Array(StrictSpoolSurveyEntry),
+  }).pipe(
+    $I.annoteSchema("StrictSpoolSurvey", {
+      description: "Read-only survey of a strict spool directory: every segment, oldest first.",
     })
   )
 ) {}
