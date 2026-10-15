@@ -290,15 +290,17 @@ const plainOrJson = <Schema extends S.Codec<any, any, never, never>>(schema: Sch
  * @category models
  * @since 0.0.0
  */
-export const SetupProfileSaveInput = S.Struct({
-  choices: CapabilityChoice.pipe(S.NonEmptyArray, plainOrJson),
-  itLimits: plainOrJson(ItLimits),
-  recordedAt: plainOrJson(S.DateTimeUtcFromMillis),
-}).pipe(
-  $I.annoteSchema("SetupProfileSaveInput", {
-    description: "The practice profile fields, each accepted plain or JSON-encoded.",
-  })
-);
+export class SetupProfileSaveInput extends S.Opaque<SetupProfileSaveInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    choices: CapabilityChoice.pipe(S.NonEmptyArray, plainOrJson),
+    itLimits: plainOrJson(ItLimits),
+    recordedAt: plainOrJson(S.DateTimeUtcFromMillis),
+  }).pipe(
+    $I.annoteSchema("SetupProfileSaveInput", {
+      description: "The practice profile fields, each accepted plain or JSON-encoded.",
+    })
+  )
+) {}
 
 /**
  * `setup_profile_save`: replace the saved practice profile.
