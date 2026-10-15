@@ -130,9 +130,12 @@ export class SkillPatchLabelChange extends S.Opaque<SkillPatchLabelChange, { rea
     patch: S.String,
     from: SkillPatchLabel,
     to: SkillPatchLabel,
+    fromDropCondition: S.String,
+    toDropCondition: S.String,
   }).pipe(
     $I.annoteSchema("SkillPatchLabelChange", {
-      description: "A patch whose lock label moves to the label its ledger classifications agree on.",
+      description:
+        "A patch whose lock label moves to the label its ledger classifications agree on, with its drop condition before and after.",
     })
   )
 ) {}

@@ -740,6 +740,37 @@ layer(TestLayer, { timeout: "60 seconds" })("skills patch", (it) => {
       const replanned = yield* recorder.label(repoRoot, SKILL, O.none());
       expect((yield* recorder.label(repoRoot, SKILL, O.some(replanned.planDigest))).outcome).toBe("already-current");
 
+      // A hand-authored retirement condition is kept; a stale canonical text from another label is
+      // replaced, and the plan shows that rewrite.
+      const withCondition = Effect.fnUntraced(function* (dropCondition: string) {
+        const lock = yield* readLock(repoRoot);
+        const current = yield* vendoredEntry(repoRoot);
+        yield* writeLock(
+          repoRoot,
+          SkillsLockDocument.make({
+            version: 2,
+            skills: {
+              ...lock.skills,
+              [SKILL]: VendoredSkillLockEntry.make({
+                ...current,
+                patches: SkillPatches.make({
+                  ...current.patches,
+                  series: A.map(current.patches.series, (patch) => SkillPatch.make({ ...patch, dropCondition })),
+                }),
+              }),
+            },
+          })
+        );
+      });
+      yield* withCondition("Drop when the vendor ships the same guardrail.");
+      expect((yield* recorder.label(repoRoot, SKILL, O.none())).changes).toEqual([]);
+      yield* withCondition(skillPatchDropCondition("temporary-drift"));
+      const stale = yield* recorder.label(repoRoot, SKILL, O.none());
+      expect(
+        A.map(stale.changes, (change) => [change.from, change.to, change.fromDropCondition, change.toDropCondition])
+      ).toEqual([["policy", "policy", skillPatchDropCondition("temporary-drift"), skillPatchDropCondition("policy")]]);
+      yield* recorder.label(repoRoot, SKILL, O.some(stale.planDigest));
+
       const materializer = yield* materializerWith(pristineFiles);
       const check = yield* materializer.materialize(repoRoot, "check", O.none());
       expect(A.map(check.rows, (row) => row.status)).toEqual(["current", "current"]);
