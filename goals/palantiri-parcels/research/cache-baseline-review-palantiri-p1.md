@@ -36,3 +36,13 @@ and cache flags are unchanged.
 
 Recording it accepts the existing posture for these three subjects only; no
 qualification is granted and no other subject changes.
+
+## Carried subject: `@beep/repo-ai-metrics`
+
+This branch also carries PR #1806 (not yet on `main`), whose
+`@beep/repo-ai-metrics` workspace dependency on `@beep/observability` was
+reviewed in
+`goals/observability-kernel-catalog/research/cache-baseline-review-ai-metrics-catalog.md`.
+Its configuration drift is re-recorded here unchanged. The subject's task
+commands, inputs, outputs, env and cache flags are untouched, and no
+qualification is granted.

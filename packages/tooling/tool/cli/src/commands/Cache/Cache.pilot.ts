@@ -1150,17 +1150,17 @@ const runPilot = Effect.fn("CachePilot.run")(
         sourceChange: "readme",
         expectedInputHash: "changed",
       }),
-      // The docs lane still consumes this shared declared env until TS7 exit lane B.
+      // Exercise a live shared declared environment input without the retired ESLint profile.
       PilotShadowScenario.make({
         ...unchanged,
         id: "declared-env",
-        env: { BEEP_ESLINT_PROFILE: "qualification" },
+        env: { VITE_COSMOS_SPIKE: "qualification" },
         expectedInputHash: "changed",
       }),
       PilotShadowScenario.make({
         ...unchanged,
         id: "declared-env-empty",
-        env: { BEEP_ESLINT_PROFILE: "" },
+        env: { VITE_COSMOS_SPIKE: "" },
         expectedInputHash: "changed",
       }),
       PilotShadowScenario.make({

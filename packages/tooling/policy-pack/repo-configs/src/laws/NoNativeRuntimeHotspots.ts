@@ -8,7 +8,7 @@
 import { A } from "@beep/utils";
 
 /**
- * Files that currently receive blocking `no-native-runtime` severity in the legacy ESLint surface.
+ * Files that currently receive blocking `no-native-runtime` severity in the governance surface.
  *
  * **Details**
  *
@@ -18,7 +18,7 @@ import { A } from "@beep/utils";
  * **Example** (Read first error file path)
  *
  * ```ts
- * import { NO_NATIVE_RUNTIME_ERROR_FILES } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
+ * import { NO_NATIVE_RUNTIME_ERROR_FILES } from "@beep/repo-configs/laws/NoNativeRuntimeHotspots"
  * const firstPath = NO_NATIVE_RUNTIME_ERROR_FILES[0]
  * console.log(firstPath)
  * ```
@@ -34,12 +34,12 @@ export const NO_NATIVE_RUNTIME_ERROR_FILES = [
 ] as const;
 
 /**
- * Paths that enable the stricter hotspot-only runtime checks inside the ESLint rule logic.
+ * Paths that enable the stricter hotspot-only runtime checks inside the law checks.
  *
  * **Example** (Read first check pattern)
  *
  * ```ts
- * import { NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
+ * import { NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS } from "@beep/repo-configs/laws/NoNativeRuntimeHotspots"
  * const firstPattern = NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS[0]
  * console.log(firstPattern)
  * ```
@@ -66,7 +66,7 @@ export const NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS = [
  * **Example** (Match error file allowlist)
  *
  * ```ts
- * import { isNoNativeRuntimeErrorFile } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
+ * import { isNoNativeRuntimeErrorFile } from "@beep/repo-configs/laws/NoNativeRuntimeHotspots"
  * const matches = isNoNativeRuntimeErrorFile("packages/tooling/tool/cli/src/commands/Lint/index.ts")
  * console.log(matches)
  * ```
@@ -86,7 +86,7 @@ export const isNoNativeRuntimeErrorFile = (relativeFilePath: string): boolean =>
  * **Example** (Match hotspot pattern)
  *
  * ```ts
- * import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
+ * import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/laws/NoNativeRuntimeHotspots"
  * const matches = isNoNativeRuntimeExtraCheckHotspot("packages/tooling/tool/cli/src/commands/Laws/index.ts")
  * console.log(matches)
  * ```

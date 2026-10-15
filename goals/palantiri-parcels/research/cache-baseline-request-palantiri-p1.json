@@ -1,14 +1,19 @@
 {
-  "previous": "11c8ab30c1bae069c7d23ab0e5aa983f0204081dfdc73c742060e0d02a0a1653",
+  "previous": "7d3da4c3a7a05a18910711de115ba512522853dee223805b07787910f665dc96",
   "review": {
     "reviewer": "Claude Opus 5.5 (palantiri-parcels P1, feat/palantiri-parcels)",
-    "reason": "Record the new @beep/palantiri tooling library at its scaffolded task posture, and re-record @beep/repo-cli and //#lint:policy-fingerprint after @beep/repo-cli gained a workspace dependency on @beep/palantiri; task commands, outputs, env and cache flags are unchanged and no qualification is granted.",
+    "reason": "Record the new @beep/palantiri tooling library at its scaffolded task posture, and re-record @beep/repo-cli and //#lint:policy-fingerprint after @beep/repo-cli gained a workspace dependency on @beep/palantiri; task commands, outputs, env and cache flags are unchanged and no qualification is granted. Also re-records @beep/repo-ai-metrics, carried from #1806.",
     "basis": {
       "path": "goals/palantiri-parcels/research/cache-baseline-review-palantiri-p1.md",
-      "sha256": "519fa20dcea9a5451a374275d8386ba741c10ee76ae6b2423235264bf81e63b5"
+      "sha256": "25c1312e92440ddebdd31dea20562a402b360605b20c9663b188fdedf6753636"
     }
   },
-  "subjects": ["//", "@beep/palantiri", "@beep/repo-cli"],
+  "subjects": [
+    "//",
+    "@beep/palantiri",
+    "@beep/repo-ai-metrics",
+    "@beep/repo-cli"
+  ],
   "scope": [
     "@beep/identity#lint",
     "@beep/types#lint",

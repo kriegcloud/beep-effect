@@ -1,5 +1,5 @@
 /**
- * Effect laws allowlist helpers used by repository ESLint rules.
+ * Effect laws allowlist helpers used by repository law checks.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -17,8 +17,8 @@ import {
   EffectLawsAllowlistLookupKey,
   EffectLawsAllowlistSnapshot,
   toSnapshotDecodeDiagnostics,
-} from "../internal/eslint/EffectLawsAllowlistSchemas.ts";
-import { ALLOWLIST_SNAPSHOT } from "../internal/eslint/generated/EffectLawsAllowlistSnapshot.ts";
+} from "../internal/laws/EffectLawsAllowlistSchemas.ts";
+import { ALLOWLIST_SNAPSHOT } from "../internal/laws/generated/EffectLawsAllowlistSnapshot.ts";
 import { normalizePath } from "./Shared.ts";
 
 const fallbackAllowlistPath = normalizePath(`${process.cwd()}/${ALLOWLIST_PATH}`);
@@ -49,7 +49,7 @@ const decodedAllowlistSnapshot = pipe(
  *
  * ```ts
  * import { strictEqual } from "node:assert"
- * import { resetAllowlistCache } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
+ * import { resetAllowlistCache } from "@beep/repo-configs/laws/EffectLawsAllowlist"
  *
  * strictEqual(resetAllowlistCache(), undefined)
  * ```
@@ -66,7 +66,7 @@ export const resetAllowlistCache = (): void => undefined;
  * **Example** (Log allowlist diagnostics)
  *
  * ```ts
- * import { getAllowlistDiagnostics } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
+ * import { getAllowlistDiagnostics } from "@beep/repo-configs/laws/EffectLawsAllowlist"
  * const diagnostics = getAllowlistDiagnostics()
  * console.log(diagnostics)
  * ```
@@ -83,7 +83,7 @@ export const getAllowlistDiagnostics = (): ReadonlyArray<string> => decodedAllow
  * **Example** (Log allowlist entries)
  *
  * ```ts
- * import { getAllowlistEntries } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
+ * import { getAllowlistEntries } from "@beep/repo-configs/laws/EffectLawsAllowlist"
  * const entries = getAllowlistEntries()
  * console.log(entries)
  * ```
@@ -100,7 +100,7 @@ export const getAllowlistEntries = () => decodedAllowlistSnapshot.entries;
  * **Example** (Check violation allowlist match)
  *
  * ```ts
- * import { isViolationAllowlisted } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
+ * import { isViolationAllowlisted } from "@beep/repo-configs/laws/EffectLawsAllowlist"
  * const allowlisted = isViolationAllowlisted({
  *   ruleId: "effect/no-native-runtime",
  *   filePath: "packages/tooling/tool/cli/src/commands/Lint/index.ts",

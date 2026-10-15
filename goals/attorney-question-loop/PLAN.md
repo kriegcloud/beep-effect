@@ -2,30 +2,31 @@
 
 ## Status
 
-Status: `pending`
+Status: `active` (P0 complete 2026-10-14; P1 contract next)
 
 ## Binding Sequencing
 
 The schema comes first, then the contracts, then the implementation. The P3 producer and the
 notice job need the P2 services. The P4 handoff needs the P0 schema merged and the
-`practice-claude-mod` P1b queue gate. P0 starts once `review-verdict-envelope` (#1761) has merged,
+`practice-claude-mod-review-queue` follow-on to open (its review queue is the card's home). P0 starts once `review-verdict-envelope` (#1761) has merged,
 because the `question` member extends its `ReviewItem` union.
 
 ## Phases
 
 | Phase | Status | Goal | Entry criteria | Exit criteria |
 | --- | --- | --- | --- | --- |
-| P0 Schema | pending | `question` ReviewItem member; `AnswerRow`, `AnswerState` (`LiteralKit`) and `QuestionOption` in `@beep/law-practice-domain` `values/`. | #1761 merged. | SPEC P0 criterion; `package-verify @beep/law-practice-domain` passes. |
+| P0 Schema | complete | `question` ReviewItem member; `AnswerRow`, `AnswerState` (`LiteralKit`) and `QuestionOption` in `@beep/law-practice-domain` `values/`. | #1761 merged. | SPEC P0 criterion; `package-verify @beep/law-practice-domain` passes. |
 | P1 Contract | pending | `QuestionQueue` and write-proposal `Context.Service` contracts, the `AnswerLog` port and typed errors. No implementation bodies. | P0 exit met. | SPEC P1 criterion; the contracts type-check. |
 | P2 Implementation | pending | Layers, digest selection, the proposal batch and the apply through the docket-intake calendar adapter. Tests cover the first vertical slice. | P1 exit met. | SPEC P2 criterion; `package-verify` passes for use-cases and server. |
 | P3 Producer + notice | pending | docket-intake raises questions for unsettled items; the daily notice job runs as a practice service. | P2 exit met. | SPEC P3 criterion. |
-| P4 Handoff | pending | Deliver `AMENDMENT-question-card.md` to the `practice-claude-mod` owner. | P0 merged. | SPEC P4 criterion. |
+| P4 Handoff | pending | Deliver `AMENDMENT-question-card.md` to the `practice-claude-mod-review-queue` owner. | P0 merged and that follow-on opened. | SPEC P4 criterion. |
 | P5 Yeet: PR to mergeable | pending | Publish through Yeet and drive the PR to mergeable. | P0–P4 content final. | Mergeable per `AGENTS.md`. |
 | P6 Close | pending | Write the closeout reflection and flip packet state. | P5 met. | Reflection under `history/reflections/`; README and manifest updated in the same PR. |
 
 ## Current Blockers
 
-- P0 waits on `review-verdict-envelope` (#1761) merging.
+- None for P0: `review-verdict-envelope` merged (#1761, 90ef963d43). P0's schema contract is in
+  [`research/P0-SCHEMA.md`](./research/P0-SCHEMA.md).
 
 ## Closeout Checklist
 
