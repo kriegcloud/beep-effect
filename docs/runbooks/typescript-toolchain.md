@@ -185,9 +185,16 @@ The programmatic API uses the Go compiler; check/build gates remain on tsc-rs.
 ## What still needs TS6
 
 - **infra/Pulumi:** the Pulumi nodejs runtime loads the classic compiler API at
-  deploy time and declares a `< 7` TypeScript peer. `infra/package.json` keeps
-  `typescript: ^6.0.3` until the Alchemy migration removes Pulumi. A narrowly
-  scoped syncpack version group permits only this package/dependency divergence.
+  deploy time and declares a `< 7` TypeScript peer. The hoisted linker installs
+  `@pulumi/pulumi` at the root, where a bare `require("typescript")` finds TS7's
+  version-only module and skips Pulumi's vendored fallback. An exact-version
+  patch (`patches/@pulumi%2Fpulumi@3.268.0.patch`) points `typescript-shim.js`
+  and `tsutils.js` at the root `@typescript/typescript6` bridge; `pulumi preview`
+  logs "Found typescript version 6.0.3" from that bridge. Re-apply or drop the
+  patch on any `@pulumi/pulumi` bump; it goes with Pulumi in the Alchemy
+  migration. `infra/package.json` keeps `typescript: ^6.0.3` for the ghaRunners
+  SDK build. A narrowly scoped syncpack version group permits only this
+  package/dependency divergence.
   `infra:prepare-gha-runners` explicitly uses
   `infra/node_modules/typescript/bin/tsc`; the SDK keeps its own ^6.0.3 dependency
   and checks that its compiler is 6.x before execution.

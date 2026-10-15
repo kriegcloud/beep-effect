@@ -41,3 +41,5 @@ repo-cli shard after Wave 3 changed the circular analyzer's trace name. Use the
 owning catalog writer and inspect its exact diff; this is generated trace data,
 not an exception inventory. Prevent by pairing trace-name changes with the
 catalog gate in the implementation wave.
+
+- 2026-10-15, a false runtime proof: the Wave 2 Pulumi probe called `createRequire` on `infra/node_modules/@pulumi/pulumi/package.json`, which does not exist under the hoisted linker. Resolution walked up into infra's nested TS6 and reported success. beep-reviewer caught the real root-hoisted resolution (TS7). Prevention: resolve from the installed package's real path (`require.resolve("@pulumi/pulumi/package.json")`) and prove runtime claims with the tool itself (`pulumi preview`), not a hand-built resolver.
