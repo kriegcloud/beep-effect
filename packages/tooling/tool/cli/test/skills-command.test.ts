@@ -267,7 +267,7 @@ describe("skills command", () => {
           yield* fs.chmod(config, 0o644);
           const wrapped = FileSystem.FileSystem.of({
             ...fs,
-            writeFileString: (target, content, options) =>
+            writeFileString: Effect.fn("SkillsTest.writeFileString")((target, content, options) =>
               fs
                 .writeFileString(target, content, options)
                 .pipe(
@@ -276,11 +276,13 @@ describe("skills command", () => {
                       ? fs.writeFileString(config, "[skills]\ninclude_instructions = false\nnew_native_key = true\n")
                       : Effect.void
                   )
-                ),
-            rename: (from, to) =>
+                )
+            ),
+            rename: Effect.fn("SkillsTest.rename")((from, to) =>
               scenario === "publish failure" && from.includes(".grill-me.stage-")
                 ? fs.rename(path.join(root, "missing-stage"), to)
-                : fs.rename(from, to),
+                : fs.rename(from, to)
+            ),
           });
           const result = yield* runSkillsCommand(["update", "--skill", "grill-me"]).pipe(
             Effect.provideService(FileSystem.FileSystem, wrapped),

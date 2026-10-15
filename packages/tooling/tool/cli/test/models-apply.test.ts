@@ -9,6 +9,7 @@ import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -34,6 +35,11 @@ const native = A.join(
   ],
   "\r\n"
 );
+
+const writerWithFs = Effect.fn("ModelsApplyTest.writerWithFs")(function* (fs: FileSystem.FileSystem) {
+  const services = yield* Layer.build(ModelsApplyLive.pipe(Layer.provide(Layer.succeed(FileSystem.FileSystem, fs))));
+  return Context.get(services, ModelsApply);
+});
 
 layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
   it.effect("preserves every native byte outside a top-level scalar with 494 projects and 311 hook states", () =>
@@ -131,7 +137,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       const file = path.join(root, "config.toml");
       const backupDirectory = path.join(root, ".config-backups");
       yield* fs.writeFileString(file, native, { mode: 0o644 });
-      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+      const writer = yield* writerWithFs(fs);
       assertNone(yield* writer.apply(file, [topLevel], "dry-run", backupDirectory));
       expect(yield* fs.exists(backupDirectory)).toBe(false);
       const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backupDirectory));
@@ -164,7 +170,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
           expected: "",
           remove: true,
         });
-        const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+        const writer = yield* writerWithFs(fs);
         yield* Effect.flip(writer.apply(file, [request], "check", backups));
         const journal = O.getOrThrow(yield* writer.apply(file, [request], "write", backups));
         expect(yield* fs.readFileString(file)).toBe(native);
@@ -202,7 +208,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         ["yaml", "model: gpt-6.1-sol\n", { _tag: "yaml-path", binding, render, path: ["model"] }],
         ["toml", "model = 'gpt-6.1-sol'\n", { _tag: "toml-top-level-key", binding, render, key: "model" }],
       ];
-      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+      const writer = yield* writerWithFs(fs);
       for (const [extension, text, locator] of cases) {
         const file = path.join(root, `config.${extension}`);
         yield* fs.writeFileString(file, text);
@@ -231,7 +237,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         },
         "gpt-6.1-sol(medium)"
       );
-      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+      const writer = yield* writerWithFs(fs);
       for (const word of ["old", "'old'", '"old"']) {
         const text = `claude() { printf '%s\\n' "$#" "$2"; }\nclaude --model ${word} "$@"\n`;
         yield* fs.writeFileString(file, text);
@@ -257,7 +263,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const file = path.join(root, "config.toml");
         const backups = path.join(root, "backups");
         yield* fs.writeFileString(file, 'model = "old"\n', { mode: 0o644 });
-        const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+        const writer = yield* writerWithFs(fs);
         const journal =
           phase === "restore" ? O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups)) : undefined;
         let injected = false;
@@ -267,27 +273,23 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         });
         const wrapped = FileSystem.FileSystem.of({
           ...fs,
-          chmod: (target, mode) =>
+          chmod: Effect.fn("ModelsApplyTest.chmod")((target, mode) =>
             fs
               .chmod(target, mode)
-              .pipe(Effect.andThen(phase === "planned" && target.endsWith(".tmp") ? inject : Effect.void)),
-          rename: (from, to) =>
-            Effect.gen(function* () {
-              const publish = to === file && from.endsWith(".tmp") && !injected;
-              if (publish && phase !== "post") yield* inject;
-              yield* fs.rename(from, to);
-              if (publish && phase === "post") yield* inject;
-            }),
+              .pipe(Effect.andThen(phase === "planned" && target.endsWith(".tmp") ? inject : Effect.void))
+          ),
+          rename: Effect.fn("ModelsApplyTest.rename")(function* (from, to) {
+            const publish = to === file && from.endsWith(".tmp") && !injected;
+            if (publish && phase !== "post") yield* inject;
+            yield* fs.rename(from, to);
+            if (publish && phase === "post") yield* inject;
+          }),
         });
-        const operation = ModelsApply.use((racer) =>
+        const racer = yield* writerWithFs(wrapped);
+        const error = yield* Effect.flip(
           journal === undefined
             ? racer.apply(file, [topLevel], "write", backups)
             : racer.restore(path.join(backups, `${journal.id}.json`), backups)
-        );
-        const error = yield* Effect.flip(
-          operation.pipe(
-            Effect.provide(ModelsApplyLive.pipe(Layer.provide(Layer.succeed(FileSystem.FileSystem, wrapped))))
-          )
         );
         expect(error._tag).toBe("ModelsLocatorError");
         const entries = yield* fs.readDirectory(backups);
@@ -309,7 +311,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       const file = path.join(root, "config.toml");
       const backups = path.join(root, "backups");
       yield* fs.writeFileString(file, 'model = "old"\n');
-      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+      const writer = yield* writerWithFs(fs);
       const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
       const applied = yield* fs.readFileString(file);
       yield* fs.writeFileString(journal.backup, "tampered");
@@ -362,7 +364,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       const file = path.join(root, "config.json");
       yield* fs.writeFileString(file, '{"model":"old", "unownedCredential":"__SYNTHETIC_PRIVATE__", malformed');
       const request = write({ _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] });
-      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+      const writer = yield* writerWithFs(fs);
       const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
       expect(error.message).toBe("Invalid JSON target.");
       expect(error.cause).toBeUndefined();
@@ -378,7 +380,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       const file = path.join(root, "config.toml");
       const bytes = new Uint8Array([0xff, 0xfe, 0x23]);
       yield* fs.writeFile(file, bytes);
-      const writer = yield* ModelsApply.pipe(Effect.provide(ModelsApplyLive));
+      const writer = yield* writerWithFs(fs);
       yield* Effect.flip(writer.apply(file, [topLevel], "write", path.join(root, "backups")));
       expect(A.fromIterable(yield* fs.readFile(file))).toEqual(A.fromIterable(bytes));
       expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
