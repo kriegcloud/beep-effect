@@ -834,3 +834,21 @@ retain the scoped proof and frozen configuration. The same four observed-only
 files remain outside equality. The driver owns panel round 3 and hosted merge
 gating; this receipt does not claim terminal panel clearance or completion of
 the measured native gates and 30-session windows.
+
+
+### F panel round 4 repair evidence (2026-10-15)
+
+RSC-F-SHELL-CHECK-ONLY removes shell writing entirely. Checks and previews still
+report shell drift; writes and shell/ownership-unknown restore journals refuse
+before staging. Restore re-establishes canonical and requested-entry identity,
+including recorded symlinks, before any publication. The exact regular-file to
+symlink reproduction and changed parent/link targets have non-mutating refusal
+fixtures. The four nearby round-4 P2/P3 items are included; no round-4 advisory
+is deferred. Previous publication-protocol follow-ups remain recorded in SPEC.
+
+The current handoff and `stage-5-f-panel-r4-verification.json` carry source-bound
+proof; `stage-5-f-panel-r4-fingerprint.json` freezes the configuration for the
+driver's round-5 panel. No native home configuration is changed by this wave.
+Panel acceptance, hosted merge clearance, native measurement gates and the
+30-session qualification windows remain open. The lane publishes only a panel
+candidate, never merge clearance while the panel is open.

@@ -1,3 +1,57 @@
+lane: rsc-f-agents
+head: 9a9659a40a0d45a546ea7746a4d5674e0e2ce901   PR: #1797
+package-verify: @beep/repo-cli: pass (audit 1230.4s; docgen 39.2s; frozen source 4136594584, identical package source at delivery)
+hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> fail(inherited TS2741) | pass | pass | fail(inherited host-path reference) | pass, zero findings | pass (285 tests, 16 files, all 6 existing touched-file schema-v2 rows)
+config fingerprint (final): 3a586eb6b63168ff0973580db01f64ced91357d878634558e983c87560216f6f (353 equality inputs; 4 observed-only)   backups: none added; 3 previous backups verified present
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: driver-owned panel round 4 and hosted merge gate; 3 exempt operator-owned model drifts; incomplete 30-session windows and existing H3 measured gates; the 3 non-actionable follow-ups below
+
+Published in exactly one push to [PR #1797](https://github.com/beep-effect/beep-effect/pull/1797).
+No readiness monitor was started. Main a679390ed8 was merged once, dependencies
+installed, and both sharded catalog owners ran. No changeset was added.
+
+- Oxlint: 24 inherited findings, **zero in changed files**; every reported source is byte-identical to integrated main. The same result was repeated on delivery commit 9a9659a40a0d45a546ea7746a4d5674e0e2ce901.
+- S31: 15 inventories compared, **zero changed files and zero added rows**. Generated catalog shards are the only standards differences.
+- Models check: **3 exempt operator-owned drifts, zero F-owned drifts**. Protected Codex model/effort pins pass; legacy `sandbox_mode` is absent; the pinned read-only Codex probe passes (OK, exit 0).
+- Native home configuration writes: **0**. No new native backup or rollback is claimed. Synthetic canonical-target apply/restore and skill backup/rollback fixtures pass.
+- Post-push review read: **0 unresolved threads; 0 new review comments**. No new REST reply or resolution was needed in this wave.
+- Pushed-head recapture matches the committed fingerprint with **zero changed equality paths**. The handoff contains committed proof plus this local publication supplement, preserving the one-push limit.
+
+The inherited test-tsgo failure is `package-scripts.policy.test.ts:210`
+(TS2741, missing opaque brand). Knowledge refs reports one inherited host-path
+reference in `goals/palantiri-parcels/PLAN.md:122`. Both sources match integrated
+main. The full package audit/docgen passes; these two repository parity failures
+are separately attributed in `stage-5-f-panel-r3-attribution.json`.
+
+| Finding | Fix commit | Fix and verification |
+| --- | --- | --- |
+| F-ASTRA-R2-02, P1 | `f127827245` | Bounded single-line literal grammar. Astra's continuation, comment-value and quoted-here-document inputs refuse with a typed unsupported-shell-form error, unchanged bytes and no backup. Earlier refusal cases, six executed quote forms and stable re-projection pass. Supported grammar is in JSDoc and the runbook. |
+| F-ASTRA-R3-02, P1 | `f127827245`, `4136594584` | Config, lockfile and remote-skill writes resolve canonical targets before backup/staging/publication. Regression tests retain links, update targets, verify prior-byte backups and preserve 0644. Dangling, dangling-parent and out-of-root links refuse before mutation. ModelsApply canonical-link apply/restore and optional dangling-target command tests pass. |
+| F3-F1, P2 | `f127827245` | Lazy env capture preserves whitespace before `# tail`; exact-byte grammar regression passes. |
+| F3-F3 / R3-GROK-04, P3 | `f127827245`, `a152ea412c` | Journal suffix appears once; all six race fixtures assert exactly one `Journal:` occurrence. |
+| F3-F4 / R3-GROK-02, P3/P2 | `f127827245`, `aa13ba371d` | Reader shares comment/quoted-data filtering and literal escape decoding per physical line. Comment and escaped-word regressions pass; live model check retains only the three exempt drifts. |
+| F3-F2, P2, non-actionable | Deferred in SPEC F-R3-BOUNDED-SHELL-LINKS | Target-filesystem exchange-capability caching needs unsupported-filesystem fixtures and a separate capability change. Existing publication fails closed. |
+| R3-GROK-01, P2, non-actionable | Deferred in SPEC F-R3-BOUNDED-SHELL-LINKS | Crash-state journaling needs restart fixtures and an explicit recovery-state contract. |
+| R3-GROK-03, P2, non-actionable | Deferred in SPEC F-R3-BOUNDED-SHELL-LINKS | Verified file/directory exchange needs replacing-writer recovery fixtures. Canonical-target preservation is fixed here; POSIX rename-window hardening remains a separate protocol change. |
+
+Astra's previously closed atomic-exchange P0 remains covered by the passing
+apply/restore/recovery race fixtures. The driver runs panel round 4 against this
+head and fingerprint; no final-panel clearance or hosted merge-readiness is claimed.
+
+Retained backups: `models-2026-10-14T222221002Z-16103436.backup`,
+`rsc-f-pre-rollback-20261014T222520875693Z.backup`, and
+`models-2026-10-14T222525456Z-12665845.backup`. Repository reversal is a revert;
+native restore remains journal-based and must refuse later drift.
+
+Graft saved approximately 65,082 tokens in two retrievals.
+
+panel-candidate 9a9659a40a0d45a546ea7746a4d5674e0e2ce901 #1797
+fingerprint 3a586eb6b63168ff0973580db01f64ced91357d878634558e983c87560216f6f
+
+---
+
+## Committed pre-publication proof (historical)
+
 ## Panel round 3 fix wave: local proof complete; single push pending
 
 lane: rsc-f-agents
@@ -115,7 +169,7 @@ Deferred round-2 findings: none.
 REST replies: 4283342539, 4283342984; both new threads resolved. Final thread read: 0 outstanding / 9.
 Graft estimated 13,796 tokens saved in one retrieval.
 
-final 2ddda4b141e22ff87a3582bcba7b506127b49822 #1797
+panel-candidate 2ddda4b141e22ff87a3582bcba7b506127b49822 #1797
 fingerprint 272fa85f43cf4133231fedfbce0bc4392ad748e695d1b55c1b1bb78f72e098a8
 
 ---
@@ -206,7 +260,7 @@ records the published SHA, REST replies and post-push capture under the one-push
 instruction; no second commit or push is made. No panel clearance is claimed.
 Graft estimated 50,322 tokens saved in two retrievals.
 
-final d99bc17cf50d8171deb6f5eb965a11de982f3b3c #1797
+panel-candidate d99bc17cf50d8171deb6f5eb965a11de982f3b3c #1797
 fingerprint 5c5d48e9cf4c40e99405ea1e5e861d32f714a513c21fbeb45a7955c62bee6f8f
 
 ---
@@ -266,7 +320,7 @@ Plugin-owned `.impeccable/live/` residue is preserved.
 
 Graft saved approximately 8,622 tokens this turn (one call).
 
-final c7bfb9547f5ec6fc1ae5f295479b20d0650e1bb4 #1797
+panel-candidate c7bfb9547f5ec6fc1ae5f295479b20d0650e1bb4 #1797
 fingerprint 32f831a6bbc7b7bda0a1f6a74ffcecf5826ec7f3e994e5a9836a3f5c201b50f5
 S31 15 compared / 0 changed / 0 added / 0 removed
 
@@ -539,11 +593,11 @@ package proof remains running; no push or final marker has been issued.
 
 ## Current publication marker (supersedes historical markers above)
 
-final d99bc17cf50d8171deb6f5eb965a11de982f3b3c #1797
+panel-candidate d99bc17cf50d8171deb6f5eb965a11de982f3b3c #1797
 fingerprint 5c5d48e9cf4c40e99405ea1e5e861d32f714a513c21fbeb45a7955c62bee6f8f
 
 
 ## Current publication marker (supersedes historical markers)
 
-final 2ddda4b141e22ff87a3582bcba7b506127b49822 #1797
+panel-candidate 2ddda4b141e22ff87a3582bcba7b506127b49822 #1797
 fingerprint 272fa85f43cf4133231fedfbce0bc4392ad748e695d1b55c1b1bb78f72e098a8

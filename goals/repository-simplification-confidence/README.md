@@ -2,6 +2,8 @@
 
 ## Status
 
+Lifecycle: `active`
+
 Program active after the October 14 resume. A #1584, H2 #1574 and #1744,
 B #1738, and H4 #1770 have merged. H3 #1590 has merged and carries the repository
 telemetry repair and its round-3 CLI serialization fix; its
@@ -102,7 +104,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-F: [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md). Round 3 bounds shell ownership and preserves canonical skill targets; panel round 4 remains driver-owned.
+F: [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md). Round 4 makes shell targets check-only, fences restore destination identity, and closes the four nearby advisories. Panel round 5 remains driver-owned.
 The writer, native apply/restore/reapply proof, rollback fixtures and dated
 before/after measurements are recorded. Remaining acceptance covers incomplete
 30-session windows, four H3 native measurement gates, external-owner

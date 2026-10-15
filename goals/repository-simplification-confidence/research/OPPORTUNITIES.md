@@ -2727,6 +2727,19 @@ attempts; no interrupted run is counted as a pass.
 - 2026-10-15, F panel round 4: a plain `beep-heavy` shell lacked the user bus;
   no tests started. Set `XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS` from
   the lane's existing proof wrapper. A direct `mise exec oxfmt@0.50.0` also
-  triggered mise cleanup of four cached versions (direnv, Python, Pulumi,
-  pnpm); use the installed repository Biome binary directly to avoid implicit
+  triggered mise cleanup of four cached versions (direnv 2.37.1, Python
+  3.14.8, Pulumi 3.267.0, pnpm 12.9.1); use the installed repository Biome binary directly to avoid implicit
   tool-manager lifecycle operations during a formatter step.
+
+- 2026-10-15, F round-4 proof: `quality package-verify @beep/repo-cli`
+  buffers subprocess output until a whole audit finishes, so a long-running
+  proof prints only its launch line. Emit step-start/step-finish progress while
+  retaining the captured output; that would expose early compiler failures
+  without waiting for the audit report. Superseded runs in this wave are kept
+  separate from terminal proof and are never counted as passes.
+
+- 2026-10-15, F full package audit: the packet parity regression compares HEAD
+  with the working filesystem. An uncommitted README Lifecycle repair produced
+  one failure after 6,716 passing tests. Commit packet core metadata before the
+  full audit; add a cheap HEAD/worktree packet-parity preflight to expose this
+  mismatch before the long package test run.
