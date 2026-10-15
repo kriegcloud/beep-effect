@@ -14,9 +14,9 @@ the captured Cloud finding is Fixed and the refreshed open view is empty.
 | P2 validate | complete | Reproduce each report at current HEAD. | Every item has strict verdict, disposition, rationale, and owner surface. |
 | P3 lane-partition | complete | Group shared root causes and disjoint paths. | Lanes recorded without overlapping file ownership. |
 | P4 remediate | complete | Fix all real findings with focused checks. | Changed files and passing targeted proof recorded per finding. |
-| P5 repo-proof | complete | Run packet validation and Yeet checks. | 14 focused tests, package test typecheck, and quick package verification passed; inherited local lint red attributed. |
+| P5 repo-proof | complete | Run packet validation and Yeet checks. | 14 focused tests, package test typecheck, and quick package verification passed; stale-branch lint red attributed to the episode cleared by PR #1798. |
 | P6 publish | complete | Publish one intentional PR through Yeet. | Final head `9ff065ba0e` pushed on PR #1795. |
-| P7 monitor | complete | Close hosted checks and actionable reviews. | Zero unresolved threads; reviewer 5/5; 20-minute window elapsed. S11 recorded inherited lint red and pending coverage. |
+| P7 monitor | complete | Close hosted checks and actionable reviews. | Zero unresolved threads; reviewer 5/5; 20-minute window elapsed. S11 recorded the stale-branch lint red and pending coverage. |
 | P8 merge-and-close | complete | Merge and close captured findings. | PR #1795 merged at `5f3dfb3969`; exact Cloud ID Fixed; refreshed open view 0 of 0. |
 | P9 close | complete | Record evidence, reflection, and lifecycle. | Reflection and `completed-retained` state land together in this closeout PR. |
 

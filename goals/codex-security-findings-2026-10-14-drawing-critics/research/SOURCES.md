@@ -27,6 +27,9 @@
 - [PR #1795](https://github.com/beep-effect/beep-effect/pull/1795) records the
   final head, 5/5 reviewer summary, hosted checks, S11 gate, and merge at
   `5f3dfb396982d797c2a521d42fe5bf592f90be6c`.
+- [PR #1798](https://github.com/beep-effect/beep-effect/pull/1798) cleared the
+  inherited lint-policy episode on `main` at `709d440def7a4409f93e5ceccfc28a51e75f5050`
+  before PR #1795 merged.
 - The signed-in finding detail showed the exact captured ID as Fixed after
   merge; the refreshed New/Triaged/In Progress view showed 0 of 0 findings.
 

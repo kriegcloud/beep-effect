@@ -40,8 +40,9 @@ finding is Fixed and the refreshed Cloud open view shows 0 of 0 findings.
 1 Low finding. Grok and Claude critic launches now enforce restricted tools and
 permissions. Focused tests, package quick verification, hosted Security and
 Heavy / Check passed, and the reviewer scored the final fix 5/5. The exact
-finding is Fixed. The inherited lint-policy red and pending coverage check at
-merge are recorded under the repo's S11 gate.
+finding is Fixed. The stale-branch lint-policy red and pending coverage check
+at merge are recorded under the repo's S11 gate. PR #1798 had already cleared
+the lint episode on `main` before #1795 merged.
 
 ## Notes
 
