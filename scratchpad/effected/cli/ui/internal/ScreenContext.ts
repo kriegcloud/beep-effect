@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import type * as Cli from "../../index.ts";
@@ -139,10 +140,6 @@ export const useScreenGuard = (): (<Args extends ReadonlyArray<unknown>>(
 	return (handler) =>
 		(...args) => {
 			if (die === undefined) return handler(...args);
-			try {
-				handler(...args);
-			} catch (error) {
-				die(error);
-			}
+			Result.getOrElse(Result.try(() => handler(...args)), die);
 		};
 };

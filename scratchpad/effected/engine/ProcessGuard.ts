@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 // Only effect/* imports are allowed before the guarded server graph loads.
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -364,22 +365,16 @@ export abstract class ProcessGuard {
 	static readonly run = (options: ProcessGuardOptions): Promise<void> => {
 		// A plain function over an explicit chain, with an async function's contract: everything up to the first wait
 		// runs on the caller's tick, and a throw anywhere becomes a rejection, never a synchronous throw.
-		try {
+		return Result.getOrElse(Result.try(() => {
 			const { host, label } = options;
 			const onUncaught = options.policy?.onUncaught ?? "exit";
 			const onRejection = options.policy?.onRejection ?? "exit";
 			let connected = false;
 			let format = fallbackFormat;
 			const describe = (error: unknown): string => {
-				try {
-					return format(error);
-				} catch {
-					try {
-						return fallbackFormat(error);
-					} catch {
-						return "<unformattable error value>";
-					}
-				}
+				return Result.getOrElse(Result.try(() => format(error)), () =>
+					Result.getOrElse(Result.try(() => fallbackFormat(error)), () => "<unformattable error value>"),
+				);
 			};
 			const exits = (mode: typeof RejectionMode.Type): boolean =>
 				mode === "exit" || (mode === "exitBeforeConnect" && !connected);
@@ -403,11 +398,8 @@ export abstract class ProcessGuard {
 					if (inject?.at === "connected" && injectKind !== undefined) {
 						// A positive sleep uses the timer phase; sleep(0) only yields to the Effect scheduler.
 						void Effect.runPromise(Effect.sleep("1 millis")).then(() => {
-							try {
-								emitInjected(host, injectKind);
-							} catch {
-								// Only a test double's `exit` throws here; a real one never returns.
-							}
+							// Only a test double's `exit` throws here; a real one never returns.
+							Result.getOrElse(Result.try(() => emitInjected(host, injectKind)), () => undefined);
 						});
 					}
 				},
@@ -421,13 +413,10 @@ export abstract class ProcessGuard {
 				return host.exit(1);
 			};
 			const start = (): Promise<void> => {
-				let loading: Promise<unknown>;
-				try {
-					loading = Promise.resolve(options.load(control));
-				} catch (error) {
-					return Promise.resolve(startupFailed(error));
-				}
-				return loading.then(() => undefined, startupFailed);
+				return Result.match(Result.try(() => Promise.resolve(options.load(control))), {
+					onFailure: (error) => Promise.resolve(startupFailed(error)),
+					onSuccess: (loading) => loading.then(() => undefined, startupFailed),
+				});
 			};
 
 			if (inject?.at === "load" && injectKind !== undefined) {
@@ -437,8 +426,6 @@ export abstract class ProcessGuard {
 					.then(start);
 			}
 			return start();
-		} catch (error) {
-			return Promise.reject(error);
-		}
+		}), (error) => Promise.reject(error));
 	};
 }

@@ -3,6 +3,7 @@
 // `validateTagHandlesInDocument` needs it and `document.ts` already imports
 // this module — the reverse import would be a cycle.
 
+import * as Result from "effect/Result";
 import type { CstNode } from "../cst.ts";
 import { parseCSTAll } from "../cst-parser.ts";
 import type { RawDirective } from "../raw-document.ts";
@@ -96,9 +97,7 @@ function standaloneTagSpan(tag: string, state: ComposerState): NodeMeta["tagSpan
 }
 
 function decodeTagSuffix(suffix: string, tag: string, state: ComposerState, span?: NodeMeta["tagSpan"]): string {
-	try {
-		return decodeURIComponent(suffix);
-	} catch {
+	return Result.getOrElse(Result.try(() => decodeURIComponent(suffix)), () => {
 		const provenance = span ?? standaloneTagSpan(tag, state);
 		if (provenance !== undefined && !state.errors.some((e) =>
 			e.code === "UnresolvedTag" && e.offset === provenance.offset && e.length === provenance.length &&
@@ -111,7 +110,7 @@ function decodeTagSuffix(suffix: string, tag: string, state: ComposerState, span
 			});
 		}
 		return suffix;
-	}
+	});
 }
 
 /**

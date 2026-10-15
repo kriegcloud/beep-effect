@@ -166,15 +166,14 @@ export class TomlStringifyError extends S.TaggedError<TomlStringifyError, { read
  * forms, which evaluate this inside the effect.
  */
 const parseToResult = (text: string): Result.Result<unknown, TomlParseError> => {
-	try {
-		return Result.succeed(buildValue(parseExpressions(text)));
-	} catch (defect) {
-		if (isRawTomlError(defect)) {
-			return Result.fail(TomlParseError.make({ diagnostics: [TomlDiagnostic.fromRaw(text, defect.diagnostic)] }));
-		}
-		if (isGuardExceeded(defect)) {
-			return Result.fail(
-				TomlParseError.make({
+	return Result.try({
+		try: () => buildValue(parseExpressions(text)),
+		catch: (defect) => {
+			if (isRawTomlError(defect)) {
+				return TomlParseError.make({ diagnostics: [TomlDiagnostic.fromRaw(text, defect.diagnostic)] });
+			}
+			if (isGuardExceeded(defect)) {
+				return TomlParseError.make({
 					diagnostics: [
 						TomlDiagnostic.fromRaw(text, {
 							code: "NestingDepthExceeded",
@@ -183,37 +182,36 @@ const parseToResult = (text: string): Result.Result<unknown, TomlParseError> => 
 							length: 0,
 						}),
 					],
-				}),
-			);
-		}
-		throw defect;
-	}
+				});
+			}
+			throw defect;
+		},
+	});
 };
 
 const stringifyToResult = (
 	value: unknown,
 	options?: TomlStringifyOptions,
 ): Result.Result<string, TomlStringifyError> => {
-	try {
-		return Result.succeed(stringifyValue(value, options?.newline ?? "\n"));
-	} catch (defect) {
-		if (isRawTomlError(defect)) {
-			return Result.fail(TomlStringifyError.make({ diagnostic: TomlDiagnostic.fromRaw("", defect.diagnostic) }));
-		}
-		if (isGuardExceeded(defect)) {
-			return Result.fail(
-				TomlStringifyError.make({
+	return Result.try({
+		try: () => stringifyValue(value, options?.newline ?? "\n"),
+		catch: (defect) => {
+			if (isRawTomlError(defect)) {
+				return TomlStringifyError.make({ diagnostic: TomlDiagnostic.fromRaw("", defect.diagnostic) });
+			}
+			if (isGuardExceeded(defect)) {
+				return TomlStringifyError.make({
 					diagnostic: TomlDiagnostic.fromRaw("", {
 						code: "NestingDepthExceeded",
 						message: defect.message,
 						offset: 0,
 						length: 0,
 					}),
-				}),
-			);
-		}
-		throw defect;
-	}
+				});
+			}
+			throw defect;
+		},
+	});
 };
 
 // ── Bound codec ─────────────────────────────────────────────────────────────

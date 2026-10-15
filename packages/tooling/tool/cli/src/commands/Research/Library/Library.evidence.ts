@@ -13,6 +13,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { XMLParser } from "fast-xml-parser";
@@ -243,13 +244,12 @@ const ReleaseTargetsJson = S.Array(S.Struct({ html_url: S.String, tag_name: S.St
 const releaseTarget = (input: string) => {
   const target = Str.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/releases\/tag\/(.+?)(?:[?#]|$)/)(input);
   if (O.isNone(target)) return O.none<string>();
-  try {
-    return O.some(
-      `${Str.toLowerCase(target.value[1] ?? "")}/${Str.toLowerCase(target.value[2] ?? "")}/releases/tag/${decodeURIComponent(target.value[3] ?? "")}`
-    );
-  } catch {
-    return O.none<string>();
-  }
+  return Result.getSuccess(
+    Result.try(
+      () =>
+        `${Str.toLowerCase(target.value[1] ?? "")}/${Str.toLowerCase(target.value[2] ?? "")}/releases/tag/${decodeURIComponent(target.value[3] ?? "")}`
+    )
+  );
 };
 const PullTargetsJson = S.Array(PullTarget).pipe(S.fromJsonString);
 const PaginationMetadata = S.Struct({ endpoint: S.String, pages: S.Finite, exhausted: S.Boolean, pageSize: S.Finite });

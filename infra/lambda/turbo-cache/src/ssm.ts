@@ -1,4 +1,6 @@
 import { GetParameterCommand, GetParametersCommand, SSMClient } from "@aws-sdk/client-ssm";
+import * as Effect from "effect/Effect";
+import * as Result from "effect/Result";
 import type { GetParameterCommandOutput, GetParametersCommandOutput } from "@aws-sdk/client-ssm";
 
 /**
@@ -127,14 +129,18 @@ export const createAuthorizerSecretsLoader = (
     const nextCache = { expiresAt: currentTime + SECRET_CACHE_TTL_MS, value };
     cache = nextCache;
 
-    try {
-      return await value;
-    } catch (error) {
-      if (cache === nextCache) {
-        cache = undefined;
-      }
-      throw error;
-    }
+    return Effect.runPromise(
+      Effect.tryPromise({ try: () => value, catch: (error) => error }).pipe(
+        Effect.tapError(() =>
+          Effect.sync(() => {
+            if (cache === nextCache) {
+              cache = undefined;
+            }
+          })
+        ),
+        Effect.result
+      )
+    ).then(Result.getOrThrow);
   };
 };
 
@@ -168,14 +174,18 @@ export const createWriterSecretLoader = (
     const nextCache = { expiresAt: currentTime + SECRET_CACHE_TTL_MS, value };
     cache = nextCache;
 
-    try {
-      return await value;
-    } catch (error) {
-      if (cache === nextCache) {
-        cache = undefined;
-      }
-      throw error;
-    }
+    return Effect.runPromise(
+      Effect.tryPromise({ try: () => value, catch: (error) => error }).pipe(
+        Effect.tapError(() =>
+          Effect.sync(() => {
+            if (cache === nextCache) {
+              cache = undefined;
+            }
+          })
+        ),
+        Effect.result
+      )
+    ).then(Result.getOrThrow);
   };
 };
 

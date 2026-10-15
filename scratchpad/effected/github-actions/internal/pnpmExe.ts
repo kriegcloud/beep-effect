@@ -129,7 +129,7 @@ export const detectMusl = (): boolean => {
 	if (process.platform !== "linux") {
 		return false;
 	}
-	try {
+	return Result.getOrElse(Result.try(() => {
 		const report = process.report?.getReport();
 		if (!P.hasProperty(report, "header") || !P.isObjectOrArray(report.header)) {
 			return false;
@@ -139,9 +139,7 @@ export const detectMusl = (): boolean => {
 			report.header.glibcVersionRuntime === undefined ||
 			report.header.glibcVersionRuntime === ""
 		);
-	} catch {
-		return false;
-	}
+	}), () => false);
 };
 
 /** The SRI algorithms a registry may list, strongest first. */

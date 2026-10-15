@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Str from "effect/String";
@@ -43,17 +44,14 @@ export type RegistryKind = typeof RegistryKind.Type;
 
 /** The hostname of a registry URL, or `undefined` when it does not parse. */
 const hostnameOf = (registry: string): string | undefined => {
-	try {
-		return Str.toLowerCase(new URL(registry).hostname);
-	} catch {
+	return Result.getOrElse(Result.try(() => Str.toLowerCase(new URL(registry).hostname)), () => {
 		// A bare host (`registry.npmjs.org/`) is not a URL; try again with a
 		// scheme before giving up, because npm config values are written both ways.
-		try {
-			return Str.toLowerCase(new URL(`https://${registry}`).hostname);
-		} catch {
-			return undefined;
-		}
-	}
+		return Result.getOrElse(
+			Result.try(() => Str.toLowerCase(new URL(`https://${registry}`).hostname)),
+			() => undefined,
+		);
+	});
 };
 
 /**
@@ -137,9 +135,7 @@ export const classifyRegistry = (registry: string | undefined): RegistryKind => 
  * @since 0.0.0
  */
 export const registryHost = (registry: string): string => {
-	try {
-		return new URL(registry).host;
-	} catch {
+	return Result.getOrElse(Result.try(() => new URL(registry).host), () => {
 		// Scanned rather than matched. The obvious `.replace(/\/.*$/, "")` is a
 		// polynomial-backtracking regex over a value this package does not
 		// control, and CodeQL flags it; `indexOf` is linear and says the same
@@ -151,7 +147,7 @@ export const registryHost = (registry: string): string => {
 				: registry;
 		const slash = O.getOrElse(Str.indexOf("/")(withoutScheme), () => -1);
 		return slash === -1 ? withoutScheme : Str.slice(0, slash)(withoutScheme);
-	}
+	});
 };
 
 /**

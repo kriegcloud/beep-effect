@@ -15,6 +15,7 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import { Atom } from "effect/reactivity";
 import * as S from "effect/Schema";
 import { useId } from "react";
@@ -196,14 +197,11 @@ const linkPreviewFetchAtom = Atom.family((key: string) =>
 
 const isEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-const isValidHttpUrl = (value: string): boolean => {
-  try {
+const isValidHttpUrl = (value: string): boolean =>
+  Result.try(() => {
     const url = new URL(value);
     return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-};
+  }).pipe(Result.getOrElse(() => false));
 
 const extractMetaTag = (html: string, name: string): null | string => {
   const patterns = [
@@ -224,13 +222,8 @@ const extractMetaTag = (html: string, name: string): null | string => {
   return null;
 };
 
-const toHostname = (value: string): null | string => {
-  try {
-    return new URL(value).hostname;
-  } catch {
-    return null;
-  }
-};
+const toHostname = (value: string): null | string =>
+  Result.try(() => new URL(value).hostname).pipe(Result.getOrElse(() => null));
 
 const canFetchMetadata = (href: string): boolean => {
   const runtimeWindow = globalThis.window;
@@ -239,12 +232,10 @@ const canFetchMetadata = (href: string): boolean => {
     return false;
   }
 
-  try {
+  return Result.try(() => {
     const target = new URL(href);
     return target.origin === runtimeWindow.location.origin;
-  } catch {
-    return false;
-  }
+  }).pipe(Result.getOrElse(() => false));
 };
 
 const hasText = (value: null | string | undefined): value is string => P.isString(value) && value.length > 0;
@@ -256,13 +247,7 @@ const fetchMetadataHtml = (href: string): Effect.Effect<O.Option<string>> =>
   }).pipe(Effect.orElseSucceed(O.none<string>));
 
 const getFallbackMetadata = (href: string): UrlMetadata => {
-  let origin = href;
-
-  try {
-    origin = new URL(href).origin;
-  } catch {
-    // fallback keeps href as-is
-  }
+  const origin = Result.try(() => new URL(href).origin).pipe(Result.getOrElse(() => href));
 
   return UrlMetadata.make({
     title: null,

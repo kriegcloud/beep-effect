@@ -1,3 +1,5 @@
+import { identity } from "effect/Function";
+import * as Result from "effect/Result";
 // Strict SemVer 2.0.0 recursive-descent parser and printer.
 //
 // Plain synchronous code: parsing is pure and total, so an Effect wrapper would
@@ -268,14 +270,12 @@ export const parseVersion = (raw: string): ParseResult<VersionParts> => {
 	}
 
 	const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
-	try {
-		return { ok: true, value: parseVersionCore(s) };
-	} catch (failure) {
+	return Result.getOrElse(Result.try((): ParseResult<VersionParts> => ({ ok: true, value: parseVersionCore(s) })), (failure): ParseResult<VersionParts> => {
 		if (failure instanceof ParseFailure) {
 			return { ok: false, input: trimmed, position: failure.position };
 		}
 		throw failure;
-	}
+	});
 };
 
 // ---------------------------------------------------------------------------
@@ -422,7 +422,7 @@ const parseRangeComparators = (s: ParserState): ReadonlyArray<ComparatorParts> =
 
 	// Try hyphen range first, backtracking on failure
 	const savedPos = s.pos;
-	try {
+	const hyphen = Result.try(() => {
 		const lower = parsePartial(s);
 		if (!isHyphenRange(s)) {
 			return fail(s);
@@ -432,13 +432,13 @@ const parseRangeComparators = (s: ParserState): ReadonlyArray<ComparatorParts> =
 		advance(s); // space
 		const upper = parsePartial(s);
 		return desugarHyphen(lower, upper);
-	} catch (failure) {
-		if (!(failure instanceof ParseFailure)) {
-			throw failure;
-		}
-		// Not a hyphen range — reset and parse space-separated simples
-		s.pos = savedPos;
+	});
+	if (Result.isSuccess(hyphen)) return hyphen.success;
+	if (!(hyphen.failure instanceof ParseFailure)) {
+		return Result.getOrThrowWith(hyphen, identity);
 	}
+	// Not a hyphen range — reset and parse space-separated simples
+	s.pos = savedPos;
 
 	const comparators: Array<ComparatorParts> = [];
 
@@ -505,7 +505,7 @@ export const parseRange = (raw: string): ParseResult<ReadonlyArray<ReadonlyArray
 	}
 
 	const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
-	try {
+	return Result.getOrElse(Result.try((): ParseResult<ReadonlyArray<ReadonlyArray<ComparatorParts>>> => {
 		const sets: Array<ReadonlyArray<ComparatorParts>> = [];
 
 		sets.push(parseRangeComparators(s));
@@ -524,12 +524,12 @@ export const parseRange = (raw: string): ParseResult<ReadonlyArray<ReadonlyArray
 		}
 
 		return { ok: true, value: sets };
-	} catch (failure) {
+	}), (failure): ParseResult<ReadonlyArray<ReadonlyArray<ComparatorParts>>> => {
 		if (failure instanceof ParseFailure) {
 			return { ok: false, input: trimmed, position: failure.position };
 		}
 		throw failure;
-	}
+	});
 };
 
 // ---------------------------------------------------------------------------
@@ -618,14 +618,12 @@ export const parseComparator = (raw: string): ParseResult<ComparatorParts> => {
 	}
 
 	const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
-	try {
-		return { ok: true, value: parseComparatorCore(s) };
-	} catch (failure) {
+	return Result.getOrElse(Result.try((): ParseResult<ComparatorParts> => ({ ok: true, value: parseComparatorCore(s) })), (failure): ParseResult<ComparatorParts> => {
 		if (failure instanceof ParseFailure) {
 			return { ok: false, input: trimmed, position: failure.position };
 		}
 		throw failure;
-	}
+	});
 };
 
 // ---------------------------------------------------------------------------

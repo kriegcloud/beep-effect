@@ -8,6 +8,7 @@
  * @since 0.0.0
  */
 
+import * as Result from "effect/Result";
 import { shouldRenderFailureCause } from "./internal/cli/FailureRendering.ts";
 import { LINT_POLICY_SUBCOMMANDS } from "./internal/cli/LintRouting.ts";
 
@@ -170,11 +171,8 @@ const restoreSharedTerminal = (): void => {
   if (process.stdout.isTTY) {
     // Disable mouse tracking (?1000 normal, ?1002 button-event, ?1003
     // any-motion, ?1006 SGR) and show the cursor (?25h).
-    try {
-      process.stdout.write("\u001B[?1000l\u001B[?1002l\u001B[?1003l\u001B[?1006l\u001B[?25h");
-    } catch {
-      // A dead stdout must not skip the raw-mode reset.
-    }
+    // A dead stdout must not skip the raw-mode reset.
+    Result.try(() => process.stdout.write("\u001B[?1000l\u001B[?1002l\u001B[?1003l\u001B[?1006l\u001B[?25h"));
   }
   if (process.stdin.isTTY) {
     process.stdin.setRawMode(false);
@@ -191,16 +189,10 @@ const runRepoCliMain = <E, A>(effect: import("effect/Effect").Effect<A, E>) =>
     // Keep defaultTeardown as the sole exit-code authority and force the exit
     // the runner declines on success.
     teardown: (exit, onExit) => {
-      try {
-        renderCliFailure(exit);
-      } catch {
-        // A dead stderr must not abort before the drain and exit.
-      }
-      try {
-        restoreSharedTerminal();
-      } catch {
-        // A dead terminal must not abort before the drain and exit.
-      }
+      // A dead stderr must not abort before the drain and exit.
+      Result.try(() => renderCliFailure(exit));
+      // A dead terminal must not abort before the drain and exit.
+      Result.try(restoreSharedTerminal);
       Runtime.defaultTeardown(exit, (code) => {
         // The runner's onExit hard-exits on a nonzero code, so the drain must come first.
         drainProcessStreams((failure) => {

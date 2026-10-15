@@ -1,3 +1,4 @@
+import * as Effect from "effect/Effect";
 import { signedRequestFromEvent } from "./event.ts";
 import { constantTimeEqual, signRequest } from "./hmac.ts";
 import { loadAuthorizerSecrets } from "./ssm.ts";
@@ -70,27 +71,29 @@ const bearerToken = (headers: HttpApiEvent["headers"]): string | undefined => {
  */
 export const createAuthorizerHandler =
   ({ loadSecrets }: AuthorizerDependencies) =>
-  async (event: HttpApiEvent): Promise<AuthorizerResponse> => {
-    try {
-      const token = bearerToken(event.headers);
-      if (token === undefined) return deny();
+  async (event: HttpApiEvent): Promise<AuthorizerResponse> =>
+    Effect.runPromise(
+      Effect.tryPromise({
+        try: async () => {
+          const token = bearerToken(event.headers);
+          if (token === undefined) return deny();
 
-      const secrets = await loadSecrets();
-      const matchesRead = constantTimeEqual(token, secrets.readOnlyToken);
-      const matchesWrite = constantTimeEqual(token, secrets.trustedWriteToken);
-      if (matchesRead === matchesWrite) return deny();
+          const secrets = await loadSecrets();
+          const matchesRead = constantTimeEqual(token, secrets.readOnlyToken);
+          const matchesWrite = constantTimeEqual(token, secrets.trustedWriteToken);
+          if (matchesRead === matchesWrite) return deny();
 
-      const { method, rawPath } = signedRequestFromEvent(event);
-      if (isReadRequest(method, rawPath)) return allow();
-      if (!matchesWrite || !isWriteRequest(method, rawPath)) return deny();
+          const { method, rawPath } = signedRequestFromEvent(event);
+          if (isReadRequest(method, rawPath)) return allow();
+          if (!matchesWrite || !isWriteRequest(method, rawPath)) return deny();
 
-      return allow({
-        writerSignature: signRequest(secrets.writerSharedSecret, signedRequestFromEvent(event)),
-      });
-    } catch {
-      return deny();
-    }
-  };
+          return allow({
+            writerSignature: signRequest(secrets.writerSharedSecret, signedRequestFromEvent(event)),
+          });
+        },
+        catch: () => undefined,
+      }).pipe(Effect.orElseSucceed(deny))
+    );
 
 /**
  * Deployed authorizer entrypoint wired to the live SSM secrets loader.

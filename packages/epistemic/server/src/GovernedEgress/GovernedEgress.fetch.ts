@@ -75,6 +75,7 @@ import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Ref from "effect/Ref";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
 import * as Str from "effect/String";
@@ -149,14 +150,11 @@ const egressPrincipal = SystemPrincipal.make({ component: "Runtime", kind: "Syst
 // makes the comparison safe: `https://allowed.example@evil.test/` and
 // `https://allowed.example:443` both normalize to the origin they actually
 // resolve to, not the one they read like.
-const canonicalize = (value: string): O.Option<string> => {
-  try {
+const canonicalize = (value: string): O.Option<string> =>
+  Result.try(() => {
     const url = new URL(value);
     return O.some(`${url.origin}${Str.replace(/\/+$/, "")(url.pathname)}`);
-  } catch {
-    return O.none();
-  }
-};
+  }).pipe(Result.getOrElse(O.none));
 
 // Canonical form for the *record*, which keeps the query and fragment. These
 // are dropped from coverage on purpose but must survive into the decision row:
@@ -164,14 +162,11 @@ const canonicalize = (value: string): O.Option<string> => {
 // and if the row named only the allowlist entry, that request would be
 // byte-identical in the ledger to a benign one. Only the digest is stored, so
 // recording the full form reveals nothing an auditor could not already see.
-const canonicalizeForRecord = (value: string): O.Option<string> => {
-  try {
+const canonicalizeForRecord = (value: string): O.Option<string> =>
+  Result.try(() => {
     const url = new URL(value);
     return O.some(`${url.origin}${Str.replace(/\/+$/, "")(url.pathname)}${url.search}${url.hash}`);
-  } catch {
-    return O.none();
-  }
-};
+  }).pipe(Result.getOrElse(O.none));
 
 // An allowlist entry covers itself and everything beneath it, and nothing else.
 // The `/` boundary is the whole point: a bare `startsWith` would let

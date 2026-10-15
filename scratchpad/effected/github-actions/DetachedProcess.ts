@@ -772,19 +772,18 @@ export abstract class DetachedProcess {
 		if (!Number.isInteger(pid) || pid <= 0) {
 			return yield* InvalidPidError.make({ pid });
 		}
-		return yield* Effect.suspend(() => {
-			try {
+		return yield* Effect.try({
+			try: () => {
 				process.kill(pid, signal);
-				return Effect.succeed(true);
-			} catch (cause) {
-				// ESRCH is "no such process", which for a `post` phase means the child
-				// has already exited — the normal ending, not a failure.
-				return Bool.match(isErrno(cause, "ESRCH"), {
+				return true;
+			},
+			catch: (cause) => cause,
+		}).pipe(
+			Effect.catch((cause) =>(Bool.match(isErrno(cause, "ESRCH"), {
 					onTrue: () => Effect.succeed(false),
 					onFalse: () => Effect.fail(DetachedSignalFailedError.make({ pid, cause })),
-				});
-			}
-		});
+				}))),
+		);
 	});
 
 	/**

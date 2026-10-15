@@ -9,6 +9,7 @@ import { $SharedDomainId } from "@beep/identity";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { IdentityComposer as IdentityComposerType } from "@beep/identity";
@@ -48,16 +49,13 @@ const passesIdentityComposerSmokeTest = (value: IdentityComposerCandidate, ident
   const composer = value as IdentityComposerType<string>;
   const expectedProbeIdentity = `${identifier}/${identityComposerProbeSegment}`;
 
-  try {
-    return (
+  return Result.try(
+    () =>
       composer.string() === identifier &&
       composer.symbol() === Symbol.for(identifier) &&
       composer.make(identityComposerProbeSegment) === expectedProbeIdentity &&
       composer([identityComposerProbeSegment] as unknown as TemplateStringsArray) === expectedProbeIdentity
-    );
-  } catch {
-    return false;
-  }
+  ).pipe(Result.getOrElse(() => false));
 };
 
 /**

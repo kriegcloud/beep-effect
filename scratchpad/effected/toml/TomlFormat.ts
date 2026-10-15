@@ -15,6 +15,7 @@
 // tagged TomlModificationError. The dependency edge runs facade → engine
 // only.
 
+import * as Result from "effect/Result";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
@@ -367,12 +368,9 @@ const headerContentEnd = (source: string, expr: TomlTableHeader | TomlArrayTable
 
 /** All six format rules over the expression list; `[]` on malformed input (never corrupt it). */
 const computeFormatEdits = (source: string, options: TomlFormattingOptions | undefined): Array<TaggedEdit> => {
-	let expressions: ReadonlyArray<TomlExpression>;
-	try {
-		expressions = parseExpressions(source);
-	} catch {
-		return [];
-	}
+	const parsed = Result.try(() => parseExpressions(source));
+	if (Result.isFailure(parsed)) return [];
+	const expressions = parsed.success;
 	const emit = new FormatEmitter(source);
 	const target = options?.newline;
 	for (const expr of expressions) {

@@ -368,10 +368,10 @@ const fallowOwnerRoot = Effect.fnUntraced(function* (
 // FileSystem.readFileString can wait forever on a FIFO. Open the sidecar without
 // following its final symlink and in nonblocking mode, then bound the read.
 const readFallowSidecar = (lastUsed: string): Effect.Effect<O.Option<string>> =>
-  Effect.sync(() => {
+  Effect.suspend(() => {
     const fs = process.getBuiltinModule("node:fs");
     let descriptor: number | undefined;
-    try {
+    return Effect.try(() => {
       descriptor = fs.openSync(lastUsed, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
       const stat = fs.fstatSync(descriptor);
       if (!stat.isFile() || stat.size > FALLOW_SIDECAR_BYTE_LIMIT) {
@@ -380,13 +380,16 @@ const readFallowSidecar = (lastUsed: string): Effect.Effect<O.Option<string>> =>
       const bytes = new Uint8Array(FALLOW_SIDECAR_BYTE_LIMIT + 1);
       const count = fs.readSync(descriptor, bytes, 0, bytes.length, 0);
       return count > FALLOW_SIDECAR_BYTE_LIMIT ? O.none() : O.some(new TextDecoder().decode(bytes.subarray(0, count)));
-    } catch {
-      return O.none();
-    } finally {
-      if (descriptor !== undefined) {
-        fs.closeSync(descriptor);
-      }
-    }
+    }).pipe(
+      Effect.orElseSucceed(O.none),
+      Effect.ensuring(
+        Effect.sync(() => {
+          if (descriptor !== undefined) {
+            fs.closeSync(descriptor);
+          }
+        })
+      )
+    );
   });
 
 const isScopedTempName = (name: string): boolean =>

@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -76,11 +77,10 @@ export const inlineCatalogs = (manifest: {
 	// pnpm throws when the default catalog is defined twice (a top-level
 	// `catalog:` *and* a `catalogs.default`). That is a malformed workspace file,
 	// which is a data condition, so it must not escape as a defect.
-	try {
-		return getCatalogsFromWorkspaceManifest({ catalog: manifest.catalog, catalogs: manifest.catalogs });
-	} catch {
-		return {};
-	}
+	return Result.getOrElse(
+		Result.try(() => getCatalogsFromWorkspaceManifest({ catalog: manifest.catalog, catalogs: manifest.catalogs })),
+		() => ({}),
+	);
 };
 
 /**

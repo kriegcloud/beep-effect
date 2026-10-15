@@ -446,14 +446,15 @@ const parseResultImpl = (text: string, options?: YamlParseOptions): Result.Resul
 	// An empty map lets nodeToJsValue register anchors incrementally, so aliases
 	// resolve to the most recent anchor at the point of use.
 	const anchors = MutableHashMap.empty<string, YamlNode>();
-	try {
-		return Result.succeed(nodeToJsValue(doc.contents, anchors, options?.maxAliasCount ?? 100));
-	} catch (defect) {
-		if (isAliasExpansionBudgetExceeded(defect)) {
-			return Result.fail(aliasCountExceededError(defect.message, text));
-		}
-		throw defect;
-	}
+	return Result.try({
+		try: () => nodeToJsValue(doc.contents, anchors, options?.maxAliasCount ?? 100),
+		catch: (defect) => {
+			if (isAliasExpansionBudgetExceeded(defect)) {
+				return aliasCountExceededError(defect.message, text);
+			}
+			throw defect;
+		},
+	});
 };
 
 /**
@@ -489,14 +490,17 @@ const parseAllResultImpl = (
 		// extraction never re-registers (e.g. an anchor on a complex mapping
 		// key), diverging from the single-document result.
 		const anchors = MutableHashMap.empty<string, YamlNode>();
-		try {
-			values.push(nodeToJsValue(d.contents, anchors, maxAliasCount));
-		} catch (defect) {
-			if (isAliasExpansionBudgetExceeded(defect)) {
-				return Result.fail(aliasCountExceededError(defect.message, text));
-			}
-			throw defect;
-		}
+		const value = Result.try({
+			try: () => nodeToJsValue(d.contents, anchors, maxAliasCount),
+			catch: (defect) => {
+				if (isAliasExpansionBudgetExceeded(defect)) {
+					return aliasCountExceededError(defect.message, text);
+				}
+				throw defect;
+			},
+		});
+		if (Result.isFailure(value)) return value;
+		values.push(value.success);
 	}
 	return Result.succeed(values);
 };
@@ -511,13 +515,14 @@ const stringifyResultImpl = (
 	value: unknown,
 	options?: YamlStringifyOptions,
 ): Result.Result<string, YamlStringifyError> => {
-	try {
-		return Result.succeed(stringifyValue(value, toStringifyInput(options)));
-	} catch (defect) {
-		const error = stringifyDefectToError(defect, value);
-		if (error !== undefined) return Result.fail(error);
-		throw defect;
-	}
+	return Result.try({
+		try: () => stringifyValue(value, toStringifyInput(options)),
+		catch: (defect) => {
+			const error = stringifyDefectToError(defect, value);
+			if (error !== undefined) return error;
+			throw defect;
+		},
+	});
 };
 
 /**
@@ -1172,17 +1177,18 @@ function parseForEquality(text: string): { readonly malformed: boolean; readonly
 		return { malformed: true, value: undefined };
 	}
 	const anchors = MutableHashMap.empty<string, YamlNode>();
-	try {
-		return { malformed: false, value: nodeToJsValue(doc.contents, anchors, 100) };
-	} catch (err) {
-		// A "billion laughs" alias bomb parses clean but blows up on expansion;
-		// treat it as malformed (never equal to anything) rather than letting the
-		// budget guard escape as a defect.
-		if (isAliasExpansionBudgetExceeded(err)) {
-			return { malformed: true, value: undefined };
-		}
-		throw err;
-	}
+	return Result.getOrElse(
+		Result.try(() => ({ malformed: false, value: nodeToJsValue(doc.contents, anchors, 100) })),
+		(err) => {
+			// A "billion laughs" alias bomb parses clean but blows up on expansion;
+			// treat it as malformed (never equal to anything) rather than letting the
+			// budget guard escape as a defect.
+			if (isAliasExpansionBudgetExceeded(err)) {
+				return { malformed: true, value: undefined };
+			}
+			throw err;
+		},
+	);
 }
 
 /**

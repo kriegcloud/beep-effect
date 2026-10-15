@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 // The public surface over the vendored engine (see internal/volume.ts for the
 // port header): the public types and the MemoryFileSystem class. The machinery
 // lives in internal/ — seeding (seed.ts), the inspection view (view.ts), the
@@ -892,14 +893,7 @@ const buildHandle: (
 	// dangling or looping link AS the parent is therefore present, so the
 	// write itself fails ENOENT / ELOOP, as `writeFileSync` does — never a
 	// mkdir over the link (EEXIST).
-	const present = (path: string) => {
-		try {
-			sync.lstat(path);
-			return true;
-		} catch {
-			return false;
-		}
-	};
+	const present = (path: string) => Result.isSuccess(Result.try(() => sync.lstat(path)));
 	// errno fidelity: a recursive mkdir fails with an errno only when some component blocks
 	// it — a non-directory, or a dangling or looping link HIGHER up (which
 	// makes `lstat` of the parent fail too). The call that follows walks

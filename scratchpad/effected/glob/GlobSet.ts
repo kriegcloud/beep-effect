@@ -32,12 +32,14 @@ const exclusionTarget = (pattern: string): string | undefined =>
 const allCompileUnderDefaults = (patterns: ReadonlyArray<string>): true | string => {
 	for (const pattern of patterns) {
 		const target = exclusionTarget(pattern) ?? pattern;
-		try {
-			new Minimatch(target, {});
-		} catch (e) {
-			if (isGuardExceeded(e)) return `pattern ${JSON.stringify(pattern.slice(0, 64))}: ${e.message}`;
-			throw e;
-		}
+		const compiled = Result.try({
+			try: () => new Minimatch(target, {}),
+			catch: (e) => {
+				if (isGuardExceeded(e)) return `pattern ${JSON.stringify(pattern.slice(0, 64))}: ${e.message}`;
+				throw e;
+			},
+		});
+		if (Result.isFailure(compiled)) return compiled.failure;
 	}
 	return true;
 };
@@ -224,14 +226,16 @@ export class GlobSet extends S.Class<GlobSet, { readonly brand: unique symbol }>
 	static compileResult(patterns: ReadonlyArray<string>): Result.Result<GlobSet, GlobPatternError> {
 		for (const pattern of patterns) {
 			const target = exclusionTarget(pattern) ?? pattern;
-			try {
-				new Minimatch(target, {});
-			} catch (e) {
-				if (isGuardExceeded(e)) {
-					return Result.fail(GlobPatternError.make({ pattern, reason: e.reason, limit: e.limit, actual: e.actual }));
-				}
-				throw e;
-			}
+			const compiled = Result.try({
+				try: () => new Minimatch(target, {}),
+				catch: (e) => {
+					if (isGuardExceeded(e)) {
+						return GlobPatternError.make({ pattern, reason: e.reason, limit: e.limit, actual: e.actual });
+					}
+					throw e;
+				},
+			});
+			if (Result.isFailure(compiled)) return compiled;
 		}
 		return Result.succeed(GlobSet.make({ patterns }));
 	}

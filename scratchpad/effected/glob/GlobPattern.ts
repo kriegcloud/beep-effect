@@ -291,13 +291,13 @@ const toEngineOptions = (o?: GlobPatternOptions): EngineOptions => ({
 // render as "Expected <filter>"). A non-guard throw is programmer error and
 // stays a defect.
 const compilesUnderDefaults = (source: string): true | string => {
-	try {
-		new Minimatch(source, {});
-		return true;
-	} catch (e) {
-		if (isGuardExceeded(e)) return e.message;
-		throw e;
-	}
+	return Result.match(Result.try({
+		try: () => new Minimatch(source, {}),
+		catch: (e) => {
+			if (isGuardExceeded(e)) return e.message;
+			throw e;
+		},
+	}), { onSuccess: (): true => true, onFailure: (message) => message });
 };
 
 /**
@@ -438,22 +438,23 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
 	 */
 	static compileResult(source: string, options?: GlobPatternOptions): Result.Result<GlobPattern, GlobPatternError> {
 		const engineOptions = toEngineOptions(options);
-		try {
-			// Defaults first (the value invariant), then the effective engine.
-			new Minimatch(source, {});
-			const engine = new Minimatch(source, engineOptions);
-			const pattern = GlobPattern.make({ source });
-			pattern.#engine = engine;
-			pattern.#engineOptions = engineOptions;
-			return Result.succeed(pattern);
-		} catch (e) {
-			if (isGuardExceeded(e)) {
-				return Result.fail(
-					GlobPatternError.make({ pattern: source, reason: e.reason, limit: e.limit, actual: e.actual }),
-				);
-			}
-			throw e;
-		}
+		return Result.try({
+			try: () => {
+				// Defaults first (the value invariant), then the effective engine.
+				new Minimatch(source, {});
+				const engine = new Minimatch(source, engineOptions);
+				const pattern = GlobPattern.make({ source });
+				pattern.#engine = engine;
+				pattern.#engineOptions = engineOptions;
+				return pattern;
+			},
+			catch: (e) => {
+				if (isGuardExceeded(e)) {
+					return GlobPatternError.make({ pattern: source, reason: e.reason, limit: e.limit, actual: e.actual });
+				}
+				throw e;
+			},
+		});
 	}
 
 	/**

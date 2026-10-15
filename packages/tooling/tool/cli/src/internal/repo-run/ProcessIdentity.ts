@@ -157,14 +157,13 @@ export const parseAdmissionProcStatStartTime = (stat: string): O.Option<string> 
  * @since 0.0.0
  */
 export const isProcessPidAlive = (pid: number): Effect.Effect<boolean> =>
-  Effect.sync(() => {
-    try {
+  Effect.try({
+    try: () => {
       process.kill(pid, 0);
       return true;
-    } catch (error) {
-      return P.hasProperty(error, "code") && error.code === "EPERM";
-    }
-  });
+    },
+    catch: (error): boolean => P.hasProperty(error, "code") && error.code === "EPERM",
+  }).pipe(Effect.orElseSucceed(F.identity));
 
 /**
  * Read the Linux process start time used to fence PID reuse.

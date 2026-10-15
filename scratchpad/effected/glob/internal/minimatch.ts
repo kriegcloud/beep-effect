@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 // Ported from minimatch@10.2.5 (https://github.com/isaacs/minimatch)
 // Copyright: Isaac Z. Schlueter and Contributors
 // License: BlueOak-1.0.0 (https://blueoakcouncil.org/license/1.0.0)
@@ -1719,12 +1720,11 @@ export class Minimatch {
 		// can match anything, as long as it's not this.
 		if (this.negate) re = `^(?!${re}).+$`;
 
-		try {
-			this.regexp = new RegExp(re, [...flags].join(""));
-		} catch {
+		this.regexp = Result.getOrElse(
+			Result.try(() => new RegExp(re, [...flags].join(""))),
 			// should be impossible
-			this.regexp = false;
-		}
+			(): false => false,
+		);
 		return this.regexp;
 	}
 

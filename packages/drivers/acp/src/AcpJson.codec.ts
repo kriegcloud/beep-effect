@@ -302,19 +302,19 @@ const decodeNativeJsonText = S.decodeResult(S.fromJsonString(S.Unknown));
 
 const readStrict = (text: string): Result.Result<unknown, JsonTextSyntaxError> => {
   const cursor = new Cursor(text);
-  try {
+  return Result.try(() => {
     const value = readValue(cursor);
     cursor.skipWhitespace();
     if (cursor.index < Str.length(text)) {
       return cursor.fail("Unexpected trailing content after JSON value");
     }
-    return Result.succeed(value);
-  } catch (error) {
-    if (isJsonTextSyntaxError(error)) {
-      return Result.fail(error);
-    }
-    throw error;
-  }
+    return value;
+  }).pipe(
+    Result.match({
+      onSuccess: Result.succeed,
+      onFailure: (error) => (isJsonTextSyntaxError(error) ? Result.fail(error) : Result.getOrThrow(Result.fail(error))),
+    })
+  );
 };
 
 // Finds the closing quotation mark of the string opened at `start`; returns its index (or -1 when

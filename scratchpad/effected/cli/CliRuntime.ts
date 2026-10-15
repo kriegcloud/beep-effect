@@ -486,15 +486,13 @@ export abstract class CliRuntime {
 					// if that dies too, the message alone, still sanitised and neutralized: the last resort keeps the policy.
 					// The target is built from the services in context when there is no cell: if that dies, the plain fallback.
 					const target = yield* currentTarget.pipe(Effect.catchCause(() => Effect.succeed(fallbackTarget)));
-					const reportLines = (status: boolean, spans?: "app" | "all" | "off"): ReadonlyArray<string> => {
-						return Result.getOrElse(
+					const reportLines = (status: boolean, spans?: "app" | "all" | "off"): ReadonlyArray<string> =>(Result.getOrElse(
 							Result.try(() => linesOf(cause, target, status, spans ?? target.spans)),
 							() => Result.getOrElse(
 								Result.try(() => plainFailureLines(cause, status, spans ?? target.spans)),
 								() => lastResort(error),
 							),
-						);
-					};
+						));
 					const defaultLines = reportLines(true);
 					// Cause.squash prefers a Fail over a Die, so `error` is a defect exactly when there is no Fail.
 					const details: FailureDetails = {

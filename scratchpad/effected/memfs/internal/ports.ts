@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 // KIT EXTENSION (ports). The read-only `node:fs` sync port and `node:fs/promises`
 // port over the literal inspection view, the path resolver they share, the
 // fault wrapper, and the synchronous-run helpers behind `makeSync`. Failure is
@@ -187,11 +188,10 @@ const isEncoded = (options: unknown): boolean =>
 	(P.isObjectOrArray(options) && P.hasProperty(options, "encoding") && P.isString(options.encoding));
 
 const settle = <A>(f: () => A): Promise<Awaited<A>> => {
-	try {
-		return Promise.resolve(f());
-	} catch (e) {
-		return Promise.reject(e);
-	}
+	return Result.match(Result.try(() => Promise.resolve(f())), {
+		onSuccess: (promise) => promise,
+		onFailure: (cause) => Promise.reject(cause),
+	});
 };
 
 /**

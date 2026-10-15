@@ -15,7 +15,7 @@ import * as Effect from "effect/Effect";
 import * as Eq from "effect/Equal";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
-import { flow, pipe } from "effect/Function";
+import { flow, identity, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -330,18 +330,18 @@ const makeGraftDeepRunner = Effect.fnUntraced(function* () {
     );
   });
   const isPidAlive: GraftDeepRunnerShape["isPidAlive"] = (pid) =>
-    Effect.sync(() => {
-      try {
+    Effect.try({
+      try: () => {
         process.kill(pid, 0);
         return true;
-      } catch (error) {
-        // EPERM means the process exists and belongs to somebody else.
-        return Eq.equals(
+      },
+      // EPERM means the process exists and belongs to somebody else.
+      catch: (error): boolean =>
+        Eq.equals(
           O.getOrElse(O.fromUndefinedOr((error as { code?: string }).code), () => ""),
           "EPERM"
-        );
-      }
-    });
+        ),
+    }).pipe(Effect.orElseSucceed(identity));
   return GraftDeepRunner.of({ isPidAlive, run });
 });
 

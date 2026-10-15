@@ -11,6 +11,7 @@ import { make as makeScopedAtom, useAtom, useAtomMount, useAtomValue } from "@ef
 import { ListIcon } from "@phosphor-icons/react";
 import { cva } from "class-variance-authority";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import { Atom } from "effect/reactivity";
 import * as React from "react";
 import { mediaQueryAtom } from "../internal/react-atoms.ts";
@@ -62,14 +63,12 @@ const SidebarMenuSkeletonScope = makeScopedAtom(() => Atom.make(`${randomIntBelo
 
 const sidebarStorageHydrationAtom = Atom.family((stateAtom: Atom.Writable<SidebarState, SidebarState>) =>
   Atom.make((get) => {
-    try {
+    Result.try(() => {
       const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
       if (P.isNotNull(stored)) {
         get.set(stateAtom, { ...get.once(stateAtom), open: stored === "true" });
       }
-    } catch {
-      // localStorage may be unavailable
-    }
+    }).pipe(Result.getOrElse(() => undefined));
   })
 );
 
@@ -151,19 +150,15 @@ function SidebarProviderInner({
     if (setOpenProp !== undefined) {
       const openState = P.isFunction(value) ? value(open) : value;
       setOpenProp(openState);
-      try {
+      Result.try(() => {
         localStorage.setItem(SIDEBAR_STORAGE_KEY, String(openState));
-      } catch {
-        // localStorage may be unavailable in some contexts
-      }
+      }).pipe(Result.getOrElse(() => undefined));
     } else {
       setSidebarState((state) => {
         const openState = P.isFunction(value) ? value(state.open) : value;
-        try {
+        Result.try(() => {
           localStorage.setItem(SIDEBAR_STORAGE_KEY, String(openState));
-        } catch {
-          // localStorage may be unavailable in some contexts
-        }
+        }).pipe(Result.getOrElse(() => undefined));
         return { ...state, open: openState };
       });
     }

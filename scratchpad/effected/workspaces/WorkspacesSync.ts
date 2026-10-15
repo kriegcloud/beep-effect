@@ -387,13 +387,9 @@ type ManifestRead = typeof ManifestRead.Type;
  * need it and keep the collapsed form.
  */
 const readManifest = (fileSystem: SyncFileSystem, file: string): ManifestRead => {
-	let text: string;
-	try {
-		text = fileSystem.readFile(file);
-	} catch (cause) {
-		return { kind: "read", cause };
-	}
-	const decoded = decodeJson(text);
+	const text = Result.try(() => fileSystem.readFile(file));
+	if (Result.isFailure(text)) return { kind: "read", cause: text.failure };
+	const decoded = decodeJson(text.success);
 	if (Result.isFailure(decoded)) return { kind: "invalidJson", cause: decoded.failure };
 	const parsed = decoded.success;
 	// JSON decoding returns `null` / a number / a string for VALID input; only a
@@ -425,13 +421,8 @@ const readJson = (fileSystem: SyncFileSystem, file: string): Record<string, unkn
 /**
  * Whether `dir` is a directory. Never throws — a throwing consumer op reads as `false`.
  */
-const isDirectory = (fileSystem: SyncFileSystem, dir: string): boolean => {
-	try {
-		return fileSystem.isDirectory(dir);
-	} catch {
-		return false;
-	}
-};
+const isDirectory = (fileSystem: SyncFileSystem, dir: string): boolean =>
+	Result.getOrElse(Result.try(() => fileSystem.isDirectory(dir)), () => false);
 
 /**
  * One enumerated child, with directory-ness resolved under `stat` semantics.
@@ -459,24 +450,19 @@ const readResolvedEntries = (
 	const { fileSystem, path } = options;
 	const withTypes = fileSystem.readDirectoryWithTypes;
 	if (withTypes !== undefined) {
-		try {
-			return withTypes(absoluteDir).map((entry) => ({
+		return Result.getOrElse(
+			Result.try(() => withTypes(absoluteDir).map((entry) => ({
 				name: entry.name,
 				directory: entry.isSymbolicLink
 					? isDirectory(fileSystem, path.join(absoluteDir, entry.name))
 					: entry.isDirectory,
-			}));
-		} catch {
-			return undefined;
-		}
+			}))),
+			() => undefined,
+		);
 	}
-	let names: ReadonlyArray<string>;
-	try {
-		names = fileSystem.readDirectory(absoluteDir);
-	} catch {
-		return undefined;
-	}
-	return names.map((name) => ({
+	const names = Result.try(() => fileSystem.readDirectory(absoluteDir));
+	if (Result.isFailure(names)) return undefined;
+	return names.success.map((name) => ({
 		name,
 		directory: isDirectory(fileSystem, path.join(absoluteDir, name)),
 	}));
@@ -606,12 +592,7 @@ const readPatternsSync = (options: WorkspacesSyncOptions, root: string): Readonl
 	const { fileSystem, path } = options;
 	const workspaceYaml = path.join(root, "pnpm-workspace.yaml");
 	if (fileSystem.exists(workspaceYaml)) {
-		let text = "";
-		try {
-			text = fileSystem.readFile(workspaceYaml);
-		} catch {
-			text = "";
-		}
+		const text = Result.getOrElse(Result.try(() => fileSystem.readFile(workspaceYaml)), () => "");
 		// `Yaml.parse` is an Effect and this function is not; the parse is pure and
 		// synchronous underneath, so running it to an Exit here is the one honest
 		// bridge. A parse failure is an empty pattern list, not a throw.

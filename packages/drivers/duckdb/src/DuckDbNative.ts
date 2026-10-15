@@ -7,6 +7,7 @@
 
 import { thunkUndefined } from "@beep/utils";
 import * as Effect from "effect/Effect";
+import * as Result from "effect/Result";
 import type { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 
 type NativeConnection = {
@@ -33,11 +34,7 @@ type NativeConnection = {
  * @since 0.0.0
  */
 export const ignoreNativeClose = (close: () => void): void => {
-  try {
-    close();
-  } catch {
-    thunkUndefined();
-  }
+  Result.try(close).pipe(Result.getOrElse(thunkUndefined));
 };
 
 /**

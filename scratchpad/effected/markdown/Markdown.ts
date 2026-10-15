@@ -276,26 +276,25 @@ export const parsePassResult: {
 	text: string,
 	options?: MarkdownParseOptions,
 ): Result.Result<BlockPassResult, MarkdownParseError> => {
-	try {
-		return Result.succeed(parseBlocks(text, { dialect: dialectOf(options), frontmatter: frontmatterOf(options) }));
-	} catch (caught) {
-		if (isGuardExceeded(caught)) {
-			return Result.fail(
-				MarkdownParseError.make({
+	return Result.try({
+		try: () => parseBlocks(text, { dialect: dialectOf(options), frontmatter: frontmatterOf(options) }),
+		catch: (caught) => {
+			if (isGuardExceeded(caught)) {
+				return MarkdownParseError.make({
 					diagnostic: MarkdownDiagnostic.fromRaw(text, {
 						code: caught.reason,
 						message: caught.message,
 						offset: caught.offset,
 						length: 0,
 					}),
-				}),
-			);
-		}
-		if (isRawMarkdownError(caught)) {
-			return Result.fail(MarkdownParseError.make({ diagnostic: MarkdownDiagnostic.fromRaw(text, caught.diagnostic) }));
-		}
-		throw caught;
-	}
+				});
+			}
+			if (isRawMarkdownError(caught)) {
+				return MarkdownParseError.make({ diagnostic: MarkdownDiagnostic.fromRaw(text, caught.diagnostic) });
+			}
+			throw caught;
+		},
+	});
 });
 
 /**
@@ -444,23 +443,22 @@ export class Markdown {
 		text: string,
 		options?: MarkdownParseOptions,
 	): Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError> {
-		try {
-			return Result.succeed(parsePhrasingText(text, dialectOf(options)));
-		} catch (caught) {
-			if (isGuardExceeded(caught)) {
-				return Result.fail(
-					MarkdownParseError.make({
+		return Result.try({
+			try: () => parsePhrasingText(text, dialectOf(options)),
+			catch: (caught) => {
+				if (isGuardExceeded(caught)) {
+					return MarkdownParseError.make({
 						diagnostic: MarkdownDiagnostic.fromRaw(text, {
 							code: caught.reason,
 							message: caught.message,
 							offset: caught.offset,
 							length: 0,
 						}),
-					}),
-				);
-			}
-			throw caught;
-		}
+					});
+				}
+				throw caught;
+			},
+		});
 	}
 
 	/**
@@ -602,12 +600,11 @@ export class Markdown {
 	 * @since 0.0.0
 	 */
 	static stringifyResult(root: Root): Result.Result<string, MarkdownStringifyError> {
-		try {
-			return Result.succeed(stringifyTree(root));
-		} catch (caught) {
-			if (isGuardExceeded(caught)) {
-				return Result.fail(
-					MarkdownStringifyError.make({
+		return Result.try({
+			try: () => stringifyTree(root),
+			catch: (caught) => {
+				if (isGuardExceeded(caught)) {
+					return MarkdownStringifyError.make({
 						diagnostic: MarkdownDiagnostic.make({
 							code: caught.reason,
 							message: caught.message,
@@ -616,11 +613,11 @@ export class Markdown {
 							line: 0,
 							character: 0,
 						}),
-					}),
-				);
-			}
-			throw caught;
-		}
+					});
+				}
+				throw caught;
+			},
+		});
 	}
 
 	/**

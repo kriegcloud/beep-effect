@@ -14,6 +14,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as Path from "effect/Path";
 import { ChildProcess } from "effect/process";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
@@ -86,11 +87,8 @@ const writeSyncedFile = (nodeFs: typeof import("node:fs"), file: string, content
 };
 
 const bestEffortCleanup = (remove: () => void): void => {
-  try {
-    remove();
-  } catch {
-    // The write error remains authoritative.
-  }
+  // The write error remains authoritative.
+  Result.try(remove);
 };
 
 const writeProvenance = Effect.fn("Provenance.writeOutput")(function* (

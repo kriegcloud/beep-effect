@@ -1270,11 +1270,10 @@ export class SemVerBump {
 	 * @since 0.0.0
 	 */
 	major(): SemVer {
-		try {
-			return SemVer.make({ major: this.v.major + 1, minor: 0, patch: 0, prerelease: [], build: [] });
-		} catch (cause) {
-			overflow("major", cause);
-		}
+		return Result.getOrElse(
+			Result.try(() => SemVer.make({ major: this.v.major + 1, minor: 0, patch: 0, prerelease: [], build: [] })),
+			(cause) => overflow("major", cause),
+		);
 	}
 
 	/**
@@ -1292,11 +1291,10 @@ export class SemVerBump {
 	 * @since 0.0.0
 	 */
 	minor(): SemVer {
-		try {
-			return SemVer.make({ major: this.v.major, minor: this.v.minor + 1, patch: 0, prerelease: [], build: [] });
-		} catch (cause) {
-			overflow("minor", cause);
-		}
+		return Result.getOrElse(
+			Result.try(() => SemVer.make({ major: this.v.major, minor: this.v.minor + 1, patch: 0, prerelease: [], build: [] })),
+			(cause) => overflow("minor", cause),
+		);
 	}
 
 	/**
@@ -1314,17 +1312,16 @@ export class SemVerBump {
 	 * @since 0.0.0
 	 */
 	patch(): SemVer {
-		try {
-			return SemVer.make({
+		return Result.getOrElse(
+			Result.try(() => SemVer.make({
 				major: this.v.major,
 				minor: this.v.minor,
 				patch: this.v.patch + 1,
 				prerelease: [],
 				build: [],
-			});
-		} catch (cause) {
-			overflow("patch", cause);
-		}
+			})),
+			(cause) => overflow("patch", cause),
+		);
 	}
 
 	/**
@@ -1355,17 +1352,16 @@ export class SemVerBump {
 		const pre = this.v.prerelease;
 
 		if (pre.length === 0) {
-			try {
-				return SemVer.make({
+			return Result.getOrElse(
+				Result.try(() => SemVer.make({
 					major,
 					minor,
 					patch: patch + 1,
 					prerelease: id !== undefined ? [id, 0] : [0],
 					build: [],
-				});
-			} catch (cause) {
-				overflow("patch", cause);
-			}
+				})),
+				(cause) => overflow("patch", cause),
+			);
 		}
 
 		if (id !== undefined) {
@@ -1379,11 +1375,10 @@ export class SemVerBump {
 		if (P.isNumber(last)) {
 			const next: Array<string | number> = [...pre];
 			next[next.length - 1] = last + 1;
-			try {
-				return SemVer.make({ major, minor, patch, prerelease: next, build: [] });
-			} catch (cause) {
-				overflow("prerelease", cause);
-			}
+			return Result.getOrElse(
+				Result.try(() => SemVer.make({ major, minor, patch, prerelease: next, build: [] })),
+				(cause) => overflow("prerelease", cause),
+			);
 		}
 
 		return SemVer.make({ major, minor, patch, prerelease: [...pre, 0], build: [] });

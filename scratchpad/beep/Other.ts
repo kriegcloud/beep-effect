@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 /**
  * FCM, people, and voice-readiness requests that do not belong to a larger domain.
  *
@@ -113,14 +114,8 @@ export declare namespace TimeZoneRejected {
   export type Encoded = S.Codec.Encoded<typeof TimeZoneRejected>;
 }
 
-const isIana = (value: string): boolean => {
-  try {
-    new Intl.DateTimeFormat("en-US", { timeZone: value });
-    return true;
-  } catch {
-    return false;
-  }
-};
+const isIana = (value: string): boolean =>
+  Result.isSuccess(Result.try(() => new Intl.DateTimeFormat("en-US", { timeZone: value })));
 
 /**
  * Strip a time zone and require a real IANA name.
