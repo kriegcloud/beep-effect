@@ -1,0 +1,36 @@
+diff --git a/tsutils.js b/tsutils.js
+index 61fe003edd8968b4a538862f873df40746775bc6..d59d61cfd143cba1ff8e9c69945bb300b947a3ac 100644
+--- a/tsutils.js
++++ b/tsutils.js
+@@ -47,12 +47,13 @@ exports.loadTypeScriptCompilerOptions = loadTypeScriptCompilerOptions;
+  * @internal
+  */
+ function typeScriptRequireStrings() {
+-    let typescriptRequire = "typescript";
++    // beep-effect: TS6 bridge; the root `typescript` is TS7 without the classic API.
++    let typescriptRequire = "@typescript/typescript6";
+     let tsnodeRequire = "ts-node";
+     try {
+         // Try loading typescript from node_modules
+-        const ts = require("typescript");
+-        const tsPath = require.resolve("typescript");
++        const ts = require(typescriptRequire);
++        const tsPath = require.resolve(typescriptRequire);
+         log.debug(`Found typescript version ${ts.version} at ${tsPath}`);
+     }
+     catch (error) {
+diff --git a/typescript-shim.js b/typescript-shim.js
+index 99f0a1d40005ba1a7620f4890b31aadcab02a7b3..85c26ae693484916c6148ba00c09e22e6e92979a 100644
+--- a/typescript-shim.js
++++ b/typescript-shim.js
+@@ -17,7 +17,9 @@
+ // loading the TypeScript module from the vendor directory.
+ const path = require("path");
+ try {
+-    module.exports = require("typescript");
++    // beep-effect: the root `typescript` is TS7 (no classic JS API); load the
++    // official TS6 bridge instead. Remove with Pulumi (Alchemy migration).
++    module.exports = require("@typescript/typescript6");
+ }
+ catch (error) {
+     const typescriptRequire = path.join(__dirname, "vendor", "typescript@3.8.3", "typescript.js");
