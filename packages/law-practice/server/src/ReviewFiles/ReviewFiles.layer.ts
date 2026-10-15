@@ -113,9 +113,11 @@ const reviewItemStore = (file: string) =>
  *
  * `verdicts.jsonl` backs `VerdictLog`, `answers.jsonl` backs `AnswerLog`, and
  * `items.jsonl` backs `ReviewItemStore`. A missing file reads as empty; a
- * line that does not decode fails the read with the store's typed error,
- * naming the file and line only. Appends to each file are serialized by one
- * permit and synced to disk, and the files are created owner-only.
+ * complete line that does not decode fails the read with the store's typed
+ * error, naming the file and line only. A last line without a line break is
+ * an append still in progress, by this process or another, and is left for
+ * the next read. Appends to each file are serialized by one permit and synced
+ * to disk, and the files are created owner-only.
  * `ReviewItemStore.upsert` appends only items that differ from their stored
  * version, and `list` keeps the latest version of each id in first-stored
  * order.

@@ -3,12 +3,13 @@
  *
  * **Details**
  *
- * A missing file reads as no rows, and every line must decode, so a corrupt
- * line fails the read instead of being skipped. Appends create the directory,
- * write and sync to disk; `serialized` runs an effect under the file's one
- * permit, so read-then-append sequences do not interleave. Failures name the
- * file and the line number, never the content. It is private to
- * `@beep/law-practice-server`.
+ * A missing file reads as no rows, and every complete line must decode, so a
+ * corrupt line fails the read instead of being skipped. A last line without
+ * a line break is an append still in progress and is left out. Appends
+ * create the directory, write and sync to disk; `serialized` runs an effect
+ * under the file's one permit, so read-then-append sequences do not
+ * interleave. Failures name the file and the line number, never the content.
+ * It is private to `@beep/law-practice-server`.
  *
  * @packageDocumentation
  * @internal
@@ -22,7 +23,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
-import { readJsonlLines } from "./Jsonl.ts";
+import { decodeCompleteJsonlLines } from "./Jsonl.ts";
 
 const textEncoder = new TextEncoder();
 
@@ -72,15 +73,23 @@ export const makeJsonlLog = Effect.fnUntraced(function* <
   const name = path.basename(options.file);
   const unreadable = (cause: unknown) => options.readFailure(`${name} cannot be read`, cause);
 
+  // A last line without a line break is an append still in progress, so it is left for the next read.
   const rows: Effect.Effect<ReadonlyArray<Row["Type"]>, E> = Effect.flatMap(
     Effect.mapError(fs.exists(options.file), unreadable),
     (exists) =>
       exists
-        ? readJsonlLines(options.file, unreadable, (content, lineNumber) =>
-            Effect.mapError(decodeLine(content), (cause) =>
-              options.readFailure(`${name} line ${lineNumber} does not decode`, cause)
+        ? fs
+            .readFileString(options.file)
+            .pipe(
+              Effect.mapError(unreadable),
+              Effect.flatMap(
+                decodeCompleteJsonlLines((content, lineNumber) =>
+                  Effect.mapError(decodeLine(content), (cause) =>
+                    options.readFailure(`${name} line ${lineNumber} does not decode`, cause)
+                  )
+                )
+              )
             )
-          ).pipe(Effect.provideService(FileSystem.FileSystem, fs))
         : Effect.succeed([])
   );
 
