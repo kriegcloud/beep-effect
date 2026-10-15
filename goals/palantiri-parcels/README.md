@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3 MCP + session — complete (2026-10-15): `beep palantiri mcp` serves the five parcels and a listing as stdio MCP tools with the same JSON as `beep palantiri parcel <id> --json`, gauges drop stale series in the long-lived host, and `beep session open` prints account headroom, lane reds and host pressure within 2 seconds and stages them for the SessionStart hook; see `PLAN.md` Execution Notes. Next: P4 Yeet.
+Complete (completed-retained, 2026-10-15). Shipped in #1817 (P0+P1 account headroom), #1831 (P2 four parcels) and the P3 + closeout PR (`beep palantiri mcp`, stale-series clearing, session-open hot parcels). Reflection: [`history/reflections/2026-10-15-claude.md`](./history/reflections/2026-10-15-claude.md).
 
 ## Latest Evidence
 

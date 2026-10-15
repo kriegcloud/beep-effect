@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `pending`
+Status: `completed-retained`
 
 ## Phases
 
@@ -11,9 +11,9 @@ Status: `pending`
 | P0 Research | complete | Parcel specs, sources per parcel, HttpApi contract. | Schemas drafted; sources verified. |
 | P1 Slice | complete | Account-headroom parcel + gauge + CLI. | First vertical slice verified live. |
 | P2 Parcels | complete | Remaining four parcels + completeness check. | Decode + freshness tests green. |
-| P3 MCP + session | complete | palantiri-mcp host; session-open push. | MCP handshake smoke green. |
-| P4 Yeet | pending | PR to mergeable. | Merge gate passes. |
-| P5 Close | pending | Reflection; packet flip. | completed-retained. |
+| P3 MCP + session | complete | `beep palantiri mcp` host; session-open push. | MCP handshake smoke green. |
+| P4 Yeet | complete | PR to mergeable. | Merge gate passes. |
+| P5 Close | complete | Reflection; packet flip. | completed-retained. |
 
 ## Closeout Checklist
 
@@ -27,6 +27,8 @@ Before marking the packet closed:
    statuses + `initiative.status`.
 
 ## Execution Notes
+
+- 2026-10-15 Close: the first-slice criterion is proven live. `OTEL_EXPORTER_OTLP_ENDPOINT` pointed at a throwaway local OTLP/HTTP capture, plus a `TRACEPARENT`, made `beep palantiri parcel account-headroom --json` POST `/v1/traces` (`Parcels.read`, carrying the caller's trace id and parent span id) and `/v1/metrics` (`beep.accounts.window_remaining` with `beep.provider` and `beep.window_scope`). Shipped in #1817 (P0+P1), #1831 (P2) and the P3 + closeout PR; the packet is `completed-retained`. Reflection: `history/reflections/2026-10-15-claude.md`.
 
 - 2026-10-15 #1817 review round 1: the gauge now keeps one series per provider, window and `beep.window_scope` (scoped model-group windows no longer merge into one max), and the snapshot write uses a unique temporary name. P3 requirement: the long-lived `beep palantiri mcp` host must clear a `beep.accounts.window_remaining` series once its provider's reading goes stale, because a gauge keeps its last value; each CLI run is its own process, so the CLI is unaffected.
 
