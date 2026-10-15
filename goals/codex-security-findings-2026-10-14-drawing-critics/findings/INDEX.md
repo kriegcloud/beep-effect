@@ -15,7 +15,7 @@ auth values, email addresses, and raw local paths.
 
 | ID | Severity | Status | Title | Owner area |
 | --- | --- | --- | --- | --- |
-| [CSF-001](./CSF-001.md) | Low | repair implemented | Read\-only drawing critics bypass tool permission checks | `@beep/repo-cli` drawing critics |
+| [CSF-001](./CSF-001.md) | Low | Fixed | Read\-only drawing critics bypass tool permission checks | `@beep/repo-cli` drawing critics |
 
 ## Closeout Mapping
 

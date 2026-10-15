@@ -9,3 +9,22 @@
 | 2026-10-14 | Slice 2 runner and hosted-log verification | Bun Vitest forks timed out before loading all five files; Node Vitest with `--pool=threads` passed 21 tests. Aggregate plugin tests again ended without a report; per-file execution exposed actionable fixture mistakes. Hosted job log reads failed with `error connecting to api.github.com`. | Keep per-file engine tests and a Node threads fallback available; inspect hosted JSDoc Ratchet job 115853747204 from the owning session before publication. |
 | 2026-10-14 | Verify ported skill discovery | Claude Code 2.1.299: `claude plugin validate dist/plugin --json` succeeds but reports hooks only. Validating the skills directory returns an empty contents array. All five built SKILL.md files and their frontmatter were verified separately. | Have the validator inventory default plugin skill directories; confirm live skill discovery in the owning session before claiming the skills load. |
 | 2026-10-14 | Flipping PR #1756 ready | `bun run beep yeet ready` refused with "blocked on threads-resolved: 0 review thread(s) still owe an answer" while GraphQL `reviewThreads.totalCount` was 0; `gh pr ready` worked. | The threads-resolved gate should pass on zero threads (or report the read failure it actually hit). |
+
+## Verdict envelope promotion verification (2026-10-14)
+
+- `bun run plugin:test`: aggregate runner reports "the file did not load" /
+  "run ended without a report (exit code 0)" after plugin validation succeeds.
+  The absolute-path `claude plugin test --file` runner passes all 15 cases.
+  A sandbox-aware aggregate runner would avoid the extra verification pass.
+- Default Vitest forks did not report test results in the sandbox; the
+  requested `--pool=threads` fallback runs the six files successfully.
+- `bunx turbo run knip:check`: "Could not find task `knip:check` in project";
+  this checkout has retired Knip. Keep verification lists aligned with the
+  current task catalog.
+- The new workspace dependency requires generated TypeScript/Fallow config
+  updates and a reviewed cache baseline refresh. Run config sync immediately
+  after changing workspace dependency edges to surface this together.
+- Lockfile-only install fails in the sandbox with read-only temporary/cache
+  paths; a retry with temporary paths then reports existing `catalog:` entries
+  missing. The only required lock change is the already-resolved domain
+  workspace dependency in this app's lock entry; it was synchronized directly.

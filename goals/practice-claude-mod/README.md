@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -31,12 +31,13 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement. The first slice (plain-language rows + verdict capture) is installed on the attorney's PC. The matter band and explicit timer are implemented locally, with 22 unit tests and 13 engine tests including terminal/desktop band checks. The changes remain uncommitted. The five firm skills are now ported with Apache-2.0 attribution and included by the plugin build. Next: validate and load the combined matter/timer and skills build on the operator machine.
+Complete (completed-retained, 2026-10-14). Shipped in #1730, #1756 and the closeout PR; P1b review queue moved to a gated follow-on (SPEC D24).
 
 ## Latest Evidence
 
 - [`history/2026-10-14-engine-contract.md`](./history/2026-10-14-engine-contract.md)
 - [`history/2026-10-14-operator-machine-proof.md`](./history/2026-10-14-operator-machine-proof.md)
+- [`history/reflections/2026-10-14-claude.md`](./history/reflections/2026-10-14-claude.md)
 
 ## Notes
 

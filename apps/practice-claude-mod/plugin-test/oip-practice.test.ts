@@ -24,6 +24,14 @@ test("a verdict after an answer is saved and exported", async ($, on) => {
   const exported = await $.command.run({ command: "practice", args: "export", origin, presentation });
   expect(JSON.stringify(exported)).toContain("Copy these JSONL rows into files you choose.");
   expect(JSON.stringify(exported)).toContain('\\"verdict\\":\\"wrong\\"');
+  expect(JSON.stringify(exported)).toContain('\\"batchId\\":\\"session:s-1\\"');
+  expect(JSON.stringify(exported)).toContain('\\"revision\\":1');
+  expect(JSON.stringify(exported)).not.toContain("practice-verdict/v1");
+  const undone = await $.command.run({ command: "practice", args: "undo", origin, presentation });
+  expect(JSON.stringify(undone)).toContain("Undone");
+  const afterUndo = await $.command.run({ command: "practice", args: "export", origin, presentation });
+  expect(JSON.stringify(afterUndo)).toContain('\\"verdict\\":\\"withdrawn\\"');
+  expect(JSON.stringify(afterUndo)).toContain('\\"revision\\":2');
 });
 
 for (const surface of ["terminal", "desktop"] as const) {

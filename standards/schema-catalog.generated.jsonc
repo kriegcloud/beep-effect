@@ -1359,6 +1359,12 @@
       "description": "Expected successful parse or declared typed degradation for an F1 fixture."
     },
     {
+      "file": "apps/labs/semantica/src/layers/CanaryC2Live.ts",
+      "symbol": "sealC2EvalReport",
+      "kind": "struct-const",
+      "owner": "@beep/semantica"
+    },
+    {
       "file": "apps/labs/semantica/src/layers/LedgerLive.ts",
       "symbol": "LedgerLiveOptions",
       "kind": "struct-const",
@@ -2205,12 +2211,6 @@
       "owner": "@beep/practice-claude-mod",
       "identity": "ModHostError",
       "description": "A mod engine call rejected."
-    },
-    {
-      "file": "apps/practice-claude-mod/src/PracticeMod.matters.ts",
-      "symbol": "decodeMatterLookup",
-      "kind": "codec",
-      "owner": "@beep/practice-claude-mod"
     },
     {
       "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
@@ -29142,6 +29142,109 @@
       "description": "Known non-U.S. WIPO ST.3 office code recorded with an observed ST.13 citing application."
     },
     {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/AntecedentFinding.model.ts",
+      "symbol": "AntecedentFinding",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AntecedentFinding",
+      "description": "Advisory antecedent-basis finding with the rule that fired, the referring span, and any candidate introductions."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/AntecedentFinding.model.ts",
+      "symbol": "AntecedentFindingKind",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AntecedentFindingKind",
+      "description": "Missing, ambiguous, out-of-chain, or number-mismatched antecedent, or a pattern the rules do not cover."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/AntecedentFinding.model.ts",
+      "symbol": "AntecedentRuleId",
+      "kind": "brand",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AntecedentRuleId",
+      "description": "Stable kebab-case identifier of the antecedent rule that fired."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.edge.model.ts",
+      "symbol": "ClaimElementEdgeKind",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimElementEdgeKind",
+      "description": "Containment, cross-claim element dependency, antecedent basis, or functional relation."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.errors.ts",
+      "symbol": "ClaimDecompositionError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimDecompositionError"
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.errors.ts",
+      "symbol": "ClaimDecompositionReason",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimDecompositionReason",
+      "description": "Missing claim context, unsegmentable claim text, or an incoherent decomposed tree."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.model.ts",
+      "symbol": "ClaimElement",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimElement",
+      "description": "Span-anchored claim element with its ordinal path, structural kind, and recited terms."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.model.ts",
+      "symbol": "ClaimElementKind",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimElementKind",
+      "description": "Preamble subject, limitation, nested sub-limitation, or functional relation between terms."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.model.ts",
+      "symbol": "ClaimElementPath",
+      "kind": "brand",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimElementPath",
+      "description": "Ordinal claim element address rooted at its claim number, e.g. 1.b.ii."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.model.ts",
+      "symbol": "ClaimTerm",
+      "kind": "schema-class",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimTerm",
+      "description": "Span-anchored determiner and normalized head noun phrase recited in a claim element."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.model.ts",
+      "symbol": "ClaimTermDeterminer",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimTermDeterminer",
+      "description": "Determiner opening a claim term: introducing, referring back, or bare."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.model.ts",
+      "symbol": "ClaimTermRef",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimTermRef",
+      "description": "Reference to one claim term by its element path and exact span."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.tree.model.ts",
+      "symbol": "ClaimElementProducer",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ClaimElementProducer",
+      "description": "Deterministic rule decomposer, LLM proposal, or human labeller."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/ComponentSpan/ComponentSpan.models.ts",
       "symbol": "AnnotationComponentSpan",
       "kind": "struct-const",
@@ -31733,6 +31836,76 @@
       "kind": "tagged-error",
       "owner": "@beep/law-practice-use-cases",
       "identity": "CandorRecordRepositoryUnavailable"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.errors.ts",
+      "symbol": "ClaimSelfCheckError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ClaimSelfCheckError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.errors.ts",
+      "symbol": "ClaimSelfCheckFailureReason",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ClaimSelfCheckFailureReason",
+      "description": "No decomposable claim, unavailable public claims, or a finding that could not become a candidate."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.errors.ts",
+      "symbol": "UsptoClaimsError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "UsptoClaimsError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.errors.ts",
+      "symbol": "UsptoClaimsFailureReason",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "UsptoClaimsFailureReason",
+      "description": "Missing record, OCR-only claims, unnormalizable claims, or an unreachable USPTO service."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.schemas.ts",
+      "symbol": "ClaimFindingCandidate",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ClaimFindingCandidate",
+      "description": "Antecedent finding paired with the epistemic candidate claim and evidence it maps to."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.schemas.ts",
+      "symbol": "ClaimSelfCheckInput",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ClaimSelfCheckInput",
+      "description": "Normalized patent document and provenance for mapping antecedent findings into epistemic candidates."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.schemas.ts",
+      "symbol": "ClaimSelfCheckReport",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ClaimSelfCheckReport",
+      "description": "Claim-element trees, per-claim decomposition failures, and the advisory antecedent findings over the trees."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.schemas.ts",
+      "symbol": "PublishedClaimSelfCheckReport",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "PublishedClaimSelfCheckReport",
+      "description": "Claim self-check report paired with the public USPTO claim set and source document it was run on."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.schemas.ts",
+      "symbol": "UsptoClaimSet",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "UsptoClaimSet",
+      "description": "Full-text public USPTO claims normalized into validated patent claims, with their source document."
     },
     {
       "file": "packages/law-practice/use-cases/src/DocketIntake/DocketIntake.ports.ts",
@@ -42179,6 +42352,14 @@
       "owner": "@beep/repo-cli",
       "identity": "RouterErrorCode",
       "description": "Failure classification for transactional routing and enrollment checks."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.store.ts",
+      "symbol": "AgentMessageStoreLimits",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "AgentMessageStoreLimits",
+      "description": "Queue limits for a file-backed agent-message store."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.tools.ts",
@@ -54380,12 +54561,6 @@
       "owner": "@beep/repo-cli",
       "identity": "PermissionTuple",
       "description": "Effective approval, sandbox and permission profile recorded by a Codex turn."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.service.ts",
-      "symbol": "PermissionContinuityLive",
-      "kind": "codec",
-      "owner": "@beep/repo-cli"
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Session/Register.schemas.ts",
