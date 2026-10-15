@@ -339,6 +339,10 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         );
       }
       const model: Locator = { ...locator, variable: "MODEL" };
+      assertSome(
+        yield* reader.read(file("cat <<'EOF'\nroute() {\nMODEL=old\n}\nEOF\n"), { ...model, within: O.some("route") }),
+        "Unsupported shell form"
+      );
       for (const text of [
         "x\\ MODEL=old\n",
         'MODEL="$X"\n',

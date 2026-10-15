@@ -150,24 +150,25 @@ const functionLines = (content: string, name: string): ReadonlyArray<string> => 
 export const modelsReadShellAssign: {
   (content: string, variable: string, within: O.Option<string>): Effect.Effect<O.Option<string>>;
   (variable: string, within: O.Option<string>): (content: string) => Effect.Effect<O.Option<string>>;
-} = dual(3, (content: string, variable: string, within: O.Option<string>) =>
-  modelsShellWords(
-    O.match(within, {
-      onNone: () => content,
-      onSome: (name) => A.join(functionLines(content, name), "\n"),
-    }),
-    variable
-  ).pipe(
-    Effect.map(
-      flow(
-        A.dedupe,
-        A.match({
-          onEmpty: O.none<string>,
-          onNonEmpty: (values) => O.some(A.join(values, ", ")),
-        })
-      )
-    )
-  )
+} = dual(
+  3,
+  Effect.fn("Models.readShellAssign")(function* (content: string, variable: string, within: O.Option<string>) {
+    // Scope extraction cannot erase an ambiguous containing shell document,
+    // such as a function-looking block inside a here-document or open quote.
+    const allWords = yield* modelsShellWords(content, variable);
+    const words =
+      O.isSome(within) && !A.contains(allWords, "Unsupported shell form")
+        ? yield* modelsShellWords(A.join(functionLines(content, within.value), "\n"), variable)
+        : allWords;
+    return pipe(
+      words,
+      A.dedupe,
+      A.match({
+        onEmpty: O.none<string>,
+        onNonEmpty: (values) => O.some(A.join(values, ", ")),
+      })
+    );
+  })
 );
 
 const readEnvKey = (content: string, key: string): O.Option<string> =>

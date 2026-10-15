@@ -1,5 +1,6 @@
 import {
   LocatorBinding,
+  ModelId,
   ModelSyncTarget,
   ModelsManifest,
   modelsCommand,
@@ -174,7 +175,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       const shellFile = path.join(home, ".zshrc");
       const shellManifest = ModelsManifest.make({
         ...manifest,
-        bindings: A.map(manifest.bindings, (entry) => ({ ...entry, modelId: "gpt-6-luna" })),
+        bindings: A.map(manifest.bindings, (entry) => ({ ...entry, modelId: ModelId.make("gpt-6-luna") })),
         targets: [
           ModelSyncTarget.make({
             id: TargetId.make("synthetic.shell"),
