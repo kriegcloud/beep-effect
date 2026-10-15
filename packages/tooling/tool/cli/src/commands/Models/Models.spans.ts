@@ -118,10 +118,12 @@ const assertSimpleShellLine = Effect.fnUntraced(function* (content: string, star
  */
 export const modelsShellWords = Effect.fn("Models.shellWords")(function* (content: string, variable: string) {
   return yield* Effect.forEach(
-    A.filter(A.fromIterable(Str.matchAll(modelsShellWordPattern(variable))(content)), (match) =>
-      isShellCode(
-        content,
-        O.getOrElse(O.fromUndefinedOr(match.index), () => 0)
+    A.flatMap(Str.split(content, "\n"), (line) =>
+      A.filter(A.fromIterable(Str.matchAll(modelsShellWordPattern(variable))(line)), (match) =>
+        isShellCode(
+          line,
+          O.getOrElse(O.fromUndefinedOr(match.index), () => 0)
+        )
       )
     ),
     (match) => shellWordValue(O.getOrElse(O.fromUndefinedOr(match[1]), () => "")),
