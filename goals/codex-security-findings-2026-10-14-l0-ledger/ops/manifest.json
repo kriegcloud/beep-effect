@@ -3,13 +3,13 @@
   "initiative": {
     "id": "codex-security-findings-2026-10-14-l0-ledger",
     "title": "Codex Security Findings (2026-10-14)",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/codex-security-findings-2026-10-14-l0-ledger",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Remediate and close the 2 Codex security findings captured on 2026-10-14.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -21,6 +21,7 @@
     "grandfathered": false
   },
   "branch": "codex/security-findings-2026-10-15",
+  "mergedPullRequest": 1805,
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -120,22 +121,22 @@
     {
       "id": "P6",
       "name": "Publish",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P7",
       "name": "Monitor",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P8",
       "name": "Merge and close findings",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P9",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

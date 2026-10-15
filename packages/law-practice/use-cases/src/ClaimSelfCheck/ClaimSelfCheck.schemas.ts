@@ -316,3 +316,54 @@ export class ClaimFindingCandidate extends S.Opaque<ClaimFindingCandidate, { rea
     })
   )
 ) {}
+
+/**
+ * Finding candidates of one document, with every claim the check could not cover.
+ *
+ * **Details**
+ *
+ * A claim listed in `undecomposed` has no claim-element tree, so the
+ * antecedent policy never ran over it. An empty `candidates` list therefore
+ * means a clean document only when `undecomposed` is empty too. A dependent
+ * whose chain passes through an undecomposed claim still gets its
+ * `pattern-not-covered` candidate.
+ *
+ * **Example** (Tell a clean document from an unchecked one)
+ *
+ * ```ts
+ * import { ClaimDecompositionError } from "@beep/law-practice-domain/values/ClaimElement"
+ * import { ClaimSelfCheckCandidates } from "@beep/law-practice-use-cases/ClaimSelfCheck"
+ * import * as A from "effect/Array"
+ *
+ * const result = ClaimSelfCheckCandidates.make({
+ *   candidates: [],
+ *   undecomposed: [
+ *     ClaimDecompositionError.make({
+ *       claimNumber: 1,
+ *       message: "The claim body does not occur in the claim text.",
+ *       reason: "unsupported-claim-text"
+ *     })
+ *   ]
+ * })
+ * const clean = A.isReadonlyArrayEmpty(result.candidates) && A.isReadonlyArrayEmpty(result.undecomposed)
+ * console.log(clean) // false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ClaimSelfCheckCandidates extends S.Opaque<ClaimSelfCheckCandidates, { readonly brand: unique symbol }>()(
+  S.Struct({
+    candidates: S.Array(ClaimFindingCandidate).annotateKey({
+      description: "One candidate per antecedent finding, in report order; empty when no rule fired.",
+    }),
+    undecomposed: S.Array(ClaimDecompositionError).annotateKey({
+      description:
+        "Typed decomposition failure of each claim the check could not cover, in claim order; empty when all decomposed.",
+    }),
+  }).pipe(
+    $I.annoteSchema("ClaimSelfCheckCandidates", {
+      description: "Finding candidates of one document, with the decomposition failure of every claim left unchecked.",
+    })
+  )
+) {}

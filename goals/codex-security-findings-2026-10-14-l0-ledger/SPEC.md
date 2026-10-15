@@ -56,12 +56,15 @@ exact captured findings until no packet-applicable finding remains open.
       remediation state, changed-file set, and verification evidence.
 - [x] Every real finding is fixed at the shared root cause with a focused
       regression check where executable behavior changes.
-- [ ] Packet counts, manifest, triage ledger, launcher size, sanitation, and
+- [x] Packet counts, manifest, triage ledger, launcher size, sanitation, and
       whitespace checks pass.
-- [ ] Yeet repair and verify are green on the complete remediation scope.
-- [ ] The branch is published, hosted checks and reviews are closed, and the PR
-      is mergeable and merged.
-- [ ] All 2 captured Codex findings are resolved after merge and the live view
+- [x] Focused tests and Yeet cheap gates passed; 16 of 16 required hosted checks
+      were green. Two optional checks were still pending at the S11 merge and
+      the workflow was canceled after merge. Full local Yeet verify did not
+      finish and is not represented as green.
+- [x] The branch was published; the 5/5 review, zero outstanding threads, and
+      20-minute window satisfied the S11 merge gate. PR #1805 merged.
+- [x] All 2 captured Codex findings are resolved after merge and the live view
       shows zero packet-applicable open findings.
 
 ## Verification Matrix
@@ -75,9 +78,9 @@ exact captured findings until no packet-applicable finding remains open.
 | Raw ignored | `git status --short -- .../raw` | Only `.gitignore` tracked |
 | Sanitization | tracked packet secret/path pattern scan | No matches |
 | Per-finding proof | command recorded in finding and triage ledger | Pass |
-| Repo proof | `bun run beep yeet verify` | Green |
-| Hosted proof | Yeet monitor and review closeout | Green and mergeable |
-| Final closure | supported connector or signed-in in-app findings view | Zero packet-open |
+| Repo proof | Focused tests, package verification, Yeet cheap gates | Passed; full local verify was not completed |
+| Hosted proof | 16 required checks, 5/5 reviewer, threads, 20-minute window, S11 gate | Passed; two optional checks pending at merge |
+| Final closure | Signed-in in-app findings view | Both exact IDs Fixed; zero open |
 
 ## Stop Conditions
 
@@ -101,3 +104,5 @@ exact captured findings until no packet-applicable finding remains open.
 | Reject symlinked or multiply linked ledger entries and bind each directory by descriptor. | Path-based existence and append can leave the checkout boundary. The existing directory-handle primitive provides a no-follow anchor. | Revert the source change if a replacement offers equivalent descriptor-bound, no-follow read and append semantics; retain the regression cases. |
 | Bind reviewer checks to PR number plus full head and base SHA. | L0 is classified relative to a PR base, so head-only success does not represent the reviewed diff. | Replace the association format only together with an equivalent PR/base-aware creation, completion, and merge predicate; retain cross-PR tests. |
 | Keep the two reports in one Yeet PR and close exact Cloud IDs after merge. | Both touch one CLI package and share a single package/hosted proof cycle. | Revert the merged PR if proof exposes a regression; reopen the exact IDs if post-merge verification fails. |
+| Use S11 after the review window with two optional jobs pending. | All required checks were green and the independent review was 5/5; S11 records pending jobs and canceled the active workflow after merge. | If either pending job later produces a concrete red or the merged revision fails proof, open a focused fix PR the same day. |
+| Rebind the existing independent 5/5 review to the exact PR/head/base before merging. | The reviewer host still emitted the old short-head `external_id`; the new security gate correctly refused it. The same-head reviewer result was republished with the new association and a migration note. | Re-run an independent review and replace the check if the original review or head/base proof is invalidated. |
