@@ -76,6 +76,22 @@ const isOpaqueClass = (symbol: ts.Symbol | undefined): boolean =>
 const isReference = (type: ts.Type): type is ts.TypeReference =>
   (type.flags & ts.TypeFlags.Object) !== 0 && "target" in type;
 
+const propertyTypes = (checker: ts.TypeChecker, type: ts.Type): ReadonlyArray<ts.Type> =>
+  A.getSomes(
+    A.map(checker.getPropertiesOfType(type), (property) => {
+      if (property.getName() === "brand") return O.none();
+      const declaration = property.valueDeclaration ?? property.declarations?.[0];
+      return O.map(O.fromUndefinedOr(declaration), (location) => checker.getTypeOfSymbolAtLocation(property, location));
+    })
+  );
+
+const childTypes = (checker: ts.TypeChecker, type: ts.Type): ReadonlyArray<ts.Type> => {
+  if (type.isUnionOrIntersection()) return type.types;
+  if ((checker.isArrayType(type) || checker.isTupleType(type)) && isReference(type))
+    return checker.getTypeArguments(type);
+  return (type.flags & ts.TypeFlags.Object) === 0 ? [] : propertyTypes(checker, type);
+};
+
 const opaqueNames = (checker: ts.TypeChecker, root: ts.Type): ReadonlyArray<string> => {
   let found = HashSet.empty<string>();
   let seen = HashSet.empty<ts.Type>();
@@ -83,22 +99,9 @@ const opaqueNames = (checker: ts.TypeChecker, root: ts.Type): ReadonlyArray<stri
     // Compiler types are mutable graphs; preserve the prototype scanner's reference identity.
     if (depth > 8 || HashSet.has(seen, Equal.byReferenceUnsafe(type))) return;
     seen = HashSet.add(seen, type);
-    if (type.isUnionOrIntersection()) {
-      for (const member of type.types) visit(member, depth + 1);
-      return;
-    }
     const symbol = type.getSymbol();
-    if (isOpaqueClass(symbol)) found = HashSet.add(found, symbol?.getName() ?? "?");
-    if ((checker.isArrayType(type) || checker.isTupleType(type)) && isReference(type)) {
-      for (const argument of checker.getTypeArguments(type)) visit(argument, depth + 1);
-      return;
-    }
-    if ((type.flags & ts.TypeFlags.Object) === 0) return;
-    for (const property of checker.getPropertiesOfType(type)) {
-      if (property.getName() === "brand") continue;
-      const declaration = property.valueDeclaration ?? property.declarations?.[0];
-      if (declaration !== undefined) visit(checker.getTypeOfSymbolAtLocation(property, declaration), depth + 1);
-    }
+    if (!type.isUnionOrIntersection() && isOpaqueClass(symbol)) found = HashSet.add(found, symbol?.getName() ?? "?");
+    for (const child of childTypes(checker, type)) visit(child, depth + 1);
   };
   visit(root, 0);
   return A.sort(found, Order.String);
@@ -125,6 +128,61 @@ const rawSample = (node: ts.Node, names: HashSet.HashSet<string>): boolean => {
   return found;
 };
 
+const collectParameters = (names: HashSet.HashSet<string>, node: ts.Node): HashSet.HashSet<string> => {
+  if (!ts.isArrowFunction(node) && !ts.isFunctionExpression(node)) return names;
+  return A.reduce(node.parameters, names, (scope, parameter) => bindingNames(parameter.name, scope));
+};
+
+const collectArgumentSamples = (node: ts.Node, names: HashSet.HashSet<string>): HashSet.HashSet<string> => {
+  const scope = collectParameters(names, node);
+  return ts.isCallExpression(node) ? A.reduce(node.arguments, scope, collectParameters) : scope;
+};
+
+const sampleScope = (node: ts.Node, names: HashSet.HashSet<string>): HashSet.HashSet<string> => {
+  if (!ts.isCallExpression(node)) return names;
+  if (!A.some(node.arguments, (argument) => /\bArbitrary\.\w+\(/.test(argument.getText()))) return names;
+  return A.reduce(node.arguments, names, (scope, argument) => collectArgumentSamples(argument, scope));
+};
+
+const expectOperand = (node: ts.Expression): O.Option<ts.Expression> => {
+  if (!ts.isCallExpression(node)) return O.none();
+  if (!ts.isIdentifier(node.expression) || node.expression.text !== "expect") return O.none();
+  return O.fromUndefinedOr(node.arguments[0]);
+};
+
+const strictEqualityOperands = (node: ts.Node): O.Option<readonly [ts.Expression, ts.Expression]> => {
+  if (!ts.isCallExpression(node) || !ts.isPropertyAccessExpression(node.expression)) return O.none();
+  if (node.expression.name.text !== "toStrictEqual") return O.none();
+  return O.zipWith(expectOperand(node.expression.expression), O.fromUndefinedOr(node.arguments[0]), Tuple.make);
+};
+
+const assertionOpaqueNames = (
+  checker: ts.TypeChecker,
+  samples: HashSet.HashSet<string>,
+  operands: readonly [ts.Expression, ts.Expression]
+): ReadonlyArray<string> => {
+  const [actual, expected] = operands;
+  if (rawSample(actual, samples) === rawSample(expected, samples)) return [];
+  return A.sort(
+    HashSet.fromIterable(A.flatMap(operands, (operand) => opaqueNames(checker, checker.getTypeAtLocation(operand)))),
+    Order.String
+  );
+};
+
+const assertionFinding = (checker: ts.TypeChecker, samples: HashSet.HashSet<string>, node: ts.Node) => {
+  if (HashSet.size(samples) === 0) return O.none<OpaqueRoundtripFinding>();
+  const opaque = O.map(strictEqualityOperands(node), (operands) => assertionOpaqueNames(checker, samples, operands));
+  return O.map(O.filter(opaque, A.isReadonlyArrayNonEmpty), (names) => {
+    const source = node.getSourceFile();
+    return OpaqueRoundtripFinding.make({
+      file: source.fileName,
+      line: source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1,
+      opaque: names,
+      text: Str.slice(0, 160)(Str.replace(/\s+/g, " ")(node.getText(source))),
+    });
+  });
+};
+
 /**
  * Detect unsafe assertions in compiler sources using the prototype scanner's exact rule.
  *
@@ -142,63 +200,97 @@ export const detectOpaqueRoundtrips =
   (sources: ReadonlyArray<ts.SourceFile>): ReadonlyArray<OpaqueRoundtripFinding> => {
     const checker = program.getTypeChecker();
     const findings = A.empty<OpaqueRoundtripFinding>();
-    for (const source of sources) {
-      const visit = (node: ts.Node, samples: HashSet.HashSet<string>): void => {
-        let scope = samples;
-        if (
-          ts.isCallExpression(node) &&
-          A.some(node.arguments, (argument) => /\bArbitrary\.\w+\(/.test(argument.getText(source)))
-        ) {
-          const collect = (argument: ts.Node): void => {
-            if (ts.isArrowFunction(argument) || ts.isFunctionExpression(argument)) {
-              for (const parameter of argument.parameters) scope = bindingNames(parameter.name, scope);
-            }
-          };
-          for (const argument of node.arguments) {
-            collect(argument);
-            if (ts.isCallExpression(argument)) for (const inner of argument.arguments) collect(inner);
-          }
-        }
-        if (
-          HashSet.size(scope) > 0 &&
-          ts.isCallExpression(node) &&
-          ts.isPropertyAccessExpression(node.expression) &&
-          node.expression.name.text === "toStrictEqual" &&
-          ts.isCallExpression(node.expression.expression) &&
-          ts.isIdentifier(node.expression.expression.expression) &&
-          node.expression.expression.expression.text === "expect"
-        ) {
-          const actual = node.expression.expression.arguments[0];
-          const expected = node.arguments[0];
-          if (
-            actual !== undefined &&
-            expected !== undefined &&
-            rawSample(actual, scope) !== rawSample(expected, scope)
-          ) {
-            const opaque = A.sort(
-              HashSet.fromIterable([
-                ...opaqueNames(checker, checker.getTypeAtLocation(actual)),
-                ...opaqueNames(checker, checker.getTypeAtLocation(expected)),
-              ]),
-              Order.String
-            );
-            if (A.isReadonlyArrayNonEmpty(opaque))
-              findings.push(
-                OpaqueRoundtripFinding.make({
-                  file: source.fileName,
-                  line: source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1,
-                  opaque,
-                  text: Str.slice(0, 160)(Str.replace(/\s+/g, " ")(node.getText(source))),
-                })
-              );
-          }
-        }
-        ts.forEachChild(node, (child) => visit(child, scope));
-      };
-      visit(source, HashSet.empty());
-    }
+    const visit = (node: ts.Node, samples: HashSet.HashSet<string>): void => {
+      const scope = sampleScope(node, samples);
+      O.map(assertionFinding(checker, scope, node), (finding) => findings.push(finding));
+      ts.forEachChild(node, (child) => visit(child, scope));
+    };
+    for (const source of sources) visit(source, HashSet.empty());
     return findings;
   };
+
+const isCandidate = (file: string): boolean => {
+  const text = ts.sys.readFile(file);
+  return (
+    text !== undefined && /effect\/(testing\/)?Arbitrary|FastCheck/.test(text) && Str.includes("toStrictEqual")(text)
+  );
+};
+
+const nearestConfig = (path: Path.Path, root: string, file: string): O.Option<string> => {
+  let dir = path.dirname(file);
+  while (Str.startsWith(root)(dir)) {
+    const config = A.findFirst(
+      A.map(["tsconfig.test.json", "tsconfig.json"], (name) => path.join(dir, name)),
+      ts.sys.fileExists
+    );
+    if (O.isSome(config)) return config;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return O.none();
+};
+
+const groupCandidates = (path: Path.Path, root: string, candidates: ReadonlyArray<string>) => {
+  let groups = HashMap.empty<string, ReadonlyArray<string>>();
+  for (const file of candidates) {
+    O.map(nearestConfig(path, root, file), (config) => {
+      groups = HashMap.set(groups, config, A.append(O.getOrElse(HashMap.get(groups, config), A.empty<string>), file));
+    });
+  }
+  return groups;
+};
+
+const compilerLibraries = (path: Path.Path) => {
+  // ts-morph bundles standard libraries in memory rather than beside ts.sys's compiler path.
+  // Feed those same libraries to the bare host so callback inference remains intact.
+  const libraries = new Project({
+    useInMemoryFileSystem: true,
+    compilerOptions: { target: ts.ScriptTarget.ESNext },
+  });
+  libraries.createSourceFile("library-probe.ts", "export {};");
+  return HashMap.fromIterable(
+    A.map(
+      A.filter(libraries.getProgram().compilerObject.getSourceFiles(), (source) => source.isDeclarationFile),
+      (source) => Tuple.make(path.basename(source.fileName), source.text)
+    )
+  );
+};
+
+const compilerHost = (path: Path.Path, libraryText: HashMap.HashMap<string, string>, options: ts.CompilerOptions) => {
+  const host = { ...ts.createCompilerHost(options), useSourceOfProjectReferenceRedirect: () => true };
+  const readSource = host.getSourceFile;
+  host.getSourceFile = (file, languageVersion, onError, shouldCreateNewSourceFile) => {
+    const library = HashMap.get(libraryText, path.basename(file));
+    return O.isSome(library)
+      ? ts.createSourceFile(file, library.value, languageVersion)
+      : readSource(file, languageVersion, onError, shouldCreateNewSourceFile);
+  };
+  return host;
+};
+
+const configFindings = (
+  path: Path.Path,
+  libraryText: HashMap.HashMap<string, string>,
+  config: string,
+  files: ReadonlyArray<string>
+): ReadonlyArray<OpaqueRoundtripFinding> => {
+  const parsed = ts.getParsedCommandLineOfConfigFile(
+    config,
+    {},
+    { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => undefined }
+  );
+  if (parsed === undefined) return [];
+  const options = { ...parsed.options, noEmit: true };
+  const program = ts.createProgram({
+    rootNames: A.fromIterable(files),
+    options,
+    host: compilerHost(path, libraryText, options),
+    ...(parsed.projectReferences === undefined ? {} : { projectReferences: parsed.projectReferences }),
+  });
+  const sources = A.getSomes(A.map(files, (file) => O.fromUndefinedOr(program.getSourceFile(file))));
+  return detectOpaqueRoundtrips(program)(sources);
+};
 
 const scan = Effect.fn("OpaqueRoundtrips.scan")(function* () {
   const root = yield* findRepoRoot();
@@ -210,79 +302,20 @@ const scan = Effect.fn("OpaqueRoundtrips.scan")(function* () {
   });
   return yield* Effect.try({
     try: () => {
-      const candidates = A.filter(tracked, (file) => {
-        const text = ts.sys.readFile(path.join(root, file));
-        return (
-          text !== undefined &&
-          /effect\/(testing\/)?Arbitrary|FastCheck/.test(text) &&
-          Str.includes("toStrictEqual")(text)
-        );
-      });
-      let groups = HashMap.empty<string, ReadonlyArray<string>>();
-      for (const file of candidates) {
-        let dir = path.dirname(path.join(root, file));
-        while (Str.startsWith(root)(dir)) {
-          const config = A.findFirst(
-            A.map(["tsconfig.test.json", "tsconfig.json"], (name) => path.join(dir, name)),
-            ts.sys.fileExists
-          );
-          if (O.isSome(config)) {
-            groups = HashMap.set(
-              groups,
-              config.value,
-              A.append(O.getOrElse(HashMap.get(groups, config.value), A.empty<string>), path.join(root, file))
-            );
-            break;
-          }
-          const parent = path.dirname(dir);
-          if (parent === dir) break;
-          dir = parent;
-        }
-      }
-      // ts-morph bundles standard libraries in memory rather than beside ts.sys's compiler path.
-      // Feed those same libraries to the bare host so callback inference remains intact.
-      const libraries = new Project({
-        useInMemoryFileSystem: true,
-        compilerOptions: { target: ts.ScriptTarget.ESNext },
-      });
-      libraries.createSourceFile("library-probe.ts", "export {};");
-      const libraryText = HashMap.fromIterable(
-        A.map(
-          A.filter(libraries.getProgram().compilerObject.getSourceFiles(), (source) => source.isDeclarationFile),
-          (source) => Tuple.make(path.basename(source.fileName), source.text)
-        )
+      const candidates = A.filter(
+        A.map(tracked, (file) => path.join(root, file)),
+        isCandidate
       );
-      const findings = A.empty<OpaqueRoundtripFinding>();
-      for (const [config, files] of groups) {
-        const parsed = ts.getParsedCommandLineOfConfigFile(
-          config,
-          {},
-          { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => undefined }
-        );
-        if (parsed === undefined) continue;
-        const options = { ...parsed.options, noEmit: true };
-        const host = { ...ts.createCompilerHost(options), useSourceOfProjectReferenceRedirect: () => true };
-        const readSource = host.getSourceFile;
-        host.getSourceFile = (file, languageVersion, onError, shouldCreateNewSourceFile) => {
-          const library = HashMap.get(libraryText, path.basename(file));
-          return O.isSome(library)
-            ? ts.createSourceFile(file, library.value, languageVersion)
-            : readSource(file, languageVersion, onError, shouldCreateNewSourceFile);
-        };
-        const program = ts.createProgram({
-          rootNames: A.fromIterable(files),
-          options,
-          host,
-          ...(parsed.projectReferences === undefined ? {} : { projectReferences: parsed.projectReferences }),
-        });
-        const sources = A.getSomes(A.map(files, (file) => O.fromUndefinedOr(program.getSourceFile(file))));
-        findings.push(
-          ...A.map(detectOpaqueRoundtrips(program)(sources), (finding) =>
-            OpaqueRoundtripFinding.make({ ...finding, file: path.relative(root, finding.file) })
-          )
-        );
-      }
-      return { findings, candidates: candidates.length };
+      const libraryText = compilerLibraries(path);
+      const findings = A.flatMap(A.fromIterable(groupCandidates(path, root, candidates)), ([config, files]) =>
+        configFindings(path, libraryText, config, files)
+      );
+      return {
+        findings: A.map(findings, (finding) =>
+          OpaqueRoundtripFinding.make({ ...finding, file: path.relative(root, finding.file) })
+        ),
+        candidates: candidates.length,
+      };
     },
     catch: failure("Unable to inspect Opaque roundtrip assertions"),
   });
