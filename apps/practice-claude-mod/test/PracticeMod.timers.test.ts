@@ -14,6 +14,9 @@ import { ModHost } from "@/PracticeMod.host";
 import { TimerLog, timerLogLayer } from "@/PracticeMod.timers";
 import { ChosenMatter, TimerInterval } from "@/PracticeMod.values";
 
+const decodeTimerIntervals = S.decodeUnknownEffect(S.Array(TimerInterval));
+const decodeTimerIntervalLine = S.decodeEffect(S.fromJsonString(TimerInterval));
+
 // What the fake host stored and wrote, so a test can seed and inspect it.
 class FakeHostState extends Context.Service<
   FakeHostState,
@@ -65,9 +68,7 @@ describe("TimerLog", () => {
             stoppedAt: DateTime.makeUnsafe(180_000),
           })
         );
-        const rows = yield* S.decodeUnknownEffect(S.Array(TimerInterval))(
-          pipe(MutableHashMap.get(store, "timer-intervals"), O.getOrUndefined)
-        );
+        const rows = yield* decodeTimerIntervals(pipe(MutableHashMap.get(store, "timer-intervals"), O.getOrUndefined));
         expect(rows.length).toBe(2);
         assertSome(
           O.map(A.head(rows), (row) => row.sessionId),
@@ -75,9 +76,7 @@ describe("TimerLog", () => {
         );
         assertNone(O.flatMap(A.last(rows), (row) => row.matter));
         const jsonl = yield* log.exportJsonl;
-        const decoded = yield* Effect.forEach(jsonl.trim().split("\n"), (line) =>
-          S.decodeEffect(S.fromJsonString(TimerInterval))(line)
-        );
+        const decoded = yield* Effect.forEach(jsonl.trim().split("\n"), (line) => decodeTimerIntervalLine(line));
         expect(decoded).toEqual(rows);
       })
     );

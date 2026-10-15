@@ -8,13 +8,13 @@
     "capturedCount": 1,
     "capturedAt": "2026-10-14",
     "captureMethod": "signed-in-csv-export",
-    "note": "Current-base validation confirmed a C2 report assembly regression; the Security Cloud analysis found no supported attacker route."
+    "note": "PR #1787 merged at cb37212785; the exact captured Cloud finding was then marked Fixed. A distinct later finding has its own packet."
   },
   "lanes": {
     "c2-report-seal": {
       "ownerArea": "@beep/semantica C2 canary report assembly",
       "findingIds": ["CSF-001"],
-      "status": "implemented-awaiting-hosted-proof"
+      "status": "implemented"
     }
   },
   "findings": [
@@ -23,7 +23,7 @@
       "codexId": "commit:f903af80f27c819196b1f0ae0b0e8fdc",
       "title": "C2 report constructor validates the placeholder digest too early",
       "severity": "Informational",
-      "codexStatus": "New",
+      "codexStatus": "Fixed",
       "commit": "c9ca52c87e1bdeb8ed8e32c64e01dd41d107cab6",
       "disposition": "remediate",
       "validation": {
@@ -31,7 +31,7 @@
         "rationale": "Current CanaryC2Live constructs C2EvalReport with a zero placeholder although its schema checks the exact body digest. The source commit is an ancestor of HEAD; the Cloud report identifies a functional regression without an established security exploit."
       },
       "remediation": {
-        "status": "implemented-awaiting-hosted-proof",
+        "status": "implemented",
         "changedFiles": [
           "apps/labs/semantica/src/layers/CanaryC2Live.ts",
           "apps/labs/semantica/test/CanaryC2Report.test.ts",
@@ -46,7 +46,8 @@
           "bun run beep lint schema-first",
           "bun run beep quality package-verify @beep/semantica --quick",
           "bun run beep observability catalog --check"
-        ]
+        ],
+        "summary": "C2 report sealing merged in PR #1787 at cb37212785; Security Cloud shows the exact source-qualified finding Fixed."
       },
       "ownerArea": "@beep/semantica C2 canary report assembly",
       "lane": "c2-report-seal"

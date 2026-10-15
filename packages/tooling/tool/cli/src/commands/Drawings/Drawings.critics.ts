@@ -105,7 +105,7 @@ const SCRUBBED_ENV = HashSet.fromIterable([
  * @since 0.0.0
  */
 export const CRITIC_HARD_RULES =
-  "Hard rules for this run: read only; do not create, modify or delete any file; do not run git; do not browse the web unless a rule citation needs checking. Your final message must be the JSON document itself: no prose, no fences.";
+  "Hard rules for this run: read only; do not create, modify or delete any file; do not run git or browse the web. Your final message must be the JSON document itself: no prose, no fences.";
 
 // ---------------------------------------------------------------------------
 // Pure helpers (exported for tests)
@@ -372,6 +372,8 @@ export const priorIdsMarkdown = (reports: ReadonlyArray<CriticReport>): string =
     "",
   ].join("\n");
 
+const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
+
 /**
  * Pull the report JSON out of what a route returned.
  *
@@ -402,7 +404,6 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     const end = text.lastIndexOf("}");
     return start >= 0 && end > start ? O.some(text.slice(start, end + 1)) : O.none();
   };
-  const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
   const field = (value: unknown, key: string): O.Option<unknown> =>
     typeof value === "object" && value !== null && key in value
       ? O.fromNullishOr((value as Record<string, unknown>)[key])
@@ -524,7 +525,26 @@ export const criticInvocation = (input: {
           "--effort",
           effort,
           "--permission-mode",
-          "bypassPermissions",
+          "dontAsk",
+          "--allow",
+          "Read",
+          "--allow",
+          "Grep",
+          "--deny",
+          "Bash",
+          "--deny",
+          "Edit",
+          "--deny",
+          "MCPTool",
+          "--deny",
+          "WebFetch",
+          "--deny",
+          "WebSearch",
+          "--disable-web-search",
+          "--no-subagents",
+          "--no-memory",
+          "--sandbox",
+          "strict",
           "--cwd",
           cwd,
           "--max-turns",
@@ -554,7 +574,12 @@ export const criticInvocation = (input: {
           "--max-turns",
           "150",
           "--permission-mode",
-          "bypassPermissions",
+          "dontAsk",
+          "--permission-prompts",
+          "none",
+          "--restricted",
+          "--tools",
+          "Read",
           "--strict-mcp-config",
           "--mcp-config",
           '{"mcpServers":{}}',
@@ -865,7 +890,7 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
             Match.when(
               "claude",
               () =>
-                "Use the Read tool to view the PNG and JPG images (it renders images) and to read the text files; use Bash only for read-only measurement (python3 -I, pdfinfo, pdffonts, qpdf --check, ls). The SVGs and render/RENDER.md carry the shading geometry as numbers."
+                "Use the Read tool to view the PNG and JPG images and the text files. The SVGs and render/RENDER.md carry the shading geometry as numbers."
             ),
             Match.when(
               "cursor",
