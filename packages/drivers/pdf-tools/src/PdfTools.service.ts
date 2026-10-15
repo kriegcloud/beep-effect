@@ -204,7 +204,7 @@ export interface PdfToolsShape {
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
   stream.pipe(
     Stream.decodeText(),
-    Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
+    Stream.runFold(thunkEmptyStr, (acc: string, chunk) => `${acc}${chunk}`)
   );
 
 const makeService = Effect.fn("PdfTools.makeService")(function* (config: PdfToolsConfig) {

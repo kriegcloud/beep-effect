@@ -9,6 +9,7 @@ import { cast, dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import { unsafeDotGet } from "./internal/StructPath.ts";
+import { thunk0, thunkEmptyStr, thunkFalse, thunkTrue } from "./thunk.ts";
 import type { Get, Paths, Simplify } from "type-fest";
 import type { PathInput } from "./internal/StructPath.ts";
 
@@ -19,6 +20,74 @@ type GetSomesStruct<Self extends OptionStruct> = Simplify<
     [K in keyof Self & string]: O.Option.Value<Self[K]>;
   }>
 >;
+
+/**
+ * Unwraps an Option, returning the literal `false` when it is None.
+ *
+ * **Example** (Default a missing value to false)
+ *
+ * ```ts import.meta.vitest name="Default a missing value to false"
+ * import * as O from "@beep/utils/Option"
+ *
+ * O.getOrElseFalse(O.none()) // => false
+ * O.getOrElseFalse(O.some("present")) // => "present"
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
+export const getOrElseFalse = <A>(self: O.Option<A>): A | false => O.getOrElse(self, thunkFalse);
+
+/**
+ * Unwraps an Option, returning the literal `true` when it is None.
+ *
+ * **Example** (Default a missing value to true)
+ *
+ * ```ts import.meta.vitest name="Default a missing value to true"
+ * import * as O from "@beep/utils/Option"
+ *
+ * O.getOrElseTrue(O.none()) // => true
+ * O.getOrElseTrue(O.some("present")) // => "present"
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
+export const getOrElseTrue = <A>(self: O.Option<A>): A | true => O.getOrElse(self, thunkTrue);
+
+/**
+ * Unwraps an Option, returning the literal `0` when it is None.
+ *
+ * **Example** (Default a missing value to zero)
+ *
+ * ```ts import.meta.vitest name="Default a missing value to zero"
+ * import * as O from "@beep/utils/Option"
+ *
+ * O.getOrElse0(O.none()) // => 0
+ * O.getOrElse0(O.some("present")) // => "present"
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
+export const getOrElse0 = <A>(self: O.Option<A>): A | 0 => O.getOrElse(self, thunk0);
+
+/**
+ * Unwraps an Option, returning the literal empty string when it is None.
+ *
+ * **Example** (Default a missing value to an empty string)
+ *
+ * ```ts import.meta.vitest name="Default a missing value to an empty string"
+ * import * as O from "@beep/utils/Option"
+ *
+ * O.getOrElseEmptyStr(O.none()) // => ""
+ * O.getOrElseEmptyStr(O.some(42)) // => 42
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
+export const getOrElseEmptyStr = <A>(self: O.Option<A>): A | "" => O.getOrElse(self, thunkEmptyStr);
 
 /**
  * Retrieves a value from a struct by path and converts missing or nullish

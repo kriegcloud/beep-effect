@@ -95,7 +95,7 @@ const defaultConfig = (input?: ExiftoolConfigInputOptions | undefined): Exiftool
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
   stream.pipe(
     Stream.decodeText(),
-    Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
+    Stream.runFold(thunkEmptyStr, (acc: string, chunk) => `${acc}${chunk}`)
   );
 
 // shared driver boundary idiom; no in-family home; future foundation capability candidate.
