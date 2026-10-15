@@ -55,6 +55,7 @@ import * as Stream from "effect/Stream";
 // `fileURLToPath`, not `URL.pathname`: the latter is percent-encoded, so a
 // checkout path containing a space or `#` would yield an unspawnable writer path.
 const repoRoot = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
+const decodeHookPulseRefusalJson = S.decodeEffect(S.fromJsonString(HookPulseRefusal));
 const writerPath = `${repoRoot}.claude/hooks/hook-pulse.sh`;
 const codexWriterPath = `${repoRoot}.codex/hooks/hook-pulse.sh`;
 // The Cursor adapter renames camelCase events into the ledger vocabulary, tags rows
@@ -714,7 +715,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       const run = yield* runWriter(yield* encodeJson(preToolUsePayload), { agentKind: "other" });
       expectSilentRefusal(run);
       expect(run.refusals).toHaveLength(1);
-      const refusal = yield* S.decodeEffect(S.fromJsonString(HookPulseRefusal))(
+      const refusal = yield* decodeHookPulseRefusalJson(
         pipe(A.head(run.refusals), O.getOrThrow)
       );
       expect(refusal.agentKind).toBe("unknown");
@@ -1140,7 +1141,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       const refusal = yield* pipe(
         A.head(run.refusals),
         O.getOrThrow,
-        S.decodeEffect(S.fromJsonString(HookPulseRefusal))
+        decodeHookPulseRefusalJson
       );
       expect(refusal.reason).toBe("timeout");
     })
@@ -1339,12 +1340,12 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
     Effect.gen(function* () {
       const invalid = yield* runWriter("", { writerArgs: ["--refuse", "timeout"], attemptUtc: "2026-02-30T00:00:00Z" });
       expect(invalid.refusals).toHaveLength(1);
-      const row = yield* S.decodeEffect(S.fromJsonString(HookPulseRefusal))(A.getUnsafe(invalid.refusals, 0));
+      const row = yield* decodeHookPulseRefusalJson(A.getUnsafe(invalid.refusals, 0));
       expect(DateTime.formatIso(row.ts)).not.toBe("2026-03-02T00:00:00.000Z");
       const valid = yield* runWriter("", { writerArgs: ["--refuse", "timeout"], attemptUtc: "2026-08-01T23:59:59Z" });
       expect(valid.refusalFiles).toEqual(["hook-pulse-refusals-2026-08-01.ndjson"]);
       expect(valid.refusals).toHaveLength(1);
-      const validRow = yield* S.decodeEffect(S.fromJsonString(HookPulseRefusal))(A.getUnsafe(valid.refusals, 0));
+      const validRow = yield* decodeHookPulseRefusalJson(A.getUnsafe(valid.refusals, 0));
       expect(DateTime.formatIso(validRow.ts)).toBe("2026-08-01T23:59:59.000Z");
     })
   );
@@ -1490,7 +1491,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
 
       expectSilentRefusal(run);
       expect(run.refusals).toHaveLength(1);
-      const refusal = yield* S.decodeEffect(S.fromJsonString(HookPulseRefusal))(
+      const refusal = yield* decodeHookPulseRefusalJson(
         pipe(A.head(run.refusals), O.getOrThrow)
       );
       expect(refusal.reason).toBe("disabled");

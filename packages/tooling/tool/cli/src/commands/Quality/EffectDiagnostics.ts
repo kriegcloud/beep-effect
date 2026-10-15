@@ -56,6 +56,10 @@ class EffectDiagnosticsProfile extends S.Opaque<EffectDiagnosticsProfile, { read
   )
 ) {}
 
+const decodeEffectDiagnosticsProfileJson = S.decodeEffect(S.fromJsonString(EffectDiagnosticsProfile), {
+  onExcessProperty: "error",
+});
+
 /**
  * Read the checked-in rules that only the standalone diagnostics compiler knows.
  *
@@ -76,7 +80,7 @@ export const readEffectDiagnosticsProfile = Effect.fn("EffectDiagnostics.readPro
   const path = yield* Path.Path;
   return yield* fs.readFileString(path.join(repoRoot, effectDiagnosticsProfilePath)).pipe(
     Effect.flatMap((text) =>
-      S.decodeEffect(S.fromJsonString(EffectDiagnosticsProfile), { onExcessProperty: "error" })(text)
+      decodeEffectDiagnosticsProfileJson(text)
     ),
     QualityScriptCommandError.mapError("Invalid standalone Effect diagnostics profile.")
   );

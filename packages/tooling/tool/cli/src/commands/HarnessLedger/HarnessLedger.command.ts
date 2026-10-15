@@ -52,6 +52,7 @@ import type { HarnessLedgerRow } from "@beep/repo-ai-metrics";
 import type { HarnessLedgerCommandError } from "./HarnessLedger.errors.ts";
 
 const encodeListJson = S.encodeUnknownEffect(S.toCodecJson(S.Array(HarnessLedgerListEntry)));
+const encodeReconciliationJson = S.encodeUnknownEffect(S.toCodecJson(HarnessTelemetryReconciliation));
 const encodePruneJson = S.encodeUnknownEffect(S.toCodecJson(HarnessLedgerPruneReport));
 const decodeMonth = S.decodeUnknownEffect(HarnessLedgerMonth);
 const decodeDispositionOptions = S.decodeEffect(HarnessLedgerDispositionOptions);
@@ -628,7 +629,7 @@ export const harnessLedgerReconcileCommand = Command.make(
       );
       const ledger = yield* HarnessLedgerService;
       const report = yield* ledger.reconcile(input.stateDir, input.transcriptDir, kind);
-      const encoded = yield* S.encodeUnknownEffect(S.toCodecJson(HarnessTelemetryReconciliation))(report).pipe(
+      const encoded = yield* encodeReconciliationJson(report).pipe(
         Effect.mapError(HarnessLedgerIoError.wrap("Cannot encode reconciliation."))
       );
       yield* printCommandJson(encoded);

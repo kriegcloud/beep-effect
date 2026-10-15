@@ -127,6 +127,8 @@ import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import { TestClock } from "effect/testing";
 
+const encodeHookPulseRefusalJson = S.encodeEffect(S.fromJsonString(HookPulseRefusal));
+const decodeForwarderRunResultJson = S.decodeEffect(S.fromJsonString(AiMetricsForwarderRunResult));
 const ForwarderStampScenario = LiteralKit([
   "qualified",
   "mixed-refusal",
@@ -742,7 +744,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
         if (A.contains(["refused", "trailing-refusal", "closed-before-refusal"], scenario))
           yield* writeText(
             path.join(hookRoot, "hook-pulse-refusals-fixture.ndjson"),
-            yield* S.encodeEffect(S.fromJsonString(HookPulseRefusal))(
+            yield* encodeHookPulseRefusalJson(
               HookPulseRefusal.make({
                 ts: DateTime.makeUnsafe(scenario === "refused" ? "2026-10-09T10:00:30Z" : "2026-10-09T10:02:00Z"),
                 agentKind: "codex-cli",
@@ -877,7 +879,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
               rawArchiveKey: Redacted.make(Base64.encode(new Uint8Array(32).fill(7))),
             })
           );
-          const status = yield* S.decodeEffect(S.fromJsonString(AiMetricsForwarderRunResult))(
+          const status = yield* decodeForwarderRunResultJson(
             yield* forwarderRunResultToJson(result)
           );
           assertScenarioCollection(scenario, result, status);
