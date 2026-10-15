@@ -1685,3 +1685,18 @@ package check, test-tsgo, local docgen, oxlint and scoped coverage. Keep final
 publication blocked on the three native drifts, and require the remaining
 exact-head gates before the single push. Reversal: revert this integration
 wave; preserve historical proof and all native files.
+
+
+### RSC-F-OPERATOR-DRIFT (2026-10-15): publish accepted checkpoint
+
+Decision: apply the driver's 09:45Z ruling to #1797. Grok effort, Claude
+model alias and the shell lightweight route are operator-owned workstation
+items; record each ModelsApply dry-run preview in the handoff and PR body,
+write none of those files, and keep their hashes observed-only alongside
+Desktop configuration. Zero drift applies to F-owned fields. Reason: native
+operator state does not block the accepted source checkpoint 195e7befa5.
+Publish once after install, touched-package check and changed-file oxlint;
+start no readiness monitor. The driver owns the independent final panel.
+Reversal: restore the former collector boundary and recapture, or recapture
+after operator reconciliation; revert the evidence commit for repository state.
+No new home backup or native rollback is needed because no home file is written.

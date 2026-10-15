@@ -1,4 +1,63 @@
 lane: rsc-f-agents
+head: 195e7befa543cce74a5897ea9d31ab6a59c0eeda (accepted source checkpoint; delivery is this evidence-only descendant)   PR: #1797
+package-verify: @beep/repo-cli: pass at 98fcf60164 (audit 1294.0s, docgen 43.2s); integrated touched-package check pass (47/47 tasks), repeated for publication
+hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> fail(inherited Palantiri TS377047) | pass | fail(inherited Palantiri/review-hub docs) | pass | pass | pass (155 tests; all four existing floors exceeded); exact proof revisions retained in stage-5-f-shards-verification.json
+config fingerprint (final): 10995161e4cb8ae1897e217edf09550d2b1a76013f8aa38d5b57479a5d9afbe8 (353 equality inputs, 4 observed-only)   backups: no new home writes; retained names below
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: three OPERATOR model drifts; incomplete 30-session windows; four F-owned H3 measured gates; driver-owned independent panel, hosted checks, merge and retirement
+
+Publication authorized by the 2026-10-15 09:45Z ruling, which accepts checkpoint
+195e7befa5 and supersedes the earlier native-drift publication hold. Fetch
+confirms origin/main remains 94f1b6adbf; merge reports already up to date.
+Dependencies installed successfully. Both sharded catalog owners already ran
+on this same integrated main; no monolithic catalog is restored. The repeated
+touched-package check passes 47/47 tasks. Oxlint reports 19 inherited findings,
+zero in changed files; each finding source is byte-identical to origin/main.
+No additional full audit is claimed for the evidence-only descendant.
+
+OPERATOR items (ModelsApply dry-run only; no native file written):
+
+- `~/.grok/config.toml`: effort `xhigh` versus `medium`; preview
+  `[toml-table-key] change=true expected=medium`. Model preview is unchanged,
+  `change=false expected=grok-4.7`.
+- `~/.claude/settings.json`: model `fable` versus `claude-fable-5-1`; preview
+  `[json-key] change=true expected=claude-fable-5-1`. Effort preview is
+  unchanged, `change=false expected=medium`.
+- `~/.zshrc`: lightweight route `gpt-6-luna, venice/claude-haiku-5-5` versus
+  `gpt-6-luna`; preview `[shell-assign] change=true expected=gpt-6-luna`.
+  Codex, Grok, Claude and Muse route previews all show `change=false`.
+
+Each dry-run exits 0 and prints `no file written`. The ruling defines zero
+drift over F-owned fields; these workstation files remain operator-owned.
+The fingerprint collector now records all three entire files as observed-only,
+along with `~/.config/Claude/claude_desktop_config.json`. All remaining owned
+inputs stay in equality. Immediate equality and both controls pass: observed-only
+hash changes are accepted; owned-input changes are rejected. Recapture on the
+pushed head is required before the final marker. A dated capture does not claim
+stability of native files changed by other writers.
+
+S31 inventory diff: base 94f1b6adbfef94b4c37c19a93232b1bd3bd19f9e;
+15 files compared; 0 changed files; 0 added rows; 0 removed rows.
+Regenerated schema/instrumentation catalog shards are excluded.
+
+Review fixes are in 90b8c39b5a3324753554d5cc140bcc99a4198be9:
+4277729082 gets explicit permission-cleanup previews for pending removal and
+already-absent states; 4277729090 stages skill temp files at mode 0600 before
+preserving an existing mode. REST replies will name this commit after the one
+push; both threads will be resolved and all threads re-read. A failed read
+remains unknown. No readiness monitor is started. The driver owns the panel
+and merge gate; the lane does not merge or retire itself.
+
+Retained backups: models-2026-10-14T222221002Z-16103436.backup,
+rsc-f-pre-rollback-20261014T222520875693Z.backup,
+models-2026-10-14T222525456Z-12665845.backup. No new native rollback is claimed.
+Repository reversal is revert of the F PR; rollback of native state remains
+journal-based and must refuse later drift. Plugin-owned `.impeccable/live/`
+residue is preserved. Graft saved approximately 8,622 tokens in one call.
+
+## Earlier checkpoints (historical; superseded by publication ruling above)
+
+lane: rsc-f-agents
 head: 0233b60f67cbc8f48ab82c9bc818ffef9f4f7c7d (integrated verification revision; report commit is an evidence-only descendant)   PR: #1797
 package-verify: @beep/repo-cli: pass at 98fcf60164 (audit 1294.0s, docgen 43.2s); full proof on newer integrated head remains required before publication
 hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> fail(inherited Palantiri TS377047) | pass at 0233b60f67 | fail(inherited Palantiri/review-hub docs at 98fcf60164) | pass at 98fcf60164 | pass at 98fcf60164 | pass at 0233b60f67 (155 tests; all four existing floors exceeded)

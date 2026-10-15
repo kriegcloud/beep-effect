@@ -2,7 +2,8 @@
 
 The native Claude registry includes a continuously written pluginUsage counter.
 Only that observed runtime counter is excluded from its canonical JSON hash.
-Claude Desktop app-written native configuration is recorded in observedOnly,
+Claude Desktop app-written native configuration and the three operator-owned
+model-drift files are recorded in observedOnly per the 2026-10-15 ruling,
 never in the panel equality set. All other fields, including unknown fields,
 remain covered. rawSha256 retains
 the capture byte identity without making a usage update a config mutation.
@@ -11,7 +12,7 @@ import hashlib,json,datetime,argparse,sys
 from pathlib import Path
 H=Path.home();R=Path.cwd()
 native=['.codex/config.toml','.codex/AGENTS.md','.claude/settings.json','.claude/CLAUDE.md','.claude/memory/beep-effect/MEMORY.md','.grok/config.toml','.junie/settings.json','.junie/AGENTS.md','.junie/mcp/mcp.json','.cursor/cli-config.json','.cursor/mcp.json','.config/JetBrains/Air/.codex/config.toml','.config/beep/models.yaml','.zshrc','.claude.json','.claude/plugins/installed_plugins.json','.config/Claude/claude_desktop_config.json','.kiro/settings/mcp.json','.copilot/mcp-config.json','.gemini/settings.json','.config/opencode/opencode.json']
-observed_only={'~/.config/Claude/claude_desktop_config.json'}
+observed_only={'~/.config/Claude/claude_desktop_config.json','~/.grok/config.toml','~/.claude/settings.json','~/.zshrc'}
 rows=[]
 observed_rows=[]
 def add(p,label):
