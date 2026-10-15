@@ -2157,7 +2157,9 @@
       ],
       "@beep/law-practice-use-cases/ReviewItemStore": [
         "./packages/law-practice/use-cases/src/ReviewItemStore/index.ts"
-      ]
+      ],
+      "@beep/palantiri": ["./packages/tooling/library/palantiri/src/index.ts"],
+      "@beep/palantiri/*": ["./packages/tooling/library/palantiri/src/*"]
     }
   }
 }

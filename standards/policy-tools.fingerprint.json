@@ -78,6 +78,8 @@
     "packages/tooling/library/ai-metrics/src/**",
     "packages/tooling/library/ai-sync/package.json",
     "packages/tooling/library/ai-sync/src/**",
+    "packages/tooling/library/palantiri/package.json",
+    "packages/tooling/library/palantiri/src/**",
     "packages/tooling/library/qa-capture/package.json",
     "packages/tooling/library/qa-capture/src/**",
     "packages/tooling/library/repo-utils/package.json",
