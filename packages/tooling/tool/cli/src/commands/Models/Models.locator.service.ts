@@ -22,6 +22,7 @@ import * as Match from "effect/Match";
 import * as Regex from "effect/RegExp";
 import * as Tuple from "effect/Tuple";
 import { XMLParser } from "fast-xml-parser";
+import { SyntaxValidator } from "fast-xml-validator";
 import { getNodeValue } from "jsonc-parser";
 import { isMap, isScalar as isYamlScalar, parseDocument, visit } from "yaml";
 import { ModelsLocatorError } from "./Models.errors.ts";
@@ -374,8 +375,9 @@ const readXmlAttribute = Effect.fnUntraced(function* (
   const ranges = xmlOccurrenceRanges(file.content, tag, matchAttribute, attribute);
   const unsupported = unsupportedOccurrence(file.content, names, ranges, "XML");
   if (O.isSome(unsupported)) return unsupported;
+  if (SyntaxValidator.validate(file.content) !== true) return O.some("Unsupported XML form: line 1");
   const parsed = yield* Effect.try({
-    try: () => xmlParser.parse(file.content, true) as unknown,
+    try: () => xmlParser.parse(file.content) as unknown,
     catch: () => ModelsLocatorError.make({ message: "Unsupported XML form: line 1", path: file.absolutePath }),
   }).pipe(Effect.option);
   if (O.isNone(parsed)) return O.some("Unsupported XML form: line 1");

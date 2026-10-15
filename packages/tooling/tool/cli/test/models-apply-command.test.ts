@@ -233,8 +233,14 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         ],
         [
           "fallback.json",
-          { _tag: "json-key", pointer: ["primary"], fallbacks: [["model"]], binding, render },
-          '{"model":"gpt-6.1-sol"}',
+          {
+            _tag: "json-key",
+            pointer: ["modelSettings", "gpt-6.1-sol", "effortLevel"],
+            fallbacks: [["effortLevel"]],
+            binding: LocatorBinding.make({ ...binding, field: "effort" }),
+            render,
+          },
+          '{"effortLevel":"medium"}',
         ],
       ] satisfies ReadonlyArray<readonly [string, Locator, string]>) {
         const file = path.join(home, name);
@@ -367,6 +373,15 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
           yield* Effect.flip(run(["check", ...flags, "--offline", "--json"]));
           expect(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow)).toContain('"hasDrift": true');
           yield* Effect.flip(run(["apply", ...flags, "--check"]));
+          if (name === "quoted-trap.toml")
+            expect(
+              A.last(
+                A.filter(
+                  yield* TestConsole.logLines,
+                  (line) => P.isString(line) && Str.startsWith("models: preview synthetic.parsed")(line)
+                )
+              ).pipe(O.getOrThrow)
+            ).toBe("models: preview synthetic.parsed [toml-top-level-key] change=true expected=gpt-6.1-sol");
         }
         expect(yield* fs.readFileString(file)).toBe(content);
         expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
