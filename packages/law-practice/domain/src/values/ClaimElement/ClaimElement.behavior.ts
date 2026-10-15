@@ -555,7 +555,7 @@ const decodeTree = S.decodeEffect(ClaimElementTree);
  * console.log(A.map(tree.edges, ({ kind }) => kind)) // ["part-of", "part-of", "antecedent"]
  * ```
  *
- * @category behavior
+ * @category domain-logic
  * @since 0.0.0
  */
 export const decomposeClaim: ClaimElementDecomposer = Effect.fn("ClaimElement.decomposeClaim")(function* ({
