@@ -40,8 +40,8 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Contract. P0 is complete; its design and as-built notes are in
-[`research/P0-SCHEMA.md`](./research/P0-SCHEMA.md).
+P2 Implementation. The P0 schema (#1801) and the P1 contract
+([`research/P1-CONTRACT.md`](./research/P1-CONTRACT.md)) are complete.
 
 ## Latest Evidence
 
@@ -51,6 +51,9 @@ P1 Contract. P0 is complete; its design and as-built notes are in
 - 2026-10-14 P0: `question` ReviewItem, `values/Question` (options 2-5 with unique ids, optional
   `calendar-date` write, facts) and `values/AnswerRow` (four states) in `@beep/law-practice-domain`;
   `test/QuestionLoop.test.ts` (9 tests); package-verify passes for domain and use-cases.
+- 2026-10-14 P1: the `QuestionQueue` and `QuestionWrites` contracts (schemas, errors, the
+  `AnswerLog` and `QuestionCalendar` ports, and service shapes) in `@beep/law-practice-use-cases`;
+  `test/QuestionLoop.contract.test.ts` (9 tests).
 
 ## Notes
 

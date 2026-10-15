@@ -55,7 +55,7 @@
     {
       "id": "P1",
       "name": "Contract",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
@@ -98,5 +98,5 @@
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "P0 schema complete 2026-10-14 (question ReviewItem, AnswerRow, Question values); P1 contract next."
+  "statusNote": "P0 schema (#1801) and P1 contract complete 2026-10-14 (QuestionQueue, QuestionWrites, AnswerLog and QuestionCalendar ports); P2 implementation next."
 }

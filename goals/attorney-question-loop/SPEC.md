@@ -84,7 +84,7 @@ Higher sources outrank lower sources when they conflict.
   - `AnswerRow` decodes all four states and enforces the state fields: `decided` requires an
     `optionId`, and `pending-on-client` requires `resurfaceOn`.
   - Round-trip tests pass.
-- [ ] **P1 contract.** `QuestionQueue` and the write-proposal batch are `Context.Service` contracts
+- [x] **P1 contract.** `QuestionQueue` and the write-proposal batch are `Context.Service` contracts
   with typed errors. The answer log is a port.
 - [ ] **P2 implementation.** The first vertical slice (exploration MAP, re-entry section) passes in
   tests:
@@ -145,6 +145,8 @@ Seeded from [`explorations/attorney-review-workspace/DECISIONS.md`](../../explor
 | 2026-10-14 | P0 dates encode as ISO `YYYY-MM-DD` via `LocalDateFromString` plus a day-in-month check (`src/internal/CalendarDate.ts`). | The format docket-intake already uses; the bare `LocalDate` class encodes as an object and accepts February 31. | Use the bare `LocalDate` class. |
 | 2026-10-14 | P0 `OptionWrite` has one kind, `calendar-date` (`title`, `dueOn`, optional `eventId`), as a `LiteralKit` tagged union. | Calendar dates are the only writes answers drove on 2026-10-14; the union leaves room for docket writes. | Add kinds to `OptionWriteKind`. |
 | 2026-10-14 | P0 `AnswerRow` has no `batchId` and no lock; the current answer is the latest `recordedAt`, then append order. | An answer can always be revised by a later row; sittings and locks belong to verdicts. | Add a batch and lock as on `VerdictRow`. |
+| 2026-10-14 | P1 `QuestionWrites.propose` returns a plain list of `ProposedWrite`s; the caller forms the `ProposedWriteBatch` (with its id) before `apply`. | A pure function has no source for batch ids. | Make `propose` effectful and mint the batch id. |
+| 2026-10-14 | P1 adds a `QuestionCalendar` port (`upsert` by key `question:<itemId>:<optionId>`, `restore`) instead of reusing `DocketCalendar`. | `DocketCalendar` only creates and looks up; options can name an event to update, and undo needs the prior state. | Extend `DocketCalendar` with update and restore. |
 
 ## Exception Ledger
 

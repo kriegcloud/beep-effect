@@ -1950,5 +1950,11 @@
   ],
   "@beep/law-practice-domain/values/Question": [
     "./packages/law-practice/domain/src/values/Question/index.ts"
+  ],
+  "@beep/law-practice-use-cases/QuestionQueue": [
+    "./packages/law-practice/use-cases/src/QuestionQueue/index.ts"
+  ],
+  "@beep/law-practice-use-cases/QuestionWrites": [
+    "./packages/law-practice/use-cases/src/QuestionWrites/index.ts"
   ]
 }

@@ -33730,6 +33730,114 @@
       "owner": "@beep/law-practice-use-cases"
     },
     {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.errors.ts",
+      "symbol": "AnswerLogError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "AnswerLogError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.errors.ts",
+      "symbol": "AnswerLogOperation",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "AnswerLogOperation",
+      "description": "Answer-log store operation that failed: reading the rows or appending one."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.errors.ts",
+      "symbol": "QuestionNotFoundError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "QuestionNotFoundError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.errors.ts",
+      "symbol": "UnknownQuestionOptionError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "UnknownQuestionOptionError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.schemas.ts",
+      "symbol": "DigestSelection",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DigestSelection",
+      "description": "The question items the daily digest is drawn from, and the day it is drawn for."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.schemas.ts",
+      "symbol": "RecordAnswerInput",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "RecordAnswerInput",
+      "description": "The attorney's answer to one question, before the queue assigns its revision and timestamp."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.errors.ts",
+      "symbol": "QuestionWriteError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "QuestionWriteError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.errors.ts",
+      "symbol": "QuestionWriteReason",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "QuestionWriteReason",
+      "description": "Why a question write or its undo failed: calendar unavailable, event not found, or restore failed."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "AppliedWrite",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "AppliedWrite",
+      "description": "One proposed write as applied, with the event it touched and its prior state for undo."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "AppliedWriteBatch",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "AppliedWriteBatch",
+      "description": "An approved write batch as applied, the journal entry its undo reads."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "CalendarPrior",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "CalendarPrior",
+      "description": "A calendar event as it was before a question write updated it, enough to restore it."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "OperatorApproval",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "OperatorApproval",
+      "description": "The operator's approval of one proposed write batch."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "ProposedWrite",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ProposedWrite",
+      "description": "One write a decided answer implies, waiting for the operator's approval."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "ProposedWriteBatch",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ProposedWriteBatch",
+      "description": "The proposed writes the operator approves or declines as one batch."
+    },
+    {
       "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
       "symbol": "VerdictBatchEmptyError",
       "kind": "tagged-error",
