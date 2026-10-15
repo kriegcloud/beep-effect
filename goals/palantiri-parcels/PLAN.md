@@ -56,7 +56,7 @@ Before marking the packet closed:
   is set.
 - Catalog: `Parcels.read` span (`beep.parcel`, `beep.parcel_freshness`) and
   `beep.accounts.window_remaining` gauge (`%`, `beep.provider`,
-  `beep.window`), regenerated with `beep observability catalog --write`.
+  `beep.window`, `beep.window_scope`), regenerated with `beep observability catalog --write`.
 - Cache baseline re-recorded for `@beep/palantiri` and `@beep/repo-cli`:
   [`research/cache-baseline-review-palantiri-p1.md`](./research/cache-baseline-review-palantiri-p1.md),
   request [`research/cache-baseline-request-palantiri-p1.json`](./research/cache-baseline-request-palantiri-p1.json).

@@ -10,9 +10,24 @@ bun add @beep/palantiri
 
 ## Usage
 
+Reduce an accounts report to the account-headroom parcel, then read its
+freshness and summary:
+
 ```ts
-import { VERSION } from "@beep/palantiri"
+import { AccountHeadroomInput, AccountsReportInput, reduceAccountHeadroom } from "@beep/palantiri"
+import * as DateTime from "effect/DateTime"
+import * as O from "effect/Option"
+
+const now = DateTime.makeUnsafe(0)
+const report = AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: now, groups: [] })
+const parcel = reduceAccountHeadroom(AccountHeadroomInput.make({ report, expectedProviders: O.some([]) }), now, 20)
+
+console.log(parcel.freshness._tag) // "Fresh"
+console.log(parcel.summary) // "0 of 0 accounts fresh"
 ```
+
+The `beep palantiri parcel <id> [--json]` command in `@beep/repo-cli` serves
+these parcels from the workstation's local sources.
 
 ## Development
 

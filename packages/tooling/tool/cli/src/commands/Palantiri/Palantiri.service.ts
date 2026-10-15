@@ -106,15 +106,21 @@ export const makeAccountHeadroomSourceLive = Effect.gen(function* () {
   const path = yield* Path.Path;
   const usage = yield* AccountsUsage;
 
+  // The snapshot carries account labels, so the directory is owner-only and
+  // the file is written owner-read/write before it is renamed into place.
   const writeSnapshot = Effect.fn("PalantiriSource.writeSnapshot")(function* (file: string, text: string) {
-    yield* fs.makeDirectory(path.dirname(file), { recursive: true });
+    const dir = path.dirname(file);
+    yield* fs.makeDirectory(dir, { recursive: true, mode: 0o700 });
+    yield* fs.chmod(dir, 0o700);
     const temporary = `${file}.${yield* Random.nextIntBetween(0, 2_147_483_647)}.tmp`;
-    yield* fs.writeFileString(temporary, text);
+    yield* fs.writeFileString(temporary, text, { mode: 0o600 });
+    yield* fs.chmod(temporary, 0o600);
     yield* fs.rename(temporary, file);
   });
 
   // The providers this host is configured for: every stored login and every
-  // collector snapshot file. A listing failure claims nothing.
+  // collector snapshot file. A failed listing is `None`, so the parcel reports
+  // unknown attribution instead of treating it as "no providers expected".
   const expectedProviders = Effect.all([usage.accounts, usage.snapshots], { concurrency: 2 }).pipe(
     Effect.map(([accounts, snapshots]) =>
       A.dedupe(
@@ -124,7 +130,7 @@ export const makeAccountHeadroomSourceLive = Effect.gen(function* () {
         )
       )
     ),
-    Effect.orElseSucceed(A.empty<string>)
+    Effect.option
   );
 
   const snapshot = Effect.gen(function* () {

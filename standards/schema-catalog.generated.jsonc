@@ -38014,7 +38014,7 @@
       "kind": "struct-const",
       "owner": "@beep/palantiri",
       "identity": "AccountHeadroomInput",
-      "description": "The accounts report and the providers the host has configured."
+      "description": "The accounts report and the providers the host has configured, when that listing succeeded."
     },
     {
       "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
