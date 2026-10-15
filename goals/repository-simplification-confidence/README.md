@@ -5,7 +5,7 @@
 Program active after the October 14 resume. A #1584, H2 #1574 and #1744,
 B #1738, and H4 #1770 have merged. H3's reopened #1590 carries the repository
 telemetry repair and is completing its first review wave; its
-[current handoff](history/handoffs/rsc-h3-telemetry-2026-10-14.md) records proof
+[current handoff](history/handoffs/rsc-h3-telemetry-2026-10-15.md) records proof
 provenance and the remaining native, home and remote prerequisites. All telemetry
 non-use windows remain incomplete. H4's read-only permission census and runbook
 are source-qualified; installed Desktop acceptance remains open for the operator
@@ -195,7 +195,7 @@ This supersedes the earlier publication hold; prior proof stays bound to its
 recorded source. Hosted CI qualifies this new integration. Later A waves
 and overall program acceptance remain open.
 
-H3 resume evidence: [qualification receipt](history/receipts/stage-4-h3-telemetry.md#resume-2026-10-14); [current handoff](history/handoffs/rsc-h3-telemetry-2026-10-14.md).
+H3 resume evidence: [qualification receipt](history/receipts/stage-4-h3-telemetry.md#resume-2026-10-14); [current handoff](history/handoffs/rsc-h3-telemetry-2026-10-15.md).
 
 H4's October 14 implementation adds an explicit-file, read-only Session
 permission census and the [Desktop continuity runbook](../../docs/runbooks/agent-permission-continuity.md).

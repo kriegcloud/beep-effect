@@ -498,7 +498,7 @@ The derived transcript schema now defaults collection completeness to false. Ses
 
 Reconciliation and pruning convert invalid agent kinds to typed input errors; reconciliation reports tagged failures through the standard CLI stderr/reported-exit path. Bare help lists reconciliation's required directories, client selection and the pruning client selector.
 
-Round-2 integrated qualification after main #1796: the canonical package-verify commands fail before audit because unchanged scheduler code calls the new Effect-valued Crypto UUID member. Dependency checks, `quality test-tsgo` and the scratchpad dependency of `docgen:local --base origin/main` fail at the same unchanged main-owned boundary. All 27 identified diagnostic files match origin/main. The codemod/check passes with no new sites; fixup changes no files. `lint schema-first` passes. Metrics' own 425 tests and lint pass; focused CLI 76 tests pass with independent temp backing. The earlier complete metrics package audit/docgen pass is retained as pre-merge proof, not represented as integrated-head success.
+Historical round-2 qualification after main #1796 failed because this lane retained installed Effect 4.0.2 against a lockfile and source expecting 4.0.4. The earlier attribution to main was incorrect: 4.0.4 supplies the callable UUID API. Matching source files did not establish installed dependency parity. The driver corrected the install; no shared Crypto repair is required. The codemod/check passes with no new sites; fixup changes no files. `lint schema-first` passes. Metrics' own 425 tests and lint pass; focused CLI 76 tests pass with independent temp backing. The earlier complete metrics package audit/docgen pass is retained as pre-merge proof, not represented as integrated-head success.
 
 | Scoped coverage file | Lines | Statements | Branches | Functions |
 | --- | ---: | ---: | ---: | ---: |
@@ -512,4 +512,42 @@ Round-2 integrated qualification after main #1796: the canonical package-verify 
 
 Seven matching committed baseline rows were read, never rewritten. The three round-2 files meet their rows. PruneWindow keeps the round-1 scoped values below the historical line/statement/function floors; this is a scoped read, not a complete ratchet pass.
 
-The integrated round-2 parity sequence terminates: JSDoc ratchet, knowledge refs, Fallow audit/health and retired Effect paths pass. Test-tsgo and local docgen retain the inherited Crypto migration failures described above; metrics and CLI package docgen themselves pass. All owned local test/parity runners have terminated.
+The integrated round-2 parity sequence terminates: JSDoc ratchet, knowledge refs, Fallow audit/health and retired Effect paths pass. The earlier test-tsgo and local docgen failures occurred with stale installed dependencies, as corrected above; metrics and CLI package docgen themselves pass. All owned local test/parity runners have terminated.
+
+
+### Round-2 installed integration — 2026-10-15
+
+The driver corrected the stale-install diagnosis. Main `b8fe0030e4` is merged
+in `4de40d71f9`; `bun install` ran after the merge and the installed Effect
+package reports 4.0.4. No Crypto source repair was needed. The one merge
+conflict was the observability totals: the owner command regenerated 5,438
+spans, 4,920 conforming and 518 non-conforming. The schema codemod check
+reports zero new sites. No baseline was rewritten.
+
+The full metrics package verification passes audit (37.0 s) and docgen
+(8.7 s). The CLI dependency build passes 44 tasks. Fresh Node/V8 coverage
+passes 70 metrics tests and 76 CLI tests; all seven scoped file percentages
+match the preceding round-2 table. This remains a scoped coverage read,
+not a full coverage-ratchet pass. Fresh CLI smoke checks return the standard
+stderr and exit 1 for missing transcript roots and invalid clients in both
+reconciliation and pruning. Bare help advertises both entry points.
+
+Fresh per-client pruning dry runs, at 01:39–01:40 UTC, all report 0 of 30
+qualifying sessions, false non-use qualification and no write. Counts only:
+Claude has 466 out-of-regime, 1,624 unstamped and 67 mixed observations;
+Codex has 2,480 unstamped; Cursor has 298 unstamped. No client qualifies as
+genuinely unused. Full CLI package and parity results follow in the current
+handoff after terminal verification.
+
+Full `package-verify @beep/repo-cli` passes audit (1,294.0 s) and docgen
+(43.0 s). Fresh scoped CLI regressions pass 76 tests. Repository
+`quality test-tsgo` passes on the installed integrated source; the previously
+reported Crypto and AgentMessage failures do not appear in this run.
+
+The installed integrated parity sequence is entirely green: test-tsgo
+(01:58:00 UTC), local docgen against origin/main (01:58:53 UTC), JSDoc ratchet
+(02:05:57 UTC), CI-mode knowledge refs (02:06:31 UTC), Fallow audit
+(02:06:50 UTC), Fallow health (02:06:56 UTC), and retired Effect paths
+(02:06:59 UTC). Both Fallow lanes and the retired-paths law report zero
+findings. All owned local verification runners terminated. The prior stale
+Crypto diagnosis is superseded; no inherited test-tsgo/JSDoc red appears.

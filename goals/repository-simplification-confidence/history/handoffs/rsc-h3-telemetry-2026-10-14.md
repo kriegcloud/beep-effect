@@ -1,3 +1,5 @@
+Superseded by [the corrected round-2 handoff](rsc-h3-telemetry-2026-10-15.md). The Crypto attribution below was incorrect: this lane retained Effect 4.0.2 after merging the 4.0.4 lockfile. The new handoff records installed integrated verification and publication.
+
 lane: rsc-h3-telemetry
 head: round-2 qualification source ca43c9850e; exact delivery SHA recorded after publication
 pr: #1590 (OPEN, ready for review; round 1 published, round 2 content final)
