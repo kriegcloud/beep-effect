@@ -412,7 +412,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       yield* fs.symlink(target, link);
       const writer = yield* writerWithFs(fs);
       const applied = yield* writer.apply(link, [topLevel], "write", backups);
-      assertTrue(O.isSome(applied));
+      applied.pipe(O.isSome, assertTrue);
       const journal = O.getOrThrow(applied);
       expect(yield* fs.readLink(link)).toBe(target);
       expect(yield* fs.readFileString(target)).toContain('"gpt-6.1-sol"');

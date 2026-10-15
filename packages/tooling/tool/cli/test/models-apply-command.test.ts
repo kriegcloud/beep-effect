@@ -1,4 +1,10 @@
-import { ModelSyncTarget, ModelsManifest, modelsCommand } from "@beep/repo-cli/commands/Models";
+import {
+  LocatorBinding,
+  ModelSyncTarget,
+  ModelsManifest,
+  modelsCommand,
+  TargetId,
+} from "@beep/repo-cli/commands/Models";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
