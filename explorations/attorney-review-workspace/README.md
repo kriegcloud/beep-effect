@@ -19,10 +19,10 @@ docks and tiling.
 
 ## Next Open Question
 
-None open. The question-loop re-entry is shaped. It graduates into
+None open. The question-loop re-entry graduated (PR #1778) into
 [`goals/attorney-question-loop`](../../goals/attorney-question-loop/README.md), and
 [`research/AMENDMENT-question-card.md`](./research/AMENDMENT-question-card.md) goes to the
-`practice-claude-mod` owner. Gated MAP rows remain re-entry points.
+owner of the `practice-claude-mod-review-queue` follow-on. Gated MAP rows remain re-entry points.
 
 ## Read This First
 
