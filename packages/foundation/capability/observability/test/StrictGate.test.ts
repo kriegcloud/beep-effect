@@ -226,7 +226,9 @@ describe("StrictGate", () => {
       Effect.gen(function* () {
         const { gate, metrics } = yield* exportedMetrics(StrictGateRulesOn, "beep.demo.latency");
         const text = yield* encodeUnknownJson(metrics);
-        expect(Str.includes('"count":1000')(text)).toBe(true);
+        // The count is the sum of the coarsened buckets, so the point stays
+        // OTLP-consistent (2 + 10 + 1000).
+        expect(Str.includes('"count":1012')(text)).toBe(true);
         expect(Str.includes('"bucketCounts":[2,10,1000]')(text)).toBe(true);
         expect(Str.includes('"explicitBounds":[10,100]')(text)).toBe(true);
         for (const key of ['"sum":', '"min":', '"max":']) {

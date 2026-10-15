@@ -19,6 +19,7 @@ import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as HttpBody from "effect/http/HttpBody";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
@@ -444,13 +445,21 @@ export const makeStrictGate = Effect.fn("StrictGate.make")(function* (config: St
               A.length(A.filter([point.sum, point.min, point.max], P.isNotUndefined))
             );
           }
+          // Buckets are coarsened one by one, so `count` is their sum: flooring
+          // the count on its own could disagree with the buckets and make the
+          // point inconsistent under OTLP.
+          const bucketCounts = A.map(point.bucketCounts ?? [], value);
+          const total =
+            rules["metric-values"] && A.isReadonlyArrayNonEmpty(bucketCounts)
+              ? Num.sumAll(bucketCounts)
+              : value(point.count ?? 0);
           return [
             {
               attributes,
               ...pointTimes(point),
               exemplars: [],
-              count: value(point.count ?? 0),
-              bucketCounts: A.map(point.bucketCounts ?? [], value),
+              count: total,
+              bucketCounts,
               explicitBounds: point.explicitBounds ?? [],
               ...(rules["metric-values"] ? {} : aggregates),
             },
