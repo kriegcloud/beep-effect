@@ -416,6 +416,12 @@ const previewModelWrites = Effect.fnUntraced(function* (
   writes: ReadonlyArray<ModelsLocatorWrite>
 ) {
   const fs = yield* FileSystem.FileSystem;
+  const certifiable = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
+  if (A.isReadonlyArrayNonEmpty(certifiable))
+    yield* modelsWritePreflight(
+      file,
+      A.map(certifiable, (write) => write.locator)
+    ).pipe(Effect.mapError(ModelsCommandError.fromInternal));
   const content = yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
   for (const request of writes) {
     const manual = O.isSome(modelsCheckOnlyFormat(request.locator));

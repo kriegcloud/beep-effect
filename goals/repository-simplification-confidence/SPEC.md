@@ -1960,3 +1960,32 @@ non-owned-field equality lands behind its own independent panel. Repository
 changes reverse with the F commit. This wave performs no home writes and needs
 no new native backup; all previous backups and rollback evidence remain retained.
 The panel stays OPEN for the driver's round 8; no readiness monitor or final gate.
+
+### RSC-F-ONE-PARSED-READER — driver round-8 ruling (2026-10-15)
+
+Decision: `models check`, `apply --check`, `apply --write` and `restore`
+share one full-document reader per certifiable format: TOML uses
+`effect/encoding/Toml` through the existing text codec; JSON uses the strict
+full tree that also rejects duplicate keys throughout the document. Owned
+value equality compares decoded values. Equal escaped spellings preserve
+all original bytes and create no backup or journal. Regex TOML readers and
+parallel JSON decoders are removed from certification paths; source spans
+serve only an edit selected by parsed inequality. Locator and canonical
+extension must agree before a file can be certified.
+
+Reason: F-ASTRA-R8-02 / F-GROK-R8-01 demonstrated false-clean invalid and
+duplicate TOML, and F-ASTRA-R8-03 demonstrated false drift and unnecessary
+JSON publication for an equal decoded string. Recovery ownership is now a
+non-empty array in the journal schema and independently guarded at runtime;
+every recorded locator, requested/canonical extension and complete current
+and backup document is revalidated before exchange (F-ASTRA-R8-01).
+
+Nearby findings R8-F1 and R8-F2 are included in the same repair. R8-F3 keeps
+the stale-native-state refusal ahead of syntax/span diagnostics while still
+validating eligible bytes before any exchange. R8-F4 adds the recording
+filesystem positive control. No round-8 P2/P3 is deferred.
+
+Reversal: revert the round-8 repair commit. This wave makes no home writes;
+no new native backup or rollback operation is required. Prior timestamped
+backups and tested ModelsApply rollback remain retained. The panel remains
+OPEN; the driver runs round 9 against the new candidate and fingerprint.

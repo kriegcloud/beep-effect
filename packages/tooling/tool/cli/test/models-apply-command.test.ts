@@ -28,6 +28,7 @@ import type { Locator } from "@beep/repo-cli/commands/Models";
 const run = Command.runWith(modelsCommand, { version: "0.0.0" });
 const decodeManifest = S.decodeEffect(ModelsManifest);
 const encodeManifest = S.encodeEffect(S.fromJsonString(ModelsManifest));
+const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 const native = '# synthetic native state\nmodel = "old"\n[projects.synthetic]\ntrust_level = "trusted"\n';
 
 const fixture = Effect.fnUntraced(function* () {
@@ -129,7 +130,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
             })
           )
         );
-        const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+        const flags: ReadonlyArray<string> = ["--home", home, "--repo", home, "--manifest", manifestFile];
         yield* run(["apply", ...flags, "--check"]);
         yield* run(["check", ...flags, "--json"]);
         const report = A.last(yield* TestConsole.logLines).pipe(O.getOrThrow);
@@ -142,6 +143,152 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         }
         expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
       }
+    })
+  );
+
+  it.effect("round eight checks and writes agree on parsed TOML and JSON values", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile, manifest] = yield* fixture();
+      const binding = LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" });
+      const render = { _tag: "verbatim" } as const;
+      const cases: ReadonlyArray<readonly [string, Locator, string, boolean]> = [
+        [
+          "escaped.toml",
+          { _tag: "toml-top-level-key", key: "model", binding, render },
+          'model="gpt-6.1-\\u0073ol"\n',
+          true,
+        ],
+        [
+          "trailing.toml",
+          { _tag: "toml-top-level-key", key: "model", binding, render },
+          'model="gpt-6.1-sol"\nthis is invalid\n',
+          false,
+        ],
+        [
+          "duplicate.toml",
+          { _tag: "toml-top-level-key", key: "model", binding, render },
+          'model="gpt-6.1-sol"\nmodel="wrong"\n',
+          false,
+        ],
+        [
+          "table.toml",
+          { _tag: "toml-table-key", table: "agent", key: "model", binding, render },
+          '[agent]\nmodel="gpt-6.1-sol"\nmodel="wrong"\n',
+          false,
+        ],
+        [
+          "multiline.toml",
+          { _tag: "toml-top-level-key", key: "model", binding, render },
+          'x="""\nmodel="gpt-6.1-sol"\n"""\nmodel="wrong"\n',
+          false,
+        ],
+        [
+          "escaped.json",
+          { _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render },
+          '{"model":"gpt-6.1-\\u0073ol","native":true}',
+          true,
+        ],
+        [
+          "invalid.json",
+          { _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render },
+          '{"model":"gpt-6.1-sol"} trailing',
+          false,
+        ],
+        ["start.sh", { _tag: "toml-top-level-key", key: "model", binding, render }, 'model="gpt-6.1-sol"\n', false],
+        [
+          "config.yaml",
+          { _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render },
+          '{"model":"gpt-6.1-sol"}',
+          false,
+        ],
+      ];
+      for (const [name, locator, content, clean] of cases) {
+        const file = path.join(home, name);
+        yield* fs.writeFileString(file, content);
+        yield* fs.writeFileString(
+          manifestFile,
+          yield* encodeManifest(
+            ModelsManifest.make({
+              ...manifest,
+              targets: [
+                ModelSyncTarget.make({
+                  id: TargetId.make("synthetic.parsed"),
+                  root: "home",
+                  path: `$HOME/${name}`,
+                  optional: false,
+                  locators: [locator],
+                }),
+              ],
+            })
+          )
+        );
+        const flags: ReadonlyArray<string> = ["--home", home, "--repo", home, "--manifest", manifestFile];
+        if (clean) {
+          yield* run(["check", ...flags, "--offline", "--json"]);
+          expect(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow)).toContain('"hasDrift": false');
+          yield* run(["apply", ...flags, "--check"]);
+          expect(
+            A.some(yield* TestConsole.logLines, (line) => P.isString(line) && Str.includes("change=false")(line))
+          ).toBe(true);
+          yield* run(["apply", ...flags, "--write"]);
+        } else {
+          yield* Effect.flip(run(["check", ...flags, "--offline", "--json"]));
+          expect(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow)).toContain('"hasDrift": true');
+          yield* Effect.flip(run(["apply", ...flags, "--check"]));
+        }
+        expect(yield* fs.readFileString(file)).toBe(content);
+        expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+      }
+    })
+  );
+
+  it.effect("refuses an empty-ownership shell recovery journal without target or backup access", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile] = yield* fixture();
+      const file = path.join(home, "start.sh");
+      const directory = path.join(home, ".config-backups");
+      const backup = path.join(directory, "models-empty.backup");
+      yield* fs.makeDirectory(directory);
+      yield* fs.writeFileString(file, "MODEL=new\n");
+      yield* fs.writeFileString(backup, "MODEL=old\n");
+      yield* fs.writeFileString(
+        path.join(directory, "models-empty.json"),
+        yield* encodeUnknownJson({
+          id: "models-empty",
+          file,
+          requestedFile: file,
+          backup,
+          beforeHash: "before",
+          afterHash: "after",
+          mode: 420,
+          writes: [],
+        })
+      );
+      const accesses: Array<string> = [];
+      const recording = FileSystem.FileSystem.of({
+        ...fs,
+        realPath: Effect.fn("EmptyJournalTest.realPath")((target) => {
+          if (target === file || target === backup) accesses.push(target);
+          return fs.realPath(target);
+        }),
+        readFileString: Effect.fn("EmptyJournalTest.readFileString")((target, options) => {
+          if (target === file || target === backup) accesses.push(target);
+          return fs.readFileString(target, options);
+        }),
+      });
+      const error = yield* Effect.flip(
+        run(["restore", "--home", home, "--repo", home, "--manifest", manifestFile, "--journal", "models-empty"]).pipe(
+          Effect.provideService(FileSystem.FileSystem, recording)
+        )
+      );
+      expect(error._tag).toBe("ModelsCommandError");
+      expect(accesses).toEqual([]);
+      expect(yield* fs.readFileString(file)).toBe("MODEL=new\n");
+      expect(yield* fs.readFileString(backup)).toBe("MODEL=old\n");
     })
   );
 
@@ -202,6 +349,13 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
             return fs.readFileString(target, options);
           }),
         });
+        if (state === "existing") {
+          yield* run(["apply", "--home", home, "--repo", home, "--manifest", manifestFile, "--check"]).pipe(
+            Effect.provideService(FileSystem.FileSystem, recording)
+          );
+          expect(accesses).toContain("exists");
+          accesses.length = 0;
+        }
         const error = yield* Effect.flip(
           run(["apply", "--home", home, "--repo", home, "--manifest", manifestFile, "--write"]).pipe(
             Effect.provideService(FileSystem.FileSystem, recording)
@@ -248,7 +402,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
           manifestFile,
           yield* encodeManifest(ModelsManifest.make({ ...manifest, targets: [target] }))
         );
-        const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+        const flags: ReadonlyArray<string> = ["--home", home, "--repo", home, "--manifest", manifestFile];
         yield* run(["apply", ...flags, "--check"]);
         yield* run(["check", ...flags, "--json"]);
         const report = A.last(yield* TestConsole.logLines).pipe(O.getOrThrow);
@@ -365,7 +519,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         ],
       });
       yield* fs.writeFileString(manifestFile, yield* encodeManifest(shellManifest));
-      const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+      const flags: ReadonlyArray<string> = ["--home", home, "--repo", home, "--manifest", manifestFile];
       yield* fs.writeFileString(shellFile, "ANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna claude\n");
       yield* run(["apply", ...flags, "--check"]);
       yield* run(["check", ...flags]);
@@ -438,7 +592,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
           manifestFile,
           yield* encodeManifest(ModelsManifest.make({ ...manifest, targets: [target] }))
         );
-        const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+        const flags: ReadonlyArray<string> = ["--home", home, "--repo", home, "--manifest", manifestFile];
         yield* fs.writeFileString(file, clean);
         yield* run(["apply", ...flags, "--check"]);
         yield* run(["check", ...flags]);
@@ -485,7 +639,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         ],
       });
       yield* fs.writeFileString(manifestFile, yield* encodeManifest(shellManifest));
-      const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+      const flags: ReadonlyArray<string> = ["--home", home, "--repo", home, "--manifest", manifestFile];
       yield* run(["apply", ...flags]);
       expect(yield* TestConsole.logLines).toContain(
         "models: preview synthetic.shell [shell-assign] manual verification required; recognized drift=true expected=gpt-6.1-sol"

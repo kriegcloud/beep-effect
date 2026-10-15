@@ -19,12 +19,96 @@ import { findNodeAtLocation, parseTree } from "jsonc-parser";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { ModelsWriteSpan } from "./Models.manifest.schemas.ts";
-import type { Node as JsonNode } from "jsonc-parser";
+import type { Node as JsonNode, ParseError } from "jsonc-parser";
 import type { Locator, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const decodeToml = decodeTomlTextWith(S.decodeUnknownEffect(S.Record(S.String, S.Unknown)));
+
+/**
+ * Parse the entire TOML document before certifying or editing an owned value.
+ *
+ * **Example** (Validate native TOML)
+ *
+ * ```ts
+ * import { modelsParseToml } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(modelsParseToml('model = "example"')))
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const modelsParseToml = (content: string) =>
+  decodeToml(content).pipe(ModelsLocatorError.mapError("Invalid TOML target."));
+
 const encodeString = S.encodeEffect(S.fromJsonString(S.String));
 const error = (message: string) => ModelsLocatorError.make({ message });
+
+// Duplicate keys are ambiguous ownership, including in unowned subtrees.
+const duplicateJsonKeys = (node: JsonNode): boolean => {
+  const children = O.getOrElse(O.fromUndefinedOr(node.children), () => []);
+  const names = A.map(children, (child) =>
+    O.map(A.head(O.getOrElse(O.fromUndefinedOr(child.children), () => [])), (key) => key.value)
+  );
+  return (
+    (node.type === "object" && A.length(A.dedupe(names)) !== A.length(names)) || A.some(children, duplicateJsonKeys)
+  );
+};
+
+/**
+ * Parse strict JSON once, retaining node offsets and rejecting duplicate keys.
+ *
+ * **Example** (Validate native JSON)
+ *
+ * ```ts
+ * import { modelsParseJson } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(modelsParseJson('{"model":"example"}')))
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const modelsParseJson = (content: string) =>
+  Effect.try({
+    try: () => {
+      const errors: Array<ParseError> = [];
+      const tree = parseTree(content, errors, { disallowComments: true, allowTrailingComma: false });
+      if (tree === undefined || A.isReadonlyArrayNonEmpty(errors)) throw error("Invalid JSON target.");
+      if (duplicateJsonKeys(tree)) throw error("Unsupported JSON form: duplicate keys.");
+      return tree;
+    },
+    catch: (cause) => (S.is(ModelsLocatorError)(cause) ? cause : error("Invalid JSON target.")),
+  });
+
+/**
+ * Read a decoded native leaf through a sequence of property names.
+ *
+ * **Example** (Read a parsed model)
+ *
+ * ```ts
+ * import { modelsParsedLeaf } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import * as O from "effect/Option"
+ * console.log(O.getOrThrow(modelsParsedLeaf({ model: "example" }, ["model"])))
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const modelsParsedLeaf: {
+  (value: unknown, path: ReadonlyArray<string>): O.Option<unknown>;
+  (path: ReadonlyArray<string>): (value: unknown) => O.Option<unknown>;
+} = dual(
+  2,
+  (value: unknown, path: ReadonlyArray<string>): O.Option<unknown> =>
+    A.reduce(path, O.some(value), (current, key) =>
+      O.flatMap(current, (node) =>
+        P.isObjectOrArray(node) && R.has(node as Readonly<Record<string, unknown>>, key)
+          ? O.fromNullishOr((node as Readonly<Record<string, unknown>>)[key])
+          : O.none()
+      )
+    )
+);
 
 /**
  * Name the format refused by the TOML/JSON-only native writer.
@@ -77,6 +161,7 @@ export const modelsWritePreflight = Effect.fn("Models.writePreflight")(function*
   locators: ReadonlyArray<Locator>
 ) {
   const path = yield* Path.Path;
+  if (A.isReadonlyArrayEmpty(locators)) return yield* error("Locator ownership must be non-empty.");
   for (const locator of locators) {
     const format = modelsCheckOnlyFormat(locator);
     if (O.isSome(format)) return yield* error(`${format.value} targets are check-only; edit by hand.`);
@@ -393,6 +478,9 @@ const tomlSpans = Effect.fnUntraced(function* (
   after: string,
   expected: string
 ) {
+  const parsed = yield* modelsParseToml(content);
+  const leaf = modelsParsedLeaf(parsed, [...O.match(table, { onNone: () => [], onSome: Str.split(".") }), key]);
+  if (O.contains(leaf, expected)) return [];
   const bounds = yield* tableRegion(content, table);
   const start = O.getOrElse(A.get(bounds, 0), () => 0);
   const end = O.getOrElse(A.get(bounds, 1), () => Str.length(content));
@@ -408,46 +496,29 @@ const tomlSpans = Effect.fnUntraced(function* (
       after
     )
   );
-  return yield* Effect.forEach(
-    spans,
-    Effect.fnUntraced(function* (entry) {
-      const parsed = yield* decodeToml(`value = ${entry.before}`).pipe(
-        ModelsLocatorError.mapError("Invalid TOML scalar.")
-      );
-      return parsed.value === expected ? ModelsWriteSpan.make({ ...entry, after: entry.before }) : entry;
-    })
-  );
+  return spans;
 });
 
-const jsonSpans = (content: string, pointer: ReadonlyArray<string>, after: string) =>
-  Effect.try({
-    try: () => parseTree(content),
-    catch: () => error("Cannot parse JSON target."),
-  }).pipe(
-    Effect.flatMap((tree) => {
-      if (tree === undefined) return Effect.fail(error("Cannot parse JSON target."));
-      const node = A.reduce(pointer, O.some(tree), (current, segment) =>
-        O.flatMap(current, (parent) => {
-          if (parent.type === "object") {
-            const matches = A.filter(
-              O.getOrElse(O.fromUndefinedOr(parent.children), () => []),
-              (child: JsonNode) =>
-                O.exists(O.fromUndefinedOr(child.children), (children) =>
-                  O.exists(A.head(children), (key) => key.value === segment)
-                )
-            );
-            if (A.length(matches) !== 1) return O.none<JsonNode>();
-          }
-          const address: O.Option<string | number> =
-            parent.type === "array" ? S.decodeOption(S.FiniteFromString)(segment) : O.some(segment);
-          return O.flatMap(address, (key) => O.fromUndefinedOr(findNodeAtLocation(parent, [key])));
-        })
-      );
-      return O.isNone(node) || node.value.type !== "string"
-        ? Effect.fail(error("JSON write requires an existing string at its primary pointer."))
-        : Effect.succeed([span(content, node.value.offset, node.value.offset + node.value.length, after)]);
+const jsonSpans = Effect.fnUntraced(function* (
+  content: string,
+  pointer: ReadonlyArray<string>,
+  after: string,
+  expected: string
+) {
+  const tree = yield* modelsParseJson(content);
+  const node = A.reduce(pointer, O.some(tree), (current, segment) =>
+    O.flatMap(current, (parent) => {
+      const address: O.Option<string | number> =
+        parent.type === "array" ? S.decodeOption(S.FiniteFromString)(segment) : O.some(segment);
+      return O.flatMap(address, (key) => O.fromUndefinedOr(findNodeAtLocation(parent, [key])));
     })
   );
+  if (O.isNone(node) || node.value.type !== "string")
+    return yield* error("JSON write requires an existing string at its primary pointer.");
+  return node.value.value === expected
+    ? []
+    : [span(content, node.value.offset, node.value.offset + node.value.length, after)];
+});
 
 /**
  * Resolve the complete owned range set, rejecting missing or ambiguous addresses.
@@ -476,7 +547,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
     const ownedKey = request.locator.key;
     const bounds = yield* tableRegion(content, O.none());
     const end = O.getOrElse(A.get(bounds, 1), () => Str.length(content));
-    const parsed = yield* decodeToml(content).pipe(ModelsLocatorError.mapError("Invalid TOML removal target."));
+    const parsed = yield* modelsParseToml(content).pipe(ModelsLocatorError.mapError("Invalid TOML removal target."));
     if (!R.has(parsed, ownedKey) || P.isObject(parsed[ownedKey])) return [];
     // Match the source spelling, then use the TOML parser to establish key identity.
     const assignments = captures(
@@ -491,7 +562,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
           0,
           O.getOrElse(Str.indexOf("=")(entry.before), () => 0)
         )(entry.before);
-        const fields = yield* decodeToml(`${key}= true`).pipe(
+        const fields = yield* modelsParseToml(`${key}= true`).pipe(
           ModelsLocatorError.mapError("Cannot resolve TOML removal key.")
         );
         return O.contains(R.get(fields, ownedKey), true);
@@ -504,7 +575,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
   return yield* Match.value(request.locator).pipe(
     Match.tag("toml-top-level-key", ({ key }) => tomlSpans(content, key, O.none(), quoted, expected)),
     Match.tag("toml-table-key", ({ key, table }) => tomlSpans(content, key, O.some(table), quoted, expected)),
-    Match.tag("json-key", ({ pointer }) => jsonSpans(content, pointer, quoted)),
+    Match.tag("json-key", ({ pointer }) => jsonSpans(content, pointer, quoted, expected)),
     Match.orElse(() => Effect.fail(error("Target is check-only; edit by hand.")))
   );
 });

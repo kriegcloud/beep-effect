@@ -898,7 +898,7 @@ export class ModelsApplyJournal extends S.Opaque<ModelsApplyJournal, { readonly 
     beforeHash: S.NonEmptyString,
     afterHash: S.NonEmptyString,
     mode: S.Int,
-    writes: ModelsLocatorWrite.pipe(S.Array, S.OptionFromOptionalKey),
+    writes: ModelsLocatorWrite.pipe(S.NonEmptyArray, S.OptionFromOptionalKey),
     requestedFile: S.OptionFromOptionalKey(S.NonEmptyString),
     requestedLink: S.OptionFromOptionalKey(S.NonEmptyString),
   }).pipe(

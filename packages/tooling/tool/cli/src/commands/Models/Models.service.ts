@@ -23,6 +23,7 @@ import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { CatalogDiff } from "./Models.catalog.schemas.ts";
 import {
@@ -44,7 +45,6 @@ import { DriftFinding, ManualVerification, ModelsCheckReport } from "./Models.re
 import { modelsCheckOnlyFormat } from "./Models.spans.ts";
 import type * as Crypto from "effect/Crypto";
 import type { HttpClient } from "effect/http";
-import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { CatalogModel, CatalogSource, ModelId } from "./Models.catalog.schemas.ts";
 import type { ModelsCatalogSources } from "./Models.catalog.service.ts";
@@ -371,8 +371,14 @@ const boundLocator = (input: LocatorCheckInput): Locator =>
 
 const checkLocator = Effect.fnUntraced(function* (
   input: LocatorCheckInput
-): Effect.fn.Return<O.Option<DriftFinding>, ModelsLocatorError> {
-  const current = yield* input.reader.read(input.file, boundLocator(input));
+): Effect.fn.Return<O.Option<DriftFinding>, ModelsLocatorError, Path.Path> {
+  const path = yield* Path.Path;
+  const extension = input.locator._tag === "json-key" ? ".json" : ".toml";
+  const mismatch =
+    O.isNone(modelsCheckOnlyFormat(input.locator)) && path.extname(input.file.absolutePath) !== extension;
+  const current = mismatch
+    ? O.some(`Unsupported ${extension === ".json" ? "JSON" : "TOML"} form: locator/extension mismatch.`)
+    : yield* input.reader.read(input.file, boundLocator(input));
   if (O.isSome(modelsCheckOnlyFormat(input.locator)))
     input.manual.push(
       ManualVerification.make({
@@ -403,7 +409,7 @@ const checkLocator = Effect.fnUntraced(function* (
     return O.some(finding(input.target, input.locator, O.none(), expected.value, "missing-locator"));
   }
 
-  const unsupported = /^Unsupported (?:shell|YAML|XML|JSON) form/.test(current.value);
+  const unsupported = /^Unsupported (?:shell|YAML|XML|JSON|TOML) form/.test(current.value);
   return !unsupported && current.value === expected.value
     ? O.none<DriftFinding>()
     : O.some(finding(input.target, input.locator, current, expected.value, "stale"));

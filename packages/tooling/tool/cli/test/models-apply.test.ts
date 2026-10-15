@@ -35,6 +35,7 @@ const topLevel = write({
   render,
   key: "model",
 });
+const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 const native = A.join(
   [
     "# Unicode stays: café 🔑",
@@ -100,6 +101,74 @@ const restoreLinkRace = Effect.fnUntraced(function* (dangling: boolean) {
 });
 
 layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
+  it.effect("empty ownership refuses every recovery format before target access", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "empty-ownership-" });
+      const backups = path.join(root, "backups");
+      yield* fs.makeDirectory(backups);
+      for (const extension of ["sh", "yaml", "xml", "json"]) {
+        const file = path.join(root, `config.${extension}`);
+        const backup = path.join(backups, "models-empty.backup");
+        const journalFile = path.join(backups, "models-empty.json");
+        yield* fs.writeFileString(file, "invalid native state");
+        yield* fs.writeFileString(backup, "old native state");
+        yield* fs.writeFileString(
+          journalFile,
+          yield* encodeUnknownJson({
+            id: "models-empty",
+            file,
+            requestedFile: file,
+            backup,
+            beforeHash: "before",
+            afterHash: "after",
+            mode: 420,
+            writes: [],
+          })
+        );
+        const accesses: Array<string> = [];
+        const recording = FileSystem.FileSystem.of({
+          ...fs,
+          realPath: Effect.fn("EmptyOwnership.realPath")((target) => {
+            if (target === file || target === backup) accesses.push(target);
+            return fs.realPath(target);
+          }),
+          readFileString: Effect.fn("EmptyOwnership.readFileString")((target, options) => {
+            if (target === file || target === backup) accesses.push(target);
+            return fs.readFileString(target, options);
+          }),
+        });
+        const writer = yield* writerWithFs(recording);
+        const error = yield* Effect.flip(writer.restore(journalFile, backups));
+        expect(error._tag).toBe("ModelsLocatorError");
+        expect(error.message).toBe("Invalid recovery journal.");
+        expect(accesses).toEqual([]);
+        expect(yield* fs.readFileString(file)).toBe("invalid native state");
+        expect(yield* fs.readFileString(backup)).toBe("old native state");
+      }
+    })
+  );
+
+  it.effect("parsed-equal JSON preserves spelling without creating a journal", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "parsed-equal-" });
+      const file = path.join(root, "config.json");
+      const backups = path.join(root, "backups");
+      const content = '{"model":"gpt-6.1-\\u0073ol","native":true}';
+      yield* fs.writeFileString(file, content);
+      const writer = yield* writerWithFs(fs);
+      const request = write({ _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render });
+      for (const mode of ["check", "write"] as const) {
+        assertNone(yield* writer.apply(file, [request], mode, backups));
+        expect(yield* fs.readFileString(file)).toBe(content);
+        expect(yield* fs.exists(backups)).toBe(false);
+      }
+    })
+  );
+
   it.effect("refuses locator and canonical extension mismatches in apply and historical restore", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -286,9 +355,14 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       expect((yield* fs.stat(file)).mode & 0o777).toBe(0o644);
       yield* writer.restore(journalFile, backupDirectory);
       const second = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backupDirectory));
-      yield* fs.writeFileString(file, `${native}\n# external native write\n`);
-      yield* Effect.flip(writer.restore(path.join(backupDirectory, `${second.id}.json`), backupDirectory));
-      expect(yield* fs.readFileString(file)).toContain("external native write");
+      for (const changed of [`${native}\n# external native write\n`, "unknown = true\n", "this is invalid\n"]) {
+        yield* fs.writeFileString(file, changed);
+        const error = yield* Effect.flip(
+          writer.restore(path.join(backupDirectory, `${second.id}.json`), backupDirectory)
+        );
+        expect(error.message).toContain("Native file changed since apply; restore would overwrite new state.");
+        expect(yield* fs.readFileString(file)).toBe(changed);
+      }
     })
   );
 
@@ -842,7 +916,12 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const { writes: _owned, ...legacy } = journal;
         yield* fs.writeFileString(
           journalFile,
-          yield* encodeRecoveryJournal(ModelsApplyJournal.make({ ...legacy, writes: O.fromUndefinedOr(writes) }))
+          yield* encodeRecoveryJournal(
+            ModelsApplyJournal.make({
+              ...legacy,
+              writes: O.flatMap(O.fromUndefinedOr(writes), A.head).pipe(O.map((first) => [first])),
+            })
+          )
         );
         const error = yield* Effect.flip(writer.restore(journalFile, backups));
         expect(error.message.toLowerCase()).toContain("targets are check-only");

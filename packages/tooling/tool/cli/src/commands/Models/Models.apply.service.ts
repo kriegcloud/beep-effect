@@ -21,13 +21,20 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Random from "effect/Random";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { getNodeValue } from "jsonc-parser";
 import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
-import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { modelsReadLocator } from "./Models.locator.service.ts";
 import { ModelsApplyJournal, ModelsWriteSpan } from "./Models.manifest.schemas.ts";
 import { ModelsTargetFile } from "./Models.paths.ts";
-import { modelsApplySpans, modelsCheckOnlyFormat, modelsWritePreflight, modelsWriteSpans } from "./Models.spans.ts";
+import {
+  modelsApplySpans,
+  modelsCheckOnlyFormat,
+  modelsParseJson,
+  modelsParseToml,
+  modelsWritePreflight,
+  modelsWriteSpans,
+} from "./Models.spans.ts";
 import type { ModelsApplyMode, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.apply.service");
@@ -36,7 +43,7 @@ const decodeJournal = S.decodeEffect(S.fromJsonString(ModelsApplyJournal));
 const failure = (message: string) => ModelsLocatorError.make({ message });
 const nativeFields = S.Record(S.String, S.Unknown);
 const encodeValue = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
-const decodeJsonText = S.decodeEffect(S.fromJsonString(S.Unknown));
+const decodeJsonText = (text: string) => modelsParseJson(text).pipe(Effect.map(getNodeValue));
 
 // Mask exactly the owned leaves in parsed native data. This assertion is
 // independent of the stronger byte-preservation assertion below.
@@ -83,7 +90,7 @@ const assertNativeFields = Effect.fnUntraced(function* (
     if (beforeNative !== afterNative) return yield* failure("Non-owned native keys changed.");
   });
   if (A.isReadonlyArrayNonEmpty(tomlPaths)) {
-    const decode = decodeTomlTextWith(S.decodeUnknownEffect(S.Unknown));
+    const decode = modelsParseToml;
     yield* compare(
       yield* decode(before).pipe(Effect.mapError(() => failure("Invalid native TOML."))),
       yield* decode(after).pipe(Effect.mapError(() => failure("Invalid native TOML."))),
@@ -189,7 +196,7 @@ const validateSyntax = Effect.fn("ModelsApply.validate")((text: string, writes: 
     ({ locator }) =>
       Match.value(locator).pipe(
         Match.tag("toml-top-level-key", "toml-table-key", () =>
-          decodeTomlTextWith(S.decodeUnknownEffect(S.Unknown))(text).pipe(
+          modelsParseToml(text).pipe(
             Effect.mapError(() => failure("Invalid TOML target.")),
             Effect.asVoid
           )
@@ -366,10 +373,6 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
               const staged = yield* readNative(temporary);
               if (staged !== after) return yield* failure("Staged configuration differs from the validated candidate.");
               yield* validate(staged, writes);
-              if (Str.endsWith(".toml")(file))
-                yield* decodeTomlTextWith(S.decodeUnknownEffect(S.Unknown))(staged).pipe(
-                  Effect.mapError(() => failure("Invalid staged TOML target."))
-                );
               yield* assertDestination(journal);
               yield* fs.chmod(temporary, mode).pipe(io);
               const stagedInfo = yield* fs.stat(temporary).pipe(io);
@@ -417,10 +420,11 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         ).pipe(Effect.provideService(Path.Path, path));
       // Resolving symlinks preserves their native ownership rather than replacing the link.
       const actual = yield* fs.realPath(file).pipe(io);
-      if (mode === "write")
+      const certifiable = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
+      if (A.isReadonlyArrayNonEmpty(certifiable))
         yield* modelsWritePreflight(
           actual,
-          A.map(writes, (write) => write.locator)
+          A.map(certifiable, (write) => write.locator)
         ).pipe(Effect.provideService(Path.Path, path));
       const before = yield* readNative(actual);
       yield* validate(before, writes);
@@ -438,6 +442,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       if (after === before) return O.none();
       if (mode === "check") return yield* failure("Owned configuration drift detected.");
       if (mode === "dry-run") return O.none();
+      if (!A.isReadonlyArrayNonEmpty(writes)) return yield* failure("Locator ownership must be non-empty.");
       const info = yield* fs.stat(actual).pipe(io);
       const id = yield* suffix;
       yield* fs.makeDirectory(backupDirectory, { recursive: true, mode: 0o700 }).pipe(io);
@@ -481,6 +486,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       yield* Effect.gen(function* () {
         if (O.isNone(journal.writes))
           return yield* failure("Legacy journal lacks locator ownership; shell targets are check-only; edit by hand.");
+        if (A.isReadonlyArrayEmpty(journal.writes.value)) return yield* failure("Locator ownership must be non-empty.");
         const checkOnly = A.head(
           A.getSomes(A.map(journal.writes.value, ({ locator }) => modelsCheckOnlyFormat(locator)))
         );
@@ -502,6 +508,9 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         if ((yield* hash(original)) !== journal.beforeHash)
           return yield* failure("Recovery backup hash does not match.");
         const current = yield* readNative(journal.file);
+        const currentHash = yield* hash(current);
+        if (currentHash !== journal.beforeHash && currentHash !== journal.afterHash)
+          return yield* failure("Native file changed since apply; restore would overwrite new state.");
         yield* validate(current, journal.writes.value);
         yield* validate(original, journal.writes.value);
         yield* Effect.forEach(
@@ -509,9 +518,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
           (write) => modelsWriteSpans(current, write),
           { concurrency: 1, discard: true }
         );
-        if ((yield* hash(current)) === journal.beforeHash) return;
-        if ((yield* hash(current)) !== journal.afterHash)
-          return yield* failure("Native file changed since apply; restore would overwrite new state.");
+        if (currentHash === journal.beforeHash) return;
         yield* atomic(journal.file, journal.afterHash, original, journal.mode, journal, backupDirectory);
       }).pipe(
         Effect.mapError((error) =>
