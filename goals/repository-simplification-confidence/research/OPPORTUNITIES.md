@@ -2256,3 +2256,13 @@ project outputs and names the required upstream build would prevent this loop.
 - Prevention: separate runtime usage from configuration at the collector
   boundary; controls verify ignored usage updates and rejected MCP/unknown
   field changes. No native file is rewritten or restored to quiet the gate.
+
+### F clean-commit publication with preserved plugin residue (2026-10-15 UTC)
+
+`yeet publish --staged-only` with an empty index rejects a locally committed
+branch when unrelated untracked plugin residue exists. The empty-index intent
+requires a fully clean worktree before staged-only parking is selected.
+Keep `.impeccable/live/` intact and stage the actual final acceptance receipt
+and this friction record, letting the canonical staged publication path park
+and restore the residue. A future owner can make empty-index staged-only
+intent support the same reviewed-residue behavior; F does not change Yeet.

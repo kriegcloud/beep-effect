@@ -698,3 +698,21 @@ Owner: drawing-review-loop, the owner of PR #1780. AgentMessage remains owned
 by the #1767 repair lane. F makes no copy of either inherited fix. Fresh
 upstream declarations restore the package check; the related P0 is acknowledged
 environment-only, and its terminal lint/check rerun passes.
+
+### F publication proof boundary (2026-10-14 local)
+
+Integrated source bb67db8ccde1896abe85511a601f52b07d713c03 includes main
+#1792. Package lint/check, test-tsgo, 154 scoped tests, all four coverage
+floors, bounded docgen, Fallow audit/health, schema-first and retired paths
+pass. The earlier test-tsgo reds are historical and repaired on main.
+The observability catalog and Effect Vitest ratchet also pass after F's
+introduced cheap-gate repairs. Default package audit/docgen passed earlier;
+only receipt and collector changes follow this source proof.
+
+Configuration fingerprint v2 retains every native Claude registry field
+except the observed pluginUsage runtime counter. Its raw capture hash remains
+metadata. Three controls pass for ignored usage, detected MCP mutation and
+detected unknown-field mutation. The read-only equality check passes before
+publication. Every other file/link retains byte/target identity. The pinned
+native probe passes and the final online model check has zero findings.
+The driver owns the pending independent panel and serialized merge.
