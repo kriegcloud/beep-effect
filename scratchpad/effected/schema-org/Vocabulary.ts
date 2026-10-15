@@ -1,4 +1,5 @@
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -326,15 +327,17 @@ export class Vocabulary {
 	 * @category predicates
 	 * @since 0.0.0
 	 */
-	static isPropertyOn(property: string, type: string): boolean {
-		return O.match(O.all([
+	static readonly isPropertyOn: {
+		(property: string, type: string): boolean;
+		(type: string): (property: string) => boolean;
+	} = dual(2, (property: string, type: string): boolean =>
+		O.match(O.all([
 			MutableHashMap.get(TYPE_INDEX, type),
 			MutableHashMap.get(PROPERTY_INDEX, property),
 		]), {
 			onNone: () => false,
 			onSome: ([typeIdx, propertyIdx]) => HashSet.has(propertyMembershipIndices(typeIdx), propertyIdx),
-		});
-	}
+		}));
 
 	/**
 	 * The term that supersedes `term`, when schema.org has deprecated it —

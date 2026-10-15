@@ -126,5 +126,5 @@ export const CreativeWorkFields = {
 export class CreativeWork extends S.Class<CreativeWork, { readonly brand: unique symbol }>($I`CreativeWork`)({
 	...CreativeWorkFields,
 	/** The JSON-LD type discriminator, populated automatically. */
-	"@type": S.tag("CreativeWork").annotateKey({ description: "The JSON-LD type discriminator, populated automatically." }),
+	"@type": S.tag("CreativeWork").pipe($I.annoteKey("CreativeWork.@type", { description: "The JSON-LD type discriminator, populated automatically." })),
 }, $I.annote("CreativeWork", { description: "A schema.org `CreativeWork` — the general node for a created work, and the base vocabulary the more specific nodes in this package extend." })) {}

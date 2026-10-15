@@ -11,9 +11,9 @@ const $I = $ScratchpadId.create("effected/cli/CliExit");
 class InvalidExitCodeError extends S.TaggedError<InvalidExitCodeError, { readonly brand: unique symbol }>($I`InvalidExitCodeError`)(
 	"InvalidExitCodeError",
 	{
-		message: S.String.annotate({ description: "The invalid exit-code value and the required POSIX integer range." }),
+		message: S.String.pipe($I.annoteKey("InvalidExitCodeError.message", { description: "The invalid exit-code value and the required POSIX integer range." })),
 	},
-	$I.annote("InvalidExitCodeError", { description: "An exit code supplied to CliExit.set was not an integer in the POSIX range 0..255." }),
+	$I.annoteError<InvalidExitCodeError>("InvalidExitCodeError", { description: "An exit code supplied to CliExit.set was not an integer in the POSIX range 0..255." }),
 ) {}
 
 /**

@@ -117,59 +117,65 @@ const indexBacktickRuns = (subject: string): MutableHashMap.MutableHashMap<numbe
  * second one.
  * @since 0.0.0
  */
-type PositionOf = (startOffset: number, endOffset: number) => Position;
+type PositionOf = {
+	(startOffset: number, endOffset: number): Position;
+	(endOffset: number): (startOffset: number) => Position;
+};
 
 type MaterializeChildren = (node: InlineNode) => ReadonlyArray<PhrasingContent>;
 type MaterializableInlineNode = InlineNode & { readonly type: Exclude<InlineNode["type"], "text"> };
-type InlineMaterializer = (position: Position, materializeChildren: MaterializeChildren) => PhrasingContent;
+type InlineMaterializer = {
+	(position: Position, materializeChildren: MaterializeChildren): PhrasingContent;
+	(materializeChildren: MaterializeChildren): (position: Position) => PhrasingContent;
+};
 
 // Compile the kind dispatch once; each selected builder receives its position
 // and the current parser's depth-checked child materializer.
 const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
 	Match.withReturnType<InlineMaterializer>(),
-	Match.when({ type: "inlineCode" }, (node) => (position, _materializeChildren) =>
+	Match.when({ type: "inlineCode" }, (node) => dual(2, (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
 		InlineCode.make({ value: node.value, position })
-	),
-	Match.when({ type: "html" }, (node) => (position, _materializeChildren) =>
+	)),
+	Match.when({ type: "html" }, (node) => dual(2, (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
 		Html.make({ value: node.value, position })
-	),
-	Match.when({ type: "break" }, (node) => (position, _materializeChildren) =>
+	)),
+	Match.when({ type: "break" }, (node) => dual(2, (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
 		Break.make({ position, ...O.getSomesStruct({ breakStyle: O.fromUndefinedOr(node.data.breakStyle) }) })
-	),
-	Match.when({ type: "emphasis" }, (node) => (position, materializeChildren) =>
+	)),
+	Match.when({ type: "emphasis" }, (node) => dual(2, (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
 		Emphasis.make({
 			children: materializeChildren(node),
 			position,
 			...O.getSomesStruct({ markerChar: O.fromUndefinedOr(node.data.markerChar) }),
 		})
-	),
-	Match.when({ type: "delete" }, (node) => (position, materializeChildren) =>
+	)),
+	Match.when({ type: "delete" }, (node) => dual(2, (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
 		Delete.make({ children: materializeChildren(node), position })
-	),
-	Match.when({ type: "strong" }, (node) => (position, materializeChildren) =>
+	)),
+	Match.when({ type: "strong" }, (node) => dual(2, (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
 		Strong.make({
 			children: materializeChildren(node),
 			position,
 			...O.getSomesStruct({ markerChar: O.fromUndefinedOr(node.data.markerChar) }),
 		})
-	),
-	Match.when({ type: "link" }, (node) => (position, materializeChildren) =>
+	)),
+	Match.when({ type: "link" }, (node) => dual(2, (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
 		Link.make({
 			url: node.data.url ?? "",
 			children: materializeChildren(node),
 			position,
 			...O.getSomesStruct({ title: O.fromUndefinedOr(node.data.title) }),
 		})
-	),
-	Match.when({ type: "image" }, (node) => (position, _materializeChildren) =>
+	)),
+	Match.when({ type: "image" }, (node) => dual(2, (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
 		Image.make({
 			url: node.data.url ?? "",
 			position,
 			...O.getSomesStruct({ title: O.fromUndefinedOr(node.data.title) }),
 			...(node.value === "" ? {} : { alt: node.value }),
 		})
-	),
-	Match.when({ type: "linkReference" }, (node) => (position, materializeChildren) =>
+	)),
+	Match.when({ type: "linkReference" }, (node) => dual(2, (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
 		LinkReference.make({
 			identifier: node.data.identifier ?? "",
 			referenceType: node.data.referenceType ?? "shortcut",
@@ -177,8 +183,8 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
 			position,
 			...O.getSomesStruct({ label: O.fromUndefinedOr(node.data.label) }),
 		})
-	),
-	Match.when({ type: "footnoteReference" }, (node) => (position, _materializeChildren) =>
+	)),
+	Match.when({ type: "footnoteReference" }, (node) => dual(2, (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
 		// The GFM counterpart of `linkReference`, and unresolved for the
 		// same reason: which definition it points at is the consumer's
 		// business, not the parser's.
@@ -187,8 +193,8 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
 			position,
 			...O.getSomesStruct({ label: O.fromUndefinedOr(node.data.label) }),
 		})
-	),
-	Match.when({ type: "imageReference" }, (node) => (position, _materializeChildren) =>
+	)),
+	Match.when({ type: "imageReference" }, (node) => dual(2, (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
 		ImageReference.make({
 			identifier: node.data.identifier ?? "",
 			referenceType: node.data.referenceType ?? "shortcut",
@@ -196,7 +202,7 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
 			...O.getSomesStruct({ label: O.fromUndefinedOr(node.data.label) }),
 			...(node.value === "" ? {} : { alt: node.value }),
 		})
-	),
+	)),
 	Match.exhaustive,
 );
 
@@ -269,13 +275,14 @@ class InlineParser implements InlineScanner {
 	 *
 	 * ```ts
 	 * import * as HashMap from "effect/HashMap";
+	 * import { dual } from "effect/Function";
 	 * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
 	 * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
 	 *
-	 * const position = (start: number, end: number) => Position.make({
+	 * const position = dual(2, (start: number, end: number): Position => Position.make({
 	 *   start: Point.make({ line: 1, column: start + 1, offset: start }),
 	 *   end: Point.make({ line: 1, column: end + 1, offset: end }),
-	 * });
+	 * }));
 	 * const text = "`code`";
 	 * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);
 	 * console.log(nodes[0]?.type) // inlineCode
@@ -316,7 +323,7 @@ class InlineParser implements InlineScanner {
 		return false;
 	}
 
-	closingBacktickRun(from: number, length: number): number | undefined {
+	readonly closingBacktickRun: InlineScanner["closingBacktickRun"] = dual(2, (from: number, length: number): number | undefined => {
 		if (this.backtickRuns === undefined) {
 			this.backtickRuns = indexBacktickRuns(this.subject);
 		}
@@ -337,7 +344,7 @@ class InlineParser implements InlineScanner {
 			}
 		}
 		return starts[low];
-	}
+	});
 
 	// --- output list --------------------------------------------------------
 
@@ -345,11 +352,11 @@ class InlineParser implements InlineScanner {
 		appendChild(this.root, node);
 	}
 
-	appendText(value: string, from: number, to: number): InlineNode {
+	readonly appendText: InlineScanner["appendText"] = dual(3, (value: string, from: number, to: number): InlineNode => {
 		const node = makeInlineNode("text", from, to, value);
 		appendChild(this.root, node);
 		return node;
-	}
+	});
 
 	lastChild(): InlineNode | undefined {
 		return this.root.lastChild;
@@ -430,7 +437,7 @@ class InlineParser implements InlineScanner {
 		}
 	}
 
-	addBracket(node: InlineNode, index: number, image: boolean): void {
+	readonly addBracket: InlineScanner["addBracket"] = dual(3, (node: InlineNode, index: number, image: boolean): void => {
 		if (this.brackets !== undefined) {
 			this.brackets.bracketAfter = true;
 		}
@@ -445,7 +452,7 @@ class InlineParser implements InlineScanner {
 		if (!image) {
 			this.activeLinkOpeners += 1;
 		}
-	}
+	});
 
 	removeBracket(): void {
 		const popped = this.brackets;
@@ -484,13 +491,14 @@ class InlineParser implements InlineScanner {
 	 *
 	 * ```ts
 	 * import * as HashMap from "effect/HashMap";
+	 * import { dual } from "effect/Function";
 	 * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
 	 * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
 	 *
-	 * const position = (start: number, end: number) => Position.make({
+	 * const position = dual(2, (start: number, end: number): Position => Position.make({
 	 *   start: Point.make({ line: 1, column: start + 1, offset: start }),
 	 *   end: Point.make({ line: 1, column: end + 1, offset: end }),
-	 * });
+	 * }));
 	 * const text = "*word*";
 	 * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);
 	 * console.log(nodes[0]?.type) // emphasis
@@ -632,13 +640,14 @@ class InlineParser implements InlineScanner {
 	 *
 	 * ```ts
 	 * import * as HashMap from "effect/HashMap";
+	 * import { dual } from "effect/Function";
 	 * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
 	 * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
 	 *
-	 * const position = (start: number, end: number) => Position.make({
+	 * const position = dual(2, (start: number, end: number): Position => Position.make({
 	 *   start: Point.make({ line: 1, column: start + 1, offset: start }),
 	 *   end: Point.make({ line: 1, column: end + 1, offset: end }),
-	 * });
+	 * }));
 	 * const text = "hello &amp; world";
 	 * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);
 	 * console.log(nodes.length) // 1
@@ -687,7 +696,7 @@ class InlineParser implements InlineScanner {
 	}
 
 	private materializeNode(node: MaterializableInlineNode, depth: number): PhrasingContent {
-		return materializeInlineNode(node)(this.position(node.start, node.end), (child) => this.materialize(child, depth + 1));
+		return materializeInlineNode(node)(this.position(node.start, node.end), (child: InlineNode) => this.materialize(child, depth + 1));
 	}
 
 	// --- the loop -----------------------------------------------------------
@@ -701,13 +710,14 @@ class InlineParser implements InlineScanner {
 	 *
 	 * ```ts
 	 * import * as HashMap from "effect/HashMap";
+	 * import { dual } from "effect/Function";
 	 * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
 	 * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
 	 *
-	 * const position = (start: number, end: number) => Position.make({
+	 * const position = dual(2, (start: number, end: number): Position => Position.make({
 	 *   start: Point.make({ line: 1, column: start + 1, offset: start }),
 	 *   end: Point.make({ line: 1, column: end + 1, offset: end }),
-	 * });
+	 * }));
 	 * const text = "]";
 	 * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);
 	 * console.log(nodes[0]?.type) // text
@@ -768,13 +778,14 @@ class InlineParser implements InlineScanner {
  *
  * ```ts
  * import * as HashMap from "effect/HashMap";
+ * import { dual } from "effect/Function";
  * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
  * import { parseInlines } from "@beep/scratchpad/effected/markdown/internal/inlineParser";
  *
- * const position = (start: number, end: number) => Position.make({
+ * const position = dual(2, (start: number, end: number): Position => Position.make({
  *   start: Point.make({ line: 1, column: start + 1, offset: start }),
  *   end: Point.make({ line: 1, column: end + 1, offset: end }),
- * });
+ * }));
  * const text = "[foo]";
  * const nodes = parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position);
  * console.log(nodes[0]?.type) // text

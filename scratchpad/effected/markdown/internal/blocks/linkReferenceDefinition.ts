@@ -20,12 +20,13 @@
 // decides whether any paragraph content is left to promote.
 
 import { Definition } from "../../MarkdownNode.ts";
-import type { BlockConstruct, BlockNode } from "../blockTypes.ts";
+import type { BlockConstruct, BlockContinueResult, BlockNode, BlockScanner, MaterializeContext, MaterializedBlock } from "../blockTypes.ts";
 import { makeBlockNode } from "../blockTypes.ts";
 import { parseReference } from "../references.ts";
 import { sliceWithSegments, sourceOffsetAt } from "../segments.ts";
 import * as A from "effect/Array";
 import * as O from "@beep/utils/Option";
+import { dual } from "effect/Function";
 
 const C_OPEN_BRACKET = 0x5b;
 
@@ -153,8 +154,8 @@ export const definitionConstruct: BlockConstruct = {
 	type: "definition",
 	acceptsLines: false,
 	canContain: () => false,
-	continue: () => 1,
-	materialize: (block, _children, context) => {
+	continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
+	materialize: dual(3, (block: BlockNode, _children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => {
 		const definition = block.data.definition;
 		if (definition === undefined) {
 			return undefined;
@@ -166,5 +167,5 @@ export const definitionConstruct: BlockConstruct = {
 			position: context.position(block.startOffset, block.endOffset),
 			...O.getSomesStruct({ title: O.fromUndefinedOr(definition.title) }),
 		});
-	},
+	}),
 };

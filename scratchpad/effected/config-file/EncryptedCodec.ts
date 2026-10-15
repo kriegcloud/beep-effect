@@ -13,7 +13,7 @@ const $I = $ScratchpadId.create("effected/config-file/EncryptedCodec");
 /** Identifies an encrypted envelope that cannot contain both an IV and ciphertext. */
 class CiphertextTooShortError extends S.TaggedError<CiphertextTooShortError, { readonly brand: unique symbol }>($I`CiphertextTooShortError`)("CiphertextTooShortError", {
 	message: S.String,
-}, $I.annote("CiphertextTooShortError", { description: "The encrypted envelope is too short to contain an IV and ciphertext." })) {}
+}, $I.annoteError<CiphertextTooShortError>("CiphertextTooShortError", { description: "The encrypted envelope is too short to contain an IV and ciphertext." })) {}
 
 /**
  * Indicates that an encryption, decryption, key-derivation or base64 step
@@ -44,14 +44,14 @@ export class ConfigEncryptionError extends S.TaggedError<ConfigEncryptionError, 
 	 *
 	 * @since 0.0.0
 	 */
-	phase: S.Literals(["key-derivation", "encrypt", "decrypt", "encoding"]).annotateKey({ description: "Which cryptographic stage failed." }),
+	phase: S.Literals(["key-derivation", "encrypt", "decrypt", "encoding"]).pipe($I.annoteKey("ConfigEncryptionError.phase", { description: "Which cryptographic stage failed." })),
 	/**
 	 * The underlying failure, preserved structurally.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.Defect().annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("ConfigEncryptionError", { description: "Indicates that an encryption, decryption, key-derivation or base64 step failed." })) {
+	cause: S.Defect().pipe($I.annoteKey("ConfigEncryptionError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<ConfigEncryptionError>("ConfigEncryptionError", { description: "Indicates that an encryption, decryption, key-derivation or base64 step failed." })) {
 	/**
 	 * Identifies the cryptographic stage that failed in a readable error message.
 	 *

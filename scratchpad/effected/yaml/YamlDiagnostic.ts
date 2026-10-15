@@ -24,6 +24,8 @@ import {
 	YAML_STRINGIFY_ERROR_CODES,
 	isFatalCode,
 } from "./internal/diagnostics.ts";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/yaml/YamlDiagnostic");
 
@@ -226,12 +228,12 @@ export type YamlErrorCode = typeof YamlErrorCode.Type;
  * @since 0.0.0
  */
 export class YamlDiagnostic extends S.Class<YamlDiagnostic, { readonly brand: unique symbol }>($I`YamlDiagnostic`)({
-	code: YamlErrorCode.annotateKey({ description: "Pipeline error identifier used to classify the diagnostic and determine whether it is fatal" }),
-	message: S.String.annotateKey({ description: "Human-readable explanation of the YAML issue" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start position of the diagnostic span in source UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Extent of the diagnostic span in source UTF-16 code units" }),
-	line: S.Finite.annotateKey({ description: "Zero-based source line containing the diagnostic's start" }),
-	character: S.Finite.annotateKey({ description: "Zero-based position within the source line, measured in UTF-16 code units" }),
+	code: YamlErrorCode.pipe($I.annoteKey("YamlDiagnostic.code", { description: "Pipeline error identifier used to classify the diagnostic and determine whether it is fatal" })),
+	message: S.String.pipe($I.annoteKey("YamlDiagnostic.message", { description: "Human-readable explanation of the YAML issue" })),
+	offset: S.Finite.pipe($I.annoteKey("YamlDiagnostic.offset", { description: "Zero-based start position of the diagnostic span in source UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("YamlDiagnostic.length", { description: "Extent of the diagnostic span in source UTF-16 code units" })),
+	line: S.Finite.pipe($I.annoteKey("YamlDiagnostic.line", { description: "Zero-based source line containing the diagnostic's start" })),
+	character: S.Finite.pipe($I.annoteKey("YamlDiagnostic.character", { description: "Zero-based position within the source line, measured in UTF-16 code units" })),
 }, $I.annote("YamlDiagnostic", { description: "One structured diagnostic: its (YamlErrorCode:type), a human-readable `message`, and its exact position (`offset`/`length`, plus zero-based `line`/`character`). Used for both errors and warnings-as-data; fatality is a property of the code — see YamlDiagnostic.isFatal." })) {
 	/**
 	 * The single fatal-code predicate: whether diagnostics with this code
@@ -278,11 +280,10 @@ export class YamlDiagnostic extends S.Class<YamlDiagnostic, { readonly brand: un
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static fromRaw(
-		raw: { readonly code: YamlErrorCode; readonly message: string; readonly offset: number; readonly length: number },
-		text: string,
-		index?: ReturnType<typeof YamlDiagnostic.positionIndex>,
-	): YamlDiagnostic {
+	static readonly fromRaw: {
+		(text: string, index?: ReturnType<typeof YamlDiagnostic.positionIndex>): (raw: { readonly code: YamlErrorCode; readonly message: string; readonly offset: number; readonly length: number }) => YamlDiagnostic;
+		(raw: { readonly code: YamlErrorCode; readonly message: string; readonly offset: number; readonly length: number }, text: string, index?: ReturnType<typeof YamlDiagnostic.positionIndex>): YamlDiagnostic;
+	} = dual((args) => P.isObjectKeyword(args[0]), (raw: { readonly code: YamlErrorCode; readonly message: string; readonly offset: number; readonly length: number }, text: string, index?: ReturnType<typeof YamlDiagnostic.positionIndex>): YamlDiagnostic => {
 		const { line, character } = index === undefined ? lineChar(text, raw.offset) : index(raw.offset);
 		return YamlDiagnostic.make({
 			code: raw.code,
@@ -292,7 +293,7 @@ export class YamlDiagnostic extends S.Class<YamlDiagnostic, { readonly brand: un
 			line,
 			character,
 		});
-	}
+	});
 
 	/**
 	 * Index line breaks once and return a reusable binary position lookup.
@@ -357,13 +358,17 @@ export class YamlDiagnostic extends S.Class<YamlDiagnostic, { readonly brand: un
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static fromRawBatch(records: ReadonlyArray<RawDiagnostic>, text: string, index = YamlDiagnostic.positionIndex(text)): ReadonlyArray<YamlDiagnostic> {
-		return records.map((raw) => YamlDiagnostic.fromRaw(raw, text, index));
-	}
+	static readonly fromRawBatch: {
+		(text: string, index?: ReturnType<typeof YamlDiagnostic.positionIndex>): (records: ReadonlyArray<RawDiagnostic>) => ReadonlyArray<YamlDiagnostic>;
+		(records: ReadonlyArray<RawDiagnostic>, text: string, index?: ReturnType<typeof YamlDiagnostic.positionIndex>): ReadonlyArray<YamlDiagnostic>;
+	} = dual((args) => A.isArray(args[0]), (records: ReadonlyArray<RawDiagnostic>, text: string, index: ReturnType<typeof YamlDiagnostic.positionIndex> = YamlDiagnostic.positionIndex(text)): ReadonlyArray<YamlDiagnostic> => A.map(records, YamlDiagnostic.fromRaw(text, index)));
 }
 
 /** Preserve the prefix-only scan for standalone diagnostic conversion. */
-function lineChar(text: string, offset: number): { line: number; character: number } {
+const lineChar: {
+	(text: string, offset: number): { line: number; character: number };
+	(offset: number): (text: string) => { line: number; character: number };
+} = dual(2, (text: string, offset: number): { line: number; character: number } => {
 	let line = 0;
 	let lineStart = 0;
 	const limit = Math.min(offset, text.length);
@@ -382,4 +387,4 @@ function lineChar(text: string, offset: number): { line: number; character: numb
 		}
 	}
 	return { line, character: offset - lineStart };
-}
+});

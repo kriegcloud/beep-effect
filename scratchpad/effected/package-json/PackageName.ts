@@ -40,8 +40,8 @@ export class InvalidPackageNameError extends S.TaggedError<InvalidPackageNameErr
 	 * @category models
 	 * @since 0.0.0
 	 */
-	input: S.String.annotateKey({ description: "The raw input string that failed validation." }),
-}, $I.annote("InvalidPackageNameError", { description: "Indicates that a string could not be used as a valid npm package name." })) {
+	input: S.String.pipe($I.annoteKey("InvalidPackageNameError.input", { description: "The raw input string that failed validation." })),
+}, $I.annoteError<InvalidPackageNameError>("InvalidPackageNameError", { description: "Indicates that a string could not be used as a valid npm package name." })) {
 	/**
 	 * Explains which input failed npm naming rules.
 	 *

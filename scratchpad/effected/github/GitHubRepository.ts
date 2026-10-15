@@ -17,8 +17,8 @@ import type * as Rest from "./Rest.ts";
 const $I = $ScratchpadId.create("effected/github/GitHubRepository");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
-	message: S.String.pipe(S.annotateKey({ description: "The repository test-double member read without an override." })),
-}, $I.annote("UnstubbedError", { description: "An unconfigured GitHubRepository test-double member was read." })) {}
+	message: S.String.pipe($I.annoteKey("UnstubbedError.message", { description: "The repository test-double member read without an override." })),
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured GitHubRepository test-double member was read." })) {}
 
 /**
  * Everything GitHub reports about a repository.
@@ -192,7 +192,7 @@ export const GRAPHQL_ONLY_SETTINGS: Readonly<Record<string, string>> = {
 
 /** `{ status: "enabled" | "disabled" }` — the form GitHub accepts and the type declares. */
 const StatusObject = S.Struct({
-	status: S.Literals(["enabled", "disabled"]).pipe(S.annotateKey({ description: "Whether the security feature is enabled or disabled." })),
+	status: S.Literals(["enabled", "disabled"]).pipe($I.annoteKey("StatusObject.status", { description: "Whether the security feature is enabled or disabled." })),
 }).pipe($I.annoteSchema("StatusObject", { description: "The wrapped security-feature status accepted at the repository settings boundary." }));
 const isStatusObject = S.is(StatusObject);
 
@@ -358,8 +358,8 @@ const preparePatch = (patch: Record<string, unknown>): Record<string, unknown> =
  * @since 0.0.0
  */
 export const AppliedSettings = S.Struct({
-	rest: S.Array(S.String).pipe(S.annotateKey({ description: "Keys sent on the REST patch after preparation dropped anything GitHub would refuse." })),
-	graphql: S.Array(S.String).pipe(S.annotateKey({ description: "Keys sent through the GraphQL mutation, named as the caller supplied them." })),
+	rest: S.Array(S.String).pipe($I.annoteKey("AppliedSettings.rest", { description: "Keys sent on the REST patch after preparation dropped anything GitHub would refuse." })),
+	graphql: S.Array(S.String).pipe($I.annoteKey("AppliedSettings.graphql", { description: "Keys sent through the GraphQL mutation, named as the caller supplied them." })),
 }).pipe($I.annoteSchema("AppliedSettings", { description: "The fields actually sent through REST and GraphQL when applying repository settings." }));
 /**
  * Decoded report of the caller-named fields sent through REST and GraphQL.

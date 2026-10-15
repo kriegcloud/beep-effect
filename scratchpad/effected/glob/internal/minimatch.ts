@@ -63,9 +63,8 @@ const $I = $ScratchpadId.create("effected/glob/internal/minimatch");
  * @since 0.0.0
  */
 export class MinimatchError extends S.TaggedError<MinimatchError, { readonly brand: unique symbol }>($I`MinimatchError`)("MinimatchError", {
-	message: S.String.annotateKey({ description: "Describes the internal matching invariant that was violated." }),
-}, $I.annote("MinimatchError", {
-	title: "Minimatch engine invariant violation",
+	message: S.String.pipe($I.annoteKey("MinimatchError.message", { description: "Describes the internal matching invariant that was violated." })),
+}, $I.annoteError<MinimatchError>("MinimatchError", {
 	description: "Programmer error raised when the internal matcher reaches an impossible state while matching a path against a compiled pattern.",
 })) {}
 

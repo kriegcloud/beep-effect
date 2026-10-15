@@ -1,5 +1,6 @@
 import * as Match from "effect/Match";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as S from "effect/Schema";
@@ -40,11 +41,11 @@ const $I = $ScratchpadId.create("effected/cli/ui/Confirm");
 export class DuplicateToggleKeyError extends S.TaggedError<DuplicateToggleKeyError, { readonly brand: unique symbol }>($I`DuplicateToggleKeyError`)(
 	"DuplicateToggleKeyError",
 	{
-		message: S.String.annotate($I.annote("DuplicateToggleKeyError.message", {
+		message: S.String.pipe($I.annoteKey("DuplicateToggleKeyError.message", {
 			description: "Identifies the repeated toggle key that makes the confirmation result ambiguous.",
 		})),
 	},
-	$I.annote("DuplicateToggleKeyError", { description: "Confirmation toggles must have unique result keys." }),
+	$I.annoteError<DuplicateToggleKeyError>("DuplicateToggleKeyError", { description: "Confirmation toggles must have unique result keys." }),
 ) {}
 
 /**
@@ -68,9 +69,9 @@ export class DuplicateToggleKeyError extends S.TaggedError<DuplicateToggleKeyErr
 export const ConfirmToggle = <Key extends S.Top>(key: Key) =>
 	S.Struct({
 		key,
-		label: S.String.annotateKey($I.annote("ConfirmToggle.label", { description: "What the toggle row shows." })),
-		value: S.Boolean.annotateKey($I.annote("ConfirmToggle.value", { description: "Whether the toggle is on." })),
-	}).annotate($I.annote("ConfirmToggle", { description: "A keyed on/off row beneath a confirmation's answer." }));
+		label: S.String.pipe($I.annoteKey("ConfirmToggle.label", { description: "What the toggle row shows." })),
+		value: S.Boolean.pipe($I.annoteKey("ConfirmToggle.value", { description: "Whether the toggle is on." })),
+	}).pipe($I.annoteSchema("ConfirmToggle", { description: "A keyed on/off row beneath a confirmation's answer." }));
 
 /**
  * Plain payload accepted by {@link ConfirmToggle}; reducers retain this structural representation.
@@ -119,15 +120,15 @@ export interface ConfirmResult<K extends string> {
  */
 export const ConfirmState = <Key extends S.Top>(key: Key) =>
 	S.Struct({
-		confirmed: S.Boolean.annotateKey($I.annote("ConfirmState.confirmed", { description: "The yes/no answer." })),
-		row: S.Finite.annotateKey($I.annote("ConfirmState.row", {
+		confirmed: S.Boolean.pipe($I.annoteKey("ConfirmState.confirmed", { description: "The yes/no answer." })),
+		row: S.Finite.pipe($I.annoteKey("ConfirmState.row", {
 			description: "The highlighted row: 0 is the yes/no row, each toggle follows.",
 		})),
-		toggles: key.pipe(ConfirmToggle, S.Array).annotateKey($I.annote("ConfirmState.toggles", {
+		toggles: key.pipe(ConfirmToggle, S.Array, $I.annoteKey("ConfirmState.toggles", {
 			description: "The toggles and their current values.",
 		})),
-		submitted: S.Boolean.annotateKey($I.annote("ConfirmState.submitted", { description: "Whether enter was pressed." })),
-	}).annotate($I.annote("ConfirmState", { description: "The plain reducer state of a confirmation with toggles." }));
+		submitted: S.Boolean.pipe($I.annoteKey("ConfirmState.submitted", { description: "Whether enter was pressed." })),
+	}).pipe($I.annoteSchema("ConfirmState", { description: "The plain reducer state of a confirmation with toggles." }));
 
 /**
  * Plain payload accepted by {@link ConfirmState}; reducers retain this structural representation.
@@ -152,9 +153,7 @@ export type ConfirmState<K extends string> = ReturnType<typeof ConfirmState<S.Co
  * @category schemas
  * @since 0.0.0
  */
-export const ConfirmAction = LiteralKit(["up", "down", "toggle", "yes", "no", "flip", "submit", "cancel"]).annotate(
-	$I.annote("ConfirmAction", { description: "The row, answer, toggle and submission actions of a confirmation." }),
-);
+export const ConfirmAction = LiteralKit(["up", "down", "toggle", "yes", "no", "flip", "submit", "cancel"]).pipe($I.annoteSchema("ConfirmAction", { description: "The row, answer, toggle and submission actions of a confirmation." }));
 
 /**
  * A viewport or interaction action accepted by {@link ConfirmAction}.
@@ -229,7 +228,10 @@ const init = <K extends string>(options: ConfirmInitOptions<K> = {}): ConfirmSta
 	return { confirmed: options.initial ?? false, row: 0, toggles, submitted: false };
 };
 
-const step = <K extends string>(state: ConfirmState<K>, action: ConfirmAction): ConfirmState<K> => {
+const step: {
+	<K extends string>(state: ConfirmState<K>, action: ConfirmAction): ConfirmState<K>;
+	<K extends string>(action: ConfirmAction): (state: ConfirmState<K>) => ConfirmState<K>;
+} = dual(2, <K extends string>(state: ConfirmState<K>, action: ConfirmAction): ConfirmState<K> => {
 	if (state.submitted) return state;
 	return Match.value(action).pipe(
 		Match.when("up", (): ConfirmState<K> => ({ ...state, row: Math.max(0, state.row - 1) })),
@@ -257,7 +259,7 @@ const step = <K extends string>(state: ConfirmState<K>, action: ConfirmAction): 
 		Match.when("cancel", (): ConfirmState<K> => state),
 		Match.exhaustive,
 	);
-};
+});
 
 function result<K extends string>(state: ConfirmState<K>): ConfirmResult<K>;
 function result(state: ConfirmState<string>): ConfirmResult<string> {
@@ -369,8 +371,10 @@ export class Confirm {
 	 * @category mapping
 	 * @since 0.0.0
 	 */
-	static readonly step: <K extends string>(state: ConfirmState<K>, action: ConfirmAction) => ConfirmState<K> =
-		step;
+	static readonly step: {
+		<K extends string>(state: ConfirmState<K>, action: ConfirmAction): ConfirmState<K>;
+		<K extends string>(action: ConfirmAction): (state: ConfirmState<K>) => ConfirmState<K>;
+	} = step;
 
 	/**
 	 * The answer and every toggle's value by key.
@@ -459,10 +463,13 @@ export class Confirm {
 		);
 		const ellipsis = { ellipsis: glyphs.ellipsis };
 		const lead = state.row === 0 ? glyphs.arrow : " ".repeat(Fmt.width(glyphs.arrow));
-		const answer = (label: string, chosen: boolean): ReactElement =>
+		const answer: {
+			(label: string, chosen: boolean): ReactElement;
+			(chosen: boolean): (label: string) => ReactElement;
+		} = dual(2, (label: string, chosen: boolean): ReactElement =>
 			chosen
 				? react.createElement(Styled, { token: "accent" }, `[${label}]`)
-				: react.createElement(ink.Text, null, ` ${label} `);
+				: react.createElement(ink.Text, null, ` ${label} `));
 		// One row each, clipped at layout time with the cursor column reserved: during Ink's immediate resize repaint the
 		// width above is one paint stale, and an unclipped row would wrap past the screen's row budget.
 		const line = (child: ReactElement): ReactElement =>

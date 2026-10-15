@@ -36,11 +36,11 @@ const $I = $ScratchpadId.create("effected/github/Resilience");
  */
 export class RateLimitSnapshot extends S.Class<RateLimitSnapshot, { readonly brand: unique symbol }>($I`RateLimitSnapshot`)({
 	/** Requests left in the current window. */
-	remaining: S.Int.annotateKey({ description: "Requests left in the current window." }),
+	remaining: S.Int.pipe($I.annoteKey("RateLimitSnapshot.remaining", { description: "Requests left in the current window." })),
 	/** The window's ceiling. */
-	limit: S.Int.annotateKey({ description: "The window's ceiling." }),
+	limit: S.Int.pipe($I.annoteKey("RateLimitSnapshot.limit", { description: "The window's ceiling." })),
 	/** When the window resets, as epoch **seconds** — GitHub's own unit. */
-	resetEpochSeconds: S.Int.annotateKey({ description: "When the window resets, as epoch **seconds** — GitHub's own unit." }),
+	resetEpochSeconds: S.Int.pipe($I.annoteKey("RateLimitSnapshot.resetEpochSeconds", { description: "When the window resets, as epoch **seconds** — GitHub's own unit." })),
 }, $I.annote("RateLimitSnapshot", { description: "What GitHub's rate-limit headers said on the most recent REST response." })) {
 	/**
 	 * Milliseconds until the window resets, relative to `nowMillis`, floored at zero.
@@ -138,13 +138,13 @@ export interface RetryableFailure {
  */
 export class RetryPolicy extends S.Class<RetryPolicy, { readonly brand: unique symbol }>($I`RetryPolicy`)({
 	/** Retries after the first attempt. `0` disables retrying. */
-	maxRetries: S.Int.check(S.isBetween({ minimum: 0, maximum: 10 })).annotateKey({ description: "Retries after the first attempt. `0` disables retrying." }),
+	maxRetries: S.Int.check(S.isBetween({ minimum: 0, maximum: 10 })).pipe($I.annoteKey("RetryPolicy.maxRetries", { description: "Retries after the first attempt. `0` disables retrying." })),
 	/** The first backoff step; doubles per attempt. */
-	baseDelay: S.DurationFromMillis.annotateKey({ description: "The first backoff step; doubles per attempt." }),
+	baseDelay: S.DurationFromMillis.pipe($I.annoteKey("RetryPolicy.baseDelay", { description: "The first backoff step; doubles per attempt." })),
 	/** The computed backoff never exceeds this. */
-	maxDelay: S.DurationFromMillis.annotateKey({ description: "The computed backoff never exceeds this." }),
+	maxDelay: S.DurationFromMillis.pipe($I.annoteKey("RetryPolicy.maxDelay", { description: "The computed backoff never exceeds this." })),
 	/** Prefer GitHub's `retry-after` / rate-limit reset over the computed backoff. */
-	respectRetryAfter: S.Boolean.annotateKey({ description: "Prefer GitHub's `retry-after` / rate-limit reset over the computed backoff." }),
+	respectRetryAfter: S.Boolean.pipe($I.annoteKey("RetryPolicy.respectRetryAfter", { description: "Prefer GitHub's `retry-after` / rate-limit reset over the computed backoff." })),
 	/**
   * Refuse to wait longer than this for a server-advised delay.
   *
@@ -154,7 +154,7 @@ export class RetryPolicy extends S.Class<RetryPolicy, { readonly brand: unique s
   * through it converts a failure into a hang, so past this ceiling the error
   * is re-failed immediately and the caller decides what to do.
   */
-	maxServerAdvisedDelay: S.DurationFromMillis.annotateKey({ description: "Refuse to wait longer than this for a server-advised delay." }),
+	maxServerAdvisedDelay: S.DurationFromMillis.pipe($I.annoteKey("RetryPolicy.maxServerAdvisedDelay", { description: "Refuse to wait longer than this for a server-advised delay." })),
 }, $I.annote("RetryPolicy", { description: "How the client retries a failed request." })) {
 	/**
 	 * Four retries, 1s base, 30s cap, honoring server-advised delays up to a minute.

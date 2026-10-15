@@ -12,7 +12,7 @@
 
 import { dual } from "effect/Function";
 import { Html } from "../../MarkdownNode.ts";
-import type { BlockConstruct, BlockNode, BlockStart } from "../blockTypes.ts";
+import type { BlockConstruct, BlockContinueResult, BlockNode, BlockScanner, BlockStart, BlockStartResult, MaterializeContext, MaterializedBlock } from "../blockTypes.ts";
 import { CLOSETAG, OPENTAG } from "../htmlTags.ts";
 import { peekCode } from "../preprocess.ts";
 
@@ -91,19 +91,18 @@ export const htmlBlockConstruct: BlockConstruct = {
 	type: "html",
 	acceptsLines: true,
 	canContain: () => false,
-	continue: (scanner, block) => {
+	continue: dual(2, (scanner: BlockScanner, block: BlockNode): BlockContinueResult => {
 		const type = block.data.htmlBlockType;
 		// Types 6 and 7 have no closing pattern: a blank line ends them.
 		return scanner.blank && (type === 6 || type === 7) ? 1 : 0;
-	},
-	finalize: (_scanner, block) => {
+	}),
+	finalize: dual(2, (_scanner: BlockScanner, block: BlockNode): void => {
 		block.stringContent = block.stringContent.replace(/\n$/, "");
-	},
-	materialize: (block, _children, context) =>
-		Html.make({
+	}),
+	materialize: dual(3, (block: BlockNode, _children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => Html.make({
 			value: block.stringContent,
 			position: context.position(block.startOffset, block.endOffset),
-		}),
+		})),
 };
 
 /**
@@ -128,7 +127,7 @@ export const htmlBlockConstruct: BlockConstruct = {
  */
 export const htmlBlockStart: BlockStart = {
 	name: "htmlBlock",
-	trigger: (scanner, container) => {
+	trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
 		if (scanner.indented || peekCode(scanner.currentLine, scanner.nextNonspace) !== C_LESSTHAN) {
 			return 0;
 		}
@@ -154,5 +153,5 @@ export const htmlBlockStart: BlockStart = {
 		}
 
 		return 0;
-	},
+	}),
 };

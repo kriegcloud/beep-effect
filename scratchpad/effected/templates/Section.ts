@@ -40,13 +40,11 @@ const $I = $ScratchpadId.create("effected/templates/Section");
  * @since 0.0.0
  */
 export const SectionKey = S.String.check(
-	S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._-]*$/u, {
-		identifier: $I`SectionKeyCheck`,
-		title: "Section key grammar",
+	S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._-]*$/u, $I.annote("SectionKeyCheck", {
 		description: "A section key starts with an ASCII letter or digit and continues with letters, digits, dots, underscores, or hyphens.",
 		message: "Expected a section key starting with a letter or digit and containing only letters, digits, '.', '_', or '-'.",
-	}),
-).annotate($I.annote("SectionKey", { description: "The case-sensitive name of a managed section, rendered verbatim in its markers." }));
+	})),
+).pipe($I.annoteSchema("SectionKey", { description: "The case-sensitive name of a managed section, rendered verbatim in its markers." }));
 
 /**
  * The unbranded string type validated by {@link SectionKey}.
@@ -87,13 +85,13 @@ export class SectionId extends S.Class<SectionId, { readonly brand: unique symbo
 	 *
 	 * @since 0.0.0
 	 */
-	key: SectionKey.annotateKey({ description: "The section's name, exactly as it appears in the markers." }),
+	key: SectionKey.pipe($I.annoteKey("SectionId.key", { description: "The section's name, exactly as it appears in the markers." })),
 	/**
 	 * How this section's markers are commented out.
 	 *
 	 * @since 0.0.0
 	 */
-	commentStyle: CommentStyle.annotateKey({ description: "How this section's markers are commented out." }),
+	commentStyle: CommentStyle.pipe($I.annoteKey("SectionId.commentStyle", { description: "How this section's markers are commented out." })),
 }, $I.annote("SectionId", { description: "What identifies a managed section inside a document: its key and the comment style its markers are written in." })) {
 	/**
 	 * Pair this identity with the content a tool wants inside it.
@@ -175,25 +173,25 @@ export class Section extends S.Class<Section, { readonly brand: unique symbol }>
 	 *
 	 * @since 0.0.0
 	 */
-	key: SectionKey.annotateKey({ description: "The section's name, exactly as it appears in the markers." }),
+	key: SectionKey.pipe($I.annoteKey("Section.key", { description: "The section's name, exactly as it appears in the markers." })),
 	/**
 	 * How this section's markers are commented out.
 	 *
 	 * @since 0.0.0
 	 */
-	commentStyle: CommentStyle.annotateKey({ description: "How this section's markers are commented out." }),
+	commentStyle: CommentStyle.pipe($I.annoteKey("Section.commentStyle", { description: "How this section's markers are commented out." })),
 	/**
 	 * Everything between the markers, exclusive of the boundary line breaks.
 	 *
 	 * @since 0.0.0
 	 */
-	content: S.String.annotateKey({ description: "Everything between the markers, exclusive of the boundary line breaks." }),
+	content: S.String.pipe($I.annoteKey("Section.content", { description: "Everything between the markers, exclusive of the boundary line breaks." })),
 	/**
 	 * The BEGIN marker's `name="value"` pairs. Empty when the marker carries none.
 	 *
 	 * @since 0.0.0
 	 */
-	attributes: S.Record(S.String, S.String).pipe(S.withConstructorDefault(Effect.succeed({}))).annotateKey({ description: "The BEGIN marker's `name=\"value\"` pairs. Empty when the marker carries none." }),
+	attributes: S.Record(S.String, S.String).pipe(S.withConstructorDefault(Effect.succeed({})), $I.annoteKey("Section.attributes", { description: "The BEGIN marker's `name=\"value\"` pairs. Empty when the marker carries none." })),
 }, $I.annote("Section", { description: "A managed section: an identity plus the content its owner wants between the markers." })) {
 	/**
 	 * This section's identity, without its content.
@@ -268,23 +266,23 @@ export class PlacedSection extends S.Class<PlacedSection, { readonly brand: uniq
 	 *
 	 * @since 0.0.0
 	 */
-	section: Section.annotateKey({ description: "The section, with line endings already normalized to `\\n`." }),
+	section: Section.pipe($I.annoteKey("PlacedSection.section", { description: "The section, with line endings already normalized to `\\n`." })),
 	/**
 	 * Offset of the begin marker's first character.
 	 *
 	 * @since 0.0.0
 	 */
-	start: S.Finite.annotateKey({ description: "Offset of the begin marker's first character." }),
+	start: S.Finite.pipe($I.annoteKey("PlacedSection.start", { description: "Offset of the begin marker's first character." })),
 	/**
 	 * Offset one past the end marker's last character.
 	 *
 	 * @since 0.0.0
 	 */
-	end: S.Finite.annotateKey({ description: "Offset one past the end marker's last character." }),
+	end: S.Finite.pipe($I.annoteKey("PlacedSection.end", { description: "Offset one past the end marker's last character." })),
 	/**
 	 * 1-based line of the begin marker.
 	 *
 	 * @since 0.0.0
 	 */
-	line: S.Finite.annotateKey({ description: "1-based line of the begin marker." }),
+	line: S.Finite.pipe($I.annoteKey("PlacedSection.line", { description: "1-based line of the begin marker." })),
 }, $I.annote("PlacedSection", { description: "A managed section as found in a document, carrying the span it occupies." })) {}

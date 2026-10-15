@@ -28,9 +28,7 @@ import { DepthCap } from "./Walker.ts";
 
 const $I = $ScratchpadId.create("effected/walker/Expand");
 
-const ExpansionStage = LiteralKit(["compile", "descend"]).annotate(
-	$I.annote("ExpansionStage", { description: "The phase in which glob expansion failed." }),
-);
+const ExpansionStage = LiteralKit(["compile", "descend"]).pipe($I.annoteSchema("ExpansionStage", { description: "The phase in which glob expansion failed." }));
 type ExpansionStage = typeof ExpansionStage.Type;
 const expansionStage = Match.type<GlobPatternError | DescendError>().pipe(
 	Match.tagsExhaustive({
@@ -61,11 +59,11 @@ const encodeJsonString = S.encodeResult(JsonString);
 * @since 0.0.0
 */
 export const CompileAndExpandOptions = S.Struct({
-	cwd: S.String.annotateKey({ description: "Absolute directory the pattern is resolved against." }),
-	maxDepth: S.optionalKey(DepthCap).annotateKey({ description: "Hard cap on directory depth below the literal prefix." }),
-	prune: S.Array(S.String).pipe(S.optionalKey).annotateKey({ description: "Directory names never descended into." }),
-	onUnreadable: S.optionalKey(OnUnreadableArray).annotateKey({ description: "Whether unreadable directories fail or are skipped; record mode is excluded." }),
-	followSymlinks: S.optionalKey(S.Boolean).annotateKey({ description: "Whether symlinked directories are followed with per-branch cycle safety." }),
+	cwd: S.String.pipe($I.annoteKey("CompileAndExpandOptions.cwd", { description: "Absolute directory the pattern is resolved against." })),
+	maxDepth: S.optionalKey(DepthCap).pipe($I.annoteKey("CompileAndExpandOptions.maxDepth", { description: "Hard cap on directory depth below the literal prefix." })),
+	prune: S.Array(S.String).pipe(S.optionalKey, $I.annoteKey("CompileAndExpandOptions.prune", { description: "Directory names never descended into." })),
+	onUnreadable: S.optionalKey(OnUnreadableArray).pipe($I.annoteKey("CompileAndExpandOptions.onUnreadable", { description: "Whether unreadable directories fail or are skipped; record mode is excluded." })),
+	followSymlinks: S.optionalKey(S.Boolean).pipe($I.annoteKey("CompileAndExpandOptions.followSymlinks", { description: "Whether symlinked directories are followed with per-branch cycle safety." })),
 /**
 * The options the pattern compiles under — **required, deliberately**.
 *
@@ -80,8 +78,8 @@ export const CompileAndExpandOptions = S.Struct({
 * Pass `GlobPatternOptions.make({})` to mean "the defaults" — that is a
 * deliberate choice being written down, not boilerplate.
 */
-	glob: GlobPatternOptions.annotateKey({ description: "The explicitly supplied matching dialect." }),
-}).annotate($I.annote("CompileAndExpandOptions", { description: "Downward traversal options and the required glob matching dialect." }));
+	glob: GlobPatternOptions.pipe($I.annoteKey("CompileAndExpandOptions.glob", { description: "The explicitly supplied matching dialect." })),
+}).pipe($I.annoteSchema("CompileAndExpandOptions", { description: "Downward traversal options and the required glob matching dialect." }));
 /**
 * Decoded traversal settings with an explicitly chosen glob matching dialect.
 *
@@ -124,10 +122,10 @@ export type CompileAndExpandOptions = typeof CompileAndExpandOptions.Type;
 */
 export class GlobExpansionError extends S.TaggedError<GlobExpansionError, { readonly brand: unique symbol }>($I`GlobExpansionError`)("GlobExpansionError", {
 	/** The glob pattern's source text, as handed to {@link compileAndExpand}. */
-	pattern: S.String.annotateKey({ description: "The glob pattern's source text, as handed to compileAndExpand." }),
+	pattern: S.String.pipe($I.annoteKey("GlobExpansionError.pattern", { description: "The glob pattern's source text, as handed to compileAndExpand." })),
 	/** The underlying typed failure, intact: a compile guard trip or a descent failure. */
-	cause: S.Union([GlobPatternError, DescendError]).annotateKey({ description: "The underlying typed failure, intact: a compile guard trip or a descent failure." }),
-}, $I.annote("GlobExpansionError", { description: "Typed failure raised by compileAndExpand: the single error the compile+expand recipe fails with, so a caller catches one tag rather than folding two error channels by hand." })) {
+	cause: S.Union([GlobPatternError, DescendError]).pipe($I.annoteKey("GlobExpansionError.cause", { description: "The underlying typed failure, intact: a compile guard trip or a descent failure." })),
+}, $I.annoteError<GlobExpansionError>("GlobExpansionError", { description: "Typed failure raised by compileAndExpand: the single error the compile+expand recipe fails with, so a caller catches one tag rather than folding two error channels by hand." })) {
 	/**
 	* Which phase failed — `"compile"` when the pattern itself was rejected,
 	* `"descend"` when the filesystem walk failed. A convenience over

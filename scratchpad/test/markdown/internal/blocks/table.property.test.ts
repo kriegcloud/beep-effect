@@ -3,6 +3,7 @@ import { assert, describe, it, vi } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -11,7 +12,7 @@ import { Markdown, MarkdownFormat, MarkdownFormattingOptions, Mdast } from "../.
 import { CellContent, RawCell, RowSource, ScannedRow, tableHeaderStart } from "../../../../effected/markdown/internal/blocks/table.ts";
 import { parseBlocks } from "../../../../effected/markdown/internal/blockParser.ts";
 import * as BlockRegistry from "../../../../effected/markdown/internal/blockRegistry.ts";
-import type { BlockNode, BlockScanner } from "../../../../effected/markdown/internal/blockTypes.ts";
+import type { BlockNode, BlockScanner, BlockStartResult } from "../../../../effected/markdown/internal/blockTypes.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 // Positions refer to different byte strings after canonical serialization.
@@ -40,7 +41,7 @@ describe("table parser properties", () => {
         ...dialect,
         starts: A.map(dialect.starts, (start) => start !== tableHeaderStart ? start : {
           ...start,
-          trigger(scanner: BlockScanner, container: BlockNode) {
+          trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
             if (container.type !== "paragraph" || scanner.currentLine !== "| --- |") return start.trigger(scanner, container);
             const measured = A.map(container.segments, (segment) => ({
               get textOffset() { reads += 1; return segment.textOffset; },
@@ -53,7 +54,7 @@ describe("table parser properties", () => {
             promotionReads = reads;
             promotions += 1;
             return result;
-          },
+          }),
         }),
       });
       try {
@@ -87,7 +88,7 @@ describe("table parser properties", () => {
       ...dialect,
       starts: A.map(dialect.starts, (start) => start !== tableHeaderStart ? start : {
         ...start,
-        trigger(scanner: BlockScanner, container: BlockNode) {
+        trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
           const result = start.trigger(scanner, container);
           if (result !== 2) return result;
           promotions += 1;
@@ -111,7 +112,7 @@ describe("table parser properties", () => {
           assert.strictEqual(cells?.[1]?.stringContent, "tail ");
           assert.deepStrictEqual(cells?.[1]?.segments, [{ textOffset: 0, sourceOffset: 22, length: 5 }]);
           return result;
-        },
+        }),
       }),
     });
     try {
@@ -127,7 +128,7 @@ describe("table parser properties", () => {
       ...dialect,
       starts: A.map(dialect.starts, (start) => start !== tableHeaderStart ? start : {
         ...start,
-        trigger(scanner: BlockScanner, container: BlockNode) {
+        trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
           if (container.type !== "paragraph" || scanner.currentLine !== "| --- |") return start.trigger(scanner, container);
           container.segments.length = 0;
           container.segments.push(
@@ -146,7 +147,7 @@ describe("table parser properties", () => {
             { textOffset: 3, sourceOffset: 6, length: 5 },
           ]);
           return result;
-        },
+        }),
       }),
     });
     try {

@@ -9,6 +9,7 @@ import { YamlLint } from "../../effected/yaml/YamlLint.ts";
 import { LintContext, YamlLintDiagnostic } from "../../effected/yaml/YamlLintRule.ts";
 import { eofNewline } from "../../effected/yaml/internal/rules/eof-newline.ts";
 import { YamlLintRuleSetting, YamlLintConfig, StyleVoteTally, StyleFloorTally, StyleEvidence, StyleConflict, YamlStyleConflictError } from "../../effected/yaml/YamlLint.ts";
+import { dual } from "effect/Function";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -47,7 +48,7 @@ describe("YamlLint line and own-key regressions", () => {
       ["a\r\r", [{ text: "a", offset: 0, number: 0 }, { text: "", offset: 2, number: 1 }]],
     ] as const) {
       let checks = 0;
-      YamlLint.run(text, [{ id: "lines", check: (ctx) => {
+      YamlLint.run(text, [{ id: "lines", check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
         checks++;
         assert.isTrue(S.is(LintContext)(ctx));
         assert.deepStrictEqual(ctx.lines, expected);
@@ -56,7 +57,7 @@ describe("YamlLint line and own-key regressions", () => {
           if (line !== undefined) assert.strictEqual(token.character, token.offset - line.offset);
         }
         return [];
-      } }], YamlLintConfig.make({ rules: { lines: "error" } }));
+      }) }], YamlLintConfig.make({ rules: { lines: "error" } }));
       assert.strictEqual(checks, 1);
     }
   });
@@ -73,18 +74,18 @@ describe("YamlLint line and own-key regressions", () => {
 
   it("absent toString and constructor rules never run", () => {
     let checks = 0;
-    const rules = ["toString", "constructor"].map((id) => ({ id, check: () => {
+    const rules = ["toString", "constructor"].map((id) => ({ id, check: dual(2, (_ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
       checks++;
       return [];
-    } }));
+    }) }));
     assert.deepStrictEqual(YamlLint.run("a: 1\n", rules, YamlLintConfig.make({ rules: {} })), []);
     assert.strictEqual(checks, 0);
   });
 
   it("an own __proto__ rule obeys warning and off settings", () => {
-    const rule = { id: "__proto__", check: () => [YamlLintDiagnostic.make({
+    const rule = { id: "__proto__", check: dual(2, (_ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => [YamlLintDiagnostic.make({
       rule: "__proto__", severity: "error", message: "own rule", offset: 0, length: 0, line: 0, character: 0,
-    })] };
+    })]) };
     const warning = YamlLintConfig.make({ rules: R.fromEntries([["__proto__", "warning"] as const]) });
     assert.strictEqual(O.getOrUndefined(R.get(warning.rules, "__proto__")), "warning");
     assert.strictEqual(YamlLint.run("a: 1\n", [rule], warning)[0]?.severity, "warning");

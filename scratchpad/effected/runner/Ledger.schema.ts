@@ -83,8 +83,8 @@ export const MODULE_NAMES = [
  * @category schemas
  * @since 0.0.0
  */
-export const ModuleName = LiteralKit(MODULE_NAMES).annotate(
-  $I.annote("ModuleName", { description: "One of the 29 @effected modules the lab ports." })
+export const ModuleName = LiteralKit(MODULE_NAMES).pipe(
+  $I.annoteSchema("ModuleName", { description: "One of the 29 @effected modules the lab ports." })
 );
 
 /**
@@ -143,8 +143,8 @@ export const AUDIT_TARGETS = [...MODULE_NAMES, RUNNER_TARGET] as const;
  * @category schemas
  * @since 0.0.0
  */
-export const AuditTarget = LiteralKit(AUDIT_TARGETS).annotate(
-  $I.annote("AuditTarget", { description: "A ported module name or the runner pseudo-target." })
+export const AuditTarget = LiteralKit(AUDIT_TARGETS).pipe(
+  $I.annoteSchema("AuditTarget", { description: "A ported module name or the runner pseudo-target." })
 );
 
 /**
@@ -172,8 +172,8 @@ export type AuditTarget = typeof AuditTarget.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const Stage = LiteralKit([0, 1, 2, 3, 4, 5]).annotate(
-  $I.annote("Stage", { description: "Port stage reached by a module, 0 (copied) through 5 (done)." })
+export const Stage = LiteralKit([0, 1, 2, 3, 4, 5]).pipe(
+  $I.annoteSchema("Stage", { description: "Port stage reached by a module, 0 (copied) through 5 (done)." })
 );
 
 /**
@@ -241,8 +241,8 @@ export const DONE_STAGE: Stage = 5;
  * @category schemas
  * @since 0.0.0
  */
-export const RowStatus = LiteralKit(["pending", "in-progress", "done", "blocked"]).annotate(
-  $I.annote("RowStatus", { description: "Whether a module is untouched, moving, done, or blocked." })
+export const RowStatus = LiteralKit(["pending", "in-progress", "done", "blocked"]).pipe(
+  $I.annoteSchema("RowStatus", { description: "Whether a module is untouched, moving, done, or blocked." })
 );
 
 /**
@@ -275,8 +275,8 @@ export type RowStatus = typeof RowStatus.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ExportKind = LiteralKit(["value", "type", "both"]).annotate(
-  $I.annote("ExportKind", { description: "Value, type, or both facets of one export name." })
+export const ExportKind = LiteralKit(["value", "type", "both"]).pipe(
+  $I.annoteSchema("ExportKind", { description: "Value, type, or both facets of one export name." })
 );
 
 /**
@@ -333,8 +333,8 @@ export const exportKindCovers: {
  * @category schemas
  * @since 0.0.0
  */
-export const DepKind = LiteralKit(["runtime", "dev"]).annotate(
-  $I.annote("DepKind", { description: "Runtime dependency or test-only oracle dependency." })
+export const DepKind = LiteralKit(["runtime", "dev"]).pipe(
+  $I.annoteSchema("DepKind", { description: "Runtime dependency or test-only oracle dependency." })
 );
 
 /**
@@ -360,8 +360,8 @@ export type DepKind = typeof DepKind.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ReviewSeat = LiteralKit(["grok", "sol", "fable"]).annotate(
-  $I.annote("ReviewSeat", { description: "Reviewer seat: Grok 4.7, GPT-6.1-Sol, or Fable 5.1." })
+export const ReviewSeat = LiteralKit(["grok", "sol", "fable"]).pipe(
+  $I.annoteSchema("ReviewSeat", { description: "Reviewer seat: Grok 4.7, GPT-6.1-Sol, or Fable 5.1." })
 );
 
 /**
@@ -387,8 +387,8 @@ export type ReviewSeat = typeof ReviewSeat.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ProvisionalHome = LiteralKit(["foundation/modeling", "tooling/test-kit", "tooling/library", "drivers"]).annotate(
-  $I.annote("ProvisionalHome", { description: "Provisional package family a module would promote into." })
+export const ProvisionalHome = LiteralKit(["foundation/modeling", "tooling/test-kit", "tooling/library", "drivers"]).pipe(
+  $I.annoteSchema("ProvisionalHome", { description: "Provisional package family a module would promote into." })
 );
 
 /**
@@ -546,8 +546,8 @@ export class SeatCounts extends S.Class<SeatCounts, { readonly brand: unique sym
  * @category schemas
  * @since 0.0.0
  */
-export const SeatVerdict = S.Union([SeatCounts, S.Literal("unavailable")]).annotate(
-  $I.annote("SeatVerdict", { description: "A seat's finding counts, or unavailable for that round." })
+export const SeatVerdict = S.Union([SeatCounts, S.Literal("unavailable")]).pipe(
+  $I.annoteSchema("SeatVerdict", { description: "A seat's finding counts, or unavailable for that round." })
 );
 
 /**

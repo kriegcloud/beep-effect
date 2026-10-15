@@ -1,11 +1,13 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { LocalExec, Run } from "../commands/index.ts";
+import { type CommandOutput, LocalExec, Run } from "../commands/index.ts";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
 import * as Red from "effect/Redacted";
@@ -35,25 +37,28 @@ const PROVENANCE_URL = /https:\/\/search\.sigstore\.dev\/\?logIndex=\d+/;
  * never does, and the publish goes out unauthenticated with no diagnostic. A
  * registry path is preserved (`//host/artifactory/api/npm/repo/:_authToken`).
  */
-const authKey = (registry: string, credential: RegistryCredential): string => {
+const authKey: {
+	(registry: string, credential: RegistryCredential): string;
+	(credential: RegistryCredential): (registry: string) => string;
+} = dual(2, (registry: string, credential: RegistryCredential): string => {
 	const withoutScheme = Str.replace(/^https?:/, "")(registry);
 	const withSlash = Str.endsWith("/")(withoutScheme) ? withoutScheme : `${withoutScheme}/`;
 	// npm reads BOTH keys per registry, checking `_authToken` first and then
 	// `_auth` (npm-registry-fetch's `hasAuth`), so the credential's own kind
 	// picks the key and neither shadows the other.
 	return `${withSlash}:${credential.kind === "token" ? "_authToken" : "_auth"}`;
-};
+});
 
 /** What `npm pack --json` reports for one tarball. */
 const PackJsonEntry = S.Struct({
-	name: S.String.annotateKey({ description: "The package name reported by npm." }),
-	version: S.String.annotateKey({ description: "The package version reported by npm." }),
-	filename: S.String.annotateKey({ description: "The tarball filename reported by npm." }),
-	integrity: S.optionalKey(S.String).annotateKey({ description: "The integrity reported by npm, when present." }),
-	size: S.optionalKey(S.Finite).annotateKey({ description: "The packed byte size reported by npm." }),
-	unpackedSize: S.optionalKey(S.Finite).annotateKey({ description: "The unpacked byte size reported by npm." }),
-	entryCount: S.optionalKey(S.Finite).annotateKey({ description: "The file count reported by npm." }),
-}).annotate($I.annote("PackJsonEntry", { description: "One tarball entry reported by npm pack --json." }));
+	name: S.String.pipe($I.annoteKey("PackJsonEntry.name", { description: "The package name reported by npm." })),
+	version: S.String.pipe($I.annoteKey("PackJsonEntry.version", { description: "The package version reported by npm." })),
+	filename: S.String.pipe($I.annoteKey("PackJsonEntry.filename", { description: "The tarball filename reported by npm." })),
+	integrity: S.optionalKey(S.String).pipe($I.annoteKey("PackJsonEntry.integrity", { description: "The integrity reported by npm, when present." })),
+	size: S.optionalKey(S.Finite).pipe($I.annoteKey("PackJsonEntry.size", { description: "The packed byte size reported by npm." })),
+	unpackedSize: S.optionalKey(S.Finite).pipe($I.annoteKey("PackJsonEntry.unpackedSize", { description: "The unpacked byte size reported by npm." })),
+	entryCount: S.optionalKey(S.Finite).pipe($I.annoteKey("PackJsonEntry.entryCount", { description: "The file count reported by npm." })),
+}).pipe($I.annoteSchema("PackJsonEntry", { description: "One tarball entry reported by npm pack --json." }));
 
 /**
  * What `npm pack --json` prints, on both supported majors: npm 11 emits an
@@ -63,8 +68,8 @@ const PackJsonEntry = S.Struct({
  * tarball's `name` as the key, where 11 handed it the array index). A
  * single-package pack is one entry either way.
  */
-const PackJson = S.Union([S.Array(PackJsonEntry), S.Record(S.String, PackJsonEntry)]).annotate(
-	$I.annote("PackJson", { description: "The npm 11 array or npm 12 package-keyed pack output." }),
+const PackJson = S.Union([S.Array(PackJsonEntry), S.Record(S.String, PackJsonEntry)]).pipe(
+	$I.annoteSchema("PackJson", { description: "The npm 11 array or npm 12 package-keyed pack output." }),
 );
 
 /** `npm pack --json` stdout decoded straight to {@link PackJson}. */
@@ -92,17 +97,17 @@ const PackJsonFromString = S.fromJsonString(PackJson);
  */
 export class PackedTarball extends S.Class<PackedTarball, { readonly brand: unique symbol }>($I`PackedTarball`)({
 	/** Absolute path to the tarball on disk. */
-	tarballPath: S.String.annotateKey({ description: "Absolute path to the tarball on disk." }),
+	tarballPath: S.String.pipe($I.annoteKey("PackedTarball.tarballPath", { description: "Absolute path to the tarball on disk." })),
 	/** Package name, as npm reported it. */
-	name: S.String.annotateKey({ description: "Package name, as npm reported it." }),
+	name: S.String.pipe($I.annoteKey("PackedTarball.name", { description: "Package name, as npm reported it." })),
 	/** Package version, as npm reported it. */
-	version: S.String.annotateKey({ description: "Package version, as npm reported it." }),
+	version: S.String.pipe($I.annoteKey("PackedTarball.version", { description: "Package version, as npm reported it." })),
 	/**
 	 * npm's own integrity for the tarball (`sha512-<base64>`) — the value the
 	 * registry stores as `dist.integrity`, so it compares directly against
 	 * `NpmRegistry.version(...)`'s `integrity`.
 	 */
-	integrity: S.optionalKey(IntegrityHash).annotateKey({ description: "npm's own integrity for the tarball (`sha512-<base64>`) — the value the registry stores as `dist.integrity`, so it compares directly against `NpmRegistry.version(...)`'s `integrity`." }),
+	integrity: S.optionalKey(IntegrityHash).pipe($I.annoteKey("PackedTarball.integrity", { description: "npm's own integrity for the tarball (`sha512-<base64>`) — the value the registry stores as `dist.integrity`, so it compares directly against `NpmRegistry.version(...)`'s `integrity`." })),
 	/**
   * SHA-256 of the tarball bytes, lowercase hex, no prefix.
   *
@@ -112,13 +117,13 @@ export class PackedTarball extends S.Class<PackedTarball, { readonly brand: uniq
   * algorithm, different encoding. This is the digest format the GitHub
   * attestation APIs accept as a subject; comparing the two silently fails.
   */
-	sha256Hex: S.String.annotateKey({ description: "SHA-256 of the tarball bytes, lowercase hex, no prefix." }),
+	sha256Hex: S.String.pipe($I.annoteKey("PackedTarball.sha256Hex", { description: "SHA-256 of the tarball bytes, lowercase hex, no prefix." })),
 	/** Tarball size in bytes. */
-	packedSize: S.optionalKey(S.Finite).annotateKey({ description: "Tarball size in bytes." }),
+	packedSize: S.optionalKey(S.Finite).pipe($I.annoteKey("PackedTarball.packedSize", { description: "Tarball size in bytes." })),
 	/** Unpacked size in bytes. */
-	unpackedSize: S.optionalKey(S.Finite).annotateKey({ description: "Unpacked size in bytes." }),
+	unpackedSize: S.optionalKey(S.Finite).pipe($I.annoteKey("PackedTarball.unpackedSize", { description: "Unpacked size in bytes." })),
 	/** Number of files in the tarball. */
-	fileCount: S.optionalKey(S.Finite).annotateKey({ description: "Number of files in the tarball." }),
+	fileCount: S.optionalKey(S.Finite).pipe($I.annoteKey("PackedTarball.fileCount", { description: "Number of files in the tarball." })),
 }, $I.annote("PackedTarball", { description: "A packed tarball and the two digests that describe it." })) {}
 
 /**
@@ -144,8 +149,8 @@ export const PublishOutcome = S.Struct({
 	 * npm's Sigstore transparency-log URL, when it published provenance.
 	 * Absent for GitHub Packages, custom registries, and provenance-off runs.
 	 */
-	provenanceUrl: S.optionalKey(S.String).annotateKey({ description: "The Sigstore URL, when npm published provenance." }),
-}).annotate($I.annote("PublishOutcome", { description: "The structural outcome of one publish." }));
+	provenanceUrl: S.optionalKey(S.String).pipe($I.annoteKey("PublishOutcome.provenanceUrl", { description: "The Sigstore URL, when npm published provenance." })),
+}).pipe($I.annoteSchema("PublishOutcome", { description: "The structural outcome of one publish." }));
 /**
  * Decoded publish result represented by {@link (PublishOutcome:variable)}.
  *
@@ -182,16 +187,16 @@ export type PublishOutcome = typeof PublishOutcome.Type;
  */
 export const DryRunOutcome = S.Struct({
 	/** Whether the package packs. `false` is an answer, not a failure. */
-	ok: S.Boolean.annotateKey({ description: "Whether the package packs; false is a normal result." }),
+	ok: S.Boolean.pipe($I.annoteKey("DryRunOutcome.ok", { description: "Whether the package packs; false is a normal result." })),
 	/** Tarball size in bytes, when npm reported it. */
-	packedSize: S.optionalKey(S.Finite).annotateKey({ description: "Packed tarball size in bytes." }),
+	packedSize: S.optionalKey(S.Finite).pipe($I.annoteKey("DryRunOutcome.packedSize", { description: "Packed tarball size in bytes." })),
 	/** Unpacked size in bytes, when npm reported it. */
-	unpackedSize: S.optionalKey(S.Finite).annotateKey({ description: "Unpacked size in bytes." }),
+	unpackedSize: S.optionalKey(S.Finite).pipe($I.annoteKey("DryRunOutcome.unpackedSize", { description: "Unpacked size in bytes." })),
 	/** Number of files the tarball would contain, when npm reported it. */
-	fileCount: S.optionalKey(S.Finite).annotateKey({ description: "Number of files in the tarball." }),
+	fileCount: S.optionalKey(S.Finite).pipe($I.annoteKey("DryRunOutcome.fileCount", { description: "Number of files in the tarball." })),
 	/** npm's output, for diagnostics. */
-	output: S.String.annotateKey({ description: "npm output for diagnostics." }),
-}).annotate($I.annote("DryRunOutcome", { description: "Packability and sizing from npm pack --dry-run." }));
+	output: S.String.pipe($I.annoteKey("DryRunOutcome.output", { description: "npm output for diagnostics." })),
+}).pipe($I.annoteSchema("DryRunOutcome", { description: "Packability and sizing from npm pack --dry-run." }));
 /**
  * Decoded dry-run result represented by {@link (DryRunOutcome:variable)}.
  *
@@ -222,8 +227,8 @@ export const PackOptions = S.Struct({
 	/** Which npm runs the command. Defaults to {@link NpmExecutor.ambient}. */
 	executor: S.instanceOf(NpmExecutor, {
 		toCodecArbitrary: () => S.link<NpmExecutor>()(S.toType(NpmExecutor), SchemaTransformation.passthrough()),
-	}).pipe(S.optional).annotateKey({ description: "The npm executor; omission selects ambient npm." }),
-}).annotate($I.annote("PackOptions", { description: "Structural options shared by packing operations." }));
+	}).pipe(S.optional, $I.annoteKey("PackOptions.executor", { description: "The npm executor; omission selects ambient npm." })),
+}).pipe($I.annoteSchema("PackOptions", { description: "Structural options shared by packing operations." }));
 /**
  * Decoded packing options represented by {@link (PackOptions:variable)}.
  *
@@ -253,13 +258,13 @@ export type PackOptions = typeof PackOptions.Type;
 export const PublishOptions = S.Struct({
 	...PackOptions.fields,
 	/** The registry to publish to. Required — a defaulted registry is how packages land in the wrong place. */
-	registry: S.String.annotateKey({ description: "Explicit registry to receive the tarball." }),
+	registry: S.String.pipe($I.annoteKey("PublishOptions.registry", { description: "Explicit registry to receive the tarball." })),
 	/** dist-tag to apply. */
-	tag: S.optionalKey(S.String).annotateKey({ description: "The dist-tag to apply." }),
+	tag: S.optionalKey(S.String).pipe($I.annoteKey("PublishOptions.tag", { description: "The dist-tag to apply." })),
 	/** Access level for a scoped package. */
-	access: S.optionalKey(S.Literals(["public", "restricted"])).annotateKey({ description: "Access for a scoped package." }),
+	access: S.optionalKey(S.Literals(["public", "restricted"])).pipe($I.annoteKey("PublishOptions.access", { description: "Access for a scoped package." })),
 	/** Request npm's native provenance. */
-	provenance: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to request npm provenance." }),
+	provenance: S.optionalKey(S.Boolean).pipe($I.annoteKey("PublishOptions.provenance", { description: "Whether to request npm provenance." })),
 	/**
   * Force classic `_authToken` auth by blanking the Actions OIDC environment.
   *
@@ -270,8 +275,8 @@ export const PublishOptions = S.Struct({
   * attempt fails. Required for GitHub Packages, and as the bootstrap path for
   * a package with no trusted publisher configured yet.
   */
-	tokenAuth: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to blank the OIDC environment for classic token auth." }),
-}).annotate($I.annote("PublishOptions", { description: "Structural options for uploading a previously packed tarball." }));
+	tokenAuth: S.optionalKey(S.Boolean).pipe($I.annoteKey("PublishOptions.tokenAuth", { description: "Whether to blank the OIDC environment for classic token auth." })),
+}).pipe($I.annoteSchema("PublishOptions", { description: "Structural options for uploading a previously packed tarball." }));
 /**
  * Decoded publishing options represented by {@link (PublishOptions:variable)}.
  *
@@ -310,14 +315,56 @@ export interface PackagePublishShape {
 		readonly npmrcPath: string;
 	}) => Effect.Effect<void, PublishError>;
 	/** `npm pack --json` — writes the tarball and reports both digests. */
-	readonly pack: (packageDir: string, options?: PackOptions) => Effect.Effect<PackedTarball, PublishError>;
+	readonly pack: {
+		(packageDir: string, options?: PackOptions): Effect.Effect<PackedTarball, PublishError>;
+		(options?: PackOptions): (packageDir: string) => Effect.Effect<PackedTarball, PublishError>;
+	};
 	/** `npm publish <tarball>` — uploads bytes packed earlier, never re-packs. */
-	readonly publishTarball: (
-		tarballPath: string,
-		options: PublishOptions,
-	) => Effect.Effect<PublishOutcome, PublishError>;
+	readonly publishTarball: {
+		(tarballPath: string, options: PublishOptions): Effect.Effect<PublishOutcome, PublishError>;
+		(options: PublishOptions): (tarballPath: string) => Effect.Effect<PublishOutcome, PublishError>;
+	};
 	/** `npm pack --dry-run --json` — packability and sizing only. */
+	readonly dryRun: {
+		(packageDir: string, options?: PackOptions): Effect.Effect<DryRunOutcome, PublishError>;
+		(options?: PackOptions): (packageDir: string) => Effect.Effect<DryRunOutcome, PublishError>;
+	};
+}
+
+/**
+ * Plain data-first member signatures accepted by {@link PackagePublish.makeTest}.
+ *
+ * **Details**
+ *
+ * A stub is written as one ordinary function; `makeTest` lifts it into the
+ * dual (data-first and pipeable) member shape of {@link PackagePublishShape}.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export interface PackagePublishStubs {
+	/** Stub for {@link PackagePublishShape.setupAuth}. */
+	readonly setupAuth: PackagePublishShape["setupAuth"];
+	/** Stub for {@link PackagePublishShape.pack}. */
+	readonly pack: (packageDir: string, options?: PackOptions) => Effect.Effect<PackedTarball, PublishError>;
+	/** Stub for {@link PackagePublishShape.publishTarball}. */
+	readonly publishTarball: (tarballPath: string, options: PublishOptions) => Effect.Effect<PublishOutcome, PublishError>;
+	/** Stub for {@link PackagePublishShape.dryRun}. */
 	readonly dryRun: (packageDir: string, options?: PackOptions) => Effect.Effect<DryRunOutcome, PublishError>;
+}
+
+/** Data-first dispatch for the directory-first members: the subject is the package directory. */
+const isDirectoryFirst = (args: IArguments): boolean => P.isString(args[0]);
+
+/** One npm invocation's context for {@link make}'s `npm` runner. */
+interface NpmInvocation {
+	readonly executor: NpmExecutor;
+	readonly cwd?: string | undefined;
+	readonly env?: Record<string, string> | undefined;
+	readonly kind: "pack" | "publish";
+	readonly subject: string;
+	readonly registry?: string | undefined;
 }
 
 /** Builds the service over already-resolved platform services. */
@@ -346,17 +393,10 @@ const make = Effect.fnUntraced(function* () {
 		);
 
 	/** Runs an npm invocation, mapping a command failure onto `kind`. */
-	const npm = (
-		args: ReadonlyArray<string>,
-		options: {
-			readonly executor: NpmExecutor;
-			readonly cwd?: string | undefined;
-			readonly env?: Record<string, string> | undefined;
-			readonly kind: "pack" | "publish";
-			readonly subject: string;
-			readonly registry?: string | undefined;
-		},
-	) =>
+	const npm: {
+		(args: ReadonlyArray<string>, options: NpmInvocation): Effect.Effect<CommandOutput, PublishError>;
+		(options: NpmInvocation): (args: ReadonlyArray<string>) => Effect.Effect<CommandOutput, PublishError>;
+	} = dual(2, (args: ReadonlyArray<string>, options: NpmInvocation): Effect.Effect<CommandOutput, PublishError> =>
 		discharge(
 			options.executor.command(args).pipe(
 				Effect.map((command) => {
@@ -375,9 +415,12 @@ const make = Effect.fnUntraced(function* () {
 					}),
 				),
 			),
-		);
+		));
 
-	const parsePackJson = (stdout: string, subject: string) =>
+	const parsePackJson: {
+		(stdout: string, subject: string): Effect.Effect<typeof PackJsonEntry.Type, PublishError>;
+		(subject: string): (stdout: string) => Effect.Effect<typeof PackJsonEntry.Type, PublishError>;
+	} = dual(2, (stdout: string, subject: string): Effect.Effect<typeof PackJsonEntry.Type, PublishError> =>
 		S.decodeEffect(PackJsonFromString)(stdout).pipe(
 			Effect.mapError((cause) => PublishError.make({ kind: "output", subject, cause })),
 			Effect.flatMap((decoded) => {
@@ -389,7 +432,7 @@ const make = Effect.fnUntraced(function* () {
 					? Effect.fail(PublishError.make({ kind: "output", subject, output: stdout }))
 					: Effect.succeed(entry);
 			}),
-		);
+		));
 
 	const setupAuth = Effect.fn("PackagePublish.setupAuth")(function* (options: {
 		readonly registry: string;
@@ -426,7 +469,7 @@ const make = Effect.fnUntraced(function* () {
 			);
 	});
 
-	const pack = Effect.fn("PackagePublish.pack")(function* (packageDir: string, options?: PackOptions) {
+	const pack: PackagePublishShape["pack"] = dual(isDirectoryFirst, Effect.fn("PackagePublish.pack")(function* (packageDir: string, options?: PackOptions) {
 		yield* Effect.annotateCurrentSpan({ packageDir });
 		const output = yield* npm(["pack", "--json"], {
 			executor: options?.executor ?? NpmExecutor.ambient,
@@ -463,9 +506,9 @@ const make = Effect.fnUntraced(function* () {
 			...O.getSomesStruct({ unpackedSize: O.fromUndefinedOr(entry.unpackedSize) }),
 			...O.getSomesStruct({ fileCount: O.fromUndefinedOr(entry.entryCount) }),
 		});
-	});
+	}));
 
-	const publishTarball = Effect.fn("PackagePublish.publishTarball")(function* (
+	const publishTarball: PackagePublishShape["publishTarball"] = dual(2, Effect.fn("PackagePublish.publishTarball")(function* (
 		tarballPath: string,
 		options: PublishOptions,
 	) {
@@ -511,9 +554,9 @@ const make = Effect.fnUntraced(function* () {
 		return {
 			...O.getSomesStruct({ provenanceUrl: O.fromUndefinedOr(provenanceUrl) }),
 		} satisfies PublishOutcome;
-	});
+	}));
 
-	const dryRun = Effect.fn("PackagePublish.dryRun")(function* (packageDir: string, options?: PackOptions) {
+	const dryRun: PackagePublishShape["dryRun"] = dual(isDirectoryFirst, Effect.fn("PackagePublish.dryRun")(function* (packageDir: string, options?: PackOptions) {
 		yield* Effect.annotateCurrentSpan({ packageDir });
 		const output = yield* npm(["pack", "--dry-run", "--json"], {
 			executor: options?.executor ?? NpmExecutor.ambient,
@@ -536,7 +579,7 @@ const make = Effect.fnUntraced(function* () {
 			...O.getSomesStruct({ unpackedSize: O.fromUndefinedOr(entry.unpackedSize) }),
 			...O.getSomesStruct({ fileCount: O.fromUndefinedOr(entry.entryCount) }),
 		} satisfies DryRunOutcome;
-	});
+	}));
 
 	return { setupAuth, pack, publishTarball, dryRun } satisfies PackagePublishShape;
 });
@@ -548,7 +591,7 @@ const integrityField = (raw: string | undefined): { integrity?: typeof Integrity
 class UnstubbedPublishMethodError extends S.TaggedError<UnstubbedPublishMethodError, { readonly brand: unique symbol }>($I`UnstubbedPublishMethodError`)(
 	"UnstubbedPublishMethodError",
 	{ message: S.String },
-	$I.annote("UnstubbedPublishMethodError", { description: "An unstubbed publish test-double method was invoked." }),
+	$I.annoteError<UnstubbedPublishMethodError>("UnstubbedPublishMethodError", { description: "An unstubbed publish test-double method was invoked." }),
 ) {}
 
 /** The default for an unstubbed {@link PackagePublish.makeTest} member. */
@@ -647,12 +690,11 @@ export class PackagePublish extends Context.Service<PackagePublish, PackagePubli
 	 * @category testing
 	 * @since 0.0.0
 	 */
-	static readonly makeTest = (overrides: Partial<PackagePublishShape> = {}): PackagePublishShape => ({
-		setupAuth: notStubbed("setupAuth"),
-		pack: notStubbed("pack"),
-		publishTarball: notStubbed("publishTarball"),
-		dryRun: notStubbed("dryRun"),
-		...overrides,
+	static readonly makeTest = (overrides: Partial<PackagePublishStubs> = {}): PackagePublishShape => ({
+		setupAuth: overrides.setupAuth ?? notStubbed("setupAuth"),
+		pack: dual(isDirectoryFirst, overrides.pack ?? notStubbed("pack")),
+		publishTarball: dual(2, overrides.publishTarball ?? notStubbed("publishTarball")),
+		dryRun: dual(isDirectoryFirst, overrides.dryRun ?? notStubbed("dryRun")),
 	});
 
 	/**
@@ -682,6 +724,6 @@ export class PackagePublish extends Context.Service<PackagePublish, PackagePubli
 	 * @category layers
 	 * @since 0.0.0
 	 */
-	static readonly layerTest = (overrides: Partial<PackagePublishShape> = {}): Layer.Layer<PackagePublish> =>
+	static readonly layerTest = (overrides: Partial<PackagePublishStubs> = {}): Layer.Layer<PackagePublish> =>
 		Layer.succeed(PackagePublish, PackagePublish.makeTest(overrides));
 }

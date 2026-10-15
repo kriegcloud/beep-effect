@@ -8,8 +8,11 @@ import { plainInline, renderPlainLines } from "./renderPlain.ts";
 import * as O from "@beep/utils/Option";
 
 /** Plain lines, neutralized; a block that draws nothing, such as an empty table, gives no line at all. */
-const plainLines = (blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string> =>
-	renderPlainLines(blocks, ctx).flatMap((line) => CommandNeutralizer.lines(line));
+const plainLines: {
+	(blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string>;
+	(ctx: RenderContext): (blocks: ReadonlyArray<Block>) => ReadonlyArray<string>;
+} = dual(2, (blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string> =>
+	renderPlainLines(blocks, ctx).flatMap((line) => CommandNeutralizer.lines(line)));
 
 /** An annotation as the kit's own command, on the trusted path: escaped by `WorkflowCommand`, never neutralized. */
 const annotationLine = (block: Extract<Block, { readonly _tag: "Annotation" }>): string =>
@@ -23,12 +26,18 @@ const annotationLine = (block: Extract<Block, { readonly _tag: "Annotation" }>):
 	});
 
 /** A group's body: plain text, except an annotation, which is still a command inside a group. */
-const bodyLines = (blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string> =>
+const bodyLines: {
+	(blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string>;
+	(ctx: RenderContext): (blocks: ReadonlyArray<Block>) => ReadonlyArray<string>;
+} = dual(2, (blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string> =>
 	blocks.flatMap((block) =>
 		block._tag === "Annotation" ? [annotationLine(block)] : plainLines([block], ctx),
-	);
+	));
 
-const blockLines = (block: Block, ctx: RenderContext): ReadonlyArray<string> =>
+const blockLines: {
+	(block: Block, ctx: RenderContext): ReadonlyArray<string>;
+	(ctx: RenderContext): (block: Block) => ReadonlyArray<string>;
+} = dual(2, (block: Block, ctx: RenderContext): ReadonlyArray<string> =>
 	Match.value(block).pipe(
 		Match.tag("Annotation", (block): ReadonlyArray<string> => [annotationLine(block)]),
 		Match.tag("Collapsible", (block): ReadonlyArray<string> => {
@@ -50,7 +59,7 @@ const blockLines = (block: Block, ctx: RenderContext): ReadonlyArray<string> =>
 			return groups.flatMap((group, index) => (index === 0 ? group : ["", ...group]));
 		}),
 		Match.orElse((block): ReadonlyArray<string> => plainLines([block], ctx)),
-	);
+	));
 
 /**
  * Render a document for a GitHub Actions log: plain text, with a top-level collapsible as a group.

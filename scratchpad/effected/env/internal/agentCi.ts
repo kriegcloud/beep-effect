@@ -3,6 +3,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import type { Env } from "./types.ts";
 import * as P from "effect/Predicate";
@@ -26,10 +27,10 @@ const CiNameBase = LiteralKit(["github-actions", "generic"]);
  * @category schemas
  * @since 0.0.0
  */
-export const CiName = CiNameBase.annotate({
-	...$I.annote("CiName", { description: "GitHub Actions for its explicit provider signal, or generic for any other CI signal." }),
+export const CiName = CiNameBase.pipe($I.annoteSchema("CiName", {
+	description: "GitHub Actions for its explicit provider signal, or generic for any other CI signal.",
 	message: `Expected ${A.join(A.map(CiNameBase.literals, (name) => `"${name}"`), " | ")}`,
-});
+}));
 
 /**
  * CI provider name accepted by the {@link CiName} schema.
@@ -43,7 +44,10 @@ type AgentRule =
 	| readonly [name: string, keys: ReadonlyArray<string>]
 	| readonly [name: string, test: (env: Env) => boolean];
 
-const matches = (value: string | undefined, pattern: RegExp): boolean => value !== undefined && value !== "" && pattern.test(value);
+const matches: {
+	(value: string | undefined, pattern: RegExp): boolean;
+	(pattern: RegExp): (value: string | undefined) => boolean;
+} = dual(2, (value: string | undefined, pattern: RegExp): boolean => value !== undefined && value !== "" && pattern.test(value));
 
 // std-env's order decides between two matching rows. `pi` and `devin` match a pattern on a variable every
 // shell sets, so they test the value rather than its presence.
@@ -67,13 +71,14 @@ const AGENT_RULES: ReadonlyArray<AgentRule> = [
 
 // The family names a free-form AI_AGENT value is folded into: every table row, plus `kiro`, which the table
 // omits (see above) but which an agent can still announce through AI_AGENT.
-const AGENT_FAMILIES: ReadonlyArray<string> = [...AGENT_RULES.map(([name]) => name), "kiro"];
+const AGENT_FAMILIES: ReadonlyArray<string> = [...A.map(AGENT_RULES, ([name]) => name), "kiro"];
 
 /** The family a lower-cased `AI_AGENT` value belongs to: equal to it, or starting with it then `-` or `_`. */
 const familyOf = (value: string): string =>
-	AGENT_FAMILIES.find(
-		(family) => value === family || value.startsWith(`${family}-`) || value.startsWith(`${family}_`),
-	) ?? value;
+	O.getOrElse(
+		A.findFirst(AGENT_FAMILIES, (family) => value === family || value.startsWith(`${family}-`) || value.startsWith(`${family}_`)),
+		() => value,
+	);
 
 /**
  * The name of the AI agent running this process, if any, as its family: `claude`, not the
@@ -106,7 +111,7 @@ export const detectAgent = (env: Env): O.Option<string> => {
 		);
 	}
 	for (const [name, rule] of AGENT_RULES) {
-		if (P.isFunction(rule) ? rule(env) : rule.some((key) => {
+		if (P.isFunction(rule) ? rule(env) : A.some(rule, (key) => {
 			const value = env[key];
 			return value !== undefined && value !== "";
 		})) return O.some(name);
@@ -159,7 +164,7 @@ export const detectCi = (env: Env): O.Option<CiName> => {
  */
 export const agentCiKeys: ReadonlyArray<string> = [
 	"AI_AGENT",
-	...AGENT_RULES.flatMap(([, rule]) => (P.isFunction(rule) ? [] : rule)),
+	...A.flatMap(AGENT_RULES, ([, rule]) => (P.isFunction(rule) ? [] : rule)),
 	"PATH",
 	"EDITOR",
 	"GITHUB_ACTIONS",

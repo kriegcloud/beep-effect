@@ -1,6 +1,8 @@
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import { GitHubClient } from "./GitHubClient.ts";
@@ -13,7 +15,7 @@ const $I = $ScratchpadId.create("effected/github/Ruleset");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * A ruleset, as listing returns it.
@@ -40,9 +42,9 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
  * @since 0.0.0
  */
 export const RulesetInfo = S.Struct({
-  id: S.Finite.annotateKey({ description: "The ruleset's numeric id." }),
-  name: S.String.annotateKey({ description: "The ruleset's name." }),
-  source_type: S.optionalKey(S.String).annotateKey({ description: "Repository for an owned ruleset, Organization for an inherited ruleset; absent when GitHub omits it." }),
+  id: S.Finite.pipe($I.annoteKey("RulesetInfo.id", { description: "The ruleset's numeric id." })),
+  name: S.String.pipe($I.annoteKey("RulesetInfo.name", { description: "The ruleset's name." })),
+  source_type: S.optionalKey(S.String).pipe($I.annoteKey("RulesetInfo.source_type", { description: "Repository for an owned ruleset, Organization for an inherited ruleset; absent when GitHub omits it." })),
 }).pipe($I.annoteSchema("RulesetInfo", { description: "A plain-object ruleset listing, including its ownership source." }));
 
 /**
@@ -76,12 +78,12 @@ export type RulesetInfo = typeof RulesetInfo.Type;
  * @since 0.0.0
  */
 export const RulesetPayload = S.Struct({
-  name: S.String.annotateKey({ description: "The ruleset's name, which upsert matches on." }),
-  target: S.String.annotateKey({ description: "What the ruleset applies to, passed to GitHub as given." }),
-  enforcement: S.String.annotateKey({ description: "The enforcement mode, passed to GitHub as given." }),
-  conditions: S.optionalKey(S.Unknown).annotateKey({ description: "Conditions passed to GitHub as given, including non-ref-name conditions." }),
-  rules: S.optionalKey(S.Unknown).annotateKey({ description: "Rules passed to GitHub as given, including future rule vocabulary and partial parameters." }),
-  bypass_actors: S.optionalKey(S.Unknown).annotateKey({ description: "Actors allowed to bypass the ruleset, passed to GitHub as given." }),
+  name: S.String.pipe($I.annoteKey("RulesetPayload.name", { description: "The ruleset's name, which upsert matches on." })),
+  target: S.String.pipe($I.annoteKey("RulesetPayload.target", { description: "What the ruleset applies to, passed to GitHub as given." })),
+  enforcement: S.String.pipe($I.annoteKey("RulesetPayload.enforcement", { description: "The enforcement mode, passed to GitHub as given." })),
+  conditions: S.optionalKey(S.Unknown).pipe($I.annoteKey("RulesetPayload.conditions", { description: "Conditions passed to GitHub as given, including non-ref-name conditions." })),
+  rules: S.optionalKey(S.Unknown).pipe($I.annoteKey("RulesetPayload.rules", { description: "Rules passed to GitHub as given, including future rule vocabulary and partial parameters." })),
+  bypass_actors: S.optionalKey(S.Unknown).pipe($I.annoteKey("RulesetPayload.bypass_actors", { description: "Actors allowed to bypass the ruleset, passed to GitHub as given." })),
 }).pipe($I.annoteSchema("RulesetPayload", { description: "An open repository ruleset body accepted by both create and update routes." }));
 
 /**
@@ -272,7 +274,7 @@ const make = (client: GitHubClient["Service"]): RulesetShape => {
 
     // Repository-owned only. Without this filter a name match against an
     // inherited ruleset issues a PUT at the organization's id.
-    const match = existing.find((ruleset) => ruleset.name === payload.name && isOwnedByRepository(ruleset));
+    const match = A.findFirst(existing, (ruleset) => ruleset.name === payload.name && isOwnedByRepository(ruleset));
 
     const body = {
       name: payload.name,
@@ -283,11 +285,11 @@ const make = (client: GitHubClient["Service"]): RulesetShape => {
       ...O.getSomesStruct({ bypass_actors: O.fromUndefinedOr(payload.bypass_actors) }),
     };
 
-    if (match !== undefined) {
+    if (O.isSome(match)) {
       yield* client.requestDecoded("PUT /repos/{owner}/{repo}/rulesets/{ruleset_id}", {
         owner,
         repo,
-        ruleset_id: match.id,
+        ruleset_id: match.value.id,
         ...body,
       }, S.Unknown);
       return;
@@ -345,10 +347,10 @@ const make = (client: GitHubClient["Service"]): RulesetShape => {
 
     const data = yield* client.request("GET /orgs/{org}/organization-roles", { org: owner });
     const roles = data.roles ?? [];
-    const role = roles.find((candidate) => candidate.name === name);
+    const role = A.findFirst(roles, (candidate) => candidate.name === name);
 
-    if (role === undefined) {
-      const available = roles.map((candidate) => candidate.name).join(", ");
+    if (O.isNone(role)) {
+      const available = pipe(roles, A.map((candidate) => candidate.name), A.join(", "));
       // Listing what WAS available is the difference between a user fixing a
       // typo and a user guessing. Role ids are per-organization even for
       // predefined roles, so the list cannot be hardcoded.
@@ -358,11 +360,11 @@ const make = (client: GitHubClient["Service"]): RulesetShape => {
       );
     }
 
-    if (!P.isNumber(role.id)) {
+    if (!P.isNumber(role.value.id)) {
       return yield* GitHubError.decode("Ruleset.roleId", "organization role id was not a number");
     }
 
-    return role.id;
+    return role.value.id;
   });
 
   return { upsert, list, delete: delete_, teamId, roleId };

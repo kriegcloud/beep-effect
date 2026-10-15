@@ -5,6 +5,7 @@
 // absorption is load-bearing — one unreadable ancestor must not hide a valid
 // root above it.
 
+import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { Walker } from "../walker/index.ts";
 import * as Context from "effect/Context";
@@ -15,7 +16,7 @@ import * as O from "@beep/utils/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
-import { identity } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import * as Result from "effect/Result";
 import * as P from "effect/Predicate";
 
@@ -80,7 +81,7 @@ export const FindWorkspaceRootOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	stopAt: S.optionalKey(S.String).annotateKey($I.annote("stopAt", { description: "Inclusive ceiling for the root ascent." })),
+	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("FindWorkspaceRootOptions.stopAt", { description: "Inclusive ceiling for the root ascent." })),
 	/**
 	 * Hard cap on the number of directories probed.
 	 *
@@ -93,11 +94,11 @@ export const FindWorkspaceRootOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	maxDepth: S.optionalKey(S.declare(P.isNumber).annotate($I.annote("ProbeDepth", {
+	maxDepth: S.optionalKey(S.declare(P.isNumber).pipe($I.annoteSchema("ProbeDepth", {
 		description: "The existing numeric probe cap, validated by the walker on use.",
 		toCodecArbitrary: () => S.link<number>()(S.Finite, SchemaTransformation.transform({ decode: identity, encode: identity })),
-	}))).annotateKey($I.annote("maxDepth", { description: "Probe depth cap, validated by the walker on use." })),
-}).annotate($I.annote("FindWorkspaceRootOptions", { description: "Plain-object ascent bounds with walker defaults applied on use." }));
+	}))).pipe($I.annoteKey("FindWorkspaceRootOptions.maxDepth", { description: "Probe depth cap, validated by the walker on use." })),
+}).pipe($I.annoteSchema("FindWorkspaceRootOptions", { description: "Plain-object ascent bounds with walker defaults applied on use." }));
 
 /** The plain-object options described by {@link FindWorkspaceRootOptions}.
  * @category type-level
@@ -138,13 +139,13 @@ export class WorkspaceRootNotFoundError extends S.TaggedError<WorkspaceRootNotFo
 		 *
 		 * @since 0.0.0
 		 */
-		searchPath: S.String.annotateKey({ description: "The directory the ascent started from." }),
+		searchPath: S.String.pipe($I.annoteKey("WorkspaceRootNotFoundError.searchPath", { description: "The directory the ascent started from." })),
 		/**
 		 * The marker filenames probed at each ancestor.
 		 *
 		 * @since 0.0.0
 		 */
-		markers: S.Array(S.String).annotateKey({ description: "The marker filenames probed at each ancestor." }),
+		markers: S.Array(S.String).pipe($I.annoteKey("WorkspaceRootNotFoundError.markers", { description: "The marker filenames probed at each ancestor." })),
 		/**
 		 * The resolved ceiling the ascent was bounded by, when one was supplied.
 		 *
@@ -157,8 +158,8 @@ export class WorkspaceRootNotFoundError extends S.TaggedError<WorkspaceRootNotFo
 		 *
 		 * @since 0.0.0
 		 */
-		stopAt: S.optionalKey(S.String).annotateKey({ description: "The resolved ceiling the ascent was bounded by, when one was supplied." }),
-	}, $I.annote("WorkspaceRootNotFoundError", { description: "Raised when no workspace root can be found by ascending from a directory." }),
+		stopAt: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceRootNotFoundError.stopAt", { description: "The resolved ceiling the ascent was bounded by, when one was supplied." })),
+	}, $I.annoteError<WorkspaceRootNotFoundError>("WorkspaceRootNotFoundError", { description: "Raised when no workspace root can be found by ascending from a directory." }),
 ) {
 	/**
 	 * Renders the search path, probed markers and any ceiling into a one-line message.
@@ -180,8 +181,8 @@ export class WorkspaceRootNotFoundError extends S.TaggedError<WorkspaceRootNotFo
 		// Worded here, not in `markers`: a bare `package.json` would claim the
 		// probe looked for a file a single-package repo plainly has, when only one
 		// carrying a `workspaces` field counts. `markers` keeps the raw filenames.
-		const looked = this.markers.map((marker) => (marker === "package.json" ? PACKAGE_JSON_MARKER_PROSE : marker));
-		return `No workspace root above ${this.searchPath}${bound} (looked for ${looked.join(", ")})`;
+		const looked = A.map(this.markers, (marker) => (marker === "package.json" ? PACKAGE_JSON_MARKER_PROSE : marker));
+		return `No workspace root above ${this.searchPath}${bound} (looked for ${A.join(looked, ", ")})`;
 	}
 }
 
@@ -245,15 +246,21 @@ export interface WorkspaceRootShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly find: (cwd: string, options?: FindWorkspaceRootOptions) => Effect.Effect<string, WorkspaceRootNotFoundError>;
+	readonly find: {
+		(cwd: string, options?: FindWorkspaceRootOptions): Effect.Effect<string, WorkspaceRootNotFoundError>;
+		(options?: FindWorkspaceRootOptions): (cwd: string) => Effect.Effect<string, WorkspaceRootNotFoundError>;
+	};
 }
 
 /** Whether `descendant` is `ancestor` itself or lies beneath it, on POSIX or win32 separators. */
-const isAtOrBelow = (descendant: string, ancestor: string): boolean => {
+const isAtOrBelow: {
+	(descendant: string, ancestor: string): boolean;
+	(ancestor: string): (descendant: string) => boolean;
+} = dual(2, (descendant: string, ancestor: string): boolean => {
 	if (descendant === ancestor) return true;
 	const prefix = ancestor.endsWith("/") || ancestor.endsWith("\\") ? ancestor : `${ancestor}/`;
 	return descendant.startsWith(prefix) || descendant.startsWith(prefix.replace(/\/$/, "\\"));
-};
+});
 
 /**
  * Locates the workspace root by ascending from a starting directory.
@@ -314,7 +321,18 @@ export class WorkspaceRoot extends Context.Service<WorkspaceRoot, WorkspaceRootS
 			const fs = yield* FileSystem.FileSystem;
 			const path = yield* Path.Path;
 
-			const find = Effect.fn("WorkspaceRoot.find")(function* (cwd: string, options?: FindWorkspaceRootOptions) {
+			const find: {
+				(
+					cwd: string,
+					options?: FindWorkspaceRootOptions,
+				): Effect.Effect<string, WorkspaceRootNotFoundError, FileSystem.FileSystem | Path.Path>;
+				(
+					options?: FindWorkspaceRootOptions,
+				): (cwd: string) => Effect.Effect<string, WorkspaceRootNotFoundError, FileSystem.FileSystem | Path.Path>;
+			} = dual((args) => P.isString(args[0]), Effect.fn("WorkspaceRoot.find")(function* (
+				cwd: string,
+				options?: FindWorkspaceRootOptions,
+			): Effect.fn.Return<string, WorkspaceRootNotFoundError, FileSystem.FileSystem | Path.Path> {
 				const start = path.resolve(cwd);
 				// Resolved, not passed through raw: walker compares the ceiling to each
 				// ancestor by string equality, so an unresolved `stopAt` would never
@@ -338,14 +356,17 @@ export class WorkspaceRoot extends Context.Service<WorkspaceRoot, WorkspaceRootS
 				}
 				yield* Effect.logDebug("Workspace root found").pipe(Effect.annotateLogs("workspace.root", found.value));
 				return found.value;
-			});
+			}));
 
 			return {
-				find: (cwd: string, options?: FindWorkspaceRootOptions) =>
-					find(cwd, options).pipe(
-						Effect.provideService(FileSystem.FileSystem, fs),
-						Effect.provideService(Path.Path, path),
-					),
+				find: dual(
+					(args) => P.isString(args[0]),
+					(cwd: string, options?: FindWorkspaceRootOptions): Effect.Effect<string, WorkspaceRootNotFoundError> =>
+						find(cwd, options).pipe(
+							Effect.provideService(FileSystem.FileSystem, fs),
+							Effect.provideService(Path.Path, path),
+						),
+				),
 			};
 		},
 	);
@@ -418,7 +439,7 @@ export class WorkspaceRoot extends Context.Service<WorkspaceRoot, WorkspaceRootS
 	static readonly makeTest = Effect.fn("WorkspaceRoot.makeTest")(function* (root: string): Effect.fn.Return<WorkspaceRootShape, never, Path.Path> {
 		const path = yield* Path.Path;
 		return {
-			find: (cwd: string, options?: FindWorkspaceRootOptions) =>
+			find: dual((args) => P.isString(args[0]), (cwd: string, options?: FindWorkspaceRootOptions): Effect.Effect<string, WorkspaceRootNotFoundError> =>
 				// Resolve the ceiling through the injected `Path` exactly as the live
 				// `make` path does before the raw string comparison in `isAtOrBelow` —
 				// an unresolved ceiling (`..` segments) would match differently here
@@ -431,7 +452,7 @@ export class WorkspaceRoot extends Context.Service<WorkspaceRoot, WorkspaceRootS
 								stopAt: options.stopAt,
 							}),
 						)
-					: Effect.succeed(root),
+					: Effect.succeed(root)),
 		};
 	});
 

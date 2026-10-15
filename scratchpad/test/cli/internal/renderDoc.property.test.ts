@@ -8,9 +8,15 @@ const runs = { arbitrary: fcRuns(100) };
 import { Doc } from "../../../effected/cli/Doc.ts";
 import { Render } from "../../../effected/cli/Render.ts";
 import { capOf, renderDoc, renderDocLines, targetText, textLines, trimLine } from "../../../effected/cli/internal/renderDoc.ts";
+import type { Flavour, Line } from "../../../effected/cli/internal/renderDoc.ts";
+import type { RenderContext } from "../../../effected/cli/Render.ts";
+import { dual } from "effect/Function";
 import { plainInline } from "../../../effected/cli/internal/renderPlain.ts";
 const ctx = Render.contextOf({ audience: "agent" });
-const flavour = { inline: plainInline, finish: (line: ReadonlyArray<{ readonly text: string }>) => A.join(A.map(line, (span) => span.text), "") };
+const flavour: Flavour = {
+  inline: plainInline,
+  finish: dual(2, (line: Line, _ctx: RenderContext): string => A.join(A.map(line, (span) => span.text), "")),
+};
 it.effect.prop("textLines: parse/stringify fidelity and normalized line-ending idempotence", [Arbitrary.schema(S.String)], ([text]) => Effect.sync(() => {
   const parsed = textLines(text);
   const stringified = `${A.join(parsed, "\n")}\n`;

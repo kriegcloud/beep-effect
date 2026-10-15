@@ -15,6 +15,8 @@ import { PackageManagerPin } from "../../effected/npm/index.ts";
 import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
 import { PackageManagerInstaller, PackageManagerInstallerError } from "../../effected/github-actions/PackageManagerInstaller.ts";
 import { ToolInstaller } from "../../effected/github-actions/ToolInstaller.ts";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 
 const refused = PlatformError.badArgument({ module: "FileSystem", method: "fixture", description: "refused" });
 const Json = S.fromJsonString(S.Unknown);
@@ -66,13 +68,13 @@ const runtime = (options: Fixture) => {
     ActionEnvironment.layerTest(options.env ?? { RUNNER_OS: "Linux", RUNNER_ARCH: "X64" }),
     Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, ChildProcessSpawner.make(() => Effect.die("unexpected subprocess"))),
     ToolInstaller.layerTest({
-      find: () => Effect.succeed(options.cached === true ? O.some(options.spec?.startsWith("bun") === true ? "/bun/bun-linux-x64" : "/stage/package") : O.none()),
-      download: (url) => Effect.succeed(url.includes("/-/exe.") ? "/native-archive" : url.endsWith(".tgz") || url.endsWith(".zip") ? "/archive" : "/packument"),
-      extractTar: (archive) => Effect.succeed(archive === "/native-archive" ? "/native" : "/stage"),
-      extractZip: () => Effect.succeed("/bun"),
-      cachePath: () => "/stage/package",
-      cacheDir: (directory) => Effect.succeed(directory),
-      cacheFile: (file) => Effect.succeed(file.includes("bun-windows") ? "/bun/bun-windows-x64" : "/bun/bun-linux-x64"),
+      find: dual(2, (_tool: string, _version: string) => Effect.succeed(options.cached === true ? O.some(options.spec?.startsWith("bun") === true ? "/bun/bun-linux-x64" : "/stage/package") : O.none())),
+      download: dual((args) => P.isString(args[0]), (url: string, _options?: unknown) => Effect.succeed(url.includes("/-/exe.") ? "/native-archive" : url.endsWith(".tgz") || url.endsWith(".zip") ? "/archive" : "/packument")),
+      extractTar: dual((args) => P.isString(args[0]), (archive: string, _options?: unknown) => Effect.succeed(archive === "/native-archive" ? "/native" : "/stage")),
+      extractZip: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed("/bun")),
+      cachePath: dual(2, (_tool: string, _version: string) => "/stage/package"),
+      cacheDir: dual(3, (directory: string, _tool: string, _version: string) => Effect.succeed(directory)),
+      cacheFile: dual(4, (file: string, _name: string, _tool: string, _version: string) => Effect.succeed(file.includes("bun-windows") ? "/bun/bun-windows-x64" : "/bun/bun-linux-x64")),
     }),
   );
   return Layer.merge(fsLayer, PackageManagerInstaller.layer.pipe(Layer.provide(dependencies)));

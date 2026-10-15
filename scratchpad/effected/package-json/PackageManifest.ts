@@ -82,9 +82,9 @@ const $I = $ScratchpadId.create("effected/package-json/PackageManifest");
  */
 export class PackageManifest extends S.Class<PackageManifest, { readonly brand: unique symbol }>($I`PackageManifest`)({
 	...Package.fields,
-	name: S.optionalKey(PackageName).annotateKey({ description: "Optional package identifier that must satisfy npm naming rules when present" }),
-	version: S.optionalKey(SemVer.FromString).annotateKey({ description: "Optional package release version that must satisfy strict semantic versioning when present" }),
-	packageManager: S.optionalKey(PackageManagerRange.FromString).annotateKey({ description: "Package-manager declaration accepting an exact version or semver range, with optional integrity hash and original range spelling preserved" }),
+	name: S.optionalKey(PackageName).pipe($I.annoteKey("PackageManifest.name", { description: "Optional package identifier that must satisfy npm naming rules when present" })),
+	version: S.optionalKey(SemVer.FromString).pipe($I.annoteKey("PackageManifest.version", { description: "Optional package release version that must satisfy strict semantic versioning when present" })),
+	packageManager: S.optionalKey(PackageManagerRange.FromString).pipe($I.annoteKey("PackageManifest.packageManager", { description: "Package-manager declaration accepting an exact version or semver range, with optional integrity hash and original range spelling preserved" })),
 }, $I.annote("PackageManifest", { description: "A package.json document as it exists on disk, publishable or not: every field of Package with `name` and `version` optional and `packageManager` accepting the range spelling." })) {
 	/**
 	 * The wire codec: an open JSON object ↔ a {@link PackageManifest} instance,

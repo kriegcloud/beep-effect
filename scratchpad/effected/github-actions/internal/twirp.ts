@@ -19,13 +19,11 @@ import * as P from "effect/Predicate";
 import * as O from "@beep/utils/Option";
 
 const $I = $ScratchpadId.create("effected/github-actions/internal/twirp");
-const TwirpFailureKind = LiteralKit(["transport", "status", "malformed"]).annotate(
-	$I.annote("TwirpFailureKind", { description: "The transport, HTTP status, or JSON decoding stage of a failed RPC." }),
-);
+const TwirpFailureKind = LiteralKit(["transport", "status", "malformed"]).pipe($I.annoteSchema("TwirpFailureKind", { description: "The transport, HTTP status, or JSON decoding stage of a failed RPC." }));
 const TwirpFailureFields = {
-	method: S.String.annotateKey({ description: "The RPC that failed." }),
-	status: S.optionalKey(S.Finite).annotateKey({ description: "The finite HTTP status, when present; explicit undefined is accepted." }),
-	cause: S.optionalKey(S.Unknown).annotateKey({ description: "The underlying failure, when present; explicit undefined is accepted." }),
+	method: S.String.pipe($I.annoteKey("TwirpFailureFields.method", { description: "The RPC that failed." })),
+	status: S.optionalKey(S.Finite).pipe($I.annoteKey("TwirpFailureFields.status", { description: "The finite HTTP status, when present; explicit undefined is accepted." })),
+	cause: S.optionalKey(S.Unknown).pipe($I.annoteKey("TwirpFailureFields.cause", { description: "The underlying failure, when present; explicit undefined is accepted." })),
 };
 
 /**
@@ -84,12 +82,10 @@ export type TwirpResult<T> = T | typeof CONFLICT;
  * @since 0.0.0
  */
 export const TwirpFailure = TwirpFailureKind.mapMembers(([transport, status, malformed]) => [
-	S.Struct({ ...TwirpFailureFields, kind: transport.annotateKey({ description: "The request never completed." }) }),
-	S.Struct({ ...TwirpFailureFields, kind: status.annotateKey({ description: "The backend returned an unsupported HTTP status." }) }),
-	S.Struct({ ...TwirpFailureFields, kind: malformed.annotateKey({ description: "The successful response was not JSON." }) }),
-]).pipe(S.toTaggedUnion("kind")).annotate(
-	$I.annote("TwirpFailure", { description: "Plain-object RPC failure variants preserving optional status and cause fields in every variant." }),
-);
+	S.Struct({ ...TwirpFailureFields, kind: transport.pipe($I.annoteKey("TwirpFailure.transport.kind", { description: "The request never completed." })) }),
+	S.Struct({ ...TwirpFailureFields, kind: status.pipe($I.annoteKey("TwirpFailure.status.kind", { description: "The backend returned an unsupported HTTP status." })) }),
+	S.Struct({ ...TwirpFailureFields, kind: malformed.pipe($I.annoteKey("TwirpFailure.malformed.kind", { description: "The successful response was not JSON." })) }),
+]).pipe(S.toTaggedUnion("kind"), $I.annoteSchema("TwirpFailure", { description: "Plain-object RPC failure variants preserving optional status and cause fields in every variant." }));
 
 /**
  * The failure variants accepted by {@link TwirpFailure}.
@@ -236,7 +232,10 @@ export const twirpCall = (options: {
 };
 
 /** Check the property before reading an unknown JSON object, including inherited fields. */
-const hasField = <Key extends string>(body: object, key: Key): body is object & Record<Key, unknown> => key in body;
+const hasField: {
+	<Key extends string>(body: object, key: Key): body is object & Record<Key, unknown>;
+	<Key extends string>(key: Key): (body: object) => body is object & Record<Key, unknown>;
+} = Function.dual(2, <Key extends string>(body: object, key: Key): body is object & Record<Key, unknown> => key in body);
 
 /**
  * Read a Twirp JSON field under either spelling.

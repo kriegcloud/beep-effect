@@ -8,7 +8,8 @@
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { FenceChar } from "../../MarkdownNode.ts";
-import type { BlockStart } from "../blockTypes.ts";
+import type { BlockNode, BlockScanner, BlockStart, BlockStartResult } from "../blockTypes.ts";
+import { dual } from "effect/Function";
 
 const reCodeFence = /^`{3,}(?!.*`)|^~{3,}/;
 
@@ -30,7 +31,7 @@ const decodeFenceChar = S.decodeUnknownResult(FenceChar);
  */
 export const fencedCodeStart: BlockStart = {
 	name: "fencedCode",
-	trigger: (scanner) => {
+	trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
 		if (scanner.indented) {
 			return 0;
 		}
@@ -51,5 +52,5 @@ export const fencedCodeStart: BlockStart = {
 		scanner.advanceNextNonspace();
 		scanner.advanceOffset(match[0].length, false);
 		return 2;
-	},
+	}),
 };

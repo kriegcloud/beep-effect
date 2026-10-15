@@ -9,6 +9,8 @@ import type { JsoncPath, JsoncStringifyError } from "../jsonc/index.ts";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
@@ -47,14 +49,14 @@ export class PackageJsonReadError extends S.TaggedError<PackageJsonReadError, { 
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.String.annotateKey({ description: "The path that could not be read." }),
+	path: S.String.pipe($I.annoteKey("PackageJsonReadError.path", { description: "The path that could not be read." })),
 	/**
 	 * The underlying failure, preserved structurally.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.Defect().annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("PackageJsonReadError", { description: "Indicates that a package.json file could not be read from the filesystem (a filesystem error other than not-found)." })) {
+	cause: S.Defect().pipe($I.annoteKey("PackageJsonReadError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<PackageJsonReadError>("PackageJsonReadError", { description: "Indicates that a package.json file could not be read from the filesystem (a filesystem error other than not-found)." })) {
 	/**
 	 * Formats a diagnostic message identifying the failed file path.
 	 *
@@ -100,8 +102,8 @@ export class PackageJsonNotFoundError extends S.TaggedError<PackageJsonNotFoundE
 		 *
 		 * @since 0.0.0
 		 */
-		path: S.String.annotateKey({ description: "The path where package.json was expected." }),
-	}, $I.annote("PackageJsonNotFoundError", { description: "Indicates that no package.json file exists at the expected path. Carries its own tag for `catchTag` routing." }),
+		path: S.String.pipe($I.annoteKey("PackageJsonNotFoundError.path", { description: "The path where package.json was expected." })),
+	}, $I.annoteError<PackageJsonNotFoundError>("PackageJsonNotFoundError", { description: "Indicates that no package.json file exists at the expected path. Carries its own tag for `catchTag` routing." }),
 ) {
 	/**
 	 * Formats a diagnostic message identifying the failed file path.
@@ -145,14 +147,14 @@ export class PackageJsonParseError extends S.TaggedError<PackageJsonParseError, 
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.String.annotateKey({ description: "The path whose contents failed to parse as JSON." }),
+	path: S.String.pipe($I.annoteKey("PackageJsonParseError.path", { description: "The path whose contents failed to parse as JSON." })),
 	/**
 	 * The schema decoding error, preserved structurally.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.Defect().annotateKey({ description: "The schema decoding error, preserved structurally." }),
-}, $I.annote("PackageJsonParseError", { description: "Indicates that a package.json file's contents are not valid JSON." })) {
+	cause: S.Defect().pipe($I.annoteKey("PackageJsonParseError.cause", { description: "The schema decoding error, preserved structurally." })),
+}, $I.annoteError<PackageJsonParseError>("PackageJsonParseError", { description: "Indicates that a package.json file's contents are not valid JSON." })) {
 	/**
 	 * Formats a diagnostic message identifying the failed file path.
 	 *
@@ -197,14 +199,14 @@ export class PackageJsonWriteError extends S.TaggedError<PackageJsonWriteError, 
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.String.annotateKey({ description: "The path that could not be written." }),
+	path: S.String.pipe($I.annoteKey("PackageJsonWriteError.path", { description: "The path that could not be written." })),
 	/**
 	 * The underlying filesystem failure, preserved structurally. Narrowed to the write failure only.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.Defect().annotateKey({ description: "The underlying filesystem failure, preserved structurally. Narrowed to the write failure only." }),
-}, $I.annote("PackageJsonWriteError", { description: "Indicates that a package.json file could not be written to the filesystem. Narrowed to the filesystem-write failure only — never a resolution or encode error." })) {
+	cause: S.Defect().pipe($I.annoteKey("PackageJsonWriteError.cause", { description: "The underlying filesystem failure, preserved structurally. Narrowed to the write failure only." })),
+}, $I.annoteError<PackageJsonWriteError>("PackageJsonWriteError", { description: "Indicates that a package.json file could not be written to the filesystem. Narrowed to the filesystem-write failure only — never a resolution or encode error." })) {
 	/**
 	 * Formats a diagnostic message identifying the failed file path.
 	 *
@@ -280,11 +282,10 @@ export interface PackageJsonFileShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly write: (
-		path: string,
-		pkg: Package,
-		options?: PackageFormatOptions,
-	) => Effect.Effect<void, PackageJsonWriteError>;
+	readonly write: {
+		(path: string, pkg: Package, options?: PackageFormatOptions): Effect.Effect<void, PackageJsonWriteError>;
+		(pkg: Package, options?: PackageFormatOptions): (path: string) => Effect.Effect<void, PackageJsonWriteError>;
+	};
 	/**
 	 * Read and decode a package.json file through the presence-lenient
 	 * {@link PackageManifest} — the read that accepts the private
@@ -308,11 +309,10 @@ export interface PackageJsonFileShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly writeManifest: (
-		path: string,
-		manifest: PackageManifest,
-		options?: PackageFormatOptions,
-	) => Effect.Effect<void, PackageJsonWriteError>;
+	readonly writeManifest: {
+		(path: string, manifest: PackageManifest, options?: PackageFormatOptions): Effect.Effect<void, PackageJsonWriteError>;
+		(manifest: PackageManifest, options?: PackageFormatOptions): (path: string) => Effect.Effect<void, PackageJsonWriteError>;
+	};
 	/**
 	 * Apply surgical field edits to a package.json file **without decoding
 	 * it**: one read, each {@link PackageFieldEdit} applied in order through
@@ -330,19 +330,23 @@ export interface PackageJsonFileShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly modify: (
-		path: string,
-		edits: ReadonlyArray<PackageFieldEdit>,
-	) => Effect.Effect<
-		string,
-		| PackageJsonReadError
-		| PackageJsonNotFoundError
-		| PackageJsonParseError
-		| PackageJsonModifyError
-		| JsoncStringifyError
-		| PackageJsonWriteError
-	>;
+	readonly modify: {
+		(path: string, edits: ReadonlyArray<PackageFieldEdit>): Effect.Effect<string, PackageJsonModifyFailure>;
+		(edits: ReadonlyArray<PackageFieldEdit>): (path: string) => Effect.Effect<string, PackageJsonModifyFailure>;
+	};
 }
+
+/** Every failure {@link PackageJsonFileShape.modify} can raise. */
+type PackageJsonModifyFailure =
+	| PackageJsonReadError
+	| PackageJsonNotFoundError
+	| PackageJsonParseError
+	| PackageJsonModifyError
+	| JsoncStringifyError
+	| PackageJsonWriteError;
+
+/** Data-first dispatch for the path-first members: the subject is the file path. */
+const isPathFirst = (args: IArguments): boolean => P.isString(args[0]);
 
 /**
  * Reads, writes and surgically edits package.json files over core `FileSystem`
@@ -418,7 +422,10 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
 			// `indent: "preserve"` with no source text in hand: detect the
 			// indentation from the file being overwritten. Any read failure (most
 			// commonly a fresh file) falls back to the default indent.
-			const withPreservedSource = Effect.fn("withPreservedSource")(function* (target: string, options?: PackageFormatOptions) {
+			const withPreservedSource: {
+				(target: string, options?: PackageFormatOptions): Effect.Effect<PackageFormatOptions | undefined>;
+				(options?: PackageFormatOptions): (target: string) => Effect.Effect<PackageFormatOptions | undefined>;
+			} = dual(isPathFirst, Effect.fn("withPreservedSource")(function* (target: string, options?: PackageFormatOptions) {
 				if (options?.indent !== "preserve" || options.sourceText !== undefined) {
 					return options;
 				}
@@ -426,41 +433,44 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
 					.readFileString(target)
 					.pipe(Effect.orElseSucceed((): string | undefined => undefined));
 				return existing === undefined ? options : { ...options, sourceText: existing };
-			});
+			}));
 
-			const writeText = Effect.fn("writeText")(function* (target: string, json: string) {
+			const writeText: {
+				(target: string, json: string): Effect.Effect<void, PackageJsonWriteError>;
+				(json: string): (target: string) => Effect.Effect<void, PackageJsonWriteError>;
+			} = dual(2, Effect.fn("writeText")(function* (target: string, json: string) {
 				const directory = path.dirname(target);
 				yield* fs.makeDirectory(directory, { recursive: true });
 				yield* fs.writeFileString(target, json);
-			}, (effect, target) => effect.pipe(Effect.mapError((cause) => PackageJsonWriteError.make({ path: target, cause }))));
+			}, (effect, target) => effect.pipe(Effect.mapError((cause) => PackageJsonWriteError.make({ path: target, cause })))));
 
 			const read = Effect.fn("PackageJsonFile.read")(function* (target: string) {
 				return yield* Package.decode(yield* readJson(target));
 			});
 
-			const write = Effect.fn("PackageJsonFile.write")(function* (
+			const write: PackageJsonFileShape["write"] = dual(isPathFirst, Effect.fn("PackageJsonFile.write")(function* (
 				target: string,
 				pkg: Package,
 				options?: PackageFormatOptions,
 			) {
 				const effective = yield* withPreservedSource(target, options);
 				yield* writeText(target, pkg.toJsonString(effective));
-			});
+			}));
 
 			const readManifest = Effect.fn("PackageJsonFile.readManifest")(function* (target: string) {
 				return yield* PackageManifest.decode(yield* readJson(target));
 			});
 
-			const writeManifest = Effect.fn("PackageJsonFile.writeManifest")(function* (
+			const writeManifest: PackageJsonFileShape["writeManifest"] = dual(isPathFirst, Effect.fn("PackageJsonFile.writeManifest")(function* (
 				target: string,
 				manifest: PackageManifest,
 				options?: PackageFormatOptions,
 			) {
 				const effective = yield* withPreservedSource(target, options);
 				yield* writeText(target, manifest.toJsonString(effective));
-			});
+			}));
 
-			const modify = Effect.fn("PackageJsonFile.modify")(function* (
+			const modify: PackageJsonFileShape["modify"] = dual(2, Effect.fn("PackageJsonFile.modify")(function* (
 				target: string,
 				edits: ReadonlyArray<PackageFieldEdit>,
 			) {
@@ -482,7 +492,7 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
 					yield* writeText(target, text);
 				}
 				return text;
-			});
+			}));
 
 			return { read, write, readManifest, writeManifest, modify };
 		},

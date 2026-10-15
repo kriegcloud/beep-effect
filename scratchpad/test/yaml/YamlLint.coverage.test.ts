@@ -5,6 +5,8 @@ import * as Result from "effect/Result";
 import { YamlEdit } from "../../effected/yaml/YamlEdit.ts";
 import { StyleConflict, StyleVoteTally, YamlLint, YamlLintConfig, YamlStyleConflictError } from "../../effected/yaml/YamlLint.ts";
 import { YamlLintDiagnostic, type YamlRule } from "../../effected/yaml/YamlLintRule.ts";
+import { dual } from "effect/Function";
+import type { LintContext } from "../../effected/yaml/YamlLintRule.ts";
 
 describe("lint conflict display", () => {
   it.effect("renders every candidate with count and one-based location", () => Effect.sync(() => {
@@ -89,10 +91,10 @@ describe("lint fix interval selection", () => {
     ]) {
       const rule: YamlRule = {
         id: "custom",
-        check: () => A.map(fixes, (fix, offset) => YamlLintDiagnostic.make({
+        check: dual(2, (_ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => A.map(fixes, (fix, offset) => YamlLintDiagnostic.make({
           rule: "custom", severity: "error", message: name,
           offset, length: 0, line: 0, character: offset, fix,
-        })),
+        }))),
       };
       assert.strictEqual(Result.getOrThrow(YamlLint.fix(text, [rule], config)), expected, name);
     }

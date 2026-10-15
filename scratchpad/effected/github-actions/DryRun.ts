@@ -5,6 +5,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { ActionInput } from "./ActionInput.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/DryRun");
 
@@ -38,7 +39,10 @@ export interface DryRunShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly guard: <A, E, R>(label: string, effect: Effect.Effect<A, E, R>, fallback: A) => Effect.Effect<A, E, R>;
+	readonly guard: {
+		<A, E, R>(label: string, effect: Effect.Effect<A, E, R>, fallback: A): Effect.Effect<A, E, R>;
+		<A, E, R>(effect: Effect.Effect<A, E, R>, fallback: A): (label: string) => Effect.Effect<A, E, R>;
+	};
 }
 
 /** The input a workflow author sets to rehearse a run. */
@@ -46,11 +50,11 @@ const DEFAULT_INPUT = "dry-run";
 
 const make = (enabled: boolean): DryRunShape => ({
 	isDryRun: Effect.succeed(enabled),
-	guard: <A, E, R>(label: string, effect: Effect.Effect<A, E, R>, fallback: A) =>
+	guard: dual(3, <A, E, R>(label: string, effect: Effect.Effect<A, E, R>, fallback: A): Effect.Effect<A, E, R> =>
 		Bool.match(enabled, {
 			onFalse: () => effect,
 			onTrue: () => Effect.as(Effect.logInfo(`[DRY-RUN] ${label}`), fallback),
-		}),
+		})),
 });
 
 /**

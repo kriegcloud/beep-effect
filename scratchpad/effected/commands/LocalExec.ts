@@ -3,8 +3,10 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import type * as Effect from "effect/Effect";
 import * as Context from "effect/Context";
 import * as Eff from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as ChildProcess from "effect/process/ChildProcess";
 
@@ -69,11 +71,11 @@ export type Launcher = typeof Launcher.Type;
  */
 export const LauncherPrefixes = S.Struct({
  /** argv prefix that runs a project-local binary. */
- prefix: S.Array(S.String).annotateKey({ description: "argv for project-local execution." }),
+ prefix: S.Array(S.String).pipe($I.annoteKey("LauncherPrefixes.prefix", { description: "argv for project-local execution." })),
  /** argv prefix that fetches and runs a package binary. */
- dlxPrefix: S.Array(S.String).annotateKey({ description: "argv for package fetch and execution." }),
+ dlxPrefix: S.Array(S.String).pipe($I.annoteKey("LauncherPrefixes.dlxPrefix", { description: "argv for package fetch and execution." })),
  /** argv prefix that runs a package.json script. */
- scriptPrefix: S.Array(S.String).annotateKey({ description: "argv for package script execution." }),
+ scriptPrefix: S.Array(S.String).pipe($I.annoteKey("LauncherPrefixes.scriptPrefix", { description: "argv for package script execution." })),
 }).pipe($I.annoteSchema("LauncherPrefixes", { description: "Per-launcher exec, dlx and script argv prefixes." }));
 /**
  * Decoded exec, fetch-and-run and script-runner prefixes for a launcher.
@@ -123,15 +125,15 @@ const PREFIXES: Readonly<Record<Launcher, LauncherPrefixes>> = {
  */
 export class ExecContext extends S.Class<ExecContext, { readonly brand: unique symbol }>($I`ExecContext`)({
 	/** Human label of the launcher, e.g. `"pnpm"`. Reporting only. */
-	label: S.String.annotateKey({ description: "Human label of the launcher, e.g. `\"pnpm\"`. Reporting only." }),
+	label: S.String.pipe($I.annoteKey("ExecContext.label", { description: "Human label of the launcher, e.g. `\"pnpm\"`. Reporting only." })),
 	/** argv prefix that runs a project-local binary, e.g. `["pnpm", "exec"]`. */
-	prefix: S.Array(S.String).annotateKey({ description: "argv prefix that runs a project-local binary, e.g. `[\"pnpm\", \"exec\"]`." }),
+	prefix: S.Array(S.String).pipe($I.annoteKey("ExecContext.prefix", { description: "argv prefix that runs a project-local binary, e.g. `[\"pnpm\", \"exec\"]`." })),
 	/** argv prefix that fetch-and-runs a package binary, e.g. `["pnpm", "dlx"]`. */
-	dlxPrefix: S.Array(S.String).annotateKey({ description: "argv prefix that fetch-and-runs a package binary, e.g. `[\"pnpm\", \"dlx\"]`." }),
+	dlxPrefix: S.Array(S.String).pipe($I.annoteKey("ExecContext.dlxPrefix", { description: "argv prefix that fetch-and-runs a package binary, e.g. `[\"pnpm\", \"dlx\"]`." })),
 	/** argv prefix that runs a `package.json` script, e.g. `["pnpm", "run"]`. */
-	scriptPrefix: S.Array(S.String).annotateKey({ description: "argv prefix that runs a `package.json` script, e.g. `[\"pnpm\", \"run\"]`." }),
+	scriptPrefix: S.Array(S.String).pipe($I.annoteKey("ExecContext.scriptPrefix", { description: "argv prefix that runs a `package.json` script, e.g. `[\"pnpm\", \"run\"]`." })),
 	/** Directory the prefix must run in. Omitted means "wherever the caller is". */
-	directory: S.optionalKey(S.String).annotateKey({ description: "Directory the prefix must run in. Omitted means \"wherever the caller is\"." }),
+	directory: S.optionalKey(S.String).pipe($I.annoteKey("ExecContext.directory", { description: "Directory the prefix must run in. Omitted means \"wherever the caller is\"." })),
 }, $I.annote("ExecContext", { description: "How to run a project-local binary here." })) {
 	/**
 	 * Prefixes `command` with `prefix` and applies `directory`, returning a core `Command`.
@@ -250,10 +252,10 @@ export class ExecContext extends S.Class<ExecContext, { readonly brand: unique s
  */
 export class LocalExecError extends S.TaggedError<LocalExecError, { readonly brand: unique symbol }>($I`LocalExecError`)("LocalExecError", {
 	/** The directory whose context could not be determined, when one is known. */
-	directory: S.optionalKey(S.String).annotateKey({ description: "The directory whose context could not be determined, when one is known." }),
+	directory: S.optionalKey(S.String).pipe($I.annoteKey("LocalExecError.directory", { description: "The directory whose context could not be determined, when one is known." })),
 	/** The underlying failure. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure." }),
-}, $I.annote("LocalExecError", { description: "The project-local execution context could not be determined." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("LocalExecError.cause", { description: "The underlying failure." })),
+}, $I.annoteError<LocalExecError>("LocalExecError", { description: "The project-local execution context could not be determined." })) {
 	/**
 	 * Describes the detection failure and includes its directory when known.
 	 *
@@ -412,7 +414,10 @@ export class LocalExec extends Context.Service<LocalExec, LocalExecShape>()($I`L
 	 *
 	 * @since 0.0.0
 	 */
-	static readonly layerFor = (
+	static readonly layerFor: {
+		(launcher: Launcher, options?: { readonly directory?: string | undefined }): Layer.Layer<LocalExec>;
+		(options?: { readonly directory?: string | undefined }): (launcher: Launcher) => Layer.Layer<LocalExec>;
+	} = dual((args) => P.isString(args[0]), (
 		launcher: Launcher,
 		options?: { readonly directory?: string | undefined },
 	): Layer.Layer<LocalExec> => {
@@ -426,7 +431,7 @@ export class LocalExec extends Context.Service<LocalExec, LocalExecShape>()($I`L
 				...O.getSomesStruct({ directory: O.fromUndefinedOr(options?.directory) }),
 			}),
 		);
-	};
+	});
 
 	/**
 	 * A caller-supplied context, answered verbatim.

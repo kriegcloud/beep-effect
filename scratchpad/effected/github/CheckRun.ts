@@ -1,11 +1,14 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import { GitHubClient } from "./GitHubClient.ts";
@@ -17,8 +20,8 @@ import * as O from "@beep/utils/Option";
 const $I = $ScratchpadId.create("effected/github/CheckRun");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
-  message: S.String.annotateKey({ description: "The test-double member that needs an override." }),
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+  message: S.String.pipe($I.annoteKey("UnstubbedError.message", { description: "The test-double member that needs an override." })),
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * How a check run finished.
@@ -107,22 +110,22 @@ export class Annotation extends S.Class<Annotation, { readonly brand: unique sym
    *
    * @since 0.0.0
    */
-  path: S.String.annotateKey({ description: "Repository-relative path." }),
+  path: S.String.pipe($I.annoteKey("Annotation.path", { description: "Repository-relative path." })),
   /**
    * First line of the range, 1-based.
    *
    * @since 0.0.0
    */
-  startLine: S.Int.annotateKey({ description: "First line of the range, 1-based." }),
+  startLine: S.Int.pipe($I.annoteKey("Annotation.startLine", { description: "First line of the range, 1-based." })),
   /**
    * Last line of the range, 1-based.
    *
    * @since 0.0.0
    */
-  endLine: S.Int.annotateKey({ description: "Last line of the range, 1-based." }),
-  level: AnnotationLevel.annotateKey({ description: "How serious the annotated finding is: `notice`, `warning` or `failure`" }),
-  message: S.String.annotateKey({ description: "The explanation GitHub displays for the annotated line range" }),
-  title: S.optionalKey(S.String).annotateKey({ description: "An optional heading GitHub displays for the annotated finding" }),
+  endLine: S.Int.pipe($I.annoteKey("Annotation.endLine", { description: "Last line of the range, 1-based." })),
+  level: AnnotationLevel.pipe($I.annoteKey("Annotation.level", { description: "How serious the annotated finding is: `notice`, `warning` or `failure`" })),
+  message: S.String.pipe($I.annoteKey("Annotation.message", { description: "The explanation GitHub displays for the annotated line range" })),
+  title: S.optionalKey(S.String).pipe($I.annoteKey("Annotation.title", { description: "An optional heading GitHub displays for the annotated finding" })),
 }, $I.annote("Annotation", { description: "One annotation on a check run." })) {
 }
 
@@ -151,25 +154,25 @@ export class Annotation extends S.Class<Annotation, { readonly brand: unique sym
  * @since 0.0.0
  */
 export class CheckRunOutput extends S.Class<CheckRunOutput, { readonly brand: unique symbol }>($I`CheckRunOutput`)({
-  title: S.String.annotateKey({ description: "The heading GitHub displays above the check run's summary" }),
+  title: S.String.pipe($I.annoteKey("CheckRunOutput.title", { description: "The heading GitHub displays above the check run's summary" })),
   /**
    * Markdown shown under the title. Capped at 65535 **bytes**.
    *
    * @since 0.0.0
    */
-  summary: S.String.annotateKey({ description: "Markdown shown under the title. Capped at 65535 **bytes**." }),
+  summary: S.String.pipe($I.annoteKey("CheckRunOutput.summary", { description: "Markdown shown under the title. Capped at 65535 **bytes**." })),
   /**
    * Longer markdown. Capped at 65535 **bytes**.
    *
    * @since 0.0.0
    */
-  text: S.optionalKey(S.String).annotateKey({ description: "Longer markdown. Capped at 65535 **bytes**." }),
+  text: S.optionalKey(S.String).pipe($I.annoteKey("CheckRunOutput.text", { description: "Longer markdown. Capped at 65535 **bytes**." })),
   /**
    * At most 50 per request; the rest are dropped by {@link CheckRunOutput.truncated}.
    *
    * @since 0.0.0
    */
-  annotations: Annotation.pipe(S.Array, S.optionalKey).annotateKey({ description: "At most 50 per request; the rest are dropped by CheckRunOutput.truncated." }),
+  annotations: Annotation.pipe(S.Array, S.optionalKey, $I.annoteKey("CheckRunOutput.annotations", { description: "At most 50 per request; the rest are dropped by CheckRunOutput.truncated." })),
 }, $I.annote("CheckRunOutput", { description: "A check run's rendered output." })) {
   /**
    * GitHub's cap on `summary` and `text`, in UTF-8 bytes.
@@ -286,15 +289,15 @@ const capBytes = (value: string): string => {
  * @since 0.0.0
  */
 export class CheckRunRef extends S.Class<CheckRunRef, { readonly brand: unique symbol }>($I`CheckRunRef`)({
-  id: S.Int.annotateKey({ description: "GitHub's identifier for reading, updating and concluding this check run" }),
-  name: S.String.annotateKey({ description: "The label supplied when the check run was created, as reported by GitHub" }),
+  id: S.Int.pipe($I.annoteKey("CheckRunRef.id", { description: "GitHub's identifier for reading, updating and concluding this check run" })),
+  name: S.String.pipe($I.annoteKey("CheckRunRef.name", { description: "The label supplied when the check run was created, as reported by GitHub" })),
   /**
    * The web URL.
    *
    * @since 0.0.0
    */
-  url: S.String.annotateKey({ description: "The web URL." }),
-  status: S.String.annotateKey({ description: "The check run's execution status as reported by GitHub" }),
+  url: S.String.pipe($I.annoteKey("CheckRunRef.url", { description: "The web URL." })),
+  status: S.String.pipe($I.annoteKey("CheckRunRef.status", { description: "The check run's execution status as reported by GitHub" })),
 }, $I.annote("CheckRunRef", { description: "A check run as GitHub reports it." })) {
 }
 
@@ -320,10 +323,10 @@ export class CheckRunRef extends S.Class<CheckRunRef, { readonly brand: unique s
  * @category type-level
  * @since 0.0.0
  */
-export type ConcludeCheckRun = (
-  conclusion: (typeof CheckConclusion.literals)[number],
-  output?: CheckRunOutput,
-) => Effect.Effect<void>;
+export type ConcludeCheckRun = {
+  (conclusion: (typeof CheckConclusion.literals)[number], output?: CheckRunOutput): Effect.Effect<void>;
+  (output?: CheckRunOutput): (conclusion: (typeof CheckConclusion.literals)[number]) => Effect.Effect<void>;
+};
 
 /**
  * Create, update and conclude GitHub check runs on a commit, including a
@@ -343,24 +346,29 @@ export interface CheckRunShape {
    *
    * @since 0.0.0
    */
-  readonly create: (name: string, headSha: string) => Effect.Effect<CheckRunRef, GitHubError, Repo>;
+  readonly create: {
+    (name: string, headSha: string): Effect.Effect<CheckRunRef, GitHubError, Repo>;
+    (headSha: string): (name: string) => Effect.Effect<CheckRunRef, GitHubError, Repo>;
+  };
   readonly get: (id: number) => Effect.Effect<CheckRunRef, GitHubError, Repo>;
   /**
    * Update an in-flight run's output.
    *
    * @since 0.0.0
    */
-  readonly update: (id: number, output: CheckRunOutput) => Effect.Effect<void, GitHubError, Repo>;
+  readonly update: {
+    (id: number, output: CheckRunOutput): Effect.Effect<void, GitHubError, Repo>;
+    (output: CheckRunOutput): (id: number) => Effect.Effect<void, GitHubError, Repo>;
+  };
   /**
    * Finish a run.
    *
    * @since 0.0.0
    */
-  readonly complete: (
-    id: number,
-    conclusion: (typeof CheckConclusion.literals)[number],
-    output?: CheckRunOutput,
-  ) => Effect.Effect<void, GitHubError, Repo>;
+  readonly complete: {
+    (id: number, conclusion: (typeof CheckConclusion.literals)[number], output?: CheckRunOutput): Effect.Effect<void, GitHubError, Repo>;
+    (conclusion: (typeof CheckConclusion.literals)[number], output?: CheckRunOutput): (id: number) => Effect.Effect<void, GitHubError, Repo>;
+  };
   /**
    * Run `use` inside a check run, concluding it however `use` exits.
    *
@@ -414,11 +422,17 @@ export interface CheckRunShape {
    *
    * @since 0.0.0
    */
-  readonly withCheckRun: <A, E, R>(
-    name: string,
-    headSha: string,
-    use: (id: number, conclude: ConcludeCheckRun) => Effect.Effect<A, E, R>,
-  ) => Effect.Effect<A, E | GitHubError, R | Repo>;
+  readonly withCheckRun: {
+    <A, E, R>(
+      name: string,
+      headSha: string,
+      use: (id: number, conclude: ConcludeCheckRun) => Effect.Effect<A, E, R>,
+    ): Effect.Effect<A, E | GitHubError, R | Repo>;
+    <A, E, R>(
+      headSha: string,
+      use: (id: number, conclude: ConcludeCheckRun) => Effect.Effect<A, E, R>,
+    ): (name: string) => Effect.Effect<A, E | GitHubError, R | Repo>;
+  };
 }
 
 /**
@@ -472,10 +486,12 @@ export class CheckRun extends Context.Service<CheckRun, CheckRunShape>()($I`Chec
    *
    * ```ts
    * import { CheckRun } from "@beep/scratchpad/effected/github/CheckRun";
+   * import { CheckRunOutput } from "@beep/scratchpad/effected/github/CheckRun";
    * import * as Effect from "effect/Effect";
+   * import { dual } from "effect/Function";
    *
    * const service = CheckRun.makeTest({
-   *   update: () => Effect.succeed(undefined),
+   *   update: dual(2, (_id: number, _output: CheckRunOutput) => Effect.succeed(undefined)),
    * });
    * console.log(typeof service.update) // function
    * ```
@@ -521,7 +537,7 @@ const wireOutput = (output: CheckRunOutput) => {
     summary: capped.summary,
     ...O.getSomesStruct({ text: O.fromUndefinedOr(capped.text) }),
     ...O.getSomesStruct({
-      annotations: O.map(O.fromUndefinedOr(capped.annotations), (annotations) => annotations.map((annotation) => ({
+      annotations: O.map(O.fromUndefinedOr(capped.annotations), (annotations) => A.map(annotations, (annotation) => ({
           path: annotation.path,
           start_line: annotation.startLine,
           end_line: annotation.endLine,
@@ -556,7 +572,10 @@ interface RecordedConclusion {
  *
  * @since 0.0.0
  */
-const defaultConclusion = <A, E>(name: string, exit: Exit.Exit<A, E>): RecordedConclusion => {
+const defaultConclusion: {
+  <A, E>(name: string, exit: Exit.Exit<A, E>): RecordedConclusion;
+  <A, E>(exit: Exit.Exit<A, E>): (name: string) => RecordedConclusion;
+} = dual(2, <A, E>(name: string, exit: Exit.Exit<A, E>): RecordedConclusion => {
   if (Exit.isSuccess(exit)) {
     return {
       conclusion: "success",
@@ -574,7 +593,7 @@ const defaultConclusion = <A, E>(name: string, exit: Exit.Exit<A, E>): RecordedC
       summary: cancelled ? "Cancelled before completion." : "Failed.",
     }),
   };
-};
+});
 
 /**
  * Conclude a bracketed run: the verdict `use` recorded, or the exit's default.
@@ -598,7 +617,21 @@ const defaultConclusion = <A, E>(name: string, exit: Exit.Exit<A, E>): RecordedC
  *
  * @since 0.0.0
  */
-const concludeFor = <A, E>(
+const concludeFor: {
+  <A, E>(
+    name: string,
+    id: number,
+    exit: Exit.Exit<A, E>,
+    recorded: RecordedConclusion | undefined,
+    complete: CheckRunShape["complete"],
+  ): Effect.Effect<void, GitHubError, Repo>;
+  <A, E>(
+    id: number,
+    exit: Exit.Exit<A, E>,
+    recorded: RecordedConclusion | undefined,
+    complete: CheckRunShape["complete"],
+  ): (name: string) => Effect.Effect<void, GitHubError, Repo>;
+} = dual(5, <A, E>(
   name: string,
   id: number,
   exit: Exit.Exit<A, E>,
@@ -608,16 +641,19 @@ const concludeFor = <A, E>(
   const settled = recorded ?? defaultConclusion(name, exit);
   const write = complete(id, settled.conclusion, settled.output);
   return Exit.isSuccess(exit) ? write : Effect.ignore(write);
-};
+});
 
 const CheckRunResponse = S.Struct({
   id: S.Union([S.Finite, S.BigInt]),
   name: S.String,
   html_url: S.String.pipe(S.NullOr, S.optional),
   status: S.String,
-}).annotate($I.annote("CheckRunResponse", { description: "The selected fields of a check-run response." }));
+}).pipe($I.annoteSchema("CheckRunResponse", { description: "The selected fields of a check-run response." }));
 
-const refOf = Effect.fn("CheckRun.refOf")(function* (input: unknown, operation: string) {
+const refOf: {
+  (input: unknown, operation: string): Effect.Effect<CheckRunRef, GitHubError>;
+  (operation: string): (input: unknown) => Effect.Effect<CheckRunRef, GitHubError>;
+} = dual(2, Effect.fn("CheckRun.refOf")(function* (input: unknown, operation: string) {
   const raw = yield* S.decodeUnknownEffect(CheckRunResponse)(input).pipe(
     Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected check run", error)),
   );
@@ -629,10 +665,10 @@ const refOf = Effect.fn("CheckRun.refOf")(function* (input: unknown, operation: 
   }).pipe(
     Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected check run", error)),
   );
-});
+}));
 
 const make = (client: GitHubClient["Service"]): CheckRunShape => {
-  const create = Effect.fn("CheckRun.create")(function* (name: string, headSha: string) {
+  const create: CheckRunShape["create"] = dual(2, Effect.fn("CheckRun.create")(function* (name: string, headSha: string) {
     const { owner, repo } = yield* Repo;
     yield* Effect.annotateCurrentSpan({ owner, repo, name, headSha });
     const created = yield* client.request("POST /repos/{owner}/{repo}/check-runs", {
@@ -644,9 +680,9 @@ const make = (client: GitHubClient["Service"]): CheckRunShape => {
       started_at: DateTime.formatIso(yield* DateTime.now),
     });
     return yield* refOf(created, "CheckRun.create");
-  });
+  }));
 
-  const complete = Effect.fn("CheckRun.complete")(function* (
+  const complete: CheckRunShape["complete"] = dual((args) => P.isNumber(args[0]), Effect.fn("CheckRun.complete")(function* (
     id: number,
     conclusion: (typeof CheckConclusion.literals)[number],
     output?: CheckRunOutput,
@@ -662,7 +698,7 @@ const make = (client: GitHubClient["Service"]): CheckRunShape => {
       completed_at: DateTime.formatIso(yield* DateTime.now),
       ...O.getSomesStruct({ output: O.map(O.fromUndefinedOr(output), wireOutput) }),
     });
-  });
+  }));
 
   return {
     create,
@@ -679,7 +715,7 @@ const make = (client: GitHubClient["Service"]): CheckRunShape => {
       return yield* refOf(raw, "CheckRun.get");
     }),
 
-    update: Effect.fn("CheckRun.update")(function* (id: number, output: CheckRunOutput) {
+    update: dual(2, Effect.fn("CheckRun.update")(function* (id: number, output: CheckRunOutput) {
       const { owner, repo } = yield* Repo;
       yield* Effect.annotateCurrentSpan({ owner, repo, id });
       yield* client.request("PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}", {
@@ -688,24 +724,27 @@ const make = (client: GitHubClient["Service"]): CheckRunShape => {
         check_run_id: id,
         output: wireOutput(output),
       });
-    }),
+    })),
 
-    withCheckRun: Effect.fn("withCheckRun")(function* <A, E, R>(
+    withCheckRun: dual(3, Effect.fn("withCheckRun")(function* <A, E, R>(
       name: string,
       headSha: string,
       use: (id: number, conclude: ConcludeCheckRun) => Effect.Effect<A, E, R>,
     ) {
       const run = yield* create(name, headSha);
       const recorded = yield* Ref.make<RecordedConclusion | undefined>(undefined);
-      const conclude: ConcludeCheckRun = (conclusion, output) => Ref.set(recorded, {
-        conclusion,
-        output,
-      });
+      const conclude: ConcludeCheckRun = dual(
+        (args) => P.isString(args[0]),
+        (conclusion: (typeof CheckConclusion.literals)[number], output?: CheckRunOutput): Effect.Effect<void> => Ref.set(recorded, {
+          conclusion,
+          output,
+        }),
+      );
       return yield* Effect.suspend(() => use(run.id, conclude)).pipe(
         Effect.onExit((exit) =>
           Effect.flatMap(Ref.get(recorded), (chosen) => concludeFor(name, run.id, exit, chosen, complete)),
         ),
       );
-    }),
+    })),
   };
 };

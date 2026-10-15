@@ -17,6 +17,7 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Match from "effect/Match";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/npm/PackageManagerCache");
 
@@ -44,8 +45,8 @@ const $I = $ScratchpadId.create("effected/npm/PackageManagerCache");
  * @category schemas
  * @since 0.0.0
  */
-export const CachingPackageManager = LiteralKit(["npm", "pnpm", "yarn-classic", "yarn-berry", "bun"]).annotate(
-	$I.annote("CachingPackageManager", {
+export const CachingPackageManager = LiteralKit(["npm", "pnpm", "yarn-classic", "yarn-berry", "bun"]).pipe(
+	$I.annoteSchema("CachingPackageManager", {
 		description: "The package managers the default-cache table has a row for.",
 	}),
 );
@@ -87,13 +88,13 @@ export const DefaultCacheDirectoryOptions = S.Struct({
 	 * the Linux/XDG family — so a BSD caller gets the XDG answer rather than a
 	 * refusal.
 	 */
-	platform: S.String.annotateKey({
+	platform: S.String.pipe($I.annoteKey("DefaultCacheDirectoryOptions.platform", {
 		description: "The process.platform-shaped platform; win32 is Windows, darwin is macOS, and anything else uses Linux/XDG defaults.",
-	}),
+	})),
 	/** The user's home directory, e.g. `os.homedir()` or `$HOME`. */
-	home: S.String.annotateKey({ description: "The user's home directory, e.g. os.homedir() or $HOME." }),
-}).annotate(
-	$I.annote("DefaultCacheDirectoryOptions", {
+	home: S.String.pipe($I.annoteKey("DefaultCacheDirectoryOptions.home", { description: "The user's home directory, e.g. os.homedir() or $HOME." })),
+}).pipe(
+	$I.annoteSchema("DefaultCacheDirectoryOptions", {
 		description: "The platform and home directory used to derive a package manager's default cache directory.",
 	}),
 );
@@ -196,7 +197,10 @@ export abstract class PackageManagerCache {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static defaultDirectory(manager: CachingPackageManager, options: DefaultCacheDirectoryOptions): string {
+	static readonly defaultDirectory: {
+		(manager: CachingPackageManager, options: DefaultCacheDirectoryOptions): string;
+		(options: DefaultCacheDirectoryOptions): (manager: CachingPackageManager) => string;
+	} = dual(2, (manager: CachingPackageManager, options: DefaultCacheDirectoryOptions): string => {
 		const windows = options.platform === "win32";
 		const darwin = options.platform === "darwin";
 		return Match.value(manager).pipe(
@@ -219,5 +223,5 @@ export abstract class PackageManagerCache {
 			Match.when("bun", () => under(options.home, windows, ".bun", "install", "cache")),
 			Match.exhaustive,
 		);
-	}
+	});
 }

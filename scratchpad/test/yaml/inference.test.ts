@@ -21,6 +21,8 @@ import {
 	YamlLintConfig,
 	YamlStyleConflictError,
 } from "../../effected/yaml/index.ts";
+import { dual } from "effect/Function";
+import type { LintContext, YamlLintDiagnostic } from "../../effected/yaml/YamlLintRule.ts";
 
 const observation = S.Union([StyleVote, StyleFloor]);
 const observations = S.Array(observation);
@@ -138,7 +140,7 @@ describe("StyleEvidence — the monoid", () => {
 
 	it("multi-file: observing N snippets and merging equals the concatenation-equivalent evidence", () => {
 		const parts = ["a: 'x'\n", "b: 'y'\n", 'c: "z"\n'];
-		const merged = combineAll(parts.map((text) => YamlLint.observe(text, YamlLint.builtins)));
+		const merged = combineAll(parts.map(YamlLint.observe(YamlLint.builtins)));
 		const quoteVotes = merged.votes.filter((v) => v.rule === "quoted-strings" && v.dimension === "quoteType");
 		assert.deepStrictEqual(
 			quoteVotes.map((v) => [v.value, v.count]),
@@ -148,7 +150,7 @@ describe("StyleEvidence — the monoid", () => {
 			],
 		);
 		// The merge is fold-order independent (associativity, applied).
-		const [e1, e2, e3] = parts.map((text) => YamlLint.observe(text, YamlLint.builtins));
+		const [e1, e2, e3] = parts.map(YamlLint.observe(YamlLint.builtins));
 		assert.isDefined(e1);
 		assert.isDefined(e2);
 		assert.isDefined(e3);
@@ -235,7 +237,7 @@ describe("YamlLint.resolveStrict", () => {
 	it("custom rules participate in inference for free", () => {
 		const custom: YamlRule = {
 			id: "my-rule",
-			check: () => [],
+			check: dual(2, (_ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => []),
 			infer: () => [StyleVote.make({ dimension: "style", value: "x", offset: 0, length: 0, line: 0, character: 0 })],
 		};
 		const resolved = YamlLint.inferStrict("a: 1\n", [custom], YamlLintConfig.make({ rules: {} }));
@@ -261,7 +263,7 @@ describe("YamlLint.resolveStrict", () => {
 			character: 0,
 		};
 		assert.isFalse(S.is(StyleVote)(plainVote), "the fixture must NOT be a class instance");
-		const custom: YamlRule = { id: "my-rule", check: () => [], infer: () => [plainVote] };
+		const custom: YamlRule = { id: "my-rule", check: dual(2, (_ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => []), infer: () => [plainVote] };
 		const evidence = YamlLint.observe("a: 1\n", [custom]);
 		assert.strictEqual(evidence.floors.length, 0, "a plain-object vote must not land in the floor tally");
 		assert.strictEqual(evidence.votes.length, 1);

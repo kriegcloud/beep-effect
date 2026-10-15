@@ -6,6 +6,7 @@
 // guard.
 
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { dual } from "effect/Function";
 import * as R from "effect/Record";
@@ -33,9 +34,8 @@ const $I = $ScratchpadId.create("effected/glob/internal/braceExpressions");
  * @since 0.0.0
  */
 export class BraceExpressionError extends S.TaggedError<BraceExpressionError, { readonly brand: unique symbol }>($I`BraceExpressionError`)("BraceExpressionError", {
-	message: S.String.annotateKey({ description: "Explains why character-class parsing was called outside a brace expression." }),
-}, $I.annote("BraceExpressionError", {
-	title: "Invalid brace-expression parser invocation",
+	message: S.String.pipe($I.annoteKey("BraceExpressionError.message", { description: "Explains why character-class parsing was called outside a brace expression." })),
+}, $I.annoteError<BraceExpressionError>("BraceExpressionError", {
 	description: "Programmer error raised when the character-class parser is invoked at a position that does not begin a brace expression.",
 })) {}
 
@@ -67,7 +67,7 @@ const braceEscape = (s: string): string => s.replace(/[[\]\\-]/g, "\\$&");
 const regexpEscape = (s: string): string => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
 // everything has already been escaped, we just have to join
-const rangesToString = (ranges: Array<string>): string => ranges.join("");
+const rangesToString = (ranges: Array<string>): string => A.join(ranges, "");
 
 /**
  * Describes a parsed character class through its regular-expression source,

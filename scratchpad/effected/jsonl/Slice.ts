@@ -45,9 +45,11 @@ const fields = <T extends string>(event: S.Codec<T>) => ({
  * @since 0.0.0
  */
 export const Slice = <T extends string>(event: S.Codec<T>) =>
-  event
-    .pipe(fields, S.Struct)
-    .annotate($I.annote("Slice", { description: "Frame selection with inclusive from and exclusive to bounds." }));
+  event.pipe(
+    fields,
+    S.Struct,
+    $I.annoteSchema("Slice", { description: "Frame selection with inclusive from and exclusive to bounds." })
+  );
 /**
  * Build selection options with a non-negative integer resume cursor.
  *
@@ -66,8 +68,8 @@ export const CursoredSlice = <T extends string>(event: S.Codec<T>) =>
   S.Struct({
     ...fields(event),
     cursor: S.optionalKey(ByteCount),
-  }).annotate(
-    $I.annote("CursoredSlice", { description: "Frame selection resumed at a logical post-BOM byte offset." })
+  }).pipe(
+    $I.annoteSchema("CursoredSlice", { description: "Frame selection resumed at a logical post-BOM byte offset." })
   );
 
 /**

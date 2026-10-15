@@ -65,7 +65,7 @@ const $I = $ScratchpadId.create("effected/npm/WorkspaceResolver");
 export class DependencyResolutionError extends S.TaggedError<DependencyResolutionError, { readonly brand: unique symbol }>($I`DependencyResolutionError`)(
 	"DependencyResolutionError",
 	{
-		specifier: S.String.annotateKey({ description: "The dependency specifier that could not be resolved" }),
+		specifier: S.String.pipe($I.annoteKey("DependencyResolutionError.specifier", { description: "The dependency specifier that could not be resolved" })),
 		/**
 		 * Why the specifier could not be resolved.
 		 *
@@ -83,10 +83,9 @@ export class DependencyResolutionError extends S.TaggedError<DependencyResolutio
 		 */
 		reason: S.Literals(["mechanism", "no-version"]).pipe(
 			S.withDecodingDefaultKey(Effect.succeed("mechanism" as const)),
-			S.withConstructorDefault(Effect.succeed("mechanism" as const)),
-		).annotateKey({ description: "Why the specifier could not be resolved." }),
-		cause: S.Defect({ includeStack: true }).annotateKey({ description: "The originating resolution failure, preserved structurally; absent when a known workspace member declares no version" }),
-	}, $I.annote("DependencyResolutionError", { description: "Raised when a `catalog:` or `workspace:` specifier cannot be resolved because the resolution mechanism itself failed — not for an ordinary unmatched specifier, which resolves to `Option.none()` instead. Both CatalogResolver and WorkspaceResolver fail with it." }),
+			S.withConstructorDefault(Effect.succeed("mechanism" as const)), $I.annoteKey("DependencyResolutionError.reason", { description: "Why the specifier could not be resolved." })),
+		cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("DependencyResolutionError.cause", { description: "The originating resolution failure, preserved structurally; absent when a known workspace member declares no version" })),
+	}, $I.annoteError<DependencyResolutionError>("DependencyResolutionError", { description: "Raised when a `catalog:` or `workspace:` specifier cannot be resolved because the resolution mechanism itself failed — not for an ordinary unmatched specifier, which resolves to `Option.none()` instead. Both CatalogResolver and WorkspaceResolver fail with it." }),
 ) {
 	/**
 	 * Renders `specifier` and `reason` into a one-line failure message.

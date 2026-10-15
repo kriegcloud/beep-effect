@@ -18,6 +18,7 @@ import { requoteScalarText } from "../requote.ts";
 import { positionAt, walkScalars } from "./util.ts";
 import * as P from "effect/Predicate";
 import * as O from "@beep/utils/Option";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/quoted-strings");
 
@@ -43,17 +44,17 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/quoted-strings");
  * @since 0.0.0
  */
 export const quotedStringsOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("quotedStringsOptions.severity", {
 		description: "Reporting level for string-quoting findings, defaulting to `error`",
-	}),
-	quoteType: S.optionalKey(S.Literals(["single", "double"])).annotateKey({
+	})),
+	quoteType: S.optionalKey(S.Literals(["single", "double"])).pipe($I.annoteKey("quotedStringsOptions.quoteType", {
 		description:
 			"Required quote style for quoted string values and sequence items, excluding mapping keys and defaulting to `double`",
-	}),
-	required: S.optionalKey(S.Boolean).annotateKey({
+	})),
+	required: S.optionalKey(S.Boolean).pipe($I.annoteKey("quotedStringsOptions.required", {
 		description:
 			"Whether plain string values and sequence items must be quoted, excluding mapping keys and defaulting to `false`",
-	}),
+	})),
 }).pipe(
 	$I.annoteSchema("quotedStringsOptions", {
 		description:
@@ -80,11 +81,14 @@ export type quotedStringsOptions = typeof quotedStringsOptions.Type;
  * fix behavior stays exactly as released; the escaping-capable mode belongs
  * to the format path's opt-in `requoteScalars`, not the lint fix.
  */
-const safeQuoteFix = (ctx: LintContext, scalar: YamlScalar, quote: '"' | "'"): YamlEdit | undefined => {
+const safeQuoteFix: {
+	(ctx: LintContext, scalar: YamlScalar, quote: '"' | "'"): YamlEdit | undefined;
+	(scalar: YamlScalar, quote: '"' | "'"): (ctx: LintContext) => YamlEdit | undefined;
+} = dual(3, (ctx: LintContext, scalar: YamlScalar, quote: '"' | "'"): YamlEdit | undefined => {
 	const content = requoteScalarText(ctx.text, scalar, quote, "conservative");
 	if (content === undefined) return undefined;
 	return YamlEdit.make({ offset: scalar.offset, length: scalar.length, content });
-};
+});
 
 /**
  * Enforces quote-style policy for string value scalars and sequence items.
@@ -113,7 +117,7 @@ const safeQuoteFix = (ctx: LintContext, scalar: YamlScalar, quote: '"' | "'"): Y
  */
 export const quotedStrings: YamlRule = {
 	id: "quoted-strings",
-	check: (ctx, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const quoteType =
 			P.hasProperty(options, "quoteType") && S.is(quotedStringsOptions.fields.quoteType.schema)(options.quoteType)
 				? options.quoteType
@@ -162,7 +166,7 @@ export const quotedStrings: YamlRule = {
 			}
 		}, true);
 		return out;
-	},
+	}),
 	// Inference: every already-quoted string VALUE scalar votes its
 	// quote style for `quoteType` — the same scope the check polices (keys
 	// excluded, plain scalars say nothing about quote preference).

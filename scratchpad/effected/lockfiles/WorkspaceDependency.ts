@@ -31,8 +31,8 @@ const $I = $ScratchpadId.create("effected/lockfiles/WorkspaceDependency");
  * @since 0.0.0
  */
 export class WorkspaceDependency extends S.Class<WorkspaceDependency, { readonly brand: unique symbol }>($I`WorkspaceDependency`)({
-	from: S.NonEmptyString.annotateKey({ description: "Workspace package declaring the dependency; pnpm initially uses its importer path until rewritten with its manifest name" }),
-	to: S.NonEmptyString.annotateKey({ description: "Workspace package depended upon by the declaring package" }),
-	depType: DependencyField.annotateKey({ description: "Dependency section containing this workspace edge, such as `dependencies` or `devDependencies`" }),
-	constraint: S.String.annotateKey({ description: "Declared dependency specifier for this workspace edge, such as `workspace:*` or `^1.0.0`" }),
+	from: S.NonEmptyString.pipe($I.annoteKey("WorkspaceDependency.from", { description: "Workspace package declaring the dependency; pnpm initially uses its importer path until rewritten with its manifest name" })),
+	to: S.NonEmptyString.pipe($I.annoteKey("WorkspaceDependency.to", { description: "Workspace package depended upon by the declaring package" })),
+	depType: DependencyField.pipe($I.annoteKey("WorkspaceDependency.depType", { description: "Dependency section containing this workspace edge, such as `dependencies` or `devDependencies`" })),
+	constraint: S.String.pipe($I.annoteKey("WorkspaceDependency.constraint", { description: "Declared dependency specifier for this workspace edge, such as `workspace:*` or `^1.0.0`" })),
 }, $I.annote("WorkspaceDependency", { description: "A directed dependency edge between two workspace packages as recorded in the lockfile." })) {}

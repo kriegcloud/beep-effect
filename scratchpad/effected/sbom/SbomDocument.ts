@@ -11,6 +11,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { License, isValidExpression } from "../spdx/index.ts";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as R from "effect/Record";
 
@@ -135,9 +136,9 @@ export type ExternalReferenceType = typeof ExternalReferenceType.Type;
  */
 export class ExternalReference extends S.Class<ExternalReference, { readonly brand: unique symbol }>($I`ExternalReference`)({
 	/** The reference kind. */
-	type: ExternalReferenceType.annotateKey({ description: "The reference kind." }),
+	type: ExternalReferenceType.pipe($I.annoteKey("ExternalReference.type", { description: "The reference kind." })),
 	/** The URL it points at, passed through exactly as supplied. */
-	url: S.String.annotateKey({ description: "The URL it points at, passed through exactly as supplied." }),
+	url: S.String.pipe($I.annoteKey("ExternalReference.url", { description: "The URL it points at, passed through exactly as supplied." })),
 }, $I.annote("ExternalReference", { description: "A link from a component to something outside the BOM." })) {}
 
 /**
@@ -158,11 +159,11 @@ export class ExternalReference extends S.Class<ExternalReference, { readonly bra
  */
 export class Contact extends S.Class<Contact, { readonly brand: unique symbol }>($I`Contact`)({
 	/** The contact's name. */
-	name: S.optionalKey(S.String).annotateKey({ description: "The contact's name." }),
+	name: S.optionalKey(S.String).pipe($I.annoteKey("Contact.name", { description: "The contact's name." })),
 	/** Their email address. */
-	email: S.optionalKey(S.String).annotateKey({ description: "Their email address." }),
+	email: S.optionalKey(S.String).pipe($I.annoteKey("Contact.email", { description: "Their email address." })),
 	/** Their telephone number. */
-	phone: S.optionalKey(S.String).annotateKey({ description: "Their telephone number." }),
+	phone: S.optionalKey(S.String).pipe($I.annoteKey("Contact.phone", { description: "Their telephone number." })),
 }, $I.annote("Contact", { description: "A point of contact — a person at a supplier, or an author of the BOM." })) {}
 
 /**
@@ -188,11 +189,11 @@ export class Contact extends S.Class<Contact, { readonly brand: unique symbol }>
  */
 export class Supplier extends S.Class<Supplier, { readonly brand: unique symbol }>($I`Supplier`)({
 	/** The supplier organization's name. */
-	name: S.String.annotateKey({ description: "The supplier organization's name." }),
+	name: S.String.pipe($I.annoteKey("Supplier.name", { description: "The supplier organization's name." })),
 	/** Its URLs. */
-	url: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Its URLs." }),
+	url: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("Supplier.url", { description: "Its URLs." })),
 	/** Its points of contact. */
-	contact: Contact.pipe(S.Array, S.optionalKey).annotateKey({ description: "Its points of contact." }),
+	contact: Contact.pipe(S.Array, S.optionalKey, $I.annoteKey("Supplier.contact", { description: "Its points of contact." })),
 }, $I.annote("Supplier", { description: "The organization that supplied a component." })) {}
 
 /**
@@ -223,29 +224,29 @@ export class Supplier extends S.Class<Supplier, { readonly brand: unique symbol 
  */
 export class Component extends S.Class<Component, { readonly brand: unique symbol }>($I`Component`)({
 	/** What kind of component this is. */
-	type: ComponentType.annotateKey({ description: "What kind of component this is." }),
+	type: ComponentType.pipe($I.annoteKey("Component.type", { description: "What kind of component this is." })),
 	/** The component's name — NTIA minimum element 2. */
-	name: S.String.annotateKey({ description: "The component's name — NTIA minimum element 2." }),
+	name: S.String.pipe($I.annoteKey("Component.name", { description: "The component's name — NTIA minimum element 2." })),
 	/** Its version — NTIA minimum element 3. */
-	version: S.optionalKey(S.String).annotateKey({ description: "Its version — NTIA minimum element 3." }),
+	version: S.optionalKey(S.String).pipe($I.annoteKey("Component.version", { description: "Its version — NTIA minimum element 3." })),
 	/** The package URL uniquely identifying it — NTIA minimum element 4. */
-	purl: S.optionalKey(S.String).annotateKey({ description: "The package URL uniquely identifying it — NTIA minimum element 4." }),
+	purl: S.optionalKey(S.String).pipe($I.annoteKey("Component.purl", { description: "The package URL uniquely identifying it — NTIA minimum element 4." })),
 	/** The identifier other parts of the document reference it by. */
-	bomRef: S.optionalKey(S.String).annotateKey({ description: "The identifier other parts of the document reference it by." }),
+	bomRef: S.optionalKey(S.String).pipe($I.annoteKey("Component.bomRef", { description: "The identifier other parts of the document reference it by." })),
 	/** A short description. */
-	description: S.optionalKey(S.String).annotateKey({ description: "A short description." }),
+	description: S.optionalKey(S.String).pipe($I.annoteKey("Component.description", { description: "A short description." })),
 	/** SPDX license identifiers or expressions. */
-	licenses: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "SPDX license identifiers or expressions." }),
+	licenses: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("Component.licenses", { description: "SPDX license identifiers or expressions." })),
 	/** Links out of the BOM. */
-	externalReferences: ExternalReference.pipe(S.Array, S.optionalKey).annotateKey({ description: "Links out of the BOM." }),
+	externalReferences: ExternalReference.pipe(S.Array, S.optionalKey, $I.annoteKey("Component.externalReferences", { description: "Links out of the BOM." })),
 	/** Discovery keywords — CycloneDX 1.6's `tags`, from the manifest's `keywords`. */
-	tags: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Discovery keywords — CycloneDX 1.6's `tags`, from the manifest's `keywords`." }),
+	tags: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("Component.tags", { description: "Discovery keywords — CycloneDX 1.6's `tags`, from the manifest's `keywords`." })),
 	/** The component's authors. */
-	authors: Contact.pipe(S.Array, S.optionalKey).annotateKey({ description: "The component's authors." }),
+	authors: Contact.pipe(S.Array, S.optionalKey, $I.annoteKey("Component.authors", { description: "The component's authors." })),
 	/** The entity that published it. */
-	publisher: S.optionalKey(S.String).annotateKey({ description: "The entity that published it." }),
+	publisher: S.optionalKey(S.String).pipe($I.annoteKey("Component.publisher", { description: "The entity that published it." })),
 	/** A copyright statement. */
-	copyright: S.optionalKey(S.String).annotateKey({ description: "A copyright statement." }),
+	copyright: S.optionalKey(S.String).pipe($I.annoteKey("Component.copyright", { description: "A copyright statement." })),
 }, $I.annote("Component", { description: "One component in the BOM — the root, or a dependency." })) {}
 
 /**
@@ -266,13 +267,13 @@ export class Component extends S.Class<Component, { readonly brand: unique symbo
  */
 export class SbomMetadata extends S.Class<SbomMetadata, { readonly brand: unique symbol }>($I`SbomMetadata`)({
 	/** When the BOM was assembled — NTIA minimum element 7. */
-	timestamp: S.optionalKey(S.String).annotateKey({ description: "When the BOM was assembled — NTIA minimum element 7." }),
+	timestamp: S.optionalKey(S.String).pipe($I.annoteKey("SbomMetadata.timestamp", { description: "When the BOM was assembled — NTIA minimum element 7." })),
 	/** Who created the BOM — NTIA minimum element 6. */
-	authors: Contact.pipe(S.Array, S.optionalKey).annotateKey({ description: "Who created the BOM — NTIA minimum element 6." }),
+	authors: Contact.pipe(S.Array, S.optionalKey, $I.annoteKey("SbomMetadata.authors", { description: "Who created the BOM — NTIA minimum element 6." })),
 	/** The component the BOM describes. */
-	component: S.optionalKey(Component).annotateKey({ description: "The component the BOM describes." }),
+	component: S.optionalKey(Component).pipe($I.annoteKey("SbomMetadata.component", { description: "The component the BOM describes." })),
 	/** Who supplied that component — NTIA minimum element 1. */
-	supplier: S.optionalKey(Supplier).annotateKey({ description: "Who supplied that component — NTIA minimum element 1." }),
+	supplier: S.optionalKey(Supplier).pipe($I.annoteKey("SbomMetadata.supplier", { description: "Who supplied that component — NTIA minimum element 1." })),
 }, $I.annote("SbomMetadata", { description: "Document-level metadata: who made the BOM, when, and about what." })) {}
 
 /**
@@ -304,15 +305,15 @@ export class SbomMetadata extends S.Class<SbomMetadata, { readonly brand: unique
  */
 export class SbomDocument extends S.Class<SbomDocument, { readonly brand: unique symbol }>($I`SbomDocument`)({
 	/** Always `"CycloneDX"`. */
-	bomFormat: S.Literal(BOM_FORMAT).annotateKey({ description: "Always `\"CycloneDX\"`." }),
+	bomFormat: S.Literal(BOM_FORMAT).pipe($I.annoteKey("SbomDocument.bomFormat", { description: "Always `\"CycloneDX\"`." })),
 	/** Always `"1.6"`. */
-	specVersion: S.Literal(SPEC_VERSION).annotateKey({ description: "Always `\"1.6\"`." }),
+	specVersion: S.Literal(SPEC_VERSION).pipe($I.annoteKey("SbomDocument.specVersion", { description: "Always `\"1.6\"`." })),
 	/** The document revision, `1` for a freshly assembled BOM. */
-	version: S.Finite.annotateKey({ description: "The document revision, `1` for a freshly assembled BOM." }),
+	version: S.Finite.pipe($I.annoteKey("SbomDocument.version", { description: "The document revision, `1` for a freshly assembled BOM." })),
 	/** Document metadata. */
-	metadata: S.optionalKey(SbomMetadata).annotateKey({ description: "Document metadata." }),
+	metadata: S.optionalKey(SbomMetadata).pipe($I.annoteKey("SbomDocument.metadata", { description: "Document metadata." })),
 	/** The components the BOM describes, sorted by name. */
-	components: S.Array(Component).annotateKey({ description: "The components the BOM describes, sorted by name." }),
+	components: S.Array(Component).pipe($I.annoteKey("SbomDocument.components", { description: "The components the BOM describes, sorted by name." })),
 }, $I.annote("SbomDocument", { description: "A CycloneDX 1.6 bill of materials." })) {}
 
 /** Drop absent keys so the emitted JSON omits them rather than carrying nulls. */
@@ -346,7 +347,7 @@ const licensesJson = (licenses: ReadonlyArray<string>): ReadonlyArray<Record<str
 	if (only !== undefined && others.length === 0 && !License.isKnownId(only) && isValidExpression(only)) {
 		return [{ expression: only }];
 	}
-	return licenses.map((license) =>
+	return A.map(licenses, (license) =>
 		License.isKnownId(license) ? { license: { id: license } } : { license: { name: license } },
 	);
 };
@@ -365,14 +366,16 @@ const componentJson = (component: Component): Record<string, unknown> =>
 		description: component.description,
 		publisher: component.publisher,
 		copyright: component.copyright,
-		authors: component.authors?.map(contactJson),
+		authors: component.authors === undefined ? undefined : A.map(component.authors, contactJson),
 		// `licenses` is an array of single-key wrappers, never bare strings.
 		licenses: component.licenses === undefined ? undefined : licensesJson(component.licenses),
 		purl: component.purl,
-		externalReferences: component.externalReferences?.map((reference) => ({
-			url: reference.url,
-			type: reference.type,
-		})),
+		externalReferences: component.externalReferences === undefined
+			? undefined
+			: A.map(component.externalReferences, (reference) => ({
+				url: reference.url,
+				type: reference.type,
+			})),
 		tags: component.tags,
 	});
 
@@ -411,7 +414,7 @@ export const documentJson = (document: SbomDocument): Record<string, unknown> =>
 				? undefined
 				: compact({
 						timestamp: document.metadata.timestamp,
-						authors: document.metadata.authors?.map(contactJson),
+						authors: document.metadata.authors === undefined ? undefined : A.map(document.metadata.authors, contactJson),
 						component:
 							document.metadata.component === undefined ? undefined : componentJson(document.metadata.component),
 						supplier:
@@ -420,8 +423,10 @@ export const documentJson = (document: SbomDocument): Record<string, unknown> =>
 								: compact({
 										name: document.metadata.supplier.name,
 										url: document.metadata.supplier.url,
-										contact: document.metadata.supplier.contact?.map(contactJson),
+										contact: document.metadata.supplier.contact === undefined
+											? undefined
+											: A.map(document.metadata.supplier.contact, contactJson),
 									}),
 					}),
-		components: document.components.map(componentJson),
+		components: A.map(document.components, componentJson),
 	});

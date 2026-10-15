@@ -10,6 +10,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
@@ -25,6 +26,8 @@ import { assembleKnowledge, moduleTsconfig, okfLinks, readmeSkeleton, scanVendor
 import { type ExportEntry, LedgerRow, MODULE_NAMES, type ModuleName, NewDep, UpstreamPaths } from "./Ledger.schema.ts";
 import { updateRow } from "./LedgerStore.ts";
 import { labPaths, type RunnerConfig, upstreamPaths } from "./Paths.ts";
+import type { PlatformError } from "effect/PlatformError";
+import type { LedgerInvalid, LedgerMissing, LedgerRowMissing } from "./Audit.errors.ts";
 
 const $I = $ScratchpadId.create("effected/runner/Copy");
 
@@ -47,7 +50,10 @@ const encodeJsonObject = S.encodeEffect(JsonObjectText);
  * @category parsing
  * @since 0.0.0
  */
-export const readJsonObject = Effect.fn("Copy.readJsonObject")(function* (absolute: string, label: string) {
+export const readJsonObject: {
+  (absolute: string, label: string): Effect.Effect<{ readonly [x: string]: S.Json; }, ManifestInvalid | PlatformError, FileSystem.FileSystem>;
+  (label: string): (absolute: string) => Effect.Effect<{ readonly [x: string]: S.Json; }, ManifestInvalid | PlatformError, FileSystem.FileSystem>;
+} = dual(2, Effect.fn("Copy.readJsonObject")(function* (absolute: string, label: string) {
   const fs = yield* FileSystem.FileSystem;
   if (!(yield* fs.exists(absolute))) {
     return yield* ManifestInvalid.make({ path: label, detail: "file does not exist" });
@@ -56,7 +62,7 @@ export const readJsonObject = Effect.fn("Copy.readJsonObject")(function* (absolu
   return yield* decodeJsonObject(text).pipe(
     Effect.mapError((issue) => ManifestInvalid.make({ path: label, detail: String(issue) }))
   );
-});
+}));
 
 const isStringRecord = S.is(S.Record(S.String, S.String));
 const isString = S.is(S.String);
@@ -156,7 +162,10 @@ const dotRelative = (relative: string): string => (Str.startsWith(".")(relative)
  * @category constructors
  * @since 0.0.0
  */
-export const makeResolver = Effect.fn("Copy.makeResolver")(function* (
+export const makeResolver: {
+  (config: RunnerConfig, upstreamFile: string, labFile: string, kitExports: KitExports): Effect.Effect<SpecifierResolver, never, Path.Path>;
+  (upstreamFile: string, labFile: string, kitExports: KitExports): (config: RunnerConfig) => Effect.Effect<SpecifierResolver, never, Path.Path>;
+} = dual(4, Effect.fn("Copy.makeResolver")(function* (
   config: RunnerConfig,
   upstreamFile: string,
   labFile: string,
@@ -170,14 +179,14 @@ export const makeResolver = Effect.fn("Copy.makeResolver")(function* (
     );
   const resolver: SpecifierResolver = {
     resolveRelative: (specifier) => toLabRelative(path.resolve(path.dirname(upstreamFile), specifier)),
-    resolveKit: (dep, subpath) =>
+    resolveKit: dual(2, (dep: string, subpath: string): O.Option<string> =>
       O.flatMap(
         O.flatMap(HashMap.get(kitExports, `@effected/${dep}`), (exportsMap) => HashMap.get(exportsMap, subpath)),
         (file) => toLabRelative(path.join(config.upstreamRoot, "packages", dep, file))
-      ),
+      )),
   };
   return resolver;
-});
+}));
 
 const isTsFile = (file: string): boolean => Str.endsWith(".ts")(file) || Str.endsWith(".tsx")(file);
 
@@ -196,7 +205,10 @@ const isTsFile = (file: string): boolean => Str.endsWith(".ts")(file) || Str.end
  * @category queries
  * @since 0.0.0
  */
-export const listTsFiles = Effect.fn("Copy.listTsFiles")(function* (repoRoot: string, directory: string) {
+export const listTsFiles: {
+  (repoRoot: string, directory: string): Effect.Effect<Array<string>, PlatformError, FileSystem.FileSystem | Path.Path>;
+  (directory: string): (repoRoot: string) => Effect.Effect<Array<string>, PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Copy.listTsFiles")(function* (repoRoot: string, directory: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absolute = path.join(repoRoot, directory);
@@ -210,9 +222,12 @@ export const listTsFiles = Effect.fn("Copy.listTsFiles")(function* (repoRoot: st
     )
   );
   return A.sort(A.getSomes(files), Order.String);
-});
+}));
 
-const rewriteTree = Effect.fn("Copy.rewriteTree")(function* (
+const rewriteTree: {
+  (config: RunnerConfig, labDir: string, upstreamDir: string, kitExports: KitExports): Effect.Effect<number, PlatformError, FileSystem.FileSystem | Path.Path>;
+  (labDir: string, upstreamDir: string, kitExports: KitExports): (config: RunnerConfig) => Effect.Effect<number, PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(4, Effect.fn("Copy.rewriteTree")(function* (
   config: RunnerConfig,
   labDir: string,
   upstreamDir: string,
@@ -234,9 +249,12 @@ const rewriteTree = Effect.fn("Copy.rewriteTree")(function* (
     })
   );
   return files.length;
-});
+}));
 
-const fixturesBytes = Effect.fn("Copy.fixturesBytes")(function* (repoRoot: string, testDir: string) {
+const fixturesBytes: {
+  (repoRoot: string, testDir: string): Effect.Effect<number, PlatformError, FileSystem.FileSystem | Path.Path>;
+  (testDir: string): (repoRoot: string) => Effect.Effect<number, PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Copy.fixturesBytes")(function* (repoRoot: string, testDir: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absolute = path.join(repoRoot, testDir);
@@ -247,7 +265,7 @@ const fixturesBytes = Effect.fn("Copy.fixturesBytes")(function* (repoRoot: strin
     (entry) => Effect.map(fs.stat(path.join(absolute, entry)), (info) => (info.type === "File" ? Number(info.size) : 0))
   );
   return A.reduce(sizes, 0, (total, size) => total + size);
-});
+}));
 
 const CATALOG_LINE = /^(\s*)"?([^"\s:]+)"?:\s*(\S.*)$/;
 
@@ -292,7 +310,10 @@ export const parseCatalogSpecs = (text: string): HashMap.HashMap<string, string>
   return specs;
 };
 
-const resolveSpec = Effect.fn("Copy.resolveSpec")(function* (
+const resolveSpec: {
+  (config: RunnerConfig, module: ModuleName, name: string, upstreamSpec: string, upstreamCatalog: HashMap.HashMap<string, string>, rootCatalog: Readonly<Record<string, string>>): Effect.Effect<string, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, name: string, upstreamSpec: string, upstreamCatalog: HashMap.HashMap<string, string>, rootCatalog: Readonly<Record<string, string>>): (config: RunnerConfig) => Effect.Effect<string, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(6, Effect.fn("Copy.resolveSpec")(function* (
   config: RunnerConfig,
   module: ModuleName,
   name: string,
@@ -316,9 +337,12 @@ const resolveSpec = Effect.fn("Copy.resolveSpec")(function* (
     }
   }
   return yield* ManifestInvalid.make({ path: upstreamPaths(module).packageJson, detail: `cannot resolve ${upstreamSpec} for ${name}` });
-});
+}));
 
-const classifyDeps = Effect.fn("Copy.classifyDeps")(function* (
+const classifyDeps: {
+  (config: RunnerConfig, module: ModuleName, entry: CatalogEntry, manifest: Readonly<Record<string, unknown>>): Effect.Effect<Array<NewDep>, ManifestInvalid | PlatformError | UnexpectedDependency, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, entry: CatalogEntry, manifest: Readonly<Record<string, unknown>>): (config: RunnerConfig) => Effect.Effect<Array<NewDep>, ManifestInvalid | PlatformError | UnexpectedDependency, FileSystem.FileSystem | Path.Path>;
+} = dual(4, Effect.fn("Copy.classifyDeps")(function* (
   config: RunnerConfig,
   module: ModuleName,
   entry: CatalogEntry,
@@ -332,7 +356,10 @@ const classifyDeps = Effect.fn("Copy.classifyDeps")(function* (
     : HashMap.empty<string, string>();
   const rootManifest = yield* readJsonObject(path.join(config.repoRoot, "package.json"), "package.json");
   const rootCatalog = stringRecord(rootManifest.catalog);
-  const collect = (field: string, allowed: ReadonlyArray<string>, kind: "runtime" | "dev") =>
+  const collect: {
+    (field: string, allowed: ReadonlyArray<string>, kind: "runtime" | "dev"): Effect.Effect<O.Option<NewDep>[], ManifestInvalid | PlatformError | UnexpectedDependency, FileSystem.FileSystem | Path.Path>;
+    (allowed: ReadonlyArray<string>, kind: "runtime" | "dev"): (field: string) => Effect.Effect<O.Option<NewDep>[], ManifestInvalid | PlatformError | UnexpectedDependency, FileSystem.FileSystem | Path.Path>;
+  } = dual(3, (field: string, allowed: ReadonlyArray<string>, kind: "runtime" | "dev"): Effect.Effect<O.Option<NewDep>[], ManifestInvalid | PlatformError | UnexpectedDependency, FileSystem.FileSystem | Path.Path> =>
     Effect.forEach(R.toEntries(stringRecord(manifest[field])), Effect.fnUntraced(function* ([name, spec]) {
         if (Str.startsWith("@effected/")(name) || isIgnoredUpstreamDep(name)) return O.none<NewDep>();
         if (!A.contains(allowed, name)) {
@@ -341,14 +368,14 @@ const classifyDeps = Effect.fn("Copy.classifyDeps")(function* (
         const resolved = yield* resolveSpec(config, module, name, spec, upstreamCatalog, rootCatalog);
         return O.some(NewDep.make({ name, kind, spec: resolved, replacement: null }));
       })
-    );
+    ));
   const runtime = yield* collect("dependencies", entry.runtimeDeps, "runtime");
   const peers = yield* collect("peerDependencies", entry.runtimeDeps, "runtime");
   // A peer dependency is usually installed for development too; it is already
   // registered as runtime above, and the dedupe below keeps that entry.
   const dev = yield* collect("devDependencies", [...entry.oracleDeps, ...entry.runtimeDeps], "dev");
   return A.dedupeWith(A.getSomes([...runtime, ...peers, ...dev]), (a, b) => a.name === b.name);
-});
+}));
 
 const sortedRecord = (record: Readonly<Record<string, string>>): Record<string, string> =>
   R.fromEntries(A.sort(R.toEntries(record), Order.mapInput(Order.String, ([key]: readonly [string, string]) => key)));
@@ -371,14 +398,20 @@ const sortedRecord = (record: Readonly<Record<string, string>>): Record<string, 
  * @category commands
  * @since 0.0.0
  */
-export const registerDeps = Effect.fn("Copy.registerDeps")(function* (repoRoot: string, deps: ReadonlyArray<NewDep>) {
+export const registerDeps: {
+  (repoRoot: string, deps: ReadonlyArray<NewDep>): Effect.Effect<number, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+  (deps: ReadonlyArray<NewDep>): (repoRoot: string) => Effect.Effect<number, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Copy.registerDeps")(function* (repoRoot: string, deps: ReadonlyArray<NewDep>) {
   if (A.isReadonlyArrayEmpty(deps)) return 0;
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const file = path.join(repoRoot, "scratchpad", "package.json");
   const manifest = yield* readJsonObject(file, "scratchpad/package.json");
   let added = 0;
-  const apply = (field: string, kind: "runtime" | "dev"): Record<string, string> => {
+  const apply: {
+    (field: string, kind: "runtime" | "dev"): Record<string, string>;
+    (kind: "runtime" | "dev"): (field: string) => Record<string, string>;
+  } = dual(2, (field: string, kind: "runtime" | "dev"): Record<string, string> => {
     const existing = stringRecord(manifest[field]);
     const next = A.reduce(
       A.filter(deps, (dep) => dep.kind === kind),
@@ -390,7 +423,7 @@ export const registerDeps = Effect.fn("Copy.registerDeps")(function* (repoRoot: 
       }
     );
     return sortedRecord(next);
-  };
+  });
   const updated = {
     ...manifest,
     dependencies: apply("dependencies", "runtime"),
@@ -401,7 +434,7 @@ export const registerDeps = Effect.fn("Copy.registerDeps")(function* (repoRoot: 
   );
   yield* fs.writeFileString(file, `${text}\n`);
   return added;
-});
+}));
 
 /**
  * Entry files of a module as `[entry, upstreamFile]` pairs: `.` plus every
@@ -420,7 +453,10 @@ export const registerDeps = Effect.fn("Copy.registerDeps")(function* (repoRoot: 
  * @category queries
  * @since 0.0.0
  */
-export const upstreamEntries = Effect.fn("Copy.upstreamEntries")(function* (upstreamRoot: string, module: ModuleName) {
+export const upstreamEntries: {
+  (upstreamRoot: string, module: ModuleName): Effect.Effect<ReadonlyArray<readonly [string, string]>, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName): (upstreamRoot: string) => Effect.Effect<ReadonlyArray<readonly [string, string]>, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Copy.upstreamEntries")(function* (upstreamRoot: string, module: ModuleName) {
   const path = yield* Path.Path;
   const manifest = yield* readJsonObject(
     path.join(upstreamRoot, upstreamPaths(module).packageJson),
@@ -435,7 +471,7 @@ export const upstreamEntries = Effect.fn("Copy.upstreamEntries")(function* (upst
     ([subpath, file]) => [subpath, Str.slice("./src/".length)(file)] as const
   );
   return A.isReadonlyArrayEmpty(entries) ? [[".", "index.ts"] as const] : entries;
-});
+}));
 
 /**
  * Reads the expected export facets of every upstream entry of a module.
@@ -452,14 +488,17 @@ export const upstreamEntries = Effect.fn("Copy.upstreamEntries")(function* (upst
  * @category queries
  * @since 0.0.0
  */
-export const expectedExports = Effect.fn("Copy.expectedExports")(function* (upstreamRoot: string, module: ModuleName) {
+export const expectedExports: {
+  (upstreamRoot: string, module: ModuleName): Effect.Effect<ReadonlyArray<ExportEntry>, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName): (upstreamRoot: string) => Effect.Effect<ReadonlyArray<ExportEntry>, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Copy.expectedExports")(function* (upstreamRoot: string, module: ModuleName) {
   const path = yield* Path.Path;
   const entries = yield* upstreamEntries(upstreamRoot, module);
   const facets: ReadonlyArray<ExportEntry> = A.flatMap(entries, ([entry, srcRelative]) =>
     readExportFacets(path.join(upstreamRoot, upstreamPaths(module).srcDir, srcRelative), entry)
   );
   return facets;
-});
+}));
 
 /**
  * What one copy produced, for the transcript and the ledger note.
@@ -521,7 +560,10 @@ export interface CarryReport {
  * @category commands
  * @since 0.0.0
  */
-export const carryDocs = Effect.fn("Copy.carryDocs")(function* (
+export const carryDocs: {
+  (config: RunnerConfig, module: ModuleName, provenance: { readonly effectedCommit: string; readonly notices: ReadonlyArray<string> }): Effect.Effect<CarryReport, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, provenance: { readonly effectedCommit: string; readonly notices: ReadonlyArray<string> }): (config: RunnerConfig) => Effect.Effect<CarryReport, ManifestInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(3, Effect.fn("Copy.carryDocs")(function* (
   config: RunnerConfig,
   module: ModuleName,
   provenance: { readonly effectedCommit: string; readonly notices: ReadonlyArray<string> }
@@ -573,7 +615,7 @@ export const carryDocs = Effect.fn("Copy.carryDocs")(function* (
     wroteLicense: writeLicense,
   };
   return report;
-});
+}));
 
 /**
  * Header notices of every source file of a lab module (README attribution
@@ -591,7 +633,10 @@ export const carryDocs = Effect.fn("Copy.carryDocs")(function* (
  * @category queries
  * @since 0.0.0
  */
-export const collectNotices = Effect.fn("Copy.collectNotices")(function* (repoRoot: string, sourceDir: string) {
+export const collectNotices: {
+  (repoRoot: string, sourceDir: string): Effect.Effect<Array<string>, PlatformError, FileSystem.FileSystem | Path.Path>;
+  (sourceDir: string): (repoRoot: string) => Effect.Effect<Array<string>, PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Copy.collectNotices")(function* (repoRoot: string, sourceDir: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const files = yield* listTsFiles(repoRoot, sourceDir);
@@ -599,7 +644,7 @@ export const collectNotices = Effect.fn("Copy.collectNotices")(function* (repoRo
     Effect.map(fs.readFileString(path.join(repoRoot, file)), (text) => scanVendorNotices(file, text))
   );
   return A.flatten(notices);
-});
+}));
 
 /**
  * Copies one module from upstream into the lab (S0) and fills its ledger row.
@@ -625,7 +670,10 @@ export const collectNotices = Effect.fn("Copy.collectNotices")(function* (repoRo
  * @category commands
  * @since 0.0.0
  */
-export const copyModule = Effect.fn("Copy.copyModule")(function* (
+export const copyModule: {
+  (config: RunnerConfig, module: ModuleName, effectedCommit: string): Effect.Effect<CopyReport, ManifestInvalid | PlatformError | UnexpectedDependency | UpstreamMissing | AlreadyCopied | LedgerInvalid | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, effectedCommit: string): (config: RunnerConfig) => Effect.Effect<CopyReport, ManifestInvalid | PlatformError | UnexpectedDependency | UpstreamMissing | AlreadyCopied | LedgerInvalid | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+} = dual(3, Effect.fn("Copy.copyModule")(function* (
   config: RunnerConfig,
   module: ModuleName,
   effectedCommit: string
@@ -683,7 +731,7 @@ export const copyModule = Effect.fn("Copy.copyModule")(function* (
     newDeps: A.map(newDeps, (dep) => dep.name),
     notices: notices.length,
   });
-});
+}));
 
 /**
  * Fills a ledger row from upstream without copying files: the wave-0
@@ -703,7 +751,10 @@ export const copyModule = Effect.fn("Copy.copyModule")(function* (
  * @category commands
  * @since 0.0.0
  */
-export const registerExisting = Effect.fn("Copy.registerExisting")(function* (config: RunnerConfig, module: ModuleName) {
+export const registerExisting: {
+  (config: RunnerConfig, module: ModuleName): Effect.Effect<LedgerRow, ManifestInvalid | PlatformError | UnexpectedDependency | UpstreamMissing | LedgerInvalid | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName): (config: RunnerConfig) => Effect.Effect<LedgerRow, ManifestInvalid | PlatformError | UnexpectedDependency | UpstreamMissing | LedgerInvalid | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Copy.registerExisting")(function* (config: RunnerConfig, module: ModuleName) {
   const path = yield* Path.Path;
   const up = upstreamPaths(module);
   const lab = labPaths(module);
@@ -727,4 +778,4 @@ export const registerExisting = Effect.fn("Copy.registerExisting")(function* (co
       })
     )
   );
-});
+}));

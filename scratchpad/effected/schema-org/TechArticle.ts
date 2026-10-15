@@ -85,5 +85,5 @@ export class TechArticle extends S.Class<TechArticle, { readonly brand: unique s
 	 *
 	 * @since 0.0.0
 	 */
-	"@type": S.tag("TechArticle").annotateKey({ description: "The JSON-LD type discriminator, populated automatically." }),
+	"@type": S.tag("TechArticle").pipe($I.annoteKey("TechArticle.@type", { description: "The JSON-LD type discriminator, populated automatically." })),
 }, $I.annote("TechArticle", { description: "A schema.org `TechArticle` — a piece of technical documentation." })) {}

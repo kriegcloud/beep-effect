@@ -10,6 +10,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { MarkdownParseErrorCodeRaw, type RawDiagnostic } from "./internal/carriers.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/markdown/MarkdownDiagnostic");
 
@@ -84,12 +85,12 @@ export type MarkdownParseErrorCode = typeof MarkdownParseErrorCode.Type;
  * @since 0.0.0
  */
 export class MarkdownDiagnostic extends S.Class<MarkdownDiagnostic, { readonly brand: unique symbol }>($I`MarkdownDiagnostic`)({
-	code: MarkdownParseErrorCode.annotateKey({ description: "Fatal condition identifier, currently `NestingDepthExceeded` for a nesting guard violation" }),
-	message: S.String.annotateKey({ description: "Human-readable explanation of the reported condition" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 source offset of the reported condition" }),
-	length: S.Finite.annotateKey({ description: "Extent of the reported source span in UTF-16 code units; nesting guard violations use zero" }),
-	line: S.Finite.annotateKey({ description: "Zero-based source line containing the reported offset, counting CRLF as one line break" }),
-	character: S.Finite.annotateKey({ description: "Zero-based UTF-16 position within the source line at the reported offset" }),
+	code: MarkdownParseErrorCode.pipe($I.annoteKey("MarkdownDiagnostic.code", { description: "Fatal condition identifier, currently `NestingDepthExceeded` for a nesting guard violation" })),
+	message: S.String.pipe($I.annoteKey("MarkdownDiagnostic.message", { description: "Human-readable explanation of the reported condition" })),
+	offset: S.Finite.pipe($I.annoteKey("MarkdownDiagnostic.offset", { description: "Zero-based UTF-16 source offset of the reported condition" })),
+	length: S.Finite.pipe($I.annoteKey("MarkdownDiagnostic.length", { description: "Extent of the reported source span in UTF-16 code units; nesting guard violations use zero" })),
+	line: S.Finite.pipe($I.annoteKey("MarkdownDiagnostic.line", { description: "Zero-based source line containing the reported offset, counting CRLF as one line break" })),
+	character: S.Finite.pipe($I.annoteKey("MarkdownDiagnostic.character", { description: "Zero-based UTF-16 position within the source line at the reported offset" })),
 }, $I.annote("MarkdownDiagnostic", { description: "One structured diagnostic: its (MarkdownParseErrorCode:type), a human-readable `message`, and its exact position (`offset`/`length`, plus zero-based `line`/`character`)." })) {
 	/**
 	 * Materialize an engine record, deriving zero-based `line`/`character`
@@ -120,10 +121,10 @@ export class MarkdownDiagnostic extends S.Class<MarkdownDiagnostic, { readonly b
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static fromRaw(
-		source: string,
-		raw: RawDiagnostic,
-	): MarkdownDiagnostic {
+	static readonly fromRaw: {
+		(source: string, raw: RawDiagnostic): MarkdownDiagnostic;
+		(raw: RawDiagnostic): (source: string) => MarkdownDiagnostic;
+	} = dual(2, (source: string, raw: RawDiagnostic): MarkdownDiagnostic => {
 		const { line, character } = lineChar(source, raw.offset);
 		return MarkdownDiagnostic.make({
 			code: raw.code,
@@ -133,7 +134,7 @@ export class MarkdownDiagnostic extends S.Class<MarkdownDiagnostic, { readonly b
 			line,
 			character,
 		});
-	}
+	});
 }
 
 /**
@@ -143,7 +144,10 @@ export class MarkdownDiagnostic extends S.Class<MarkdownDiagnostic, { readonly b
  * `internal/lineIndex.ts`, which answers a different, one-based question
  * for AST positions).
  */
-function lineChar(text: string, offset: number): { line: number; character: number } {
+const lineChar: {
+	(text: string, offset: number): { line: number; character: number };
+	(offset: number): (text: string) => { line: number; character: number };
+} = dual(2, (text: string, offset: number): { line: number; character: number } => {
 	let line = 0;
 	let lineStart = 0;
 	const limit = Math.min(offset, text.length);
@@ -163,4 +167,4 @@ function lineChar(text: string, offset: number): { line: number; character: numb
 		}
 	}
 	return { line, character: offset - lineStart };
-}
+});

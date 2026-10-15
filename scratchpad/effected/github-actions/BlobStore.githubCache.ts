@@ -15,6 +15,7 @@ import type { CacheServiceClient } from "./internal/cacheService.ts";
 import { CACHE_SERVICE, finalizeUpload, lookupDownload, reserveUpload } from "./internal/cacheService.ts";
 import { sha256Hex } from "./internal/digest.ts";
 import { twirpCall, twirpFailureFields } from "./internal/twirp.ts";
+import { dual } from "effect/Function";
 
 /**
  * The `version` every entry is filed under.
@@ -44,11 +45,11 @@ const VERSION = sha256Hex("blobstore|1.0");
  * and `__test__/reachability.test.ts` measures that they are the only three.
  */
 const azure: DataBlobTransfer = {
-	uploadData: (url, data) =>
+	uploadData: dual(2, (url: string, data: Uint8Array): Effect.Effect<void, BlobTransferError> =>
 		Effect.tryPromise({
 			try: () => new BlockBlobClient(url).uploadData(data),
 			catch: (cause) => BlobTransferError.make({ reason: "uploadFailed", cause }),
-		}).pipe(Effect.asVoid),
+		}).pipe(Effect.asVoid)),
 	downloadToBuffer: (url) =>
 		Effect.tryPromise({
 			try: () => new BlobClient(url).downloadToBuffer(),
@@ -70,12 +71,12 @@ const make = Effect.fn("make")(function* (transfer: DataBlobTransfer) {
 
 		/** The cache service, for one key: every failure names it. */
 		const cacheService = (key: string): CacheServiceClient<BlobStoreError> => ({
-			call: Effect.fn("call")(function*(method, body) {
+			call: dual(2, Effect.fn("call")(function*(method: string, body: Record<string, unknown>) {
 					const { baseUrl, token } = yield* backend;
 					return yield* twirpCall({ http, baseUrl, service: CACHE_SERVICE, token, method, body }).pipe(
 						Effect.mapError((failure) => BlobStoreError.make({ ...twirpFailureFields(failure), key })),
 					);
-				}),
+				})),
 			refused: (detail) => BlobStoreError.make({ reason: "refused", key, detail }),
 		});
 
@@ -90,16 +91,16 @@ const make = Effect.fn("make")(function* (transfer: DataBlobTransfer) {
 			Effect.mapError((cause: BlobTransferError) => BlobStoreError.make({ reason: "unreachable", key, cause }));
 
 		return {
-			get: Effect.fn("get")(function*<A, I>(key: string, schema: S.Codec<A, I>) {
+			get: dual(2, Effect.fn("get")(function*<A, I>(key: string, schema: S.Codec<A, I>) {
 					const url = yield* download(key);
 					if (O.isNone(url)) {
 						return O.none<StoredBlob<A>>();
 					}
 					const bytes = yield* transfer.downloadToBuffer(url.value).pipe(moved(key));
 					return O.some(yield* Effect.fromResult(BlobEnvelope.decodeResult(bytes, schema)));
-				}),
+				})),
 
-			put: Effect.fn("put")(function*<A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>) {
+			put: dual(3, Effect.fn("put")(function*<A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>) {
 					const framed = yield* Effect.fromResult(BlobEnvelope.encodeResult(blob.metadata, blob.body, schema));
 					const service = cacheService(key);
 					// None: another job wrote this key first. The entry is immutable,
@@ -111,7 +112,7 @@ const make = Effect.fn("make")(function* (transfer: DataBlobTransfer) {
 					}
 					yield* transfer.uploadData(url.value, framed).pipe(moved(key));
 					yield* finalizeUpload(service, key, VERSION, framed.byteLength);
-				}),
+				})),
 
 			has: (key: string) => Effect.map(download(key), O.isSome),
 		} satisfies BlobStoreShape;
@@ -204,9 +205,10 @@ export abstract class GitHubCacheBlobStore {
 	 * import { GitHubCacheBlobStore } from "@beep/scratchpad/effected/github-actions/BlobStore.githubCache";
 	 * import * as Effect from "effect/Effect";
 	 * import * as Layer from "effect/Layer";
+	 * import { dual } from "effect/Function";
 	 *
 	 * const layer = GitHubCacheBlobStore.layerWith({
-	 *   uploadData: (_url, _data) => Effect.void,
+	 *   uploadData: dual(2, (_url: string, _data: Uint8Array) => Effect.void),
 	 *   downloadToBuffer: (_url) => Effect.succeed(new Uint8Array([1, 2, 3])),
 	 * });
 	 * console.log(Layer.isLayer(layer)) // true

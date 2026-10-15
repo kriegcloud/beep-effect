@@ -30,8 +30,8 @@ const $I = $ScratchpadId.create("effected/engine/Distribution");
  * @since 0.0.0
  */
 export const Distribution = S.Struct({
-	name: S.String.annotateKey({ description: "The carrier package that installed and re-exposes the tool's bins" }),
-	version: S.String.annotateKey({ description: "The version of the carrier package that installed the tool's bins" }),
+	name: S.String.pipe($I.annoteKey("Distribution.name", { description: "The carrier package that installed and re-exposes the tool's bins" })),
+	version: S.String.pipe($I.annoteKey("Distribution.version", { description: "The version of the carrier package that installed the tool's bins" })),
 }).pipe($I.annoteSchema("Distribution", { description: "The carrier package a tool's bins were installed through." }));
 
 /**

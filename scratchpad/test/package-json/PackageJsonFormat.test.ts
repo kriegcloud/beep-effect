@@ -9,13 +9,13 @@ import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { Package } from "../../effected/package-json/Package.ts";
-import type { PackageJsonSyntaxError } from "../../effected/package-json/PackageJsonFormat.ts";
+import type { PackageFormatTextOptions, PackageJsonSyntaxError } from "../../effected/package-json/PackageJsonFormat.ts";
 import { PackageJsonFormat } from "../../effected/package-json/PackageJsonFormat.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 
-const format = (source: string, options?: Parameters<typeof PackageJsonFormat.formatToString>[1]): string => {
+const format = (source: string, options?: PackageFormatTextOptions): string => {
 	const result = PackageJsonFormat.formatToString(source, options);
 	assertSuccess(result, Result.getOrThrow(result));
 	return result.success;

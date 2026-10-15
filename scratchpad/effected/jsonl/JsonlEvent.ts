@@ -10,7 +10,7 @@
 // module recognizes this one. The mechanism is ours; the vocabulary is theirs.
 
 import type * as S from "effect/Schema";
-import { Envelope } from "./Envelope.ts";
+import { Envelope, type EnvelopeInputSchema } from "./Envelope.ts";
 
 /**
  * The bound every registered payload schema must satisfy: a codec requiring
@@ -91,7 +91,7 @@ export interface JsonlEvent<
   /** The schema the envelope's `data` is validated against. */
   readonly data: Data;
   /** The input codec validates every field before encoding a wire frame. */
-  readonly input: ReturnType<typeof Envelope.input<Tag, Data["Type"]>>;
+  readonly input: EnvelopeInputSchema<Tag, Data["Type"]>;
   /** The selected event's envelope codec, applied after frame filtering. */
   readonly envelope: S.Codec<Envelope<Tag, Data["Type"]>, unknown>;
   /**
@@ -132,7 +132,7 @@ export declare namespace JsonlEvent {
     readonly [JsonlEventTypeId]: JsonlEventTypeId;
     readonly tag: string;
     readonly data: DataSchema;
-    readonly input: ReturnType<typeof Envelope.input<string, unknown>>;
+    readonly input: EnvelopeInputSchema<string, unknown>;
     readonly envelope: S.Codec<Envelope<string, unknown>, unknown>;
     readonly terminal: boolean;
     readonly reopen: boolean;

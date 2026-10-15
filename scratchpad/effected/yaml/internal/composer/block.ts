@@ -61,6 +61,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 
 const isYamlAlias = S.is(YamlAlias);
 const isYamlScalar = S.is(YamlScalar);
+const isYamlPair = S.is(YamlPair);
 
 // ---------------------------------------------------------------------------
 // Compose block map
@@ -69,10 +70,10 @@ const isYamlScalar = S.is(YamlScalar);
 const $I = $ScratchpadId.create("effected/yaml/internal/composer/block");
 
 const PendingComment = S.Struct({
-	text: S.mutableKey(S.String).annotateKey({ description: "Raw comment text awaiting attribution." }),
-	offset: S.mutableKey(S.Finite).annotateKey({ description: "Source offset of the pending comment." }),
-	blankAbove: S.mutableKey(S.Boolean).annotateKey({ description: "Whether a blank line precedes this comment." }),
-}).annotate($I.annote("PendingComment", { description: "Pending block comment shared by mapping and sequence attribution." }));
+	text: S.mutableKey(S.String).pipe($I.annoteKey("PendingComment.text", { description: "Raw comment text awaiting attribution." })),
+	offset: S.mutableKey(S.Finite).pipe($I.annoteKey("PendingComment.offset", { description: "Source offset of the pending comment." })),
+	blankAbove: S.mutableKey(S.Boolean).pipe($I.annoteKey("PendingComment.blankAbove", { description: "Whether a blank line precedes this comment." })),
+}).pipe($I.annoteSchema("PendingComment", { description: "Pending block comment shared by mapping and sequence attribution." }));
 type PendingComment = typeof PendingComment.Type;
 
 /**
@@ -147,12 +148,10 @@ export const composeBlockMap: {
 	}
 });
 
-function composeBlockMapInner(
-	blockMapCst: CstNode,
-	state: ComposerState,
-	externalFirstKey?: YamlNode,
-	meta?: NodeMeta,
-): YamlMap {
+const composeBlockMapInner: {
+	(state: ComposerState, externalFirstKey?: YamlNode, meta?: NodeMeta): (blockMapCst: CstNode) => YamlMap;
+	(blockMapCst: CstNode, state: ComposerState, externalFirstKey?: YamlNode, meta?: NodeMeta): YamlMap;
+} = dual((args) => P.hasProperty(args[0], "source"), (blockMapCst: CstNode, state: ComposerState, externalFirstKey?: YamlNode, meta?: NodeMeta): YamlMap => {
 	const children = blockMapCst.children ?? [];
 	const pairs: YamlPair[] = [];
 
@@ -206,7 +205,7 @@ function composeBlockMapInner(
 
 	if (meta?.anchor !== undefined && meta?.anchor !== "") registerAnchor(map, meta.anchor, state, offset);
 	return map;
-}
+});
 
 /**
  * Narrow a block collection's raw CST span so it stops before any trailing
@@ -235,12 +234,10 @@ function composeBlockMapInner(
  * Composition is bottom-up, so a nested collection's own span has already been
  * trimmed by the time its parent's items are read.
  */
-function trimDisownedTrailingComments(
-	text: string,
-	offset: number,
-	end: number,
-	disowned: ReadonlyArray<EscapedComment>,
-): number {
+const trimDisownedTrailingComments: {
+	(text: string, offset: number, end: number, disowned: ReadonlyArray<EscapedComment>): number;
+	(offset: number, end: number, disowned: ReadonlyArray<EscapedComment>): (text: string) => number;
+} = dual(4, (text: string, offset: number, end: number, disowned: ReadonlyArray<EscapedComment>): number => {
 	let cut = end;
 	for (const ec of disowned) {
 		// Only comments disowned by THIS collection: `state.escapedComments` is a
@@ -261,7 +258,7 @@ function trimDisownedTrailingComments(
 		cut = prevLineStart;
 	}
 	return cut;
-}
+});
 
 /**
  * Describes the semantic tokens used to pair composed mapping keys and values.
@@ -288,46 +285,29 @@ function trimDisownedTrailingComments(
 export const SemanticItem = S.Union([
 	S.Struct({
 		kind: S.Literal("key")
-			.pipe(S.mutableKey)
-			.annotate($I.annote("SemanticItem.Key.kind", { description: "Explicit or external key marker." })),
-		node: YamlNode.pipe(S.optionalKey, S.mutableKey).annotate(
-			$I.annote("SemanticItem.Key.node", { description: "Optional key node; an explicit-key marker may be empty." }),
-		),
-	}).annotate($I.annote("SemanticItem.Key", { description: "Explicit or external key." })),
+			.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Key.kind", { description: "Explicit or external key marker." })),
+		node: YamlNode.pipe(S.optionalKey, S.mutableKey, $I.annoteKey("SemanticItem.Key.node", { description: "Optional key node; an explicit-key marker may be empty." })),
+	}).pipe($I.annoteSchema("SemanticItem.Key", { description: "Explicit or external key." })),
 	S.Struct({
 		kind: S.Literal("value-sep")
-			.pipe(S.mutableKey)
-			.annotate($I.annote("SemanticItem.ValueSep.kind", { description: "Mapping value separator." })),
-		offset: S.Finite.pipe(S.mutableKey).annotate(
-			$I.annote("SemanticItem.ValueSep.offset", { description: "Source offset of the structural colon." }),
-		),
-	}).annotate($I.annote("SemanticItem.ValueSep", { description: "Mapping value separator." })),
+			.pipe(S.mutableKey, $I.annoteKey("SemanticItem.ValueSep.kind", { description: "Mapping value separator." })),
+		offset: S.Finite.pipe(S.mutableKey, $I.annoteKey("SemanticItem.ValueSep.offset", { description: "Source offset of the structural colon." })),
+	}).pipe($I.annoteSchema("SemanticItem.ValueSep", { description: "Mapping value separator." })),
 	S.Struct({
 		kind: S.Literal("node")
-			.pipe(S.mutableKey)
-			.annotate($I.annote("SemanticItem.Node.kind", { description: "Composed content node." })),
-		node: YamlNode.pipe(S.mutableKey).annotate(
-			$I.annote("SemanticItem.Node.node", { description: "Composed YAML node." }),
-		),
-	}).annotate($I.annote("SemanticItem.Node", { description: "Composed content node." })),
+			.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Node.kind", { description: "Composed content node." })),
+		node: YamlNode.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Node.node", { description: "Composed YAML node." })),
+	}).pipe($I.annoteSchema("SemanticItem.Node", { description: "Composed content node." })),
 	S.Struct({
 		kind: S.Literal("comment")
-			.pipe(S.mutableKey)
-			.annotate($I.annote("SemanticItem.Comment.kind", { description: "Comment awaiting attribution." })),
-		comment: S.String.pipe(S.mutableKey).annotate(
-			$I.annote("SemanticItem.Comment.comment", { description: "Raw post-indicator comment text." }),
-		),
-		offset: S.Finite.pipe(S.mutableKey).annotate(
-			$I.annote("SemanticItem.Comment.offset", { description: "Source offset of the comment." }),
-		),
-	}).annotate($I.annote("SemanticItem.Comment", { description: "Comment awaiting attribution." })),
+			.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Comment.kind", { description: "Comment awaiting attribution." })),
+		comment: S.String.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Comment.comment", { description: "Raw post-indicator comment text." })),
+		offset: S.Finite.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Comment.offset", { description: "Source offset of the comment." })),
+	}).pipe($I.annoteSchema("SemanticItem.Comment", { description: "Comment awaiting attribution." })),
 ])
-	.pipe(S.toTaggedUnion("kind"))
-	.annotate(
-		$I.annote("SemanticItem", {
+	.pipe(S.toTaggedUnion("kind"), $I.annoteSchema("SemanticItem", {
 			description: "Composition tokens with kind-specific payloads; explicit keys may be node-less.",
-		}),
-	);
+		}));
 /**
  * Represents a decoded mapping token, including empty explicit keys, value separators, content nodes, and comments.
  *
@@ -421,7 +401,10 @@ export const flattenBlockMapChildren: {
 		sawNewlineSincePending = false;
 	}
 
-	function validateKeyColumn(col: number, offset: number, length: number): void {
+	const validateKeyColumn: {
+		(col: number, offset: number, length: number): void;
+		(offset: number, length: number): (col: number) => void;
+	} = dual(3, (col: number, offset: number, length: number): void => {
 		if (lastKeyColumn >= 0 && col !== lastKeyColumn) {
 			state.errors.push({
 				code: "InvalidIndentation",
@@ -430,9 +413,12 @@ export const flattenBlockMapChildren: {
 				length,
 			});
 		}
-	}
+	});
 
-	function pushNode(node: YamlNode, nodeOffset?: number) {
+	const pushNode: {
+		(nodeOffset?: number): (node: YamlNode) => void;
+		(node: YamlNode, nodeOffset?: number): void;
+	} = dual((args) => P.hasProperty(args[0], "_tag"), (node: YamlNode, nodeOffset?: number): void => {
 		// Track key column/offset when pushing in key position (before value-sep)
 		if (!afterValueSep && nodeOffset !== undefined && nodeOffset >= 0) {
 			// If `?` explicit-key indicator preceded this scalar, the entry's
@@ -453,7 +439,7 @@ export const flattenBlockMapChildren: {
 			state.escapedComments.length = 0;
 		}
 		afterValueSep = false;
-	}
+	});
 
 	for (let i = 0; i < children.length; i++) {
 		const child = children[i];
@@ -1088,28 +1074,28 @@ export const buildPairs: {
 	 * Rebuild `pair` with `text` appended to the trailing comment of whichever
 	 * node owns the pair's last line: the value when present, otherwise the key.
 	 */
-	const withTrailingComment = (pair: YamlPair, text: string, onKey = false): YamlPair =>
-		pair.value !== null && !onKey
+	const withTrailingComment: {
+		(text: string, onKey?: boolean): (pair: YamlPair) => YamlPair;
+		(pair: YamlPair, text: string, onKey?: boolean): YamlPair;
+	} = dual((args) => isYamlPair(args[0]), (pair: YamlPair, text: string, onKey: boolean = false): YamlPair => pair.value !== null && !onKey
 			? YamlPair.make({ key: pair.key, value: withCommentFields(pair.value, { comment: text }) })
-			: YamlPair.make({ key: withCommentFields(pair.key, { comment: text }), value: pair.value });
+			: YamlPair.make({ key: withCommentFields(pair.key, { comment: text }), value: pair.value }));
 
 	/**
 	 * Finish a pair: the pending leading fields go to its KEY node, the entry's
 	 * trailing comment to whichever node owns the last line. The one place the
 	 * node-level split is applied, so no construction site has to know it.
 	 */
-	const pushPair = (
-		pair: YamlPair,
-		leading: CommentFields,
-		trailing: string | undefined,
-		trailingOnKey = false,
-	): YamlPair => {
+	const pushPair: {
+		(leading: CommentFields, trailing: string | undefined, trailingOnKey?: boolean): (pair: YamlPair) => YamlPair;
+		(pair: YamlPair, leading: CommentFields, trailing: string | undefined, trailingOnKey?: boolean): YamlPair;
+	} = dual((args) => isYamlPair(args[0]), (pair: YamlPair, leading: CommentFields, trailing: string | undefined, trailingOnKey: boolean = false): YamlPair => {
 		const withLeading =
 			R.keys<string, unknown>({ ...leading }).length === 0
 				? pair
 				: YamlPair.make({ key: withCommentFields(pair.key, leading), value: pair.value });
 		return trailing === undefined ? withLeading : withTrailingComment(withLeading, trailing, trailingOnKey);
-	};
+	});
 
 	const noteContentColumn = (offset: number): void => {
 		if (contentColumn < 0 && offset >= 0) contentColumn = columnAt(text, offset);
@@ -1212,7 +1198,7 @@ export const buildPairs: {
 				for (const comment of valueNode.sameLineComments) pairTrailing = joinComments(pairTrailing, comment);
 				let valNode = valueNode.node;
 				if (valNode !== null && valueNode.leadingComments.length > 0) {
-					valNode = withCommentFields(valNode, { commentBefore: valueNode.leadingComments.join("\n") });
+					valNode = withCommentFields(valNode, { commentBefore: A.join(valueNode.leadingComments, "\n") });
 				}
 				pairs.push(pushPair(
 					YamlPair.make({ key: nullKey, value: valNode }), pendingFields, pairTrailing,
@@ -1267,7 +1253,7 @@ export const buildPairs: {
 					for (const c of valueResult.sameLineComments) pairTrailing = joinComments(pairTrailing, c);
 					let valNode = valueResult.node;
 					if (valNode !== null && valueResult.leadingComments.length > 0) {
-						valNode = withCommentFields(valNode, { commentBefore: valueResult.leadingComments.join("\n") });
+						valNode = withCommentFields(valNode, { commentBefore: A.join(valueResult.leadingComments, "\n") });
 					}
 					pairs.push(
 						pushPair(
@@ -1348,19 +1334,17 @@ function keyIsSimple(keyNode: YamlNode | undefined): boolean {
 }
 
 const ConsumedValue = S.Struct({
-	node: YamlNode.pipe(S.NullOr, S.mutableKey).annotateKey({ description: "Consumed value node, or null for an absent value." }),
-	nextIdx: S.mutableKey(S.Finite).annotateKey({ description: "Cursor immediately after the consumed value." }),
-	sameLineComments: S.String.pipe(S.Array, S.mutable, S.mutableKey).annotateKey({ description: "Comments on the value separator's line before the value." }),
-	leadingComments: S.String.pipe(S.Array, S.mutable, S.mutableKey).annotateKey({ description: "Own-line comments between the separator and value." }),
-}).annotate($I.annote("ConsumedValue", { description: "Structural value-consumption result with writable comment arrays." }));
+	node: YamlNode.pipe(S.NullOr, S.mutableKey, $I.annoteKey("ConsumedValue.node", { description: "Consumed value node, or null for an absent value." })),
+	nextIdx: S.mutableKey(S.Finite).pipe($I.annoteKey("ConsumedValue.nextIdx", { description: "Cursor immediately after the consumed value." })),
+	sameLineComments: S.String.pipe(S.Array, S.mutable, S.mutableKey, $I.annoteKey("ConsumedValue.sameLineComments", { description: "Comments on the value separator's line before the value." })),
+	leadingComments: S.String.pipe(S.Array, S.mutable, S.mutableKey, $I.annoteKey("ConsumedValue.leadingComments", { description: "Own-line comments between the separator and value." })),
+}).pipe($I.annoteSchema("ConsumedValue", { description: "Structural value-consumption result with writable comment arrays." }));
 type ConsumedValue = typeof ConsumedValue.Type;
 
-function consumeValueNode(
-	items: SemanticItem[],
-	startIdx: number,
-	text: string,
-	sepOffset: number,
-): ConsumedValue | null {
+const consumeValueNode: {
+	(items: SemanticItem[], startIdx: number, text: string, sepOffset: number): ConsumedValue | null;
+	(startIdx: number, text: string, sepOffset: number): (items: SemanticItem[]) => ConsumedValue | null;
+} = dual(4, (items: SemanticItem[], startIdx: number, text: string, sepOffset: number): ConsumedValue | null => {
 	// Peek past comments to the first node WITHOUT consuming anything: a node
 	// on a LATER line than our `:` that is immediately followed by its own
 	// value-sep is the next pair's KEY, not this pair's value — the pending
@@ -1423,7 +1407,7 @@ function consumeValueNode(
 		return { node: null, nextIdx: firstOwnLineIdx, sameLineComments, leadingComments: [] };
 	}
 	return i > startIdx ? { node: null, nextIdx: i, sameLineComments, leadingComments } : null;
-}
+});
 
 /**
  * Like consumeValueNode but for implicit null-key entries (`: value`).
@@ -1434,14 +1418,10 @@ function consumeValueNode(
  * normally to preserve the original pairing (which may produce duplicate
  * keys that get rejected).
  */
-function consumeValueNodeForNullKey(
-	items: SemanticItem[],
-	startIdx: number,
-	text: string,
-	valueSepOffset: number,
-): ConsumedValue | null {
-	return consumeValueNode(items, startIdx, text, valueSepOffset);
-}
+const consumeValueNodeForNullKey: {
+	(items: SemanticItem[], startIdx: number, text: string, valueSepOffset: number): ConsumedValue | null;
+	(startIdx: number, text: string, valueSepOffset: number): (items: SemanticItem[]) => ConsumedValue | null;
+} = dual(4, (items: SemanticItem[], startIdx: number, text: string, valueSepOffset: number): ConsumedValue | null => consumeValueNode(items, startIdx, text, valueSepOffset));
 
 /**
  * Canonical duplicate-key identity for a scalar key.
@@ -1554,13 +1534,10 @@ export const checkDuplicateKeys: {
  * - `simple` — no internal `:` at all; the next content node is the
  *   single key (KK5P, M5DY block-seq keys; plain scalar keys).
  */
-function scanExplicitKeyShape(
-	children: readonly CstNode[],
-	qIdx: number,
-	qCol: number,
-	text: string,
-	qOffset: number,
-): { kind: "terminated"; matchIdx: number } | { kind: "inline-implicit-map"; endIdx: number } | { kind: "simple" } {
+const scanExplicitKeyShape: {
+	(children: readonly CstNode[], qIdx: number, qCol: number, text: string, qOffset: number): { kind: "terminated"; matchIdx: number } | { kind: "inline-implicit-map"; endIdx: number } | { kind: "simple" };
+	(qIdx: number, qCol: number, text: string, qOffset: number): (children: readonly CstNode[]) => { kind: "terminated"; matchIdx: number } | { kind: "inline-implicit-map"; endIdx: number } | { kind: "simple" };
+} = dual(5, (children: readonly CstNode[], qIdx: number, qCol: number, text: string, qOffset: number): { kind: "terminated"; matchIdx: number } | { kind: "inline-implicit-map"; endIdx: number } | { kind: "simple" } => {
 	const qLine = lineCol(text, qOffset).line;
 	let inlineColonOnQLine = false;
 	let endIdx = children.length;
@@ -1591,7 +1568,7 @@ function scanExplicitKeyShape(
 	}
 	if (inlineColonOnQLine) return { kind: "inline-implicit-map", endIdx };
 	return { kind: "simple" };
-}
+});
 
 /**
  * Returns true if a value at the given offset was introduced by a `?`
@@ -1604,7 +1581,10 @@ function scanExplicitKeyShape(
  * boolean in `flattenBlockMapChildren` (used for multi-line key
  * continuation detection — different concept).
  */
-function wasIntroducedByExplicitKeyIndicator(text: string, offset: number): boolean {
+const wasIntroducedByExplicitKeyIndicator: {
+	(text: string, offset: number): boolean;
+	(offset: number): (text: string) => boolean;
+} = dual(2, (text: string, offset: number): boolean => {
 	let i = offset - 1;
 	while (i >= 0) {
 		const ch = text[i];
@@ -1623,7 +1603,7 @@ function wasIntroducedByExplicitKeyIndicator(text: string, offset: number): bool
 		return false;
 	}
 	return false;
-}
+});
 
 /**
  * Validate that implicit mapping keys do not span multiple lines.
@@ -1778,7 +1758,10 @@ export const checkTrailingContentOnSameLine: {
  * QB6E: continuation lines of a multi-line quoted scalar in value position
  * must be indented past the parent key column.
  */
-function validateQuotedScalarContinuationIndent(scalar: CstNode, state: ComposerState, parentKeyColumn: number): void {
+const validateQuotedScalarContinuationIndent: {
+	(scalar: CstNode, state: ComposerState, parentKeyColumn: number): void;
+	(state: ComposerState, parentKeyColumn: number): (scalar: CstNode) => void;
+} = dual(3, (scalar: CstNode, state: ComposerState, parentKeyColumn: number): void => {
 	if (parentKeyColumn < 0) return;
 	const text = state.text;
 	const start = scalar.offset;
@@ -1813,7 +1796,7 @@ function validateQuotedScalarContinuationIndent(scalar: CstNode, state: Composer
 		}
 		i++;
 	}
-}
+});
 
 /**
  * 4JVG: a single scalar cannot have two anchor declarations. When the
@@ -1822,14 +1805,10 @@ function validateQuotedScalarContinuationIndent(scalar: CstNode, state: Composer
  * block-map, not followed by `:`), both anchors would collapse onto the
  * scalar — that's invalid YAML.
  */
-function validateNoDoubleAnchorOnScalar(
-	scalar: CstNode,
-	children: readonly CstNode[],
-	idx: number,
-	outerMeta: NodeMeta,
-	pendingMeta: NodeMeta,
-	state: ComposerState,
-): void {
+const validateNoDoubleAnchorOnScalar: {
+	(scalar: CstNode, children: readonly CstNode[], idx: number, outerMeta: NodeMeta, pendingMeta: NodeMeta, state: ComposerState): void;
+	(children: readonly CstNode[], idx: number, outerMeta: NodeMeta, pendingMeta: NodeMeta, state: ComposerState): (scalar: CstNode) => void;
+} = dual(6, (scalar: CstNode, children: readonly CstNode[], idx: number, outerMeta: NodeMeta, pendingMeta: NodeMeta, state: ComposerState): void => {
 	const duplicateAnchor = outerMeta.anchor !== undefined && pendingMeta.anchor !== undefined;
 	const duplicateTag = outerMeta.tag !== undefined && pendingMeta.tag !== undefined;
 	if (!duplicateAnchor && !duplicateTag) return;
@@ -1845,7 +1824,7 @@ function validateNoDoubleAnchorOnScalar(
 		offset: scalar.offset,
 		length: scalar.length,
 	});
-}
+});
 
 /**
  * Y79Y/009: when a `:` value-sep is at the start of a line (continuation
@@ -1853,12 +1832,10 @@ function validateNoDoubleAnchorOnScalar(
  * tab and same-line content, the tab is being used as block indentation
  * for the upcoming content — invalid per YAML 1.2 §6.1.
  */
-function validateNoTabAfterContinuationValueSep(
-	colonChild: CstNode,
-	children: readonly CstNode[],
-	idx: number,
-	state: ComposerState,
-): void {
+const validateNoTabAfterContinuationValueSep: {
+	(colonChild: CstNode, children: readonly CstNode[], idx: number, state: ComposerState): void;
+	(children: readonly CstNode[], idx: number, state: ComposerState): (colonChild: CstNode) => void;
+} = dual(4, (colonChild: CstNode, children: readonly CstNode[], idx: number, state: ComposerState): void => {
 	// Only when `:` is the first non-whitespace on its line — this covers
 	// both column 0 (Y79Y/009) and nested mappings where the value indicator
 	// sits at the start of a continuation line at any indent.
@@ -1885,7 +1862,7 @@ function validateNoTabAfterContinuationValueSep(
 		}
 		return;
 	}
-}
+});
 
 /**
  * Returns true when the upcoming "-" indicator is preceded (after only
@@ -1893,7 +1870,10 @@ function validateNoTabAfterContinuationValueSep(
  * `?`-only block-map. The parser uses both shapes to mark "explicit key
  * with a sequence as the key" (KK5P fixture).
  */
-function precededByExplicitKeyMarker(children: readonly CstNode[], idx: number): boolean {
+const precededByExplicitKeyMarker: {
+	(children: readonly CstNode[], idx: number): boolean;
+	(idx: number): (children: readonly CstNode[]) => boolean;
+} = dual(2, (children: readonly CstNode[], idx: number): boolean => {
 	for (let j = idx - 1; j >= 0; j--) {
 		const c = children[j];
 		if (c === undefined) continue;
@@ -1903,7 +1883,7 @@ function precededByExplicitKeyMarker(children: readonly CstNode[], idx: number):
 		return false;
 	}
 	return false;
-}
+});
 
 /**
  * G9HC, H7J7: anchor/tag in value position on a continuation line (not on
@@ -1911,13 +1891,10 @@ function precededByExplicitKeyMarker(children: readonly CstNode[], idx: number):
  * parent key's column. Per YAML 1.2 §8.1.2, properties before a block
  * collection must be at indent n+1, where n is the parent key column.
  */
-function validatePropertyContinuationColumn(
-	property: CstNode,
-	state: ComposerState,
-	afterValueSep: boolean,
-	lastValueSepOffset: number,
-	parentKeyColumn: number,
-): void {
+const validatePropertyContinuationColumn: {
+	(property: CstNode, state: ComposerState, afterValueSep: boolean, lastValueSepOffset: number, parentKeyColumn: number): void;
+	(state: ComposerState, afterValueSep: boolean, lastValueSepOffset: number, parentKeyColumn: number): (property: CstNode) => void;
+} = dual(5, (property: CstNode, state: ComposerState, afterValueSep: boolean, lastValueSepOffset: number, parentKeyColumn: number): void => {
 	if (!afterValueSep) return;
 	if (parentKeyColumn < 0) return;
 	// On the same line as `:` is always OK.
@@ -1933,7 +1910,7 @@ function validatePropertyContinuationColumn(
 			length: property.length,
 		});
 	}
-}
+});
 
 // ---------------------------------------------------------------------------
 // Compose block seq
@@ -1980,7 +1957,10 @@ export const composeBlockSeq: {
 	}
 });
 
-function composeBlockSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta): YamlSeq {
+const composeBlockSeqInner: {
+	(state: ComposerState, meta?: NodeMeta): (cst: CstNode) => YamlSeq;
+	(cst: CstNode, state: ComposerState, meta?: NodeMeta): YamlSeq;
+} = dual((args) => P.hasProperty(args[0], "source"), (cst: CstNode, state: ComposerState, meta?: NodeMeta): YamlSeq => {
 	const children = cst.children ?? [];
 	const rawItems: YamlNode[] = [];
 	let pendingMeta: NodeMeta = {};
@@ -2015,14 +1995,17 @@ function composeBlockSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMet
 		}
 		return out;
 	};
-	const acceptOwnLineComment = (cText: string, cOff: number): void => {
+	const acceptOwnLineComment: {
+		(cText: string, cOff: number): void;
+		(cOff: number): (cText: string) => void;
+	} = dual(2, (cText: string, cOff: number): void => {
 		const blankAbove =
 			cOff >= 0 && hasBlankLineAbove(state.text, cOff) && !blankAboveIsKeepChompContent(state.text, cOff, lastItemNode);
 		if (blankAbove && pending.length === 0 && lastItemEnd >= 0) {
 			pendingSpace = true;
 		}
 		pending.push({ text: cText, offset: cOff, blankAbove: blankAbove && pending.length > 0 });
-	};
+	});
 	const items = {
 		push(node: YamlNode): void {
 			let commentBefore = joinPending(pending);
@@ -2353,7 +2336,7 @@ function composeBlockSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMet
 
 	if (meta?.anchor !== undefined && meta?.anchor !== "") registerAnchor(seq, meta.anchor, state, cst.offset);
 	return seq;
-}
+});
 
 // ---------------------------------------------------------------------------
 // Flat block map helpers (for document children without block-map wrapper)

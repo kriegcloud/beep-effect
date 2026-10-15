@@ -1,3 +1,4 @@
+import { dual } from "effect/Function";
 // Anchored and forward matching without slicing the subject.
 //
 // Upstream matches with `re.exec(this.subject.slice(this.pos))`. That is
@@ -11,13 +12,16 @@
 //
 // Leaf module: imports nothing.
 
-const clone = (pattern: RegExp, flag: "y" | "g", dropCaret: boolean): RegExp => {
+const clone: {
+	(pattern: RegExp, flag: "y" | "g", dropCaret: boolean): RegExp;
+	(flag: "y" | "g", dropCaret: boolean): (pattern: RegExp) => RegExp;
+} = dual(3, (pattern: RegExp, flag: "y" | "g", dropCaret: boolean): RegExp => {
 	// A leading `^` and the `y` flag say the same thing, but together they say
 	// "start of the SUBJECT", which is not what an anchored match at a cursor
 	// means. The caret goes; stickiness carries the anchoring.
 	const source = dropCaret && pattern.source.startsWith("^") ? pattern.source.slice(1) : pattern.source;
 	return new RegExp(source, `${pattern.flags.replace(/[gy]/g, "")}${flag}`);
-};
+});
 
 /**
  * The sticky twin of `pattern`, anchored at `lastIndex`.

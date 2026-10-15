@@ -27,6 +27,7 @@
 // hooks operate on is the plain `catalog name → dependency → range` record, and
 // the only normalization borrowed here is the prototype-safe `normalize`.
 
+import { dual, pipe } from "effect/Function";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { pathToFileURL } from "node:url";
@@ -57,7 +58,7 @@ const $I = $ScratchpadId.create("effected/workspaces/ConfigDependencyHooks");
 class ConfigDependencyReplayError extends S.TaggedError<ConfigDependencyReplayError, { readonly brand: unique symbol }>($I`ConfigDependencyReplayError`)(
 	"ConfigDependencyReplayError",
 	{ message: S.String },
-	$I.annote("ConfigDependencyReplayError", { description: "A replay failure reconstructed from the subprocess protocol." }),
+	$I.annoteError<ConfigDependencyReplayError>("ConfigDependencyReplayError", { description: "A replay failure reconstructed from the subprocess protocol." }),
 ) {}
 
 const JsonValue = S.fromJsonString(S.Unknown);
@@ -99,11 +100,11 @@ const JsonValue = S.fromJsonString(S.Unknown);
  */
 export const PeerDependencyRules = S.Struct({
 	/** `parent>peer` → the peer version or range the rule permits. */
-	allowedVersions: S.Record(S.String, S.String).annotateKey({ description: "Parent and peer selectors mapped to allowed peer ranges." }),
+	allowedVersions: S.Record(S.String, S.String).pipe($I.annoteKey("PeerDependencyRules.allowedVersions", { description: "Parent and peer selectors mapped to allowed peer ranges." })),
 	/** Peer-name patterns whose absence pnpm does not report (a required peer that resolved to nothing). */
-	ignoreMissing: S.Array(S.String).annotateKey({ description: "Peer-name patterns whose missing required peer is ignored." }),
+	ignoreMissing: S.Array(S.String).pipe($I.annoteKey("PeerDependencyRules.ignoreMissing", { description: "Peer-name patterns whose missing required peer is ignored." })),
 	/** Peer-name patterns for which any resolved version is accepted. */
-	allowAny: S.Array(S.String).annotateKey({ description: "Peer-name patterns accepting any resolved version." }),
+	allowAny: S.Array(S.String).pipe($I.annoteKey("PeerDependencyRules.allowAny", { description: "Peer-name patterns accepting any resolved version." })),
 }).pipe($I.annoteSchema("PeerDependencyRules", { description: "The three independent pnpm peer-suppression axes threaded through replayed hooks." }));
 
 /**
@@ -122,11 +123,11 @@ export type PeerDependencyRules = typeof PeerDependencyRules.Type;
  * until a hook sets them.
  */
 const HookConfig = S.Struct({
-	catalog: S.mutableKey(JsonObject).annotateKey({ description: "The default catalog slice exposed to hooks." }),
-	catalogs: S.mutableKey(JsonObject).annotateKey({ description: "The named catalog slices exposed to hooks." }),
-	minimumReleaseAge: S.Finite.pipe(S.UndefinedOr, S.mutableKey).annotateKey({ description: "A finite age in minutes, undefined until a hook sets it." }),
-	minimumReleaseAgeExclude: S.String.pipe(S.Array, S.UndefinedOr, S.mutableKey).annotateKey({ description: "Exempt name patterns, undefined until a hook sets them." }),
-	peerDependencyRules: PeerDependencyRules.pipe(S.UndefinedOr, S.mutableKey).annotateKey({ description: "Workspace rules threaded through hook contributions." }),
+	catalog: S.mutableKey(JsonObject).pipe($I.annoteKey("HookConfig.catalog", { description: "The default catalog slice exposed to hooks." })),
+	catalogs: S.mutableKey(JsonObject).pipe($I.annoteKey("HookConfig.catalogs", { description: "The named catalog slices exposed to hooks." })),
+	minimumReleaseAge: S.Finite.pipe(S.UndefinedOr, S.mutableKey, $I.annoteKey("HookConfig.minimumReleaseAge", { description: "A finite age in minutes, undefined until a hook sets it." })),
+	minimumReleaseAgeExclude: S.String.pipe(S.Array, S.UndefinedOr, S.mutableKey, $I.annoteKey("HookConfig.minimumReleaseAgeExclude", { description: "Exempt name patterns, undefined until a hook sets them." })),
+	peerDependencyRules: PeerDependencyRules.pipe(S.UndefinedOr, S.mutableKey, $I.annoteKey("HookConfig.peerDependencyRules", { description: "Workspace rules threaded through hook contributions." })),
 }).pipe($I.annoteSchema("HookConfig", { description: "The plain mutable pnpm updateConfig surface, tolerantly threaded one valid field at a time." }));
 
 type HookConfig = typeof HookConfig.Type;
@@ -233,12 +234,12 @@ export const HookReplayContext = S.Struct({
 	 * The declaring side's `pnpm-lock.yaml` text, whose env preamble records each
 	 * config dependency's integrity. `undefined` when that side has no lockfile.
 	 */
-	lockfile: S.optionalKey(S.String).annotateKey({ description: "The declaring side's lockfile text, when available to verify a fetch." }),
+	lockfile: S.optionalKey(S.String).pipe($I.annoteKey("HookReplayContext.lockfile", { description: "The declaring side's lockfile text, when available to verify a fetch." })),
 	/**
 	 * The git ref whose `pnpm-workspace.yaml` declared the `configDependencies`,
 	 * used to name the side in error messages. `undefined` for the working tree.
 	 */
-	ref: S.optionalKey(S.String).annotateKey({ description: "The declaring git ref, or undefined for the working tree." }),
+	ref: S.optionalKey(S.String).pipe($I.annoteKey("HookReplayContext.ref", { description: "The declaring git ref, or undefined for the working tree." })),
 }).pipe($I.annoteSchema("HookReplayContext", { description: "Optional lockfile and ref provenance used to verify and identify the declaring side of a replay." }));
 
 /**
@@ -279,9 +280,9 @@ export type HookReplayContext = typeof HookReplayContext.Type;
  */
 export const HookReplay = S.Struct({
 	/** The declared version that was resolved and replayed. */
-	version: S.String.annotateKey({ description: "The declared version resolved and replayed." }),
+	version: S.String.pipe($I.annoteKey("HookReplay.version", { description: "The declared version resolved and replayed." })),
 	/** Which resolution rung answered. */
-	source: HookReplaySource.annotateKey({ description: "The resolution rung answering for this version." }),
+	source: HookReplaySource.pipe($I.annoteKey("HookReplay.source", { description: "The resolution rung answering for this version." })),
 }).pipe($I.annoteSchema("HookReplay", { description: "The declared version and resolution provenance of one replayed config dependency." }));
 
 /**
@@ -320,9 +321,9 @@ export type HookReplay = typeof HookReplay.Type;
  */
 export const HookInjection = S.Struct({
 	/** The catalogs the replayed hooks yield, as `catalog name → dependency → range`. */
-	catalogs: S.Record(S.String, S.Record(S.String, S.String)).annotateKey({ description: "Catalog names mapped to dependency ranges after hook replay." }),
+	catalogs: S.Record(S.String, S.Record(S.String, S.String)).pipe($I.annoteKey("HookInjection.catalogs", { description: "Catalog names mapped to dependency ranges after hook replay." })),
 	/** The release-age gate contribution the replayed hooks leave on the config. */
-	releaseAge: PartialReleaseAgeGate.annotateKey({ description: "The partial release-age contribution left by the hooks." }),
+	releaseAge: PartialReleaseAgeGate.pipe($I.annoteKey("HookInjection.releaseAge", { description: "The partial release-age contribution left by the hooks." })),
 	/**
   * The **effective** peer-dependency rules: the seeded workspace-file rules
   * with every replayed hook's contribution threaded over them.
@@ -337,14 +338,14 @@ export const HookInjection = S.Struct({
   * A plugin whose hook *overwrites* the seeded rules rather than merging
   * onto them replaces them here exactly as it does under pnpm.
   */
-	peerDependencyRules: PeerDependencyRules.annotateKey({ description: "The effective peer rules after all hook contributions." }),
+	peerDependencyRules: PeerDependencyRules.pipe($I.annoteKey("HookInjection.peerDependencyRules", { description: "The effective peer rules after all hook contributions." })),
 	/**
 	 * Which version each declared config dependency was replayed from, keyed
 	 * by name — every dependency the layer resolved, including one that ships
 	 * no pnpmfile (resolved, contributed nothing). `{}` under
 	 * {@link ConfigDependencyHooks.layerNoop}, which resolves nothing.
 	 */
-	replays: S.Record(S.String, HookReplay).annotateKey({ description: "Version and source of every resolved config dependency, including those without hooks." }),
+	replays: S.Record(S.String, HookReplay).pipe($I.annoteKey("HookInjection.replays", { description: "Version and source of every resolved config dependency, including those without hooks." })),
 }).pipe($I.annoteSchema("HookInjection", { description: "Plain replay results containing normalized catalogs, release-age contribution, effective peer rules and per-dependency provenance." }));
 
 /**
@@ -407,17 +408,28 @@ export interface ConfigDependencyHooksShape {
   *   in errors. Only {@link ConfigDependencyHooks.layerSubprocess} reads the
   *   lockfile; omitting the context never changes which version is replayed.
   */
-	readonly inject: (
-		root: string,
-		configDependencies: Readonly<Record<string, string>>,
-		seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
-		rules?: PeerDependencyRules,
-		context?: HookReplayContext,
-	) => Effect.Effect<HookInjection, CatalogAssemblyError>;
+	readonly inject: {
+		(
+			root: string,
+			configDependencies: Readonly<Record<string, string>>,
+			seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+			rules?: PeerDependencyRules,
+			context?: HookReplayContext,
+		): Effect.Effect<HookInjection, CatalogAssemblyError>;
+		(
+			configDependencies: Readonly<Record<string, string>>,
+			seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+			rules?: PeerDependencyRules,
+			context?: HookReplayContext,
+		): (root: string) => Effect.Effect<HookInjection, CatalogAssemblyError>;
+	};
 }
 
 /** Turn the seed record into the pnpm hook config, with the default catalog split out under `catalog`. */
-const seedToConfig = (
+const seedToConfig: {
+	(seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined): HookConfig;
+	(rules: PeerDependencyRules | undefined): (seed: Readonly<Record<string, Readonly<Record<string, string>>>>) => HookConfig;
+} = dual(2, (
 	seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
 	rules: PeerDependencyRules | undefined,
 ): HookConfig => {
@@ -426,7 +438,7 @@ const seedToConfig = (
 		onSome: (entries) => R.fromEntries(R.toEntries(entries)),
 	});
 	const catalogs = R.fromEntries(
-		R.toEntries(seed).filter(([name]) => name !== "default").map(([name, entries]) => [name, R.fromEntries(R.toEntries(entries))] as const),
+		pipe(R.toEntries(seed), A.filter(([name]) => name !== "default"), A.map(([name, entries]) => [name, R.fromEntries(R.toEntries(entries))] as const)),
 	);
 	// The seed carries no release-age keys — only a replayed hook sets them. It
 	// DOES carry the peer-dependency rules, because those have a workspace-file
@@ -438,18 +450,24 @@ const seedToConfig = (
 		minimumReleaseAgeExclude: undefined,
 		peerDependencyRules: rules,
 	};
-};
+});
 
 const isFiniteNumber = S.is(S.Finite);
 const isHookObject = S.is(HookConfig.fields.catalog);
 
 /** A finite number if `value` is one, else the prior threaded value — a garbage age is dropped, not fatal. */
-const finiteNumberOr = (value: unknown, fallback: number | undefined): number | undefined =>
-	isFiniteNumber(value) ? value : fallback;
+const finiteNumberOr: {
+	(value: unknown, fallback: number | undefined): number | undefined;
+	(fallback: number | undefined): (value: unknown) => number | undefined;
+} = dual(2, (value: unknown, fallback: number | undefined): number | undefined =>
+	isFiniteNumber(value) ? value : fallback);
 
 /** A string array if `value` is one, else the prior threaded value — a malformed exclude is dropped, not fatal. */
-const stringArrayOr = (value: unknown, fallback: readonly string[] | undefined): readonly string[] | undefined =>
-	A.isArray(value) && value.every(P.isString) ? value : fallback;
+const stringArrayOr: {
+	(value: unknown, fallback: readonly string[] | undefined): readonly string[] | undefined;
+	(fallback: readonly string[] | undefined): (value: unknown) => readonly string[] | undefined;
+} = dual(2, (value: unknown, fallback: readonly string[] | undefined): readonly string[] | undefined =>
+	A.isArray(value) && A.every(value, P.isString) ? value : fallback);
 
 /**
  * Read the catalog slice and the release-age keys back out of whatever a hook
@@ -464,7 +482,10 @@ const stringArrayOr = (value: unknown, fallback: readonly string[] | undefined):
  * sets a well-formed key rewrites it — so across hooks the **last well-formed
  * write wins**, exactly as pnpm's single mutable config object behaves.
  */
-const configOf = (value: unknown, fallback: HookConfig): HookConfig => {
+const configOf: {
+	(value: unknown, fallback: HookConfig): HookConfig;
+	(fallback: HookConfig): (value: unknown) => HookConfig;
+} = dual(2, (value: unknown, fallback: HookConfig): HookConfig => {
 	if (!isPlainObject(value)) return fallback;
 	return {
 		catalog: isHookObject(value.catalog) ? value.catalog : fallback.catalog,
@@ -473,7 +494,7 @@ const configOf = (value: unknown, fallback: HookConfig): HookConfig => {
 		minimumReleaseAgeExclude: stringArrayOr(value.minimumReleaseAgeExclude, fallback.minimumReleaseAgeExclude),
 		peerDependencyRules: peerRulesOr(value.peerDependencyRules, fallback.peerDependencyRules),
 	};
-};
+});
 
 /**
  * A peer-rules block if `value` is one, else the prior threaded value — a
@@ -484,15 +505,21 @@ const configOf = (value: unknown, fallback: HookConfig): HookConfig => {
  * Each axis is normalized independently: a hook that rewrites `allowedVersions`
  * and leaves `ignoreMissing` alone must not blank the latter.
  */
-const stringRecordOr = (
+const stringRecordOr: {
+	(value: unknown, fallback: Readonly<Record<string, string>> | undefined): Readonly<Record<string, string>> | undefined;
+	(fallback: Readonly<Record<string, string>> | undefined): (value: unknown) => Readonly<Record<string, string>> | undefined;
+} = dual(2, (
 	value: unknown,
 	fallback: Readonly<Record<string, string>> | undefined,
 ): Readonly<Record<string, string>> | undefined =>
-	isStringRecord(value) ? value : fallback;
+	isStringRecord(value) ? value : fallback);
 
 const isStringRecord = S.is(PeerDependencyRules.fields.allowedVersions);
 
-const peerRulesOr = (value: unknown, fallback: PeerDependencyRules | undefined): PeerDependencyRules | undefined => {
+const peerRulesOr: {
+	(value: unknown, fallback: PeerDependencyRules | undefined): PeerDependencyRules | undefined;
+	(fallback: PeerDependencyRules | undefined): (value: unknown) => PeerDependencyRules | undefined;
+} = dual(2, (value: unknown, fallback: PeerDependencyRules | undefined): PeerDependencyRules | undefined => {
 	if (!isPlainObject(value)) return fallback;
 	// Every entry must be a string, not merely the block an object: the public
 	// contract is name→RANGE, and a non-string value reaches range parsing as a
@@ -508,7 +535,7 @@ const peerRulesOr = (value: unknown, fallback: PeerDependencyRules | undefined):
 		ignoreMissing: ignoreMissing ?? [],
 		allowAny: allowAny ?? [],
 	};
-};
+});
 
 /** Project the threaded config's rules into the slice, defaulting every axis to empty. */
 const peerRulesOf = (config: HookConfig): PeerDependencyRules => config.peerDependencyRules ?? NO_PEER_RULES;
@@ -559,23 +586,40 @@ const updateConfigOf = (mod: Readonly<Record<string, unknown>>): UpdateConfig | 
  * `configDependencies`, and — with `replays` — what a replaying layer returns
  * when every resolved dependency ships no pnpmfile.
  */
-const untouched = (
-	seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
-	rules: PeerDependencyRules | undefined,
-	replays: Readonly<Record<string, HookReplay>> = {},
-): HookInjection => ({ catalogs: seed, releaseAge: {}, peerDependencyRules: rules ?? NO_PEER_RULES, replays });
+const untouched: {
+	(
+		seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+		rules: PeerDependencyRules | undefined,
+		replays?: Readonly<Record<string, HookReplay>>,
+	): HookInjection;
+	(
+		rules: PeerDependencyRules | undefined,
+		replays?: Readonly<Record<string, HookReplay>>,
+	): (seed: Readonly<Record<string, Readonly<Record<string, string>>>>) => HookInjection;
+} = dual(
+	// The subject is the seed record; the data-last form leads with the rules block (or `undefined`), which is never a seed.
+	(args) => isPlainObject(args[0]) && !S.is(PeerDependencyRules)(args[0]),
+	(
+		seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+		rules: PeerDependencyRules | undefined,
+		replays: Readonly<Record<string, HookReplay>> = {},
+	): HookInjection => ({ catalogs: seed, releaseAge: {}, peerDependencyRules: rules ?? NO_PEER_RULES, replays }),
+);
 
 /** The per-name replay record of a resolved set — every resolved dependency, pnpmfile or not. */
 const replaysOf = (pnpmfiles: ReadonlyArray<ResolvedPnpmfile>): Readonly<Record<string, HookReplay>> =>
-	R.fromEntries(pnpmfiles.map(({ name, version, source }) => [name, HookReplay.make({ version, source })] as const));
+	R.fromEntries(A.map(pnpmfiles, ({ name, version, source }) => [name, HookReplay.make({ version, source })] as const));
 
 /** Project the final threaded config into the injection, alongside the replay record. */
-const injectionOf = (config: HookConfig, pnpmfiles: ReadonlyArray<ResolvedPnpmfile>): HookInjection => ({
+const injectionOf: {
+	(config: HookConfig, pnpmfiles: ReadonlyArray<ResolvedPnpmfile>): HookInjection;
+	(pnpmfiles: ReadonlyArray<ResolvedPnpmfile>): (config: HookConfig) => HookInjection;
+} = dual(2, (config: HookConfig, pnpmfiles: ReadonlyArray<ResolvedPnpmfile>): HookInjection => ({
 	catalogs: configToEntries(config),
 	releaseAge: releaseAgeOf(config),
 	peerDependencyRules: peerRulesOf(config),
 	replays: replaysOf(pnpmfiles),
-});
+}));
 
 /**
  * Replay already-resolved pnpmfiles IN PROCESS over the seed, in order — the
@@ -596,7 +640,17 @@ const injectionOf = (config: HookConfig, pnpmfiles: ReadonlyArray<ResolvedPnpmfi
  * is called synchronously and its returned data threaded tolerantly
  * (`configOf`); a hook that throws fails typed.
  */
-const replayInProcess = Effect.fn("replayInProcess")(function* (
+const replayInProcess: {
+	(
+		pnpmfiles: ReadonlyArray<ResolvedPnpmfile>,
+		seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+		rules: PeerDependencyRules | undefined,
+	): Effect.Effect<HookInjection, CatalogAssemblyError>;
+	(
+		seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+		rules: PeerDependencyRules | undefined,
+	): (pnpmfiles: ReadonlyArray<ResolvedPnpmfile>) => Effect.Effect<HookInjection, CatalogAssemblyError>;
+} = dual(3, Effect.fn("replayInProcess")(function* (
 	pnpmfiles: ReadonlyArray<ResolvedPnpmfile>,
 	seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
 	rules: PeerDependencyRules | undefined,
@@ -626,7 +680,7 @@ const replayInProcess = Effect.fn("replayInProcess")(function* (
 		});
 	}
 	return injectionOf(config, pnpmfiles);
-});
+}));
 
 /**
  * The subprocess replay program {@link ConfigDependencyHooks.layerSubprocess}
@@ -845,11 +899,11 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
 	 * @since 0.0.0
 	 */
 	static readonly layerNoop: Layer.Layer<ConfigDependencyHooks> = Layer.succeed(ConfigDependencyHooks, {
-		inject: Effect.fn("ConfigDependencyHooks.inject")((_root: string, _configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined) =>
+		inject: dual((args) => P.isString(args[0]), Effect.fn("ConfigDependencyHooks.inject")((_root: string, _configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined) =>
 			// The seed passes through untouched on every slice, rules included: a
 			// no-op replay changes nothing, and returning empty rules here would be
 			// indistinguishable from a workspace that declares none.
-			Effect.succeed(untouched(seed, rules))),
+			Effect.succeed(untouched(seed, rules)))),
 	});
 
 	/**
@@ -899,11 +953,11 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
 	 * @since 0.0.0
 	 */
 	static readonly layerLive: Layer.Layer<ConfigDependencyHooks> = Layer.succeed(ConfigDependencyHooks, {
-		inject: Effect.fn("ConfigDependencyHooks.inject")(function* (root: string, configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined, context: HookReplayContext | undefined) {
+		inject: dual((args) => P.isString(args[0]), Effect.fn("ConfigDependencyHooks.inject")(function* (root: string, configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined, context: HookReplayContext | undefined) {
 				if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
 				const pnpmfiles = yield* resolvePnpmfiles(root, configDependencies, { side: context });
 				return yield* replayInProcess(pnpmfiles, seed, rules);
-			}),
+			})),
 	});
 
 	/**
@@ -951,11 +1005,11 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
 	 */
 	static readonly layerFrom = (entries: Readonly<Record<string, string>>): Layer.Layer<ConfigDependencyHooks> =>
 		Layer.succeed(ConfigDependencyHooks, {
-			inject: Effect.fn("ConfigDependencyHooks.inject")(function* (_root: string, configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined) {
+			inject: dual((args) => P.isString(args[0]), Effect.fn("ConfigDependencyHooks.inject")(function* (_root: string, configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined) {
 					if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
 					const pnpmfiles = yield* lookupPnpmfiles(entries, configDependencies);
 					return yield* replayInProcess(pnpmfiles, seed, rules);
-				}),
+				})),
 		});
 
 	/**
@@ -1058,7 +1112,7 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
 				const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 				const fetch = makeFetchConfigDependency(spawner);
 				return {
-					inject: Effect.fn("ConfigDependencyHooks.inject")(function* (root: string, configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined, context: HookReplayContext | undefined) {
+					inject: dual((args) => P.isString(args[0]), Effect.fn("ConfigDependencyHooks.inject")(function* (root: string, configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined, context: HookReplayContext | undefined) {
 							if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
 
 							// Resolve in the parent: the `..` refusal and the declared-version
@@ -1066,9 +1120,8 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
 							// performs a lookup of its own. Nothing to replay → nothing to spawn.
 							// This layer alone wires the fetch rung, over the same spawner.
 							const pnpmfiles = yield* resolvePnpmfiles(root, configDependencies, { side: context, fetch });
-							const loadable = pnpmfiles.flatMap(({ name, path }) =>
-								path === undefined ? [] : [[name, pathToFileURL(path).href] as const],
-							);
+							const loadable = A.flatMap(pnpmfiles, ({ name, path }) =>
+								path === undefined ? [] : [[name, pathToFileURL(path).href] as const]);
 							if (loadable.length === 0) return untouched(seed, rules, replaysOf(pnpmfiles));
 
 							// Seed, rules and the resolved `[name, fileUrl]` pairs travel via argv — never
@@ -1118,7 +1171,7 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
 							// in the parent exactly as layerLive does, reading the slice tolerantly
 							// against the seed (a hook's returned data is never fatal).
 							return injectionOf(configOf(payload.config, seedToConfig(seed, rules)), pnpmfiles);
-						}),
+						})),
 				};
 			}),
 		);

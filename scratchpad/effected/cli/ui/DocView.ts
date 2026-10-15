@@ -8,6 +8,7 @@ import { fromReact, inkModules } from "./internal/ink.ts";
 import { screenContext } from "./internal/ScreenContext.ts";
 import { useTerminalSize } from "./UiTheme.ts";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/cli/ui/DocView");
 
@@ -29,11 +30,11 @@ const $I = $ScratchpadId.create("effected/cli/ui/DocView");
 export class MissingDocViewThemeError extends S.TaggedError<MissingDocViewThemeError, { readonly brand: unique symbol }>($I`MissingDocViewThemeError`)(
 	"MissingDocViewThemeError",
 	{
-		message: S.String.annotate($I.annote("MissingDocViewThemeError.message", {
+		message: S.String.pipe($I.annoteKey("MissingDocViewThemeError.message", {
 			description: "Explains how to provide a render context or theme for the document view.",
 		})),
 	},
-	$I.annote("MissingDocViewThemeError", { description: "A document view needs an explicit render context or a theme provider." }),
+	$I.annoteError<MissingDocViewThemeError>("MissingDocViewThemeError", { description: "A document view needs an explicit render context or a theme provider." }),
 ) {}
 
 /**
@@ -64,26 +65,32 @@ const OUTSIDE =
 /**
  * The context a `DocView` builds from its tree's theme: the theme's own paint, so token overrides hold.
  */
-const contextOf = (theme: Cli.StreamTheme, width: number, neutralize: boolean): Cli.RenderContext => ({
+const contextOf: {
+	(theme: Cli.StreamTheme, width: number, neutralize: boolean): Cli.RenderContext;
+	(width: number, neutralize: boolean): (theme: Cli.StreamTheme) => Cli.RenderContext;
+} = dual(3, (theme: Cli.StreamTheme, width: number, neutralize: boolean): Cli.RenderContext => ({
 	...(neutralize ? { neutralizeWorkflowCommands: true } : {}),
 	width,
 	audience: "human",
 	color: theme.color,
 	paint: theme.paint,
 	glyphs: theme.glyphs,
-	link: (_target, label) => label,
+	link: dual(2, (_target: Cli.LinkTarget, label: string): string => label),
 	displayPath: (absolute) => absolute,
-});
+}));
 
 /**
  * The document's lines as the kit's own renderer lays them out: plain at colour `none`, painted otherwise.
  */
-const linesOf = (doc: Cli.Document | Cli.Block, ctx: Cli.RenderContext): ReadonlyArray<string> => {
+const linesOf: {
+	(doc: Cli.Document | Cli.Block, ctx: Cli.RenderContext): ReadonlyArray<string>;
+	(ctx: Cli.RenderContext): (doc: Cli.Document | Cli.Block) => ReadonlyArray<string>;
+} = dual(2, (doc: Cli.Document | Cli.Block, ctx: Cli.RenderContext): ReadonlyArray<string> => {
 	const isDocument = (value: Cli.Document | Cli.Block): value is Cli.Document => A.isArray(value);
 	const document: Cli.Document = isDocument(doc) ? doc : [doc];
 	const text = ctx.color === "none" ? Render.plain(document, ctx) : Render.ansi(document, ctx);
 	return text === "" ? [] : text.split("\n");
-};
+});
 
 /**
  * The view, memoised on its props and built on the loaded React, like every kit component.

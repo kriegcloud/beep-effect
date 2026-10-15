@@ -7,6 +7,7 @@ import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
 import * as P from "effect/Predicate";
@@ -24,7 +25,7 @@ const $I = $ScratchpadId.create("effected/commands/ToolDiscovery");
 class ToolDiscoveryUnstubbedError extends S.TaggedError<ToolDiscoveryUnstubbedError, { readonly brand: unique symbol }>($I`ToolDiscoveryUnstubbedError`)(
 	"ToolDiscoveryUnstubbedError",
 	{ message: S.String },
-	$I.annote("ToolDiscoveryUnstubbedError", { description: "An unstubbed tool-discovery test-double member was exercised." }),
+	$I.annoteError<ToolDiscoveryUnstubbedError>("ToolDiscoveryUnstubbedError", { description: "An unstubbed tool-discovery test-double member was exercised." }),
 ) {}
 
 /** How many tools' probe evidence to remember. */
@@ -82,19 +83,19 @@ export type ResolvedSource = typeof ResolvedSource.Type;
  */
 export class ResolvedTool extends S.Class<ResolvedTool, { readonly brand: unique symbol }>($I`ResolvedTool`)({
 	/** The executable name. */
-	name: S.String.annotateKey({ description: "The executable name." }),
+	name: S.String.pipe($I.annoteKey("ResolvedTool.name", { description: "The executable name." })),
 	/** Which copy this resolution selected. */
-	source: ResolvedSource.annotateKey({ description: "Which copy this resolution selected." }),
+	source: ResolvedSource.pipe($I.annoteKey("ResolvedTool.source", { description: "Which copy this resolution selected." })),
 	/** The selected copy's version, when one could be read. */
-	version: S.Option(S.String).annotateKey({ description: "The selected copy's version, when one could be read." }),
+	version: S.Option(S.String).pipe($I.annoteKey("ResolvedTool.version", { description: "The selected copy's version, when one could be read." })),
 	/** The global copy's version, when it exists and reports one. */
-	globalVersion: S.Option(S.String).annotateKey({ description: "The global copy's version, when it exists and reports one." }),
+	globalVersion: S.Option(S.String).pipe($I.annoteKey("ResolvedTool.globalVersion", { description: "The global copy's version, when it exists and reports one." })),
 	/** The project-local copy's version, when it exists and reports one. */
-	localVersion: S.Option(S.String).annotateKey({ description: "The project-local copy's version, when it exists and reports one." }),
+	localVersion: S.Option(S.String).pipe($I.annoteKey("ResolvedTool.localVersion", { description: "The project-local copy's version, when it exists and reports one." })),
 	/** Whether the two copies reported different versions. */
-	mismatch: S.Boolean.annotateKey({ description: "Whether the two copies reported different versions." }),
+	mismatch: S.Boolean.pipe($I.annoteKey("ResolvedTool.mismatch", { description: "Whether the two copies reported different versions." })),
 	/** The project-local execution context, when {@link ResolvedTool.source} is `"local"`. */
-	context: S.optionalKey(ExecContext).annotateKey({ description: "The project-local execution context, when ResolvedTool.source is `\"local\"`." }),
+	context: S.optionalKey(ExecContext).pipe($I.annoteKey("ResolvedTool.context", { description: "The project-local execution context, when ResolvedTool.source is `\"local\"`." })),
 }, $I.annote("ResolvedTool", { description: "A tool that was found, with everything discovery learned about it." })) {
 	/**
 	 * A core `Command` that runs this tool — bare for a global resolution,
@@ -149,10 +150,10 @@ export class ResolvedTool extends S.Class<ResolvedTool, { readonly brand: unique
  */
 export class ToolNotFoundError extends S.TaggedError<ToolNotFoundError, { readonly brand: unique symbol }>($I`ToolNotFoundError`)("ToolNotFoundError", {
 	/** The tool that was looked for. */
-	tool: S.String.annotateKey({ description: "The tool that was looked for." }),
+	tool: S.String.pipe($I.annoteKey("ToolNotFoundError.tool", { description: "The tool that was looked for." })),
 	/** The locations its `source` requirement demanded. */
-	searched: S.Array(ResolvedSource).annotateKey({ description: "The locations its `source` requirement demanded." }),
-}, $I.annote("ToolNotFoundError", { description: "A tool could not be found where it was required." })) {
+	searched: S.Array(ResolvedSource).pipe($I.annoteKey("ToolNotFoundError.searched", { description: "The locations its `source` requirement demanded." })),
+}, $I.annoteError<ToolNotFoundError>("ToolNotFoundError", { description: "A tool could not be found where it was required." })) {
 	/**
 	 * Describes the required locations where the tool was absent.
 	 *
@@ -169,7 +170,7 @@ export class ToolNotFoundError extends S.TaggedError<ToolNotFoundError, { readon
 	 * @since 0.0.0
 	 */
 	override get message(): string {
-		return `Tool not found: ${this.tool} (required ${this.searched.join(" and ")})`;
+		return `Tool not found: ${this.tool} (required ${A.join(this.searched, " and ")})`;
 	}
 }
 
@@ -194,12 +195,12 @@ export class ToolVersionMismatchError extends S.TaggedError<ToolVersionMismatchE
 	"ToolVersionMismatchError",
 	{
 		/** The tool. */
-		tool: S.String.annotateKey({ description: "The tool." }),
+		tool: S.String.pipe($I.annoteKey("ToolVersionMismatchError.tool", { description: "The tool." })),
 		/** The global copy's version. */
-		globalVersion: S.String.annotateKey({ description: "The global copy's version." }),
+		globalVersion: S.String.pipe($I.annoteKey("ToolVersionMismatchError.globalVersion", { description: "The global copy's version." })),
 		/** The project-local copy's version. */
-		localVersion: S.String.annotateKey({ description: "The project-local copy's version." }),
-	}, $I.annote("ToolVersionMismatchError", { description: "The global and project-local copies disagree, and the tool's policy is `\"fail\"`." }),
+		localVersion: S.String.pipe($I.annoteKey("ToolVersionMismatchError.localVersion", { description: "The project-local copy's version." })),
+	}, $I.annoteError<ToolVersionMismatchError>("ToolVersionMismatchError", { description: "The global and project-local copies disagree, and the tool's policy is `\"fail\"`." }),
 ) {
 	/**
 	 * Describes the conflicting global and project-local versions.
@@ -247,8 +248,8 @@ export class ToolVersionMismatchError extends S.TaggedError<ToolVersionMismatchE
  */
 export class ToolRefusedError extends S.TaggedError<ToolRefusedError, { readonly brand: unique symbol }>($I`ToolRefusedError`)("ToolRefusedError", {
 	/** The refused name. */
-	tool: S.String.annotateKey({ description: "The refused name." }),
-}, $I.annote("ToolRefusedError", { description: "A tool name that cannot safely be spawned was refused before any process started." })) {
+	tool: S.String.pipe($I.annoteKey("ToolRefusedError.tool", { description: "The refused name." })),
+}, $I.annoteError<ToolRefusedError>("ToolRefusedError", { description: "A tool name that cannot safely be spawned was refused before any process started." })) {
 	/**
 	 * Describes why the tool name was refused before spawning.
 	 *
@@ -301,16 +302,16 @@ export type ToolResolutionFailure = typeof ToolResolutionFailure.Type;
 
 /** What one probe learned about one location; retains its plain-object representation. */
 const Probe = S.Struct({
- found: S.Boolean.annotateKey({ description: "Whether the executable ran." }),
- version: S.Option(S.String).annotateKey({ description: "The extracted version, if available." }),
+ found: S.Boolean.pipe($I.annoteKey("Probe.found", { description: "Whether the executable ran." })),
+ version: S.Option(S.String).pipe($I.annoteKey("Probe.version", { description: "The extracted version, if available." })),
 }).pipe($I.annoteSchema("Probe", { description: "Discovery evidence for one location." }));
 type Probe = typeof Probe.Type;
 
 /** Cached evidence before each call applies its own resolution policy. */
 const Evidence = S.Struct({
- global: Probe.annotateKey({ description: "Global probe evidence." }),
- local: Probe.annotateKey({ description: "Project-local probe evidence." }),
- context: S.Option(ExecContext).annotateKey({ description: "The local launcher context, if available." }),
+ global: Probe.pipe($I.annoteKey("Evidence.global", { description: "Global probe evidence." })),
+ local: Probe.pipe($I.annoteKey("Evidence.local", { description: "Project-local probe evidence." })),
+ context: S.Option(ExecContext).pipe($I.annoteKey("Evidence.context", { description: "The local launcher context, if available." })),
 }).pipe($I.annoteSchema("Evidence", { description: "Cached discovery evidence independent of policy." }));
 type Evidence = typeof Evidence.Type;
 
@@ -326,20 +327,23 @@ type Evidence = typeof Evidence.Type;
  * applied to the evidence per call.
  */
 class EvidenceKey extends S.Class<EvidenceKey, { readonly brand: unique symbol }>($I`EvidenceKey`)({
-	name: S.String.annotateKey({ description: "The executable being probed globally and project-locally, used to identify cached discovery evidence" }),
-	probe: VersionProbe.annotateKey({ description: "How the tool is asked for its version and how its output is interpreted, distinguishing cached discovery evidence" }),
+	name: S.String.pipe($I.annoteKey("EvidenceKey.name", { description: "The executable being probed globally and project-locally, used to identify cached discovery evidence" })),
+	probe: VersionProbe.pipe($I.annoteKey("EvidenceKey.probe", { description: "How the tool is asked for its version and how its output is interpreted, distinguishing cached discovery evidence" })),
 }, $I.annote("EvidenceKey", { description: "The cache key: everything the probe outcome depends on, and nothing else." })) {}
 
 /** argv for a version probe: the flag string split on whitespace. */
 const probeArgs = (probe: VersionProbe): ReadonlyArray<string> =>
-	probe._tag === "VersionNone" ? ["--version"] : probe.flag.split(/\s+/).filter((part) => part.length > 0);
+	probe._tag === "VersionNone" ? ["--version"] : A.filter(probe.flag.split(/\s+/), (part) => part.length > 0);
 
 /** Non-throwing JSON boundary over unknown input. */
 const UnknownJson = S.fromJsonString(S.Unknown);
 const decodeJson = (stdout: unknown) => S.decodeUnknownOption(UnknownJson)(stdout);
 
 /** Reads a version out of one probe's captured stdout. */
-const extractVersion = (probe: VersionProbe, stdout: string): O.Option<string> => {
+const extractVersion: {
+	(probe: VersionProbe, stdout: string): O.Option<string>;
+	(stdout: string): (probe: VersionProbe) => O.Option<string>;
+} = dual(2, (probe: VersionProbe, stdout: string): O.Option<string> => {
 	if (probe._tag === "VersionNone") return O.none();
 	if (probe._tag === "VersionFlag") {
 		const pattern = probe.pattern === undefined ? DEFAULT_VERSION_PATTERN : new RegExp(probe.pattern);
@@ -354,7 +358,7 @@ const extractVersion = (probe: VersionProbe, stdout: string): O.Option<string> =
    P.isObjectKeyword(value) && !P.isFunction(value) && P.hasProperty(value, key)
     ? O.some(value[key]) : O.none()),
  ).pipe(O.filter(P.isString));
-};
+});
 
 /**
  * Runs one location's probe.
@@ -367,14 +371,17 @@ const extractVersion = (probe: VersionProbe, stdout: string): O.Option<string> =
  * no shell (`command -v`) is involved, so a tool name is never interpolated
  * into a command line.
  */
-const probeLocation = (
-	command: ChildProcess.Command,
-	probe: VersionProbe,
-): Effect.Effect<Probe, never, ChildProcessSpawner.ChildProcessSpawner> =>
-	Run.collect(command).pipe(
-		Effect.map((output) => ({ found: true, version: extractVersion(probe, output.stdout) })),
-		Effect.orElseSucceed(() => ({ found: false, version: O.none<string>() })),
-	);
+const probeLocation: {
+	(command: ChildProcess.Command, probe: VersionProbe): Effect.Effect<Probe, never, ChildProcessSpawner.ChildProcessSpawner>;
+	(probe: VersionProbe): (command: ChildProcess.Command) => Effect.Effect<Probe, never, ChildProcessSpawner.ChildProcessSpawner>;
+} = dual(
+	2,
+	(command: ChildProcess.Command, probe: VersionProbe): Effect.Effect<Probe, never, ChildProcessSpawner.ChildProcessSpawner> =>
+		Run.collect(command).pipe(
+			Effect.map((output) => ({ found: true, version: extractVersion(probe, output.stdout) })),
+			Effect.orElseSucceed(() => ({ found: false, version: O.none<string>() })),
+		),
+);
 
 /**
  * The {@link ToolDiscovery} service shape.

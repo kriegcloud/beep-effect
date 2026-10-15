@@ -7,11 +7,14 @@ const runs = { arbitrary: fcRuns(100) };
 import * as HashMap from "effect/HashMap";
 import { prepareInline, trimWithSegments } from "../../../effected/markdown/internal/rawInline.ts";
 import type { BlockNode } from "../../../effected/markdown/internal/blockTypes.ts";
-import { Definition, Point, Position } from "../../../effected/markdown/MarkdownNode.ts";
+import { Definition, Paragraph, Point, Position, Root } from "../../../effected/markdown/MarkdownNode.ts";
 import { stringifyTree } from "../../../effected/markdown/internal/stringify.ts";
-import { Paragraph, Root } from "../../../effected/markdown/MarkdownNode.ts";
+import { dual } from "effect/Function";
 const prose = Arbitrary.schema(S.String).pipe(Arbitrary.map((value) => `word${Array.from(value, (char) => char.codePointAt(0)?.toString(16)).join("")}`));
-const position = (start: number, end: number) => Position.make({ start: Point.make({ line: 1, column: start + 1, offset: start }), end: Point.make({ line: 1, column: end + 1, offset: end }) });
+const position: {
+	(start: number, end: number): Position;
+	(end: number): (start: number) => Position;
+} = dual(2, (start: number, end: number): Position => Position.make({ start: Point.make({ line: 1, column: start + 1, offset: start }), end: Point.make({ line: 1, column: end + 1, offset: end }) }));
 const block = (text: string): BlockNode => ({ type: "paragraph", parent: undefined, children: [], open: false, stringContent: text, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }], startOffset: 0, endOffset: text.length, startLine: 1, endLine: 1, depth: 1, data: {} });
 describe("raw inline properties", () => {
   it.effect.prop("trimming is idempotent and preserves surviving source positions", [prose], ([value]) => Effect.sync(() => {

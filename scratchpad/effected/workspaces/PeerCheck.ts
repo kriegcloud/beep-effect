@@ -1,3 +1,4 @@
+import { dual } from "effect/Function";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 // Unsatisfied peer-dependency detection over a parsed lockfile — a pure
 // VALUE, not a service. No IO, nothing in `R`, no error channel.
@@ -15,7 +16,7 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 // or "(" would re-introduce the format knowledge this module exists without.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import { type Lockfile, ResolvedPackage } from "../lockfiles/index.ts";
+import { Lockfile, ResolvedPackage } from "../lockfiles/index.ts";
 import { Range, SemVer } from "../semver/index.ts";
 import * as O from "effect/Option";
 import * as A from "effect/Array";
@@ -154,7 +155,7 @@ export const PeerCheckOptions = S.Struct({
 	/**
 	 * The workspace's effective rules, from `WorkspaceCatalogs.peerDependencyRules()`.
 	 */
-	peerDependencyRules: S.optionalKey(PeerDependencyRules).annotateKey({ description: "The workspace's effective peer-suppression rules; absence leaves the policy unverified." }),
+	peerDependencyRules: S.optionalKey(PeerDependencyRules).pipe($I.annoteKey("PeerCheckOptions.peerDependencyRules", { description: "The workspace's effective peer-suppression rules; absence leaves the policy unverified." })),
 	/**
 	 * The workspace's discovered packages, from `WorkspaceDiscovery` — the
 	 * manifests a `link:`-resolved parent's peers have to be read from,
@@ -187,7 +188,7 @@ export const PeerCheckOptions = S.Struct({
 	 * peer ranges the source's specifiers resolve to, which is the contract a
 	 * publish-directory build keeps.
 	 */
-	workspacePackages: WorkspacePackage.pipe(S.Array, S.optionalKey).annotateKey({ description: "Discovered workspace manifests whose linked peers can be joined and judged." }),
+	workspacePackages: WorkspacePackage.pipe(S.Array, S.optionalKey, $I.annoteKey("PeerCheckOptions.workspacePackages", { description: "Discovered workspace manifests whose linked peers can be joined and judged." })),
 	/**
 	 * The workspace's catalogs, from `WorkspaceCatalogs.set()` — which already
 	 * includes any catalogs a config-dependency hook injects.
@@ -204,7 +205,7 @@ export const PeerCheckOptions = S.Struct({
 	 * satisfied: the same presence-is-the-assertion rule as the other two
 	 * keys.
 	 */
-	catalogs: S.optionalKey(CatalogSet).annotateKey({ description: "The workspace catalogs used to resolve joined peer ranges." }),
+	catalogs: S.optionalKey(CatalogSet).pipe($I.annoteKey("PeerCheckOptions.catalogs", { description: "The workspace catalogs used to resolve joined peer ranges." })),
 }).pipe($I.annoteSchema("PeerCheckOptions", { description: "Optional caller-supplied peer policy, workspace manifests and catalogs; defaults remain lazy in the check." }));
 
 /**
@@ -240,11 +241,11 @@ export class PeerParent extends S.Class<PeerParent, { readonly brand: unique sym
 	/**
 	 * The package name.
 	 */
-	name: S.NonEmptyString.annotateKey({ description: "The package name." }),
+	name: S.NonEmptyString.pipe($I.annoteKey("PeerParent.name", { description: "The package name." })),
 	/**
 	 * The resolved version of that package.
 	 */
-	version: S.String.annotateKey({ description: "The resolved version of that package." }),
+	version: S.String.pipe($I.annoteKey("PeerParent.version", { description: "The resolved version of that package." })),
 }, $I.annote("PeerParent", { description: "One link in the chain from an importer to the package that declared an unsatisfied peer." })) {}
 
 /**
@@ -288,27 +289,27 @@ export class UnsatisfiedPeer extends S.Class<UnsatisfiedPeer, { readonly brand: 
 	/**
 	 * The importer path the problem belongs to (`"."` for the root).
 	 */
-	importer: S.NonEmptyString.annotateKey({ description: "The importer path the problem belongs to (`\".\"` for the root)." }),
+	importer: S.NonEmptyString.pipe($I.annoteKey("UnsatisfiedPeer.importer", { description: "The importer path the problem belongs to (`\".\"` for the root)." })),
 	/**
 	 * The peer dependency's name.
 	 */
-	dependency: S.NonEmptyString.annotateKey({ description: "The peer dependency's name." }),
+	dependency: S.NonEmptyString.pipe($I.annoteKey("UnsatisfiedPeer.dependency", { description: "The peer dependency's name." })),
 	/**
 	 * The range the declaring package asked for.
 	 */
-	wanted: S.String.annotateKey({ description: "The range the declaring package asked for." }),
+	wanted: S.String.pipe($I.annoteKey("UnsatisfiedPeer.wanted", { description: "The range the declaring package asked for." })),
 	/**
 	 * The version that resolved, or `null` when nothing resolved.
 	 */
-	found: S.NullOr(S.String).annotateKey({ description: "The version that resolved, or `null` when nothing resolved." }),
+	found: S.NullOr(S.String).pipe($I.annoteKey("UnsatisfiedPeer.found", { description: "The version that resolved, or `null` when nothing resolved." })),
 	/**
 	 * Whether the declaring package marked the peer optional.
 	 */
-	optional: S.Boolean.annotateKey({ description: "Whether the declaring package marked the peer optional." }),
+	optional: S.Boolean.pipe($I.annoteKey("UnsatisfiedPeer.optional", { description: "Whether the declaring package marked the peer optional." })),
 	/**
 	 * The path from the importer to the declaring package.
 	 */
-	parents: S.Array(PeerParent).annotateKey({ description: "The path from the importer to the declaring package." }),
+	parents: S.Array(PeerParent).pipe($I.annoteKey("UnsatisfiedPeer.parents", { description: "The path from the importer to the declaring package." })),
 }, $I.annote("UnsatisfiedPeer", { description: "One peer dependency that is declared but not satisfied." })) {}
 
 /**
@@ -340,8 +341,8 @@ const supportsPeerResolution = (format: Lockfile["format"]): boolean => MutableH
 const LINK_PREFIX = "link:";
 
 const Walk = S.Struct({
-	instance: ResolvedPackage.annotateKey({ description: "The resolved package instance reached by the walk." }),
-	path: S.Array(PeerParent).annotateKey({ description: "The ordered parent chain from the importer to this instance." }),
+	instance: ResolvedPackage.pipe($I.annoteKey("Walk.instance", { description: "The resolved package instance reached by the walk." })),
+	path: S.Array(PeerParent).pipe($I.annoteKey("Walk.path", { description: "The ordered parent chain from the importer to this instance." })),
 }).pipe($I.annoteSchema("Walk", { description: "One plain traversal node and its ordered peer-attribution chain." }));
 type Walk = typeof Walk.Type;
 
@@ -358,7 +359,10 @@ type Walk = typeof Walk.Type;
  *
  * @internal
  */
-const linkTargetPath = (importerPath: string, target: string): string => {
+const linkTargetPath: {
+	(importerPath: string, target: string): string;
+	(target: string): (importerPath: string) => string;
+} = dual(2, (importerPath: string, target: string): string => {
 	const absolute = Str.startsWith("/")(target);
 	const segments = absolute || importerPath === "." ? [] : importerPath.split("/");
 	const resolved: Array<string> = [];
@@ -372,9 +376,9 @@ const linkTargetPath = (importerPath: string, target: string): string => {
 		}
 		resolved.push(segment);
 	}
-	const path = resolved.join("/");
+	const path = A.join(resolved, "/");
 	return absolute ? `/${path}` : path === "" ? "." : path;
-};
+});
 
 /**
  * One `link:`-resolved importer dependency, classified before the walk.
@@ -385,15 +389,15 @@ const LinkEdge = S.Struct({
 	/**
 	 * The name the importer depends on the target under.
 	 */
-	name: S.String.annotateKey({ description: "The dependency name the importer uses for this link." }),
+	name: S.String.pipe($I.annoteKey("LinkEdge.name", { description: "The dependency name the importer uses for this link." })),
 	/**
 	 * The workspace row the target directory stands for, when the lockfile records one.
 	 */
-	row: S.UndefinedOr(ResolvedPackage).annotateKey({ description: "The target's workspace row, or explicit undefined when no row is recorded." }),
+	row: S.UndefinedOr(ResolvedPackage).pipe($I.annoteKey("LinkEdge.row", { description: "The target's workspace row, or explicit undefined when no row is recorded." })),
 	/**
 	 * Whether the caller supplied a manifest for the target directory.
 	 */
-	covered: S.Boolean.annotateKey({ description: "Whether the supplied manifest set covers this link target." }),
+	covered: S.Boolean.pipe($I.annoteKey("LinkEdge.covered", { description: "Whether the supplied manifest set covers this link target." })),
 }).pipe($I.annoteSchema("LinkEdge", { description: "One plain classified link edge, retaining an explicitly absent row and manifest coverage." }));
 type LinkEdge = typeof LinkEdge.Type;
 
@@ -418,20 +422,30 @@ type LinkEdge = typeof LinkEdge.Type;
  *
  * @internal
  */
-const withLinkRoots = (
+const withLinkRoots: {
+	(
+		roots: ImporterRoots | undefined,
+		links: ReadonlyArray<LinkEdge>,
+		dependencies: ReadonlyArray<{ readonly version?: string | undefined }>,
+	): ImporterRoots | undefined;
+	(
+		links: ReadonlyArray<LinkEdge>,
+		dependencies: ReadonlyArray<{ readonly version?: string | undefined }>,
+	): (roots: ImporterRoots | undefined) => ImporterRoots | undefined;
+} = dual(3, (
 	roots: ImporterRoots | undefined,
 	links: ReadonlyArray<LinkEdge>,
 	dependencies: ReadonlyArray<{ readonly version?: string | undefined }>,
 ): ImporterRoots | undefined => {
-	const rows = links.flatMap((link) => (link.row === undefined ? [] : [link.row]));
+	const rows = A.flatMap(links, (link) => (link.row === undefined ? [] : [link.row]));
 	if (roots?._tag === "own" || rows.length === 0) return roots;
 	if (roots === undefined) {
-		const versioned = dependencies.filter((dep) => dep.version !== undefined).length;
+		const versioned = A.filter(dependencies, (dep) => dep.version !== undefined).length;
 		if (versioned !== rows.length) return undefined;
 		return { _tag: "dependencies", instances: rows };
 	}
 	return { _tag: "dependencies", instances: [...roots.instances, ...rows] };
-};
+});
 
 /**
  * The workspace-relative directories a `link:` to `pkg` can name.
@@ -454,12 +468,15 @@ const withLinkRoots = (
  *
  * @internal
  */
-const linkTargetsOf = (relativePath: string, pkg: WorkspacePackage): ReadonlyArray<string> => {
+const linkTargetsOf: {
+	(relativePath: string, pkg: WorkspacePackage): ReadonlyArray<string>;
+	(pkg: WorkspacePackage): (relativePath: string) => ReadonlyArray<string>;
+} = dual(2, (relativePath: string, pkg: WorkspacePackage): ReadonlyArray<string> => {
 	const directory = pkg.publishConfig?.directory;
 	if (directory === undefined || pkg.publishConfig?.linkDirectory === false) return [relativePath];
 	const published = linkTargetPath(relativePath, directory);
 	return published === relativePath ? [relativePath] : [relativePath, published];
-};
+});
 
 /**
  * The caller-supplied manifests, the `link:` targets they cover, and the
@@ -508,7 +525,17 @@ interface Join {
  *
  * @internal
  */
-const providerContext = (
+const providerContext: {
+	(
+		roots: ImporterRoots,
+		byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
+		links: ReadonlyArray<LinkEdge>,
+	): MutableHashMap.MutableHashMap<string, ResolvedPackage>;
+	(
+		byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
+		links: ReadonlyArray<LinkEdge>,
+	): (roots: ImporterRoots) => MutableHashMap.MutableHashMap<string, ResolvedPackage>;
+} = dual(3, (
 	roots: ImporterRoots,
 	byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
 	links: ReadonlyArray<LinkEdge>,
@@ -527,7 +554,7 @@ const providerContext = (
 		if (provider !== undefined) MutableHashMap.set(context, name, provider);
 	}
 	return context;
-};
+});
 
 /**
  * The supplied manifest for a node the walk reached through a covered `link:`
@@ -543,10 +570,13 @@ const providerContext = (
  *
  * @internal
  */
-const joinedManifest = (join: Join, instance: ResolvedPackage): WorkspacePackage | undefined => {
+const joinedManifest: {
+	(join: Join, instance: ResolvedPackage): WorkspacePackage | undefined;
+	(instance: ResolvedPackage): (join: Join) => WorkspacePackage | undefined;
+} = dual(2, (join: Join, instance: ResolvedPackage): WorkspacePackage | undefined => {
 	if (instance.relativePath === undefined || !MutableHashSet.has(join.joinable, instance.instanceId)) return undefined;
 	return O.getOrUndefined(MutableHashMap.get(join.manifests, instance.relativePath));
-};
+});
 
 /**
  * The peers a joined manifest marks optional.
@@ -586,13 +616,16 @@ const optionalPeers = (manifest: WorkspacePackage): MutableHashSet.MutableHashSe
  *
  * @internal
  */
-const parentLabel = (join: Join, instance: ResolvedPackage): PeerParent => {
+const parentLabel: {
+	(join: Join, instance: ResolvedPackage): PeerParent;
+	(instance: ResolvedPackage): (join: Join) => PeerParent;
+} = dual(2, (join: Join, instance: ResolvedPackage): PeerParent => {
 	const manifest = joinedManifest(join, instance);
 	return PeerParent.make({
 		name: manifest?.name ?? instance.name,
 		version: manifest?.version ?? instance.version,
 	});
-};
+});
 
 /**
  * A range or version that is really a protocol specifier (`catalog:`,
@@ -637,7 +670,10 @@ const CATALOG_PREFIX = "catalog:";
  *
  * @internal
  */
-const resolvePeerRange = (catalogs: CatalogSet | undefined, peer: string, wanted: string): string | undefined => {
+const resolvePeerRange: {
+	(catalogs: CatalogSet | undefined, peer: string, wanted: string): string | undefined;
+	(peer: string, wanted: string): (catalogs: CatalogSet | undefined) => string | undefined;
+} = dual(3, (catalogs: CatalogSet | undefined, peer: string, wanted: string): string | undefined => {
 	let range = wanted;
 	if (wanted.startsWith(CATALOG_PREFIX)) {
 		const resolved = catalogs === undefined ? O.none() : catalogs.resolveSpecifier(peer, wanted);
@@ -645,7 +681,7 @@ const resolvePeerRange = (catalogs: CatalogSet | undefined, peer: string, wanted
 		range = resolved.value;
 	}
 	return isProtocolSpecifier(range) ? undefined : range;
-};
+});
 
 /**
  * What {@link judge} or {@link judgeJoined} concluded: a row to report,
@@ -655,14 +691,14 @@ const resolvePeerRange = (catalogs: CatalogSet | undefined, peer: string, wanted
  * @internal
  */
 const UnsatisfiedVerdict = S.TaggedStruct("unsatisfied", {
-	found: S.NullOr(S.String).annotateKey({ description: "The resolved version spelling, or null when no provider resolved." }),
-	version: S.NullOr(SemVer).annotateKey({ description: "The parsed provider version, or null when no provider resolved." }),
+	found: S.NullOr(S.String).pipe($I.annoteKey("UnsatisfiedVerdict.found", { description: "The resolved version spelling, or null when no provider resolved." })),
+	version: S.NullOr(SemVer).pipe($I.annoteKey("UnsatisfiedVerdict.version", { description: "The parsed provider version, or null when no provider resolved." })),
 }).pipe($I.annoteSchema("UnsatisfiedVerdict", { description: "A reportable peer mismatch or missing required provider." }));
 const SatisfiedVerdict = S.TaggedStruct("satisfied", {}).pipe(
 	$I.annoteSchema("SatisfiedVerdict", { description: "A peer judgment with no row to report." }),
 );
 const UnjudgedVerdict = S.TaggedStruct("unjudged", {
-	reasons: S.Array(UnverifiedReason).annotateKey({ description: "The ordered reasons the peer comparison could not be performed." }),
+	reasons: S.Array(UnverifiedReason).pipe($I.annoteKey("UnjudgedVerdict.reasons", { description: "The ordered reasons the peer comparison could not be performed." })),
 }).pipe($I.annoteSchema("UnjudgedVerdict", { description: "An incomplete peer judgment whose reasons remain visible in the report." }));
 const Verdict = S.Union([UnsatisfiedVerdict, SatisfiedVerdict, UnjudgedVerdict]).pipe(
 	S.toTaggedUnion("_tag"),
@@ -678,7 +714,7 @@ type Verdict = typeof Verdict.Type;
  */
 const JoinedUnsatisfiedVerdict = S.Struct({
 	...UnsatisfiedVerdict.fields,
-	wanted: S.String.annotateKey({ description: "The resolved peer range reported for the joined manifest." }),
+	wanted: S.String.pipe($I.annoteKey("JoinedUnsatisfiedVerdict.wanted", { description: "The resolved peer range reported for the joined manifest." })),
 }).pipe($I.annoteSchema("JoinedUnsatisfiedVerdict", { description: "An unsatisfied peer judgment carrying the joined manifest's resolved range." }));
 const JoinedVerdict = S.Union([JoinedUnsatisfiedVerdict, SatisfiedVerdict, UnjudgedVerdict]).pipe(
 	S.toTaggedUnion("_tag"),
@@ -696,8 +732,11 @@ const SATISFIED: Verdict = { _tag: "satisfied" };
  *
  * @internal
  */
-const withWanted = (verdict: Verdict, wanted: string): JoinedVerdict =>
-	verdict._tag === "unsatisfied" ? { ...verdict, wanted } : verdict;
+const withWanted: {
+	(verdict: Verdict, wanted: string): JoinedVerdict;
+	(wanted: string): (verdict: Verdict) => JoinedVerdict;
+} = dual(2, (verdict: Verdict, wanted: string): JoinedVerdict =>
+	verdict._tag === "unsatisfied" ? { ...verdict, wanted } : verdict);
 
 /**
  * Compare a resolved version against a wanted range, both already known not
@@ -711,13 +750,16 @@ const withWanted = (verdict: Verdict, wanted: string): JoinedVerdict =>
  *
  * @internal
  */
-const compare = (wanted: string, found: string): Verdict => {
+const compare: {
+	(wanted: string, found: string): Verdict;
+	(found: string): (wanted: string) => Verdict;
+} = dual(2, (wanted: string, found: string): Verdict => {
 	const range = Range.parseResult(wanted);
 	const version = SemVer.parseResult(found);
 	if (Result.isFailure(range) || Result.isFailure(version)) return SATISFIED;
 	if (Range.satisfies(version.success, range.success)) return SATISFIED;
 	return { _tag: "unsatisfied", found, version: version.success };
-};
+});
 
 /**
  * Decide whether one peer DECLARED BY A JOINED MANIFEST is unsatisfied.
@@ -749,7 +791,21 @@ const compare = (wanted: string, found: string): Verdict => {
  *
  * @internal
  */
-const judgeJoined = (
+const judgeJoined: {
+	(
+		context: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
+		catalogs: CatalogSet | undefined,
+		peer: string,
+		declared: string,
+		optional: boolean,
+	): JoinedVerdict;
+	(
+		catalogs: CatalogSet | undefined,
+		peer: string,
+		declared: string,
+		optional: boolean,
+	): (context: MutableHashMap.MutableHashMap<string, ResolvedPackage>) => JoinedVerdict;
+} = dual(5, (
 	context: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
 	catalogs: CatalogSet | undefined,
 	peer: string,
@@ -772,7 +828,7 @@ const judgeJoined = (
 	if (isProtocolSpecifier(provider.version)) reasons.push("peerVersionUnresolved");
 	if (resolvedRange === undefined || reasons.length > 0) return { _tag: "unjudged", reasons };
 	return withWanted(compare(resolvedRange, provider.version), wanted);
-};
+});
 
 /**
  * The effective suppression policy, with both list axes compiled to predicates.
@@ -829,11 +885,11 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
 	 * The answer is not recoverable, so it is not fabricated — `unsatisfied`
 	 * is empty and this flag says why.
 	 */
-	supported: S.Boolean.annotateKey({ description: "Whether the lockfile's format records peer resolution at all." }),
+	supported: S.Boolean.pipe($I.annoteKey("PeerCheck.supported", { description: "Whether the lockfile's format records peer resolution at all." })),
 	/**
 	 * Every unsatisfied peer found, optional ones included.
 	 */
-	unsatisfied: S.Array(UnsatisfiedPeer).annotateKey({ description: "Every unsatisfied peer found, optional ones included." }),
+	unsatisfied: S.Array(UnsatisfiedPeer).pipe($I.annoteKey("PeerCheck.unsatisfied", { description: "Every unsatisfied peer found, optional ones included." })),
 	/**
 	 * Importers whose dependencies could not be resolved to instances, so no
 	 * verdict was reached for them.
@@ -849,7 +905,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
 	 * exists: a gate that sees no rows is entitled to know whether that means
 	 * "clean" or "not looked at".
 	 */
-	unresolvedImporters: S.Array(S.String).annotateKey({ description: "Importers whose dependencies could not be resolved to instances, so no verdict was reached for them." }),
+	unresolvedImporters: S.Array(S.String).pipe($I.annoteKey("PeerCheck.unresolvedImporters", { description: "Importers whose dependencies could not be resolved to instances, so no verdict was reached for them." })),
 	/**
 	 * Why this report is not a complete answer, or empty when it is.
 	 *
@@ -861,7 +917,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
 	 */
 	unverified: S.Array(
 		UnverifiedReason,
-	).annotateKey({ description: "Why this report is not a complete answer, or empty when it is." }),
+	).pipe($I.annoteKey("PeerCheck.unverified", { description: "Why this report is not a complete answer, or empty when it is." })),
 }, $I.annote("PeerCheck", { description: "The result of checking a lockfile for unsatisfied peer dependencies." })) {
 	/**
 	 * The unsatisfied peers a gate should act on — the non-optional ones.
@@ -877,7 +933,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
 	 * @since 0.0.0
 	 */
 	get required(): ReadonlyArray<UnsatisfiedPeer> {
-		return this.unsatisfied.filter((row) => !row.optional);
+		return A.filter(this.unsatisfied, (row) => !row.optional);
 	}
 
 	/**
@@ -981,7 +1037,10 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static run(lockfile: Lockfile, options?: PeerCheckOptions): PeerCheck {
+	static readonly run: {
+		(lockfile: Lockfile, options?: PeerCheckOptions): PeerCheck;
+		(options?: PeerCheckOptions): (lockfile: Lockfile) => PeerCheck;
+	} = dual((args) => S.is(Lockfile)(args[0]), (lockfile: Lockfile, options?: PeerCheckOptions): PeerCheck => {
 		// PRESENCE of the key is the assertion, not its contents: supplying
 		// `NoPeerDependencyRules` asserts the workspace has none, while omitting
 		// the option says nothing was looked up. Collapsing the two would tell a
@@ -1105,7 +1164,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
 		// the answer. `version` is
 		// populated by pnpm only, so npm and bun never reach the branch and the
 		// scan stays format-free.
-		if (unjoinedLink || lockfile.packages.some((pkg) => pkg.unresolvedEdges.length > 0)) {
+		if (unjoinedLink || A.some(lockfile.packages, (pkg) => pkg.unresolvedEdges.length > 0)) {
 			unverified.push("unresolvedEdge");
 		}
 		// A peer whose range or provider version could not be named was never
@@ -1121,7 +1180,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
 			unresolvedImporters: unresolved,
 			unverified,
 		});
-	}
+	});
 }
 
 /**
@@ -1135,10 +1194,13 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
  *
  * @internal
  */
-const walksFrom = (roots: ImporterRoots, join: Join): ReadonlyArray<Walk> =>
+const walksFrom: {
+	(roots: ImporterRoots, join: Join): ReadonlyArray<Walk>;
+	(join: Join): (roots: ImporterRoots) => ReadonlyArray<Walk>;
+} = dual(2, (roots: ImporterRoots, join: Join): ReadonlyArray<Walk> =>
 	roots._tag === "own"
 		? [{ instance: roots.instance, path: [] }]
-		: roots.instances.map((instance) => ({ instance, path: [parentLabel(join, instance)] }));
+		: A.map(roots.instances, (instance) => ({ instance, path: [parentLabel(join, instance)] })));
 
 /**
  * Walk the resolution graph from an importer's roots, emitting a row for every
@@ -1152,7 +1214,29 @@ const walksFrom = (roots: ImporterRoots, join: Join): ReadonlyArray<Walk> =>
  *
  * @internal
  */
-const collect = (
+const collect: {
+	(
+		importerPath: string,
+		roots: ReadonlyArray<Walk>,
+		byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
+		rows: Array<UnsatisfiedPeer>,
+		seen: MutableHashSet.MutableHashSet<string>,
+		policy: Policy,
+		join: Join,
+		judged: MutableHashSet.MutableHashSet<string>,
+		unjudged: MutableHashSet.MutableHashSet<UnverifiedReason>,
+	): void;
+	(
+		roots: ReadonlyArray<Walk>,
+		byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
+		rows: Array<UnsatisfiedPeer>,
+		seen: MutableHashSet.MutableHashSet<string>,
+		policy: Policy,
+		join: Join,
+		judged: MutableHashSet.MutableHashSet<string>,
+		unjudged: MutableHashSet.MutableHashSet<UnverifiedReason>,
+	): (importerPath: string) => void;
+} = dual(9, (
 	importerPath: string,
 	roots: ReadonlyArray<Walk>,
 	byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
@@ -1249,7 +1333,7 @@ const collect = (
 			});
 		}
 	}
-};
+});
 
 /**
  * The parent name a `peerDependencyRules.allowedVersions` key names, with the
@@ -1305,7 +1389,10 @@ const ruleParentName = (parent: string): string => {
  *
  * @internal
  */
-const suppressedByRule = (policy: Policy, parentName: string, peer: string, version: SemVer | null): boolean => {
+const suppressedByRule: {
+	(policy: Policy, parentName: string, peer: string, version: SemVer | null): boolean;
+	(parentName: string, peer: string, version: SemVer | null): (policy: Policy) => boolean;
+} = dual(4, (policy: Policy, parentName: string, peer: string, version: SemVer | null): boolean => {
 	if (version === null) return policy.ignoreMissing(peer);
 	if (policy.allowAny(peer)) return true;
 	for (const [key, permitted] of R.toEntries(policy.allowed)) {
@@ -1333,7 +1420,7 @@ const suppressedByRule = (policy: Policy, parentName: string, peer: string, vers
 		if (Range.satisfies(version, range.success)) return true;
 	}
 	return false;
-};
+});
 
 /**
  * Decide whether one declared peer is unsatisfied.
@@ -1349,7 +1436,21 @@ const suppressedByRule = (policy: Policy, parentName: string, peer: string, vers
  *
  * @internal
  */
-const judge = (
+const judge: {
+	(
+		instance: ResolvedPackage,
+		peer: string,
+		wanted: string,
+		optional: boolean,
+		byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
+	): Verdict;
+	(
+		peer: string,
+		wanted: string,
+		optional: boolean,
+		byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
+	): (instance: ResolvedPackage) => Verdict;
+} = dual(5, (
 	instance: ResolvedPackage,
 	peer: string,
 	wanted: string,
@@ -1404,4 +1505,4 @@ const judge = (
 	// Something resolved but the comparison cannot be performed. Claiming
 	// "unsatisfied" here would assert the result of a test that never ran.
 	return compare(wanted, provider.version);
-};
+});

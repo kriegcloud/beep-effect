@@ -3,8 +3,10 @@ import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import type { GitStubs } from "../../effected/git/Git.ts";
 import { Git, LsTreeEntry, NotStubbedError } from "../../effected/git/Git.ts";
 
 const cwd = "/repo";
@@ -18,6 +20,60 @@ describe("Git.makeTest", () => {
 				revParse: () => Effect.succeed("a".repeat(40)),
 			});
 			assert.strictEqual(yield* double.revParse(cwd, "HEAD"), "a".repeat(40));
+		}),
+	);
+
+	it.effect("a stub answers the data-last form too, with cwd as the piped subject", () =>
+		Effect.gen(function* () {
+			const double = Git.makeTest({
+				revParse: (stubCwd, ref) => Effect.succeed(`${stubCwd}@${ref}`),
+				reset: (stubCwd, options) => Effect.sync(() => assert.strictEqual(`${stubCwd}:${options?.mode ?? "mixed"}`, "/repo:hard")),
+				workingChanges: (stubCwd) => Effect.succeed([stubCwd]),
+			});
+			// Fixed arity: dispatch on argument count.
+			assert.strictEqual(yield* pipe(cwd, double.revParse("HEAD")), "/repo@HEAD");
+			// Optional trailing options: dispatch on the string subject, so the
+			// data-first call without options still runs instead of returning a function.
+			yield* pipe(cwd, double.reset({ mode: "hard" }));
+			assert.deepStrictEqual(yield* double.workingChanges(cwd), ["/repo"]);
+			assert.deepStrictEqual(yield* pipe(cwd, double.workingChanges()), ["/repo"]);
+		}),
+	);
+
+	it.effect("(cwd, ...strings, options?) members dispatch on the last required string, with or without options", () =>
+		Effect.gen(function* () {
+			const double = Git.makeTest({
+				checkout: (stubCwd, ref, options) => Effect.sync(() => seen.push(`checkout ${stubCwd} ${ref} ${options?.detach ?? false}`)),
+				configSet: (stubCwd, key, value, options) =>
+					Effect.sync(() => seen.push(`configSet ${stubCwd} ${key}=${value} ${options?.file ?? "-"}`)),
+			});
+			const seen: Array<string> = [];
+			yield* double.checkout(cwd, "main");
+			yield* double.checkout(cwd, "main", { detach: true });
+			yield* pipe(cwd, double.checkout("main"));
+			yield* pipe(cwd, double.checkout("main", { detach: true }));
+			yield* double.configSet(cwd, "core.bare", "false");
+			yield* pipe(cwd, double.configSet("core.bare", "false"));
+			yield* pipe(cwd, double.configSet("core.bare", "false", { file: ".gitmodules" }));
+			assert.deepStrictEqual(seen, [
+				"checkout /repo main false",
+				"checkout /repo main true",
+				"checkout /repo main false",
+				"checkout /repo main true",
+				"configSet /repo core.bare=false -",
+				"configSet /repo core.bare=false -",
+				"configSet /repo core.bare=false .gitmodules",
+			]);
+		}),
+	);
+
+	it.effect("an unstubbed dual member dies in its data-last form as well", () =>
+		Effect.gen(function* () {
+			const double = Git.makeTest();
+			const fixed = yield* Effect.exit(pipe(cwd, double.show("HEAD", "file.txt")));
+			assert.isTrue(Exit.isFailure(fixed) && Cause.hasDies(fixed.cause));
+			const optional = yield* Effect.exit(pipe(cwd, double.stashPop()));
+			assert.isTrue(Exit.isFailure(optional) && Cause.hasDies(optional.cause));
 		}),
 	);
 
@@ -52,7 +108,7 @@ describe("Git.makeTest", () => {
 			const double = Git.makeTest();
 			const calls: Record<
 				keyof typeof double,
-				() => Effect.Effect<unknown, Effect.Error<ReturnType<(typeof double)[keyof typeof double]>>>
+				() => Effect.Effect<unknown, Effect.Error<ReturnType<GitStubs[keyof GitStubs]>>>
 			> = {
 				show: () => double.show(cwd, "HEAD", "file.txt"),
 				lsTree: () => double.lsTree(cwd, "HEAD"),

@@ -1,8 +1,10 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { GitHubClient } from "./GitHubClient.ts";
@@ -14,7 +16,7 @@ const $I = $ScratchpadId.create("effected/github/GitHubContent");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 const JsonValue = S.String.pipe(S.NullOr, S.fromJsonString);
 
@@ -22,7 +24,7 @@ const ContentResponse = S.Struct({
   type: S.String,
   encoding: S.optionalKey(S.Unknown),
   content: S.optionalKey(S.Unknown),
-}).annotate($I.annote("ContentResponse", { description: "The outer repository content response before file-specific decoding." }));
+}).pipe($I.annoteSchema("ContentResponse", { description: "The outer repository content response before file-specific decoding." }));
 
 /**
  * Read a text file out of a repository at a ref.
@@ -42,15 +44,15 @@ export interface GitHubContentShape {
   * directory, is not a regular file, or is too large for the contents API
   * (which answers an empty body above roughly a megabyte).
   */
-	readonly getFile: (
-		path: string,
-		options?: { readonly ref?: string | undefined },
-	) => Effect.Effect<string, GitHubError, Repo>;
+	readonly getFile: {
+		(path: string, options?: { readonly ref?: string | undefined }): Effect.Effect<string, GitHubError, Repo>;
+		(options?: { readonly ref?: string | undefined }): (path: string) => Effect.Effect<string, GitHubError, Repo>;
+	};
 	/** As {@link GitHubContentShape.getFile}, with absence as `Option.none`. */
-	readonly getFileOption: (
-		path: string,
-		options?: { readonly ref?: string | undefined },
-	) => Effect.Effect<O.Option<string>, GitHubError, Repo>;
+	readonly getFileOption: {
+		(path: string, options?: { readonly ref?: string | undefined }): Effect.Effect<O.Option<string>, GitHubError, Repo>;
+		(options?: { readonly ref?: string | undefined }): (path: string) => Effect.Effect<O.Option<string>, GitHubError, Repo>;
+	};
 }
 
 /**
@@ -117,8 +119,12 @@ export class GitHubContent extends Context.Service<GitHubContent, GitHubContentS
  * ```ts
  * import { GitHubContent } from "@beep/scratchpad/effected/github/GitHubContent";
  * import * as Effect from "effect/Effect";
+ * import { dual } from "effect/Function";
+ * import * as P from "effect/Predicate";
  *
- * const content = GitHubContent.makeTest({ getFile: () => Effect.succeed("# Project") });
+ * const content = GitHubContent.makeTest({
+ *   getFile: dual((args) => P.isString(args[0]), (_path: string, _options?: object) => Effect.succeed("# Project")),
+ * });
  * console.log(Effect.isEffect(content.getFile("README.md"))); // true
  * ```
  *
@@ -158,7 +164,7 @@ const unstubbed = (member: string): never => {
 };
 
 const make = (client: GitHubClient["Service"]): GitHubContentShape => {
-	const getFile = Effect.fn("GitHubContent.getFile")(function* (
+	const getFile: GitHubContentShape["getFile"] = dual((args) => P.isString(args[0]), Effect.fn("GitHubContent.getFile")(function* (
 		path: string,
 		options?: { readonly ref?: string | undefined },
 	) {
@@ -197,11 +203,11 @@ const make = (client: GitHubClient["Service"]): GitHubContentShape => {
 			Effect.mapError((error) => GitHubError.decode("GitHubContent.getFile", "GitHub returned unexpected base64 content", error)),
 		);
 		return Buffer.from(Str.replace(/\s/g, "")(encoded), "base64").toString("utf8");
-	});
+	}));
 
 	return {
 		getFile,
-		getFileOption: Effect.fn("GitHubContent.getFileOption")(function* (
+		getFileOption: dual((args) => P.isString(args[0]), Effect.fn("GitHubContent.getFileOption")(function* (
 			path: string,
 			options?: { readonly ref?: string | undefined },
 		) {
@@ -209,6 +215,6 @@ const make = (client: GitHubClient["Service"]): GitHubContentShape => {
 				Effect.asSome,
 				Effect.catchIf(GitHubError.hasKind("notFound"), () => Effect.succeedNone),
 			);
-		}),
+		})),
 	};
 };

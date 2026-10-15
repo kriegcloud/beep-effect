@@ -1,4 +1,6 @@
 import * as S from "effect/Schema";
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
@@ -34,11 +36,11 @@ const $I = $ScratchpadId.create("effected/cli/ui/Select");
 export class NoEnabledChoiceError extends S.TaggedError<NoEnabledChoiceError, { readonly brand: unique symbol }>($I`NoEnabledChoiceError`)(
 	"NoEnabledChoiceError",
 	{
-		message: S.String.annotate($I.annote("NoEnabledChoiceError.message", {
+		message: S.String.pipe($I.annoteKey("NoEnabledChoiceError.message", {
 			description: "Explains that the selection requires at least one enabled choice.",
 		})),
 	},
-	$I.annote("NoEnabledChoiceError", { description: "A selection cannot start without an enabled choice." }),
+	$I.annoteError<NoEnabledChoiceError>("NoEnabledChoiceError", { description: "A selection cannot start without an enabled choice." }),
 ) {}
 
 /**
@@ -62,15 +64,15 @@ export class NoEnabledChoiceError extends S.TaggedError<NoEnabledChoiceError, { 
  */
 export const SelectChoice = <Value extends S.Top>(value: Value) =>
 	S.Struct({
-		label: S.String.annotateKey($I.annote("SelectChoice.label", { description: "What the row shows." })),
+		label: S.String.pipe($I.annoteKey("SelectChoice.label", { description: "What the row shows." })),
 		value,
-		detail: S.optionalKey(S.String).annotateKey($I.annote("SelectChoice.detail", {
+		detail: S.optionalKey(S.String).pipe($I.annoteKey("SelectChoice.detail", {
 			description: "A line shown, muted, beneath the list while this choice is highlighted.",
 		})),
-		disabled: S.optionalKey(S.Boolean).annotateKey($I.annote("SelectChoice.disabled", {
+		disabled: S.optionalKey(S.Boolean).pipe($I.annoteKey("SelectChoice.disabled", {
 			description: "Shown muted and never highlighted: moves skip it.",
 		})),
-	}).annotate($I.annote("SelectChoice", { description: "One labelled, optionally disabled choice of a selection." }));
+	}).pipe($I.annoteSchema("SelectChoice", { description: "One labelled, optionally disabled choice of a selection." }));
 
 /**
  * Plain payload accepted by {@link SelectChoice}; reducers retain this structural representation.
@@ -101,14 +103,14 @@ export type SelectChoice<A> = ReturnType<typeof SelectChoice<S.Codec<A>>>["Type"
  */
 export const SelectState = <Value extends S.Top>(value: Value) =>
 	S.Struct({
-		choices: value.pipe(SelectChoice, S.Array).annotateKey($I.annote("SelectState.choices", { description: "The choices." })),
-		viewport: ViewportState.annotateKey($I.annote("SelectState.viewport", {
+		choices: value.pipe(SelectChoice, S.Array, $I.annoteKey("SelectState.choices", { description: "The choices." })),
+		viewport: ViewportState.pipe($I.annoteKey("SelectState.viewport", {
 			description: "The highlighted choice and the window over the list.",
 		})),
-		submitted: S.Boolean.annotateKey($I.annote("SelectState.submitted", {
+		submitted: S.Boolean.pipe($I.annoteKey("SelectState.submitted", {
 			description: "Whether the highlighted choice was submitted.",
 		})),
-	}).annotate($I.annote("SelectState", { description: "The plain reducer state of a single-choice selection." }));
+	}).pipe($I.annoteSchema("SelectState", { description: "The plain reducer state of a single-choice selection." }));
 
 /**
  * Plain payload accepted by {@link SelectState}; reducers retain this structural representation.
@@ -133,9 +135,7 @@ export type SelectState<A> = ReturnType<typeof SelectState<S.Codec<A>>>["Type"];
  * @category schemas
  * @since 0.0.0
  */
-export const SelectAction = LiteralKit(["up", "down", "home", "end", "pageup", "pagedown", "submit", "cancel"]).annotate(
-	$I.annote("SelectAction", { description: "The viewport, submission and cancellation actions of a selection." }),
-);
+export const SelectAction = LiteralKit(["up", "down", "home", "end", "pageup", "pagedown", "submit", "cancel"]).pipe($I.annoteSchema("SelectAction", { description: "The viewport, submission and cancellation actions of a selection." }));
 
 /**
  * A viewport or interaction action accepted by {@link SelectAction}.
@@ -201,13 +201,19 @@ export interface SelectScreenOptions<A> {
 	readonly height?: number;
 }
 
-const enabled = <A>(choices: ReadonlyArray<SelectChoice<A>>, index: number): boolean => {
+const enabled: {
+	<A>(choices: ReadonlyArray<SelectChoice<A>>, index: number): boolean;
+	<A>(index: number): (choices: ReadonlyArray<SelectChoice<A>>) => boolean;
+} = dual(2, <A>(choices: ReadonlyArray<SelectChoice<A>>, index: number): boolean => {
 	const choice = choices[index];
 	return index >= 0 && index < choices.length && choice !== undefined && choice.disabled !== true;
-};
+});
 
 /** The nearest enabled index from `from` in `direction`, or `undefined`. */
-const nearest = <A>(
+const nearest: {
+	<A>(choices: ReadonlyArray<SelectChoice<A>>, from: number, direction: 1 | -1): number | undefined;
+	<A>(from: number, direction: 1 | -1): (choices: ReadonlyArray<SelectChoice<A>>) => number | undefined;
+} = dual(3, <A>(
 	choices: ReadonlyArray<SelectChoice<A>>,
 	from: number,
 	direction: 1 | -1,
@@ -216,19 +222,25 @@ const nearest = <A>(
 		if (enabled(choices, index)) return index;
 	}
 	return undefined;
-};
+});
 
 /** Move the viewport's cursor to `index`, one step at a time so its window follows. */
-const moveTo = (viewport: ViewportState, index: number): ViewportState => {
+const moveTo: {
+	(viewport: ViewportState, index: number): ViewportState;
+	(index: number): (viewport: ViewportState) => ViewportState;
+} = dual(2, (viewport: ViewportState, index: number): ViewportState => {
 	let state = viewport;
 	while (state.cursor < index) state = Viewport.step(state, "down");
 	while (state.cursor > index) state = Viewport.step(state, "up");
 	return state;
-};
+});
 
 const NO_ENABLED_CHOICE = "@effected/cli/ui: Select needs at least one enabled choice";
 
-const init = <A>(
+const init: {
+	<A>(choices: ReadonlyArray<SelectChoice<A>>, options?: SelectInitOptions): SelectState<A>;
+	<A>(options?: SelectInitOptions): (choices: ReadonlyArray<SelectChoice<A>>) => SelectState<A>;
+} = dual((args) => A.isArray(args[0]), <A>(
 	choices: ReadonlyArray<SelectChoice<A>>,
 	options: SelectInitOptions = {},
 ): SelectState<A> => {
@@ -239,9 +251,12 @@ const init = <A>(
 	const start = Math.min(Math.max(Number.isNaN(initial) ? 0 : initial, 0), choices.length - 1);
 	const first = nearest(choices, start, 1) ?? nearest(choices, start, -1) ?? 0;
 	return { choices, viewport: moveTo(Viewport.init(choices.length, height), first), submitted: false };
-};
+});
 
-const step = <A>(state: SelectState<A>, action: SelectAction): SelectState<A> => {
+const step: {
+	<A>(state: SelectState<A>, action: SelectAction): SelectState<A>;
+	<A>(action: SelectAction): (state: SelectState<A>) => SelectState<A>;
+} = dual(2, <A>(state: SelectState<A>, action: SelectAction): SelectState<A> => {
 	if (state.submitted) return state;
 	const { choices, viewport } = state;
 	if (action === "cancel") return state;
@@ -262,7 +277,7 @@ const step = <A>(state: SelectState<A>, action: SelectAction): SelectState<A> =>
 							? (nearest(choices, paged, -1) ?? nearest(choices, paged, 1))
 							: (nearest(choices, paged, 1) ?? nearest(choices, paged, -1));
 	return target === undefined ? state : { ...state, viewport: moveTo(viewport, target) };
-};
+});
 
 /** ↑/↓ shown; the page, home and end moves bound but hidden, so the help line fits 80 columns. */
 const KEYS: KeyTable<SelectAction> = KeyTable.make<SelectAction>([
@@ -335,10 +350,10 @@ export abstract class Select {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly init: <A>(
-		choices: ReadonlyArray<SelectChoice<A>>,
-		options?: SelectInitOptions,
-	) => SelectState<A> = init;
+	static readonly init: {
+		<A>(choices: ReadonlyArray<SelectChoice<A>>, options?: SelectInitOptions): SelectState<A>;
+		<A>(options?: SelectInitOptions): (choices: ReadonlyArray<SelectChoice<A>>) => SelectState<A>;
+	} = init;
 
 	/**
 	 * Apply an action: a move lands on the nearest enabled choice, never on a disabled one and never past either
@@ -359,7 +374,10 @@ export abstract class Select {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	static readonly step: <A>(state: SelectState<A>, action: SelectAction) => SelectState<A> = step;
+	static readonly step: {
+		<A>(state: SelectState<A>, action: SelectAction): SelectState<A>;
+		<A>(action: SelectAction): (state: SelectState<A>) => SelectState<A>;
+	} = step;
 
 	/**
 	 * The submitted value, or `None` before a submit.
@@ -455,7 +473,10 @@ export abstract class Select {
 			key: String(index),
 		}));
 		const blank = " ".repeat(Fmt.width(glyphs.arrow));
-		const renderRow = (row: ViewportRow, highlighted: boolean): ReactElement => {
+		const renderRow: {
+			(row: ViewportRow, highlighted: boolean): ReactElement;
+			(highlighted: boolean): (row: ViewportRow) => ReactElement;
+		} = dual(2, (row: ViewportRow, highlighted: boolean): ReactElement => {
 			const choice = row._tag === "Item" ? state.choices[Number(row.key)] : undefined;
 			const line = `${highlighted ? glyphs.arrow : blank} ${lineText(choice?.label ?? "")}`;
 			// At colour none the muted token paints nothing, so a disabled row says so in text; the label is cut, never the mark.
@@ -466,7 +487,7 @@ export abstract class Select {
 			if (highlighted) return react.createElement(Styled, { token: "accent" }, text);
 			if (choice?.disabled === true) return react.createElement(Styled, { token: "muted" }, text);
 			return react.createElement(ink.Text, null, text);
-		};
+		});
 		const detail = state.choices[state.viewport.cursor]?.detail;
 		// One row each, clipped at layout time with the cursor column reserved: during Ink's immediate resize repaint the
 		// width above is one paint stale, and an unclipped row would wrap past the screen's row budget.

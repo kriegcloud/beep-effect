@@ -29,6 +29,7 @@
  * @packageDocumentation
  */
 
+import * as A from "effect/Array";
 import type { SyncFileSystem, SyncPath, WorkspacesSyncOptions } from "./WorkspacesSync.ts";
 
 // Effect FileSystem is asynchronous, and Path.layer cannot preserve the running platform's path semantics.
@@ -72,7 +73,7 @@ export const nodeFileSystem: SyncFileSystem = {
 	// enumeration stops paying a `statSync` per entry. Links keep reporting as
 	// links — enumeration re-resolves those itself.
 	readDirectoryWithTypes: (p) =>
-		readdirSync(p, { withFileTypes: true }).map((entry) => ({
+		A.map(readdirSync(p, { withFileTypes: true }), (entry) => ({
 			name: entry.name,
 			isDirectory: entry.isDirectory(),
 			isSymbolicLink: entry.isSymbolicLink(),

@@ -15,6 +15,7 @@ import * as MutableRef from "effect/MutableRef";
 import { TestClock } from "effect/testing";
 import { CheckDocument, CheckDocumentError, type CheckDocumentSnapshot, CheckDocumentStamp, CheckReport } from "../../effected/github-actions/CheckDocument.ts";
 import { ManagedDocument } from "../../effected/github-actions/ManagedDocument.ts";
+import { dual } from "effect/Function";
 
 const NS = "savvy-web";
 const KEY = "release-validation";
@@ -647,7 +648,7 @@ describe("CheckDocument", () => {
 			Effect.gen(function* () {
 				const doc = yield* CheckDocument;
 				yield* doc.report("build", CheckReport.make({ state: "pass" }));
-			}).pipe(withLayer(CheckDocument.layerTest({ report: () => Effect.void }))),
+			}).pipe(withLayer(CheckDocument.layerTest({ report: dual(2, (_check: string, _report: CheckReport) => Effect.void) }))),
 		);
 
 		it.effect("a stubbed flush carries the outcome type", () =>

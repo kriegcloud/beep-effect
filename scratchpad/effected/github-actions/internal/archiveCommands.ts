@@ -61,6 +61,8 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/process";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/github-actions/internal/archiveCommands");
 
@@ -68,8 +70,14 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/archiveCommand
 const pwshLiteral = (value: string): string => `'${value.replaceAll("'", "''")}'`;
 
 /** A non-interactive pwsh invocation of one command line. */
-const pwsh = (script: string, options?: ChildProcess.CommandOptions): ChildProcess.StandardCommand =>
-	ChildProcess.make("pwsh", ["-NoProfile", "-NonInteractive", "-Command", script], options);
+const pwsh: {
+	(script: string, options?: ChildProcess.CommandOptions): ChildProcess.StandardCommand;
+	(options?: ChildProcess.CommandOptions): (script: string) => ChildProcess.StandardCommand;
+} = dual(
+	(args) => P.isString(args[0]),
+	(script: string, options?: ChildProcess.CommandOptions): ChildProcess.StandardCommand =>
+		ChildProcess.make("pwsh", ["-NoProfile", "-NonInteractive", "-Command", script], options),
+);
 
 /**
  * What {@link zipCommand} packs.
@@ -93,15 +101,15 @@ const pwsh = (script: string, options?: ChildProcess.CommandOptions): ChildProce
  */
 export const ZipCommandOptions = S.Struct({
 	/** Whether the runner is Windows (`RUNNER_OS`), which selects the .NET `ZipFile` over `zip`. */
-	windows: S.Boolean.annotateKey({ description: "Selects the Windows .NET ZipFile command." }),
+	windows: S.Boolean.pipe($I.annoteKey("ZipCommandOptions.windows", { description: "Selects the Windows .NET ZipFile command." })),
 	/** The directory the archiver runs in; every entry is recorded relative to it. */
-	root: S.String.annotateKey({ description: "Working directory; entries are relative to it." }),
+	root: S.String.pipe($I.annoteKey("ZipCommandOptions.root", { description: "Working directory; entries are relative to it." })),
 	/**
 	 * The files to pack, ALREADY relative to `root` — the caller relativizes,
 	 * this module does not. POSIX passes them as `zip`'s argv; the Windows
 	 * branch ignores them and reads `manifest` instead.
 	 */
-	files: S.Array(S.String).annotateKey({ description: "Relative files passed as POSIX argv; Windows reads the manifest instead." }),
+	files: S.Array(S.String).pipe($I.annoteKey("ZipCommandOptions.files", { description: "Relative files passed as POSIX argv; Windows reads the manifest instead." })),
 	/**
 	 * Windows only: the path of a file holding {@link zipManifest}'s output for
 	 * the same `files`, which the pwsh script reads with `File.ReadAllLines`.
@@ -109,16 +117,16 @@ export const ZipCommandOptions = S.Struct({
 	 * by the POSIX branch, whose argv has no comparable ceiling (the module doc
 	 * says why the two branches differ in mechanism).
 	 */
-	manifest: S.String.annotateKey({ description: "Windows manifest containing one relative file per line." }),
+	manifest: S.String.pipe($I.annoteKey("ZipCommandOptions.manifest", { description: "Windows manifest containing one relative file per line." })),
 	/** Where the archive is written; an existing archive is replaced on both platforms. */
-	destination: S.String.annotateKey({ description: "Destination archive, replaced if already present." }),
+	destination: S.String.pipe($I.annoteKey("ZipCommandOptions.destination", { description: "Destination archive, replaced if already present." })),
 	/**
 	 * The zlib level, clamped to `0..9` and truncated. `zip` takes it as
 	 * `-<level>`; on Windows it maps onto .NET's `CompressionLevel`: `0` is
 	 * `NoCompression`, `1..3` `Fastest`, `4..8` `Optimal`, `9` `SmallestSize`
 	 * (.NET 6+, which pwsh 7.2+ on the hosted runners has).
 	 */
-	level: S.Finite.annotateKey({ description: "Zlib compression level, clamped to 0–9 and truncated." }),
+	level: S.Finite.pipe($I.annoteKey("ZipCommandOptions.level", { description: "Zlib compression level, clamped to 0–9 and truncated." })),
 }).pipe($I.annoteSchema("ZipCommandOptions", { description: "Plain-object inputs for constructing a zip command." }));
 
 /** The plain-object zip inputs validated by {@link ZipCommandOptions}.
@@ -225,11 +233,11 @@ export const zipCommand = (options: ZipCommandOptions): ChildProcess.StandardCom
  */
 export const UnzipCommandOptions = S.Struct({
 	/** Whether the runner is Windows (`RUNNER_OS`), which selects the .NET `ZipFile` over `unzip`. */
-	windows: S.Boolean.annotateKey({ description: "Selects the Windows .NET ZipFile command." }),
+	windows: S.Boolean.pipe($I.annoteKey("UnzipCommandOptions.windows", { description: "Selects the Windows .NET ZipFile command." })),
 	/** The archive. */
-	source: S.String.annotateKey({ description: "Source zip archive." }),
+	source: S.String.pipe($I.annoteKey("UnzipCommandOptions.source", { description: "Source zip archive." })),
 	/** The directory its contents land in; existing files are overwritten on both platforms. */
-	destination: S.String.annotateKey({ description: "Extraction directory; existing files are overwritten." }),
+	destination: S.String.pipe($I.annoteKey("UnzipCommandOptions.destination", { description: "Extraction directory; existing files are overwritten." })),
 }).pipe($I.annoteSchema("UnzipCommandOptions", { description: "Plain-object inputs for constructing an unzip command." }));
 
 /** The plain-object unzip inputs validated by {@link UnzipCommandOptions}.
@@ -281,11 +289,11 @@ export const unzipCommand = (options: UnzipCommandOptions): ChildProcess.Standar
  */
 export const TarExtractCommandOptions = S.Struct({
 	/** The tarball. */
-	archive: S.String.annotateKey({ description: "Source tar archive." }),
+	archive: S.String.pipe($I.annoteKey("TarExtractCommandOptions.archive", { description: "Source tar archive." })),
 	/** The directory its contents land in (`-C`). */
-	destination: S.String.annotateKey({ description: "Extraction directory passed to -C." }),
+	destination: S.String.pipe($I.annoteKey("TarExtractCommandOptions.destination", { description: "Extraction directory passed to -C." })),
 	/** `tar`'s flags; absent or empty means `xzf`. */
-	flags: S.String.pipe(S.Array, S.optional).annotateKey({ description: "Tar flags; absent or empty uses xzf." }),
+	flags: S.String.pipe(S.Array, S.optional, $I.annoteKey("TarExtractCommandOptions.flags", { description: "Tar flags; absent or empty uses xzf." })),
 }).pipe($I.annoteSchema("TarExtractCommandOptions", { description: "Plain-object inputs for constructing a tar extraction command." }));
 
 /** The plain-object tar inputs validated by {@link TarExtractCommandOptions}.

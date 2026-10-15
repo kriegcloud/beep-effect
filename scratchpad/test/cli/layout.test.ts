@@ -8,7 +8,7 @@ import { Doc, Glyphs, Status } from "../../effected/cli/index.ts";
 import { displayWidth, graphemes, stripAnsi } from "../../effected/cli/internal/displayWidth.ts";
 import type { Span } from "../../effected/cli/internal/layout.ts";
 import { flatten, paintSpans, truncateSpans, widthOf, wrapSpans } from "../../effected/cli/internal/layout.ts";
-import { contextOf, linksOf, sgrProblems } from "./helpers/renderContext.ts";
+import { contextOf, labelLink, linksOf, plainPaint, sgrProblems } from "./helpers/renderContext.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -175,7 +175,7 @@ describe("flatten under hostile input: nothing can reassemble into a live sequen
 		"the named probes from the review: split SGR, nested SGR, split OSC 8, split CSI, DCS, charset, C1, BS, BEL",
 		() =>
 			Effect.gen(function* () {
-				const ctx = yield* contextOf({ paint: (_token, text) => text, link: (_target, label) => label });
+				const ctx = yield* contextOf({ paint: plainPaint, link: labelLink });
 				const probes: ReadonlyArray<readonly [string, ReadonlyArray<Inline>]> = [
 					["split SGR", [Doc.text("\u001B"), Doc.text("[31mred")]],
 					["nested SGR", [Doc.text("\u001B\u001B[31m[31mred")]],
@@ -195,7 +195,7 @@ describe("flatten under hostile input: nothing can reassemble into a live sequen
 		"exhaustively: 1 to 3 adjacent Text and Code nodes over the alphabet leave no control character, and widthOf equals displayWidth",
 		() =>
 			Effect.gen(function* () {
-				const ctx = yield* contextOf({ paint: (_token, text) => text, link: (_target, label) => label });
+				const ctx = yield* contextOf({ paint: plainPaint, link: labelLink });
 				const failures: Array<string> = [];
 				let cases = 0;
 				const check = (inlines: ReadonlyArray<Inline>, label: string): void => {
@@ -397,7 +397,7 @@ describe("paintSpans", () => {
 
 	it.effect("at colour none the output carries no SGR, and the link function alone decides hyperlinks", () =>
 		Effect.gen(function* () {
-			const ctx = yield* contextOf({ paint: (_token, text) => text, link: (_target, label) => label });
+			const ctx = yield* contextOf({ paint: plainPaint, link: labelLink });
 			const painted = paintSpans(flatten([Doc.text("a", "failure"), Doc.link({ url: "u" }, "b")], ctx), ctx);
 			assert.strictEqual(painted, "ab");
 		}),

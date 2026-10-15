@@ -1,6 +1,9 @@
 import { assert, describe, it } from "@effect/vitest";
 import { WithBufferOptions, WithStepOptions } from "../../effected/github-actions/ActionLogger.ts";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
+import type { AnnotationProperties } from "../../effected/github-commands/index.ts";
 import * as Latch from "effect/Latch";
 import * as Layer from "effect/Layer";
 import * as References from "effect/References";
@@ -573,7 +576,10 @@ describe("ActionLogger", () => {
 			const notices: Array<string> = [];
 			it.layer(
 				ActionLogger.layerTest({
-					notice: (message) => Effect.sync(() => void notices.push(message)),
+					notice: dual(
+						(args) => P.isString(args[0]),
+						(message: string, _properties?: AnnotationProperties): Effect.Effect<void> => Effect.sync(() => void notices.push(message)),
+					),
 				}),
 				{ timeout: "30 seconds" },
 			)((it) => {

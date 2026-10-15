@@ -12,8 +12,12 @@ import { MAX_NESTING_DEPTH } from "../../../effected/markdown/internal/limits.ts
 import * as Registry from "../../../effected/markdown/internal/inlineRegistry.ts";
 import { appendChild, makeInlineNode } from "../../../effected/markdown/internal/inlineNode.ts";
 import type { InlineScanner } from "../../../effected/markdown/internal/inlineTypes.ts";
+import { dual } from "effect/Function";
 
-const position = (start: number, end: number) => Position.make({ start: { line: 1, column: start + 1, offset: start }, end: { line: 1, column: end + 1, offset: end } });
+const position: {
+	(start: number, end: number): Position;
+	(end: number): (start: number) => Position;
+} = dual(2, (start: number, end: number): Position => Position.make({ start: { line: 1, column: start + 1, offset: start }, end: { line: 1, column: end + 1, offset: end } }));
 const drive = (text: string, exercise: (scanner: InlineScanner) => void) => {
   const spy = vi.spyOn(Registry, "inlineDialect").mockReturnValue({
     byTrigger: HashMap.empty(), postprocess: [],

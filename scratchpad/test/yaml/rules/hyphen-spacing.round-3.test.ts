@@ -4,6 +4,8 @@ import * as A from "effect/Array";
 import * as Str from "effect/String";
 import { Yaml, YamlLint, YamlLintConfig } from "../../../effected/yaml/index.ts";
 import { hyphenSpacing } from "../../../effected/yaml/internal/rules/hyphen-spacing.ts";
+import { dual } from "effect/Function";
+import type { LintContext, YamlLintDiagnostic } from "../../../effected/yaml/YamlLintRule.ts";
 
 const config = YamlLintConfig.make({ rules: { "hyphen-spacing": "error" } });
 const headers = ["|2", ">2", "|2-", "|-2", ">2-", ">-2", "|2+", "|+2", ">2+", ">+2"];
@@ -63,7 +65,7 @@ describe("hyphen relocation safety", () => {
 			let tokenCount = 0;
 			const diagnostics = YamlLint.run(input, [{
 				id: hyphenSpacing.id,
-				check: (ctx) => {
+				check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
 					assert.isAbove(ctx.document.errors.length, 0);
 					tokenCount = ctx.tokens.length;
 					// Count deterministic token-array operations, excluding parsing.
@@ -74,7 +76,7 @@ describe("hyphen relocation safety", () => {
 						},
 					});
 					return hyphenSpacing.check({ ...ctx, tokens }, {});
-				},
+				}),
 			}], config);
 			assert.strictEqual(diagnostics.length, size);
 			assert.isTrue(A.every(diagnostics, (diagnostic) => diagnostic.fix !== undefined));

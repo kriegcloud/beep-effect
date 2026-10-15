@@ -1,8 +1,10 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { GitHubClient } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
@@ -13,7 +15,7 @@ const $I = $ScratchpadId.create("effected/github/GitHubRelease");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * A release, projected to the fields callers read.
@@ -37,16 +39,16 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
  * @since 0.0.0
  */
 export class ReleaseInfo extends S.Class<ReleaseInfo, { readonly brand: unique symbol }>($I`ReleaseInfo`)({
-	id: S.Int.annotateKey({ description: "GitHub's identifier for updating the release and uploading or listing its assets" }),
-	tag: S.String.annotateKey({ description: "The Git tag associated with the release, used to look it up" }),
-	name: S.String.annotateKey({ description: "The release's display heading, or an empty string when GitHub leaves it unset" }),
-	body: S.String.annotateKey({ description: "The release's description, or an empty string when GitHub leaves it unset" }),
-	draft: S.Boolean.annotateKey({ description: "Whether GitHub marks the release as a draft" }),
-	prerelease: S.Boolean.annotateKey({ description: "Whether GitHub marks the release as a prerelease" }),
+	id: S.Int.pipe($I.annoteKey("ReleaseInfo.id", { description: "GitHub's identifier for updating the release and uploading or listing its assets" })),
+	tag: S.String.pipe($I.annoteKey("ReleaseInfo.tag", { description: "The Git tag associated with the release, used to look it up" })),
+	name: S.String.pipe($I.annoteKey("ReleaseInfo.name", { description: "The release's display heading, or an empty string when GitHub leaves it unset" })),
+	body: S.String.pipe($I.annoteKey("ReleaseInfo.body", { description: "The release's description, or an empty string when GitHub leaves it unset" })),
+	draft: S.Boolean.pipe($I.annoteKey("ReleaseInfo.draft", { description: "Whether GitHub marks the release as a draft" })),
+	prerelease: S.Boolean.pipe($I.annoteKey("ReleaseInfo.prerelease", { description: "Whether GitHub marks the release as a prerelease" })),
 	/** The web URL. */
-	url: S.String.annotateKey({ description: "The web URL." }),
+	url: S.String.pipe($I.annoteKey("ReleaseInfo.url", { description: "The web URL." })),
 	/** The templated upload endpoint GitHub hands back for assets. */
-	uploadUrl: S.String.annotateKey({ description: "The templated upload endpoint GitHub hands back for assets." }),
+	uploadUrl: S.String.pipe($I.annoteKey("ReleaseInfo.uploadUrl", { description: "The templated upload endpoint GitHub hands back for assets." })),
 }, $I.annote("ReleaseInfo", { description: "A release, projected to the fields callers read." })) {}
 
 /**
@@ -69,12 +71,12 @@ export class ReleaseInfo extends S.Class<ReleaseInfo, { readonly brand: unique s
  * @since 0.0.0
  */
 export class ReleaseAsset extends S.Class<ReleaseAsset, { readonly brand: unique symbol }>($I`ReleaseAsset`)({
-	id: S.Int.annotateKey({ description: "GitHub's identifier for the file attached to the release" }),
-	name: S.String.annotateKey({ description: "The attached file's filename as reported by GitHub" }),
+	id: S.Int.pipe($I.annoteKey("ReleaseAsset.id", { description: "GitHub's identifier for the file attached to the release" })),
+	name: S.String.pipe($I.annoteKey("ReleaseAsset.name", { description: "The attached file's filename as reported by GitHub" })),
 	/** The browser download URL. */
-	url: S.String.annotateKey({ description: "The browser download URL." }),
+	url: S.String.pipe($I.annoteKey("ReleaseAsset.url", { description: "The browser download URL." })),
 	/** Size in bytes. */
-	size: S.Int.annotateKey({ description: "Size in bytes." }),
+	size: S.Int.pipe($I.annoteKey("ReleaseAsset.size", { description: "Size in bytes." })),
 }, $I.annote("ReleaseAsset", { description: "A file attached to a release." })) {}
 
 /**
@@ -103,15 +105,25 @@ export interface GitHubReleaseShape {
 		readonly page?: PageOptions | undefined;
 	}) => Effect.Effect<ReadonlyArray<ReleaseInfo>, GitHubError, Repo>;
 	/** Patch a release by id; only the fields given are sent. */
-	readonly update: (
-		id: number,
-		patch: {
+	readonly update: {
+		(
+			id: number,
+			patch: {
 			readonly name?: string | undefined;
 			readonly body?: string | undefined;
 			readonly draft?: boolean | undefined;
 			readonly prerelease?: boolean | undefined;
 		},
-	) => Effect.Effect<ReleaseInfo, GitHubError, Repo>;
+		): Effect.Effect<ReleaseInfo, GitHubError, Repo>;
+		(
+			patch: {
+			readonly name?: string | undefined;
+			readonly body?: string | undefined;
+			readonly draft?: boolean | undefined;
+			readonly prerelease?: boolean | undefined;
+		},
+		): (id: number) => Effect.Effect<ReleaseInfo, GitHubError, Repo>;
+	};
 	/**
   * Attach a file to a release.
   *
@@ -129,20 +141,30 @@ export interface GitHubReleaseShape {
   * parameters in the template, always. `label` is the endpoint's optional
   * display label, shown in place of the file name on the release page.
   */
-	readonly uploadAsset: (
-		release: ReleaseInfo,
-		asset: {
+	readonly uploadAsset: {
+		(
+			release: ReleaseInfo,
+			asset: {
 			readonly name: string;
 			readonly data: Uint8Array | string;
 			readonly contentType: string;
 			readonly label?: string | undefined;
 		},
-	) => Effect.Effect<ReleaseAsset, GitHubError, Repo>;
+		): Effect.Effect<ReleaseAsset, GitHubError, Repo>;
+		(
+			asset: {
+			readonly name: string;
+			readonly data: Uint8Array | string;
+			readonly contentType: string;
+			readonly label?: string | undefined;
+		},
+		): (release: ReleaseInfo) => Effect.Effect<ReleaseAsset, GitHubError, Repo>;
+	};
 	/** List a release's assets, paginated. */
-	readonly listAssets: (
-		id: number,
-		options?: { readonly page?: PageOptions | undefined },
-	) => Effect.Effect<ReadonlyArray<ReleaseAsset>, GitHubError, Repo>;
+	readonly listAssets: {
+		(id: number, options?: { readonly page?: PageOptions | undefined }): Effect.Effect<ReadonlyArray<ReleaseAsset>, GitHubError, Repo>;
+		(options?: { readonly page?: PageOptions | undefined }): (id: number) => Effect.Effect<ReadonlyArray<ReleaseAsset>, GitHubError, Repo>;
+	};
 }
 
 /**
@@ -254,9 +276,12 @@ const ReleaseResponse = S.Struct({
 	prerelease: S.Boolean,
 	html_url: S.String,
 	upload_url: S.String,
-}).annotate($I.annote("ReleaseResponse", { description: "The selected fields of a release response." }));
+}).pipe($I.annoteSchema("ReleaseResponse", { description: "The selected fields of a release response." }));
 
-const project = Effect.fn("GitHubRelease.project")(function* (input: unknown, operation: string) {
+const project: {
+	(input: unknown, operation: string): Effect.Effect<ReleaseInfo, GitHubError>;
+	(operation: string): (input: unknown) => Effect.Effect<ReleaseInfo, GitHubError>;
+} = dual(2, Effect.fn("GitHubRelease.project")(function* (input: unknown, operation: string) {
 	const raw = yield* S.decodeUnknownEffect(ReleaseResponse)(input).pipe(
 		Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected release", error)),
 	);
@@ -272,7 +297,7 @@ const project = Effect.fn("GitHubRelease.project")(function* (input: unknown, op
 		url: raw.html_url,
 		uploadUrl: raw.upload_url,
 	});
-});
+}));
 
 const AssetResponse = S.Struct({
 	id: S.Int,
@@ -281,12 +306,15 @@ const AssetResponse = S.Struct({
 	size: S.Int,
 });
 
-const assetOf = Effect.fn("GitHubRelease.assetOf")(function* (input: unknown, operation: string) {
+const assetOf: {
+	(input: unknown, operation: string): Effect.Effect<ReleaseAsset, GitHubError>;
+	(operation: string): (input: unknown) => Effect.Effect<ReleaseAsset, GitHubError>;
+} = dual(2, Effect.fn("GitHubRelease.assetOf")(function* (input: unknown, operation: string) {
 	const raw = yield* S.decodeUnknownEffect(AssetResponse)(input).pipe(
 		Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected release asset", error)),
 	);
 	return ReleaseAsset.make({ id: raw.id, name: raw.name, url: raw.browser_download_url, size: raw.size });
-});
+}));
 
 const make = (client: GitHubClient["Service"]): GitHubReleaseShape => {
 	const getByTag = Effect.fn("GitHubRelease.getByTag")(function* (tag: string) {
@@ -333,10 +361,10 @@ const make = (client: GitHubClient["Service"]): GitHubReleaseShape => {
 			const { owner, repo } = yield* Repo;
 			yield* Effect.annotateCurrentSpan({ owner, repo });
 			const raw = yield* client.paginate("GET /repos/{owner}/{repo}/releases", { owner, repo }, options?.page);
-			return yield* Effect.forEach(raw, (release) => project(release, "GitHubRelease.list"));
+			return yield* Effect.forEach(raw, project("GitHubRelease.list"));
 		}),
 
-		update: Effect.fn("GitHubRelease.update")(function* (
+		update: dual(2, Effect.fn("GitHubRelease.update")(function* (
 			id: number,
 			patch: {
 				readonly name?: string | undefined;
@@ -357,9 +385,9 @@ const make = (client: GitHubClient["Service"]): GitHubReleaseShape => {
 				...O.getSomesStruct({ prerelease: O.fromUndefinedOr(patch.prerelease) }),
 			});
 			return yield* project(updated, "GitHubRelease.update");
-		}),
+		})),
 
-		uploadAsset: Effect.fn("GitHubRelease.uploadAsset")(function* (
+		uploadAsset: dual(2, Effect.fn("GitHubRelease.uploadAsset")(function* (
 			release: ReleaseInfo,
 			asset: {
 				readonly name: string;
@@ -393,9 +421,9 @@ const make = (client: GitHubClient["Service"]): GitHubReleaseShape => {
 				AssetResponse,
 			);
 			return yield* assetOf(raw, "GitHubRelease.uploadAsset");
-		}),
+		})),
 
-		listAssets: Effect.fn("GitHubRelease.listAssets")(function* (
+		listAssets: dual((args) => P.isNumber(args[0]), Effect.fn("GitHubRelease.listAssets")(function* (
 			id: number,
 			options?: { readonly page?: PageOptions | undefined },
 		) {
@@ -407,8 +435,8 @@ const make = (client: GitHubClient["Service"]): GitHubReleaseShape => {
 				{ owner, repo, release_id: id },
 				options?.page,
 			);
-			return yield* Effect.forEach(raw, (asset) => assetOf(asset, "GitHubRelease.listAssets"));
-		}),
+			return yield* Effect.forEach(raw, assetOf("GitHubRelease.listAssets"));
+		})),
 	};
 };
 

@@ -19,7 +19,8 @@ import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Result from "effect/Result";
-import { flow, identity } from "effect/Function";
+import { flow, identity, dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import { FetchHttpClient } from "effect/http";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import {
@@ -372,10 +373,10 @@ describe("PackageManagerInstaller", () => {
 				let publications = 0;
 				const result = yield* Effect.result(install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(stubbed({
 					installer: {
-						find: () => cached ? Effect.succeedSome(directory) : Effect.succeedNone,
-						download: () => Effect.succeed("unused"),
-						extractTar: () => Effect.succeed(join(directory, "..")),
-						cacheDir: () => Effect.sync(() => { publications += 1; return directory; }),
+						find: dual(2, (_tool: string, _version: string) => cached ? Effect.succeedSome(directory) : Effect.succeedNone),
+						download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed("unused")),
+						extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(directory, ".."))),
+						cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.sync(() => { publications += 1; return directory; })),
 					},
 				})))));
 				if (kind === "internal") {
@@ -407,7 +408,7 @@ describe("PackageManagerInstaller", () => {
 		const shim = "existing shim";
 		writeFileSync(join(directory, ".bin", "pnpm.cmd"), shim);
 		const error = yield* Effect.flip(install("pnpm@12.0.0").pipe(Effect.provide(Layer.fresh(stubbed({
-			env: { RUNNER_OS: "Windows" }, installer: { find: () => Effect.succeedSome(directory) },
+			env: { RUNNER_OS: "Windows" }, installer: { find: dual(2, (_tool: string, _version: string) => Effect.succeedSome(directory)) },
 		})))));
 		assert.strictEqual(error.reason, "layoutUnexpected");
 		assert.include(error.subject ?? "", "pnpm.exe");
@@ -427,9 +428,9 @@ describe("PackageManagerInstaller", () => {
 			const destination = ToolInstaller.cachePath({ root: cacheRoot, tool: "pnpm", version: "2.0.7", arch: "x64" });
 			yield* install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(stubbed({
 				env: { RUNNER_OS: runnerOs }, installer: {
-					find: () => Effect.succeedNone, download: () => Effect.succeed("unused"),
-					extractTar: () => Effect.succeed(extracted),
-					cachePath: () => destination, cacheDir: () => Effect.succeed(destination),
+					find: dual(2, (_tool: string, _version: string) => Effect.succeedNone), download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed("unused")),
+					extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(extracted)),
+					cachePath: dual(2, (_tool: string, _version: string) => destination), cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.succeed(destination)),
 				},
 			}))));
 			const target = join(destination, "cli.cjs");
@@ -543,7 +544,7 @@ describe("PackageManagerInstaller", () => {
 		it.layer(testLayer(Effect.sync(() => ({
 			layer: stubbed({
 				// find misses; download would DIE if the short-circuit failed to fire.
-				installer: { find: () => Effect.succeedNone },
+				installer: { find: dual(2, (_tool: string, _version: string) => Effect.succeedNone) },
 				spawner: scriptedSpawner(() => Effect.succeed("9.9.9\n")),
 			}), test: Effect.gen(function* () {
 				const installed = yield* install("npm@9.9.9");
@@ -585,10 +586,10 @@ describe("PackageManagerInstaller", () => {
 						}),
 					),
 					installer: {
-						find: () => Effect.succeedNone,
-						download: () => Effect.succeed(join(root, "unused-archive")),
-						extractTar: () => Effect.succeed(join(root, "extracted")),
-						cacheDir: () => Effect.succeed(destination),
+						find: dual(2, (_tool: string, _version: string) => Effect.succeedNone),
+						download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed(join(root, "unused-archive"))),
+						extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(root, "extracted"))),
+						cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.succeed(destination)),
 					},
 				}), test: Effect.gen(function* () {
 					const installed = cachedOf(
@@ -608,7 +609,7 @@ describe("PackageManagerInstaller", () => {
 
 		it.layer(testLayer(Effect.sync(() => ({
 			layer: stubbed({
-				installer: { find: () => Effect.succeedNone },
+				installer: { find: dual(2, (_tool: string, _version: string) => Effect.succeedNone) },
 				spawner: scriptedSpawner(() => Effect.succeed("9.9.9\n")),
 			}), test: Effect.gen(function* () {
 				const installed = yield* install("npm@9.9.9", { allowAmbient: true });
@@ -643,10 +644,10 @@ describe("PackageManagerInstaller", () => {
 						}),
 					),
 					installer: {
-						find: () => Effect.succeedNone,
-						download: () => Effect.succeed(join(root, "unused-archive")),
-						extractTar: () => Effect.succeed(join(root, "extracted")),
-						cacheDir: () => Effect.succeed(destination),
+						find: dual(2, (_tool: string, _version: string) => Effect.succeedNone),
+						download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed(join(root, "unused-archive"))),
+						extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(root, "extracted"))),
+						cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.succeed(destination)),
 					},
 				}), test: Effect.gen(function* () {
 					const installed = cachedOf(
@@ -717,10 +718,10 @@ describe("PackageManagerInstaller", () => {
 						),
 					),
 					installer: {
-						find: () => Effect.succeedNone,
-						download: () => Effect.succeed(join(root, "unused-archive")),
-						extractTar: () => Effect.succeed(join(root, "extracted")),
-						cacheDir: () => Effect.succeed(destination),
+						find: dual(2, (_tool: string, _version: string) => Effect.succeedNone),
+						download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed(join(root, "unused-archive"))),
+						extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(root, "extracted"))),
+						cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.succeed(destination)),
 					},
 				}), test: Effect.gen(function* () {
 					const installed = cachedOf(
@@ -748,7 +749,7 @@ describe("PackageManagerInstaller", () => {
 			for (const relative of Object.values(targets)) writeFileSync(join(directory, relative), "fixture");
 			const installed = cachedOf(yield* install("pnpm@7.7.7").pipe(Effect.provide(Layer.fresh(stubbed({
 				env: { RUNNER_OS: "Linux" },
-				installer: { find: () => Effect.succeedSome(directory) },
+				installer: { find: dual(2, (_tool: string, _version: string) => Effect.succeedSome(directory)) },
 			})))));
 			for (const [name, relative] of Object.entries(targets)) {
 				const literal = `'${join(directory, relative).replaceAll("'", "'\\''")}'`;
@@ -1976,10 +1977,10 @@ describe("PackageManagerInstaller", () => {
 						writeFileSync(join(directory, "bin", "pnpm.cjs"), "fixture");
 						let cachedEntry = false;
 						const layer = stubbed({ env: { RUNNER_OS: runnerOs, RUNNER_TOOL_CACHE: root }, installer: {
-							find: () => cached ? Effect.succeedSome(directory) : Effect.succeedNone,
-							download: () => Effect.succeed("unused"),
-							extractTar: () => Effect.succeed(join(directory, "..")),
-							cacheDir: () => Effect.sync(() => { cachedEntry = true; return ToolInstaller.cachePath({ root, tool: "pnpm", version: "2.0.7", arch: process.arch }); }),
+							find: dual(2, (_tool: string, _version: string) => cached ? Effect.succeedSome(directory) : Effect.succeedNone),
+							download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed("unused")),
+							extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(directory, ".."))),
+							cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.sync(() => { cachedEntry = true; return ToolInstaller.cachePath({ root, tool: "pnpm", version: "2.0.7", arch: process.arch }); })),
 						} });
 						if (runnerOs === "Windows") {
 							const error = yield* Effect.flip(install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(layer))));
@@ -2017,11 +2018,11 @@ describe("PackageManagerInstaller", () => {
 						const error = yield* Effect.flip(install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(stubbed({
 							env: { RUNNER_OS: "Windows", RUNNER_ARCH: "X64", RUNNER_TOOL_CACHE: cacheRoot },
 							installer: {
-								find: () => cached ? Effect.succeedSome(directory) : Effect.succeedNone,
-								cachePath: () => destination,
-								download: () => Effect.succeed("unused"),
-								extractTar: () => Effect.succeed(join(directory, "..")),
-								cacheDir: () => Effect.sync(() => { cachedEntry = true; return destination; }),
+								find: dual(2, (_tool: string, _version: string) => cached ? Effect.succeedSome(directory) : Effect.succeedNone),
+								cachePath: dual(2, (_tool: string, _version: string) => destination),
+								download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed("unused")),
+								extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(directory, ".."))),
+								cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.sync(() => { cachedEntry = true; return destination; })),
 							},
 						})))));
 						assert.strictEqual(error.reason, "layoutUnexpected");
@@ -2042,7 +2043,7 @@ describe("PackageManagerInstaller", () => {
 			writeFileSync(join(directory, "package.json"), S.encodeResult(Json)({ bin: { pnpm: relative, COM10: relative, LPT0: relative, CONSOLE: relative } }).pipe(Result.getOrThrow));
 			writeFileSync(join(directory, relative), "fixture");
 			const installed = cachedOf(yield* install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(stubbed({
-				env: { RUNNER_OS: "Windows" }, installer: { find: () => Effect.succeedSome(directory) },
+				env: { RUNNER_OS: "Windows" }, installer: { find: dual(2, (_tool: string, _version: string) => Effect.succeedSome(directory)) },
 			})))));
 			for (const name of ["pnpm", "COM10", "LPT0", "CONSOLE"]) {
 				assert.strictEqual(readFileSync(join(installed.binDir, `${name}.cmd`), "utf8"), `@echo off\r\nnode -- "${join(directory, relative)}" %*\r\n`);
@@ -2058,9 +2059,9 @@ describe("PackageManagerInstaller", () => {
 				writeFileSync(join(directory, "package.json"), "{");
 				const error = yield* Effect.flip(install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(stubbed({
 					installer: {
-						find: () => cached ? Effect.succeedSome(directory) : Effect.succeedNone,
-						download: () => Effect.succeed("unused"),
-						extractTar: () => Effect.succeed(join(directory, "..")),
+						find: dual(2, (_tool: string, _version: string) => cached ? Effect.succeedSome(directory) : Effect.succeedNone),
+						download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed("unused")),
+						extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(directory, ".."))),
 					},
 				})))));
 				assert.strictEqual(error.reason, "layoutUnexpected");
@@ -2081,9 +2082,9 @@ describe("PackageManagerInstaller", () => {
 			writeFileSync(packument, "{");
 			const error = yield* Effect.flip(install("pnpm@12.0.0").pipe(Effect.provide(Layer.fresh(stubbed({
 				env: { RUNNER_OS: "Windows", RUNNER_ARCH: "X64" }, installer: {
-					find: () => Effect.succeedNone,
-					download: (url) => Effect.succeed(url.endsWith(".tgz") ? "unused" : packument),
-					extractTar: () => Effect.succeed(join(directory, "..")),
+					find: dual(2, (_tool: string, _version: string) => Effect.succeedNone),
+					download: dual((args) => P.isString(args[0]), (url: string, _options?: unknown) => Effect.succeed(url.endsWith(".tgz") ? "unused" : packument)),
+					extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(directory, ".."))),
 				},
 			})))));
 			assert.strictEqual(error.reason, "integrityMismatch");
@@ -2116,13 +2117,13 @@ describe("PackageManagerInstaller", () => {
 							return yield* prepareTest(stubbed({
 								env: { RUNNER_OS: runnerOs },
 								installer: {
-									find: () => cached ? Effect.succeedSome(extracted) : Effect.succeedNone,
-									download: () => Effect.succeed(join(root, "unused-archive")),
-									extractTar: () => Effect.succeed(join(root, "extracted")),
-									cacheDir: () => Effect.sync(() => {
+									find: dual(2, (_tool: string, _version: string) => cached ? Effect.succeedSome(extracted) : Effect.succeedNone),
+									download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed(join(root, "unused-archive"))),
+									extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(root, "extracted"))),
+									cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.sync(() => {
 										cachedEntry = true;
 										return extracted;
-									}),
+									})),
 								},
 							}), Effect.gen(function* () {
 								const error = yield* Effect.flip(install("pnpm@2.0.7"));
@@ -2249,10 +2250,10 @@ describe("PackageManagerInstaller", () => {
 			return {
 				layer: stubbed({
 					installer: {
-						find: () => Effect.succeedNone,
-						download: () => Effect.succeed(join(root, "unused-archive")),
-						extractTar: () => Effect.succeed(join(root, "extracted")),
-						cacheDir: () => Effect.fail(ToolInstallerError.make({ reason: "cacheFailed", subject: "pnpm" })),
+						find: dual(2, (_tool: string, _version: string) => Effect.succeedNone),
+						download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed(join(root, "unused-archive"))),
+						extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(root, "extracted"))),
+						cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.fail(ToolInstallerError.make({ reason: "cacheFailed", subject: "pnpm" }))),
 					},
 				}), test: Effect.gen(function* () {
 					const error = yield* Effect.flip(
@@ -2284,16 +2285,16 @@ describe("PackageManagerInstaller", () => {
 			return {
 				layer: stubbed({
 					installer: {
-						find: () => Effect.succeedNone,
-						download: () => Effect.succeed(join(root, "unused-archive")),
-						extractTar: () => Effect.succeed(join(root, "extracted")),
-						cachePath: (tool, version) => {
+						find: dual(2, (_tool: string, _version: string) => Effect.succeedNone),
+						download: dual((args) => P.isString(args[0]), (_url: string, _options?: unknown) => Effect.succeed(join(root, "unused-archive"))),
+						extractTar: dual((args) => P.isString(args[0]), (_archive: string, _options?: unknown) => Effect.succeed(join(root, "extracted"))),
+						cachePath: dual(2, (tool: string, version: string) => {
 							asked.push(`${tool}@${version}`);
 							return target;
-						},
+						}),
 						// The stub does not move the tree, so the shims stay readable
 						// where they were written — in the STAGED package directory.
-						cacheDir: () => Effect.succeed(target),
+						cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.succeed(target)),
 					},
 				}), test: Effect.gen(function* () {
 					const installed = cachedOf(
@@ -2390,8 +2391,8 @@ describe("PackageManagerInstaller", () => {
 			const record = AmbientPackageManager.make({ name: "npm", version: "1.0.0", bins: { npm: "npm" } });
 			return {
 				layer: PackageManagerInstaller.layerTest({
-					install: () =>
-						Effect.succeed(AmbientPackageManager.make({ name: "npm", version: "1.0.0", bins: { npm: "npm" } })),
+					install: dual((args) => S.is(PackageManagerPin)(args[0]), (_pin: PackageManagerPin, _options?: unknown) =>
+						Effect.succeed(AmbientPackageManager.make({ name: "npm", version: "1.0.0", bins: { npm: "npm" } }))),
 				}), test: Effect.gen(function* () {
 					const installed = yield* install("npm@1.0.0");
 					assert.deepStrictEqual(installed, record);

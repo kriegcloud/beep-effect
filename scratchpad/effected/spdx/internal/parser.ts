@@ -9,7 +9,7 @@ const RawLicense = S.Struct({
 	kind: S.Literal("license").pipe($I.annoteKey("RawLicense.kind", { description: "Cataloged license variant." })),
 	id: S.String.pipe($I.annoteKey("RawLicense.id", { description: "The SPDX short identifier." })),
 	plus: S.Boolean.pipe($I.annoteKey("RawLicense.plus", { description: "Whether the trailing or-later marker is present." })),
-}).annotate($I.annote("RawLicense", { description: "A plain-object cataloged license leaf emitted by the parser." }));
+}).pipe($I.annoteSchema("RawLicense", { description: "A plain-object cataloged license leaf emitted by the parser." }));
 
 const RawLicenseRef = S.Struct({
 	kind: S.Literal("licenseRef").pipe($I.annoteKey("RawLicenseRef.kind", { description: "License reference variant." })),
@@ -17,17 +17,15 @@ const RawLicenseRef = S.Struct({
 		$I.annoteKey("RawLicenseRef.documentRef", { description: "The document idstring, or undefined for a local reference; the key is required." }),
 	),
 	ref: S.String.pipe($I.annoteKey("RawLicenseRef.ref", { description: "The license reference idstring without its prefix." })),
-}).annotate($I.annote("RawLicenseRef", { description: "A plain-object local or document-scoped license reference emitted by the parser." }));
+}).pipe($I.annoteSchema("RawLicenseRef", { description: "A plain-object local or document-scoped license reference emitted by the parser." }));
 
-const RawSimpleLicense = S.Union([RawLicense, RawLicenseRef]).annotate(
-	$I.annote("RawSimpleLicense", { description: "A simple SPDX expression to which a WITH clause may bind." }),
-);
+const RawSimpleLicense = S.Union([RawLicense, RawLicenseRef]).pipe($I.annoteSchema("RawSimpleLicense", { description: "A simple SPDX expression to which a WITH clause may bind." }));
 
 const RawWith = S.Struct({
 	kind: S.Literal("with").pipe($I.annoteKey("RawWith.kind", { description: "License exception variant." })),
 	license: RawSimpleLicense.pipe($I.annoteKey("RawWith.license", { description: "The simple expression qualified by the exception." })),
 	exception: S.String.pipe($I.annoteKey("RawWith.exception", { description: "The SPDX exception identifier." })),
-}).annotate($I.annote("RawWith", { description: "A plain-object WITH clause restricted to a simple license operand." }));
+}).pipe($I.annoteSchema("RawWith", { description: "A plain-object WITH clause restricted to a simple license operand." }));
 
 const RawAnd = S.Struct({
 	kind: S.Literal("and").pipe($I.annoteKey("RawAnd.kind", { description: "Conjunction variant." })),
@@ -37,7 +35,7 @@ const RawAnd = S.Struct({
 	right: S.suspend((): S.Codec<RawExpression> => RawExpression).pipe(
 		$I.annoteKey("RawAnd.right", { description: "The right expression operand." }),
 	),
-}).annotate($I.annote("RawAnd", { description: "A plain-object conjunction of two raw expressions." }));
+}).pipe($I.annoteSchema("RawAnd", { description: "A plain-object conjunction of two raw expressions." }));
 
 const RawOr = S.Struct({
 	kind: S.Literal("or").pipe($I.annoteKey("RawOr.kind", { description: "Disjunction variant." })),
@@ -47,7 +45,7 @@ const RawOr = S.Struct({
 	right: S.suspend((): S.Codec<RawExpression> => RawExpression).pipe(
 		$I.annoteKey("RawOr.right", { description: "The right expression operand." }),
 	),
-}).annotate($I.annote("RawOr", { description: "A plain-object disjunction of two raw expressions." }));
+}).pipe($I.annoteSchema("RawOr", { description: "A plain-object disjunction of two raw expressions." }));
 
 /**
  * The schema for the parser's recursive plain-object expression tree.
@@ -71,9 +69,7 @@ const RawOr = S.Struct({
  * @category schemas
  * @since 0.0.0
  */
-export const RawExpression: S.Codec<RawExpression> = S.Union([RawSimpleLicense, RawWith, RawAnd, RawOr]).annotate(
-	$I.annote("RawExpression", { description: "The recursive plain-object expression tree emitted by the parser." }),
-);
+export const RawExpression: S.Codec<RawExpression> = S.Union([RawSimpleLicense, RawWith, RawAnd, RawOr]).pipe($I.annoteSchema("RawExpression", { description: "The recursive plain-object expression tree emitted by the parser." }));
 
 /**
  * The maximum expression nesting depth the recursive-descent parser will

@@ -6,8 +6,8 @@ import { CliError, Prompt } from "effect/cli";
 const $I = $ScratchpadId.create("effected/cli/internal/fallbackAnswer");
 
 const FlagTarget = S.Struct({
-	flag: S.String.annotate($I.annote("FlagTarget.flag", { description: "The missing flag's name without leading dashes." })),
-}).annotate($I.annote("FlagTarget", { description: "The structural flag member of a fallback target." }));
+	flag: S.String.pipe($I.annoteKey("FlagTarget.flag", { description: "The missing flag's name without leading dashes." })),
+}).pipe($I.annoteSchema("FlagTarget", { description: "The structural flag member of a fallback target." }));
 const isFlagTarget = S.is(FlagTarget);
 
 /**

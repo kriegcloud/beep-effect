@@ -3,6 +3,8 @@ import type * as FileSystem from "effect/FileSystem";
 import type * as O from "effect/Option";
 import * as Effect from "effect/Effect";
 import * as Path from "effect/Path";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
@@ -26,10 +28,10 @@ const $I = $ScratchpadId.create("effected/tsconfig-json/TsconfigDiscovery");
  */
 export const FindNearestOptions = S.Struct({
 	/** The config file name to search for. Defaults to `"tsconfig.json"`. */
-	filename: S.optionalKey(S.String).annotateKey({ description: "The config filename; defaults to tsconfig.json." }),
+	filename: S.optionalKey(S.String).pipe($I.annoteKey("FindNearestOptions.filename", { description: "The config filename; defaults to tsconfig.json." })),
 	/** Stop ascending after this directory, inclusive. */
-	stopAt: S.optionalKey(S.String).annotateKey({ description: "Stop ascending after this directory, inclusive." }),
-}).annotate($I.annote("FindNearestOptions", {
+	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("FindNearestOptions.stopAt", { description: "Stop ascending after this directory, inclusive." })),
+}).pipe($I.annoteSchema("FindNearestOptions", {
 	description: "Filename and inclusive directory boundary for nearest tsconfig discovery.",
 }));
 
@@ -43,7 +45,10 @@ export const FindNearestOptions = S.Struct({
 export type FindNearestOptions = typeof FindNearestOptions.Type;
 
 // Implementation of TsconfigDiscovery.findNearest; the public contract lives on the static.
-const findNearest = Effect.fn("findNearest")(function* (
+const findNearest: {
+	(start: string, options?: FindNearestOptions): Effect.Effect<O.Option<string>, never, FileSystem.FileSystem | Path.Path>;
+	(options?: FindNearestOptions): (start: string) => Effect.Effect<O.Option<string>, never, FileSystem.FileSystem | Path.Path>;
+} = dual((args) => P.isString(args[0]), Effect.fn("findNearest")(function* (
 	start: string,
 	options?: FindNearestOptions,
 ): Effect.fn.Return<O.Option<string>, never, FileSystem.FileSystem | Path.Path> {
@@ -51,7 +56,7 @@ const findNearest = Effect.fn("findNearest")(function* (
 	const filename = options?.filename ?? "tsconfig.json";
 	const dirs = yield* Walker.ascend(start, options?.stopAt === undefined ? {} : { stopAt: options.stopAt });
 	return yield* Walker.findUpward(dirs, (dir) => [path.join(dir, filename)]);
-});
+}));
 
 /**
  * Nearest-config upward discovery for `tsconfig.json`.

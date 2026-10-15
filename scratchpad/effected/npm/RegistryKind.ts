@@ -3,6 +3,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Str from "effect/String";
 import * as O from "effect/Option";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/npm/RegistryKind");
 
@@ -31,7 +32,7 @@ const $I = $ScratchpadId.create("effected/npm/RegistryKind");
  * @category schemas
  * @since 0.0.0
  */
-export const RegistryKind = LiteralKit(["npm", "github-packages", "jsr", "custom"]).annotate($I.annote("RegistryKind", { description: "Which well-known registry a URL points at." }));
+export const RegistryKind = LiteralKit(["npm", "github-packages", "jsr", "custom"]).pipe($I.annoteSchema("RegistryKind", { description: "Which well-known registry a URL points at." }));
 
 /**
  * The decoded type of {@link (RegistryKind:variable)}.
@@ -63,8 +64,11 @@ const hostnameOf = (registry: string): string | undefined => {
  * `evil-npmjs.org` as the public npm registry, and that classification decides
  * whether a token is sent and whether provenance is requested.
  */
-const matchesDomain = (hostname: string | undefined, domain: string): boolean =>
-	hostname !== undefined && (hostname === domain || Str.endsWith(`.${domain}`)(hostname));
+const matchesDomain: {
+	(hostname: string | undefined, domain: string): boolean;
+	(domain: string): (hostname: string | undefined) => boolean;
+} = dual(2, (hostname: string | undefined, domain: string): boolean =>
+	hostname !== undefined && (hostname === domain || Str.endsWith(`.${domain}`)(hostname)));
 
 /**
  * Classify a registry URL.

@@ -57,12 +57,10 @@ const isYamlSeq = S.is(YamlSeq);
  * applies to the next node, but a "-" on the same line means the parser
  * is interpreting it as a sequence start without proper structure.
  */
-function validateAnchorTagNotFollowedBySeqDashOnSameLine(
-	meta: CstNode,
-	children: readonly CstNode[],
-	idx: number,
-	state: ComposerState,
-): void {
+const validateAnchorTagNotFollowedBySeqDashOnSameLine: {
+	(meta: CstNode, children: readonly CstNode[], idx: number, state: ComposerState): void;
+	(children: readonly CstNode[], idx: number, state: ComposerState): (meta: CstNode) => void;
+} = dual(4, (meta: CstNode, children: readonly CstNode[], idx: number, state: ComposerState): void => {
 	for (let j = idx + 1; j < children.length; j++) {
 		const c = A.getUnsafe(children, j);
 		if (c.type === "newline") return; // ok — anchor on its own line
@@ -86,7 +84,7 @@ function validateAnchorTagNotFollowedBySeqDashOnSameLine(
 		if (c.type === "block-seq" && c.length === 0) continue;
 		return;
 	}
-}
+});
 
 /**
  * Validate that document markers (--- and ...) are not followed by content
@@ -98,11 +96,10 @@ function validateAnchorTagNotFollowedBySeqDashOnSameLine(
  * Checks within a single document's children AND across document boundaries
  * (e.g. `... invalid` where `...` ends doc 1 and `invalid` starts doc 2).
  */
-function checkDocumentMarkerSameLine(
-	children: readonly CstNode[],
-	state: ComposerState,
-	nextDocChildren?: readonly CstNode[],
-): void {
+const checkDocumentMarkerSameLine: {
+	(state: ComposerState, nextDocChildren?: readonly CstNode[]): (children: readonly CstNode[]) => void;
+	(children: readonly CstNode[], state: ComposerState, nextDocChildren?: readonly CstNode[]): void;
+} = dual((args) => A.isArray(args[0]), (children: readonly CstNode[], state: ComposerState, nextDocChildren?: readonly CstNode[]): void => {
 	for (let i = 0; i < children.length; i++) {
 		const child = A.getUnsafe(children, i);
 		// Document markers appear as "whitespace"-typed CST nodes with source "---" or "..."
@@ -148,7 +145,7 @@ function checkDocumentMarkerSameLine(
 			}
 		}
 	}
-}
+});
 
 /**
  * Check for trailing content after a complete value at document level.
@@ -156,12 +153,10 @@ function checkDocumentMarkerSameLine(
  * document markers should follow. Skips if next meaningful content is ":"
  * (the flow collection is being used as a mapping key).
  */
-function checkTrailingContentAfterDocValue(
-	children: readonly CstNode[],
-	startIdx: number,
-	state: ComposerState,
-	allowMappingKey = true,
-): void {
+const checkTrailingContentAfterDocValue: {
+	(startIdx: number, state: ComposerState, allowMappingKey?: boolean): (children: readonly CstNode[]) => void;
+	(children: readonly CstNode[], startIdx: number, state: ComposerState, allowMappingKey?: boolean): void;
+} = dual((args) => A.isArray(args[0]), (children: readonly CstNode[], startIdx: number, state: ComposerState, allowMappingKey: boolean = true): void => {
 	for (let j = startIdx; j < children.length; j++) {
 		const next = A.getUnsafe(children, j);
 		if (next.type === "newline" || next.type === "comment") continue;
@@ -207,7 +202,7 @@ function checkTrailingContentAfterDocValue(
 		}
 		break;
 	}
-}
+});
 
 // ---------------------------------------------------------------------------
 // Compose document
@@ -290,7 +285,7 @@ export const composeDocument: {
 
 	// Whether this document has a `---` marker — used to determine if
 	// metadata (tag/anchor) applies to the root mapping or the first key.
-	const hasDocStart = children.some((c) => c.type === "whitespace" && c.source === "---");
+	const hasDocStart = A.some(children, (c) => c.type === "whitespace" && c.source === "---");
 
 	let i = 0;
 	const meta: NodeMeta = {};
@@ -695,7 +690,7 @@ export const composeDocument: {
 	checkDocumentMarkerSameLine(children, state, nextDocCst?.children);
 
 	// Detect whether `...` document end marker was present in the CST
-	const hasDocEnd = children.some((c) => c.type === "whitespace" && c.source === "...");
+	const hasDocEnd = A.some(children, (c) => c.type === "whitespace" && c.source === "...");
 
 	// Detect whether `---` was followed by a tab (K54U). Scan children for the
 	// document-start marker; if the immediately-following character in the
@@ -800,16 +795,14 @@ export const composeDocument: {
  * Validate YAML directive rules within a single document's CST.
  * Pushes errors into state.errors for violations found.
  */
-function validateDirectives(
-	directives: RawDirective[],
-	cst: CstNode,
-	state: ComposerState,
-	hasSubsequentDocuments = false,
-): void {
+const validateDirectives: {
+	(cst: CstNode, state: ComposerState, hasSubsequentDocuments?: boolean): (directives: RawDirective[]) => void;
+	(directives: RawDirective[], cst: CstNode, state: ComposerState, hasSubsequentDocuments?: boolean): void;
+} = dual((args) => A.isArray(args[0]), (directives: RawDirective[], cst: CstNode, state: ComposerState, hasSubsequentDocuments: boolean = false): void => {
 	const children = cst.children ?? [];
 
 	// Check for duplicate %YAML directives
-	const yamlDirectives = directives.filter((d) => d.name === "YAML");
+	const yamlDirectives = A.filter(directives, (d) => d.name === "YAML");
 	if (yamlDirectives.length > 1) {
 		// Find the second directive's offset in the CST
 		let directiveCount = 0;
@@ -870,7 +863,7 @@ function validateDirectives(
 				message:
 					params.length === 0
 						? "%YAML directive requires a version parameter"
-						: `%YAML directive has extra parameters: ${params.slice(1).join(" ")}`,
+						: `%YAML directive has extra parameters: ${A.join(params.slice(1), " ")}`,
 				offset: child.offset,
 				length: child.length,
 			});
@@ -953,7 +946,7 @@ function validateDirectives(
 			}
 		}
 	}
-}
+});
 
 /** Recursively find the first directive node within a CST subtree. */
 function findNestedDirective(node: CstNode): CstNode | null {
@@ -1010,7 +1003,7 @@ export const validateCrossDocumentDirectives: {
 		const children = cst.children ?? [];
 
 		// Check if this document has directives
-		const hasDirectives = children.some((c) => c.type === "directive");
+		const hasDirectives = A.some(children, (c) => c.type === "directive");
 		if (!hasDirectives) continue;
 
 		// Check if the previous document ended with "..."
@@ -1059,7 +1052,10 @@ export const validateCrossDocumentDirectives: {
  * through dozens of construction sites. Nodes whose span is single-line are
  * returned unchanged (no copy) to avoid unnecessary allocation.
  */
-function isSourceMultiline(text: string, offset: number, length: number): boolean {
+const isSourceMultiline: {
+	(text: string, offset: number, length: number): boolean;
+	(offset: number, length: number): (text: string) => boolean;
+} = dual(3, (text: string, offset: number, length: number): boolean => {
 	if (length <= 0) return false;
 	const end = Math.min(offset + length, text.length);
 	for (let i = offset; i < end; i++) {
@@ -1067,11 +1063,13 @@ function isSourceMultiline(text: string, offset: number, length: number): boolea
 		if (ch === 0x0a /* \n */ || ch === 0x0d /* \r */) return true;
 	}
 	return false;
-}
+});
 
-function decorateSourceMultiline(node: YamlNode, text: string): YamlNode;
-function decorateSourceMultiline(node: YamlNode | null, text: string): YamlNode | null;
-function decorateSourceMultiline(node: YamlNode | null, text: string): YamlNode | null {
+const decorateSourceMultiline: {
+	(node: YamlNode, text: string): YamlNode;
+	(node: YamlNode | null, text: string): YamlNode | null;
+	(text: string): { (node: YamlNode): YamlNode; (node: YamlNode | null): YamlNode | null };
+} = dual(2, (node: YamlNode | null, text: string): YamlNode | null => {
 	if (node === null || isYamlAlias(node)) return node;
 	if (isYamlScalar(node)) {
 		if (!isSourceMultiline(text, node.offset, node.length)) return node;
@@ -1095,12 +1093,11 @@ function decorateSourceMultiline(node: YamlNode | null, text: string): YamlNode 
 		});
 	}
 	if (isYamlMap(node)) {
-		const newItems = node.items.map((pair) =>
+		const newItems = A.map(node.items, (pair) =>
 			YamlPair.make({
 				key: decorateSourceMultiline(pair.key, text),
 				value: pair.value === null ? null : decorateSourceMultiline(pair.value, text),
-			}),
-		);
+			}));
 		const multiline = isSourceMultiline(text, node.offset, node.length);
 		return YamlMap.make({
 			items: newItems,
@@ -1119,7 +1116,7 @@ function decorateSourceMultiline(node: YamlNode | null, text: string): YamlNode 
 		});
 	}
 	{
-		const newItems = node.items.map((item) => decorateSourceMultiline(item, text));
+		const newItems = A.map(node.items, decorateSourceMultiline(text));
 		const multiline = isSourceMultiline(text, node.offset, node.length);
 		return YamlSeq.make({
 			items: newItems,
@@ -1137,9 +1134,12 @@ function decorateSourceMultiline(node: YamlNode | null, text: string): YamlNode 
 			length: node.length,
 		});
 	}
-}
+});
 
-function decorateDocumentSourceMultiline(doc: RawYamlDocument, text: string): RawYamlDocument {
+const decorateDocumentSourceMultiline: {
+	(doc: RawYamlDocument, text: string): RawYamlDocument;
+	(text: string): (doc: RawYamlDocument) => RawYamlDocument;
+} = dual(2, (doc: RawYamlDocument, text: string): RawYamlDocument => {
 	const decorated = decorateSourceMultiline(doc.contents ?? null, text);
 	if (decorated === doc.contents) return doc;
 	return {
@@ -1156,7 +1156,7 @@ function decorateDocumentSourceMultiline(doc: RawYamlDocument, text: string): Ra
 		hasDocumentEnd: doc.hasDocumentEnd,
 		hasDocumentStartTab: doc.hasDocumentStartTab,
 	};
-}
+});
 
 // ---------------------------------------------------------------------------
 // Engine entry points
@@ -1321,7 +1321,10 @@ export const composeAllDocuments: {
  * own-line comment in the document's item stream, so it forward-attributes
  * like other own-line comments.
  */
-function attachHeaderToFirstEntry(contents: YamlNode, header: string): YamlNode {
+const attachHeaderToFirstEntry: {
+	(contents: YamlNode, header: string): YamlNode;
+	(header: string): (contents: YamlNode) => YamlNode;
+} = dual(2, (contents: YamlNode, header: string): YamlNode => {
 	if (isYamlMap(contents) && contents.items.length > 0) {
 		const first = A.getUnsafe(contents.items, 0);
 		const items = [...contents.items];
@@ -1363,7 +1366,7 @@ function attachHeaderToFirstEntry(contents: YamlNode, header: string): YamlNode 
 		});
 	}
 	return withCommentFields(contents, { commentBefore: header });
-}
+});
 
 /** Rebuild a collection without its own trailing `comment`. */
 function stripOwnComment(node: YamlMap | YamlSeq): YamlNode {

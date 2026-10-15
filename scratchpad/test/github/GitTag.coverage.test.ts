@@ -1,6 +1,7 @@
 import { assert, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
@@ -20,7 +21,9 @@ it.effect("unstubbed tag doubles name every member", () => Effect.gen(function* 
 }));
 });
 const overrides: GitTagShape = {
-    create: () => Effect.void, upsert: () => Effect.void, delete: () => Effect.void,
+    create: dual(2, (_tag: string, _sha: string) => Effect.void),
+    upsert: dual(2, (_tag: string, _sha: string) => Effect.void),
+    delete: () => Effect.void,
     list: () => Effect.succeed([TagRef.make({ tag: "v1", sha: "sha" })]),
     resolve: () => Effect.succeed("sha"), latestSemver: () => Effect.succeedNone,
 };

@@ -247,12 +247,12 @@ describe("ResolvedTsconfig.merge — E4 merge per field", () => {
 		// Step 2 (tsconfig.base.json extends base.json):
 		//   rerootPrefix = relative("/proj/apps", "/proj/shared") = "../shared"
 		//   mergeFileList(["src"], undefined, "../shared")
-		//     -> rerootEntry("../shared", "src") = "../shared/src"
+		//     -> rerootEntry("src", "../shared") = "../shared/src"
 		//
 		// Step 3 (tsconfig.json extends tsconfig.base.json):
 		//   rerootPrefix = relative("/proj/apps/web", "/proj/apps") = ".."
 		//   mergeFileList(["../shared/src"], undefined, "..")
-		//     -> rerootEntry("..", "../shared/src") = "../" + "../shared/src" = "../../shared/src"
+		//     -> rerootEntry("../shared/src", "..") = "../" + "../shared/src" = "../../shared/src"
 		//
 		// The two step-prefixes ("../shared" then "..") compose onto the ORIGINAL
 		// "src" entry rather than being collapsed into one direct
@@ -285,11 +285,11 @@ describe("ResolvedTsconfig.merge — E4 merge per field", () => {
 		//
 		// Step 2 (mid extends base):
 		//   rerootPrefix = relative("/proj/apps/web", "/proj/shared") = "../../shared"
-		//   rerootEntry("../../shared", "src") = "../../shared/src"
+		//   rerootEntry("src", "../../shared") = "../../shared/src"
 		//
 		// Step 3 (own extends mid):
 		//   rerootPrefix = relative("/proj/apps", "/proj/apps/web") = "web"
-		//   rerootEntry("web", "../../shared/src") = "web/../../shared/src"
+		//   rerootEntry("../../shared/src", "web") = "web/../../shared/src"
 		//
 		// The "web/.." pair is cancellable — a `..`-collapsing mutation would emit
 		// "../shared/src" instead and this assertion fails. tsc performs exactly

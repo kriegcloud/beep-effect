@@ -2,6 +2,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -11,7 +12,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { FOREIGN_PREFIX_SET } from "./internal/vocabulary.ts";
-import { type JsonLdDocument, type JsonLdNode, referencesOf } from "./JsonLdDocument.ts";
+import { JsonLdDocument, type JsonLdNode, referencesOf } from "./JsonLdDocument.ts";
 import { Vocabulary } from "./Vocabulary.ts";
 
 const $I = $ScratchpadId.create("effected/schema-org/Conformance");
@@ -75,13 +76,13 @@ export type TermKind = typeof TermKind.Type;
  */
 export class UnknownTerm extends S.TaggedClass<UnknownTerm, { readonly brand: unique symbol }>($I`UnknownTerm`)("UnknownTerm", {
 	/** The `@id` of the node carrying the term. */
-	nodeId: S.String.annotateKey({ description: "The `@id` of the node carrying the term." }),
+	nodeId: S.String.pipe($I.annoteKey("UnknownTerm.nodeId", { description: "The `@id` of the node carrying the term." })),
 	/** The `@type` of the node carrying the term. */
-	nodeType: S.String.annotateKey({ description: "The `@type` of the node carrying the term." }),
+	nodeType: S.String.pipe($I.annoteKey("UnknownTerm.nodeType", { description: "The `@type` of the node carrying the term." })),
 	/** The unrecognized term. */
-	term: S.String.annotateKey({ description: "The unrecognized term." }),
+	term: S.String.pipe($I.annoteKey("UnknownTerm.term", { description: "The unrecognized term." })),
 	/** Whether the term was used as a type or as a property. */
-	kind: TermKind.annotateKey({ description: "Whether the term was used as a type or as a property." }),
+	kind: TermKind.pipe($I.annoteKey("UnknownTerm.kind", { description: "Whether the term was used as a type or as a property." })),
 }, $I.annote("UnknownTerm", { description: "A term the vendored schema.org vocabulary does not define at all." })) {
 	/**
 	 * A one-line description of the issue.
@@ -133,11 +134,11 @@ export class UnknownTerm extends S.TaggedClass<UnknownTerm, { readonly brand: un
  */
 export class PropertyNotOnType extends S.TaggedClass<PropertyNotOnType, { readonly brand: unique symbol }>($I`PropertyNotOnType`)("PropertyNotOnType", {
 	/** The `@id` of the node carrying the property. */
-	nodeId: S.String.annotateKey({ description: "The `@id` of the node carrying the property." }),
+	nodeId: S.String.pipe($I.annoteKey("PropertyNotOnType.nodeId", { description: "The `@id` of the node carrying the property." })),
 	/** The `@type` of the node carrying the property. */
-	nodeType: S.String.annotateKey({ description: "The `@type` of the node carrying the property." }),
+	nodeType: S.String.pipe($I.annoteKey("PropertyNotOnType.nodeType", { description: "The `@type` of the node carrying the property." })),
 	/** The property that is not legal on that type. */
-	property: S.String.annotateKey({ description: "The property that is not legal on that type." }),
+	property: S.String.pipe($I.annoteKey("PropertyNotOnType.property", { description: "The property that is not legal on that type." })),
 }, $I.annote("PropertyNotOnType", { description: "A property schema.org defines, used on a type it is not legal on." })) {
 	/**
 	 * A one-line description of the issue.
@@ -182,11 +183,11 @@ export class PropertyNotOnType extends S.TaggedClass<PropertyNotOnType, { readon
  */
 export class DeprecatedType extends S.TaggedClass<DeprecatedType, { readonly brand: unique symbol }>($I`DeprecatedType`)("DeprecatedType", {
 	/** The `@id` of the node. */
-	nodeId: S.String.annotateKey({ description: "The `@id` of the node." }),
+	nodeId: S.String.pipe($I.annoteKey("DeprecatedType.nodeId", { description: "The `@id` of the node." })),
 	/** The deprecated `@type`. */
-	nodeType: S.String.annotateKey({ description: "The deprecated `@type`." }),
+	nodeType: S.String.pipe($I.annoteKey("DeprecatedType.nodeType", { description: "The deprecated `@type`." })),
 	/** The type schema.org replaced it with. */
-	supersededBy: S.String.annotateKey({ description: "The type schema.org replaced it with." }),
+	supersededBy: S.String.pipe($I.annoteKey("DeprecatedType.supersededBy", { description: "The type schema.org replaced it with." })),
 }, $I.annote("DeprecatedType", { description: "A node whose `@type` schema.org has deprecated." })) {
 	/**
 	 * A one-line description of the issue.
@@ -227,13 +228,13 @@ export class DeprecatedType extends S.TaggedClass<DeprecatedType, { readonly bra
  */
 export class DeprecatedProperty extends S.TaggedClass<DeprecatedProperty, { readonly brand: unique symbol }>($I`DeprecatedProperty`)("DeprecatedProperty", {
 	/** The `@id` of the node carrying the property. */
-	nodeId: S.String.annotateKey({ description: "The `@id` of the node carrying the property." }),
+	nodeId: S.String.pipe($I.annoteKey("DeprecatedProperty.nodeId", { description: "The `@id` of the node carrying the property." })),
 	/** The `@type` of the node carrying the property. */
-	nodeType: S.String.annotateKey({ description: "The `@type` of the node carrying the property." }),
+	nodeType: S.String.pipe($I.annoteKey("DeprecatedProperty.nodeType", { description: "The `@type` of the node carrying the property." })),
 	/** The deprecated property. */
-	property: S.String.annotateKey({ description: "The deprecated property." }),
+	property: S.String.pipe($I.annoteKey("DeprecatedProperty.property", { description: "The deprecated property." })),
 	/** The property schema.org replaced it with. */
-	supersededBy: S.String.annotateKey({ description: "The property schema.org replaced it with." }),
+	supersededBy: S.String.pipe($I.annoteKey("DeprecatedProperty.supersededBy", { description: "The property schema.org replaced it with." })),
 }, $I.annote("DeprecatedProperty", { description: "A property schema.org has deprecated. Valid but flagged, exactly as DeprecatedType is." })) {
 	/**
 	 * A one-line description of the issue.
@@ -279,13 +280,13 @@ export class DeprecatedProperty extends S.TaggedClass<DeprecatedProperty, { read
  */
 export class DanglingReference extends S.TaggedClass<DanglingReference, { readonly brand: unique symbol }>($I`DanglingReference`)("DanglingReference", {
 	/** The `@id` of the node holding the reference. */
-	nodeId: S.String.annotateKey({ description: "The `@id` of the node holding the reference." }),
+	nodeId: S.String.pipe($I.annoteKey("DanglingReference.nodeId", { description: "The `@id` of the node holding the reference." })),
 	/** The `@type` of the node holding the reference. */
-	nodeType: S.String.annotateKey({ description: "The `@type` of the node holding the reference." }),
+	nodeType: S.String.pipe($I.annoteKey("DanglingReference.nodeType", { description: "The `@type` of the node holding the reference." })),
 	/** The property the reference sits in. */
-	property: S.String.annotateKey({ description: "The property the reference sits in." }),
+	property: S.String.pipe($I.annoteKey("DanglingReference.property", { description: "The property the reference sits in." })),
 	/** The `@id` that no node in this graph defines. */
-	reference: S.String.annotateKey({ description: "The `@id` that no node in this graph defines." }),
+	reference: S.String.pipe($I.annoteKey("DanglingReference.reference", { description: "The `@id` that no node in this graph defines." })),
 }, $I.annote("DanglingReference", { description: "A reference to an `@id` no node in the graph defines." })) {
 	/**
 	 * A one-line description of the issue.
@@ -373,8 +374,8 @@ export type ConformanceIssue = typeof ConformanceIssue.Type;
  */
 export class NonConformantGraphError extends S.TaggedError<NonConformantGraphError, { readonly brand: unique symbol }>($I`NonConformantGraphError`)("NonConformantGraphError", {
 	/** Every issue found in the graph, failing or not. */
-	issues: S.Array(ConformanceIssue).annotateKey({ description: "Every issue found in the graph, failing or not." }),
-}, $I.annote("NonConformantGraphError", { description: "Indicates that a graph carries at least one conformance issue of a kind the gate was configured to fail on." })) {
+	issues: S.Array(ConformanceIssue).pipe($I.annoteKey("NonConformantGraphError.issues", { description: "Every issue found in the graph, failing or not." })),
+}, $I.annoteError<NonConformantGraphError>("NonConformantGraphError", { description: "Indicates that a graph carries at least one conformance issue of a kind the gate was configured to fail on." })) {
 	/**
 	 * Summarizes graph nonconformance with the vocabulary version, the first issue and the count of remaining issues.
 	 *
@@ -441,23 +442,20 @@ export const ConformanceOptions = S.Struct({
 	 * term in their graph and wants an invented one to break the build.
 	 */
 	unknownTerms: UnknownTermPolicy.pipe(
-		S.withDecodingDefault(Effect.succeed(defaultUnknownTermPolicy)),
-	).annotateKey({ description: "Unknown-term gate policy; defaults to report." }),
+		S.withDecodingDefault(Effect.succeed(defaultUnknownTermPolicy)), $I.annoteKey("ConformanceOptions.unknownTerms", { description: "Unknown-term gate policy; defaults to report." })),
 	/**
 	 * `"ignore"` (the default) keeps {@link DeprecatedType} and
 	 * {@link DeprecatedProperty} out of the gate; `"report"` makes them fail it.
 	 */
 	deprecations: DeprecationPolicy.pipe(
-		S.withDecodingDefault(Effect.succeed(defaultDeprecationPolicy)),
-	).annotateKey({ description: "Deprecation gate policy; defaults to ignore." }),
+		S.withDecodingDefault(Effect.succeed(defaultDeprecationPolicy)), $I.annoteKey("ConformanceOptions.deprecations", { description: "Deprecation gate policy; defaults to ignore." })),
 	/**
 	 * `"ignore"` (the default) keeps {@link DanglingReference} out of the gate;
 	 * `"report"` makes an open graph fail, which is what a consumer whose graph
 	 * is meant to be closed wants.
 	 */
 	danglingReferences: DanglingReferencePolicy.pipe(
-		S.withDecodingDefault(Effect.succeed(defaultDanglingReferencePolicy)),
-	).annotateKey({ description: "Graph-closure gate policy; defaults to ignore." }),
+		S.withDecodingDefault(Effect.succeed(defaultDanglingReferencePolicy)), $I.annoteKey("ConformanceOptions.danglingReferences", { description: "Graph-closure gate policy; defaults to ignore." })),
 }).pipe($I.annoteSchema("ConformanceOptions", { description: "Optional gate policies with safe defaults when decoded." }));
 
 /**
@@ -467,6 +465,8 @@ export const ConformanceOptions = S.Struct({
  * @since 0.0.0
  */
 export type ConformanceOptions = typeof ConformanceOptions.Encoded;
+
+const isJsonLdDocument = S.is(JsonLdDocument);
 
 /** The `@context` prefix for schema.org's own terms. */
 const SCHEMA_PREFIX = "schema:";
@@ -681,10 +681,13 @@ export class Conformance {
 	 * @category validation
 	 * @since 0.0.0
 	 */
-	static validateResult(
+	static readonly validateResult: {
+		(graph: JsonLdDocument, options?: ConformanceOptions): Result.Result<JsonLdDocument, NonConformantGraphError>;
+		(options?: ConformanceOptions): (graph: JsonLdDocument) => Result.Result<JsonLdDocument, NonConformantGraphError>;
+	} = dual((args) => isJsonLdDocument(args[0]), (
 		graph: JsonLdDocument,
 		options?: ConformanceOptions,
-	): Result.Result<JsonLdDocument, NonConformantGraphError> {
+	): Result.Result<JsonLdDocument, NonConformantGraphError> => {
 		const unknownTerms = options?.unknownTerms ?? defaultUnknownTermPolicy;
 		const deprecations = options?.deprecations ?? defaultDeprecationPolicy;
 		const danglingReferences = options?.danglingReferences ?? defaultDanglingReferencePolicy;
@@ -699,7 +702,7 @@ export class Conformance {
 		}));
 
 		return fails ? Result.fail(NonConformantGraphError.make({ issues })) : Result.succeed(graph);
-	}
+	});
 
 	/**
 	 * The `Effect` twin of {@link Conformance.validateResult}, derived from it
@@ -725,7 +728,11 @@ export class Conformance {
 	 * @category validation
 	 * @since 0.0.0
 	 */
-	static readonly validate = Effect.fn("Conformance.validate")((graph: JsonLdDocument, options?: ConformanceOptions) =>
-		Effect.fromResult(Conformance.validateResult(graph, options)),
-	);
+	static readonly validate: {
+		(graph: JsonLdDocument, options?: ConformanceOptions): Effect.Effect<JsonLdDocument, NonConformantGraphError>;
+		(options?: ConformanceOptions): (graph: JsonLdDocument) => Effect.Effect<JsonLdDocument, NonConformantGraphError>;
+	} = dual((args) => isJsonLdDocument(args[0]), Effect.fn("Conformance.validate")(
+		(graph: JsonLdDocument, options?: ConformanceOptions): Effect.Effect<JsonLdDocument, NonConformantGraphError> =>
+			Effect.fromResult(Conformance.validateResult(graph, options)),
+	));
 }

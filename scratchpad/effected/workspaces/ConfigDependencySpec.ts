@@ -55,15 +55,15 @@ export class InvalidConfigDependencySpecError extends S.TaggedError<InvalidConfi
 	"InvalidConfigDependencySpecError",
 	{
 		/** The raw spec string that failed validation. */
-		input: S.String.annotateKey({ description: "The raw spec string that failed validation." }),
+		input: S.String.pipe($I.annoteKey("InvalidConfigDependencySpecError.input", { description: "The raw spec string that failed validation." })),
 		/**
 		 * Which half of the spec failed: `version` (the text before the first
 		 * `+` is not an exact SemVer version — ranges, partial versions,
 		 * dist-tags and padded values all land here) or `integrity` (the text
 		 * after the first `+` is not an SRI `<algo>-<base64>` hash).
 		 */
-		reason: S.Literals(["version", "integrity"]).annotateKey({ description: "Which half of the spec failed: `version` (the text before the first `+` is not an exact SemVer version — ranges, partial versions, dist-tags and padded values all land here) or `integrity` (the text after the first `+` is not an SRI `<algo>-<base64>` hash)." }),
-	}, $I.annote("InvalidConfigDependencySpecError", { description: "Indicates that a string could not be parsed as a pnpm `configDependencies` spec (`<version>[+<integrity>]`)." }),
+		reason: S.Literals(["version", "integrity"]).pipe($I.annoteKey("InvalidConfigDependencySpecError.reason", { description: "Which half of the spec failed: `version` (the text before the first `+` is not an exact SemVer version — ranges, partial versions, dist-tags and padded values all land here) or `integrity` (the text after the first `+` is not an SRI `<algo>-<base64>` hash)." })),
+	}, $I.annoteError<InvalidConfigDependencySpecError>("InvalidConfigDependencySpecError", { description: "Indicates that a string could not be parsed as a pnpm `configDependencies` spec (`<version>[+<integrity>]`)." }),
 ) {
 	/**
 	 * Explains whether the exact version or the inline SRI integrity failed validation.
@@ -95,11 +95,10 @@ const specVersion = SemVer.pipe(
 	S.check(
 		S.makeFilter((version: SemVer) =>
 			version.build.length === 0 ? undefined : "Expected a version without build metadata",
-			{
-				identifier: $I`VersionWithoutBuildMetadata`,
-				title: "Version without build metadata",
+			$I.annote("VersionWithoutBuildMetadata", {
+				message: "Version without build metadata",
 				description: "Config dependency versions cannot carry build metadata because the first plus sign begins integrity.",
-			},
+			}),
 		),
 	),
 );
@@ -150,14 +149,14 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
 	 * grammar cannot express it (see the class remarks), and a version
 	 * constructed with build identifiers is rejected at construction.
 	 */
-	version: specVersion.annotateKey({ description: "The exact declared version. Never carries build metadata — the spec grammar cannot express it (see the class remarks), and a version constructed with build identifiers is rejected at construction." }),
+	version: specVersion.pipe($I.annoteKey("ConfigDependencySpec.version", { description: "The exact declared version. Never carries build metadata — the spec grammar cannot express it (see the class remarks), and a version constructed with build identifiers is rejected at construction." })),
 	/**
 	 * The inline integrity (e.g. `sha512-m35m…==`): `@effected/npm`'s
 	 * `SriIntegrityHash`, the shared restriction of the `IntegrityHash` brand
 	 * to the SRI `<algo>-<base64>` form. `None` on the bare form pnpm 11+
 	 * writes.
 	 */
-	integrity: S.Option(SriIntegrityHash).annotateKey({ description: "The inline integrity (e.g. `sha512-m35m…==`): `@effected/npm`'s `SriIntegrityHash`, the shared restriction of the `IntegrityHash` brand to the SRI `<algo>-<base64>` form. `None` on the bare form pnpm 11+ writes." }),
+	integrity: S.Option(SriIntegrityHash).pipe($I.annoteKey("ConfigDependencySpec.integrity", { description: "The inline integrity (e.g. `sha512-m35m…==`): `@effected/npm`'s `SriIntegrityHash`, the shared restriction of the `IntegrityHash` brand to the SRI `<algo>-<base64>` form. `None` on the bare form pnpm 11+ writes." })),
 }, $I.annote("ConfigDependencySpec", { description: "A pnpm `configDependencies` spec from `pnpm-workspace.yaml`: an exact `version` and, on the legacy inline form only, an SRI `integrity`." })) {
 	/**
 	 * Schema transformation between the `<version>[+<integrity>]` string and a

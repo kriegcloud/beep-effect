@@ -46,7 +46,7 @@ export const EnvelopeFrame = S.Struct({
   event: S.String,
   scope: S.optionalKey(S.String),
   data: S.Unknown,
-}).annotate($I.annote("EnvelopeFrame", { description: "An envelope frame with an undecoded payload." }));
+}).pipe($I.annoteSchema("EnvelopeFrame", { description: "An envelope frame with an undecoded payload." }));
 
 /**
  * The decoded frame, before its registered payload codec runs.
@@ -55,34 +55,65 @@ export const EnvelopeFrame = S.Struct({
  */
 export type EnvelopeFrame = typeof EnvelopeFrame.Type;
 
-const input = <Tag extends string, Data>(tag: Tag, data: S.Codec<Data, unknown>) =>
+/**
+ * The input codec {@link Envelope.input} builds for one event tag and payload.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type EnvelopeInputSchema<Tag extends string, Data> = S.Struct<{
+  readonly at: S.DateTimeUtcFromString;
+  readonly event: S.tag<Tag>;
+  readonly scope: S.optionalKey<S.String>;
+  readonly data: S.Codec<Data, unknown>;
+}>;
+
+/**
+ * The decoded-envelope codec {@link Envelope.schema} builds for one event tag and payload.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type EnvelopeSchema<Tag extends string, Data> = S.Struct<{
+  readonly at: S.DateTimeUtc;
+  readonly event: S.tag<Tag>;
+  readonly scope: S.optionalKey<S.String>;
+  readonly data: S.Codec<Data, unknown>;
+  readonly line: typeof LineSlice;
+}>;
+
+const input: {
+  <Tag extends string, Data>(tag: Tag, data: S.Codec<Data, unknown>): EnvelopeInputSchema<Tag, Data>;
+  <Data>(data: S.Codec<Data, unknown>): <Tag extends string>(tag: Tag) => EnvelopeInputSchema<Tag, Data>;
+} = dual(2, <Tag extends string, Data>(tag: Tag, data: S.Codec<Data, unknown>): EnvelopeInputSchema<Tag, Data> =>
   S.Struct({
     at: S.DateTimeUtcFromString,
     event: S.tag(tag),
     scope: S.optionalKey(S.String),
     data,
-  }).annotate(
-    $I.annote("EnvelopeInput", { description: "An event input with its wire timestamp and payload codecs." })
-  );
+  }).pipe(
+    $I.annoteSchema("EnvelopeInput", { description: "An event input with its wire timestamp and payload codecs." })
+  ));
 
-const schema = <Tag extends string, Data>(tag: Tag, data: S.Codec<Data, unknown>) =>
-  S.Struct({ ...input(tag, data).fields, at: S.DateTimeUtc, line: LineSlice }).annotate(
-    $I.annote("Envelope", { description: "A selected event with its decoded payload and source line." })
-  );
+const schema: {
+  <Tag extends string, Data>(tag: Tag, data: S.Codec<Data, unknown>): EnvelopeSchema<Tag, Data>;
+  <Data>(data: S.Codec<Data, unknown>): <Tag extends string>(tag: Tag) => EnvelopeSchema<Tag, Data>;
+} = dual(2, <Tag extends string, Data>(tag: Tag, data: S.Codec<Data, unknown>): EnvelopeSchema<Tag, Data> =>
+  S.Struct({ ...input(tag, data).fields, at: S.DateTimeUtc, line: LineSlice }).pipe(
+    $I.annoteSchema("Envelope", { description: "A selected event with its decoded payload and source line." })
+  ));
 
 /**
  * A schema-derived envelope for one event tag and payload.
  * @category type-level
  * @since 0.0.0
  */
-export type Envelope<Tag extends string, Data> = ReturnType<typeof schema<Tag, Data>>["Type"];
+export type Envelope<Tag extends string, Data> = EnvelopeSchema<Tag, Data>["Type"];
 
 /**
  * An envelope without a source line, accepted by the encoder.
  * @category type-level
  * @since 0.0.0
  */
-export type EnvelopeInput<Tag extends string, Data> = ReturnType<typeof input<Tag, Data>>["Type"];
+export type EnvelopeInput<Tag extends string, Data> = EnvelopeInputSchema<Tag, Data>["Type"];
 
 /**
  * The envelope produced by an event definition's codec.
@@ -130,15 +161,18 @@ class Registry<R extends JsonlEvent.Registry> {
 const registry = <const R extends JsonlEvent.Registry>(events: R | Registry<R>): Registry<R> =>
   events instanceof Registry ? events : new Registry(events);
 
-const definition = <R extends JsonlEvent.Registry>(events: R | Registry<R>, tag: string): O.Option<R[number]> => {
+const definition: {
+  <R extends JsonlEvent.Registry>(events: R | Registry<R>, tag: string): O.Option<R[number]>;
+  (tag: string): <R extends JsonlEvent.Registry>(events: R | Registry<R>) => O.Option<R[number]>;
+} = dual(2, <R extends JsonlEvent.Registry>(events: R | Registry<R>, tag: string): O.Option<R[number]> => {
   const owned = registry(events);
   return HashMap.get(owned.index, tag).pipe(O.flatMap((position) => A.get(owned.events, position)));
-};
+});
 const decodeFrame = S.decodeUnknownResult(EnvelopeFrame);
 const encodeAt = S.encodeUnknownResult(S.DateTimeUtcFromString);
 const encodeScope = S.encodeUnknownResult(
-  S.Struct({ scope: S.optionalKey(S.String) }).annotate(
-    $I.annote("EnvelopeScope", { description: "The optional scope key an encoder input writes." })
+  S.Struct({ scope: S.optionalKey(S.String) }).pipe(
+    $I.annoteSchema("EnvelopeScope", { description: "The optional scope key an encoder input writes." })
   )
 );
 const encodeJson = S.encodeResult(S.fromJsonString(S.Unknown));
@@ -147,13 +181,27 @@ const emptyLine = LineSlice.make({ offset: 0, end: 0, length: 0, text: "", termi
 // The envelope codec only runs on a frame that passed EnvelopeFrame and whose tag
 // selected it, so its failure is the payload's. Report it as the payload codec
 // does, with issue paths relative to data; the envelope error is kept otherwise.
-const payloadError = (data: DataSchema, value: unknown, error: S.SchemaError): S.SchemaError =>
-  pipe(S.decodeUnknownResult(data)(value), Result.flip, Result.getOrElse(constant(error)));
+const payloadError: {
+  (data: DataSchema, value: unknown, error: S.SchemaError): S.SchemaError;
+  (value: unknown, error: S.SchemaError): (data: DataSchema) => S.SchemaError;
+} = dual(3, (data: DataSchema, value: unknown, error: S.SchemaError): S.SchemaError =>
+  pipe(S.decodeUnknownResult(data)(value), Result.flip, Result.getOrElse(constant(error))));
 
-const completeResult = <R extends JsonlEvent.Registry>(
+// The frame is the subject: the decoders pipe a decoded frame into it.
+const completeResult: {
+  <R extends JsonlEvent.Registry>(
+    frame: EnvelopeFrame,
+    events: R | Registry<R>,
+    line: LineSlice
+  ): Result.Result<EnvelopeUnion<R>, DecodeError>;
+  <R extends JsonlEvent.Registry>(
+    events: R | Registry<R>,
+    line: LineSlice
+  ): (frame: EnvelopeFrame) => Result.Result<EnvelopeUnion<R>, DecodeError>;
+} = dual(3, <R extends JsonlEvent.Registry>(
+  frame: EnvelopeFrame,
   events: R | Registry<R>,
-  line: LineSlice,
-  frame: EnvelopeFrame
+  line: LineSlice
 ): Result.Result<EnvelopeUnion<R>, DecodeError> => {
   const owned = registry(events);
   const found = definition(owned, frame.event);
@@ -168,7 +216,7 @@ const completeResult = <R extends JsonlEvent.Registry>(
       InvalidData.make({ line, event: O.some(frame.event), error: payloadError(found.value.data, frame.data, error) })
     )
   );
-};
+});
 
 const frameResult = (
   line: LineSlice
@@ -191,7 +239,7 @@ const decodeResult: {
 } = dual(
   2,
   <R extends JsonlEvent.Registry>(line: LineSlice, events: R | Registry<R>): Result.Result<EnvelopeUnion<R>, DecodeError> =>
-    frameResult(line).pipe(Result.flatMap((frame) => completeResult(events, line, frame)))
+    frameResult(line).pipe(Result.flatMap(completeResult(events, line)))
 );
 
 const decodeSelectedResult: {
@@ -213,7 +261,7 @@ const decodeSelectedResult: {
   ): O.Option<Result.Result<EnvelopeUnion<R>, DecodeError>> => {
     const frame = frameResult(line);
     if (Result.isFailure(frame)) return frame.failure.pipe(Result.fail, O.some);
-    return select(frame.success) ? O.some(completeResult(events, line, frame.success)) : O.none();
+    return select(frame.success) ? O.some(completeResult(frame.success, events, line)) : O.none();
   }
 );
 
@@ -254,14 +302,20 @@ const lastValidResult: {
 
 // Follow only wire containers, never payload fields. Resolve suspensions when
 // the encoder runs; an identity stack bounds recursive wire targets.
-const structuralTarget = (ast: SchemaAST.AST, ancestors: ReadonlyArray<SchemaAST.AST> = []): boolean => {
-  if (A.some(ancestors, (ancestor) => ancestor === ast)) return false;
-  if (SchemaAST.isObjects(ast)) return true;
-  const next = A.append(ancestors, ast);
-  if (SchemaAST.isUnion(ast)) return A.some(ast.types, (member) => structuralTarget(member, next));
-  if (SchemaAST.isSuspend(ast)) return structuralTarget(ast.thunk(), next);
-  return ast.encoding !== undefined && A.some(ast.encoding, (link) => structuralTarget(link.to, next));
-};
+const structuralTarget: {
+  (ast: SchemaAST.AST, ancestors?: ReadonlyArray<SchemaAST.AST>): boolean;
+  (ancestors?: ReadonlyArray<SchemaAST.AST>): (ast: SchemaAST.AST) => boolean;
+} = dual(
+  (args) => SchemaAST.isAST(args[0]),
+  (ast: SchemaAST.AST, ancestors: ReadonlyArray<SchemaAST.AST> = []): boolean => {
+    if (A.some(ancestors, (ancestor) => ancestor === ast)) return false;
+    if (SchemaAST.isObjects(ast)) return true;
+    const next = A.append(ancestors, ast);
+    if (SchemaAST.isUnion(ast)) return A.some(ast.types, structuralTarget(next));
+    if (SchemaAST.isSuspend(ast)) return structuralTarget(ast.thunk(), next);
+    return ast.encoding !== undefined && A.some(ast.encoding, (link) => structuralTarget(link.to, next));
+  }
+);
 
 // The merge stays plain. Class declarations accept only the decoded base's
 // provenance; non-class structural transformations retain their patch adapter.
@@ -317,7 +371,17 @@ const patchCodec = (data: DataSchema): DataSchema => {
   return S.make<DataSchema>(patchAst(data.ast));
 };
 
-const encodeResultWith = <R extends JsonlEvent.Registry>(
+const encodeResultWith: {
+  <R extends JsonlEvent.Registry>(
+    envelope: Encoding<NoInfer<R>>,
+    events: R | Registry<R>,
+    patch: boolean
+  ): Result.Result<string, EncodeError>;
+  <R extends JsonlEvent.Registry>(
+    events: R | Registry<R>,
+    patch: boolean
+  ): (envelope: Encoding<NoInfer<R>>) => Result.Result<string, EncodeError>;
+} = dual(3, <R extends JsonlEvent.Registry>(
   envelope: Encoding<NoInfer<R>>,
   events: R | Registry<R>,
   patch: boolean
@@ -343,7 +407,7 @@ const encodeResultWith = <R extends JsonlEvent.Registry>(
     Result.map((text) => `${text}\n`),
     Result.mapError((cause) => UnserializableData.make({ event: envelope.event, cause }))
   );
-};
+});
 
 type Encoder = {
   <const R extends JsonlEvent.Registry>(

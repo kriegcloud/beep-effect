@@ -12,7 +12,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import * as Str from "effect/String";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Base64 from "effect/encoding/Base64";
 import { HttpClient } from "effect/http";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
@@ -22,8 +22,16 @@ import type { PublishedVersion } from "./NpmRegistry.ts";
 const $I = $ScratchpadId.create("effected/npm/PackageTarball");
 
 const TarballReason = LiteralKit(["notFound", "http", "integrityMismatch", "integrityUnverifiable", "extractFailed"])
-	.annotate($I.annote("TarballReason", { description: "The reason a published tarball could not be read." }));
+	.pipe($I.annoteSchema("TarballReason", { description: "The reason a published tarball could not be read." }));
 type TarballReason = typeof TarballReason.Type;
+
+/** The optional facts a {@link TarballError} carries beyond its reason. */
+interface TarballFailureExtra {
+	readonly status?: number;
+	readonly expected?: string;
+	readonly actual?: string;
+	readonly cause?: unknown;
+}
 
 /**
  * Raised when a published tarball cannot be fetched, verified or extracted.
@@ -50,20 +58,20 @@ const TarballErrorPayload = S.Struct({
 	 * `integrityUnverifiable` — the registry vouched for an integrity but no
 	 * digest could be computed to check it, so nothing was compared.
 	 */
-	reason: TarballReason.annotateKey({ description: "`notFound` — the registry recorded no tarball for this version, or the tarball URL answered 404. `http` — any other transport or non-2xx failure. `integrityMismatch` — the bytes did not match the integrity the registry vouched for. `extractFailed` — the bytes could not be written or unpacked." }),
+	reason: TarballReason.pipe($I.annoteKey("TarballErrorPayload.reason", { description: "`notFound` — the registry recorded no tarball for this version, or the tarball URL answered 404. `http` — any other transport or non-2xx failure. `integrityMismatch` — the bytes did not match the integrity the registry vouched for. `extractFailed` — the bytes could not be written or unpacked." })),
 	/** The package being fetched. */
-	package: S.String.annotateKey({ description: "The package being fetched." }),
+	package: S.String.pipe($I.annoteKey("TarballErrorPayload.package", { description: "The package being fetched." })),
 	/** The version being fetched. */
-	version: S.String.annotateKey({ description: "The version being fetched." }),
+	version: S.String.pipe($I.annoteKey("TarballErrorPayload.version", { description: "The version being fetched." })),
 	/** The HTTP status, for `reason: "http"` and a 404 `notFound`. */
-	status: S.optionalKey(S.Finite).annotateKey({ description: "The HTTP status, for `reason: \"http\"` and a 404 `notFound`." }),
+	status: S.optionalKey(S.Finite).pipe($I.annoteKey("TarballErrorPayload.status", { description: "The HTTP status, for `reason: \"http\"` and a 404 `notFound`." })),
 	/** The integrity the registry vouched for, for `reason: "integrityMismatch"`. */
-	expected: S.optionalKey(S.String).annotateKey({ description: "The integrity the registry vouched for, for `reason: \"integrityMismatch\"`." }),
+	expected: S.optionalKey(S.String).pipe($I.annoteKey("TarballErrorPayload.expected", { description: "The integrity the registry vouched for, for `reason: \"integrityMismatch\"`." })),
 	/** The integrity the downloaded bytes actually have. */
-	actual: S.optionalKey(S.String).annotateKey({ description: "The integrity the downloaded bytes actually have." }),
+	actual: S.optionalKey(S.String).pipe($I.annoteKey("TarballErrorPayload.actual", { description: "The integrity the downloaded bytes actually have." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect({ includeStack: true })).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}).annotate($I.annote("TarballErrorPayload", { description: "The compatible public tarball error payload." }));
+	cause: S.optionalKey(S.Defect({ includeStack: true })).pipe($I.annoteKey("TarballErrorPayload.cause", { description: "The underlying failure, preserved structurally." })),
+}).pipe($I.annoteSchema("TarballErrorPayload", { description: "The compatible public tarball error payload." }));
 
 const TarballCommon = {
 	package: TarballErrorPayload.fields.package,
@@ -71,17 +79,17 @@ const TarballCommon = {
 };
 
 const TarballFailure = TarballReason.mapMembers(([notFound, http, integrityMismatch, integrityUnverifiable, extractFailed]) => [
-	S.Struct({ ...TarballCommon, reason: notFound.annotateKey({ description: "No tarball was published or the URL answered 404." }), status: TarballErrorPayload.fields.status })
-		.annotate($I.annote("TarballNotFound", { description: "A missing published tarball." })),
-	S.Struct({ ...TarballCommon, reason: http.annotateKey({ description: "A transport or non-2xx download failure." }), status: TarballErrorPayload.fields.status, cause: TarballErrorPayload.fields.cause })
-		.annotate($I.annote("TarballHttpFailure", { description: "A failed tarball download." })),
-	S.Struct({ ...TarballCommon, reason: integrityMismatch.annotateKey({ description: "The measured integrity differs from the published integrity." }), expected: TarballErrorPayload.fields.expected, actual: TarballErrorPayload.fields.actual })
-		.annotate($I.annote("TarballIntegrityMismatch", { description: "A measured integrity mismatch." })),
-	S.Struct({ ...TarballCommon, reason: integrityUnverifiable.annotateKey({ description: "No digest could be computed to verify the tarball." }), expected: TarballErrorPayload.fields.expected, cause: TarballErrorPayload.fields.cause })
-		.annotate($I.annote("TarballIntegrityUnverifiable", { description: "An unmeasured tarball integrity." })),
-	S.Struct({ ...TarballCommon, reason: extractFailed.annotateKey({ description: "The tarball could not be written or unpacked." }), cause: TarballErrorPayload.fields.cause })
-		.annotate($I.annote("TarballExtractionFailure", { description: "A failed tarball extraction." })),
-] as const).pipe(S.annotate($I.annote("TarballFailure", { description: "Validated case-specific tarball failures." })), S.toTaggedUnion("reason"));
+	S.Struct({ ...TarballCommon, reason: notFound.pipe($I.annoteKey("TarballNotFound.reason", { description: "No tarball was published or the URL answered 404." })), status: TarballErrorPayload.fields.status })
+		.pipe($I.annoteSchema("TarballNotFound", { description: "A missing published tarball." })),
+	S.Struct({ ...TarballCommon, reason: http.pipe($I.annoteKey("TarballHttpFailure.reason", { description: "A transport or non-2xx download failure." })), status: TarballErrorPayload.fields.status, cause: TarballErrorPayload.fields.cause })
+		.pipe($I.annoteSchema("TarballHttpFailure", { description: "A failed tarball download." })),
+	S.Struct({ ...TarballCommon, reason: integrityMismatch.pipe($I.annoteKey("TarballIntegrityMismatch.reason", { description: "The measured integrity differs from the published integrity." })), expected: TarballErrorPayload.fields.expected, actual: TarballErrorPayload.fields.actual })
+		.pipe($I.annoteSchema("TarballIntegrityMismatch", { description: "A measured integrity mismatch." })),
+	S.Struct({ ...TarballCommon, reason: integrityUnverifiable.pipe($I.annoteKey("TarballIntegrityUnverifiable.reason", { description: "No digest could be computed to verify the tarball." })), expected: TarballErrorPayload.fields.expected, cause: TarballErrorPayload.fields.cause })
+		.pipe($I.annoteSchema("TarballIntegrityUnverifiable", { description: "An unmeasured tarball integrity." })),
+	S.Struct({ ...TarballCommon, reason: extractFailed.pipe($I.annoteKey("TarballExtractionFailure.reason", { description: "The tarball could not be written or unpacked." })), cause: TarballErrorPayload.fields.cause })
+		.pipe($I.annoteSchema("TarballExtractionFailure", { description: "A failed tarball extraction." })),
+] as const).pipe($I.annoteSchema("TarballFailure", { description: "Validated case-specific tarball failures." }), S.toTaggedUnion("reason"));
 
 // The public optional-field bag remains compatible. Composition projects it
 // into the validated member for its reason, dropping irrelevant fields there.
@@ -102,7 +110,7 @@ const TarballFailureFromPayload = S.toType(TarballErrorPayload).pipe(S.decodeTo(
  * @since 0.0.0
  */
 export class TarballError extends S.TaggedError<TarballError, { readonly brand: unique symbol }>($I`TarballError`)("TarballError", TarballErrorPayload,
-	$I.annote("TarballError", { description: "Raised when a published tarball cannot be fetched, verified or extracted." }),
+	$I.annoteError<TarballError>("TarballError", { description: "Raised when a published tarball cannot be fetched, verified or extracted." }),
 ) {
 	private get variant(): typeof TarballFailure.Type {
 		return pipe(this, S.decodeUnknownResult(TarballFailureFromPayload), Result.getOrThrow);
@@ -193,10 +201,13 @@ const make = Effect.fnUntraced(function* () {
 	const extract = Effect.fn("PackageTarball.extract")(function* (published: PublishedVersion) {
 		const name = published.name;
 		const version = published.version;
-		const fail = (
+		const fail: {
+			(reason: TarballReason, extra?: TarballFailureExtra): TarballError;
+			(extra?: TarballFailureExtra): (reason: TarballReason) => TarballError;
+		} = dual((args) => S.is(TarballReason)(args[0]), (
 			reason: TarballReason,
-			extra: { status?: number; expected?: string; actual?: string; cause?: unknown } = {},
-		): TarballError => TarballError.make({ reason, package: name, version, ...extra });
+			extra: TarballFailureExtra = {},
+		): TarballError => TarballError.make({ reason, package: name, version, ...extra }));
 
 		const url = published.tarball;
 		if (url === undefined) {

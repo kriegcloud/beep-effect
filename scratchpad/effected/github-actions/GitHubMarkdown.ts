@@ -20,7 +20,7 @@ import * as Result from "effect/Result";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as SchemaAST from "effect/SchemaAST";
-import { flow } from "effect/Function";
+import { flow, dual } from "effect/Function";
 import * as R from "effect/Record";
 
 const $I = $ScratchpadId.create("effected/github-actions/GitHubMarkdown");
@@ -79,8 +79,8 @@ export const GitHubListOptions = S.Struct({
 	 *  Render `1.`-numbered items instead of bullets.
 	 * @since 0.0.0
 	 */
-	ordered: S.optionalKey(S.Boolean).annotateKey({ description: "Render numbered items instead of bullets." }),
-}).annotate($I.annote("GitHubListOptions", { description: "Options for rendering a GitHub Markdown list." }));
+	ordered: S.optionalKey(S.Boolean).pipe($I.annoteKey("GitHubListOptions.ordered", { description: "Render numbered items instead of bullets." })),
+}).pipe($I.annoteSchema("GitHubListOptions", { description: "Options for rendering a GitHub Markdown list." }));
 /**
  * Decoded list options, with an optional flag for numbered items.
  *
@@ -352,7 +352,10 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static table(headers: ReadonlyArray<string>, rows: ReadonlyArray<ReadonlyArray<string>>): string {
+	static readonly table: {
+		(headers: ReadonlyArray<string>, rows: ReadonlyArray<ReadonlyArray<string>>): string;
+		(rows: ReadonlyArray<ReadonlyArray<string>>): (headers: ReadonlyArray<string>) => string;
+	} = dual(2, (headers: ReadonlyArray<string>, rows: ReadonlyArray<ReadonlyArray<string>>): string => {
 		// A raw newline inside a cell terminates the GFM row — the same
 		// corruption class the pipe escaping exists to prevent, reachable
 		// through a multi-line `format` result or a multi-line value. GitHub
@@ -365,7 +368,7 @@ export abstract class GitHubMarkdown {
 				),
 			});
 		return block(Table.make({ children: [cells(headers), ...rows.map(cells)] }));
-	}
+	});
 
 	/**
 	 * A GFM table whose columns are defined ONCE by a row schema.
@@ -478,9 +481,13 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static heading(text: string, level: GitHubHeadingDepth = 2): string {
-		return `${Str.repeat(level)("#")} ${Str.replace(/\r\n|\r|\n/g, "<br>")(text)}`;
-	}
+	static readonly heading: {
+		(text: string, level?: GitHubHeadingDepth): string;
+		(level?: GitHubHeadingDepth): (text: string) => string;
+	} = dual(
+		(args) => P.isString(args[0]),
+		(text: string, level: GitHubHeadingDepth = 2): string => `${Str.repeat(level)("#")} ${Str.replace(/\r\n|\r|\n/g, "<br>")(text)}`,
+	);
 
 	/**
 	 *  A link. URLs the destination cannot carry raw are angle-bracketed.
@@ -495,9 +502,11 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static link(text: string, url: string): string {
-		return block(Paragraph.make({ children: [Link.make({ url, children: [passthrough(escapeLinkLabel(text))] })] }));
-	}
+	static readonly link: {
+		(text: string, url: string): string;
+		(url: string): (text: string) => string;
+	} = dual(2, (text: string, url: string): string =>
+		block(Paragraph.make({ children: [Link.make({ url, children: [passthrough(escapeLinkLabel(text))] })] })));
 
 	/**
 	 *  Inline code. Content containing backticks widens the delimiter.
@@ -562,7 +571,10 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static list(items: ReadonlyArray<string>, options?: GitHubListOptions): string {
+	static readonly list: {
+		(items: ReadonlyArray<string>, options?: GitHubListOptions): string;
+		(options?: GitHubListOptions): (items: ReadonlyArray<string>) => string;
+	} = dual((args) => A.isArray(args[0]), (items: ReadonlyArray<string>, options?: GitHubListOptions): string => {
 		const ordered = options?.ordered ?? false;
 		return block(
 			List.make({
@@ -571,7 +583,7 @@ export abstract class GitHubMarkdown {
 				children: A.map(items, (item) => ListItem.make({ children: [passthrough(Str.replace(/\r\n|\r/g, "\n")(item))] })),
 			}),
 		);
-	}
+	});
 
 	/**
 	 * A collapsible `<details>` block.
@@ -594,9 +606,10 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static details(summary: string, body: string): string {
-		return `<details>\n<summary>${summary}</summary>\n\n${body}\n\n</details>`;
-	}
+	static readonly details: {
+		(summary: string, body: string): string;
+		(body: string): (summary: string) => string;
+	} = dual(2, (summary: string, body: string): string => `<details>\n<summary>${summary}</summary>\n\n${body}\n\n</details>`);
 
 	/**
 	 * Pre-rendered markdown, passed through by name.

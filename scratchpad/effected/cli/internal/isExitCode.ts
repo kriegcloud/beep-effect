@@ -3,9 +3,7 @@ import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/cli/internal/isExitCode");
 
-const ExitCode = S.Int.check(S.isBetween({ minimum: 0, maximum: 255 })).annotate(
-  $I.annote("ExitCode", { description: "A POSIX process exit status: an integer from 0 through 255." }),
-);
+const ExitCode = S.Int.check(S.isBetween({ minimum: 0, maximum: 255 })).pipe($I.annoteSchema("ExitCode", { description: "A POSIX process exit status: an integer from 0 through 255." }));
 
 /**
  * Whether `code` is an exit status a POSIX process can carry: an integer in

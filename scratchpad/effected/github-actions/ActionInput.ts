@@ -14,6 +14,9 @@ import * as SchemaIssue from "effect/SchemaIssue";
 import * as Result from "effect/Result";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import { dual, pipe } from "effect/Function";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
 
 const $I = $ScratchpadId.create("effected/github-actions/ActionInput");
 
@@ -61,8 +64,11 @@ export const inputVariable = (name: string): string => `INPUT_${name.replaceAll(
  * mutations the author meant to rehearse. `actual` carries the offending value
  * so the rendered error names it.
  */
-const configError = (message: string, actual: unknown): Config.ConfigError =>
-	new Config.ConfigError(new S.SchemaError(new SchemaIssue.InvalidValue({ message }, actual)));
+const configError: {
+	(message: string, actual: unknown): Config.ConfigError;
+	(actual: unknown): (message: string) => Config.ConfigError;
+} = dual(2, (message: string, actual: unknown): Config.ConfigError =>
+	new Config.ConfigError(new S.SchemaError(new SchemaIssue.InvalidValue({ message }, actual))));
 
 /** YAML 1.2 core-schema booleans, which is what the runner documents. */
 const TRUE = HashSet.fromIterable<string>(["true", "True", "TRUE"]);
@@ -104,8 +110,8 @@ export const PairsOptions = S.Struct({
 	 * @category configuration
 	 * @since 0.0.0
 	 */
-	requireValue: S.optionalKey(S.Boolean).annotateKey({ description: "Reject pairs with empty values; omitted means empty values are accepted." }),
-}).annotate($I.annote("PairsOptions", { description: "Options controlling empty-value acceptance when reading action input pairs." }));
+	requireValue: S.optionalKey(S.Boolean).pipe($I.annoteKey("PairsOptions.requireValue", { description: "Reject pairs with empty values; omitted means empty values are accepted." })),
+}).pipe($I.annoteSchema("PairsOptions", { description: "Options controlling empty-value acceptance when reading action input pairs." }));
 
 /**
  * The plain-object options accepted by {@link ActionInput.pairs}.
@@ -346,19 +352,18 @@ export class ActionInput {
 	 * @category configuration
 	 * @since 0.0.0
 	 */
-	static literals<const L extends readonly [string, ...Array<string>]>(
-		name: string,
-		allowed: L,
-	): Config.Config<L[number]> {
-		return Config.String(inputVariable(name)).pipe(
+	static readonly literals: {
+		<const L extends readonly [string, ...Array<string>]>(name: string, allowed: L): Config.Config<L[number]>;
+		<const L extends readonly [string, ...Array<string>]>(allowed: L): (name: string) => Config.Config<L[number]>;
+	} = dual(2, <const L extends readonly [string, ...Array<string>]>(name: string, allowed: L): Config.Config<L[number]> =>
+		Config.String(inputVariable(name)).pipe(
 			Config.mapEffect((raw) =>
 				Bool.match(S.is(S.Literals(allowed))(raw), {
 					onTrue: () => Effect.succeed(raw),
-					onFalse: () => Effect.fail(configError(`Input "${name}" must be one of: ${allowed.join(" | ")} — received "${raw}"`, raw)),
+					onFalse: () => Effect.fail(configError(`Input "${name}" must be one of: ${A.join(allowed, " | ")} — received "${raw}"`, raw)),
 				}),
 			),
-		);
-	}
+		));
 
 	/**
 	 * An integer input.
@@ -448,12 +453,7 @@ export class ActionInput {
 	 */
 	static lines(name: string): Config.Config<ReadonlyArray<string>> {
 		return Config.String(inputVariable(name)).pipe(
-			Config.map((raw) =>
-				raw
-					.split("\n")
-					.map((line) => line.trim())
-					.filter((line) => line !== ""),
-			),
+			Config.map((raw) => pipe(raw.split("\n"), A.map(Str.trim), A.filter((line) => line !== ""))),
 		);
 	}
 
@@ -523,15 +523,16 @@ export class ActionInput {
 					}
 					return Effect.fail(configError(`Input "${name}" is a JSON array but not an array of strings`, raw));
 				}
-				const entries = trimmed
-					.split(/[\n,]/)
-					.map((item) => item.trim())
+				const entries = pipe(
+					trimmed.split(/[\n,]/),
+					A.map(Str.trim),
 					// A line whose first character is "#" is a full-line comment,
 					// dropped before a bullet marker is considered.
-					.filter((item) => !item.startsWith("#"))
+					A.filter((item) => !item.startsWith("#")),
 					// A leading "- " or "* " is a YAML/Markdown bullet, not part of the value.
-					.map((item) => (item.startsWith("- ") || item.startsWith("* ") ? item.slice(2).trim() : item))
-					.filter((item) => item !== "");
+					A.map((item) => (item.startsWith("- ") || item.startsWith("* ") ? item.slice(2).trim() : item)),
+					A.filter((item) => item !== ""),
+				);
 				return Effect.succeed<ReadonlyArray<string>>(entries);
 			}),
 		);
@@ -573,7 +574,10 @@ export class ActionInput {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static pairs(name: string, options?: PairsOptions): Config.Config<Record<string, string>> {
+	static readonly pairs: {
+		(name: string, options?: PairsOptions): Config.Config<Record<string, string>>;
+		(options?: PairsOptions): (name: string) => Config.Config<Record<string, string>>;
+	} = dual((args) => P.isString(args[0]), (name: string, options?: PairsOptions): Config.Config<Record<string, string>> => {
 		const requireValue = options?.requireValue ?? false;
 		return Config.String(inputVariable(name)).pipe(
 			Config.mapEffect((raw) => {
@@ -600,7 +604,7 @@ export class ActionInput {
 				return Effect.succeed(result);
 			}),
 		);
-	}
+	});
 
 	/**
 	 * A JSON-valued input, decoded through a schema.
@@ -635,8 +639,11 @@ export class ActionInput {
 	 * @category decoding
 	 * @since 0.0.0
 	 */
-	static schema<A, I>(name: string, schema: S.Codec<A, I>): Config.Config<A> {
-		return Config.String(inputVariable(name)).pipe(
+	static readonly schema: {
+		<A, I>(name: string, schema: S.Codec<A, I>): Config.Config<A>;
+		<A, I>(schema: S.Codec<A, I>): (name: string) => Config.Config<A>;
+	} = dual(2, <A, I>(name: string, schema: S.Codec<A, I>): Config.Config<A> =>
+		Config.String(inputVariable(name)).pipe(
 			Config.mapEffect((raw) => {
 				const parsed = S.decodeResult(Json)(raw);
 				if (Result.isFailure(parsed)) {
@@ -646,8 +653,7 @@ export class ActionInput {
 					Effect.mapError(() => configError(`Input "${name}" did not satisfy its schema`, parsed.success)),
 				);
 			}),
-		);
-	}
+		));
 
 	/**
 	 * A `ConfigProvider` over a record of runner variables **or input names**.
@@ -745,7 +751,7 @@ export class ActionInput {
 		return ConfigProvider.make((path) => {
 			const single = path.length === 1 && P.isString(path[0]) ? path[0] : undefined;
 			const attempted = single === undefined ? undefined : lookup(inputVariable(single));
-			const value = attempted ?? lookup(path.join("_").replaceAll(" ", "_").toUpperCase());
+			const value = attempted ?? lookup(A.join(path, "_").replaceAll(" ", "_").toUpperCase());
 			return Effect.succeed(value === undefined ? undefined : ConfigProvider.makeValue(value));
 		});
 	}

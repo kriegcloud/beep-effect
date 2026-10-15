@@ -145,7 +145,7 @@ export function foldRenderedScalar(
 				out.push(line);
 			}
 		}
-		return out.join("\n");
+		return A.join(out, "\n");
 	}
 	if (first === '"') {
 		const inner = rendered.slice(1, -1);
@@ -391,7 +391,7 @@ export function renderBlockLiteral(
 		indentIndicator = String(explicitIndent);
 	}
 	if (indentIndicator !== "" && (indent.length < 1 || indent.length > 9)) return null;
-	return `|${indentIndicator}${chomp}\n${lines.map((l) => (l === "" ? "" : `${indent}${l}`)).join("\n")}`;
+	return `|${indentIndicator}${chomp}\n${pipe(lines, A.map((l) => (l === "" ? "" : `${indent}${l}`)), A.join("\n"))}`;
 }
 
 /**
@@ -540,5 +540,5 @@ export function renderBlockFolded(
 		}
 	}
 
-	return `>${indentIndicator}${chomp}\n${outputLines.join("\n")}`;
+	return `>${indentIndicator}${chomp}\n${A.join(outputLines, "\n")}`;
 }

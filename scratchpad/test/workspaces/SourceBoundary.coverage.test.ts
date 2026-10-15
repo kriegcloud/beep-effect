@@ -1,3 +1,5 @@
+import * as P from "effect/Predicate";
+import { dual } from "effect/Function";
 import { assert, describe, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -15,7 +17,7 @@ describe("SourceBoundary coverage controls", () => {
     assert.deepStrictEqual(SourceBoundary.check("f.ts", "console \n . \t log(x); console.; console.𝒙(x);", ["console-stdout"]).map((offence) => offence.detail), ["console.log", "console", "console.𝒙"]);
   }));
   it.effect("fixture verification diagnoses missed positives", () => Effect.sync(() => {
-    const spy = vi.spyOn(SourceBoundary, "check").mockReturnValue([]);
+    const spy = vi.spyOn(SourceBoundary, "check").mockImplementation(dual((args) => P.isString(args[1]), (): ReadonlyArray<Offence> => []));
     try {
       assert.deepStrictEqual(SourceBoundary.verifyFixtures(), SourceBoundary.fixtures.filter((fixture) => fixture.flagged).map((fixture) => `missed: ${fixture.name}`));
     } finally { spy.mockRestore(); }
@@ -23,7 +25,7 @@ describe("SourceBoundary coverage controls", () => {
   }));
   it.effect("fixture verification diagnoses false positives", () => Effect.sync(() => {
     const offence = Offence.make({ file: "fixture.ts", line: 1, column: 1, rule: "process", detail: "process" });
-    const spy = vi.spyOn(SourceBoundary, "check").mockReturnValue([offence]);
+    const spy = vi.spyOn(SourceBoundary, "check").mockImplementation(dual((args) => P.isString(args[1]), (): ReadonlyArray<Offence> => [offence]));
     try {
       assert.deepStrictEqual(SourceBoundary.verifyFixtures(), SourceBoundary.fixtures.filter((fixture) => fixture.flagged === false).map((fixture) => `false positive: ${fixture.name}`));
     } finally { spy.mockRestore(); }

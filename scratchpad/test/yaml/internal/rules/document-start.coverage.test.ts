@@ -2,10 +2,12 @@ import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { YamlLint, YamlLintConfig } from "../../../../effected/yaml/YamlLint.ts";
 import { documentStart } from "../../../../effected/yaml/internal/rules/document-start.ts";
+import { dual } from "effect/Function";
+import type { LintContext, YamlLintDiagnostic } from "../../../../effected/yaml/YamlLintRule.ts";
 
 const direct = (text: string, options: unknown, omitLines = false) => YamlLint.run(text, [{
   id: documentStart.id,
-  check: (ctx) => documentStart.check(omitLines ? { ...ctx, lines: [] } : ctx, options),
+  check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => documentStart.check(omitLines ? { ...ctx, lines: [] } : ctx, options)),
 }], YamlLintConfig.make({ rules: { [documentStart.id]: "error" } }));
 
 it.effect("document-start edge cases retain diagnostics and safe fix boundaries", () => Effect.sync(() => {

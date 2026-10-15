@@ -18,6 +18,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as FileSystem from "effect/FileSystem";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -36,6 +37,7 @@ import { listTsFiles } from "./Copy.ts";
 import type { ModuleName } from "./Ledger.schema.ts";
 import { labPaths, type RunnerConfig } from "./Paths.ts";
 import type { SourceFile } from "ts-morph";
+import type { PlatformError } from "effect/PlatformError";
 
 const $I = $ScratchpadId.create("effected/runner/DocsMigrate");
 
@@ -90,7 +92,7 @@ export class DocBlock extends S.Class<DocBlock, { readonly brand: unique symbol 
 export const DocBlockData = S.Struct({
   anchor: S.NonEmptyString,
   ...JSDocMigrateRewriteData.fields,
-}).annotate($I.annote("DocBlockData", { description: "Titles and routing for one legacy JSDoc block." }));
+}).pipe($I.annoteSchema("DocBlockData", { description: "Titles and routing for one legacy JSDoc block." }));
 
 /**
  * The decoded data row.
@@ -104,7 +106,10 @@ export type DocBlockData = typeof DocBlockData.Type;
 const DocBlockDataFile = DocBlockData.pipe(S.Array, S.fromJsonString);
 const decodeDataFile = S.decodeUnknownEffect(DocBlockDataFile);
 
-const countOf = (pattern: RegExp, text: string): number => A.length(A.fromIterable(text.matchAll(pattern)));
+const countOf: {
+  (pattern: RegExp, text: string): number;
+  (text: string): (pattern: RegExp) => number;
+} = dual(2, (pattern: RegExp, text: string): number => A.length(A.fromIterable(text.matchAll(pattern))));
 
 const ownerName = (jsdoc: Node): string => {
   const parent = jsdoc.getParent();
@@ -115,7 +120,10 @@ const ownerName = (jsdoc: Node): string => {
   return Node.hasName(parent) ? parent.getName() : parent.getKindName();
 };
 
-const blocksOf = (sourceFile: SourceFile, file: string): ReadonlyArray<DocBlock> => {
+const blocksOf: {
+  (sourceFile: SourceFile, file: string): ReadonlyArray<DocBlock>;
+  (file: string): (sourceFile: SourceFile) => ReadonlyArray<DocBlock>;
+} = dual(2, (sourceFile: SourceFile, file: string): ReadonlyArray<DocBlock> => {
   const ordinals = MutableHashMap.empty<string, number>();
   const blocks: Array<DocBlock> = [];
   for (const node of sourceFile.getDescendants()) {
@@ -142,7 +150,7 @@ const blocksOf = (sourceFile: SourceFile, file: string): ReadonlyArray<DocBlock>
     );
   }
   return blocks;
-};
+});
 
 /**
  * Every legacy-carrier block in a module's source files.
@@ -160,12 +168,15 @@ const blocksOf = (sourceFile: SourceFile, file: string): ReadonlyArray<DocBlock>
  * @category queries
  * @since 0.0.0
  */
-export const extractDocBlocks = Effect.fn("DocsMigrate.extract")(function* (config: RunnerConfig, module: ModuleName) {
+export const extractDocBlocks: {
+  (config: RunnerConfig, module: ModuleName): Effect.Effect<Array<DocBlock>, PlatformError, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName): (config: RunnerConfig) => Effect.Effect<Array<DocBlock>, PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("DocsMigrate.extract")(function* (config: RunnerConfig, module: ModuleName) {
   const path = yield* Path.Path;
   const files = yield* listTsFiles(config.repoRoot, labPaths(module).sourceDir);
   const project = new Project({ skipAddingFilesFromTsConfig: true });
   return A.flatMap(files, (file) => blocksOf(project.addSourceFileAtPath(path.join(config.repoRoot, file)), file));
-});
+}));
 
 /**
  * What applying a data file did.
@@ -179,10 +190,13 @@ export interface ApplyReport {
   readonly unmatched: ReadonlyArray<string>;
 }
 
-const indentOf = (sourceFile: SourceFile, start: number): string => {
+const indentOf: {
+  (sourceFile: SourceFile, start: number): string;
+  (start: number): (sourceFile: SourceFile) => string;
+} = dual(2, (sourceFile: SourceFile, start: number): string => {
   const column = sourceFile.getLineAndColumnAtPos(start).column;
   return Str.repeat(column - 1)(" ");
-};
+});
 
 /**
  * Applies a data file (a JSON array of {@link DocBlockData}) to a module's
@@ -203,7 +217,10 @@ const indentOf = (sourceFile: SourceFile, start: number): string => {
  * @category commands
  * @since 0.0.0
  */
-export const applyDocBlockData = Effect.fn("DocsMigrate.apply")(function* (
+export const applyDocBlockData: {
+  (config: RunnerConfig, module: ModuleName, json: string): Effect.Effect<ApplyReport, PlatformError | ManifestInvalid, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, json: string): (config: RunnerConfig) => Effect.Effect<ApplyReport, PlatformError | ManifestInvalid, FileSystem.FileSystem | Path.Path>;
+} = dual(3, Effect.fn("DocsMigrate.apply")(function* (
   config: RunnerConfig,
   module: ModuleName,
   json: string
@@ -254,4 +271,4 @@ export const applyDocBlockData = Effect.fn("DocsMigrate.apply")(function* (
     unmatched: A.filter(A.map(rows, (row) => row.anchor), (anchor) => !A.contains(matched, anchor)),
   };
   return report;
-});
+}));

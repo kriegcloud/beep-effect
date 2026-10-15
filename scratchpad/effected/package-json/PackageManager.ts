@@ -25,6 +25,7 @@ import { CorepackIntegrityHash } from "../npm/index.ts";
 import { SemVer } from "../semver/index.ts";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
@@ -37,7 +38,11 @@ const $I = $ScratchpadId.create("effected/package-json/PackageManager");
 // `PackageManagerPin`'s four literals — see the class remarks for why.
 const PACKAGE_MANAGER_NAME_RE = /^[a-z]+$/;
 
-const invalid = (input: string, message: string) => Effect.fail(new SchemaIssue.InvalidValue({ message }, input));
+const invalid: {
+	(input: string, message: string): Effect.Effect<never, SchemaIssue.InvalidValue>;
+	(message: string): (input: string) => Effect.Effect<never, SchemaIssue.InvalidValue>;
+} = dual(2, (input: string, message: string): Effect.Effect<never, SchemaIssue.InvalidValue> =>
+	Effect.fail(new SchemaIssue.InvalidValue({ message }, input)));
 
 /**
  * A structured `packageManager` value with `name`, `version` and an optional
@@ -98,7 +103,7 @@ export class PackageManager extends S.Class<PackageManager, { readonly brand: un
 	 *
 	 * @since 0.0.0
 	 */
-	name: S.String.annotateKey({ description: "The package-manager name (e.g. `pnpm`). Any lowercase name — see the class remarks." }),
+	name: S.String.pipe($I.annoteKey("PackageManager.name", { description: "The package-manager name (e.g. `pnpm`). Any lowercase name — see the class remarks." })),
 	/**
 	 * The version (e.g. `10.33.0`): `@effected/semver`'s
 	 * `SemVer.PinnableVersionString` — an exact SemVer 2.0.0 version with no
@@ -118,7 +123,7 @@ export class PackageManager extends S.Class<PackageManager, { readonly brand: un
 	 *
 	 * @since 0.0.0
 	 */
-	integrity: S.Option(CorepackIntegrityHash).annotateKey({ description: "The optional integrity hash (e.g. `sha512.abc`): `@effected/npm`'s `CorepackIntegrityHash`, the shared restriction of the `IntegrityHash` brand to the corepack `<algo>.<hex>` form." }),
+	integrity: S.Option(CorepackIntegrityHash).pipe($I.annoteKey("PackageManager.integrity", { description: "The optional integrity hash (e.g. `sha512.abc`): `@effected/npm`'s `CorepackIntegrityHash`, the shared restriction of the `IntegrityHash` brand to the corepack `<algo>.<hex>` form." })),
 }, $I.annote("PackageManager", { description: "A structured `packageManager` value with `name`, `version` and an optional `integrity` hash." })) {
 	/**
 	 * Schema transformation between the `"name@version+integrity"` string and a

@@ -26,6 +26,8 @@ import {
 } from "../../effected/github-actions/index.ts";
 
 import { DetachedSpawnOptions } from "../../effected/github-actions/DetachedProcess.ts";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 
 const Json = S.fromJsonString(S.Unknown);
 const EnvironmentRecord = S.Record(S.String, S.String);
@@ -422,11 +424,11 @@ describe("DetachedProcess", () => {
 				Effect.gen(function* () {
 					const reaped: Array<number> = [];
 					const ops = DetachedProcess.makeTestOps({
-						reap: (pid) =>
+						reap: dual((args) => P.isNumber(args[0]), (pid: number, _signal?: NodeJS.Signals) =>
 							Effect.sync(() => {
 								reaped.push(pid);
 								return true;
-							}),
+							})),
 					});
 					assert.isTrue(yield* ops.reap(4242));
 					assert.deepStrictEqual(reaped, [4242]);

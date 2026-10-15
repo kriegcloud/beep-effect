@@ -3,6 +3,7 @@ import type * as PlatformError from "effect/PlatformError";
 import type * as Scope from "effect/Scope";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as Path from "effect/Path";
 import * as Stream from "effect/Stream";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
@@ -29,15 +30,15 @@ const $I = $ScratchpadId.create("effected/cli/CliTest");
  */
 export const Sandbox = S.Struct({
 	/** The temp directory itself; the default working directory of {@link CliTest.run}. */
-	root: S.String.annotate($I.annote("Sandbox.root", { description: "The scoped temporary working directory." })),
+	root: S.String.pipe($I.annoteKey("Sandbox.root", { description: "The scoped temporary working directory." })),
 	/** The fresh `HOME` inside `root`; the XDG base directories live under it. */
-	home: S.String.annotate($I.annote("Sandbox.home", { description: "The fresh child HOME inside the sandbox root." })),
+	home: S.String.pipe($I.annoteKey("Sandbox.home", { description: "The fresh child HOME inside the sandbox root." })),
 	/**
 	 * The complete child environment: `HOME`, the four `XDG_*_HOME` variables,
 	 * the injected `PATH` and `NO_COLOR=1`. Nothing is inherited from the host.
 	 */
-	env: S.Record(S.String, S.String).annotate($I.annote("Sandbox.env", { description: "The complete child environment, without inherited host variables." })),
-}).annotate($I.annote("Sandbox", { description: "A hermetic scoped directory and its child environment." }));
+	env: S.Record(S.String, S.String).pipe($I.annoteKey("Sandbox.env", { description: "The complete child environment, without inherited host variables." })),
+}).pipe($I.annoteSchema("Sandbox", { description: "A hermetic scoped directory and its child environment." }));
 
 /**
  * The plain sandbox data validated by {@link Sandbox}.
@@ -63,22 +64,22 @@ export type Sandbox = typeof Sandbox.Type;
  */
 export const RunOptions = S.Struct({
 	/** The sandbox whose environment and root the child runs in. */
-	sandbox: Sandbox.annotate($I.annote("RunOptions.sandbox", { description: "The sandbox whose environment and root the child runs in." })),
+	sandbox: Sandbox.pipe($I.annoteKey("RunOptions.sandbox", { description: "The sandbox whose environment and root the child runs in." })),
 	/** The node binary — pass `process.execPath` from the test file, never a PATH lookup. */
-	execPath: S.String.annotate($I.annote("RunOptions.execPath", { description: "The explicitly selected runtime executable." })),
+	execPath: S.String.pipe($I.annoteKey("RunOptions.execPath", { description: "The explicitly selected runtime executable." })),
 	/** The child's working directory. Defaults to the sandbox `root`. */
-	cwd: S.optionalKey(S.String).annotate($I.annote("RunOptions.cwd", { description: "An optional working-directory override; otherwise the sandbox root." })),
+	cwd: S.optionalKey(S.String).pipe($I.annoteKey("RunOptions.cwd", { description: "An optional working-directory override; otherwise the sandbox root." })),
 	/**
 	 * Extra environment variables, merged over the sandbox environment — the
 	 * way to override `PATH` for one run.
 	 */
-	env: S.optionalKey(S.Record(S.String, S.String)).annotate($I.annote("RunOptions.env", { description: "Optional environment overrides merged over the sandbox environment." })),
+	env: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("RunOptions.env", { description: "Optional environment overrides merged over the sandbox environment." })),
 	/**
 	 * Text written to the child's stdin, which is then closed. Omitted or `""`,
 	 * the child gets an already-ended empty input, never an open pipe.
 	 */
-	stdin: S.optionalKey(S.String).annotate($I.annote("RunOptions.stdin", { description: "Optional child input; omitted, undefined or empty means an already-ended stream." })),
-}).annotate($I.annote("RunOptions", { description: "Plain subprocess spawn options with optional overrides." }));
+	stdin: S.optionalKey(S.String).pipe($I.annoteKey("RunOptions.stdin", { description: "Optional child input; omitted, undefined or empty means an already-ended stream." })),
+}).pipe($I.annoteSchema("RunOptions", { description: "Plain subprocess spawn options with optional overrides." }));
 
 /**
  * The subprocess options validated by {@link RunOptions}.
@@ -104,12 +105,12 @@ export type RunOptions = typeof RunOptions.Type;
  */
 export const RunResult = S.Struct({
 	/** The child's exit code. */
-	exitCode: S.Finite.annotate($I.annote("RunResult.exitCode", { description: "The child's finite numeric exit code, including non-zero results." })),
+	exitCode: S.Finite.pipe($I.annoteKey("RunResult.exitCode", { description: "The child's finite numeric exit code, including non-zero results." })),
 	/** Everything the child wrote to stdout, decoded as UTF-8. */
-	stdout: S.String.annotate($I.annote("RunResult.stdout", { description: "All child standard output decoded as UTF-8." })),
+	stdout: S.String.pipe($I.annoteKey("RunResult.stdout", { description: "All child standard output decoded as UTF-8." })),
 	/** Everything the child wrote to stderr, decoded as UTF-8. */
-	stderr: S.String.annotate($I.annote("RunResult.stderr", { description: "All child standard error decoded as UTF-8." })),
-}).annotate($I.annote("RunResult", { description: "A plain subprocess exit code and its captured output streams." }));
+	stderr: S.String.pipe($I.annoteKey("RunResult.stderr", { description: "All child standard error decoded as UTF-8." })),
+}).pipe($I.annoteSchema("RunResult", { description: "A plain subprocess exit code and its captured output streams." }));
 
 /**
  * The captured subprocess data validated by {@link RunResult}.
@@ -215,7 +216,10 @@ export abstract class CliTest {
 	 * @category testing
 	 * @since 0.0.0
 	 */
-	static readonly run = (
+	static readonly run: {
+		(bin: string, args: ReadonlyArray<string>, options: RunOptions): Effect.Effect<RunResult, PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner>;
+		(args: ReadonlyArray<string>, options: RunOptions): (bin: string) => Effect.Effect<RunResult, PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner>;
+	} = dual(3, (
 		bin: string,
 		args: ReadonlyArray<string>,
 		options: RunOptions,
@@ -240,5 +244,5 @@ export abstract class CliTest {
 				);
 				return { exitCode: Number(exitCode), stdout, stderr };
 			}),
-		);
+		));
 }

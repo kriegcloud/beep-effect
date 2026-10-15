@@ -23,6 +23,7 @@ import { Range } from "../semver/index.ts";
 import type * as Brand from "effect/Brand";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
@@ -56,8 +57,8 @@ export class InvalidDependencySpecifierError extends S.TaggedError<InvalidDepend
 	"InvalidDependencySpecifierError",
 	{
 		/** The raw input string that failed validation. */
-		input: S.String.annotateKey({ description: "The raw input string that failed validation." }),
-	}, $I.annote("InvalidDependencySpecifierError", { description: "Indicates that a string could not be parsed as a valid dependency specifier." }),
+		input: S.String.pipe($I.annoteKey("InvalidDependencySpecifierError.input", { description: "The raw input string that failed validation." })),
+	}, $I.annoteError<InvalidDependencySpecifierError>("InvalidDependencySpecifierError", { description: "Indicates that a string could not be parsed as a valid dependency specifier." }),
 ) {
 	/**
 	 * Describes the rejected input and why it failed validation.
@@ -98,7 +99,7 @@ export class InvalidDependencySpecifierError extends S.TaggedError<InvalidDepend
  */
 export const DependencyProtocol = LiteralKit([
     "range", "tag", "git", "url", "npm", "file", "link", "portal", "catalog", "workspace", "unknown",
-]).annotate($I.annote("DependencyProtocol", { description: "The ordered taxonomy of dependency specifier protocols, including unknown input." }));
+]).pipe($I.annoteSchema("DependencyProtocol", { description: "The ordered taxonomy of dependency specifier protocols, including unknown input." }));
 
 /**
  * The decoded dependency protocol classification.
@@ -111,44 +112,44 @@ export type DependencyProtocol = typeof DependencyProtocol.Type;
 const CATALOG_PREFIX = "catalog:";
 const WORKSPACE_PREFIX = "workspace:";
 
-const BarePath = S.String.annotate($I.annote("BarePath", { description: "A bare local dependency path." })).check(S.isPattern(/^(?:\.\/|\.\.\/|~\/|\/)/, $I.annote("BarePathCheck", {
-    title: "Bare dependency path", description: "A path beginning with ./, ../, ~/ or /.",
+const BarePath = S.String.pipe($I.annoteSchema("BarePath", { description: "A bare local dependency path." })).check(S.isPattern(/^(?:\.\/|\.\.\/|~\/|\/)/, $I.annote("BarePathCheck", {
+    message: "Bare dependency path", description: "A path beginning with ./, ../, ~/ or /.",
 })));
-const GitHubShorthand = S.String.annotate($I.annote("GitHubShorthand", { description: "A bare hosted GitHub dependency reference." })).check(S.isPattern(/^(?![.~\/])[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+(#.*)?$/, $I.annote("GitHubShorthandCheck", {
-    title: "GitHub shorthand", description: "A user/repository reference with an optional ref, excluding local-looking prefixes.",
+const GitHubShorthand = S.String.pipe($I.annoteSchema("GitHubShorthand", { description: "A bare hosted GitHub dependency reference." })).check(S.isPattern(/^(?![.~\/])[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+(#.*)?$/, $I.annote("GitHubShorthandCheck", {
+    message: "GitHub shorthand", description: "A user/repository reference with an optional ref, excluding local-looking prefixes.",
 })));
-const GitPrefix = S.String.annotate($I.annote("GitPrefix", { description: "A dependency with an explicit git protocol prefix." })).check(S.isPattern(/^(?:git\+|git:\/\/|github:|gist:|bitbucket:|gitlab:)/, $I.annote("GitPrefixCheck", {
-    title: "Git protocol prefix", description: "A git URL or hosted-git protocol prefix.",
+const GitPrefix = S.String.pipe($I.annoteSchema("GitPrefix", { description: "A dependency with an explicit git protocol prefix." })).check(S.isPattern(/^(?:git\+|git:\/\/|github:|gist:|bitbucket:|gitlab:)/, $I.annote("GitPrefixCheck", {
+    message: "Git protocol prefix", description: "A git URL or hosted-git protocol prefix.",
 })));
-const GitSource = S.Union([GitPrefix, GitHubShorthand]).annotate($I.annote("GitSource", { description: "An explicit git source or bare GitHub reference." }));
-const FileSource = S.String.annotate($I.annote("FileSource", { description: "A file-protocol dependency." })).check(S.isStartingWith("file:", $I.annote("FileSourceCheck", {
-    title: "File protocol", description: "A dependency beginning with file:.",
+const GitSource = S.Union([GitPrefix, GitHubShorthand]).pipe($I.annoteSchema("GitSource", { description: "An explicit git source or bare GitHub reference." }));
+const FileSource = S.String.pipe($I.annoteSchema("FileSource", { description: "A file-protocol dependency." })).check(S.isStartingWith("file:", $I.annote("FileSourceCheck", {
+    message: "File protocol", description: "A dependency beginning with file:.",
 })));
-const LinkSource = S.String.annotate($I.annote("LinkSource", { description: "A link-protocol dependency." })).check(S.isStartingWith("link:", $I.annote("LinkSourceCheck", {
-    title: "Link protocol", description: "A dependency beginning with link:.",
+const LinkSource = S.String.pipe($I.annoteSchema("LinkSource", { description: "A link-protocol dependency." })).check(S.isStartingWith("link:", $I.annote("LinkSourceCheck", {
+    message: "Link protocol", description: "A dependency beginning with link:.",
 })));
-const PortalSource = S.String.annotate($I.annote("PortalSource", { description: "A portal-protocol dependency." })).check(S.isStartingWith("portal:", $I.annote("PortalSourceCheck", {
-    title: "Portal protocol", description: "A dependency beginning with portal:.",
+const PortalSource = S.String.pipe($I.annoteSchema("PortalSource", { description: "A portal-protocol dependency." })).check(S.isStartingWith("portal:", $I.annote("PortalSourceCheck", {
+    message: "Portal protocol", description: "A dependency beginning with portal:.",
 })));
-const CatalogSource = S.String.annotate($I.annote("CatalogSource", { description: "A catalog-protocol dependency." })).check(S.isStartingWith(CATALOG_PREFIX, $I.annote("CatalogSourceCheck", {
-    title: "Catalog protocol", description: "A dependency beginning with catalog:.",
+const CatalogSource = S.String.pipe($I.annoteSchema("CatalogSource", { description: "A catalog-protocol dependency." })).check(S.isStartingWith(CATALOG_PREFIX, $I.annote("CatalogSourceCheck", {
+    message: "Catalog protocol", description: "A dependency beginning with catalog:.",
 })));
-const WorkspaceSource = S.String.annotate($I.annote("WorkspaceSource", { description: "A workspace-protocol dependency." })).check(S.isStartingWith(WORKSPACE_PREFIX, $I.annote("WorkspaceSourceCheck", {
-    title: "Workspace protocol", description: "A dependency beginning with workspace:.",
+const WorkspaceSource = S.String.pipe($I.annoteSchema("WorkspaceSource", { description: "A workspace-protocol dependency." })).check(S.isStartingWith(WORKSPACE_PREFIX, $I.annote("WorkspaceSourceCheck", {
+    message: "Workspace protocol", description: "A dependency beginning with workspace:.",
 })));
-const UrlSource = S.String.annotate($I.annote("UrlSource", { description: "An HTTP or HTTPS dependency URL." })).check(S.isPattern(/^https?:\/\//, $I.annote("UrlSourceCheck", {
-    title: "HTTP URL prefix", description: "A dependency beginning with http:// or https://.",
+const UrlSource = S.String.pipe($I.annoteSchema("UrlSource", { description: "An HTTP or HTTPS dependency URL." })).check(S.isPattern(/^https?:\/\//, $I.annote("UrlSourceCheck", {
+    message: "HTTP URL prefix", description: "A dependency beginning with http:// or https://.",
 })));
-const NpmSource = S.String.annotate($I.annote("NpmSource", { description: "An npm alias dependency." })).check(S.isStartingWith("npm:", $I.annote("NpmSourceCheck", {
-    title: "npm alias protocol", description: "A dependency beginning with npm:.",
+const NpmSource = S.String.pipe($I.annoteSchema("NpmSource", { description: "An npm alias dependency." })).check(S.isStartingWith("npm:", $I.annote("NpmSourceCheck", {
+    message: "npm alias protocol", description: "A dependency beginning with npm:.",
 })));
-const BareTag = S.String.annotate($I.annote("BareTag", { description: "The bare dist-tag string grammar before semver precedence is applied." })).check(S.isPattern(/^[a-zA-Z][a-zA-Z0-9._-]*$/, $I.annote("BareTagCheck", {
-    title: "Dist-tag grammar", description: "An ASCII letter followed by letters, digits, dots, underscores or hyphens.",
+const BareTag = S.String.pipe($I.annoteSchema("BareTag", { description: "The bare dist-tag string grammar before semver precedence is applied." })).check(S.isPattern(/^[a-zA-Z][a-zA-Z0-9._-]*$/, $I.annote("BareTagCheck", {
+    message: "Dist-tag grammar", description: "An ASCII letter followed by letters, digits, dots, underscores or hyphens.",
 })));
-const LocalSource = S.Union([FileSource, LinkSource, PortalSource, BarePath]).annotate($I.annote("LocalSource", { description: "A local file, link, portal or bare path dependency." }));
+const LocalSource = S.Union([FileSource, LinkSource, PortalSource, BarePath]).pipe($I.annoteSchema("LocalSource", { description: "A local file, link, portal or bare path dependency." }));
 
-const FileOrPathSource = S.Union([FileSource, BarePath]).annotate(
-    $I.annote("FileOrPathSource", { description: "A file-protocol dependency or a bare local dependency path." }),
+const FileOrPathSource = S.Union([FileSource, BarePath]).pipe(
+    $I.annoteSchema("FileOrPathSource", { description: "A file-protocol dependency or a bare local dependency path." }),
 );
 const isFile: (value: string) => boolean = S.is(FileOrPathSource);
 const isGit: (value: string) => boolean = S.is(GitSource);
@@ -168,13 +169,13 @@ const parseRange = (value: string): O.Option<Range> => {
 	return Exit.isSuccess(exit) ? O.some(exit.value) : O.none();
 };
 
-const RangeString = S.String.annotate($I.annote("RangeString", { description: "A parseable semver range or exact version." })).check(S.makeFilter((value) => O.isSome(parseRange(value)), $I.annote("RangeStringCheck", {
-    title: "Semver range", description: "A string accepted by the shared semver Range.FromString codec.",
+const RangeString = S.String.pipe($I.annoteSchema("RangeString", { description: "A parseable semver range or exact version." })).check(S.makeFilter((value) => O.isSome(parseRange(value)), $I.annote("RangeStringCheck", {
+    message: "Semver range", description: "A string accepted by the shared semver Range.FromString codec.",
 })));
 const isRange: (value: string) => boolean = S.is(RangeString);
 const TagString = BareTag.check(S.makeFilter((value) => !isRange(value), $I.annote("TagStringCheck", {
-    title: "Dist-tag precedence", description: "A bare tag that is not already a parseable semver range.",
-}))).annotate($I.annote("TagString", { description: "A dist-tag after applying semver range precedence." }));
+    message: "Dist-tag precedence", description: "A bare tag that is not already a parseable semver range.",
+}))).pipe($I.annoteSchema("TagString", { description: "A dist-tag after applying semver range precedence." }));
 
 const protocolOf = (value: string): DependencyProtocol => {
 	if (isCatalog(value)) return "catalog";
@@ -204,8 +205,11 @@ const catalogNameOf = (specifier: string): O.Option<string> => {
 // The range-modifier projection pnpm applies at publish time: `*` (or an
 // empty modifier) pins to the version, `~`/`^` prefix it, anything else — a
 // pinned or concrete range — passes through as-is.
-const projectRangeModifier = (range: string, version: string): string =>
-	range === "*" || range === "" ? version : range === "~" ? `~${version}` : range === "^" ? `^${version}` : range;
+const projectRangeModifier: {
+	(range: string, version: string): string;
+	(version: string): (range: string) => string;
+} = dual(2, (range: string, version: string): string =>
+	range === "*" || range === "" ? version : range === "~" ? `~${version}` : range === "^" ? `^${version}` : range);
 
 // Split the part after `workspace:` into pnpm's alias form (`<name>@<range>`,
 // e.g. `foo@^` or `@scope/charts@1.2.3`) and the plain form. The LAST `@` at
@@ -221,14 +225,20 @@ const splitWorkspaceRest = (rest: string): { readonly target: string | undefined
 // and `WorkspaceSpecifier#resolve`. `rest` is the part after `workspace:`.
 // Plain forms project the modifier directly; the alias form becomes pnpm's
 // publish-time aliased dependency `npm:<name>@<projected>`.
-const projectWorkspaceRange = (rest: string, version: string): string => {
+const projectWorkspaceRange: {
+	(rest: string, version: string): string;
+	(version: string): (rest: string) => string;
+} = dual(2, (rest: string, version: string): string => {
 	const { target, range } = splitWorkspaceRest(rest);
 	const projected = projectRangeModifier(range, version);
 	return target === undefined ? projected : `npm:${target}@${projected}`;
-};
+});
 
-const resolveWorkspace = (specifier: string, version: string): string =>
-	isWorkspace(specifier) ? projectWorkspaceRange(Str.slice(WORKSPACE_PREFIX.length)(specifier), version) : specifier;
+const resolveWorkspace: {
+	(specifier: string, version: string): string;
+	(version: string): (specifier: string) => string;
+} = dual(2, (specifier: string, version: string): string =>
+	isWorkspace(specifier) ? projectWorkspaceRange(Str.slice(WORKSPACE_PREFIX.length)(specifier), version) : specifier);
 
 // The target package name of an alias-form `workspace:` specifier, `None` for
 // the plain form and for non-workspace input. Shared by `Manifest.resolve`
@@ -241,8 +251,8 @@ const workspaceTargetOf = (specifier: string): O.Option<string> => {
 };
 
 const RecognizedSpecifier = S.Union([CatalogSource, WorkspaceSource, LocalSource, NpmSource, GitSource, UrlSource, RangeString, BareTag]).check(
-    S.isNonEmpty($I.annote("RecognizedSpecifierCheck", { title: "Nonempty dependency specifier", description: "A recognized dependency specifier must contain at least one character." })),
-).annotate($I.annote("RecognizedSpecifier", { description: "A nonempty dependency specifier in one of the supported protocols." }));
+    S.isNonEmpty($I.annote("RecognizedSpecifierCheck", { message: "Nonempty dependency specifier", description: "A recognized dependency specifier must contain at least one character." })),
+).pipe($I.annoteSchema("RecognizedSpecifier", { description: "A nonempty dependency specifier in one of the supported protocols." }));
 /**
  * Whether a string is a recognized dependency specifier: a semver range, exact
  * version, dist-tag, URL, git ref, GitHub shorthand, file path, or an
@@ -283,9 +293,9 @@ export const isValidDependencySpecifier = S.is(RecognizedSpecifier);
  */
 export class CatalogSpecifier extends S.TaggedClass<CatalogSpecifier, { readonly brand: unique symbol }>($I`CatalogSpecifier`)("catalog", {
 	/** The original specifier string. */
-	raw: S.String.annotateKey({ description: "The original specifier string." }),
+	raw: S.String.pipe($I.annoteKey("CatalogSpecifier.raw", { description: "The original specifier string." })),
 	/** The catalog name, or `Option.none()` for the default catalog. */
-	name: S.Option(S.String).annotateKey({ description: "The catalog name, or `Option.none()` for the default catalog." }),
+	name: S.Option(S.String).pipe($I.annoteKey("CatalogSpecifier.name", { description: "The catalog name, or `Option.none()` for the default catalog." })),
 }, $I.annote("CatalogSpecifier", { description: "A `catalog:` reference. `name` carries the catalog name, or `Option.none()` for the default catalog (`catalog:`)." })) {}
 
 /**
@@ -307,9 +317,9 @@ export class CatalogSpecifier extends S.TaggedClass<CatalogSpecifier, { readonly
  */
 export class WorkspaceSpecifier extends S.TaggedClass<WorkspaceSpecifier, { readonly brand: unique symbol }>($I`WorkspaceSpecifier`)("workspace", {
 	/** The original specifier string. */
-	raw: S.String.annotateKey({ description: "The original specifier string." }),
+	raw: S.String.pipe($I.annoteKey("WorkspaceSpecifier.raw", { description: "The original specifier string." })),
 	/** The part after `workspace:` (e.g. `*`, `^1.2.3`, or an alias form). */
-	range: S.String.annotateKey({ description: "The part after `workspace:` (e.g. `*`, `^1.2.3`, or an alias form)." }),
+	range: S.String.pipe($I.annoteKey("WorkspaceSpecifier.range", { description: "The part after `workspace:` (e.g. `*`, `^1.2.3`, or an alias form)." })),
 }, $I.annote("WorkspaceSpecifier", { description: "A `workspace:` reference. `range` carries the part after `workspace:` — a range modifier (`*`, `^`, `~`), a concrete range, or an alias form." })) {
 	/**
 	 * Projects this workspace reference to its pnpm publish-time dependency.
@@ -366,7 +376,7 @@ export class WorkspaceSpecifier extends S.TaggedClass<WorkspaceSpecifier, { read
  */
 export class RangeSpecifier extends S.TaggedClass<RangeSpecifier, { readonly brand: unique symbol }>($I`RangeSpecifier`)("range", {
 	/** The original specifier string. */
-	raw: S.String.annotateKey({ description: "The original specifier string." }),
+	raw: S.String.pipe($I.annoteKey("RangeSpecifier.raw", { description: "The original specifier string." })),
 }, $I.annote("RangeSpecifier", { description: "A plain semver range or exact version (e.g. `^1.2.3`, `1.x`, `>=1 <2`)." })) {}
 
 /**
@@ -387,7 +397,7 @@ export class RangeSpecifier extends S.TaggedClass<RangeSpecifier, { readonly bra
  */
 export class DistTagSpecifier extends S.TaggedClass<DistTagSpecifier, { readonly brand: unique symbol }>($I`DistTagSpecifier`)("dist-tag", {
 	/** The original specifier string (also the tag name). */
-	raw: S.String.annotateKey({ description: "The original specifier string (also the tag name)." }),
+	raw: S.String.pipe($I.annoteKey("DistTagSpecifier.raw", { description: "The original specifier string (also the tag name)." })),
 }, $I.annote("DistTagSpecifier", { description: "A bare dist-tag (e.g. `latest`, `next`)." })) {}
 
 /**
@@ -409,7 +419,7 @@ export class DistTagSpecifier extends S.TaggedClass<DistTagSpecifier, { readonly
  */
 export class RawSpecifier extends S.TaggedClass<RawSpecifier, { readonly brand: unique symbol }>($I`RawSpecifier`)("raw", {
 	/** The original specifier string. */
-	raw: S.String.annotateKey({ description: "The original specifier string." }),
+	raw: S.String.pipe($I.annoteKey("RawSpecifier.raw", { description: "The original specifier string." })),
 }, $I.annote("RawSpecifier", { description: "The honest fallback for `file:` / `link:` / `portal:` / git / URL / `npm:` forms this concept does not further interpret." })) {}
 
 /**
@@ -477,7 +487,7 @@ const brandedSpecifier = S.String.pipe(
 	S.check(
 		S.makeFilter((value) =>
 			isValidDependencySpecifier(value) ? undefined : "Expected a valid dependency specifier",
-            $I.annote("DependencySpecifierCheck", { title: "Valid dependency specifier", description: "A nonempty string classified as a supported dependency protocol." }),
+            $I.annote("DependencySpecifierCheck", { message: "Valid dependency specifier", description: "A nonempty string classified as a supported dependency protocol." }),
 		),
 	),
 	S.brand("DependencySpecifier"),

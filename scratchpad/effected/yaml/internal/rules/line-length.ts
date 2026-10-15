@@ -5,9 +5,10 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import * as P from "effect/Predicate";
-import type { YamlRule } from "../../YamlLintRule.ts";
+import type { LintContext, YamlRule } from "../../YamlLintRule.ts";
 import { StyleFloor, YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
 import { nonNegativeIntegerOption } from "./util.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/line-length");
 
@@ -34,12 +35,12 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/line-length");
  * @since 0.0.0
  */
 export const lineLengthOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("lineLengthOptions.severity", {
 		description: "Reporting level for excessive line-length findings, defaulting to `error`",
-	}),
-	max: S.optionalKey(nonNegativeIntegerOption).annotateKey({
+	})),
+	max: S.optionalKey(nonNegativeIntegerOption).pipe($I.annoteKey("lineLengthOptions.max", {
 		description: "Maximum line length in UTF-16 code units, excluding the line terminator, defaulting to 120",
-	}),
+	})),
 }).pipe(
 	$I.annoteSchema("lineLengthOptions", {
 		description:
@@ -89,7 +90,7 @@ const DEFAULT_MAX = 120;
  */
 export const lineLength: YamlRule = {
 	id: "line-length",
-	check: (ctx, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const max =
 			P.hasProperty(options, "max") && S.is(lineLengthOptions.fields.max.schema)(options.max)
 				? options.max
@@ -111,7 +112,7 @@ export const lineLength: YamlRule = {
 			}
 		}
 		return out;
-	},
+	}),
 	// Inference: line length is inferable only as a FLOOR — the
 	// longest observed line proves `max` is at least that long, never what
 	// it is. The floor rides in the evidence for callers that want it; the

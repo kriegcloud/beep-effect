@@ -39,7 +39,7 @@ const Meta = S.Struct({
 	count: S.Finite,
 });
 
-const parseDoc = (source: string) => MarkdownDocument.parse(source, withFrontmatter);
+const parseDoc = MarkdownDocument.parse(withFrontmatter);
 
 describe("MarkdownFrontmatter.schema", () => {
 	it.effect("decodes yaml frontmatter to typed data end to end", () =>

@@ -1,5 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as R from "effect/Record";
@@ -18,19 +19,19 @@ const $I = $ScratchpadId.create("effected/lockfiles/internal/pnpmEnv");
  */
 class PnpmEnvPreambleError extends S.TaggedError<PnpmEnvPreambleError, { readonly brand: unique symbol }>($I`PnpmEnvPreambleError`)(
 	"PnpmEnvPreambleError",
-	{ message: S.String.annotateKey({ description: "The env preamble's unaccounted dependency or integrity claim." }) },
-	$I.annote("PnpmEnvPreambleError", { description: "An env preamble whose recorded dependency cannot be accounted for." }),
+	{ message: S.String.pipe($I.annoteKey("PnpmEnvPreambleError.message", { description: "The env preamble's unaccounted dependency or integrity claim." })) },
+	$I.annoteError<PnpmEnvPreambleError>("PnpmEnvPreambleError", { description: "An env preamble whose recorded dependency cannot be accounted for." }),
 ) {}
 
 // ── Raw schema (permissive validation scaffolding, not API) ────────────────
 
 const PnpmEnvImporterDeps = S.optionalKey(
 	S.Record(S.String, S.Struct({
-		specifier: S.String.annotateKey({ description: "The dependency specifier recorded verbatim by pnpm." }),
-		version: S.String.annotateKey({ description: "The resolved version used to locate the dependency's package entry." }),
-	}).annotate($I.annote("PnpmEnvImporterDependency", {
+		specifier: S.String.pipe($I.annoteKey("PnpmEnvImporterDependency.specifier", { description: "The dependency specifier recorded verbatim by pnpm." })),
+		version: S.String.pipe($I.annoteKey("PnpmEnvImporterDependency.version", { description: "The resolved version used to locate the dependency's package entry." })),
+	}).pipe($I.annoteSchema("PnpmEnvImporterDependency", {
 		description: "A dependency declaration in an env preamble importer, before integrity lookup.",
-	}))).annotate($I.annote("PnpmEnvImporterDeps", {
+	}))).pipe($I.annoteSchema("PnpmEnvImporterDeps", {
 		description: "Optional env importer dependencies keyed by package name, preserving pnpm's raw declarations.",
 	})),
 );
@@ -40,32 +41,32 @@ const PnpmEnvRaw = S.Struct({
 		S.Record(
 			S.String,
 			S.Struct({
-				packageManagerDependencies: PnpmEnvImporterDeps.annotateKey({ description: "Package managers pinned by this importer." }),
-				configDependencies: PnpmEnvImporterDeps.annotateKey({ description: "Configuration dependencies recorded by this importer." }),
-			}).annotate($I.annote("PnpmEnvImporter", { description: "An env preamble importer's package-manager and configuration declarations." })),
+				packageManagerDependencies: PnpmEnvImporterDeps.pipe($I.annoteKey("PnpmEnvImporter.packageManagerDependencies", { description: "Package managers pinned by this importer." })),
+				configDependencies: PnpmEnvImporterDeps.pipe($I.annoteKey("PnpmEnvImporter.configDependencies", { description: "Configuration dependencies recorded by this importer." })),
+			}).pipe($I.annoteKey("PnpmEnvImporter", { description: "An env preamble importer's package-manager and configuration declarations." })),
 		),
-	).annotateKey({ description: "Env importers keyed by workspace-relative path; the root importer is '.'." }),
+	).pipe($I.annoteKey("PnpmEnvRaw.importers", { description: "Env importers keyed by workspace-relative path; the root importer is '.'." })),
 	packages: S.optionalKey(
 		S.Record(
 			S.String,
 			S.Struct({
 				resolution: S.optionalKey(S.Struct({
-					integrity: S.optionalKey(S.String).annotateKey({ description: "The recorded integrity text, validated as SRI when the package is requested." }),
-				}).annotate($I.annote("PnpmEnvResolution", { description: "A permissive package resolution carrying its optional recorded integrity." })))
-					.annotateKey({ description: "The package resolution metadata recorded by pnpm." }),
-			}).annotate($I.annote("PnpmEnvPackage", { description: "An env package entry whose integrity can satisfy an importer or native dependency." })),
+					integrity: S.optionalKey(S.String).pipe($I.annoteKey("PnpmEnvResolution.integrity", { description: "The recorded integrity text, validated as SRI when the package is requested." })),
+				}).pipe($I.annoteKey("PnpmEnvResolution", { description: "A permissive package resolution carrying its optional recorded integrity." })))
+					.pipe($I.annoteKey("PnpmEnvPackage.resolution", { description: "The package resolution metadata recorded by pnpm." })),
+			}).pipe($I.annoteKey("PnpmEnvPackage", { description: "An env package entry whose integrity can satisfy an importer or native dependency." })),
 		),
-	).annotateKey({ description: "Env package entries keyed by package name and resolved version." }),
+	).pipe($I.annoteKey("PnpmEnvRaw.packages", { description: "Env package entries keyed by package name and resolved version." })),
 	snapshots: S.optionalKey(
 		S.Record(
 			S.String,
 			S.Struct({
 				optionalDependencies: S.optionalKey(S.Record(S.String, S.String))
-					.annotateKey({ description: "Optional dependency versions keyed by name, including pnpm's native platform packages." }),
-			}).annotate($I.annote("PnpmEnvSnapshot", { description: "An env dependency snapshot used to discover pnpm's optional native packages." })),
+					.pipe($I.annoteKey("PnpmEnvSnapshot.optionalDependencies", { description: "Optional dependency versions keyed by name, including pnpm's native platform packages." })),
+			}).pipe($I.annoteKey("PnpmEnvSnapshot", { description: "An env dependency snapshot used to discover pnpm's optional native packages." })),
 		),
-	).annotateKey({ description: "Env dependency snapshots keyed by package name and resolved version." }),
-}).annotate($I.annote("PnpmEnvRaw", {
+	).pipe($I.annoteKey("PnpmEnvRaw.snapshots", { description: "Env dependency snapshots keyed by package name and resolved version." })),
+}).pipe($I.annoteSchema("PnpmEnvRaw", {
 	description: "The permissive env preamble boundary shape shared by the pnpm package-manager and config-dependency readers.",
 }));
 
@@ -81,7 +82,7 @@ const PNPM = "pnpm";
  */
 const ROOT_IMPORTER = ".";
 
-const JsonString = S.fromJsonString(S.String).annotate($I.annote("JsonString", {
+const JsonString = S.fromJsonString(S.String).pipe($I.annoteSchema("JsonString", {
 	description: "A JSON-quoted string used to name env preamble keys exactly in validation messages.",
 }));
 const encodeJsonString = S.encodeEffect(JsonString);
@@ -91,8 +92,11 @@ const encodeJsonString = S.encodeEffect(JsonString);
  * such as `constructor` or `__proto__` must never be answered by
  * `Object.prototype`.
  */
-const own = <V>(record: Readonly<Record<string, V>> | undefined, key: string): V | undefined =>
-	record !== undefined && R.has(record, key) ? record[key] : undefined;
+const own: {
+	<V>(record: Readonly<Record<string, V>> | undefined, key: string): V | undefined;
+	(key: string): <V>(record: Readonly<Record<string, V>> | undefined) => V | undefined;
+} = dual(2, <V>(record: Readonly<Record<string, V>> | undefined, key: string): V | undefined =>
+	record !== undefined && R.has(record, key) ? record[key] : undefined);
 
 /**
  * A located, well-formed preamble that does not hold what it promises: the
@@ -107,7 +111,10 @@ const unaccounted = (message: string): ParseFailure =>
  * integrity, or the SRI form of that integrity is missing. Never `undefined`:
  * the caller only asks for keys the lockfile's own graph names.
  */
-const integrityOf = Effect.fnUntraced(function* (raw: PnpmEnvRawType, key: string): Effect.fn.Return<string, ParseFailure> {
+const integrityOf: {
+	(raw: PnpmEnvRawType, key: string): Effect.Effect<string, ParseFailure>;
+	(key: string): (raw: PnpmEnvRawType) => Effect.Effect<string, ParseFailure>;
+} = dual(2, Effect.fnUntraced(function* (raw: PnpmEnvRawType, key: string): Effect.fn.Return<string, ParseFailure> {
 	const integrity = own(raw.packages, key)?.resolution?.integrity;
 	if (integrity === undefined) {
 		const quotedKey = yield* encodeJsonString(key).pipe(Effect.mapError(validationFailure));
@@ -120,7 +127,7 @@ const integrityOf = Effect.fnUntraced(function* (raw: PnpmEnvRawType, key: strin
 		);
 	}
 	return integrity;
-});
+}));
 
 /**
  * The SRI integrity of the `<name>@<version>` a preamble entry records,
@@ -128,7 +135,10 @@ const integrityOf = Effect.fnUntraced(function* (raw: PnpmEnvRawType, key: strin
  * `packages` entry, and saying so beats reporting the malformed key.
  * `subject` is the entry as the empty-version message names it.
  */
-const recordedIntegrity = (
+const recordedIntegrity: {
+	(raw: PnpmEnvRawType, subject: string, name: string, version: string): Effect.Effect<string, ParseFailure>;
+	(subject: string, name: string, version: string): (raw: PnpmEnvRawType) => Effect.Effect<string, ParseFailure>;
+} = dual(4, (
 	raw: PnpmEnvRawType,
 	subject: string,
 	name: string,
@@ -136,7 +146,7 @@ const recordedIntegrity = (
 ): Effect.Effect<string, ParseFailure> =>
 	version === ""
 		? Effect.fail(unaccounted(`${subject} is recorded with an empty version`))
-		: integrityOf(raw, `${name}@${version}`);
+		: integrityOf(raw, `${name}@${version}`));
 
 /**
  * Locate and decode the env preamble of a `pnpm-lock.yaml`: `undefined` when

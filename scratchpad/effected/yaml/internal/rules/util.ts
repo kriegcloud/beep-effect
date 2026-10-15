@@ -38,21 +38,20 @@ const isSeq = S.is(YamlSeq);
  * @category schemas
  * @since 0.0.0
  */
-export const nonNegativeIntegerOption = S.Number.annotate(
-	$I.annote("nonNegativeIntegerOption", {
-		title: "Non-negative integer option",
+export const nonNegativeIntegerOption = S.Number.pipe(
+	$I.annoteSchema("nonNegativeIntegerOption", {
 		description: "A finite integral rule option greater than or equal to zero.",
 	}),
-).check(
-	S.makeFilter(
-		(n) => (Number.isInteger(n) && n >= 0 ? undefined : "Expected a non-negative integer"),
-		$I.annote("nonNegativeIntegerCheck", {
-			title: "Non-negative integer",
-			description: "An integral number greater than or equal to zero, including integers outside the safe range.",
-		}),
-		true,
+	S.check(
+		S.makeFilter(
+			(n) => (Number.isInteger(n) && n >= 0 ? undefined : "Expected a non-negative integer"),
+			$I.annote("nonNegativeIntegerCheck", {
+				description: "An integral number greater than or equal to zero, including integers outside the safe range.",
+			}),
+			true,
+		),
+		S.isFinite(),
 	),
-	S.isFinite(),
 );
 
 /**
@@ -86,21 +85,20 @@ export type nonNegativeIntegerOption = typeof nonNegativeIntegerOption.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const positiveIntegerOption = S.Number.annotate(
-	$I.annote("positiveIntegerOption", {
-		title: "Positive integer option",
+export const positiveIntegerOption = S.Number.pipe(
+	$I.annoteSchema("positiveIntegerOption", {
 		description: "A finite integral rule option greater than or equal to one.",
 	}),
-).check(
-	S.makeFilter(
-		(n) => (Number.isInteger(n) && n >= 1 ? undefined : "Expected an integer greater than or equal to 1"),
-		$I.annote("positiveIntegerCheck", {
-			title: "Positive integer",
-			description: "An integral number greater than or equal to one, including integers outside the safe range.",
-		}),
-		true,
+	S.check(
+		S.makeFilter(
+			(n) => (Number.isInteger(n) && n >= 1 ? undefined : "Expected an integer greater than or equal to 1"),
+			$I.annote("positiveIntegerCheck", {
+				description: "An integral number greater than or equal to one, including integers outside the safe range.",
+			}),
+			true,
+		),
+		S.isFinite(),
 	),
-	S.isFinite(),
 );
 
 /**
@@ -128,7 +126,6 @@ export type positiveIntegerOption = typeof positiveIntegerOption.Type;
  */
 export const ScalarRole = LiteralKit(["key", "value", "item", "root"]).pipe(
 	$I.annoteSchema("ScalarRole", {
-		title: "Scalar role",
 		description: "The structural role of a scalar in its parent mapping, sequence or document.",
 	}),
 );

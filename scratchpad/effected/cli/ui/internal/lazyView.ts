@@ -1,7 +1,10 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
+import * as Cause from "effect/Cause";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type { ReactElement } from "react";
@@ -10,8 +13,8 @@ const $I = $ScratchpadId.create("effected/cli/ui/internal/lazyView");
 
 class LazyViewStateError extends S.TaggedError<LazyViewStateError, { readonly brand: unique symbol }>($I`LazyViewStateError`)(
 	"LazyViewStateError",
-	{ message: S.String.annotate({ description: "The unloaded view or invalid loader preventing a lazy render." }) },
-	$I.annote("LazyViewStateError", { description: "A lazy view was rendered before loading or carried an invalid loader." }),
+	{ message: S.String.pipe($I.annoteKey("LazyViewStateError.message", { description: "The unloaded view or invalid loader preventing a lazy render." })) },
+	$I.annoteError<LazyViewStateError>("LazyViewStateError", { description: "A lazy view was rendered before loading or carried an invalid loader." }),
 ) {}
 
 /** Where a lazy view keeps its loader: a `Symbol.for` key, so two copies of the package agree on it. */
@@ -69,8 +72,8 @@ const NO_VIEW = (resolved: unknown): string => {
  */
 export class LazyViewShapeError extends S.TaggedError<LazyViewShapeError, { readonly brand: unique symbol }>($I`LazyViewShapeError`)(
 	"LazyViewShapeError",
-	{ message: S.String.annotate({ description: "The resolved module's invalid view shape and the expected shape." }) },
-	$I.annote("LazyViewShapeError", { description: "A deterministic invalid lazy-view module, cached for the handle's life." }),
+	{ message: S.String.pipe($I.annoteKey("LazyViewShapeError.message", { description: "The resolved module's invalid view shape and the expected shape." })) },
+	$I.annoteError<LazyViewShapeError>("LazyViewShapeError", { description: "A deterministic invalid lazy-view module, cached for the handle's life." }),
 ) {
 	/**
 	 * An identity owned by this error, used to distinguish equal-looking cached shape errors.
@@ -129,22 +132,22 @@ export const lazyView = <S>(
 	load: () => Promise<LiveRender<S> | { readonly default: LiveRender<S> }>,
 ): LiveRender<S> => {
 	let loaded: LiveRender<S> | undefined;
-	let pending: Promise<unknown> | undefined;
-	const ensure = (): Promise<unknown> => {
-		pending ??= load().then(
-			// A load that resolved to no view rejects here and STAYS rejected: the module is what it is, so every later
-			// run gets the same error object, and the live view warns about it once.
-			(resolved) => {
-				loaded = pick(resolved);
-			},
-			(error: unknown) => {
-				// An import that failed (a network blip, a chunk not yet written) is the next run's to try again.
-				pending = undefined;
-				throw error;
-			},
-		);
-		return pending;
-	};
+	const loadOnce = Effect.tryPromise({ try: load, catch: (cause) => LazyViewLoadError.make({ cause }) }).pipe(
+		Effect.flatMap((resolved) =>
+			Effect.try({
+				try: () => {
+					loaded = pick(resolved);
+				},
+				catch: (cause) => LazyViewLoadError.make({ cause }),
+			}),
+		),
+	);
+	// One load shared by every run: a view stays loaded, and a load that resolved to no view STAYS failed (the module is
+	// what it is, so every later run gets the same error object, and the live view warns about it once). An import that
+	// failed (a network blip, a chunk not yet written) expires at once, so the next run tries again.
+	const ensure: Effect.Effect<void, LazyViewLoadError> = Effect.runSync(
+		Effect.cachedWithTTL(loadOnce, (exit) => (keepsLoad(exit) ? Duration.infinity : Duration.zero)),
+	);
 	const render = (state: S, frame: number): ReactElement => {
 		if (loaded === undefined) throw LazyViewStateError.make({ message: NOT_LOADED });
 		return loaded(state, frame);
@@ -153,11 +156,19 @@ export const lazyView = <S>(
 	return render;
 };
 
+/** Whether a load's outcome is kept: a view, or a module that is no view; a rejected import is not. */
+const keepsLoad = (exit: Exit.Exit<void, LazyViewLoadError>): boolean =>
+	Exit.isSuccess(exit) ||
+	exit.cause.reasons.some((reason) => Cause.isFailReason(reason) && S.is(LazyViewShapeError)(reason.error.cause));
+
+/** Whether a value found under the loader key is a loader: the cached load a lazy view stores there. */
+const isLoader = (value: unknown): value is Effect.Effect<void, LazyViewLoadError> => Effect.isEffect(value);
+
 /** A typed boundary around the loader's original rejection, retained for rendering unchanged. */
 class LazyViewLoadError extends S.TaggedError<LazyViewLoadError, { readonly brand: unique symbol }>($I`LazyViewLoadError`)(
 	"LazyViewLoadError",
-	{ cause: S.Defect({ includeStack: true }).annotate({ description: "The original lazy-view load rejection, including a cached shape error." }) },
-	$I.annote("LazyViewLoadError", { description: "A typed boundary retaining the lazy-view loader's original rejection." }),
+	{ cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("LazyViewLoadError.cause", { description: "The original lazy-view load rejection, including a cached shape error." })) },
+	$I.annoteError<LazyViewLoadError>("LazyViewLoadError", { description: "A typed boundary retaining the lazy-view loader's original rejection." }),
 ) {
 	override readonly name = "LazyViewLoadError";
 }
@@ -182,13 +193,8 @@ class LazyViewLoadError extends S.TaggedError<LazyViewLoadError, { readonly bran
  */
 export const loadView = (render: unknown): Effect.Effect<void, LazyViewLoadError> => {
 	const ensure = P.hasProperty(render, LOAD) ? render[LOAD] : undefined;
-	return ensure === undefined
-		? Effect.void
-		: Effect.asVoid(Effect.tryPromise({
-			try: () => {
-				if (!P.isFunction(ensure)) throw LazyViewStateError.make({ message: "lazy view loader is not a function" });
-				return Promise.resolve(ensure());
-			},
-			catch: (cause) => LazyViewLoadError.make({ cause }),
-		}));
+	if (ensure === undefined) return Effect.void;
+	return isLoader(ensure)
+		? ensure
+		: Effect.fail(LazyViewLoadError.make({ cause: LazyViewStateError.make({ message: "lazy view loader is not an Effect" }) }));
 };

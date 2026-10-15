@@ -1,5 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
 import { assertSome } from "@effect/vitest/utils";
 import { GitBranch } from "../../effected/github/GitBranch.ts";
@@ -38,12 +39,12 @@ describe("GitBranch test doubles", () => {
     });
     it.layer(
       GitBranch.layerTest({
-        create: () => Effect.void,
-        upsert: () => Effect.succeed("created"),
+        create: dual(2, (_name: string, _sha: string) => Effect.void),
+        upsert: dual(2, (_name: string, _sha: string) => Effect.succeed("created" as const)),
         exists: () => Effect.succeed(true),
         sha: () => Effect.succeed("sha"),
         shaOption: () => Effect.succeedSome("sha"),
-        reset: () => Effect.void,
+        reset: dual(2, (_name: string, _sha: string) => Effect.void),
         delete: () => Effect.void,
         createLinked: () => Effect.void,
       }),

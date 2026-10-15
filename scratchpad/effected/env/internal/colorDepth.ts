@@ -111,7 +111,7 @@ const fromTable = (env: Env): ColorLevel => {
 		// A HashMap lookup, so a TERM such as "constructor" cannot reach Object.prototype.
 		const known = HashMap.get(TERM_ENVS, term);
 		if (O.isSome(known)) return known.value;
-		if (TERM_ENVS_REG_EXP.some((re) => re.test(term))) return "basic";
+		if (A.some(TERM_ENVS_REG_EXP, (re) => re.test(term))) return "basic";
 	}
 	// Move 16 colour COLORTERM below 16m and 256
 	if ((env.COLORTERM ?? "") !== "") return "basic";
@@ -182,5 +182,5 @@ export const colorKeys: ReadonlyArray<string> = [
 	"TERM_PROGRAM",
 	"TERM_PROGRAM_VERSION",
 	"COLORTERM",
-	...CI_ENVS.map(([name]) => name),
+	...A.map(CI_ENVS, ([name]) => name),
 ];

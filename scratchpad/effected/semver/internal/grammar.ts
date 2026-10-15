@@ -1,4 +1,6 @@
-import { identity } from "effect/Function";
+import * as A from "effect/Array";
+import { dual, identity, pipe } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 // Strict SemVer 2.0.0 recursive-descent parser and printer.
 //
@@ -45,9 +47,12 @@ class ParseFailure {
 	}
 }
 
-const fail = (s: ParserState, position?: number): never => {
+const fail: {
+	(s: ParserState, position?: number): never;
+	(position?: number): (s: ParserState) => never;
+} = dual((args) => P.isObjectKeyword(args[0]), (s: ParserState, position?: number): never => {
 	throw new ParseFailure(position ?? s.pos);
-};
+});
 
 const peek = (s: ParserState): string | undefined => (s.pos < s.len ? s.input[s.pos] : undefined);
 
@@ -654,10 +659,10 @@ export const parseComparator = (raw: string): ParseResult<ComparatorParts> => {
 export const formatVersion = (v: VersionParts): string => {
 	let s = `${v.major}.${v.minor}.${v.patch}`;
 	if (v.prerelease.length > 0) {
-		s += `-${v.prerelease.join(".")}`;
+		s += `-${pipe(v.prerelease, A.map(String), A.join("."))}`;
 	}
 	if (v.build.length > 0) {
-		s += `+${v.build.join(".")}`;
+		s += `+${A.join(v.build, ".")}`;
 	}
 	return s;
 };
@@ -706,4 +711,4 @@ export const formatComparator = (c: ComparatorParts): string => {
  * @since 0.0.0
  */
 export const formatRange = (sets: ReadonlyArray<ReadonlyArray<ComparatorParts>>): string =>
-	sets.map((set) => set.map(formatComparator).join(" ")).join(" || ");
+	pipe(sets, A.map((set) => pipe(set, A.map(formatComparator), A.join(" "))), A.join(" || "));

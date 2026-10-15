@@ -1,3 +1,4 @@
+import { dual } from "effect/Function";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Exit from "effect/Exit";
@@ -372,7 +373,7 @@ const bunProbeFailTree: Tree = {
 
 describe("WorkspaceCatalogs — a bun/package.json presence-probe failure is not silent absence", () => {
 	const bunProbeFailLayer = WorkspaceCatalogs.layer({ cwd: "/repo" }).pipe(
-		Layer.provide(Layer.succeed(WorkspaceRoot, { find: Effect.fn("WorkspaceRoot.find")(() => Effect.succeed("/repo")) })),
+		Layer.provide(Layer.succeed(WorkspaceRoot, { find: dual((args) => P.isString(args[0]), Effect.fn("WorkspaceRoot.find")(() => Effect.succeed("/repo"))) })),
 		Layer.provide(
 			Layer.mock(LockfileReader, {
 				read: Effect.suspend(() =>

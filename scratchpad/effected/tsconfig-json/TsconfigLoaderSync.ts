@@ -20,6 +20,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
@@ -36,7 +37,7 @@ const $I = $ScratchpadId.create("effected/tsconfig-json/TsconfigLoaderSync");
 class UnsupportedPathOperationError extends S.TaggedError<UnsupportedPathOperationError, { readonly brand: unique symbol }>($I`UnsupportedPathOperationError`)(
 	"UnsupportedPathOperationError",
 	{ message: S.String },
-	$I.annote("UnsupportedPathOperationError", {
+	$I.annoteError<UnsupportedPathOperationError>("UnsupportedPathOperationError", {
 		description: "A path operation outside the synchronous loader adapter's supported operations was invoked.",
 	}),
 ) {}
@@ -239,7 +240,10 @@ const makeFileSystemService = (fileSystem: SyncFileSystem): FileSystem.FileSyste
  * unwrapping the result: a typed failure is thrown as itself, a defect is
  * rethrown as-is — never a fiber-failure wrapper.
  */
-const runWith = <A, E>(
+const runWith: {
+	<A, E>(options: TsconfigLoaderSyncOptions, effect: Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>): A;
+	<A, E>(effect: Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>): (options: TsconfigLoaderSyncOptions) => A;
+} = dual(2, <A, E>(
 	options: TsconfigLoaderSyncOptions,
 	effect: Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>,
 ): A => {
@@ -255,19 +259,28 @@ const runWith = <A, E>(
 	const defect = Cause.findDefect(exit.cause);
 	if (Result.isSuccess(defect)) throw defect.success;
 	throw Cause.squash(exit.cause);
-};
+});
 
 // Implementation of TsconfigLoaderSync.load; the public contract lives on the static.
-const load = (configPath: string, options: TsconfigLoaderSyncOptions): TsconfigJson.Type =>
-	runWith(options, TsconfigLoader.load(configPath));
+const load: {
+	(configPath: string, options: TsconfigLoaderSyncOptions): TsconfigJson.Type;
+	(options: TsconfigLoaderSyncOptions): (configPath: string) => TsconfigJson.Type;
+} = dual(2, (configPath: string, options: TsconfigLoaderSyncOptions): TsconfigJson.Type =>
+	runWith(options, TsconfigLoader.load(configPath)));
 
 // Implementation of TsconfigLoaderSync.resolve; the public contract lives on the static.
-const resolve = (configPath: string, options: TsconfigLoaderSyncOptions): ResolvedTsconfig =>
-	runWith(options, TsconfigLoader.resolve(configPath));
+const resolve: {
+	(configPath: string, options: TsconfigLoaderSyncOptions): ResolvedTsconfig;
+	(options: TsconfigLoaderSyncOptions): (configPath: string) => ResolvedTsconfig;
+} = dual(2, (configPath: string, options: TsconfigLoaderSyncOptions): ResolvedTsconfig =>
+	runWith(options, TsconfigLoader.resolve(configPath)));
 
 // Implementation of TsconfigLoaderSync.compilerOptions; the public contract lives on the static.
-const compilerOptions = (configPath: string, options: TsconfigLoaderSyncOptions): CompilerOptions.Type =>
-	resolve(configPath, options).compilerOptions;
+const compilerOptions: {
+	(configPath: string, options: TsconfigLoaderSyncOptions): CompilerOptions.Type;
+	(options: TsconfigLoaderSyncOptions): (configPath: string) => CompilerOptions.Type;
+} = dual(2, (configPath: string, options: TsconfigLoaderSyncOptions): CompilerOptions.Type =>
+	resolve(configPath, options).compilerOptions);
 
 /**
  * The synchronous tsconfig.json loader facade: the {@link TsconfigLoader}

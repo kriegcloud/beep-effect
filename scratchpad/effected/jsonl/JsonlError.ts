@@ -79,7 +79,7 @@ export class MalformedLine extends S.TaggedError<MalformedLine, { readonly brand
       })
     ),
   },
-  $I.annote("MalformedLine", {
+  $I.annoteError<MalformedLine>("MalformedLine", {
     description: "A textual line that is not valid JSON.",
     documentation:
       "Terminated malformed records fail through this typed channel. Incomplete suffixes are withheld during live replay. Local append reports JournalUnterminated for every physical unterminated suffix until its original writer completes it or an explicit recovery operation repairs it.",
@@ -150,7 +150,7 @@ export class UnknownEvent extends S.TaggedError<UnknownEvent, { readonly brand: 
       })
     ),
   },
-  $I.annote("UnknownEvent", {
+  $I.annoteError<UnknownEvent>("UnknownEvent", {
     description: "A line whose `event` tag is not in the registry.",
     documentation:
       "Typed rather than a defect on purpose: a journal written by an older or newer\nversion of the same application is hostile input in the technical sense, and\na reader that crashed on an unrecognized tag would be unable to skip forward\npast one. The known tags travel with the error so a caller can report the\nmismatch without reaching back for the registry.",
@@ -232,7 +232,7 @@ export class InvalidData extends S.TaggedError<InvalidData, { readonly brand: un
       })
     ),
   },
-  $I.annote("InvalidData", {
+  $I.annoteError<InvalidData>("InvalidData", {
     description: "A line whose envelope or payload failed schema validation.",
     documentation:
       "Covers both stages of the two-stage decode, distinguished by `event`: the\nframe itself (`O.none()` — the line is JSON but not an envelope) and a\nregistered payload (`O.some(tag)` — the envelope is well-formed but its\n`data` does not match the schema registered for that tag).\nThe `SchemaError` is carried **whole**, so `error.issue` is the full issue\ntree with its paths and expected types intact. The message initializes eagerly\nafter those fields and formats the retained issue tree.",
@@ -298,7 +298,7 @@ export class TerminalViolation extends S.TaggedError<TerminalViolation, { readon
       })
     ),
   },
-  $I.annote("TerminalViolation", {
+  $I.annoteError<TerminalViolation>("TerminalViolation", {
     description: "An append operation was refused because the journal is terminal at the given event.",
   })
 ) {
@@ -350,7 +350,7 @@ export class JournalNotFound extends S.TaggedError<JournalNotFound, { readonly b
       })
     ),
   },
-  $I.annote("JournalNotFound", {
+  $I.annoteError<JournalNotFound>("JournalNotFound", {
     description: "A journal path was queried but does not exist yet.",
   })
 ) {
@@ -412,7 +412,7 @@ export class UnserializableData extends S.TaggedError<UnserializableData, { read
       })
     ),
   },
-  $I.annote("UnserializableData", {
+  $I.annoteError<UnserializableData>("UnserializableData", {
     description: "A payload that validated against its schema but cannot be serialized to JSON.",
     documentation:
       "The registered payload codec succeeded, but the JSON codec rejected its encoded representation. The structured codec failure is retained in cause.",
@@ -477,7 +477,7 @@ export class JournalClosed extends S.TaggedError<JournalClosed, { readonly brand
       })
     ),
   },
-  $I.annote("JournalClosed", {
+  $I.annoteError<JournalClosed>("JournalClosed", {
     description: "An append refused because the journal's scope has closed.",
     documentation:
       'Its own tag rather than a flavour of {@link TerminalViolation}, because the\nrecoveries have nothing in common: a terminal journal is a *state* the\nconsumer can reason about and reopen from with a `reopen` event, while a\nclosed one is a *lifecycle* fact — this service is gone, and the only moves\nare to build a new layer or stop.\nRefusal is deliberately a typed failure rather than a wait. A `Latch` would\nsuspend the late append with no failure channel, turning "the journal is\nclosing" into a hang; failing fast is what lets a caller react.',
@@ -589,7 +589,7 @@ export class JournalResync extends S.TaggedError<JournalResync, { readonly brand
       })
     ),
   },
-  $I.annote("JournalResync", {
+  $I.annoteError<JournalResync>("JournalResync", {
     description: "The journal file was truncated or replaced beneath a reader.",
     documentation:
       "The cooperative-writer contract is append-only: a journal only ever grows,\nand every cursor this package hands out depends on that. When the file shrinks\nbelow a tracked offset, or the path comes to name a different file entirely,\nthe contract has been broken by something outside the package and every\noffset-derived belief is now meaningless.\nSurfaced rather than repaired, deliberately. Silently re-reading from zero\nwould paper over a real operational fault — a rotating log shipper, a\n`>` where `>>` was meant — and leave projections quietly inconsistent with\nthe file. The recovery is the consumer's: discard cursor-derived state,\nre-read, and tell somebody.\nOne tag rather than two, though `reason` distinguishes the causes: truncation\nand replacement have the **same** recovery, and a tag per cause would split\none recovery across two tags.\nDetection is as complete as the platform allows and no more. Truncation is\ncaught by size; replacement is caught by inode identity, which\n`FileSystem.File.Info` exposes as an **`Option`** — on a platform that does\nnot report it, a replacement at equal or greater size is undetectable and\nonly truncation is caught.",
@@ -637,7 +637,7 @@ export class InvalidJournalConfig extends S.TaggedError<InvalidJournalConfig, { 
       })
     ),
   },
-  $I.annote("InvalidJournalConfig", { description: "Public journal configuration failed schema validation." })
+  $I.annoteError<InvalidJournalConfig>("InvalidJournalConfig", { description: "Public journal configuration failed schema validation." })
 ) {
   /**
    * Stable context; the schema issue tree remains available in `error`.
@@ -682,7 +682,7 @@ export class InvalidSlice extends S.TaggedError<InvalidSlice, { readonly brand: 
       })
     ),
   },
-  $I.annote("InvalidSlice", { description: "Public journal selection options failed schema validation." })
+  $I.annoteError<InvalidSlice>("InvalidSlice", { description: "Public journal selection options failed schema validation." })
 ) {
   /**
    * Stable context; the schema issue tree remains available in `error`.
@@ -743,7 +743,7 @@ export class JournalWriteConflict extends S.TaggedError<JournalWriteConflict, { 
       })
     ),
   },
-  $I.annote("JournalWriteConflict", {
+  $I.annoteError<JournalWriteConflict>("JournalWriteConflict", {
     description: "An append's placement cannot be established after unexpected file growth.",
     documentation:
       "Bytes may already be persisted. Reconcile the journal before deciding whether to retry; an automatic retry can duplicate the record. Sizes are physical UTF-8 byte counts.",
@@ -805,7 +805,7 @@ export class InvalidUtf8 extends S.TaggedError<InvalidUtf8, { readonly brand: un
       })
     ),
   },
-  $I.annote("InvalidUtf8", {
+  $I.annoteError<InvalidUtf8>("InvalidUtf8", {
     description: "A decoded journal byte range is not valid UTF-8.",
     documentation:
       "The offset identifies the physical start of the supplied decoded range, not the exact offending byte.",
@@ -867,7 +867,7 @@ export class JournalUnterminated extends S.TaggedError<JournalUnterminated, { re
       })
     ),
   },
-  $I.annote("JournalUnterminated", {
+  $I.annoteError<JournalUnterminated>("JournalUnterminated", {
     description: "An unterminated physical journal suffix blocks local append.",
     documentation:
       "The span uses logical post-BOM byte offsets without decoding the suffix. Its original writer must finish it or an explicit recovery operation must repair it before local append.",

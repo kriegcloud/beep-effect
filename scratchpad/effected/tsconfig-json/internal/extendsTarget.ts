@@ -40,14 +40,17 @@ const MAX_EXPORTS_DEPTH = 32;
 const parseSpecifier = (spec: string): { readonly pkg: string; readonly subpath: string } => {
 	if (spec.startsWith("@")) {
 		const parts = spec.split("/");
-		return { pkg: parts.slice(0, 2).join("/"), subpath: parts.slice(2).join("/") };
+		return { pkg: A.join(parts.slice(0, 2), "/"), subpath: A.join(parts.slice(2), "/") };
 	}
 	const slash = spec.indexOf("/");
 	return slash === -1 ? { pkg: spec, subpath: "" } : { pkg: spec.slice(0, slash), subpath: spec.slice(slash + 1) };
 };
 
 /** Match a single-`*` subpath pattern against a subpath, returning the captured segment or `null`. */
-const matchWildcard = (pattern: string, subpath: string): string | null => {
+const matchWildcard: {
+	(pattern: string, subpath: string): string | null;
+	(subpath: string): (pattern: string) => string | null;
+} = dual(2, (pattern: string, subpath: string): string | null => {
 	const star = pattern.indexOf("*");
 	if (star === -1 || pattern.indexOf("*", star + 1) !== -1) return null;
 	const prefix = pattern.slice(0, star);
@@ -55,13 +58,16 @@ const matchWildcard = (pattern: string, subpath: string): string | null => {
 	if (subpath.length < prefix.length + suffix.length) return null;
 	if (!subpath.startsWith(prefix) || !subpath.endsWith(suffix)) return null;
 	return subpath.slice(prefix.length, subpath.length - suffix.length);
-};
+});
 
 /** Substitute a captured wildcard segment into an export value, hardened against dunder keys and unbounded nesting. */
-const substituteWildcard = (value: unknown, captured: string, depth: number): unknown => {
+const substituteWildcard: {
+	(value: unknown, captured: string, depth: number): unknown;
+	(captured: string, depth: number): (value: unknown) => unknown;
+} = dual(3, (value: unknown, captured: string, depth: number): unknown => {
 	if (depth > MAX_EXPORTS_DEPTH) return null;
 	if (P.isString(value)) return value.replace(/\*/g, captured);
-	if (A.isArray(value)) return value.map((entry) => substituteWildcard(entry, captured, depth + 1));
+	if (A.isArray(value)) return A.map(value, substituteWildcard(captured, depth + 1));
 	if (P.isObject(value)) {
 		const result: Record<string, unknown> = { __proto__: null };
 		for (const key of R.keys(value)) {
@@ -71,10 +77,13 @@ const substituteWildcard = (value: unknown, captured: string, depth: number): un
 		return result;
 	}
 	return value;
-};
+});
 
 /** Find the export value for a subpath: exact key first, then a single-`*` pattern (substituted), else `undefined`. */
-const matchExportKey = (exports: unknown, subpath: string): unknown => {
+const matchExportKey: {
+	(exports: unknown, subpath: string): unknown;
+	(subpath: string): (exports: unknown) => unknown;
+} = dual(2, (exports: unknown, subpath: string): unknown => {
 	if (P.isString(exports)) return subpath === "." ? exports : undefined;
 	if (A.isArray(exports)) return subpath === "." ? exports : undefined;
 	if (!P.isObject(exports)) return undefined;
@@ -82,7 +91,7 @@ const matchExportKey = (exports: unknown, subpath: string): unknown => {
 	const keys = R.keys(obj);
 	// An object whose keys all start with "." is a subpath map; otherwise it is a
 	// root-level condition object (sugar for the "." target).
-	const isSubpathMap = keys.length > 0 && keys.every((key) => key.startsWith("."));
+	const isSubpathMap = keys.length > 0 && A.every(keys, (key) => key.startsWith("."));
 	if (!isSubpathMap) return subpath === "." ? obj : undefined;
 	if (!HashSet.has(DUNDER_KEYS, subpath) && R.has(obj, subpath)) return obj[subpath];
 	// Node/tsc pattern selection: among matching `*` patterns the LONGEST base
@@ -98,7 +107,7 @@ const matchExportKey = (exports: unknown, subpath: string): unknown => {
 		}
 	}
 	return best === undefined ? undefined : substituteWildcard(obj[best.pattern], best.captured, 0);
-};
+});
 
 /**
  * Resolve an export value to a `.json` string target: strings gate on the
@@ -106,7 +115,10 @@ const matchExportKey = (exports: unknown, subpath: string): unknown => {
  * condition objects are matched in map insertion order (Node semantics) against
  * the honored conditions plus `default`, under the depth guard.
  */
-const resolveConditionValue = (value: unknown, depth: number): string | undefined => {
+const resolveConditionValue: {
+	(value: unknown, depth: number): string | undefined;
+	(depth: number): (value: unknown) => string | undefined;
+} = dual(2, (value: unknown, depth: number): string | undefined => {
 	if (depth > MAX_EXPORTS_DEPTH) return undefined;
 	if (P.isString(value)) return value.endsWith(".json") ? value : undefined;
 	if (A.isArray(value)) {
@@ -127,7 +139,7 @@ const resolveConditionValue = (value: unknown, depth: number): string | undefine
 		}
 	}
 	return undefined;
-};
+});
 
 /**
  * Resolve a `package.json` `exports` map for a subpath key (`"."` for the
@@ -171,7 +183,10 @@ export const resolveExports: {
  * manifest-less lookups (no exports, no tsconfig field) rather than deciding
  * the candidate. A `PlatformError` from `exists` flows through.
  */
-const readManifest = Effect.fnUntraced(function* (
+const readManifest: {
+	(fs: FileSystem.FileSystem, manifestPath: string): Effect.Effect<Record<string, unknown>, PlatformError.PlatformError>;
+	(manifestPath: string): (fs: FileSystem.FileSystem) => Effect.Effect<Record<string, unknown>, PlatformError.PlatformError>;
+} = dual(2, Effect.fnUntraced(function* (
 	fs: FileSystem.FileSystem,
 	manifestPath: string,
 ): Effect.fn.Return<Record<string, unknown>, PlatformError.PlatformError> {
@@ -181,18 +196,24 @@ const readManifest = Effect.fnUntraced(function* (
 	if (O.isNone(parsed)) return {};
 	const value = parsed.value;
 	return P.isObject(value) ? value : {};
-});
+}));
 
 /** Read an own property of an untrusted record, guarding dunder keys and inherited members. */
-const ownProp = (record: Record<string, unknown>, key: string): unknown =>
-	!HashSet.has(DUNDER_KEYS, key) && R.has(record, key) ? record[key] : undefined;
+const ownProp: {
+	(record: Record<string, unknown>, key: string): unknown;
+	(key: string): (record: Record<string, unknown>) => unknown;
+} = dual(2, (record: Record<string, unknown>, key: string): unknown =>
+	!HashSet.has(DUNDER_KEYS, key) && R.has(record, key) ? record[key] : undefined);
 
 /**
  * Resolve relative/rooted targets: the exact file wins verbatim (even
  * extensionless); otherwise, if the target does not already end in `.json`, the
  * `.json`-appended path is tried. There is no directory fallback.
  */
-const resolveRelative = Effect.fnUntraced(function* (
+const resolveRelative: {
+	(fs: FileSystem.FileSystem, path: Path.Path, fromDir: string, spec: string): Effect.Effect<O.Option<string>, PlatformError.PlatformError>;
+	(path: Path.Path, fromDir: string, spec: string): (fs: FileSystem.FileSystem) => Effect.Effect<O.Option<string>, PlatformError.PlatformError>;
+} = dual(4, Effect.fnUntraced(function* (
 	fs: FileSystem.FileSystem,
 	path: Path.Path,
 	fromDir: string,
@@ -205,7 +226,7 @@ const resolveRelative = Effect.fnUntraced(function* (
 		if (yield* fs.exists(withJson)) return O.some(withJson);
 	}
 	return O.none();
-});
+}));
 
 /**
  * Probe one candidate package under an ancestor's `node_modules`. `none` means
@@ -216,7 +237,10 @@ const resolveRelative = Effect.fnUntraced(function* (
  * tsc probes `<pkg>/tsconfig.json` even when the manifest is absent
  * (loadNodeModuleFromDirectoryWorker, typescript.js:45943).
  */
-const tryCandidate = Effect.fnUntraced(function* (
+const tryCandidate: {
+	(fs: FileSystem.FileSystem, path: Path.Path, dir: string, pkg: string, subpath: string): Effect.Effect<O.Option<string>, PlatformError.PlatformError>;
+	(path: Path.Path, dir: string, pkg: string, subpath: string): (fs: FileSystem.FileSystem) => Effect.Effect<O.Option<string>, PlatformError.PlatformError>;
+} = dual(5, Effect.fnUntraced(function* (
 	fs: FileSystem.FileSystem,
 	path: Path.Path,
 	dir: string,
@@ -261,7 +285,7 @@ const tryCandidate = Effect.fnUntraced(function* (
 	}
 	const fallback = path.join(pkgDir, "tsconfig.json");
 	return (yield* fs.exists(fallback)) ? O.some(fallback) : O.none();
-});
+}));
 
 /**
  * Resolve an `extends` target to an absolute config path. Relative and rooted

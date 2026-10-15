@@ -14,6 +14,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
+import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
@@ -44,12 +45,12 @@ const $I = $ScratchpadId.create("effected/templates/internal/reconcile");
  * @since 0.0.0
  */
 export const ReconcileInput = S.Struct({
-	text: S.String.annotateKey({ description: "The exact source document." }),
-	placed: S.Array(S.suspend(() => PlacedSection)).annotateKey({ description: "Sections with their source spans." }),
-	declared: S.Array(S.suspend(() => Section)).annotateKey({ description: "Declared sections, already line-ending normalized." }),
-	dialect: S.suspend(() => SectionDialect).annotateKey({ description: "The marker vocabulary to render with." }),
-	eol: Eol.annotateKey({ description: "The document line ending." }),
-}).annotate($I.annote("ReconcileInput", { description: "The complete input to managed-section reconciliation." }));
+	text: S.String.pipe($I.annoteKey("ReconcileInput.text", { description: "The exact source document." })),
+	placed: S.Array(S.suspend(() => PlacedSection)).pipe($I.annoteKey("ReconcileInput.placed", { description: "Sections with their source spans." })),
+	declared: S.Array(S.suspend(() => Section)).pipe($I.annoteKey("ReconcileInput.declared", { description: "Declared sections, already line-ending normalized." })),
+	dialect: S.suspend(() => SectionDialect).pipe($I.annoteKey("ReconcileInput.dialect", { description: "The marker vocabulary to render with." })),
+	eol: Eol.pipe($I.annoteKey("ReconcileInput.eol", { description: "The document line ending." })),
+}).pipe($I.annoteSchema("ReconcileInput", { description: "The complete input to managed-section reconciliation." }));
 /**
  * The complete input shape validated by {@link ReconcileInput}.
  *
@@ -74,10 +75,10 @@ export type ReconcileInput = typeof ReconcileInput.Type;
  * @since 0.0.0
  */
 export const ReconcileOutput = S.Struct({
-	text: S.String.annotateKey({ description: "The document as it should now read." }),
-	outcomes: S.Array(S.suspend(() => SyncOutcome)).annotateKey({ description: "One outcome per declared section, in declaration order." }),
-	changed: S.Boolean.annotateKey({ description: "Whether output text differs from the source." }),
-}).annotate($I.annote("ReconcileOutput", { description: "The resulting text, per-section outcomes and byte-change indicator." }));
+	text: S.String.pipe($I.annoteKey("ReconcileOutput.text", { description: "The document as it should now read." })),
+	outcomes: S.Array(S.suspend(() => SyncOutcome)).pipe($I.annoteKey("ReconcileOutput.outcomes", { description: "One outcome per declared section, in declaration order." })),
+	changed: S.Boolean.pipe($I.annoteKey("ReconcileOutput.changed", { description: "Whether output text differs from the source." })),
+}).pipe($I.annoteSchema("ReconcileOutput", { description: "The resulting text, per-section outcomes and byte-change indicator." }));
 /**
  * The resulting text, outcomes and change flag validated by {@link ReconcileOutput}.
  *
@@ -147,7 +148,7 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 	}
 
 	// One outcome per declared section, in declared order, decided by content.
-	const outcomes = declared.map((section): SyncOutcome => {
+	const outcomes = A.map(declared, (section): SyncOutcome => {
 		const current = MutableHashMap.get(onDisk, identityOf(section.key, section.commentStyle));
 		if (O.isNone(current)) {
 			return SyncOutcome.Created({ section });
@@ -172,9 +173,9 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 	}
 	items.push({ kind: "text", value: text.slice(cursor) });
 
-	const targets = MutableHashSet.fromIterable(declared.map((section) => identityOf(section.key, section.commentStyle)));
+	const targets = MutableHashSet.fromIterable(A.map(declared, (section) => identityOf(section.key, section.commentStyle)));
 	const slots: Array<readonly [number, Extract<Item, { kind: "section" }>]> = [];
-	items.forEach((item, index) => {
+	A.forEach(items, (item, index) => {
 		if (item.kind === "section" && MutableHashSet.has(targets, item.identity)) {
 			slots.push([index, item]);
 		}
@@ -185,7 +186,7 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 	// normalizes ordering around fixed text and foreign sections.
 	const itemIndexByDeclared = MutableHashMap.empty<number, number>();
 	let slotCursor = 0;
-	declared.forEach((section, declaredIndex) => {
+	A.forEach(declared, (section, declaredIndex) => {
 		const identity = identityOf(section.key, section.commentStyle);
 		if (!MutableHashMap.has(onDisk, identity) || slotCursor >= slots.length) {
 			return;
@@ -217,13 +218,16 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 	const beforeAnchor = MutableHashMap.empty<number, Array<string>>();
 	const afterAnchor = MutableHashMap.empty<number, Array<string>>();
 	const appended: Array<string> = [];
-	const pushInto = (map: MutableHashMap.MutableHashMap<number, Array<string>>, anchor: number, value: string) => {
+	const pushInto: {
+		(map: MutableHashMap.MutableHashMap<number, Array<string>>, anchor: number, value: string): void;
+		(anchor: number, value: string): (map: MutableHashMap.MutableHashMap<number, Array<string>>) => void;
+	} = dual(3, (map: MutableHashMap.MutableHashMap<number, Array<string>>, anchor: number, value: string): void => {
 		const list = O.getOrElse(MutableHashMap.get(map, anchor), (): Array<string> => []);
 		list.push(value);
 		MutableHashMap.set(map, anchor, list);
-	};
+	});
 
-	declared.forEach((section, declaredIndex) => {
+	A.forEach(declared, (section, declaredIndex) => {
 		const identity = identityOf(section.key, section.commentStyle);
 		if (MutableHashMap.has(onDisk, identity)) {
 			return;
@@ -245,7 +249,7 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 	// Render: preserved text verbatim, foreign sections from their exact source
 	// bytes, declared sections canonically.
 	const parts: Array<string> = [];
-	items.forEach((item, index) => {
+	A.forEach(items, (item, index) => {
 		if (item.kind === "text") {
 			parts.push(item.value);
 			return;
@@ -259,7 +263,7 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 		}
 	});
 
-	let output = parts.join("");
+	let output = A.join(parts, "");
 	for (const block of appended) {
 		// Existing bytes are a preserved prefix, even in a blank document.
 		// Add only the line breaks needed for a two-break block separator.

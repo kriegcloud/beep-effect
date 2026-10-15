@@ -33,6 +33,9 @@ import * as Str from "effect/String";
 import type { ModuleName } from "./Ledger.schema.ts";
 import { labPaths, type RunnerConfig } from "./Paths.ts";
 import { capture, captureExit, type Launch } from "./Process.ts";
+import type { CommandFailed } from "./Audit.errors.ts";
+import type { ChildProcessSpawner } from "effect/process/ChildProcessSpawner";
+import type { PlatformError } from "effect/PlatformError";
 
 /**
  * Where one round's evidence lives, repo-relative.
@@ -191,7 +194,10 @@ export const reviewBrief: {
  * @category commands
  * @since 0.0.0
  */
-export const writeBrief = Effect.fn("Review.writeBrief")(function* (
+export const writeBrief: {
+  (config: RunnerConfig, module: ModuleName, round: number, stage: number): Effect.Effect<{ directory: string; commit: string; brief: string; }, CommandFailed | PlatformError, ChildProcessSpawner | FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, round: number, stage: number): (config: RunnerConfig) => Effect.Effect<{ directory: string; commit: string; brief: string; }, CommandFailed | PlatformError, ChildProcessSpawner | FileSystem.FileSystem | Path.Path>;
+} = dual(4, Effect.fn("Review.writeBrief")(function* (
   config: RunnerConfig,
   module: ModuleName,
   round: number,
@@ -207,7 +213,7 @@ export const writeBrief = Effect.fn("Review.writeBrief")(function* (
     reviewBrief(module, { round, commit, oracle: config.upstreamRoot, stage })
   );
   return { directory, commit, brief: `${directory}/BRIEF.md` };
-});
+}));
 
 /**
  * The two CLI seat launches of section 12.2 for a brief, reading the brief
@@ -306,7 +312,10 @@ export const outOfScopeChanges = (porcelain: string): ReadonlyArray<string> =>
  * @category commands
  * @since 0.0.0
  */
-export const runCliSeats = Effect.fn("Review.runCliSeats")(function* (
+export const runCliSeats: {
+  (config: RunnerConfig, module: ModuleName, round: number): Effect.Effect<{ directory: string; results: { seat: "grok" | "sol"; exitCode: number; output: string; }[]; edits: Array<string>; }, CommandFailed | PlatformError, ChildProcessSpawner>;
+  (module: ModuleName, round: number): (config: RunnerConfig) => Effect.Effect<{ directory: string; results: { seat: "grok" | "sol"; exitCode: number; output: string; }[]; edits: Array<string>; }, CommandFailed | PlatformError, ChildProcessSpawner>;
+} = dual(3, Effect.fn("Review.runCliSeats")(function* (
   config: RunnerConfig,
   module: ModuleName,
   round: number
@@ -334,4 +343,4 @@ export const runCliSeats = Effect.fn("Review.runCliSeats")(function* (
     yield* Console.log(`[effected] ${module} review round ${round}: ${label} ${file}`);
   }
   return { directory, results, edits };
-});
+}));

@@ -29,24 +29,25 @@ import * as Str from "effect/String";
 
 import type { CstNode } from "./cst.ts";
 import { parseCSTAll } from "./cst-parser.ts";
+import { dual } from "effect/Function";
 
 // ---------------------------------------------------------------------------
 // Internal path type
 // ---------------------------------------------------------------------------
 
 const $I = $ScratchpadId.create("effected/yaml/internal/cst-visitor");
-const Path = S.Array(S.Union([S.String, S.Finite])).annotate($I.annote("Path", {
+const Path = S.Array(S.Union([S.String, S.Finite])).pipe($I.annoteSchema("Path", {
 	description: "Ordered mapping names and sequence indices locating a CST event.",
 }));
 type Path = typeof Path.Type;
 
 const eventFields = {
-	path: Path.annotateKey({ description: "Location of the event in document traversal." }),
-	depth: S.Finite.annotateKey({ description: "Nesting depth, with the document at zero." }),
+	path: Path.pipe($I.annoteKey("CstVisitorEvent.path", { description: "Location of the event in document traversal." })),
+	depth: S.Finite.pipe($I.annoteKey("CstVisitorEvent.depth", { description: "Nesting depth, with the document at zero." })),
 };
 const sourceEventFields = {
 	...eventFields,
-	source: S.String.annotateKey({ description: "Raw source content associated with the event." }),
+	source: S.String.pipe($I.annoteKey("CstVisitorEvent.source", { description: "Raw source content associated with the event." })),
 };
 const CstVisitorEvent = S.TaggedUnion({
 	CstDocumentStartEvent: eventFields,
@@ -62,7 +63,7 @@ const CstVisitorEvent = S.TaggedUnion({
 	CstCommentEvent: sourceEventFields,
 	CstDirectiveEvent: sourceEventFields,
 	CstErrorEvent: sourceEventFields,
-}).annotate($I.annote("CstVisitorEvent", {
+}).pipe($I.annoteSchema("CstVisitorEvent", {
 	description: "Thirteen tagged SAX event payloads emitted in raw document order.",
 }));
 
@@ -350,7 +351,10 @@ function* walkSiblings(nodes: ReadonlyArray<CstNode>, path: Path, depth: number)
  * content node exists after `startIdx`, which means the scalar is a
  * standalone value rather than a mapping key.
  */
-function findNextContent(nodes: ReadonlyArray<CstNode>, startIdx: number): CstNode | undefined {
+const findNextContent: {
+	(nodes: ReadonlyArray<CstNode>, startIdx: number): CstNode | undefined;
+	(startIdx: number): (nodes: ReadonlyArray<CstNode>) => CstNode | undefined;
+} = dual(2, (nodes: ReadonlyArray<CstNode>, startIdx: number): CstNode | undefined => {
 	for (let i = startIdx; i < nodes.length; i++) {
 		const node = A.getUnsafe(nodes, i);
 		if (!isTriviaCstNode(node) && node.type !== "comment") {
@@ -358,10 +362,13 @@ function findNextContent(nodes: ReadonlyArray<CstNode>, startIdx: number): CstNo
 		}
 	}
 	return undefined;
-}
+});
 
 /** Find content or an indicator without crossing a physical entry boundary. */
-function findMapContent(nodes: ReadonlyArray<CstNode>, startIdx: number): CstNode | undefined {
+const findMapContent: {
+	(nodes: ReadonlyArray<CstNode>, startIdx: number): CstNode | undefined;
+	(startIdx: number): (nodes: ReadonlyArray<CstNode>) => CstNode | undefined;
+} = dual(2, (nodes: ReadonlyArray<CstNode>, startIdx: number): CstNode | undefined => {
 	// A scalar or collection can absorb the newline terminating an entry.
 	// Include that preceding source span in the same-line lookahead.
 	if (startIdx > 0) {
@@ -376,7 +383,7 @@ function findMapContent(nodes: ReadonlyArray<CstNode>, startIdx: number): CstNod
 		if (!isTriviaCstNode(node)) return node;
 	}
 	return undefined;
-}
+});
 
 // ---------------------------------------------------------------------------
 // walkBlockMapChildren — the block-map's own children

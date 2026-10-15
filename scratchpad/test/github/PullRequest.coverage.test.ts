@@ -2,6 +2,8 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -32,7 +34,14 @@ describe("PullRequest coverage", () => {
       for (const [name, call] of calls) assert.throws(call, `PullRequest.makeTest: ${name}() was called but not stubbed`);
       const defaults = yield* PullRequest;
       assert.throws(() => defaults.get(7), "PullRequest.makeTest: get()");
-      const stub = PullRequest.makeTest({ get: () => Effect.succeed(info), list: () => Effect.succeed([info]), listFiles: () => Effect.succeed([]), listAssociatedWithCommit: () => Effect.succeed([info]), create: () => Effect.succeed(info), update: () => Effect.succeed(info), upsert: () => Effect.succeed({ pullRequest: info, created: true }), merge: () => Effect.succeed("sha"), addLabels: () => Effect.void, requestReviewers: () => Effect.void, setAutoMerge: () => Effect.void });
+      const stub = PullRequest.makeTest({ get: () => Effect.succeed(info), list: () => Effect.succeed([info]), listFiles: dual((args) => P.isNumber(args[0]), (_number: number, _options?: object) => Effect.succeed([])),
+        listAssociatedWithCommit: dual((args) => P.isString(args[0]), (_sha: string, _options?: object) => Effect.succeed([info])),
+        create: () => Effect.succeed(info), update: dual(2, (_number: number, _patch: object) => Effect.succeed(info)),
+        upsert: () => Effect.succeed({ pullRequest: info, created: true }),
+        merge: dual((args) => P.isNumber(args[0]), (_number: number, _options?: object) => Effect.succeed("sha")),
+        addLabels: dual(2, (_number: number, _labels: ReadonlyArray<string>) => Effect.void),
+        requestReviewers: dual(2, (_number: number, _reviewers: object) => Effect.void),
+        setAutoMerge: dual(2, (_pullRequest: PullRequestInfo, _method: string) => Effect.void) });
       assert.deepStrictEqual(yield* stub.get(7), info);
       assert.deepStrictEqual(yield* stub.list(), [info]);
       assert.deepStrictEqual(yield* stub.listFiles(7), []);
@@ -46,7 +55,7 @@ describe("PullRequest coverage", () => {
       assert.strictEqual(yield* stub.setAutoMerge(info, "off"), undefined);
     }));
   });
-  it.layer(Layer.mergeAll(PullRequest.layerTest({ merge: () => Effect.succeed("layer-sha") }), Repo.layer(REPO)), { timeout: "30 seconds" })((it) => {
+  it.layer(Layer.mergeAll(PullRequest.layerTest({ merge: dual((args) => P.isNumber(args[0]), (_number: number, _options?: object) => Effect.succeed("layer-sha")) }), Repo.layer(REPO)), { timeout: "30 seconds" })((it) => {
     it.effect("layerTest forwards supplied overrides", () => Effect.gen(function* () {
       assert.strictEqual(yield* (yield* PullRequest).merge(7), "layer-sha");
     }));

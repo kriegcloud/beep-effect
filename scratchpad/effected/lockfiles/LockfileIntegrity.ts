@@ -1,7 +1,9 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { DependencyField } from "../npm/index.ts";
 import { Range, SemVer } from "../semver/index.ts";
+import * as A from "effect/Array";
 import * as Exit from "effect/Exit";
+import { dual, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
@@ -36,11 +38,11 @@ const $I = $ScratchpadId.create("effected/lockfiles/LockfileIntegrity");
  * @since 0.0.0
  */
 export class WorkspaceManifest extends S.Class<WorkspaceManifest, { readonly brand: unique symbol }>($I`WorkspaceManifest`)({
-	name: S.NonEmptyString.annotateKey({ description: "Workspace package identity used to match its manifest against lockfile workspace entries" }),
-	dependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Runtime dependency specifiers declared by the workspace manifest" }),
-	devDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Development dependency specifiers declared by the workspace manifest" }),
-	peerDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Peer dependency specifiers declared by the workspace manifest" }),
-	optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Optional dependency specifiers declared by the workspace manifest" }),
+	name: S.NonEmptyString.pipe($I.annoteKey("WorkspaceManifest.name", { description: "Workspace package identity used to match its manifest against lockfile workspace entries" })),
+	dependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("WorkspaceManifest.dependencies", { description: "Runtime dependency specifiers declared by the workspace manifest" })),
+	devDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("WorkspaceManifest.devDependencies", { description: "Development dependency specifiers declared by the workspace manifest" })),
+	peerDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("WorkspaceManifest.peerDependencies", { description: "Peer dependency specifiers declared by the workspace manifest" })),
+	optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("WorkspaceManifest.optionalDependencies", { description: "Optional dependency specifiers declared by the workspace manifest" })),
 }, $I.annote("WorkspaceManifest", { description: "The minimal manifest shape LockfileIntegrity.compare checks a lockfile against: a package name plus the four optional dependency maps." })) {}
 
 const decodeRange = S.decodeUnknownExit(Range.FromString);
@@ -77,9 +79,9 @@ const decodeSemVer = S.decodeUnknownExit(SemVer.FromString);
  * @since 0.0.0
  */
 export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly brand: unique symbol }>($I`LockfileIntegrity`)({
-	valid: S.Boolean.annotateKey({ description: "Whether comparison found no missing workspaces, extra workspaces or unsatisfied constraints among the rows it checked" }),
-	missingWorkspaces: S.Array(S.String).annotateKey({ description: "Workspace package names declared by manifests but absent from the lockfile's workspace entries" }),
-	extraWorkspaces: S.Array(S.String).annotateKey({ description: "Workspace package names recorded in the lockfile without matching manifests" }),
+	valid: S.Boolean.pipe($I.annoteKey("LockfileIntegrity.valid", { description: "Whether comparison found no missing workspaces, extra workspaces or unsatisfied constraints among the rows it checked" })),
+	missingWorkspaces: S.Array(S.String).pipe($I.annoteKey("LockfileIntegrity.missingWorkspaces", { description: "Workspace package names declared by manifests but absent from the lockfile's workspace entries" })),
+	extraWorkspaces: S.Array(S.String).pipe($I.annoteKey("LockfileIntegrity.extraWorkspaces", { description: "Workspace package names recorded in the lockfile without matching manifests" })),
 	unsatisfiedConstraints: S.Array(
 		S.Struct({
 			workspace: S.String,
@@ -88,7 +90,7 @@ export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly bra
 			resolved: S.String,
 			depType: DependencyField,
 		}),
-	).annotateKey({ description: "Declared SemVer constraints satisfied by no parseable resolved candidate, with workspace, dependency section and all candidate versions" }),
+	).pipe($I.annoteKey("LockfileIntegrity.unsatisfiedConstraints", { description: "Declared SemVer constraints satisfied by no parseable resolved candidate, with workspace, dependency section and all candidate versions" })),
 }, $I.annote("LockfileIntegrity", { description: "Result of checking a parsed lockfile against the workspace's declared manifests." })) {
 	/**
 	 * Check a lockfile's consistency against workspace manifests — a total,
@@ -127,13 +129,16 @@ export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly bra
 	 * @category validation
 	 * @since 0.0.0
 	 */
-	static compare(lockfile: Lockfile, manifests: ReadonlyArray<WorkspaceManifest>): LockfileIntegrity {
-		const workspacePackages = lockfile.packages.filter((p) => p.isWorkspace && p.relativePath !== undefined);
+	static readonly compare: {
+		(lockfile: Lockfile, manifests: ReadonlyArray<WorkspaceManifest>): LockfileIntegrity;
+		(manifests: ReadonlyArray<WorkspaceManifest>): (lockfile: Lockfile) => LockfileIntegrity;
+	} = dual(2, (lockfile: Lockfile, manifests: ReadonlyArray<WorkspaceManifest>): LockfileIntegrity => {
+		const workspacePackages = A.filter(lockfile.packages, (p) => p.isWorkspace && p.relativePath !== undefined);
 
-		const lockfileWsNames = MutableHashSet.fromIterable(workspacePackages.map((p) => p.name));
-		const manifestNames = MutableHashSet.fromIterable(manifests.map((m) => m.name));
-		const missingWorkspaces = [...manifestNames].filter((n) => !MutableHashSet.has(lockfileWsNames, n));
-		const extraWorkspaces = [...lockfileWsNames].filter((n) => !MutableHashSet.has(manifestNames, n));
+		const lockfileWsNames = MutableHashSet.fromIterable(A.map(workspacePackages, (p) => p.name));
+		const manifestNames = MutableHashSet.fromIterable(A.map(manifests, (m) => m.name));
+		const missingWorkspaces = A.filter(A.fromIterable(manifestNames), (n) => !MutableHashSet.has(lockfileWsNames, n));
+		const extraWorkspaces = A.filter(A.fromIterable(lockfileWsNames), (n) => !MutableHashSet.has(manifestNames, n));
 
 		// A lockfile can resolve the same name at several versions; keep them all
 		// so the verdict never depends on entry order.
@@ -166,15 +171,15 @@ export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly bra
 					const rangeExit = decodeRange(constraint);
 					if (Exit.isFailure(rangeExit)) continue; // unparseable rows are skipped
 
-					const versions = candidates.value.map((candidate) => decodeSemVer(candidate)).filter(Exit.isSuccess);
+					const versions = pipe(candidates.value, A.map((candidate) => decodeSemVer(candidate)), A.filter(Exit.isSuccess));
 					if (versions.length === 0) continue; // unparseable rows are skipped
 
-					if (!versions.some((v) => rangeExit.value.test(v.value))) {
+					if (!A.some(versions, (v) => rangeExit.value.test(v.value))) {
 						unsatisfiedConstraints.push({
 							workspace: manifest.name,
 							dependency,
 							constraint,
-							resolved: candidates.value.join(", "),
+							resolved: A.join(candidates.value, ", "),
 							depType,
 						});
 					}
@@ -188,5 +193,5 @@ export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly bra
 			extraWorkspaces,
 			unsatisfiedConstraints,
 		});
-	}
+	});
 }

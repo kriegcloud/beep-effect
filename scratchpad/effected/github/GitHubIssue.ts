@@ -2,6 +2,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
@@ -21,7 +22,7 @@ const $I = $ScratchpadId.create("effected/github/GitHubIssue");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * An issue, projected to what callers read.
@@ -43,14 +44,14 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
  * @since 0.0.0
  */
 export class IssueInfo extends S.Class<IssueInfo, { readonly brand: unique symbol }>($I`IssueInfo`)({
-	number: S.Int.annotateKey({ description: "The issue's repository-local number, used to read, close and comment on it" }),
-	title: S.String.annotateKey({ description: "The issue's heading as reported by GitHub" }),
-	state: S.Literals(["open", "closed"]).annotateKey({ description: "Whether the issue is `open` or `closed`" }),
+	number: S.Int.pipe($I.annoteKey("IssueInfo.number", { description: "The issue's repository-local number, used to read, close and comment on it" })),
+	title: S.String.pipe($I.annoteKey("IssueInfo.title", { description: "The issue's heading as reported by GitHub" })),
+	state: S.Literals(["open", "closed"]).pipe($I.annoteKey("IssueInfo.state", { description: "Whether the issue is `open` or `closed`" })),
 	/** Label names, normalized from GitHub's `string | { name }` union. */
-	labels: S.Array(S.String).annotateKey({ description: "Label names, normalized from GitHub's `string | { name }` union." }),
-	url: S.String.annotateKey({ description: "The web URL of the issue on GitHub" }),
+	labels: S.Array(S.String).pipe($I.annoteKey("IssueInfo.labels", { description: "Label names, normalized from GitHub's `string | { name }` union." })),
+	url: S.String.pipe($I.annoteKey("IssueInfo.url", { description: "The web URL of the issue on GitHub" })),
 	/** The GraphQL node id. */
-	nodeId: S.String.annotateKey({ description: "The GraphQL node id." }),
+	nodeId: S.String.pipe($I.annoteKey("IssueInfo.nodeId", { description: "The GraphQL node id." })),
 }, $I.annote("IssueInfo", { description: "An issue, projected to what callers read." })) {}
 
 /**
@@ -73,11 +74,11 @@ export class IssueInfo extends S.Class<IssueInfo, { readonly brand: unique symbo
  * @since 0.0.0
  */
 export class LinkedIssue extends S.Class<LinkedIssue, { readonly brand: unique symbol }>($I`LinkedIssue`)({
-	number: S.Int.annotateKey({ description: "The repository-local number of an issue the pull request closes" }),
-	title: S.String.annotateKey({ description: "The heading of an issue the pull request closes, as reported by GitHub" }),
-	state: S.String.annotateKey({ description: "The linked issue's state as returned by GitHub's GraphQL closing references, without normalization" }),
-	url: S.String.annotateKey({ description: "The web URL of an issue the pull request closes" }),
-	nodeId: S.String.annotateKey({ description: "GitHub's GraphQL node identifier for an issue the pull request closes" }),
+	number: S.Int.pipe($I.annoteKey("LinkedIssue.number", { description: "The repository-local number of an issue the pull request closes" })),
+	title: S.String.pipe($I.annoteKey("LinkedIssue.title", { description: "The heading of an issue the pull request closes, as reported by GitHub" })),
+	state: S.String.pipe($I.annoteKey("LinkedIssue.state", { description: "The linked issue's state as returned by GitHub's GraphQL closing references, without normalization" })),
+	url: S.String.pipe($I.annoteKey("LinkedIssue.url", { description: "The web URL of an issue the pull request closes" })),
+	nodeId: S.String.pipe($I.annoteKey("LinkedIssue.nodeId", { description: "GitHub's GraphQL node identifier for an issue the pull request closes" })),
 	/**
   * Whether a human wrote the link, rather than GitHub inferring it from the
   * branch or commit messages.
@@ -87,7 +88,7 @@ export class LinkedIssue extends S.Class<LinkedIssue, { readonly brand: unique s
   * Resolved by querying the pull request's closing references twice, once with
   * `userLinkedOnly`, and marking the issues present in the second result.
   */
-	userLinked: S.Boolean.annotateKey({ description: "Whether a human wrote the link, rather than GitHub inferring it from the branch or commit messages." }),
+	userLinked: S.Boolean.pipe($I.annoteKey("LinkedIssue.userLinked", { description: "Whether a human wrote the link, rather than GitHub inferring it from the branch or commit messages." })),
 }, $I.annote("LinkedIssue", { description: "An issue a pull request closes." })) {}
 
 /**
@@ -118,9 +119,9 @@ export class LinkedIssue extends S.Class<LinkedIssue, { readonly brand: unique s
  */
 export class CommentOnceResult extends S.Class<CommentOnceResult, { readonly brand: unique symbol }>($I`CommentOnceResult`)({
 	/** Did this call post the comment (`true`), or find it already there (`false`)? */
-	wrote: S.Boolean.annotateKey({ description: "Did this call post the comment (`true`), or find it already there (`false`)?" }),
+	wrote: S.Boolean.pipe($I.annoteKey("CommentOnceResult.wrote", { description: "Did this call post the comment (`true`), or find it already there (`false`)?" })),
 	/** The marked comment — the one created, or the one that made us skip. */
-	comment: CommentRecord.annotateKey({ description: "The marked comment — the one created, or the one that made us skip." }),
+	comment: CommentRecord.pipe($I.annoteKey("CommentOnceResult.comment", { description: "The marked comment — the one created, or the one that made us skip." })),
 }, $I.annote("CommentOnceResult", { description: "What GitHubIssueShape.commentOnce found or wrote." })) {}
 
 const IssueNodes = S.Struct({
@@ -218,9 +219,15 @@ export interface GitHubIssueShape {
 		readonly page?: PageOptions | undefined;
 	}) => Effect.Effect<ReadonlyArray<IssueInfo>, GitHubError, Repo>;
 	/** Close an issue. `reason` is sent as `state_reason` when given; unset, GitHub chooses. */
-	readonly close: (number: number, reason?: "completed" | "not_planned") => Effect.Effect<void, GitHubError, Repo>;
+	readonly close: {
+		(number: number, reason?: "completed" | "not_planned"): Effect.Effect<void, GitHubError, Repo>;
+		(reason?: "completed" | "not_planned"): (number: number) => Effect.Effect<void, GitHubError, Repo>;
+	};
 	/** Post a comment and return its id. */
-	readonly comment: (number: number, body: string) => Effect.Effect<number, GitHubError, Repo>;
+	readonly comment: {
+		(number: number, body: string): Effect.Effect<number, GitHubError, Repo>;
+		(body: string): (number: number) => Effect.Effect<number, GitHubError, Repo>;
+	};
 	/**
   * Post a marked comment once: create it, or skip if it already exists.
   *
@@ -243,11 +250,10 @@ export interface GitHubIssueShape {
   * to build — an issue reached via `linkedIssues` is cross-referenced from
   * the outset, so only the marker answers "have I commented yet?".
   */
-	readonly commentOnce: (
-		issueNumber: number,
-		marker: CommentMarker,
-		body: string,
-	) => Effect.Effect<CommentOnceResult, GitHubError, Repo>;
+	readonly commentOnce: {
+		(issueNumber: number, marker: CommentMarker, body: string): Effect.Effect<CommentOnceResult, GitHubError, Repo>;
+		(marker: CommentMarker, body: string): (issueNumber: number) => Effect.Effect<CommentOnceResult, GitHubError, Repo>;
+	};
 	/** The issues a pull request closes, with `userLinked` telling you who linked them. */
 	readonly linkedIssues: (prNumber: number) => Effect.Effect<ReadonlyArray<LinkedIssue>, GitHubGraphQLError, Repo>;
 	/**
@@ -271,10 +277,10 @@ export interface GitHubIssueShape {
   *   connected, not cross-referenced, and reads `false` here even though
   *   GitHub's UI shows the link.
   */
-	readonly isCrossReferencedBy: (
-		issueNumber: number,
-		prNumber: number,
-	) => Effect.Effect<boolean, GitHubGraphQLError, Repo>;
+	readonly isCrossReferencedBy: {
+		(issueNumber: number, prNumber: number): Effect.Effect<boolean, GitHubGraphQLError, Repo>;
+		(prNumber: number): (issueNumber: number) => Effect.Effect<boolean, GitHubGraphQLError, Repo>;
+	};
 }
 
 /**
@@ -334,8 +340,12 @@ export class GitHubIssue extends Context.Service<GitHubIssue, GitHubIssueShape>(
  * ```ts
  * import { GitHubIssue } from "@beep/scratchpad/effected/github/GitHubIssue";
  * import * as Effect from "effect/Effect";
+ * import { dual } from "effect/Function";
+ * import * as P from "effect/Predicate";
  *
- * const issues = GitHubIssue.makeTest({ close: () => Effect.void });
+ * const issues = GitHubIssue.makeTest({
+ *   close: dual((args) => P.isNumber(args[0]), (_number: number, _reason?: string) => Effect.void),
+ * });
  * console.log(Effect.isEffect(issues.close(42))) // true
  * ```
  *
@@ -360,11 +370,14 @@ export class GitHubIssue extends Context.Service<GitHubIssue, GitHubIssueShape>(
  * ```ts
  * import { GitHubIssue } from "@beep/scratchpad/effected/github/GitHubIssue";
  * import * as Effect from "effect/Effect";
+ * import { dual } from "effect/Function";
+ * import * as P from "effect/Predicate";
  *
+ * const close = dual((args) => P.isNumber(args[0]), (_number: number, _reason?: string) => Effect.void);
  * const program = Effect.gen(function* () {
  *   const issues = yield* GitHubIssue;
  *   return Effect.isEffect(issues.close(42));
- * }).pipe(Effect.provide(GitHubIssue.layerTest({ close: () => Effect.void })));
+ * }).pipe(Effect.provide(GitHubIssue.layerTest({ close })));
  * console.log(Effect.runSync(program)) // true
  * ```
  *
@@ -415,9 +428,12 @@ const RawIssue = S.Struct({
 	labels: S.Array(S.Union([S.String, S.Struct({ name: S.optionalKey(S.String) })])),
 	html_url: S.String,
 	node_id: S.String,
-}).annotate($I.annote("RawIssue", { description: "The REST issue fields consumed by the issue projection." }));
+}).pipe($I.annoteSchema("RawIssue", { description: "The REST issue fields consumed by the issue projection." }));
 
-const project = Effect.fn("GitHubIssue.project")(function* (operation: string, input: unknown) {
+const project: {
+	(input: unknown, operation: string): Effect.Effect<IssueInfo, GitHubError>;
+	(operation: string): (input: unknown) => Effect.Effect<IssueInfo, GitHubError>;
+} = dual(2, Effect.fn("GitHubIssue.project")(function* (input: unknown, operation: string) {
 	const raw = yield* S.decodeUnknownEffect(RawIssue)(input).pipe(
 		Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected issue", error)),
 	);
@@ -429,17 +445,17 @@ const project = Effect.fn("GitHubIssue.project")(function* (operation: string, i
 		url: raw.html_url,
 		nodeId: raw.node_id,
 	});
-});
+}));
 
-const CommentBody = S.Struct({ body: S.String.pipe(S.NullOr, S.optional) }).annotate(
-	$I.annote("CommentBody", { description: "The nullable REST comment body inspected for a marker." }),
+const CommentBody = S.Struct({ body: S.String.pipe(S.NullOr, S.optional) }).pipe(
+	$I.annoteSchema("CommentBody", { description: "The nullable REST comment body inspected for a marker." }),
 );
 
 const RawComment = S.Struct({
 	id: S.Union([S.Finite, S.BigInt]),
 	body: S.String.pipe(S.NullOr, S.optional),
 	html_url: S.String,
-}).annotate($I.annote("RawComment", { description: "The REST comment fields consumed by a selected or created comment." }));
+}).pipe($I.annoteSchema("RawComment", { description: "The REST comment fields consumed by a selected or created comment." }));
 
 const recordOf = Effect.fn("GitHubIssue.recordOf")(function* (input: unknown) {
 	const raw = yield* S.decodeUnknownEffect(RawComment)(input);
@@ -456,7 +472,7 @@ const make = (client: GitHubClient["Service"]): GitHubIssueShape => ({
 			issue_number: number,
 			headers: API_VERSION_HEADERS,
 		});
-		return yield* project("GitHubIssue.get", raw);
+		return yield* project(raw, "GitHubIssue.get");
 	}),
 
 	list: Effect.fn("GitHubIssue.list")(function* (options?: {
@@ -479,10 +495,10 @@ const make = (client: GitHubClient["Service"]): GitHubIssueShape => ({
 			},
 			options?.page,
 		);
-		return yield* Effect.forEach(raw, (issue) => project("GitHubIssue.list", issue));
+		return yield* Effect.forEach(raw, project("GitHubIssue.list"));
 	}),
 
-	close: Effect.fn("GitHubIssue.close")(function* (number: number, reason?: "completed" | "not_planned") {
+	close: dual((args) => P.isNumber(args[0]), Effect.fn("GitHubIssue.close")(function* (number: number, reason?: "completed" | "not_planned") {
 		const { owner, repo } = yield* Repo;
 		yield* Effect.annotateCurrentSpan({ owner, repo, number });
 		yield* client.request("PATCH /repos/{owner}/{repo}/issues/{issue_number}", {
@@ -493,9 +509,9 @@ const make = (client: GitHubClient["Service"]): GitHubIssueShape => ({
 			...O.getSomesStruct({ state_reason: O.fromUndefinedOr(reason) }),
 			headers: API_VERSION_HEADERS,
 		});
-	}),
+	})),
 
-	comment: Effect.fn("GitHubIssue.comment")(function* (number: number, body: string) {
+	comment: dual(2, Effect.fn("GitHubIssue.comment")(function* (number: number, body: string) {
 		const { owner, repo } = yield* Repo;
 		yield* Effect.annotateCurrentSpan({ owner, repo, number });
 		const created = yield* client.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
@@ -506,9 +522,9 @@ const make = (client: GitHubClient["Service"]): GitHubIssueShape => ({
 			headers: API_VERSION_HEADERS,
 		});
 		return numericId(created.id);
-	}),
+	})),
 
-	commentOnce: Effect.fn("GitHubIssue.commentOnce")(function* (
+	commentOnce: dual(3, Effect.fn("GitHubIssue.commentOnce")(function* (
 		issueNumber: number,
 		marker: CommentMarker,
 		body: string,
@@ -540,7 +556,7 @@ const make = (client: GitHubClient["Service"]): GitHubIssueShape => ({
 			wrote: true,
 			comment: yield* recordOf(created),
 		});
-	}),
+	})),
 
 	linkedIssues: Effect.fn("GitHubIssue.linkedIssues")(function* (prNumber: number) {
 		const { owner, repo } = yield* Repo;
@@ -559,7 +575,7 @@ const make = (client: GitHubClient["Service"]): GitHubIssueShape => ({
 		);
 	}),
 
-	isCrossReferencedBy: Effect.fn("GitHubIssue.isCrossReferencedBy")(function* (issueNumber: number, prNumber: number) {
+	isCrossReferencedBy: dual(2, Effect.fn("GitHubIssue.isCrossReferencedBy")(function* (issueNumber: number, prNumber: number) {
 		const { owner, repo } = yield* Repo;
 		yield* Effect.annotateCurrentSpan({ owner, repo, issueNumber, prNumber });
 		let before: string | undefined;
@@ -577,5 +593,5 @@ const make = (client: GitHubClient["Service"]): GitHubIssueShape => ({
 			}
 			before = cursor.value;
 		}
-	}),
+	})),
 });

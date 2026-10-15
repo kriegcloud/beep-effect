@@ -3,6 +3,7 @@ import { SemVer } from "../semver/index.ts";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -17,16 +18,16 @@ const $I = $ScratchpadId.create("effected/github/GitTag");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /** How many annotated-tag dereferences to follow before giving up. */
 const MAX_TAG_PEEL = 5;
 
-const TagName = S.Struct({ name: S.String }).annotate(
-	$I.annote("TagName", { description: "The tag name inspected before semver candidate selection." }),
+const TagName = S.Struct({ name: S.String }).pipe(
+	$I.annoteSchema("TagName", { description: "The tag name inspected before semver candidate selection." }),
 );
-const TagEntry = S.Struct({ name: S.String, commit: S.Struct({ sha: S.String }) }).annotate(
-	$I.annote("TagEntry", { description: "The name and nested commit SHA selected from a GitHub tag page entry." }),
+const TagEntry = S.Struct({ name: S.String, commit: S.Struct({ sha: S.String }) }).pipe(
+	$I.annoteSchema("TagEntry", { description: "The name and nested commit SHA selected from a GitHub tag page entry." }),
 );
 
 /**
@@ -48,9 +49,9 @@ const TagEntry = S.Struct({ name: S.String, commit: S.Struct({ sha: S.String }) 
  */
 export class TagRef extends S.Class<TagRef, { readonly brand: unique symbol }>($I`TagRef`)({
 	/** The tag name, without `refs/tags/`. */
-	tag: S.NonEmptyString.annotateKey({ description: "The tag name, without `refs/tags/`." }),
+	tag: S.NonEmptyString.pipe($I.annoteKey("TagRef.tag", { description: "The tag name, without `refs/tags/`." })),
 	/** The **commit** sha, with annotated tags already dereferenced. */
-	sha: S.String.annotateKey({ description: "The **commit** sha, with annotated tags already dereferenced." }),
+	sha: S.String.pipe($I.annoteKey("TagRef.sha", { description: "The **commit** sha, with annotated tags already dereferenced." })),
 }, $I.annote("TagRef", { description: "A tag and the commit it ultimately points at." })) {}
 
 /**
@@ -76,11 +77,11 @@ export class TagRef extends S.Class<TagRef, { readonly brand: unique symbol }>($
  */
 export class SemverTag extends S.Class<SemverTag, { readonly brand: unique symbol }>($I`SemverTag`)({
 	/** The tag name as GitHub has it. */
-	tag: S.NonEmptyString.annotateKey({ description: "The tag name as GitHub has it." }),
+	tag: S.NonEmptyString.pipe($I.annoteKey("SemverTag.tag", { description: "The tag name as GitHub has it." })),
 	/** The commit sha. */
-	sha: S.String.annotateKey({ description: "The commit sha." }),
+	sha: S.String.pipe($I.annoteKey("SemverTag.sha", { description: "The commit sha." })),
 	/** The version read out of the name. */
-	version: SemVer.annotateKey({ description: "The version read out of the name." }),
+	version: SemVer.pipe($I.annoteKey("SemverTag.version", { description: "The version read out of the name." })),
 }, $I.annote("SemverTag", { description: "A tag whose name carries a version." })) {}
 
 /**
@@ -151,9 +152,15 @@ export interface LatestSemverOptions {
  */
 export interface GitTagShape {
 	/** Create a tag ref at `sha`. Fails `alreadyExists` when it is already there. */
-	readonly create: (tag: string, sha: string) => Effect.Effect<void, GitHubError, Repo>;
+	readonly create: {
+		(tag: string, sha: string): Effect.Effect<void, GitHubError, Repo>;
+		(sha: string): (tag: string) => Effect.Effect<void, GitHubError, Repo>;
+	};
 	/** Point `tag` at `sha`, creating it if needed. */
-	readonly upsert: (tag: string, sha: string) => Effect.Effect<void, GitHubError, Repo>;
+	readonly upsert: {
+		(tag: string, sha: string): Effect.Effect<void, GitHubError, Repo>;
+		(sha: string): (tag: string) => Effect.Effect<void, GitHubError, Repo>;
+	};
 	/** Delete the tag ref. */
 	readonly delete: (tag: string) => Effect.Effect<void, GitHubError, Repo>;
 	/** Every tag, in GitHub's order. `prefix` filters client-side. */
@@ -290,15 +297,18 @@ const unstubbed = (member: string): never => {
 
 const shortTag = (tag: string): string => tag.replace(/^refs\/tags\//, "").replace(/^tags\//, "");
 
-const rejectEmpty = (operation: string, tag: string): Effect.Effect<string, GitHubError> => {
+const rejectEmpty: {
+	(operation: string, tag: string): Effect.Effect<string, GitHubError>;
+	(tag: string): (operation: string) => Effect.Effect<string, GitHubError>;
+} = dual(2, (operation: string, tag: string): Effect.Effect<string, GitHubError> => {
 	const short = shortTag(tag).trim();
 	return short === ""
 		? Effect.fail(GitHubError.rejected(operation, 422, "a tag name is required"))
 		: Effect.succeed(short);
-};
+});
 
 const make = (client: GitHubClient["Service"]): GitTagShape => {
-	const create = Effect.fn("GitTag.create")(function* (tag: string, sha: string) {
+	const create: GitTagShape["create"] = dual(2, Effect.fn("GitTag.create")(function* (tag: string, sha: string) {
 		const { owner, repo } = yield* Repo;
 		const short = yield* rejectEmpty("GitTag.create", tag);
 		yield* Effect.annotateCurrentSpan({ owner, repo, tag: short });
@@ -308,9 +318,12 @@ const make = (client: GitHubClient["Service"]): GitTagShape => {
 			ref: `refs/tags/${short}`,
 			sha,
 		});
-	});
+	}));
 
-	const reset = Effect.fn("reset")(function*(tag: string, sha: string) {
+	const reset: {
+		(tag: string, sha: string): Effect.Effect<void, GitHubError, Repo>;
+		(sha: string): (tag: string) => Effect.Effect<void, GitHubError, Repo>;
+	} = dual(2, Effect.fn("reset")(function*(tag: string, sha: string) {
 			const { owner, repo } = yield* Repo;
 			yield* client.request("PATCH /repos/{owner}/{repo}/git/refs/{ref}", {
 				owner,
@@ -319,7 +332,7 @@ const make = (client: GitHubClient["Service"]): GitTagShape => {
 				sha,
 				force: true,
 			});
-		});
+		}));
 
 	const listStream = (options?: { readonly page?: PageOptions | undefined }) =>
 		Stream.unwrap(
@@ -348,11 +361,11 @@ const make = (client: GitHubClient["Service"]): GitTagShape => {
 
 	return {
 		create,
-		upsert: Effect.fn("GitTag.upsert")(function* (tag: string, sha: string) {
+		upsert: dual(2, Effect.fn("GitTag.upsert")(function* (tag: string, sha: string) {
 			const short = yield* rejectEmpty("GitTag.upsert", tag);
 			yield* Effect.annotateCurrentSpan({ tag: short });
 			yield* create(tag, sha).pipe(Effect.catchIf(GitHubError.hasKind("alreadyExists"), () => reset(short, sha)));
-		}),
+		})),
 		delete: Effect.fn("GitTag.delete")(function* (tag: string) {
 			const { owner, repo } = yield* Repo;
 			const short = yield* rejectEmpty("GitTag.delete", tag);

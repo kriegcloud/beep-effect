@@ -9,8 +9,8 @@ const $I = $ScratchpadId.create("effected/cli/ui/internal/ScreenContext");
 
 class ScreenContextError extends S.TaggedError<ScreenContextError, { readonly brand: unique symbol }>($I`ScreenContextError`)(
 	"ScreenContextError",
-	{ message: S.String.annotate({ description: "The required screen or UiProvider surrounding a widget." }) },
-	$I.annote("ScreenContextError", { description: "A widget read its screen context outside a screen or UiProvider." }),
+	{ message: S.String.pipe($I.annoteKey("ScreenContextError.message", { description: "The required screen or UiProvider surrounding a widget." })) },
+	$I.annoteError<ScreenContextError>("ScreenContextError", { description: "A widget read its screen context outside a screen or UiProvider." }),
 ) {}
 
 /**

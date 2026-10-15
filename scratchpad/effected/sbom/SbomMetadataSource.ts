@@ -16,7 +16,10 @@
 // timestamp is an argument, and so is the copyright year.
 
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { Package, Person } from "../package-json/index.ts";
 import { Component, ComponentType, Contact, ExternalReference, SbomMetadata, Supplier } from "./SbomDocument.ts";
@@ -45,6 +48,12 @@ const purlSegments = (name: string): string => {
 	if (!name.startsWith("@") || separator <= 0) return encodeURIComponent(name);
 	return `${encodeURIComponent(name.slice(0, separator))}/${encodeURIComponent(name.slice(separator + 1))}`;
 };
+
+// Data-first dispatch for the package-first members. `Package` is a type-only
+// import here (a value import would drag package-json's runtime IO in), so the
+// subject is recognized structurally: a manifest always carries `name`, and the
+// options record never does.
+const isPackageFirst = (args: IArguments): boolean => P.hasProperty(args[0], "name");
 
 // Implementation of SbomMetadataSource.npmPurl; the public contract lives on the static.
 const npmPurl = (name: string, version?: string): string => {
@@ -77,19 +86,19 @@ const npmPurl = (name: string, version?: string): string => {
  */
 export const SbomMetadataOptions = S.Struct({
 	/** The supplying organization — NTIA minimum element 1. */
-	supplier: S.optionalKey(Supplier).annotateKey({ description: "The supplying organization — NTIA minimum element 1." }),
+	supplier: S.optionalKey(Supplier).pipe($I.annoteKey("SbomMetadataOptions.supplier", { description: "The supplying organization — NTIA minimum element 1." })),
 	/** Who assembled the BOM — NTIA minimum element 6. */
-	authors: Contact.pipe(S.Array, S.optional).annotateKey({ description: "Who assembled the BOM — NTIA minimum element 6." }),
+	authors: Contact.pipe(S.Array, S.optional, $I.annoteKey("SbomMetadataOptions.authors", { description: "Who assembled the BOM — NTIA minimum element 6." })),
 	/** When it was assembled — NTIA minimum element 7, as an ISO 8601 string. */
-	timestamp: S.optionalKey(S.String).annotateKey({ description: "When it was assembled — NTIA minimum element 7, as an ISO 8601 string." }),
+	timestamp: S.optionalKey(S.String).pipe($I.annoteKey("SbomMetadataOptions.timestamp", { description: "When it was assembled — NTIA minimum element 7, as an ISO 8601 string." })),
 	/** The publishing entity. Falls back to the supplier, then the manifest's author. */
-	publisher: S.optionalKey(S.String).annotateKey({ description: "The publishing entity. Falls back to the supplier, then the manifest's author." }),
+	publisher: S.optionalKey(S.String).pipe($I.annoteKey("SbomMetadataOptions.publisher", { description: "The publishing entity. Falls back to the supplier, then the manifest's author." })),
 	/** A copyright statement; {@link SbomMetadataSource.formatCopyright} builds one. */
-	copyright: S.optionalKey(S.String).annotateKey({ description: "A copyright statement; SbomMetadataSource.formatCopyright builds one." }),
+	copyright: S.optionalKey(S.String).pipe($I.annoteKey("SbomMetadataOptions.copyright", { description: "A copyright statement; SbomMetadataSource.formatCopyright builds one." })),
 	/** The documentation URL, winning over the manifest's `homepage`. */
-	documentationUrl: S.optionalKey(S.String).annotateKey({ description: "The documentation URL, winning over the manifest's homepage." }),
+	documentationUrl: S.optionalKey(S.String).pipe($I.annoteKey("SbomMetadataOptions.documentationUrl", { description: "The documentation URL, winning over the manifest's homepage." })),
 	/** The root component's type. Defaults to `library`. */
-	type: S.optionalKey(ComponentType).annotateKey({ description: "The root component's type. Defaults to library." }),
+	type: S.optionalKey(ComponentType).pipe($I.annoteKey("SbomMetadataOptions.type", { description: "The root component's type. Defaults to library." })),
 }).pipe($I.annoteSchema("SbomMetadataOptions", {
 	description: "What a manifest cannot supply, and the two places an explicit value wins.",
 }));
@@ -120,20 +129,20 @@ export type SbomMetadataOptions = typeof SbomMetadataOptions.Type;
  */
 export const ComponentInput = S.Struct({
 	/** The package name, scope included. */
-	name: S.String.annotateKey({ description: "The package name, scope included." }),
+	name: S.String.pipe($I.annoteKey("ComponentInput.name", { description: "The package name, scope included." })),
 	/**
 	 * Its resolved version. Absent produces a component with no version and no
 	 * purl version segment. Typed `string | undefined` so a caller forwarding a
 	 * statically optional version (e.g. `WorkspacePackage.version` from
 	 * `@effected/workspaces`) compiles under `exactOptionalPropertyTypes`.
 	 */
-	version: S.optionalKey(S.String).annotateKey({ description: "Its resolved version. Absent produces a component with no version and no purl version segment." }),
+	version: S.optionalKey(S.String).pipe($I.annoteKey("ComponentInput.version", { description: "Its resolved version. Absent produces a component with no version and no purl version segment." })),
 	/** An SPDX identifier or expression. */
-	license: S.optionalKey(S.String).annotateKey({ description: "An SPDX identifier or expression." }),
+	license: S.optionalKey(S.String).pipe($I.annoteKey("ComponentInput.license", { description: "An SPDX identifier or expression." })),
 	/** A short description. */
-	description: S.optionalKey(S.String).annotateKey({ description: "A short description." }),
+	description: S.optionalKey(S.String).pipe($I.annoteKey("ComponentInput.description", { description: "A short description." })),
 	/** The component type. Defaults to `library`. */
-	type: S.optionalKey(ComponentType).annotateKey({ description: "The component type. Defaults to library." }),
+	type: S.optionalKey(ComponentType).pipe($I.annoteKey("ComponentInput.type", { description: "The component type. Defaults to library." })),
 }).pipe($I.annoteSchema("ComponentInput", { description: "The fields a dependency contributes to its component entry." }));
 
 /**
@@ -162,9 +171,9 @@ export type ComponentInput = typeof ComponentInput.Type;
  */
 export const CopyrightYears = S.Struct({
 	/** The first year of the range. Omit for a single-year statement. */
-	startYear: S.optionalKey(S.Finite).annotateKey({ description: "The first year of the range. Omit for a single-year statement." }),
+	startYear: S.optionalKey(S.Finite).pipe($I.annoteKey("CopyrightYears.startYear", { description: "The first year of the range. Omit for a single-year statement." })),
 	/** The year the statement is current through, supplied by the caller. */
-	year: S.Finite.annotateKey({ description: "The year the statement is current through, supplied by the caller." }),
+	year: S.Finite.pipe($I.annoteKey("CopyrightYears.year", { description: "The year the statement is current through, supplied by the caller." })),
 }).pipe($I.annoteSchema("CopyrightYears", { description: "The years a copyright statement spans." }));
 
 /**
@@ -183,18 +192,24 @@ const contactOf = (person: Person): Contact =>
 
 /** The manifest's authors: its maintainers, or its lone author when it lists none. */
 const authorsOf = (pkg: Package): ReadonlyArray<Contact> | undefined => {
-	if (pkg.maintainers !== undefined && pkg.maintainers.length > 0) return pkg.maintainers.map(contactOf);
+	if (pkg.maintainers !== undefined && pkg.maintainers.length > 0) return A.map(pkg.maintainers, contactOf);
 	return pkg.author === undefined ? undefined : [contactOf(pkg.author)];
 };
 
 /** The supplier's first URL, which becomes a `website` reference when it says something new. */
 const supplierUrl = (options: SbomMetadataOptions | undefined): string | undefined => options?.supplier?.url?.[0];
 
-const documentationUrl = (pkg: Package, options: SbomMetadataOptions | undefined): string | undefined =>
-	options?.documentationUrl ?? pkg.homepage;
+const documentationUrl: {
+	(pkg: Package, options: SbomMetadataOptions | undefined): string | undefined;
+	(options: SbomMetadataOptions | undefined): (pkg: Package) => string | undefined;
+} = dual(2, (pkg: Package, options: SbomMetadataOptions | undefined): string | undefined =>
+	options?.documentationUrl ?? pkg.homepage);
 
 // Implementation of SbomMetadataSource.externalReferences; the public contract lives on the static.
-const externalReferences = (pkg: Package, options?: SbomMetadataOptions): ReadonlyArray<ExternalReference> => {
+const externalReferences: {
+	(pkg: Package, options?: SbomMetadataOptions): ReadonlyArray<ExternalReference>;
+	(options?: SbomMetadataOptions): (pkg: Package) => ReadonlyArray<ExternalReference>;
+} = dual(isPackageFirst, (pkg: Package, options?: SbomMetadataOptions): ReadonlyArray<ExternalReference> => {
 	const references: Array<ExternalReference> = [];
 
 	const vcs = pkg.repository === undefined ? O.none<string>() : pkg.repository.browseUrl;
@@ -216,7 +231,7 @@ const externalReferences = (pkg: Package, options?: SbomMetadataOptions): Readon
 	}
 
 	return references;
-};
+});
 
 // Implementation of SbomMetadataSource.componentFor; the public contract lives on the static.
 const componentFor = (input: ComponentInput): Component =>
@@ -231,7 +246,10 @@ const componentFor = (input: ComponentInput): Component =>
 	});
 
 // Implementation of SbomMetadataSource.rootComponent; the public contract lives on the static.
-const rootComponent = (pkg: Package, options?: SbomMetadataOptions): Component => {
+const rootComponent: {
+	(pkg: Package, options?: SbomMetadataOptions): Component;
+	(options?: SbomMetadataOptions): (pkg: Package) => Component;
+} = dual(isPackageFirst, (pkg: Package, options?: SbomMetadataOptions): Component => {
 	const version = pkg.version.toString();
 	const references = externalReferences(pkg, options);
 	const authors = authorsOf(pkg);
@@ -251,10 +269,13 @@ const rootComponent = (pkg: Package, options?: SbomMetadataOptions): Component =
 		...(publisher !== undefined && { publisher }),
 		...(options?.copyright !== undefined && { copyright: options.copyright }),
 	});
-};
+});
 
 // Implementation of SbomMetadataSource.fromPackage; the public contract lives on the static.
-const fromPackage = (pkg: Package, options?: SbomMetadataOptions): SbomMetadata => {
+const fromPackage: {
+	(pkg: Package, options?: SbomMetadataOptions): SbomMetadata;
+	(options?: SbomMetadataOptions): (pkg: Package) => SbomMetadata;
+} = dual(isPackageFirst, (pkg: Package, options?: SbomMetadataOptions): SbomMetadata => {
 	const supplier = options?.supplier;
 	const contacts = supplier?.contact ?? authorsOf(pkg);
 	const resolved =
@@ -271,16 +292,22 @@ const fromPackage = (pkg: Package, options?: SbomMetadataOptions): SbomMetadata 
 		...(options?.authors !== undefined && { authors: options.authors }),
 		...(resolved !== undefined && { supplier: resolved }),
 	});
-};
+});
 
 // Implementation of SbomMetadataSource.formatCopyright; the public contract lives on the static.
-const formatCopyright = (holder: string, years: CopyrightYears): string =>
+const formatCopyright: {
+	(holder: string, years: CopyrightYears): string;
+	(years: CopyrightYears): (holder: string) => string;
+} = dual(2, (holder: string, years: CopyrightYears): string =>
 	years.startYear === undefined || years.startYear === years.year
 		? `Copyright ${years.year} ${holder}`
-		: `Copyright ${years.startYear}-${years.year} ${holder}`;
+		: `Copyright ${years.startYear}-${years.year} ${holder}`);
 
 // Implementation of SbomMetadataSource.merge; the public contract lives on the static.
-const merge = (base: SbomMetadata, override: SbomMetadata): SbomMetadata => {
+const merge: {
+	(base: SbomMetadata, override: SbomMetadata): SbomMetadata;
+	(override: SbomMetadata): (base: SbomMetadata) => SbomMetadata;
+} = dual(2, (base: SbomMetadata, override: SbomMetadata): SbomMetadata => {
 	const timestamp = override.timestamp ?? base.timestamp;
 	const authors = override.authors ?? base.authors;
 	const component = override.component ?? base.component;
@@ -291,7 +318,7 @@ const merge = (base: SbomMetadata, override: SbomMetadata): SbomMetadata => {
 		...(component !== undefined && { component }),
 		...(supplier !== undefined && { supplier }),
 	});
-};
+});
 
 /**
  * Derivation of CycloneDX metadata from a `package.json` manifest.

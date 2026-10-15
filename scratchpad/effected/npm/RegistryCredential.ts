@@ -3,6 +3,7 @@ import * as S from "effect/Schema";
 import * as Redacted from "effect/Redacted";
 import * as Base64 from "effect/encoding/Base64";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Str from "effect/String";
 
 const $I = $ScratchpadId.create("effected/npm/RegistryCredential");
@@ -24,7 +25,7 @@ const $I = $ScratchpadId.create("effected/npm/RegistryCredential");
 export class InvalidBasicAuthUsernameError extends S.TaggedError<InvalidBasicAuthUsernameError, { readonly brand: unique symbol }>($I`InvalidBasicAuthUsernameError`)(
 	"InvalidBasicAuthUsernameError",
 	{ message: S.String },
-	$I.annote("InvalidBasicAuthUsernameError", { description: "A basic-auth username contains the credential separator." }),
+	$I.annoteError<InvalidBasicAuthUsernameError>("InvalidBasicAuthUsernameError", { description: "A basic-auth username contains the credential separator." }),
 ) {}
 
 /**
@@ -44,10 +45,10 @@ export class InvalidBasicAuthUsernameError extends S.TaggedError<InvalidBasicAut
  * @since 0.0.0
  */
 export const TokenCredential = S.Struct({
-	kind: S.Literal("token").annotateKey({ description: "Bearer-token authentication." }),
+	kind: S.Literal("token").pipe($I.annoteKey("TokenCredential.kind", { description: "Bearer-token authentication." })),
 	/** The token, verbatim. Never written to argv. */
-	token: S.Redacted(S.String).annotateKey({ description: "The redacted bearer token, never written to argv." }),
-}).annotate($I.annote("TokenCredential", { description: "A structural bearer-token credential boundary." }));
+	token: S.Redacted(S.String).pipe($I.annoteKey("TokenCredential.token", { description: "The redacted bearer token, never written to argv." })),
+}).pipe($I.annoteSchema("TokenCredential", { description: "A structural bearer-token credential boundary." }));
 /**
  * Decoded bearer-token credential accepted by {@link TokenCredential}.
  *
@@ -89,10 +90,10 @@ export type TokenCredential = typeof TokenCredential.Type;
  * @since 0.0.0
  */
 export const BasicCredential = S.Struct({
-	kind: S.Literal("basic").annotateKey({ description: "HTTP basic authentication." }),
+	kind: S.Literal("basic").pipe($I.annoteKey("BasicCredential.kind", { description: "HTTP basic authentication." })),
 	/** Base64 of `user:password`, exactly as it belongs in an npmrc `_auth`. */
-	encoded: S.Redacted(S.String).annotateKey({ description: "Redacted base64 of user:password, used verbatim." }),
-}).annotate($I.annote("BasicCredential", { description: "A structural encoded basic-auth credential boundary." }));
+	encoded: S.Redacted(S.String).pipe($I.annoteKey("BasicCredential.encoded", { description: "Redacted base64 of user:password, used verbatim." })),
+}).pipe($I.annoteSchema("BasicCredential", { description: "A structural encoded basic-auth credential boundary." }));
 /**
  * Decoded encoded basic-auth credential accepted by {@link BasicCredential}.
  *
@@ -129,7 +130,7 @@ export type BasicCredential = typeof BasicCredential.Type;
  * @since 0.0.0
  */
 export const RegistryCredential = S.Union([TokenCredential, BasicCredential]).pipe(
-	S.annotate($I.annote("RegistryCredential", { description: "The credential kind determines both npmrc key and HTTP scheme." })),
+	$I.annoteSchema("RegistryCredential", { description: "The credential kind determines both npmrc key and HTTP scheme." }),
 	S.toTaggedUnion("kind"),
 );
 /**
@@ -173,7 +174,10 @@ export type RegistryCredential = typeof RegistryCredential.Type;
  * @category constructors
  * @since 0.0.0
  */
-export const basicCredentialFromPair = Effect.fn("RegistryCredential.basicCredentialFromPair")((
+export const basicCredentialFromPair: {
+	(username: string, password: Redacted.Redacted<string>): Effect.Effect<BasicCredential, InvalidBasicAuthUsernameError>;
+	(password: Redacted.Redacted<string>): (username: string) => Effect.Effect<BasicCredential, InvalidBasicAuthUsernameError>;
+} = dual(2, Effect.fn("RegistryCredential.basicCredentialFromPair")((
 	username: string,
 	password: Redacted.Redacted<string>,
 ): Effect.Effect<BasicCredential, InvalidBasicAuthUsernameError> => Effect.suspend(() => {
@@ -185,4 +189,4 @@ export const basicCredentialFromPair = Effect.fn("RegistryCredential.basicCreden
 		kind: "basic",
 		encoded: Redacted.make(Base64.encode(`${username}:${Redacted.value(password)}`)),
 	}));
-}));
+})));

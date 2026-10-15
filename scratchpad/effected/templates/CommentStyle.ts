@@ -22,13 +22,11 @@ const $I = $ScratchpadId.create("effected/templates/CommentStyle");
  * @since 0.0.0
  */
 const Delimiter = S.String.check(
-	S.isPattern(/^[^\u0000-\u001f\u007f-\u009f]+$/u, {
-		identifier: $I`DelimiterCheck`,
-		title: "Comment delimiter grammar",
+	S.isPattern(/^[^\u0000-\u001f\u007f-\u009f]+$/u, $I.annote("DelimiterCheck", {
 		description: "A comment delimiter is non-empty and contains no control characters.",
 		message: "Expected a non-empty comment delimiter without control characters.",
-	}),
-).annotate($I.annote("Delimiter", { description: "A non-empty comment delimiter free of control characters." }));
+	})),
+).pipe($I.annoteSchema("Delimiter", { description: "A non-empty comment delimiter free of control characters." }));
 
 /**
  * How a managed section's markers are commented out in a given file format.
@@ -63,13 +61,13 @@ export class CommentStyle extends S.Class<CommentStyle, { readonly brand: unique
 	 *
 	 * @since 0.0.0
 	 */
-	prefix: Delimiter.annotateKey({ description: "Opens the comment. Non-empty, single-line." }),
+	prefix: Delimiter.pipe($I.annoteKey("CommentStyle.prefix", { description: "Opens the comment. Non-empty, single-line." })),
 	/**
 	 * Closes the comment, for wrapped styles. Omitted for line styles.
 	 *
 	 * @since 0.0.0
 	 */
-	suffix: S.optionalKey(Delimiter).annotateKey({ description: "Closes the comment, for wrapped styles. Omitted for line styles." }),
+	suffix: S.optionalKey(Delimiter).pipe($I.annoteKey("CommentStyle.suffix", { description: "Closes the comment, for wrapped styles. Omitted for line styles." })),
 }, $I.annote("CommentStyle", { description: "How a managed section's markers are commented out in a given file format." })) {
 	/**
 	 * Provides hash-prefixed comments for Shell, YAML, TOML, Python, Dockerfile, and `.env`.

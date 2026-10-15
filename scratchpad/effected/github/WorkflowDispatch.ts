@@ -4,8 +4,10 @@ import * as DateTime from "effect/DateTime";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
+import * as P from "effect/Predicate";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import { GitHubClient } from "./GitHubClient.ts";
@@ -18,7 +20,7 @@ const $I = $ScratchpadId.create("effected/github/WorkflowDispatch");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * Where a workflow run has got to.
@@ -41,13 +43,13 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
  */
 export class WorkflowRunStatus extends S.Class<WorkflowRunStatus, { readonly brand: unique symbol }>($I`WorkflowRunStatus`)({
   /** The run's numeric id. */
-  id: S.Int.annotateKey({ description: "The run's numeric id." }),
+  id: S.Int.pipe($I.annoteKey("WorkflowRunStatus.id", { description: "The run's numeric id." })),
   /** `queued`, `in_progress`, `completed`, … */
-  status: S.String.annotateKey({ description: "`queued`, `in_progress`, `completed`, …" }),
+  status: S.String.pipe($I.annoteKey("WorkflowRunStatus.status", { description: "`queued`, `in_progress`, `completed`, …" })),
   /** Set once `status` is `completed`. */
-  conclusion: S.optionalKey(S.String).annotateKey({ description: "Set once `status` is `completed`." }),
+  conclusion: S.optionalKey(S.String).pipe($I.annoteKey("WorkflowRunStatus.conclusion", { description: "Set once `status` is `completed`." })),
   /** The run's web URL. */
-  url: S.String.annotateKey({ description: "The run's web URL." }),
+  url: S.String.pipe($I.annoteKey("WorkflowRunStatus.url", { description: "The run's web URL." })),
 }, $I.annote("WorkflowRunStatus", { description: "Where a workflow run has got to." })) {
   /**
    * Has the run finished, whatever the outcome?
@@ -101,14 +103,14 @@ export class WorkflowRunStatus extends S.Class<WorkflowRunStatus, { readonly bra
  */
 export const WorkflowInfo = S.Struct({
   /** The workflow's numeric id, usable as `workflow_id` on other routes. */
-  id: S.Finite.annotateKey({ description: "The workflow's numeric id, usable as workflow_id on other routes." }),
+  id: S.Finite.pipe($I.annoteKey("WorkflowInfo.id", { description: "The workflow's numeric id, usable as workflow_id on other routes." })),
   /** The workflow's display name. */
-  name: S.String.annotateKey({ description: "The workflow's display name." }),
+  name: S.String.pipe($I.annoteKey("WorkflowInfo.name", { description: "The workflow's display name." })),
   /** Repository-relative path, e.g. `.github/workflows/ci.yml`. */
-  path: S.String.annotateKey({ description: "Repository-relative workflow path." }),
+  path: S.String.pipe($I.annoteKey("WorkflowInfo.path", { description: "Repository-relative workflow path." })),
   /** GitHub's state string; see the Details above before branching on it. */
-  state: S.String.annotateKey({ description: "GitHub's uninterpreted workflow state string." }),
-}).annotate($I.annote("WorkflowInfo", { description: "One workflow defined in the repository." }));
+  state: S.String.pipe($I.annoteKey("WorkflowInfo.state", { description: "GitHub's uninterpreted workflow state string." })),
+}).pipe($I.annoteSchema("WorkflowInfo", { description: "One workflow defined in the repository." }));
 
 /**
  * The plain-object result described by {@link WorkflowInfo}.
@@ -146,11 +148,10 @@ const DEFAULT_TIMEOUT = Duration.minutes(5);
  */
 export interface WorkflowDispatchShape {
   /** Fire a `workflow_dispatch` event. GitHub answers 204 with no run id. */
-  readonly dispatch: (
-    workflow: string,
-    ref: string,
-    inputs?: Record<string, string>,
-  ) => Effect.Effect<void, GitHubError, Repo>;
+  readonly dispatch: {
+    (workflow: string, ref: string, inputs?: Record<string, string>): Effect.Effect<void, GitHubError, Repo>;
+    (ref: string, inputs?: Record<string, string>): (workflow: string) => Effect.Effect<void, GitHubError, Repo>;
+  };
   /** Read one workflow run's status. */
   readonly runStatus: (runId: number) => Effect.Effect<WorkflowRunStatus, GitHubError, Repo>;
   /**
@@ -183,14 +184,23 @@ export interface WorkflowDispatchShape {
    * one run id. Concurrent dispatches of the same workflow on the same ref can
    * still be confused because GitHub's dispatch response supplies no run id.
    */
-  readonly dispatchAndWait: (
-    workflow: string,
-    ref: string,
-    options?: {
+  readonly dispatchAndWait: {
+    (
+      workflow: string,
+      ref: string,
+      options?: {
       readonly inputs?: Record<string, string> | undefined;
       readonly poll?: PollOptions | undefined
     },
-  ) => Effect.Effect<WorkflowRunStatus, GitHubError, Repo>;
+    ): Effect.Effect<WorkflowRunStatus, GitHubError, Repo>;
+    (
+      ref: string,
+      options?: {
+      readonly inputs?: Record<string, string> | undefined;
+      readonly poll?: PollOptions | undefined
+    },
+    ): (workflow: string) => Effect.Effect<WorkflowRunStatus, GitHubError, Repo>;
+  };
 }
 
 /**
@@ -303,7 +313,20 @@ const unstubbed = (member: string): never => {
   throw UnstubbedError.make({ message: `WorkflowDispatch.makeTest: ${member}() was called but not stubbed — pass an override.` });
 };
 
-const statusOf = Effect.fn("WorkflowDispatch.statusOf")(function* (operation: string, raw: {
+const statusOf: {
+  (operation: string, raw: {
+  id: number | bigint;
+  status?: string | null;
+  conclusion?: string | null;
+  html_url: string;
+}): Effect.Effect<WorkflowRunStatus, GitHubError>;
+  (raw: {
+  id: number | bigint;
+  status?: string | null;
+  conclusion?: string | null;
+  html_url: string;
+}): (operation: string) => Effect.Effect<WorkflowRunStatus, GitHubError>;
+} = dual(2, Effect.fn("WorkflowDispatch.statusOf")(function* (operation: string, raw: {
   id: number | bigint;
   status?: string | null;
   conclusion?: string | null;
@@ -315,10 +338,10 @@ const statusOf = Effect.fn("WorkflowDispatch.statusOf")(function* (operation: st
     ...(raw.conclusion != null ? { conclusion: raw.conclusion } : {}),
     url: raw.html_url,
   }).pipe(Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected workflow run", error)));
-});
+}));
 
 const make = (client: GitHubClient["Service"]): WorkflowDispatchShape => {
-  const dispatch = Effect.fn("WorkflowDispatch.dispatch")(function* (
+  const dispatch: WorkflowDispatchShape["dispatch"] = dual((args) => P.isString(args[1]), Effect.fn("WorkflowDispatch.dispatch")(function* (
     workflow: string,
     ref: string,
     inputs?: Record<string, string>,
@@ -332,7 +355,7 @@ const make = (client: GitHubClient["Service"]): WorkflowDispatchShape => {
       ref,
       ...O.getSomesStruct({ inputs: O.fromUndefinedOr(inputs) }),
     });
-  });
+  }));
 
   const runStatus = Effect.fn("WorkflowDispatch.runStatus")(function* (runId: number) {
     const { owner, repo } = yield* Repo;
@@ -369,7 +392,7 @@ const make = (client: GitHubClient["Service"]): WorkflowDispatchShape => {
     runStatus,
     list: list(),
 
-    dispatchAndWait: Effect.fn("WorkflowDispatch.dispatchAndWait")(function* (
+    dispatchAndWait: dual((args) => P.isString(args[1]), Effect.fn("WorkflowDispatch.dispatchAndWait")(function* (
       workflow: string,
       ref: string,
       options?: {
@@ -427,6 +450,6 @@ const make = (client: GitHubClient["Service"]): WorkflowDispatchShape => {
         // The repeat predicate stops only for a present, completed run.
         return O.getOrThrow(settled);
       }).pipe(Effect.timeoutOrElse({ duration: timeout, orElse: () => Effect.fail(expired) }));
-    }),
+    })),
   };
 };

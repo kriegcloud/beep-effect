@@ -22,19 +22,20 @@ import type { FileBlobTransfer } from "../../effected/github-actions/index.ts";
 import { Artifact, ArtifactError, BlobTransferError } from "../../effected/github-actions/index.ts";
 import { DownloadOptions, DownloadResult, UploadOptions } from "../../effected/github-actions/Artifact.ts";
 import { json, resultsEnv, runtimeToken, twirpFetch } from "./results.ts";
+import { dual } from "effect/Function";
 
 const Json = S.fromJsonString(S.Unknown);
 
 const fileTransfer = () => {
 	const blobs = new Map<string, Uint8Array>();
 	const transfer = (fs: FileSystem.FileSystem): FileBlobTransfer => ({
-		uploadFile: (url, file) =>
+		uploadFile: dual(2, (url: string, file: string) =>
 			fs.readFile(file).pipe(
 				Effect.tap((bytes) => Effect.sync(() => blobs.set(url, bytes))),
 				Effect.asVoid,
 				Effect.mapError((cause) => BlobTransferError.make({ reason: "uploadFailed", cause }))
-			),
-		downloadToFile: (url, file) =>
+			)),
+		downloadToFile: dual(2, (url: string, file: string) =>
 			Effect.suspend(() => {
 				const found = blobs.get(url);
 				return found === undefined
@@ -44,7 +45,7 @@ const fileTransfer = () => {
 					: fs
 							.writeFile(file, found)
 							.pipe(Effect.mapError((cause) => BlobTransferError.make({ reason: "downloadFailed", cause })));
-			}),
+			})),
 	});
 	return { blobs, transfer };
 };
@@ -157,8 +158,8 @@ describe("Artifact", () => {
 			}),
 		});
 		const transfer: FileBlobTransfer = {
-			uploadFile: () => Effect.sync(() => { transfers += 1; }),
-			downloadToFile: () => Effect.sync(() => { transfers += 1; }),
+			uploadFile: dual(2, (_url: string, _file: string) => Effect.sync(() => { transfers += 1; })),
+			downloadToFile: dual(2, (_url: string, _file: string) => Effect.sync(() => { transfers += 1; })),
 		};
 		const { calls, fetch } = twirpFetch(uploadable);
 		const layer = Artifact.layerWith(transfer).pipe(Layer.provideMerge(Layer.mergeAll(

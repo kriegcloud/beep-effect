@@ -4,6 +4,7 @@ import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -353,7 +354,7 @@ describe("ManagedSection", () => {
   });
 
   describe("test doubles", () => {
-    it.layer(ManagedSection.layerTest({ isManaged: () => Effect.succeed(false) }), { timeout: "30 seconds" })((it) => {
+    it.layer(ManagedSection.layerTest({ isManaged: dual(2, (_path: string, _id: SectionId): Effect.Effect<boolean> => Effect.succeed(false)) }), { timeout: "30 seconds" })((it) => {
       it.effect("layerTest serves the members a suite stubs", () =>
         Effect.gen(function* () {
           const service = yield* ManagedSection;

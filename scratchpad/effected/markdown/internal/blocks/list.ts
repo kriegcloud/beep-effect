@@ -20,10 +20,12 @@
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { BulletChar, List, ListDelimiter, ListItem } from "../../MarkdownNode.ts";
-import type { BlockConstruct, BlockNode, BlockScanner, BlockStart, ListData } from "../blockTypes.ts";
+import type { BlockConstruct, BlockContinueResult, BlockNode, BlockScanner, BlockStart, BlockStartResult, ListData, MaterializeContext, MaterializedBlock } from "../blockTypes.ts";
 import { flowChildren, listItemChildren } from "../blockTypes.ts";
 import { isSpaceOrTab, peekCode } from "../preprocess.ts";
 import * as O from "@beep/utils/Option";
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 
 const reBulletListMarker = /^[*+-]/;
 const reOrderedListMarker = /^(\d{1,9})([.)])/;
@@ -36,7 +38,10 @@ const decodeListDelimiter = S.decodeUnknownResult(ListDelimiter);
  * Parse a list marker at the scanner's next non-whitespace position,
  * advancing past it on success.
  */
-const parseListMarker = (scanner: BlockScanner, container: BlockNode): ListData | undefined => {
+const parseListMarker: {
+	(scanner: BlockScanner, container: BlockNode): ListData | undefined;
+	(container: BlockNode): (scanner: BlockScanner) => ListData | undefined;
+} = dual(2, (scanner: BlockScanner, container: BlockNode): ListData | undefined => {
 	if (scanner.indent >= 4) {
 		return undefined;
 	}
@@ -112,21 +117,27 @@ const parseListMarker = (scanner: BlockScanner, container: BlockNode): ListData 
 	}
 
 	return data;
-};
+});
 
 /** Two markers belong to the same list when type, delimiter and bullet agree. */
-const listsMatch = (listData: ListData, itemData: ListData): boolean =>
+const listsMatch: {
+	(listData: ListData, itemData: ListData): boolean;
+	(itemData: ListData): (listData: ListData) => boolean;
+} = dual(2, (listData: ListData, itemData: ListData): boolean =>
 	listData.type === itemData.type &&
 	listData.delimiter === itemData.delimiter &&
-	listData.bulletChar === itemData.bulletChar;
+	listData.bulletChar === itemData.bulletChar);
 
 /** Whether `block` is followed by a sibling that a blank line separates from it. */
-const endsWithBlankLine = (block: BlockNode, next: BlockNode | undefined): boolean =>
-	next !== undefined && block.endLine !== next.startLine - 1;
+const endsWithBlankLine: {
+	(block: BlockNode, next: BlockNode | undefined): boolean;
+	(next: BlockNode | undefined): (block: BlockNode) => boolean;
+} = dual(2, (block: BlockNode, next: BlockNode | undefined): boolean =>
+	next !== undefined && block.endLine !== next.startLine - 1);
 
 /** Whether any of `block`'s children are separated from the next by a blank line. */
 const hasBlankLineBetweenChildren = (block: BlockNode): boolean =>
-	block.children.some((child, index) => endsWithBlankLine(child, block.children[index + 1]));
+	A.some(block.children, (child, index) => endsWithBlankLine(child, block.children[index + 1]));
 
 /**
  * Contains list items and nothing else.
@@ -152,8 +163,8 @@ export const listConstruct: BlockConstruct = {
 	type: "list",
 	acceptsLines: false,
 	canContain: (child) => child === "listItem",
-	continue: () => 0,
-	finalize: (_scanner, block) => {
+	continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 0),
+	finalize: dual(2, (_scanner: BlockScanner, block: BlockNode): void => {
 		let tight = true;
 		for (const [index, item] of block.children.entries()) {
 			// An item followed by a blank line, or one whose own children are
@@ -176,8 +187,8 @@ export const listConstruct: BlockConstruct = {
 			block.endOffset = last.endOffset;
 			block.endLine = last.endLine;
 		}
-	},
-	materialize: (block, children, context) => {
+	}),
+	materialize: dual(3, (block: BlockNode, children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => {
 		const listData = block.data.listData;
 		const ordered = listData?.type === "ordered";
 		return List.make({
@@ -191,7 +202,7 @@ export const listConstruct: BlockConstruct = {
 				delimiter: O.fromUndefinedOr(listData?.delimiter),
 			}),
 		});
-	},
+	}),
 };
 
 /**
@@ -220,7 +231,7 @@ export const listItemConstruct: BlockConstruct = {
 	type: "listItem",
 	acceptsLines: false,
 	canContain: (child) => child !== "listItem",
-	continue: (scanner, block) => {
+	continue: dual(2, (scanner: BlockScanner, block: BlockNode): BlockContinueResult => {
 		const listData = block.data.listData;
 		if (listData === undefined) {
 			return 1;
@@ -238,8 +249,8 @@ export const listItemConstruct: BlockConstruct = {
 			return 1;
 		}
 		return 0;
-	},
-	finalize: (_scanner, block) => {
+	}),
+	finalize: dual(2, (_scanner: BlockScanner, block: BlockNode): void => {
 		const last = block.children[block.children.length - 1];
 		if (last !== undefined) {
 			block.endOffset = last.endOffset;
@@ -249,9 +260,8 @@ export const listItemConstruct: BlockConstruct = {
 		// An empty item ends where its marker and padding do.
 		block.endLine = block.startLine;
 		block.endOffset = block.startOffset + (block.data.listData?.padding ?? 0);
-	},
-	materialize: (block, children, context) =>
-		ListItem.make({
+	}),
+	materialize: dual(3, (block: BlockNode, children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => ListItem.make({
 			spread: block.data.spread ?? false,
 			children: flowChildren(children),
 			position: context.position(block.startOffset, block.endOffset),
@@ -259,7 +269,7 @@ export const listItemConstruct: BlockConstruct = {
 			// `checked`; an item that carried no checkbox keeps the key ABSENT
 			// rather than false, which is the mdast contract.
 			...O.getSomesStruct({ checked: O.fromUndefinedOr(block.data.checked) }),
-		}),
+		})),
 };
 
 /**
@@ -284,7 +294,7 @@ export const listItemConstruct: BlockConstruct = {
  */
 export const listItemStart: BlockStart = {
 	name: "listItem",
-	trigger: (scanner, container) => {
+	trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
 		if (scanner.indented && container.type !== "list") {
 			return 0;
 		}
@@ -307,5 +317,5 @@ export const listItemStart: BlockStart = {
 		const item = scanner.addChild("listItem", scanner.nextNonspace);
 		item.data.listData = data;
 		return 1;
-	},
+	}),
 };

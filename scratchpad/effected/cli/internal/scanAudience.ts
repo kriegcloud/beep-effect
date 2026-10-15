@@ -23,11 +23,11 @@ const $I = $ScratchpadId.create("effected/cli/internal/scanAudience");
  * @since 0.0.0
  */
 export const AudienceFlagValues = S.Struct({
-	audience: S.Array(AudienceKind).annotate($I.annote("AudienceFlagValues.audience", { description: "Every explicit audience occurrence." })),
-	human: S.Array(S.Boolean).annotate($I.annote("AudienceFlagValues.human", { description: "Every parsed human flag occurrence." })),
-	agent: S.Array(S.Boolean).annotate($I.annote("AudienceFlagValues.agent", { description: "Every parsed agent flag occurrence." })),
-	ci: S.Array(S.Boolean).annotate($I.annote("AudienceFlagValues.ci", { description: "Every parsed CI flag occurrence." })),
-}).annotate($I.annote("AudienceFlagValues", { description: "The four parsed audience flag arrays, including disabled occurrences." }));
+	audience: S.Array(AudienceKind).pipe($I.annoteKey("AudienceFlagValues.audience", { description: "Every explicit audience occurrence." })),
+	human: S.Array(S.Boolean).pipe($I.annoteKey("AudienceFlagValues.human", { description: "Every parsed human flag occurrence." })),
+	agent: S.Array(S.Boolean).pipe($I.annoteKey("AudienceFlagValues.agent", { description: "Every parsed agent flag occurrence." })),
+	ci: S.Array(S.Boolean).pipe($I.annoteKey("AudienceFlagValues.ci", { description: "Every parsed CI flag occurrence." })),
+}).pipe($I.annoteSchema("AudienceFlagValues", { description: "The four parsed audience flag arrays, including disabled occurrences." }));
 
 /**
  * The plain parsed audience flags.
@@ -53,9 +53,9 @@ export type AudienceFlagValues = typeof AudienceFlagValues.Type;
  * @since 0.0.0
  */
 export const AudienceTally = S.Struct({
-	given: S.Array(AudienceKind).annotate($I.annote("AudienceTally.given", { description: "Enabled audience occurrences in tally order." })),
-	conflict: S.Boolean.annotate($I.annote("AudienceTally.conflict", { description: "Whether more than one audience occurrence was enabled." })),
-}).annotate($I.annote("AudienceTally", { description: "Plain audience occurrences and their conflict result." }));
+	given: S.Array(AudienceKind).pipe($I.annoteKey("AudienceTally.given", { description: "Enabled audience occurrences in tally order." })),
+	conflict: S.Boolean.pipe($I.annoteKey("AudienceTally.conflict", { description: "Whether more than one audience occurrence was enabled." })),
+}).pipe($I.annoteSchema("AudienceTally", { description: "Plain audience occurrences and their conflict result." }));
 
 /**
  * The plain result shared by parsed flags and argv scanning.

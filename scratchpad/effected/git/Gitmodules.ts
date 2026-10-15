@@ -4,7 +4,7 @@ import * as A from "effect/Array";
 import * as N from "effect/Number";
 import * as Str from "effect/String";
 import * as Effect from "effect/Effect";
-import { identity } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -17,26 +17,21 @@ import { serializeHeader, serializeValue } from "./internal/config.ts";
 import * as O from "@beep/utils/Option";
 
 const $I = $ScratchpadId.create("effected/git/Gitmodules");
-const DiagnosticJsonString = S.fromJsonString(S.String).annotate(
-  $I.annote("DiagnosticJsonString", { description: "JSON quoting for synchronous submodule field diagnostics." }),
-);
+
+/** `dual` dispatch for the optional-parameter setters: a `GitConfig` first argument marks the data-first call. */
+const isGitConfig = S.is(GitConfig);
+const DiagnosticJsonString = S.fromJsonString(S.String).pipe($I.annoteSchema("DiagnosticJsonString", { description: "JSON quoting for synchronous submodule field diagnostics." }));
 const encodeDiagnosticJsonString = S.encodeResult(DiagnosticJsonString);
 
 /** A value that can be rendered and scanned without a NUL-byte diagnostic. */
-const GitmodulesValue = S.String.check(S.isPattern(/^[^\0]*$/u)).annotate(
-	$I.annote("GitmodulesValue", { description: "A NUL-free git-config field value." }),
-);
+const GitmodulesValue = S.String.check(S.isPattern(/^[^\0]*$/u)).pipe($I.annoteSchema("GitmodulesValue", { description: "A NUL-free git-config field value." }));
 
 /** Git's case-folded submodule status-ignore policies. */
-const SubmoduleIgnore = LiteralKit(["all", "dirty", "untracked", "none"]).annotate(
-	$I.annote("SubmoduleIgnore", { description: "The supported submodule status-ignore policies." }),
-);
+const SubmoduleIgnore = LiteralKit(["all", "dirty", "untracked", "none"]).pipe($I.annoteSchema("SubmoduleIgnore", { description: "The supported submodule status-ignore policies." }));
 const isSubmoduleIgnore = S.is(SubmoduleIgnore);
 
 /** Git's base-zero integer syntax, with an optional binary size suffix. */
-const GitIntegerText = S.String.check(S.isPattern(/^[ \t\n\r\v\f]*[+-]?(?:0[xX][0-9a-fA-F]+|0[0-7]*|[1-9][0-9]*)[kKmMgG]?$/)).annotate(
-	$I.annote("GitIntegerText", { description: "A signed decimal, octal or hexadecimal Git integer, optionally suffixed by k, m or g." }),
-);
+const GitIntegerText = S.String.check(S.isPattern(/^[ \t\n\r\v\f]*[+-]?(?:0[xX][0-9a-fA-F]+|0[0-7]*|[1-9][0-9]*)[kKmMgG]?$/)).pipe($I.annoteSchema("GitIntegerText", { description: "A signed decimal, octal or hexadecimal Git integer, optionally suffixed by k, m or g." }));
 const isGitIntegerText = S.is(GitIntegerText);
 
 /** Decode Git boolean text and bare keys; this private schema is read-only. */
@@ -60,7 +55,8 @@ const GitBoolean = S.UndefinedOr(S.String).pipe(
 		})),
 		encode: SchemaGetter.forbiddenEncoding,
 	}),
-).annotate($I.annote("GitBoolean", { description: "Git boolean words, integer spellings and bare-key semantics." }));
+	$I.annoteSchema("GitBoolean", { description: "Git boolean words, integer spellings and bare-key semantics." }),
+);
 const decodeGitBoolean = S.decodeUnknownOption(GitBoolean);
 
 /**
@@ -94,26 +90,26 @@ export class GitmodulesEntry extends S.Class<GitmodulesEntry, { readonly brand: 
   * lines — so the check bites only on hand-built entries, matching
   * `GitConfig.addSection`'s refusal of `[\n\r\0]` subsections.
   */
-	name: S.String.check(S.isPattern(/^[^\n\r\0]*$/u)).annotateKey({ description: "The submodule's logical name — the section's subsection, case-sensitive." }),
+	name: S.String.check(S.isPattern(/^[^\n\r\0]*$/u)).pipe($I.annoteKey("GitmodulesEntry.name", { description: "The submodule's logical name — the section's subsection, case-sensitive." })),
 	/** The submodule's path relative to the superproject root (`submodule.<name>.path`). */
-	path: GitmodulesValue.annotateKey({ description: "The submodule's path relative to the superproject root (`submodule.<name>.path`)." }),
+	path: GitmodulesValue.pipe($I.annoteKey("GitmodulesEntry.path", { description: "The submodule's path relative to the superproject root (`submodule.<name>.path`)." })),
 	/** The submodule's remote URL (`submodule.<name>.url`). */
-	url: GitmodulesValue.annotateKey({ description: "The submodule's remote URL (`submodule.<name>.url`)." }),
+	url: GitmodulesValue.pipe($I.annoteKey("GitmodulesEntry.url", { description: "The submodule's remote URL (`submodule.<name>.url`)." })),
 	/** The branch the submodule tracks (`submodule.<name>.branch`), when recorded. */
-	branch: S.optionalKey(GitmodulesValue).annotateKey({ description: "The branch the submodule tracks (`submodule.<name>.branch`), when recorded." }),
+	branch: S.optionalKey(GitmodulesValue).pipe($I.annoteKey("GitmodulesEntry.branch", { description: "The branch the submodule tracks (`submodule.<name>.branch`), when recorded." })),
 	/** Whether the submodule clones shallow (`submodule.<name>.shallow`), when recorded. */
-	shallow: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the submodule clones shallow (`submodule.<name>.shallow`), when recorded." }),
+	shallow: S.optionalKey(S.Boolean).pipe($I.annoteKey("GitmodulesEntry.shallow", { description: "Whether the submodule clones shallow (`submodule.<name>.shallow`), when recorded." })),
 	/**
 	 * The update strategy (`submodule.<name>.update`), when recorded. Kept as a
 	 * raw string deliberately: beyond `checkout`/`rebase`/`merge`/`none` git
 	 * accepts arbitrary `!command` values, so a literal union would reject
 	 * valid documents.
 	 */
-	update: S.optionalKey(GitmodulesValue).annotateKey({ description: "The update strategy (`submodule.<name>.update`), when recorded. Kept as a raw string deliberately: beyond `checkout`/`rebase`/`merge`/`none` git accepts arbitrary `!command` values, so a literal union would reject valid documents." }),
+	update: S.optionalKey(GitmodulesValue).pipe($I.annoteKey("GitmodulesEntry.update", { description: "The update strategy (`submodule.<name>.update`), when recorded. Kept as a raw string deliberately: beyond `checkout`/`rebase`/`merge`/`none` git accepts arbitrary `!command` values, so a literal union would reject valid documents." })),
 	/** The status-ignore policy (`submodule.<name>.ignore`), when recorded. */
-	ignore: S.optionalKey(SubmoduleIgnore).annotateKey({ description: "The status-ignore policy (`submodule.<name>.ignore`), when recorded." }),
+	ignore: S.optionalKey(SubmoduleIgnore).pipe($I.annoteKey("GitmodulesEntry.ignore", { description: "The status-ignore policy (`submodule.<name>.ignore`), when recorded." })),
 	/** Whether fetch recurses into the submodule (`submodule.<name>.fetchRecurseSubmodules`), when recorded. */
-	fetchRecurseSubmodules: S.optionalKey(S.Union([S.Boolean, S.Literal("on-demand")])).annotateKey({ description: "Whether fetch recurses into the submodule (`submodule.<name>.fetchRecurseSubmodules`), when recorded." }),
+	fetchRecurseSubmodules: S.optionalKey(S.Union([S.Boolean, S.Literal("on-demand")])).pipe($I.annoteKey("GitmodulesEntry.fetchRecurseSubmodules", { description: "Whether fetch recurses into the submodule (`submodule.<name>.fetchRecurseSubmodules`), when recorded." })),
 }, $I.annote("GitmodulesEntry", { description: "One `[submodule \"<name>\"]` entry of a `.gitmodules` document, decoded into typed fields." })) {}
 
 /**
@@ -134,14 +130,14 @@ export class GitmodulesEntry extends S.Class<GitmodulesEntry, { readonly brand: 
  */
 export class GitmodulesDecodeError extends S.TaggedError<GitmodulesDecodeError, { readonly brand: unique symbol }>($I`GitmodulesDecodeError`)("GitmodulesDecodeError", {
 	/** The submodule name (the section's subsection) that failed to decode. */
-	name: S.String.annotateKey({ description: "The submodule name (the section's subsection) that failed to decode." }),
+	name: S.String.pipe($I.annoteKey("GitmodulesDecodeError.name", { description: "The submodule name (the section's subsection) that failed to decode." })),
 	/** The field the failure is about, when it is field-specific. */
-	field: S.optionalKey(S.String).annotateKey({ description: "The field the failure is about, when it is field-specific." }),
+	field: S.optionalKey(S.String).pipe($I.annoteKey("GitmodulesDecodeError.field", { description: "The field the failure is about, when it is field-specific." })),
 	/** The offending raw value, when there was one. */
-	value: S.optionalKey(S.String).annotateKey({ description: "The offending raw value, when there was one." }),
+	value: S.optionalKey(S.String).pipe($I.annoteKey("GitmodulesDecodeError.value", { description: "The offending raw value, when there was one." })),
 	/** What went wrong. */
-	reason: S.Literals(["missingPath", "missingUrl", "invalidValue"]).annotateKey({ description: "What went wrong." }),
-}, $I.annote("GitmodulesDecodeError", { description: "A `[submodule]` section could not be decoded into a GitmodulesEntry." })) {
+	reason: S.Literals(["missingPath", "missingUrl", "invalidValue"]).pipe($I.annoteKey("GitmodulesDecodeError.reason", { description: "What went wrong." })),
+}, $I.annoteError<GitmodulesDecodeError>("GitmodulesDecodeError", { description: "A `[submodule]` section could not be decoded into a GitmodulesEntry." })) {
 	/**
 	 *  Renders the failing submodule and field into a one-line message. 
 	 *
@@ -198,7 +194,7 @@ const render = (fields: (typeof Gitmodules)["Encoded"]): string => {
 			lines.push(`\tfetchRecurseSubmodules = ${value}`);
 		}
 	}
-	return lines.length === 0 ? "" : `${lines.join("\n")}\n`;
+	return lines.length === 0 ? "" : `${A.join(lines, "\n")}\n`;
 };
 
 /**
@@ -234,8 +230,8 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 	/** The decoded submodule entries, in first-appearance order. */
 	entries: S.Array(GitmodulesEntry).check(S.makeFilter(
 		(entries) => A.dedupe(A.map(entries, (entry) => entry.name)).length === entries.length,
-		$I.annote("UniqueSubmoduleNames", { title: "Unique submodule names", description: "Submodule entries must have distinct case-sensitive names." }),
-	)).annotateKey({ description: "The decoded submodule entries, in first-appearance order." }),
+		$I.annote("UniqueSubmoduleNames", { message: "Unique submodule names", description: "Submodule entries must have distinct case-sensitive names." }),
+	)).pipe($I.annoteKey("Gitmodules.entries", { description: "The decoded submodule entries, in first-appearance order." })),
 }, $I.annote("Gitmodules", { description: "The typed view over a `.gitmodules` document: the decoded submodule entries, in first-appearance order." })) {
 	/**
 	 * Decodes an already-parsed git-config document into submodule entries —
@@ -286,13 +282,16 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 		const entries: Array<GitmodulesEntry> = [];
 		for (const { name, fields } of MutableHashMap.values(byName)) {
 			const raw = (key: string): string | null | undefined => O.getOrUndefined(MutableHashMap.get(fields, key));
-			const invalid = (field: string, value: string | null): GitmodulesDecodeError =>
+			const invalid: {
+				(field: string, value: string | null): GitmodulesDecodeError;
+				(value: string | null): (field: string) => GitmodulesDecodeError;
+			} = dual(2, (field: string, value: string | null): GitmodulesDecodeError =>
 				GitmodulesDecodeError.make({
 					name,
 					field,
 					...(value !== null ? { value } : {}),
 					reason: "invalidValue",
-				});
+				}));
 			const path = raw("path");
 			if (path === undefined || path === null) {
 				return Result.fail(GitmodulesDecodeError.make({ name, field: "path", reason: "missingPath" }));
@@ -486,9 +485,11 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 	 * @category setters
 	 * @since 0.0.0
 	 */
-	static setUrl(config: GitConfig, name: string, url: string): Result.Result<GitConfig, GitConfigEditError> {
-		return config.set("submodule", name, "url", url);
-	}
+	static readonly setUrl: {
+		(config: GitConfig, name: string, url: string): Result.Result<GitConfig, GitConfigEditError>;
+		(name: string, url: string): (config: GitConfig) => Result.Result<GitConfig, GitConfigEditError>;
+	} = dual(3, (config: GitConfig, name: string, url: string): Result.Result<GitConfig, GitConfigEditError> =>
+		config.set("submodule", name, "url", url));
 
 	/**
 	 *  Rewrites `submodule.<name>.path` in the document, surgically. 
@@ -510,9 +511,11 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 	 * @category setters
 	 * @since 0.0.0
 	 */
-	static setPath(config: GitConfig, name: string, path: string): Result.Result<GitConfig, GitConfigEditError> {
-		return config.set("submodule", name, "path", path);
-	}
+	static readonly setPath: {
+		(config: GitConfig, name: string, path: string): Result.Result<GitConfig, GitConfigEditError>;
+		(name: string, path: string): (config: GitConfig) => Result.Result<GitConfig, GitConfigEditError>;
+	} = dual(3, (config: GitConfig, name: string, path: string): Result.Result<GitConfig, GitConfigEditError> =>
+		config.set("submodule", name, "path", path));
 
 	/**
 	 * Records (or, with `branch` omitted, removes) `submodule.<name>.branch`,
@@ -535,11 +538,16 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 	 * @category setters
 	 * @since 0.0.0
 	 */
-	static setBranch(config: GitConfig, name: string, branch?: string): Result.Result<GitConfig, GitConfigEditError> {
-		return branch === undefined
-			? config.unset("submodule", name, "branch")
-			: config.set("submodule", name, "branch", branch);
-	}
+	static readonly setBranch: {
+		(config: GitConfig, name: string, branch?: string): Result.Result<GitConfig, GitConfigEditError>;
+		(name: string, branch?: string): (config: GitConfig) => Result.Result<GitConfig, GitConfigEditError>;
+	} = dual(
+		(args) => isGitConfig(args[0]),
+		(config: GitConfig, name: string, branch?: string): Result.Result<GitConfig, GitConfigEditError> =>
+			branch === undefined
+				? config.unset("submodule", name, "branch")
+				: config.set("submodule", name, "branch", branch),
+	);
 
 	/**
 	 * Records (or, with `shallow` omitted, removes) `submodule.<name>.shallow`,
@@ -562,11 +570,16 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 	 * @category setters
 	 * @since 0.0.0
 	 */
-	static setShallow(config: GitConfig, name: string, shallow?: boolean): Result.Result<GitConfig, GitConfigEditError> {
-		return shallow === undefined
-			? config.unset("submodule", name, "shallow")
-			: config.set("submodule", name, "shallow", shallow ? "true" : "false");
-	}
+	static readonly setShallow: {
+		(config: GitConfig, name: string, shallow?: boolean): Result.Result<GitConfig, GitConfigEditError>;
+		(name: string, shallow?: boolean): (config: GitConfig) => Result.Result<GitConfig, GitConfigEditError>;
+	} = dual(
+		(args) => isGitConfig(args[0]),
+		(config: GitConfig, name: string, shallow?: boolean): Result.Result<GitConfig, GitConfigEditError> =>
+			shallow === undefined
+				? config.unset("submodule", name, "shallow")
+				: config.set("submodule", name, "shallow", shallow ? "true" : "false"),
+	);
 
 	/**
 	 * Adds a whole entry as a new `[submodule "<name>"]` section at the end of
@@ -589,7 +602,10 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 	 * @category setters
 	 * @since 0.0.0
 	 */
-	static add(config: GitConfig, entry: GitmodulesEntry): Result.Result<GitConfig, GitConfigEditError> {
+	static readonly add: {
+		(config: GitConfig, entry: GitmodulesEntry): Result.Result<GitConfig, GitConfigEditError>;
+		(entry: GitmodulesEntry): (config: GitConfig) => Result.Result<GitConfig, GitConfigEditError>;
+	} = dual(2, (config: GitConfig, entry: GitmodulesEntry): Result.Result<GitConfig, GitConfigEditError> => {
 		let result = config.addSection("submodule", entry.name);
 		const steps: ReadonlyArray<readonly [string, string | undefined]> = [
 			["path", entry.path],
@@ -614,7 +630,7 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 			result = result.success.set("submodule", entry.name, key, value);
 		}
 		return result;
-	}
+	});
 
 	/**
 	 *  Removes every `[submodule "<name>"]` section from the document, surgically. 
@@ -635,9 +651,10 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 	 * @category setters
 	 * @since 0.0.0
 	 */
-	static remove(config: GitConfig, name: string): Result.Result<GitConfig, GitConfigEditError> {
-		return config.removeSection("submodule", name);
-	}
+	static readonly remove: {
+		(config: GitConfig, name: string): Result.Result<GitConfig, GitConfigEditError>;
+		(name: string): (config: GitConfig) => Result.Result<GitConfig, GitConfigEditError>;
+	} = dual(2, (config: GitConfig, name: string): Result.Result<GitConfig, GitConfigEditError> => config.removeSection("submodule", name));
 
 	/**
 	 * Renames the submodule's section header(s) from `oldName` to `newName`,
@@ -666,7 +683,9 @@ export class Gitmodules extends S.Class<Gitmodules, { readonly brand: unique sym
 	 * @category setters
 	 * @since 0.0.0
 	 */
-	static rename(config: GitConfig, oldName: string, newName: string): Result.Result<GitConfig, GitConfigEditError> {
-		return config.renameSection("submodule", oldName, "submodule", newName);
-	}
+	static readonly rename: {
+		(config: GitConfig, oldName: string, newName: string): Result.Result<GitConfig, GitConfigEditError>;
+		(oldName: string, newName: string): (config: GitConfig) => Result.Result<GitConfig, GitConfigEditError>;
+	} = dual(3, (config: GitConfig, oldName: string, newName: string): Result.Result<GitConfig, GitConfigEditError> =>
+		config.renameSection("submodule", oldName, "submodule", newName));
 }

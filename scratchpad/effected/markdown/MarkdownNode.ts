@@ -57,9 +57,9 @@ const $I = $ScratchpadId.create("effected/markdown/MarkdownNode");
  * @since 0.0.0
  */
 export class Point extends S.Class<Point, {}>($I`Point`)({
-	line: S.Finite.annotateKey({ description: "1-based line number in the source document" }),
-	column: S.Finite.annotateKey({ description: "1-based column in the source line, measured in UTF-16 code units" }),
-	offset: S.Finite.annotateKey({ description: "0-based index into the source string, measured in UTF-16 code units for offset-splice editing" }),
+	line: S.Finite.pipe($I.annoteKey("Point.line", { description: "1-based line number in the source document" })),
+	column: S.Finite.pipe($I.annoteKey("Point.column", { description: "1-based column in the source line, measured in UTF-16 code units" })),
+	offset: S.Finite.pipe($I.annoteKey("Point.offset", { description: "0-based index into the source string, measured in UTF-16 code units for offset-splice editing" })),
 }, $I.annote("Point", { description: "A single point in a source document: 1-based `line` and `column`, 0-based `offset`." })) {}
 
 /**
@@ -82,8 +82,8 @@ export class Point extends S.Class<Point, {}>($I`Point`)({
  * @since 0.0.0
  */
 export class Position extends S.Class<Position, {}>($I`Position`)({
-	start: Point.annotateKey({ description: "Inclusive source point where the node begins" }),
-	end: Point.annotateKey({ description: "Exclusive source point immediately after the node" }),
+	start: Point.pipe($I.annoteKey("Position.start", { description: "Inclusive source point where the node begins" })),
+	end: Point.pipe($I.annoteKey("Position.end", { description: "Exclusive source point immediately after the node" })),
 }, $I.annote("Position", { description: "The source span of a node: `start` inclusive, `end` exclusive." })) {
 	/**
  * The zero-width synthetic position: line 1, column 1, offset 0 at both
@@ -483,10 +483,10 @@ export type TableAlign = typeof TableAlign.Type;
  * @since 0.0.0
  */
 export class Text extends S.Class<Text, {}>($I`Text`)({
-	type: S.tag("text").annotateKey({ description: "The `text` discriminator identifying a run of literal characters" }),
-	value: S.String.annotateKey({ description: "Literal text content with entity references and backslash escapes already resolved" }),
-	escapeStyle: S.optionalKey(S.Literals(["canonical", "literal"])).annotateKey({ description: "Emitter instruction selecting canonical inline escaping or literal output, while retaining escapes that protect surrounding block structure" }),
-	position: NodePosition.annotateKey({ description: "Source span of the text run, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("text").pipe($I.annoteKey("Text.type", { description: "The `text` discriminator identifying a run of literal characters" })),
+	value: S.String.pipe($I.annoteKey("Text.value", { description: "Literal text content with entity references and backslash escapes already resolved" })),
+	escapeStyle: S.optionalKey(S.Literals(["canonical", "literal"])).pipe($I.annoteKey("Text.escapeStyle", { description: "Emitter instruction selecting canonical inline escaping or literal output, while retaining escapes that protect surrounding block structure" })),
+	position: NodePosition.pipe($I.annoteKey("Text.position", { description: "Source span of the text run, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Text", { description: "Text — a run of literal characters, with entity references and backslash escapes already resolved into `value`." })) {}
 
 /**
@@ -508,9 +508,9 @@ export class Text extends S.Class<Text, {}>($I`Text`)({
  * @since 0.0.0
  */
 export class InlineCode extends S.Class<InlineCode, {}>($I`InlineCode`)({
-	type: S.tag("inlineCode").annotateKey({ description: "The `inlineCode` discriminator identifying an inline code span" }),
-	value: S.String.annotateKey({ description: "Code span content with backtick fences removed and CommonMark space stripping applied" }),
-	position: NodePosition.annotateKey({ description: "Source span of the code span, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("inlineCode").pipe($I.annoteKey("InlineCode.type", { description: "The `inlineCode` discriminator identifying an inline code span" })),
+	value: S.String.pipe($I.annoteKey("InlineCode.value", { description: "Code span content with backtick fences removed and CommonMark space stripping applied" })),
+	position: NodePosition.pipe($I.annoteKey("InlineCode.position", { description: "Source span of the code span, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("InlineCode", { description: "InlineCode — a code span: `foo` written between backtick fences in the source. `value` holds the span's content with the backtick fence stripped and the spec's space-stripping applied." })) {}
 
 /**
@@ -532,9 +532,9 @@ export class InlineCode extends S.Class<InlineCode, {}>($I`InlineCode`)({
  * @since 0.0.0
  */
 export class Html extends S.Class<Html, {}>($I`Html`)({
-	type: S.tag("html").annotateKey({ description: "The `html` discriminator identifying raw HTML in block or inline position" }),
-	value: S.String.annotateKey({ description: "Raw HTML source preserved verbatim" }),
-	position: NodePosition.annotateKey({ description: "Source span of the HTML fragment, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("html").pipe($I.annoteKey("Html.type", { description: "The `html` discriminator identifying raw HTML in block or inline position" })),
+	value: S.String.pipe($I.annoteKey("Html.value", { description: "Raw HTML source preserved verbatim" })),
+	position: NodePosition.pipe($I.annoteKey("Html.position", { description: "Source span of the HTML fragment, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Html", { description: "Html — a fragment of raw HTML, kept verbatim. Used for both HTML blocks (flow) and inline raw HTML (phrasing); the same node type serves both, as mdast specifies." })) {}
 
 /**
@@ -559,9 +559,9 @@ export class Html extends S.Class<Html, {}>($I`Html`)({
  * @since 0.0.0
  */
 export class Break extends S.Class<Break, {}>($I`Break`)({
-	type: S.tag("break").annotateKey({ description: "The `break` discriminator identifying a hard line break" }),
-	position: NodePosition.annotateKey({ description: "Source span of the hard break, constructor-defaulted to the zero-width synthetic position" }),
-	breakStyle: S.optionalKey(BreakStyle).annotateKey({ description: "Source spelling of the hard break: a trailing backslash or two or more trailing spaces" }),
+	type: S.tag("break").pipe($I.annoteKey("Break.type", { description: "The `break` discriminator identifying a hard line break" })),
+	position: NodePosition.pipe($I.annoteKey("Break.position", { description: "Source span of the hard break, constructor-defaulted to the zero-width synthetic position" })),
+	breakStyle: S.optionalKey(BreakStyle).pipe($I.annoteKey("Break.breakStyle", { description: "Source spelling of the hard break: a trailing backslash or two or more trailing spaces" })),
 }, $I.annote("Break", { description: "Break — a hard line break." })) {}
 
 /**
@@ -581,11 +581,11 @@ export class Break extends S.Class<Break, {}>($I`Break`)({
  * @since 0.0.0
  */
 export class Image extends S.Class<Image, {}>($I`Image`)({
-	type: S.tag("image").annotateKey({ description: "The `image` discriminator identifying an inline image with a direct destination" }),
-	url: S.String.annotateKey({ description: "Image destination with source escapes resolved, without URI percent encoding" }),
-	title: S.optionalKey(S.String).annotateKey({ description: "Optional image title with enclosing delimiters removed and source escapes resolved" }),
-	alt: S.optionalKey(S.String).annotateKey({ description: "Plain text alternative derived from the image's bracketed content" }),
-	position: NodePosition.annotateKey({ description: "Source span of the image, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("image").pipe($I.annoteKey("Image.type", { description: "The `image` discriminator identifying an inline image with a direct destination" })),
+	url: S.String.pipe($I.annoteKey("Image.url", { description: "Image destination with source escapes resolved, without URI percent encoding" })),
+	title: S.optionalKey(S.String).pipe($I.annoteKey("Image.title", { description: "Optional image title with enclosing delimiters removed and source escapes resolved" })),
+	alt: S.optionalKey(S.String).pipe($I.annoteKey("Image.alt", { description: "Plain text alternative derived from the image's bracketed content" })),
+	position: NodePosition.pipe($I.annoteKey("Image.position", { description: "Source span of the image, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Image", { description: "Image — an inline image (`![alt](url \"title\")`)." })) {}
 
 /**
@@ -611,12 +611,12 @@ export class Image extends S.Class<Image, {}>($I`Image`)({
  * @since 0.0.0
  */
 export class ImageReference extends S.Class<ImageReference, {}>($I`ImageReference`)({
-	type: S.tag("imageReference").annotateKey({ description: "The `imageReference` discriminator identifying an image associated with a link reference definition" }),
-	identifier: S.String.annotateKey({ description: "Normalized, lowercased reference label used to associate the image with a definition" }),
-	label: S.optionalKey(S.String).annotateKey({ description: "Original reference label text with surrounding brackets removed" }),
-	referenceType: ReferenceType.annotateKey({ description: "Reference spelling: `shortcut`, `collapsed`, or `full`, recording whether a separate reference label was written" }),
-	alt: S.optionalKey(S.String).annotateKey({ description: "Plain text alternative derived from the reference image's bracketed content" }),
-	position: NodePosition.annotateKey({ description: "Source span of the image reference, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("imageReference").pipe($I.annoteKey("ImageReference.type", { description: "The `imageReference` discriminator identifying an image associated with a link reference definition" })),
+	identifier: S.String.pipe($I.annoteKey("ImageReference.identifier", { description: "Normalized, lowercased reference label used to associate the image with a definition" })),
+	label: S.optionalKey(S.String).pipe($I.annoteKey("ImageReference.label", { description: "Original reference label text with surrounding brackets removed" })),
+	referenceType: ReferenceType.pipe($I.annoteKey("ImageReference.referenceType", { description: "Reference spelling: `shortcut`, `collapsed`, or `full`, recording whether a separate reference label was written" })),
+	alt: S.optionalKey(S.String).pipe($I.annoteKey("ImageReference.alt", { description: "Plain text alternative derived from the reference image's bracketed content" })),
+	position: NodePosition.pipe($I.annoteKey("ImageReference.position", { description: "Source span of the image reference, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("ImageReference", { description: "ImageReference — an image referring to a Definition by identifier (`![alt][ref]`)." })) {}
 
 /**
@@ -640,10 +640,10 @@ export class ImageReference extends S.Class<ImageReference, {}>($I`ImageReferenc
  * @since 0.0.0
  */
 export class Emphasis extends S.Class<Emphasis, {}>($I`Emphasis`)({
-	type: S.tag("emphasis").annotateKey({ description: "The `emphasis` discriminator identifying emphasized inline content" }),
-	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content enclosed by emphasis markers, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the emphasis, constructor-defaulted to the zero-width synthetic position" }),
-	markerChar: S.optionalKey(EmphasisChar).annotateKey({ description: "Source character used for emphasis markers: `*` or `_`" }),
+	type: S.tag("emphasis").pipe($I.annoteKey("Emphasis.type", { description: "The `emphasis` discriminator identifying emphasized inline content" })),
+	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).pipe($I.annoteKey("Emphasis.children", { description: "Inline content enclosed by emphasis markers, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("Emphasis.position", { description: "Source span of the emphasis, constructor-defaulted to the zero-width synthetic position" })),
+	markerChar: S.optionalKey(EmphasisChar).pipe($I.annoteKey("Emphasis.markerChar", { description: "Source character used for emphasis markers: `*` or `_`" })),
 }, $I.annote("Emphasis", { description: "Emphasis — `*foo*` or `_foo_`." })) {}
 
 /**
@@ -667,10 +667,10 @@ export class Emphasis extends S.Class<Emphasis, {}>($I`Emphasis`)({
  * @since 0.0.0
  */
 export class Strong extends S.Class<Strong, {}>($I`Strong`)({
-	type: S.tag("strong").annotateKey({ description: "The `strong` discriminator identifying strongly emphasized inline content" }),
-	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content enclosed by strong emphasis markers, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the strong emphasis, constructor-defaulted to the zero-width synthetic position" }),
-	markerChar: S.optionalKey(EmphasisChar).annotateKey({ description: "Source character doubled for strong emphasis markers: `*` or `_`" }),
+	type: S.tag("strong").pipe($I.annoteKey("Strong.type", { description: "The `strong` discriminator identifying strongly emphasized inline content" })),
+	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).pipe($I.annoteKey("Strong.children", { description: "Inline content enclosed by strong emphasis markers, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("Strong.position", { description: "Source span of the strong emphasis, constructor-defaulted to the zero-width synthetic position" })),
+	markerChar: S.optionalKey(EmphasisChar).pipe($I.annoteKey("Strong.markerChar", { description: "Source character doubled for strong emphasis markers: `*` or `_`" })),
 }, $I.annote("Strong", { description: "Strong — `**foo**` or `__foo__`." })) {}
 
 /**
@@ -697,9 +697,9 @@ export class Strong extends S.Class<Strong, {}>($I`Strong`)({
  * @since 0.0.0
  */
 export class Delete extends S.Class<Delete, {}>($I`Delete`)({
-	type: S.tag("delete").annotateKey({ description: "The `delete` discriminator identifying GFM strikethrough content" }),
-	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content marked as no longer accurate or relevant by strikethrough, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the strikethrough, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("delete").pipe($I.annoteKey("Delete.type", { description: "The `delete` discriminator identifying GFM strikethrough content" })),
+	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).pipe($I.annoteKey("Delete.children", { description: "Inline content marked as no longer accurate or relevant by strikethrough, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("Delete.position", { description: "Source span of the strikethrough, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Delete", { description: "Delete — GFM strikethrough (`~~foo~~`). Content that is no longer accurate or relevant." })) {}
 
 /**
@@ -719,11 +719,11 @@ export class Delete extends S.Class<Delete, {}>($I`Delete`)({
  * @since 0.0.0
  */
 export class Link extends S.Class<Link, {}>($I`Link`)({
-	type: S.tag("link").annotateKey({ description: "The `link` discriminator identifying an inline link or autolink with a direct destination" }),
-	url: S.String.annotateKey({ description: "Link destination with source escapes resolved, without URI percent encoding" }),
-	title: S.optionalKey(S.String).annotateKey({ description: "Optional link title with enclosing delimiters removed and source escapes resolved" }),
-	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content displayed as the link text, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the link, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("link").pipe($I.annoteKey("Link.type", { description: "The `link` discriminator identifying an inline link or autolink with a direct destination" })),
+	url: S.String.pipe($I.annoteKey("Link.url", { description: "Link destination with source escapes resolved, without URI percent encoding" })),
+	title: S.optionalKey(S.String).pipe($I.annoteKey("Link.title", { description: "Optional link title with enclosing delimiters removed and source escapes resolved" })),
+	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).pipe($I.annoteKey("Link.children", { description: "Inline content displayed as the link text, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("Link.position", { description: "Source span of the link, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Link", { description: "Link — an inline link (`[text](url \"title\")`), including autolinks." })) {}
 
 /**
@@ -748,12 +748,12 @@ export class Link extends S.Class<Link, {}>($I`Link`)({
  * @since 0.0.0
  */
 export class LinkReference extends S.Class<LinkReference, {}>($I`LinkReference`)({
-	type: S.tag("linkReference").annotateKey({ description: "The `linkReference` discriminator identifying a link associated with a reference definition" }),
-	identifier: S.String.annotateKey({ description: "Normalized, lowercased reference label used to associate the link with a definition" }),
-	label: S.optionalKey(S.String).annotateKey({ description: "Original reference label text with surrounding brackets removed" }),
-	referenceType: ReferenceType.annotateKey({ description: "Reference spelling: `shortcut`, `collapsed`, or `full`, recording whether a separate reference label was written" }),
-	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content displayed as the reference link's text, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the link reference, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("linkReference").pipe($I.annoteKey("LinkReference.type", { description: "The `linkReference` discriminator identifying a link associated with a reference definition" })),
+	identifier: S.String.pipe($I.annoteKey("LinkReference.identifier", { description: "Normalized, lowercased reference label used to associate the link with a definition" })),
+	label: S.optionalKey(S.String).pipe($I.annoteKey("LinkReference.label", { description: "Original reference label text with surrounding brackets removed" })),
+	referenceType: ReferenceType.pipe($I.annoteKey("LinkReference.referenceType", { description: "Reference spelling: `shortcut`, `collapsed`, or `full`, recording whether a separate reference label was written" })),
+	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).pipe($I.annoteKey("LinkReference.children", { description: "Inline content displayed as the reference link's text, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("LinkReference.position", { description: "Source span of the link reference, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("LinkReference", { description: "LinkReference — a link referring to a Definition by identifier (`[text][ref]`)." })) {}
 
 /**
@@ -781,10 +781,10 @@ export class LinkReference extends S.Class<LinkReference, {}>($I`LinkReference`)
  * @since 0.0.0
  */
 export class FootnoteReference extends S.Class<FootnoteReference, {}>($I`FootnoteReference`)({
-	type: S.tag("footnoteReference").annotateKey({ description: "The `footnoteReference` discriminator identifying a GFM footnote marker" }),
-	identifier: S.String.annotateKey({ description: "Normalized, lowercased footnote label used to associate the marker with a footnote definition" }),
-	label: S.optionalKey(S.String).annotateKey({ description: "Original footnote label text without the surrounding brackets and leading caret" }),
-	position: NodePosition.annotateKey({ description: "Source span of the footnote marker, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("footnoteReference").pipe($I.annoteKey("FootnoteReference.type", { description: "The `footnoteReference` discriminator identifying a GFM footnote marker" })),
+	identifier: S.String.pipe($I.annoteKey("FootnoteReference.identifier", { description: "Normalized, lowercased footnote label used to associate the marker with a footnote definition" })),
+	label: S.optionalKey(S.String).pipe($I.annoteKey("FootnoteReference.label", { description: "Original footnote label text without the surrounding brackets and leading caret" })),
+	position: NodePosition.pipe($I.annoteKey("FootnoteReference.position", { description: "Source span of the footnote marker, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("FootnoteReference", { description: "FootnoteReference — a GFM footnote marker (`[^alpha]`), associating this point in the text with a FootnoteDefinition by identifier." })) {}
 
 /**
@@ -878,9 +878,9 @@ export type PhrasingContent =
  * @since 0.0.0
  */
 export class ThematicBreak extends S.Class<ThematicBreak, {}>($I`ThematicBreak`)({
-	type: S.tag("thematicBreak").annotateKey({ description: "The `thematicBreak` discriminator identifying a horizontal rule" }),
-	position: NodePosition.annotateKey({ description: "Source span of the horizontal rule, constructor-defaulted to the zero-width synthetic position" }),
-	markerChar: S.optionalKey(ThematicBreakChar).annotateKey({ description: "Source character used to draw the horizontal rule: `-`, `_`, or `*`" }),
+	type: S.tag("thematicBreak").pipe($I.annoteKey("ThematicBreak.type", { description: "The `thematicBreak` discriminator identifying a horizontal rule" })),
+	position: NodePosition.pipe($I.annoteKey("ThematicBreak.position", { description: "Source span of the horizontal rule, constructor-defaulted to the zero-width synthetic position" })),
+	markerChar: S.optionalKey(ThematicBreakChar).pipe($I.annoteKey("ThematicBreak.markerChar", { description: "Source character used to draw the horizontal rule: `-`, `_`, or `*`" })),
 }, $I.annote("ThematicBreak", { description: "ThematicBreak — a horizontal rule (`---`, `***`, `___`)." })) {}
 
 /**
@@ -915,13 +915,13 @@ export class ThematicBreak extends S.Class<ThematicBreak, {}>($I`ThematicBreak`)
  * @since 0.0.0
  */
 export class Code extends S.Class<Code, {}>($I`Code`)({
-	type: S.tag("code").annotateKey({ description: "The `code` discriminator identifying a fenced or indented code block" }),
-	value: S.String.annotateKey({ description: "Code block content with fence lines or code indentation removed" }),
-	lang: S.optionalKey(S.String).annotateKey({ description: "Language token preceding the first whitespace run in a fenced code block's info string" }),
-	meta: S.optionalKey(S.String).annotateKey({ description: "Additional fence info following the language token and its separating whitespace" }),
-	position: NodePosition.annotateKey({ description: "Source span of the code block, constructor-defaulted to the zero-width synthetic position" }),
-	fenceChar: S.optionalKey(FenceChar).annotateKey({ description: "Source fence character, backtick or tilde; absent on parsed indented code blocks" }),
-	fenceLength: S.optionalKey(S.Finite).annotateKey({ description: "Number of repeated characters in the opening fence; absent on parsed indented code blocks" }),
+	type: S.tag("code").pipe($I.annoteKey("Code.type", { description: "The `code` discriminator identifying a fenced or indented code block" })),
+	value: S.String.pipe($I.annoteKey("Code.value", { description: "Code block content with fence lines or code indentation removed" })),
+	lang: S.optionalKey(S.String).pipe($I.annoteKey("Code.lang", { description: "Language token preceding the first whitespace run in a fenced code block's info string" })),
+	meta: S.optionalKey(S.String).pipe($I.annoteKey("Code.meta", { description: "Additional fence info following the language token and its separating whitespace" })),
+	position: NodePosition.pipe($I.annoteKey("Code.position", { description: "Source span of the code block, constructor-defaulted to the zero-width synthetic position" })),
+	fenceChar: S.optionalKey(FenceChar).pipe($I.annoteKey("Code.fenceChar", { description: "Source fence character, backtick or tilde; absent on parsed indented code blocks" })),
+	fenceLength: S.optionalKey(S.Finite).pipe($I.annoteKey("Code.fenceLength", { description: "Number of repeated characters in the opening fence; absent on parsed indented code blocks" })),
 }, $I.annote("Code", { description: "Code — a code block, fenced or indented." })) {}
 
 /**
@@ -947,12 +947,12 @@ export class Code extends S.Class<Code, {}>($I`Code`)({
  * @since 0.0.0
  */
 export class Definition extends S.Class<Definition, {}>($I`Definition`)({
-	type: S.tag("definition").annotateKey({ description: "The `definition` discriminator identifying a link reference definition" }),
-	identifier: S.String.annotateKey({ description: "Normalized, lowercased label used to associate links and images with this definition" }),
-	label: S.optionalKey(S.String).annotateKey({ description: "Original definition label text with surrounding brackets removed" }),
-	url: S.String.annotateKey({ description: "Defined link or image destination with source escapes resolved, without URI percent encoding" }),
-	title: S.optionalKey(S.String).annotateKey({ description: "Optional destination title with enclosing delimiters removed and source escapes resolved" }),
-	position: NodePosition.annotateKey({ description: "Source span of the reference definition, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("definition").pipe($I.annoteKey("Definition.type", { description: "The `definition` discriminator identifying a link reference definition" })),
+	identifier: S.String.pipe($I.annoteKey("Definition.identifier", { description: "Normalized, lowercased label used to associate links and images with this definition" })),
+	label: S.optionalKey(S.String).pipe($I.annoteKey("Definition.label", { description: "Original definition label text with surrounding brackets removed" })),
+	url: S.String.pipe($I.annoteKey("Definition.url", { description: "Defined link or image destination with source escapes resolved, without URI percent encoding" })),
+	title: S.optionalKey(S.String).pipe($I.annoteKey("Definition.title", { description: "Optional destination title with enclosing delimiters removed and source escapes resolved" })),
+	position: NodePosition.pipe($I.annoteKey("Definition.position", { description: "Source span of the reference definition, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Definition", { description: "Definition — a link reference definition (`[ref]: /url \"title\"`)." })) {}
 
 /**
@@ -979,11 +979,11 @@ export class Definition extends S.Class<Definition, {}>($I`Definition`)({
  * @since 0.0.0
  */
 export class FootnoteDefinition extends S.Class<FootnoteDefinition, {}>($I`FootnoteDefinition`)({
-	type: S.tag("footnoteDefinition").annotateKey({ description: "The `footnoteDefinition` discriminator identifying a GFM footnote definition" }),
-	identifier: S.String.annotateKey({ description: "Normalized, lowercased label used to associate footnote markers with this definition" }),
-	label: S.optionalKey(S.String).annotateKey({ description: "Original footnote label text without the surrounding brackets and leading caret" }),
-	children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).annotateKey({ description: "Block content forming the footnote body, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the footnote definition, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("footnoteDefinition").pipe($I.annoteKey("FootnoteDefinition.type", { description: "The `footnoteDefinition` discriminator identifying a GFM footnote definition" })),
+	identifier: S.String.pipe($I.annoteKey("FootnoteDefinition.identifier", { description: "Normalized, lowercased label used to associate footnote markers with this definition" })),
+	label: S.optionalKey(S.String).pipe($I.annoteKey("FootnoteDefinition.label", { description: "Original footnote label text without the surrounding brackets and leading caret" })),
+	children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).pipe($I.annoteKey("FootnoteDefinition.children", { description: "Block content forming the footnote body, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("FootnoteDefinition.position", { description: "Source span of the footnote definition, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("FootnoteDefinition", { description: "FootnoteDefinition — a GFM footnote definition (`[^alpha]: bravo.`), the content a FootnoteReference points at." })) {}
 
 /**
@@ -1003,9 +1003,9 @@ export class FootnoteDefinition extends S.Class<FootnoteDefinition, {}>($I`Footn
  * @since 0.0.0
  */
 export class Paragraph extends S.Class<Paragraph, {}>($I`Paragraph`)({
-	type: S.tag("paragraph").annotateKey({ description: "The `paragraph` discriminator identifying a paragraph of inline content" }),
-	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content forming the paragraph, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the paragraph, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("paragraph").pipe($I.annoteKey("Paragraph.type", { description: "The `paragraph` discriminator identifying a paragraph of inline content" })),
+	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).pipe($I.annoteKey("Paragraph.children", { description: "Inline content forming the paragraph, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("Paragraph.position", { description: "Source span of the paragraph, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Paragraph", { description: "Paragraph — a run of phrasing content." })) {}
 
 /**
@@ -1030,11 +1030,11 @@ export class Paragraph extends S.Class<Paragraph, {}>($I`Paragraph`)({
  * @since 0.0.0
  */
 export class Heading extends S.Class<Heading, {}>($I`Heading`)({
-	type: S.tag("heading").annotateKey({ description: "The `heading` discriminator identifying an ATX or setext heading" }),
-	depth: HeadingDepth.annotateKey({ description: "Heading level from 1 to 6, with 1 representing the highest level" }),
-	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content forming the heading text, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the heading, constructor-defaulted to the zero-width synthetic position" }),
-	headingStyle: S.optionalKey(HeadingStyle).annotateKey({ description: "Source spelling of the heading: `atx` hash markers or a `setext` underline" }),
+	type: S.tag("heading").pipe($I.annoteKey("Heading.type", { description: "The `heading` discriminator identifying an ATX or setext heading" })),
+	depth: HeadingDepth.pipe($I.annoteKey("Heading.depth", { description: "Heading level from 1 to 6, with 1 representing the highest level" })),
+	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).pipe($I.annoteKey("Heading.children", { description: "Inline content forming the heading text, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("Heading.position", { description: "Source span of the heading, constructor-defaulted to the zero-width synthetic position" })),
+	headingStyle: S.optionalKey(HeadingStyle).pipe($I.annoteKey("Heading.headingStyle", { description: "Source spelling of the heading: `atx` hash markers or a `setext` underline" })),
 }, $I.annote("Heading", { description: "Heading — an ATX or setext heading of depth 1 to 6." })) {}
 
 /**
@@ -1064,11 +1064,11 @@ export class Heading extends S.Class<Heading, {}>($I`Heading`)({
  * @since 0.0.0
  */
 export class ListItem extends S.Class<ListItem, {}>($I`ListItem`)({
-	type: S.tag("listItem").annotateKey({ description: "The `listItem` discriminator identifying one item in a list" }),
-	spread: S.optionalKey(S.Boolean).annotateKey({ description: "Whether blank lines separate the item's child blocks; absent means unknown" }),
-	children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).annotateKey({ description: "Block content belonging to the list item, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the list item, constructor-defaulted to the zero-width synthetic position" }),
-	checked: S.optionalKey(S.Boolean).annotateKey({ description: "Task completion state: `true` for done, `false` for unfinished, absent for an ordinary list item" }),
+	type: S.tag("listItem").pipe($I.annoteKey("ListItem.type", { description: "The `listItem` discriminator identifying one item in a list" })),
+	spread: S.optionalKey(S.Boolean).pipe($I.annoteKey("ListItem.spread", { description: "Whether blank lines separate the item's child blocks; absent means unknown" })),
+	children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).pipe($I.annoteKey("ListItem.children", { description: "Block content belonging to the list item, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("ListItem.position", { description: "Source span of the list item, constructor-defaulted to the zero-width synthetic position" })),
+	checked: S.optionalKey(S.Boolean).pipe($I.annoteKey("ListItem.checked", { description: "Task completion state: `true` for done, `false` for unfinished, absent for an ordinary list item" })),
 }, $I.annote("ListItem", { description: "ListItem — one item of a List." })) {}
 
 /**
@@ -1097,14 +1097,14 @@ export class ListItem extends S.Class<ListItem, {}>($I`ListItem`)({
  * @since 0.0.0
  */
 export class List extends S.Class<List, {}>($I`List`)({
-	type: S.tag("list").annotateKey({ description: "The `list` discriminator identifying an ordered or unordered list" }),
-	ordered: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the list uses numbered markers rather than bullets; absent means unknown" }),
-	start: S.optionalKey(S.Finite).annotateKey({ description: "Starting number from an ordered list's first marker; absent on parsed unordered lists" }),
-	spread: S.optionalKey(S.Boolean).annotateKey({ description: "Whether blank lines separate items or blocks within items, making the list loose; absent means unknown" }),
-	children: S.Array(S.suspend((): S.Codec<ListContent> => ListContent)).annotateKey({ description: "List items in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the list, constructor-defaulted to the zero-width synthetic position" }),
-	bulletChar: S.optionalKey(BulletChar).annotateKey({ description: "Source marker character for an unordered list: `-`, `*`, or `+`" }),
-	delimiter: S.optionalKey(ListDelimiter).annotateKey({ description: "Source character following an ordered list's marker number: `.` or `)`" }),
+	type: S.tag("list").pipe($I.annoteKey("List.type", { description: "The `list` discriminator identifying an ordered or unordered list" })),
+	ordered: S.optionalKey(S.Boolean).pipe($I.annoteKey("List.ordered", { description: "Whether the list uses numbered markers rather than bullets; absent means unknown" })),
+	start: S.optionalKey(S.Finite).pipe($I.annoteKey("List.start", { description: "Starting number from an ordered list's first marker; absent on parsed unordered lists" })),
+	spread: S.optionalKey(S.Boolean).pipe($I.annoteKey("List.spread", { description: "Whether blank lines separate items or blocks within items, making the list loose; absent means unknown" })),
+	children: S.Array(S.suspend((): S.Codec<ListContent> => ListContent)).pipe($I.annoteKey("List.children", { description: "List items in document order" })),
+	position: NodePosition.pipe($I.annoteKey("List.position", { description: "Source span of the list, constructor-defaulted to the zero-width synthetic position" })),
+	bulletChar: S.optionalKey(BulletChar).pipe($I.annoteKey("List.bulletChar", { description: "Source marker character for an unordered list: `-`, `*`, or `+`" })),
+	delimiter: S.optionalKey(ListDelimiter).pipe($I.annoteKey("List.delimiter", { description: "Source character following an ordered list's marker number: `.` or `)`" })),
 }, $I.annote("List", { description: "List — an ordered or unordered list." })) {}
 
 /**
@@ -1124,9 +1124,9 @@ export class List extends S.Class<List, {}>($I`List`)({
  * @since 0.0.0
  */
 export class Blockquote extends S.Class<Blockquote, {}>($I`Blockquote`)({
-	type: S.tag("blockquote").annotateKey({ description: "The `blockquote` discriminator identifying a quoted section" }),
-	children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).annotateKey({ description: "Block content contained in the quoted section, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the blockquote, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("blockquote").pipe($I.annoteKey("Blockquote.type", { description: "The `blockquote` discriminator identifying a quoted section" })),
+	children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).pipe($I.annoteKey("Blockquote.children", { description: "Block content contained in the quoted section, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("Blockquote.position", { description: "Source span of the blockquote, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Blockquote", { description: "Blockquote — a section quoted from somewhere else." })) {}
 
 /**
@@ -1157,9 +1157,9 @@ export class Blockquote extends S.Class<Blockquote, {}>($I`Blockquote`)({
  * @since 0.0.0
  */
 export class TableCell extends S.Class<TableCell, {}>($I`TableCell`)({
-	type: S.tag("tableCell").annotateKey({ description: "The `tableCell` discriminator identifying a header or data cell in a GFM table" }),
-	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content forming the table cell, in document order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the trimmed cell content, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("tableCell").pipe($I.annoteKey("TableCell.type", { description: "The `tableCell` discriminator identifying a header or data cell in a GFM table" })),
+	children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).pipe($I.annoteKey("TableCell.children", { description: "Inline content forming the table cell, in document order" })),
+	position: NodePosition.pipe($I.annoteKey("TableCell.position", { description: "Source span of the trimmed cell content, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("TableCell", { description: "TableCell — one cell of a TableRow: a header cell if its grandparent Table's first row, a data cell otherwise." })) {}
 
 /**
@@ -1221,9 +1221,9 @@ export type RowContent = TableCell;
  * @since 0.0.0
  */
 export class TableRow extends S.Class<TableRow, {}>($I`TableRow`)({
-	type: S.tag("tableRow").annotateKey({ description: "The `tableRow` discriminator identifying a header or data row in a GFM table" }),
-	children: S.Array(S.suspend((): S.Codec<RowContent> => RowContent)).annotateKey({ description: "Table cells in column order" }),
-	position: NodePosition.annotateKey({ description: "Source span of the table row, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("tableRow").pipe($I.annoteKey("TableRow.type", { description: "The `tableRow` discriminator identifying a header or data row in a GFM table" })),
+	children: S.Array(S.suspend((): S.Codec<RowContent> => RowContent)).pipe($I.annoteKey("TableRow.children", { description: "Table cells in column order" })),
+	position: NodePosition.pipe($I.annoteKey("TableRow.position", { description: "Source span of the table row, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("TableRow", { description: "TableRow — one row of a Table: the labels of the columns if it is the table's first row, a data row otherwise." })) {}
 
 /**
@@ -1281,10 +1281,10 @@ export type TableContent = TableRow;
  * @since 0.0.0
  */
 export class Table extends S.Class<Table, {}>($I`Table`)({
-	type: S.tag("table").annotateKey({ description: "The `table` discriminator identifying a GFM table" }),
-	align: TableAlign.pipe(S.NullOr, S.Array, S.optionalKey).annotateKey({ description: "Declared alignment per column; `null` means no declared alignment, while an absent array means unknown" }),
-	children: S.Array(S.suspend((): S.Codec<TableContent> => TableContent)).annotateKey({ description: "Table rows in document order, with the first row supplying column labels" }),
-	position: NodePosition.annotateKey({ description: "Source span of the table, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("table").pipe($I.annoteKey("Table.type", { description: "The `table` discriminator identifying a GFM table" })),
+	align: TableAlign.pipe(S.NullOr, S.Array, S.optionalKey, $I.annoteKey("Table.align", { description: "Declared alignment per column; `null` means no declared alignment, while an absent array means unknown" })),
+	children: S.Array(S.suspend((): S.Codec<TableContent> => TableContent)).pipe($I.annoteKey("Table.children", { description: "Table rows in document order, with the first row supplying column labels" })),
+	position: NodePosition.pipe($I.annoteKey("Table.position", { description: "Source span of the table, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Table", { description: "Table — GFM two-dimensional data." })) {}
 
 /**
@@ -1426,14 +1426,12 @@ export type ListContent = ListItem;
 export class MdxJsxAttributeValueExpression extends S.Class<MdxJsxAttributeValueExpression, {}>(
 	$I`MdxJsxAttributeValueExpression`,
 )({
-	type: S.tag("mdxJsxAttributeValueExpression").annotateKey({ description: "The `mdxJsxAttributeValueExpression` discriminator identifying an expression used as a JSX attribute value" }),
-	value: S.String.annotateKey({ description: "Unevaluated expression source between the braces of a JSX attribute value" }),
-	position: NodePosition.annotateKey({ description: "Source span of the attribute value expression, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("mdxJsxAttributeValueExpression").pipe($I.annoteKey("MdxJsxAttributeValueExpression.type", { description: "The `mdxJsxAttributeValueExpression` discriminator identifying an expression used as a JSX attribute value" })),
+	value: S.String.pipe($I.annoteKey("MdxJsxAttributeValueExpression.value", { description: "Unevaluated expression source between the braces of a JSX attribute value" })),
+	position: NodePosition.pipe($I.annoteKey("MdxJsxAttributeValueExpression.position", { description: "Source span of the attribute value expression, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("MdxJsxAttributeValueExpression", { description: "MdxJsxAttributeValueExpression — a JSX attribute value written as an expression (`<a b={c} />`); `value` holds the expression source text between the braces, never evaluated or parsed." })) {}
 
-const MdxJsxName = S.NonEmptyString.annotate(
-	$I.annote("MdxJsxName", { description: "A non-empty JSX element or attribute name, including namespace spelling." }),
-);
+const MdxJsxName = S.NonEmptyString.pipe($I.annoteSchema("MdxJsxName", { description: "A non-empty JSX element or attribute name, including namespace spelling." }));
 
 /**
  * MdxJsxAttribute — a named JSX attribute (`<a b="c" />`). `value` is a
@@ -1463,10 +1461,10 @@ const MdxJsxName = S.NonEmptyString.annotate(
  */
 export class MdxJsxAttribute extends S.Class<MdxJsxAttribute, {}>($I`MdxJsxAttribute`)(
 	S.Struct({
-		type: S.tag("mdxJsxAttribute").annotateKey({ description: "The `mdxJsxAttribute` discriminator identifying a named JSX attribute" }),
-		name: MdxJsxName.annotateKey({ description: "Non-empty JSX attribute name, including namespace spelling when present" }),
-		value: S.Union([MdxJsxAttributeValueExpression, S.String]).pipe(S.NullOr, S.optionalKey).annotateKey({ description: "Attribute string literal or unevaluated expression; absent or null denotes a boolean attribute" }),
-		position: NodePosition.annotateKey({ description: "Source span of the named attribute, constructor-defaulted to the synthetic position" }),
+		type: S.tag("mdxJsxAttribute").pipe($I.annoteKey("MdxJsxAttribute.type", { description: "The `mdxJsxAttribute` discriminator identifying a named JSX attribute" })),
+		name: MdxJsxName.pipe($I.annoteKey("MdxJsxAttribute.name", { description: "Non-empty JSX attribute name, including namespace spelling when present" })),
+		value: S.Union([MdxJsxAttributeValueExpression, S.String]).pipe(S.NullOr, S.optionalKey, $I.annoteKey("MdxJsxAttribute.value", { description: "Attribute string literal or unevaluated expression; absent or null denotes a boolean attribute" })),
+		position: NodePosition.pipe($I.annoteKey("MdxJsxAttribute.position", { description: "Source span of the named attribute, constructor-defaulted to the synthetic position" })),
 	}), $I.annote("MdxJsxAttribute", { description: "MdxJsxAttribute — a named JSX attribute (`<a b=\"c\" />`). `value` is a string literal, a MdxJsxAttributeValueExpression, or — for a boolean attribute (`<a b />`) — absent or `null`, both of which the mdast-util-mdx-jsx contract spells (its parser writes `null`; absence is the constructed-tree spelling). The serializer treats the two identically." }),
 ) {}
 
@@ -1489,9 +1487,9 @@ export class MdxJsxAttribute extends S.Class<MdxJsxAttribute, {}>($I`MdxJsxAttri
  * @since 0.0.0
  */
 export class MdxJsxExpressionAttribute extends S.Class<MdxJsxExpressionAttribute, {}>($I`MdxJsxExpressionAttribute`)({
-	type: S.tag("mdxJsxExpressionAttribute").annotateKey({ description: "The `mdxJsxExpressionAttribute` discriminator identifying a JSX attribute written wholly as an expression" }),
-	value: S.String.annotateKey({ description: "Expression source between the braces of a JSX expression attribute, including spread syntax when present" }),
-	position: NodePosition.annotateKey({ description: "Source span of the expression attribute, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("mdxJsxExpressionAttribute").pipe($I.annoteKey("MdxJsxExpressionAttribute.type", { description: "The `mdxJsxExpressionAttribute` discriminator identifying a JSX attribute written wholly as an expression" })),
+	value: S.String.pipe($I.annoteKey("MdxJsxExpressionAttribute.value", { description: "Expression source between the braces of a JSX expression attribute, including spread syntax when present" })),
+	position: NodePosition.pipe($I.annoteKey("MdxJsxExpressionAttribute.position", { description: "Source span of the expression attribute, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("MdxJsxExpressionAttribute", { description: "MdxJsxExpressionAttribute — a JSX attribute written whole as an expression (`<a {...b} />`); `value` holds the expression source text between the braces." })) {}
 
 /**
@@ -1537,12 +1535,10 @@ export type MdxJsxAttributeContent = MdxJsxAttribute | MdxJsxExpressionAttribute
 
 const mdxFragmentAttributes = S.makeFilter(
 	(element: { readonly name: string | null; readonly attributes: ReadonlyArray<MdxJsxAttributeContent> }) => element.name !== null || element.attributes.length === 0,
-	{
-		identifier: $I`MdxFragmentAttributes`,
-		title: "MDX JSX fragment attributes",
-		description: "An MDX JSX fragment has no attribute spelling and must carry an empty attributes array.",
+	$I.annote("MdxFragmentAttributes", {
 		message: "an MDX JSX fragment cannot carry attributes",
-	},
+		description: "An MDX JSX fragment has no attribute spelling and must carry an empty attributes array.",
+	}),
 );
 
 /**
@@ -1574,11 +1570,11 @@ const mdxFragmentAttributes = S.makeFilter(
  */
 export class MdxJsxFlowElement extends S.Class<MdxJsxFlowElement, {}>($I`MdxJsxFlowElement`)(
 	S.Struct({
-		type: S.tag("mdxJsxFlowElement").annotateKey({ description: "The `mdxJsxFlowElement` discriminator identifying a JSX element in block position" }),
-		name: S.NullOr(MdxJsxName).annotateKey({ description: "Non-empty JSX element name, or null for a fragment that cannot carry attributes" }),
-		attributes: S.Array(MdxJsxAttributeContent).annotateKey({ description: "Named and expression attributes in source order; empty for a fragment" }),
-		children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).annotateKey({ description: "Block content enclosed by the JSX element, in document order" }),
-		position: NodePosition.annotateKey({ description: "Source span of the block JSX element, constructor-defaulted to the synthetic position" }),
+		type: S.tag("mdxJsxFlowElement").pipe($I.annoteKey("MdxJsxFlowElement.type", { description: "The `mdxJsxFlowElement` discriminator identifying a JSX element in block position" })),
+		name: S.NullOr(MdxJsxName).pipe($I.annoteKey("MdxJsxFlowElement.name", { description: "Non-empty JSX element name, or null for a fragment that cannot carry attributes" })),
+		attributes: S.Array(MdxJsxAttributeContent).pipe($I.annoteKey("MdxJsxFlowElement.attributes", { description: "Named and expression attributes in source order; empty for a fragment" })),
+		children: S.Array(S.suspend((): S.Codec<FlowContent> => FlowContent)).pipe($I.annoteKey("MdxJsxFlowElement.children", { description: "Block content enclosed by the JSX element, in document order" })),
+		position: NodePosition.pipe($I.annoteKey("MdxJsxFlowElement.position", { description: "Source span of the block JSX element, constructor-defaulted to the synthetic position" })),
 	}).pipe(
 		S.check(mdxFragmentAttributes),
 	), $I.annote("MdxJsxFlowElement", { description: "MdxJsxFlowElement — a JSX element in flow (block) position (`<Component />` on its own lines). `name` is `null` for a fragment (`<></>`); children are flow content, per the oracle's `BlockContent | DefinitionContent` model." }),
@@ -1605,11 +1601,11 @@ export class MdxJsxFlowElement extends S.Class<MdxJsxFlowElement, {}>($I`MdxJsxF
  */
 export class MdxJsxTextElement extends S.Class<MdxJsxTextElement, {}>($I`MdxJsxTextElement`)(
 	S.Struct({
-		type: S.tag("mdxJsxTextElement").annotateKey({ description: "The `mdxJsxTextElement` discriminator identifying a JSX element in inline position" }),
-		name: S.NullOr(MdxJsxName).annotateKey({ description: "Non-empty JSX element name, or null for a fragment that cannot carry attributes" }),
-		attributes: S.Array(MdxJsxAttributeContent).annotateKey({ description: "Named and expression attributes in source order; empty for a fragment" }),
-		children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).annotateKey({ description: "Inline content enclosed by the JSX element, in document order" }),
-		position: NodePosition.annotateKey({ description: "Source span of the inline JSX element, constructor-defaulted to the synthetic position" }),
+		type: S.tag("mdxJsxTextElement").pipe($I.annoteKey("MdxJsxTextElement.type", { description: "The `mdxJsxTextElement` discriminator identifying a JSX element in inline position" })),
+		name: S.NullOr(MdxJsxName).pipe($I.annoteKey("MdxJsxTextElement.name", { description: "Non-empty JSX element name, or null for a fragment that cannot carry attributes" })),
+		attributes: S.Array(MdxJsxAttributeContent).pipe($I.annoteKey("MdxJsxTextElement.attributes", { description: "Named and expression attributes in source order; empty for a fragment" })),
+		children: S.Array(S.suspend((): S.Codec<PhrasingContent> => PhrasingContent)).pipe($I.annoteKey("MdxJsxTextElement.children", { description: "Inline content enclosed by the JSX element, in document order" })),
+		position: NodePosition.pipe($I.annoteKey("MdxJsxTextElement.position", { description: "Source span of the inline JSX element, constructor-defaulted to the synthetic position" })),
 	}).pipe(
 		S.check(mdxFragmentAttributes),
 	), $I.annote("MdxJsxTextElement", { description: "MdxJsxTextElement — a JSX element in text (phrasing) position (`a <b>c</b> d`). `name` is `null` for a fragment; children are phrasing content. Refuses attributes on a fragment and an empty-string name, on the same terms as MdxJsxFlowElement." }),
@@ -1634,9 +1630,9 @@ export class MdxJsxTextElement extends S.Class<MdxJsxTextElement, {}>($I`MdxJsxT
  * @since 0.0.0
  */
 export class MdxFlowExpression extends S.Class<MdxFlowExpression, {}>($I`MdxFlowExpression`)({
-	type: S.tag("mdxFlowExpression").annotateKey({ description: "The `mdxFlowExpression` discriminator identifying an MDX expression in block position" }),
-	value: S.String.annotateKey({ description: "Expression source between braces in an MDX block expression" }),
-	position: NodePosition.annotateKey({ description: "Source span of the block expression, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("mdxFlowExpression").pipe($I.annoteKey("MdxFlowExpression.type", { description: "The `mdxFlowExpression` discriminator identifying an MDX expression in block position" })),
+	value: S.String.pipe($I.annoteKey("MdxFlowExpression.value", { description: "Expression source between braces in an MDX block expression" })),
+	position: NodePosition.pipe($I.annoteKey("MdxFlowExpression.position", { description: "Source span of the block expression, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("MdxFlowExpression", { description: "MdxFlowExpression — an expression in flow (block) position (`{a + b}` on its own lines); `value` holds the expression source text between the braces." })) {}
 
 /**
@@ -1657,9 +1653,9 @@ export class MdxFlowExpression extends S.Class<MdxFlowExpression, {}>($I`MdxFlow
  * @since 0.0.0
  */
 export class MdxTextExpression extends S.Class<MdxTextExpression, {}>($I`MdxTextExpression`)({
-	type: S.tag("mdxTextExpression").annotateKey({ description: "The `mdxTextExpression` discriminator identifying an MDX expression within inline content" }),
-	value: S.String.annotateKey({ description: "Expression source between braces in an inline MDX expression" }),
-	position: NodePosition.annotateKey({ description: "Source span of the inline expression, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("mdxTextExpression").pipe($I.annoteKey("MdxTextExpression.type", { description: "The `mdxTextExpression` discriminator identifying an MDX expression within inline content" })),
+	value: S.String.pipe($I.annoteKey("MdxTextExpression.value", { description: "Expression source between braces in an inline MDX expression" })),
+	position: NodePosition.pipe($I.annoteKey("MdxTextExpression.position", { description: "Source span of the inline expression, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("MdxTextExpression", { description: "MdxTextExpression — an expression in text (phrasing) position (`a {b} c`); `value` holds the expression source text between the braces." })) {}
 
 /**
@@ -1687,9 +1683,9 @@ export class MdxTextExpression extends S.Class<MdxTextExpression, {}>($I`MdxText
  * @since 0.0.0
  */
 export class MdxjsEsm extends S.Class<MdxjsEsm, {}>($I`MdxjsEsm`)({
-	type: S.tag("mdxjsEsm").annotateKey({ description: "The `mdxjsEsm` discriminator identifying an MDX import or export block" }),
-	value: S.String.annotateKey({ description: "Import or export statement source preserved verbatim" }),
-	position: NodePosition.annotateKey({ description: "Source span of the ESM block, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("mdxjsEsm").pipe($I.annoteKey("MdxjsEsm.type", { description: "The `mdxjsEsm` discriminator identifying an MDX import or export block" })),
+	value: S.String.pipe($I.annoteKey("MdxjsEsm.value", { description: "Import or export statement source preserved verbatim" })),
+	position: NodePosition.pipe($I.annoteKey("MdxjsEsm.position", { description: "Source span of the ESM block, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("MdxjsEsm", { description: "MdxjsEsm — an MDX ESM block (`import`/`export` statements); `value` holds the statement source verbatim." })) {}
 
 // --- Frontmatter ------------------------------------------------------------
@@ -1756,10 +1752,10 @@ export type FrontmatterFormat = typeof FrontmatterFormat.Type;
  * @since 0.0.0
  */
 export class Frontmatter extends S.Class<Frontmatter, {}>($I`Frontmatter`)({
-	type: S.tag("frontmatter").annotateKey({ description: "The `frontmatter` discriminator identifying a captured document metadata block" }),
-	format: FrontmatterFormat.annotateKey({ description: "Metadata format selected by the opening fence: `yaml`, `toml`, or `json`" }),
-	value: S.String.annotateKey({ description: "Raw metadata source between the fence lines, preserved without parsing or decoding" }),
-	position: NodePosition.annotateKey({ description: "Source span including both frontmatter fence lines, constructor-defaulted to the zero-width synthetic position" }),
+	type: S.tag("frontmatter").pipe($I.annoteKey("Frontmatter.type", { description: "The `frontmatter` discriminator identifying a captured document metadata block" })),
+	format: FrontmatterFormat.pipe($I.annoteKey("Frontmatter.format", { description: "Metadata format selected by the opening fence: `yaml`, `toml`, or `json`" })),
+	value: S.String.pipe($I.annoteKey("Frontmatter.value", { description: "Raw metadata source between the fence lines, preserved without parsing or decoding" })),
+	position: NodePosition.pipe($I.annoteKey("Frontmatter.position", { description: "Source span including both frontmatter fence lines, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Frontmatter", { description: "Frontmatter — the raw, fidelity-preserving capture of a document's metadata block. `value` is the source text between the fences, exactly as written (never inline-parsed, never decoded); `format` records which fence captured it. The position spans the whole block including both fence lines." })) {}
 
 /**
@@ -1819,13 +1815,13 @@ export type FrontmatterContent = Frontmatter;
  * @since 0.0.0
  */
 export class Root extends S.Class<Root, {}>($I`Root`)({
-	type: S.tag("root").annotateKey({ description: "The `root` discriminator identifying the whole document" }),
+	type: S.tag("root").pipe($I.annoteKey("Root.type", { description: "The `root` discriminator identifying the whole document" })),
 	children: S.Array(
 		S.suspend(
 			(): S.Codec<Frontmatter | MdxjsEsm | FlowContent> => S.Union([Frontmatter, MdxjsEsm, FlowContent]),
 		),
-	).annotateKey({ description: "Top-level document content in order, admitting frontmatter, MDX ESM blocks, and flow content" }),
-	position: NodePosition.annotateKey({ description: "Source span of the whole document, constructor-defaulted to the zero-width synthetic position" }),
+	).pipe($I.annoteKey("Root.children", { description: "Top-level document content in order, admitting frontmatter, MDX ESM blocks, and flow content" })),
+	position: NodePosition.pipe($I.annoteKey("Root.position", { description: "Source span of the whole document, constructor-defaulted to the zero-width synthetic position" })),
 }, $I.annote("Root", { description: "Root — a whole document, and the only node that is never a child." })) {}
 
 /**

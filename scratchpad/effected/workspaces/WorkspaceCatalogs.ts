@@ -52,16 +52,12 @@ const $I = $ScratchpadId.create("effected/workspaces/WorkspaceCatalogs");
 class WorkspaceCatalogsDefect extends S.TaggedError<WorkspaceCatalogsDefect, { readonly brand: unique symbol }>($I`WorkspaceCatalogsDefect`)(
 	"WorkspaceCatalogsDefect",
 	{ message: S.String },
-	$I.annote("WorkspaceCatalogsDefect", { description: "A catalog shape or test-wiring defect." }),
+	$I.annoteError<WorkspaceCatalogsDefect>("WorkspaceCatalogsDefect", { description: "A catalog shape or test-wiring defect." }),
 ) {}
 
 const JsonValue = S.fromJsonString(S.Unknown);
-const CatalogRecord = S.Record(S.String, S.String).annotate(
-	$I.annote("CatalogRecord", { description: "Own dependency names mapped to catalog ranges." }),
-);
-const CatalogRecords = S.Record(S.String, CatalogRecord).annotate(
-	$I.annote("CatalogRecords", { description: "Own catalog names mapped to dependency records." }),
-);
+const CatalogRecord = S.Record(S.String, S.String).pipe($I.annoteSchema("CatalogRecord", { description: "Own dependency names mapped to catalog ranges." }));
+const CatalogRecords = S.Record(S.String, CatalogRecord).pipe($I.annoteSchema("CatalogRecords", { description: "Own catalog names mapped to dependency records." }));
 
 /**
  * Each importer's dependency-name → resolved-version map, keyed by importer path
@@ -94,9 +90,7 @@ const CatalogRecords = S.Record(S.String, CatalogRecord).annotate(
  * @category type-level
  * @since 0.0.0
  */
-export const ImporterVersions = S.Record(S.String, S.Record(S.String, S.String)).annotate(
-	$I.annote("ImporterVersions", { description: "Importer paths mapped to dependency names and installed versions." }),
-);
+export const ImporterVersions = S.Record(S.String, S.Record(S.String, S.String)).pipe($I.annoteSchema("ImporterVersions", { description: "Importer paths mapped to dependency names and installed versions." }));
 
 /** The readonly plain-record importer index described by {@link ImporterVersions}.
  * @category type-level
@@ -131,7 +125,7 @@ export type ImporterVersions = typeof ImporterVersions.Type;
  */
 export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique symbol }>($I`CatalogSet`)({
 	/** Catalog name → dependency name → version range. */
-	entries: CatalogRecords.annotateKey({ description: "Catalog name → dependency name → version range." }),
+	entries: CatalogRecords.pipe($I.annoteKey("CatalogSet.entries", { description: "Catalog name → dependency name → version range." })),
 }, $I.annote("CatalogSet", { description: "An immutable, fully-normalized catalog collection — the one catalog resolution semantic in the package." })) {
 	/**
 	 * The empty set — a workspace with no catalogs.
@@ -341,7 +335,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
 	 * @since 0.0.0
 	 */
 	static merge(...sets: ReadonlyArray<CatalogSet>): CatalogSet {
-		return CatalogSet.fromCatalogs(merge(...sets.map((set) => set.entries)));
+		return CatalogSet.fromCatalogs(merge(...A.map(sets, (set) => set.entries)));
 	}
 
 	/**
@@ -487,8 +481,11 @@ const inlineReleaseAge = (document: unknown): Effect.Effect<PartialReleaseAgeGat
 };
 
 /** A hard-fail catalog-assembly failure naming the malformed part of a `workspaces` field. */
-const malformed = (source: "manifest" | "catalog", path: string, detail: string): CatalogAssemblyError =>
-	CatalogAssemblyError.make({ source, path, cause: WorkspaceCatalogsDefect.make({ message: detail }) });
+const malformed: {
+	(source: "manifest" | "catalog", path: string, detail: string): CatalogAssemblyError;
+	(path: string, detail: string): (source: "manifest" | "catalog") => CatalogAssemblyError;
+} = dual(3, (source: "manifest" | "catalog", path: string, detail: string): CatalogAssemblyError =>
+	CatalogAssemblyError.make({ source, path, cause: WorkspaceCatalogsDefect.make({ message: detail }) }));
 
 /**
  * Validate a `catalog` (default) / `catalogs` (named) block pair, hard-failing on
@@ -503,7 +500,23 @@ const malformed = (source: "manifest" | "catalog", path: string, detail: string)
  * looks newly added" bug. `labels` names the two blocks in the diagnostics so the
  * error reads in the caller's vocabulary (`workspaces.catalog` vs. `catalog`).
  */
-const validatedCatalogBlocks = (
+const validatedCatalogBlocks: {
+	(
+		catalog: unknown,
+		catalogs: unknown,
+		labels: { readonly catalog: string; readonly catalogs: string },
+	): Effect.Effect<
+	{ readonly catalog?: Record<string, string>; readonly catalogs?: Record<string, Record<string, string>> },
+	CatalogAssemblyError
+>;
+	(
+		catalogs: unknown,
+		labels: { readonly catalog: string; readonly catalogs: string },
+	): (catalog: unknown) => Effect.Effect<
+	{ readonly catalog?: Record<string, string>; readonly catalogs?: Record<string, Record<string, string>> },
+	CatalogAssemblyError
+>;
+} = dual(3, (
 	catalog: unknown,
 	catalogs: unknown,
 	labels: { readonly catalog: string; readonly catalogs: string },
@@ -560,7 +573,7 @@ const validatedCatalogBlocks = (
 		...O.getSomesStruct({ catalog: O.fromUndefinedOr(validCatalog) }),
 		...O.getSomesStruct({ catalogs: O.fromUndefinedOr(validCatalogs) }),
 	});
-};
+});
 
 /**
  * The `catalog` / `catalogs` blocks of a root `package.json` `workspaces` field,
@@ -582,7 +595,7 @@ const manifestCatalogBlocks = (
 
 	if (workspaces.packages !== undefined && workspaces.packages !== null) {
 		const packages = workspaces.packages;
-		if (!A.isArray(packages) || !packages.every((entry) => P.isString(entry))) {
+		if (!A.isArray(packages) || !A.every(packages, (entry) => P.isString(entry))) {
 			return Effect.fail(malformed("manifest", "package.json", `"workspaces.packages" must be an array of strings`));
 		}
 	}
@@ -632,12 +645,12 @@ const unstubbed = (method: string): Effect.Effect<never> =>
 /** The single assembly pass's outputs, memoized together. */
 // Assembly retains its plain-object representation; only the type owner changes.
 const Assembled = S.Struct({
-	catalogs: CatalogSet.annotateKey($I.annote("catalogs", { description: "The assembled catalog collection." })),
-	releaseAgeGate: ReleaseAgeGate.annotateKey($I.annote("releaseAgeGate", { description: "The effective release-age gate." })),
-	importerVersions: ImporterVersions.annotateKey($I.annote("importerVersions", { description: "The lockfile importer version index." })),
-	peerDependencyRules: PeerDependencyRules.annotateKey($I.annote("peerDependencyRules", { description: "The effective seeded and replayed peer rules." })),
-	hookReplays: S.Record(S.String, HookReplay).annotateKey($I.annote("hookReplays", { description: "Hook versions and their resolution provenance." })),
-}).annotate($I.annote("Assembled", { description: "The cached plain-object outputs of one catalog assembly." }));
+	catalogs: CatalogSet.pipe($I.annoteKey("Assembled.catalogs", { description: "The assembled catalog collection." })),
+	releaseAgeGate: ReleaseAgeGate.pipe($I.annoteKey("Assembled.releaseAgeGate", { description: "The effective release-age gate." })),
+	importerVersions: ImporterVersions.pipe($I.annoteKey("Assembled.importerVersions", { description: "The lockfile importer version index." })),
+	peerDependencyRules: PeerDependencyRules.pipe($I.annoteKey("Assembled.peerDependencyRules", { description: "The effective seeded and replayed peer rules." })),
+	hookReplays: S.Record(S.String, HookReplay).pipe($I.annoteKey("Assembled.hookReplays", { description: "Hook versions and their resolution provenance." })),
+}).pipe($I.annoteSchema("Assembled", { description: "The cached plain-object outputs of one catalog assembly." }));
 type Assembled = typeof Assembled.Type;
 
 /**
@@ -707,10 +720,10 @@ export interface WorkspaceCatalogsShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly resolveSpecifier: (
-		dependency: string,
-		specifier: string,
-	) => Effect.Effect<O.Option<string>, CatalogAssemblyFailure>;
+	readonly resolveSpecifier: {
+		(dependency: string, specifier: string): Effect.Effect<O.Option<string>, CatalogAssemblyFailure>;
+		(specifier: string): (dependency: string) => Effect.Effect<O.Option<string>, CatalogAssemblyFailure>;
+	};
 	/**
 	 * The effective pnpm release-age gate for the workspace, combined
 	 * strictest-wins from the inline `pnpm-workspace.yaml` keys
@@ -829,7 +842,7 @@ export const WorkspaceCatalogsOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	cwd: S.optionalKey(S.String).annotateKey($I.annote("cwd", { description: "Starting directory, defaulted lazily on use." })),
+	cwd: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceCatalogsOptions.cwd", { description: "Starting directory, defaulted lazily on use." })),
 	/**
 	 * A ceiling for the root ascent from `cwd`, passed straight through to the
 	 * `stopAt` of {@link WorkspaceRoot}'s `find`.
@@ -847,8 +860,8 @@ export const WorkspaceCatalogsOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	stopAt: S.optionalKey(S.String).annotateKey($I.annote("stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
-}).annotate($I.annote("WorkspaceCatalogsOptions", { description: "Plain-object catalog assembly options with lazy root resolution." }));
+	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceCatalogsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
+}).pipe($I.annoteSchema("WorkspaceCatalogsOptions", { description: "Plain-object catalog assembly options with lazy root resolution." }));
 
 /** The plain-object options described by {@link WorkspaceCatalogsOptions}.
  * @category type-level
@@ -1072,7 +1085,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
 			yield* Effect.logDebug("Catalogs assembled").pipe(
 				Effect.annotateLogs({
 					"workspace.root": root,
-					"workspace.catalogs": R.keys(assembled.entries).join(","),
+					"workspace.catalogs": A.join(R.keys(assembled.entries), ","),
 					"workspace.releaseAgeMinutes": releaseAgeGate.ageMinutes,
 				}),
 			);
@@ -1086,12 +1099,12 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
 			set: Effect.suspend(Effect.fn("WorkspaceCatalogs.set")(function* () {
 				return (yield* memo).catalogs;
 			})),
-			resolveSpecifier: Effect.fn("WorkspaceCatalogs.resolveSpecifier")(function* (
+			resolveSpecifier: dual(2, Effect.fn("WorkspaceCatalogs.resolveSpecifier")(function* (
 				dependency: string,
 				specifier: string,
 			) {
 				return (yield* memo).catalogs.resolveSpecifier(dependency, specifier);
-			}),
+			})),
 			peerDependencyRules: Effect.suspend(Effect.fn("WorkspaceCatalogs.peerDependencyRules")(function* () {
 				return (yield* memo).peerDependencyRules;
 			})),
@@ -1143,11 +1156,21 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
 	 * @category layers
 	 * @since 0.0.0
 	 */
-	static readonly layerWithHooks = <R = never>(
+	static readonly layerWithHooks: {
+		<R = never>(
+			hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
+			options?: WorkspaceCatalogsOptions,
+		): Layer.Layer<WorkspaceCatalogs, never, WorkspaceRoot | LockfileReader | FileSystem.FileSystem | Path.Path | R>;
+		(
+			options?: WorkspaceCatalogsOptions,
+		): <R = never>(
+			hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
+		) => Layer.Layer<WorkspaceCatalogs, never, WorkspaceRoot | LockfileReader | FileSystem.FileSystem | Path.Path | R>;
+	} = dual((args) => Layer.isLayer(args[0]), <R = never>(
 		hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
 		options?: WorkspaceCatalogsOptions,
 	): Layer.Layer<WorkspaceCatalogs, never, WorkspaceRoot | LockfileReader | FileSystem.FileSystem | Path.Path | R> =>
-		Layer.effect(WorkspaceCatalogs, WorkspaceCatalogs.make(options)).pipe(Layer.provide(hooks));
+		Layer.effect(WorkspaceCatalogs, WorkspaceCatalogs.make(options)).pipe(Layer.provide(hooks)));
 
 	/**
 	 * The live layer — the default, which **never executes config-dependency
@@ -1292,21 +1315,35 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly makeTest = (overrides: Partial<WorkspaceCatalogsShape> = {}): WorkspaceCatalogsShape => {
+	static readonly makeTest = (
+		overrides: Partial<
+			Omit<WorkspaceCatalogsShape, "resolveSpecifier"> & {
+				// A double stubs the data-first form; `makeTest` derives the pipeable form with `dual`.
+				readonly resolveSpecifier: (
+					dependency: string,
+					specifier: string,
+				) => Effect.Effect<O.Option<string>, CatalogAssemblyFailure>;
+			}
+		> = {},
+	): WorkspaceCatalogsShape => {
+		const { resolveSpecifier, ...rest } = overrides;
 		const set = overrides.set;
 		return {
 			set: Effect.suspend(() => unstubbed("set")),
-			resolveSpecifier:
-				set !== undefined
-					? (dependency: string, specifier: string) =>
-							Effect.map(set, (catalogs) => catalogs.resolveSpecifier(dependency, specifier))
-					: () => unstubbed("resolveSpecifier"),
 			peerDependencyRules: Effect.suspend(() => unstubbed("peerDependencyRules")),
 			releaseAgeGate: Effect.suspend(() => unstubbed("releaseAgeGate")),
 			importerVersions: Effect.suspend(() => unstubbed("importerVersions")),
 			hookReplays: Effect.suspend(() => unstubbed("hookReplays")),
 			refresh: Effect.suspend(() => Effect.void),
-			...overrides,
+			...rest,
+			resolveSpecifier: dual(
+				2,
+				resolveSpecifier ??
+					(set !== undefined
+						? (dependency: string, specifier: string): Effect.Effect<O.Option<string>, CatalogAssemblyFailure> =>
+								Effect.map(set, (catalogs) => catalogs.resolveSpecifier(dependency, specifier))
+						: (): Effect.Effect<O.Option<string>, CatalogAssemblyFailure> => unstubbed("resolveSpecifier")),
+			),
 		};
 	};
 

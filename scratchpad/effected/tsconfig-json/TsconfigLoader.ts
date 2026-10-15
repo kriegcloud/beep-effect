@@ -40,6 +40,8 @@ import { ResolvedTsconfig } from "./ResolvedTsconfig.ts";
 import type { TsconfigJson } from "./TsconfigJson.ts";
 import { TsconfigJsonFromString, TsconfigParseError } from "./TsconfigJson.ts";
 import * as P from "effect/Predicate";
+import { dual } from "effect/Function";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/tsconfig-json/TsconfigLoader");
 
@@ -82,14 +84,14 @@ const MAX_EXTENDS_DEPTH = 32;
  */
 export class TsconfigExtendsError extends S.TaggedError<TsconfigExtendsError, { readonly brand: unique symbol }>($I`TsconfigExtendsError`)("TsconfigExtendsError", {
 	/** The config whose `extends` could not be resolved. */
-	path: S.String.annotateKey({ description: "The config whose `extends` could not be resolved." }),
+	path: S.String.pipe($I.annoteKey("TsconfigExtendsError.path", { description: "The config whose `extends` could not be resolved." })),
 	/** The target that failed: the spec, the re-entered path, or the refused path. */
-	target: S.String.annotateKey({ description: "The target that failed: the spec, the re-entered path, or the refused path." }),
+	target: S.String.pipe($I.annoteKey("TsconfigExtendsError.target", { description: "The target that failed: the spec, the re-entered path, or the refused path." })),
 	/** Why resolution failed. */
-	reason: S.Literals(["not-found", "cycle", "depth", "empty"]).annotateKey({ description: "Why resolution failed." }),
+	reason: S.Literals(["not-found", "cycle", "depth", "empty"]).pipe($I.annoteKey("TsconfigExtendsError.reason", { description: "Why resolution failed." })),
 	/** The full resolution chain of normalized absolute config paths. */
-	chain: S.Array(S.String).annotateKey({ description: "The full resolution chain of normalized absolute config paths." }),
-}, $I.annote("TsconfigExtendsError", { description: "Raised when a config's `extends` chain cannot be resolved: an unresolvable target (`\"not-found\"`), a re-entrant chain (`\"cycle\"`), a chain deeper than `MAX_EXTENDS_DEPTH` (`\"depth\"`), or an empty target string (`\"empty\"`). `path` is the config whose `extends` failed, `target` is what it tried to extend (the offending spec for `\"not-found\"`/`\"empty\"`, the re-entered config path for `\"cycle\"`, the refused config for `\"depth\"`), and `chain` is the full resolution chain of normalized absolute paths." })) {
+	chain: S.Array(S.String).pipe($I.annoteKey("TsconfigExtendsError.chain", { description: "The full resolution chain of normalized absolute config paths." })),
+}, $I.annoteError<TsconfigExtendsError>("TsconfigExtendsError", { description: "Raised when a config's `extends` chain cannot be resolved: an unresolvable target (`\"not-found\"`), a re-entrant chain (`\"cycle\"`), a chain deeper than `MAX_EXTENDS_DEPTH` (`\"depth\"`), or an empty target string (`\"empty\"`). `path` is the config whose `extends` failed, `target` is what it tried to extend (the offending spec for `\"not-found\"`/`\"empty\"`, the re-entered config path for `\"cycle\"`, the refused config for `\"depth\"`), and `chain` is the full resolution chain of normalized absolute paths." })) {
 	/**
 	 * Explains the failed extends target, cycle, depth limit, or empty specifier.
 	 *
@@ -114,7 +116,7 @@ export class TsconfigExtendsError extends S.TaggedError<TsconfigExtendsError, { 
 		return this.reason === "not-found"
 			? `cannot resolve extends target "${this.target}" from "${this.path}"`
 			: this.reason === "cycle"
-				? `extends cycle re-entering "${this.target}" via ${this.chain.join(" -> ")}`
+				? `extends cycle re-entering "${this.target}" via ${A.join(this.chain, " -> ")}`
 				: this.reason === "depth"
 					? `extends chain exceeded depth ${MAX_EXTENDS_DEPTH} at "${this.path}"`
 					: `empty extends target in "${this.path}"`;
@@ -161,7 +163,18 @@ interface ConfigLayer {
  * already-visited normalized absolute paths on THIS branch (copied per branch,
  * so a diamond is legal); it excludes `configPath` itself until it is admitted.
  */
-const collect = Effect.fnUntraced(function* (
+const collect: {
+	(configPath: string, chain: ReadonlyArray<string>): Effect.Effect<
+		ReadonlyArray<ConfigLayer>,
+		TsconfigParseError | TsconfigExtendsError | PlatformError.PlatformError,
+		FileSystem.FileSystem | Path.Path
+	>;
+	(chain: ReadonlyArray<string>): (configPath: string) => Effect.Effect<
+		ReadonlyArray<ConfigLayer>,
+		TsconfigParseError | TsconfigExtendsError | PlatformError.PlatformError,
+		FileSystem.FileSystem | Path.Path
+	>;
+} = dual(2, Effect.fnUntraced(function* (
 	configPath: string,
 	chain: ReadonlyArray<string>,
 ): Effect.fn.Return<
@@ -208,7 +221,7 @@ const collect = Effect.fnUntraced(function* (
 	// Own config last: it wins over everything it extends.
 	layers.push({ doc: absolutized, path: abs });
 	return layers;
-});
+}));
 
 // Implementation of TsconfigLoader.resolve; the public contract lives on the static.
 const resolve = Effect.fn("TsconfigLoader.resolve")(function* (configPath: string) {

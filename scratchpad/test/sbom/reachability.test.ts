@@ -160,15 +160,16 @@ describe("bundle reachability", () => {
 		assert.deepStrictEqual([...(yield* reachableBareImports("Sbom.ts"))].sort(), [
 			"@beep/identity/packages", "@beep/schema/LiteralKit", "effect/Array", "effect/Effect", "effect/FileSystem",
 			"effect/Function", "effect/HashMap", "effect/HashSet", "effect/Match", "effect/MutableHashSet", "effect/Option",
-			"effect/Order", "effect/Record", "effect/Result", "effect/Schema", "effect/SchemaIssue",
+			"effect/Order", "effect/Predicate", "effect/Record", "effect/Result", "effect/Schema", "effect/SchemaIssue",
 			"effect/SchemaTransformation", "effect/String",
 		]);
 		assert.deepStrictEqual(
 			[...(yield* reachableBareImports("SbomMetadataSource.ts"))].sort(),
 			[
-				"@beep/identity/packages", "@beep/schema/LiteralKit", "effect/Array", "effect/Effect", "effect/HashMap",
-				"effect/HashSet", "effect/Match", "effect/MutableHashSet", "effect/Option", "effect/Record", "effect/Result",
-				"effect/Schema", "effect/SchemaIssue", "effect/SchemaTransformation",
+				"@beep/identity/packages", "@beep/schema/LiteralKit", "effect/Array", "effect/Effect", "effect/Function",
+				"effect/HashMap", "effect/HashSet", "effect/Match", "effect/MutableHashSet", "effect/Option",
+				"effect/Predicate", "effect/Record", "effect/Result", "effect/Schema", "effect/SchemaIssue",
+				"effect/SchemaTransformation",
 			],
 			"SbomMetadataSource reads `Package` as a TYPE only — a value import would drag package-json's IO in",
 		);
@@ -178,9 +179,9 @@ describe("bundle reachability", () => {
 		// This is what lets a VERIFIER depend on the shapes alone.
 		for (const entry of ["InTotoStatement.ts", "SlsaProvenance.ts", "NtiaReport.ts"]) {
 			const expected = entry === "InTotoStatement.ts"
-				? ["@beep/identity/packages", "effect/Effect", "effect/Result", "effect/Schema"]
+				? ["@beep/identity/packages", "effect/Effect", "effect/Function", "effect/Result", "effect/Schema"]
 				: entry === "NtiaReport.ts"
-					? ["@beep/identity/packages", "@beep/schema/LiteralKit", "effect/Schema", "effect/String"]
+					? ["@beep/identity/packages", "@beep/schema/LiteralKit", "effect/Function", "effect/Schema", "effect/String"]
 					: ["@beep/identity/packages", "effect/Schema"];
 			assert.deepStrictEqual([...(yield* reachableBareImports(entry))].sort(), expected, entry);
 		}

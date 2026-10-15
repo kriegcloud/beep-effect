@@ -15,9 +15,9 @@
 
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
-import { HeadingDepth } from "../../MarkdownNode.ts";
-import { Heading } from "../../MarkdownNode.ts";
-import type { BlockConstruct, BlockStart } from "../blockTypes.ts";
+import { Heading, HeadingDepth } from "../../MarkdownNode.ts";
+import type { BlockConstruct, BlockContinueResult, BlockNode, BlockScanner, BlockStart, BlockStartResult, MaterializeContext, MaterializedBlock } from "../blockTypes.ts";
+import { dual } from "effect/Function";
 
 const reATXHeadingMarker = /^#{1,6}(?:[ \t]+|$)/;
 const reOnlyTrailingHashes = /^[ \t]*#+[ \t]*$/;
@@ -47,8 +47,8 @@ export const headingConstruct: BlockConstruct = {
 	acceptsLines: false,
 	canContain: () => false,
 	// A heading can never contain more than one line, so it never continues.
-	continue: () => 1,
-	materialize: (block, _children, context) => {
+	continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
+	materialize: dual(3, (block: BlockNode, _children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => {
 		const inline = context.inlineSlice(block);
 		const style = block.data.headingStyle ?? "atx";
 		const node = Heading.make({
@@ -59,7 +59,7 @@ export const headingConstruct: BlockConstruct = {
 		});
 		context.registerInline(node, inline);
 		return node;
-	},
+	}),
 };
 
 /**
@@ -78,7 +78,7 @@ export const headingConstruct: BlockConstruct = {
  */
 export const atxHeadingStart: BlockStart = {
 	name: "atxHeading",
-	trigger: (scanner) => {
+	trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
 		if (scanner.indented) {
 			return 0;
 		}
@@ -112,5 +112,5 @@ export const atxHeadingStart: BlockStart = {
 
 		scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
 		return 2;
-	},
+	}),
 };

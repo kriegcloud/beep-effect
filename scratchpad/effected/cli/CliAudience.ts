@@ -5,6 +5,7 @@ import type { AudienceShape } from "../env/index.ts";
 import { Audience, TerminalEnv } from "../env/index.ts";
 import type * as Terminal from "effect/Terminal";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Stdio from "effect/Stdio";
 import type { Command } from "effect/cli";
@@ -20,9 +21,9 @@ const $I = $ScratchpadId.create("effected/cli/CliAudience");
 class AudienceConflictError extends S.TaggedError<AudienceConflictError, { readonly brand: unique symbol }>($I`AudienceConflictError`)(
 	"AudienceConflictError",
 	{
-		message: S.String.annotate({ description: "The usage guidance for conflicting or repeated audience flags." }),
+		message: S.String.pipe($I.annoteKey("AudienceConflictError.message", { description: "The usage guidance for conflicting or repeated audience flags." })),
 	},
-	$I.annote("AudienceConflictError", { description: "More than one audience flag occurrence was supplied to a CLI run." }),
+	$I.annoteError<AudienceConflictError>("AudienceConflictError", { description: "More than one audience flag occurrence was supplied to a CLI run." }),
 ) {}
 
 /**
@@ -36,11 +37,14 @@ class AudienceConflictError extends S.TaggedError<AudienceConflictError, { reado
  * flag can WIDEN: `--human` under a detected agent on real terminals prompts, and in a pipe it still cannot. With no
  * `TerminalEnv` there is nothing to decide from and the flag only narrows.
  */
-const interactiveWhenFlagged = (kind: AudienceKind, current: boolean): Effect.Effect<boolean> =>
+const interactiveWhenFlagged: {
+	(kind: AudienceKind, current: boolean): Effect.Effect<boolean>;
+	(current: boolean): (kind: AudienceKind) => Effect.Effect<boolean>;
+} = dual(2, (kind: AudienceKind, current: boolean): Effect.Effect<boolean> =>
 	Effect.flatMap(Effect.serviceOption(TerminalEnv), (terminal) => {
 		if (kind !== "human") return Effect.succeed(false);
 		return O.isSome(terminal) ? canPrompt(terminal.value) : Effect.succeed(current);
-	});
+	}));
 
 /**
  * The four parsed audience flags a root command carries once {@link CliAudience.flags} is shared onto it.
@@ -58,9 +62,7 @@ const interactiveWhenFlagged = (kind: AudienceKind, current: boolean): Effect.Ef
  * @category models
  * @since 0.0.0
  */
-export const AudienceFlagInput = S.Struct(AudienceFlagValues.fields).annotate(
-	$I.annote("AudienceFlagInput", { description: "The four audience flag arrays shared onto a root command." }),
-);
+export const AudienceFlagInput = S.Struct(AudienceFlagValues.fields).pipe($I.annoteSchema("AudienceFlagInput", { description: "The four audience flag arrays shared onto a root command." }));
 
 /**
  * The plain audience flags carried by a root command.
@@ -91,8 +93,8 @@ export const CliAudienceFlagsOptions = S.Struct({
 	 * Hide all four flags from every help screen. They still parse and resolve; describe them in the root
 	 * command's description instead.
 	 */
-	hidden: S.optionalKey(S.Boolean).annotate($I.annote("CliAudienceFlagsOptions.hidden", { description: "Hide the audience flags without changing parsing or resolution." })),
-}).annotate($I.annote("CliAudienceFlagsOptions", { description: "Presentation options for shared audience flags." }));
+	hidden: S.optionalKey(S.Boolean).pipe($I.annoteKey("CliAudienceFlagsOptions.hidden", { description: "Hide the audience flags without changing parsing or resolution." })),
+}).pipe($I.annoteSchema("CliAudienceFlagsOptions", { description: "Presentation options for shared audience flags." }));
 
 /**
  * The plain audience flag presentation options.
@@ -319,7 +321,29 @@ export class CliAudience {
  * @category commands
  * @since 0.0.0
  */
-	static readonly runWith = <const Name extends string, Input, E, R, ContextInput>(
+	static readonly runWith: {
+		<const Name extends string, Input, E, R, ContextInput>(
+			command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
+			config: { readonly version: string; readonly renderErrors?: boolean | undefined },
+		): (
+			input: ReadonlyArray<string>,
+		) => Effect.Effect<
+			void,
+			Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
+			Exclude<R, Audience> | Audience | Command.Environment
+		>;
+		<const Name extends string, Input, E, R, ContextInput>(
+			config: { readonly version: string; readonly renderErrors?: boolean | undefined },
+		): (
+			command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
+		) => (
+			input: ReadonlyArray<string>,
+		) => Effect.Effect<
+			void,
+			Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
+			Exclude<R, Audience> | Audience | Command.Environment
+		>;
+	} = dual(2, <const Name extends string, Input, E, R, ContextInput>(
 		command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
 		config: { readonly version: string; readonly renderErrors?: boolean | undefined },
 	): ((
@@ -361,7 +385,7 @@ export class CliAudience {
 				: ambient.builtIns.filter((flag) => flag !== GlobalFlag.Wizard);
 			return yield* Effect.provideService(decided, CliConfig.CliConfig, CliConfig.make({ builtIns }));
 		});
-	};
+	});
 
 	/**
  * `Command.run` with the audience flag resolved before parsing: reads `Stdio.args` and calls
@@ -384,7 +408,25 @@ export class CliAudience {
  * @category commands
  * @since 0.0.0
  */
-	static readonly run = <const Name extends string, Input, E, R, ContextInput>(
+	static readonly run: {
+		<const Name extends string, Input, E, R, ContextInput>(
+			command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
+			config: { readonly version: string; readonly renderErrors?: boolean | undefined },
+		): Effect.Effect<
+			void,
+			Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
+			Exclude<R, Audience> | Audience | Command.Environment
+		>;
+		<const Name extends string, Input, E, R, ContextInput>(
+			config: { readonly version: string; readonly renderErrors?: boolean | undefined },
+		): (
+			command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
+		) => Effect.Effect<
+			void,
+			Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
+			Exclude<R, Audience> | Audience | Command.Environment
+		>;
+	} = dual(2, <const Name extends string, Input, E, R, ContextInput>(
 		command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
 		config: { readonly version: string; readonly renderErrors?: boolean | undefined },
 	): Effect.Effect<
@@ -392,5 +434,5 @@ export class CliAudience {
 		Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
 		Exclude<R, Audience> | Audience | Command.Environment
 	> =>
-		Stdio.Stdio.use(({ args }) => Effect.flatMap(args, (argv) => CliAudience.runWith(command, config)(argv)));
+		Stdio.Stdio.use(({ args }) => Effect.flatMap(args, (argv) => CliAudience.runWith(command, config)(argv))));
 }

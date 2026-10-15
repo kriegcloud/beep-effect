@@ -46,6 +46,7 @@ import * as Str from "effect/String";
 import type { InlineNode } from "../inlineNode.ts";
 import { appendChild, childrenOf, insertAfter, makeInlineNode, unlink } from "../inlineNode.ts";
 import type { InlineConstruct, InlineScanner } from "../inlineTypes.ts";
+import { dual, pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/markdown/internal/inlines/autolinkLiteral");
 
@@ -71,7 +72,10 @@ const reUnicodePunctuation = /^\p{P}$/u;
 const SAFE_SCHEMES: ReadonlyArray<string> = ["http://", "https://", "ftp://"];
 
 /** Whether the code point at `index` may appear in a host name. */
-const isValidHostChar = (subject: string, index: number): boolean => {
+const isValidHostChar: {
+	(subject: string, index: number): boolean;
+	(index: number): (subject: string) => boolean;
+} = dual(2, (subject: string, index: number): boolean => {
 	// All callers supply an index strictly inside the subject.
 	const code = O.getOrThrow(Str.codePointAt(subject, index));
 	const char = String.fromCodePoint(code);
@@ -79,7 +83,7 @@ const isValidHostChar = (subject: string, index: number): boolean => {
 		return false;
 	}
 	return !(code < 128 ? reAsciiPunctuation.test(char) : reUnicodePunctuation.test(char));
-};
+});
 
 /**
  * `autolink_delim`: pull the link's end back off trailing punctuation.
@@ -92,7 +96,10 @@ const isValidHostChar = (subject: string, index: number): boolean => {
  * examined for an entity reference: `…&hl;` cuts at the `&`, because the
  * writer will re-escape that run and the link must not swallow it.
  */
-const autolinkDelim = (subject: string, base: number, end: number): number => {
+const autolinkDelim: {
+	(subject: string, base: number, end: number): number;
+	(base: number, end: number): (subject: string) => number;
+} = dual(3, (subject: string, base: number, end: number): number => {
 	let linkEnd = end;
 	let opening = 0;
 	let closing = 0;
@@ -137,7 +144,7 @@ const autolinkDelim = (subject: string, base: number, end: number): number => {
 		}
 		return linkEnd;
 	}
-};
+});
 
 /**
  * `check_domain`: how much of `subject` from `base` is a plausible domain.
@@ -151,7 +158,10 @@ const autolinkDelim = (subject: string, base: number, end: number): number => {
  * is upstream's fix for GHSA-29g3-96g3-jg6c — a very long segmented run stops
  * being re-examined rather than going quadratic.
  */
-const checkDomain = (subject: string, base: number, size: number, allowShort: boolean): number => {
+const checkDomain: {
+	(subject: string, base: number, size: number, allowShort: boolean): number;
+	(base: number, size: number, allowShort: boolean): (subject: string) => number;
+} = dual(4, (subject: string, base: number, size: number, allowShort: boolean): number => {
 	let index = 1;
 	let dots = 0;
 	let underscoresPenultimate = 0;
@@ -181,19 +191,23 @@ const checkDomain = (subject: string, base: number, size: number, allowShort: bo
 		return index;
 	}
 	return dots > 0 ? index : 0;
-};
+});
 
 /** `sd_autolink_issafe`: does the run at `start` open with a whitelisted scheme. */
-const isSafeScheme = (subject: string, start: number, length: number): boolean =>
-	SAFE_SCHEMES.some(
-		(scheme) =>
+const isSafeScheme: {
+	(subject: string, start: number, length: number): boolean;
+	(start: number, length: number): (subject: string) => boolean;
+} = dual(3, (subject: string, start: number, length: number): boolean =>
+	A.some(SAFE_SCHEMES, (scheme) =>
 			length > scheme.length &&
 			subject.slice(start, start + scheme.length).toLowerCase() === scheme &&
-			isValidHostChar(subject, start + scheme.length),
-	);
+			isValidHostChar(subject, start + scheme.length)));
 
 /** Extend a matched prefix to the next space or `<`, as both matchers do. */
-const extendToBoundary = (subject: string, base: number, from: number, size: number): number => {
+const extendToBoundary: {
+	(subject: string, base: number, from: number, size: number): number;
+	(base: number, from: number, size: number): (subject: string) => number;
+} = dual(4, (subject: string, base: number, from: number, size: number): number => {
 	let linkEnd = from;
 	while (linkEnd < size) {
 		const char = subject.charAt(base + linkEnd);
@@ -203,17 +217,20 @@ const extendToBoundary = (subject: string, base: number, from: number, size: num
 		linkEnd += 1;
 	}
 	return linkEnd;
-};
+});
 
 /** Append a literal-autolink `link` node spanning `[start, end)`. */
-const appendLiteralLink = (scanner: InlineScanner, start: number, end: number, url: string): void => {
+const appendLiteralLink: {
+	(scanner: InlineScanner, start: number, end: number, url: string): void;
+	(start: number, end: number, url: string): (scanner: InlineScanner) => void;
+} = dual(4, (scanner: InlineScanner, start: number, end: number, url: string): void => {
 	const text = scanner.subject.slice(start, end);
 	const node = makeInlineNode("link", start, end);
 	node.data.url = url;
 	appendChild(node, makeInlineNode("text", start, end, text));
 	scanner.append(node);
 	scanner.pos = end;
-};
+});
 
 /**
  * `www_match`: a `www.` host with no scheme, which links to `http://` + itself.
@@ -336,10 +353,10 @@ export const urlAutolinkConstruct: InlineConstruct = {
 
 /** One email run found in a merged text run, in that run's coordinates. */
 const EmailMatch = S.Struct({
-	from: S.Natural.annotateKey({ description: "Inclusive start offset in the merged text run." }),
-	to: S.Natural.annotateKey({ description: "Exclusive end offset in the merged text run." }),
-	url: S.String.annotateKey({ description: "Link destination for the matched email address." }),
-}).annotate($I.annote("EmailMatch", { description: "An email link and its offsets within a merged text run." }));
+	from: S.Natural.pipe($I.annoteKey("EmailMatch.from", { description: "Inclusive start offset in the merged text run." })),
+	to: S.Natural.pipe($I.annoteKey("EmailMatch.to", { description: "Exclusive end offset in the merged text run." })),
+	url: S.String.pipe($I.annoteKey("EmailMatch.url", { description: "Link destination for the matched email address." })),
+}).pipe($I.annoteSchema("EmailMatch", { description: "An email link and its offsets within a merged text run." }));
 
 type EmailMatch = typeof EmailMatch.Type;
 
@@ -351,7 +368,10 @@ type EmailMatch = typeof EmailMatch.Type;
  *
  * The second half is why `mmmmailto:foo@bar.baz` links only `foo@bar.baz`.
  */
-const validateProtocol = (protocol: string, data: string, at: number, rewind: number, maxRewind: number): boolean => {
+const validateProtocol: {
+	(protocol: string, data: string, at: number, rewind: number, maxRewind: number): boolean;
+	(data: string, at: number, rewind: number, maxRewind: number): (protocol: string) => boolean;
+} = dual(5, (protocol: string, data: string, at: number, rewind: number, maxRewind: number): boolean => {
 	const length = protocol.length;
 	if (length > maxRewind - rewind) {
 		return false;
@@ -363,7 +383,7 @@ const validateProtocol = (protocol: string, data: string, at: number, rewind: nu
 		return true;
 	}
 	return !reAlnum.test(data.charAt(at - rewind - length - 1));
-};
+});
 
 /**
  * `postprocess_text`: every email address in one merged run of text.
@@ -487,7 +507,7 @@ interface RunPiece {
 
 /** Replace a run of adjacent text nodes with the same text plus its email links. */
 const linkifyRun = (pieces: ReadonlyArray<RunPiece>): void => {
-	const merged = pieces.map((piece) => piece.node.value).join("");
+	const merged = pipe(pieces, A.map((piece) => piece.node.value), A.join(""));
 	const matches = scanEmails(merged);
 	if (matches.length === 0) {
 		return;
@@ -523,12 +543,15 @@ const linkifyRun = (pieces: ReadonlyArray<RunPiece>): void => {
 	const replacements: InlineNode[] = [];
 	let cursor = 0;
 
-	const pushText = (from: number, to: number): void => {
+	const pushText: {
+		(from: number, to: number): void;
+		(to: number): (from: number) => void;
+	} = dual(2, (from: number, to: number): void => {
 		if (to <= from) {
 			return;
 		}
 		replacements.push(makeInlineNode("text", localAt(from), localAt(to), merged.slice(from, to)));
-	};
+	});
 
 	for (const match of matches) {
 		pushText(cursor, match.from);

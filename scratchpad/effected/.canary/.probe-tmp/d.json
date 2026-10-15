@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.lab.json",
+  "include": [
+    "../../xdg/**/*.ts",
+    "../../../test/xdg/**/*.ts"
+  ]
+}

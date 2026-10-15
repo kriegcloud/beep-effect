@@ -1,7 +1,7 @@
 // @effect-diagnostics strictEffectProvide:skip-file
 import { dual } from "effect/Function";
 import * as Effect from "effect/Effect";
-import type { RenderContext } from "../../../effected/cli/index.ts";
+import type { LinkTarget, RenderContext, Style, TokenName } from "../../../effected/cli/index.ts";
 import { CliTheme } from "../../../effected/cli/index.ts";
 import { stripAnsi } from "../../../effected/cli/internal/displayWidth.ts";
 
@@ -16,6 +16,12 @@ export const link: {
 	(target: { readonly url: string } | { readonly file: string }, label: string): string;
 } = dual(2, (target: { readonly url: string } | { readonly file: string }, label: string): string =>
 	`\u001B]8;;${"url" in target ? target.url : `file://${target.file}`}\u0007${label}\u001B]8;;\u0007`);
+
+/** A paint that writes the text unpainted, in the dual shape `RenderContext.paint` has. */
+export const plainPaint: RenderContext["paint"] = dual(2, (_token: TokenName | Style, text: string): string => text);
+
+/** A link that leaves the label unlinked, in the dual shape `RenderContext.link` has. */
+export const labelLink: RenderContext["link"] = dual(2, (_target: LinkTarget, label: string): string => label);
 
 export const contextOf = (overrides: Partial<RenderContext> = {}): Effect.Effect<RenderContext> =>
 	Effect.gen(function* () {

@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import type * as Effect from "effect/Effect";
-import { identity } from "effect/Function";
+import { dual, identity, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -28,9 +28,9 @@ const $I = $ScratchpadId.create("effected/github/GraphQL");
  */
 export class GraphQLErrorEntry extends S.Class<GraphQLErrorEntry, { readonly brand: unique symbol }>($I`GraphQLErrorEntry`)({
   /** GitHub's prose. */
-  message: S.String.annotateKey({ description: "GitHub's prose." }),
+  message: S.String.pipe($I.annoteKey("GraphQLErrorEntry.message", { description: "GitHub's prose." })),
   /** GitHub's own classification, e.g. `"NOT_FOUND"` or `"FORBIDDEN"`. */
-  type: S.optionalKey(S.String).annotateKey({ description: "GitHub's own classification, e.g. `\"NOT_FOUND\"` or `\"FORBIDDEN\"`." }),
+  type: S.optionalKey(S.String).pipe($I.annoteKey("GraphQLErrorEntry.type", { description: "GitHub's own classification, e.g. `\"NOT_FOUND\"` or `\"FORBIDDEN\"`." })),
 }, $I.annote("GraphQLErrorEntry", { description: "One entry from a GraphQL response's `errors` array." })) {
 }
 
@@ -76,18 +76,18 @@ export class GitHubGraphQLError extends S.TaggedError<GitHubGraphQLError, { read
     "rateLimited",
     "transport",
     "decode",
-  ]).annotateKey({ description: "Structural routing, mirroring `GitHubError`'s." }),
+  ]).pipe($I.annoteKey("GitHubGraphQLError.kind", { description: "Structural routing, mirroring `GitHubError`'s." })),
   /** The document's name, e.g. `"linkedIssues"` — never the literal `"graphql"`. */
-  operation: S.String.annotateKey({ description: "The document's name, e.g. `\"linkedIssues\"` — never the literal `\"graphql\"`." }),
+  operation: S.String.pipe($I.annoteKey("GitHubGraphQLError.operation", { description: "The document's name, e.g. `\"linkedIssues\"` — never the literal `\"graphql\"`." })),
   /** Human-readable cause, for logs. */
-  reason: S.String.annotateKey({ description: "Human-readable cause, for logs." }),
+  reason: S.String.pipe($I.annoteKey("GitHubGraphQLError.reason", { description: "Human-readable cause, for logs." })),
   /** Everything GitHub reported, in order. */
-  errors: S.Array(GraphQLErrorEntry).annotateKey({ description: "Everything GitHub reported, in order." }),
+  errors: S.Array(GraphQLErrorEntry).pipe($I.annoteKey("GitHubGraphQLError.errors", { description: "Everything GitHub reported, in order." })),
   /** A server-advised delay in milliseconds, read only by the retry schedule. */
-  retryAfterMillis: S.optionalKey(S.Int).annotateKey({ description: "A server-advised delay in milliseconds, read only by the retry schedule." }),
+  retryAfterMillis: S.optionalKey(S.Int).pipe($I.annoteKey("GitHubGraphQLError.retryAfterMillis", { description: "A server-advised delay in milliseconds, read only by the retry schedule." })),
   /** The underlying throwable, when one exists. */
-  cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying throwable, when one exists." }),
-}, $I.annote("GitHubGraphQLError", { description: "A GraphQL call failed." })) {
+  cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("GitHubGraphQLError.cause", { description: "The underlying throwable, when one exists." })),
+}, $I.annoteError<GitHubGraphQLError>("GitHubGraphQLError", { description: "A GraphQL call failed." })) {
   /**
    * Formats the operation and human-readable cause for logs.
    *
@@ -174,14 +174,17 @@ export class GitHubGraphQLError extends S.TaggedError<GitHubGraphQLError, { read
    * @category parsing
    * @since 0.0.0
    */
-  static fromThrowable(operation: string, error: unknown, nowMillis: number): GitHubGraphQLError {
+  static readonly fromThrowable: {
+    (operation: string, error: unknown, nowMillis: number): GitHubGraphQLError;
+    (error: unknown, nowMillis: number): (operation: string) => GitHubGraphQLError;
+  } = dual(3, (operation: string, error: unknown, nowMillis: number): GitHubGraphQLError => {
     const record = asRecord(error);
     const status = P.isNumber(record?.status) ? record.status : undefined;
     const headers = asRecord(record?.headers) ?? asRecord(asRecord(record?.response)?.headers);
     const entries = readEntries(record?.errors);
     const reason =
       entries.length > 0
-        ? entries.map((entry) => entry.message).join("; ")
+        ? pipe(entries, A.map((entry) => entry.message), A.join("; "))
         : P.isString(record?.message)
           ? record.message
           : describeThrowable(error);
@@ -194,7 +197,7 @@ export class GitHubGraphQLError extends S.TaggedError<GitHubGraphQLError, { read
     ...O.getSomesStruct({ retryAfterMillis: O.fromUndefinedOr(retryAfterMillis) }),
     cause: error,
 });
-  }
+  });
 }
 
 const asRecord = (value: unknown): Record<string, unknown> | undefined =>
@@ -216,7 +219,19 @@ const readEntries = (value: unknown): ReadonlyArray<GraphQLErrorEntry> => {
   return entries;
 };
 
-const classify = (
+const classify: {
+  (
+    status: number | undefined,
+    entries: ReadonlyArray<GraphQLErrorEntry>,
+    reason: string,
+    retryAfterMillis: number | undefined,
+  ): GitHubGraphQLError["kind"];
+  (
+    entries: ReadonlyArray<GraphQLErrorEntry>,
+    reason: string,
+    retryAfterMillis: number | undefined,
+  ): (status: number | undefined) => GitHubGraphQLError["kind"];
+} = dual(4, (
   status: number | undefined,
   entries: ReadonlyArray<GraphQLErrorEntry>,
   reason: string,
@@ -226,9 +241,9 @@ const classify = (
   if (lowered.includes("already exists")) {
     return "alreadyExists";
   }
-  if (entries.some((entry) => entry.type === "NOT_FOUND")) return "notFound";
-  if (entries.some((entry) => entry.type === "FORBIDDEN" || entry.type === "UNAUTHORIZED")) return "unauthorized";
-  if (entries.some((entry) => entry.type === "RATE_LIMITED")) return "rateLimited";
+  if (A.some(entries, (entry) => entry.type === "NOT_FOUND")) return "notFound";
+  if (A.some(entries, (entry) => entry.type === "FORBIDDEN" || entry.type === "UNAUTHORIZED")) return "unauthorized";
+  if (A.some(entries, (entry) => entry.type === "RATE_LIMITED")) return "rateLimited";
   if (status === undefined) return entries.length > 0 ? "rejected" : "transport";
   if (status === 404) return "notFound";
   if (status === 401) return "unauthorized";
@@ -236,7 +251,7 @@ const classify = (
   if (status === 403) return retryAfterMillis !== undefined ? "rateLimited" : "unauthorized";
   if (status >= 500) return "transport";
   return "rejected";
-};
+});
 
 /**
  * A named GraphQL document, its variables, and how to read its answer.

@@ -4,6 +4,7 @@ import * as A from "effect/Array";
 import * as Str from "effect/String";
 import * as O from "effect/Option";
 import * as Equal from "effect/Equal";
+import { dual } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -31,9 +32,7 @@ const $I = $ScratchpadId.create("effected/templates/SectionDialect");
  * @category schemas
  * @since 0.0.0
  */
-export const Eol = LiteralKit(["\n", "\r\n"]).annotate(
-	$I.annote("Eol", { description: "The LF or CRLF line ending used by a document." }),
-);
+export const Eol = LiteralKit(["\n", "\r\n"]).pipe($I.annoteSchema("Eol", { description: "The LF or CRLF line ending used by a document." }));
 /**
  * The LF or CRLF literal accepted by the {@link Eol} schema.
  *
@@ -84,20 +83,20 @@ export class SectionRenderError extends S.TaggedError<SectionRenderError, { read
 	 *
 	 * @since 0.0.0
 	 */
-	reason: S.Literals(["markerInContent", "unknownCommentStyle", "duplicateDeclaration", "invalidAttribute", "trailingCarriageReturn"]).annotateKey({ description: "`markerInContent` — the content carries a line the scanner would read as a marker, which would move the block boundary and let the next sync consume user text. `unknownCommentStyle` — the section's comment style is not in the dialect's set, so the block would be written into a document where the scanner could never find it again, growing a duplicate on every run. `duplicateDeclaration` — the same identity was declared twice in one call, so the caller stated two intentions for one block and any choice between them would be a guess; this is the caller-side twin of the document-side `duplicateSection`. `invalidAttribute` — an attribute's name is outside the `[A-Za-z][A-Za-z0-9_-]*` grammar, or its value contains `\"` or a line break; either would render a marker the scanner could not read back verbatim, and there is no escaping mechanism by design. `trailingCarriageReturn` — LF rendering would absorb the final bare CR into the boundary line ending and lose a byte on the next parse." }),
+	reason: S.Literals(["markerInContent", "unknownCommentStyle", "duplicateDeclaration", "invalidAttribute", "trailingCarriageReturn"]).pipe($I.annoteKey("SectionRenderError.reason", { description: "`markerInContent` — the content carries a line the scanner would read as a marker, which would move the block boundary and let the next sync consume user text. `unknownCommentStyle` — the section's comment style is not in the dialect's set, so the block would be written into a document where the scanner could never find it again, growing a duplicate on every run. `duplicateDeclaration` — the same identity was declared twice in one call, so the caller stated two intentions for one block and any choice between them would be a guess; this is the caller-side twin of the document-side `duplicateSection`. `invalidAttribute` — an attribute's name is outside the `[A-Za-z][A-Za-z0-9_-]*` grammar, or its value contains `\"` or a line break; either would render a marker the scanner could not read back verbatim, and there is no escaping mechanism by design. `trailingCarriageReturn` — LF rendering would absorb the final bare CR into the boundary line ending and lose a byte on the next parse." })),
 	/**
 	 * The key of the section that could not be rendered.
 	 *
 	 * @since 0.0.0
 	 */
-	key: S.String.annotateKey({ description: "The key of the section that could not be rendered." }),
+	key: S.String.pipe($I.annoteKey("SectionRenderError.key", { description: "The key of the section that could not be rendered." })),
 	/**
 	 * The offending attribute's name, when the refusal names one.
 	 *
 	 * @since 0.0.0
 	 */
-	attribute: S.optionalKey(S.String).annotateKey({ description: "The offending attribute's name, when the refusal names one." }),
-}, $I.annote("SectionRenderError", { description: "Raised when a section cannot be turned into marker-delimited text." })) {
+	attribute: S.optionalKey(S.String).pipe($I.annoteKey("SectionRenderError.attribute", { description: "The offending attribute's name, when the refusal names one." })),
+}, $I.annoteError<SectionRenderError>("SectionRenderError", { description: "Raised when a section cannot be turned into marker-delimited text." })) {
 	/**
 	 * Explains why rendering refused the named section.
 	 *
@@ -138,14 +137,20 @@ const escapeRegex = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g
 const GAP = "[ \\t]+";
 
 /** The first offset of a trailing horizontal separator run. */
-const markerGapStart = (text: string, end: number): number => {
+const markerGapStart: {
+	(text: string, end: number): number;
+	(end: number): (text: string) => number;
+} = dual(2, (text: string, end: number): number => {
 	let index = end;
 	while (index > 0 && (text[index - 1] === " " || text[index - 1] === "\t")) index -= 1;
 	return index;
-};
+});
 
 /** Recognize a closing rule at one multiline boundary without parsing attributes. */
-const closingRule = (text: string, boundary: number, style: CommentStyle): readonly [number, number] | undefined => {
+const closingRule: {
+	(text: string, boundary: number, style: CommentStyle): readonly [number, number] | undefined;
+	(boundary: number, style: CommentStyle): (text: string) => readonly [number, number] | undefined;
+} = dual(3, (text: string, boundary: number, style: CommentStyle): readonly [number, number] | undefined => {
 	let end = markerGapStart(text, boundary);
 	if (style.suffix !== undefined) {
 		const suffix = style.suffix;
@@ -165,7 +170,7 @@ const closingRule = (text: string, boundary: number, style: CommentStyle): reado
 	const ruleStart = end - 3;
 	const runEnd = markerGapStart(text, ruleStart);
 	return runEnd === ruleStart ? undefined : [ruleStart, runEnd];
-};
+});
 
 /**
  * The marker vocabulary: what phrase delimits a managed section, and which
@@ -209,13 +214,13 @@ export class SectionDialect extends S.Class<SectionDialect, { readonly brand: un
 	 *
 	 * @since 0.0.0
   */
-	phrase: S.String.check(S.isPattern(/^[A-Za-z0-9][A-Za-z0-9 _]*$/u)).annotateKey({ description: "The phrase between the key and the closing rule." }),
+	phrase: S.String.check(S.isPattern(/^[A-Za-z0-9][A-Za-z0-9 _]*$/u)).pipe($I.annoteKey("SectionDialect.phrase", { description: "The phrase between the key and the closing rule." })),
 	/**
 	 * Which comment styles the document scanner recognizes. At least one.
 	 *
 	 * @since 0.0.0
 	 */
-	styles: S.Array(CommentStyle).check(S.isMinLength(1)).annotateKey({ description: "Which comment styles the document scanner recognizes. At least one." }),
+	styles: S.Array(CommentStyle).check(S.isMinLength(1)).pipe($I.annoteKey("SectionDialect.styles", { description: "Which comment styles the document scanner recognizes. At least one." })),
 }, $I.annote("SectionDialect", { description: "The marker vocabulary: what phrase delimits a managed section, and which comment styles a document is scanned for." })) {
 	// Runtime-only state belongs to its dialect; private fields never enter the wire form.
 	/**

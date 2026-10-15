@@ -1,5 +1,6 @@
 import { dual } from "effect/Function";
 import type * as Cli from "../index.ts";
+import type { Key } from "ink";
 import * as O from "effect/Option";
 import * as MutableHashSet from "effect/MutableHashSet";
 import { graphemes } from "../internal/displayWidth.ts";
@@ -18,9 +19,9 @@ const $I = $ScratchpadId.create("effected/cli/ui/KeyTable");
 const BindingKey = S.Union([
 	KeyName,
 	S.Struct({
-		char: S.String.annotateKey($I.annote("BindingKey.char", { description: "The typed character, matched in NFC." })),
-	}).annotate($I.annote("BindingChar", { description: "A typed-character key of a binding." })),
-]).annotate($I.annote("BindingKey", { description: "A named key or a typed character that triggers a binding." }));
+		char: S.String.pipe($I.annoteKey("BindingKey.char", { description: "The typed character, matched in NFC." })),
+	}).pipe($I.annoteSchema("BindingChar", { description: "A typed-character key of a binding." })),
+]).pipe($I.annoteSchema("BindingKey", { description: "A named key or a typed character that triggers a binding." }));
 
 /**
  * One row of a {@link KeyTable}, as a schema over the action schema: the keys that trigger an action, and the help line
@@ -47,15 +48,15 @@ const BindingKey = S.Union([
  */
 export const Binding = <Action extends S.Top>(action: Action) =>
 	S.Struct({
-		keys: S.Array(BindingKey).annotateKey($I.annote("Binding.keys", {
+		keys: S.Array(BindingKey).pipe($I.annoteKey("Binding.keys", {
 			description: "The named or typed keys; each of them triggers the action.",
 		})),
 		action,
-		help: S.String.annotateKey($I.annote("Binding.help", { description: "The words KeyHelp shows beside the keys." })),
-		hidden: S.optionalKey(S.Boolean).annotateKey($I.annote("Binding.hidden", {
+		help: S.String.pipe($I.annoteKey("Binding.help", { description: "The words KeyHelp shows beside the keys." })),
+		hidden: S.optionalKey(S.Boolean).pipe($I.annoteKey("Binding.hidden", {
 			description: "Whether the keys are bound but left out of the help line.",
 		})),
-	}).annotate($I.annote("Binding", { description: "One key-table row: its keys, its action and its help words." }));
+	}).pipe($I.annoteSchema("Binding", { description: "One key-table row: its keys, its action and its help words." }));
 
 /**
  * Plain payload accepted by {@link Binding}; key tables retain this structural representation.
@@ -82,11 +83,11 @@ export type Binding<Action> = ReturnType<typeof Binding<S.Codec<Action>>>["Type"
  * @since 0.0.0
  */
 export const KeyHelpRow = S.Struct({
-	label: S.String.annotateKey($I.annote("KeyHelpRow.label", {
+	label: S.String.pipe($I.annoteKey("KeyHelpRow.label", {
 		description: "The keys, labelled for the glyph set and joined with a slash.",
 	})),
-	help: S.String.annotateKey($I.annote("KeyHelpRow.help", { description: "What the keys do." })),
-}).annotate($I.annote("KeyHelpRow", { description: "One labelled entry of a key table's help line." }));
+	help: S.String.pipe($I.annoteKey("KeyHelpRow.help", { description: "What the keys do." })),
+}).pipe($I.annoteSchema("KeyHelpRow", { description: "One labelled entry of a key table's help line." }));
 
 /**
  * Plain payload accepted by {@link KeyHelpRow}.
@@ -113,10 +114,10 @@ export type KeyHelpRow = typeof KeyHelpRow.Type;
  * @since 0.0.0
  */
 export const UseKeysOptions = S.Struct({
-	isActive: S.optionalKey(S.Boolean).annotateKey($I.annote("UseKeysOptions.isActive", {
+	isActive: S.optionalKey(S.Boolean).pipe($I.annoteKey("UseKeysOptions.isActive", {
 		description: "Whether the keys are read; true by default.",
 	})),
-}).annotate($I.annote("UseKeysOptions", { description: "Whether a key table currently reads input." }));
+}).pipe($I.annoteSchema("UseKeysOptions", { description: "Whether a key table currently reads input." }));
 
 /**
  * Plain payload accepted by {@link UseKeysOptions}.
@@ -149,10 +150,13 @@ const WORDS: Record<KeyName, string> = {
 	pagedown: "pgdn",
 };
 
-const labelOf = (key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet): string => {
+const labelOf: {
+	(key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet): string;
+	(glyphs: Cli.GlyphSet): (key: KeyName | { readonly char: string }) => string;
+} = dual(2, (key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet): string => {
 	if (!P.isString(key)) return key.char;
 	return (glyphs.kind === "unicode" ? ARROWS[key] : undefined) ?? WORDS[key];
-};
+});
 
 /**
  * A typed space is only ever reported as the named space key, so a `{ char: " " }` binding means `"space"`.
@@ -166,11 +170,14 @@ const normalise = (key: KeyName | { readonly char: string }): KeyName | { readon
 const identity = (key: KeyName | { readonly char: string }): string =>
 	P.isString(key) ? `named:${key}` : `char:${key.char.normalize("NFC")}`;
 
-const bound = (binding: KeyName | { readonly char: string }, key: UiKey): boolean =>
+const bound: {
+	(binding: KeyName | { readonly char: string }, key: UiKey): boolean;
+	(key: UiKey): (binding: KeyName | { readonly char: string }) => boolean;
+} = dual(2, (binding: KeyName | { readonly char: string }, key: UiKey): boolean =>
 	P.isString(binding)
 		? key._tag === "Named" && key.name === binding
 		: // Compared in NFC, so a precomposed binding matches decomposed input and the reverse.
-			key._tag === "Char" && key.char.normalize("NFC") === binding.char.normalize("NFC");
+			key._tag === "Char" && key.char.normalize("NFC") === binding.char.normalize("NFC"));
 
 /**
  * The keys a widget understands, as data: the one source both for dispatching input and for the help line, so the
@@ -277,7 +284,7 @@ export class KeyTable<Action> {
 	 */
 	readonly match = (key: UiKey): O.Option<Action> => {
 		for (const binding of this.bindings) {
-			if (binding.keys.some((candidate) => bound(candidate, key))) return O.some(binding.action);
+			if (binding.keys.some(bound(key))) return O.some(binding.action);
 		}
 		return O.none();
 	};
@@ -311,7 +318,7 @@ export class KeyTable<Action> {
 			const live = binding.keys.filter((key) => !MutableHashSet.has(taken, identity(key)));
 			for (const key of binding.keys) MutableHashSet.add(taken, identity(key));
 			if (binding.hidden === true || live.length === 0) continue;
-			rows.push({ label: live.map((key) => labelOf(key, glyphs)).join("/"), help: binding.help });
+			rows.push({ label: live.map(labelOf(glyphs)).join("/"), help: binding.help });
 		}
 		return rows;
 	};
@@ -331,7 +338,7 @@ const keyOfCharacter = (character: string): UiKey | undefined => {
 /**
  * Ink's key flags for plain typed text: none set.
  */
-const PLAIN: Parameters<typeof UiKey.fromInk>[1] = {
+const PLAIN: Key = {
 	upArrow: false,
 	downArrow: false,
 	leftArrow: false,
@@ -359,7 +366,10 @@ const PLAIN: Parameters<typeof UiKey.fromInk>[1] = {
  * `"y\r"` with no `return`), so text of more than one code point is split into a key per code point; a named key,
  * or a Ctrl or Meta combination, is the one key it is.
  */
-const keysOf = (input: string, key: Parameters<typeof UiKey.fromInk>[1]): ReadonlyArray<UiKey> => {
+const keysOf: {
+	(input: string, key: Key): ReadonlyArray<UiKey>;
+	(key: Key): (input: string) => ReadonlyArray<UiKey>;
+} = dual(2, (input: string, key: Key): ReadonlyArray<UiKey> => {
 	const single = UiKey.fromInk(input, key);
 	if (single?._tag === "Named" || key.ctrl || key.meta) return single === undefined ? [] : [single];
 	// By grapheme, not code point: a decomposed é or a ZWJ emoji is one key, and CR LF is one enter.
@@ -369,7 +379,7 @@ const keysOf = (input: string, key: Parameters<typeof UiKey.fromInk>[1]): Readon
 		const pressed = keyOfCharacter(character);
 		return pressed === undefined ? [] : [pressed];
 	});
-};
+});
 
 /**
  * Read the keys of `table` and dispatch the action each one matches; keys the table does not bind are ignored.

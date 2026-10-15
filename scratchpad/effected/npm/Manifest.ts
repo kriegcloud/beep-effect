@@ -55,8 +55,8 @@ const $I = $ScratchpadId.create("effected/npm/Manifest");
  */
 export class ManifestDecodeError extends S.TaggedError<ManifestDecodeError, { readonly brand: unique symbol }>($I`ManifestDecodeError`)("ManifestDecodeError", {
 	/** The underlying `SchemaError`, preserved structurally rather than stringified. */
-	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The underlying `SchemaError`, preserved structurally rather than stringified." }),
-}, $I.annote("ManifestDecodeError", { description: "Indicates that an unknown value could not be decoded into a Manifest." })) {
+	cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("ManifestDecodeError.cause", { description: "The underlying `SchemaError`, preserved structurally rather than stringified." })),
+}, $I.annoteError<ManifestDecodeError>("ManifestDecodeError", { description: "Indicates that an unknown value could not be decoded into a Manifest." })) {
 	/**
 	 * Summarizes the decode failure in one line.
 	 *
@@ -104,14 +104,14 @@ export class UnresolvedDependencyError extends S.TaggedError<UnresolvedDependenc
 	"UnresolvedDependencyError",
 	{
 		/** The manifest field the dependency is declared under. */
-		field: DependencyField.annotateKey({ description: "The manifest field the dependency is declared under." }),
+		field: DependencyField.pipe($I.annoteKey("UnresolvedDependencyError.field", { description: "The manifest field the dependency is declared under." })),
 		/** The dependency's package name. */
-		dependency: S.String.annotateKey({ description: "The dependency's package name." }),
+		dependency: S.String.pipe($I.annoteKey("UnresolvedDependencyError.dependency", { description: "The dependency's package name." })),
 		/** The raw specifier that resolved to nothing. */
-		specifier: S.String.annotateKey({ description: "The raw specifier that resolved to nothing." }),
+		specifier: S.String.pipe($I.annoteKey("UnresolvedDependencyError.specifier", { description: "The raw specifier that resolved to nothing." })),
 		/** Why resolution came back empty. */
-		reason: S.Literals(["catalog-entry-missing", "workspace-package-missing"]).annotateKey({ description: "Why resolution came back empty." }),
-	}, $I.annote("UnresolvedDependencyError", { description: "Raised when a `catalog:` or `workspace:` specifier in a manifest resolves to nothing: the catalog has no entry for the dependency, or no workspace package carries its name. Distinct from `DependencyResolutionError` — the resolution *mechanism* worked; the answer was `Option.none()`, which at the manifest level means the manifest cannot be projected to concrete ranges." }),
+		reason: S.Literals(["catalog-entry-missing", "workspace-package-missing"]).pipe($I.annoteKey("UnresolvedDependencyError.reason", { description: "Why resolution came back empty." })),
+	}, $I.annoteError<UnresolvedDependencyError>("UnresolvedDependencyError", { description: "Raised when a `catalog:` or `workspace:` specifier in a manifest resolves to nothing: the catalog has no entry for the dependency, or no workspace package carries its name. Distinct from `DependencyResolutionError` — the resolution *mechanism* worked; the answer was `Option.none()`, which at the manifest level means the manifest cannot be projected to concrete ranges." }),
 ) {
 	/**
 	 * Renders the missing entry into a one-line message.
@@ -237,15 +237,15 @@ const makeWire = (
  */
 export class Manifest extends S.Class<Manifest, { readonly brand: unique symbol }>($I`Manifest`)({
 	/** Production dependencies, when present. */
-	dependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Production dependencies, when present." }),
+	dependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("Manifest.dependencies", { description: "Production dependencies, when present." })),
 	/** Development dependencies, when present. */
-	devDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Development dependencies, when present." }),
+	devDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("Manifest.devDependencies", { description: "Development dependencies, when present." })),
 	/** Peer dependencies, when present. */
-	peerDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Peer dependencies, when present." }),
+	peerDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("Manifest.peerDependencies", { description: "Peer dependencies, when present." })),
 	/** Optional dependencies, when present. */
-	optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Optional dependencies, when present." }),
+	optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("Manifest.optionalDependencies", { description: "Optional dependencies, when present." })),
 	/** Every non-dependency top-level field, preserved verbatim for round-trip fidelity. */
-	rest: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "Every non-dependency top-level field, preserved verbatim for round-trip fidelity." }),
+	rest: S.optionalKey(S.Record(S.String, S.Unknown)).pipe($I.annoteKey("Manifest.rest", { description: "Every non-dependency top-level field, preserved verbatim for round-trip fidelity." })),
 }, $I.annote("Manifest", { description: "A tolerant manifest as a domain model: the four dependency fields typed as string→string records, everything else preserved verbatim in `rest`." })) {
 	/**
 	 * The tolerant wire codec: an open record ↔ a {@link Manifest} instance,

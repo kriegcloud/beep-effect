@@ -24,9 +24,9 @@ const $I = $ScratchpadId.create("effected/yaml/internal/diff");
  * @since 0.0.0
  */
 export const RawEdit = S.Struct({
-	offset: S.Finite.annotate({ description: "The source offset where replacement begins." }),
-	length: S.Finite.annotate({ description: "The number of source characters to replace." }),
-	content: S.String.annotate({ description: "The replacement text." }),
+	offset: S.Finite.pipe($I.annoteKey("RawEdit.offset", { description: "The source offset where replacement begins." })),
+	length: S.Finite.pipe($I.annoteKey("RawEdit.length", { description: "The number of source characters to replace." })),
+	content: S.String.pipe($I.annoteKey("RawEdit.content", { description: "The replacement text." })),
 }).pipe($I.annoteSchema("RawEdit", { description: "A plain text edit replacing a source span before facade materialization." }));
 
 /**

@@ -45,6 +45,7 @@ import type { YamlNode } from "./YamlNode.ts";
 import { YamlMap, YamlPair, YamlScalar, YamlSeq } from "./YamlNode.ts";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
+import { dual, pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/YamlFormat");
 
@@ -58,9 +59,9 @@ const isStringifyDepthExceeded = S.is(StringifyDepthExceeded);
 class YamlFormatInvariantFailure extends S.TaggedError<YamlFormatInvariantFailure, { readonly brand: unique symbol }>($I`YamlFormatInvariantFailure`)(
 	"YamlFormatInvariantFailure",
 	{
-		message: S.String.annotateKey({ description: "The failed invariant encountered while navigating the YAML tree." }),
+		message: S.String.pipe($I.annoteKey("YamlFormatInvariantFailure.message", { description: "The failed invariant encountered while navigating the YAML tree." })),
 	},
-	$I.annote("YamlFormatInvariantFailure", {
+	$I.annoteError<YamlFormatInvariantFailure>("YamlFormatInvariantFailure", {
 		description: "A defect raised when YAML modification encounters an inconsistent internal tree.",
 	}),
 ) {}
@@ -122,18 +123,16 @@ export type YamlRangeLike = YamlRange | { readonly offset: number; readonly leng
  */
 export class YamlFormattingOptions extends S.Class<YamlFormattingOptions, { readonly brand: unique symbol }>($I`YamlFormattingOptions`)({
 	...YamlStringifyOptions.fields,
-	preserveComments: S.optionalKey(S.Boolean).annotateKey({ description: "Whether formatting retains node and document comments; defaults to true" }),
-	range: S.optionalKey(YamlRange).annotateKey({ description: "Source region in UTF-16 code units containing permitted formatting edits; a positional range takes precedence" }),
-	requoteScalars: S.optionalKey(S.Boolean).annotateKey({ description: "Whether formatting applies `quoteStyle` to eligible already-quoted scalars when their parsed values remain unchanged; defaults to false" }),
+	preserveComments: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlFormattingOptions.preserveComments", { description: "Whether formatting retains node and document comments; defaults to true" })),
+	range: S.optionalKey(YamlRange).pipe($I.annoteKey("YamlFormattingOptions.range", { description: "Source region in UTF-16 code units containing permitted formatting edits; a positional range takes precedence" })),
+	requoteScalars: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlFormattingOptions.requoteScalars", { description: "Whether formatting applies `quoteStyle` to eligible already-quoted scalars when their parsed values remain unchanged; defaults to false" })),
 }, $I.annote("YamlFormattingOptions", { description: "Options controlling formatting behavior: every YamlStringifyOptions field (derived, not hand-duplicated — including `indentSequences`, `quoteStyle` and `quoteCompat`) plus `preserveComments` (default `true`), `range` (restrict edits to a region; the positional `range` argument of YamlFormat.format takes precedence over this field) and `requoteScalars` (default `false`)." })) {}
 
-const NonFiniteIndexKind = LiteralKit(["NaN", "PositiveInfinity", "NegativeInfinity"]).annotate(
-	$I.annote("NonFiniteIndexKind", { description: "Distinguishes non-finite numeric indices without admitting non-finite schema numbers." }),
-);
+const NonFiniteIndexKind = LiteralKit(["NaN", "PositiveInfinity", "NegativeInfinity"]).pipe($I.annoteSchema("NonFiniteIndexKind", { description: "Distinguishes non-finite numeric indices without admitting non-finite schema numbers." }));
 
 /** A schema-safe echo of a non-finite path segment; navigation still receives the original number. */
 class NonFiniteIndex extends S.TaggedClass<NonFiniteIndex, { readonly brand: unique symbol }>($I`NonFiniteIndex`)("NonFiniteIndex", {
-	kind: NonFiniteIndexKind.annotateKey({ description: "The original non-finite numeric index's IEEE kind" }),
+	kind: NonFiniteIndexKind.pipe($I.annoteKey("NonFiniteIndex.kind", { description: "The original non-finite numeric index's IEEE kind" })),
 }, $I.annote("NonFiniteIndex", { description: "Tagged representation of NaN or signed infinity in a failed modification's echoed path." })) {
 	override toString(): string {
 		return NonFiniteIndexKind.$match(this.kind, {
@@ -193,9 +192,9 @@ const echoErrorPath = (path: YamlPath) => A.map(path, (segment) =>
  * @since 0.0.0
  */
 export class YamlModificationError extends S.TaggedError<YamlModificationError, { readonly brand: unique symbol }>($I`YamlModificationError`)("YamlModificationError", {
-	path: S.Array(S.Union([S.String, S.Finite, NonFiniteIndex])).annotateKey({ description: "Requested modification location, expressed as mapping keys, finite sequence indices, or tagged non-finite indices" }),
-	diagnostics: S.Array(YamlDiagnostic).annotateKey({ description: "Structured failure details explaining why modification failed; the first diagnostic identifies the primary failure" }),
-}, $I.annote("YamlModificationError", { description: "Raised when `YamlFormat.modify` cannot navigate the requested path against the composed AST (a structural mismatch), the source fails to parse, the source is a multi-document stream (`MultiDocumentStream` — a path names no particular document of a stream, so modify refuses rather than guessing), or the document carries `%YAML`/`%TAG` directives (`DirectiveCarryingDocument` — modify does not re-emit directive lines, and dropping a `%TAG` would orphan the shorthand tags that depend on it). Carries structured YamlDiagnostic entries — never a collapsed `reason` string (the structure-preserving-errors house rule). The error itself has no `code` field: read the code from the diagnostics — `error.diagnostics[0].code` is the primary failure." })) {
+	path: S.Array(S.Union([S.String, S.Finite, NonFiniteIndex])).pipe($I.annoteKey("YamlModificationError.path", { description: "Requested modification location, expressed as mapping keys, finite sequence indices, or tagged non-finite indices" })),
+	diagnostics: S.Array(YamlDiagnostic).pipe($I.annoteKey("YamlModificationError.diagnostics", { description: "Structured failure details explaining why modification failed; the first diagnostic identifies the primary failure" })),
+}, $I.annoteError<YamlModificationError>("YamlModificationError", { description: "Raised when `YamlFormat.modify` cannot navigate the requested path against the composed AST (a structural mismatch), the source fails to parse, the source is a multi-document stream (`MultiDocumentStream` — a path names no particular document of a stream, so modify refuses rather than guessing), or the document carries `%YAML`/`%TAG` directives (`DirectiveCarryingDocument` — modify does not re-emit directive lines, and dropping a `%TAG` would orphan the shorthand tags that depend on it). Carries structured YamlDiagnostic entries — never a collapsed `reason` string (the structure-preserving-errors house rule). The error itself has no `code` field: read the code from the diagnostics — `error.diagnostics[0].code` is the primary failure." })) {
 	/**
 	 * Summarizes the requested path and all diagnostic messages for display.
 	 *
@@ -212,8 +211,8 @@ export class YamlModificationError extends S.TaggedError<YamlModificationError, 
 	 * @since 0.0.0
 	 */
 	override get message(): string {
-		const summary = this.diagnostics.map((d) => d.message).join("; ");
-		return `Modification failed at path [${this.path.join(", ")}]: ${summary}`;
+		const summary = pipe(this.diagnostics, A.map((d) => d.message), A.join("; "));
+		return `Modification failed at path [${pipe(this.path, A.map(String), A.join(", "))}]: ${summary}`;
 	}
 }
 
@@ -222,18 +221,18 @@ export class YamlModificationError extends S.TaggedError<YamlModificationError, 
 /** Categories raised by AST navigation and replacement conversion. */
 const ModifyFailureCode = LiteralKit([
 	"EmptyDocument", "PathNotFound", "InvalidIndex", "NotNavigable", "CircularReference", "NestingDepthExceeded",
-]).annotate($I.annote("ModifyFailureCode", { description: "Failures raised while navigating the YAML AST or converting a replacement value." }));
+]).pipe($I.annoteSchema("ModifyFailureCode", { description: "Failures raised while navigating the YAML AST or converting a replacement value." }));
 
 /**
  * Thrown by the pure AST-navigation helpers on a structural mismatch.
  * `modify` catches this and materializes {@link YamlModificationError}.
  */
 class ModifyFailure extends S.TaggedError<ModifyFailure, { readonly brand: unique symbol }>($I`ModifyFailure`)("ModifyFailure", {
-	code: ModifyFailureCode.annotateKey({ description: "The structural or replacement-value failure category" }),
-	message: S.String.annotateKey({ description: "The original navigation or replacement-value failure explanation" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 offset of the affected node, or zero for replacement values" }),
-	length: S.Finite.annotateKey({ description: "UTF-16 extent of the affected node, or zero for replacement values" }),
-}, $I.annote("ModifyFailure", { description: "Internal typed navigation failure converted into a public YamlModificationError with source diagnostics." })) {}
+	code: ModifyFailureCode.pipe($I.annoteKey("ModifyFailure.code", { description: "The structural or replacement-value failure category" })),
+	message: S.String.pipe($I.annoteKey("ModifyFailure.message", { description: "The original navigation or replacement-value failure explanation" })),
+	offset: S.Finite.pipe($I.annoteKey("ModifyFailure.offset", { description: "Zero-based UTF-16 offset of the affected node, or zero for replacement values" })),
+	length: S.Finite.pipe($I.annoteKey("ModifyFailure.length", { description: "UTF-16 extent of the affected node, or zero for replacement values" })),
+}, $I.annoteError<ModifyFailure>("ModifyFailure", { description: "Internal typed navigation failure converted into a public YamlModificationError with source diagnostics." })) {}
 
 const isModifyFailure = S.is(ModifyFailure);
 
@@ -256,13 +255,13 @@ const toStringifyInput = (options?: YamlStringifyOptions | YamlFormattingOptions
 			};
 
 /** Normalize a `format`-positional range and the options-bag fallback into one plain shape (or `undefined`). */
-function resolveRange(
-	positional: YamlRangeLike | undefined,
-	fromOptions: YamlRange | undefined,
-): { readonly offset: number; readonly length: number } | undefined {
+const resolveRange: {
+	(positional: YamlRangeLike | undefined, fromOptions: YamlRange | undefined): { readonly offset: number; readonly length: number } | undefined;
+	(fromOptions: YamlRange | undefined): (positional: YamlRangeLike | undefined) => { readonly offset: number; readonly length: number } | undefined;
+} = dual(2, (positional: YamlRangeLike | undefined, fromOptions: YamlRange | undefined): { readonly offset: number; readonly length: number } | undefined => {
 	const range = positional ?? fromOptions;
 	return range === undefined ? undefined : { offset: range.offset, length: range.length };
-}
+});
 
 /** Copy only the defined entries of `fields` — never emits an explicit `undefined` into a v4 `optionalKey` field. */
 function definedFields<T extends Record<string, unknown>>(fields: T): Partial<T> {
@@ -286,7 +285,10 @@ function definedFields<T extends Record<string, unknown>>(fields: T): Partial<T>
  * spans, impossible double→single escapes — keeps its node untouched, and
  * the surrounding diff keeps the edit surgical per scalar span.
  */
-function requoteNode(node: YamlNode, text: string, quote: '"' | "'"): YamlNode {
+const requoteNode: {
+	(node: YamlNode, text: string, quote: '"' | "'"): YamlNode;
+	(text: string, quote: '"' | "'"): (node: YamlNode) => YamlNode;
+} = dual(3, (node: YamlNode, text: string, quote: '"' | "'"): YamlNode => {
 	if (isYamlScalar(node)) {
 		if (requoteScalarText(text, node, quote, "escaping") === undefined) return node;
 		return YamlScalar.make({
@@ -306,38 +308,39 @@ function requoteNode(node: YamlNode, text: string, quote: '"' | "'"): YamlNode {
 	if (isYamlMap(node)) {
 		return rebuildMap(
 			node,
-			node.items.map((pair) =>
+			A.map(node.items, (pair) =>
 				YamlPair.make({
 					key: requoteNode(pair.key, text, quote),
 					value: pair.value === null ? null : requoteNode(pair.value, text, quote),
-				}),
-			),
+				})),
 		);
 	}
 	if (isYamlSeq(node)) {
 		return rebuildSeq(
 			node,
-			node.items.map((item) => requoteNode(item, text, quote)),
+			A.map(node.items, requoteNode(text, quote)),
 		);
 	}
 	return node;
-}
+});
 
 /** Apply the opt-in re-quoting pass to a composed document's contents. */
-function requoteDocument(
-	doc: RawYamlDocument,
-	text: string,
-	options: YamlFormattingOptions | undefined,
-): RawYamlDocument {
+const requoteDocument: {
+	(doc: RawYamlDocument, text: string, options: YamlFormattingOptions | undefined): RawYamlDocument;
+	(text: string, options: YamlFormattingOptions | undefined): (doc: RawYamlDocument) => RawYamlDocument;
+} = dual(3, (doc: RawYamlDocument, text: string, options: YamlFormattingOptions | undefined): RawYamlDocument => {
 	if (options?.requoteScalars !== true || doc.contents === null) return doc;
 	const quote = (options.quoteStyle ?? "single") === "double" ? '"' : "'";
 	return { ...doc, contents: requoteNode(doc.contents, text, quote) };
-}
+});
 
 // ── format ───────────────────────────────────────────────────────────────────
 
 /** Rebuild a composed document for re-emission, stripping comments when asked. */
-function toOutputDocument(doc: RawYamlDocument, preserveComments: boolean): RawYamlDocument {
+const toOutputDocument: {
+	(doc: RawYamlDocument, preserveComments: boolean): RawYamlDocument;
+	(preserveComments: boolean): (doc: RawYamlDocument) => RawYamlDocument;
+} = dual(2, (doc: RawYamlDocument, preserveComments: boolean): RawYamlDocument => {
 	const contents = !preserveComments && doc.contents !== null ? stripNodeComments(doc.contents) : doc.contents;
 	return {
 		contents,
@@ -349,7 +352,7 @@ function toOutputDocument(doc: RawYamlDocument, preserveComments: boolean): RawY
 		hasDocumentEnd: doc.hasDocumentEnd,
 		hasDocumentStartTab: doc.hasDocumentStartTab,
 	};
-}
+});
 
 /**
  * Format a document via the parse → stringify round-trip and diff the
@@ -369,11 +372,15 @@ function toOutputDocument(doc: RawYamlDocument, preserveComments: boolean): RawY
  * keeps the file's encoding signature the author's business, in line with
  * the fidelity contract that leaves untouched bytes alone.
  */
-function withSourceBom(text: string, formatted: string): string {
-	return text.startsWith("\uFEFF") ? `\uFEFF${formatted}` : formatted;
-}
+const withSourceBom: {
+	(text: string, formatted: string): string;
+	(formatted: string): (text: string) => string;
+} = dual(2, (text: string, formatted: string): string => text.startsWith("\uFEFF") ? `\uFEFF${formatted}` : formatted);
 
-function formatDocument(text: string, options: YamlFormattingOptions | undefined): string | undefined {
+const formatDocument: {
+	(text: string, options: YamlFormattingOptions | undefined): string | undefined;
+	(options: YamlFormattingOptions | undefined): (text: string) => string | undefined;
+} = dual(2, (text: string, options: YamlFormattingOptions | undefined): string | undefined => {
 	// ONE composition serves both paths: the stream path receives the same
 	// documents and stream errors rather than composing the text a second
 	// time (behavior-neutral — each document keeps its single-document
@@ -383,14 +390,14 @@ function formatDocument(text: string, options: YamlFormattingOptions | undefined
 	// Cross-document errors require multiple documents; the composer always
 	// supplies at least one document, including for empty input.
 	const doc = A.getUnsafe(documents, 0);
-	if (doc.errors.some((e) => isFatalCode(e.code))) return undefined;
+	if (A.some(doc.errors, (e) => isFatalCode(e.code))) return undefined;
 	if (doc.directives.length > 0) return undefined;
 
 	return stringifyDocument(
 		toOutputDocument(requoteDocument(doc, text, options), options?.preserveComments ?? true),
 		toStringifyInput(options),
 	);
-}
+});
 
 /**
  * Format a multi-document stream: every document is re-emitted in order with
@@ -413,15 +420,13 @@ function formatDocument(text: string, options: YamlFormattingOptions | undefined
  * line while keeping the dependent shorthand tags produced unparseable
  * output (probe-verified downstream against an independent oracle).
  */
-function formatStream(
-	text: string,
-	documents: ReadonlyArray<RawYamlDocument>,
-	streamErrors: ReadonlyArray<RawDiagnostic>,
-	options: YamlFormattingOptions | undefined,
-): string | undefined {
-	if (streamErrors.some((e) => isFatalCode(e.code))) return undefined;
-	if (documents.some((d) => d.errors.some((e) => isFatalCode(e.code)))) return undefined;
-	if (documents.some((d) => d.directives.length > 0)) return undefined;
+const formatStream: {
+	(text: string, documents: ReadonlyArray<RawYamlDocument>, streamErrors: ReadonlyArray<RawDiagnostic>, options: YamlFormattingOptions | undefined): string | undefined;
+	(documents: ReadonlyArray<RawYamlDocument>, streamErrors: ReadonlyArray<RawDiagnostic>, options: YamlFormattingOptions | undefined): (text: string) => string | undefined;
+} = dual(4, (text: string, documents: ReadonlyArray<RawYamlDocument>, streamErrors: ReadonlyArray<RawDiagnostic>, options: YamlFormattingOptions | undefined): string | undefined => {
+	if (A.some(streamErrors, (e) => isFatalCode(e.code))) return undefined;
+	if (A.some(documents, (d) => A.some(d.errors, (e) => isFatalCode(e.code)))) return undefined;
+	if (A.some(documents, (d) => d.directives.length > 0)) return undefined;
 
 	const preserveComments = options?.preserveComments ?? true;
 	const base = toStringifyInput(options);
@@ -435,8 +440,8 @@ function formatStream(
 		const docOptions = i < documents.length - 1 ? { ...base, finalNewline: true } : base;
 		parts.push(stringifyDocument(toOutputDocument(requoteDocument(doc, text, options), preserveComments), docOptions));
 	}
-	return parts.join("");
-}
+	return A.join(parts, "");
+});
 
 // ── modify: pure AST navigation ─────────────────────────────────────────────
 
@@ -461,7 +466,10 @@ function formatStream(
  * siblings (a shared, acyclic sub-object) is lowered twice rather than
  * rejected.
  */
-function jsValueToNode(value: unknown, ancestors: Array<object>, depth: number): YamlNode {
+const jsValueToNode: {
+	(value: unknown, ancestors: Array<object>, depth: number): YamlNode;
+	(ancestors: Array<object>, depth: number): (value: unknown) => YamlNode;
+} = dual(3, (value: unknown, ancestors: Array<object>, depth: number): YamlNode => {
 	if (depth > MAX_NESTING_DEPTH) {
 		throw ModifyFailure.make({
 			code: "NestingDepthExceeded",
@@ -483,19 +491,18 @@ function jsValueToNode(value: unknown, ancestors: Array<object>, depth: number):
 		try {
 			if (A.isArray(value)) {
 				return YamlSeq.make({
-					items: value.map((item) => jsValueToNode(item, ancestors, depth + 1)),
+					items: A.map(value, jsValueToNode(ancestors, depth + 1)),
 					style: "block",
 					offset: 0,
 					length: 0,
 				});
 			}
 			return YamlMap.make({
-				items: R.keys(value).map((key) =>
+				items: A.map(R.keys(value), (key) =>
 					YamlPair.make({
 						key: YamlScalar.make({ value: key, style: "plain", offset: 0, length: 0 }),
 						value: jsValueToNode(value[key], ancestors, depth + 1),
-					}),
-				),
+					})),
 				style: "block",
 				offset: 0,
 				length: 0,
@@ -505,14 +512,17 @@ function jsValueToNode(value: unknown, ancestors: Array<object>, depth: number):
 		}
 	}
 	return YamlScalar.make({ value, style: "plain", offset: 0, length: 0 });
-}
+});
 
 /** Entry point for {@link jsValueToNode}: one ancestor stack per lowering. */
 function lowerValue(value: unknown): YamlNode {
 	return jsValueToNode(value, [], 0);
 }
 
-function modifyDocument(doc: RawYamlDocument, path: YamlPath, value: unknown): YamlNode | null {
+const modifyDocument: {
+	(doc: RawYamlDocument, path: YamlPath, value: unknown): YamlNode | null;
+	(path: YamlPath, value: unknown): (doc: RawYamlDocument) => YamlNode | null;
+} = dual(3, (doc: RawYamlDocument, path: YamlPath, value: unknown): YamlNode | null => {
 	if (path.length === 0) {
 		return value === undefined ? null : lowerValue(value);
 	}
@@ -525,31 +535,34 @@ function modifyDocument(doc: RawYamlDocument, path: YamlPath, value: unknown): Y
 		});
 	}
 	return modifyNode(doc.contents, path, 0, value);
-}
+});
 
-function modifyNode(node: YamlNode, path: YamlPath, depth: number, value: unknown): YamlNode {
+const modifyNode: {
+	(node: YamlNode, path: YamlPath, depth: number, value: unknown): YamlNode;
+	(path: YamlPath, depth: number, value: unknown): (node: YamlNode) => YamlNode;
+} = dual(4, (node: YamlNode, path: YamlPath, depth: number, value: unknown): YamlNode => {
 	const segment = path[depth];
 	const isLast = depth === path.length - 1;
 
 	if (isYamlMap(node)) {
-		const pairIndex = node.items.findIndex((pair) => isYamlScalar(pair.key) && pair.key.value === segment);
+		const pairIndex = A.findFirstIndex(node.items, (pair) => isYamlScalar(pair.key) && pair.key.value === segment);
 
 		if (isLast) {
 			if (value === undefined) {
-				if (pairIndex < 0) return node; // Nothing to remove
+				if (O.isNone(pairIndex)) return node; // Nothing to remove
 				const newItems = [...node.items];
-				newItems.splice(pairIndex, 1);
+				newItems.splice(pairIndex.value, 1);
 				return rebuildMap(node, newItems);
 			}
 
 			const newValueNode = lowerValue(value);
-			if (pairIndex >= 0) {
+			if (O.isSome(pairIndex)) {
 				const newItems = [...node.items];
-				const oldPair = A.getUnsafe(newItems, pairIndex);
+				const oldPair = A.getUnsafe(newItems, pairIndex.value);
 				// Comments live on the key and value nodes, so the key carries its
 				// own through unchanged; the replacement value is a fresh node and
 				// deliberately starts with no comments of its own.
-				newItems[pairIndex] = YamlPair.make({ key: oldPair.key, value: newValueNode });
+				newItems[pairIndex.value] = YamlPair.make({ key: oldPair.key, value: newValueNode });
 				return rebuildMap(node, newItems);
 			}
 
@@ -560,7 +573,7 @@ function modifyNode(node: YamlNode, path: YamlPath, depth: number, value: unknow
 		}
 
 		// Navigate deeper.
-		if (pairIndex < 0) {
+		if (O.isNone(pairIndex)) {
 			throw ModifyFailure.make({
 				code: "PathNotFound",
 				message: `Key "${String(segment)}" not found in mapping`,
@@ -568,7 +581,7 @@ function modifyNode(node: YamlNode, path: YamlPath, depth: number, value: unknow
 				length: node.length,
 			});
 		}
-		const pair = A.getUnsafe(node.items, pairIndex);
+		const pair = A.getUnsafe(node.items, pairIndex.value);
 		if (pair.value === null) {
 			throw ModifyFailure.make({
 				code: "PathNotFound",
@@ -579,7 +592,7 @@ function modifyNode(node: YamlNode, path: YamlPath, depth: number, value: unknow
 		}
 		const newValue = modifyNode(pair.value, path, depth + 1, value);
 		const newItems = [...node.items];
-		newItems[pairIndex] = YamlPair.make({ key: pair.key, value: newValue });
+		newItems[pairIndex.value] = YamlPair.make({ key: pair.key, value: newValue });
 		return rebuildMap(node, newItems);
 	}
 
@@ -628,10 +641,12 @@ function modifyNode(node: YamlNode, path: YamlPath, depth: number, value: unknow
 		offset: node.offset,
 		length: node.length,
 	});
-}
+});
 
-function rebuildMap(node: YamlMap, items: ReadonlyArray<YamlPair>): YamlMap {
-	return YamlMap.make({
+const rebuildMap: {
+	(node: YamlMap, items: ReadonlyArray<YamlPair>): YamlMap;
+	(items: ReadonlyArray<YamlPair>): (node: YamlMap) => YamlMap;
+} = dual(2, (node: YamlMap, items: ReadonlyArray<YamlPair>): YamlMap => YamlMap.make({
 		items,
 		style: node.style,
 		...definedFields({
@@ -644,11 +659,12 @@ function rebuildMap(node: YamlMap, items: ReadonlyArray<YamlPair>): YamlMap {
 		}),
 		offset: node.offset,
 		length: node.length,
-	});
-}
+	}));
 
-function rebuildSeq(node: YamlSeq, items: ReadonlyArray<YamlNode>): YamlSeq {
-	return YamlSeq.make({
+const rebuildSeq: {
+	(node: YamlSeq, items: ReadonlyArray<YamlNode>): YamlSeq;
+	(items: ReadonlyArray<YamlNode>): (node: YamlSeq) => YamlSeq;
+} = dual(2, (node: YamlSeq, items: ReadonlyArray<YamlNode>): YamlSeq => YamlSeq.make({
 		items,
 		style: node.style,
 		...definedFields({
@@ -661,8 +677,7 @@ function rebuildSeq(node: YamlSeq, items: ReadonlyArray<YamlNode>): YamlSeq {
 		}),
 		offset: node.offset,
 		length: node.length,
-	});
-}
+	}));
 
 // ── modify: region-confined scalar replacement ───────────────────────
 
@@ -691,18 +706,19 @@ function isSingleQuoteUnsafe(s: string): boolean {
  * insert/append/remove semantics and the typed navigation errors — this
  * helper never throws and never guesses.
  */
-function findExistingTarget(
-	contents: YamlNode | null,
-	path: YamlPath,
-): { readonly node: YamlNode | null; readonly inFlow: boolean } | undefined {
+const findExistingTarget: {
+	(contents: YamlNode | null, path: YamlPath): { readonly node: YamlNode | null; readonly inFlow: boolean } | undefined;
+	(path: YamlPath): (contents: YamlNode | null) => { readonly node: YamlNode | null; readonly inFlow: boolean } | undefined;
+} = dual(2, (contents: YamlNode | null, path: YamlPath): { readonly node: YamlNode | null; readonly inFlow: boolean } | undefined => {
 	if (contents === null || path.length === 0) return undefined;
 	let current: YamlNode = contents;
 	for (let depth = 0; depth < path.length; depth++) {
 		const segment = path[depth];
 		const isLast = depth === path.length - 1;
 		if (isYamlMap(current)) {
-			const pair = current.items.find((p) => isYamlScalar(p.key) && p.key.value === segment);
-			if (pair === undefined) return undefined;
+			const found = A.findFirst(current.items, (p) => isYamlScalar(p.key) && p.key.value === segment);
+			if (O.isNone(found)) return undefined;
+			const pair = found.value;
 			if (isLast) return { node: pair.value, inFlow: current.style === "flow" };
 			if (pair.value === null) return undefined;
 			current = pair.value;
@@ -718,7 +734,7 @@ function findExistingTarget(
 		}
 	}
 	return undefined;
-}
+});
 
 /**
  * Render the replacement text for a region-confined splice, or `undefined`
@@ -733,12 +749,10 @@ function findExistingTarget(
  * rendering that spans lines (folding, block styles) bails out: the fast
  * path never introduces a line break inside the spliced region.
  */
-function renderRegionalScalarText(
-	target: YamlScalar,
-	value: string | number | boolean,
-	inFlow: boolean,
-	options?: YamlStringifyOptions,
-): string | undefined {
+const renderRegionalScalarText: {
+	(value: string | number | boolean, inFlow: boolean, options?: YamlStringifyOptions): (target: YamlScalar) => string | undefined;
+	(target: YamlScalar, value: string | number | boolean, inFlow: boolean, options?: YamlStringifyOptions): string | undefined;
+} = dual((args) => isYamlScalar(args[0]), (target: YamlScalar, value: string | number | boolean, inFlow: boolean, options?: YamlStringifyOptions): string | undefined => {
 	let rendered: string;
 	if (P.isString(value) && target.style === "single-quoted") {
 		if (isSingleQuoteUnsafe(value)) return undefined;
@@ -751,7 +765,7 @@ function renderRegionalScalarText(
 	}
 	if (/[\n\r]/.test(rendered)) return undefined;
 	return rendered;
-}
+});
 
 /**
  * Prove the rendered text means exactly what the caller asked: re-compose a
@@ -764,7 +778,10 @@ function renderRegionalScalarText(
  * checks those construction invariants; value drift (for example -0 rendered
  * as 0) still bails out to the whole-document pipeline.
  */
-function regionalRenderPreservesValue(rendered: string, value: string | number | boolean, inFlow: boolean): boolean {
+const regionalRenderPreservesValue: {
+	(rendered: string, value: string | number | boolean, inFlow: boolean): boolean;
+	(value: string | number | boolean, inFlow: boolean): (rendered: string) => boolean;
+} = dual(3, (rendered: string, value: string | number | boolean, inFlow: boolean): boolean => {
 	const probeText = inFlow ? `k: [${rendered}]\n` : `k: ${rendered}\n`;
 	const { document: probeDoc } = composeFirstDocumentCounted(probeText, {});
 	const contents = O.getOrThrow(S.decodeUnknownOption(YamlMap)(probeDoc.contents));
@@ -775,7 +792,7 @@ function regionalRenderPreservesValue(rendered: string, value: string | number |
 	const node = O.getOrThrow(S.decodeUnknownOption(YamlScalar)(valueNode));
 	return Equal.equals(node.value, value)
 		&& (node.value !== 0 || value !== 0 || 1 / node.value === 1 / value);
-}
+});
 
 /**
  * Attempt the region-confined scalar splice for `modify`: replace
@@ -786,13 +803,10 @@ function regionalRenderPreservesValue(rendered: string, value: string | number |
  * runs the existing compose → replace → re-stringify → diff pipeline
  * unchanged.
  */
-function tryRegionalScalarEdit(
-	text: string,
-	doc: RawYamlDocument,
-	path: YamlPath,
-	value: unknown,
-	options?: YamlStringifyOptions,
-): ReadonlyArray<{ offset: number; length: number; content: string }> | undefined {
+const tryRegionalScalarEdit: {
+	(doc: RawYamlDocument, path: YamlPath, value: unknown, options?: YamlStringifyOptions): (text: string) => ReadonlyArray<{ offset: number; length: number; content: string }> | undefined;
+	(text: string, doc: RawYamlDocument, path: YamlPath, value: unknown, options?: YamlStringifyOptions): ReadonlyArray<{ offset: number; length: number; content: string }> | undefined;
+} = dual((args) => P.isString(args[0]), (text: string, doc: RawYamlDocument, path: YamlPath, value: unknown, options?: YamlStringifyOptions): ReadonlyArray<{ offset: number; length: number; content: string }> | undefined => {
 	// `undefined` (removal), null, and object graphs keep the full pipeline:
 	// null renders as an empty scalar there (`a:` — the stringifier's own
 	// convention), and splicing an empty replacement would leave a trailing
@@ -833,7 +847,7 @@ function tryRegionalScalarEdit(
 	if (rendered === span) return []; // no-op replace: the span already says exactly this
 	if (!regionalRenderPreservesValue(rendered, value, inFlow)) return undefined;
 	return [{ offset: target.offset, length: target.length, content: rendered }];
-}
+});
 
 // ── Facade ──────────────────────────────────────────────────────────────────
 
@@ -955,7 +969,10 @@ export class YamlFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static format(text: string, range?: YamlRangeLike, options?: YamlFormattingOptions): ReadonlyArray<YamlEdit> {
+	static readonly format: {
+		(range?: YamlRangeLike, options?: YamlFormattingOptions): (text: string) => ReadonlyArray<YamlEdit>;
+		(text: string, range?: YamlRangeLike, options?: YamlFormattingOptions): ReadonlyArray<YamlEdit>;
+	} = dual((args) => P.isString(args[0]), (text: string, range?: YamlRangeLike, options?: YamlFormattingOptions): ReadonlyArray<YamlEdit> => {
 		const formatted = formatDocument(text, options);
 		if (formatted === undefined) return [];
 
@@ -965,11 +982,11 @@ export class YamlFormat {
 		if (effectiveRange !== undefined) {
 			const rangeStart = effectiveRange.offset;
 			const rangeEnd = effectiveRange.offset + effectiveRange.length;
-			edits = edits.filter((e) => e.offset >= rangeStart && e.offset + e.length <= rangeEnd);
+			edits = A.filter(edits, (e) => e.offset >= rangeStart && e.offset + e.length <= rangeEnd);
 		}
 
-		return edits.map((e) => YamlEdit.make(e));
-	}
+		return A.map(edits, (e) => YamlEdit.make(e));
+	});
 
 	/**
 	 * Format `text` and apply the resulting edits in one step
@@ -1000,9 +1017,10 @@ export class YamlFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static formatToString(text: string, range?: YamlRangeLike, options?: YamlFormattingOptions): string {
-		return YamlEdit.applyAll(text, YamlFormat.format(text, range, options));
-	}
+	static readonly formatToString: {
+		(range?: YamlRangeLike, options?: YamlFormattingOptions): (text: string) => string;
+		(text: string, range?: YamlRangeLike, options?: YamlFormattingOptions): string;
+	} = dual((args) => P.isString(args[0]), (text: string, range?: YamlRangeLike, options?: YamlFormattingOptions): string => YamlEdit.applyAll(text, YamlFormat.format(text, range, options)));
 
 	/**
 	 * Compute the edits that insert, replace, or remove a value at `path`.
@@ -1090,7 +1108,10 @@ export class YamlFormat {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly modify = Effect.fn("YamlFormat.modify")(function* (
+	static readonly modify: {
+		(path: YamlPath, value: unknown, options?: YamlStringifyOptions): (text: string) => Effect.Effect<Array<YamlEdit>, YamlModificationError>;
+		(text: string, path: YamlPath, value: unknown, options?: YamlStringifyOptions): Effect.Effect<Array<YamlEdit>, YamlModificationError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("YamlFormat.modify")(function* (
 		text: string,
 		path: YamlPath,
 		value: unknown,
@@ -1115,7 +1136,7 @@ export class YamlFormat {
 				],
 			});
 		}
-		const fatal = doc.errors.filter((e) => isFatalCode(e.code));
+		const fatal = A.filter(doc.errors, (e) => isFatalCode(e.code));
 		if (fatal.length > 0) {
 			return yield* YamlModificationError.make({
 				path: echoErrorPath(path),
@@ -1148,7 +1169,7 @@ export class YamlFormat {
 		// to the whole-document pipeline below, unchanged.
 		const regional = tryRegionalScalarEdit(text, doc, path, value, options);
 		if (regional !== undefined) {
-			return regional.map((e) => YamlEdit.make(e));
+			return A.map(regional, (e) => YamlEdit.make(e));
 		}
 
 		const newContents = yield* Effect.try({
@@ -1185,8 +1206,8 @@ export class YamlFormat {
 				});
 			},
 		});
-		return computeEdits(text, withSourceBom(text, formatted)).map((e) => YamlEdit.make(e));
-	});
+		return A.map(computeEdits(text, withSourceBom(text, formatted)), (e) => YamlEdit.make(e));
+	}));
 
 	/**
 	 * Modify `text` and apply the resulting edits in one step
@@ -1216,7 +1237,10 @@ export class YamlFormat {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly modifyToString = Effect.fn("YamlFormat.modifyToString")(function* (
+	static readonly modifyToString: {
+		(path: YamlPath, value: unknown, options?: YamlStringifyOptions): (text: string) => Effect.Effect<string, YamlModificationError>;
+		(text: string, path: YamlPath, value: unknown, options?: YamlStringifyOptions): Effect.Effect<string, YamlModificationError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("YamlFormat.modifyToString")(function* (
 		text: string,
 		path: YamlPath,
 		value: unknown,
@@ -1224,5 +1248,5 @@ export class YamlFormat {
 	) {
 		const edits = yield* YamlFormat.modify(text, path, value, options);
 		return YamlEdit.applyAll(text, edits);
-	});
+	}));
 }

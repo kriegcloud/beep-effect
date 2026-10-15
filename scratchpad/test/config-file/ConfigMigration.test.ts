@@ -3,6 +3,7 @@ import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -229,12 +230,12 @@ const metaAccess: VersionAccess<VersionAccessError> = {
 			? Effect.succeed(version)
 			: Effect.fail(VersionAccessError.make({ message: "meta.schemaVersion is missing or not a number" }));
 	},
-	set: (raw, version) => {
+	set: dual(2, (raw: unknown, version: number): Effect.Effect<unknown, VersionAccessError> => {
 		if (!P.isObject(raw)) return assert.fail("expected a migration document");
 		const meta = raw.meta;
 		if (!P.isObject(meta)) return assert.fail("expected version metadata");
 		return Effect.succeed({ ...raw, meta: { ...meta, schemaVersion: version } });
-	},
+	}),
 };
 
 describe("ConfigMigration.make with a custom versionAccess", () => {
@@ -259,10 +260,10 @@ describe("ConfigMigration.make with a custom versionAccess", () => {
 			const seenByUp: Array<unknown> = [];
 			const recordingAccess: VersionAccess<VersionAccessError> = {
 				get: metaAccess.get,
-				set: (raw, version) => {
+				set: dual(2, (raw: unknown, version: number): Effect.Effect<unknown, VersionAccessError> => {
 					setVersions.push(version);
 					return metaAccess.set(raw, version);
-				},
+				}),
 			};
 			const codec = ConfigMigration.make({
 				codec: JsonCodec,
@@ -335,7 +336,10 @@ describe("ConfigMigration.make with a custom versionAccess", () => {
 			const codec = ConfigMigration.make({
 				codec: JsonCodec,
 				migrations: [bump(2, "add-b", (r) => ({ ...r, b: 2 }))],
-				versionAccess: { get: metaAccess.get, set: () => Effect.fail(boom) },
+				versionAccess: {
+					get: metaAccess.get,
+					set: dual(2, (_raw: unknown, _version: number): Effect.Effect<unknown, Error> => Effect.fail(boom)),
+				},
 			});
 			const error = yield* codec.parse(`{"meta":{"schemaVersion":1}}`).pipe(Effect.asVoid, Effect.flip);
 			assert.instanceOf(error, ConfigMigrationError);
@@ -377,10 +381,10 @@ describe("ConfigMigration.make with a custom versionAccess", () => {
 				migrations: [bump(2, "add-b", (r) => r)],
 				versionAccess: {
 					get: metaAccess.get,
-					set: () =>
+					set: dual(2, (_raw: unknown, _version: number): Effect.Effect<unknown> =>
 						Effect.sync(() => {
 							throw new Error("bug in set");
-						}),
+						})),
 				},
 			});
 			const exit = yield* Effect.exit(codec.parse(`{"meta":{"schemaVersion":1}}`));

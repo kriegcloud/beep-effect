@@ -3,6 +3,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as S from "effect/Schema";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import type { ReactElement } from "react";
 import { inkModules } from "./internal/ink.ts";
 import { KeyTable } from "./KeyTable.ts";
@@ -28,8 +29,8 @@ const $I = $ScratchpadId.create("effected/cli/ui/Viewport");
 export class DuplicateViewportKeyError extends S.TaggedError<DuplicateViewportKeyError, { readonly brand: unique symbol }>(
 	$I`DuplicateViewportKeyError`,
 )("DuplicateViewportKeyError", {
-	message: S.String.annotate($I.annote("DuplicateViewportKeyError.message", { description: "The repeated item key and the unique-key invariant it violates." })),
-}, $I.annote("DuplicateViewportKeyError", { description: "A viewport contains more than one selectable item with the same key." })) {}
+	message: S.String.pipe($I.annoteKey("DuplicateViewportKeyError.message", { description: "The repeated item key and the unique-key invariant it violates." })),
+}, $I.annoteError<DuplicateViewportKeyError>("DuplicateViewportKeyError", { description: "A viewport contains more than one selectable item with the same key." })) {}
 
 /**
  * Where a viewport is: the selected item, the first item in view, how many items fit, and how many there are.
@@ -53,11 +54,11 @@ export class DuplicateViewportKeyError extends S.TaggedError<DuplicateViewportKe
  * @since 0.0.0
  */
 export const ViewportState = S.Struct({
-	cursor: S.Finite.annotateKey($I.annote("ViewportState.cursor", { description: "The selected item index." })),
-	offset: S.Finite.annotateKey($I.annote("ViewportState.offset", { description: "The first visible item index." })),
-	height: S.Finite.annotateKey($I.annote("ViewportState.height", { description: "The item capacity of the window." })),
-	count: S.Finite.annotateKey($I.annote("ViewportState.count", { description: "The total selectable item count." })),
-}).annotate($I.annote("ViewportState", { description: "The plain item-counting state of a scrolling viewport." }));
+	cursor: S.Finite.pipe($I.annoteKey("ViewportState.cursor", { description: "The selected item index." })),
+	offset: S.Finite.pipe($I.annoteKey("ViewportState.offset", { description: "The first visible item index." })),
+	height: S.Finite.pipe($I.annoteKey("ViewportState.height", { description: "The item capacity of the window." })),
+	count: S.Finite.pipe($I.annoteKey("ViewportState.count", { description: "The total selectable item count." })),
+}).pipe($I.annoteSchema("ViewportState", { description: "The plain item-counting state of a scrolling viewport." }));
 /**
  * Plain payload accepted by {@link ViewportState}; reducers retain this structural representation.
  *
@@ -68,12 +69,12 @@ export type ViewportState = typeof ViewportState.Type;
 
 const Header = S.Struct({
 	_tag: S.tag("Header"),
-	label: S.String.annotateKey($I.annote("Header.label", { description: "The section heading shown above its items." })),
-}).annotate($I.annote("Header", { description: "A non-selectable section heading in a viewport." }));
+	label: S.String.pipe($I.annoteKey("Header.label", { description: "The section heading shown above its items." })),
+}).pipe($I.annoteSchema("Header", { description: "A non-selectable section heading in a viewport." }));
 const Item = S.Struct({
 	_tag: S.tag("Item"),
-	key: S.String.annotateKey($I.annote("Item.key", { description: "The unique React key of a selectable item." })),
-}).annotate($I.annote("Item", { description: "A selectable viewport item identified by its key." }));
+	key: S.String.pipe($I.annoteKey("Item.key", { description: "The unique React key of a selectable item." })),
+}).pipe($I.annoteSchema("Item", { description: "A selectable viewport item identified by its key." }));
 /**
  * A row a viewport shows: a section header, or an item. Only items are selectable. An item's `key` is its React
  * key in the view, so keys must be unique within one list: `Viewport.View` dies on a repeat.
@@ -91,8 +92,7 @@ const Item = S.Struct({
  * @category schemas
  * @since 0.0.0
  */
-export const ViewportRow = S.Union([Header, Item]).pipe(S.toTaggedUnion("_tag"))
-	.annotate($I.annote("ViewportRow", { description: "A plain section header or selectable item in display order." }));
+export const ViewportRow = S.Union([Header, Item]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("ViewportRow", { description: "A plain section header or selectable item in display order." }));
 /**
  * Plain payload accepted by {@link ViewportRow}; reducers retain this structural representation.
  *
@@ -118,7 +118,7 @@ export type ViewportRow = typeof ViewportRow.Type;
  * @since 0.0.0
  */
 export const ViewportMove = LiteralKit(["up", "down", "home", "end", "pageup", "pagedown"])
-	.annotate($I.annote("ViewportMove", { description: "The six navigation moves understood by a viewport." }));
+	.pipe($I.annoteSchema("ViewportMove", { description: "The six navigation moves understood by a viewport." }));
 /**
  * Plain payload accepted by {@link ViewportMove}; reducers retain this structural representation.
  *
@@ -161,16 +161,22 @@ const assertUniqueItemKeys = (rows: ReadonlyArray<ViewportRow>): void => {
 	}
 };
 
-const clamp = (value: number, low: number, high: number): number => Math.min(Math.max(value, low), high);
+const clamp: {
+	(value: number, low: number, high: number): number;
+	(low: number, high: number): (value: number) => number;
+} = dual(3, (value: number, low: number, high: number): number => Math.min(Math.max(value, low), high));
 
 /** The offset that keeps `cursor` in view, moving as little as possible, never past the last full window. */
-const follow = (cursor: number, offset: number, height: number, count: number): number => {
+const follow: {
+	(cursor: number, offset: number, height: number, count: number): number;
+	(offset: number, height: number, count: number): (cursor: number) => number;
+} = dual(4, (cursor: number, offset: number, height: number, count: number): number => {
 	if (count === 0) return 0;
 	let next = offset;
 	if (cursor < next) next = cursor;
 	if (cursor >= next + height) next = cursor - height + 1;
 	return clamp(next, 0, Math.max(0, count - height));
-};
+});
 
 const init = (count: number, height: number, cursor = 0): ViewportState => {
 	const items = Math.max(0, Math.floor(count));
@@ -179,7 +185,10 @@ const init = (count: number, height: number, cursor = 0): ViewportState => {
 	return { cursor: selected, offset: follow(selected, 0, window, items), height: window, count: items };
 };
 
-const step = (state: ViewportState, move: ViewportMove): ViewportState => {
+const step: {
+	(state: ViewportState, move: ViewportMove): ViewportState;
+	(move: ViewportMove): (state: ViewportState) => ViewportState;
+} = dual(2, (state: ViewportState, move: ViewportMove): ViewportState => {
 	if (state.count === 0) return state;
 	const last = state.count - 1;
 	const target =
@@ -196,31 +205,48 @@ const step = (state: ViewportState, move: ViewportMove): ViewportState => {
 							: state.cursor + state.height;
 	const cursor = clamp(target, 0, last);
 	return { ...state, cursor, offset: follow(cursor, state.offset, state.height, state.count) };
-};
+});
 
-const resize = (state: ViewportState, height: number): ViewportState => {
+const resize: {
+	(state: ViewportState, height: number): ViewportState;
+	(height: number): (state: ViewportState) => ViewportState;
+} = dual(2, (state: ViewportState, height: number): ViewportState => {
 	const window = Math.max(1, Math.floor(height));
 	return { ...state, height: window, offset: follow(state.cursor, state.offset, window, state.count) };
-};
+});
 
 /**
  * The rows to draw, as indexes into `rows`, for a window of `budget` lines starting at item `start`: the section
  * header of the first item first (re-emitted when it has scrolled off), then rows in order until the budget is spent.
  */
-const linesFrom = (
+const linesFrom: {
+	(
+		rows: ReadonlyArray<ViewportRow>,
+		items: ReadonlyArray<number>,
+		headers: ReadonlyArray<number | undefined>,
+		start: number,
+		budget: number,
+	): Array<number>;
+	(
+		items: ReadonlyArray<number>,
+		headers: ReadonlyArray<number | undefined>,
+		start: number,
+		budget: number,
+	): (rows: ReadonlyArray<ViewportRow>) => Array<number>;
+} = dual(5, (
 	rows: ReadonlyArray<ViewportRow>,
 	items: ReadonlyArray<number>,
 	headers: ReadonlyArray<number | undefined>,
 	start: number,
 	budget: number,
-) => {
+): Array<number> => {
 	const first = items[start] ?? 0;
 	const lines: Array<number> = [];
 	const header = headers[start];
 	if (budget > 1 && header !== undefined) lines.push(header);
 	for (let index = first; index < rows.length && lines.length < budget; index++) lines.push(index);
 	return lines;
-};
+});
 
 /** What the view draws: the row indexes, the item the window starts at, and the selected row (or -1). */
 interface Slice {
@@ -235,7 +261,10 @@ interface Slice {
  * when it is below. So moving inside the window moves only the highlight, even when headers take lines the
  * item-counting reducer does not. The cursor is clamped into the items here, for both the slice and the highlight.
  */
-const slice = (
+const slice: {
+	(rows: ReadonlyArray<ViewportRow>, state: ViewportState, budget: number, previous: number | undefined): Slice;
+	(state: ViewportState, budget: number, previous: number | undefined): (rows: ReadonlyArray<ViewportRow>) => Slice;
+} = dual(4, (
 	rows: ReadonlyArray<ViewportRow>,
 	state: ViewportState,
 	budget: number,
@@ -271,7 +300,7 @@ const slice = (
 		lines = earlier;
 	}
 	return { lines, start, selected };
-};
+});
 
 /**
  * A scrolling list: a pure reducer over a window of items, its key table, and a view that draws the window.
@@ -330,7 +359,10 @@ export abstract class Viewport {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	static readonly step: (state: ViewportState, move: ViewportMove) => ViewportState = step;
+	static readonly step: {
+		(state: ViewportState, move: ViewportMove): ViewportState;
+		(move: ViewportMove): (state: ViewportState) => ViewportState;
+	} = step;
 
 	/**
 	 * Change the window height, keeping the cursor where it is and in view.
@@ -347,7 +379,10 @@ export abstract class Viewport {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	static readonly resize: (state: ViewportState, height: number) => ViewportState = resize;
+	static readonly resize: {
+		(state: ViewportState, height: number): ViewportState;
+		(height: number): (state: ViewportState) => ViewportState;
+	} = resize;
 
 	/**
 	 * The keys: ↑/↓ move, pgup/pgdn page, home top, end bottom.

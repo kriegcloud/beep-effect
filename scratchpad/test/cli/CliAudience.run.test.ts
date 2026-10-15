@@ -235,7 +235,9 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
 		it("a root without the shared audience flags is a compile error", () => {
 			const bare = Command.make("tool").pipe(Command.withSubcommands([Command.make("x", {}, () => Effect.void)]));
 			// The root must carry the four shared flags; assigning true here must fail to compile.
-			const acceptsBare: typeof bare extends Parameters<typeof CliAudience.runWith>[0] ? true : false = false;
+			// The data-first overload's parameters: `runWith` is dual, so plain `Parameters` would read the data-last one.
+			type DataFirstParameters<F> = F extends { (...args: infer A): unknown; (...args: infer _B): unknown } ? A : never;
+			const acceptsBare: typeof bare extends DataFirstParameters<typeof CliAudience.runWith>[0] ? true : false = false;
 			assert.isFalse(acceptsBare);
 		});
 	});

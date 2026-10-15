@@ -27,11 +27,8 @@ const MaxDepth = S.Finite.check(
 	S.makeFilter(Number.isInteger, $I.annote("IntegerDepth", {
 		description: "An integer depth bound, with the same accepted range as Number.isInteger.",
 	})),
-	S.isGreaterThanOrEqualTo(1, $I.annote("MinimumDepth", {
-		title: "Minimum workspace traversal depth",
-		description: "A workspace traversal depth bound greater than or equal to one.",
-	})),
-).annotate($I.annote("MaxDepth", { description: "A positive integer workspace traversal depth bound." }));
+	S.isGreaterThanOrEqualTo(1, $I.annote("MinimumDepth", { message: "Minimum workspace traversal depth", description: "A workspace traversal depth bound greater than or equal to one." })),
+).pipe($I.annoteSchema("MaxDepth", { description: "A positive integer workspace traversal depth bound." }));
 
 /**
  * A directory queued for reading: its root-relative POSIX path, its absolute path, and its depth below the base.
@@ -49,10 +46,10 @@ const MaxDepth = S.Finite.check(
  * @since 0.0.0
  */
 export const TraversalFrame = S.Struct({
-	relative: S.String.annotateKey($I.annote("TraversalFrame.relative", { description: "The root-relative POSIX directory path." })),
-	absolute: S.String.annotateKey($I.annote("TraversalFrame.absolute", { description: "The absolute directory path passed to IO." })),
-	depth: S.declare(P.isNumber).annotateKey($I.annote("TraversalFrame.depth", { description: "The directory depth below the traversal base." })),
-}).annotate($I.annote("TraversalFrame", { description: "A plain directory frame queued by workspace traversal." }));
+	relative: S.String.pipe($I.annoteKey("TraversalFrame.relative", { description: "The root-relative POSIX directory path." })),
+	absolute: S.String.pipe($I.annoteKey("TraversalFrame.absolute", { description: "The absolute directory path passed to IO." })),
+	depth: S.declare(P.isNumber).pipe($I.annoteKey("TraversalFrame.depth", { description: "The directory depth below the traversal base." })),
+}).pipe($I.annoteSchema("TraversalFrame", { description: "A plain directory frame queued by workspace traversal." }));
 /**
  * The readonly directory frame described by {@link TraversalFrame}.
  *
@@ -82,14 +79,14 @@ export type TraversalFrame = typeof TraversalFrame.Type;
  */
 export const TraversalStop = S.Union([
 	S.Struct({
-		kind: S.Literal("depthExceeded").annotateKey($I.annote("TraversalStop.depthExceeded", { description: "The traversal exhausted its depth bound." })),
-		detail: S.String.annotateKey($I.annote("TraversalStop.depthDetail", { description: "The caller-visible depth-limit diagnostic." })),
-	}).annotate($I.annote("DepthStop", { description: "A traversal stopped at its depth bound." })),
+		kind: S.Literal("depthExceeded").pipe($I.annoteKey("TraversalStop.depthExceeded", { description: "The traversal exhausted its depth bound." })),
+		detail: S.String.pipe($I.annoteKey("TraversalStop.depthDetail", { description: "The caller-visible depth-limit diagnostic." })),
+	}).pipe($I.annoteSchema("DepthStop", { description: "A traversal stopped at its depth bound." })),
 	S.Struct({
-		kind: S.Literal("budgetExceeded").annotateKey($I.annote("TraversalStop.budgetExceeded", { description: "The traversal exhausted its directory-read budget." })),
-		detail: S.String.annotateKey($I.annote("TraversalStop.budgetDetail", { description: "The caller-visible visit-budget diagnostic." })),
-	}).annotate($I.annote("BudgetStop", { description: "A traversal stopped at its directory-read budget." })),
-]).pipe(S.toTaggedUnion("kind")).annotate($I.annote("TraversalStop", { description: "The existing plain-record reasons a workspace traversal stops early." }));
+		kind: S.Literal("budgetExceeded").pipe($I.annoteKey("TraversalStop.budgetExceeded", { description: "The traversal exhausted its directory-read budget." })),
+		detail: S.String.pipe($I.annoteKey("TraversalStop.budgetDetail", { description: "The caller-visible visit-budget diagnostic." })),
+	}).pipe($I.annoteSchema("BudgetStop", { description: "A traversal stopped at its directory-read budget." })),
+]).pipe(S.toTaggedUnion("kind"), $I.annoteSchema("TraversalStop", { description: "The existing plain-record reasons a workspace traversal stops early." }));
 /**
  * The readonly bound failure described by {@link TraversalStop}.
  *

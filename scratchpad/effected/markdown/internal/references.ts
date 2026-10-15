@@ -384,13 +384,13 @@ export const normalizeReference = (rawLabel: string): string =>
  * @since 0.0.0
  */
 export const ParsedReference = S.Struct({
-	key: S.String.annotateKey({ description: "Case-folded lookup key obtained by normalizing the raw label." }),
-	identifier: S.String.annotateKey({ description: "Normalized label in lowercase for mdast's identifier." }),
-	label: S.String.annotateKey({ description: "Raw label text with its enclosing brackets stripped." }),
-	url: S.String.annotateKey({ description: "Decoded link destination before renderer URI encoding." }),
-	title: S.optionalKey(S.String).annotateKey({ description: "Decoded link title, omitted when the definition carries none." }),
-	length: S.Finite.annotateKey({ description: "Number of UTF-16 code units consumed from the definition source." }),
-}).annotate($I.annote("ParsedReference", {
+	key: S.String.pipe($I.annoteKey("ParsedReference.key", { description: "Case-folded lookup key obtained by normalizing the raw label." })),
+	identifier: S.String.pipe($I.annoteKey("ParsedReference.identifier", { description: "Normalized label in lowercase for mdast's identifier." })),
+	label: S.String.pipe($I.annoteKey("ParsedReference.label", { description: "Raw label text with its enclosing brackets stripped." })),
+	url: S.String.pipe($I.annoteKey("ParsedReference.url", { description: "Decoded link destination before renderer URI encoding." })),
+	title: S.optionalKey(S.String).pipe($I.annoteKey("ParsedReference.title", { description: "Decoded link title, omitted when the definition carries none." })),
+	length: S.Finite.pipe($I.annoteKey("ParsedReference.length", { description: "Number of UTF-16 code units consumed from the definition source." })),
+}).pipe($I.annoteSchema("ParsedReference", {
 	description: "A parsed link reference definition before its placement in the markdown tree.",
 }));
 

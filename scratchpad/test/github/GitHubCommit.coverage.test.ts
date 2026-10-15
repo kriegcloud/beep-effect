@@ -1,7 +1,9 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as Str from "effect/String";
 import { CommitComparison, CommitSummary, GitHubCommit } from "../../effected/github/GitHubCommit.ts";
@@ -87,7 +89,8 @@ describe("GitHubCommit coverage", () => {
 
   it.layer(Layer.merge(GitHubCommit.layerTest({
     get: () => Effect.succeed(summary), list: () => Effect.succeed([summary]),
-    compare: () => Effect.succeed(comparison), changedFiles: () => Effect.succeed([]),
+    compare: dual(2, (_base: string, _head: string) => Effect.succeed(comparison)),
+    changedFiles: dual((args) => P.isString(args[0]), (_ref: string, _options?: object) => Effect.succeed([])),
   }), Repo.layer(RepoRef.make({ owner: "o", repo: "r" }))), { timeout: "30 seconds" })((it) => {
   it.effect("test layer preserves every override", () => Effect.gen(function* () {
     const commits = yield* GitHubCommit;

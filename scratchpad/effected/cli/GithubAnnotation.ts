@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as S from "effect/Schema";
+import { dual } from "effect/Function";
 import { WorkflowCommand } from "../github-commands/index.ts";
 
 const $I = $ScratchpadId.create("effected/cli/GithubAnnotation");
@@ -20,9 +21,7 @@ const $I = $ScratchpadId.create("effected/cli/GithubAnnotation");
  * @category schemas
  * @since 0.0.0
  */
-export const AnnotationLevel = LiteralKit(["error", "warning", "notice"]).annotate(
-	$I.annote("AnnotationLevel", { description: "The severity of a GitHub annotation." }),
-);
+export const AnnotationLevel = LiteralKit(["error", "warning", "notice"]).pipe($I.annoteSchema("AnnotationLevel", { description: "The severity of a GitHub annotation." }));
 /**
  * A severity accepted by GitHub Actions annotations.
  *
@@ -49,34 +48,20 @@ export type AnnotationLevel = typeof AnnotationLevel.Type;
  */
 export const GithubAnnotationProperties = S.Struct({
 	/** `error`, `warning` or `notice`. */
-	level: AnnotationLevel.annotate(
-		$I.annote("GithubAnnotationProperties.level", { description: "The level field of a GitHub annotation." }),
-	),
+	level: AnnotationLevel.pipe($I.annoteKey("GithubAnnotationProperties.level", { description: "The level field of a GitHub annotation." })),
 	/** The repository-relative path of the annotated file. */
-	file: S.optionalKey(S.String).annotate(
-		$I.annote("GithubAnnotationProperties.file", { description: "The file field of a GitHub annotation." }),
-	),
+	file: S.optionalKey(S.String).pipe($I.annoteKey("GithubAnnotationProperties.file", { description: "The file field of a GitHub annotation." })),
 	/** The first annotated line, 1-based. */
-	line: S.optionalKey(S.Finite).annotate(
-		$I.annote("GithubAnnotationProperties.line", { description: "The line field of a GitHub annotation." }),
-	),
+	line: S.optionalKey(S.Finite).pipe($I.annoteKey("GithubAnnotationProperties.line", { description: "The line field of a GitHub annotation." })),
 	/** The first annotated column, 1-based. */
-	col: S.optionalKey(S.Finite).annotate(
-		$I.annote("GithubAnnotationProperties.col", { description: "The col field of a GitHub annotation." }),
-	),
+	col: S.optionalKey(S.Finite).pipe($I.annoteKey("GithubAnnotationProperties.col", { description: "The col field of a GitHub annotation." })),
 	/** The last annotated line. */
-	endLine: S.optionalKey(S.Finite).annotate(
-		$I.annote("GithubAnnotationProperties.endLine", { description: "The endLine field of a GitHub annotation." }),
-	),
+	endLine: S.optionalKey(S.Finite).pipe($I.annoteKey("GithubAnnotationProperties.endLine", { description: "The endLine field of a GitHub annotation." })),
 	/** The last annotated column. */
-	endColumn: S.optionalKey(S.Finite).annotate(
-		$I.annote("GithubAnnotationProperties.endColumn", { description: "The endColumn field of a GitHub annotation." }),
-	),
+	endColumn: S.optionalKey(S.Finite).pipe($I.annoteKey("GithubAnnotationProperties.endColumn", { description: "The endColumn field of a GitHub annotation." })),
 	/** A short title shown above the annotation. */
-	title: S.optionalKey(S.String).annotate(
-		$I.annote("GithubAnnotationProperties.title", { description: "The title field of a GitHub annotation." }),
-	),
-}).annotate($I.annote("GithubAnnotationProperties", { description: "A GitHub annotation level and optional source position and title." }));
+	title: S.optionalKey(S.String).pipe($I.annoteKey("GithubAnnotationProperties.title", { description: "The title field of a GitHub annotation." })),
+}).pipe($I.annoteSchema("GithubAnnotationProperties", { description: "A GitHub annotation level and optional source position and title." }));
 /**
  * The plain metadata of a GitHub Actions annotation.
  *
@@ -130,7 +115,10 @@ export abstract class GithubAnnotation {
 	 * @since 0.0.0
 	 */
 	// One escaping: this renders through `WorkflowCommand`, not a copy of it.
-	static readonly format = (annotation: GithubAnnotationProperties, message: string): string => WorkflowCommand.render(
+	static readonly format: {
+		(annotation: GithubAnnotationProperties, message: string): string;
+		(message: string): (annotation: GithubAnnotationProperties) => string;
+	} = dual(2, (annotation: GithubAnnotationProperties, message: string): string => WorkflowCommand.render(
 			annotation.level,
 			{
 				title: annotation.title,
@@ -141,5 +129,5 @@ export abstract class GithubAnnotation {
 				endColumn: annotation.endColumn,
 			},
 			message,
-		);
+		));
 }

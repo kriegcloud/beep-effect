@@ -69,7 +69,7 @@ const EnumFamily = LiteralKit([
 	"watchFile",
 	"watchDirectory",
 	"fallbackPolling",
-]).annotate($I.annote("EnumFamily", { description: "The compiler and watcher enum families supported by the numeric codec." }));
+]).pipe($I.annoteSchema("EnumFamily", { description: "The compiler and watcher enum families supported by the numeric codec." }));
 
 /**
  * The supported compiler-option and watcher enum-family names.
@@ -325,17 +325,16 @@ export type ProgrammaticCompilerOptionsValue =
  */
 export const ProgrammaticCompilerOptions = S.StructWithRest(
 	S.Struct({
-		target: S.optionalKey(S.Finite).annotateKey({ description: "The numeric TypeScript target enum value." }),
-		module: S.optionalKey(S.Finite).annotateKey({ description: "The numeric TypeScript module enum value." }),
-		moduleResolution: S.optionalKey(S.Finite).annotateKey({ description: "The numeric TypeScript moduleResolution enum value." }),
-		jsx: S.optionalKey(S.Finite).annotateKey({ description: "The numeric TypeScript jsx enum value." }),
-		newLine: S.optionalKey(S.Finite).annotateKey({ description: "The numeric TypeScript newLine enum value." }),
-		moduleDetection: S.optionalKey(S.Finite).annotateKey({ description: "The numeric TypeScript moduleDetection enum value." }),
-		lib: S.String.pipe(S.Array, S.mutable, S.optionalKey).annotateKey({ description: "The standard library file names included in compilation." }),
+		target: S.optionalKey(S.Finite).pipe($I.annoteKey("ProgrammaticCompilerOptions.target", { description: "The numeric TypeScript target enum value." })),
+		module: S.optionalKey(S.Finite).pipe($I.annoteKey("ProgrammaticCompilerOptions.module", { description: "The numeric TypeScript module enum value." })),
+		moduleResolution: S.optionalKey(S.Finite).pipe($I.annoteKey("ProgrammaticCompilerOptions.moduleResolution", { description: "The numeric TypeScript moduleResolution enum value." })),
+		jsx: S.optionalKey(S.Finite).pipe($I.annoteKey("ProgrammaticCompilerOptions.jsx", { description: "The numeric TypeScript jsx enum value." })),
+		newLine: S.optionalKey(S.Finite).pipe($I.annoteKey("ProgrammaticCompilerOptions.newLine", { description: "The numeric TypeScript newLine enum value." })),
+		moduleDetection: S.optionalKey(S.Finite).pipe($I.annoteKey("ProgrammaticCompilerOptions.moduleDetection", { description: "The numeric TypeScript moduleDetection enum value." })),
+		lib: S.String.pipe(S.Array, S.mutable, S.optionalKey, $I.annoteKey("ProgrammaticCompilerOptions.lib", { description: "The standard library file names included in compilation." })),
 	}),
 	[S.Record(S.String, S.Unknown)],
-).annotate($I.annote("ProgrammaticCompilerOptions", {
-	title: "Programmatic Compiler Options",
+).pipe($I.annoteSchema("ProgrammaticCompilerOptions", {
 	description: "Numeric compiler option enums and library file names with unknown options preserved.",
 }));
 
@@ -362,7 +361,7 @@ const encodeCompilerOptions = (options: CompilerOptions.Type): ProgrammaticCompi
 
 	const lib = source.lib;
 	if (A.isArray(lib)) {
-		result.lib = lib.map((entry) => (P.isString(entry) ? `lib.${normalizeLibReference(entry)}.d.ts` : entry));
+		result.lib = A.map(lib, (entry) => (P.isString(entry) ? `lib.${normalizeLibReference(entry)}.d.ts` : entry));
 	}
 
 	return result;
@@ -382,7 +381,7 @@ const decodeCompilerOptions = (numeric: Readonly<Record<string, unknown>>): Reco
 
 	const lib = numeric.lib;
 	if (A.isArray(lib)) {
-		result.lib = lib.map((entry) => (P.isString(entry) ? normalizeLibReference(entry) : entry));
+		result.lib = A.map(lib, (entry) => (P.isString(entry) ? normalizeLibReference(entry) : entry));
 	}
 
 	return result;

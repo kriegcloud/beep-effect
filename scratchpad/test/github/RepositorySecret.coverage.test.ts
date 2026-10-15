@@ -1,10 +1,13 @@
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Base64 from "effect/encoding/Base64";
 import { Repo } from "../../effected/github/Repo.ts";
 import { RepositorySecret } from "../../effected/github/RepositorySecret.ts";
+import type { SecretScope } from "../../effected/github/RepositorySecret.ts";
 import { harness, REPO } from "./harness.ts";
 
 const value = Redacted.make("secret-value");
@@ -26,12 +29,15 @@ describe("RepositorySecret test doubles", () => {
   });
   const calls: Array<ReadonlyArray<unknown>> = [];
   it.layer(Layer.mergeAll(RepositorySecret.layerTest({
-    set: (name, secret, scope) => Effect.sync(() => { calls.push(["set", name, secret, scope]); }),
+    set: dual((args) => P.isString(args[0]), (name: string, secret: Redacted.Redacted<string>, scope?: SecretScope) =>
+      Effect.sync(() => { calls.push(["set", name, secret, scope]); })),
     list: (scope) => Effect.sync(() => { calls.push(["list", scope]); return [{ name: "TOKEN" }]; }),
     delete: (name, scope) => Effect.sync(() => { calls.push(["delete", name, scope]); }),
-    setForEnvironment: (environment, name, secret) => Effect.sync(() => { calls.push(["setForEnvironment", environment, name, secret]); }),
+    setForEnvironment: dual(3, (environment: string, name: string, secret: Redacted.Redacted<string>) =>
+      Effect.sync(() => { calls.push(["setForEnvironment", environment, name, secret]); })),
     listForEnvironment: (environment) => Effect.sync(() => { calls.push(["listForEnvironment", environment]); return [{ name: "ENV_TOKEN" }]; }),
-    deleteForEnvironment: (environment, name) => Effect.sync(() => { calls.push(["deleteForEnvironment", environment, name]); }),
+    deleteForEnvironment: dual(2, (environment: string, name: string) =>
+      Effect.sync(() => { calls.push(["deleteForEnvironment", environment, name]); })),
   }), Repo.layer(REPO)), { timeout: "30 seconds" })((it) => {
     it.effect("all overrides receive the original arguments and return their results", () => Effect.gen(function* () {
       const service = yield* RepositorySecret;

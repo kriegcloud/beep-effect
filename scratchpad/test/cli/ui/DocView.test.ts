@@ -13,6 +13,7 @@ import { CliUiTest } from "../../../effected/cli/ui-testing.ts";
 import { Audience, CurrentRuntimeEnv } from "../../../effected/env/index.ts";
 import type { Ev, State } from "../helpers/live.ts";
 import { End, Start, liveOn, optionsOf, reduce, tick } from "../helpers/live.ts";
+import { labelLink } from "../helpers/renderContext.ts";
 import { commandLines } from "../helpers/runnerCommands.ts";
 
 const ESC = String.fromCharCode(0x1b);
@@ -61,7 +62,7 @@ const contextFrom = (theme: StreamTheme, width: number): RenderContext => ({
 	color: theme.color,
 	paint: theme.paint,
 	glyphs: theme.glyphs,
-	link: (_target, label) => label,
+	link: labelLink,
 	displayPath: (absolute) => absolute,
 });
 

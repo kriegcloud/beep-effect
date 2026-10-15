@@ -40,10 +40,10 @@ const $I = $ScratchpadId.create("effected/semver/Range");
  */
 export class InvalidRangeError extends S.TaggedError<InvalidRangeError, { readonly brand: unique symbol }>($I`InvalidRangeError`)("InvalidRangeError", {
 	/** The raw input string that failed to parse. */
-	input: S.String.annotateKey({ description: "The raw input string that failed to parse." }),
+	input: S.String.pipe($I.annoteKey("InvalidRangeError.input", { description: "The raw input string that failed to parse." })),
 	/** The character position where parsing failed, if available. */
-	position: S.optionalKey(S.Finite).annotateKey({ description: "The character position where parsing failed, if available." }),
-}, $I.annote("InvalidRangeError", { description: "Indicates that a string could not be parsed as a range expression." })) {
+	position: S.optionalKey(S.Finite).pipe($I.annoteKey("InvalidRangeError.position", { description: "The character position where parsing failed, if available." })),
+}, $I.annoteError<InvalidRangeError>("InvalidRangeError", { description: "Indicates that a string could not be parsed as a range expression." })) {
 	/**
 	 * Builds a readable failure message from the structured error fields.
 	 *
@@ -110,7 +110,7 @@ export type ComparatorSet = ReadonlyArray<Comparator>;
  */
 export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`Range`)({
 	/** Comparator sets combined with OR semantics; a version matches when it satisfies any set. */
-	sets: Comparator.pipe(S.Array, S.Array).annotateKey({ description: "Comparator sets combined with OR semantics; a version matches when it satisfies any set." }),
+	sets: Comparator.pipe(S.Array, S.Array, $I.annoteKey("Range.sets", { description: "Comparator sets combined with OR semantics; a version matches when it satisfies any set." })),
 }, $I.annote("Range", { description: "A SemVer range expression: a union (OR) of ComparatorSets. Supports node-semver syntax — hyphen ranges (`1.0.0 - 2.0.0`), X-ranges (`1.x`, `*`), tilde (`~1.2.3`), caret (`^1.2.3`) and `||` unions — which parsing desugars into primitive comparators and normalizes." })) {
 	// ── Schema ──────────────────────────────────────────────────────────
 
@@ -508,7 +508,7 @@ export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`
 		(sub: Range, sup: Range): boolean;
 	} = Fn.dual(2, (sub: Range, sup: Range): boolean => {
 		for (const subSet of sub.sets) {
-			const contained = sup.sets.some((supSet) => isComparatorSetSubset(subSet, supSet));
+			const contained = A.some(sup.sets, (supSet) => isComparatorSetSubset(subSet, supSet));
 			if (!contained) return false;
 		}
 		return true;
@@ -557,8 +557,8 @@ export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`
 	 * @since 0.0.0
 	 */
 	static simplify(range: Range): Range {
-		const sets = range.sets.filter((set, i) =>
-			!range.sets.some((other, j) => i !== j && isComparatorSetSubset(set, other) && (j < i || !isComparatorSetSubset(other, set))),
+		const sets = A.filter(range.sets, (set, i) =>
+			!A.some(range.sets, (other, j) => i !== j && isComparatorSetSubset(set, other) && (j < i || !isComparatorSetSubset(other, set))),
 		);
 
 		if (sets.length === 0) return range;
@@ -592,7 +592,7 @@ export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`
 	 * @since 0.0.0
 	 */
 	test(version: SemVer): boolean {
-		return this.sets.some((set) => satisfiesSet(version, set));
+		return A.some(this.sets, (set) => satisfiesSet(version, set));
 	}
 
 	/**
@@ -614,7 +614,7 @@ export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`
 	 * @since 0.0.0
 	 */
 	filter(versions: ReadonlyArray<SemVer>): ReadonlyArray<SemVer> {
-		return versions.filter((v) => this.test(v));
+		return A.filter(versions, (v) => this.test(v));
 	}
 
 	/**
@@ -687,8 +687,8 @@ export class UnsatisfiableConstraintError extends S.TaggedError<UnsatisfiableCon
 	"UnsatisfiableConstraintError",
 	{
 		/** The ranges whose intersection is empty. */
-		constraints: S.Array(Range).annotateKey({ description: "The ranges whose intersection is empty." }),
-	}, $I.annote("UnsatisfiableConstraintError", { description: "Indicates that intersecting ranges produced no satisfiable comparator set." }),
+		constraints: S.Array(Range).pipe($I.annoteKey("UnsatisfiableConstraintError.constraints", { description: "The ranges whose intersection is empty." })),
+	}, $I.annoteError<UnsatisfiableConstraintError>("UnsatisfiableConstraintError", { description: "Indicates that intersecting ranges produced no satisfiable comparator set." }),
 ) {
 	/**
 	 * Builds a readable failure message from the structured error fields.
@@ -723,11 +723,15 @@ export class UnsatisfiableConstraintError extends S.TaggedError<UnsatisfiableCon
 // Prerelease tuple restriction (node-semver semantics): a prerelease version
 // only matches a set when some comparator in the set carries a prerelease on
 // the same major.minor.patch tuple.
-const satisfiesSet = (version: SemVer, set: ComparatorSet): boolean => {
+const satisfiesSet: {
+	(version: SemVer, set: ComparatorSet): boolean;
+	(set: ComparatorSet): (version: SemVer) => boolean;
+} = Fn.dual(2, (version: SemVer, set: ComparatorSet): boolean => {
 	if (set.length === 0) return true;
 
 	if (version.prerelease.length > 0) {
-		const hasTupleMatch = set.some(
+		const hasTupleMatch = A.some(
+			set,
 			(c) =>
 				c.version.prerelease.length > 0 &&
 				c.version.major === version.major &&
@@ -737,17 +741,23 @@ const satisfiesSet = (version: SemVer, set: ComparatorSet): boolean => {
 		if (!hasTupleMatch) return false;
 	}
 
-	return set.every((c) => c.test(version));
-};
+	return A.every(set, (c) => c.test(version));
+});
 
 // ── Algebra internals ────────────────────────────────────────────────────
 
 // All tuple checks ignore build metadata and prerelease identifiers.
-const sameTuple = (a: SemVer, b: SemVer): boolean =>
-	a.major === b.major && a.minor === b.minor && a.patch === b.patch;
+const sameTuple: {
+	(a: SemVer, b: SemVer): boolean;
+	(b: SemVer): (a: SemVer) => boolean;
+} = Fn.dual(2, (a: SemVer, b: SemVer): boolean =>
+	a.major === b.major && a.minor === b.minor && a.patch === b.patch);
 
-const admitsTuple = (set: ComparatorSet, tuple: SemVer): boolean =>
-	A.some(set, (c) => c.version.isPrerelease && sameTuple(c.version, tuple));
+const admitsTuple: {
+	(set: ComparatorSet, tuple: SemVer): boolean;
+	(tuple: SemVer): (set: ComparatorSet) => boolean;
+} = Fn.dual(2, (set: ComparatorSet, tuple: SemVer): boolean =>
+	A.some(set, (c) => c.version.isPrerelease && sameTuple(c.version, tuple)));
 
 const prereleaseTuples = (set: ComparatorSet): Array<SemVer> =>
 	A.dedupeWith(A.map(A.filter(set, (c) => c.version.isPrerelease), (c) => c.version), sameTuple);
@@ -774,7 +784,10 @@ const stableWitness = (set: ComparatorSet): O.Option<SemVer> => {
 
 // Appending numeric zero is the least prerelease strictly above a given
 // prerelease (unlike incrementing its final identifier, it skips no version).
-const prereleaseWitness = (set: ComparatorSet, tuple: SemVer): O.Option<SemVer> => {
+const prereleaseWitness: {
+	(set: ComparatorSet, tuple: SemVer): O.Option<SemVer>;
+	(tuple: SemVer): (set: ComparatorSet) => O.Option<SemVer>;
+} = Fn.dual(2, (set: ComparatorSet, tuple: SemVer): O.Option<SemVer> => {
 	let candidate = SemVer.of(tuple.major, tuple.minor, tuple.patch, [0]);
 	for (const c of set) {
 		if ((c.operator !== ">" && c.operator !== ">=" && c.operator !== "=") || !sameTuple(c.version, tuple)) continue;
@@ -785,7 +798,7 @@ const prereleaseWitness = (set: ComparatorSet, tuple: SemVer): O.Option<SemVer> 
 		if (lower.gt(candidate)) candidate = lower;
 	}
 	return satisfiesSet(candidate, set) ? O.some(candidate) : O.none();
-};
+});
 
 const isSetSatisfiable = (set: ComparatorSet): boolean => {
 	const equality = A.findFirst(set, (c) => c.operator === "=");
@@ -812,7 +825,10 @@ const stableSet = (set: ComparatorSet): O.Option<ComparatorSet> => {
 	return O.some(projected);
 };
 
-const intersectSets = (a: ComparatorSet, b: ComparatorSet): ReadonlyArray<ComparatorSet> => {
+const intersectSets: {
+	(a: ComparatorSet, b: ComparatorSet): ReadonlyArray<ComparatorSet>;
+	(b: ComparatorSet): (a: ComparatorSet) => ReadonlyArray<ComparatorSet>;
+} = Fn.dual(2, (a: ComparatorSet, b: ComparatorSet): ReadonlyArray<ComparatorSet> => {
 	if (a.length === 0) return [b];
 	if (b.length === 0) return [a];
 	const merged = [...a, ...b];
@@ -829,9 +845,12 @@ const intersectSets = (a: ComparatorSet, b: ComparatorSet): ReadonlyArray<Compar
 			Comparator.make({ operator: "<", version: SemVer.of(tuple.major, tuple.minor, tuple.patch) }),
 		]),
 	];
-};
+});
 
-const isComparatorImplied = (set: ComparatorSet, comp: Comparator): boolean => {
+const isComparatorImplied: {
+	(set: ComparatorSet, comp: Comparator): boolean;
+	(comp: Comparator): (set: ComparatorSet) => boolean;
+} = Fn.dual(2, (set: ComparatorSet, comp: Comparator): boolean => {
 	for (const s of set) {
 		const cmp = s.version.compare(comp.version);
 		const implied = Match.value(comp.operator).pipe(
@@ -849,9 +868,12 @@ const isComparatorImplied = (set: ComparatorSet, comp: Comparator): boolean => {
 		if (implied) return true;
 	}
 	return false;
-};
+});
 
-const isComparatorSetSubset = (sub: ComparatorSet, sup: ComparatorSet): boolean => {
+const isComparatorSetSubset: {
+	(sub: ComparatorSet, sup: ComparatorSet): boolean;
+	(sup: ComparatorSet): (sub: ComparatorSet) => boolean;
+} = Fn.dual(2, (sub: ComparatorSet, sup: ComparatorSet): boolean => {
 	if (sup.length === 0 || !isSetSatisfiable(sub)) return true;
 	// An empty set admits all prerelease tuples; finite nonempty sets cannot.
 	if (sub.length === 0) return false;
@@ -862,4 +884,4 @@ const isComparatorSetSubset = (sub: ComparatorSet, sup: ComparatorSet): boolean 
 		if (!isComparatorImplied(sub, supComp)) return false;
 	}
 	return true;
-};
+});

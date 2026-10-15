@@ -15,6 +15,7 @@
 // tagged TomlModificationError. The dependency edge runs facade → engine
 // only.
 
+import { dual, pipe } from "effect/Function";
 import * as Result from "effect/Result";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -30,6 +31,7 @@ import { parseExpressions } from "./internal/parser.ts";
 import { analyze } from "./internal/semantic.ts";
 import { renderInlineValue, renderKey } from "./internal/stringifyValue.ts";
 import { TomlDiagnostic, TomlErrorCode } from "./TomlDiagnostic.ts";
+import type { TomlParseError } from "./Toml.ts";
 import { TomlDocument } from "./TomlDocument.ts";
 import type { TomlPath, TomlRange, TomlSegment } from "./TomlEdit.ts";
 import { TomlEdit } from "./TomlEdit.ts";
@@ -48,8 +50,8 @@ const $I = $ScratchpadId.create("effected/toml/TomlFormat");
 
 class TomlFormatInvariantError extends S.TaggedError<TomlFormatInvariantError, { readonly brand: unique symbol }>($I`TomlFormatInvariantError`)(
 	"TomlFormatInvariantError",
-	{ message: S.String.annotateKey({ description: "Explanation of the missing CST node, path segment or splice span required by formatting or modification." }) },
-	$I.annote("TomlFormatInvariantError", { description: "A programmer defect encountered while computing TOML formatting or modification edits." }),
+	{ message: S.String.pipe($I.annoteKey("TomlFormatInvariantError.message", { description: "Explanation of the missing CST node, path segment or splice span required by formatting or modification." })) },
+	$I.annoteError<TomlFormatInvariantError>("TomlFormatInvariantError", { description: "A programmer defect encountered while computing TOML formatting or modification edits." }),
 ) {}
 
 /**
@@ -83,7 +85,7 @@ export type TomlRangeLike = TomlRange | { readonly offset: number; readonly leng
  * @since 0.0.0
  */
 export class TomlFormattingOptions extends S.Class<TomlFormattingOptions, { readonly brand: unique symbol }>($I`TomlFormattingOptions`)({
-	newline: S.optionalKey(S.Literals(["\n", "\r\n"])).annotateKey({ description: "LF or CRLF used to normalize line endings outside multiline strings during formatting and terminate inserted lines during modification" }),
+	newline: S.optionalKey(S.Literals(["\n", "\r\n"])).pipe($I.annoteKey("TomlFormattingOptions.newline", { description: "LF or CRLF used to normalize line endings outside multiline strings during formatting and terminate inserted lines during modification" })),
 }, $I.annote("TomlFormattingOptions", { description: "Options controlling formatting and modification behavior. The only knob is `newline`: for `format` it normalizes every newline outside multi-line strings; for `modify` it overrides the dominant newline inherited by inserted lines." })) {}
 
 /**
@@ -111,8 +113,8 @@ export class TomlFormattingOptions extends S.Class<TomlFormattingOptions, { read
  * @since 0.0.0
  */
 export class TomlModificationError extends S.TaggedError<TomlModificationError, { readonly brand: unique symbol }>($I`TomlModificationError`)("TomlModificationError", {
-	diagnostic: TomlDiagnostic.annotateKey({ description: "Structured failure detail carrying the code, message and source position explaining why modification failed" }),
-}, $I.annote("TomlModificationError", { description: "Raised when `TomlFormat.modify` cannot resolve the requested path against the document's semantic view, when the insertion target refuses (an inline table or an implicitly created table), or when the replacement value cannot render as TOML. Carries one structured TomlDiagnostic — never a collapsed `reason` string." })) {
+	diagnostic: TomlDiagnostic.pipe($I.annoteKey("TomlModificationError.diagnostic", { description: "Structured failure detail carrying the code, message and source position explaining why modification failed" })),
+}, $I.annoteError<TomlModificationError>("TomlModificationError", { description: "Raised when `TomlFormat.modify` cannot resolve the requested path against the document's semantic view, when the insertion target refuses (an inline table or an implicitly created table), or when the replacement value cannot render as TOML. Carries one structured TomlDiagnostic — never a collapsed `reason` string." })) {
 	/**
 	 * Explains a modification failure with its diagnostic code and message.
 	 *
@@ -149,21 +151,27 @@ const BOM = 0xfeff;
 
 const isWs = (code: number): boolean => code === SPACE || code === TAB;
 
-const scanWs = (source: string, pos: number, end: number): number => {
+const scanWs: {
+	(source: string, pos: number, end: number): number;
+	(pos: number, end: number): (source: string) => number;
+} = dual(3, (source: string, pos: number, end: number): number => {
 	let i = pos;
 	while (i < end && isWs(source.charCodeAt(i))) {
 		i++;
 	}
 	return i;
-};
+});
 
-const scanWsBack = (source: string, pos: number, start: number): number => {
+const scanWsBack: {
+	(source: string, pos: number, start: number): number;
+	(pos: number, start: number): (source: string) => number;
+} = dual(3, (source: string, pos: number, start: number): number => {
 	let i = pos;
 	while (i > start && isWs(source.charCodeAt(i - 1))) {
 		i--;
 	}
 	return i;
-};
+});
 
 /** The document's dominant newline: CRLF only when CRLF pairs outnumber bare LFs. */
 const dominantNewline = (source: string): "\n" | "\r\n" => {
@@ -193,7 +201,10 @@ interface TaggedEdit {
 }
 
 /** Multi-line string value spans — the bytes formatting must never touch. */
-const collectMultilineSpans = (node: TomlValueNode, out: Array<readonly [number, number]>): void => {
+const collectMultilineSpans: {
+	(node: TomlValueNode, out: Array<readonly [number, number]>): void;
+	(out: Array<readonly [number, number]>): (node: TomlValueNode) => void;
+} = dual(2, (node: TomlValueNode, out: Array<readonly [number, number]>): void => {
 	if (P.isTagged(node, "TomlString")) {
 		if (node.style === "multiline-basic" || node.style === "multiline-literal") {
 			out.push([node.offset, node.offset + node.length]);
@@ -211,7 +222,7 @@ const collectMultilineSpans = (node: TomlValueNode, out: Array<readonly [number,
 			collectMultilineSpans(entry.value, out);
 		}
 	}
-};
+});
 
 /** Accumulates format edits for one document; drops no-op splices to keep format idempotent. */
 class FormatEmitter {
@@ -229,7 +240,10 @@ class FormatEmitter {
 }
 
 /** Rule 2: strip the expression's leading indentation (the first line's BOM excluded). */
-const formatLeading = (source: string, emit: FormatEmitter, expr: TomlExpression): void => {
+const formatLeading: {
+	(source: string, emit: FormatEmitter, expr: TomlExpression): void;
+	(emit: FormatEmitter, expr: TomlExpression): (source: string) => void;
+} = dual(3, (source: string, emit: FormatEmitter, expr: TomlExpression): void => {
 	let start = expr.offset;
 	if (start === 0 && source.charCodeAt(0) === BOM) {
 		start = 1;
@@ -238,10 +252,13 @@ const formatLeading = (source: string, emit: FormatEmitter, expr: TomlExpression
 	if (end > start) {
 		emit.push(expr, start, end - start, "");
 	}
-};
+});
 
 /** Rule 4 (space after `#`) and the rule-3 trailing-whitespace strip, for one comment body. */
-const formatCommentBody = (
+const formatCommentBody: {
+	(source: string, emit: FormatEmitter, expr: TomlExpression, bodyStart: number, lineEnd: number): void;
+	(emit: FormatEmitter, expr: TomlExpression, bodyStart: number, lineEnd: number): (source: string) => void;
+} = dual(5, (
 	source: string,
 	emit: FormatEmitter,
 	expr: TomlExpression,
@@ -258,10 +275,13 @@ const formatCommentBody = (
 			emit.push(expr, bodyStart, 0, " ");
 		}
 	}
-};
+});
 
 /** Rule 3: the run between an expression's content end and its newline — trailing ws and the comment gap. */
-const formatTail = (source: string, emit: FormatEmitter, expr: TomlExpression, contentEnd: number): void => {
+const formatTail: {
+	(source: string, emit: FormatEmitter, expr: TomlExpression, contentEnd: number): void;
+	(emit: FormatEmitter, expr: TomlExpression, contentEnd: number): (source: string) => void;
+} = dual(4, (source: string, emit: FormatEmitter, expr: TomlExpression, contentEnd: number): void => {
 	const exprEnd = expr.offset + expr.length;
 	let nlStart = exprEnd;
 	if (nlStart > contentEnd && source.charCodeAt(nlStart - 1) === LF) {
@@ -282,10 +302,13 @@ const formatTail = (source: string, emit: FormatEmitter, expr: TomlExpression, c
 	}
 	emit.push(expr, contentEnd, hashIdx - contentEnd, " ");
 	formatCommentBody(source, emit, expr, hashIdx + 1, nlStart);
-};
+});
 
 /** Rules 2–4 over a trivia run's blank and comment-only lines. */
-const formatTrivia = (source: string, emit: FormatEmitter, expr: TomlTrivia): void => {
+const formatTrivia: {
+	(source: string, emit: FormatEmitter, expr: TomlTrivia): void;
+	(emit: FormatEmitter, expr: TomlTrivia): (source: string) => void;
+} = dual(3, (source: string, emit: FormatEmitter, expr: TomlTrivia): void => {
 	const end = expr.offset + expr.length;
 	let i = expr.offset;
 	while (i < end) {
@@ -316,10 +339,13 @@ const formatTrivia = (source: string, emit: FormatEmitter, expr: TomlTrivia): vo
 		}
 		i = j;
 	}
-};
+});
 
 /** Rule 6: normalize every newline within the expression span, skipping the protected string spans. */
-const normalizeNewlines = (
+const normalizeNewlines: {
+	(source: string, emit: FormatEmitter, expr: TomlExpression, protectedSpans: ReadonlyArray<readonly [number, number]>, target: "\n" | "\r\n"): void;
+	(emit: FormatEmitter, expr: TomlExpression, protectedSpans: ReadonlyArray<readonly [number, number]>, target: "\n" | "\r\n"): (source: string) => void;
+} = dual(5, (
 	source: string,
 	emit: FormatEmitter,
 	expr: TomlExpression,
@@ -354,20 +380,26 @@ const normalizeNewlines = (
 			i += 1;
 		}
 	}
-};
+});
 
 // Parser-produced key paths and expression lists are dense. Their grammar or
 // the local bounds check establishes every indexed access below; getUnsafe
 // expresses that invariant without a second, unreachable missing-element arm.
 /** The position just past a header's closing bracket(s). */
-const headerContentEnd = (source: string, expr: TomlTableHeader | TomlArrayTableHeader): number => {
+const headerContentEnd: {
+	(source: string, expr: TomlTableHeader | TomlArrayTableHeader): number;
+	(expr: TomlTableHeader | TomlArrayTableHeader): (source: string) => number;
+} = dual(2, (source: string, expr: TomlTableHeader | TomlArrayTableHeader): number => {
 	const lastKey = A.getUnsafe(expr.keyPath, expr.keyPath.length - 1);
 	const bracket = scanWs(source, lastKey.offset + lastKey.length, expr.offset + expr.length);
 	return bracket + (P.isTagged(expr, "TomlArrayTableHeader") ? 2 : 1);
-};
+});
 
 /** All six format rules over the expression list; `[]` on malformed input (never corrupt it). */
-const computeFormatEdits = (source: string, options: TomlFormattingOptions | undefined): Array<TaggedEdit> => {
+const computeFormatEdits: {
+	(source: string, options: TomlFormattingOptions | undefined): Array<TaggedEdit>;
+	(options: TomlFormattingOptions | undefined): (source: string) => Array<TaggedEdit>;
+} = dual(2, (source: string, options: TomlFormattingOptions | undefined): Array<TaggedEdit> => {
 	const parsed = Result.try(() => parseExpressions(source));
 	if (Result.isFailure(parsed)) return [];
 	const expressions = parsed.success;
@@ -402,7 +434,7 @@ const computeFormatEdits = (source: string, options: TomlFormattingOptions | und
 		emit.push(last, source.length, 0, target ?? dominantNewline(source));
 	}
 	return emit.edits;
-};
+});
 
 // ── Internal: modify — the semantic index ───────────────────────────────────
 
@@ -444,13 +476,16 @@ interface ResValue {
 
 type ResNode = ResTable | ResArrayTables | ResValue;
 
-const mkTable = (origin: ResTable["origin"], sectionIndex = 0, relPath: ReadonlyArray<string> = []): ResTable => ({
+const mkTable: {
+	(origin: ResTable["origin"], sectionIndex?: number, relPath?: ReadonlyArray<string>): ResTable;
+	(sectionIndex?: number, relPath?: ReadonlyArray<string>): (origin: ResTable["origin"]) => ResTable;
+} = dual((args) => P.isString(args[0]), (origin: ResTable["origin"], sectionIndex: number = 0, relPath: ReadonlyArray<string> = []): ResTable => ({
 	kind: "table",
 	origin,
 	entries: MutableHashMap.empty<string, ResNode>(),
 	sectionIndex,
 	relPath,
-});
+}));
 
 /** Descend into a navigable node: tables pass through, array-of-tables yield their last element.
  * The semantic pass guarantees the node exists, is navigable, and has an element.
@@ -532,7 +567,7 @@ const buildSemanticIndex = (
 			}
 		},
 		onKeyValue: (path, expr) => {
-			const names = expr.keyPath.map((key) => key.value);
+			const names = A.map(expr.keyPath, (key) => key.value);
 			let current = root;
 			for (let i = 0; i < path.length - names.length; i++) {
 				const name = A.getUnsafe(path, i);
@@ -558,21 +593,27 @@ const buildSemanticIndex = (
 
 /** Thrown by the pure resolution helpers; `modify` materializes {@link TomlModificationError}. */
 class ModifyFailure extends S.TaggedError<ModifyFailure, { readonly brand: unique symbol }>($I`ModifyFailure`)("ModifyFailure", {
-	code: TomlErrorCode.annotateKey({ description: "Diagnostic category explaining why the modification path or target was rejected." }),
-	message: S.String.annotateKey({ description: "Original path-resolution or modification failure message." }),
-	offset: S.Finite.annotateKey({ description: "Starting source position of the rejected target in UTF-16 code units." }),
-	len: S.Finite.annotateKey({ description: "Length of the rejected target span in UTF-16 code units." }),
-}, $I.annote("ModifyFailure", { description: "Internal modification failure materialized as a TomlModificationError at the facade boundary." })) {
+	code: TomlErrorCode.pipe($I.annoteKey("ModifyFailure.code", { description: "Diagnostic category explaining why the modification path or target was rejected." })),
+	message: S.String.pipe($I.annoteKey("ModifyFailure.message", { description: "Original path-resolution or modification failure message." })),
+	offset: S.Finite.pipe($I.annoteKey("ModifyFailure.offset", { description: "Starting source position of the rejected target in UTF-16 code units." })),
+	len: S.Finite.pipe($I.annoteKey("ModifyFailure.len", { description: "Length of the rejected target span in UTF-16 code units." })),
+}, $I.annoteError<ModifyFailure>("ModifyFailure", { description: "Internal modification failure materialized as a TomlModificationError at the facade boundary." })) {
 	override readonly name = "ModifyFailure";
 }
 
 const isModifyFailure = S.is(ModifyFailure);
 
-const failResolve = (code: TomlErrorCodeRaw, message: string, offset = 0, length = 0): never => {
+const failResolve: {
+	(code: TomlErrorCodeRaw, message: string, offset?: number, length?: number): never;
+	(message: string, offset?: number, length?: number): (code: TomlErrorCodeRaw) => never;
+} = dual((args) => P.isString(args[1]), (code: TomlErrorCodeRaw, message: string, offset: number = 0, length: number = 0): never => {
 	throw ModifyFailure.make({ code, message, offset, len: length });
-};
+});
 
-const requireIndex = (segment: TomlSegment, what: string, offset: number, length: number): number => {
+const requireIndex: {
+	(segment: TomlSegment, what: string, offset: number, length: number): number;
+	(what: string, offset: number, length: number): (segment: TomlSegment) => number;
+} = dual(4, (segment: TomlSegment, what: string, offset: number, length: number): number => {
 	if (!P.isNumber(segment) || !Number.isInteger(segment) || segment < 0) {
 		return failResolve(
 			"DottedKeyConflict",
@@ -582,7 +623,7 @@ const requireIndex = (segment: TomlSegment, what: string, offset: number, length
 		);
 	}
 	return segment;
-};
+});
 
 interface Candidate {
 	readonly entry: TomlInlineEntry;
@@ -606,23 +647,32 @@ type Cursor =
 	  };
 
 /** Wrap a CST value as a cursor; inline tables open as an entry scope (dotted keys included). */
-const cstCursor = (node: TomlValueNode, del: DeleteTarget): Cursor =>
+const cstCursor: {
+	(node: TomlValueNode, del: DeleteTarget): Cursor;
+	(del: DeleteTarget): (node: TomlValueNode) => Cursor;
+} = dual(2, (node: TomlValueNode, del: DeleteTarget): Cursor =>
 	P.isTagged(node, "TomlInlineTable")
-		? { t: "inline", table: node, candidates: node.entries.map((entry, index) => ({ entry, index })), depth: 0 }
-		: { t: "cst", node, del };
+		? { t: "inline", table: node, candidates: A.map(node.entries, (entry, index) => ({ entry, index })), depth: 0 }
+		: { t: "cst", node, del });
 
-const stepInline = (
+const stepInline: {
+	(cur: Extract<Cursor, { t: "inline" }>, key: string): { readonly matches: ReadonlyArray<Candidate>; readonly full: Candidate | undefined };
+	(key: string): (cur: Extract<Cursor, { t: "inline" }>) => { readonly matches: ReadonlyArray<Candidate>; readonly full: Candidate | undefined };
+} = dual(2, (
 	cur: Extract<Cursor, { t: "inline" }>,
 	key: string,
 ): { readonly matches: ReadonlyArray<Candidate>; readonly full: Candidate | undefined } => {
-	const matches = cur.candidates.filter((candidate) => candidate.entry.keyPath[cur.depth]?.value === key);
+	const matches = A.filter(cur.candidates, (candidate) => candidate.entry.keyPath[cur.depth]?.value === key);
 	const first = matches[0];
 	const full = matches.length === 1 && first !== undefined && first.entry.keyPath.length === cur.depth + 1 ? first : undefined;
 	return { matches, full };
-};
+});
 
 /** One navigation step (never the terminal segment). */
-const step = (cur: Cursor, segment: TomlSegment): Cursor => {
+const step: {
+	(cur: Cursor, segment: TomlSegment): Cursor;
+	(segment: TomlSegment): (cur: Cursor) => Cursor;
+} = dual(2, (cur: Cursor, segment: TomlSegment): Cursor => {
 	if (cur.t === "table") {
 		const key = String(segment);
 		const child = O.getOrUndefined(MutableHashMap.get(cur.table.entries, key));
@@ -674,7 +724,7 @@ const step = (cur: Cursor, segment: TomlSegment): Cursor => {
 		return cstCursor(item, { kind: "array-item", array: node, index: idx });
 	}
 	return failResolve("DottedKeyConflict", "cannot navigate through a scalar value", node.offset, node.length);
-};
+});
 
 // ── Internal: modify — terminal edits ───────────────────────────────────────
 
@@ -691,7 +741,10 @@ interface ModifyContext {
 }
 
 /** Delete one array item, splicing the separator: leading comma for a last item, trailing for the rest. */
-const spliceArrayItem = (array: TomlArray, index: number): RawEdit => {
+const spliceArrayItem: {
+	(array: TomlArray, index: number): RawEdit;
+	(index: number): (array: TomlArray) => RawEdit;
+} = dual(2, (array: TomlArray, index: number): RawEdit => {
 	const items = array.items;
 	if (items.length === 1) {
 		return { offset: array.offset + 1, length: array.length - 2, newText: "" };
@@ -704,10 +757,13 @@ const spliceArrayItem = (array: TomlArray, index: number): RawEdit => {
 	const previous = A.getUnsafe(items, index - 1);
 	const prevEnd = previous.offset + previous.length;
 	return { offset: prevEnd, length: current.offset + current.length - prevEnd, newText: "" };
-};
+});
 
 /** Delete one inline-table entry with the same separator-splicing rule. */
-const spliceInlineEntry = (table: TomlInlineTable, index: number): RawEdit => {
+const spliceInlineEntry: {
+	(table: TomlInlineTable, index: number): RawEdit;
+	(index: number): (table: TomlInlineTable) => RawEdit;
+} = dual(2, (table: TomlInlineTable, index: number): RawEdit => {
 	const entries = table.entries;
 	if (entries.length === 1) {
 		return { offset: table.offset + 1, length: table.length - 2, newText: "" };
@@ -720,10 +776,13 @@ const spliceInlineEntry = (table: TomlInlineTable, index: number): RawEdit => {
 	const previous = A.getUnsafe(entries, index - 1);
 	const prevEnd = previous.offset + previous.length;
 	return { offset: prevEnd, length: current.offset + current.length - prevEnd, newText: "" };
-};
+});
 
 /** The pinned insertion-placement rules: where a new `key = value` line lands and how its key renders. */
-const insertEdit = (table: ResTable, key: string, value: unknown, ctx: ModifyContext): RawEdit => {
+const insertEdit: {
+	(table: ResTable, key: string, value: unknown, ctx: ModifyContext): RawEdit;
+	(key: string, value: unknown, ctx: ModifyContext): (table: ResTable) => RawEdit;
+} = dual(4, (table: ResTable, key: string, value: unknown, ctx: ModifyContext): RawEdit => {
 	if (table.origin === "implicit") {
 		return failResolve(
 			"DottedKeyConflict",
@@ -731,7 +790,7 @@ const insertEdit = (table: ResTable, key: string, value: unknown, ctx: ModifyCon
 		);
 	}
 	const keyPath = table.origin === "dotted" ? [...table.relPath, key] : [key];
-	const line = `${keyPath.map(renderKey).join(".")} = ${renderInlineValue(value)}`;
+	const line = `${pipe(keyPath, A.map(renderKey), A.join("."))} = ${renderInlineValue(value)}`;
 	let offset: number;
 	if (table.sectionIndex === 0) {
 		const firstHeader = ctx.sections.length > 1 ? ctx.sections[1]?.header : undefined;
@@ -744,10 +803,13 @@ const insertEdit = (table: ResTable, key: string, value: unknown, ctx: ModifyCon
 	}
 	const needLeading = offset > 0 && ctx.source.charCodeAt(offset - 1) !== LF;
 	return { offset, length: 0, newText: `${needLeading ? ctx.nl : ""}${line}${ctx.nl}` };
-};
+});
 
 /** Resolve the final segment against the parent cursor and produce the terminal edits. */
-const terminal = (cur: Cursor, segment: TomlSegment, value: unknown, ctx: ModifyContext): Array<RawEdit> => {
+const terminal: {
+	(cur: Cursor, segment: TomlSegment, value: unknown, ctx: ModifyContext): Array<RawEdit>;
+	(segment: TomlSegment, value: unknown, ctx: ModifyContext): (cur: Cursor) => Array<RawEdit>;
+} = dual(4, (cur: Cursor, segment: TomlSegment, value: unknown, ctx: ModifyContext): Array<RawEdit> => {
 	if (cur.t === "table") {
 		const key = String(segment);
 		const existing = O.getOrUndefined(MutableHashMap.get(cur.table.entries, key));
@@ -836,7 +898,7 @@ const terminal = (cur: Cursor, segment: TomlSegment, value: unknown, ctx: Modify
 		return [{ offset: item.offset, length: item.length, newText: renderInlineValue(value) }];
 	}
 	return failResolve("DottedKeyConflict", "cannot address a key beneath a scalar value", node.offset, node.length);
-};
+});
 
 // ── Facade ──────────────────────────────────────────────────────────────────
 
@@ -911,16 +973,20 @@ export class TomlFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static format(text: string, range?: TomlRangeLike, options?: TomlFormattingOptions): ReadonlyArray<TomlEdit> {
+	static readonly format: {
+		(text: string, range?: TomlRangeLike, options?: TomlFormattingOptions): ReadonlyArray<TomlEdit>;
+		(range?: TomlRangeLike, options?: TomlFormattingOptions): (text: string) => ReadonlyArray<TomlEdit>;
+	} = dual((args) => P.isString(args[0]), (text: string, range?: TomlRangeLike, options?: TomlFormattingOptions): ReadonlyArray<TomlEdit> => {
 		const tagged = computeFormatEdits(text, options);
 		const filtered =
 			range === undefined
 				? tagged
-				: tagged.filter(
+				: A.filter(
+						tagged,
 						(edit) => Math.max(edit.exprOffset, range.offset) <= Math.min(edit.exprEnd, range.offset + range.length),
 					);
-		return filtered.map((edit) => TomlEdit.make({ offset: edit.offset, length: edit.length, content: edit.newText }));
-	}
+		return A.map(filtered, (edit) => TomlEdit.make({ offset: edit.offset, length: edit.length, content: edit.newText }));
+	});
 
 	/**
 	 * Format `text` and apply the resulting edits in one step
@@ -942,9 +1008,10 @@ export class TomlFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static formatToString(text: string, range?: TomlRangeLike, options?: TomlFormattingOptions): string {
-		return TomlEdit.applyAll(text, TomlFormat.format(text, range, options));
-	}
+	static readonly formatToString: {
+		(text: string, range?: TomlRangeLike, options?: TomlFormattingOptions): string;
+		(range?: TomlRangeLike, options?: TomlFormattingOptions): (text: string) => string;
+	} = dual((args) => P.isString(args[0]), (text: string, range?: TomlRangeLike, options?: TomlFormattingOptions): string => TomlEdit.applyAll(text, TomlFormat.format(text, range, options)));
 
 	/**
 	 * Computes edits that replace, delete, or insert a value at a path resolved
@@ -988,14 +1055,20 @@ export class TomlFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly modify = Effect.fn("TomlFormat.modify")(function* (
+	static readonly modify: {
+		(text: string, path: TomlPath, value: unknown, options?: TomlFormattingOptions): Effect.Effect<Array<TomlEdit>, TomlParseError | TomlModificationError>;
+		(path: TomlPath, value: unknown, options?: TomlFormattingOptions): (text: string) => Effect.Effect<Array<TomlEdit>, TomlParseError | TomlModificationError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("TomlFormat.modify")(function* (
 		text: string,
 		path: TomlPath,
 		value: unknown,
 		options?: TomlFormattingOptions,
 	) {
-		const failWith = (code: TomlErrorCodeRaw, message: string, offset = 0, length = 0): TomlModificationError =>
-			TomlModificationError.make({ diagnostic: TomlDiagnostic.fromRaw(text, { code, message, offset, length }) });
+		const failWith: {
+			(code: TomlErrorCodeRaw, message: string, offset?: number, length?: number): TomlModificationError;
+			(message: string, offset?: number, length?: number): (code: TomlErrorCodeRaw) => TomlModificationError;
+		} = dual((args) => P.isString(args[1]), (code: TomlErrorCodeRaw, message: string, offset: number = 0, length: number = 0): TomlModificationError =>
+			TomlModificationError.make({ diagnostic: TomlDiagnostic.fromRaw(text, { code, message, offset, length }) }));
 		if (path.length === 0) {
 			return yield* failWith("DottedKeyConflict", "an empty path does not address a value");
 		}
@@ -1038,10 +1111,10 @@ export class TomlFormat {
 				throw defect;
 			},
 		});
-		return raw.map((edit) =>
+		return A.map(raw, (edit) =>
 			TomlEdit.make({ offset: edit.offset, length: edit.length, content: edit.newText }),
 		);
-	});
+	}));
 
 	/**
 	 * Modify `text` and apply the resulting edits in one step
@@ -1068,7 +1141,10 @@ export class TomlFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly modifyToString = Effect.fn("TomlFormat.modifyToString")(function* (
+	static readonly modifyToString: {
+		(text: string, path: TomlPath, value: unknown, options?: TomlFormattingOptions): Effect.Effect<string, TomlParseError | TomlModificationError>;
+		(path: TomlPath, value: unknown, options?: TomlFormattingOptions): (text: string) => Effect.Effect<string, TomlParseError | TomlModificationError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("TomlFormat.modifyToString")(function* (
 		text: string,
 		path: TomlPath,
 		value: unknown,
@@ -1076,5 +1152,5 @@ export class TomlFormat {
 	) {
 		const edits = yield* TomlFormat.modify(text, path, value, options);
 		return TomlEdit.applyAll(text, edits);
-	});
+	}));
 }

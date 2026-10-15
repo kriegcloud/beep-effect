@@ -7,75 +7,75 @@ import { pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/npm/PublishError");
 
-const PublishFailureKind = LiteralKit(["auth", "pack", "publish", "output", "digest", "executor"]).annotate(
-	$I.annote("PublishFailureKind", { description: "The supported PublishError cases." }),
+const PublishFailureKind = LiteralKit(["auth", "pack", "publish", "output", "digest", "executor"]).pipe(
+	$I.annoteSchema("PublishFailureKind", { description: "The supported PublishError cases." }),
 );
 
 const PublishErrorPayload = S.Struct({
 	/** Which step failed. */
-	kind: PublishFailureKind.annotateKey({ description: "Which step failed." }),
+	kind: PublishFailureKind.pipe($I.annoteKey("PublishErrorPayload.kind", { description: "Which step failed." })),
 	/** The package directory or tarball the step was working on. */
-	subject: S.optionalKey(S.String).annotateKey({ description: "The package directory or tarball the step was working on." }),
+	subject: S.optionalKey(S.String).pipe($I.annoteKey("PublishErrorPayload.subject", { description: "The package directory or tarball the step was working on." })),
 	/** The registry involved, for `"auth"` and `"publish"`. */
-	registry: S.optionalKey(S.String).annotateKey({ description: "The registry involved, for `\"auth\"` and `\"publish\"`." }),
+	registry: S.optionalKey(S.String).pipe($I.annoteKey("PublishErrorPayload.registry", { description: "The registry involved, for `\"auth\"` and `\"publish\"`." })),
 	/** npm's exit code, when npm ran and failed. */
-	exitCode: S.optionalKey(S.Finite).annotateKey({ description: "npm's exit code, when npm ran and failed." }),
+	exitCode: S.optionalKey(S.Finite).pipe($I.annoteKey("PublishErrorPayload.exitCode", { description: "npm's exit code, when npm ran and failed." })),
 	/** npm's output, already redacted by the runner. */
-	output: S.optionalKey(S.String).annotateKey({ description: "npm's output, already redacted by the runner." }),
+	output: S.optionalKey(S.String).pipe($I.annoteKey("PublishErrorPayload.output", { description: "npm's output, already redacted by the runner." })),
 	/** The underlying failure. */
-	cause: S.optionalKey(S.Defect({ includeStack: true })).annotateKey({ description: "The underlying failure." }),
-}).annotate(
-	$I.annote("PublishErrorPayload", { description: "The compatible public PublishError payload." }),
+	cause: S.optionalKey(S.Defect({ includeStack: true })).pipe($I.annoteKey("PublishErrorPayload.cause", { description: "The underlying failure." })),
+}).pipe(
+	$I.annoteSchema("PublishErrorPayload", { description: "The compatible public PublishError payload." }),
 );
 
 const PublishFailure = PublishFailureKind.mapMembers(([auth, pack, publish, output, digest, executor]) => [
 	S.Struct({
-		kind: auth.annotateKey({ description: "Registry auth could not be written." }),
+		kind: auth.pipe($I.annoteKey("AuthFailure.kind", { description: "Registry auth could not be written." })),
 		subject: PublishErrorPayload.fields.subject,
 		registry: PublishErrorPayload.fields.registry,
 		output: PublishErrorPayload.fields.output,
 		cause: PublishErrorPayload.fields.cause,
-	}).annotate($I.annote("AuthFailure", { description: "Registry auth could not be written." })),
+	}).pipe($I.annoteSchema("AuthFailure", { description: "Registry auth could not be written." })),
 	S.Struct({
-		kind: pack.annotateKey({ description: "An npm pack invocation failed." }),
+		kind: pack.pipe($I.annoteKey("PackFailure.kind", { description: "An npm pack invocation failed." })),
 		subject: PublishErrorPayload.fields.subject,
 		exitCode: PublishErrorPayload.fields.exitCode,
 		output: PublishErrorPayload.fields.output,
 		cause: PublishErrorPayload.fields.cause,
-	}).annotate($I.annote("PackFailure", { description: "An npm pack invocation failed." })),
+	}).pipe($I.annoteSchema("PackFailure", { description: "An npm pack invocation failed." })),
 	S.Struct({
-		kind: publish.annotateKey({ description: "An npm publish invocation failed." }),
+		kind: publish.pipe($I.annoteKey("PublishFailure.kind", { description: "An npm publish invocation failed." })),
 		subject: PublishErrorPayload.fields.subject,
 		registry: PublishErrorPayload.fields.registry,
 		exitCode: PublishErrorPayload.fields.exitCode,
 		output: PublishErrorPayload.fields.output,
 		cause: PublishErrorPayload.fields.cause,
-	}).annotate($I.annote("PublishFailure", { description: "An npm publish invocation failed." })),
+	}).pipe($I.annoteSchema("PublishFailure", { description: "An npm publish invocation failed." })),
 	S.Struct({
-		kind: output.annotateKey({ description: "npm output could not be decoded." }),
+		kind: output.pipe($I.annoteKey("OutputFailure.kind", { description: "npm output could not be decoded." })),
 		subject: PublishErrorPayload.fields.subject,
 		output: PublishErrorPayload.fields.output,
 		cause: PublishErrorPayload.fields.cause,
-	}).annotate($I.annote("OutputFailure", { description: "npm output could not be decoded." })),
+	}).pipe($I.annoteSchema("OutputFailure", { description: "npm output could not be decoded." })),
 	S.Struct({
-		kind: digest.annotateKey({ description: "Packed bytes could not be read or hashed." }),
+		kind: digest.pipe($I.annoteKey("DigestFailure.kind", { description: "Packed bytes could not be read or hashed." })),
 		subject: PublishErrorPayload.fields.subject,
 		output: PublishErrorPayload.fields.output,
 		cause: PublishErrorPayload.fields.cause,
-	}).annotate($I.annote("DigestFailure", { description: "Packed bytes could not be read or hashed." })),
+	}).pipe($I.annoteSchema("DigestFailure", { description: "Packed bytes could not be read or hashed." })),
 	S.Struct({
-		kind: executor.annotateKey({ description: "The pinned npm executor could not be launched." }),
+		kind: executor.pipe($I.annoteKey("ExecutorFailure.kind", { description: "The pinned npm executor could not be launched." })),
 		cause: PublishErrorPayload.fields.cause,
-	}).annotate($I.annote("ExecutorFailure", { description: "The pinned npm executor could not be launched." })),
+	}).pipe($I.annoteSchema("ExecutorFailure", { description: "The pinned npm executor could not be launched." })),
 ] as const).pipe(
-	S.annotate($I.annote("PublishFailure", { description: "Validated case-specific PublishError payloads." })),
+	$I.annoteSchema("PublishFailure", { description: "Validated case-specific PublishError payloads." }),
 	S.toTaggedUnion("kind"),
 );
 
 const PublishFailureFromPayload = PublishErrorPayload.pipe(
 	S.toType,
 	S.decodeTo(PublishFailure.pipe(S.toType)),
-	S.annotate($I.annote("PublishFailureFromPayload", { description: "Project the compatible payload into a validated case without encoding its cause." })),
+	$I.annoteSchema("PublishFailureFromPayload", { description: "Project the compatible payload into a validated case without encoding its cause." }),
 );
 
 /**
@@ -110,7 +110,7 @@ const PublishFailureFromPayload = PublishErrorPayload.pipe(
  * @category errors
  * @since 0.0.0
  */
-export class PublishError extends S.TaggedError<PublishError, { readonly brand: unique symbol }>($I`PublishError`)("PublishError", PublishErrorPayload, $I.annote("PublishError", { description: "A publish-workflow step failed." })) {
+export class PublishError extends S.TaggedError<PublishError, { readonly brand: unique symbol }>($I`PublishError`)("PublishError", PublishErrorPayload, $I.annoteError<PublishError>("PublishError", { description: "A publish-workflow step failed." })) {
 	private get variant(): typeof PublishFailure.Type {
 		return pipe(this, S.decodeUnknownResult(PublishFailureFromPayload), Result.getOrThrow);
 	}

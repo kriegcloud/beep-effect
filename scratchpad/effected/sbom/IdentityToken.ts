@@ -47,10 +47,10 @@ const $I = $ScratchpadId.create("effected/sbom/IdentityToken");
  */
 export class IdentityTokenError extends S.TaggedError<IdentityTokenError, { readonly brand: unique symbol }>($I`IdentityTokenError`)("IdentityTokenError", {
 	/** The audience the token was requested for. */
-	audience: S.String.annotateKey({ description: "The audience the token was requested for." }),
+	audience: S.String.pipe($I.annoteKey("IdentityTokenError.audience", { description: "The audience the token was requested for." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.Defect().annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("IdentityTokenError", { description: "Raised when an identity token cannot be obtained." })) {
+	cause: S.Defect().pipe($I.annoteKey("IdentityTokenError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<IdentityTokenError>("IdentityTokenError", { description: "Raised when an identity token cannot be obtained." })) {
 	/**
 	 * Explains which audience could not obtain a workload identity token.
 	 *

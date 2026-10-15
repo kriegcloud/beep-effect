@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as O from "@beep/utils/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -55,17 +56,17 @@ const $I = $ScratchpadId.create("effected/git/GitConfig");
  */
 export class GitConfigDiagnostic extends S.Class<GitConfigDiagnostic, { readonly brand: unique symbol }>($I`GitConfigDiagnostic`)({
   /** What kind of malformation this is. */
-  code: GitConfigDiagnosticCode.annotateKey({ description: "What kind of malformation this is." }),
+  code: GitConfigDiagnosticCode.pipe($I.annoteKey("GitConfigDiagnostic.code", { description: "What kind of malformation this is." })),
   /** A human-readable description of the problem. */
-  message: S.String.annotateKey({ description: "A human-readable description of the problem." }),
+  message: S.String.pipe($I.annoteKey("GitConfigDiagnostic.message", { description: "A human-readable description of the problem." })),
   /** The character offset where the problem starts. */
-  offset: S.Finite.annotateKey({ description: "The character offset where the problem starts." }),
+  offset: S.Finite.pipe($I.annoteKey("GitConfigDiagnostic.offset", { description: "The character offset where the problem starts." })),
   /** The length of the problematic span. */
-  length: S.Finite.annotateKey({ description: "The length of the problematic span." }),
+  length: S.Finite.pipe($I.annoteKey("GitConfigDiagnostic.length", { description: "The length of the problematic span." })),
   /** Zero-based line of `offset`. */
-  line: S.Finite.annotateKey({ description: "Zero-based line of `offset`." }),
+  line: S.Finite.pipe($I.annoteKey("GitConfigDiagnostic.line", { description: "Zero-based line of `offset`." })),
   /** Zero-based character-in-line of `offset`. */
-  character: S.Finite.annotateKey({ description: "Zero-based character-in-line of `offset`." }),
+  character: S.Finite.pipe($I.annoteKey("GitConfigDiagnostic.character", { description: "Zero-based character-in-line of `offset`." })),
 }, $I.annote("GitConfigDiagnostic", { description: "One structural problem found while parsing git-config text." })) {
 }
 
@@ -92,10 +93,10 @@ export class GitConfigDiagnostic extends S.Class<GitConfigDiagnostic, { readonly
  */
 export class GitConfigParseError extends S.TaggedError<GitConfigParseError, { readonly brand: unique symbol }>($I`GitConfigParseError`)("GitConfigParseError", {
   /** The raw input that failed to parse. */
-  input: S.String.annotateKey({ description: "The raw input that failed to parse." }),
+  input: S.String.pipe($I.annoteKey("GitConfigParseError.input", { description: "The raw input that failed to parse." })),
   /** Every structural problem found, in document order. */
-  diagnostics: S.Array(GitConfigDiagnostic).annotateKey({ description: "Every structural problem found, in document order." }),
-}, $I.annote("GitConfigParseError", { description: "The document could not be parsed as git-config text." })) {
+  diagnostics: S.Array(GitConfigDiagnostic).pipe($I.annoteKey("GitConfigParseError.diagnostics", { description: "Every structural problem found, in document order." })),
+}, $I.annoteError<GitConfigParseError>("GitConfigParseError", { description: "The document could not be parsed as git-config text." })) {
   /**
    * Renders the first diagnostic and the total count into a one-line message.
    *
@@ -136,7 +137,7 @@ export class GitConfigParseError extends S.TaggedError<GitConfigParseError, { re
  */
 export class GitConfigEditError extends S.TaggedError<GitConfigEditError, { readonly brand: unique symbol }>($I`GitConfigEditError`)("GitConfigEditError", {
   /** The edit operation that was refused. */
-  op: S.Literals(["set", "append", "unset", "unsetAll", "addSection", "removeSection", "renameSection"]).annotateKey({ description: "The edit operation that was refused." }),
+  op: S.Literals(["set", "append", "unset", "unsetAll", "addSection", "removeSection", "renameSection"]).pipe($I.annoteKey("GitConfigEditError.op", { description: "The edit operation that was refused." })),
   /** Why it was refused. */
   reason: S.Literals([
     "missingSection",
@@ -145,14 +146,14 @@ export class GitConfigEditError extends S.TaggedError<GitConfigEditError, { read
     "invalidSubsection",
     "invalidKey",
     "invalidValue",
-  ]).annotateKey({ description: "Why it was refused." }),
+  ]).pipe($I.annoteKey("GitConfigEditError.reason", { description: "Why it was refused." })),
   /** The section name the edit addressed. */
-  section: S.String.annotateKey({ description: "The section name the edit addressed." }),
+  section: S.String.pipe($I.annoteKey("GitConfigEditError.section", { description: "The section name the edit addressed." })),
   /** The subsection name the edit addressed, when it had one. */
-  subsection: S.optionalKey(S.String).annotateKey({ description: "The subsection name the edit addressed, when it had one." }),
+  subsection: S.optionalKey(S.String).pipe($I.annoteKey("GitConfigEditError.subsection", { description: "The subsection name the edit addressed, when it had one." })),
   /** The variable name the edit addressed, when it had one. */
-  key: S.optionalKey(S.String).annotateKey({ description: "The variable name the edit addressed, when it had one." }),
-}, $I.annote("GitConfigEditError", { description: "A surgical edit could not be applied to a GitConfig document." })) {
+  key: S.optionalKey(S.String).pipe($I.annoteKey("GitConfigEditError.key", { description: "The variable name the edit addressed, when it had one." })),
+}, $I.annoteError<GitConfigEditError>("GitConfigEditError", { description: "A surgical edit could not be applied to a GitConfig document." })) {
   /**
    * Renders the refused operation into a one-line message.
    *
@@ -208,13 +209,13 @@ export class GitConfigEditError extends S.TaggedError<GitConfigEditError, { read
  */
 export class GitConfigEntry extends S.Class<GitConfigEntry, { readonly brand: unique symbol }>($I`GitConfigEntry`)({
   /** The variable name, raw spelling preserved (names compare case-insensitively). */
-  key: S.String.annotateKey({ description: "The variable name, raw spelling preserved (names compare case-insensitively)." }),
+  key: S.String.pipe($I.annoteKey("GitConfigEntry.key", { description: "The variable name, raw spelling preserved (names compare case-insensitively)." })),
   /** The decoded value; absent for the bare boolean-true shorthand. */
-  value: S.optionalKey(S.String).annotateKey({ description: "The decoded value; absent for the bare boolean-true shorthand." }),
+  value: S.optionalKey(S.String).pipe($I.annoteKey("GitConfigEntry.value", { description: "The decoded value; absent for the bare boolean-true shorthand." })),
   /** Character offset of the entry span (after `]` for an inline declaration). */
-  offset: S.Finite.annotateKey({ description: "Character offset of the entry span (after `]` for an inline declaration)." }),
+  offset: S.Finite.pipe($I.annoteKey("GitConfigEntry.offset", { description: "Character offset of the entry span (after `]` for an inline declaration)." })),
   /** Length through the entry's final newline (continuation lines included). */
-  length: S.Finite.annotateKey({ description: "Length through the entry's final newline (continuation lines included)." }),
+  length: S.Finite.pipe($I.annoteKey("GitConfigEntry.length", { description: "Length through the entry's final newline (continuation lines included)." })),
 }, $I.annote("GitConfigEntry", { description: "One variable line of a git-config document." })) {
 }
 
@@ -246,15 +247,15 @@ export class GitConfigEntry extends S.Class<GitConfigEntry, { readonly brand: un
  */
 export class GitConfigSection extends S.Class<GitConfigSection, { readonly brand: unique symbol }>($I`GitConfigSection`)({
   /** The section name, raw spelling preserved. */
-  name: S.String.annotateKey({ description: "The section name, raw spelling preserved." }),
+  name: S.String.pipe($I.annoteKey("GitConfigSection.name", { description: "The section name, raw spelling preserved." })),
   /** The decoded subsection name, when present. */
-  subsection: S.optionalKey(S.String).annotateKey({ description: "The decoded subsection name, when present." }),
+  subsection: S.optionalKey(S.String).pipe($I.annoteKey("GitConfigSection.subsection", { description: "The decoded subsection name, when present." })),
   /** Character offset of the header's line start. */
-  offset: S.Finite.annotateKey({ description: "Character offset of the header's line start." }),
+  offset: S.Finite.pipe($I.annoteKey("GitConfigSection.offset", { description: "Character offset of the header's line start." })),
   /** Length of the whole section span (header through the next header's line start). */
-  length: S.Finite.annotateKey({ description: "Length of the whole section span (header through the next header's line start)." }),
+  length: S.Finite.pipe($I.annoteKey("GitConfigSection.length", { description: "Length of the whole section span (header through the next header's line start)." })),
   /** The section's variable lines, in document order. */
-  entries: S.Array(GitConfigEntry).annotateKey({ description: "The section's variable lines, in document order." }),
+  entries: S.Array(GitConfigEntry).pipe($I.annoteKey("GitConfigSection.entries", { description: "The section's variable lines, in document order." })),
 }, $I.annote("GitConfigSection", { description: "One section of a git-config document." })) {
 }
 
@@ -282,9 +283,9 @@ export class GitConfigSection extends S.Class<GitConfigSection, { readonly brand
  */
 export class GitConfigInclude extends S.Class<GitConfigInclude, { readonly brand: unique symbol }>($I`GitConfigInclude`)({
   /** The include path exactly as written (not resolved, not expanded). */
-  path: S.String.annotateKey({ description: "The include path exactly as written (not resolved, not expanded)." }),
+  path: S.String.pipe($I.annoteKey("GitConfigInclude.path", { description: "The include path exactly as written (not resolved, not expanded)." })),
   /** The `includeIf` condition, when this came from an `includeIf` section. */
-  condition: S.optionalKey(S.String).annotateKey({ description: "The `includeIf` condition, when this came from an `includeIf` section." }),
+  condition: S.optionalKey(S.String).pipe($I.annoteKey("GitConfigInclude.condition", { description: "The `includeIf` condition, when this came from an `includeIf` section." })),
 }, $I.annote("GitConfigInclude", { description: "One `include` / `includeIf` directive found in the document." })) {
 }
 
@@ -298,7 +299,10 @@ const lineStarts = (text: string): readonly [number, ...Array<number>] => {
 };
 
 /** Computes the zero-based line/character of `offset` against a precomputed line index (binary search). */
-const positionOf = (
+const positionOf: {
+  (starts: readonly [number, ...Array<number>], offset: number): { readonly line: number; readonly character: number };
+  (offset: number): (starts: readonly [number, ...Array<number>]) => { readonly line: number; readonly character: number };
+} = dual(2, (
   starts: readonly [number, ...Array<number>],
   offset: number,
 ): { readonly line: number; readonly character: number } => {
@@ -311,9 +315,12 @@ const positionOf = (
     else high = mid - 1;
   }
   return { line: low, character: offset - A.getUnsafe(starts, low) };
-};
+});
 
-const toDiagnostic = (starts: readonly [number, ...Array<number>], raw: RawDiagnostic): GitConfigDiagnostic => {
+const toDiagnostic: {
+  (raw: RawDiagnostic, starts: readonly [number, ...Array<number>]): GitConfigDiagnostic;
+  (starts: readonly [number, ...Array<number>]): (raw: RawDiagnostic) => GitConfigDiagnostic;
+} = dual(2, (raw: RawDiagnostic, starts: readonly [number, ...Array<number>]): GitConfigDiagnostic => {
   const { line, character } = positionOf(starts, raw.offset);
   return GitConfigDiagnostic.make({
     code: raw.code,
@@ -323,36 +330,37 @@ const toDiagnostic = (starts: readonly [number, ...Array<number>], raw: RawDiagn
     line,
     character,
   });
-};
+});
 
-const fromRaw = (text: string, raw: RawParse): GitConfig =>
+const fromRaw: {
+  (text: string, raw: RawParse): GitConfig;
+  (raw: RawParse): (text: string) => GitConfig;
+} = dual(2, (text: string, raw: RawParse): GitConfig =>
   GitConfig.make({
     text,
-    sections: raw.sections.map((section) =>
-      GitConfigSection.make({
-        name: section.name,
-        ...O.getSomesStruct({ subsection: O.fromUndefinedOr(section.subsection) }),
-        offset: section.offset,
-        length: section.contentEnd - section.offset,
-        entries: section.entries.map((entry) =>
-          GitConfigEntry.make({
-            key: entry.key,
-            ...O.getSomesStruct({ value: O.fromUndefinedOr(entry.value) }),
-            offset: entry.offset,
-            length: entry.length,
-          }),
-        ),
-      }),
-    ),
-  });
+    sections: A.map(raw.sections, (section) =>
+          GitConfigSection.make({
+            name: section.name,
+            ...O.getSomesStruct({ subsection: O.fromUndefinedOr(section.subsection) }),
+            offset: section.offset,
+            length: section.contentEnd - section.offset,
+            entries: A.map(section.entries, (entry) =>
+                      GitConfigEntry.make({
+                        key: entry.key,
+                        ...O.getSomesStruct({ value: O.fromUndefinedOr(entry.value) }),
+                        offset: entry.offset,
+                        length: entry.length,
+                      })),
+          })),
+  }));
 
 /** A hand-built document violated the clean-text invariant. */
 class GitConfigInvariantError extends S.TaggedError<GitConfigInvariantError, { readonly brand: unique symbol }>($I`GitConfigInvariantError`)(
   "GitConfigInvariantError",
   {
-    message: S.String.annotateKey({ description: "The violated document invariant." }),
+    message: S.String.pipe($I.annoteKey("GitConfigInvariantError.message", { description: "The violated document invariant." })),
   },
-  $I.annote("GitConfigInvariantError", { description: "A GitConfig document contains text that does not scan cleanly." }),
+  $I.annoteError<GitConfigInvariantError>("GitConfigInvariantError", { description: "A GitConfig document contains text that does not scan cleanly." }),
 ) {}
 
 /**
@@ -372,7 +380,10 @@ const reparse = (text: string): RawParse => {
 };
 
 /** The last entry matching `key` across `sections`, with its owning section. */
-const lastMatchingEntry = (
+const lastMatchingEntry: {
+  (sections: ReadonlyArray<RawSection>, key: string): { readonly section: RawSection; readonly entry: RawEntry } | undefined;
+  (key: string): (sections: ReadonlyArray<RawSection>) => { readonly section: RawSection; readonly entry: RawEntry } | undefined;
+} = dual(2, (
   sections: ReadonlyArray<RawSection>,
   key: string,
 ): { readonly section: RawSection; readonly entry: RawEntry } | undefined => {
@@ -386,10 +397,13 @@ const lastMatchingEntry = (
     }
   }
   return found;
-};
+});
 
 /** Separates inserted content from the preceding entry, including an open EOF continuation. */
-const insertionSeparator = (text: string, offset: number, entry: RawEntry | undefined): string => {
+const insertionSeparator: {
+  (text: string, offset: number, entry: RawEntry | undefined): string;
+  (offset: number, entry: RawEntry | undefined): (text: string) => string;
+} = dual(3, (text: string, offset: number, entry: RawEntry | undefined): string => {
   const separator = offset > 0 && text[offset - 1] !== "\n" ? "\n" : "";
   if (entry === undefined || entry.valueOffset + entry.valueLength !== offset) return separator;
   // A significant value span reaching the newline consumed a continuation.
@@ -398,15 +412,18 @@ const insertionSeparator = (text: string, offset: number, entry: RawEntry | unde
   while (text[slashStart - 1] === "\\") slashStart -= 1;
   // Paired backslashes decode literally; only an odd final backslash stays open.
   return (offset - slashStart) % 2 === 1 ? `${separator}\n` : separator;
-};
+});
 
 /** Appends `content` after terminating the last logical value, retaining the existing text. */
-const appendAtEof = (text: string, content: string): string => {
+const appendAtEof: {
+  (text: string, content: string): string;
+  (content: string): (text: string) => string;
+} = dual(2, (text: string, content: string): string => {
   const sections = reparse(text).sections;
   const section = sections[sections.length - 1];
   const entry = section?.entries[section.entries.length - 1];
   return text + insertionSeparator(text, text.length, entry) + content;
-};
+});
 
 /**
  * A lossless git-config document: the source text plus the structural index
@@ -459,9 +476,9 @@ const appendAtEof = (text: string, content: string): string => {
  */
 export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbol }>($I`GitConfig`)({
   /** The document's source text — `stringify` returns exactly this. */
-  text: S.String.annotateKey({ description: "The document's source text — `stringify` returns exactly this." }),
+  text: S.String.pipe($I.annoteKey("GitConfig.text", { description: "The document's source text — `stringify` returns exactly this." })),
   /** The sections scanned from `text`, in document order. */
-  sections: S.Array(GitConfigSection).annotateKey({ description: "The sections scanned from `text`, in document order." }),
+  sections: S.Array(GitConfigSection).pipe($I.annoteKey("GitConfig.sections", { description: "The sections scanned from `text`, in document order." })),
 }, $I.annote("GitConfig", { description: "A lossless git-config document: the source text plus the structural index scanned from it." })) {
   /**
    * Parses git-config text into a lossless document — the pure, synchronous
@@ -491,7 +508,7 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
       return Result.fail(
         GitConfigParseError.make({
           input: text,
-          diagnostics: raw.diagnostics.map(diagnostic => toDiagnostic(starts, diagnostic)),
+          diagnostics: A.map(raw.diagnostics, toDiagnostic(starts)),
         }),
       );
     }
@@ -667,7 +684,7 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
     const invalid = validateAddress("set", section, subsection, key, value);
     if (invalid !== undefined) return Result.fail(invalid);
     const raw = reparse(this.text);
-    const matches = raw.sections.filter((candidate) => matchesSection(candidate, section, subsection));
+    const matches = A.filter(raw.sections, matchesSection(section, subsection));
     const found = lastMatchingEntry(matches, key);
     if (found !== undefined) {
       const splice = replaceValueSplice(this.text, found.entry, value);
@@ -706,7 +723,7 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
     const invalid = validateAddress("append", section, subsection, key, value);
     if (invalid !== undefined) return Result.fail(invalid);
     const raw = reparse(this.text);
-    const matches = raw.sections.filter((candidate) => matchesSection(candidate, section, subsection));
+    const matches = A.filter(raw.sections, matchesSection(section, subsection));
     const found = lastMatchingEntry(matches, key);
     if (found !== undefined) {
       const indent = sectionIndent(this.text, found.section);
@@ -744,7 +761,7 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
    */
   unset(section: string, subsection: string | undefined, key: string): Result.Result<GitConfig, GitConfigEditError> {
     const raw = reparse(this.text);
-    const matches = raw.sections.filter((candidate) => matchesSection(candidate, section, subsection));
+    const matches = A.filter(raw.sections, matchesSection(section, subsection));
     if (matches.length === 0) return Result.fail(editError("unset", "missingSection", section, subsection, key));
     const found = lastMatchingEntry(matches, key);
     if (found === undefined) return Result.fail(editError("unset", "missingKey", section, subsection, key));
@@ -779,7 +796,7 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
    */
   unsetAll(section: string, subsection: string | undefined, key: string): Result.Result<GitConfig, GitConfigEditError> {
     const raw = reparse(this.text);
-    const matches = raw.sections.filter((candidate) => matchesSection(candidate, section, subsection));
+    const matches = A.filter(raw.sections, matchesSection(section, subsection));
     if (matches.length === 0) return Result.fail(editError("unsetAll", "missingSection", section, subsection, key));
     const targets: Array<Splice> = [];
     for (const candidate of matches) {
@@ -793,7 +810,7 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
     }
     if (targets.length === 0) return Result.fail(editError("unsetAll", "missingKey", section, subsection, key));
     let text = this.text;
-    for (const splice of targets.toReversed()) text = applySplice(text, splice);
+    for (const splice of A.reverse(targets)) text = applySplice(text, splice);
     return Result.succeed(rebuild(text));
   }
 
@@ -845,11 +862,11 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
    */
   removeSection(section: string, subsection: string | undefined): Result.Result<GitConfig, GitConfigEditError> {
     const raw = reparse(this.text);
-    const matches = raw.sections.filter((candidate) => matchesSection(candidate, section, subsection));
+    const matches = A.filter(raw.sections, matchesSection(section, subsection));
     if (matches.length === 0)
       return Result.fail(editError("removeSection", "missingSection", section, subsection, undefined));
     let text = this.text;
-    for (const target of matches.toReversed()) {
+    for (const target of A.reverse(matches)) {
       text = applySplice(text, {
         offset: target.offset,
         length: target.contentEnd - target.offset,
@@ -890,11 +907,11 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
     const invalid = validateAddress("renameSection", newSection, newSubsection, undefined, undefined);
     if (invalid !== undefined) return Result.fail(invalid);
     const raw = reparse(this.text);
-    const matches = raw.sections.filter((candidate) => matchesSection(candidate, section, subsection));
+    const matches = A.filter(raw.sections, matchesSection(section, subsection));
     if (matches.length === 0)
       return Result.fail(editError("renameSection", "missingSection", section, subsection, undefined));
     let text = this.text;
-    for (const target of matches.toReversed()) {
+    for (const target of A.reverse(matches)) {
       text = applySplice(text, {
         offset: target.bracketOffset,
         length: target.bracketLength,
@@ -905,7 +922,10 @@ export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbo
   }
 }
 
-const editError = (
+const editError: {
+  (op: GitConfigEditError["op"], reason: GitConfigEditError["reason"], section: string, subsection: string | undefined, key: string | undefined): GitConfigEditError;
+  (reason: GitConfigEditError["reason"], section: string, subsection: string | undefined, key: string | undefined): (op: GitConfigEditError["op"]) => GitConfigEditError;
+} = dual(5, (
   op: GitConfigEditError["op"],
   reason: GitConfigEditError["reason"],
   section: string,
@@ -918,10 +938,24 @@ const editError = (
     section,
     ...O.getSomesStruct({ subsection: O.fromUndefinedOr(subsection) }),
     ...O.getSomesStruct({ key: O.fromUndefinedOr(key) }),
-  });
+  }));
 
 /** Validates the writable parts of an edit's address; returns the typed refusal, or nothing. */
-const validateAddress = (
+const validateAddress: {
+  (
+    op: GitConfigEditError["op"],
+    section: string,
+    subsection: string | undefined,
+    key: string | undefined,
+    value: string | undefined,
+  ): GitConfigEditError | undefined;
+  (
+    section: string,
+    subsection: string | undefined,
+    key: string | undefined,
+    value: string | undefined,
+  ): (op: GitConfigEditError["op"]) => GitConfigEditError | undefined;
+} = dual(5, (
   op: GitConfigEditError["op"],
   section: string,
   subsection: string | undefined,
@@ -942,10 +976,13 @@ const validateAddress = (
   if (key !== undefined && !isValidKey(key)) return editError(op, "invalidKey", section, subsection, key);
   if (value?.includes("\0") === true) return editError(op, "invalidValue", section, subsection, key);
   return undefined;
-};
+});
 
 /** The splice that rewrites an existing entry's value region in place. */
-const replaceValueSplice = (text: string, entry: RawEntry, value: string): Splice => {
+const replaceValueSplice: {
+  (text: string, entry: RawEntry, value: string): Splice;
+  (entry: RawEntry, value: string): (text: string) => Splice;
+} = dual(3, (text: string, entry: RawEntry, value: string): Splice => {
   const serialized = serializeValue(value);
   if (entry.valueOffset === -1) {
     // Bare boolean-true shorthand: insert ` = value` right after the key.
@@ -960,10 +997,26 @@ const replaceValueSplice = (text: string, entry: RawEntry, value: string): Splic
     length: entry.valueLength,
     content: serialized + pad,
   };
-};
+});
 
 /** Inserts a new `key = value` line into the last matching section, creating the section at EOF when none matches. */
-const insertEntry = (
+const insertEntry: {
+  (
+    text: string,
+    matches: ReadonlyArray<RawSection>,
+    section: string,
+    subsection: string | undefined,
+    key: string,
+    value: string,
+  ): GitConfig;
+  (
+    matches: ReadonlyArray<RawSection>,
+    section: string,
+    subsection: string | undefined,
+    key: string,
+    value: string,
+  ): (text: string) => GitConfig;
+} = dual(6, (
   text: string,
   matches: ReadonlyArray<RawSection>,
   section: string,
@@ -980,7 +1033,7 @@ const insertEntry = (
   const line = `${indent}${key} = ${serializeValue(value)}\n`;
   const content = insertionSeparator(text, offset, target.entries[target.entries.length - 1]) + line;
   return rebuild(applySplice(text, { offset, length: 0, content }));
-};
+});
 
 /**
  * Rebuilds a `GitConfig` from freshly-spliced text. The text came from our
@@ -990,9 +1043,12 @@ const insertEntry = (
 const rebuild = (text: string): GitConfig => fromRaw(text, reparse(text));
 
 /** Retains a header-line entry's line ending when removing its entry span. */
-const removalSuffix = (text: string, section: RawSection, entry: RawEntry): string => {
+const removalSuffix: {
+  (text: string, section: RawSection, entry: RawEntry): string;
+  (section: RawSection, entry: RawEntry): (text: string) => string;
+} = dual(3, (text: string, section: RawSection, entry: RawEntry): string => {
   if (entry.offset <= section.bracketOffset || entry.offset >= section.bodyStart) return "";
   const end = entry.offset + entry.length;
   if (text[end - 1] === "\n") return text[end - 2] === "\r" ? "\r\n" : "\n";
   return text[end - 1] === "\r" ? "\r" : "";
-};
+});

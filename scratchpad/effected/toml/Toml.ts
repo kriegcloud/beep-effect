@@ -50,7 +50,7 @@ const $I = $ScratchpadId.create("effected/toml/Toml");
  * @since 0.0.0
  */
 export class TomlStringifyOptions extends S.Class<TomlStringifyOptions, { readonly brand: unique symbol }>($I`TomlStringifyOptions`)({
-	newline: S.optionalKey(S.Literals(["\n", "\r\n"])).annotateKey({ description: "Line separator in emitted TOML, either LF or CRLF, defaulting to LF" }),
+	newline: S.optionalKey(S.Literals(["\n", "\r\n"])).pipe($I.annoteKey("TomlStringifyOptions.newline", { description: "Line separator in emitted TOML, either LF or CRLF, defaulting to LF" })),
 }, $I.annote("TomlStringifyOptions", { description: "Options controlling stringify behavior. The only knob is `newline` — omitted, it resolves to `\"\\n\"`." })) {}
 
 /**
@@ -81,8 +81,8 @@ export class TomlStringifyOptions extends S.Class<TomlStringifyOptions, { readon
  * @since 0.0.0
  */
 export class TomlParseError extends S.TaggedError<TomlParseError, { readonly brand: unique symbol }>($I`TomlParseError`)("TomlParseError", {
-	diagnostics: S.Array(TomlDiagnostic).annotateKey({ description: "Structured reasons the TOML document was rejected, currently containing only the first violation" }),
-}, $I.annote("TomlParseError", { description: "Parse failure: the TomlDiagnostic entries describing why the document was rejected (first violation wins, so there is one today; the array shape matches `@effected/yaml`'s aggregate contract). Raised by Toml.parse and the decode direction of the schema factories." })) {
+	diagnostics: S.Array(TomlDiagnostic).pipe($I.annoteKey("TomlParseError.diagnostics", { description: "Structured reasons the TOML document was rejected, currently containing only the first violation" })),
+}, $I.annoteError<TomlParseError>("TomlParseError", { description: "Parse failure: the TomlDiagnostic entries describing why the document was rejected (first violation wins, so there is one today; the array shape matches `@effected/yaml`'s aggregate contract). Raised by Toml.parse and the decode direction of the schema factories." })) {
 	/**
 	 * Formats the diagnostic count and first diagnostic with a human-readable, 1-based position.
 	 *
@@ -130,8 +130,8 @@ export class TomlParseError extends S.TaggedError<TomlParseError, { readonly bra
  * @since 0.0.0
  */
 export class TomlStringifyError extends S.TaggedError<TomlStringifyError, { readonly brand: unique symbol }>($I`TomlStringifyError`)("TomlStringifyError", {
-	diagnostic: TomlDiagnostic.annotateKey({ description: "Structured reason TOML encoding failed, with source offset zero because no source text exists" }),
-}, $I.annote("TomlStringifyError", { description: "Stringification failure: an unsupported value, an out-of-range integer, a circular reference or a tripped depth guard, as one structured TomlDiagnostic (offset `0` — there is no source text). Raised by Toml.stringify and the encode direction of the schema factories." })) {
+	diagnostic: TomlDiagnostic.pipe($I.annoteKey("TomlStringifyError.diagnostic", { description: "Structured reason TOML encoding failed, with source offset zero because no source text exists" })),
+}, $I.annoteError<TomlStringifyError>("TomlStringifyError", { description: "Stringification failure: an unsupported value, an out-of-range integer, a circular reference or a tripped depth guard, as one structured TomlDiagnostic (offset `0` — there is no source text). Raised by Toml.stringify and the encode direction of the schema factories." })) {
 	/**
 	 * Formats the diagnostic code and explanation as a stringification failure message.
 	 *

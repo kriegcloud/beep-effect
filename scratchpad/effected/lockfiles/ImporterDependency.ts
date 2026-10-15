@@ -52,9 +52,9 @@ const $I = $ScratchpadId.create("effected/lockfiles/ImporterDependency");
  * @since 0.0.0
  */
 export class ImporterDependency extends S.Class<ImporterDependency, { readonly brand: unique symbol }>($I`ImporterDependency`)({
-	name: S.NonEmptyString.annotateKey({ description: "Dependency package declared by this workspace importer" }),
-	specifier: DependencySpecifier.FromString.annotateKey({ description: "Declared dependency range or protocol, classified for inspection while preserving its exact original spelling when encoded" }),
-	version: S.optionalKey(S.String).annotateKey({ description: "pnpm-recorded resolved version or protocol resolution with peer context removed; absent for bun and npm" }),
-	peerSuffix: S.optionalKey(S.String).annotateKey({ description: "Raw parenthesized peer context following a pnpm importer dependency's resolution, present only when recorded" }),
-	depType: DependencyField.annotateKey({ description: "Dependency section that declared this entry: runtime, development, peer or optional" }),
+	name: S.NonEmptyString.pipe($I.annoteKey("ImporterDependency.name", { description: "Dependency package declared by this workspace importer" })),
+	specifier: DependencySpecifier.FromString.pipe($I.annoteKey("ImporterDependency.specifier", { description: "Declared dependency range or protocol, classified for inspection while preserving its exact original spelling when encoded" })),
+	version: S.optionalKey(S.String).pipe($I.annoteKey("ImporterDependency.version", { description: "pnpm-recorded resolved version or protocol resolution with peer context removed; absent for bun and npm" })),
+	peerSuffix: S.optionalKey(S.String).pipe($I.annoteKey("ImporterDependency.peerSuffix", { description: "Raw parenthesized peer context following a pnpm importer dependency's resolution, present only when recorded" })),
+	depType: DependencyField.pipe($I.annoteKey("ImporterDependency.depType", { description: "Dependency section that declared this entry: runtime, development, peer or optional" })),
 }, $I.annote("ImporterDependency", { description: "One declared dependency of one workspace importer, as the lockfile records it." })) {}

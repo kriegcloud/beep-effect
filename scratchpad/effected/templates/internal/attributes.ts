@@ -48,15 +48,11 @@ export const ATTRIBUTE_NAME_PATTERN = /^[A-Za-z][A-Za-z0-9_-]*$/;
  * @category schemas
  * @since 0.0.0
  */
-export const AttributeName = S.String.annotate(
-	$I.annote("AttributeName", { description: "An attribute name accepted by the existing marker renderer grammar." }),
-).check(
-	S.isPattern(ATTRIBUTE_NAME_PATTERN, {
-		identifier: $I`AttributeNameCheck`,
-		title: "Attribute name",
+export const AttributeName = S.String.pipe($I.annoteSchema("AttributeName", { description: "An attribute name accepted by the existing marker renderer grammar." })).check(
+	S.isPattern(ATTRIBUTE_NAME_PATTERN, $I.annote("AttributeNameCheck", {
 		description: "An ASCII letter followed by ASCII letters, digits, underscores or hyphens, with JavaScript dollar-anchor semantics.",
 		message: "Expected an attribute name starting with an ASCII letter, followed by ASCII letters, digits, underscores or hyphens",
-	}),
+	})),
 );
 /**
  * The string type validated by {@link AttributeName}.
@@ -83,15 +79,11 @@ export type AttributeName = typeof AttributeName.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const AttributeValue = S.String.annotate(
-	$I.annote("AttributeValue", { description: "An attribute value that can be rendered verbatim inside double quotes." }),
-).check(
-	S.isPattern(/^(?![\s\S]*["\r\n])/, {
-		identifier: $I`AttributeValueCheck`,
-		title: "Attribute value",
+export const AttributeValue = S.String.pipe($I.annoteSchema("AttributeValue", { description: "An attribute value that can be rendered verbatim inside double quotes." })).check(
+	S.isPattern(/^(?![\s\S]*["\r\n])/, $I.annote("AttributeValueCheck", {
 		description: "Text rendered verbatim inside double quotes, excluding double quotes, carriage returns and line feeds.",
 		message: "Expected an attribute value without double quotes, carriage returns or line feeds",
-	}),
+	})),
 );
 /**
  * The string type validated by {@link AttributeValue}.

@@ -8,7 +8,8 @@
 // (`linkReferenceDefinition.ts`), so this construct's finalize is a no-op.
 
 import { Root } from "../../MarkdownNode.ts";
-import type { BlockConstruct } from "../blockTypes.ts";
+import type { BlockConstruct, BlockContinueResult, BlockNode, BlockScanner, MaterializeContext, MaterializedBlock } from "../blockTypes.ts";
+import { dual } from "effect/Function";
 
 /**
  * Materializes the document root, containing everything except a bare list item.
@@ -29,7 +30,6 @@ export const documentConstruct: BlockConstruct = {
 	type: "document",
 	acceptsLines: false,
 	canContain: (child) => child !== "listItem",
-	continue: () => 0,
-	materialize: (block, children, context) =>
-		Root.make({ children, position: context.position(block.startOffset, block.endOffset) }),
+	continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 0),
+	materialize: dual(3, (block: BlockNode, children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => Root.make({ children, position: context.position(block.startOffset, block.endOffset) })),
 };

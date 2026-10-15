@@ -1,4 +1,5 @@
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -151,14 +152,17 @@ export const issueTreeChildren = (entries: ReadonlyArray<IssueEntry>): ReadonlyA
 	}
 	const leaves = (node: PathNode): ReadonlyArray<IssueTreeNode> =>
 		node.messages.map((message) => ({ label: message }));
-	const named = (segment: string, node: PathNode): IssueTreeNode => {
+	const named: {
+		(segment: string, node: PathNode): IssueTreeNode;
+		(node: PathNode): (segment: string) => IssueTreeNode;
+	} = dual(2, (segment: string, node: PathNode): IssueTreeNode => {
 		if (MutableHashMap.size(node.children) === 0 && node.messages.length === 1)
 			return { label: `${segment}: ${node.messages[0]}` };
 		return {
 			label: segment,
 			children: [...leaves(node), ...[...node.children].map(([name, child]) => named(name, child))],
 		};
-	};
+	});
 	return [...leaves(root), ...[...root.children].map(([name, child]) => named(name, child))];
 };
 

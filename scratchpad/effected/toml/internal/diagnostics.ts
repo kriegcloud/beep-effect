@@ -177,11 +177,11 @@ export const RawDiagnostic = S.Struct({
 		S.Literals(TOML_PARSE_ERROR_CODES),
 		S.Literals(TOML_SEMANTIC_ERROR_CODES),
 		S.Literals(TOML_STRINGIFY_ERROR_CODES),
-	]).annotateKey({ description: "The engine stage's diagnostic code." }),
-	message: S.String.annotateKey({ description: "The diagnostic's explanatory text." }),
-	offset: S.Finite.annotateKey({ description: "Zero-based source offset of the offending span." }),
-	length: S.Finite.annotateKey({ description: "Length of the offending source span." }),
-}).annotate($I.annote("RawDiagnostic", { description: "An engine diagnostic before the facade derives line and character positions." }));
+	]).pipe($I.annoteKey("RawDiagnostic.code", { description: "The engine stage's diagnostic code." })),
+	message: S.String.pipe($I.annoteKey("RawDiagnostic.message", { description: "The diagnostic's explanatory text." })),
+	offset: S.Finite.pipe($I.annoteKey("RawDiagnostic.offset", { description: "Zero-based source offset of the offending span." })),
+	length: S.Finite.pipe($I.annoteKey("RawDiagnostic.length", { description: "Length of the offending source span." })),
+}).pipe($I.annoteSchema("RawDiagnostic", { description: "An engine diagnostic before the facade derives line and character positions." }));
 
 /**
  * Describes an engine diagnostic before public modules derive line and character positions.
@@ -209,7 +209,7 @@ export type RawDiagnostic = typeof RawDiagnostic.Type;
  * @since 0.0.0
  */
 export class RawTomlError extends S.TaggedError<RawTomlError, { readonly brand: unique symbol }>($I`RawTomlError`)("RawTomlError", RawDiagnostic.fields,
-	$I.annote("RawTomlError", { description: "The engine's diagnostic throw carrier, caught by the public facade." })) {
+	$I.annoteError<RawTomlError>("RawTomlError", { description: "The engine's diagnostic throw carrier, caught by the public facade." })) {
 	/**
 	 * Reports the standard error name for the raw engine carrier.
 	 *

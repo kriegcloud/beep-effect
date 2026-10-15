@@ -4,6 +4,7 @@ import { UnstubbedMemberError } from "../../effected/github-actions/internal/uns
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -443,10 +444,10 @@ describe("ActionOutputs", () => {
 			{
 				it.layer(
 					ActionOutputs.layerTest({
-						setJson: (_name, _value, schema) =>
+						setJson: dual(3, <A, I>(_name: string, _value: A, schema: S.Codec<A, I>) =>
 							Effect.sync(() => {
 								void schema;
-							}),
+							})),
 					}),
 					{ timeout: "30 seconds" },
 				)((it) => {
@@ -468,10 +469,10 @@ describe("ActionOutputs", () => {
 					const seen: Array<{ name: string; value: unknown; schema: unknown }> = [];
 					const value = { count: 3 };
 					const outputs = ActionOutputs.makeTest({
-						setJson: (name, value, schema) =>
+						setJson: dual(3, <A, I>(name: string, value: A, schema: S.Codec<A, I>) =>
 							Effect.sync(() => {
 								seen.push({ name, value, schema });
-							}),
+							})),
 					});
 					yield* outputs.setJson("result", value, Report);
 					assert.strictEqual(seen.length, 1);

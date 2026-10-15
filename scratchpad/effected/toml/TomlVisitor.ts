@@ -23,6 +23,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as Stream from "effect/Stream";
@@ -42,21 +43,21 @@ const $I = $ScratchpadId.create("effected/toml/TomlVisitor");
 
 const visitorVariants = S.TaggedUnion({
 	TableStart: {
-		path: S.Array(S.String).annotateKey({ description: "Semantic table path, empty for the root table." }),
+		path: S.Array(S.String).pipe($I.annoteKey("TomlVisitorEvent.TableStart.path", { description: "Semantic table path, empty for the root table." })),
 	},
 	ArrayTableStart: {
-		path: S.Array(S.String).annotateKey({ description: "Semantic path of the array of tables." }),
-		index: S.Finite.annotateKey({ description: "Zero-based index of the table element starting at this header." }),
+		path: S.Array(S.String).pipe($I.annoteKey("TomlVisitorEvent.ArrayTableStart.path", { description: "Semantic path of the array of tables." })),
+		index: S.Finite.pipe($I.annoteKey("TomlVisitorEvent.ArrayTableStart.index", { description: "Zero-based index of the table element starting at this header." })),
 	},
 	KeyValue: {
-		path: S.Array(S.String).annotateKey({ description: "Semantic key path including the final key." }),
-		node: TomlKeyValue.annotateKey({ description: "CST key-value expression carrying the original value and source spans." }),
+		path: S.Array(S.String).pipe($I.annoteKey("TomlVisitorEvent.KeyValue.path", { description: "Semantic key path including the final key." })),
+		node: TomlKeyValue.pipe($I.annoteKey("TomlVisitorEvent.KeyValue.node", { description: "CST key-value expression carrying the original value and source spans." })),
 	},
 	Comment: {
-		text: S.String.annotateKey({ description: "Comment text after the hash marker with one leading space removed." }),
-		offset: S.Finite.annotateKey({ description: "Source position of the comment's hash marker in UTF-16 code units." }),
+		text: S.String.pipe($I.annoteKey("TomlVisitorEvent.Comment.text", { description: "Comment text after the hash marker with one leading space removed." })),
+		offset: S.Finite.pipe($I.annoteKey("TomlVisitorEvent.Comment.offset", { description: "Source position of the comment's hash marker in UTF-16 code units." })),
 	},
-}).annotate($I.annote("TomlVisitorEvent", { description: "Table, array-table, key-value and comment events emitted in TOML document order." }));
+}).pipe($I.annoteSchema("TomlVisitorEvent", { description: "Table, array-table, key-value and comment events emitted in TOML document order." }));
 
 /**
  * The discriminated union of TOML visitor events, in document order.
@@ -125,7 +126,10 @@ const decodeCommentText = (raw: string): string => (raw.startsWith(" ") ? raw.sl
  * key span for a header — so the first `#` found is unambiguously the
  * comment marker.
  */
-const trailingCommentOffset = (
+const trailingCommentOffset: {
+	(source: string, expression: TomlKeyValue | TomlTableHeader | TomlArrayTableHeader): number;
+	(expression: TomlKeyValue | TomlTableHeader | TomlArrayTableHeader): (source: string) => number;
+} = dual(2, (
 	source: string,
 	expression: TomlKeyValue | TomlTableHeader | TomlArrayTableHeader,
 ): number => {
@@ -134,7 +138,7 @@ const trailingCommentOffset = (
 	}
 	const keyEnd = A.reduce(expression.keyPath, expression.offset, (_, key) => key.offset + key.length);
 	return source.indexOf("#", keyEnd);
-};
+});
 
 /** Standalone comments inside a trivia run, each positioned by its `#`'s absolute offset. */
 const collectTriviaComments = (trivia: TomlTrivia): Array<PositionedEvent> => {
@@ -192,7 +196,7 @@ const collectEvents = (text: string): Array<TomlVisitorEvent> => {
 	}
 
 	const sorted = A.sort(positioned, Order.mapInput(Order.Number, (event: PositionedEvent) => event.offset));
-	return sorted.map((positionedEvent) => positionedEvent.event);
+	return A.map(sorted, (positionedEvent) => positionedEvent.event);
 };
 
 /**

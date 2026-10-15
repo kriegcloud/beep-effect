@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -12,13 +13,13 @@ import { Repo } from "./Repo.ts";
 
 const $I = $ScratchpadId.create("effected/github/GitBranch");
 
-const BranchRef = S.Struct({ object: S.Struct({ sha: S.String }) }).annotate(
-  $I.annote("BranchRef", { description: "The commit SHA selected from a GitHub branch ref response." }),
+const BranchRef = S.Struct({ object: S.Struct({ sha: S.String }) }).pipe(
+  $I.annoteSchema("BranchRef", { description: "The commit SHA selected from a GitHub branch ref response." }),
 );
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 const CreateLinkedBranch = GraphQLDocument.make({
   name: "createLinkedBranch",
@@ -77,7 +78,10 @@ export interface GitBranchShape {
    * @category utilities
    * @since 0.0.0
    */
-  readonly create: (name: string, sha: string) => Effect.Effect<void, GitHubError, Repo>;
+  readonly create: {
+    (name: string, sha: string): Effect.Effect<void, GitHubError, Repo>;
+    (sha: string): (name: string) => Effect.Effect<void, GitHubError, Repo>;
+  };
   /**
    * Point `name` at `sha`, creating it if needed.
    *
@@ -117,7 +121,10 @@ export interface GitBranchShape {
    * @category utilities
    * @since 0.0.0
    */
-  readonly upsert: (name: string, sha: string) => Effect.Effect<BranchOutcome, GitHubError, Repo>;
+  readonly upsert: {
+    (name: string, sha: string): Effect.Effect<BranchOutcome, GitHubError, Repo>;
+    (sha: string): (name: string) => Effect.Effect<BranchOutcome, GitHubError, Repo>;
+  };
   /**
    * Is the branch there? A 404 is `false`, not an error.
    *
@@ -197,7 +204,10 @@ export interface GitBranchShape {
    * @category utilities
    * @since 0.0.0
    */
-  readonly reset: (name: string, sha: string) => Effect.Effect<void, GitHubError, Repo>;
+  readonly reset: {
+    (name: string, sha: string): Effect.Effect<void, GitHubError, Repo>;
+    (sha: string): (name: string) => Effect.Effect<void, GitHubError, Repo>;
+  };
   /**
    * Delete the branch.
    *
@@ -375,12 +385,15 @@ const unstubbed = (member: string): never => {
  */
 const shortName = (name: string): string => name.replace(/^refs\/heads\//, "").replace(/^heads\//, "");
 
-const rejectEmpty = (operation: string, name: string): Effect.Effect<string, GitHubError> => {
+const rejectEmpty: {
+  (operation: string, name: string): Effect.Effect<string, GitHubError>;
+  (name: string): (operation: string) => Effect.Effect<string, GitHubError>;
+} = dual(2, (operation: string, name: string): Effect.Effect<string, GitHubError> => {
   const short = shortName(name).trim();
   return short === ""
     ? Effect.fail(GitHubError.rejected(operation, 422, "a branch name is required"))
     : Effect.succeed(short);
-};
+});
 
 /**
  * Every method resolves {@link Repo} per call rather than once at layer
@@ -399,7 +412,7 @@ const rejectEmpty = (operation: string, name: string): Effect.Effect<string, Git
  * call and nothing else.
  */
 const make = (client: GitHubClient["Service"]): GitBranchShape => {
-  const create = Effect.fn("GitBranch.create")(function* (branch: string, sha: string) {
+  const create: GitBranchShape["create"] = dual(2, Effect.fn("GitBranch.create")(function* (branch: string, sha: string) {
     const { owner, repo } = yield* Repo;
     const short = yield* rejectEmpty("GitBranch.create", branch);
     yield* Effect.annotateCurrentSpan({ owner, repo, branch: short });
@@ -409,9 +422,9 @@ const make = (client: GitHubClient["Service"]): GitBranchShape => {
       ref: `refs/heads/${short}`,
       sha,
     });
-  });
+  }));
 
-  const reset = Effect.fn("GitBranch.reset")(function* (branch: string, sha: string) {
+  const reset: GitBranchShape["reset"] = dual(2, Effect.fn("GitBranch.reset")(function* (branch: string, sha: string) {
     const { owner, repo } = yield* Repo;
     const short = yield* rejectEmpty("GitBranch.reset", branch);
     yield* Effect.annotateCurrentSpan({ owner, repo, branch: short });
@@ -422,9 +435,9 @@ const make = (client: GitHubClient["Service"]): GitBranchShape => {
       sha,
       force: true,
     });
-  });
+  }));
 
-  const upsert = Effect.fn("GitBranch.upsert")(function* (branch: string, sha: string) {
+  const upsert: GitBranchShape["upsert"] = dual(2, Effect.fn("GitBranch.upsert")(function* (branch: string, sha: string) {
     const short = yield* rejectEmpty("GitBranch.upsert", branch);
     yield* Effect.annotateCurrentSpan({ branch: short });
     return yield* create(short, sha).pipe(
@@ -434,9 +447,12 @@ const make = (client: GitHubClient["Service"]): GitBranchShape => {
       // recovery needs no second existence check to tell the cases apart.
       Effect.catchIf(GitHubError.hasKind("alreadyExists"), () => Effect.as(reset(short, sha), "reset" as const)),
     );
-  });
+  }));
 
-  const readRef = Effect.fn("readRef")(function* (operation: string, branch: string) {
+  const readRef: {
+    (operation: string, branch: string): Effect.Effect<typeof BranchRef.Type, GitHubError, Repo>;
+    (branch: string): (operation: string) => Effect.Effect<typeof BranchRef.Type, GitHubError, Repo>;
+  } = dual(2, Effect.fn("readRef")(function* (operation: string, branch: string) {
     const { owner, repo } = yield* Repo;
     const short = yield* rejectEmpty(operation, branch);
     const ref = yield* client.request("GET /repos/{owner}/{repo}/git/ref/{ref}", {
@@ -447,7 +463,7 @@ const make = (client: GitHubClient["Service"]): GitBranchShape => {
     return yield* S.decodeEffect(BranchRef)(ref).pipe(
       Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected branch ref", error)),
     );
-  });
+  }));
 
   const shaOption = Effect.fn("GitBranch.shaOption")(function* (branch: string) {
     yield* Effect.annotateCurrentSpan({ branch });

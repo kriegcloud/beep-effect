@@ -16,6 +16,7 @@ import { BlobTransferError } from "../../effected/github-actions/BlobTransfer.ts
 import type { FileBlobTransfer } from "../../effected/github-actions/BlobTransfer.ts";
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import { json, resultsEnv, twirpFetch } from "./results.ts";
+import { dual } from "effect/Function";
 
 const fault = PlatformError.badArgument({ module: "FileSystem", method: "test", description: "injected failure" });
 interface Options {
@@ -62,7 +63,7 @@ const fixture = (options: Options = {}) => {
         getInputFd: () => Sink.drain, getOutputFd: () => Stream.empty, unref: Effect.succeed(Effect.void),
       });
     })))).pipe(Layer.provide(fsLayer));
-  const transfer: FileBlobTransfer = { uploadFile: () => Effect.void, downloadToFile: () => Effect.void };
+  const transfer: FileBlobTransfer = { uploadFile: dual(2, (_url: string, _file: string) => Effect.void), downloadToFile: dual(2, (_url: string, _file: string) => Effect.void) };
   return (options.azure === true ? ActionCache.layer : ActionCache.layerWith(transfer)).pipe(
     Layer.provideMerge(Layer.mergeAll(fsLayer, Path.layer, spawner,
       resultsEnv({ GITHUB_WORKSPACE: "/work", ...options.env }),

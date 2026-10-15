@@ -5,7 +5,7 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Str from "effect/String";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
@@ -145,8 +145,8 @@ describe("paths", () => {
 describe("specifier rewrites", () => {
   const resolver = {
     resolveRelative: (specifier: string) => (specifier === "../src/index.js" ? O.some("../../effected/glob/index.js") : O.none()),
-    resolveKit: (dep: string, subpath: string) =>
-      dep === "memfs" ? O.some(subpath === "." ? "../memfs/index.ts" : "../memfs/NodeSyncFileSystem.ts") : O.none(),
+    resolveKit: dual(2, (dep: string, subpath: string): O.Option<string> =>
+      dep === "memfs" ? O.some(subpath === "." ? "../memfs/index.ts" : "../memfs/NodeSyncFileSystem.ts") : O.none()),
   };
   it("normalizes .js and .jsx extensions only", () => {
     assert.strictEqual(tsExtension("./a.js"), "./a.ts");

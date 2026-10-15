@@ -7,6 +7,7 @@
 // option is not offered).
 
 import type { InlineConstruct } from "../inlineTypes.ts";
+import { dual } from "effect/Function";
 
 // Every character that can start some other construct, so a text run stops
 // before it. `'` and `"` are in the set because upstream's smart punctuation
@@ -35,7 +36,10 @@ const reMain = /^[^\n`[\]\\!<&*_'"]+/;
 const reMainGfm = /^[^\n`[\]\\!<&*_'"~w:]+/;
 
 /** Consume a run of ordinary characters, stopping before any construct's. */
-const runConstruct = (name: string, pattern: RegExp): InlineConstruct => ({
+const runConstruct: {
+	(name: string, pattern: RegExp): InlineConstruct;
+	(pattern: RegExp): (name: string) => InlineConstruct;
+} = dual(2, (name: string, pattern: RegExp): InlineConstruct => ({
 	name,
 	triggers: [],
 	parse: (scanner) => {
@@ -47,7 +51,7 @@ const runConstruct = (name: string, pattern: RegExp): InlineConstruct => ({
 		scanner.appendText(matched, from, scanner.pos);
 		return true;
 	},
-});
+}));
 
 /**
  * Consumes ordinary text as the fallback construct, with no trigger of its own.

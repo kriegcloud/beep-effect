@@ -12,6 +12,7 @@ import {
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -101,14 +102,14 @@ const rig = (
     ...options.outputs,
   });
   const state = ActionState.layerTest({
-    save: Effect.fn("save")(function* (key, value, schema) {
+    save: dual(3, Effect.fn("save")(function* <A, I>(key: string, value: A, schema: S.Codec<A, I>) {
       events.push(`save:${key}`);
       saved.set(
         key,
         Result.getOrThrowWith(S.encodeResult(Json)(yield* S.encodeUnknownEffect(schema)(value)), (error) => error)
       );
-    }, Effect.orDie),
-    get: (key, schema) =>
+    }, Effect.orDie)),
+    get: dual(2, <A, I>(key: string, schema: S.Codec<A, I>) =>
       Effect.suspend(() => {
         const found = saved.get(key);
         return found === undefined
@@ -116,8 +117,8 @@ const rig = (
           : S.decodeUnknownEffect(schema)(Result.getOrThrowWith(S.decodeResult(Json)(found), (error) => error)).pipe(
               Effect.orDie
             );
-      }),
-    getOptional: (key, schema) =>
+      })),
+    getOptional: dual(2, <A, I>(key: string, schema: S.Codec<A, I>) =>
       Effect.suspend(() => {
         const found = saved.get(key);
         return found === undefined
@@ -126,7 +127,7 @@ const rig = (
               Effect.orDie,
               Effect.asSome
             );
-      }),
+      })),
   });
   return { events, saved, revoked, layer: Layer.mergeAll(app, outputs, state) };
 };
@@ -251,7 +252,7 @@ describe("GitHubToken", () => {
         }),
         ActionOutputs.layerTest({ setSecret: () => Effect.void }),
         ActionState.layerTest({
-          save: (key) => Effect.fail(ActionStateError.make({ reason: "writeFailed", key })),
+          save: dual(3, <A, I>(key: string, _value: A, _schema: S.Codec<A, I>) => Effect.fail(ActionStateError.make({ reason: "writeFailed", key }))),
         })
       );
       it.layer(failing, { timeout: "30 seconds" })((it) => {
@@ -459,7 +460,7 @@ describe("GitHubToken", () => {
           revoke: () => Effect.void,
         }),
         ActionOutputs.layerTest({ setSecret: () => Effect.void }),
-        ActionState.layerTest({ save: () => Effect.void })
+        ActionState.layerTest({ save: dual(3, <A, I>(_key: string, _value: A, _schema: S.Codec<A, I>) => Effect.void) })
       );
       it.layer(exact, { timeout: "30 seconds" })((it) => {
         it.effect("a double supplying exactly the documented members satisfies provision", () =>
@@ -480,7 +481,7 @@ describe("GitHubToken", () => {
           revoke: () => Effect.void,
         }),
         ActionOutputs.layerTest(),
-        ActionState.layerTest({ save: () => Effect.void })
+        ActionState.layerTest({ save: dual(3, <A, I>(_key: string, _value: A, _schema: S.Codec<A, I>) => Effect.void) })
       );
       it.layer(missing, { timeout: "30 seconds" })((it) => {
         it.effect("a double missing setSecret dies, naming the member", () =>

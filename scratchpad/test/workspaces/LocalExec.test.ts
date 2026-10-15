@@ -13,6 +13,8 @@
 // against that same static rather than hard-coding prefixes, so a change to the
 // table cannot leave this package silently disagreeing with it.
 
+import * as P from "effect/Predicate";
+import { dual } from "effect/Function";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import { ExecContext, LocalExec, LocalExecError } from "../../effected/commands/index.ts";
@@ -45,7 +47,7 @@ const detectorFailing = (failure: PackageManagerDetectionError | WorkspaceManife
 
 /** A root resolver that never finds a workspace. */
 const noRoot = Layer.succeed(WorkspaceRoot, {
-	find: Effect.fn("WorkspaceRoot.find")((cwd: string) => Effect.fail(WorkspaceRootNotFoundError.make({ searchPath: cwd, markers: ["pnpm-workspace.yaml"] }))),
+	find: dual((args) => P.isString(args[0]), Effect.fn("WorkspaceRoot.find")((cwd: string) => Effect.fail(WorkspaceRootNotFoundError.make({ searchPath: cwd, markers: ["pnpm-workspace.yaml"] })))),
 });
 
 const localExecOver = (layers: Layer.Layer<PackageManagerDetector | WorkspaceRoot>, cwd = "/repo/packages/thing") =>
@@ -211,10 +213,10 @@ describe("Workspaces.localExecLayer — cwd", () => {
 	const recordingRoot = Layer.succeed(WorkspaceRoot, {
 		// Wrapped in `suspend` so the push happens when the effect RUNS, not
 		// when it is built — an eager recorder logs calls that never executed.
-		find: Effect.fn("WorkspaceRoot.find")((cwd: string) => Effect.suspend(() => {
+		find: dual((args) => P.isString(args[0]), Effect.fn("WorkspaceRoot.find")((cwd: string) => Effect.suspend(() => {
 			seen.push(cwd);
 			return Effect.succeed("/repo");
-		})),
+		}))),
 	});
 	it.layer(localExecOver(Layer.mergeAll(recordingRoot, detects("npm")), "/somewhere/else"), { timeout: "30 seconds" })((it) => {
 		it.effect("passes the configured cwd to root resolution", () =>

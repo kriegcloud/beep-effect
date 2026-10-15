@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
-import { flow, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -32,18 +32,18 @@ const $I = $ScratchpadId.create("effected/github-commands/WorkflowCommand");
  */
 export const AnnotationProperties = S.Struct({
 	/** A short title shown above the annotation. */
-	title: S.optionalKey(S.String.annotate($I.annote("title", { description: "A short title shown above the annotation." }))),
+	title: S.optionalKey(S.String).pipe($I.annoteKey("AnnotationProperties.title", { description: "A short title shown above the annotation." })),
 	/** Repository-relative path of the annotated file. */
-	file: S.optionalKey(S.String.annotate($I.annote("file", { description: "Repository-relative path of the annotated file." }))),
+	file: S.optionalKey(S.String).pipe($I.annoteKey("AnnotationProperties.file", { description: "Repository-relative path of the annotated file." })),
 	/** First annotated line, 1-based. */
-	startLine: S.optionalKey(S.Finite.annotate($I.annote("startLine", { description: "First annotated line, 1-based." }))),
+	startLine: S.optionalKey(S.Finite).pipe($I.annoteKey("AnnotationProperties.startLine", { description: "First annotated line, 1-based." })),
 	/** Last annotated line, 1-based. */
-	endLine: S.optionalKey(S.Finite.annotate($I.annote("endLine", { description: "Last annotated line, 1-based." }))),
+	endLine: S.optionalKey(S.Finite).pipe($I.annoteKey("AnnotationProperties.endLine", { description: "Last annotated line, 1-based." })),
 	/** First annotated column, 1-based. */
-	startColumn: S.optionalKey(S.Finite.annotate($I.annote("startColumn", { description: "First annotated column, 1-based." }))),
+	startColumn: S.optionalKey(S.Finite).pipe($I.annoteKey("AnnotationProperties.startColumn", { description: "First annotated column, 1-based." })),
 	/** Last annotated column, 1-based. */
-	endColumn: S.optionalKey(S.Finite.annotate($I.annote("endColumn", { description: "Last annotated column, 1-based." }))),
-}).annotate($I.annote("AnnotationProperties", { description: "The title and source location of a GitHub Actions notice, warning or error annotation." }));
+	endColumn: S.optionalKey(S.Finite).pipe($I.annoteKey("AnnotationProperties.endColumn", { description: "Last annotated column, 1-based." })),
+}).pipe($I.annoteSchema("AnnotationProperties", { description: "The title and source location of a GitHub Actions notice, warning or error annotation." }));
 
 /**
  * The readable annotation properties accepted by the workflow command helpers.
@@ -138,20 +138,22 @@ export class WorkflowCommand {
   * @category formatting
   * @since 0.0.0
   */
-	static render(
-		name: string,
-		properties: Readonly<Record<string, string | number | boolean | undefined>>,
-		message: string,
-	): string {
-		const rendered = pipe(
-			R.toEntries(properties),
-			A.filter((entry): entry is [string, string | number | boolean] => P.isNotUndefined(entry[1])),
-			A.map(([key, value]) => `${key}=${escapeProperty(String(value))}`),
-			A.join(","),
-		);
-		const head = rendered === "" ? `::${name}::` : `::${name} ${rendered}::`;
-		return `${head}${escapeMessage(message)}`;
-	}
+	static readonly render: {
+		(name: string, properties: Readonly<Record<string, string | number | boolean | undefined>>, message: string): string;
+		(properties: Readonly<Record<string, string | number | boolean | undefined>>, message: string): (name: string) => string;
+	} = dual(
+		3,
+		(name: string, properties: Readonly<Record<string, string | number | boolean | undefined>>, message: string): string => {
+			const rendered = pipe(
+				R.toEntries(properties),
+				A.filter((entry): entry is [string, string | number | boolean] => P.isNotUndefined(entry[1])),
+				A.map(([key, value]) => `${key}=${escapeProperty(String(value))}`),
+				A.join(","),
+			);
+			const head = rendered === "" ? `::${name}::` : `::${name} ${rendered}::`;
+			return `${head}${escapeMessage(message)}`;
+		},
+	);
 
 	/**
 	 * Render a `::debug::` message, shown only when `ACTIONS_STEP_DEBUG` is enabled.
@@ -185,9 +187,14 @@ export class WorkflowCommand {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static notice(message: string, properties: AnnotationProperties = {}): string {
-		return WorkflowCommand.render("notice", WorkflowCommand.annotation(properties), message);
-	}
+	static readonly notice: {
+		(message: string, properties?: AnnotationProperties): string;
+		(properties?: AnnotationProperties): (message: string) => string;
+	} = dual(
+		(args) => P.isString(args[0]),
+		(message: string, properties: AnnotationProperties = {}): string =>
+			WorkflowCommand.render("notice", WorkflowCommand.annotation(properties), message),
+	);
 
 	/**
 	 * Render a `::warning::` message with optional source annotation.
@@ -203,9 +210,14 @@ export class WorkflowCommand {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static warning(message: string, properties: AnnotationProperties = {}): string {
-		return WorkflowCommand.render("warning", WorkflowCommand.annotation(properties), message);
-	}
+	static readonly warning: {
+		(message: string, properties?: AnnotationProperties): string;
+		(properties?: AnnotationProperties): (message: string) => string;
+	} = dual(
+		(args) => P.isString(args[0]),
+		(message: string, properties: AnnotationProperties = {}): string =>
+			WorkflowCommand.render("warning", WorkflowCommand.annotation(properties), message),
+	);
 
 	/**
 	 * Render a `::error::` message with optional source annotation.
@@ -221,9 +233,14 @@ export class WorkflowCommand {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static error(message: string, properties: AnnotationProperties = {}): string {
-		return WorkflowCommand.render("error", WorkflowCommand.annotation(properties), message);
-	}
+	static readonly error: {
+		(message: string, properties?: AnnotationProperties): string;
+		(properties?: AnnotationProperties): (message: string) => string;
+	} = dual(
+		(args) => P.isString(args[0]),
+		(message: string, properties: AnnotationProperties = {}): string =>
+			WorkflowCommand.render("error", WorkflowCommand.annotation(properties), message),
+	);
 
 	/**
 	 * Render `::group::` to open a collapsible section in the runner log.

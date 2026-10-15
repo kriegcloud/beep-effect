@@ -7,6 +7,7 @@
 // It is also where `@effected/npm`'s `WorkspaceResolver` contract is
 // implemented: `versionOf` is a lookup over the discovered package list.
 
+import { dual } from "effect/Function";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as HashMap from "effect/HashMap";
@@ -34,12 +35,8 @@ import { WorkspaceRoot } from "./WorkspaceRoot.ts";
 
 const $I = $ScratchpadId.create("effected/workspaces/WorkspaceDiscovery");
 
-const WorkspaceDiscoveryErrorKind = LiteralKit(["read", "invalidJson", "invalidShape", "invalidYaml", "missingName"]).annotate(
-	$I.annote("WorkspaceDiscoveryErrorKind", { description: "The reasons workspace manifest discovery can fail." }),
-);
-const WorkspacePatternErrorKind = LiteralKit(["missingBaseDir", "uncompilable", "depthExceeded", "budgetExceeded", "unreadableDirectory"]).annotate(
-	$I.annote("WorkspacePatternErrorKind", { description: "The reasons a workspace pattern can fail to enumerate." }),
-);
+const WorkspaceDiscoveryErrorKind = LiteralKit(["read", "invalidJson", "invalidShape", "invalidYaml", "missingName"]).pipe($I.annoteSchema("WorkspaceDiscoveryErrorKind", { description: "The reasons workspace manifest discovery can fail." }));
+const WorkspacePatternErrorKind = LiteralKit(["missingBaseDir", "uncompilable", "depthExceeded", "budgetExceeded", "unreadableDirectory"]).pipe($I.annoteSchema("WorkspacePatternErrorKind", { description: "The reasons a workspace pattern can fail to enumerate." }));
 const byName = Order.make<WorkspacePackage>((a, b) => {
 	const comparison = a.name.localeCompare(b.name);
 	return comparison < 0 ? -1 : comparison > 0 ? 1 : 0;
@@ -50,7 +47,7 @@ const JsonValue = S.fromJsonString(S.Unknown);
 class WorkspaceDiscoveryCause extends S.TaggedError<WorkspaceDiscoveryCause, { readonly brand: unique symbol }>($I`WorkspaceDiscoveryCause`)(
 	"WorkspaceDiscoveryCause",
 	{ message: S.String },
-	$I.annote("WorkspaceDiscoveryCause", { description: "A manifest-shape failure or an unstubbed discovery test-double method." }),
+	$I.annoteError<WorkspaceDiscoveryCause>("WorkspaceDiscoveryCause", { description: "A manifest-shape failure or an unstubbed discovery test-double method." }),
 ) {}
 
 /**
@@ -85,14 +82,14 @@ class WorkspaceDiscoveryCause extends S.TaggedError<WorkspaceDiscoveryCause, { r
  */
 export class WorkspaceDiscoveryError extends S.TaggedError<WorkspaceDiscoveryError, { readonly brand: unique symbol }>($I`WorkspaceDiscoveryError`)("WorkspaceDiscoveryError", {
 	/** The workspace root discovery was running against. */
-	root: S.String.annotateKey({ description: "The workspace root discovery was running against." }),
+	root: S.String.pipe($I.annoteKey("WorkspaceDiscoveryError.root", { description: "The workspace root discovery was running against." })),
 	/** The file that failed. */
-	path: S.String.annotateKey({ description: "The file that failed." }),
+	path: S.String.pipe($I.annoteKey("WorkspaceDiscoveryError.path", { description: "The file that failed." })),
 	/** What went wrong with it. */
-	kind: WorkspaceDiscoveryErrorKind.annotateKey({ description: "What went wrong with it." }),
+	kind: WorkspaceDiscoveryErrorKind.pipe($I.annoteKey("WorkspaceDiscoveryError.kind", { description: "What went wrong with it." })),
 	/** The originating failure, if there was one. */
-	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The originating failure, if there was one." }),
-}, $I.annote("WorkspaceDiscoveryError", { description: "Raised when a workspace member's `package.json` cannot be read, parsed, or used — it is missing, malformed, or lacks a `name`." })) {
+	cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("WorkspaceDiscoveryError.cause", { description: "The originating failure, if there was one." })),
+}, $I.annoteError<WorkspaceDiscoveryError>("WorkspaceDiscoveryError", { description: "Raised when a workspace member's `package.json` cannot be read, parsed, or used — it is missing, malformed, or lacks a `name`." })) {
 	/**
 	 * Renders the failing file and kind into a one-line message.
 	 *
@@ -133,14 +130,14 @@ export class WorkspaceDiscoveryError extends S.TaggedError<WorkspaceDiscoveryErr
  */
 export class WorkspacePatternError extends S.TaggedError<WorkspacePatternError, { readonly brand: unique symbol }>($I`WorkspacePatternError`)("WorkspacePatternError", {
 	/** The workspace root the patterns were expanded against. */
-	root: S.String.annotateKey({ description: "The workspace root the patterns were expanded against." }),
+	root: S.String.pipe($I.annoteKey("WorkspacePatternError.root", { description: "The workspace root the patterns were expanded against." })),
 	/** The offending pattern, verbatim. */
-	pattern: S.String.annotateKey({ description: "The offending pattern, verbatim." }),
+	pattern: S.String.pipe($I.annoteKey("WorkspacePatternError.pattern", { description: "The offending pattern, verbatim." })),
 	/** Why it could not be enumerated. */
-	kind: WorkspacePatternErrorKind.annotateKey({ description: "Why it could not be enumerated." }),
+	kind: WorkspacePatternErrorKind.pipe($I.annoteKey("WorkspacePatternError.kind", { description: "Why it could not be enumerated." })),
 	/** A short, structured detail — the missing directory, or the bound exceeded. */
-	detail: S.String.annotateKey({ description: "A short, structured detail — the missing directory, or the bound exceeded." }),
-}, $I.annote("WorkspacePatternError", { description: "Raised when a `packages:` pattern cannot be enumerated: its base directory is absent (usually a typo), the descent exceeded its depth cap, or the visit budget was exhausted." })) {
+	detail: S.String.pipe($I.annoteKey("WorkspacePatternError.detail", { description: "A short, structured detail — the missing directory, or the bound exceeded." })),
+}, $I.annoteError<WorkspacePatternError>("WorkspacePatternError", { description: "Raised when a `packages:` pattern cannot be enumerated: its base directory is absent (usually a typo), the descent exceeded its depth cap, or the visit budget was exhausted." })) {
 	/**
 	 * Renders the pattern and failure kind into a one-line message.
 	 *
@@ -184,10 +181,10 @@ export class WorkspacePatternError extends S.TaggedError<WorkspacePatternError, 
  */
 export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { readonly brand: unique symbol }>($I`PackageNotFoundError`)("PackageNotFoundError", {
 	/** The name that was requested. */
-	name: S.String.annotateKey({ description: "The name that was requested." }),
+	name: S.String.pipe($I.annoteKey("PackageNotFoundError.name", { description: "The name that was requested." })),
 	/** Every workspace package name that does exist. */
-	available: S.Array(S.String).annotateKey({ description: "Every workspace package name that does exist." }),
-}, $I.annote("PackageNotFoundError", { description: "Raised when a workspace package is requested by a name no member carries." })) {
+	available: S.Array(S.String).pipe($I.annoteKey("PackageNotFoundError.available", { description: "Every workspace package name that does exist." })),
+}, $I.annoteError<PackageNotFoundError>("PackageNotFoundError", { description: "Raised when a workspace package is requested by a name no member carries." })) {
 	/**
 	 * Renders the requested name into a one-line message.
 	 *
@@ -227,9 +224,9 @@ export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { 
  */
 export class WorkspaceInfo extends S.Class<WorkspaceInfo, { readonly brand: unique symbol }>($I`WorkspaceInfo`)({
 	/** Absolute path to the workspace root. */
-	root: S.String.annotateKey({ description: "Absolute path to the workspace root." }),
+	root: S.String.pipe($I.annoteKey("WorkspaceInfo.root", { description: "Absolute path to the workspace root." })),
 	/** The `packages:` patterns, verbatim. */
-	patterns: S.Array(S.String).annotateKey({ description: "The `packages:` patterns, verbatim." }),
+	patterns: S.Array(S.String).pipe($I.annoteKey("WorkspaceInfo.patterns", { description: "The `packages:` patterns, verbatim." })),
 }, $I.annote("WorkspaceInfo", { description: "Top-level facts about a workspace: where it is, what manages it, and the patterns that define its membership." })) {}
 
 /**
@@ -256,9 +253,7 @@ export type WorkspaceLookupFailure =
  */
 export type WorkspaceDiscoveryFailure = Exclude<WorkspaceLookupFailure, PackageNotFoundError>;
 
-const DiscoveryDepth = S.declare(P.isNumber).annotate(
-	$I.annote("DiscoveryDepth", { description: "The existing numeric descent cap, without additional refinement." }),
-);
+const DiscoveryDepth = S.declare(P.isNumber).pipe($I.annoteSchema("DiscoveryDepth", { description: "The existing numeric descent cap, without additional refinement." }));
 
 /**
  * Options for the {@link WorkspaceDiscovery} layer.
@@ -285,7 +280,7 @@ export const WorkspaceDiscoveryOptions = S.Struct({
 	 *   `process.chdir` between providing the layer and the first call is
 	 *   honoured.
 	 */
-	cwd: S.optionalKey(S.String).annotateKey($I.annote("cwd", { description: "Optional working directory, resolved lazily." })),
+	cwd: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceDiscoveryOptions.cwd", { description: "Optional working directory, resolved lazily." })),
 	/**
   * A ceiling for the layer-bound root ascent from `cwd`, passed straight
   * through to the `stopAt` of {@link WorkspaceRoot}'s `find`.
@@ -312,10 +307,10 @@ export const WorkspaceDiscoveryOptions = S.Struct({
   *
   * @defaultValue no ceiling — the ascent runs to the filesystem root.
   */
-	stopAt: S.optionalKey(S.String).annotateKey($I.annote("stopAt", { description: "Inclusive ceiling for layer-bound root discovery." })),
+	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceDiscoveryOptions.stopAt", { description: "Inclusive ceiling for layer-bound root discovery." })),
 	/** Descent cap for segment-crossing patterns. Defaults to 32. */
-	maxDepth: S.optionalKey(DiscoveryDepth).annotateKey($I.annote("maxDepth", { description: "Optional pattern descent cap, defaulted on use." })),
-}).annotate($I.annote("WorkspaceDiscoveryOptions", { description: "Root resolution and pattern descent options, with defaults resolved lazily." }));
+	maxDepth: S.optionalKey(DiscoveryDepth).pipe($I.annoteKey("WorkspaceDiscoveryOptions.maxDepth", { description: "Optional pattern descent cap, defaulted on use." })),
+}).pipe($I.annoteSchema("WorkspaceDiscoveryOptions", { description: "Root resolution and pattern descent options, with defaults resolved lazily." }));
 
 /**
  * Configures root resolution and pattern descent while leaving defaults to discovery.
@@ -476,7 +471,10 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 			const path = yield* Path.Path;
 
 			/** Read one `package.json` into the tolerant discovery projection. */
-			const readPackage = Effect.fnUntraced(function* (
+			const readPackage: {
+				(root: string, directory: string, relativePath: string): Effect.Effect<WorkspacePackage, WorkspaceDiscoveryError>;
+				(directory: string, relativePath: string): (root: string) => Effect.Effect<WorkspacePackage, WorkspaceDiscoveryError>;
+			} = dual(3, Effect.fnUntraced(function* (
 				root: string,
 				directory: string,
 				relativePath: string,
@@ -577,7 +575,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 							(cause) => WorkspaceDiscoveryError.make({ root, path: packageJsonPath, kind: "invalidShape", cause }),
 						),
 					);
-				});
+				}));
 
 			/**
 			 * Discovery for ONE already-resolved root — the whole read, with the root
@@ -635,7 +633,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 					);
 
 					const members = yield* Effect.forEach(
-						directories.filter((entry) => entry.relativePath !== "." && entry.path !== root),
+						A.filter(directories, (entry) => entry.relativePath !== "." && entry.path !== root),
 						(entry) => readPackage(root, entry.path, entry.relativePath),
 						{ concurrency: 10 },
 					);
@@ -732,7 +730,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 				const cached = indexOwner.ownerIndex;
 				if (cached !== undefined && cached.snapshot === all) return cached.entries;
 				const index = A.sort(
-					all.map((pkg) => ({
+					A.map(all, (pkg) => ({
 						prefix: pkg.path.endsWith(path.sep) ? pkg.path : pkg.path + path.sep,
 						package: pkg,
 					})),
@@ -742,7 +740,15 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 				return index;
 			};
 
-			const ownerOf = (
+			const ownerOf: {
+				(
+					filePath: string,
+					index: ReadonlyArray<{ readonly prefix: string; readonly package: WorkspacePackage }>,
+				): O.Option<WorkspacePackage>;
+				(
+					index: ReadonlyArray<{ readonly prefix: string; readonly package: WorkspacePackage }>,
+				): (filePath: string) => O.Option<WorkspacePackage>;
+			} = dual(2, (
 				filePath: string,
 				index: ReadonlyArray<{ readonly prefix: string; readonly package: WorkspacePackage }>,
 			): O.Option<WorkspacePackage> => {
@@ -750,7 +756,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 					if (filePath.startsWith(entry.prefix)) return O.some(entry.package);
 				}
 				return O.none();
-			};
+			});
 
 			const packagesByName = (all: ReadonlyArray<WorkspacePackage>): MutableHashMap.MutableHashMap<string, WorkspacePackage> => {
 				const cached = indexOwner.packageIndex;
@@ -777,14 +783,14 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 
 				importerMap: Effect.suspend(Effect.fn("WorkspaceDiscovery.importerMap")(function* () {
 					const all = yield* packages;
-					return HashMap.fromIterable(all.map((pkg) => [pkg.relativePath, pkg] as const));
+					return HashMap.fromIterable(A.map(all, (pkg) => [pkg.relativePath, pkg] as const));
 				})),
 
 				getPackage: Effect.fn("WorkspaceDiscovery.getPackage")(function* (name: string) {
 					const all = yield* packages;
 					const found = O.getOrUndefined(MutableHashMap.get(packagesByName(all), name));
 					if (found !== undefined) return found;
-					return yield* PackageNotFoundError.make({ name, available: all.map((pkg) => pkg.name) });
+					return yield* PackageNotFoundError.make({ name, available: A.map(all, (pkg) => pkg.name) });
 				}),
 
 				resolveFile: Effect.fn("WorkspaceDiscovery.resolveFile")(function* (filePath: string) {
@@ -926,7 +932,10 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 
 		// POSIX-terminated longest-prefix ownership, mirroring the live
 		// `resolveFile` semantics minus the platform `Path` service.
-		const ownerOf = (filePath: string, all: ReadonlyArray<WorkspacePackage>): O.Option<WorkspacePackage> => {
+		const ownerOf: {
+			(filePath: string, all: ReadonlyArray<WorkspacePackage>): O.Option<WorkspacePackage>;
+			(all: ReadonlyArray<WorkspacePackage>): (filePath: string) => O.Option<WorkspacePackage>;
+		} = dual(2, (filePath: string, all: ReadonlyArray<WorkspacePackage>): O.Option<WorkspacePackage> => {
 			let best: WorkspacePackage | undefined;
 			let bestLength = 0;
 			for (const pkg of all) {
@@ -937,7 +946,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 				}
 			}
 			return O.fromUndefinedOr(best);
-		};
+		});
 
 		return {
 			listPackages,
@@ -945,14 +954,13 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 				Effect.die(
 					WorkspaceDiscoveryCause.make({ message: "WorkspaceDiscovery.makeTest: info() was called but not stubbed — no honest default WorkspaceInfo exists for a test double; pass an `info` override." }),
 				)),
-			importerMap: Effect.suspend(() => Effect.map(listPackages, (all) => HashMap.fromIterable(all.map((pkg) => [pkg.relativePath, pkg] as const)))),
+			importerMap: Effect.suspend(() => Effect.map(listPackages, (all) => HashMap.fromIterable(A.map(all, (pkg) => [pkg.relativePath, pkg] as const)))),
 			getPackage: (name: string) =>
-				Effect.flatMap(listPackages, (all) => {
-					const found = all.find((pkg) => pkg.name === name);
-					return found !== undefined
-						? Effect.succeed(found)
-						: Effect.fail(PackageNotFoundError.make({ name, available: all.map((pkg) => pkg.name) }));
-				}),
+				Effect.flatMap(listPackages, (all) =>
+					Effect.fromOption(A.findFirst(all, (pkg) => pkg.name === name), () =>
+						PackageNotFoundError.make({ name, available: A.map(all, (pkg) => pkg.name) }),
+					),
+				),
 			resolveFile: (filePath: string) => Effect.map(listPackages, (all) => ownerOf(filePath, all)),
 			resolveFiles: (filePaths: ReadonlyArray<string>) =>
 				Effect.map(listPackages, (all) => {

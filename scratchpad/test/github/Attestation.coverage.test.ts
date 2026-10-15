@@ -1,5 +1,7 @@
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import { Attestation, AttestationRecord } from "../../effected/github/Attestation.ts";
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
@@ -18,7 +20,7 @@ it.layer(Repo.layer(RepoRef.make({ owner: "acme", repo: "widget" })), { timeout:
       assert.throws(() => service.listForSubject("abc"), /listForSubject/);
     }));
   });
-  it.layer(Attestation.layerTest({ upload: () => Effect.succeed(AttestationRecord.make({ url: "stub" })), listForSubject: () => Effect.succeed([]) }), { timeout: "30 seconds" })((it) => {
+  it.layer(Attestation.layerTest({ upload: () => Effect.succeed(AttestationRecord.make({ url: "stub" })), listForSubject: dual((args) => P.isString(args[0]), (_sha256: string, _options?: object) => Effect.succeed([])) }), { timeout: "30 seconds" })((it) => {
     it.effect("overrides survive layer construction", () => Effect.gen(function* () {
       const service = yield* Attestation;
       assert.strictEqual((yield* service.upload({})).url, "stub");

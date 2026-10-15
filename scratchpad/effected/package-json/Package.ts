@@ -278,8 +278,8 @@ export type RepositoryField = typeof RepositoryField.Type;
  */
 export class PackageDecodeError extends S.TaggedError<PackageDecodeError, { readonly brand: unique symbol }>($I`PackageDecodeError`)("PackageDecodeError", {
 	/** The underlying `SchemaError`, preserved structurally rather than stringified. */
-	cause: S.Defect().annotateKey({ description: "The underlying `SchemaError`, preserved structurally rather than stringified." }),
-}, $I.annote("PackageDecodeError", { description: "Indicates that a JSON value could not be decoded into a valid Package." })) {
+	cause: S.Defect().pipe($I.annoteKey("PackageDecodeError.cause", { description: "The underlying `SchemaError`, preserved structurally rather than stringified." })),
+}, $I.annoteError<PackageDecodeError>("PackageDecodeError", { description: "Indicates that a JSON value could not be decoded into a valid Package." })) {
 	/**
 	 * Provides the diagnostic summary for a failed package.json decode.
 	 *
@@ -378,34 +378,34 @@ export type PackagePatch = Partial<{
  * @since 0.0.0
  */
 export class Package extends S.Class<Package, { readonly brand: unique symbol }>($I`Package`)({
-	name: PackageName.annotateKey({ description: "Package identifier satisfying npm naming rules, with an optional `@scope/` prefix" }),
-	version: SemVer.FromString.annotateKey({ description: "Package release version validated against strict semantic versioning" }),
-	description: S.optionalKey(S.String).annotateKey({ description: "Human-readable summary of the package's purpose" }),
-	private: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the manifest marks the package as private, treated as false when absent" }),
-	type: S.optionalKey(S.Literals(["module", "commonjs"])).annotateKey({ description: "Module interpretation for JavaScript files in the package: `module` or `commonjs`" }),
-	main: S.optionalKey(S.String).annotateKey({ description: "Legacy root entry-point path, consulted by the resolver only when `exports` is absent" }),
-	license: S.optionalKey(SpdxLicense).annotateKey({ description: "Package licensing declaration: an SPDX identifier or expression, `UNLICENSED`, or `SEE LICENSE IN <file>`" }),
-	author: S.optionalKey(Person.FromValue).annotateKey({ description: "Primary author information decoded from a person object or `Name <email> (url)` shorthand" }),
-	contributors: Person.FromValue.pipe(S.Array, S.optionalKey).annotateKey({ description: "People credited with contributions, decoded from person objects or shorthand strings" }),
-	maintainers: Person.FromValue.pipe(S.Array, S.optionalKey).annotateKey({ description: "People listed as package maintainers, decoded from person objects or shorthand strings" }),
-	keywords: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Terms describing the package for discovery and search" }),
-	repository: S.optionalKey(Repository.FromValue).annotateKey({ description: "Source repository reference, preserving its original shorthand or object form and any monorepo subdirectory" }),
-	bugs: S.optionalKey(Bugs.FromValue).annotateKey({ description: "Issue-reporting destination, carrying an issue-tracker URL, contact email, or both" }),
-	funding: S.optionalKey(Funding.FromField).annotateKey({ description: "Financial support destinations, decoded to an array while preserving the original field and entry forms on encode" }),
-	homepage: S.optionalKey(S.String).annotateKey({ description: "Address of the package's homepage" }),
-	dependencies: DependencyMapField.annotateKey({ description: "Production dependency specifiers keyed by package name, defaulting to an empty map" }),
-	devDependencies: DependencyMapField.annotateKey({ description: "Development dependency specifiers keyed by package name, defaulting to an empty map" }),
-	peerDependencies: DependencyMapField.annotateKey({ description: "Peer dependency specifiers keyed by package name, defaulting to an empty map" }),
-	optionalDependencies: DependencyMapField.annotateKey({ description: "Optional dependency specifiers keyed by package name, defaulting to an empty map" }),
-	peerDependenciesMeta: S.optionalKey(PeerDependenciesMetaField).annotateKey({ description: "Per-package peer dependency metadata whose `optional` flag determines whether a decoded peer dependency is optional" }),
-	scripts: DependencyMapField.annotateKey({ description: "Commands keyed by script name, defaulting to an empty map" }),
-	bin: S.optionalKey(BinField).annotateKey({ description: "Executable entry-point path, either a single path or command names mapped to paths" }),
-	engines: S.optionalKey(StringMapField).annotateKey({ description: "Supported runtime and tool version constraints keyed by engine name" }),
-	exports: S.optionalKey(ExportsField).annotateKey({ description: "Public package entry points expressed as a single path or an object of subpaths and conditions" }),
-	publishConfig: S.optionalKey(PublishConfigField).annotateKey({ description: "Publication settings preserving npm keys such as `access` and `directory` alongside extension keys" }),
-	packageManager: S.optionalKey(PackageManager.FromString).annotateKey({ description: "Package-manager pin carrying a lowercase manager name, exact version without build metadata, and optional Corepack integrity hash" }),
-	devEngines: S.optionalKey(DevEnginesSchema).annotateKey({ description: "Development environment constraints for package manager, runtime, operating system, CPU, and libc, with optional failure policies" }),
-	rest: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "Unknown top-level manifest fields preserved on decode and flattened back into the document on encode" }),
+	name: PackageName.pipe($I.annoteKey("Package.name", { description: "Package identifier satisfying npm naming rules, with an optional `@scope/` prefix" })),
+	version: SemVer.FromString.pipe($I.annoteKey("Package.version", { description: "Package release version validated against strict semantic versioning" })),
+	description: S.optionalKey(S.String).pipe($I.annoteKey("Package.description", { description: "Human-readable summary of the package's purpose" })),
+	private: S.optionalKey(S.Boolean).pipe($I.annoteKey("Package.private", { description: "Whether the manifest marks the package as private, treated as false when absent" })),
+	type: S.optionalKey(S.Literals(["module", "commonjs"])).pipe($I.annoteKey("Package.type", { description: "Module interpretation for JavaScript files in the package: `module` or `commonjs`" })),
+	main: S.optionalKey(S.String).pipe($I.annoteKey("Package.main", { description: "Legacy root entry-point path, consulted by the resolver only when `exports` is absent" })),
+	license: S.optionalKey(SpdxLicense).pipe($I.annoteKey("Package.license", { description: "Package licensing declaration: an SPDX identifier or expression, `UNLICENSED`, or `SEE LICENSE IN <file>`" })),
+	author: S.optionalKey(Person.FromValue).pipe($I.annoteKey("Package.author", { description: "Primary author information decoded from a person object or `Name <email> (url)` shorthand" })),
+	contributors: Person.FromValue.pipe(S.Array, S.optionalKey, $I.annoteKey("Package.contributors", { description: "People credited with contributions, decoded from person objects or shorthand strings" })),
+	maintainers: Person.FromValue.pipe(S.Array, S.optionalKey, $I.annoteKey("Package.maintainers", { description: "People listed as package maintainers, decoded from person objects or shorthand strings" })),
+	keywords: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("Package.keywords", { description: "Terms describing the package for discovery and search" })),
+	repository: S.optionalKey(Repository.FromValue).pipe($I.annoteKey("Package.repository", { description: "Source repository reference, preserving its original shorthand or object form and any monorepo subdirectory" })),
+	bugs: S.optionalKey(Bugs.FromValue).pipe($I.annoteKey("Package.bugs", { description: "Issue-reporting destination, carrying an issue-tracker URL, contact email, or both" })),
+	funding: S.optionalKey(Funding.FromField).pipe($I.annoteKey("Package.funding", { description: "Financial support destinations, decoded to an array while preserving the original field and entry forms on encode" })),
+	homepage: S.optionalKey(S.String).pipe($I.annoteKey("Package.homepage", { description: "Address of the package's homepage" })),
+	dependencies: DependencyMapField.pipe($I.annoteKey("Package.dependencies", { description: "Production dependency specifiers keyed by package name, defaulting to an empty map" })),
+	devDependencies: DependencyMapField.pipe($I.annoteKey("Package.devDependencies", { description: "Development dependency specifiers keyed by package name, defaulting to an empty map" })),
+	peerDependencies: DependencyMapField.pipe($I.annoteKey("Package.peerDependencies", { description: "Peer dependency specifiers keyed by package name, defaulting to an empty map" })),
+	optionalDependencies: DependencyMapField.pipe($I.annoteKey("Package.optionalDependencies", { description: "Optional dependency specifiers keyed by package name, defaulting to an empty map" })),
+	peerDependenciesMeta: S.optionalKey(PeerDependenciesMetaField).pipe($I.annoteKey("Package.peerDependenciesMeta", { description: "Per-package peer dependency metadata whose `optional` flag determines whether a decoded peer dependency is optional" })),
+	scripts: DependencyMapField.pipe($I.annoteKey("Package.scripts", { description: "Commands keyed by script name, defaulting to an empty map" })),
+	bin: S.optionalKey(BinField).pipe($I.annoteKey("Package.bin", { description: "Executable entry-point path, either a single path or command names mapped to paths" })),
+	engines: S.optionalKey(StringMapField).pipe($I.annoteKey("Package.engines", { description: "Supported runtime and tool version constraints keyed by engine name" })),
+	exports: S.optionalKey(ExportsField).pipe($I.annoteKey("Package.exports", { description: "Public package entry points expressed as a single path or an object of subpaths and conditions" })),
+	publishConfig: S.optionalKey(PublishConfigField).pipe($I.annoteKey("Package.publishConfig", { description: "Publication settings preserving npm keys such as `access` and `directory` alongside extension keys" })),
+	packageManager: S.optionalKey(PackageManager.FromString).pipe($I.annoteKey("Package.packageManager", { description: "Package-manager pin carrying a lowercase manager name, exact version without build metadata, and optional Corepack integrity hash" })),
+	devEngines: S.optionalKey(DevEnginesSchema).pipe($I.annoteKey("Package.devEngines", { description: "Development environment constraints for package manager, runtime, operating system, CPU, and libc, with optional failure policies" })),
+	rest: S.optionalKey(S.Record(S.String, S.Unknown)).pipe($I.annoteKey("Package.rest", { description: "Unknown top-level manifest fields preserved on decode and flattened back into the document on encode" })),
 }, $I.annote("Package", { description: "A package.json document as a rich `Schema.Class`: typed known fields, a `rest` catch-all preserving unknown top-level fields across a read/edit/write cycle, computed getters, and immutable mutation statics." })) {
 	// ── Pipeable ──────────────────────────────────────────────────────────
 	// `Schema.Class` instances are not `Pipeable` out of the box, so this manual

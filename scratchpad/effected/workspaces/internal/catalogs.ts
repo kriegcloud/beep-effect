@@ -44,9 +44,9 @@ export type CatalogEntries = Record<string, Record<string, string>>;
  * @since 0.0.0
  */
 export const CatalogMisconfiguration = S.Struct({
-	catalogName: S.String.annotateKey($I.annote("CatalogMisconfiguration.catalogName", { description: "The catalog containing the unresolved dependency." })),
-	detail: S.String.annotateKey($I.annote("CatalogMisconfiguration.detail", { description: "The catalog resolver's original diagnostic." })),
-}).annotate($I.annote("CatalogMisconfiguration", { description: "A plain catalog misconfiguration record reported by the resolver." }));
+	catalogName: S.String.pipe($I.annoteKey("CatalogMisconfiguration.catalogName", { description: "The catalog containing the unresolved dependency." })),
+	detail: S.String.pipe($I.annoteKey("CatalogMisconfiguration.detail", { description: "The catalog resolver's original diagnostic." })),
+}).pipe($I.annoteSchema("CatalogMisconfiguration", { description: "A plain catalog misconfiguration record reported by the resolver." }));
 /**
  * The readonly catalog failure described by {@link CatalogMisconfiguration}.
  *

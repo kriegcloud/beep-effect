@@ -16,6 +16,9 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as A from "effect/Array";
+import { dual, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { SbomDocument } from "./SbomDocument.ts";
@@ -80,19 +83,22 @@ export type NtiaElementId = typeof NtiaElementId.Type;
  */
 export class NtiaElement extends S.Class<NtiaElement, { readonly brand: unique symbol }>($I`NtiaElement`)({
 	/** Which element this is. */
-	id: NtiaElementId.annotateKey({ description: "Which element this is." }),
+	id: NtiaElementId.pipe($I.annoteKey("NtiaElement.id", { description: "Which element this is." })),
 	/** Whether the document satisfies it. */
-	satisfied: S.Boolean.annotateKey({ description: "Whether the document satisfies it." }),
+	satisfied: S.Boolean.pipe($I.annoteKey("NtiaElement.satisfied", { description: "Whether the document satisfies it." })),
 	/** The value that satisfied it, when one did. */
-	value: S.optionalKey(S.String).annotateKey({ description: "The value that satisfied it, when one did." }),
+	value: S.optionalKey(S.String).pipe($I.annoteKey("NtiaElement.value", { description: "The value that satisfied it, when one did." })),
 }, $I.annote("NtiaElement", { description: "One element's verdict." })) {}
 
-const element = (id: NtiaElementId, value: string | undefined): NtiaElement =>
+const element: {
+	(id: NtiaElementId, value: string | undefined): NtiaElement;
+	(value: string | undefined): (id: NtiaElementId) => NtiaElement;
+} = dual(2, (id: NtiaElementId, value: string | undefined): NtiaElement =>
 	NtiaElement.make({
 		id,
 		satisfied: value !== undefined,
 		...(value !== undefined && { value }),
-	});
+	}));
 
 const PresentText = S.String.check(S.isTrimmed(), S.isNonEmpty()).pipe(
 	$I.annoteSchema("PresentText", { description: "Trimmed, non-empty text satisfying an NTIA element." }),
@@ -167,7 +173,12 @@ const dependencyRelationship = (document: SbomDocument): NtiaElement => {
  * both identify an entity that stood behind the document.
  */
 const sbomAuthor = (document: SbomDocument): NtiaElement => {
-	const author = document.metadata?.authors?.map((contact) => present(contact.name)).find((name) => name !== undefined);
+	const author = pipe(
+		document.metadata?.authors ?? [],
+		A.map((contact) => present(contact.name)),
+		A.findFirst((name) => name !== undefined),
+		O.getOrUndefined,
+	);
 	const supplier = present(document.metadata?.supplier?.name);
 	const publisher = present(document.metadata?.component?.publisher);
 	return element("sbomAuthor", author ?? supplier ?? publisher);
@@ -211,7 +222,7 @@ const timestamp = (document: SbomDocument): NtiaElement => {
  */
 export class NtiaReport extends S.Class<NtiaReport, { readonly brand: unique symbol }>($I`NtiaReport`)({
 	/** One verdict per element, in the published order. */
-	elements: S.Array(NtiaElement).annotateKey({ description: "One verdict per element, in the published order." }),
+	elements: S.Array(NtiaElement).pipe($I.annoteKey("NtiaReport.elements", { description: "One verdict per element, in the published order." })),
 }, $I.annote("NtiaReport", { description: "A document's standing against the NTIA minimum elements." })) {
 	/**
 	 * Whether every element is satisfied.
@@ -229,7 +240,7 @@ export class NtiaReport extends S.Class<NtiaReport, { readonly brand: unique sym
 	 * @since 0.0.0
 	 */
 	get compliant(): boolean {
-		return this.elements.every((entry) => entry.satisfied);
+		return A.every(this.elements, (entry) => entry.satisfied);
 	}
 
 	/**
@@ -250,7 +261,7 @@ export class NtiaReport extends S.Class<NtiaReport, { readonly brand: unique sym
 	 * @since 0.0.0
 	 */
 	get missing(): ReadonlyArray<NtiaElementId> {
-		return this.elements.filter((entry) => !entry.satisfied).map((entry) => entry.id);
+		return pipe(this.elements, A.filter((entry) => !entry.satisfied), A.map((entry) => entry.id));
 	}
 
 	/**

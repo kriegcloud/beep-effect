@@ -21,6 +21,7 @@ import * as Str from "effect/String";
 import { CheckState } from "./CheckState.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 import { ManagedDocument } from "./ManagedDocument.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/CheckDocument");
 
@@ -51,15 +52,15 @@ const $I = $ScratchpadId.create("effected/github-actions/CheckDocument");
  */
 export class CheckReport extends S.Class<CheckReport, { readonly brand: unique symbol }>($I`CheckReport`)({
 	/** Where the check is now. The last reported state is the authoritative one. */
-	state: CheckState.annotateKey({ description: "Where the check is now. The last reported state is the authoritative one." }),
+	state: CheckState.pipe($I.annoteKey("CheckReport.state", { description: "Where the check is now. The last reported state is the authoritative one." })),
 	/** Display name, when it differs from the registry key. */
-	title: S.optionalKey(S.String).annotateKey({ description: "Display name, when it differs from the registry key." }),
+	title: S.optionalKey(S.String).pipe($I.annoteKey("CheckReport.title", { description: "Display name, when it differs from the registry key." })),
 	/** A one-line verdict, e.g. `in progress...` or `3 packages ready`. */
-	outcome: S.optionalKey(S.String).annotateKey({ description: "A one-line verdict, e.g. `in progress...` or `3 packages ready`." }),
+	outcome: S.optionalKey(S.String).pipe($I.annoteKey("CheckReport.outcome", { description: "A one-line verdict, e.g. `in progress...` or `3 packages ready`." })),
 	/** A pre-rendered markdown block of per-check detail. */
-	detail: S.optionalKey(S.String).annotateKey({ description: "A pre-rendered markdown block of per-check detail." }),
+	detail: S.optionalKey(S.String).pipe($I.annoteKey("CheckReport.detail", { description: "A pre-rendered markdown block of per-check detail." })),
 	/** Where the check's name should link. */
-	url: S.optionalKey(S.String).annotateKey({ description: "Where the check's name should link." }),
+	url: S.optionalKey(S.String).pipe($I.annoteKey("CheckReport.url", { description: "Where the check's name should link." })),
 }, $I.annote("CheckReport", { description: "What a run knows about one of its checks: the authoritative state, and the presentation facts a renderer projects into the document." })) {}
 
 /**
@@ -88,8 +89,8 @@ export class CheckReport extends S.Class<CheckReport, { readonly brand: unique s
  * @since 0.0.0
  */
 export class CheckDocumentSnapshot extends S.Class<CheckDocumentSnapshot, { readonly brand: unique symbol }>($I`CheckDocumentSnapshot`)({
-	checks: S.HashMap(S.String, CheckReport).annotateKey({ description: "The latest report for each check." }),
-	order: S.Array(S.String).annotateKey({ description: "Check keys in first-report order." }),
+	checks: S.HashMap(S.String, CheckReport).pipe($I.annoteKey("CheckDocumentSnapshot.checks", { description: "The latest report for each check." })),
+	order: S.Array(S.String).pipe($I.annoteKey("CheckDocumentSnapshot.order", { description: "Check keys in first-report order." })),
 }, $I.annote("CheckDocumentSnapshot", { description: "An immutable check registry and its explicit first-report order." })) {}
 
 /** What each {@link CheckDocumentError} kind reads as. */
@@ -127,10 +128,10 @@ const KIND_PROSE = {
  */
 export class CheckDocumentError extends S.TaggedError<CheckDocumentError, { readonly brand: unique symbol }>($I`CheckDocumentError`)("CheckDocumentError", {
 	/** Which phase failed: regenerating the document, reading it back, or writing it. */
-	kind: S.Literals(["render", "read", "sink"]).annotateKey({ description: "Which phase failed: regenerating the document, reading it back, or writing it." }),
+	kind: S.Literals(["render", "read", "sink"]).pipe($I.annoteKey("CheckDocumentError.kind", { description: "Which phase failed: regenerating the document, reading it back, or writing it." })),
 	/** The underlying failure. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure." }),
-}, $I.annote("CheckDocumentError", { description: "Raised when the check document cannot be regenerated, read back or written." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("CheckDocumentError.cause", { description: "The underlying failure." })),
+}, $I.annoteError<CheckDocumentError>("CheckDocumentError", { description: "Raised when the check document cannot be regenerated, read back or written." })) {
 	/**
 	 * Describes the failed reconciliation phase independently of its underlying cause.
 	 *
@@ -179,9 +180,9 @@ export class CheckDocumentError extends S.TaggedError<CheckDocumentError, { read
  */
 export class CheckDocumentStamp extends S.Class<CheckDocumentStamp, { readonly brand: unique symbol }>($I`CheckDocumentStamp`)({
 	/** When the run started — ideally an ISO-8601 instant. */
-	at: S.String.annotateKey({ description: "When the run started — ideally an ISO-8601 instant." }),
+	at: S.String.pipe($I.annoteKey("CheckDocumentStamp.at", { description: "When the run started — ideally an ISO-8601 instant." })),
 	/** The run's identifier — on GitHub, `GITHUB_RUN_ID`. */
-	runId: S.String.annotateKey({ description: "The run's identifier — on GitHub, `GITHUB_RUN_ID`." }),
+	runId: S.String.pipe($I.annoteKey("CheckDocumentStamp.runId", { description: "The run's identifier — on GitHub, `GITHUB_RUN_ID`." })),
 }, $I.annote("CheckDocumentStamp", { description: "A run's identity for staleness ordering: when it started and which run it is." })) {
 	/**
 	 * Is `incoming` allowed to overwrite regions stamped `existing`?
@@ -205,31 +206,36 @@ export class CheckDocumentStamp extends S.Class<CheckDocumentStamp, { readonly b
 	 * @category predicates
 	 * @since 0.0.0
 	 */
-	static isAtLeastAsRecent(
+	static readonly isAtLeastAsRecent: {
+		(incoming: { readonly at: string; readonly runId: string }, existing: { readonly at: string; readonly runId: string }): boolean;
+		(existing: { readonly at: string; readonly runId: string }): (incoming: { readonly at: string; readonly runId: string }) => boolean;
+	} = dual(2, (
 		incoming: { readonly at: string; readonly runId: string },
 		existing: { readonly at: string; readonly runId: string },
-	): boolean {
+	): boolean => {
 		const at = compareAt(incoming.at, existing.at);
 		if (at !== 0) {
 			return at > 0;
 		}
 		return compareRunId(incoming.runId, existing.runId) >= 0;
-	}
+	});
 }
 
 /** Instant order when both sides parse as dates, lexical otherwise. */
-const compareAt = (left: string, right: string): number =>
+const compareAt: {
+	(left: string, right: string): number;
+	(right: string): (left: string) => number;
+} = dual(2, (left: string, right: string): number =>
 	O.getOrElse(
 		O.map(O.all([DateTime.make(left), DateTime.make(right)]), ([leftAt, rightAt]) => DateTime.Order(leftAt, rightAt)),
 		() => Str.Order(left, right),
-	);
+	));
 
 /** Decimal integer spellings eligible for exact run-id ordering. */
-const DecimalRunId = S.String.check(S.isPattern(/^[+-]?\d+$/, {
-	identifier: "DecimalRunId",
-	title: "Decimal run identifier",
+const DecimalRunId = S.String.check(S.isPattern(/^[+-]?\d+$/, $I.annote("DecimalRunIdPattern", {
+	message: "Decimal run identifier",
 	description: "A signed or unsigned decimal integer, without a fractional or exponent part.",
-})).annotate($I.annote("DecimalRunId", { description: "A decimal integer run identifier that can be compared without rounding." }));
+}))).pipe($I.annoteSchema("DecimalRunId", { description: "A decimal integer run identifier that can be compared without rounding." }));
 const parseDecimalRunId = S.decodeUnknownOption(DecimalRunId);
 const parseFiniteRunId = S.decodeUnknownOption(S.FiniteFromString);
 
@@ -244,7 +250,10 @@ const parseFiniteRunId = S.decodeUnknownOption(S.FiniteFromString);
  * `"0"` and outrank `"-1"`. Blank sides fall to the lexical branch, which
  * stays total and deterministic.
  */
-const compareRunId = (left: string, right: string): number => {
+const compareRunId: {
+	(left: string, right: string): number;
+	(right: string): (left: string) => number;
+} = dual(2, (left: string, right: string): number => {
 	const leftTrimmed = Str.trim(left);
 	const rightTrimmed = Str.trim(right);
 	const integers = O.all([
@@ -257,7 +266,7 @@ const compareRunId = (left: string, right: string): number => {
 			: O.all([parseFiniteRunId(left), parseFiniteRunId(right)]);
 		return O.getOrElse(O.map(numbers, ([leftId, rightId]) => Num.Order(leftId, rightId)), () => Str.Order(left, right));
 	});
-};
+});
 
 /** The stamp a document's own regions carry, when they carry one. */
 const stampOf = (meta: Readonly<Record<string, string>>): { at: string; runId: string } | undefined => {
@@ -304,9 +313,7 @@ const maxStampOf = (
  * @category schemas
  * @since 0.0.0
  */
-export const CheckFlushOutcome = LiteralKit(["written", "unchanged", "stale"]).annotate(
-	$I.annote("CheckFlushOutcome", { description: "The result of a document reconciliation pass: written, unchanged or stale." }),
-);
+export const CheckFlushOutcome = LiteralKit(["written", "unchanged", "stale"]).pipe($I.annoteSchema("CheckFlushOutcome", { description: "The result of a document reconciliation pass: written, unchanged or stale." }));
 
 /**
  * The reconciliation result accepted by {@link CheckFlushOutcome}.
@@ -448,7 +455,10 @@ export interface CheckDocumentShape {
   * same key again replaces the entry; resolution is **not** terminal, so
   * `pass` followed by `fail` leaves `fail` even inside one debounce window.
   */
-	readonly report: (check: string, report: CheckReport) => Effect.Effect<void>;
+	readonly report: {
+		(check: string, report: CheckReport): Effect.Effect<void>;
+		(report: CheckReport): (check: string) => Effect.Effect<void>;
+	};
 	/** The registry as of now, with its explicit first-report order. */
 	readonly checks: Effect.Effect<CheckDocumentSnapshot>;
 	/**
@@ -688,14 +698,14 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
 				);
 				yield* Effect.forkScoped(daemon);
 
-				const report = Effect.fn("CheckDocument.report")(function* (check: string, entry: CheckReport) {
+				const report: CheckDocumentShape["report"] = dual(2, Effect.fn("CheckDocument.report")(function* (check: string, entry: CheckReport) {
 					yield* Ref.update(checksRef, (current) => CheckDocumentSnapshot.make({
 						checks: HashMap.set(current.checks, check, entry),
 						order: HashMap.has(current.checks, check) ? current.order : A.append(current.order, check),
 					}));
 					yield* Ref.update(versionRef, (count) => count + 1);
 					yield* signal.open;
-				});
+				}));
 
 				return { report, checks: Ref.get(checksRef), flush } satisfies CheckDocumentShape;
 			}),
@@ -719,7 +729,7 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
 	 * @since 0.0.0
 	 */
 	static readonly makeTest = (overrides: Partial<CheckDocumentShape> = {}): CheckDocumentShape => ({
-		report: () => dies("report"),
+		report: dual(2, (_check: string, _report: CheckReport): Effect.Effect<void> => dies("report")),
 		checks: dies("checks"),
 		flush: dies("flush"),
 		...overrides,

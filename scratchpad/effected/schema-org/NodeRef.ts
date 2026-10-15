@@ -43,8 +43,8 @@ export class InvalidNodeIdError extends S.TaggedError<InvalidNodeIdError, { read
 	 *
 	 * @since 0.0.0
 	 */
-	input: S.String.annotateKey({ description: "The string that could not be used as an `@id`." }),
-}, $I.annote("InvalidNodeIdError", { description: "Indicates that a string is not usable as a JSON-LD node identifier: it is empty, contains whitespace, or contains a control character." })) {
+	input: S.String.pipe($I.annoteKey("InvalidNodeIdError.input", { description: "The string that could not be used as an `@id`." })),
+}, $I.annoteError<InvalidNodeIdError>("InvalidNodeIdError", { description: "Indicates that a string is not usable as a JSON-LD node identifier: it is empty, contains whitespace, or contains a control character." })) {
 	/**
 	 * Formats the rejected identifier as a JSON string in the error message.
 	 *
@@ -105,14 +105,13 @@ const NODE_ID_PATTERN = /^[^\s\p{Cc}]+$/u;
  * @category schemas
  * @since 0.0.0
  */
-export const NodeId = S.String.check(S.isPattern(NODE_ID_PATTERN, {
+export const NodeId = S.String.check(S.isPattern(NODE_ID_PATTERN, $I.annote("NodeIdPattern", {
 	// The native arbitrary cannot construct Unicode property escapes; guide its
 	// fallback away from the empty size-zero string, which the pattern rejects.
 	arbitraryConstraint: { minLength: 1 },
-	identifier: $I`NodeIdPattern`,
-	title: "JSON-LD node identifier pattern",
 	description: "A non-empty string without whitespace or control characters.",
-})).pipe($I.annoteSchema("NodeId", { description: "A JSON-LD node identifier without whitespace or control characters." }));
+	message: "JSON-LD node identifier pattern",
+}))).pipe($I.annoteSchema("NodeId", { description: "A JSON-LD node identifier without whitespace or control characters." }));
 
 /**
  * The string accepted by the NodeId schema.
@@ -177,7 +176,7 @@ export class NodeRef extends S.Class<NodeRef, { readonly brand: unique symbol }>
 	 *
 	 * @since 0.0.0
 	 */
-	"@id": S.String.annotateKey({ description: "The identifier of the referenced node." }),
+	"@id": S.String.pipe($I.annoteKey("NodeRef.@id", { description: "The identifier of the referenced node." })),
 }, $I.annote("NodeRef", { description: "A reference from one node to another: the `{\"@id\": \"…\"}` form." })) {
 	/**
 	 * Builds a reference to a node you are already holding, or to a bare

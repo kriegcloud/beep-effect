@@ -44,7 +44,7 @@ export const KnownTerminal = LiteralKit([
 	"WarpTerminal",
 	"WaveTerminal",
 	"Terminology",
-]).annotate($I.annote("KnownTerminal", { description: "The detected terminal program: one literal per allowlist entry." }));
+]).pipe($I.annoteSchema("KnownTerminal", { description: "The detected terminal program: one literal per allowlist entry." }));
 /**
  * A terminal program name accepted by the allowlist schema.
  *
@@ -82,7 +82,7 @@ export const Osc8Capabilities = S.Struct({
 	fileUrls: S.Boolean.pipe($I.annoteKey("Osc8Capabilities.fileUrls", { description: "Terminal renders `file://` URLs." })),
 	/** When true, `file://` URLs misbehave over SSH/remote sessions. */
 	fileUrlsRemoteUnsafe: S.Boolean.pipe($I.annoteKey("Osc8Capabilities.fileUrlsRemoteUnsafe", { description: "When true, `file://` URLs misbehave over SSH/remote sessions." })),
-}).annotate($I.annote("Osc8Capabilities", { description: "Sub-feature capabilities of the detected terminal. When the terminal is unknown or unsupported, all fields are false." }));
+}).pipe($I.annoteSchema("Osc8Capabilities", { description: "Sub-feature capabilities of the detected terminal. When the terminal is unknown or unsupported, all fields are false." }));
 /**
  * The decoded sub-feature capability record for a detected terminal.
  *
@@ -112,7 +112,7 @@ export const IdentifyResult = S.Struct({
 	version: S.NullOr(S.String).pipe($I.annoteKey("IdentifyResult.version", { description: "Detected version, if available." })),
 	/** The raw env value used to identify the terminal. */
 	rawIdentifier: S.String.pipe($I.annoteKey("IdentifyResult.rawIdentifier", { description: "The raw env value used to identify the terminal." })),
-}).annotate($I.annote("IdentifyResult", { description: "Result of identifying a terminal from an env snapshot." }));
+}).pipe($I.annoteSchema("IdentifyResult", { description: "Result of identifying a terminal from an env snapshot." }));
 /**
  * The decoded version and raw identifier produced by terminal identification.
  *

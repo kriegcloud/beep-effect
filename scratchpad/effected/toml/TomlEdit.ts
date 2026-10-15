@@ -12,6 +12,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 
@@ -19,8 +20,8 @@ const $I = $ScratchpadId.create("effected/toml/TomlEdit");
 
 class TomlEditInvariantError extends S.TaggedError<TomlEditInvariantError, { readonly brand: unique symbol }>($I`TomlEditInvariantError`)(
 	"TomlEditInvariantError",
-	{ message: S.String.annotateKey({ description: "Explanation of the missing or overlapping edit that violates the application invariant." }) },
-	$I.annote("TomlEditInvariantError", { description: "A programmer defect encountered while applying TOML text edits." }),
+	{ message: S.String.pipe($I.annoteKey("TomlEditInvariantError.message", { description: "Explanation of the missing or overlapping edit that violates the application invariant." })) },
+	$I.annoteError<TomlEditInvariantError>("TomlEditInvariantError", { description: "A programmer defect encountered while applying TOML text edits." }),
 ) {}
 
 /**
@@ -62,8 +63,8 @@ export type TomlPath = ReadonlyArray<TomlSegment>;
  * @since 0.0.0
  */
 export class TomlRange extends S.Class<TomlRange, { readonly brand: unique symbol }>($I`TomlRange`)({
-	offset: S.Finite.annotateKey({ description: "Zero-based starting position in UTF-16 code units for selecting expressions to format" }),
-	length: S.Finite.annotateKey({ description: "Extent of the formatting region in UTF-16 code units" }),
+	offset: S.Finite.pipe($I.annoteKey("TomlRange.offset", { description: "Zero-based starting position in UTF-16 code units for selecting expressions to format" })),
+	length: S.Finite.pipe($I.annoteKey("TomlRange.length", { description: "Extent of the formatting region in UTF-16 code units" })),
 }, $I.annote("TomlRange", { description: "A range within a TOML document, expressed as a zero-based character `offset` and a `length` in UTF-16 code units. Pass to `TomlFormat.format` to restrict formatting to the expressions intersecting a region." })) {}
 
 /**
@@ -91,9 +92,9 @@ export class TomlRange extends S.Class<TomlRange, { readonly brand: unique symbo
  * @since 0.0.0
  */
 export class TomlEdit extends S.Class<TomlEdit, { readonly brand: unique symbol }>($I`TomlEdit`)({
-	offset: S.Finite.annotateKey({ description: "Zero-based starting position of the text splice in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Number of UTF-16 code units to replace, with zero inserting text without removing any" }),
-	content: S.String.annotateKey({ description: "Replacement text for the selected span, with an empty string deleting that span" }),
+	offset: S.Finite.pipe($I.annoteKey("TomlEdit.offset", { description: "Zero-based starting position of the text splice in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlEdit.length", { description: "Number of UTF-16 code units to replace, with zero inserting text without removing any" })),
+	content: S.String.pipe($I.annoteKey("TomlEdit.content", { description: "Replacement text for the selected span, with an empty string deleting that span" })),
 }, $I.annote("TomlEdit", { description: "A non-mutating text edit: replace the span `[offset, offset + length)` with `content`. Set `length` to `0` to insert, `content` to `\"\"` to delete." })) {
 	/**
 	 * Apply `edits` to `text`, producing a new string. Edits are applied in
@@ -119,7 +120,10 @@ export class TomlEdit extends S.Class<TomlEdit, { readonly brand: unique symbol 
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static applyAll(text: string, edits: ReadonlyArray<TomlEdit>): string {
+	static readonly applyAll: {
+		(text: string, edits: ReadonlyArray<TomlEdit>): string;
+		(edits: ReadonlyArray<TomlEdit>): (text: string) => string;
+	} = dual(2, (text: string, edits: ReadonlyArray<TomlEdit>): string => {
 		const sorted = A.sort(edits, Order.mapInput(Order.flip(Order.Number), (edit: TomlEdit) => edit.offset));
 		for (const [upper, lower] of A.zip(sorted, A.drop(sorted, 1))) {
 			if (lower.offset + lower.length > upper.offset) {
@@ -133,5 +137,5 @@ export class TomlEdit extends S.Class<TomlEdit, { readonly brand: unique symbol 
 			result = result.slice(0, edit.offset) + edit.content + result.slice(edit.offset + edit.length);
 		}
 		return result;
-	}
+	});
 }

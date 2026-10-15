@@ -606,45 +606,46 @@ describe("CacheKey", () => {
 
 	describe("JSON Schema export", () => {
 		it("annotates every reusable cache-key check", () => {
-			for (const { schema, path, name, title, description } of [
+			for (const { schema, path, name, message, description } of [
 				{
 					schema: CacheKey.fields.segments,
 					path: "ast.elements.0.checks.0.annotations",
 					name: "SegmentPattern",
-					title: "Cache key segment pattern",
+					message: "Cache key segment pattern",
 					description: "A nonempty cache-key segment without commas or newline delimiters.",
 				},
 				{
 					schema: CacheKey.fields.segments,
 					path: "ast.checks.0.annotations",
 					name: "SegmentsLength",
-					title: "a cache key of at most 512 characters",
+					message: "a cache key of at most 512 characters",
 					description: "The complete cache key, including segment separators, fits GitHub's 512-character limit.",
 				},
 				{
 					schema: CacheKey.fields.restoreDepths,
 					path: "ast.rest.0.checks.1.annotations",
 					name: "RestoreDepthInteger",
-					title: "Integer restore depth",
+					message: "Integer restore depth",
 					description: "A restore-key rung keeps a whole number of leading segments.",
 				},
 				{
 					schema: CacheKey.fields.restoreDepths,
 					path: "ast.rest.0.checks.2.annotations",
 					name: "RestoreDepthRange",
-					title: "Positive safe restore depth",
+					message: "Positive safe restore depth",
 					description: "A restore depth is between one and the maximum safe integer, inclusive.",
 				},
 				{
 					schema: CacheKey,
 					path: "ast.typeParameters.0.checks.0.annotations",
 					name: "RestoreDepthWithinSegments",
-					title: "Restore depths retain a proper key prefix",
+					message: "Restore depths retain a proper key prefix",
 					description: "Each explicit restore depth keeps fewer segments than the primary cache key.",
 				},
 			]) {
 				assert.nestedPropertyVal(schema, `${path}.identifier`, `@beep/scratchpad/effected/github-actions/CacheKey/${name}`);
-				assert.nestedPropertyVal(schema, `${path}.title`, title);
+				assert.nestedPropertyVal(schema, `${path}.title`, name);
+				assert.nestedPropertyVal(schema, `${path}.message`, message);
 				assert.nestedPropertyVal(schema, `${path}.description`, description);
 			}
 		});

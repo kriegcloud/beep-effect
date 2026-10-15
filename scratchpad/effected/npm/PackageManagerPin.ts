@@ -55,7 +55,7 @@ export class InvalidPackageManagerPinError extends S.TaggedError<InvalidPackageM
 	"InvalidPackageManagerPinError",
 	{
 		/** The raw input string that failed validation. */
-		input: S.String.annotateKey({ description: "The raw input string that failed validation." }),
+		input: S.String.pipe($I.annoteKey("InvalidPackageManagerPinError.input", { description: "The raw input string that failed validation." })),
 		/**
 		 * Which component of the pin failed: `format` (no `@` separator at all),
 		 * `name` (not one of the four supported package managers), `version` (not
@@ -63,8 +63,8 @@ export class InvalidPackageManagerPinError extends S.TaggedError<InvalidPackageM
 		 * all land here), or `integrity` (the tail after `+` is not a corepack
 		 * `<algo>.<hex>` hash).
 		 */
-		reason: LiteralKit(["format", "name", "version", "integrity"]).annotateKey({ description: "Which component of the pin failed: `format` (no `@` separator at all), `name` (not one of the four supported package managers), `version` (not an exact SemVer 2.0.0 version — ranges, partial versions and dist-tags all land here), or `integrity` (the tail after `+` is not a corepack `<algo>.<hex>` hash)." }),
-	}, $I.annote("InvalidPackageManagerPinError", { description: "Indicates that a string could not be parsed as a corepack package-manager pin (`<name>@<version>[+<integrity>]`)." }),
+		reason: LiteralKit(["format", "name", "version", "integrity"]).pipe($I.annoteKey("InvalidPackageManagerPinError.reason", { description: "Which component of the pin failed: `format` (no `@` separator at all), `name` (not one of the four supported package managers), `version` (not an exact SemVer 2.0.0 version — ranges, partial versions and dist-tags all land here), or `integrity` (the tail after `+` is not a corepack `<algo>.<hex>` hash)." })),
+	}, $I.annoteError<InvalidPackageManagerPinError>("InvalidPackageManagerPinError", { description: "Indicates that a string could not be parsed as a corepack package-manager pin (`<name>@<version>[+<integrity>]`)." }),
 ) {
 	/**
 	 * Explains which pin component failed validation, including the original input.
@@ -134,7 +134,7 @@ export class InvalidPackageManagerPinError extends S.TaggedError<InvalidPackageM
  * @category schemas
  * @since 0.0.0
  */
-export const PackageManagerPinName = LiteralKit(["npm", "pnpm", "yarn", "bun"]).annotate($I.annote("PackageManagerPinName", { description: "The four package managers a corepack pin can name." }));
+export const PackageManagerPinName = LiteralKit(["npm", "pnpm", "yarn", "bun"]).pipe($I.annoteSchema("PackageManagerPinName", { description: "The four package managers a corepack pin can name." }));
 
 /**
  * The decoded type of {@link (PackageManagerPinName:variable)}:
@@ -157,7 +157,7 @@ const pinVersion = SemVer.pipe(
 	S.check(
 		S.makeFilter((version: SemVer) =>
 			version.build.length === 0 ? undefined : "Expected a version without build metadata",
-            $I.annote("PinVersionCheck", { title: "Pinnable version", description: "An exact version without build metadata, which the pin grammar cannot represent." }),
+            $I.annote("PinVersionCheck", { message: "Pinnable version", description: "An exact version without build metadata, which the pin grammar cannot represent." }),
 		),
 	),
 );
@@ -204,20 +204,20 @@ const pinVersion = SemVer.pipe(
  */
 export class PackageManagerPin extends S.Class<PackageManagerPin, { readonly brand: unique symbol }>($I`PackageManagerPin`)({
 	/** The package-manager name (`npm`, `pnpm`, `yarn` or `bun`). */
-	name: PackageManagerPinName.annotateKey({ description: "The package-manager name (`npm`, `pnpm`, `yarn` or `bun`)." }),
+	name: PackageManagerPinName.pipe($I.annoteKey("PackageManagerPin.name", { description: "The package-manager name (`npm`, `pnpm`, `yarn` or `bun`)." })),
 	/**
 	 * The exact pinned version. Never carries build metadata — the pin grammar
 	 * cannot express it (see the class remarks), and a version constructed with
 	 * build identifiers is rejected at construction.
 	 */
-	version: pinVersion.annotateKey({ description: "The exact pinned version. Never carries build metadata — the pin grammar cannot express it (see the class remarks), and a version constructed with build identifiers is rejected at construction." }),
+	version: pinVersion.pipe($I.annoteKey("PackageManagerPin.version", { description: "The exact pinned version. Never carries build metadata — the pin grammar cannot express it (see the class remarks), and a version constructed with build identifiers is rejected at construction." })),
 	/**
 	 * The optional integrity hash (e.g. `sha512.abc…`):
 	 * {@link (CorepackIntegrityHash:variable)}, the shared restriction of the
 	 * `IntegrityHash` brand to the corepack `<algo>.<hex>` form. Absent when the
 	 * pin carries no `+<integrity>` tail — never present-but-`undefined`.
 	 */
-	integrity: S.optionalKey(CorepackIntegrityHash).annotateKey({ description: "The optional integrity hash (e.g. `sha512.abc…`): (CorepackIntegrityHash:variable), the shared restriction of the `IntegrityHash` brand to the corepack `<algo>.<hex>` form. Absent when the pin carries no `+<integrity>` tail — never present-but-`undefined`." }),
+	integrity: S.optionalKey(CorepackIntegrityHash).pipe($I.annoteKey("PackageManagerPin.integrity", { description: "The optional integrity hash (e.g. `sha512.abc…`): (CorepackIntegrityHash:variable), the shared restriction of the `IntegrityHash` brand to the corepack `<algo>.<hex>` form. Absent when the pin carries no `+<integrity>` tail — never present-but-`undefined`." })),
 }, $I.annote("PackageManagerPin", { description: "A corepack package-manager pin: the `<name>@<version>[+<integrity>]` triple (e.g. `pnpm@11.17.0+sha512.abc…`), independent of any `package.json` field." })) {
 	/**
 	 * Schema transformation between the `<name>@<version>[+<integrity>]` string

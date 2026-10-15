@@ -3,6 +3,7 @@ import * as A from "@beep/utils/Array";
 import type * as CauseType from "effect/Cause";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
+import { dual } from "effect/Function";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as S from "effect/Schema";
 import { Cancelled } from "./Cancelled.ts";
@@ -231,7 +232,10 @@ const isRuntime = (raw: string): boolean => {
 };
 
 /** The frames of a stack that belong to the program, and how many were left out. */
-const cleanStack = (
+const cleanStack: {
+  (stack: unknown, mode: "app" | "all"): { readonly frames: ReadonlyArray<Frame>; readonly hidden: number };
+  (mode: "app" | "all"): (stack: unknown) => { readonly frames: ReadonlyArray<Frame>; readonly hidden: number };
+} = dual(2, (
   stack: unknown,
   mode: "app" | "all",
 ): { readonly frames: ReadonlyArray<Frame>; readonly hidden: number } => {
@@ -245,9 +249,12 @@ const cleanStack = (
   // when dropping dependencies leaves nothing, keep everything but the runtime's and Effect's.
   const kept = mode === "all" ? lines : app.length > 0 ? app : lines.filter((line) => !isRuntime(line));
   return { frames: kept.map(parseFrame), hidden: lines.length - kept.length };
-};
+});
 
-const frameBlock = (frame: Frame, displayPath: (absolute: string) => string): Block => {
+const frameBlock: {
+  (frame: Frame, displayPath: (absolute: string) => string): Block;
+  (displayPath: (absolute: string) => string): (frame: Frame) => Block;
+} = dual(2, (frame: Frame, displayPath: (absolute: string) => string): Block => {
   if (frame.file === undefined) return Doc.paragraph(Doc.text("at ", "muted"), frame.raw);
   const where = `${displayPath(frame.file)}${frame.line === undefined ? "" : `:${frame.line}:${frame.col}`}`;
   const target = {
@@ -260,18 +267,21 @@ const frameBlock = (frame: Frame, displayPath: (absolute: string) => string): Bl
     ...(frame.fn === undefined ? [] : [`${frame.fn} `]),
     Doc.link(target, where),
   );
-};
+});
 
-const stackBlock = (defect: Error, displayPath: (absolute: string) => string, mode: "app" | "all"): Block => {
+const stackBlock: {
+  (defect: Error, displayPath: (absolute: string) => string, mode: "app" | "all"): Block;
+  (displayPath: (absolute: string) => string, mode: "app" | "all"): (defect: Error) => Block;
+} = dual(3, (defect: Error, displayPath: (absolute: string) => string, mode: "app" | "all"): Block => {
   const { frames, hidden } = cleanStack(defect.stack, mode);
   if (frames.length > 0) {
-    const shown = frames.map((frame) => frameBlock(frame, displayPath));
+    const shown = frames.map(frameBlock(displayPath));
     const note = hidden === 0 ? [] : [Doc.paragraph(Doc.text(`(+${hidden} internal frames hidden)`, "muted"))];
     return Doc.collapsible("stack", [...shown, ...note], { open: true });
   }
   const note = hidden === 0 ? "no stack" : `no user frames (${hidden} internal frames hidden)`;
   return Doc.collapsible("stack", [Doc.paragraph(Doc.text(note, "muted"))], { open: true });
-};
+});
 
 /** The `Error.cause` chain below a defect as a tree of one-line messages, or none. */
 const causeTree = (defect: Error): Block | undefined => {
@@ -297,7 +307,10 @@ const causeTree = (defect: Error): Block | undefined => {
   }
 };
 
-const dieBlocks = (
+const dieBlocks: {
+  (defect: unknown, spans: ReadonlyArray<Block>, displayPath: (absolute: string) => string, mode: "app" | "all"): ReadonlyArray<Block>;
+  (spans: ReadonlyArray<Block>, displayPath: (absolute: string) => string, mode: "app" | "all"): (defect: unknown) => ReadonlyArray<Block>;
+} = dual(4, (
   defect: unknown,
   spans: ReadonlyArray<Block>,
   displayPath: (absolute: string) => string,
@@ -309,9 +322,12 @@ const dieBlocks = (
   if (!(defect instanceof Error)) return [...header, ...spans];
   const chain = causeTree(defect);
   return [...header, ...spans, stackBlock(defect, displayPath, mode), ...(chain === undefined ? [] : [chain])];
-};
+});
 
-const failBlocks = (
+const failBlocks: {
+  (error: unknown, spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): ReadonlyArray<Block>;
+  (spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): (error: unknown) => ReadonlyArray<Block>;
+} = dual(3, (
   error: unknown,
   spans: ReadonlyArray<Block>,
   options: CliFailureOptions | undefined,
@@ -335,7 +351,7 @@ const failBlocks = (
   const schema = schemaBlocks(error);
   if (schema !== undefined) return [...schema, ...spans];
   return [...failureBlocks(describe(error)), ...spans];
-};
+});
 
 /** A file of the kit's own packages or of Effect, as installed: a span defined there is not the program's. */
 const isKitFile = (file: string): boolean => /[\\/]node_modules[\\/](?:@effected[\\/]|effect[\\/])/.test(file);
@@ -362,13 +378,16 @@ const comparable = (path: string): string =>
   path.replace(/\\/g, "/").replace(/^([A-Za-z]):/, (_, drive: string) => `${drive.toLowerCase()}:`);
 
 /** Whether `file` is in the program's own package `appDir`, and not in a dependency nested in its `node_modules`. */
-const isAppFile = (file: string, appDir: string | undefined): boolean => {
+const isAppFile: {
+  (file: string, appDir: string | undefined): boolean;
+  (appDir: string | undefined): (file: string) => boolean;
+} = dual(2, (file: string, appDir: string | undefined): boolean => {
   if (appDir === undefined) return false;
   const path = comparable(file);
   if (!path.startsWith(appDir)) return false;
   const rest = path.slice(appDir.length);
   return rest.startsWith("/") && !rest.includes("/node_modules/");
-};
+});
 
 /** The file a span frame's captured stack points at, or `undefined` when it captured none. */
 const spanFile = (frame: {
@@ -386,7 +405,10 @@ const spanFile = (frame: {
  * are one entry, `name`, judged by the definition's site, so a kit function the program calls goes with its
  * definition.
  */
-const spanBlocks = (
+const spanBlocks: {
+  (reason: CauseType.Reason<unknown>, mode: "app" | "all" | "off", appDir: string | undefined): ReadonlyArray<Block>;
+  (mode: "app" | "all" | "off", appDir: string | undefined): (reason: CauseType.Reason<unknown>) => ReadonlyArray<Block>;
+} = dual(3, (
   reason: CauseType.Reason<unknown>,
   mode: "app" | "all" | "off",
   appDir: string | undefined,
@@ -404,7 +426,7 @@ const spanBlocks = (
   }
   if (names.length === 0) return [];
   return [Doc.paragraph(Doc.text("in: ", "muted"), Doc.path(...names.reverse()))];
-};
+});
 
 /**
  * A failure as a document: what the default report prints, and a building block for a custom one.
@@ -466,7 +488,10 @@ export class CliFailure {
    * @category formatting
    * @since 0.0.0
    */
-  static readonly toDoc = (cause: CauseType.Cause<unknown>, options?: CliFailureOptions): Document => {
+  static readonly toDoc: {
+    (cause: CauseType.Cause<unknown>, options?: CliFailureOptions): Document;
+    (options?: CliFailureOptions): (cause: CauseType.Cause<unknown>) => Document;
+  } = dual((args) => Cause.isCause(args[0]), (cause: CauseType.Cause<unknown>, options?: CliFailureOptions): Document => {
     const reasons = cause.reasons;
     if (reasons.length > 0 && reasons.every(Cause.isInterruptReason)) return [Doc.paragraph("interrupted")];
     const displayPath = options?.displayPath ?? ((absolute: string) => absolute);
@@ -478,5 +503,5 @@ export class CliFailure {
         return dieBlocks(reason.defect, spanBlocks(reason, spans, appDir), displayPath, options?.stackFrames ?? "app");
       return A.emptyReadonly<Block>();
     });
-  };
+  });
 }

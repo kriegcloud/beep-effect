@@ -83,7 +83,10 @@ export const parseHex = (hex: string): Rgb | undefined => {
 	];
 };
 
-const distance = (a: Rgb, b: Rgb): number => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
+const distance: {
+	(a: Rgb, b: Rgb): number;
+	(b: Rgb): (a: Rgb) => number;
+} = dual(2, (a: Rgb, b: Rgb): number => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2);
 
 /** The index of the cube level nearest a channel value; the lower level wins a tie. */
 const nearestLevel = (value: number): readonly [number, number] => {
@@ -137,7 +140,10 @@ const nearest16 = (rgb: Rgb): number => {
 };
 
 /** The foreground SGR parameters for a colour at a level, or `undefined` for none. */
-const foreground = (fg: NonNullable<Style["fg"]>, level: ColorLevel): string | undefined => {
+const foreground: {
+	(fg: NonNullable<Style["fg"]>, level: ColorLevel): string | undefined;
+	(level: ColorLevel): (fg: NonNullable<Style["fg"]>) => string | undefined;
+} = dual(2, (fg: NonNullable<Style["fg"]>, level: ColorLevel): string | undefined => {
 	// A name that is not a colour is ignored, as a malformed hex is, rather than printing `undefined` into an escape.
 	if (!fg.startsWith("#")) return R.has(NAMED, fg) ? String(NAMED[fg]) : undefined;
 	const rgb = parseHex(fg);
@@ -145,7 +151,7 @@ const foreground = (fg: NonNullable<Style["fg"]>, level: ColorLevel): string | u
 	if (level === "truecolor") return `38;2;${rgb[0]};${rgb[1]};${rgb[2]}`;
 	if (level === "256") return `38;5;${nearest256(rgb)}`;
 	return String(nearest16(rgb));
-};
+});
 
 /** One attribute: how it opens and how it closes. Closers are per attribute so nested paints compose. */
 interface Wrap {
@@ -154,7 +160,10 @@ interface Wrap {
 }
 
 /** The wraps for a style, innermost first: foreground, then dim, bold, italic and underline outward. */
-const wraps = (style: Style, level: ColorLevel): ReadonlyArray<Wrap> => {
+const wraps: {
+	(style: Style, level: ColorLevel): ReadonlyArray<Wrap>;
+	(level: ColorLevel): (style: Style) => ReadonlyArray<Wrap>;
+} = dual(2, (style: Style, level: ColorLevel): ReadonlyArray<Wrap> => {
 	const result: Wrap[] = [];
 	const fg = style.fg === undefined ? undefined : foreground(style.fg, level);
 	if (fg !== undefined) result.push({ open: `${ESC}${fg}m`, close: `${ESC}39m` });
@@ -163,7 +172,7 @@ const wraps = (style: Style, level: ColorLevel): ReadonlyArray<Wrap> => {
 	if (style.italic === true) result.push({ open: `${ESC}3m`, close: `${ESC}23m` });
 	if (style.underline === true) result.push({ open: `${ESC}4m`, close: `${ESC}24m` });
 	return result;
-};
+});
 
 /**
  * Render `text` in a style at a colour level; identity at `none`.

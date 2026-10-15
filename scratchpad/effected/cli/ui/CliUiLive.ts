@@ -10,6 +10,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
+import { dual } from "effect/Function";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "@beep/utils/Option";
@@ -311,10 +312,10 @@ const $I = $ScratchpadId.create("effected/cli/ui/CliUiLive");
  * @since 0.0.0
  */
 export class LiveTickError extends S.TaggedError<LiveTickError, { readonly brand: unique symbol }>($I`LiveTickError`)("LiveTickError", {
-	message: S.String.annotate($I.annote("LiveTickError.message", {
+	message: S.String.pipe($I.annoteKey("LiveTickError.message", {
 		description: "Identifies the invalid tick interval and its positive, finite millisecond requirement.",
 	})),
-}, $I.annote("LiveTickError", { description: "A live view tick interval must be positive and finite." })) {}
+}, $I.annoteError<LiveTickError>("LiveTickError", { description: "A live view tick interval must be positive and finite." })) {}
 
 const TICK_INVALID = (tickMillis: number): string =>
 	`@effected/cli/ui: CliUi.live's tickMillis must be a positive, finite number of milliseconds, not ${tickMillis}`;
@@ -397,8 +398,11 @@ export const live = Effect.fn("live")(function* <E, S>(
 	const Frame = (props: { readonly state: S; readonly frame: number }): ReactElement =>
 		options.render(props.state, props.frame);
 	const frameOf = Effect.map(Clock.currentTimeMillis, (now) => Math.floor(now / tickMillis));
-	const elementOf = (shown: S, frame: number): ReactElement =>
-		inkModules().react.createElement(Frame, { state: shown, frame });
+	const elementOf: {
+		(shown: S, frame: number): ReactElement;
+		(frame: number): (shown: S) => ReactElement;
+	} = dual(2, (shown: S, frame: number): ReactElement =>
+		inkModules().react.createElement(Frame, { state: shown, frame }));
 
 	/**
 	 * Unmount what a run has mounted: Ink's own unmount commits the last frame. Nothing is written after it. The clear
@@ -446,12 +450,15 @@ export const live = Effect.fn("live")(function* <E, S>(
 	/**
 	 * Stop drawing a run: unmount first, so the one warning never lands inside a frame, then warn.
 	 */
-	const degrade = (current: Run<S>, error: unknown): Effect.Effect<void> =>
+	const degrade: {
+		(current: Run<S>, error: unknown): Effect.Effect<void>;
+		(error: unknown): (current: Run<S>) => Effect.Effect<void>;
+	} = dual(2, (current: Run<S>, error: unknown): Effect.Effect<void> =>
 		Effect.suspend(() => {
 			if (current.degraded) return unmount(current);
 			current.degraded = true;
 			return Effect.andThen(unmount(current), warning(error));
-		});
+		}));
 
 	/**
 	 * Act on a failure the boundary reported for the run mounted now, if any.
@@ -465,12 +472,15 @@ export const live = Effect.fn("live")(function* <E, S>(
 	/**
 	 * Say once that a run stopped drawing: already said for a degraded run, and said here for one that never mounted.
 	 */
-	const warnOnce = (current: Run<S>, error: unknown): Effect.Effect<void> =>
+	const warnOnce: {
+		(current: Run<S>, error: unknown): Effect.Effect<void>;
+		(error: unknown): (current: Run<S>) => Effect.Effect<void>;
+	} = dual(2, (current: Run<S>, error: unknown): Effect.Effect<void> =>
 		Effect.suspend(() => {
 			if (current.degraded) return Effect.void;
 			current.degraded = true;
 			return warning(error);
-		});
+		}));
 
 	/**
 	 * The final frame as a string, at the stdout width (80 when it reports none) and with no height to fit.
@@ -529,13 +539,16 @@ export const live = Effect.fn("live")(function* <E, S>(
 	/**
 	 * A run's `final` document, printed as `Doc.print` would, to the view's stdout; never Ink.
 	 */
-	const printFinal = Effect.fnUntraced(function* (current: Run<S>, final: (state: S) => Cli.Document): Effect.fn.Return<void> {
+	const printFinal: {
+		(current: Run<S>, final: (state: S) => Cli.Document): Effect.Effect<void>;
+		(final: (state: S) => Cli.Document): (current: Run<S>) => Effect.Effect<void>;
+	} = dual(2, Effect.fnUntraced(function* (current: Run<S>, final: (state: S) => Cli.Document): Effect.fn.Return<void> {
 		const built = Result.try(() => final(state));
 		if (Result.isFailure(built)) return yield* warnOnce(current, built.failure);
 		const ctx = yield* finalContext;
 		const text = Render[yield* autoFormat(ctx.audience)](built.success, ctx);
 		if (text !== "") bridge.print(text);
-	});
+	}));
 
 	/**
 	 * Mount a run's view with the current state, its tick beside it; a failure degrades the run.
@@ -616,7 +629,7 @@ export const live = Effect.fn("live")(function* <E, S>(
 						return instance;
 					}),
 					(instance) =>
-						Effect.promise(() => {
+						Effect.suspend(() => {
 							// Ink drops a hook write once it has unmounted: the console goes back to the streams first.
 							bridge.detach();
 							// Taken before `unmount()`, which removes the `beforeExit` listener this registers; taken after, the
@@ -625,7 +638,8 @@ export const live = Effect.fn("live")(function* <E, S>(
 							// Ink's own unmount commits the last frame to the terminal; `clear()` is never called.
 							instance.unmount();
 							drainPerformance(drain);
-							return exited.then(() => undefined, () => undefined);
+							// Ink's exit is awaited only to know the unmount finished; how it ended is not this release's concern.
+							return Effect.ignore(Effect.tryPromise(() => exited));
 						}),
 				);
 				// The tick, in the run's scope: interrupted with the run, so no timer outlives it.

@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as S from "effect/Schema";
+import { dual } from "effect/Function";
 import type { Key } from "ink";
 
 const $I = $ScratchpadId.create("effected/cli/ui/UiKey");
@@ -28,7 +29,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/UiKey");
 export const KeyName = LiteralKit([
 	"up", "down", "left", "right", "enter", "space", "tab", "shift+tab",
 	"backspace", "delete", "escape", "ctrl+c", "home", "end", "pageup", "pagedown",
-]).annotate($I.annote("KeyName", { description: "The named keys understood by CLI screens and test input." }));
+]).pipe($I.annoteSchema("KeyName", { description: "The named keys understood by CLI screens and test input." }));
 /**
  * A named terminal key accepted by the KeyName schema.
  *
@@ -39,13 +40,13 @@ export type KeyName = typeof KeyName.Type;
 
 const Named = S.Struct({
 	_tag: S.tag("Named"),
-	name: KeyName.annotateKey($I.annote("name", { description: "The named key reported by the terminal." })),
-}).annotate($I.annote("Named", { description: "A named terminal key as a plain payload." }));
+	name: KeyName.pipe($I.annoteKey("Named.name", { description: "The named key reported by the terminal." })),
+}).pipe($I.annoteSchema("Named", { description: "A named terminal key as a plain payload." }));
 
 const Char = S.Struct({
 	_tag: S.tag("Char"),
-	char: S.String.annotateKey($I.annote("char", { description: "The typed text, including a whole pasted input." })),
-}).annotate($I.annote("Char", { description: "Typed terminal text as a plain payload." }));
+	char: S.String.pipe($I.annoteKey("Char.char", { description: "The typed text, including a whole pasted input." })),
+}).pipe($I.annoteSchema("Char", { description: "Typed terminal text as a plain payload." }));
 
 /**
  * A key as a screen sees it: a named key, or typed text.
@@ -69,8 +70,7 @@ const Char = S.Struct({
  * @category schemas
  * @since 0.0.0
  */
-export const UiKeyPayload = S.Union([Named, Char]).pipe(S.toTaggedUnion("_tag"))
-	.annotate($I.annote("UiKeyPayload", { description: "A plain named key or typed-text payload received by a screen." }));
+export const UiKeyPayload = S.Union([Named, Char]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("UiKeyPayload", { description: "A plain named key or typed-text payload received by a screen." }));
 /**
  * A named key or typed-text payload validated by UiKeyPayload.
  *
@@ -146,7 +146,10 @@ export const UiKey: {
 	 * @category normalization
 	 * @since 0.0.0
 	 */
-	readonly fromInk: (input: string, key: Key) => UiKey | undefined;
+	readonly fromInk: {
+		(input: string, key: Key): UiKey | undefined;
+		(key: Key): (input: string) => UiKey | undefined;
+	};
 	/**
 	 * Creates a payload for a named terminal key.
 	 *
@@ -178,7 +181,7 @@ export const UiKey: {
 	 */
 	readonly char: (char: string) => UiKey;
 } = {
-	fromInk: (input, key) => {
+	fromInk: dual(2, (input: string, key: Key): UiKey | undefined => {
 		if (key.upArrow) return named("up");
 		if (key.downArrow) return named("down");
 		if (key.leftArrow) return named("left");
@@ -197,7 +200,7 @@ export const UiKey: {
 		if (input === " ") return named("space");
 		if (input === "" || CONTROL.test(input)) return undefined;
 		return Char.make({ char: input });
-	},
+	}),
 	named,
 	char: (char) => Char.make({ char }),
 };

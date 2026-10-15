@@ -8,8 +8,8 @@ import * as S from "effect/Schema";
 const $I = $ScratchpadId.create("effected/toml/internal/limits");
 
 class TomlCapError extends S.TaggedError<TomlCapError, { readonly brand: unique symbol }>($I`TomlCapError`)("TomlCapError", {
-	message: S.String.annotateKey({ description: "Explanation of the invalid programmer-supplied cap." }),
-}, $I.annote("TomlCapError", { description: "An invalid internal cap indicates a wiring defect." })) {}
+	message: S.String.pipe($I.annoteKey("TomlCapError.message", { description: "Explanation of the invalid programmer-supplied cap." })),
+}, $I.annoteError<TomlCapError>("TomlCapError", { description: "An invalid internal cap indicates a wiring defect." })) {}
 
 /**
  * Sets the house parity limit for depth guards (yaml/jsonc/glob precedent).
@@ -64,12 +64,12 @@ export type GuardReason = typeof GuardReason.Type;
  * @since 0.0.0
  */
 export class GuardExceeded extends S.TaggedError<GuardExceeded, { readonly brand: unique symbol }>($I`GuardExceeded`)("GuardExceeded", {
-	message: S.String.annotateKey({ description: "The reason, configured limit and observed depth." }),
-	reason: GuardReason.annotateKey({ description: "The engine guard that exceeded its limit." }),
-	limit: S.Finite.annotateKey({ description: "The configured nesting limit." }),
-	actual: S.Finite.annotateKey({ description: "The observed nesting depth." }),
-	offset: S.Finite.annotateKey({ description: "Source offset where the guard tripped." }),
-}, $I.annote("GuardExceeded", { description: "A raw nesting guard trip materialized into a diagnostic by the facade." })) {
+	message: S.String.pipe($I.annoteKey("GuardExceeded.message", { description: "The reason, configured limit and observed depth." })),
+	reason: GuardReason.pipe($I.annoteKey("GuardExceeded.reason", { description: "The engine guard that exceeded its limit." })),
+	limit: S.Finite.pipe($I.annoteKey("GuardExceeded.limit", { description: "The configured nesting limit." })),
+	actual: S.Finite.pipe($I.annoteKey("GuardExceeded.actual", { description: "The observed nesting depth." })),
+	offset: S.Finite.pipe($I.annoteKey("GuardExceeded.offset", { description: "Source offset where the guard tripped." })),
+}, $I.annoteError<GuardExceeded>("GuardExceeded", { description: "A raw nesting guard trip materialized into a diagnostic by the facade." })) {
 	/**
 	 * Presents the guard-trip signal with the standard Error name.
 	 *
@@ -102,9 +102,14 @@ export class GuardExceeded extends S.TaggedError<GuardExceeded, { readonly brand
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static new(reason: GuardReason, limit: number, actual: number, offset: number): GuardExceeded {
-		return GuardExceeded.make({ reason, limit, actual, offset, message: `${reason}: limit ${limit}, actual ${actual}` });
-	}
+	static readonly new: {
+		(reason: GuardReason, limit: number, actual: number, offset: number): GuardExceeded;
+		(limit: number, actual: number, offset: number): (reason: GuardReason) => GuardExceeded;
+	} = dual(
+		4,
+		(reason: GuardReason, limit: number, actual: number, offset: number): GuardExceeded =>
+			GuardExceeded.make({ reason, limit, actual, offset, message: `${reason}: limit ${limit}, actual ${actual}` }),
+	);
 }
 
 /**

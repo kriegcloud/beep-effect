@@ -3,6 +3,7 @@
 // build metadata are duplicate constraints (SemVer §10) and collapse to one.
 
 import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
@@ -28,9 +29,9 @@ const sortComparators = (set: ReadonlyArray<ComparatorParts>): ReadonlyArray<Com
 
 const removeDuplicates = (set: ReadonlyArray<ComparatorParts>): ReadonlyArray<ComparatorParts> => {
 	const seen = MutableHashSet.empty<string>();
-	return set.filter((c) => {
+	return A.filter(set, (c) => {
 		const v = c.version;
-		const pre = v.prerelease.length > 0 ? `-${v.prerelease.join(".")}` : "";
+		const pre = v.prerelease.length > 0 ? `-${pipe(v.prerelease, A.map(String), A.join("."))}` : "";
 		// Build metadata is ignored per SemVer §10 — comparators differing
 		// only in build metadata are semantically identical constraints.
 		const key = `${c.operator}${v.major}.${v.minor}.${v.patch}${pre}`;
@@ -67,4 +68,4 @@ const normalizeComparatorSet = (set: ReadonlyArray<ComparatorParts>): ReadonlyAr
  */
 export const normalizeSets = (
 	sets: ReadonlyArray<ReadonlyArray<ComparatorParts>>,
-): ReadonlyArray<ReadonlyArray<ComparatorParts>> => sets.map(normalizeComparatorSet);
+): ReadonlyArray<ReadonlyArray<ComparatorParts>> => A.map(sets, normalizeComparatorSet);

@@ -34,13 +34,13 @@ const $I = $ScratchpadId.create("effected/schema-org/APIReference");
 export class APIReference extends S.Class<APIReference, { readonly brand: unique symbol }>($I`APIReference`)({
 	...TechArticleFields,
 	/** The JSON-LD type discriminator, populated automatically. */
-	"@type": S.tag("APIReference").annotateKey({ description: "The JSON-LD type discriminator, populated automatically." }),
+	"@type": S.tag("APIReference").pipe($I.annoteKey("APIReference.@type", { description: "The JSON-LD type discriminator, populated automatically." })),
 	/** The version of the assembly the reference documents. Single-valued. */
-	assemblyVersion: S.optionalKey(S.String).annotateKey({ description: "The version of the assembly the reference documents. Single-valued." }),
+	assemblyVersion: S.optionalKey(S.String).pipe($I.annoteKey("APIReference.assemblyVersion", { description: "The version of the assembly the reference documents. Single-valued." })),
 	/** The programming model the API follows. Single-valued. */
-	programmingModel: S.optionalKey(S.String).annotateKey({ description: "The programming model the API follows. Single-valued." }),
+	programmingModel: S.optionalKey(S.String).pipe($I.annoteKey("APIReference.programmingModel", { description: "The programming model the API follows. Single-valued." })),
 	/** The platform the API targets. Single-valued. */
-	targetPlatform: S.optionalKey(S.String).annotateKey({ description: "The platform the API targets. Single-valued." }),
+	targetPlatform: S.optionalKey(S.String).pipe($I.annoteKey("APIReference.targetPlatform", { description: "The platform the API targets. Single-valued." })),
 	/** The library file that exposes the API. Single-valued. */
-	executableLibraryName: S.optionalKey(S.String).annotateKey({ description: "The library file that exposes the API. Single-valued." }),
+	executableLibraryName: S.optionalKey(S.String).pipe($I.annoteKey("APIReference.executableLibraryName", { description: "The library file that exposes the API. Single-valued." })),
 }, $I.annote("APIReference", { description: "A schema.org `APIReference` — documentation of an API surface." })) {}

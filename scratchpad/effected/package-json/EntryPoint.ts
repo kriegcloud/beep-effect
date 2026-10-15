@@ -71,10 +71,10 @@ export class UnresolvedEntryPointError extends S.TaggedError<UnresolvedEntryPoin
 		 * `unsupportedExportsForm` — an array fallback list, or another shape this
 		 * resolver does not implement.
 		 */
-		reason: S.Literals(["noRootExport", "noConditionMatched", "unsupportedExportsForm"]).annotateKey({ description: "`noRootExport` — `exports` is a subpath map with no `\".\"` entry, so the package exports subpaths but no root. `noConditionMatched` — a root entry exists but none of the requested conditions are present, e.g. a `require`-only package read with `[\"import\"]`. `unsupportedExportsForm` — an array fallback list, or another shape this resolver does not implement." }),
+		reason: S.Literals(["noRootExport", "noConditionMatched", "unsupportedExportsForm"]).pipe($I.annoteKey("UnresolvedEntryPointError.reason", { description: "`noRootExport` — `exports` is a subpath map with no `\".\"` entry, so the package exports subpaths but no root. `noConditionMatched` — a root entry exists but none of the requested conditions are present, e.g. a `require`-only package read with `[\"import\"]`. `unsupportedExportsForm` — an array fallback list, or another shape this resolver does not implement." })),
 		/** The conditions that were tried, for `noConditionMatched`. */
-		conditions: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "The conditions that were tried, for `noConditionMatched`." }),
-	}, $I.annote("UnresolvedEntryPointError", { description: "Raised when a manifest resolves no root entry point." }),
+		conditions: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("UnresolvedEntryPointError.conditions", { description: "The conditions that were tried, for `noConditionMatched`." })),
+	}, $I.annoteError<UnresolvedEntryPointError>("UnresolvedEntryPointError", { description: "Raised when a manifest resolves no root entry point." }),
 ) {
 	/**
 	 * Explains the unresolved export shape, including the tried conditions for a condition mismatch.
@@ -149,7 +149,10 @@ const isRootConditions = (exportsObject: Record<string, unknown>): boolean => {
  * Recurses, because conditions nest: `{ "import": { "node": "./n.js" } }` is
  * legal and a non-recursive reader answers an object where a path belongs.
  */
-const resolveConditions = (
+const resolveConditions: {
+	(conditionsObject: Record<string, unknown>, conditions: ReadonlyArray<string>): string | undefined;
+	(conditions: ReadonlyArray<string>): (conditionsObject: Record<string, unknown>) => string | undefined;
+} = dual(2, (
 	conditionsObject: Record<string, unknown>,
 	conditions: ReadonlyArray<string>,
 ): string | undefined => {
@@ -166,7 +169,7 @@ const resolveConditions = (
 		}
 	}
 	return undefined;
-};
+});
 
 /**
  * Resolve a package's root entry point from its manifest.

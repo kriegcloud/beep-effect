@@ -13,6 +13,7 @@
  * @packageDocumentation
  */
 
+import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import type * as PlatformErrorNs from "effect/PlatformError";
@@ -79,7 +80,10 @@ class InvalidPathArgumentError extends S.TaggedError<InvalidPathArgumentError, {
 // from the code through the shared `errnoTag` mapping (anything unmapped,
 // including node's `ERR_*` argument codes, is Unknown) and the node error rides
 // as `cause`.
-const errnoException = (method: string, path: string, err: unknown): PlatformErrorType =>
+const errnoException: {
+	(method: string, path: string, err: unknown): PlatformErrorType;
+	(path: string, err: unknown): (method: string) => PlatformErrorType;
+} = dual(3, (method: string, path: string, err: unknown): PlatformErrorType =>
 	PlatformError.systemError({
 		_tag: errnoTag(P.hasProperty(err, "code") && P.isString(err.code) ? err.code : undefined),
 		module: "FileSystem",
@@ -87,14 +91,17 @@ const errnoException = (method: string, path: string, err: unknown): PlatformErr
 		pathOrDescriptor: path,
 		syscall: P.hasProperty(err, "syscall") && P.isString(err.syscall) ? err.syscall : undefined,
 		cause: err,
-	});
+	}));
 
 // Mirrors the adapter's `effectify(…, handleErrnoException, handleBadArgument)`
 // split: a failure from the syscall itself (it carries a numeric `errno` or a
 // `syscall`) is a system error; anything node throws BEFORE the syscall — its
 // argument validation, whose errors also carry string codes such as
 // ERR_INVALID_ARG_VALUE (a NUL byte) or ERR_INVALID_ARG_TYPE — is BadArgument.
-const fail = (method: string, path: string, err: unknown): PlatformErrorType =>
+const fail: {
+	(method: string, path: string, err: unknown): PlatformErrorType;
+	(path: string, err: unknown): (method: string) => PlatformErrorType;
+} = dual(3, (method: string, path: string, err: unknown): PlatformErrorType =>
 	(P.hasProperty(err, "errno") && P.isNumber(err.errno)) ||
 		(P.hasProperty(err, "syscall") && err.syscall !== undefined)
 		? errnoException(method, path, err)
@@ -102,18 +109,24 @@ const fail = (method: string, path: string, err: unknown): PlatformErrorType =>
 				module: "FileSystem",
 				method,
 				description: P.hasProperty(err, "message") && P.isString(err.message) ? err.message : String(err),
-			});
+			}));
 
-const attempt = <A>(method: string, path: string, f: () => A): Effect.Effect<A, PlatformErrorType> =>
-	Effect.try({ try: f, catch: (err) => fail(method, path, err) });
+const attempt: {
+	<A>(method: string, path: string, f: () => A): Effect.Effect<A, PlatformErrorType>;
+	<A>(path: string, f: () => A): (method: string) => Effect.Effect<A, PlatformErrorType>;
+} = dual(3, <A>(method: string, path: string, f: () => A): Effect.Effect<A, PlatformErrorType> =>
+	Effect.try({ try: f, catch: (err) => fail(method, path, err) }));
 
-const bigintToNumber = (value: bigint, field: string): number => {
+const bigintToNumber: {
+	(value: bigint, field: string): number;
+	(field: string): (value: bigint) => number;
+} = dual(2, (value: bigint, field: string): number => {
 	const number = Number(value);
 	if (!Number.isSafeInteger(number)) {
 		throw UnsafeIntegerError.make({ message: `${field} exceeds the safe integer range: ${value}` });
 	}
 	return number;
-};
+});
 
 const bigintToNumberOption = (value: bigint | undefined): O.Option<number> =>
 	O.flatMap(O.fromNullishOr(value), BI.toNumber);

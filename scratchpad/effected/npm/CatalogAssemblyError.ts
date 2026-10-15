@@ -24,12 +24,12 @@ const causeMessage = (cause: unknown): string | undefined => {
 	return text === undefined || Str.trim(text) === "" ? undefined : text;
 };
 
-const CatalogAssemblySource = LiteralKit(["manifest", "catalog", "hooks"]).annotate(
-	$I.annote("CatalogAssemblySource", { description: "The inputs that can fail catalog assembly." }),
+const CatalogAssemblySource = LiteralKit(["manifest", "catalog", "hooks"]).pipe(
+	$I.annoteSchema("CatalogAssemblySource", { description: "The inputs that can fail catalog assembly." }),
 );
 
-const CatalogHooksReason = LiteralKit(["notInstalled", "ambiguous", "fetchFailed", "integrityMismatch", "integrityUnavailable"]).annotate(
-	$I.annote("CatalogHooksReason", { description: "Why a config dependency could not be resolved." }),
+const CatalogHooksReason = LiteralKit(["notInstalled", "ambiguous", "fetchFailed", "integrityMismatch", "integrityUnavailable"]).pipe(
+	$I.annoteSchema("CatalogHooksReason", { description: "Why a config dependency could not be resolved." }),
 );
 
 const CatalogAssemblyErrorPayload = S.Struct({
@@ -38,11 +38,11 @@ const CatalogAssemblyErrorPayload = S.Struct({
 	 * `catalog` for a malformed catalog block or the double-default duplication,
 	 * `hooks` for a config-dependency `pnpmfile.cjs` load or replay failure.
 	 */
-	source: CatalogAssemblySource.annotateKey({ description: "Which input failed: `manifest` for a file-level or top-level shape problem, `catalog` for a malformed catalog block or the double-default duplication, `hooks` for a config-dependency `pnpmfile.cjs` load or replay failure." }),
+	source: CatalogAssemblySource.pipe($I.annoteKey("CatalogAssemblyErrorPayload.source", { description: "Which input failed: `manifest` for a file-level or top-level shape problem, `catalog` for a malformed catalog block or the double-default duplication, `hooks` for a config-dependency `pnpmfile.cjs` load or replay failure." })),
 	/** The file, the catalog name, or the config dependency name. */
-	path: S.String.annotateKey({ description: "The file, the catalog name, or the config dependency name." }),
+	path: S.String.pipe($I.annoteKey("CatalogAssemblyErrorPayload.path", { description: "The file, the catalog name, or the config dependency name." })),
 	/** The originating failure. */
-	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The originating failure." }),
+	cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("CatalogAssemblyErrorPayload.cause", { description: "The originating failure." })),
 	/**
 	 * Why a `hooks`-source failure could not resolve a config dependency at its
 	 * declared version, when that is what failed. Absent for every other
@@ -68,37 +68,37 @@ const CatalogAssemblyErrorPayload = S.Struct({
 	 */
 	reason: S.optionalKey(
 		CatalogHooksReason,
-	).annotateKey({ description: "Why a `hooks`-source failure could not resolve a config dependency at its declared version, when that is what failed. Absent for every other failure, including a pnpmfile that resolved but failed to load or replay." }),
-}).annotate(
-	$I.annote("CatalogAssemblyErrorPayload", { description: "The compatible public catalog assembly error payload." }),
+	).pipe($I.annoteKey("CatalogAssemblyErrorPayload.reason", { description: "Why a `hooks`-source failure could not resolve a config dependency at its declared version, when that is what failed. Absent for every other failure, including a pnpmfile that resolved but failed to load or replay." })),
+}).pipe(
+	$I.annoteSchema("CatalogAssemblyErrorPayload", { description: "The compatible public catalog assembly error payload." }),
 );
 
 const CatalogAssemblyFailure = CatalogAssemblySource.mapMembers(([manifest, catalog, hooks]) => [
 	S.Struct({
-		source: manifest.annotateKey({ description: "A catalog declaration file or its top-level shape failed." }),
+		source: manifest.pipe($I.annoteKey("CatalogManifestFailure.source", { description: "A catalog declaration file or its top-level shape failed." })),
 		path: CatalogAssemblyErrorPayload.fields.path,
 		cause: CatalogAssemblyErrorPayload.fields.cause,
-	}).annotate($I.annote("CatalogManifestFailure", { description: "A catalog declaration file or its top-level shape failed." })),
+	}).pipe($I.annoteSchema("CatalogManifestFailure", { description: "A catalog declaration file or its top-level shape failed." })),
 	S.Struct({
-		source: catalog.annotateKey({ description: "A catalog block or duplicated default catalog failed." }),
+		source: catalog.pipe($I.annoteKey("CatalogBlockFailure.source", { description: "A catalog block or duplicated default catalog failed." })),
 		path: CatalogAssemblyErrorPayload.fields.path,
 		cause: CatalogAssemblyErrorPayload.fields.cause,
-	}).annotate($I.annote("CatalogBlockFailure", { description: "A catalog block or duplicated default catalog failed." })),
+	}).pipe($I.annoteSchema("CatalogBlockFailure", { description: "A catalog block or duplicated default catalog failed." })),
 	S.Struct({
-		source: hooks.annotateKey({ description: "A config dependency could not be resolved, loaded, or replayed." }),
+		source: hooks.pipe($I.annoteKey("CatalogHooksFailure.source", { description: "A config dependency could not be resolved, loaded, or replayed." })),
 		path: CatalogAssemblyErrorPayload.fields.path,
 		cause: CatalogAssemblyErrorPayload.fields.cause,
 		reason: CatalogAssemblyErrorPayload.fields.reason,
-	}).annotate($I.annote("CatalogHooksFailure", { description: "A config dependency could not be resolved, loaded, or replayed." })),
+	}).pipe($I.annoteSchema("CatalogHooksFailure", { description: "A config dependency could not be resolved, loaded, or replayed." })),
 ] as const).pipe(
-	S.annotate($I.annote("CatalogAssemblyFailure", { description: "Source-specific catalog assembly failures; only hooks have a resolution reason." })),
+	$I.annoteSchema("CatalogAssemblyFailure", { description: "Source-specific catalog assembly failures; only hooks have a resolution reason." }),
 	S.toTaggedUnion("source"),
 );
 
 const CatalogAssemblyFailureFromPayload = CatalogAssemblyErrorPayload.pipe(
 	S.toType,
 	S.decodeTo(CatalogAssemblyFailure.pipe(S.toType)),
-	S.annotate($I.annote("CatalogAssemblyFailureFromPayload", { description: "Project the compatible payload into its source-specific case without encoding its cause." })),
+	$I.annoteSchema("CatalogAssemblyFailureFromPayload", { description: "Project the compatible payload into its source-specific case without encoding its cause." }),
 );
 
 const catalogAssemblyFailure = flow(S.decodeUnknownResult(CatalogAssemblyFailureFromPayload), Result.getOrThrow);
@@ -141,7 +141,7 @@ const catalogAssemblyFailure = flow(S.decodeUnknownResult(CatalogAssemblyFailure
  * @category errors
  * @since 0.0.0
  */
-export class CatalogAssemblyError extends S.TaggedError<CatalogAssemblyError, { readonly brand: unique symbol }>($I`CatalogAssemblyError`)("CatalogAssemblyError", CatalogAssemblyErrorPayload, $I.annote("CatalogAssemblyError", { description: "Raised when a workspace's catalogs cannot be assembled — a `pnpm-workspace.yaml` that is unreadable or not valid YAML, a root `package.json` `workspaces` field whose shape or catalog blocks are malformed in a way pnpm itself rejects (including the default catalog declared twice), or a config dependency whose `pnpmfile.cjs` cannot be loaded or replayed." })) {
+export class CatalogAssemblyError extends S.TaggedError<CatalogAssemblyError, { readonly brand: unique symbol }>($I`CatalogAssemblyError`)("CatalogAssemblyError", CatalogAssemblyErrorPayload, $I.annoteError<CatalogAssemblyError>("CatalogAssemblyError", { description: "Raised when a workspace's catalogs cannot be assembled — a `pnpm-workspace.yaml` that is unreadable or not valid YAML, a root `package.json` `workspaces` field whose shape or catalog blocks are malformed in a way pnpm itself rejects (including the default catalog declared twice), or a config dependency whose `pnpmfile.cjs` cannot be loaded or replayed." })) {
 	/**
 	 * Projects the compatible public fields into the source-specific internal failure.
 	 *

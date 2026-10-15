@@ -494,11 +494,13 @@ is `never`; `layerWith(options)` is the parameterized variant spelled as a
 distinct name so the zero-config `layer` stays a const and memoizes by
 reference.
 
-- **No `Fn.dual` on any member.** The subject is a `path`, and nothing
-  pipes a path; dual also fights the house test pattern, since an
-  override in `layerTest(overrides: Partial<Shape>)` against a dual
-  member must satisfy both overloads and the natural one-line stub does
-  not typecheck.
+- **Every two-argument member is `dual`** (operator ruling 2026-10-14:
+  every fixed-arity function exposes a data-last overload). The subject is
+  the `path`, so `pipe(path, sections.sync(section))` works. The cost is
+  the house test pattern: an override in
+  `layerTest(overrides: Partial<Shape>)` must satisfy both overloads, so
+  a two-argument stub is written `dual(2, (_path, _id) => ...)`, and
+  `makeTest`'s defaults go through a typed `unstubbed` helper.
 - **`checkAll` / `readAll` exist** because consumers check several blocks
   in one file and would otherwise read it once per block.
 - **No `exists`-then-read.** Probing and then reading is two syscalls and

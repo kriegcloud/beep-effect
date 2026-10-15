@@ -196,7 +196,7 @@ describe("peerDeclarations dual helper", () => {
 	});
 
 	it("data-last calls normalize optional metadata and bun overrides", () => {
-		assert.deepEqual(pipe({ react: "^18" }, peerDeclarations(undefined)), {
+		assert.deepEqual(pipe({ react: "^18" }, peerDeclarations(undefined, undefined)), {
 			peerDependencies: { react: "^18" }, peerDependenciesMeta: {},
 		});
 		assert.deepEqual(pipe(undefined, peerDeclarations(undefined, undefined)), {

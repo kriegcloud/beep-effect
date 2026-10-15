@@ -7,12 +7,12 @@ import * as Match from "effect/Match";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import { flow } from "effect/Function";
+import { flow, dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
 import * as DateTime from "effect/DateTime";
-import { HttpClient, HttpClientRequest } from "effect/http";
+import { HttpClient, HttpClientRequest, type HttpClientResponse } from "effect/http";
 import type { ActionOutputs } from "./ActionOutputs.ts";
 import type { BlobEnvelopeError } from "./BlobEnvelope.ts";
 import { BlobEnvelope } from "./BlobEnvelope.ts";
@@ -51,16 +51,16 @@ export class BlobStoreError extends S.TaggedError<BlobStoreError, { readonly bra
 	 * unhappily; `status` says how. `misconfigured` — the layer was built with
 	 * settings the store cannot use.
 	 */
-	reason: S.Literals(["unreachable", "refused", "misconfigured"]).annotateKey({ description: "`unreachable` — the store could not be contacted. `refused` — it answered, unhappily; `status` says how. `misconfigured` — the layer was built with settings the store cannot use." }),
+	reason: S.Literals(["unreachable", "refused", "misconfigured"]).pipe($I.annoteKey("BlobStoreError.reason", { description: "`unreachable` — the store could not be contacted. `refused` — it answered, unhappily; `status` says how. `misconfigured` — the layer was built with settings the store cannot use." })),
 	/** The key involved. A stable identifier, never a value. */
-	key: S.optionalKey(S.String).annotateKey({ description: "The key involved. A stable identifier, never a value." }),
+	key: S.optionalKey(S.String).pipe($I.annoteKey("BlobStoreError.key", { description: "The key involved. A stable identifier, never a value." })),
 	/** The HTTP status, when the store answered. */
-	status: S.optionalKey(S.Finite).annotateKey({ description: "The HTTP status, when the store answered." }),
+	status: S.optionalKey(S.Finite).pipe($I.annoteKey("BlobStoreError.status", { description: "The HTTP status, when the store answered." })),
 	/** What is wrong, when the reason alone does not say. */
-	detail: S.optionalKey(S.String).annotateKey({ description: "What is wrong, when the reason alone does not say." }),
+	detail: S.optionalKey(S.String).pipe($I.annoteKey("BlobStoreError.detail", { description: "What is wrong, when the reason alone does not say." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("BlobStoreError", { description: "Raised when a blob cannot be stored or retrieved." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("BlobStoreError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<BlobStoreError>("BlobStoreError", { description: "Raised when a blob cannot be stored or retrieved." })) {
 	/**
 	 * Describes the storage failure with the available key, status and detail.
 	 *
@@ -118,16 +118,15 @@ export interface BlobStoreShape {
   * Fails with {@link BlobStoreError}, or a {@link BlobEnvelopeError} when the
   * stored bytes are not a valid envelope for `schema`.
   */
-	readonly get: <A, I>(
-		key: string,
-		schema: S.Codec<A, I>,
-	) => Effect.Effect<O.Option<StoredBlob<A>>, BlobStoreError | BlobEnvelopeError>;
+	readonly get: {
+		<A, I>(key: string, schema: S.Codec<A, I>): Effect.Effect<O.Option<StoredBlob<A>>, BlobStoreError | BlobEnvelopeError>;
+		<A, I>(schema: S.Codec<A, I>): (key: string) => Effect.Effect<O.Option<StoredBlob<A>>, BlobStoreError | BlobEnvelopeError>;
+	};
 	/** Write a blob. */
-	readonly put: <A, I>(
-		key: string,
-		blob: StoredBlob<A>,
-		schema: S.Codec<A, I>,
-	) => Effect.Effect<void, BlobStoreError | BlobEnvelopeError>;
+	readonly put: {
+		<A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>): Effect.Effect<void, BlobStoreError | BlobEnvelopeError>;
+		<A, I>(blob: StoredBlob<A>, schema: S.Codec<A, I>): (key: string) => Effect.Effect<void, BlobStoreError | BlobEnvelopeError>;
+	};
 	/** Whether a key is present, without transferring the body. */
 	readonly has: (key: string) => Effect.Effect<boolean, BlobStoreError>;
 }
@@ -157,9 +156,9 @@ export interface BlobStoreShape {
  */
 export const S3Config = S.Struct({
 	/** The bucket name. */
-	bucket: S.String.annotateKey({ description: "The bucket name." }),
+	bucket: S.String.pipe($I.annoteKey("S3Config.bucket", { description: "The bucket name." })),
 	/** The bucket's region, used for SigV4 signing and the default AWS endpoint. */
-	region: S.String.annotateKey({ description: "The bucket's region, used for SigV4 signing and the default AWS endpoint." }),
+	region: S.String.pipe($I.annoteKey("S3Config.region", { description: "The bucket's region, used for SigV4 signing and the default AWS endpoint." })),
 	/**
   * A custom endpoint, e.g. `https://<account>.r2.cloudflarestorage.com`.
   *
@@ -170,16 +169,16 @@ export const S3Config = S.Struct({
   * against R2, MinIO and Spaces — virtual-host addressing needs per-bucket
   * DNS that none of them provide the same way.
   */
-	endpoint: S.optionalKey(S.String).annotateKey({ description: "A custom path-style endpoint. Omitting it targets AWS itself." }),
+	endpoint: S.optionalKey(S.String).pipe($I.annoteKey("S3Config.endpoint", { description: "A custom path-style endpoint. Omitting it targets AWS itself." })),
 	/** The access key id. */
-	accessKeyId: S.String.annotateKey({ description: "The access key id." }),
+	accessKeyId: S.String.pipe($I.annoteKey("S3Config.accessKeyId", { description: "The access key id." })),
 	/** The secret access key, declassified once and masked in the runner log. */
-	secretAccessKey: S.Redacted(S.String).annotateKey({ description: "The secret access key, declassified once and masked in the runner log." }),
+	secretAccessKey: S.Redacted(S.String).pipe($I.annoteKey("S3Config.secretAccessKey", { description: "The secret access key, declassified once and masked in the runner log." })),
 	/** For temporary credentials. */
-	sessionToken: S.String.pipe(S.Redacted, S.optional).annotateKey({ description: "For temporary credentials." }),
+	sessionToken: S.String.pipe(S.Redacted, S.optional, $I.annoteKey("S3Config.sessionToken", { description: "For temporary credentials." })),
 	/** Prepended to every key, so one bucket can hold several caches. */
-	prefix: S.optionalKey(S.String).annotateKey({ description: "Prepended to every key, so one bucket can hold several caches." }),
-}).annotate($I.annote("S3Config", { description: "How to reach an S3-compatible object store." }));
+	prefix: S.optionalKey(S.String).pipe($I.annoteKey("S3Config.prefix", { description: "Prepended to every key, so one bucket can hold several caches." })),
+}).pipe($I.annoteSchema("S3Config", { description: "How to reach an S3-compatible object store." }));
 
 /**
  * The configuration accepted by the S3-compatible backend.
@@ -281,8 +280,10 @@ export class BlobStore extends Context.Service<BlobStore, BlobStoreShape>()($I`B
 	 * @since 0.0.0
 	 */
 	static readonly makeTest = (overrides: Partial<BlobStoreShape> = {}): BlobStoreShape => ({
-		get: () => dies("get"),
-		put: () => dies("put"),
+		get: dual(2, <A, I>(_key: string, _schema: S.Codec<A, I>): Effect.Effect<O.Option<StoredBlob<A>>, BlobStoreError | BlobEnvelopeError> =>
+			dies("get")),
+		put: dual(3, <A, I>(_key: string, _blob: StoredBlob<A>, _schema: S.Codec<A, I>): Effect.Effect<void, BlobStoreError | BlobEnvelopeError> =>
+			dies("put")),
 		has: () => dies("has"),
 		...overrides,
 	});
@@ -340,20 +341,20 @@ export class BlobStore extends Context.Service<BlobStore, BlobStoreShape>()($I`B
 	static readonly layerMemory: Layer.Layer<BlobStore> = Layer.sync(BlobStore, () => {
 		const entries = MutableHashMap.empty<string, Uint8Array>();
 		return {
-			get: Effect.fn("BlobStore.get")(<A, I>(key: string, schema: S.Codec<A, I>) =>
+			get: dual(2, Effect.fn("BlobStore.get")(<A, I>(key: string, schema: S.Codec<A, I>) =>
 				Effect.suspend(() => {
 					const stored = MutableHashMap.get(entries, key);
 					return O.match(stored, {
 						onNone: () => Effect.succeed(O.none<StoredBlob<A>>()),
 						onSome: (bytes) => BlobEnvelope.decodeResult(bytes, schema).pipe(Effect.fromResult, Effect.asSome),
 					});
-				})),
-			put: Effect.fn("BlobStore.put")(<A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>) =>
+				}))),
+			put: dual(3, Effect.fn("BlobStore.put")(<A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>) =>
 				Effect.suspend(() =>
 					Effect.map(Effect.fromResult(BlobEnvelope.encodeResult(blob.metadata, blob.body, schema)), (framed) => {
 						MutableHashMap.set(entries, key, framed);
 					}),
-				)),
+				))),
 			has: Effect.fn("BlobStore.has")((key: string) => Effect.sync(() => MutableHashMap.has(entries, key))),
 		};
 	});
@@ -379,7 +380,10 @@ const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
 		const objectPath = (key: string): string =>
 			A.join([config.bucket, ...(config.prefix === undefined ? [] : [config.prefix]), key], "/");
 
-		const request = (endpoint: URL, method: string, path: string, body: Uint8Array, now: DateTime.Utc) => {
+		const request: {
+			(endpoint: URL, method: string, path: string, body: Uint8Array, now: DateTime.Utc): { readonly url: string; readonly headers: Record<string, string> };
+			(method: string, path: string, body: Uint8Array, now: DateTime.Utc): (endpoint: URL) => { readonly url: string; readonly headers: Record<string, string> };
+		} = dual(5, (endpoint: URL, method: string, path: string, body: Uint8Array, now: DateTime.Utc): { readonly url: string; readonly headers: Record<string, string> } => {
 			// Keep the endpoint's existing escapes; only raw object segments are encoded.
 			// Strip trailing slashes without a backtracking regex.
 			let encodedPathPrefix = endpoint.pathname;
@@ -397,9 +401,12 @@ const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
 				},
 			);
 			return { url: `${endpoint.origin}${encodedPathPrefix}/${A.join(A.map(Str.split(path, "/"), uriEncode), "/")}`, headers };
-		};
+		});
 
-		const send = Effect.fn("BlobStore.send")(function* (method: "GET" | "PUT" | "HEAD", key: string, body: Uint8Array) {
+		const send: {
+			(method: "GET" | "PUT" | "HEAD", key: string, body: Uint8Array): Effect.Effect<HttpClientResponse.HttpClientResponse, BlobStoreError>;
+			(key: string, body: Uint8Array): (method: "GET" | "PUT" | "HEAD") => Effect.Effect<HttpClientResponse.HttpClientResponse, BlobStoreError>;
+		} = dual(3, Effect.fn("BlobStore.send")(function* (method: "GET" | "PUT" | "HEAD", key: string, body: Uint8Array) {
 			const endpoint = yield* Effect.fromResult(endpointResult).pipe(
 				Effect.mapError((cause) => BlobStoreError.make({
 					reason: "misconfigured", key, detail: "The endpoint must be a valid absolute HTTP URL", cause,
@@ -430,17 +437,20 @@ const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
 			return yield* http
 				.execute(built)
 				.pipe(Effect.mapError((cause) => BlobStoreError.make({ reason: "unreachable", key, cause })));
-		});
+		}));
 
 		/** Anything outside 2xx is the store refusing; a caller reads `404` first where a miss is an answer. */
-		const accepted = (key: string, status: number): Effect.Effect<void, BlobStoreError> =>
+		const accepted: {
+			(key: string, status: number): Effect.Effect<void, BlobStoreError>;
+			(status: number): (key: string) => Effect.Effect<void, BlobStoreError>;
+		} = dual(2, (key: string, status: number): Effect.Effect<void, BlobStoreError> =>
 			Bool.match(status < 200 || status >= 300, {
 				onTrue: () => Effect.fail(BlobStoreError.make({ reason: "refused", key, status })),
 				onFalse: () => Effect.void,
-			});
+			}));
 
 		return {
-			get: Effect.fn("get")(function*<A, I>(key: string, schema: S.Codec<A, I>) {
+			get: dual(2, Effect.fn("get")(function*<A, I>(key: string, schema: S.Codec<A, I>) {
 					const response = yield* send("GET", key, new Uint8Array(0));
 					// A miss is not a failure: it is the answer the caller asked for.
 					if (response.status === 404) {
@@ -451,13 +461,13 @@ const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
 						Effect.mapError((cause) => BlobStoreError.make({ reason: "unreachable", key, cause })),
 					);
 					return O.some(yield* Effect.fromResult(BlobEnvelope.decodeResult(new Uint8Array(buffer), schema)));
-				}),
+				})),
 
-			put: Effect.fn("put")(function*<A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>) {
+			put: dual(3, Effect.fn("put")(function*<A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>) {
 					const framed = yield* Effect.fromResult(BlobEnvelope.encodeResult(blob.metadata, blob.body, schema));
 					const response = yield* send("PUT", key, framed);
 					yield* accepted(key, response.status);
-				}),
+				})),
 
 			has: Effect.fn("has")(function*(key: string) {
 					const response = yield* send("HEAD", key, new Uint8Array(0));

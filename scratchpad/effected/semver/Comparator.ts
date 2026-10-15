@@ -35,10 +35,10 @@ const $I = $ScratchpadId.create("effected/semver/Comparator");
  */
 export class InvalidComparatorError extends S.TaggedError<InvalidComparatorError, { readonly brand: unique symbol }>($I`InvalidComparatorError`)("InvalidComparatorError", {
 	/** The raw input string that failed to parse. */
-	input: S.String.annotateKey({ description: "The raw input string that failed to parse." }),
+	input: S.String.pipe($I.annoteKey("InvalidComparatorError.input", { description: "The raw input string that failed to parse." })),
 	/** The character position where parsing failed, if available. */
-	position: S.optionalKey(S.Finite).annotateKey({ description: "The character position where parsing failed, if available." }),
-}, $I.annote("InvalidComparatorError", { description: "Indicates that a string could not be parsed as a single comparator." })) {
+	position: S.optionalKey(S.Finite).pipe($I.annoteKey("InvalidComparatorError.position", { description: "The character position where parsing failed, if available." })),
+}, $I.annoteError<InvalidComparatorError>("InvalidComparatorError", { description: "Indicates that a string could not be parsed as a single comparator." })) {
 	/**
 	 * Builds a readable failure message from the structured error fields.
 	 *
@@ -95,9 +95,9 @@ export class InvalidComparatorError extends S.TaggedError<InvalidComparatorError
  */
 export class Comparator extends S.Class<Comparator, { readonly brand: unique symbol }>($I`Comparator`)({
 	/** The relational operator applied to `version`; a missing prefix in the source string means `=`. */
-	operator: ComparatorOperator.annotateKey({ description: "The relational operator applied to `version`; a missing prefix in the source string means `=`." }),
+	operator: ComparatorOperator.pipe($I.annoteKey("Comparator.operator", { description: "The relational operator applied to `version`; a missing prefix in the source string means `=`." })),
 	/** The version the operator is applied against. */
-	version: SemVer.annotateKey({ description: "The version the operator is applied against." }),
+	version: SemVer.pipe($I.annoteKey("Comparator.version", { description: "The version the operator is applied against." })),
 }, $I.annote("Comparator", { description: "A single version constraint: a comparison operator applied to a version. Comparator strings accept an optional operator prefix (`=`, `>`, `>=`, `<`, `<=`) followed by a complete version; a missing operator means `=`. Wildcards and range sugar are not allowed — those belong to `Range`." })) {
 	// ── Schema ──────────────────────────────────────────────────────────
 

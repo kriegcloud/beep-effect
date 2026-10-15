@@ -59,8 +59,8 @@ export const SyntaxKind = LiteralKit([
   "Trivia",
   "Unknown",
   "EOF",
-]).annotate(
-  $I.annote("SyntaxKind", {
+]).pipe(
+  $I.annoteSchema("SyntaxKind", {
     description: "Token kinds produced by the JSONC scanner.",
   })
 );
@@ -105,8 +105,8 @@ export const ScanError = LiteralKit([
   "InvalidEscapeCharacter",
   "InvalidCharacter",
   "InvalidSymbol",
-]).annotate(
-  $I.annote("ScanError", {
+]).pipe(
+  $I.annoteSchema("ScanError", {
     description: "Lexical error codes the JSONC scanner attaches to a token.",
   })
 );
@@ -391,11 +391,14 @@ export const createScanner: {
       return "Unknown";
     };
 
-    const scanPunctuation = (value: string, kind: SyntaxKind): SyntaxKind => {
+    const scanPunctuation: {
+      (value: string, kind: SyntaxKind): SyntaxKind;
+      (kind: SyntaxKind): (value: string) => SyntaxKind;
+    } = dual(2, (value: string, kind: SyntaxKind): SyntaxKind => {
       pos++;
       tokenValue = value;
       return kind;
-    };
+    });
 
     // Single-token scan. Trivia skipping happens in the iterative wrapper below:
     // recursing here per skipped token overflows the stack on comment-heavy or

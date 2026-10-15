@@ -1,6 +1,7 @@
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { CliFailure } from "../../effected/cli/CliFailure.ts";
+import type { CliFailureOptions } from "../../effected/cli/CliFailure.ts";
 
 it.effect("CliFailure retains its runtime class identity", () => Effect.sync(() => {
   assert.isTrue(Reflect.construct(CliFailure, []) instanceof CliFailure);
@@ -11,7 +12,7 @@ import * as Context from "effect/Context";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { Render } from "../../effected/cli/Render.ts";
-const plain = (cause: Cause.Cause<unknown>, options?: Parameters<typeof CliFailure.toDoc>[1]) => Render.plain(CliFailure.toDoc(cause, options), Render.contextOf({ audience: "agent" }));
+const plain = (cause: Cause.Cause<unknown>, options?: CliFailureOptions) => Render.plain(CliFailure.toDoc(cause, options), Render.contextOf({ audience: "agent" }));
 
 it.effect("plain object failures use a string message and otherwise describe the object", () => Effect.sync(() => {
   assert.include(plain(Cause.fail({ message: "read failed" })), "read failed");

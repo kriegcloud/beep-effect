@@ -4,7 +4,7 @@ import * as R from "effect/Record";
 import { withFaults } from "../../effected/memfs/internal/ports.ts";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem, type MemoryFileSystemSyncFileSystem } from "../../effected/memfs/index.ts";
 import { UnknownFaultKeyError } from "../../effected/memfs/internal/faults.ts";
 import { ErrnoFields, thrown } from "./helpers.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
@@ -413,7 +413,7 @@ describe("MemoryFileSystem.syncFileSystem", () => {
 		"/repo/latest": MemoryFileSystem.symlink("/repo/package.json"),
 	} as const;
 
-	const withSync = <A>(use: (sync: ReturnType<typeof MemoryFileSystem.syncFileSystem>) => A) =>
+	const withSync = <A>(use: (sync: MemoryFileSystemSyncFileSystem) => A) =>
 		Effect.map(MemoryFileSystem.makeHandle(seed), ({ volume }) => use(MemoryFileSystem.syncFileSystem(volume)));
 
 	it.effect("reads files and lists directories by name, sorted", () =>

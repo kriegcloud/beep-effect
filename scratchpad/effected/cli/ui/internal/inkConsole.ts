@@ -7,6 +7,7 @@ import * as S from "effect/Schema";
 import * as Clock from "effect/Clock";
 import type * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Inspectable from "effect/Inspectable";
 import type { FunctionComponent, ReactNode } from "react";
 import { UiStreams } from "../UiStreams.ts";
@@ -19,8 +20,8 @@ const $I = $ScratchpadId.create("effected/cli/ui/internal/inkConsole");
 /** Captures the caller stack for console.trace. */
 class ConsoleTrace extends S.TaggedError<ConsoleTrace, { readonly brand: unique symbol }>($I`ConsoleTrace`)(
 	"ConsoleTrace",
-	{ message: S.String.annotate({ description: "The trace message used to capture the caller stack, empty before formatting." }) },
-	$I.annote("ConsoleTrace", { description: "The caller stack rendered by console.trace." }),
+	{ message: S.String.pipe($I.annoteKey("ConsoleTrace.message", { description: "The trace message used to capture the caller stack, empty before formatting." })) },
+	$I.annoteError<ConsoleTrace>("ConsoleTrace", { description: "The caller stack rendered by console.trace." }),
 ) {
 	override readonly name = "Error";
 }
@@ -123,7 +124,10 @@ export const makeInkConsole: Effect.Effect<InkConsole> = Effect.gen(function* ()
 	let indent = "";
 	const counts = MutableHashMap.empty<string, number>();
 	const timers = MutableHashMap.empty<string, number>();
-	const emit = (stream: "out" | "err", text: string): void => {
+	const emit: {
+		(stream: "out" | "err", text: string): void;
+		(text: string): (stream: "out" | "err") => void;
+	} = dual(2, (stream: "out" | "err", text: string): void => {
 		const data = `${text
 			.split("\n")
 			.map((line) => indent + line)
@@ -131,10 +135,13 @@ export const makeInkConsole: Effect.Effect<InkConsole> = Effect.gen(function* ()
 		if (attached !== undefined) (stream === "out" ? attached.out : attached.err)(data);
 		else if (stream === "out") streams.stdout.write(data);
 		else streams.stderr.write(data);
-	};
+	});
 	const toOut = (...args: ReadonlyArray<unknown>): void => emit("out", textOf(args));
 	const toErr = (...args: ReadonlyArray<unknown>): void => emit("err", textOf(args));
-	const elapsed = (label: string, method: string, extra: ReadonlyArray<unknown>): void => {
+	const elapsed: {
+		(label: string, method: string, extra: ReadonlyArray<unknown>): void;
+		(method: string, extra: ReadonlyArray<unknown>): (label: string) => void;
+	} = dual(3, (label: string, method: string, extra: ReadonlyArray<unknown>): void => {
 		const started = O.getOrUndefined(MutableHashMap.get(timers, label));
 		if (started === undefined) {
 			emit("err", `Warning: No such label '${label}' for console.${method}()`);
@@ -142,7 +149,7 @@ export const makeInkConsole: Effect.Effect<InkConsole> = Effect.gen(function* ()
 		}
 		const tail = extra.length === 0 ? "" : ` ${textOf(extra)}`;
 		emit("out", `${label}: ${(now() - started).toFixed(3)}ms${tail}`);
-	};
+	});
 	const group = (...label: ReadonlyArray<unknown>): void => {
 		if (label.length > 0) toOut(...label);
 		indent += "  ";

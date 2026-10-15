@@ -18,19 +18,19 @@ import * as S from "effect/Schema";
 const $I = $ScratchpadId.create("effected/workspaces/internal/roots");
 
 const OwnImporterRoots = S.Struct({
-	_tag: S.Literal("own").annotateKey($I.annote("OwnImporterRoots._tag", {
+	_tag: S.Literal("own").pipe($I.annoteKey("OwnImporterRoots._tag", {
 		description: "The importer has its own workspace instance.",
 	})),
-	instance: ResolvedPackage.annotateKey($I.annote("OwnImporterRoots.instance", {
+	instance: ResolvedPackage.pipe($I.annoteKey("OwnImporterRoots.instance", {
 		description: "The workspace instance whose edges are the importer's dependencies.",
 	})),
 }).pipe($I.annoteSchema("OwnImporterRoots", { description: "An importer's own workspace instance." }));
 
 const DependencyImporterRoots = S.Struct({
-	_tag: S.Literal("dependencies").annotateKey($I.annote("DependencyImporterRoots._tag", {
+	_tag: S.Literal("dependencies").pipe($I.annoteKey("DependencyImporterRoots._tag", {
 		description: "The importer starts from its resolved dependency instances.",
 	})),
-	instances: S.Array(ResolvedPackage).annotateKey($I.annote("DependencyImporterRoots.instances", {
+	instances: S.Array(ResolvedPackage).pipe($I.annoteKey("DependencyImporterRoots.instances", {
 		description: "Resolved dependency instances in importer dependency order.",
 	})),
 }).pipe($I.annoteSchema("DependencyImporterRoots", { description: "An importer's resolved dependency instances." }));

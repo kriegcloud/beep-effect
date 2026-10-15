@@ -34,8 +34,8 @@ const $I = $ScratchpadId.create("effected/toml/internal/semantic");
 
 class TomlSemanticInvariantError extends S.TaggedError<TomlSemanticInvariantError, { readonly brand: unique symbol }>($I`TomlSemanticInvariantError`)(
 	"TomlSemanticInvariantError",
-	{ message: S.String.annotateKey({ description: "Explanation of the violated semantic engine invariant." }) },
-	$I.annote("TomlSemanticInvariantError", { description: "An impossible state in the TOML semantic engine." }),
+	{ message: S.String.pipe($I.annoteKey("TomlSemanticInvariantError.message", { description: "Explanation of the violated semantic engine invariant." })) },
+	$I.annoteError<TomlSemanticInvariantError>("TomlSemanticInvariantError", { description: "An impossible state in the TOML semantic engine." }),
 ) {}
 
 /**
@@ -85,16 +85,22 @@ interface SemNode {
 	readonly sectionId: number;
 }
 
-const makeNode = (kind: Provenance, sectionId = 0): SemNode => ({
+const makeNode: {
+	(kind: Provenance, sectionId?: number): SemNode;
+	(sectionId?: number): (kind: Provenance) => SemNode;
+} = dual((args) => P.isString(args[0]), (kind: Provenance, sectionId: number = 0): SemNode => ({
 	kind,
 	table: MutableHashMap.empty<string, SemNode>(),
 	elements: [],
 	sectionId,
-});
+}));
 
-const raise = (code: TomlSemanticErrorCodeRaw, message: string, key: TomlKey): never => {
+const raise: {
+	(code: TomlSemanticErrorCodeRaw, message: string, key: TomlKey): never;
+	(message: string, key: TomlKey): (code: TomlSemanticErrorCodeRaw) => never;
+} = dual(3, (code: TomlSemanticErrorCodeRaw, message: string, key: TomlKey): never => {
 	throw RawTomlError.make({ code, message, offset: key.offset, length: key.length });
-};
+});
 
 /** Per-analysis counter: document sections and inline-table scopes draw distinct ids from the same sequence. */
 interface Context {
@@ -107,7 +113,10 @@ interface Context {
  * tables (dotted included — the corpus deviation) and descending into the
  * last element of an array of tables.
  */
-const navigateHeaderPrefix = (root: SemNode, keyPath: ReadonlyArray<TomlKey>): SemNode => {
+const navigateHeaderPrefix: {
+	(root: SemNode, keyPath: ReadonlyArray<TomlKey>): SemNode;
+	(keyPath: ReadonlyArray<TomlKey>): (root: SemNode) => SemNode;
+} = dual(2, (root: SemNode, keyPath: ReadonlyArray<TomlKey>): SemNode => {
 	let current = root;
 	for (let i = 0; i < keyPath.length - 1; i++) {
 		const key = keyPath[i];
@@ -132,10 +141,13 @@ const navigateHeaderPrefix = (root: SemNode, keyPath: ReadonlyArray<TomlKey>): S
 		);
 	}
 	return current;
-};
+});
 
 /** Rule 1, final segment: create `table-explicit`, promote `table-implicit`, or error. */
-const openTable = (root: SemNode, keyPath: ReadonlyArray<TomlKey>): SemNode => {
+const openTable: {
+	(root: SemNode, keyPath: ReadonlyArray<TomlKey>): SemNode;
+	(keyPath: ReadonlyArray<TomlKey>): (root: SemNode) => SemNode;
+} = dual(2, (root: SemNode, keyPath: ReadonlyArray<TomlKey>): SemNode => {
 	const parent = navigateHeaderPrefix(root, keyPath);
 	const key = keyPath[keyPath.length - 1];
 	if (key === undefined) {
@@ -152,10 +164,13 @@ const openTable = (root: SemNode, keyPath: ReadonlyArray<TomlKey>): SemNode => {
 		return existing;
 	}
 	return raise("TableRedefined", `table "${key.value}" is already defined`, key);
-};
+});
 
 /** Rule 2, final segment: create the array and its first element, append to an existing one, or error. */
-const openArrayTable = (
+const openArrayTable: {
+	(root: SemNode, keyPath: ReadonlyArray<TomlKey>): { readonly element: SemNode; readonly index: number };
+	(keyPath: ReadonlyArray<TomlKey>): (root: SemNode) => { readonly element: SemNode; readonly index: number };
+} = dual(2, (
 	root: SemNode,
 	keyPath: ReadonlyArray<TomlKey>,
 ): { readonly element: SemNode; readonly index: number } => {
@@ -178,14 +193,17 @@ const openArrayTable = (
 		return { element, index: existing.elements.length - 1 };
 	}
 	return raise("ArrayOfTablesConflict", `"${key.value}" cannot be redefined as an array of tables`, key);
-};
+});
 
 /**
  * Rule 3: a (possibly dotted) key assignment scoped to `table` under
  * `sectionId`. Intermediates must be absent (create `table-dotted`) or
  * `table-dotted` from the same section; the final key must be absent.
  */
-const assignEntry = (
+const assignEntry: {
+	(table: SemNode, sectionId: number, keyPath: ReadonlyArray<TomlKey>, value: TomlValueNode, context: Context): void;
+	(sectionId: number, keyPath: ReadonlyArray<TomlKey>, value: TomlValueNode, context: Context): (table: SemNode) => void;
+} = dual(5, (
 	table: SemNode,
 	sectionId: number,
 	keyPath: ReadonlyArray<TomlKey>,
@@ -222,10 +240,13 @@ const assignEntry = (
 		raise("DuplicateKey", `duplicate key "${key.value}"`, key);
 	}
 	MutableHashMap.set(current.table, key.value, nodeForValue(value, context));
-};
+});
 
 /** The provenance node for an assigned value; validates inline tables (arrays included) on the way. */
-const nodeForValue = (value: TomlValueNode, context: Context): SemNode => {
+const nodeForValue: {
+	(value: TomlValueNode, context: Context): SemNode;
+	(context: Context): (value: TomlValueNode) => SemNode;
+} = dual(2, (value: TomlValueNode, context: Context): SemNode => {
 	if (P.isTagged(value, "TomlInlineTable")) {
 		return inlineNode(value, context);
 	}
@@ -236,10 +257,13 @@ const nodeForValue = (value: TomlValueNode, context: Context): SemNode => {
 		return makeNode("static-array");
 	}
 	return makeNode("value");
-};
+});
 
 /** Inline tables hide anywhere inside a static array; validate them all. Depth is parser-capped. */
-const checkArrayItem = (item: TomlValueNode, context: Context): void => {
+const checkArrayItem: {
+	(item: TomlValueNode, context: Context): void;
+	(context: Context): (item: TomlValueNode) => void;
+} = dual(2, (item: TomlValueNode, context: Context): void => {
 	if (P.isTagged(item, "TomlInlineTable")) {
 		inlineNode(item, context);
 		return;
@@ -249,14 +273,17 @@ const checkArrayItem = (item: TomlValueNode, context: Context): void => {
 			checkArrayItem(inner, context);
 		}
 	}
-};
+});
 
 /**
  * Rule 4: build an inline table's own scope (dotted keys follow rule 3
  * inside it), then freeze it — the returned node's `inline` kind makes every
  * later navigation through it an `InlineTableExtended` error.
  */
-const inlineNode = (node: TomlInlineTable, context: Context): SemNode => {
+const inlineNode: {
+	(node: TomlInlineTable, context: Context): SemNode;
+	(context: Context): (node: TomlInlineTable) => SemNode;
+} = dual(2, (node: TomlInlineTable, context: Context): SemNode => {
 	const scopeId = context.nextId++;
 	const sem = makeNode("table-dotted", scopeId);
 	for (const entry of node.entries) {
@@ -264,7 +291,7 @@ const inlineNode = (node: TomlInlineTable, context: Context): SemNode => {
 	}
 	sem.kind = "inline";
 	return sem;
-};
+});
 
 /**
  * Walk the expressions through the provenance state machine, firing the visitor after
@@ -307,7 +334,7 @@ export const analyze: {
 		if (P.isTagged(expression, "TomlTableHeader")) {
 			currentTable = openTable(root, expression.keyPath);
 			currentSectionId = context.nextId++;
-			currentPrefix = expression.keyPath.map((key) => key.value);
+			currentPrefix = A.map(expression.keyPath, (key) => key.value);
 			visitor?.onTableStart?.(currentPrefix, expression);
 			continue;
 		}
@@ -315,17 +342,20 @@ export const analyze: {
 			const { element, index } = openArrayTable(root, expression.keyPath);
 			currentTable = element;
 			currentSectionId = context.nextId++;
-			currentPrefix = expression.keyPath.map((key) => key.value);
+			currentPrefix = A.map(expression.keyPath, (key) => key.value);
 			visitor?.onArrayTableStart?.(currentPrefix, index, expression);
 			continue;
 		}
 		assignEntry(currentTable, currentSectionId, expression.keyPath, expression.value, context);
-		visitor?.onKeyValue?.([...currentPrefix, ...expression.keyPath.map((key) => key.value)], expression);
+		visitor?.onKeyValue?.([...currentPrefix, ...A.map(expression.keyPath, (key) => key.value)], expression);
 	}
 });
 
 /** Set a key as an own data property — `__proto__` included (yaml/jsonc precedent). */
-const setOwnProperty = (target: Record<string, unknown>, key: string, value: unknown): void => {
+const setOwnProperty: {
+	(target: Record<string, unknown>, key: string, value: unknown): void;
+	(key: string, value: unknown): (target: Record<string, unknown>) => void;
+} = dual(3, (target: Record<string, unknown>, key: string, value: unknown): void => {
 	if (key === "__proto__") {
 		// Own data property, not a prototype mutation — matches JSON.parse
 		// semantics and the packages/yaml/src/YamlNode.ts precedent.
@@ -333,18 +363,24 @@ const setOwnProperty = (target: Record<string, unknown>, key: string, value: unk
 	} else {
 		target[key] = value;
 	}
-};
+});
 
 /** Own-property read that never leaks through the prototype chain (`__proto__` included). */
-const getOwnProperty = (target: Record<string, unknown>, key: string): unknown =>
-	R.has(target, key) ? target[key] : undefined;
+const getOwnProperty: {
+	(target: Record<string, unknown>, key: string): unknown;
+	(key: string): (target: Record<string, unknown>) => unknown;
+} = dual(2, (target: Record<string, unknown>, key: string): unknown =>
+	R.has(target, key) ? target[key] : undefined);
 
 /**
  * Navigate `path` in the output tree, creating plain objects for absent names
  * and descending into the LAST element of arrays (mirrors the array-of-tables
  * rule — `analyze` has already proven every step legal). Iterative.
  */
-const navigateOutput = (target: Record<string, unknown>, path: ReadonlyArray<string>): Record<string, unknown> => {
+const navigateOutput: {
+	(target: Record<string, unknown>, path: ReadonlyArray<string>): Record<string, unknown>;
+	(path: ReadonlyArray<string>): (target: Record<string, unknown>) => Record<string, unknown>;
+} = dual(2, (target: Record<string, unknown>, path: ReadonlyArray<string>): Record<string, unknown> => {
 	let current = target;
 	for (const segment of path) {
 		let child = getOwnProperty(current, segment);
@@ -361,19 +397,19 @@ const navigateOutput = (target: Record<string, unknown>, path: ReadonlyArray<str
 		current = child;
 	}
 	return current;
-};
+});
 
 /** Materialize a CST value node into a plain value. Recursion is parser-depth-capped. */
 const materialize = (value: TomlValueNode): unknown => {
 	if (P.isTagged(value, "TomlArray")) {
-		return value.items.map(materialize);
+		return A.map(value.items, materialize);
 	}
 	if (P.isTagged(value, "TomlInlineTable")) {
 		const output: Record<string, unknown> = {};
 		for (const entry of value.entries) {
 			const parent = navigateOutput(
 				output,
-				entry.keyPath.slice(0, -1).map((key) => key.value),
+				A.map(entry.keyPath.slice(0, -1), (key) => key.value),
 			);
 			const key = entry.keyPath[entry.keyPath.length - 1];
 			if (key === undefined) {

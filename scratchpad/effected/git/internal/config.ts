@@ -28,9 +28,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $ScratchpadId.create("effected/git/internal/config");
-const DiagnosticJsonString = S.fromJsonString(S.String).annotate(
-  $I.annote("DiagnosticJsonString", { description: "JSON quoting for synchronous scanner diagnostics." }),
-);
+const DiagnosticJsonString = S.fromJsonString(S.String).pipe($I.annoteSchema("DiagnosticJsonString", { description: "JSON quoting for synchronous scanner diagnostics." }));
 const encodeDiagnosticJsonString = S.encodeResult(DiagnosticJsonString);
 
 /**
@@ -50,7 +48,7 @@ const encodeDiagnosticJsonString = S.encodeResult(DiagnosticJsonString);
  */
 export const GitConfigDiagnosticCode = LiteralKit([
 	"invalidSectionHeader", "invalidKey", "invalidLine", "unterminatedQuote", "invalidEscape", "unexpectedCharacter",
-]).annotate($I.annote("GitConfigDiagnosticCode", { description: "The diagnostic codes emitted by the git-config scanner." }));
+]).pipe($I.annoteSchema("GitConfigDiagnosticCode", { description: "The diagnostic codes emitted by the git-config scanner." }));
 
 /**
  * Decoded value produced by {@link GitConfigDiagnosticCode}.
@@ -157,9 +155,7 @@ const isWs = (ch: string | undefined): boolean => ch === " " || ch === "\t";
 const isNameChar = (ch: string): boolean => /[A-Za-z0-9.-]/.test(ch);
 const isKeyChar = (ch: string): boolean => /[A-Za-z0-9-]/.test(ch);
 
-const GitKey = S.String.check(S.isPattern(/^[A-Za-z][A-Za-z0-9-]*$/)).annotate(
-	$I.annote("GitKey", { description: "A Git variable name: a letter followed by letters, digits or hyphens." }),
-);
+const GitKey = S.String.check(S.isPattern(/^[A-Za-z][A-Za-z0-9-]*$/)).pipe($I.annoteSchema("GitKey", { description: "A Git variable name: a letter followed by letters, digits or hyphens." }));
 
 /**
  * Checks git variable names: a letter, then letters/digits/`-`.
@@ -178,9 +174,7 @@ const GitKey = S.String.check(S.isPattern(/^[A-Za-z][A-Za-z0-9-]*$/)).annotate(
  */
 export const isValidKey = S.is(GitKey);
 
-const GitSectionName = S.String.check(S.isPattern(/^[A-Za-z0-9.-]+$/)).annotate(
-	$I.annote("GitSectionName", { description: "A Git section name containing letters, digits, hyphens or dots." }),
-);
+const GitSectionName = S.String.check(S.isPattern(/^[A-Za-z0-9.-]+$/)).pipe($I.annoteSchema("GitSectionName", { description: "A Git section name containing letters, digits, hyphens or dots." }));
 
 /**
  * Checks git section names: letters, digits, `-` and `.`.
@@ -200,16 +194,22 @@ const GitSectionName = S.String.check(S.isPattern(/^[A-Za-z0-9.-]+$/)).annotate(
 export const isValidSectionName = S.is(GitSectionName);
 
 /** A carriage return ends a line only before LF or at the end of the source. */
-const isLineEnd = (text: string, offset: number): boolean =>
+const isLineEnd: {
+	(text: string, offset: number): boolean;
+	(offset: number): (text: string) => boolean;
+} = dual(2, (text: string, offset: number): boolean =>
 	offset >= text.length || text[offset] === "\n" ||
-	(text[offset] === "\r" && (text[offset + 1] === "\n" || offset + 1 === text.length));
+	(text[offset] === "\r" && (text[offset + 1] === "\n" || offset + 1 === text.length)));
 
 /** Advances past the current line's newline (handles `\r\n`, `\n` and EOF). */
-const skipToLineEnd = (text: string, from: number): number => {
+const skipToLineEnd: {
+	(text: string, from: number): number;
+	(from: number): (text: string) => number;
+} = dual(2, (text: string, from: number): number => {
 	let i = from;
 	while (i < text.length && text[i] !== "\n") i += 1;
 	return i < text.length ? i + 1 : i;
-};
+});
 
 /**
  * Scans a git-config document into raw sections, entries, and diagnostics.
@@ -303,7 +303,10 @@ interface HeaderScan {
 	readonly next: number;
 }
 
-const scanHeader = (
+const scanHeader: {
+	(text: string, lineStart: number, bracketOffset: number, diagnostics: Array<RawDiagnostic>): HeaderScan;
+	(lineStart: number, bracketOffset: number, diagnostics: Array<RawDiagnostic>): (text: string) => HeaderScan;
+} = dual(4, (
 	text: string,
 	lineStart: number,
 	bracketOffset: number,
@@ -388,14 +391,17 @@ const scanHeader = (
 		...O.getSomesStruct({ entry: O.fromUndefinedOr(inline?.entry) }),
 		next: inline === undefined ? skipToLineEnd(text, i) : inline.next,
 	};
-};
+});
 
 interface EntryScan {
 	readonly entry: RawEntry | undefined;
 	readonly next: number;
 }
 
-const scanEntry = (text: string, lineStart: number, keyStart: number, diagnostics: Array<RawDiagnostic>): EntryScan => {
+const scanEntry: {
+	(text: string, lineStart: number, keyStart: number, diagnostics: Array<RawDiagnostic>): EntryScan;
+	(lineStart: number, keyStart: number, diagnostics: Array<RawDiagnostic>): (text: string) => EntryScan;
+} = dual(4, (text: string, lineStart: number, keyStart: number, diagnostics: Array<RawDiagnostic>): EntryScan => {
 	const len = text.length;
 	let i = keyStart;
 	if (!/[A-Za-z]/.test(text.charAt(i))) {
@@ -544,7 +550,7 @@ const scanEntry = (text: string, lineStart: number, keyStart: number, diagnostic
 		},
 		next,
 	};
-};
+});
 
 /**
  * Checks whether `section` matches the (name, subsection) address under git's case rules.

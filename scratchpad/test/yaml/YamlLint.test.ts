@@ -12,12 +12,13 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type { YamlRule } from "../../effected/yaml/index.ts";
 import { YamlEdit, YamlLint, YamlLintConfig, YamlLintDiagnostic, YamlParseError } from "../../effected/yaml/index.ts";
+import { dual } from "effect/Function";
+import type { LintContext } from "../../effected/yaml/YamlLintRule.ts";
 
 /** A rule flagging every scalar token `TODO` with a fix rewriting it to `DONE`. */
 const todoRule: YamlRule = {
 	id: "no-todo",
-	check: (ctx) =>
-		ctx.tokens
+	check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => ctx.tokens
 			.filter((t) => t.kind === "scalar" && t.text === "TODO")
 			.map(
 				(t) =>
@@ -31,7 +32,7 @@ const todoRule: YamlRule = {
 						character: t.character,
 						fix: YamlEdit.make({ offset: t.offset, length: t.length, content: "DONE" }),
 					}),
-			),
+			)),
 };
 
 describe("YamlLintConfig", () => {
@@ -154,10 +155,10 @@ describe("YamlLint.run", () => {
 		let seen: unknown;
 		const probe: YamlRule = {
 			id: "probe",
-			check: (_ctx, options) => {
+			check: dual(2, (_ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 				seen = options;
 				return [];
-			},
+			}),
 		};
 		YamlLint.run("a: 1\n", [probe], YamlLintConfig.make({ rules: { probe: { max: 3 } } }));
 		assert.deepStrictEqual(seen, { max: 3 });
@@ -211,8 +212,7 @@ describe("YamlLint.fix", () => {
 		// dropped rather than throwing applyAll's overlap defect.
 		const rival: YamlRule = {
 			id: "rival",
-			check: (ctx) =>
-				ctx.tokens
+			check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => ctx.tokens
 					.filter((t) => t.kind === "scalar" && t.text === "TODO")
 					.map(
 						(t) =>
@@ -226,7 +226,7 @@ describe("YamlLint.fix", () => {
 								character: t.character,
 								fix: YamlEdit.make({ offset: t.offset, length: t.length, content: "RIVAL" }),
 							}),
-					),
+					)),
 		};
 		const result = YamlLint.fix(
 			"a: TODO\n",
@@ -242,7 +242,7 @@ describe("YamlLint.fix", () => {
 	it("drops the later of two zero-length fixes at the same offset (deterministic)", () => {
 		const insertRule = (id: string, content: string): YamlRule => ({
 			id,
-			check: (ctx) => [
+			check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => [
 				YamlLintDiagnostic.make({
 					rule: id,
 					severity: "error",
@@ -253,7 +253,7 @@ describe("YamlLint.fix", () => {
 					character: 0,
 					fix: YamlEdit.make({ offset: ctx.text.length, length: 0, content }),
 				}),
-			],
+			]),
 		});
 		const result = YamlLint.fix(
 			"a: 1\n",
@@ -324,13 +324,13 @@ describe("LintContext", () => {
 		let ran = false;
 		const probe: YamlRule = {
 			id: "probe",
-			check: (ctx) => {
+			check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
 				ran = true;
 				assert.isAbove(ctx.document.errors.length, 0);
 				assert.isAbove(ctx.tokens.length, 0);
 				assert.isAbove(ctx.lines.length, 0);
 				return [];
-			},
+			}),
 		};
 		YamlLint.run("a: *missing\n", [probe], YamlLintConfig.make({ rules: { probe: "error" } }));
 		assert.isTrue(ran, "probe rule must have been invoked");
@@ -340,14 +340,14 @@ describe("LintContext", () => {
 		let ran = false;
 		const probe: YamlRule = {
 			id: "probe",
-			check: (ctx) => {
+			check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
 				ran = true;
 				assert.deepStrictEqual(ctx.lines, [
 					{ text: "a: 1", offset: 0, number: 0 },
 					{ text: "b: 2", offset: 5, number: 1 },
 				]);
 				return [];
-			},
+			}),
 		};
 		YamlLint.run("a: 1\nb: 2\n", [probe], YamlLintConfig.make({ rules: { probe: "error" } }));
 		assert.isTrue(ran, "probe rule must have been invoked");

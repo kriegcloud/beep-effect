@@ -1,4 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -13,7 +14,7 @@ const $I = $ScratchpadId.create("effected/github/ArtifactMetadata");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * Describes where a published artifact is stored for GitHub's storage-record endpoint.
@@ -46,37 +47,37 @@ export class StorageRecordInput extends S.Class<StorageRecordInput, { readonly b
 	 *
 	 * @since 0.0.0
 	 */
-	name: S.NonEmptyString.annotateKey({ description: "The artifact's package URL (purl)." }),
+	name: S.NonEmptyString.pipe($I.annoteKey("StorageRecordInput.name", { description: "The artifact's package URL (purl)." })),
 	/**
 	 * Its content digest, as `algorithm:hex`.
 	 *
 	 * @since 0.0.0
 	 */
-	digest: S.NonEmptyString.annotateKey({ description: "Its content digest, as `algorithm:hex`." }),
+	digest: S.NonEmptyString.pipe($I.annoteKey("StorageRecordInput.digest", { description: "Its content digest, as `algorithm:hex`." })),
 	/**
 	 * The registry's base URL.
 	 *
 	 * @since 0.0.0
 	 */
-	registryUrl: S.NonEmptyString.annotateKey({ description: "The registry's base URL." }),
+	registryUrl: S.NonEmptyString.pipe($I.annoteKey("StorageRecordInput.registryUrl", { description: "The registry's base URL." })),
 	/**
 	 * The repository name **within the registry**.
 	 *
 	 * @since 0.0.0
 	 */
-	repository: S.NonEmptyString.annotateKey({ description: "The repository name **within the registry**." }),
+	repository: S.NonEmptyString.pipe($I.annoteKey("StorageRecordInput.repository", { description: "The repository name **within the registry**." })),
 	/**
 	 * Where the artifact is stored, when there is a direct URL.
 	 *
 	 * @since 0.0.0
 	 */
-	artifactUrl: S.optionalKey(S.String).annotateKey({ description: "Where the artifact is stored, when there is a direct URL." }),
+	artifactUrl: S.optionalKey(S.String).pipe($I.annoteKey("StorageRecordInput.artifactUrl", { description: "Where the artifact is stored, when there is a direct URL." })),
 	/**
 	 * The artifact's path within the registry, when there is one.
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.optionalKey(S.String).annotateKey({ description: "The artifact's path within the registry, when there is one." }),
+	path: S.optionalKey(S.String).pipe($I.annoteKey("StorageRecordInput.path", { description: "The artifact's path within the registry, when there is one." })),
 }, $I.annote("StorageRecordInput", { description: "What to record about a published artifact." })) {}
 
 /**
@@ -210,6 +211,6 @@ const make = (client: GitHubClient["Service"]): ArtifactMetadataShape => ({
 			...O.getSomesStruct({ artifact_url: O.fromUndefinedOr(input.artifactUrl) }),
 			...O.getSomesStruct({ path: O.fromUndefinedOr(input.path) }),
 		});
-		return (stored.storage_records ?? []).flatMap((record) => (P.isNumber(record.id) ? [record.id] : []));
+		return A.flatMap(stored.storage_records ?? [], (record) => (P.isNumber(record.id) ? [record.id] : []));
 	}),
 });

@@ -16,6 +16,7 @@ import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Result from "effect/Result";
 import type { YamlLintRuleSetting, YamlRule } from "../../../effected/yaml/index.ts";
 import { StyleEvidence, YamlLint, YamlLintConfig, YamlLintDiagnostic } from "../../../effected/yaml/index.ts";
+import type { LintContext } from "../../../effected/yaml/YamlLintRule.ts";
 
 /** Positional subset-match expectation for one diagnostic. */
 export interface ExpectedDiagnostic {
@@ -131,7 +132,7 @@ export const testRule: {
 		}
 
 		it("mutation proof: the dead-rule mutant fails the fixture set", () => {
-			const dead: YamlRule = { id: rule.id, check: () => [] };
+			const dead: YamlRule = { id: rule.id, check: dual(2, (_ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => []) };
 			const discriminates = fixtures.some(
 				(fixture) => fixture.expected.length !== ruleFindings(rule, fixture, dead).length,
 			);
@@ -146,8 +147,7 @@ export const testRule: {
 			it("mutation proof: the unfixing mutant fails the fixed expectations", () => {
 				const unfixing: YamlRule = {
 					id: rule.id,
-					check: (ctx, options) =>
-						[...rule.check(ctx, options)].map(({ fix: _fix, ...rest }) => YamlLintDiagnostic.make(rest)),
+					check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => [...rule.check(ctx, options)].map(({ fix: _fix, ...rest }) => YamlLintDiagnostic.make(rest))),
 				};
 				const discriminates = fixing.some((fixture) => {
 					const result = YamlLint.fix(fixture.input, [unfixing], configFor(rule, fixture.setting));

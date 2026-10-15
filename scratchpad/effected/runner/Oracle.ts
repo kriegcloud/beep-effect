@@ -29,6 +29,9 @@ import * as S from "effect/Schema";
 import { LEDGER_PATH, readLedger } from "./LedgerStore.ts";
 import { RunnerConfig } from "./Paths.ts";
 import { capture } from "./Process.ts";
+import type { CommandFailed } from "./Audit.errors.ts";
+import type { ChildProcessSpawner } from "effect/process/ChildProcessSpawner";
+import type { PlatformError } from "effect/PlatformError";
 
 const $I = $ScratchpadId.create("effected/runner/Oracle");
 
@@ -46,8 +49,8 @@ const $I = $ScratchpadId.create("effected/runner/Oracle");
  * @category schemas
  * @since 0.0.0
  */
-export const OracleSource = LiteralKit(["checkout", "pinned-export"]).annotate(
-  $I.annote("OracleSource", { description: "The live reference checkout, or an export of the pinned commit." })
+export const OracleSource = LiteralKit(["checkout", "pinned-export"]).pipe(
+  $I.annoteSchema("OracleSource", { description: "The live reference checkout, or an export of the pinned commit." })
 );
 
 /**
@@ -160,7 +163,10 @@ const PIN_MARKER = ".effected-pin";
  * @category commands
  * @since 0.0.0
  */
-const materializeExport = Effect.fn("Oracle.materializeExport")(function* (config: RunnerConfig, oracle: Oracle) {
+const materializeExport: {
+  (config: RunnerConfig, oracle: Oracle): Effect.Effect<void, PlatformError | CommandFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+  (oracle: Oracle): (config: RunnerConfig) => Effect.Effect<void, PlatformError | CommandFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+} = dual(2, Effect.fn("Oracle.materializeExport")(function* (config: RunnerConfig, oracle: Oracle) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   if (yield* fs.exists(path.join(oracle.root, PIN_MARKER))) return;
@@ -183,7 +189,7 @@ const materializeExport = Effect.fn("Oracle.materializeExport")(function* (confi
   yield* fs.writeFileString(path.join(partial, PIN_MARKER), `${oracle.commit}\n`);
   yield* fs.remove(oracle.root, { recursive: true, force: true });
   yield* fs.rename(partial, oracle.root);
-});
+}));
 
 /**
  * Resolves the oracle for this run and returns the runner config that reads

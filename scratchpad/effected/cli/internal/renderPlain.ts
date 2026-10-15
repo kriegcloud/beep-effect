@@ -4,7 +4,7 @@ import type { Document, Inline } from "../Doc.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Span } from "./layout.ts";
 import { flatten } from "./layout.ts";
-import type { Flavour } from "./renderDoc.ts";
+import type { Flavour, Line } from "./renderDoc.ts";
 import { renderDocLines, showsSuffix, targetText } from "./renderDoc.ts";
 
 /**
@@ -50,7 +50,7 @@ export const plainInline: {
 
 const plain: Flavour = {
 	inline: plainInline,
-	finish: (line) => line.map((span) => span.text).join(""),
+	finish: dual(2, (line: Line, _ctx: RenderContext): string => line.map((span) => span.text).join("")),
 };
 
 /**

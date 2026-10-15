@@ -37,7 +37,7 @@ const $I = $ScratchpadId.create("effected/markdown/FrontmatterSource");
  * @category schemas
  * @since 0.0.0
  */
-export const FrontmatterNewline = RawNewline.annotate($I.annote("FrontmatterNewline", { description: "The three line-terminator spellings a fence line may end with. Recorded by FrontmatterSource.split as fidelity — what the source's fence lines actually used — and consumed by FrontmatterSource.join." }));
+export const FrontmatterNewline = RawNewline.pipe($I.annoteSchema("FrontmatterNewline", { description: "The three line-terminator spellings a fence line may end with. Recorded by FrontmatterSource.split as fidelity — what the source's fence lines actually used — and consumed by FrontmatterSource.join." }));
 
 /**
  * The union of all fence line-terminator literals.
@@ -83,9 +83,9 @@ export type FrontmatterNewline = typeof FrontmatterNewline.Type;
  * @since 0.0.0
  */
 export class FrontmatterSourceBlock extends S.Class<FrontmatterSourceBlock, { readonly brand: unique symbol }>($I`FrontmatterSourceBlock`)({
-	format: FrontmatterFormat.annotateKey({ description: "Frontmatter encoding declared by the opening fence: YAML, TOML or JSON" }),
-	value: S.String.annotateKey({ description: "Exact source text between the fence lines, preserving every value line's terminator" }),
-	newline: S.optionalKey(FrontmatterNewline).annotateKey({ description: "Opening fence's line terminator, reused for both fences when joining; defaults to LF when omitted" }),
+	format: FrontmatterFormat.pipe($I.annoteKey("FrontmatterSourceBlock.format", { description: "Frontmatter encoding declared by the opening fence: YAML, TOML or JSON" })),
+	value: S.String.pipe($I.annoteKey("FrontmatterSourceBlock.value", { description: "Exact source text between the fence lines, preserving every value line's terminator" })),
+	newline: S.optionalKey(FrontmatterNewline).pipe($I.annoteKey("FrontmatterSourceBlock.newline", { description: "Opening fence's line terminator, reused for both fences when joining; defaults to LF when omitted" })),
 }, $I.annote("FrontmatterSourceBlock", { description: "A frontmatter block at string level: the format its fence declared, the exact bytes between the fence lines, and the fence lines' terminator." })) {}
 
 /**
@@ -120,9 +120,9 @@ export class FrontmatterSourceBlock extends S.Class<FrontmatterSourceBlock, { re
  * @since 0.0.0
  */
 export class FrontmatterSourceSplit extends S.Class<FrontmatterSourceSplit, { readonly brand: unique symbol }>($I`FrontmatterSourceSplit`)({
-	frontmatter: S.optionalKey(FrontmatterSourceBlock).annotateKey({ description: "Closed frontmatter block captured at the start of the source, absent when no matching block exists" }),
-	body: S.String.annotateKey({ description: "Exact source remainder after the closing fence and its terminator, or the whole source when no block exists" }),
-	bodyOffset: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(0))).annotateKey({ description: "Zero-based UTF-16 source offset where the body begins, immediately after the closing fence and terminator, or zero without frontmatter" }),
+	frontmatter: S.optionalKey(FrontmatterSourceBlock).pipe($I.annoteKey("FrontmatterSourceSplit.frontmatter", { description: "Closed frontmatter block captured at the start of the source, absent when no matching block exists" })),
+	body: S.String.pipe($I.annoteKey("FrontmatterSourceSplit.body", { description: "Exact source remainder after the closing fence and its terminator, or the whole source when no block exists" })),
+	bodyOffset: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(0)), $I.annoteKey("FrontmatterSourceSplit.bodyOffset", { description: "Zero-based UTF-16 source offset where the body begins, immediately after the closing fence and terminator, or zero without frontmatter" })),
 }, $I.annote("FrontmatterSourceSplit", { description: "The result of FrontmatterSource.split: the frontmatter block when one exists, the exact body remainder, and the body's byte offset." })) {}
 
 /** The opening fence line per format (the closed grammar's spellings). */

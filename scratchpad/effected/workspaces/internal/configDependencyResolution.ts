@@ -1,5 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as S from "effect/Schema";
 // Resolving a declared pnpm config dependency to the pnpmfile of the version
 // it DECLARES — not whatever happens to be installed right now.
@@ -53,7 +53,7 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/configDependencyRe
 class ConfigDependencyResolutionError extends S.TaggedError<ConfigDependencyResolutionError, { readonly brand: unique symbol }>($I`ConfigDependencyResolutionError`)(
 	"ConfigDependencyResolutionError",
 	{ message: S.String, cause: S.optionalKey(S.Defect({ includeStack: true })) },
-	$I.annote("ConfigDependencyResolutionError", { description: "Explains why a declared config dependency could not be resolved." }),
+	$I.annoteError<ConfigDependencyResolutionError>("ConfigDependencyResolutionError", { description: "Explains why a declared config dependency could not be resolved." }),
 ) {}
 
 // The caller's Effect FileSystem may be virtual; resolution must walk the real pnpm store.
@@ -142,15 +142,14 @@ type DeclaredEntry = typeof DeclaredEntry.Type;
 const declaredEntries = (
 	configDependencies: Readonly<Record<string, string>>,
 ): Effect.Effect<ReadonlyArray<DeclaredEntry>, CatalogAssemblyError> => {
-	const entries = R.toEntries(configDependencies).map(([name, spec]) => ({
+	const entries = A.map(R.toEntries(configDependencies), ([name, spec]) => ({
 		name,
 		version: declaredVersionOf(spec),
 		spec,
 	}));
-	const traversal = entries.find((entry) => hasTraversalSegment(entry.name) || hasTraversalSegment(entry.version));
-	return traversal === undefined
-		? Effect.succeed(entries)
-		: Effect.fail(
+	return O.match(A.findFirst(entries, (entry) => hasTraversalSegment(entry.name) || hasTraversalSegment(entry.version)), {
+		onNone: () => Effect.succeed(entries),
+		onSome: (traversal) => Effect.fail(
 				hooksError(
 					traversal.name,
 					ConfigDependencyResolutionError.make({ message: hasTraversalSegment(traversal.name)
@@ -158,12 +157,16 @@ const declaredEntries = (
 						: `config dependency version has a '..' path segment: ${traversal.version}` }),
 					undefined,
 				),
-			);
+			),
+	});
 };
 
 /** Directory entries of `dir`, or `[]` when it is absent; typed on any other failure. */
-const entriesOf = (path: string, dir: string): Effect.Effect<ReadonlyArray<string>, CatalogAssemblyError> =>
-	ioOrNone(path, () => readdir(dir)).pipe(Effect.map(O.getOrElse((): ReadonlyArray<string> => [])));
+const entriesOf: {
+	(path: string, dir: string): Effect.Effect<ReadonlyArray<string>, CatalogAssemblyError>;
+	(dir: string): (path: string) => Effect.Effect<ReadonlyArray<string>, CatalogAssemblyError>;
+} = dual(2, (path: string, dir: string): Effect.Effect<ReadonlyArray<string>, CatalogAssemblyError> =>
+	ioOrNone(path, () => readdir(dir)).pipe(Effect.map(O.getOrElse((): ReadonlyArray<string> => []))));
 
 /** The `<root>/node_modules/.pnpm-config` directory. */
 const pnpmConfigDir = (root: string): string => join(root, "node_modules", ".pnpm-config");
@@ -256,7 +259,7 @@ const storesFromEnvironment = Effect.fn("storesFromEnvironment")(function* (root
 			// a version now answers, a pnpm upgrade that left `v10` beside `v11`
 			// would otherwise replay the stale copy without a word.
 			const versions = A.sort(
-				(yield* entriesOf(root, storeRoot)).filter((entry) => /^v\d+$/.test(entry)),
+				A.filter((yield* entriesOf(root, storeRoot)), (entry) => /^v\d+$/.test(entry)),
 				Order.mapInput(Order.flip(Order.Number), (version: string) => Number(version.slice(1))),
 			);
 			for (const version of versions) stores.push(join(storeRoot, version));
@@ -317,7 +320,10 @@ const discoverStores = Effect.fn("discoverStores")(function* (root: string): Eff
  * are already deduplicated by realpath, so two matches here are two entries,
  * never one entry reached by two spellings.
  */
-const findInStores = Effect.fn("findInStores")(function* (
+const findInStores: {
+	(name: string, declared: string, stores: ReadonlyArray<string>): Effect.Effect<{ readonly store: string; readonly matches: ReadonlyArray<string> }, CatalogAssemblyError>;
+	(declared: string, stores: ReadonlyArray<string>): (name: string) => Effect.Effect<{ readonly store: string; readonly matches: ReadonlyArray<string> }, CatalogAssemblyError>;
+} = dual(3, Effect.fn("findInStores")(function* (
 	name: string,
 	declared: string,
 	stores: ReadonlyArray<string>,
@@ -333,20 +339,39 @@ const findInStores = Effect.fn("findInStores")(function* (
 			if (matches.length > 0) return { store, matches };
 		}
 		return { store: "", matches: [] };
-	});
+	}));
 
 /** The fail-closed message for a version ONE store holds more than once: which store, which copies, how to disambiguate. */
-const ambiguousMessage = (name: string, declared: string, store: string, matches: ReadonlyArray<string>): string =>
+const ambiguousMessage: {
+	(name: string, declared: string, store: string, matches: ReadonlyArray<string>): string;
+	(declared: string, store: string, matches: ReadonlyArray<string>): (name: string) => string;
+} = dual(4, (name: string, declared: string, store: string, matches: ReadonlyArray<string>): string =>
 	`config dependency ${name}@${declared} is ambiguous: the pnpm store at ${store} holds ${matches.length} copies of that version ` +
-	`(${matches.join(", ")}) and the store records no integrity to tell them apart, so none is replayed. ` +
-	`Remove the stale copies, or install ${name}@${declared} in this workspace so node_modules/.pnpm-config answers instead.`;
+	`(${A.join(matches, ", ")}) and the store records no integrity to tell them apart, so none is replayed. ` +
+	`Remove the stale copies, or install ${name}@${declared} in this workspace so node_modules/.pnpm-config answers instead.`);
 
 /**
  * The fail-closed message: what was declared, by which side, what is
  * installed, where we looked, why that happens, and how to fix it. `fetch`
  * is the fetch rung's failure when one ran.
  */
-const notInstalledMessage = (
+const notInstalledMessage: {
+	(
+		name: string,
+		declared: string,
+		installed: ManifestVersion,
+		stores: ReadonlyArray<string>,
+		side: HookReplayContext,
+		fetch: O.Option<FetchFailure>,
+	): string;
+	(
+		declared: string,
+		installed: ManifestVersion,
+		stores: ReadonlyArray<string>,
+		side: HookReplayContext,
+		fetch: O.Option<FetchFailure>,
+	): (name: string) => string;
+} = dual(6, (
 	name: string,
 	declared: string,
 	installed: ManifestVersion,
@@ -360,7 +385,7 @@ const notInstalledMessage = (
 			: installed._tag === "unversioned"
 				? "a package with no version"
 				: `version ${installed.version}`;
-	const searched = stores.length === 0 ? "no pnpm store directory could be located" : `searched ${stores.join(", ")}`;
+	const searched = stores.length === 0 ? "no pnpm store directory could be located" : `searched ${A.join(stores, ", ")}`;
 	const by = side.ref === undefined ? "" : ` (declared at ${sideLabel(side)})`;
 	const found =
 		`config dependency ${name}@${declared}${by} is not installed: node_modules/.pnpm-config/${name} holds ${holds}, ` +
@@ -386,8 +411,8 @@ const notInstalledMessage = (
 	const remedy = O.exists(fetch, (failure) => failure.reason === "integrityMismatch")
 		? ""
 		: `Run \`pnpm add --config ${name}@${declared}\` in a throwaway workspace to populate the store, then retry.`;
-	return [found, why, tried, remedy].filter((sentence) => sentence !== "").join(" ");
-};
+	return pipe([found, why, tried, remedy], A.filter((sentence) => sentence !== ""), A.join(" "));
+});
 
 /**
  * The first pnpmfile candidate present in `dir`, from ONE directory listing.
@@ -396,7 +421,10 @@ const notInstalledMessage = (
  * typed at `import()` time — it never reads as "this dependency ships no
  * hook".
  */
-const pnpmfileIn = (name: string, dir: string): Effect.Effect<O.Option<string>, CatalogAssemblyError> =>
+const pnpmfileIn: {
+	(name: string, dir: string): Effect.Effect<O.Option<string>, CatalogAssemblyError>;
+	(dir: string): (name: string) => Effect.Effect<O.Option<string>, CatalogAssemblyError>;
+} = dual(2, (name: string, dir: string): Effect.Effect<O.Option<string>, CatalogAssemblyError> =>
 	entriesOf(name, dir).pipe(
 		Effect.map((entries) =>
 			O.map(
@@ -404,7 +432,7 @@ const pnpmfileIn = (name: string, dir: string): Effect.Effect<O.Option<string>, 
 				(filename) => join(dir, filename),
 			),
 		),
-	);
+	));
 
 /**
  * Resolve one declared config dependency to the directory holding its
@@ -424,7 +452,21 @@ const pnpmfileIn = (name: string, dir: string): Effect.Effect<O.Option<string>, 
  * remediation is kept except for `integrityMismatch`, where the pins must be
  * reconciled first.
  */
-const resolveDirectory = Effect.fn("resolveDirectory")(function* (
+const resolveDirectory: {
+	(
+		root: string,
+		entry: DeclaredEntry,
+		stores: Effect.Effect<ReadonlyArray<string>, CatalogAssemblyError>,
+		locks: RecordedLocks,
+		options: ResolveOptions,
+	): Effect.Effect<{ readonly dir: string; readonly source: HookReplaySource }, CatalogAssemblyError>;
+	(
+		entry: DeclaredEntry,
+		stores: Effect.Effect<ReadonlyArray<string>, CatalogAssemblyError>,
+		locks: RecordedLocks,
+		options: ResolveOptions,
+	): (root: string) => Effect.Effect<{ readonly dir: string; readonly source: HookReplaySource }, CatalogAssemblyError>;
+} = dual(5, Effect.fn("resolveDirectory")(function* (
 	root: string,
 	entry: DeclaredEntry,
 	stores: Effect.Effect<ReadonlyArray<string>, CatalogAssemblyError>,
@@ -459,7 +501,7 @@ const resolveDirectory = Effect.fn("resolveDirectory")(function* (
 			.fetch({ root, name, version: declared, spec: entry.spec, stores: searched, side, locks })
 			.pipe(Effect.mapError((failure) => notInstalled(O.some(failure))));
 		return { dir: fetched, source: "fetched" };
-	});
+	}));
 
 /**
  * A lazy memo of `effect`, scoped to one {@link resolvePnpmfiles} call: the
@@ -579,7 +621,7 @@ export const lookupPnpmfiles: {
 						name,
 						ConfigDependencyResolutionError.make({
 							message: `config dependency ${key} has no entry in the supplied pnpmfile map (known: ${
-								known.length === 0 ? "none" : known.join(", ")
+								known.length === 0 ? "none" : A.join(known, ", ")
 							})`,
 						}),
 						undefined,

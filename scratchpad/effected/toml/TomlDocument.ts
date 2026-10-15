@@ -11,6 +11,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
@@ -30,7 +31,10 @@ const $I = $ScratchpadId.create("effected/toml/TomlDocument");
  * `NestingDepthExceeded` diagnostic. Anything else is a genuine defect and
  * rethrows.
  */
-const materializeError = (text: string, defect: unknown): TomlParseError => {
+const materializeError: {
+	(text: string, defect: unknown): TomlParseError;
+	(defect: unknown): (text: string) => TomlParseError;
+} = dual(2, (text: string, defect: unknown): TomlParseError => {
 	if (isRawTomlError(defect)) {
 		return TomlParseError.make({ diagnostics: [TomlDiagnostic.fromRaw(text, defect.diagnostic)] });
 	}
@@ -47,7 +51,7 @@ const materializeError = (text: string, defect: unknown): TomlParseError => {
 		});
 	}
 	throw defect;
-};
+});
 
 /**
  * A parsed TOML document that never loses a byte: the `source` text, the
@@ -88,9 +92,9 @@ const materializeError = (text: string, defect: unknown): TomlParseError => {
  * @since 0.0.0
  */
 export class TomlDocument extends S.Class<TomlDocument, { readonly brand: unique symbol }>($I`TomlDocument`)({
-	source: S.String.annotateKey({ description: "Original TOML text preserved exactly, including comments, whitespace and line endings" }),
-	expressions: S.Array(TomlExpression).annotateKey({ description: "Top-level constructs and trivia in document order, with spans covering the original text exactly" }),
-	diagnostics: S.Array(TomlDiagnostic).annotateKey({ description: "Semantic violations recorded during parsing that prevent conversion to a plain value" }),
+	source: S.String.pipe($I.annoteKey("TomlDocument.source", { description: "Original TOML text preserved exactly, including comments, whitespace and line endings" })),
+	expressions: S.Array(TomlExpression).pipe($I.annoteKey("TomlDocument.expressions", { description: "Top-level constructs and trivia in document order, with spans covering the original text exactly" })),
+	diagnostics: S.Array(TomlDiagnostic).pipe($I.annoteKey("TomlDocument.diagnostics", { description: "Semantic violations recorded during parsing that prevent conversion to a plain value" })),
 }, $I.annote("TomlDocument", { description: "A parsed TOML document that never loses a byte: the `source` text, the linear (TomlExpression:type) CST whose spans tile the source exactly, and any semantic violations as TomlDiagnostic data." })) {
 	/**
 	 * Parse TOML text into a lossless document. Fails with

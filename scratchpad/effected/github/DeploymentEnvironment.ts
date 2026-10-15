@@ -1,7 +1,9 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { GitHubClient } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
@@ -11,7 +13,7 @@ const $I = $ScratchpadId.create("effected/github/DeploymentEnvironment");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * A deployment environment, as listing returns it.
@@ -32,8 +34,8 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
  */
 export const DeploymentEnvironmentInfo = S.Struct({
 	/** The environment's name. */
-	name: S.String.annotateKey({ description: "The environment's name." }),
-}).annotate($I.annote("DeploymentEnvironmentInfo", { description: "A deployment environment's plain-object listing projection." }));
+	name: S.String.pipe($I.annoteKey("DeploymentEnvironmentInfo.name", { description: "The environment's name." })),
+}).pipe($I.annoteSchema("DeploymentEnvironmentInfo", { description: "A deployment environment's plain-object listing projection." }));
 
 /**
  * The structural listing result owned by {@link DeploymentEnvironmentInfo}.
@@ -79,7 +81,10 @@ export interface DeploymentEnvironmentShape {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	readonly upsert: (name: string, config?: Record<string, unknown>) => Effect.Effect<void, GitHubError, Repo>;
+	readonly upsert: {
+		(name: string, config?: Record<string, unknown>): Effect.Effect<void, GitHubError, Repo>;
+		(config?: Record<string, unknown>): (name: string) => Effect.Effect<void, GitHubError, Repo>;
+	};
 
 	/**
 	 * The repository's deployment environments.
@@ -235,7 +240,7 @@ const unstubbed = (member: string): never => {
 };
 
 const make = (client: GitHubClient["Service"]): DeploymentEnvironmentShape => {
-	const upsert = Effect.fn("DeploymentEnvironment.upsert")(function* (
+	const upsert: DeploymentEnvironmentShape["upsert"] = dual((args) => P.isString(args[0]), Effect.fn("DeploymentEnvironment.upsert")(function* (
 		name: string,
 		config: Record<string, unknown> = {},
 	) {
@@ -252,7 +257,7 @@ const make = (client: GitHubClient["Service"]): DeploymentEnvironmentShape => {
 			repo,
 			environment_name: name,
 		});
-	});
+	}));
 
 	const list = Effect.suspend(Effect.fn("DeploymentEnvironment.list")(function* () {
 		const { owner, repo } = yield* Repo;

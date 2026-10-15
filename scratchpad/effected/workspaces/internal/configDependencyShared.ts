@@ -153,9 +153,9 @@ export const ManifestVersion = S.TaggedUnion({
 	absent: {},
 	unversioned: {},
 	version: {
-		version: S.NonEmptyString.annotateKey({ description: "The manifest's non-empty version string, read verbatim." }),
+		version: S.NonEmptyString.pipe($I.annoteKey("ManifestVersion.version.version", { description: "The manifest's non-empty version string, read verbatim." })),
 	},
-}).annotate($I.annote("ManifestVersion", {
+}).pipe($I.annoteSchema("ManifestVersion", {
 	description: "Whether a package manifest is absent, lacks a usable version, or carries a non-empty version string.",
 }));
 

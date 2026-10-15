@@ -46,29 +46,29 @@ export class SoftwareSourceCode extends S.Class<SoftwareSourceCode, { readonly b
 	 *
 	 * @since 0.0.0
 	 */
-	"@type": S.tag("SoftwareSourceCode").annotateKey({ description: "The JSON-LD type discriminator, populated automatically." }),
+	"@type": S.tag("SoftwareSourceCode").pipe($I.annoteKey("SoftwareSourceCode.@type", { description: "The JSON-LD type discriminator, populated automatically." })),
 	/**
 	 * The repository the code lives in. Single-valued.
 	 *
 	 * @since 0.0.0
 	 */
-	codeRepository: S.optionalKey(S.String).annotateKey({ description: "The repository the code lives in. Single-valued." }),
+	codeRepository: S.optionalKey(S.String).pipe($I.annoteKey("SoftwareSourceCode.codeRepository", { description: "The repository the code lives in. Single-valued." })),
 	/**
 	 * The languages the code is written in. Repeatable.
 	 *
 	 * @since 0.0.0
 	 */
-	programmingLanguage: S.String.pipe(S.Array, S.optional).annotateKey({ description: "The languages the code is written in. Repeatable." }),
+	programmingLanguage: S.String.pipe(S.Array, S.optional, $I.annoteKey("SoftwareSourceCode.programmingLanguage", { description: "The languages the code is written in. Repeatable." })),
 	/**
 	 * Runtime platforms the code targets. Repeatable.
 	 *
 	 * @since 0.0.0
 	 */
-	runtimePlatform: S.String.pipe(S.Array, S.optional).annotateKey({ description: "Runtime platforms the code targets. Repeatable." }),
+	runtimePlatform: S.String.pipe(S.Array, S.optional, $I.annoteKey("SoftwareSourceCode.runtimePlatform", { description: "Runtime platforms the code targets. Repeatable." })),
 	/**
 	 * Products this code produces, by reference. Repeatable.
 	 *
 	 * @since 0.0.0
 	 */
-	targetProduct: NodeRef.pipe(S.Array, S.optional).annotateKey({ description: "Products this code produces, by reference. Repeatable." }),
+	targetProduct: NodeRef.pipe(S.Array, S.optional, $I.annoteKey("SoftwareSourceCode.targetProduct", { description: "Products this code produces, by reference. Repeatable." })),
 }, $I.annote("SoftwareSourceCode", { description: "A schema.org `SoftwareSourceCode` — the node describing a package's source." })) {}

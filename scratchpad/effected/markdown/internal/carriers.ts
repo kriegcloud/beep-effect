@@ -79,10 +79,10 @@ export type MarkdownParseErrorCodeRaw = typeof MarkdownParseErrorCodeRaw.Type;
  * @since 0.0.0
  */
 export const RawDiagnostic = S.Struct({
-	code: MarkdownParseErrorCodeRaw.annotateKey({ description: "Parse condition reported by the engine." }),
-	message: S.String.annotateKey({ description: "Human-readable explanation of the parse condition." }),
-	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 source offset of the parse condition." }),
-	length: S.Finite.annotateKey({ description: "Extent of the source span in UTF-16 code units." }),
+	code: MarkdownParseErrorCodeRaw.pipe($I.annoteKey("RawDiagnostic.code", { description: "Parse condition reported by the engine." })),
+	message: S.String.pipe($I.annoteKey("RawDiagnostic.message", { description: "Human-readable explanation of the parse condition." })),
+	offset: S.Finite.pipe($I.annoteKey("RawDiagnostic.offset", { description: "Zero-based UTF-16 source offset of the parse condition." })),
+	length: S.Finite.pipe($I.annoteKey("RawDiagnostic.length", { description: "Extent of the source span in UTF-16 code units." })),
 }).pipe($I.annoteSchema("RawDiagnostic", { description: "An engine diagnostic record before public source coordinates are materialized." }));
 
 /**

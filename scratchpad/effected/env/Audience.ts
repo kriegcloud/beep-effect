@@ -4,6 +4,7 @@ import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -28,9 +29,7 @@ const $I = $ScratchpadId.create("effected/env/Audience");
  * @category schemas
  * @since 0.0.0
  */
-export const AudienceKind = LiteralKit(["human", "agent", "ci"]).annotate(
-	$I.annote("AudienceKind", { description: "Who the output is for: a person at a terminal, an AI agent, or a CI job." }),
-);
+export const AudienceKind = LiteralKit(["human", "agent", "ci"]).pipe($I.annoteSchema("AudienceKind", { description: "Who the output is for: a person at a terminal, an AI agent, or a CI job." }));
 
 /**
  * Identifies whether output is intended for a human, an AI agent, or CI.
@@ -54,9 +53,7 @@ export type AudienceKind = typeof AudienceKind.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const AudienceSource = LiteralKit(["override", "detected", "flag"]).annotate(
-	$I.annote("AudienceSource", { description: "What decided the audience: an environment override, detection, or a flag." }),
-);
+export const AudienceSource = LiteralKit(["override", "detected", "flag"]).pipe($I.annoteSchema("AudienceSource", { description: "What decided the audience: an environment override, detection, or a flag." }));
 
 /**
  * Identifies whether an override, detection, or a flag selected the audience.
@@ -94,7 +91,7 @@ export const AudienceShape = S.Struct({
 	source: AudienceSource.pipe($I.annoteKey("AudienceShape.source", {
 		description: "What decided the kind: the override environment variable, detection, or a flag.",
 	})),
-}).annotate($I.annote("AudienceShape", { description: "The immutable audience snapshot provided by the Audience service." }));
+}).pipe($I.annoteSchema("AudienceShape", { description: "The immutable audience snapshot provided by the Audience service." }));
 
 /**
  * The audience kind and the source that selected it.
@@ -124,7 +121,7 @@ export const AudienceOptions = S.Struct({
 	envVar: S.optionalKey(S.String).pipe($I.annoteKey("AudienceOptions.envVar", {
 		description: "The environment variable that overrides detection; without it the audience is always detected.",
 	})),
-}).annotate($I.annote("AudienceOptions", { description: "Options naming the optional audience override environment variable." }));
+}).pipe($I.annoteSchema("AudienceOptions", { description: "Options naming the optional audience override environment variable." }));
 
 /**
  * Plain configuration accepted by {@link Audience.layer}.
@@ -238,10 +235,13 @@ export class Audience extends Context.Service<Audience, AudienceShape>()($I`Audi
 	 * @category layers
 	 * @since 0.0.0
 	 */
-	static readonly layerTest = (
+	static readonly layerTest: {
+		(kind: AudienceKind, source?: AudienceSource): Layer.Layer<Audience>;
+		(source?: AudienceSource): (kind: AudienceKind) => Layer.Layer<Audience>;
+	} = dual((args) => isAudienceKind(args[0]), (
 		kind: AudienceKind,
 		source: AudienceSource = "override",
-	): Layer.Layer<Audience> => Layer.succeed(Audience, { kind, source });
+	): Layer.Layer<Audience> => Layer.succeed(Audience, { kind, source }));
 
 	/**
 	 * The audience a {@link RuntimeEnv} implies, ignoring any override: an agent, else CI, else a human.

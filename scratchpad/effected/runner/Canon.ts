@@ -18,6 +18,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { detectEffectVitestFindings } from "@beep/repo-cli/commands/Lint";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -29,6 +30,9 @@ import { ManifestInvalid } from "./Audit.errors.ts";
 import { listTsFiles } from "./Copy.ts";
 import type { AuditTarget } from "./Ledger.schema.ts";
 import { labPaths, type RunnerConfig } from "./Paths.ts";
+import type { EffectVitestLintError } from "@beep/repo-cli/commands/Lint";
+import type { PlatformError } from "effect/PlatformError";
+import type * as Crypto from "effect/Crypto";
 
 const $I = $ScratchpadId.create("effected/runner/Canon");
 
@@ -94,7 +98,10 @@ export interface CanonVerdict {
  * @category diagnostics
  * @since 0.0.0
  */
-export const canonFindings = Effect.fn("Canon.findings")(function* (config: RunnerConfig, target: AuditTarget) {
+export const canonFindings: {
+  (config: RunnerConfig, target: AuditTarget): Effect.Effect<CanonVerdict, ManifestInvalid | PlatformError | EffectVitestLintError, FileSystem.FileSystem | Path.Path | Crypto.Crypto>;
+  (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<CanonVerdict, ManifestInvalid | PlatformError | EffectVitestLintError, FileSystem.FileSystem | Path.Path | Crypto.Crypto>;
+} = dual(2, Effect.fn("Canon.findings")(function* (config: RunnerConfig, target: AuditTarget) {
   const path = yield* Path.Path;
   const lab = labPaths(target);
   const files = [...(yield* listTsFiles(config.repoRoot, lab.testDir)), ...lab.extraTests];
@@ -126,7 +133,7 @@ export const canonFindings = Effect.fn("Canon.findings")(function* (config: Runn
     ),
   };
   return verdict;
-});
+}));
 
 const Metric = S.Struct({ pct: S.Finite });
 const FileSummary = S.Struct({ statements: Metric, branches: Metric, functions: Metric, lines: Metric });
@@ -150,7 +157,10 @@ const decodeSummary = S.decodeUnknownEffect(CoverageSummary);
  * @category diagnostics
  * @since 0.0.0
  */
-export const coverageGaps = Effect.fn("Canon.coverageGaps")(function* (config: RunnerConfig, target: AuditTarget) {
+export const coverageGaps: {
+  (config: RunnerConfig, target: AuditTarget): Effect.Effect<Array<string>, PlatformError | ManifestInvalid, Path.Path | FileSystem.FileSystem>;
+  (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<Array<string>, PlatformError | ManifestInvalid, Path.Path | FileSystem.FileSystem>;
+} = dual(2, Effect.fn("Canon.coverageGaps")(function* (config: RunnerConfig, target: AuditTarget) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const lab = labPaths(target);
@@ -177,4 +187,4 @@ export const coverageGaps = Effect.fn("Canon.coverageGaps")(function* (config: R
         ),
     })
   );
-});
+}));

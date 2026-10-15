@@ -46,14 +46,14 @@ export class OidcTokenError extends S.TaggedError<OidcTokenError, { readonly bra
 	 * `missingClaims` — it decoded, but without the claims a provenance statement
 	 * needs.
 	 */
-	reason: S.Literals(["unavailable", "requestFailed", "malformedResponse", "malformedToken", "missingClaims"]).annotateKey({ description: "`unavailable` — the runner did not publish the token-service variables, which almost always means the workflow is missing `permissions: id-token: write`. `requestFailed` — the token service could not be reached or refused the request. `malformedResponse` — it answered with something that is not a token envelope. `malformedToken` — the token is not a decodable JWT. `missingClaims` — it decoded, but without the claims a provenance statement needs." }),
+	reason: S.Literals(["unavailable", "requestFailed", "malformedResponse", "malformedToken", "missingClaims"]).pipe($I.annoteKey("OidcTokenError.reason", { description: "`unavailable` — the runner did not publish the token-service variables, which almost always means the workflow is missing `permissions: id-token: write`. `requestFailed` — the token service could not be reached or refused the request. `malformedResponse` — it answered with something that is not a token envelope. `malformedToken` — the token is not a decodable JWT. `missingClaims` — it decoded, but without the claims a provenance statement needs." })),
 	/** What was wrong, in one line. */
-	detail: S.optionalKey(S.String).annotateKey({ description: "What was wrong, in one line." }),
+	detail: S.optionalKey(S.String).pipe($I.annoteKey("OidcTokenError.detail", { description: "What was wrong, in one line." })),
 	/** The HTTP status, when the token service answered. */
-	status: S.optionalKey(S.Finite).annotateKey({ description: "The HTTP status, when the token service answered." }),
+	status: S.optionalKey(S.Finite).pipe($I.annoteKey("OidcTokenError.status", { description: "The HTTP status, when the token service answered." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("OidcTokenError", { description: "Raised when an OIDC token cannot be issued or read." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("OidcTokenError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<OidcTokenError>("OidcTokenError", { description: "Raised when an OIDC token cannot be issued or read." })) {
 	/**
 	 * Explains the token failure using its reason, HTTP status, and optional detail.
 	 *
@@ -119,29 +119,29 @@ export class OidcTokenError extends S.TaggedError<OidcTokenError, { readonly bra
  */
 export class OidcClaims extends S.Class<OidcClaims, { readonly brand: unique symbol }>($I`OidcClaims`)({
 	/** The issuer, e.g. `https://token.actions.githubusercontent.com`. */
-	iss: S.String.annotateKey({ description: "The issuer, e.g. `https://token.actions.githubusercontent.com`." }),
+	iss: S.String.pipe($I.annoteKey("OidcClaims.iss", { description: "The issuer, e.g. `https://token.actions.githubusercontent.com`." })),
 	/** The full ref the workflow ran on. */
-	ref: S.String.annotateKey({ description: "The full ref the workflow ran on." }),
+	ref: S.String.pipe($I.annoteKey("OidcClaims.ref", { description: "The full ref the workflow ran on." })),
 	/** The commit. */
-	sha: S.String.annotateKey({ description: "The commit." }),
+	sha: S.String.pipe($I.annoteKey("OidcClaims.sha", { description: "The commit." })),
 	/** `owner/repo`. */
-	repository: S.String.annotateKey({ description: "`owner/repo`." }),
+	repository: S.String.pipe($I.annoteKey("OidcClaims.repository", { description: "`owner/repo`." })),
 	/** The event that triggered the run. */
-	event_name: S.String.annotateKey({ description: "The event that triggered the run." }),
+	event_name: S.String.pipe($I.annoteKey("OidcClaims.event_name", { description: "The event that triggered the run." })),
 	/** The reusable-workflow ref, which is what a verifier pins against. */
-	job_workflow_ref: S.String.annotateKey({ description: "The reusable-workflow ref, which is what a verifier pins against." }),
+	job_workflow_ref: S.String.pipe($I.annoteKey("OidcClaims.job_workflow_ref", { description: "The reusable-workflow ref, which is what a verifier pins against." })),
 	/** The calling workflow's ref. */
-	workflow_ref: S.String.annotateKey({ description: "The calling workflow's ref." }),
+	workflow_ref: S.String.pipe($I.annoteKey("OidcClaims.workflow_ref", { description: "The calling workflow's ref." })),
 	/** The numeric repository id, as a string. */
-	repository_id: S.String.annotateKey({ description: "The numeric repository id, as a string." }),
+	repository_id: S.String.pipe($I.annoteKey("OidcClaims.repository_id", { description: "The numeric repository id, as a string." })),
 	/** The numeric owner id, as a string. */
-	repository_owner_id: S.String.annotateKey({ description: "The numeric owner id, as a string." }),
+	repository_owner_id: S.String.pipe($I.annoteKey("OidcClaims.repository_owner_id", { description: "The numeric owner id, as a string." })),
 	/** `github-hosted` or `self-hosted`. */
-	runner_environment: S.String.annotateKey({ description: "`github-hosted` or `self-hosted`." }),
+	runner_environment: S.String.pipe($I.annoteKey("OidcClaims.runner_environment", { description: "`github-hosted` or `self-hosted`." })),
 	/** The run id, as a string. */
-	run_id: S.String.annotateKey({ description: "The run id, as a string." }),
+	run_id: S.String.pipe($I.annoteKey("OidcClaims.run_id", { description: "The run id, as a string." })),
 	/** The run attempt, as a string. */
-	run_attempt: S.String.annotateKey({ description: "The run attempt, as a string." }),
+	run_attempt: S.String.pipe($I.annoteKey("OidcClaims.run_attempt", { description: "The run attempt, as a string." })),
 }, $I.annote("OidcClaims", { description: "The claims a GitHub Actions OIDC token carries about the workflow that ran." })) {}
 
 /** The token envelope the runner's token service answers with. */

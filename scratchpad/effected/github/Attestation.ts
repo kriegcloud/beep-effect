@@ -1,7 +1,10 @@
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { GitHubClient } from "./GitHubClient.ts";
 import type { GitHubError } from "./GitHubError.ts";
@@ -12,7 +15,7 @@ const $I = $ScratchpadId.create("effected/github/Attestation");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * The api-version this surface pins.
@@ -50,13 +53,13 @@ export class AttestationRecord extends S.Class<AttestationRecord, { readonly bra
 	 *
 	 * @since 0.0.0
 	 */
-	id: S.optionalKey(S.Int).annotateKey({ description: "GitHub's id for it, when the response carried one." }),
+	id: S.optionalKey(S.Int).pipe($I.annoteKey("AttestationRecord.id", { description: "GitHub's id for it, when the response carried one." })),
 	/**
 	 * Where a human can look at it.
 	 *
 	 * @since 0.0.0
 	 */
-	url: S.String.annotateKey({ description: "Where a human can look at it." }),
+	url: S.String.pipe($I.annoteKey("AttestationRecord.url", { description: "Where a human can look at it." })),
 }, $I.annote("AttestationRecord", { description: "A stored attestation." })) {}
 
 /**
@@ -84,13 +87,13 @@ export class AttestationListEntry extends S.Class<AttestationListEntry, { readon
 	 *
 	 * @since 0.0.0
 	 */
-	url: S.String.annotateKey({ description: "Where the bundle lives." }),
+	url: S.String.pipe($I.annoteKey("AttestationListEntry.url", { description: "Where the bundle lives." })),
 	/**
 	 * The in-toto predicate type, when the listing reported one.
 	 *
 	 * @since 0.0.0
 	 */
-	predicateType: S.optionalKey(S.String).annotateKey({ description: "The in-toto predicate type, when the listing reported one." }),
+	predicateType: S.optionalKey(S.String).pipe($I.annoteKey("AttestationListEntry.predicateType", { description: "The in-toto predicate type, when the listing reported one." })),
 }, $I.annote("AttestationListEntry", { description: "One entry from an attestation listing." })) {}
 
 const UploadResponse = S.Struct({ id: S.optionalKey(S.Int) });
@@ -134,10 +137,15 @@ export interface AttestationShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly listForSubject: (
-		sha256: string,
-		options?: { readonly predicateType?: string | undefined },
-	) => Effect.Effect<ReadonlyArray<AttestationListEntry>, GitHubError, Repo>;
+	readonly listForSubject: {
+		(
+			sha256: string,
+			options?: { readonly predicateType?: string | undefined },
+		): Effect.Effect<ReadonlyArray<AttestationListEntry>, GitHubError, Repo>;
+		(
+			options?: { readonly predicateType?: string | undefined },
+		): (sha256: string) => Effect.Effect<ReadonlyArray<AttestationListEntry>, GitHubError, Repo>;
+	};
 }
 
 /**
@@ -192,9 +200,11 @@ export class Attestation extends Context.Service<Attestation, AttestationShape>(
 	 * ```ts
 	 * import { Attestation } from "@beep/scratchpad/effected/github/Attestation";
 	 * import * as Effect from "effect/Effect";
+	 * import { dual } from "effect/Function";
+	 * import * as P from "effect/Predicate";
 	 *
 	 * const service = Attestation.makeTest({
-	 *   listForSubject: () => Effect.succeed([]),
+	 *   listForSubject: dual((args) => P.isString(args[0]), (_sha256: string, _options?: object) => Effect.succeed([])),
 	 * });
 	 * console.log(typeof service.listForSubject) // function
 	 * ```
@@ -245,7 +255,7 @@ const make = (client: GitHubClient["Service"]): AttestationShape => ({
 		});
 	}),
 
-	listForSubject: Effect.fn("Attestation.listForSubject")(function* (
+	listForSubject: dual((args) => P.isString(args[0]), Effect.fn("Attestation.listForSubject")(function* (
 		sha256: string,
 		options?: { readonly predicateType?: string | undefined },
 	) {
@@ -270,7 +280,7 @@ const make = (client: GitHubClient["Service"]): AttestationShape => ({
 					() => Effect.succeed({ attestations: [] }),
 				),
 			);
-		return (listed.attestations ?? []).flatMap((entry) => {
+		return A.flatMap(listed.attestations ?? [], (entry) => {
 			const url =
 				entry.bundle_url ??
 				(entry.id !== undefined ? `https://github.com/${owner}/${repo}/attestations/${entry.id}` : undefined);
@@ -282,5 +292,5 @@ const make = (client: GitHubClient["Service"]): AttestationShape => ({
 				}),
 			];
 		});
-	}),
+	})),
 });

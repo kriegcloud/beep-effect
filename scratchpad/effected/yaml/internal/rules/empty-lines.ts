@@ -7,6 +7,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as P from "effect/Predicate";
+import { dual } from "effect/Function";
 import { YamlEdit } from "../../YamlEdit.ts";
 import type { LintContext, LintLine, YamlRule } from "../../YamlLintRule.ts";
 import { StyleFloor, YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
@@ -39,18 +40,18 @@ import * as S from "effect/Schema";
  * @since 0.0.0
  */
 export const emptyLinesOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("emptyLinesOptions.severity", {
 		description: "Reporting level for excessive blank-line findings, defaulting to `error`",
-	}),
-	max: S.optionalKey(nonNegativeIntegerOption).annotateKey({
+	})),
+	max: S.optionalKey(nonNegativeIntegerOption).pipe($I.annoteKey("emptyLinesOptions.max", {
 		description: "Maximum consecutive blank lines in the document body outside scalar content, defaulting to 2",
-	}),
-	maxStart: S.optionalKey(nonNegativeIntegerOption).annotateKey({
+	})),
+	maxStart: S.optionalKey(nonNegativeIntegerOption).pipe($I.annoteKey("emptyLinesOptions.maxStart", {
 		description: "Maximum consecutive blank lines at the start of the input, defaulting to 0",
-	}),
-	maxEnd: S.optionalKey(nonNegativeIntegerOption).annotateKey({
+	})),
+	maxEnd: S.optionalKey(nonNegativeIntegerOption).pipe($I.annoteKey("emptyLinesOptions.maxEnd", {
 		description: "Maximum consecutive blank lines at the end of the input outside scalar content, defaulting to 0",
-	}),
+	})),
 }).pipe(
 	$I.annoteSchema("emptyLinesOptions", {
 		description:
@@ -103,7 +104,7 @@ const layoutBlankLine = (ctx: LintContext): ((line: LintLine) => boolean) => {
  */
 export const emptyLines: YamlRule = {
 	id: "empty-lines",
-	check: (ctx: LintContext, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const max =
 			P.hasProperty(options, "max") && S.is(emptyLinesOptions.fields.max.schema)(options.max) ? options.max : 2;
 		const maxStart =
@@ -162,7 +163,7 @@ export const emptyLines: YamlRule = {
 			i = end;
 		}
 		return out;
-	},
+	}),
 	// Inference: the max blank run is inferable only as a FLOOR — a
 	// corpus whose longest body run is N proves `max` must be at least N to
 	// accept it, not that the author would forbid N+1. The floor rides in

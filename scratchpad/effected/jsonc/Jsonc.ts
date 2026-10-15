@@ -15,6 +15,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -46,8 +47,8 @@ const $I = $ScratchpadId.create("effected/jsonc/Jsonc");
  * @category schemas
  * @since 0.0.0
  */
-export const JsoncParseErrorCode = LiteralKit(ParseCode.literals).annotate(
-  $I.annote("JsoncParseErrorCode", {
+export const JsoncParseErrorCode = LiteralKit(ParseCode.literals).pipe(
+  $I.annoteSchema("JsoncParseErrorCode", {
     description: "The code of one recovered JSONC parse error.",
   })
 );
@@ -236,8 +237,8 @@ export const JsoncStringifyErrorCode = LiteralKit([
   "BigIntValue",
   "TopLevelUnrepresentable",
   "SerializationFailed",
-]).annotate(
-  $I.annote("JsoncStringifyErrorCode", {
+]).pipe(
+  $I.annoteSchema("JsoncStringifyErrorCode", {
     description: "Why a value could not be serialized to JSON text.",
   })
 );
@@ -352,7 +353,10 @@ export class JsoncStringifyError extends S.TaggedError<JsoncStringifyError, { re
 
 const toFlags = (options?: JsoncParseOptions): ParseFlags => options ?? JsoncParseOptions.make({});
 
-const lineChar = (text: string, offset: number): { readonly line: number; readonly character: number } => {
+const lineChar: {
+  (text: string, offset: number): { readonly line: number; readonly character: number };
+  (offset: number): (text: string) => { readonly line: number; readonly character: number };
+} = dual(2, (text: string, offset: number): { readonly line: number; readonly character: number } => {
   let line = 0;
   let lineStart = 0;
   const limit = Math.min(offset, text.length);
@@ -369,17 +373,26 @@ const lineChar = (text: string, offset: number): { readonly line: number; readon
     }
   }
   return { line, character: offset - lineStart };
-};
+});
 
-const toDetails = (text: string, errors: ReadonlyArray<RawParseError>): ReadonlyArray<JsoncParseErrorDetail> =>
-  A.map(errors, (e) => JsoncParseErrorDetail.make({ ...e, ...lineChar(text, e.offset) }));
+const toDetails: {
+  (text: string, errors: ReadonlyArray<RawParseError>): ReadonlyArray<JsoncParseErrorDetail>;
+  (errors: ReadonlyArray<RawParseError>): (text: string) => ReadonlyArray<JsoncParseErrorDetail>;
+} = dual(2, (text: string, errors: ReadonlyArray<RawParseError>): ReadonlyArray<JsoncParseErrorDetail> =>
+  A.map(errors, (e) => JsoncParseErrorDetail.make({ ...e, ...lineChar(text, e.offset) })));
 
-const aggregate = (text: string, errors: ReadonlyArray<RawParseError>): O.Option<JsoncParseError> =>
+const aggregate: {
+  (text: string, errors: ReadonlyArray<RawParseError>): O.Option<JsoncParseError>;
+  (errors: ReadonlyArray<RawParseError>): (text: string) => O.Option<JsoncParseError>;
+} = dual(2, (text: string, errors: ReadonlyArray<RawParseError>): O.Option<JsoncParseError> =>
   A.isReadonlyArrayNonEmpty(errors)
     ? O.some(JsoncParseError.make({ errors: toDetails(text, errors), input: text }))
-    : O.none();
+    : O.none());
 
-const deepEqual = (a: unknown, b: unknown, depth: number): boolean => {
+const deepEqual: {
+  (a: unknown, b: unknown, depth: number): boolean;
+  (b: unknown, depth: number): (a: unknown) => boolean;
+} = dual(3, (a: unknown, b: unknown, depth: number): boolean => {
   if (a === b) {
     return true;
   }
@@ -404,7 +417,7 @@ const deepEqual = (a: unknown, b: unknown, depth: number): boolean => {
     return aKeys.length === R.keys(b).length && A.every(aKeys, (key) => R.has(b, key) && deepEqual(a[key], b[key], depth + 1));
   }
   return false;
-};
+});
 
 const isComment = S.is(SyntaxKind.pick(["LineComment", "BlockComment"]));
 
@@ -421,11 +434,14 @@ const isBigIntValue = (value: unknown): boolean => Result.isSuccess(Result.try((
 // Upstream writes `replaceCh` once per comment code unit and keeps the line
 // breaks. The units are mapped one by one, never through a replacement
 // pattern, so a `$` in `replaceCh` stays a `$`.
-const blankComment = (comment: string, replaceCh: string): string =>
+const blankComment: {
+  (comment: string, replaceCh: string): string;
+  (replaceCh: string): (comment: string) => string;
+} = dual(2, (comment: string, replaceCh: string): string =>
   A.join(
     A.map(Str.split(comment, Str.empty), (unit) => (unit === "\n" || unit === "\r" ? unit : replaceCh)),
     Str.empty
-  );
+  ));
 
 // ── Bound codec ─────────────────────────────────────────────────────────────
 
@@ -496,13 +512,19 @@ export abstract class Jsonc {
    * @param options - Parse options; omitted fields take their defaults.
    * @returns The decoded value, or the aggregate {@link JsoncParseError}.
    */
-  static parseResult(text: string, options?: JsoncParseOptions): Result.Result<unknown, JsoncParseError> {
-    const { value, errors } = parseValueInternal(text, toFlags(options));
-    return O.match(aggregate(text, errors), {
-      onNone: () => Result.succeed(value),
-      onSome: Result.fail,
-    });
-  }
+  static readonly parseResult: {
+    (text: string, options?: JsoncParseOptions): Result.Result<unknown, JsoncParseError>;
+    (options?: JsoncParseOptions): (text: string) => Result.Result<unknown, JsoncParseError>;
+  } = dual(
+    (args) => P.isString(args[0]),
+    (text: string, options?: JsoncParseOptions): Result.Result<unknown, JsoncParseError> => {
+      const { value, errors } = parseValueInternal(text, toFlags(options));
+      return O.match(aggregate(text, errors), {
+        onNone: () => Result.succeed(value),
+        onSome: Result.fail,
+      });
+    }
+  );
 
   /**
    * Parse JSONC into a plain JavaScript value.
@@ -526,8 +548,14 @@ export abstract class Jsonc {
    * @param text - The JSONC source to parse.
    * @param options - Parse options; omitted fields take their defaults.
    */
-  static readonly parse = Effect.fn("Jsonc.parse")((text: string, options?: JsoncParseOptions) =>
-    Effect.fromResult(Jsonc.parseResult(text, options))
+  static readonly parse: {
+    (text: string, options?: JsoncParseOptions): Effect.Effect<unknown, JsoncParseError>;
+    (options?: JsoncParseOptions): (text: string) => Effect.Effect<unknown, JsoncParseError>;
+  } = dual(
+    (args) => P.isString(args[0]),
+    Effect.fn("Jsonc.parse")((text: string, options?: JsoncParseOptions) =>
+      Effect.fromResult(Jsonc.parseResult(text, options))
+    )
   );
 
   /**
@@ -557,13 +585,19 @@ export abstract class Jsonc {
    * @returns `O.some(root)`, `O.none()` for empty input, or the aggregate
    *   {@link JsoncParseError}.
    */
-  static parseTreeResult(text: string, options?: JsoncParseOptions): Result.Result<O.Option<JsoncNode>, JsoncParseError> {
-    const { root, errors } = parseTreeInternal(text, toFlags(options));
-    return O.match(aggregate(text, errors), {
-      onNone: () => Result.succeed(root),
-      onSome: Result.fail,
-    });
-  }
+  static readonly parseTreeResult: {
+    (text: string, options?: JsoncParseOptions): Result.Result<O.Option<JsoncNode>, JsoncParseError>;
+    (options?: JsoncParseOptions): (text: string) => Result.Result<O.Option<JsoncNode>, JsoncParseError>;
+  } = dual(
+    (args) => P.isString(args[0]),
+    (text: string, options?: JsoncParseOptions): Result.Result<O.Option<JsoncNode>, JsoncParseError> => {
+      const { root, errors } = parseTreeInternal(text, toFlags(options));
+      return O.match(aggregate(text, errors), {
+        onNone: () => Result.succeed(root),
+        onSome: Result.fail,
+      });
+    }
+  );
 
   /**
    * Parse JSONC into an immutable {@link JsoncNode} AST.
@@ -591,8 +625,14 @@ export abstract class Jsonc {
    * @param text - The JSONC source to parse.
    * @param options - Parse options; omitted fields take their defaults.
    */
-  static readonly parseTree = Effect.fn("Jsonc.parseTree")((text: string, options?: JsoncParseOptions) =>
-    Effect.fromResult(Jsonc.parseTreeResult(text, options))
+  static readonly parseTree: {
+    (text: string, options?: JsoncParseOptions): Effect.Effect<O.Option<JsoncNode>, JsoncParseError>;
+    (options?: JsoncParseOptions): (text: string) => Effect.Effect<O.Option<JsoncNode>, JsoncParseError>;
+  } = dual(
+    (args) => P.isString(args[0]),
+    Effect.fn("Jsonc.parseTree")((text: string, options?: JsoncParseOptions) =>
+      Effect.fromResult(Jsonc.parseTreeResult(text, options))
+    )
   );
 
   /**
@@ -774,11 +814,14 @@ export abstract class Jsonc {
    * @param b - The second JSONC source.
    * @returns `true` when both sources decode to structurally equal values.
    */
-  static equals(a: string, b: string): boolean {
+  static readonly equals: {
+    (a: string, b: string): boolean;
+    (b: string): (a: string) => boolean;
+  } = dual(2, (a: string, b: string): boolean => {
     const ra = parseValueInternal(a, toFlags());
     const rb = parseValueInternal(b, toFlags());
     return A.isReadonlyArrayEmpty(ra.errors) && A.isReadonlyArrayEmpty(rb.errors) && deepEqual(ra.value, rb.value, 0);
-  }
+  });
 
   /**
    * Compare a JSONC string against an existing JavaScript value with the same
@@ -797,10 +840,13 @@ export abstract class Jsonc {
    * @param value - The plain JavaScript value to compare against.
    * @returns `true` when `text` decodes to a value structurally equal to `value`.
    */
-  static equalsValue(text: string, value: unknown): boolean {
+  static readonly equalsValue: {
+    (text: string, value: unknown): boolean;
+    (value: unknown): (text: string) => boolean;
+  } = dual(2, (text: string, value: unknown): boolean => {
     const r = parseValueInternal(text, toFlags());
     return A.isReadonlyArrayEmpty(r.errors) && deepEqual(r.value, value, 0);
-  }
+  });
 
   /**
    * A codec from JSONC text to `unknown`, decoding with the given options.
@@ -892,12 +938,14 @@ export abstract class Jsonc {
    * @param options - Parse options controlling the JSONC decode step.
    * @returns A codec decoding JSONC text straight into `T`.
    */
-  static schema<T, E, RD = never, RE = never>(
-    target: S.Codec<T, E, RD, RE>,
-    options?: JsoncParseOptions
-  ): S.Codec<T, string, RD, RE> {
-    return Jsonc.fromString(options).pipe(S.decodeTo(target));
-  }
+  static readonly schema: {
+    <T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>, options?: JsoncParseOptions): S.Codec<T, string, RD, RE>;
+    (options?: JsoncParseOptions): <T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>) => S.Codec<T, string, RD, RE>;
+  } = dual(
+    (args) => S.isSchema(args[0]),
+    <T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>, options?: JsoncParseOptions): S.Codec<T, string, RD, RE> =>
+      Jsonc.fromString(options).pipe(S.decodeTo(target))
+  );
 
   /**
    * Bind a target schema to the JSONC codec once, yielding the composed

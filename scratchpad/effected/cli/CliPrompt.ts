@@ -34,12 +34,12 @@ const $I = $ScratchpadId.create("effected/cli/CliPrompt");
  */
 export const CliPromptTarget = S.Union([
   S.Struct({
-    flag: S.String.annotate($I.annote("CliPromptTarget.Flag.flag", { description: "The missing flag's name without leading dashes." })),
-  }).annotate($I.annote("CliPromptTarget.Flag", { description: "A fallback target naming a missing flag." })),
+    flag: S.String.pipe($I.annoteKey("CliPromptTarget.Flag.flag", { description: "The missing flag's name without leading dashes." })),
+  }).pipe($I.annoteSchema("CliPromptTarget.Flag", { description: "A fallback target naming a missing flag." })),
   S.Struct({
-    argument: S.String.annotate($I.annote("CliPromptTarget.Argument.argument", { description: "The missing positional argument's name." })),
-  }).annotate($I.annote("CliPromptTarget.Argument", { description: "A fallback target naming a missing positional argument." })),
-]).annotate($I.annote("CliPromptTarget", { description: "A plain flag or argument target for a prompt fallback." }));
+    argument: S.String.pipe($I.annoteKey("CliPromptTarget.Argument.argument", { description: "The missing positional argument's name." })),
+  }).pipe($I.annoteSchema("CliPromptTarget.Argument", { description: "A fallback target naming a missing positional argument." })),
+]).pipe($I.annoteSchema("CliPromptTarget", { description: "A plain flag or argument target for a prompt fallback." }));
 
 /**
  * The plain missing-parameter cases validated by {@link CliPromptTarget}.

@@ -1,6 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import { Git, GitCommandError, LsTreeEntry } from "../../effected/git/index.ts";
+import type { GitStubs } from "../../effected/git/index.ts";
 import { CatalogAssemblyError, CatalogResolver, WorkspaceResolver } from "../../effected/npm/index.ts";
 import * as HashMap from "effect/HashMap";
 import * as Effect from "effect/Effect";
@@ -9,6 +10,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import type { HookInjection, HookReplay, PeerDependencyRules } from "../../effected/workspaces/index.ts";
 import {
 	CatalogSet,
@@ -32,7 +35,7 @@ type RefTrees = Readonly<Record<string, Readonly<Record<string, string>>>>;
 const scriptGit = (
 	trees: RefTrees,
 	overrides: {
-		readonly lsTree?: Git["Service"]["lsTree"];
+		readonly lsTree?: GitStubs["lsTree"];
 	} = {},
 ): Layer.Layer<Git> =>
 	Git.layerTest({
@@ -242,7 +245,7 @@ describe("WorkspaceSnapshots — bun inline catalogs at a ref with NO bun.lock (
 
 describe("WorkspaceSnapshots.at — a failed init is retried", () => {
 	let lsTreeCalls = 0;
-	const flakyLsTree: Git["Service"]["lsTree"] = (_cwd: string, ref: string) => {
+	const flakyLsTree: GitStubs["lsTree"] = (_cwd: string, ref: string) => {
 		lsTreeCalls += 1;
 		if (lsTreeCalls === 1) {
 			return Effect.fail(
@@ -615,7 +618,7 @@ interface InjectCall {
 const recordingHooks = (answers: Readonly<Record<string, Readonly<Record<string, string>>>>) => {
 	const calls: Array<InjectCall> = [];
 	const layer = Layer.succeed(ConfigDependencyHooks, {
-		inject: Effect.fn("ConfigDependencyHooks.inject")((root: string, configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined) => Effect.sync(() => {
+		inject: dual((args) => P.isString(args[0]), Effect.fn("ConfigDependencyHooks.inject")((root: string, configDependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules: PeerDependencyRules | undefined) => Effect.sync(() => {
 				calls.push({ root, configDependencies, seed, rules });
 				let injected: Record<string, string> = {};
 				const replays: Record<string, HookReplay> = {};
@@ -630,7 +633,7 @@ const recordingHooks = (answers: Readonly<Record<string, Readonly<Record<string,
 					peerDependencyRules: rules ?? { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
 					replays,
 				};
-			})),
+			}))),
 	});
 	return { calls, layer };
 };
@@ -743,13 +746,13 @@ describe("WorkspaceSnapshots.at — under layerNoop the ref read executes nothin
 
 describe("WorkspaceSnapshots.at — a hook replay failure at the ref surfaces typed", () => {
 	const failing = Layer.succeed(ConfigDependencyHooks, {
-		inject: Effect.fn("ConfigDependencyHooks.inject")((_root: string, configDependencies: Readonly<Record<string, string>>) => Effect.fail(
+		inject: dual((args) => P.isString(args[0]), Effect.fn("ConfigDependencyHooks.inject")((_root: string, configDependencies: Readonly<Record<string, string>>) => Effect.fail(
 				CatalogAssemblyError.make({
 					source: "hooks",
 					path: Object.keys(configDependencies)[0] ?? "",
 					cause: new Error("not installed"),
 				}),
-			)),
+			))),
 	});
 	it.layer(snapshotsLayer(scriptGit(replayRefTrees), replayMarker, "/repo", undefined, failing), { timeout: "30 seconds" })((it) => {
 		it.effect("fails at(ref) with the hooks-source CatalogAssemblyError, never a silent skip", () =>
@@ -837,12 +840,12 @@ const ownNameReplayEntries: ReadonlyArray<readonly [string, HookReplay]> = [
 ];
 const ownNameReplays = R.fromEntries(ownNameReplayEntries);
 const ownNameHooks = Layer.succeed(ConfigDependencyHooks, {
-  inject: Effect.fn("OwnNameHooks.inject")((_root, _dependencies, seed, rules) => Effect.succeed({
+  inject: dual((args) => P.isString(args[0]), Effect.fn("OwnNameHooks.inject")((_root: string, _dependencies: Readonly<Record<string, string>>, seed: Readonly<Record<string, Readonly<Record<string, string>>>>, rules?: PeerDependencyRules) => Effect.succeed({
     catalogs: seed,
     releaseAge: {},
     peerDependencyRules: rules ?? { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
     replays: ownNameReplays,
-  })),
+  }))),
 });
 const ownNameTree: Tree = {
   "/repo/package.json": rootManifest([]),

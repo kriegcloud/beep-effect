@@ -23,7 +23,7 @@ const $I = $ScratchpadId.create("effected/commands/Run");
 class EmptyJsonLineError extends S.TaggedError<EmptyJsonLineError, { readonly brand: unique symbol }>($I`EmptyJsonLineError`)(
 	"EmptyJsonLineError",
 	{ message: S.String },
-	$I.annote("EmptyJsonLineError", { description: "Captured stdout contained no non-empty line to decode as JSON." }),
+	$I.annoteError<EmptyJsonLineError>("EmptyJsonLineError", { description: "Captured stdout contained no non-empty line to decode as JSON." }),
 ) {}
 
 /**
@@ -61,7 +61,7 @@ const PolicyNumber = S.declare(P.isNumber).pipe($I.annoteSchema("PolicyNumber", 
 const DurationNumberText = S.String.check(
  S.isPattern(/^[+-]?\d*\.?\d+(?:[Ee][+-]?\d+)?\s*$/),
  S.makeFilter(Fn.flow(Str.trim, S.decodeOption(S.FiniteFromString), O.isSome), $I.annote("FiniteDurationNumberText", {
-  title: "Finite duration number", description: "The duration numeric component retains the finite-number constraint after trimming whitespace.",
+  message: "Finite duration number", description: "The duration numeric component retains the finite-number constraint after trimming whitespace.",
  })),
 ).pipe(
  $I.annoteSchema("DurationNumberText", { description: "A duration number with optional whitespace before the unit separator." }),
@@ -150,7 +150,7 @@ export const RunOptions = S.Struct({
   * {@link CommandFailedError} of kind `"timeout"` rather than core's
   * `TimeoutError`, so a caller's error channel stays this package's taxonomy.
   */
-	timeout: S.optionalKey(DurationInput).annotateKey({ description: "Optional ceiling for the whole run." }),
+	timeout: S.optionalKey(DurationInput).pipe($I.annoteKey("RunOptions.timeout", { description: "Optional ceiling for the whole run." })),
 	/**
   * Values scrubbed from captured output and from any error this run raises.
   *
@@ -160,9 +160,9 @@ export const RunOptions = S.Struct({
   * whichever flag carried it, and inside a larger string. The flag heuristic
   * in {@link Redaction.scrubArgs} runs in addition, never instead.
   */
-	redact: S.String.pipe(S.Redacted, S.Array, S.optional).annotateKey({ description: "Secret values scrubbed from output and errors." }),
+	redact: S.String.pipe(S.Redacted, S.Array, S.optional, $I.annoteKey("RunOptions.redact", { description: "Secret values scrubbed from output and errors." })),
 	/** Per-stream captured-byte ceiling. Defaults to {@link DEFAULT_MAX_OUTPUT_BYTES}. */
-	maxOutputBytes: S.optionalKey(PolicyNumber).annotateKey({ description: "Optional per-stream byte ceiling." }),
+	maxOutputBytes: S.optionalKey(PolicyNumber).pipe($I.annoteKey("RunOptions.maxOutputBytes", { description: "Optional per-stream byte ceiling." })),
 }).pipe($I.annoteSchema("RunOptions", { description: "Timeout, redaction and byte-budget policy for a run." }));
 /**
  * Decoded run policy accepted by the running helpers.
@@ -190,11 +190,11 @@ export type RunOptions = typeof RunOptions.Type;
  */
 export class CommandOutput extends S.Class<CommandOutput, { readonly brand: unique symbol }>($I`CommandOutput`)({
 	/** Captured standard output, redacted. */
-	stdout: S.String.annotateKey({ description: "Captured standard output, redacted." }),
+	stdout: S.String.pipe($I.annoteKey("CommandOutput.stdout", { description: "Captured standard output, redacted." })),
 	/** Captured standard error, redacted. */
-	stderr: S.String.annotateKey({ description: "Captured standard error, redacted." }),
+	stderr: S.String.pipe($I.annoteKey("CommandOutput.stderr", { description: "Captured standard error, redacted." })),
 	/** The process exit code. A non-zero value is NOT an error at this level. */
-	exitCode: ExitCode.annotateKey({ description: "The process exit code. A non-zero value is NOT an error at this level." }),
+	exitCode: ExitCode.pipe($I.annoteKey("CommandOutput.exitCode", { description: "The process exit code. A non-zero value is NOT an error at this level." })),
 }, $I.annote("CommandOutput", { description: "What one completed run produced." })) {
 	/**
 	 * Whether the process exited zero.
@@ -229,14 +229,20 @@ const describeCommand = (command: ChildProcess.Command): { command: string; args
 };
 
 /** argv as an error should store it: declared secrets removed, then the flag heuristic. */
-const safeArgs = (
-	args: ReadonlyArray<string>,
-	secrets: ReadonlyArray<Redacted.Redacted<string>> | undefined,
-): ReadonlyArray<string> => Redaction.scrubArgs(Redaction.applyArgs(args, secrets ?? []));
+const safeArgs: {
+	(args: ReadonlyArray<string>, secrets: ReadonlyArray<Redacted.Redacted<string>> | undefined): ReadonlyArray<string>;
+	(secrets: ReadonlyArray<Redacted.Redacted<string>> | undefined): (args: ReadonlyArray<string>) => ReadonlyArray<string>;
+} = Fn.dual(
+	2,
+	(args: ReadonlyArray<string>, secrets: ReadonlyArray<Redacted.Redacted<string>> | undefined): ReadonlyArray<string> =>
+		Redaction.scrubArgs(Redaction.applyArgs(args, secrets ?? [])),
+);
 
 /** Captured text as an error should store it. */
-const safeText = (text: string, secrets: ReadonlyArray<Redacted.Redacted<string>> | undefined): string =>
-	Redaction.apply(text, secrets ?? []);
+const safeText: {
+	(text: string, secrets: ReadonlyArray<Redacted.Redacted<string>> | undefined): string;
+	(secrets: ReadonlyArray<Redacted.Redacted<string>> | undefined): (text: string) => string;
+} = Fn.dual(2, (text: string, secrets: ReadonlyArray<Redacted.Redacted<string>> | undefined): string => Redaction.apply(text, secrets ?? []));
 
 /** Tail-bounded rendering: tools write warnings first and the real error last. */
 const tail = (text: string): string => {
@@ -276,20 +282,20 @@ const tail = (text: string): string => {
  */
 export class CommandFailedError extends S.TaggedError<CommandFailedError, { readonly brand: unique symbol }>($I`CommandFailedError`)("CommandFailedError", {
 	/** Why it failed. */
-	kind: S.Literals(["nonZero", "spawn", "timeout"]).annotateKey({ description: "Why it failed." }),
+	kind: S.Literals(["nonZero", "spawn", "timeout"]).pipe($I.annoteKey("CommandFailedError.kind", { description: "Why it failed." })),
 	/** The executable (or `"a | b"` for a pipeline). */
-	command: S.String.annotateKey({ description: "The executable (or `\"a | b\"` for a pipeline)." }),
+	command: S.String.pipe($I.annoteKey("CommandFailedError.command", { description: "The executable (or `\"a | b\"` for a pipeline)." })),
 	/** argv, redacted. */
-	args: S.Array(S.String).annotateKey({ description: "argv, redacted." }),
+	args: S.Array(S.String).pipe($I.annoteKey("CommandFailedError.args", { description: "argv, redacted." })),
 	/** The exit code, when the process ran. */
-	exitCode: S.optionalKey(ExitCode).annotateKey({ description: "The exit code, when the process ran." }),
+	exitCode: S.optionalKey(ExitCode).pipe($I.annoteKey("CommandFailedError.exitCode", { description: "The exit code, when the process ran." })),
 	/** Captured standard error, redacted, when the process ran. */
-	stderr: S.optionalKey(S.String).annotateKey({ description: "Captured standard error, redacted, when the process ran." }),
+	stderr: S.optionalKey(S.String).pipe($I.annoteKey("CommandFailedError.stderr", { description: "Captured standard error, redacted, when the process ran." })),
 	/** Captured standard output, redacted, when the process ran. */
-	stdout: S.optionalKey(S.String).annotateKey({ description: "Captured standard output, redacted, when the process ran." }),
+	stdout: S.optionalKey(S.String).pipe($I.annoteKey("CommandFailedError.stdout", { description: "Captured standard output, redacted, when the process ran." })),
 	/** The absorbed platform failure, for `"spawn"`. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The absorbed platform failure, for `\"spawn\"`." }),
-}, $I.annote("CommandFailedError", { description: "A command that could not be run, or that ran and failed." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("CommandFailedError.cause", { description: "The absorbed platform failure, for `\"spawn\"`." })),
+}, $I.annoteError<CommandFailedError>("CommandFailedError", { description: "A command that could not be run, or that ran and failed." })) {
 	/**
 	 * The process ran and exited non-zero.
 	 *
@@ -308,7 +314,10 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly nonZero = (
+	static readonly nonZero: {
+		(command: ChildProcess.Command, output: CommandOutput, secrets?: ReadonlyArray<Redacted.Redacted<string>> | undefined): CommandFailedError;
+		(output: CommandOutput, secrets?: ReadonlyArray<Redacted.Redacted<string>> | undefined): (command: ChildProcess.Command) => CommandFailedError;
+	} = Fn.dual((args) => ChildProcess.isCommand(args[0]), (
 		command: ChildProcess.Command,
 		output: CommandOutput,
 		secrets?: ReadonlyArray<Redacted.Redacted<string>> | undefined,
@@ -322,7 +331,7 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
 			stderr: output.stderr,
 			stdout: output.stdout,
 		});
-	};
+	});
 
 	/**
 	 * The process never started.
@@ -341,7 +350,10 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly spawn = (
+	static readonly spawn: {
+		(command: ChildProcess.Command, cause: PlatformError.PlatformError, secrets?: ReadonlyArray<Redacted.Redacted<string>> | undefined): CommandFailedError;
+		(cause: PlatformError.PlatformError, secrets?: ReadonlyArray<Redacted.Redacted<string>> | undefined): (command: ChildProcess.Command) => CommandFailedError;
+	} = Fn.dual((args) => ChildProcess.isCommand(args[0]), (
 		command: ChildProcess.Command,
 		cause: PlatformError.PlatformError,
 		secrets?: ReadonlyArray<Redacted.Redacted<string>> | undefined,
@@ -353,7 +365,7 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
 			args: safeArgs(described.args, secrets),
 			cause,
 		});
-	};
+	});
 
 	/**
 	 * A caller-supplied ceiling elapsed; the child was killed with its scope.
@@ -371,7 +383,10 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly timedOut = (
+	static readonly timedOut: {
+		(command: ChildProcess.Command, secrets?: ReadonlyArray<Redacted.Redacted<string>> | undefined): CommandFailedError;
+		(secrets?: ReadonlyArray<Redacted.Redacted<string>> | undefined): (command: ChildProcess.Command) => CommandFailedError;
+	} = Fn.dual((args) => ChildProcess.isCommand(args[0]), (
 		command: ChildProcess.Command,
 		secrets?: ReadonlyArray<Redacted.Redacted<string>> | undefined,
 	): CommandFailedError => {
@@ -381,7 +396,7 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
 			command: described.command,
 			args: safeArgs(described.args, secrets),
 		});
-	};
+	});
 
 	/**
 	 * Whether this is a spawn failure caused by the executable not existing —
@@ -428,7 +443,7 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
 	 * @since 0.0.0
 	 */
 	override get message(): string {
-		const rendered = this.args.length > 0 ? `${this.command} ${this.args.join(" ")}` : this.command;
+		const rendered = this.args.length > 0 ? `${this.command} ${A.join(this.args, " ")}` : this.command;
 		const parts = [`Command "${rendered}" failed`];
 		if (this.kind === "timeout") parts.push("(timed out)");
 		if (this.exitCode !== undefined) parts.push(`(exit ${this.exitCode})`);
@@ -439,7 +454,7 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
 			? this.stderr
 			: (this.stdout?.trim() ?? "") !== "" ? this.stdout : undefined;
 		if (stream !== undefined) parts.push(`:\n${tail(stream)}`);
-		return parts.join(" ");
+		return A.join(parts, " ");
 	}
 }
 
@@ -475,18 +490,18 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
  */
 export class CommandOutputError extends S.TaggedError<CommandOutputError, { readonly brand: unique symbol }>($I`CommandOutputError`)("CommandOutputError", {
 	/** Which way the output was unusable. */
-	kind: S.Literals(["notJson", "schema", "tooLarge"]).annotateKey({ description: "Which way the output was unusable." }),
+	kind: S.Literals(["notJson", "schema", "tooLarge"]).pipe($I.annoteKey("CommandOutputError.kind", { description: "Which way the output was unusable." })),
 	/** The executable that produced it. */
-	command: S.String.annotateKey({ description: "The executable that produced it." }),
+	command: S.String.pipe($I.annoteKey("CommandOutputError.command", { description: "The executable that produced it." })),
 	/** The underlying parse or decode failure. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying parse or decode failure." }),
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("CommandOutputError.cause", { description: "The underlying parse or decode failure." })),
 	/** The exit code, when the combinator parses independently of it. */
-	exitCode: S.optionalKey(ExitCode).annotateKey({ description: "The exit code, when the combinator parses independently of it." }),
+	exitCode: S.optionalKey(ExitCode).pipe($I.annoteKey("CommandOutputError.exitCode", { description: "The exit code, when the combinator parses independently of it." })),
 	/** Captured standard error, redacted, when the process ran. */
-	stderr: S.optionalKey(S.String).annotateKey({ description: "Captured standard error, redacted, when the process ran." }),
+	stderr: S.optionalKey(S.String).pipe($I.annoteKey("CommandOutputError.stderr", { description: "Captured standard error, redacted, when the process ran." })),
 	/** Captured standard output, redacted, when the process ran. */
-	stdout: S.optionalKey(S.String).annotateKey({ description: "Captured standard output, redacted, when the process ran." }),
-}, $I.annote("CommandOutputError", { description: "A command ran, but its output could not be used." })) {
+	stdout: S.optionalKey(S.String).pipe($I.annoteKey("CommandOutputError.stdout", { description: "Captured standard output, redacted, when the process ran." })),
+}, $I.annoteError<CommandOutputError>("CommandOutputError", { description: "A command ran, but its output could not be used." })) {
 	/**
 	 * Explains the output failure and includes available exit and stderr context.
 	 *
@@ -513,20 +528,28 @@ export class CommandOutputError extends S.TaggedError<CommandOutputError, { read
 		}
 		if (this.exitCode !== undefined) parts.push(`(exit ${this.exitCode})`);
 		if (this.stderr !== undefined && this.stderr.trim().length > 0) parts.push(`:\n${tail(this.stderr)}`);
-		return parts.join(" ");
+		return A.join(parts, " ");
 	}
 }
 
 /** Spawns, collects both streams concurrently, and awaits exit. */
-const collectRaw = (
+const collectRaw: {
+	(
+		command: ChildProcess.Command,
+		options: RunOptions | undefined,
+		tee: Stdio.Stdio | undefined,
+	): Effect.Effect<CommandOutput, PlatformError.PlatformError | OutputTooLarge, ChildProcessSpawner.ChildProcessSpawner>;
+	(
+		options: RunOptions | undefined,
+		tee: Stdio.Stdio | undefined,
+	): (
+		command: ChildProcess.Command,
+	) => Effect.Effect<CommandOutput, PlatformError.PlatformError | OutputTooLarge, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual(3, (
 	command: ChildProcess.Command,
 	options: RunOptions | undefined,
 	tee: Stdio.Stdio | undefined,
-): Effect.Effect<
-	CommandOutput,
-	PlatformError.PlatformError | OutputTooLarge,
-	ChildProcessSpawner.ChildProcessSpawner
-> =>
+): Effect.Effect<CommandOutput, PlatformError.PlatformError | OutputTooLarge, ChildProcessSpawner.ChildProcessSpawner> =>
 	Effect.scoped(
 		Effect.gen(function* () {
 			const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
@@ -549,10 +572,13 @@ const collectRaw = (
 				exitCode: Number(exitCode),
 			});
 		}),
-	);
+	));
 
 /** Maps the raw failure modes onto this package's taxonomy, and applies any ceiling. */
-const collectClassified = (
+const collectClassified: {
+	(command: ChildProcess.Command, options: RunOptions | undefined, tee: Stdio.Stdio | undefined): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+	(options: RunOptions | undefined, tee: Stdio.Stdio | undefined): (command: ChildProcess.Command) => Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual(3, (
 	command: ChildProcess.Command,
 	options: RunOptions | undefined,
 	tee: Stdio.Stdio | undefined,
@@ -571,15 +597,25 @@ const collectClassified = (
 				duration: options.timeout,
 				orElse: () => Effect.fail(CommandFailedError.timedOut(command, options.redact)),
 			});
-};
+});
 
 /** Fails a run whose process exited non-zero. */
-const requireZero = (
+const requireZero: {
+	(
+		command: ChildProcess.Command,
+		output: CommandOutput,
+		options: RunOptions | undefined,
+	): Effect.Effect<CommandOutput, CommandFailedError>;
+	(
+		output: CommandOutput,
+		options: RunOptions | undefined,
+	): (command: ChildProcess.Command) => Effect.Effect<CommandOutput, CommandFailedError>;
+} = Fn.dual(3, (
 	command: ChildProcess.Command,
 	output: CommandOutput,
 	options: RunOptions | undefined,
 ): Effect.Effect<CommandOutput, CommandFailedError> =>
-	output.succeeded ? Effect.succeed(output) : Effect.fail(CommandFailedError.nonZero(command, output, options?.redact));
+	output.succeeded ? Effect.succeed(output) : Effect.fail(CommandFailedError.nonZero(command, output, options?.redact)));
 
 /** Span attributes: what ran and how many arguments — never the arguments. */
 const annotate = (command: ChildProcess.Command): Effect.Effect<void> => {
@@ -588,39 +624,55 @@ const annotate = (command: ChildProcess.Command): Effect.Effect<void> => {
 };
 
 // Implementation of Run.collect; the public contract lives on the static.
-const collect = Effect.fn("Run.collect")(function* (command: ChildProcess.Command, options?: RunOptions) {
+const collect: {
+	(command: ChildProcess.Command, options?: RunOptions): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+	(options?: RunOptions): (command: ChildProcess.Command) => Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual((args) => ChildProcess.isCommand(args[0]), Effect.fn("Run.collect")(function* (command: ChildProcess.Command, options?: RunOptions) {
 	yield* annotate(command);
 	return yield* collectClassified(command, options, undefined);
-});
+}));
 
 // Implementation of Run.collectTee; the public contract lives on the static.
-const collectTee = Effect.fn("Run.collectTee")(function* (command: ChildProcess.Command, options?: RunOptions) {
+const collectTee: {
+	(command: ChildProcess.Command, options?: RunOptions): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, Stdio.Stdio | ChildProcessSpawner.ChildProcessSpawner>;
+	(options?: RunOptions): (command: ChildProcess.Command) => Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, Stdio.Stdio | ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual((args) => ChildProcess.isCommand(args[0]), Effect.fn("Run.collectTee")(function* (command: ChildProcess.Command, options?: RunOptions) {
 	yield* annotate(command);
 	const stdio = yield* Stdio.Stdio;
 	return yield* collectClassified(command, options, stdio);
-});
+}));
 
 // Implementation of Run.text; the public contract lives on the static.
-const text = Effect.fn("Run.text")(function* (command: ChildProcess.Command, options?: RunOptions) {
+const text: {
+	(command: ChildProcess.Command, options?: RunOptions): Effect.Effect<string, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+	(options?: RunOptions): (command: ChildProcess.Command) => Effect.Effect<string, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual((args) => ChildProcess.isCommand(args[0]), Effect.fn("Run.text")(function* (command: ChildProcess.Command, options?: RunOptions) {
 	yield* annotate(command);
 	const output = yield* collectClassified(command, options, undefined);
 	const checked = yield* requireZero(command, output, options);
 	return checked.stdout.trim();
-});
+}));
 
 // Implementation of Run.lines; the public contract lives on the static.
-const lines = Effect.fn("Run.lines")(function* (command: ChildProcess.Command, options?: RunOptions) {
+const lines: {
+	(command: ChildProcess.Command, options?: RunOptions): Effect.Effect<Array<string>, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+	(options?: RunOptions): (command: ChildProcess.Command) => Effect.Effect<Array<string>, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual((args) => ChildProcess.isCommand(args[0]), Effect.fn("Run.lines")(function* (command: ChildProcess.Command, options?: RunOptions) {
 	yield* annotate(command);
 	const output = yield* collectClassified(command, options, undefined);
 	const checked = yield* requireZero(command, output, options);
-	return checked.stdout
-		.split(/\r?\n/)
-		.map((line) => line.trim())
-		.filter((line) => line.length > 0);
-});
+	return Fn.pipe(
+		checked.stdout.split(/\r?\n/),
+		A.map((line) => line.trim()),
+		A.filter((line) => line.length > 0),
+	);
+}));
 
 // Implementation of Run.json; the public contract lives on the static.
-const json = Effect.fn("Run.json")(function* <A, I>(
+const json: {
+	<A, I>(command: ChildProcess.Command, schema: S.Codec<A, I>, options?: RunOptions): Effect.Effect<A, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+	<A, I>(schema: S.Codec<A, I>, options?: RunOptions): (command: ChildProcess.Command) => Effect.Effect<A, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual((args) => ChildProcess.isCommand(args[0]), Effect.fn("Run.json")(function* <A, I>(
 	command: ChildProcess.Command,
 	schema: S.Codec<A, I>,
 	options?: RunOptions,
@@ -635,10 +687,13 @@ const json = Effect.fn("Run.json")(function* <A, I>(
 	return yield* S.decodeUnknownEffect(schema)(parsed).pipe(
 		Effect.mapError((cause) => CommandOutputError.make({ kind: "schema", command: described.command, cause })),
 	);
-});
+}));
 
 // Implementation of Run.jsonLine; the public contract lives on the static.
-const jsonLine = Effect.fn("Run.jsonLine")(function* <A, I>(
+const jsonLine: {
+	<A, I>(command: ChildProcess.Command, schema: S.Codec<A, I>, options?: RunOptions): Effect.Effect<A, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+	<A, I>(schema: S.Codec<A, I>, options?: RunOptions): (command: ChildProcess.Command) => Effect.Effect<A, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual((args) => ChildProcess.isCommand(args[0]), Effect.fn("Run.jsonLine")(function* <A, I>(
 	command: ChildProcess.Command,
 	schema: S.Codec<A, I>,
 	options?: RunOptions,
@@ -650,7 +705,7 @@ const jsonLine = Effect.fn("Run.jsonLine")(function* <A, I>(
 	// missing or unusable, the exit code and captured streams (already redacted
 	// by collectClassified) are the only evidence of what actually went wrong.
 	const context = { exitCode: output.exitCode, stderr: output.stderr, stdout: output.stdout };
-	const candidates = output.stdout.split(/\r?\n/).filter((candidate) => candidate.trim().length > 0);
+	const candidates = A.filter(output.stdout.split(/\r?\n/), (candidate) => candidate.trim().length > 0);
 	if (candidates.length === 0) {
 		return yield* CommandOutputError.make({
 				kind: "notJson",
@@ -683,23 +738,29 @@ const jsonLine = Effect.fn("Run.jsonLine")(function* <A, I>(
 	return yield* schemaCause !== undefined
 			? CommandOutputError.make({ kind: "schema", command: described.command, cause: schemaCause, ...context })
 			: CommandOutputError.make({ kind: "notJson", command: described.command, cause: notJsonCause, ...context });
-});
+}));
 
 // Implementation of Run.exitCode; the public contract lives on the static.
-const exitCode = Effect.fn("Run.exitCode")(function* (command: ChildProcess.Command, options?: RunOptions) {
+const exitCode: {
+	(command: ChildProcess.Command, options?: RunOptions): Effect.Effect<number, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+	(options?: RunOptions): (command: ChildProcess.Command) => Effect.Effect<number, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual((args) => ChildProcess.isCommand(args[0]), Effect.fn("Run.exitCode")(function* (command: ChildProcess.Command, options?: RunOptions) {
 	yield* annotate(command);
 	const output = yield* collectClassified(command, options, undefined);
 	return output.exitCode;
-});
+}));
 
 // Implementation of Run.succeeds; the public contract lives on the static.
-const succeeds = Effect.fn("Run.succeeds")(function* (command: ChildProcess.Command, options?: RunOptions) {
+const succeeds: {
+	(command: ChildProcess.Command, options?: RunOptions): Effect.Effect<boolean, never, ChildProcessSpawner.ChildProcessSpawner>;
+	(options?: RunOptions): (command: ChildProcess.Command) => Effect.Effect<boolean, never, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual((args) => ChildProcess.isCommand(args[0]), Effect.fn("Run.succeeds")(function* (command: ChildProcess.Command, options?: RunOptions) {
 	yield* annotate(command);
 	return yield* collectClassified(command, options, undefined).pipe(
 		Effect.map((output) => output.succeeded),
 		Effect.orElseSucceed(() => false),
 	);
-});
+}));
 
 // Implementation of Run.detach; the public contract lives on the static.
 const detach = Effect.fn("Run.detach")(function* (command: ChildProcess.Command) {
@@ -719,7 +780,10 @@ const detach = Effect.fn("Run.detach")(function* (command: ChildProcess.Command)
 });
 
 // Implementation of Run.stream; the public contract lives on the static.
-const stream = (
+const stream: {
+	(command: ChildProcess.Command, options?: { readonly includeStderr?: boolean | undefined }): Stream.Stream<string, CommandFailedError, ChildProcessSpawner.ChildProcessSpawner>;
+	(options?: { readonly includeStderr?: boolean | undefined }): (command: ChildProcess.Command) => Stream.Stream<string, CommandFailedError, ChildProcessSpawner.ChildProcessSpawner>;
+} = Fn.dual((args) => ChildProcess.isCommand(args[0]), (
 	command: ChildProcess.Command,
 	options?: { readonly includeStderr?: boolean | undefined },
 ): Stream.Stream<string, CommandFailedError, ChildProcessSpawner.ChildProcessSpawner> =>
@@ -727,7 +791,7 @@ const stream = (
 		Effect.map(ChildProcessSpawner.ChildProcessSpawner, (spawner) =>
 			spawner.streamLines(command, { includeStderr: options?.includeStderr ?? false }),
 		),
-	).pipe(Stream.mapError((error) => CommandFailedError.spawn(command, error)));
+	).pipe(Stream.mapError((error) => CommandFailedError.spawn(command, error))));
 
 // Implementation of Run.extendEnv; the public contract lives on the static.
 const extendEnv: {

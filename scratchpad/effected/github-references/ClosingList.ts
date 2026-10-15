@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -68,9 +69,7 @@ const $I = $ScratchpadId.create("effected/github-references/ClosingList");
  * @category schemas
  * @since 0.0.0
  */
-export const ReferenceKeyword = LiteralKit(["ref", "refs", "references"]).annotate(
-	$I.annote("ReferenceKeyword", { description: "A non-closing reference keyword in canonical lowercase form." }),
-);
+export const ReferenceKeyword = LiteralKit(["ref", "refs", "references"]).pipe($I.annoteSchema("ReferenceKeyword", { description: "A non-closing reference keyword in canonical lowercase form." }));
 
 /**
  * The decoded representation accepted by {@link ReferenceKeyword}.
@@ -114,9 +113,7 @@ export const REFERENCE_KEYWORDS = ReferenceKeyword.literals;
  * @category schemas
  * @since 0.0.0
  */
-export const ListKeyword = LiteralKit([...ClosingKeyword.literals, ...ReferenceKeyword.literals]).annotate(
-	$I.annote("ListKeyword", { description: "A closing or non-closing keyword accepted by the list dialect." }),
-);
+export const ListKeyword = LiteralKit([...ClosingKeyword.literals, ...ReferenceKeyword.literals]).pipe($I.annoteSchema("ListKeyword", { description: "A closing or non-closing keyword accepted by the list dialect." }));
 
 /**
  * The decoded representation accepted by {@link ListKeyword}.
@@ -147,10 +144,10 @@ const CLOSING_KEYWORD_BY_NAME: R.ReadonlyRecord<string, ClosingKeyword> = Closin
  */
 export const ClosingList = S.Struct({
 	/** The matched closing keyword, lowercased to its canonical form. */
-	keyword: ClosingKeyword.annotate($I.annote("ClosingList.keyword", { description: "The matched closing keyword in canonical lowercase form." })),
+	keyword: ClosingKeyword.pipe($I.annoteKey("ClosingList.keyword", { description: "The matched closing keyword in canonical lowercase form." })),
 	/** The referenced issue numbers, duplicates preserved, in line order. */
-	issueNumbers: S.NonEmptyArray(S.Natural).annotate($I.annote("ClosingList.issueNumbers", { description: "The safe integer issue numbers in line order, including duplicates." })),
-}).annotate($I.annote("ClosingList", { description: "The issues named by a whole closing-list line." }));
+	issueNumbers: S.NonEmptyArray(S.Natural).pipe($I.annoteKey("ClosingList.issueNumbers", { description: "The safe integer issue numbers in line order, including duplicates." })),
+}).pipe($I.annoteSchema("ClosingList", { description: "The issues named by a whole closing-list line." }));
 
 /**
  * The decoded representation accepted by {@link ClosingList}.
@@ -164,7 +161,6 @@ const ClosingFlagMatchesKeyword = S.makeFilter(
 	(list: { readonly keyword: ListKeyword; readonly closing: boolean }) =>
 		list.closing === S.is(ClosingKeyword)(list.keyword),
 	$I.annote("ClosingFlagMatchesKeyword", {
-		title: "Closing flag matches keyword",
 		description: "The closing flag equals membership in the closing keyword domain.",
 		message: "Expected closing to match the keyword's closing classification.",
 	}),
@@ -188,12 +184,12 @@ const ClosingFlagMatchesKeyword = S.makeFilter(
  */
 export const ReferenceList = S.Struct({
 	/** The matched keyword, lowercased to its canonical form. */
-	keyword: ListKeyword.annotate($I.annote("ReferenceList.keyword", { description: "The matched list keyword in canonical lowercase form." })),
+	keyword: ListKeyword.pipe($I.annoteKey("ReferenceList.keyword", { description: "The matched list keyword in canonical lowercase form." })),
 	/** Whether the keyword is one of the nine closing keywords. */
-	closing: S.Boolean.annotate($I.annote("ReferenceList.closing", { description: "Whether the keyword is a closing keyword." })),
+	closing: S.Boolean.pipe($I.annoteKey("ReferenceList.closing", { description: "Whether the keyword is a closing keyword." })),
 	/** The referenced issue numbers, duplicates preserved, in line order. */
-	issueNumbers: S.NonEmptyArray(S.Natural).annotate($I.annote("ReferenceList.issueNumbers", { description: "The safe integer issue numbers in line order, including duplicates." })),
-}).check(ClosingFlagMatchesKeyword).annotate($I.annote("ReferenceList", { description: "The issues named by a whole reference-list line with its closing flag." }));
+	issueNumbers: S.NonEmptyArray(S.Natural).pipe($I.annoteKey("ReferenceList.issueNumbers", { description: "The safe integer issue numbers in line order, including duplicates." })),
+}).check(ClosingFlagMatchesKeyword).pipe($I.annoteSchema("ReferenceList", { description: "The issues named by a whole reference-list line with its closing flag." }));
 
 /**
  * The decoded representation accepted by {@link ReferenceList}.
@@ -215,20 +211,23 @@ const isDigit = (code: number): boolean => code >= 0x30 && code <= 0x39;
 const isAsciiLetter = (code: number): boolean => (code >= 0x41 && code <= 0x5a) || (code >= 0x61 && code <= 0x7a);
 
 /** The index after the run of `[ \t]` starting at `from` (possibly `from` itself). */
-const skipSpaceTab = (line: string, from: number): number => {
+const skipSpaceTab: {
+	(line: string, from: number): number;
+	(from: number): (line: string) => number;
+} = dual(2, (line: string, from: number): number => {
 	let index = from;
 	while (index < line.length && isSpaceTab(line.charCodeAt(index))) index += 1;
 	return index;
-};
+});
 
 const ItemScan = S.TaggedUnion({
 	item: {
-		value: S.Natural.annotate($I.annote("ItemScan.item.value", { description: "The safely parsed issue number." })),
-		next: S.Natural.annotate($I.annote("ItemScan.item.next", { description: "The offset after the item." })),
+		value: S.Natural.pipe($I.annoteKey("ItemScan.item.value", { description: "The safely parsed issue number." })),
+		next: S.Natural.pipe($I.annoteKey("ItemScan.item.next", { description: "The offset after the item." })),
 	},
-	unsafe: { next: S.Natural.annotate($I.annote("ItemScan.unsafe.next", { description: "The offset after the unsafe digit run." })) },
+	unsafe: { next: S.Natural.pipe($I.annoteKey("ItemScan.unsafe.next", { description: "The offset after the unsafe digit run." })) },
 	miss: {},
-}).annotate($I.annote("ItemScan", { description: "An item, unsafe digit run or absent item in the internal scanner." }));
+}).pipe($I.annoteSchema("ItemScan", { description: "An item, unsafe digit run or absent item in the internal scanner." }));
 type ItemScan = typeof ItemScan.Type;
 const ITEM_MISS: ItemScan = { _tag: "miss" };
 
@@ -237,7 +236,10 @@ const ITEM_MISS: ItemScan = { _tag: "miss" };
  * An unsafe digit run retains its ending offset so the caller can abandon
  * the entire candidate. A shared miss avoids allocating on non-items.
  */
-const readItem = (line: string, from: number): ItemScan => {
+const readItem: {
+	(line: string, from: number): ItemScan;
+	(from: number): (line: string) => ItemScan;
+} = dual(2, (line: string, from: number): ItemScan => {
 	if (line.charCodeAt(from) !== HASH) return ITEM_MISS;
 	const start = from + 1;
 	let index = start;
@@ -248,7 +250,7 @@ const readItem = (line: string, from: number): ItemScan => {
 	}
 	if (index === start) return ITEM_MISS;
 	return Number.isSafeInteger(value) ? { _tag: "item", value, next: index } : { _tag: "unsafe", next: index };
-};
+});
 
 /**
  * One separator at exactly `from`: a comma with optional surrounding `[ \t]`
@@ -258,7 +260,10 @@ const readItem = (line: string, from: number): ItemScan => {
  * not. Returns the index where the next item must start, or `from` when
  * the scan consumed no separator.
  */
-const scanSeparator = (line: string, from: number): number => {
+const scanSeparator: {
+	(line: string, from: number): number;
+	(from: number): (line: string) => number;
+} = dual(2, (line: string, from: number): number => {
 	const afterLeading = skipSpaceTab(line, from);
 	if (line.charCodeAt(afterLeading) === COMMA) {
 		const afterComma = skipSpaceTab(line, afterLeading + 1);
@@ -273,7 +278,7 @@ const scanSeparator = (line: string, from: number): number => {
 		if (afterAnd > afterLeading + 3) return afterAnd;
 	}
 	return from;
-};
+});
 
 /**
  * The scan walk: item, then separator, then item, until the cursor stands
@@ -281,7 +286,10 @@ const scanSeparator = (line: string, from: number): number => {
  * unknown separator, trailing content, an unsafe issue number — is
  * `None`, and the caller rejects the whole line.
  */
-const parseItems = (line: string, from: number): O.Option<A.NonEmptyReadonlyArray<number>> => {
+const parseItems: {
+	(line: string, from: number): O.Option<A.NonEmptyReadonlyArray<number>>;
+	(from: number): (line: string) => O.Option<A.NonEmptyReadonlyArray<number>>;
+} = dual(2, (line: string, from: number): O.Option<A.NonEmptyReadonlyArray<number>> => {
 	const first = readItem(line, from);
 	if (first._tag !== "item") return O.none();
 	const issueNumbers: A.NonEmptyArray<number> = [first.value];
@@ -295,7 +303,7 @@ const parseItems = (line: string, from: number): O.Option<A.NonEmptyReadonlyArra
 		cursor = item.next;
 	}
 	return O.some(issueNumbers);
-};
+});
 
 /**
  * The issue list a whole line carries under either keyword set, or
@@ -540,17 +548,16 @@ const isAnyWhitespace = (code: number): boolean =>
 export const HarvestedReferenceList = S.Struct({
 	...ReferenceList.fields,
 	/** Offset of the first character of the matched keyword. */
-	start: S.Natural.annotate($I.annote("HarvestedReferenceList.start", { description: "The offset of the first character of the matched keyword." })),
+	start: S.Natural.pipe($I.annoteKey("HarvestedReferenceList.start", { description: "The offset of the first character of the matched keyword." })),
 	/** Offset one past the last digit of the last item. */
-	end: S.Natural.annotate($I.annote("HarvestedReferenceList.end", { description: "The offset one past the last digit of the last item." })),
+	end: S.Natural.pipe($I.annoteKey("HarvestedReferenceList.end", { description: "The offset one past the last digit of the last item." })),
 }).check(
 	ClosingFlagMatchesKeyword,
 	S.makeFilter((list) => list.end > list.start, $I.annote("HarvestedReferenceList.OrderedSpan", {
-		title: "Ordered harvested list span",
 		description: "The exclusive end offset exceeds the start offset of the harvested match.",
 		message: "Expected end to be greater than start.",
 	})),
-).annotate($I.annote("HarvestedReferenceList", { description: "A reference list harvested from prose with its match offsets." }));
+).pipe($I.annoteSchema("HarvestedReferenceList", { description: "A reference list harvested from prose with its match offsets." }));
 
 /**
  * The decoded representation accepted by {@link HarvestedReferenceList}.

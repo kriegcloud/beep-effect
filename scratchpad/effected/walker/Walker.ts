@@ -2,8 +2,10 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/walker/Walker");
@@ -12,7 +14,7 @@ const $I = $ScratchpadId.create("effected/walker/Walker");
 class WalkerDefect extends S.TaggedError<WalkerDefect, { readonly brand: unique symbol }>($I`WalkerDefect`)(
 	"WalkerDefect",
 	{ message: S.String },
-	$I.annote("WalkerDefect", { description: "Invalid upward traversal wiring." }),
+	$I.annoteError<WalkerDefect>("WalkerDefect", { description: "Invalid upward traversal wiring." }),
 ) {}
 
 /**
@@ -38,12 +40,11 @@ class WalkerDefect extends S.TaggedError<WalkerDefect, { readonly brand: unique 
  */
 export const DepthCap = S.Finite.check(
 	S.isGreaterThanOrEqualTo(1),
-	S.makeFilter(Number.isInteger, {
-		identifier: $I`DepthCapInteger`,
-		title: "Integer traversal depth",
+	S.makeFilter(Number.isInteger, $I.annote("DepthCapInteger", {
 		description: "A traversal depth must be an integer, including integers above the safe-integer range.",
-	}),
-).annotate($I.annote("DepthCap", { description: "A positive finite integer traversal cap." }));
+		message: "Integer traversal depth",
+	})),
+).pipe($I.annoteSchema("DepthCap", { description: "A positive finite integer traversal cap." }));
 /**
  * Positive finite integer accepted as a traversal depth cap.
  *
@@ -119,10 +120,10 @@ export const AscendOptions = S.Struct({
 * symlink, and the ascent runs to the filesystem root. Use
 * {@link Walker.ascendWithin} for a physical ceiling.
 */
-	stopAt: S.optionalKey(S.String).annotateKey({ description: "Absolute inclusive ceiling, normalized before comparison." }),
+	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("AscendOptions.stopAt", { description: "Absolute inclusive ceiling, normalized before comparison." })),
 /** Hard cap on chain length. Defaults to 256. */
-	maxDepth: S.optionalKey(DepthCap).annotateKey({ description: "Hard cap on chain length; invalid supplied depths remain defects." }),
-}).annotate($I.annote("AscendOptions", { description: "An optional lexical ceiling and cap for upward traversal." }));
+	maxDepth: S.optionalKey(DepthCap).pipe($I.annoteKey("AscendOptions.maxDepth", { description: "Hard cap on chain length; invalid supplied depths remain defects." })),
+}).pipe($I.annoteSchema("AscendOptions", { description: "An optional lexical ceiling and cap for upward traversal." }));
 /**
 * Decoded options controlling the lexical ceiling and chain-length cap of upward traversal.
 *
@@ -132,8 +133,10 @@ export const AscendOptions = S.Struct({
 export type AscendOptions = typeof AscendOptions.Type;
 
 // Implementation of Walker.ascend; the public contract lives on the static.
-const ascend: (start: string, options?: AscendOptions) => Effect.Effect<ReadonlyArray<string>, never, Path.Path> =
-	Effect.fn("ascend")(function* (start: string, options?: AscendOptions) {
+const ascend: {
+	(start: string, options?: AscendOptions): Effect.Effect<ReadonlyArray<string>, never, Path.Path>;
+	(options?: AscendOptions): (start: string) => Effect.Effect<ReadonlyArray<string>, never, Path.Path>;
+} = dual((args) => P.isString(args[0]), Effect.fn("ascend")(function* (start: string, options?: AscendOptions) {
 		const path = yield* Path.Path;
 		const maxDepth = options?.maxDepth ?? 256;
 		if (!S.is(DepthCap)(maxDepth)) {
@@ -170,15 +173,20 @@ const ascend: (start: string, options?: AscendOptions) => Effect.Effect<Readonly
 			current = parent;
 		}
 		return dirs;
-	});
+	}));
 
 // Implementation of Walker.ascendWithin; the public contract lives on the static.
-const ascendWithin: (
-	start: string,
-	ceiling: O.Option<string>,
-	options?: Pick<AscendOptions, "maxDepth">,
-) => Effect.Effect<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> =
-	Effect.fn("ascendWithin")(function* (
+const ascendWithin: {
+	(
+		start: string,
+		ceiling: O.Option<string>,
+		options?: Pick<AscendOptions, "maxDepth">,
+	): Effect.Effect<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path>;
+	(
+		ceiling: O.Option<string>,
+		options?: Pick<AscendOptions, "maxDepth">,
+	): (start: string) => Effect.Effect<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path>;
+} = dual((args) => P.isString(args[0]), Effect.fn("ascendWithin")(function* (
 			start: string,
 			ceiling: O.Option<string>,
 			options?: Pick<AscendOptions, "maxDepth">,
@@ -187,15 +195,20 @@ const ascendWithin: (
 		// unbounded walk, so a stray `undefined` cannot become one by accident.
 		if (O.isNone(ceiling)) return yield* ascend(start, options);
 		return yield* ascendToPhysical(start, ceiling.value, options);
-	});
+	}));
 
 // ascendWithin with a ceiling present: the lexical chain, stopped physically.
-const ascendToPhysical: (
-	start: string,
-	ceiling: string,
-	options?: Pick<AscendOptions, "maxDepth">,
-) => Effect.Effect<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> =
-	Effect.fn("ascendToPhysical")(function* (
+const ascendToPhysical: {
+	(
+		start: string,
+		ceiling: string,
+		options?: Pick<AscendOptions, "maxDepth">,
+	): Effect.Effect<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path>;
+	(
+		ceiling: string,
+		options?: Pick<AscendOptions, "maxDepth">,
+	): (start: string) => Effect.Effect<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path>;
+} = dual((args) => P.isString(args[1]), Effect.fn("ascendToPhysical")(function* (
 			start: string,
 			ceiling: string,
 			options?: Pick<AscendOptions, "maxDepth">,
@@ -224,39 +237,59 @@ const ascendToPhysical: (
 			O.map((index) => A.take(dirs, index + 1)),
 			O.getOrElse(() => dirs),
 		);
-	});
+	}));
 
 // Implementation of Walker.firstMatch; the public contract lives on the static.
-const firstMatch = Effect.fn("firstMatch")(function* <E, R>(
+const firstMatch: {
+	<E, R>(
+		candidates: ReadonlyArray<string>,
+		predicate: (candidate: string) => Effect.Effect<boolean, E, R>,
+	): Effect.Effect<O.Option<string>, never, R>;
+	<E, R>(
+		predicate: (candidate: string) => Effect.Effect<boolean, E, R>,
+	): (candidates: ReadonlyArray<string>) => Effect.Effect<O.Option<string>, never, R>;
+} = dual(2, Effect.fn("firstMatch")(function* <E, R>(
 	candidates: ReadonlyArray<string>,
 	predicate: (candidate: string) => Effect.Effect<boolean, E, R>,
-) {
+): Effect.fn.Return<O.Option<string>, never, R> {
 	for (const candidate of candidates) {
 		const matched = yield* Effect.orElseSucceed(predicate(candidate), () => false);
 		if (matched) return O.some(candidate);
 	}
 	return O.none();
-});
+}));
 
 // Implementation of Walker.findUpward; the public contract lives on the static.
-const findUpward: (
-	dirs: ReadonlyArray<string>,
-	candidatesFor: (dir: string) => ReadonlyArray<string>,
-) => Effect.Effect<O.Option<string>, never, FileSystem.FileSystem> =
-	Effect.fn("findUpward")(function* (
+const findUpward: {
+	(
+		dirs: ReadonlyArray<string>,
+		candidatesFor: (dir: string) => ReadonlyArray<string>,
+	): Effect.Effect<O.Option<string>, never, FileSystem.FileSystem>;
+	(
+		candidatesFor: (dir: string) => ReadonlyArray<string>,
+	): (dirs: ReadonlyArray<string>) => Effect.Effect<O.Option<string>, never, FileSystem.FileSystem>;
+} = dual(2, Effect.fn("findUpward")(function* (
 			dirs: ReadonlyArray<string>,
 			candidatesFor: (dir: string) => ReadonlyArray<string>,
 		) {
 		const fs = yield* FileSystem.FileSystem;
 		const candidates = A.flatMap(dirs, (dir) => candidatesFor(dir));
 		return yield* firstMatch(candidates, (candidate) => fs.exists(candidate));
-	});
+	}));
 
 // Implementation of Walker.findRoot; the public contract lives on the static.
-const findRoot = <E, R>(
+const findRoot: {
+	<E, R>(
+		dirs: ReadonlyArray<string>,
+		isRoot: (dir: string) => Effect.Effect<boolean, E, R>,
+	): Effect.Effect<O.Option<string>, never, R>;
+	<E, R>(
+		isRoot: (dir: string) => Effect.Effect<boolean, E, R>,
+	): (dirs: ReadonlyArray<string>) => Effect.Effect<O.Option<string>, never, R>;
+} = dual(2, <E, R>(
 	dirs: ReadonlyArray<string>,
 	isRoot: (dir: string) => Effect.Effect<boolean, E, R>,
-): Effect.Effect<O.Option<string>, never, R> => firstMatch(dirs, isRoot);
+): Effect.Effect<O.Option<string>, never, R> => firstMatch(dirs, isRoot));
 
 /**
 * Upward path traversal primitives: the directory chain from a start path to the

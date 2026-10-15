@@ -12,6 +12,8 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 
 /**
  * Resolves a tag shorthand using the document's `%TAG` directives.
@@ -79,7 +81,10 @@ export function resolveTagHandle(...[tag, state, span]: [tag: string, state: Com
 // Composition always supplies its pending tag's CST span. Standalone callers
 // retain their original next-occurrence behavior through a cached CST inventory,
 // avoiding repeated lexical scans and leaving unrelated diagnostics untouched.
-function standaloneTagSpan(tag: string, state: ComposerState): NodeMeta["tagSpan"] {
+const standaloneTagSpan: {
+	(tag: string, state: ComposerState): NodeMeta["tagSpan"];
+	(state: ComposerState): (tag: string) => NodeMeta["tagSpan"];
+} = dual(2, (tag: string, state: ComposerState): NodeMeta["tagSpan"] => {
 	if (state.tagCstCache === undefined) {
 		const tags: CstNode[] = [];
 		const stack = A.reverse(parseCSTAll(state.text));
@@ -93,13 +98,15 @@ function standaloneTagSpan(tag: string, state: ComposerState): NodeMeta["tagSpan
 		state.tagCstCache = tags;
 	}
 	return O.getOrUndefined(A.findFirst(state.tagCstCache, (node) => node.source === tag &&
-		!state.errors.some((error) => error.code === "UnresolvedTag" && error.offset === node.offset)));
-}
+		!A.some(state.errors, (error) => error.code === "UnresolvedTag" && error.offset === node.offset)));
+});
 
-function decodeTagSuffix(suffix: string, tag: string, state: ComposerState, span?: NodeMeta["tagSpan"]): string {
-	return Result.getOrElse(Result.try(() => decodeURIComponent(suffix)), () => {
+const decodeTagSuffix: {
+	(tag: string, state: ComposerState, span?: NodeMeta["tagSpan"]): (suffix: string) => string;
+	(suffix: string, tag: string, state: ComposerState, span?: NodeMeta["tagSpan"]): string;
+} = dual((args) => P.isString(args[1]), (suffix: string, tag: string, state: ComposerState, span?: NodeMeta["tagSpan"]): string => Result.getOrElse(Result.try(() => decodeURIComponent(suffix)), () => {
 		const provenance = span ?? standaloneTagSpan(tag, state);
-		if (provenance !== undefined && !state.errors.some((e) =>
+		if (provenance !== undefined && !A.some(state.errors, (e) =>
 			e.code === "UnresolvedTag" && e.offset === provenance.offset && e.length === provenance.length &&
 			e.message === `Malformed percent encoding in tag ${tag}`)) {
 			state.errors.push({
@@ -110,8 +117,7 @@ function decodeTagSuffix(suffix: string, tag: string, state: ComposerState, span
 			});
 		}
 		return suffix;
-	});
-}
+	}));
 
 /**
  * Extracts a directive name and parameters from source text beginning with `%`.

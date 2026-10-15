@@ -7,6 +7,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -184,7 +185,10 @@ export abstract class JsoncModifier {
    * @param options - Formatting controls for generated content.
    * @returns The edits to apply with `JsoncEdit.applyAll`.
    */
-  static readonly modify = Effect.fn("JsoncModifier.modify")(function* (
+  static readonly modify: {
+    (text: string, path: JsoncPath, value: unknown, options?: JsoncModifyOptions): Modify;
+    (path: JsoncPath, value: unknown, options?: JsoncModifyOptions): (text: string) => Modify;
+  } = dual((args) => P.isString(args[0]), Effect.fn("JsoncModifier.modify")(function* (
     text: string,
     path: JsoncPath,
     value: unknown,
@@ -271,5 +275,5 @@ export abstract class JsoncModifier {
               );
             }),
     });
-  });
+  }));
 }

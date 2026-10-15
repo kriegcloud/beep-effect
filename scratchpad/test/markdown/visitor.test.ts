@@ -19,12 +19,12 @@ import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
-import { Markdown } from "../../effected/markdown/Markdown.ts";
+import { Markdown, type MarkdownParseOptions } from "../../effected/markdown/Markdown.ts";
 import { Blockquote, Paragraph, Point, Position, Root, Text } from "../../effected/markdown/MarkdownNode.ts";
 import { MarkdownVisitor, MarkdownVisitorEvent } from "../../effected/markdown/MarkdownVisitor.ts";
 import { Mdast } from "../../effected/markdown/Mdast.ts";
 
-const parse = (text: string, options?: Parameters<typeof Markdown.parseResult>[1]) => {
+const parse = (text: string, options?: MarkdownParseOptions) => {
 	const result = Markdown.parseResult(text, options);
 	assertSuccess(Result.map(result, () => undefined), undefined);
 	return Result.getOrThrow(result);

@@ -18,9 +18,7 @@ const $I = $ScratchpadId.create("effected/env/ColorLevel");
  * @category schemas
  * @since 0.0.0
  */
-export const ColorLevel = LiteralKit(["none", "basic", "256", "truecolor"]).annotate(
-	$I.annote("ColorLevel", { description: "The colour support of one output stream: none, 16 colours, 256 colours or truecolor." }),
-);
+export const ColorLevel = LiteralKit(["none", "basic", "256", "truecolor"]).pipe($I.annoteSchema("ColorLevel", { description: "The colour support of one output stream: none, 16 colours, 256 colours or truecolor." }));
 
 /**
  * Represents the colour capability of a stream: none, 16 colours, 256 colours, or truecolor.

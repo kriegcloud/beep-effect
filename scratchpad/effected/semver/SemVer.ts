@@ -45,10 +45,10 @@ const $I = $ScratchpadId.create("effected/semver/SemVer");
  */
 export class InvalidVersionError extends S.TaggedError<InvalidVersionError, { readonly brand: unique symbol }>($I`InvalidVersionError`)("InvalidVersionError", {
 	/** The raw input string that failed to parse. */
-	input: S.String.annotateKey({ description: "The raw input string that failed to parse." }),
+	input: S.String.pipe($I.annoteKey("InvalidVersionError.input", { description: "The raw input string that failed to parse." })),
 	/** The character position where parsing failed, if available. */
-	position: S.optionalKey(S.Finite).annotateKey({ description: "The character position where parsing failed, if available." }),
-}, $I.annote("InvalidVersionError", { description: "Indicates that a string could not be parsed as a valid SemVer 2.0.0 version." })) {
+	position: S.optionalKey(S.Finite).pipe($I.annoteKey("InvalidVersionError.position", { description: "The character position where parsing failed, if available." })),
+}, $I.annoteError<InvalidVersionError>("InvalidVersionError", { description: "Indicates that a string could not be parsed as a valid SemVer 2.0.0 version." })) {
 	/**
 	 * Describes the rejected version string and includes its failure position when available.
 	 *
@@ -79,7 +79,7 @@ const nonNegativeInteger = S.Finite.check(
 			$I.annote("NonNegativeIntegerRangeCheck", { description: "A version number between zero and the maximum safe integer, inclusive." }),
 		),
 	]),
-).annotate($I.annote("nonNegativeInteger", { description: "A finite, non-negative safe integer used for version components and numeric prerelease identifiers." }));
+).pipe($I.annoteSchema("nonNegativeInteger", { description: "A finite, non-negative safe integer used for version components and numeric prerelease identifiers." }));
 
 // String prerelease identifiers must contain at least one non-digit:
 // all-numeric identifiers are numbers (the grammar parses them as such), so
@@ -91,7 +91,7 @@ const prereleaseIdentifier = S.Union([
 		$I.annote("PrereleaseIdentifierPatternCheck", { description: "An ASCII alphanumeric or hyphen prerelease identifier containing at least one non-digit." }),
 	)),
 	nonNegativeInteger,
-]).annotate($I.annote("prereleaseIdentifier", { description: "A canonical prerelease identifier: a non-negative safe integer or an ASCII alphanumeric or hyphen string containing a non-digit." }));
+]).pipe($I.annoteSchema("prereleaseIdentifier", { description: "A canonical prerelease identifier: a non-negative safe integer or an ASCII alphanumeric or hyphen string containing a non-digit." }));
 
 // Build identifiers allow leading zeros and all-digit tokens (SemVer §10).
 const buildIdentifier = S.String.check(
@@ -101,7 +101,7 @@ const buildIdentifier = S.String.check(
 			$I.annote("BuildIdentifierPatternCheck", { description: "A non-empty ASCII alphanumeric or hyphen build metadata identifier." }),
 		),
 	]),
-).annotate($I.annote("buildIdentifier", { description: "A build metadata identifier that allows leading zeros and all-digit strings." }));
+).pipe($I.annoteSchema("buildIdentifier", { description: "A build metadata identifier that allows leading zeros and all-digit strings." }));
 
 /**
  * A parsed SemVer 2.0.0 version: an Effect `Schema.Class` whose fields are
@@ -136,15 +136,15 @@ const buildIdentifier = S.String.check(
  */
 export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($I`SemVer`)({
 	/** The major version component; incompatible API changes. */
-	major: nonNegativeInteger.annotateKey({ description: "The major version component; incompatible API changes." }),
+	major: nonNegativeInteger.pipe($I.annoteKey("SemVer.major", { description: "The major version component; incompatible API changes." })),
 	/** The minor version component; backward-compatible functionality. */
-	minor: nonNegativeInteger.annotateKey({ description: "The minor version component; backward-compatible functionality." }),
+	minor: nonNegativeInteger.pipe($I.annoteKey("SemVer.minor", { description: "The minor version component; backward-compatible functionality." })),
 	/** The patch version component; backward-compatible fixes. */
-	patch: nonNegativeInteger.annotateKey({ description: "The patch version component; backward-compatible fixes." }),
+	patch: nonNegativeInteger.pipe($I.annoteKey("SemVer.patch", { description: "The patch version component; backward-compatible fixes." })),
 	/** Prerelease identifiers, most-significant first; `[]` for a stable version. */
-	prerelease: S.Array(prereleaseIdentifier).annotateKey({ description: "Prerelease identifiers, most-significant first; `[]` for a stable version." }),
+	prerelease: S.Array(prereleaseIdentifier).pipe($I.annoteKey("SemVer.prerelease", { description: "Prerelease identifiers, most-significant first; `[]` for a stable version." })),
 	/** Build metadata identifiers; ignored by precedence comparisons (§10). */
-	build: S.Array(buildIdentifier).annotateKey({ description: "Build metadata identifiers; ignored by precedence comparisons (§10)." }),
+	build: S.Array(buildIdentifier).pipe($I.annoteKey("SemVer.build", { description: "Build metadata identifiers; ignored by precedence comparisons (§10)." })),
 }, $I.annote("SemVer", { description: "A parsed SemVer 2.0.0 version: an Effect `Schema.Class` whose fields are validated in-schema (non-negative integer components, well-formed identifiers), so `SemVer.make` only produces valid versions." })) {
 	// ── Schema ──────────────────────────────────────────────────────────
 
@@ -435,15 +435,16 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static of(
+	static readonly of: {
+		(major: number, minor: number, patch: number, prerelease?: ReadonlyArray<string | number>, build?: ReadonlyArray<string>): SemVer;
+		(minor: number, patch: number, prerelease?: ReadonlyArray<string | number>, build?: ReadonlyArray<string>): (major: number) => SemVer;
+	} = Fn.dual((args) => P.isNumber(args[2]), (
 		major: number,
 		minor: number,
 		patch: number,
 		prerelease: ReadonlyArray<string | number> = [],
 		build: ReadonlyArray<string> = [],
-	): SemVer {
-		return SemVer.make({ major, minor, patch, prerelease, build });
-	}
+	): SemVer => SemVer.make({ major, minor, patch, prerelease, build }));
 
 	// ── Ordering ────────────────────────────────────────────────────────
 
@@ -767,19 +768,21 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static groupBy(
+	static readonly groupBy: {
+		(versions: ReadonlyArray<SemVer>, strategy: "major" | "minor" | "patch"): Record<string, ReadonlyArray<SemVer>>;
+		(strategy: "major" | "minor" | "patch"): (versions: ReadonlyArray<SemVer>) => Record<string, ReadonlyArray<SemVer>>;
+	} = Fn.dual(2, (
 		versions: ReadonlyArray<SemVer>,
 		strategy: "major" | "minor" | "patch",
-	): Record<string, ReadonlyArray<SemVer>> {
-		return A.groupBy(SemVer.sort(versions), (version) =>
+	): Record<string, ReadonlyArray<SemVer>> =>
+		A.groupBy(SemVer.sort(versions), (version) =>
 			Match.value(strategy).pipe(
 				Match.when("major", () => `${version.major}`),
 				Match.when("minor", () => `${version.major}.${version.minor}`),
 				Match.when("patch", () => `${version.major}.${version.minor}.${version.patch}`),
 				Match.exhaustive,
 			),
-		);
-	}
+		));
 
 	/**
 	 * The highest version for each distinct major version, ascending.
@@ -1060,7 +1063,7 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
 			this.minor === that.minor &&
 			this.patch === that.patch &&
 			this.prerelease.length === that.prerelease.length &&
-			this.prerelease.every((v, i) => v === that.prerelease[i])
+			A.every(this.prerelease, (v, i) => v === that.prerelease[i])
 		);
 	}
 
@@ -1156,9 +1159,7 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
  * @category schemas
  * @since 0.0.0
  */
-export const SemVerBumpComponent = LiteralKit(["major", "minor", "patch", "prerelease"]).annotate(
-	$I.annote("SemVerBumpComponent", { description: "The component whose bump exceeded the safe-integer cap." }),
-);
+export const SemVerBumpComponent = LiteralKit(["major", "minor", "patch", "prerelease"]).pipe($I.annoteSchema("SemVerBumpComponent", { description: "The component whose bump exceeded the safe-integer cap." }));
 /**
  * Identifies the version component whose bump exceeded the safe-integer cap.
  *
@@ -1187,10 +1188,10 @@ export type SemVerBumpComponent = typeof SemVerBumpComponent.Type;
 export class SemVerBumpOverflowError extends S.TaggedError<SemVerBumpOverflowError, { readonly brand: unique symbol }>($I`SemVerBumpOverflowError`)(
 	"SemVerBumpOverflowError",
 	{
-		component: SemVerBumpComponent.annotateKey({ description: "The component that overflowed." }),
-		cause: S.Defect({ includeStack: true }).annotateKey({ description: "The underlying schema validation failure." }),
+		component: SemVerBumpComponent.pipe($I.annoteKey("SemVerBumpOverflowError.component", { description: "The component that overflowed." })),
+		cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("SemVerBumpOverflowError.cause", { description: "The underlying schema validation failure." })),
 	},
-	$I.annote("SemVerBumpOverflowError", { description: "A SemVer bump exceeded the safe-integer cap." }),
+	$I.annoteError<SemVerBumpOverflowError>("SemVerBumpOverflowError", { description: "A SemVer bump exceeded the safe-integer cap." }),
 ) {
 	/**
 	 * Explains which component would exceed the safe-integer cap during a bump.
@@ -1212,12 +1213,15 @@ export class SemVerBumpOverflowError extends S.TaggedError<SemVerBumpOverflowErr
 	}
 }
 
-function overflow(component: SemVerBumpComponent, cause: unknown): never {
+const overflow: {
+	(cause: unknown, component: SemVerBumpComponent): never;
+	(component: SemVerBumpComponent): (cause: unknown) => never;
+} = Fn.dual(2, (cause: unknown, component: SemVerBumpComponent): never => {
 	throw SemVerBumpOverflowError.make({
 		component,
 		cause,
 	});
-}
+});
 
 /**
  * Grouped bump operations returned by the {@link SemVer.bump} accessor
@@ -1272,7 +1276,7 @@ export class SemVerBump {
 	major(): SemVer {
 		return Result.getOrElse(
 			Result.try(() => SemVer.make({ major: this.v.major + 1, minor: 0, patch: 0, prerelease: [], build: [] })),
-			(cause) => overflow("major", cause),
+			overflow("major"),
 		);
 	}
 
@@ -1293,7 +1297,7 @@ export class SemVerBump {
 	minor(): SemVer {
 		return Result.getOrElse(
 			Result.try(() => SemVer.make({ major: this.v.major, minor: this.v.minor + 1, patch: 0, prerelease: [], build: [] })),
-			(cause) => overflow("minor", cause),
+			overflow("minor"),
 		);
 	}
 
@@ -1320,7 +1324,7 @@ export class SemVerBump {
 				prerelease: [],
 				build: [],
 			})),
-			(cause) => overflow("patch", cause),
+			overflow("patch"),
 		);
 	}
 
@@ -1360,7 +1364,7 @@ export class SemVerBump {
 					prerelease: id !== undefined ? [id, 0] : [0],
 					build: [],
 				})),
-				(cause) => overflow("patch", cause),
+				overflow("patch"),
 			);
 		}
 
@@ -1377,7 +1381,7 @@ export class SemVerBump {
 			next[next.length - 1] = last + 1;
 			return Result.getOrElse(
 				Result.try(() => SemVer.make({ major, minor, patch, prerelease: next, build: [] })),
-				(cause) => overflow("prerelease", cause),
+				overflow("prerelease"),
 			);
 		}
 

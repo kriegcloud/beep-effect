@@ -1,6 +1,8 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome, assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
@@ -29,7 +31,7 @@ describe("GitHubRelease coverage", () => {
       ["listAssets", () => service.listAssets(1)],
     ] as const;
     for (const [name, call] of calls) assert.throws(call, `GitHubRelease.makeTest: ${name}() was called but not stubbed`);
-    const stub = GitHubRelease.makeTest({ create: () => Effect.succeed(release), getByTag: () => Effect.succeed(release), getByTagOption: () => Effect.succeedSome(release), list: () => Effect.succeed([release]), update: () => Effect.succeed(release), uploadAsset: () => Effect.succeed(asset), listAssets: () => Effect.succeed([asset]) });
+    const stub = GitHubRelease.makeTest({ create: () => Effect.succeed(release), getByTag: () => Effect.succeed(release), getByTagOption: () => Effect.succeedSome(release), list: () => Effect.succeed([release]), update: dual(2, (_id: number, _patch: object) => Effect.succeed(release)), uploadAsset: dual(2, (_release: ReleaseInfo, _asset: object) => Effect.succeed(asset)), listAssets: dual((args) => P.isNumber(args[0]), (_id: number, _options?: object) => Effect.succeed([asset])) });
     assert.deepStrictEqual(yield* stub.create({ tag: "v1" }), release);
     assert.deepStrictEqual(yield* stub.getByTag("v1"), release);
     assertSome(yield* stub.getByTagOption("v1"), release);

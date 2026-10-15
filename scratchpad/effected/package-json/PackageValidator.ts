@@ -7,6 +7,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -36,9 +37,9 @@ const $I = $ScratchpadId.create("effected/package-json/PackageValidator");
  * @since 0.0.0
  */
 export const RuleFailure = S.Struct({
-	message: S.String.annotateKey({ description: "A human-readable description of the failure." }),
-	path: S.Option(S.String).annotateKey({ description: "The JSON path where the failure occurred, or None when not applicable." }),
-}).annotate($I.annote("RuleFailure", { description: "A validation-rule failure with its message and optional JSON path." }));
+	message: S.String.pipe($I.annoteKey("RuleFailure.message", { description: "A human-readable description of the failure." })),
+	path: S.Option(S.String).pipe($I.annoteKey("RuleFailure.path", { description: "The JSON path where the failure occurred, or None when not applicable." })),
+}).pipe($I.annoteSchema("RuleFailure", { description: "A validation-rule failure with its message and optional JSON path." }));
 
 /**
  * A plain-object validation failure described by {@link RuleFailure}.
@@ -111,8 +112,8 @@ export class PackageValidationError extends S.TaggedError<PackageValidationError
 			message: S.String,
 			path: S.Option(S.String),
 		}),
-	).annotateKey({ description: "The aggregated rule failures." }),
-}, $I.annote("PackageValidationError", { description: "Indicates that a Package failed one or more validation rules." })) {
+	).pipe($I.annoteKey("PackageValidationError.failures", { description: "The aggregated rule failures." })),
+}, $I.annoteError<PackageValidationError>("PackageValidationError", { description: "Indicates that a Package failed one or more validation rules." })) {
 	/**
 	 * Renders every rule failure with its identifier and optional JSON path.
 	 *
@@ -174,10 +175,13 @@ const notPrivate: ValidationRule = {
 		pkg.isPrivate ? Effect.fail({ message: "Package is private", path: O.some("private") }) : Effect.void,
 };
 
-const anyDependencyMatches = (pkg: Package, predicate: (specifier: string) => boolean): boolean =>
+const anyDependencyMatches: {
+	(pkg: Package, predicate: (specifier: string) => boolean): boolean;
+	(predicate: (specifier: string) => boolean): (pkg: Package) => boolean;
+} = dual(2, (pkg: Package, predicate: (specifier: string) => boolean): boolean =>
 	A.some([pkg.dependencies, pkg.devDependencies, pkg.peerDependencies, pkg.optionalDependencies], (map) =>
 		HashMap.some(map, predicate),
-	);
+	));
 
 /**
  * A rule that fails when any dependency uses an unresolved `workspace:` or
@@ -265,7 +269,10 @@ export const noLocalDepsRule: ValidationRule = {
  */
 export const defaultRules: ReadonlyArray<ValidationRule> = [hasLicense, hasDescription, hasRepository, notPrivate];
 
-const runRules = Effect.fn("PackageValidator.validate")(function* (pkg: Package, rules: ReadonlyArray<ValidationRule>) {
+const runRules: {
+	(pkg: Package, rules: ReadonlyArray<ValidationRule>): Effect.Effect<void, PackageValidationError>;
+	(rules: ReadonlyArray<ValidationRule>): (pkg: Package) => Effect.Effect<void, PackageValidationError>;
+} = dual(2, Effect.fn("PackageValidator.validate")(function* (pkg: Package, rules: ReadonlyArray<ValidationRule>) {
 	const failures: Array<{ readonly rule: string; readonly message: string; readonly path: O.Option<string> }> = [];
 	for (const rule of rules) {
 		const result = yield* Effect.result(rule.validate(pkg));
@@ -276,7 +283,7 @@ const runRules = Effect.fn("PackageValidator.validate")(function* (pkg: Package,
 	if (failures.length > 0) {
 		return yield* PackageValidationError.make({ failures });
 	}
-});
+}));
 
 /**
  * Validates a {@link Package} against a set of {@link ValidationRule}s,
@@ -337,7 +344,7 @@ export class PackageValidator extends Context.Service<
 	 * @since 0.0.0
 	 */
 	static readonly layer: Layer.Layer<PackageValidator> = Layer.succeed(PackageValidator, {
-		validate: Effect.fn("PackageValidator.validate")((pkg) => runRules(pkg, defaultRules)),
+		validate: Effect.fn("PackageValidator.validate")(runRules(defaultRules)),
 	});
 
 	/**
@@ -366,7 +373,7 @@ export class PackageValidator extends Context.Service<
 	 */
 	static layerRules(config: { readonly rules: ReadonlyArray<ValidationRule> }): Layer.Layer<PackageValidator> {
 		return Layer.succeed(PackageValidator, {
-			validate: Effect.fn("PackageValidator.validate")((pkg) => runRules(pkg, config.rules)),
+			validate: Effect.fn("PackageValidator.validate")(runRules(config.rules)),
 		});
 	}
 }

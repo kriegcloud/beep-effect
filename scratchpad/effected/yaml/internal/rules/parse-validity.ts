@@ -10,6 +10,8 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import type { LintContext, YamlRule } from "../../YamlLintRule.ts";
 import { YamlLintDiagnostic } from "../../YamlLintRule.ts";
+import { dual } from "effect/Function";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/parse-validity");
 
@@ -66,13 +68,12 @@ export type parseValidityOptions = typeof parseValidityOptions.Type;
  */
 export const parseValidity: YamlRule = {
 	id: "parse-validity",
-	check: (ctx: LintContext) => [
+	check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => [
 		// Engine errors are lint errors; engine warnings stay warnings.
 		// (Duplicate keys never reach this bridge: the lint context composes
 		// with uniqueKeys disabled because duplicate-key POLICY belongs to
 		// the configurable `key-duplicates` rule.)
-		...ctx.document.errors.map(
-			(d) =>
+		...A.map(ctx.document.errors, (d) =>
 				YamlLintDiagnostic.make({
 					rule: "parse-validity",
 					severity: "error",
@@ -81,10 +82,8 @@ export const parseValidity: YamlRule = {
 					length: d.length,
 					line: d.line,
 					character: d.character,
-				}),
-		),
-		...ctx.document.warnings.map(
-			(d) =>
+				})),
+		...A.map(ctx.document.warnings, (d) =>
 				YamlLintDiagnostic.make({
 					rule: "parse-validity",
 					severity: "warning",
@@ -93,7 +92,6 @@ export const parseValidity: YamlRule = {
 					length: d.length,
 					line: d.line,
 					character: d.character,
-				}),
-		),
-	],
+				})),
+	]),
 };

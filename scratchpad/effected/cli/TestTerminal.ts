@@ -34,24 +34,16 @@ const $I = $ScratchpadId.create("effected/cli/TestTerminal");
  */
 export const KeyInput = S.Struct({
 	/** The key name the prompts switch on: `down`, `up`, `enter`, `space`, `escape`, or a character. */
-	name: S.String.annotate(
-		$I.annote("KeyInput.name", {
+	name: S.String.pipe($I.annoteKey("KeyInput.name", {
 			description: "The key name the prompts switch on, such as down, up, enter, space, escape or a single character; any string is accepted.",
-		}),
-	),
+		})),
 	/** Whether Ctrl is held. */
-	ctrl: S.optionalKey(S.Boolean).annotate(
-		$I.annote("KeyInput.ctrl", { description: "Whether Ctrl is held; omitted or undefined is queued as not held." }),
-	),
+	ctrl: S.optionalKey(S.Boolean).pipe($I.annoteKey("KeyInput.ctrl", { description: "Whether Ctrl is held; omitted or undefined is queued as not held." })),
 	/** Whether Meta is held. */
-	meta: S.optionalKey(S.Boolean).annotate(
-		$I.annote("KeyInput.meta", { description: "Whether Meta is held; omitted or undefined is queued as not held." }),
-	),
+	meta: S.optionalKey(S.Boolean).pipe($I.annoteKey("KeyInput.meta", { description: "Whether Meta is held; omitted or undefined is queued as not held." })),
 	/** Whether Shift is held. */
-	shift: S.optionalKey(S.Boolean).annotate(
-		$I.annote("KeyInput.shift", { description: "Whether Shift is held; omitted or undefined is queued as not held." }),
-	),
-}).annotate($I.annote("KeyInput", { description: "One scripted key press queued into a TestTerminal." }));
+	shift: S.optionalKey(S.Boolean).pipe($I.annoteKey("KeyInput.shift", { description: "Whether Shift is held; omitted or undefined is queued as not held." })),
+}).pipe($I.annoteSchema("KeyInput", { description: "One scripted key press queued into a TestTerminal." }));
 /**
  * One key press for {@link TestTerminal}.
  *

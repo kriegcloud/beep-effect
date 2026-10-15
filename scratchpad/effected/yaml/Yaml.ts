@@ -42,6 +42,7 @@ import * as R from "effect/Record";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Str from "effect/String";
 import { lexAll } from "./internal/lexer.ts";
+import { dual, pipe } from "effect/Function";
 
 const isAliasExpansionBudgetExceeded = S.is(AliasExpansionBudgetExceeded);
 
@@ -78,9 +79,9 @@ const $I = $ScratchpadId.create("effected/yaml/Yaml");
  * @since 0.0.0
  */
 export class YamlParseOptions extends S.Class<YamlParseOptions, { readonly brand: unique symbol }>($I`YamlParseOptions`)({
-	strict: S.optionalKey(S.Boolean).annotateKey({ description: "Parse strictness flag stored in composer options, defaulting to `true`; currently does not affect parsing behavior" }),
-	maxAliasCount: S.optionalKey(S.Finite).annotateKey({ description: "Maximum alias nodes per document, also determining the expansion budget used when extracting values; defaults to `100`" }),
-	uniqueKeys: S.optionalKey(S.Boolean).annotateKey({ description: "Whether duplicate mapping keys are reported as errors; defaults to `true`" }),
+	strict: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlParseOptions.strict", { description: "Parse strictness flag stored in composer options, defaulting to `true`; currently does not affect parsing behavior" })),
+	maxAliasCount: S.optionalKey(S.Finite).pipe($I.annoteKey("YamlParseOptions.maxAliasCount", { description: "Maximum alias nodes per document, also determining the expansion budget used when extracting values; defaults to `100`" })),
+	uniqueKeys: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlParseOptions.uniqueKeys", { description: "Whether duplicate mapping keys are reported as errors; defaults to `true`" })),
 }, $I.annote("YamlParseOptions", { description: "Options controlling parse behavior. All fields are omissible; absent fields resolve to `strict` `true`, `maxAliasCount` `100` (the alias-based denial-of-service guard) and `uniqueKeys` `true` (duplicate mapping keys are errors)." })) {}
 
 /**
@@ -141,7 +142,7 @@ export class YamlParseOptions extends S.Class<YamlParseOptions, { readonly brand
  * @since 0.0.0
  */
 export class YamlStringifyOptions extends S.Class<YamlStringifyOptions, { readonly brand: unique symbol }>($I`YamlStringifyOptions`)({
-	indent: S.optionalKey(S.Finite).annotateKey({ description: "Spaces per indentation level in emitted YAML; defaults to `2`" }),
+	indent: S.optionalKey(S.Finite).pipe($I.annoteKey("YamlStringifyOptions.indent", { description: "Spaces per indentation level in emitted YAML; defaults to `2`" })),
 	/**
 	 * Column at which to fold long scalars. Default `0` (and any value `<= 0`)
 	 * never wraps; a positive value folds plain, double-quoted and block-folded
@@ -161,11 +162,11 @@ export class YamlStringifyOptions extends S.Class<YamlStringifyOptions, { readon
 	 * @category schemas
 	 * @since 0.0.0
 	 */
-	lineWidth: S.optionalKey(S.Finite).annotateKey({ description: "Column at which to fold long scalars. Default `0` (and any value `<= 0`) never wraps; a positive value folds plain, double-quoted and block-folded (`>`) scalars at approximately that column, never block-literal (`|`)." }),
-	defaultScalarStyle: S.optionalKey(ScalarStyle).annotateKey({ description: "Scalar output style used when no explicit node style applies; defaults to `plain`" }),
-	defaultCollectionStyle: S.optionalKey(CollectionStyle).annotateKey({ description: "Collection output style used when no explicit node style applies; defaults to `block`" }),
-	sortKeys: S.optionalKey(S.Boolean).annotateKey({ description: "Whether emitted mapping entries are sorted alphabetically by key; defaults to `false`" }),
-	indentSequences: S.optionalKey(S.Boolean).annotateKey({ description: "Whether block sequences under mapping keys are indented one level; defaults to `false`" }),
+	lineWidth: S.optionalKey(S.Finite).pipe($I.annoteKey("YamlStringifyOptions.lineWidth", { description: "Column at which to fold long scalars. Default `0` (and any value `<= 0`) never wraps; a positive value folds plain, double-quoted and block-folded (`>`) scalars at approximately that column, never block-literal (`|`)." })),
+	defaultScalarStyle: S.optionalKey(ScalarStyle).pipe($I.annoteKey("YamlStringifyOptions.defaultScalarStyle", { description: "Scalar output style used when no explicit node style applies; defaults to `plain`" })),
+	defaultCollectionStyle: S.optionalKey(CollectionStyle).pipe($I.annoteKey("YamlStringifyOptions.defaultCollectionStyle", { description: "Collection output style used when no explicit node style applies; defaults to `block`" })),
+	sortKeys: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlStringifyOptions.sortKeys", { description: "Whether emitted mapping entries are sorted alphabetically by key; defaults to `false`" })),
+	indentSequences: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlStringifyOptions.indentSequences", { description: "Whether block sequences under mapping keys are indented one level; defaults to `false`" })),
 	/**
 	 * Quote style used when a `plain`-styled scalar requires quoting. Default
 	 * `"single"`. `"double"` renders
@@ -181,7 +182,7 @@ export class YamlStringifyOptions extends S.Class<YamlStringifyOptions, { readon
 	 * @category schemas
 	 * @since 0.0.0
 	 */
-	quoteStyle: S.optionalKey(QuoteStyle).annotateKey({ description: "Quote style used when a `plain`-styled scalar requires quoting. Default `\"single\"`. `\"double\"` renders the same scalars double-quoted instead, matching the `yaml` npm package's `singleQuote: false` output." }),
+	quoteStyle: S.optionalKey(QuoteStyle).pipe($I.annoteKey("YamlStringifyOptions.quoteStyle", { description: "Quote style used when a `plain`-styled scalar requires quoting. Default `\"single\"`. `\"double\"` renders the same scalars double-quoted instead, matching the `yaml` npm package's `singleQuote: false` output." })),
 	/**
 	 * Additionally quote plain scalars a foreign resolution dialect would
 	 * coerce to a non-string. Absent (the default) adds no quoting beyond the
@@ -213,9 +214,9 @@ export class YamlStringifyOptions extends S.Class<YamlStringifyOptions, { readon
 	 * @category schemas
 	 * @since 0.0.0
 	 */
-	quoteCompat: S.optionalKey(QuoteCompat).annotateKey({ description: "Additionally quote plain scalars a foreign resolution dialect would coerce to a non-string. Absent (the default) adds no quoting beyond the YAML 1.2 Core Schema rules." }),
-	finalNewline: S.optionalKey(S.Boolean).annotateKey({ description: "Whether emitted YAML ends with a newline; defaults to `true`" }),
-	forceDefaultStyles: S.optionalKey(S.Boolean).annotateKey({ description: "Whether document output uses default styles, removes comments, and normalizes tags; defaults to `false`" }),
+	quoteCompat: S.optionalKey(QuoteCompat).pipe($I.annoteKey("YamlStringifyOptions.quoteCompat", { description: "Additionally quote plain scalars a foreign resolution dialect would coerce to a non-string. Absent (the default) adds no quoting beyond the YAML 1.2 Core Schema rules." })),
+	finalNewline: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlStringifyOptions.finalNewline", { description: "Whether emitted YAML ends with a newline; defaults to `true`" })),
+	forceDefaultStyles: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlStringifyOptions.forceDefaultStyles", { description: "Whether document output uses default styles, removes comments, and normalizes tags; defaults to `false`" })),
 }, $I.annote("YamlStringifyOptions", { description: "Options controlling stringify behavior. All fields are omissible; absent fields resolve to `indent` `2`, `lineWidth` `0`, `defaultScalarStyle` `\"plain\"`, `defaultCollectionStyle` `\"block\"`, `sortKeys` `false`, `indentSequences` `false`, `quoteStyle` `\"single\"`, `quoteCompat` absent (no dialect-compat quoting), `finalNewline` `true` and `forceDefaultStyles` `false`." })) {}
 
 /**
@@ -252,9 +253,9 @@ export class YamlStringifyOptions extends S.Class<YamlStringifyOptions, { readon
  * @since 0.0.0
  */
 export class YamlParseError extends S.TaggedError<YamlParseError, { readonly brand: unique symbol }>($I`YamlParseError`)("YamlParseError", {
-	diagnostics: S.Array(YamlDiagnostic).annotateKey({ description: "Structured diagnostics responsible for the parse failure, with the primary failure first" }),
-	input: S.String.annotateKey({ description: "Original YAML source text that failed to parse" }),
-}, $I.annote("YamlParseError", { description: "Error-recovery parse failure: aggregates every fatal YamlDiagnostic encountered, so a single failure reports the whole batch. Raised by Yaml.parse, Yaml.parseAll, `YamlDocument.parse`/`parseAll` and the decode direction of the schema factories. The error itself has no `code` field: read the code from the diagnostics — `error.diagnostics[0].code` is the primary failure." })) {
+	diagnostics: S.Array(YamlDiagnostic).pipe($I.annoteKey("YamlParseError.diagnostics", { description: "Structured diagnostics responsible for the parse failure, with the primary failure first" })),
+	input: S.String.pipe($I.annoteKey("YamlParseError.input", { description: "Original YAML source text that failed to parse" })),
+}, $I.annoteError<YamlParseError>("YamlParseError", { description: "Error-recovery parse failure: aggregates every fatal YamlDiagnostic encountered, so a single failure reports the whole batch. Raised by Yaml.parse, Yaml.parseAll, `YamlDocument.parse`/`parseAll` and the decode direction of the schema factories. The error itself has no `code` field: read the code from the diagnostics — `error.diagnostics[0].code` is the primary failure." })) {
 	/**
 	 * Summarizes the failure diagnostics for human-readable reporting.
 	 *
@@ -281,7 +282,7 @@ export class YamlParseError extends S.TaggedError<YamlParseError, { readonly bra
 	 */
 	override get message(): string {
 		const count = this.diagnostics.length;
-		const summary = this.diagnostics.map((d) => `${d.code} at ${d.line + 1}:${d.character + 1}`).join("; ");
+		const summary = pipe(this.diagnostics, A.map((d) => `${d.code} at ${d.line + 1}:${d.character + 1}`), A.join("; "));
 		return `YAML parse failed with ${count} error${count === 1 ? "" : "s"}: ${summary}`;
 	}
 }
@@ -312,9 +313,9 @@ export class YamlParseError extends S.TaggedError<YamlParseError, { readonly bra
  * @since 0.0.0
  */
 export class YamlStringifyError extends S.TaggedError<YamlStringifyError, { readonly brand: unique symbol }>($I`YamlStringifyError`)("YamlStringifyError", {
-	diagnostics: S.Array(YamlDiagnostic).annotateKey({ description: "Structured diagnostics explaining why YAML stringification failed" }),
-	value: S.Unknown.annotateKey({ description: "Original value or document whose YAML stringification failed" }),
-}, $I.annote("YamlStringifyError", { description: "Stringification failure (the circular-reference guard), carrying structured YamlDiagnostic entries and the offending value. Raised by Yaml.stringify, `YamlDocument#stringify` and the encode direction of the schema factories. The error itself has no `code` field: read the code from the diagnostics — `error.diagnostics[0].code` is the primary failure." })) {
+	diagnostics: S.Array(YamlDiagnostic).pipe($I.annoteKey("YamlStringifyError.diagnostics", { description: "Structured diagnostics explaining why YAML stringification failed" })),
+	value: S.Unknown.pipe($I.annoteKey("YamlStringifyError.value", { description: "Original value or document whose YAML stringification failed" })),
+}, $I.annoteError<YamlStringifyError>("YamlStringifyError", { description: "Stringification failure (the circular-reference guard), carrying structured YamlDiagnostic entries and the offending value. Raised by Yaml.stringify, `YamlDocument#stringify` and the encode direction of the schema factories. The error itself has no `code` field: read the code from the diagnostics — `error.diagnostics[0].code` is the primary failure." })) {
 	/**
 	 * Summarizes the failure diagnostics for human-readable reporting.
 	 *
@@ -340,7 +341,7 @@ export class YamlStringifyError extends S.TaggedError<YamlStringifyError, { read
 	 * @since 0.0.0
 	 */
 	override get message(): string {
-		const summary = this.diagnostics.map((d) => d.message).join("; ");
+		const summary = pipe(this.diagnostics, A.map((d) => d.message), A.join("; "));
 		return `YAML stringify failed: ${summary}`;
 	}
 }
@@ -372,21 +373,25 @@ const toStringifyInput = (options?: YamlStringifyOptions): StringifyOptionsInput
 				forceDefaultStyles: options.forceDefaultStyles,
 			};
 
-const toDiagnostics = (text: string, records: ReadonlyArray<RawDiagnostic>): ReadonlyArray<YamlDiagnostic> =>
-	YamlDiagnostic.fromRawBatch(records, text);
+const toDiagnostics: {
+	(text: string, records: ReadonlyArray<RawDiagnostic>): ReadonlyArray<YamlDiagnostic>;
+	(records: ReadonlyArray<RawDiagnostic>): (text: string) => ReadonlyArray<YamlDiagnostic>;
+} = dual(2, (text: string, records: ReadonlyArray<RawDiagnostic>): ReadonlyArray<YamlDiagnostic> => YamlDiagnostic.fromRawBatch(records, text));
 
 /**
  * Build the fatal {@link YamlParseError} for an alias-expansion "billion
  * laughs" blow-up. The offending expansion has no source span, so the
  * diagnostic carries zero offsets.
  */
-const aliasCountExceededError = (message: string, text: string): YamlParseError =>
-	YamlParseError.make({
+const aliasCountExceededError: {
+	(message: string, text: string): YamlParseError;
+	(text: string): (message: string) => YamlParseError;
+} = dual(2, (message: string, text: string): YamlParseError => YamlParseError.make({
 		diagnostics: [
 			YamlDiagnostic.make({ code: "AliasCountExceeded", message, offset: 0, length: 0, line: 0, character: 0 }),
 		],
 		input: text,
-	});
+	}));
 
 /**
  * Map an internal stringifier throw to its typed {@link YamlStringifyError},
@@ -394,7 +399,10 @@ const aliasCountExceededError = (message: string, text: string): YamlParseError 
  * Shared by the Effect and synchronous stringify paths so both surface the
  * hardening guards (circular reference, nesting-depth cap) identically.
  */
-const stringifyDefectToError = (defect: unknown, value: unknown): YamlStringifyError | undefined => {
+const stringifyDefectToError: {
+	(defect: unknown, value: unknown): YamlStringifyError | undefined;
+	(value: unknown): (defect: unknown) => YamlStringifyError | undefined;
+} = dual(2, (defect: unknown, value: unknown): YamlStringifyError | undefined => {
 	if (isStringifyFailure(defect)) {
 		return YamlStringifyError.make({
 			diagnostics: [
@@ -428,7 +436,7 @@ const stringifyDefectToError = (defect: unknown, value: unknown): YamlStringifyE
 		});
 	}
 	return undefined;
-};
+});
 
 /**
  * Synchronous single-document parse returning a `Result`. The pure
@@ -437,7 +445,10 @@ const stringifyDefectToError = (defect: unknown, value: unknown): YamlStringifyE
  * mode (fatal diagnostics, duplicate keys, a "billion laughs" blow-up) yields
  * a `Failure` carrying a typed {@link YamlParseError} — never a throw.
  */
-const parseResultImpl = (text: string, options?: YamlParseOptions): Result.Result<unknown, YamlParseError> => {
+const parseResultImpl: {
+	(options?: YamlParseOptions): (text: string) => Result.Result<unknown, YamlParseError>;
+	(text: string, options?: YamlParseOptions): Result.Result<unknown, YamlParseError>;
+} = dual((args) => P.isString(args[0]), (text: string, options?: YamlParseOptions): Result.Result<unknown, YamlParseError> => {
 	const doc = composeFirstDocument(text, toParseInput(options));
 	const failures = failureRecords(doc, options?.uniqueKeys ?? true);
 	if (failures.length > 0) {
@@ -455,7 +466,7 @@ const parseResultImpl = (text: string, options?: YamlParseOptions): Result.Resul
 			throw defect;
 		},
 	});
-};
+});
 
 /**
  * Synchronous multi-document parse returning a `Result`. Mirrors
@@ -465,18 +476,18 @@ const parseResultImpl = (text: string, options?: YamlParseOptions): Result.Resul
  * its own independent anchor map (anchors are document-scoped in a stream),
  * with the alias-expansion budget materialized as a typed failure.
  */
-const parseAllResultImpl = (
-	text: string,
-	options?: YamlParseOptions,
-): Result.Result<ReadonlyArray<unknown>, YamlParseError> => {
+const parseAllResultImpl: {
+	(options?: YamlParseOptions): (text: string) => Result.Result<ReadonlyArray<unknown>, YamlParseError>;
+	(text: string, options?: YamlParseOptions): Result.Result<ReadonlyArray<unknown>, YamlParseError>;
+} = dual((args) => P.isString(args[0]), (text: string, options?: YamlParseOptions): Result.Result<ReadonlyArray<unknown>, YamlParseError> => {
 	const { documents, streamErrors } = composeAllDocuments(text, toParseInput(options));
 	const uniqueKeys = options?.uniqueKeys ?? true;
 	// Fatal stream-level errors use the SAME predicate as the format path's
 	// refusal (`isFatalCode`), so `parseAllResult` can never succeed on input
 	// `YamlFormat.format` refuses as stream-fatal.
 	const failures = [
-		...streamErrors.filter((e) => isFatalCode(e.code)),
-		...documents.flatMap((d) => failureRecords(d, uniqueKeys)),
+		...A.filter(streamErrors, (e) => isFatalCode(e.code)),
+		...A.flatMap(documents, failureRecords(uniqueKeys)),
 	];
 	if (failures.length > 0) {
 		return Result.fail(YamlParseError.make({ diagnostics: toDiagnostics(text, failures), input: text }));
@@ -503,7 +514,7 @@ const parseAllResultImpl = (
 		values.push(value.success);
 	}
 	return Result.succeed(values);
-};
+});
 
 /**
  * Synchronous stringify returning a `Result`. Mirrors {@link Yaml.stringify}
@@ -531,11 +542,14 @@ const stringifyResultImpl = (
  * `uniqueKeys` is in force. Order preserved:
  * fatals first, then promotions.
  */
-const failureRecords = (doc: RawYamlDocument, uniqueKeys: boolean): ReadonlyArray<RawDiagnostic> => {
-	const fatal = doc.errors.filter((e) => isFatalCode(e.code));
+const failureRecords: {
+	(doc: RawYamlDocument, uniqueKeys: boolean): ReadonlyArray<RawDiagnostic>;
+	(uniqueKeys: boolean): (doc: RawYamlDocument) => ReadonlyArray<RawDiagnostic>;
+} = dual(2, (doc: RawYamlDocument, uniqueKeys: boolean): ReadonlyArray<RawDiagnostic> => {
+	const fatal = A.filter(doc.errors, (e) => isFatalCode(e.code));
 	if (fatal.length > 0) return fatal;
-	return uniqueKeys ? doc.warnings.filter((w) => w.code === "DuplicateKey") : [];
-};
+	return uniqueKeys ? A.filter(doc.warnings, (w) => w.code === "DuplicateKey") : [];
+});
 
 const stringifyOrFail = (value: unknown, options?: YamlStringifyOptions): Effect.Effect<string, YamlStringifyError> =>
 	Effect.try({
@@ -650,9 +664,12 @@ export class Yaml {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly parse = Effect.fn("Yaml.parse")((text: string, options?: YamlParseOptions) =>
+	static readonly parse: {
+		(options?: YamlParseOptions): (text: string) => Effect.Effect<unknown, YamlParseError>;
+		(text: string, options?: YamlParseOptions): Effect.Effect<unknown, YamlParseError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("Yaml.parse")((text: string, options?: YamlParseOptions) =>
 		Effect.fromResult(Yaml.parseResult(text, options)),
-	);
+	));
 
 	/**
 	 * Parse a multi-document YAML stream into an array of plain JavaScript
@@ -687,9 +704,12 @@ export class Yaml {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly parseAll = Effect.fn("Yaml.parseAll")((text: string, options?: YamlParseOptions) =>
+	static readonly parseAll: {
+		(options?: YamlParseOptions): (text: string) => Effect.Effect<ReadonlyArray<unknown>, YamlParseError>;
+		(text: string, options?: YamlParseOptions): Effect.Effect<ReadonlyArray<unknown>, YamlParseError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("Yaml.parseAll")((text: string, options?: YamlParseOptions) =>
 		Effect.fromResult(Yaml.parseAllResult(text, options)),
-	);
+	));
 
 	/**
 	 * Stringify a plain JavaScript value as YAML. Fails with
@@ -767,9 +787,10 @@ export class Yaml {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static parseResult(text: string, options?: YamlParseOptions): Result.Result<unknown, YamlParseError> {
-		return parseResultImpl(text, options);
-	}
+	static readonly parseResult: {
+		(options?: YamlParseOptions): (text: string) => Result.Result<unknown, YamlParseError>;
+		(text: string, options?: YamlParseOptions): Result.Result<unknown, YamlParseError>;
+	} = dual((args) => P.isString(args[0]), (text: string, options?: YamlParseOptions): Result.Result<unknown, YamlParseError> => parseResultImpl(text, options));
 
 	/**
 	 * Synchronous multi-document parse, returning a `Result` instead of an
@@ -815,12 +836,10 @@ export class Yaml {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static parseAllResult(
-		text: string,
-		options?: YamlParseOptions,
-	): Result.Result<ReadonlyArray<unknown>, YamlParseError> {
-		return parseAllResultImpl(text, options);
-	}
+	static readonly parseAllResult: {
+		(options?: YamlParseOptions): (text: string) => Result.Result<ReadonlyArray<unknown>, YamlParseError>;
+		(text: string, options?: YamlParseOptions): Result.Result<ReadonlyArray<unknown>, YamlParseError>;
+	} = dual((args) => P.isString(args[0]), (text: string, options?: YamlParseOptions): Result.Result<ReadonlyArray<unknown>, YamlParseError> => parseAllResultImpl(text, options));
 
 	/**
 	 * Synchronous stringify, returning a `Result` instead of an `Effect`.
@@ -924,12 +943,15 @@ export class Yaml {
 	 * @category predicates
 	 * @since 0.0.0
 	 */
-	static equals(a: string, b: string): boolean {
+	static readonly equals: {
+		(a: string, b: string): boolean;
+		(b: string): (a: string) => boolean;
+	} = dual(2, (a: string, b: string): boolean => {
 		const va = parseForEquality(a);
 		const vb = parseForEquality(b);
 		if (va.malformed || vb.malformed) return false;
 		return deepEqualValues(va.value, vb.value);
-	}
+	});
 
 	/**
 	 * Compare a YAML string against an existing JavaScript value with the
@@ -951,11 +973,14 @@ export class Yaml {
 	 * @category predicates
 	 * @since 0.0.0
 	 */
-	static equalsValue(text: string, value: unknown): boolean {
+	static readonly equalsValue: {
+		(text: string, value: unknown): boolean;
+		(value: unknown): (text: string) => boolean;
+	} = dual(2, (text: string, value: unknown): boolean => {
 		const v = parseForEquality(text);
 		if (v.malformed) return false;
 		return deepEqualValues(v.value, value);
-	}
+	});
 
 	/**
 	 * A `Schema<unknown, string>` decoding a single YAML document with the
@@ -1065,7 +1090,7 @@ export class Yaml {
 								);
 								parts.push(index > 0 ? `---\n${yaml}` : yaml);
 							}
-							return parts.join("");
+							return A.join(parts, "");
 						}),
 				}),
 			),
@@ -1101,14 +1126,15 @@ export class Yaml {
 	 * @category schemas
 	 * @since 0.0.0
 	 */
-	static schema<T, E, RD = never, RE = never>(
+	static readonly schema: {
+		(options?: YamlParseOptions): <T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>) => S.Codec<T, string, RD, RE>;
+		<T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>, options?: YamlParseOptions): S.Codec<T, string, RD, RE>;
+	} = dual((args) => S.isSchema(args[0]), <T, E, RD = never, RE = never>(
 		target: S.Codec<T, E, RD, RE>,
 		options?: YamlParseOptions,
-	): S.Codec<T, string, RD, RE> {
-		return Yaml.fromString(options).pipe(
-			S.decodeTo(target),
-		);
-	}
+	): S.Codec<T, string, RD, RE> => Yaml.fromString(options).pipe(
+		S.decodeTo(target),
+	));
 
 	/**
 	 * Bind a target schema to the YAML codec once, yielding the composed
@@ -1173,7 +1199,7 @@ export class Yaml {
  */
 function parseForEquality(text: string): { readonly malformed: boolean; readonly value: unknown } {
 	const doc = composeFirstDocument(text, {});
-	if (doc.errors.length > 0 || doc.warnings.some((w) => w.code === "DuplicateKey")) {
+	if (doc.errors.length > 0 || A.some(doc.warnings, (w) => w.code === "DuplicateKey")) {
 		return { malformed: true, value: undefined };
 	}
 	const anchors = MutableHashMap.empty<string, YamlNode>();
@@ -1195,7 +1221,10 @@ function parseForEquality(text: string): { readonly malformed: boolean; readonly
  * Deep structural equality over plain values: NaN equals NaN, mapping key
  * order ignored, sequence order significant.
  */
-function deepEqualValues(a: unknown, b: unknown): boolean {
+const deepEqualValues: {
+	(a: unknown, b: unknown): boolean;
+	(b: unknown): (a: unknown) => boolean;
+} = dual(2, (a: unknown, b: unknown): boolean => {
 	if (a === b) return true;
 	if (P.isNumber(a) && P.isNumber(b) && Number.isNaN(a) && Number.isNaN(b)) {
 		return true;
@@ -1224,4 +1253,4 @@ function deepEqualValues(a: unknown, b: unknown): boolean {
 	}
 
 	return false;
-}
+});

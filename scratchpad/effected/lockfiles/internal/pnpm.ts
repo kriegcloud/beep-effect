@@ -31,69 +31,69 @@ const $I = $ScratchpadId.create("effected/lockfiles/internal/pnpm");
 // ── Raw schema (permissive validation scaffolding, not API) ────────────────
 
 const PnpmImporterDeps = S.optionalKey(
-	S.Record(S.String, S.Struct({ specifier: S.String.annotateKey({ description: "Dependency specifier declared by the importer or catalog" }), version: S.String.annotateKey({ description: "Recorded package version or resolved dependency version" }) })),
-).annotate($I.annote("PnpmImporterDeps", { description: "Optional pnpm importer dependency map containing declared specifiers and resolved versions" }));
+	S.Record(S.String, S.Struct({ specifier: S.String.pipe($I.annoteKey("PnpmImporterDeps.specifier", { description: "Dependency specifier declared by the importer or catalog" })), version: S.String.pipe($I.annoteKey("PnpmImporterDeps.version", { description: "Recorded package version or resolved dependency version" })) })),
+).pipe($I.annoteSchema("PnpmImporterDeps", { description: "Optional pnpm importer dependency map containing declared specifiers and resolved versions" }));
 
 const PnpmImporter = S.Struct({
-	dependencies: PnpmImporterDeps.annotateKey({ description: "Declared runtime dependencies keyed by package name" }),
-	devDependencies: PnpmImporterDeps.annotateKey({ description: "Declared development dependencies keyed by package name" }),
-	peerDependencies: PnpmImporterDeps.annotateKey({ description: "Declared peer dependencies keyed by package name" }),
-	optionalDependencies: PnpmImporterDeps.annotateKey({ description: "Declared optional dependencies keyed by package name" }),
+	dependencies: PnpmImporterDeps.pipe($I.annoteKey("PnpmImporter.dependencies", { description: "Declared runtime dependencies keyed by package name" })),
+	devDependencies: PnpmImporterDeps.pipe($I.annoteKey("PnpmImporter.devDependencies", { description: "Declared development dependencies keyed by package name" })),
+	peerDependencies: PnpmImporterDeps.pipe($I.annoteKey("PnpmImporter.peerDependencies", { description: "Declared peer dependencies keyed by package name" })),
+	optionalDependencies: PnpmImporterDeps.pipe($I.annoteKey("PnpmImporter.optionalDependencies", { description: "Declared optional dependencies keyed by package name" })),
 	// `publishConfig.directory` surfaces here: pnpm records the directory a
 	// workspace package's links actually point AT, importer-relative. It is the
 	// exact evidence that lets a `link:<importer>/<publishDirectory>` edge name
 	// its importer.
-	publishDirectory: S.optionalKey(S.String).annotateKey({ description: "Importer-relative published directory targeted by workspace links" }),
-}).annotate($I.annote("PnpmImporter", { description: "Permissive pnpm importer with declared dependency sections and optional published directory" }));
+	publishDirectory: S.optionalKey(S.String).pipe($I.annoteKey("PnpmImporter.publishDirectory", { description: "Importer-relative published directory targeted by workspace links" })),
+}).pipe($I.annoteSchema("PnpmImporter", { description: "Permissive pnpm importer with declared dependency sections and optional published directory" }));
 
 const PnpmLockfileRaw = S.Struct({
 	// The version gate owns non-finite rejection and preserves the recorded value in its typed cause.
-	lockfileVersion: S.Union([S.String, S.Finite]).annotateKey({ description: "Recorded format version, preserved verbatim before gating or string conversion" }),
+	lockfileVersion: S.Union([S.String, S.Finite]).pipe($I.annoteKey("PnpmLockfileRaw.lockfileVersion", { description: "Recorded format version, preserved verbatim before gating or string conversion" })),
 	settings: S.optionalKey(
 		S.Struct({
-			autoInstallPeers: S.optionalKey(S.Boolean).annotateKey({ description: "Whether pnpm automatically installs peer dependencies" }),
-			excludeLinksFromLockfile: S.optionalKey(S.Boolean).annotateKey({ description: "Whether pnpm excludes linked dependencies from the lockfile" }),
+			autoInstallPeers: S.optionalKey(S.Boolean).pipe($I.annoteKey("PnpmLockfileRaw.settings.autoInstallPeers", { description: "Whether pnpm automatically installs peer dependencies" })),
+			excludeLinksFromLockfile: S.optionalKey(S.Boolean).pipe($I.annoteKey("PnpmLockfileRaw.settings.excludeLinksFromLockfile", { description: "Whether pnpm excludes linked dependencies from the lockfile" })),
 		}),
-	).annotateKey({ description: "Optional settings recorded by pnpm" }),
-	overrides: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Dependency resolution overrides preserved as recorded" }),
+	).pipe($I.annoteKey("PnpmLockfileRaw.settings", { description: "Optional settings recorded by pnpm" })),
+	overrides: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("PnpmLockfileRaw.overrides", { description: "Dependency resolution overrides preserved as recorded" })),
 	catalogs: S.optionalKey(
 		S.Record(
 			S.String,
 			S.Record(
 				S.String,
-				S.Union([S.String, S.Struct({ specifier: S.String.annotateKey({ description: "Dependency specifier declared by the importer or catalog" }), version: S.String.annotateKey({ description: "Recorded package version or resolved dependency version" }) })]),
+				S.Union([S.String, S.Struct({ specifier: S.String.pipe($I.annoteKey("PnpmLockfileRaw.catalogs.entry.specifier", { description: "Dependency specifier declared by the importer or catalog" })), version: S.String.pipe($I.annoteKey("PnpmLockfileRaw.catalogs.entry.version", { description: "Recorded package version or resolved dependency version" })) })]),
 			),
 		),
-	).annotateKey({ description: "Named dependency catalogs preserved as recorded" }),
-	importers: S.Record(S.String, PnpmImporter).annotateKey({ description: "Workspace importer entries recorded by the lockfile" }),
+	).pipe($I.annoteKey("PnpmLockfileRaw.catalogs", { description: "Named dependency catalogs preserved as recorded" })),
+	importers: S.Record(S.String, PnpmImporter).pipe($I.annoteKey("PnpmLockfileRaw.importers", { description: "Workspace importer entries recorded by the lockfile" })),
 	packages: S.optionalKey(
 		S.Record(
 			S.String,
 			S.Struct({
-				resolution: S.optionalKey(S.Struct({ integrity: S.optionalKey(S.String).annotateKey({ description: "Recorded subresource integrity hash" }) })).annotateKey({ description: "Optional package resolution metadata" }),
-				peerDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Declared peer dependencies keyed by package name" }),
+				resolution: S.optionalKey(S.Struct({ integrity: S.optionalKey(S.String).pipe($I.annoteKey("PnpmLockfileRaw.packages.resolution.integrity", { description: "Recorded subresource integrity hash" })) })).pipe($I.annoteKey("PnpmLockfileRaw.packages.resolution", { description: "Optional package resolution metadata" })),
+				peerDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("PnpmLockfileRaw.packages.peerDependencies", { description: "Declared peer dependencies keyed by package name" })),
 				peerDependenciesMeta: S.optionalKey(
-					S.Record(S.String, S.Struct({ optional: S.optionalKey(S.Boolean).annotateKey({ description: "Whether this peer dependency is optional" }) })),
-				).annotateKey({ description: "Optionality metadata keyed by peer dependency name" }),
+					S.Record(S.String, S.Struct({ optional: S.optionalKey(S.Boolean).pipe($I.annoteKey("PnpmLockfileRaw.packages.peerDependenciesMeta.optional", { description: "Whether this peer dependency is optional" })) })),
+				).pipe($I.annoteKey("PnpmLockfileRaw.packages.peerDependenciesMeta", { description: "Optionality metadata keyed by peer dependency name" })),
 				// Pre-v9 lockfiles carry resolution inline here, since they have no
 				// `snapshots:` section to carry it.
-				dependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Declared runtime dependencies keyed by package name" }),
-				optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Declared optional dependencies keyed by package name" }),
+				dependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("PnpmLockfileRaw.packages.dependencies", { description: "Declared runtime dependencies keyed by package name" })),
+				optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("PnpmLockfileRaw.packages.optionalDependencies", { description: "Declared optional dependencies keyed by package name" })),
 			}),
 		),
-	).annotateKey({ description: "Resolved package entries in lockfile traversal order" }),
+	).pipe($I.annoteKey("PnpmLockfileRaw.packages", { description: "Resolved package entries in lockfile traversal order" })),
 	// Lockfile v9 split per-*instance* resolution out of `packages:` into its
 	// own section; earlier versions carry both in `packages:`.
 	snapshots: S.optionalKey(
 		S.Record(
 			S.String,
 			S.Struct({
-				dependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Declared runtime dependencies keyed by package name" }),
-				optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Declared optional dependencies keyed by package name" }),
+				dependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("PnpmLockfileRaw.snapshots.dependencies", { description: "Declared runtime dependencies keyed by package name" })),
+				optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("PnpmLockfileRaw.snapshots.optionalDependencies", { description: "Declared optional dependencies keyed by package name" })),
 			}),
 		),
-	).annotateKey({ description: "Per-instance dependency sections keyed by pnpm snapshot identity" }),
-}).annotate($I.annote("PnpmLockfileRaw", { description: "Supported pnpm document with importer entries, version metadata and per-instance snapshots" }));
+	).pipe($I.annoteKey("PnpmLockfileRaw.snapshots", { description: "Per-instance dependency sections keyed by pnpm snapshot identity" })),
+}).pipe($I.annoteSchema("PnpmLockfileRaw", { description: "Supported pnpm document with importer entries, version metadata and per-instance snapshots" }));
 
 type PnpmLockfileRawType = typeof PnpmLockfileRaw.Type;
 type PnpmImporterType = typeof PnpmImporter.Type;
@@ -217,7 +217,10 @@ export const parsePnpm: {
  *
  * @internal
  */
-const resolveEdges = (
+const resolveEdges: {
+	(sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>, instanceIds: MutableHashSet.MutableHashSet<string>, publishDirTargets: MutableHashMap.MutableHashMap<string, string>): ResolvedEdges;
+	(instanceIds: MutableHashSet.MutableHashSet<string>, publishDirTargets: MutableHashMap.MutableHashMap<string, string>): (sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>) => ResolvedEdges;
+} = dual(3, (
 	sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>,
 	instanceIds: MutableHashSet.MutableHashSet<string>,
 	publishDirTargets: MutableHashMap.MutableHashMap<string, string>,
@@ -270,7 +273,7 @@ const resolveEdges = (
 	// Map-backed until the last step: `Object.fromEntries` defines own data
 	// properties, so a "__proto__" dependency name neither pollutes nor drops.
 	return { resolved: R.fromEntries(edges), unresolvedEdges: A.sort(unnameable, Order.String) };
-};
+});
 
 /**
  * One instance's outgoing edges, split: those that could be named, and those
@@ -279,9 +282,9 @@ const resolveEdges = (
  * @internal
  */
 const ResolvedEdges = S.Struct({
-	resolved: S.Record(S.String, S.String).annotateKey({ description: "Recorded resolution location or resolved instance ids keyed by dependency name" }),
-	unresolvedEdges: S.Array(S.String).annotateKey({ description: "Unresolved dependency names in ascending UTF-16 order" }),
-}).annotate($I.annote("ResolvedEdges", { description: "Resolved instance ids by dependency name and the sorted names of edges that could not be resolved" }));
+	resolved: S.Record(S.String, S.String).pipe($I.annoteKey("ResolvedEdges.resolved", { description: "Recorded resolution location or resolved instance ids keyed by dependency name" })),
+	unresolvedEdges: S.Array(S.String).pipe($I.annoteKey("ResolvedEdges.unresolvedEdges", { description: "Unresolved dependency names in ascending UTF-16 order" })),
+}).pipe($I.annoteSchema("ResolvedEdges", { description: "Resolved instance ids by dependency name and the sorted names of edges that could not be resolved" }));
 type ResolvedEdges = typeof ResolvedEdges.Type;
 
 /**
@@ -307,7 +310,10 @@ const LINK_PREFIX = "link:";
  *
  * @internal
  */
-const resolveLinkTarget = (importerPath: string, target: string): string | undefined => {
+const resolveLinkTarget: {
+	(importerPath: string, target: string): string | undefined;
+	(target: string): (importerPath: string) => string | undefined;
+} = dual(2, (importerPath: string, target: string): string | undefined => {
 	const segments: Array<string> = [];
 	for (const segment of `${importerPath}/${target}`.split("/")) {
 		if (segment === "" || segment === ".") continue;
@@ -317,8 +323,8 @@ const resolveLinkTarget = (importerPath: string, target: string): string | undef
 		}
 		segments.push(segment);
 	}
-	return segments.length === 0 ? undefined : segments.join("/");
-};
+	return segments.length === 0 ? undefined : A.join(segments, "/");
+});
 
 /**
  * The specifier protocol pnpm resolves through the workspace itself.
@@ -345,14 +351,17 @@ const WORKSPACE_PREFIX = "workspace:";
  *
  * @internal
  */
-const owningImporter = (target: string, importerPaths: MutableHashSet.MutableHashSet<string>): string | undefined => {
+const owningImporter: {
+	(target: string, importerPaths: MutableHashSet.MutableHashSet<string>): string | undefined;
+	(importerPaths: MutableHashSet.MutableHashSet<string>): (target: string) => string | undefined;
+} = dual(2, (target: string, importerPaths: MutableHashSet.MutableHashSet<string>): string | undefined => {
 	const segments = target.split("/");
 	for (let end = segments.length - 1; end > 0; end--) {
-		const candidate = segments.slice(0, end).join("/");
+		const candidate = A.join(segments.slice(0, end), "/");
 		if (MutableHashSet.has(importerPaths, candidate)) return candidate;
 	}
 	return undefined;
-};
+});
 
 /**
  * Resolve one importer's outgoing edges. pnpm records `{ specifier, version }`
@@ -384,7 +393,10 @@ const owningImporter = (target: string, importerPaths: MutableHashSet.MutableHas
  *
  * @internal
  */
-const resolveImporterEdges = (
+const resolveImporterEdges: {
+	(importer: PnpmImporterType, importerPath: string, instanceIds: MutableHashSet.MutableHashSet<string>, importerPaths: MutableHashSet.MutableHashSet<string>, publishDirTargets: MutableHashMap.MutableHashMap<string, string>): ResolvedEdges;
+	(importerPath: string, instanceIds: MutableHashSet.MutableHashSet<string>, importerPaths: MutableHashSet.MutableHashSet<string>, publishDirTargets: MutableHashMap.MutableHashMap<string, string>): (importer: PnpmImporterType) => ResolvedEdges;
+} = dual(5, (
 	importer: PnpmImporterType,
 	importerPath: string,
 	instanceIds: MutableHashSet.MutableHashSet<string>,
@@ -421,7 +433,7 @@ const resolveImporterEdges = (
 	// Map-backed until the last step: `Object.fromEntries` defines own data
 	// properties, so a "__proto__" dependency name neither pollutes nor drops.
 	return { resolved: R.fromEntries(edges), unresolvedEdges: A.sort(unnameable, Order.String) };
-};
+});
 
 const toVersionMap = (
 	deps: Record<string, { readonly specifier: string; readonly version: string }> | undefined,
@@ -429,7 +441,7 @@ const toVersionMap = (
 	if (deps === undefined) return undefined;
 	// Object.fromEntries defines own data properties, so a "__proto__" key
 	// neither pollutes nor drops.
-	return R.fromEntries(R.toEntries(deps).map(([name, info]) => [name, info.specifier]));
+	return R.fromEntries(A.map(R.toEntries(deps), ([name, info]): readonly [string, string] => [name, info.specifier]));
 };
 
 const importerDepGroups = (importer: PnpmImporterType) =>
@@ -540,7 +552,10 @@ const toFields = Effect.fn("toFields")(function* (raw: PnpmLockfileRawType): Eff
 		);
 	}
 
-	const emit = Effect.fnUntraced(function*(
+	const emit: {
+		(instanceId: string, meta: PnpmPackageEntry | undefined, edges: ReadonlyArray<Readonly<Record<string, string>> | undefined>): Effect.Effect<void, ParseFailure>;
+		(meta: PnpmPackageEntry | undefined, edges: ReadonlyArray<Readonly<Record<string, string>> | undefined>): (instanceId: string) => Effect.Effect<void, ParseFailure>;
+	} = dual(3, Effect.fnUntraced(function*(
 		instanceId: string,
 		meta: PnpmPackageEntry | undefined,
 		edges: ReadonlyArray<Readonly<Record<string, string>> | undefined>,
@@ -565,7 +580,7 @@ const toFields = Effect.fn("toFields")(function* (raw: PnpmLockfileRawType): Eff
 				...resolveEdges(edges, instanceIds, publishDirTargets),
 			}),
 		);
-	});
+	}));
 
 	if (snapshots !== undefined) {
 		for (const [key, snapshot] of R.toEntries(snapshots)) {
@@ -580,7 +595,7 @@ const toFields = Effect.fn("toFields")(function* (raw: PnpmLockfileRawType): Eff
 	}
 
 	// Which `packages:` keys a snapshot already spoke for.
-	const covered = MutableHashSet.fromIterable([...emitted].map((key) => splitPeerSuffix(key).plain));
+	const covered = emitted.pipe(A.fromIterable, A.map((key) => splitPeerSuffix(key).plain), MutableHashSet.fromIterable);
 
 	if (raw.packages !== undefined) {
 		for (const [key, pkg] of R.toEntries(raw.packages)) {

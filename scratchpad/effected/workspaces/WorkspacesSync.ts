@@ -36,9 +36,7 @@ const isDependencyMap = S.is(WorkspacePackage.fields.dependencies);
 
 const $I = $ScratchpadId.create("effected/workspaces/WorkspacesSync");
 
-const JsonValue = S.fromJsonString(S.Unknown).annotate(
-	$I.annote("JsonValue", { description: "A JSON value parsed before the tolerant manifest shape checks." }),
-);
+const JsonValue = S.fromJsonString(S.Unknown).pipe($I.annoteSchema("JsonValue", { description: "A JSON value parsed before the tolerant manifest shape checks." }));
 const decodeJson = S.decodeResult(JsonValue);
 
 /**
@@ -47,7 +45,7 @@ const decodeJson = S.decodeResult(JsonValue);
 class WorkspaceSyncManifestError extends S.TaggedError<WorkspaceSyncManifestError, { readonly brand: unique symbol }>($I`WorkspaceSyncManifestError`)(
 	"WorkspaceSyncManifestError",
 	{ message: S.String },
-	$I.annote("WorkspaceSyncManifestError", { description: "A malformed synchronous workspace manifest." }),
+	$I.annoteError<WorkspaceSyncManifestError>("WorkspaceSyncManifestError", { description: "A malformed synchronous workspace manifest." }),
 ) {}
 
 /**
@@ -71,7 +69,7 @@ class WorkspaceSyncManifestError extends S.TaggedError<WorkspaceSyncManifestErro
 export class WorkspaceEnumerationDepthError extends S.TaggedError<WorkspaceEnumerationDepthError, { readonly brand: unique symbol }>($I`WorkspaceEnumerationDepthError`)(
 	"WorkspaceEnumerationDepthError",
 	{ message: S.String },
-	$I.annote("WorkspaceEnumerationDepthError", { description: "An invalid synchronous workspace enumeration depth bound." }),
+	$I.annoteError<WorkspaceEnumerationDepthError>("WorkspaceEnumerationDepthError", { description: "An invalid synchronous workspace enumeration depth bound." }),
 ) {}
 
 /**
@@ -179,12 +177,12 @@ export interface SyncFileSystem {
  */
 export const SyncDirectoryEntry = S.Struct({
 	/** The entry's own name, not a path. */
-	name: S.String.annotateKey($I.annote("SyncDirectoryEntry.name", { description: "The entry's own name, not a path." })),
+	name: S.String.pipe($I.annoteKey("SyncDirectoryEntry.name", { description: "The entry's own name, not a path." })),
 	/** Whether the entry itself is a directory, without following links. */
-	isDirectory: S.Boolean.annotateKey($I.annote("SyncDirectoryEntry.isDirectory", { description: "Whether the entry itself is a directory, false for symbolic links." })),
+	isDirectory: S.Boolean.pipe($I.annoteKey("SyncDirectoryEntry.isDirectory", { description: "Whether the entry itself is a directory, false for symbolic links." })),
 	/** Whether the entry itself is a symbolic link. */
-	isSymbolicLink: S.Boolean.annotateKey($I.annote("SyncDirectoryEntry.isSymbolicLink", { description: "Whether the entry itself is a symbolic link." })),
-}).annotate($I.annote("SyncDirectoryEntry", { description: "A plain typed directory entry supplied by synchronous filesystem operations." }));
+	isSymbolicLink: S.Boolean.pipe($I.annoteKey("SyncDirectoryEntry.isSymbolicLink", { description: "Whether the entry itself is a symbolic link." })),
+}).pipe($I.annoteSchema("SyncDirectoryEntry", { description: "A plain typed directory entry supplied by synchronous filesystem operations." }));
 /**
  * The readonly directory entry described by {@link SyncDirectoryEntry}.
  *
@@ -296,9 +294,7 @@ export interface WorkspacesSyncOptions {
  * @category schemas
  * @since 0.0.0
  */
-export const WorkspaceDiscoverySkipKind = WorkspaceDiscoveryError.fields.kind.pick(["read", "invalidJson", "invalidShape", "missingName"]).annotate(
-	$I.annote("WorkspaceDiscoverySkipKind", { description: "The existing manifest discovery failure kinds, excluding workspace YAML reads." }),
-);
+export const WorkspaceDiscoverySkipKind = WorkspaceDiscoveryError.fields.kind.pick(["read", "invalidJson", "invalidShape", "missingName"]).pipe($I.annoteSchema("WorkspaceDiscoverySkipKind", { description: "The existing manifest discovery failure kinds, excluding workspace YAML reads." }));
 /**
  * The manifest-only failure kinds described by {@link WorkspaceDiscoverySkipKind}.
  *
@@ -311,11 +307,11 @@ export type WorkspaceDiscoverySkipKind = typeof WorkspaceDiscoverySkipKind.Type;
 const workspaceDiscoverySkipCase = <const Kind extends WorkspaceDiscoverySkipKind>(kind: S.Literal<Kind>) => {
 	const identifier: string = `WorkspaceDiscoverySkip.${kind.literal}`;
 	return S.Struct({
-		kind: kind.annotateKey($I.annote("WorkspaceDiscoverySkip.kind", { description: "The existing caller-visible failure reason." })),
-		root: S.String.annotateKey($I.annote("WorkspaceDiscoverySkip.root", { description: "The workspace root being enumerated." })),
-		path: S.String.annotateKey($I.annote("WorkspaceDiscoverySkip.path", { description: "The absolute path of the skipped package manifest." })),
-		cause: S.Unknown.annotateKey($I.annote("WorkspaceDiscoverySkip.cause", { description: "The original arbitrary failure value, undefined for a missing name." })),
-	}).annotate($I.annote(identifier, { description: `The existing ${kind.literal} failure record.` }));
+		kind: kind.pipe($I.annoteKey("WorkspaceDiscoverySkip.kind", { description: "The existing caller-visible failure reason." })),
+		root: S.String.pipe($I.annoteKey("WorkspaceDiscoverySkip.root", { description: "The workspace root being enumerated." })),
+		path: S.String.pipe($I.annoteKey("WorkspaceDiscoverySkip.path", { description: "The absolute path of the skipped package manifest." })),
+		cause: S.Unknown.pipe($I.annoteKey("WorkspaceDiscoverySkip.cause", { description: "The original arbitrary failure value, undefined for a missing name." })),
+	}).pipe($I.annoteSchema(identifier, { description: `The existing ${kind.literal} failure record.` }));
 };
 
 /**
@@ -352,7 +348,7 @@ export const WorkspaceDiscoverySkip = WorkspaceDiscoverySkipKind.mapMembers(([re
 	workspaceDiscoverySkipCase(invalidJson),
 	workspaceDiscoverySkipCase(invalidShape),
 	workspaceDiscoverySkipCase(missingName),
-]).pipe(S.toTaggedUnion("kind")).annotate($I.annote("WorkspaceDiscoverySkip", { description: "A plain synchronous manifest skip report with its original cause." }));
+]).pipe(S.toTaggedUnion("kind"), $I.annoteSchema("WorkspaceDiscoverySkip", { description: "A plain synchronous manifest skip report with its original cause." }));
 /**
  * The readonly skip report described by {@link WorkspaceDiscoverySkip}.
  *
@@ -366,13 +362,13 @@ export type WorkspaceDiscoverySkip = typeof WorkspaceDiscoverySkip.Type;
  */
 const ManifestRead = S.Union([
 	S.Struct({
-		raw: S.Record(S.String, S.mutableKey(S.Unknown)).annotateKey($I.annote("ManifestRead.raw", { description: "The parsed mutable manifest record, without additional validation." })),
-	}).annotate($I.annote("ManifestReadSuccess", { description: "A successful manifest read retaining the plain mutable record." })),
+		raw: S.Record(S.String, S.mutableKey(S.Unknown)).pipe($I.annoteKey("ManifestRead.raw", { description: "The parsed mutable manifest record, without additional validation." })),
+	}).pipe($I.annoteSchema("ManifestReadSuccess", { description: "A successful manifest read retaining the plain mutable record." })),
 	S.Struct({
-		kind: WorkspaceDiscoverySkipKind.pick(["read", "invalidJson", "invalidShape"]).annotateKey($I.annote("ManifestRead.kind", { description: "The existing read, JSON syntax, or manifest shape failure kind." })),
-		cause: S.Unknown.annotateKey($I.annote("ManifestRead.cause", { description: "The arbitrary caught or shape failure value." })),
-	}).annotate($I.annote("ManifestReadFailure", { description: "A failed manifest read with its original arbitrary cause." })),
-]).annotate($I.annote("ManifestRead", { description: "The existing untagged success or failure of a synchronous manifest read." }));
+		kind: WorkspaceDiscoverySkipKind.pick(["read", "invalidJson", "invalidShape"]).pipe($I.annoteKey("ManifestRead.kind", { description: "The existing read, JSON syntax, or manifest shape failure kind." })),
+		cause: S.Unknown.pipe($I.annoteKey("ManifestRead.cause", { description: "The arbitrary caught or shape failure value." })),
+	}).pipe($I.annoteSchema("ManifestReadFailure", { description: "A failed manifest read with its original arbitrary cause." })),
+]).pipe($I.annoteSchema("ManifestRead", { description: "The existing untagged success or failure of a synchronous manifest read." }));
 /** The existing plain-record manifest read result. */
 type ManifestRead = typeof ManifestRead.Type;
 
@@ -386,7 +382,10 @@ type ManifestRead = typeof ManifestRead.Type;
  * carries the distinction; the two other callers of {@link readJson} do not
  * need it and keep the collapsed form.
  */
-const readManifest = (fileSystem: SyncFileSystem, file: string): ManifestRead => {
+const readManifest: {
+	(fileSystem: SyncFileSystem, file: string): ManifestRead;
+	(file: string): (fileSystem: SyncFileSystem) => ManifestRead;
+} = dual(2, (fileSystem: SyncFileSystem, file: string): ManifestRead => {
 	const text = Result.try(() => fileSystem.readFile(file));
 	if (Result.isFailure(text)) return { kind: "read", cause: text.failure };
 	const decoded = decodeJson(text.success);
@@ -397,7 +396,7 @@ const readManifest = (fileSystem: SyncFileSystem, file: string): ManifestRead =>
 	return P.isObject(parsed)
 		? { raw: parsed }
 		: { kind: "invalidShape", cause: WorkspaceSyncManifestError.make({ message: "package.json is not a JSON object" }) };
-};
+});
 
 /**
  * Read and JSON-parse a file into a plain object, or `undefined`. Never throws.
@@ -413,24 +412,30 @@ const readManifest = (fileSystem: SyncFileSystem, file: string): ManifestRead =>
  * defect. A throwing consumer `readFile` and a JSON codec failure both collapse
  * to an unusable manifest.
  */
-const readJson = (fileSystem: SyncFileSystem, file: string): Record<string, unknown> | undefined => {
+const readJson: {
+	(fileSystem: SyncFileSystem, file: string): Record<string, unknown> | undefined;
+	(file: string): (fileSystem: SyncFileSystem) => Record<string, unknown> | undefined;
+} = dual(2, (fileSystem: SyncFileSystem, file: string): Record<string, unknown> | undefined => {
 	const manifest = readManifest(fileSystem, file);
 	return P.hasProperty(manifest, "raw") ? manifest.raw : undefined;
-};
+});
 
 /**
  * Whether `dir` is a directory. Never throws — a throwing consumer op reads as `false`.
  */
-const isDirectory = (fileSystem: SyncFileSystem, dir: string): boolean =>
-	Result.getOrElse(Result.try(() => fileSystem.isDirectory(dir)), () => false);
+const isDirectory: {
+	(fileSystem: SyncFileSystem, dir: string): boolean;
+	(dir: string): (fileSystem: SyncFileSystem) => boolean;
+} = dual(2, (fileSystem: SyncFileSystem, dir: string): boolean =>
+	Result.getOrElse(Result.try(() => fileSystem.isDirectory(dir)), () => false));
 
 /**
  * One enumerated child, with directory-ness resolved under `stat` semantics.
  */
 const ResolvedEntry = S.Struct({
-	name: S.String.annotateKey($I.annote("ResolvedEntry.name", { description: "The enumerated child entry's own name." })),
-	directory: S.Boolean.annotateKey($I.annote("ResolvedEntry.directory", { description: "Whether the child is a directory after resolving symbolic links." })),
-}).annotate($I.annote("ResolvedEntry", { description: "A plain child entry with directory-ness resolved under stat semantics." }));
+	name: S.String.pipe($I.annoteKey("ResolvedEntry.name", { description: "The enumerated child entry's own name." })),
+	directory: S.Boolean.pipe($I.annoteKey("ResolvedEntry.directory", { description: "Whether the child is a directory after resolving symbolic links." })),
+}).pipe($I.annoteSchema("ResolvedEntry", { description: "A plain child entry with directory-ness resolved under stat semantics." }));
 /** The readonly resolved child entry. */
 type ResolvedEntry = typeof ResolvedEntry.Type;
 
@@ -443,7 +448,10 @@ type ResolvedEntry = typeof ResolvedEntry.Type;
  * through `isDirectory` because a `Dirent` describes the link and not its
  * target.
  */
-const readResolvedEntries = (
+const readResolvedEntries: {
+	(options: WorkspacesSyncOptions, absoluteDir: string): ReadonlyArray<ResolvedEntry> | undefined;
+	(absoluteDir: string): (options: WorkspacesSyncOptions) => ReadonlyArray<ResolvedEntry> | undefined;
+} = dual(2, (
 	options: WorkspacesSyncOptions,
 	absoluteDir: string,
 ): ReadonlyArray<ResolvedEntry> | undefined => {
@@ -451,7 +459,7 @@ const readResolvedEntries = (
 	const withTypes = fileSystem.readDirectoryWithTypes;
 	if (withTypes !== undefined) {
 		return Result.getOrElse(
-			Result.try(() => withTypes(absoluteDir).map((entry) => ({
+			Result.try(() => A.map(withTypes(absoluteDir), (entry) => ({
 				name: entry.name,
 				directory: entry.isSymbolicLink
 					? isDirectory(fileSystem, path.join(absoluteDir, entry.name))
@@ -462,17 +470,20 @@ const readResolvedEntries = (
 	}
 	const names = Result.try(() => fileSystem.readDirectory(absoluteDir));
 	if (Result.isFailure(names)) return undefined;
-	return names.success.map((name) => ({
+	return A.map(names.success, (name) => ({
 		name,
 		directory: isDirectory(fileSystem, path.join(absoluteDir, name)),
 	}));
-};
+});
 
 /**
  * Whether `dir` holds a `package.json`.
  */
-const isPackage = (options: WorkspacesSyncOptions, dir: string): boolean =>
-	options.fileSystem.exists(options.path.join(dir, "package.json"));
+const isPackage: {
+	(options: WorkspacesSyncOptions, dir: string): boolean;
+	(dir: string): (options: WorkspacesSyncOptions) => boolean;
+} = dual(2, (options: WorkspacesSyncOptions, dir: string): boolean =>
+	options.fileSystem.exists(options.path.join(dir, "package.json")));
 
 /**
  * Options for {@link findWorkspaceRootSync}: the consumer-supplied operations
@@ -588,7 +599,10 @@ export const findWorkspaceRootSync: {
 /**
  * The workspace `packages:` patterns for `root`, matching `internal/patterns.ts`'s precedence.
  */
-const readPatternsSync = (options: WorkspacesSyncOptions, root: string): ReadonlyArray<string> => {
+const readPatternsSync: {
+	(options: WorkspacesSyncOptions, root: string): ReadonlyArray<string>;
+	(root: string): (options: WorkspacesSyncOptions) => ReadonlyArray<string>;
+} = dual(2, (options: WorkspacesSyncOptions, root: string): ReadonlyArray<string> => {
 	const { fileSystem, path } = options;
 	const workspaceYaml = path.join(root, "pnpm-workspace.yaml");
 	if (fileSystem.exists(workspaceYaml)) {
@@ -603,14 +617,26 @@ const readPatternsSync = (options: WorkspacesSyncOptions, root: string): Readonl
 		}
 	}
 	return manifestPatternsOf(readJson(fileSystem, path.join(root, "package.json")) ?? {});
-};
+});
 
 /**
  * Build a `WorkspacePackage` from a directory, or a {@link WorkspaceDiscoverySkip}
  * saying why its manifest is unusable — never `null`, so a skip cannot go
  * unreported.
  */
-const readPackageSync = (
+const readPackageSync: {
+	(
+		options: WorkspacesSyncOptions,
+		root: string,
+		directory: string,
+		relativePath: string,
+	): WorkspacePackage | WorkspaceDiscoverySkip;
+	(
+		root: string,
+		directory: string,
+		relativePath: string,
+	): (options: WorkspacesSyncOptions) => WorkspacePackage | WorkspaceDiscoverySkip;
+} = dual(4, (
 	options: WorkspacesSyncOptions,
 	root: string,
 	directory: string,
@@ -675,7 +701,7 @@ const readPackageSync = (
 		manifestRecord: raw,
 		...(Exit.isSuccess(config) ? { publishConfig: config.value } : {}),
 	});
-};
+});
 
 /**
  * Options for {@link getWorkspacePackagesSync}: the required consumer-supplied
@@ -796,7 +822,7 @@ export const getWorkspacePackagesSync: {
 	const isExcluded =
 		excludes.length === 0
 			? (_: string): boolean => false
-			: (relative: string): boolean => excludes.some((exclude) => exclude.matches(relative));
+			: (relative: string): boolean => A.some(excludes, (exclude) => exclude.matches(relative));
 
 	const included = MutableHashMap.empty<string, string>();
 

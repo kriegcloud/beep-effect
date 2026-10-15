@@ -6,10 +6,10 @@ import { assertSuccess, assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import { MAX_NESTING_DEPTH } from "../../effected/markdown/internal/limits.ts";
-import { Markdown } from "../../effected/markdown/Markdown.ts";
+import { Markdown, type MarkdownParseOptions } from "../../effected/markdown/Markdown.ts";
 import type { PhrasingContent } from "../../effected/markdown/MarkdownNode.ts";
 
-const phrasing = (text: string, options?: Parameters<typeof Markdown.parsePhrasingResult>[1]) => {
+const phrasing = (text: string, options?: MarkdownParseOptions) => {
 	const result = Markdown.parsePhrasingResult(text, options);
 	assertSuccess(result, Result.getOrThrow(result));
 	return Result.isSuccess(result) ? result.success : [];

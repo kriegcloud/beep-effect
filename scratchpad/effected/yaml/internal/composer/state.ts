@@ -209,13 +209,13 @@ export function lineIndentColumn(...[text, offset]: [text: string, offset: numbe
  * @since 0.0.0
  */
 export const NodeMeta = S.Struct({
-	anchor: S.String.pipe(S.optionalKey, S.mutableKey).annotateKey({ description: "Pending anchor name to attach to the next node." }),
+	anchor: S.String.pipe(S.optionalKey, S.mutableKey, $I.annoteKey("NodeMeta.anchor", { description: "Pending anchor name to attach to the next node." })),
 	tagSpan: S.Struct({
-		offset: S.Finite.annotateKey({ description: "Offset of the explicit tag CST token." }),
-		length: S.Finite.annotateKey({ description: "Length of the explicit tag CST token." }),
-	}).annotate($I.annote("TagSpan", { description: "Exact source span of a pending explicit tag token." })).pipe(S.optionalKey, S.mutableKey).annotateKey({ description: "Source provenance retained while the tag is pending." }),
-	tag: S.String.pipe(S.optionalKey, S.mutableKey).annotateKey({ description: "Pending explicit tag to attach to the next node." }),
-	comment: S.String.pipe(S.optionalKey, S.mutableKey).annotateKey({ description: "Pending comment text to attach to the next node." }),
+		offset: S.Finite.pipe($I.annoteKey("TagSpan.offset", { description: "Offset of the explicit tag CST token." })),
+		length: S.Finite.pipe($I.annoteKey("TagSpan.length", { description: "Length of the explicit tag CST token." })),
+	}).pipe($I.annoteSchema("TagSpan", { description: "Exact source span of a pending explicit tag token." }), S.optionalKey, S.mutableKey, $I.annoteKey("NodeMeta.tagSpan", { description: "Source provenance retained while the tag is pending." })),
+	tag: S.String.pipe(S.optionalKey, S.mutableKey, $I.annoteKey("NodeMeta.tag", { description: "Pending explicit tag to attach to the next node." })),
+	comment: S.String.pipe(S.optionalKey, S.mutableKey, $I.annoteKey("NodeMeta.comment", { description: "Pending comment text to attach to the next node." })),
 }).pipe($I.annoteSchema("NodeMeta", { description: "Writable pending composer metadata with absent keys omitted." }));
 /**
  * Represents the decoded, writable pending metadata described by {@link NodeMeta}.
@@ -327,8 +327,14 @@ export function commentProps(n: { commentBefore?: string; comment?: string; spac
  * @since 0.0.0
  */
 export interface FlowComposers {
-	readonly composeFlowMap: (cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number) => YamlMap;
-	readonly composeFlowSeq: (cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number) => YamlSeq;
+	readonly composeFlowMap: {
+		(state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): (cst: CstNode) => YamlMap;
+		(cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): YamlMap;
+	};
+	readonly composeFlowSeq: {
+		(state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): (cst: CstNode) => YamlSeq;
+		(cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): YamlSeq;
+	};
 }
 
 /**
@@ -467,7 +473,7 @@ export const MAX_NESTING_DEPTH = 256;
  */
 export function enterNesting(...[state, cst]: [state: ComposerState, cst: CstNode]): boolean {
 	if (state.depth >= MAX_NESTING_DEPTH) {
-		if (!state.errors.some((e) => e.code === "NestingDepthExceeded")) {
+		if (!A.some(state.errors, (e) => e.code === "NestingDepthExceeded")) {
 			state.errors.push({
 				code: "NestingDepthExceeded",
 				message: `Nesting depth exceeded maximum of ${MAX_NESTING_DEPTH}`,

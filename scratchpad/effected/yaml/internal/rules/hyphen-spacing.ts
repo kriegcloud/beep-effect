@@ -10,9 +10,10 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { YamlEdit } from "../../YamlEdit.ts";
-import type { YamlRule } from "../../YamlLintRule.ts";
+import type { LintContext, YamlRule } from "../../YamlLintRule.ts";
 import { YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
 import { positiveIntegerOption } from "./util.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/hyphen-spacing");
 
@@ -42,8 +43,8 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/hyphen-spacing");
  * @since 0.0.0
  */
 export const hyphenSpacingOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({ description: "Reporting level for sequence-entry spacing findings, defaulting to `error`" }),
-	maxSpacesAfter: S.optionalKey(positiveIntegerOption).annotateKey({ description: "Maximum spaces between a block-sequence `-` and its same-line item, at least 1 and defaulting to 1" }),
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("hyphenSpacingOptions.severity", { description: "Reporting level for sequence-entry spacing findings, defaulting to `error`" })),
+	maxSpacesAfter: S.optionalKey(positiveIntegerOption).pipe($I.annoteKey("hyphenSpacingOptions.maxSpacesAfter", { description: "Maximum spaces between a block-sequence `-` and its same-line item, at least 1 and defaulting to 1" })),
 }).pipe($I.annoteSchema("hyphenSpacingOptions", { description: "Options for `hyphen-spacing`: `maxSpacesAfter` (default 1) after the `-`. At least one separation space must follow the indicator — `0` would make the fix emit `-item`, a plain scalar, not a sequence entry." }));
 
 /**
@@ -82,7 +83,7 @@ export type hyphenSpacingOptions = typeof hyphenSpacingOptions.Type;
  */
 export const hyphenSpacing: YamlRule = {
 	id: "hyphen-spacing",
-	check: (ctx, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const opts = P.isObject(options) ? options : {};
 		// Clamped so a hand-built options object cannot bypass the schema and
 		// delete the separation space.
@@ -184,5 +185,5 @@ export const hyphenSpacing: YamlRule = {
 			}
 		}
 		return out;
-	},
+	}),
 };

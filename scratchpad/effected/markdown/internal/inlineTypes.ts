@@ -43,10 +43,10 @@ const $I = $ScratchpadId.create("effected/markdown/internal/inlineTypes");
  * @since 0.0.0
  */
 export const InlineSource = S.Struct({
-	text: S.String.annotateKey({ description: "Raw inline text accumulated by a leaf block." }),
-	startOffset: S.Finite.annotateKey({ description: "Absolute source offset where the raw text starts." }),
-	segments: S.Array(RawInlineSegment).annotateKey({ description: "Contiguous source runs locating the accumulated text." }),
-}).annotate($I.annote("InlineSource", { description: "Plain inline parser input with source provenance for absolute positions." }));
+	text: S.String.pipe($I.annoteKey("InlineSource.text", { description: "Raw inline text accumulated by a leaf block." })),
+	startOffset: S.Finite.pipe($I.annoteKey("InlineSource.startOffset", { description: "Absolute source offset where the raw text starts." })),
+	segments: S.Array(RawInlineSegment).pipe($I.annoteKey("InlineSource.segments", { description: "Contiguous source runs locating the accumulated text." })),
+}).pipe($I.annoteSchema("InlineSource", { description: "Plain inline parser input with source provenance for absolute positions." }));
 
 /** The inline input payload derived from its executable schema.
  * @category type-level
@@ -245,7 +245,10 @@ export interface InlineScanner {
 	 *
 	 * @since 0.0.0
 	 */
-	closingBacktickRun(from: number, length: number): number | undefined;
+	readonly closingBacktickRun: {
+		(from: number, length: number): number | undefined;
+		(length: number): (from: number) => number | undefined;
+	};
 
 	/**
 	 * Append a node to the output list.
@@ -258,7 +261,10 @@ export interface InlineScanner {
 	 *
 	 * @since 0.0.0
 	 */
-	appendText(value: string, from: number, to: number): InlineNode;
+	readonly appendText: {
+		(value: string, from: number, to: number): InlineNode;
+		(from: number, to: number): (value: string) => InlineNode;
+	};
 	/**
 	 * The last node appended, if any.
 	 *
@@ -299,7 +305,10 @@ export interface InlineScanner {
 	 *
 	 * @since 0.0.0
 	 */
-	addBracket(node: InlineNode, index: number, image: boolean): void;
+	readonly addBracket: {
+		(node: InlineNode, index: number, image: boolean): void;
+		(index: number, image: boolean): (node: InlineNode) => void;
+	};
 	/**
 	 * Pop the top bracket opener.
 	 *

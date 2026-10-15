@@ -22,6 +22,8 @@ import { CollectionStyle, ScalarStyle, type YamlNode, type YamlPair } from "./Ya
 import { YamlAlias, YamlMap, YamlScalar } from "./YamlNode.ts";
 import * as P from "effect/Predicate";
 import * as O from "@beep/utils/Option";
+import { dual } from "effect/Function";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/yaml/YamlVisitor");
 const isScalar = S.is(YamlScalar);
@@ -30,25 +32,25 @@ const isMap = S.is(YamlMap);
 const isFiniteNumber = S.is(S.Finite);
 
 const eventContext = {
-	path: S.Array(S.Union([S.String, S.Finite])).annotateKey({ description: "Ordered mapping keys and sequence indices from the document root." }),
-	depth: S.Finite.annotateKey({ description: "Zero-based nesting depth of the visited construct." }),
+	path: S.Array(S.Union([S.String, S.Finite])).pipe($I.annoteKey("YamlVisitorEvent.path", { description: "Ordered mapping keys and sequence indices from the document root." })),
+	depth: S.Finite.pipe($I.annoteKey("YamlVisitorEvent.depth", { description: "Zero-based nesting depth of the visited construct." })),
 };
 const eventProperties = {
-	tag: S.optionalKey(S.String).annotateKey({ description: "Explicit YAML tag attached to the construct, when present." }),
-	anchor: S.optionalKey(S.String).annotateKey({ description: "Anchor name attached to the construct, when present." }),
+	tag: S.optionalKey(S.String).pipe($I.annoteKey("YamlVisitorEvent.tag", { description: "Explicit YAML tag attached to the construct, when present." })),
+	anchor: S.optionalKey(S.String).pipe($I.annoteKey("YamlVisitorEvent.anchor", { description: "Anchor name attached to the construct, when present." })),
 };
 const collectionContext = {
 	...eventContext,
 	...eventProperties,
-	style: CollectionStyle.annotateKey({ description: "Block or flow presentation of the collection." }),
+	style: CollectionStyle.pipe($I.annoteKey("YamlVisitorEvent.style", { description: "Block or flow presentation of the collection." })),
 };
 const visitorEvent = S.TaggedUnion({
 	DocumentStart: {
 		...eventContext,
 		directives: S.Array(S.Struct({
-			name: S.String.annotateKey({ description: "Directive name without its percent indicator." }),
-			parameters: S.Array(S.String).annotateKey({ description: "Ordered directive parameters." }),
-		}).annotate($I.annote("VisitorDirective", { description: "A directive attached to a visited document." }))).annotateKey({ description: "Directives applying to the document in source order." }),
+			name: S.String.pipe($I.annoteKey("VisitorDirective.name", { description: "Directive name without its percent indicator." })),
+			parameters: S.Array(S.String).pipe($I.annoteKey("VisitorDirective.parameters", { description: "Ordered directive parameters." })),
+		}).pipe($I.annoteSchema("VisitorDirective", { description: "A directive attached to a visited document." }))).pipe($I.annoteKey("YamlVisitorEvent.DocumentStart.directives", { description: "Directives applying to the document in source order." })),
 	},
 	DocumentEnd: eventContext,
 	MapStart: collectionContext,
@@ -57,28 +59,28 @@ const visitorEvent = S.TaggedUnion({
 	SeqEnd: eventContext,
 	Pair: {
 		...eventContext,
-		key: S.Unknown.annotateKey({ description: "Resolved scalar key, or null for a complex key." }),
-		value: S.Unknown.annotateKey({ description: "Resolved scalar value, or null for a collection or omitted value." }),
+		key: S.Unknown.pipe($I.annoteKey("YamlVisitorEvent.Pair.key", { description: "Resolved scalar key, or null for a complex key." })),
+		value: S.Unknown.pipe($I.annoteKey("YamlVisitorEvent.Pair.value", { description: "Resolved scalar value, or null for a collection or omitted value." })),
 	},
 	Scalar: {
 		...eventContext,
 		...eventProperties,
-		value: S.Unknown.annotateKey({ description: "Resolved YAML scalar value." }),
-		style: ScalarStyle.annotateKey({ description: "Scalar presentation style in the source." }),
+		value: S.Unknown.pipe($I.annoteKey("YamlVisitorEvent.Scalar.value", { description: "Resolved YAML scalar value." })),
+		style: ScalarStyle.pipe($I.annoteKey("YamlVisitorEvent.Scalar.style", { description: "Scalar presentation style in the source." })),
 	},
-	Alias: { ...eventContext, name: S.String.annotateKey({ description: "Referenced anchor name." }) },
+	Alias: { ...eventContext, name: S.String.pipe($I.annoteKey("YamlVisitorEvent.Alias.name", { description: "Referenced anchor name." })) },
 	Comment: {
 		...eventContext,
-		text: S.String.annotateKey({ description: "Comment text attached to the visited construct." }),
-		placement: S.Literals(["leading", "trailing"]).annotateKey({ description: "Own-line comment before the construct or same-line comment after it." }),
+		text: S.String.pipe($I.annoteKey("YamlVisitorEvent.Comment.text", { description: "Comment text attached to the visited construct." })),
+		placement: S.Literals(["leading", "trailing"]).pipe($I.annoteKey("YamlVisitorEvent.Comment.placement", { description: "Own-line comment before the construct or same-line comment after it." })),
 	},
 	Directive: {
 		...eventContext,
-		name: S.String.annotateKey({ description: "Directive name without its percent indicator." }),
-		parameters: S.String.annotateKey({ description: "Directive parameters joined with spaces." }),
+		name: S.String.pipe($I.annoteKey("YamlVisitorEvent.Directive.name", { description: "Directive name without its percent indicator." })),
+		parameters: S.String.pipe($I.annoteKey("YamlVisitorEvent.Directive.parameters", { description: "Directive parameters joined with spaces." })),
 	},
-	Error: { ...eventContext, diagnostic: YamlDiagnostic.annotateKey({ description: "Positioned diagnostic recorded while composing the document." }) },
-}).annotate($I.annote("YamlVisitorEvent", { description: "Concrete YAML AST visitor events with shared path and nesting context." }));
+	Error: { ...eventContext, diagnostic: YamlDiagnostic.pipe($I.annoteKey("YamlVisitorEvent.Error.diagnostic", { description: "Positioned diagnostic recorded while composing the document." })) },
+}).pipe($I.annoteSchema("YamlVisitorEvent", { description: "Concrete YAML AST visitor events with shared path and nesting context." }));
 
 /**
  * The discriminated union of YAML AST visitor events. Every variant carries
@@ -177,9 +179,10 @@ export class YamlVisitor {
  * @category streams
  * @since 0.0.0
  */
-	static visit(text: string, options?: YamlParseOptions): Stream.Stream<YamlVisitorEvent> {
-		return Stream.suspend(() => Stream.fromIterable(visitGen(text, options)));
-	}
+	static readonly visit: {
+		(options?: YamlParseOptions): (text: string) => Stream.Stream<YamlVisitorEvent>;
+		(text: string, options?: YamlParseOptions): Stream.Stream<YamlVisitorEvent>;
+	} = dual((args) => P.isString(args[0]), (text: string, options?: YamlParseOptions): Stream.Stream<YamlVisitorEvent> => Stream.suspend(() => Stream.fromIterable(visitGen(text, options))));
 }
 
 function* visitGen(text: string, options?: YamlParseOptions): Generator<YamlVisitorEvent> {
@@ -204,13 +207,13 @@ function* walkDocument(doc: RawYamlDocument, text: string, index: ReturnType<typ
 	const depth = 0;
 
 	for (const dir of doc.directives) {
-		yield YamlVisitorEvent.Directive({ path, depth, name: dir.name, parameters: dir.parameters.join(" ") });
+		yield YamlVisitorEvent.Directive({ path, depth, name: dir.name, parameters: A.join(dir.parameters, " ") });
 	}
 
 	yield YamlVisitorEvent.DocumentStart({
 		path,
 		depth,
-		directives: doc.directives.map((d) => ({ name: d.name, parameters: d.parameters })),
+		directives: A.map(doc.directives, (d) => ({ name: d.name, parameters: d.parameters })),
 	});
 
 	for (const diagnostic of YamlDiagnostic.fromRawBatch(doc.errors, text, index)) {

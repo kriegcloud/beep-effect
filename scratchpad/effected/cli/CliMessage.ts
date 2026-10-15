@@ -33,8 +33,8 @@ export const CliMessageOptions = S.Struct({
    * Where the line goes. Defaults to stderr for a status whose rank is at or above `warning`'s in its
    * vocabulary, stdout otherwise.
    */
-  stream: S.optionalKey(S.Literals(["stdout", "stderr"])).annotate($I.annote("CliMessageOptions.stream", { description: "The output stream override for a status line." })),
-}).annotate($I.annote("CliMessageOptions", { description: "Plain output routing options for a status message." }));
+  stream: S.optionalKey(S.Literals(["stdout", "stderr"])).pipe($I.annoteKey("CliMessageOptions.stream", { description: "The output stream override for a status line." })),
+}).pipe($I.annoteSchema("CliMessageOptions", { description: "Plain output routing options for a status message." }));
 
 /**
  * The plain stream override accepted by status messages.

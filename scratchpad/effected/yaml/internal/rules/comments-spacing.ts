@@ -13,6 +13,7 @@ import type { LintContext, YamlRule } from "../../YamlLintRule.ts";
 import { StyleVote, YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
 import type { YamlToken } from "../../YamlToken.ts";
 import { nonNegativeIntegerOption } from "./util.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/comments-spacing");
 
@@ -35,9 +36,9 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/comments-spacing")
  * @since 0.0.0
  */
 export const commentsSpacingOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({ description: "Reporting level for comment-spacing findings, defaulting to `error`" }),
-	minSpacesBefore: S.optionalKey(nonNegativeIntegerOption).annotateKey({ description: "Minimum spaces or tabs between line content and a trailing comment's `#`, defaulting to 1" }),
-	requireSpaceAfter: S.optionalKey(S.Boolean).annotateKey({ description: "Whether nonempty comments require a space or tab after `#`, defaulting to `true` and exempting an initial shebang" }),
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("commentsSpacingOptions.severity", { description: "Reporting level for comment-spacing findings, defaulting to `error`" })),
+	minSpacesBefore: S.optionalKey(nonNegativeIntegerOption).pipe($I.annoteKey("commentsSpacingOptions.minSpacesBefore", { description: "Minimum spaces or tabs between line content and a trailing comment's `#`, defaulting to 1" })),
+	requireSpaceAfter: S.optionalKey(S.Boolean).pipe($I.annoteKey("commentsSpacingOptions.requireSpaceAfter", { description: "Whether nonempty comments require a space or tab after `#`, defaulting to `true` and exempting an initial shebang" })),
 }).pipe($I.annoteSchema("commentsSpacingOptions", { description: "Options for `comments-spacing`: `minSpacesBefore` between content and a trailing `#` (default 1 — the kit's own emission spelling) and `requireSpaceAfter` the `#` (default `true`)." }));
 
 /**
@@ -53,10 +54,10 @@ export type commentsSpacingOptions = typeof commentsSpacingOptions.Type;
  * line content precedes it (a TRAILING comment) — shared by the check and
  * the inference hook so the two cannot disagree about what "before" means.
  */
-const spacingBefore = (
-	ctx: LintContext,
-	token: YamlToken,
-): { readonly spaces: number; readonly hasContentBefore: boolean } => {
+const spacingBefore: {
+	(ctx: LintContext, token: YamlToken): { readonly spaces: number; readonly hasContentBefore: boolean };
+	(token: YamlToken): (ctx: LintContext) => { readonly spaces: number; readonly hasContentBefore: boolean };
+} = dual(2, (ctx: LintContext, token: YamlToken): { readonly spaces: number; readonly hasContentBefore: boolean } => {
 	let i = token.offset - 1;
 	let spaces = 0;
 	while (i >= 0 && (ctx.text[i] === " " || ctx.text[i] === "\t")) {
@@ -67,7 +68,7 @@ const spacingBefore = (
 		spaces,
 		hasContentBefore: i >= 0 && ctx.text[i] !== "\n" && ctx.text[i] !== "\r" && !(i === 0 && ctx.text[i] === "\uFEFF"),
 	};
-};
+});
 
 /** Recognizes a shebang (hash followed by an exclamation mark) at the very start of the stream. */
 const isShebang = (token: YamlToken): boolean => token.offset === 0 && token.text.startsWith("#!");
@@ -97,7 +98,7 @@ const isShebang = (token: YamlToken): boolean => token.offset === 0 && token.tex
  */
 export const commentsSpacing: YamlRule = {
 	id: "comments-spacing",
-	check: (ctx, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const opts = P.isObject(options) ? options : {};
 		const minBefore = P.isNumber(opts.minSpacesBefore) ? opts.minSpacesBefore : 1;
 		const requireAfter = S.is(S.Boolean)(opts.requireSpaceAfter) ? opts.requireSpaceAfter : true;
@@ -144,7 +145,7 @@ export const commentsSpacing: YamlRule = {
 			}
 		}
 		return out;
-	},
+	}),
 	// Inference: every non-shebang comment with content after its `#`
 	// votes `requireSpaceAfter` (does a space follow?), and every TRAILING
 	// comment votes its observed spacing for `minSpacesBefore`. A bare `#`

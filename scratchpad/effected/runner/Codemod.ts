@@ -19,6 +19,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -31,6 +32,7 @@ import { listTsFiles } from "./Copy.ts";
 import type { AuditTarget } from "./Ledger.schema.ts";
 import { labPaths, type RunnerConfig } from "./Paths.ts";
 import type { ImportDeclaration, SourceFile } from "ts-morph";
+import type { PlatformError } from "effect/PlatformError";
 
 const $I = $ScratchpadId.create("effected/runner/Codemod");
 
@@ -116,7 +118,10 @@ const makeProject = (): Project =>
     },
   });
 
-const declaredNames = (sourceFile: SourceFile, exclude: ImportDeclaration): MutableHashSet.MutableHashSet<string> => {
+const declaredNames: {
+  (sourceFile: SourceFile, exclude: ImportDeclaration): MutableHashSet.MutableHashSet<string>;
+  (exclude: ImportDeclaration): (sourceFile: SourceFile) => MutableHashSet.MutableHashSet<string>;
+} = dual(2, (sourceFile: SourceFile, exclude: ImportDeclaration): MutableHashSet.MutableHashSet<string> => {
   const names = MutableHashSet.empty<string>();
   for (const identifier of sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)) {
     if (identifier.getFirstAncestorByKind(SyntaxKind.ImportDeclaration) !== exclude) {
@@ -124,7 +129,7 @@ const declaredNames = (sourceFile: SourceFile, exclude: ImportDeclaration): Muta
     }
   }
   return names;
-};
+});
 
 interface PlannedImport {
   readonly specifier: string;
@@ -225,7 +230,10 @@ export const rewriteRootImports = (sourceFile: SourceFile): ImportRewrite => {
  * @category commands
  * @since 0.0.0
  */
-export const codemodImports = Effect.fn("Codemod.imports")(function* (config: RunnerConfig, target: AuditTarget) {
+export const codemodImports: {
+  (config: RunnerConfig, target: AuditTarget): Effect.Effect<Array<ImportRewrite>, PlatformError, FileSystem.FileSystem | Path.Path>;
+  (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<Array<ImportRewrite>, PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Codemod.imports")(function* (config: RunnerConfig, target: AuditTarget) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const lab = labPaths(target);
@@ -247,4 +255,4 @@ export const codemodImports = Effect.fn("Codemod.imports")(function* (config: Ru
     }
   }
   return rewrites;
-});
+}));

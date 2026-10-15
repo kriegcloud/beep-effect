@@ -38,7 +38,7 @@ export const Osc8Reason = LiteralKit([
 	"terminal-known-unsupported",
 	"terminal-known-too-old",
 	"terminal-unknown",
-]).annotate($I.annote("Osc8Reason", { description: "Why detection produced its verdict. The discriminator on Osc8Info." }));
+]).pipe($I.annoteSchema("Osc8Reason", { description: "Why detection produced its verdict. The discriminator on Osc8Info." }));
 /**
  * Reason literal accepted by the {@link Osc8Reason} schema.
  *
@@ -62,9 +62,7 @@ export type Osc8Reason = typeof Osc8Reason.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const Osc8Override = LiteralKit(["force-hyperlink", "no-hyperlink", "no-color"]).annotate(
-	$I.annote("Osc8Override", { description: "Environment override that produced an OSC8 verdict." }),
-);
+export const Osc8Override = LiteralKit(["force-hyperlink", "no-hyperlink", "no-color"]).pipe($I.annoteSchema("Osc8Override", { description: "Environment override that produced an OSC8 verdict." }));
 /**
  * Override literal accepted by the {@link Osc8Override} schema.
  *
@@ -162,7 +160,7 @@ export const Osc8Info = S.Struct({
 	 * @since 0.0.0
 	 */
 	capabilities: Osc8Capabilities.pipe($I.annoteKey("Osc8Info.capabilities", { description: "Sub-feature capabilities of the detected terminal." })),
-}).annotate($I.annote("Osc8Info", { description: "The full diagnostic record produced by detect." }));
+}).pipe($I.annoteSchema("Osc8Info", { description: "The full diagnostic record produced by detect." }));
 /**
  * Diagnostic record represented by the {@link Osc8Info} schema.
  *
@@ -191,7 +189,7 @@ export const ProcessSnapshot = S.Struct({
 	env: S.Record(S.String, S.UndefinedOr(S.String)).pipe($I.annoteKey("ProcessSnapshot.env", { description: "Environment variable names mapped to strings or undefined." })),
 	isStdoutTTY: S.Boolean.pipe($I.annoteKey("ProcessSnapshot.isStdoutTTY", { description: "Whether stdout is a TTY at detection time." })),
 	isStderrTTY: S.Boolean.pipe($I.annoteKey("ProcessSnapshot.isStderrTTY", { description: "Whether stderr is a TTY at detection time." })),
-}).annotate($I.annote("ProcessSnapshot", { description: "Input to the pure detect function: a snapshot of the relevant process state." }));
+}).pipe($I.annoteSchema("ProcessSnapshot", { description: "Input to the pure detect function: a snapshot of the relevant process state." }));
 /**
  * Process state accepted by the {@link ProcessSnapshot} schema.
  *
@@ -200,7 +198,10 @@ export const ProcessSnapshot = S.Struct({
  */
 export type ProcessSnapshot = typeof ProcessSnapshot.Type;
 
-const explanationFor = (
+const explanationFor: {
+	(reason: Osc8Reason, terminal: KnownTerminal | null, terminalVersion: string | null, wrapper: WrapperInfo | null): string;
+	(terminal: KnownTerminal | null, terminalVersion: string | null, wrapper: WrapperInfo | null): (reason: Osc8Reason) => string;
+} = dual(4, (
 	reason: Osc8Reason,
 	terminal: KnownTerminal | null,
 	terminalVersion: string | null,
@@ -215,7 +216,7 @@ const explanationFor = (
 	"terminal-known-unsupported": () => `detected ${terminal}; terminal does not support OSC8`,
 	"terminal-known-too-old": () => `detected ${terminal} ${terminalVersion ?? ""}; below minimum version`,
 	"terminal-unknown": () => "no identifying signal matched",
-});
+}));
 
 /** Outcome of running the precedence gate for a single stream's TTY state. */
 type Gate = Pick<Osc8Info, "supported" | "reason" | "override">;
@@ -224,7 +225,23 @@ type Gate = Pick<Osc8Info, "supported" | "reason" | "override">;
  * Run the 7-rule precedence ladder for a single stream's TTY state.
  * Shared by stdout and stderr so the two paths cannot drift.
  */
-const evaluateGate = (
+const evaluateGate: {
+	(
+		isTTY: boolean,
+		force: boolean,
+		noHyperlink: boolean,
+		noColor: boolean,
+		wrapper: WrapperInfo | null,
+		match: TerminalMatch | null,
+	): Gate;
+	(
+		force: boolean,
+		noHyperlink: boolean,
+		noColor: boolean,
+		wrapper: WrapperInfo | null,
+		match: TerminalMatch | null,
+	): (isTTY: boolean) => Gate;
+} = dual(6, (
 	isTTY: boolean,
 	force: boolean,
 	noHyperlink: boolean,
@@ -246,7 +263,7 @@ const evaluateGate = (
 		return { supported: false, reason: "terminal-known-too-old", override: null };
 	}
 	return { supported: true, reason: "terminal-known-supported", override: null };
-};
+});
 
 /**
  * Determine OSC8 support from a process snapshot. Pure: same input ⇒ same
@@ -325,8 +342,8 @@ export const Osc8Detection = S.Struct({
 	terminal: S.Option(S.Struct({
 		name: S.String.pipe($I.annoteKey("Osc8Detection.terminal.name", { description: "The identified terminal program." })),
 		version: S.Option(S.String).pipe($I.annoteKey("Osc8Detection.terminal.version", { description: "The terminal version, when available." })),
-	}).annotate($I.annote("Osc8Detection.terminal", { description: "The identified terminal program and optional version." }))).pipe($I.annoteKey("Osc8Detection.terminal", { description: "The identified terminal, when available." })),
-}).annotate($I.annote("Osc8Detection", { description: "Per-stream OSC8 verdicts plus the identified terminal." }));
+	}).pipe($I.annoteSchema("Osc8Detection.terminal", { description: "The identified terminal program and optional version." }))).pipe($I.annoteKey("Osc8Detection.terminal", { description: "The identified terminal, when available." })),
+}).pipe($I.annoteSchema("Osc8Detection", { description: "Per-stream OSC8 verdicts plus the identified terminal." }));
 /**
  * Per-stream verdicts and optional terminal represented by {@link Osc8Detection}.
  *

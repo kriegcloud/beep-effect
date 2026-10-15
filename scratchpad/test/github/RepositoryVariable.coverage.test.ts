@@ -3,6 +3,7 @@ import { assertFailure, assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { GitHubError } from "../../effected/github/GitHubError.ts";
@@ -35,12 +36,14 @@ describe("RepositoryVariable test-double behavior", () => {
   });
   const calls: Array<ReadonlyArray<string | number>> = [];
   it.layer(Layer.mergeAll(RepositoryVariable.layerTest({
-    set: (name, value) => Effect.sync(() => { calls.push(["set", name, value]); }),
+    set: dual(2, (name: string, value: string) => Effect.sync(() => { calls.push(["set", name, value]); })),
     list: Effect.succeed([{ name: "REGION", value: "west" }]),
     delete: (name) => Effect.sync(() => { calls.push(["delete", name]); }),
-    setForEnvironment: (environment, name, value) => Effect.sync(() => { calls.push(["setForEnvironment", environment, name, value]); }),
+    setForEnvironment: dual(3, (environment: string, name: string, value: string) =>
+      Effect.sync(() => { calls.push(["setForEnvironment", environment, name, value]); })),
     listForEnvironment: (environment) => Effect.sync(() => { calls.push(["listForEnvironment", environment]); return [{ name: "REGION", value: "west" }]; }),
-    deleteForEnvironment: (environment, name) => Effect.sync(() => { calls.push(["deleteForEnvironment", environment, name]); }),
+    deleteForEnvironment: dual(2, (environment: string, name: string) =>
+      Effect.sync(() => { calls.push(["deleteForEnvironment", environment, name]); })),
   }), Repo.layer(REPO)), { timeout: "30 seconds" })((it) => {
     it.effect("the layer honors every override and forwards its arguments", () => Effect.gen(function* () {
       const start = calls.length;

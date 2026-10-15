@@ -35,10 +35,11 @@
 //    never disagree.
 
 import { FootnoteDefinition } from "../../MarkdownNode.ts";
-import type { BlockConstruct, BlockStart } from "../blockTypes.ts";
+import type { BlockConstruct, BlockContinueResult, BlockNode, BlockScanner, BlockStart, BlockStartResult, MaterializeContext, MaterializedBlock } from "../blockTypes.ts";
 import { flowChildren } from "../blockTypes.ts";
 import { stickyOf } from "../patterns.ts";
 import { normalizeLabelText } from "../references.ts";
+import { dual } from "effect/Function";
 
 /**
  * `_scan_footnote_definition` from `src/scanners.re`:
@@ -84,7 +85,7 @@ export const footnoteDefinitionConstruct: BlockConstruct = {
 	// hold several paragraphs. Anything else ends it — and when what ends it is
 	// ordinary text with an open paragraph inside, the line loop's lazy
 	// continuation still absorbs it, exactly as it would inside a blockquote.
-	continue: (scanner) => {
+	continue: dual(2, (scanner: BlockScanner, _block: BlockNode): BlockContinueResult => {
 		if (scanner.indent >= CONTINUATION_INDENT) {
 			scanner.advanceOffset(CONTINUATION_INDENT, true);
 			return 0;
@@ -92,8 +93,8 @@ export const footnoteDefinitionConstruct: BlockConstruct = {
 		// Upstream tests `input->data[0] == '\n'` — the RAW line, before any
 		// indent is skipped, so a line of spaces is not blank enough.
 		return scanner.currentLine.length === 0 ? 0 : 1;
-	},
-	materialize: (block, children, context) => {
+	}),
+	materialize: dual(3, (block: BlockNode, children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => {
 		const footnote = block.data.footnote;
 		if (footnote === undefined) {
 			return undefined;
@@ -104,7 +105,7 @@ export const footnoteDefinitionConstruct: BlockConstruct = {
 			children: flowChildren(children),
 			position: context.position(block.startOffset, block.endOffset),
 		});
-	},
+	}),
 };
 
 /**
@@ -131,7 +132,7 @@ export const footnoteDefinitionConstruct: BlockConstruct = {
  */
 export const footnoteDefinitionStart: BlockStart = {
 	name: "footnoteDefinition",
-	trigger: (scanner) => {
+	trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
 		if (scanner.indented) {
 			return 0;
 		}
@@ -163,5 +164,5 @@ export const footnoteDefinitionStart: BlockStart = {
 		const block = scanner.addChild("footnoteDefinition", start);
 		block.data.footnote = { key, identifier: key.toLowerCase(), label: rawLabel };
 		return 1;
-	},
+	}),
 };

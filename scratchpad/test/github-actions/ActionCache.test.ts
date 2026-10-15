@@ -20,6 +20,7 @@ import { ActionCache, ActionCacheError, BlobTransferError, CacheKey } from "../.
 import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import { json, resultsEnv, twirpFetch } from "./results.ts";
+import { dual } from "effect/Function";
 
 /**
  * A transport that keeps whole files in memory.
@@ -32,7 +33,7 @@ import { json, resultsEnv, twirpFetch } from "./results.ts";
 const fileTransfer = (fs: FileSystem.FileSystem) => {
 	const blobs = new Map<string, Uint8Array>();
 	const transfer: FileBlobTransfer = {
-		uploadFile: (url, file) =>
+		uploadFile: dual(2, (url: string, file: string) =>
 			fs.readFile(file).pipe(
 				Effect.tap((bytes) =>
 					Effect.sync(() => {
@@ -41,8 +42,8 @@ const fileTransfer = (fs: FileSystem.FileSystem) => {
 				),
 				Effect.asVoid,
 				Effect.mapError((cause) => BlobTransferError.make({ reason: "uploadFailed", cause }))
-			),
-		downloadToFile: (url, file) =>
+			)),
+		downloadToFile: dual(2, (url: string, file: string) =>
 			Effect.suspend(() => {
 				const found = blobs.get(url);
 				return found === undefined
@@ -52,7 +53,7 @@ const fileTransfer = (fs: FileSystem.FileSystem) => {
 					: fs
 							.writeFile(file, found)
 							.pipe(Effect.mapError((cause) => BlobTransferError.make({ reason: "downloadFailed", cause })));
-			}),
+			})),
 	};
 	return { blobs, transfer };
 };
@@ -94,8 +95,8 @@ describe("ActionCache", () => {
 			}),
 		});
 		const transfer: FileBlobTransfer = {
-			uploadFile: () => Effect.sync(() => { uploads += 1; }),
-			downloadToFile: () => Effect.void,
+			uploadFile: dual(2, (_url: string, _file: string) => Effect.sync(() => { uploads += 1; })),
+			downloadToFile: dual(2, (_url: string, _file: string) => Effect.void),
 		};
 		const { calls, fetch } = twirpFetch({});
 		const layer = ActionCache.layerWith(transfer).pipe(Layer.provideMerge(Layer.mergeAll(
@@ -427,11 +428,11 @@ describe("ActionCache", () => {
 			// it), so the stderr channel is proved on the extract side: bytes that
 			// are not a gzip archive.
 			const corrupt: FileBlobTransfer = {
-				uploadFile: () => Effect.void,
-				downloadToFile: (_url, file) =>
+				uploadFile: dual(2, (_url: string, _file: string) => Effect.void),
+				downloadToFile: dual(2, (_url: string, file: string) =>
 					fs
 						.writeFileString(file, "this is not an archive")
-						.pipe(Effect.mapError((cause) => BlobTransferError.make({ reason: "downloadFailed", cause }))),
+						.pipe(Effect.mapError((cause) => BlobTransferError.make({ reason: "downloadFailed", cause })))),
 			};
 			const { fetch } = twirpFetch({
 				GetCacheEntryDownloadURL: () => json({ ok: true, signedDownloadUrl: "https://blob.example/junk" }),
@@ -532,8 +533,8 @@ describe("ActionCache", () => {
 			const file = join(root, "f.txt");
 			yield* fs.writeFileString(file, "x");
 			const failing: FileBlobTransfer = {
-				uploadFile: () => Effect.fail(BlobTransferError.make({ reason: "uploadFailed" })),
-				downloadToFile: () => Effect.fail(BlobTransferError.make({ reason: "downloadFailed" })),
+				uploadFile: dual(2, (_url: string, _file: string) => Effect.fail(BlobTransferError.make({ reason: "uploadFailed" }))),
+				downloadToFile: dual(2, (_url: string, _file: string) => Effect.fail(BlobTransferError.make({ reason: "downloadFailed" }))),
 			};
 			const { fetch } = twirpFetch({
 				CreateCacheEntry: () => json({ ok: true, signedUploadUrl: "https://blob.example/d" }),
@@ -900,8 +901,8 @@ describe("ActionCache", () => {
 				for (const file of files) yield* fs.writeFileString(file, "unsafe manifest name");
 				let uploads = 0;
 				const transfer: FileBlobTransfer = {
-					uploadFile: () => Effect.sync(() => { uploads += 1; }),
-					downloadToFile: () => Effect.void,
+					uploadFile: dual(2, (_url: string, _file: string) => Effect.sync(() => { uploads += 1; })),
+					downloadToFile: dual(2, (_url: string, _file: string) => Effect.void),
 				};
 				const { calls, fetch } = twirpFetch({});
 				const spying = spyingSpawner();
@@ -960,9 +961,9 @@ describe("ActionCache", () => {
 				yield* fs.symlink(target, alias);
 				const archived = join(root, "uploaded.tar.gz");
 				const transfer: FileBlobTransfer = {
-					uploadFile: (_url, file) => fs.copyFile(file, archived).pipe(
-						Effect.mapError((cause) => BlobTransferError.make({ reason: "uploadFailed", cause }))),
-					downloadToFile: () => Effect.void,
+					uploadFile: dual(2, (_url: string, file: string) => fs.copyFile(file, archived).pipe(
+						Effect.mapError((cause) => BlobTransferError.make({ reason: "uploadFailed", cause })))),
+					downloadToFile: dual(2, (_url: string, _file: string) => Effect.void),
 				};
 				const { calls, fetch } = backend();
 				const spying = spyingSpawner();

@@ -45,27 +45,21 @@ const WatchFileKit = LiteralKit([
 	"fixedchunksizepolling",
 	"usefsevents",
 	"usefseventsonparentdirectory",
-]).annotate(
-	$I.annote("WatchFileLiterals", { description: "The strategy for watching individual source files." }),
-);
+]).pipe($I.annoteSchema("WatchFileLiterals", { description: "The strategy for watching individual source files." }));
 
 const WatchDirectoryKit = LiteralKit([
 	"usefsevents",
 	"fixedpollinginterval",
 	"dynamicprioritypolling",
 	"fixedchunksizepolling",
-]).annotate(
-	$I.annote("WatchDirectoryLiterals", { description: "The strategy for watching source directories." }),
-);
+]).pipe($I.annoteSchema("WatchDirectoryLiterals", { description: "The strategy for watching source directories." }));
 
 const FallbackPollingKit = LiteralKit([
 	"fixedinterval",
 	"priorityinterval",
 	"dynamicpriority",
 	"fixedchunksize",
-]).annotate(
-	$I.annote("FallbackPollingLiterals", { description: "The polling strategy used when filesystem events are unavailable." }),
-);
+]).pipe($I.annoteSchema("FallbackPollingLiterals", { description: "The polling strategy used when filesystem events are unavailable." }));
 
 /**
  * Validates the strategy for individual source files in `watchOptions.watchFile`.
@@ -89,9 +83,7 @@ const FallbackPollingKit = LiteralKit([
  * @category schemas
  * @since 0.0.0
  */
-export const WatchFile = caseInsensitiveLiterals(WatchFileKit).annotate(
-	$I.annote("WatchFile", { description: "The strategy for watching individual source files." }),
-);
+export const WatchFile = caseInsensitiveLiterals(WatchFileKit).pipe($I.annoteSchema("WatchFile", { description: "The strategy for watching individual source files." }));
 
 /**
  * Decoded value accepted by {@link (WatchFile:variable)}.
@@ -123,9 +115,7 @@ export type WatchFile = typeof WatchFile.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const WatchDirectory = caseInsensitiveLiterals(WatchDirectoryKit).annotate(
-	$I.annote("WatchDirectory", { description: "The strategy for watching source directories." }),
-);
+export const WatchDirectory = caseInsensitiveLiterals(WatchDirectoryKit).pipe($I.annoteSchema("WatchDirectory", { description: "The strategy for watching source directories." }));
 
 /**
  * Decoded value accepted by {@link (WatchDirectory:variable)}.
@@ -157,9 +147,7 @@ export type WatchDirectory = typeof WatchDirectory.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const FallbackPolling = caseInsensitiveLiterals(FallbackPollingKit).annotate(
-	$I.annote("FallbackPolling", { description: "The polling strategy used when filesystem events are unavailable." }),
-);
+export const FallbackPolling = caseInsensitiveLiterals(FallbackPollingKit).pipe($I.annoteSchema("FallbackPolling", { description: "The polling strategy used when filesystem events are unavailable." }));
 
 /**
  * Decoded value accepted by {@link (FallbackPolling:variable)}.
@@ -190,10 +178,10 @@ export type FallbackPolling = typeof FallbackPolling.Type;
  */
 export const Reference = S.StructWithRest(
 	S.Struct({
-		path: S.String.check(S.isMinLength(1)).annotateKey({ description: "The non-empty path to a referenced TypeScript project." }),
+		path: S.String.check(S.isMinLength(1)).pipe($I.annoteKey("Reference.path", { description: "The non-empty path to a referenced TypeScript project." })),
 	}),
 	[S.Record(S.String, S.Unknown)],
-).annotate($I.annote("Reference", { description: "A referenced TypeScript project with additional reference metadata preserved." }));
+).pipe($I.annoteSchema("Reference", { description: "A referenced TypeScript project with additional reference metadata preserved." }));
 
 /**
  * Decoded value accepted by {@link (Reference:variable)}.
@@ -254,15 +242,15 @@ export declare namespace Reference {
  */
 export const WatchOptions = S.StructWithRest(
 	S.Struct({
-		watchFile: S.optionalKey(WatchFile).annotateKey({ description: "The strategy for watching individual files." }),
-		watchDirectory: S.optionalKey(WatchDirectory).annotateKey({ description: "The strategy for watching directories." }),
-		fallbackPolling: S.optionalKey(FallbackPolling).annotateKey({ description: "The polling fallback when filesystem events are unavailable." }),
-		synchronousWatchDirectory: S.optionalKey(S.Boolean).annotateKey({ description: "Updates directory watchers synchronously." }),
-		excludeDirectories: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Directory patterns excluded from watching." }),
-		excludeFiles: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "File patterns excluded from watching." }),
+		watchFile: S.optionalKey(WatchFile).pipe($I.annoteKey("WatchOptions.watchFile", { description: "The strategy for watching individual files." })),
+		watchDirectory: S.optionalKey(WatchDirectory).pipe($I.annoteKey("WatchOptions.watchDirectory", { description: "The strategy for watching directories." })),
+		fallbackPolling: S.optionalKey(FallbackPolling).pipe($I.annoteKey("WatchOptions.fallbackPolling", { description: "The polling fallback when filesystem events are unavailable." })),
+		synchronousWatchDirectory: S.optionalKey(S.Boolean).pipe($I.annoteKey("WatchOptions.synchronousWatchDirectory", { description: "Updates directory watchers synchronously." })),
+		excludeDirectories: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("WatchOptions.excludeDirectories", { description: "Directory patterns excluded from watching." })),
+		excludeFiles: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("WatchOptions.excludeFiles", { description: "File patterns excluded from watching." })),
 	}),
 	[S.Record(S.String, S.Unknown)],
-).annotate($I.annote("WatchOptions", { description: "Optional filesystem watch settings with unknown keys preserved." }));
+).pipe($I.annoteSchema("WatchOptions", { description: "Optional filesystem watch settings with unknown keys preserved." }));
 
 /**
  * Decoded value accepted by {@link (WatchOptions:variable)}.
@@ -318,13 +306,13 @@ export declare namespace WatchOptions {
  */
 export const TypeAcquisition = S.StructWithRest(
 	S.Struct({
-		enable: S.optionalKey(S.Boolean).annotateKey({ description: "Enables automatic type acquisition." }),
-		include: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Type packages included in automatic acquisition." }),
-		exclude: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Type packages excluded from automatic acquisition." }),
-		disableFilenameBasedTypeAcquisition: S.optionalKey(S.Boolean).annotateKey({ description: "Disables type acquisition inferred from filenames." }),
+		enable: S.optionalKey(S.Boolean).pipe($I.annoteKey("TypeAcquisition.enable", { description: "Enables automatic type acquisition." })),
+		include: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("TypeAcquisition.include", { description: "Type packages included in automatic acquisition." })),
+		exclude: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("TypeAcquisition.exclude", { description: "Type packages excluded from automatic acquisition." })),
+		disableFilenameBasedTypeAcquisition: S.optionalKey(S.Boolean).pipe($I.annoteKey("TypeAcquisition.disableFilenameBasedTypeAcquisition", { description: "Disables type acquisition inferred from filenames." })),
 	}),
 	[S.Record(S.String, S.Unknown)],
-).annotate($I.annote("TypeAcquisition", { description: "Automatic type-acquisition settings with unknown keys preserved." }));
+).pipe($I.annoteSchema("TypeAcquisition", { description: "Automatic type-acquisition settings with unknown keys preserved." }));
 
 /**
  * Decoded value accepted by {@link (TypeAcquisition:variable)}.
@@ -388,19 +376,19 @@ export declare namespace TypeAcquisition {
  */
 export const TsconfigJson = S.StructWithRest(
 	S.Struct({
-		compilerOptions: S.optionalKey(CompilerOptions).annotateKey({ description: "The compilation options for this project." }),
-		extends: S.optionalKey(S.Union([S.String, S.Array(S.String)])).annotateKey({ description: "The base configuration path or ordered list of base configurations." }),
-		files: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "The source files explicitly included in compilation." }),
-		include: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Source-file patterns included in compilation." }),
-		exclude: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Source-file patterns excluded from compilation." }),
-		references: Reference.pipe(S.Array, S.optionalKey).annotateKey({ description: "The projects referenced by this configuration." }),
-		watchOptions: S.optionalKey(WatchOptions).annotateKey({ description: "The filesystem watch settings." }),
-		typeAcquisition: S.optionalKey(TypeAcquisition).annotateKey({ description: "The automatic type-acquisition settings." }),
-		compileOnSave: S.optionalKey(S.Boolean).annotateKey({ description: "Requests compilation when a file is saved." }),
-		$schema: S.optionalKey(S.String).annotateKey({ description: "The schema URI associated with this configuration." }),
+		compilerOptions: S.optionalKey(CompilerOptions).pipe($I.annoteKey("TsconfigJson.compilerOptions", { description: "The compilation options for this project." })),
+		extends: S.optionalKey(S.Union([S.String, S.Array(S.String)])).pipe($I.annoteKey("TsconfigJson.extends", { description: "The base configuration path or ordered list of base configurations." })),
+		files: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("TsconfigJson.files", { description: "The source files explicitly included in compilation." })),
+		include: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("TsconfigJson.include", { description: "Source-file patterns included in compilation." })),
+		exclude: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("TsconfigJson.exclude", { description: "Source-file patterns excluded from compilation." })),
+		references: Reference.pipe(S.Array, S.optionalKey, $I.annoteKey("TsconfigJson.references", { description: "The projects referenced by this configuration." })),
+		watchOptions: S.optionalKey(WatchOptions).pipe($I.annoteKey("TsconfigJson.watchOptions", { description: "The filesystem watch settings." })),
+		typeAcquisition: S.optionalKey(TypeAcquisition).pipe($I.annoteKey("TsconfigJson.typeAcquisition", { description: "The automatic type-acquisition settings." })),
+		compileOnSave: S.optionalKey(S.Boolean).pipe($I.annoteKey("TsconfigJson.compileOnSave", { description: "Requests compilation when a file is saved." })),
+		$schema: S.optionalKey(S.String).pipe($I.annoteKey("TsconfigJson.$schema", { description: "The schema URI associated with this configuration." })),
 	}),
 	[S.Record(S.String, S.Unknown)],
-).annotate($I.annote("TsconfigJson", { description: "A tsconfig.json document with optional typed fields and unknown keys preserved." }));
+).pipe($I.annoteSchema("TsconfigJson", { description: "A tsconfig.json document with optional typed fields and unknown keys preserved." }));
 
 /**
  * Decoded value accepted by {@link (TsconfigJson:variable)}.
@@ -464,9 +452,7 @@ export declare namespace TsconfigJson {
  * @category codecs
  * @since 0.0.0
  */
-export const TsconfigJsonFromString: S.Codec<TsconfigJson, string> = Jsonc.schema(TsconfigJson).annotate(
-	$I.annote("TsconfigJsonFromString", { description: "A JSONC string codec for a validated tsconfig.json document." }),
-);
+export const TsconfigJsonFromString: S.Codec<TsconfigJson, string> = Jsonc.schema(TsconfigJson).pipe($I.annoteSchema("TsconfigJsonFromString", { description: "A JSONC string codec for a validated tsconfig.json document." }));
 
 /**
  * Decoded value accepted by {@link (TsconfigJsonFromString:variable)}.
@@ -503,10 +489,10 @@ export type TsconfigJsonFromString = typeof TsconfigJsonFromString.Type;
  */
 export class TsconfigParseError extends S.TaggedError<TsconfigParseError, { readonly brand: unique symbol }>($I`TsconfigParseError`)("TsconfigParseError", {
 	/** The file path that failed to parse, or `""` when not file-bound. */
-	path: S.String.annotateKey({ description: "The file path that failed to parse, or `\"\"` when not file-bound." }),
+	path: S.String.pipe($I.annoteKey("TsconfigParseError.path", { description: "The file path that failed to parse, or `\"\"` when not file-bound." })),
 	/** The underlying decode failure. */
-	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The underlying decode failure." }),
-}, $I.annote("TsconfigParseError", { description: "Raised when a tsconfig.json document fails to parse or decode. `path` is the file path when the failure is file-bound, and the empty string otherwise (e.g. decoding an in-memory string). `TsconfigLoader` wraps file-bound decode failures in this error." })) {
+	cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("TsconfigParseError.cause", { description: "The underlying decode failure." })),
+}, $I.annoteError<TsconfigParseError>("TsconfigParseError", { description: "Raised when a tsconfig.json document fails to parse or decode. `path` is the file path when the failure is file-bound, and the empty string otherwise (e.g. decoding an in-memory string). `TsconfigLoader` wraps file-bound decode failures in this error." })) {
 	/**
 	 * Formats the parse failure message, including the file path when it is non-empty.
 	 *

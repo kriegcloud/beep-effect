@@ -39,9 +39,9 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/actionsResults
  * @since 0.0.0
  */
 export const BackendIds = S.Struct({
-	workflowRunBackendId: S.String.annotateKey({ description: "The workflow run's backend identifier." }),
-	workflowJobRunBackendId: S.String.annotateKey({ description: "The workflow job run's backend identifier." }),
-}).annotate($I.annote("BackendIds", { description: "The run and job identifiers used by the artifact protocol." }));
+	workflowRunBackendId: S.String.pipe($I.annoteKey("BackendIds.workflowRunBackendId", { description: "The workflow run's backend identifier." })),
+	workflowJobRunBackendId: S.String.pipe($I.annoteKey("BackendIds.workflowJobRunBackendId", { description: "The workflow job run's backend identifier." })),
+}).pipe($I.annoteSchema("BackendIds", { description: "The run and job identifiers used by the artifact protocol." }));
 
 /**
  * The plain-object identifiers accepted by {@link BackendIds}.
@@ -73,7 +73,7 @@ export type BackendIds = typeof BackendIds.Type;
  */
 export const ResultsBackend = S.Struct({
 	/** Always ends in `/`, so a caller composes paths by concatenation. */
-	baseUrl: S.String.annotateKey({ description: "The results backend URL, normalized by resultsBackend to end in a slash." }),
+	baseUrl: S.String.pipe($I.annoteKey("ResultsBackend.baseUrl", { description: "The results backend URL, normalized by resultsBackend to end in a slash." })),
 	/**
   * The runtime token.
   *
@@ -84,7 +84,7 @@ export const ResultsBackend = S.Struct({
   * `Redacted` directly, so this package's declassification seam is never
   * involved and `Redacted.value` is never called.
   */
-	token: S.Redacted(S.String).annotateKey({ description: "The runner's runtime token, preserved as a redacted value." }),
+	token: S.Redacted(S.String).pipe($I.annoteKey("ResultsBackend.token", { description: "The runner's runtime token, preserved as a redacted value." })),
 	/**
   * The backend ids, or why they could not be read.
   *
@@ -94,8 +94,8 @@ export const ResultsBackend = S.Struct({
   * them: a runtime token with no `Actions.Results` scope must not stop a cache
   * save that never looks at one.
   */
-	backendIds: S.Result(BackendIds, S.String).annotateKey({ description: "Artifact backend identifiers, or why they could not be read." }),
-}).annotate($I.annote("ResultsBackend", { description: "Plain-object results backend coordinates and artifact scope resolution." }));
+	backendIds: S.Result(BackendIds, S.String).pipe($I.annoteKey("ResultsBackend.backendIds", { description: "Artifact backend identifiers, or why they could not be read." })),
+}).pipe($I.annoteSchema("ResultsBackend", { description: "Plain-object results backend coordinates and artifact scope resolution." }));
 
 /**
  * The plain-object coordinates accepted by {@link ResultsBackend}.

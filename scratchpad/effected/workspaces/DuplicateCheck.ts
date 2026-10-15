@@ -14,8 +14,11 @@
 // `instanceId` is OPAQUE here — looked up, never parsed. Splitting one on "@"
 // or "(" would re-introduce the format knowledge this module exists without.
 
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { Lockfile, ResolvedPackage } from "../lockfiles/index.ts";
+import type { ResolvedPackage } from "../lockfiles/index.ts";
+import { Lockfile } from "../lockfiles/index.ts";
 import * as S from "effect/Schema";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -130,9 +133,9 @@ const encodeRelationshipKey = S.encodeResult(RelationshipKey);
  */
 export class DuplicateInstance extends S.Class<DuplicateInstance, { readonly brand: unique symbol }>($I`DuplicateInstance`)({
 	/** The opaque instance id, as `@effected/lockfiles` records it. */
-	instanceId: S.NonEmptyString.annotateKey({ description: "The opaque instance id, as `@effected/lockfiles` records it." }),
+	instanceId: S.NonEmptyString.pipe($I.annoteKey("DuplicateInstance.instanceId", { description: "The opaque instance id, as `@effected/lockfiles` records it." })),
 	/** Every importer and package that pulls THIS copy. */
-	dependents: S.Array(Dependent).annotateKey({ description: "Every importer and package that pulls THIS copy." }),
+	dependents: S.Array(Dependent).pipe($I.annoteKey("DuplicateInstance.dependents", { description: "Every importer and package that pulls THIS copy." })),
 }, $I.annote("DuplicateInstance", { description: "One resolved instance of a duplicated version, with everything that pulls it." })) {}
 
 /**
@@ -155,9 +158,9 @@ export class DuplicateInstance extends S.Class<DuplicateInstance, { readonly bra
  */
 export class DuplicatedVersion extends S.Class<DuplicatedVersion, { readonly brand: unique symbol }>($I`DuplicatedVersion`)({
 	/** The resolved version. */
-	version: S.String.annotateKey({ description: "The resolved version." }),
+	version: S.String.pipe($I.annoteKey("DuplicatedVersion.version", { description: "The resolved version." })),
 	/** Every instance at this version — more than one when peer suffixes differ. */
-	instances: S.Array(DuplicateInstance).annotateKey({ description: "Every instance at this version — more than one when peer suffixes differ." }),
+	instances: S.Array(DuplicateInstance).pipe($I.annoteKey("DuplicatedVersion.instances", { description: "Every instance at this version — more than one when peer suffixes differ." })),
 }, $I.annote("DuplicatedVersion", { description: "One version a duplicated package resolved at." })) {}
 
 /**
@@ -192,9 +195,9 @@ export class DuplicatedVersion extends S.Class<DuplicatedVersion, { readonly bra
  */
 export class DuplicatedPackage extends S.Class<DuplicatedPackage, { readonly brand: unique symbol }>($I`DuplicatedPackage`)({
 	/** The package name. */
-	name: S.NonEmptyString.annotateKey({ description: "The package name." }),
+	name: S.NonEmptyString.pipe($I.annoteKey("DuplicatedPackage.name", { description: "The package name." })),
 	/** Every version it resolved at, in lockfile order. Never fewer than two. */
-	versions: S.Array(DuplicatedVersion).annotateKey({ description: "Every version it resolved at, in lockfile order. Never fewer than two." }),
+	versions: S.Array(DuplicatedVersion).pipe($I.annoteKey("DuplicatedPackage.versions", { description: "Every version it resolved at, in lockfile order. Never fewer than two." })),
 }, $I.annote("DuplicatedPackage", { description: "One package name reached at two or more distinct versions." })) {}
 
 /**
@@ -242,7 +245,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
 	 * Every reported name resolved at two or more distinct versions, in
 	 * lockfile order.
 	 */
-	duplicates: S.Array(DuplicatedPackage).annotateKey({ description: "Every reported name resolved at two or more distinct versions, in lockfile order." }),
+	duplicates: S.Array(DuplicatedPackage).pipe($I.annoteKey("DuplicateCheck.duplicates", { description: "Every reported name resolved at two or more distinct versions, in lockfile order." })),
 	/**
   * Importers whose dependencies could not be resolved to instances, so
   * nothing reachable only through them was counted.
@@ -258,7 +261,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
   * Reported rather than silently skipped: a gate that sees no duplicates is
   * entitled to know whether that means "clean" or "not looked at".
   */
-	unresolvedImporters: S.Array(S.String).annotateKey({ description: "Importers whose dependencies could not be resolved to instances, so nothing reachable only through them was counted." }),
+	unresolvedImporters: S.Array(S.String).pipe($I.annoteKey("DuplicateCheck.unresolvedImporters", { description: "Importers whose dependencies could not be resolved to instances, so nothing reachable only through them was counted." })),
 }, $I.annote("DuplicateCheck", { description: "The result of checking a lockfile for packages resolved at more than one version." })) {
 	/**
 	 * Whether no reported name is duplicated.
@@ -360,7 +363,10 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static run(lockfile: Lockfile, options?: DuplicateCheckOptions): DuplicateCheck {
+	static readonly run: {
+		(lockfile: Lockfile, options?: DuplicateCheckOptions): DuplicateCheck;
+		(options?: DuplicateCheckOptions): (lockfile: Lockfile) => DuplicateCheck;
+	} = dual((args) => S.is(Lockfile)(args[0]), (lockfile: Lockfile, options?: DuplicateCheckOptions): DuplicateCheck => {
 		const names = options?.names ?? (() => true);
 		const index = indexInstances(lockfile);
 		const { byId } = index;
@@ -406,14 +412,17 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
 		// which importer happened to reach an instance first.
 		const dependents = MutableHashMap.empty<string, Array<Dependent>>();
 		const seen = MutableHashSet.empty<string>();
-		const record = (targetId: string, dependent: Dependent): void => {
+		const record: {
+			(targetId: string, dependent: Dependent): void;
+			(dependent: Dependent): (targetId: string) => void;
+		} = dual(2, (targetId: string, dependent: Dependent): void => {
 			const key = Result.getOrThrow(encodeRelationshipKey([targetId, dependent]));
 			if (MutableHashSet.has(seen, key)) return;
 			MutableHashSet.add(seen, key);
 			const list = O.getOrElse(MutableHashMap.get(dependents, targetId), (): Array<Dependent> => []);
 			list.push(dependent);
 			MutableHashMap.set(dependents, targetId, list);
-		};
+		});
 		for (const [instanceId, path] of importerRoots) {
 			record(instanceId, { _tag: "importer", path });
 		}
@@ -446,23 +455,21 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
 			duplicates.push(
 				DuplicatedPackage.make({
 					name,
-					versions: [...versions].map(([version, instances]) =>
+					versions: A.map([...versions], ([version, instances]) =>
 						DuplicatedVersion.make({
 							version,
-							instances: instances.map((instance) =>
+							instances: A.map(instances, (instance) =>
 								DuplicateInstance.make({
 									instanceId: instance.instanceId,
 									dependents: O.getOrElse(MutableHashMap.get(dependents, instance.instanceId), () => []),
-								}),
-							),
-						}),
-					),
+								})),
+						})),
 				}),
 			);
 		}
 
 		return DuplicateCheck.make({ duplicates, unresolvedImporters: unresolved });
-	}
+	});
 }
 
 /**

@@ -32,9 +32,9 @@ const $I = $ScratchpadId.create("effected/engine/Remediation");
  * @since 0.0.0
  */
 export const Remediation = S.Struct({
-	hint: S.String.annotateKey({ description: "The human-readable instruction for what the caller should do after a failure" }),
-	suggestedTool: S.optionalKey(S.String).annotateKey({ description: "The tool an agent should call next to address the failure, when one is suggested" }),
-	suggestedArgs: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "The arguments an agent should pass to the suggested tool, when provided" }),
+	hint: S.String.pipe($I.annoteKey("Remediation.hint", { description: "The human-readable instruction for what the caller should do after a failure" })),
+	suggestedTool: S.optionalKey(S.String).pipe($I.annoteKey("Remediation.suggestedTool", { description: "The tool an agent should call next to address the failure, when one is suggested" })),
+	suggestedArgs: S.optionalKey(S.Record(S.String, S.Unknown)).pipe($I.annoteKey("Remediation.suggestedArgs", { description: "The arguments an agent should pass to the suggested tool, when provided" })),
 }).pipe($I.annoteSchema("Remediation", { description: "What a caller — usually an agent — should do after a failure." }));
 
 /**

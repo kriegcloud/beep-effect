@@ -12,6 +12,7 @@ import * as S from "effect/Schema";
 import type { ActionStateError } from "./ActionState.ts";
 import { ActionState } from "./ActionState.ts";
 import { Secret } from "./Secret.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/GitHubToken");
 
@@ -37,10 +38,10 @@ export class GitHubTokenError extends S.TaggedError<GitHubTokenError, { readonly
 	 * has an owner — persistence is an `ActionStateError`, minting is a
 	 * `GitHubAppError`, and scope verification is a `TokenPermissionError`.
 	 */
-	reason: S.Literals(["expired"]).annotateKey({ description: "One reason, deliberately: everything else that can go wrong here already has an owner — persistence is an `ActionStateError`, minting is a `GitHubAppError`, and scope verification is a `TokenPermissionError`." }),
+	reason: S.Literals(["expired"]).pipe($I.annoteKey("GitHubTokenError.reason", { description: "One reason, deliberately: everything else that can go wrong here already has an owner — persistence is an `ActionStateError`, minting is a `GitHubAppError`, and scope verification is a `TokenPermissionError`." })),
 	/** When GitHub stopped accepting it, ISO-8601. */
-	expiresAt: S.String.annotateKey({ description: "When GitHub stopped accepting it, ISO-8601." }),
-}, $I.annote("GitHubTokenError", { description: "Raised when the token an earlier phase persisted cannot be used." })) {
+	expiresAt: S.String.pipe($I.annoteKey("GitHubTokenError.expiresAt", { description: "When GitHub stopped accepting it, ISO-8601." })),
+}, $I.annoteError<GitHubTokenError>("GitHubTokenError", { description: "Raised when the token an earlier phase persisted cannot be used." })) {
 	/**
 	 * Explains when the persisted token expired and why a long-running phase must provision its own.
 	 *
@@ -85,13 +86,13 @@ const DEFAULT_KEY = "githubToken";
  */
 export const ProvisionOptions = S.Struct({
 	/** The app id or client id. */
-	appId: S.String.annotateKey({ description: "The app id or client id." }),
+	appId: S.String.pipe($I.annoteKey("ProvisionOptions.appId", { description: "The app id or client id." })),
 	/** The app's private key, in PEM. */
-	privateKey: S.Redacted(S.String).annotateKey({ description: "The app's private key, in PEM." }),
+	privateKey: S.Redacted(S.String).pipe($I.annoteKey("ProvisionOptions.privateKey", { description: "The app's private key, in PEM." })),
 	/** The installation. Discovered from `owner`, or from the app's only installation, when omitted. */
-	installationId: S.optionalKey(S.Finite).annotateKey({ description: "The installation id, discovered when omitted." }),
+	installationId: S.optionalKey(S.Finite).pipe($I.annoteKey("ProvisionOptions.installationId", { description: "The installation id, discovered when omitted." })),
 	/** The account whose installation to use, when `installationId` is omitted. */
-	owner: S.optionalKey(S.String).annotateKey({ description: "The account whose installation to discover." }),
+	owner: S.optionalKey(S.String).pipe($I.annoteKey("ProvisionOptions.owner", { description: "The account whose installation to discover." })),
 	/**
 	 * The permissions the action needs.
 	 *
@@ -103,10 +104,10 @@ export const ProvisionOptions = S.Struct({
 	 * naming the missing permission rather than in the middle of `main` with a
 	 * `403` on one request.
 	 */
-	required: S.optionalKey(S.Record(S.String, PermissionLevel)).annotateKey({ description: "The permissions to verify before persisting the token." }),
+	required: S.optionalKey(S.Record(S.String, PermissionLevel)).pipe($I.annoteKey("ProvisionOptions.required", { description: "The permissions to verify before persisting the token." })),
 	/** The `GITHUB_STATE` key. One default, so `pre` and `post` agree without saying so. */
-	stateKey: S.optionalKey(S.String).annotateKey({ description: "The state key; defaults to githubToken." }),
-}).annotate($I.annote("ProvisionOptions", { description: "Options for minting and persisting an installation token." }));
+	stateKey: S.optionalKey(S.String).pipe($I.annoteKey("ProvisionOptions.stateKey", { description: "The state key; defaults to githubToken." })),
+}).pipe($I.annoteSchema("ProvisionOptions", { description: "Options for minting and persisting an installation token." }));
 /**
  * Decoded credentials, installation selection and persistence options for provisioning a token.
  *
@@ -136,7 +137,7 @@ export type ProvisionOptions = typeof ProvisionOptions.Type;
  */
 export const ReadOptions = S.Struct({
 	/** The `GITHUB_STATE` key. */
-	stateKey: S.optionalKey(S.String).annotateKey({ description: "The state key; defaults to githubToken." }),
+	stateKey: S.optionalKey(S.String).pipe($I.annoteKey("ReadOptions.stateKey", { description: "The state key; defaults to githubToken." })),
 	/**
 	 * How long before the stated expiry to treat the token as spent.
 	 *
@@ -145,8 +146,8 @@ export const ReadOptions = S.Struct({
 	 * A minute by default. The window exists because the check and the request
 	 * it guards are not the same instant.
 	 */
-	skew: S.optionalKey(S.Duration).annotateKey({ description: "The expiry safety window; defaults to one minute." }),
-}).annotate($I.annote("ReadOptions", { description: "Options for reading a persisted installation token." }));
+	skew: S.optionalKey(S.Duration).pipe($I.annoteKey("ReadOptions.skew", { description: "The expiry safety window; defaults to one minute." })),
+}).pipe($I.annoteSchema("ReadOptions", { description: "Options for reading a persisted installation token." }));
 /**
  * Decoded state-key and expiry-window options for reading a persisted token.
  *
@@ -188,7 +189,10 @@ export interface ClientLayerOptions extends ReadOptions {
  * `GET /users/{slug}[bot]` rejects an app JWT, so without one the request runs
  * unauthenticated against GitHub's sixty-per-hour-per-IP limit.
  */
-const identified = Effect.fn("identified")(function* (app: GitHubAppShape, options: ProvisionOptions, minted: InstallationToken) {
+const identified: {
+	(app: GitHubAppShape, options: ProvisionOptions, minted: InstallationToken): Effect.Effect<InstallationToken>;
+	(options: ProvisionOptions, minted: InstallationToken): (app: GitHubAppShape) => Effect.Effect<InstallationToken>;
+} = dual(3, Effect.fn("identified")(function* (app: GitHubAppShape, options: ProvisionOptions, minted: InstallationToken) {
 		const resolved = yield* Effect.result(
 			app.identity({
 				appId: options.appId,
@@ -214,7 +218,7 @@ const identified = Effect.fn("identified")(function* (app: GitHubAppShape, optio
 			// factory validates on construction and refuses one.
 			...O.getSomesStruct({ appUserId: O.fromUndefinedOr(identity.userId) }),
 		});
-	});
+	}));
 
 /**
  * The GitHub App token lifecycle, shaped like a workflow.

@@ -40,17 +40,17 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
 	 *
 	 * @since 0.0.0
 	 */
-	"@type": S.tag("Person").annotateKey({ description: "The JSON-LD type discriminator, populated automatically." }),
+	"@type": S.tag("Person").pipe($I.annoteKey("Person.@type", { description: "The JSON-LD type discriminator, populated automatically." })),
 	/**
 	 * An email address for the person. Single-valued.
 	 *
 	 * @since 0.0.0
 	 */
-	email: S.optionalKey(S.String).annotateKey({ description: "An email address for the person. Single-valued." }),
+	email: S.optionalKey(S.String).pipe($I.annoteKey("Person.email", { description: "An email address for the person. Single-valued." })),
 	/**
 	 * Organizations the person is affiliated with, by reference. Repeatable.
 	 *
 	 * @since 0.0.0
 	 */
-	affiliation: NodeRef.pipe(S.Array, S.optional).annotateKey({ description: "Organizations the person is affiliated with, by reference. Repeatable." }),
+	affiliation: NodeRef.pipe(S.Array, S.optional, $I.annoteKey("Person.affiliation", { description: "Organizations the person is affiliated with, by reference. Repeatable." })),
 }, $I.annote("Person", { description: "A schema.org `Person` — an author, maintainer or contributor." })) {}

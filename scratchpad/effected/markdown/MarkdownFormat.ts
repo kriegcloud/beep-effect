@@ -64,6 +64,7 @@ import {
 	ThematicBreakChar,
 } from "./MarkdownNode.ts";
 import * as P from "effect/Predicate";
+import { dual, pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/markdown/MarkdownFormat");
 
@@ -102,7 +103,7 @@ export type MarkdownRangeLike = MarkdownRange | { readonly offset: number; reado
  * @category schemas
  * @since 0.0.0
  */
-export const CodeBlockStyle = LiteralKit(["fenced", "indented"]).annotate($I.annote("CodeBlockStyle", { description: "The two ways CommonMark spells a code block: `fenced` (a backtick or tilde fence) and `indented` (four-space indentation)." }));
+export const CodeBlockStyle = LiteralKit(["fenced", "indented"]).pipe($I.annoteSchema("CodeBlockStyle", { description: "The two ways CommonMark spells a code block: `fenced` (a backtick or tilde fence) and `indented` (four-space indentation)." }));
 
 /**
  * The union of all code-block-style string literals.
@@ -158,14 +159,14 @@ export type CodeBlockStyle = typeof CodeBlockStyle.Type;
  * @since 0.0.0
  */
 export class MarkdownFormattingOptions extends S.Class<MarkdownFormattingOptions, { readonly brand: unique symbol }>($I`MarkdownFormattingOptions`)({
-	dialect: S.optionalKey(MarkdownDialect).annotateKey({ description: "Markdown syntax used to parse the source before formatting; defaults to `gfm`" }),
-	frontmatter: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to capture an opening frontmatter block while parsing for formatting; disabled by default" }),
-	headingStyle: S.optionalKey(HeadingStyle).annotateKey({ description: "Requested `atx` or `setext` heading spelling, applied only where conversion is safe; omission preserves existing spelling" }),
-	bulletChar: S.optionalKey(BulletChar).annotateKey({ description: "Requested unordered-list marker, applied only where normalization is safe; omission preserves existing markers" }),
-	emphasisChar: S.optionalKey(EmphasisChar).annotateKey({ description: "Requested delimiter character for emphasis and strong emphasis, applied only where normalization is safe; omission preserves existing delimiters" }),
-	fenceChar: S.optionalKey(FenceChar).annotateKey({ description: "Requested code-fence character for safe fence normalization and conversion to fenced blocks; omission preserves existing fences" }),
-	thematicBreakChar: S.optionalKey(ThematicBreakChar).annotateKey({ description: "Requested thematic-break marker character, applied only where normalization is safe; omission preserves existing markers" }),
-	codeBlockStyle: S.optionalKey(CodeBlockStyle).annotateKey({ description: "Requested fenced or indented spelling for safe conversion of root-level, flush-left code blocks without language or metadata" }),
+	dialect: S.optionalKey(MarkdownDialect).pipe($I.annoteKey("MarkdownFormattingOptions.dialect", { description: "Markdown syntax used to parse the source before formatting; defaults to `gfm`" })),
+	frontmatter: S.optionalKey(S.Boolean).pipe($I.annoteKey("MarkdownFormattingOptions.frontmatter", { description: "Whether to capture an opening frontmatter block while parsing for formatting; disabled by default" })),
+	headingStyle: S.optionalKey(HeadingStyle).pipe($I.annoteKey("MarkdownFormattingOptions.headingStyle", { description: "Requested `atx` or `setext` heading spelling, applied only where conversion is safe; omission preserves existing spelling" })),
+	bulletChar: S.optionalKey(BulletChar).pipe($I.annoteKey("MarkdownFormattingOptions.bulletChar", { description: "Requested unordered-list marker, applied only where normalization is safe; omission preserves existing markers" })),
+	emphasisChar: S.optionalKey(EmphasisChar).pipe($I.annoteKey("MarkdownFormattingOptions.emphasisChar", { description: "Requested delimiter character for emphasis and strong emphasis, applied only where normalization is safe; omission preserves existing delimiters" })),
+	fenceChar: S.optionalKey(FenceChar).pipe($I.annoteKey("MarkdownFormattingOptions.fenceChar", { description: "Requested code-fence character for safe fence normalization and conversion to fenced blocks; omission preserves existing fences" })),
+	thematicBreakChar: S.optionalKey(ThematicBreakChar).pipe($I.annoteKey("MarkdownFormattingOptions.thematicBreakChar", { description: "Requested thematic-break marker character, applied only where normalization is safe; omission preserves existing markers" })),
+	codeBlockStyle: S.optionalKey(CodeBlockStyle).pipe($I.annoteKey("MarkdownFormattingOptions.codeBlockStyle", { description: "Requested fenced or indented spelling for safe conversion of root-level, flush-left code blocks without language or metadata" })),
 }, $I.annote("MarkdownFormattingOptions", { description: "Options controlling formatting: which concrete-syntax markers to normalize, plus the parse knobs (`dialect`, `frontmatter`) the formatter parses the source with (same defaults as `Markdown.parse`). Every marker option is optional and independent; an absent option normalizes nothing." })) {}
 
 /**
@@ -189,7 +190,7 @@ export const MarkdownModificationErrorCode = LiteralKit([
 	"UnsupportedTarget",
 	"FragmentCategoryMismatch",
 	"FragmentUnrenderable",
-]).annotate($I.annote("MarkdownModificationErrorCode", { description: "Error codes `MarkdownFormat.modify` can fail with." }));
+]).pipe($I.annoteSchema("MarkdownModificationErrorCode", { description: "Error codes `MarkdownFormat.modify` can fail with." }));
 
 /**
  * The union of all modification-error code string literals.
@@ -228,11 +229,11 @@ export type MarkdownModificationErrorCode = typeof MarkdownModificationErrorCode
 export class MarkdownModificationError extends S.TaggedError<MarkdownModificationError, { readonly brand: unique symbol }>($I`MarkdownModificationError`)(
 	"MarkdownModificationError",
 	{
-		code: MarkdownModificationErrorCode.annotateKey({ description: "Reason replacement failed: target absent, unsupported target or context, incompatible fragment category, or unrenderable fragment" }),
-		detail: S.String.annotateKey({ description: "Explanation of the replacement failure, included in the error message" }),
-		offset: S.Finite.annotateKey({ description: "Zero-based source position reported by the target node, measured in UTF-16 code units" }),
-		length: S.Finite.annotateKey({ description: "Extent of the target node's reported source span, measured in UTF-16 code units" }),
-	}, $I.annote("MarkdownModificationError", { description: "Raised when `MarkdownFormat.modify` cannot perform the requested replacement: the target node is not in the document (`NodeNotInDocument`), the target kind or splice context is outside the supported scope (`UnsupportedTarget`), the fragment's content category does not fit the target's slot (`FragmentCategoryMismatch`), or the fragment trips the stringifier's hardening guard (`FragmentUnrenderable`). Carries the typed `code` plus the target's `offset`/`length` where known — never a collapsed reason string alone." }),
+		code: MarkdownModificationErrorCode.pipe($I.annoteKey("MarkdownModificationError.code", { description: "Reason replacement failed: target absent, unsupported target or context, incompatible fragment category, or unrenderable fragment" })),
+		detail: S.String.pipe($I.annoteKey("MarkdownModificationError.detail", { description: "Explanation of the replacement failure, included in the error message" })),
+		offset: S.Finite.pipe($I.annoteKey("MarkdownModificationError.offset", { description: "Zero-based source position reported by the target node, measured in UTF-16 code units" })),
+		length: S.Finite.pipe($I.annoteKey("MarkdownModificationError.length", { description: "Extent of the target node's reported source span, measured in UTF-16 code units" })),
+	}, $I.annoteError<MarkdownModificationError>("MarkdownModificationError", { description: "Raised when `MarkdownFormat.modify` cannot perform the requested replacement: the target node is not in the document (`NodeNotInDocument`), the target kind or splice context is outside the supported scope (`UnsupportedTarget`), the fragment's content category does not fit the target's slot (`FragmentCategoryMismatch`), or the fragment trips the stringifier's hardening guard (`FragmentUnrenderable`). Carries the typed `code` plus the target's `offset`/`length` where known — never a collapsed reason string alone." }),
 ) {
 	/**
 	 * Explains the modification failure using its typed code and detail.
@@ -261,7 +262,20 @@ export class MarkdownModificationError extends S.TaggedError<MarkdownModificatio
 const childrenOf = (node: MarkdownNode): ReadonlyArray<MarkdownNode> => ("children" in node ? node.children : []);
 
 /** Walk the tree, invoking `visit` with each node, its parent and its siblings. */
-const walk = (
+const walk: {
+	(node: MarkdownNode, parent: MarkdownNode | undefined, siblings: ReadonlyArray<MarkdownNode>, index: number, visit: (
+		node: MarkdownNode,
+		parent: MarkdownNode | undefined,
+		siblings: ReadonlyArray<MarkdownNode>,
+		index: number,
+	) => void | boolean): void;
+	(parent: MarkdownNode | undefined, siblings: ReadonlyArray<MarkdownNode>, index: number, visit: (
+		node: MarkdownNode,
+		parent: MarkdownNode | undefined,
+		siblings: ReadonlyArray<MarkdownNode>,
+		index: number,
+	) => void | boolean): (node: MarkdownNode) => void;
+} = dual(5, (
 	node: MarkdownNode,
 	parent: MarkdownNode | undefined,
 	siblings: ReadonlyArray<MarkdownNode>,
@@ -280,7 +294,7 @@ const walk = (
 	for (const [child, index] of A.map(children, (child, index) => [child, index] as const)) {
 		walk(child, node, children, index, visit);
 	}
-};
+});
 
 const spanOf = (node: MarkdownNode): { readonly start: number; readonly end: number } => ({
 	start: node.position.start.offset,
@@ -293,7 +307,10 @@ const spanOf = (node: MarkdownNode): { readonly start: number; readonly end: num
 const DELIMITER_PUNCTUATION = /^[!"#$%&'()*+,\-./:;<=>?@[\]\\^_`{|}~\p{P}\p{S}]/u;
 const DELIMITER_WHITESPACE = /^\s/;
 
-const underscoreCanOpen = (before: string, after: string): boolean => {
+const underscoreCanOpen: {
+	(before: string, after: string): boolean;
+	(after: string): (before: string) => boolean;
+} = dual(2, (before: string, after: string): boolean => {
 	const beforeWhitespace = DELIMITER_WHITESPACE.test(before);
 	const afterWhitespace = DELIMITER_WHITESPACE.test(after);
 	const beforePunctuation = DELIMITER_PUNCTUATION.test(before);
@@ -301,19 +318,25 @@ const underscoreCanOpen = (before: string, after: string): boolean => {
 	const left = !afterWhitespace && (!afterPunctuation || beforeWhitespace || beforePunctuation);
 	const right = !beforeWhitespace && (!beforePunctuation || afterWhitespace || afterPunctuation);
 	return left && (!right || beforePunctuation);
-};
+});
 
 /** The start offset of the line containing `offset`. */
-const lineStartOf = (source: string, offset: number): number => {
+const lineStartOf: {
+	(source: string, offset: number): number;
+	(offset: number): (source: string) => number;
+} = dual(2, (source: string, offset: number): number => {
 	let i = offset;
 	while (i > 0 && source.charCodeAt(i - 1) !== 0x0a && source.charCodeAt(i - 1) !== 0x0d) {
 		i--;
 	}
 	return i;
-};
+});
 
 /** True when the line before the one containing `offset` is blank or absent. */
-const previousLineBlank = (source: string, offset: number): boolean => {
+const previousLineBlank: {
+	(source: string, offset: number): boolean;
+	(offset: number): (source: string) => boolean;
+} = dual(2, (source: string, offset: number): boolean => {
 	const lineStart = lineStartOf(source, offset);
 	if (lineStart === 0) {
 		return true;
@@ -330,13 +353,16 @@ const previousLineBlank = (source: string, offset: number): boolean => {
 		}
 	}
 	return true;
-};
+});
 
 /** Content that cannot stand as a setext heading's text line. */
 const SETEXT_CONTENT_HAZARD = /^(?:[-+*>#=]|\d{1,9}[.)](?:\s|$)|`{3}|~{3}|\s)/;
 
 /** The longest run of `char` anywhere in `value`. */
-const longestRun = (value: string, char: string): number => {
+const longestRun: {
+	(value: string, char: string): number;
+	(char: string): (value: string) => number;
+} = dual(2, (value: string, char: string): number => {
 	let longest = 0;
 	let current = 0;
 	for (const ch of value) {
@@ -346,12 +372,15 @@ const longestRun = (value: string, char: string): number => {
 		}
 	}
 	return longest;
-};
+});
 
 const isUnorderedList = (node: MarkdownNode): node is List => node.type === "list" && node.ordered !== true;
 
 /** True when only blank text separates the two spans. */
-const adjacentSpans = (source: string, endOfFirst: number, startOfSecond: number): boolean => {
+const adjacentSpans: {
+	(source: string, endOfFirst: number, startOfSecond: number): boolean;
+	(endOfFirst: number, startOfSecond: number): (source: string) => boolean;
+} = dual(3, (source: string, endOfFirst: number, startOfSecond: number): boolean => {
 	for (let i = endOfFirst; i < startOfSecond; i++) {
 		const code = source.charCodeAt(i);
 		if (code !== 0x20 && code !== 0x09 && code !== 0x0a && code !== 0x0d) {
@@ -359,16 +388,16 @@ const adjacentSpans = (source: string, endOfFirst: number, startOfSecond: number
 		}
 	}
 	return true;
-};
+});
 
 // ── Internal: format edit collection ────────────────────────────────────────
 
 const TaggedEdit = S.Struct({
 	...MarkdownEdit.fields,
-	nodeStart: MarkdownEdit.fields.offset.annotateKey({ description: "Start offset of the owning node" }),
-	nodeEnd: MarkdownEdit.fields.offset.annotateKey({ description: "End offset of the owning node" }),
-	bullet: S.Boolean.annotateKey({ description: "Whether this edit normalizes a list bullet" }),
-}).annotate($I.annote("TaggedEdit", { description: "A source edit with its owning node span and bullet classification." }));
+	nodeStart: MarkdownEdit.fields.offset.pipe($I.annoteKey("TaggedEdit.nodeStart", { description: "Start offset of the owning node" })),
+	nodeEnd: MarkdownEdit.fields.offset.pipe($I.annoteKey("TaggedEdit.nodeEnd", { description: "End offset of the owning node" })),
+	bullet: S.Boolean.pipe($I.annoteKey("TaggedEdit.bullet", { description: "Whether this edit normalizes a list bullet" })),
+}).pipe($I.annoteSchema("TaggedEdit", { description: "A source edit with its owning node span and bullet classification." }));
 type TaggedEdit = typeof TaggedEdit.Type;
 
 /** Accumulates edits after the formatting helpers have excluded unchanged markers. */
@@ -380,7 +409,10 @@ class FormatEmitter {
 	}
 }
 
-const formatThematicBreak = (
+const formatThematicBreak: {
+	(source: string, emit: FormatEmitter, node: ThematicBreak, target: ThematicBreakChar): void;
+	(emit: FormatEmitter, node: ThematicBreak, target: ThematicBreakChar): (source: string) => void;
+} = dual(4, (
 	source: string,
 	emit: FormatEmitter,
 	node: ThematicBreak,
@@ -395,9 +427,12 @@ const formatThematicBreak = (
 		return;
 	}
 	emit.push(node, start, end - start, target.repeat(3));
-};
+});
 
-const formatHeading = (
+const formatHeading: {
+	(source: string, emit: FormatEmitter, node: Heading, target: HeadingStyle, emphasisChar: EmphasisChar | undefined, parseOptions: MarkdownParseOptions): boolean;
+	(emit: FormatEmitter, node: Heading, target: HeadingStyle, emphasisChar: EmphasisChar | undefined, parseOptions: MarkdownParseOptions): (source: string) => boolean;
+} = dual(6, (
 	source: string,
 	emit: FormatEmitter,
 	node: Heading,
@@ -460,9 +495,12 @@ const formatHeading = (
 	}
 	emit.push(node, start, end - start, `${content}\n${underline}`);
 	return true;
-};
+});
 
-const formatList = (
+const formatList: {
+	(source: string, emit: FormatEmitter, node: List, siblings: ReadonlyArray<MarkdownNode>, index: number, target: BulletChar): void;
+	(emit: FormatEmitter, node: List, siblings: ReadonlyArray<MarkdownNode>, index: number, target: BulletChar): (source: string) => void;
+} = dual(6, (
 	source: string,
 	emit: FormatEmitter,
 	node: List,
@@ -485,22 +523,31 @@ const formatList = (
 	for (const item of node.children) {
 		emit.push(node, item.position.start.offset, 1, target, true);
 	}
-};
+});
 
-const codePointBefore = (source: string, offset: number): string => {
+const codePointBefore: {
+	(source: string, offset: number): string;
+	(offset: number): (source: string) => string;
+} = dual(2, (source: string, offset: number): string => {
 	let start = offset - 1;
 	const low = O.exists(Str.charCodeAt(source, start), (code) => code >= 0xdc00 && code <= 0xdfff);
 	const high = O.exists(Str.charCodeAt(source, start - 1), (code) => code >= 0xd800 && code <= 0xdbff);
 	if (low && high) start--;
 	return Str.slice(Math.max(0, start), offset)(source);
-};
+});
 
-const codePointAfter = (source: string, offset: number): string =>
-	Str.slice(offset, offset + (O.exists(Str.codePointAt(source, offset), (code) => code > 0xffff) ? 2 : 1))(source);
+const codePointAfter: {
+	(source: string, offset: number): string;
+	(offset: number): (source: string) => string;
+} = dual(2, (source: string, offset: number): string =>
+	Str.slice(offset, offset + (O.exists(Str.codePointAt(source, offset), (code) => code > 0xffff) ? 2 : 1))(source));
 
 const isEmphasisLike = (node: MarkdownNode): node is Emphasis | Strong => node.type === "emphasis" || node.type === "strong";
 
-const formatEmphasis = (
+const formatEmphasis: {
+	(source: string, emit: FormatEmitter, node: Emphasis | Strong, siblings: ReadonlyArray<MarkdownNode>, index: number, target: EmphasisChar): void;
+	(emit: FormatEmitter, node: Emphasis | Strong, siblings: ReadonlyArray<MarkdownNode>, index: number, target: EmphasisChar): (source: string) => void;
+} = dual(6, (
 	source: string,
 	emit: FormatEmitter,
 	node: Emphasis | Strong,
@@ -540,9 +587,12 @@ const formatEmphasis = (
 	}
 	emit.push(node, start, markerLength, target.repeat(markerLength));
 	emit.push(node, end - markerLength, markerLength, target.repeat(markerLength));
-};
+});
 
-const formatFence = (source: string, emit: FormatEmitter, node: Code, target: FenceChar): void => {
+const formatFence: {
+	(source: string, emit: FormatEmitter, node: Code, target: FenceChar): void;
+	(emit: FormatEmitter, node: Code, target: FenceChar): (source: string) => void;
+} = dual(4, (source: string, emit: FormatEmitter, node: Code, target: FenceChar): void => {
 	const fidelity = node.fenceChar;
 	if (fidelity === undefined || fidelity === target) {
 		return;
@@ -571,7 +621,7 @@ const formatFence = (source: string, emit: FormatEmitter, node: Code, target: Fe
 	const physicalLines = A.length(Str.split(Str.slice(start, lineEnd)(source), /\r\n|[\r\n]/));
 	const contentLines = A.length(Str.split(node.value, "\n")) - 1;
 	if (physicalLines === contentLines + 2) emit.push(node, closeStart, lineEnd - closeStart, target.repeat(newLength));
-};
+});
 
 /** A line that is empty or holds only spaces and tabs. */
 const BLANK_LINE = /^[ \t]*$/;
@@ -598,7 +648,10 @@ const isLanguagelessCode = (node: MarkdownNode): boolean =>
  * lines (or interior whitespace-only lines, which blankness would erase) has
  * no indented spelling at all.
  */
-const formatCodeBlockStyle = (
+const formatCodeBlockStyle: {
+	(source: string, emit: FormatEmitter, node: Code, parent: MarkdownNode | undefined, siblings: ReadonlyArray<MarkdownNode>, index: number, target: CodeBlockStyle, fenceChar: FenceChar | undefined): boolean;
+	(emit: FormatEmitter, node: Code, parent: MarkdownNode | undefined, siblings: ReadonlyArray<MarkdownNode>, index: number, target: CodeBlockStyle, fenceChar: FenceChar | undefined): (source: string) => boolean;
+} = dual(8, (
 	source: string,
 	emit: FormatEmitter,
 	node: Code,
@@ -638,7 +691,7 @@ const formatCodeBlockStyle = (
 	if (BLANK_LINE.test(A.headNonEmpty(lines)) || BLANK_LINE.test(A.lastNonEmpty(lines))) {
 		return false;
 	}
-	if (lines.some((line) => line !== "" && BLANK_LINE.test(line))) {
+	if (A.some(lines, (line) => line !== "" && BLANK_LINE.test(line))) {
 		return false;
 	}
 	if (!previousLineBlank(source, start)) {
@@ -652,9 +705,9 @@ const formatCodeBlockStyle = (
 	if ((previous !== undefined && isLanguagelessCode(previous)) || (next !== undefined && isLanguagelessCode(next))) {
 		return false;
 	}
-	emit.push(node, start, end - start, lines.map((line) => (line === "" ? "" : `    ${line}`)).join("\n"));
+	emit.push(node, start, end - start, pipe(lines, A.map((line) => (line === "" ? "" : `    ${line}`)), A.join("\n")));
 	return true;
-};
+});
 
 // ── Internal: modify support ────────────────────────────────────────────────
 
@@ -738,8 +791,14 @@ const escapeCellPipes = (content: string): string => {
 };
 
 /** Find `target` by identity; returns its ancestor chain (nearest first) or undefined. */
-const findAncestry = (root: Root, target: MarkdownNode): ReadonlyArray<MarkdownNode> | undefined => {
-	const search = (node: MarkdownNode, trail: Array<MarkdownNode>): ReadonlyArray<MarkdownNode> | undefined => {
+const findAncestry: {
+	(root: Root, target: MarkdownNode): ReadonlyArray<MarkdownNode> | undefined;
+	(target: MarkdownNode): (root: Root) => ReadonlyArray<MarkdownNode> | undefined;
+} = dual(2, (root: Root, target: MarkdownNode): ReadonlyArray<MarkdownNode> | undefined => {
+	const search: {
+		(node: MarkdownNode, trail: Array<MarkdownNode>): ReadonlyArray<MarkdownNode> | undefined;
+		(trail: Array<MarkdownNode>): (node: MarkdownNode) => ReadonlyArray<MarkdownNode> | undefined;
+	} = dual(2, (node: MarkdownNode, trail: Array<MarkdownNode>): ReadonlyArray<MarkdownNode> | undefined => {
 		if (node === target) {
 			return trail;
 		}
@@ -750,9 +809,9 @@ const findAncestry = (root: Root, target: MarkdownNode): ReadonlyArray<MarkdownN
 			}
 		}
 		return undefined;
-	};
+	});
 	return search(root, []);
-};
+});
 
 // ── Facade ──────────────────────────────────────────────────────────────────
 
@@ -836,11 +895,10 @@ export abstract class MarkdownFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static format(
-		text: string,
-		range?: MarkdownRangeLike,
-		options?: MarkdownFormattingOptions,
-	): ReadonlyArray<MarkdownEdit> {
+	static readonly format: {
+		(text: string, range?: MarkdownRangeLike, options?: MarkdownFormattingOptions): ReadonlyArray<MarkdownEdit>;
+		(range?: MarkdownRangeLike, options?: MarkdownFormattingOptions): (text: string) => ReadonlyArray<MarkdownEdit>;
+	} = dual((args) => P.isString(args[0]), (text: string, range?: MarkdownRangeLike, options?: MarkdownFormattingOptions): ReadonlyArray<MarkdownEdit> => {
 		const parseOptions = MarkdownParseOptions.make({
 			...O.getSomesStruct({
 				dialect: O.fromUndefinedOr(options?.dialect),
@@ -882,9 +940,7 @@ export abstract class MarkdownFormat {
 		const filtered =
 			range === undefined
 				? emit.edits
-				: emit.edits.filter(
-						(edit) => Math.max(edit.nodeStart, range.offset) <= Math.min(edit.nodeEnd, range.offset + range.length),
-					);
+				: A.filter(emit.edits, (edit) => Math.max(edit.nodeStart, range.offset) <= Math.min(edit.nodeEnd, range.offset + range.length));
 		const bulletEdits = A.filter(filtered, (edit) => edit.bullet);
 		const hazardousLines: Array<number> = [];
 		if (A.isReadonlyArrayNonEmpty(bulletEdits)) {
@@ -911,7 +967,7 @@ export abstract class MarkdownFormat {
 		return A.map(A.filter(filtered, (edit) => !edit.bullet || !HashSet.has(hazards, lineStartOf(text, edit.offset))), (edit) =>
 			MarkdownEdit.make({ offset: edit.offset, length: edit.length, content: edit.content }),
 		);
-	}
+	});
 
 	/**
 	 * Format `text` and apply the resulting edits in one step
@@ -934,9 +990,10 @@ export abstract class MarkdownFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static formatToString(text: string, range?: MarkdownRangeLike, options?: MarkdownFormattingOptions): string {
-		return MarkdownEdit.applyAll(text, MarkdownFormat.format(text, range, options));
-	}
+	static readonly formatToString: {
+		(text: string, range?: MarkdownRangeLike, options?: MarkdownFormattingOptions): string;
+		(range?: MarkdownRangeLike, options?: MarkdownFormattingOptions): (text: string) => string;
+	} = dual((args) => P.isString(args[0]), (text: string, range?: MarkdownRangeLike, options?: MarkdownFormattingOptions): string => MarkdownEdit.applyAll(text, MarkdownFormat.format(text, range, options)));
 
 	/**
 	 * Compute the edit that replaces `target` — a node from `document`'s own
@@ -978,14 +1035,20 @@ export abstract class MarkdownFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly modify = Effect.fn("MarkdownFormat.modify")(function* (
+	static readonly modify: {
+		(document: MarkdownDocument, target: MarkdownNode, replacement: MarkdownNode | string): Effect.Effect<ReadonlyArray<MarkdownEdit>, MarkdownModificationError, never>;
+		(target: MarkdownNode, replacement: MarkdownNode | string): (document: MarkdownDocument) => Effect.Effect<ReadonlyArray<MarkdownEdit>, MarkdownModificationError, never>;
+	} = dual(3, Effect.fn("MarkdownFormat.modify")(function* (
 		document: MarkdownDocument,
 		target: MarkdownNode,
 		replacement: MarkdownNode | string,
 	) {
 		const { start, end } = spanOf(target);
-		const fail = (code: MarkdownModificationErrorCode, detail: string) =>
-			MarkdownModificationError.make({ code, detail, offset: start, length: end - start });
+		const fail: {
+			(code: MarkdownModificationErrorCode, detail: string): MarkdownModificationError;
+			(detail: string): (code: MarkdownModificationErrorCode) => MarkdownModificationError;
+		} = dual(2, (code: MarkdownModificationErrorCode, detail: string): MarkdownModificationError =>
+			MarkdownModificationError.make({ code, detail, offset: start, length: end - start }));
 		const ancestry = findAncestry(document.root, target);
 		if (ancestry === undefined) {
 			return yield* fail("NodeNotInDocument", "the target node is not part of the document's tree");
@@ -1116,7 +1179,7 @@ export abstract class MarkdownFormat {
 		}
 		const edits: ReadonlyArray<MarkdownEdit> = [MarkdownEdit.make({ offset: start, length: end - start, content })];
 		return edits;
-	});
+	}));
 
 	/**
 	 * Modify `document` and apply the resulting edit in one step
@@ -1148,12 +1211,15 @@ export abstract class MarkdownFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly modifyToString = Effect.fn("MarkdownFormat.modifyToString")(function* (
+	static readonly modifyToString: {
+		(document: MarkdownDocument, target: MarkdownNode, replacement: MarkdownNode | string): Effect.Effect<string, MarkdownModificationError, never>;
+		(target: MarkdownNode, replacement: MarkdownNode | string): (document: MarkdownDocument) => Effect.Effect<string, MarkdownModificationError, never>;
+	} = dual(3, Effect.fn("MarkdownFormat.modifyToString")(function* (
 		document: MarkdownDocument,
 		target: MarkdownNode,
 		replacement: MarkdownNode | string,
 	) {
 		const edits = yield* MarkdownFormat.modify(document, target, replacement);
 		return MarkdownEdit.applyAll(document.source, edits);
-	});
+	}));
 }

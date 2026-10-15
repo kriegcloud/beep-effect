@@ -28,6 +28,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import type * as SchemaIssue from "effect/SchemaIssue";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -62,7 +63,10 @@ const restOf = (raw: { readonly [k: string]: unknown }): Record<string, unknown>
  * an unguarded replay would write the ORIGINAL object back — silently
  * discarding the edit.
  */
-const isFaithfulObject = (wire: { readonly [k: string]: unknown }, funding: Funding): boolean => {
+const isFaithfulObject: {
+	(wire: { readonly [k: string]: unknown }, funding: Funding): boolean;
+	(funding: Funding): (wire: { readonly [k: string]: unknown }) => boolean;
+} = dual(2, (wire: { readonly [k: string]: unknown }, funding: Funding): boolean => {
 	if (wire.url !== funding.url) return false;
 	if ((P.isString(wire.type) ? wire.type : undefined) !== funding.type) return false;
 	const originalRest = restOf(wire);
@@ -74,7 +78,7 @@ const isFaithfulObject = (wire: { readonly [k: string]: unknown }, funding: Fund
 		if (O.isNone(original) || original.value !== value) return false;
 	}
 	return true;
-};
+});
 
 /** Whether the bare string form can still carry everything this entry holds. */
 const isStringExpressible = (funding: Funding): boolean =>
@@ -150,11 +154,11 @@ const FieldValue = S.Union([EntryValue, S.Array(EntryValue)]);
  */
 export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>($I`Funding`)({
 	/** The funding platform, when the object form carried one (`"github"`, …). */
-	type: S.optionalKey(S.String).annotateKey({ description: "The funding platform, when the object form carried one (`\"github\"`, …)." }),
+	type: S.optionalKey(S.String).pipe($I.annoteKey("Funding.type", { description: "The funding platform, when the object form carried one (`\"github\"`, …)." })),
 	/** Where the money goes, exactly as the manifest wrote it. */
-	url: S.String.annotateKey({ description: "Where the money goes, exactly as the manifest wrote it." }),
+	url: S.String.pipe($I.annoteKey("Funding.url", { description: "Where the money goes, exactly as the manifest wrote it." })),
 	/** Keys outside the documented set, preserved so encoding does not drop them. */
-	rest: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "Keys outside the documented set, preserved so encoding does not drop them." }),
+	rest: S.optionalKey(S.Record(S.String, S.Unknown)).pipe($I.annoteKey("Funding.rest", { description: "Keys outside the documented set, preserved so encoding does not drop them." })),
 }, $I.annote("Funding", { description: "Where to send money for a package: one funding entry." })) {
 	/**
 	 * Stores the original single-entry wire spelling outside schema data and object spreads.
@@ -228,9 +232,12 @@ export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static rememberWire(funding: Funding, wire: EntryWire): void {
+	static readonly rememberWire: {
+		(funding: Funding, wire: EntryWire): void;
+		(wire: EntryWire): (funding: Funding) => void;
+	} = dual(2, (funding: Funding, wire: EntryWire): void => {
 		funding.#wire = wire;
-	}
+	});
 
 	/**
 	 *  Whether this entry was decoded as the entire bare field.

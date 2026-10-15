@@ -62,7 +62,10 @@ const safeTarget = (target: LinkTarget): LinkTarget =>
 			...O.getSomesStruct({ line: O.fromUndefinedOr(target.line), col: O.fromUndefinedOr(target.col) }),
 		};
 
-const spansOf = (inline: Inline, ctx: RenderContext): ReadonlyArray<Span> =>
+const spansOf: {
+	(inline: Inline, ctx: RenderContext): ReadonlyArray<Span>;
+	(ctx: RenderContext): (inline: Inline) => ReadonlyArray<Span>;
+} = dual(2, (inline: Inline, ctx: RenderContext): ReadonlyArray<Span> =>
 	Match.valueTags(inline, {
 		Text: (inline) =>
 			[{ text: sanitize(inline.value), ...O.getSomesStruct({ token: O.fromUndefinedOr(inline.token) }) }],
@@ -72,7 +75,7 @@ const spansOf = (inline: Inline, ctx: RenderContext): ReadonlyArray<Span> =>
 			// since a control character in a URL ends an OSC 8 early; one copy is shared by every span of the link.
 			const link = safeTarget(inline.target);
 			const suffix = inline.suffix === undefined ? {} : { suffix: inline.suffix };
-			return inline.label.flatMap((part) => spansOf(part, ctx)).map((span) => ({ ...span, link, ...suffix }));
+			return inline.label.flatMap(spansOf(ctx)).map((span) => ({ ...span, link, ...suffix }));
 		},
 		StatusMark: (inline): ReadonlyArray<Span> =>
 			[
@@ -84,11 +87,11 @@ const spansOf = (inline: Inline, ctx: RenderContext): ReadonlyArray<Span> =>
 			],
 		Path: (inline) => [{ text: inline.segments.map(sanitize).join(pathSeparator(ctx)) }],
 		Strong: (inline) =>
-			inline.content.flatMap((part) => spansOf(part, ctx)).map((span) => ({ ...span, strong: true as const })),
+			inline.content.flatMap(spansOf(ctx)).map((span) => ({ ...span, strong: true as const })),
 		Emphasis: (inline) =>
-			inline.content.flatMap((part) => spansOf(part, ctx)).map((span) => ({ ...span, em: true as const })),
+			inline.content.flatMap(spansOf(ctx)).map((span) => ({ ...span, em: true as const })),
 		File: (inline) => [{ text: safeTargetText(ctx.displayPath(inline.path)) }],
-	});
+	}));
 
 /**
  * Flatten inline nodes into spans.
@@ -118,7 +121,7 @@ export const flatten: {
 	(ctx: RenderContext): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
 	(inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span>;
 } = dual(2, (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> =>
-	inlines.flatMap((inline) => spansOf(inline, ctx)).filter((span) => span.text !== ""));
+	inlines.flatMap(spansOf(ctx)).filter((span) => span.text !== ""));
 
 /**
  * The display width of spans in terminal columns.

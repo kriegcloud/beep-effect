@@ -37,26 +37,26 @@ export class PublishTarget extends S.Class<PublishTarget, { readonly brand: uniq
 	/**
 	 * The package name being published.
 	 */
-	name: S.NonEmptyString.annotateKey({ description: "The package name being published." }),
+	name: S.NonEmptyString.pipe($I.annoteKey("PublishTarget.name", { description: "The package name being published." })),
 	/**
 	 * The registry URL.
 	 */
-	registry: S.NonEmptyString.annotateKey({ description: "The registry URL." }),
+	registry: S.NonEmptyString.pipe($I.annoteKey("PublishTarget.registry", { description: "The registry URL." })),
 	/**
 	 * The directory to publish, relative to the package root; `"."` for the root itself.
 	 */
-	directory: S.String.annotateKey({ description: "The directory to publish, relative to the package root; `\".\"` for the root itself." }),
+	directory: S.String.pipe($I.annoteKey("PublishTarget.directory", { description: "The directory to publish, relative to the package root; `\".\"` for the root itself." })),
 	/**
 	 * Scoped-package visibility.
 	 */
-	access: S.Literals(["public", "restricted"]).annotateKey({ description: "Scoped-package visibility." }),
+	access: S.Literals(["public", "restricted"]).pipe($I.annoteKey("PublishTarget.access", { description: "Scoped-package visibility." })),
 	/**
 	 * Whether to publish with a provenance attestation.
 	 */
 	provenance: S.Boolean.pipe(
 		S.withDecodingDefaultKey(Effect.succeed(false)),
-		S.withConstructorDefault(Effect.succeed(false)),
-	).annotateKey({ description: "Whether to publish with a provenance attestation." }),
+		S.withConstructorDefault(Effect.succeed(false)), $I.annoteKey("PublishTarget.provenance", { description: "Whether to publish with a provenance attestation." }),
+	),
 }, $I.annote("PublishTarget", { description: "A resolved publish destination for a workspace package." })) {}
 
 /**

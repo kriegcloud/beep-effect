@@ -14,7 +14,7 @@ const $I = $ScratchpadId.create("effected/github/GitCommit");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * A blob's file mode, as the Git Database API spells it.
@@ -61,11 +61,11 @@ export type FileMode = typeof FileMode.Type;
  */
 export class FileContent extends S.TaggedClass<FileContent, { readonly brand: unique symbol }>($I`FileContent`)("FileContent", {
 	/** Repository-relative path. */
-	path: S.NonEmptyString.annotateKey({ description: "Repository-relative path." }),
+	path: S.NonEmptyString.pipe($I.annoteKey("FileContent.path", { description: "Repository-relative path." })),
 	/** The file's new contents. */
-	content: S.String.annotateKey({ description: "The file's new contents." }),
+	content: S.String.pipe($I.annoteKey("FileContent.content", { description: "The file's new contents." })),
 	/** Defaults to a regular file. */
-	mode: S.optionalKey(FileMode).annotateKey({ description: "Defaults to a regular file." }),
+	mode: S.optionalKey(FileMode).pipe($I.annoteKey("FileContent.mode", { description: "Defaults to a regular file." })),
 }, $I.annote("FileContent", { description: "A file to write in a commit." })) {}
 
 /**
@@ -86,7 +86,7 @@ export class FileContent extends S.TaggedClass<FileContent, { readonly brand: un
  */
 export class FileDeletion extends S.TaggedClass<FileDeletion, { readonly brand: unique symbol }>($I`FileDeletion`)("FileDeletion", {
 	/** Repository-relative path. */
-	path: S.NonEmptyString.annotateKey({ description: "Repository-relative path." }),
+	path: S.NonEmptyString.pipe($I.annoteKey("FileDeletion.path", { description: "Repository-relative path." })),
 }, $I.annote("FileDeletion", { description: "A file to remove in a commit." })) {}
 
 /**
@@ -140,11 +140,11 @@ export type FileChange = FileContent | FileDeletion;
  */
 export class CommitRef extends S.Class<CommitRef, { readonly brand: unique symbol }>($I`CommitRef`)({
 	/** The commit's own sha. */
-	sha: S.String.annotateKey({ description: "The commit's own sha." }),
+	sha: S.String.pipe($I.annoteKey("CommitRef.sha", { description: "The commit's own sha." })),
 	/** The tree the commit points at — what `baseTree` wants. */
-	treeSha: S.String.annotateKey({ description: "The tree the commit points at — what `baseTree` wants." }),
+	treeSha: S.String.pipe($I.annoteKey("CommitRef.treeSha", { description: "The tree the commit points at — what `baseTree` wants." })),
 	/** Parent commit shas, in order. */
-	parents: S.Array(S.String).annotateKey({ description: "Parent commit shas, in order." }),
+	parents: S.Array(S.String).pipe($I.annoteKey("CommitRef.parents", { description: "Parent commit shas, in order." })),
 }, $I.annote("CommitRef", { description: "A commit, projected to the three fields callers actually use." })) {}
 
 /**
@@ -376,7 +376,7 @@ const CommitResponse = S.Struct({
 	sha: S.String,
 	tree: S.Struct({ sha: S.String }),
 	parents: S.Array(S.Struct({ sha: S.String })),
-}).annotate($I.annote("CommitResponse", { description: "The commit, tree and parent SHAs selected from a Git Database response." }));
+}).pipe($I.annoteSchema("CommitResponse", { description: "The commit, tree and parent SHAs selected from a Git Database response." }));
 
 const make = (client: GitHubClient["Service"]): GitCommitShape => {
 	const get = Effect.fn("GitCommit.get")(function* (sha: string) {
@@ -406,7 +406,7 @@ const make = (client: GitHubClient["Service"]): GitCommitShape => {
 		const tree = yield* client.request("POST /repos/{owner}/{repo}/git/trees", {
 			owner,
 			repo,
-			tree: options.changes.map(treeEntry),
+			tree: A.map(options.changes, treeEntry),
 			...O.getSomesStruct({ base_tree: O.fromUndefinedOr(options.baseTree) }),
 		});
 		return tree.sha;

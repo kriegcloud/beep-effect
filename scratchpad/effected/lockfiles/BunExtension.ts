@@ -9,7 +9,7 @@ type OverrideValue = string | { readonly [dependency: string]: OverrideValue };
 const OverrideValue: S.Codec<OverrideValue> = S.Union([
 	S.String,
 	S.Record(S.String, S.suspend((): S.Codec<OverrideValue> => OverrideValue)),
-]).annotate($I.annote("OverrideValue", { description: "A dependency specifier or nested npm-style override rules, including the self rule '.'" }));
+]).pipe($I.annoteSchema("OverrideValue", { description: "A dependency specifier or nested npm-style override rules, including the self rule '.'" }));
 
 /**
  * Extension data specific to bun lockfiles, attached to `Lockfile.extension`
@@ -35,9 +35,9 @@ const OverrideValue: S.Codec<OverrideValue> = S.Union([
  * @since 0.0.0
  */
 export class BunExtension extends S.Class<BunExtension, { readonly brand: unique symbol }>($I`BunExtension`)({
-	_tag: S.tag("bun").annotateKey({ description: "Identifies this extension as bun-specific lockfile data" }),
-	catalog: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "Default unnamed catalog entries preserved from the bun lockfile" }),
-	catalogs: S.optionalKey(S.Record(S.String, S.Record(S.String, S.Unknown))).annotateKey({ description: "Catalog definitions preserved from the bun lockfile, keyed by catalog name" }),
-	overrides: S.optionalKey(S.Record(S.String, OverrideValue)).annotateKey({ description: "Dependency override rules preserved from the bun lockfile, including nested and version-scoped rules" }),
-	trustedDependencies: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Packages the bun lockfile allows to run install scripts" }),
+	_tag: S.tag("bun").pipe($I.annoteKey("BunExtension._tag", { description: "Identifies this extension as bun-specific lockfile data" })),
+	catalog: S.optionalKey(S.Record(S.String, S.Unknown)).pipe($I.annoteKey("BunExtension.catalog", { description: "Default unnamed catalog entries preserved from the bun lockfile" })),
+	catalogs: S.optionalKey(S.Record(S.String, S.Record(S.String, S.Unknown))).pipe($I.annoteKey("BunExtension.catalogs", { description: "Catalog definitions preserved from the bun lockfile, keyed by catalog name" })),
+	overrides: S.optionalKey(S.Record(S.String, OverrideValue)).pipe($I.annoteKey("BunExtension.overrides", { description: "Dependency override rules preserved from the bun lockfile, including nested and version-scoped rules" })),
+	trustedDependencies: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("BunExtension.trustedDependencies", { description: "Packages the bun lockfile allows to run install scripts" })),
 }, $I.annote("BunExtension", { description: "Extension data specific to bun lockfiles, attached to `Lockfile.extension` when the format is `\"bun\"`." })) {}

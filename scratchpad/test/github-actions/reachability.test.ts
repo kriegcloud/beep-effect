@@ -186,6 +186,7 @@ describe("bundle reachability", () => {
 			"effect/Context",
 			"effect/Effect",
 			"effect/FileSystem",
+			"effect/Function",
 			"effect/Layer",
 			"effect/Option",
 			"effect/Record",
@@ -193,6 +194,7 @@ describe("bundle reachability", () => {
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("BlobEnvelope.ts")].sort(), [
 			"@beep/identity/packages",
+			"effect/Function",
 			"effect/Result",
 			"effect/Schema",
 		]);
@@ -213,6 +215,7 @@ describe("bundle reachability", () => {
 			"effect/Option",
 			"effect/Order",
 			"effect/Path",
+			"effect/Predicate",
 			"effect/Schema",
 			"effect/Stream",
 			"effect/String",
@@ -259,6 +262,7 @@ describe("bundle reachability", () => {
 		assert.deepStrictEqual([...reachableRuntimeImports("ChildEnv.ts")], [
 			"@beep/identity/packages",
 			"effect/Array",
+			"effect/Function",
 			"effect/Option",
 			"effect/Record",
 			"effect/Schema",
@@ -284,6 +288,7 @@ describe("bundle reachability", () => {
 			"effect/Effect",
 			"effect/Exit",
 			"effect/FileSystem",
+			"effect/Function",
 			"effect/HashSet",
 			"effect/Inspectable",
 			"effect/Layer",
@@ -348,6 +353,7 @@ describe("bundle reachability", () => {
 			"effect/DateTime",
 			"effect/Duration",
 			"effect/Effect",
+			"effect/Function",
 			"effect/HashMap",
 			"effect/Latch",
 			"effect/Layer",
@@ -490,6 +496,8 @@ describe("bundle reachability", () => {
 		// grow a heavier edge.
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/archiveCommands.ts")].sort(), [
 			"@beep/identity/packages",
+			"effect/Function",
+			"effect/Predicate",
 			"effect/Schema",
 			"effect/process",
 		]);
