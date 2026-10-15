@@ -2506,16 +2506,6 @@
       "reason": "Golden/adversarial provenance regression suite uses fixed hash-bound originals, deliberately corrupted receipts, provider envelopes and exact native filesystem/Git/PDF relationships. Codec calls decode fixed receipts to prove the integrity boundary; random schema-generated values would not preserve the independently authored evidence relationships. This suite is intentionally golden/regression-only rather than broad domain-schema law coverage."
     },
     {
-      "file": "packages/tooling/tool/cli/test/test-tsgo-turbo-inputs.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "exception",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 15,
-      "owner": "@beep/repo-cli",
-      "reason": "Turbo input regression encodes fixed JSON fixture documents and decodes turbo summaries through S.fromJsonString codecs; the schemas are external turbo shapes exercised against real output, not domain schemas with a round-trip law."
-    },
-    {
       "file": "packages/tooling/tool/cli/test/yeet-inbox-hook-adapter.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",

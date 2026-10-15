@@ -263,9 +263,11 @@ jobs:
               run_lane ci lane "${{ matrix.id }}" "${shape_args[@]}"
               ;;
             effect-diagnostics)
+              # Required and the only Effect-rule gate: a checkout without the
+              # lane must fail, never report success with zero programs.
               if [[ ! -f packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts ]]; then
-                echo '::notice::Effect diagnostics lane unavailable in this checkout; skipping.'
-                exit 0
+                echo '::error::Effect diagnostics lane missing from this checkout; merge main.'
+                exit 1
               fi
               run_lane ci lane effect-diagnostics "${shape_args[@]}"
               ;;

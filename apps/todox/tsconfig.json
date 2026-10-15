@@ -28,9 +28,9 @@
       {
         "name": "@effect/language-service",
         "namespaceImportPackages": ["effect", "@effect/*", "@beep/*"],
-        "ignoreEffectSuggestionsInTscExitCode": false,
-        "ignoreEffectWarningsInTscExitCode": false,
-        "ignoreEffectErrorsInTscExitCode": false,
+        "ignoreEffectSuggestionsInTscExitCode": true,
+        "ignoreEffectWarningsInTscExitCode": true,
+        "ignoreEffectErrorsInTscExitCode": true,
         "includeSuggestionsInTsc": true,
         "skipDisabledOptimization": false,
         "effectFn": ["span", "inferred-span", "suggested-span"],

@@ -21,6 +21,7 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { assertBundleGraph, NativeAddonExternals } from "./BundleGraph.ts";
 import { runEntrypoint } from "./entrypoint.ts";
 import { PackageFailure } from "./PracticeKgMcp.errors.ts";
 import { PRACTICE_KG_EXTENSION_VERSION } from "./Version.ts";
@@ -45,16 +46,6 @@ class BindingsManifest extends S.Opaque<BindingsManifest, { readonly brand: uniq
   )
 ) {}
 const decodeBindingsPackageJson = S.decodeUnknownEffect(S.fromJsonString(BindingsManifest));
-const NativeAddonExternals = [
-  "@duckdb/node-bindings-linux-x64/duckdb.node",
-  "@duckdb/node-bindings-linux-x64-musl/duckdb.node",
-  "@duckdb/node-bindings-linux-arm64/duckdb.node",
-  "@duckdb/node-bindings-linux-arm64-musl/duckdb.node",
-  "@duckdb/node-bindings-darwin-arm64/duckdb.node",
-  "@duckdb/node-bindings-darwin-x64/duckdb.node",
-  "@duckdb/node-bindings-win32-arm64/duckdb.node",
-  "@duckdb/node-bindings-win32-x64/duckdb.node",
-];
 const ForbiddenArchiveFragments = [
   "claims.ts",
   "build.ts",
@@ -310,6 +301,9 @@ const packageTarget = Effect.fn("PracticeKgPackage.packageTarget")(function* (
   yield* fs.makeDirectory(bundleDir, { recursive: true });
   const manifest = manifestFor(platform, executable);
   yield* fs.writeFileString(path.join(bundleDir, "manifest.json"), `${manifest}\n`);
+  // The compiled executable is opaque to the archive check, so the strict
+  // tier's bundle hygiene is proven on the module graph before compiling.
+  yield* assertBundleGraph(path.join(repoRoot, "apps/practice-kg-mcp/src/bin.ts"));
   yield* run(
     [
       "bun",

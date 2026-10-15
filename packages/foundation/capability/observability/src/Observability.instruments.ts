@@ -38,7 +38,11 @@ const owner = PackageName.make("@beep/observability");
  * replaced, a metric or series whose name or kind is not allowed, a metric
  * point carrying a key or value that is not allowed, a raw histogram
  * aggregate (`sum`, `min`, `max`) it dropped, and an export its egress client
- * held back.
+ * held back. Its encrypted spool adds four: an old segment evicted for
+ * space, a body that could not be sealed, encoded or written, a segment
+ * refused at replay because its tier is looser than the current one, and a
+ * segment refused at replay because it does not decode, authenticate or
+ * match the current key epoch.
  *
  * **Example** (Read the attribute refusal tag)
  *
@@ -64,6 +68,10 @@ export const TelemetryRefusalTag = LiteralKit([
   "metric-attribute-not-allowed",
   "metric-value-dropped",
   "egress-refused",
+  "spool-evicted",
+  "spool-write-failed",
+  "spool-tier-refused",
+  "spool-segment-invalid",
 ]).pipe(
   $I.annoteSchema("TelemetryRefusalTag", {
     description: "Reason an emitter refused a telemetry record or attribute.",
