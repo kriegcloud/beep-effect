@@ -52,6 +52,8 @@
     "./PatentClaimCandidate": "./src/PatentClaimCandidate/index.ts",
     "./QuestionQueue": "./src/QuestionQueue/index.ts",
     "./QuestionWrites": "./src/QuestionWrites/index.ts",
+    "./ReviewHub": "./src/ReviewHub/index.ts",
+    "./ReviewItemStore": "./src/ReviewItemStore/index.ts",
     "./ReviewQueue": "./src/ReviewQueue/index.ts",
     "./test": "./src/test.ts",
     "./internal/*": null,

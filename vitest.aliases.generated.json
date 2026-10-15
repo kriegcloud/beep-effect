@@ -1965,5 +1965,14 @@
   ],
   "@beep/law-practice-use-cases/DailyNotice": [
     "./packages/law-practice/use-cases/src/DailyNotice/index.ts"
+  ],
+  "@beep/law-practice-server/ReviewFiles": [
+    "./packages/law-practice/server/src/ReviewFiles/index.ts"
+  ],
+  "@beep/law-practice-use-cases/ReviewHub": [
+    "./packages/law-practice/use-cases/src/ReviewHub/index.ts"
+  ],
+  "@beep/law-practice-use-cases/ReviewItemStore": [
+    "./packages/law-practice/use-cases/src/ReviewItemStore/index.ts"
   ]
 }

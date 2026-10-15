@@ -1,19 +1,21 @@
 /**
- * In-memory stores of the review envelope's append-only logs for tests,
- * re-exported from the package's `./test` surface.
+ * In-memory stores of the review envelope's append-only logs and items for
+ * tests, re-exported from the package's `./test` surface.
  *
  * @internal
  * @packageDocumentation
  * @since 0.0.0
  */
 
+import * as A from "effect/Array";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Ref from "effect/Ref";
 import { AnswerLog } from "../QuestionQueue/QuestionQueue.ports.ts";
+import { latestItems, ReviewItemStore } from "../ReviewItemStore/ReviewItemStore.ports.ts";
 import { VerdictLog } from "../ReviewQueue/ReviewQueue.ports.ts";
-import type { AnswerRow, VerdictRow } from "@beep/law-practice-domain";
+import type { AnswerRow, ReviewItem, VerdictRow } from "@beep/law-practice-domain";
 
 // An append-only chunk of rows in a `Ref`: atomic appends, reads in append order.
 const appendOnlyRows = <Row>() =>
@@ -101,5 +103,44 @@ export const AnswerLogMemory: Layer.Layer<AnswerLog> = Layer.effect(
   AnswerLog,
   Effect.map(appendOnlyRows<AnswerRow>(), ({ append, rows }) =>
     AnswerLog.of({ append: Effect.fn("AnswerLog.append")(append), rows })
+  )
+);
+
+/**
+ * In-memory review-item store: the latest version of each item, held in a `Ref`.
+ *
+ * **Details**
+ *
+ * Each build of the layer starts empty. It never fails, and it orders and
+ * replaces items with `latestItems`, as every adapter does.
+ *
+ * **Example** (Store an item twice)
+ *
+ * ```ts
+ * import { ReviewItem } from "@beep/law-practice-domain"
+ * import { ReviewItemStore } from "@beep/law-practice-use-cases/ReviewItemStore"
+ * import { ReviewItemStoreMemory } from "@beep/law-practice-use-cases/test"
+ * import * as Effect from "effect/Effect"
+ *
+ * const item = ReviewItem.cases["kg-answer"].make({ itemId: "kg-answer:1", text: "A synthetic answer.", sourceRefs: [] })
+ * const program = Effect.gen(function* () {
+ *   const store = yield* ReviewItemStore
+ *   yield* store.upsert([item, item])
+ *   console.log((yield* store.list).length) // 1
+ * }).pipe(Effect.provide(ReviewItemStoreMemory))
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const ReviewItemStoreMemory: Layer.Layer<ReviewItemStore> = Layer.effect(
+  ReviewItemStore,
+  Effect.map(Ref.make<ReadonlyArray<ReviewItem>>([]), (ref) =>
+    ReviewItemStore.of({
+      list: Ref.get(ref),
+      upsert: Effect.fn("ReviewItemStore.upsert")((items: ReadonlyArray<ReviewItem>) =>
+        Ref.update(ref, (stored) => latestItems(A.appendAll(stored, items)))
+      ),
+    })
   )
 );

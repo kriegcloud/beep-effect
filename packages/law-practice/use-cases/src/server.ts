@@ -144,6 +144,37 @@ export * as QuestionQueue from "./QuestionQueue/index.ts";
  */
 export * as QuestionWrites from "./QuestionWrites/index.ts";
 /**
+ * Workstation review hub: the tool failure, the tool envelopes, the hub
+ * contract, its layer and the MCP tools.
+ *
+ * **Example** (List the review hub tools)
+ *
+ * ```ts
+ * import { ReviewHub } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(Object.keys(ReviewHub.ReviewHubToolkit.tools).length) // 4
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as ReviewHub from "./ReviewHub/index.ts";
+/**
+ * Review-item store: the typed failure and the store port.
+ *
+ * **Example** (Reference the review-item store service)
+ *
+ * ```ts
+ * import { ReviewItemStore } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(ReviewItemStore.ReviewItemStore.key)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as ReviewItemStore from "./ReviewItemStore/index.ts";
+/**
  * Attorney review queue: typed errors, the verdict-log port and the queue
  * contract.
  *

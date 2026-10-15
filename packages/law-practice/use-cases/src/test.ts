@@ -68,7 +68,26 @@ export { EffectOutput } from "./internal/effectOutput.ts";
  * @category testing
  * @since 0.0.0
  */
-export { AnswerLogMemory, VerdictLogMemory } from "./internal/logMemory.ts";
+/**
+ * In-memory review-item store for review hub and producer tests: the latest
+ * version of each item, held in a `Ref`, empty on every build of the layer.
+ *
+ * **Example** (Provide the in-memory item store)
+ *
+ * ```ts
+ * import { ReviewItemStore } from "@beep/law-practice-use-cases/ReviewItemStore"
+ * import { ReviewItemStoreMemory } from "@beep/law-practice-use-cases/test"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   console.log((yield* (yield* ReviewItemStore).list).length) // 0
+ * }).pipe(Effect.provide(ReviewItemStoreMemory))
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export { AnswerLogMemory, ReviewItemStoreMemory, VerdictLogMemory } from "./internal/logMemory.ts";
 /**
  * Spike entity input schema exported for package-local schema parity tests.
  *

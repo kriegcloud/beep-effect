@@ -48,6 +48,7 @@
     "./internal/*": null,
     "./OfficeActionStructure": "./src/OfficeActionStructure/index.ts",
     "./QuestionCalendar": "./src/QuestionCalendar/index.ts",
+    "./ReviewFiles": "./src/ReviewFiles/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
