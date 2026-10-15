@@ -218,8 +218,8 @@ const validateSyntax = Effect.fn("ModelsApply.validate")((text: string, writes: 
   )
 );
 
-const checkShellDrift = Effect.fnUntraced((text: string, writes: ReadonlyArray<ModelsLocatorWrite>) =>
-  Effect.forEach(
+const checkShellDrift = Effect.fnUntraced(function* (text: string, writes: ReadonlyArray<ModelsLocatorWrite>) {
+  yield* Effect.forEach(
     writes,
     ({ locator, expected }) =>
       Match.value(locator).pipe(
@@ -233,8 +233,8 @@ const checkShellDrift = Effect.fnUntraced((text: string, writes: ReadonlyArray<M
         Match.orElse(() => Effect.void)
       ),
     { concurrency: 1, discard: true }
-  )
-);
+  );
+});
 
 const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const fs = yield* FileSystem.FileSystem;
