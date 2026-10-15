@@ -12,7 +12,6 @@
     {"name":"PdfTools.loadDocument","owner":"@beep/pdf-tools","family":"driver","conforms":true},
     {"name":"PdfTools.makeService","owner":"@beep/pdf-tools","family":"driver","conforms":true},
     {"name":"PdfTools.measurePage","owner":"@beep/pdf-tools","family":"driver","conforms":true},
-    {"name":"PdfTools.mergePages","owner":"@beep/pdf-tools","family":"driver","conforms":true},
     {"name":"PdfTools.pageText","owner":"@beep/pdf-tools","family":"driver","conforms":true},
     {"name":"PdfTools.pageWords","owner":"@beep/pdf-tools","family":"driver","conforms":true},
     {"name":"PdfTools.rasterise","owner":"@beep/pdf-tools","family":"driver","conforms":true},
