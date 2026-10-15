@@ -136,3 +136,86 @@ export const checkFreshness: {
       },
     })
 );
+
+/**
+ * Whether an item's own freshness is `Fresh`.
+ *
+ * **Example** (Check an item)
+ *
+ * ```ts
+ * import { Freshness, isFreshItem } from "@beep/palantiri/Freshness"
+ * import * as DateTime from "effect/DateTime"
+ *
+ * const item = { freshness: Freshness.cases.Fresh.make({ asOf: DateTime.makeUnsafe(0) }) }
+ * console.log(isFreshItem(item)) // true
+ * ```
+ *
+ * @param item - Any parcel item.
+ * @returns `true` when the item is fresh.
+ * @category predicates
+ * @since 0.0.0
+ */
+export const isFreshItem = <A extends { readonly freshness: Freshness }>(item: A): boolean =>
+  item.freshness._tag === "Fresh";
+
+const MAX_LABELS = 5;
+
+const nameLabels = (labels: ReadonlyArray<string>): string =>
+  labels.length > MAX_LABELS
+    ? `${A.join(A.take(labels, MAX_LABELS), ", ")}, +${labels.length - MAX_LABELS} more`
+    : A.join(labels, ", ");
+
+/**
+ * Summary parts for the items whose freshness is unknown, one per reason in
+ * `UnknownReason` order, such as `1 stale (grok-bot)`.
+ *
+ * **Details**
+ *
+ * Each part counts the items with that reason and names their distinct
+ * labels in first-seen order, at most five, then `+N more`. Reasons no item
+ * has are left out, so all-fresh items give no parts.
+ *
+ * **Example** (Name the unknown items)
+ *
+ * ```ts
+ * import { Freshness, unknownSplit } from "@beep/palantiri/Freshness"
+ * import * as O from "effect/Option"
+ *
+ * const stale = Freshness.cases.Unknown.make({ reason: "stale", asOf: O.none(), detail: O.none() })
+ * console.log(unknownSplit([{ name: "a", freshness: stale }], (item) => item.name)) // ["1 stale (a)"]
+ * ```
+ *
+ * @param items - The parcel's items.
+ * @param label - The name a part lists for an item.
+ * @returns One part per unknown reason present.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const unknownSplit: {
+  <A extends { readonly freshness: Freshness }>(
+    label: (item: A) => string
+  ): (items: ReadonlyArray<A>) => ReadonlyArray<string>;
+  <A extends { readonly freshness: Freshness }>(
+    items: ReadonlyArray<A>,
+    label: (item: A) => string
+  ): ReadonlyArray<string>;
+} = dual(
+  2,
+  <A extends { readonly freshness: Freshness }>(
+    items: ReadonlyArray<A>,
+    label: (item: A) => string
+  ): ReadonlyArray<string> =>
+    A.getSomes(
+      A.map(UnknownReason.literals, (reason) =>
+        A.match(
+          A.filter(items, (item) =>
+            Freshness.match(item.freshness, { Fresh: () => false, Unknown: (unknown) => unknown.reason === reason })
+          ),
+          {
+            onEmpty: O.none,
+            onNonEmpty: (some) => O.some(`${some.length} ${reason} (${nameLabels(A.dedupe(A.map(some, label)))})`),
+          }
+        )
+      )
+    )
+);
