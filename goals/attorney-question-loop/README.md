@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -40,8 +40,8 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3c: run the review hub, the producer and the daily notice as practice services. P0 merged (#1801);
-P1, P2, P3a and P3b are complete.
+Closed (`completed-retained`). The operator turns the services on through
+`docs/runbooks/practice-review-hub.md`; follow-ups are in `PLAN.md`.
 
 ## Latest Evidence
 
@@ -66,6 +66,17 @@ P1, P2, P3a and P3b are complete.
 - 2026-10-14 P3b: the `apps/practice-review-hub` app, an HTTP MCP bound to loopback and gated on the
   tailnet login, with four tools (the pane contract is in `research/P3B-HUB.md`, as built) and the
   JSONL verdict, answer and item stores.
+- 2026-10-15 P3c:
+  - sample user units for the hub and for the daily notice service and timer;
+  - docket-intake publishes questions to the hub's store, opt-in through
+    `DOCKET_INTAKE_REVIEW_HUB_DIR`;
+  - the hub app's `notice` subcommand;
+  - `docs/runbooks/practice-review-hub.md`;
+  - JSONL reads tolerate an append in progress;
+  - the hub's 403 and allowed-login behaviour proven locally on loopback.
+- 2026-10-15 P4: the amendment and the hub contract are in the repo and registered with the
+  orchestrator as a routing item for the review-queue follow-on.
+- 2026-10-15 P6: closeout reflection `history/reflections/2026-10-15-claude.md`.
 
 ## Notes
 

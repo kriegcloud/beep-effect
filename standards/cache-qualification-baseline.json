@@ -898,11 +898,11 @@
       }
     },
     "@beep/practice-review-hub": {
-      "reviewer": "Claude Opus 5.5 (feat/attorney-question-loop-p1)",
-      "reason": "Re-record the new @beep/practice-review-hub app (attorney-question-loop P3b) and the root workspace registration it implies on main's baseline after merging main; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (feat/attorney-question-loop-p3c)",
+      "reason": "Re-record @beep/practice-review-hub after P3c added its @beep/m365 dependency (notice subcommand); no qualification is granted.",
       "basis": {
-        "path": "goals/attorney-question-loop/research/review-hub-cache-review.md",
-        "sha256": "6ba54d2421e86bb2838ec9aa1be3b705769d7b7505615a22a1185538b4befc47"
+        "path": "goals/attorney-question-loop/research/review-hub-cache-review-2.md",
+        "sha256": "76de4f81af2919ba2b273d19b659a8c19469e6922a02c15786369b13b0a4875b"
       }
     },
     "@beep/pretext": {
@@ -76395,6 +76395,7 @@
           "@beep/law-practice-domain#audit",
           "@beep/law-practice-server#audit",
           "@beep/law-practice-use-cases#audit",
+          "@beep/m365#audit",
           "@beep/mcp-kit#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit",
@@ -76463,6 +76464,7 @@
           "@beep/law-practice-domain#build",
           "@beep/law-practice-server#build",
           "@beep/law-practice-use-cases#build",
+          "@beep/m365#build",
           "@beep/mcp-kit#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -76505,6 +76507,7 @@
           "@beep/law-practice-domain#build",
           "@beep/law-practice-server#build",
           "@beep/law-practice-use-cases#build",
+          "@beep/m365#build",
           "@beep/mcp-kit#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -76547,6 +76550,7 @@
           "@beep/law-practice-domain#build",
           "@beep/law-practice-server#build",
           "@beep/law-practice-use-cases#build",
+          "@beep/m365#build",
           "@beep/mcp-kit#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -76601,6 +76605,7 @@
           "@beep/law-practice-domain#build",
           "@beep/law-practice-server#build",
           "@beep/law-practice-use-cases#build",
+          "@beep/m365#build",
           "@beep/mcp-kit#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -76673,6 +76678,7 @@
           "@beep/law-practice-domain#transit",
           "@beep/law-practice-server#transit",
           "@beep/law-practice-use-cases#transit",
+          "@beep/m365#transit",
           "@beep/mcp-kit#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -76881,6 +76887,7 @@
           "@beep/law-practice-domain#transit",
           "@beep/law-practice-server#transit",
           "@beep/law-practice-use-cases#transit",
+          "@beep/m365#transit",
           "@beep/mcp-kit#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -76929,6 +76936,7 @@
           "@beep/law-practice-domain#transit",
           "@beep/law-practice-server#transit",
           "@beep/law-practice-use-cases#transit",
+          "@beep/m365#transit",
           "@beep/mcp-kit#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",

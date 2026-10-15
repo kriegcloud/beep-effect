@@ -406,8 +406,10 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/law-practice-domain": "workspace:^",
         "@beep/law-practice-server": "workspace:^",
         "@beep/law-practice-use-cases": "workspace:^",
+        "@beep/m365": "workspace:^",
         "@beep/mcp-kit": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
@@ -415,7 +417,6 @@
         "effect": "catalog:",
       },
       "devDependencies": {
-        "@beep/law-practice-domain": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",

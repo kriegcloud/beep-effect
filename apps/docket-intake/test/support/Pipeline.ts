@@ -220,6 +220,9 @@ const LinuxFileSystemLayer = Layer.effect(
 /** An in-memory file system that looks like Linux, and POSIX paths, for the digest archive. */
 export const FilesLayer = Layer.merge(LinuxFileSystemLayer, Path.layer);
 
+/** The Bun crypto service, for layers a test builds beside the pipeline. */
+export const CryptoLayer = BunCrypto.layer;
+
 const storeOptions = (directory: string) => DocketFileStoreOptions.make({ directory });
 
 // Every create and mark that reaches the harness is journaled in the state directory.

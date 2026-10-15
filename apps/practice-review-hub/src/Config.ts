@@ -51,8 +51,14 @@ export class ReviewHubConfig extends S.Opaque<ReviewHubConfig, { readonly brand:
 
 const DEFAULT_PORT = 8787;
 
+// The `--data-dir` flag both commands take, falling back to PRACTICE_REVIEW_HUB_DATA_DIR.
+const dataDirectoryFlag = Flag.String("data-dir").pipe(
+  Flag.withFallbackConfig(Config.String("PRACTICE_REVIEW_HUB_DATA_DIR")),
+  Flag.withDescription("Directory of the hub's verdict, answer and item files.")
+);
+
 /**
- * Command-line flags of the review hub, each falling back to its environment
+ * Command-line flags of `serve`, each falling back to its environment
  * variable.
  *
  * **Details**
@@ -77,10 +83,7 @@ export const reviewHubFlags = {
     Flag.withFallbackConfig(Config.String("PRACTICE_REVIEW_HUB_ALLOWED_LOGINS")),
     Flag.withDescription("Comma-separated Tailscale logins allowed to call the hub.")
   ),
-  dataDirectory: Flag.String("data-dir").pipe(
-    Flag.withFallbackConfig(Config.String("PRACTICE_REVIEW_HUB_DATA_DIR")),
-    Flag.withDescription("Directory of the hub's verdict, answer and item files.")
-  ),
+  dataDirectory: dataDirectoryFlag,
   port: Flag.Int("port").pipe(
     Flag.withFallbackConfig(Config.Int("PORT")),
     Flag.withDefault(DEFAULT_PORT),
@@ -118,3 +121,61 @@ export const decodeReviewHubConfig = Effect.fn("ReviewHubConfig.decode")(functio
     allowedLogins: splitCommaSeparatedTrimmed(flags.allowedLogins),
   });
 });
+
+/**
+ * Resolved settings of the daily notice.
+ *
+ * **Example** (Decode the notice settings)
+ *
+ * ```ts
+ * import { ReviewNoticeConfig } from "@/Config"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(ReviewNoticeConfig)({
+ *   dataDirectory: "/var/lib/practice-review-hub",
+ *   timeZone: "America/Chicago"
+ * })
+ * console.log(config.dataDirectory) // "/var/lib/practice-review-hub"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ReviewNoticeConfig extends S.Opaque<ReviewNoticeConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
+    dataDirectory: S.NonEmptyString.annotateKey({
+      description: "Directory of the hub's item and answer files, and of the notice's last-sent day.",
+    }),
+    timeZone: S.TimeZoneNamedFromString.annotateKey({
+      description: "IANA time zone the notice's day is counted in.",
+    }),
+  }).pipe($I.annoteSchema("ReviewNoticeConfig", { description: "Resolved settings of the daily notice." }))
+) {}
+
+/**
+ * Command-line flags of `notice`: `--data-dir` and `--time-zone`, falling
+ * back to `PRACTICE_REVIEW_HUB_DATA_DIR` and `PRACTICE_REVIEW_HUB_TIME_ZONE`.
+ *
+ * **Details**
+ *
+ * The mailbox connection is not a flag: it comes from the
+ * `PRACTICE_REVIEW_NOTICE_*` environment variables, which `op run` resolves.
+ *
+ * **Example** (List the flags)
+ *
+ * ```ts
+ * import { reviewNoticeFlags } from "@/Config"
+ *
+ * console.log(Object.keys(reviewNoticeFlags)) // ["dataDirectory", "timeZone"]
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const reviewNoticeFlags = {
+  dataDirectory: dataDirectoryFlag,
+  timeZone: Flag.String("time-zone").pipe(
+    Flag.withFallbackConfig(Config.String("PRACTICE_REVIEW_HUB_TIME_ZONE")),
+    Flag.withDescription("IANA time zone the notice's day is counted in, such as America/Chicago.")
+  ),
+};
