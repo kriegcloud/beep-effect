@@ -2287,3 +2287,7 @@ The extra shape decode in a command-output regression made the test file cross t
 Lane B2 (`chore/ts7-remove-eslint`, `goals/eslint-removal`) removes the remaining
 ESLint installation after oxlint lanes #1753 and #1791. The orchestrator will link
 the removal PR at publication; law helpers retain their behavior under `laws/`.
+
+The separate test compiler rejects native `JSON.parse` even though the full package audit passes it. Move the serialization regression into its own command-output suite and decode the printed JSON once through Schema. That preserves the consumer assertion without diagnostic suppression or artificially adding schema property tests to the service-regression suite. A focused test typecheck before the full audit would expose this sooner.
+
+Final H3 test registration uses `it.effect.prop` with the existing `HookPulseAgentKind` schema in the existing timed HarnessLedger resource suite. That removes the separate suite's new EV010/EV014 judgments and the direct `Arbitrary.checkEffect` EV007 finding without inventory changes. The typed Schema JSON decoder preserves a single parse and direct field reads; the effect-vitest scan reports zero introduced findings.

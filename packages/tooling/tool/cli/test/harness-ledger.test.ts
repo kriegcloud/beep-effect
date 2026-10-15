@@ -4,6 +4,7 @@ import {
   deriveHarnessHash,
   HarnessFingerprintInput,
   HarnessLedgerRow,
+  HookPulseAgentKind,
   HookPulseDisarmWindow,
   HookPulseV1,
   hashPrivateIdentifier,
@@ -26,6 +27,7 @@ import {
 } from "@beep/repo-cli/commands/HarnessLedger";
 import { CommandJsonOutput } from "@beep/repo-cli/test/Cli";
 import { Sha256Hex } from "@beep/schema";
+import { fcRuns } from "@beep/test-utils";
 import { A, pipe, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it, layer } from "@effect/vitest";
@@ -1154,24 +1156,30 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
     })
   );
 
-  it.effect("reconcile command emits report fields after one JSON parse", () =>
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const root = yield* fs.makeTempDirectoryScoped({ prefix: "harness-reconcile-command-" });
-      const stateDir = yield* makeHookStateDir("harness-reconcile-command-hooks-");
-      const output = yield* Ref.make("");
-      yield* Command.runWith(harnessLedgerReconcileCommand, { version: "0.0.0" })([
-        "--state-dir",
-        stateDir,
-        "--transcript-dir",
-        root,
-        "--agent-kind",
-        "codex-cli",
-      ]).pipe(Effect.provideService(CommandJsonOutput, (text) => Ref.set(output, text)));
-      const parsed: unknown = JSON.parse(yield* Ref.get(output));
-      expect(parsed).toHaveProperty("agentKind", "codex-cli");
-      expect(parsed).toHaveProperty("transcriptFiles", 0);
-    })
+  it.effect.prop(
+    "reconcile exposes report fields after one JSON parse for schema-generated client kinds",
+    { agentKind: HookPulseAgentKind },
+    ({ agentKind }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "harness-reconcile-command-" });
+        const stateDir = yield* makeHookStateDir("harness-reconcile-command-hooks-");
+        const output = yield* Ref.make("");
+        yield* Command.runWith(harnessLedgerReconcileCommand, { version: "0.0.0" })([
+          "--state-dir",
+          stateDir,
+          "--transcript-dir",
+          root,
+          "--agent-kind",
+          agentKind,
+        ]).pipe(Effect.provideService(CommandJsonOutput, (text) => Ref.set(output, text)));
+        const report = yield* S.decodeEffect(
+          S.fromJsonString(S.Struct({ agentKind: HookPulseAgentKind, transcriptFiles: S.Natural }))
+        )(yield* Ref.get(output));
+        expect(report.agentKind).toBe(agentKind);
+        expect(report.transcriptFiles).toBe(0);
+      }),
+    { arbitrary: fcRuns(10) }
   );
 
   it.effect("reconciliation resolves relative roots and stops symlink cycles", () =>
