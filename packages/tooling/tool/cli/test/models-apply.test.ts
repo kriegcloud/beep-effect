@@ -337,6 +337,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const journals = A.filter(entries, (entry) => entry.endsWith(".json"));
         expect(journals).toHaveLength(1);
         expect(error.message).toContain(journals[0]?.slice(0, -5));
+        expect(A.fromIterable(error.message.matchAll(/Journal:/g))).toHaveLength(1);
         expect(
           A.filter(
             entries,
@@ -442,6 +443,8 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         yield* fs.writeFileString(file, text);
         const error = yield* Effect.flip(writer.apply(file, [request], "write", backups));
         expect(error._tag).toBe("ModelsLocatorError");
+        if (text.includes("# native") || text.includes("EOF") || text.includes("-suffix\n"))
+          expect(error.message).toContain("Unsupported shell form");
         expect(yield* fs.readFileString(file)).toBe(text);
         expect(yield* fs.exists(backups)).toBe(false);
       }
