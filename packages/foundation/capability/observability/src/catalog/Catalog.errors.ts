@@ -6,6 +6,7 @@
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { SignalKind, TelemetryTier } from "./Catalog.literals.ts";
 import { AttributeKeyName, InstrumentName, MetricName, PackageName } from "./Catalog.names.ts";
@@ -22,7 +23,7 @@ const $I = $ObservabilityId.create("catalog/Catalog.errors");
  *
  * const conflict = DuplicateInstrumentName.make({
  *   signal: "span",
- *   name: SpanName.make("Parcels.read"),
+ *   instrumentName: SpanName.make("Parcels.read"),
  *   owners: [PackageName.make("@beep/a"), PackageName.make("@beep/b")]
  * })
  * conflict._tag // => "DuplicateInstrumentName"
@@ -37,7 +38,7 @@ export class DuplicateInstrumentName extends S.TaggedError<DuplicateInstrumentNa
   "DuplicateInstrumentName",
   {
     signal: SignalKind,
-    name: InstrumentName,
+    instrumentName: InstrumentName,
     owners: S.NonEmptyArray(PackageName),
   },
   $I.annoteError<DuplicateInstrumentName>("DuplicateInstrumentName", {
@@ -86,7 +87,7 @@ export class DuplicateAttributeKey extends S.TaggedError<DuplicateAttributeKey, 
  *
  * const conflict = MissingAttributeKey.make({
  *   signal: "metric",
- *   name: MetricName.make("beep.docket.intake_runs"),
+ *   instrumentName: MetricName.make("beep.docket.intake_runs"),
  *   key: AttributeKeyName.make("beep.unknown")
  * })
  * conflict._tag // => "MissingAttributeKey"
@@ -101,7 +102,7 @@ export class MissingAttributeKey extends S.TaggedError<MissingAttributeKey, { re
   "MissingAttributeKey",
   {
     signal: SignalKind,
-    name: InstrumentName,
+    instrumentName: InstrumentName,
     key: AttributeKeyName,
   },
   $I.annoteError<MissingAttributeKey>("MissingAttributeKey", {
@@ -119,7 +120,7 @@ export class MissingAttributeKey extends S.TaggedError<MissingAttributeKey, { re
  *
  * const conflict = SignalNotAllowed.make({
  *   signal: "metric",
- *   name: MetricName.make("beep.docket.intake_runs"),
+ *   instrumentName: MetricName.make("beep.docket.intake_runs"),
  *   key: AttributeKeyName.make("beep.span_only")
  * })
  * conflict._tag // => "SignalNotAllowed"
@@ -134,7 +135,7 @@ export class SignalNotAllowed extends S.TaggedError<SignalNotAllowed, { readonly
   "SignalNotAllowed",
   {
     signal: SignalKind,
-    name: InstrumentName,
+    instrumentName: InstrumentName,
     key: AttributeKeyName,
   },
   $I.annoteError<SignalNotAllowed>("SignalNotAllowed", {
@@ -151,7 +152,7 @@ export class SignalNotAllowed extends S.TaggedError<SignalNotAllowed, { readonly
  * import { AttributeKeyName, MetricName, UnboundedMetricLabel } from "@beep/observability/catalog"
  *
  * const conflict = UnboundedMetricLabel.make({
- *   name: MetricName.make("beep.docket.intake_runs"),
+ *   instrumentName: MetricName.make("beep.docket.intake_runs"),
  *   key: AttributeKeyName.make("beep.matter_id")
  * })
  * conflict._tag // => "UnboundedMetricLabel"
@@ -165,7 +166,7 @@ export class UnboundedMetricLabel extends S.TaggedError<UnboundedMetricLabel, { 
 )(
   "UnboundedMetricLabel",
   {
-    name: MetricName,
+    instrumentName: MetricName,
     key: AttributeKeyName,
   },
   $I.annoteError<UnboundedMetricLabel>("UnboundedMetricLabel", {
@@ -190,7 +191,7 @@ export class UnboundedMetricLabel extends S.TaggedError<UnboundedMetricLabel, { 
  *
  * const conflict = TierLooserThanAttribute.make({
  *   signal: "span",
- *   name: SpanName.make("Parcels.read"),
+ *   instrumentName: SpanName.make("Parcels.read"),
  *   key: AttributeKeyName.make("beep.matter_id"),
  *   instrumentTier: "shape-only",
  *   attributeTier: "standard"
@@ -207,7 +208,7 @@ export class TierLooserThanAttribute extends S.TaggedError<TierLooserThanAttribu
   "TierLooserThanAttribute",
   {
     signal: SignalKind,
-    name: InstrumentName,
+    instrumentName: InstrumentName,
     key: AttributeKeyName,
     instrumentTier: TelemetryTier,
     attributeTier: TelemetryTier,
@@ -267,7 +268,7 @@ export type CatalogConflict = typeof CatalogConflict.Type;
  *
  * const line = describeConflict(
  *   UnboundedMetricLabel.make({
- *     name: MetricName.make("beep.docket.intake_runs"),
+ *     instrumentName: MetricName.make("beep.docket.intake_runs"),
  *     key: AttributeKeyName.make("beep.matter_id")
  *   })
  * )
@@ -278,12 +279,15 @@ export type CatalogConflict = typeof CatalogConflict.Type;
  * @since 0.0.0
  */
 export const describeConflict: (conflict: CatalogConflict) => string = CatalogConflict.match({
-  DuplicateInstrumentName: ({ signal, name, owners }) => `${signal} ${name} is declared by ${owners.join(", ")}`,
-  DuplicateAttributeKey: ({ key, owners }) => `attribute ${key} is declared by ${owners.join(", ")}`,
-  MissingAttributeKey: ({ signal, name, key }) => `${signal} ${name} references undeclared attribute ${key}`,
-  SignalNotAllowed: ({ signal, name, key }) =>
-    `${signal} ${name} uses attribute ${key}, which does not allow ${signal}`,
-  UnboundedMetricLabel: ({ name, key }) => `metric ${name} uses unbounded attribute ${key} as a label`,
-  TierLooserThanAttribute: ({ signal, name, key, instrumentTier, attributeTier }) =>
-    `${signal} ${name} admits tier ${instrumentTier} but attribute ${key} requires ${attributeTier}`,
+  DuplicateInstrumentName: ({ signal, instrumentName, owners }) =>
+    `${signal} ${instrumentName} is declared by ${A.join(owners, ", ")}`,
+  DuplicateAttributeKey: ({ key, owners }) => `attribute ${key} is declared by ${A.join(owners, ", ")}`,
+  MissingAttributeKey: ({ signal, instrumentName, key }) =>
+    `${signal} ${instrumentName} references undeclared attribute ${key}`,
+  SignalNotAllowed: ({ signal, instrumentName, key }) =>
+    `${signal} ${instrumentName} uses attribute ${key}, which does not allow ${signal}`,
+  UnboundedMetricLabel: ({ instrumentName, key }) =>
+    `metric ${instrumentName} uses unbounded attribute ${key} as a label`,
+  TierLooserThanAttribute: ({ signal, instrumentName, key, instrumentTier, attributeTier }) =>
+    `${signal} ${instrumentName} admits tier ${instrumentTier} but attribute ${key} requires ${attributeTier}`,
 });

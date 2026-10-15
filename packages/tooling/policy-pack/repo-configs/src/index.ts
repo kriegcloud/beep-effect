@@ -5,9 +5,6 @@
  * @since 0.0.0
  */
 
-import { DocsESLintConfig as DocsESLintConfigInternal } from "./eslint/DocsESLintConfig.ts";
-import type { DocsESLintConfigShape as DocsESLintConfigShapeInternal } from "./eslint/DocsESLintConfig.ts";
-
 /**
  * Package version for `@beep/repo-configs`.
  *
@@ -24,47 +21,3 @@ import type { DocsESLintConfigShape as DocsESLintConfigShapeInternal } from "./e
  * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;
-
-/**
- * Flat docs-only ESLint config array shape exported by this package.
- *
- * **Example** (Satisfy docs ESLint shape)
- *
- * ```ts
- * import { strictEqual } from "node:assert"
- * import type { DocsESLintConfigShape } from "@beep/repo-configs"
- *
- * const config = [
- *   {
- *     rules: {
- *       "tsdoc/syntax": "error"
- *     }
- *   }
- * ] satisfies DocsESLintConfigShape
- *
- * strictEqual(config[0]?.rules?.["tsdoc/syntax"], "error")
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export type DocsESLintConfigShape = DocsESLintConfigShapeInternal;
-
-/**
- * Shared docs-only repository ESLint flat config.
- *
- * **Example** (Detect TSDoc syntax rule)
- *
- * ```ts
- * import { strictEqual } from "node:assert"
- * import { DocsESLintConfig } from "@beep/repo-configs"
- *
- * const hasTSDocSyntaxRule = DocsESLintConfig.some((entry) => entry.rules?.["tsdoc/syntax"] === "error")
- *
- * strictEqual(hasTSDocSyntaxRule, true)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const DocsESLintConfig = DocsESLintConfigInternal;
