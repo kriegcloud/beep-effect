@@ -6,6 +6,7 @@
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { SignalKind, TelemetryTier } from "./Catalog.literals.ts";
 import { AttributeKeyName, InstrumentName, MetricName, PackageName } from "./Catalog.names.ts";
@@ -37,6 +38,8 @@ export class DuplicateInstrumentName extends S.TaggedError<DuplicateInstrumentNa
   "DuplicateInstrumentName",
   {
     signal: SignalKind,
+    // 2026-10-14: remove with the catalog-payload rename PR (H2 split patch).
+    // @effect-diagnostics-next-line errorPayloadShadowsName:off
     name: InstrumentName,
     owners: S.NonEmptyArray(PackageName),
   },
@@ -101,6 +104,8 @@ export class MissingAttributeKey extends S.TaggedError<MissingAttributeKey, { re
   "MissingAttributeKey",
   {
     signal: SignalKind,
+    // 2026-10-14: remove with the catalog-payload rename PR (H2 split patch).
+    // @effect-diagnostics-next-line errorPayloadShadowsName:off
     name: InstrumentName,
     key: AttributeKeyName,
   },
@@ -134,6 +139,8 @@ export class SignalNotAllowed extends S.TaggedError<SignalNotAllowed, { readonly
   "SignalNotAllowed",
   {
     signal: SignalKind,
+    // 2026-10-14: remove with the catalog-payload rename PR (H2 split patch).
+    // @effect-diagnostics-next-line errorPayloadShadowsName:off
     name: InstrumentName,
     key: AttributeKeyName,
   },
@@ -165,6 +172,8 @@ export class UnboundedMetricLabel extends S.TaggedError<UnboundedMetricLabel, { 
 )(
   "UnboundedMetricLabel",
   {
+    // 2026-10-14: remove with the catalog-payload rename PR (H2 split patch).
+    // @effect-diagnostics-next-line errorPayloadShadowsName:off
     name: MetricName,
     key: AttributeKeyName,
   },
@@ -207,6 +216,8 @@ export class TierLooserThanAttribute extends S.TaggedError<TierLooserThanAttribu
   "TierLooserThanAttribute",
   {
     signal: SignalKind,
+    // 2026-10-14: remove with the catalog-payload rename PR (H2 split patch).
+    // @effect-diagnostics-next-line errorPayloadShadowsName:off
     name: InstrumentName,
     key: AttributeKeyName,
     instrumentTier: TelemetryTier,
@@ -278,8 +289,8 @@ export type CatalogConflict = typeof CatalogConflict.Type;
  * @since 0.0.0
  */
 export const describeConflict: (conflict: CatalogConflict) => string = CatalogConflict.match({
-  DuplicateInstrumentName: ({ signal, name, owners }) => `${signal} ${name} is declared by ${owners.join(", ")}`,
-  DuplicateAttributeKey: ({ key, owners }) => `attribute ${key} is declared by ${owners.join(", ")}`,
+  DuplicateInstrumentName: ({ signal, name, owners }) => `${signal} ${name} is declared by ${A.join(owners, ", ")}`,
+  DuplicateAttributeKey: ({ key, owners }) => `attribute ${key} is declared by ${A.join(owners, ", ")}`,
   MissingAttributeKey: ({ signal, name, key }) => `${signal} ${name} references undeclared attribute ${key}`,
   SignalNotAllowed: ({ signal, name, key }) =>
     `${signal} ${name} uses attribute ${key}, which does not allow ${signal}`,

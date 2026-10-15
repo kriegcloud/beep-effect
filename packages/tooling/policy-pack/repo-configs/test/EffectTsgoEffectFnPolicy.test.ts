@@ -23,10 +23,12 @@ const tscBinPath = fileURLToPath(new URL("../../../../../node_modules/.bin/tsc",
 const tsgoBinPath = fileURLToPath(new URL("../../../../../node_modules/.bin/tsgo", import.meta.url));
 const tscRsBinPath = fileURLToPath(new URL("../../../../../node_modules/.bin/tsc-rs", import.meta.url));
 const rootManifestPath = fileURLToPath(new URL("../../../../../package.json", import.meta.url));
+const effectTsgoCliPath = fileURLToPath(
+  new URL("../../../../../node_modules/@effect/tsgo/dist/effect-tsgo.cjs", import.meta.url)
+);
 
-// tsc-rs compiles the Effect rules of exactly one effect-tsgo release in, so the two catalog
-// pins move together (docs/runbooks/typescript-toolchain.md, "Version coupling with tsc-rs").
-const effectTsgoPortedByTscRs: Readonly<Record<string, string>> = { "0.6.0": "0.51.1" };
+// Effect rules come from the standalone diagnostics lane; only type errors gate tsc-rs.
+// Its embedded Effect port may lag the independently reviewed editor/rule compiler.
 const RootCatalog = S.Struct({
   catalog: S.Struct({ "tsc-rs": S.String, "@effect/tsgo": S.String }),
 });
@@ -145,7 +147,15 @@ const runTsgoOnProject = Effect.fn(function* (projectDir: string) {
   const path = yield* Path.Path;
   return yield* runCommand(
     process.execPath,
-    [tsgoBinPath, "--noEmit", "--pretty", "false", "-p", path.join(projectDir, "tsconfig.json")],
+    [
+      effectTsgoCliPath,
+      "diagnostics",
+      "--project",
+      path.join(projectDir, "tsconfig.json"),
+      "--format",
+      "text",
+      "--strict",
+    ],
     projectDir
   );
 });
@@ -173,7 +183,7 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
         expect(typescript.version, "TypeScript API version").toMatch(/^7\./u);
       })
     );
-    it.effect("runs the typecheck gates on the tsc-rs release that ports the pinned effect-tsgo", () =>
+    it.effect("keeps the typecheck compiler independent of the Effect diagnostics version", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const tscRs = yield* runCommand(process.execPath, [tscRsBinPath, "--version"], repoRoot);
@@ -184,10 +194,8 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
         expect(tscRs.stdout, context).toMatch(/^Version 7\.1\.0-dev/u);
         expect(tscRs.stdout, context).not.toContain("+effect-tsgo");
         const { catalog } = decodeRootCatalog(yield* fs.readFileString(rootManifestPath));
-        expect(
-          effectTsgoPortedByTscRs[catalog["tsc-rs"]],
-          `tsc-rs ${catalog["tsc-rs"]} is not a release this test knows; add its effect-tsgo pair`
-        ).toBe(catalog["@effect/tsgo"]);
+        expect(catalog["tsc-rs"]).toBe("0.6.0");
+        expect(catalog["@effect/tsgo"]).toBe("0.53.0");
       })
     );
   });
@@ -212,11 +220,29 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
           );
           expect(result.exitCode, diagnosticContext).not.toBe(0);
           expect(effectFnOpportunityMatches, diagnosticContext).toHaveLength(1);
-          expect(output, diagnosticContext).toContain("error TS");
+          expect(output, diagnosticContext).toContain("error effect(effectFnOpportunity):");
           expect(output, diagnosticContext).toContain('Effect.fn("shouldError")(function*(value) { ... })');
           expect(output, diagnosticContext).not.toContain("shortPlain");
         }),
       15_000
     );
   });
+  it.effect("lets tsc-rs pass Effect-only findings while retaining TypeScript failures", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const projectDir = yield* fs.makeTempDirectoryScoped({ prefix: "effect-tsgo-type-errors-" });
+      yield* bootstrapTsgoProject(projectDir);
+      const args = [tscRsBinPath, "--noEmit", "--pretty", "false", "-p", path.join(projectDir, "tsconfig.json")];
+      const effectOnly = yield* runCommand(process.execPath, args, projectDir);
+      expect(effectOnly.exitCode, effectOnly.stdout).toBe(0);
+      const diagnostics = yield* runTsgoOnProject(projectDir);
+      expect(diagnostics.exitCode, diagnostics.stdout).toBe(1);
+      expect(diagnostics.stdout).toContain("effect(effectFnOpportunity)");
+      yield* writeProjectFile(projectDir, "src/type-error.ts", 'export const value: number = "wrong";\n');
+      const typeError = yield* runCommand(process.execPath, args, projectDir);
+      expect(typeError.exitCode, typeError.stdout).toBe(2);
+      expect(typeError.stdout).toContain("TS2322");
+    })
+  );
 });

@@ -1,0 +1,293 @@
+/**
+ * Effect-rule diagnostics independent of the typecheck compiler.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { $RepoCliId } from "@beep/identity/packages";
+import { findRepoRoot } from "@beep/repo-utils";
+import { resolveWorkspacePackages } from "@beep/repo-utils/Workspaces";
+import { LiteralKit } from "@beep/schema";
+import * as A from "effect/Array";
+import * as Config from "effect/Config";
+import * as Console from "effect/Console";
+import { Command, Flag } from "effect/cli";
+import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import { dual, pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
+import * as O from "effect/Option";
+import * as Order from "effect/Order";
+import * as Path from "effect/Path";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { configStringOption } from "../../internal/cli/EnvConfig.ts";
+import { runCaptured } from "../../internal/process/index.ts";
+import { collectChangedFiles } from "../../internal/repo-run/ChangedFiles.ts";
+import { workspaceCoverageScopeOwners, workspaceDependentOwners } from "./internal/CoverageScope.ts";
+import { QualityScriptCommandError } from "./Quality.errors.ts";
+import type { CoverageScopeOwner } from "./internal/CoverageScope.ts";
+
+const $I = $RepoCliId.create("commands/Quality/EffectDiagnostics");
+
+const DiagnosticSeverity = LiteralKit(["error", "warning", "message"]).pipe(
+  $I.annoteSchema("DiagnosticSeverity", { description: "Severity labels emitted by standalone Effect diagnostics." })
+);
+
+const DiagnosticCount = S.Natural.pipe(
+  $I.annoteSchema("DiagnosticCount", { description: "Nonnegative count reported by the Effect diagnostics process." })
+);
+
+class EffectDiagnostic extends S.Opaque<EffectDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
+    file: S.String,
+    line: S.Int,
+    column: S.Int,
+    code: S.Int,
+    name: S.NonEmptyString,
+    severity: DiagnosticSeverity,
+    message: S.String,
+  }).pipe($I.annoteSchema("EffectDiagnostic", { description: "One detached Effect-rule diagnostic." }))
+) {}
+
+class EffectDiagnosticsSummary extends S.Opaque<EffectDiagnosticsSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
+    filesChecked: DiagnosticCount,
+    filesWithoutPlugin: DiagnosticCount,
+    totalFiles: DiagnosticCount,
+    errors: DiagnosticCount,
+    warnings: DiagnosticCount,
+    messages: DiagnosticCount,
+  }).pipe(
+    $I.annoteSchema("EffectDiagnosticsSummary", {
+      description: "Coverage and severity counts returned by a standalone Effect diagnostics run.",
+    })
+  )
+) {}
+
+class EffectDiagnosticsOutput extends S.Opaque<EffectDiagnosticsOutput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    diagnostics: S.Array(EffectDiagnostic),
+    summary: EffectDiagnosticsSummary,
+  }).pipe(
+    $I.annoteSchema("EffectDiagnosticsOutput", {
+      description: "Structured output required from the installed Effect diagnostics CLI.",
+    })
+  )
+) {}
+
+class EffectDiagnosticsOptions extends S.Opaque<EffectDiagnosticsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    filter: S.Option(S.String),
+    base: S.Option(S.String),
+    concurrency: S.Int.check(S.isBetween({ minimum: 1, maximum: 6 })),
+  }).pipe(
+    $I.annoteSchema("EffectDiagnosticsOptions", {
+      description: "Optional workspace-name filter for a bounded diagnostics edit loop.",
+    })
+  )
+) {}
+
+/**
+ * Select changed workspace owners and their transitive workspace dependents.
+ *
+ * **Details**
+ * Reuses the coverage lane's workspace inventory and inverted dependency walk;
+ * coverage capability never restricts diagnostics. Root compiler, lockfile and
+ * runner changes invalidate all projects; docs outside workspaces select none.
+ *
+ * **Example** (Ignore repository prose)
+ *
+ * ```ts
+ * import { effectDiagnosticsAffectedPackages } from "@beep/repo-cli/commands/Quality/EffectDiagnostics"
+ * console.log(effectDiagnosticsAffectedPackages([], ["docs/note.md"])) // []
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const effectDiagnosticsAffectedPackages: {
+  (files: ReadonlyArray<string>): (owners: ReadonlyArray<CoverageScopeOwner>) => ReadonlyArray<string>;
+  (owners: ReadonlyArray<CoverageScopeOwner>, files: ReadonlyArray<string>): ReadonlyArray<string>;
+} = dual(2, (owners: ReadonlyArray<CoverageScopeOwner>, files: ReadonlyArray<string>): ReadonlyArray<string> => {
+  const global = A.some(
+    files,
+    (file) =>
+      A.contains(["package.json", "bun.lock", "turbo.json"], file) ||
+      Str.startsWith("tsconfig")(file) ||
+      Str.startsWith(".github/")(file) ||
+      Str.startsWith("packages/tooling/tool/cli/src/commands/Quality/")(file) ||
+      Str.startsWith("packages/tooling/tool/cli/src/internal/")(file)
+  );
+  const direct = A.map(
+    A.filter(owners, (owner) => global || A.some(files, (file) => Str.startsWith(`${owner.packagePath}/`)(file))),
+    (owner) => owner.packageName
+  );
+  return pipe(A.union(direct, workspaceDependentOwners(owners, direct)), A.sort(Order.String));
+});
+
+const decodeOutput = S.decodeUnknownEffect(S.fromJsonString(EffectDiagnosticsOutput));
+
+const runProject = Effect.fn("EffectDiagnostics.project")(function* (repoRoot: string, node: string, project: string) {
+  const path = yield* Path.Path;
+  const label = path.relative(repoRoot, project);
+  const result = yield* runCaptured({
+    command: node,
+    args: [
+      path.join(repoRoot, "node_modules", "@effect", "tsgo", "dist", "effect-tsgo.cjs"),
+      "diagnostics",
+      "--project",
+      project,
+      "--format",
+      "json",
+      "--strict",
+    ],
+    cwd: repoRoot,
+    timeout: "5 minutes",
+  });
+  const report = yield* decodeOutput(result.output).pipe(
+    QualityScriptCommandError.mapError(
+      `Invalid Effect diagnostics JSON for ${label}: ${Str.takeLeft(result.output, 2048)}`
+    )
+  );
+  const { summary } = report;
+  if (summary.totalFiles === 0 || summary.filesWithoutPlugin !== 0 || summary.filesChecked !== summary.totalFiles) {
+    return yield* QualityScriptCommandError.make({
+      message: `Incomplete Effect diagnostics coverage for ${label}: checked ${summary.filesChecked}/${summary.totalFiles}, ${summary.filesWithoutPlugin} without plugin.`,
+      exitCode: 1,
+    });
+  }
+  const expectedExit = summary.errors > 0 || summary.warnings > 0 ? 1 : 0;
+  if (result.exitCode !== expectedExit) {
+    return yield* QualityScriptCommandError.make({
+      message: `Effect diagnostics exit ${result.exitCode} disagrees with the severity summary for ${label}.`,
+      exitCode: 1,
+    });
+  }
+  for (const diagnostic of report.diagnostics) {
+    yield* Console.error(
+      `${path.relative(repoRoot, diagnostic.file)}(${diagnostic.line},${diagnostic.column}): ${diagnostic.severity} TS${diagnostic.code}: ${diagnostic.message} effect(${diagnostic.name})`
+    );
+  }
+  yield* Console.log(
+    `[quality:effect-diagnostics] ${label}: ${summary.filesChecked} files, ${summary.errors} errors, ${summary.warnings} warnings, ${summary.messages} messages`
+  );
+  return report;
+});
+
+const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (options: EffectDiagnosticsOptions) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const repoRoot = yield* findRepoRoot();
+  const node = O.getOrElse(yield* configStringOption("BEEP_NODE_BIN"), () => "node");
+  const workspaces = yield* resolveWorkspacePackages(repoRoot);
+  const selected = O.isSome(options.base)
+    ? O.some(
+        HashSet.fromIterable(
+          effectDiagnosticsAffectedPackages(
+            yield* workspaceCoverageScopeOwners(repoRoot),
+            yield* collectChangedFiles(repoRoot, options.base.value, "HEAD")
+          )
+        )
+      )
+    : O.none<HashSet.HashSet<string>>();
+  const candidates = pipe(
+    HashMap.toEntries(workspaces),
+    A.filter(([name]) => O.isNone(selected) || HashSet.has(selected.value, name)),
+    A.filter(([name]) =>
+      O.match(options.filter, { onNone: () => true, onSome: (filter) => Str.includes(filter)(name) })
+    ),
+    A.flatMap(([, workspace]) =>
+      A.map(["tsconfig.check.json", "tsconfig.test.json", "test/tsconfig.json"], (config) =>
+        path.join(workspace.dir, config)
+      )
+    ),
+    A.sort(Order.String)
+  );
+  const projects = yield* Effect.filter(candidates, fs.exists);
+  if (A.isReadonlyArrayEmpty(projects)) {
+    if (O.isSome(options.base) && O.isNone(options.filter)) {
+      yield* Console.log("[quality:effect-diagnostics] no affected projects (skipped)");
+      return;
+    }
+    return yield* QualityScriptCommandError.make({ message: "No Effect diagnostics projects selected.", exitCode: 1 });
+  }
+
+  yield* Console.log(
+    `[quality:effect-diagnostics] checking ${A.length(projects)} workspace project(s), concurrency ${options.concurrency}`
+  );
+  const reports = yield* Effect.forEach(projects, (project) => runProject(repoRoot, node, project), {
+    concurrency: options.concurrency,
+  });
+  let census = HashMap.empty<string, number>();
+  for (const diagnostic of A.flatMap(reports, (report) => report.diagnostics)) {
+    census = HashMap.set(census, diagnostic.name, O.getOrElse(HashMap.get(census, diagnostic.name), () => 0) + 1);
+  }
+  const filesChecked = A.reduce(reports, 0, (total, report) => total + report.summary.filesChecked);
+  const failed = A.some(reports, ({ summary }) => summary.errors > 0 || summary.warnings > 0);
+  for (const [rule, count] of pipe(
+    HashMap.toEntries(census),
+    A.sortWith(([rule]) => rule, Order.String)
+  )) {
+    yield* Console.log(`[quality:effect-diagnostics] ${rule}: ${count}`);
+  }
+  yield* Console.log(
+    `[quality:effect-diagnostics] checked ${A.length(projects)} projects, ${filesChecked} file visits`
+  );
+  if (failed) {
+    return yield* QualityScriptCommandError.make({
+      message: "Effect diagnostics found errors or warnings.",
+      exitCode: 1,
+    });
+  }
+});
+
+/**
+ * Run the installed Effect rules over every workspace check and test project.
+ *
+ * **Details**
+ *
+ * Project plugin configuration is authoritative, including documented package
+ * exceptions. The bounded runner requires complete JSON coverage and never treats
+ * a malformed response, missing plugin or unexpected child exit as a clean pass.
+ * `test/tsconfig.json` includes the CLI's test project, which has no root test overlay.
+ * A dedicated hosted heavy matrix job calls this same CLI implementation.
+ *
+ * **Example** (Register the diagnostics command)
+ *
+ * ```ts
+ * import { effectDiagnosticsCommand } from "@beep/repo-cli/commands/Quality/EffectDiagnostics"
+ * import * as A from "effect/Array"
+ * import { Command } from "effect/cli"
+ *
+ * const quality = Command.make("quality").pipe(Command.withSubcommands([effectDiagnosticsCommand]))
+ * const names = A.flatMap(quality.subcommands, (group) => A.map(group.commands, (command) => command.name))
+ * names // => ["effect-diagnostics"]
+ * ```
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export const effectDiagnosticsCommand = Command.make(
+  "effect-diagnostics",
+  {
+    base: Flag.String("base").pipe(
+      Flag.optional,
+      Flag.withDescription("Select affected workspaces and dependents since this git base")
+    ),
+    concurrency: Flag.Int("concurrency").pipe(
+      Flag.withFallbackConfig(Config.Int("BEEP_EFFECT_DIAGNOSTICS_CONCURRENCY").pipe(Config.withDefault(2))),
+      Flag.withDescription("Concurrent projects (1-6); environment: BEEP_EFFECT_DIAGNOSTICS_CONCURRENCY")
+    ),
+    filter: Flag.String("filter").pipe(
+      Flag.optional,
+      Flag.withDescription("Only workspaces whose name contains this text")
+    ),
+  },
+  (options) =>
+    S.decodeEffect(EffectDiagnosticsOptions)(options).pipe(
+      QualityScriptCommandError.mapError("Invalid Effect diagnostics options (concurrency must be 1-6)."),
+      Effect.flatMap(runEffectDiagnostics)
+    )
+).pipe(Command.withDescription("Run standalone Effect-rule diagnostics independently of the typecheck compiler"));

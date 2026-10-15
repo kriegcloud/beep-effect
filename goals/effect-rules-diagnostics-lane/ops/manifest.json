@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "effect-rules-diagnostics-lane",
+    "packetId": "goal-packet/v1:6eb474e5902075411861144d412c083bda62b849acd0de57deb1002ffeb5e2d6",
+    "title": "Effect rules on their own diagnostics lane",
+    "status": "active",
+    "created": "2026-10-14",
+    "updated": "2026-10-14",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/effect-rules-diagnostics-lane",
+  "lifecycle": "active",
+  "mission": "Run Effect language-service rules from the newest @effect/tsgo as a separate diagnostics lane so tsc-rs gates type errors only and the tsgo pin no longer waits on ts-rust; affected PR diagnostics and a parallel full hosted lane use measured bounded concurrency",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/effect-rules-diagnostics-lane/README.md",
+    "goals/effect-rules-diagnostics-lane/SPEC.md",
+    "goals/effect-rules-diagnostics-lane/PLAN.md",
+    "goals/effect-rules-diagnostics-lane/GOAL.md",
+    "goals/effect-rules-diagnostics-lane/research/SOURCES.md"
+  ],
+  "researchReports": [
+    "research/SOURCES.md",
+    "research/rule-delta.md",
+    "research/new-findings.json",
+    "research/import-style-census.md",
+    "research/additional-project-findings.md",
+    "research/effect-vitest-inventory-review.md",
+    "research/cache-baseline-review-performance.md",
+    "research/cache-baseline-request-performance.json",
+    "research/performance-wave.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/effect-rules-diagnostics-lane/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "in-progress"
+    },
+    {
+      "id": "P3",
+      "name": "Yeet: PR to mergeable",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "bun run check",
+    "bun run beep quality effect-diagnostics",
+    "bun run beep quality package-verify @beep/repo-cli",
+    "bun run beep quality package-verify @beep/repo-configs",
+    "bun run beep quality package-verify @beep/observability",
+    "bun run beep quality package-verify @beep/effect-drizzle",
+    "bun run beep quality package-verify @beep/semantica",
+    "bun run beep quality package-verify @beep/oip-web --quick",
+    "bun run beep quality package-verify @beep/todox --quick",
+    "test \"$(wc -m < goals/effect-rules-diagnostics-lane/GOAL.md)\" -le 4000",
+    "jq . goals/effect-rules-diagnostics-lane/ops/manifest.json",
+    "rg -n \"effect-rules-diagnostics-lane|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/effect-rules-diagnostics-lane",
+    "git diff --check -- goals/effect-rules-diagnostics-lane",
+    "bun run beep lint reflection-artifacts",
+    "bun run beep quality effect-diagnostics --base origin/main",
+    "bun run beep quality fallow audit --base origin/main --check",
+    "bun run beep observability catalog --check",
+    "bun run beep quality effect-diagnostics --filter @beep/repo-cli",
+    "bun run lint:retired-effect-paths"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

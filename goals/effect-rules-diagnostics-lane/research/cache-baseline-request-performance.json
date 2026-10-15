@@ -1,0 +1,20 @@
+{
+  "previous": "c13b88e971a406329f739488db66e0d85b2952950c597e5a07d0263f8074ad40",
+  "review": {
+    "reviewer": "Codex H2 performance-wave lane",
+    "reason": "Review the independent uncached diagnostics lane and removal from Check; preserve cached task contracts and qualification scope.",
+    "basis": {
+      "path": "goals/effect-rules-diagnostics-lane/research/cache-baseline-review-performance.md",
+      "sha256": "9cad122691eed2fddc852b91dde8a011effc107be2fc9ded098608e8b262c76a"
+    }
+  },
+  "subjects": ["//", "@beep/repo-cli"],
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2"
+}

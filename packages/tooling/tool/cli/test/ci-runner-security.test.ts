@@ -1033,6 +1033,13 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
       );
       assert.strictEqual(buildLane.name, "Build");
       assert.strictEqual(buildLane.uses_turbo, "true");
+      const diagnosticsLane = O.getOrThrow(
+        A.findFirst(heavyMatrixLanes(heavyWorkflow), (lane) => lane.id === "effect-diagnostics")
+      );
+      assert.strictEqual(diagnosticsLane.name, "Effect Diagnostics");
+      assert.strictEqual(diagnosticsLane.uses_turbo, "false");
+      assert.include(heavyWorkflowText, "run_lane ci lane effect-diagnostics");
+      assert.include(heavyWorkflowText, "--property=MemoryMax=19G --property=MemorySwapMax=0");
       assert.include(heavyWorkflowText, "check|test-integration|coverage|build)");
     })
   );
@@ -1276,7 +1283,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
       assert.include(workflowText, 'if [[ "$goals_only" == "true" ]]');
       assert.include(workflowText, "- name: Skip lane");
       assert.strictEqual(
-        workflow.getIn(["jobs", "verify", "strategy", "matrix", "include", 4, "docgen_concurrency"]),
+        O.getOrThrow(A.findFirst(heavyMatrixLanes(workflow), (lane) => lane.id === "docgen")).docgen_concurrency,
         6
       );
       const steps = jobSteps(jobs, "verify");
