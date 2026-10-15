@@ -52,7 +52,7 @@ Naming rules the catalog check enforces:
 | lab | 176 | 165 | 11 |
 | **total** | 5459 | 4941 | 518 |
 
-Declared: 6 attribute keys, 6 metrics, 0 events, 3 spans.
+Declared: 15 attribute keys, 7 metrics, 0 events, 3 spans.
 
 <!-- END GENERATED: INSTRUMENTATION CATALOG -->
 
