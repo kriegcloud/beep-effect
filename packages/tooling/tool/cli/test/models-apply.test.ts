@@ -239,7 +239,14 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         "gpt-6.1-sol(medium)"
       );
       const writer = yield* writerWithFs(fs);
-      for (const word of ["old", "'old'", '"old"']) {
+      for (const word of [
+        "old",
+        "'old'",
+        '"old"',
+        "gpt-6.1-sol(medium)",
+        "'gpt-6.1-sol(medium)'",
+        '"gpt-6.1-sol(medium)"',
+      ]) {
         const text = `claude() { printf '%s\\n' "$#" "$2"; }\nclaude --model ${word} "$@"\n`;
         yield* fs.writeFileString(file, text);
         yield* writer.apply(file, [request], "write", path.join(root, "backups"));

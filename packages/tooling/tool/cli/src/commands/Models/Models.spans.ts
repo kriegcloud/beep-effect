@@ -326,9 +326,11 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
             : Effect.succeed(
                 A.map(spans, (entry) => {
                   const token = entry.before;
-                  const value =
-                    Str.startsWith('"')(token) || Str.startsWith("'")(token) ? Str.slice(1, -1)(token) : token;
-                  return value === expected ? ModelsWriteSpan.make({ ...entry, after: entry.before }) : entry;
+                  const quotedWord = Str.startsWith('"')(token) || Str.startsWith("'")(token);
+                  const value = quotedWord ? Str.slice(1, -1)(token) : token;
+                  return quotedWord && value === expected
+                    ? ModelsWriteSpan.make({ ...entry, after: entry.before })
+                    : entry;
                 })
               );
         })
