@@ -22,6 +22,7 @@ import {
   marginFindings,
   marginsCm,
   mirrorSegments,
+  OverlayLine,
   PageMetrics,
   Part,
   PdfBackend,
@@ -108,6 +109,10 @@ const fakeEngineWith = (plans: Array<ShadingPlan>) =>
           })
         );
         const broken = A.some(model.parts, (part) => part.lineStyle === "broken") ? [[2, 1, 8, 1] as const] : [];
+        // a model with an emphasis overlay carries one emphasis segment along the bottom edge per view
+        const emphasis = A.some(model.overlays, (overlay) => overlay.style === "emphasis")
+          ? [[0, 0, 10, 0] as const]
+          : [];
         return A.map(cameras, (camera) =>
           EdgeSet.make({
             visible: camera.eye[1] > 0 ? shifted : square,
@@ -115,6 +120,7 @@ const fakeEngineWith = (plans: Array<ShadingPlan>) =>
             shading: hatch,
             shadingCoverage: coverage,
             broken,
+            emphasis,
           })
         );
       }),
@@ -195,12 +201,16 @@ const spec = (
   omissions: ReadonlyArray<unknown> = [],
   extra: Readonly<Record<string, unknown>> = {},
   part: Readonly<Record<string, unknown>> = body,
-  moreParts: ReadonlyArray<Readonly<Record<string, unknown>>> = []
+  moreParts: ReadonlyArray<Readonly<Record<string, unknown>>> = [],
+  overlays: ReadonlyArray<Readonly<Record<string, unknown>>> = []
 ) =>
   JSON.stringify({
     ...extra,
     title: "Synthetic block",
-    model: { parts: [part, ...moreParts] },
+    // a spec without overlays leaves the key out, as specs written before overlay lines did
+    model: A.isReadonlyArrayNonEmpty(overlays)
+      ? { parts: [part, ...moreParts], overlays }
+      : { parts: [part, ...moreParts] },
     figures,
     omissions,
   });
@@ -467,6 +477,170 @@ describe("@beep/technical-drawing", () => {
           options: SheetOptions.make({ brokenDashMm: 2, brokenGapMm: 0.75, lineWeightMm: 0.8 }),
         });
         expect(widened).toContain('stroke-dasharray="5.669 3.402"');
+      })
+    );
+
+    it.effect(
+      "composeSheet chains broken segments that meet end to end into one dashed subpath",
+      Effect.fnUntraced(function* () {
+        const base = {
+          segments: square,
+          shading: [],
+          figure: 1,
+          sheet: 1,
+          sheets: 1,
+          scale: 5,
+          options: SheetOptions.make({}),
+        } as const;
+        // SVG and PDF restart the dash pattern at each subpath: the points of each
+        // subpath of the broken layer, in the order they are written
+        const subpathsOf = (svg: string) =>
+          pipe(
+            /<path id="broken" d="([^"]*)"/.exec(svg)?.[1] ?? "",
+            Str.split("M"),
+            A.filter(Str.isNonEmpty),
+            A.map(Str.split("L"))
+          );
+        // a corrugation wave of 80 segments 2.5 pt long, each far shorter than the
+        // 8.504 pt dash, in the engine's canonical order, plus one straight line
+        const wave = A.makeBy(80, (i) => {
+          const x = i / 2;
+          return [x, 2 + Math.sin(x), x + 0.5, 2 + Math.sin(x + 0.5)] as const;
+        });
+        const waved = subpathsOf(composeSheet({ ...base, broken: [...wave, [0, 4, 10, 4]] }));
+        expect(A.map(waved, A.length)).toEqual([81, 2]);
+        // a closed ring whose canonical segments run both ways round is one subpath
+        // that ends where it starts
+        const ring = subpathsOf(
+          composeSheet({
+            ...base,
+            broken: [
+              [1, 1, 1, 3],
+              [1, 1, 4, 1],
+              [1, 3, 4, 3],
+              [4, 1, 4, 3],
+            ],
+          })
+        );
+        expect(A.map(ring, A.length)).toEqual([5]);
+        expect(A.map(ring, (points) => A.head(points))).toEqual(A.map(ring, (points) => A.last(points)));
+        // where three segments meet the chain runs on into the first in order; the
+        // third starts its own subpath
+        const tee = subpathsOf(
+          composeSheet({
+            ...base,
+            broken: [
+              [0, 1, 5, 1],
+              [5, 1, 10, 1],
+              [5, 1, 5, 4],
+            ],
+          })
+        );
+        expect(A.map(tee, A.length)).toEqual([3, 2]);
+        // segments that do not touch keep one `M..L..` subpath each, as before chaining
+        const apart = /<path id="broken" d="([^"]*)"/.exec(
+          composeSheet({
+            ...base,
+            broken: [
+              [2, 1, 8, 1],
+              [2, 2, 8, 2],
+            ],
+          })
+        )?.[1];
+        expect(apart).toMatch(/^M[\d.]+ [\d.]+L[\d.]+ [\d.]+M[\d.]+ [\d.]+L[\d.]+ [\d.]+$/);
+      })
+    );
+
+    it.effect(
+      "composeSheet draws emphasis lines over the outlines only when they exist",
+      Effect.fnUntraced(function* () {
+        const options = SheetOptions.make({});
+        const base = { segments: square, shading: [], figure: 1, sheet: 1, sheets: 1, scale: 20, options } as const;
+        const plain = composeSheet(base);
+        // an empty emphasis layer leaves the sheet byte-identical, golden included
+        expect(composeSheet({ ...base, emphasis: [] })).toBe(plain);
+        expect(plain).not.toContain('id="emphasis"');
+        const styledEmpty = composeSheet({
+          segments: square,
+          shading: [],
+          emphasis: [],
+          figure: 3,
+          sheet: 3,
+          sheets: 8,
+          scale: 20,
+          options: styled,
+        });
+        expect(yield* sha256Hex(styledEmpty)).toBe("dcfb8611b16781c15f0caf34506a913c44d795e88ce09fc01e6a33bb2b1f6112");
+        // 0.7 mm by default, the outline caps and joins, drawn last so it sits on the outline it runs along
+        const withEmphasis = composeSheet({ ...base, emphasis: [[0, 0, 10, 0]] });
+        expect(SheetOptions.make({}).emphasisWeightMm).toBe(0.7);
+        expect(withEmphasis).toContain('<path id="emphasis" d="M');
+        expect(withEmphasis).toContain(
+          'fill="none" stroke="#000000" stroke-width="1.984" stroke-linecap="round" stroke-linejoin="round"/>\n</svg>'
+        );
+        expect(withEmphasis.indexOf('id="figure"')).toBeLessThan(withEmphasis.indexOf('id="emphasis"'));
+        // the emphasis line runs along the outline, so the outlines do not move
+        const figureOf = (svg: string) =>
+          svg.slice(svg.indexOf('<path id="figure"'), svg.indexOf('<path id="emphasis"'));
+        expect(figureOf(withEmphasis)).toBe(plain.slice(plain.indexOf('<path id="figure"'), plain.indexOf("</svg>")));
+        const heavy = composeSheet({
+          ...base,
+          emphasis: [[0, 0, 10, 0]],
+          options: SheetOptions.make({ emphasisWeightMm: 1 }),
+        });
+        expect(heavy).toContain('<path id="emphasis" d="M');
+        expect(heavy).toContain('stroke-width="2.835"');
+        expect(() => SheetOptions.make({ emphasisWeightMm: 0.3 })).toThrow();
+      })
+    );
+
+    it.effect(
+      "a model decodes without overlays, and an overlay line joins at least two points",
+      Effect.fnUntraced(function* () {
+        const legacy = yield* S.decodeUnknownEffect(ModelSpec)({ parts: [body] });
+        expect(legacy.overlays).toEqual([]);
+        // raw JSON-shaped input, as a spec file carries it
+        const decodeOverlay = (input: unknown) => S.decodeUnknownOption(OverlayLine)(input);
+        const line = { name: "seat", style: "emphasis", points: [[0, 0, 0]] };
+        assertNone(decodeOverlay(line));
+        assertNone(decodeOverlay({ ...line, points: [], style: "broken" }));
+        // a facing must have a direction
+        assertNone(
+          decodeOverlay({
+            ...line,
+            points: [
+              [0, 0, 0],
+              [1, 0, 0],
+            ],
+            facing: [0, 0, 0],
+          })
+        );
+        const overlay = yield* S.decodeUnknownEffect(OverlayLine)({
+          ...line,
+          points: [
+            [0, 0, 0],
+            [1, 0, 0],
+          ],
+        });
+        expect(overlay.lift).toBe(0.01);
+        assertNone(overlay.facing);
+        const model = yield* S.decodeUnknownEffect(ModelSpec)({
+          parts: [body],
+          overlays: [
+            {
+              ...line,
+              style: "broken",
+              points: [
+                [0, 0, 0],
+                [0, 0, 5],
+                [10, 0, 5],
+              ],
+              facing: [0, -1, 0],
+            },
+          ],
+        });
+        expect(A.map(model.overlays, (o) => [o.style, A.length(o.points)])).toEqual([["broken", 3]]);
+        assertSome(model.overlays[0]!.facing, [0, -1, 0]);
       })
     );
 
@@ -1019,6 +1193,54 @@ describe("@beep/technical-drawing", () => {
           expect(A.map(broken.manifest.omissions, (o) => o.proven)).toEqual([true]);
           // the broken segment lies inside the outline, so the scale is unchanged
           expect(broken.manifest.scale).toBe(solid.manifest.scale);
+        })
+      );
+
+      it.effect(
+        "draws emphasis overlays as a heavier layer and records them only when drawn",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const service = yield* FigureSet;
+          const figures = [{ view: "front", description: "is a front elevation view" }];
+          const render = Effect.fnUntraced(function* (name: string, text: string) {
+            const specPath = path.join(dir, `${name}.json`);
+            yield* fs.writeFileString(specPath, text);
+            const out = path.join(dir, name);
+            const manifest = yield* service.render(RenderRequest.make({ specPath, outputDir: out, validate: false }));
+            return {
+              manifest,
+              svg: yield* fs.readFileString(path.join(out, "fig-1.svg")),
+              json: yield* fs.readFileString(path.join(out, "manifest.json")),
+            };
+          });
+          const seat = {
+            name: "seat",
+            style: "emphasis",
+            points: [
+              [0, 0, 0],
+              [10, 0, 0],
+            ],
+            facing: [0, -1, 0],
+          };
+          const plain = yield* render("plain", spec(figures));
+          const emphasised = yield* render(
+            "emphasis",
+            spec(figures, [], { sheet: { emphasisWeightMm: 1 } }, body, [], [seat])
+          );
+          // a render without overlays writes no emphasis layer and no emphasis count
+          expect(plain.svg).not.toContain('id="emphasis"');
+          expect(plain.json).not.toContain("emphasisSegments");
+          assertNone(plain.manifest.figures[0]!.emphasisSegments);
+          expect(emphasised.svg).toContain('<path id="emphasis" d="M');
+          expect(emphasised.svg).toContain(
+            'stroke-width="2.835" stroke-linecap="round" stroke-linejoin="round"/>\n</svg>'
+          );
+          assertSome(emphasised.manifest.figures[0]!.emphasisSegments, 1);
+          expect(yield* S.decodeEffect(RenderManifestJson)(emphasised.json)).toEqual(emphasised.manifest);
+          // the emphasis line runs along the outline, so the scale is unchanged
+          expect(emphasised.manifest.scale).toBe(plain.manifest.scale);
         })
       );
 

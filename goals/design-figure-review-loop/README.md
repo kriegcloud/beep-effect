@@ -36,12 +36,17 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0-P2 merged in #1644 (2026-10-14). Open: #1648 (PR-D broken-line parts), #1649 (PR-F
-`beep drawings intake`), #1650 (PR-G review rounds). The corpus remodel is done and the round-2
-render is in progress (P7). The attorney answered the round-1 questions on 2026-10-14 (SPEC
-Decision Log rows of that date): labels become embedded Arial and Times New Roman text (PR-K, P7a)
-and the tab-in-slot edge emphasis and corrugation overlay need new tooling (PR-L, P7b). Open with
-the attorney: the bottom-edge question (Q7) and the overlay's edge extent.
+P0-P4 merged (#1644, #1648, #1671; the round-1 review threads of #1671 and main's docgen/JSDoc reds
+cleared in #1704). The attorney holds the round-2 shaded set (sent 2026-10-14 07:55Z) and has not
+replied; his per-sheet review page (tailnet, one sheet at a time, SPEC decision 2026-10-14) is gated
+and goes live with the next approved set. P10 is in progress: a sequential five-model adversarial review loop (Codex gpt-6-astra, Grok
+4.7, Claude Fable 5.1, Kimi K3 on the synthetic twin, Claude Opus 5.5, each at top effort, each
+given the earlier reports) over the merged pipeline's render, judged by the session, dry when a full
+pass yields no new accepted finding; the harness lands as `beep drawings critics`; the research digest
+on deterministic USPTO validation is in `research/uspto-validation-research.md`. Next: P11 verified
+sheet-level checks, P12 cited rules registry, P13 seeded-defect mutation suite, P14 stroke-intent
+sidecar (SPEC Decision Log rows of 2026-10-14). Open with the attorney: the bottom-edge question (Q7)
+and the overlay's edge extent; PR-K (embedded label text) and PR-L (edge emphasis, corrugation) pending.
 
 ## Latest Evidence
 

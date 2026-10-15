@@ -672,8 +672,8 @@ export class SheetFonts extends S.Opaque<SheetFonts, { readonly brand: unique sy
 
 /**
  * Sheet options of a render: format, margin standard, line weight, lettering,
- * label gap and label styles, inner safety gap, shading pitches, and the
- * broken-line dash pattern.
+ * label gap and label styles, inner safety gap, shading pitches, the
+ * broken-line dash pattern, and the emphasis line weight.
  *
  * **Gotchas**
  *
@@ -913,10 +913,24 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
           "Gap between dashes of broken (unclaimed) lines, in mm on the sheet, measured before the round caps. Defaults to 1.5.",
       })
     ),
+    emphasisWeightMm: S.Finite.check(
+      S.isGreaterThanOrEqualTo(0.35, {
+        identifier: $I`EmphasisWeightCheck`,
+        title: "Emphasis Weight",
+        description: "An emphasis line must not read lighter than the default outline weight of 0.35 mm.",
+        message: "Expected an emphasis weight of at least 0.35 mm",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(0.7)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0.7)),
+      S.annotateKey({
+        description: "Stroke width of emphasis overlay lines in mm (the tab-in-slot edge). Defaults to 0.7.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("SheetOptions", {
       description:
-        "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
+        "Page format, margin standard, stroke, shading and emphasis widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render.",
     })
   )
 ) {}

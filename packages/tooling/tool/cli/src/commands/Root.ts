@@ -40,6 +40,7 @@ import { qaCommand } from "./Qa/index.ts";
 import { qualityCommand } from "./Quality/index.ts";
 import { refsCommand } from "./Refs/index.ts";
 import { researchCommand } from "./Research/index.ts";
+import { reviewerCommand } from "./Reviewer/index.ts";
 import { runnersCommand } from "./Runners/index.ts";
 import { sessionCommand } from "./Session/index.ts";
 import { skillsCommand } from "./Skills/index.ts";
@@ -105,6 +106,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
     observabilityCommand,
     qualityCommand,
     researchCommand,
+    reviewerCommand,
     runnersCommand,
     sessionCommand,
     accountsCommand,

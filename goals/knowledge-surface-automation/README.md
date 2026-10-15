@@ -102,16 +102,24 @@ P4 in progress. Shipped on main so far:
   `.github/workflows/skills-update-train.yml` replays every lock or patch change, relocks
   and rebuilds clean Renovate bumps, and writes the weekly batch issue. Decisions B28–B33
   in the same design doc.
-- **C (PR 5, this PR):** the knowledge-doctor mint workflow.
+- **C (PR 5, #1752):** the knowledge-doctor mint workflow.
   `beep knowledge doctor mint [--write]` is the sealed baseline's only writer (CI-only
   write, refuses to launder), `.github/workflows/knowledge-baseline-mint.yml` opens the
   weekly baseline-only PR from `automation/knowledge-baseline-mint` as the mint App, and
   `knowledge:doctor` runs `knowledge doctor ci`: report-only until the merge-base is
   sealed, then the gate with the seal guard (design K32–K37). **Operator item (no
-  money):** create the mint GitHub App and set `KNOWLEDGE_MINT_APP_CLIENT_ID`,
-  `KNOWLEDGE_MINT_APP_SLUG` (variables) and `KNOWLEDGE_MINT_APP_PRIVATE_KEY` (secret), as
-  listed in the design's "Mint App prerequisite"; then dispatch the workflow. Its first
+  money), done 2026-10-14:** the `beep-knowledge-mint` App is registered (#1768,
+  `docs/ops/beep-knowledge-mint-app.md`) and its variables and secret are set. Its first
   baseline-only PR is the initial seal.
+- **B-6 (this PR):** `beep skills review` lists, or walks within a time budget, every
+  vendored hunk the append-only ledger (`.agents/skill-patches/ledger.jsonl`) has not
+  settled, answered interactively or from a scripted `--decisions` file under a named
+  `--reviewer`, checkpointing each answer; `--ghost` replays earlier decisions on
+  byte-identical hunks at the same pin, and a hunk conflicting at a second pin is flagged
+  `promote-candidate` in the review and the replay report. `beep skills patch add` turns
+  a hand edit of vendored output into new patches and re-records the lock, and
+  `beep skills patch label` moves lock labels to the ledger's classifications, both
+  plan-then-`--expect`. Decisions B34–B41 in the same design doc.
 
 C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
 command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling),
@@ -119,10 +127,11 @@ C Stage-2 PR 2b (the domain evaluators), and B-3b (the skills lock write and fli
 on main.
 
 B-4 (`beep skills materialize`, #1709) and C Stage-2 PR 4 (the knowledge-doctor gate,
-#1734) are on main, and so is B-5 (#1732): `skills relock`, `skills replay`,
-`skills train-issue`, the Renovate custom manager, and the update-train workflow. This
-PR is C Stage-2 PR 5, the knowledge-doctor mint. B-6 (the hunk ledger, `--ghost`, `skills patch add`, and
-`skills review`) is next for Workstream B, then Ritual 1 (the operator's classification).
+#1734) are on main, and so are B-5 (the update train, #1732) and C Stage-2 PR 5 (the
+mint, #1752). This PR is B-6:
+the hunk ledger, `skills review` with `--ghost`, the two-strike flag, and
+`skills patch add`/`label`. Ritual 1 (the operator's classification of the generated
+patches, prepared by `skills review`) is the last Workstream B step.
 
 C Stage-2 PR 3 (stacked on PR 2b) adds causal grouping and root attribution,
 report-only: one cause group per missing target or delegated goals-doctor finding, each
