@@ -88,7 +88,8 @@ export class StrictSpoolKey extends Context.Service<
  * **Details**
  *
  * `append` seals one export body as a new segment and returns the refusals
- * it caused (`spool-evicted` for every old segment it pushed out); it fails
+ * it caused (`spool-evicted` for every old segment it removed,
+ * `spool-evict-failed` for every one it could not remove); it fails
  * only when the body could not be sealed, encoded or written. `replay`
  * decrypts every segment, oldest first, and refuses each one that does not
  * decode, authenticate or match the key epoch (`spool-segment-invalid`), or
@@ -416,26 +417,34 @@ export const makeStrictSpool = Effect.fn("StrictSpool.make")(function* (options:
 
   const segmentNames = segmentNamesIn(fs, directory);
 
-  const evict = Effect.fnUntraced(function* () {
-    const names = yield* segmentNames;
-    const sizes = yield* Effect.forEach(names, (name) =>
-      fs.stat(path.join(directory, name)).pipe(Effect.map((info) => ByteSize.toNumberUnsafe(info.size)))
-    );
-    const total = A.reduce(sizes, 0, (sum, size) => sum + size);
-    // Walk oldest first, dropping segments until the rest fit.
-    const evicted = pipe(
-      A.zip(names, sizes),
-      A.reduce({ remaining: total, names: A.empty<string>() }, (state, [name, size]) =>
-        state.remaining > options.maxBytes
-          ? { remaining: state.remaining - size, names: A.append(state.names, name) }
-          : state
-      )
-    ).names;
-    yield* Effect.forEach(evicted, (name) => fs.remove(path.join(directory, name), { force: true }), {
-      discard: true,
-    });
-    return evicted;
-  });
+  // Removes the oldest segments until the rest fit, one remove per segment:
+  // each one removed counts `spool-evicted` and each one that could not be
+  // removed `spool-evict-failed`, so a failed remove neither hides the
+  // removes before it nor stops the ones after it. A directory that cannot be
+  // listed or sized is one `spool-evict-failed`.
+  const evict = (): Effect.Effect<ReadonlyArray<TelemetryRefusalTag>> =>
+    Effect.gen(function* () {
+      const names = yield* segmentNames;
+      const sizes = yield* Effect.forEach(names, (name) =>
+        fs.stat(path.join(directory, name)).pipe(Effect.map((info) => ByteSize.toNumberUnsafe(info.size)))
+      );
+      const total = A.reduce(sizes, 0, (sum, size) => sum + size);
+      // Walk oldest first, picking segments until the rest fit.
+      const candidates = pipe(
+        A.zip(names, sizes),
+        A.reduce({ remaining: total, names: A.empty<string>() }, (state, [name, size]) =>
+          state.remaining > options.maxBytes
+            ? { remaining: state.remaining - size, names: A.append(state.names, name) }
+            : state
+        )
+      ).names;
+      return yield* Effect.forEach(candidates, (name) =>
+        fs.remove(path.join(directory, name), { force: true }).pipe(
+          Effect.as(TelemetryRefusalTag.Enum["spool-evicted"]),
+          Effect.orElseSucceed(() => TelemetryRefusalTag.Enum["spool-evict-failed"])
+        )
+      );
+    }).pipe(Effect.orElseSucceed(() => [TelemetryRefusalTag.Enum["spool-evict-failed"]]));
 
   // Untraced: the spool runs inside the exporter, and its own spans would only
   // be exported, and refused, in the next window.
@@ -467,10 +476,9 @@ export const makeStrictSpool = Effect.fn("StrictSpool.make")(function* (options:
       Effect.provideService(FileSystem.FileSystem, fs),
       Effect.mapError(spoolFailure("append", "A strict spool segment could not be written."))
     );
-    // The body is already on disk, so a failed eviction does not fail the
-    // append; the next append evicts again.
-    const evicted = yield* evict().pipe(Effect.orElseSucceed(A.empty<string>));
-    return refusalLedgerOf(A.map(evicted, () => TelemetryRefusalTag.Enum["spool-evicted"]));
+    // The body is already on disk, so eviction never fails the append: a
+    // segment it could not remove is counted and the next append tries again.
+    return refusalLedgerOf(yield* evict());
   });
 
   const replay = readSegments(

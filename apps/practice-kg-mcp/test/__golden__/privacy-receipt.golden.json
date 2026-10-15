@@ -20,6 +20,7 @@
   "| Tag | Count |",
   "| --- | ---: |",
   "| spool-evicted | 0 |",
+  "| spool-evict-failed | 1 |",
   "| spool-write-failed | 2 |",
   "| spool-tier-refused | 0 |",
   "| spool-segment-invalid | 1 |",

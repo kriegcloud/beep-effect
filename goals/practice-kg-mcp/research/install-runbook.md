@@ -131,8 +131,8 @@ holds counts and names only:
 - each refusal tag with how much its count grew in the window (for example
   `log-record-dropped`, `egress-refused`);
 - a spool table with every spool refusal tag, zeros included:
-  `spool-evicted`, `spool-write-failed`, `spool-tier-refused`,
-  `spool-segment-invalid`;
+  `spool-evicted`, `spool-evict-failed`, `spool-write-failed`,
+  `spool-tier-refused`, `spool-segment-invalid`;
 - the attribute keys and metric names the held-back exports carry.
 
 It never prints an attribute value, a tool argument, a span name or a folder

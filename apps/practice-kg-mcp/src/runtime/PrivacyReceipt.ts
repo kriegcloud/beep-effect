@@ -450,7 +450,8 @@ const ledgerRows = (ledger: RefusalLedger): ReadonlyArray<string> =>
   });
 
 // Every spool refusal tag the kernel declares, in its declared order:
-// `spool-evicted` and `spool-write-failed` from the gate counter,
+// `spool-evicted`, `spool-evict-failed` and `spool-write-failed` from the gate
+// counter,
 // `spool-tier-refused` and `spool-segment-invalid` from the survey.
 const spoolTags = A.filter(TelemetryRefusalTag.literals, Str.startsWith("spool-"));
 const isSpoolTag = (tag: TelemetryRefusalTag): boolean => A.contains(spoolTags, tag);
