@@ -2495,6 +2495,14 @@
       "description": "Counts read from the mail-tagging ledgers and checkpoint."
     },
     {
+      "file": "apps/practice-review-hub/src/Config.ts",
+      "symbol": "ReviewHubConfig",
+      "kind": "struct-const",
+      "owner": "@beep/practice-review-hub",
+      "identity": "ReviewHubConfig",
+      "description": "Resolved settings of the review hub."
+    },
+    {
       "file": "apps/professional-desktop/src/chat/DerivedThreadTitle.ts",
       "symbol": "DerivedThreadTitle",
       "kind": "codec",
@@ -31254,6 +31262,14 @@
       "description": "Configuration of the file-backed mail-tagging state."
     },
     {
+      "file": "packages/law-practice/server/src/NoticeMailbox/NoticeMailbox.layer.ts",
+      "symbol": "NoticeMailboxConfig",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-server",
+      "identity": "NoticeMailboxConfig",
+      "description": "The attorney's mailbox the notice goes from and to, and the directory of its day claims."
+    },
+    {
       "file": "packages/law-practice/server/src/PracticeKg.claims.ts",
       "symbol": "PracticeKgClaimsCarry",
       "kind": "struct-const",
@@ -31792,12 +31808,34 @@
       "description": "Provenance-resolution and consistency counts for one built bundle."
     },
     {
+      "file": "packages/law-practice/server/src/QuestionCalendar/QuestionCalendar.layer.ts",
+      "symbol": "QuestionCalendarConfig",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-server",
+      "identity": "QuestionCalendarConfig",
+      "description": "Mailbox and time zone of the calendar question writes go to."
+    },
+    {
+      "file": "packages/law-practice/server/src/ReviewFiles/ReviewFiles.layer.ts",
+      "symbol": "ReviewFilesConfig",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-server",
+      "identity": "ReviewFilesConfig",
+      "description": "The directory that holds the review hub's store files."
+    },
+    {
       "file": "packages/law-practice/server/src/Tools.ts",
       "symbol": "PracticeKgMcpServerConfig",
       "kind": "struct-const",
       "owner": "@beep/law-practice-server",
       "identity": "PracticeKgMcpServerConfig",
       "description": "Protocol-facing name and version for the practice KG MCP server."
+    },
+    {
+      "file": "packages/law-practice/server/src/internal/JsonlLog.ts",
+      "symbol": "makeJsonlLog",
+      "kind": "codec",
+      "owner": "@beep/law-practice-server"
     },
     {
       "file": "packages/law-practice/use-cases/src/CandorPolicy/CandorPolicy.errors.ts",
@@ -31970,6 +32008,37 @@
       "owner": "@beep/law-practice-use-cases",
       "identity": "UsptoClaimSet",
       "description": "Full-text public USPTO claims normalized into validated patent claims, with their source document."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DailyNotice/DailyNotice.errors.ts",
+      "symbol": "NoticeMailboxError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "NoticeMailboxError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DailyNotice/DailyNotice.errors.ts",
+      "symbol": "NoticeMailboxOperation",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "NoticeMailboxOperation",
+      "description": "Notice-mailbox operation that failed: claiming the day, or sending the notice."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DailyNotice/DailyNotice.schemas.ts",
+      "symbol": "DailyNoticeOutcome",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DailyNoticeOutcome",
+      "description": "What one daily notice run did, discriminated on its status."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DailyNotice/DailyNotice.schemas.ts",
+      "symbol": "NoticeMessage",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "NoticeMessage",
+      "description": "The notice email: a subject and plain body that give only the number of waiting questions."
     },
     {
       "file": "packages/law-practice/use-cases/src/DocketIntake/DocketIntake.ports.ts",
@@ -32258,6 +32327,30 @@
       "owner": "@beep/law-practice-use-cases",
       "identity": "DocketPollReport",
       "description": "Counts of one docket intake poll cycle."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DocketIntake/DocketQuestions.schemas.ts",
+      "symbol": "DocketCandidateDate",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DocketCandidateDate",
+      "description": "One date a docket item's deadline could be, with where it came from."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DocketIntake/DocketQuestions.schemas.ts",
+      "symbol": "DocketCandidateDateSource",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DocketCandidateDateSource",
+      "description": "Where a candidate due date came from: stated, computed, either agent reader, or the docket sheet."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DocketIntake/DocketQuestions.schemas.ts",
+      "symbol": "DocketQuestionInput",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DocketQuestionInput",
+      "description": "A docket intake outcome, with what the pipeline knows about it, to raise as a question."
     },
     {
       "file": "packages/law-practice/use-cases/src/DocketIntake/DocketReview.policy.ts",
@@ -33752,6 +33845,177 @@
       "symbol": "practiceKgMatterFieldTiers",
       "kind": "struct-const",
       "owner": "@beep/law-practice-use-cases"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.errors.ts",
+      "symbol": "AnswerLogError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "AnswerLogError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.errors.ts",
+      "symbol": "AnswerLogOperation",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "AnswerLogOperation",
+      "description": "Answer-log store operation that failed: reading the rows or appending one."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.errors.ts",
+      "symbol": "QuestionNotFoundError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "QuestionNotFoundError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.errors.ts",
+      "symbol": "UnknownQuestionOptionError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "UnknownQuestionOptionError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.schemas.ts",
+      "symbol": "DigestSelection",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DigestSelection",
+      "description": "The question items the daily digest is drawn from, and the day it is drawn for."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionQueue/QuestionQueue.schemas.ts",
+      "symbol": "RecordAnswerInput",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "RecordAnswerInput",
+      "description": "The attorney's answer to one question, before the queue assigns its revision and timestamp."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.errors.ts",
+      "symbol": "QuestionWriteError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "QuestionWriteError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.errors.ts",
+      "symbol": "QuestionWriteReason",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "QuestionWriteReason",
+      "description": "Why a question write or its undo failed: calendar unavailable, event not found, event verified, or restore failed."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "AppliedWrite",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "AppliedWrite",
+      "description": "One proposed write as applied, with the event it touched and its prior state for undo."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "AppliedWriteBatch",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "AppliedWriteBatch",
+      "description": "An approved write batch as applied, the journal entry its undo reads."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "CalendarPrior",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "CalendarPrior",
+      "description": "A calendar event as it was before a question write updated it, enough to restore it."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "OperatorApproval",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "OperatorApproval",
+      "description": "The operator's approval of one proposed write batch."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "ProposedWrite",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ProposedWrite",
+      "description": "One write a decided answer implies, waiting for the operator's approval."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
+      "symbol": "ProposedWriteBatch",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ProposedWriteBatch",
+      "description": "The proposed writes the operator approves or declines as one batch."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.errors.ts",
+      "symbol": "ReviewHubErrorCode",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ReviewHubErrorCode",
+      "description": "Stable code of a review hub tool failure: not-found, locked, unknown-option or store-unavailable."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.errors.ts",
+      "symbol": "ReviewHubToolError",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ReviewHubToolError",
+      "description": "Failure a review hub tool returns: a stable code and a plain message."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.schemas.ts",
+      "symbol": "LockBatchRequest",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "LockBatchRequest",
+      "description": "Request to lock one review batch."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.schemas.ts",
+      "symbol": "OpenItems",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "OpenItems",
+      "description": "The items waiting for the attorney, in the order the store holds them."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.schemas.ts",
+      "symbol": "OpenItemsRequest",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "OpenItemsRequest",
+      "description": "Request for the items waiting for the attorney on one day."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.schemas.ts",
+      "symbol": "RecordAnswerRequest",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "RecordAnswerRequest",
+      "description": "Request to record the attorney's answer to one stored question."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewItemStore/ReviewItemStore.errors.ts",
+      "symbol": "ReviewItemStoreError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ReviewItemStoreError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewItemStore/ReviewItemStore.errors.ts",
+      "symbol": "ReviewItemStoreOperation",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ReviewItemStoreOperation",
+      "description": "Review-item store operation that failed: reading the items or storing some."
     },
     {
       "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
@@ -38113,6 +38377,182 @@
       "description": "Why a parcel's freshness is unknown."
     },
     {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "AdmissionSlots",
+      "kind": "tagged-struct",
+      "owner": "@beep/palantiri",
+      "identity": "AdmissionSlots",
+      "description": "Admission capacity and active tokens, queued tickets, dead leases and the hard-floor flag."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "AdmissionSlotsInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "AdmissionSlotsInput",
+      "description": "Admission capacity and active tokens, queued tickets, dead leases and the hard-floor flag."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "HostMemory",
+      "kind": "tagged-struct",
+      "owner": "@beep/palantiri",
+      "identity": "HostMemory",
+      "description": "Available and installed memory in GiB."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "HostMemoryInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "HostMemoryInput",
+      "description": "Available and installed memory in GiB."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "HostPressureInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "HostPressureInput",
+      "description": "A host's pressure stall files, memory and admission occupancy, and when they were read."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "HostPressureItem",
+      "kind": "tagged-union",
+      "owner": "@beep/palantiri",
+      "identity": "HostPressureItem",
+      "description": "One host-pressure item, tagged by kind."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "PressureFile",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "PressureFile",
+      "description": "The raw text of one pressure stall file."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "PressureFileReading",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "PressureFileReading",
+      "description": "A parsed pressure file: its some and full stall figures and its malformed-line count."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "PressureLine",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "PressureLine",
+      "description": "One pressure stall line: its scope and stall figures."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "PressureResource",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "PressureResource",
+      "description": "A resource with kernel pressure stall information."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "PressureScope",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "PressureScope",
+      "description": "Whether some tasks or all non-idle tasks were stalled."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "PressureSourceInput",
+      "kind": "tagged-union",
+      "owner": "@beep/palantiri",
+      "identity": "PressureSourceInput",
+      "description": "The pressure stall files a host read, or why it has none."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "PressureStall",
+      "kind": "tagged-struct",
+      "owner": "@beep/palantiri",
+      "identity": "PressureStall",
+      "description": "One resource's pressure stall figures: some and full stalls over 10, 60 and 300 seconds."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/HostPressure.models.ts",
+      "symbol": "PressureStats",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "PressureStats",
+      "description": "Percent of wall time stalled over 10, 60 and 300 seconds, and total stall microseconds."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/LaneReds.models.ts",
+      "symbol": "InboxRowInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "InboxRowInput",
+      "description": "One yeet inbox row: kind, tier, pull request, summary, observation time, ack and liveness."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/LaneReds.models.ts",
+      "symbol": "InboxRowKind",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "InboxRowKind",
+      "description": "Kind of one yeet inbox row."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/LaneReds.models.ts",
+      "symbol": "InboxSeverity",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "InboxSeverity",
+      "description": "Enforcement tier of one yeet inbox row."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/LaneReds.models.ts",
+      "symbol": "LaneCheckoutInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "LaneCheckoutInput",
+      "description": "One checkout's lane, branch, inbox rows and proof jobs, with their read accounting."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/LaneReds.models.ts",
+      "symbol": "LaneRed",
+      "kind": "tagged-struct",
+      "owner": "@beep/palantiri",
+      "identity": "LaneRed",
+      "description": "One open P0 or P1 red in one lane: kind, pull request, summary and observation freshness."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/LaneReds.models.ts",
+      "symbol": "LaneRedKind",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "LaneRedKind",
+      "description": "An inbox row kind that asks for work, or a failed proof job."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/LaneReds.models.ts",
+      "symbol": "LaneRedsInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "LaneRedsInput",
+      "description": "The checkouts the lane-reds parcel reduces from."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/LaneReds.models.ts",
+      "symbol": "ProofJobInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "ProofJobInput",
+      "description": "One proof job: branch, pull request, whether it failed and why, and when it ran."
+    },
+    {
       "file": "packages/tooling/library/palantiri/src/Palantiri.instruments.ts",
       "symbol": "ParcelFreshnessState",
       "kind": "literal-kit",
@@ -38190,7 +38630,7 @@
       "kind": "tagged-union",
       "owner": "@beep/palantiri",
       "identity": "ParcelItem",
-      "description": "One item of any parcel, tagged by parcel kind."
+      "description": "One item of any parcel, tagged by item kind."
     },
     {
       "file": "packages/tooling/library/palantiri/src/Parcels.api.ts",
@@ -38219,6 +38659,62 @@
       "kind": "tagged-error",
       "owner": "@beep/palantiri",
       "identity": "UnknownParcel"
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/SinceLastCheck.models.ts",
+      "symbol": "ChangeSource",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "ChangeSource",
+      "description": "Whether a change came from the session ledger or the inbox."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/SinceLastCheck.models.ts",
+      "symbol": "LedgerRowInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "LedgerRowInput",
+      "description": "One session ledger row: lane, branch, state, pull request, note, time, and whether it is ours."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/SinceLastCheck.models.ts",
+      "symbol": "LedgerState",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "LedgerState",
+      "description": "Lifecycle of one session's work in a checkout."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/SinceLastCheck.models.ts",
+      "symbol": "SessionChange",
+      "kind": "tagged-struct",
+      "owner": "@beep/palantiri",
+      "identity": "SessionChange",
+      "description": "One ledger note or inbox row newer than the session's last read."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/SinceLastCheck.models.ts",
+      "symbol": "SessionCursor",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "SessionCursor",
+      "description": "When a session last read the since-last-check parcel."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/SinceLastCheck.models.ts",
+      "symbol": "SessionCursorJson",
+      "kind": "codec",
+      "owner": "@beep/palantiri",
+      "identity": "SessionCursorJson",
+      "description": "A session read cursor decoded from JSON text."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/SinceLastCheck.models.ts",
+      "symbol": "SinceLastCheckInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "SinceLastCheckInput",
+      "description": "A session's read cursor, the repository's ledger rows and the current checkout's inbox rows."
     },
     {
       "file": "packages/tooling/library/qa-capture/src/ActionEvent.models.ts",

@@ -209,6 +209,7 @@ const generatedComposers = $I.compose(
   "practice-m365-contacts",
   "practice-claude-mod",
   "t3-code",
+  "practice-review-hub",
   "palantiri"
 );
 
@@ -2883,6 +2884,24 @@ export const $PracticeClaudeModId: Identity.IdentityComposer<"@beep/practice-cla
  * @since 0.0.0
  */
 export const $T3CodeId: Identity.IdentityComposer<"@beep/t3-code"> = composers.$T3CodeId;
+
+/**
+ * Identity composer for `@beep/practice-review-hub`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $PracticeReviewHubId } from "@beep/identity/packages"
+ *
+ * const id = $PracticeReviewHubId.make("PracticeReviewHub")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $PracticeReviewHubId: Identity.IdentityComposer<"@beep/practice-review-hub"> =
+  composers.$PracticeReviewHubId;
 
 /**
  * Identity composer for `@beep/palantiri`.
