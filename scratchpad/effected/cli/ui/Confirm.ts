@@ -247,9 +247,8 @@ const step: {
 					? state
 					: {
 							...state,
-							toggles: state.toggles.map((toggle, index) =>
-								index === state.row - 1 ? { ...toggle, value: !toggle.value } : toggle,
-							),
+							toggles: A.map(state.toggles, (toggle, index) =>
+								index === state.row - 1 ? { ...toggle, value: !toggle.value } : toggle),
 						},
 		),
 		Match.when("yes", (): ConfirmState<K> => ({ ...state, confirmed: true })),
@@ -454,12 +453,12 @@ export class Confirm {
 			if (action === "cancel") cancel("escape");
 			else setState((current) => step(current, action));
 		});
-		const toggleRows: ReadonlyArray<ViewportRow> = state.toggles.map((toggle) => ({
+		const toggleRows: ReadonlyArray<ViewportRow> = A.map(state.toggles, (toggle) => ({
 			_tag: "Item",
 			key: toggle.key,
 		}));
 		const numberOf = MutableHashMap.fromIterable(
-			toggleRows.map((row, index) => [row, index] as const),
+			A.map(toggleRows, (row, index) => [row, index] as const),
 		);
 		const ellipsis = { ellipsis: glyphs.ellipsis };
 		const lead = state.row === 0 ? glyphs.arrow : " ".repeat(Fmt.width(glyphs.arrow));

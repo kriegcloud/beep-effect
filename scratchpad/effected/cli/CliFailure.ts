@@ -3,7 +3,7 @@ import * as A from "@beep/utils/Array";
 import type * as CauseType from "effect/Cause";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as S from "effect/Schema";
 import { Cancelled } from "./Cancelled.ts";
@@ -135,7 +135,7 @@ const tagOf = (value: unknown): string | undefined => {
 /** The failure status and the text of a message: one block per line, the status on the first. */
 const failureBlocks = (message: string): ReadonlyArray<Block> => {
   const lines = message.split(/\r\n|\r|\n/);
-  return [Doc.paragraph(Doc.status(Status.core, "failure"), " ", A.getUnsafe(lines, 0)), ...A.drop(lines, 1).map((line) => Doc.paragraph(line))];
+  return [Doc.paragraph(Doc.status(Status.core, "failure"), " ", A.getUnsafe(lines, 0)), ...A.map(A.drop(lines, 1), (line) => Doc.paragraph(line))];
 };
 
 /** The issue of a schema failure: the value itself, or the `issue` an error carries. */
@@ -240,15 +240,15 @@ const cleanStack: {
   mode: "app" | "all",
 ): { readonly frames: ReadonlyArray<Frame>; readonly hidden: number } => {
   if (!P.isString(stack)) return { frames: [], hidden: 0 };
-  const lines = stack.split(/\r\n|\r|\n/).filter((line) => /^\s*at\s/.test(line));
-  const app = lines.filter((line) => {
+  const lines = A.filter(stack.split(/\r\n|\r|\n/), (line) => /^\s*at\s/.test(line));
+  const app = A.filter(lines, (line) => {
     const file = frameFile(line);
     return file !== undefined && !/[\\/]node_modules[\\/]/.test(file) && !isRuntime(line);
   });
   // An installed program (a global install, `npx`, a pnpm store) has every frame of its own under `node_modules`:
   // when dropping dependencies leaves nothing, keep everything but the runtime's and Effect's.
-  const kept = mode === "all" ? lines : app.length > 0 ? app : lines.filter((line) => !isRuntime(line));
-  return { frames: kept.map(parseFrame), hidden: lines.length - kept.length };
+  const kept = mode === "all" ? lines : app.length > 0 ? app : A.filter(lines, (line) => !isRuntime(line));
+  return { frames: A.map(kept, parseFrame), hidden: lines.length - kept.length };
 });
 
 const frameBlock: {
@@ -275,7 +275,7 @@ const stackBlock: {
 } = dual(3, (defect: Error, displayPath: (absolute: string) => string, mode: "app" | "all"): Block => {
   const { frames, hidden } = cleanStack(defect.stack, mode);
   if (frames.length > 0) {
-    const shown = frames.map(frameBlock(displayPath));
+    const shown = A.map(frames, frameBlock(displayPath));
     const note = hidden === 0 ? [] : [Doc.paragraph(Doc.text(`(+${hidden} internal frames hidden)`, "muted"))];
     return Doc.collapsible("stack", [...shown, ...note], { open: true });
   }
@@ -395,7 +395,7 @@ const spanFile = (frame: {
 }): string | undefined => (Result.getOrElse(Result.try(() => {
   const stack = frame.stack();
   if (stack === undefined) return undefined;
-  const line = stack.split(/\r\n|\r|\n/).find((candidate) => /^\s*at\s/.test(candidate)) ?? stack;
+  const line = pipe(stack.split(/\r\n|\r|\n/), A.findFirst((candidate) => /^\s*at\s/.test(candidate)), O.getOrElse(() => stack));
   return frameFile(line.trim().startsWith("at ") ? line : `at ${line.trim()}`);
 }), () => undefined));
 
@@ -493,9 +493,9 @@ export class CliFailure {
     (options?: CliFailureOptions): (cause: CauseType.Cause<unknown>) => Document;
   } = dual((args) => Cause.isCause(args[0]), (cause: CauseType.Cause<unknown>, options?: CliFailureOptions): Document => {
     const reasons = cause.reasons;
-    if (reasons.length > 0 && reasons.every(Cause.isInterruptReason)) return [Doc.paragraph("interrupted")];
+    if (reasons.length > 0 && A.every(reasons, Cause.isInterruptReason)) return [Doc.paragraph("interrupted")];
     const displayPath = options?.displayPath ?? ((absolute: string) => absolute);
-    return reasons.flatMap((reason): ReadonlyArray<Block> => {
+    return A.flatMap(reasons, (reason): ReadonlyArray<Block> => {
       const spans = options?.spans ?? "app";
       const appDir = packageDirOf(options?.appModule);
       if (Cause.isFailReason(reason)) return failBlocks(reason.error, spanBlocks(reason, spans, appDir), options);

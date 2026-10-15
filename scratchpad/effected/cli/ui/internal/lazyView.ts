@@ -46,8 +46,8 @@ const NO_VIEW = (resolved: unknown): string => {
 	if (!P.isObjectKeyword(resolved)) {
 		return `@effected/cli/ui: CliUi.lazyView's load resolved to ${kindOf(resolved)}. Expected ${EXPECTED}`;
 	}
-	const named = R.keys(resolved).filter((key) => key !== "default");
-	const exports = named.length === 0 ? "" : ` (it exports ${named.join(", ")})`;
+	const named = A.filter(R.keys(resolved), (key) => key !== "default");
+	const exports = named.length === 0 ? "" : ` (it exports ${A.join(named, ", ")})`;
 	const received = P.hasProperty(resolved, "default") && R.has(resolved, "default")
 		? `a module whose default export is ${kindOf(resolved.default)}, not a function${exports}; a CommonJS module imported as ESM nests it one level deeper, as default.default`
 		: `a module with no default export${exports}; resolve to the export itself, as .then((module) => module.name)`;
@@ -159,7 +159,7 @@ export const lazyView = <S>(
 /** Whether a load's outcome is kept: a view, or a module that is no view; a rejected import is not. */
 const keepsLoad = (exit: Exit.Exit<void, LazyViewLoadError>): boolean =>
 	Exit.isSuccess(exit) ||
-	exit.cause.reasons.some((reason) => Cause.isFailReason(reason) && S.is(LazyViewShapeError)(reason.error.cause));
+	A.some(exit.cause.reasons, (reason) => Cause.isFailReason(reason) && S.is(LazyViewShapeError)(reason.error.cause));
 
 /** Whether a value found under the loader key is a loader: the cached load a lazy view stores there. */
 const isLoader = (value: unknown): value is Effect.Effect<void, LazyViewLoadError> => Effect.isEffect(value);

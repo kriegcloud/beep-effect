@@ -7,7 +7,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import type * as Fiber from "effect/Fiber";
 import type * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
@@ -296,7 +296,7 @@ const readLevel: {
 	if (level !== undefined) return { level, invalid: undefined };
 	return {
 		level: "None",
-		invalid: `${envVar}=${raw.value} is not a log level (${R.keys(LEVELS).join("|")}); ignoring it`,
+		invalid: `${envVar}=${raw.value} is not a log level (${A.join(R.keys(LEVELS), "|")}); ignoring it`,
 	};
 }));
 
@@ -622,7 +622,7 @@ export class CliLog {
 					// The program's text is sanitised before anything is painted, and the line is neutralized last.
 					const component = annotations.component === undefined ? "" : ` [${sanitize(String(annotations.component))}]`;
 					const message = sanitize(
-						A.isArray(record.message) ? record.message.map(String).join(" ") : String(record.message),
+						A.isArray(record.message) ? pipe(record.message, A.map(String), A.join(" ")) : String(record.message),
 					);
 					const name = record.logLevel.toUpperCase();
 					const levelText = paintStyle(LEVEL_STYLES[name] ?? {}, color, name);
@@ -648,7 +648,7 @@ export class CliLog {
 						: inner;
 				// The same decision as the sink's, so the plain line and the diagnostics line are neutralized alike.
 				const cliLogger = floor(makeCliLogger(options.logger, underActionsIn));
-				const extras = (options.extraLoggers ?? []).map(floor);
+				const extras = A.map((options.extraLoggers ?? []), floor);
 
 				// An invalid level warns through the CliLogger only, never through the sink.
 				if (invalid !== undefined) {

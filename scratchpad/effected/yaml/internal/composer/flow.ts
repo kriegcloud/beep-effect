@@ -301,7 +301,12 @@ const composeFlowMapInner: {
 
 	// Filter out brackets and blank whitespace, but KEEP commas and newlines
 	// so that flattenFlowChildren can respect segment boundaries for multi-line keys.
-	const content = A.filter(children, (c) => !(c.type === "whitespace" && (c.source === "{" || c.source.trim() === "")));
+	// `A.filter` visits holes in a sparse `children` array (native `filter` skipped
+	// them), so the guard drops them explicitly.
+	const content = A.filter(
+		children,
+		(c) => P.isNotUndefined(c) && !(c.type === "whitespace" && (c.source === "{" || c.source.trim() === "")),
+	);
 
 	const items = flattenFlowChildren(content, state);
 	const trailingComment = buildPairs(items, pairs, state.text);

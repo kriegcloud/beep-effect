@@ -76,7 +76,7 @@ export const underActionsIn = (fiber: Fiber.Fiber<unknown, unknown>): boolean =>
  */
 export const sanitizeParts = (message: unknown): unknown => {
 	if (P.isString(message)) return sanitize(message);
-	if (A.isArray(message)) return message.map((part) => (P.isString(part) ? sanitize(part) : part));
+	if (A.isArray(message)) return A.map(message, (part) => (P.isString(part) ? sanitize(part) : part));
 	return message;
 };
 

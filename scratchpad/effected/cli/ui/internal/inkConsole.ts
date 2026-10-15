@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 import * as Clock from "effect/Clock";
 import type * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Inspectable from "effect/Inspectable";
 import type { FunctionComponent, ReactNode } from "react";
 import { UiStreams } from "../UiStreams.ts";
@@ -64,29 +64,28 @@ const shown = (arg: unknown): string =>
 	arg instanceof Error ? (arg.stack ?? String(arg)) : Inspectable.toStringUnknown(arg, 0);
 
 /** A console call's arguments as one line of text, joined by spaces. */
-const textOf = (args: ReadonlyArray<unknown>): string => args.map(shown).join(" ");
+const textOf = (args: ReadonlyArray<unknown>): string => pipe(args, A.map(shown), A.join(" "));
 
 /** `console.table`'s rows, as a plain pipe table: an `(index)` column, then each key, then `Values` for scalars. */
 const tableOf = (data: unknown, properties?: ReadonlyArray<string>): string => {
 	if (!P.isObjectKeyword(data) || P.isFunction(data)) return textOf([data]);
 	const rows = R.toEntries(data);
 	const isRecord = (value: unknown): value is Record<string, unknown> => P.isObjectKeyword(value) && !P.isFunction(value);
-	const keys = properties ?? [...MutableHashSet.fromIterable(rows.flatMap(([, value]) => (isRecord(value) ? R.keys(value) : [])))];
-	const scalars = rows.some(([, value]) => !isRecord(value));
+	const keys = properties ?? [...MutableHashSet.fromIterable(A.flatMap(rows, ([, value]) => (isRecord(value) ? R.keys(value) : [])))];
+	const scalars = A.some(rows, ([, value]) => !isRecord(value));
 	const header = ["(index)", ...keys, ...(scalars ? ["Values"] : [])];
 	const cell = (value: unknown): string =>
 		value === undefined ? "" : P.isString(value) ? value : shown(value);
-	const body = rows.map(([index, value]) => [
+	const body = A.map(rows, ([index, value]) => [
 		index,
-		...keys.map((key) => (isRecord(value) ? cell(value[key]) : "")),
+		...A.map(keys, (key) => (isRecord(value) ? cell(value[key]) : "")),
 		...(scalars ? [isRecord(value) ? "" : cell(value)] : []),
 	]);
-	const widths = header.map((title, column) =>
-		Math.max(title.length, ...body.map((row) => A.getUnsafe(row, column).length)),
-	);
+	const widths = A.map(header, (title, column) =>
+		Math.max(title.length, ...A.map(body, (row) => A.getUnsafe(row, column).length)));
 	const line = (cells: ReadonlyArray<string>): string =>
-		`| ${cells.map((text, column) => text.padEnd(A.getUnsafe(widths, column))).join(" | ")} |`;
-	return [line(header), ...body.map(line)].join("\n");
+		`| ${pipe(cells, A.map((text, column) => text.padEnd(A.getUnsafe(widths, column))), A.join(" | "))} |`;
+	return A.join([line(header), ...A.map(body, line)], "\n");
 };
 
 /** Milliseconds now, for `time`; the platform clock when there is one. */
@@ -128,10 +127,7 @@ export const makeInkConsole: Effect.Effect<InkConsole> = Effect.gen(function* ()
 		(stream: "out" | "err", text: string): void;
 		(text: string): (stream: "out" | "err") => void;
 	} = dual(2, (stream: "out" | "err", text: string): void => {
-		const data = `${text
-			.split("\n")
-			.map((line) => indent + line)
-			.join("\n")}\n`;
+		const data = `${pipe(text.split("\n"), A.map((line) => indent + line), A.join("\n"))}\n`;
 		if (attached !== undefined) (stream === "out" ? attached.out : attached.err)(data);
 		else if (stream === "out") streams.stdout.write(data);
 		else streams.stderr.write(data);
@@ -164,7 +160,7 @@ export const makeInkConsole: Effect.Effect<InkConsole> = Effect.gen(function* ()
 		trace: (...args) => {
 			const trace = ConsoleTrace.make({ message: "" });
 			Error.captureStackTrace(trace, writer.trace);
-			const stack = (trace.stack ?? "").split("\n").slice(1).join("\n");
+			const stack = A.join((trace.stack ?? "").split("\n").slice(1), "\n");
 			emit("err", `Trace${args.length === 0 ? "" : `: ${textOf(args)}`}${stack === "" ? "" : `\n${stack}`}`);
 		},
 		dir: (item) => toOut(item),

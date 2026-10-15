@@ -156,13 +156,13 @@ const transformCompilerOptionPaths: {
 	}
 	for (const key of PATH_LIST_KEYS) {
 		const value = out[key];
-		if (A.isArray(value)) out[key] = A.map(value, (entry) => P.isString(entry) ? transform(entry) : entry);
+		if (A.isArray(value)) out[key] = A.map<ReadonlyArray<string>, string>(value, (entry) => P.isString(entry) ? transform(entry) : entry);
 	}
 	if (includePathsValues) {
 		const paths = out.paths;
 		if (P.isObjectKeyword(paths) && !P.isFunction(paths)) {
 			out.paths = rebuildRecord(paths, (_key, arr) =>
-				A.isArray(arr) ? A.map(arr, (entry) => P.isString(entry) ? transform(entry) : entry) : arr,
+				A.isArray(arr) ? A.map<ReadonlyArray<string>, string>(arr, (entry) => P.isString(entry) ? transform(entry) : entry) : arr,
 			);
 		}
 	}
@@ -336,7 +336,7 @@ const substituteWatchExcludes: {
 	for (const key of ["excludeDirectories", "excludeFiles"] as const) {
 		const value = out[key];
 		if (A.isArray(value)) {
-			out[key] = A.map(value, (entry) => P.isString(entry) ? substitute(entry) : entry);
+			out[key] = A.map<ReadonlyArray<string>, string>(value, (entry) => P.isString(entry) ? substitute(entry) : entry);
 		}
 	}
 	return out;

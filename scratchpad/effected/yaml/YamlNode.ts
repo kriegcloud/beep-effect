@@ -929,13 +929,14 @@ const findByPath: {
 			if (!isMap(current)) {
 				return O.none();
 			}
-			const pair: YamlPair | undefined = current.items.find(
+			const pair: O.Option<YamlPair> = A.findFirst(
+				current.items,
 				(p: YamlPair) => isScalar(p.key) && P.isString(p.key.value) && p.key.value === segment,
 			);
-			if (pair === undefined || pair.value === null) {
+			if (O.isNone(pair) || pair.value.value === null) {
 				return O.none();
 			}
-			current = pair.value;
+			current = pair.value.value;
 		} else {
 			// Navigate by index — requires a YamlSeq
 			if (!isSeq(current)) {

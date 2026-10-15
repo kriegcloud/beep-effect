@@ -679,7 +679,7 @@ const text = (value: string, token?: TokenName | Style): InlineOf<"Text"> => ({
 const inlineOne = (part: string | Inline): Inline => (P.isString(part) ? text(part) : part);
 
 const inlines = (input: InlineInput): ReadonlyArray<Inline> =>
-	A.copy(isList(input) ? input.map(inlineOne) : [inlineOne(input)]);
+	A.copy(isList(input) ? A.map(input, inlineOne) : [inlineOne(input)]);
 
 const overflowOf =
 	(overflow: (hidden: number) => InlineInput): ((hidden: number) => ReadonlyArray<Inline>) =>
@@ -693,7 +693,7 @@ const overflowFields = (options: OverflowOptions | undefined) => ({
 
 const treeNode = (input: TreeInput): TreeNode => ({
 	label: inlines(input.label),
-	children: A.copy((input.children ?? []).map(treeNode)),
+	children: A.copy(A.map((input.children ?? []), treeNode)),
 });
 
 const counterOf = (counter: Counter): Counter => ({
@@ -888,7 +888,7 @@ export abstract class Doc {
 	 * @since 0.0.0
 	 */
 	static strong(...content: Array<InlineInput>): InlineOf<"Strong"> {
-		return { _tag: "Strong", content: inlines(content.flatMap((part) => (isList(part) ? part : [part]))) };
+		return { _tag: "Strong", content: inlines(A.flatMap(content, (part) => (isList(part) ? part : [part]))) };
 	}
 
 	/**
@@ -908,7 +908,7 @@ export abstract class Doc {
 	 * @since 0.0.0
 	 */
 	static em(...content: Array<InlineInput>): InlineOf<"Emphasis"> {
-		return { _tag: "Emphasis", content: inlines(content.flatMap((part) => (isList(part) ? part : [part]))) };
+		return { _tag: "Emphasis", content: inlines(A.flatMap(content, (part) => (isList(part) ? part : [part]))) };
 	}
 
 	/**
@@ -986,7 +986,7 @@ export abstract class Doc {
 	 * @since 0.0.0
 	 */
 	static paragraph(...content: Array<InlineInput>): BlockOf<"Paragraph"> {
-		return { _tag: "Paragraph", content: inlines(content.flatMap((part) => (isList(part) ? part : [part]))) };
+		return { _tag: "Paragraph", content: inlines(A.flatMap(content, (part) => (isList(part) ? part : [part]))) };
 	}
 
 	/**
@@ -1046,12 +1046,12 @@ export abstract class Doc {
 		): BlockOf<"Table"> => ({
 			_tag: "Table",
 			columns: A.copy(
-				columns.map((column) => ({
+				A.map(columns, (column) => ({
 					header: inlines(column.header),
 					...O.getSomesStruct({ align: O.fromUndefinedOr(column.align) }),
 				})),
 			),
-			rows: A.copy(rows.map((row) => A.copy(row.map(inlines)))),
+			rows: A.copy(A.map(rows, (row) => A.copy(A.map(row, inlines)))),
 			...overflowFields(options),
 			...O.getSomesStruct({ style: O.fromUndefinedOr(options?.style) }),
 		}),
@@ -1272,7 +1272,7 @@ export abstract class Doc {
 		return {
 			_tag: "Counts",
 			...O.getSomesStruct({ label: O.map(O.fromUndefinedOr(options.label), inlines) }),
-			counters: A.copy(options.counters.map(counterOf)),
+			counters: A.copy(A.map(options.counters, counterOf)),
 			...O.getSomesStruct({ total: O.fromUndefinedOr(options.total) }),
 			...O.getSomesStruct({ qualifier: O.map(O.fromUndefinedOr(options.qualifier), inlines) }),
 			...O.getSomesStruct({ durationMs: O.fromUndefinedOr(options.durationMs) }),
@@ -1323,9 +1323,9 @@ export abstract class Doc {
 		return {
 			_tag: "CountsTable",
 			rows: A.copy(
-				rows.map((row) => ({
+				A.map(rows, (row) => ({
 					label: inlines(row.label),
-					counters: A.copy(row.counters.map(counterOf)),
+					counters: A.copy(A.map(row.counters, counterOf)),
 					...O.getSomesStruct({ durationMs: O.fromUndefinedOr(row.durationMs) }),
 				})),
 			),
@@ -1353,7 +1353,7 @@ export abstract class Doc {
 	 * @since 0.0.0
 	 */
 	static lines(lines: ReadonlyArray<InlineInput>): BlockOf<"Lines"> {
-		return { _tag: "Lines", lines: A.copy(lines.map(inlines)) };
+		return { _tag: "Lines", lines: A.copy(A.map(lines, inlines)) };
 	}
 
 	/**

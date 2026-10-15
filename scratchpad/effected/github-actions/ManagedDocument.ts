@@ -1,7 +1,9 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import type { SectionParseError } from "../templates/index.ts";
 import { CommentStyle, SectionDialect, SectionDocument, SectionId } from "../templates/index.ts";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as O from "@beep/utils/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -438,8 +440,10 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
 	 * @since 0.0.0
 	 */
 	entry(key: string): O.Option<{ readonly content: string; readonly meta: Readonly<Record<string, string>> }> {
-		const found = this.ownRegions().find((candidate) => candidate.key === key);
-		return found === undefined ? O.none() : O.some({ content: found.content, meta: found.meta });
+		return O.map(A.findFirst(this.ownRegions(), (candidate) => candidate.key === key), (found) => ({
+			content: found.content,
+			meta: found.meta,
+		}));
 	}
 
 	/**
@@ -524,7 +528,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
 		if (Result.isFailure(parsed)) {
 			return parsed.failure.pipe(structural, Result.fail);
 		}
-		const declared = entries.map(([key, content, meta]) =>
+		const declared = A.map(entries, ([key, content, meta]) =>
 			SectionId.make({ key: this.wireKey(key), commentStyle: CommentStyle.html }).section(content, meta),
 		);
 		const reconciled = parsed.success.reconcile(declared);
@@ -719,13 +723,15 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
 			return [];
 		}
 		const prefix = this.wirePrefix;
-		return parsed.success.sections
-			.filter((placed) => placed.section.key.startsWith(prefix))
-			.map((placed) => ({
+		return pipe(
+			parsed.success.sections,
+			A.filter((placed) => placed.section.key.startsWith(prefix)),
+			A.map((placed) => ({
 				key: placed.section.key.slice(prefix.length),
 				content: placed.section.content,
 				meta: placed.section.attributes,
-			}));
+			})),
+		);
 	}
 
 	/**

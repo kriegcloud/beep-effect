@@ -15,6 +15,7 @@ import { canPrompt } from "./internal/canPrompt.ts";
 import { refreshFailureTarget } from "./internal/failureTarget.ts";
 import { AudienceFlagValues, scanAudience, tallyAudience } from "./internal/scanAudience.ts";
 import { WizardDropped } from "./internal/wizardGate.ts";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/cli/CliAudience");
 
@@ -382,7 +383,7 @@ export class CliAudience {
 			if (!restore && !drop) return yield* decided;
 			const builtIns = interactive
 				? [...ambient.builtIns, GlobalFlag.Wizard]
-				: ambient.builtIns.filter((flag) => flag !== GlobalFlag.Wizard);
+				: A.filter(ambient.builtIns, (flag) => flag !== GlobalFlag.Wizard);
 			return yield* Effect.provideService(decided, CliConfig.CliConfig, CliConfig.make({ builtIns }));
 		});
 	});

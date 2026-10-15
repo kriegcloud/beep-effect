@@ -225,7 +225,7 @@ const resolveYarnEdges: {
 			else MutableHashSet.add(unnameable, name);
 		}
 	}
-	// Map-backed until the last step: `Object.fromEntries` defines own data
+	// Map-backed until the last step: `R.fromEntries` (Object.fromEntries) defines own data
 	// properties, so a "__proto__" dependency name neither pollutes nor drops.
 	return { resolved: R.fromEntries(edges), unresolvedEdges: A.sort(unnameable, Order.String) };
 });

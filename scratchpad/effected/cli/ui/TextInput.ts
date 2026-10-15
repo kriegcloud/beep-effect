@@ -435,11 +435,11 @@ export abstract class TextInput {
 				const keys = typedKeys(input, key);
 				// Esc and Ctrl-C belong to the screen's root keys.
 				if (
-					keys.some((pressed) => pressed._tag === "Named" && (pressed.name === "escape" || pressed.name === "ctrl+c"))
+					A.some(keys, (pressed) => pressed._tag === "Named" && (pressed.name === "escape" || pressed.name === "ctrl+c"))
 				) {
 					return;
 				}
-				if (keys.some((pressed) => !(pressed._tag === "Named" && pressed.name === "enter"))) setError(undefined);
+				if (A.some(keys, (pressed) => !(pressed._tag === "Named" && pressed.name === "enter"))) setError(undefined);
 				for (const pressed of keys) setState((current) => step(current, pressed));
 			}),
 		);

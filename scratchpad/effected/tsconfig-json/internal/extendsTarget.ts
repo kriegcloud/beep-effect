@@ -2,7 +2,7 @@
  * The `extends` target-resolution engine (relative/rooted specifiers and the bare-specifier
  * `node_modules` lookup). Every input reaching {@link resolveExports} is an
  * untrusted `package.json` `exports` map, so every recursive surface carries a
- * depth guard, every untrusted map read goes through `Object.hasOwn`, dunder
+ * depth guard, every untrusted map read goes through `R.has` (an own-property check), dunder
  * keys are skipped, and substituted maps are built with `Object.create(null)` —
  * a JSON-parsed `{"__proto__": …}` key must never read or assign a prototype.
  *

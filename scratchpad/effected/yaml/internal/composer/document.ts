@@ -436,8 +436,8 @@ export const composeDocument: {
 				// is followed by a single value (or anchor+value), but a mapping
 				// pattern (key:) on the same line as `---` is malformed (9KBC, CXX2).
 				if (hasDocStart) {
-					const docStartChild = children.find((c) => c.type === "whitespace" && c.source === "---");
-					if (docStartChild !== undefined && sameLine(state.text, docStartChild.offset, child.offset)) {
+					const docStartChild = A.findFirst(children, (c) => c.type === "whitespace" && c.source === "---");
+					if (O.isSome(docStartChild) && sameLine(state.text, docStartChild.value.offset, child.offset)) {
 						state.errors.push({
 							code: "UnexpectedToken",
 							message: "Mapping cannot start on document-start (---) line",

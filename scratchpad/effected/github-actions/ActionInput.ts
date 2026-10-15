@@ -751,7 +751,7 @@ export class ActionInput {
 		return ConfigProvider.make((path) => {
 			const single = path.length === 1 && P.isString(path[0]) ? path[0] : undefined;
 			const attempted = single === undefined ? undefined : lookup(inputVariable(single));
-			const value = attempted ?? lookup(A.join(path, "_").replaceAll(" ", "_").toUpperCase());
+			const value = attempted ?? lookup(pipe(path, A.map(String), A.join("_")).replaceAll(" ", "_").toUpperCase());
 			return Effect.succeed(value === undefined ? undefined : ConfigProvider.makeValue(value));
 		});
 	}

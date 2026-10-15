@@ -1,5 +1,5 @@
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import type { Document, Inline } from "../Doc.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Span } from "./layout.ts";
@@ -50,7 +50,7 @@ export const plainInline: {
 
 const plain: Flavour = {
 	inline: plainInline,
-	finish: dual(2, (line: Line, _ctx: RenderContext): string => line.map((span) => span.text).join("")),
+	finish: dual(2, (line: Line, _ctx: RenderContext): string => pipe(line, A.map((span) => span.text), A.join(""))),
 };
 
 /**
@@ -98,4 +98,4 @@ export const renderPlainLines: {
 export const renderPlain: {
 	(ctx: RenderContext): (doc: Document) => string;
 	(doc: Document, ctx: RenderContext): string;
-} = dual(2, (doc: Document, ctx: RenderContext): string => renderPlainLines(doc, ctx).join("\n"));
+} = dual(2, (doc: Document, ctx: RenderContext): string => A.join(renderPlainLines(doc, ctx), "\n"));

@@ -6,7 +6,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as FileSystem from "effect/FileSystem";
 import * as Logger from "effect/Logger";
 import * as Path from "effect/Path";
@@ -14,6 +14,7 @@ import * as Queue from "effect/Queue";
 import * as Result from "effect/Result";
 import { sanitize } from "../Fmt.ts";
 import { formatNdjson, passes } from "./diagnostics.ts";
+import * as A from "effect/Array";
 
 /** How long closing the scope waits for queued lines to reach the file before giving up on a hung filesystem. */
 const CLOSE_TIMEOUT = "2 seconds";
@@ -75,7 +76,7 @@ export const makeFileSink: {
 			yield* fs.makeDirectory(location.dirname(path), { recursive: true });
 			directoryMade = true;
 		}
-		yield* fs.writeFileString(path, lines.map((line) => `${line}\n`).join(""), { flag: "a" });
+		yield* fs.writeFileString(path, pipe(lines, A.map((line) => `${line}\n`), A.join("")), { flag: "a" });
 	});
 
 	const drain = Effect.gen(function* () {

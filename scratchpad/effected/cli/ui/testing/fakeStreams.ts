@@ -211,7 +211,7 @@ const capture: {
 		both.push(text);
 		onWrite?.(text);
 	});
-	return { stream, text: () => chunks.join("") };
+	return { stream, text: () => A.join(chunks, "") };
 });
 
 /**
@@ -255,7 +255,7 @@ export const makeFakeStreams = (options: FakeStreamsOptions = {}): FakeStreams =
 		rawModes,
 		stdout: stdout.text,
 		stderr: stderr.text,
-		written: () => both.join(""),
+		written: () => A.join(both, ""),
 		input: (data) => {
 			stdin.write(data);
 		},

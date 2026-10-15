@@ -244,7 +244,7 @@ const init: {
 	choices: ReadonlyArray<SelectChoice<A>>,
 	options: SelectInitOptions = {},
 ): SelectState<A> => {
-	if (!choices.some((choice) => choice.disabled !== true))
+	if (!A.some(choices, (choice) => choice.disabled !== true))
 		throw NoEnabledChoiceError.make({ message: NO_ENABLED_CHOICE });
 	const height = options.height ?? 10;
 	const initial = Math.trunc(options.initial ?? 0);
@@ -468,7 +468,7 @@ export abstract class Select {
 			if (action === "cancel") cancel("escape");
 			else setState((current) => step(current, action));
 		});
-		const rows: ReadonlyArray<ViewportRow> = state.choices.map((_, index) => ({
+		const rows: ReadonlyArray<ViewportRow> = A.map(state.choices, (_, index) => ({
 			_tag: "Item",
 			key: String(index),
 		}));
@@ -533,7 +533,7 @@ export abstract class Select {
 		<A>(options: SelectScreenOptions<A>): Screen<A> =>
 		(control) => {
 			// Checked before mounting, so a screen with nothing to choose dies rather than drawing an empty list.
-			if (!options.choices.some((choice) => choice.disabled !== true))
+			if (!A.some(options.choices, (choice) => choice.disabled !== true))
 				throw NoEnabledChoiceError.make({ message: NO_ENABLED_CHOICE });
 			return inkModules().react.createElement(Select.View<A>, { ...options, onSubmit: control.resolve });
 		};

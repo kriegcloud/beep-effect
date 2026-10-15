@@ -282,7 +282,7 @@ const slice: {
 		}
 	}
 	if (items.length === 0)
-		return { lines: rows.slice(0, budget).map((_, index) => index), start: 0, selected: -1 };
+		return { lines: A.map(rows.slice(0, budget), (_, index) => index), start: 0, selected: -1 };
 	const cursor = clamp(state.cursor, 0, items.length - 1);
 	const selected = items[cursor] ?? 0;
 	let start = clamp(previous ?? state.offset, 0, cursor);
@@ -445,7 +445,7 @@ export abstract class Viewport {
 		return react.createElement(
 			ink.Box,
 			{ flexDirection: "column", marginRight: 1 },
-			...lines.map((index) => {
+			...A.map(lines, (index) => {
 				const row = A.getUnsafe(props.rows, index);
 				return react.createElement(
 					ink.Box,

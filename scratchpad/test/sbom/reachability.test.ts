@@ -179,9 +179,12 @@ describe("bundle reachability", () => {
 		// This is what lets a VERIFIER depend on the shapes alone.
 		for (const entry of ["InTotoStatement.ts", "SlsaProvenance.ts", "NtiaReport.ts"]) {
 			const expected = entry === "InTotoStatement.ts"
-				? ["@beep/identity/packages", "effect/Effect", "effect/Function", "effect/Result", "effect/Schema"]
+				? ["@beep/identity/packages", "effect/Array", "effect/Effect", "effect/Function", "effect/Result", "effect/Schema"]
 				: entry === "NtiaReport.ts"
-					? ["@beep/identity/packages", "@beep/schema/LiteralKit", "effect/Function", "effect/Schema", "effect/String"]
+					? [
+						"@beep/identity/packages", "@beep/schema/LiteralKit", "effect/Array", "effect/Function", "effect/Option",
+						"effect/Schema", "effect/String",
+					]
 					: ["@beep/identity/packages", "effect/Schema"];
 			assert.deepStrictEqual([...(yield* reachableBareImports(entry))].sort(), expected, entry);
 		}

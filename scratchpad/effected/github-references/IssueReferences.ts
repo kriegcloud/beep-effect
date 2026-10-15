@@ -169,7 +169,7 @@ export type BareLineReference = typeof BareLineReference.Type;
  * through alternatives, so `close` matching inside `closes` fails at the
  * mandatory `#`-introducer and retries the longer keyword.
  */
-const KEYWORDS = CLOSING_KEYWORDS.join("|");
+const KEYWORDS = A.join(CLOSING_KEYWORDS, "|");
 
 /** Inline-in-prose: mandatory whitespace, no colon. */
 const INLINE_PATTERN = new RegExp(`\\b(${KEYWORDS})\\s+#(\\d+)`, "gi");

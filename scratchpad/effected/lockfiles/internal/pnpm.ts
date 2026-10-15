@@ -270,7 +270,7 @@ const resolveEdges: {
 			else MutableHashSet.add(unnameable, name);
 		}
 	}
-	// Map-backed until the last step: `Object.fromEntries` defines own data
+	// Map-backed until the last step: `R.fromEntries` (Object.fromEntries) defines own data
 	// properties, so a "__proto__" dependency name neither pollutes nor drops.
 	return { resolved: R.fromEntries(edges), unresolvedEdges: A.sort(unnameable, Order.String) };
 });
@@ -430,7 +430,7 @@ const resolveImporterEdges: {
 			else MutableHashSet.add(unnameable, name);
 		}
 	}
-	// Map-backed until the last step: `Object.fromEntries` defines own data
+	// Map-backed until the last step: `R.fromEntries` (Object.fromEntries) defines own data
 	// properties, so a "__proto__" dependency name neither pollutes nor drops.
 	return { resolved: R.fromEntries(edges), unresolvedEdges: A.sort(unnameable, Order.String) };
 });
@@ -439,7 +439,7 @@ const toVersionMap = (
 	deps: Record<string, { readonly specifier: string; readonly version: string }> | undefined,
 ): Record<string, string> | undefined => {
 	if (deps === undefined) return undefined;
-	// Object.fromEntries defines own data properties, so a "__proto__" key
+	// R.fromEntries (Object.fromEntries) defines own data properties, so a "__proto__" key
 	// neither pollutes nor drops.
 	return R.fromEntries(A.map(R.toEntries(deps), ([name, info]): readonly [string, string] => [name, info.specifier]));
 };

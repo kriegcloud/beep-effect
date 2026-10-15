@@ -244,7 +244,7 @@ export const canonicalize: {
 		signedHeaders,
 		amzDate,
 		dateStamp,
-		canonicalRequest: [request.method, canonicalPath, "", canonicalHeaders, signedHeaders, payloadHash].join("\n"),
+		canonicalRequest: A.join([request.method, canonicalPath, "", canonicalHeaders, signedHeaders, payloadHash], "\n"),
 	};
 });
 
@@ -316,7 +316,7 @@ export const sign: {
 } = Function.dual(2, (request: SigV4Request, credentials: SigV4Credentials): Record<string, string> => {
 	const { headers, canonicalRequest, signedHeaders, amzDate, dateStamp } = canonicalize(request, credentials);
 	const scope = `${dateStamp}/${credentials.region}/${credentials.service}/aws4_request`;
-	const stringToSign = [ALGORITHM, amzDate, scope, sha256Hex(canonicalRequest)].join("\n");
+	const stringToSign = A.join([ALGORITHM, amzDate, scope, sha256Hex(canonicalRequest)], "\n");
 	const key = signingKey(credentials.secretAccessKey, dateStamp, credentials.region, credentials.service);
 	const signature = Buffer.from(hmac(key, stringToSign)).toString("hex");
 

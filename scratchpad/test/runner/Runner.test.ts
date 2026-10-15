@@ -533,6 +533,28 @@ describe("editorTsgoVerdict", () => {
     assert.strictEqual(verdict.advisories, 1);
   });
 
+  // Verbatim pinned @effect/tsgo 0.51.1 output for a module tsconfig extending effected/tsconfig.lab.json:
+  // it exits 1 on unknown-rule warnings alone, and bun appends its own `error: "tsgo" exited` line.
+  const PINNED_UNKNOWN_RULES = A.join([
+    "warning TS377134: Unknown Effect diagnostic rule `preferEffectArray` in `diagnosticSeverity`. effect(unknownRuleName)",
+    "warning TS377134: Unknown Effect diagnostic rule `preferEffectRecord` in `diagnosticSeverity`. effect(unknownRuleName)",
+    'error: "tsgo" exited with code 1',
+  ], "\n");
+
+  it("stays clean when the pinned tsgo exits 1 on unknown-rule warnings only", () => {
+    const verdict = editorTsgoVerdict({ exitCode: 1, output: PINNED_UNKNOWN_RULES });
+    assert.isFalse(verdict.red);
+    assert.strictEqual(verdict.advisories, 2);
+    assert.deepStrictEqual(verdict.errors, []);
+  });
+
+  it("is red when the pinned tsgo prints an error next to unknown-rule warnings", () => {
+    const verdict = editorTsgoVerdict({ exitCode: 1, output: `src/a.ts(1,7): error TS2322: Type 'string' is not assignable to type 'number'.\n${PINNED_UNKNOWN_RULES}` });
+    assert.isTrue(verdict.red);
+    assert.deepStrictEqual(verdict.errors, ["src/a.ts(1,7): error TS2322: Type 'string' is not assignable to type 'number'."]);
+    assert.strictEqual(verdict.advisories, 2);
+  });
+
   it("is red on a global error without a position", () => {
     assert.isTrue(editorTsgoVerdict({ exitCode: 1, output: "error TS5083: Cannot read file 'tsconfig.json'." }).red);
   });

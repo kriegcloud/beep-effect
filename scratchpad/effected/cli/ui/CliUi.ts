@@ -36,6 +36,7 @@ import { uiProviders } from "./internal/UiProviders.ts";
 import { KeyTable, useKeys } from "./KeyTable.ts";
 import type { UiContextValue } from "./UiProvider.ts";
 import { UiStreams } from "./UiStreams.ts";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/cli/ui/CliUi");
 
@@ -193,10 +194,10 @@ const mount: {
 		Effect.sync(() => overrides.onMount?.("screen")),
 		(_, exit) =>
 			Effect.sync(() => {
-				const died = Exit.isFailure(exit) ? exit.cause.reasons.find(Cause.isDieReason) : undefined;
+				const died = Exit.isFailure(exit) ? A.findFirst(exit.cause.reasons, Cause.isDieReason) : O.none();
 				// An interrupt stays an interrupt, as `run` reports it: a crash recorded while it unmounts is not reported.
 				const interrupted = Exit.isFailure(exit) && Cause.hasInterruptsOnly(exit.cause);
-				overrides.onUnmount?.(died !== undefined ? { defect: died.defect } : interrupted ? undefined : crash.current);
+				overrides.onUnmount?.(O.isSome(died) ? { defect: died.value.defect } : interrupted ? undefined : crash.current);
 			}),
 	);
 	const { ink, react } = yield* loadInk;
@@ -358,9 +359,9 @@ export class CliUi {
 		const crashed = crash.current;
 		const interrupted = Exit.isFailure(exit) && Cause.hasInterruptsOnly(exit.cause);
 		if (crashed === undefined || interrupted) return yield* exit;
-		const dies = Exit.isFailure(exit) ? exit.cause.reasons.filter(Cause.isDieReason) : [];
+		const dies = Exit.isFailure(exit) ? A.filter(exit.cause.reasons, Cause.isDieReason) : [];
 		// A run that died of the crash keeps its whole cause, a failing finalizer's defect included.
-		if (dies.some((reason) => reason.defect === crashed.defect)) return yield* exit;
+		if (A.some(dies, (reason) => reason.defect === crashed.defect)) return yield* exit;
 		// Otherwise the crash replaces the end it beat, and any defect already there (a kit finalizer that failed)
 		// stays beside it.
 		return yield* Effect.failCause(Cause.fromReasons<never>([Cause.makeDieReason(crashed.defect), ...dies]));

@@ -17,6 +17,7 @@ import { StyleVote, YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintR
 import type { YamlToken } from "../../YamlToken.ts";
 import { dual } from "effect/Function";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/document-start");
 
@@ -55,7 +56,7 @@ const TRIVIA = HashSet.fromIterable(["newline", "whitespace", "comment", "byte-o
 const hasDirectives = (ctx: LintContext): boolean => A.some(ctx.tokens, (t) => t.kind === "directive");
 
 /** The first non-trivia token: it decides whether the stream is headed by `---`. */
-const headToken = (ctx: LintContext): YamlToken | undefined => ctx.tokens.find((t) => !HashSet.has(TRIVIA, t.kind));
+const headToken = (ctx: LintContext): O.Option<YamlToken> => A.findFirst(ctx.tokens, (t) => !HashSet.has(TRIVIA, t.kind));
 
 /**
  * Checks the `---` marker at the head of the stream.
@@ -95,7 +96,7 @@ export const documentStart: YamlRule = {
 		const present = S.is(S.Boolean)(opts.present) ? opts.present : true;
 		// The first non-trivia token decides: is the stream headed by `---`?
 		const directives = hasDirectives(ctx);
-		const first = headToken(ctx);
+		const first = O.getOrUndefined(headToken(ctx));
 		const headed = first?.kind === "document-start";
 		if (present && !headed && ctx.text.trim() !== "") {
 			return [
@@ -148,8 +149,9 @@ export const documentStart: YamlRule = {
 	// saying nothing.
 	infer: (ctx) => {
 		if (ctx.text.trim() === "") return [];
-		const first = headToken(ctx);
-		if (first === undefined) return [];
+		const head = headToken(ctx);
+		if (O.isNone(head)) return [];
+		const first = head.value;
 		const headed = first.kind === "document-start";
 		// A %directive-headed stream REQUIRES the marker (check refuses to
 		// synthesize or remove one there): an unmarked directive stream is

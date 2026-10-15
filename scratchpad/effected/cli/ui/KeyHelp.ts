@@ -6,6 +6,7 @@ import { KeyTable } from "./KeyTable.ts";
 import { Styled, useGlyphs, useTerminalSize } from "./UiTheme.ts";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
+import { pipe } from "effect/Function";
 
 /**
  * The fewest cells worth giving the widget's own keys when the line is cut; below it they are left out.
@@ -69,7 +70,7 @@ export const KeyHelp = (props: KeyHelpProps): ReactElement => {
   }> => {
     // Neighbouring rows that say the same thing share one entry: ↑ move, ↓ move reads ↑/↓ move.
     const rows = A.empty<{ label: string; help: string }>();
-    for (const drawn of tables.flatMap((table) => table.help(glyphs))) {
+    for (const drawn of A.flatMap(tables, (table) => table.help(glyphs))) {
       const row = { label: lineText(drawn.label), help: lineText(drawn.help) };
       const previous = rows.at(-1);
       if (previous !== undefined && previous.help === row.help) previous.label = `${previous.label}/${row.label}`;
@@ -90,9 +91,9 @@ export const KeyHelp = (props: KeyHelpProps): ReactElement => {
     };
     ownRows.pop();
   }
-  const own = ownRows.map((row) => `${row.label} ${row.help}`).join(separator);
-  const root = rootRows.map((row) => `${row.label} ${row.help}`).join(separator);
-  const whole = [own, root].filter((part) => part !== "").join(separator);
+  const own = pipe(ownRows, A.map((row) => `${row.label} ${row.help}`), A.join(separator));
+  const root = pipe(rootRows, A.map((row) => `${row.label} ${row.help}`), A.join(separator));
+  const whole = pipe([own, root], A.filter((part) => part !== ""), A.join(separator));
   // One line, cut to the terminal width with the theme's ellipsis, so the footer never wraps into a second row.
   // When it must be cut, the widget's own keys give way and the root hint (esc cancel) stays whole at the end;
   // when the keys would get fewer than MIN_OWN cells they are dropped, along with the separator, rather than shown

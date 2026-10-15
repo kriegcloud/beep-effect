@@ -1,5 +1,6 @@
 // Port of Node v26.10.0 lib/internal/tty.js getColorDepth (MIT). Differences: the win32 branch reads OS=Windows_NT
 // rather than process.platform and the OS release, no warning side effect, TTY gate applied here.
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";

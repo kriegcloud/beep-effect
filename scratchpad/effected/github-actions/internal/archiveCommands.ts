@@ -59,9 +59,10 @@
 // execution half. Command construction and schema identity add no Azure or
 // GitHub SDK imports (`__test__/reachability.test.ts`).
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/process";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/github-actions/internal/archiveCommands");
@@ -165,7 +166,7 @@ const dotnetCompressionLevel = (level: number): string =>
  * @category formatting
  * @since 0.0.0
  */
-export const zipManifest = (files: ReadonlyArray<string>): string => files.map((file) => `${file}\n`).join("");
+export const zipManifest = (files: ReadonlyArray<string>): string => pipe(files, A.map((file) => `${file}\n`), A.join(""));
 
 /**
  * Pack `files` into a zip: `zip -<level> -qr <destination> -- <files...>` with

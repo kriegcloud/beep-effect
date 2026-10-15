@@ -1,7 +1,8 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import type { ReactElement } from "react";
 import { Fmt } from "../Fmt.ts";
 import { inkModules } from "./internal/ink.ts";
@@ -95,7 +96,8 @@ const step: {
 });
 
 /** Plain digits jump: 1 is the first tab, 9 the ninth, 0 the tenth. Bound, but left out of the help line. */
-const DIGITS: ReadonlyArray<Binding<TabsAction>> = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].map(
+const DIGITS: ReadonlyArray<Binding<TabsAction>> = A.map(
+	["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
 	(digit, index) => ({ keys: [{ char: digit }], action: { jump: index }, help: "jump", hidden: true }),
 );
 
@@ -252,12 +254,17 @@ export abstract class Tabs {
 		const glyphs = useGlyphs();
 		const theme = useTheme();
 		const { columns } = useTerminalSize();
+		// The named tab's position; the first tab when no name is given or none matches.
 		const indexOf = (name: N | undefined): number =>
-			name === undefined ? -1 : props.tabs.findIndex((tab) => tab.name === name);
-		const [own, setOwn] = react.useState(() => Math.max(0, indexOf(props.defaultValue)));
+			pipe(
+				O.fromUndefinedOr(name),
+				O.flatMap((wanted) => A.findFirstIndex(props.tabs, (tab) => tab.name === wanted)),
+				O.getOrElse(() => 0),
+			);
+		const [own, setOwn] = react.useState(() => indexOf(props.defaultValue));
 		const controlled = props.value !== undefined;
 		// Uncontrolled, a list that shrank under the active tab clamps it to the last remaining tab.
-		const index = controlled ? Math.max(0, indexOf(props.value)) : Math.min(own, Math.max(0, props.tabs.length - 1));
+		const index = controlled ? indexOf(props.value) : Math.min(own, Math.max(0, props.tabs.length - 1));
 		const focused = props.isFocused ?? true;
 		const column = props.direction === "column";
 		const { onChange } = props;
@@ -330,7 +337,7 @@ export abstract class Tabs {
 			return react.createElement(
 				ink.Box,
 				{ flexDirection: "column", marginRight: 1 },
-				...props.tabs.map((_, position) =>
+				...A.map(props.tabs, (_, position) =>
 					react.createElement(
 						ink.Box,
 						{ key: position, height: 1, overflow: "hidden" },
@@ -341,20 +348,19 @@ export abstract class Tabs {
 								Fmt.truncate(labelOf(position), Math.max(1, columns - marks), { ellipsis: glyphs.ellipsis }),
 							),
 						),
-					),
-				),
+					)),
 			);
 		}
 		const separator = lineText(props.separator ?? (glyphs.kind === "unicode" ? " │ " : " | "));
-		const labels = props.tabs.map((_, position) => marked(position, labelOf(position)));
+		const labels = A.map(props.tabs, (_, position) => marked(position, labelOf(position)));
 		const mark = Fmt.width(glyphs.ellipsis);
-		const total = labels.reduce((sum, label) => sum + Fmt.width(label), 0) + Fmt.width(separator) * (labels.length - 1);
+		const total = A.reduce(labels, 0, (sum, label) => sum + Fmt.width(label)) + Fmt.width(separator) * (labels.length - 1);
 		// Too wide: show the tabs that fit around the active one, keeping room for an ellipsis at each cut edge.
 		const { from, to } =
 			total <= columns
 				? { from: 0, to: labels.length - 1 }
 				: fitAround(
-						labels.map((label) => Fmt.width(label)),
+						A.map(labels, (label) => Fmt.width(label)),
 						index,
 						Fmt.width(separator),
 						Math.max(1, columns - 2 * mark),

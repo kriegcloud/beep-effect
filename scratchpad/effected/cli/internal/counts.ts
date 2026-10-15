@@ -81,7 +81,7 @@ export const columnLabel = (counter: Counter): string =>
  * @since 0.0.0
  */
 export const totalOf = (block: BlockOf<"Counts">): number =>
-	block.total === undefined ? block.counters.reduce((sum, counter) => sum + counter.n, 0) : block.total(block.counters);
+	block.total === undefined ? A.reduce(block.counters, 0, (sum, counter) => sum + counter.n) : block.total(block.counters);
 
 /**
  * The counters a renderer shows: every one except a zero counter that does not ask for `showZero`. `Doc.visibleCounters`
@@ -110,7 +110,7 @@ export const totalOf = (block: BlockOf<"Counts">): number =>
  * @since 0.0.0
  */
 export const visibleCountersOf = (block: BlockOf<"Counts">): ReadonlyArray<Counter> =>
-	block.counters.filter((counter) => counter.n !== 0 || counter.showZero === true);
+	A.filter(block.counters, (counter) => counter.n !== 0 || counter.showZero === true);
 
 /**
  * A `CountsTable` as the `Table` it renders as: a label column, then a column per counter key in the order the keys
@@ -154,7 +154,7 @@ export const countsTableOf = (block: BlockOf<"CountsTable">): BlockOf<"Table"> =
 		token === undefined ? { _tag: "Text", value } : { _tag: "Text", value, token };
 	const countCell = (counter: Counter | undefined): ReadonlyArray<Inline> =>
 		counter === undefined ? [] : [text(String(counter.n), counter.status.def.token)];
-	const timed = block.rows.some((row) => row.durationMs !== undefined);
+	const timed = A.some(block.rows, (row) => row.durationMs !== undefined);
 	const durationCell = (ms: number | undefined): ReadonlyArray<ReadonlyArray<Inline>> =>
 		timed ? [ms === undefined ? [] : [text(Fmt.duration(ms))]] : [];
 	const rows = A.map(indexed, ({ row, counters }) => [
@@ -174,7 +174,7 @@ export const countsTableOf = (block: BlockOf<"CountsTable">): BlockOf<"Table"> =
 			: [
 					[
 						totalLabel,
-						...keys.map((key) => [
+						...A.map(keys, (key) => [
 							text(
 								String(
 									A.reduce(indexed,
@@ -184,14 +184,14 @@ export const countsTableOf = (block: BlockOf<"CountsTable">): BlockOf<"Table"> =
 								),
 							),
 						]),
-						...durationCell(block.rows.reduce((sum, row) => sum + (row.durationMs ?? 0), 0)),
+						...durationCell(A.reduce(block.rows, 0, (sum, row) => sum + (row.durationMs ?? 0))),
 					],
 				];
 	return {
 		_tag: "Table",
 		columns: [
 			{ header: block.labelHeader ?? [] },
-			...keys.map((key) => ({ header: [text(columnLabel(key))] })),
+			...A.map(keys, (key) => ({ header: [text(columnLabel(key))] })),
 			...(timed ? [{ header: block.durationHeader ?? [text("duration")] }] : []),
 		],
 		rows: [...rows, ...total],

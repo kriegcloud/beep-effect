@@ -1023,11 +1023,13 @@ const parseDocuments: {
 		// A document is content-free if it only contains trivia (whitespace,
 		// newline, comment) and document-end nodes. Per YAML spec, a standalone
 		// `...` without preceding content does not produce a document.
-		const hasDocStart = doc.children?.some((c) => c.type === "whitespace" && c.source === "---");
-		const hasContent = doc.children?.some(
+		const docChildren = doc.children ?? [];
+		const hasDocStart = A.some(docChildren, (c) => c.type === "whitespace" && c.source === "---");
+		const hasContent = A.some(
+			docChildren,
 			(c) => c.type !== "whitespace" && c.type !== "newline" && c.type !== "comment" && c.type !== "error",
 		);
-		if ((hasDocStart === true) || (hasContent === true) || documents.length === 0) {
+		if (hasDocStart || hasContent || documents.length === 0) {
 			documents.push(doc);
 		}
 	}

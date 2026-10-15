@@ -114,11 +114,10 @@ const docView: () => FunctionComponent<DocViewProps> = fromReact((react) => {
 			ink.Box,
 			// Its own height, whatever its parent's: a parent that clips shows the first rows, never a squeezed sample.
 			{ flexDirection: "column", flexShrink: 0 },
-			...lines.map((line, index) =>
+			...A.map(lines, (line, index) =>
 				// Each row is cut, never re-wrapped by Ink: the kit's renderer has already laid it out at the width. An empty
 				// row is a space, which Ink keeps as a row.
-				react.createElement(ink.Text, { key: index, wrap: "truncate-end" }, line === "" ? " " : line),
-			),
+				react.createElement(ink.Text, { key: index, wrap: "truncate-end" }, line === "" ? " " : line)),
 		);
 	};
 	View.displayName = "CliUiDocView";

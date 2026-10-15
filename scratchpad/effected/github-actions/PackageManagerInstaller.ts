@@ -6,6 +6,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import type { IntegrityHashBrand } from "../npm/index.ts";
 import { CorepackIntegrityHash, IntegrityHash, DEFAULT_REGISTRY, PackageManagerPin, PackageManagerPinName } from "../npm/index.ts";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -828,7 +829,7 @@ const make = Effect.gen(function* () {
 	 */
 	const nativeWindowsBins = (bins: Record<string, string>): Record<string, string> =>
 		R.fromEntries(
-			R.toEntries(bins).map(([name, relative]): [string, string] =>
+			A.map(R.toEntries(bins), ([name, relative]): [string, string] =>
 				[name, PNPM_NATIVE_BIN_NAMES.includes(name) ? `${relative}.exe` : relative],
 			),
 		);
@@ -855,7 +856,7 @@ const make = Effect.gen(function* () {
 		(bins: Record<string, string>, directory: string): Record<string, string>;
 		(directory: string): (bins: Record<string, string>) => Record<string, string>;
 	} = dual(2, (bins: Record<string, string>, directory: string): Record<string, string> =>
-		R.fromEntries(R.toEntries(bins).map(([name, relative]): [string, string] => [name, path.join(directory, relative)])));
+		R.fromEntries(A.map(R.toEntries(bins), ([name, relative]): [string, string] => [name, path.join(directory, relative)])));
 
 	/**
   * Write one executable shim per bin into `<into>/.bin`, each invoking

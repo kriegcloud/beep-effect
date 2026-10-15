@@ -18,7 +18,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Inspectable from "effect/Inspectable";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
@@ -378,10 +378,10 @@ const TOKENS: ReadonlyArray<TokenName> = [
 
 /** The marker palette: token N (1-based) paints in `#0000NN`, so a frame decodes back to the token. */
 const MARKER_STYLES: Record<TokenName, Style> = R.fromEntries(
-	TOKENS.map((token, index): [TokenName, Style] => [token, { fg: `#0000${(index + 1).toString(16).padStart(2, "0")}` }]),
+	A.map(TOKENS, (token, index): [TokenName, Style] => [token, { fg: `#0000${(index + 1).toString(16).padStart(2, "0")}` }]),
 );
 
-const TOKEN_BY_BLUE = HashMap.fromIterable(TOKENS.map((token, index) => [index + 1, token] as const));
+const TOKEN_BY_BLUE = HashMap.fromIterable(A.map(TOKENS, (token, index) => [index + 1, token] as const));
 
 const NAMED = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"] as const;
 
@@ -414,7 +414,7 @@ const hex: {
 	(r: number, g: number, b: number): string;
 	(g: number, b: number): (r: number) => string;
 } = dual(3, (r: number, g: number, b: number): string =>
-	`#${[r, g, b].map((channel) => channel.toString(16).padStart(2, "0")).join("")}`);
+	`#${pipe([r, g, b], A.map((channel) => channel.toString(16).padStart(2, "0")), A.join(""))}`);
 
 type Kind = "fg" | "bg" | "b" | "dim" | "i" | "u" | "inverse" | "s";
 type OpenStyles = Array<{ readonly kind: Kind; readonly close: string }>;
@@ -471,7 +471,7 @@ const decodeSgr: {
 		}
 		return at;
 	});
-	const codes = params === "" ? [0] : params.split(";").map(Number);
+	const codes = params === "" ? [0] : A.map(params.split(";"), Number);
 	for (let at = 0; at < codes.length; at++) {
 		const code = Number(codes[at]);
 		if (code === 0) {
@@ -517,16 +517,13 @@ const styled = (ansi: string): string => {
 };
 
 const trimLines = (text: string): string =>
-	text
-		.split("\n")
-		.map((line) => line.trimEnd())
-		.join("\n");
+	pipe(text.split("\n"), A.map((line) => line.trimEnd()), A.join("\n"));
 
 /**
  * Markup only this harness writes: a token tag opened and closed (`[info]…[/info]`), or a colour tag. A lone
  * `[info]` is a log prefix, and style-only tags (`[b]`, `[i]`) are too common in unrelated data, so neither is claimed.
  */
-const MARKUP = new RegExp(`\\[(${TOKENS.join("|")})\\][\\s\\S]*?\\[/\\1\\]|\\[(?:fg|bg):[^\\]\\s]+\\]`);
+const MARKUP = new RegExp(`\\[(${A.join(TOKENS, "|")})\\][\\s\\S]*?\\[/\\1\\]|\\[(?:fg|bg):[^\\]\\s]+\\]`);
 
 /** Run `register`'s check on native timers, which a `TestClock` cannot hold, until it says done. */
 const realTime = (poll: () => boolean): Effect.Effect<void> =>
@@ -783,7 +780,7 @@ const terminalOf = ({ options, settings }: { readonly options: CliUiTestOptions;
 				surfaced(
 					Effect.flatMap(
 						Effect.forEach(keys, (key) => bytesOf(key, "chunk")),
-						(bytes) => send(bytes.join(""), keys.at(-1) === "escape" ? ESCAPE_FLUSH_MS : 0),
+						(bytes) => send(A.join(bytes, ""), keys.at(-1) === "escape" ? ESCAPE_FLUSH_MS : 0),
 					),
 				),
 			resize: dual(2, (nextColumns: number, nextRows: number): Effect.Effect<void> =>
@@ -800,7 +797,7 @@ const terminalOf = ({ options, settings }: { readonly options: CliUiTestOptions;
 			frame: surfaced(Effect.sync(() => trimLines(styled(raws().at(-1) ?? "")))),
 			rawFrame: surfaced(Effect.sync(() => raws().at(-1) ?? "")),
 			plainFrame: surfaced(Effect.sync(() => trimLines((raws().at(-1) ?? "").replace(ESCAPES, "")))),
-			frames: surfaced(Effect.sync(() => raws().map((raw) => trimLines(styled(raw))))),
+			frames: surfaced(Effect.sync(() => A.map(raws(), (raw) => trimLines(styled(raw))))),
 		};
 		return { handle, raws, after, surfaced };
 	};
@@ -852,7 +849,7 @@ const mount: {
 						if (
 							Exit.isFailure(exit) &&
 							!Cause.hasInterruptsOnly(exit.cause) &&
-							(exit.cause.reasons.some(Cause.isDieReason) || exit.cause.pipe(Cause.squash, cancelledReason) === undefined)
+							(A.some(exit.cause.reasons, Cause.isDieReason) || exit.cause.pipe(Cause.squash, cancelledReason) === undefined)
 						) {
 							failure = exit.cause;
 						}
@@ -904,7 +901,7 @@ const capturingConsole = (ambient: Console.Console) => {
 		(sink: Array<string>) =>
 		(...args: ReadonlyArray<unknown>): void => {
 			// Formatted as data, as a console would show it: an object as JSON, never "[object Object]".
-			sink.push(`${args.map((arg) => Inspectable.toStringUnknown(arg, 0)).join(" ")}\n`);
+			sink.push(`${pipe(args, A.map((arg) => Inspectable.toStringUnknown(arg, 0)), A.join(" "))}\n`);
 		};
 	// Resolve delegates at call time, retaining the ambient receiver and live method replacements.
 	const writer: Console.Console = {
@@ -1173,7 +1170,7 @@ export class CliUiTest {
 				const shows = (): boolean =>
 					contains === undefined
 						? raws().length > 0
-						: raws().some((raw) => raw.replace(ESCAPES, "").includes(contains));
+						: A.some(raws(), (raw) => raw.replace(ESCAPES, "").includes(contains));
 				const by = Clock.Clock.defaultValue().currentTimeMillisUnsafe() + MOUNT_LIMIT_MS;
 				yield* realTime(() => shows() || capture()?.ended === true || Clock.Clock.defaultValue().currentTimeMillisUnsafe() >= by);
 				// A screen that crashed dies with its crash, whatever `next` waited for.
@@ -1194,19 +1191,19 @@ export class CliUiTest {
 				layer: Layer.merge(terminal.layer, Layer.succeed(Console.Console, output.writer)),
 				next,
 				mounts: Effect.sync(() => terminal.captures.length),
-				stdout: Effect.sync(() => output.out.join("")),
-				stderr: Effect.sync(() => output.err.join("")),
+				stdout: Effect.sync(() => A.join(output.out, "")),
+				stderr: Effect.sync(() => A.join(output.err, "")),
 				transcript: Effect.sync(() =>
-					screenAfter(terminal.fake.written(), terminal.fake.streams.stdout.rows).join("\n"),
+					A.join(screenAfter(terminal.fake.written(), terminal.fake.streams.stdout.rows), "\n"),
 				),
 				written: Effect.sync(() => terminal.fake.written()),
 				stdoutWritten: Effect.sync(() => terminal.fake.stdout()),
 				stderrWritten: Effect.sync(() => terminal.fake.stderr()),
 				stdoutTranscript: Effect.sync(() =>
-					screenAfter(terminal.fake.stdout(), terminal.fake.streams.stdout.rows).join("\n"),
+					A.join(screenAfter(terminal.fake.stdout(), terminal.fake.streams.stdout.rows), "\n"),
 				),
 				stderrTranscript: Effect.sync(() =>
-					screenAfter(terminal.fake.stderr(), terminal.fake.streams.stdout.rows).join("\n"),
+					A.join(screenAfter(terminal.fake.stderr(), terminal.fake.streams.stdout.rows), "\n"),
 				),
 			} satisfies CliUiTestSession;
 		});
@@ -1282,7 +1279,7 @@ export class CliUiTest {
 		const handle = yield* CliUi.live<E, S>({ ...view, events: Stream.fromQueue(queue) }).pipe(
 			(self) => Effect.scopedWith((scope) => Effect.flatMap(Layer.buildWithScope(terminal.layer, scope), (context) => Effect.provideContext(self, context))),
 		);
-		const raws = (): ReadonlyArray<string> => terminal.captures.flatMap((capture) => capture.raws);
+		const raws = (): ReadonlyArray<string> => A.flatMap(terminal.captures, (capture) => capture.raws);
 		const settled = <X>(effect: Effect.Effect<X>): Effect.Effect<void> =>
 			Effect.suspend(() => {
 				const before = raws().length;
@@ -1302,9 +1299,9 @@ export class CliUiTest {
 			frame: Effect.sync(() => trimLines(styled(last()))),
 			rawFrame: Effect.sync(last),
 			plainFrame: Effect.sync(() => trimLines(last().replace(ESCAPES, ""))),
-			frames: Effect.sync(() => raws().map((raw) => trimLines(styled(raw)))),
+			frames: Effect.sync(() => A.map(raws(), (raw) => trimLines(styled(raw)))),
 			transcript: Effect.sync(() =>
-				screenAfter(terminal.fake.written(), terminal.fake.streams.stdout.rows).join("\n"),
+				A.join(screenAfter(terminal.fake.written(), terminal.fake.streams.stdout.rows), "\n"),
 			),
 			written: Effect.sync(() => terminal.fake.written()),
 			handle,

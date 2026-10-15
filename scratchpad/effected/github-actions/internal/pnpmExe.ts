@@ -11,6 +11,7 @@ import * as HashSet from "effect/HashSet";
 // `@pnpm/exe.*` package), never by major version — pnpm 11 and earlier ship
 // no such dependency and keep their Node entry points.
 
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
@@ -168,10 +169,10 @@ const SRI_ALGORITHMS: ReadonlyArray<string> = ["sha512", "sha384", "sha256", "sh
 export const strongestSri = (
 	integrity: string,
 ): O.Option<{ readonly algorithm: string; readonly hex: string }> => {
-	const entries = integrity
-		.split(/\s+/)
-		.filter((entry) => entry.length > 0)
-		.flatMap((entry) => {
+	const entries = Function.pipe(
+		integrity.split(/\s+/),
+		A.filter((entry) => entry.length > 0),
+		A.flatMap((entry): ReadonlyArray<{ readonly algorithm: string; readonly hex: string }> => {
 			const dash = entry.indexOf("-");
 			if (dash <= 0) {
 				return [];
@@ -184,11 +185,12 @@ export const strongestSri = (
 			const digest = entry.slice(dash + 1).replace(/\?.*$/s, "");
 			const decoded = Base64.decode(digest);
 			return Result.isSuccess(decoded) ? [{ algorithm, hex: Hex.encode(decoded.success) }] : [];
-		});
+		}),
+	);
 	for (const algorithm of SRI_ALGORITHMS) {
-		const found = entries.find((entry) => entry.algorithm === algorithm);
-		if (found !== undefined) {
-			return O.some(found);
+		const found = A.findFirst(entries, (entry) => entry.algorithm === algorithm);
+		if (O.isSome(found)) {
+			return found;
 		}
 	}
 	return O.none();

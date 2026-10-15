@@ -1,6 +1,6 @@
 import * as Match from "effect/Match";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import type { Block, Document, Inline, LinkTarget } from "../Doc.ts";
 import { Fmt, sanitize } from "../Fmt.ts";
@@ -43,7 +43,7 @@ type Tone = TokenName | Style;
 
 const span = (text: string, token?: Tone): Span => (token === undefined ? { text } : { text, token });
 
-const textOf = (line: Line): string => line.map((s) => s.text).join("");
+const textOf = (line: Line): string => pipe(line, A.map((s) => s.text), A.join(""));
 
 /**
  * A link target as plain text: the URL, or `path:line:col` through `displayPath`; a column needs a line.
@@ -123,14 +123,14 @@ export const trimLine = (line: Line): Line => {
 };
 
 const oneLine = (spans: ReadonlyArray<Span>): ReadonlyArray<Span> =>
-	spans.map((s) => ({ ...s, text: s.text.replace(/\r\n|\r|\n/g, " ") }));
+	A.map(spans, (s) => ({ ...s, text: s.text.replace(/\r\n|\r|\n/g, " ") }));
 
 /** Give every span without a token of its own this one. */
 const toned: {
 	(spans: ReadonlyArray<Span>, token: Tone): ReadonlyArray<Span>;
 	(token: Tone): (spans: ReadonlyArray<Span>) => ReadonlyArray<Span>;
 } = dual(2, (spans: ReadonlyArray<Span>, token: Tone): ReadonlyArray<Span> =>
-	spans.map((s) => (s.token === undefined ? { ...s, token } : s)));
+	A.map(spans, (s) => (s.token === undefined ? { ...s, token } : s)));
 
 const sliceSpans: {
 	(spans: ReadonlyArray<Span>, end: number): ReadonlyArray<Span>;
@@ -169,16 +169,14 @@ const joinChunks: {
 	(chunks: ReadonlyArray<ReadonlyArray<Span>>, separator: string): Line;
 	(separator: string): (chunks: ReadonlyArray<ReadonlyArray<Span>>) => Line;
 } = dual(2, (chunks: ReadonlyArray<ReadonlyArray<Span>>, separator: string): Line =>
-	chunks
-		.filter((chunk) => chunk.length > 0)
-		.flatMap((chunk, index) => (index === 0 ? chunk : [span(separator), ...chunk])));
+	pipe(chunks, A.filter((chunk) => chunk.length > 0), A.flatMap((chunk, index) => (index === 0 ? chunk : [span(separator), ...chunk]))));
 
 /** Join table cells with a separator, keeping an empty one: a column that is empty in every row still takes its place. */
 const joinCells: {
 	(cells: ReadonlyArray<ReadonlyArray<Span>>, separator: string): Line;
 	(separator: string): (cells: ReadonlyArray<ReadonlyArray<Span>>) => Line;
 } = dual(2, (cells: ReadonlyArray<ReadonlyArray<Span>>, separator: string): Line =>
-	cells.flatMap((cell, index) => (index === 0 ? cell : [span(separator), ...cell])));
+	A.flatMap(cells, (cell, index) => (index === 0 ? cell : [span(separator), ...cell])));
 
 const blank = (width: number): Span => span(" ".repeat(width));
 
@@ -201,7 +199,7 @@ const hang: {
 } = dual(3, (lines: ReadonlyArray<Line>, first: Line, rest: Line): ReadonlyArray<Line> =>
 	lines.length === 0
 		? [trimLine(first)]
-		: lines.map((line, index) => trimLine([...(index === 0 ? first : rest), ...line])));
+		: A.map(lines, (line, index) => trimLine([...(index === 0 ? first : rest), ...line])));
 
 /**
  * A cap as a whole number of at least zero, or `undefined` for none.
@@ -226,7 +224,7 @@ const shrink: {
 	(limit: number): (widths: Array<number>) => void;
 } = dual(2, (widths: Array<number>, limit: number): void => {
 	const gaps = 2 * Math.max(0, widths.length - 1);
-	const total = (): number => widths.reduce((sum, w) => sum + w, 0) + gaps;
+	const total = (): number => A.reduce(widths, 0, (sum, w) => sum + w) + gaps;
 	while (total() > limit) {
 		let widest = 0;
 		for (let i = 1; i < widths.length; i++)
@@ -294,26 +292,26 @@ const tableLines: {
 	(walk: Walk, block: TableBlock, width: number): ReadonlyArray<Line>;
 	(block: TableBlock, width: number): (walk: Walk) => ReadonlyArray<Line>;
 } = dual(3, (walk: Walk, block: TableBlock, width: number): ReadonlyArray<Line> => {
-	const columns = Math.max(block.columns.length, ...block.rows.map((row) => row.length));
+	const columns = Math.max(block.columns.length, ...A.map(block.rows, (row) => row.length));
 	if (columns === 0) return [];
 	const cap = capOf(block.cap);
 	const shown = cap === undefined ? block.rows : block.rows.slice(0, cap);
 	const header = A.makeBy(columns, (index) => toned(cellOf(walk, block.columns[index]?.header), "emphasis"));
-	const body = shown.map((row) => A.makeBy(columns, (index) => cellOf(walk, row[index])));
-	const showHeader = header.some((cell) => cell.length > 0);
+	const body = A.map(shown, (row) => A.makeBy(columns, (index) => cellOf(walk, row[index])));
+	const showHeader = A.some(header, (cell) => cell.length > 0);
 	const hidden = block.rows.length - shown.length;
 	// No header text and no row shown, such as a counts table over zero projects: nothing to draw but the overflow line.
 	if (!showHeader && body.length === 0) return hidden > 0 ? [overflowLine(walk, block.overflow, hidden)] : [];
 
 	const widths = A.makeBy(columns, (index) =>
-		Math.max(0, ...[...(showHeader ? [header] : []), ...body].map((row) => widthOf(A.getUnsafe(row, index)))),
+		Math.max(0, ...A.map([...(showHeader ? [header] : []), ...body], (row) => widthOf(A.getUnsafe(row, index)))),
 	);
 	shrink(widths, width);
 
 	const render = (row: ReadonlyArray<Line>): Line =>
 		trimLine(
 			joinCells(
-				row.map((cell, index) => {
+				A.map(row, (cell, index) => {
 					const columnWidth = A.getUnsafe(widths, index);
 					const cut =
 						widthOf(cell) > columnWidth ? truncateSpans(cell, columnWidth, walk.ctx.glyphs.ellipsis) : cell;
@@ -323,7 +321,7 @@ const tableLines: {
 			),
 		);
 	const rule: Line = joinCells(
-		widths.map((w) => [span("-".repeat(w), "muted")]),
+		A.map(widths, (w) => [span("-".repeat(w), "muted")]),
 		"  ",
 	);
 
@@ -332,12 +330,12 @@ const tableLines: {
 		// below the header and at the end.
 		// The first column's rule has the cell and the space after it; every other has a space on each side.
 		const pipeRule: Line = [
-			span(widths.map((w, index) => "-".repeat(w + (index === 0 ? 1 : 2))).join("|"), "muted"),
+			span(pipe(widths, A.map((w, index) => "-".repeat(w + (index === 0 ? 1 : 2))), A.join("|")), "muted"),
 		];
 		const pipeRow = (row: ReadonlyArray<Line>): Line =>
 			trimLine(
 				joinCells(
-					row.map((cell, index) => {
+					A.map(row, (cell, index) => {
 						const columnWidth = A.getUnsafe(widths, index);
 						const cut =
 							widthOf(cell) > columnWidth ? truncateSpans(cell, columnWidth, walk.ctx.glyphs.ellipsis) : cell;
@@ -349,12 +347,12 @@ const tableLines: {
 		const piped = [
 			...(showHeader ? [pipeRule, pipeRow(header)] : []),
 			pipeRule,
-			...body.map(pipeRow),
+			...A.map(body, pipeRow),
 			pipeRule,
 		];
 		return hidden > 0 ? [...piped, overflowLine(walk, block.overflow, hidden)] : piped;
 	}
-	const lines = [...(showHeader ? [render(header), rule] : []), ...body.map(render)];
+	const lines = [...(showHeader ? [render(header), rule] : []), ...A.map(body, render)];
 	return hidden > 0 ? [...lines, overflowLine(walk, block.overflow, hidden)] : lines;
 });
 
@@ -369,7 +367,7 @@ const treeLines: {
 		(children: Children, prefix: string): void;
 		(prefix: string): (children: Children) => void;
 	} = dual(2, (children: Children, prefix: string): void => {
-		children.forEach((child, index) => {
+		A.forEach(children, (child, index) => {
 			const last = index === children.length - 1;
 			lines.push(
 				trimLine([
@@ -398,7 +396,7 @@ const diffSide: {
 	const shown = cap === undefined ? lines : lines.slice(0, cap);
 	const hidden = lines.length - shown.length;
 	return [
-		...shown.map((line) => trimLine([span(`${marker} ${line}`, token)])),
+		...A.map(shown, (line) => trimLine([span(`${marker} ${line}`, token)])),
 		...(hidden > 0 ? [[span(`  ${walk.ctx.glyphs.ellipsis} ${hidden} more lines`, "muted")]] : []),
 	];
 });
@@ -415,7 +413,7 @@ const keepPaint: {
 		const { token: _token, ...rest } = s;
 		return rest;
 	};
-	return lines.map((line) => line.map((s) => (paint === "glyph" && s.glyph === true ? s : unpainted(s))));
+	return A.map(lines, (line) => A.map(line, (s) => (paint === "glyph" && s.glyph === true ? s : unpainted(s))));
 });
 
 /**
@@ -461,7 +459,7 @@ const countsLayout: {
 		sanitize(counterLabel(counter, count)).replace(/\r\n|\r|\n/g, " "));
 	// The first counter is the headline: it shows its share of the total, and its label reads by that total
 	// ("1/3 repos", not "1/3 repo"), as the noun counts the denominator.
-	const counters = visible.map((counter, index): Line => {
+	const counters = A.map(visible, (counter, index): Line => {
 		const share = index === 0 && block.share !== false;
 		const name = nameOf(counter, share ? total : counter.n);
 		return [span(share ? `${counter.n}/${total} ${name}` : `${counter.n} ${name}`, counter.status.def.token)];
@@ -478,17 +476,16 @@ const countsLayout: {
 		];
 	}
 	if (block.layout === "columns") {
-		const labelWidth = Math.max(0, ...visible.map((counter) => widthOf([span(nameOf(counter))])));
-		const numberWidth = Math.max(0, ...visible.map((counter) => String(counter.n).length));
+		const labelWidth = Math.max(0, ...A.map(visible, (counter) => widthOf([span(nameOf(counter))])));
+		const numberWidth = Math.max(0, ...A.map(visible, (counter) => String(counter.n).length));
 		return [
 			...(label.length === 0 ? [] : [label]),
-			...visible.map((counter) =>
+			...A.map(visible, (counter) =>
 				trimLine([
 					...pad([span(nameOf(counter), counter.status.def.token)], labelWidth, "left"),
 					span("  "),
 					...pad([span(String(counter.n), counter.status.def.token)], numberWidth, "right"),
-				]),
-			),
+				])),
 			...(qualifier.length === 0 ? [] : [qualifier]),
 			...(duration === "" ? [] : [[span(duration, "muted")]]),
 			...(suffix.length === 0 ? [] : [suffix]),
@@ -526,21 +523,18 @@ const blockLines: {
 		Paragraph: (block): ReadonlyArray<Line> => {
 			const spans = inline(walk, block.content);
 			if (spans.length === 0) return [[]];
-			return wrapSpans(spans, width, { hardBreak: false }).map(trimLine);
+			return A.map(wrapSpans(spans, width, { hardBreak: false }), trimLine);
 		},
 		List: (block): ReadonlyArray<Line> => {
 			const cap = capOf(block.cap);
-			const items = block.items.filter((item) => !isAnnotation(item));
+			const items = A.filter(block.items, (item) => !isAnnotation(item));
 			const shown = cap === undefined ? items : items.slice(0, cap);
 			const compactItems = block.compact === true;
-			const lines = shown.flatMap((item) =>
-				hang(blockLines(walk, item, width - 2, compactItems), [span("- ")], [span("  ")]).map(
-					(line, index) =>
+			const lines = A.flatMap(shown, (item) =>
+				A.map(hang(blockLines(walk, item, width - 2, compactItems), [span("- ")], [span("  ")]), (line, index) =>
 						// A compact item has no separator lines, so a blank line is the content's own (a diff's): it keeps the
 						// indent, held against trimming, so the item stays one indented block.
-						compactItems && index > 0 && line.length === 0 ? [{ text: "  ", hold: true as const }] : line,
-				),
-			);
+						compactItems && index > 0 && line.length === 0 ? [{ text: "  ", hold: true as const }] : line));
 			const hidden = items.length - shown.length;
 			return hidden > 0 ? [...lines, overflowLine(walk, block.overflow, hidden)] : lines;
 		},
@@ -548,19 +542,17 @@ const blockLines: {
 		Tree: (block): ReadonlyArray<Line> => treeLines(walk, block),
 		Collapsible: (block): ReadonlyArray<Line> => [
 			trimLine(toned(oneLine(inline(walk, block.title)), "emphasis")),
-			...block.body
-				.flatMap((child) => blockLines(walk, child, width - 2))
-				.map((line) => trimLine([span("  "), ...line])),
+			...pipe(block.body, A.flatMap((child) => blockLines(walk, child, width - 2)), A.map((line) => trimLine([span("  "), ...line]))),
 		],
 		Callout: (block): ReadonlyArray<Line> => {
 			const label = `${block.kind.toUpperCase()}:`;
 			const hanging = label.length + 1;
-			const body = block.body.flatMap((child) => blockLines(walk, child, width - hanging));
+			const body = A.flatMap(block.body, (child) => blockLines(walk, child, width - hanging));
 			const head = span(label, callouts[block.kind]);
 			return body.length === 0 ? [[head]] : hang(body, [head, span(" ")], [blank(hanging)]);
 		},
 		CodeBlock: (block): ReadonlyArray<Line> =>
-			textLines(block.text).map((line) => trimLine([span(`    ${line}`)])),
+			A.map(textLines(block.text), (line) => trimLine([span(`    ${line}`)])),
 		Diff: (block): ReadonlyArray<Line> => {
 			const cap = capOf(block.cap);
 			return [
@@ -573,31 +565,29 @@ const blockLines: {
 				...(block.title === undefined
 					? []
 					: [[trimLine(toned(oneLine(inline(walk, block.title)), "emphasis"))]]),
-				...block.children
-					.filter((child) => !isAnnotation(child))
-					.map((child) => blockLines(walk, child, width)),
+				...pipe(block.children, A.filter((child) => !isAnnotation(child)), A.map((child) => blockLines(walk, child, width))),
 			];
-			return groups.flatMap((group, index) => (index === 0 || compact ? group : [[], ...group]));
+			return A.flatMap(groups, (group, index) => (index === 0 || compact ? group : [[], ...group]));
 		},
 		Counts: (block): ReadonlyArray<Line> => countsLines(walk, block),
 		Verbatim: (block): ReadonlyArray<Line> => {
 			// Kept exactly: sanitized line by line, indented, and never wrapped or cut.
 			const indent = " ".repeat(Math.max(0, Math.floor(block.indent ?? 0)));
-			return textLines(block.text).map((line) => [{ text: `${indent}${line}`, hold: true }]);
+			return A.map(textLines(block.text), (line) => [{ text: `${indent}${line}`, hold: true }]);
 		},
 		Annotation: (): ReadonlyArray<Line> => [],
 		CountsTable: (block): ReadonlyArray<Line> => tableLines(walk, countsTableOf(block), width),
 		Lines: (block): ReadonlyArray<Line> =>
-			block.lines.flatMap((entry): ReadonlyArray<Line> => {
+			A.flatMap(block.lines, (entry): ReadonlyArray<Line> => {
 				const spans = inline(walk, entry);
-				return spans.length === 0 ? [[]] : wrapSpans(spans, width, { hardBreak: false }).map(trimLine);
+				return spans.length === 0 ? [[]] : A.map(wrapSpans(spans, width, { hardBreak: false }), trimLine);
 			}),
 		Line: (block): ReadonlyArray<Line> => {
 			const spans = oneLine(inline(walk, block.content));
 			if (block.truncate === true) return [trimLine(truncateSpans(spans, width, walk.ctx.glyphs.ellipsis))];
 			// Kept atomic: one line whatever the width, so a finding stays greppable.
 			if (block.wrap === false) return [trimLine(spans)];
-			return spans.length === 0 ? [[]] : wrapSpans(spans, width, { hardBreak: false }).map(trimLine);
+			return spans.length === 0 ? [[]] : A.map(wrapSpans(spans, width, { hardBreak: false }), trimLine);
 		},
 		DiffText: (block): ReadonlyArray<Line> => {
 			const cap = capOf(block.cap);
@@ -609,7 +599,7 @@ const blockLines: {
 			const cut = (spans: Line): Line =>
 				block.truncate === true ? truncateSpans(spans, width, walk.ctx.glyphs.ellipsis) : spans;
 			return [
-				...shown.map((line) => trimLine(cut([span(line, tone(line))]))),
+				...A.map(shown, (line) => trimLine(cut([span(line, tone(line))]))),
 				...(hidden > 0 ? [[span(`${walk.ctx.glyphs.ellipsis} ${hidden} more lines`, "muted")]] : []),
 			];
 		},
@@ -646,9 +636,7 @@ export const renderDocLines: {
 } = dual(3, (doc: Document, ctx: RenderContext, flavour: Flavour): ReadonlyArray<string> => {
 	const width = Number.isNaN(ctx.width) ? 80 : Math.max(1, ctx.width);
 	const walk: Walk = { ctx, flavour };
-	return doc
-		.flatMap((block) => blockLines(walk, block, width))
-		.map((line) => flavour.finish(trimLine(line), ctx));
+	return pipe(doc, A.flatMap((block) => blockLines(walk, block, width)), A.map((line) => flavour.finish(trimLine(line), ctx)));
 });
 
 /**
@@ -679,5 +667,5 @@ export const renderDoc: {
 	(ctx: RenderContext, flavour: Flavour): (doc: Document) => string;
 	(doc: Document, ctx: RenderContext, flavour: Flavour): string;
 } = dual(3, (doc: Document, ctx: RenderContext, flavour: Flavour): string =>
-	renderDocLines(doc, ctx, flavour).join("\n"),
+	A.join(renderDocLines(doc, ctx, flavour), "\n"),
 );

@@ -1,7 +1,8 @@
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import type { ColorLevel } from "../../env/index.ts";
 import type { NamedColor, Style } from "../Token.ts";
 import * as R from "effect/Record";
+import * as A from "effect/Array";
 
 /** Foreground SGR parameter for each named colour: 30 to 37, then 90 to 97. */
 const NAMED: Readonly<Record<string, number | undefined>> = {
@@ -226,7 +227,4 @@ export const openSequence: {
 } = dual(2, (style: Style, level: ColorLevel): string =>
 	level === "none"
 		? ""
-		: wraps(style, level)
-				.toReversed()
-				.map((wrap) => wrap.open)
-				.join(""));
+		: pipe(wraps(style, level), A.reverse, A.map((wrap) => wrap.open), A.join("")));

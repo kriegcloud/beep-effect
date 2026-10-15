@@ -13,6 +13,7 @@ import { CliInteractive } from "./CliInteractive.ts";
 import { dual } from "effect/Function";
 import { answerWithoutPerson } from "./internal/fallbackAnswer.ts";
 import { WizardDropped } from "./internal/wizardGate.ts";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/cli/CliPrompt");
 
@@ -227,7 +228,7 @@ export abstract class CliPrompt {
       if ((yield* CliInteractive) || !ambient.builtIns.includes(GlobalFlag.Wizard)) return unchanged;
       // The config this produced is recorded, as that exact object, so an audience flag that later makes the run
       // interactive restores the wizard only into this one and never into a config someone else provided.
-      const dropped = CliConfig.make({ builtIns: ambient.builtIns.filter((flag) => flag !== GlobalFlag.Wizard) });
+      const dropped = CliConfig.make({ builtIns: A.filter(ambient.builtIns, (flag) => flag !== GlobalFlag.Wizard) });
       return Context.make(CliConfig.CliConfig, dropped).pipe(Context.add(WizardDropped, dropped));
     }),
   );

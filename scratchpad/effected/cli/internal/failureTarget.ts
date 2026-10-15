@@ -231,7 +231,7 @@ const dropStatus = (content: ReadonlyArray<Inline>): ReadonlyArray<Inline> => {
  * tree label; nothing else in the document carries one.
  */
 const withoutStatus = (doc: Document): Document =>
-	doc.map((block): Block => {
+	A.map(doc, (block): Block => {
 		if (block._tag === "Paragraph") return { ...block, content: dropStatus(block.content) };
 		if (block._tag === "Tree") return { ...block, root: { ...block.root, label: dropStatus(block.root.label) } };
 		return block;
@@ -316,9 +316,9 @@ export const guardConsumerLines = (lines: ReadonlyArray<string>): Effect.Effect<
 		// An agent or a CI gets no escape of any kind (the kit's own output for them is already escape-free); only a person
 		// keeps what the consumer wrote.
 		const noEscapes = target.assumed !== true && (target.ctx.audience === "agent" || target.ctx.audience === "ci");
-		const stripped = noEscapes ? lines.map(sanitize) : lines;
+		const stripped = noEscapes ? A.map(lines, sanitize) : lines;
 		return target.ctx.neutralizeWorkflowCommands === true
-			? stripped.flatMap((line) => CommandNeutralizer.lines(line))
+			? A.flatMap(stripped, (line) => CommandNeutralizer.lines(line))
 			: stripped;
 	});
 

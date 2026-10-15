@@ -205,7 +205,7 @@ export class TestTerminal {
 			layer: Layer.succeed(Terminal.Terminal, terminal),
 			input: (keys) =>
 				offer(
-					keys.map((key) => ({
+					A.map(keys, (key) => ({
 						input: O.none<string>(),
 						key: {
 							name: key.name,
@@ -223,7 +223,7 @@ export class TestTerminal {
 					})),
 				),
 			end: Queue.end(queue).pipe(Effect.asVoid),
-			output: Effect.sync(() => written.join("")),
+			output: Effect.sync(() => A.join(written, "")),
 			pending: Queue.size(queue),
 			reads: Effect.map(Queue.size(queue), (size) => ({ keys: offered - size, lines, subscriptions })),
 		} satisfies TestTerminalHandle;

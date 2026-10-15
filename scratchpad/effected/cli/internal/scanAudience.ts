@@ -2,6 +2,7 @@ import * as S from "effect/Schema";
 import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { AudienceKind } from "../../env/Audience.ts";
+import { pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/cli/internal/scanAudience");
 
@@ -86,9 +87,9 @@ export type AudienceTally = typeof AudienceTally.Type;
 export const tallyAudience = (input: AudienceFlagValues): AudienceTally => {
 	const given: ReadonlyArray<AudienceKind> = [
 		...input.audience,
-		...input.human.filter(Boolean).map((): AudienceKind => "human"),
-		...input.agent.filter(Boolean).map((): AudienceKind => "agent"),
-		...input.ci.filter(Boolean).map((): AudienceKind => "ci"),
+		...pipe(input.human, A.filter(Boolean), A.map((): AudienceKind => "human")),
+		...pipe(input.agent, A.filter(Boolean), A.map((): AudienceKind => "agent")),
+		...pipe(input.ci, A.filter(Boolean), A.map((): AudienceKind => "ci")),
 	];
 	return { given, conflict: given.length > 1 };
 };

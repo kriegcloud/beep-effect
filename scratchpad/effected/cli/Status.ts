@@ -219,7 +219,7 @@ export class Status<Names extends string> {
 	def(name: Names | CoreStatusName): StatusDef {
 		if (!R.has(this.defs, name)) {
 			throw UnknownStatusError.make({
-				message: `Unknown status "${name}"; this vocabulary has: ${R.keys(this.defs).join(", ")}`,
+				message: `Unknown status "${name}"; this vocabulary has: ${Arr.join(R.keys(this.defs), ", ")}`,
 			});
 		}
 		return this.defs[name];

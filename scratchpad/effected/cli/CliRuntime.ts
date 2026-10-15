@@ -40,6 +40,7 @@ import { isExitCode } from "./internal/isExitCode.ts";
 import { TrustedLine } from "./internal/logSafety.ts";
 import { NotInteractive } from "./NotInteractive.ts";
 import * as P from "effect/Predicate";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/cli/CliRuntime");
 
@@ -472,7 +473,7 @@ export abstract class CliRuntime {
 				Effect.catchCause(Effect.fnUntraced(function* (cause: Cause.Cause<E>): Effect.fn.Return<A, Error> {
 					// An interrupt is not a failure anyone wants rendered, and the default
 					// teardown already maps an interrupt-only cause to 130.
-					if (Cause.hasInterruptsOnly(cause)) return yield* Effect.failCause(Cause.fromReasons<Error>(cause.reasons.filter(Cause.isInterruptReason)));
+					if (Cause.hasInterruptsOnly(cause)) return yield* Effect.failCause(Cause.fromReasons<Error>(A.filter(cause.reasons, Cause.isInterruptReason)));
 
 					const error = Cause.squash(cause);
 

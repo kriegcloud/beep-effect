@@ -367,7 +367,7 @@ export abstract class GitHubMarkdown {
 					TableCell.make({ children: [passthrough(inline(values[index] ?? ""))] }),
 				),
 			});
-		return block(Table.make({ children: [cells(headers), ...rows.map(cells)] }));
+		return block(Table.make({ children: [cells(headers), ...A.map(rows, cells)] }));
 	});
 
 	/**
@@ -437,7 +437,7 @@ export abstract class GitHubMarkdown {
 			: [options: GitHubSchemaTableOptions<RowSchema["fields"]>]
 	): GitHubSchemaTable<RowSchema["Type"]> {
 		const overrides: unknown = options[0]?.columns ?? {};
-		const columns: ReadonlyArray<ColumnRuntime> = R.toEntries(schema.fields).map(([key, field]) => {
+		const columns: ReadonlyArray<ColumnRuntime> = A.map(R.toEntries(schema.fields), ([key, field]) => {
 			const column = P.hasProperty(overrides, key) ? overrides[key] : undefined;
 			const format = P.hasProperty(column, "format") && P.isFunction(column.format) ? column.format : undefined;
 			const header = P.hasProperty(column, "header") && P.isString(column.header) ? column.header : undefined;
@@ -458,12 +458,12 @@ export abstract class GitHubMarkdown {
 				cell: (value: unknown): string => (value === undefined ? "" : project(value)),
 			};
 		});
-		const headers = columns.map((column) => column.header);
+		const headers = A.map(columns, (column) => column.header);
 		return {
 			render: (rows: ReadonlyArray<RowSchema["Type"]>): string =>
 				GitHubMarkdown.table(
 					headers,
-					rows.map((row) => columns.map((column) => column.cell(P.hasProperty(row, column.key) ? row[column.key] : undefined))),
+					A.map(rows, (row) => A.map(columns, (column) => column.cell(P.hasProperty(row, column.key) ? row[column.key] : undefined))),
 				),
 		};
 	}

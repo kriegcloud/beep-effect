@@ -1,4 +1,4 @@
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import type * as Cli from "../index.ts";
 import type { Key } from "ink";
 import * as O from "effect/Option";
@@ -10,6 +10,7 @@ import { KeyName, UiKey } from "./UiKey.ts";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/cli/ui/KeyTable");
 
@@ -243,7 +244,7 @@ export class KeyTable<Action> {
 	 * @since 0.0.0
 	 */
 	static readonly make = <Action>(bindings: ReadonlyArray<Binding<Action>>): KeyTable<Action> =>
-		new KeyTable(bindings.map((binding) => ({ ...binding, keys: binding.keys.map(normalise) })));
+		new KeyTable(A.map(bindings, (binding) => ({ ...binding, keys: A.map(binding.keys, normalise) })));
 
 	/**
 	 * The keys every screen has: Esc cancels with `"escape"` (help: cancel), and Ctrl-C cancels with `"interrupt"`,
@@ -284,7 +285,7 @@ export class KeyTable<Action> {
 	 */
 	readonly match = (key: UiKey): O.Option<Action> => {
 		for (const binding of this.bindings) {
-			if (binding.keys.some(bound(key))) return O.some(binding.action);
+			if (A.some(binding.keys, bound(key))) return O.some(binding.action);
 		}
 		return O.none();
 	};
@@ -315,10 +316,10 @@ export class KeyTable<Action> {
 		const taken = MutableHashSet.empty<string>();
 		const rows: Array<KeyHelpRow> = [];
 		for (const binding of this.bindings) {
-			const live = binding.keys.filter((key) => !MutableHashSet.has(taken, identity(key)));
+			const live = A.filter(binding.keys, (key) => !MutableHashSet.has(taken, identity(key)));
 			for (const key of binding.keys) MutableHashSet.add(taken, identity(key));
 			if (binding.hidden === true || live.length === 0) continue;
-			rows.push({ label: live.map(labelOf(glyphs)).join("/"), help: binding.help });
+			rows.push({ label: pipe(live, A.map(labelOf(glyphs)), A.join("/")), help: binding.help });
 		}
 		return rows;
 	};
@@ -375,7 +376,7 @@ const keysOf: {
 	// By grapheme, not code point: a decomposed é or a ZWJ emoji is one key, and CR LF is one enter.
 	const characters = graphemes(input);
 	if (characters.length <= 1) return single === undefined ? [] : [single];
-	return characters.flatMap((character) => {
+	return A.flatMap(characters, (character) => {
 		const pressed = keyOfCharacter(character);
 		return pressed === undefined ? [] : [pressed];
 	});

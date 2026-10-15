@@ -238,7 +238,7 @@ export interface MultiSelectViewProps<A> extends MultiSelectScreenOptions<A> {
 const flatten = <A>(
 	sections: ReadonlyArray<MultiSelectSection<A>>,
 ): ReadonlyArray<{ readonly section: number; readonly item: MultiSelectItem<A> }> =>
-	sections.flatMap((section, index) => section.items.map((item) => ({ section: index, item })));
+	A.flatMap(sections, (section, index) => A.map(section.items, (item) => ({ section: index, item })));
 
 /** Throws when two items, in any sections, share a key: keys identify rows. */
 const assertUniqueKeys = <A>(sections: ReadonlyArray<MultiSelectSection<A>>): void => {
@@ -260,7 +260,7 @@ const init: {
 ): MultiSelectState<A> => {
 	assertUniqueKeys(sections);
 	const items = flatten(sections);
-	const chosen = HashSet.fromIterable(items.flatMap((entry, index) => (entry.item.selected === true ? [index] : [])));
+	const chosen = HashSet.fromIterable(A.flatMap(items, (entry, index) => (entry.item.selected === true ? [index] : [])));
 	return { sections, chosen, viewport: Viewport.init(items.length, options.height ?? 10), submitted: false };
 });
 
@@ -284,9 +284,9 @@ const step: {
 		Match.when("toggleSection", () => {
 			const section = items[cursor]?.section;
 			if (section === undefined) return state;
-			const members = items.flatMap((entry, index) => (entry.section === section ? [index] : []));
+			const members = A.flatMap(items, (entry, index) => (entry.section === section ? [index] : []));
 			// Any unselected member selects the whole section; a fully selected section is cleared.
-			const fill = members.some((index) => !HashSet.has(state.chosen, index));
+			const fill = A.some(members, (index) => !HashSet.has(state.chosen, index));
 			const chosen = A.reduce(members, state.chosen, fill ? HashSet.add<number> : HashSet.remove<number>);
 			return { ...state, chosen };
 		}),
@@ -295,7 +295,7 @@ const step: {
 });
 
 const selected = <A>(state: MultiSelectState<A>): ReadonlyArray<A> =>
-	flatten(state.sections).flatMap((entry, index) => (HashSet.has(state.chosen, index) ? [entry.item.value] : []));
+	A.flatMap(flatten(state.sections), (entry, index) => (HashSet.has(state.chosen, index) ? [entry.item.value] : []));
 
 /** ↑/↓ shown; the page, home and end moves bound but hidden, so the line names space, a, enter and esc at 80 columns. */
 const KEYS: KeyTable<MultiSelectAction> = KeyTable.make<MultiSelectAction>([
@@ -480,10 +480,10 @@ export abstract class MultiSelect {
 		});
 		const items = flatten(state.sections);
 		// Rows are keyed by the item's own key (unique, checked at init), which is also the React key of the row.
-		const numberOf = MutableHashMap.fromIterable(items.map((entry, index) => [entry.item.key, index] as const));
-		const rows: ReadonlyArray<ViewportRow> = state.sections.flatMap((section) => [
+		const numberOf = MutableHashMap.fromIterable(A.map(items, (entry, index) => [entry.item.key, index] as const));
+		const rows: ReadonlyArray<ViewportRow> = A.flatMap(state.sections, (section) => [
 			{ _tag: "Header" as const, label: section.title },
-			...section.items.map((item) => ({ _tag: "Item" as const, key: item.key })),
+			...A.map(section.items, (item) => ({ _tag: "Item" as const, key: item.key })),
 		]);
 		const on = glyphs.kind === "unicode" ? "◉" : "[x]";
 		const off = glyphs.kind === "unicode" ? "◯" : "[ ]";
