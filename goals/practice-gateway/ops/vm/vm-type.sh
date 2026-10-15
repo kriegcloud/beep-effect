@@ -45,6 +45,12 @@ for ((i = 0; i < ${#text}; i++)); do
     '[') send KEY_LEFTBRACE ;;
     ']') send KEY_RIGHTBRACE ;;
     '~') send KEY_LEFTSHIFT KEY_GRAVE ;;
+    '?') send KEY_LEFTSHIFT KEY_SLASH ;;
+    '#') send KEY_LEFTSHIFT KEY_3 ;;
+    '&') send KEY_LEFTSHIFT KEY_7 ;;
+    '%') send KEY_LEFTSHIFT KEY_5 ;;
+    '@') send KEY_LEFTSHIFT KEY_2 ;;
+    '!') send KEY_LEFTSHIFT KEY_1 ;;
     *) echo "vm-type: unsupported character '$c'" >&2; exit 1 ;;
   esac
 done
