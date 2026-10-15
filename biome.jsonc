@@ -218,7 +218,6 @@
           "level": "warn",
           "options": {
             "allowedEnvVars": [
-              "BEEP_ESLINT_PROFILE",
               "BEEP_NODE_BIN",
               "BEEP_YEET_ADMISSION_LEASE_ID",
               "BEEP_YEET_ADMISSION_WORKLOAD_PATH"

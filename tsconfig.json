@@ -2118,6 +2118,12 @@
       ],
       "@beep/lint-rules/oxlint-docs": [
         "./packages/tooling/policy-pack/lint-rules/src/rules/docs.index.ts"
+      ],
+      "@beep/repo-configs/internal/laws/*": [
+        "./packages/tooling/policy-pack/repo-configs/src/internal/laws/*"
+      ],
+      "@beep/repo-configs/laws/*": [
+        "./packages/tooling/policy-pack/repo-configs/src/laws/*"
       ]
     }
   }

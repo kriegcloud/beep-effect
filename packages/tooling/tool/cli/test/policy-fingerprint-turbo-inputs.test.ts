@@ -278,7 +278,7 @@ describe("policy fingerprint Turbo inputs", { concurrent: false }, () => {
   });
 });
 
-describe("Stage B eslint task inputs", { concurrent: false }, () => {
+describe("Documentation task inputs", { concurrent: false }, () => {
   it.layer(platform, { timeout: "30 seconds" })("native policy hashes", (it) => {
     it.effect(
       "retains replay policy, dependency edges and the nonrecursive root script",
@@ -301,10 +301,10 @@ describe("Stage B eslint task inputs", { concurrent: false }, () => {
         const path = yield* Path.Path;
         const repoRoot = yield* findRepoRoot();
         const config = yield* decodePolicyTasks(yield* fs.readFileString(`${repoRoot}/turbo.json`));
-        const root = yield* fs.makeTempDirectoryScoped({ prefix: "policy-eslint-turbo-" });
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "policy-docs-turbo-" });
         const binary = path.join(repoRoot, "node_modules", ".bin", "turbo");
         yield* writeJson(root, "package.json", {
-          name: "policy-eslint-fixture",
+          name: "policy-docs-fixture",
           private: true,
           packageManager: "bun@1.4.2",
           workspaces: ["packages/*", "packages/tooling/policy-pack/*"],
@@ -339,11 +339,11 @@ describe("Stage B eslint task inputs", { concurrent: false }, () => {
           "apps/labs/probe/check.ts",
           "packages/probe/.context/check.ts",
           "infra/standalone/check.ts",
-          "packages/tooling/policy-pack/repo-configs/src/eslint/rule.ts",
-          "packages/tooling/policy-pack/repo-configs/src/internal/eslint/helper.ts",
+          "packages/tooling/policy-pack/repo-configs/src/laws/rule.ts",
+          "packages/tooling/policy-pack/repo-configs/src/internal/laws/helper.ts",
         ];
         yield* Effect.forEach(sourceFiles, (file) => writeFile(root, file, "export const value = 1;\n"));
-        yield* writeFile(root, "eslint.config.mjs", "export default [];\n");
+        yield* writeFile(root, ".oxlintrc.docs.json", "{}\n");
         yield* writeFile(root, ".oxlintrc.deprecated-apis.jsonc", "{}\n");
         yield* writeFile(root, "tsdoc.json", "{}\n");
         yield* writeFile(root, "tsconfig.proof.json", "{}\n");
@@ -389,11 +389,10 @@ describe("Stage B eslint task inputs", { concurrent: false }, () => {
         yield* assertMutation("tsconfig.proof.json", [true, false, false]);
         yield* Effect.forEach(
           [
-            "eslint.config.mjs",
             ".oxlintrc.deprecated-apis.jsonc",
             "tsdoc.json",
-            "packages/tooling/policy-pack/repo-configs/src/eslint/rule.ts",
-            "packages/tooling/policy-pack/repo-configs/src/internal/eslint/helper.ts",
+            "packages/tooling/policy-pack/repo-configs/src/laws/rule.ts",
+            "packages/tooling/policy-pack/repo-configs/src/internal/laws/helper.ts",
             "packages/helper/src/index.ts",
           ],
           (file) => assertMutation(file, [true, true, true])
