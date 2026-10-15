@@ -69,7 +69,7 @@ export const openClaude = Effect.fn("AiProviderCliSession.openClaude")(function*
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const crypto = yield* Crypto.Crypto;
-  const sessionId = yield* crypto.randomUUIDv4.pipe(transportFailure("session-id"));
+  const sessionId = yield* crypto.randomUUIDv4().pipe(transportFailure("session-id"));
   const tools = R.fromEntries(
     A.map(profile.tools, (tool) => [tool.name, { command: tool.command, args: tool.args, env: tool.env }])
   );
