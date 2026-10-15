@@ -121,3 +121,16 @@ NOT FOUND:
   pane painting is unproven.
 - **Public repo.** Spikes use non-client test files only. Client PDFs uploaded as artifact assets
   would reach everyone the artifact is shared with.
+
+## 2026-10-14 — re-entry: in-repo bricks for the question loop
+
+| Need | Existing capability | Status |
+| --- | --- | --- |
+| Notice a reply in a tracked thread | docket-intake reads the attorney mailbox through Graph and carries `conversationId` (`packages/law-practice/server/src/DocketIntake/DocketIntake.graph.ts`, `packages/law-practice/use-cases/src/DocketIntake/DocketIntake.schemas.ts`). It runs every 5 minutes as a systemd user unit (`docs/runbooks/practice-services.md`). | EXISTS |
+| Apply calendar writes, journaled and reversible | The docket-intake calendar adapter with its run journal and undo (`DocketIntake.journal.ts`, `DocketIntake.undo.ts` in `packages/law-practice/server/src/DocketIntake/`). | EXISTS |
+| Send a notice email, create or update an event | The m365 outbox MCP tools (`packages/drivers/m365-mcp/src/OutboxTools.ts`): drafts, an exact-match send, `create_event` / `update_event`. They send as the configured attorney mailbox. | EXISTS |
+| Show the item to the attorney | `practice-claude-mod` P1b review queue (gated, D15), over the `review-verdict-envelope` `ReviewItem` / `VerdictRow` (PR #1761). | EXISTS (gated) |
+| A question item, its answer states, and the resurface date | none | NET-NEW |
+| Pick today's digest: open, keep-reminding, and pending items whose resurface date has passed | none | NET-NEW |
+| Turn decided answers into a proposed write batch the operator approves | The journal and undo shape exists; the proposal and approval step does not. | NET-NEW (on existing bricks) |
+| Interpret a free-text email reply | `practice-kg-mcp` tools plus headless `claude -p` through CLIProxyAPI. The output is always a needs-review proposal. | EXISTS (wiring NET-NEW), gated by D-question 2 |

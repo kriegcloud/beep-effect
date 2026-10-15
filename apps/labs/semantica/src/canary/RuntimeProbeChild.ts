@@ -16,6 +16,7 @@ import { RunId } from "@/schema/Ids";
 import { CrashProjectionInput } from "@/schema/Reasoning";
 import { Ledger } from "@/services/Ledger";
 import { RdfProjection } from "@/services/RdfProjection";
+import { LedgerLiveOptions } from "../layers/LedgerLive.ts";
 
 const decodeCrashProjectionInput = S.decodeEffect(S.fromJsonString(CrashProjectionInput));
 
@@ -41,7 +42,9 @@ const bundleProbe = Effect.gen(function* () {
 });
 
 const makeProvideServices = (ledgerRoot: string, runtimeMode: typeof RuntimeMode.Type, runId: RunId) => {
-  const ledgerLayer = LedgerLive({ ledgerRoot, mode: runtimeMode, runId }).pipe(Layer.provide(BunServices.layer));
+  const ledgerLayer = LedgerLive(LedgerLiveOptions.make({ ledgerRoot, mode: runtimeMode, runId })).pipe(
+    Layer.provide(BunServices.layer)
+  );
   const rdfLayer = RdfProjectionLive.pipe(Layer.provide(OxigraphSparqlQueryServiceLive), Layer.provide(LabConfigLive));
   const services = Layer.merge(ledgerLayer, rdfLayer).pipe(Layer.provide(BunServices.layer));
   return <A2, E, R>(effect: Effect.Effect<A2, E, R>) =>

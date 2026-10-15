@@ -1359,6 +1359,28 @@
       "description": "Expected successful parse or declared typed degradation for an F1 fixture."
     },
     {
+      "file": "apps/labs/semantica/src/layers/CanaryC2Live.ts",
+      "symbol": "sealC2EvalReport",
+      "kind": "struct-const",
+      "owner": "@beep/semantica"
+    },
+    {
+      "file": "apps/labs/semantica/src/layers/LedgerLive.ts",
+      "symbol": "LedgerLiveOptions",
+      "kind": "struct-const",
+      "owner": "@beep/semantica",
+      "identity": "LedgerLiveOptions",
+      "description": "Filesystem root and execution identity for one isolated PGlite ledger."
+    },
+    {
+      "file": "apps/labs/semantica/src/runtime/Config.ts",
+      "symbol": "LabConfigValue",
+      "kind": "struct-const",
+      "owner": "@beep/semantica",
+      "identity": "LabConfigValue",
+      "description": "Environment-decoded configuration used by the headless Semantica runtime."
+    },
+    {
       "file": "apps/labs/semantica/src/runtime/Config.ts",
       "symbol": "RuntimeMode",
       "kind": "literal-kit",
@@ -2191,12 +2213,6 @@
       "description": "A mod engine call rejected."
     },
     {
-      "file": "apps/practice-claude-mod/src/PracticeMod.matters.ts",
-      "symbol": "decodeMatterLookup",
-      "kind": "codec",
-      "owner": "@beep/practice-claude-mod"
-    },
-    {
       "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
       "symbol": "ChosenMatter",
       "kind": "struct-const",
@@ -2229,28 +2245,12 @@
       "description": "One explicit timer interval, one line of the local timer log."
     },
     {
-      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
-      "symbol": "Verdict",
-      "kind": "literal-kit",
-      "owner": "@beep/practice-claude-mod",
-      "identity": "Verdict",
-      "description": "The attorney's judgement of one answer."
-    },
-    {
-      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
-      "symbol": "VerdictRow",
-      "kind": "struct-const",
-      "owner": "@beep/practice-claude-mod",
-      "identity": "VerdictRow",
-      "description": "One append-only verdict revision on one reviewed item."
-    },
-    {
       "file": "apps/practice-claude-mod/src/PracticeMod.verdicts.ts",
       "symbol": "VerdictInput",
       "kind": "struct-const",
       "owner": "@beep/practice-claude-mod",
       "identity": "VerdictInput",
-      "description": "A verdict (or an undo when none) and an optional note on one answer."
+      "description": "A verdict (withdrawn for undo) and an optional note on one answer."
     },
     {
       "file": "apps/practice-claude-mod/src/build-plugin.ts",
@@ -17089,6 +17089,352 @@
       "description": "Deterministic summary of one profiled phase."
     },
     {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "CatalogConflict",
+      "kind": "tagged-union",
+      "owner": "@beep/observability",
+      "identity": "CatalogConflict",
+      "description": "Conflict found while merging instrument declarations into a catalog."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "DuplicateAttributeKey",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "DuplicateAttributeKey"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "DuplicateInstrumentName",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "DuplicateInstrumentName"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "MissingAttributeKey",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "MissingAttributeKey"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "SignalNotAllowed",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "SignalNotAllowed"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "TierLooserThanAttribute",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "TierLooserThanAttribute"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "UnboundedMetricLabel",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "UnboundedMetricLabel"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "AttributeValueType",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "AttributeValueType",
+      "description": "OpenTelemetry attribute value type carried by an attribute key."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "CardinalityClass",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "CardinalityClass",
+      "description": "Cardinality class of an attribute value space; metric labels accept static and bounded only."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "IdentitySource",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "IdentitySource",
+      "description": "Whether an emitter identity was vouched for by a trusted stamp or self-claimed."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "InstrumentOrigin",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "InstrumentOrigin",
+      "description": "Whether a span entry was harvested from source literals or declared by hand."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "MetricKind",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "MetricKind",
+      "description": "Metric instrument kind."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "PackageFamily",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "PackageFamily",
+      "description": "Repository package family, derived from the owning package path."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "SignalKind",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "SignalKind",
+      "description": "Telemetry signal kind: span, metric, event or log."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "SpanKind",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "SpanKind",
+      "description": "OpenTelemetry span kind."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "TelemetryTier",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "TelemetryTier",
+      "description": "Privacy tier of a telemetry record, ordered strictest first."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "AttributeKey",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "AttributeKey",
+      "description": "Attribute key declaration: value type, allowed signals, cardinality and strictest allowed tier."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Browser",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "Browser",
+      "description": "Browser emitter; tier ceiling shape-only."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "CiRunner",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "CiRunner",
+      "description": "CI runner emitter; tier ceiling standard."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "CloudVm",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "CloudVm",
+      "description": "Cloud virtual machine emitter; tier ceiling standard."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "EmitterContext",
+      "kind": "tagged-union",
+      "owner": "@beep/observability",
+      "identity": "EmitterContext",
+      "description": "Where a telemetry record ran, with its identity source; each variant implies a tier ceiling."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "EventInstrument",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "EventInstrument",
+      "description": "Event instrument declaration."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Instrument",
+      "kind": "tagged-union",
+      "owner": "@beep/observability",
+      "identity": "Instrument",
+      "description": "Catalog instrument: a metric, span or event declaration."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "InstrumentCatalog",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "InstrumentCatalog",
+      "description": "Merged instrument catalog, checked for name, attribute, cardinality and tier conflicts."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "InstrumentCatalogContent",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "InstrumentCatalogContent",
+      "description": "Attribute keys and instruments before the catalog conflict checks run."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "InstrumentDeclarations",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "InstrumentDeclarations",
+      "description": "One package's attribute key and instrument declarations."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "MetricInstrument",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "MetricInstrument",
+      "description": "Metric instrument declaration with kind, UCUM unit and optional histogram boundaries."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Server",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "Server",
+      "description": "Long-running server emitter; tier ceiling standard."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Serverless",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "Serverless",
+      "description": "Serverless function emitter; tier ceiling standard."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "SpanInstrument",
+      "kind": "union",
+      "owner": "@beep/observability",
+      "identity": "SpanInstrument",
+      "description": "Span instrument entry, harvested from source or declared by hand."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "SpanOwner",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "SpanOwner",
+      "description": "Package and package family that own a span name."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "StrictDesktop",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "StrictDesktop",
+      "description": "Strict-tier desktop emitter whose host the gateway stamps; tier ceiling shape-only."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Workstation",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "Workstation",
+      "description": "Developer workstation emitter; tier ceiling dev-verbose."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "AttributeKeyName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "AttributeKeyName",
+      "description": "Static lowercase dotted attribute key."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "CloudProviderName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "CloudProviderName",
+      "description": "Semantic-convention cloud.provider token."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "EventName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "EventName",
+      "description": "Static event name in Concept.event_happened form."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "HostName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "HostName",
+      "description": "DNS-style host name reported by an emitter."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "InstrumentName",
+      "kind": "union",
+      "owner": "@beep/observability",
+      "identity": "InstrumentName",
+      "description": "Name of any catalog instrument."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "MetricName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "MetricName",
+      "description": "Static metric name in beep.<area>.<noun> form."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "PackageName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "PackageName",
+      "description": "Scoped package name that owns a catalog entry."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "ProtocolSpanName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "ProtocolSpanName",
+      "description": "Semantic-convention span name, allowed only on protocol spans."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "SpanName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "SpanName",
+      "description": "Static span name in Concept(.Sub)*.action form."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "UcumUnit",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "UcumUnit",
+      "description": "UCUM unit code of a metric instrument."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "VcsRevision",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "VcsRevision",
+      "description": "Commit revision a CI run built."
+    },
+    {
       "file": "packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts",
       "symbol": "DevToolsSnapshot",
       "kind": "struct-const",
@@ -17496,7 +17842,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "EdgeSet",
-      "description": "Canonically ordered visible, hidden, shading, and broken-line projected segments of one view."
+      "description": "Canonically ordered visible, hidden, shading, broken-line, and emphasis projected segments of one view."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17520,7 +17866,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "ModelSpec",
-      "description": "Compound of named parts built from primitives."
+      "description": "Compound of named parts built from primitives, plus authored overlay lines."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17529,6 +17875,22 @@
       "owner": "@beep/technical-drawing",
       "identity": "ModelSummary",
       "description": "Bounding box, volume, topology counts, and part-overlap count of a built model."
+    },
+    {
+      "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
+      "symbol": "OverlayLine",
+      "kind": "struct-const",
+      "owner": "@beep/technical-drawing",
+      "identity": "OverlayLine",
+      "description": "Authored open 3D polyline drawn as an emphasis or broken line, culled by an optional face normal and lifted off its face."
+    },
+    {
+      "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
+      "symbol": "OverlayStyle",
+      "kind": "literal-kit",
+      "owner": "@beep/technical-drawing",
+      "identity": "OverlayStyle",
+      "description": "Line class of an overlay line: emphasis (heavier than outlines) or broken (dashed, unclaimed, 37 CFR 1.152)."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17584,7 +17946,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "ShadingCoverage",
-      "description": "Faces of one view given shading lines, faces skipped per reason, and faces whose lines were all lost after hidden-line removal."
+      "description": "Faces of one view given shading lines, faces skipped per reason, faces whose lines were all lost after hidden-line removal, and planned stretches that drew nothing."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17864,7 +18226,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "SheetOptions",
-      "description": "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render."
+      "description": "Page format, margin standard, stroke, shading and emphasis widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/TechnicalDrawing.errors.ts",
@@ -29399,6 +29761,14 @@
       "description": "A portable, host-agnostic locator for a citation, in the style of W3C Web Annotation selectors."
     },
     {
+      "file": "packages/law-practice/domain/src/values/DurableLocator/DurableLocator.model.ts",
+      "symbol": "TextQuote",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "TextQuote",
+      "description": "W3C TextQuoteSelector: the exact quoted text with optional prefix and suffix context."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/DurableLocatorOptions/DurableLocatorOptions.model.ts",
       "symbol": "DurableLocatorOptions",
       "kind": "tagged-union",
@@ -30318,6 +30688,22 @@
       "description": "Restatement citation: secondary authority published by the American Law Institute (#578)."
     },
     {
+      "file": "packages/law-practice/domain/src/values/ReviewItem/ReviewItem.model.ts",
+      "symbol": "ReviewItem",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ReviewItem",
+      "description": "One piece of agent work awaiting the attorney's verdict, discriminated on its kind."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ReviewItem/ReviewItem.model.ts",
+      "symbol": "ReviewItemKind",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ReviewItemKind",
+      "description": "Kinds of agent work product that reach the attorney review queue."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/Segment/Segment.model.ts",
       "symbol": "Segment",
       "kind": "struct-const",
@@ -30364,6 +30750,30 @@
       "owner": "@beep/law-practice-domain",
       "identity": "SourceNormRef",
       "description": "Opaque reference to the norm that prescribes a legal position or role."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/SourceRef/SourceRef.model.ts",
+      "symbol": "PageCrop",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "PageCrop",
+      "description": "A pre-rendered, size-bounded image of the passage region on one page."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/SourceRef/SourceRef.model.ts",
+      "symbol": "PageCropMimeType",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "PageCropMimeType",
+      "description": "Image formats a pre-rendered page crop may carry."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/SourceRef/SourceRef.model.ts",
+      "symbol": "SourceRef",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "SourceRef",
+      "description": "Where a review item's evidence lives: a Box file, an optional page, the quote, and an optional crop."
     },
     {
       "file": "packages/law-practice/domain/src/values/Span/Span.model.ts",
@@ -30460,6 +30870,22 @@
       "owner": "@beep/law-practice-domain",
       "identity": "TreatyCitation",
       "description": "Treaty-series citation (#309): T.I.A.S. No. 1502, 1155 U.N.T.S. 331."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/VerdictRow/VerdictRow.model.ts",
+      "symbol": "Verdict",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "Verdict",
+      "description": "The attorney's judgement of a review item: right, wrong, partly right, or withdrawn (no current judgement)."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/VerdictRow/VerdictRow.model.ts",
+      "symbol": "VerdictRow",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "VerdictRow",
+      "description": "One append-only entry in the attorney's verdict log for a review item."
     },
     {
       "file": "packages/law-practice/server/src/CandorPromotionGate/CandorPromotionGate.ports.ts",
@@ -33245,6 +33671,57 @@
       "file": "packages/law-practice/use-cases/src/PracticeKg.tools.ts",
       "symbol": "practiceKgMatterFieldTiers",
       "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictBatchEmptyError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictBatchEmptyError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictBatchLockedError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictBatchLockedError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictLogError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictLogError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictLogOperation",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictLogOperation",
+      "description": "Verdict-log store operation that failed: reading the rows or appending one."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.ports.ts",
+      "symbol": "RecordVerdictInput",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "RecordVerdictInput",
+      "description": "The attorney's verdict on one review item, before the queue assigns its revision and timestamp."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/VerdictProjector/VerdictProjector.schemas.ts",
+      "symbol": "ClaimDispositionProjection",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ClaimDispositionProjection",
+      "description": "The disposition an attorney's final verdict implies for one candidate claim, before persistence."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/internal/DefectCause.ts",
+      "symbol": "DefectCause",
+      "kind": "schema-const",
       "owner": "@beep/law-practice-use-cases"
     },
     {
@@ -41181,7 +41658,7 @@
       "kind": "struct-const",
       "owner": "@beep/repo-cli",
       "identity": "MakeMirrorSyncProgramOpts",
-      "description": ""
+      "description": "Options for syncing a local AI metrics mirror bundle to a remote host."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/AIMetrics/internal/Programs.ts",
@@ -41867,6 +42344,14 @@
       "owner": "@beep/repo-cli",
       "identity": "RouterErrorCode",
       "description": "Failure classification for transactional routing and enrollment checks."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.store.ts",
+      "symbol": "AgentMessageStoreLimits",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "AgentMessageStoreLimits",
+      "description": "Queue limits for a file-backed agent-message store."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.tools.ts",
@@ -45673,6 +46158,134 @@
       "description": "A section of documentation."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticCategory",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticCategory",
+      "description": "Convention family of a finding."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticFinding",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticFinding",
+      "description": "Id, relation, severity, scope, category, figures, location, basis, observation, fix, and confidence."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticFindingRelation",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticFindingRelation",
+      "description": "new, or extends an earlier finding by id."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticFindingScope",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticFindingScope",
+      "description": "this-render, or pending-branch for items the brief defers."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticLoopRecord",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticLoopRecord",
+      "description": "Loop number, sheet-set hash, and runs of one loop."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticPackManifest",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticPackManifest",
+      "description": "Hashes and pack-relative files of a critic pack."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticPriorAssessment",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticPriorAssessment",
+      "description": "Stance and note on one earlier finding."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticPriorStance",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticPriorStance",
+      "description": "confirm (measured and agree), refute (say what was measured), or cannot-verify."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticRelationKind",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticRelationKind",
+      "description": "new, or extends an earlier finding of this loop."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticReport",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticReport",
+      "description": "Reviewer, verdict, blockers, assessment of earlier findings, findings, and what could not be assessed."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticReviewer",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticReviewer",
+      "description": "Name, id prefix, route, model, effort, and scope of one reviewer."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticRoute",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticRoute",
+      "description": "The CLI a reviewer runs on: codex exec, the grok CLI, claude -p, or cursor-agent."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticRunRecord",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticRunRecord",
+      "description": "Order, reviewer, exit code, report file, hash, count, and times of one run."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticScope",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticScope",
+      "description": "matter: the reviewer sees the matter pack; synthetic: only the public synthetic pack and the repo."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticVerdict",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticVerdict",
+      "description": "accept, accept-with-fixes, or reject."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticZoom",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticZoom",
+      "description": "Figure, label, and crop rectangle of a 300 dpi zoom."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.errors.ts",
       "symbol": "DrawingIntakeError",
       "kind": "tagged-error",
@@ -48755,6 +49368,13 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts",
+      "symbol": "KnowledgeMintContextRefusal",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeMintContextRefusal"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/Knowledge.errors.ts",
       "symbol": "KnowledgeMintRefusal",
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
@@ -49324,6 +49944,46 @@
       "owner": "@beep/repo-cli"
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.mint.ts",
+      "symbol": "KnowledgeDoctorCiMode",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorCiMode",
+      "description": "Quality-lane mode of the knowledge doctor: read-only report or the sealed-baseline gate."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.mint.ts",
+      "symbol": "KnowledgeDoctorCiModeInput",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorCiModeInput",
+      "description": "Whether the merge-base tracks the sealed baseline, and the paths the branch changes."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.mint.ts",
+      "symbol": "KnowledgeMintOutcome",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeMintOutcome",
+      "description": "One mint's baseline, its canonical file text, and whether it changes the committed baseline."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.mint.ts",
+      "symbol": "KnowledgeMintPullRequest",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeMintPullRequest",
+      "description": "Head branch, head and base repositories, author, and the mint App slug of one pull-request run."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.mint.ts",
+      "symbol": "KnowledgeMintWriteContext",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeMintWriteContext",
+      "description": "CI flag, clean checkout, HEAD identity, and base containment of one mint write."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.schemas.ts",
       "symbol": "CommandNodeWitness",
       "kind": "tagged-struct",
@@ -49678,6 +50338,14 @@
       "owner": "@beep/repo-cli",
       "identity": "KnowledgeDoctorLeasesOptions",
       "description": "Base ref and instant of one knowledge-doctor lease listing."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.service.ts",
+      "symbol": "KnowledgeDoctorMintOptions",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "KnowledgeDoctorMintOptions",
+      "description": "Minted commit-ish, the base ref that must contain it, and whether the run writes the baseline."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Labs/Labs.command.ts",
@@ -50222,6 +50890,13 @@
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
       "identity": "LintFileDiscoveryError"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts",
+      "symbol": "LintProgramAssignmentError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "LintProgramAssignmentError"
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts",
@@ -51119,6 +51794,117 @@
       "owner": "@beep/repo-cli",
       "identity": "ModelsCheckOptions",
       "description": "Both trees, the manifest path, and the offline flag one check run executes under."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.errors.ts",
+      "symbol": "ObservabilityCommandError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "ObservabilityCommandError"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "CatalogBuild",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CatalogBuild",
+      "description": "Generated catalog document plus the rendered conflicts its merge reported."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "CatalogRunMode",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CatalogRunMode",
+      "description": "Whether the catalog command wrote or checked the generated files."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "CatalogRunReport",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CatalogRunReport",
+      "description": "Outcome of one instrumentation catalog write or check run."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "DeclarationsFile",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "DeclarationsFile",
+      "description": "Instrument declarations exported by one *.instruments.ts file."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "FamilySpanCount",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "FamilySpanCount",
+      "description": "Harvested span count and conforming span count for one package family."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "GeneratedFileStatus",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GeneratedFileStatus",
+      "description": "Whether a generated file was current, rewritten, stale or missing."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "HarvestedSpan",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "HarvestedSpan",
+      "description": "Generated span section row: harvested name, owning package, family and conformance."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "InstrumentationCatalogDocument",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "InstrumentationCatalogDocument",
+      "description": "Generated instrumentation catalog: declared attributes and instruments plus the harvested span section."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanCallee",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanCallee",
+      "description": "Effect call whose name argument opens a span."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanHarvest",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanHarvest",
+      "description": "Literal span sites and non-literal span-name findings from one scan."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanNameFinding",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanNameFinding",
+      "description": "Span-name argument that is interpolated or otherwise not a static literal."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanNameFindingKind",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanNameFindingKind",
+      "description": "Why a span-name argument is not a static literal."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanSite",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanSite",
+      "description": "Literal span name found at one source location."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts",
@@ -53533,6 +54319,76 @@
       "description": "One starred repository row returned by the GitHub API."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerErrors.ts",
+      "symbol": "ReviewerError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerError",
+      "description": "A sanitized reviewer operation failure."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerAnnotation",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerAnnotation",
+      "description": "A GitHub Check Run line annotation."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerChangedFile",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerChangedFile",
+      "description": "A changed PR path including a rename source."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerCredentials",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerCredentials",
+      "description": "GitHub App identity and redacted signing key."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerInlineComment",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerInlineComment",
+      "description": "A diff-anchored review comment."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerInstallationToken",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerInstallationToken",
+      "description": "Redacted installation access token and expiry."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerResult",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerResult",
+      "description": "Reviewer check completion input."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerReview",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "ReviewerReview",
+      "description": "Input for a COMMENT-only GitHub review."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "reviewerWire",
+      "kind": "codec",
+      "owner": "@beep/repo-cli"
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Runners/Runners.errors.ts",
       "symbol": "RunnersCommandError",
       "kind": "tagged-error",
@@ -53649,6 +54505,54 @@
       "owner": "@beep/repo-cli",
       "identity": "BakeLocalInputs",
       "description": "Repository root, revision, lock digest, Bun archive digest, and Bun version used by a bake."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ClaudeContinuityInput",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "ClaudeContinuityInput",
+      "description": "Operator-selected app/transcript pair and chosen Claude permission mode."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ContinuityInput",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "ContinuityInput",
+      "description": "Explicit files and expected policies for a read-only permission census."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ContinuityObservation",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "ContinuityObservation",
+      "description": "Sanitized effective-policy comparison for one thread, family member, app session or config."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ContinuityRoute",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "ContinuityRoute",
+      "description": "The launch or continuation route exercised by a disposable fixture."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ContinuityVerdict",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "ContinuityVerdict",
+      "description": "Agreement, disagreement, or incomplete evidence in a metadata census."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "PermissionTuple",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "PermissionTuple",
+      "description": "Effective approval, sandbox and permission profile recorded by a Codex turn."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Session/Register.schemas.ts",
@@ -53879,6 +54783,21 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillPatchRefusal",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchRefusal"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillPatchRefusalReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchRefusalReason",
+      "description": "Why a patch-series write refused: no such vendored entry, no single hand edit, or an unsafe write."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
       "symbol": "SkillRelockRefusal",
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
@@ -53891,6 +54810,21 @@
       "owner": "@beep/repo-cli",
       "identity": "SkillRelockRefusalReason",
       "description": "Why skills relock refused: no such vendored entry, an unclean replay, or a changed license."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillReviewRefusal",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewRefusal"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillReviewRefusalReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewRefusalReason",
+      "description": "Why skills review refused an answer: it does not fit the item or names no single queued hunk."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
@@ -54366,6 +55300,54 @@
       "description": "An install target's state against the verified effective tree."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchAddReceipt",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchAddReceipt",
+      "description": "A digest-sealed plan that turns a hand edit of vendored output into new patches, and its outcome."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchLabelChange",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchLabelChange",
+      "description": "A patch whose lock label moves to the label its ledger classifications agree on."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchLabelPending",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchLabelPending",
+      "description": "A patch that keeps its current label and why."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchLabelPendingReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchLabelPendingReason",
+      "description": "Why a patch keeps its label: unclassified hunks, disagreeing labels, or a dropped hunk."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchLabelReceipt",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchLabelReceipt",
+      "description": "A digest-sealed plan that moves patch labels to the ledger's classifications, and its outcome."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchPlanOutcome",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchPlanOutcome",
+      "description": "Whether a patch-series command only planned, wrote, or found the lock already current."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
       "symbol": "SkillHunkReport",
       "kind": "struct-const",
@@ -54452,6 +55434,142 @@
       "owner": "@beep/repo-cli",
       "identity": "SkillTrainPullRequests",
       "description": "Open skill-update pull requests as gh pr list --json returns them."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillHunkDecision",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillHunkDecision",
+      "description": "A reviewer's decision on one hunk: keep, drop, rebase onto the new pin, or promotion candidate."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillHunkDecisionOrigin",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillHunkDecisionOrigin",
+      "description": "Whether a ledger row was answered in a session or replayed from an earlier identical hunk."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillHunkLedgerRow",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillHunkLedgerRow",
+      "description": "One append-only hunk decision keyed by old and new revision, patch-set hash, and hunk hash."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillPatchHunk",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchHunk",
+      "description": "One hunk of a patch file with its position-free identity and its reviewable text."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewAnswer",
+      "kind": "union",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewAnswer",
+      "description": "A reviewer's answer to one queued hunk: decide, skip, or quit the session."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewDecide",
+      "kind": "tagged-struct",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewDecide",
+      "description": "An answer that records a decision, with a patch label when it classifies."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewItem",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewItem",
+      "description": "One undecided hunk: its ledger key, replay outcome, two-strike flag, ghost proposal, and text."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewItemKind",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewItemKind",
+      "description": "Whether a queued hunk awaits a conflict decision or its first classification."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewOptions",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewOptions",
+      "description": "Options for one skills review run: scope, write mode, ghost replay, reviewer, and time budget."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewQuit",
+      "kind": "tagged-struct",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewQuit",
+      "description": "An answer that ends the session; decisions already recorded stay in the ledger."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewScript",
+      "kind": "schema-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewScript",
+      "description": "Scripted review answers keyed by hunk identity."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewScriptEntry",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewScriptEntry",
+      "description": "A scripted review answer keyed by a hunk identity or a unique 12+ character prefix."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewSession",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewSession",
+      "description": "One review run: rows it recorded, hunks still queued, and each skill's state."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewSkill",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewSkill",
+      "description": "A reviewed skill's base and current pins, its state, and its undecided hunk count."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewSkillState",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewSkillState",
+      "description": "Whether a skill had nothing queued, is fully decided, or still has undecided hunks."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewSkip",
+      "kind": "tagged-struct",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewSkip",
+      "description": "An answer that leaves the hunk queued."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewStop",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewStop",
+      "description": "Why a review session stopped: listing only, empty queue, spent budget, or the reviewer quit."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/internal/DiffLines.ts",
@@ -57681,7 +58799,7 @@
       "kind": "struct-const",
       "owner": "@beep/repo-cli",
       "identity": "YeetRetireSweepPlan",
-      "description": "Dry-run document for a retirement: the lane plan, why it would be refused if at all, the touched packets still active, and the owning clone's sweep plan."
+      "description": "Dry-run document for a retirement: the lane plan, the gate's verdict (why it proceeds or is refused), the touched packets still active, and the owning clone's sweep plan."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/Retire.schemas.ts",
@@ -57689,7 +58807,15 @@
       "kind": "struct-const",
       "owner": "@beep/repo-cli",
       "identity": "YeetRetireSweepReport",
-      "description": "Result document for a retirement: the lane plan, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report."
+      "description": "Result document for a retirement: the lane plan, the verdict that opened the gate, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/Retire.schemas.ts",
+      "symbol": "YeetRetireVerdict",
+      "kind": "tagged-union",
+      "owner": "@beep/repo-cli",
+      "identity": "YeetRetireVerdict",
+      "description": "The retirement gate's decision for a lane: its pull request is MERGED, its pull-request-less tip is already on the remote main branch with a clean tree, or the first reason it is refused."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/ReviewBodySignal.ts",

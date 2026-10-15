@@ -151,15 +151,21 @@ const ClaimElementTreeCoherenceCheck = S.makeFilter(
                 `Antecedent introducing term ${introducing.path} is in a claim later than claim ${claim}.`,
               ],
             ]),
-          functional: ({ element, parts }) =>
+          functional: (functional) =>
             firstViolation([
               [
-                O.exists(elementAt(element), ({ kind }) => ClaimElementKind.is["functional-relation"](kind)),
-                `Functional edge element ${element} is not a functional-relation element of claim ${claim}.`,
+                O.exists(elementAt(functional.element), ({ kind }) => ClaimElementKind.is["functional-relation"](kind)),
+                `Functional edge element ${functional.element} is not a functional-relation element of claim ${claim}.`,
               ],
               [
-                O.exists(elementAt(element), (owner) => A.every(connectingTextOf(parts), anchorWithin(owner.anchor))),
-                `Functional edge connecting text lies outside element ${element}.`,
+                O.exists(elementAt(functional.element), (owner) =>
+                  A.every(connectingTextOf(functional.parts), anchorWithin(owner.anchor))
+                ),
+                `Functional edge connecting text lies outside element ${functional.element}.`,
+              ],
+              [
+                A.every(termRefsOf(functional), ({ path }) => path === functional.element),
+                `Functional edge term parts must be terms of element ${functional.element}.`,
               ],
             ]),
         })
@@ -224,7 +230,7 @@ const ClaimElementTreeCoherenceCheck = S.makeFilter(
     identifier: $I`ClaimElementTreeCoherenceCheck`,
     title: "Coherent claim-element tree",
     description:
-      "Element paths are unique and rooted at the tree's claim number; every claim-local edge endpoint and term reference names an element and term of the tree; terms lie inside their element's span and do not overlap; part-of nests within the claim; dependencies and introductions point to earlier claims; functional edges read from functional-relation elements whose span holds their connecting text.",
+      "Element paths are unique and rooted at the tree's claim number; every claim-local edge endpoint and term reference names an element and term of the tree; terms lie inside their element's span and do not overlap; part-of nests within the claim; dependencies and introductions point to earlier claims; functional edges read from functional-relation elements whose span holds their connecting text and whose terms are their term parts.",
   }
 );
 

@@ -1351,6 +1351,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
         "fleet-shadow-check.yml:Shadow Probe",
         "heavy-admit.yml:Heavy Admission",
         "heavy-admit.yml:Heavy",
+        "knowledge-baseline-mint.yml:Mint Knowledge Baseline",
         "property-laws-nightly.yml:Property Laws Sweep",
         "release-desktop.yml:Validate desktop release inputs",
         "release-desktop.yml:macOS arm64",

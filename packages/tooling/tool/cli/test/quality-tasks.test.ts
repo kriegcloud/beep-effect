@@ -177,7 +177,6 @@ import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import { flow, identity, pipe } from "effect/Function";
 import * as HM from "effect/HashMap";
-import * as Inspectable from "effect/Inspectable";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -390,7 +389,7 @@ const LABS_EXCLUDE_FILTER = "--filter=!./apps/labs/**";
 const policyTurboStep = (
   label: string,
   base?: string,
-  deprecatedApis: PolicySweepProgram = "shards"
+  deprecatedApis: PolicySweepProgram = "oxlint"
 ): QualityTaskStep =>
   O.getOrThrow(
     A.findFirst(
@@ -1077,6 +1076,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:cache-policy",
         "goals:index-check",
         "explore:atlas-check",
+        "observability:catalog-check",
         "repo-sanity:tsconfig-sync",
         "lint:effect-imports",
         "lint:effect-imports-markdown",
@@ -2342,7 +2342,10 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             const cryptoFailure = PlatformError.badArgument({ module: "Crypto", method: "test" });
 
             const withoutIndexIdentity = yield* prepareLaneProofSession([lane], "active").pipe(
-              Effect.provideService(Crypto.Crypto, { ...platformCrypto, randomUUIDv4: Effect.fail(cryptoFailure) })
+              Effect.provideService(Crypto.Crypto, {
+                ...platformCrypto,
+                randomUUIDv4: () => Effect.fail(cryptoFailure),
+              })
             );
             assertNone(withoutIndexIdentity);
 
@@ -2357,10 +2360,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             const stagingFailure = yield* persistLaneProofs(session, [[lane, 12]]).pipe(
               Effect.provideService(Crypto.Crypto, {
                 ...platformCrypto,
-                randomUUIDv4: Effect.suspend(() => {
-                  identityCalls = identityCalls + 1;
-                  return identityCalls > 1 ? Effect.fail(cryptoFailure) : platformCrypto.randomUUIDv4;
-                }),
+                randomUUIDv4: () =>
+                  Effect.suspend(() => {
+                    identityCalls = identityCalls + 1;
+                    return identityCalls > 1 ? Effect.fail(cryptoFailure) : platformCrypto.randomUUIDv4();
+                  }),
               }),
               Effect.flip
             );
@@ -3763,7 +3767,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       }
       expect(local[2]?.args).not.toContain("--affected");
       expect(policyTurboScmBase(O.getOrThrow(A.get(local, 2)))).toBeUndefined();
-      expect(O.getOrThrow(A.get(local, 3)).args).toEqual(repoCliEntryArgs("knowledge", "doctor", "--report"));
+      expect(O.getOrThrow(A.get(local, 3)).args).toEqual(
+        repoCliEntryArgs("knowledge", "doctor", "ci", "--base", "review-base")
+      );
       for (const step of A.filter(A.take(local, 5), (planned) => planned.label !== "knowledge:doctor")) {
         expect(step.args).toContain("--summarize");
         expect(step.args).toContain("--continue=dependencies-successful");
@@ -3778,6 +3784,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         expect(O.getOrThrow(optionUnderTest)).toEqual(expectedOptionValue);
       }
       const full = rootLintPolicyStepsForTesting("/repo", undefined, undefined, undefined, true);
+      expect(O.getOrThrow(A.get(full, 2)).args).toEqual(repoCliEntryArgs("knowledge", "doctor", "ci"));
       expect(A.map(full, (step) => step.label)).toEqual([
         "lint:policy:cheap",
         "lint:policy:medium",
@@ -3791,7 +3798,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         ...pipe(A.get(local, 2), O.getOrThrow, taskNames),
       ]);
       // A local full-scope plan (no review base) leaves the two git-delta knowledge checks and the
-      // report-only knowledge doctor to the hosted plan; the changed-scope plan still carries them.
+      // knowledge doctor (report-only until the first seal) to the hosted plan; the changed-scope
+      // plan still carries them.
       const localFull = rootLintPolicyStepsForTesting("/repo", undefined, undefined, undefined, false);
       expect(A.map(localFull, (step) => step.label)).toEqual(
         A.filter(
@@ -3829,7 +3837,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       );
       expect(policyTurboStep("lint:deprecated-apis", undefined, "turbo").args).toContain("turbo");
       expect(policyTurboStep("lint:deprecated-apis", "review-base", "turbo")).toEqual(
-        policyTurboStep("lint:deprecated-apis", "review-base", "shards")
+        policyTurboStep("lint:deprecated-apis", "review-base", "oxlint")
       );
       expect(rootQualityStepsForTesting("/repo", getInvocation(["lint"]))).toEqual([
         expect.objectContaining({ label: "lint", args: expectedRootTurboArgs("lint", []) }),
@@ -3960,7 +3968,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           yield* fs.makeDirectory(path.join(tmpDir, "standards"), { recursive: true });
           yield* fs.writeFileString(
             path.join(tmpDir, "standards/lint-policy.sweeps.jsonc"),
-            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"shards"}'
+            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"oxlint"}'
           );
           yield* fs.makeDirectory(binDir, { recursive: true });
           yield* fs.writeFileString(fakeBunxPath, A.join(["#!/usr/bin/env sh", "exit 0", ""], "\n"));
@@ -3999,7 +4007,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           yield* fs.makeDirectory(`${root}/standards`, { recursive: true });
           yield* fs.writeFileString(
             `${root}/standards/lint-policy.sweeps.jsonc`,
-            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"shards"}'
+            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"oxlint"}'
           );
           yield* withEnvVarEffect(
             "CI",
@@ -4609,7 +4617,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             assert.include(error.message, "Failed to parse coverage summary fixture");
             assert.isAtMost(Str.length(error.message), 4_096);
             assert.isDefined(error.cause);
-            assert.isAbove(Str.length(Inspectable.toStringUnknown(error.cause, 0)), 16_384);
+            // Effect 4.0.4 abbreviates the offending value when it renders a SchemaError, so
+            // assert the typed cause is kept rather than the length of its rendering.
+            assert.isTrue(S.isSchemaError(error.cause));
           }
         }),
         Effect.provideServiceEffect(Console.Console, TestConsole.make)

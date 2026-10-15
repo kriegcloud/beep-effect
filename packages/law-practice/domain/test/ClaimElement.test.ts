@@ -331,6 +331,12 @@ describe("ClaimElement", () => {
           element: "1.b",
           parts: [{ kind: "term", term: { path: "1.q", anchor: processorAnchor } }],
         }),
+        // functional term part that names a term of another element
+        withEdge({
+          kind: "functional",
+          element: "1.b",
+          parts: [{ kind: "term", term: { path: "1.a", anchor: sensorAnchor } }],
+        }),
         // functional connecting text outside the element it is read from
         withEdge({
           kind: "functional",
@@ -394,6 +400,7 @@ describe("ClaimElement", () => {
         term({ anchor: sensorAnchor, determiner: "the", head: "optical sensor" }),
         term({ anchor: sensorAnchor, determiner: "at-least-one", head: "optical sensor" }),
         term({ anchor: sensorAnchor, determiner: "bare", head: "optical sensor" }),
+        term({ anchor: anchorAt(0, "a plurality of sensors"), determiner: "a", head: "plurality of sensors" }),
         term({ anchor: { startChar: 0, endChar: 3, quote: "an optical" }, determiner: "an", head: "x" }),
         termRef({ path: "b.ii", anchor: sensorAnchor }),
         termRef({ path: "0.a", anchor: sensorAnchor }),

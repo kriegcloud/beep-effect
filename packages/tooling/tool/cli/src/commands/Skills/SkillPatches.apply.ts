@@ -34,6 +34,7 @@ import { appendFramedText, hashBytes } from "./internal/SkillTree.ts";
 import { SkillPatchApplyError } from "./Skills.errors.ts";
 import { SkillTreeMode, SkillUpstreamContentFile } from "./Skills.schemas.ts";
 import { SkillHunkReport } from "./SkillsRelock.schemas.ts";
+import { SkillPatchHunk } from "./SkillsReview.schemas.ts";
 import type * as Crypto from "effect/Crypto";
 import type { SkillPatchApplyReason, SkillsCommandError } from "./Skills.errors.ts";
 import type { SkillHunkStatus } from "./SkillsRelock.schemas.ts";
@@ -835,4 +836,103 @@ export const classifySkillPatchHunks = Effect.fn("SkillPatches.classifySkillPatc
       A.sortWith((file) => file.path, Str.Order)
     ),
   };
+});
+
+// ---------------------------------------------------------------------------
+// Hunk listing for the review ritual and the ledger (B-6).
+// ---------------------------------------------------------------------------
+
+type ListedHunk = { readonly hunk: number; readonly identity: ReadonlyArray<Uint8Array>; readonly text: string };
+
+const hunkLineText = (entry: HunkLine): ReadonlyArray<string> =>
+  entry.line.eol ? [`${entry.kind}${entry.line.text}`] : [`${entry.kind}${entry.line.text}`, NO_NEWLINE_MARKER];
+
+const hunkText = (hunk: Hunk): string =>
+  A.join(
+    [
+      `@@ -${hunk.oldStart},${hunk.oldCount} +${hunk.newStart},${hunk.newCount} @@`,
+      ...A.flatMap(hunk.lines, hunkLineText),
+    ],
+    "\n"
+  );
+
+const sectionText = (section: FileSection): string =>
+  `${section.change} ${section.path} (mode ${O.getOrElse(section.oldMode, () => "-")} -> ${O.getOrElse(
+    section.newMode,
+    () => "-"
+  )})`;
+
+// The same identities the classifier assigns: one per hunk, or one per hunk-less section.
+const listedHunks = (section: FileSection): ReadonlyArray<ListedHunk> =>
+  A.isReadonlyArrayEmpty(section.hunks)
+    ? [{ hunk: 0, identity: sectionIdentity(section), text: sectionText(section) }]
+    : A.map(section.hunks, (hunk, index) => ({
+        hunk: index + 1,
+        identity: hunkIdentity(section.path, hunk),
+        text: hunkText(hunk),
+      }));
+
+const toPatchHunks = Effect.fn("SkillPatches.toPatchHunks")(function* (
+  patch: string,
+  file: string,
+  listed: ReadonlyArray<ListedHunk>
+): Effect.fn.Return<ReadonlyArray<SkillPatchHunk>, SkillsCommandError, Crypto.Crypto> {
+  return yield* Effect.forEach(
+    listed,
+    Effect.fnUntraced(function* (entry) {
+      return SkillPatchHunk.make({
+        patch,
+        file,
+        hunk: entry.hunk,
+        hunkHash: yield* hashBytes(concatBytes(entry.identity), `${patch}:${file}:hunk-${entry.hunk}`),
+        text: entry.text,
+      });
+    })
+  );
+});
+
+/**
+ * Lists every hunk of one patch with the identity the replay report assigns it.
+ *
+ * **Details**
+ *
+ * The identity rules are the classifier's: a hunk frames its file path and
+ * body lines (never line numbers), a hunk-less section frames its path,
+ * change, and modes, and a patch that does not parse becomes one row framing
+ * its whole text. Nothing is applied, so this needs no tree; it is how the
+ * review ritual shows a hunk and how `skills patch label` maps ledger rows
+ * back to patches.
+ *
+ * **Example** (List the hunks of a one-hunk patch)
+ *
+ * ```ts
+ * import { listSkillPatchHunks } from "@beep/repo-cli/commands/Skills/SkillPatches.apply"
+ * import { NodeCrypto } from "@effect/platform-node"
+ * import * as Effect from "effect/Effect"
+ *
+ * const patch = ["diff --git a/SKILL.md b/SKILL.md", "--- a/SKILL.md", "+++ b/SKILL.md", "@@ -1,1 +1,1 @@", "-a", "+b", ""].join("\n")
+ * const hunks = Effect.runSync(listSkillPatchHunks("0001-skill-md.patch", patch).pipe(Effect.provide(NodeCrypto.layer)))
+ * console.log(hunks.length, hunks[0]?.text) // 1 "@@ -1,1 +1,1 @@\n-a\n+b"
+ * ```
+ *
+ * @param patch - The patch's repo-relative path, recorded on every row.
+ * @param text - Unified-diff text.
+ * @returns One row per hunk or hunk-less section, in patch order.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const listSkillPatchHunks = Effect.fn("SkillPatches.listSkillPatchHunks")(function* (
+  patch: string,
+  text: string
+): Effect.fn.Return<ReadonlyArray<SkillPatchHunk>, SkillsCommandError, Crypto.Crypto> {
+  const parsed = yield* Effect.result(parsePatch(patch, text));
+  if (Result.isFailure(parsed)) {
+    return yield* toPatchHunks(patch, parsed.failure.file, [
+      { hunk: 0, identity: appendFramedText(A.empty<Uint8Array>(), text), text: parsed.failure.message },
+    ]);
+  }
+  const perSection = yield* Effect.forEach(parsed.success, (section) =>
+    toPatchHunks(patch, section.path, listedHunks(section))
+  );
+  return A.flatten(perSection);
 });
