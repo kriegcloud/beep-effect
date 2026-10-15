@@ -329,6 +329,17 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     return sameInode(info, yield* fs.stat(file).pipe(io)) && (yield* hash(yield* readNative(file))) === expectedHash;
   });
 
+  const recoverSymlink = Effect.fnUntraced(function* (
+    file: string,
+    temporary: string,
+    info: FileSystem.File.Info,
+    expectedHash: string
+  ) {
+    yield* exchange(temporary, file);
+    if (!(yield* matches(temporary, info, expectedHash)))
+      return yield* failure("Concurrent recovery changed during symlink exchange.");
+  });
+
   // Recovery returns each actual displaced pathname occupant through another
   // verified exchange, preserving both files if contention continues.
   const recover = Effect.fnUntraced(function* (
@@ -342,9 +353,8 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     for (let attempt = 0; attempt < 8; attempt += 1) {
       if (!(yield* matches(file, expectedInfo, expectedHash))) break;
       if (O.isSome(yield* fs.readLink(temporary).pipe(Effect.option))) {
-        yield* exchange(temporary, file);
-        if (yield* matches(temporary, expectedInfo, expectedHash)) break;
-        return yield* failure("Concurrent recovery changed during symlink exchange.");
+        yield* recoverSymlink(file, temporary, expectedInfo, expectedHash);
+        break;
       }
       const returningInfo = yield* fs.stat(temporary).pipe(io);
       const returningHash = yield* hash(yield* readNative(temporary));

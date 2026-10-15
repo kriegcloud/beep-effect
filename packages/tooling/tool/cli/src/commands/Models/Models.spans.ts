@@ -13,6 +13,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Regex from "effect/RegExp";
 import * as S from "effect/Schema";
+import * as Tuple from "effect/Tuple";
 import { findNodeAtLocation, parseTree } from "jsonc-parser";
 import { isAlias, isScalar, parseDocument, visit } from "yaml";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
@@ -20,6 +21,7 @@ import { ModelsLocatorError } from "./Models.errors.ts";
 import { ModelsWriteSpan } from "./Models.manifest.schemas.ts";
 import { generatedBlockBegin, generatedBlockEnd } from "./Models.render.ts";
 import type { Node as JsonNode } from "jsonc-parser";
+import type { Document } from "yaml";
 import type { ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const decodeToml = decodeTomlTextWith(S.decodeUnknownEffect(S.Record(S.String, S.Unknown)));
@@ -70,8 +72,58 @@ const shellWordValue = Effect.fnUntraced(function* (token: string) {
 const shellTokens = /[ \t\r]+|#[^\n]*$|&&|\|\||[;&|()]|(?:"(?:\\.|[^"\\\n])*"|'[^'\n]*'|\\[^\n]|[^'"\\\s;&|()<>])+/gy;
 const unsupportedShell = "Unsupported shell form";
 
+const shellControl = /^(?:&&|\|\||[;&|()])$/;
+
+const shellLineTokens = (line: string) => {
+  const tokens = new RegExp(shellTokens.source, "gy");
+  const words: Array<string> = [];
+  let consumed = 0;
+  while (consumed < Str.length(line)) {
+    const match = tokens.exec(line);
+    if (match === null) return Tuple.make(words, O.some(Str.slice(consumed)(line)));
+    const token = match[0];
+    consumed = tokens.lastIndex;
+    if (Str.startsWith("#")(token)) break;
+    if (!/^[ \t\r]+$/.test(token)) words.push(token);
+  }
+  return Tuple.make(words, O.none<string>());
+};
+
+const shellTokenValue = Effect.fnUntraced(function* (token: string, variable: string) {
+  const word = Str.startsWith(`${variable}=`)(token)
+    ? Str.slice(Str.length(variable) + 1)(token)
+    : Str.replace(/^[A-Za-z_][A-Za-z_0-9]*=/, "")(token);
+  const literal = /^'[^']*'$|^"(?:\\.|[^"\\])*"$/.test(word);
+  const nonLiteral = /\\[ \t;&|()<>]|[*?{}~]/.test(word);
+  if (!literal && nonLiteral && !/^[{}]$/.test(word)) return O.none<string>();
+  return yield* shellWordValue(word).pipe(Effect.option);
+});
+
+const ownedShellValue = (
+  words: ReadonlyArray<string>,
+  decoded: ReadonlyArray<O.Option<string>>,
+  index: number,
+  variable: string
+) => {
+  const token = O.getOrElse(A.get(words, index), () => "");
+  if (Str.startsWith(`${variable}=`)(token)) return O.flatten(A.get(decoded, index));
+  if (Str.startsWith("-")(variable) && token === variable) {
+    const next = A.get(words, index + 1);
+    return O.isNone(next) || shellControl.test(next.value)
+      ? O.some(unsupportedShell)
+      : O.flatten(A.get(decoded, index + 1));
+  }
+  return O.none<string>();
+};
+
 /**
- * Read executable assignment or flag words, excluding comments and quoted data.
+ * Read literal assignment or flag words; unsupported relevant lines report drift.
+ *
+ * **Details**
+ *
+ * The scanner accounts for every word on a physical line. A here-document or
+ * unclosed quote makes the remaining document unsupported; no later line is
+ * trusted after a containing form this grammar cannot resolve.
  *
  * **Example** (Decode an escaped assignment)
  *
@@ -91,63 +143,38 @@ export const modelsShellWords = Effect.fn("Models.shellWords")(function* (conten
   const values: Array<string> = [];
   let continued = false;
   let unsafeRemainder = false;
-  const lines = Str.split(content, "\n");
-  for (let index = 0; index < A.length(lines); index += 1) {
-    const line = lines[index];
-    if (line === undefined) continue;
-    const nextContinued = /\\$/.test(line);
-    const relevant = Str.includes(variable)(line);
-    let unsupported = continued || nextContinued || unsafeRemainder;
-    const words: Array<string> = [];
-    const tokens = new RegExp(shellTokens.source, "gy");
-    let consumed = 0;
-    let pendingFlag = false;
-    while (consumed < Str.length(line)) {
-      const match = tokens.exec(line);
-      if (match === null) {
-        unsupported = true;
-        // A quote or here-document may move later physical lines out of code.
-        if (/['"<]/.test(Str.slice(consumed)(line))) unsafeRemainder = true;
-        break;
-      }
-      const token = match[0];
-      consumed = tokens.lastIndex;
-      if (/^[ \t\r]+$/.test(token)) continue;
-      if (Str.startsWith("#")(token)) break;
-      if (/^(?:&&|\|\||[;&|()])$/.test(token)) {
-        if (pendingFlag) unsupported = true;
-        pendingFlag = false;
-        continue;
-      }
-      // Escaped separators, expansions, glob/brace syntax and concatenated
-      // quoting are deliberately outside the supported read grammar.
-      const word = Str.startsWith(`${variable}=`)(token)
-        ? Str.slice(Str.length(variable) + 1)(token)
-        : Str.replace(/^[A-Za-z_][A-Za-z_0-9]*=/, "")(token);
-      const literal = /^'[^']*'$|^"(?:\\.|[^"\\])*"$/.test(word);
-      if (!literal && /\\[ \t;&|()<>]|[*?{}~]/.test(word) && word !== "{" && word !== "}") unsupported = true;
-      const decoded = yield* shellWordValue(word).pipe(Effect.option);
-      if (O.isNone(decoded)) unsupported = true;
-      if (pendingFlag) {
-        words.push(O.getOrElse(decoded, () => unsupportedShell));
-        pendingFlag = false;
-      }
-      if (Str.startsWith("-")(variable) && token === variable) pendingFlag = true;
-      else if (Str.startsWith(`${variable}=`)(token)) {
-        const value = yield* shellWordValue(Str.slice(Str.length(variable) + 1)(token)).pipe(Effect.option);
-        words.push(O.getOrElse(value, () => unsupportedShell));
-        if (O.isNone(value)) unsupported = true;
-      }
-    }
-    if (pendingFlag) unsupported = true;
-    // A continuation's next line can mention the locator even when its first
-    // line did not. Never clean that logical command by dropping the prefix.
-    continued = nextContinued;
-    if (relevant && unsupported) values.push(unsupportedShell);
-    else values.push(...words);
+  for (const line of Str.split(content, "\n")) {
+    const [words, remainder] = shellLineTokens(line);
+    const decoded = yield* Effect.forEach(words, (word) => shellTokenValue(word, variable), { concurrency: 1 });
+    const owned = A.getSomes(A.map(words, (_, index) => ownedShellValue(words, decoded, index, variable)));
+    const incomplete = O.isSome(remainder);
+    const unsupported =
+      continued ||
+      unsafeRemainder ||
+      incomplete ||
+      /\\$/.test(line) ||
+      A.some(decoded, O.isNone) ||
+      A.contains(owned, unsupportedShell);
+    unsafeRemainder = unsafeRemainder || O.exists(remainder, (rest) => /['"<]/.test(rest));
+    continued = /\\$/.test(line);
+    values.push(...(unsupported && Str.includes(variable)(line) ? [unsupportedShell] : owned));
   }
   return values;
 });
+
+const yamlSharedNode = (doc: Document, path: ReadonlyArray<string | number>, node: unknown) => {
+  const anchored = A.some(A.range(0, A.length(path)), (depth) => {
+    const ancestor = doc.getIn(A.take(path, depth), true);
+    return isAlias(ancestor) || (P.isObject(ancestor) && "anchor" in ancestor && ancestor.anchor !== undefined);
+  });
+  let referenced = false;
+  visit(doc, {
+    Alias: (_, alias) => {
+      referenced = referenced || alias.resolve(doc) === node;
+    },
+  });
+  return anchored || referenced;
+};
 
 const span = (content: string, start: number, end: number, after: string) =>
   ModelsWriteSpan.make({
@@ -372,18 +399,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
         try: () => {
           const doc = parseDocument(content);
           const node = doc.getIn([...path], true);
-          let shared = false;
-          for (let depth = 0; depth <= A.length(path); depth += 1) {
-            const ancestor = doc.getIn(A.take(path, depth), true);
-            if (isAlias(ancestor) || (P.isObject(ancestor) && "anchor" in ancestor && ancestor.anchor !== undefined))
-              shared = true;
-          }
-          visit(doc, {
-            Alias: (_, alias) => {
-              if (alias.resolve(doc) === node) shared = true;
-            },
-          });
-          if (shared) return O.none<ModelsWriteSpan>();
+          if (yamlSharedNode(doc, path, node)) return O.none<ModelsWriteSpan>();
           return A.isReadonlyArrayEmpty(doc.errors) &&
             A.isReadonlyArrayEmpty(doc.warnings) &&
             isScalar(node) &&

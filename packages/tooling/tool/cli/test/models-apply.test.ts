@@ -60,6 +60,45 @@ const writerWithFs = Effect.fn("ModelsApplyTest.writerWithFs")(function* (
   return Context.get(services, ModelsApply);
 });
 
+const restoreLinkRace = Effect.fnUntraced(function* (dangling: boolean) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const root = yield* fs.makeTempDirectoryScoped({
+    directory: path.resolve(".beep"),
+    prefix: "restore-link-race-",
+  });
+  const file = path.join(root, "config.toml");
+  const relocated = path.join(root, "relocated.toml");
+  const backups = path.join(root, "backups");
+  yield* fs.writeFileString(file, native);
+  const writer = yield* writerWithFs(fs);
+  const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
+  const applied = yield* fs.readFileString(file);
+  let exchanges = 0;
+  const wrapped = ChildProcessSpawner.ChildProcessSpawner.of({
+    ...spawner,
+    exitCode: Effect.fn("ModelsApplyTest.restoreLinkExchange")(function* (command) {
+      if (command._tag === "StandardCommand" && command.command === "mv") {
+        exchanges += 1;
+        if (exchanges === 2) {
+          yield* fs.rename(file, relocated);
+          yield* fs.symlink(dangling ? path.join(root, "absent.toml") : relocated, file);
+        }
+      }
+      return yield* spawner.exitCode(command);
+    }),
+  });
+  const restoring = yield* writerWithFs(fs, wrapped);
+  const error = yield* Effect.flip(restoring.restore(path.join(backups, `${journal.id}.json`), backups));
+  expect(error._tag).toBe("ModelsLocatorError");
+  expect(error.message).toContain(`Journal: ${journal.id}`);
+  expect(yield* fs.readLink(file)).toBe(dangling ? path.join(root, "absent.toml") : relocated);
+  if (!dangling) expect(yield* fs.readFileString(file)).toBe(applied);
+  expect(yield* fs.readFileString(relocated)).toBe(applied);
+  expect(exchanges).toBe(3);
+});
+
 layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
   it.effect("preserves every native byte outside a top-level scalar with 494 projects and 311 hook states", () =>
     Effect.gen(function* () {
@@ -688,48 +727,8 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     );
   }
 
-  for (const dangling of [false, true]) {
-    it.effect(`returns a ${dangling ? "dangling" : "live"} symlink introduced inside the restore exchange window`, () =>
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-        const root = yield* fs.makeTempDirectoryScoped({
-          directory: path.resolve(".beep"),
-          prefix: "restore-link-race-",
-        });
-        const file = path.join(root, "config.toml");
-        const relocated = path.join(root, "relocated.toml");
-        const backups = path.join(root, "backups");
-        yield* fs.writeFileString(file, native);
-        const writer = yield* writerWithFs(fs);
-        const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
-        const applied = yield* fs.readFileString(file);
-        let exchanges = 0;
-        const wrapped = ChildProcessSpawner.ChildProcessSpawner.of({
-          ...spawner,
-          exitCode: Effect.fn("ModelsApplyTest.restoreLinkExchange")(function* (command) {
-            if (command._tag === "StandardCommand" && command.command === "mv") {
-              exchanges += 1;
-              if (exchanges === 2) {
-                yield* fs.rename(file, relocated);
-                yield* fs.symlink(dangling ? path.join(root, "absent.toml") : relocated, file);
-              }
-            }
-            return yield* spawner.exitCode(command);
-          }),
-        });
-        const restoring = yield* writerWithFs(fs, wrapped);
-        const error = yield* Effect.flip(restoring.restore(path.join(backups, `${journal.id}.json`), backups));
-        expect(error._tag).toBe("ModelsLocatorError");
-        expect(error.message).toContain(`Journal: ${journal.id}`);
-        expect(yield* fs.readLink(file)).toBe(dangling ? path.join(root, "absent.toml") : relocated);
-        if (!dangling) expect(yield* fs.readFileString(file)).toBe(applied);
-        expect(yield* fs.readFileString(relocated)).toBe(applied);
-        expect(exchanges).toBe(3);
-      })
-    );
-  }
+  it.effect("returns a live symlink introduced inside the restore exchange window", () => restoreLinkRace(false));
+  it.effect("returns a dangling symlink introduced inside the restore exchange window", () => restoreLinkRace(true));
 
   it.effect("refuses shell and legacy recovery journals before staging", () =>
     Effect.gen(function* () {
