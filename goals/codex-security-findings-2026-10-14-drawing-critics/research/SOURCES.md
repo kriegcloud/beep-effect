@@ -24,6 +24,11 @@
   available launcher flags. Vendor documentation explains Grok's separate
   [permission rules](https://docs.x.ai/build/features/permissions) and
   [sandbox profiles](https://docs.x.ai/build/features/sandbox).
+- [PR #1795](https://github.com/beep-effect/beep-effect/pull/1795) records the
+  final head, 5/5 reviewer summary, hosted checks, S11 gate, and merge at
+  `5f3dfb396982d797c2a521d42fe5bf592f90be6c`.
+- The signed-in finding detail showed the exact captured ID as Fixed after
+  merge; the refreshed New/Triaged/In Progress view showed 0 of 0 findings.
 
 ## Notes
 

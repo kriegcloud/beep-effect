@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -32,14 +32,16 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P5 repo proof` - the sole Low finding is confirmed, assigned to the drawing
-critics launcher, and repaired locally. Focused tests pass; package and hosted
-proof remain.
+`P9 close` complete. PR #1795 merged at `5f3dfb3969`; the exact captured
+finding is Fixed and the refreshed Cloud open view shows 0 of 0 findings.
 
 ## Findings at a glance
 
 1 Low finding. Grok and Claude critic launches now enforce restricted tools and
-permissions. The finding remains open in Security Cloud until the fix merges.
+permissions. Focused tests, package quick verification, hosted Security and
+Heavy / Check passed, and the reviewer scored the final fix 5/5. The exact
+finding is Fixed. The inherited lint-policy red and pending coverage check at
+merge are recorded under the repo's S11 gate.
 
 ## Notes
 

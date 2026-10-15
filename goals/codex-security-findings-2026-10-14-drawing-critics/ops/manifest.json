@@ -3,13 +3,13 @@
   "initiative": {
     "id": "codex-security-findings-2026-10-14-drawing-critics",
     "title": "Codex Security Findings (2026-10-14)",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/codex-security-findings-2026-10-14-drawing-critics",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Remediate and close the 1 Codex security findings captured on 2026-10-14.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -114,27 +114,27 @@
     {
       "id": "P5",
       "name": "Repo proof",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P6",
       "name": "Publish",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P7",
       "name": "Monitor",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P8",
       "name": "Merge and close findings",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P9",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

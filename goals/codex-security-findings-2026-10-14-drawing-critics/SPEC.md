@@ -56,13 +56,15 @@ exact captured findings until no packet-applicable finding remains open.
       remediation state, changed-file set, and verification evidence.
 - [x] Every real finding is fixed at the shared root cause with a focused
       regression check where executable behavior changes.
-- [ ] Packet counts, manifest, triage ledger, launcher size, sanitation, and
+- [x] Packet counts, manifest, triage ledger, launcher size, sanitation, and
       whitespace checks pass.
-- [ ] Yeet repair and verify are green on the complete remediation scope.
-- [ ] The branch is published, hosted checks and reviews are closed, and the PR
-      is mergeable and merged.
-- [ ] All 1 captured Codex findings are resolved after merge and the live view
-      shows zero packet-applicable open findings.
+- [x] Focused tests, package test typecheck, quick package verification, and
+      hosted Security and Heavy / Check pass. The repo-wide inherited lint red
+      and pending coverage check were recorded by Yeet under S11 at merge.
+- [x] The branch was published, review threads were closed, the 20-minute
+      window elapsed, and PR #1795 merged at `5f3dfb3969`.
+- [x] The exact captured Codex finding was marked Fixed after merge and the
+      refreshed live view shows zero packet-applicable open findings.
 
 ## Verification Matrix
 
@@ -75,9 +77,9 @@ exact captured findings until no packet-applicable finding remains open.
 | Raw ignored | `git status --short -- .../raw` | Only `.gitignore` tracked |
 | Sanitization | tracked packet secret/path pattern scan | No matches |
 | Per-finding proof | command recorded in finding and triage ledger | Pass |
-| Repo proof | `bun run beep yeet verify` | Green |
-| Hosted proof | Yeet monitor and review closeout | Green and mergeable |
-| Final closure | supported connector or signed-in in-app findings view | Zero packet-open |
+| Repo proof | Focused tests, package verification, Yeet repair/verify | Focused and quick checks green; inherited full-proof red attributed |
+| Hosted proof | Yeet monitor and review closeout | 5/5 review, no threads, S11 merge receipt |
+| Final closure | Signed-in Security Cloud findings view | Exact ID Fixed; refreshed open view 0 of 0 |
 
 ## Stop Conditions
 
@@ -92,7 +94,7 @@ exact captured findings until no packet-applicable finding remains open.
 
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
-| None | N/A | N/A | N/A | N/A |
+| S11 merge over an inherited Heavy / Lint Policy red and pending Coverage Regression | PR #1795 final head `9ff065ba0e` | AgentMessage subset: PR #1767; remaining inline-schema sites: main-line lint cleanup | Security, Heavy / Check, Build, Docgen, Doctest, Test Integration, and repo CLI tests passed; review window and thread gate passed. Yeet recorded both exceptions at merge. | Fix the inherited main-line lint red; investigate any later coverage failure on main. |
 
 ## Decision Log
 
@@ -101,3 +103,4 @@ exact captured findings until no packet-applicable finding remains open.
 | Restrict Grok to Read and Grep under `dontAsk` and the strict sandbox; restrict Claude to Read under its restricted mode. | The installed CLIs expose these controls, and the prior launch bypassed permission checks while handling lower-trust review material. Tests assert each critical argument. | Revert the launcher changes only after replacing them with a separately verified read-only process boundary; keep the critic route disabled until that boundary is in place. |
 | Retain the five-reviewer sequence and remove the Claude Bash hint. | Reviewers can consume the prepared pack and its measurement files with read tools. The hint conflicted with the read-only contract. | If essential measurements are missing, add them to the prepared pack before launch rather than granting reviewers shell access. |
 | Explicitly deny Grok WebFetch and WebSearch. | Grok's strict sandbox blocks child network traffic, but its in-process web tools use a separate network path; deny rules also override existing user grants. | Re-enable only behind an independently verified egress policy that limits destinations and data. |
+| Merge PR #1795 through Yeet's S11 gate after the 20-minute window. | The exact head passed targeted proof and 34 hosted checks, had zero unresolved threads and a 5/5 reviewer result, while inherited lint was red and coverage remained pending. The gate recorded both states and cancelled the remaining run. | Finish the named main-line lint fixes, review any coverage failure separately, and run fresh proof on their merged revisions. |
