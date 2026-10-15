@@ -493,6 +493,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const error = yield* Effect.flip(writer.apply(file, [assignment], "check", backups));
         expect(error._tag).toBe("ModelsLocatorError");
         expect(error.message).toContain("drift detected");
+        yield* Effect.flip(writer.apply(file, [write(assignment.locator, "wrong, gpt-6-luna")], "check", backups));
         expect(yield* fs.readFileString(file)).toBe(text);
       }
       const flag = write(

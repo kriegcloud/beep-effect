@@ -135,6 +135,12 @@ const functionLines = (content: string, name: string): ReadonlyArray<string> => 
 /**
  * Read shell drift without authorizing a shell write.
  *
+ * **Details**
+ *
+ * Only one distinct literal can establish synchronization. Conflicting values
+ * carry unsupported-form drift, so a joined display can never equal a scalar
+ * expectation and hide an incorrect occurrence.
+ *
  * **Example** (Read an assignment)
  *
  * ```ts
@@ -165,7 +171,12 @@ export const modelsReadShellAssign: {
       A.dedupe,
       A.match({
         onEmpty: O.none<string>,
-        onNonEmpty: (values) => O.some(A.join(values, ", ")),
+        onNonEmpty: (values) =>
+          O.some(
+            A.length(values) === 1
+              ? A.headNonEmpty(values)
+              : `Unsupported shell form: conflicting values ${A.join(values, ", ")}`
+          ),
       })
     );
   })

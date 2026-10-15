@@ -313,7 +313,10 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       );
       assertSome(yield* reader.read(file('MODEL="gpt-6.1-sol(medium)";\n'), locator), "gpt-6.1-sol(medium)");
       assertSome(yield* reader.read(file('MODEL="$X"\n'), locator), "Unsupported shell form");
-      assertSome(yield* reader.read(file("MODEL=old\nfoo \\\n  bar\nMODEL=other\n"), locator), "old, other");
+      assertSome(
+        yield* reader.read(file("MODEL=old\nfoo \\\n  bar\nMODEL=other\n"), locator),
+        "Unsupported shell form: conflicting values old, other"
+      );
     })
   );
 
@@ -335,7 +338,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
             ),
             locator
           ),
-          "wrong, gpt-6-luna"
+          "Unsupported shell form: conflicting values wrong, gpt-6-luna"
         );
       }
       const model: Locator = { ...locator, variable: "MODEL" };
