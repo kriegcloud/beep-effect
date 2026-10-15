@@ -55,7 +55,10 @@ export interface QuestionCalendarShape {
   readonly restore: (applied: AppliedWrite) => Effect.Effect<void, QuestionWriteError>;
   /**
    * Create or update the event the write names, keyed by `key`. Returns the
-   * event id and, for an update, the event's state before it.
+   * event id and, for an update, the event's state before it; re-applying a
+   * write updates the event an earlier apply created under the same key, so
+   * it returns that event's state as well. Fails with `event-verified`, and
+   * changes nothing, when the event to update is no longer provisional.
    */
   readonly upsert: (input: {
     readonly key: string;
@@ -94,7 +97,9 @@ export class QuestionCalendar extends Context.Service<QuestionCalendar, Question
  *   never a failure.
  * - **Apply.** `apply` takes the operator's approval and has no default
  *   approver. It applies each proposal through {@link QuestionCalendar} in
- *   batch order and returns the `AppliedWriteBatch` the journal records.
+ *   batch order and returns the `AppliedWriteBatch` the journal records. A
+ *   failed apply takes back the writes it made; one it cannot take back is
+ *   reported as `restore-failed`, never in place of the original failure.
  * - **Undo.** `undo` restores each applied write in reverse order.
  *
  * **Example** (Name a write method)

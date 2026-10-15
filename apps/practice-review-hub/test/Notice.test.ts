@@ -18,7 +18,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Ref from "effect/Ref";
-import { makeNoticeLayer, NOTICE_STATE_FILE, sendDailyNotice } from "@/Notice";
+import { makeNoticeLayer, sendDailyNotice } from "@/Notice";
 import { Platform } from "./Hub.fixture.ts";
 
 const MAILBOX = "attorney@example.test";
@@ -29,7 +29,7 @@ class SentMail extends Context.Service<SentMail, Ref.Ref<ReadonlyArray<string>>>
   "@beep/practice-review-hub/test/Notice.test/SentMail"
 ) {}
 
-/** The data directory of one layer build, so a test can read the notice's state file. */
+/** The data directory of one layer build, so a test can read the notice's day claims. */
 class DataDirectory extends Context.Service<DataDirectory, string>()(
   "@beep/practice-review-hub/test/Notice.test/DataDirectory"
 ) {}
@@ -92,25 +92,25 @@ describe("@beep/practice-review-hub daily notice", () => {
 
         const first = yield* sendDailyNotice(UTC);
         const second = yield* sendDailyNotice(UTC);
-        const stateFile = `${yield* DataDirectory}/${NOTICE_STATE_FILE}`;
+        const claims = yield* (yield* FileSystem.FileSystem).readDirectory(`${yield* DataDirectory}/notice-sent`);
 
         expect([first.status, second.status]).toStrictEqual(["sent", "already-sent"]);
         expect(yield* Ref.get(yield* SentMail)).toStrictEqual(["Claude: 1 question waiting -> attorney@example.test"]);
-        expect(yield* (yield* FileSystem.FileSystem).readFileString(stateFile)).toBe("1970-01-01\n");
+        expect(claims).toStrictEqual(["1970-01-01"]);
       })
     );
   });
 
   it.layer(NoticeTest, { timeout: "10 seconds" })("nothing waiting", (it) => {
     it.effect(
-      "sends nothing and records no day when no question waits",
+      "sends nothing and claims no day when no question waits",
       Effect.fnUntraced(function* () {
         const outcome = yield* sendDailyNotice(UTC);
-        const stateFile = `${yield* DataDirectory}/${NOTICE_STATE_FILE}`;
+        const claims = `${yield* DataDirectory}/notice-sent`;
 
         expect(outcome.status).toBe("nothing-waiting");
         expect(yield* Ref.get(yield* SentMail)).toStrictEqual([]);
-        expect(yield* (yield* FileSystem.FileSystem).exists(stateFile)).toBe(false);
+        expect(yield* (yield* FileSystem.FileSystem).exists(claims)).toBe(false);
       })
     );
   });

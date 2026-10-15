@@ -2846,7 +2846,7 @@ const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
     flakeQuarantine: "ts2589-no-location",
   }),
   // `tsgo-rules` keeps its single owner in lint-policy (`lint:tsgo-rules`);
-  // the check root task carries only the test-file and smoke tsgo extras.
+  // standalone rule diagnostics have their own parallel heavy lane; Check owns test-file types and the smoke canary.
   ...optionalQualityTaskStep({
     enabled: shouldRunRepoWideSteps(args),
     step: () => repoCliStep(repoRoot, "quality:test-tsgo", ["quality", "test-tsgo"]),
@@ -3009,7 +3009,7 @@ const listRootDocsCacheKeyFiles = Effect.fnUntraced(function* (repoRoot: string,
  * Digest documentation config, plugin source and the installed dependency lock.
  *
  * **Details**
- * Package lint caches are owned by Turbo. Root oxlint does not use an ESLint
+ * Package lint caches are owned by Turbo. Root oxlint does not use a persistent
  * result cache; this digest records the documentation inputs for plan consumers.
  * Missing inputs yield the unkeyed sentinel.
  *

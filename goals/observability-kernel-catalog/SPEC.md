@@ -49,13 +49,13 @@ Higher sources outrank lower sources when they conflict.
 
 ## Acceptance Criteria
 
-- [ ] The five defects are fixed with regression tests (OTLP traces reach a capture sink with DevTools on; DevTools spans end; `tracerLogger` retained where intended; `layerConsoleLogger` returns a Layer).
-- [ ] Kernel and `/server` wiring are separate entry points; existing consumers compile unchanged or are migrated in the same PR.
-- [ ] The catalog schema, attribute registry (`beep.*` v2) , `EmitterContext` and `TelemetryTier` exist with decode tests; a lint fails on duplicate or interpolated span names (the 4 collisions and 19 interpolated sites are fixed).
-- [ ] `beep.package`/`beep.family` enrichment derives from the catalog's name→package map.
-- [ ] `12-observability.md` is regenerated from the catalog.
-- [ ] The outcome-in-name counters (e.g. `desktop_*_{started,completed,failed,interrupted}_total`) become single instruments with an `outcome` attribute.
-- [ ] No unrelated refactors or formatting churn.
+- [x] The five defects are fixed with regression tests (OTLP traces reach a capture sink with DevTools on; DevTools spans end; `tracerLogger` retained where intended; `layerConsoleLogger` returns a Layer).
+- [x] Kernel and `/server` wiring are separate entry points; existing consumers compile unchanged or are migrated in the same PR.
+- [x] The catalog schema, attribute registry (`beep.*` v2) , `EmitterContext` and `TelemetryTier` exist with decode tests; a lint fails on duplicate or interpolated span names (the 4 collisions and 19 interpolated sites are fixed).
+- [x] `beep.package`/`beep.family` enrichment derives from the catalog's name→package map.
+- [x] `12-observability.md` is regenerated from the catalog.
+- [x] The outcome-in-name counters (e.g. `desktop_*_{started,completed,failed,interrupted}_total`) become single instruments with an `outcome` attribute.
+- [x] No unrelated refactors or formatting churn.
 
 ## Verification Matrix
 
@@ -86,6 +86,9 @@ them and record each in the Decision Log.
 | 2026-10-14 | P2 operator rulings: span names are harvested and checked (a generator writes `standards/instrumentation-catalog.generated.jsonc`; hand declarations only for extra attributes or tier overrides), and declarations live in per-package `*.instruments.ts` files merged by `beep observability catalog`. Design: `research/catalog-design.md`. | Declaring ~5,000 existing spans by hand is churn without signal; ownership stays with the code. | Switch to hand-declared spans and a central registry. |
 | 2026-10-14 | P2 implementation calls: `SpanInstrument` carries `family`; a declared span replaces the harvested span with the same owner and name, a same-name span from another owner is a duplicate; the tier ordering stays internal; unit/`_total` suffixes are rejected from a fixed list (`_total`, `_seconds`, `_milliseconds`, `_ms`, `_bytes`, `_ratio`, `_percent`). | Needed by `packageOf` and the override rule; the effect lint rejects exporting the ordering. | Edit the catalog models. |
 | 2026-10-14 | P2: harvested names that miss the `SpanName` pattern are recorded `conforming: false` (517 today) and the 146 non-literal span-name sites are reported, not failed; the check fails only on drift, conflicts and cross-package duplicates. The interpolated driver/desktop sites the survey listed were made static. | Making the check fail on every non-literal site would need a codemod the operator ruled out; reporting keeps the inventory visible. | Flip non-literal names to a failure in `Observability.service.ts`. |
+| 2026-10-14 | P2b: `layerCatalogEnrichment` wraps the current tracer and stamps `beep.package`/`beep.family` (span-name index built once per layer, first owner wins like `packageOf`), `beep.privacy_tier` (= `effectiveTier`) and `beep.identity_source`. The wrapper owns those four keys at every tier; under `shape-only` it drops non-allowlisted attributes and all span events. Each refusal increments `beep.telemetry.refused` with `beep.schema_failure_tag` = `attribute-not-allowed`, `stamped-key-override` or `span-event-dropped`. Design: `research/p2b-design.md`. | Without the ownership rule a call site could relabel a shape-only span; shape-only spans carry no events per the exploration. The strict-tier serializer gate stays the authoritative fence. | Remove the layer; the stamps are additive. |
+| 2026-10-14 | P2b: `@beep/repo-ai-metrics` takes a workspace dependency on `@beep/observability` for its `AiMetrics.instruments.ts` declarations, and the reviewed cache baseline is re-recorded for that subject only (`research/cache-baseline-review-ai-metrics-catalog.md`). | The catalog schemas live in the kernel; the dependency points from the AI owner to the kernel, never back. | Drop the dependency and the declaration file, then re-record the baseline. |
+| 2026-10-14 | Close: P3 is satisfied by PR 2 (#1762: outcome-attribute counter migration, span-name fixes) and PR 3 (#1796: effect 4.0.4); the remaining 518 non-conforming harvested names and 147 non-literal sites stay reported inventory, not goal debt (P2 decision above). The `name`→`instrumentName` catalog-error rename ships separately from TS7 (#1807). | Each acceptance criterion maps to merged evidence; the inventory is visible through `beep observability catalog`. | Reopen the packet with a migration phase. |
 
 ## Exception Ledger
 

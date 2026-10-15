@@ -17,9 +17,9 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as Path from "effect/Path";
 import type { M365, M365MailAddress } from "@beep/m365";
 import type * as FileSystem from "effect/FileSystem";
+import type * as Path from "effect/Path";
 
 /**
  * Prefix of the notice's mailbox settings: `PRACTICE_REVIEW_NOTICE_TENANT_ID`,
@@ -29,14 +29,6 @@ import type * as FileSystem from "effect/FileSystem";
  * @since 0.0.0
  */
 export const NOTICE_ENV_PREFIX = "PRACTICE_REVIEW_NOTICE";
-
-/**
- * File in the data directory that keeps the day of the last notice.
- *
- * @category constants
- * @since 0.0.0
- */
-export const NOTICE_STATE_FILE = "notice-last-sent";
 
 /**
  * Send today's notice if one is due: count the questions the digest selects
@@ -69,8 +61,10 @@ export const sendDailyNotice = Effect.fn("ReviewNotice.send")(function* (timeZon
  * **Details**
  *
  * The questions come from `items.jsonl` and their answers from
- * `answers.jsonl`; the day of the last notice is kept in
- * `notice-last-sent` beside them. The caller provides the `M365` connection.
+ * `answers.jsonl`. Each notice day is claimed by creating
+ * `notice-sent/<YYYY-MM-DD>` beside them before the notice is sent, so two
+ * runs on the same day send at most one notice. The caller provides the
+ * `M365` connection.
  *
  * **Example** (Make the notice layer)
  *
@@ -89,20 +83,13 @@ export const makeNoticeLayer = (options: {
   readonly dataDirectory: string;
   readonly mailbox: M365MailAddress;
 }): Layer.Layer<DailyNotice | QuestionQueue | ReviewItemStore, never, FileSystem.FileSystem | M365 | Path.Path> =>
-  Layer.unwrap(
-    Effect.map(Path.Path, (path) =>
-      Layer.merge(
-        DailyNoticeLive.pipe(
-          Layer.provide(
-            makeNoticeMailboxLayer(
-              NoticeMailboxConfig.make({
-                mailbox: options.mailbox,
-                stateFile: path.join(options.dataDirectory, NOTICE_STATE_FILE),
-              })
-            )
-          )
-        ),
-        QuestionQueueLive
-      ).pipe(Layer.provideMerge(makeReviewFilesLayer(ReviewFilesConfig.make({ dataDirectory: options.dataDirectory }))))
-    )
-  );
+  Layer.merge(
+    DailyNoticeLive.pipe(
+      Layer.provide(
+        makeNoticeMailboxLayer(
+          NoticeMailboxConfig.make({ dataDirectory: options.dataDirectory, mailbox: options.mailbox })
+        )
+      )
+    ),
+    QuestionQueueLive
+  ).pipe(Layer.provideMerge(makeReviewFilesLayer(ReviewFilesConfig.make({ dataDirectory: options.dataDirectory }))));

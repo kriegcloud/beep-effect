@@ -146,12 +146,14 @@ const makeQuestionCalendar = (m365: M365Shape, config: QuestionCalendarConfig) =
         .pipe(Effect.mapError(writeError(otherwise)))
     );
 
-  // Update the named provisional event, keeping its prior state for undo.
-  const updateNamed = Effect.fnUntraced(function* (eventId: string, dueOn: LocalDate, title: string) {
-    const event = yield* readEvent(eventId, "calendar-unavailable");
-    const prior = yield* Effect.fromOption(
-      O.filter(priorOf(event), () => isProvisionalEvent(event)),
-      () => refused("event-not-found", "The named event is not a provisional docket entry.")
+  // Rewrite an event the service may still change, keeping its state before the write for undo.
+  // An event the attorney has verified is refused, whichever path found it.
+  const rewrite = Effect.fnUntraced(function* (eventId: string, event: GraphEvent, dueOn: LocalDate, title: string) {
+    if (!isProvisionalEvent(event)) {
+      return yield* refused("event-verified", "The event is no longer a provisional docket entry.");
+    }
+    const prior = yield* Effect.fromOption(priorOf(event), () =>
+      refused("event-not-found", "The event has no date, title or docket category to restore.")
     );
     yield* patchEvent(
       eventId,
@@ -159,6 +161,10 @@ const makeQuestionCalendar = (m365: M365Shape, config: QuestionCalendarConfig) =
       "calendar-unavailable"
     );
     return { eventId, prior: O.some(prior) };
+  });
+
+  const updateNamed = Effect.fnUntraced(function* (eventId: string, dueOn: LocalDate, title: string) {
+    return yield* rewrite(eventId, yield* readEvent(eventId, "calendar-unavailable"), dueOn, title);
   });
 
   // Create the event under its key, or bring the event an earlier apply created back to the write.
@@ -171,13 +177,7 @@ const makeQuestionCalendar = (m365: M365Shape, config: QuestionCalendarConfig) =
       .pipe(Effect.mapError(writeError("calendar-unavailable")));
     const existing = O.filter(A.head(found.value), ({ id }) => Str.isNonEmpty(id));
     if (O.isSome(existing)) {
-      const event = existing.value;
-      yield* patchEvent(
-        event.id,
-        eventPatch(dueOn, title, withOnlyDocketCategory(categoriesOf(event), WRITE_CATEGORY), timeZone),
-        "calendar-unavailable"
-      );
-      return { eventId: event.id, prior: O.none<CalendarPrior>() };
+      return yield* rewrite(existing.value.id, existing.value, dueOn, title);
     }
     const created = yield* m365
       .createEvent(
@@ -244,7 +244,12 @@ const makeQuestionCalendar = (m365: M365Shape, config: QuestionCalendarConfig) =
  *   state, and every non-docket category stays on it.
  * - A write without `eventId` creates an event stored under the write's key.
  *   When an earlier apply already created it, that event is brought back to
- *   the write instead, so applying twice leaves one event.
+ *   the write instead, so applying twice leaves one event. The found event is
+ *   held to the same rule as a named one, and its state before the write is
+ *   the prior, so undoing the re-apply puts it back rather than deleting it.
+ * - A write to an event the attorney has verified, one whose docket category
+ *   is no longer provisional, is refused with `event-verified` and changes
+ *   nothing.
  * - `restore` deletes a created event, or puts back the prior date, title and
  *   category of an updated one. It refuses with `restore-failed` when the
  *   attorney has since moved the event out of the provisional categories.

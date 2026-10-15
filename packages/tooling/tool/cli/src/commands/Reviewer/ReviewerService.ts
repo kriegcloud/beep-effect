@@ -8,7 +8,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import { HttpClient, HttpClientRequest } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -18,7 +18,7 @@ import * as Str from "effect/String";
 import { GitHubAppAuth } from "./GitHubAppAuth.ts";
 import { ReviewerError } from "./ReviewerErrors.ts";
 import { ReviewerChangedFile } from "./ReviewerModels.ts";
-import { reviewerDocsOnly } from "./ReviewerRuleset.ts";
+import { ReviewerCheckExternalId, reviewerCheckExternalId, reviewerDocsOnly } from "./ReviewerRuleset.ts";
 import type * as HttpMethod from "effect/http/HttpMethod";
 import type { ReviewerResult, ReviewerReview } from "./ReviewerModels.ts";
 
@@ -63,20 +63,10 @@ class CreatedResource extends S.Class<CreatedResource, { readonly brand: unique 
   $I.annote("CreatedResource", { description: "Created or edited GitHub resource id." })
 ) {}
 class PullRequest extends S.Class<PullRequest, { readonly brand: unique symbol }>($I`PullRequest`)(
-  { head: S.Struct({ sha: S.String }) },
-  $I.annote("PullRequest", { description: "The current PR head commit." })
+  { head: S.Struct({ sha: S.String }), base: S.Struct({ sha: S.String }) },
+  $I.annote("PullRequest", { description: "The current PR head and base commits." })
 ) {}
-const CheckExternalId = S.TemplateLiteralParser([
-  "pr-",
-  S.NumberFromString.check(S.isInt(), S.isGreaterThan(0)),
-  "-",
-  S.String.check(S.isPattern(/^[a-f0-9]{7}$/)),
-]).pipe(
-  $I.annoteSchema("CheckExternalId", {
-    description: "The intended PR and head prefix recorded when a reviewer run starts.",
-  })
-);
-const decodeCheckExternalId = S.decodeUnknownEffect(CheckExternalId);
+const decodeCheckExternalId = S.decodeUnknownEffect(ReviewerCheckExternalId);
 const decodeCheck = S.decodeUnknownEffect(CheckRun);
 const decodeChecks = S.decodeUnknownEffect(CheckPage);
 const decodeComments = S.decodeUnknownEffect(S.Array(SummaryComment));
@@ -87,6 +77,9 @@ class ClassifiedPull extends S.Class<ClassifiedPull, { readonly brand: unique sy
 ) {}
 const decodeClassifiedPull = S.decodeUnknownEffect(ClassifiedPull);
 const decodeFilePage = S.decodeUnknownEffect(S.Array(ReviewerChangedFile));
+const decodeAssociatedPulls = S.decodeUnknownEffect(
+  S.Array(S.Struct({ number: S.Int, state: S.Literals(["open", "closed"]), head: S.Struct({ sha: S.String }) }))
+);
 const decodePull = S.decodeUnknownEffect(PullRequest);
 const error = (message: string) => ReviewerError.make({ operation: "github", message });
 
@@ -99,6 +92,8 @@ const error = (message: string) => ReviewerError.make({ operation: "github", mes
  * console.log(reviewerConclusion({ conclusion: "auto", p0: 0, p1: 1 })); // failure
  * ```
  *
+ * @param result - Requested conclusion and blocking severity counts; explicit conclusions take precedence.
+ * @returns The explicit conclusion, or failure for automatic results with any P0 or P1 finding, otherwise success.
  * @category policies
  * @since 0.0.0
  */
@@ -135,9 +130,9 @@ export const isReviewerSummary: {
 interface ReviewerShape {
   readonly cancel: (id: number, reason: string) => Effect.Effect<number, ReviewerError>;
   readonly complete: (id: number, result: ReviewerResult) => Effect.Effect<number, ReviewerError>;
-  readonly docsOnly: (pr: number, sha: string) => Effect.Effect<boolean, ReviewerError>;
+  readonly docsOnly: (pr: number, sha: string) => Effect.Effect<O.Option<string>, ReviewerError>;
   readonly review: (pr: number, sha: string, review: ReviewerReview) => Effect.Effect<number, ReviewerError>;
-  readonly start: (pr: number, sha: string) => Effect.Effect<number, ReviewerError>;
+  readonly start: (pr: number, sha: string, expectedBase?: O.Option<string>) => Effect.Effect<number, ReviewerError>;
   readonly upsert: (pr: number, body: string) => Effect.Effect<number, ReviewerError>;
 }
 
@@ -196,11 +191,40 @@ export const ReviewerLive = Layer.effect(
     const currentHead = Effect.fn("Reviewer.currentHead")(function* (pr: number, sha: string) {
       const pull = yield* request("GET", `/pulls/${pr}`).pipe(Effect.flatMap(decodePull));
       if (pull.head.sha !== sha) return yield* error("PR head moved; refusing to publish a stale review.");
+      return pull.base.sha;
+    });
+    const exclusiveOpenHead = Effect.fn("Reviewer.exclusiveOpenHead")(function* (pr: number, sha: string) {
+      let ownHeadSeen = false;
+      let page = 1;
+      while (true) {
+        if (page > 30) return yield* error("PR association listing exceeded its safe page limit.");
+        const associated = yield* request("GET", `/commits/${sha}/pulls?per_page=100&page=${page}`).pipe(
+          Effect.flatMap(decodeAssociatedPulls)
+        );
+        ownHeadSeen ||= A.some(
+          associated,
+          (pull) => pull.number === pr && pull.state === "open" && pull.head.sha === sha
+        );
+        if (A.some(associated, (pull) => pull.number !== pr && pull.state === "open" && pull.head.sha === sha))
+          return false;
+        if (associated.length < 100) return ownHeadSeen;
+        page += 1;
+      }
+    });
+    const confirmDocsOnlyHead = Effect.fn("Reviewer.confirmDocsOnlyHead")(function* (
+      pr: number,
+      sha: string,
+      baseSha: string,
+      fileCount: number
+    ) {
+      const confirmed = yield* request("GET", `/pulls/${pr}`).pipe(Effect.flatMap(decodeClassifiedPull));
+      if (confirmed.head.sha !== sha || confirmed.base.sha !== baseSha || confirmed.changed_files !== fileCount)
+        return yield* error("PR moved during L0 association check.");
     });
     const docsOnly = Effect.fn("Reviewer.docsOnly")(
       function* (pr: number, sha: string) {
         const before = yield* request("GET", `/pulls/${pr}`).pipe(Effect.flatMap(decodeClassifiedPull));
-        if (before.head.sha !== sha || before.changed_files >= 3000)
+        if (!A.every([before.head.sha === sha, before.changed_files < 3000], identity))
           return yield* error("Cannot classify a moved or truncated PR head as L0.");
         const files: Array<ReviewerChangedFile> = [];
         let page = 1;
@@ -213,9 +237,22 @@ export const ReviewerLive = Layer.effect(
           page += 1;
         }
         const after = yield* request("GET", `/pulls/${pr}`).pipe(Effect.flatMap(decodeClassifiedPull));
-        if (after.head.sha !== sha || after.changed_files !== files.length || before.changed_files !== files.length)
+        if (
+          !A.every(
+            [
+              after.head.sha === sha,
+              after.base.sha === before.base.sha,
+              after.changed_files === files.length,
+              before.changed_files === files.length,
+            ],
+            identity
+          )
+        )
           return yield* error("PR changed or its file listing was incomplete during L0 classification.");
-        return reviewerDocsOnly(files);
+        if (!reviewerDocsOnly(files)) return O.none();
+        if (!(yield* exclusiveOpenHead(pr, sha))) return O.none();
+        yield* confirmDocsOnlyHead(pr, sha, before.base.sha, files.length);
+        return O.some(before.base.sha);
       },
       Effect.mapError(() => error("L0 classification failed closed."))
     );
@@ -226,8 +263,11 @@ export const ReviewerLive = Layer.effect(
       return check;
     });
     const start = Effect.fn("Reviewer.start")(
-      function* (pr: number, sha: string) {
-        yield* currentHead(pr, sha);
+      function* (pr: number, sha: string, expectedBase: O.Option<string> = O.none()) {
+        const baseSha = yield* currentHead(pr, sha);
+        if (O.isSome(expectedBase) && expectedBase.value !== baseSha)
+          return yield* error("PR base moved after L0 classification.");
+        const association = reviewerCheckExternalId(pr, sha, baseSha);
         let page = 1;
         while (true) {
           const runs = yield* request(
@@ -236,7 +276,11 @@ export const ReviewerLive = Layer.effect(
           ).pipe(Effect.flatMap(decodeChecks));
           const existing = A.findFirst(
             runs.check_runs,
-            (run) => run.app.id === auth.appId && run.head_sha === sha && run.status === "in_progress"
+            (run) =>
+              run.app.id === auth.appId &&
+              run.head_sha === sha &&
+              run.status === "in_progress" &&
+              run.external_id === association
           );
           if (O.isSome(existing)) return existing.value.id;
           if (page * 100 >= runs.total_count) break;
@@ -246,7 +290,7 @@ export const ReviewerLive = Layer.effect(
           name: "beep-reviewer",
           head_sha: sha,
           status: "in_progress",
-          external_id: `pr-${pr}-${Str.slice(0, 7)(sha)}`,
+          external_id: association,
           output: { title: "Reviewing…", summary: "Reviewing the current PR head." },
         }).pipe(Effect.flatMap(decodeResource))).id;
       },
@@ -256,9 +300,10 @@ export const ReviewerLive = Layer.effect(
       const check = yield* owned(id);
       if (check.status !== "in_progress") return yield* error("Check is no longer active.");
       // external_id records the intended PR even when GitHub omits pull_requests for a fork.
-      const [, pr, , shortSha] = yield* decodeCheckExternalId(check.external_id);
-      if (shortSha !== Str.slice(0, 7)(check.head_sha)) return yield* error("Check has an invalid PR association.");
-      yield* currentHead(pr, check.head_sha);
+      const [, pr, , associatedHead, , associatedBase] = yield* decodeCheckExternalId(check.external_id);
+      if (associatedHead !== check.head_sha) return yield* error("Check has an invalid PR association.");
+      const currentBase = yield* currentHead(pr, check.head_sha);
+      if (currentBase !== associatedBase) return yield* error("PR base moved; refusing to complete a stale review.");
     });
     const complete = Effect.fn("Reviewer.complete")(
       function* (id: number, result: ReviewerResult) {

@@ -563,7 +563,7 @@ const qualityCommandHandle = (output: string, exitCode: number) =>
 const policyCommandKey = (text: string): string =>
   pipe(
     Str.split(text, " "),
-    A.dropWhile((word) => word !== "bunx" && word !== "bun" && word !== "./node_modules/.bin/eslint" && word !== "git"),
+    A.dropWhile((word) => word !== "bunx" && word !== "bun" && word !== "git"),
     A.filter((word) => !Str.startsWith("--cache=")(word) && word !== "--force"),
     A.join(" ")
   );
@@ -1022,6 +1022,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:build",
         "quality:lint",
         "quality:lint-policy",
+        "quality:effect-diagnostics",
         "quality:check",
         "quality:shadcn-lint",
         "quality:jsdoc-ratchet",

@@ -2,7 +2,7 @@ import {
   decodeAllowlistDocumentFromJsoncText,
   EffectLawsAllowlistDocument,
   EffectLawsAllowlistSnapshot,
-} from "@beep/repo-configs/internal/eslint/EffectLawsAllowlistSchemas";
+} from "@beep/repo-configs/internal/laws/EffectLawsAllowlistSchemas";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";

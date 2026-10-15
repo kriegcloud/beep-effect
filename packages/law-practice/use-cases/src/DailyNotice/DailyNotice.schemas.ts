@@ -57,7 +57,7 @@ const DailyNoticeStatus = LiteralKit(["sent", "nothing-waiting", "already-sent"]
  *
  * - `sent`: the notice went out on `sentOn`;
  * - `nothing-waiting`: the digest was empty, so nothing was sent;
- * - `already-sent`: a notice already went out on `sentOn`, today or later.
+ * - `already-sent`: another run already claimed `sentOn`, today, for its notice.
  *
  * **Example** (Guard a skipped run)
  *
@@ -78,7 +78,7 @@ export const DailyNoticeOutcome = DailyNoticeStatus.toTaggedUnion("status")({
   },
   "nothing-waiting": {},
   "already-sent": {
-    sentOn: LocalDateFromString.annotateKey({ description: "Day the last notice was sent." }),
+    sentOn: LocalDateFromString.annotateKey({ description: "Day another run already claimed for its notice." }),
   },
 }).pipe(
   $I.annoteSchema("DailyNoticeOutcome", {

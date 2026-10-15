@@ -5,11 +5,9 @@
  * @since 0.0.0
  */
 
-import { isBefore } from "@beep/schema/LocalDate";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import { DailyNotice, NoticeMailbox } from "./DailyNotice.ports.ts";
 import { DailyNoticeOutcome, NoticeMessage } from "./DailyNotice.schemas.ts";
 import type { LocalDate } from "@beep/schema/LocalDate";
@@ -48,14 +46,13 @@ const makeDailyNotice = (mailbox: NoticeMailboxShape) =>
       if (A.isReadonlyArrayEmpty(input.digest)) {
         return DailyNoticeOutcome.cases["nothing-waiting"].make({});
       }
-      const last = yield* mailbox.lastSentOn;
-      if (O.isSome(last) && !isBefore(last.value, input.today)) {
-        return DailyNoticeOutcome.cases["already-sent"].make({ sentOn: last.value });
+      // Claimed first, atomically: a second run that day finds the claim taken,
+      // and a send that fails after it leaves the day without a notice rather
+      // than risking a second one.
+      if (!(yield* mailbox.claimDay(input.today))) {
+        return DailyNoticeOutcome.cases["already-sent"].make({ sentOn: input.today });
       }
       const message = noticeMessage(A.length(input.digest));
-      // Recorded first: a send that fails after this leaves the day without a
-      // notice rather than risking a second one.
-      yield* mailbox.recordSentOn(input.today);
       yield* mailbox.send(message);
       return DailyNoticeOutcome.cases.sent.make({ message, sentOn: input.today });
     }),
@@ -66,8 +63,8 @@ const makeDailyNotice = (mailbox: NoticeMailboxShape) =>
  *
  * **Details**
  *
- * An empty digest sends nothing. A notice already recorded for today, or a
- * later day, sends nothing. Otherwise the day is recorded, then the notice
+ * An empty digest sends nothing and claims nothing. Otherwise the run claims
+ * the day, and a day another run already claimed sends nothing. Then the notice
  * goes out; so the attorney gets one email a day at most, and a failed send
  * is reported rather than retried that day.
  *
@@ -77,11 +74,9 @@ const makeDailyNotice = (mailbox: NoticeMailboxShape) =>
  * import { DailyNoticeLive, NoticeMailbox } from "@beep/law-practice-use-cases/DailyNotice"
  * import * as Effect from "effect/Effect"
  * import * as Layer from "effect/Layer"
- * import * as O from "effect/Option"
  *
  * const mailbox = Layer.succeed(NoticeMailbox, {
- *   lastSentOn: Effect.succeed(O.none()),
- *   recordSentOn: () => Effect.void,
+ *   claimDay: () => Effect.succeed(true),
  *   send: () => Effect.void
  * })
  * console.log(Layer.isLayer(DailyNoticeLive.pipe(Layer.provide(mailbox)))) // true

@@ -13,6 +13,7 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import { latestRowByItem } from "../internal/latestVerdict.ts";
+import { QuestionWriteError } from "./QuestionWrites.errors.ts";
 import { QuestionCalendar, QuestionWrites } from "./QuestionWrites.ports.ts";
 import { AppliedWrite, AppliedWriteBatch, ProposedWrite } from "./QuestionWrites.schemas.ts";
 import type { QuestionReviewItem } from "../QuestionQueue/QuestionQueue.schemas.ts";
@@ -73,8 +74,24 @@ const makeQuestionWrites = (calendar: QuestionCalendarShape): QuestionWritesShap
   const restoreAll = (applied: ReadonlyArray<AppliedWrite>) =>
     Effect.forEach(A.reverse(applied), calendar.restore, { discard: true });
 
+  // Take back every write of a failed apply, newest first, trying each one even after another
+  // fails. The original error is never lost: it is the failure when every write came back, and
+  // the cause of a `restore-failed` naming the questions still applied when some did not.
+  const rollback = Effect.fnUntraced(function* (applied: ReadonlyArray<AppliedWrite>, error: QuestionWriteError) {
+    const kept = yield* Effect.forEach(A.reverse(applied), (write) =>
+      calendar.restore(write).pipe(
+        Effect.as(O.none<string>()),
+        Effect.catchTag("QuestionWriteError", () => Effect.succeedSome(write.proposal.itemId))
+      )
+    );
+    const pendingItemIds = A.reverse(A.getSomes(kept));
+    return yield* A.isReadonlyArrayEmpty(pendingItemIds)
+      ? Effect.fail(error)
+      : Effect.fail(QuestionWriteError.make({ cause: O.some(error), pendingItemIds, reason: "restore-failed" }));
+  });
+
   // Each write after the first restores the writes before it when it fails,
-  // so a failed apply leaves the calendar as it was.
+  // so a failed apply leaves the calendar as it was, or says which writes remain.
   const apply = Effect.fn("QuestionWrites.apply")(function* (input: {
     readonly batch: ProposedWriteBatch;
     readonly approval: OperatorApproval;
@@ -86,7 +103,7 @@ const makeQuestionWrites = (calendar: QuestionCalendarShape): QuestionWritesShap
       (done, proposal) =>
         applyOne(proposal).pipe(
           Effect.map((write) => A.append(done, write)),
-          Effect.catchTag("QuestionWriteError", (error) => Effect.andThen(restoreAll(done), Effect.fail(error)))
+          Effect.catchTag("QuestionWriteError", (error) => rollback(done, error))
         )
     );
     return AppliedWriteBatch.make({ batchId: input.batch.batchId, approval: input.approval, applied });
@@ -110,7 +127,10 @@ const makeQuestionWrites = (calendar: QuestionCalendarShape): QuestionWritesShap
  * - `apply` upserts each proposal under its {@link questionWriteKey}, in batch
  *   order, and returns the `AppliedWriteBatch` with each event's prior state.
  *   When a write fails, the writes already applied in that call are restored
- *   in reverse before the failure is returned.
+ *   in reverse, each tried even if another fails. When all come back, the
+ *   write's own failure is returned unchanged; when some do not, the failure
+ *   is `restore-failed`, with the write's failure as `cause` and the
+ *   questions still applied in `pendingItemIds`.
  * - `undo` restores every applied write, last applied first.
  *
  * **Example** (Provide the layer over a calendar)

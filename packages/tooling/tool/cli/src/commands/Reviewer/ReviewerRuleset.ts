@@ -59,6 +59,7 @@ class Check extends S.Class<Check, { readonly brand: unique symbol }>($I`Check`)
     status: S.String,
     conclusion: S.NullOr(S.String),
     app: S.Struct({ id: S.Int }),
+    external_id: S.NullOr(S.String),
   },
   $I.annote("Check", { description: "A check's source identity and head." })
 ) {}
@@ -68,10 +69,52 @@ class Checks extends S.Class<Checks, { readonly brand: unique symbol }>($I`Check
 ) {}
 const decodeChecks = S.decodeUnknownEffect(Checks);
 class PrHead extends S.Class<PrHead, { readonly brand: unique symbol }>($I`PrHead`)(
-  { head: S.Struct({ sha: S.String }), base: S.Struct({ ref: S.String }) },
+  { head: S.Struct({ sha: S.String }), base: S.Struct({ ref: S.String, sha: S.String }) },
   $I.annote("PrHead", { description: "Live pull request head and target branch." })
 ) {}
 const decodePr = S.decodeUnknownEffect(PrHead);
+/**
+ * Check-run association to one PR, head revision, and base revision.
+ *
+ * **Example** (Decode a reviewer association)
+ * ```ts
+ * import { ReviewerCheckExternalId } from "@beep/repo-cli/commands/Reviewer";
+ * import * as S from "effect/Schema";
+ * console.log(S.is(ReviewerCheckExternalId)(`pr-7-${"a".repeat(40)}-${"b".repeat(40)}`)); // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ReviewerCheckExternalId = S.TemplateLiteralParser([
+  "pr-",
+  S.NumberFromString.check(S.isInt(), S.isGreaterThan(0)),
+  "-",
+  S.String.check(S.isPattern(/^[a-f0-9]{40}$/)),
+  "-",
+  S.String.check(S.isPattern(/^[a-f0-9]{40}$/)),
+]).pipe(
+  $I.annoteSchema("ReviewerCheckExternalId", {
+    description: "Reviewer check association to a PR and exact head/base revisions.",
+  })
+);
+
+/**
+ * Encode the identity a reviewer check must carry to satisfy its PR gate.
+ *
+ * **Example** (Bind a check to the reviewed diff)
+ * ```ts
+ * import { reviewerCheckExternalId } from "@beep/repo-cli/commands/Reviewer";
+ * console.log(reviewerCheckExternalId(7, "a".repeat(40), "b".repeat(40)).startsWith("pr-7-")); // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const reviewerCheckExternalId: {
+  (sha: string, baseSha: string): (pr: number) => string;
+  (pr: number, sha: string, baseSha: string): string;
+} = dual(3, (pr: number, sha: string, baseSha: string): string => `pr-${pr}-${sha}-${baseSha}`);
 const DocumentationPath = S.String.check(
   S.isPattern(
     /^(?!.*(?:^|\/)(?:\.[^/]+|__tests__|__fixtures__|tests?|fixtures?)(?:\/|$))(?!.*(?:^|\/)(?:AGENTS|CLAUDE|GEMINI|SKILL)\.md$)(?:docs\/.+\.(?:md|mdx|rst|txt)|(?:[^/]+\/)*README(?:[.-][^/]*)?\.md)$/i
@@ -236,31 +279,38 @@ export const requireReviewerRuleset = Effect.fn("Reviewer.requireRuleset")(funct
 });
 
 /**
- * Accepts only a successful completed check from the required App on the exact head.
+ * Accepts only a successful completed check from the required App for this PR and exact head/base pair.
  *
  * **Example** (Reject a same-named check from another App)
  * ```ts
  * import { reviewerCheckSatisfied } from "@beep/repo-cli/commands/Reviewer";
- * console.log(reviewerCheckSatisfied([{ id: 1, name: "beep-reviewer", head_sha: "abc", status: "completed",
- *   conclusion: "success", app: { id: 99 } }], "abc", 42)); // false
+ * console.log(reviewerCheckSatisfied([], "a".repeat(40), 42, 7, "b".repeat(40))); // false
  * ```
  *
  * @category predicates
  * @since 0.0.0
  */
 export const reviewerCheckSatisfied: {
-  (sha: string, appId: number): (checks: ReadonlyArray<typeof Check.Encoded>) => boolean;
-  (checks: ReadonlyArray<typeof Check.Encoded>, sha: string, appId: number): boolean;
-} = dual(3, (checks: ReadonlyArray<typeof Check.Encoded>, sha: string, appId: number): boolean => {
-  const own = A.filter(
-    checks,
-    (check) => check.name === "beep-reviewer" && check.head_sha === sha && check.app.id === appId
-  );
-  const latest = A.reduce(own, O.none<typeof Check.Encoded>(), (previous, check) =>
-    O.isNone(previous) || check.id > previous.value.id ? O.some(check) : previous
-  );
-  return O.isSome(latest) && latest.value.status === "completed" && latest.value.conclusion === "success";
-});
+  (sha: string, appId: number, pr: number, baseSha: string): (checks: ReadonlyArray<typeof Check.Encoded>) => boolean;
+  (checks: ReadonlyArray<typeof Check.Encoded>, sha: string, appId: number, pr: number, baseSha: string): boolean;
+} = dual(
+  5,
+  (checks: ReadonlyArray<typeof Check.Encoded>, sha: string, appId: number, pr: number, baseSha: string): boolean => {
+    const association = reviewerCheckExternalId(pr, sha, baseSha);
+    const own = A.filter(
+      checks,
+      (check) =>
+        check.name === "beep-reviewer" &&
+        check.head_sha === sha &&
+        check.app.id === appId &&
+        check.external_id === association
+    );
+    const latest = A.reduce(own, O.none<typeof Check.Encoded>(), (previous, check) =>
+      O.isNone(previous) || check.id > previous.value.id ? O.some(check) : previous
+    );
+    return O.isSome(latest) && latest.value.status === "completed" && latest.value.conclusion === "success";
+  }
+);
 
 /**
  * Recognizes documentation-only paths conservatively, including both sides of a rename.
@@ -272,6 +322,8 @@ export const reviewerCheckSatisfied: {
  * console.log(reviewerDocsOnly([{ filename: "docs/guide.md", previous_filename: "src/code.ts" }])); // false
  * ```
  *
+ * @param files - Complete changed-file list, including previous paths for renamed files.
+ * @returns True only for a nonempty list whose current and previous paths all qualify as documentation.
  * @category predicates
  * @since 0.0.0
  */
@@ -340,10 +392,11 @@ export const enforceReviewerGate = Effect.fn("Reviewer.enforceGate")(
     const id = yield* requiredReviewerApp(head.base.ref);
     if (O.isNone(id)) return;
     const checks = yield* readReviewerChecks(sha);
-    if (!reviewerCheckSatisfied(checks, sha, id.value))
-      return yield* fail("Waiting for beep-reviewer from the required App on the current PR head.");
+    if (!reviewerCheckSatisfied(checks, sha, id.value, pr, head.base.sha))
+      return yield* fail("Waiting for beep-reviewer from the required App on the current PR head and base.");
     const confirmed = yield* api(`${ROOT}/pulls/${pr}`).pipe(Effect.flatMap(decodePr));
-    if (confirmed.head.sha !== sha) return yield* fail("PR head moved during reviewer gate.");
+    if (confirmed.head.sha !== sha || confirmed.base.sha !== head.base.sha || confirmed.base.ref !== head.base.ref)
+      return yield* fail("PR head or base moved during reviewer gate.");
   },
   Effect.mapError(() =>
     fail("Reviewer merge gate held: require a successful current-head beep-reviewer check from the ruleset App.")

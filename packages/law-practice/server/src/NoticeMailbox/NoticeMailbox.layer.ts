@@ -1,6 +1,6 @@
 /**
  * Server adapter of the daily notice's `NoticeMailbox` port over `@beep/m365`
- * mail drafts and a local file that keeps the day of the last notice.
+ * mail drafts and one claim file per notice day.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -17,21 +17,22 @@ import {
   M365MailDraft,
   M365SendDraftMessageRequest,
 } from "@beep/m365";
-import { LocalDateFromString } from "@beep/schema/LocalDate";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import type { NoticeMailboxOperation, NoticeMessage } from "@beep/law-practice-use-cases/DailyNotice";
 import type { M365Shape } from "@beep/m365";
 import type { LocalDate } from "@beep/schema/LocalDate";
+import type { PlatformError } from "effect/PlatformError";
 
 const $I = $LawPracticeServerId.create("NoticeMailbox/NoticeMailbox.layer");
 
 /**
- * The attorney's mailbox the notice goes from and to, and the file that keeps the day of the last notice.
+ * The attorney's mailbox the notice goes from and to, and the data directory its day claims are kept in.
  *
  * **Example** (Decode a notice config)
  *
@@ -41,7 +42,7 @@ const $I = $LawPracticeServerId.create("NoticeMailbox/NoticeMailbox.layer");
  *
  * const config = S.decodeUnknownOption(NoticeMailboxConfig)({
  *   mailbox: "attorney@example.test",
- *   stateFile: "/var/lib/practice/notice-last-sent"
+ *   dataDirectory: "/var/lib/practice-review-hub"
  * })
  * console.log(config._tag) // "Some"
  * ```
@@ -54,22 +55,32 @@ export class NoticeMailboxConfig extends S.Opaque<NoticeMailboxConfig, { readonl
     mailbox: M365MailAddress.annotateKey({
       description: "The attorney's mailbox address; the notice goes from it to itself. Never logged.",
     }),
-    stateFile: S.NonEmptyString.annotateKey({
-      description: "Path of the file that keeps the day of the last notice; its directory must exist.",
+    dataDirectory: S.NonEmptyString.annotateKey({
+      description: "Directory whose notice-sent/ subdirectory holds one claim file per notice day.",
     }),
   }).pipe(
     $I.annoteSchema("NoticeMailboxConfig", {
-      description: "The attorney's mailbox the notice goes from and to, and the file that keeps the last notice day.",
+      description: "The attorney's mailbox the notice goes from and to, and the directory of its day claims.",
     })
   )
 ) {}
+
+// Subdirectory of the data directory that holds one claim file per notice day.
+const NOTICE_CLAIMS_DIRECTORY = "notice-sent";
+
+const isAlreadyExists = (error: PlatformError): boolean => P.isTagged(error.reason, "AlreadyExists");
 
 const failed =
   (operation: NoticeMailboxOperation) =>
   (cause: unknown): NoticeMailboxError =>
     NoticeMailboxError.make({ cause: O.some(cause), operation });
 
-const makeNoticeMailbox = (m365: M365Shape, fs: FileSystem.FileSystem, config: NoticeMailboxConfig) => {
+const makeNoticeMailbox = (
+  m365: M365Shape,
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  config: NoticeMailboxConfig
+) => {
   const userId = O.some(config.mailbox);
 
   const send = Effect.fn("NoticeMailbox.send")(
@@ -90,20 +101,23 @@ const makeNoticeMailbox = (m365: M365Shape, fs: FileSystem.FileSystem, config: N
     Effect.mapError(failed("send"))
   );
 
-  // No file yet means no notice yet; a file that names no day is a read failure, not "never".
-  const lastSentOn = Effect.gen(function* () {
-    if (!(yield* fs.exists(config.stateFile))) {
-      return O.none<LocalDate>();
-    }
-    const text = yield* fs.readFileString(config.stateFile);
-    return O.some(yield* S.decodeEffect(LocalDateFromString)(Str.trim(text)));
-  }).pipe(Effect.mapError(failed("read")), Effect.withSpan("NoticeMailbox.lastSentOn"));
-
-  const recordSentOn = Effect.fn("NoticeMailbox.recordSentOn")((day: LocalDate) =>
-    fs.writeFileString(config.stateFile, `${day.toISOString()}\n`).pipe(Effect.mapError(failed("record")))
+  // One file per day, created exclusively: the run whose create succeeds owns the day, and every
+  // other run that day, concurrent or later, finds the file and sends nothing.
+  const claims = path.join(config.dataDirectory, NOTICE_CLAIMS_DIRECTORY);
+  const claimDay = Effect.fn("NoticeMailbox.claimDay")(
+    function* (day: LocalDate) {
+      yield* fs.makeDirectory(claims, { recursive: true, mode: 0o700 });
+      return yield* fs
+        .writeFileString(path.join(claims, day.toISOString()), `${day.toISOString()}\n`, { flag: "wx", mode: 0o600 })
+        .pipe(
+          Effect.as(true),
+          Effect.catchIf(isAlreadyExists, () => Effect.succeed(false))
+        );
+    },
+    Effect.mapError(failed("claim"))
   );
 
-  return NoticeMailbox.of({ lastSentOn, recordSentOn, send });
+  return NoticeMailbox.of({ claimDay, send });
 };
 
 /**
@@ -113,8 +127,10 @@ const makeNoticeMailbox = (m365: M365Shape, fs: FileSystem.FileSystem, config: N
  *
  * `send` creates a plain-text draft in the configured mailbox, addressed to
  * that same mailbox, and sends it, so the notice uses no grant beyond the
- * mailbox's own. The day of the last notice is one ISO date in
- * `stateFile`; no file means no notice yet. Every failure is a
+ * mailbox's own. `claimDay` creates `notice-sent/<YYYY-MM-DD>` in the data
+ * directory with an exclusive create: the run whose create succeeds gets
+ * `true`, and a run that finds the file gets `false`, so two runs on one day,
+ * at the same time or not, claim it once. Every failure is a
  * `NoticeMailboxError` naming the operation.
  *
  * **Example** (Make the notice mailbox layer)
@@ -125,7 +141,10 @@ const makeNoticeMailbox = (m365: M365Shape, fs: FileSystem.FileSystem, config: N
  * import * as S from "effect/Schema"
  *
  * const layer = O.map(
- *   S.decodeUnknownOption(NoticeMailboxConfig)({ mailbox: "attorney@example.test", stateFile: "/tmp/notice" }),
+ *   S.decodeUnknownOption(NoticeMailboxConfig)({
+ *     mailbox: "attorney@example.test",
+ *     dataDirectory: "/var/lib/practice-review-hub"
+ *   }),
  *   makeNoticeMailboxLayer
  * )
  * console.log(O.isSome(layer)) // true
@@ -136,10 +155,10 @@ const makeNoticeMailbox = (m365: M365Shape, fs: FileSystem.FileSystem, config: N
  */
 export const makeNoticeMailboxLayer = (
   config: NoticeMailboxConfig
-): Layer.Layer<NoticeMailbox, never, FileSystem.FileSystem | M365> =>
+): Layer.Layer<NoticeMailbox, never, FileSystem.FileSystem | M365 | Path.Path> =>
   Layer.effect(
     NoticeMailbox,
     Effect.gen(function* () {
-      return makeNoticeMailbox(yield* M365, yield* FileSystem.FileSystem, config);
+      return makeNoticeMailbox(yield* M365, yield* FileSystem.FileSystem, yield* Path.Path, config);
     })
   );

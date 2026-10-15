@@ -16,7 +16,7 @@
       "tsconfig.base.json",
       "tsconfig.packages.json"
     ],
-    "env": ["BEEP_ESLINT_PROFILE", "VITE_COSMOS_SPIKE", "REGEN_GOLDENS"],
+    "env": ["VITE_COSMOS_SPIKE", "REGEN_GOLDENS"],
     "passThroughEnv": [
       "BEEP_AGENT_SESSION_ID",
       "BEEP_NODE_BIN",
@@ -188,7 +188,6 @@
         ".oxlintrc.json",
         "_typos.toml",
         "biome.jsonc",
-        "eslint.config.mjs",
         "package.json",
         "packages/drivers/acp/package.json",
         "packages/drivers/acp/src/**",
@@ -276,6 +275,7 @@
         "packages/tooling/tool/cli/src/**",
         "packages/tooling/tool/docgen/package.json",
         "packages/tooling/tool/docgen/src/**",
+        "standards/effect-diagnostics.profile.json",
         "standards/lint-policy.sweeps.jsonc",
         "standards/policy-tools.fingerprint.json",
         "tsconfig.base.json",
@@ -607,9 +607,9 @@
         "tsconfig*.json",
         "$TURBO_ROOT$/tsconfig*.json",
         "$TURBO_ROOT$/packages/**/package.json",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/laws/EffectLawsAllowlist.ts",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/laws/NoNativeRuntimeHotspots.ts",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts",
         "$TURBO_ROOT$/standards/effect-laws.allowlist.jsonc",
         "!node_modules/**",
         "!**/node_modules/**",
@@ -636,9 +636,9 @@
       "inputs": [
         "scratchpad/**/*.{ts,tsx}",
         "packages/_internal/db-admin/effect-ontology/**/*.{ts,tsx}",
-        "packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts",
-        "packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
-        "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
+        "packages/tooling/policy-pack/repo-configs/src/laws/EffectLawsAllowlist.ts",
+        "packages/tooling/policy-pack/repo-configs/src/laws/NoNativeRuntimeHotspots.ts",
+        "packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts",
         "standards/effect-laws.allowlist.jsonc",
         "!**/node_modules/**",
         "!**/dist/**",
@@ -771,7 +771,8 @@
         "vitest.aliases.generated.json",
         "!**/node_modules/**",
         "!**/dist/**",
-        "!**/coverage/**"
+        "!**/coverage/**",
+        "standards/effect-diagnostics.profile.json"
       ]
     },
     "//#lint:oxlint": {
@@ -814,7 +815,7 @@
       "dependsOn": ["//#lint:policy-fingerprint"],
       "inputs": [
         "standards/effect-laws.allowlist.jsonc",
-        "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
+        "packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts",
         "{packages,apps,infra}/**/*.{ts,tsx}",
         "!**/node_modules/**"
       ]

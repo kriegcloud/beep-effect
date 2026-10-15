@@ -31,6 +31,7 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -192,6 +193,8 @@ const rowsOfPath = (data: string): ReadonlyArray<StrokeRow> =>
  * Effect.runPromise(parseZoomFlag("1:500,1500,1700,1400:walls")).then((zoom) => console.log(zoom.label)) // "walls"
  * ```
  *
+ * @param text - One zoom flag in fig:x,y,width,height:label form, using pixel coordinates.
+ * @returns An effect yielding a validated zoom, or a command error for malformed or invalid values.
  * @category parsing
  * @since 0.0.0
  */
@@ -264,6 +267,8 @@ const byAngleThenOffset = Order.combine(
  * console.log(table.includes("FIG 1 (front) — 0 shading strokes")) // true
  * ```
  *
+ * @param input - Drawing title, provenance hashes, and figure SVGs with coverage descriptions.
+ * @returns Markdown listing shading measurements in millimeters, grouped by figure.
  * @category formatting
  * @since 0.0.0
  */
@@ -289,20 +294,26 @@ export const strokeTableMarkdown = (input: {
       A.length(lengths) === 0
         ? ""
         : `\nShortest strokes: ${JSON.stringify(A.take(lengths, 5))}; longest: ${JSON.stringify(A.takeRight(lengths, 3))}.\n`;
-    return [
-      `\n## FIG ${figure.figure} (${figure.view}) — ${A.length(rows)} shading strokes; coverage ${figure.coverage}\n`,
-      "Strokes grouped by direction (angle from the page x axis), with the perpendicular offset of each line (mm, same family = parallel lines; consecutive offsets give the gaps), length (mm), and endpoints (mm from the page's top-left):\n",
-      "| angle | offset | length | x1 | y1 | x2 | y2 |",
-      "| --- | --- | --- | --- | --- | --- | --- |",
-      ...A.map(rows, (r) => `| ${r.angle} | ${r.offset} | ${r.length} | ${r.x1} | ${r.y1} | ${r.x2} | ${r.y2} |`),
-      extremes,
-    ].join("\n");
+    return A.join(
+      [
+        `\n## FIG ${figure.figure} (${figure.view}) — ${A.length(rows)} shading strokes; coverage ${figure.coverage}\n`,
+        "Strokes grouped by direction (angle from the page x axis), with the perpendicular offset of each line (mm, same family = parallel lines; consecutive offsets give the gaps), length (mm), and endpoints (mm from the page's top-left):\n",
+        "| angle | offset | length | x1 | y1 | x2 | y2 |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+        ...A.map(rows, (r) => `| ${r.angle} | ${r.offset} | ${r.length} | ${r.x1} | ${r.y1} | ${r.x2} | ${r.y2} |`),
+        extremes,
+      ],
+      "\n"
+    );
   });
-  return [
-    `# RENDER.md — measurements of "${input.title}"\n`,
-    `sheet-set sha256 ${input.sheetSetSha256}; spec sha256 ${input.specSha256}. Shading strokes are drawn 0.2 mm wide (0.567 pt); visible outlines 0.35 mm (0.992 pt); 72 pt = 25.4 mm.\n`,
-    ...sections,
-  ].join("\n");
+  return A.join(
+    [
+      `# RENDER.md — measurements of "${input.title}"\n`,
+      `sheet-set sha256 ${input.sheetSetSha256}; spec sha256 ${input.specSha256}. Shading strokes are drawn 0.2 mm wide (0.567 pt); visible outlines 0.35 mm (0.992 pt); 72 pt = 25.4 mm.\n`,
+      ...sections,
+    ],
+    "\n"
+  );
 };
 
 /**
@@ -319,6 +330,8 @@ export const strokeTableMarkdown = (input: {
  * console.log(priorSummaryMarkdown([]).startsWith("# Findings already reported")) // true
  * ```
  *
+ * @param reports - Earlier reviewer reports in the order later reviewers should read them.
+ * @returns Markdown preserving findings, prior assessments, and unassessed items in report order.
  * @category formatting
  * @since 0.0.0
  */
@@ -332,18 +345,20 @@ export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): stri
     const stances = A.map(report.priorAssessment, (p) => `  - on ${p.id}: ${p.stance} — ${p.note}`);
     const unassessed =
       A.length(report.couldNotAssess) === 0 ? [] : [`  - could_not_assess: ${A.join(report.couldNotAssess, " | ")}`];
-    return [
-      `\n## ${report.reviewer} — verdict ${report.verdict} — blockers: ${JSON.stringify(report.blockers)}\n`,
-      ...findings,
-      ...stances,
-      ...unassessed,
-    ].join("\n");
+    return A.join(
+      [
+        `\n## ${report.reviewer} — verdict ${report.verdict} — blockers: ${JSON.stringify(report.blockers)}\n`,
+        ...findings,
+        ...stances,
+        ...unassessed,
+      ],
+      "\n"
+    );
   });
-  return [
-    "# Findings already reported in this loop (dedupe against these; confirm or refute each)\n",
-    ...sections,
-    "",
-  ].join("\n");
+  return A.join(
+    ["# Findings already reported in this loop (dedupe against these; confirm or refute each)\n", ...sections, ""],
+    "\n"
+  );
 };
 
 /**
@@ -358,19 +373,24 @@ export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): stri
  * console.log(priorIdsMarkdown([]).startsWith("# Finding ids already reported")) // true
  * ```
  *
+ * @param reports - Earlier reports whose finding identifiers and categories may reach synthetic reviewers.
+ * @returns Markdown listing finding ids, categories, and bases while excluding the full matter summary.
  * @category formatting
  * @since 0.0.0
  */
 export const priorIdsMarkdown = (reports: ReadonlyArray<CriticReport>): string =>
-  [
-    "# Finding ids already reported by earlier reviewers (categories only; the matter set is not shown to you)\n",
-    ...pipe(
-      reports,
-      A.flatMap((report) => report.findings),
-      A.map((f) => `- ${f.id} ${f.severity} ${f.category} — basis: ${f.basis}`)
-    ),
-    "",
-  ].join("\n");
+  A.join(
+    [
+      "# Finding ids already reported by earlier reviewers (categories only; the matter set is not shown to you)\n",
+      ...pipe(
+        reports,
+        A.flatMap((report) => report.findings),
+        A.map((f) => `- ${f.id} ${f.severity} ${f.category} — basis: ${f.basis}`)
+      ),
+      "",
+    ],
+    "\n"
+  );
 
 const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
 
@@ -395,6 +415,8 @@ const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
  * console.log(O.getOrElse(extractReportText({ route: "grok", text: wrapper }), () => "")) // {"reviewer":"grok-4.7"}
  * ```
  *
+ * @param input - Reviewer route and its captured output, including any route-specific wrapper.
+ * @returns The extracted report JSON text, or None when no report document can be located.
  * @category parsing
  * @since 0.0.0
  */
@@ -405,9 +427,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     return start >= 0 && end > start ? O.some(text.slice(start, end + 1)) : O.none();
   };
   const field = (value: unknown, key: string): O.Option<unknown> =>
-    typeof value === "object" && value !== null && key in value
-      ? O.fromNullishOr((value as Record<string, unknown>)[key])
-      : O.none();
+    P.hasProperty(value, key) ? O.fromNullishOr(value[key]) : O.none();
   return Match.value(input.route).pipe(
     Match.when("codex", () => outermost(input.text)),
     Match.when("grok", () =>
@@ -416,12 +436,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
         O.flatMap((wrapper) =>
           field(wrapper, "structuredOutput").pipe(
             O.map((structured) => JSON.stringify(structured)),
-            O.orElse(() =>
-              field(wrapper, "text").pipe(
-                O.filter((t): t is string => typeof t === "string"),
-                O.flatMap(outermost)
-              )
-            )
+            O.orElse(() => field(wrapper, "text").pipe(O.filter(P.isString), O.flatMap(outermost)))
           )
         ),
         O.orElse(() => outermost(input.text))
@@ -430,13 +445,13 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     Match.when("claude", () =>
       pipe(
         parseJson(input.text),
-        O.filter((events): events is ReadonlyArray<unknown> => Array.isArray(events)),
+        O.filter((events): events is ReadonlyArray<unknown> => A.isArray(events)),
         O.flatMap((events) =>
           pipe(
             events,
             A.findLast((event) => O.contains(field(event, "type"), "result" as unknown)),
             O.flatMap((event) => field(event, "result")),
-            O.filter((t): t is string => typeof t === "string"),
+            O.filter(P.isString),
             O.flatMap(outermost)
           )
         ),
@@ -470,6 +485,8 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
  * console.log(invocation.executable) // "grok"
  * ```
  *
+ * @param input - Reviewer configuration, pack paths, prompt, attachments, workspace choices, and environment.
+ * @returns The executable, arguments, working directory, and environment for the selected reviewer route.
  * @category constructors
  * @since 0.0.0
  */
@@ -803,8 +820,9 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
         figures: figureSvgs,
       })
     );
-    const images = yield* Effect.forEach(request.imagesDirs, (dir) =>
-      Effect.gen(function* () {
+    const images = yield* Effect.forEach(
+      request.imagesDirs,
+      Effect.fnUntraced(function* (dir) {
         const name = path.basename(dir);
         yield* mkdir(path.join(packDir, "images", name));
         const files = yield* imagesIn(dir);
@@ -872,8 +890,9 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     const prior = yield* priorReports(loopDir);
     const startedAt = DateTime.formatIso(yield* DateTime.now);
     const prompt = yield* Match.value(reviewer.scope).pipe(
-      Match.when("matter", () =>
-        Effect.gen(function* () {
+      Match.when(
+        "matter",
+        Effect.fnUntraced(function* () {
           yield* mkdir(path.join(packDir, "prior"));
           yield* write(path.join(packDir, "prior", "SUMMARY.md"), priorSummaryMarkdown(prior));
           const hint = Match.value(reviewer.route).pipe(
@@ -898,17 +917,21 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
             ),
             Match.exhaustive
           );
-          return [
-            input.template,
-            `You are reviewer "${reviewer.name}": ids ${reviewer.idPrefix}-01, ${reviewer.idPrefix}-02, …`,
-            hint,
-            CRITIC_HARD_RULES,
-            O.getOrElse(input.extra, () => ""),
-          ].join("\n");
+          return A.join(
+            [
+              input.template,
+              `You are reviewer "${reviewer.name}": ids ${reviewer.idPrefix}-01, ${reviewer.idPrefix}-02, …`,
+              hint,
+              CRITIC_HARD_RULES,
+              O.getOrElse(input.extra, () => ""),
+            ],
+            "\n"
+          );
         })
       ),
-      Match.when("synthetic", () =>
-        Effect.gen(function* () {
+      Match.when(
+        "synthetic",
+        Effect.fnUntraced(function* () {
           const syntheticPack = yield* Effect.fromOption(request.syntheticPack).pipe(
             Effect.mapError(() =>
               DrawingsCommandError.make({
@@ -918,7 +941,7 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
           );
           yield* write(path.join(syntheticPack, "prior-ids.md"), priorIdsMarkdown(prior));
           const brief = yield* read(path.join(syntheticPack, "BRIEF-synthetic.md"));
-          return [brief, CRITIC_HARD_RULES].join("\n");
+          return A.join([brief, CRITIC_HARD_RULES], "\n");
         })
       ),
       Match.exhaustive
@@ -1073,7 +1096,7 @@ const processEnvironment = (): Readonly<Record<string, string>> =>
   R.filterMap(
     (globalThis as unknown as { readonly process?: { readonly env?: Readonly<Record<string, string | undefined>> } })
       .process?.env ?? {},
-    (value) => (typeof value === "string" ? Result.succeed(value) : Result.fail(undefined))
+    (value) => (P.isString(value) ? Result.succeed(value) : Result.fail(undefined))
   );
 
 /**
@@ -1183,6 +1206,8 @@ export const DEFAULT_CRITIC_REVIEWERS: ReadonlyArray<CriticReviewer> = [
  * Effect.runPromise(selectReviewers(["grok-4.7", "claude-opus-5.5"])).then((rs) => console.log(rs.length)) // 2
  * ```
  *
+ * @param names - Reviewer names in the desired execution order; every name must match a default reviewer.
+ * @returns An effect yielding reviewers in requested order, or a command error naming an unknown reviewer.
  * @category constructors
  * @since 0.0.0
  */

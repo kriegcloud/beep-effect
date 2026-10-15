@@ -1,16 +1,17 @@
 /**
  * The notice-mailbox adapter over a fake `M365` mailbox and a real temporary
- * directory for the last-sent day. No request leaves the process; the
- * mailbox and notice here are synthetic.
+ * data directory for the day claims. No request leaves the process; the
+ * mailbox, questions and notice here are synthetic.
  */
 
+import { QuestionOption } from "@beep/law-practice-domain/values/Question";
+import { ReviewItem } from "@beep/law-practice-domain/values/ReviewItem";
 import { makeNoticeMailboxLayer, NoticeMailboxConfig } from "@beep/law-practice-server/NoticeMailbox";
-import { NoticeMailbox, NoticeMessage } from "@beep/law-practice-use-cases/DailyNotice";
+import { DailyNotice, DailyNoticeLive, NoticeMailbox, NoticeMessage } from "@beep/law-practice-use-cases/DailyNotice";
 import { GraphMessage } from "@beep/m365";
 import { LocalDate } from "@beep/schema/LocalDate";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -18,6 +19,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
+import * as Str from "effect/String";
 import { makeM365Stub, oneRun, Platform, serviceOf, temporaryDirectory } from "./MailTagging.adapters.fixture.ts";
 import type { M365CreateDraftMessageRequest, M365SendDraftMessageRequest } from "@beep/m365";
 
@@ -41,30 +43,38 @@ const fakeMailbox = (calls: Ref.Ref<Calls>) =>
       Ref.update(calls, (current) => ({ ...current, sends: A.append(current.sends, request) })),
   });
 
-const mailboxIn = Effect.fnUntraced(function* (stateFile: string, calls: Ref.Ref<Calls>) {
-  const config = NoticeMailboxConfig.make({ mailbox: MAILBOX, stateFile });
-  return yield* serviceOf(NoticeMailbox)(makeNoticeMailboxLayer(config).pipe(Layer.provide(fakeMailbox(calls))));
+const mailboxLayer = (dataDirectory: string, calls: Ref.Ref<Calls>) =>
+  makeNoticeMailboxLayer(NoticeMailboxConfig.make({ mailbox: MAILBOX, dataDirectory })).pipe(
+    Layer.provide(fakeMailbox(calls))
+  );
+
+const noCalls = () => Ref.make<Calls>({ drafts: [], sends: [] });
+
+const day = (dayOfMonth: number) => LocalDate.make({ year: 2026, month: 10, day: dayOfMonth });
+
+const question = ReviewItem.cases.question.make({
+  itemId: "question:notice-race",
+  text: "Is the synthetic reply due on December 1?",
+  sourceRefs: [],
+  facts: [],
+  options: [
+    QuestionOption.make({ optionId: "due-december-1", label: "Yes, December 1" }),
+    QuestionOption.make({ optionId: "not-a-deadline", label: "It is not a deadline" }),
+  ],
 });
 
 describe("@beep/law-practice-server NoticeMailbox", () => {
-  it.layer(Platform, { timeout: "10 seconds" })("over a temporary state file", (it) => {
-    it.effect("sends from the mailbox to itself and keeps the last sent day", () =>
+  it.layer(Platform, { timeout: "10 seconds" })("over a temporary data directory", (it) => {
+    it.effect("sends from the mailbox to itself", () =>
       oneRun(
         Effect.gen(function* () {
-          const path = yield* Path.Path;
-          const stateFile = path.join(yield* temporaryDirectory, "notice-last-sent");
-          const calls = yield* Ref.make<Calls>({ drafts: [], sends: [] });
-          const mailbox = yield* mailboxIn(stateFile, calls);
+          const calls = yield* noCalls();
+          const mailbox = yield* serviceOf(NoticeMailbox)(mailboxLayer(yield* temporaryDirectory, calls));
 
-          assertNone(yield* mailbox.lastSentOn);
-          const day = LocalDate.make({ year: 2026, month: 10, day: 14 });
-          yield* mailbox.recordSentOn(day);
           yield* mailbox.send(
             NoticeMessage.make({ subject: "Claude: 2 questions waiting", body: "2 questions are waiting in Claude." })
           );
 
-          assertSome(yield* mailbox.lastSentOn, day);
-          expect(yield* (yield* FileSystem.FileSystem).readFileString(stateFile)).toBe("2026-10-14\n");
           const { drafts, sends } = yield* Ref.get(calls);
           expect(
             A.map(drafts, ({ draft, userId }) => [
@@ -82,18 +92,64 @@ describe("@beep/law-practice-server NoticeMailbox", () => {
       )
     );
 
-    it.effect("fails the read when the state file names no day", () =>
+    it.effect("claims each day once, as one file under notice-sent", () =>
       oneRun(
         Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
-          const stateFile = path.join(yield* temporaryDirectory, "notice-last-sent");
-          yield* fs.writeFileString(stateFile, "not a date\n");
-          const mailbox = yield* mailboxIn(stateFile, yield* Ref.make<Calls>({ drafts: [], sends: [] }));
+          const dataDirectory = yield* temporaryDirectory;
+          const mailbox = yield* serviceOf(NoticeMailbox)(mailboxLayer(dataDirectory, yield* noCalls()));
 
-          const failure = yield* Effect.flip(mailbox.lastSentOn);
+          const claims = yield* Effect.all([
+            mailbox.claimDay(day(14)),
+            mailbox.claimDay(day(14)),
+            mailbox.claimDay(day(15)),
+          ]);
+          const files = yield* (yield* FileSystem.FileSystem).readDirectory(path.join(dataDirectory, "notice-sent"));
 
-          expect(failure.operation).toBe("read");
+          expect(claims).toStrictEqual([true, false, true]);
+          expect(A.sort(files, Str.Order)).toStrictEqual(["2026-10-14", "2026-10-15"]);
+        })
+      )
+    );
+
+    it.effect("sends exactly once when two runs on the same day race", () =>
+      oneRun(
+        Effect.gen(function* () {
+          const calls = yield* noCalls();
+          const notice = yield* serviceOf(DailyNotice)(
+            DailyNoticeLive.pipe(Layer.provide(mailboxLayer(yield* temporaryDirectory, calls)))
+          );
+
+          const outcomes = yield* Effect.all(
+            [
+              notice.sendIfDue({ digest: [question], today: day(14) }),
+              notice.sendIfDue({ digest: [question], today: day(14) }),
+            ],
+            { concurrency: 2 }
+          );
+
+          expect(
+            A.sort(
+              A.map(outcomes, ({ status }) => status),
+              Str.Order
+            )
+          ).toStrictEqual(["already-sent", "sent"]);
+          expect(A.length((yield* Ref.get(calls)).drafts)).toBe(1);
+        })
+      )
+    );
+
+    it.effect("fails the claim when the data directory cannot hold claims", () =>
+      oneRun(
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const notADirectory = path.join(yield* temporaryDirectory, "data-file");
+          yield* (yield* FileSystem.FileSystem).writeFileString(notADirectory, "not a directory\n");
+          const mailbox = yield* serviceOf(NoticeMailbox)(mailboxLayer(notADirectory, yield* noCalls()));
+
+          const failure = yield* Effect.flip(mailbox.claimDay(day(14)));
+
+          expect(failure.operation).toBe("claim");
         })
       )
     );

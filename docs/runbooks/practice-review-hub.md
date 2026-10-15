@@ -39,9 +39,10 @@ mkdir -p -m 0700 <data-dir>
 ```
 
 The hub creates `items.jsonl`, `verdicts.jsonl` and `answers.jsonl` there on
-the first write, owner-only. The notice keeps the day of its last email in
-`notice-last-sent` beside them. Keep the directory: the verdict and answer
-files are the record of what the attorney decided.
+the first write, owner-only. The notice keeps one claim file per notice day
+in `notice-sent/` beside them. Keep the directory: the verdict and answer
+files are the record of what the attorney decided. The claim files are only
+a guard and can be pruned once their day has passed.
 
 ## 2. The hub unit
 
@@ -179,9 +180,11 @@ systemctl --user start practice-review-notice.service
 journalctl --user -u practice-review-notice.service -n 20
 ```
 
-The notice records the day before it sends. A send that fails leaves that day
-without an email rather than risking two; the timer tries again the next
-morning. `Persistent=true` runs a morning missed while the workstation was
+The notice claims the day before it sends, by creating
+`notice-sent/<YYYY-MM-DD>` with an exclusive create. Only one run can claim a
+day, so the timer and a hand-started run together still send at most one
+email. A send that fails leaves that day without an email rather than risking
+two; the timer tries again the next morning. `Persistent=true` runs a morning missed while the workstation was
 off at the next start.
 
 ## 7. Verify

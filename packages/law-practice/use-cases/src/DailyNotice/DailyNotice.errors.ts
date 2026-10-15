@@ -12,7 +12,7 @@ import { DefectCause } from "../internal/DefectCause.ts";
 
 const $I = $LawPracticeUseCasesId.create("DailyNotice/DailyNotice.errors");
 
-const NoticeMailboxOperationBase = LiteralKit(["send", "read", "record"]);
+const NoticeMailboxOperationBase = LiteralKit(["claim", "send"]);
 
 /**
  * Notice-mailbox operation that failed.
@@ -30,7 +30,7 @@ const NoticeMailboxOperationBase = LiteralKit(["send", "read", "record"]);
  */
 export const NoticeMailboxOperation = NoticeMailboxOperationBase.pipe(
   $I.annoteSchema("NoticeMailboxOperation", {
-    description: "Notice-mailbox operation that failed: sending, reading the last sent day, or recording it.",
+    description: "Notice-mailbox operation that failed: claiming the day, or sending the notice.",
   }),
   SchemaUtils.withLiteralKitStatics(NoticeMailboxOperationBase)
 );
@@ -45,7 +45,7 @@ export const NoticeMailboxOperation = NoticeMailboxOperationBase.pipe(
 export type NoticeMailboxOperation = typeof NoticeMailboxOperation.Type;
 
 /**
- * The notice mailbox could not send the notice, or read or record the day it last sent one.
+ * The notice mailbox could not claim the day, or could not send the notice.
  *
  * **Details**
  *
@@ -77,6 +77,6 @@ export class NoticeMailboxError extends S.TaggedError<NoticeMailboxError, { read
   },
   $I.annoteError<NoticeMailboxError>("NoticeMailboxError", {
     title: "Notice mailbox unavailable",
-    description: "The notice mailbox could not send the notice, or read or record the day it last sent one.",
+    description: "The notice mailbox could not claim the day, or could not send the notice.",
   })
 ) {}
