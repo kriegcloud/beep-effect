@@ -31,11 +31,11 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+P1 Slice — complete (2026-10-15): `beep palantiri parcel account-headroom [--json]` with two-level freshness; see `PLAN.md` Execution Notes. Next: P2 parcels 2–5.
 
 ## Latest Evidence
 
-Not started.
+2026-10-15: P1 complete; gates and the live run (envelope `Fresh`, 10 of 13 accounts fresh) are recorded in `PLAN.md` Execution Notes.
 
 ## Notes
 

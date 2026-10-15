@@ -20,3 +20,10 @@ Date: 2026-10-15. Subjects: `//` and `@beep/repo-cli`.
 - The new task's input set covers the scan's reads (`root-tasks-turbo-inputs.test.ts` probes a
   nested source file, a test tsconfig, an infra test file and `tsconfig.base.json`).
 - Qualification scope, profile and epoch are kept as recorded.
+
+## Round-1 review (2026-10-15)
+
+`//#lint:opaque-roundtrips` now hashes every tracked `*.test.{ts,tsx}` (the scan's `git ls-files`
+surface), all `scratchpad/**/*.{ts,tsx}`, and `src`/`test` TypeScript plus tsconfigs under `apps`,
+`packages`, `infra`, `goals`, `explorations` and `tools`. Widening only adds inputs, so a cached green
+can no longer survive a change the scan reads. No other task changed.
