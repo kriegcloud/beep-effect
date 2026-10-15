@@ -1,11 +1,11 @@
 {
-  "previous": "8896acbb4e3e0063b65c6b5ff8bf6c8f8f36cc3d54c26960cf1a34a4a4e346fc",
+  "previous": "51593249d9a2ff070eb6e8b03d09bf124da4efbd78e18dac0bdcfe9ddda4c2cb",
   "review": {
     "reviewer": "Codex lane E under orchestrator S31b (2026-10-15)",
     "reason": "Re-record only root script-map and cycle/fingerprint input drift from the reviewed TypeScript catalog migration; retain qualification scope and state.",
     "basis": {
       "path": "goals/ts7-typescript-catalog-7/research/cache-baseline-basis.md",
-      "sha256": "2bed607e543be0c09c10dbab1f73a92e7a0ab0d3fe9d47dde972e150d0ee5072"
+      "sha256": "264bb39666e690c0a31cd8cf07ea1af834e9d8afa77298147e04a0d3ae697dc5"
     }
   },
   "subjects": ["//"],

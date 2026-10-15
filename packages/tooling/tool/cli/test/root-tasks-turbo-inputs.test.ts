@@ -135,6 +135,7 @@ const directInputs: Readonly<Record<string, string>> = {
   "lint:tsconfig-overlay": "packages/fixture/tsconfig.check.json",
   "lint:package-test-typecheck": "standards/test-typecheck.blindspot-baseline.jsonc",
   "lint:effect-vitest": "standards/effect-vitest.inventory.jsonc",
+  "lint:opaque-roundtrips": "packages/fixture/test/opaque.test.ts",
   "jsdoc:ratchet:check": "standards/jsdoc-totals.regression-baseline.jsonc",
   "changeset:status": ".changeset/c3-probe.md",
   "config-sync:check": "packages/fixture/docgen.json",
@@ -457,6 +458,12 @@ describe("Stage C root task inputs", { concurrent: false }, () => {
           Tuple.make("//#jsdoc:inventory:check", "scratchpad/c3-probe.ts"),
           Tuple.make("//#jsdoc:inventory:check", "tools/fixture/src/c3-probe.ts"),
           Tuple.make("//#lint:effect-vitest", "packages/drivers/fixture/test/fixtures/zz-probe.test.ts"),
+          Tuple.make("//#lint:opaque-roundtrips", "packages/fixture/src/Nested.ts"),
+          Tuple.make("//#lint:opaque-roundtrips", "apps/fixture/tsconfig.test.json"),
+          Tuple.make("//#lint:opaque-roundtrips", "infra/fixture/test/opaque.test.tsx"),
+          Tuple.make("//#lint:opaque-roundtrips", "tsconfig.base.json"),
+          Tuple.make("//#lint:opaque-roundtrips", "scratchpad/fixture/opaque.test.ts"),
+          Tuple.make("//#lint:opaque-roundtrips", "goals/fixture/ops/opaque.test.ts"),
         ];
         for (const [taskId, input] of probes) {
           const baseline = yield* dryRun(root, binary, [taskId], false);

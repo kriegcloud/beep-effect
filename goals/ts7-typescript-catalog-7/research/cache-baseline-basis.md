@@ -2,7 +2,7 @@
 
 Reviewed by the lane E implementation agent under the orchestrator's explicit
 2026-10-15 S31b ruling. Starting tree is baf501b4aa, containing ca9d9a5828 and
-main 94f1b6adbf. The audit reports exactly the 27 root configuration-drift blockers
+main 94f1b6adbf, re-checked after merging main 100930d2d7. The audit reports exactly the 28 root configuration-drift blockers
 listed below, plus turbo.json source drift. No other blocking kind or subject.
 The request names only ["//"]. This is an input re-record, not new qualification,
 exception inventory, red waiver or change to task behavior beyond the already
@@ -22,7 +22,7 @@ JSON values. Qualification ledger/state is unchanged.
   which exactly matches both main and the prior baseline. The current digest is
   659f6d1fd894b19a38686bbbdb181fb2256a2b7f383eeb41e9b47d7f441075fd.
   This one reviewed helper-script correction explains every root commandDigest
-  change, including the 27 cached blocking tasks. Their own commands/dependencies
+  change, including the 28 cached blocking tasks. Their own commands/dependencies
   are unchanged; no unchanged-input red is being hidden.
 - patchedDependencies is unchanged versus main. The rejected five Madge-stack
   patches and keys are absent; there is no patch input to qualify.
@@ -64,6 +64,7 @@ cache flags, outputs and individual task commands are retained.
 | `//#lint:jsdoc:root` | Root script-map digest changes for the infra compiler path. |
 | `//#lint:judge-rubric` | Root script-map digest changes for the infra compiler path. |
 | `//#lint:native-runtime:roots` | Root script-map digest changes for the infra compiler path. |
+| `//#lint:opaque-roundtrips` | Root script-map digest changes for the infra compiler path (task added on main by #1827 after this basis was first written). |
 | `//#lint:package-scripts` | Root script-map digest changes for the infra compiler path. |
 | `//#lint:package-test-typecheck` | Root script-map digest changes for the infra compiler path. |
 | `//#lint:policy-fingerprint` | Root script-map digest changes for the infra compiler path; adds .oxlintrc.circular.json and fallow-plugin-manual-development-tools.json declared inputs. |
