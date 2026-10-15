@@ -459,11 +459,14 @@ const typedReturnValue = (fn: ESTree.Function | ESTree.ArrowFunctionExpression):
   const type = fn.returnType?.typeAnnotation;
   return type !== undefined && type.type !== "TSVoidKeyword" && type.type !== "TSNeverKeyword";
 };
+// `return` followed on the same line by a value (`return x`, `return(x)`); a bare
+// `return;` or `return` before a newline (ASI returns undefined) carries no value.
+const RETURNS_VALUE = /\breturn\b[ \t]*[^\s;}]/;
 const returnsValue = (context: Context, fn: ESTree.Function | ESTree.ArrowFunctionExpression): boolean =>
   fn.async ||
   (fn.type === "ArrowFunctionExpression" && fn.body?.type !== "BlockStatement") ||
   typedReturnValue(fn) ||
-  Str.includes("return ")(
+  RETURNS_VALUE.test(
     O.fromNullishOr(fn.body).pipe(
       O.map(context.sourceCode.getText),
       O.getOrElse(() => "")
@@ -532,6 +535,7 @@ const validTags = HashSet.fromIterable([
   "copyright",
   "default",
   "defaultvalue",
+  "defaultValue",
   "deprecated",
   "description",
   "desc",
@@ -653,6 +657,7 @@ const noNameTags = HashSet.fromIterable([
   "author",
   "default",
   "defaultvalue",
+  "defaultValue",
   "description",
   "example",
   "exception",
@@ -672,6 +677,7 @@ const noNameTags = HashSet.fromIterable([
 const noTypeTags = HashSet.fromIterable([
   "default",
   "defaultvalue",
+  "defaultValue",
   "description",
   "example",
   "file",

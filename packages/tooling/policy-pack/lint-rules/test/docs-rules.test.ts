@@ -95,6 +95,24 @@ const cases: ReadonlyArray<{ readonly args: readonly [DocsRuleId, string, string
   },
   {
     args: [
+      "check-tag-names",
+      "/** Compute a value.\n * @defaultValue 1\n * @since 0.1.0\n */\nexport const value = 1;",
+    ],
+    count: 0,
+  },
+  {
+    args: ["require-returns", "/** Normalize input. */\nfunction normalize(value) { return(value); }"],
+    count: 1,
+  },
+  {
+    args: [
+      "require-returns",
+      "/** Normalize input. */\nfunction normalize(value) { if (value) return;\n  log(value); }",
+    ],
+    count: 0,
+  },
+  {
+    args: [
       "require-returns-description",
       "/** Normalize input.\n * @returns\n */\nfunction normalize(): string { return ''; }",
     ],
