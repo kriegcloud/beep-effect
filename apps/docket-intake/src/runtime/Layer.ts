@@ -31,6 +31,7 @@ import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import { DocketDryRunPortsLive } from "../DryRun.ts";
+import { makeDocketQuestionPublisherLayer } from "../Questions.ts";
 import type { DocketIntakeAppConfig } from "../Config.ts";
 
 // The app-only Microsoft Graph layer for the configured tenant and certificate.
@@ -64,6 +65,13 @@ const matterLookupLayer = (config: DocketIntakeAppConfig) =>
   O.match(config.kgBundleDirectory, {
     onNone: () => DocketMatterLookupUnavailableLive,
     onSome: (bundleDir) => makeDocketMatterLookupLayer(DocketKgBundleOptions.make({ bundleDir })),
+  });
+
+// The review hub's questions, over its data directory; without one, no questions are stored.
+const questionPublisherLayer = (config: DocketIntakeAppConfig) =>
+  O.match(config.reviewHubDirectory, {
+    onNone: () => Layer.empty,
+    onSome: (directory) => makeDocketQuestionPublisherLayer(directory).pipe(Layer.provide(BunCrypto.layer)),
   });
 
 // The docket sheet cross-check over the configured CSV export; without one there is no cross-check.
@@ -101,16 +109,17 @@ const pipelineOver = <ROut, E, R>(config: DocketIntakeAppConfig, ports: Layer.La
 
 // The docket intake pipeline over the live Graph ports, with every calendar create and message
 // mark recorded in the write journal. The store and the journal are exposed beside the pipeline
-// so the service can seed its cursor and start a run each cycle.
+// so the service can seed its cursor and start a run each cycle; so is the question publisher when
+// the review hub is configured.
 const makeDocketIntakeAppLayer = (options: IntakeOptions) => {
   const storeOptions = DocketFileStoreOptions.make({ directory: options.config.stateDirectory });
   const journal = makeDocketFileJournalLayer(storeOptions).pipe(
     Layer.provideMerge(makeDocketFileStoreLayer(storeOptions))
   );
   const graph = makeDocketGraphLayer(graphConfig(options)).pipe(Layer.provide(makeM365Layer(options.config)));
-  return pipelineOver(
-    options.config,
-    DocketJournalingPortsLive.pipe(Layer.provide(graph), Layer.provideMerge(journal))
+  return Layer.merge(
+    pipelineOver(options.config, DocketJournalingPortsLive.pipe(Layer.provide(graph), Layer.provideMerge(journal))),
+    questionPublisherLayer(options.config)
   );
 };
 

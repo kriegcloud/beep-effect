@@ -31,11 +31,11 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+P2 Parcels — complete (2026-10-15): all five parcels (`account-headroom`, `lane-reds`, `host-pressure`, `app-error-classes`, `since-last-check`) through `beep palantiri parcel <id> [--json] [--budget N]`, plus `beep palantiri parcels`; see `PLAN.md` Execution Notes. Next: P3 MCP host and the `beep session open` push.
 
 ## Latest Evidence
 
-Not started.
+2026-10-15: P2 complete; gates and one live run per parcel (four `Fresh`, app error classes `Unknown{no-source}`, no `@` or home path in any envelope) are recorded in `PLAN.md` Execution Notes. P1's live run is recorded there too.
 
 ## Notes
 

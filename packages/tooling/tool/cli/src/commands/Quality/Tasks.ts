@@ -2949,6 +2949,7 @@ const policyMediumTasks = [
   "lint:tsconfig-overlay",
   "lint:package-test-typecheck",
   "lint:effect-vitest",
+  "lint:opaque-roundtrips",
 ];
 // The git-delta checks compare the merge-base archive with HEAD. They are uncached by
 // contract and cost about two minutes on a clean tree, so a local full-scope `bun run lint`

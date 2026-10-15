@@ -54,6 +54,7 @@ export default defineBeepNextConfig({
   allowedDevOrigins: ["oip-web.beep.localhost", "dankstation.tailc7c348.ts.net"],
   additionalTranspilePackages: ["@beep/hubspot", "@beep/sanity"],
   next: {
+    experimental: { useTypeScriptCli: true },
     images: {
       qualities: [50, 60, 75],
     },

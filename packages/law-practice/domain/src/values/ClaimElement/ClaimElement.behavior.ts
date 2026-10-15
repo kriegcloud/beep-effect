@@ -561,8 +561,10 @@ const decodeTree = S.decodeEffect(ClaimElementTree);
  * @since 0.0.0
  */
 export const decomposeClaim: {
-  (claims: PatentClaims): (claim: PatentClaim) => Effect.Effect<ClaimElementTree, ClaimDecompositionError>;
-  (claim: PatentClaim, claims: PatentClaims): Effect.Effect<ClaimElementTree, ClaimDecompositionError>;
+  (
+    claims: Parameters<ClaimElementDecomposer>[1]
+  ): (claim: Parameters<ClaimElementDecomposer>[0]) => ReturnType<ClaimElementDecomposer>;
+  (...args: Parameters<ClaimElementDecomposer>): ReturnType<ClaimElementDecomposer>;
 } = dual(
   2,
   Effect.fn("ClaimElement.decomposeClaim")(function* (
@@ -598,5 +600,5 @@ export const decomposeClaim: {
         })
       )
     );
-  })
+  }) satisfies ClaimElementDecomposer
 );

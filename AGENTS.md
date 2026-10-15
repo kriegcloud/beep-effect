@@ -396,6 +396,7 @@ If you touch this, load or run this first. Do not hand-author around it.
 | JSDoc on exports | `.patterns/jsdoc-documentation.md` |
 | Gesture-bearing UI | browser-qa-loop skill |
 | Tailwind className / style props in UI code | bun run lint:shadcn (strict @shadcn/lint; policy .oxlintrc.shadcn.json, runbook docs/runbooks/design-system-lint.md) |
+| `@effect/tsgo` / `tsc-rs` / `@typescript/native` bumps | [TypeScript toolchain runbook](docs/runbooks/typescript-toolchain.md) |
 | PR publish / checks | yeet skill |
 | Any stopping point (done, blocked, merge-ready, retired) | closeout skill |
 

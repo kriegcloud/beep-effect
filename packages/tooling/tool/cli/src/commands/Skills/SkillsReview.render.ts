@@ -181,7 +181,15 @@ export const renderSkillPatchLabelSummary = (receipt: SkillPatchLabelReceipt): s
   A.join(
     [
       `skills patch label ${receipt.skill}: ${receipt.outcome}; ${A.length(receipt.changes)} change(s), ${A.length(receipt.pending)} pending (planDigest ${receipt.planDigest})`,
-      ...A.map(receipt.changes, (change) => `  ${change.patch}: ${change.from} -> ${change.to}`),
+      ...A.map(
+        receipt.changes,
+        (change) =>
+          `  ${change.patch}: ${change.from} -> ${change.to}${
+            Str.Equivalence(change.fromDropCondition, change.toDropCondition)
+              ? ""
+              : ` (drop condition "${change.fromDropCondition}" -> "${change.toDropCondition}")`
+          }`
+      ),
       ...A.map(receipt.pending, (pending) => `  ${pending.patch}: pending (${pending.reason})`),
     ],
     "\n"

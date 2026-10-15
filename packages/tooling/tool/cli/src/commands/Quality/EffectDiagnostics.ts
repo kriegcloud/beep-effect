@@ -46,12 +46,11 @@ class EffectDiagnosticsProfile extends S.Opaque<EffectDiagnosticsProfile, { read
       preferEffectRecord: S.Literal("error"),
       preferNamespaceImport: S.Literal("off"),
       preferSchemaTaggedError: S.Literal("error"),
-      schemaClassMissingBrand: S.Literal("off"),
+      schemaClassMissingBrand: S.Literal("error"),
     }),
   }).pipe(
     $I.annoteSchema("EffectDiagnosticsProfile", {
-      description:
-        "The nine rules absent from tsc-rs 0.6.0; schemaClassMissingBrand waits for the schema-opaque-default closing PR.",
+      description: "The nine rules absent from tsc-rs 0.6.0, configured for the standalone @effect/tsgo lane.",
     })
   )
 ) {}
@@ -79,9 +78,7 @@ export const readEffectDiagnosticsProfile = Effect.fn("EffectDiagnostics.readPro
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   return yield* fs.readFileString(path.join(repoRoot, effectDiagnosticsProfilePath)).pipe(
-    Effect.flatMap((text) =>
-      decodeEffectDiagnosticsProfileJson(text)
-    ),
+    Effect.flatMap((text) => decodeEffectDiagnosticsProfileJson(text)),
     QualityScriptCommandError.mapError("Invalid standalone Effect diagnostics profile.")
   );
 });

@@ -65,6 +65,7 @@ describe("Shared Next.js config preset", () => {
         transpilePackages: ["@beep/ui"],
         experimental: {
           optimizePackageImports: ["@mui/material"],
+          useTypeScriptCli: true,
         },
       },
     });
@@ -80,6 +81,7 @@ describe("Shared Next.js config preset", () => {
     ]);
     expect(config.experimental?.optimizePackageImports).toContain("@base-ui/react");
     expect(config.experimental?.optimizePackageImports).toContain("@mui/material");
+    expect(config.experimental?.useTypeScriptCli).toBe(true);
     expect(config.agentRules).toBe(false);
     expect(config.turbopack?.root).toBe("/repo");
     expect(config.typescript?.tsconfigPath).toBe("tsconfig.next.json");

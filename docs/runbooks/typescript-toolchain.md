@@ -1,17 +1,19 @@
 # TypeScript toolchain: which compiler runs where
 
 Use this runbook when a tool, an editor, or a dependency bump asks "which
-TypeScript is this repo on?" The answer is two versions on purpose, and the
-Effect compiler is patched over one of them.
+TypeScript is this repo on?" The root uses TypeScript 7 under two names, with a separate
+TS6 bridge for classic API scripts. The Effect compiler patches the native binary;
+tsc-rs remains the build/check gate.
 
-## Four packages, four roles
+## Installed compilers and API bridge
 
 | Package (catalog) | Version | Role |
 | --- | --- | --- |
-| `typescript` | `^6.0.3` | Programmatic (JS) compiler API only. Never runs a repo typecheck; its `bin/tsc` is shadowed. |
-| `@typescript/native` | `npm:typescript@^7.0.2` | The TypeScript 7 Go compiler. Owns the hoisted `node_modules/.bin/tsc`. |
+| `typescript` | `^7.0.2` | Native TypeScript 7 package; no classic `lib/typescript.js` API. |
+| `@typescript/native` | `npm:typescript@^7.0.2` | The same TypeScript 7 package under the retained alias, used by patching and unstable API consumers. Alias consolidation is a separate follow-up. |
+| `@typescript/typescript6` | `6.0.2` (exact) | Microsoft’s classic JS API bridge for the schema-opaque codemod/fixup, scratchpad JSDoc census; declared at root and in scratchpad. |
 | `@effect/tsgo` + seven `@effect/tsgo-<platform>` packages | `0.53.0` | The Effect language service build of TypeScript 7. Editors and the independent Effect diagnostics lane use this reviewed pin; it can advance beyond the tsc-rs port. |
-| `tsc-rs` + six `@tsc-rs/<platform>` optional packages | `0.6.0` | The Rust port of the TypeScript 7 compiler ([pingdotgg/ts-rust](https://github.com/pingdotgg/ts-rust)) with the Effect rules of one effect-tsgo version compiled in (0.6.0 ports 0.51.1) and its own TypeScript pinned (`7.1.0-dev.20261008.1`). Runs every `beep:build`, `beep:check` and `beep:check:tests`, the root `check:configs`, and infra's `-b` build. |
+| `tsc-rs` + six `@tsc-rs/<platform>` optional packages | `0.6.0` | The Rust port of the TypeScript 7 compiler ([pingdotgg/ts-rust](https://github.com/pingdotgg/ts-rust)) with the Effect rules of one effect-tsgo version compiled in (0.6.0 ports 0.51.1) and its own TypeScript pinned (`7.1.0-dev.20261008.1`). Runs generated library `beep:build`, `beep:check` and `beep:check:tests` gates, the root `check:configs`, and infra's `-b` check. Framework apps retain their own build commands. |
 
 The root `prepare` script (`effect-tsgo unpatch && node scripts/prune-tsgo-backups.mjs && effect-tsgo patch`)
 copies the Effect binary over the native package's Go binary, keeping the stock
@@ -115,10 +117,9 @@ Each project runs the installed `effect-tsgo diagnostics --project <config>
 including effect-drizzle's documented missedPipeableOpportunity exception.
 Malformed JSON, unexpected exits, zero coverage and files without a plugin fail
 the lane. Errors and warnings fail; the configured map promotes enabled rules
-to error. Five 0.52 rules are armed at error. `schemaClassMissingBrand` remains
-off in the lane profile as of 2026-10-14; the schema-opaque-default closing PR
-flips that one key
-(the post-#1758 spike found zero sites). The public catalog payload rename landed
+to error. All six 0.52 rules are armed at error; the schema-opaque-default
+closing PR armed `schemaClassMissingBrand` on 2026-10-15 (the post-#1758 spike
+and a full lane run found zero sites). The public catalog payload rename landed
 in #1807; no catalog suppression exception remains. The two 0.53 import-style
 rules remain explicitly off. Intentional named helper imports are pervasive,
 and Effect barrel imports violate the code law.
@@ -181,55 +182,65 @@ failures have typed errors. These unstable API calls are validated against the
 installed package declarations and require review when upgrading TypeScript.
 The programmatic API uses the Go compiler; check/build gates remain on tsc-rs.
 
-## Why `typescript@6` cannot go yet
+## What still needs TS6
 
-TypeScript 7.0 shipped without the classic programmatic API that tools import
-from the `typescript` module. Microsoft targets a stable API for 7.1. Until a
-consumer releases against that API, it needs the 6.x package under the
-`typescript` name. The tstyche row was refreshed 2026-10-14; other rows were
-checked 2026-09-24:
+- **infra/Pulumi:** the Pulumi nodejs runtime loads the classic compiler API at
+  deploy time and declares a `< 7` TypeScript peer. The hoisted linker installs
+  `@pulumi/pulumi` at the root, where a bare `require("typescript")` finds TS7's
+  version-only module and skips Pulumi's vendored fallback. An exact-version
+  patch (`patches/@pulumi%2Fpulumi@3.268.0.patch`) points `typescript-shim.js`
+  and `tsutils.js` at the root `@typescript/typescript6` bridge; `pulumi preview`
+  logs "Found typescript version 6.0.3" from that bridge. Re-apply or drop the
+  patch on any `@pulumi/pulumi` bump; it goes with Pulumi in the Alchemy
+  migration. `infra/package.json` keeps `typescript: ^6.0.3` for the ghaRunners
+  SDK build. A narrowly scoped syncpack version group permits only this
+  package/dependency divergence.
+  `infra:prepare-gha-runners` explicitly uses
+  `infra/node_modules/typescript/bin/tsc`; the SDK keeps its own ^6.0.3 dependency
+  and checks that its compiler is 6.x before execution.
+- **Classic API scripts:** the schema-opaque goal codemod/fixup and scratchpad
+  JSDoc census import `@typescript/typescript6` explicitly. Microsoft's bridge
+  keeps these live tools usable without putting the classic API back under the
+  root `typescript` name. The census accepts `--help` without writing reports.
+- **Frozen ontology replay:** reproducing the frozen 2026-08-29
+  `beep-ci-operational-ontology` TypeScript adapter needs a 6.x `typescript`
+  (for example in a scratch install); preserve its bytes and digest.
 
-| Tool | Needs `typescript@6`? | Why |
-| --- | --- | --- |
-| tstyche 8.0.0-beta.0 | no, for effect-drizzle's explicit targets | downloads `5.9.3` and `6.0.3` (hosted matrix) plus `next` (on demand) to its own store; TS7 backend uses the 7.1 sync/ast API. No root `typescript@6` API is loaded for this matrix. |
-| commitlint (`cosmiconfig-typescript-loader`) | no direct API use | declares a TypeScript peer; `commitlint.config.ts` is loaded through jiti |
-| ts-morph 28 | no | `@ts-morph/common` vendors its own TypeScript 6.0.2 |
+The bridge is supported on the repo's Bun pin: oven-sh/bun#33834 was fixed
+before Bun 1.4.0. Remove it when these scripts migrate to a supported native
+API or are explicitly retired.
 
-Deprecated API scanning uses oxlint 1.88.0 + oxlint-tsgolint 7.0.2004 (bundled
-TypeScript 7.0.2), independently of the JS compiler API.
+Effect-drizzle stays on exact tstyche `8.0.0-beta.0`. Its hosted matrix is
+`5.9.3 || 6.0.3`, both exact; explicit targets load compilers from tstyche's
+own store and do not load root `typescript`. TypeScript 7 coverage is on demand:
 
-The hold lives in `syncpack.config.ts` (the "Held back" update group) so
-`deps:update` cannot collapse the split. Reassess the root `typescript@6` hold
-when the remaining classic-API consumers support TypeScript 7.1; only then drop `typescript@6` and
-re-point consumers that resolve the `typescript` name at the native package.
-The separate exact tstyche beta hold ends when stable 8.0 passes the same
-effect-drizzle assertions.
+```sh
+bun run --cwd packages/ecosystem/effect-drizzle beep:type-test --target next
+```
 
-Effect-drizzle's hosted matrix is `5.9.3 || 6.0.3`, both exact, so `beep:check`
-stays reproducible. TypeScript 7 coverage is an on-demand local run:
-`bun run --cwd packages/ecosystem/effect-drizzle beep:type-test --target next`.
 On 2026-10-14 `next` resolved to `7.1.0-dev.20261014.1` and all 78 assertions
-passed. It stays out of the hosted matrix because `next` moves daily and the beta
-refuses exact prerelease targets, including the tsc-rs pin
-`7.1.0-dev.20261008.1`. When tstyche lists a 7.1 beta or stable, add that exact
-version to the hosted matrix. The beta intentionally excludes 7.0, including
-7.0.2. Only the `*` target selects the installed TypeScript; explicit targets
-use stock store compilers, without the repo's Effect patch.
-See `goals/ts7-tstyche8-type-tests` for the errors and migration evidence.
+passed. It stays out of hosted checks because it moves daily; the beta excludes
+7.0 (including 7.0.2) and refuses exact prerelease targets. Add an accepted exact
+7.1 beta/stable to the hosted matrix when available. See
+`goals/ts7-tstyche8-type-tests` for the lane-C ruling and migration evidence.
+Commitlint loads its config through jiti; ts-morph vendors its compiler.
+Deprecated API scanning uses oxlint + oxlint-tsgolint's bundled native compiler.
 
-Microsoft's `@typescript/typescript6` bridge (alias `typescript` to 7 and give
-old consumers 6 under a second name) was blocked by a Bun alias-resolution bug
-(oven-sh/bun#33834). The fix merged 2026-08-06 and Bun 1.4.0 shipped after it,
-so the bridge is now available on the repo's Bun pin. Adopting it is a separate
-decision; nothing here depends on it.
+Circular dependency lint uses oxlint’s native `import/no-cycle` rule on the two
+tooling source roots. It ignores type-only cycles and requires a positive checked
+file count. Madge and its classic compiler parser stack are removed.
+
+Next's build-time type checks use `experimental.useTypeScriptCli: true` in
+oip-web and todox. This avoids loading the absent classic `lib/typescript.js`;
+Next's native-preview auto-detection does not recognize our native alias.
 
 ## Editors
 
 WebStorm's **Languages & Frameworks > TypeScript** picker only lists packages
 named `typescript` that carry `lib/tsserver.js`. Native TypeScript 7 has no
-`tsserver.js`, so that picker can never host the Effect compiler and will keep
-showing `node_modules/typescript` at 6.0.3. Leave it there, or choose
-JetBrains' bundled "TypeScript 7 (Native)" entry for plain TS diagnostics.
+`tsserver.js`. The old root 6.0.3 picker entry is gone on purpose. Choose
+JetBrains' bundled **TypeScript 7 (Native)** service for plain TS diagnostics
+and the Effect plugin’s language server for Effect diagnostics.
 
 Effect diagnostics come from the Effect JetBrains plugin's language server,
 which launches the native binary with `--lsp --stdio`. Point its **Binary mode**
