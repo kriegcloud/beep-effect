@@ -10,12 +10,16 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { AccountHeadroom } from "./AccountHeadroom.models.ts";
 import { Freshness } from "./Freshness.ts";
+import { AdmissionSlots, HostMemory, PressureStall } from "./HostPressure.models.ts";
+import { LaneRed } from "./LaneReds.models.ts";
 import { ParcelBudget, ParcelId, ParcelKey, ParcelReceipt, ParcelSpec } from "./Parcel.models.ts";
+import { SessionChange } from "./SinceLastCheck.models.ts";
 
 const $I = $PalantiriId.create("ParcelEnvelope.models");
 
 /**
- * Any parcel item, tagged by parcel kind.
+ * Any parcel item, tagged by item kind: `AccountHeadroom`, `LaneRed`,
+ * `PressureStall`, `HostMemory`, `AdmissionSlots` or `SessionChange`.
  *
  * **Example** (Guard an item)
  *
@@ -34,9 +38,16 @@ const $I = $PalantiriId.create("ParcelEnvelope.models");
  * @category models
  * @since 0.0.0
  */
-export const ParcelItem = S.Union([AccountHeadroom]).pipe(
+export const ParcelItem = S.Union([
+  AccountHeadroom,
+  LaneRed,
+  PressureStall,
+  HostMemory,
+  AdmissionSlots,
+  SessionChange,
+]).pipe(
   S.toTaggedUnion("_tag"),
-  $I.annoteSchema("ParcelItem", { description: "One item of any parcel, tagged by parcel kind." })
+  $I.annoteSchema("ParcelItem", { description: "One item of any parcel, tagged by item kind." })
 );
 
 /**
