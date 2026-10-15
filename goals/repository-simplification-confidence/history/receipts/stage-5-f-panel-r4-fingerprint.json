@@ -1,7 +1,7 @@
 {
   "format": "rsc-f-config-fingerprint/v3",
-  "capturedAt": "2026-10-15T15:13:16.746695Z",
-  "setSha256": "478f8b3a64461d3ef2f5277e964a7135c1d7fc90483d58a956338a55cd999cfd",
+  "capturedAt": "2026-10-15T16:13:09.231526Z",
+  "setSha256": "e05e914da3efae7026ef674e4fa1dd8a4d6d80d41e155bc5d4b9fa4845eb28a0",
   "files": [
     {
       "path": ".claude/agents/architecture-guardian.md",
@@ -1679,7 +1679,7 @@
       "path": "~/.claude.json",
       "bytes": 370720,
       "sha256": "99c761202283b43d1ded79f70829db6d139c8ef3f56c63a6e17abf9a651fbec4",
-      "rawSha256": "9d0729998e1fa57f53a95b6d42d97bece997b9e7f86d4d91e6ce43ee41b709f1",
+      "rawSha256": "2fac39cdde4495e2eaa3ef85dbe7806d0def8ce08a4e61844732008aeed20e8d",
       "hashProjection": "canonical JSON excluding only pluginUsage runtime counter"
     },
     {
@@ -1735,7 +1735,7 @@
     {
       "path": "~/.cursor/cli-config.json",
       "bytes": 3810,
-      "sha256": "518ca4eb4a1cefa029cd4915838cfe4dbed342f42cc38673d490f58e56fcb7d6"
+      "sha256": "ff0032204d7074b5e22a4f939630575456ec4c2af6eb5994fb1211bb3ad2e57f"
     },
     {
       "path": "~/.cursor/mcp.json",
@@ -1792,7 +1792,7 @@
     {
       "path": "~/.config/Claude/claude_desktop_config.json",
       "bytes": 20193,
-      "sha256": "7a488dab3ef6fd617ebd03376501425ac8860261b88bf008886196dea5d19195"
+      "sha256": "77a01c2b5ba50fa4db50cf4bddd0f1bf74f10324203b72cc4ccaae820ce169f9"
     }
   ]
 }

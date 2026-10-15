@@ -1,7 +1,7 @@
 {
-  "status": "terminal-package-proof-running",
+  "status": "local-verification-complete-before-single-push",
   "sourceCheckpoint": "cbdf2e8e0bb5785a81f00574b441c3e3b9a30fdb",
-  "integratedMain": "a679390ed8c533152f8c88f18b162a7fe741649f",
+  "integratedMain": "3aac574cce3b3e16c8da0e45eb78d5a637cc19b5",
   "fixCommits": [
     "89990bc16fc51934c1de8dbab35d86760de515e4",
     "47ab08e6170f20034073ac6c190069fb2c8745cc",
@@ -10,12 +10,12 @@
     "cbdf2e8e0bb5785a81f00574b441c3e3b9a30fdb"
   ],
   "fullPackageVerify": {
-    "status": "rerun after committing packet metadata",
-    "priorAttempt": {
-      "audit": "6716 passed, 1 failed: HEAD/worktree README lifecycle parity",
-      "attribution": "Working tree contained the active Lifecycle line while HEAD did not; package source unchanged",
-      "docgen": "see terminal report"
-    },
+    "status": "pass",
+    "verificationHead": "1baddcc7a6f5633cddc72c994994017c5099eed1",
+    "implementationCheckpoint": "cbdf2e8e0bb5785a81f00574b441c3e3b9a30fdb",
+    "auditSeconds": 1290.7,
+    "docgenSeconds": 40.3,
+    "implementationSourceTreeSha": "a32f44da5dfa19fa8ac54b28936cabc4ebe30f4e",
     "supersededRunsExcluded": true
   },
   "scopedCoverage": {
@@ -26,7 +26,7 @@
     "allFloorsPassed": true
   },
   "hostedParity": {
-    "testTsgo": "fail: inherited TS2741 package-scripts.policy.test.ts:210; zero F diagnostics on final symlink-aware source",
+    "testTsgo": "pass after integrating main #1841; no remaining diagnostics",
     "docgenLocal": "pass",
     "jsdocRatchet": "pass on final symlink-aware source, zero legacy findings",
     "knowledgeRefs": "fail: inherited host-path reference, goals/palantiri-parcels/PLAN.md:122",
@@ -78,7 +78,7 @@
   "retainedBackupsPresent": 3,
   "toolManagerSideEffect": "mise formatter execution pruned four cached tool versions; recorded in research/OPPORTUNITIES.md; no native configuration write",
   "s31": {
-    "base": "a679390ed8c533152f8c88f18b162a7fe741649f",
+    "base": "3aac574cce3b3e16c8da0e45eb78d5a637cc19b5",
     "filesCompared": 15,
     "changes": [],
     "addedRows": 0
@@ -91,7 +91,7 @@
     "lint schema-catalog --write",
     "observability catalog --write"
   ],
-  "fingerprintCandidate": "478f8b3a64461d3ef2f5277e964a7135c1d7fc90483d58a956338a55cd999cfd",
+  "fingerprintCandidate": "e05e914da3efae7026ef674e4fa1dd8a4d6d80d41e155bc5d4b9fa4845eb28a0",
   "equalityInputs": 353,
   "observedOnlyInputs": 4,
   "monitorStarted": false,
@@ -121,6 +121,11 @@
       "id": "local-shard-68a33c56d4a9",
       "kind": "wontfix",
       "reason": "Final-source run retains only existing RSC-F-S31/F-S31-EV010 advisories; all other lanes pass"
+    },
+    {
+      "id": "local-shard-fb31120d2f5e",
+      "kind": "fix-sha",
+      "sha": "1baddcc7a6f5633cddc72c994994017c5099eed1"
     }
   ],
   "frozenPackageSourceCheckpoint": "cbdf2e8e0bb5785a81f00574b441c3e3b9a30fdb",
@@ -129,5 +134,37 @@
     "tests": 37,
     "files": 2
   },
-  "qualifiedSource": "cbdf2e8e0bb5785a81f00574b441c3e3b9a30fdb"
+  "qualifiedSource": "cbdf2e8e0bb5785a81f00574b441c3e3b9a30fdb",
+  "mainMerge": "8b5514a8456aeb6c895fadcaa522eb057bb1fe48",
+  "postMainVerification": {
+    "mainCommit": "3aac574cce3b3e16c8da0e45eb78d5a637cc19b5",
+    "pr": 1841,
+    "onlyDelta": "test/package-scripts.policy.test.ts constructs expected value through ImplScriptDrift.make",
+    "implementationUnchanged": true,
+    "quickPackageVerify": {
+      "status": "pass",
+      "lintSeconds": 5.3,
+      "checkSeconds": 5.5,
+      "reason": "Upstream change is a typed fixture only; full audit already proved unchanged implementation"
+    },
+    "affectedTests": {
+      "pass": true,
+      "files": 2,
+      "tests": 17
+    },
+    "testTsgo": {
+      "pass": true,
+      "filesChecked": 379
+    }
+  },
+  "fingerprintFinal": "e05e914da3efae7026ef674e4fa1dd8a4d6d80d41e155bc5d4b9fa4845eb28a0",
+  "fingerprintImmediateEquality": {
+    "pass": true,
+    "changedPaths": []
+  },
+  "packetParityRepair": {
+    "fixCommit": "1baddcc7a6f5633cddc72c994994017c5099eed1",
+    "tests": 8,
+    "pass": true
+  }
 }
