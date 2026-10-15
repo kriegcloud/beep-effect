@@ -129,8 +129,14 @@ export const surfacesForTarget = (target: RegistrationTarget): ReadonlyArray<Reg
     GeneratedInventorySurface.make({
       id: "schema-catalog",
       writer: "schema-catalog",
-      outputs: [PosixPath.make("standards/schema-catalog.generated.jsonc")],
+      outputs: [PosixPath.make(`standards/schema-catalog/${target.packageName}.generated.jsonc`)],
       membershipKey: target.packagePath,
+    }),
+    GeneratedInventorySurface.make({
+      id: "instrumentation-catalog",
+      writer: "instrumentation-catalog",
+      outputs: [PosixPath.make(`standards/instrumentation-catalog/${target.packageName}.generated.jsonc`)],
+      membershipKey: target.packageName,
     }),
     GeneratedInventorySurface.make({
       id: "test-typecheck-baseline",
