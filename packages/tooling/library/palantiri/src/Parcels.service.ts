@@ -60,12 +60,13 @@ const $I = $PalantiriId.create("Parcels.service");
  * import { AccountHeadroomInput, AccountsReportInput } from "@beep/palantiri/AccountHeadroom.models"
  * import * as DateTime from "effect/DateTime"
  * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
  *
  * const source = AccountHeadroomSource.of({
  *   snapshot: Effect.succeed(
  *     AccountHeadroomInput.make({
  *       report: AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: DateTime.makeUnsafe(0), groups: [] }),
- *       expectedProviders: []
+ *       expectedProviders: O.some([])
  *     })
  *   )
  * })
@@ -111,12 +112,13 @@ export interface ParcelsShape {
  * import * as DateTime from "effect/DateTime"
  * import * as Effect from "effect/Effect"
  * import * as Layer from "effect/Layer"
+ * import * as O from "effect/Option"
  *
  * const source = Layer.succeed(AccountHeadroomSource, {
  *   snapshot: Effect.succeed(
  *     AccountHeadroomInput.make({
  *       report: AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: DateTime.makeUnsafe(0), groups: [] }),
- *       expectedProviders: []
+ *       expectedProviders: O.some([])
  *     })
  *   )
  * })

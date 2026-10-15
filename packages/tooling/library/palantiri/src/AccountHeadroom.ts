@@ -166,7 +166,7 @@ const isFresh = (item: AccountHeadroom): boolean => item.freshness._tag === "Fre
  * console.log(freshAccountHeadroom([]).length) // 0
  * ```
  *
- * @param items - Account-headroom items.
+ * @param items - Items from one account-headroom read, each carrying its own freshness.
  * @returns The fresh ones, in order.
  * @category filtering
  * @since 0.0.0
@@ -206,38 +206,45 @@ const splitPart = (items: ReadonlyArray<AccountHeadroom>, reason: string): O.Opt
   });
 };
 
-const summarize = (items: ReadonlyArray<AccountHeadroom>, missing: ReadonlyArray<string>): string => {
-  const parts = A.getSomes([
-    splitPart(items, "stale"),
-    splitPart(items, "unreachable"),
-    A.match(missing, { onEmpty: O.none, onNonEmpty: (some) => O.some(`no reading from ${A.join(some, ", ")}`) }),
-  ]);
+const summarize = (items: ReadonlyArray<AccountHeadroom>, missing: O.Option<ReadonlyArray<string>>): string => {
+  const parts = A.getSomes([splitPart(items, "stale"), splitPart(items, "unreachable"), attributionGap(missing)]);
   const split = A.match(parts, { onEmpty: () => "", onNonEmpty: (some) => `; ${A.join(some, ", ")}` });
   return `${freshAccountHeadroom(items).length} of ${items.length} accounts fresh${split}${O.getOrElse(bestAccountWide(items), () => "")}`;
 };
 
+// `None` when the host's provider listing failed: attribution is unknown, not
+// complete.
 const missingProviders = (
   input: AccountHeadroomInput,
   items: ReadonlyArray<AccountHeadroom>
-): ReadonlyArray<string> => {
+): O.Option<ReadonlyArray<string>> => {
   const served = HashSet.fromIterable(A.map(items, (item) => item.provider));
-  return A.sort(
-    A.dedupe(A.filter(input.expectedProviders, (provider) => !HashSet.has(served, provider))),
-    Order.String
+  return O.map(input.expectedProviders, (expected) =>
+    A.sort(A.dedupe(A.filter(expected, (provider) => !HashSet.has(served, provider))), Order.String)
   );
 };
+
+const attributionGap = (missing: O.Option<ReadonlyArray<string>>): O.Option<string> =>
+  O.match(missing, {
+    onNone: () => O.some("provider listing unavailable"),
+    onSome: A.match({ onEmpty: O.none, onNonEmpty: (some) => O.some(`no reading from ${A.join(some, ", ")}`) }),
+  });
 
 const envelopeFreshness = (
   input: AccountHeadroomInput,
   now: DateTime.Utc,
-  missing: ReadonlyArray<string>
+  missing: O.Option<ReadonlyArray<string>>
 ): FreshnessType => {
   const read = checkFreshness(now, AccountHeadroomSpec.freshnessBound, [input.report.generatedAt]);
-  return read._tag === "Fresh" && A.isReadonlyArrayNonEmpty(missing)
-    ? Freshness.cases.Unknown.make({
-        reason: "attribution-incomplete",
-        asOf: O.some(read.asOf),
-        detail: O.some(`no reading from ${A.join(missing, ", ")}`),
+  return read._tag === "Fresh"
+    ? O.match(attributionGap(missing), {
+        onNone: () => read,
+        onSome: (detail) =>
+          Freshness.cases.Unknown.make({
+            reason: "attribution-incomplete",
+            asOf: O.some(read.asOf),
+            detail: O.some(detail),
+          }),
       })
     : read;
 };
@@ -252,7 +259,8 @@ const envelopeFreshness = (
  * `Fresh` when the poll or snapshot it served from is within 5 minutes,
  * `Unknown{stale}` when that report is older (a stale snapshot served because
  * the live poll failed), and `Unknown{attribution-incomplete}` when an
- * expected provider produced no item. The summary leads with the split, such
+ * expected provider produced no item or the provider listing itself failed.
+ * The summary leads with the split, such
  * as `11 of 13 accounts fresh; 1 stale (grok-bot), 1 unreachable (codex)`.
  * At most `budget` items are kept, with an N-of-M receipt.
  *
@@ -262,10 +270,11 @@ const envelopeFreshness = (
  * import { reduceAccountHeadroom } from "@beep/palantiri/AccountHeadroom"
  * import { AccountHeadroomInput, AccountsReportInput } from "@beep/palantiri/AccountHeadroom.models"
  * import * as DateTime from "effect/DateTime"
+ * import * as O from "effect/Option"
  *
  * const now = DateTime.makeUnsafe("2026-10-14T12:00:00Z")
  * const report = AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: now, groups: [] })
- * const parcel = reduceAccountHeadroom(AccountHeadroomInput.make({ report, expectedProviders: [] }), now, 20)
+ * const parcel = reduceAccountHeadroom(AccountHeadroomInput.make({ report, expectedProviders: O.some([]) }), now, 20)
  * console.log(parcel.freshness._tag) // "Fresh"
  * console.log(parcel.summary) // "0 of 0 accounts fresh"
  * ```

@@ -28,7 +28,7 @@ import {
 import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { assertSome } from "@effect/vitest/utils";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -86,7 +86,7 @@ const reportSource = Effect.gen(function* () {
   const text = yield* AccountsStatusReportJson.encode(report);
   return AccountHeadroomInput.make({
     report: yield* S.decodeEffect(AccountsReportInputJson)(text),
-    expectedProviders: ["claude", "codex"],
+    expectedProviders: O.some(["claude", "codex"]),
   });
 }).pipe(Effect.orDie);
 
@@ -228,10 +228,13 @@ describe("beep palantiri parcel account-headroom", () => {
         const first = yield* read;
         expect(yield* Ref.get(polls)).toBe(2);
         expect(yield* fs.exists(file)).toBe(true);
+        // Account labels stay private to the owner.
+        expect(((yield* fs.stat(file)).mode & 0o777).toString(8)).toBe("600");
+        expect(((yield* fs.stat(root)).mode & 0o777).toString(8)).toBe("700");
         const cached = yield* read;
         expect(yield* Ref.get(polls)).toBe(2);
         expect(cached.report.generatedAt).toEqual(first.report.generatedAt);
-        expect(first.expectedProviders).toEqual(["claude", "codex"]);
+        assertSome(first.expectedProviders, ["claude", "codex"]);
         // Age the snapshot past the five-minute bound.
         const written = yield* fs.readFileString(file).pipe(Effect.flatMap(AccountsStatusReportJson.decode));
         const aged = AccountsStatusReport.make({
@@ -254,7 +257,8 @@ describe("beep palantiri parcel account-headroom", () => {
         );
         const served = yield* offline.snapshot.pipe(withEnv({ BEEP_PALANTIRI_STATE_ROOT: root }));
         expect(served.report.generatedAt).toEqual(aged.generatedAt);
-        expect(served.expectedProviders).toEqual([]);
+        // The provider listing failed too, so attribution is unknown rather than empty.
+        assertNone(served.expectedProviders);
         const parcel = reduceAccountHeadroom(served, yield* DateTime.now, 20);
         expect(parcel.freshness._tag === "Unknown" ? parcel.freshness.reason : "fresh").toBe("stale");
       })

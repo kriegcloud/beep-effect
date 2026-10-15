@@ -91,7 +91,7 @@ const sampleReport = decodeReport(
 const EXPECTED = ["claude", "codex", "grok", "grok-bot"];
 
 const inputOf = (expectedProviders: ReadonlyArray<string>) => (report: AccountsReportInput) =>
-  AccountHeadroomInput.make({ report, expectedProviders });
+  AccountHeadroomInput.make({ report, expectedProviders: O.some(expectedProviders) });
 
 const sampleInput = sampleReport.pipe(Effect.map(inputOf(EXPECTED)));
 
@@ -161,6 +161,19 @@ describe("reduceAccountHeadroom", () => {
       expect(parcel.summary).toBe(
         "2 of 5 accounts fresh; 1 stale (grok-bot), 2 unreachable (codex, grok); most weekly headroom: claude #2 at 60%"
       );
+    })
+  );
+
+  it.effect("is Unknown{attribution-incomplete} when the provider listing failed", () =>
+    Effect.gen(function* () {
+      const report = yield* sampleReport;
+      const parcel = reduceAccountHeadroom(
+        AccountHeadroomInput.make({ report, expectedProviders: O.none() }),
+        NOON_TIME,
+        20
+      );
+      expect(reasonOf(parcel.freshness)).toBe("attribution-incomplete");
+      expect(parcel.summary).toContain("provider listing unavailable");
     })
   );
 

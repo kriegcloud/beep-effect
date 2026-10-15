@@ -4,8 +4,8 @@
  *
  * **Details**
  *
- * The input mirrors the `accounts-status/v2` document `beep accounts status
- * --json` prints, decoded here so this library never imports the CLI. Only
+ * The input mirrors the `accounts-status/v2` document that
+ * `beep accounts status --json` prints, decoded here so this library never imports the CLI. Only
  * the fields the reducer reads are declared; the rest are ignored. The served
  * item carries a provider and a per-provider ordinal, never the account label,
  * login file or identity, which are often email addresses.
@@ -296,29 +296,31 @@ export const AccountsReportInputJson = S.fromJsonString(AccountsReportInput).pip
  * **Details**
  *
  * `expectedProviders` are the providers of the host's logins and collector
- * snapshots at read time. A provider listed there with no report row makes
- * the parcel `Unknown{attribution-incomplete}`.
+ * snapshots at read time, or `None` when that listing failed. A provider
+ * listed there with no report row, or a missing listing, makes the parcel
+ * `Unknown{attribution-incomplete}`.
  *
  * **Example** (Make an input)
  *
  * ```ts
  * import { AccountHeadroomInput, AccountsReportInput } from "@beep/palantiri/AccountHeadroom.models"
  * import * as DateTime from "effect/DateTime"
+ * import * as O from "effect/Option"
  *
  * const input = AccountHeadroomInput.make({
  *   report: AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: DateTime.makeUnsafe(0), groups: [] }),
- *   expectedProviders: ["claude"]
+ *   expectedProviders: O.some(["claude"])
  * })
- * console.log(input.expectedProviders) // ["claude"]
+ * console.log(O.isSome(input.expectedProviders)) // true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
 export class AccountHeadroomInput extends S.Opaque<AccountHeadroomInput, { readonly brand: unique symbol }>()(
-  S.Struct({ report: AccountsReportInput, expectedProviders: S.Array(AccountProviderName) }).pipe(
+  S.Struct({ report: AccountsReportInput, expectedProviders: AccountProviderName.pipe(S.Array, S.Option) }).pipe(
     $I.annoteSchema("AccountHeadroomInput", {
-      description: "The accounts report and the providers the host has configured.",
+      description: "The accounts report and the providers the host has configured, when that listing succeeded.",
     })
   )
 ) {}
