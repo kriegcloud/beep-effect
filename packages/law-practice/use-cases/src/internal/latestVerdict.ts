@@ -1,7 +1,8 @@
 /**
- * Verdict-log reading rules shared by the review queue and the verdict
- * projector: which row is an item's latest verdict, whether it is final,
- * which revision comes next, and whether a batch is locked.
+ * Log reading rules shared by the review envelope's append-only logs: which
+ * row is an item's latest (for verdicts and for question answers), whether a
+ * verdict is final, which revision comes next, and whether a verdict batch is
+ * locked.
  *
  * @internal
  * @packageDocumentation
@@ -18,18 +19,86 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import type { ReviewBatchId, ReviewItemId, VerdictRow } from "@beep/law-practice-domain";
 
-// Recency order of verdict rows: by `recordedAt` only. Revisions restart per
-// item and batch, so they never compare rows; append order breaks ties.
-const VerdictRowRecency: Order.Order<VerdictRow> = Order.mapInput(DateTime.Order, (row: VerdictRow) => row.recordedAt);
+/** The fields every envelope log row shares: verdict rows and answer rows. */
+type LogRow = { readonly itemId: ReviewItemId; readonly recordedAt: DateTime.Utc; readonly revision: number };
 
-const isMoreRecent = Order.isGreaterThan(VerdictRowRecency);
+// Recency order of log rows: by `recordedAt` only. Revisions never compare
+// rows; append order breaks ties.
+const LogRowRecency: Order.Order<LogRow> = Order.mapInput(DateTime.Order, (row: LogRow) => row.recordedAt);
+
+const isMoreRecent = Order.isGreaterThan(LogRowRecency);
 
 // A judgement row decides verdicts; a lock row only closes its batch.
 const isJudgementRow = (row: VerdictRow): boolean => O.isNone(row.lockedAt);
 
 // Of two rows read in append order, the more recent one; a tie on
 // `recordedAt` goes to `next`, the row appended last.
-const laterRow = (current: VerdictRow, next: VerdictRow): VerdictRow => (isMoreRecent(current, next) ? current : next);
+const laterRow = <Row extends LogRow>(current: Row, next: Row): Row => (isMoreRecent(current, next) ? current : next);
+
+// One more than the highest revision among the rows, or 1 when there are none.
+const revisionAfter = (rows: ReadonlyArray<LogRow>): number =>
+  pipe(
+    A.map(rows, (row) => row.revision),
+    A.match({ onEmpty: () => 1, onNonEmpty: flow(A.max(Num.Order), Num.increment) })
+  );
+
+/**
+ * Each item's latest row, keyed by item id.
+ *
+ * **Details**
+ *
+ * Latest means the greatest `recordedAt`; ties go to the row appended last,
+ * since rows are read in append order. Revisions never break ties. Works for
+ * any envelope log whose rows carry `itemId`, `recordedAt` and `revision`.
+ *
+ * **Example** (Index an empty log)
+ *
+ * ```ts
+ * import * as HashMap from "effect/HashMap"
+ * import { latestRowByItem } from "./latestVerdict.ts"
+ *
+ * console.log(HashMap.size(latestRowByItem([]))) // 0
+ * ```
+ *
+ * @internal
+ * @category reading
+ * @since 0.0.0
+ */
+export const latestRowByItem = <Row extends LogRow>(rows: ReadonlyArray<Row>): HashMap.HashMap<ReviewItemId, Row> =>
+  A.reduce(rows, HashMap.empty<ReviewItemId, Row>(), (latest, row) =>
+    HashMap.set(
+      latest,
+      row.itemId,
+      pipe(
+        HashMap.get(latest, row.itemId),
+        O.map((current) => laterRow(current, row)),
+        O.getOrElse(() => row)
+      )
+    )
+  );
+
+/**
+ * The revision the next row for an item carries in a log that numbers
+ * revisions per item: one more than its highest stored revision, or 1.
+ *
+ * **Example** (Number the first answer)
+ *
+ * ```ts
+ * import { nextItemRevision } from "./latestVerdict.ts"
+ *
+ * console.log(nextItemRevision([], "question:1")) // 1
+ * ```
+ *
+ * @internal
+ * @category reading
+ * @since 0.0.0
+ */
+export const nextItemRevision: {
+  (itemId: ReviewItemId): (rows: ReadonlyArray<LogRow>) => number;
+  (rows: ReadonlyArray<LogRow>, itemId: ReviewItemId): number;
+} = dual(2, (rows: ReadonlyArray<LogRow>, itemId: ReviewItemId): number =>
+  revisionAfter(A.filter(rows, (row) => row.itemId === itemId))
+);
 
 /**
  * Each item's latest verdict row across every batch, keyed by item id.
@@ -56,17 +125,7 @@ const laterRow = (current: VerdictRow, next: VerdictRow): VerdictRow => (isMoreR
  * @since 0.0.0
  */
 export const latestVerdictByItem = (rows: ReadonlyArray<VerdictRow>): HashMap.HashMap<ReviewItemId, VerdictRow> =>
-  A.reduce(A.filter(rows, isJudgementRow), HashMap.empty<ReviewItemId, VerdictRow>(), (latest, row) =>
-    HashMap.set(
-      latest,
-      row.itemId,
-      pipe(
-        HashMap.get(latest, row.itemId),
-        O.map((current) => laterRow(current, row)),
-        O.getOrElse(() => row)
-      )
-    )
-  );
+  latestRowByItem(A.filter(rows, isJudgementRow));
 
 /**
  * Whether a verdict row closes its item: `right` and `wrong` are final;
@@ -138,11 +197,7 @@ export const nextRevision: {
   (itemId: ReviewItemId, batchId: ReviewBatchId): (rows: ReadonlyArray<VerdictRow>) => number;
   (rows: ReadonlyArray<VerdictRow>, itemId: ReviewItemId, batchId: ReviewBatchId): number;
 } = dual(3, (rows: ReadonlyArray<VerdictRow>, itemId: ReviewItemId, batchId: ReviewBatchId): number =>
-  pipe(
-    A.filter(rows, (row) => row.itemId === itemId && row.batchId === batchId),
-    A.map((row) => row.revision),
-    A.match({ onEmpty: () => 1, onNonEmpty: flow(A.max(Num.Order), Num.increment) })
-  )
+  revisionAfter(A.filter(rows, (row) => row.itemId === itemId && row.batchId === batchId))
 );
 
 /**
