@@ -24,10 +24,13 @@ import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Base64 from "effect/encoding/Base64";
+import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as N from "effect/Number";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Redacted from "effect/Redacted";
@@ -36,12 +39,12 @@ import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { TelemetryKeyFailure } from "../PracticeKgMcp.errors.ts";
+import type * as PlatformError from "effect/PlatformError";
 
 const $I = $PracticeKgMcpId.create("runtime/TelemetryKey");
 
 const rootKeyBytes = 32;
 const ownerOnlyDirectory = 0o700;
-const keyFileName = "key.dpapi";
 // DPAPI optional entropy: a blob wrapped by one path unwraps only with the
 // same entropy, so the FFI and PowerShell paths share it.
 const dpapiEntropy = "beep/practice-kg/telemetry/v1";
@@ -453,12 +456,50 @@ const unwrapStored = Effect.fnUntraced(function* (
     );
 });
 
-// Draws a new root key, wraps it and stores it owner-only under `epoch`.
-const createKey = Effect.fnUntraced(function* (
+// Key files are `key.<epoch>.dpapi`; a file is published once and never
+// overwritten, so the highest epoch on disk is the current key.
+const keyFilePattern = /^key\.(\d+)\.dpapi$/;
+const keyFileNameFor = (epoch: number): string => `key.${epoch}.dpapi`;
+const keyAttempts = 5;
+const pendingNameBytes = 6;
+
+const isAlreadyExists = (error: PlatformError.PlatformError): boolean => error.reason._tag === "AlreadyExists";
+
+// The highest epoch present in the directory and its decoded file, if it decodes.
+const latestKeyFile = Effect.fnUntraced(function* (telemetryDir: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const entries = yield* fs.readDirectory(telemetryDir).pipe(Effect.orElseSucceed(A.empty<string>));
+  const latest = A.last(
+    A.sort(
+      A.getSomes(
+        A.map(entries, (entry) => O.flatMap(Str.match(keyFilePattern)(entry), (match) => N.parse(match[1] ?? "")))
+      ),
+      Order.Number
+    )
+  );
+  return yield* O.match(latest, {
+    onNone: () => Effect.succeedNone,
+    onSome: (epoch) =>
+      fs.readFileString(path.join(telemetryDir, keyFileNameFor(epoch))).pipe(
+        Effect.flatMap(decodeKeyFile),
+        Effect.option,
+        Effect.map((file) => O.some({ epoch, file: O.filter(file, (decoded) => decoded.epoch === epoch) }))
+      ),
+  });
+});
+
+// Draws a new root key and publishes it as `key.<epoch>.dpapi`: the wrapped key
+// is written owner-only to a pending name, then hard-linked into place, which
+// fails when the name already exists. `None` means another process published
+// that epoch first.
+const publishKey = Effect.fnUntraced(function* (
   port: Context.Service.Shape<typeof DpapiPort>,
-  keyPath: string,
+  telemetryDir: string,
   epoch: number
 ) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
   const material = globalThis.crypto.getRandomValues(new Uint8Array(rootKeyBytes));
   const wrapped = yield* port.protect(material);
   const text = yield* encodeKeyFile(
@@ -469,24 +510,79 @@ const createKey = Effect.fnUntraced(function* (
       wrappedBase64: Base64.encode(wrapped),
     })
   ).pipe(Effect.mapError(keyFailure("The telemetry key file could not be encoded.")));
-  yield* writeOwnerOnlyFile(keyPath, text).pipe(
+  const target = path.join(telemetryDir, keyFileNameFor(epoch));
+  const pending = `${target}.${Hex.encode(globalThis.crypto.getRandomValues(new Uint8Array(pendingNameBytes)))}.pending`;
+  const published = yield* writeOwnerOnlyFile(pending, text).pipe(
+    Effect.andThen(fs.link(pending, target)),
+    Effect.as(true),
+    Effect.catchIf(isAlreadyExists, () => Effect.succeed(false)),
+    Effect.ensuring(Effect.ignore(fs.remove(pending, { force: true }))),
     Effect.mapError(keyFailure("The telemetry key file could not be written."))
   );
-  return { epoch, material };
+  return published ? O.some({ epoch, material }) : O.none<{ readonly epoch: number; readonly material: Uint8Array }>();
+});
+
+// Uses the highest-epoch key when it unwraps; otherwise publishes the next
+// epoch, and when another process wins that epoch, starts over and uses its key.
+const resolveKey = Effect.fnUntraced(function* (
+  port: Context.Service.Shape<typeof DpapiPort>,
+  telemetryDir: string,
+  attempt: number
+): Effect.fn.Return<
+  { readonly epoch: number; readonly material: Uint8Array },
+  TelemetryKeyFailure,
+  FileSystem.FileSystem | Path.Path
+> {
+  const latest = yield* latestKeyFile(telemetryDir);
+  const loaded = yield* O.match(
+    O.flatMap(latest, ({ file }) => file),
+    {
+      onNone: () => Effect.succeedNone,
+      onSome: (file) =>
+        Effect.map(
+          unwrapStored(port, file),
+          O.map((material) => ({ epoch: file.epoch, material }))
+        ),
+    }
+  );
+  if (O.isSome(loaded)) {
+    return loaded.value;
+  }
+  const published = yield* publishKey(
+    port,
+    telemetryDir,
+    O.getOrElse(
+      O.map(latest, ({ epoch }) => epoch + 1),
+      () => 1
+    )
+  );
+  if (O.isSome(published)) {
+    return published.value;
+  }
+  if (attempt >= keyAttempts) {
+    return yield* TelemetryKeyFailure.make({
+      message: "The telemetry key kept changing while it was being created.",
+    });
+  }
+  return yield* resolveKey(port, telemetryDir, attempt + 1);
 });
 
 /**
- * Loads the telemetry root key from `<telemetryDir>/key.dpapi`, or creates
- * one, and provides it as the {@link StrictSpoolKey}.
+ * Loads the telemetry root key from `<telemetryDir>/key.<epoch>.dpapi`, or
+ * creates one, and provides it as the {@link StrictSpoolKey}.
  *
  * **Details**
  *
- * - The directory is created owner-only (`0700`) and the key file is
- *   written owner-only (`0600`) to a unique temporary name, then renamed.
- * - A key file that is missing starts epoch 1. One that does not decode or
- *   unwrap (another user, a reset profile) is replaced by a new key under
- *   the next epoch; the old spool then no longer decrypts and replay counts
- *   its segments as `spool-segment-invalid`.
+ * - The directory is created owner-only (`0700`). Each key file is written
+ *   owner-only (`0600`) to a pending name and published by a hard link,
+ *   which fails when the name exists, so a key file is never overwritten
+ *   and never seen half-written.
+ * - The highest epoch on disk is the current key. With no key file the host
+ *   publishes epoch 1; when the current one does not decode or unwrap
+ *   (another user, a reset profile) it publishes the next epoch, and the old
+ *   spool then replays as `spool-segment-invalid`.
+ * - Concurrent hosts cannot fork the key: when another process publishes the
+ *   same epoch first, this one re-reads the directory and uses that key.
  * - The key's `protection` is the path the port used.
  *
  * **Example** (Load the key with the dev port)
@@ -510,33 +606,14 @@ export const layerPracticeKgSpoolKey = (
     StrictSpoolKey,
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
       const port = yield* DpapiPort;
-      const keyPath = path.join(telemetryDir, keyFileName);
       yield* fs
         .makeDirectory(telemetryDir, { recursive: true, mode: ownerOnlyDirectory })
         .pipe(
           Effect.andThen(fs.chmod(telemetryDir, ownerOnlyDirectory)),
           Effect.mapError(keyFailure("The telemetry directory could not be created."))
         );
-      const stored = yield* fs.readFileString(keyPath).pipe(Effect.flatMap(decodeKeyFile), Effect.option);
-      const loaded = yield* O.match(stored, {
-        onNone: () => Effect.succeedNone,
-        onSome: (file) =>
-          Effect.map(
-            unwrapStored(port, file),
-            O.map((material) => ({ epoch: file.epoch, material }))
-          ),
-      });
-      // A missing file starts epoch 1; one that did not unwrap rotates to the next.
-      const nextEpoch = O.getOrElse(
-        O.map(stored, (file) => file.epoch + 1),
-        () => 1
-      );
-      const key = yield* O.match(loaded, {
-        onSome: Effect.succeed,
-        onNone: () => createKey(port, keyPath, nextEpoch),
-      });
+      const key = yield* resolveKey(port, telemetryDir, 1);
       return StrictSpoolKey.of({
         epoch: `${key.epoch}`,
         protection: port.protection,

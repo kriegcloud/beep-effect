@@ -88,7 +88,8 @@ export class StrictSpoolKey extends Context.Service<
  * **Details**
  *
  * `append` seals one export body as a new segment and returns the refusals
- * it caused (`spool-evicted` for every old segment it pushed out). `replay`
+ * it caused (`spool-evicted` for every old segment it pushed out); it fails
+ * only when the body could not be sealed, encoded or written. `replay`
  * decrypts every segment, oldest first, and refuses each one that does not
  * decode, authenticate or match the key epoch (`spool-segment-invalid`), or
  * whose tier is looser than the spool's tier (`spool-tier-refused`).
@@ -466,9 +467,9 @@ export const makeStrictSpool = Effect.fn("StrictSpool.make")(function* (options:
       Effect.provideService(FileSystem.FileSystem, fs),
       Effect.mapError(spoolFailure("append", "A strict spool segment could not be written."))
     );
-    const evicted = yield* evict().pipe(
-      Effect.mapError(spoolFailure("append", "The strict spool could not evict old segments."))
-    );
+    // The body is already on disk, so a failed eviction does not fail the
+    // append; the next append evicts again.
+    const evicted = yield* evict().pipe(Effect.orElseSucceed(A.empty<string>));
     return refusalLedgerOf(A.map(evicted, () => TelemetryRefusalTag.Enum["spool-evicted"]));
   });
 

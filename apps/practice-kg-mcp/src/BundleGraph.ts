@@ -1,7 +1,8 @@
 /**
  * Bundle-graph hygiene for the compiled practice KG host: proves the host's
  * module graph cannot reach the OpenTelemetry SDK or the observability
- * server entrypoint, which the strict tier must never ship.
+ * server and experimental-server entrypoints, which the strict tier must
+ * never ship.
  *
  * **Details**
  *
@@ -46,12 +47,15 @@ export const NativeAddonExternals: ReadonlyArray<string> = [
 ];
 
 // Path fragments no input module of the host bundle may contain: the
-// OpenTelemetry SDK packages and the observability server entrypoint.
+// OpenTelemetry SDK packages and the observability server and
+// experimental-server entrypoints.
 const ForbiddenBundleFragments: ReadonlyArray<string> = [
   "@effect/opentelemetry/",
   "@opentelemetry/",
   "capability/observability/src/server/",
+  "capability/observability/src/experimental/server/",
   "@beep/observability/server",
+  "@beep/observability/experimental/server",
 ];
 
 /**

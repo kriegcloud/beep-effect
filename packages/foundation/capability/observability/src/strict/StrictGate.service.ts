@@ -130,8 +130,9 @@ export class StrictGate extends Context.Service<
  *
  * **Details**
  *
- * `record` never fails: it returns the refusals it caused (an evicted or
- * unwritten body counts as `spool-evicted`), and the egress client adds them
+ * `record` never fails: it returns the refusals it caused (`spool-evicted`
+ * for each old segment evicted, `spool-write-failed` for a body it could not
+ * write), and the egress client adds them
  * to the gate's ledger. `records` reads the held-back bodies back. The
  * in-memory sink keeps the most recent bodies only and is for tests; a
  * strict host records into the encrypted spool.

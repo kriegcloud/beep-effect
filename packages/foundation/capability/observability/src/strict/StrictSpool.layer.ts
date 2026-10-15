@@ -55,9 +55,9 @@ export const layerStrictSpool = (
  *
  * **Details**
  *
- * A body the spool cannot write is lost, and counted as `spool-evicted`
- * together with any old segments the write evicted. `records` replays the
- * spool and keeps only the bodies that pass.
+ * Old segments the write evicted count as `spool-evicted`. A body the spool
+ * cannot seal, encode or write is lost and counts as `spool-write-failed`.
+ * `records` replays the spool and keeps only the bodies that pass.
  *
  * **Example** (Record into the spool)
  *
@@ -79,7 +79,7 @@ export const layerStrictSpoolSink: Layer.Layer<StrictEgressSink, never, StrictSp
       record: Effect.fnUntraced(function* (record: StrictEgressRecord) {
         return yield* spool
           .append(record)
-          .pipe(Effect.orElseSucceed(() => refusalLedgerOf([TelemetryRefusalTag.Enum["spool-evicted"]])));
+          .pipe(Effect.orElseSucceed(() => refusalLedgerOf([TelemetryRefusalTag.Enum["spool-write-failed"]])));
       }),
       records: Effect.map(spool.replay, (replay) => replay.records),
     })

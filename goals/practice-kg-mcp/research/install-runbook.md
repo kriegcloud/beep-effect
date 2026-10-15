@@ -100,9 +100,9 @@ with code 0:
 - An SSH session that logged in with a key, not a password, may not unlock the
   user's DPAPI keys, so a failure over SSH must be repeated in the desktop
   session before it is recorded.
-- `telemetryDir` is where the host keeps `key.dpapi` and `spool\`. When Claude
-  Desktop is the Microsoft Store build, the running extension's writes to that
-  folder may be redirected under
+- `telemetryDir` is where the host keeps its key files (`key.<epoch>.dpapi`)
+  and `spool\`. When Claude Desktop is the Microsoft Store build, the running
+  extension's writes to that folder may be redirected under
   `%LOCALAPPDATA%\Packages\Claude_<publisher id>\LocalCache\Local\`; the
   terminal run is not redirected.
 

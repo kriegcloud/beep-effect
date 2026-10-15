@@ -322,7 +322,7 @@ export const layerPracticeKgTelemetrySpooled = (
 /**
  * The host's telemetry: the strict gate over the encrypted spool in
  * `<telemetry dir>/spool`, keyed by the root key in
- * `<telemetry dir>/key.dpapi` (DPAPI on Windows, a dev key file elsewhere),
+ * `<telemetry dir>/key.<epoch>.dpapi` (DPAPI on Windows, a dev key file elsewhere),
  * at the fail-closed tier.
  *
  * **Details**
