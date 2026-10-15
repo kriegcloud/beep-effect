@@ -2806,3 +2806,15 @@ checks before starting a long full audit when adding a scanner.
   The lane has not written that file and leaves the equality set unchanged.
   Recapture after publication and give the driver the exact point-in-time set;
   coordination with the native-file owner would prevent a stale panel input.
+
+### 2026-10-15: F round-8 default package proof has no intermediate audit progress
+
+During the `RSC-F-ONE-PARSED-READER` repair, the admitted default
+`beep quality package-verify @beep/repo-cli` wrote only its invocation while
+its audit ran. The prior round's audit took 1246.3 seconds. With a later
+parsed-postcondition correction, it was necessary to distinguish the
+superseded run from the final-source run without any stage progress in the
+log. Owned superseded services were stopped after source corrections. The
+completed-source default proof runs through the retained disposable filesystem
+namespace, keeping its native fixtures inside the lane. Per-collector start/completion messages and source
+checkpoint hashes would make this attribution cheaper without weakening gates.

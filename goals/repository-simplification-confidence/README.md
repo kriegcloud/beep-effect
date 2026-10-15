@@ -14,26 +14,21 @@ are source-qualified; installed Desktop acceptance remains open for the operator
 fixture batch and F's owned-field config writer. F and overall acceptance remain active.
 
 
-F's PR #1797 remains open for the driver-owned three-model panel. Round 7
-returned three Astra P1s and one Fable P1; Grok was zero-actionable. The driver
-ruling `RSC-F-NO-CLEAN-WITHOUT-FULL-PARSER` is applied: shell, YAML and XML
-always require manual verification and expose reader values only as hints.
-Recognized drift still fails; manual status alone exits zero. TOML/JSON writes
-and historical restore independently require matching canonical extensions,
-valid parsed bytes and owned paths. All nearby round-7 P2/P3 items are handled.
-The driver runs round 8 against the pushed candidate and recaptured fingerprint.
+F's PR #1797 remains open for the driver-owned three-model panel. Round 8
+returned three Astra P1s and one Grok P1; Fable was zero-actionable.
+`RSC-F-ONE-PARSED-READER` now makes check, apply and restore share the full
+TOML and JSON parsers. Decoded equal values preserve their original spelling
+without a backup or journal. Empty recovery ownership is refused, and every
+recorded write must satisfy locator, extension and complete-document checks
+before exchange. The nearby Fable P2/P3 items are included with no deferrals.
 
-The [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md) carries current proof
-and the candidate fingerprint for round 7. The [round-6 verification receipt](history/receipts/stage-5-f-panel-r6-verification.json)
-and [fingerprint](history/receipts/stage-5-f-panel-r6-fingerprint.json) supersede
-the round-5 receipts. Round 7 verifies only the cut and the occurrence rule.
-The panel remains open; this lane issues a panel candidate and never arms the
-merge gate. Native configuration writes in this wave: zero.
-
-The prior check's six diagnostics across the operator-owned shell and Claude
-files remain visible, with zero F-owned drift; the fresh handoff lists each
-current diagnostic. Grok effort is currently clean. Measured 30-session windows
-and external-owner activation prerequisites stay open.
+The [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md) carries the current
+proof. The [round-8 verification receipt](history/receipts/stage-5-f-panel-r8-verification.json)
+and [fingerprint](history/receipts/stage-5-f-panel-r8-fingerprint.json) supersede
+the round-7 receipts. The driver runs round 9 against the pushed candidate
+and recaptured fingerprint. The panel remains open. Native configuration
+writes in this wave: zero. Measured 30-session windows and external-owner
+activation prerequisites stay open.
 
 ## Mission
 

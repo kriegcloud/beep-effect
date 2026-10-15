@@ -1970,7 +1970,9 @@ full tree that also rejects duplicate keys throughout the document. Owned
 value equality compares decoded values. Equal escaped spellings preserve
 all original bytes and create no backup or journal. Regex TOML readers and
 parallel JSON decoders are removed from certification paths; source spans
-serve only an edit selected by parsed inequality. Locator and canonical
+serve only an edit selected by parsed inequality. Apply also verifies the
+parsed owned-value postcondition after projection, independently of span
+stability. Locator and canonical
 extension must agree before a file can be certified.
 
 Reason: F-ASTRA-R8-02 / F-GROK-R8-01 demonstrated false-clean invalid and
@@ -1985,7 +1987,7 @@ the stale-native-state refusal ahead of syntax/span diagnostics while still
 validating eligible bytes before any exchange. R8-F4 adds the recording
 filesystem positive control. No round-8 P2/P3 is deferred.
 
-Reversal: revert the round-8 repair commit. This wave makes no home writes;
+Reversal: revert the round-8 repair commits. This wave makes no home writes;
 no new native backup or rollback operation is required. Prior timestamped
 backups and tested ModelsApply rollback remain retained. The panel remains
 OPEN; the driver runs round 9 against the new candidate and fingerprint.
