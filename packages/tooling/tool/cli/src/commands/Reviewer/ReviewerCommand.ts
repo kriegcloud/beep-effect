@@ -155,11 +155,12 @@ const l0Command = Command.make("l0", { pr, sha }, ({ pr, sha }) =>
   boundary(
     Effect.gen(function* () {
       const reviewer = yield* Reviewer;
-      if (!(yield* reviewer.docsOnly(pr, sha))) {
+      const classifiedBase = yield* reviewer.docsOnly(pr, sha);
+      if (O.isNone(classifiedBase)) {
         yield* Console.log("Non-L0: review required.");
         return;
       }
-      const check = yield* reviewer.start(pr, sha);
+      const check = yield* reviewer.start(pr, sha, classifiedBase);
       const result = yield* reviewerWire.result({
         score: 5,
         tier: "L0",

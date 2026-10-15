@@ -2282,3 +2282,8 @@ H3 re-merge-only qualification against main `27f747be23` failed full CLI audit a
 ### H3 round-3 verification friction
 
 The extra shape decode in a command-output regression made the test file cross the schema-codec assertion threshold without property coverage. The regression only needs one JSON parse and field assertions, so remove the redundant decode instead of changing the inventory. Main also advanced during the full audit; its integration preview found a generated observability-table conflict. Stop only the owned superseded audit, merge current main, regenerate through the catalog owner, install, and rerun the gates. A pre-admission integration check reduces wasted full-suite work.
+### 2026-10-15 — TS7 exit B2 ESLint removal
+
+Lane B2 (`chore/ts7-remove-eslint`, `goals/eslint-removal`) removes the remaining
+ESLint installation after oxlint lanes #1753 and #1791. The orchestrator will link
+the removal PR at publication; law helpers retain their behavior under `laws/`.
