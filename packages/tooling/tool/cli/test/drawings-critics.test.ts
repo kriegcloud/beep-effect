@@ -247,6 +247,8 @@ describe("invocations", () => {
         "Bash",
         "Edit",
         "MCPTool",
+        "WebFetch",
+        "WebSearch",
         "--disable-web-search",
         "--no-subagents",
       ])
