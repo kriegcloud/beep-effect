@@ -238,21 +238,18 @@ describe("invocations", () => {
     const grok = criticInvocation({ ...base, reviewer: byName("grok-4.7") });
     expect(flagValue(grok.args, "--permission-mode")).toBe("dontAsk");
     expect(flagValue(grok.args, "--sandbox")).toBe("strict");
-    expect(grok.args).toEqual(
+    expect(A.zip(grok.args, A.drop(grok.args, 1))).toEqual(
       expect.arrayContaining([
-        "--allow",
-        "Read",
-        "Grep",
-        "--deny",
-        "Bash",
-        "Edit",
-        "MCPTool",
-        "WebFetch",
-        "WebSearch",
-        "--disable-web-search",
-        "--no-subagents",
+        ["--allow", "Read"],
+        ["--allow", "Grep"],
+        ["--deny", "Bash"],
+        ["--deny", "Edit"],
+        ["--deny", "MCPTool"],
+        ["--deny", "WebFetch"],
+        ["--deny", "WebSearch"],
       ])
     );
+    expect(grok.args).toEqual(expect.arrayContaining(["--disable-web-search", "--no-subagents", "--no-memory"]));
     expect(grok.args).not.toContain("bypassPermissions");
 
     const claude = criticInvocation({ ...base, reviewer: byName("claude-fable-5.1") });
