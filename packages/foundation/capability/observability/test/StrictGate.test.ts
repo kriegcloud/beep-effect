@@ -282,6 +282,23 @@ describe("StrictGate", () => {
       })
     );
 
+    it.effect("takes an allowlisted metric's description and unit from the catalog, never the input", () =>
+      Effect.gen(function* () {
+        const { metrics } = yield* exportedMetrics(StrictGateRulesOn, "beep.demo.latency");
+        const text = yield* encodeUnknownJson(metrics);
+        // Both input series (histogram and refused exponential) carry the catalog identity.
+        expect(A.dedupe(A.map(metrics, (metric) => `${metric.description}|${metric.unit}`))).toEqual([
+          "Demo tool latency by tool.|ms",
+        ]);
+        expect(Str.includes(batchCanary())(text)).toBe(false);
+        const { metrics: raw } = yield* exportedMetrics(
+          { ...StrictGateRulesOn, "metric-names": false },
+          "beep.demo.latency"
+        );
+        expect(Str.includes(batchCanary())(yield* encodeUnknownJson(raw))).toBe(true);
+      })
+    );
+
     it.effect("refuses an exponential histogram series and counts it", () =>
       Effect.gen(function* () {
         const { gate, metrics } = yield* exportedMetrics(StrictGateRulesOn, "beep.demo.latency");

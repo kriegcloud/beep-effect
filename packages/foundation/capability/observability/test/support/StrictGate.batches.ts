@@ -138,7 +138,8 @@ export const representativeMetrics = (): MetricsData => ({
             },
             {
               name: "beep.demo.latency",
-              unit: "ms",
+              description: `latency for ${batchCanary()}`,
+              unit: batchCanary(),
               histogram: {
                 aggregationTemporality: 2,
                 dataPoints: [
