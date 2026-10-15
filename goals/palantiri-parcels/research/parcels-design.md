@@ -36,11 +36,26 @@ ParcelSpec  = { id, key: ParcelKey, freshnessBound: Duration, sources: NonEmpty<
 Parcel<A>   = { spec, freshness: Freshness, summary: string, items: A[], receipt: { shown, total } }
 ```
 
-- `Freshness` is checked at read time: `Fresh` only when every source's
-  `asOf` is within `freshnessBound` and every expected emitter reported.
-  Otherwise the first failing rule names the reason. `no-source` is for a
-  parcel whose source does not exist yet (app error classes before the query
-  adapter).
+- `Freshness` is checked at read time, at two levels (revised 2026-10-14
+  after P1's live run, where one 14-hour-old collector snapshot made the
+  whole parcel read stale):
+  - **Item freshness.** Every item carries its own `freshness`. A reading
+    within the parcel's bound is `Fresh{asOf}`; an older one is
+    `Unknown{stale, asOf}`; an item whose source failed (a failed poll, a
+    login that needs renewing) is `Unknown{unreachable}`.
+  - **Envelope freshness** describes the read itself. It is `Fresh` when
+    the poll or snapshot it served from is within the bound;
+    `Unknown{stale}` only when it served a snapshot past the bound because
+    the live poll failed; `Unknown{attribution-incomplete}` when an expected
+    emitter produced no item at all (for account headroom: a provider the
+    host has configured, from its stored logins and collector snapshot
+    files). `no-source` is for a parcel whose source does not exist yet (app
+    error classes before the query adapter); `unreachable` is for a source
+    port that failed outright.
+  - The summary leads with the split, for example
+    `11 of 13 accounts fresh; 1 stale (grok-bot), 1 unreachable (codex)`.
+  - Gauges emit only items whose own freshness is `Fresh`, so a stale
+    reading never looks current in Grafana.
 - Responses are capped at a budget (default 20 items) and summary-first, with
   an "N of M" receipt.
 

@@ -21,11 +21,13 @@ const $I = $PalantiriId.create("ParcelEnvelope.models");
  *
  * ```ts
  * import { AccountHeadroom } from "@beep/palantiri/AccountHeadroom.models"
+ * import { Freshness } from "@beep/palantiri/Freshness"
  * import { ParcelItem } from "@beep/palantiri/ParcelEnvelope.models"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
- * const item = AccountHeadroom.make({ provider: "codex", account: 1, state: "failed", windows: [], asOf: O.none(), sources: ["accounts-poll"] })
+ * const unreachable = Freshness.cases.Unknown.make({ reason: "unreachable", asOf: O.none(), detail: O.none() })
+ * const item = AccountHeadroom.make({ provider: "codex", account: 1, state: "failed", windows: [], asOf: O.none(), freshness: unreachable, sources: ["accounts-poll"] })
  * console.log(S.is(ParcelItem)(item)) // true
  * ```
  *
@@ -149,6 +151,7 @@ export class ParcelDraft extends S.Opaque<ParcelDraft, { readonly brand: unique 
  * import * as O from "effect/Option"
  *
  * const now = DateTime.makeUnsafe("2026-10-14T12:00:00Z")
+ * const unreachable = Freshness.cases.Unknown.make({ reason: "unreachable", asOf: O.none(), detail: O.none() })
  * const envelope = makeParcelEnvelope(
  *   ParcelDraft.make({
  *     spec: ParcelSpec.make({ id: "account-headroom", key: "account", freshnessBound: Duration.minutes(5), sources: ["accounts-poll"] }),
@@ -156,7 +159,7 @@ export class ParcelDraft extends S.Opaque<ParcelDraft, { readonly brand: unique 
  *     freshness: Freshness.cases.Fresh.make({ asOf: now }),
  *     summary: "3 accounts",
  *     items: A.makeBy(3, (index) =>
- *       AccountHeadroom.make({ provider: "codex", account: index + 1, state: "failed", windows: [], asOf: O.none(), sources: ["accounts-poll"] })
+ *       AccountHeadroom.make({ provider: "codex", account: index + 1, state: "failed", windows: [], asOf: O.none(), freshness: unreachable, sources: ["accounts-poll"] })
  *     ),
  *     budget: 2
  *   })

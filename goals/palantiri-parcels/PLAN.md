@@ -9,7 +9,7 @@ Status: `pending`
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Research | complete | Parcel specs, sources per parcel, HttpApi contract. | Schemas drafted; sources verified. |
-| P1 Slice | in-progress | Account-headroom parcel + gauge + CLI. | First vertical slice verified live. |
+| P1 Slice | complete | Account-headroom parcel + gauge + CLI. | First vertical slice verified live. |
 | P2 Parcels | pending | Remaining four parcels + completeness check. | Decode + freshness tests green. |
 | P3 MCP + session | pending | palantiri-mcp host; session-open push. | MCP handshake smoke green. |
 | P4 Yeet | pending | PR to mergeable. | Merge gate passes. |
@@ -34,7 +34,7 @@ Before marking the packet closed:
   sources: [`research/source-survey.md`](./research/source-survey.md).
   Decisions are in the `SPEC.md` Decision Log.
 
-### P1 Slice (2026-10-14)
+### P1 Slice (complete 2026-10-15)
 
 - `@beep/palantiri` (`packages/tooling/library/palantiri`, private, created
   with `beep create-package palantiri --family tooling --kind library`):
@@ -58,29 +58,35 @@ Before marking the packet closed:
 - Cache baseline re-recorded for `@beep/palantiri` and `@beep/repo-cli`:
   [`research/cache-baseline-review-palantiri-p1.md`](./research/cache-baseline-review-palantiri-p1.md),
   request [`research/cache-baseline-request-palantiri-p1.json`](./research/cache-baseline-request-palantiri-p1.json).
-- Live run (2026-10-14, workstation): 13 accounts across 7 providers in
-  about 7 s cold, instant from the snapshot; the encoded JSON carried no
-  `@`. Freshness read `Unknown{stale}` because a collector snapshot
-  (grok-bot) was 14 hours old: the parcel is fresh only when every reading
-  is within the bound. Open for P2: decide whether retained collector
-  readings should carry their own per-item freshness instead of downgrading
-  the whole parcel.
+- Two-level freshness (2026-10-15, SPEC Decision Log): every item carries
+  its own `freshness` (`Fresh`, `Unknown{stale, asOf}`,
+  `Unknown{unreachable}`); the envelope's describes the read (`Fresh` when
+  the served poll or snapshot is within 5 minutes, `Unknown{stale}` only for
+  a stale snapshot served after a failed live poll,
+  `Unknown{attribution-incomplete}` when a configured provider has no item).
+  The source port serves `AccountHeadroomInput` (report plus the providers of
+  the stored logins and collector snapshot files). The gauge emits only
+  fresh items. The first live run read `Unknown{stale}` for the whole parcel
+  because one collector snapshot was 14 hours old; that is now an item-level
+  fact.
+- Live run (2026-10-15, workstation, `--json`): envelope freshness
+  `Fresh{asOf: 2026-10-15T04:47:34.327Z}`, summary `10 of 13 accounts fresh;
+  2 stale (cursor, grok-bot), 1 unreachable (codex); most weekly headroom:
+  claude #3 at 100%`, receipt 13 of 13, no `@` in the JSON.
 - `bun run beep lint policy-fingerprint --write` added the palantiri paths to
   `//#lint:policy-fingerprint` inputs in `turbo.json` (the CLI's policy-tool
   closure now includes `@beep/palantiri`); the root subject is in the same
-  baseline review.
-- Gates (2026-10-14, uncommitted tree): `observability catalog --check`,
-  `lint effect-vitest` (one reviewed EV010 row for the CLI test's real
-  filesystem), `lint schema-first`, the schema-opaque codemod `--check`,
+  cache baseline review.
+- Gates (2026-10-15, committed slice 644650bf92 plus the freshness change):
+  `bun install`, `observability catalog --check`, `lint effect-vitest`,
+  `lint schema-first`, the schema-opaque codemod `--check`,
   `turbo run check` for both packages, `quality cache-policy`,
-  `lint policy-fingerprint --check`, `tsconfig-sync --check` and
-  `package-verify @beep/palantiri` exit 0. `package-verify @beep/repo-cli`
-  exits 1 on 5 tests outside this slice's code: the knowledge-doctor
-  evaluator compares `HEAD` against the live tree, so it fails until
-  `@beep/palantiri` is committed; the four `deprecated-apis lint command`
-  tests are inherited from #1791 (they pass on main at b8fe0030e4, and the
-  fake `oxlint` fixture prints no assignment summary). P1 stays in progress
-  until the committed tree re-runs `package-verify @beep/repo-cli`.
+  `lint package-scripts --write`, `lint policy-fingerprint --check`,
+  `tsconfig-sync --check` and `package-verify @beep/palantiri` exit 0.
+  `package-verify @beep/repo-cli` exits 1 only on the four
+  `deprecated-apis lint command` tests, inherited from #1791 (they reproduce
+  on main). `docgen:local` refuses because root inputs changed on the
+  branch; both package-verify runs passed their package docgen.
 - Not done in P1 (by design): OTLP export proven against a live collector
   (the layer is wired and flushes on scope close; no endpoint was set), the
   MCP host, `beep session open`, parcels 2-5.

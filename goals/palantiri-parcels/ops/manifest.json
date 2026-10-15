@@ -6,7 +6,7 @@
     "title": "Palantiri Parcels",
     "status": "active",
     "created": "2026-10-14",
-    "updated": "2026-10-14",
+    "updated": "2026-10-15",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/palantiri-parcels",
@@ -55,7 +55,7 @@
     {
       "id": "P1",
       "name": "Slice",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P2",

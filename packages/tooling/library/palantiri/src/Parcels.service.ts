@@ -25,7 +25,12 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { AccountHeadroomSpec, accountHeadroomItems, reduceAccountHeadroom } from "./AccountHeadroom.ts";
+import {
+  AccountHeadroomSpec,
+  accountHeadroomItems,
+  freshAccountHeadroom,
+  reduceAccountHeadroom,
+} from "./AccountHeadroom.ts";
 import { Freshness } from "./Freshness.ts";
 import {
   AccountsWindowRemaining,
@@ -37,7 +42,7 @@ import {
 import { ParcelId, ParcelReadOptions } from "./Parcel.models.ts";
 import { makeParcelEnvelope, ParcelDraft } from "./ParcelEnvelope.models.ts";
 import { UnknownParcel } from "./Parcels.errors.ts";
-import type { AccountHeadroom, AccountsReportInput } from "./AccountHeadroom.models.ts";
+import type { AccountHeadroom, AccountHeadroomInput } from "./AccountHeadroom.models.ts";
 import type { ParcelBudget } from "./Parcel.models.ts";
 import type { ParcelEnvelope } from "./ParcelEnvelope.models.ts";
 import type { SourceFailed } from "./Parcels.errors.ts";
@@ -51,13 +56,16 @@ const $I = $PalantiriId.create("Parcels.service");
  *
  * ```ts
  * import { AccountHeadroomSource } from "@beep/palantiri/Parcels.service"
- * import { AccountsReportInput } from "@beep/palantiri/AccountHeadroom.models"
+ * import { AccountHeadroomInput, AccountsReportInput } from "@beep/palantiri/AccountHeadroom.models"
  * import * as DateTime from "effect/DateTime"
  * import * as Effect from "effect/Effect"
  *
  * const source = AccountHeadroomSource.of({
  *   snapshot: Effect.succeed(
- *     AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: DateTime.makeUnsafe(0), groups: [] })
+ *     AccountHeadroomInput.make({
+ *       report: AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: DateTime.makeUnsafe(0), groups: [] }),
+ *       expectedProviders: []
+ *     })
  *   )
  * })
  * console.log(Effect.isEffect(source.snapshot)) // true
@@ -69,8 +77,11 @@ const $I = $PalantiriId.create("Parcels.service");
 export class AccountHeadroomSource extends Context.Service<
   AccountHeadroomSource,
   {
-    /** The newest accounts report the host can serve, live or from its snapshot. */
-    readonly snapshot: Effect.Effect<AccountsReportInput, SourceFailed>;
+    /**
+     * The newest accounts report the host can serve, live or from its
+     * snapshot, with the providers the host has configured.
+     */
+    readonly snapshot: Effect.Effect<AccountHeadroomInput, SourceFailed>;
   }
 >()($I`AccountHeadroomSource`) {}
 
@@ -95,14 +106,17 @@ export interface ParcelsShape {
  *
  * ```ts
  * import { AccountHeadroomSource, Parcels, layerParcels } from "@beep/palantiri/Parcels.service"
- * import { AccountsReportInput } from "@beep/palantiri/AccountHeadroom.models"
+ * import { AccountHeadroomInput, AccountsReportInput } from "@beep/palantiri/AccountHeadroom.models"
  * import * as DateTime from "effect/DateTime"
  * import * as Effect from "effect/Effect"
  * import * as Layer from "effect/Layer"
  *
  * const source = Layer.succeed(AccountHeadroomSource, {
  *   snapshot: Effect.succeed(
- *     AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: DateTime.makeUnsafe(0), groups: [] })
+ *     AccountHeadroomInput.make({
+ *       report: AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: DateTime.makeUnsafe(0), groups: [] }),
+ *       expectedProviders: []
+ *     })
  *   )
  * })
  * const program = Parcels.use((parcels) => parcels.read("account-headroom")).pipe(
@@ -136,16 +150,21 @@ type GaugeReading = typeof GaugeReading.Type;
 const byRemaining: Order.Order<GaugeReading> = Order.mapInput(Num.Order, (reading) => reading.remaining);
 
 // One series per provider and window: several accounts of one provider share
-// it, so it reports the most headroom any of them has.
+// it, so it reports the most headroom any of them has. Only fresh items
+// count, so a stale reading never looks current.
 const gaugeReadings = (items: ReadonlyArray<AccountHeadroom>): ReadonlyArray<GaugeReading> =>
   A.map(
     R.values(
       A.groupBy(
-        A.flatMap(items, (item) =>
+        A.flatMap(freshAccountHeadroom(items), (item) =>
           O.match(HashMap.get(agentProviders, item.provider), {
             onNone: A.empty<GaugeReading>,
             onSome: (provider) =>
-              A.map(item.windows, (window) => ({ provider, window: window.kind, remaining: window.remainingPercent })),
+              A.map(item.windows, (window) => ({
+                provider,
+                window: window.kind,
+                remaining: window.remainingPercent,
+              })),
           })
         ),
         (reading) => `${reading.provider} ${reading.window}`
@@ -176,7 +195,7 @@ const makeParcels = Effect.gen(function* () {
   const readAccountHeadroom = Effect.fnUntraced(function* (budget: ParcelBudget) {
     const now = yield* DateTime.now;
     return yield* accounts.snapshot.pipe(
-      Effect.tap((report) => recordHeadroom(accountHeadroomItems(report))),
+      Effect.tap((input) => recordHeadroom(accountHeadroomItems(input.report, now))),
       Effect.map(reduceAccountHeadroom(now, budget)),
       Effect.catchTag("SourceFailed", (failure) =>
         Effect.succeed(

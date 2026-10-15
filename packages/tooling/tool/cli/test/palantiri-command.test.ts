@@ -1,13 +1,16 @@
 import {
+  AccountHeadroomInput,
   AccountHeadroomSource,
   AccountsReportInputJson,
   AccountsWindowRemaining,
   ParcelEnvelope,
   ParcelsReadSpan,
+  reduceAccountHeadroom,
   SourceFailed,
 } from "@beep/palantiri";
 import {
   AccountRef,
+  AccountsError,
   AccountsStatusReport,
   AccountsStatusReportJson,
   AccountsUsage,
@@ -81,7 +84,10 @@ const reportSource = Effect.gen(function* () {
     Effect.provideService(AccountsUsage, stubAccountsUsage(polls))
   );
   const text = yield* AccountsStatusReportJson.encode(report);
-  return yield* S.decodeEffect(AccountsReportInputJson)(text);
+  return AccountHeadroomInput.make({
+    report: yield* S.decodeEffect(AccountsReportInputJson)(text),
+    expectedProviders: ["claude", "codex"],
+  });
 }).pipe(Effect.orDie);
 
 const captureOutput = Effect.fnUntraced(function* <A, E, R>(effect: Effect.Effect<A, E, R>) {
@@ -141,7 +147,7 @@ describe("printParcel over a stub source", () => {
         const gauges = A.filter(yield* Metric.snapshot, (metric) => metric.id === AccountsWindowRemaining.name);
         expect(A.map(gauges, (metric) => metric.attributes?.["beep.provider"])).toContain("openai");
         const text = yield* captureOutput(printParcel("account-headroom", false)).pipe(withEnv({}));
-        expect(text).toContain("account-headroom: 2 accounts: 2 readable");
+        expect(text).toContain("account-headroom: 2 of 2 accounts fresh");
         expect(text).toContain("claude #1  ok  weekly 75% left");
       })
     );
@@ -224,7 +230,8 @@ describe("beep palantiri parcel account-headroom", () => {
         expect(yield* fs.exists(file)).toBe(true);
         const cached = yield* read;
         expect(yield* Ref.get(polls)).toBe(2);
-        expect(cached.generatedAt).toEqual(first.generatedAt);
+        expect(cached.report.generatedAt).toEqual(first.report.generatedAt);
+        expect(first.expectedProviders).toEqual(["claude", "codex"]);
         // Age the snapshot past the five-minute bound.
         const written = yield* fs.readFileString(file).pipe(Effect.flatMap(AccountsStatusReportJson.decode));
         const aged = AccountsStatusReport.make({
@@ -234,6 +241,22 @@ describe("beep palantiri parcel account-headroom", () => {
         yield* AccountsStatusReportJson.encode(aged).pipe(Effect.flatMap((text) => fs.writeFileString(file, text)));
         yield* read;
         expect(yield* Ref.get(polls)).toBe(4);
+        // A live poll that fails serves the stale snapshot instead.
+        yield* AccountsStatusReportJson.encode(aged).pipe(Effect.flatMap((text) => fs.writeFileString(file, text)));
+        const offline = yield* makeAccountHeadroomSourceLive.pipe(
+          Effect.provideService(
+            AccountsUsage,
+            AccountsUsage.of({
+              ...stubAccountsUsage(polls),
+              accounts: Effect.fail(AccountsError.make({ reason: "io", message: "auth directory unreadable" })),
+            })
+          )
+        );
+        const served = yield* offline.snapshot.pipe(withEnv({ BEEP_PALANTIRI_STATE_ROOT: root }));
+        expect(served.report.generatedAt).toEqual(aged.generatedAt);
+        expect(served.expectedProviders).toEqual([]);
+        const parcel = reduceAccountHeadroom(served, yield* DateTime.now, 20);
+        expect(parcel.freshness._tag === "Unknown" ? parcel.freshness.reason : "fresh").toBe("stale");
       })
     );
   });

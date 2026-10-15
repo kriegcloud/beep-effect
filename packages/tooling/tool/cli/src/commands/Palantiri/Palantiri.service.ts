@@ -6,7 +6,14 @@
  * @since 0.0.0
  */
 import { layerLocalLgtmServer, ServerObservabilityConfig } from "@beep/observability/server";
-import { AccountHeadroomSource, AccountHeadroomSpec, AccountsReportInputJson, SourceFailed } from "@beep/palantiri";
+import {
+  AccountHeadroomInput,
+  AccountHeadroomSource,
+  AccountHeadroomSpec,
+  AccountsReportInputJson,
+  SourceFailed,
+} from "@beep/palantiri";
+import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -41,7 +48,11 @@ const isWithinBound = (now: DateTime.Utc) => (report: AccountsStatusReport) =>
  * `$HOME/.local/state/beep/palantiri`). A snapshot younger than the parcel's
  * 5-minute bound is served as-is; otherwise every account is polled, the
  * previous snapshot's readings stand in for accounts whose poll failed, and
- * the new report replaces the file. The file holds the full accounts report,
+ * the new report replaces the file. When the live poll itself fails, the
+ * stale snapshot is served, so the parcel reads `Unknown{stale}` instead of
+ * `Unknown{unreachable}`. Each read also lists the configured providers
+ * (stored logins and collector snapshot files) as the parcel's expected
+ * providers. The file holds the full accounts report,
  * labels included, and stays on this machine; the parcel itself never
  * carries a label. A failed snapshot write is logged and the live report is
  * still served.
@@ -70,6 +81,20 @@ export const makeAccountHeadroomSourceLive = Effect.gen(function* () {
     yield* fs.rename(temporary, file);
   });
 
+  // The providers this host is configured for: every stored login and every
+  // collector snapshot file. A listing failure claims nothing.
+  const expectedProviders = Effect.all([usage.accounts, usage.snapshots], { concurrency: 2 }).pipe(
+    Effect.map(([accounts, snapshots]) =>
+      A.dedupe(
+        A.appendAll(
+          A.map(accounts, (account) => account.provider),
+          A.map(snapshots, (snapshot) => snapshot.account.provider)
+        )
+      )
+    ),
+    Effect.orElseSucceed(A.empty<string>)
+  );
+
   const snapshot = Effect.gen(function* () {
     const dir = yield* resolveWorkstationStateDir({ override: "BEEP_PALANTIRI_STATE_ROOT", store: "palantiri" });
     const file = path.join(dir, SNAPSHOT_FILE);
@@ -88,11 +113,25 @@ export const makeAccountHeadroomSourceLive = Effect.gen(function* () {
                 Effect.logWarning("[palantiri] could not write the account-headroom snapshot", cause)
               )
             )
+          ),
+          // A failed live poll serves the stale snapshot; its age makes the
+          // parcel Unknown{stale}.
+          Effect.catchTag("AccountsError", (error) =>
+            O.match(previous, {
+              onNone: () => Effect.fail(error),
+              onSome: (stale) =>
+                Effect.logWarning("[palantiri] live accounts poll failed; serving the stale snapshot").pipe(
+                  Effect.as(stale)
+                ),
+            })
           )
         ),
     });
     const text = yield* AccountsStatusReportJson.encode(report);
-    return yield* S.decodeEffect(AccountsReportInputJson)(text);
+    return AccountHeadroomInput.make({
+      report: yield* S.decodeEffect(AccountsReportInputJson)(text),
+      expectedProviders: yield* expectedProviders,
+    });
   }).pipe(
     Effect.catchTags({
       AccountsError: (error) => Effect.fail(sourceFailed(`accounts report unavailable (${error.reason})`)),

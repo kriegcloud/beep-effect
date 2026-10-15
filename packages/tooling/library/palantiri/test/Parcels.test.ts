@@ -1,5 +1,6 @@
 import { fcRuns } from "@beep/fc-runs";
 import {
+  AccountHeadroomInput,
   AccountHeadroomSource,
   AccountsReportInput,
   AccountsReportInputJson,
@@ -35,6 +36,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
 import * as TestClock from "effect/testing/TestClock";
+import type { Freshness } from "@beep/palantiri";
 
 const NOON = "2026-10-14T12:00:00.000Z";
 const NOON_TIME = DateTime.makeUnsafe(NOON);
@@ -74,13 +76,24 @@ const sampleReport = decodeReport(
     row("claude", "amy@example.com", ok([window("weekly", 70)])),
     row("codex", "work@example.com", { _tag: "NeedsLogin", detail: "login for work@example.com expired" }),
     row("grok", "x@example.com", { _tag: "Failed", detail: "timeout reading /home/x/.cli-proxy-api" }),
+    // A collector snapshot ten hours old: retained, so it keeps its own asOf.
+    row("grok-bot", "bot@example.com", ok([window("weekly", 24)], "2026-10-14T02:00:00.000Z")),
   ])
 );
 
-const sourceLayer = (snapshot: Effect.Effect<AccountsReportInput, SourceFailed>) =>
+const EXPECTED = ["claude", "codex", "grok", "grok-bot"];
+
+const inputOf = (expectedProviders: ReadonlyArray<string>) => (report: AccountsReportInput) =>
+  AccountHeadroomInput.make({ report, expectedProviders });
+
+const sampleInput = sampleReport.pipe(Effect.map(inputOf(EXPECTED)));
+
+const reasonOf = (freshness: Freshness): string => (freshness._tag === "Unknown" ? freshness.reason : "fresh");
+
+const sourceLayer = (snapshot: Effect.Effect<AccountHeadroomInput, SourceFailed>) =>
   Layer.succeed(AccountHeadroomSource, { snapshot });
 
-const parcelsWith = (snapshot: Effect.Effect<AccountsReportInput, SourceFailed>) =>
+const parcelsWith = (snapshot: Effect.Effect<AccountHeadroomInput, SourceFailed>) =>
   layerParcels.pipe(Layer.provide(sourceLayer(snapshot)));
 
 describe("checkFreshness", () => {
@@ -107,19 +120,17 @@ describe("checkFreshness", () => {
 describe("reduceAccountHeadroom", () => {
   it.effect("numbers accounts per provider and never leaks a label", () =>
     Effect.gen(function* () {
-      const report = yield* sampleReport;
-      const parcel = reduceAccountHeadroom(report, DateTime.makeUnsafe(NOON), 20);
-      const items = A.map(parcel.items, (item) => [item.provider, item.account, item.state]);
+      const parcel = reduceAccountHeadroom(yield* sampleInput, NOON_TIME, 20);
+      const items = A.map(parcel.items, (item) => [item.provider, item.account, item.state, reasonOf(item.freshness)]);
       expect(items).toEqual([
-        ["claude", 1, "ok"],
-        ["claude", 2, "ok"],
-        ["codex", 1, "needs-login"],
-        ["grok", 1, "failed"],
+        ["claude", 1, "ok", "fresh"],
+        ["claude", 2, "ok", "fresh"],
+        ["codex", 1, "needs-login", "unreachable"],
+        ["grok", 1, "failed", "unreachable"],
+        ["grok-bot", 1, "ok", "stale"],
       ]);
       // amy sorts before zed, so ordinal 1 carries amy's 30% weekly headroom.
       expect(A.map(parcel.items[0]?.windows ?? [], (window) => window.remainingPercent)).toEqual([30]);
-      expect(parcel.freshness._tag).toBe("Fresh");
-      expect(parcel.summary).toContain("4 accounts: 2 readable, 1 need login, 1 failed");
       const json = yield* S.encodeEffect(S.fromJsonString(ParcelEnvelope))(parcel);
       expect(pipe(json, Str.includes("@"))).toBe(false);
       expect(pipe(json, Str.includes("/home"))).toBe(false);
@@ -127,30 +138,46 @@ describe("reduceAccountHeadroom", () => {
     })
   );
 
+  it.effect("is Fresh with one stale item, and the summary names the split", () =>
+    Effect.gen(function* () {
+      const parcel = reduceAccountHeadroom(yield* sampleInput, NOON_TIME, 20);
+      expect(parcel.freshness._tag).toBe("Fresh");
+      const stale = A.findFirst(parcel.items, (item) => item.provider === "grok-bot");
+      assertSome(
+        O.map(stale, (item) => reasonOf(item.freshness)),
+        "stale"
+      );
+      assertSome(
+        O.flatMap(stale, (item) => (item.freshness._tag === "Unknown" ? item.freshness.asOf : O.none())),
+        DateTime.makeUnsafe("2026-10-14T02:00:00.000Z")
+      );
+      expect(parcel.summary).toBe(
+        "2 of 5 accounts fresh; 1 stale (grok-bot), 2 unreachable (codex, grok); most weekly headroom: claude #2 at 60%"
+      );
+    })
+  );
+
+  it.effect("is Unknown{attribution-incomplete} when an expected provider has no item", () =>
+    Effect.gen(function* () {
+      const input = inputOf([...EXPECTED, "muse"])(yield* sampleReport);
+      const parcel = reduceAccountHeadroom(input, NOON_TIME, 20);
+      expect(reasonOf(parcel.freshness)).toBe("attribution-incomplete");
+      expect(parcel.summary).toContain("no reading from muse");
+    })
+  );
+
   it.effect("caps items at the budget with an N-of-M receipt", () =>
     Effect.gen(function* () {
-      const parcel = reduceAccountHeadroom(yield* sampleReport, DateTime.makeUnsafe(NOON), 3);
+      const parcel = reduceAccountHeadroom(yield* sampleInput, NOON_TIME, 3);
       expect(parcel.items.length).toBe(3);
-      expect(parcel.receipt).toEqual({ shown: 3, total: 4 });
+      expect(parcel.receipt).toEqual({ shown: 3, total: 5 });
     })
   );
 
-  it.effect("is Unknown{stale} when the report is older than five minutes", () =>
+  it.effect("is Unknown{stale} when the report it served is older than five minutes", () =>
     Effect.gen(function* () {
-      const parcel = reduceAccountHeadroom(
-        yield* sampleReport,
-        DateTime.add(DateTime.makeUnsafe(NOON), { minutes: 6 }),
-        20
-      );
-      expect(parcel.freshness._tag === "Unknown" ? parcel.freshness.reason : "fresh").toBe("stale");
-    })
-  );
-
-  it.effect("is Unknown{unreachable} when no account returned usage", () =>
-    Effect.gen(function* () {
-      const report = yield* decodeReport(reportDocument(NOON, [row("codex", "a", { _tag: "Failed", detail: "x" })]));
-      const parcel = reduceAccountHeadroom(report, DateTime.makeUnsafe(NOON), 20);
-      expect(parcel.freshness._tag === "Unknown" ? parcel.freshness.reason : "fresh").toBe("unreachable");
+      const parcel = reduceAccountHeadroom(yield* sampleInput, DateTime.add(NOON_TIME, { minutes: 6 }), 20);
+      expect(reasonOf(parcel.freshness)).toBe("stale");
     })
   );
 
@@ -159,7 +186,7 @@ describe("reduceAccountHeadroom", () => {
       const report = yield* sampleReport;
       const text = yield* S.encodeEffect(AccountsReportInputJson)(report);
       const back = yield* S.decodeEffect(AccountsReportInputJson)(text);
-      expect(back.groups[0]?.rows.length).toBe(4);
+      expect(back.groups[0]?.rows.length).toBe(5);
     })
   );
 });
@@ -174,7 +201,7 @@ describe("account-headroom properties", () => {
     [Arbitrary.schema(AccountsReportInput)],
     Effect.fnUntraced(function* ([report]) {
       const rows = A.flatMap(report.groups, (group) => group.rows);
-      const parcel = reduceAccountHeadroom(report, report.generatedAt, 500);
+      const parcel = reduceAccountHeadroom(inputOf([])(report), report.generatedAt, 500);
       expect(parcel.receipt.total).toBe(rows.length);
       const ordinals = A.map(parcel.items, (item) => [item.provider, item.account] as const);
       A.forEach(ordinals, ([provider, ordinal], index) => {
@@ -197,13 +224,13 @@ describe("Parcels.read", () => {
       Effect.gen(function* () {
         const parcel = yield* Parcels.use((parcels) => parcels.read("account-headroom"));
         expect(parcel.items).toEqual([]);
-        expect(parcel.freshness._tag === "Unknown" ? parcel.freshness.reason : "fresh").toBe("unreachable");
+        expect(reasonOf(parcel.freshness)).toBe("unreachable");
         expect(parcel.summary).toBe("account headroom unavailable: accounts report unavailable");
       })
     );
   });
 
-  it.layer(parcelsWith(sampleReport.pipe(Effect.orDie)), { timeout: "30 seconds" })("with a working source", (it) => {
+  it.layer(parcelsWith(sampleInput.pipe(Effect.orDie)), { timeout: "30 seconds" })("with a working source", (it) => {
     it.effect("fails an unknown id with UnknownParcel", () =>
       Effect.gen(function* () {
         const error = yield* Parcels.use((parcels) => parcels.read("weather")).pipe(Effect.flip);
@@ -212,7 +239,7 @@ describe("Parcels.read", () => {
       })
     );
 
-    it.effect("records the Parcels.read span and the window gauge", () =>
+    it.effect("records the Parcels.read span and gauges only fresh items", () =>
       Effect.gen(function* () {
         const spans = MutableHashMap.empty<string, Tracer.NativeSpan>();
         const tracer = Tracer.make({
@@ -243,19 +270,23 @@ describe("Parcels.read", () => {
         ]);
         expect(readings).toContainEqual(["anthropic", "weekly"]);
         expect(readings).toContainEqual(["anthropic", "session"]);
+        // grok-bot's only reading is stale, so xai never gets a series.
+        expect(A.some(readings, ([provider]) => provider === "xai")).toBe(false);
         const weekly = A.findFirst(gauges, (metric) => metric.attributes?.["beep.window"] === "weekly");
         // The best Claude account has 60% of its week left.
         assertSome(
           O.map(weekly, (metric) => metric.state),
           { value: 60 }
         );
-      })
+        // A private registry, so series other blocks recorded cannot leak in (the
+        // registry type is the Map Effect defines).
+      }).pipe(Effect.provideService(Metric.MetricRegistry, new Map()))
     );
   });
 });
 
 const clientLayer = layerPalantiriClientInProcess.pipe(
-  Layer.provide(parcelsWith(sampleReport.pipe(Effect.orDie))),
+  Layer.provide(parcelsWith(sampleInput.pipe(Effect.orDie))),
   // Parcels never serve files, so the file-response support gets a no-op filesystem.
   Layer.provide(Layer.mergeAll(FileSystem.layerNoop({}), Path.layer))
 );
@@ -266,7 +297,7 @@ describe("in-process client", () => {
       Effect.gen(function* () {
         const client = yield* PalantiriClient;
         const parcel = yield* client.parcels.read({ params: { id: "account-headroom" }, query: { budget: 2 } });
-        expect(parcel.receipt).toEqual({ shown: 2, total: 4 });
+        expect(parcel.receipt).toEqual({ shown: 2, total: 5 });
         const error = yield* client.parcels.read({ params: { id: "weather" }, query: {} }).pipe(Effect.flip);
         expect(error._tag).toBe("UnknownParcel");
       })

@@ -16,6 +16,7 @@
 import { $PalantiriId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
+import { Freshness } from "./Freshness.ts";
 import { ParcelSource } from "./Parcel.models.ts";
 
 const $I = $PalantiriId.create("AccountHeadroom.models");
@@ -289,6 +290,40 @@ export const AccountsReportInputJson = S.fromJsonString(AccountsReportInput).pip
 );
 
 /**
+ * What the account-headroom source port serves: the accounts report, and the
+ * providers the host has configured, so a provider with no row is caught.
+ *
+ * **Details**
+ *
+ * `expectedProviders` are the providers of the host's logins and collector
+ * snapshots at read time. A provider listed there with no report row makes
+ * the parcel `Unknown{attribution-incomplete}`.
+ *
+ * **Example** (Make an input)
+ *
+ * ```ts
+ * import { AccountHeadroomInput, AccountsReportInput } from "@beep/palantiri/AccountHeadroom.models"
+ * import * as DateTime from "effect/DateTime"
+ *
+ * const input = AccountHeadroomInput.make({
+ *   report: AccountsReportInput.make({ schemaVersion: "accounts-status/v2", generatedAt: DateTime.makeUnsafe(0), groups: [] }),
+ *   expectedProviders: ["claude"]
+ * })
+ * console.log(input.expectedProviders) // ["claude"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AccountHeadroomInput extends S.Opaque<AccountHeadroomInput, { readonly brand: unique symbol }>()(
+  S.Struct({ report: AccountsReportInput, expectedProviders: S.Array(AccountProviderName) }).pipe(
+    $I.annoteSchema("AccountHeadroomInput", {
+      description: "The accounts report and the providers the host has configured.",
+    })
+  )
+) {}
+
+/**
  * Whether an account's poll produced usage, needs a fresh login, or failed.
  *
  * **Example** (Narrow an account state)
@@ -354,12 +389,15 @@ export class HeadroomWindow extends S.Opaque<HeadroomWindow, { readonly brand: u
  *
  * The ordinal is the account's position in its provider's label order, so it
  * is stable while the set of logins is stable. No label, login path or
- * identity is carried.
+ * identity is carried. `freshness` is the item's own: `Fresh` when its
+ * reading is within the parcel bound, `Unknown{stale}` when older, and
+ * `Unknown{unreachable}` when the account's poll failed or needs a login.
  *
  * **Example** (Make a headroom item)
  *
  * ```ts
  * import { AccountHeadroom } from "@beep/palantiri/AccountHeadroom.models"
+ * import { Freshness } from "@beep/palantiri/Freshness"
  * import * as O from "effect/Option"
  *
  * const item = AccountHeadroom.make({
@@ -368,6 +406,7 @@ export class HeadroomWindow extends S.Opaque<HeadroomWindow, { readonly brand: u
  *   state: "needs-login",
  *   windows: [],
  *   asOf: O.none(),
+ *   freshness: Freshness.cases.Unknown.make({ reason: "unreachable", asOf: O.none(), detail: O.some("needs login") }),
  *   sources: ["accounts-poll"]
  * })
  * console.log(item._tag) // "AccountHeadroom"
@@ -383,6 +422,7 @@ export class AccountHeadroom extends S.Opaque<AccountHeadroom, { readonly brand:
     state: AccountState,
     windows: S.Array(HeadroomWindow),
     asOf: S.OptionFromNullOr(S.DateTimeUtcFromString),
+    freshness: Freshness,
     sources: S.NonEmptyArray(ParcelSource),
   }).pipe(
     $I.annoteSchema("AccountHeadroom", {
