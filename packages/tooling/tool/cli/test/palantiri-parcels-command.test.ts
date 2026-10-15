@@ -330,7 +330,9 @@ describe("app-error-classes", () => {
   });
 });
 
-class FixtureRoot extends Context.Service<FixtureRoot, string>()("palantiri-parcels-command/FixtureRoot") {}
+class FixtureRoot extends Context.Service<FixtureRoot, string>()(
+  "@beep/repo-cli/test/palantiri-parcels-command.test/FixtureRoot"
+) {}
 
 describe("since-last-check", () => {
   // A temporary checkout and state root, two ledger notes, and the live

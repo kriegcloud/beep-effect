@@ -76,7 +76,10 @@ const okUsage = (ref: AccountRef, usedPercent: number) =>
 const stubAccountsUsage = (polls: Ref.Ref<number>) =>
   AccountsUsage.of({
     accounts: Effect.succeed([account("claude", "me@example.com"), account("codex", "work@example.com")]),
-    poll: (ref) => Ref.update(polls, (count) => count + 1).pipe(Effect.as(okUsage(ref, 25))),
+    poll: Effect.fn("AccountsUsage.poll")(function* (ref) {
+      yield* Ref.update(polls, (count) => count + 1);
+      return okUsage(ref, 25);
+    }),
     signedIn: Effect.succeed([]),
     snapshots: Effect.succeed([]),
   });
