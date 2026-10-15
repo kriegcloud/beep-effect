@@ -291,6 +291,9 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     O.isSome(left.ino) && O.isSome(right.ino) && left.dev === right.dev && left.ino.value === right.ino.value;
 
   const matches = Effect.fnUntraced(function* (file: string, info: FileSystem.File.Info, expectedHash: string) {
+    // stat follows a link, while exchange moves the link itself. Never accept a
+    // displaced symlink merely because its target has the planned inode/hash.
+    if (O.isSome(yield* fs.readLink(file).pipe(Effect.option))) return false;
     return sameInode(info, yield* fs.stat(file).pipe(io)) && (yield* hash(yield* readNative(file))) === expectedHash;
   });
 

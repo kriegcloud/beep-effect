@@ -1843,3 +1843,13 @@ scope, so a failed stat cannot leak it. No round-4 P2/P3 is deferred. The three
 protocol follow-ups already recorded under F-R3-BOUNDED-SHELL-LINKS remain open.
 No native home configuration file is changed; no new home backup is needed.
 The panel remains open and the driver alone sends merge clearance.
+
+
+Round-4 restore identity extension: the exchange verifier also rejects an
+actual displaced symlink before accepting inode/hash equality, because stat
+follows links while exchange moves the link itself. A wrapped-spawner fixture
+introduces the link after staging and proves verified recovery returns it live,
+keeps both link and relocated target bytes, and fails with the journal id.
+Reason: enforce F-ASTRA-R4-02 across the exchange window as well as preflight.
+Reversal: revert this repository repair; retain the journal and backup for
+manual recovery rather than weakening entry-kind verification.

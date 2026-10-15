@@ -527,7 +527,8 @@ fails closed with a typed `ModelsLocatorError`; there is no unverified-concurren
 fallback for home or repository files.
 
 Publication atomically exchanges the staged file and live path, then checks the
-actual displaced inode and hash against the planned pre-image. A mismatch is a
+actual displaced entry kind, inode and hash against the planned pre-image. A
+displaced symlink is refused even when its target has the planned inode/hash. A mismatch is a
 concurrent-write failure, even if recovery succeeds. Recovery exchanges files
 again and verifies what it displaced; a newer writer encountered during recovery
 is returned through a further exchange. Recovery is bounded to eight exchanges;
