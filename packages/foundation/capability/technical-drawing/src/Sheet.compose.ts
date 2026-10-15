@@ -23,6 +23,8 @@
 import { A, Html, N, O } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
 import { SANS_FACE, SERIF_FACE } from "./internal/LabelGlyphs.ts";
 import { alphabetSpan } from "./internal/LabelOutline.ts";
 import {
@@ -264,6 +266,58 @@ const polylinePath = (line: Polyline): string =>
     A.map(([px, py], i) => `${i === 0 ? "M" : "L"}${r3(px)} ${r3(py)}`),
     A.join("")
   );
+
+type Point = readonly [number, number];
+type Indexed = readonly [number, Segment2];
+
+const startOf = ([x1, y1]: Segment2): Point => [x1, y1];
+const endOf = ([, , x2, y2]: Segment2): Point => [x2, y2];
+const pointKey = ([x, y]: Point): string => `${r3(x)} ${r3(y)}`;
+
+// SVG and PDF restart a dash pattern at every subpath, so a dashed polyline
+// written one subpath per segment inks every segment shorter than a dash in
+// full and prints solid. Segments that meet end to end on the sheet (either
+// way round: the engine stores each one in canonical direction) are joined
+// into one polyline, so the pattern runs on along it. Segments are taken in
+// their given order and a chain runs on into the first unused segment at its
+// end, so equal input yields an equal path, and a lone segment stays the
+// `M..L..` it always was.
+const chainSegments = (lines: ReadonlyArray<Segment2>): ReadonlyArray<Polyline> => {
+  const ends = MutableHashMap.empty<string, ReadonlyArray<Indexed>>();
+  A.forEach(lines, (line, index) =>
+    A.forEach(A.dedupe([pointKey(startOf(line)), pointKey(endOf(line))]), (key) => {
+      const at = O.getOrElse(MutableHashMap.get(ends, key), A.empty<Indexed>);
+      MutableHashMap.set(ends, key, A.append(at, [index, line] as const));
+    })
+  );
+  const used = MutableHashSet.empty<number>();
+  const take = (key: string): O.Option<Indexed> =>
+    pipe(MutableHashMap.get(ends, key), O.flatMap(A.findFirst(([index]: Indexed) => !MutableHashSet.has(used, index))));
+  // the points reached walking on from `from` through unused segments
+  const walk = (from: Point): ReadonlyArray<Point> => {
+    const points: Array<Point> = [];
+    let tail = from;
+    let next = take(pointKey(tail));
+    while (O.isSome(next)) {
+      const [index, line] = next.value;
+      MutableHashSet.add(used, index);
+      tail = pointKey(startOf(line)) === pointKey(tail) ? endOf(line) : startOf(line);
+      points.push(tail);
+      next = take(pointKey(tail));
+    }
+    return points;
+  };
+  const chains: Array<Polyline> = [];
+  A.forEach(lines, (line, index) => {
+    if (!MutableHashSet.has(used, index)) {
+      MutableHashSet.add(used, index);
+      const ahead = walk(endOf(line));
+      const behind = walk(startOf(line));
+      chains.push([...A.reverse(behind), startOf(line), endOf(line), ...ahead]);
+    }
+  });
+  return chains;
+};
 
 /**
  * Extents of a projected view in model units.
@@ -606,25 +660,30 @@ export const drawnBrokenGapMm = (options: SheetOptions): number => {
  *
  * **Details**
  *
- * Layers are emitted in drawing order: labels, shading, broken lines, then
- * the figure outlines. Stroke labels go in the stroked `labels` path;
+ * Layers are emitted in drawing order: labels, shading, broken lines, the
+ * figure outlines, then the emphasis lines in `emphasisWeightMm`, on top of
+ * the outlines they run along. Stroke labels go in the stroked `labels` path;
  * outlined labels go in one filled `label-outlines` path; text labels are
  * `<text>` elements after them. The view is centred on the extents of the
- * outlines and the broken lines together. The shading, broken, and
- * label-outline layers are written only when non-empty, so a sheet without
- * them (and without label styles) is byte-identical to one composed before
- * those layers existed.
+ * outlines, the broken lines, and the emphasis lines together. The shading,
+ * broken, emphasis, and label-outline layers are written only when
+ * non-empty, so a sheet without them (and without label styles) is
+ * byte-identical to one composed before those layers existed.
  *
  * **Gotchas**
  *
- * SVG restarts the dash pattern at every subpath, and each segment is its own
- * subpath, so a curved broken edge sampled into short segments reads as a
- * row of short dashes.
+ * SVG and PDF restart the dash pattern at every subpath, which would ink in
+ * full every broken segment shorter than a dash. Broken segments that meet
+ * end to end are therefore written as one subpath per chain, so a curved
+ * broken edge sampled into short segments, or a polyline overlay such as a
+ * corrugation wave, still prints dashed; the pattern runs on through the
+ * chain's joints and corners and restarts only where a chain ends.
  *
  * **Example** (A sheet with one segment)
  *
  * ```ts
- * import { SheetOptions, composeSheet } from "@beep/technical-drawing"
+ * import { composeSheet } from "@beep/technical-drawing/Sheet.compose"
+ * import { SheetOptions } from "@beep/technical-drawing/Sheet.schemas"
  *
  * const svg = composeSheet({
  *   segments: [[0, 0, 40, 0]], shading: [], figure: 1, sheet: 1, sheets: 1, scale: 5, options: SheetOptions.make({})
@@ -644,6 +703,18 @@ export const drawnBrokenGapMm = (options: SheetOptions): number => {
  * console.log(svg.includes("stroke-dasharray"))
  * ```
  *
+ * **Example** (A sheet with an emphasis line)
+ *
+ * ```ts
+ * import { SheetOptions, composeSheet } from "@beep/technical-drawing"
+ *
+ * const svg = composeSheet({
+ *   segments: [[0, 0, 40, 0]], shading: [], emphasis: [[0, 0, 40, 0]],
+ *   figure: 1, sheet: 1, sheets: 1, scale: 5, options: SheetOptions.make({})
+ * })
+ * console.log(svg.includes('id="emphasis"'))
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -651,6 +722,7 @@ export const composeSheet = (input: {
   readonly segments: ReadonlyArray<Segment2>;
   readonly shading: ReadonlyArray<Segment2>;
   readonly broken?: ReadonlyArray<Segment2> | undefined;
+  readonly emphasis?: ReadonlyArray<Segment2> | undefined;
   readonly figure: number;
   readonly sheet: number;
   readonly sheets: number;
@@ -660,9 +732,10 @@ export const composeSheet = (input: {
 }): string => {
   const { segments, scale, options } = input;
   const broken = input.broken ?? A.empty<Segment2>();
+  const emphasis = input.emphasis ?? A.empty<Segment2>();
   const { page, sight, labels: anchors, lettering, figure } = geometryOf(options, input.faces ?? NO_FACES);
   const stroke = options.lineWeightMm * PT_PER_MM;
-  const extents = viewExtents([...segments, ...broken]);
+  const extents = viewExtents([...segments, ...broken, ...emphasis]);
   const drawnW = (extents.maxX - extents.minX) * scale;
   const drawnH = (extents.maxY - extents.minY) * scale;
   const originX = (figure.left + figure.right) / 2 - drawnW / 2;
@@ -711,8 +784,17 @@ export const composeSheet = (input: {
       : [`<path id="shading" d="${pathOf(input.shading)}" ${attrsFor(options.shadingWeightMm * PT_PER_MM)}/>`];
   // the gap widens with a heavy line weight so the round caps never close it
   const dash = `${r3(options.brokenDashMm * PT_PER_MM)} ${r3(drawnBrokenGapMm(options) * PT_PER_MM)}`;
+  // one subpath per chain of touching segments, so the dashes run on along a
+  // polyline instead of restarting (and inking in full) at every short segment
+  const brokenPath = pipe(broken, A.map(toSheet), chainSegments, A.map(polylinePath), A.join(""));
   const brokenLayer =
-    A.length(broken) === 0 ? [] : [`<path id="broken" d="${pathOf(broken)}" ${attrs} stroke-dasharray="${dash}"/>`];
+    A.length(broken) === 0 ? [] : [`<path id="broken" d="${brokenPath}" ${attrs} stroke-dasharray="${dash}"/>`];
+  // Emphasis lines go over the outlines they run along, and only when present,
+  // so a sheet without them stays byte-identical to one composed before them.
+  const emphasisLayer =
+    A.length(emphasis) === 0
+      ? []
+      : [`<path id="emphasis" d="${pathOf(emphasis)}" ${attrsFor(options.emphasisWeightMm * PT_PER_MM)}/>`];
   // Each label layer is emitted only when it has marks, so a sheet without
   // label styles keeps exactly the one stroked `labels` path it always had.
   const labelLayers = [
@@ -727,6 +809,7 @@ export const composeSheet = (input: {
       ...shadingLayer,
       ...brokenLayer,
       `<path id="figure" d="${figurePath}" ${attrs}/>`,
+      ...emphasisLayer,
       "</svg>",
       "",
     ],

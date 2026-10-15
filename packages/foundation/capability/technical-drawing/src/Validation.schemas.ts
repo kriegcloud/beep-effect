@@ -199,6 +199,7 @@ const FindingCodeBase = LiteralKit([
   "solid-black-area",
   "shading-spacing",
   "shading-lost-face",
+  "shading-lost-stretch",
   "shading-outline-clearance",
   "shading-lone-line",
   "label-missing",

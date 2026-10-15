@@ -6,6 +6,8 @@
  */
 
 export * from "./Drawings.command.ts";
+export * from "./Drawings.critics.schemas.ts";
+export * from "./Drawings.critics.ts";
 export * from "./Drawings.errors.ts";
 export * from "./Drawings.intake.schemas.ts";
 export * from "./Drawings.intake.ts";

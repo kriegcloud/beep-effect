@@ -15,7 +15,7 @@
     {
       "figure": 1,
       "view": "top-perspective",
-      "svgSha256": "733b3d68bcf2dc225d10721e5f12dba912e85d2dfda31e864754051858e000fb",
+      "svgSha256": "e48bf2d11af55e29f04e9875bc4017daa8c071a886c0303d059b83a2e78b1a82",
       "visibleSegments": 31,
       "brokenSegments": 7
     },
@@ -29,7 +29,7 @@
     {
       "figure": 3,
       "view": "top-plan",
-      "svgSha256": "4902a99edfdb631620e5c255d4844897522a4eea8b3fae9c24d8de8d972b6cd7",
+      "svgSha256": "ad5dd6d9afcb3425cff75376706c5f1f36066009131d18b8971049beba464948",
       "visibleSegments": 11,
       "brokenSegments": 4
     },
@@ -43,28 +43,28 @@
     {
       "figure": 5,
       "view": "front",
-      "svgSha256": "93fd25b9e2effefb814b5dc9211c5aa344b055aa090c0f941e79705a13b8ba6c",
+      "svgSha256": "7c0ec8f9e9b633011aec61d477620583d5c23e8c49dfe8ef2257d7c04833d210",
       "visibleSegments": 13,
       "brokenSegments": 3
     },
     {
       "figure": 6,
       "view": "rear",
-      "svgSha256": "a657cd3031827dc5d2f059711b6b721a9edd3c7bd5c464e608a51bd7bb5d79ed",
+      "svgSha256": "49f293ce3cf64a0de997e9d00e230381f019f055b44c1399861fa5c49321322d",
       "visibleSegments": 13,
       "brokenSegments": 3
     },
     {
       "figure": 7,
       "view": "left",
-      "svgSha256": "a711207e33e2fef1dc81066f94296d5d572da8e217e03f99a5aa868ad1423af4",
+      "svgSha256": "1458f701298b6be8fd718292016e2b191272d70f6ef019629ce840165ea8ed02",
       "visibleSegments": 13,
       "brokenSegments": 3
     },
     {
       "figure": 8,
       "view": "right",
-      "svgSha256": "db0e409671ad9d22c8c743ea607df9764b43c5e844411c89344d3280c67da17b",
+      "svgSha256": "d058a9a62d99a3b04b7fb91b97d60dfb756e9cc0cb53c15c7c5e78fc9b4da556",
       "visibleSegments": 12,
       "brokenSegments": 3
     }
