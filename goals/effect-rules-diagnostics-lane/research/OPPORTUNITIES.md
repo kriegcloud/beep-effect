@@ -164,3 +164,32 @@ call before the pipe-form repair, so its census retained one TS377050 finding.
 The final source is frozen and the exact full command is replayed for exit 0.
 Finish focused compiler and policy checks before a twelve-minute all-project
 proof, or retain an explicit source snapshot, to avoid proving mixed revisions.
+
+## P1 candidate parity repair (2026-10-15)
+
+The fixed three-name discovery list omitted canonical scripts, stories, examples,
+drizzle, root configs and build-reference programs after embedded compiler rules
+stopped determining its exit code. Derive projects from real check scripts and
+keep a real-repository parity test beside the compiler input integration tests.
+The initial standalone test added EV002/EV010 findings for its platform setup;
+sharing the existing integration tests' real filesystem through `it.layer`
+preserves the on-disk subject and reaches `introduced=0` without inventory edits.
+The first focused Vitest invocation used the repository root with a package
+config and found no tests; run package integration tests from their package cwd.
+
+The first script census overreached into scratchpad's optional
+`check:effect-ontology` audit, which canonical workspace checks do not invoke.
+Its full sweep reported 136 findings outside the intended program set. Traverse
+the reachable script graph from `check` / `beep:check`, retaining the root check
+scripts, to match what the canonical checks actually compile. The three other
+findings, in ai-metrics and Palantiri tests, are in the intended programs and
+were repaired with Effect Array helpers and explicit string ordering.
+
+Wave 2 review found that Rust-only script discovery dropped t3-code's two Go
+programs and repo-cli's standalone test program. Both compilers honor the exit
+flags, so program ownership must include both. Share the test gate's actual
+discovery and synthetic-config renderer, and retain an explicit old-inventory
+superset assertion beside union parity. The first extraction check caught an
+incorrect curried String helper call; the first Fallow audit caught complexity
+in a combined parity assertion. Correcting the helper and splitting the two
+independent invariants restored both checks without exceptions.
