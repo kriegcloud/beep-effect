@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `pending`
+Status: `active` (P0 complete 2026-10-14; P1 contract next)
 
 ## Binding Sequencing
 
@@ -15,17 +15,18 @@ because the `question` member extends its `ReviewItem` union.
 
 | Phase | Status | Goal | Entry criteria | Exit criteria |
 | --- | --- | --- | --- | --- |
-| P0 Schema | pending | `question` ReviewItem member; `AnswerRow`, `AnswerState` (`LiteralKit`) and `QuestionOption` in `@beep/law-practice-domain` `values/`. | #1761 merged. | SPEC P0 criterion; `package-verify @beep/law-practice-domain` passes. |
+| P0 Schema | complete | `question` ReviewItem member; `AnswerRow`, `AnswerState` (`LiteralKit`) and `QuestionOption` in `@beep/law-practice-domain` `values/`. | #1761 merged. | SPEC P0 criterion; `package-verify @beep/law-practice-domain` passes. |
 | P1 Contract | pending | `QuestionQueue` and write-proposal `Context.Service` contracts, the `AnswerLog` port and typed errors. No implementation bodies. | P0 exit met. | SPEC P1 criterion; the contracts type-check. |
 | P2 Implementation | pending | Layers, digest selection, the proposal batch and the apply through the docket-intake calendar adapter. Tests cover the first vertical slice. | P1 exit met. | SPEC P2 criterion; `package-verify` passes for use-cases and server. |
 | P3 Producer + notice | pending | docket-intake raises questions for unsettled items; the daily notice job runs as a practice service. | P2 exit met. | SPEC P3 criterion. |
-| P4 Handoff | pending | Deliver `AMENDMENT-question-card.md` to the `practice-claude-mod` owner. | P0 merged. | SPEC P4 criterion. |
+| P4 Handoff | pending | Deliver `AMENDMENT-question-card.md` to the `practice-claude-mod-review-queue` owner. | P0 merged and that follow-on opened. | SPEC P4 criterion. |
 | P5 Yeet: PR to mergeable | pending | Publish through Yeet and drive the PR to mergeable. | P0–P4 content final. | Mergeable per `AGENTS.md`. |
 | P6 Close | pending | Write the closeout reflection and flip packet state. | P5 met. | Reflection under `history/reflections/`; README and manifest updated in the same PR. |
 
 ## Current Blockers
 
-- P0 waits on `review-verdict-envelope` (#1761) merging.
+- None for P0: `review-verdict-envelope` merged (#1761, 90ef963d43). P0's schema contract is in
+  [`research/P0-SCHEMA.md`](./research/P0-SCHEMA.md).
 
 ## Closeout Checklist
 

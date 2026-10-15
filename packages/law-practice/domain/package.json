@@ -70,6 +70,8 @@
     "./values/ReviewItem": "./src/values/ReviewItem/index.ts",
     "./values/SourceRef": "./src/values/SourceRef/index.ts",
     "./values/VerdictRow": "./src/values/VerdictRow/index.ts",
+    "./values/AnswerRow": "./src/values/AnswerRow/index.ts",
+    "./values/Question": "./src/values/Question/index.ts",
     "./values/DocStructure": "./src/values/DocStructure/index.ts",
     "./package.json": "./package.json"
   },

@@ -2245,28 +2245,12 @@
       "description": "One explicit timer interval, one line of the local timer log."
     },
     {
-      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
-      "symbol": "Verdict",
-      "kind": "literal-kit",
-      "owner": "@beep/practice-claude-mod",
-      "identity": "Verdict",
-      "description": "The attorney's judgement of one answer."
-    },
-    {
-      "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
-      "symbol": "VerdictRow",
-      "kind": "struct-const",
-      "owner": "@beep/practice-claude-mod",
-      "identity": "VerdictRow",
-      "description": "One append-only verdict revision on one reviewed item."
-    },
-    {
       "file": "apps/practice-claude-mod/src/PracticeMod.verdicts.ts",
       "symbol": "VerdictInput",
       "kind": "struct-const",
       "owner": "@beep/practice-claude-mod",
       "identity": "VerdictInput",
-      "description": "A verdict (or an undo when none) and an optional note on one answer."
+      "description": "A verdict (withdrawn for undo) and an optional note on one answer."
     },
     {
       "file": "apps/practice-claude-mod/src/build-plugin.ts",
@@ -28974,6 +28958,22 @@
       "description": "Annotation citation (#581): American Law Reports (A.L.R.) annotations — secondary authority that looks like a case citation."
     },
     {
+      "file": "packages/law-practice/domain/src/values/AnswerRow/AnswerRow.model.ts",
+      "symbol": "AnswerRow",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AnswerRow",
+      "description": "One append-only entry in the attorney's answer log for a question, discriminated on its state."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/AnswerRow/AnswerRow.model.ts",
+      "symbol": "AnswerState",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AnswerState",
+      "description": "Where the attorney left a question: decided, pending on the client, keep reminding, or withdrawn."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/ApplicationNumber/ApplicationNumber.model.ts",
       "symbol": "ApplicationNumber",
       "kind": "brand",
@@ -30680,6 +30680,46 @@
       "description": "A parsed public law citation."
     },
     {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "OptionWrite",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "OptionWrite",
+      "description": "The write an answer option implies, discriminated on its kind."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "OptionWriteKind",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "OptionWriteKind",
+      "description": "Kinds of write an answer option can imply; calendar dates for now, docket writes later."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "QuestionFact",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "QuestionFact",
+      "description": "A fact the asking agent already checked against records, with its sources."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "QuestionOption",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "QuestionOption",
+      "description": "One answer the attorney can choose, optionally naming the write it implies."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "QuestionOptions",
+      "kind": "schema-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "QuestionOptions",
+      "description": "The two to five answer options of one question, with distinct option ids."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/RegulationCitation/RegulationCitation.model.ts",
       "symbol": "RegulationCitation",
       "kind": "struct-const",
@@ -30717,7 +30757,7 @@
       "kind": "literal-kit",
       "owner": "@beep/law-practice-domain",
       "identity": "ReviewItemKind",
-      "description": "Kinds of agent work product that reach the attorney review queue."
+      "description": "Kinds of agent work product, and agent questions, that reach the attorney review queue."
     },
     {
       "file": "packages/law-practice/domain/src/values/Segment/Segment.model.ts",
@@ -54791,6 +54831,21 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillPatchRefusal",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchRefusal"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillPatchRefusalReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchRefusalReason",
+      "description": "Why a patch-series write refused: no such vendored entry, no single hand edit, or an unsafe write."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
       "symbol": "SkillRelockRefusal",
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
@@ -54803,6 +54858,21 @@
       "owner": "@beep/repo-cli",
       "identity": "SkillRelockRefusalReason",
       "description": "Why skills relock refused: no such vendored entry, an unclean replay, or a changed license."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillReviewRefusal",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewRefusal"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+      "symbol": "SkillReviewRefusalReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewRefusalReason",
+      "description": "Why skills review refused an answer: it does not fit the item or names no single queued hunk."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
@@ -55278,6 +55348,54 @@
       "description": "An install target's state against the verified effective tree."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchAddReceipt",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchAddReceipt",
+      "description": "A digest-sealed plan that turns a hand edit of vendored output into new patches, and its outcome."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchLabelChange",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchLabelChange",
+      "description": "A patch whose lock label moves to the label its ledger classifications agree on."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchLabelPending",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchLabelPending",
+      "description": "A patch that keeps its current label and why."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchLabelPendingReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchLabelPendingReason",
+      "description": "Why a patch keeps its label: unclassified hunks, disagreeing labels, or a dropped hunk."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchLabelReceipt",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchLabelReceipt",
+      "description": "A digest-sealed plan that moves patch labels to the ledger's classifications, and its outcome."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsPatch.schemas.ts",
+      "symbol": "SkillPatchPlanOutcome",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchPlanOutcome",
+      "description": "Whether a patch-series command only planned, wrote, or found the lock already current."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
       "symbol": "SkillHunkReport",
       "kind": "struct-const",
@@ -55364,6 +55482,142 @@
       "owner": "@beep/repo-cli",
       "identity": "SkillTrainPullRequests",
       "description": "Open skill-update pull requests as gh pr list --json returns them."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillHunkDecision",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillHunkDecision",
+      "description": "A reviewer's decision on one hunk: keep, drop, rebase onto the new pin, or promotion candidate."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillHunkDecisionOrigin",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillHunkDecisionOrigin",
+      "description": "Whether a ledger row was answered in a session or replayed from an earlier identical hunk."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillHunkLedgerRow",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillHunkLedgerRow",
+      "description": "One append-only hunk decision keyed by old and new revision, patch-set hash, and hunk hash."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillPatchHunk",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillPatchHunk",
+      "description": "One hunk of a patch file with its position-free identity and its reviewable text."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewAnswer",
+      "kind": "union",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewAnswer",
+      "description": "A reviewer's answer to one queued hunk: decide, skip, or quit the session."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewDecide",
+      "kind": "tagged-struct",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewDecide",
+      "description": "An answer that records a decision, with a patch label when it classifies."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewItem",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewItem",
+      "description": "One undecided hunk: its ledger key, replay outcome, two-strike flag, ghost proposal, and text."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewItemKind",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewItemKind",
+      "description": "Whether a queued hunk awaits a conflict decision or its first classification."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewOptions",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewOptions",
+      "description": "Options for one skills review run: scope, write mode, ghost replay, reviewer, and time budget."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewQuit",
+      "kind": "tagged-struct",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewQuit",
+      "description": "An answer that ends the session; decisions already recorded stay in the ledger."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewScript",
+      "kind": "schema-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewScript",
+      "description": "Scripted review answers keyed by hunk identity."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewScriptEntry",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewScriptEntry",
+      "description": "A scripted review answer keyed by a hunk identity or a unique 12+ character prefix."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewSession",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewSession",
+      "description": "One review run: rows it recorded, hunks still queued, and each skill's state."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewSkill",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewSkill",
+      "description": "A reviewed skill's base and current pins, its state, and its undecided hunk count."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewSkillState",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewSkillState",
+      "description": "Whether a skill had nothing queued, is fully decided, or still has undecided hunks."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewSkip",
+      "kind": "tagged-struct",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewSkip",
+      "description": "An answer that leaves the hunk queued."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsReview.schemas.ts",
+      "symbol": "SkillReviewStop",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SkillReviewStop",
+      "description": "Why a review session stopped: listing only, empty queue, spent budget, or the reviewer quit."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/internal/DiffLines.ts",
