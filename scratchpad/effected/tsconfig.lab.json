@@ -5,10 +5,8 @@
   // `plugins` array, it cannot merge into it) and adds one thing: the per-file override that turns
   // `preferEffectArray` and `preferEffectRecord` on for lab sources. The override's include glob
   // resolves relative to this file, so it covers effected/**/*.ts and never scratchpad/test/**.
-  // The pinned @effect/tsgo (0.51.1) does not ship either rule and reports them as TS377134
-  // unknown-rule warnings; the lab check gate reads the pinned step's verdict from its diagnostics,
-  // and the newer editor build the gate also runs enforces them. Re-sync this block whenever
-  // tsconfig.base.json's plugin block changes.
+  // Re-sync this block whenever tsconfig.base.json's plugin block changes; `beep quality tsgo-rules`
+  // requires the two profiles to match exactly.
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../tsconfig.json",
   "compilerOptions": {
@@ -46,7 +44,6 @@
         "renames": true,
         "allowedExperimentalApis": [],
         "allowedUnstableApis": [],
-        "debug": false,
         "inlays": false,
         "mermaidProvider": "mermaid.live",
         "noExternal": false,
@@ -164,8 +161,8 @@
           "promiseInEffectSuccess": "error",
           "provideLayerSucceedToProvideService": "error",
           "raceFirstWithSleepToTimeout": "error",
-          "redundantOrDie": "error",
           "redundantMapError": "error",
+          "redundantOrDie": "error",
           "redundantSchemaTagIdentifier": "error",
           "returnEffectInGen": "error",
           "runEffectInsideEffect": "error",

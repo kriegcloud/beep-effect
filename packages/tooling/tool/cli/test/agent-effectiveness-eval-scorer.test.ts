@@ -1,7 +1,5 @@
 import * as NodeURL from "node:url";
 import { fcRuns } from "@beep/fc-runs";
-import { RunAgentEffectivenessEvalScoreCommandOptions } from "@beep/repo-cli/commands/AgentEffectiveness/internal/EvalScorer";
-import { LawComponentScores } from "@beep/repo-cli/commands/AgentEffectiveness/internal/EvalScoring";
 import {
   AgentEffectivenessEvalLaneReport,
   AgentEffectivenessEvalScoreBreakdown,
