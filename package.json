@@ -180,6 +180,7 @@
     "file-type": "^22.1.1",
     "framer-motion": "^14.0.0",
     "frimousse": "0.4.0",
+    "get-tsconfig": "4.14.3",
     "gl-bench": "^1.0.42",
     "graphology": "0.26.0",
     "gray-matter": "^4.0.3",

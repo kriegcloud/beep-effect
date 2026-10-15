@@ -22,14 +22,87 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { parseTsconfig } from "get-tsconfig";
 import { configStringOption } from "../../internal/cli/EnvConfig.ts";
-import { runCaptured } from "../../internal/process/index.ts";
+import { runCapturedStreams } from "../../internal/process/index.ts";
 import { collectChangedFiles } from "../../internal/repo-run/ChangedFiles.ts";
+import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { workspaceCoverageScopeOwners, workspaceDependentOwners } from "./internal/CoverageScope.ts";
 import { QualityScriptCommandError } from "./Quality.errors.ts";
 import type { CoverageScopeOwner } from "./internal/CoverageScope.ts";
 
 const $I = $RepoCliId.create("commands/Quality/EffectDiagnostics");
+
+const effectDiagnosticsProfilePath = "standards/effect-diagnostics.profile.json";
+
+class EffectDiagnosticsProfile extends S.Opaque<EffectDiagnosticsProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
+    diagnosticSeverity: S.Struct({
+      effectSleepZeroToYieldNow: S.Literal("error"),
+      errorPayloadShadowsName: S.Literal("error"),
+      flatMapToTap: S.Literal("error"),
+      preferBarrelImport: S.Literal("off"),
+      preferEffectArray: S.Literal("error"),
+      preferEffectRecord: S.Literal("error"),
+      preferNamespaceImport: S.Literal("off"),
+      preferSchemaTaggedError: S.Literal("error"),
+      schemaClassMissingBrand: S.Literal("off"),
+    }),
+  }).pipe(
+    $I.annoteSchema("EffectDiagnosticsProfile", {
+      description:
+        "The nine rules absent from tsc-rs 0.6.0; schemaClassMissingBrand waits for the schema-opaque-default closing PR.",
+    })
+  )
+) {}
+
+/**
+ * Read the checked-in rules that only the standalone diagnostics compiler knows.
+ *
+ * **Example** (Read the standalone rule policy)
+ *
+ * ```ts
+ * import { readEffectDiagnosticsProfile } from "@beep/repo-cli/commands/Quality/EffectDiagnostics"
+ * import * as Effect from "effect/Effect"
+ * const profile = readEffectDiagnosticsProfile(".")
+ * console.log(Effect.isEffect(profile)) // true
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const readEffectDiagnosticsProfile = Effect.fn("EffectDiagnostics.readProfile")(function* (repoRoot: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  return yield* fs.readFileString(path.join(repoRoot, effectDiagnosticsProfilePath)).pipe(
+    Effect.flatMap((text) =>
+      S.decodeEffect(S.fromJsonString(EffectDiagnosticsProfile), { onExcessProperty: "error" })(text)
+    ),
+    QualityScriptCommandError.mapError("Invalid standalone Effect diagnostics profile.")
+  );
+});
+
+const RuleSeverity = LiteralKit(["off", "error", "warning", "suggestion", "message"]).pipe(
+  $I.annoteSchema("RuleSeverity", { description: "Configured Effect rule severities retained from project options." })
+);
+class EffectPlugin extends S.Opaque<EffectPlugin, { readonly brand: unique symbol }>()(
+  S.StructWithRest(
+    S.Struct({ name: S.Literal("@effect/language-service"), diagnosticSeverity: S.Record(S.String, RuleSeverity) }),
+    [S.Record(S.String, S.Unknown)]
+  ).pipe(
+    $I.annoteSchema("EffectPlugin", {
+      description: "Effective project plugin options, retaining all settings and per-file overrides.",
+    })
+  )
+) {}
+const pluginCodec = JsonStringCodec(EffectPlugin);
+const EffectiveProjectConfig = S.Struct({
+  compilerOptions: S.Struct({ plugins: S.Array(S.Record(S.String, S.Unknown)) }),
+}).pipe(
+  $I.annoteSchema("EffectiveProjectConfig", {
+    description: "Inherited compiler configuration resolved by get-tsconfig, including plugin options.",
+  })
+);
 
 const DiagnosticSeverity = LiteralKit(["error", "warning", "message"]).pipe(
   $I.annoteSchema("DiagnosticSeverity", { description: "Severity labels emitted by standalone Effect diagnostics." })
@@ -114,7 +187,7 @@ export const effectDiagnosticsAffectedPackages: {
   const global = A.some(
     files,
     (file) =>
-      A.contains(["package.json", "bun.lock", "turbo.json"], file) ||
+      A.contains(["package.json", "bun.lock", "turbo.json", effectDiagnosticsProfilePath], file) ||
       Str.startsWith("tsconfig")(file) ||
       Str.startsWith(".github/")(file) ||
       Str.startsWith("packages/tooling/tool/cli/src/commands/Quality/")(file) ||
@@ -129,10 +202,62 @@ export const effectDiagnosticsAffectedPackages: {
 
 const decodeOutput = S.decodeUnknownEffect(S.fromJsonString(EffectDiagnosticsOutput));
 
-const runProject = Effect.fn("EffectDiagnostics.project")(function* (repoRoot: string, node: string, project: string) {
+/**
+ * Resolve a project's inherited plugin and overlay the standalone rule profile.
+ *
+ * **Example** (Resolve a package without losing its exceptions)
+ *
+ * ```ts
+ * import { effectDiagnosticsProjectConfig, readEffectDiagnosticsProfile } from "@beep/repo-cli/commands/Quality/EffectDiagnostics"
+ * import * as Effect from "effect/Effect"
+ * const config = readEffectDiagnosticsProfile(".").pipe(
+ *   Effect.flatMap(effectDiagnosticsProjectConfig("packages/ecosystem/effect-drizzle/tsconfig.json"))
+ * )
+ * console.log(Effect.isEffect(config)) // true
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const effectDiagnosticsProjectConfig: {
+  (project: string): (profile: EffectDiagnosticsProfile) => Effect.Effect<string, QualityScriptCommandError>;
+  (profile: EffectDiagnosticsProfile, project: string): Effect.Effect<string, QualityScriptCommandError>;
+} = dual(
+  2,
+  Effect.fn("EffectDiagnostics.projectConfig")(function* (profile: EffectDiagnosticsProfile, project: string) {
+    const raw = yield* Effect.try(() => parseTsconfig(project)).pipe(
+      QualityScriptCommandError.mapError(`Failed to resolve ${project}.`)
+    );
+    const resolved = yield* S.decodeUnknownEffect(EffectiveProjectConfig)(raw).pipe(
+      QualityScriptCommandError.mapError(`Invalid effective compiler configuration for ${project}.`)
+    );
+    const plugin = A.findFirst(resolved.compilerOptions.plugins, S.is(EffectPlugin));
+    if (O.isNone(plugin))
+      return yield* QualityScriptCommandError.make({
+        message: `No complete Effect plugin in ${project}.`,
+        exitCode: 1,
+      });
+    return yield* pluginCodec
+      .encode(
+        EffectPlugin.make({
+          ...plugin.value,
+          diagnosticSeverity: { ...plugin.value.diagnosticSeverity, ...profile.diagnosticSeverity },
+        })
+      )
+      .pipe(QualityScriptCommandError.mapError(`Failed to encode Effect plugin for ${project}.`));
+  })
+);
+
+const runProject = Effect.fn("EffectDiagnostics.project")(function* (
+  repoRoot: string,
+  node: string,
+  project: string,
+  profile: EffectDiagnosticsProfile
+) {
   const path = yield* Path.Path;
   const label = path.relative(repoRoot, project);
-  const result = yield* runCaptured({
+  const lspconfig = yield* effectDiagnosticsProjectConfig(profile, project);
+  const result = yield* runCapturedStreams({
     command: node,
     args: [
       path.join(repoRoot, "node_modules", "@effect", "tsgo", "dist", "effect-tsgo.cjs"),
@@ -142,26 +267,33 @@ const runProject = Effect.fn("EffectDiagnostics.project")(function* (repoRoot: s
       "--format",
       "json",
       "--strict",
+      "--lspconfig",
+      lspconfig,
     ],
     cwd: repoRoot,
-    timeout: "5 minutes",
-  });
-  const report = yield* decodeOutput(result.output).pipe(
+  }).pipe(
+    Effect.timeoutOrElse({
+      duration: "5 minutes",
+      orElse: () =>
+        QualityScriptCommandError.make({ message: `Effect diagnostics timed out for ${label}.`, exitCode: 1 }),
+    })
+  );
+  const report = yield* decodeOutput(result.stdout).pipe(
     QualityScriptCommandError.mapError(
-      `Invalid Effect diagnostics JSON for ${label}: ${Str.takeLeft(result.output, 2048)}`
+      `Invalid Effect diagnostics JSON for ${label}: stdout=${Str.takeLeft(result.stdout, 2048)}; stderr=${Str.takeLeft(result.stderr, 2048)}`
     )
   );
   const { summary } = report;
   if (summary.totalFiles === 0 || summary.filesWithoutPlugin !== 0 || summary.filesChecked !== summary.totalFiles) {
     return yield* QualityScriptCommandError.make({
-      message: `Incomplete Effect diagnostics coverage for ${label}: checked ${summary.filesChecked}/${summary.totalFiles}, ${summary.filesWithoutPlugin} without plugin.`,
+      message: `Incomplete Effect diagnostics coverage for ${label}: checked ${summary.filesChecked}/${summary.totalFiles}, ${summary.filesWithoutPlugin} without plugin. stderr=${Str.takeLeft(result.stderr, 2048)}`,
       exitCode: 1,
     });
   }
   const expectedExit = summary.errors > 0 || summary.warnings > 0 ? 1 : 0;
   if (result.exitCode !== expectedExit) {
     return yield* QualityScriptCommandError.make({
-      message: `Effect diagnostics exit ${result.exitCode} disagrees with the severity summary for ${label}.`,
+      message: `Effect diagnostics exit ${result.exitCode} disagrees with the severity summary for ${label}. stderr=${Str.takeLeft(result.stderr, 2048)}`,
       exitCode: 1,
     });
   }
@@ -180,6 +312,7 @@ const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (optio
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot();
+  const profile = yield* readEffectDiagnosticsProfile(repoRoot);
   const node = O.getOrElse(yield* configStringOption("BEEP_NODE_BIN"), () => "node");
   const workspaces = yield* resolveWorkspacePackages(repoRoot);
   const selected = O.isSome(options.base)
@@ -217,7 +350,7 @@ const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (optio
   yield* Console.log(
     `[quality:effect-diagnostics] checking ${A.length(projects)} workspace project(s), concurrency ${options.concurrency}`
   );
-  const reports = yield* Effect.forEach(projects, (project) => runProject(repoRoot, node, project), {
+  const reports = yield* Effect.forEach(projects, (project) => runProject(repoRoot, node, project, profile), {
     concurrency: options.concurrency,
   });
   let census = HashMap.empty<string, number>();

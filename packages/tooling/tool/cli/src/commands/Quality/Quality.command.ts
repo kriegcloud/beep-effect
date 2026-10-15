@@ -58,7 +58,7 @@ import { WaveOrder } from "../Yeet/internal/WaveOrder.ts";
 import { runChangesetGraphCheck } from "./ChangesetGraph.ts";
 import { changesetStatusCommand } from "./ChangesetStatus.ts";
 import { checkCensusCommand } from "./CheckCensus.ts";
-import { effectDiagnosticsCommand } from "./EffectDiagnostics.ts";
+import { effectDiagnosticsCommand, readEffectDiagnosticsProfile } from "./EffectDiagnostics.ts";
 import { qualityFallowCommand } from "./FallowQuality.command.ts";
 import {
   githubCheckChangesetStatusLane,
@@ -510,12 +510,12 @@ const TsgoDisabledRuleName = LiteralKit([
 ]);
 
 /**
- * One installed `@effect/tsgo` rule the root profile declares `"off"`, with the reason.
+ * One installed `@effect/tsgo` rule the root or standalone profile declares `"off"`, with the reason.
  *
  * **Details**
  *
  * The rule domain is a closed literal set, so turning another rule off is a schema change
- * reviewed in this file. A declared rule must be configured exactly `"off"` in the root
+ * reviewed in this file. A declared rule must be configured exactly `"off"` in the combined
  * `diagnosticSeverity` map; every other installed rule must stay `"error"`.
  *
  * **Example** (Declare a disabled rule)
@@ -614,9 +614,6 @@ const skipFileDirectiveLine = (rule: typeof EffectDiagnosticsExemptRule.Type): s
   `// ${effectDiagnosticsDirectivePrefix} ${rule}:skip-file`;
 
 const isExemptEffectDiagnosticsDirective = (line: string, normalizedRepoRelativePath: string): boolean =>
-  // 2026-10-14: only the five payload fields pending the separate catalog-rename PR.
-  (normalizedRepoRelativePath === "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts" &&
-    line === `    // ${effectDiagnosticsDirectivePrefix}-next-line errorPayloadShadowsName:off`) ||
   A.some(
     effectDiagnosticsDirectiveExemptions,
     (exemption) =>
@@ -3046,12 +3043,14 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
     });
   }
 
-  const configuredRuleNames = pipe(R.keys(diagnosticSeverity.value), A.sort(Order.String));
+  const profile = yield* readEffectDiagnosticsProfile(repoRoot);
+  const combinedSeverity = { ...diagnosticSeverity.value, ...profile.diagnosticSeverity };
+  const configuredRuleNames = pipe(R.keys(combinedSeverity), A.sort(Order.String));
   const missingRuleNames = A.filter(installedRuleNames, (ruleName) => !A.contains(configuredRuleNames, ruleName));
   const extraRuleNames = A.filter(configuredRuleNames, (ruleName) => !A.contains(installedRuleNames, ruleName));
   const { nonErrorSeverities, disabledSeverityEntries } = collectTsgoSeverityDiagnostics({
-    plugin: plugin.value,
-    diagnosticSeverity: diagnosticSeverity.value,
+    plugin: { ...plugin.value, diagnosticSeverity: combinedSeverity },
+    diagnosticSeverity: combinedSeverity,
   });
   const pluginOptionDiagnostics = collectPluginOptionParityDiagnostics(documentedOptionNames, plugin.value);
   const pluginProfileDiagnostics = yield* collectWorkspaceTsconfigProfileDiagnostics(repoRoot, plugin.value);

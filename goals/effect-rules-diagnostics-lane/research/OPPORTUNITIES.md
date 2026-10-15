@@ -109,3 +109,58 @@ docgen passes. Only knowledge-doctor-evaluators' HEAD/archive versus live
 untracked-packet comparison fails (233 vs 234). All introduced source, schema,
 scheduler and test failures are repaired. Do not weaken the equality assertion;
 the orchestrator must commit the packet and rerun the audit.
+
+## Review wave 1: unknown-rule warnings block the proposed interim compiler gate (2026-10-14)
+
+Restoring all three ignoreEffect*InTscExitCode flags to false makes
+`bunx turbo run build --filter=@beep/repo-cli^...` and `bun run check` exit 2
+on tsc-rs 0.6.0. Even the empty @beep/types package reports nine TS377134
+unknownRuleName warnings for the configured 0.52/0.53 rule names. Quick checks
+for all five touched packages exhibit the same failure. No source finding is
+needed to trigger it. The existing main root profile also has false flags but omits these nine
+new keys; the main-to-H2 severity-map delta explains why this interim direction
+introduces the compatibility failure.
+The lane preserves the explicitly approved flags and reports the blocker
+instead of silently suppressing configuration warnings. A no-source compiler
+canary using the proposed severity map before rollout approval would have
+caught this mismatch. Raw evidence stays in external h2-logs/review-1/.
+
+## Review wave 1b: explicit profile inputs (2026-10-14)
+
+Moving policy into a new checked-in file made four cached computations depend
+on it: rule parity, policy fingerprint, and CLI test/property-test. The cache
+audit correctly reported four configuration-drift blockers after their input
+lists changed. The reviewed request stamps only // and @beep/repo-cli, carries
+153 prior reviews, and preserves qualification scope. A checked-in tool profile
+should ship its consumer input declarations and reviewed baseline request in
+the same change. The first root Check also caught a typed-decoder mistake in
+the new reader; decodeEffect now keeps the string input typed at the boundary.
+
+## Review wave 1b: showConfig omits plugins (2026-10-14)
+
+The first real project run failed decoding --showConfig because the native
+compiler does not include plugins in that output. A canned showConfig fixture
+had hidden that omission. The lane now uses get-tsconfig 4.14.3, validates its
+resolved object with Schema, and tests real inherited project profiles plus a
+temporary nonempty per-file override fixture. A tiny real-project resolver
+probe before writing the mock would have prevented this discarded approach.
+
+## Review wave 1b: local file dependency preparation after install (2026-10-14)
+
+Adding the already-installed resolver as a direct dependency used
+`bun install --ignore-scripts`. That refreshed the local @pulumi/gharunners
+SDK without the root postinstall's build step; the next full Check reported
+TS1295/TS1287 in its unbuilt TypeScript sources. Run the existing
+`bun run infra:prepare-gha-runners` command, then recheck. The SDK build is
+untracked dependency preparation, not an infrastructure source change. A
+script-skipping install should explicitly restore the documented workspace
+postinstall prerequisites before claiming full typecheck parity.
+
+## Review wave 1b: freeze source before the full sweep (2026-10-14)
+
+Schema-first required property coverage for the codec-heavy merge regression.
+The first full diagnostics process had already read its older nested schema
+call before the pipe-form repair, so its census retained one TS377050 finding.
+The final source is frozen and the exact full command is replayed for exit 0.
+Finish focused compiler and policy checks before a twelve-minute all-project
+proof, or retain an explicit source snapshot, to avoid proving mixed revisions.

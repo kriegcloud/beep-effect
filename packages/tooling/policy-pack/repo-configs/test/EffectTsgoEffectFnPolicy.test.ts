@@ -27,7 +27,7 @@ const effectTsgoCliPath = fileURLToPath(
   new URL("../../../../../node_modules/@effect/tsgo/dist/effect-tsgo.cjs", import.meta.url)
 );
 
-// Effect rules come from the standalone diagnostics lane; only type errors gate tsc-rs.
+// Shared Effect rules gate tsc-rs until the standalone diagnostics lane is promoted.
 // Its embedded Effect port may lag the independently reviewed editor/rule compiler.
 const RootCatalog = S.Struct({
   catalog: S.Struct({ "tsc-rs": S.String, "@effect/tsgo": S.String }),
@@ -227,7 +227,23 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
       15_000
     );
   });
-  it.effect("lets tsc-rs pass Effect-only findings while retaining TypeScript failures", () =>
+  it.effect("keeps the root map compatible with the embedded 0.51.1 rules", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const projectDir = yield* fs.makeTempDirectoryScoped({ prefix: "effect-root-map-canary-" });
+      yield* bootstrapTsgoProject(projectDir);
+      yield* writeProjectFile(projectDir, "src/index.ts", "export const value = 1;\n");
+      const result = yield* runCommand(
+        process.execPath,
+        [tscRsBinPath, "--noEmit", "--pretty", "false", "-p", path.join(projectDir, "tsconfig.json")],
+        projectDir
+      );
+      expect(result.exitCode, `${result.stdout}\n${result.stderr}`).toBe(0);
+      expect(`${result.stdout}\n${result.stderr}`).not.toContain("unknownRuleName");
+    })
+  );
+  it.effect("keeps shared Effect rules and TypeScript failures gating tsc-rs", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -235,7 +251,8 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
       yield* bootstrapTsgoProject(projectDir);
       const args = [tscRsBinPath, "--noEmit", "--pretty", "false", "-p", path.join(projectDir, "tsconfig.json")];
       const effectOnly = yield* runCommand(process.execPath, args, projectDir);
-      expect(effectOnly.exitCode, effectOnly.stdout).toBe(0);
+      expect(effectOnly.exitCode, effectOnly.stdout).toBe(2);
+      expect(effectOnly.stdout).toContain("effect(effectFnOpportunity)");
       const diagnostics = yield* runTsgoOnProject(projectDir);
       expect(diagnostics.exitCode, diagnostics.stdout).toBe(1);
       expect(diagnostics.stdout).toContain("effect(effectFnOpportunity)");

@@ -1039,6 +1039,11 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
       assert.strictEqual(diagnosticsLane.name, "Effect Diagnostics");
       assert.strictEqual(diagnosticsLane.uses_turbo, "false");
       assert.include(heavyWorkflowText, "run_lane ci lane effect-diagnostics");
+      assert.include(
+        heavyWorkflowText,
+        "if [[ ! -f packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts ]]; then"
+      );
+      assert.include(heavyWorkflowText, "::notice::Effect diagnostics lane unavailable in this checkout; skipping.");
       assert.include(heavyWorkflowText, "--property=MemoryMax=19G --property=MemorySwapMax=0");
       assert.include(heavyWorkflowText, "check|test-integration|coverage|build)");
     })

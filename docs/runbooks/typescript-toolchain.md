@@ -25,7 +25,9 @@ node_modules/.bin/tsgo     -> tools/tsgo-shim/tsgo.js     (execs the Effect arti
 
 Docgen's example compile, `beep quality test-tsgo`, the Effect smoke canary,
 rule-parity tools and the editors use the Effect compiler. The independent
-`beep quality effect-diagnostics` command owns the enforced Effect rule results. The shim bypasses the patch on purpose: a preserved
+`beep quality effect-diagnostics` command reports the reviewed Effect rule set.
+Required Check continues enforcing the embedded shared rules during promotion.
+The shim bypasses the patch on purpose: a preserved
 `.original` backup can make a newer patcher mistake an older Effect compiler for
 the current one (`tools/tsgo-shim/tsgo.js`).
 
@@ -57,7 +59,7 @@ exception was upstream 7.1-dev behaviour, fixed in #1670). Rules of the road:
 - `tsc-rs --version` prints `Version 7.1.0-dev`; the `.bin/tsc` ↔ `.bin/tsgo`
   version equality test covers the Effect
   binary; `EffectTsgoEffectFnPolicy.test.ts` independently verifies the tsc-rs
-  identity and the split between type-error and Effect-rule failures.
+  identity and that both shared Effect rules and type errors still fail Check.
 
 ## Binary paths (Linux x64)
 
@@ -83,8 +85,9 @@ bun run beep quality effect-diagnostics --filter @beep/observability
 ```
 
 `Heavy / Effect Diagnostics` is an independent parallel matrix job, outside
-Heavy / Check and root `bun run check`. PRs pass `--base origin/<base>`; trusted
-main pushes run the full inventory. The CLI reuses the coverage lane's workspace
+Heavy / Check and root `bun run check`. It remains non-required during promotion;
+required Check still gates its embedded 0.51.1 Effect rules. PRs pass
+`--base origin/<base>`; trusted main pushes run the full inventory. The CLI reuses the coverage lane's workspace
 inventory and transitive dependent helper, including packages without coverage
 scripts and lab apps. Root compiler/lockfile/runner changes select all projects;
 repository prose selects none. Dirty paths join the base-to-HEAD diff locally.
@@ -113,19 +116,39 @@ including effect-drizzle's documented missedPipeableOpportunity exception.
 Malformed JSON, unexpected exits, zero coverage and files without a plugin fail
 the lane. Errors and warnings fail; the configured map promotes enabled rules
 to error. Five 0.52 rules are armed at error. `schemaClassMissingBrand` remains
-off as of 2026-10-14; the schema-opaque-default closing PR flips that one key
-(the post-#1758 spike found zero sites). Five catalog error payload sites carry
-next-line suppressions pending their separate public API rename PR; the rule
-remains error everywhere else. The two 0.53 import-style rules remain explicitly off: intentional named
-helper imports are pervasive, and Effect barrel imports violate the code law.
+off in the lane profile as of 2026-10-14; the schema-opaque-default closing PR
+flips that one key
+(the post-#1758 spike found zero sites). The public catalog payload rename landed
+in #1807; no catalog suppression exception remains. The two 0.53 import-style
+rules remain explicitly off. Intentional named helper imports are pervasive,
+and Effect barrel imports violate the code law.
 
-All three `ignoreEffect*InTscExitCode` options are true. TypeScript errors alone
-determine compiler gate failure; Effect rule failure comes from standalone
-JSON results instead. tsc-rs still prints its embedded Effect diagnostics,
-including warnings about newer rule names, but they are nonblocking. These
-options do not remove its rule engine or disable editor diagnostics. A policy
-fixture proves Effect-only findings pass tsc-rs, fail standalone diagnostics,
-and a genuine TypeScript error still fails tsc-rs.
+All three `ignoreEffect*InTscExitCode` options remain **false** in the root and
+copied profiles. Required `Heavy / Check` therefore continues failing on the
+shared embedded 0.51.1 rules as well as TypeScript errors. The 0.52/0.53 rules
+are absent from its map and run only in the non-required diagnostics lane.
+A policy fixture proves a shared Effect-only finding and a TypeScript error
+each fail tsc-rs; standalone diagnostics also rejects the shared finding.
+
+The root and all copied compiler profiles contain only rule names known by
+tsc-rs 0.6.0's embedded 0.51.1 rule set. The nine newer keys live in
+`standards/effect-diagnostics.profile.json`, decoded by the CLI with a closed
+schema. Each project is resolved with the pinned `get-tsconfig` resolver.
+The lane validates that resolved plugin with Schema and keeps its settings and overrides, adds the nine
+profile severities to its diagnosticSeverity map, and passes the complete plugin
+to `effect-tsgo diagnostics --lspconfig`. This replacement option must receive
+the full merged plugin; passing the nine-key profile alone loses project policy.
+The profile participates in affected selection, so changing it selects all projects.
+The rule-parity checker validates the combined root and lane maps against the
+installed 0.53.0 catalog, while copied compiler profiles match the shared root map.
+
+After one green main run of `Heavy / Effect Diagnostics`, promote it in this
+order: mark its descriptor required, add `Heavy / Effect Diagnostics` to the
+main ruleset through `beep ci ruleset`, fold the lane profile into
+`tsconfig.base.json` and the copied profiles, then set all three ignore flags
+true and delete the standalone profile and its overlay loader. Keep the flags false until both the
+descriptor and live ruleset require the diagnostics context. The empty-project
+policy canary proves the interim root map produces no unknown-rule warnings.
 
 The eight Effect packages stay synchronized, but they no longer move with
 `tsc-rs`. Both remain independently held for reviewed upgrades. The tsc-rs 0.6.0

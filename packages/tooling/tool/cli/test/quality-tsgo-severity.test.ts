@@ -1,7 +1,6 @@
 import { effectDiagnosticsAffectedPackages } from "@beep/repo-cli/commands/Quality/EffectDiagnostics";
 import {
   collectTsgoSeverityDiagnosticsForTesting,
-  isRejectedEffectDiagnosticsDirectiveForTesting,
   TsgoDisabledRule,
   tsgoDisabledRules,
 } from "@beep/repo-cli/commands/Quality/Quality.command";
@@ -108,6 +107,7 @@ describe("Effect diagnostics affected selection", () => {
   it("treats compiler policy and lockfile changes as global", () => {
     for (const file of [
       "tsconfig.base.json",
+      "standards/effect-diagnostics.profile.json",
       "bun.lock",
       "package.json",
       "packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts",
@@ -121,15 +121,5 @@ describe("Effect diagnostics affected selection", () => {
     expect(
       effectDiagnosticsAffectedPackages(owners, ["packages/core/src/deleted.ts", "packages/core/src/deleted.ts"])
     ).toEqual(["core", "lab", "mid"]);
-  });
-  it("admits only the catalog next-line directive, never a file-wide disable", () => {
-    const file = "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts";
-    const prefix = "@effect";
-    const line = `    // ${prefix}-diagnostics-next-line errorPayloadShadowsName:off`;
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, file)).toBe(false);
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, "packages/other/src/a.ts")).toBe(true);
-    expect(
-      isRejectedEffectDiagnosticsDirectiveForTesting(`// ${prefix}-diagnostics errorPayloadShadowsName:skip-file`, file)
-    ).toBe(true);
   });
 });

@@ -1850,6 +1850,8 @@
     {"name":"EcosystemPolarity.runEcosystemPolarityLint","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"EditorCapability.resolveEditorProfile","owner":"@beep/editor","family":"foundation","conforms":true},
     {"name":"EffectDiagnostics.project","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"EffectDiagnostics.projectConfig","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"EffectDiagnostics.readProfile","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"EffectDiagnostics.run","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"EffectDrizzleRepository.updateOptimistic","owner":"@beep/effect-drizzle","family":"ecosystem","conforms":true},
     {"name":"EffectFn.runEffectFnRules","owner":"@beep/repo-cli","family":"tooling","conforms":true},

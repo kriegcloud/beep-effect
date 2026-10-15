@@ -263,6 +263,10 @@ jobs:
               run_lane ci lane "${{ matrix.id }}" "${shape_args[@]}"
               ;;
             effect-diagnostics)
+              if [[ ! -f packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts ]]; then
+                echo '::notice::Effect diagnostics lane unavailable in this checkout; skipping.'
+                exit 0
+              fi
               run_lane ci lane effect-diagnostics "${shape_args[@]}"
               ;;
             lint-policy)

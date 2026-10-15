@@ -151,15 +151,17 @@ const config = {
       // @nodable/flexible-xml-parser, which references Buffer at module
       // scope and breaks every browser bundle.
       // @effect/tsgo and its seven platform binaries move together. A reviewed
-      // bump updates the complete diagnosticSeverity map and the standalone
+      // bump updates the combined root/lane diagnosticSeverity map and the standalone
       // `beep quality effect-diagnostics` census before these pins move.
       // Effect rules come from @effect/tsgo through that diagnostics lane;
-      // tsc-rs gates type errors only and its embedded rule set may lag.
-      // The three ignoreEffect*InTscExitCode options isolate the compiler exit
-      // gate; tsc-rs may still print nonblocking embedded Effect diagnostics.
+      // tsc-rs still gates shared embedded rules until that lane is required.
+      // After one green main run, promote the lane and ruleset context, then
+      // fold the lane profile into compiler maps, set the three ignore flags
+      // true and delete standards/effect-diagnostics.profile.json.
       // 0.53.0 was measured across all workspace check/test projects on
-      // 2026-10-14 (goals/effect-rules-diagnostics-lane). The six 0.52 rules,
-      // including schemaClassMissingBrand (schema-opaque-default D4), are errors.
+      // 2026-10-14 (goals/effect-rules-diagnostics-lane). Five 0.52 rules are
+      // errors; schemaClassMissingBrand waits for schema-opaque-default
+      // to arm it in its closing PR.
       // The import-style rules remain declared off; named helper imports are
       // deliberate and Effect barrel imports contradict the module-path law.
       // tsc-rs (pingdotgg/ts-rust) 0.6.0 stays independently held. Its port is
