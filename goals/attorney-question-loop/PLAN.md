@@ -25,8 +25,11 @@ because the `question` member extends its `ReviewItem` union.
 
 ## Current Blockers
 
-- None for P0: `review-verdict-envelope` merged (#1761, 90ef963d43). P0's schema contract is in
-  [`research/P0-SCHEMA.md`](./research/P0-SCHEMA.md).
+- None for P2. Its use-case Layers sit behind the `AnswerLog` and `QuestionCalendar` ports.
+- **Open for P3 (decide before wiring):** where the answer log lives across machines. The attorney
+  answers in the review-queue plugin on his PC; the digest job and the calendar apply run on the
+  workstation. Candidates: a JSONL log in a shared Box folder, a practice-kg-mcp write tool, or a
+  sync job. Record the call in the SPEC Decision Log.
 
 ## Closeout Checklist
 
